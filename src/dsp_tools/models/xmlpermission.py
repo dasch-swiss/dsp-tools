@@ -44,7 +44,7 @@ class XmlPermission:
     def __str__(self) -> str:
         allow_str: list[str] = []
         for allow in self._allows:
-            allow_str.append("{} {}".format(allow.permission, allow.group))
+            allow_str.append(f"{allow.permission} {allow.group}")
         return "|".join(allow_str)
 
     def print(self) -> None:

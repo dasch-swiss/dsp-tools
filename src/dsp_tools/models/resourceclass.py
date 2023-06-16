@@ -1,3 +1,10 @@
+"""
+This model implements the handling of resource classes. It contains two classes that work closely together:
+    * "HasProperty" deals with the association of Property-instances with the Resource-instances. This association
+      is done using the "cardinality"-clause
+    * "ResourceClass" is the main class representing a DSP resource class.
+"""
+
 import json
 import re
 from enum import Enum
@@ -10,13 +17,6 @@ from dsp_tools.models.helpers import Actions, Cardinality, Context, DateTimeStam
 from dsp_tools.models.langstring import LangString, Languages
 from dsp_tools.models.model import Model
 from dsp_tools.models.set_encoder import SetEncoder
-
-"""
-This model implements the handling of resource classes. It contains two classes that work closely together:
-    * "HasProperty" deals with the association of Property-instances with the Resource-instances. This association
-      is done using the "cardinality"-clause
-    * "ResourceClass" is the main class representing a DSP resource class.
-"""
 
 
 class HasProperty(Model):
@@ -81,7 +81,7 @@ class HasProperty(Model):
 
     @property_id.setter
     def property_id(self, value: str) -> None:
-        raise BaseError('property_id "{}" cannot be modified!'.format(self._property_id))
+        raise BaseError(f'property_id "{self._property_id}" cannot be modified!')
 
     @property
     def resclass_id(self) -> Optional[str]:
@@ -123,7 +123,6 @@ class HasProperty(Model):
         rdf = context.prefix_from_iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
         rdfs = context.prefix_from_iri("http://www.w3.org/2000/01/rdf-schema#")
         owl = context.prefix_from_iri("http://www.w3.org/2002/07/owl#")
-        xsd = context.prefix_from_iri("http://www.w3.org/2001/XMLSchema#")
         knora_api = context.prefix_from_iri("http://api.knora.org/ontology/knora-api/v2#")
         salsah_gui = context.prefix_from_iri("http://api.knora.org/ontology/salsah-gui/v2#")
 
@@ -267,12 +266,7 @@ class HasProperty(Model):
         jsondata = json.dumps(jsonobj, indent=4, cls=SetEncoder)
         result = self._con.put(HasProperty.ROUTE, jsondata)
         last_modification_date = DateTimeStamp(result["knora-api:lastModificationDate"])
-        # TODO: self._changed = str()
         return last_modification_date, ResourceClass.fromJsonObj(self._con, self._context, result["@graph"])
-
-    def delete(self, last_modification_date: DateTimeStamp) -> DateTimeStamp:
-        raise BaseError("Cannot remove a single property from a class!")
-        # ToDo: Check with Ben if we could add this feature...
 
     def createDefinitionFileObj(self, context: Context, shortname: str):
         cardinality = {}
@@ -313,7 +307,7 @@ class ResourceClass(Model):
     con : Connection
         A Connection instance to a DSP server
 
-    id : str
+    iri : str
         IRI of the ResourceClass [readonly, cannot be modified after creation of instance]
 
     name: str
@@ -387,7 +381,7 @@ class ResourceClass(Model):
     ROUTE: str = "/v2/ontologies/classes"
 
     _context: Context
-    _id: str
+    _iri: str
     _name: str
     _ontology_id: str
     _superclasses: list[str]
@@ -400,7 +394,7 @@ class ResourceClass(Model):
         self,
         con: Connection,
         context: Context,
-        id: Optional[str] = None,
+        iri: Optional[str] = None,
         name: Optional[str] = None,
         ontology_id: Optional[str] = None,
         superclasses: Optional[Sequence[Union["ResourceClass", str]]] = None,
@@ -414,7 +408,7 @@ class ResourceClass(Model):
 
         :param con:
         :param context:
-        :param id:
+        :param iri:
         :param name:
         :param ontology_id:
         :param superclasses:
@@ -429,12 +423,12 @@ class ResourceClass(Model):
         if not isinstance(context, Context):
             raise BaseError('"context"-parameter must be an instance of Context')
         self._context = context
-        self._id = id
+        self._iri = iri
         self._name = name
         if ontology_id is not None:
             self._ontology_id = context.iri_from_prefix(ontology_id)
         if isinstance(superclasses, ResourceClass):
-            self._superclasses = list(map(lambda a: a.id, superclasses))
+            self._superclasses = list(map(lambda a: a.iri, superclasses))
         else:
             self._superclasses = superclasses
         #
@@ -477,12 +471,12 @@ class ResourceClass(Model):
         raise BaseError('"name" cannot be modified!')
 
     @property
-    def id(self) -> Optional[str]:
-        return self._id
+    def iri(self) -> Optional[str]:
+        return self._iri
 
-    @id.setter
-    def id(self, value: str) -> None:
-        raise BaseError('"id" cannot be modified!')
+    @iri.setter
+    def iri(self, value: str) -> None:
+        raise BaseError('"iri" cannot be modified!')
 
     @property
     def ontology_id(self) -> Optional[str]:
@@ -585,13 +579,13 @@ class ResourceClass(Model):
                 context=self._context,
                 ontology_id=self._ontology_id,
                 property_id=property_id,
-                resclass_id=self.id,
+                resclass_id=self.iri,
                 cardinality=cardinality,
                 gui_order=gui_order,
             ).create(last_modification_date)
             hp = resclass.getProperty(property_id)
-            hp._ontology_id = self._context.iri_from_prefix(self._ontology_id)
-            hp._resclass_id = self._id
+            hp.ontology_id = self._context.iri_from_prefix(self._ontology_id)
+            hp.resclass_id = self._iri
             self._has_properties[hp.property_id] = hp
             return latest_modification_date
         else:
@@ -610,7 +604,7 @@ class ResourceClass(Model):
             # onto_id = has_properties.ontology_id  # save for later user
             # rescl_id = has_properties.resclass_id  # save for later user
             has_properties.ontology_id = self._ontology_id
-            has_properties.resclass_id = self._id
+            has_properties.resclass_id = self._iri
             if cardinality:
                 has_properties.cardinality = cardinality
             if gui_order:
@@ -618,7 +612,7 @@ class ResourceClass(Model):
             latest_modification_date, resclass = has_properties.update(last_modification_date)
             hp = resclass.getProperty(property_id)
             hp.ontology_id = self._ontology_id  # self.__context.iri_from_prefix(onto_id)  # restore value
-            hp.resclass_id = self._id  # rescl_id  # restore value
+            hp.resclass_id = self._iri  # rescl_id  # restore value
             self._has_properties[hp.property_id] = hp
             return latest_modification_date
         else:
@@ -627,17 +621,14 @@ class ResourceClass(Model):
     @classmethod
     def fromJsonObj(cls, con: Connection, context: Context, json_obj: Any) -> Any:
         if isinstance(json_obj, list):
-            json_obj = json_obj[0]  # TODO: Is it possible to have more than one element in the list??
+            json_obj = json_obj[0]
         if not isinstance(con, Connection):
             raise BaseError('"con"-parameter must be an instance of Connection')
         if not isinstance(context, Context):
             raise BaseError('"context"-parameter must be an instance of Context')
-        rdf = context.prefix_from_iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
         rdfs = context.prefix_from_iri("http://www.w3.org/2000/01/rdf-schema#")
         owl = context.prefix_from_iri("http://www.w3.org/2002/07/owl#")
-        xsd = context.prefix_from_iri("http://www.w3.org/2001/XMLSchema#")
         knora_api = context.prefix_from_iri("http://api.knora.org/ontology/knora-api/v2#")
-        salsah_gui = context.prefix_from_iri("http://api.knora.org/ontology/salsah-gui/v2#")
 
         if not (json_obj.get(knora_api + ":isResourceClass") or json_obj.get(knora_api + ":isStandoffClass")):
             raise BaseError("This is not a resource!")
@@ -645,7 +636,7 @@ class ResourceClass(Model):
         if json_obj.get("@id") is None:
             raise BaseError('Resource class has no "@id"!')
         tmp_id = json_obj.get("@id").split(":")
-        id = context.iri_from_prefix(tmp_id[0]) + "#" + tmp_id[1]
+        iri = context.iri_from_prefix(tmp_id[0]) + "#" + tmp_id[1]
         ontology_id = tmp_id[0]
         name = tmp_id[1]
         superclasses_obj = json_obj.get(rdfs + ":subClassOf")
@@ -675,7 +666,7 @@ class ResourceClass(Model):
             con=con,
             context=context,
             name=name,
-            id=id,
+            iri=iri,
             ontology_id=ontology_id,
             superclasses=superclasses,
             label=label,
@@ -786,7 +777,7 @@ class ResourceClass(Model):
 
     def delete(self, last_modification_date: DateTimeStamp) -> DateTimeStamp:
         result = self._con.delete(
-            ResourceClass.ROUTE + "/" + quote_plus(self._id) + "?lastModificationDate=" + str(last_modification_date)
+            ResourceClass.ROUTE + "/" + quote_plus(self._iri) + "?lastModificationDate=" + str(last_modification_date)
         )
         return DateTimeStamp(result["knora-api:lastModificationDate"])
 
@@ -805,7 +796,7 @@ class ResourceClass(Model):
             resource["comments"] = self._comment.createDefinitionFileObj()
         if self._has_properties:
             cardinalities = []
-            for pid, hp in self._has_properties.items():
+            for _, hp in self._has_properties.items():
                 if hp.property_id in skiplist:
                     continue
                 if hp.ptype == HasProperty.Ptype.other or hp.property_id in [
@@ -838,5 +829,5 @@ class ResourceClass(Model):
         if self._has_properties is not None:
             print(f"{blank:>{offset + 2}}Has properties:")
             if self._has_properties is not None:
-                for pid, hp in self._has_properties.items():
+                for _, hp in self._has_properties.items():
                     hp.print(offset + 4)

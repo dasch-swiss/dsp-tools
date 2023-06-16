@@ -137,22 +137,18 @@ but in most cases it doesn't make sense to omit them.)
 
 ```json
 {
-  "name": "id",
-  "subject": ":School",
-  "object": "TextValue",
+  "name": "hasFindspot",
   "super": [
-      "hasValue"
+    "hasValue"
   ],
+  "subject": "ArchaeologicalFind",
+  "object": "GeonameValue",
   "labels": {
-    "en": "School ID",
-    "de": "ID der Schule",
-    "fr": "ID de l'école"
+    "de": "Fundort",
+    "en": "Find spot",
+    "fr": "Gisement"
   },
-  "gui_element": "SimpleText",
-  "gui_attributes": {
-    "size": 32,
-    "maxlength": 128
-  }
+  "gui_element": "Geonames"
 }
 ```
 
@@ -246,25 +242,25 @@ These three are related as follows:
 
 #### Overview
 
-| DSP base property (`super`) | `object`                                                            | `gui_element`                        |
-| --------------------------- | ------------------------------------------------------------------- | ------------------------------------ |
-| hasValue                    | BooleanValue                                                        | Checkbox                             |
-| hasColor                    | ColorValue                                                          | Colorpicker                          |
-| hasValue                    | DateValue                                                           | Date                                 |
-| hasValue                    | DecimalValue                                                        | Slider, <br>SimpleText               |
-| hasValue                    | GeonameValue                                                        | Geonames                             |
-| hasValue                    | IntValue                                                            | Spinbox, <br>SimpleText              |
-| hasValue                    | ListValue                                                           | List                                 |
-| hasValue                    | TextValue                                                           | SimpleText,<br>Textarea,<br>Richtext |
-| hasComment                  | TextValue                                                           | SimpleText                           |
-| hasValue                    | TimeValue                                                           | TimeStamp                            |
-| hasValue                    | UriValue                                                            | SimpleText                           |
-| hasLinkTo                   | (resourceclass)                                                     | Searchbox                            |
-| hasRepresentation           | Representation                                                      | Searchbox                            |
-| isPartOf                    | (resourceclass)                                                     | Searchbox                            |
-| seqnum                      | IntValue                                                            | Spinbox, <br>SimpleText              |
-| isSequenceOf                | (AudioRepresentation,<br>MovingImageRepresentation,<br>or subclass) | Searchbox                            |
-| hasSequenceBounds           | IntervalValue                                                       | Interval                             |
+| DSP base property (`super`) | `object`                                                            | `gui_element`           |
+| --------------------------- | ------------------------------------------------------------------- | ----------------------- |
+| hasValue                    | BooleanValue                                                        | Checkbox                |
+| hasColor                    | ColorValue                                                          | Colorpicker             |
+| hasValue                    | DateValue                                                           | Date                    |
+| hasValue                    | DecimalValue                                                        | Slider, <br>SimpleText  |
+| hasValue                    | GeonameValue                                                        | Geonames                |
+| hasValue                    | IntValue                                                            | Spinbox, <br>SimpleText |
+| hasValue                    | ListValue                                                           | List                    |
+| hasValue                    | FormattedTextValue, UnformattedTextValue                            | -                       |
+| hasComment                  | FormattedTextValue                                                  | -                       |
+| hasValue                    | TimeValue                                                           | TimeStamp               |
+| hasValue                    | UriValue                                                            | SimpleText              |
+| hasLinkTo                   | (resourceclass)                                                     | Searchbox               |
+| hasRepresentation           | Representation                                                      | Searchbox               |
+| isPartOf                    | (resourceclass)                                                     | Searchbox               |
+| seqnum                      | IntValue                                                            | Spinbox, <br>SimpleText |
+| isSequenceOf                | (AudioRepresentation,<br>MovingImageRepresentation,<br>or subclass) | Searchbox               |
+| hasSequenceBounds           | IntervalValue                                                       | Interval                |
 
 
 #### BooleanValue
@@ -502,25 +498,17 @@ Example:
 
 #### TextValue
 
-`"object": "TextValue"`
+`"object": "FormattedTextValue" / "UnformattedTextValue"`
 
-Represents a text that may contain standoff markup. See the [xmlupload documentation](../xml-data-file.md#text-prop) 
-for more information.
+`"FormattedTextValue"` is a text that contains markup, i.e. HTML tags like `<b>`, etc. 
+These tags must follow the XML to Standoff/RDF Standard Mapping documented
+[here](https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v1/xml-to-standoff-mapping/#the-knora-standard-mapping).
 
-*gui_elements / gui_attributes*:
+`"UnformattedTextValue"` is a simple, plain text that does not contain markup.
 
-- `SimpleText`: one-line text entry box (for text **without** markup)
-    - *gui_attributes*:
-        - `maxlength=integer` (optional): maximal length (number of characters accepted)
-        - `size=integer` (optional): size (width) of widget
-- `Textarea`: multiline text entry box (for text **without** markup)
-    - *gui_attributes*:
-        - `cols=integer` (optional): number of columns of the textarea
-        - `rows=integer` (optional): number of rows of the textarea
-        - `width=percent` (optional): width of the textarea on the screen
-        - `wrap=soft|hard` (optional): wrapping of text
-- `Richtext`: multiline rich-text editor (for text **with** markup)
-    - *gui_attributes*: No attributes
+See the [xmlupload documentation](../xml-data-file.md#text-prop) for more information.
+
+There are no *gui_elements / gui_attributes* for this property.
 
 Example:
 
@@ -530,14 +518,9 @@ Example:
   "super": [
     "hasValue"
   ],
-  "object": "TextValue",
+  "object": "UnformattedTextValue",
   "labels": {
     "en": "Title"
-  },
-  "gui_element": "SimpleText",
-  "gui_attributes": {
-    "maxlength": 255,
-    "size": 80
   }
 }
 ```
@@ -545,7 +528,7 @@ Example:
 
 #### hasComment property
 
-`"object": "TextValue"`
+`"object": "FormattedTextValue"`
 
 This property is actually very similar to a simple text field. 
 
@@ -557,13 +540,12 @@ Example:
     "super": [
       "hasComment"
     ],
-    "object": "TextValue",
+    "object": "FormattedTextValue",
     "labels": {
       "de": "Kommentar",
       "en": "Comment",
       "fr": "Commentaire"
-    },
-    "gui_element": "SimpleText"
+    }
 }
 ```
 

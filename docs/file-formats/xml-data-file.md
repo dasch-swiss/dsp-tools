@@ -660,40 +660,49 @@ Attributes:
 The `<text>` element has the following attributes:
 
 - `encoding` (required)
-    - `utf8`: simple text without markup
-    - `xml`: complex text with markup. It must follow the XML format as defined by the
-  [DSP standard mapping](https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/xml-to-standoff-mapping/).
-- `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions 
-  at all, not even view rights)
+    - `utf8`: if the property's object is [`UnformattedTextValue`](./json-project/ontologies.md#textvalue)
+    - `xml`: if the property's object is [`FormattedTextValue`](./json-project/ontologies.md#textvalue)
+        - It must follow the XML format as defined by the 
+          XML to Standoff/RDF Standard Mapping documented
+          [here](https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v1/xml-to-standoff-mapping/#the-knora-standard-mapping)
+- `permissions`: Permission ID 
+  (optional, but if omitted, users who are lower than a `ProjectAdmin`
+  have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
 Example of a public and a hidden text:
 
 ```xml
-<text-prop name=":hasDescription">
-    <text encoding="xml" permissions="prop-default">Probe bei "Wimberger". Lokal in Wien?</text>
+<text-prop name=":hasUnformattedText">
+    <text encoding="utf8" permissions="prop-default">Publicly visible text field without formatting</text>
+    <text encoding="utf8">Hidden text field without formatting</text>
+</text-prop>
+```
+
+```xml
+<text-prop name=":hasFormattedText">
+    <text encoding="xml" permissions="prop-default">Publicly visible text field that allows formatting</text>
     <text encoding="xml">
-        <strong>Bold text</strong> and a <a class="salsah-link" href="IRI:obj_0003:IRI">link to an ID</a>.<br/>
+        Hidden: <strong>Bold text</strong> and a <a class="salsah-link" href="IRI:obj_0003:IRI">link to an ID</a>.<br/>
         And a <a class="salsah-link" href="http://rdfh.ch/4123/nyOODvYySV2nJ5RWRdmOdQ">link to an IRI</a>.
     </text>
 </text-prop>
 ```
 
-The second text above contains a link to the resource `obj_0003`, which is defined in the same XML file. It also 
-contains a link to  the resource `http://rdfh.ch/4123/nyOODvYySV2nJ5RWRdmOdQ`, which already exists on the DSP server.
+The second value of `:hasFormattedText` contains a link to the resource `obj_0003`,
+which is defined in the same XML file. 
+It also contains a link to  the resource `http://rdfh.ch/4123/nyOODvYySV2nJ5RWRdmOdQ`,
+which already exists on the DSP server.
 
-#### `encoding` and `gui_element`
+#### Whitespaces and newlines
 
-`encoding` can be combined with
-`gui_element` ([defined in the ontology](./json-project/ontologies.md#textvalue))
-as follows:
+`UnformattedTextValue` (`encoding="utf8"`):
+Pretty-print whitespaces and newlines from the XML file 
+are taken into the text field as they are.
 
-| `gui_element`<br/>(JSON ontology) | `encoding`<br/>(XML data) | How DSP-APP renders the whitespaces                                                                                            |
-| --------------------------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| `SimpleText`                      | `utf8`                    | Pretty-print whitespaces and newlines from the XML are taken into the text field as they are.                                  |
-| `Textarea`                        | `utf8`                    | Pretty-print whitespaces and newlines from the XML are taken into the text field as they are.                                  |
-| `Richtext`                        | `xml`                     | Pretty-print whitespaces and newlines from the XML are removed. If you want a newline in the text field, use `<br />` instead. |
-
+`FormattedTextValue` (`encoding="xml"`): 
+Pretty-print whitespaces and newlines from the XML file are removed.
+If you want a newline in the text field, use `<br />` instead.
 
 #### Special characters: Overview
 
@@ -708,7 +717,7 @@ In the tables below,
 the second column is the output of the first column,
 and the third column is how DSP-APP displays the second column.
 
-Behaviour of simple text (`SimpleText`/`Textarea` + `utf8`):
+Behaviour of `UnformattedTextValue` (`encoding="utf8"`):
 
 | input to `excel2xml` | XML file | DSP-APP | Remarks                                      |
 | -------------------- | -------- | ------- | -------------------------------------------- |
@@ -723,7 +732,7 @@ Behaviour of simple text (`SimpleText`/`Textarea` + `utf8`):
 |                      | `<tag>`  | ⛔      | forbidden: Simple text is not rich text      |
 
 
-Behaviour of text with markup (`Richtext` + `xml`):
+Behaviour of `FormattedTextValue` (`encoding="xml"`):
 
 | input to `excel2xml`  | XML file            | DSP-APP       | Remarks                                   |
 | --------------------- | ------------------- | ------------- | ----------------------------------------- |
@@ -748,17 +757,17 @@ the following rules can be derived:
 
 For input of excel2xml:
 
-- Simple text: Don't use HTML escape sequences.
-- Simple text: Don't use tags. (Mathematical comparisons with `<>` are allowed).
-- Rich text: The special characters `<`, `>` and `&` are only allowed to construct a tag.
-- Rich text: If tags are used, they must result in well-formed XML.
-- Rich text: HTML escape sequences can be freely used.
+- `UnformattedTextValue`: Don't use HTML escape sequences.
+- `UnformattedTextValue`: Don't use tags. (Mathematical comparisons with `<` and `>` are allowed).
+- `FormattedTextValue`: The special characters `<`, `>` and `&` are only allowed to construct a tag.
+- `FormattedTextValue`: If tags are used, they must result in well-formed XML.
+- `FormattedTextValue`: HTML escape sequences can be freely used.
 
 If you write an XML file by hand:
 
-- Simple text: The special characters `<`, `>` and `&` must be escaped.
-- Simple text: Don't use tags. (Mathematical comparisons with `<>` are allowed).
-- Rich text: The special characters `<`, `>` and `&` must be escaped if they are not part of a valid HTML tag.
+- `UnformattedTextValue`: The special characters `<`, `>` and `&` must be escaped.
+- `UnformattedTextValue`: Don't use tags. (Mathematical comparisons with `<>` are allowed).
+- `FormattedTextValue`: The special characters `<`, `>` and `&` must be escaped if they are not part of a valid HTML tag.
 
 
 ### `<time-prop>`

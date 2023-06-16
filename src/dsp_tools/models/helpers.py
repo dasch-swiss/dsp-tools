@@ -189,10 +189,6 @@ class Context:
         else:
             raise BaseError("Error in parameter to context setter")
 
-    @property
-    def rcontext(self) -> dict[str, str]:
-        return self._rcontext
-
     def add_context(self, prefix: str, iri: Optional[str] = None) -> None:
         """
         Add a new context to a context instance

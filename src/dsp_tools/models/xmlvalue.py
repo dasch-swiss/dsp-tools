@@ -64,11 +64,6 @@ class XMLValue:
         """Reference to the set of permissions for the value"""
         return self._permissions
 
-    @property
-    def is_richtext(self) -> bool:
-        """true if text value is of type richtext, false otherwise"""
-        return self._is_richtext
-
     def print(self) -> None:
         """Prints the value and its attributes."""
         print("   Value: " + str(self._value))

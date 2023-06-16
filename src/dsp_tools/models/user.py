@@ -430,10 +430,6 @@ class User(Model):
         else:
             raise BaseError("User is not member of project!")
 
-    @property
-    def changed(self) -> set[str]:
-        return self._changed
-
     @classmethod
     def fromJsonObj(cls, con: Connection, json_obj: Any) -> User:
         """

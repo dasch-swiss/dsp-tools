@@ -148,27 +148,6 @@ class Ontology(Model):
     def resource_classes(self, value: list[ResourceClass]) -> None:
         self._resource_classes = value
 
-    def addResourceClass(self, resourceclass: ResourceClass, create: bool = False) -> tuple[int, ResourceClass]:
-        if create:
-            print("Calling resourceclass.create in Ontology.addResourceClass")
-            lmd, resourceclass = resourceclass.create(self._lastModificationDate)
-            self._lastModificationDate = lmd
-        self._resource_classes.append(resourceclass)
-        index = len(self._resource_classes) - 1
-        return index, resourceclass
-
-    def updateResourceClass(self, index: int, resourceclass: ResourceClass) -> ResourceClass:
-        lmd, resourceclass = resourceclass.update(self._lastModificationDate)
-        self._lastModificationDate = lmd
-        self._resource_classes[index] = resourceclass
-        return resourceclass
-
-    def removeResourceClass(self, index: int, erase: bool = False) -> None:
-        if erase:
-            lmd = self._resource_classes[index].delete(self._lastModificationDate)
-            self._lastModificationDate = lmd
-        del self._resource_classes[index]
-
     @property
     def property_classes(self) -> list[PropertyClass]:
         return self._property_classes
@@ -176,26 +155,6 @@ class Ontology(Model):
     @property_classes.setter
     def property_classes(self, value: list[PropertyClass]):
         self._property_classes = value
-
-    def addPropertyClass(self, propclass: PropertyClass, create: bool = False) -> tuple[int, ResourceClass]:
-        if create:
-            lmd, resourceclass = propclass.create(self._lastModificationDate)
-            self._lastModificationDate = lmd
-        self._property_classes.append(resourceclass)
-        index = len(self._property_classes) - 1
-        return index, propclass
-
-    def updatePropertyClass(self, index: int, propclass: PropertyClass) -> PropertyClass:
-        lmd, propclass = propclass.update(self._lastModificationDate)
-        self._lastModificationDate = lmd
-        self._property_classes[index] = propclass
-        return propclass
-
-    def removePropertyClass(self, index: int, erase: bool = False) -> None:
-        if erase:
-            lmd = self._property_classes[index].delete(self._lastModificationDate)
-            self._lastModificationDate = lmd
-        del self._property_classes[index]
 
     @property
     def context(self):

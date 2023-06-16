@@ -557,24 +557,6 @@ class ListNode(Model):
             listnodeobjs.append(listnodeobj)
         return listnodeobjs
 
-    @staticmethod
-    def readDefinitionFileObj(con: Connection, project: Project, rootnode: Any) -> "ListNode":
-        """
-        Reads a JSON obj that corresponds to the syntax of the input to "create_onto".
-
-        :param self:
-        :param con: Connection object
-        :param project: Project instance
-        :param rootnode: root node of the list
-        :return: an instance of ListNode corresponding to the root node
-        """
-        root_list_node = ListNode(
-            con=con, project=project, label=rootnode["labels"], comments=rootnode.get("comments"), name=rootnode["name"]
-        )
-        listnodes = list_creator(con, project, root_list_node, rootnode.get("nodes"))
-        root_list_node.children = listnodes
-        return root_list_node
-
     def createDefinitionFileObj(self) -> dict[str, Any]:
         """
         Create an object that corresponds to the syntax of the input to "create_onto".

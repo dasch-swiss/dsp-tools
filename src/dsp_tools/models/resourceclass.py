@@ -33,7 +33,6 @@ class HasProperty(Model):
     _resclass_id: str
     _cardinality: Cardinality
     _gui_order: int
-    _is_inherited: bool
     _ptype: Ptype
 
     def __init__(
@@ -60,7 +59,6 @@ class HasProperty(Model):
         self._resclass_id = resclass_id
         self._cardinality = cardinality
         self._gui_order = gui_order
-        self._is_inherited = is_inherited
         self._ptype = ptype
         self._changed = set()
 
@@ -361,11 +359,6 @@ class ResourceClass(Model):
         addProperty(property_id: str, cardinality: Cardinality, last_modification_date: DateTimeStamp)
         -> Optional[DateTimeStamp]
 
-    updateProperty: Updates the cardinality parameters of the given property with the resource class
-        updateProperty(self, property_id: str, cardinality: Cardinality, last_modification_date: DateTimeStamp)
-        -> Optional[DateTimeStamp]
-        Please note that the cardinality usually can only be changed to be *less* restrictive!
-
     create: Create a new resource class on the connected server
 
     update: Update the information of a resource class on the connected server
@@ -590,33 +583,6 @@ class ResourceClass(Model):
             return latest_modification_date
         else:
             raise BaseError("Property already has cardinality in this class! " + property_id)
-
-    def updateProperty(
-        self,
-        last_modification_date: DateTimeStamp,
-        property_id: str,
-        cardinality: Optional[Cardinality],
-        gui_order: Optional[int] = None,
-    ) -> Optional[DateTimeStamp]:
-        property_id = self._context.get_prefixed_iri(property_id)
-        if self._has_properties.get(property_id) is not None:
-            has_properties = self._has_properties[property_id]
-            # onto_id = has_properties.ontology_id  # save for later user
-            # rescl_id = has_properties.resclass_id  # save for later user
-            has_properties.ontology_id = self._ontology_id
-            has_properties.resclass_id = self._iri
-            if cardinality:
-                has_properties.cardinality = cardinality
-            if gui_order:
-                has_properties.gui_order = gui_order
-            latest_modification_date, resclass = has_properties.update(last_modification_date)
-            hp = resclass.getProperty(property_id)
-            hp.ontology_id = self._ontology_id  # self.__context.iri_from_prefix(onto_id)  # restore value
-            hp.resclass_id = self._iri  # rescl_id  # restore value
-            self._has_properties[hp.property_id] = hp
-            return latest_modification_date
-        else:
-            return last_modification_date
 
     @classmethod
     def fromJsonObj(cls, con: Connection, context: Context, json_obj: Any) -> Any:

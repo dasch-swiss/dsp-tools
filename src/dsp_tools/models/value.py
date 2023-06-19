@@ -902,10 +902,6 @@ class ListValue(Value):
             vark_url=vark_url,
         )
 
-    def print(self, offset: int = 0):
-        blank = " "
-        print(f"{blank:>{offset}}{self._value}")
-
     @property
     def value(self) -> str:
         return self._value

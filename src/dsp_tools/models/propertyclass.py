@@ -459,34 +459,3 @@ class PropertyClass(Model):
                     gui_elements[attname] = str(attvalue)
             def_file_obj["gui_attributes"] = gui_elements
         return def_file_obj
-
-    def print(self, offset: int = 0):
-        blank = " "
-        print(f"{blank:>{offset}}Property Class Info")
-        print(f"{blank:>{offset + 2}}Name:            {self._name}")
-        print(f"{blank:>{offset + 2}}Ontology prefix: {self._ontology_id}")
-        print(f"{blank:>{offset + 2}}Superproperties:")
-        if self._superproperties is not None:
-            for sc in self._superproperties:
-                print(f"{blank:>{offset + 4}}{sc}")
-        if self._label is not None:
-            print(f"{blank:>{offset + 2}}Labels:")
-            self._label.print(offset + 4)
-        if self._rdf_subject is not None:
-            print(f"{blank:>{offset + 4}}rdf_subject: {self._rdf_subject}")
-        if self._rdf_object is not None:
-            print(f"{blank:>{offset + 4}}rdf_object: {self._rdf_object}")
-        if self._gui_element is not None:
-            print(f"{blank:>{offset + 4}}Guielement: {self._gui_element}")
-        if self._gui_attributes is not None:
-            print(f"{blank:>{offset + 4}}Gui Attributes:")
-            if self._gui_attributes is not None:
-                for attname, attvalue in self._gui_attributes.items():
-                    print(f"{blank:>{offset + 6}}Attribute: {attname} Value: {attvalue}")
-        if self._comment is not None:
-            print(f"{blank:>{offset + 2}}Comments:")
-            self._comment.print(offset + 4)
-        if self._editable is not None:
-            print(f"{blank:>{offset + 4}}Editable: {self._editable}")
-        if self._linkvalue is not None:
-            print(f"{blank:>{offset + 4}}Editable: {self._linkvalue}")

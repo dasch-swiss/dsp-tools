@@ -57,9 +57,3 @@ class XMLProperty:
     def values(self) -> list[XMLValue]:
         """List of values of this property"""
         return self._values
-
-    def print(self) -> None:
-        """Prints the property."""
-        print(f"  Property: {self._name} Type: {self._valtype}")
-        for value in self._values:
-            value.print()

@@ -34,9 +34,9 @@
               restype=":TestThing2"
               id="test_thing_0"
               creation_date="2019-01-09T15:45:54.502951Z">
-        <text-prop name=":hasSimpleText">
-            <text encoding="utf8">Dies ist ein TestThing ohne Angabe von permissions</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text>Dies ist ein TestThing ohne Angabe von permissions</text>
+        </unformatted-text-prop>
         <resptr-prop name=":hasTestThing">
             <resptr permissions="prop-default">test_thing_1</resptr>
         </resptr-prop>
@@ -46,10 +46,10 @@
                 id="annotation_1"
                 permissions="res-default"
                 creation_date="2005-10-23T13:45:12.01-14:00">
-        <text-prop name="hasComment">
-            <text encoding="utf8" permissions="prop-default">This is an annotation to TestthingOhnePermissions.</text>
-            <text encoding="utf8" permissions="prop-default">Second comment</text>
-        </text-prop>
+        <formatted-text-prop name="hasComment">
+            <text permissions="prop-default">This is an annotation to TestthingOhnePermissions.</text>
+            <text permissions="prop-default">Second comment</text>
+        </formatted-text-prop>
         <resptr-prop name="isAnnotationOf">
             <resptr permissions="prop-default">test_thing_0</resptr>
         </resptr-prop>
@@ -59,32 +59,24 @@
               restype=":TestThing"
               id="test_thing_1"
               permissions="res-default">
-        <text-prop name=":hasSimpleText">
-            <text encoding="utf8">&lt;</text>
-            <text encoding="utf8">&amp;lt;</text>
-            <text encoding="utf8">text (&lt;2cm) text</text>
-            <text encoding="utf8">text (&lt;2cm) text (&gt;10cm) text</text>
-            <text encoding="utf8">Bei AU1026 handelt es sich um weissgrauen Sand mit einigen mittelgrossen (&lt;10cm) sowie auch wenigen grossen Kalkbruchsteinen (&gt;10cm), die zumeist scharfkantig sind.</text>
-            <text encoding="utf8">&amp;</text>
-            <text encoding="utf8">&amp;amp;</text>
-            <!-- <text encoding="utf8">&lt;em&gt;text&lt;/em&gt;</text>
-            <text encoding="utf8">&lt;tag s=\"t\"&gt;</text> -->
-        </text-prop>
-        <text-prop name=":hasTextArea">
-            <text encoding="utf8">&lt;</text>
-            <text encoding="utf8">&amp;lt;</text>
-            <text encoding="utf8">&amp;</text>
-            <text encoding="utf8">&amp;amp;</text>
-            <!-- <text encoding="utf8">&lt;em&gt;text&lt;/em&gt;</text>
-            <text encoding="utf8">&lt;tag s=\"t\"&gt;</text>  -->
-        </text-prop>
-        <text-prop name=":hasRichtext">
-            <text encoding="xml">&lt;</text>
-            <text encoding="xml">&gt;</text>
-            <text encoding="xml">&amp;</text>
-            <text encoding="xml"><em>text</em></text>
-            <text encoding="xml">text &lt;not a tag&gt; text</text>
-            <text permissions="prop-default" encoding="xml">
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text>&lt;</text>
+            <text>&amp;lt;</text>
+            <text>text (&lt;2cm) text</text>
+            <text>text (&lt;2cm) text (&gt;10cm) text</text>
+            <text>Bei AU1026 handelt es sich um weissgrauen Sand mit einigen mittelgrossen (&lt;10cm) sowie auch wenigen grossen Kalkbruchsteinen (&gt;10cm), die zumeist scharfkantig sind.</text>
+            <text>&amp;</text>
+            <text>&amp;amp;</text>
+            <!-- <text>&lt;em&gt;text&lt;/em&gt;</text>
+            <text>&lt;tag s=\"t\"&gt;</text> -->
+        </unformatted-text-prop>
+        <formatted-text-prop name=":hasFormattedText">
+            <text>&lt;</text>
+            <text>&gt;</text>
+            <text>&amp;</text>
+            <text><em>text</em></text>
+            <text>text &lt;not a tag&gt; text</text>
+            <text permissions="prop-default">
                 This is <em>bold and <strong>strong</strong></em> text! It contains links to all resources:
                 <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>
                 <a class="salsah-link" href="IRI:test_thing_1:IRI">test_thing_1</a>
@@ -99,7 +91,7 @@
                 <a class="salsah-link" href="IRI:audio_thing_1:IRI">audio_thing_1</a>
                 <a class="salsah-link" href="IRI:test_thing_2:IRI">test_thing_2</a>
             </text>
-        </text-prop>
+        </formatted-text-prop>
         <uri-prop name=":hasUri">
             <uri permissions="prop-default">https://dasch.swiss</uri>
         </uri-prop>
@@ -171,39 +163,15 @@
               restype=":TestThing"
               id="test_thing_2"
               permissions="res-default">
-        <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">Dies ist ein einfacher Text ohne Markup</text>
-            <text permissions="prop-restricted" encoding="xml">Ein XML-formatierter Text <strong>mit Markup</strong></text>
-            <text encoding="utf8"> </text>
-            <text encoding="utf8">_</text>
-            <text encoding="utf8">!</text>
-            <text encoding="utf8">?</text>
-            <text encoding="utf8">-</text>
-            <text encoding="utf8">œ</text>
-        </text-prop>
-        <text-prop name=":hasRichtext">
-            <text encoding="xml">
-                This is <em>bold and <strong>strong</strong></em> text! It contains links to all resources:
-                <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>
-                <a class="salsah-link" href="IRI:test_thing_1:IRI">test_thing_1</a>
-                <a class="salsah-link" href="IRI:image_thing_0:IRI">image_thing_0</a>
-                <a class="salsah-link" href="IRI:compound_thing_0:IRI">compound_thing_0</a>
-                <a class="salsah-link" href="IRI:partof_thing_1:IRI">partof_thing_1</a>
-                <a class="salsah-link" href="IRI:partof_thing_2:IRI">partof_thing_2</a>
-                <a class="salsah-link" href="IRI:partof_thing_3:IRI">partof_thing_3</a>
-                <a class="salsah-link" href="IRI:document_thing_1:IRI">document_thing_1</a>
-                <a class="salsah-link" href="IRI:text_thing_1:IRI">text_thing_1</a>
-                <a class="salsah-link" href="IRI:zip_thing_1:IRI">zip_thing_1</a>
-                <a class="salsah-link" href="IRI:audio_thing_1:IRI">audio_thing_1</a>
-                <a class="salsah-link" href="IRI:test_thing_2:IRI">test_thing_2</a>
-            </text>
-            <text permissions="prop-default" encoding="xml">
-                Another text without salsah-links
-            </text>
-            <text permissions="prop-default" encoding="xml">
-                Another text without salsah-links
-            </text>
-        </text-prop>
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text permissions="prop-default">Dies ist ein einfacher Text ohne Markup</text>
+            <text> </text>
+            <text>_</text>
+            <text>!</text>
+            <text>?</text>
+            <text>-</text>
+            <text>œ</text>
+        </unformatted-text-prop>
         <boolean-prop name=":hasBoolean">
             <boolean>false</boolean>
         </boolean-prop>
@@ -263,9 +231,9 @@
               id="image_thing_0"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.tif</bitstream>
-        <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Imagething as TIF</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text permissions="prop-default">This is a Imagething as TIF</text>
+        </unformatted-text-prop>
     </resource>
 
     <resource label="Imagething-tiff"
@@ -273,9 +241,9 @@
               id="image_thing_1"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.tiff</bitstream>
-        <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Imagething as TIFF</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text permissions="prop-default">This is a Imagething as TIFF</text>
+        </unformatted-text-prop>
     </resource>
 
     <resource label="Imagething-jp2"
@@ -283,9 +251,9 @@
               id="image_thing_2"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.jp2</bitstream>
-        <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Imagething as JP2</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text permissions="prop-default">This is a Imagething as JP2</text>
+        </unformatted-text-prop>
     </resource>
 
     <resource label="Imagething-jpeg"
@@ -293,9 +261,9 @@
               id="image_thing_3"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.jpeg</bitstream>
-        <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Imagething as JPEG</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text permissions="prop-default">This is a Imagething as JPEG</text>
+        </unformatted-text-prop>
     </resource>
 
     <resource label="Imagething-jpg"
@@ -303,9 +271,9 @@
               id="image_thing_4"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.jpg</bitstream>
-        <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Imagething as JPG</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text permissions="prop-default">This is a Imagething as JPG</text>
+        </unformatted-text-prop>
     </resource>
 
     <resource label="Imagething-png"
@@ -313,9 +281,9 @@
               id="image_thing_5"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.png</bitstream>
-        <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Imagething as PNG</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text permissions="prop-default">This is a Imagething as PNG</text>
+        </unformatted-text-prop>
     </resource>
 
     <region label="Polygon in image"
@@ -342,29 +310,29 @@
                 }
             </geometry>
         </geometry-prop>
-        <text-prop name="hasComment">
-            <text encoding="xml" permissions="prop-default">
+        <formatted-text-prop name="hasComment">
+            <text permissions="prop-default">
                 This is a polygon-formed region of interest of an image. It is also displayed as Annotation.
             </text>
-        </text-prop>
+        </formatted-text-prop>
     </region>
 
     <resource label="Compoundthing"
               restype=":CompoundThing"
               id="compound_thing_0"
               permissions="res-default">
-        <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Compoundthing</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text permissions="prop-default">This is a Compoundthing</text>
+        </unformatted-text-prop>
     </resource>
 
     <resource label="Compoundthing"
               restype=":CompoundThing"
               id="compound_thing_1"
               permissions="res-default">
-        <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Compoundthing</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text permissions="prop-default">This is a Compoundthing</text>
+        </unformatted-text-prop>
     </resource>
 
     <resource label="Partofthing-1"
@@ -424,9 +392,9 @@
               id="document_thing_1"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.pdf</bitstream>
-        <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Documentthing as PDF</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text permissions="prop-default">This is a Documentthing as PDF</text>
+        </unformatted-text-prop>
     </resource>
 
     <resource label="Documentthing-xls"
@@ -434,9 +402,9 @@
               id="document_thing_2"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.xls</bitstream>
-        <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Documentthing as XLS</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text permissions="prop-default">This is a Documentthing as XLS</text>
+        </unformatted-text-prop>
     </resource>
 
     <resource label="Documentthing-xlsx"
@@ -444,9 +412,9 @@
               id="document_thing_3"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.xlsx</bitstream>
-        <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Documentthing as XLSX</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text permissions="prop-default">This is a Documentthing as XLSX</text>
+        </unformatted-text-prop>
     </resource>
 
     <resource label="Documentthing-doc"
@@ -454,9 +422,9 @@
               id="document_thing_4"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.doc</bitstream>
-        <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Documentthing as DOC</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text permissions="prop-default">This is a Documentthing as DOC</text>
+        </unformatted-text-prop>
     </resource>
 
     <resource label="Documentthing-docx"
@@ -464,9 +432,9 @@
               id="document_thing_5"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.docx</bitstream>
-        <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Documentthing as DOCX</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text permissions="prop-default">This is a Documentthing as DOCX</text>
+        </unformatted-text-prop>
     </resource>
 
     <resource label="Documentthing-ppt"
@@ -474,9 +442,9 @@
               id="document_thing_6"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.ppt</bitstream>
-        <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Documentthing as PPT</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text permissions="prop-default">This is a Documentthing as PPT</text>
+        </unformatted-text-prop>
     </resource>
 
     <resource label="Documentthing-pptx"
@@ -484,9 +452,9 @@
               id="document_thing_7"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.pptx</bitstream>
-        <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Documentthing as PPTX</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text permissions="prop-default">This is a Documentthing as PPTX</text>
+        </unformatted-text-prop>
     </resource>
 
     <resource label="Textthing-csv"
@@ -494,9 +462,9 @@
               id="text_thing_1"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.csv</bitstream>
-        <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Textthing as CSV</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text permissions="prop-default">This is a Textthing as CSV</text>
+        </unformatted-text-prop>
     </resource>
 
     <resource label="Textthing-txt"
@@ -504,9 +472,9 @@
               id="text_thing_2"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.txt</bitstream>
-        <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Textthing as TXT</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text permissions="prop-default">This is a Textthing as TXT</text>
+        </unformatted-text-prop>
     </resource>
 
     <resource label="Textthing-xml"
@@ -514,9 +482,9 @@
               id="text_thing_3"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.xml</bitstream>
-        <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Textthing as XML</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text permissions="prop-default">This is a Textthing as XML</text>
+        </unformatted-text-prop>
     </resource>
 
     <resource label="Textthing-xsl"
@@ -524,9 +492,9 @@
               id="text_thing_4"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.xsl</bitstream>
-        <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Textthing as XSL</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text permissions="prop-default">This is a Textthing as XSL</text>
+        </unformatted-text-prop>
     </resource>
 
     <resource label="Textthing-xsd"
@@ -534,9 +502,9 @@
               id="text_thing_5"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.xsd</bitstream>
-        <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Textthing as XSD</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text permissions="prop-default">This is a Textthing as XSD</text>
+        </unformatted-text-prop>
     </resource>
 
     <resource label="Zipthing-zip"
@@ -544,9 +512,9 @@
               id="zip_thing_1"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.zip</bitstream>
-        <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Zipthing as ZIP</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text permissions="prop-default">This is a Zipthing as ZIP</text>
+        </unformatted-text-prop>
     </resource>
 
     <resource label="Zipthing-7z"
@@ -554,9 +522,9 @@
               id="zip_thing_2"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.7z</bitstream>
-        <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Zipthing as 7Z</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text permissions="prop-default">This is a Zipthing as 7Z</text>
+        </unformatted-text-prop>
     </resource>
 
     <resource label="Zipthing-gzip"
@@ -564,9 +532,9 @@
               id="zip_thing_3"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.gzip</bitstream>
-        <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Zipthing as gzip</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text permissions="prop-default">This is a Zipthing as gzip</text>
+        </unformatted-text-prop>
     </resource>
 
     <resource label="Zipthing-tar-gz"
@@ -574,9 +542,9 @@
               id="zip_thing_4"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.tar.gz</bitstream>
-        <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Zipthing as tar.gz</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text permissions="prop-default">This is a Zipthing as tar.gz</text>
+        </unformatted-text-prop>
     </resource>
 
     <resource label="Zipthing-tar"
@@ -584,9 +552,9 @@
               id="zip_thing_5"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.tar</bitstream>
-        <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Zipthing as tar</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text permissions="prop-default">This is a Zipthing as tar</text>
+        </unformatted-text-prop>
     </resource>
 
     <resource label="Zipthing-tgz"
@@ -594,9 +562,9 @@
               id="zip_thing_6"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.tgz</bitstream>
-        <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Zipthing as tgz</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text permissions="prop-default">This is a Zipthing as tgz</text>
+        </unformatted-text-prop>
     </resource>
 
     <resource label="Zipthing-z"
@@ -604,9 +572,9 @@
               id="zip_thing_7"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.z</bitstream>
-        <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Zipthing as z</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text permissions="prop-default">This is a Zipthing as z</text>
+        </unformatted-text-prop>
     </resource>
 
     <resource label="Zipthing-gz"
@@ -614,9 +582,9 @@
               id="zip_thing_8"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.gz</bitstream>
-        <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Zipthing as gz</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text permissions="prop-default">This is a Zipthing as gz</text>
+        </unformatted-text-prop>
     </resource>
 
     <resource label="Audiothing-wav"
@@ -624,9 +592,9 @@
               id="audio_thing_1"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.wav</bitstream>
-        <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Audiothing as WAV</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text permissions="prop-default">This is a Audiothing as WAV</text>
+        </unformatted-text-prop>
     </resource>
 
     <resource label="Audiothing-mp3"
@@ -634,9 +602,9 @@
               id="audio_thing_2"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test.mp3</bitstream>
-        <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Audiothing as MP3</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text permissions="prop-default">This is a Audiothing as MP3</text>
+        </unformatted-text-prop>
     </resource>
 
     <!-- the API supports also MP4 files that are purely audio (MIME "audio/mp4), but there is no test file for it -->
@@ -646,23 +614,23 @@
               id="video_thing_1"
               permissions="res-restricted">
         <bitstream>testdata/bitstreams/test.mp4</bitstream>
-        <text-prop name=":hasSimpleText">
-            <text encoding="utf8" permissions="prop-default">Dummy video with music</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text permissions="prop-default">Dummy video with music</text>
+        </unformatted-text-prop>
     </resource>
 
     <link label="Link between 'Second Testthing', 'Compoundthing' and 'Partofthing-1'"
           id="link_obj_1"
           permissions="res-default"
           creation_date="1970-10-23T03:45:12-13:30">
-        <text-prop name="hasComment">
-            <text permissions="prop-default" encoding="xml">
+        <formatted-text-prop name="hasComment">
+            <text permissions="prop-default">
                 A link object can link together an arbitrary number of resources from any resource class.
             </text>
-            <text permissions="prop-default" encoding="xml">
+            <text permissions="prop-default">
                 Second comment
             </text>
-        </text-prop>
+        </formatted-text-prop>
         <resptr-prop name="hasLinkTo">
             <resptr permissions="prop-default">test_thing_2</resptr>
             <resptr permissions="prop-default">compound_thing_0</resptr>
@@ -673,30 +641,30 @@
     <resource label="TestThing2Child1" 
               restype=":TestThing2Child1" 
               id="TestThing2Child1">
-        <text-prop name=":hasTextChild1">
-            <text encoding="utf8">Some text</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasTextChild1">
+            <text>Some text</text>
+        </unformatted-text-prop>
     </resource>
 
     <resource label="TestThing2Child2" 
               restype=":TestThing2Child2" 
               id="TestThing2Child2">
-        <text-prop name=":hasTextChild2">
-            <text encoding="utf8">Some text</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasTextChild2">
+            <text>Some text</text>
+        </unformatted-text-prop>
     </resource>
 
     <region label="Rectangle in image"
             id="region_2"
             permissions="res-restricted">
-        <text-prop name="hasComment">
-            <text encoding="xml" permissions="prop-default">
+        <formatted-text-prop name="hasComment">
+            <text permissions="prop-default">
                 This is a rectangle-formed region of interest of an image. It is also displayed as Annotation.
             </text>
-            <text encoding="xml" permissions="prop-restricted">
+            <text permissions="prop-restricted">
                 This is a second comment.
             </text>
-        </text-prop>
+        </formatted-text-prop>
         <geometry-prop name="hasGeometry">
             <geometry permissions="prop-default">
                 {
@@ -722,11 +690,11 @@
     <region label="Circle in image"
             id="region_3"
             permissions="res-restricted">
-        <text-prop name="hasComment">
-            <text encoding="xml" permissions="prop-default">
+        <formatted-text-prop name="hasComment">
+            <text permissions="prop-default">
                 This is a circle-formed region of interest of an image. It is also displayed as Annotation.
             </text>
-        </text-prop>
+        </formatted-text-prop>
         <geometry-prop name="hasGeometry">
             <geometry permissions="prop-default">
                 {
@@ -749,9 +717,9 @@
 
     <!-- :VideoSequence -->
     <resource label="Section of a Video" restype=":VideoSequence" id="video_sequence_0" permissions="res-default">
-        <text-prop name=":hasSimpleText">
-            <text encoding="utf8" permissions="prop-default">Sequence of a video</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text permissions="prop-default">Sequence of a video</text>
+        </unformatted-text-prop>
         <resptr-prop name=":sequenceOfVideo">
             <resptr permissions="prop-default">video_thing_1</resptr>
         </resptr-prop>
@@ -762,9 +730,9 @@
 
     <!-- :AudioSequence -->
     <resource label="Section of a Video" restype=":AudioSequence" id="audio_sequence_0" permissions="res-default">
-        <text-prop name=":hasSimpleText">
-            <text encoding="utf8" permissions="prop-default">Sequence of an Audio Resource</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text permissions="prop-default">Sequence of an Audio Resource</text>
+        </unformatted-text-prop>
         <resptr-prop name=":sequenceOfAudio">
             <resptr permissions="prop-default">audio_thing_1</resptr>
         </resptr-prop>
@@ -775,9 +743,9 @@
 
     <!-- :MinimalisticSequence -->
     <resource label="Minimalistic section of a Video" restype=":MinimalisticSequence" id="minimalistic_sequence_0" permissions="res-default">
-        <text-prop name=":hasSimpleText">
-            <text encoding="utf8" permissions="prop-default">Sequence of a Video Resource</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text permissions="prop-default">Sequence of a Video Resource</text>
+        </unformatted-text-prop>
         <resptr-prop name="isSequenceOf">
             <resptr permissions="prop-default">video_thing_1</resptr>
         </resptr-prop>
@@ -787,9 +755,9 @@
     </resource>
 
     <resource label="Minimalistic section of an Audio" restype=":MinimalisticSequence" id="minimalistic_sequence_1" permissions="res-default">
-        <text-prop name=":hasSimpleText">
-            <text encoding="utf8" permissions="prop-default">Sequence of an Audio Resource</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text permissions="prop-default">Sequence of an Audio Resource</text>
+        </unformatted-text-prop>
         <resptr-prop name="isSequenceOf">
             <resptr permissions="prop-default">audio_thing_1</resptr>
         </resptr-prop>
@@ -800,37 +768,37 @@
 
     <!-- reference a resource class from another ontology defined in the same JSON project file than default-ontology-->
     <resource label="TestThingPermissions 1" restype="testontoPermissions:TestThingPermissions" id="testthingpermissions_1">
-        <text-prop name="testontoPermissions:hasText">
-            <text encoding="utf8">Hello!</text>
-        </text-prop>
+        <unformatted-text-prop name="testontoPermissions:hasUnformattedText2">
+            <text>Hello!</text>
+        </unformatted-text-prop>
     </resource>
 
     <resource label="TestthingWithArk1"
               restype=":TestThing2"
               id="test_thing_with_ark_1"
               ark="ark:/72163/4123-43ec6evb134-a.2022828">
-        <text-prop name=":hasSimpleText"><text encoding="utf8">Hello</text></text-prop>
+        <unformatted-text-prop name=":hasUnformattedText"><text>Hello</text></unformatted-text-prop>
     </resource>
 
     <resource label="TestthingWithArk2"
               restype=":TestThing2"
               id="test_thing_with_ark_2"
               ark="ark:/72163/4123-43xc6ivb931-a.2022829">
-        <text-prop name=":hasSimpleText"><text encoding="utf8">Hello</text></text-prop>
+        <unformatted-text-prop name=":hasUnformattedText"><text>Hello</text></unformatted-text-prop>
     </resource>
 
     <resource label="TestthingWithIri1"
               restype=":TestThing2"
               id="test_thing_with_iri_1"
               iri="http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA">
-        <text-prop name=":hasSimpleText"><text encoding="utf8">Hello</text></text-prop>
+        <unformatted-text-prop name=":hasUnformattedText"><text>Hello</text></unformatted-text-prop>
     </resource>
 
     <resource label="TestthingWithIri2"
               restype=":TestThing2"
               id="test_thing_with_iri_2"
               iri="http://rdfh.ch/4123/TqAnYQzrSzC2ctT06OJMYB">
-        <text-prop name=":hasSimpleText"><text encoding="utf8">Hello</text></text-prop>
+        <unformatted-text-prop name=":hasUnformattedText"><text>Hello</text></unformatted-text-prop>
     </resource>
 
 </knora>

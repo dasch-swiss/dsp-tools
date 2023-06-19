@@ -208,7 +208,7 @@ The following property elements exist:
 - `<interval-prop>`: contains interval values
 - `<period-prop>`: contains time period values (not yet implemented)
 - `<resptr-prop>`: contains links to other resources
-- `<text-prop>`: contains text values
+- `<unformatted-text-prop>`/`<formatted-text-prop>`: contains text values
 - `<time-prop>`: contains time values
 - `<uri-prop>`: contains URI values
 
@@ -646,9 +646,13 @@ Example of a property with a public link to `<resource id="res_1" ...>` and a hi
 ```
 
 
-### `<text-prop>`
+### `<unformatted-text-prop>`/`<formatted-text-prop>`
 
-The `<text-prop>` element is used for text values. It must contain at least one `<text>` element.
+The `<unformatted-text-prop>` element is used
+for text properties with the object [`UnformattedTextValue`](./json-project/ontologies.md#textvalue).
+
+The `<formatted-text-prop>` element is used
+for text properties with the object [`FormattedTextValue`](./json-project/ontologies.md#textvalue).
 
 Attributes:
 
@@ -664,34 +668,32 @@ The `<text>` element has the following attributes:
   have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
-If the property's object is [`UnformattedTextValue`](./json-project/ontologies.md#textvalue),
-the `<text>` element must contain a string without any formatting.
+The `<unformatted-text-prop>` must contain at least one `<text>` element containing a string without formatting.
 
-If the property's object is [`FormattedTextValue`](./json-project/ontologies.md#textvalue),
-the `<text>` element must contain a string with XML formatting,
-as defined by the 
-XML to Standoff/RDF Standard Mapping documented
+The `<formatted-text-prop>` must contain at least one `<text>` element. 
+The `<text>` element can contain a string with XML formatting,
+as defined by the XML to Standoff/RDF Standard Mapping documented
 [here](https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v1/xml-to-standoff-mapping/#the-knora-standard-mapping)
 
-Example of a public and a hidden text with object `UnformattedTextValue`:
+Example of a public and a hidden unformatted text:
 
 ```xml
-<text-prop name=":hasUnformattedText">
+<unformatted-text-prop name=":hasUnformattedText">
     <text permissions="prop-default">Publicly visible text field without formatting</text>
     <text>Hidden text field without formatting</text>
-</text-prop>
+</unformatted-text-prop>
 ```
 
-Example of a public and a hidden text with object `FormattedTextValue`:
+Example of a public and a hidden formatted text:
 
 ```xml
-<text-prop name=":hasFormattedText">
+<formatted-text-prop name=":hasFormattedText">
     <text permissions="prop-default">Publicly visible text field that allows formatting</text>
     <text>
         Hidden: <strong>Bold text</strong> and a <a class="salsah-link" href="IRI:obj_0003:IRI">link to an ID</a>.<br/>
         And a <a class="salsah-link" href="http://rdfh.ch/4123/nyOODvYySV2nJ5RWRdmOdQ">link to an IRI</a>.
     </text>
-</text-prop>
+</formatted-text-prop>
 ```
 
 The second value of `:hasFormattedText` contains a link to the resource `obj_0003`,
@@ -701,11 +703,11 @@ which already exists on the DSP server.
 
 #### Whitespaces and newlines
 
-`UnformattedTextValue`:
+`<unformatted-text-prop>`:
 Pretty-print whitespaces and newlines from the XML file 
 are taken into the text field as they are.
 
-`FormattedTextValue`: 
+`<formatted-text-prop>`: 
 Pretty-print whitespaces and newlines from the XML file are removed.
 If you want a newline in the text field, use `<br />` instead.
 
@@ -722,7 +724,7 @@ In the tables below,
 the second column is the output of the first column,
 and the third column is how DSP-APP displays the second column.
 
-Behaviour of `UnformattedTextValue`:
+Behaviour of `<unformatted-text-prop>`:
 
 | input to `excel2xml` | XML file | DSP-APP | Remarks                                           |
 | -------------------- | -------- | ------- | ------------------------------------------------- |
@@ -737,7 +739,7 @@ Behaviour of `UnformattedTextValue`:
 |                      | `<tag>`  | ⛔      | forbidden: The text is meant to be unformatted.   |
 
 
-Behaviour of `FormattedTextValue`:
+Behaviour of `<formatted-text-prop>`:
 
 | input to `excel2xml`  | XML file            | DSP-APP       | Remarks                                   |
 | --------------------- | ------------------- | ------------- | ----------------------------------------- |
@@ -762,17 +764,17 @@ the following rules can be derived:
 
 For input of excel2xml:
 
-- `UnformattedTextValue`: Don't use HTML escape sequences.
-- `UnformattedTextValue`: Don't use tags. (Mathematical comparisons with `<` and `>` are allowed).
-- `FormattedTextValue`: The special characters `<`, `>` and `&` are only allowed to construct a tag.
-- `FormattedTextValue`: If tags are used, they must result in well-formed XML.
-- `FormattedTextValue`: HTML escape sequences can be freely used.
+- `<unformatted-text-prop>`: Don't use HTML escape sequences.
+- `<unformatted-text-prop>`: Don't use tags. (Mathematical comparisons with `<` and `>` are allowed).
+- `<formatted-text-prop>`: The special characters `<`, `>` and `&` are only allowed to construct a tag.
+- `<formatted-text-prop>`: If tags are used, they must result in well-formed XML.
+- `<formatted-text-prop>`: HTML escape sequences can be freely used.
 
 If you write an XML file by hand:
 
-- `UnformattedTextValue`: The special characters `<`, `>` and `&` must be escaped.
-- `UnformattedTextValue`: Don't use tags. (Mathematical comparisons with `<>` are allowed).
-- `FormattedTextValue`: The special characters `<`, `>` and `&` must be escaped if they are not part of a valid HTML tag.
+- `<unformatted-text-prop>`: The special characters `<`, `>` and `&` must be escaped.
+- `<unformatted-text-prop>`: Don't use tags. (Mathematical comparisons with `<>` are allowed).
+- `<formatted-text-prop>`: The special characters `<`, `>` and `&` must be escaped if they are not part of a valid HTML tag.
 
 
 ### `<time-prop>`
@@ -887,9 +889,9 @@ Example:
 
 ```xml
 <annotation label="Annotation to another resource" id="annotation_0" permissions="res-default">
-    <text-prop name="hasComment">
+    <formatted-text-prop name="hasComment">
         <text permissions="prop-default">This is an annotation to a resource.</text>
-    </text-prop>
+    </formatted-text-prop>
     <resptr-prop name="isAnnotationOf">
         <resptr permissions="prop-default">img_1</resptr>
     </resptr-prop>
@@ -933,9 +935,9 @@ Example:
             }
         </geometry>
     </geometry-prop>
-    <text-prop name="hasComment">
+    <formatted-text-prop name="hasComment">
         <text permissions="prop-default">This is a rectangle-formed region of interest.</text>
-    </text-prop>
+    </formatted-text-prop>
 </region>
 ```
 
@@ -957,11 +959,11 @@ Example:
 
 ```xml
 <link label="Link between three resources" id="link_obj_0" permissions="res-default">
-    <text-prop name="hasComment">
+    <formatted-text-prop name="hasComment">
         <text permissions="prop-default">
             A link object can link together an arbitrary number of resources from any resource class.
         </text>
-    </text-prop>
+    </formatted-text-prop>
     <resptr-prop name="hasLinkTo">
         <resptr permissions="prop-default">doc_001</resptr>
         <resptr permissions="prop-default">img_obj_5</resptr>

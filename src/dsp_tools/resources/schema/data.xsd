@@ -56,20 +56,17 @@
         </xs:restriction>
     </xs:simpleType>
 
-    <!-- encoding types -->
-    <xs:simpleType name="encoding_types">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="utf8"/>
-            <xs:enumeration value="xml"/>
-        </xs:restriction>
-    </xs:simpleType>
+    <!-- unformatted text value type -->
+    <xs:complexType name="unformatted_text_type" mixed="true">
+        <xs:attribute name="comment" type="xs:string"/>
+        <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+    </xs:complexType>
 
-    <!-- text value type -->
-    <xs:complexType name="text_type" mixed="true">
+    <!-- formatted text value type -->
+    <xs:complexType name="formatted_text_type" mixed="true">
         <xs:sequence>
             <xs:any processContents="skip" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
-        <xs:attribute name="encoding" type="encoding_types" use="required"/>
         <xs:attribute name="resrefs" type="resrefs_type"/>
         <xs:attribute name="comment" type="xs:string"/>
         <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
@@ -215,10 +212,18 @@
     </xs:simpleContent>
     </xs:complexType>
 
-    <!-- textprop_type -->
-    <xs:complexType name="textprop_type">
+    <!-- unformatted_textprop_type -->
+    <xs:complexType name="unformatted_textprop_type">
         <xs:sequence>
-            <xs:element name="text" type="text_type" minOccurs="1" maxOccurs="unbounded"/>
+            <xs:element name="text" type="unformatted_text_type" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <!-- formatted_textprop_type -->
+    <xs:complexType name="formatted_textprop_type">
+        <xs:sequence>
+            <xs:element name="text" type="formatted_text_type" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute name="name" type="xs:string" use="required"/>
     </xs:complexType>
@@ -331,7 +336,7 @@
     <!-- builtin_hasComment_prop_type -->
     <xs:complexType name="builtin_hasComment_prop_type">
         <xs:sequence>
-            <xs:element name="text" type="text_type" minOccurs="1" maxOccurs="unbounded"/>
+            <xs:element name="text" type="formatted_text_type" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute name="name" type="xs:string" use="required" fixed="hasComment"/>
     </xs:complexType>
@@ -392,7 +397,8 @@
                 <xs:element name="bitstream" type="bitstream_type"/>
             </xs:choice>
             <xs:choice maxOccurs="unbounded">
-                <xs:element name="text-prop" type="textprop_type" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element name="unformatted-text-prop" type="unformatted_textprop_type" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element name="formatted-text-prop" type="formatted_textprop_type" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="color-prop" type="colorprop_type" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="date-prop" type="dateprop_type" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="geoname-prop" type="geonameprop_type" minOccurs="0" maxOccurs="unbounded"/>
@@ -425,7 +431,7 @@
     <!-- annotation tag -->
     <xs:complexType name="annotation_type">
         <xs:all>
-            <xs:element name="text-prop" type="builtin_hasComment_prop_type" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="formatted-text-prop" type="builtin_hasComment_prop_type" minOccurs="1" maxOccurs="1"/>
             <xs:element name="resptr-prop" type="builtin_isAnnotationOf_prop_type" minOccurs="1" maxOccurs="1"/>
         </xs:all>
         <xs:attribute name="label" type="xs:string" use="required"/>
@@ -439,7 +445,7 @@
     <!-- region tag -->
     <xs:complexType name="region_type">
         <xs:all>
-            <xs:element name="text-prop" type="builtin_hasComment_prop_type" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="formatted-text-prop" type="builtin_hasComment_prop_type" minOccurs="0" maxOccurs="1"/>
             <xs:element name="resptr-prop" type="builtin_isRegionOf_prop_type" minOccurs="1" maxOccurs="1"/>
             <xs:element name="geometry-prop" type="builtin_hasGeometry_prop_type" minOccurs="1" maxOccurs="1"/>
             <xs:element name="color-prop" type="builtin_hasColor_prop_type" minOccurs="1" maxOccurs="1"/>
@@ -455,7 +461,7 @@
     <!-- link tag -->
     <xs:complexType name="link_type">
         <xs:all>
-            <xs:element name="text-prop" type="builtin_hasComment_prop_type" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="formatted-text-prop" type="builtin_hasComment_prop_type" minOccurs="1" maxOccurs="1"/>
             <xs:element name="resptr-prop" type="builtin_hasLinkTo_prop_type" minOccurs="1" maxOccurs="1"/>
         </xs:all>
         <xs:attribute name="label" type="xs:string" use="required"/>

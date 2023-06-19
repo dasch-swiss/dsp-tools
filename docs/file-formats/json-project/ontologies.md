@@ -506,7 +506,7 @@ These tags must follow the XML to Standoff/RDF Standard Mapping documented
 
 `"UnformattedTextValue"` is a simple, plain text that does not contain markup.
 
-See the [xmlupload documentation](../xml-data-file.md#text-prop) for more information.
+See the [xmlupload documentation](../xml-data-file.md#unformatted-text-propformatted-text-prop) for more information.
 
 There are no *gui_elements / gui_attributes* for this property.
 

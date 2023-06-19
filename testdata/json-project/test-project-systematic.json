@@ -218,67 +218,48 @@
                         "super": [
                             "testonto:hasTextChild1"
                         ],
-                        "object": "TextValue",
+                        "object": "UnformattedTextValue",
                         "labels": {
                             "en": "Text",
                             "rm": "hasTextChild2 in Rumantsch"
-                        },
-                        "gui_element": "SimpleText"
+                        }
                     },
                     {
                         "name": "hasTextChild1",
                         "super": [
-                            ":hasSimpleText"
+                            ":hasUnformattedText"
                         ],
-                        "object": "TextValue",
+                        "object": "UnformattedTextValue",
                         "labels": {
                             "en": "Text"
-                        },
-                        "gui_element": "SimpleText"
+                        }
                     },
                     {
-                        "name": "hasSimpleText",
+                        "name": "hasUnformattedText",
                         "super": [
                             "hasValue",
                             "foaf:name",
                             "externalOnto:hasText"
                         ],
-                        "object": "TextValue",
+                        "object": "UnformattedTextValue",
                         "labels": {
-                            "en": "hasSimpleText"
+                            "en": "hasUnformattedText"
                         },
                         "comments": {
                             "en": "properties can optionally have comments",
                             "de": "Properties können Kommentare haben",
                             "rm": "Property with a Rumantsch comment"
-                        },
-                        "gui_element": "SimpleText",
-                        "gui_attributes": {
-                            "maxlength": 255,
-                            "size": 80
                         }
                     },
                     {
-                        "name": "hasRichtext",
+                        "name": "hasFormattedText",
                         "super": [
                             "hasValue"
                         ],
-                        "object": "TextValue",
+                        "object": "FormattedTextValue",
                         "labels": {
-                            "en": "hasRichtext"
-                        },
-                        "gui_element": "Richtext"
-                    },
-                    {
-                        "name": "hasTextArea",
-                        "super": [
-                            "hasValue"
-                        ],
-                        "object": "TextValue",
-                        "labels": {
-                            "en": "hasTextArea"
-                        },
-                        "gui_element": "Textarea"
+                            "en": "hasFormattedText"
+                        }
                     },
                     {
                         "name": "hasUri",
@@ -535,17 +516,12 @@
                         },
                         "cardinalities": [
                             {
-                                "propname": "testonto:hasSimpleText",
+                                "propname": "testonto:hasUnformattedText",
                                 "cardinality": "1-n",
                                 "gui_order": 0
                             },
                             {
-                                "propname": ":hasTextArea",
-                                "cardinality": "0-n",
-                                "gui_order": 1
-                            },
-                            {
-                                "propname": ":hasRichtext",
+                                "propname": ":hasFormattedText",
                                 "cardinality": "0-n",
                                 "gui_order": 2
                             },
@@ -657,7 +633,7 @@
                         },
                         "cardinalities": [
                             {
-                                "propname": ":hasSimpleText",
+                                "propname": ":hasUnformattedText",
                                 "gui_order": 0,
                                 "cardinality": "1"
                             },
@@ -680,7 +656,7 @@
                         },
                         "cardinalities": [
                             {
-                                "propname": ":hasSimpleText",
+                                "propname": ":hasUnformattedText",
                                 "gui_order": 1,
                                 "cardinality": "1"
                             }
@@ -697,7 +673,7 @@
                         },
                         "cardinalities": [
                             {
-                                "propname": ":hasSimpleText",
+                                "propname": ":hasUnformattedText",
                                 "gui_order": 1,
                                 "cardinality": "1"
                             }
@@ -715,7 +691,7 @@
                         },
                         "cardinalities": [
                             {
-                                "propname": ":hasSimpleText",
+                                "propname": ":hasUnformattedText",
                                 "gui_order": 1,
                                 "cardinality": "1"
                             }
@@ -732,7 +708,7 @@
                         },
                         "cardinalities": [
                             {
-                                "propname": ":hasSimpleText",
+                                "propname": ":hasUnformattedText",
                                 "gui_order": 1,
                                 "cardinality": "1"
                             }
@@ -749,7 +725,7 @@
                         },
                         "cardinalities": [
                             {
-                                "propname": ":hasSimpleText",
+                                "propname": ":hasUnformattedText",
                                 "cardinality": "1"
                             }
                         ]
@@ -765,7 +741,7 @@
                         },
                         "cardinalities": [
                             {
-                                "propname": ":hasSimpleText",
+                                "propname": ":hasUnformattedText",
                                 "gui_order": 1,
                                 "cardinality": "1"
                             }
@@ -782,7 +758,7 @@
                         },
                         "cardinalities": [
                             {
-                                "propname": ":hasSimpleText",
+                                "propname": ":hasUnformattedText",
                                 "gui_order": 1,
                                 "cardinality": "1"
                             }
@@ -841,7 +817,7 @@
                         },
                         "cardinalities": [
                             {
-                                "propname": ":hasSimpleText",
+                                "propname": ":hasUnformattedText",
                                 "cardinality": "0-1",
                                 "gui_order": 10
                             },
@@ -866,7 +842,7 @@
                         },
                         "cardinalities": [
                             {
-                                "propname": ":hasSimpleText",
+                                "propname": ":hasUnformattedText",
                                 "cardinality": "0-1",
                                 "gui_order": 1
                             },
@@ -893,7 +869,7 @@
                         },
                         "cardinalities": [
                             {
-                                "propname": ":hasSimpleText",
+                                "propname": ":hasUnformattedText",
                                 "cardinality": "0-1",
                                 "gui_order": 1
                             },
@@ -924,18 +900,13 @@
                 "label": "Test ontology permissions",
                 "properties": [
                     {
-                        "name": "hasText",
+                        "name": "hasUnformattedText2",
                         "super": [
                             "hasValue"
                         ],
-                        "object": "TextValue",
+                        "object": "UnformattedTextValue",
                         "labels": {
-                            "en": "Text"
-                        },
-                        "gui_element": "SimpleText",
-                        "gui_attributes": {
-                            "maxlength": 255,
-                            "size": 80
+                            "en": "hasUnformattedText2"
                         }
                     }
                 ],
@@ -955,12 +926,12 @@
                         },
                         "cardinalities": [
                             {
-                                "propname": ":hasText",
+                                "propname": ":hasUnformattedText2",
                                 "gui_order": 1,
                                 "cardinality": "0-n"
                             },
                             {
-                                "propname": "testonto:hasSimpleText",
+                                "propname": "testonto:hasUnformattedText",
                                 "gui_order": 2,
                                 "cardinality": "0-n"
                             }
@@ -978,7 +949,7 @@
                         },
                         "cardinalities": [
                             {
-                                "propname": ":hasText",
+                                "propname": ":hasUnformattedText2",
                                 "gui_order": 1,
                                 "cardinality": "0-n"
                             }

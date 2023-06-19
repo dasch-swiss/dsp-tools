@@ -69,7 +69,8 @@
                 "IntValue",
                 "IntervalValue",
                 "ListValue",
-                "TextValue",
+                "UnformattedTextValue",
+                "FormattedTextValue",
                 "TimeValue",
                 "UriValue"
             ]
@@ -85,12 +86,10 @@
                 "List",
                 "Radio",
                 "Pulldown",
-                "Richtext",
                 "Searchbox",
                 "SimpleText",
                 "Slider",
                 "Spinbox",
-                "Textarea",
                 "TimeStamp"
             ]
         },
@@ -188,8 +187,7 @@
                 "name",
                 "super",
                 "object",
-                "labels",
-                "gui_element"
+                "labels"
             ],
             "additionalProperties": false,
             "allOf": [
@@ -262,7 +260,7 @@
                     "if": {
                         "properties": {
                             "object": {
-                                "const": "TextValue"
+                                "const": "FormattedTextValue"
                             }
                         }
                     },
@@ -284,14 +282,46 @@
                                         }
                                     ]
                                 }
-                            },
-                            "gui_element": {
-                                "enum": [
-                                    "SimpleText",
-                                    "Textarea",
-                                    "Richtext"
-                                ]
                             }
+                        },
+                        "not": {
+                            "required": [
+                                "gui_element",
+                                "gui_attributes"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "object": {
+                                "const": "UnformattedTextValue"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "super": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "oneOf": [
+                                        {
+                                            "const": "hasValue"
+                                        },
+                                        {
+                                            "$ref": "#/definitions/prefixedname_or_uri"
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        "not": {
+                            "required": [
+                                "gui_element",
+                                "gui_attributes"
+                            ]
                         }
                     }
                 },
@@ -674,41 +704,6 @@
                     "if": {
                         "properties": {
                             "gui_element": {
-                                "const": "Textarea"
-                            }
-                        }
-                    },
-                    "then": {
-                        "properties": {
-                            "gui_attributes": {
-                                "type": "object",
-                                "properties": {
-                                    "cols": {
-                                        "type": "integer"
-                                    },
-                                    "rows": {
-                                        "type": "integer"
-                                    },
-                                    "width": {
-                                        "type": "string",
-                                        "pattern": "^[0-9]*%?$"
-                                    },
-                                    "wrap": {
-                                        "enum": [
-                                            "soft",
-                                            "hard"
-                                        ]
-                                    }
-                                },
-                                "additionalProperties": false
-                            }
-                        }
-                    }
-                },
-                {
-                    "if": {
-                        "properties": {
-                            "gui_element": {
                                 "const": "Colorpicker"
                             }
                         }
@@ -836,7 +831,6 @@
                         "properties": {
                             "gui_element": {
                                 "enum": [
-                                    "Richtext",
                                     "Date",
                                     "TimeStamp",
                                     "Geonames",

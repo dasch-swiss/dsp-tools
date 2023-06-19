@@ -1109,5 +1109,5 @@ def _handle_upload_error(
         msg = f"Independently of this error, there were some resources that could not be uploaded: {failed_uploads}"
         print(msg)
         logger.info(msg)
-    
+
     sys.exit(1)

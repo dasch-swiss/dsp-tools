@@ -1062,7 +1062,7 @@ def _handle_upload_error(
         id2iri_mapping_file = f"{save_location}/{timestamp_str}_id2iri_mapping.json\n"
         with open(id2iri_mapping_file, "x", encoding="utf-8") as f:
             json.dump(id2iri_mapping, f, ensure_ascii=False, indent=4)
-        print(f"The mapping of internal IDs to IRIs was written to {id2iri_mapping_file}\n")
+        print(f"The mapping of internal IDs to IRIs was written to {id2iri_mapping_file}")
         logger.info(f"The mapping of internal IDs to IRIs was written to {id2iri_mapping_file}")
 
     if stashed_xml_texts:

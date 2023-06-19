@@ -30,7 +30,7 @@ class Sipi:
             response = requests.post(
                 self.sipi_server + "/upload?token=" + self.token,
                 files=files,
-                timeout=0.1,
+                timeout=5 * 60,
             )
         check_for_api_error(response)
         res: dict[Any, Any] = response.json()

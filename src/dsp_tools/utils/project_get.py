@@ -122,7 +122,7 @@ def get_project(
         "project": project_obj,
     }
 
-    with open(outfile_path, "w", encoding="utf8") as f:
+    with open(outfile_path, "w", encoding="utf-8") as f:
         json.dump(outfile_content, f, indent=4, ensure_ascii=False)
 
     return True

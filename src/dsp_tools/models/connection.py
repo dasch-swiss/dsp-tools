@@ -166,7 +166,7 @@ class Connection:
             }
             tmp = path.split("/")
             filename = "POST" + "_".join(tmp) + ".json"
-            with open(filename, "w", encoding="utf8") as f:
+            with open(filename, "w", encoding="utf-8") as f:
                 json.dump(logobj, f, indent=4)
         check_for_api_error(response)
         result = response.json()

@@ -659,30 +659,35 @@ Attributes:
 
 The `<text>` element has the following attributes:
 
-- `encoding` (required)
-    - `utf8`: if the property's object is [`UnformattedTextValue`](./json-project/ontologies.md#textvalue)
-    - `xml`: if the property's object is [`FormattedTextValue`](./json-project/ontologies.md#textvalue)
-        - It must follow the XML format as defined by the 
-          XML to Standoff/RDF Standard Mapping documented
-          [here](https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v1/xml-to-standoff-mapping/#the-knora-standard-mapping)
 - `permissions`: Permission ID 
   (optional, but if omitted, users who are lower than a `ProjectAdmin`
   have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
-Example of a public and a hidden text:
+If the property's object is [`UnformattedTextValue`](./json-project/ontologies.md#textvalue),
+the `<text>` element must contain a string without any formatting.
+
+If the property's object is [`FormattedTextValue`](./json-project/ontologies.md#textvalue),
+the `<text>` element must contain a string with XML formatting,
+as defined by the 
+XML to Standoff/RDF Standard Mapping documented
+[here](https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v1/xml-to-standoff-mapping/#the-knora-standard-mapping)
+
+Example of a public and a hidden text with object `UnformattedTextValue`:
 
 ```xml
 <text-prop name=":hasUnformattedText">
-    <text encoding="utf8" permissions="prop-default">Publicly visible text field without formatting</text>
-    <text encoding="utf8">Hidden text field without formatting</text>
+    <text permissions="prop-default">Publicly visible text field without formatting</text>
+    <text>Hidden text field without formatting</text>
 </text-prop>
 ```
 
+Example of a public and a hidden text with object `FormattedTextValue`:
+
 ```xml
 <text-prop name=":hasFormattedText">
-    <text encoding="xml" permissions="prop-default">Publicly visible text field that allows formatting</text>
-    <text encoding="xml">
+    <text permissions="prop-default">Publicly visible text field that allows formatting</text>
+    <text>
         Hidden: <strong>Bold text</strong> and a <a class="salsah-link" href="IRI:obj_0003:IRI">link to an ID</a>.<br/>
         And a <a class="salsah-link" href="http://rdfh.ch/4123/nyOODvYySV2nJ5RWRdmOdQ">link to an IRI</a>.
     </text>
@@ -696,11 +701,11 @@ which already exists on the DSP server.
 
 #### Whitespaces and newlines
 
-`UnformattedTextValue` (`encoding="utf8"`):
+`UnformattedTextValue`:
 Pretty-print whitespaces and newlines from the XML file 
 are taken into the text field as they are.
 
-`FormattedTextValue` (`encoding="xml"`): 
+`FormattedTextValue`: 
 Pretty-print whitespaces and newlines from the XML file are removed.
 If you want a newline in the text field, use `<br />` instead.
 
@@ -717,7 +722,7 @@ In the tables below,
 the second column is the output of the first column,
 and the third column is how DSP-APP displays the second column.
 
-Behaviour of `UnformattedTextValue` (`encoding="utf8"`):
+Behaviour of `UnformattedTextValue`:
 
 | input to `excel2xml` | XML file | DSP-APP | Remarks                                           |
 | -------------------- | -------- | ------- | ------------------------------------------------- |
@@ -732,7 +737,7 @@ Behaviour of `UnformattedTextValue` (`encoding="utf8"`):
 |                      | `<tag>`  | ⛔      | forbidden: The text is meant to be unformatted.   |
 
 
-Behaviour of `FormattedTextValue` (`encoding="xml"`):
+Behaviour of `FormattedTextValue`:
 
 | input to `excel2xml`  | XML file            | DSP-APP       | Remarks                                   |
 | --------------------- | ------------------- | ------------- | ----------------------------------------- |
@@ -883,7 +888,7 @@ Example:
 ```xml
 <annotation label="Annotation to another resource" id="annotation_0" permissions="res-default">
     <text-prop name="hasComment">
-        <text encoding="utf8" permissions="prop-default">This is an annotation to a resource.</text>
+        <text permissions="prop-default">This is an annotation to a resource.</text>
     </text-prop>
     <resptr-prop name="isAnnotationOf">
         <resptr permissions="prop-default">img_1</resptr>
@@ -929,7 +934,7 @@ Example:
         </geometry>
     </geometry-prop>
     <text-prop name="hasComment">
-        <text encoding="utf8" permissions="prop-default">This is a rectangle-formed region of interest.</text>
+        <text permissions="prop-default">This is a rectangle-formed region of interest.</text>
     </text-prop>
 </region>
 ```
@@ -953,7 +958,7 @@ Example:
 ```xml
 <link label="Link between three resources" id="link_obj_0" permissions="res-default">
     <text-prop name="hasComment">
-        <text permissions="prop-default" encoding="utf8">
+        <text permissions="prop-default">
             A link object can link together an arbitrary number of resources from any resource class.
         </text>
     </text-prop>
@@ -1029,13 +1034,13 @@ In addition, there is another complete example of an XML data file here:
             <list permissions="prop-default">Tree list node 03</list>
         </list-prop>
         <text-prop name=":hasFormattedText">
-            <text permissions="prop-default" encoding="xml">
+            <text permissions="prop-default">
                 The <strong>third</strong> object and a <a class="salsah-link" href="IRI:obj_0003:IRI">link</a> to.
             </text>
         </text-prop>
         <text-prop name=":hasUnformattedText">
-            <text permissions="prop-default" encoding="utf8">Dies ist ein einfacher Text ohne Markup</text>
-            <text permissions="prop-restricted" encoding="utf8">Nochmals ein einfacher Text</text>
+            <text permissions="prop-default">Dies ist ein einfacher Text ohne Markup</text>
+            <text permissions="prop-restricted">Nochmals ein einfacher Text</text>
         </text-prop>
         <date-prop name=":hasDate">
             <date permissions="prop-default">JULIAN:CE:1401-05-17:CE:1402-01</date>
@@ -1077,10 +1082,10 @@ In addition, there is another complete example of an XML data file here:
             <list permissions="prop-default">Tree list node 11</list>
         </list-prop>
         <text-prop name=":hasFormattedText">
-            <text permissions="prop-default" encoding="xml">What is this <em>bold</em> thing?</text>
+            <text permissions="prop-default">What is this <em>bold</em> thing?</text>
         </text-prop>
         <text-prop name=":hasUnformattedText">
-            <text permissions="prop-default" encoding="utf8">aa bbb cccc ddddd</text>
+            <text permissions="prop-default">aa bbb cccc ddddd</text>
         </text-prop>
         <date-prop name=":hasDate">
             <date permissions="prop-default">1888</date>
@@ -1122,10 +1127,10 @@ In addition, there is another complete example of an XML data file here:
             <list permissions="prop-default">Tree list node 02</list>
         </list-prop>
         <text-prop name=":hasFormattedText">
-            <text permissions="prop-default" encoding="xml">This is <em>bold and <strong>strong</strong></em> text!</text>
+            <text permissions="prop-default">This is <em>bold and <strong>strong</strong></em> text!</text>
         </text-prop>
         <text-prop name=":hasUnformattedText">
-            <text permissions="prop-default" encoding="utf8">aa bbb cccc ddddd</text>
+            <text permissions="prop-default">aa bbb cccc ddddd</text>
         </text-prop>
         <date-prop name=":hasDate">
             <date permissions="prop-default">1888</date>
@@ -1159,7 +1164,7 @@ In addition, there is another complete example of an XML data file here:
               permissions="res-default">
         <bitstream>gaga.tif</bitstream>
         <text-prop name=":hasPictureTitle">
-            <text permissions="prop-default" encoding="utf8">This is the famous Lena</text>
+            <text permissions="prop-default">This is the famous Lena</text>
         </text-prop>
     </resource>
 

@@ -38,6 +38,7 @@ def run_test(
     """
     identical_values = [different_values[0]] * 3
     maximum = len(different_values)
+    inner_prop = prop if prop not in ["formatted-text", "unformatted-text"] else "text"
 
     # prepare the test cases of the form (expected_xml, kwargs for the method to generate XML)
     testcases: list[tuple[str, dict[str, Any]]] = list()
@@ -46,16 +47,27 @@ def run_test(
         testcases.extend(
             [
                 (
-                    f'<{prop}-prop name=":test"><{prop} permissions="prop-default">{val}</{prop}></{prop}-prop>',
+                    f'<{prop}-prop name=":test">'
+                    f'<{inner_prop} permissions="prop-default">'
+                    f'{val}'
+                    f'</{inner_prop}>'
+                    f'</{prop}-prop>',
                     dict(name=":test", value=val),
                 ),
                 (
-                    f'<{prop}-prop name=":test"><{prop} permissions="prop-restricted">{val}</{prop}></{prop}-prop>',
+                    f'<{prop}-prop name=":test">'
+                    f'<{inner_prop} permissions="prop-restricted">'
+                    f'{val}'
+                    f'</{inner_prop}>'
+                    f'</{prop}-prop>',
                     dict(name=":test", value=excel2xml.PropertyElement(val, permissions="prop-restricted")),
                 ),
                 (
-                    f'<{prop}-prop name=":test"><{prop} permissions="prop-restricted" comment="comment">{val}'
-                    f"</{prop}></{prop}-prop>",
+                    f'<{prop}-prop name=":test">'
+                    f'<{inner_prop} permissions="prop-restricted" comment="comment">'
+                    f'{val}'
+                    f'</{inner_prop}>'
+                    f'</{prop}-prop>',
                     dict(
                         name=":test",
                         value=excel2xml.PropertyElement(val, permissions="prop-restricted", comment="comment"),
@@ -68,17 +80,17 @@ def run_test(
         [
             (
                 f'<{prop}-prop name=":test">'
-                f'<{prop} permissions="prop-default">{identical_values[0]}</{prop}>'
-                f'<{prop} permissions="prop-default">{identical_values[1]}</{prop}>'
-                f'<{prop} permissions="prop-default">{identical_values[2]}</{prop}>'
+                f'<{inner_prop} permissions="prop-default">{identical_values[0]}</{inner_prop}>'
+                f'<{inner_prop} permissions="prop-default">{identical_values[1]}</{inner_prop}>'
+                f'<{inner_prop} permissions="prop-default">{identical_values[2]}</{inner_prop}>'
                 f"</{prop}-prop>",
                 dict(name=":test", value=identical_values),
             ),
             (
                 f'<{prop}-prop name=":test">'
-                f'<{prop} permissions="prop-default">{different_values[0 % maximum]}</{prop}>'
-                f'<{prop} permissions="prop-default">{different_values[1 % maximum]}</{prop}>'
-                f'<{prop} permissions="prop-default">{different_values[2 % maximum]}</{prop}>'
+                f'<{inner_prop} permissions="prop-default">{different_values[0 % maximum]}</{inner_prop}>'
+                f'<{inner_prop} permissions="prop-default">{different_values[1 % maximum]}</{inner_prop}>'
+                f'<{inner_prop} permissions="prop-default">{different_values[2 % maximum]}</{inner_prop}>'
                 f"</{prop}-prop>",
                 dict(
                     name=":test",
@@ -87,9 +99,12 @@ def run_test(
             ),
             (
                 f'<{prop}-prop name=":test">'
-                f'<{prop} permissions="prop-restricted" comment="comment1">{different_values[3 % maximum]}</{prop}>'
-                f'<{prop} permissions="prop-default" comment="comment2">{different_values[4 % maximum]}</{prop}>'
-                f'<{prop} permissions="prop-restricted" comment="comment3">{different_values[5 % maximum]}</{prop}>'
+                f'<{inner_prop} permissions="prop-restricted" comment="comment1">'
+                f'{different_values[3 % maximum]}</{inner_prop}>'
+                f'<{inner_prop} permissions="prop-default" comment="comment2">'
+                f'{different_values[4 % maximum]}</{inner_prop}>'
+                f'<{inner_prop} permissions="prop-restricted" comment="comment3">'
+                f'{different_values[5 % maximum]}</{inner_prop}>'
                 f"</{prop}-prop>",
                 dict(
                     name=":test",
@@ -482,7 +497,7 @@ class TestExcel2xml(unittest.TestCase):
             )
             received = re.sub(r" xmlns(:.+?)?=\".+?\"", "", received)
             expected = (
-                '<text-prop name=":test"><text permissions="prop-default" encoding="xml">' + exp + "</text></text-prop>"
+                f'<formatted-text-prop name=":test"><text permissions="prop-default">{exp}</text></formatted-text-prop>'
             )
             self.assertEqual(received, expected)
 
@@ -529,9 +544,8 @@ class TestExcel2xml(unittest.TestCase):
             )
             received = re.sub(r" xmlns(:.+?)?=\".+?\"", "", received)
             expected = (
-                '<text-prop name=":test"><text permissions="prop-default">'
-                + exp
-                + "</text></text-prop>"
+                f'<unformatted-text-prop name=":test"><text permissions="prop-default">{exp}'
+                '</text></unformatted-text-prop>'
             )
             self.assertEqual(received, expected)
 

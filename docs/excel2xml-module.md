@@ -49,7 +49,7 @@ This is the simplified pattern how the Python script works:
 4  # if necessary: create list mappings, according to explanation below
 5  for index, row in main_df.iterrows():
 6      resource = excel2xml.make_resource(...)
-7      resource.append(excel2xml.make_text_prop(...))
+7      resource.append(excel2xml.make_unformatted_text_prop(...))
 8      root.append(resource)
 9  excel2xml.write_xml(root, "data.xml")
 ```
@@ -221,38 +221,42 @@ Here's how the Docstrings assist you:
 
 #### Fine-tuning with `PropertyElement`
 
-There are two possibilities how to create a property: The value can be passed as it is, or as `PropertyElement`. If it
-is passed as it is, the `permissions` are assumed to be `prop-default`, texts are assumed to be encoded as `utf8`, and 
-the value won't have a comment:
+There are two possibilities how to create a property:
+The value can be passed as it is, or as `PropertyElement`. 
+If it is passed as it is,
+the `permissions` are assumed to be `prop-default`,
+and the value won't have a comment:
 
 ```python
-make_text_prop(":testproperty", "first text")
+excel2xml.make_uri_prop(
+    ":hasExternalLink",
+    "https://google.com/"
+)
 ```
 
 ```xml
-    <text-prop name=":testproperty">
-        <text encoding="utf8" permissions="prop-default">first text</text>
-    </text-prop>
+    <uri-prop name=":hasExternalLink">
+        <uri permissions="prop-default">https://google.com/</uri>
+    </uri-prop>
 ```
 
 If you want to change these defaults, you have to use a `PropertyElement` instead:
 
 ```python
-make_text_prop(
-    ":testproperty", 
-    PropertyElement(
-        value="first text", 
+excel2xml.make_uri_prop(
+    ":hasExternalLink",
+    excel2xml.PropertyElement(
+        "https://google.com/", 
         permissions="prop-restricted", 
-        encoding="xml",
-        comment="some comment"
+        comment="This is a comment"
     )
 )
 ```
 
 ```xml
-    <text-prop name=":testproperty">
-        <text encoding="xml" permissions="prop-restricted" comment="some comment">first text</text>
-    </text-prop>
+    <uri-prop name=":hasExternalLink">
+        <uri permissions="prop-restricted" comment="This is a comment">https://google.com/</uri>
+    </uri-prop>
 ```
 
 
@@ -280,7 +284,7 @@ else:
 
 #### Special characters in text properties
 
-Depending on the encoding of your text, special characters behave differently. 
+Special characters behave differently for formatted texts than for unformatted texts.
 Please consult the systematic overview [here](./file-formats/xml-data-file.md#special-characters-overview) 
 to fully understand the implications.
 

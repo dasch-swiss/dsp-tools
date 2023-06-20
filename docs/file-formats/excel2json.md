@@ -144,7 +144,7 @@ The expected columns are:
   Must be one of the values listed in the documentation.
     - If the property is derived from `hasValue`, 
       the type of the property must be further specified by the object it takes, 
-      e.g. `TextValue`, `ListValue`, or `IntValue`. 
+      e.g. `UnformattedTextValue`, `ListValue`, or `IntValue`. 
     - If the property is derived from `hasLinkTo`, 
       the `object` specifies the resource class that this property refers to.
 - [`gui_element`](./json-project/ontologies.md#property-object-gui_element-gui_attributes) 

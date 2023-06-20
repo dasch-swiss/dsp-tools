@@ -91,7 +91,7 @@ class TestExcelToProperties(unittest.TestCase):
         ]
         excel_objects = [
             ":GenericAnthroponym",
-            "TextValue",
+            "UnformattedTextValue",
             "ListValue",
             "ListValue",
             ":Titles",
@@ -99,7 +99,7 @@ class TestExcelToProperties(unittest.TestCase):
             "IntValue",
             "DateValue",
             "Representation",
-            "TextValue",
+            "FormattedTextValue",
             "DateValue",
             "UriValue",
             "ColorValue",
@@ -236,7 +236,6 @@ class TestExcelToProperties(unittest.TestCase):
 
         excel_gui_elements = [
             "Searchbox",
-            "Richtext",
             "List",
             "Radio",
             "Searchbox",
@@ -244,7 +243,6 @@ class TestExcelToProperties(unittest.TestCase):
             "Spinbox",
             "Date",
             "Searchbox",
-            "Textarea",
             "Date",
             "SimpleText",
             "Colorpicker",

@@ -106,7 +106,7 @@ def _row2prop(
     if not labels:
         labels = {lang: row[lang] for lang in languages if row.get(lang)}
     comments = {lang: row[f"comment_{lang}"] for lang in languages if row.get(f"comment_{lang}")}
-    gui_element = row["gui_element"]
+    gui_element = row.get("gui_element")
     gui_attributes = dict()
     if row.get("hlist"):
         gui_attributes["hlist"] = row["hlist"]
@@ -129,7 +129,8 @@ def _row2prop(
     _property = {"name": name, "super": supers, "object": _object, "labels": labels}
     if comments:
         _property["comments"] = comments
-    _property["gui_element"] = gui_element
+    if gui_element:
+        _property["gui_element"] = gui_element
     if gui_attributes:
         _property["gui_attributes"] = gui_attributes
 
@@ -180,7 +181,7 @@ def excel2properties(
     )
 
     # validation of input
-    required = ["super", "object", "gui_element"]
+    required = ["super", "object"]
     for index, row in df.iterrows():
         index = int(str(index))  # index is a label/index/hashable, but we need an int
         for req in required:

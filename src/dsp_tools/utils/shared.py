@@ -87,12 +87,15 @@ def try_network_action(
             else:
                 return action()
         except (TimeoutError, ReadTimeout):
-            logger.error(f"Exceeded timeout while executing {action_as_str}")
-            raise BaseError(f"Exceeded timeout while executing {action_as_str}") from None
-        except (ConnectionError, RequestException):
-            msg = f"Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
+            msg = f"Timeout Error: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
             print(f"{datetime.now().isoformat()}: {msg}")
-            logger.error(f"{msg} {action_as_str}", exc_info=True)
+            logger.error(f"{msg} {action_as_str} (retry-counter i={i})", exc_info=True)
+            time.sleep(2**i)
+            continue
+        except (ConnectionError, RequestException):
+            msg = f"Network Error: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
+            print(f"{datetime.now().isoformat()}: {msg}")
+            logger.error(f"{msg} {action_as_str} (retry-counter i={i})", exc_info=True)
             time.sleep(2**i)
             continue
         except BaseError as err:
@@ -101,9 +104,9 @@ def try_network_action(
                 in_500_range = 500 <= err.status_code < 600
             try_again_later = "try again later" in err.message
             if try_again_later or in_500_range:
-                msg = f"Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
+                msg = f"Transient Error: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
                 print(f"{datetime.now().isoformat()}: {msg}")
-                logger.error(f"{msg} {action_as_str}", exc_info=True)
+                logger.error(f"{msg} {action_as_str} (retry-counter i={i})", exc_info=True)
                 time.sleep(2**i)
                 continue
             else:

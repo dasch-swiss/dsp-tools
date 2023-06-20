@@ -639,8 +639,6 @@
         </text-prop>
     </resource>
 
-    <!-- the API supports also MP4 files that are purely audio (MIME "audio/mp4), but there is no test file for it -->
-
     <resource label="Moviething"
               restype=":MovieThing"
               id="video_thing_1"

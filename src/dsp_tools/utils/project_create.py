@@ -779,6 +779,10 @@ def _add_property_classes_to_remote_ontology(
         else:
             prop_object = knora_api_prefix + prop_class["object"]
 
+        gui_element = None
+        if prop_class.get("gui_element"):
+            gui_element = "salsah-gui:" + prop_class["gui_element"]
+
         gui_attributes = prop_class.get("gui_attributes")
         if gui_attributes and gui_attributes.get("hlist"):
             gui_attributes["hlist"] = "<" + list_root_nodes[gui_attributes["hlist"]]["id"] + ">"
@@ -793,7 +797,7 @@ def _add_property_classes_to_remote_ontology(
             superproperties=super_props,
             rdf_object=prop_object,
             rdf_subject=prop_class.get("subject"),
-            gui_element="salsah-gui:" + prop_class["gui_element"],
+            gui_element=gui_element,
             gui_attributes=gui_attributes,
             comment=LangString(prop_class["comments"]) if prop_class.get("comments") else None,
         )

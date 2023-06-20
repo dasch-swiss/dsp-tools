@@ -22,7 +22,7 @@ class PropertyClass(Model):
     _superproperties: list[str]
     _rdf_object: str
     _rdf_subject: str
-    _gui_element: str
+    _gui_element: Optional[str]
     _gui_attributes: dict[str, str]
     _label: LangString
     _comment: LangString

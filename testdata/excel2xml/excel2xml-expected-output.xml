@@ -25,12 +25,12 @@
         <allow group="Creator">CR</allow>
     </permissions>
     <resource label="Homer" restype=":Person" id="person_0" permissions="res-default" creation_date="1999-12-31T23:59:59.9999999+01:00">
-        <text-prop name=":hasName">
-            <text permissions="prop-default" encoding="utf8">Homer</text>
-            <text permissions="prop-default" encoding="utf8">Ὅμηρος</text>
-            <text permissions="prop-default" encoding="utf8">??</text>
-            <text permissions="prop-default" encoding="utf8">-</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasName">
+            <text permissions="prop-default">Homer</text>
+            <text permissions="prop-default">Ὅμηρος</text>
+            <text permissions="prop-default">??</text>
+            <text permissions="prop-default">-</text>
+        </unformatted-text-prop>
         <uri-prop name=":hasIdentifier">
             <uri permissions="prop-default">https://en.wiktionary.org/wiki/Ῥόδος</uri>
             <uri permissions="prop-default">https://www.test-case.ch/</uri>
@@ -60,41 +60,41 @@
         </uri-prop>
     </resource>
     <annotation label="Annotation to Homer" id="annotation_0" permissions="res-default">
-        <text-prop name="hasComment">
-            <text permissions="prop-default" encoding="utf8">This is an annotation to the resource Homer</text>
-        </text-prop>
+        <unformatted-text-prop name="hasComment">
+            <text permissions="prop-default">This is an annotation to the resource Homer</text>
+        </unformatted-text-prop>
         <resptr-prop name="isAnnotationOf">
             <resptr permissions="prop-default">person_0</resptr>
         </resptr-prop>
     </annotation>
     <resource label="Iliad Prooem" restype=":Image2D" id="img_obj_6" permissions="res-default">
         <bitstream permissions="prop-default">testdata/bitstreams/test.jpg</bitstream>
-        <text-prop name=":hasTitle">
-            <text permissions="prop-default" encoding="utf8">Iliad Prooem ' and a single quote in utf8</text>
-        </text-prop>
-        <text-prop name=":hasDescription">
-            <text permissions="prop-default" encoding="xml">Iliad Prooem ' and a single quote in xml</text>
-        </text-prop>
-        <text-prop name=":hasCopyright">
-            <text permissions="prop-default" encoding="xml">© Library of Congress Collection of Manuscripts in St. Catherine's Monastery, Mt. Sinai.</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasTitle">
+            <text permissions="prop-default">Iliad Prooem ' and a single quote in utf8</text>
+        </unformatted-text-prop>
+        <formatted-text-prop name=":hasDescription">
+            <text permissions="prop-default">Iliad Prooem ' and a single quote in xml</text>
+        </formatted-text-prop>
+        <formatted-text-prop name=":hasCopyright">
+            <text permissions="prop-default">© Library of Congress Collection of Manuscripts in St. Catherine's Monastery, Mt. Sinai.</text>
+        </formatted-text-prop>
         <list-prop list="category" name=":hasCategory">
             <list permissions="prop-default">artwork</list>
         </list-prop>
     </resource>
     <resource label="Testthing Zero" restype=":TestThing2" id="test_thing_0" permissions="res-default" ark="ark:/72163/4123-31ec6eab334-a.2022829">
-        <text-prop name=":hasText">
-            <text permissions="prop-default" encoding="utf8">Dies ist ein TestThing</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasText">
+            <text permissions="prop-default">Dies ist ein TestThing</text>
+        </unformtext-prop>
         <resptr-prop name=":hasTestThing">
             <resptr permissions="prop-default">test_thing_1</resptr>
         </resptr-prop>
     </resource>
     <region label="Region of img_obj_6" id="region_0" permissions="res-restricted" iri="http://rdfh.ch/4123/54SYvWF0QUW6a">
-        <text-prop name="hasComment">
-            <text permissions="prop-restricted" encoding="utf8">This is an annotation to Testthing.</text>
-            <text permissions="prop-restricted" encoding="utf8">Second comment</text>
-        </text-prop>
+        <unformatted-text-prop name="hasComment">
+            <text permissions="prop-restricted">This is an annotation to Testthing.</text>
+            <text permissions="prop-restricted">Second comment</text>
+        </unformatted-text-prop>
         <color-prop name="hasColor">
             <color permissions="prop-restricted">#5d1f1e</color>
         </color-prop>
@@ -107,12 +107,12 @@
     </region>
     <resource label="First Testthing" restype=":TestThing" id="test_thing_1" permissions="res-default" iri="http://rdfh.ch/4123/54SYvWF0QUW6d">
         <bitstream permissions="prop-default">testdata/bitstreams/test.jpg</bitstream>
-        <text-prop name=":hasText">
-            <text permissions="prop-default" encoding="utf8">Dies ist ein einfacher Text ohne Markup</text>
-            <text permissions="prop-restricted" encoding="utf8">Nochmals ein einfacher Text</text>
-        </text-prop>
-        <text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml">This is <em>bold and <strong>strong</strong>
+        <unformatted-text-prop name=":hasText">
+            <text permissions="prop-default">Dies ist ein einfacher Text ohne Markup</text>
+            <text permissions="prop-restricted">Nochmals ein einfacher Text</text>
+        </unformatted-text-prop>
+        <formatted-text-prop name=":hasFormattedText">
+            <text permissions="prop-default">This is <em>bold and <strong>strong</strong>
                 </em> text! It contains links to all resources:
                 <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>
                 <a class="salsah-link" href="IRI:test_thing_1:IRI">test_thing_1</a>
@@ -127,9 +127,9 @@
                 <a class="salsah-link" href="IRI:audio_thing_1:IRI">audio_thing_1</a>
                 <a class="salsah-link" href="IRI:test_thing_2:IRI">test_thing_2</a>
             </text>
-            <text permissions="prop-default" encoding="xml">Another text without salsah-links</text>
-            <text permissions="prop-default" encoding="xml">Another text without salsah-links</text>
-        </text-prop>
+            <text permissions="prop-default">Another text without salsah-links</text>
+            <text permissions="prop-default">Another text without salsah-links</text>
+        </formatted-text-prop>
         <uri-prop name=":hasUri">
             <uri permissions="prop-default">https://dasch.swiss</uri>
         </uri-prop>
@@ -146,9 +146,9 @@
         </integer-prop>
     </resource>
     <link label="Link between person_0 and img_obj_6" id="link_thing_0" permissions="res-default" ark="ark:/72163/4123-31ec6eab334-a.202280">
-        <text-prop name="hasComment">
-            <text permissions="prop-default" encoding="utf8">This is a link between Homer and Iliad Prooem</text>
-        </text-prop>
+        <unformatted-text-prop name="hasComment">
+            <text permissions="prop-default">This is a link between Homer and Iliad Prooem</text>
+        </unformatted-text-prop>
         <resptr-prop name="hasLinkTo">
             <resptr permissions="prop-default">person_0</resptr>
             <resptr permissions="prop-default">img_obj_6</resptr>

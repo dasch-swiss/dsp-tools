@@ -19,9 +19,9 @@
     </permissions>
 
     <resource label="res_0" restype=":MinimalResource" id="res_0" permissions="res-default">
-        <text-prop name=":hasText">
-            <text encoding="utf8" permissions="prop-default">Hello!</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasText">
+            <text permissions="prop-default">Hello!</text>
+        </unformatted-text-prop>
     </resource>
 
 </knora>

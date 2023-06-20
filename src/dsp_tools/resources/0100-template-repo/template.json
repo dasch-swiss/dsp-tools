@@ -16,11 +16,10 @@
                         "super": [
                             "hasValue"
                         ],
-                        "object": "TextValue",
+                        "object": "UnformattedTextValue",
                         "labels": {
                             "en": "hasText"
-                        },
-                        "gui_element": "SimpleText"
+                        }
                     }
                 ],
                 "resources": [

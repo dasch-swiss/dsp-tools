@@ -61,7 +61,7 @@ class XMLResource:
                 self._bitstream = XMLBitstream(subnode)
             else:
                 # get the property type which is in format type-prop, p.ex. <decimal-prop>
-                prop_type, _ = subnode.tag.split("-")
+                prop_type, _ = subnode.tag.rsplit("-", maxsplit=1)
                 self._properties.append(XMLProperty(subnode, prop_type, default_ontology))
 
     @property

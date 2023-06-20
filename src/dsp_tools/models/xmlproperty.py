@@ -38,7 +38,9 @@ class XMLProperty:
 
         # parse the subnodes of the property nodes which contain the actual values of the property
         for subnode in node:
-            if subnode.tag == valtype:  # the subnode must correspond to the expected value type
+            # the subnode must correspond to the expected value type
+            expected = valtype.split("-")[-1]  # "formatted-text" --> "text"; "decimal" --> "decimal"
+            if subnode.tag == expected:
                 self._values.append(XMLValue(subnode, valtype, listname))
             else:
                 raise XmlError(f"ERROR Unexpected tag: '{subnode.tag}'. Property may contain only value tags!")

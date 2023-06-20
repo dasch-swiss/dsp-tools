@@ -85,7 +85,7 @@
     <resource label="Testthing Zero" restype=":TestThing2" id="test_thing_0" permissions="res-default" ark="ark:/72163/4123-31ec6eab334-a.2022829">
         <unformatted-text-prop name=":hasText">
             <text permissions="prop-default">Dies ist ein TestThing</text>
-        </unformtext-prop>
+        </unformatted-text-prop>
         <resptr-prop name=":hasTestThing">
             <resptr permissions="prop-default">test_thing_1</resptr>
         </resptr-prop>

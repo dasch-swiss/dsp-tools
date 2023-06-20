@@ -372,7 +372,7 @@ def make_resource(
 
     Examples:
         >>> resource = make_resource(...)
-        >>> resource.append(make_text_prop(...))
+        >>> resource.append(make_unformatted_text_prop(...))
         >>> root.append(resource)
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#describing-resources-with-the-resource-element
@@ -1200,14 +1200,15 @@ def make_resptr_prop(
     return prop_
 
 
-def make_text_prop(
+def make_unformatted_text_prop(
     name: str,
     value: Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]],
     calling_resource: str = "",
 ) -> etree._Element:
     """
-    Make a <text-prop> from one or more strings. The string(s) can be provided as string or as PropertyElement with a
-    string inside. If provided as string, the encoding defaults to utf8, and the permissions to "prop-default".
+    Make a <unformatted-text-prop> from one or more strings. 
+    The string(s) can be provided as string or as PropertyElement with a string inside. 
+    If provided as string, the permissions default to "prop-default".
 
     Args:
         name: the name of this property as defined in the onto
@@ -1215,8 +1216,7 @@ def make_text_prop(
         calling_resource: the name of the parent resource (for better error messages)
 
     Raises:
-        BaseError: if one of the values is not a valid string,
-            or if the XML tags in a richtext property (encoding=xml) are not well-formed
+        BaseError: if one of the values is not a valid string
         Warning: if one of the values doesn't look like a reasonable string
             (e.g. "<NA>" is a valid string, but probably not intended)
 
@@ -1224,21 +1224,21 @@ def make_text_prop(
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
 
     Examples:
-        >>> make_text_prop(":testproperty", "first text")
-                <text-prop name=":testproperty">
-                    <text encoding="utf8" permissions="prop-default">first text</text>
-                </text-prop>
-        >>> make_text_prop(":testproperty", PropertyElement("first text", permissions="prop-restricted", encoding="xml"))
-                <text-prop name=":testproperty">
-                    <text encoding="xml" permissions="prop-restricted">first text</text>
-                </text-prop>
-        >>> make_text_prop(":testproperty", ["first text", "second text"])
-                <text-prop name=":testproperty">
-                    <text encoding="utf8" permissions="prop-default">first text</text>
-                    <text encoding="utf8" permissions="prop-default">second text</text>
-                </text-prop>
+        >>> make_unformatted_text_prop(":testproperty", "first text")
+                <unformatted-text-prop name=":testproperty">
+                    <text permissions="prop-default">first text</text>
+                </unformatted-text-prop>
+        >>> make_unformatted_text_prop(":testproperty", PropertyElement("first text", permissions="prop-restricted"))
+                <unformatted-text-prop name=":testproperty">
+                    <text permissions="prop-restricted">first text</text>
+                </unformatted-text-prop>
+        >>> make_unformatted_text_prop(":testproperty", ["first text", "second text"])
+                <unformatted-text-prop name=":testproperty">
+                    <text permissions="prop-default">first text</text>
+                    <text permissions="prop-default">second text</text>
+                </unformatted-text-prop>
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#text-prop
+    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#unformatted-text-propformatted-text-prop
     """
 
     # check the input: prepare a list with valid values
@@ -1260,7 +1260,7 @@ def make_text_prop(
 
     # make xml structure of the valid values
     prop_ = etree.Element(
-        "{%s}text-prop" % (xml_namespace_map[None]),
+        "{%s}unformatted-text-prop" % (xml_namespace_map[None]),
         name=name,
         nsmap=xml_namespace_map,
     )
@@ -1268,32 +1268,104 @@ def make_text_prop(
         kwargs = {"permissions": val.permissions}
         if check_notna(val.comment):
             kwargs["comment"] = val.comment  # type: ignore
-        if check_notna(val.encoding):
-            kwargs["encoding"] = val.encoding  # type: ignore
-        else:
-            kwargs["encoding"] = "utf8"
         value_ = etree.Element(
             "{%s}text" % (xml_namespace_map[None]),
             **kwargs,  # type: ignore
             nsmap=xml_namespace_map,
         )
-        if kwargs["encoding"] == "utf8":
-            # write the text into the tag, without validation
-            value_.text = str(val.value)
-        else:
-            # enforce that the text is well-formed XML: serialize tag ...
-            content = etree.tostring(value_, encoding="unicode")
-            # ... insert text at the very end of the string, and add ending tag to the previously single <text/> tag ...
-            content = re.sub(r"/>$", f">{val.value}</text>", content)
-            # ... try to parse it again
-            try:
-                value_ = etree.fromstring(content)
-            except etree.XMLSyntaxError:
-                raise BaseError(
-                    "The XML tags contained in a richtext property (encoding=xml) must be well-formed. "
-                    "The special characters <, > and & are only allowed to construct a tag."
-                    f"The error occurred in resource {calling_resource}, property {name}"
-                ) from None
+        value_.text = str(val.value)
+        prop_.append(value_)
+
+    return prop_
+
+
+def make_formatted_text_prop(
+    name: str,
+    value: Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]],
+    calling_resource: str = "",
+) -> etree._Element:
+    """
+    Make a <formatted-text-prop> from one or more strings. 
+    The string(s) can be provided as string or as PropertyElement with a string inside. 
+    If provided as string, the permissions default to "prop-default".
+
+    Args:
+        name: the name of this property as defined in the onto
+        value: one or more strings, as string/PropertyElement, or as iterable of strings/PropertyElements
+        calling_resource: the name of the parent resource (for better error messages)
+
+    Raises:
+        BaseError: if one of the values is not a valid string,
+            or if the XML tags for formatting are not well-formed
+        Warning: if one of the values doesn't look like a reasonable string
+            (e.g. "<NA>" is a valid string, but probably not intended)
+
+    Returns:
+        an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
+
+    Examples:
+        >>> make_formatted_text_prop(":testproperty", "first text")
+                <formatted-text-prop name=":testproperty">
+                    <text permissions="prop-default">first text</text>
+                </formatted-text-prop>
+        >>> make_formatted_text_prop(":testproperty", PropertyElement("first text", permissions="prop-restricted"))
+                <formatted-text-prop name=":testproperty">
+                    <text permissions="prop-restricted">first text</text>
+                </formatted-text-prop>
+        >>> make_formatted_text_prop(":testproperty", ["first text", "second text"])
+                <formatted-text-prop name=":testproperty">
+                    <text permissions="prop-default">first text</text>
+                    <text permissions="prop-default">second text</text>
+                </formatted-text-prop>
+
+    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#unformatted-text-propformatted-text-prop
+    """
+
+    # check the input: prepare a list with valid values
+    values = prepare_value(value)
+
+    # check value type
+    for val in values:
+        if not isinstance(val.value, str) or len(val.value) < 1:
+            raise BaseError(
+                f"Failed validation in resource '{calling_resource}', property '{name}': "
+                f"'{val.value}' is not a valid string."
+            )
+        if not check_notna(val.value):
+            warnings.warn(
+                f"Warning for resource '{calling_resource}', property '{name}': "
+                f"'{val.value}' is probably not a usable string.",
+                stacklevel=2,
+            )
+
+    # make xml structure of the valid values
+    prop_ = etree.Element(
+        "{%s}formatted-text-prop" % (xml_namespace_map[None]),
+        name=name,
+        nsmap=xml_namespace_map,
+    )
+    for val in values:
+        kwargs = {"permissions": val.permissions}
+        if check_notna(val.comment):
+            kwargs["comment"] = val.comment  # type: ignore
+        value_ = etree.Element(
+            "{%s}text" % (xml_namespace_map[None]),
+            **kwargs,  # type: ignore
+            nsmap=xml_namespace_map,
+        )
+        # enforce that the text is well-formed XML: serialize tag ...
+        content = etree.tostring(value_, encoding="unicode")
+        # ... insert text at the very end of the string, and add ending tag to the previously single <text/> tag ...
+        content = re.sub(r"/>$", f">{val.value}</text>", content)
+        # ... try to parse it again
+        try:
+            value_ = etree.fromstring(content)
+        except etree.XMLSyntaxError:
+            raise BaseError(
+                "The XML tags contained in a formatted-text-prop must be well-formed. "
+                "The special characters <, > and & are only allowed to construct a tag."
+                f"The error occurred in resource {calling_resource}, property {name}"
+            ) from None
         prop_.append(value_)
 
     return prop_
@@ -1475,7 +1547,7 @@ def make_region(
 
     Examples:
         >>> region = make_region("label", "id")
-        >>> region.append(make_text_prop("hasComment", "This is a comment"))
+        >>> region.append(make_formatted_text_prop("hasComment", "This is a comment"))
         >>> region.append(make_color_prop("hasColor", "#5d1f1e"))
         >>> region.append(make_resptr_prop("isRegionOf", "image_0"))
         >>> region.append(make_geometry_prop("hasGeometry", "{...}"))
@@ -1535,7 +1607,7 @@ def make_annotation(
 
     Examples:
         >>> annotation = make_annotation("label", "id")
-        >>> annotation.append(make_text_prop("hasComment", "This is a comment"))
+        >>> annotation.append(make_formattedtext_prop("hasComment", "This is a comment"))
         >>> annotation.append(make_resptr_prop("isAnnotationOf", "resource_0"))
         >>> root.append(annotation)
 
@@ -1593,7 +1665,7 @@ def make_link(
 
     Examples:
         >>> link = make_link("label", "id")
-        >>> link.append(make_text_prop("hasComment", "This is a comment"))
+        >>> link.append(make_formatted_text_prop("hasComment", "This is a comment"))
         >>> link.append(make_resptr_prop("hasLinkTo", ["resource_0", "resource_1"]))
         >>> root.append(link)
 
@@ -1882,6 +1954,11 @@ def _validate_and_prepare_cli_input_file(dataframe: pd.DataFrame) -> pd.DataFram
         raise BaseError(
             f"Some columns in your input file are missing. The following columns are required: {required_columns}"
         )
+    
+    # make sure there are no "i_encoding" columns
+    i_encoding_columns = [col for col in dataframe.columns if re.search(r"\d_encoding", col)]
+    if any(i_encoding_columns):
+        raise BaseError(f"Your input file contains the following deprecated columns: {i_encoding_columns}")
 
     # replace NA-like cells by NA
     dataframe = dataframe.applymap(
@@ -2102,7 +2179,8 @@ def _get_prop_function(
         "interval-prop": make_interval_prop,
         "list-prop": make_list_prop,
         "resptr-prop": make_resptr_prop,
-        "text-prop": make_text_prop,
+        "unformatted-text-prop": make_unformatted_text_prop,
+        "formatted-text-prop": make_formatted_text_prop,
         "uri-prop": make_uri_prop,
     }
     if row.get("prop type") not in proptype_2_function:
@@ -2120,7 +2198,7 @@ def _convert_row_to_property_elements(
     """
     Every property contains i elements,
     which are represented in the Excel as groups of columns named
-    {i_value, i_encoding, i_permissions, i_comment}.
+    {i_value, i_permissions, i_comment}.
     Depending on the property type, some of these cells are empty.
     This method converts a row to a list of PropertyElement objects.
 
@@ -2142,7 +2220,7 @@ def _convert_row_to_property_elements(
         if pd.isna(value):
             # raise error if other cells of this property element are not empty
             # if all other cells are empty, continue with next property element
-            other_cell_headers = [f"{i}_{x}" for x in ["encoding", "permissions", "comment"]]
+            other_cell_headers = [f"{i}_{x}" for x in ["permissions", "comment"]]
             notna_cell_headers = [x for x in other_cell_headers if check_notna(row.get(x))]
             notna_cell_headers_str = ", ".join([f"'{x}'" for x in notna_cell_headers])
             if notna_cell_headers_str:
@@ -2163,8 +2241,6 @@ def _convert_row_to_property_elements(
             )
         if check_notna(row.get(f"{i}_comment")):
             kwargs_propelem["comment"] = str(row[f"{i}_comment"])
-        if check_notna(row.get(f"{i}_encoding")):
-            kwargs_propelem["encoding"] = str(row[f"{i}_encoding"])
         property_elements.append(PropertyElement(**kwargs_propelem))
 
     # validate the end result before returning it

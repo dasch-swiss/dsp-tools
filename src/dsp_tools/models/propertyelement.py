@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from typing import Optional, Union
 
-from dsp_tools.models.exceptions import BaseError
-
 # pylint: disable=line-too-long
 
 
@@ -17,30 +15,24 @@ class PropertyElement:
         value: This is the content that will be written into the value tag (e.g. <text>, <uri>, ...)
         permissions: This is the permissions that your <text> tag (for example) will have
         comment: This is the comment that your <text> tag (for example) will have
-        encoding: For <text> tags only. If provided, it must be "xml" or "utf8".
 
     Examples:
         See the difference between the first and the second example:
 
-        >>> make_text_prop(":testproperty", "first text")
-                <text-prop name=":testproperty">
-                    <text encoding="utf8" permissions="prop-default">
+        >>> make_unformatted_text_prop(":testproperty", "first text")
+                <unformatted_text-prop name=":testproperty">
+                    <text permissions="prop-default">
                         first text
                     </text>
-                </text-prop>
-        >>> make_text_prop(":testproperty", PropertyElement("first text", permissions="prop-restricted", encoding="xml"))
-                <text-prop name=":testproperty">
-                    <text encoding="xml" permissions="prop-restricted">
+                </unformatted_text-prop>
+        >>> make_unformatted_text_prop(":testproperty", PropertyElement("first text", permissions="prop-restricted"))
+                <unformatted_text-prop name=":testproperty">
+                    <text permissions="prop-restricted">
                         first text
                     </text>
-                </text-prop>
+                </unformatted_text-prop>
     """
 
     value: Union[str, int, float, bool]
     permissions: str = "prop-default"
     comment: Optional[str] = None
-    encoding: Optional[str] = None
-
-    def __post_init__(self) -> None:
-        if self.encoding not in ["utf8", "xml", None]:
-            raise BaseError(f"'{self.encoding}' is not a valid encoding for a PropertyElement")

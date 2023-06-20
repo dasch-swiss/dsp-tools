@@ -443,54 +443,15 @@ class TestExcel2xml(unittest.TestCase):
         run_test(self, prop, method, different_values, invalid_values)
 
     @pytest.mark.filterwarnings("ignore")
-    def test_make_text_prop(self) -> None:
+    def test_make_formatted_text_prop(self) -> None:
         # standard tests
-        prop = "text"
-        method = excel2xml.make_text_prop
+        prop = "formatted-text"
+        method = excel2xml.make_formatted_text_prop
         different_values = ["text_1", " ", "!", "?", "-", "_", "None"]
         invalid_values = [True, 10.0, 5, ""]
         run_test(self, prop, method, different_values, invalid_values)
-        self.assertRaises(
-            BaseError,
-            lambda: excel2xml.make_text_prop(":test", excel2xml.PropertyElement(value="a", encoding="unicode")),
-        )
 
-        # encoding="utf8"
-        testcases_utf8 = [
-            [
-                "text < text/>",
-                "text &lt; text/&gt;",
-            ],
-            [
-                "text < text> & text",
-                "text &lt; text&gt; &amp; text",
-            ],
-            [
-                "text <text text > text",
-                "text &lt;text text &gt; text",
-            ],
-            [
-                'text < text text="text"> text',
-                'text &lt; text text="text"&gt; text',
-            ],
-            [
-                'text <text text="text" > text',
-                'text &lt;text text="text" &gt; text',
-            ],
-        ]
-        for orig, exp in testcases_utf8:
-            received = etree.tostring(
-                excel2xml.make_text_prop(":test", excel2xml.PropertyElement(orig, encoding="utf8")), encoding="unicode"
-            )
-            received = re.sub(r" xmlns(:.+?)?=\".+?\"", "", received)
-            expected = (
-                '<text-prop name=":test"><text permissions="prop-default" encoding="utf8">'
-                + exp
-                + "</text></text-prop>"
-            )
-            self.assertEqual(received, expected)
-
-        # test encoding="xml"
+        # testcases with XML formatting tags
         testcases_xml = [
             [
                 "text <strong>and</strong> text",
@@ -511,13 +472,13 @@ class TestExcel2xml(unittest.TestCase):
         ]
         all_inputs = ""
         all_outputs = ""
-        all_inputs += " ".join([input for input, output in testcases_xml])
-        all_outputs += " ".join([output for input, output in testcases_xml])
+        all_inputs += " ".join([input for input, _ in testcases_xml])
+        all_outputs += " ".join([output for _, output in testcases_xml])
         testcases_xml.append([all_inputs, all_outputs])
 
         for orig, exp in testcases_xml:
             received = etree.tostring(
-                excel2xml.make_text_prop(":test", excel2xml.PropertyElement(orig, encoding="xml")), encoding="unicode"
+                excel2xml.make_formatted_text_prop(":test", excel2xml.PropertyElement(orig)), encoding="unicode"
             )
             received = re.sub(r" xmlns(:.+?)?=\".+?\"", "", received)
             expected = (
@@ -529,10 +490,50 @@ class TestExcel2xml(unittest.TestCase):
         for inv in invalid_xml_texts:
             with self.assertRaisesRegex(
                 BaseError,
-                r"The XML tags contained in a richtext property \(encoding=xml\) must be well-formed",
+                r"The XML tags contained in a formatted-text-prop must be well-formed",
                 msg=f"Failed with '{inv}'",
             ):
-                excel2xml.make_text_prop(":test", excel2xml.PropertyElement(inv, encoding="xml"))
+                excel2xml.make_formatted_text_prop(":test", excel2xml.PropertyElement(inv))
+
+    @pytest.mark.filterwarnings("ignore")
+    def test_make_unformatted_text_prop(self) -> None:
+        # standard tests
+        prop = "unformatted-text"
+        method = excel2xml.make_unformatted_text_prop
+        different_values = ["text_1", " ", "!", "?", "-", "_", "None"]
+        invalid_values = [True, 10.0, 5, ""]
+        run_test(self, prop, method, different_values, invalid_values)
+
+        # testcases with the reserved characters <, >, &, but no XML tags
+        testcases_reserved_characters = [
+            [
+                "text < text/>",
+                "text &lt; text/&gt;",
+            ],
+            [
+                "text < text> & text",
+                "text &lt; text&gt; &amp; text",
+            ],
+            [
+                "text <text text > text",
+                "text &lt;text text &gt; text",
+            ],
+            [
+                'text < text text="text"> text',
+                'text &lt; text text="text"&gt; text',
+            ],
+        ]
+        for orig, exp in testcases_reserved_characters:
+            received = etree.tostring(
+                excel2xml.make_unformatted_text_prop(":test", excel2xml.PropertyElement(orig)), encoding="unicode"
+            )
+            received = re.sub(r" xmlns(:.+?)?=\".+?\"", "", received)
+            expected = (
+                '<text-prop name=":test"><text permissions="prop-default">'
+                + exp
+                + "</text></text-prop>"
+            )
+            self.assertEqual(received, expected)
 
     def test_make_time_prop(self) -> None:
         prop = "time"
@@ -744,6 +745,14 @@ class TestExcel2xml(unittest.TestCase):
                 "Exactly 1 of the 2 columns 'id' and 'prop name' must be filled",
             ),
             (
+                f"{invalid_prefix}/invalid-encoding-column.xlsx",
+                r"Your input file contains the following deprecated columns: \['1_encoding', .+\]",
+            ),
+            (
+                f"{invalid_prefix}/invalid-text-prop.xlsx",
+                "Invalid prop type for property :hasName in resource person_0",
+            ),
+            (
                 f"{invalid_prefix}/missing-prop-permissions.xlsx",
                 "Missing permissions in column '2_permissions' of property ':hasName'",
             ),
@@ -769,7 +778,7 @@ class TestExcel2xml(unittest.TestCase):
             ),
             (
                 f"{invalid_prefix}/single-invalid-value-for-property.xlsx",
-                "row 3 has an entry in column.+ '1_encoding', '1_permissions', but not",
+                "row 3 has an entry in column.+ '1_permissions', but not",
             ),
             (
                 f"{invalid_prefix}/start-with-property-row.xlsx",

@@ -1,0 +1,44 @@
+{
+    "$schema": "../../../src/dsp_tools/resources/schema/project.json",
+    "project": {
+        "shortcode": "4123",
+        "shortname": "FormattedTextValue-with-gui_element",
+        "longname": "FormattedTextValue-with-gui_element",
+        "descriptions": {
+            "en": "FormattedTextValue-with-gui_element"
+        },
+        "keywords": [
+            "test"
+        ],
+        "ontologies": [
+            {
+                "name": "FormattedTextValue-with-gui_element",
+                "label": "FormattedTextValue-with-gui_element",
+                "properties": [
+                    {
+                        "name": "hasSimpleText",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "FormattedTextValue",
+                        "labels": {
+                            "en": "hasRichtext"
+                        },
+                        "gui_element": "Richtext"
+                    }
+                ],
+                "resources": [
+                    {
+                        "name": "TestThing",
+                        "super": [
+                            "Resource"
+                        ],
+                        "labels": {
+                            "en": "TestThing"
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}

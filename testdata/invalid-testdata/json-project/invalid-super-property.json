@@ -20,11 +20,10 @@
                         "super": [
                             "hasColor"
                         ],
-                        "object": "TextValue",
+                        "object": "UnformattedTextValue",
                         "labels": {
                             "en": "Text"
-                        },
-                        "gui_element": "SimpleText"
+                        }
                     }
                 ],
                 "resources": [

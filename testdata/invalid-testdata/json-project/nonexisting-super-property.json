@@ -20,22 +20,20 @@
                         "super": [
                             ":SuperPropertyThatWasNotDefined"
                         ],
-                        "object": "TextValue",
+                        "object": "UnformattedTextValue",
                         "labels": {
                             "en": "hasSimpleText"
-                        },
-                        "gui_element": "SimpleText"
+                        }
                     },
                     {
                         "name": "hasRichtext",
                         "super": [
                             "hasValue"
                         ],
-                        "object": "TextValue",
+                        "object": "FormattedTextValue",
                         "labels": {
                             "en": "hasRichtext"
-                        },
-                        "gui_element": "Richtext"
+                        }
                     }
                 ],
                 "resources": [

@@ -20,22 +20,20 @@
                         "super": [
                             "hasValue"
                         ],
-                        "object": "TextValue",
+                        "object": "UnformattedTextValue",
                         "labels": {
                             "en": "Text"
-                        },
-                        "gui_element": "SimpleText"
+                        }
                     },
                     {
                         "name": "hasText",
                         "super": [
                             "hasValue"
                         ],
-                        "object": "TextValue",
+                        "object": "FormattedTextValue",
                         "labels": {
                             "en": "Text with another label"
-                        },
-                        "gui_element": "Richtext"
+                        }
                     },
                     {
                         "name": "hasInt",

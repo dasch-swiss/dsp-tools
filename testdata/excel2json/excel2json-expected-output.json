@@ -144,7 +144,7 @@
                             "hasValue",
                             "dcterms:creator"
                         ],
-                        "object": "TextValue",
+                        "object": "UnformattedTextValue",
                         "labels": {
                             "de": "only German"
                         },
@@ -154,8 +154,7 @@
                             "fr": "Un étrange hasard m'a mis en possession de ce journal.",
                             "it": "Uno strano caso mi mise in possesso di questo diario.",
                             "rm": "Rumantsch"
-                        },
-                        "gui_element": "Richtext"
+                        }
                     },
                     {
                         "name": "hasGender",
@@ -289,13 +288,12 @@
                             "hasValue",
                             "dcterms:description"
                         ],
-                        "object": "TextValue",
+                        "object": "FormattedTextValue",
                         "labels": {
                             "en": "remark",
                             "fr": "Commentaire",
                             "rm": "Rumantsch"
-                        },
-                        "gui_element": "Textarea"
+                        }
                     },
                     {
                         "name": "hasTerminusPostQuem",

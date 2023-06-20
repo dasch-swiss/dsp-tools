@@ -2,18 +2,18 @@
     "$schema": "../../../src/dsp_tools/resources/schema/project.json",
     "project": {
         "shortcode": "4123",
-        "shortname": "nonexisting-cardinality-project",
-        "longname": "nonexisting-cardinality-project",
+        "shortname": "UnformattedTextValue-with-gui_element",
+        "longname": "UnformattedTextValue-with-gui_element",
         "descriptions": {
-            "en": "nonexisting-cardinality-project"
+            "en": "UnformattedTextValue-with-gui_element"
         },
         "keywords": [
             "test"
         ],
         "ontologies": [
             {
-                "name": "nonexisting-cardinality-onto",
-                "label": "nonexisting-cardinality-onto",
+                "name": "UnformattedTextValue-with-gui_element",
+                "label": "UnformattedTextValue-with-gui_element",
                 "properties": [
                     {
                         "name": "hasSimpleText",
@@ -23,7 +23,8 @@
                         "object": "UnformattedTextValue",
                         "labels": {
                             "en": "hasSimpleText"
-                        }
+                        },
+                        "gui_element": "SimpleText"
                     }
                 ],
                 "resources": [
@@ -34,17 +35,7 @@
                         ],
                         "labels": {
                             "en": "TestThing"
-                        },
-                        "cardinalities": [
-                            {
-                                "propname": ":CardinalityThatWasNotDefinedInPropertiesSection",
-                                "cardinality": "1-n"
-                            },
-                            {
-                                "propname": ":hasSimpleText",
-                                "cardinality": "0-n"
-                            }
-                        ]
+                        }
                     }
                 ]
             }

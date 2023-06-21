@@ -973,6 +973,9 @@
                                         "type": "string"
                                     }
                                 },
+                                "required": [
+                                    "hlist"
+                                ],
                                 "additionalProperties": false
                             }
                         }

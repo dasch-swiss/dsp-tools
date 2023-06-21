@@ -121,7 +121,7 @@ class XMLResource:
         for prop in self._properties:
             if prop.valtype == "resptr":
                 link_properties.append(prop)
-            elif prop.valtype == "text":
+            elif prop.valtype == "formatted-text":
                 for value in prop.values:
                     if value.resrefs:
                         link_properties.append(prop)
@@ -140,7 +140,7 @@ class XMLResource:
             if prop.valtype == "resptr":
                 for value in prop.values:
                     resptrs.append(str(value.value))
-            elif prop.valtype == "text":
+            elif prop.valtype == "formatted-text":
                 for value in prop.values:
                     if value.resrefs:
                         resptrs.extend(value.resrefs)
@@ -172,7 +172,7 @@ class XMLResource:
                         v = iri
                     else:
                         v = value.value  # if we do not find the id, we assume it's a valid DSP IRI
-                elif prop.valtype == "text":
+                elif prop.valtype in ["unformatted-text", "formatted-text"]:
                     if isinstance(value.value, KnoraStandoffXml):
                         iri_refs = value.value.get_all_iris()
                         for iri_ref in iri_refs:

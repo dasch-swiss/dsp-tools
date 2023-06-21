@@ -235,7 +235,7 @@ def _stash_circular_references(
     """
     for res in nok_resources.copy():
         for link_prop in res.get_props_with_links():
-            if link_prop.valtype == "text":
+            if link_prop.valtype == "formatted-text":
                 for value in link_prop.values:
                     if value.resrefs and not all(_id in ok_res_ids for _id in value.resrefs):
                         # stash this XML text, replace it by its hash, and remove the

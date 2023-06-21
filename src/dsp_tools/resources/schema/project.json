@@ -457,6 +457,9 @@
                                         }
                                     ]
                                 }
+                            },
+                            "object": {
+                                "const": "FormattedTextValue"
                             }
                         },
                         "additionalProperties": false
@@ -494,6 +497,9 @@
                                         }
                                     ]
                                 }
+                            },
+                            "object": {
+                                "const": "UnformattedTextValue"
                             }
                         },
                         "additionalProperties": false

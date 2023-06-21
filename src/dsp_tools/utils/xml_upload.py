@@ -833,7 +833,7 @@ def _upload_stashed_xml_texts(
                     "@type": resource.restype,
                     link_prop.name: {
                         "@id": existing_value["@id"],
-                        "@type": "knora-api:TextValue",
+                        "@type": "knora-api:FormattedTextValue",
                         "knora-api:textValueAsXml": new_xmltext,
                         "knora-api:textValueHasMapping": {"@id": "http://rdfh.ch/standoff/mappings/StandardMapping"},
                     },

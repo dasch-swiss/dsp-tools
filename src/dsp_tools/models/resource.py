@@ -27,7 +27,8 @@ from dsp_tools.models.value import (
     KnoraStandoffXml,
     LinkValue,
     ListValue,
-    TextValue,
+    UnformattedTextValue,
+    FormattedTextValue,
     TimeValue,
     UriValue,
     Value,
@@ -414,7 +415,8 @@ class ResourceInstanceFactory:
         baseclass = self._get_baseclass(resclass.superclasses)
         props: dict[str, Propinfo] = {}
         switcher = {
-            "knora-api:TextValue": TextValue,
+            "knora-api:UnformattedTextValue": UnformattedTextValue,
+            "knora-api:FormattedTextValue": FormattedTextValue,
             "knora-api:ColorValue": ColorValue,
             "knora-api:DateValue": DateValue,
             "knora-api:DecimalValue": DecimalValue,
@@ -457,7 +459,7 @@ class ResourceInstanceFactory:
                     valtype=valtype, cardinality=has_property.cardinality, gui_order=has_property.gui_order
                 )
             elif propname == "knora-api:hasComment":
-                valtype = TextValue
+                valtype = FormattedTextValue
                 props[propname] = Propinfo(
                     valtype=valtype, cardinality=has_property.cardinality, gui_order=has_property.gui_order
                 )

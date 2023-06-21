@@ -139,14 +139,12 @@ class Value:
         }
 
 
-class TextValue(Value):
-    _value: Union[str, KnoraStandoffXml]
-    _mapping: str
+class UnformattedTextValue(Value):
+    _value: str
 
     def __init__(
         self,
-        value: Union[str, KnoraStandoffXml],
-        mapping: Optional[str] = None,
+        value: str,
         comment: Optional[LangString] = None,
         permissions: Optional[Permissions] = None,
         upermission: Optional[PermissionValue] = None,
@@ -155,7 +153,6 @@ class TextValue(Value):
         vark_url: Optional[str] = None,
     ):
         self._value = value
-        self._mapping = mapping
         super().__init__(
             iri=iri,
             comment=comment,
@@ -169,35 +166,64 @@ class TextValue(Value):
     def value(self) -> str:
         return self._value
 
-    @property
-    def mapping(self) -> str:
-        return self._mapping
-
     @classmethod
     def fromJsonLdObj(cls, jsonld_obj: Any) -> dict[str, Any]:
         tmp = Value.getFromJsonLd(jsonld_obj)
-
-        if jsonld_obj.get("knora-api:textValueAsXml") is not None:
-            tmp["mapping"] = jsonld_obj.get("knora-api:textValueHasMapping")
-            tmp["value"] = jsonld_obj.get("knora-api:textValueAsXml")
-        else:
-            tmp["mapping"] = None
-            tmp["value"] = jsonld_obj.get("knora-api:valueAsString")
+        tmp["value"] = jsonld_obj.get("knora-api:valueAsString")
         return cls(**tmp)
 
     def toJsonLdObj(self, action: Actions) -> dict[str, Any]:
         tmp = super().toJsonLdObj(action)
         if action == Actions.Create:
-            tmp["@type"] = "knora-api:TextValue"
-            if isinstance(self._value, KnoraStandoffXml):
-                tmp["knora-api:textValueAsXml"] = self._value
-                tmp["knora-api:textValueHasMapping"] = {
-                    "@id": "http://rdfh.ch/standoff/mappings/StandardMapping"
-                    if self._mapping is None
-                    else self._mapping
-                }
-            else:
-                tmp["knora-api:valueAsString"] = str(self._value)
+            tmp["@type"] = "knora-api:UnformattedTextValue"
+            tmp["knora-api:valueAsString"] = str(self._value)
+        return tmp
+
+    def __str__(self) -> str:
+        return str(self._value)
+
+
+class FormattedTextValue(Value):
+    _value: Union[str, KnoraStandoffXml]
+
+    def __init__(
+        self,
+        value: Union[str, KnoraStandoffXml],
+        comment: Optional[LangString] = None,
+        permissions: Optional[Permissions] = None,
+        upermission: Optional[PermissionValue] = None,
+        iri: Optional[str] = None,
+        ark_url: Optional[str] = None,
+        vark_url: Optional[str] = None,
+    ):
+        self._value = value
+        super().__init__(
+            iri=iri,
+            comment=comment,
+            permissions=permissions,
+            upermission=upermission,
+            ark_url=ark_url,
+            vark_url=vark_url,
+        )
+
+    @property
+    def value(self) -> Union[str, KnoraStandoffXml]:
+        return self._value
+
+    @classmethod
+    def fromJsonLdObj(cls, jsonld_obj: Any) -> dict[str, Any]:
+        tmp = Value.getFromJsonLd(jsonld_obj)
+        tmp["value"] = jsonld_obj.get("knora-api:textValueAsXml")
+        return cls(**tmp)
+
+    def toJsonLdObj(self, action: Actions) -> dict[str, Any]:
+        tmp = super().toJsonLdObj(action)
+        if action == Actions.Create:
+            tmp["@type"] = "knora-api:FormattedTextValue"
+            tmp["knora-api:textValueAsXml"] = str(self._value)
+            tmp["knora-api:textValueHasMapping"] = {
+                "@id": "http://rdfh.ch/standoff/mappings/StandardMapping"
+            }
         return tmp
 
     def __str__(self) -> str:
@@ -991,7 +1017,8 @@ class LinkValue(Value):
 
 def fromJsonLdObj(jsonld_obj: str) -> Value:
     switcher = {
-        "knora-api:TextValue": TextValue,
+        "knora-api:UnformattedTextValue": UnformattedTextValue,
+        "knora-api:FormattedTextValue": FormattedTextValue,
         "knora-api:ColorValue": ColorValue,
         "knora-api:DateValue": DateValue,
         "knora-api:DecimalValue": DecimalValue,

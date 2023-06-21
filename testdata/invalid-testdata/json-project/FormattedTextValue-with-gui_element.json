@@ -24,7 +24,7 @@
                         "labels": {
                             "en": "hasRichtext"
                         },
-                        "gui_element": "Richtext"
+                        "gui_element": "SimpleText"
                     }
                 ],
                 "resources": [

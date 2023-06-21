@@ -436,6 +436,12 @@
                     },
                     "then": {
                         "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "labels": {
+                                "$ref": "#/definitions/langstring"
+                            },
                             "super": {
                                 "type": "array",
                                 "items": {
@@ -454,12 +460,7 @@
                                 }
                             }
                         },
-                        "not": {
-                            "required": [
-                                "gui_element",
-                                "gui_attributes"
-                            ]
-                        }
+                        "additionalProperties": false
                     }
                 },
                 {
@@ -472,6 +473,12 @@
                     },
                     "then": {
                         "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "labels": {
+                                "$ref": "#/definitions/langstring"
+                            },
                             "super": {
                                 "type": "array",
                                 "items": {
@@ -487,12 +494,7 @@
                                 }
                             }
                         },
-                        "not": {
-                            "required": [
-                                "gui_element",
-                                "gui_attributes"
-                            ]
-                        }
+                        "additionalProperties": false
                     }
                 },
                 {

@@ -160,7 +160,7 @@ def validate_xml_against_schema(input_file: Union[str, Path, etree._ElementTree[
 
 def _validate_xml_tags_in_text_properties(doc: Union[etree._ElementTree[etree._Element], etree._Element]) -> bool:
     """
-    Makes sure that there are no XML tags in simple texts.
+    Makes sure that there are no XML tags in unformatted texts.
     This can only be done with a regex,
     because even if the simple text contains some XML tags,
     the simple text itself is not valid XML that could be parsed.
@@ -189,19 +189,18 @@ def _validate_xml_tags_in_text_properties(doc: Union[etree._ElementTree[etree._E
 
     # then: make the test
     resources_with_illegal_xml_tags = list()
-    for text in doc_without_namespace.findall(path="resource/text-prop/text"):
-        if text.attrib["encoding"] == "utf8":
-            if (
-                regex.search(r'<([a-zA-Z/"]+|[^\s0-9].*[^\s0-9])>', str(text.text))
-                or len(list(text.iterchildren())) > 0
-            ):
-                sourceline = f" line {text.sourceline}: " if text.sourceline else " "
-                propname = text.getparent().attrib["name"]  # type: ignore
-                resname = text.getparent().getparent().attrib["id"]  # type: ignore
-                resources_with_illegal_xml_tags.append(f" -{sourceline}resource '{resname}', property '{propname}'")
+    for text in doc_without_namespace.findall(path="resource/unformatted-text-prop/text"):
+        if (
+            regex.search(r'<([a-zA-Z/"]+|[^\s0-9].*[^\s0-9])>', str(text.text))
+            or len(list(text.iterchildren())) > 0
+        ):
+            sourceline = f" line {text.sourceline}: " if text.sourceline else " "
+            propname = text.getparent().attrib["name"]  # type: ignore
+            resname = text.getparent().getparent().attrib["id"]  # type: ignore
+            resources_with_illegal_xml_tags.append(f" -{sourceline}resource '{resname}', property '{propname}'")
     if resources_with_illegal_xml_tags:
         err_msg = (
-            "XML-tags are not allowed in text properties with encoding=utf8. "
+            "XML-tags are not allowed in unformatted text properties. "
             "The following resources of your XML file violate this rule:\n"
         )
         err_msg += "\n".join(resources_with_illegal_xml_tags)

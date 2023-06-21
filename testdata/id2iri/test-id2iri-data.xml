@@ -33,9 +33,9 @@
     <resource label="TestThing2Incremental"
               restype=":TestThing2"
               id="TestThing2Incremental">
-        <text-prop name=":hasSimpleText">
-            <text encoding="xml">Text</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasSimpleText">
+            <text>Text</text>
+        </unformatted-text-prop>
         <resptr-prop name=":hasTestThing">
             <resptr permissions="prop-default">test_thing_1</resptr>
             <resptr permissions="prop-default">test_thing_2</resptr>

@@ -2,7 +2,7 @@
 
 <knora xmlns="https://dasch.swiss/schema"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="https://dasch.swiss/schema ../src/dsp_tools/resources/schema/data.xsd">
+       xsi:schemaLocation="https://dasch.swiss/schema ../../src/dsp_tools/resources/schema/data.xsd">
 
     <!-- this is a comment -->
     <permissions id="res-default">
@@ -13,9 +13,9 @@
     <resource label="test xml file"
               restype=":TestFile"
               id="test_xml_file">
-        <text-prop name=":hasText">
-            <text encoding="utf8">This is a test XML file</text>
-        </text-prop>
+        <unformatted-text-prop name=":hasText">
+            <text>This is a test XML file</text>
+        </unformatted-text-prop>
     </resource>
 
 </knora>

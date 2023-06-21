@@ -28,7 +28,7 @@ class TestShared(unittest.TestCase):
 
         with self.assertRaisesRegex(
             UserError,
-            r"XML-tags are not allowed in text properties with encoding=utf8\. "
+            r"XML-tags are not allowed in unformatted text properties\. "
             r"The following resources of your XML file violate this rule:"
             r"\n.+line 13.+"
             r"\n.+line 14.+"
@@ -36,7 +36,7 @@ class TestShared(unittest.TestCase):
             r"\n.+line 16.+",
         ):
             shared.validate_xml_against_schema(
-                input_file="testdata/invalid-testdata/xml-data/utf8-text-with-xml-tags.xml"
+                input_file="testdata/invalid-testdata/xml-data/unformatted-text-with-xml-tags.xml"
             )
 
         with self.assertRaisesRegex(
@@ -61,7 +61,7 @@ class TestShared(unittest.TestCase):
             shared.validate_xml_against_schema(input_file="testdata/invalid-testdata/xml-data/empty-label.xml")
 
     def test_validate_xml_tags_in_text_properties(self) -> None:
-        utf8_texts_with_allowed_html_escapes = [
+        unformatted_texts_with_allowed_html_escapes = [
             "(&lt;2cm) (&gt;10cm)",
             "text &lt; text/&gt;",
             "text &lt; text&gt; &amp; text",
@@ -69,31 +69,31 @@ class TestShared(unittest.TestCase):
             'text &lt; text text="text"&gt; text',
             'text &lt;text text="text" &gt; text',
         ]
-        utf8_texts_with_allowed_html_escapes = [
+        unformatted_texts_with_allowed_html_escapes = [
             f'<knora shortcode="4123" default-ontology="testonto" xmlns="https://dasch.swiss/schema" '
             + f'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
             + f'<resource label="label" restype=":restype" id="id">'
-            + f'<text-prop name=":name">'
-            + f'<text encoding="utf8">{txt}'
-            + f"</text></text-prop></resource></knora>"
-            for txt in utf8_texts_with_allowed_html_escapes
+            + f'<unformatted-text-prop name=":name">'
+            + f'<text>{txt}</text>'
+            + f"</unformatted-text-prop></resource></knora>"
+            for txt in unformatted_texts_with_allowed_html_escapes
         ]
-        for xml in utf8_texts_with_allowed_html_escapes:
+        for xml in unformatted_texts_with_allowed_html_escapes:
             self.assertTrue(
                 shared._validate_xml_tags_in_text_properties(etree.fromstring(xml))  # pylint: disable=protected-access
             )
 
-        utf8_texts_with_forbidden_html_escapes = ['&lt;tag s="t"&gt;', "&lt;em&gt;text&lt;/em&gt;"]
-        utf8_texts_with_forbidden_html_escapes = [
+        unformatted_texts_with_forbidden_html_escapes = ['&lt;tag s="t"&gt;', "&lt;em&gt;text&lt;/em&gt;"]
+        unformatted_texts_with_forbidden_html_escapes = [
             f'<knora shortcode="4123" default-ontology="testonto" xmlns="https://dasch.swiss/schema" '
             f'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
             + f'<resource label="label" restype=":restype" id="id">'
-            + f'<text-prop name=":name">'
-            + f'<text encoding="utf8">{txt}'
-            + f"</text></text-prop></resource></knora>"
-            for txt in utf8_texts_with_forbidden_html_escapes
+            + f'<unformatted-text-prop name=":name">'
+            + f'<text>{txt}</text>'
+            + f"</unformatted-text-prop></resource></knora>"
+            for txt in unformatted_texts_with_forbidden_html_escapes
         ]
-        for xml in utf8_texts_with_forbidden_html_escapes:
+        for xml in unformatted_texts_with_forbidden_html_escapes:
             with self.assertRaisesRegex(UserError, "XML-tags are not allowed in text properties with encoding=utf8"):
                 shared._validate_xml_tags_in_text_properties(etree.fromstring(xml))  # pylint: disable=protected-access
 

@@ -1035,15 +1035,15 @@ In addition, there is another complete example of an XML data file here:
         <list-prop list="treelistroot" name=":hasOtherListItem">
             <list permissions="prop-default">Tree list node 03</list>
         </list-prop>
-        <text-prop name=":hasFormattedText">
+        <formatted-text-prop name=":hasFormattedText">
             <text permissions="prop-default">
                 The <strong>third</strong> object and a <a class="salsah-link" href="IRI:obj_0003:IRI">link</a> to.
             </text>
-        </text-prop>
-        <text-prop name=":hasUnformattedText">
+        </formatted-text-prop>
+        <unformatted-text-prop name=":hasUnformattedText">
             <text permissions="prop-default">Dies ist ein einfacher Text ohne Markup</text>
             <text permissions="prop-restricted">Nochmals ein einfacher Text</text>
-        </text-prop>
+        </unformatted-text-prop>
         <date-prop name=":hasDate">
             <date permissions="prop-default">JULIAN:CE:1401-05-17:CE:1402-01</date>
         </date-prop>
@@ -1083,12 +1083,12 @@ In addition, there is another complete example of an XML data file here:
         <list-prop list="treelistroot" name=":hasOtherListItem">
             <list permissions="prop-default">Tree list node 11</list>
         </list-prop>
-        <text-prop name=":hasFormattedText">
+        <formatted-text-prop name=":hasFormattedText">
             <text permissions="prop-default">What is this <em>bold</em> thing?</text>
-        </text-prop>
-        <text-prop name=":hasUnformattedText">
+        </formatted-text-prop>
+        <unformatted-text-prop name=":hasUnformattedText">
             <text permissions="prop-default">aa bbb cccc ddddd</text>
-        </text-prop>
+        </unformatted-text-prop>
         <date-prop name=":hasDate">
             <date permissions="prop-default">1888</date>
         </date-prop>
@@ -1128,12 +1128,12 @@ In addition, there is another complete example of an XML data file here:
         <list-prop list="treelistroot" name=":hasOtherListItem">
             <list permissions="prop-default">Tree list node 02</list>
         </list-prop>
-        <text-prop name=":hasFormattedText">
+        <formatted-text-prop name=":hasFormattedText">
             <text permissions="prop-default">This is <em>bold and <strong>strong</strong></em> text!</text>
-        </text-prop>
-        <text-prop name=":hasUnformattedText">
+        </formatted-text-prop>
+        <unformatted-text-prop name=":hasUnformattedText">
             <text permissions="prop-default">aa bbb cccc ddddd</text>
-        </text-prop>
+        </unformatted-text-prop>
         <date-prop name=":hasDate">
             <date permissions="prop-default">1888</date>
         </date-prop>
@@ -1165,9 +1165,9 @@ In addition, there is another complete example of an XML data file here:
               id="obj_0004"
               permissions="res-default">
         <bitstream>gaga.tif</bitstream>
-        <text-prop name=":hasPictureTitle">
+        <unformatted-text-prop name=":hasPictureTitle">
             <text permissions="prop-default">This is the famous Lena</text>
-        </text-prop>
+        </unformatted-text-prop>
     </resource>
 
 </knora>

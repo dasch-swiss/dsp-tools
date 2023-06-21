@@ -435,9 +435,9 @@ def _check_consistency_with_ontology(
         for propname in [prop.name for prop in resource.properties]:
             if propname not in knora_properties and propname not in resource_properties:
                 prop_syntaxes = [
-                    'DSP-API internals: <text-prop name="propname">',
-                    'current ontology:  <text-prop name=":propname">',
-                    'other ontology:    <text-prop name="other:propname">',
+                    'DSP-API internals: <unformatted-text-prop name="propname">',
+                    'current ontology:  <unformatted-text-prop name=":propname">',
+                    'other ontology:    <unformatted-text-prop name="other:propname">',
                 ]
                 prop_explanations = [
                     'will be interpreted as "knora-api:propname"',

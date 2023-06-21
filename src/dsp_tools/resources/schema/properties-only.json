@@ -16,18 +16,15 @@
         },
         "ncname": {
             "type": "string",
-            "pattern": "^[a-zA-Z_][\\w.-]*$",
-            "additionalProperties": false
+            "pattern": "^[a-zA-Z_][\\w.-]*$"
         },
         "prefixedname": {
             "type": "string",
-            "pattern": "^([a-zA-Z_][\\w.-]*)?:([\\w.-]+)$",
-            "additionalProperties": false
+            "pattern": "^([a-zA-Z_][\\w.-]*)?:([\\w.-]+)$"
         },
         "prefixedname_or_uri": {
             "type": "string",
-            "pattern": "^(([a-zA-Z_][\\w.-]*)?:([\\w.-]+))|(https?://.*)$",
-            "additionalProperties": false
+            "pattern": "^(([a-zA-Z_][\\w.-]*)?:([\\w.-]+))|(https?://.*)$"
         },
         "baseresource": {
             "type": "string",
@@ -266,6 +263,15 @@
                     },
                     "then": {
                         "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "labels": {
+                                "$ref": "#/definitions/langstring"
+                            },
+                            "comments": {
+                                "$ref": "#/definitions/langstring"
+                            },
                             "super": {
                                 "type": "array",
                                 "items": {
@@ -282,14 +288,12 @@
                                         }
                                     ]
                                 }
+                            },
+                            "object": {
+                                "const": "FormattedTextValue"
                             }
                         },
-                        "not": {
-                            "required": [
-                                "gui_element",
-                                "gui_attributes"
-                            ]
-                        }
+                        "additionalProperties": false
                     }
                 },
                 {
@@ -302,6 +306,15 @@
                     },
                     "then": {
                         "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "labels": {
+                                "$ref": "#/definitions/langstring"
+                            },
+                            "comments": {
+                                "$ref": "#/definitions/langstring"
+                            },
                             "super": {
                                 "type": "array",
                                 "items": {
@@ -315,14 +328,12 @@
                                         }
                                     ]
                                 }
+                            },
+                            "object": {
+                                "const": "UnformattedTextValue"
                             }
                         },
-                        "not": {
-                            "required": [
-                                "gui_element",
-                                "gui_attributes"
-                            ]
-                        }
+                        "additionalProperties": false
                     }
                 },
                 {
@@ -744,10 +755,7 @@
                                 },
                                 "additionalProperties": false
                             }
-                        },
-                        "required": [
-                            "gui_attributes"
-                        ]
+                        }
                     }
                 },
                 {
@@ -796,12 +804,12 @@
                                         "type": "string"
                                     }
                                 },
+                                "required": [
+                                    "hlist"
+                                ],
                                 "additionalProperties": false
                             }
-                        },
-                        "required": [
-                            "gui_attributes"
-                        ]
+                        }
                     }
                 },
                 {

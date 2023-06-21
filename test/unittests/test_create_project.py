@@ -107,11 +107,11 @@ class TestProjectCreation(unittest.TestCase):
             validate_project("testdata/invalid-testdata/json-project/invalid-super-property.json")
         with self.assertRaisesRegex(BaseError, r"ERROR: Your ontology contains properties derived from 'hasLinkTo'"):
             validate_project(self.tp_circular_ontology)
-        with self.assertRaisesRegex(BaseError, r"abstract class TextValue as object"):
+        with self.assertRaisesRegex(BaseError, r"'TextValue' is not valid under any of the given schemas"):
             validate_project("testdata/invalid-testdata/json-project/abstract-class-TextValue-as-object.json")
-        with self.assertRaisesRegex(BaseError, r"FormattedTextValue with gui_element"):
+        with self.assertRaisesRegex(BaseError, r"'gui_element' was unexpected"):
             validate_project("testdata/invalid-testdata/json-project/FormattedTextValue-with-gui_element.json")
-        with self.assertRaisesRegex(BaseError, r"UnformattedTextValue with gui_element"):
+        with self.assertRaisesRegex(BaseError, r"'gui_element' was unexpected"):
             validate_project("testdata/invalid-testdata/json-project/UnformattedTextValue-with-gui_element.json")
 
     def test_check_for_duplicate_names(self) -> None:

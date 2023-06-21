@@ -162,8 +162,8 @@ def _validate_xml_tags_in_text_properties(doc: Union[etree._ElementTree[etree._E
     """
     Makes sure that there are no XML tags in unformatted texts.
     This can only be done with a regex,
-    because even if the simple text contains some XML tags,
-    the simple text itself is not valid XML that could be parsed.
+    because even if the unformatted text contains some XML tags,
+    the unformatted text itself is not valid XML that could be parsed.
     The extra challenge is that lxml transforms
     "pebble (&lt;2cm) and boulder (&gt;20cm)" into
     "pebble (<2cm) and boulder (>20cm)"

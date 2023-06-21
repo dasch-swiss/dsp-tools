@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="4124"
+       default-ontology="testonto">
+
+    <resource label="The only resource"
+              restype=":minimalResource"
+              id="the_only_resource">
+        <unformatted-text-prop name=":test">
+            <text>text &lt;test text="text"&gt;text&lt;/test&gt;</text>
+            <text>text &lt;br&gt; text &lt;/br&gt;</text>
+            <text>text &lt;b&gt; text &lt;/b&gt;</text>
+            <text>text &lt;br/&gt; text</text>
+        </unformatted-text-prop>
+    </resource>
+
+</knora>

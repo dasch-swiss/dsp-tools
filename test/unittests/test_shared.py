@@ -36,6 +36,18 @@ class TestShared(unittest.TestCase):
             r"\n.+line 16.+",
         ):
             shared.validate_xml_against_schema(
+                input_file="testdata/invalid-testdata/xml-data/unformatted-text-with-escaped-xml-tags.xml"
+            )
+
+        with self.assertRaisesRegex(
+            UserError,
+            r"The XML file cannot be uploaded due to the following validation error\(s\):"
+            r"\n.+Line 13.+"
+            r"\n.+Line 14.+"
+            r"\n.+Line 15.+"
+            r"\n.+Line 16.+",
+        ):
+            shared.validate_xml_against_schema(
                 input_file="testdata/invalid-testdata/xml-data/unformatted-text-with-xml-tags.xml"
             )
 

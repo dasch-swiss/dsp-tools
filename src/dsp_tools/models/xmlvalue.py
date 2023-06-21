@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing import Optional, Union, cast
 
 from lxml import etree
 
@@ -10,31 +10,30 @@ class XMLValue:
 
     _value: Union[str, KnoraStandoffXml]
     _resrefs: Optional[list[str]]
-    _comment: str
-    _permissions: str
-    _is_richtext: bool
+    _comment: Optional[str]
+    _permissions: Optional[str]
 
-    def __init__(self, node: etree.Element, val_type: str, listname: Optional[str] = None) -> None:
+    def __init__(
+        self, 
+        node: etree._Element, 
+        val_type: str, 
+        listname: Optional[str] = None,
+    ) -> None:
         self._resrefs = None
         self._comment = node.get("comment")
         self._permissions = node.get("permissions")
-        if node.get("encoding") == "xml":
+        if node.text == "formatted-text-prop":
             node.attrib.clear()
             xmlstr = etree.tostring(node, encoding="unicode", method="xml")
             xmlstr = xmlstr.replace('<text xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">', "")
             xmlstr = xmlstr.replace("</text>", "")
             self._value = KnoraStandoffXml(xmlstr)
-            tmp_id_list = self._value.get_all_iris()
-            if tmp_id_list:
-                refs = set()
-                for tmp_id in tmp_id_list:
-                    refs.add(tmp_id.split(":")[1])
-                self._resrefs = list(refs)
+            self._resrefs = list({x.split(":")[1] for x in self._value.get_all_iris() or []})
+        elif val_type == "list":
+            listname = cast(str, listname)
+            self._value = listname + ":" + "".join(node.itertext())
         else:
-            if val_type == "list":
-                self._value = listname + ":" + "".join(node.itertext())
-            else:
-                self._value = "".join(node.itertext())
+            self._value = "".join(node.itertext())
 
     @property
     def value(self) -> Union[str, KnoraStandoffXml]:
@@ -55,11 +54,11 @@ class XMLValue:
         self._resrefs = resrefs
 
     @property
-    def comment(self) -> str:
+    def comment(self) -> Optional[str]:
         """Comment about the value"""
         return self._comment
 
     @property
-    def permissions(self) -> str:
+    def permissions(self) -> Optional[str]:
         """Reference to the set of permissions for the value"""
         return self._permissions

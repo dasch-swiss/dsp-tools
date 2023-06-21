@@ -617,15 +617,10 @@ In addition, there is another complete example of a JSON project file here:
               "hasValue",
               "foaf:givenName"
             ],
-            "object": "TextValue",
+            "object": "UnformattedTextValue",
             "labels": {
               "en": "Firstname",
               "de": "Vorname"
-            },
-            "gui_element": "SimpleText",
-            "gui_attributes": {
-              "size": 24,
-              "maxlength": 32
             }
           },
           {
@@ -634,15 +629,10 @@ In addition, there is another complete example of a JSON project file here:
               "hasValue",
               "foaf:familyName"
             ],
-            "object": "TextValue",
+            "object": "UnformattedTextValue",
             "labels": {
               "en": "Lastname",
               "de": "Nachname"
-            },
-            "gui_element": "SimpleText",
-            "gui_attributes": {
-              "size": 24,
-              "maxlength": 64
             }
           },
           {
@@ -662,15 +652,10 @@ In addition, there is another complete example of a JSON project file here:
             "super": [
               "hasValue"
             ],
-            "object": "TextValue",
+            "object": "UnformattedTextValue",
             "labels": {
               "en": "Name",
               "de": "Name"
-            },
-            "gui_element": "SimpleText",
-            "gui_attributes": {
-              "size": 64,
-              "maxlength": 64
             }
           },
           {

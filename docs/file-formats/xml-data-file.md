@@ -648,11 +648,11 @@ Example of a property with a public link to `<resource id="res_1" ...>` and a hi
 
 ### `<unformatted-text-prop>`/`<formatted-text-prop>`
 
-The `<unformatted-text-prop>` element is used
-for text properties with the object [`UnformattedTextValue`](./json-project/ontologies.md#textvalue).
+The `<unformatted-text-prop>` element is used for text properties with the object
+[`UnformattedTextValue`](./json-project/ontologies.md#unformattedtextvalue--formattedtextvalue).
 
-The `<formatted-text-prop>` element is used
-for text properties with the object [`FormattedTextValue`](./json-project/ontologies.md#textvalue).
+The `<formatted-text-prop>` element is used for text properties with the object
+[`FormattedTextValue`](./json-project/ontologies.md#unformattedtextvalue--formattedtextvalue).
 
 Attributes:
 

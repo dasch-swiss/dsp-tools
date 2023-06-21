@@ -496,9 +496,9 @@ Example:
 ```
 
 
-#### TextValue
+#### UnformattedTextValue / FormattedTextValue
 
-`"object": "FormattedTextValue" / "UnformattedTextValue"`
+`"object": "UnformattedTextValue" / "FormattedTextValue"`
 
 `"FormattedTextValue"` is a text that contains markup, i.e. HTML tags like `<b>`, etc. 
 These tags must follow the XML to Standoff/RDF Standard Mapping documented

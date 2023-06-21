@@ -14,9 +14,9 @@ class XMLValue:
     _permissions: Optional[str]
 
     def __init__(
-        self, 
-        node: etree._Element, 
-        val_type: str, 
+        self,
+        node: etree._Element,
+        val_type: str,
         listname: Optional[str] = None,
     ) -> None:
         self._resrefs = None

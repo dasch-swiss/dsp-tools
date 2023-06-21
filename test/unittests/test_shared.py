@@ -86,7 +86,7 @@ class TestShared(unittest.TestCase):
             + f'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
             + f'<resource label="label" restype=":restype" id="id">'
             + f'<unformatted-text-prop name=":name">'
-            + f'<text>{txt}</text>'
+            + f"<text>{txt}</text>"
             + f"</unformatted-text-prop></resource></knora>"
             for txt in unformatted_texts_with_allowed_html_escapes
         ]
@@ -101,7 +101,7 @@ class TestShared(unittest.TestCase):
             f'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
             + f'<resource label="label" restype=":restype" id="id">'
             + f'<unformatted-text-prop name=":name">'
-            + f'<text>{txt}</text>'
+            + f"<text>{txt}</text>"
             + f"</unformatted-text-prop></resource></knora>"
             for txt in unformatted_texts_with_forbidden_html_escapes
         ]

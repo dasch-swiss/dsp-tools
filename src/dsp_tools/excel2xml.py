@@ -1206,8 +1206,8 @@ def make_unformatted_text_prop(
     calling_resource: str = "",
 ) -> etree._Element:
     """
-    Make a <unformatted-text-prop> from one or more strings. 
-    The string(s) can be provided as string or as PropertyElement with a string inside. 
+    Make a <unformatted-text-prop> from one or more strings.
+    The string(s) can be provided as string or as PropertyElement with a string inside.
     If provided as string, the permissions default to "prop-default".
 
     Args:
@@ -1285,8 +1285,8 @@ def make_formatted_text_prop(
     calling_resource: str = "",
 ) -> etree._Element:
     """
-    Make a <formatted-text-prop> from one or more strings. 
-    The string(s) can be provided as string or as PropertyElement with a string inside. 
+    Make a <formatted-text-prop> from one or more strings.
+    The string(s) can be provided as string or as PropertyElement with a string inside.
     If provided as string, the permissions default to "prop-default".
 
     Args:
@@ -1954,7 +1954,7 @@ def _validate_and_prepare_cli_input_file(dataframe: pd.DataFrame) -> pd.DataFram
         raise BaseError(
             f"Some columns in your input file are missing. The following columns are required: {required_columns}"
         )
-    
+
     # make sure there are no "i_encoding" columns
     i_encoding_columns = [col for col in dataframe.columns if re.search(r"\d_encoding", col)]
     if any(i_encoding_columns):

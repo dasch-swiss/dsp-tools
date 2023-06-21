@@ -49,25 +49,25 @@ def run_test(
                 (
                     f'<{prop}-prop name=":test">'
                     f'<{inner_prop} permissions="prop-default">'
-                    f'{val}'
-                    f'</{inner_prop}>'
-                    f'</{prop}-prop>',
+                    f"{val}"
+                    f"</{inner_prop}>"
+                    f"</{prop}-prop>",
                     dict(name=":test", value=val),
                 ),
                 (
                     f'<{prop}-prop name=":test">'
                     f'<{inner_prop} permissions="prop-restricted">'
-                    f'{val}'
-                    f'</{inner_prop}>'
-                    f'</{prop}-prop>',
+                    f"{val}"
+                    f"</{inner_prop}>"
+                    f"</{prop}-prop>",
                     dict(name=":test", value=excel2xml.PropertyElement(val, permissions="prop-restricted")),
                 ),
                 (
                     f'<{prop}-prop name=":test">'
                     f'<{inner_prop} permissions="prop-restricted" comment="comment">'
-                    f'{val}'
-                    f'</{inner_prop}>'
-                    f'</{prop}-prop>',
+                    f"{val}"
+                    f"</{inner_prop}>"
+                    f"</{prop}-prop>",
                     dict(
                         name=":test",
                         value=excel2xml.PropertyElement(val, permissions="prop-restricted", comment="comment"),
@@ -100,11 +100,11 @@ def run_test(
             (
                 f'<{prop}-prop name=":test">'
                 f'<{inner_prop} permissions="prop-restricted" comment="comment1">'
-                f'{different_values[3 % maximum]}</{inner_prop}>'
+                f"{different_values[3 % maximum]}</{inner_prop}>"
                 f'<{inner_prop} permissions="prop-default" comment="comment2">'
-                f'{different_values[4 % maximum]}</{inner_prop}>'
+                f"{different_values[4 % maximum]}</{inner_prop}>"
                 f'<{inner_prop} permissions="prop-restricted" comment="comment3">'
-                f'{different_values[5 % maximum]}</{inner_prop}>'
+                f"{different_values[5 % maximum]}</{inner_prop}>"
                 f"</{prop}-prop>",
                 dict(
                     name=":test",
@@ -538,7 +538,7 @@ class TestExcel2xml(unittest.TestCase):
             received = re.sub(r" xmlns(:.+?)?=\".+?\"", "", received)
             expected = (
                 f'<unformatted-text-prop name=":test"><text permissions="prop-default">{exp}'
-                '</text></unformatted-text-prop>'
+                "</text></unformatted-text-prop>"
             )
             self.assertEqual(received, expected)
 

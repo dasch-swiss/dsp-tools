@@ -221,9 +221,7 @@ class FormattedTextValue(Value):
         if action == Actions.Create:
             tmp["@type"] = "knora-api:FormattedTextValue"
             tmp["knora-api:textValueAsXml"] = str(self._value)
-            tmp["knora-api:textValueHasMapping"] = {
-                "@id": "http://rdfh.ch/standoff/mappings/StandardMapping"
-            }
+            tmp["knora-api:textValueHasMapping"] = {"@id": "http://rdfh.ch/standoff/mappings/StandardMapping"}
         return tmp
 
     def __str__(self) -> str:

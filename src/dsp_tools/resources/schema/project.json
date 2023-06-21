@@ -16,18 +16,15 @@
         },
         "ncname": {
             "type": "string",
-            "pattern": "^[a-zA-Z_][\\w.-]*$",
-            "additionalProperties": false
+            "pattern": "^[a-zA-Z_][\\w.-]*$"
         },
         "prefixedname": {
             "type": "string",
-            "pattern": "^([a-zA-Z_][\\w.-]*)?:([\\w.-]+)$",
-            "additionalProperties": false
+            "pattern": "^([a-zA-Z_][\\w.-]*)?:([\\w.-]+)$"
         },
         "prefixedname_or_uri": {
             "type": "string",
-            "pattern": "^(([a-zA-Z_][\\w.-]*)?:([\\w.-]+))|(https?://.*)$",
-            "additionalProperties": false
+            "pattern": "^(([a-zA-Z_][\\w.-]*)?:([\\w.-]+))|(https?://.*)$"
         },
         "baseresource": {
             "type": "string",
@@ -119,8 +116,7 @@
         },
         "groupdef": {
             "type": "string",
-            "pattern": "^(([a-zA-Z_][\\w.-]*)?:([-\\w .]+))|(SystemAdmin)$",
-            "additionalProperties": false
+            "pattern": "^(([a-zA-Z_][\\w.-]*)?:([-\\w .]+))|(SystemAdmin)$"
         },
         "projectdef": {
             "type": "string",
@@ -442,6 +438,9 @@
                             "labels": {
                                 "$ref": "#/definitions/langstring"
                             },
+                            "comments": {
+                                "$ref": "#/definitions/langstring"
+                            },
                             "super": {
                                 "type": "array",
                                 "items": {
@@ -477,6 +476,9 @@
                                 "type": "string"
                             },
                             "labels": {
+                                "$ref": "#/definitions/langstring"
+                            },
+                            "comments": {
                                 "$ref": "#/definitions/langstring"
                             },
                             "super": {

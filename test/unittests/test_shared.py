@@ -94,7 +94,7 @@ class TestShared(unittest.TestCase):
             for txt in unformatted_texts_with_forbidden_html_escapes
         ]
         for xml in unformatted_texts_with_forbidden_html_escapes:
-            with self.assertRaisesRegex(UserError, "XML-tags are not allowed in text properties with encoding=utf8"):
+            with self.assertRaisesRegex(UserError, "XML-tags are not allowed in unformatted text properties"):
                 shared._validate_xml_tags_in_text_properties(etree.fromstring(xml))  # pylint: disable=protected-access
 
     def test_prepare_dataframe(self) -> None:

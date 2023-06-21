@@ -70,10 +70,10 @@
     <resource label="Iliad Prooem" restype=":Image2D" id="img_obj_6" permissions="res-default">
         <bitstream permissions="prop-default">testdata/bitstreams/test.jpg</bitstream>
         <unformatted-text-prop name=":hasTitle">
-            <text permissions="prop-default">Iliad Prooem ' and a single quote in utf8</text>
+            <text permissions="prop-default">Iliad Prooem ' and a single quote in an unformatted text</text>
         </unformatted-text-prop>
         <formatted-text-prop name=":hasDescription">
-            <text permissions="prop-default">Iliad Prooem ' and a single quote in xml</text>
+            <text permissions="prop-default">Iliad Prooem ' and a single quote in a formatted text</text>
         </formatted-text-prop>
         <formatted-text-prop name=":hasCopyright">
             <text permissions="prop-default">© Library of Congress Collection of Manuscripts in St. Catherine's Monastery, Mt. Sinai.</text>

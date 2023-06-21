@@ -132,13 +132,6 @@ def run_test(
             # a <list-prop> has the additional attribute list="listname"
             xml_expected = re.sub(r"<list-prop", f'<list-prop list="{listname}"', xml_expected)
             kwargs_to_generate_xml["list_name"] = listname
-        elif prop == "text":
-            # a <text> has the additional attribute encoding="utf8" (the other encoding, xml, is tested in the caller)
-            xml_expected = re.sub(
-                r"<text (permissions=\".+?\")( comment=\".+?\")?",
-                '<text \\1\\2 encoding="utf8"',
-                xml_expected,
-            )
         xml_returned_as_element = method(**kwargs_to_generate_xml)
         xml_returned = etree.tostring(xml_returned_as_element, encoding="unicode")
         xml_returned = re.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_returned)  # remove all xml namespace declarations

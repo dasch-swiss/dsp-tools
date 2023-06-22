@@ -179,11 +179,11 @@ class UnformattedTextValue(Value):
         tmp = super().toJsonLdObj(action)
         if action == Actions.Create:
             tmp["@type"] = "knora-api:UnformattedTextValue"
-            tmp["knora-api:valueAsString"] = str(self._value)
+            tmp["knora-api:valueAsString"] = self._value
         return tmp
 
     def __str__(self) -> str:
-        return str(self._value)
+        return self._value
 
 
 class FormattedTextValue(Value):

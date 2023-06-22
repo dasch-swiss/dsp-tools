@@ -496,17 +496,17 @@ Example:
 ```
 
 
-#### UnformattedTextValue / FormattedTextValue
+#### UnformattedTextValue and FormattedTextValue
 
 `"object": "UnformattedTextValue" / "FormattedTextValue"`
+
+`"UnformattedTextValue"` is a simple, plain text that does not contain markup.
 
 `"FormattedTextValue"` is a text that contains markup, i.e. HTML tags like `<b>`, etc. 
 These tags must follow the XML to Standoff/RDF Standard Mapping documented
 [here](https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v1/xml-to-standoff-mapping/#the-knora-standard-mapping).
 
-`"UnformattedTextValue"` is a simple, plain text that does not contain markup.
-
-See the [xmlupload documentation](../xml-data-file.md#unformatted-text-propformatted-text-prop) for more information.
+See the [xmlupload documentation](../xml-data-file.md#unformatted-text-prop-and-formatted-text-prop) for more information.
 
 There are no *gui_elements / gui_attributes* for this property.
 

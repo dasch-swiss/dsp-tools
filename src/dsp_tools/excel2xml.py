@@ -1238,7 +1238,7 @@ def make_unformatted_text_prop(
                     <text permissions="prop-default">second text</text>
                 </unformatted-text-prop>
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#unformatted-text-propformatted-text-prop
+    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#unformatted-text-prop-and-formatted-text-prop
     """
 
     # check the input: prepare a list with valid values
@@ -1318,7 +1318,7 @@ def make_formatted_text_prop(
                     <text permissions="prop-default">second text</text>
                 </formatted-text-prop>
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#unformatted-text-propformatted-text-prop
+    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#unformatted-text-prop-and-formatted-text-prop
     """
 
     # check the input: prepare a list with valid values

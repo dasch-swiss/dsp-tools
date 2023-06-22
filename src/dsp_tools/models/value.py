@@ -223,7 +223,7 @@ class FormattedTextValue(Value):
         tmp = super().toJsonLdObj(action)
         if action == Actions.Create:
             tmp["@type"] = "knora-api:FormattedTextValue"
-            tmp["knora-api:textValueAsXml"] = str(self._value)
+            tmp["knora-api:textValueAsXml"] = self._value
             tmp["knora-api:textValueHasMapping"] = {"@id": "http://rdfh.ch/standoff/mappings/StandardMapping"}
         return tmp
 

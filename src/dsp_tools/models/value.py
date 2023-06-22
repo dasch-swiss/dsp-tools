@@ -17,7 +17,10 @@ class KnoraStandoffXml:
     __xmlstr: str
 
     def __init__(self, xmlstr: str) -> None:
-        self.__xmlstr = str(xmlstr)
+        # strip pretty-print whitespace at beginning and end of string
+        for rgx in [r"^[\n\s]+", r"[\n\s]+$"]:
+            xmlstr = re.sub(rgx, "", xmlstr)
+        self.__xmlstr = xmlstr
 
     def __str__(self) -> str:
         return self.__xmlstr
@@ -74,7 +77,7 @@ class Value:
 
     @property
     def iri(self) -> str:
-        return self.iri
+        return self._iri
 
     @property
     def ark_url(self) -> str:

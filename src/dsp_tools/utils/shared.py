@@ -12,7 +12,7 @@ from typing import Any, Callable, Optional, Union
 import pandas as pd
 import regex
 from lxml import etree
-from requests import RequestException
+from requests import ReadTimeout, RequestException
 
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import BaseError, UserError
@@ -75,7 +75,7 @@ def try_network_action(
     Returns:
         the return value of action
     """
-
+    action_as_str = f"action='{action}', args='{args}', kwargs='{kwargs}'"
     for i in range(7):
         try:
             if args and not kwargs:
@@ -86,9 +86,16 @@ def try_network_action(
                 return action(*args, **kwargs)
             else:
                 return action()
+        except (TimeoutError, ReadTimeout):
+            msg = f"Timeout Error: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
+            print(f"{datetime.now().isoformat()}: {msg}")
+            logger.error(f"{msg} {action_as_str} (retry-counter i={i})", exc_info=True)
+            time.sleep(2**i)
+            continue
         except (ConnectionError, RequestException):
-            print(f"{datetime.now().isoformat()}: Try reconnecting to DSP server, next attempt in {2 ** i} seconds...")
-            logger.error(f"Try reconnecting to DSP server, next attempt in {2 ** i} seconds...", exc_info=True)
+            msg = f"Network Error: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
+            print(f"{datetime.now().isoformat()}: {msg}")
+            logger.error(f"{msg} {action_as_str} (retry-counter i={i})", exc_info=True)
             time.sleep(2**i)
             continue
         except BaseError as err:
@@ -97,9 +104,9 @@ def try_network_action(
                 in_500_range = 500 <= err.status_code < 600
             try_again_later = "try again later" in err.message
             if try_again_later or in_500_range:
-                msg = f"Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
+                msg = f"Transient Error: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
                 print(f"{datetime.now().isoformat()}: {msg}")
-                logger.error(msg, exc_info=True)
+                logger.error(f"{msg} {action_as_str} (retry-counter i={i})", exc_info=True)
                 time.sleep(2**i)
                 continue
             else:

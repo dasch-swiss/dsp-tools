@@ -557,24 +557,6 @@ class ListNode(Model):
             listnodeobjs.append(listnodeobj)
         return listnodeobjs
 
-    @staticmethod
-    def readDefinitionFileObj(con: Connection, project: Project, rootnode: Any) -> "ListNode":
-        """
-        Reads a JSON obj that corresponds to the syntax of the input to "create_onto".
-
-        :param self:
-        :param con: Connection object
-        :param project: Project instance
-        :param rootnode: root node of the list
-        :return: an instance of ListNode corresponding to the root node
-        """
-        root_list_node = ListNode(
-            con=con, project=project, label=rootnode["labels"], comments=rootnode.get("comments"), name=rootnode["name"]
-        )
-        listnodes = list_creator(con, project, root_list_node, rootnode.get("nodes"))
-        root_list_node.children = listnodes
-        return root_list_node
-
     def createDefinitionFileObj(self) -> dict[str, Any]:
         """
         Create an object that corresponds to the syntax of the input to "create_onto".
@@ -589,29 +571,3 @@ class ListNode(Model):
         if self._children:
             listnode["nodes"] = self._createDefinitionFileObj(self._children)
         return listnode
-
-    def print(self):
-        """
-        print info to stdout
-
-        :return: None
-        """
-
-        print("Node Info:")
-        print("  IRI:       {}".format(self._id))
-        print("  Project:   {}".format(self._project))
-        print("  Name:      {}".format(self._name))
-        print("  Label:     ")
-        if self._label:
-            for lbl in self._label.items():
-                print("             {}: {}".format(lbl[0], lbl[1]))
-        else:
-            print("             None")
-        print("  Comments:   ")
-        if self._comments.isEmpty():
-            for lbl in self._comments.items():
-                print("             {}: {}".format(lbl[0], lbl[1]))
-        else:
-            print("             None")
-        print("  Parent", self._parent)
-        print("  IsRootNode: {}".format(self._isRootNode))

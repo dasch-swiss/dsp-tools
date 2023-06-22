@@ -220,10 +220,6 @@ class ResourceInstance(Model):
     def creation_date(self) -> Optional[DateTimeStamp]:
         return self._creation_date
 
-    @property
-    def vark(self) -> str:
-        return self._version_ark
-
     def clone(self) -> "ResourceInstance":
         return deepcopy(self)
 
@@ -348,27 +344,12 @@ class ResourceInstance(Model):
     def delete(self):
         pass
 
-    def print(self):
-        print("IRI:", self._iri)
-        print("ARK:", self._ark)
-        print("Version ARK:", self._version_ark)
-        print("Label:", self._label)
-        print("Permissions:", str(self._permissions))
-        print("User permission:", str(self._user_permission))
-        for name, val in self._values.items():
-            if isinstance(val, list):
-                tmp = [str(x) for x in val]
-                print(name, ":", " | ".join(tmp))
-            else:
-                print(name, ":", str(val))
-
 
 class ResourceInstanceFactory:
     _con: Connection
     _project: Project
     _lists = list[ListNode]
     _ontologies = dict[str, Ontology]
-    _ontoname2iri = dict[str, str]
     _context: Context
 
     def __init__(self, con: Connection, projident: str) -> None:
@@ -391,7 +372,6 @@ class ResourceInstanceFactory:
         tmp_ontologies.extend(shared_ontologies)
         knora_api_onto = [x for x in Ontology.getAllOntologies(con=con) if x.name == "knora-api"][0]
         tmp_ontologies.append(knora_api_onto)
-        self._ontoname2iri = {x.name: x.iri for x in tmp_ontologies}
 
         ontology_ids = [x.iri for x in tmp_ontologies]
         self._ontologies = {}

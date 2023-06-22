@@ -1027,7 +1027,7 @@ def _handle_upload_error(
     that all information about what is already in DSP
     is written into diagnostic files.
 
-    It then re-raises the original error.
+    It then quits the Python interpreter with exit code 1.
 
     Args:
         err: error that was the cause of the abort
@@ -1041,9 +1041,12 @@ def _handle_upload_error(
     Returns:
         None
     """
-
-    print("\n==========================================\nxmlupload must be aborted because of an error")
-    logger.info("xmlupload must be aborted because of an error")
+    print(
+        f"\n==========================================\n"
+        f"xmlupload must be aborted because of an error.\n"
+        f"Error message: '{err}'\n"
+    )
+    logger.error("xmlupload must be aborted because of an error", exc_info=err)
 
     # only stashed properties of resources that already exist in DSP are of interest
     stashed_xml_texts = _purge_stashed_xml_texts(
@@ -1056,7 +1059,7 @@ def _handle_upload_error(
     )
 
     if id2iri_mapping:
-        id2iri_mapping_file = f"{save_location}/{timestamp_str}_id2iri_mapping.json"
+        id2iri_mapping_file = f"{save_location}/{timestamp_str}_id2iri_mapping.json\n"
         with open(id2iri_mapping_file, "x", encoding="utf-8") as f:
             json.dump(id2iri_mapping, f, ensure_ascii=False, indent=4)
         print(f"The mapping of internal IDs to IRIs was written to {id2iri_mapping_file}")
@@ -1077,7 +1080,7 @@ def _handle_upload_error(
             )
         msg = (
             f"There are stashed text properties that could not be reapplied to the resources they were stripped from. "
-            f"They were saved to {xml_filename}."
+            f"They were saved to {xml_filename}.\n"
         )
         print(msg)
         logger.info(msg)
@@ -1096,7 +1099,7 @@ def _handle_upload_error(
             )
         msg = (
             f"There are stashed resptr properties that could not be reapplied "
-            f"to the resources they were stripped from. They were saved to {resptr_filename}"
+            f"to the resources they were stripped from. They were saved to {resptr_filename}\n"
         )
         print(msg)
         logger.info(msg)
@@ -1107,9 +1110,4 @@ def _handle_upload_error(
         print(msg)
         logger.info(msg)
 
-    if isinstance(err, KeyboardInterrupt):
-        sys.exit(1)
-    else:
-        print("The error will now be raised again:\n==========================================\n")
-        logger.info("The error will now be raised again")
-        raise err
+    sys.exit(1)

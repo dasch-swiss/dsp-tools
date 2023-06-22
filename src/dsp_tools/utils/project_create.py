@@ -2,7 +2,7 @@
 of the project, the creation of groups, users, lists, resource classes, properties and cardinalities."""
 import re
 from pathlib import Path
-from typing import Any, Union, cast
+from typing import Any, Optional, Union, cast
 
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import BaseError, UserError
@@ -500,6 +500,70 @@ def _sort_prop_classes(
     return sorted_prop_classes
 
 
+def _create_ontology(
+    ontology_definition: dict[str, Any],
+    project_ontologies: list[Ontology],
+    con: Connection,
+    project_remote: Project,
+    context: Context,
+    verbose: bool,
+) -> Optional[Ontology]:
+    """
+    Create an ontology on the DSP server,
+    and add the prefixes defined in the JSON file to its context.
+    If the ontology already exists on the DSP server, it is skipped.
+
+    Args:
+        ontology_definition: one ontology from the "ontologies" section of a parsed JSON project file
+        project_ontologies: ontologies existing on the DSP server
+        con: Connection to the DSP server
+        project_remote: representation of the project on the DSP server
+        context: prefixes and the ontology IRIs they stand for
+        verbose: verbose switch
+
+    Raises:
+        UserError: if the ontology cannot be created on the DSP server
+
+    Returns:
+        representation of the created ontology on the DSP server, or None if it already existed
+    """
+    # skip if it already exists on the DSP server
+    if ontology_definition["name"] in [onto.name for onto in project_ontologies]:
+        print(f"\tWARNING: Ontology '{ontology_definition['name']}' already exists on the DSP server. Skipping...")
+        return None
+
+    print(f"Create ontology '{ontology_definition['name']}'...")
+    ontology_local = Ontology(
+        con=con,
+        project=project_remote,
+        label=ontology_definition["label"],
+        name=ontology_definition["name"],
+        comment=ontology_definition.get("comment"),
+    )
+    try:
+        ontology_remote: Ontology = try_network_action(ontology_local.create)
+    except BaseError:
+        # if ontology cannot be created, let the error escalate
+        logger.error(f"ERROR while trying to create ontology '{ontology_definition['name']}'.", exc_info=True)
+        raise UserError(f"ERROR while trying to create ontology '{ontology_definition['name']}'.") from None
+
+    if verbose:
+        print(f"\tCreated ontology '{ontology_definition['name']}'.")
+
+    context.add_context(
+        ontology_remote.name,
+        ontology_remote.iri + ("#" if not ontology_remote.iri.endswith("#") else ""),
+    )
+
+    # add the prefixes defined in the JSON file
+    for onto_prefix, onto_info in context:
+        if onto_info and str(onto_prefix) not in ontology_remote.context:
+            onto_iri = onto_info.iri + ("#" if onto_info.hashtag else "")
+            ontology_remote.context.add_context(prefix=str(onto_prefix), iri=onto_iri)
+
+    return ontology_remote
+
+
 def _create_ontologies(
     con: Connection,
     context: Context,
@@ -543,48 +607,27 @@ def _create_ontologies(
         print("WARNING: {err_msg}")
         logger.warning(err_msg, exc_info=True)
         project_ontologies = []
+
     for ontology_definition in project_definition.get("project", {}).get("ontologies", {}):
         ontology_definition = cast(dict[str, Any], ontology_definition)
-        if ontology_definition["name"] in [onto.name for onto in project_ontologies]:
-            print(f"\tWARNING: Ontology '{ontology_definition['name']}' already exists on the DSP server. Skipping...")
+        ontology_remote = _create_ontology(
+            ontology_definition=ontology_definition,
+            project_ontologies=project_ontologies,
+            con=con,
+            project_remote=project_remote,
+            context=context,
+            verbose=verbose,
+        )
+        if not ontology_remote:
             overall_success = False
             continue
-
-        # create the ontology
-        print(f"Create ontology '{ontology_definition['name']}'...")
-        ontology_local = Ontology(
-            con=con,
-            project=project_remote,
-            label=ontology_definition["label"],
-            name=ontology_definition["name"],
-            comment=ontology_definition.get("comment"),
-        )
-        # if ontology cannot be created, let the error escalate
-        try:
-            ontology_remote: Ontology = try_network_action(ontology_local.create)
-        except BaseError:
-            logger.error(f"ERROR while trying to create ontology '{ontology_definition['name']}'.", exc_info=True)
-            raise UserError(f"ERROR while trying to create ontology '{ontology_definition['name']}'.") from None
-        context.add_context(
-            ontology_remote.name,
-            ontology_remote.iri + ("#" if not ontology_remote.iri.endswith("#") else ""),
-        )
-        last_modification_date = ontology_remote.lastModificationDate
-        if verbose:
-            print(f"\tCreated ontology '{ontology_definition['name']}'.")
-
-        # add the prefixes defined in the JSON file
-        for onto_prefix, onto_info in context:
-            if onto_info and str(onto_prefix) not in ontology_remote.context:
-                onto_iri = onto_info.iri + ("#" if onto_info.hashtag else "")
-                ontology_remote.context.add_context(prefix=str(onto_prefix), iri=onto_iri)
 
         # add the empty resource classes to the remote ontology
         last_modification_date, remote_res_classes, success = _add_resource_classes_to_remote_ontology(
             ontology_definition=ontology_definition,
             ontology_remote=ontology_remote,
             con=con,
-            last_modification_date=last_modification_date,
+            last_modification_date=ontology_remote.lastModificationDate,
             verbose=verbose,
         )
         if not success:

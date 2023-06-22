@@ -486,32 +486,3 @@ class Project(Model):
         if "projects" not in result:
             raise BaseError("Request got no projects!")
         return [Project.fromJsonObj(con, a) for a in result["projects"]]
-
-    def print(self) -> None:
-        """
-        print info to stdout
-
-        :return: None
-        """
-
-        print("Project Info:")
-        print("  IRI:        {}".format(self._iri))
-        print("  Shortcode:  {}".format(self._shortcode))
-        print("  Shortname:  {}".format(self._shortname))
-        print("  Longname:   {}".format(self._longname))
-        if self._description is not None:
-            print("  Description:")
-            for descr in self._description.items():
-                print("    {}: {}".format(descr[0], descr[1]))
-        else:
-            print("  Description: None")
-        if self._keywords is not None:
-            print("  Keywords:   {}".format(" ".join(self._keywords)))
-        else:
-            print("  Keywords:   None")
-        if self._ontologies is not None:
-            print("  Ontologies: {}".format(" ".join(self._ontologies)))
-        else:
-            print("  Ontologies: None")
-        print("  Selfjoin:   {}".format(self._selfjoin))
-        print("  Status:     {}".format(self._status))

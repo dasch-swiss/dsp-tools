@@ -166,7 +166,7 @@ class Connection:
             }
             tmp = path.split("/")
             filename = "POST" + "_".join(tmp) + ".json"
-            with open(filename, "w", encoding="utf8") as f:
+            with open(filename, "w", encoding="utf-8") as f:
                 json.dump(logobj, f, indent=4)
         check_for_api_error(response)
         result = response.json()
@@ -256,28 +256,3 @@ class Connection:
         check_for_api_error(response)
         result = response.json()
         return result
-
-    def reset_triplestore_content(self):
-        rdfdata = [
-            {"path": "./knora-ontologies/knora-admin.ttl", "name": "http://www.knora.org/ontology/knora-admin"},
-            {"path": "./knora-ontologies/knora-base.ttl", "name": "http://www.knora.org/ontology/knora-base"},
-            {"path": "./knora-ontologies/standoff-onto.ttl", "name": "http://www.knora.org/ontology/standoff"},
-            {"path": "./knora-ontologies/standoff-data.ttl", "name": "http://www.knora.org/data/standoff"},
-            {"path": "./knora-ontologies/salsah-gui.ttl", "name": "http://www.knora.org/ontology/salsah-gui"},
-            {"path": "./_test_data/all_data/admin-data.ttl", "name": "http://www.knora.org/data/admin"},
-            {"path": "./_test_data/all_data/permissions-data.ttl", "name": "http://www.knora.org/data/permissions"},
-            {"path": "./_test_data/all_data/system-data.ttl", "name": "http://www.knora.org/data/0000/SystemProject"},
-        ]
-        jsondata = json.dumps(rdfdata)
-        url = self._server + "/admin/store/ResetTriplestoreContent?prependdefaults=false"
-
-        response = requests.post(
-            url,
-            headers={"Content-Type": "application/json; charset=UTF-8"},
-            data=jsondata,
-            timeout=5,
-        )
-        check_for_api_error(response)
-        res = response.json()
-        #  pprint(res)
-        return res

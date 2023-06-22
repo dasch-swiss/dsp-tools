@@ -148,7 +148,7 @@ class TestXMLUpload(unittest.TestCase):
         stashed_xml_texts_expected = {
             "test_thing_1": {
                 "testonto:hasFormattedText": [
-                    "\n                This is <em>bold and <strong>strong</strong></em> text! "
+                    "This is <em>bold and <strong>strong</strong></em> text! "
                     "It contains links to all resources:\n"
                     '                <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>\n'
                     '                <a class="salsah-link" href="IRI:test_thing_1:IRI">test_thing_1</a>\n'
@@ -161,13 +161,12 @@ class TestXMLUpload(unittest.TestCase):
                     '                <a class="salsah-link" href="IRI:text_thing_1:IRI">text_thing_1</a>\n'
                     '                <a class="salsah-link" href="IRI:zip_thing_1:IRI">zip_thing_1</a>\n'
                     '                <a class="salsah-link" href="IRI:audio_thing_1:IRI">audio_thing_1</a>\n'
-                    '                <a class="salsah-link" href="IRI:test_thing_2:IRI">test_thing_2</a>\n'
-                    "            \n        "
+                    '                <a class="salsah-link" href="IRI:test_thing_2:IRI">test_thing_2</a>'
                 ]
             },
             "test_thing_2": {
                 "testonto:hasFormattedText": [
-                    "\n                This is <em>bold and <strong>strong</strong></em> text! "
+                    "This is <em>bold and <strong>strong</strong></em> text! "
                     "It contains links to all resources:\n"
                     '                <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>\n'
                     '                <a class="salsah-link" href="IRI:test_thing_1:IRI">test_thing_1</a>\n'
@@ -180,8 +179,7 @@ class TestXMLUpload(unittest.TestCase):
                     '                <a class="salsah-link" href="IRI:text_thing_1:IRI">text_thing_1</a>\n'
                     '                <a class="salsah-link" href="IRI:zip_thing_1:IRI">zip_thing_1</a>\n'
                     '                <a class="salsah-link" href="IRI:audio_thing_1:IRI">audio_thing_1</a>\n'
-                    '                <a class="salsah-link" href="IRI:test_thing_2:IRI">test_thing_2</a>\n'
-                    "            \n        "
+                    '                <a class="salsah-link" href="IRI:test_thing_2:IRI">test_thing_2</a>'
                 ]
             },
         }

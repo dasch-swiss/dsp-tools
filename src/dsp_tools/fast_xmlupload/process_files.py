@@ -17,7 +17,7 @@ import requests
 from docker.models.containers import Container
 from lxml import etree
 
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.logging import get_logger
 
 logger = get_logger(__name__)
@@ -150,15 +150,19 @@ def _check_params(
     input_dir: str,
     out_dir: str,
     xml_file: str,
-) -> Optional[tuple[Path, Path, Path]]:
+) -> tuple[Path, Path, Path]:
     """
-    Checks the input parameters provided by the user and transforms them into the expected types.
+    Checks the input parameters provided by the user and transforms them into Path objects.
+    If the output directory doesn't exist, it is created.
 
     Args:
         input_dir: the root directory of the input files
         out_dir: the output directory where the created files should be written to
         xml_file: the XML file the paths are extracted from
 
+    Raises:
+        UserError: if one of the parameters is not valid
+    
     Returns:
         A tuple with the Path objects of the input strings
     """
@@ -166,18 +170,15 @@ def _check_params(
     out_dir_path = Path(out_dir)
     xml_file_path = Path(xml_file)
 
-    if not _ensure_directory_exists(out_dir_path):
-        return None
+    try:
+        out_dir_path.mkdir(parents=True, exist_ok=True)
+    except Exception:  # pylint: disable=broad-exception-caught
+        raise UserError(f"Couldn't create directory {out_dir_path}") from None
 
     if not input_dir_path.is_dir():
-        print("input_dir is not a directory")
-        return None
-    if not out_dir_path.is_dir():
-        print("out_dir is not a directory")
-        return None
+        raise UserError("input_dir is not a directory")
     if not xml_file_path.is_file():
-        print("xml_file is not a file")
-        return None
+        raise UserError("xml_file is not a file")
 
     return input_dir_path, out_dir_path, xml_file_path
 
@@ -517,26 +518,6 @@ def _extract_preview_from_video(file: Path) -> bool:
         return True
 
 
-def _ensure_directory_exists(path: Path) -> bool:
-    """
-    Try to create the directory at the given path.
-    If the directory already exists, nothing happens.
-
-    Args:
-        path: path to the directory that should be created
-
-    Returns:
-        True if the directory exists or was created successfully, False if an error occurred during the creation.
-    """
-    try:
-        path.mkdir(parents=True, exist_ok=True)
-        return True
-    except Exception:  # pylint: disable=broad-exception-caught
-        print(f"{datetime.now()}: ERROR: Couldn't create directory {path}")
-        logger.error(f"Couldn't create directory {path}", exc_info=True)
-        return False
-
-
 def _process_file(
     in_file: Path,
     input_dir: Path,
@@ -780,7 +761,7 @@ def handle_interruption(
 
 
 def double_check_unprocessed_files(
-    all_paths: list[Path],
+    all_files: list[Path],
     processed_files: list[Path],
     unprocessed_files: list[Path],
 ) -> None:
@@ -788,24 +769,24 @@ def double_check_unprocessed_files(
     Checks if the files in 'unprocessed_files.txt' are consistent with the files in 'processed_files.txt'.
 
     Args:
-        all_paths: list of all paths in the <bitstream> tags of the XML file
+        all_files: list of all paths in the <bitstream> tags of the XML file
         processed_files: the paths from 'processed_files.txt'
         unprocessed_files: the paths from 'unprocessed_files.txt'
 
     Raises:
-        BaseError: if there is a file 'unprocessed_files.txt', but no file 'processed_files.txt'
-        BaseError: if the files 'unprocessed_files.txt' and 'processed_files.txt' are inconsistent
+        UserError: if there is a file 'unprocessed_files.txt', but no file 'processed_files.txt'
+        UserError: if the files 'unprocessed_files.txt' and 'processed_files.txt' are inconsistent
     """
     if unprocessed_files and not processed_files:
-        raise BaseError("There is a file 'unprocessed_files.txt', but no file 'processed_files.txt'")
+        raise UserError("There is a file 'unprocessed_files.txt', but no file 'processed_files.txt'")
 
-    unprocessed_files_from_processed_files = [x for x in all_paths if x not in processed_files]
+    unprocessed_files_from_processed_files = [x for x in all_files if x not in processed_files]
     if not sorted(unprocessed_files_from_processed_files) == sorted(unprocessed_files):
-        raise BaseError("There files 'unprocessed_files.txt' and 'processed_files.txt' are inconsistent")
+        raise UserError("There files 'unprocessed_files.txt' and 'processed_files.txt' are inconsistent")
 
 
 def _determine_next_batch(
-    all_paths: list[Path],
+    all_files: list[Path],
     input_dir_path: Path,
 ) -> list[Path]:
     """
@@ -817,8 +798,11 @@ def _determine_next_batch(
     If all files have been processed, an empty list is returned.
 
     Args:
-        all_paths: list of all paths in the <bitstream> tags of the XML file
+        all_files: list of all paths in the <bitstream> tags of the XML file
         input_dir_path: the root directory of the input files
+
+    Raises:
+        UserError: if the files 'unprocessed_files.txt' and 'processed_files.txt' are inconsistent
 
     Returns:
         the next batch of up to 5000 files that should be processed
@@ -838,11 +822,11 @@ def _determine_next_batch(
         with open(unprocessed_files_file, "r", encoding="utf-8") as f:
             unprocessed_files = [Path(x.strip()) for x in f.readlines()]
     else:
-        unprocessed_files = all_paths
+        unprocessed_files = all_files
     
     # consistency check
     double_check_unprocessed_files(
-        all_paths=all_paths,
+        all_files=all_files,
         processed_files=processed_files,
         unprocessed_files=unprocessed_files,
     )
@@ -876,15 +860,11 @@ def process_files(
         success status
     """
     # check the input parameters
-    param_check_result = _check_params(
+    input_dir_path, output_dir_path, xml_file_path = _check_params(
         input_dir=input_dir,
         out_dir=output_dir,
         xml_file=xml_file,
     )
-    if param_check_result:
-        input_dir_path, output_dir_path, xml_file_path = param_check_result
-    else:
-        raise BaseError("Error reading the input parameters. Please check them.")
 
     # startup the SIPI container
     _start_sipi_container_and_mount_volumes(
@@ -893,14 +873,15 @@ def process_files(
     )
 
     # get the files referenced in the XML file
-    all_paths = _get_file_paths_from_xml(xml_file_path)
+    all_files = _get_file_paths_from_xml(xml_file_path)
+
     # find out if there was a previous processing attempt that should be continued
     files_to_process = _determine_next_batch(
-        all_paths=all_paths,
+        all_files=all_files,
         input_dir_path=input_dir_path,
     )
     msg = (
-        f"Found {len(all_paths)} bitstreams in the XML file, {len(files_to_process)} of them unprocessed. "
+        f"Found {len(all_files)} bitstreams in the XML file, {len(files_to_process)} of them unprocessed. "
         f"Process the next {len(files_to_process)} files..."
     )
     print(f"{datetime.now()}: {msg}")

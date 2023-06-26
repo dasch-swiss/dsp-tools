@@ -162,7 +162,7 @@ def _check_params(
 
     Raises:
         UserError: if one of the parameters is not valid
-    
+
     Returns:
         A tuple with the Path objects of the input strings
     """
@@ -733,11 +733,11 @@ def handle_interruption(
     Args:
         files_to_process: list of all paths that should be processed
         processed_files: list of tuples (orig path, processed path). 2nd path is None if a file could not be processed.
-        exception: the exception that was raised 
+        exception: the exception that was raised
     """
     processed_paths = [x[1] for x in processed_files if x and x[1]]
     unprocessed_paths = [x for x in files_to_process if x not in processed_paths]
-    
+
     _write_result_to_pkl_file(
         processed_files=processed_files,
         input_dir_path=input_dir_path,
@@ -793,7 +793,7 @@ def _determine_next_batch(
     """
     Looks in the input directory for txt files that contain the already processed files and the still unprocessed files.
     If no such files are found, this run of `dsp-tools process-files` is the first one.
-    In this case, the first 5000 files (or less if there are less) are returned. 
+    In this case, the first 5000 files (or less if there are less) are returned.
     If such files are found, the already processed files are read from them,
     and the next 5000 files are returned.
     If all files have been processed, an empty list is returned.
@@ -816,7 +816,7 @@ def _determine_next_batch(
             processed_files = [Path(x.strip()) for x in f.readlines()]
     else:
         processed_files = []
-    
+
     # read the still unprocessed files
     unprocessed_files_file = input_dir_path / "unprocessed_files.txt"
     if unprocessed_files_file.is_file():
@@ -824,7 +824,7 @@ def _determine_next_batch(
             unprocessed_files = [Path(x.strip()) for x in f.readlines()]
     else:
         unprocessed_files = []
-    
+
     # consistency check
     double_check_unprocessed_files(
         all_files=all_files,

@@ -371,7 +371,6 @@ def call_requested_action(
                 save_metrics=args.metrics,
                 preprocessing_done=False,
             )
-
     elif args.action == "process-files":
         success = process_files(
             input_dir=args.input_dir,

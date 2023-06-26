@@ -780,9 +780,10 @@ def double_check_unprocessed_files(
     if unprocessed_files and not processed_files:
         raise UserError("There is a file 'unprocessed_files.txt', but no file 'processed_files.txt'")
 
-    unprocessed_files_from_processed_files = [x for x in all_files if x not in processed_files]
-    if not sorted(unprocessed_files_from_processed_files) == sorted(unprocessed_files):
-        raise UserError("There files 'unprocessed_files.txt' and 'processed_files.txt' are inconsistent")
+    if unprocessed_files:
+        unprocessed_files_from_processed_files = [x for x in all_files if x not in processed_files]
+        if not sorted(unprocessed_files_from_processed_files) == sorted(unprocessed_files):
+            raise UserError("The files 'unprocessed_files.txt' and 'processed_files.txt' are inconsistent")
 
 
 def _determine_next_batch(
@@ -822,7 +823,7 @@ def _determine_next_batch(
         with open(unprocessed_files_file, "r", encoding="utf-8") as f:
             unprocessed_files = [Path(x.strip()) for x in f.readlines()]
     else:
-        unprocessed_files = all_files
+        unprocessed_files = []
     
     # consistency check
     double_check_unprocessed_files(
@@ -832,8 +833,9 @@ def _determine_next_batch(
     )
 
     # determine next batch
-    files_to_process = unprocessed_files[:5000] if len(unprocessed_files) > 5000 else unprocessed_files
-    return files_to_process
+    files_to_process = unprocessed_files if unprocessed_files else all_files
+    next_batch = files_to_process[:5000] if len(files_to_process) > 5000 else files_to_process
+    return next_batch
 
 
 def process_files(

@@ -21,8 +21,9 @@ class TestFastXmlUpload(unittest.TestCase):
     user = "root@example.com"
     password = "test"
 
-    xml_file = "xml-data/test-data-fast-xmlupload.xml"
-    dir_with_processed_files = "preprocessed_files"
+    input_dir = Path("testdata")
+    output_dir = Path("testdata/preprocessed_files")
+    xml_file = "testdata/xml-data/test-data-fast-xmlupload.xml"
     original_cwd = ""
     pickle_file = Path()
 
@@ -31,7 +32,7 @@ class TestFastXmlUpload(unittest.TestCase):
         Is executed before any test is run.
         """
         self.original_cwd = os.getcwd()
-        os.chdir("testdata")
+        os.chdir(self.input_dir)
         create_project(
             project_file_as_path_or_parsed="json-project/test-project-fast-xmlupload.json",
             server=self.dsp_url,
@@ -48,7 +49,7 @@ class TestFastXmlUpload(unittest.TestCase):
         Is executed after all tests have run through.
         """
         shutil.rmtree("bitstreams/nested")
-        shutil.rmtree(self.dir_with_processed_files)
+        shutil.rmtree(self.output_dir)
         self.pickle_file.unlink()
         id2iri_search_results = list(Path().glob("*id2iri_mapping.json"))
         if len(id2iri_search_results) == 1:
@@ -63,7 +64,7 @@ class TestFastXmlUpload(unittest.TestCase):
         print("test_fast_xmlupload: call process_files()")
         success_process = process_files(
             input_dir="bitstreams",
-            output_dir=self.dir_with_processed_files,
+            output_dir=str(self.output_dir),
             xml_file=self.xml_file,
             nthreads=None,
         )
@@ -74,7 +75,7 @@ class TestFastXmlUpload(unittest.TestCase):
         print(f"test_fast_xmlupload: call upload_files() with pickle file {self.pickle_file}")
         success_upload = upload_files(
             pkl_file=str(self.pickle_file),
-            dir_with_processed_files=self.dir_with_processed_files,
+            dir_with_processed_files=str(self.output_dir),
             nthreads=4,
             user=self.user,
             password=self.password,

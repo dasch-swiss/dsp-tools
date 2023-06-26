@@ -780,29 +780,22 @@ def handle_interruption(
 
 
 def double_check_unprocessed_files(
-    input_dir_path: Path,
     all_paths: list[Path],
+    processed_files: list[Path],
     unprocessed_files: list[Path],
 ) -> None:
     """
     Checks if the files in 'unprocessed_files.txt' are consistent with the files in 'processed_files.txt'.
 
     Args:
-        input_dir_path: the root directory of the input files
         all_paths: list of all paths in the <bitstream> tags of the XML file
+        processed_files: the paths from 'processed_files.txt'
         unprocessed_files: the paths from 'unprocessed_files.txt'
 
     Raises:
         BaseError: if there is a file 'unprocessed_files.txt', but no file 'processed_files.txt'
         BaseError: if the files 'unprocessed_files.txt' and 'processed_files.txt' are inconsistent
     """
-    processed_files_file = input_dir_path / "processed_files.txt"
-    if processed_files_file.is_file():
-        with open(processed_files_file, "r", encoding="utf-8") as f:
-            processed_files = [Path(x.strip()) for x in f.readlines()]
-    else:
-        processed_files = []
-    
     if unprocessed_files and not processed_files:
         raise BaseError("There is a file 'unprocessed_files.txt', but no file 'processed_files.txt'")
 
@@ -831,19 +824,30 @@ def _determine_next_batch(
         the next batch of up to 5000 files that should be processed
         (or an empty list if all files have been processed)
     """
+    # read the already processed files
+    processed_files_file = input_dir_path / "processed_files.txt"
+    if processed_files_file.is_file():
+        with open(processed_files_file, "r", encoding="utf-8") as f:
+            processed_files = [Path(x.strip()) for x in f.readlines()]
+    else:
+        processed_files = []
+    
+    # read the still unprocessed files
     unprocessed_files_file = input_dir_path / "unprocessed_files.txt"
     if unprocessed_files_file.is_file():
         with open(unprocessed_files_file, "r", encoding="utf-8") as f:
             unprocessed_files = [Path(x.strip()) for x in f.readlines()]
     else:
-        unprocessed_files = []
+        unprocessed_files = all_paths
     
+    # consistency check
     double_check_unprocessed_files(
-        input_dir_path=input_dir_path,
         all_paths=all_paths,
+        processed_files=processed_files,
         unprocessed_files=unprocessed_files,
     )
 
+    # determine next batch
     files_to_process = unprocessed_files[:5000] if len(unprocessed_files) > 5000 else unprocessed_files
     return files_to_process
 

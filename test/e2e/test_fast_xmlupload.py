@@ -21,40 +21,38 @@ class TestFastXmlUpload(unittest.TestCase):
     user = "root@example.com"
     password = "test"
 
-    input_dir = Path("testdata")
-    output_dir = Path("testdata/preprocessed_files")
+    input_dir = "testdata/bitstreams"
+    output_dir = "testdata/preprocessed_files"
     xml_file = "testdata/xml-data/test-data-fast-xmlupload.xml"
-    original_cwd = ""
-    pickle_file = Path()
+    json_file = "testdata/json-project/test-project-fast-xmlupload.json"
+    pickle_file = ""
 
     def setUp(self) -> None:
         """
         Is executed before any test is run.
         """
-        self.original_cwd = os.getcwd()
-        os.chdir(self.input_dir)
         create_project(
-            project_file_as_path_or_parsed="json-project/test-project-fast-xmlupload.json",
+            project_file_as_path_or_parsed=self.json_file,
             server=self.dsp_url,
             user_mail=self.user,
             password=self.password,
             verbose=False,
             dump=False,
         )
-        shutil.copytree("bitstreams", "bitstreams/nested")
-        shutil.copytree("bitstreams/nested", "bitstreams/nested/subfolder")
+        shutil.copytree("testdata/bitstreams", "testdata/bitstreams/nested")
+        shutil.copytree("testdata/bitstreams/nested", "testdata/bitstreams/nested/subfolder")
 
     def tearDown(self) -> None:
         """
         Is executed after all tests have run through.
         """
-        shutil.rmtree("bitstreams/nested")
+        shutil.rmtree("testdata/bitstreams/nested")
         shutil.rmtree(self.output_dir)
-        self.pickle_file.unlink()
+        if Path(self.pickle_file).is_file():
+            Path(self.pickle_file).unlink()
         id2iri_search_results = list(Path().glob("*id2iri_mapping.json"))
         if len(id2iri_search_results) == 1:
             id2iri_search_results[0].unlink()
-        os.chdir(self.original_cwd)
 
     def test_fast_xmlupload(self) -> None:
         """
@@ -63,19 +61,19 @@ class TestFastXmlUpload(unittest.TestCase):
         """
         print("test_fast_xmlupload: call process_files()")
         success_process = process_files(
-            input_dir="bitstreams",
-            output_dir=str(self.output_dir),
+            input_dir=self.input_dir,
+            output_dir=self.output_dir,
             xml_file=self.xml_file,
             nthreads=None,
         )
         self.assertTrue(success_process)
 
-        self.pickle_file = list(Path().glob("*.pkl"))[0]
+        self.pickle_file = str(list(Path().glob("*.pkl"))[0])
 
         print(f"test_fast_xmlupload: call upload_files() with pickle file {self.pickle_file}")
         success_upload = upload_files(
-            pkl_file=str(self.pickle_file),
-            dir_with_processed_files=str(self.output_dir),
+            pkl_file=self.pickle_file,
+            dir_with_processed_files=self.output_dir,
             nthreads=4,
             user=self.user,
             password=self.password,
@@ -87,7 +85,7 @@ class TestFastXmlUpload(unittest.TestCase):
         print("test_fast_xmlupload: call fast_xmlupload()")
         success_fast_xmlupload = fast_xmlupload(
             xml_file=self.xml_file,
-            pkl_file=str(self.pickle_file),
+            pkl_file=self.pickle_file,
             user=self.user,
             password=self.password,
             dsp_url=self.dsp_url,

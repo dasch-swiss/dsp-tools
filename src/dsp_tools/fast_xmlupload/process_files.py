@@ -43,40 +43,39 @@ def _get_export_moving_image_frames_script() -> None:
 
 def _check_if_all_files_were_processed(
     result: list[tuple[Path, Optional[Path]]],
-    all_paths: list[Path],
+    files_to_process: list[Path],
 ) -> bool:
     """
-    Go through the result list and print all files that could not be processed.
+    Go through the result list and print the files that could not be processed.
 
     Args:
         result: list of tuples of Paths. If the second Path is None, the file could not be processed.
-        all_paths: list of all paths that should have been processed
+        files_to_process: list of all paths that should have been processed
 
     Returns:
         success status
     """
     processed_paths = [x[1] for x in result if x[1]]
-    if len(processed_paths) == len(all_paths):
+    if len(processed_paths) == len(files_to_process):
         success = True
         print(f"{datetime.now()}: Number of processed files: {len(result)}: Okay")
         logger.info(f"Number of processed files: {len(result)}: Okay")
     else:
         success = False
-        ratio = f"{len(processed_paths)}/{len(all_paths)}"
+        ratio = f"{len(processed_paths)}/{len(files_to_process)}"
         msg = f"Some files could not be processed: Only {ratio} were processed. The failed ones are:"
         print(f"{datetime.now()}: ERROR: {msg}")
         logger.error(msg)
-
-    for input_file, output_file in result:
-        if not output_file:
-            print(f" - {input_file}")
-            logger.error(f" - {input_file}")
+        for input_file, output_file in result:
+            if not output_file:
+                print(f" - {input_file}")
+                logger.error(f" - {input_file}")
 
     return success
 
 
 def _process_files_in_parallel(
-    paths: list[Path],
+    files_to_process: list[Path],
     input_dir: Path,
     output_dir: Path,
     nthreads: Optional[int],
@@ -88,7 +87,7 @@ def _process_files_in_parallel(
     so that this function can be called again with the unprocessed files.
 
     Args:
-        paths: a list of all paths to the files that should be processed
+        files_to_process: a list of all paths to the files that should be processed
         input_dir: the root directory of the input files
         output_dir: the directory where the processed files should be written to
         nthreads: number of threads to use for processing
@@ -100,7 +99,7 @@ def _process_files_in_parallel(
           (this list will only have content if a Docker API error led to a restart of the SIPI container)
     """
     with ThreadPoolExecutor(max_workers=nthreads) as pool:
-        processing_jobs = [pool.submit(_process_file, input_file, input_dir, output_dir) for input_file in paths]
+        processing_jobs = [pool.submit(_process_file, f, input_dir, output_dir) for f in files_to_process]
 
     orig_filepath_2_uuid: list[tuple[Path, Optional[Path]]] = []
     for processed in as_completed(processing_jobs):
@@ -114,30 +113,34 @@ def _process_files_in_parallel(
             _stop_and_remove_sipi_container()
             _start_sipi_container_and_mount_volumes(input_dir, output_dir)
             processed_paths = [x[0] for x in orig_filepath_2_uuid]
-            unprocessed_paths = [x for x in paths if x not in processed_paths]
+            unprocessed_paths = [x for x in files_to_process if x not in processed_paths]
             return orig_filepath_2_uuid, unprocessed_paths
 
     return orig_filepath_2_uuid, []
 
 
-def _write_result_to_pkl_file(result: list[tuple[Path, Optional[Path]]]) -> bool:
+def _write_result_to_pkl_file(
+    processed_files: list[tuple[Path, Optional[Path]]],
+    input_dir_path: Path,
+) -> bool:
     """
-    Writes the processing result to a pickle file.
+    Writes the processing result to a pickle file in the input directory.
 
     Args:
-        result: the result of the file processing
+        processed_files: the result of the file processing
+        input_dir_path: the root directory of the input files
 
     Returns:
         true if successful, false otherwise
     """
-    filename = "processing_result_" + datetime.now().strftime("%Y%m%d_%H%M%S") + ".pkl"
+    filename = input_dir_path / f"processing_result_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pkl"
     try:
         with open(filename, "wb") as pkl_file:
-            pickle.dump(result, pkl_file)
+            pickle.dump(processed_files, pkl_file)
         print(f"{datetime.now()}: The result was written to: {filename}")
         return True
     except OSError:
-        err_msg = f"An error occurred while writing the result to the pickle file. Content of file: {result}"
+        err_msg = f"An error occurred while writing the result to the pickle file. Content of file: {processed_files}"
         print(f"{datetime.now()}: {err_msg}")
         logger.error(err_msg, exc_info=True)
         return False
@@ -736,27 +739,31 @@ def _process_video_file(
 
 
 def handle_interruption(
-    all_paths: list[Path],
+    files_to_process: list[Path],
     processed_files: list[tuple[Path, Optional[Path]]],
     exception: BaseException,
+    input_dir_path: Path,
 ) -> None:
     """
     Handles an interruption of the processing.
-    Writes the processed and unprocessed files into two files,
+    Writes the processed and unprocessed files into two files in the input directory,
     and exits the program with exit code 1.
 
     Args:
-        all_paths: list of all paths that should be processed
+        files_to_process: list of all paths that should be processed
         processed_files: list of tuples (orig path, processed path). 2nd path is None if a file could not be processed.
         exception: the exception that was raised 
     """
     processed_paths = [x[1] for x in processed_files if x and x[1]]
-    unprocessed_paths = [x for x in all_paths if x not in processed_paths]
+    unprocessed_paths = [x for x in files_to_process if x not in processed_paths]
     
-    _write_result_to_pkl_file(processed_files)
-    with open("unprocessed_files.txt", "w", encoding="utf-8") as f:
+    _write_result_to_pkl_file(
+        processed_files=processed_files,
+        input_dir_path=input_dir_path,
+    )
+    with open(input_dir_path / "unprocessed_files.txt", "w", encoding="utf-8") as f:
         f.write("\n".join([str(x) for x in unprocessed_paths]))
-    with open("processed_files.txt", "w", encoding="utf-8") as f:
+    with open(input_dir_path / "processed_files.txt", "w", encoding="utf-8") as f:
         f.write("\n".join([str(x) for x in processed_paths]))
 
     msg = (
@@ -770,6 +777,75 @@ def handle_interruption(
     logger.error(msg, exc_info=exception)
 
     sys.exit(1)
+
+
+def double_check_unprocessed_files(
+    input_dir_path: Path,
+    all_paths: list[Path],
+    unprocessed_files: list[Path],
+) -> None:
+    """
+    Checks if the files in 'unprocessed_files.txt' are consistent with the files in 'processed_files.txt'.
+
+    Args:
+        input_dir_path: the root directory of the input files
+        all_paths: list of all paths in the <bitstream> tags of the XML file
+        unprocessed_files: the paths from 'unprocessed_files.txt'
+
+    Raises:
+        BaseError: if there is a file 'unprocessed_files.txt', but no file 'processed_files.txt'
+        BaseError: if the files 'unprocessed_files.txt' and 'processed_files.txt' are inconsistent
+    """
+    processed_files_file = input_dir_path / "processed_files.txt"
+    if processed_files_file.is_file():
+        with open(processed_files_file, "r", encoding="utf-8") as f:
+            processed_files = [Path(x.strip()) for x in f.readlines()]
+    else:
+        processed_files = []
+    
+    if unprocessed_files and not processed_files:
+        raise BaseError("There is a file 'unprocessed_files.txt', but no file 'processed_files.txt'")
+
+    unprocessed_files_from_processed_files = [x for x in all_paths if x not in processed_files]
+    if not sorted(unprocessed_files_from_processed_files) == sorted(unprocessed_files):
+        raise BaseError("There files 'unprocessed_files.txt' and 'processed_files.txt' are inconsistent")
+
+
+def _determine_next_batch(
+    all_paths: list[Path],
+    input_dir_path: Path,
+) -> list[Path]:
+    """
+    Looks in the input directory for txt files that contain the already processed files and the still unprocessed files.
+    If no such files are found, this run of `dsp-tools process-files` is the first one.
+    In this case, the first 5000 files (or less if there are less) are returned. 
+    If such files are found, the already processed files are read from them,
+    and the next 5000 files are returned.
+    If all files have been processed, an empty list is returned.
+
+    Args:
+        all_paths: list of all paths in the <bitstream> tags of the XML file
+        input_dir_path: the root directory of the input files
+
+    Returns:
+        the next batch of up to 5000 files that should be processed
+        (or an empty list if all files have been processed)
+    """
+    unprocessed_files_file = input_dir_path / "unprocessed_files.txt"
+    if unprocessed_files_file.is_file():
+        with open(unprocessed_files_file, "r", encoding="utf-8") as f:
+            unprocessed_files = [Path(x.strip()) for x in f.readlines()]
+    else:
+        unprocessed_files = []
+    
+    double_check_unprocessed_files(
+        input_dir_path=input_dir_path,
+        all_paths=all_paths,
+        unprocessed_files=unprocessed_files,
+    )
+
+    files_to_process = unprocessed_files[:5000] if len(unprocessed_files) > 5000 else unprocessed_files
+    return files_to_process
 
 
 def process_files(
@@ -812,13 +888,22 @@ def process_files(
         output_dir=output_dir_path,
     )
 
-    # get the paths of the files referenced in the XML file
+    # get the files referenced in the XML file
     all_paths = _get_file_paths_from_xml(xml_file_path)
-    print(f"{datetime.now()}: Found {len(all_paths)} bitstreams in the XML file.")
-    logger.info(f"Found {len(all_paths)} bitstreams in the XML file.")
+    # find out if there was a previous processing attempt that should be continued
+    files_to_process = _determine_next_batch(
+        all_paths=all_paths,
+        input_dir_path=input_dir_path,
+    )
+    msg = (
+        f"Found {len(all_paths)} bitstreams in the XML file, {len(files_to_process)} of them unprocessed. "
+        f"Process the next {len(files_to_process)} files..."
+    )
+    print(f"{datetime.now()}: {msg}")
+    logger.info(msg)
 
     # get shell script for processing video files
-    if any(path.suffix == ".mp4" for path in all_paths):
+    if any(path.suffix == ".mp4" for path in files_to_process):
         _get_export_moving_image_frames_script()
 
     # process the files in parallel
@@ -826,11 +911,11 @@ def process_files(
     print(f"{start_time}: Start local file processing...")
     logger.info("Start local file processing...")
     processed_files: list[tuple[Path, Optional[Path]]] = []
-    unprocessed_files = all_paths
+    unprocessed_files = files_to_process
     while unprocessed_files:
         try:
             result, unprocessed_files = _process_files_in_parallel(
-                paths=all_paths,
+                files_to_process=files_to_process,
                 input_dir=input_dir_path,
                 output_dir=output_dir_path,
                 nthreads=nthreads,
@@ -838,9 +923,10 @@ def process_files(
             processed_files.extend(result)
         except BaseException as exc:  # pylint: disable=broad-exception-caught
             handle_interruption(
-                all_paths=all_paths,
+                files_to_process=files_to_process,
                 processed_files=processed_files,
                 exception=exc,
+                input_dir_path=input_dir_path,
             )
 
     # check if all files were processed
@@ -849,11 +935,14 @@ def process_files(
     logger.info(f"{end_time}: Processing files took: {end_time - start_time}")
     success = _check_if_all_files_were_processed(
         result=processed_files,
-        all_paths=all_paths,
+        files_to_process=files_to_process,
     )
 
     # write pickle file
-    if not _write_result_to_pkl_file(processed_files):
+    if not _write_result_to_pkl_file(
+        processed_files=processed_files,
+        input_dir_path=input_dir_path,
+    ):
         success = False
         err_msg = f"An error occurred while writing the result to the pickle file. The result was: {processed_files}"
         print(f"{datetime.now()}: {err_msg}")

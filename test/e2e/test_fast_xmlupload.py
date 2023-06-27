@@ -56,14 +56,13 @@ class TestFastXmlUpload(unittest.TestCase):
         """
         for pickle_file in list(Path().glob("*.pkl")):
             pickle_file.unlink()
-        
+
         id2iri_search_results = list(Path().glob("*id2iri_mapping.json"))
         if len(id2iri_search_results) == 1:
             id2iri_search_results[0].unlink()
-        
+
         for txt_file in self.txt_files:
             Path(txt_file).unlink(missing_ok=True)
-        
 
     def test_fast_xmlupload(self) -> None:
         """
@@ -111,6 +110,7 @@ class TestFastXmlUpload(unittest.TestCase):
         The first 2 batches should exit with exit code 2 and success=True,
         the 3rd batch should exit with exit code 0 and success=True.
         """
+
         def action() -> bool:
             return process_files(
                 input_dir=str(self.input_dir),
@@ -119,13 +119,13 @@ class TestFastXmlUpload(unittest.TestCase):
                 nthreads=None,
                 batch_size=40,
             )
-        
+
         for i in range(2):
             with self.assertRaises(SystemExit) as cm:
                 success = action()
                 self.assertTrue(success)
             self.assertEqual(cm.exception.code, 2, msg=f"Failed in iteration {i}")
-        
+
         success = action()
         self.assertTrue(success)
 

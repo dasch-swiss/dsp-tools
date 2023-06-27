@@ -20,7 +20,7 @@ from lxml import etree
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.logging import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger(__name__, filesize_mb=100, backupcount=36)
 sipi_container: Optional[Container] = None
 export_moving_image_frames_script: Optional[Path] = None
 

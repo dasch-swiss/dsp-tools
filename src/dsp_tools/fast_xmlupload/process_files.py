@@ -731,25 +731,30 @@ def _process_video_file(
 def _write_processed_and_unprocessed_files_to_txt_files(
     processed_files: list[tuple[Path, Optional[Path]]],
     files_to_process: list[Path],
-    input_dir_path: Path,
 ) -> None:
-    processed_paths=[x[1] for x in processed_files if x and x[1]]
-    unprocessed_paths=[x for x in files_to_process if x not in processed_files]
-    with open(input_dir_path / "unprocessed_files.txt", "w", encoding="utf-8") as f:
-        f.write("\n".join([str(x) for x in unprocessed_paths]))
-    with open(input_dir_path / "processed_files.txt", "w", encoding="utf-8") as f:
-        f.write("\n".join([str(x) for x in processed_paths]))
+    processed_original_paths=[x[0] for x in processed_files]
+    with open("processed_files.txt", "w", encoding="utf-8") as f:
+        f.write("\n".join([str(x) for x in processed_original_paths]))
+    msg = "Wrote 'processed_files.txt'"
+    
+    unprocessed_original_paths=[x for x in files_to_process if x not in processed_original_paths]
+    if unprocessed_original_paths:
+        with open("unprocessed_files.txt", "w", encoding="utf-8") as f:
+            f.write("\n".join([str(x) for x in unprocessed_original_paths]))
+        msg += " and 'unprocessed_files.txt'"
+
+    print(f"{datetime.now()}: {msg}")
+    logger.info(msg)
 
 
 def handle_interruption(
     files_to_process: list[Path],
     processed_files: list[tuple[Path, Optional[Path]]],
     exception: BaseException,
-    input_dir_path: Path,
 ) -> None:
     """
     Handles an interruption of the processing.
-    Writes the processed and unprocessed files into two files in the input directory,
+    Writes the processed and unprocessed files into two files in the working directory,
     and exits the program with exit code 1.
 
     Args:
@@ -757,8 +762,9 @@ def handle_interruption(
         processed_files: list of tuples (orig path, processed path). 2nd path is None if a file could not be processed.
         exception: the exception that was raised
     """
-    processed_paths = [x[1] for x in processed_files if x and x[1]]
-    unprocessed_paths = [x for x in files_to_process if x not in processed_paths]
+    msg = "ERROR while processing the files. Writing pickle file and human-readable txt files..."
+    print(f"{datetime.now()}: {msg}")
+    logger.error(msg, exc_info=exception)
 
     try:
         _write_result_to_pkl_file(processed_files)
@@ -767,18 +773,7 @@ def handle_interruption(
     _write_processed_and_unprocessed_files_to_txt_files(
         processed_files=processed_files,
         files_to_process=files_to_process,
-        input_dir_path=input_dir_path,
     )
-
-    msg = (
-        "An error occurred while processing the files. "
-        "3 files were written:\n"
-        " - processing_result_[timestamp].pkl\n"
-        f" - processed_files.txt ({len(processed_paths)} files)\n"
-        f" - unprocessed_files.txt ({len(unprocessed_paths)} files)\n"
-    )
-    print(f"{datetime.now()}: ERROR: {msg}. The exception was: {exception}")
-    logger.error(msg, exc_info=exception)
 
     sys.exit(1)
 
@@ -811,7 +806,6 @@ def double_check_unprocessed_files(
 
 def _determine_next_batch(
     all_files: list[Path],
-    input_dir_path: Path,
     batch_size: int
 ) -> tuple[list[Path], bool]:
     """
@@ -824,7 +818,6 @@ def _determine_next_batch(
 
     Args:
         all_files: list of all paths in the <bitstream> tags of the XML file
-        input_dir_path: the root directory of the input files
         batch_size: number of files to process before Python exits
 
     Raises:
@@ -836,17 +829,15 @@ def _determine_next_batch(
         - a boolean indicating if this is the last batch
     """
     # read the already processed files
-    processed_files_file = input_dir_path / "processed_files.txt"
-    if processed_files_file.is_file():
-        with open(processed_files_file, "r", encoding="utf-8") as f:
+    if Path("processed_files.txt").is_file():
+        with open("processed_files.txt", "r", encoding="utf-8") as f:
             processed_files = [Path(x.strip()) for x in f.readlines()]
     else:
         processed_files = []
 
     # read the still unprocessed files
-    unprocessed_files_file = input_dir_path / "unprocessed_files.txt"
-    if unprocessed_files_file.is_file():
-        with open(unprocessed_files_file, "r", encoding="utf-8") as f:
+    if Path("unprocessed_files.txt").is_file():
+        with open("unprocessed_files.txt", "r", encoding="utf-8") as f:
             unprocessed_files = [Path(x.strip()) for x in f.readlines()]
     else:
         unprocessed_files = []
@@ -883,7 +874,7 @@ def process_files(
     output_dir: str,
     xml_file: str,
     nthreads: Optional[int],
-    batch_size: int = 5000,
+    batch_size: int = 40,
 ) -> bool:
     """
     Process the files referenced in the given XML file.
@@ -930,7 +921,6 @@ def process_files(
     # find out if there was a previous processing attempt that should be continued
     files_to_process, is_last_batch = _determine_next_batch(
         all_files=all_files,
-        input_dir_path=input_dir_path,
         batch_size=batch_size,
     )
 
@@ -958,7 +948,6 @@ def process_files(
                 files_to_process=files_to_process,
                 processed_files=processed_files,
                 exception=exc,
-                input_dir_path=input_dir_path,
             )
     end_time = datetime.now()
     print(f"{end_time}: Processing files took: {end_time - start_time}")
@@ -969,7 +958,6 @@ def process_files(
     _write_processed_and_unprocessed_files_to_txt_files(
         processed_files=processed_files,
         files_to_process=files_to_process,
-        input_dir_path=input_dir_path,
     )
         
     # check if all files were processed

@@ -152,8 +152,7 @@ We use
 These 4 linters are integrated in the GitHub CI pipeline, 
 so that every pull request is checked for code style violations.
 
-In addition, there's a [pre-commit](https://pre-commit.com/) hook that runs black locally before every commit.
-It is configured in `.pre-commit-config.yaml`.
+In addition, there's a [pre-commit hook](#pre-commit-hooks) that runs black locally before every commit.
 
 To locally check your code for style violations, follow the instructions depending on your IDE:
 
@@ -189,6 +188,20 @@ and many style checks can be enabled in Settings > Editor > Inspections > Python
 
 Make sure to set the docstring format to "Google notypes" in the PyCharm settings:
 PyCharm > Settings > Tools > Python Integrated Tools > Docstring format: Google notypes
+
+
+
+## Pre-commit hooks
+
+We use [pre-commit hooks](https://pre-commit.com/).
+They are configured in `.pre-commit-config.yaml`.
+
+If you try to make a commit,
+the pre-commit hooks will be executed before the commit is created.
+If a hook modifies a file, the commit will be aborted.
+You can then stage the changes made by the hook,
+and commit again. 
+This time, your commit will be accepted.
 
 
 

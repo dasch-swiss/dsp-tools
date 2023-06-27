@@ -15,6 +15,16 @@ More details can be found in the
 [developers documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/developers/index/).
 
 
+## Quick start
+
+To get started quickly, without reading about the details, just execute these commands:
+
+- `curl -sSL https://install.python-poetry.org | python3 -`
+- `poetry self add poetry-exec-plugin`
+- `poetry install`
+- `pre-commit install`
+
+
 
 ## Using poetry for dependency management
 
@@ -140,6 +150,9 @@ We use
 
 These 4 linters are integrated in the GitHub CI pipeline, 
 so that every pull request is checked for code style violations.
+
+In addition, there's a [pre-commit](https://pre-commit.com/) hook that runs black locally before every commit.
+It is configured in `.pre-commit-config.yaml`.
 
 To locally check your code for style violations, follow the instructions depending on your IDE:
 

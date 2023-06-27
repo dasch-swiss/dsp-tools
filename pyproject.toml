@@ -49,6 +49,7 @@ types-lxml = "^2023.3.28"
 types-jsonschema = "^4.17.0.8"
 types-openpyxl = "^3.1.0.7"
 types-regex = "^2023.5.5.0"
+pre-commit = "^3.3.3"
 
 
 [tool.poetry.scripts]

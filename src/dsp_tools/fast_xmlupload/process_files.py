@@ -759,6 +759,9 @@ def _write_processed_and_unprocessed_files_to_txt_files(
         with open("unprocessed_files.txt", "w", encoding="utf-8") as f:
             f.write("\n".join([str(x) for x in unprocessed_original_paths]))
         msg += " and 'unprocessed_files.txt'"
+    elif Path("unprocessed_files.txt").is_file():
+        Path("unprocessed_files.txt").unlink()
+        msg += " and removed 'unprocessed_files.txt'"
 
     print(f"{datetime.now()}: {msg}")
     logger.info(msg)
@@ -970,7 +973,7 @@ def process_files(
             )
     end_time = datetime.now()
     print(f"{end_time}: Processing files took: {end_time - start_time}")
-    logger.info(f"{end_time}: Processing files took: {end_time - start_time}")
+    logger.info(f"Processing files took: {end_time - start_time}")
 
     # write results to files
     _write_processed_and_unprocessed_files_to_txt_files(

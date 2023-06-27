@@ -55,9 +55,14 @@ class TestFastXmlUpload(unittest.TestCase):
         """
         for pickle_file in list(Path().glob("*.pkl")):
             pickle_file.unlink()
+        
         id2iri_search_results = list(Path().glob("*id2iri_mapping.json"))
         if len(id2iri_search_results) == 1:
             id2iri_search_results[0].unlink()
+        
+        Path("processed_files.txt").unlink(missing_ok=True)
+        Path("unprocessed_files.txt").unlink(missing_ok=True)
+        
 
     def test_fast_xmlupload(self) -> None:
         """

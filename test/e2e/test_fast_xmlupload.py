@@ -24,6 +24,7 @@ class TestFastXmlUpload(unittest.TestCase):
     output_dir = "testdata/preprocessed_files"
     xml_file = "testdata/xml-data/test-data-fast-xmlupload.xml"
     json_file = "testdata/json-project/test-project-fast-xmlupload.json"
+    txt_files = ["processed_files.txt", "unprocessed_files.txt"]
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -60,8 +61,8 @@ class TestFastXmlUpload(unittest.TestCase):
         if len(id2iri_search_results) == 1:
             id2iri_search_results[0].unlink()
         
-        Path("processed_files.txt").unlink(missing_ok=True)
-        Path("unprocessed_files.txt").unlink(missing_ok=True)
+        for txt_file in self.txt_files:
+            Path(txt_file).unlink(missing_ok=True)
         
 
     def test_fast_xmlupload(self) -> None:
@@ -106,19 +107,27 @@ class TestFastXmlUpload(unittest.TestCase):
     def test_batch_size_of_process_files(self) -> None:
         """
         Test if the "batch_size" parameter of process_files() function works.
+        The test file contains 92 bitstreams, so a batch size of 40 should result in 3 batches.
+        The first 2 batches should exit with exit code 2 and success=True,
+        the 3rd batch should exit with exit code 0 and success=True.
         """
-        exit_codes = []
-        for _ in range(3):
+        def action() -> bool:
+            return process_files(
+                input_dir=str(self.input_dir),
+                output_dir=self.output_dir,
+                xml_file=self.xml_file,
+                nthreads=None,
+                batch_size=40,
+            )
+        
+        for i in range(2):
             with self.assertRaises(SystemExit) as cm:
-                process_files(
-                    input_dir=str(self.input_dir),
-                    output_dir=self.output_dir,
-                    xml_file=self.xml_file,
-                    nthreads=None,
-                    batch_size=40,
-                )
-            exit_codes.append(cm.exception.code)
-        self.assertEqual(exit_codes, [2, 2, 0])
+                success = action()
+                self.assertTrue(success)
+            self.assertEqual(cm.exception.code, 2, msg=f"Failed in iteration {i}")
+        
+        success = action()
+        self.assertTrue(success)
 
 
 if __name__ == "__main__":

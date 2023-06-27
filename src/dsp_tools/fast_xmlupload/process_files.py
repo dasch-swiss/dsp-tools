@@ -17,7 +17,7 @@ import requests
 from docker.models.containers import Container
 from lxml import etree
 
-from dsp_tools.models.exceptions import BaseError, UserError
+from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.logging import get_logger
 
 logger = get_logger(__name__)
@@ -49,7 +49,7 @@ def _determine_success_status_and_exit_code(
     """
     Based on the result of the file processing,
     this function determines the success status and the exit code.
-    If some files of the current batch could not be processed, 
+    If some files of the current batch could not be processed,
     the success status is false, and the exit code is 1.
     If all files of the current batch were processed, the success status is true,
     and the exit code is 0 if this is the last batch,
@@ -729,15 +729,32 @@ def _process_video_file(
 
 
 def _write_processed_and_unprocessed_files_to_txt_files(
+    all_files: list[Path],
     processed_files: list[tuple[Path, Optional[Path]]],
-    files_to_process: list[Path],
 ) -> None:
-    processed_original_paths=[x[0] for x in processed_files]
+    """
+    Determine the files that were processed until now
+    (taking into account a possibly existing file 'processed_files.txt')
+    and write them to 'processed_files.txt'.
+    Determine the files that were not processed until now,
+    and write them to 'unprocessed_files.txt'
+    (possibly overwriting an existing file).
+
+    Args:
+        all_files: list of all paths that should be processed
+        processed_files: list of tuples (orig path, processed path). 2nd path is None if a file could not be processed.
+    """
+    processed_original_paths = [x[0] for x in processed_files]
+    if Path("processed_files.txt").is_file():
+        with open("processed_files.txt", "r", encoding="utf-8") as f:
+            previously_processed_files = [Path(x) for x in f.read().splitlines()]
+        processed_original_paths = processed_original_paths + previously_processed_files
+
     with open("processed_files.txt", "w", encoding="utf-8") as f:
         f.write("\n".join([str(x) for x in processed_original_paths]))
     msg = "Wrote 'processed_files.txt'"
-    
-    unprocessed_original_paths=[x for x in files_to_process if x not in processed_original_paths]
+
+    unprocessed_original_paths = [x for x in all_files if x not in processed_original_paths]
     if unprocessed_original_paths:
         with open("unprocessed_files.txt", "w", encoding="utf-8") as f:
             f.write("\n".join([str(x) for x in unprocessed_original_paths]))
@@ -748,17 +765,18 @@ def _write_processed_and_unprocessed_files_to_txt_files(
 
 
 def handle_interruption(
-    files_to_process: list[Path],
+    all_files: list[Path],
     processed_files: list[tuple[Path, Optional[Path]]],
     exception: BaseException,
 ) -> None:
     """
     Handles an interruption of the processing.
-    Writes the processed and unprocessed files into two files in the working directory,
+    Writes the pickle file,
+    and the txt files with the processed and unprocessed files,
     and exits the program with exit code 1.
 
     Args:
-        files_to_process: list of all paths that should be processed
+        all_files: list of all paths that should be processed
         processed_files: list of tuples (orig path, processed path). 2nd path is None if a file could not be processed.
         exception: the exception that was raised
     """
@@ -766,14 +784,11 @@ def handle_interruption(
     print(f"{datetime.now()}: {msg}")
     logger.error(msg, exc_info=exception)
 
-    try:
-        _write_result_to_pkl_file(processed_files)
-    except UserError as err:
-        print(err.message)
     _write_processed_and_unprocessed_files_to_txt_files(
+        all_files=all_files,
         processed_files=processed_files,
-        files_to_process=files_to_process,
     )
+    _write_result_to_pkl_file(processed_files)
 
     sys.exit(1)
 
@@ -789,16 +804,21 @@ def double_check_unprocessed_files(
     Args:
         all_files: list of all paths in the <bitstream> tags of the XML file
         processed_files: the paths from 'processed_files.txt'
-        unprocessed_files: the paths from 'unprocessed_files.txt'
+        unprocessed_files: the paths from 'unprocessed_files.txt' (or all_files if there is no such file)
 
     Raises:
         UserError: if there is a file 'unprocessed_files.txt', but no file 'processed_files.txt'
         UserError: if the files 'unprocessed_files.txt' and 'processed_files.txt' are inconsistent
     """
-    if unprocessed_files and not processed_files:
+    unprocessed_files_txt_exists = sorted(unprocessed_files) != sorted(all_files)
+    if unprocessed_files_txt_exists and not processed_files:
         raise UserError("There is a file 'unprocessed_files.txt', but no file 'processed_files.txt'")
 
-    if unprocessed_files:
+    if processed_files and sorted(unprocessed_files) == sorted(all_files):
+        raise UserError("There is a file 'processed_files.txt', but no file 'unprocessed_files.txt'")
+
+    if unprocessed_files_txt_exists:
+        # there is a 'unprocessed_files.txt' file. check it for consistency
         unprocessed_files_from_processed_files = [x for x in all_files if x not in processed_files]
         if not sorted(unprocessed_files_from_processed_files) == sorted(unprocessed_files):
             raise UserError("The files 'unprocessed_files.txt' and 'processed_files.txt' are inconsistent")
@@ -806,7 +826,7 @@ def double_check_unprocessed_files(
 
 def _determine_next_batch(
     all_files: list[Path],
-    batch_size: int
+    batch_size: int,
 ) -> tuple[list[Path], bool]:
     """
     Looks in the input directory for txt files that contain the already processed files and the still unprocessed files.
@@ -840,7 +860,7 @@ def _determine_next_batch(
         with open("unprocessed_files.txt", "r", encoding="utf-8") as f:
             unprocessed_files = [Path(x.strip()) for x in f.readlines()]
     else:
-        unprocessed_files = []
+        unprocessed_files = all_files
 
     # consistency check
     double_check_unprocessed_files(
@@ -850,17 +870,16 @@ def _determine_next_batch(
     )
 
     # determine next batch
-    files_to_process = unprocessed_files if unprocessed_files else all_files
-    if len(files_to_process) <= batch_size:
-        next_batch = files_to_process
+    if len(unprocessed_files) <= batch_size:
+        next_batch = unprocessed_files
         is_last_batch = True
     else:
-        next_batch = files_to_process[:batch_size]
+        next_batch = unprocessed_files[:batch_size]
         is_last_batch = False
-    
+
     # print and log
     msg = (
-        f"Found {len(all_files)} bitstreams in the XML file, {len(next_batch)} of them unprocessed. "
+        f"Found {len(all_files)} bitstreams in the XML file, {len(unprocessed_files)} of them unprocessed. "
         f"Process batch of {len(next_batch)} files..."
     )
     print(f"{datetime.now()}: {msg}")
@@ -897,7 +916,7 @@ def process_files(
         batch_size: number of files to process before Python exits
 
     Returns:
-        True         --> exit code 0: all multimedia files in the XML file were processed 
+        True         --> exit code 0: all multimedia files in the XML file were processed
         False        --> exit code 1: an error occurred while processing the current batch
         Error raised --> exit code 1: an error occurred while processing the current batch
         exit with code 2:             Python interpreter exits after each batch
@@ -945,21 +964,21 @@ def process_files(
             processed_files.extend(result)
         except BaseException as exc:  # pylint: disable=broad-exception-caught
             handle_interruption(
-                files_to_process=files_to_process,
+                all_files=all_files,
                 processed_files=processed_files,
                 exception=exc,
             )
     end_time = datetime.now()
     print(f"{end_time}: Processing files took: {end_time - start_time}")
     logger.info(f"{end_time}: Processing files took: {end_time - start_time}")
-    
+
     # write results to files
-    _write_result_to_pkl_file(processed_files)
     _write_processed_and_unprocessed_files_to_txt_files(
+        all_files=all_files,
         processed_files=processed_files,
-        files_to_process=files_to_process,
     )
-        
+    _write_result_to_pkl_file(processed_files)
+
     # check if all files were processed
     success, exit_code = _determine_success_status_and_exit_code(
         files_to_process=files_to_process,
@@ -968,11 +987,11 @@ def process_files(
     )
 
     # remove the SIPI container
-    if success:
+    if exit_code == 0:
         _stop_and_remove_sipi_container()
 
     # exit with correct exit code: 0 and 1 will automatically happen, but 2 must be done manually
     if exit_code == 2:
         sys.exit(2)
-    
+
     return success

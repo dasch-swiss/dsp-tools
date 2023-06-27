@@ -134,21 +134,17 @@ def _process_files_in_parallel(
     return orig_filepath_2_uuid, []
 
 
-def _write_result_to_pkl_file(
-    processed_files: list[tuple[Path, Optional[Path]]],
-    input_dir_path: Path,
-) -> None:
+def _write_result_to_pkl_file(processed_files: list[tuple[Path, Optional[Path]]]) -> None:
     """
-    Writes the processing result to a pickle file in the input directory.
+    Writes the processing result to a pickle file in the working directory.
 
     Args:
         processed_files: the result of the file processing
-        input_dir_path: the root directory of the input files
 
     Raises:
         UserError if the file could not be written
     """
-    filename = input_dir_path / f"processing_result_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pkl"
+    filename = f"processing_result_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pkl"
     try:
         with open(filename, "wb") as pkl_file:
             pickle.dump(processed_files, pkl_file)
@@ -752,10 +748,7 @@ def handle_interruption(
     unprocessed_paths = [x for x in files_to_process if x not in processed_paths]
 
     try:
-        _write_result_to_pkl_file(
-            processed_files=processed_files,
-            input_dir_path=input_dir_path,
-        )
+        _write_result_to_pkl_file(processed_files)
     except UserError as err:
         print(err.message)
     with open(input_dir_path / "unprocessed_files.txt", "w", encoding="utf-8") as f:
@@ -958,10 +951,7 @@ def process_files(
     logger.info(f"{end_time}: Processing files took: {end_time - start_time}")
     
     # write the result to a pickle file
-    _write_result_to_pkl_file(
-        processed_files=processed_files,
-        input_dir_path=input_dir_path,
-    )
+    _write_result_to_pkl_file(processed_files)
         
     # check if all files were processed
     success, exit_code = _determine_success_status_and_exit_code(

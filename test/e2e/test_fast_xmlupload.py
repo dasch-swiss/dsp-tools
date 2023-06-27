@@ -48,7 +48,7 @@ class TestFastXmlUpload(unittest.TestCase):
         """
         shutil.rmtree(cls.input_dir / "nested")
         shutil.rmtree(cls.output_dir)
-    
+
     def tearDown(self) -> None:
         """
         Is executed after each test method
@@ -110,7 +110,7 @@ class TestFastXmlUpload(unittest.TestCase):
                     output_dir=self.output_dir,
                     xml_file=self.xml_file,
                     nthreads=None,
-                    batch_size=40
+                    batch_size=40,
                 )
             exit_codes.append(cm.exception.code)
         self.assertEqual(exit_codes, [2, 2, 0])

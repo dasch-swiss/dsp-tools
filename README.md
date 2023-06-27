@@ -15,9 +15,10 @@ More details can be found in the
 [developers documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/developers/index/).
 
 
+
 ## Quick start
 
-To get started quickly, without reading about the details, just execute these commands:
+To get started quickly, without reading the details, just execute these commands:
 
 - `curl -sSL https://install.python-poetry.org | python3 -`
 - `poetry self add poetry-exec-plugin`
@@ -156,6 +157,7 @@ It is configured in `.pre-commit-config.yaml`.
 
 To locally check your code for style violations, follow the instructions depending on your IDE:
 
+
 ### VSCode
 
 In VSCode, 
@@ -187,6 +189,7 @@ and many style checks can be enabled in Settings > Editor > Inspections > Python
 
 Make sure to set the docstring format to "Google notypes" in the PyCharm settings:
 PyCharm > Settings > Tools > Python Integrated Tools > Docstring format: Google notypes
+
 
 
 ## Contributing to the documentation

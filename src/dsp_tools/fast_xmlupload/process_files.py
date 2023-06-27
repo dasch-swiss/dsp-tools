@@ -63,7 +63,7 @@ def _determine_success_status_and_exit_code(
     Returns:
         tuple (success status, exit_code)
     """
-    processed_paths = [x[1] for x in processed_files if x[1]]
+    processed_paths = [x[1] for x in processed_files if x and x[1]]
     if len(processed_paths) == len(files_to_process):
         success = True
         print(f"{datetime.now()}: All files ({len(files_to_process)}) of this batch were processed: Okay")
@@ -728,6 +728,19 @@ def _process_video_file(
     return in_file, converted_file_full_path
 
 
+def _write_processed_and_unprocessed_files_to_txt_files(
+    processed_files: list[tuple[Path, Optional[Path]]],
+    files_to_process: list[Path],
+    input_dir_path: Path,
+) -> None:
+    processed_paths=[x[1] for x in processed_files if x and x[1]]
+    unprocessed_paths=[x for x in files_to_process if x not in processed_files]
+    with open(input_dir_path / "unprocessed_files.txt", "w", encoding="utf-8") as f:
+        f.write("\n".join([str(x) for x in unprocessed_paths]))
+    with open(input_dir_path / "processed_files.txt", "w", encoding="utf-8") as f:
+        f.write("\n".join([str(x) for x in processed_paths]))
+
+
 def handle_interruption(
     files_to_process: list[Path],
     processed_files: list[tuple[Path, Optional[Path]]],
@@ -751,10 +764,11 @@ def handle_interruption(
         _write_result_to_pkl_file(processed_files)
     except UserError as err:
         print(err.message)
-    with open(input_dir_path / "unprocessed_files.txt", "w", encoding="utf-8") as f:
-        f.write("\n".join([str(x) for x in unprocessed_paths]))
-    with open(input_dir_path / "processed_files.txt", "w", encoding="utf-8") as f:
-        f.write("\n".join([str(x) for x in processed_paths]))
+    _write_processed_and_unprocessed_files_to_txt_files(
+        processed_files=processed_files,
+        files_to_process=files_to_process,
+        input_dir_path=input_dir_path,
+    )
 
     msg = (
         "An error occurred while processing the files. "
@@ -950,8 +964,13 @@ def process_files(
     print(f"{end_time}: Processing files took: {end_time - start_time}")
     logger.info(f"{end_time}: Processing files took: {end_time - start_time}")
     
-    # write the result to a pickle file
+    # write results to files
     _write_result_to_pkl_file(processed_files)
+    _write_processed_and_unprocessed_files_to_txt_files(
+        processed_files=processed_files,
+        files_to_process=files_to_process,
+        input_dir_path=input_dir_path,
+    )
         
     # check if all files were processed
     success, exit_code = _determine_success_status_and_exit_code(

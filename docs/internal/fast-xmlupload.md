@@ -82,8 +82,9 @@ e.g. `multimedia/dog.jpg` -> `tmp/0b/22/0b22570d-515f-4c3d-a6af-e42b458e7b2b.jp2
 
 **Due to a resource leak, Python must be quitted after a certain time.**
 **For big datasets, only a batch of files is processed, then Python exits with exit code 2.**
-**You need to restart the command several times, until the exit code is 0.**
+**In this case, you need to restart the command several times, until the exit code is 0.**
 **Only then, all files are processed.**
+**Unexpected errors result in exit code 1.**
 
 You can orchestrate this with a shell script, e.g.:
 
@@ -93,6 +94,11 @@ while [ $exit_code -eq 2 ]; do
     dsp-tools process-files --input-dir=multimedia --output-dir=tmp data.xml
     exit_code=$?
 done
+
+if [ $exit_code -ne 0 ]; then
+    echo "Error: exit code $exit_code"
+    exit $exit_code
+fi
 ```
 
 ## 3. `dsp-tools upload-files`

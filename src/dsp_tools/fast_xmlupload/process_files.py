@@ -17,7 +17,7 @@ import requests
 from docker.models.containers import Container
 from lxml import etree
 
-from dsp_tools.models.exceptions import UserError
+from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.utils.logging import get_logger
 
 logger = get_logger(__name__)
@@ -41,37 +41,52 @@ def _get_export_moving_image_frames_script() -> None:
         f.write(script_text)
 
 
-def _check_if_all_files_were_processed(
-    result: list[tuple[Path, Optional[Path]]],
+def _determine_success_status_and_exit_code(
     files_to_process: list[Path],
-) -> bool:
+    processed_files: list[tuple[Path, Optional[Path]]],
+    is_last_batch: bool,
+) -> tuple[bool, int]:
     """
-    Go through the result list and print the files that could not be processed.
+    Based on the result of the file processing,
+    this function determines the success status and the exit code.
+    If some files of the current batch could not be processed, 
+    the success status is false, and the exit code is 1.
+    If all files of the current batch were processed, the success status is true,
+    and the exit code is 0 if this is the last batch,
+    and 2 if there are more batches to process.
 
     Args:
-        result: list of tuples of Paths. If the second Path is None, the file could not be processed.
-        files_to_process: list of all paths that should have been processed
+        files_to_process: list of all paths that should have been processed (current batch)
+        processed_files: list of tuples of Paths. If the second Path is None, the file could not be processed.
+        is_last_batch: true if this is the last batch of files to process
 
     Returns:
-        success status
+        tuple (success status, exit_code)
     """
-    processed_paths = [x[1] for x in result if x[1]]
+    processed_paths = [x[1] for x in processed_files if x[1]]
     if len(processed_paths) == len(files_to_process):
         success = True
-        print(f"{datetime.now()}: Number of processed files: {len(result)}: Okay")
-        logger.info(f"Number of processed files: {len(result)}: Okay")
+        print(f"{datetime.now()}: All files ({len(files_to_process)}) of this batch were processed: Okay")
+        logger.info(f"All files ({len(files_to_process)}) of this batch were processed: Okay")
+        if is_last_batch:
+            exit_code = 0
+            print(f"{datetime.now()}: All multimedia files referenced in the XML are processed. No more batches.")
+            logger.info("All multimedia files referenced in the XML are processed. No more batches.")
+        else:
+            exit_code = 2
     else:
         success = False
         ratio = f"{len(processed_paths)}/{len(files_to_process)}"
-        msg = f"Some files could not be processed: Only {ratio} were processed. The failed ones are:"
+        msg = f"Some files of this batch could not be processed: Only {ratio} were processed. The failed ones are:"
         print(f"{datetime.now()}: ERROR: {msg}")
         logger.error(msg)
-        for input_file, output_file in result:
+        for input_file, output_file in processed_files:
             if not output_file:
                 print(f" - {input_file}")
                 logger.error(f" - {input_file}")
+        exit_code = 1
 
-    return success
+    return success, exit_code
 
 
 def _process_files_in_parallel(
@@ -122,7 +137,7 @@ def _process_files_in_parallel(
 def _write_result_to_pkl_file(
     processed_files: list[tuple[Path, Optional[Path]]],
     input_dir_path: Path,
-) -> bool:
+) -> None:
     """
     Writes the processing result to a pickle file in the input directory.
 
@@ -130,23 +145,21 @@ def _write_result_to_pkl_file(
         processed_files: the result of the file processing
         input_dir_path: the root directory of the input files
 
-    Returns:
-        true if successful, false otherwise
+    Raises:
+        UserError if the file could not be written
     """
     filename = input_dir_path / f"processing_result_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pkl"
     try:
         with open(filename, "wb") as pkl_file:
             pickle.dump(processed_files, pkl_file)
         print(f"{datetime.now()}: The result was written to: {filename}")
-        return True
     except OSError:
         err_msg = f"An error occurred while writing the result to the pickle file. Content of file: {processed_files}"
-        print(f"{datetime.now()}: {err_msg}")
         logger.error(err_msg, exc_info=True)
-        return False
+        raise UserError(err_msg) from None
 
 
-def _check_params(
+def _check_input_params(
     input_dir: str,
     out_dir: str,
     xml_file: str,
@@ -738,10 +751,13 @@ def handle_interruption(
     processed_paths = [x[1] for x in processed_files if x and x[1]]
     unprocessed_paths = [x for x in files_to_process if x not in processed_paths]
 
-    _write_result_to_pkl_file(
-        processed_files=processed_files,
-        input_dir_path=input_dir_path,
-    )
+    try:
+        _write_result_to_pkl_file(
+            processed_files=processed_files,
+            input_dir_path=input_dir_path,
+        )
+    except UserError as err:
+        print(err.message)
     with open(input_dir_path / "unprocessed_files.txt", "w", encoding="utf-8") as f:
         f.write("\n".join([str(x) for x in unprocessed_paths]))
     with open(input_dir_path / "processed_files.txt", "w", encoding="utf-8") as f:
@@ -789,25 +805,28 @@ def double_check_unprocessed_files(
 def _determine_next_batch(
     all_files: list[Path],
     input_dir_path: Path,
-) -> list[Path]:
+    batch_size: int
+) -> tuple[list[Path], bool]:
     """
     Looks in the input directory for txt files that contain the already processed files and the still unprocessed files.
     If no such files are found, this run of `dsp-tools process-files` is the first one.
-    In this case, the first 5000 files (or less if there are less) are returned.
+    In this case, the first batch_size files (or less if there are less) are returned.
     If such files are found, the already processed files are read from them,
-    and the next 5000 files are returned.
+    and the next batch_size files are returned.
     If all files have been processed, an empty list is returned.
 
     Args:
         all_files: list of all paths in the <bitstream> tags of the XML file
         input_dir_path: the root directory of the input files
+        batch_size: number of files to process before Python exits
 
     Raises:
         UserError: if the files 'unprocessed_files.txt' and 'processed_files.txt' are inconsistent
 
     Returns:
-        the next batch of up to 5000 files that should be processed
-        (or an empty list if all files have been processed)
+        - the next batch of up to batch_size files that should be processed
+          (or empty list if all files have been processed)
+        - a boolean indicating if this is the last batch
     """
     # read the already processed files
     processed_files_file = input_dir_path / "processed_files.txt"
@@ -834,8 +853,22 @@ def _determine_next_batch(
 
     # determine next batch
     files_to_process = unprocessed_files if unprocessed_files else all_files
-    next_batch = files_to_process[:5000] if len(files_to_process) > 5000 else files_to_process
-    return next_batch
+    if len(files_to_process) <= batch_size:
+        next_batch = files_to_process
+        is_last_batch = True
+    else:
+        next_batch = files_to_process[:batch_size]
+        is_last_batch = False
+    
+    # print and log
+    msg = (
+        f"Found {len(all_files)} bitstreams in the XML file, {len(next_batch)} of them unprocessed. "
+        f"Process batch of {len(next_batch)} files..."
+    )
+    print(f"{datetime.now()}: {msg}")
+    logger.info(msg)
+
+    return next_batch, is_last_batch
 
 
 def process_files(
@@ -843,6 +876,7 @@ def process_files(
     output_dir: str,
     xml_file: str,
     nthreads: Optional[int],
+    batch_size: int = 5000,
 ) -> bool:
     """
     Process the files referenced in the given XML file.
@@ -852,17 +886,26 @@ def process_files(
     Additionally, writes a pickle file containing the mapping between the original files and the processed files,
     e.g. Path('multimedia/nested/subfolder/test.tif'), Path('tmp/0b/22/0b22570d-515f-4c3d-a6af-e42b458e7b2b.jp2').
 
+    Due to a resource leak, the Python interpreter must be quitted after a while.
+    For this reason, the processing is done in batches, each batch containing batch_size files.
+    After each batch, the Python interpreter exits, and the CLI command must be executed again.
+    It automatically resumes where it left off.
+
     Args:
         input_dir: path to the directory where the files should be read from
         output_dir: path to the directory where the transformed / created files should be written to
         xml_file: path to xml file containing the resources
         nthreads: number of threads to use for processing
+        batch_size: number of files to process before Python exits
 
     Returns:
-        success status
+        True         --> exit code 0: all multimedia files in the XML file were processed 
+        False        --> exit code 1: an error occurred while processing the current batch
+        Error raised --> exit code 1: an error occurred while processing the current batch
+        exit with code 2:             Python interpreter exits after each batch
     """
     # check the input parameters
-    input_dir_path, output_dir_path, xml_file_path = _check_params(
+    input_dir_path, output_dir_path, xml_file_path = _check_input_params(
         input_dir=input_dir,
         out_dir=output_dir,
         xml_file=xml_file,
@@ -878,16 +921,11 @@ def process_files(
     all_files = _get_file_paths_from_xml(xml_file_path)
 
     # find out if there was a previous processing attempt that should be continued
-    files_to_process = _determine_next_batch(
+    files_to_process, is_last_batch = _determine_next_batch(
         all_files=all_files,
         input_dir_path=input_dir_path,
+        batch_size=batch_size,
     )
-    msg = (
-        f"Found {len(all_files)} bitstreams in the XML file, {len(files_to_process)} of them unprocessed. "
-        f"Process the next {len(files_to_process)} files..."
-    )
-    print(f"{datetime.now()}: {msg}")
-    logger.info(msg)
 
     # get shell script for processing video files
     if any(path.suffix == ".mp4" for path in files_to_process):
@@ -915,28 +953,29 @@ def process_files(
                 exception=exc,
                 input_dir_path=input_dir_path,
             )
-
-    # check if all files were processed
     end_time = datetime.now()
     print(f"{end_time}: Processing files took: {end_time - start_time}")
     logger.info(f"{end_time}: Processing files took: {end_time - start_time}")
-    success = _check_if_all_files_were_processed(
-        result=processed_files,
-        files_to_process=files_to_process,
-    )
-
-    # write pickle file
-    if not _write_result_to_pkl_file(
+    
+    # write the result to a pickle file
+    _write_result_to_pkl_file(
         processed_files=processed_files,
         input_dir_path=input_dir_path,
-    ):
-        success = False
-        err_msg = f"An error occurred while writing the result to the pickle file. The result was: {processed_files}"
-        print(f"{datetime.now()}: {err_msg}")
-        logger.error(err_msg)
+    )
+        
+    # check if all files were processed
+    success, exit_code = _determine_success_status_and_exit_code(
+        files_to_process=files_to_process,
+        processed_files=processed_files,
+        is_last_batch=is_last_batch,
+    )
 
     # remove the SIPI container
     if success:
         _stop_and_remove_sipi_container()
 
+    # exit with correct exit code: 0 and 1 will automatically happen, but 2 must be done manually
+    if exit_code == 2:
+        sys.exit(2)
+    
     return success

@@ -46,7 +46,7 @@
         <bitstream permissions="prop-default">images/GibeonMeteorite.jpg</bitstream>
         <unformatted-text-prop name=":hasTitle">
             <text permissions="prop-default">GibeonMeteorite.jpg</text>
-        </unftext-prop>
+        </unformatted-text-prop>
     </resource>
     <resource label="Anubis" restype=":Object" id="Anubis_fda7c834-692e-4e2c-b7c8-82e26a2775d9" permissions="res-default">
         <resptr-prop name=":hasImage">

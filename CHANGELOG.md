@@ -1,5 +1,27 @@
 # Changelog
 
+## [2.3.4](https://github.com/dasch-swiss/dsp-tools/compare/v2.3.3...v2.3.4) (2023-06-27)
+
+
+### Bug Fixes
+
+* **xmlupload:** allow colon in URL (DEV-2318) ([#419](https://github.com/dasch-swiss/dsp-tools/issues/419)) ([b79ab23](https://github.com/dasch-swiss/dsp-tools/commit/b79ab23e0db4548aff88e2ab36a7aa5161e15422))
+
+
+### Maintenance
+
+* bump start-stack to 2023.06.02 (DEV-2312) [#418](https://github.com/dasch-swiss/dsp-tools/issues/418) ([88a4bf3](https://github.com/dasch-swiss/dsp-tools/commit/88a4bf306f9b9b1dd9bbab173c8880a58c4abf15))
+* **deps-dev:** bump mkdocs-material from 9.1.16 to 9.1.17 ([#414](https://github.com/dasch-swiss/dsp-tools/issues/414)) ([313b923](https://github.com/dasch-swiss/dsp-tools/commit/313b9237016393c6dac4e704d64adbb9ec186100))
+* **deps-dev:** bump mypy from 1.3.0 to 1.4.0 ([#413](https://github.com/dasch-swiss/dsp-tools/issues/413)) ([919fd8e](https://github.com/dasch-swiss/dsp-tools/commit/919fd8ef642824323450efbadde31f24126bd3f7))
+* **deps-dev:** bump mypy from 1.4.0 to 1.4.1 ([#415](https://github.com/dasch-swiss/dsp-tools/issues/415)) ([2867a00](https://github.com/dasch-swiss/dsp-tools/commit/2867a007598a2666646c345932ebb030eefa3318))
+* **deps-dev:** bump pytest from 7.3.2 to 7.4.0 ([#416](https://github.com/dasch-swiss/dsp-tools/issues/416)) ([8d6b587](https://github.com/dasch-swiss/dsp-tools/commit/8d6b587497013f827e0bb7dd0602317f5e290f90))
+* **deps-dev:** bump types-openpyxl from 3.1.0.12 to 3.1.0.13 ([#417](https://github.com/dasch-swiss/dsp-tools/issues/417)) ([7b53622](https://github.com/dasch-swiss/dsp-tools/commit/7b536222d5383bcec64953535ebb01995ee5bd2e))
+* lint "models", part two (DEV-2287) ([#406](https://github.com/dasch-swiss/dsp-tools/issues/406)) ([466597c](https://github.com/dasch-swiss/dsp-tools/commit/466597c9ea23cc5de97a1e0585f0634c5a104426))
+* onto create (DEV-2298) [#412](https://github.com/dasch-swiss/dsp-tools/issues/412) ([d8abe48](https://github.com/dasch-swiss/dsp-tools/commit/d8abe484f2a186dfc3d9bf564f80d8dba83946ab))
+* remove dependency inconsistency in pyproject.toml (DEV-2290) [#410](https://github.com/dasch-swiss/dsp-tools/issues/410) ([9da9ccf](https://github.com/dasch-swiss/dsp-tools/commit/9da9ccf1dbbd5edb5a424e86d0df43caa082a6a1))
+* remove unused code (DEV-2289) ([#409](https://github.com/dasch-swiss/dsp-tools/issues/409)) ([809f4fe](https://github.com/dasch-swiss/dsp-tools/commit/809f4febefb107d78986951f7ea2f84b75823fc2))
+* **xmlupload:** improve error handling of Timeout Error (DEV-2299) ([#411](https://github.com/dasch-swiss/dsp-tools/issues/411)) ([b9cf8eb](https://github.com/dasch-swiss/dsp-tools/commit/b9cf8eb419e73a4f2c1621dedd4c3ab08ac9fd4d))
+
 ## [2.3.3](https://github.com/dasch-swiss/dsp-tools/compare/v2.3.2...v2.3.3) (2023-06-13)
 
 

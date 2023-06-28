@@ -694,7 +694,7 @@ class UriValue(Value):
         host = r"(?<host>[\w_.\-~:\[\]]+)"
         port = r"(?<port>:\d{0,6})"
         path = r"(?<path>/[\w_.\-~:%()]*)"
-        query = r"(?<query>\?[\w_.\-%=*&]+)"
+        query = r"(?<query>\?[\w_.\-:%=*&]+)"
         fragment = r"(?<fragment>#[\w_.\-~:/]*)"
         m = regex.match(rf"{scheme}:(//{host}{port}?){path}*{query}*{fragment}?", str(value), flags=regex.UNICODE)
         if m:

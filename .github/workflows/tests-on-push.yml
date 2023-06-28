@@ -24,6 +24,7 @@ jobs:
       - name: Install poetry
         run: | 
           curl -sSL https://install.python-poetry.org | python3 -
+          poetry self add poetry-exec-plugin
 
       - name: Set up Python 3.9
         uses: actions/setup-python@v4
@@ -44,7 +45,6 @@ jobs:
       - name: check external links in docs
         run: |
           npm install -g markdown-link-validator
-          poetry self add poetry-exec-plugin
           poetry exec check-links
       
       - name: markdownlint

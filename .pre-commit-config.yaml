@@ -37,29 +37,8 @@ repos:
       - id: rst-inline-touching-normal
       - id: text-unicode-replacement-char
 
-  # - repo: local
-  #   hooks:
-  #     - id: check-links
-  #       name: check-links
-  #       language: system
-  #       files:  "docs/.+\\.md"
-  #       entry: markdown-link-validator -i \.\/assets\/.+ -i .+github\.com\/dasch\-swiss\/dsp-tools\/settings
-  #       require_serial: true
-
   - repo: https://github.com/igorshubovych/markdownlint-cli
     rev: v0.35.0
     hooks:
     - id: markdownlint
       args: [--config, .markdownlint.yml, --ignore, CHANGELOG.md]
-
-# We're still experimenting with different ways to use markdownlint pre-commit hooks.
-# Overview of possibilities:
-#  - local: docker run -v $PWD:/workdir ghcr.io/igorshubovych/markdownlint-cli:latest --config .markdownlint.yml --ignore CHANGELOG.md "**/*.md"
-#  -  github.com/igorshubovych/markdownlint-cli
-#       markdownlint - Checks the style of Markdown/Commonmark files.
-#       markdownlint-fix - Fixes the style of Markdown/Commonmark files.
-#       markdownlint-docker - Checks the style of Markdown/Commonmark files.
-#       markdownlint-fix-docker - Fixes the style of Markdown/Commonmark files.
-#  - github.com/markdownlint/markdownlint
-#     markdownlint - Run markdownlint on your Markdown files
-#     markdownlint_docker - Run markdown lint on your Markdown files using the project docker image

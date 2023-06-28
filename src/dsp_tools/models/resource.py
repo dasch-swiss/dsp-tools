@@ -27,6 +27,7 @@ from dsp_tools.models.value import (
     KnoraStandoffXml,
     LinkValue,
     ListValue,
+    TextValue,
     UnformattedTextValue,
     FormattedTextValue,
     TimeValue,
@@ -459,7 +460,7 @@ class ResourceInstanceFactory:
                     valtype=valtype, cardinality=has_property.cardinality, gui_order=has_property.gui_order
                 )
             elif propname == "knora-api:hasComment":
-                valtype = FormattedTextValue
+                valtype = TextValue
                 props[propname] = Propinfo(
                     valtype=valtype, cardinality=has_property.cardinality, gui_order=has_property.gui_order
                 )

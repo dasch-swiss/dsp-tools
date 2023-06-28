@@ -142,7 +142,72 @@ class Value:
         }
 
 
-class UnformattedTextValue(Value):
+class TextValue(Value):
+    _value: Union[str, KnoraStandoffXml]
+    _mapping: str
+
+    def __init__(
+        self,
+        value: Union[str, KnoraStandoffXml],
+        mapping: Optional[str] = None,
+        comment: Optional[LangString] = None,
+        permissions: Optional[Permissions] = None,
+        upermission: Optional[PermissionValue] = None,
+        iri: Optional[str] = None,
+        ark_url: Optional[str] = None,
+        vark_url: Optional[str] = None,
+    ):
+        self._value = value
+        self._mapping = mapping
+        super().__init__(
+            iri=iri,
+            comment=comment,
+            permissions=permissions,
+            upermission=upermission,
+            ark_url=ark_url,
+            vark_url=vark_url,
+        )
+
+    @property
+    def value(self) -> str:
+        return self._value
+
+    @property
+    def mapping(self) -> str:
+        return self._mapping
+
+    @classmethod
+    def fromJsonLdObj(cls, jsonld_obj: Any) -> dict[str, Any]:
+        tmp = Value.getFromJsonLd(jsonld_obj)
+
+        if jsonld_obj.get("knora-api:textValueAsXml") is not None:
+            tmp["mapping"] = jsonld_obj.get("knora-api:textValueHasMapping")
+            tmp["value"] = jsonld_obj.get("knora-api:textValueAsXml")
+        else:
+            tmp["mapping"] = None
+            tmp["value"] = jsonld_obj.get("knora-api:valueAsString")
+        return cls(**tmp)
+
+    def toJsonLdObj(self, action: Actions) -> dict[str, Any]:
+        tmp = super().toJsonLdObj(action)
+        if action == Actions.Create:
+            tmp["@type"] = "knora-api:TextValue"
+            if isinstance(self._value, KnoraStandoffXml):
+                tmp["knora-api:textValueAsXml"] = self._value
+                tmp["knora-api:textValueHasMapping"] = {
+                    "@id": "http://rdfh.ch/standoff/mappings/StandardMapping"
+                    if self._mapping is None
+                    else self._mapping
+                }
+            else:
+                tmp["knora-api:valueAsString"] = str(self._value)
+        return tmp
+
+    def __str__(self) -> str:
+        return str(self._value)
+
+
+class UnformattedTextValue(TextValue):
     _value: str
 
     def __init__(
@@ -155,8 +220,8 @@ class UnformattedTextValue(Value):
         ark_url: Optional[str] = None,
         vark_url: Optional[str] = None,
     ):
-        self._value = value
         super().__init__(
+            value=value,
             iri=iri,
             comment=comment,
             permissions=permissions,
@@ -186,7 +251,7 @@ class UnformattedTextValue(Value):
         return self._value
 
 
-class FormattedTextValue(Value):
+class FormattedTextValue(TextValue):
     _value: Union[str, KnoraStandoffXml]
 
     def __init__(
@@ -199,8 +264,8 @@ class FormattedTextValue(Value):
         ark_url: Optional[str] = None,
         vark_url: Optional[str] = None,
     ):
-        self._value = value
         super().__init__(
+            value=value,
             iri=iri,
             comment=comment,
             permissions=permissions,

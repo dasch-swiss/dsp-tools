@@ -152,7 +152,9 @@ We use
 These 4 linters are integrated in the GitHub CI pipeline, 
 so that every pull request is checked for code style violations.
 
-In addition, there's a [pre-commit hook](#pre-commit-hooks) that runs black locally before every commit.
+In addition, there are [pre-commit hooks](#pre-commit-hooks) 
+that run black and markdownlint locally before every commit.
+This prevents you from committing code style violations.
 
 To locally check your code for style violations, follow the instructions depending on your IDE:
 
@@ -198,10 +200,13 @@ They are configured in `.pre-commit-config.yaml`.
 
 If you try to make a commit,
 the pre-commit hooks will be executed before the commit is created.
+
+If a hook fails, the commit will be aborted.
+Check the Git output to see what needs to be fixed.
+
 If a hook modifies a file, the commit will be aborted.
 You can then stage the changes made by the hook,
 and commit again. 
-This time, your commit will be accepted.
 
 
 

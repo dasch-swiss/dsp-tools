@@ -17,10 +17,27 @@ repos:
     hooks:
       - id: check-added-large-files
         args: ['--maxkb=1000']
-      - id: check-docstring-first
       - id: check-merge-conflict
       - id: no-commit-to-branch
         args: [--branch, main]
+      - id: fix-byte-order-marker
+      - id: detect-private-key
+      - id: check-symlinks
+      - id: destroyed-symlinks
+      - id: mixed-line-ending
+
+  - repo: https://github.com/pre-commit/pygrep-hooks
+    rev: v1.10.0
+    hooks:
+      - id: python-check-blanket-noqa
+      - id: python-check-blanket-type-ignore
+      - id: python-check-mock-methods
+      - id: python-no-eval
+      - id: python-no-log-warn
+      - id: rst-backticks
+      - id: rst-directive-colons
+      - id: rst-inline-touching-normal
+      - id: text-unicode-replacement-char
 
   # - repo: local
   #   hooks:
@@ -35,6 +52,7 @@ repos:
     rev: v0.35.0
     hooks:
     - id: markdownlint
+      args: [--config, .markdownlint.yml, --ignore, CHANGELOG.md]
 
 # We're still experimenting with different ways to use markdownlint pre-commit hooks.
 # Overview of possibilities:

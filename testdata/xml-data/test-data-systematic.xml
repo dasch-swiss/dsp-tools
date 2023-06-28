@@ -165,7 +165,6 @@
               permissions="res-default">
         <unformatted-text-prop name=":hasUnformattedText">
             <text permissions="prop-default">Dies ist ein einfacher Text ohne Markup</text>
-            <text> </text>
             <text>_</text>
             <text>!</text>
             <text>?</text>

@@ -455,8 +455,8 @@ class TestExcel2xml(unittest.TestCase):
         # standard tests
         prop = "formatted-text"
         method = excel2xml.make_formatted_text_prop
-        different_values = ["text_1", " ", "!", "?", "-", "_", "None"]
-        invalid_values = [True, 10.0, 5, ""]
+        different_values = ["text_1", "!", "?", "-", "_", "None"]
+        invalid_values = [True, 10.0, 5, "", " "]
         run_test(self, prop, method, different_values, invalid_values)
 
         # testcases with XML formatting tags
@@ -508,8 +508,8 @@ class TestExcel2xml(unittest.TestCase):
         # standard tests
         prop = "unformatted-text"
         method = excel2xml.make_unformatted_text_prop
-        different_values = ["text_1", " ", "!", "?", "-", "_", "None"]
-        invalid_values = [True, 10.0, 5, ""]
+        different_values = ["text_1", "!", "?", "-", "_", "None"]
+        invalid_values = [True, 10.0, 5, "", " "]
         run_test(self, prop, method, different_values, invalid_values)
 
         # testcases with the reserved characters <, >, &, but no XML tags

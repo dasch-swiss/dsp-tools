@@ -1246,7 +1246,7 @@ def make_unformatted_text_prop(
 
     # check value type
     for val in values:
-        if not isinstance(val.value, str) or len(val.value) < 1:
+        if not isinstance(val.value, str) or len(val.value) < 1 or val.value == " ":
             raise BaseError(
                 f"Failed validation in resource '{calling_resource}', property '{name}': "
                 f"'{val.value}' is not a valid string."
@@ -1326,7 +1326,7 @@ def make_formatted_text_prop(
 
     # check value type
     for val in values:
-        if not isinstance(val.value, str) or len(val.value) < 1:
+        if not isinstance(val.value, str) or len(val.value) < 1 or val.value == " ":
             raise BaseError(
                 f"Failed validation in resource '{calling_resource}', property '{name}': "
                 f"'{val.value}' is not a valid string."

@@ -74,12 +74,12 @@
         <time-prop name=":hasTime">
             <time permissions="prop-default">2015-01-01T13:45:12Z</time>
         </time-prop>
-        <decimal-prop name=":hasWeight">
-            <decimal permissions="prop-default">4.8</decimal>
-        </decimal-prop>
         <geoname-prop name=":hasLocation">
             <geoname permissions="prop-default">2661604</geoname>
         </geoname-prop>
+        <decimal-prop name=":hasWeight">
+            <decimal permissions="prop-default">4.8</decimal>
+        </decimal-prop>
         <uri-prop name=":hasExternalLink">
             <uri permissions="prop-restricted" comment="This is a comment">https://en.wikipedia.org/wiki/Cat</uri>
         </uri-prop>
@@ -109,12 +109,12 @@
         <time-prop name=":hasTime">
             <time permissions="prop-default">1908-03-05T12:00:00-05:00</time>
         </time-prop>
-        <decimal-prop name=":hasWeight">
-            <decimal permissions="prop-default">0.3</decimal>
-        </decimal-prop>
         <geoname-prop name=":hasLocation">
             <geoname permissions="prop-default">11821111</geoname>
         </geoname-prop>
+        <decimal-prop name=":hasWeight">
+            <decimal permissions="prop-default">0.3</decimal>
+        </decimal-prop>
         <uri-prop name=":hasExternalLink">
             <uri permissions="prop-restricted" comment="This is a comment">https://en.wikipedia.org/wiki/Gibeon_(meteorite)</uri>
         </uri-prop>
@@ -138,12 +138,12 @@
         <date-prop name=":hasDate">
             <date permissions="prop-default">GREGORIAN:CE:1973-12-01:CE:1974-01-06</date>
         </date-prop>
-        <decimal-prop name=":hasWeight">
-            <decimal permissions="prop-default">0.5</decimal>
-        </decimal-prop>
         <geoname-prop name=":hasLocation">
             <geoname permissions="prop-default">351274</geoname>
         </geoname-prop>
+        <decimal-prop name=":hasWeight">
+            <decimal permissions="prop-default">0.5</decimal>
+        </decimal-prop>
         <uri-prop name=":hasExternalLink">
             <uri permissions="prop-restricted" comment="This is a comment">https://www.britishmuseum.org/collection/object/G_1888-0601-716</uri>
         </uri-prop>

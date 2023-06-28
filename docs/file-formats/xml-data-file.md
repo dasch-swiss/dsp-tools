@@ -717,7 +717,7 @@ Depending on the encoding of your text,
 special characters behave differently.
 There are two places where this must be taken into account:
 
-- When a string is passed to [`excel2xml.make_text_prop()`](../excel2xml-module.md#special-characters-in-text-properties)
+- When a string is passed to [`excel2xml.make_(un)formatted_text_prop()`](../excel2xml-module.md#special-characters-in-text-properties)
 - When a string is written by hand into an XML file
 
 In the tables below,

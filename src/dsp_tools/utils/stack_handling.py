@@ -1,4 +1,5 @@
 import importlib.resources
+from logging import Logger
 import re
 import shutil
 import subprocess
@@ -9,25 +10,56 @@ from typing import Optional
 import requests
 import yaml
 
-from dsp_tools.models.exceptions import UserError
+from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.utils.logging import get_logger
 
 
-class StackHandling:
+class StackHandler:
     """
     This class contains functions to start and stop the Docker containers of DSP-API and DSP-APP.
     """
 
-    docker_path_of_user: Path
-    url_prefix: str
+    max_file_size: Optional[int]
     enforce_docker_system_prune: bool
     suppress_docker_system_prune: bool
 
-    def __init__(self) -> None:
+    latest_dev_version: bool
+    url_prefix: str
+
+    logger: Logger
+    docker_path_of_user: Path
+
+    def __init__(
+        self,
+        max_file_size: Optional[int] = None,
+        enforce_docker_system_prune: bool = False,
+        suppress_docker_system_prune: bool = False,
+        latest_dev_version: bool = False,
+    ) -> None:
+        """
+        Initialize a StackHandler.
+
+        Args:
+            max_file_size: max. multimedia file size allowed by SIPI, in MB (max: 100'000)
+            enforce_docker_system_prune: if True, prune Docker without asking the user
+            suppress_docker_system_prune: if True, don't prune Docker (and don't ask)
+            latest_dev_version: if True, start DSP-API from repo's main branch, instead of the latest deployed version
+        """
+        self._validate_input(
+            max_file_size=max_file_size,
+            enforce_docker_system_prune=enforce_docker_system_prune,
+            suppress_docker_system_prune=suppress_docker_system_prune,
+        )
+        self.max_file_size = max_file_size
+        self.enforce_docker_system_prune = enforce_docker_system_prune
+        self.suppress_docker_system_prune = suppress_docker_system_prune
+
+        self.latest_dev_version = latest_dev_version
+        self.url_prefix = self._get_url_prefix()
+
         self.logger = get_logger(__name__)
         self.docker_path_of_user = Path.home() / Path(".dsp-tools/start-stack")
         self.docker_path_of_user.mkdir(parents=True, exist_ok=True)
-        self.url_prefix = self._get_url_prefix()
 
     def _validate_input(
         self,
@@ -60,13 +92,20 @@ class StackHandling:
         If something goes wrong,
         the URL prefix falls back to pointing to the main branch of the DSP-API repository.
 
+        If the latest development version of DSP-API is started,
+        the URL prefix points to the main branch of the DSP-API repository.
+
         Returns:
             URL prefix used to retrieve files from the DSP-API repository
         """
-        url_prefix_base = "https://github.com/dasch-swiss/dsp-api/raw/"
+        url_prefix_base = "https://github.com/dasch-swiss/dsp-api/raw"
+
+        if self.latest_dev_version:
+            return f"{url_prefix_base}/main/"
+
         config_file = Path("src/dsp_tools/resources/start-stack/start-stack-config.yml")
         if not config_file.is_file():
-            return url_prefix_base + "main/"
+            return f"{url_prefix_base}/main/"
 
         with open("src/dsp_tools/resources/start-stack/start-stack-config.yml", "r", encoding="utf-8") as f:
             try:
@@ -74,13 +113,17 @@ class StackHandling:
             except yaml.YAMLError:
                 start_stack_config = {}
         commit_of_used_api_version = start_stack_config.get("DSP-API commit", "main")
-        url_prefix = f"https://github.com/dasch-swiss/dsp-api/raw/{commit_of_used_api_version}/"
-        return url_prefix
+        return f"{url_prefix_base}/{commit_of_used_api_version}/"
 
     def _copy_resources_to_home_dir(self) -> None:
         """
         On most systems, Docker is not allowed to access files outside of the user's home directory.
-        For this reason, copy the contents of src/dsp_tools/resources/start-stack to ~/.dsp-tools/start-stack.
+        For this reason, copy the contents of the distribution (src/dsp_tools/resources/start-stack)
+        to the user's home directory (~/.dsp-tools/start-stack).
+
+        Important: The files of the home directory might have been modified
+        by an earlier run of _inject_latest_tag_into_docker_compose_file().
+        So, this method must always be called, at every run of start-stack.
         """
         docker_path_of_distribution = importlib.resources.files("dsp_tools").joinpath("resources/start-stack")
         for file in docker_path_of_distribution.iterdir():
@@ -88,28 +131,22 @@ class StackHandling:
                 file_path = Path(f)
             shutil.copy(file_path, self.docker_path_of_user / file.name)
 
-    def _get_sipi_docker_config_lua(
-        self,
-        max_file_size: Optional[int],
-    ) -> None:
+    def _get_sipi_docker_config_lua(self) -> None:
         """
         Retrieve the config file sipi.docker-config.lua from the DSP-API repository,
         and set the max_file_size parameter if necessary.
-
-        Args:
-            max_file_size: new value for max_file_size to inject into sipi.docker-config.lua
 
         Raises:
             UserError: if max_file_size is set but cannot be injected into sipi.docker-config.lua
         """
         docker_config_lua_text = requests.get(f"{self.url_prefix}sipi/config/sipi.docker-config.lua", timeout=5).text
-        if max_file_size:
+        if self.max_file_size:
             max_post_size_regex = r"max_post_size ?= ?[\'\"]\d+M[\'\"]"
             if not re.search(max_post_size_regex, docker_config_lua_text):
                 raise UserError("Unable to set max_file_size. Please try again without this flag.")
             docker_config_lua_text = re.sub(
                 max_post_size_regex,
-                f"max_post_size = '{max_file_size}M'",
+                f"max_post_size = '{self.max_file_size}M'",
                 docker_config_lua_text,
             )
         with open(self.docker_path_of_user / "sipi.docker-config.lua", "w", encoding="utf-8") as f:
@@ -255,20 +292,31 @@ class StackHandling:
         self._start_remaining_docker_containers()
         self._execute_docker_system_prune()
 
-    def start_stack(
-        self,
-        max_file_size: Optional[int] = None,
-        enforce_docker_system_prune: bool = False,
-        suppress_docker_system_prune: bool = False,
-    ) -> bool:
-        """
-        Start the Docker containers of DSP-API and DSP-APP, and load some basic data models and data. After startup, ask
-        user if Docker should be pruned or not.
+    def _inject_latest_tag_into_docker_compose_file(self) -> None:
+        docker_compose_file = self.docker_path_of_user / "docker-compose.yml"
+        if not docker_compose_file.is_file():
+            raise BaseError(
+                "Cannot inject the 'latest' tag into docker-compose.yml, "
+                f"because there is no such file in {self.docker_path_of_user}"
+            )
 
-        Args:
-            max_file_size: max. multimedia file size allowed by SIPI, in MB (max: 100'000)
-            enforce_docker_system_prune: if True, prune Docker without asking the user
-            suppress_docker_system_prune: if True, don't prune Docker (and don't ask)
+        with open(docker_compose_file, "r", encoding="utf-8") as f:
+            try:
+                docker_compose_text = yaml.safe_load(f)
+            except yaml.YAMLError:
+                docker_compose_text = {}
+        old_tag = docker_compose_text.get("services", {}).get("api", {}).get("image", "")
+        if not re.search(r"daschswiss/knora-api:\d+\.\d+\.\d+", old_tag):
+            raise BaseError(f"Invalid tag '{old_tag}' in docker-compose.yml > services > api > image")
+
+        docker_compose_text["services"]["api"]["image"] = "daschswiss/knora-api:latest"
+        with open(docker_compose_file, "w", encoding="utf-8") as f:
+            yaml.dump(docker_compose_text, f)
+
+    def start_stack(self) -> bool:
+        """
+        Start the Docker containers of DSP-API and DSP-APP, and load some basic data models and data.
+        After startup, ask user if Docker should be pruned or not.
 
         Raises:
             UserError if the stack cannot be started with the parameters passed by the user
@@ -276,18 +324,11 @@ class StackHandling:
         Returns:
             True if everything went well, False otherwise
         """
-        self._validate_input(
-            max_file_size=max_file_size,
-            enforce_docker_system_prune=enforce_docker_system_prune,
-            suppress_docker_system_prune=suppress_docker_system_prune,
-        )
-        self.enforce_docker_system_prune = enforce_docker_system_prune
-        self.suppress_docker_system_prune = suppress_docker_system_prune
-
         self._copy_resources_to_home_dir()
-        self._get_sipi_docker_config_lua(max_file_size=max_file_size)
+        if self.latest_dev_version:
+            self._inject_latest_tag_into_docker_compose_file()
+        self._get_sipi_docker_config_lua()
         self._start_docker_containers()
-
         return True
 
     def stop_stack(self) -> bool:

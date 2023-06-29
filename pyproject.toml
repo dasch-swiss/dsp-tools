@@ -34,6 +34,7 @@ networkx = "^3.1.0"
 pandas = { version = "^2.0.1", extras = ["excel"] }  # extra package that contains xlrd that is necessary for reading old .xls Excel files
 regex = "^2023.5.5"
 docker = "^6.1.2"
+pyyaml = "^6.0"
 
 
 [tool.poetry.group.dev.dependencies]

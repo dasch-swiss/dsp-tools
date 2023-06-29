@@ -24,7 +24,7 @@ from dsp_tools.utils.project_get import get_project
 from dsp_tools.utils.project_validate import validate_project
 from dsp_tools.utils.rosetta import upload_rosetta
 from dsp_tools.utils.shared import validate_xml_against_schema
-from dsp_tools.utils.stack_handling import start_stack, stop_stack
+from dsp_tools.utils.stack_handling import StackHandling
 from dsp_tools.utils.xml_upload import xml_upload
 
 logger = get_logger(__name__)
@@ -433,13 +433,15 @@ def call_requested_action(
             default_ontology=args.ontology_name,
         )
     elif args.action == "start-stack":
-        success = start_stack(
+        stack_handler = StackHandling()
+        success = stack_handler.start_stack(
             max_file_size=args.max_file_size,
             enforce_docker_system_prune=args.prune,
             suppress_docker_system_prune=args.no_prune,
         )
     elif args.action == "stop-stack":
-        success = stop_stack()
+        stack_handler = StackHandling()
+        success = stack_handler.stop_stack()
     elif args.action == "template":
         success = generate_template_repo()
     elif args.action == "rosetta":

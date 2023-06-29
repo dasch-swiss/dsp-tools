@@ -8,12 +8,16 @@ in the version that is running on [https://admin.dasch.swiss](https://admin.dasc
 In addition to the containers, 
 a number of files from the DSP-API GitHub repository is necessary. 
 The version of the docker images and these files must be the same. 
-The version is hardcoded at the following places in the code:
+The version is configured in the following files in `src/dsp_tools/resources/start-stack/`:
 
-- `src/dsp_tools/docker/docker-compose.yml`: 
+- `docker-compose.yml`: 
   The 4 variables `services/{app,db,sipi,api}/image` 
   must point to the DockerHub image of the last deployed version.
-- `src/dsp_tools/utils/stack_handling.py`: 
-  The variable `commit_of_used_api_version` 
+  The versions can be found in the
+  [ops-deploy repo](https://github.com/dasch-swiss/ops-deploy/blob/main/roles/dsp-deploy/files/RELEASE.json)
+- `start-stack-config.yml`: 
+  The variable `DSP-API commit` 
   must be the commit hash of DSP-API 
   of the version that is running on [https://admin.dasch.swiss](https://admin.dasch.swiss/help).
+  Just take the commit hash of the latest DSP-API release
+  from the [DSP-API GitHub repo](https://github.com/dasch-swiss/dsp-api/commits/main)

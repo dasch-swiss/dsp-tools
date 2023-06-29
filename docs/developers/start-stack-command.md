@@ -13,8 +13,8 @@ The version is configured in the following files in `src/dsp_tools/resources/sta
 - `docker-compose.yml`: 
   The 4 variables `services/{app,db,sipi,api}/image` 
   must point to the DockerHub image of the last deployed version.
-  The versions can be found
-  [here](https://github.com/dasch-swiss/ops-deploy/blob/main/roles/dsp-deploy/files/RELEASE.json)
+  The versions can be found in the
+  [ops-deploy repo](https://github.com/dasch-swiss/ops-deploy/blob/main/roles/dsp-deploy/files/RELEASE.json)
 - `start-stack-config.yml`: 
   The variable `DSP-API commit` 
   must be the commit hash of DSP-API 

@@ -65,8 +65,8 @@ check-links = """
     markdown-link-validator \
     ./docs \
     -i \\.\\/assets\\/.+ \
-    -i .+github\\.com\\/dasch\\-swiss\\/dsp-tools\\/settings\
-    -i .+github\\.com\\/dasch\\-swiss\\/ops-deploy\
+    -i .+github\\.com\\/dasch\\-swiss\\/dsp-tools\\/settings \
+    -i .+github\\.com\\/dasch\\-swiss\\/ops-deploy\\/.+
 """
 
 

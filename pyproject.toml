@@ -66,6 +66,7 @@ check-links = """
     ./docs \
     -i \\.\\/assets\\/.+ \
     -i .+github\\.com\\/dasch\\-swiss\\/dsp-tools\\/settings\
+    -i .+github\\.com\\/dasch\\-swiss\\/ops-deploy\
 """
 
 

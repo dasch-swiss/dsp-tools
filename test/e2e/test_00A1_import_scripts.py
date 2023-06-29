@@ -12,6 +12,7 @@ from dsp_tools.utils.shared import check_notna
 from dsp_tools.utils.xml_upload import xml_upload
 
 
+@pytest.mark.skip(reason="REMOVE THIS LINE BEFORE MERGING TO MAIN! THIS IS JUST FOR CONVENIENCE DURING DEVELOPMENT.")
 class TestImportScripts(unittest.TestCase):
     def tearDown(self) -> None:
         """

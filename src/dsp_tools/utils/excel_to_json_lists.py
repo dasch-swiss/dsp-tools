@@ -26,11 +26,11 @@ def expand_lists_from_excel(
     lists_section: list[dict[str, Union[str, dict[str, Any]]]],
 ) -> list[dict[str, Any]]:
     """
-    Checks if the "lists" section of a JSON project file contains references to Excel files. Expands all Excel files to
-    JSON, and returns the expanded "lists" section. If there are no references to Excel files, the "lists" section is
-    returned as is.
-    Returns a tuple consisting of the expanded "lists" section and a boolean value: True if everything went smoothly,
-    False if one of the lists couldn't be expanded correctly.
+    Checks if the "lists" section of a JSON project file contains references to Excel files.
+    Expands all Excel files to JSON,
+    and returns the expanded "lists" section.
+    If there are no references to Excel files,
+    the "lists" section is returned as is.
 
     Args:
         lists_section: the "lists" section of a parsed JSON project file.
@@ -44,30 +44,31 @@ def expand_lists_from_excel(
     """
     new_lists = []
     for _list in lists_section:
+        # case 1: this list is a JSON list: return it as it is
         if "folder" not in _list["nodes"]:
-            # this list is a JSON list: return it as it is
             new_lists.append(_list)
-        else:
-            # this is a reference to a folder with Excel files
-            foldername = _list["nodes"]["folder"]  # type: ignore
-            excel_file_paths = _extract_excel_file_paths(foldername)
-            try:
-                returned_lists_section = _make_json_lists_from_excel(excel_file_paths, verbose=False)
-                # we only need the "nodes" section of the first element of the returned "lists" section. This "nodes"
-                # section needs to replace the Excel folder reference. But the rest of the user-defined list element
-                # needs to stay intact, e.g. the labels and comments.
-                _list["nodes"] = returned_lists_section[0]["nodes"]
-                new_lists.append(_list)
-                print(
-                    f"\tThe list '{_list['name']}' contains a reference to the folder '{foldername}'. The Excel "
-                    f"files therein have been temporarily expanded into the 'lists' section of your project."
-                )
-            except BaseError as err:
-                raise BaseError(
-                    f"\tWARNING: The list '{_list['name']}' contains a reference to the folder '{foldername}', but a "
-                    f"problem occurred while trying to expand the Excel files therein into the 'lists' section of "
-                    f"your project: {err.message}"
-                ) from None
+            continue
+
+        # case 2: this is a reference to a folder with Excel files
+        foldername = _list["nodes"]["folder"]  # type: ignore[index]  # types are too complex to annotate them correctly
+        excel_file_paths = _extract_excel_file_paths(foldername)
+        try:
+            returned_lists_section = _make_json_lists_from_excel(excel_file_paths, verbose=False)
+            # we only need the "nodes" section of the first element of the returned "lists" section. This "nodes"
+            # section needs to replace the Excel folder reference. But the rest of the user-defined list element
+            # needs to stay intact, e.g. the labels and comments.
+            _list["nodes"] = returned_lists_section[0]["nodes"]
+            new_lists.append(_list)
+            print(
+                f"\tThe list '{_list['name']}' contains a reference to the folder '{foldername}'. The Excel "
+                f"files therein have been temporarily expanded into the 'lists' section of your project."
+            )
+        except BaseError as err:
+            raise BaseError(
+                f"\tWARNING: The list '{_list['name']}' contains a reference to the folder '{foldername}', but a "
+                f"problem occurred while trying to expand the Excel files therein into the 'lists' section of "
+                f"your project: {err.message}"
+            ) from None
 
     return new_lists
 

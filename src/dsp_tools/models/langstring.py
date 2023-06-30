@@ -1,3 +1,5 @@
+# pylint: disable=missing-function-docstring
+
 from enum import Enum, unique
 from typing import Any, Optional, Union
 
@@ -6,6 +8,8 @@ from dsp_tools.models.exceptions import BaseError
 
 @unique
 class Languages(Enum):
+    """Languages supported by DSP"""
+
     EN = "en"
     DE = "de"
     FR = "fr"
@@ -16,7 +20,7 @@ class Languages(Enum):
 LangStringParam = Optional[Union[dict[Union[Languages, str], str], str]]
 
 
-class LangStringIterator:
+class LangStringIterator:  # pylint: disable=too-few-public-methods
     """Iterator class for LangString class."""
 
     _langstring: "LangString"

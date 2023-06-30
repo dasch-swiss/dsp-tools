@@ -1,3 +1,5 @@
+# pylint: disable=missing-class-docstring,missing-function-docstring
+
 """
 This model implements the handling of ontologies. It is to note that ResourceClasses, PropertyClasses
 as well as the assignment of PropertyCLasses to the ResourceClasses (with a given cardinality)
@@ -41,7 +43,7 @@ from dsp_tools.models.resourceclass import ResourceClass
 from dsp_tools.models.set_encoder import SetEncoder
 
 
-class Ontology(Model):
+class Ontology(Model):  # pylint: disable=too-many-instance-attributes
     ROUTE: str = "/v2/ontologies"
     METADATA: str = "/metadata/"
     ALL_LANGUAGES: str = "?allLanguages=true"

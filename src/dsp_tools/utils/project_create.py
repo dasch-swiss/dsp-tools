@@ -153,7 +153,7 @@ def _create_groups(
     current_project_groups: dict[str, Group] = {}
     try:
         remote_groups: list[Group] = try_network_action(
-            lambda: Group.getAllGroupsForProject(con=con, proj_iri=project.iri)  # type: ignore
+            lambda: Group.getAllGroupsForProject(con=con, proj_iri=str(project.iri))
         )
     except BaseError:
         err_msg = (
@@ -193,7 +193,7 @@ def _create_groups(
             overall_success = False
             continue
 
-        current_project_groups[group_remote.name] = group_remote  # type: ignore
+        current_project_groups[str(group_remote.name)] = group_remote
         print(f"\tCreated group '{group_name}'.")
 
     return current_project_groups, overall_success
@@ -338,7 +338,7 @@ def _get_projects_where_user_is_admin(
                 continue
             in_project = in_project_list[0]
 
-        project_info[in_project.iri] = bool(project_role == "admin")  # type: ignore
+        project_info[str(in_project.iri)] = bool(project_role == "admin")
         if verbose:
             print(f"\tAdded user '{username}' as {project_role} to project '{in_project.shortname}'.")
 
@@ -600,7 +600,7 @@ def _create_ontologies(
     print("Create ontologies...")
     try:
         project_ontologies: list[Ontology] = try_network_action(
-            lambda: Ontology.getProjectOntologies(con=con, project_id=project_remote.iri)  # type: ignore
+            lambda: Ontology.getProjectOntologies(con=con, project_id=str(project_remote.iri))
         )
     except BaseError:
         err_msg = "Unable to retrieve remote ontologies. Cannot check if your ontology already exists."

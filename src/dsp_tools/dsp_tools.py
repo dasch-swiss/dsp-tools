@@ -24,7 +24,7 @@ from dsp_tools.utils.project_get import get_project
 from dsp_tools.utils.project_validate import validate_project
 from dsp_tools.utils.rosetta import upload_rosetta
 from dsp_tools.utils.shared import validate_xml_against_schema
-from dsp_tools.utils.stack_handling import start_stack, stop_stack
+from dsp_tools.utils.stack_handling import StackConfiguration, StackHandler
 from dsp_tools.utils.xml_upload import xml_upload
 
 logger = get_logger(__name__)
@@ -243,6 +243,11 @@ def make_parser() -> argparse.ArgumentParser:
     parser_stackup.add_argument(
         "--no-prune", action="store_true", help="don't execute 'docker system prune' (and don't ask)"
     )
+    parser_stackup.add_argument(
+        "--latest",
+        action="store_true",
+        help="use the latest dev version of DSP-API, from the main branch of the GitHub repository",
+    )
 
     # shutdown DSP-API
     parser_stackdown = subparsers.add_parser(
@@ -432,13 +437,18 @@ def call_requested_action(
             default_ontology=args.ontology_name,
         )
     elif args.action == "start-stack":
-        success = start_stack(
-            max_file_size=args.max_file_size,
-            enforce_docker_system_prune=args.prune,
-            suppress_docker_system_prune=args.no_prune,
+        stack_handler = StackHandler(
+            StackConfiguration(
+                max_file_size=args.max_file_size,
+                enforce_docker_system_prune=args.prune,
+                suppress_docker_system_prune=args.no_prune,
+                latest_dev_version=args.latest,
+            )
         )
+        success = stack_handler.start_stack()
     elif args.action == "stop-stack":
-        success = stop_stack()
+        stack_handler = StackHandler(StackConfiguration())
+        success = stack_handler.stop_stack()
     elif args.action == "template":
         success = generate_template_repo()
     elif args.action == "rosetta":

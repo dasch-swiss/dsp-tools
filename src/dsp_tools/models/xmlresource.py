@@ -10,7 +10,7 @@ from dsp_tools.models.xmlbitstream import XMLBitstream
 from dsp_tools.models.xmlproperty import XMLProperty
 
 
-class XMLResource:
+class XMLResource:  # pylint: disable=too-many-instance-attributes
     """Represents a resource in the XML used for data import"""
 
     _id: str
@@ -106,6 +106,7 @@ class XMLResource:
 
     @property
     def properties(self) -> list[XMLProperty]:
+        """The list of properties of the resource"""
         return self._properties
 
     @properties.setter

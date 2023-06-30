@@ -1,3 +1,5 @@
+# pylint: disable=missing-function-docstring
+
 """
 This module implements the handling (CRUD) of DSP groups.
 
@@ -35,7 +37,7 @@ from dsp_tools.models.model import Model
 from dsp_tools.models.project import Project
 
 
-class Group(Model):
+class Group(Model):  # pylint: disable=too-many-instance-attributes
     """
     This class represents a DSP group
 

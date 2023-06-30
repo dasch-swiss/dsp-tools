@@ -1,3 +1,5 @@
+# pylint: disable=missing-function-docstring
+
 """
 This module implements the handling (CRUD) of list nodes and adds some function to read whole lists.
 
@@ -37,25 +39,25 @@ from dsp_tools.models.set_encoder import SetEncoder
 def list_creator(con: Connection, project: Project, parent_node: "ListNode", nodes: list[dict]) -> list["ListNode"]:
     nodelist: list[ListNode] = []
 
-    for node in nodes:
+    for n in nodes:
         new_node = ListNode(
             con=con,
             project=project,
-            label=node["labels"],
-            comments=node.get("comments"),
-            name=node["name"],
+            label=n["labels"],
+            comments=n.get("comments"),
+            name=n["name"],
             parent=parent_node,
         )
 
-        if node.get("nodes"):
-            new_node.children = list_creator(con, project, new_node, node["nodes"])
+        if n.get("nodes"):
+            new_node.children = list_creator(con, project, new_node, n["nodes"])
 
         nodelist.append(new_node)
 
     return nodelist
 
 
-class ListNode(Model):
+class ListNode(Model):  # pylint: disable=too-many-instance-attributes,too-many-public-methods
     """
     This class represents a list node
 

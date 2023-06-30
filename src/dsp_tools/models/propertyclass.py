@@ -1,3 +1,5 @@
+# pylint: disable=missing-class-docstring,missing-function-docstring,duplicate-code
+
 import json
 import re
 from typing import Any, Optional, Sequence, Union
@@ -12,7 +14,7 @@ from dsp_tools.models.model import Model
 from dsp_tools.models.set_encoder import SetEncoder
 
 
-class PropertyClass(Model):
+class PropertyClass(Model):  # pylint: disable=too-many-instance-attributes,too-many-public-methods
     ROUTE: str = "/v2/ontologies/properties"
 
     _context: Context

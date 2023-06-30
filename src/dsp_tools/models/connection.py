@@ -84,12 +84,15 @@ class Connection:
 
     @property
     def token(self) -> str:
+        """Get the token of this connection"""
         return self._token
 
     def start_logging(self) -> None:
+        """Start writing every API call to a file"""
         self._log = True
 
     def stop_logging(self):
+        """Stop writing every API call to a file"""
         self._log = False
 
     def logout(self) -> None:

@@ -99,8 +99,8 @@ line-length = 120
 
 [tool.pylint.MASTER]
 ignore-paths = [
-    "src/dsp_tools/models/.*$",           # TODO: activate this
-    "src/dsp_tools/import_scripts/.*"     # TODO: THIS IS JUST TEMPORARY, REMOVE THIS BEFORE MERGING TO MAIN
+    "src/dsp_tools/models/resource.py",    # TODO: activate this
+    "src/dsp_tools/import_scripts/.*"      # TODO: THIS IS JUST TEMPORARY, REMOVE THIS BEFORE MERGING TO MAIN !!!
 ]
 suggestion-mode = true
 

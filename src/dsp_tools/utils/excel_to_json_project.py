@@ -48,7 +48,7 @@ def excel2json(
     folder = [x for x in os.scandir(data_model_files) if not re.search(r"^(\.|~\$).+", x.name)]
 
     processed_files = []
-    onto_folders = [x for x in folder if os.path.isdir(x) and re.search(r"([\w.-]+) (\([\w.\- ]+\))", x.name)]
+    onto_folders = [x for x in folder if os.path.isdir(x) and re.search(r"([\w.-]+) \(([\w.\- ]+)\)", x.name)]
     if len(onto_folders) == 0:
         raise BaseError(
             f"'{data_model_files}' must contain at least one subfolder named after the pattern 'onto_name (onto_label)'"
@@ -88,7 +88,7 @@ def excel2json(
 
     ontologies = []
     for onto_folder in onto_folders:
-        name, label = re.search(r"([\w.-]+) \(([\w.\- ]+)\)", onto_folder.name).groups()  # type: ignore
+        name, label = re.search(r"([\w.-]+) \(([\w.\- ]+)\)", onto_folder.name).groups()  # type: ignore[union-attr]
         resources, success1 = excel2resources(f"{data_model_files}/{onto_folder.name}/resources.xlsx")
         properties, success2 = excel2properties(f"{data_model_files}/{onto_folder.name}/properties.xlsx")
         if not success1 or not success2:
@@ -115,8 +115,8 @@ def excel2json(
         },
     }
     if lists:
-        project["project"]["lists"] = lists  # type: ignore
-    project["project"]["ontologies"] = ontologies  # type: ignore
+        project["project"]["lists"] = lists  # type: ignore[index]
+    project["project"]["ontologies"] = ontologies  # type: ignore[index]
 
     with open(path_to_output_file, "w", encoding="utf-8") as f:
         json.dump(project, f, indent=4, ensure_ascii=False)

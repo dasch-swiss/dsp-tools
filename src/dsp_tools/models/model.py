@@ -2,7 +2,9 @@ from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import BaseError
 
 
-class Model:
+class Model:  # pylint: disable=too-few-public-methods
+    """Base class for other classes"""
+
     _con: Connection
     _changed: set[str]
 

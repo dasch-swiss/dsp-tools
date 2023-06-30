@@ -1,3 +1,5 @@
+# pylint: disable=missing-class-docstring,missing-function-docstring
+
 """
 This module implements the handling (CRUD) of DSP projects.
 
@@ -36,7 +38,7 @@ from dsp_tools.models.model import Model
 from dsp_tools.models.set_encoder import SetEncoder
 
 
-class Project(Model):
+class Project(Model):  # pylint: disable=too-many-instance-attributes,too-many-public-methods
     """
     This class represents a project in DSP.
 
@@ -416,7 +418,7 @@ class Project(Model):
             "shortname": self._shortname,
             "longname": self._longname,
             "descriptions": self._description.createDefinitionFileObj(),
-            "keywords": [kw for kw in self._keywords],
+            "keywords": list(self._keywords),
         }
 
     def create(self) -> Project:

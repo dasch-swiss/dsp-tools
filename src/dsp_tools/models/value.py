@@ -1,3 +1,5 @@
+# pylint: disable=missing-class-docstring,missing-function-docstring
+
 import re
 from typing import Any, Optional, Union
 
@@ -281,7 +283,7 @@ class ColorValue(Value):
         return self._value + " " + super().__str__()
 
 
-class DateValue(Value):
+class DateValue(Value):  # pylint: disable=too-many-instance-attributes
     _calendar: str
     _e1: str
     _y1: int

@@ -1,3 +1,5 @@
+# pylint: disable=too-few-public-methods
+
 import os
 from typing import Any
 

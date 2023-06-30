@@ -281,7 +281,7 @@ def make_root(
     schema_location_key = str(etree.QName("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation"))
     schema_location_value = f"https://dasch.swiss/schema {schema_url}"
     root = etree.Element(
-        "{%s}knora" % (xml_namespace_map[None]),
+        "{%s}knora" % xml_namespace_map[None],
         attrib={
             schema_location_key: schema_location_value,
             "shortcode": shortcode,
@@ -316,7 +316,7 @@ def append_permissions(root_element: etree._Element) -> etree._Element:
     # lxml.builder.E is a more sophisticated element factory than etree.Element.
     # E.tag is equivalent to E("tag") and results in <tag>
 
-    res_default = etree.Element("{%s}permissions" % (xml_namespace_map[None]), id="res-default")
+    res_default = etree.Element("{%s}permissions" % xml_namespace_map[None], id="res-default")
     res_default.append(ALLOW("V", group="UnknownUser"))
     res_default.append(ALLOW("V", group="KnownUser"))
     res_default.append(ALLOW("D", group="ProjectMember"))
@@ -401,7 +401,7 @@ def make_resource(
             ) from None
         kwargs["creation_date"] = creation_date
 
-    resource_ = etree.Element("{%s}resource" % (xml_namespace_map[None]), **kwargs)  # type: ignore
+    resource_ = etree.Element("{%s}resource" % xml_namespace_map[None], **kwargs)  # type: ignore[arg-type]
     return resource_
 
 
@@ -439,7 +439,7 @@ def make_bitstream_prop(
             stacklevel=2,
         )
     prop_ = etree.Element(
-        "{%s}bitstream" % (xml_namespace_map[None]),
+        "{%s}bitstream" % xml_namespace_map[None],
         permissions=permissions,
         nsmap=xml_namespace_map,
     )
@@ -448,7 +448,7 @@ def make_bitstream_prop(
 
 
 def _format_bool(
-    unformatted: Union[bool, str, int],
+    unformatted: Union[bool, str, int, float],
     name: str,
     calling_resource: str,
 ) -> str:
@@ -468,9 +468,9 @@ def _format_bool(
     """
     if isinstance(unformatted, str):
         unformatted = unformatted.lower()
-    if unformatted in (False, "false", "0", 0, "no"):
+    if unformatted in (False, "false", "0", 0, 0.0, "no"):
         return "false"
-    elif unformatted in (True, "true", "1", 1, "yes"):
+    elif unformatted in (True, "true", "1", 1, 1.0, "yes"):
         return "true"
     else:
         raise BaseError(
@@ -518,7 +518,7 @@ def make_boolean_prop(
 
     # validate input
     if isinstance(value, PropertyElement):
-        value_new = dataclasses.replace(value, value=_format_bool(value.value, name, calling_resource))  # type: ignore
+        value_new = dataclasses.replace(value, value=_format_bool(value.value, name, calling_resource))
     elif isinstance(value, (str, bool, int)):
         value_new = PropertyElement(_format_bool(value, name, calling_resource))
     else:
@@ -528,19 +528,19 @@ def make_boolean_prop(
 
     # make xml structure of the value
     prop_ = etree.Element(
-        "{%s}boolean-prop" % (xml_namespace_map[None]),
+        "{%s}boolean-prop" % xml_namespace_map[None],
         name=name,
         nsmap=xml_namespace_map,
     )
     kwargs = {"permissions": value_new.permissions}
-    if check_notna(value_new.comment):
-        kwargs["comment"] = value_new.comment  # type: ignore
+    if value_new.comment and check_notna(value_new.comment):
+        kwargs["comment"] = value_new.comment
     value_ = etree.Element(
-        "{%s}boolean" % (xml_namespace_map[None]),
-        **kwargs,  # type: ignore
+        "{%s}boolean" % xml_namespace_map[None],
+        **kwargs,  # type: ignore[arg-type]
         nsmap=xml_namespace_map,
     )
-    value_.text = value_new.value  # type: ignore
+    value_.text = str(value_new.value)
     prop_.append(value_)
 
     return prop_
@@ -597,17 +597,17 @@ def make_color_prop(
 
     # make xml structure of the valid values
     prop_ = etree.Element(
-        "{%s}color-prop" % (xml_namespace_map[None]),
+        "{%s}color-prop" % xml_namespace_map[None],
         name=name,
         nsmap=xml_namespace_map,
     )
     for val in values:
         kwargs = {"permissions": val.permissions}
-        if check_notna(val.comment):
-            kwargs["comment"] = val.comment  # type: ignore
+        if val.comment and check_notna(val.comment):
+            kwargs["comment"] = val.comment
         value_ = etree.Element(
-            "{%s}color" % (xml_namespace_map[None]),
-            **kwargs,  # type: ignore
+            "{%s}color" % xml_namespace_map[None],
+            **kwargs,  # type: ignore[arg-type]
             nsmap=xml_namespace_map,
         )
         value_.text = str(val.value).strip()
@@ -678,17 +678,17 @@ def make_date_prop(
 
     # make xml structure of the valid values
     prop_ = etree.Element(
-        "{%s}date-prop" % (xml_namespace_map[None]),
+        "{%s}date-prop" % xml_namespace_map[None],
         name=name,
         nsmap=xml_namespace_map,
     )
     for val in values:
         kwargs = {"permissions": val.permissions}
-        if check_notna(val.comment):
-            kwargs["comment"] = val.comment  # type: ignore
+        if val.comment and check_notna(val.comment):
+            kwargs["comment"] = val.comment
         value_ = etree.Element(
-            "{%s}date" % (xml_namespace_map[None]),
-            **kwargs,  # type: ignore
+            "{%s}date" % xml_namespace_map[None],
+            **kwargs,  # type: ignore[arg-type]
             nsmap=xml_namespace_map,
         )
         value_.text = str(val.value).strip()
@@ -751,17 +751,17 @@ def make_decimal_prop(
 
     # make xml structure of the valid values
     prop_ = etree.Element(
-        "{%s}decimal-prop" % (xml_namespace_map[None]),
+        "{%s}decimal-prop" % xml_namespace_map[None],
         name=name,
         nsmap=xml_namespace_map,
     )
     for val in values:
         kwargs = {"permissions": val.permissions}
-        if check_notna(val.comment):
-            kwargs["comment"] = val.comment  # type: ignore
+        if val.comment and check_notna(val.comment):
+            kwargs["comment"] = val.comment
         value_ = etree.Element(
-            "{%s}decimal" % (xml_namespace_map[None]),
-            **kwargs,  # type: ignore
+            "{%s}decimal" % xml_namespace_map[None],
+            **kwargs,  # type: ignore[arg-type]
             nsmap=xml_namespace_map,
         )
         value_.text = str(float(val.value))
@@ -814,7 +814,7 @@ def make_geometry_prop(
     # check value type
     for val in values:
         try:
-            value_as_dict = json.loads(val.value)  # type: ignore
+            value_as_dict = json.loads(str(val.value))
             assert value_as_dict["type"] in ["rectangle", "circle", "polygon"]
             assert isinstance(value_as_dict["points"], list)
         except (json.JSONDecodeError, TypeError, IndexError, KeyError, AssertionError):
@@ -825,17 +825,17 @@ def make_geometry_prop(
 
     # make xml structure of the valid values
     prop_ = etree.Element(
-        "{%s}geometry-prop" % (xml_namespace_map[None]),
+        "{%s}geometry-prop" % xml_namespace_map[None],
         name=name,
         nsmap=xml_namespace_map,
     )
     for val in values:
         kwargs = {"permissions": val.permissions}
-        if check_notna(val.comment):
-            kwargs["comment"] = val.comment  # type: ignore
+        if val.comment and check_notna(val.comment):
+            kwargs["comment"] = val.comment
         value_ = etree.Element(
-            "{%s}geometry" % (xml_namespace_map[None]),
-            **kwargs,  # type: ignore
+            "{%s}geometry" % xml_namespace_map[None],
+            **kwargs,  # type: ignore[arg-type]
             nsmap=xml_namespace_map,
         )
         value_.text = str(val.value)
@@ -895,17 +895,17 @@ def make_geoname_prop(
 
     # make xml structure of the valid values
     prop_ = etree.Element(
-        "{%s}geoname-prop" % (xml_namespace_map[None]),
+        "{%s}geoname-prop" % xml_namespace_map[None],
         name=name,
         nsmap=xml_namespace_map,
     )
     for val in values:
         kwargs = {"permissions": val.permissions}
-        if check_notna(val.comment):
-            kwargs["comment"] = val.comment  # type: ignore
+        if val.comment and check_notna(val.comment):
+            kwargs["comment"] = val.comment
         value_ = etree.Element(
-            "{%s}geoname" % (xml_namespace_map[None]),
-            **kwargs,  # type: ignore
+            "{%s}geoname" % xml_namespace_map[None],
+            **kwargs,  # type: ignore[arg-type]
             nsmap=xml_namespace_map,
         )
         value_.text = str(val.value)
@@ -968,17 +968,17 @@ def make_integer_prop(
 
     # make xml structure of the valid values
     prop_ = etree.Element(
-        "{%s}integer-prop" % (xml_namespace_map[None]),
+        "{%s}integer-prop" % xml_namespace_map[None],
         name=name,
         nsmap=xml_namespace_map,
     )
     for val in values:
         kwargs = {"permissions": val.permissions}
-        if check_notna(val.comment):
-            kwargs["comment"] = val.comment  # type: ignore
+        if val.comment and check_notna(val.comment):
+            kwargs["comment"] = val.comment
         value_ = etree.Element(
-            "{%s}integer" % (xml_namespace_map[None]),
-            **kwargs,  # type: ignore
+            "{%s}integer" % xml_namespace_map[None],
+            **kwargs,  # type: ignore[arg-type]
             nsmap=xml_namespace_map,
         )
         value_.text = str(int(val.value))
@@ -1038,20 +1038,20 @@ def make_interval_prop(
 
     # make xml structure of the valid values
     prop_ = etree.Element(
-        "{%s}interval-prop" % (xml_namespace_map[None]),
+        "{%s}interval-prop" % xml_namespace_map[None],
         name=name,
         nsmap=xml_namespace_map,
     )
     for val in values:
         kwargs = {"permissions": val.permissions}
-        if check_notna(val.comment):
-            kwargs["comment"] = val.comment  # type: ignore
+        if val.comment and check_notna(val.comment):
+            kwargs["comment"] = val.comment
         value_ = etree.Element(
-            "{%s}interval" % (xml_namespace_map[None]),
-            **kwargs,  # type: ignore
+            "{%s}interval" % xml_namespace_map[None],
+            **kwargs,  # type: ignore[arg-type]
             nsmap=xml_namespace_map,
         )
-        value_.text = val.value  # type: ignore
+        value_.text = str(val.value)
         prop_.append(value_)
 
     return prop_
@@ -1110,21 +1110,21 @@ def make_list_prop(
 
     # make xml structure of the valid values
     prop_ = etree.Element(
-        "{%s}list-prop" % (xml_namespace_map[None]),
+        "{%s}list-prop" % xml_namespace_map[None],
         list=list_name,
         name=name,
         nsmap=xml_namespace_map,
     )
     for val in values:
         kwargs = {"permissions": val.permissions}
-        if check_notna(val.comment):
-            kwargs["comment"] = val.comment  # type: ignore
+        if val.comment and check_notna(val.comment):
+            kwargs["comment"] = val.comment
         value_ = etree.Element(
-            "{%s}list" % (xml_namespace_map[None]),
-            **kwargs,  # type: ignore
+            "{%s}list" % xml_namespace_map[None],
+            **kwargs,  # type: ignore[arg-type]
             nsmap=xml_namespace_map,
         )
-        value_.text = val.value  # type: ignore
+        value_.text = str(val.value)
         prop_.append(value_)
 
     return prop_
@@ -1181,20 +1181,20 @@ def make_resptr_prop(
 
     # make xml structure of the valid values
     prop_ = etree.Element(
-        "{%s}resptr-prop" % (xml_namespace_map[None]),
+        "{%s}resptr-prop" % xml_namespace_map[None],
         name=name,
         nsmap=xml_namespace_map,
     )
     for val in values:
         kwargs = {"permissions": val.permissions}
-        if check_notna(val.comment):
-            kwargs["comment"] = val.comment  # type: ignore
+        if val.comment and check_notna(val.comment):
+            kwargs["comment"] = val.comment
         value_ = etree.Element(
-            "{%s}resptr" % (xml_namespace_map[None]),
-            **kwargs,  # type: ignore
+            "{%s}resptr" % xml_namespace_map[None],
+            **kwargs,  # type: ignore[arg-type]
             nsmap=xml_namespace_map,
         )
-        value_.text = val.value  # type: ignore
+        value_.text = str(val.value)
         prop_.append(value_)
 
     return prop_
@@ -1340,7 +1340,7 @@ def make_formatted_text_prop(
 
     # make xml structure of the valid values
     prop_ = etree.Element(
-        "{%s}formatted-text-prop" % (xml_namespace_map[None]),
+        "{%s}formatted-text-prop" % xml_namespace_map[None],
         name=name,
         nsmap=xml_namespace_map,
     )
@@ -1349,7 +1349,7 @@ def make_formatted_text_prop(
         if check_notna(val.comment):
             kwargs["comment"] = val.comment  # type: ignore
         value_ = etree.Element(
-            "{%s}text" % (xml_namespace_map[None]),
+            "{%s}text" % xml_namespace_map[None],
             **kwargs,  # type: ignore
             nsmap=xml_namespace_map,
         )
@@ -1432,20 +1432,20 @@ def make_time_prop(
 
     # make xml structure of the valid values
     prop_ = etree.Element(
-        "{%s}time-prop" % (xml_namespace_map[None]),
+        "{%s}time-prop" % xml_namespace_map[None],
         name=name,
         nsmap=xml_namespace_map,
     )
     for val in values:
         kwargs = {"permissions": val.permissions}
-        if check_notna(val.comment):
-            kwargs["comment"] = val.comment  # type: ignore
+        if val.comment and check_notna(val.comment):
+            kwargs["comment"] = val.comment
         value_ = etree.Element(
-            "{%s}time" % (xml_namespace_map[None]),
-            **kwargs,  # type: ignore
+            "{%s}time" % xml_namespace_map[None],
+            **kwargs,  # type: ignore[arg-type]
             nsmap=xml_namespace_map,
         )
-        value_.text = val.value  # type: ignore
+        value_.text = str(val.value)
         prop_.append(value_)
 
     return prop_
@@ -1504,20 +1504,20 @@ def make_uri_prop(
 
     # make xml structure of the valid values
     prop_ = etree.Element(
-        "{%s}uri-prop" % (xml_namespace_map[None]),
+        "{%s}uri-prop" % xml_namespace_map[None],
         name=name,
         nsmap=xml_namespace_map,
     )
     for val in values:
         kwargs = {"permissions": val.permissions}
-        if check_notna(val.comment):
-            kwargs["comment"] = val.comment  # type: ignore
+        if val.comment and check_notna(val.comment):
+            kwargs["comment"] = val.comment
         value_ = etree.Element(
-            "{%s}uri" % (xml_namespace_map[None]),
-            **kwargs,  # type: ignore
+            "{%s}uri" % xml_namespace_map[None],
+            **kwargs,  # type: ignore[arg-type]
             nsmap=xml_namespace_map,
         )
-        value_.text = val.value  # type: ignore
+        value_.text = str(val.value)
         prop_.append(value_)
 
     return prop_
@@ -1577,8 +1577,8 @@ def make_region(
         kwargs["creation_date"] = creation_date
 
     region_ = etree.Element(
-        "{%s}region" % (xml_namespace_map[None]),
-        **kwargs,  # type: ignore
+        "{%s}region" % xml_namespace_map[None],
+        **kwargs,  # type: ignore[arg-type]
     )
     return region_
 
@@ -1635,8 +1635,8 @@ def make_annotation(
         kwargs["creation_date"] = creation_date
 
     annotation_ = etree.Element(
-        "{%s}annotation" % (xml_namespace_map[None]),
-        **kwargs,  # type: ignore
+        "{%s}annotation" % xml_namespace_map[None],
+        **kwargs,  # type: ignore[arg-type]
     )
     return annotation_
 
@@ -1693,8 +1693,8 @@ def make_link(
         kwargs["creation_date"] = creation_date
 
     link_ = etree.Element(
-        "{%s}link" % (xml_namespace_map[None]),
-        **kwargs,  # type: ignore
+        "{%s}link" % xml_namespace_map[None],
+        **kwargs,  # type: ignore[arg-type]
     )
     return link_
 

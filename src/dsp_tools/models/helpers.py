@@ -1,3 +1,5 @@
+# pylint: disable=missing-class-docstring,missing-function-docstring
+
 import re
 from dataclasses import dataclass
 from enum import Enum, unique
@@ -27,7 +29,7 @@ class OntoIri:
 ContextType = dict[str, OntoIri]
 
 
-class IriTest:
+class IriTest:  # pylint: disable=too-few-public-methods
     __iri_regexp = re.compile("^(http)s?://([\\w\\.\\-~]+)?(:\\d{,6})?(/[\\w\\-~]+)*(#[\\w\\-~]*)?")
 
     @classmethod
@@ -52,14 +54,14 @@ class Cardinality(Enum):
     C_0_n = "0-n"
 
 
-class ContextIterator:
+class ContextIterator:  # pylint: disable=too-few-public-methods
     _context: "Context"
     _prefixes: list[str]
     _index: int
 
     def __init__(self, context: "Context"):
         self._context = context
-        self._prefixes = [x for x in self._context.context]
+        self._prefixes = list(self._context.context)
         self._index = 0
 
     def __next__(self) -> tuple[Optional[str], Optional[OntoIri]]:
@@ -445,7 +447,7 @@ class DateTimeStamp:
         return {"@type": "xsd:dateTimeStamp", "@value": self._dateTimeStamp}
 
 
-class WithId:
+class WithId:  # pylint: disable=too-few-public-methods
     """
     Class helper to get json-ld "@id" thingies
     """

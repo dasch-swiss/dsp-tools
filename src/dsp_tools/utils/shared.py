@@ -192,8 +192,8 @@ def _validate_xml_tags_in_text_properties(doc: Union[etree._ElementTree[etree._E
     for text in doc_without_namespace.findall(path="resource/unformatted-text-prop/text"):
         if regex.search(r'<([a-zA-Z/"]+|[^\s0-9].*[^\s0-9])>', str(text.text)) or len(list(text.iterchildren())) > 0:
             sourceline = f" line {text.sourceline}: " if text.sourceline else " "
-            propname = text.getparent().attrib["name"]  # type: ignore
-            resname = text.getparent().getparent().attrib["id"]  # type: ignore
+            propname = text.getparent().attrib["name"]  # type: ignore[union-attr]
+            resname = text.getparent().getparent().attrib["id"]  # type: ignore[union-attr]
             resources_with_illegal_xml_tags.append(f" -{sourceline}resource '{resname}', property '{propname}'")
     if resources_with_illegal_xml_tags:
         err_msg = (

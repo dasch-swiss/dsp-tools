@@ -20,7 +20,7 @@ class Languages(Enum):
 LangStringParam = Optional[Union[dict[Union[Languages, str], str], str]]
 
 
-class LangStringIterator:
+class LangStringIterator:  # pylint: disable=too-few-public-methods
     """Iterator class for LangString class."""
 
     _langstring: "LangString"

@@ -38,7 +38,7 @@ from dsp_tools.models.model import Model
 from dsp_tools.models.project import Project
 
 
-class User(Model):
+class User(Model):  # pylint: disable=too-many-instance-attributes,too-many-public-methods
     """
     This class represents a user in DSP.
 

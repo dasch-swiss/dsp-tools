@@ -292,6 +292,12 @@ class User(Model):  # pylint: disable=too-many-instance-attributes,too-many-publ
         """Status of this user (True=active, False=inactive)"""
         return self._status
 
+    @status.setter
+    def status(self, value: Optional[bool]) -> None:
+        self._status = None if value is None else bool(value)
+        if value is not None:
+            self._changed.add("status")
+
     @property
     def sysadmin(self) -> bool:
         """True if the user is sysadmin"""

@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 import importlib.resources
-from logging import Logger
 import re
 import shutil
 import subprocess
@@ -14,21 +13,28 @@ import yaml
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.logging import get_logger
 
+logger = get_logger(__name__)
+
 
 @dataclass
 class StackConfiguration:
-    """Groups together configuration information for the StackHandler"""
+    """
+    Groups together configuration information for the StackHandler.
 
-    max_file_size: Optional[int]
-    enforce_docker_system_prune: bool
-    suppress_docker_system_prune: bool
-    latest_dev_version: bool
+    Args:
+        max_file_size: max. multimedia file size allowed by SIPI, in MB (max: 100'000)
+        enforce_docker_system_prune: if True, prune Docker without asking the user
+        suppress_docker_system_prune: if True, don't prune Docker (and don't ask)
+        latest_dev_version: if True, start DSP-API from repo's main branch, instead of the latest deployed version
+    """
+
+    max_file_size: Optional[int] = None
+    enforce_docker_system_prune: bool = False
+    suppress_docker_system_prune: bool = False
+    latest_dev_version: bool = False
 
     def __post_init__(self) -> None:
-        """
-        Validate the input parameters passed by the user.
-        Raises a UserError if one of the parameters is invalid.
-        """
+        """Validate the input parameters passed by the user. Raises a UserError if one of the parameters is invalid."""
         if self.max_file_size is not None:
             if not 1 <= self.max_file_size <= 100_000:
                 raise UserError("max_file_size must be between 1 and 100000")
@@ -37,39 +43,16 @@ class StackConfiguration:
 
 
 class StackHandler:
-    """
-    This class contains functions to start and stop the Docker containers of DSP-API and DSP-APP.
-    """
+    """This class contains functions to start and stop the Docker containers of DSP-API and DSP-APP."""
 
     __stack_configuration: StackConfiguration
     __url_prefix: str
-    __logger: Logger
     __docker_path_of_user: Path
 
-    def __init__(
-        self,
-        max_file_size: Optional[int] = None,
-        enforce_docker_system_prune: bool = False,
-        suppress_docker_system_prune: bool = False,
-        latest_dev_version: bool = False,
-    ) -> None:
-        """
-        Initialize a StackHandler.
-
-        Args:
-            max_file_size: max. multimedia file size allowed by SIPI, in MB (max: 100'000)
-            enforce_docker_system_prune: if True, prune Docker without asking the user
-            suppress_docker_system_prune: if True, don't prune Docker (and don't ask)
-            latest_dev_version: if True, start DSP-API from repo's main branch, instead of the latest deployed version
-        """
-        self.__stack_configuration = StackConfiguration(
-            max_file_size=max_file_size,
-            enforce_docker_system_prune=enforce_docker_system_prune,
-            suppress_docker_system_prune=suppress_docker_system_prune,
-            latest_dev_version=latest_dev_version,
-        )
+    def __init__(self, stack_configuration: StackConfiguration) -> None:
+        """Initialize a StackHandler with a StackConfiguration"""
+        self.__stack_configuration = stack_configuration
         self.__url_prefix = self._get_url_prefix()
-        self.__logger = get_logger(__name__)
         self.__docker_path_of_user = Path.home() / Path(".dsp-tools/start-stack")
         self.__docker_path_of_user.mkdir(parents=True, exist_ok=True)
 
@@ -165,7 +148,7 @@ class StackHandler:
         )
         if not completed_process or completed_process.returncode != 0:
             msg = "Cannot start the API: Error while executing 'docker compose up db -d'"
-            self.__logger.error(f"{msg}. completed_process = '{completed_process}'")
+            logger.error(f"{msg}. completed_process = '{completed_process}'")
             raise UserError(msg)
 
     def _wait_for_fuseki(self) -> None:
@@ -206,7 +189,7 @@ class StackHandler:
                 "Cannot start DSP-API: Error when creating the 'knora-test' repository. "
                 "Is DSP-API perhaps running already?"
             )
-            self.__logger.error(f"{msg}. response = {response}")
+            logger.error(f"{msg}. response = {response}")
             raise UserError(msg)
 
     def _load_data_into_repo(self) -> None:
@@ -239,7 +222,7 @@ class StackHandler:
                 timeout=5,
             )
             if not response.ok:
-                self.__logger.error(f"Cannot start DSP-API: Error when creating graph '{graph}'. response = {response}")
+                logger.error(f"Cannot start DSP-API: Error when creating graph '{graph}'. response = {response}")
                 raise UserError(f"Cannot start DSP-API: Error when creating graph '{graph}'")
 
     def _initialize_fuseki(self) -> None:

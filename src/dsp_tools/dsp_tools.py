@@ -24,7 +24,7 @@ from dsp_tools.utils.project_get import get_project
 from dsp_tools.utils.project_validate import validate_project
 from dsp_tools.utils.rosetta import upload_rosetta
 from dsp_tools.utils.shared import validate_xml_against_schema
-from dsp_tools.utils.stack_handling import StackHandler
+from dsp_tools.utils.stack_handling import StackConfiguration, StackHandler
 from dsp_tools.utils.xml_upload import xml_upload
 
 logger = get_logger(__name__)
@@ -439,14 +439,16 @@ def call_requested_action(
         )
     elif args.action == "start-stack":
         stack_handler = StackHandler(
-            max_file_size=args.max_file_size,
-            enforce_docker_system_prune=args.prune,
-            suppress_docker_system_prune=args.no_prune,
-            latest_dev_version=args.latest,
+            StackConfiguration(
+                max_file_size=args.max_file_size,
+                enforce_docker_system_prune=args.prune,
+                suppress_docker_system_prune=args.no_prune,
+                latest_dev_version=args.latest,
+            )
         )
         success = stack_handler.start_stack()
     elif args.action == "stop-stack":
-        stack_handler = StackHandler()
+        stack_handler = StackHandler(StackConfiguration())
         success = stack_handler.stop_stack()
     elif args.action == "template":
         success = generate_template_repo()

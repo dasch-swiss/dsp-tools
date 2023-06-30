@@ -404,7 +404,7 @@ def _check_consistency_with_ontology(
         )
         logger.error(err_msg)
         raise UserError(err_msg)
-    knora_properties = resclass_name_2_type[resources[0].restype].knora_properties  # type: ignore
+    knora_properties = resclass_name_2_type[resources[0].restype].knora_properties  # type: ignore[attr-defined]
 
     for resource in resources:
         # check that the resource type is consistent with the ontology
@@ -431,7 +431,7 @@ def _check_consistency_with_ontology(
             raise UserError(err_msg)
 
         # check that the property types are consistent with the ontology
-        resource_properties = resclass_name_2_type[resource.restype].properties.keys()  # type: ignore
+        resource_properties = resclass_name_2_type[resource.restype].properties.keys()  # type: ignore[attr-defined]
         for propname in [prop.name for prop in resource.properties]:
             if propname not in knora_properties and propname not in resource_properties:
                 prop_syntaxes = [
@@ -714,7 +714,7 @@ def _upload_resources(
             msg = f"Uploaded file '{pth}' ({bitstream_size_uploaded_mb:.1f} MB / {bitstream_size_total_mb} MB)"
             print(msg)
             logger.info(msg)
-            internal_file_name_bitstream = img["uploadedFiles"][0]["internalFilename"]  # type: ignore
+            internal_file_name_bitstream = img["uploadedFiles"][0]["internalFilename"]  # type: ignore[index]
             resource_bitstream = resource.get_bitstream(internal_file_name_bitstream, permissions_lookup)
 
         # create the resource in DSP
@@ -725,7 +725,7 @@ def _upload_resources(
                 con=con,
                 label=resource.label,
                 iri=resource_iri,
-                permissions=permissions_lookup.get(resource.permissions),  # type: ignore
+                permissions=permissions_lookup.get(str(resource.permissions)),
                 creation_date=resource.creation_date,
                 bitstream=resource_bitstream,
                 values=properties,

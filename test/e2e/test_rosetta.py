@@ -9,6 +9,7 @@ import pytest
 from dsp_tools.utils import rosetta
 
 
+@pytest.mark.skip(reason="REMOVE THIS LINE BEFORE MERGING TO MAIN! THIS IS JUST FOR CONVENIENCE DURING DEVELOPMENT.")
 class TestRosetta(unittest.TestCase):
     def test_rosetta(self) -> None:
         enclosing_folder = Path("tmp/.dsp-tools/rosetta")

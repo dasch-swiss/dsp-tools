@@ -1,3 +1,5 @@
+# pylint: disable=missing-function-docstring
+
 from enum import Enum, unique
 from typing import Any, Optional, Union
 
@@ -6,6 +8,8 @@ from dsp_tools.models.exceptions import BaseError
 
 @unique
 class Languages(Enum):
+    """Languages supported by DSP"""
+
     EN = "en"
     DE = "de"
     FR = "fr"

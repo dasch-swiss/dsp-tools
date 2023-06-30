@@ -1,3 +1,5 @@
+# pylint: disable=missing-function-docstring
+
 """
 This module implements the handling (CRUD) of DSP groups.
 

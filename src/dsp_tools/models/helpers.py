@@ -1,3 +1,5 @@
+# pylint: disable=missing-class-docstring,missing-function-docstring
+
 import re
 from dataclasses import dataclass
 from enum import Enum, unique

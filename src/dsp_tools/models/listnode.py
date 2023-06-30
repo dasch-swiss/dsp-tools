@@ -1,3 +1,5 @@
+# pylint: disable=missing-function-docstring
+
 """
 This module implements the handling (CRUD) of list nodes and adds some function to read whole lists.
 

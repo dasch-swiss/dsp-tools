@@ -5,6 +5,8 @@ This model implements the handling of resource classes. It contains two classes 
     * "ResourceClass" is the main class representing a DSP resource class.
 """
 
+# pylint: disable=missing-class-docstring,missing-function-docstring,too-many-instance-attributes
+
 import json
 import re
 from enum import Enum

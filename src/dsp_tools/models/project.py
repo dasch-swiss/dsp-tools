@@ -1,3 +1,5 @@
+# pylint: disable=missing-class-docstring,missing-function-docstring
+
 """
 This module implements the handling (CRUD) of DSP projects.
 

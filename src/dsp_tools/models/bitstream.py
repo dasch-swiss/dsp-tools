@@ -18,13 +18,15 @@ class Bitstream:
 
     @property
     def value(self) -> str:
+        """File path of the bitstream"""
         return self._value
 
     @property
     def permissions(self) -> Optional[Permissions]:
+        """Permissions of the bitstream"""
         return self._permissions
 
-    def toJsonLdObj(self, action: Actions) -> dict[str, Any]:
+    def toJsonLdObj(self, action: Actions) -> dict[str, Any]:  # pylint: disable=missing-function-docstring
         tmp = {}
         if action == Actions.Create:
             tmp["knora-api:fileValueHasFilename"] = self._value

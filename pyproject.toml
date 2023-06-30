@@ -34,6 +34,7 @@ networkx = "^3.1.0"
 pandas = { version = "^2.0.1", extras = ["excel"] }  # extra package that contains xlrd that is necessary for reading old .xls Excel files
 regex = "^2023.5.5"
 docker = "^6.1.2"
+pyyaml = "^6.0"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -50,6 +51,7 @@ types-jsonschema = "^4.17.0.8"
 types-openpyxl = "^3.1.0.7"
 types-regex = "^2023.5.5.0"
 pre-commit = "^3.3.3"
+types-pyyaml = "^6.0.12.10"
 
 
 [tool.poetry.scripts]
@@ -63,7 +65,8 @@ check-links = """
     markdown-link-validator \
     ./docs \
     -i \\.\\/assets\\/.+ \
-    -i .+github\\.com\\/dasch\\-swiss\\/dsp-tools\\/settings\
+    -i .+github\\.com\\/dasch\\-swiss\\/dsp-tools\\/settings \
+    -i .+github\\.com\\/dasch\\-swiss\\/ops-deploy\\/.+
 """
 
 

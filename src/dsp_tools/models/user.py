@@ -237,6 +237,18 @@ class User(Model):
         """Email address of this user"""
         return self._email
 
+    @email.setter
+    def email(self, value: Optional[str]):
+        if value is None:
+            return
+        self._email = str(value)
+        self._changed.add("email")
+
+    @property
+    def givenName(self) -> Optional[str]:
+        """Given name (firstname) of this user"""
+        return self._givenName
+
     @property
     def familyName(self) -> Optional[str]:
         """Family name (lastname) of this user"""

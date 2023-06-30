@@ -216,113 +216,9 @@ class User(Model):
         self._rm_from_group = set()
 
     @property
-    def iri(self) -> Optional[str]:
-        return self._iri
-
-    @iri.setter
-    def iri(self, value: str) -> None:
-        raise BaseError("User iri cannot be modified!")
-
-    @property
     def username(self) -> Optional[str]:
+        """Username of this user"""
         return self._username
-
-    @username.setter
-    def username(self, value: Optional[str]):
-        if value is None:
-            return
-        self._username = str(value)
-        self._changed.add("username")
-
-    @property
-    def email(self) -> Optional[str]:
-        return self._email
-
-    @email.setter
-    def email(self, value: Optional[str]):
-        if value is None:
-            return
-        self._email = str(value)
-        self._changed.add("email")
-
-    @property
-    def givenName(self) -> Optional[str]:
-        return self._givenName
-
-    @givenName.setter
-    def givenName(self, value: Optional[str]):
-        if value is None:
-            return
-        self._givenName = str(value)
-        self._changed.add("givenName")
-
-    @property
-    def familyName(self) -> Optional[str]:
-        return self._familyName
-
-    @familyName.setter
-    def familyName(self, value: Optional[str]):
-        if value is None:
-            return
-        self._familyName = str(value)
-        self._changed.add("familyName")
-
-    @property
-    def password(self) -> Optional[str]:
-        return None
-
-    @password.setter
-    def password(self, value: Optional[str]):
-        if value is None:
-            return
-        self._password = str(value)
-        self._changed.add("password")
-
-    @property
-    def lang(self) -> Optional[Languages]:
-        return self._lang
-
-    @lang.setter
-    def lang(self, value: Optional[Union[str, Languages]]):
-        if value is None:
-            return
-        if isinstance(value, Languages):
-            self._lang = value
-            self._changed.add("lang")
-        else:
-            lmap = {a.value: a for a in Languages}
-            if lmap.get(value) is None:
-                raise BaseError('Invalid language string "' + value + '"!')
-            self._lang = lmap[value]
-            self._changed.add("lang")
-
-    @property
-    def status(self) -> bool:
-        return self._status
-
-    @status.setter
-    def status(self, value: Optional[bool]) -> None:
-        self._status = None if value is None else bool(value)
-        if value is not None:
-            self._changed.add("status")
-
-    @property
-    def sysadmin(self) -> bool:
-        return self._sysadmin
-
-    @sysadmin.setter
-    def sysadmin(self, value: bool):
-        self._sysadmin = None if value is None else bool(value)
-        if value is not None:
-            self._changed.add("sysadmin")
-
-    @property
-    def in_groups(self) -> set[str]:
-        return self._in_groups
-
-    @in_groups.setter
-    def in_groups(self, value: Any):
-        raise BaseError('Group membership cannot be modified directly! Use methods "addToGroup" and "rmFromGroup"')
 
     def addToGroup(self, value: str):
         """
@@ -355,16 +251,6 @@ class User(Model):
             self._changed.add("in_groups")
         else:
             raise BaseError("User is not in groups!")
-
-    @property
-    def in_projects(self) -> dict[str, bool]:
-        return self._in_projects
-
-    @in_projects.setter
-    def in_projects(self, value: Any):
-        raise BaseError(
-            'Project membership cannot be modified directly! Use methods "addToProject" and "rmFromProject"'
-        )
 
     def addToProject(self, value: str, padmin: bool = False):
         """
@@ -592,21 +478,21 @@ class User(Model):
         jsonobj = self.toJsonObj(Actions.Update)
         if jsonobj:
             jsondata = json.dumps(jsonobj)
-            self._con.put(User.IRI + quote_plus(self.iri) + "/BasicUserInformation", jsondata)
+            self._con.put(User.IRI + quote_plus(self._iri) + "/BasicUserInformation", jsondata)
         if "status" in self._changed:
             jsonobj = {"status": self._status}
             jsondata = json.dumps(jsonobj)
-            self._con.put(User.IRI + quote_plus(self.iri) + "/Status", jsondata)
+            self._con.put(User.IRI + quote_plus(self._iri) + "/Status", jsondata)
         if "password" in self._changed:
             if requesterPassword is None:
                 raise BaseError("Requester's password is missing!")
             jsonobj = {"requesterPassword": requesterPassword, "newPassword": self._password}
             jsondata = json.dumps(jsonobj)
-            self._con.put(User.IRI + quote_plus(self.iri) + "/Password", jsondata)
+            self._con.put(User.IRI + quote_plus(self._iri) + "/Password", jsondata)
         if "sysadmin" in self._changed:
             jsonobj = {"systemAdmin": self._sysadmin}
             jsondata = json.dumps(jsonobj)
-            self._con.put(User.IRI + quote_plus(self.iri) + "/SystemAdmin", jsondata)
+            self._con.put(User.IRI + quote_plus(self._iri) + "/SystemAdmin", jsondata)
         for p in self._add_to_project.items():
             self._con.post(User.IRI + quote_plus(self._iri) + User.PROJECT_MEMBERSHIPS + quote_plus(p[0]))
             if p[1]:
@@ -676,22 +562,23 @@ class User(Model):
         proj_shortname: str,
         proj_iri: str,
     ) -> dict[str, Union[str, list[str], None]]:
+        """Create a JSON object that can be used to create a project definition file"""
         user: dict[str, Union[str, list[str], bool, None]] = {
             "username": self.username,
-            "email": self.email,
-            "givenName": self.givenName,
-            "familyName": self.familyName,
+            "email": self._email,
+            "givenName": self._givenName,
+            "familyName": self._familyName,
             "password": "",
         }
-        if self.lang:
-            user["lang"] = self.lang.value
+        if self._lang:
+            user["lang"] = self._lang.value
         groups = list()
         for group_iri in self._in_groups:
             group_info = con.get(f"/admin/groups/{urllib.parse.quote_plus(group_iri)}")
             if "group" in group_info and "name" in group_info["group"]:
                 groupname = group_info["group"]["name"]
                 groups.append(f"{proj_shortname}:{groupname}")
-        if self.sysadmin:
+        if self._sysadmin:
             groups.append("SystemAdmin")
         user["groups"] = groups
         user["projects"] = list()
@@ -701,5 +588,5 @@ class User(Model):
                     user["projects"].append(f"{proj_shortname}:admin")
                 else:
                     user["projects"].append(f"{proj_shortname}:member")
-        user["status"] = self.status
+        user["status"] = self._status
         return user

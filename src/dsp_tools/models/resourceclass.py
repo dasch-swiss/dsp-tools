@@ -44,7 +44,6 @@ class HasProperty(Model):
         resclass_id: Optional[str] = None,
         cardinality: Optional[Cardinality] = None,
         gui_order: Optional[int] = None,
-        is_inherited: Optional[bool] = None,
         ptype: Optional[Ptype] = None,
     ):
         super().__init__(con)
@@ -128,12 +127,6 @@ class HasProperty(Model):
             raise BaseError("Expected restriction type")
 
         #
-        # let's get the inherited field...
-        #
-        tmp = jsonld_obj.get(knora_api + ":isInherited")
-        is_inherited = tmp if tmp is not None else False
-
-        #
         # let's get the cardinality
         #
         cardinality: Cardinality
@@ -182,7 +175,6 @@ class HasProperty(Model):
             property_id=property_id,
             cardinality=cardinality,
             gui_order=gui_order,
-            is_inherited=is_inherited,
             ptype=ptype,
         )
 

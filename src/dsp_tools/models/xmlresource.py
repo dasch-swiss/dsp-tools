@@ -106,6 +106,7 @@ class XMLResource:
 
     @property
     def properties(self) -> list[XMLProperty]:
+        """The list of properties of the resource"""
         return self._properties
 
     @properties.setter

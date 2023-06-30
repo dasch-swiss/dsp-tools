@@ -126,6 +126,8 @@ class StackHandler:
             with importlib.resources.as_file(file) as f:
                 file_path = Path(f)
             shutil.copy(file_path, self.__docker_path_of_user / file.name)
+        if not self.__stack_configuration.latest_dev_version:
+            Path(self.__docker_path_of_user / "docker-compose.override.yml").unlink()
 
     def _get_sipi_docker_config_lua(self) -> None:
         """
@@ -295,30 +297,6 @@ class StackHandler:
         self._start_remaining_docker_containers()
         self._execute_docker_system_prune()
 
-    def _inject_latest_tag_into_docker_compose_file(self) -> None:
-        """
-        Replace the version of the DSP-API Docker image in docker-compose.yml with "latest".
-
-        Raises:
-            BaseError: if it is not possible to inject the "latest" tag into docker-compose.yml
-        """
-        docker_compose_file = self.__docker_path_of_user / "docker-compose.yml"
-        if not docker_compose_file.is_file():
-            raise BaseError(
-                "Cannot inject the 'latest' tag into docker-compose.yml, "
-                f"because there is no such file in {self.__docker_path_of_user}"
-            )
-
-        with open(docker_compose_file, "r", encoding="utf-8") as f:
-            docker_compose_text = yaml.safe_load(f)
-        old_tag = docker_compose_text.get("services", {}).get("api", {}).get("image", "")
-        if not re.search(r"daschswiss/knora-api:\d+\.\d+\.\d+", old_tag):
-            raise BaseError(f"Invalid tag '{old_tag}' in docker-compose.yml > services > api > image")
-
-        docker_compose_text["services"]["api"]["image"] = "daschswiss/knora-api:latest"
-        with open(docker_compose_file, "w", encoding="utf-8") as f:
-            yaml.dump(docker_compose_text, f)
-
     def start_stack(self) -> bool:
         """
         Start the Docker containers of DSP-API and DSP-APP, and load some basic data models and data.
@@ -331,8 +309,6 @@ class StackHandler:
             True if everything went well, False otherwise
         """
         self._copy_resources_to_home_dir()
-        if self.__stack_configuration.latest_dev_version:
-            self._inject_latest_tag_into_docker_compose_file()
         self._get_sipi_docker_config_lua()
         self._start_docker_containers()
         return True

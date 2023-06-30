@@ -261,15 +261,47 @@ class User(Model):
         """Family name (lastname) of this user"""
         return self._familyName
 
+    @familyName.setter
+    def familyName(self, value: Optional[str]):
+        if value is None:
+            return
+        self._familyName = str(value)
+        self._changed.add("familyName")
+
     @property
     def lang(self) -> Optional[Languages]:
         """Language of this user"""
         return self._lang
 
+    @lang.setter
+    def lang(self, value: Optional[Union[str, Languages]]):
+        if value is None:
+            return
+        if isinstance(value, Languages):
+            self._lang = value
+            self._changed.add("lang")
+        else:
+            lmap = {a.value: a for a in Languages}
+            if lmap.get(value) is None:
+                raise BaseError('Invalid language string "' + value + '"!')
+            self._lang = lmap[value]
+            self._changed.add("lang")
+
     @property
     def status(self) -> bool:
         """Status of this user (True=active, False=inactive)"""
         return self._status
+
+    @property
+    def sysadmin(self) -> bool:
+        """True if the user is sysadmin"""
+        return self._sysadmin
+
+    @sysadmin.setter
+    def sysadmin(self, value: bool):
+        self._sysadmin = None if value is None else bool(value)
+        if value is not None:
+            self._changed.add("sysadmin")
 
     @property
     def in_groups(self) -> set[str]:

@@ -216,9 +216,41 @@ class User(Model):
         self._rm_from_group = set()
 
     @property
+    def iri(self) -> Optional[str]:
+        """IRI of this user"""
+        return self._iri
+
+    @property
     def username(self) -> Optional[str]:
         """Username of this user"""
         return self._username
+
+    @username.setter
+    def username(self, value: Optional[str]):
+        if value is None:
+            return
+        self._username = str(value)
+        self._changed.add("username")
+
+    @property
+    def email(self) -> Optional[str]:
+        """Email address of this user"""
+        return self._email
+
+    @property
+    def familyName(self) -> Optional[str]:
+        """Family name (lastname) of this user"""
+        return self._familyName
+
+    @property
+    def status(self) -> bool:
+        """Status of this user (True=active, False=inactive)"""
+        return self._status
+
+    @property
+    def in_groups(self) -> set[str]:
+        """Set of group IRI's the user is member of"""
+        return self._in_groups
 
     def addToGroup(self, value: str):
         """
@@ -251,6 +283,11 @@ class User(Model):
             self._changed.add("in_groups")
         else:
             raise BaseError("User is not in groups!")
+
+    @property
+    def in_projects(self) -> dict[str, bool]:
+        """dict with project-IRI as key, boolean(True=project admin) as value"""
+        return self._in_projects
 
     def addToProject(self, value: str, padmin: bool = False):
         """

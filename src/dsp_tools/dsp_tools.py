@@ -244,7 +244,7 @@ def make_parser() -> argparse.ArgumentParser:
         "--no-prune", action="store_true", help="don't execute 'docker system prune' (and don't ask)"
     )
     parser_stackup.add_argument(
-        "--latest-dev-version",
+        "--latest",
         action="store_true",
         help="use the latest dev version of DSP-API, from the main branch of the GitHub repository",
     )
@@ -442,7 +442,7 @@ def call_requested_action(
             max_file_size=args.max_file_size,
             enforce_docker_system_prune=args.prune,
             suppress_docker_system_prune=args.no_prune,
-            latest_dev_version=args.latest_dev_version,
+            latest_dev_version=args.latest,
         )
         success = stack_handler.start_stack()
     elif args.action == "stop-stack":

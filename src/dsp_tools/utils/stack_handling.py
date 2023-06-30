@@ -11,7 +11,7 @@ from typing import Optional
 import requests
 import yaml
 
-from dsp_tools.models.exceptions import BaseError, UserError
+from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.logging import get_logger
 
 

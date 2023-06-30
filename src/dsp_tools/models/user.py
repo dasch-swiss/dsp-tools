@@ -249,10 +249,22 @@ class User(Model):
         """Given name (firstname) of this user"""
         return self._givenName
 
+    @givenName.setter
+    def givenName(self, value: Optional[str]):
+        if value is None:
+            return
+        self._givenName = str(value)
+        self._changed.add("givenName")
+
     @property
     def familyName(self) -> Optional[str]:
         """Family name (lastname) of this user"""
         return self._familyName
+
+    @property
+    def lang(self) -> Optional[Languages]:
+        """Language of this user"""
+        return self._lang
 
     @property
     def status(self) -> bool:

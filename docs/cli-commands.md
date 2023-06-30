@@ -256,12 +256,16 @@ This command runs a local instance of DSP-API and DSP-APP.
 dsp-tools start-stack
 ```
 
-dsp-tools will ask you for permission to clean Docker with a `docker system prune`. This will remove all unused 
-containers, networks and images. If you don't know what that means, just type `y` ("yes") and then `Enter`.
+dsp-tools will ask you for permission to clean Docker with a `docker system prune`.
+This will remove all unused containers, networks and images.
+If you don't know what that means, just type `y` ("yes") and then `Enter`.
 
 The following options are available:
 
 - `--max_file_size=int` (optional, default: `250`): max. multimedia file size allowed by SIPI, in MB (max: 100'000)
+- `--latest` (optional): 
+  instead of the latest deployed version,
+  use the latest development version of DSP-API (from the `main` branch)
 - `--prune` (optional): execute `docker system prune` without asking
 - `--no-prune` (optional): don't execute `docker system prune` (and don't ask)
 

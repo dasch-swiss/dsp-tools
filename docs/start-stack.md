@@ -14,14 +14,14 @@ There are two ways to do this:
 
 Here's an overview of the two ways:
 
-|                             | simple                      | advanced                                                                 |
-|-----------------------------|-----------------------------|--------------------------------------------------------------------------|
-| target group                | researchers, RDU employees  | developers of DSP-API or DSP-APP                                         |
-| how it works                | run `dsp-tools start-stack` | execute commands from within locally cloned DSP-API/DSP-APP repositories |
-| software dependencies       | Docker, Python, DSP-TOOLS   | XCode command line tools, Docker, sbt, Java, Angular, node, yarn         |
-| mechanism in the background | run pre-built Docker images | build DSP-API and DSP-APP from a branch in the repository                |
-| available versions          | latest released version     | any branch, or locally modified working tree                             |
-| caveats                     |                             | dependencies must be kept up to date                                     |
+|                             | simple                                    | advanced                                                                 |
+| --------------------------- | ----------------------------------------- | ------------------------------------------------------------------------ |
+| target group                | researchers, RDU employees                | developers of DSP-API or DSP-APP                                         |
+| how it works                | run `dsp-tools start-stack`               | execute commands from within locally cloned DSP-API/DSP-APP repositories |
+| software dependencies       | Docker, Python, DSP-TOOLS                 | XCode command line tools, Docker, sbt, Java, Angular, node, yarn         |
+| mechanism in the background | run pre-built Docker images               | build DSP-API and DSP-APP from a branch in the repository                |
+| available versions          | latest released version, or `main` branch | any branch, or locally modified working tree                             |
+| caveats                     |                                           | dependencies must be kept up to date                                     |
 
 
 
@@ -29,7 +29,9 @@ Here's an overview of the two ways:
 
 The [`start-stack`](./cli-commands.md#start-stack) command runs Docker images 
 with the latest released versions of DSP-API and DSP-APP, 
-i.e. the versions that are running on [https://admin.dasch.swiss](https://admin.dasch.swiss). 
+i.e. the versions that are running on [https://admin.dasch.swiss](https://admin.dasch.swiss).
+(Optionally, you can specify to run the latest development version of DSP-API, from the `main` branch.)
+
 The only prerequisite for this is that Docker is running, 
 and that you have Python and DSP-TOOLS installed.
 

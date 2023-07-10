@@ -5,16 +5,18 @@ version: '3.7'
 services:
 
   app:
-    image: daschswiss/dsp-app:v10.22.0  # on the verge of every deployment (fortnightly), update this from the "app" value of
-                                        # https://github.com/dasch-swiss/ops-deploy/blob/main/roles/dsp-deploy/files/RELEASE.json
+    # on the verge of every deployment (fortnightly), update the "image" value from the "app" value of
+    # https://github.com/dasch-swiss/ops-deploy/blob/main/roles/dsp-deploy/files/RELEASE.json
+    image: daschswiss/dsp-app:v10.22.0
     ports:
       - "4200:4200"
     networks:
       - knora-net
 
   db:
-    image: daschswiss/apache-jena-fuseki:2.0.11  # on the verge of every deployment (fortnightly), update this from the "db" value of
-                                                 # https://github.com/dasch-swiss/ops-deploy/blob/main/roles/dsp-deploy/files/RELEASE.json
+    # on the verge of every deployment (fortnightly), update the "image" value from the "db" value of
+    # https://github.com/dasch-swiss/ops-deploy/blob/main/roles/dsp-deploy/files/RELEASE.json
+    image: daschswiss/apache-jena-fuseki:2.0.11
     ports:
       - "3030:3030"
     networks:
@@ -25,7 +27,8 @@ services:
       - JVM_ARGS=-Xmx3G
 
   sipi:
-    image: daschswiss/knora-sipi:29.1.0  # on the verge of every deployment (fortnightly), take the same tag as DSP-API
+    # on the verge of every deployment (fortnightly), take the same tag as DSP-API
+    image: daschswiss/knora-sipi:29.1.0
     ports:
       - "1024:1024"
     volumes:
@@ -44,8 +47,9 @@ services:
     command: --config=/docker/sipi.docker-config.lua
 
   api:
-    image: daschswiss/knora-api:29.1.0  # on the verge of every deployment (fortnightly), update this from the "api" value of
-                                        # https://github.com/dasch-swiss/ops-deploy/blob/main/roles/dsp-deploy/files/RELEASE.json
+    # on the verge of every deployment (fortnightly), update the "image" value from the "api" value of
+    # https://github.com/dasch-swiss/ops-deploy/blob/main/roles/dsp-deploy/files/RELEASE.json
+    image: daschswiss/knora-api:29.1.0
     depends_on:
       - sipi
       - db

@@ -188,7 +188,7 @@ def _check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> bo
             # filter out other ontos
             cardnames = [card for card in cardnames if regex.search(f"^{ontoname}:", card)]
             # convert to short form
-            cardnames = [regex.sub(ontoname, "", card) for card in cardnames]
+            cardnames = [regex.sub(f"^{ontoname}:", ":", card) for card in cardnames]
 
             invalid_cardnames = [card for card in cardnames if regex.sub(":", "", card) not in propnames]
             if invalid_cardnames:

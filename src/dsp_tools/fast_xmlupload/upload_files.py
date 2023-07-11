@@ -111,7 +111,8 @@ def _upload_without_processing(
         with open(file, "rb") as bitstream:
             try:
                 response_upload = requests.post(
-                    url=f"{regex.sub(r'/$', '', sipi_url)}/upload_without_processing?token={con.get_token()}",
+                    url=f"{regex.sub(r'/$', '', sipi_url)}/upload_without_processing",
+                    headers={"Authorization": f"Bearer {con.get_token()}"},
                     files={"file": bitstream},
                     timeout=8 * 60,
                 )

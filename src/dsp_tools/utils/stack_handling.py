@@ -101,7 +101,7 @@ class StackHandler:
         to the user's home directory (~/.dsp-tools/start-stack).
 
         Important: The files of the home directory might have been modified
-        by an earlier run of _inject_latest_tag_into_docker_compose_file().
+        by an earlier run of this method.
         So, this method must always be called, at every run of start-stack.
         """
         docker_path_of_distribution = importlib.resources.files("dsp_tools").joinpath("resources/start-stack")

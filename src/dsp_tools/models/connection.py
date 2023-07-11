@@ -122,6 +122,11 @@ class Connection:
         :return: Response from server
         """
 
+        # timeout must be None,
+        # otherwise the client can get a timeout error while the API is still processing the request
+        # in that case, the client's retry will fail, and the response of the original API call is lost
+        timeout = None
+
         if path[0] != "/":
             path = "/" + path
         headers = None
@@ -131,10 +136,10 @@ class Connection:
                 response = requests.post(
                     self._server + path,
                     headers=headers,
-                    timeout=5,
+                    timeout=timeout,
                 )
             else:
-                response = requests.post(self._server + path, timeout=5)
+                response = requests.post(self._server + path, timeout=timeout)
         else:
             if self._token is not None:
                 headers = {"Content-Type": "application/json; charset=UTF-8", "Authorization": "Bearer " + self._token}
@@ -142,7 +147,7 @@ class Connection:
                     self._server + path,
                     headers=headers,
                     data=jsondata,
-                    timeout=5,
+                    timeout=timeout,
                 )
             else:
                 headers = {"Content-Type": "application/json; charset=UTF-8"}
@@ -150,7 +155,7 @@ class Connection:
                     self._server + path,
                     headers=headers,
                     data=jsondata,
-                    timeout=5,
+                    timeout=timeout,
                 )
         if self._log:
             if jsondata:

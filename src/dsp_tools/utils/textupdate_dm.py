@@ -1,105 +1,87 @@
 import json
-import os
-import sys
-from datetime import date
-
-unformatted_text_list = ["SimpleText", "Textarea"]
-formatted_text_list = ["Richtext"]
+from pathlib import Path
+from typing import Any
 
 
-def _get_ontologies(data) -> list:
-    project = data["project"]
-    return project["ontologies"]
+def _update_prop(prop: dict[str, Any]) -> dict[str, Any]:
+    """
+    If a property's gui_element is "SimpleText" or "Textarea",
+    replace the object "TextValue" with "UnformattedTextValue".
+    If the gui_element is "Richtext",
+    replace the object "TextValue" with "FormattedTextValue".
+    In both cases, remove the gui_element afterwards.
+
+    Args:
+        prop: a text property
+
+    Returns:
+        the updated property
+    """
+    gui_element = prop.get("gui_element")
+
+    if gui_element in ["SimpleText", "Textarea"]:
+        prop["object"] = "UnformattedTextValue"
+        del prop["gui_element"]
+    elif gui_element == "Richtext":
+        prop["object"] = "FormattedTextValue"
+        del prop["gui_element"]
+
+    return prop
 
 
-def _get_properties(onto) -> dict:
-    return onto["properties"]
+def _update_text_props(project: dict[str, Any]) -> dict[str, Any]:
+    """
+    Update all text properties in the project definition.
+
+    Args:
+        project: parsed JSON project definition
+
+    Returns:
+        modified project definition
+    """
+    for onto in project["project"]["ontologies"]:
+        for prop in onto["properties"]:
+            if prop["object"] == "TextValue":
+                prop = _update_prop(prop=prop)
+    return project
 
 
-def change(prop_elem, newValue):
-    del prop_elem["gui_element"]
-    prop_elem["object"] = newValue
+def _write_file(
+    project: dict[str, Any],
+    old_path: Path,
+) -> None:
+    """
+    Write the updated project definition to a new file.
 
-
-def check_prop_elem(prop_elem):
-    gui_element = prop_elem.get("gui_element")
-
-    if gui_element in unformatted_text_list:
-        change(prop_elem=prop_elem, newValue="UnformattedTextValue")
-    elif gui_element in formatted_text_list:
-        change(prop_elem=prop_elem, newValue="FormattedTextValue")
-
-
-def check_properties(onto):
-    properties = _get_properties(onto=onto)
-    for i in range(len(properties)):
-        prop_elem = properties[i]
-        check_prop_elem(prop_elem=prop_elem)
-
-
-def _check_ontologies(data: dict):
-    ontologies = _get_ontologies(data=data)
-    for onto in ontologies:
-        check_properties(onto=onto)
-
-
-def get_last_before(path: str) -> [str, str]:
-    pos = path.rfind("/")
-    last = path
-    before = ""
-    if pos != -1:
-        last = path[pos + 1 :]
-        before = path[:pos]
-
-    return last, before
-
-
-def get_name(last: str) -> str:
-    json_str = ".json"
-    pos = last.rfind(json_str)
-    name = last[:pos]
-    return name
-
-
-def loop_for_valid_path(fix_part: str) -> str:
-    json_str = ".json"
-    new_path = f"{fix_part}{json_str}"
-
-    count = 1
-    while os.path.exists(new_path):
-        new_path = f"{fix_part}_{count}{json_str}"
-        count += 1
-    return new_path
-
-
-def get_fix_part(before: str, name: str) -> str:
-    today = date.today()
-    date_ = today.strftime("%Y%m%d")
-    fix_part = os.path.join(before, f"{date_}_{name}")
-    return fix_part
-
-
-def create_valid_path(before: str, name: str) -> str:
-    fix_part = get_fix_part(before=before, name=name)
-    return loop_for_valid_path(fix_part=fix_part)
-
-
-def get_new_path(path: str) -> str:
-    last, before = get_last_before(path=path)
-    name = get_name(last=last)
-    return create_valid_path(before=before, name=name)
-
-
-def _write_file(data: dict, path: str):
-    new_path = get_new_path(path=path)
+    Args:
+        project: updated project definition as Python dict
+        old_path: path to the original project definition file
+    """
+    new_path = old_path.parent / f"{old_path.stem}_updated.json"
     with open(new_path, mode="w", encoding="utf-8") as jsonFile:
-        json.dump(data, jsonFile, indent=4, ensure_ascii=False)
+        json.dump(project, jsonFile, indent=4, ensure_ascii=False)
     print(f"wrote file to '{new_path}'")
 
 
-def change_text_values(path: str):
-    with open(path, "r", encoding="utf-8") as jsonFile:
-        data = json.load(jsonFile)
+def change_text_values(path: str) -> bool:
+    """
+    Given a path to a JSON project definition file,
+    change the text properties to the new format:
+    Depending on the gui_element,
+    replace the object "TextValue" with either "UnformattedTextValue" or "FormattedTextValue",
+    then remove the gui_element.
 
-    _check_ontologies(data=data)
-    _write_file(data=data, path=path)
+    Args:
+        path: path to the JSON project definition file
+
+    Returns:
+        success status
+    """
+    pth = Path(path)
+    with open(pth, "r", encoding="utf-8") as jsonFile:
+        project = json.load(jsonFile)
+
+    project = _update_text_props(project=project)
+    _write_file(project=project, old_path=pth)
+
+    return True

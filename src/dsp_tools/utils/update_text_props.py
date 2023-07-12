@@ -63,7 +63,7 @@ def _write_file(
     print(f"wrote file to '{new_path}'")
 
 
-def change_text_values(path: str) -> bool:
+def update_text_properties(path: str) -> bool:
     """
     Given a path to a JSON project definition file,
     change the text properties to the new format:

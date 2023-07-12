@@ -27,6 +27,8 @@ from dsp_tools.utils.shared import validate_xml_against_schema
 from dsp_tools.utils.stack_handling import StackConfiguration, StackHandler
 from dsp_tools.utils.xml_upload import xml_upload
 
+from dsp_tools.utils.update_text_props import update_text_properties
+
 logger = get_logger(__name__)
 
 
@@ -267,6 +269,14 @@ def make_parser() -> argparse.ArgumentParser:
     )
     parser_rosetta.set_defaults(action="rosetta")
 
+    # update JSON project definition file to new format for text properties
+    parser_update_text_props = subparsers.add_parser(
+        name="update-text-props",
+        help="Update the text properties in a JSON project definition file to the new format",
+    )
+    parser_update_text_props.set_defaults(action="update-text-props")
+    parser_update_text_props.add_argument("project", help="path to the JSON project definition file")
+
     return parser
 
 
@@ -454,6 +464,8 @@ def call_requested_action(
         success = generate_template_repo()
     elif args.action == "rosetta":
         success = upload_rosetta()
+    elif args.action == "update-text-props":
+        success = update_text_properties(path=args.project)
     else:
         success = False
         print(f"ERROR: Unknown action '{args.action}'")

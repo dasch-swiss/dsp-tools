@@ -5,11 +5,11 @@ from typing import Any
 
 def _update_prop(prop: dict[str, Any]) -> dict[str, Any]:
     """
-    If a property's gui_element is "SimpleText" or "Textarea",
+    If a property's "gui_element" is "SimpleText" or "Textarea",
     replace the object "TextValue" with "UnformattedTextValue".
     If the gui_element is "Richtext",
     replace the object "TextValue" with "FormattedTextValue".
-    In both cases, remove the gui_element afterwards.
+    In both cases, remove the "gui_element" and "gui_attributes" afterwards.
 
     Args:
         prop: a text property
@@ -18,18 +18,22 @@ def _update_prop(prop: dict[str, Any]) -> dict[str, Any]:
         the updated property
     """
     gui_element = prop.get("gui_element")
+    if gui_element not in ["SimpleText", "Textarea", "Richtext"]:
+        return prop
 
-    if gui_element in ["SimpleText", "Textarea"]:
-        prop["object"] = "UnformattedTextValue"
-        del prop["gui_element"]
-    elif gui_element == "Richtext":
+    if gui_element == "Richtext":
         prop["object"] = "FormattedTextValue"
-        del prop["gui_element"]
+    else:
+        prop["object"] = "UnformattedTextValue"
+
+    del prop["gui_element"]
+    if prop.get("gui_attributes"):
+        del prop["gui_attributes"]
 
     return prop
 
 
-def _update_text_props(project: dict[str, Any]) -> dict[str, Any]:
+def _update_project(project: dict[str, Any]) -> dict[str, Any]:
     """
     Update all text properties in the project definition.
 
@@ -81,7 +85,7 @@ def update_text_properties(path: str) -> bool:
     with open(pth, "r", encoding="utf-8") as jsonFile:
         project = json.load(jsonFile)
 
-    project = _update_text_props(project=project)
+    project = _update_project(project=project)
     _write_file(project=project, old_path=pth)
 
     return True

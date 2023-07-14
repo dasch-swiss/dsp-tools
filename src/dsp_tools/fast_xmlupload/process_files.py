@@ -35,7 +35,7 @@ def _get_export_moving_image_frames_script() -> None:
     export_moving_image_frames_script = user_folder / "export-moving-image-frames.sh"
     script_text = requests.get(
         "https://github.com/dasch-swiss/dsp-api/raw/main/sipi/scripts/export-moving-image-frames.sh",
-        timeout=5,
+        timeout=10,
     ).text
     with open(export_moving_image_frames_script, "w", encoding="utf-8") as f:
         f.write(script_text)

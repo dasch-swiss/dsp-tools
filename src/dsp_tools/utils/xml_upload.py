@@ -458,6 +458,29 @@ def _check_consistency_with_ontology(
     logger.info("Resource types and properties are consistent with the ontology.")
 
 
+def _check_if_bitstreams_exist(
+    root: etree._Element,
+    imgdir: str,
+) -> None:
+    """
+    Make sure that all bitstreams referenced in the XML file exist in the imgdir.
+
+    Args:
+        root: parsed XML file
+        imgdir: folder where the bitstreams are stored
+
+    Raises:
+        UserError: if a bitstream does not exist in the imgdir
+    """
+    multimedia_resources = [x for x in root if any((y.tag == "bitstream" for y in x.iter()))]
+    for res in multimedia_resources:
+        pth = [Path(x.text) for x in res.iter() if x.tag == "bitstream" and x.text][0]
+        if not Path(imgdir / pth).is_file():
+            raise UserError(
+                f"Bitstream '{pth!s}' of resource '{res.attrib['label']}' does not exist in the imgdir '{imgdir}'."
+            )
+
+
 def xml_upload(
     input_file: Union[str, Path, etree._ElementTree[Any]],
     server: str,
@@ -496,6 +519,8 @@ def xml_upload(
     # parse the XML file
     validate_xml_against_schema(input_file=input_file)
     root = _parse_xml_file(input_file=input_file)
+    if not preprocessing_done:
+        _check_if_bitstreams_exist(root=root, imgdir=imgdir)
     shortcode = root.attrib["shortcode"]
     default_ontology = root.attrib["default-ontology"]
     logger.info(f"Validated and parsed the XML file. Shortcode='{shortcode}' and default_ontology='{default_ontology}'")

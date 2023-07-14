@@ -4,6 +4,14 @@
            targetNamespace="https://dasch.swiss/schema"
            elementFormDefault="qualified">
 
+    <!-- nonEmptyString-->
+    <xs:simpleType name="nonEmptyString">
+        <xs:restriction base="xs:string">
+            <xs:minLength value="1"/>
+            <xs:pattern value=".*\S+.*"/>
+        </xs:restriction>
+    </xs:simpleType>
+
     <!-- data type for resrefs "ID|ID|..." -->
     <xs:simpleType name="resrefs_type">
         <xs:restriction base="xs:token">
@@ -115,7 +123,7 @@
     <!-- geoname value type -->
     <xs:complexType name="geoname_type">
         <xs:simpleContent>
-            <xs:extension base="xs:string">
+            <xs:extension base="nonEmptyString">
                 <xs:attribute name="comment" type="xs:string"/>
                 <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
             </xs:extension>
@@ -125,7 +133,7 @@
     <!-- list value type -->
     <xs:complexType name="list_type">
         <xs:simpleContent>
-            <xs:extension base="xs:string">
+            <xs:extension base="nonEmptyString">
                 <xs:attribute name="comment" type="xs:string"/>
                 <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
             </xs:extension>
@@ -155,7 +163,7 @@
     <!-- period value type -->
     <xs:complexType name="period_type">
         <xs:simpleContent>
-            <xs:extension base="xs:string">
+            <xs:extension base="nonEmptyString">
                 <xs:attribute name="comment" type="xs:string"/>
                 <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
             </xs:extension>
@@ -165,7 +173,7 @@
     <!-- resptr_type (link to other resource) value type -->
     <xs:complexType name="resptr_type">
         <xs:simpleContent>
-            <xs:extension base="xs:string">
+            <xs:extension base="nonEmptyString">
                 <xs:attribute name="comment" type="xs:string"/>
                 <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
             </xs:extension>
@@ -384,7 +392,7 @@
     <!-- bitstream tag -->
     <xs:complexType name="bitstream_type">
         <xs:simpleContent>
-            <xs:extension base="xs:string">
+            <xs:extension base="nonEmptyString">
                 <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
             </xs:extension>
         </xs:simpleContent>

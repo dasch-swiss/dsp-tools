@@ -1,5 +1,31 @@
 # Changelog
 
+## [2.4.0](https://github.com/dasch-swiss/dsp-tools/compare/v2.3.4...v2.4.0) (2023-07-11)
+
+
+### Bug Fixes
+
+* **create:** if the name of the ontology is used in a propertyname, it gets removed (DEV-2406) [#429](https://github.com/dasch-swiss/dsp-tools/issues/429) ([e6292f0](https://github.com/dasch-swiss/dsp-tools/commit/e6292f01c661461f2913458fbd4140b309c8376c))
+* **xmlupload:** make sure resources aren't created multiple times after timeout error (DEV-2412) [#432](https://github.com/dasch-swiss/dsp-tools/issues/432)  ([b109e3c](https://github.com/dasch-swiss/dsp-tools/commit/b109e3ce204f83a2336b075df4d23d3684870f7a))
+
+
+### Enhancements
+
+* **start-stack:** add flag to start stack from main branch of DSP-API repository (DEV-2396) ([#424](https://github.com/dasch-swiss/dsp-tools/issues/424)) ([6ff2c48](https://github.com/dasch-swiss/dsp-tools/commit/6ff2c487348afbc1fc09f7e71fa4d591b15e9a54))
+
+
+### Maintenance
+
+* bump start-stack to 2023.07.01 (DEV-2428) ([#430](https://github.com/dasch-swiss/dsp-tools/issues/430)) ([8e11b95](https://github.com/dasch-swiss/dsp-tools/commit/8e11b95999bb238b85c1d4d92f49b268f781aab8))
+* **deps-dev:** bump black from 23.3.0 to 23.7.0 ([#431](https://github.com/dasch-swiss/dsp-tools/issues/431)) ([1aeb778](https://github.com/dasch-swiss/dsp-tools/commit/1aeb778b744c5cd78a7bc28003d759263470c87e))
+* **deps-dev:** bump mkdocs-material from 9.1.17 to 9.1.18 ([#426](https://github.com/dasch-swiss/dsp-tools/issues/426)) ([7a54181](https://github.com/dasch-swiss/dsp-tools/commit/7a5418121801ffc99b24c68a485ed4b54289e880))
+* **deps:** bump jsonschema from 4.17.3 to 4.18.0 ([#428](https://github.com/dasch-swiss/dsp-tools/issues/428)) ([4b1a9ff](https://github.com/dasch-swiss/dsp-tools/commit/4b1a9ff6afc6e973da42996ae9cd649a252ccc91))
+* **deps:** bump lxml from 4.9.2 to 4.9.3 ([#427](https://github.com/dasch-swiss/dsp-tools/issues/427)) ([1e933b3](https://github.com/dasch-swiss/dsp-tools/commit/1e933b3fa45c20adda2a8dc65bb6990a24c83add))
+* **deps:** bump pandas from 2.0.2 to 2.0.3 ([#422](https://github.com/dasch-swiss/dsp-tools/issues/422)) ([70b38b0](https://github.com/dasch-swiss/dsp-tools/commit/70b38b00f1969277670012701623249d339c17cf))
+* refactor start-stack (DEV-2397) ([#423](https://github.com/dasch-swiss/dsp-tools/issues/423)) ([679a267](https://github.com/dasch-swiss/dsp-tools/commit/679a26704498e6a644cf16d26d75f83988f3adc1))
+* refine/resolve ignore comments, resolve pylint issues (DEV-2398) ([#425](https://github.com/dasch-swiss/dsp-tools/issues/425)) ([906c8a3](https://github.com/dasch-swiss/dsp-tools/commit/906c8a341053b129772ffee9785f27693177f0b4))
+* set up pre-commit hooks (DEV-2393) ([#420](https://github.com/dasch-swiss/dsp-tools/issues/420)) ([9578181](https://github.com/dasch-swiss/dsp-tools/commit/95781811b40d5e22e584307ce4ff0c056d16913a))
+
 ## [2.3.4](https://github.com/dasch-swiss/dsp-tools/compare/v2.3.3...v2.3.4) (2023-06-27)
 
 

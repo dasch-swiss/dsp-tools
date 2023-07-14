@@ -385,6 +385,7 @@ def call_requested_action(
             output_dir=args.output_dir,
             xml_file=args.xml_file,
             nthreads=args.nthreads,
+            batch_size=args.batchsize,
         )
     elif args.action == "upload-files":
         success = upload_files(

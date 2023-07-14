@@ -75,6 +75,7 @@ class TestFastXmlUpload(unittest.TestCase):
             output_dir=self.output_dir,
             xml_file=self.xml_file,
             nthreads=None,
+            batch_size=5000,
         )
         self.assertTrue(success_process)
 

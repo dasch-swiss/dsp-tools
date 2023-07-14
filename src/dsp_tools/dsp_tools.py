@@ -140,6 +140,9 @@ def make_parser() -> argparse.ArgumentParser:
         "--output-dir", help="path to the output directory where the processed/transformed files should be written to"
     )
     parser_process_files.add_argument("--nthreads", type=int, default=None, help="number of threads to use")
+    parser_process_files.add_argument(
+        "--batchsize", type=int, default=5000, help="number of files to process before Python exits"
+    )
     parser_process_files.add_argument("xml_file", help="path to XML file containing the data")
 
     # upload-files

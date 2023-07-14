@@ -62,6 +62,7 @@ The following options are available:
 - `--output-dir` (mandatory): path to the output directory where the processed/transformed files should be written to
 - `--nthreads` (optional, default computed by the concurrent library, dependent on the machine): 
   number of threads to use for processing
+- `--batchsize` (optional, default 5000): number of files to process in one batch
 
 All files referenced in the `<bitstream>` tags of the XML 
 are expected to be in the input directory 

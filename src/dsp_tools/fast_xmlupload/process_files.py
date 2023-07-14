@@ -896,7 +896,7 @@ def process_files(
     output_dir: str,
     xml_file: str,
     nthreads: Optional[int],
-    batch_size: int = 5000,
+    batch_size: int,
 ) -> bool:
     """
     Process the files referenced in the given XML file.

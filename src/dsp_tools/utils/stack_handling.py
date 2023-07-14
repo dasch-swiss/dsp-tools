@@ -120,7 +120,7 @@ class StackHandler:
         Raises:
             UserError: if max_file_size is set but cannot be injected into sipi.docker-config.lua
         """
-        docker_config_lua_text = requests.get(f"{self.__url_prefix}sipi/config/sipi.docker-config.lua", timeout=5).text
+        docker_config_lua_text = requests.get(f"{self.__url_prefix}sipi/config/sipi.docker-config.lua", timeout=10).text
         if self.__stack_configuration.max_file_size:
             max_post_size_regex = r"max_post_size ?= ?[\'\"]\d+M[\'\"]"
             if not re.search(max_post_size_regex, docker_config_lua_text):
@@ -158,7 +158,7 @@ class StackHandler:
         """
         for _ in range(6 * 60):
             try:
-                response = requests.get(url="http://0.0.0.0:3030/$/server", auth=("admin", "test"), timeout=5)
+                response = requests.get(url="http://0.0.0.0:3030/$/server", auth=("admin", "test"), timeout=10)
                 if response.ok:
                     break
             except Exception:  # pylint: disable=broad-exception-caught
@@ -175,14 +175,14 @@ class StackHandler:
         """
         repo_template = requests.get(
             f"{self.__url_prefix}webapi/scripts/fuseki-repository-config.ttl.template",
-            timeout=5,
+            timeout=10,
         ).text
         repo_template = repo_template.replace("@REPOSITORY@", "knora-test")
         response = requests.post(
             url="http://0.0.0.0:3030/$/datasets",
             files={"file": ("file.ttl", repo_template, "text/turtle; charset=utf8")},
             auth=("admin", "test"),
-            timeout=5,
+            timeout=10,
         )
         if not response.ok:
             msg = (
@@ -214,12 +214,12 @@ class StackHandler:
             ("test_data/all_data/anything-data.ttl", "http://www.knora.org/data/0001/anything"),
         ]
         for ttl_file, graph in ttl_files:
-            ttl_text = requests.get(self.__url_prefix + ttl_file, timeout=5).text
+            ttl_text = requests.get(self.__url_prefix + ttl_file, timeout=10).text
             response = requests.post(
                 url=graph_prefix + graph,
                 files={"file": ("file.ttl", ttl_text, "text/turtle; charset: utf-8")},
                 auth=("admin", "test"),
-                timeout=5,
+                timeout=10,
             )
             if not response.ok:
                 logger.error(f"Cannot start DSP-API: Error when creating graph '{graph}'. response = {response}")

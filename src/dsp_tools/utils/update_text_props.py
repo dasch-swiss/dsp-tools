@@ -1,4 +1,5 @@
 import json
+import regex
 from pathlib import Path
 from typing import Any, Union
 
@@ -53,6 +54,7 @@ def _update_project(project: dict[str, Any]) -> dict[str, Any]:
 def _write_file(
     project: dict[str, Any],
     old_path: Path,
+    indentation: int,
 ) -> None:
     """
     Write the updated project definition to a new file.
@@ -60,11 +62,38 @@ def _write_file(
     Args:
         project: updated project definition as Python dict
         old_path: path to the original project definition file
+        indentation: indentation of the original file
     """
     new_path = old_path.parent / f"{old_path.stem}_updated.json"
     with open(new_path, mode="w", encoding="utf-8") as jsonFile:
-        json.dump(project, jsonFile, indent=4, ensure_ascii=False)
-    print(f"wrote file to '{new_path}'")
+        json.dump(project, jsonFile, indent=indentation, ensure_ascii=False)
+    print(f"Successfully updated the text properties and wrote new file to '{new_path}'")
+
+
+def _read_file(path: Path) -> tuple[int, dict[str, Any]]:
+    """
+    Parse the JSON project definition file,
+    and determine its original indentation.
+    If the original indentation cannot be determined,
+    assume 4 spaces.
+
+    Args:
+        path: path to the JSON project definition file
+
+    Returns:
+        tuple of original indentation and parsed project definition
+    """
+    with open(path, "r", encoding="utf-8") as jsonFile:
+        file_as_str = jsonFile.read()
+        project = json.loads(file_as_str)
+
+    orig_indentation = 4  # default assumption, if the original indentation cannot be determined
+    match = regex.search(r"(?<=\n)\s+(?=\S)", file_as_str)
+    if match:
+        ind = len(match.group(0))
+        orig_indentation = ind if 0 < ind < 7 else orig_indentation
+
+    return orig_indentation, project
 
 
 def update_text_properties(path: Union[str, Path]) -> bool:
@@ -82,10 +111,8 @@ def update_text_properties(path: Union[str, Path]) -> bool:
         success status
     """
     path = Path(path)
-    with open(path, "r", encoding="utf-8") as jsonFile:
-        project = json.load(jsonFile)
-
-    project = _update_project(project=project)
-    _write_file(project=project, old_path=path)
+    orig_indentation, parsed_project = _read_file(path=path)
+    updated_project = _update_project(project=parsed_project)
+    _write_file(project=updated_project, old_path=path, indentation=orig_indentation)
 
     return True

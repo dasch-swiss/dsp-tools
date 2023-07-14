@@ -62,19 +62,45 @@ The following options are available:
 - `--output-dir` (mandatory): path to the output directory where the processed/transformed files should be written to
 - `--nthreads` (optional, default computed by the concurrent library, dependent on the machine): 
   number of threads to use for processing
+- `--batchsize` (optional, default 5000): number of files to process in one batch
 
 All files referenced in the `<bitstream>` tags of the XML 
 are expected to be in the input directory 
 which is provided with the `--input-dir` option.
+
 The processed files 
 (derivative, .orig file, sidecar file, as well as the preview file for movies) 
 will be stored in the given `--output-dir` directory.
 If the output directory doesn't exist, it will be created automatically.
+
 Additionally to the output directory,
 a pickle file is written with the name `processing_result_[timestamp].pkl`.
 It contains a mapping from the original files to the processed files,
-e.g. "multimedia/dog.jpg" -> "tmp/0b/22/0b22570d-515f-4c3d-a6af-e42b458e7b2b.jp2".
+e.g. `multimedia/dog.jpg` -> `tmp/0b/22/0b22570d-515f-4c3d-a6af-e42b458e7b2b.jp2`.
 
+
+### Important note
+
+**Due to a resource leak, Python must be quitted after a certain time.**
+**For big datasets, only a batch of files is processed, then Python exits with exit code 2.**
+**In this case, you need to restart the command several times, until the exit code is 0.**
+**Only then, all files are processed.**
+**Unexpected errors result in exit code 1.**
+
+You can orchestrate this with a shell script, e.g.:
+
+```bash
+exit_code=2
+while [ $exit_code -eq 2 ]; do
+    dsp-tools process-files --input-dir=multimedia --output-dir=tmp data.xml
+    exit_code=$?
+done
+
+if [ $exit_code -ne 0 ]; then
+    echo "Error: exit code $exit_code"
+    exit $exit_code
+fi
+```
 
 ## 3. `dsp-tools upload-files`
 

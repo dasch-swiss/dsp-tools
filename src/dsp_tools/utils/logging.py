@@ -3,7 +3,12 @@ import logging.handlers
 from pathlib import Path
 
 
-def get_logger(name: str) -> logging.Logger:
+def get_logger(
+    name: str,
+    level: int = logging.INFO,
+    filesize_mb: int = 5,
+    backupcount: int = 4,
+) -> logging.Logger:
     """
     Create a logger instance,
     set its level to INFO,
@@ -11,12 +16,15 @@ def get_logger(name: str) -> logging.Logger:
 
     Args:
         name: name of the logger
+        level: logging level, defaults to logging.INFO
+        filesize_mb: maximum size per log file in MB, defaults to 5
+        backupcount: number of log files to keep, defaults to 4
 
     Returns:
         the logger instance
     """
     _logger = logging.getLogger(name)
-    _logger.setLevel(logging.INFO)
+    _logger.setLevel(level)
     formatter = logging.Formatter(fmt="{asctime} {filename: <20} {levelname: <8} {message}", style="{")
     # a RotatingFileHandler fills "filename" until it is "maxBytes" big,
     # then appends ".1" to it and starts with a new file "filename",
@@ -27,8 +35,8 @@ def get_logger(name: str) -> logging.Logger:
     handler = logging.handlers.RotatingFileHandler(
         filename=logfile_directory / "logging.log",
         mode="a",
-        maxBytes=5 * 1024 * 1024,
-        backupCount=4,
+        maxBytes=filesize_mb * 1024 * 1024,
+        backupCount=backupcount,
     )
     handler.setFormatter(formatter)
     _logger.addHandler(handler)

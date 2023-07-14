@@ -1,4 +1,3 @@
-import os
 import shutil
 import unittest
 from pathlib import Path
@@ -21,39 +20,49 @@ class TestFastXmlUpload(unittest.TestCase):
     user = "root@example.com"
     password = "test"
 
-    xml_file = "xml-data/test-data-fast-xmlupload.xml"
-    dir_with_processed_files = "preprocessed_files"
-    original_cwd = ""
-    pickle_file = Path()
+    input_dir = Path("testdata/bitstreams")
+    output_dir = "testdata/preprocessed_files"
+    xml_file = "testdata/xml-data/test-data-fast-xmlupload.xml"
+    json_file = "testdata/json-project/test-project-fast-xmlupload.json"
+    txt_files = ["processed_files.txt", "unprocessed_files.txt"]
 
-    def setUp(self) -> None:
+    @classmethod
+    def setUpClass(cls) -> None:
         """
-        Is executed before any test is run.
+        Is executed before the methods of this class are run
         """
-        self.original_cwd = os.getcwd()
-        os.chdir("testdata")
         create_project(
-            project_file_as_path_or_parsed="json-project/test-project-fast-xmlupload.json",
-            server=self.dsp_url,
-            user_mail=self.user,
-            password=self.password,
+            project_file_as_path_or_parsed=cls.json_file,
+            server=cls.dsp_url,
+            user_mail=cls.user,
+            password=cls.password,
             verbose=False,
             dump=False,
         )
-        shutil.copytree("bitstreams", "bitstreams/nested")
-        shutil.copytree("bitstreams/nested", "bitstreams/nested/subfolder")
+        shutil.copytree(cls.input_dir, cls.input_dir / "nested")
+        shutil.copytree(cls.input_dir / "nested", cls.input_dir / "nested/subfolder")
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """
+        Is executed after the methods of this class have all run through
+        """
+        shutil.rmtree(cls.input_dir / "nested")
+        shutil.rmtree(cls.output_dir)
 
     def tearDown(self) -> None:
         """
-        Is executed after all tests have run through.
+        Is executed after each test method
         """
-        shutil.rmtree("bitstreams/nested")
-        shutil.rmtree(self.dir_with_processed_files)
-        self.pickle_file.unlink()
+        for pickle_file in list(Path().glob("*.pkl")):
+            pickle_file.unlink()
+
         id2iri_search_results = list(Path().glob("*id2iri_mapping.json"))
         if len(id2iri_search_results) == 1:
             id2iri_search_results[0].unlink()
-        os.chdir(self.original_cwd)
+
+        for txt_file in self.txt_files:
+            Path(txt_file).unlink(missing_ok=True)
 
     def test_fast_xmlupload(self) -> None:
         """
@@ -62,19 +71,20 @@ class TestFastXmlUpload(unittest.TestCase):
         """
         print("test_fast_xmlupload: call process_files()")
         success_process = process_files(
-            input_dir="bitstreams",
-            output_dir=self.dir_with_processed_files,
+            input_dir=str(self.input_dir),
+            output_dir=self.output_dir,
             xml_file=self.xml_file,
             nthreads=None,
+            batch_size=5000,
         )
         self.assertTrue(success_process)
 
-        self.pickle_file = list(Path().glob("*.pkl"))[0]
+        pickle_file = str(list(Path().glob("*.pkl"))[0])
 
-        print(f"test_fast_xmlupload: call upload_files() with pickle file {self.pickle_file}")
+        print(f"test_fast_xmlupload: call upload_files() with pickle file {pickle_file}")
         success_upload = upload_files(
-            pkl_file=str(self.pickle_file),
-            dir_with_processed_files=self.dir_with_processed_files,
+            pkl_file=pickle_file,
+            dir_with_processed_files=self.output_dir,
             nthreads=4,
             user=self.user,
             password=self.password,
@@ -86,13 +96,39 @@ class TestFastXmlUpload(unittest.TestCase):
         print("test_fast_xmlupload: call fast_xmlupload()")
         success_fast_xmlupload = fast_xmlupload(
             xml_file=self.xml_file,
-            pkl_file=str(self.pickle_file),
+            pkl_file=pickle_file,
             user=self.user,
             password=self.password,
             dsp_url=self.dsp_url,
             sipi_url=self.sipi_url,
         )
         self.assertTrue(success_fast_xmlupload)
+
+    def test_batch_size_of_process_files(self) -> None:
+        """
+        Test if the "batch_size" parameter of process_files() function works.
+        The test file contains 92 bitstreams, so a batch size of 40 should result in 3 batches.
+        The first 2 batches should exit with exit code 2 and success=True,
+        the 3rd batch should exit with exit code 0 and success=True.
+        """
+
+        def action() -> bool:
+            return process_files(
+                input_dir=str(self.input_dir),
+                output_dir=self.output_dir,
+                xml_file=self.xml_file,
+                nthreads=None,
+                batch_size=40,
+            )
+
+        for i in range(2):
+            with self.assertRaises(SystemExit) as cm:
+                success = action()
+                self.assertTrue(success)
+            self.assertEqual(cm.exception.code, 2, msg=f"Failed in iteration {i}")
+
+        success = action()
+        self.assertTrue(success)
 
 
 if __name__ == "__main__":

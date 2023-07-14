@@ -67,6 +67,15 @@
             <text>Bei AU1026 handelt es sich um weissgrauen Sand mit einigen mittelgrossen (&lt;10cm) sowie auch wenigen grossen Kalkbruchsteinen (&gt;10cm), die zumeist scharfkantig sind.</text>
             <text>&amp;</text>
             <text>&amp;amp;</text>
+            <text>
+                Poem
+                with line breaks
+                and empty lines
+
+                and pretty-print-whitespaces...
+                Only the whitespaces/newlines at the beginning are removed.
+                The others stay in place.
+            </text>
             <!-- <text>&lt;em&gt;text&lt;/em&gt;</text>
             <text>&lt;tag s=\"t\"&gt;</text> -->
         </unformatted-text-prop>
@@ -90,6 +99,22 @@
                 <a class="salsah-link" href="IRI:zip_thing_1:IRI">zip_thing_1</a>
                 <a class="salsah-link" href="IRI:audio_thing_1:IRI">audio_thing_1</a>
                 <a class="salsah-link" href="IRI:test_thing_2:IRI">test_thing_2</a>
+            </text>
+            <text>
+                Poem
+                with line breaks
+                and empty lines
+
+                and pretty-print-whitespaces...
+                In formatted text props, all of these are removed.
+            </text>
+            <text><br/>
+                Poem<br/>
+                with line breaks<br/>
+                and empty lines<br/>
+                <br/>
+                and pretty-print-whitespaces...<br/>
+                In formatted text props, &lt;br/&gt; must be used for line breaks.
             </text>
         </formatted-text-prop>
         <uri-prop name=":hasUri">

@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 import unittest
 
 import pytest
@@ -12,9 +13,9 @@ class TestUpdateTextProp(unittest.TestCase):
     where text properties are represented by "UnformattedTextValue" and "FormattedTextValue".
     """
 
-    base_file = "testdata/update-text-prop/update-text-prop.json"
-    expected_file = "testdata/update-text-prop/update-text-prop-expected.json"
-    output_file = "testdata/update-text-prop/update-text-prop_updated.json"
+    base_file = Path("testdata/update-text-prop/update-text-prop.json")
+    expected_file = Path("testdata/update-text-prop/update-text-prop-expected.json")
+    output_file = Path("testdata/update-text-prop/update-text-prop_updated.json")
 
     def test_update_text_prop(self) -> None:
         """
@@ -28,6 +29,9 @@ class TestUpdateTextProp(unittest.TestCase):
         with open(self.expected_file, encoding="utf-8") as json_file:
             expected = json.load(json_file)
         self.assertDictEqual(updated, expected)
+
+        if self.output_file.exists():
+            self.output_file.unlink()
 
 
 if __name__ == "__main__":

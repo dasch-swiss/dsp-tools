@@ -335,3 +335,17 @@ See [here](./internal/fast-xmlupload.md) for more information.
 DaSCH-internal command to create the resources of an XML file
 after the processed multimedia files have been uploaded already.
 See [here](./internal/fast-xmlupload.md) for more information.
+
+
+
+## `update-text-props`
+
+Update the text properties of a JSON project definition file to the new format.
+Text properties were previously defined with `"object": "TextValue"` and a `gui_element`/`gui_attributes`.
+The new format has `(Un)formattedTextValue` as `object`, without any more attributes.
+
+This command takes an old JSON file and writes a new JSON file:
+
+```bash
+dsp-tools update-text-props old_project.json
+```

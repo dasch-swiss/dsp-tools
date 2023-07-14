@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, Union
 
 
 def _update_prop(prop: dict[str, Any]) -> dict[str, Any]:
@@ -67,7 +67,7 @@ def _write_file(
     print(f"wrote file to '{new_path}'")
 
 
-def update_text_properties(path: str) -> bool:
+def update_text_properties(path: Union[str, Path]) -> bool:
     """
     Given a path to a JSON project definition file,
     change the text properties to the new format:
@@ -81,11 +81,11 @@ def update_text_properties(path: str) -> bool:
     Returns:
         success status
     """
-    pth = Path(path)
-    with open(pth, "r", encoding="utf-8") as jsonFile:
+    path = Path(path)
+    with open(path, "r", encoding="utf-8") as jsonFile:
         project = json.load(jsonFile)
 
     project = _update_project(project=project)
-    _write_file(project=project, old_path=pth)
+    _write_file(project=project, old_path=path)
 
     return True

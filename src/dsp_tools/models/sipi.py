@@ -30,7 +30,8 @@ class Sipi:
                 "file": (os.path.basename(filepath), bitstream_file),
             }
             response = requests.post(
-                self.sipi_server + "/upload?token=" + self.token,
+                self.sipi_server + "/upload",
+                headers={"Authorization": "Bearer " + self.token},
                 files=files,
                 timeout=5 * 60,
             )

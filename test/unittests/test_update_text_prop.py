@@ -7,11 +7,19 @@ from dsp_tools.utils.update_text_props import update_text_properties
 
 
 class TestUpdateTextProp(unittest.TestCase):
+    """
+    Tests for the update script that migrates old JSON project definition files to the new format,
+    where text properties are represented by "UnformattedTextValue" and "FormattedTextValue".
+    """
+
     base_file = "testdata/update-text-prop/update-text-prop.json"
     expected_file = "testdata/update-text-prop/update-text-prop-expected.json"
     output_file = "testdata/update-text-prop/update-text-prop_updated.json"
 
     def test_update_text_prop(self) -> None:
+        """
+        test if the update script's output file matches the expected output file
+        """
         success = update_text_properties(self.base_file)
         self.assertTrue(success)
 

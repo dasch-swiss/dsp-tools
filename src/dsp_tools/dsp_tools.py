@@ -6,6 +6,8 @@ import datetime
 import sys
 from importlib.metadata import version
 
+import regex
+
 from dsp_tools.excel2xml import excel2xml
 from dsp_tools.fast_xmlupload.process_files import process_files
 from dsp_tools.fast_xmlupload.upload_files import upload_files
@@ -30,7 +32,11 @@ from dsp_tools.utils.xml_upload import xml_upload
 logger = get_logger(__name__)
 
 
-def make_parser() -> argparse.ArgumentParser:
+def _make_parser(
+    default_dsp_api_url: str,
+    root_user_email: str,
+    root_user_pw: str,
+) -> argparse.ArgumentParser:
     """
     Create a parser for the command line arguments
 
@@ -38,17 +44,10 @@ def make_parser() -> argparse.ArgumentParser:
         parser
     """
     # help texts
-    username_text = "username (e-mail) used for authentication with the DSP-API "
-    password_text = "password used for authentication with the DSP-API "
+    username_text = "username (e-mail) used for authentication with the DSP-API"
+    password_text = "password used for authentication with the DSP-API"
     dsp_server_text = "URL of the DSP server"
     verbose_text = "print more information about the progress to the console"
-    sipi_text = "URL of the Sipi server"
-
-    # default values
-    default_dsp_api_url = "http://0.0.0.0:3333"
-    default_user = "root@example.com"
-    default_pw = "test"
-    default_sipi = "http://0.0.0.0:1024"
 
     # make a parser
     parser = argparse.ArgumentParser(
@@ -66,8 +65,8 @@ def make_parser() -> argparse.ArgumentParser:
     )
     parser_create.set_defaults(action="create")
     parser_create.add_argument("-s", "--server", default=default_dsp_api_url, help=dsp_server_text)
-    parser_create.add_argument("-u", "--user", default=default_user, help=username_text)
-    parser_create.add_argument("-p", "--password", default=default_pw, help=password_text)
+    parser_create.add_argument("-u", "--user", default=root_user_email, help=username_text)
+    parser_create.add_argument("-p", "--password", default=root_user_pw, help=password_text)
     parser_create.add_argument(
         "-V",
         "--validate-only",
@@ -91,8 +90,8 @@ def make_parser() -> argparse.ArgumentParser:
     )
     parser_get.set_defaults(action="get")
     parser_get.add_argument("-s", "--server", default=default_dsp_api_url, help=dsp_server_text)
-    parser_get.add_argument("-u", "--user", default=default_user, help=username_text)
-    parser_get.add_argument("-p", "--password", default=default_pw, help=password_text)
+    parser_get.add_argument("-u", "--user", default=root_user_email, help=username_text)
+    parser_get.add_argument("-p", "--password", default=root_user_pw, help=password_text)
     parser_get.add_argument("-P", "--project", help="shortcode, shortname or IRI of the project", required=True)
     parser_get.add_argument("-v", "--verbose", action="store_true", help=verbose_text)
     parser_get.add_argument("project_definition", help="path to the file the project should be written to")
@@ -103,14 +102,8 @@ def make_parser() -> argparse.ArgumentParser:
     parser_upload.add_argument(
         "-s", "--server", default=default_dsp_api_url, help="URL of the DSP server where DSP-TOOLS sends the data to"
     )
-    parser_upload.add_argument("-u", "--user", default=default_user, help=username_text)
-    parser_upload.add_argument("-p", "--password", default=default_pw, help=password_text)
-    parser_upload.add_argument(
-        "-S",
-        "--sipi",
-        default=default_sipi,
-        help="URL of the SIPI server where DSP-TOOLS sends the multimedia files to",
-    )
+    parser_upload.add_argument("-u", "--user", default=root_user_email, help=username_text)
+    parser_upload.add_argument("-p", "--password", default=root_user_pw, help=password_text)
     parser_upload.add_argument(
         "-i", "--imgdir", default=".", help="folder from where the paths in the <bitstream> tags are evaluated"
     )
@@ -155,9 +148,8 @@ def make_parser() -> argparse.ArgumentParser:
     parser_upload_files.add_argument("-d", "--processed-dir", help="path to the directory with the processed files")
     parser_upload_files.add_argument("-n", "--nthreads", type=int, default=4, help="number of threads to use")
     parser_upload_files.add_argument("-s", "--server", default=default_dsp_api_url, help=dsp_server_text)
-    parser_upload_files.add_argument("-S", "--sipi-url", default=default_sipi, help=sipi_text)
-    parser_upload_files.add_argument("-u", "--user", default=default_user, help=username_text)
-    parser_upload_files.add_argument("-p", "--password", default=default_pw, help=password_text)
+    parser_upload_files.add_argument("-u", "--user", default=root_user_email, help=username_text)
+    parser_upload_files.add_argument("-p", "--password", default=root_user_pw, help=password_text)
 
     # fast-xmlupload
     parser_fast_xmlupload_files = subparsers.add_parser(
@@ -167,9 +159,8 @@ def make_parser() -> argparse.ArgumentParser:
     parser_fast_xmlupload_files.set_defaults(action="fast-xmlupload")
     parser_fast_xmlupload_files.add_argument("-f", "--pkl-file", help="path to pickle file written by 'process-files'")
     parser_fast_xmlupload_files.add_argument("-s", "--server", default=default_dsp_api_url, help=dsp_server_text)
-    parser_fast_xmlupload_files.add_argument("-S", "--sipi-url", default=default_sipi, help=sipi_text)
-    parser_fast_xmlupload_files.add_argument("-u", "--user", default=default_user, help=username_text)
-    parser_fast_xmlupload_files.add_argument("-p", "--password", default=default_pw, help=password_text)
+    parser_fast_xmlupload_files.add_argument("-u", "--user", default=root_user_email, help=username_text)
+    parser_fast_xmlupload_files.add_argument("-p", "--password", default=root_user_pw, help=password_text)
     parser_fast_xmlupload_files.add_argument("xml_file", help="path to XML file containing the data")
 
     # excel2json
@@ -273,6 +264,29 @@ def make_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _parse_arguments(
+    user_args: list[str],
+    parser: argparse.ArgumentParser,
+) -> argparse.Namespace:
+    """
+    Parse the user-provided CLI arguments.
+    If no action is provided,
+    print the help text and exit with error code 1.
+
+    Args:
+        user_args: user-provided CLI arguments
+        parser: parser used to parse the arguments
+
+    Returns:
+        parsed arguments
+    """
+    args = parser.parse_args(user_args)
+    if not hasattr(args, "action"):
+        parser.print_help(sys.stderr)
+        sys.exit(1)
+    return args
+
+
 def _log_cli_arguments(parsed_args: argparse.Namespace) -> None:
     """
     Log the CLI arguments passed by the user from the command line.
@@ -302,16 +316,62 @@ def _log_cli_arguments(parsed_args: argparse.Namespace) -> None:
     logger.info("*" * asterisk_count)
 
 
-def call_requested_action(
-    user_args: list[str],
-    parser: argparse.ArgumentParser,
-) -> bool:
+def _derive_sipi_url(
+    parsed_arguments: argparse.Namespace,
+    default_dsp_api_url: str,
+    default_sipi_url: str,
+) -> argparse.Namespace:
     """
-    With the help of the parser, parse the user arguments and call the appropriate method of DSP-TOOLS.
+    Modify the parsed arguments so that the DSP and SIPI URLs are correct.
+    Based on the DSP server URL passed by the user,
+    transform it to its canonical form,
+    and derive the SIPI URL from it.
+
+    If the DSP server URL points to port 3333 on localhost,
+    the SIPI URL will point to port 1024 on localhost.
+
+    If the DSP server URL points to a remote server ending in "dasch.swiss",
+    modify it (if necessary) to point to the "api" subdomain of that server,
+    and add a new "sipi_url" argument pointing to the "iiif" subdomain of that server.
 
     Args:
-        user_args: list of arguments passed by the user from the command line
-        parser: parser to parse the user arguments
+        parsed_arguments: CLI arguments passed by the user, parsed by argparse
+        default_dsp_api_url: default DSP server on localhost
+        default_sipi_url: default SIPI server on localhost
+
+    Raises:
+        UserError: if the DSP server URL passed by the user is invalid
+
+    Returns:
+        the modified arguments
+    """
+    if regex.search(r"(0\.0\.0\.0|localhost):3333", parsed_arguments.server):
+        parsed_arguments.server = default_dsp_api_url
+        parsed_arguments.sipi_url = default_sipi_url
+        return parsed_arguments
+
+    remote_url_regex = (
+        r"^(?:https?:\/\/)?"
+        r"(?:admin\.|api\.|iiif\.|app\.)?"
+        r"(test\.dasch|staging\.dasch|dev\.dasch|[0-9A-Fa-f]{4}-test-server\.dasch|dasch)"
+        r"\.swiss"
+    )
+    remote_url_match = regex.search(remote_url_regex, parsed_arguments.server)
+    if remote_url_match:
+        parsed_arguments.server = f"https://api.{remote_url_match.group(1)}.swiss"
+        parsed_arguments.sipi_url = f"https://iiif.{remote_url_match.group(1)}.swiss"
+        return parsed_arguments
+
+    logger.error(f"Invalid DSP server URL '{parsed_arguments.server}'")
+    raise UserError(f"ERROR: Invalid DSP server URL '{parsed_arguments.server}'")
+
+
+def _call_requested_action(args: argparse.Namespace) -> bool:
+    """
+    Call the appropriate method of DSP-TOOLS.
+
+    Args:
+        args: parsed CLI arguments
 
     Raises:
         BaseError from the called methods
@@ -321,13 +381,6 @@ def call_requested_action(
     Returns:
         success status
     """
-    args = parser.parse_args(user_args)
-    if not hasattr(args, "action"):
-        parser.print_help(sys.stderr)
-        sys.exit(1)
-
-    _log_cli_arguments(args)
-
     if args.action == "create":
         if args.lists_only:
             if args.validate_only:
@@ -373,7 +426,7 @@ def call_requested_action(
                 user=args.user,
                 password=args.password,
                 imgdir=args.imgdir,
-                sipi=args.sipi,
+                sipi=args.sipi_url,
                 verbose=args.verbose,
                 incremental=args.incremental,
                 save_metrics=args.metrics,
@@ -466,10 +519,32 @@ def call_requested_action(
 
 
 def main() -> None:
-    """Main entry point of the program as referenced in pyproject.toml"""
-    parser = make_parser()
+    """
+    Main entry point of the program as referenced in pyproject.toml
+    """
+    default_dsp_api_url = "http://0.0.0.0:3333"
+    default_sipi_url = "http://0.0.0.0:1024"
+    root_user_email = "root@example.com"
+    root_user_pw = "test"
+
+    parser = _make_parser(
+        default_dsp_api_url=default_dsp_api_url,
+        root_user_email=root_user_email,
+        root_user_pw=root_user_pw,
+    )
+    parsed_arguments = _parse_arguments(
+        user_args=sys.argv[1:],
+        parser=parser,
+    )
+    _log_cli_arguments(parsed_arguments)
+
     try:
-        success = call_requested_action(user_args=sys.argv[1:], parser=parser)
+        parsed_arguments = _derive_sipi_url(
+            parsed_arguments=parsed_arguments,
+            default_dsp_api_url=default_dsp_api_url,
+            default_sipi_url=default_sipi_url,
+        )
+        success = _call_requested_action(parsed_arguments)
     except UserError as err:
         print(err.message)
         sys.exit(1)

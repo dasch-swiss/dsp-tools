@@ -77,16 +77,16 @@ class TestCLI(unittest.TestCase):
             "https://iiif.082a-test-server.dasch.swiss",
         ],
         "admin.08F4-test-server.dasch.swiss": [
-            "https://api.08f4-test-server.dasch.swiss",
-            "https://iiif.08f4-test-server.dasch.swiss",
+            "https://api.08F4-test-server.dasch.swiss",
+            "https://iiif.08F4-test-server.dasch.swiss",
         ],
         "app.08F4-test-server.dasch.swiss": [
-            "https://api.08f4-test-server.dasch.swiss",
-            "https://iiif.08f4-test-server.dasch.swiss",
+            "https://api.08F4-test-server.dasch.swiss",
+            "https://iiif.08F4-test-server.dasch.swiss",
         ],
         "iiif.E5bC-test-server.dasch.swiss": [
-            "https://api.e5bc-test-server.dasch.swiss",
-            "https://iiif.e5bc-test-server.dasch.swiss",
+            "https://api.E5bC-test-server.dasch.swiss",
+            "https://iiif.E5bC-test-server.dasch.swiss",
         ],
     }
 

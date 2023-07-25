@@ -136,6 +136,8 @@ class ResourceInstance(Model):
         self._values = {}
         if values:
             for property_name, property_info in self.properties.items():
+                # self.properties is probably created in ResourceInstanceFactory.get_resclass_type()
+                # so it would be the list of properties as defined in the ontology for this resourceclass
                 cardinality = property_info.cardinality
                 value_type = property_info.valtype
                 value = values.get(property_name)

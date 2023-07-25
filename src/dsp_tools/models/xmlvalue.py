@@ -22,7 +22,7 @@ class XMLValue:
         self._resrefs = None
         self._comment = node.get("comment")
         self._permissions = node.get("permissions")
-        if node.tag == "text":
+        if val_type == "formatted-text":  # "unformatted-text" is handled by the else branch
             node.attrib.clear()
             xmlstr = etree.tostring(node, encoding="unicode", method="xml")
             xmlstr = xmlstr.replace('<text xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">', "")

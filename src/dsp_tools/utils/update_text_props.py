@@ -1,7 +1,9 @@
 import json
-import regex
+
 from pathlib import Path
 from typing import Any, Union
+
+import regex
 
 
 def _update_prop(prop: dict[str, Any]) -> dict[str, Any]:

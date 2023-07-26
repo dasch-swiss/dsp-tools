@@ -348,6 +348,8 @@ def _derive_sipi_url(
     if regex.search(r"(0\.0\.0\.0|localhost):3333", parsed_arguments.server):
         parsed_arguments.server = default_dsp_api_url
         parsed_arguments.sipi_url = default_sipi_url
+        logger.info(f"Using DSP server '{parsed_arguments.server}' and SIPI server '{parsed_arguments.sipi_url}'")
+        print(f"Using DSP server '{parsed_arguments.server}' and SIPI server '{parsed_arguments.sipi_url}'")
         return parsed_arguments
 
     remote_url_regex = r"^(?:https?:\/\/)?(?:admin\.|api\.|iiif\.|app\.)?((?:.+\.)?dasch)\.swiss"
@@ -356,6 +358,8 @@ def _derive_sipi_url(
     if remote_url_match:
         parsed_arguments.server = f"https://api.{remote_url_match.group(1)}.swiss"
         parsed_arguments.sipi_url = f"https://iiif.{remote_url_match.group(1)}.swiss"
+        logger.info(f"Using DSP server '{parsed_arguments.server}' and SIPI server '{parsed_arguments.sipi_url}'")
+        print(f"Using DSP server '{parsed_arguments.server}' and SIPI server '{parsed_arguments.sipi_url}'")
         return parsed_arguments
 
     logger.error(f"Invalid DSP server URL '{parsed_arguments.server}'")

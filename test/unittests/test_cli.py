@@ -5,8 +5,7 @@ import unittest
 
 import pytest
 
-from dsp_tools.dsp_tools import _derive_sipi_url, _make_parser, _parse_arguments
-
+from dsp_tools.dsp_tools import _derive_sipi_url
 from dsp_tools.models.exceptions import UserError
 
 
@@ -19,16 +18,13 @@ class TestCLI(unittest.TestCase):
     default_sipi_url = "http://0.0.0.0:1024"
     root_user_email = "root@example.com"
     root_user_pw = "test"
-    parser: argparse.ArgumentParser
     positive_testcases: dict[str, list[str]]
 
     @classmethod
     def setUpClass(cls) -> None:
-        cls.parser = _make_parser(
-            default_dsp_api_url=cls.default_dsp_api_url,
-            root_user_email=cls.root_user_email,
-            root_user_pw=cls.root_user_pw,
-        )
+        """
+        Is executed once before the methods of this class are run
+        """
         cls.positive_testcases = {
             "https://0.0.0.0:3333/": [
                 cls.default_dsp_api_url,
@@ -116,42 +112,42 @@ class TestCLI(unittest.TestCase):
             ],
         }
 
-    def test_derive_sipi_url_positive_cases(self) -> None:
+    def test_derive_sipi_url(self) -> None:
         """
-        Test the method that derives the SIPI URL from the DSP API URL (positive test cases only)
+        Test the method that derives the SIPI URL from the DSP API URL
         """
         for api_url_orig, expected in self.positive_testcases.items():
             api_url_canonical, sipi_url = expected
-            user_args = ["xmlupload", "-s", api_url_orig, "-u", "some.user@dasch.swiss", "-p", "password", "data.xml"]
-            args = _parse_arguments(
-                user_args=user_args,
-                parser=self.parser,
+            args_orig = argparse.Namespace(
+                action="xmlupload",
+                server=api_url_orig,
+                user="some.user@dasch.swiss",
+                password="password",
+                xmlfile="data.xml",
             )
-            args = _derive_sipi_url(
-                parsed_arguments=args,
+            args_new = _derive_sipi_url(
+                parsed_arguments=args_orig,
                 default_dsp_api_url=self.default_dsp_api_url,
                 default_sipi_url=self.default_sipi_url,
             )
-            self.assertEqual(args.server, api_url_canonical)
-            self.assertEqual(args.sipi_url, sipi_url)
+            self.assertEqual(args_new.server, api_url_canonical)
+            self.assertEqual(args_new.sipi_url, sipi_url)  # pylint: disable=no-member
 
-    def test_derive_sipi_url_negative_cases(self) -> None:
-        """
-        Test the method that derives the SIPI URL from the DSP API URL (negative test cases only)
-        """
         invalid_inputs = [
             "https://0.0.0.0:1234",
             "https://api.unkown-host.ch",
         ]
         for inv in invalid_inputs:
-            user_args = ["xmlupload", "-s", inv, "-u", "some.user@dasch.swiss", "-p", "password", "data.xml"]
-            args = _parse_arguments(
-                user_args=user_args,
-                parser=self.parser,
+            args_orig = argparse.Namespace(
+                action="xmlupload",
+                server=inv,
+                user="some.user@dasch.swiss",
+                password="password",
+                xmlfile="data.xml",
             )
             with self.assertRaisesRegex(UserError, r"Invalid DSP server URL"):
-                args = _derive_sipi_url(
-                    parsed_arguments=args,
+                _ = _derive_sipi_url(
+                    parsed_arguments=args_orig,
                     default_dsp_api_url=self.default_dsp_api_url,
                     default_sipi_url=self.default_sipi_url,
                 )

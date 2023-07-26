@@ -345,6 +345,9 @@ def _derive_sipi_url(
     Returns:
         the modified arguments
     """
+    if not hasattr(parsed_arguments, "server"):
+        return parsed_arguments
+
     if regex.search(r"(0\.0\.0\.0|localhost):3333", parsed_arguments.server):
         parsed_arguments.server = default_dsp_api_url
         parsed_arguments.sipi_url = default_sipi_url

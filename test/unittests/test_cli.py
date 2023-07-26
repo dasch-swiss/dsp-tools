@@ -68,9 +68,17 @@ class TestCLI(unittest.TestCase):
             "https://api.staging.dasch.swiss",
             "https://iiif.staging.dasch.swiss",
         ],
+        "https://demo.dasch.swiss/": [
+            "https://api.demo.dasch.swiss",
+            "https://iiif.demo.dasch.swiss",
+        ],
         "http://api.dev.dasch.swiss/": [
             "https://api.dev.dasch.swiss",
             "https://iiif.dev.dasch.swiss",
+        ],
+        "dev-02.dasch.swiss": [
+            "https://api.dev-02.dasch.swiss",
+            "https://iiif.dev-02.dasch.swiss",
         ],
         "082a-test-server.dasch.swiss": [
             "https://api.082a-test-server.dasch.swiss",
@@ -87,6 +95,18 @@ class TestCLI(unittest.TestCase):
         "iiif.E5bC-test-server.dasch.swiss": [
             "https://api.E5bC-test-server.dasch.swiss",
             "https://iiif.E5bC-test-server.dasch.swiss",
+        ],
+        "not-yet-0826-test-server.dasch.swiss": [
+            "https://api.not-yet-0826-test-server.dasch.swiss",
+            "https://iiif.not-yet-0826-test-server.dasch.swiss",
+        ],
+        "https://admin.ls-prod-server.dasch.swiss": [
+            "https://api.ls-prod-server.dasch.swiss",
+            "https://iiif.ls-prod-server.dasch.swiss",
+        ],
+        "https://ls-test-server.dasch.swiss": [
+            "https://api.ls-test-server.dasch.swiss",
+            "https://iiif.ls-test-server.dasch.swiss",
         ],
     }
 
@@ -115,7 +135,6 @@ class TestCLI(unittest.TestCase):
         """
         invalid_inputs = [
             "https://0.0.0.0:1234",
-            "https://invalid.dasch.swiss",
             "https://api.unkown-host.ch",
         ]
         for inv in invalid_inputs:

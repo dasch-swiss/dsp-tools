@@ -350,12 +350,8 @@ def _derive_sipi_url(
         parsed_arguments.sipi_url = default_sipi_url
         return parsed_arguments
 
-    remote_url_regex = (
-        r"^(?:https?:\/\/)?"
-        r"(?:admin\.|api\.|iiif\.|app\.)?"
-        r"(test\.dasch|staging\.dasch|dev\.dasch|[0-9A-Fa-f]{4}-test-server\.dasch|dasch)"
-        r"\.swiss"
-    )
+    remote_url_regex = r"^(?:https?:\/\/)?(?:admin\.|api\.|iiif\.|app\.)?((?:.+\.)?dasch)\.swiss"
+
     remote_url_match = regex.search(remote_url_regex, parsed_arguments.server)
     if remote_url_match:
         parsed_arguments.server = f"https://api.{remote_url_match.group(1)}.swiss"

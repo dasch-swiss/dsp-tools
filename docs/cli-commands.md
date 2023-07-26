@@ -9,17 +9,38 @@ Most of the commands documented on this page
 assume that you know how to address the subdomains of a DSP server.
 There are three relevant URLs you should know about:
 
-- Subdomain `admin` stands for the DSP-APP frontend that you look at in your browser
+- Subdomains `admin`/`app` stand for the DSP-APP frontend that you look at in your browser
 - Subdomain `api` stands for the DSP-API (where DSP-TOOLS sends its data to) 
 - Subdomain `iiif` stands for the SIPI server interface (where DSP-TOOLS sends the multimedia files to)
 
-This means that for uploading data to a DSP server 
+This means that for uploading data to the DSP server 
 on the domain `dasch.swiss`, 
 you have to type the following:
 
 ```bash
-dsp-tools xmlupload -s https://api.dasch.swiss -u root@example.com -p 'test' -S https://iiif.dasch.swiss xml_data_file.xml
+dsp-tools xmlupload -s https://api.dasch.swiss -u 'your@email.com' -p 'password' xml_data_file.xml
 ```
+
+If the user input is not correct,
+DSP-TOOLS tries to guess the correct subdomains.
+If the provided server is any one of the following:
+
+```text
+http(s)://admin.dasch.swiss
+http(s)://app.dasch.swiss
+http(s)://api.dasch.swiss
+http(s)://iiif.dasch.swiss
+http(s)://dasch.swiss
+dasch.swiss
+```
+
+DSP-TOOLS will treat it as `https://api.dasch.swiss`,
+and derive the SIPI server URL `https://iiif.dasch.swiss` from it.
+
+This guessing feature comes with a price, though:
+
+- Only servers ending with `dasch.swiss` are supported.
+- If a server's configuration differs from the convention described above, DSP-TOOLS will fail.
 
 
 
@@ -55,7 +76,7 @@ on the DSP server `https://admin.dasch.swiss`,
 it is necessary to specify the following options:
 
 ```bash
-dsp-tools create -s https://api.dasch.swiss -u root@example.com -p 'test' project_definition.json
+dsp-tools create -s https://api.dasch.swiss -u 'your@email.com' -p 'password' project_definition.json
 ```
 
 The expected JSON format is [documented here](./file-formats/json-project/overview.md).
@@ -81,11 +102,19 @@ The following options are available:
 - `-P` | `--project` (mandatory): shortcode, shortname or IRI of the project 
 - `-v` | `--verbose` (optional): print more information about the progress to the console
 
-The following example shows 
-how to get a project from the DSP server `https://admin.dasch.swiss`:
+The defaults are intended for local testing: 
 
 ```bash
-dsp-tools get -s https://api.dasch.swiss -u root@example.com -p 'test' -P my_project project_definition.json
+dsp-tools get -P my_project project_definition.json
+```
+
+will get `my_project` from `localhost`.
+
+In order to get a project from the DSP server `https://admin.dasch.swiss`,
+it is necessary to specify the following options:
+
+```bash
+dsp-tools get -s https://api.dasch.swiss -u 'your@email.com' -p 'password' -P my_project project_definition.json
 ```
 
 The expected JSON format is [documented here](./file-formats/json-project/overview.md).
@@ -105,8 +134,6 @@ The following options are available:
 - `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server where DSP-TOOLS sends the data to
 - `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API 
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
-- `-S` | `--sipi` (optional, default: `http://0.0.0.0:1024`): 
-                  URL of the SIPI server where DSP-TOOLS sends the multimedia files to 
 - `-i` | `--imgdir` (optional, default: `.`): folder from where the paths in the `<bitstream>` tags are evaluated
 - `-I` | `--incremental` (optional) : The links in the XML file point to IRIs (on the server) 
                                     instead of IDs (in the same XML file).
@@ -132,7 +159,7 @@ to the DSP server `https://admin.dasch.swiss`,
 it is necessary to specify the following options:
 
 ```bash
-dsp-tools xmlupload -s https://api.dasch.swiss -u root@example.com -p 'test' -S https://iiif.dasch.swiss xml_data_file.xml
+dsp-tools xmlupload -s https://api.dasch.swiss -u 'your@email.com' -p 'password' xml_data_file.xml
 ```
 
 The expected XML format is [documented here](./file-formats/xml-data-file.md).

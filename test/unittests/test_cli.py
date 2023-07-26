@@ -22,25 +22,25 @@ class TestCLI(unittest.TestCase):
     parser: argparse.ArgumentParser
     positive_testcases: dict[str, list[str]]
 
-    def __init__(self) -> None:
-        super().__init__()
-        self.parser = _make_parser(
-            default_dsp_api_url=self.default_dsp_api_url,
-            root_user_email=self.root_user_email,
-            root_user_pw=self.root_user_pw,
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.parser = _make_parser(
+            default_dsp_api_url=cls.default_dsp_api_url,
+            root_user_email=cls.root_user_email,
+            root_user_pw=cls.root_user_pw,
         )
-        self.positive_testcases = {
+        cls.positive_testcases = {
             "https://0.0.0.0:3333/": [
-                self.default_dsp_api_url,
-                self.default_sipi_url,
+                cls.default_dsp_api_url,
+                cls.default_sipi_url,
             ],
             "0.0.0.0:3333": [
-                self.default_dsp_api_url,
-                self.default_sipi_url,
+                cls.default_dsp_api_url,
+                cls.default_sipi_url,
             ],
             "localhost:3333": [
-                self.default_dsp_api_url,
-                self.default_sipi_url,
+                cls.default_dsp_api_url,
+                cls.default_sipi_url,
             ],
             "https://admin.dasch.swiss": [
                 "https://api.dasch.swiss",

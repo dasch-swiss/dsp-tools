@@ -149,7 +149,7 @@ class StackHandler:
         )
         if not completed_process or completed_process.returncode != 0:
             msg = "Cannot start the API: Error while executing 'docker compose up db -d'"
-            logger.error(f"{msg}. completed_process = '{completed_process}'")
+            logger.error(f"{msg}. completed_process = '{vars(completed_process)}'")
             raise UserError(msg)
 
     def _wait_for_fuseki(self) -> None:
@@ -190,7 +190,7 @@ class StackHandler:
                 "Cannot start DSP-API: Error when creating the 'knora-test' repository. "
                 "Is DSP-API perhaps running already?"
             )
-            logger.error(f"{msg}. response = {response}")
+            logger.error(f"{msg}. response = {vars(response)}")
             raise UserError(msg)
 
     def _load_data_into_repo(self) -> None:
@@ -217,10 +217,9 @@ class StackHandler:
         for ttl_file, graph in ttl_files:
             ttl_text_response = requests.get(self.__url_prefix + ttl_file, timeout=10)
             if not ttl_text_response.ok:
-                logger.error(
-                    f"Cannot start DSP-API: Error when retrieving '{self.__url_prefix + ttl_file}'. response = {ttl_text_response}"
-                )
-                raise UserError(f"Cannot start DSP-API: Error when retrieving '{self.__url_prefix + ttl_file}'")
+                msg = f"Cannot start DSP-API: Error when retrieving '{self.__url_prefix + ttl_file}'"
+                logger.error(f"{msg}'. response = {vars(ttl_text_response)}")
+                raise UserError(msg)
             ttl_text = ttl_text_response.text
             response = requests.post(
                 url=graph_prefix + graph,
@@ -229,7 +228,7 @@ class StackHandler:
                 timeout=10,
             )
             if not response.ok:
-                logger.error(f"Cannot start DSP-API: Error when creating graph '{graph}'. response = {response}")
+                logger.error(f"Cannot start DSP-API: Error when creating graph '{graph}'. response = {vars(response)}")
                 raise UserError(f"Cannot start DSP-API: Error when creating graph '{graph}'")
 
     def _initialize_fuseki(self) -> None:

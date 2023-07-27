@@ -131,7 +131,7 @@ def _upload_without_processing(
         # This error can be safely ignored, since the file was uploaded correctly.
         logger.info(f"In spite of 'server.fs.mkdir() failed: File exists', successfully uploaded file {file}")
     elif response_upload.status_code != 200:
-        err_msg = f"An error occurred while uploading the file {file}. The response was {response_upload.json()}"
+        err_msg = f"An error occurred while uploading the file {file}. The response was {vars(response_upload)}"
         print(f"{datetime.now()}: ERROR: {err_msg}")
         logger.error(err_msg)
         return False

@@ -316,13 +316,12 @@ def _log_cli_arguments(parsed_args: argparse.Namespace) -> None:
     logger.info("*" * asterisk_count)
 
 
-def _derive_sipi_url(
-    parsed_arguments: argparse.Namespace,
+def _get_canonical_server_and_sipi_url(
+    server: str,
     default_dsp_api_url: str,
     default_sipi_url: str,
-) -> argparse.Namespace:
+) -> tuple[str, str]:
     """
-    Modify the parsed arguments so that the DSP and SIPI URLs are correct.
     Based on the DSP server URL passed by the user,
     transform it to its canonical form,
     and derive the SIPI URL from it.
@@ -333,6 +332,47 @@ def _derive_sipi_url(
     If the DSP server URL points to a remote server ending in "dasch.swiss",
     modify it (if necessary) to point to the "api" subdomain of that server,
     and add a new "sipi_url" argument pointing to the "iiif" subdomain of that server.
+
+    Args:
+        server: DSP server URL passed by the user
+        default_dsp_api_url: default DSP server on localhost
+        default_sipi_url: default SIPI server on localhost
+
+    Raises:
+        UserError: if the DSP server URL passed by the user is invalid
+
+    Returns:
+        canonical DSP URL and SIPI URL
+    """
+    localhost_match = regex.search(r"(0\.0\.0\.0|localhost):3333", server)
+    remote_url_match = regex.search(r"^(?:https?:\/\/)?(?:admin\.|api\.|iiif\.|app\.)?((?:.+\.)?dasch)\.swiss", server)
+
+    if localhost_match:
+        server = default_dsp_api_url
+        sipi_url = default_sipi_url
+    elif remote_url_match:
+        server = f"https://api.{remote_url_match.group(1)}.swiss"
+        sipi_url = f"https://iiif.{remote_url_match.group(1)}.swiss"
+    else:
+        logger.error(f"Invalid DSP server URL '{server}'")
+        raise UserError(f"ERROR: Invalid DSP server URL '{server}'")
+
+    logger.info(f"Using DSP server '{server}' and SIPI server '{sipi_url}'")
+    print(f"Using DSP server '{server}' and SIPI server '{sipi_url}'")
+
+    return server, sipi_url
+
+
+def _derive_sipi_url(
+    parsed_arguments: argparse.Namespace,
+    default_dsp_api_url: str,
+    default_sipi_url: str,
+) -> argparse.Namespace:
+    """
+    Modify the parsed arguments so that the DSP and SIPI URLs are correct.
+    Based on the DSP server URL passed by the user,
+    transform it to its canonical form,
+    and derive the SIPI URL from it.
 
     Args:
         parsed_arguments: CLI arguments passed by the user, parsed by argparse
@@ -349,24 +389,14 @@ def _derive_sipi_url(
         # some CLI actions (like excel2json, excel2xml, start-stack, ...) don't have a server at all
         return parsed_arguments
 
-    localhost_match = regex.search(r"(0\.0\.0\.0|localhost):3333", parsed_arguments.server)
-    remote_url_match = regex.search(
-        r"^(?:https?:\/\/)?(?:admin\.|api\.|iiif\.|app\.)?((?:.+\.)?dasch)\.swiss",
-        parsed_arguments.server,
+    server, sipi_url = _get_canonical_server_and_sipi_url(
+        server=parsed_arguments.server,
+        default_dsp_api_url=default_dsp_api_url,
+        default_sipi_url=default_sipi_url,
     )
+    parsed_arguments.server = server
+    parsed_arguments.sipi_url = sipi_url
 
-    if localhost_match:
-        parsed_arguments.server = default_dsp_api_url
-        parsed_arguments.sipi_url = default_sipi_url
-    elif remote_url_match:
-        parsed_arguments.server = f"https://api.{remote_url_match.group(1)}.swiss"
-        parsed_arguments.sipi_url = f"https://iiif.{remote_url_match.group(1)}.swiss"
-    else:
-        logger.error(f"Invalid DSP server URL '{parsed_arguments.server}'")
-        raise UserError(f"ERROR: Invalid DSP server URL '{parsed_arguments.server}'")
-
-    logger.info(f"Using DSP server '{parsed_arguments.server}' and SIPI server '{parsed_arguments.sipi_url}'")
-    print(f"Using DSP server '{parsed_arguments.server}' and SIPI server '{parsed_arguments.sipi_url}'")
     return parsed_arguments
 
 

@@ -5,7 +5,7 @@ import unittest
 
 import pytest
 
-from dsp_tools.dsp_tools import _derive_sipi_url
+from dsp_tools.dsp_tools import _derive_sipi_url, _get_canonical_server_and_sipi_url
 from dsp_tools.models.exceptions import UserError
 
 
@@ -118,38 +118,68 @@ class TestCLI(unittest.TestCase):
             "https://api.unkown-host.ch",
         ]
 
-    def test_derive_sipi_url(self) -> None:
+    def test_derive_sipi_url_without_server(self) -> None:
         """
-        Test the method that derives the SIPI URL from the DSP API URL
+        If the argparse.Namespace does not contain a server,
+        the function should return the same object.
+        """
+        args_without_server = argparse.Namespace(
+            action="xmlupload",
+            xmlfile="data.xml",
+        )
+        args_returned = _derive_sipi_url(
+            parsed_arguments=args_without_server,
+            default_dsp_api_url=self.default_dsp_api_url,
+            default_sipi_url=self.default_sipi_url,
+        )
+        self.assertEqual(args_without_server, args_returned)
+
+    def test_derive_sipi_url_with_server(self) -> None:
+        """
+        If the argparse.Namespace contains a server,
+        the function should return a modified argparse.Namespace,
+        with the correct DSP URL and SIPI URL.
+        """
+        args_with_server = argparse.Namespace(
+            action="xmlupload",
+            server="dasch.swiss",
+            user="some.user@dasch.swiss",
+            password="password",
+            xmlfile="data.xml",
+        )
+        args_returned = _derive_sipi_url(
+            parsed_arguments=args_with_server,
+            default_dsp_api_url=self.default_dsp_api_url,
+            default_sipi_url=self.default_sipi_url,
+        )
+        args_expected = argparse.Namespace(
+            action="xmlupload",
+            server="https://api.dasch.swiss",
+            sipi_url="https://iiif.dasch.swiss",
+            user="some.user@dasch.swiss",
+            password="password",
+            xmlfile="data.xml",
+        )
+        self.assertEqual(args_expected, args_returned)
+
+    def test_get_canonical_server_and_sipi_url(self) -> None:
+        """
+        Test the method that canonicalizes the DSP URL and derives the SIPI URL from it.
         """
         for api_url_orig, expected in self.positive_testcases.items():
-            api_url_canonical, sipi_url = expected
-            args_orig = argparse.Namespace(
-                action="xmlupload",
+            api_url_expected, sipi_url_expected = expected
+            api_url_returned, sipi_url_returned = _get_canonical_server_and_sipi_url(
                 server=api_url_orig,
-                user="some.user@dasch.swiss",
-                password="password",
-                xmlfile="data.xml",
-            )
-            args_new = _derive_sipi_url(
-                parsed_arguments=args_orig,
                 default_dsp_api_url=self.default_dsp_api_url,
                 default_sipi_url=self.default_sipi_url,
             )
-            self.assertEqual(args_new.server, api_url_canonical)
-            self.assertEqual(args_new.sipi_url, sipi_url)  # pylint: disable=no-member
+            self.assertEqual(api_url_expected, api_url_returned)
+            self.assertEqual(sipi_url_expected, sipi_url_returned)
 
         for invalid in self.negative_testcases:
-            args_orig = argparse.Namespace(
-                action="xmlupload",
-                server=invalid,
-                user="some.user@dasch.swiss",
-                password="password",
-                xmlfile="data.xml",
-            )
             with self.assertRaisesRegex(UserError, r"Invalid DSP server URL"):
-                _ = _derive_sipi_url(
-                    parsed_arguments=args_orig,
+                _ = _get_canonical_server_and_sipi_url(
+                    server=invalid,
                     default_dsp_api_url=self.default_dsp_api_url,
                     default_sipi_url=self.default_sipi_url,
                 )

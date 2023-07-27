@@ -82,16 +82,17 @@ class StackHandler:
         if self.__stack_configuration.latest_dev_version:
             return f"{url_prefix_base}/main/"
 
-        config_file = Path("src/dsp_tools/resources/start-stack/start-stack-config.yml")
+        config_file = importlib.resources.files("dsp_tools").joinpath("resources/start-stack/start-stack-config.yml")
         if not config_file.is_file():
             return f"{url_prefix_base}/main/"
 
-        with open("src/dsp_tools/resources/start-stack/start-stack-config.yml", "r", encoding="utf-8") as f:
+        with config_file.open("r", encoding="utf-8") as f:
             try:
                 start_stack_config = yaml.safe_load(f)
             except yaml.YAMLError:
                 start_stack_config = {}
         commit_of_used_api_version = start_stack_config.get("DSP-API commit", "main")
+
         return f"{url_prefix_base}/{commit_of_used_api_version}/"
 
     def _copy_resources_to_home_dir(self) -> None:
@@ -208,13 +209,19 @@ class StackHandler:
             ("knora-ontologies/standoff-onto.ttl", "http://www.knora.org/ontology/standoff"),
             ("knora-ontologies/standoff-data.ttl", "http://www.knora.org/data/standoff"),
             ("knora-ontologies/salsah-gui.ttl", "http://www.knora.org/ontology/salsah-gui"),
-            ("test_data/all_data/admin-data.ttl", "http://www.knora.org/data/admin"),
-            ("test_data/all_data/permissions-data.ttl", "http://www.knora.org/data/permissions"),
-            ("test_data/ontologies/anything-onto.ttl", "http://www.knora.org/ontology/0001/anything"),
-            ("test_data/all_data/anything-data.ttl", "http://www.knora.org/data/0001/anything"),
+            ("test_data/project_data/admin-data.ttl", "http://www.knora.org/data/admin"),
+            ("test_data/project_data/permissions-data.ttl", "http://www.knora.org/data/permissions"),
+            ("test_data/project_ontologies/anything-onto.ttl", "http://www.knora.org/ontology/0001/anything"),
+            ("test_data/project_data/anything-data.ttl", "http://www.knora.org/data/0001/anything"),
         ]
         for ttl_file, graph in ttl_files:
-            ttl_text = requests.get(self.__url_prefix + ttl_file, timeout=10).text
+            ttl_text_response = requests.get(self.__url_prefix + ttl_file, timeout=10)
+            if not ttl_text_response.ok:
+                logger.error(
+                    f"Cannot start DSP-API: Error when retrieving '{self.__url_prefix + ttl_file}'. response = {ttl_text_response}"
+                )
+                raise UserError(f"Cannot start DSP-API: Error when retrieving '{self.__url_prefix + ttl_file}'")
+            ttl_text = ttl_text_response.text
             response = requests.post(
                 url=graph_prefix + graph,
                 files={"file": ("file.ttl", ttl_text, "text/turtle; charset: utf-8")},

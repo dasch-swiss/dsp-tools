@@ -19,11 +19,13 @@ class TestCLI(unittest.TestCase):
     root_user_email = "root@example.com"
     root_user_pw = "test"
     positive_testcases: dict[str, list[str]]
+    negative_testcases: list[str]
 
     @classmethod
     def setUpClass(cls) -> None:
         """
-        Is executed once before the methods of this class are run
+        Populate the positive testcases and the negative testcases.
+        Is executed once before the methods of this class are run.
         """
         cls.positive_testcases = {
             "https://0.0.0.0:3333/": [
@@ -111,6 +113,10 @@ class TestCLI(unittest.TestCase):
                 "https://iiif.ls-test-server.dasch.swiss",
             ],
         }
+        cls.negative_testcases = [
+            "https://0.0.0.0:1234",
+            "https://api.unkown-host.ch",
+        ]
 
     def test_derive_sipi_url(self) -> None:
         """
@@ -133,14 +139,10 @@ class TestCLI(unittest.TestCase):
             self.assertEqual(args_new.server, api_url_canonical)
             self.assertEqual(args_new.sipi_url, sipi_url)  # pylint: disable=no-member
 
-        invalid_inputs = [
-            "https://0.0.0.0:1234",
-            "https://api.unkown-host.ch",
-        ]
-        for inv in invalid_inputs:
+        for invalid in self.negative_testcases:
             args_orig = argparse.Namespace(
                 action="xmlupload",
-                server=inv,
+                server=invalid,
                 user="some.user@dasch.swiss",
                 password="password",
                 xmlfile="data.xml",

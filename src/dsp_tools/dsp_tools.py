@@ -346,6 +346,7 @@ def _derive_sipi_url(
         the modified arguments
     """
     if not hasattr(parsed_arguments, "server"):
+        # some CLI actions (like excel2json, excel2xml, start-stack, ...) don't have a server at all
         return parsed_arguments
 
     localhost_match = regex.search(r"(0\.0\.0\.0|localhost):3333", parsed_arguments.server)

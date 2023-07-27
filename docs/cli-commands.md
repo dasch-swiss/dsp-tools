@@ -34,7 +34,7 @@ http(s)://dasch.swiss
 dasch.swiss
 ```
 
-DSP-TOOLS will treat it as `https://api.dasch.swiss`,
+then DSP-TOOLS will treat it as `https://api.dasch.swiss`,
 and derive the SIPI server URL `https://iiif.dasch.swiss` from it.
 
 This guessing feature comes with a price, though:

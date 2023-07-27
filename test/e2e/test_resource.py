@@ -19,6 +19,9 @@ class TestResource(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
+        """
+        Is executed once before the methods of this class are run
+        """
         cls.con.login("root@example.com", "test")
 
     @classmethod

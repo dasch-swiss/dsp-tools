@@ -14,7 +14,7 @@ class TestGroup(unittest.TestCase):  # pylint: disable=missing-class-docstring
 
     def setUp(self) -> None:
         """
-        is executed before all tests; sets up a connection and logs in as user root
+        is executed before each test method; sets up a connection and logs in as user root
         """
         self.con = Connection("http://0.0.0.0:3333")
         self.con.login("root@example.com", "test")

@@ -21,7 +21,7 @@ from dsp_tools.utils import excel_to_json_lists as e2l
 class TestExcelToJSONList(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        """Is executed before the methods of this class are run"""
+        """Is executed once before the methods of this class are run"""
         os.makedirs("testdata/tmp", exist_ok=True)
 
     @classmethod

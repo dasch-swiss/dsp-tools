@@ -50,7 +50,12 @@ class StackHandler:
     __docker_path_of_user: Path
 
     def __init__(self, stack_configuration: StackConfiguration) -> None:
-        """Initialize a StackHandler with a StackConfiguration"""
+        """
+        Initialize a StackHandler with a StackConfiguration
+
+        Args:
+            stack_configuration: configuration information for the StackHandler
+        """
         self.__stack_configuration = stack_configuration
         self.__url_prefix = self._get_url_prefix()
         self.__docker_path_of_user = Path.home() / Path(".dsp-tools/start-stack")

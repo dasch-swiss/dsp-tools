@@ -40,7 +40,7 @@ def login(
     Raises:
         UserError if the login fails permanently
 
-    Return:
+    Returns:
         Connection instance
     """
     con = Connection(server)

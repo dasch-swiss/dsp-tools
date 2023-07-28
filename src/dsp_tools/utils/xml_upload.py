@@ -146,8 +146,8 @@ def _remove_circular_references(
     dict[XMLResource, dict[XMLProperty, list[str]]],
 ]:
     """
-    Temporarily removes problematic resource-references from a list of resources. A reference is problematic if
-    it creates a circle (circular references).
+    Temporarily removes problematic resource-references from a list of resources.
+    A reference is problematic if it creates a circle (circular references).
 
     Args:
         resources: list of resources that possibly contain circular references
@@ -230,8 +230,21 @@ def _stash_circular_references(
     dict[XMLResource, dict[XMLProperty, list[str]]],
 ]:
     """
+    If circular references have been identified,
+    this function stashes the problematic references and removes them from the resources.
+
+    Args:
+        nok_resources: blah
+        ok_res_ids: blah
+        ok_resources: blah
+        stashed_xml_texts: blah
+        stashed_resptr_props: blah
+
     Raises:
         BaseError
+
+    Returns:
+        tuple of 5 lists
     """
     for res in nok_resources.copy():
         for link_prop in res.get_props_with_links():
@@ -279,17 +292,20 @@ def _stash_circular_references(
 
 def _convert_ark_v0_to_resource_iri(ark: str) -> str:
     """
-    Converts an ARK URL from salsah.org (ARK version 0) of the form ark:/72163/080c-779b9990a0c3f-6e to a DSP resource
-    IRI of the form http://rdfh.ch/080C/Ef9heHjPWDS7dMR_gGax2Q
+    Converts an ARK URL from salsah.org (ARK version 0) of the form ark:/72163/080c-779b9990a0c3f-6e
+    to a DSP resource IRI of the form http://rdfh.ch/080C/Ef9heHjPWDS7dMR_gGax2Q
 
-    This method is needed for the migration of projects from salsah.org to DSP. Resources need to be created with an
-    existing ARK, so the IRI needs to be extracted from that ARK in order for the ARK URL to be still valid after the
-    migration.
+    This method is needed for the migration of projects from salsah.org to DSP.
+    Resources need to be created with an existing ARK,
+    so the IRI needs to be extracted from that ARK
+    in order for the ARK URL to be still valid after the migration.
 
     Args:
-        ark: an ARK version 0 of the form ark:/72163/080c-779b9990a0c3f-6e, '72163' being the Name Assigning Authority
-        number, '080c' being the project shortcode, '779b9990a0c3f' being an ID derived from the object's Salsah ID and
-        '6e' being check digits
+        ark: an ARK version 0 of the form ark:/72163/080c-779b9990a0c3f-6e,
+            '72163' being the Name Assigning Authority number,
+            '080c' being the project shortcode,
+            '779b9990a0c3f' being an ID derived from the object's Salsah ID and
+            '6e' being check digits
 
     Raises:
         BaseError if the ARK is invalid
@@ -679,6 +695,7 @@ def _upload_resources(
         con: connection to DSP
         failed_uploads: ids of resources that could not be uploaded (initially empty, gets filled during the upload)
         metrics: list with the metric records collected until now (gets filled during the upload)
+        preprocessing_done: if set, all multimedia files referenced in the XML file must already be on the server
 
     Returns:
         id2iri_mapping, failed_uploads, metrics

@@ -266,7 +266,7 @@ def make_root(
 
     Args:
         shortcode: The shortcode of this project as defined in the JSON project file
-        default ontology: one of the ontologies of the JSON project file
+        default_ontology: one of the ontologies of the JSON project file
 
     Returns:
         The root element <knora>.
@@ -1267,14 +1267,14 @@ def make_text_prop(
     for val in values:
         kwargs = {"permissions": val.permissions}
         if check_notna(val.comment):
-            kwargs["comment"] = val.comment  # type: ignore
+            kwargs["comment"] = val.comment  # type: ignore[assignment]
         if check_notna(val.encoding):
-            kwargs["encoding"] = val.encoding  # type: ignore
+            kwargs["encoding"] = val.encoding  # type: ignore[assignment]
         else:
             kwargs["encoding"] = "utf8"
         value_ = etree.Element(
             "{%s}text" % xml_namespace_map[None],
-            **kwargs,  # type: ignore
+            **kwargs,  # type: ignore[arg-type]
             nsmap=xml_namespace_map,
         )
         if kwargs["encoding"] == "utf8":

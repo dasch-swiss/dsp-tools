@@ -39,8 +39,10 @@ class TestFastXmlUpload(unittest.TestCase):
             verbose=False,
             dump=False,
         )
-        shutil.copytree(cls.input_dir, cls.input_dir / "nested")
-        shutil.copytree(cls.input_dir / "nested", cls.input_dir / "nested/subfolder")
+        Path(cls.input_dir / "nested").mkdir()
+        Path(cls.input_dir / "nested/subfolder").mkdir()
+        shutil.copy(cls.input_dir / "test.jpg", cls.input_dir / "nested/test.jpg")
+        shutil.copy(cls.input_dir / "test.jpg", cls.input_dir / "nested/subfolder/test.jpg")
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -107,7 +109,7 @@ class TestFastXmlUpload(unittest.TestCase):
     def test_fast_xmlupload_batching(self) -> None:
         """
         Test if the "batch_size" parameter of process_files() function works.
-        The test file contains 92 bitstreams, so a batch size of 40 should result in 3 batches.
+        The test file contains 34 bitstreams, so a batch size of 15 should result in 3 batches.
         The first 2 batches should exit with exit code 2 and success=True,
         the 3rd batch should exit with exit code 0 and success=True.
 
@@ -115,13 +117,13 @@ class TestFastXmlUpload(unittest.TestCase):
         """
 
         def action() -> bool:
-            print("test_fast_xmlupload_batching: call process_files() with batch size 40")
+            print("test_fast_xmlupload_batching: call process_files() with batch size 15")
             return process_files(
                 input_dir=str(self.input_dir),
                 output_dir=self.output_dir,
                 xml_file=self.xml_file,
                 nthreads=None,
-                batch_size=40,
+                batch_size=15,
             )
 
         for i in range(2):

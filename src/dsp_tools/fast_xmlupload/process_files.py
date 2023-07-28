@@ -6,6 +6,7 @@ import pickle
 import shutil
 import subprocess
 import sys
+from time import sleep
 import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
@@ -144,7 +145,12 @@ def _write_result_to_pkl_file(processed_files: list[tuple[Path, Optional[Path]]]
     Raises:
         UserError if the file could not be written
     """
-    filename = f"processing_result_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pkl"
+    filename = Path(f"processing_result_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pkl")
+    while filename.is_file():
+        logger.warning(f"The file {filename} already exists. Trying again in 1 second...")
+        sleep(1)
+        filename = Path(f"processing_result_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pkl")
+
     try:
         with open(filename, "wb") as pkl_file:
             pickle.dump(processed_files, pkl_file)

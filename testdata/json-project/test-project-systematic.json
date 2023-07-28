@@ -352,10 +352,10 @@
                         "labels": {
                             "en": "Decimal number"
                         },
-                        "gui_element": "SimpleText",
+                        "gui_element": "Slider",
                         "gui_attributes": {
-                            "maxlength": 255,
-                            "size": 80
+                            "max": 100.0,
+                            "min": 0.0
                         }
                     },
                     {

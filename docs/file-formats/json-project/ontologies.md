@@ -264,7 +264,7 @@ These three are related as follows:
 | isPartOf                    | (resourceclass)                                                     | Searchbox                            |
 | seqnum                      | IntValue                                                            | Spinbox, <br>SimpleText              |
 | isSequenceOf                | (AudioRepresentation,<br>MovingImageRepresentation,<br>or subclass) | Searchbox                            |
-| hasSequenceBounds           | IntervalValue                                                       | Interval                             |
+| hasSequenceBounds           | IntervalValue                                                       | Interval, <br>SimpleText             |
 
 
 #### BooleanValue
@@ -900,8 +900,8 @@ See the [`isSequenceOf` property](#issequenceof-property) or the
     - *gui_attributes*:
         - `maxlength=integer` (optional): The maximum number of characters accepted
         - `size=integer` (optional): The size of the input field
-    - `Interval`: Two Sliders, one for each decimal
-        - *gui_attributes*: No attributes
+- `Interval`: Two Sliders, one for each decimal
+    - *gui_attributes*: No attributes
 
 Example:
 

@@ -1,5 +1,27 @@
 # Changelog
 
+## [2.5.0](https://github.com/dasch-swiss/dsp-tools/compare/v2.4.0...v2.5.0) (2023-07-28)
+
+
+### Enhancements
+
+* guess subdomains based on conventions (DEV-1979) ([#445](https://github.com/dasch-swiss/dsp-tools/issues/445)) ([d6c4ff4](https://github.com/dasch-swiss/dsp-tools/commit/d6c4ff429c9d99bd722affccaa411b4c45dad528))
+
+
+### Bug Fixes
+
+* **process-files:** quit Python interpreter after every batch to prevent "too many open files" error (DEV-2268) ([#402](https://github.com/dasch-swiss/dsp-tools/issues/402)) ([1cbf927](https://github.com/dasch-swiss/dsp-tools/commit/1cbf927ecccbff8bfa8a9c7d3043343af868bb82))
+* **start-stack:** fix outdated TTL paths, open config file correctly (DEV-2497) ([#447](https://github.com/dasch-swiss/dsp-tools/issues/447)) ([98e0579](https://github.com/dasch-swiss/dsp-tools/commit/98e05791aebde482073ba0ea74f4ef5da9f04328))
+
+
+### Maintenance
+
+* bump start-stack to 2023.07.02 (DEV-2499) [#450](https://github.com/dasch-swiss/dsp-tools/issues/450) ([61af5da](https://github.com/dasch-swiss/dsp-tools/commit/61af5da1e27474287f962e0816ffb200e8546acc))
+* **deps:** bump dependencies ([#449](https://github.com/dasch-swiss/dsp-tools/issues/449)) ([8fd23d4](https://github.com/dasch-swiss/dsp-tools/commit/8fd23d4b4d0bbf850b9decaa6aa805402b8fbf8c))
+* increase timeout from 5 to 10 seconds (DEV-2450) [#438](https://github.com/dasch-swiss/dsp-tools/issues/438) ([4f82d2e](https://github.com/dasch-swiss/dsp-tools/commit/4f82d2e196f118586f10cee0029e75855b893341))
+* run dependabot monthly, and group updates into 1 single PR (DEV-2498) [#448](https://github.com/dasch-swiss/dsp-tools/issues/448) ([e03d633](https://github.com/dasch-swiss/dsp-tools/commit/e03d6333d4ab57d3eb325c96663c2cd9de56a88e))
+* **xmlupload:** forbid empty strings in some tags of the XML, et al. (DEV-2439) ([#433](https://github.com/dasch-swiss/dsp-tools/issues/433)) ([679654d](https://github.com/dasch-swiss/dsp-tools/commit/679654d0d8abba3fa3e1a040badb1869eacf8de4))
+
 ## [2.4.0](https://github.com/dasch-swiss/dsp-tools/compare/v2.3.4...v2.4.0) (2023-07-11)
 
 

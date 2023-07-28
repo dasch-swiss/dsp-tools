@@ -86,6 +86,7 @@ e.g. `multimedia/dog.jpg` -> `tmp/0b/22/0b22570d-515f-4c3d-a6af-e42b458e7b2b.jp2
 **In this case, you need to restart the command several times, until the exit code is 0.**
 **Only then, all files are processed.**
 **Unexpected errors result in exit code 1.**
+**If this batch splitting happens, every run produces a new pickle file.**
 
 You can orchestrate this with a shell script, e.g.:
 
@@ -102,18 +103,18 @@ if [ $exit_code -ne 0 ]; then
 fi
 ```
 
+
 ## 3. `dsp-tools upload-files`
 
 After all files are processed, the upload step can be started.
 
 
 ```bash
-dsp-tools upload-files --pkl-file=processing_result_20230414_152810.pkl --processed-dir=tmp
+dsp-tools upload-files --processed-dir=tmp
 ```
 
 The following options are available:
 
-- `-f` | `--pkl-file` (mandatory): path to the pickle file that was written by the processing step
 - `-d` | `--processed-dir` (mandatory): path to the directory where the processed files are located 
                            (same as `--output-dir` in the processing step)
 - `-n` | `--nthreads` (optional, default 4): number of threads to use for uploading 
@@ -121,6 +122,9 @@ The following options are available:
 - `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server 
 - `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API 
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API 
+
+This command will collect all pickle files in the current working directory 
+that were created by the `process-files` command.
 
 
 ## 4. `dsp-tools fast-xmlupload`
@@ -131,7 +135,9 @@ dsp-tools fast-xmlupload --pkl-file=processing_result_20230414_152810.pkl data.x
 
 The following options are available:
 
-- `-f` | `--pkl-file` (mandatory): path to the pickle file that was written by the processing step
 - `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server 
 - `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API 
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API 
+
+This command will collect all pickle files in the current working directory 
+that were created by the `process-files` command.

@@ -119,7 +119,6 @@ The following options are available:
 - `-n` | `--nthreads` (optional, default 4): number of threads to use for uploading 
                       (optimum depends on the number of CPUs on the server)
 - `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server 
-- `-S` | `--sipi-url` (optional, default: `0.0.0.0:1024`): URL of the SIPI server 
 - `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API 
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API 
 
@@ -134,6 +133,5 @@ The following options are available:
 
 - `-f` | `--pkl-file` (mandatory): path to the pickle file that was written by the processing step
 - `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server 
-- `-S` | `--sipi-url` (optional, default: `0.0.0.0:1024`): URL of the SIPI server 
 - `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API 
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API 

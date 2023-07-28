@@ -29,7 +29,7 @@ class TestFastXmlUpload(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         """
-        Is executed before the methods of this class are run
+        Is executed once before the methods of this class are run
         """
         create_project(
             project_file_as_path_or_parsed=cls.json_file,

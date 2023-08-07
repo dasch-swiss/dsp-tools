@@ -334,11 +334,11 @@ class TestExcelToProperties(unittest.TestCase):
                 "testdata/invalid-testdata/excel2json/properties-invalid-gui_element.xlsx",
                 "did not pass validation. The problematic property is 'hasInterval' in Excel row 4. "
                 r"The problem is that the column 'gui_element' has an invalid value: "
-                r"'Geonames' is not one of \['Interval', 'SimpleText'\]",
+                r"'Interval' was expected",
             ),
             (
                 "testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute.xlsx",
-                "did not pass validation. The problematic property is 'hasInterval' in Excel row 4. "
+                "did not pass validation. The problematic property is 'hasInteger' in Excel row 4. "
                 r"The problem is that the column 'gui_attributes' has an invalid value: "
                 r"Additional properties are not allowed \('rows' was unexpected\)",
             ),

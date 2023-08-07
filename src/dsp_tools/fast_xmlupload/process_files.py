@@ -6,7 +6,6 @@ import pickle
 import shutil
 import subprocess
 import sys
-from time import sleep
 import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime

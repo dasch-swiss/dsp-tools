@@ -124,7 +124,7 @@ class StackHandler:
             UserError: if max_file_size is set but cannot be injected into sipi.docker-config.lua
         """
         docker_config_lua_response = try_api_call(
-            action=get,
+            action=requests.get,
             url=f"{self.__url_prefix}sipi/config/sipi.docker-config.lua",
         )
         docker_config_lua_text = docker_config_lua_response.text

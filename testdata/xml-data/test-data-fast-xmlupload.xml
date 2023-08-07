@@ -27,275 +27,102 @@
     <resource label="testdata/bitstreams/test with whitespaces.png" restype=":TextThing" id="bitstreams_test_with_whitespaces.png_79d49438-4828-4c4f-85fc-6507bb10ee5d" permissions="res-default">
         <bitstream permissions="prop-default">testdata/bitstreams/test with whitespaces.png</bitstream>
     </resource>
+
+    <resource label="testdata/bitstreams/nested/test.jpg" restype=":AudioThing" id="bitstreams_nested_test.jpg_cff0c275-53a5-489c-ad0c-620fa43ef652" permissions="res-default">
+        <bitstream permissions="prop-default">testdata/bitstreams/nested/test.jpg</bitstream>
+    </resource>
+    <resource label="testdata/bitstreams/nested/subfolder/test.jpg" restype=":AudioThing" id="bitstreams_nested_subfolder_test.jpg_cff0c275-53a5-489c-ad0c-620fa43ef652" permissions="res-default">
+        <bitstream permissions="prop-default">testdata/bitstreams/nested/subfolder/test.jpg</bitstream>
+    </resource>
+
     <resource label="testdata/bitstreams/README.txt" restype=":TextThing" id="bitstreams_readme.txt_79d49438-4828-4c4f-85fc-6507bb10ee5d" permissions="res-default">
         <bitstream permissions="prop-default">testdata/bitstreams/README.txt</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/README.txt" restype=":TextThing" id="bitstreams_nested_readme.txt_79d49438-4828-4c4f-85fc-6507bb10ee5d" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/README.txt</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/subfolder/README.txt" restype=":TextThing" id="bitstreams_nested_subfolder_readme.txt_79d49438-4828-4c4f-85fc-6507bb10ee5d" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/subfolder/README.txt</bitstream>
     </resource>
     <resource label="testdata/bitstreams/test.jpg" restype=":ImageThing" id="bitstreams_test.jpg_79d49438-4828-4c4f-85fc-6507bb10ee5d" permissions="res-default">
         <bitstream permissions="prop-default">testdata/bitstreams/test.jpg</bitstream>
     </resource>
-    <resource label="testdata/bitstreams/nested/test.jpg" restype=":ImageThing" id="bitstreams_nested_test.jpg_d14df1f5-beb8-49bf-9503-1ac6542b9aee" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/test.jpg</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/subfolder/test.jpg" restype=":ImageThing" id="bitstreams_nested_subfolder_test.jpg_9a54fbfe-90fb-4682-84a9-a3868c592835" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/subfolder/test.jpg</bitstream>
-    </resource>
     <resource label="testdata/bitstreams/test.jpeg" restype=":ImageThing" id="bitstreams_test.jpeg_98e5ff05-5d2b-4752-9598-ba50d59cc670" permissions="res-default">
         <bitstream permissions="prop-default">testdata/bitstreams/test.jpeg</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/test.jpeg" restype=":ImageThing" id="bitstreams_nested_test.jpeg_ed6f6f71-d229-4358-8b1b-7db8b15854df" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/test.jpeg</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/subfolder/test.jpeg" restype=":ImageThing" id="bitstreams_nested_subfolder_test.jpeg_af3190a8-8efd-45ad-a539-0b690b418b5b" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/subfolder/test.jpeg</bitstream>
     </resource>
     <resource label="testdata/bitstreams/test.tif" restype=":ImageThing" id="bitstreams_test.tif_b21a4ae5-2df9-4286-a109-e165ddf00873" permissions="res-default">
         <bitstream permissions="prop-default">testdata/bitstreams/test.tif</bitstream>
     </resource>
-    <resource label="testdata/bitstreams/nested/test.tif" restype=":ImageThing" id="bitstreams_nested_test.tif_221a5520-b49a-4f9a-b543-375bcb25ecb6" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/test.tif</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/subfolder/test.tif" restype=":ImageThing" id="bitstreams_nested_subfolder_test.tif_c67f84b8-a296-4ce4-bc64-1f5730508caa" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/subfolder/test.tif</bitstream>
-    </resource>
     <resource label="testdata/bitstreams/test.tiff" restype=":ImageThing" id="bitstreams_test.tiff_23cd9e03-b712-46fc-ab03-75022ffb5df5" permissions="res-default">
         <bitstream permissions="prop-default">testdata/bitstreams/test.tiff</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/test.tiff" restype=":ImageThing" id="bitstreams_nested_test.tiff_3a398b92-2990-4741-a42d-fd5d6bf80732" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/test.tiff</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/subfolder/test.tiff" restype=":ImageThing" id="bitstreams_nested_subfolder_test.tiff_020e4385-ae92-4823-a648-1631fe85c40e" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/subfolder/test.tiff</bitstream>
     </resource>
     <resource label="testdata/bitstreams/test.jp2" restype=":ImageThing" id="bitstreams_test.jp2_1225b7e9-1bfc-4ee3-ac8c-ff02dd7c6979" permissions="res-default">
         <bitstream permissions="prop-default">testdata/bitstreams/test.jp2</bitstream>
     </resource>
-    <resource label="testdata/bitstreams/nested/test.jp2" restype=":ImageThing" id="bitstreams_nested_test.jp2_d072ce40-c461-48ab-9b04-b60b77317774" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/test.jp2</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/subfolder/test.jp2" restype=":ImageThing" id="bitstreams_nested_subfolder_test.jp2_a55db3a3-3dad-4a03-b55d-e5eb2119f72c" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/subfolder/test.jp2</bitstream>
-    </resource>
     <resource label="testdata/bitstreams/test.png" restype=":ImageThing" id="bitstreams_test.png_bd6e3484-9ef2-4f4b-a45c-7a7f2783e2da" permissions="res-default">
         <bitstream permissions="prop-default">testdata/bitstreams/test.png</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/test.png" restype=":ImageThing" id="bitstreams_nested_test.png_c742cb67-ee48-4f0f-8ee9-6a552e5ee0fe" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/test.png</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/subfolder/test.png" restype=":ImageThing" id="bitstreams_nested_subfolder_test.png_8b650de2-1e92-4e75-92d0-92e5e41fc454" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/subfolder/test.png</bitstream>
     </resource>
     <resource label="testdata/bitstreams/test.mp4" restype=":MovieThing" id="bitstreams_test.mp4_f0bbb1ed-4971-425e-afbf-1470aba8fc0b" permissions="res-default">
         <bitstream permissions="prop-default">testdata/bitstreams/test.mp4</bitstream>
     </resource>
-    <resource label="testdata/bitstreams/nested/test.mp4" restype=":MovieThing" id="bitstreams_nested_test.mp4_ee2ea840-bbdc-4d42-9d67-a39d91e4837b" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/test.mp4</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/subfolder/test.mp4" restype=":MovieThing" id="bitstreams_nested_subfolder_test.mp4_9f576bbd-3033-4f9b-8953-0c349f57a9a9" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/subfolder/test.mp4</bitstream>
-    </resource>
     <resource label="testdata/bitstreams/test.7z" restype=":ZipThing" id="bitstreams_test.7z_a4a78a94-b1c3-4464-bf21-7215810b1807" permissions="res-default">
         <bitstream permissions="prop-default">testdata/bitstreams/test.7z</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/test.7z" restype=":ZipThing" id="bitstreams_nested_test.7z_08cc02fc-24a9-44cb-94c7-e4db904dd442" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/test.7z</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/subfolder/test.7z" restype=":ZipThing" id="bitstreams_nested_subfolder_test.7z_99403b0c-2672-476f-8049-5779f15fbb1c" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/subfolder/test.7z</bitstream>
     </resource>
     <resource label="testdata/bitstreams/test.gz" restype=":ZipThing" id="bitstreams_test.gz_9ac937d1-ec5b-4301-b5d2-6f3c560c38a1" permissions="res-default">
         <bitstream permissions="prop-default">testdata/bitstreams/test.gz</bitstream>
     </resource>
-    <resource label="testdata/bitstreams/nested/test.gz" restype=":ZipThing" id="bitstreams_nested_test.gz_9b8ec311-b5b5-465f-8634-1a6f85ddb1fd" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/test.gz</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/subfolder/test.gz" restype=":ZipThing" id="bitstreams_nested_subfolder_test.gz_05daa7f4-2d58-4913-a398-edb49ab864bd" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/subfolder/test.gz</bitstream>
-    </resource>
     <resource label="testdata/bitstreams/test.gzip" restype=":ZipThing" id="bitstreams_test.gzip_9d33fd23-c91a-462f-8079-603a2ff32df9" permissions="res-default">
         <bitstream permissions="prop-default">testdata/bitstreams/test.gzip</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/test.gzip" restype=":ZipThing" id="bitstreams_nested_test.gzip_feb67290-58f1-4c0c-b514-85a63eb478cc" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/test.gzip</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/subfolder/test.gzip" restype=":ZipThing" id="bitstreams_nested_subfolder_test.gzip_dd37c2d6-4414-4af9-bd0e-c0698eaa55af" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/subfolder/test.gzip</bitstream>
     </resource>
     <resource label="testdata/bitstreams/test.tar" restype=":ZipThing" id="bitstreams_test.tar_b8dc134c-623a-4d55-abe2-6174f71bf0df" permissions="res-default">
         <bitstream permissions="prop-default">testdata/bitstreams/test.tar</bitstream>
     </resource>
-    <resource label="testdata/bitstreams/nested/test.tar" restype=":ZipThing" id="bitstreams_nested_test.tar_d59e5064-5f99-4a14-b174-4615d167b813" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/test.tar</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/subfolder/test.tar" restype=":ZipThing" id="bitstreams_nested_subfolder_test.tar_42a62c58-66af-477c-a133-a07a497b167f" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/subfolder/test.tar</bitstream>
-    </resource>
     <resource label="testdata/bitstreams/test.tar.gz" restype=":ZipThing" id="bitstreams_test.tar.gz_f544b430-4b8d-4d15-b835-285c11f4d014" permissions="res-default">
         <bitstream permissions="prop-default">testdata/bitstreams/test.tar.gz</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/test.tar.gz" restype=":ZipThing" id="bitstreams_nested_test.tar.gz_9e0b3a8d-05b0-4d61-8c21-fdaad0664a48" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/test.tar.gz</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/subfolder/test.tar.gz" restype=":ZipThing" id="bitstreams_nested_subfolder_test.tar.gz_e10e814d-eae4-47a2-a111-8179ac766002" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/subfolder/test.tar.gz</bitstream>
     </resource>
     <resource label="testdata/bitstreams/test.tgz" restype=":ZipThing" id="bitstreams_test.tgz_1f19ccc6-6992-442b-9f59-e8d20d94a56c" permissions="res-default">
         <bitstream permissions="prop-default">testdata/bitstreams/test.tgz</bitstream>
     </resource>
-    <resource label="testdata/bitstreams/nested/test.tgz" restype=":ZipThing" id="bitstreams_nested_test.tgz_03e42592-d55f-40af-99de-1c2ecb55f298" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/test.tgz</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/subfolder/test.tgz" restype=":ZipThing" id="bitstreams_nested_subfolder_test.tgz_f9fea381-9cf1-4f10-85e5-75a2f12c6c89" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/subfolder/test.tgz</bitstream>
-    </resource>
     <resource label="testdata/bitstreams/test.z" restype=":ZipThing" id="bitstreams_test.z_536fef35-e076-4187-ac5d-05d3a676a604" permissions="res-default">
         <bitstream permissions="prop-default">testdata/bitstreams/test.z</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/test.z" restype=":ZipThing" id="bitstreams_nested_test.z_a110a233-30e2-425d-8e5d-8e0596497de5" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/test.z</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/subfolder/test.z" restype=":ZipThing" id="bitstreams_nested_subfolder_test.z_d51856dd-9592-4dde-933a-5c2dbf420185" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/subfolder/test.z</bitstream>
     </resource>
     <resource label="testdata/bitstreams/test.zip" restype=":ZipThing" id="bitstreams_test.zip_e04712ba-d37f-4ead-a617-cff2b38f9493" permissions="res-default">
         <bitstream permissions="prop-default">testdata/bitstreams/test.zip</bitstream>
     </resource>
-    <resource label="testdata/bitstreams/nested/test.zip" restype=":ZipThing" id="bitstreams_nested_test.zip_4e02c2c3-ace2-4dc7-bbca-1c756de44a1f" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/test.zip</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/subfolder/test.zip" restype=":ZipThing" id="bitstreams_nested_subfolder_test.zip_2af60a95-a379-4e2e-869d-3f296495468d" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/subfolder/test.zip</bitstream>
-    </resource>
     <resource label="testdata/bitstreams/test.csv" restype=":TextThing" id="bitstreams_test.csv_7b89b1c2-f34f-46fd-9ff3-c1ec373cb4d2" permissions="res-default">
         <bitstream permissions="prop-default">testdata/bitstreams/test.csv</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/test.csv" restype=":TextThing" id="bitstreams_nested_test.csv_a37e7673-a026-4a4a-bff6-fd9bdc2d6d18" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/test.csv</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/subfolder/test.csv" restype=":TextThing" id="bitstreams_nested_subfolder_test.csv_f7bd27f4-6f25-4a2b-9a58-f72f7a6a186f" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/subfolder/test.csv</bitstream>
     </resource>
     <resource label="testdata/bitstreams/test.txt" restype=":TextThing" id="bitstreams_test.txt_50d8ad67-a79c-43d1-aefd-1da4329757d1" permissions="res-default">
         <bitstream permissions="prop-default">testdata/bitstreams/test.txt</bitstream>
     </resource>
-    <resource label="testdata/bitstreams/nested/test.txt" restype=":TextThing" id="bitstreams_nested_test.txt_750422dd-b4ce-4e1b-b2c6-e992e01f2988" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/test.txt</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/subfolder/test.txt" restype=":TextThing" id="bitstreams_nested_subfolder_test.txt_cce7306d-eba0-46c5-98f6-eeca30f90dcd" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/subfolder/test.txt</bitstream>
-    </resource>
     <resource label="testdata/bitstreams/test.xml" restype=":TextThing" id="bitstreams_test.xml_eb6bd4e4-3a6b-4c0e-a3b7-0f62a31d5ac9" permissions="res-default">
         <bitstream permissions="prop-default">testdata/bitstreams/test.xml</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/test.xml" restype=":TextThing" id="bitstreams_nested_test.xml_695ba385-e590-4c9b-8cc1-d4be80dbe024" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/test.xml</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/subfolder/test.xml" restype=":TextThing" id="bitstreams_nested_subfolder_test.xml_c8493bc3-c9d2-43a7-9ee0-7e4b1746e089" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/subfolder/test.xml</bitstream>
     </resource>
     <resource label="testdata/bitstreams/test.xsd" restype=":TextThing" id="bitstreams_test.xsd_1a01c852-82c9-4785-9ffe-e651fdf7938e" permissions="res-default">
         <bitstream permissions="prop-default">testdata/bitstreams/test.xsd</bitstream>
     </resource>
-    <resource label="testdata/bitstreams/nested/test.xsd" restype=":TextThing" id="bitstreams_nested_test.xsd_b0763f4b-7d4b-4bcd-9cc8-57a00621e53b" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/test.xsd</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/subfolder/test.xsd" restype=":TextThing" id="bitstreams_nested_subfolder_test.xsd_c8d0ff1b-4978-4e37-af82-e4e5a89f818a" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/subfolder/test.xsd</bitstream>
-    </resource>
     <resource label="testdata/bitstreams/test.xsl" restype=":TextThing" id="bitstreams_test.xsl_2ebbfa82-0e88-442e-9ef1-b2d83ab653fe" permissions="res-default">
         <bitstream permissions="prop-default">testdata/bitstreams/test.xsl</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/test.xsl" restype=":TextThing" id="bitstreams_nested_test.xsl_50b64a60-ea16-4fa8-a033-85432b5ea717" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/test.xsl</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/subfolder/test.xsl" restype=":TextThing" id="bitstreams_nested_subfolder_test.xsl_385870b2-dce3-4b50-971b-7ae804a78986" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/subfolder/test.xsl</bitstream>
     </resource>
     <resource label="testdata/bitstreams/test.doc" restype=":DocumentThing" id="bitstreams_test.doc_c0ed1bcf-a9fe-435b-9274-656f36a0d4e1" permissions="res-default">
         <bitstream permissions="prop-default">testdata/bitstreams/test.doc</bitstream>
     </resource>
-    <resource label="testdata/bitstreams/nested/test.doc" restype=":DocumentThing" id="bitstreams_nested_test.doc_61a05f63-95f2-49df-a134-813f0ea1705b" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/test.doc</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/subfolder/test.doc" restype=":DocumentThing" id="bitstreams_nested_subfolder_test.doc_2191fb35-5934-4a22-8ca3-49ed263f0913" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/subfolder/test.doc</bitstream>
-    </resource>
     <resource label="testdata/bitstreams/test.docx" restype=":DocumentThing" id="bitstreams_test.docx_a96f613b-77e4-457b-8eb3-457aa2eae1d8" permissions="res-default">
         <bitstream permissions="prop-default">testdata/bitstreams/test.docx</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/test.docx" restype=":DocumentThing" id="bitstreams_nested_test.docx_bdb6c2d1-1355-40f2-98b1-7df2ccdb3a95" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/test.docx</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/subfolder/test.docx" restype=":DocumentThing" id="bitstreams_nested_subfolder_test.docx_6c6f40b9-fb5d-4ac5-94b7-1297fd02a2b3" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/subfolder/test.docx</bitstream>
     </resource>
     <resource label="testdata/bitstreams/test.pdf" restype=":DocumentThing" id="bitstreams_test.pdf_72573fb9-ba69-4a64-bdbc-503f1aac2b46" permissions="res-default">
         <bitstream permissions="prop-default">testdata/bitstreams/test.pdf</bitstream>
     </resource>
-    <resource label="testdata/bitstreams/nested/test.pdf" restype=":DocumentThing" id="bitstreams_nested_test.pdf_2b6445a5-4119-47b3-bf9f-0587aa079498" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/test.pdf</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/subfolder/test.pdf" restype=":DocumentThing" id="bitstreams_nested_subfolder_test.pdf_efb80605-1938-4024-8efc-94de5221b9a3" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/subfolder/test.pdf</bitstream>
-    </resource>
     <resource label="testdata/bitstreams/test.ppt" restype=":DocumentThing" id="bitstreams_test.ppt_f21e5896-24fb-441d-9784-cf2b167e3392" permissions="res-default">
         <bitstream permissions="prop-default">testdata/bitstreams/test.ppt</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/test.ppt" restype=":DocumentThing" id="bitstreams_nested_test.ppt_aac3b180-b4fb-40a7-bd9a-67caa5a0047d" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/test.ppt</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/subfolder/test.ppt" restype=":DocumentThing" id="bitstreams_nested_subfolder_test.ppt_41dbe7a4-7e81-4ec4-a633-d39640e2dda0" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/subfolder/test.ppt</bitstream>
     </resource>
     <resource label="testdata/bitstreams/test.pptx" restype=":DocumentThing" id="bitstreams_test.pptx_94cce29e-1bdc-4147-b567-b6fff3dbe215" permissions="res-default">
         <bitstream permissions="prop-default">testdata/bitstreams/test.pptx</bitstream>
     </resource>
-    <resource label="testdata/bitstreams/nested/test.pptx" restype=":DocumentThing" id="bitstreams_nested_test.pptx_5a592827-a1db-4b30-a040-10af362f5c1f" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/test.pptx</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/subfolder/test.pptx" restype=":DocumentThing" id="bitstreams_nested_subfolder_test.pptx_4777ac8a-e549-484c-88d3-3f2bb08b8cd0" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/subfolder/test.pptx</bitstream>
-    </resource>
     <resource label="testdata/bitstreams/test.xls" restype=":DocumentThing" id="bitstreams_test.xls_184f5a32-90eb-43ed-b4b0-f7e9c2cd259e" permissions="res-default">
         <bitstream permissions="prop-default">testdata/bitstreams/test.xls</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/test.xls" restype=":DocumentThing" id="bitstreams_nested_test.xls_dd04bb3d-02ff-4903-bfb0-d08be9b1d018" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/test.xls</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/subfolder/test.xls" restype=":DocumentThing" id="bitstreams_nested_subfolder_test.xls_2144c170-fc93-43b8-a3b8-6aa9fcb1cbe7" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/subfolder/test.xls</bitstream>
     </resource>
     <resource label="testdata/bitstreams/test.xlsx" restype=":DocumentThing" id="bitstreams_test.xlsx_c4853edb-ef3a-40b5-82fa-8de419ba60a8" permissions="res-default">
         <bitstream permissions="prop-default">testdata/bitstreams/test.xlsx</bitstream>
     </resource>
-    <resource label="testdata/bitstreams/nested/test.xlsx" restype=":DocumentThing" id="bitstreams_nested_test.xlsx_26b16976-d834-4183-9336-432fd4c31dcb" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/test.xlsx</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/subfolder/test.xlsx" restype=":DocumentThing" id="bitstreams_nested_subfolder_test.xlsx_eeb9c0f6-05dc-4605-bdb5-0ccf733ac9b8" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/subfolder/test.xlsx</bitstream>
-    </resource>
     <resource label="testdata/bitstreams/test.mp3" restype=":AudioThing" id="bitstreams_test.mp3_7aa3b9fb-7ea5-48cd-97e5-3c57d9c717fa" permissions="res-default">
         <bitstream permissions="prop-default">testdata/bitstreams/test.mp3</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/test.mp3" restype=":AudioThing" id="bitstreams_nested_test.mp3_3cabdc1c-905b-4fb0-a9f0-cd2366002c5f" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/test.mp3</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/subfolder/test.mp3" restype=":AudioThing" id="bitstreams_nested_subfolder_test.mp3_5125a020-4f14-4292-a2ad-68184bde33a7" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/subfolder/test.mp3</bitstream>
     </resource>
     <resource label="testdata/bitstreams/test.wav" restype=":AudioThing" id="bitstreams_test.wav_7ceb8aa0-d5a2-420b-b331-d4ccd0ecc129" permissions="res-default">
         <bitstream permissions="prop-default">testdata/bitstreams/test.wav</bitstream>
     </resource>
-    <resource label="testdata/bitstreams/nested/test.wav" restype=":AudioThing" id="bitstreams_nested_test.wav_7f80491a-4f56-4efd-9567-f0b94f6040b5" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/test.wav</bitstream>
-    </resource>
-    <resource label="testdata/bitstreams/nested/subfolder/test.wav" restype=":AudioThing" id="bitstreams_nested_subfolder_test.wav_cff0c275-53a5-489c-ad0c-620fa43ef652" permissions="res-default">
-        <bitstream permissions="prop-default">testdata/bitstreams/nested/subfolder/test.wav</bitstream>
-    </resource>
-
 </knora>

@@ -9,11 +9,71 @@ import requests
 from regex import regex
 
 from dsp_tools.models.connection import Connection
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.logging import get_logger
 from dsp_tools.utils.shared import http_call_with_retry, login
 
 logger = get_logger(__name__)
+
+
+def _check_processed_dir(dir_with_processed_files: str) -> Path:
+    """
+    Checks the input parameter provided by the user and transforms it into a Path.
+
+    Args:
+        processed_dir: the directory where the processed files have been written to
+
+    Raises:
+        UserError: if the directory does not exist
+
+    Returns:
+        Path object of the directory
+    """
+    dir_with_processed_files_path = Path(dir_with_processed_files)
+    if not dir_with_processed_files_path.is_dir():
+        raise UserError(f"The folder with the processed files is invalid: {dir_with_processed_files}")
+    return dir_with_processed_files_path
+
+
+def get_pkl_files() -> list[Path]:
+    """
+    Get all pickle files starting with "processing_result_" in the current working directory.
+
+    Raises:
+        UserError: If no pickle file was found
+
+    Returns:
+        list of pickle files
+    """
+    pkl_file_paths = [Path(x) for x in glob.glob("processing_result_*.pkl")]
+    if len(pkl_file_paths) == 0:
+        raise UserError("No pickle file found. Please run the processing step first.")
+    return pkl_file_paths
+
+
+def _get_paths_from_pkl_files(pkl_files: list[Path]) -> list[Path]:
+    """
+    Read the pickle file(s) returned by the processing step.
+
+    Args:
+        pkl_files: pickle file(s) returned by the processing step
+
+    Returns:
+        list of file paths of the processed files (uuid filenames)
+    """
+    orig_paths_2_processed_paths: list[tuple[Path, Optional[Path]]] = []
+    for pkl_file in pkl_files:
+        orig_paths_2_processed_paths.extend(pickle.loads(pkl_file.read_bytes()))
+
+    processed_paths: list[Path] = []
+    for orig_path, processed_path in orig_paths_2_processed_paths:
+        if processed_path:
+            processed_paths.append(processed_path)
+        else:
+            print(f"{datetime.now()}: WARNING: There is no processed file for {orig_path}")
+            logger.warning(f"There is no processed file for {orig_path}")
+
+    return processed_paths
 
 
 def _get_upload_candidates(
@@ -190,57 +250,6 @@ def _upload_file(
         return internal_filename_of_processed_file, True
 
 
-def _get_paths_from_pkl_file(pkl_file: Path) -> list[Path]:
-    """
-    Read the pickle file returned by the processing step.
-
-    Args:
-        pkl_file: pickle file returned by the processing step
-
-    Returns:
-        list of uuid file paths
-    """
-    with open(pkl_file, "rb") as file:
-        orig_paths_2_processed_paths: list[tuple[Path, Optional[Path]]] = pickle.load(file)
-
-    processed_paths: list[Path] = []
-    for orig_processed in orig_paths_2_processed_paths:
-        if orig_processed[1]:
-            processed_paths.append(orig_processed[1])
-        else:
-            print(f"{datetime.now()}: WARNING: There is no processed file for {orig_processed[0]}")
-            logger.warning(f"There is no processed file for {orig_processed[0]}")
-
-    return processed_paths
-
-
-def _check_params(
-    pkl_file: str,
-    dir_with_processed_files: str,
-) -> Optional[tuple[Path, Path]]:
-    """
-    Checks the input parameters provided by the user and transforms them into the expected types.
-
-    Args:
-        pkl_file: the XML file the paths are extracted from
-        processed_dir: the output directory where the created files should be written to
-
-    Returns:
-        A tuple with the Path objects of the input strings
-    """
-    pkl_file_path = Path(pkl_file)
-    dir_with_processed_files_path = Path(dir_with_processed_files)
-
-    if not pkl_file_path.is_file():
-        print(f"{pkl_file} is not a file")
-        return None
-    if not dir_with_processed_files_path.is_dir():
-        print(f"{dir_with_processed_files} is not a directory")
-        return None
-
-    return pkl_file_path, dir_with_processed_files_path
-
-
 def _upload_files_in_parallel(
     dir_with_processed_files: Path,
     internal_filenames_of_processed_files: list[Path],
@@ -314,7 +323,6 @@ def _check_if_all_files_were_uploaded(
 
 
 def upload_files(
-    pkl_file: str,
     dir_with_processed_files: str,
     nthreads: int,
     user: str,
@@ -327,7 +335,6 @@ def upload_files(
     Before using this method, the files must be processed by the processing step.
 
     Args:
-        pkl_file: pickle file containing the mapping between the original files and the processed files,
         e.g. Path('multimedia/nested/subfolder/test.tif'), Path('tmp/0b/22/0b22570d-515f-4c3d-a6af-e42b458e7b2b.jp2').
         dir_with_processed_files: path to the directory where the processed files are located
         nthreads: number of threads to use for uploading (optimum depends on the number of CPUs on the server)
@@ -339,18 +346,11 @@ def upload_files(
     Returns:
         success status
     """
-    # check the input parameters
-    param_check_result = _check_params(
-        pkl_file=pkl_file,
-        dir_with_processed_files=dir_with_processed_files,
-    )
-    if param_check_result:
-        pkl_file_path, dir_with_processed_files_path = param_check_result
-    else:
-        raise BaseError("Error reading the input parameters. Please check them.")
+    dir_with_processed_files_path = _check_processed_dir(dir_with_processed_files)
+    pkl_file_paths = get_pkl_files()
 
     # read paths from pkl file
-    internal_filenames_of_processed_files = _get_paths_from_pkl_file(pkl_file=pkl_file_path)
+    internal_filenames_of_processed_files = _get_paths_from_pkl_files(pkl_files=pkl_file_paths)
     print(f"{datetime.now()}: Found {len(internal_filenames_of_processed_files)} files to upload...")
     logger.info(f"Found {len(internal_filenames_of_processed_files)} files to upload...")
 

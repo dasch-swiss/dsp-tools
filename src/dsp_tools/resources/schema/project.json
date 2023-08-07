@@ -112,7 +112,6 @@
                 "Richtext",
                 "Searchbox",
                 "SimpleText",
-                "Slider",
                 "Spinbox",
                 "Textarea",
                 "TimeStamp"
@@ -589,7 +588,7 @@
                             },
                             "gui_element": {
                                 "enum": [
-                                    "Slider",
+                                    "Spinbox",
                                     "SimpleText"
                                 ]
                             }
@@ -895,34 +894,6 @@
                                 "additionalProperties": false
                             }
                         }
-                    }
-                },
-                {
-                    "if": {
-                        "properties": {
-                            "gui_element": {
-                                "const": "Slider"
-                            }
-                        }
-                    },
-                    "then": {
-                        "properties": {
-                            "gui_attributes": {
-                                "type": "object",
-                                "properties": {
-                                    "max": {
-                                        "type": "number"
-                                    },
-                                    "min": {
-                                        "type": "number"
-                                    }
-                                },
-                                "additionalProperties": false
-                            }
-                        },
-                        "required": [
-                            "gui_attributes"
-                        ]
                     }
                 },
                 {

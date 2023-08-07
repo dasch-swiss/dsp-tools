@@ -352,7 +352,7 @@
                         "labels": {
                             "en": "Decimal number"
                         },
-                        "gui_element": "Slider",
+                        "gui_element": "Spinbox",
                         "gui_attributes": {
                             "max": 100.0,
                             "min": 0.0

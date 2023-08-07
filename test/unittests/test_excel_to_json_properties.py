@@ -248,7 +248,7 @@ class TestExcelToProperties(unittest.TestCase):
             "Date",
             "SimpleText",
             "Colorpicker",
-            "Slider",
+            "Spinbox",
             "TimeStamp",
             "Interval",
             "Checkbox",

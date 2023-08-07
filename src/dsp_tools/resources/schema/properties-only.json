@@ -85,7 +85,6 @@
                 "Pulldown",
                 "Searchbox",
                 "SimpleText",
-                "Slider",
                 "Spinbox",
                 "TimeStamp"
             ]
@@ -460,7 +459,7 @@
                             },
                             "gui_element": {
                                 "enum": [
-                                    "Slider",
+                                    "Spinbox",
                                     "SimpleText"
                                 ]
                             }
@@ -626,10 +625,7 @@
                                 }
                             },
                             "gui_element": {
-                                "enum": [
-                                    "Interval",
-                                    "SimpleText"
-                                ]
+                                "const": "Interval"
                             }
                         }
                     }
@@ -726,31 +722,6 @@
                                 "properties": {
                                     "ncolors": {
                                         "type": "integer"
-                                    }
-                                },
-                                "additionalProperties": false
-                            }
-                        }
-                    }
-                },
-                {
-                    "if": {
-                        "properties": {
-                            "gui_element": {
-                                "const": "Slider"
-                            }
-                        }
-                    },
-                    "then": {
-                        "properties": {
-                            "gui_attributes": {
-                                "type": "object",
-                                "properties": {
-                                    "max": {
-                                        "type": "number"
-                                    },
-                                    "min": {
-                                        "type": "number"
                                     }
                                 },
                                 "additionalProperties": false

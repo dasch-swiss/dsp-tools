@@ -29,7 +29,7 @@ class TestPropertyClass(unittest.TestCase):
 
     def setUp(self) -> None:
         """
-        is executed before all tests; sets up a connection and logs in as user root; creates a new ontology
+        is executed before each test method; sets up a connection and logs in as user root; creates a new ontology
         """
         self.con = Connection("http://0.0.0.0:3333")
         self.con.login("root@example.com", "test")

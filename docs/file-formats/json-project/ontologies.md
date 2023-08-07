@@ -247,7 +247,7 @@ These three are related as follows:
 | hasValue                    | BooleanValue                                                        | Checkbox                |
 | hasColor                    | ColorValue                                                          | Colorpicker             |
 | hasValue                    | DateValue                                                           | Date                    |
-| hasValue                    | DecimalValue                                                        | Slider, <br>SimpleText  |
+| hasValue                    | DecimalValue                                                        | Spinbox, <br>SimpleText  |
 | hasValue                    | GeonameValue                                                        | Geonames                |
 | hasValue                    | IntValue                                                            | Spinbox, <br>SimpleText |
 | hasValue                    | ListValue                                                           | List                    |
@@ -360,7 +360,7 @@ information.
 
 *gui_elements / gui_attributes*:
 
-- `Slider`: Provides a slider to select a decimal value.
+- `Spinbox`: Provides a spinbox to select a decimal value.
     - *gui_attributes*:
         - `max=decimal` (mandatory): maximal value
         - `min=decimal` (mandatory): minimal value
@@ -878,12 +878,8 @@ See the [`isSequenceOf` property](#issequenceof-property) or the
 
 *gui_elements / gui_attributes*:
 
-- `SimpleText`: A simple text entry box (one line only).
-    - *gui_attributes*:
-        - `maxlength=integer` (optional): The maximum number of characters accepted
-        - `size=integer` (optional): The size of the input field
-    - `Interval`: Two Sliders, one for each decimal
-        - *gui_attributes*: No attributes
+- `Interval`: Two spinboxes, one for each decimal
+    - *gui_attributes*: No attributes
 
 Example:
 

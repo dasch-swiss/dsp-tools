@@ -754,10 +754,7 @@
                                 }
                             },
                             "gui_element": {
-                                "enum": [
-                                    "Interval",
-                                    "SimpleText"
-                                ]
+                                "const": "Interval"
                             }
                         }
                     }

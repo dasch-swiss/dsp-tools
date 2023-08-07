@@ -264,7 +264,7 @@ These three are related as follows:
 | isPartOf                    | (resourceclass)                                                     | Searchbox                            |
 | seqnum                      | IntValue                                                            | Spinbox, <br>SimpleText              |
 | isSequenceOf                | (AudioRepresentation,<br>MovingImageRepresentation,<br>or subclass) | Searchbox                            |
-| hasSequenceBounds           | IntervalValue                                                       | Interval, <br>SimpleText             |
+| hasSequenceBounds           | IntervalValue                                                       | Interval                             |
 
 
 #### BooleanValue
@@ -896,10 +896,6 @@ See the [`isSequenceOf` property](#issequenceof-property) or the
 
 *gui_elements / gui_attributes*:
 
-- `SimpleText`: A simple text entry box (one line only).
-    - *gui_attributes*:
-        - `maxlength=integer` (optional): The maximum number of characters accepted
-        - `size=integer` (optional): The size of the input field
 - `Interval`: Two spinboxes, one for each decimal
     - *gui_attributes*: No attributes
 

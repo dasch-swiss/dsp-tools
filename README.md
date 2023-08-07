@@ -1,6 +1,13 @@
-[![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![linting: pylint](https://img.shields.io/badge/linting-pylint-yellowgreen)](https://github.com/pylint-dev/pylint)
+[![](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools) 
+[![](https://img.shields.io/pypi/pyversions/dsp-tools.svg)](https://pypi.org/project/dsp-tools/) 
+[![](https://img.shields.io/badge/Python%20code%20style-black-000000.svg)](https://github.com/psf/black) 
+[![](https://img.shields.io/badge/Python%20linting-pylint-darkgreen)](https://github.com/pylint-dev/pylint) 
+[![](https://img.shields.io/badge/Python%20typing-mypy-darkgreen)](https://github.com/python/mypy) 
+[![](https://img.shields.io/badge/Markdown%20linting-markdownlint-darkgreen)](
+  https://github.com/igorshubovych/markdownlint-cli) 
+[![](https://img.shields.io/badge/Link%20validation-markdown%20link%20validator-darkgreen)](
+  https://www.npmjs.com/package/markdown-link-validator)
+
 
 # DSP-TOOLS - DaSCH Service Platform Tools
 

@@ -13,7 +13,7 @@ import yaml
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.logging import get_logger
 
-from dsp_tools.utils.shared import try_api_call
+from dsp_tools.utils.shared import http_call_with_retry
 
 logger = get_logger(__name__)
 
@@ -123,7 +123,7 @@ class StackHandler:
         Raises:
             UserError: if max_file_size is set but cannot be injected into sipi.docker-config.lua
         """
-        docker_config_lua_response = try_api_call(
+        docker_config_lua_response = http_call_with_retry(
             action=requests.get,
             url=f"{self.__url_prefix}sipi/config/sipi.docker-config.lua",
         )
@@ -165,7 +165,7 @@ class StackHandler:
         """
         for _ in range(6 * 60):
             try:
-                response = try_api_call(
+                response = http_call_with_retry(
                     action=requests.get,
                     url="http://0.0.0.0:3030/$/server",
                     auth=("admin", "test"),
@@ -184,13 +184,13 @@ class StackHandler:
         Raises:
             UserError: in case of failure
         """
-        repo_template_response = try_api_call(
+        repo_template_response = http_call_with_retry(
             action=requests.get,
             url=f"{self.__url_prefix}webapi/scripts/fuseki-repository-config.ttl.template",
         )
         repo_template = repo_template_response.text
         repo_template = repo_template.replace("@REPOSITORY@", "knora-test")
-        response = try_api_call(
+        response = http_call_with_retry(
             action=requests.post,
             initial_timeout=10,
             url="http://0.0.0.0:3030/$/datasets",
@@ -227,13 +227,13 @@ class StackHandler:
             ("test_data/project_data/anything-data.ttl", "http://www.knora.org/data/0001/anything"),
         ]
         for ttl_file, graph in ttl_files:
-            ttl_response = try_api_call(action=requests.get, url=self.__url_prefix + ttl_file)
+            ttl_response = http_call_with_retry(action=requests.get, url=self.__url_prefix + ttl_file)
             if not ttl_response.ok:
                 msg = f"Cannot start DSP-API: Error when retrieving '{self.__url_prefix + ttl_file}'"
                 logger.error(f"{msg}'. response = {vars(ttl_response)}")
                 raise UserError(msg)
             ttl_text = ttl_response.text
-            response = try_api_call(
+            response = http_call_with_retry(
                 action=requests.post,
                 initial_timeout=10,
                 url=graph_prefix + graph,

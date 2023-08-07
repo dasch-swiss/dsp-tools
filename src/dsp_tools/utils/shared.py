@@ -7,7 +7,7 @@ import time
 import unicodedata
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Callable, Optional, Union
+from typing import Any, Callable, Optional, Union, cast
 
 import pandas as pd
 import regex
@@ -54,14 +54,16 @@ def login(
     return con
 
 
-def try_api_call(
+def http_call_with_retry(
     action: Callable[..., Any],
     *args: Any,
     initial_timeout: int = 10,
     **kwargs: Any,
-) -> Any:
+) -> requests.Response:
     """
-    Function that tries 7 times to execute an API call.
+    Function that tries 7 times to execute an HTTP request.
+    Timeouts (and only timeouts) are catched, and the request is retried after a waiting time.
+    The waiting times are 1, 2, 4, 8, 16, 32, 64 seconds.
     Every time, the previous timeout is increased by 10 seconds.
     Use this only for actions that can be retried without side effects.
 
@@ -69,23 +71,29 @@ def try_api_call(
         action: one of requests.get(), requests.post(), requests.put(), requests.delete()
         initial_timeout: Timeout to start with. Defaults to 10 seconds.
 
+    Raises:
+        errors from the requests library that are not timeouts
+
     Returns:
-        _description_
+        response of the HTTP request
     """
     if action not in (requests.get, requests.post, requests.put, requests.delete):
-        raise BaseError("This function can only be used with the methods get, post, put, and delete of requests.")
+        raise BaseError(
+            "This function can only be used with the methods get, post, put, and delete of the Python requests library."
+        )
     action_as_str = f"action='{action}', args='{args}', kwargs='{kwargs}'"
     timeout = initial_timeout
     for i in range(7):
         try:
             if args and not kwargs:
-                return action(*args, timeout=timeout)
+                result = action(*args, timeout=timeout)
             elif kwargs and not args:
-                return action(**kwargs, timeout=timeout)
+                result = action(**kwargs, timeout=timeout)
             elif args and kwargs:
-                return action(*args, **kwargs, timeout=timeout)
+                result = action(*args, **kwargs, timeout=timeout)
             else:
-                return action(timeout=timeout)
+                result = action(timeout=timeout)
+            return cast(requests.Response, result)
         except (TimeoutError, ReadTimeout, ReadTimeoutError):
             timeout += 10
             msg = f"Timeout Error: Retry request with timeout {timeout} in {2 ** i} seconds..."

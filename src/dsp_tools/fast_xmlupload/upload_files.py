@@ -11,7 +11,7 @@ from regex import regex
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.logging import get_logger
-from dsp_tools.utils.shared import try_api_call, login
+from dsp_tools.utils.shared import http_call_with_retry, login
 
 logger = get_logger(__name__)
 
@@ -110,7 +110,7 @@ def _upload_without_processing(
     try:
         with open(file, "rb") as bitstream:
             try:
-                response_upload = try_api_call(
+                response_upload = http_call_with_retry(
                     action=requests.post,
                     initial_timeout=8 * 60,
                     url=f"{regex.sub(r'/$', '', sipi_url)}/upload_without_processing",

@@ -13,6 +13,7 @@ import pandas as pd
 import regex
 from lxml import etree
 from requests import ReadTimeout, RequestException
+from urllib3.exceptions import ReadTimeoutError
 
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import BaseError, UserError
@@ -52,6 +53,33 @@ def login(
     return con
 
 
+def catch_timeout_of_request(
+    action: Callable[..., Any],
+    *args: Any,
+    initial_timeout: int = 10,
+    **kwargs: Any,
+) -> Any:
+    action_as_str = f"action='{action}', args='{args}', kwargs='{kwargs}'"
+    timeout = initial_timeout
+    for i in range(7):
+        try:
+            if args and not kwargs:
+                return action(*args, timeout=timeout)
+            elif kwargs and not args:
+                return action(**kwargs, timeout=timeout)
+            elif args and kwargs:
+                return action(*args, **kwargs, timeout=timeout)
+            else:
+                return action(timeout=timeout)
+        except (TimeoutError, ReadTimeout, ReadTimeoutError):
+            timeout += 10
+            msg = f"Timeout Error: Retry request with timeout {timeout} in {2 ** i} seconds..."
+            print(f"{datetime.now().isoformat()}: {msg}")
+            logger.error(f"{msg} {action_as_str} (retry-counter i={i})", exc_info=True)
+            time.sleep(2**i)
+            continue
+
+
 def try_network_action(
     action: Callable[..., Any],
     *args: Any,
@@ -59,7 +87,7 @@ def try_network_action(
 ) -> Any:
     """
     Helper method that tries 7 times to execute an action.
-    If a ConnectionError, a requests.exceptions.RequestException, or a non-permanent BaseError occors,
+    If a timeout error, a ConnectionError, a requests.exceptions.RequestException, or a non-permanent BaseError occors,
     it waits and retries.
     The waiting times are 1, 2, 4, 8, 16, 32, 64 seconds.
     If another exception occurs, it escalates.

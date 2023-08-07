@@ -59,12 +59,11 @@ def _get_paths_from_pkl_files(pkl_files: list[Path]) -> list[Path]:
         pkl_files: pickle file(s) returned by the processing step
 
     Returns:
-        list of uuid file paths
+        list of file paths of the processed files (uuid filenames)
     """
     orig_paths_2_processed_paths: list[tuple[Path, Optional[Path]]] = []
     for pkl_file in pkl_files:
-        with open(pkl_file, "rb") as file:
-            orig_paths_2_processed_paths.extend(pickle.load(file))
+        orig_paths_2_processed_paths.extend(pickle.loads(pkl_file.read_bytes()))
 
     processed_paths: list[Path] = []
     for orig_path, processed_path in orig_paths_2_processed_paths:

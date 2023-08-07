@@ -144,7 +144,8 @@ def _write_result_to_pkl_file(processed_files: list[tuple[Path, Optional[Path]]]
     Raises:
         UserError if the file could not be written
     """
-    filename = f"processing_result_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pkl"
+    filename = Path(f"processing_result_{datetime.now().strftime('%Y-%m-%d_%H.%M.%S.%f')}.pkl")
+
     try:
         with open(filename, "wb") as pkl_file:
             pickle.dump(processed_files, pkl_file)

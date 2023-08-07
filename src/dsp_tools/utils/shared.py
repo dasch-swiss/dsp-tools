@@ -13,6 +13,7 @@ import pandas as pd
 import regex
 from lxml import etree
 from requests import ReadTimeout, RequestException
+import requests
 from urllib3.exceptions import ReadTimeoutError
 
 from dsp_tools.models.connection import Connection
@@ -53,12 +54,26 @@ def login(
     return con
 
 
-def catch_timeout_of_request(
+def try_api_call(
     action: Callable[..., Any],
     *args: Any,
     initial_timeout: int = 10,
     **kwargs: Any,
 ) -> Any:
+    """
+    Function that tries 7 times to execute an API call.
+    Every time, the previous timeout is increased by 10 seconds.
+    Use this only for actions that can be retried without side effects.
+
+    Args:
+        action: one of requests.get(), requests.post(), requests.put(), requests.delete()
+        initial_timeout: Timeout to start with. Defaults to 10 seconds.
+
+    Returns:
+        _description_
+    """
+    if action not in (requests.get, requests.post, requests.put, requests.delete):
+        raise BaseError("This function can only be used with the methods get, post, put, and delete of requests.")
     action_as_str = f"action='{action}', args='{args}', kwargs='{kwargs}'"
     timeout = initial_timeout
     for i in range(7):
@@ -78,6 +93,9 @@ def catch_timeout_of_request(
             logger.error(f"{msg} {action_as_str} (retry-counter i={i})", exc_info=True)
             time.sleep(2**i)
             continue
+
+    logger.error("Permanently unable to execute the API call. See logs for more details.")
+    raise BaseError("Permanently unable to execute the API call. See logs for more details.")
 
 
 def try_network_action(

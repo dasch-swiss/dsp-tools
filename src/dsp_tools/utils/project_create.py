@@ -939,7 +939,7 @@ def _rectify_hlist_of_properties(
     for prop in properties:
         if not prop.get("gui_attributes"):
             continue
-        if prop["gui_attributes"].get("hlist"):
+        if not prop["gui_attributes"].get("hlist"):
             continue
         list_name = prop["gui_attributes"]["hlist"] if prop["gui_attributes"]["hlist"] in existing_list_names else None
         if list_name:

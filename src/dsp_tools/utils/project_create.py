@@ -24,7 +24,11 @@ logger = get_logger(__name__)
 
 
 def _create_project_on_server(
-    project_definition: dict[str, Any],
+    shortcode: str,
+    shortname: str,
+    longname: str,
+    descriptions: Optional[dict[str, str]],
+    keywords: Optional[list[str]],
     con: Connection,
     verbose: bool,
 ) -> tuple[Project, bool]:
@@ -33,7 +37,11 @@ def _create_project_on_server(
     If it already exists: update its longname, description and keywords.
 
     Args:
-        project_definition: parsed JSON project definition
+        shortcode: shortcode of the project
+        shortname: shortname of the project
+        longname: longname of the project
+        descriptions: descriptions of the project in different languages
+        keywords: keywords of the project
         con: connection to the DSP server
         verbose: verbose switch
 
@@ -45,7 +53,7 @@ def _create_project_on_server(
     """
     try:
         # the normal, expected case is that this try block fails
-        project_local = Project(con=con, shortcode=project_definition["project"]["shortcode"])
+        project_local = Project(con=con, shortcode=shortcode)
         project_remote: Project = try_network_action(project_local.read)
         proj_designation = f"'{project_remote.shortname}' ({project_remote.shortcode})"
         msg = f"Project {proj_designation} already exists on the DSP server. Updating it..."
@@ -53,7 +61,13 @@ def _create_project_on_server(
         logger.warning(msg)
         # try to update the basic info
         project_remote, _ = _update_basic_info_of_project(
-            project=project_remote, project_definition=project_definition, verbose=verbose
+            project=project_remote,
+            shortcode=shortcode,
+            shortname=shortname,
+            longname=longname,
+            descriptions=descriptions,
+            keywords=keywords,
+            verbose=verbose,
         )
         # It doesn't matter if the update is successful or not: continue anyway, because success is anyways false.
         # There are other things from this file that can be created on the server,
@@ -65,21 +79,18 @@ def _create_project_on_server(
     success = True
     project_local = Project(
         con=con,
-        shortcode=project_definition["project"]["shortcode"],
-        shortname=project_definition["project"]["shortname"],
-        longname=project_definition["project"]["longname"],
-        description=LangString(project_definition["project"].get("descriptions")),
-        keywords=set(project_definition["project"].get("keywords")),
+        shortcode=shortcode,
+        shortname=shortname,
+        longname=longname,
+        description=LangString(descriptions),  # type: ignore[arg-type]
+        keywords=set(keywords) if keywords else None,
         selfjoin=False,
         status=True,
     )
     try:
         project_remote = try_network_action(project_local.create)
     except BaseError:
-        err_msg = (
-            f"Cannot create project '{project_definition['project']['shortname']}' "
-            f"({project_definition['project']['shortcode']}) on DSP server."
-        )
+        err_msg = f"Cannot create project '{shortname}' ({shortcode}) on DSP server."
         logger.error(err_msg, exc_info=True)
         raise UserError(err_msg) from None
     print(f"\tCreated project '{project_remote.shortname}' ({project_remote.shortcode}).")
@@ -88,7 +99,11 @@ def _create_project_on_server(
 
 def _update_basic_info_of_project(
     project: Project,
-    project_definition: dict[str, Any],
+    shortcode: str,
+    shortname: str,
+    longname: str,
+    descriptions: Optional[dict[str, str]],
+    keywords: Optional[list[str]],
     verbose: bool,
 ) -> tuple[Project, bool]:
     """
@@ -99,19 +114,21 @@ def _update_basic_info_of_project(
 
     Args:
         project: the project to be updated (must exist on the DSP server)
-        project_definition: a parsed JSON project file with the same shortname and shortcode than the existing project
+        shortcode: shortcode of the project (must be the same as in the existing project)
+        shortname: shortname of the project (must be the same as in the existing project)
+        longname: longname of the project
+        descriptions: descriptions of the project in different languages
+        keywords: keywords of the project
+        verbose: verbose switch
 
     Returns:
         tuple of (updated project, success status)
     """
-    # store in variables for convenience
-    shortcode = project_definition["project"]["shortcode"]
-    shortname = project_definition["project"]["shortname"]
 
     # update the local "project" object
-    project.longname = project_definition["project"]["longname"]
-    project.description = project_definition["project"].get("descriptions")
-    project.keywords = project_definition["project"].get("keywords")
+    project.longname = longname
+    project.description = LangString(descriptions)  # type: ignore[arg-type]
+    project.keywords = set(keywords) if keywords else set()
 
     # make the call to DSP-API
     try:
@@ -569,7 +586,7 @@ def _create_ontologies(
     context: Context,
     knora_api_prefix: str,
     list_root_nodes: dict[str, Any],
-    project_definition: dict[str, Any],
+    ontology_definitions: list[dict[str, Any]],
     project_remote: Project,
     verbose: bool,
 ) -> bool:
@@ -608,8 +625,7 @@ def _create_ontologies(
         logger.warning(err_msg, exc_info=True)
         project_ontologies = []
 
-    for ontology_definition in project_definition.get("project", {}).get("ontologies", {}):
-        ontology_definition = cast(dict[str, Any], ontology_definition)
+    for ontology_definition in ontology_definitions:
         ontology_remote = _create_ontology(
             ontology_definition=ontology_definition,
             project_ontologies=project_ontologies,
@@ -942,7 +958,11 @@ def create_project(
 
     # create project on DSP server
     project_remote, success = _create_project_on_server(
-        project_definition=project_definition,
+        shortcode=project_definition["project"]["shortcode"],
+        shortname=project_definition["project"]["shortname"],
+        longname=project_definition["project"]["longname"],
+        descriptions=project_definition["project"].get("descriptions"),
+        keywords=project_definition["project"].get("keywords"),
         con=con,
         verbose=verbose,
     )
@@ -992,7 +1012,7 @@ def create_project(
         context=context,
         knora_api_prefix=knora_api_prefix,
         list_root_nodes=list_root_nodes,
-        project_definition=project_definition,
+        ontology_definitions=project_definition["project"]["ontologies"],
         project_remote=project_remote,
         verbose=verbose,
     )

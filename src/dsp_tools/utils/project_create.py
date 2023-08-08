@@ -518,7 +518,9 @@ def _sort_prop_classes(
 
 
 def _create_ontology(
-    ontology_definition: dict[str, Any],
+    onto_name: str,
+    onto_label: str,
+    onto_comment: Optional[str],
     project_ontologies: list[Ontology],
     con: Connection,
     project_remote: Project,
@@ -531,7 +533,9 @@ def _create_ontology(
     If the ontology already exists on the DSP server, it is skipped.
 
     Args:
-        ontology_definition: one ontology from the "ontologies" section of a parsed JSON project file
+        onto_name: name of the ontology
+        onto_label: label of the ontology
+        onto_comment: comment of the ontology
         project_ontologies: ontologies existing on the DSP server
         con: Connection to the DSP server
         project_remote: representation of the project on the DSP server
@@ -545,29 +549,29 @@ def _create_ontology(
         representation of the created ontology on the DSP server, or None if it already existed
     """
     # skip if it already exists on the DSP server
-    if ontology_definition["name"] in [onto.name for onto in project_ontologies]:
-        print(f"\tWARNING: Ontology '{ontology_definition['name']}' already exists on the DSP server. Skipping...")
+    if onto_name in [onto.name for onto in project_ontologies]:
+        print(f"\tWARNING: Ontology '{onto_name}' already exists on the DSP server. Skipping...")
         return None
 
-    print(f"Create ontology '{ontology_definition['name']}'...")
+    print(f"Create ontology '{onto_name}'...")
     ontology_local = Ontology(
         con=con,
         project=project_remote,
-        label=ontology_definition["label"],
-        name=ontology_definition["name"],
-        comment=ontology_definition.get("comment"),
+        label=onto_label,
+        name=onto_name,
+        comment=onto_comment,
     )
     try:
         ontology_remote: Ontology = try_network_action(ontology_local.create)
     except BaseError:
         # if ontology cannot be created, let the error escalate
-        logger.error(f"ERROR while trying to create ontology '{ontology_definition['name']}'.", exc_info=True)
-        raise UserError(f"ERROR while trying to create ontology '{ontology_definition['name']}'.") from None
+        logger.error(f"ERROR while trying to create ontology '{onto_name}'.", exc_info=True)
+        raise UserError(f"ERROR while trying to create ontology '{onto_name}'.") from None
 
     if verbose:
-        print(f"\tCreated ontology '{ontology_definition['name']}'.")
+        print(f"\tCreated ontology '{onto_name}'.")
 
-    context.add_context(
+    ontology_remote.context.add_context(
         ontology_remote.name,
         ontology_remote.iri + ("#" if not ontology_remote.iri.endswith("#") else ""),
     )
@@ -627,7 +631,9 @@ def _create_ontologies(
 
     for ontology_definition in ontology_definitions:
         ontology_remote = _create_ontology(
-            ontology_definition=ontology_definition,
+            onto_name=ontology_definition["name"],
+            onto_label=ontology_definition["label"],
+            onto_comment=ontology_definition.get("comment"),
             project_ontologies=project_ontologies,
             con=con,
             project_remote=project_remote,
@@ -640,7 +646,8 @@ def _create_ontologies(
 
         # add the empty resource classes to the remote ontology
         last_modification_date, remote_res_classes, success = _add_resource_classes_to_remote_ontology(
-            ontology_definition=ontology_definition,
+            onto_name=ontology_definition["name"],
+            resclass_definitions=ontology_definition.get("resources", []),
             ontology_remote=ontology_remote,
             con=con,
             last_modification_date=ontology_remote.lastModificationDate,
@@ -651,7 +658,8 @@ def _create_ontologies(
 
         # add the property classes to the remote ontology
         last_modification_date, success = _add_property_classes_to_remote_ontology(
-            ontology_definition=ontology_definition,
+            onto_name=ontology_definition["name"],
+            property_definitions=ontology_definition.get("properties", []),
             ontology_remote=ontology_remote,
             names_and_iris_of_list_nodes=names_and_iris_of_list_nodes,
             con=con,
@@ -664,7 +672,7 @@ def _create_ontologies(
 
         # Add cardinalities to class
         success = _add_cardinalities_to_resource_classes(
-            ontology_definition=ontology_definition,
+            resclass_definitions=ontology_definition.get("resources", []),
             ontology_remote=ontology_remote,
             remote_res_classes=remote_res_classes,
             last_modification_date=last_modification_date,
@@ -678,7 +686,8 @@ def _create_ontologies(
 
 
 def _add_resource_classes_to_remote_ontology(
-    ontology_definition: dict[str, Any],
+    onto_name: str,
+    resclass_definitions: list[dict[str, Any]],
     ontology_remote: Ontology,
     con: Connection,
     last_modification_date: DateTimeStamp,
@@ -691,7 +700,8 @@ def _add_resource_classes_to_remote_ontology(
     status will be false.
 
     Args:
-        ontology_definition: the part of the parsed JSON project file that contains the current ontology
+        onto_name: name of the current ontology
+        resclass_definitions: the part of the parsed JSON project file that contains the resources of the current onto
         ontology_remote: representation of the current ontology on the DSP server
         con: connection to the DSP server
         last_modification_date: last modification date of the ontology on the DSP server
@@ -706,7 +716,7 @@ def _add_resource_classes_to_remote_ontology(
     overall_success = True
     print("\tCreate resource classes...")
     new_res_classes: dict[str, ResourceClass] = {}
-    sorted_resources = _sort_resources(ontology_definition["resources"], ontology_definition["name"])
+    sorted_resources = _sort_resources(resclass_definitions, onto_name)
     for res_class in sorted_resources:
         super_classes = res_class["super"]
         if isinstance(super_classes, str):
@@ -738,7 +748,8 @@ def _add_resource_classes_to_remote_ontology(
 
 
 def _add_property_classes_to_remote_ontology(
-    ontology_definition: dict[str, Any],
+    onto_name: str,
+    property_definitions: list[dict[str, Any]],
     ontology_remote: Ontology,
     names_and_iris_of_list_nodes: dict[str, Any],
     con: Connection,
@@ -753,7 +764,8 @@ def _add_property_classes_to_remote_ontology(
     status will be false.
 
     Args:
-        ontology_definition: the part of the parsed JSON project file that contains the current ontology
+        onto_name: name of the current ontology
+        property_definitions: the part of the parsed JSON project file that contains the properties of the current onto
         ontology_remote: representation of the current ontology on the DSP server
         names_and_iris_of_list_nodes: IRIs of list nodes that were already created and are available on the DSP server
         con: connection to the DSP server
@@ -766,7 +778,7 @@ def _add_property_classes_to_remote_ontology(
     """
     overall_success = True
     print("\tCreate property classes...")
-    sorted_prop_classes = _sort_prop_classes(ontology_definition["properties"], ontology_definition["name"])
+    sorted_prop_classes = _sort_prop_classes(property_definitions, onto_name)
     for prop_class in sorted_prop_classes:
         # get the super-property/ies, valid forms are:
         #   - "prefix:super-property" : fully qualified name of property in another ontology. The prefix has to be
@@ -827,7 +839,7 @@ def _add_property_classes_to_remote_ontology(
 
 
 def _add_cardinalities_to_resource_classes(
-    ontology_definition: dict[str, Any],
+    resclass_definitions: list[dict[str, Any]],
     ontology_remote: Ontology,
     remote_res_classes: dict[str, ResourceClass],
     last_modification_date: DateTimeStamp,
@@ -841,7 +853,7 @@ def _add_cardinalities_to_resource_classes(
     status will be false.
 
     Args:
-        ontology_definition: the part of the parsed JSON project file that contains the current ontology
+        resclass_definitions: the part of the parsed JSON project file that contains the resources of the current onto
         ontology_remote: representation of the current ontology on the DSP server
         remote_res_classes: representations of the resource classes on the DSP server
         last_modification_date: last modification date of the ontology on the DSP server
@@ -859,7 +871,7 @@ def _add_cardinalities_to_resource_classes(
         "0-n": Cardinality.C_0_n,
         "1-n": Cardinality.C_1_n,
     }
-    for res_class in ontology_definition.get("resources", []):
+    for res_class in resclass_definitions:
         res_class_remote = remote_res_classes.get(ontology_remote.iri + "#" + res_class["name"])
         if not res_class_remote:
             print(

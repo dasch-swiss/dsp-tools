@@ -640,6 +640,7 @@ def _create_ontologies(
             ontology_definition=ontology_definition,
             ontology_remote=ontology_remote,
             list_root_nodes=list_root_nodes,
+            names_and_labels_of_list_root_nodes=names_and_labels_of_list_root_nodes,
             con=con,
             last_modification_date=last_modification_date,
             knora_api_prefix=knora_api_prefix,
@@ -727,6 +728,7 @@ def _add_property_classes_to_remote_ontology(
     ontology_definition: dict[str, Any],
     ontology_remote: Ontology,
     list_root_nodes: dict[str, Any],
+    names_and_labels_of_list_root_nodes: list[dict[str, dict[str, str]]],
     con: Connection,
     last_modification_date: DateTimeStamp,
     knora_api_prefix: str,
@@ -742,6 +744,7 @@ def _add_property_classes_to_remote_ontology(
         ontology_definition: the part of the parsed JSON project file that contains the current ontology
         ontology_remote: representation of the current ontology on the DSP server
         list_root_nodes: the IRIs of the list nodes that were already created and are now available on the DSP server
+        names_and_labels_of_list_root_nodes: the names and labels of the lists
         con: connection to the DSP server
         last_modification_date: last modification date of the ontology on the DSP server
         knora_api_prefix: the prefix that stands for the knora-api ontology
@@ -781,9 +784,28 @@ def _add_property_classes_to_remote_ontology(
         else:
             prop_object = knora_api_prefix + prop_class["object"]
 
+        # get the gui_attributes
         gui_attributes = prop_class.get("gui_attributes")
         if gui_attributes and gui_attributes.get("hlist"):
-            gui_attributes["hlist"] = "<" + list_root_nodes[gui_attributes["hlist"]]["id"] + ">"
+            list_name = gui_attributes["hlist"] if gui_attributes["hlist"] in list_root_nodes else None
+            if not list_name:
+                for lrn in names_and_labels_of_list_root_nodes:
+                    if gui_attributes["hlist"] in lrn["labels"].values():
+                        list_name = cast(str, lrn["name"])
+                        msg = (
+                            f"WARNING: Property {prop_class['name']} references the list '{gui_attributes['hlist']}' "
+                            f"which is not a valid list name. "
+                            f"Assuming that you meant '{list_name}' instead."
+                        )
+                        logger.warning(msg)
+                        print(msg)
+                        break
+            if not list_name:
+                logger.error(f"Property {prop_class['name']} references an unknown list: {gui_attributes['hlist']}")
+                raise UserError(f"Property {prop_class['name']} references an unknown list: {gui_attributes['hlist']}")
+
+            list_iri = list_root_nodes.get(list_name)
+            gui_attributes["hlist"] = f"<{list_iri}>"
 
         # create the property class
         prop_class_local = PropertyClass(

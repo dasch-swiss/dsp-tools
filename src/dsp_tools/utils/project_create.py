@@ -569,7 +569,6 @@ def _create_ontologies(
     context: Context,
     knora_api_prefix: str,
     list_root_nodes: dict[str, Any],
-    names_and_labels_of_list_root_nodes: list[dict[str, dict[str, str]]],
     project_definition: dict[str, Any],
     project_remote: Project,
     verbose: bool,
@@ -584,7 +583,6 @@ def _create_ontologies(
         context: prefixes and the ontology IRIs they stand for
         knora_api_prefix: the prefix that stands for the knora-api ontology
         list_root_nodes: the IRIs of the list nodes that were already created and are now available on the DSP server
-        names_and_labels_of_list_root_nodes: the names and labels of the lists
         project_definition: the parsed JSON project file
         project_remote: representation of the project on the DSP server
         verbose: verbose switch
@@ -640,7 +638,6 @@ def _create_ontologies(
             ontology_definition=ontology_definition,
             ontology_remote=ontology_remote,
             list_root_nodes=list_root_nodes,
-            names_and_labels_of_list_root_nodes=names_and_labels_of_list_root_nodes,
             con=con,
             last_modification_date=last_modification_date,
             knora_api_prefix=knora_api_prefix,
@@ -728,7 +725,6 @@ def _add_property_classes_to_remote_ontology(
     ontology_definition: dict[str, Any],
     ontology_remote: Ontology,
     list_root_nodes: dict[str, Any],
-    names_and_labels_of_list_root_nodes: list[dict[str, dict[str, str]]],
     con: Connection,
     last_modification_date: DateTimeStamp,
     knora_api_prefix: str,
@@ -744,7 +740,6 @@ def _add_property_classes_to_remote_ontology(
         ontology_definition: the part of the parsed JSON project file that contains the current ontology
         ontology_remote: representation of the current ontology on the DSP server
         list_root_nodes: the IRIs of the list nodes that were already created and are now available on the DSP server
-        names_and_labels_of_list_root_nodes: the names and labels of the lists
         con: connection to the DSP server
         last_modification_date: last modification date of the ontology on the DSP server
         knora_api_prefix: the prefix that stands for the knora-api ontology
@@ -787,24 +782,7 @@ def _add_property_classes_to_remote_ontology(
         # get the gui_attributes
         gui_attributes = prop_class.get("gui_attributes")
         if gui_attributes and gui_attributes.get("hlist"):
-            list_name = gui_attributes["hlist"] if gui_attributes["hlist"] in list_root_nodes else None
-            if not list_name:
-                for lrn in names_and_labels_of_list_root_nodes:
-                    if gui_attributes["hlist"] in lrn["labels"].values():
-                        list_name = cast(str, lrn["name"])
-                        msg = (
-                            f"WARNING: Property {prop_class['name']} references the list '{gui_attributes['hlist']}' "
-                            f"which is not a valid list name. "
-                            f"Assuming that you meant '{list_name}' instead."
-                        )
-                        logger.warning(msg)
-                        print(msg)
-                        break
-            if not list_name:
-                logger.error(f"Property {prop_class['name']} references an unknown list: {gui_attributes['hlist']}")
-                raise UserError(f"Property {prop_class['name']} references an unknown list: {gui_attributes['hlist']}")
-
-            list_iri = list_root_nodes.get(list_name)
+            list_iri = list_root_nodes.get(gui_attributes["hlist"])
             gui_attributes["hlist"] = f"<{list_iri}>"
 
         # create the property class
@@ -904,6 +882,61 @@ def _add_cardinalities_to_resource_classes(
     return overall_success
 
 
+def rectify_hlist_of_properties(
+    lists: list[dict[str, Any]],
+    properties: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """
+    Check the "hlist" of the "gui_attributes" of the properties.
+    If they don't refer to an existing list name,
+    check if there is a label of a list that corresponds to the "hlist".
+    If so, rectify the "hlist" to refer to the name of the list instead of the label.
+
+    Args:
+        lists: "lists" section of the JSON project definition
+        properties: "properties" section of one of the ontologies of the JSON project definition
+
+    Raises:
+        UserError: if the "hlist" refers to no existing list name or label
+
+    Returns:
+        the rectified "properties" section
+    """
+
+    if not lists or not properties:
+        return properties
+
+    existing_list_names = [l["name"] for l in lists]
+
+    for prop in properties:
+        if not prop.get("gui_attributes"):
+            continue
+        if prop["gui_attributes"].get("hlist"):
+            continue
+        list_name = prop["gui_attributes"]["hlist"] if prop["gui_attributes"]["hlist"] in existing_list_names else None
+        if list_name:
+            continue
+
+        deduced_list_name = None
+        for root_node in lists:
+            if prop["gui_attributes"]["hlist"] in root_node["labels"].values():
+                deduced_list_name = cast(str, root_node["name"])
+        if deduced_list_name:
+            msg = (
+                f"WARNING: Property {prop['name']} references the list '{prop['gui_attributes']['hlist']}' "
+                f"which is not a valid list name. "
+                f"Assuming that you meant '{deduced_list_name}' instead."
+            )
+            logger.warning(msg)
+            print(msg)
+        else:
+            logger.error(f"Property {prop['name']} references an unknown list: {prop['gui_attributes']['hlist']}")
+            raise UserError(f"Property {prop['name']} references an unknown list: {prop['gui_attributes']['hlist']}")
+        prop["gui_attributes"]["hlist"] = deduced_list_name
+
+    return properties
+
+
 def create_project(
     project_file_as_path_or_parsed: Union[str, Path, dict[str, Any]],
     server: str,
@@ -959,6 +992,14 @@ def create_project(
     print("\tJSON project file is syntactically correct and passed validation.")
     print(f"Create project '{proj_shortname}' ({proj_shortcode})...")
 
+    # rectify the "hlist" of the "gui_attributes" of the properties
+    for onto in project_definition["project"]["ontologies"]:
+        if onto.get("properties"):
+            onto["properties"] = rectify_hlist_of_properties(
+                lists=project_definition["project"].get("lists", []),
+                properties=onto["properties"],
+            )
+
     # establish connection to DSP server
     con = login(server=server, user=user_mail, password=password)
     if dump:
@@ -1011,14 +1052,11 @@ def create_project(
             overall_success = False
 
     # create the ontologies
-    if project_definition["project"].get("lists"):
-        names_and_labels_of_list_root_nodes = [{n["name"]: n["labels"]} for n in project_definition["project"]["lists"]]
     success = _create_ontologies(
         con=con,
         context=context,
         knora_api_prefix=knora_api_prefix,
         list_root_nodes=list_root_nodes,
-        names_and_labels_of_list_root_nodes=names_and_labels_of_list_root_nodes,
         project_definition=project_definition,
         project_remote=project_remote,
         verbose=verbose,

@@ -604,7 +604,7 @@ def _create_ontologies(
         context: prefixes and the ontology IRIs they stand for
         knora_api_prefix: the prefix that stands for the knora-api ontology
         names_and_iris_of_list_nodes: IRIs of list nodes that were already created and are available on the DSP server
-        project_definition: the parsed JSON project file
+        ontology_definitions: the "ontologies" section of the parsed JSON project file
         project_remote: representation of the project on the DSP server
         verbose: verbose switch
 

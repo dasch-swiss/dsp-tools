@@ -585,7 +585,7 @@ def _create_ontologies(
     con: Connection,
     context: Context,
     knora_api_prefix: str,
-    list_root_nodes: dict[str, Any],
+    names_and_iris_of_list_nodes: dict[str, Any],
     ontology_definitions: list[dict[str, Any]],
     project_remote: Project,
     verbose: bool,
@@ -599,7 +599,7 @@ def _create_ontologies(
         con: Connection to the DSP server
         context: prefixes and the ontology IRIs they stand for
         knora_api_prefix: the prefix that stands for the knora-api ontology
-        list_root_nodes: the IRIs of the list nodes that were already created and are now available on the DSP server
+        names_and_iris_of_list_nodes: IRIs of list nodes that were already created and are available on the DSP server
         project_definition: the parsed JSON project file
         project_remote: representation of the project on the DSP server
         verbose: verbose switch
@@ -653,7 +653,7 @@ def _create_ontologies(
         last_modification_date, success = _add_property_classes_to_remote_ontology(
             ontology_definition=ontology_definition,
             ontology_remote=ontology_remote,
-            list_root_nodes=list_root_nodes,
+            names_and_iris_of_list_nodes=names_and_iris_of_list_nodes,
             con=con,
             last_modification_date=last_modification_date,
             knora_api_prefix=knora_api_prefix,
@@ -740,7 +740,7 @@ def _add_resource_classes_to_remote_ontology(
 def _add_property_classes_to_remote_ontology(
     ontology_definition: dict[str, Any],
     ontology_remote: Ontology,
-    list_root_nodes: dict[str, Any],
+    names_and_iris_of_list_nodes: dict[str, Any],
     con: Connection,
     last_modification_date: DateTimeStamp,
     knora_api_prefix: str,
@@ -755,7 +755,7 @@ def _add_property_classes_to_remote_ontology(
     Args:
         ontology_definition: the part of the parsed JSON project file that contains the current ontology
         ontology_remote: representation of the current ontology on the DSP server
-        list_root_nodes: the IRIs of the list nodes that were already created and are now available on the DSP server
+        names_and_iris_of_list_nodes: IRIs of list nodes that were already created and are available on the DSP server
         con: connection to the DSP server
         last_modification_date: last modification date of the ontology on the DSP server
         knora_api_prefix: the prefix that stands for the knora-api ontology
@@ -797,7 +797,7 @@ def _add_property_classes_to_remote_ontology(
 
         gui_attributes = prop_class.get("gui_attributes")
         if gui_attributes and gui_attributes.get("hlist"):
-            gui_attributes["hlist"] = "<" + list_root_nodes[gui_attributes["hlist"]]["id"] + ">"
+            gui_attributes["hlist"] = "<" + names_and_iris_of_list_nodes[gui_attributes["hlist"]]["id"] + ">"
 
         # create the property class
         prop_class_local = PropertyClass(
@@ -970,10 +970,10 @@ def create_project(
         overall_success = False
 
     # create the lists
-    list_root_nodes: dict[str, Any] = {}
+    names_and_iris_of_list_nodes: dict[str, Any] = {}
     if project_definition["project"].get("lists"):
         print("Create lists...")
-        list_root_nodes, success = create_lists_on_server(
+        names_and_iris_of_list_nodes, success = create_lists_on_server(
             lists_to_create=project_definition["project"]["lists"],
             con=con,
             project_remote=project_remote,
@@ -1011,7 +1011,7 @@ def create_project(
         con=con,
         context=context,
         knora_api_prefix=knora_api_prefix,
-        list_root_nodes=list_root_nodes,
+        names_and_iris_of_list_nodes=names_and_iris_of_list_nodes,
         ontology_definitions=project_definition["project"]["ontologies"],
         project_remote=project_remote,
         verbose=verbose,

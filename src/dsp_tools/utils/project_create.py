@@ -951,15 +951,16 @@ def _rectify_hlist_of_properties(
                 deduced_list_name = cast(str, root_node["name"])
         if deduced_list_name:
             msg = (
-                f"WARNING: Property {prop['name']} references the list '{prop['gui_attributes']['hlist']}' "
+                f"INFO: Property '{prop['name']}' references the list '{prop['gui_attributes']['hlist']}' "
                 f"which is not a valid list name. "
                 f"Assuming that you meant '{deduced_list_name}' instead."
             )
             logger.warning(msg)
             print(msg)
         else:
-            logger.error(f"Property {prop['name']} references an unknown list: {prop['gui_attributes']['hlist']}")
-            raise UserError(f"Property {prop['name']} references an unknown list: {prop['gui_attributes']['hlist']}")
+            msg = f"Property '{prop['name']}' references an unknown list: '{prop['gui_attributes']['hlist']}'"
+            logger.error(msg)
+            raise UserError(f"ERROR: {msg}")
         prop["gui_attributes"]["hlist"] = deduced_list_name
 
     return properties
@@ -1018,7 +1019,6 @@ def create_project(
     # validate against JSON schema
     validate_project(project_definition, expand_lists=False)
     print("\tJSON project file is syntactically correct and passed validation.")
-    print(f"Create project '{proj_shortname}' ({proj_shortcode})...")
 
     # rectify the "hlist" of the "gui_attributes" of the properties
     for onto in project_definition["project"]["ontologies"]:
@@ -1034,6 +1034,7 @@ def create_project(
         con.start_logging()
 
     # create project on DSP server
+    print(f"Create project '{proj_shortname}' ({proj_shortcode})...")
     project_remote, success = _create_project_on_server(
         shortcode=project_definition["project"]["shortcode"],
         shortname=project_definition["project"]["shortname"],

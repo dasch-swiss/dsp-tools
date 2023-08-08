@@ -807,9 +807,11 @@ def _add_property_classes_to_remote_ontology(
         else:
             prop_object = knora_api_prefix + prop_class["object"]
 
+        # get the gui_attributes
         gui_attributes = prop_class.get("gui_attributes")
         if gui_attributes and gui_attributes.get("hlist"):
-            gui_attributes["hlist"] = "<" + names_and_iris_of_list_nodes[gui_attributes["hlist"]]["id"] + ">"
+            list_iri = names_and_iris_of_list_nodes[gui_attributes["hlist"]]["id"]
+            gui_attributes["hlist"] = f"<{list_iri}>"
 
         # create the property class
         prop_class_local = PropertyClass(
@@ -908,6 +910,62 @@ def _add_cardinalities_to_resource_classes(
     return overall_success
 
 
+def _rectify_hlist_of_properties(
+    lists: list[dict[str, Any]],
+    properties: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """
+    Check the "hlist" of the "gui_attributes" of the properties.
+    If they don't refer to an existing list name,
+    check if there is a label of a list that corresponds to the "hlist".
+    If so, rectify the "hlist" to refer to the name of the list instead of the label.
+
+    Args:
+        lists: "lists" section of the JSON project definition
+        properties: "properties" section of one of the ontologies of the JSON project definition
+
+    Raises:
+        UserError: if the "hlist" refers to no existing list name or label
+
+    Returns:
+        the rectified "properties" section
+    """
+
+    if not lists or not properties:
+        return properties
+
+    existing_list_names = [l["name"] for l in lists]
+
+    for prop in properties:
+        if not prop.get("gui_attributes"):
+            continue
+        if not prop["gui_attributes"].get("hlist"):
+            continue
+        list_name = prop["gui_attributes"]["hlist"] if prop["gui_attributes"]["hlist"] in existing_list_names else None
+        if list_name:
+            continue
+
+        deduced_list_name = None
+        for root_node in lists:
+            if prop["gui_attributes"]["hlist"] in root_node["labels"].values():
+                deduced_list_name = cast(str, root_node["name"])
+        if deduced_list_name:
+            msg = (
+                f"INFO: Property '{prop['name']}' references the list '{prop['gui_attributes']['hlist']}' "
+                f"which is not a valid list name. "
+                f"Assuming that you meant '{deduced_list_name}' instead."
+            )
+            logger.warning(msg)
+            print(msg)
+        else:
+            msg = f"Property '{prop['name']}' references an unknown list: '{prop['gui_attributes']['hlist']}'"
+            logger.error(msg)
+            raise UserError(f"ERROR: {msg}")
+        prop["gui_attributes"]["hlist"] = deduced_list_name
+
+    return properties
+
+
 def create_project(
     project_file_as_path_or_parsed: Union[str, Path, dict[str, Any]],
     server: str,
@@ -961,7 +1019,14 @@ def create_project(
     # validate against JSON schema
     validate_project(project_definition, expand_lists=False)
     print("\tJSON project file is syntactically correct and passed validation.")
-    print(f"Create project '{proj_shortname}' ({proj_shortcode})...")
+
+    # rectify the "hlist" of the "gui_attributes" of the properties
+    for onto in project_definition["project"]["ontologies"]:
+        if onto.get("properties"):
+            onto["properties"] = _rectify_hlist_of_properties(
+                lists=project_definition["project"].get("lists", []),
+                properties=onto["properties"],
+            )
 
     # establish connection to DSP server
     con = login(server=server, user=user_mail, password=password)
@@ -969,6 +1034,7 @@ def create_project(
         con.start_logging()
 
     # create project on DSP server
+    print(f"Create project '{proj_shortname}' ({proj_shortcode})...")
     project_remote, success = _create_project_on_server(
         shortcode=project_definition["project"]["shortcode"],
         shortname=project_definition["project"]["shortname"],

@@ -10,7 +10,7 @@ from typing import Any
 import pytest
 
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.utils.project_create import _sort_prop_classes, _sort_resources
+from dsp_tools.utils.project_create import _rectify_hlist_of_properties, _sort_prop_classes, _sort_resources
 from dsp_tools.utils.project_validate import (
     _check_for_duplicate_names,
     _check_for_undefined_cardinalities,
@@ -28,6 +28,10 @@ class TestProjectCreation(unittest.TestCase):
     with open(tp_systematic_file, encoding="utf-8") as json_file:
         tp_systematic: dict[str, Any] = json.load(json_file)
         tp_systematic_ontology: dict[str, Any] = tp_systematic["project"]["ontologies"][0]
+
+    tp_hlist_file = "testdata/json-project/test-project-hlist-refers-label.json"
+    with open(tp_hlist_file, encoding="utf-8") as json_file:
+        tp_hlist: dict[str, Any] = json.load(json_file)
 
     tp_circular_ontology_file = "testdata/invalid-testdata/json-project/circular-ontology.json"
     with open(tp_circular_ontology_file, encoding="utf-8") as json_file:
@@ -162,6 +166,15 @@ class TestProjectCreation(unittest.TestCase):
             r"\[':SuperResourceThatWasNotDefined'\]",
         ):
             _check_for_undefined_super_resource(self.tp_nonexisting_super_resource)
+
+    def test_rectify_hlist_of_properties(self) -> None:
+        properties_returned = _rectify_hlist_of_properties(
+            lists=self.tp_hlist["project"]["lists"],
+            properties=self.tp_hlist["project"]["ontologies"][0]["properties"],
+        )
+        returned_hlists = [x["gui_attributes"]["hlist"] for x in properties_returned]
+        expected_hlists = ["list-no-1", "list-no-2"]
+        self.assertListEqual(returned_hlists, expected_hlists)
 
 
 if __name__ == "__main__":

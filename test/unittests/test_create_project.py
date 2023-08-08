@@ -9,7 +9,7 @@ from typing import Any
 
 import pytest
 
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.utils.project_create import _rectify_hlist_of_properties, _sort_prop_classes, _sort_resources
 from dsp_tools.utils.project_validate import (
     _check_for_duplicate_names,
@@ -32,6 +32,10 @@ class TestProjectCreation(unittest.TestCase):
     tp_hlist_file = "testdata/json-project/test-project-hlist-refers-label.json"
     with open(tp_hlist_file, encoding="utf-8") as json_file:
         tp_hlist: dict[str, Any] = json.load(json_file)
+
+    tp_hlist_refers_nonexisting_list_file = "testdata/invalid-testdata/json-project/hlist-refers-nonexisting-list.json"
+    with open(tp_hlist_refers_nonexisting_list_file, encoding="utf-8") as json_file:
+        tp_hlist_refers_nonexisting_list: dict[str, Any] = json.load(json_file)
 
     tp_circular_ontology_file = "testdata/invalid-testdata/json-project/circular-ontology.json"
     with open(tp_circular_ontology_file, encoding="utf-8") as json_file:
@@ -175,6 +179,16 @@ class TestProjectCreation(unittest.TestCase):
         returned_hlists = [x["gui_attributes"]["hlist"] for x in properties_returned]
         expected_hlists = ["list-no-1", "list-no-2"]
         self.assertListEqual(returned_hlists, expected_hlists)
+
+    def test_rectify_hlist_of_properties_nonexisting_list(self) -> None:
+        with self.assertRaisesRegex(
+            UserError,
+            r"Property 'hasList1' references an unknown list: 'inexisting-list'",
+        ):
+            _rectify_hlist_of_properties(
+                lists=self.tp_hlist_refers_nonexisting_list["project"]["lists"],
+                properties=self.tp_hlist_refers_nonexisting_list["project"]["ontologies"][0]["properties"],
+            )
 
 
 if __name__ == "__main__":

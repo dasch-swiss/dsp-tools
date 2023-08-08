@@ -1,0 +1,43 @@
+{
+    "$schema": "../../../src/dsp_tools/resources/schema/project.json",
+    "project": {
+        "shortcode": "4126",
+        "shortname": "tp-hlist-refers-nonexisting-list",
+        "longname": "tp-hlist-refers-nonexisting-list",
+        "descriptions": {"en": "tp-hlist-refers-nonexisting-list"},
+        "keywords": ["tp-hlist-refers-nonexisting-list"],
+        "lists": [
+            {
+                "name": "list-no-1",
+                "labels": {"en": "List number one"},
+                "comments": {"en": "no comment"},
+                "nodes": [
+                    {"name": "first node", "labels": {"en": "First node"}}
+                ]
+            }
+        ],
+        "ontologies": [
+            {
+                "name": "tp-hlist-refers-nonexisting-list",
+                "label": "tp-hlist-refers-nonexisting-list",
+                "properties": [
+                    {
+                        "name": "hasList1",
+                        "super": ["hasValue"],
+                        "object": "ListValue",
+                        "labels": {"en": "hasList1"},
+                        "gui_element": "List",
+                        "gui_attributes": {"hlist": "inexisting-list"}
+                    }
+                ],
+                "resources": [
+                    {
+                        "name": "minimalResource",
+                        "super": "Resource",
+                        "labels": {"en": "Minimal Resource"}
+                    }
+                ]
+            }
+        ]
+    }
+}

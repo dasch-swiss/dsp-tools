@@ -571,7 +571,7 @@ def _create_ontology(
     if verbose:
         print(f"\tCreated ontology '{onto_name}'.")
 
-    ontology_remote.context.add_context(
+    context.add_context(
         ontology_remote.name,
         ontology_remote.iri + ("#" if not ontology_remote.iri.endswith("#") else ""),
     )

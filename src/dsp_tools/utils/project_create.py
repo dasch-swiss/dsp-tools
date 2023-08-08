@@ -569,6 +569,7 @@ def _create_ontologies(
     context: Context,
     knora_api_prefix: str,
     list_root_nodes: dict[str, Any],
+    names_and_labels_of_list_root_nodes: list[dict[str, dict[str, str]]],
     project_definition: dict[str, Any],
     project_remote: Project,
     verbose: bool,
@@ -583,6 +584,7 @@ def _create_ontologies(
         context: prefixes and the ontology IRIs they stand for
         knora_api_prefix: the prefix that stands for the knora-api ontology
         list_root_nodes: the IRIs of the list nodes that were already created and are now available on the DSP server
+        names_and_labels_of_list_root_nodes: the names and labels of the lists
         project_definition: the parsed JSON project file
         project_remote: representation of the project on the DSP server
         verbose: verbose switch
@@ -987,11 +989,14 @@ def create_project(
             overall_success = False
 
     # create the ontologies
+    if project_definition["project"].get("lists"):
+        names_and_labels_of_list_root_nodes = [{n["name"]: n["labels"]} for n in project_definition["project"]["lists"]]
     success = _create_ontologies(
         con=con,
         context=context,
         knora_api_prefix=knora_api_prefix,
         list_root_nodes=list_root_nodes,
+        names_and_labels_of_list_root_nodes=names_and_labels_of_list_root_nodes,
         project_definition=project_definition,
         project_remote=project_remote,
         verbose=verbose,

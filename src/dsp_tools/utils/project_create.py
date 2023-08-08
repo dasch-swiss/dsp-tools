@@ -782,7 +782,7 @@ def _add_property_classes_to_remote_ontology(
         # get the gui_attributes
         gui_attributes = prop_class.get("gui_attributes")
         if gui_attributes and gui_attributes.get("hlist"):
-            list_iri = list_root_nodes.get(gui_attributes["hlist"])
+            list_iri = list_root_nodes[gui_attributes["hlist"]]["id"]
             gui_attributes["hlist"] = f"<{list_iri}>"
 
         # create the property class
@@ -882,7 +882,7 @@ def _add_cardinalities_to_resource_classes(
     return overall_success
 
 
-def rectify_hlist_of_properties(
+def _rectify_hlist_of_properties(
     lists: list[dict[str, Any]],
     properties: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
@@ -995,7 +995,7 @@ def create_project(
     # rectify the "hlist" of the "gui_attributes" of the properties
     for onto in project_definition["project"]["ontologies"]:
         if onto.get("properties"):
-            onto["properties"] = rectify_hlist_of_properties(
+            onto["properties"] = _rectify_hlist_of_properties(
                 lists=project_definition["project"].get("lists", []),
                 properties=onto["properties"],
             )

@@ -38,38 +38,46 @@ class TestTools(unittest.TestCase):
     password = "test"
     imgdir = "."
     sipi = "http://0.0.0.0:1024"
-    test_project_systematic_file = "testdata/json-project/test-project-systematic.json"
-    test_project_minimal_file = "testdata/json-project/test-project-minimal.json"
-    test_project_hlist_file = "testdata/json-project/test-project-hlist-refers-label.json"
-    test_data_systematic_file = "testdata/xml-data/test-data-systematic.xml"
-    test_data_minimal_file = "testdata/xml-data/test-data-minimal.xml"
+    test_project_systematic_file = Path("testdata/json-project/test-project-systematic.json")
+    test_project_minimal_file = Path("testdata/json-project/test-project-minimal.json")
+    test_project_hlist_file = Path("testdata/json-project/test-project-hlist-refers-label.json")
+    test_data_systematic_file = Path("testdata/xml-data/test-data-systematic.xml")
+    test_data_minimal_file = Path("testdata/xml-data/test-data-minimal.xml")
+    cwd = Path("cwd")
+    testdata_tmp = Path("testdata/tmp")
 
     @classmethod
     def setUpClass(cls) -> None:
         """Is executed once before the methods of this class are run"""
-        os.makedirs("testdata/tmp", exist_ok=True)
+        cls.testdata_tmp.mkdir(exist_ok=True)
+        cls.cwd.mkdir(exist_ok=True)
 
     @classmethod
     def tearDownClass(cls) -> None:
         """Is executed after the methods of this class have all run through"""
-        for file in os.listdir("testdata/tmp"):
-            os.remove("testdata/tmp/" + file)
-        os.rmdir("testdata/tmp")
-        for file in [f for f in os.listdir(".") if re.search(r"id2iri_.+\.json", f)]:
-            os.remove(file)
+        shutil.rmtree(cls.testdata_tmp)
+        shutil.rmtree(cls.cwd)
+        for f in Path().glob("id2iri_*.json"):
+            f.unlink()
 
     def test_validate_lists_section_with_schema(self) -> None:
-        self.assertTrue(validate_lists_section_with_schema(self.test_project_systematic_file))
+        subprocess.run(
+            f"poetry run dsp-tools create --lists-only --validate-only "
+            f"{self.test_project_systematic_file.relative_to(self.cwd)}",
+            check=True,
+            shell=True,
+            capture_output=True,
+            cwd=self.cwd,
+        )
 
     def test_create_lists(self) -> None:
         # the project must already exist, so let's create a project without lists
-        create_project(
-            project_file_as_path_or_parsed=self.test_project_minimal_file,
-            server=self.server,
-            user_mail=self.user,
-            password="test",
-            verbose=True,
-            dump=False,
+        subprocess.run(
+            f"poetry run dsp-tools create {self.test_project_minimal_file.relative_to(self.cwd)}",
+            check=True,
+            shell=True,
+            capture_output=True,
+            cwd=self.cwd,
         )
 
         # open a "lists" section and the project that was created

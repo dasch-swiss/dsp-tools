@@ -2,6 +2,7 @@
 
 import os
 import re
+import subprocess
 import unittest
 
 import pytest
@@ -27,7 +28,7 @@ class TestImportScripts(unittest.TestCase):
         the DSP server.
         """
         # pull the latest state of the git submodule
-        os.system("git submodule update --init --recursive")
+        subprocess.run("git submodule update --init --recursive", check=True, shell=True)
         from dsp_tools.import_scripts import import_script  # pylint: disable=import-outside-toplevel
 
         # execute the import script in its directory

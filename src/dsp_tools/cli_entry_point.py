@@ -114,7 +114,7 @@ def _make_parser(
         help="The links in the XML file point to IRIs (on the server) instead of IDs (in the same XML file).",
     )
     parser_upload.add_argument(
-        "-V", "--validate", action="store_true", help="validate the XML file without uploading it"
+        "-V", "--validate-only", action="store_true", help="validate the XML file without uploading it"
     )
     parser_upload.add_argument("-v", "--verbose", action="store_true", help=verbose_text)
     parser_upload.add_argument("-m", "--metrics", action="store_true", help="write metrics into a 'metrics' folder")

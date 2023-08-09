@@ -71,7 +71,7 @@ class TestTools(unittest.TestCase):
     def test_validate_lists_section_with_schema(self) -> None:
         subprocess.run(
             f"poetry run dsp-tools create --lists-only --validate-only "
-            f"{self.test_project_systematic_file.relative_to(self.cwd)}",
+            f"{self.test_project_systematic_file.absolute()}",
             check=True,
             shell=True,
             capture_output=True,
@@ -81,7 +81,7 @@ class TestTools(unittest.TestCase):
     def test_create_lists(self) -> None:
         # the project must already exist, so let's create a project without lists
         subprocess.run(
-            f"poetry run dsp-tools create {self.test_project_minimal_file.relative_to(self.cwd)}",
+            f"poetry run dsp-tools create {self.test_project_minimal_file.absolute()}",
             check=True,
             shell=True,
             capture_output=True,

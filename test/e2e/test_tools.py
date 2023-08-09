@@ -10,7 +10,10 @@ import copy
 import datetime
 import json
 import os
+from pathlib import Path
 import re
+import shutil
+import subprocess
 import unittest
 from typing import Any, Optional, cast
 
@@ -19,15 +22,13 @@ import jsonpath_ng.ext
 import pytest
 
 from dsp_tools.excel2xml import excel2xml
-from dsp_tools.utils.excel_to_json_lists import excel2lists, validate_lists_section_with_schema
+from dsp_tools.utils.excel_to_json_lists import excel2lists
 from dsp_tools.utils.excel_to_json_project import excel2json
 from dsp_tools.utils.excel_to_json_properties import excel2properties
 from dsp_tools.utils.excel_to_json_resources import excel2resources
 from dsp_tools.utils.id_to_iri import id_to_iri
-from dsp_tools.utils.project_create import create_project
 from dsp_tools.utils.project_create_lists import create_lists
 from dsp_tools.utils.project_get import get_project
-from dsp_tools.utils.project_validate import validate_project
 from dsp_tools.utils.shared import validate_xml_against_schema
 from dsp_tools.utils.xml_upload import xml_upload
 
@@ -93,58 +94,60 @@ class TestTools(unittest.TestCase):
         # create another copy of the project that was created, insert the second list into it, and save it as file
         tp_minimal_with_list_2 = copy.deepcopy(test_project_minimal)
         tp_minimal_with_list_2["project"]["lists"] = [lists_section[1]]
-        with open("testdata/tmp/test_project_minimal_with_list_2.json", "x", encoding="utf-8") as f:
+        tp_minimal_with_list_2_file = Path("testdata/tmp/test_project_minimal_with_list_2.json")
+        with open(tp_minimal_with_list_2_file, "x", encoding="utf-8") as f:
             json.dump(tp_minimal_with_list_2, f)
 
-        # The method to be tested can now be called with both versions of the same project. One is loaded from disk,
-        # the other is a Python object. The two projects each contain another list.
+        # The method to be tested can now be called with both versions of the same project
+        # (each containing another list).
+        # The first is a python object and is created with a function call,
+        # the second is a file and is created with a command line call.
         name2iri_mapping1, success1 = create_lists(
             server=self.server,
             user=self.user,
             password=self.password,
             project_file_as_path_or_parsed=tp_minimal_with_list_1,
         )
-        name2iri_mapping2, success2 = create_lists(
-            server=self.server,
-            user=self.user,
-            password=self.password,
-            project_file_as_path_or_parsed="testdata/tmp/test_project_minimal_with_list_2.json",
+        subprocess.run(
+            f"poetry run dsp-tools create --lists-only {tp_minimal_with_list_2_file.absolute()}",
+            check=True,
+            shell=True,
+            capture_output=True,
+            cwd=self.cwd,
         )
 
-        # test that both lists have been correctly created
+        # In the first case (Python function call), it can be tested if the returned mapping is correct
         self.assertTrue(success1)
-        self.assertTrue(success2)
         name2iri_names_1 = [str(m.path) for m in jsonpath_ng.ext.parse("$..* where id").find(name2iri_mapping1)]
-        name2iri_names_2 = [str(m.path) for m in jsonpath_ng.ext.parse("$..* where id").find(name2iri_mapping2)]
         node_names_1 = [m.value for m in jsonpath_ng.ext.parse("$.project.lists[*]..name").find(tp_minimal_with_list_1)]
-        node_names_2 = [m.value for m in jsonpath_ng.ext.parse("$.project.lists[*]..name").find(tp_minimal_with_list_2)]
         self.assertListEqual(name2iri_names_1, node_names_1)
-        self.assertListEqual(name2iri_names_2, node_names_2)
 
     def test_validate_project(self) -> None:
-        self.assertTrue(validate_project(self.test_project_systematic_file))
+        subprocess.run(
+            f"poetry run dsp-tools create --validate-only {self.test_project_systematic_file.absolute()}",
+            check=True,
+            shell=True,
+            capture_output=True,
+            cwd=self.cwd,
+        )
 
     def test_create_project(self) -> None:
-        result = create_project(
-            project_file_as_path_or_parsed=self.test_project_systematic_file,
-            server=self.server,
-            user_mail=self.user,
-            password="test",
-            verbose=True,
-            dump=False,
+        subprocess.run(
+            f"poetry run dsp-tools create {self.test_project_systematic_file.absolute()} --verbose",
+            check=True,
+            shell=True,
+            capture_output=True,
+            cwd=self.cwd,
         )
-        self.assertTrue(result)
 
     def test_create_project_hlist_refers_label(self) -> None:
-        result = create_project(
-            project_file_as_path_or_parsed=self.test_project_hlist_file,
-            server=self.server,
-            user_mail=self.user,
-            password="test",
-            verbose=True,
-            dump=False,
+        subprocess.run(
+            f"poetry run dsp-tools create {self.test_project_hlist_file.absolute()} -v",
+            check=True,
+            shell=True,
+            capture_output=True,
+            cwd=self.cwd,
         )
-        self.assertTrue(result)
 
     def test_get_project(self) -> None:
         """
@@ -155,14 +158,14 @@ class TestTools(unittest.TestCase):
         project_original = self._get_original_project()
         project_shortname = project_original["project"]["shortname"]
 
-        get_project(
-            project_identifier="tp",
-            outfile_path="testdata/tmp/_test-project-systematic.json",
-            server=self.server,
-            user=self.user,
-            password="test",
-            verbose=True,
+        subprocess.run(
+            "poetry run dsp-tools get --project tp testdata/tmp/_test-project-systematic.json",
+            check=True,
+            shell=True,
+            capture_output=True,
+            cwd=self.cwd,
         )
+
         with open("testdata/tmp/_test-project-systematic.json", encoding="utf-8") as f:
             project_returned = json.load(f)
 
@@ -199,36 +202,31 @@ class TestTools(unittest.TestCase):
             )
 
     def test_validate_xml_against_schema(self) -> None:
-        self.assertTrue(validate_xml_against_schema(input_file=self.test_data_systematic_file))
-
-    def test_xml_upload(self) -> None:
-        result_minimal = xml_upload(
-            input_file=self.test_data_minimal_file,
-            server=self.server,
-            user=self.user,
-            password=self.password,
-            imgdir=self.imgdir,
-            sipi=self.sipi,
-            verbose=False,
-            incremental=False,
-            save_metrics=False,
-            preprocessing_done=False,
+        subprocess.run(
+            f"poetry run dsp-tools xmlupload --validate-only --verbose {self.test_data_systematic_file.absolute()}",
+            check=True,
+            shell=True,
+            capture_output=True,
+            cwd=self.cwd,
         )
-        self.assertTrue(result_minimal)
 
-        result_systematic = xml_upload(
-            input_file=self.test_data_systematic_file,
-            server=self.server,
-            user=self.user,
-            password=self.password,
-            imgdir=self.imgdir,
-            sipi=self.sipi,
-            verbose=False,
-            incremental=False,
-            save_metrics=False,
-            preprocessing_done=False,
+    def test_xml_upload_with_minimal_file(self) -> None:
+        subprocess.run(
+            f"poetry run dsp-tools xmlupload -v {self.test_data_minimal_file.absolute()}",
+            check=True,
+            shell=True,
+            capture_output=True,
+            cwd=self.cwd,
         )
-        self.assertTrue(result_systematic)
+
+    def test_xml_upload_with_systematic_file(self) -> None:
+        subprocess.run(
+            f"poetry run dsp-tools xmlupload {self.test_data_systematic_file.absolute()}",
+            check=True,
+            shell=True,
+            capture_output=True,
+            cwd=self.cwd,
+        )
 
         mapping_file = ""
         for mapping in [x for x in os.scandir(".") if x.name.startswith("test-data-systematic_id2iri_mapping_")]:

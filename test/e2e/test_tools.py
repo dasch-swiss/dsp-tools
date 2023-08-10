@@ -328,7 +328,7 @@ class TestTools(unittest.TestCase):
     def test_excel2xml(self) -> None:
         datafile = Path("testdata/excel2xml/excel2xml-testdata.xlsx")
         shortcode = "1234"
-        onto_name = "excel2xml-testdata"
+        onto_name = "excel2xml-output"
         out_file = self.cwd / f"{onto_name}-data.xml"
         subprocess.run(
             f"poetry run dsp-tools excel2xml {datafile.absolute()} {shortcode} {onto_name}",

@@ -50,7 +50,7 @@ def make_xsd_id_compatible(string: str) -> str:
         BaseError: if the input cannot be transformed to an xsd:ID
 
     Returns:
-        an xsd:ID based on the input string
+        an xsd ID based on the input string
     """
 
     if not isinstance(string, str) or not check_notna(string):
@@ -1725,9 +1725,13 @@ def create_json_excel_list_mapping(
 
 def _nested_dict_values_iterator(dicts: list[dict[str, Any]]) -> Iterable[str]:
     """
-    This function accepts a list of nested dictionaries as argument
-    and iterates over all values.
-    It yields the values iteratively.
+    Yield all values of a nested dictionary.
+
+    Args:
+        dicts: list of nested dictionaries
+
+    Yields:
+        values of the nested dictionaries
     """
     # Credits: https://thispointer.com/python-iterate-loop-over-all-nested-dictionary-values/
     for _dict in dicts:
@@ -1781,7 +1785,14 @@ def _name_label_mapper_iterator(
     language_label: str,
 ) -> Iterable[tuple[str, str]]:
     """
-    returns (label, name) pairs of JSON project list entries
+    Go through list nodes of a JSON project and yield (label, name) pairs.
+
+    Args:
+        json_subset: list of DSP lists (a DSP list being a dictionary with the keys "name", "labels" and "nodes")
+        language_label: which language of the label to choose
+
+    Yields:
+        (label, name) pairs
     """
     for node in json_subset:
         # node is the json object containing the entire json-list

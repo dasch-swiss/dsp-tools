@@ -21,7 +21,7 @@ def _check_processed_dir(dir_with_processed_files: str) -> Path:
     Checks the input parameter provided by the user and transforms it into a Path.
 
     Args:
-        processed_dir: the directory where the processed files have been written to
+        dir_with_processed_files: the directory where the processed files have been written to
 
     Raises:
         UserError: if the directory does not exist
@@ -335,7 +335,6 @@ def upload_files(
     Before using this method, the files must be processed by the processing step.
 
     Args:
-        e.g. Path('multimedia/nested/subfolder/test.tif'), Path('tmp/0b/22/0b22570d-515f-4c3d-a6af-e42b458e7b2b.jp2').
         dir_with_processed_files: path to the directory where the processed files are located
         nthreads: number of threads to use for uploading (optimum depends on the number of CPUs on the server)
         user: the user's e-mail for login into DSP

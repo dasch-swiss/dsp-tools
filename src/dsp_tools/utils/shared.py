@@ -70,6 +70,8 @@ def http_call_with_retry(
     Args:
         action: one of requests.get(), requests.post(), requests.put(), requests.delete()
         initial_timeout: Timeout to start with. Defaults to 10 seconds.
+        *args: positional arguments for the action
+        **kwargs: keyword arguments for the action
 
     Raises:
         errors from the requests library that are not timeouts

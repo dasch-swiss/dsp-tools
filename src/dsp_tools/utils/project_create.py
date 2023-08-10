@@ -24,7 +24,11 @@ logger = get_logger(__name__)
 
 
 def _create_project_on_server(
-    project_definition: dict[str, Any],
+    shortcode: str,
+    shortname: str,
+    longname: str,
+    descriptions: Optional[dict[str, str]],
+    keywords: Optional[list[str]],
     con: Connection,
     verbose: bool,
 ) -> tuple[Project, bool]:
@@ -33,7 +37,11 @@ def _create_project_on_server(
     If it already exists: update its longname, description and keywords.
 
     Args:
-        project_definition: parsed JSON project definition
+        shortcode: shortcode of the project
+        shortname: shortname of the project
+        longname: longname of the project
+        descriptions: descriptions of the project in different languages
+        keywords: keywords of the project
         con: connection to the DSP server
         verbose: verbose switch
 
@@ -45,7 +53,7 @@ def _create_project_on_server(
     """
     try:
         # the normal, expected case is that this try block fails
-        project_local = Project(con=con, shortcode=project_definition["project"]["shortcode"])
+        project_local = Project(con=con, shortcode=shortcode)
         project_remote: Project = try_network_action(project_local.read)
         proj_designation = f"'{project_remote.shortname}' ({project_remote.shortcode})"
         msg = f"Project {proj_designation} already exists on the DSP server. Updating it..."
@@ -53,7 +61,13 @@ def _create_project_on_server(
         logger.warning(msg)
         # try to update the basic info
         project_remote, _ = _update_basic_info_of_project(
-            project=project_remote, project_definition=project_definition, verbose=verbose
+            project=project_remote,
+            shortcode=shortcode,
+            shortname=shortname,
+            longname=longname,
+            descriptions=descriptions,
+            keywords=keywords,
+            verbose=verbose,
         )
         # It doesn't matter if the update is successful or not: continue anyway, because success is anyways false.
         # There are other things from this file that can be created on the server,
@@ -65,21 +79,18 @@ def _create_project_on_server(
     success = True
     project_local = Project(
         con=con,
-        shortcode=project_definition["project"]["shortcode"],
-        shortname=project_definition["project"]["shortname"],
-        longname=project_definition["project"]["longname"],
-        description=LangString(project_definition["project"].get("descriptions")),
-        keywords=set(project_definition["project"].get("keywords")),
+        shortcode=shortcode,
+        shortname=shortname,
+        longname=longname,
+        description=LangString(descriptions),  # type: ignore[arg-type]
+        keywords=set(keywords) if keywords else None,
         selfjoin=False,
         status=True,
     )
     try:
         project_remote = try_network_action(project_local.create)
     except BaseError:
-        err_msg = (
-            f"Cannot create project '{project_definition['project']['shortname']}' "
-            f"({project_definition['project']['shortcode']}) on DSP server."
-        )
+        err_msg = f"Cannot create project '{shortname}' ({shortcode}) on DSP server."
         logger.error(err_msg, exc_info=True)
         raise UserError(err_msg) from None
     print(f"\tCreated project '{project_remote.shortname}' ({project_remote.shortcode}).")
@@ -88,7 +99,11 @@ def _create_project_on_server(
 
 def _update_basic_info_of_project(
     project: Project,
-    project_definition: dict[str, Any],
+    shortcode: str,
+    shortname: str,
+    longname: str,
+    descriptions: Optional[dict[str, str]],
+    keywords: Optional[list[str]],
     verbose: bool,
 ) -> tuple[Project, bool]:
     """
@@ -99,20 +114,21 @@ def _update_basic_info_of_project(
 
     Args:
         project: the project to be updated (must exist on the DSP server)
-        project_definition: a parsed JSON project file with the same shortname and shortcode than the existing project
+        shortcode: shortcode of the project (must be the same as in the existing project)
+        shortname: shortname of the project (must be the same as in the existing project)
+        longname: longname of the project
+        descriptions: descriptions of the project in different languages
+        keywords: keywords of the project
         verbose: verbose switch
 
     Returns:
         tuple of (updated project, success status)
     """
-    # store in variables for convenience
-    shortcode = project_definition["project"]["shortcode"]
-    shortname = project_definition["project"]["shortname"]
 
     # update the local "project" object
-    project.longname = project_definition["project"]["longname"]
-    project.description = project_definition["project"].get("descriptions")
-    project.keywords = project_definition["project"].get("keywords")
+    project.longname = longname
+    project.description = LangString(descriptions)  # type: ignore[arg-type]
+    project.keywords = set(keywords) if keywords else set()
 
     # make the call to DSP-API
     try:
@@ -502,7 +518,9 @@ def _sort_prop_classes(
 
 
 def _create_ontology(
-    ontology_definition: dict[str, Any],
+    onto_name: str,
+    onto_label: str,
+    onto_comment: Optional[str],
     project_ontologies: list[Ontology],
     con: Connection,
     project_remote: Project,
@@ -515,7 +533,9 @@ def _create_ontology(
     If the ontology already exists on the DSP server, it is skipped.
 
     Args:
-        ontology_definition: one ontology from the "ontologies" section of a parsed JSON project file
+        onto_name: name of the ontology
+        onto_label: label of the ontology
+        onto_comment: comment of the ontology
         project_ontologies: ontologies existing on the DSP server
         con: Connection to the DSP server
         project_remote: representation of the project on the DSP server
@@ -529,27 +549,27 @@ def _create_ontology(
         representation of the created ontology on the DSP server, or None if it already existed
     """
     # skip if it already exists on the DSP server
-    if ontology_definition["name"] in [onto.name for onto in project_ontologies]:
-        print(f"\tWARNING: Ontology '{ontology_definition['name']}' already exists on the DSP server. Skipping...")
+    if onto_name in [onto.name for onto in project_ontologies]:
+        print(f"\tWARNING: Ontology '{onto_name}' already exists on the DSP server. Skipping...")
         return None
 
-    print(f"Create ontology '{ontology_definition['name']}'...")
+    print(f"Create ontology '{onto_name}'...")
     ontology_local = Ontology(
         con=con,
         project=project_remote,
-        label=ontology_definition["label"],
-        name=ontology_definition["name"],
-        comment=ontology_definition.get("comment"),
+        label=onto_label,
+        name=onto_name,
+        comment=onto_comment,
     )
     try:
         ontology_remote: Ontology = try_network_action(ontology_local.create)
     except BaseError:
         # if ontology cannot be created, let the error escalate
-        logger.error(f"ERROR while trying to create ontology '{ontology_definition['name']}'.", exc_info=True)
-        raise UserError(f"ERROR while trying to create ontology '{ontology_definition['name']}'.") from None
+        logger.error(f"ERROR while trying to create ontology '{onto_name}'.", exc_info=True)
+        raise UserError(f"ERROR while trying to create ontology '{onto_name}'.") from None
 
     if verbose:
-        print(f"\tCreated ontology '{ontology_definition['name']}'.")
+        print(f"\tCreated ontology '{onto_name}'.")
 
     context.add_context(
         ontology_remote.name,
@@ -569,8 +589,8 @@ def _create_ontologies(
     con: Connection,
     context: Context,
     knora_api_prefix: str,
-    list_root_nodes: dict[str, Any],
-    project_definition: dict[str, Any],
+    names_and_iris_of_list_nodes: dict[str, Any],
+    ontology_definitions: list[dict[str, Any]],
     project_remote: Project,
     verbose: bool,
 ) -> bool:
@@ -583,8 +603,8 @@ def _create_ontologies(
         con: Connection to the DSP server
         context: prefixes and the ontology IRIs they stand for
         knora_api_prefix: the prefix that stands for the knora-api ontology
-        list_root_nodes: the IRIs of the list nodes that were already created and are now available on the DSP server
-        project_definition: the parsed JSON project file
+        names_and_iris_of_list_nodes: IRIs of list nodes that were already created and are available on the DSP server
+        ontology_definitions: the "ontologies" section of the parsed JSON project file
         project_remote: representation of the project on the DSP server
         verbose: verbose switch
 
@@ -609,10 +629,11 @@ def _create_ontologies(
         logger.warning(err_msg, exc_info=True)
         project_ontologies = []
 
-    for ontology_definition in project_definition.get("project", {}).get("ontologies", {}):
-        ontology_definition = cast(dict[str, Any], ontology_definition)
+    for ontology_definition in ontology_definitions:
         ontology_remote = _create_ontology(
-            ontology_definition=ontology_definition,
+            onto_name=ontology_definition["name"],
+            onto_label=ontology_definition["label"],
+            onto_comment=ontology_definition.get("comment"),
             project_ontologies=project_ontologies,
             con=con,
             project_remote=project_remote,
@@ -625,7 +646,8 @@ def _create_ontologies(
 
         # add the empty resource classes to the remote ontology
         last_modification_date, remote_res_classes, success = _add_resource_classes_to_remote_ontology(
-            ontology_definition=ontology_definition,
+            onto_name=ontology_definition["name"],
+            resclass_definitions=ontology_definition.get("resources", []),
             ontology_remote=ontology_remote,
             con=con,
             last_modification_date=ontology_remote.lastModificationDate,
@@ -636,9 +658,10 @@ def _create_ontologies(
 
         # add the property classes to the remote ontology
         last_modification_date, success = _add_property_classes_to_remote_ontology(
-            ontology_definition=ontology_definition,
+            onto_name=ontology_definition["name"],
+            property_definitions=ontology_definition.get("properties", []),
             ontology_remote=ontology_remote,
-            list_root_nodes=list_root_nodes,
+            names_and_iris_of_list_nodes=names_and_iris_of_list_nodes,
             con=con,
             last_modification_date=last_modification_date,
             knora_api_prefix=knora_api_prefix,
@@ -649,7 +672,7 @@ def _create_ontologies(
 
         # Add cardinalities to class
         success = _add_cardinalities_to_resource_classes(
-            ontology_definition=ontology_definition,
+            resclass_definitions=ontology_definition.get("resources", []),
             ontology_remote=ontology_remote,
             remote_res_classes=remote_res_classes,
             last_modification_date=last_modification_date,
@@ -663,7 +686,8 @@ def _create_ontologies(
 
 
 def _add_resource_classes_to_remote_ontology(
-    ontology_definition: dict[str, Any],
+    onto_name: str,
+    resclass_definitions: list[dict[str, Any]],
     ontology_remote: Ontology,
     con: Connection,
     last_modification_date: DateTimeStamp,
@@ -676,7 +700,8 @@ def _add_resource_classes_to_remote_ontology(
     status will be false.
 
     Args:
-        ontology_definition: the part of the parsed JSON project file that contains the current ontology
+        onto_name: name of the current ontology
+        resclass_definitions: the part of the parsed JSON project file that contains the resources of the current onto
         ontology_remote: representation of the current ontology on the DSP server
         con: connection to the DSP server
         last_modification_date: last modification date of the ontology on the DSP server
@@ -691,7 +716,7 @@ def _add_resource_classes_to_remote_ontology(
     overall_success = True
     print("\tCreate resource classes...")
     new_res_classes: dict[str, ResourceClass] = {}
-    sorted_resources = _sort_resources(ontology_definition["resources"], ontology_definition["name"])
+    sorted_resources = _sort_resources(resclass_definitions, onto_name)
     for res_class in sorted_resources:
         super_classes = res_class["super"]
         if isinstance(super_classes, str):
@@ -723,9 +748,10 @@ def _add_resource_classes_to_remote_ontology(
 
 
 def _add_property_classes_to_remote_ontology(
-    ontology_definition: dict[str, Any],
+    onto_name: str,
+    property_definitions: list[dict[str, Any]],
     ontology_remote: Ontology,
-    list_root_nodes: dict[str, Any],
+    names_and_iris_of_list_nodes: dict[str, Any],
     con: Connection,
     last_modification_date: DateTimeStamp,
     knora_api_prefix: str,
@@ -738,9 +764,10 @@ def _add_property_classes_to_remote_ontology(
     status will be false.
 
     Args:
-        ontology_definition: the part of the parsed JSON project file that contains the current ontology
+        onto_name: name of the current ontology
+        property_definitions: the part of the parsed JSON project file that contains the properties of the current onto
         ontology_remote: representation of the current ontology on the DSP server
-        list_root_nodes: the IRIs of the list nodes that were already created and are now available on the DSP server
+        names_and_iris_of_list_nodes: IRIs of list nodes that were already created and are available on the DSP server
         con: connection to the DSP server
         last_modification_date: last modification date of the ontology on the DSP server
         knora_api_prefix: the prefix that stands for the knora-api ontology
@@ -751,7 +778,7 @@ def _add_property_classes_to_remote_ontology(
     """
     overall_success = True
     print("\tCreate property classes...")
-    sorted_prop_classes = _sort_prop_classes(ontology_definition["properties"], ontology_definition["name"])
+    sorted_prop_classes = _sort_prop_classes(property_definitions, onto_name)
     for prop_class in sorted_prop_classes:
         # get the super-property/ies, valid forms are:
         #   - "prefix:super-property" : fully qualified name of property in another ontology. The prefix has to be
@@ -780,9 +807,11 @@ def _add_property_classes_to_remote_ontology(
         else:
             prop_object = knora_api_prefix + prop_class["object"]
 
+        # get the gui_attributes
         gui_attributes = prop_class.get("gui_attributes")
         if gui_attributes and gui_attributes.get("hlist"):
-            gui_attributes["hlist"] = "<" + list_root_nodes[gui_attributes["hlist"]]["id"] + ">"
+            list_iri = names_and_iris_of_list_nodes[gui_attributes["hlist"]]["id"]
+            gui_attributes["hlist"] = f"<{list_iri}>"
 
         # create the property class
         prop_class_local = PropertyClass(
@@ -812,7 +841,7 @@ def _add_property_classes_to_remote_ontology(
 
 
 def _add_cardinalities_to_resource_classes(
-    ontology_definition: dict[str, Any],
+    resclass_definitions: list[dict[str, Any]],
     ontology_remote: Ontology,
     remote_res_classes: dict[str, ResourceClass],
     last_modification_date: DateTimeStamp,
@@ -826,7 +855,7 @@ def _add_cardinalities_to_resource_classes(
     status will be false.
 
     Args:
-        ontology_definition: the part of the parsed JSON project file that contains the current ontology
+        resclass_definitions: the part of the parsed JSON project file that contains the resources of the current onto
         ontology_remote: representation of the current ontology on the DSP server
         remote_res_classes: representations of the resource classes on the DSP server
         last_modification_date: last modification date of the ontology on the DSP server
@@ -844,7 +873,7 @@ def _add_cardinalities_to_resource_classes(
         "0-n": Cardinality.C_0_n,
         "1-n": Cardinality.C_1_n,
     }
-    for res_class in ontology_definition.get("resources", []):
+    for res_class in resclass_definitions:
         res_class_remote = remote_res_classes.get(ontology_remote.iri + "#" + res_class["name"])
         if not res_class_remote:
             print(
@@ -879,6 +908,62 @@ def _add_cardinalities_to_resource_classes(
             ontology_remote.lastModificationDate = last_modification_date
 
     return overall_success
+
+
+def _rectify_hlist_of_properties(
+    lists: list[dict[str, Any]],
+    properties: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """
+    Check the "hlist" of the "gui_attributes" of the properties.
+    If they don't refer to an existing list name,
+    check if there is a label of a list that corresponds to the "hlist".
+    If so, rectify the "hlist" to refer to the name of the list instead of the label.
+
+    Args:
+        lists: "lists" section of the JSON project definition
+        properties: "properties" section of one of the ontologies of the JSON project definition
+
+    Raises:
+        UserError: if the "hlist" refers to no existing list name or label
+
+    Returns:
+        the rectified "properties" section
+    """
+
+    if not lists or not properties:
+        return properties
+
+    existing_list_names = [l["name"] for l in lists]
+
+    for prop in properties:
+        if not prop.get("gui_attributes"):
+            continue
+        if not prop["gui_attributes"].get("hlist"):
+            continue
+        list_name = prop["gui_attributes"]["hlist"] if prop["gui_attributes"]["hlist"] in existing_list_names else None
+        if list_name:
+            continue
+
+        deduced_list_name = None
+        for root_node in lists:
+            if prop["gui_attributes"]["hlist"] in root_node["labels"].values():
+                deduced_list_name = cast(str, root_node["name"])
+        if deduced_list_name:
+            msg = (
+                f"INFO: Property '{prop['name']}' references the list '{prop['gui_attributes']['hlist']}' "
+                f"which is not a valid list name. "
+                f"Assuming that you meant '{deduced_list_name}' instead."
+            )
+            logger.warning(msg)
+            print(msg)
+        else:
+            msg = f"Property '{prop['name']}' references an unknown list: '{prop['gui_attributes']['hlist']}'"
+            logger.error(msg)
+            raise UserError(f"ERROR: {msg}")
+        prop["gui_attributes"]["hlist"] = deduced_list_name
+
+    return properties
 
 
 def create_project(
@@ -934,7 +1019,14 @@ def create_project(
     # validate against JSON schema
     validate_project(project_definition, expand_lists=False)
     print("\tJSON project file is syntactically correct and passed validation.")
-    print(f"Create project '{proj_shortname}' ({proj_shortcode})...")
+
+    # rectify the "hlist" of the "gui_attributes" of the properties
+    for onto in project_definition["project"]["ontologies"]:
+        if onto.get("properties"):
+            onto["properties"] = _rectify_hlist_of_properties(
+                lists=project_definition["project"].get("lists", []),
+                properties=onto["properties"],
+            )
 
     # establish connection to DSP server
     con = login(server=server, user=user_mail, password=password)
@@ -942,8 +1034,13 @@ def create_project(
         con.start_logging()
 
     # create project on DSP server
+    print(f"Create project '{proj_shortname}' ({proj_shortcode})...")
     project_remote, success = _create_project_on_server(
-        project_definition=project_definition,
+        shortcode=project_definition["project"]["shortcode"],
+        shortname=project_definition["project"]["shortname"],
+        longname=project_definition["project"]["longname"],
+        descriptions=project_definition["project"].get("descriptions"),
+        keywords=project_definition["project"].get("keywords"),
         con=con,
         verbose=verbose,
     )
@@ -951,10 +1048,10 @@ def create_project(
         overall_success = False
 
     # create the lists
-    list_root_nodes: dict[str, Any] = {}
+    names_and_iris_of_list_nodes: dict[str, Any] = {}
     if project_definition["project"].get("lists"):
         print("Create lists...")
-        list_root_nodes, success = create_lists_on_server(
+        names_and_iris_of_list_nodes, success = create_lists_on_server(
             lists_to_create=project_definition["project"]["lists"],
             con=con,
             project_remote=project_remote,
@@ -992,8 +1089,8 @@ def create_project(
         con=con,
         context=context,
         knora_api_prefix=knora_api_prefix,
-        list_root_nodes=list_root_nodes,
-        project_definition=project_definition,
+        names_and_iris_of_list_nodes=names_and_iris_of_list_nodes,
+        ontology_definitions=project_definition["project"]["ontologies"],
         project_remote=project_remote,
         verbose=verbose,
     )

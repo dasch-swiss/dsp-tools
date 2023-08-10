@@ -1,0 +1,65 @@
+{
+    "$schema": "../../src/dsp_tools/resources/schema/project.json",
+    "project": {
+        "shortcode": "4125",
+        "shortname": "tp-hlist-refers-label",
+        "longname": "tp-hlist-refers-label",
+        "descriptions": {"en": "tp-hlist-refers-label"},
+        "keywords": ["tp-hlist-refers-label"],
+        "lists": [
+            {
+                "name": "list-no-1",
+                "labels": {
+                    "en": "List number one",
+                    "de": "Liste Nummer eins"
+                },
+                "comments": {"en": "no comment"},
+                "nodes": [
+                    {"name": "first node", "labels": {"en": "First node"}}
+                ]
+            },
+            {
+                "name": "list-no-2",
+                "labels": {
+                    "en": "List number two",
+                    "de": "Liste Nummer zwei"
+                },
+                "comments": {"en": "no comment"},
+                "nodes": [
+                    {"name": "second node", "labels": {"en": "second node"}}
+                ]
+            }
+        ],
+        "ontologies": [
+            {
+                "name": "tp-hlist-refers-label",
+                "label": "tp-hlist-refers-label",
+                "properties": [
+                    {
+                        "name": "hasList1",
+                        "super": ["hasValue"],
+                        "object": "ListValue",
+                        "labels": {"en": "hasList1"},
+                        "gui_element": "List",
+                        "gui_attributes": {"hlist": "List number one"}
+                    },
+                    {
+                        "name": "hasList2",
+                        "super": ["hasValue"],
+                        "object": "ListValue",
+                        "labels": {"en": "hasList2"},
+                        "gui_element": "List",
+                        "gui_attributes": {"hlist": "Liste Nummer zwei"}
+                    }
+                ],
+                "resources": [
+                    {
+                        "name": "minimalResource",
+                        "super": "Resource",
+                        "labels": {"en": "Minimal Resource"}
+                    }
+                ]
+            }
+        ]
+    }
+}

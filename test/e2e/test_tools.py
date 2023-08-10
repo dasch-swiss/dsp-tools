@@ -40,6 +40,7 @@ class TestTools(unittest.TestCase):
     sipi = "http://0.0.0.0:1024"
     test_project_systematic_file = "testdata/json-project/test-project-systematic.json"
     test_project_minimal_file = "testdata/json-project/test-project-minimal.json"
+    test_project_hlist_file = "testdata/json-project/test-project-hlist-refers-label.json"
     test_data_systematic_file = "testdata/xml-data/test-data-systematic.xml"
     test_data_minimal_file = "testdata/xml-data/test-data-minimal.xml"
 
@@ -118,6 +119,17 @@ class TestTools(unittest.TestCase):
     def test_create_project(self) -> None:
         result = create_project(
             project_file_as_path_or_parsed=self.test_project_systematic_file,
+            server=self.server,
+            user_mail=self.user,
+            password="test",
+            verbose=True,
+            dump=False,
+        )
+        self.assertTrue(result)
+
+    def test_create_project_hlist_refers_label(self) -> None:
+        result = create_project(
+            project_file_as_path_or_parsed=self.test_project_hlist_file,
             server=self.server,
             user_mail=self.user,
             password="test",

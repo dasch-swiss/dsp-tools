@@ -7,6 +7,8 @@ import requests
 
 from dsp_tools.models.connection import check_for_api_error
 
+from dsp_tools.utils.shared import http_call_with_retry
+
 
 class Sipi:
     """Represents the Sipi instance"""
@@ -29,11 +31,12 @@ class Sipi:
             files = {
                 "file": (os.path.basename(filepath), bitstream_file),
             }
-            response = requests.post(
-                self.sipi_server + "/upload",
+            response = http_call_with_retry(
+                action=requests.post,
+                initial_timeout=5 * 60,
+                url=self.sipi_server + "/upload",
                 headers={"Authorization": "Bearer " + self.token},
                 files=files,
-                timeout=5 * 60,
             )
         check_for_api_error(response)
         res: dict[Any, Any] = response.json()

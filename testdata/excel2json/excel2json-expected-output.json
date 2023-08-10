@@ -376,7 +376,7 @@
                             "de": "Dezimalzahl",
                             "fr": "Chiffre décimale"
                         },
-                        "gui_element": "Slider",
+                        "gui_element": "Spinbox",
                         "gui_attributes": {
                             "min": 0.0,
                             "max": 100.0

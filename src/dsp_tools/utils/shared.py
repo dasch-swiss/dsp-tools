@@ -7,12 +7,14 @@ import time
 import unicodedata
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Callable, Optional, Union
+from typing import Any, Callable, Optional, Union, cast
 
 import pandas as pd
 import regex
 from lxml import etree
 from requests import ReadTimeout, RequestException
+import requests
+from urllib3.exceptions import ReadTimeoutError
 
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import BaseError, UserError
@@ -52,6 +54,58 @@ def login(
     return con
 
 
+def http_call_with_retry(
+    action: Callable[..., Any],
+    *args: Any,
+    initial_timeout: int = 10,
+    **kwargs: Any,
+) -> requests.Response:
+    """
+    Function that tries 7 times to execute an HTTP request.
+    Timeouts (and only timeouts) are catched, and the request is retried after a waiting time.
+    The waiting times are 1, 2, 4, 8, 16, 32, 64 seconds.
+    Every time, the previous timeout is increased by 10 seconds.
+    Use this only for actions that can be retried without side effects.
+
+    Args:
+        action: one of requests.get(), requests.post(), requests.put(), requests.delete()
+        initial_timeout: Timeout to start with. Defaults to 10 seconds.
+
+    Raises:
+        errors from the requests library that are not timeouts
+
+    Returns:
+        response of the HTTP request
+    """
+    if action not in (requests.get, requests.post, requests.put, requests.delete):
+        raise BaseError(
+            "This function can only be used with the methods get, post, put, and delete of the Python requests library."
+        )
+    action_as_str = f"action='{action}', args='{args}', kwargs='{kwargs}'"
+    timeout = initial_timeout
+    for i in range(7):
+        try:
+            if args and not kwargs:
+                result = action(*args, timeout=timeout)
+            elif kwargs and not args:
+                result = action(**kwargs, timeout=timeout)
+            elif args and kwargs:
+                result = action(*args, **kwargs, timeout=timeout)
+            else:
+                result = action(timeout=timeout)
+            return cast(requests.Response, result)
+        except (TimeoutError, ReadTimeout, ReadTimeoutError):
+            timeout += 10
+            msg = f"Timeout Error: Retry request with timeout {timeout} in {2 ** i} seconds..."
+            print(f"{datetime.now().isoformat()}: {msg}")
+            logger.error(f"{msg} {action_as_str} (retry-counter i={i})", exc_info=True)
+            time.sleep(2**i)
+            continue
+
+    logger.error("Permanently unable to execute the API call. See logs for more details.")
+    raise BaseError("Permanently unable to execute the API call. See logs for more details.")
+
+
 def try_network_action(
     action: Callable[..., Any],
     *args: Any,
@@ -59,7 +113,7 @@ def try_network_action(
 ) -> Any:
     """
     Helper method that tries 7 times to execute an action.
-    If a ConnectionError, a requests.exceptions.RequestException, or a non-permanent BaseError occors,
+    If a timeout error, a ConnectionError, a requests.exceptions.RequestException, or a non-permanent BaseError occors,
     it waits and retries.
     The waiting times are 1, 2, 4, 8, 16, 32, 64 seconds.
     If another exception occurs, it escalates.

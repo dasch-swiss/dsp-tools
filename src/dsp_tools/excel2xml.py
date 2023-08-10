@@ -1267,9 +1267,9 @@ def make_text_prop(
     for val in values:
         kwargs = {"permissions": val.permissions}
         if check_notna(val.comment):
-            kwargs["comment"] = str(val.comment)
+            kwargs["comment"] = val.comment  # type: ignore[assignment]
         if check_notna(val.encoding):
-            kwargs["encoding"] = str(val.encoding)
+            kwargs["encoding"] = val.encoding  # type: ignore[assignment]
         else:
             kwargs["encoding"] = "utf8"
         value_ = etree.Element(

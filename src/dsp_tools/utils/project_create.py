@@ -994,13 +994,14 @@ def create_project(
 
     Raises:
         UserError:
-            if the project cannot be created,
-            if the login fails,
-            if an ontology cannot be created
+          - if the project cannot be created
+          - if the login fails
+          - if an ontology cannot be created
+
         BaseError:
-            if the input is invalid,
-            if an Excel file referenced in the "lists" section cannot be expanded,
-            if the validation doesn't pass
+          - if the input is invalid
+          - if an Excel file referenced in the "lists" section cannot be expanded
+          - if the validation doesn't pass
 
     Returns:
         True if everything went smoothly, False if a warning or error occurred

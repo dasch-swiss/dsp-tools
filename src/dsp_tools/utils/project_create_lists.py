@@ -158,12 +158,13 @@ def create_lists(
 
     Raises:
         UserError:
-            if the project cannot be read from the server,
-            if the connection to the DSP server cannot be established
+          - if the project cannot be read from the server
+          - if the connection to the DSP server cannot be established
+
         BaseError:
-            if the input is invalid,
-            if a problem occurred while trying to expand the Excel files,
-            if the JSON file is invalid according to the schema
+          - if the input is invalid
+          - if a problem occurred while trying to expand the Excel files
+          - if the JSON file is invalid according to the schema
 
     Returns:
         Returns a tuple consisting of a dict and a bool.

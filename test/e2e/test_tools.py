@@ -211,10 +211,10 @@ class TestTools(unittest.TestCase):
             check=True,
             shell=True,
             capture_output=True,
-            cwd=self.cwd,
+            cwd=".",  # the XML file contains references to multimedia files that are relative to the root of the repo
         )
 
-        mapping_file = list(Path(self.cwd).glob("test-data-systematic_id2iri_mapping_*.json"))[0]
+        mapping_file = list(Path().glob("test-data-systematic_id2iri_mapping_*.json"))[0]
         xml_file_orig = Path("testdata/id2iri/test-id2iri-data.xml")
         xml_file_replaced = Path("testdata/tmp/_test-id2iri-replaced.xml")
         cmd_base = "poetry run dsp-tools id2iri --verbose"
@@ -258,7 +258,7 @@ class TestTools(unittest.TestCase):
         excel_folder = Path("testdata/excel2json/lists-multilingual")
         out_file = Path("testdata/tmp/_lists-out.json")
         subprocess.run(
-            f"poetry run dsp-tools excel2lists {excel_folder} {out_file.absolute()}",
+            f"poetry run dsp-tools excel2lists {excel_folder.absolute()} {out_file.absolute()}",
             check=True,
             shell=True,
             capture_output=True,
@@ -275,7 +275,7 @@ class TestTools(unittest.TestCase):
         excel_file = Path("testdata/excel2json/excel2json_files/test-name (test_label)/resources.xlsx")
         out_file = Path("testdata/tmp/_out_resources.json")
         subprocess.run(
-            f"poetry run dsp-tools excel2resources {excel_file.absolute()} {out_file.absolute()}",
+            f"poetry run dsp-tools excel2resources '{excel_file.absolute()}' {out_file.absolute()}",
             check=True,
             shell=True,
             capture_output=True,
@@ -292,7 +292,7 @@ class TestTools(unittest.TestCase):
         excel_file = Path("testdata/excel2json/excel2json_files/test-name (test_label)/properties.xlsx")
         out_file = Path("testdata/tmp/_out_properties.json")
         subprocess.run(
-            f"poetry run dsp-tools excel2properties {excel_file.absolute()} {out_file.absolute()}",
+            f"poetry run dsp-tools excel2properties '{excel_file.absolute()}' {out_file.absolute()}",
             check=True,
             shell=True,
             capture_output=True,
@@ -329,7 +329,7 @@ class TestTools(unittest.TestCase):
         datafile = Path("testdata/excel2xml/excel2xml-testdata.xlsx")
         shortcode = "1234"
         onto_name = "excel2xml-testdata"
-        out_file = Path("testdata/excel2xml/excel2xml-output-data.xml")
+        out_file = self.cwd / f"{onto_name}-data.xml"
         subprocess.run(
             f"poetry run dsp-tools excel2xml {datafile.absolute()} {shortcode} {onto_name}",
             check=True,

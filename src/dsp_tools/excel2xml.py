@@ -1267,14 +1267,14 @@ def make_text_prop(
     for val in values:
         kwargs = {"permissions": val.permissions}
         if check_notna(val.comment):
-            kwargs["comment"] = val.comment  # type: ignore
+            kwargs["comment"] = str(val.comment)
         if check_notna(val.encoding):
-            kwargs["encoding"] = val.encoding  # type: ignore
+            kwargs["encoding"] = str(val.encoding)
         else:
             kwargs["encoding"] = "utf8"
         value_ = etree.Element(
             "{%s}text" % xml_namespace_map[None],
-            **kwargs,  # type: ignore
+            **kwargs,  # type: ignore[arg-type]
             nsmap=xml_namespace_map,
         )
         if kwargs["encoding"] == "utf8":
@@ -2274,7 +2274,7 @@ def excel2xml(
     It takes a tabular data source in CSV/XLS(X) format that is formatted according to the specifications,
     and transforms it into a DSP-conforming XML file
     that can be uploaded to a DSP server with the xmlupload command.
-    The output file is saved in the same directory as the input file,
+    The output file is saved in the current working directory,
     with the name [default_ontology]-data.xml.
 
     Please note that this method doesn't do any data cleaning or data transformation tasks.

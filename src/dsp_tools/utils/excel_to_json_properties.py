@@ -27,7 +27,7 @@ def _validate_properties(
         excelfile: path to the Excel file containing the properties
 
     Raises:
-        BaseError with a detailed error report if the validation fails
+        BaseError: if the validation fails
 
     Returns:
         True if the "properties" section passed validation
@@ -92,7 +92,7 @@ def _row2prop(
         excelfile: name of the original Excel file
 
     Raises:
-        BaseError if the row contains invalid data
+        BaseError: if the row contains invalid data
 
     Returns:
         dict object of the property
@@ -149,7 +149,7 @@ def excel2properties(
         path_to_output_file: if provided, the output is written into this JSON file
 
     Raises:
-        BaseError if something went wrong
+        BaseError: if something went wrong
 
     Returns:
         a tuple consisting of the "properties" section as Python list,

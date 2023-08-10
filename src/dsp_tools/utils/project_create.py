@@ -238,6 +238,9 @@ def _get_group_iris_for_user(
         a tuple consisting of the group IRIs,
         the system admin status (True if the user is sysadmin, False otherwise),
         and the success status (True if everything went well)
+
+    Raises:
+        BaseError: if no groups can be retrieved from the DSP server, or if the retrieved group has no IRI
     """
     success = True
     username = json_user_definition["username"]

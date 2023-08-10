@@ -40,7 +40,7 @@ def login(
         password: Password of the user
 
     Raises:
-        UserError if the login fails permanently
+        UserError: if the login fails permanently
 
     Returns:
         Connection instance
@@ -74,7 +74,8 @@ def http_call_with_retry(
         **kwargs: keyword arguments for the action
 
     Raises:
-        errors from the requests library that are not timeouts
+        BaseError: if the action is not one of one of requests.get(), requests.post(), requests.put(), requests.delete()
+        Other Errors: errors from the requests library that are not timeouts
 
     Returns:
         response of the HTTP request
@@ -126,7 +127,8 @@ def try_network_action(
         kwargs: keyword arguments for the action
 
     Raises:
-        BaseError or unexpected exception if the action fails permanently
+        BaseError: if the action fails permanently
+        unexpected exceptions: if the action fails with an unexpected exception
 
     Returns:
         the return value of action
@@ -180,7 +182,7 @@ def validate_xml_against_schema(input_file: Union[str, Path, etree._ElementTree[
         input_file: path to the XML file to be validated, or parsed ElementTree
 
     Raises:
-        UserError with a detailed error log if the XML file is invalid
+        UserError: if the XML file is invalid
 
     Returns:
         True if the XML file is valid
@@ -284,7 +286,7 @@ def prepare_dataframe(
         location_of_sheet: for better error messages, provide this information of the caller
 
     Raises:
-        BaseError if one of the required columns doesn't exist, or if the resulting DataFrame would be empty
+        BaseError: if one of the required columns doesn't exist, or if the resulting DataFrame would be empty
 
     Returns:
         prepared DataFrame

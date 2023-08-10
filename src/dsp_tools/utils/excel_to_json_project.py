@@ -33,7 +33,7 @@ def excel2json(
         path_to_output_file: path to the file where the output JSON file will be saved
 
     Raises:
-        BaseError if something went wrong
+        BaseError: if something went wrong
 
     Returns:
         True if everything went well

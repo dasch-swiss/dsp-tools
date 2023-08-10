@@ -36,7 +36,12 @@ class StackConfiguration:
     latest_dev_version: bool = False
 
     def __post_init__(self) -> None:
-        """Validate the input parameters passed by the user. Raises a UserError if one of the parameters is invalid."""
+        """
+        Validate the input parameters passed by the user.
+
+        Raises:
+            UserError: if one of the parameters is invalid
+        """
         if self.max_file_size is not None:
             if not 1 <= self.max_file_size <= 100_000:
                 raise UserError("max_file_size must be between 1 and 100000")

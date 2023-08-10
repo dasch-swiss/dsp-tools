@@ -145,7 +145,7 @@ def _write_result_to_pkl_file(processed_files: list[tuple[Path, Optional[Path]]]
         processed_files: the result of the file processing
 
     Raises:
-        UserError if the file could not be written
+        UserError: if the file could not be written
     """
     filename = Path(f"processing_result_{datetime.now().strftime('%Y-%m-%d_%H.%M.%S.%f')}.pkl")
 

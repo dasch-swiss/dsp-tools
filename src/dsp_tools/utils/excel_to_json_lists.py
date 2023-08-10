@@ -273,7 +273,7 @@ def validate_lists_section_with_schema(
         lists_section: the "lists" section as Python object
 
     Raises:
-        BaseError with a detailed error report if the validation fails
+        BaseError: if the validation fails
 
     Returns:
         True if the "lists" section passed validation

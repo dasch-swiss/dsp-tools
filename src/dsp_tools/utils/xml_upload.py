@@ -308,7 +308,7 @@ def _convert_ark_v0_to_resource_iri(ark: str) -> str:
             '6e' being check digits
 
     Raises:
-        BaseError if the ARK is invalid
+        BaseError: if the ARK is invalid
 
     Returns:
         Resource IRI (str) of the form http://rdfh.ch/080C/Ef9heHjPWDS7dMR_gGax2Q
@@ -405,7 +405,7 @@ def _check_consistency_with_ontology(
         verbose: verbose switch
 
     Raises:
-        UserError with a detailed error message if there is an inconsistency between the ontology and the data
+        UserError: if there is an inconsistency between the ontology and the data
 
     Returns:
         None if everything is okay
@@ -472,6 +472,7 @@ def _check_consistency_with_ontology(
 
     print("Resource types and properties are consistent with the ontology.")
     logger.info("Resource types and properties are consistent with the ontology.")
+    return None
 
 
 def _check_if_bitstreams_exist(
@@ -525,8 +526,8 @@ def xml_upload(
         preprocessing_done: if set, all multimedia files referenced in the XML file must already be on the server
 
     Raises:
-        BaseError or UserError in case of permanent network or software failure
-        UserError if the XML file is invalid
+        BaseError: in case of permanent network or software failure
+        UserError: in case of permanent network or software failure, or if the XML file is invalid
 
     Returns:
         True if all resources could be uploaded without errors; False if one of the resources could not be
@@ -1079,9 +1080,6 @@ def _handle_upload_error(
         stashed_resptr_props: all resptr props that have been stashed
         save_location: path where to save the diagnostic info
         timestamp_str: timestamp for the name of the diagnostic files
-
-    Returns:
-        None
     """
     print(
         f"\n==========================================\n"

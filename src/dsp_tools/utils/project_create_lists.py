@@ -35,6 +35,9 @@ def _create_list_node(
         i.e. ``{nodename: {"id": IRI, "nodes": {...}}}``.
         The bool is True if all nodes could be created,
         False if any node could not be created.
+
+    Raises:
+        BaseError: if the created node has no name
     """
     new_node: ListNode = ListNode(
         con=con,
@@ -83,6 +86,9 @@ def create_lists_on_server(
         lists_to_create: "lists" section of a JSON project definition
         con: connection to the DSP server
         project_remote: representation of the project on the DSP server
+
+    Raises:
+        BaseError: if one of the lists to be created already exists on the DSP server, but it has no name
 
     Returns:
         tuple consisting of the IRIs of the list nodes and the success status (True if everything went well)

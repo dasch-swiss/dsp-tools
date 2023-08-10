@@ -1811,7 +1811,7 @@ def write_xml(
     filepath: str,
 ) -> None:
     """
-    Write the finished XML to a file
+    Write the finished XML to a file.
 
     Args:
         root: etree Element with the entire XML document
@@ -1819,9 +1819,6 @@ def write_xml(
 
     Raises:
         Warning: if the XML is not valid according to the schema
-
-    Returns:
-        None
     """
     etree.indent(root, space="    ")
     xml_string = etree.tostring(

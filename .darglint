@@ -1,2 +1,4 @@
 [darglint]
+message_template={path}:{line} ({obj}): {msg_id} {msg}
+ignore_regex=(make_resource|make_annotation|make_link|make_region|_stash_circular_references)
 ignore=DAR402,DAR003

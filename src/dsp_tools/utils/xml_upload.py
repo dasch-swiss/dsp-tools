@@ -232,19 +232,6 @@ def _stash_circular_references(
     """
     If circular references have been identified,
     this function stashes the problematic references and removes them from the resources.
-
-    Args:
-        nok_resources: blah
-        ok_res_ids: blah
-        ok_resources: blah
-        stashed_xml_texts: blah
-        stashed_resptr_props: blah
-
-    Raises:
-        BaseError
-
-    Returns:
-        tuple of 5 lists
     """
     for res in nok_resources.copy():
         for link_prop in res.get_props_with_links():

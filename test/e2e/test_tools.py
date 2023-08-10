@@ -7,9 +7,7 @@ separate unit tests/e2e tests."""
 # pylint: disable=missing-class-docstring,missing-function-docstring,duplicate-code
 
 import copy
-import datetime
 import json
-import os
 from pathlib import Path
 import re
 import shutil
@@ -21,16 +19,7 @@ import jsonpath_ng
 import jsonpath_ng.ext
 import pytest
 
-from dsp_tools.excel2xml import excel2xml
-from dsp_tools.utils.excel_to_json_lists import excel2lists
-from dsp_tools.utils.excel_to_json_project import excel2json
-from dsp_tools.utils.excel_to_json_properties import excel2properties
-from dsp_tools.utils.excel_to_json_resources import excel2resources
-from dsp_tools.utils.id_to_iri import id_to_iri
 from dsp_tools.utils.project_create_lists import create_lists
-from dsp_tools.utils.project_get import get_project
-from dsp_tools.utils.shared import validate_xml_against_schema
-from dsp_tools.utils.xml_upload import xml_upload
 
 
 class TestTools(unittest.TestCase):
@@ -46,6 +35,12 @@ class TestTools(unittest.TestCase):
     test_data_minimal_file = Path("testdata/xml-data/test-data-minimal.xml")
     cwd = Path("cwd")
     testdata_tmp = Path("testdata/tmp")
+    kwargs_for_subprocess = {
+        "check": True,
+        "shell": True,
+        "capture_output": True,
+        "cwd": cwd,
+    }
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -62,14 +57,11 @@ class TestTools(unittest.TestCase):
             f.unlink()
 
     def test_validate_lists_section_with_schema(self) -> None:
-        subprocess.run(
+        subprocess.run(  # pylint: disable=subprocess-run-check
             f"poetry run dsp-tools create --lists-only --validate-only "
             f"{self.test_project_systematic_file.absolute()}",
-            check=True,
-            shell=True,
-            capture_output=True,
-            cwd=self.cwd,
-        )
+            **self.kwargs_for_subprocess,
+        )  # type: ignore[call-overload]
 
     def test_create_lists(self) -> None:
         # the project must already exist, so let's create a project without lists
@@ -210,7 +202,7 @@ class TestTools(unittest.TestCase):
             cwd=self.cwd,
         )
 
-    def test_xml_upload_with_minimal_file(self) -> None:
+    def test_xml_upload(self) -> None:
         subprocess.run(
             f"poetry run dsp-tools xmlupload -v {self.test_data_minimal_file.absolute()}",
             check=True,
@@ -219,7 +211,7 @@ class TestTools(unittest.TestCase):
             cwd=self.cwd,
         )
 
-    def test_xml_upload_with_systematic_file(self) -> None:
+    def test_xml_upload_incremental(self) -> None:
         subprocess.run(
             f"poetry run dsp-tools xmlupload {self.test_data_systematic_file.absolute()}",
             check=True,
@@ -228,92 +220,135 @@ class TestTools(unittest.TestCase):
             cwd=self.cwd,
         )
 
-        mapping_file = ""
-        for mapping in [x for x in os.scandir(".") if x.name.startswith("test-data-systematic_id2iri_mapping_")]:
-            delta = datetime.datetime.now() - datetime.datetime.fromtimestamp(mapping.stat().st_mtime_ns / 1000000000)
-            if delta.seconds < 15:
-                mapping_file = mapping.name
-        self.assertNotEqual(mapping_file, "")
-
-        id2iri_replaced_xml_filename = "testdata/tmp/_test-id2iri-replaced.xml"
-        id_to_iri(
-            xml_file="testdata/id2iri/test-id2iri-data.xml",
-            json_file=mapping_file,
-            out_file=id2iri_replaced_xml_filename,
-            verbose=True,
+        mapping_file = list(Path(self.cwd).glob("test-data-systematic_id2iri_mapping_*.json"))[0]
+        xml_file_orig = Path("testdata/id2iri/test-id2iri-data.xml")
+        xml_file_replaced = Path("testdata/tmp/_test-id2iri-replaced.xml")
+        cmd_base = "poetry run dsp-tools id2iri --verbose"
+        subprocess.run(
+            f"{cmd_base} --outfile {xml_file_replaced.absolute()} {xml_file_orig.absolute()} {mapping_file.absolute()}",
+            check=True,
+            shell=True,
+            capture_output=True,
+            cwd=self.cwd,
         )
-        self.assertTrue(os.path.isfile(id2iri_replaced_xml_filename))
 
-        result_replaced = xml_upload(
-            input_file=id2iri_replaced_xml_filename,
-            server=self.server,
-            user=self.user,
-            password=self.password,
-            imgdir=self.imgdir,
-            sipi=self.sipi,
-            verbose=True,
-            incremental=True,
-            save_metrics=False,
-            preprocessing_done=False,
+        subprocess.run(
+            f"poetry run dsp-tools xmlupload --incremental -v {xml_file_replaced.absolute()}",
+            check=True,
+            shell=True,
+            capture_output=True,
+            cwd=self.cwd,
         )
-        self.assertTrue(result_replaced)
-        self.assertTrue(all(not f.name.startswith("stashed_text_properties_") for f in os.scandir(".")))
-        self.assertTrue(all(not f.name.startswith("stashed_resptr_properties_") for f in os.scandir(".")))
-
-        os.remove(mapping_file)
-        os.remove(id2iri_replaced_xml_filename)
+        self.assertListEqual(list(Path(self.cwd).glob("stashed_*_properties_*.txt")), [])
+        mapping_file.unlink()
+        xml_file_replaced.unlink()
 
     def test_excel_to_json_project(self) -> None:
-        excel2json(
-            data_model_files="testdata/excel2json/excel2json_files",
-            path_to_output_file="testdata/tmp/_out_project.json",
+        excel_folder = Path("testdata/excel2json/excel2json_files")
+        out_file = Path("testdata/tmp/_out_project.json")
+        subprocess.run(
+            f"poetry run dsp-tools excel2json {excel_folder} {out_file.absolute()}",
+            check=True,
+            shell=True,
+            capture_output=True,
+            cwd=self.cwd,
         )
         with open("testdata/excel2json/excel2json-expected-output.json", encoding="utf-8") as f:
             output_expected = json.load(f)
-        with open("testdata/tmp/_out_project.json", encoding="utf-8") as f:
+        with open(out_file, encoding="utf-8") as f:
             output = json.load(f)
         self.assertDictEqual(output, output_expected)
-        os.remove("testdata/tmp/_out_project.json")
+        out_file.unlink()
 
     def test_excel_to_json_list(self) -> None:
-        excel2lists(
-            excelfolder="testdata/excel2json/lists-multilingual",
-            path_to_output_file="testdata/tmp/_lists-out.json",
+        excel_folder = Path("testdata/excel2json/lists-multilingual")
+        out_file = Path("testdata/tmp/_lists-out.json")
+        subprocess.run(
+            f"poetry run dsp-tools excel2list {excel_folder} {out_file.absolute()}",
+            check=True,
+            shell=True,
+            capture_output=True,
+            cwd=self.cwd,
         )
-        self.assertTrue(os.path.isfile("testdata/tmp/_lists-out.json"))
-        os.remove("testdata/tmp/_lists-out.json")
+        with open(out_file, encoding="utf-8") as f:
+            output_actual = json.load(f)
+        with open("testdata/excel2json/lists-multilingual-output-expected.json", encoding="utf-8") as f:
+            output_expected = json.load(f)
+        self.assertListEqual(output_actual, output_expected)
+        out_file.unlink()
 
     def test_excel_to_json_resources(self) -> None:
-        excel2resources(
-            excelfile="testdata/excel2json/excel2json_files/test-name (test_label)/resources.xlsx",
-            path_to_output_file="testdata/tmp/_out_resources.json",
+        excel_file = Path("testdata/excel2json/excel2json_files/test-name (test_label)/resources.xlsx")
+        out_file = Path("testdata/tmp/_out_resources.json")
+        subprocess.run(
+            f"poetry run dsp-tools excel2resources {excel_file} {out_file.absolute()}",
+            check=True,
+            shell=True,
+            capture_output=True,
+            cwd=self.cwd,
         )
-        self.assertTrue(os.path.isfile("testdata/tmp/_out_resources.json"))
-        os.remove("testdata/tmp/_out_resources.json")
+        with open(out_file, encoding="utf-8") as f:
+            output_actual = json.load(f)
+        with open("testdata/excel2json/resources-output-expected.json", encoding="utf-8") as f:
+            output_expected = json.load(f)
+        self.assertListEqual(output_actual, output_expected)
+        out_file.unlink()
 
     def test_excel_to_json_properties(self) -> None:
-        excel2properties(
-            excelfile="testdata/excel2json/excel2json_files/test-name (test_label)/properties.xlsx",
-            path_to_output_file="testdata/tmp/_out_properties.json",
+        excel_file = Path("testdata/excel2json/excel2json_files/test-name (test_label)/properties.xlsx")
+        out_file = Path("testdata/tmp/_out_properties.json")
+        subprocess.run(
+            f"poetry run dsp-tools excel2properties {excel_file} {out_file.absolute()}",
+            check=True,
+            shell=True,
+            capture_output=True,
+            cwd=self.cwd,
         )
-        self.assertTrue(os.path.isfile("testdata/tmp/_out_properties.json"))
-        os.remove("testdata/tmp/_out_properties.json")
+        with open(out_file, encoding="utf-8") as f:
+            output_actual = json.load(f)
+        with open("testdata/excel2json/properties-output-expected.json", encoding="utf-8") as f:
+            output_expected = json.load(f)
+        self.assertListEqual(output_actual, output_expected)
+        out_file.unlink()
 
     def test_id_to_iri(self) -> None:
-        id_to_iri(
-            xml_file="testdata/id2iri/test-id2iri-data.xml",
-            json_file="testdata/id2iri/test-id2iri-mapping.json",
-            out_file="testdata/tmp/test-id2iri-out.xml",
-            verbose=True,
+        xml_file = Path("testdata/id2iri/test-id2iri-data.xml")
+        mapping_file = Path("testdata/id2iri/test-id2iri-mapping.json")
+        out_file = Path("testdata/tmp/test-id2iri-out.xml")
+        cmd_base = "poetry run dsp-tools id2iri --verbose"
+        subprocess.run(
+            f"{cmd_base} --outfile {out_file.absolute()} {xml_file.absolute()} {mapping_file.absolute()}",
+            check=True,
+            shell=True,
+            capture_output=True,
+            cwd=self.cwd,
         )
-        self.assertTrue(os.path.isfile("testdata/tmp/test-id2iri-out.xml"))
-        os.remove("testdata/tmp/test-id2iri-out.xml")
+        with open(out_file, encoding="utf-8") as f:
+            output_actual = f.read()
+        with open("testdata/id2iri/test-id2iri-output-expected.xml", encoding="utf-8") as f:
+            output_expected = f.read()
+        self.assertEqual(output_actual, output_expected)
+        out_file.unlink()
 
     @pytest.mark.filterwarnings("ignore")
     def test_excel2xml(self) -> None:
-        excel2xml("testdata/excel2xml/excel2xml-testdata.xlsx", "1234", "excel2xml-output")
-        self.assertTrue(os.path.isfile("excel2xml-output-data.xml"))
-        os.remove("excel2xml-output-data.xml")
+        datafile = Path("testdata/excel2xml/excel2xml-testdata.xlsx")
+        shortcode = "1234"
+        onto_name = "excel2xml-testdata"
+        out_file = self.cwd / "excel2xml-output-data.xml"
+        subprocess.run(
+            f"poetry run dsp-tools excel2xml {datafile.absolute()} {shortcode} {onto_name}",
+            check=True,
+            shell=True,
+            capture_output=True,
+            cwd=self.cwd,
+        )
+        with open(out_file, encoding="utf-8") as f:
+            output_actual = f.read()
+        with open("testdata/excel2xml/excel2xml-expected-output.xml", encoding="utf-8") as f:
+            output_expected = f.read()
+        self.assertEqual(output_actual, output_expected)
+        out_file.unlink()
 
     def _get_original_project(self) -> dict[str, Any]:
         """

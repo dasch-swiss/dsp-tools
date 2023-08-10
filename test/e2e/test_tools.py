@@ -117,7 +117,7 @@ class TestTools(unittest.TestCase):
             check=True,
             shell=True,
             capture_output=True,
-            cwd=self.cwd,
+            cwd=".",  # the JSON file contains a reference to an Excel file, which is relative to the root of the repo
         )
 
     def test_create_project(self) -> None:
@@ -126,7 +126,7 @@ class TestTools(unittest.TestCase):
             check=True,
             shell=True,
             capture_output=True,
-            cwd=self.cwd,
+            cwd=".",  # the JSON file contains a reference to an Excel file, which is relative to the root of the repo
         )
 
     def test_create_project_hlist_refers_label(self) -> None:
@@ -143,8 +143,9 @@ class TestTools(unittest.TestCase):
         Retrieve the systematic JSON project file with the "get" command,
         and check if the result is identical to the original file.
         """
+        out_file = Path("testdata/tmp/_test-project-systematic.json")
         subprocess.run(
-            "poetry run dsp-tools get --project tp testdata/tmp/_test-project-systematic.json",
+            f"poetry run dsp-tools get --project tp {out_file.absolute()}",
             check=True,
             shell=True,
             capture_output=True,
@@ -240,7 +241,7 @@ class TestTools(unittest.TestCase):
         excel_folder = Path("testdata/excel2json/excel2json_files")
         out_file = Path("testdata/tmp/_out_project.json")
         subprocess.run(
-            f"poetry run dsp-tools excel2json {excel_folder} {out_file.absolute()}",
+            f"poetry run dsp-tools excel2json {excel_folder.absolute()} {out_file.absolute()}",
             check=True,
             shell=True,
             capture_output=True,
@@ -257,7 +258,7 @@ class TestTools(unittest.TestCase):
         excel_folder = Path("testdata/excel2json/lists-multilingual")
         out_file = Path("testdata/tmp/_lists-out.json")
         subprocess.run(
-            f"poetry run dsp-tools excel2list {excel_folder} {out_file.absolute()}",
+            f"poetry run dsp-tools excel2lists {excel_folder} {out_file.absolute()}",
             check=True,
             shell=True,
             capture_output=True,
@@ -274,7 +275,7 @@ class TestTools(unittest.TestCase):
         excel_file = Path("testdata/excel2json/excel2json_files/test-name (test_label)/resources.xlsx")
         out_file = Path("testdata/tmp/_out_resources.json")
         subprocess.run(
-            f"poetry run dsp-tools excel2resources {excel_file} {out_file.absolute()}",
+            f"poetry run dsp-tools excel2resources {excel_file.absolute()} {out_file.absolute()}",
             check=True,
             shell=True,
             capture_output=True,
@@ -291,7 +292,7 @@ class TestTools(unittest.TestCase):
         excel_file = Path("testdata/excel2json/excel2json_files/test-name (test_label)/properties.xlsx")
         out_file = Path("testdata/tmp/_out_properties.json")
         subprocess.run(
-            f"poetry run dsp-tools excel2properties {excel_file} {out_file.absolute()}",
+            f"poetry run dsp-tools excel2properties {excel_file.absolute()} {out_file.absolute()}",
             check=True,
             shell=True,
             capture_output=True,
@@ -328,7 +329,7 @@ class TestTools(unittest.TestCase):
         datafile = Path("testdata/excel2xml/excel2xml-testdata.xlsx")
         shortcode = "1234"
         onto_name = "excel2xml-testdata"
-        out_file = self.cwd / "excel2xml-output-data.xml"
+        out_file = Path("testdata/excel2xml/excel2xml-output-data.xml")
         subprocess.run(
             f"poetry run dsp-tools excel2xml {datafile.absolute()} {shortcode} {onto_name}",
             check=True,

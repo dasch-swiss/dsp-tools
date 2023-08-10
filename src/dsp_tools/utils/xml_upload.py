@@ -230,8 +230,8 @@ def _stash_circular_references(
     dict[XMLResource, dict[XMLProperty, list[str]]],
 ]:
     """
-    If circular references have been identified,
-    this function stashes the problematic references and removes them from the resources.
+    Raises:
+        BaseError
     """
     for res in nok_resources.copy():
         for link_prop in res.get_props_with_links():
@@ -393,9 +393,6 @@ def _check_consistency_with_ontology(
 
     Raises:
         UserError: if there is an inconsistency between the ontology and the data
-
-    Returns:
-        None if everything is okay
     """
     if verbose:
         print("Check if the resource types and properties are consistent with the ontology...")
@@ -459,7 +456,6 @@ def _check_consistency_with_ontology(
 
     print("Resource types and properties are consistent with the ontology.")
     logger.info("Resource types and properties are consistent with the ontology.")
-    return None
 
 
 def _check_if_bitstreams_exist(

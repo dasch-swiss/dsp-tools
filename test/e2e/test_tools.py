@@ -35,12 +35,6 @@ class TestTools(unittest.TestCase):
     test_data_minimal_file = Path("testdata/xml-data/test-data-minimal.xml")
     cwd = Path("cwd")
     testdata_tmp = Path("testdata/tmp")
-    kwargs_for_subprocess = {
-        "check": True,
-        "shell": True,
-        "capture_output": True,
-        "cwd": cwd,
-    }
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -57,11 +51,14 @@ class TestTools(unittest.TestCase):
             f.unlink()
 
     def test_validate_lists_section_with_schema(self) -> None:
-        subprocess.run(  # pylint: disable=subprocess-run-check
+        subprocess.run(
             f"poetry run dsp-tools create --lists-only --validate-only "
             f"{self.test_project_systematic_file.absolute()}",
-            **self.kwargs_for_subprocess,
-        )  # type: ignore[call-overload]
+            check=True,
+            shell=True,
+            capture_output=True,
+            cwd=self.cwd,
+        )
 
     def test_create_lists(self) -> None:
         # the project must already exist, so let's create a project without lists
@@ -146,10 +143,6 @@ class TestTools(unittest.TestCase):
         Retrieve the systematic JSON project file with the "get" command,
         and check if the result is identical to the original file.
         """
-        # open original project and project that was returned from the server
-        project_original = self._get_original_project()
-        project_shortname = project_original["project"]["shortname"]
-
         subprocess.run(
             "poetry run dsp-tools get --project tp testdata/tmp/_test-project-systematic.json",
             check=True,
@@ -157,7 +150,7 @@ class TestTools(unittest.TestCase):
             capture_output=True,
             cwd=self.cwd,
         )
-
+        project_original = self._get_original_project()
         with open("testdata/tmp/_test-project-systematic.json", encoding="utf-8") as f:
             project_returned = json.load(f)
 
@@ -169,7 +162,7 @@ class TestTools(unittest.TestCase):
         self._compare_users(
             users_original=project_original["project"].get("users"),
             users_returned=project_returned["project"].get("users"),
-            project_shortname=project_shortname,
+            project_shortname=project_original["project"]["shortname"],
         )
         self._compare_lists(
             lists_original=project_original["project"].get("lists"),

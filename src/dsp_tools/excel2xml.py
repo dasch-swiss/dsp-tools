@@ -7,7 +7,6 @@ import datetime
 import difflib
 import json
 import os
-import re
 import uuid
 import warnings
 from typing import Any, Callable, Iterable, Optional, Union
@@ -57,10 +56,10 @@ def make_xsd_id_compatible(string: str) -> str:
         raise BaseError(f"The input '{string}' cannot be transformed to an xsd:ID")
 
     # if start of string is neither letter nor underscore, add an underscore
-    res = re.sub(r"^(?=[^A-Za-z_])", "_", string)
+    res = regex.sub(r"^(?=[^A-Za-z_])", "_", string)
 
     # replace all illegal characters by underscore
-    res = re.sub(r"[^\w_\-.]", "_", res, flags=re.ASCII)
+    res = regex.sub(r"[^\w_\-.]", "_", res, flags=regex.ASCII)
 
     # add uuid
     _uuid = uuid.uuid4()
@@ -152,7 +151,7 @@ def find_date_in_string(string: str) -> Optional[str]:
     lookahead = r"(?![0-9A-Za-z])"
 
     # template: 2021-01-01 | 2015_01_02
-    iso_date = re.search(rf"{lookbehind}{year_regex}[_-]([0-1][0-9])[_-]([0-3][0-9]){lookahead}", string)
+    iso_date = regex.search(rf"{lookbehind}{year_regex}[_-]([0-1][0-9])[_-]([0-3][0-9]){lookahead}", string)
     # template: 6.-8.3.1948 | 6/2/1947 - 24.03.1948
     eur_date_range_regex = (
         rf"{lookbehind}"
@@ -160,17 +159,20 @@ def find_date_in_string(string: str) -> Optional[str]:
         rf"{day_regex}{sep_regex}{month_regex}{sep_regex}{year_regex}"
         rf"{lookahead}"
     )
-    eur_date_range = re.search(eur_date_range_regex, string)
+    eur_date_range = regex.search(eur_date_range_regex, string)
     # template: 1.4.2021 | 5/11/2021
-    eur_date = re.search(rf"{lookbehind}{day_regex}{sep_regex}{month_regex}{sep_regex}{year_regex}{lookahead}", string)
+    eur_date = regex.search(
+        rf"{lookbehind}{day_regex}{sep_regex}{month_regex}{sep_regex}{year_regex}{lookahead}",
+        string,
+    )
     # template: March 9, 1908 | March5,1908 | May 11, 1906
     all_months = "|".join(months_dict)
     monthname_date_regex = rf"{lookbehind}({all_months}) ?{day_regex}, ?{year_regex}{lookahead}"
-    monthname_date = re.search(monthname_date_regex, string)
+    monthname_date = regex.search(monthname_date_regex, string)
     # template: 1849/50 | 1849-50 | 1849/1850
-    year_range = re.search(lookbehind + year_regex + r"[/-](\d{2}|\d{4})" + lookahead, string)
+    year_range = regex.search(lookbehind + year_regex + r"[/-](\d{2}|\d{4})" + lookahead, string)
     # template: 1907
-    year_only = re.search(rf"{lookbehind}{year_regex}{lookahead}", string)
+    year_only = regex.search(rf"{lookbehind}{year_regex}{lookahead}", string)
 
     if iso_date:
         year = int(iso_date.group(1))
@@ -589,7 +591,7 @@ def make_color_prop(
 
     # check value type
     for val in values:
-        if not re.search(r"^#[0-9a-f]{6}$", str(val.value).strip(), flags=re.IGNORECASE):
+        if not regex.search(r"^#[0-9a-f]{6}$", str(val.value).strip(), flags=regex.IGNORECASE):
             raise BaseError(
                 f"Failed validation in resource '{calling_resource}', property '{name}': "
                 f"'{val.value}' is not a valid color."
@@ -670,7 +672,7 @@ def make_date_prop(
         + r"((:CE|:BCE)?(:\d{4})(-\d{1,2})?(-\d{1,2})?)?$"
     )
     for val in values:
-        if not re.search(validation_regex, str(val.value).strip()):
+        if not regex.search(validation_regex, str(val.value).strip()):
             raise BaseError(
                 f"Failed validation in resource '{calling_resource}', property '{name}': "
                 f"'{val.value}' is not a valid DSP date."
@@ -887,7 +889,7 @@ def make_geoname_prop(
 
     # check value type
     for val in values:
-        if not re.search(r"^[0-9]+$", str(val.value)):
+        if not regex.search(r"^[0-9]+$", str(val.value)):
             raise BaseError(
                 f"Failed validation in resource '{calling_resource}', property '{name}': "
                 f"'{val.value}' is not a geonames.org identifier."
@@ -1030,7 +1032,10 @@ def make_interval_prop(
 
     # check value type
     for val in values:
-        if not re.match(r"([+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)):([+-]?([0-9]+([.][0-9]*)?|[.][0-9]+))", str(val.value)):
+        if not regex.match(
+            r"([+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)):([+-]?([0-9]+([.][0-9]*)?|[.][0-9]+))",
+            str(val.value),
+        ):
             raise BaseError(
                 f"Failed validation in resource '{calling_resource}', property '{name}': "
                 f"'{val.value}' is not a valid DSP interval."
@@ -1356,7 +1361,7 @@ def make_formatted_text_prop(
         # enforce that the text is well-formed XML: serialize tag ...
         content = etree.tostring(value_, encoding="unicode")
         # ... insert text at the very end of the string, and add ending tag to the previously single <text/> tag ...
-        content = re.sub(r"/>$", f">{val.value}</text>", content)
+        content = regex.sub(r"/>$", f">{val.value}</text>", content)
         # ... try to parse it again
         try:
             value_ = etree.fromstring(content)
@@ -1424,7 +1429,7 @@ def make_time_prop(
     # check value type
     validation_regex = r"^\d{4}-[0-1]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(.\d{1,12})?(Z|[+-][0-1]\d:[0-5]\d)$"
     for val in values:
-        if not re.search(validation_regex, str(val.value)):
+        if not regex.search(validation_regex, str(val.value)):
             raise BaseError(
                 f"Failed validation in resource '{calling_resource}', property '{name}': "
                 f"'{val.value}' is not a valid DSP time."
@@ -1917,7 +1922,7 @@ def _read_cli_input_file(datafile: str) -> pd.DataFrame:
     Returns:
         a pandas DataFrame with the input data
     """
-    if re.search(r"\.csv$", datafile):
+    if regex.search(r"\.csv$", datafile):
         dataframe = pd.read_csv(
             filepath_or_buffer=datafile,
             encoding="utf_8_sig",  # utf_8_sig is the default encoding of Excel
@@ -1925,7 +1930,7 @@ def _read_cli_input_file(datafile: str) -> pd.DataFrame:
             sep=None,
             engine="python",  # let the "python" engine detect the separator
         )
-    elif re.search(r"(\.xls|\.xlsx)$", datafile):
+    elif regex.search(r"(\.xls|\.xlsx)$", datafile):
         dataframe = pd.read_excel(io=datafile, dtype="str")
     else:
         raise BaseError(f"Cannot open file '{datafile}': Invalid extension. Allowed extensions: 'csv', 'xls', 'xlsx'")

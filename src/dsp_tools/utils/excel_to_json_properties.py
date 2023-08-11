@@ -1,12 +1,12 @@
 import importlib.resources
 import json
-import re
 import warnings
 from typing import Any, Optional
 
 import jsonpath_ng.ext
 import jsonschema
 import pandas as pd
+import regex
 
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.shared import check_notna, prepare_dataframe
@@ -40,7 +40,7 @@ def _validate_properties(
         jsonschema.validate(instance=properties_list, schema=properties_schema)
     except jsonschema.ValidationError as err:
         err_msg = f"The 'properties' section defined in the Excel file '{excelfile}' did not pass validation. "
-        json_path_to_property = re.search(r"^\$\[(\d+)\]", err.json_path)
+        json_path_to_property = regex.search(r"^\$\[(\d+)\]", err.json_path)
         if json_path_to_property:
             # fmt: off
             wrong_property_name = (
@@ -51,7 +51,7 @@ def _validate_properties(
             # fmt: on
             excel_row = int(json_path_to_property.group(1)) + 2
             err_msg += f"The problematic property is '{wrong_property_name}' in Excel row {excel_row}. "
-            affected_field = re.search(
+            affected_field = regex.search(
                 r"name|labels|comments|super|subject|object|gui_element|gui_attributes",
                 err.json_path,
             )
@@ -119,9 +119,9 @@ def _row2prop(
                     "The expected format is 'attribute: value[, attribute: value]'."
                 )
             attr, val = [x.strip() for x in pair.split(":")]
-            if re.search(r"^\d+\.\d+$", val):
+            if regex.search(r"^\d+\.\d+$", val):
                 val = float(val)
-            elif re.search(r"^\d+$", val):
+            elif regex.search(r"^\d+$", val):
                 val = int(val)
             gui_attributes[attr] = val
 

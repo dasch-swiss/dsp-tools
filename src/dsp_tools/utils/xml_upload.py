@@ -7,7 +7,6 @@ import base64
 import copy
 import json
 import os
-import re
 import sys
 import uuid
 from collections import namedtuple
@@ -16,8 +15,9 @@ from pathlib import Path
 from typing import Any, Optional, Union, cast
 from urllib.parse import quote_plus
 
-import pandas as pd
 from lxml import etree
+import pandas as pd
+import regex
 
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import BaseError, UserError
@@ -55,7 +55,7 @@ def _transform_server_url_to_foldername(server: str) -> str:
         r"0.0.0.0": "localhost",
     }
     for pattern, repl in server_substitutions.items():
-        server = re.sub(pattern, repl, server)
+        server = regex.sub(pattern, repl, server)
     return server
 
 
@@ -308,10 +308,10 @@ def _convert_ark_v0_to_resource_iri(ark: str) -> str:
     project_id, resource_id, _ = ark.split("-")
     _, project_id = project_id.rsplit("/", 1)
     project_id = project_id.upper()
-    if not re.match("^[0-9a-fA-F]{4}$", project_id):
+    if not regex.match("^[0-9a-fA-F]{4}$", project_id):
         logger.error(f"while converting ARK '{ark}'. Invalid project shortcode '{project_id}'")
         raise BaseError(f"while converting ARK '{ark}'. Invalid project shortcode '{project_id}'")
-    if not re.match("^[0-9A-Za-z]+$", resource_id):
+    if not regex.match("^[0-9A-Za-z]+$", resource_id):
         logger.error(f"while converting ARK '{ark}'. Invalid Salsah ID '{resource_id}'")
         raise BaseError(f"while converting ARK '{ark}'. Invalid Salsah ID '{resource_id}'")
 
@@ -838,7 +838,7 @@ def _upload_stashed_xml_texts(
                     continue
 
                 # strip all xml tags from the old xmltext, so that the pure text itself remains
-                pure_text = re.sub(r"(<\?xml.+>\s*)?<text>\s*(.+)\s*<\/text>", r"\2", old_xmltext)
+                pure_text = regex.sub(r"(<\?xml.+>\s*)?<text>\s*(.+)\s*<\/text>", r"\2", old_xmltext)
 
                 # if the pure text is a hash, the replacement must be made. This hash originates from
                 # _stash_circular_references(), and identifies the XML texts

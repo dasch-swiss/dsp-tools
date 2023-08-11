@@ -1,6 +1,7 @@
 import json
 import os
-import re
+
+import regex
 
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.excel_to_json_lists import excel2lists
@@ -45,16 +46,16 @@ def excel2json(
     # --------------
     if not os.path.isdir(data_model_files):
         raise BaseError(f"ERROR: {data_model_files} is not a directory.")
-    folder = [x for x in os.scandir(data_model_files) if not re.search(r"^(\.|~\$).+", x.name)]
+    folder = [x for x in os.scandir(data_model_files) if not regex.search(r"^(\.|~\$).+", x.name)]
 
     processed_files = []
-    onto_folders = [x for x in folder if os.path.isdir(x) and re.search(r"([\w.-]+) \(([\w.\- ]+)\)", x.name)]
+    onto_folders = [x for x in folder if os.path.isdir(x) and regex.search(r"([\w.-]+) \(([\w.\- ]+)\)", x.name)]
     if len(onto_folders) == 0:
         raise BaseError(
             f"'{data_model_files}' must contain at least one subfolder named after the pattern 'onto_name (onto_label)'"
         )
     for onto_folder in onto_folders:
-        contents = sorted([x.name for x in os.scandir(onto_folder) if not re.search(r"^(\.|~\$).+", x.name)])
+        contents = sorted([x.name for x in os.scandir(onto_folder) if not regex.search(r"^(\.|~\$).+", x.name)])
         if contents != ["properties.xlsx", "resources.xlsx"]:
             raise BaseError(
                 f"ERROR: '{data_model_files}/{onto_folder.name}' must contain one file 'properties.xlsx' "
@@ -64,8 +65,8 @@ def excel2json(
 
     listfolder = [x for x in folder if os.path.isdir(x) and x.name == "lists"]
     if listfolder:
-        listfolder_contents = [x for x in os.scandir(listfolder[0]) if not re.search(r"^(\.|~\$).+", x.name)]
-        if not all(re.search(r"(de|en|fr|it|rm).xlsx", file.name) for file in listfolder_contents):
+        listfolder_contents = [x for x in os.scandir(listfolder[0]) if not regex.search(r"^(\.|~\$).+", x.name)]
+        if not all(regex.search(r"(de|en|fr|it|rm).xlsx", file.name) for file in listfolder_contents):
             raise BaseError(
                 f"The only files allowed in '{data_model_files}/lists' are en.xlsx, de.xlsx, fr.xlsx, it.xlsx, rm.xlsx"
             )
@@ -88,7 +89,7 @@ def excel2json(
 
     ontologies = []
     for onto_folder in onto_folders:
-        name, label = re.search(r"([\w.-]+) \(([\w.\- ]+)\)", onto_folder.name).groups()  # type: ignore[union-attr]
+        name, label = regex.search(r"([\w.-]+) \(([\w.\- ]+)\)", onto_folder.name).groups()  # type: ignore[union-attr]
         resources, success1 = excel2resources(f"{data_model_files}/{onto_folder.name}/resources.xlsx")
         properties, success2 = excel2properties(f"{data_model_files}/{onto_folder.name}/properties.xlsx")
         if not success1 or not success2:

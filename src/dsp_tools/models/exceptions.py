@@ -1,6 +1,7 @@
 import json
-import re
 from typing import Optional
+
+import regex
 
 
 class BaseError(Exception):
@@ -51,7 +52,7 @@ class BaseError(Exception):
                 parsed_json = json.loads(json_content_of_api_response)
                 if "knora-api:error" in parsed_json:
                     knora_api_error = parsed_json["knora-api:error"]
-                    knora_api_error = re.sub(r"^dsp\.errors\.[A-Za-z]+?: ?", "", knora_api_error)
+                    knora_api_error = regex.sub(r"^dsp\.errors\.[A-Za-z]+?: ?", "", knora_api_error)
                     self.orig_err_msg_from_api = knora_api_error
             except json.JSONDecodeError:
                 pass

@@ -1,7 +1,7 @@
 import json
-import re
 from typing import Any, Optional, Union
 
+import regex
 import requests
 
 from dsp_tools.models.exceptions import BaseError
@@ -49,7 +49,7 @@ class Connection:
         :param prefixes: Ontology prefixes used
         """
 
-        self._server = re.sub(r"\/$", "", server)
+        self._server = regex.sub(r"\/$", "", server)
         self._prefixes = prefixes
         self._token = None
         self._log = False

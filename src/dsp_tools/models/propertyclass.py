@@ -1,9 +1,10 @@
 # pylint: disable=missing-class-docstring,missing-function-docstring,duplicate-code
 
 import json
-import re
 from typing import Any, Optional, Sequence, Union
 from urllib.parse import quote_plus
+
+import regex
 
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import BaseError
@@ -302,7 +303,7 @@ class PropertyClass(Model):  # pylint: disable=too-many-instance-attributes,too-
                 return {"@id": "knora-api:" + resref}  # no ":", must be from knora-api!
 
         tmp = {}
-        exp = re.compile("^http.*")  # It is already a fully IRI
+        exp = regex.compile("^http.*")  # It is already a fully IRI
         if exp.match(self._ontology_id):
             propid = self._context.prefix_from_iri(self._ontology_id) + ":" + self._name
             ontid = self._ontology_id

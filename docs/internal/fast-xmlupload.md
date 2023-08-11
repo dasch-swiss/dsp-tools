@@ -127,6 +127,14 @@ This command will collect all pickle files in the current working directory
 that were created by the `process-files` command.
 
 
+### Note
+
+**Due to a resource leak, Python must be quitted after a certain time.**
+**If there are multiple pickle files from the previous step,**
+**it is not recommended to execute `upload-files` with all pickle files being present.**
+**Rather, store them somewhere else, and execute `upload-files` with only a part of the pickle files.**
+
+
 ## 4. `dsp-tools fast-xmlupload`
 
 ```bash

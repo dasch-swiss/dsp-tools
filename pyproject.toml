@@ -67,7 +67,13 @@ check-links = """
     ./docs \
     -i \\.\\/assets\\/.+ \
     -i .+github\\.com\\/dasch\\-swiss\\/dsp-tools\\/settings \
-    -i .+github\\.com\\/dasch\\-swiss\\/ops-deploy\\/.+
+    -i .+github\\.com\\/dasch\\-swiss\\/ops-deploy\\/.+\
+"""
+darglint = """
+    find . -name "*.py" \
+    -not -path "./src/dsp_tools/models/*" \
+    -not -path "./.git/*" \
+    | xargs poetry run darglint -v 2\
 """
 
 

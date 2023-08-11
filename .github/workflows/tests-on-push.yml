@@ -63,7 +63,7 @@ jobs:
         run: poetry run black --check .
 
       - name: Linting with darglint
-        run: find . -name "*.py" -not -path "./src/dsp_tools/models/*" -not -path "./.git/*" | xargs poetry run darglint -v 2
+        run: poetry exec darglint
       
 
       # Install programs for local processing (fast xmlupload)

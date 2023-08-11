@@ -29,9 +29,10 @@ DELETE
 
 import copy
 import json
-import re
 from typing import Any, Optional, Union
 from urllib.parse import quote_plus
+
+import regex
 
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import BaseError
@@ -352,7 +353,7 @@ class Ontology(Model):  # pylint: disable=too-many-instance-attributes
 
     @staticmethod
     def getOntologyFromServer(con: Connection, shortcode: str, name: str) -> "Ontology":
-        if re.search(r"[0-9A-F]{4}", shortcode):
+        if regex.search(r"[0-9A-F]{4}", shortcode):
             result = con.get("/ontology/" + shortcode + "/" + name + "/v2" + Ontology.ALL_LANGUAGES)
         else:
             result = con.get("/ontology/" + name + "/v2" + Ontology.ALL_LANGUAGES)

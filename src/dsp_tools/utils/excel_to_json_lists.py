@@ -3,7 +3,6 @@ import glob
 import importlib.resources
 import json
 import os
-import re
 from typing import Any, Optional, Union
 
 import jsonschema
@@ -121,7 +120,7 @@ def _get_values_from_excel(
         # previous values
         preval.append(str(base_file_ws.cell(column=col - 1, row=row).value).strip())
 
-    while cell.value and regex.search(r"\p{L}", str(cell.value), flags=re.UNICODE):
+    while cell.value and regex.search(r"\p{L}", str(cell.value), flags=regex.UNICODE):
         # check if all predecessors in row (values to the left) are consistent with the values in preval list
         for idx, val in enumerate(preval[:-1]):
             if val != str(base_file_ws.cell(column=idx + 1, row=row).value).strip():
@@ -132,7 +131,7 @@ def _get_values_from_excel(
 
         # loop through the row until the last (furthest right) value is found
         next_value = base_file_ws.cell(column=col + 1, row=row).value
-        if next_value and regex.search(r"\p{L}", str(next_value), flags=re.UNICODE):
+        if next_value and regex.search(r"\p{L}", str(next_value), flags=regex.UNICODE):
             row, _ = _get_values_from_excel(
                 excelfiles=excelfiles,
                 base_file=base_file,
@@ -331,7 +330,7 @@ def _extract_excel_file_paths(excelfolder: str) -> list[str]:
     ]
 
     for filepath in excel_file_paths:
-        if not re.search(r"^(de|en|fr|it|rm)\.xlsx$", os.path.basename(filepath)):
+        if not regex.search(r"^(de|en|fr|it|rm)\.xlsx$", os.path.basename(filepath)):
             raise BaseError(f"Invalid file name '{filepath}'. Expected format: 'languagecode.xlsx'")
 
     return excel_file_paths

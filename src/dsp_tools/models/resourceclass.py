@@ -8,10 +8,11 @@ This model implements the handling of resource classes. It contains two classes 
 # pylint: disable=missing-class-docstring,missing-function-docstring,too-many-instance-attributes,duplicate-code
 
 import json
-import re
 from enum import Enum
 from typing import Any, Optional, Sequence, Union
 from urllib.parse import quote_plus
+
+import regex
 
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import BaseError
@@ -635,7 +636,7 @@ class ResourceClass(Model):
                 return {"@id": "knora-api:" + resref}  # no ":", must be from knora-api!
 
         tmp = {}
-        exp = re.compile("^http.*")  # It is already a fully IRI
+        exp = regex.compile("^http.*")  # It is already a fully IRI
         if exp.match(self._ontology_id):
             resid = self._context.prefix_from_iri(self._ontology_id) + ":" + self._name
             ontid = self._ontology_id

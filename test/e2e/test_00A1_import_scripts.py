@@ -1,10 +1,10 @@
 # pylint: disable=missing-class-docstring,duplicate-code
 
 import os
-import re
 import unittest
 
 import pytest
+import regex
 
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.project_create import create_project
@@ -102,9 +102,9 @@ def _derandomize_xsd_id(
 
     uuid4_regex = r"[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}"
     if multiple_occurrences:
-        return re.subn(uuid4_regex, "", string, flags=re.IGNORECASE)[0]
+        return regex.subn(uuid4_regex, "", string, flags=regex.IGNORECASE)[0]
     else:
-        return re.sub(uuid4_regex, "", string, re.IGNORECASE)
+        return regex.sub(uuid4_regex, "", string, regex.IGNORECASE)
 
 
 if __name__ == "__main__":

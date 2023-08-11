@@ -1,6 +1,7 @@
 import json
-import re
 from typing import Any
+
+import regex
 
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import BaseError
@@ -41,11 +42,11 @@ def get_project(
         con.login(user, password)
 
     project = None
-    if re.match("[0-9A-F]{4}", project_identifier):  # shortcode
+    if regex.match("[0-9A-F]{4}", project_identifier):  # shortcode
         project = Project(con=con, shortcode=project_identifier)
-    elif re.match("^[\\w-]+$", project_identifier):  # shortname
+    elif regex.match("^[\\w-]+$", project_identifier):  # shortname
         project = Project(con=con, shortname=project_identifier.lower())
-    elif re.match("^(http)s?://([\\w\\.\\-~]+:?\\d{,4})(/[\\w\\-~]+)+$", project_identifier):  # iri
+    elif regex.match("^(http)s?://([\\w\\.\\-~]+:?\\d{,4})(/[\\w\\-~]+)+$", project_identifier):  # iri
         project = Project(con=con, shortname=project_identifier)
     else:
         raise BaseError(

@@ -1,12 +1,12 @@
 from dataclasses import dataclass
 import importlib.resources
-import re
 import shutil
 import subprocess
 import time
 from pathlib import Path
 from typing import Optional
 
+import regex
 import requests
 import yaml
 
@@ -140,9 +140,9 @@ class StackHandler:
         docker_config_lua_text = docker_config_lua_response.text
         if self.__stack_configuration.max_file_size:
             max_post_size_regex = r"max_post_size ?= ?[\'\"]\d+M[\'\"]"
-            if not re.search(max_post_size_regex, docker_config_lua_text):
+            if not regex.search(max_post_size_regex, docker_config_lua_text):
                 raise UserError("Unable to set max_file_size. Please try again without this flag.")
-            docker_config_lua_text = re.sub(
+            docker_config_lua_text = regex.sub(
                 max_post_size_regex,
                 f"max_post_size = '{self.__stack_configuration.max_file_size}M'",
                 docker_config_lua_text,

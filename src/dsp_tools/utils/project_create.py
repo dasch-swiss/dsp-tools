@@ -1,8 +1,9 @@
 """This module handles the ontology creation, update and upload to a DSP server. This includes the creation and update
 of the project, the creation of groups, users, lists, resource classes, properties and cardinalities."""
-import re
 from pathlib import Path
 from typing import Any, Optional, Union, cast
+
+import regex
 
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import BaseError, UserError
@@ -475,7 +476,7 @@ def _sort_resources(
             parent_classes = res["super"]
             if isinstance(parent_classes, str):
                 parent_classes = [parent_classes]
-            parent_classes = [re.sub(r"^:([^:]+)$", f"{onto_name}:\\1", elem) for elem in parent_classes]
+            parent_classes = [regex.sub(r"^:([^:]+)$", f"{onto_name}:\\1", elem) for elem in parent_classes]
             parent_classes_ok = [not p.startswith(onto_name) or p in ok_resource_names for p in parent_classes]
             if all(parent_classes_ok):
                 sorted_resources.append(res)
@@ -511,7 +512,7 @@ def _sort_prop_classes(
             parent_classes = prop.get("super", "hasValue")
             if isinstance(parent_classes, str):
                 parent_classes = [parent_classes]
-            parent_classes = [re.sub(r"^:([^:]+)$", f"{onto_name}:\\1", elem) for elem in parent_classes]
+            parent_classes = [regex.sub(r"^:([^:]+)$", f"{onto_name}:\\1", elem) for elem in parent_classes]
             parent_classes_ok = [not p.startswith(onto_name) or p in ok_propclass_names for p in parent_classes]
             if all(parent_classes_ok):
                 sorted_prop_classes.append(prop)

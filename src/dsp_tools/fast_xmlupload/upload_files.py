@@ -3,6 +3,7 @@ import pickle
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from pathlib import Path
+from time import sleep
 from typing import Optional
 
 import requests
@@ -11,7 +12,7 @@ from regex import regex
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.logging import get_logger
-from dsp_tools.utils.shared import http_call_with_retry, login
+from dsp_tools.utils.shared import login
 
 logger = get_logger(__name__)
 
@@ -151,6 +152,40 @@ def _check_upload_candidates(
     return True
 
 
+def _call_upload_without_processing_recursively(
+    file: Path,
+    sipi_url: str,
+    con: Connection,
+    err_msg: str,
+) -> bool:
+    """
+    There are different kinds of failures in _upload_without_processing(),
+    and each of them should be handled the same way:
+    By calling this function.
+
+    This function logs and prints the error message,
+    sleeps for 2 seconds,
+    and then calls _upload_without_processing() again.
+
+    Args:
+        file: file to upload
+        sipi_url: URL of the SIPI server
+        con: connection to the DSP server
+        err_msg: message to print and log
+
+    Returns:
+        return value of _upload_without_processing()
+    """
+    print(f"{datetime.now()}: ERROR: {err_msg}")
+    logger.error(err_msg, exc_info=True)
+    sleep(2)
+    return _upload_without_processing(
+        file=file,
+        sipi_url=sipi_url,
+        con=con,
+    )
+
+
 def _upload_without_processing(
     file: Path,
     sipi_url: str,
@@ -158,44 +193,52 @@ def _upload_without_processing(
 ) -> bool:
     """
     Send a single file to the "upload_without_processing" route.
+    In case of failure, retry after 2 seconds
+    by recursively calling this function again.
+    Retry until the file could be uploaded.
 
     Args:
         file: file to upload
-        sipi_url: URL to the sipi server
+        sipi_url: URL of the SIPI server
         con: connection to the DSP server
 
     Returns:
-        True if the file could be uploaded, False if an exception occurred.
+        True if the file could be uploaded
     """
     try:
         with open(file, "rb") as bitstream:
             try:
-                response_upload = http_call_with_retry(
-                    action=requests.post,
-                    initial_timeout=8 * 60,
+                response_upload = requests.post(
                     url=f"{regex.sub(r'/$', '', sipi_url)}/upload_without_processing",
                     headers={"Authorization": f"Bearer {con.get_token()}"},
                     files={"file": bitstream},
+                    timeout=8 * 60,
                 )
             except Exception:  # pylint: disable=broad-exception-caught
-                err_msg = f"An exception was raised while calling the /upload_without_processing route for {file}"
-                print(f"{datetime.now()}: ERROR: {err_msg}")
-                logger.error(err_msg, exc_info=True)
-                return False
+                return _call_upload_without_processing_recursively(
+                    file=file,
+                    sipi_url=sipi_url,
+                    con=con,
+                    err_msg=f"The /upload_without_processing route raised an exception for {file}. Retrying...",
+                )
     except Exception:  # pylint: disable=broad-exception-caught
-        err_msg = f"Cannot send file to /upload_without_processing route, because the file cannot be opened: {file}"
-        print(f"{datetime.now()}: ERROR: {err_msg}")
-        logger.error(err_msg, exc_info=True)
-        return False
+        return _call_upload_without_processing_recursively(
+            file=file,
+            sipi_url=sipi_url,
+            con=con,
+            err_msg=f"Opening the file {file} raised an exception. Retrying...",
+        )
 
     if response_upload.json().get("message") == "server.fs.mkdir() failed: File exists":
         # This error can be safely ignored, since the file was uploaded correctly.
         logger.info(f"In spite of 'server.fs.mkdir() failed: File exists', successfully uploaded file {file}")
     elif response_upload.status_code != 200:
-        err_msg = f"An error occurred while uploading the file {file}. The response was {vars(response_upload)}"
-        print(f"{datetime.now()}: ERROR: {err_msg}")
-        logger.error(err_msg)
-        return False
+        return _call_upload_without_processing_recursively(
+            file=file,
+            sipi_url=sipi_url,
+            con=con,
+            err_msg=f"Uploading the file {file} returned non-200. Retrying... The response was {vars(response_upload)}",
+        )
     else:
         logger.info(f"Successfully uploaded file {file}")
 
@@ -215,7 +258,7 @@ def _upload_file(
         dir_with_processed_files: path to the directory where the processed files are located
         internal_filename_of_processed_file: path to the derivate of the original file,
             i.e. the processed file (uuid filename)
-        sipi_url: URL to the sipi server
+        sipi_url: URL of the SIPI server
         con: connection to the DSP server
 
     Returns:
@@ -264,7 +307,7 @@ def _upload_files_in_parallel(
         dir_with_processed_files: path to the directory where the processed files are located
         internal_filenames_of_processed_files: list of uuid filenames,
             each filename being the path to the derivate of the original file
-        sipi_url: URL to the sipi server
+        sipi_url: URL of the SIPI server
         con: connection to the DSP server
         nthreads: number of threads to use for the upload (optimum depends on the number of CPUs on the server)
 
@@ -340,7 +383,7 @@ def upload_files(
         user: the user's e-mail for login into DSP
         password: the user's password for login into DSP
         dsp_url: URL to the DSP server
-        sipi_url: URL to the Sipi server
+        sipi_url: URL of the SIPI server
 
     Returns:
         success status

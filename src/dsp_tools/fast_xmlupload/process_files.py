@@ -20,6 +20,8 @@ from lxml import etree
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.logging import get_logger
 
+from dsp_tools.utils.shared import http_call_with_retry
+
 logger = get_logger(__name__, filesize_mb=100, backupcount=36)
 sipi_container: Optional[Container] = None
 export_moving_image_frames_script: Optional[Path] = None
@@ -33,10 +35,11 @@ def _get_export_moving_image_frames_script() -> None:
     user_folder.mkdir(parents=True, exist_ok=True)
     global export_moving_image_frames_script
     export_moving_image_frames_script = user_folder / "export-moving-image-frames.sh"
-    script_text = requests.get(
-        "https://github.com/dasch-swiss/dsp-api/raw/main/sipi/scripts/export-moving-image-frames.sh",
-        timeout=10,
-    ).text
+    script_text_response = http_call_with_retry(
+        action=requests.get,
+        url="https://github.com/dasch-swiss/dsp-api/raw/main/sipi/scripts/export-moving-image-frames.sh",
+    )
+    script_text = script_text_response.text
     with open(export_moving_image_frames_script, "w", encoding="utf-8") as f:
         f.write(script_text)
 
@@ -144,7 +147,8 @@ def _write_result_to_pkl_file(processed_files: list[tuple[Path, Optional[Path]]]
     Raises:
         UserError if the file could not be written
     """
-    filename = f"processing_result_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pkl"
+    filename = Path(f"processing_result_{datetime.now().strftime('%Y-%m-%d_%H.%M.%S.%f')}.pkl")
+
     try:
         with open(filename, "wb") as pkl_file:
             pickle.dump(processed_files, pkl_file)

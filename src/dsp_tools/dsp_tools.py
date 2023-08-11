@@ -146,7 +146,6 @@ def _make_parser(
         help="For internal use only: upload already processed files",
     )
     parser_upload_files.set_defaults(action="upload-files")
-    parser_upload_files.add_argument("-f", "--pkl-file", help="path to pickle file written by 'process-files'")
     parser_upload_files.add_argument("-d", "--processed-dir", help="path to the directory with the processed files")
     parser_upload_files.add_argument("-n", "--nthreads", type=int, default=4, help="number of threads to use")
     parser_upload_files.add_argument("-s", "--server", default=default_dsp_api_url, help=dsp_server_text)
@@ -159,7 +158,6 @@ def _make_parser(
         help="For internal use only: create resources with already uploaded files",
     )
     parser_fast_xmlupload_files.set_defaults(action="fast-xmlupload")
-    parser_fast_xmlupload_files.add_argument("-f", "--pkl-file", help="path to pickle file written by 'process-files'")
     parser_fast_xmlupload_files.add_argument("-s", "--server", default=default_dsp_api_url, help=dsp_server_text)
     parser_fast_xmlupload_files.add_argument("-u", "--user", default=root_user_email, help=username_text)
     parser_fast_xmlupload_files.add_argument("-p", "--password", default=root_user_pw, help=password_text)
@@ -486,7 +484,6 @@ def _call_requested_action(args: argparse.Namespace) -> bool:
         )
     elif args.action == "upload-files":
         success = upload_files(
-            pkl_file=args.pkl_file,
             dir_with_processed_files=args.processed_dir,
             nthreads=args.nthreads,
             user=args.user,
@@ -497,7 +494,6 @@ def _call_requested_action(args: argparse.Namespace) -> bool:
     elif args.action == "fast-xmlupload":
         success = fast_xmlupload(
             xml_file=args.xml_file,
-            pkl_file=args.pkl_file,
             user=args.user,
             password=args.password,
             dsp_url=args.server,

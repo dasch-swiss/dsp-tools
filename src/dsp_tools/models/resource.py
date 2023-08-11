@@ -1,9 +1,10 @@
 import json
-import re
 from copy import deepcopy
 from dataclasses import dataclass
 from typing import Any, Optional, Type, Union
 from urllib.parse import quote_plus
+
+import regex
 
 from dsp_tools.models.bitstream import Bitstream
 from dsp_tools.models.connection import Connection

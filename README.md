@@ -156,8 +156,9 @@ We use
 - [black](https://pypi.org/project/black/) (configured in `pyproject.toml`)
 - [mypy](https://pypi.org/project/mypy/) (configured in `pyproject.toml`)
 - [pylint](https://pypi.org/project/pylint/) (configured in `pyproject.toml`)
+- [darglint](https://pypi.org/project/darglint/) (configured in `.darglint`)
 
-These 4 linters are integrated in the GitHub CI pipeline, 
+These linters are integrated in the GitHub CI pipeline, 
 so that every pull request is checked for code style violations.
 
 In addition, there are [pre-commit hooks](#pre-commit-hooks) 

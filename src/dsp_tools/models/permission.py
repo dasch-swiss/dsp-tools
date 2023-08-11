@@ -1,8 +1,9 @@
 # pylint: disable=missing-class-docstring,missing-function-docstring
 
-import re
 from enum import Enum, unique
 from typing import Optional, Union
+
+import regex
 
 
 @unique
@@ -75,7 +76,7 @@ class Permissions:
         tmpstr = permstr.split("|")
         permissions: dict[PermissionValue, list[str]] = {}
         for s in tmpstr:
-            key, *vals = re.split("[\\s,]+", s)
+            key, *vals = regex.split("[\\s,]+", s)
             permissions[PermissionValue[key]] = vals
         return cls(permissions)
 

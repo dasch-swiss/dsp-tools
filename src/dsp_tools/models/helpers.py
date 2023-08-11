@@ -30,7 +30,7 @@ ContextType = dict[str, OntoIri]
 
 
 class IriTest:  # pylint: disable=too-few-public-methods
-    __iri_regexp = re.compile("^(http)s?://([\\w\\.\\-~]+)?(:\\d{,6})?(/[\\w\\-~]+)*(#[\\w\\-~]*)?")
+    __iri_regexp = regex.compile("^(http)s?://([\\w\\.\\-~]+)?(:\\d{,6})?(/[\\w\\-~]+)*(#[\\w\\-~]*)?")
 
     @classmethod
     def test(cls, val: str) -> bool:
@@ -124,7 +124,7 @@ class Context:
         :param context: A dict of prefix - ontology-iri pairs
         """
         # regexp to test for a complete IRI (including fragment identifier)
-        self._exp = re.compile("^(http)s?://([\\w\\.\\-~]+)?(:\\d{,6})?(/[\\w\\-~]+)*(#[\\w\\-~]*)?")
+        self._exp = regex.compile("^(http)s?://([\\w\\.\\-~]+)?(:\\d{,6})?(/[\\w\\-~]+)*(#[\\w\\-~]*)?")
         self._context = ContextType({})
 
         # add ontologies from context, if any
@@ -306,7 +306,7 @@ class Context:
             return None
 
         # check if the iri already has the form "prefix:name"
-        m = re.match("([\\w-]+):([\\w-]+)", iri)
+        m = regex.match("([\\w-]+):([\\w-]+)", iri)
         if m and m.span()[1] == len(iri):
             return iri
 
@@ -399,13 +399,13 @@ class DateTimeStamp:
         :param val: xsd:dateTimeStamp as string, instance of "DateTimeStamp" or json-ld construct
         """
         if isinstance(val, str):
-            if not re.search(self._validation_regex, val):
+            if not regex.search(self._validation_regex, val):
                 raise BaseError(f"Invalid xsd:dateTimeStamp: '{val}'")
             self._dateTimeStamp = val
         elif isinstance(val, DateTimeStamp):
             self._dateTimeStamp = str(val)
         else:
-            if val.get("@type") == "xsd:dateTimeStamp" and re.search(self._validation_regex, str(val.get("@value"))):
+            if val.get("@type") == "xsd:dateTimeStamp" and regex.search(self._validation_regex, str(val.get("@value"))):
                 self._dateTimeStamp = val["@value"]
             else:
                 raise BaseError(f"Invalid xsd:dateTimeStamp: '{val}'")

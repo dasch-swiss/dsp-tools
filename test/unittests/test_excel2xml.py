@@ -1,15 +1,15 @@
 # pylint: disable=missing-class-docstring,missing-function-docstring,too-many-public-methods
 
 import os
-import re
 import unittest
 from pathlib import Path
 from typing import Any, Callable, Optional, Sequence, Union
 
+from lxml import etree
 import numpy as np
 import pandas as pd
 import pytest
-from lxml import etree
+import regex
 
 from dsp_tools import excel2xml
 from dsp_tools.models.exceptions import BaseError
@@ -115,18 +115,18 @@ def run_test(
         kwargs_to_generate_xml = tc[1]
         if prop == "list":
             # a <list-prop> has the additional attribute list="listname"
-            xml_expected = re.sub(r"<list-prop", f'<list-prop list="{listname}"', xml_expected)
+            xml_expected = regex.sub(r"<list-prop", f'<list-prop list="{listname}"', xml_expected)
             kwargs_to_generate_xml["list_name"] = listname
         elif prop == "text":
             # a <text> has the additional attribute encoding="utf8" (the other encoding, xml, is tested in the caller)
-            xml_expected = re.sub(
+            xml_expected = regex.sub(
                 r"<text (permissions=\".+?\")( comment=\".+?\")?",
                 '<text \\1\\2 encoding="utf8"',
                 xml_expected,
             )
         xml_returned_as_element = method(**kwargs_to_generate_xml)
         xml_returned = etree.tostring(xml_returned_as_element, encoding="unicode")
-        xml_returned = re.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_returned)  # remove all xml namespace declarations
+        xml_returned = regex.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_returned)  # remove all xml namespace declarations
         testcase.assertEqual(
             xml_expected, xml_returned, msg=f"Method {method.__name__} failed with kwargs {kwargs_to_generate_xml}"
         )
@@ -158,7 +158,7 @@ class TestExcel2xml(unittest.TestCase):
 
         # test that the results are valid xsd:ids
         for result in results:
-            self.assertTrue(re.search(r"^[a-zA-Z_][\w.-]*$", result))
+            self.assertTrue(regex.search(r"^[a-zA-Z_][\w.-]*$", result))
 
         # test that invalid inputs lead to an error
         self.assertRaises(BaseError, excel2xml.make_xsd_id_compatible, 0)
@@ -320,7 +320,7 @@ class TestExcel2xml(unittest.TestCase):
         for expected, method_call in test_cases:
             with self.assertWarnsRegex(UserWarning, ".*Failed validation in bitstream tag.*"):
                 result = etree.tostring(method_call(), encoding="unicode")
-                result = re.sub(r" xmlns(:.+?)?=\".+?\"", "", result)
+                result = regex.sub(r" xmlns(:.+?)?=\".+?\"", "", result)
                 self.assertEqual(result, expected)
 
     def test_make_boolean_prop(self) -> None:
@@ -358,11 +358,11 @@ class TestExcel2xml(unittest.TestCase):
 
         for true_value in true_values:
             true_xml = etree.tostring(excel2xml.make_boolean_prop(":test", true_value), encoding="unicode")
-            true_xml = re.sub(r" xmlns(:.+?)?=\".+?\"", "", true_xml)
+            true_xml = regex.sub(r" xmlns(:.+?)?=\".+?\"", "", true_xml)
             self.assertEqual(true_xml, true_xml_expected, msg=f"Failed with '{true_value}'")
         for false_value in false_values:
             false_xml = etree.tostring(excel2xml.make_boolean_prop(":test", false_value), encoding="unicode")
-            false_xml = re.sub(r" xmlns(:.+?)?=\".+?\"", "", false_xml)
+            false_xml = regex.sub(r" xmlns(:.+?)?=\".+?\"", "", false_xml)
             self.assertEqual(false_xml, false_xml_expected, msg=f"Failed with '{false_value}'")
         for unsupported_value in unsupported_values:
             with self.assertRaises(BaseError):
@@ -482,7 +482,7 @@ class TestExcel2xml(unittest.TestCase):
             received = etree.tostring(
                 excel2xml.make_text_prop(":test", excel2xml.PropertyElement(orig, encoding="utf8")), encoding="unicode"
             )
-            received = re.sub(r" xmlns(:.+?)?=\".+?\"", "", received)
+            received = regex.sub(r" xmlns(:.+?)?=\".+?\"", "", received)
             expected = (
                 '<text-prop name=":test"><text permissions="prop-default" encoding="utf8">'
                 + exp
@@ -519,7 +519,7 @@ class TestExcel2xml(unittest.TestCase):
             received = etree.tostring(
                 excel2xml.make_text_prop(":test", excel2xml.PropertyElement(orig, encoding="xml")), encoding="unicode"
             )
-            received = re.sub(r" xmlns(:.+?)?=\".+?\"", "", received)
+            received = regex.sub(r" xmlns(:.+?)?=\".+?\"", "", received)
             expected = (
                 '<text-prop name=":test"><text permissions="prop-default" encoding="xml">' + exp + "</text></text-prop>"
             )
@@ -617,7 +617,7 @@ class TestExcel2xml(unittest.TestCase):
             for _method, result in test_cases:
                 xml_returned_as_element = _method()
                 xml_returned = etree.tostring(xml_returned_as_element, encoding="unicode")
-                xml_returned = re.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_returned)
+                xml_returned = regex.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_returned)
                 self.assertEqual(result, xml_returned)
 
             with self.assertWarns(UserWarning):
@@ -655,7 +655,7 @@ class TestExcel2xml(unittest.TestCase):
         for method, result in test_cases:
             xml_returned_as_element = method()
             xml_returned = etree.tostring(xml_returned_as_element, encoding="unicode")
-            xml_returned = re.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_returned)
+            xml_returned = regex.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_returned)
             self.assertEqual(result, xml_returned)
 
         self.assertWarns(UserWarning, lambda: excel2xml.make_resource("label", "restype", "id", ark="ark", iri="iri"))

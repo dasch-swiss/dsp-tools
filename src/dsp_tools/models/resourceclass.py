@@ -635,7 +635,7 @@ class ResourceClass(Model):
                 return {"@id": "knora-api:" + resref}  # no ":", must be from knora-api!
 
         tmp = {}
-        exp = re.compile("^http.*")  # It is already a fully IRI
+        exp = regex.compile("^http.*")  # It is already a fully IRI
         if exp.match(self._ontology_id):
             resid = self._context.prefix_from_iri(self._ontology_id) + ":" + self._name
             ontid = self._ontology_id

@@ -354,11 +354,11 @@ class ResourceInstanceFactory:
 
     def __init__(self, con: Connection, projident: str) -> None:
         self._con = con
-        if re.match("^[0-9a-fA-F]{4}$", projident):
+        if regex.match("^[0-9a-fA-F]{4}$", projident):
             project = Project(con=con, shortcode=projident)
-        elif re.match("^[\\w-]+$", projident):
+        elif regex.match("^[\\w-]+$", projident):
             project = Project(con=con, shortname=projident)
-        elif re.match("^(http)s?://([\\w\\.\\-~]+:?\\d{,4})(/[\\w\\-~]+)+$", projident):
+        elif regex.match("^(http)s?://([\\w\\.\\-~]+:?\\d{,4})(/[\\w\\-~]+)+$", projident):
             project = Project(con=con, shortname=projident)
         else:
             raise BaseError("Invalid project identification!")

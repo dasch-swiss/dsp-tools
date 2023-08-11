@@ -10,13 +10,13 @@ import copy
 import datetime
 import json
 import os
-import re
 import unittest
 from typing import Any, Optional, cast
 
 import jsonpath_ng
 import jsonpath_ng.ext
 import pytest
+import regex
 
 from dsp_tools.excel2xml import excel2xml
 from dsp_tools.utils.excel_to_json_lists import excel2lists, validate_lists_section_with_schema
@@ -55,7 +55,7 @@ class TestTools(unittest.TestCase):
         for file in os.listdir("testdata/tmp"):
             os.remove("testdata/tmp/" + file)
         os.rmdir("testdata/tmp")
-        for file in [f for f in os.listdir(".") if re.search(r"id2iri_.+\.json", f)]:
+        for file in [f for f in os.listdir(".") if regex.search(r"id2iri_.+\.json", f)]:
             os.remove(file)
 
     def test_validate_lists_section_with_schema(self) -> None:
@@ -323,7 +323,7 @@ class TestTools(unittest.TestCase):
             project_original = json.loads(project_original_str)
 
         for prefix, iri in project_original["prefixes"].items():
-            project_original_str = re.sub(rf'"{prefix}:(\w+?)"', rf'"{iri}\1"', project_original_str)
+            project_original_str = regex.sub(rf'"{prefix}:(\w+?)"', rf'"{iri}\1"', project_original_str)
         project_original = json.loads(project_original_str)
         return cast(dict[str, Any], project_original)
 
@@ -445,9 +445,11 @@ class TestTools(unittest.TestCase):
                 users_original[index]["status"] = True
             # expand ":xyz" to "project_shortname:xyz"
             if user.get("groups"):
-                users_original[index]["groups"] = [re.sub("^:", f"{project_shortname}:", g) for g in user["groups"]]
+                users_original[index]["groups"] = [regex.sub("^:", f"{project_shortname}:", g) for g in user["groups"]]
             if user.get("projects"):
-                users_original[index]["projects"] = [re.sub("^:", f"{project_shortname}:", p) for p in user["projects"]]
+                users_original[index]["projects"] = [
+                    regex.sub("^:", f"{project_shortname}:", p) for p in user["projects"]
+                ]
 
         # sort both lists
         users_original = sorted(users_original or [], key=lambda x: cast(str, x["username"]))
@@ -539,7 +541,7 @@ class TestTools(unittest.TestCase):
         # The returned file will have ":hasSimpleText", so we have to remove the onto name.
         for prop in properties_original:
             if any(sup.startswith(onto_name) for sup in prop["super"]):
-                prop["super"] = [re.sub(rf"^{onto_name}:", ":", sup) for sup in prop["super"]]
+                prop["super"] = [regex.sub(rf"^{onto_name}:", ":", sup) for sup in prop["super"]]
 
         # sort both lists
         properties_original = sorted(properties_original, key=lambda x: cast(str, x.get("name", "")))
@@ -589,10 +591,10 @@ class TestTools(unittest.TestCase):
         for res in resources_original:
             for card in res.get("cardinalities", []):
                 if card["propname"].startswith(onto_name):
-                    card["propname"] = re.sub(rf"^{onto_name}:", ":", card["propname"])
+                    card["propname"] = regex.sub(rf"^{onto_name}:", ":", card["propname"])
             supers_as_list = [res["super"]] if isinstance(res["super"], str) else res["super"]
             if any(sup.startswith(onto_name) for sup in supers_as_list):
-                res["super"] = [re.sub(rf"^{onto_name}:", ":", sup) for sup in supers_as_list]
+                res["super"] = [regex.sub(rf"^{onto_name}:", ":", sup) for sup in supers_as_list]
 
         # If a subclass doesn't explicitly define all cardinalities of its superclass
         # (or a subproperty of a cardinality of its superclass),
@@ -602,7 +604,7 @@ class TestTools(unittest.TestCase):
         for res in resources_original:
             supers_as_list = [res["super"]] if isinstance(res["super"], str) else res["super"]
             for sup in supers_as_list:
-                if re.search(rf"^({onto_name})?:\w+$", sup):
+                if regex.search(rf"^({onto_name})?:\w+$", sup):
                     if res.get("cardinalities"):
                         del res["cardinalities"]
                     # remove from returned file, too

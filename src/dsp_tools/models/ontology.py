@@ -352,7 +352,7 @@ class Ontology(Model):  # pylint: disable=too-many-instance-attributes
 
     @staticmethod
     def getOntologyFromServer(con: Connection, shortcode: str, name: str) -> "Ontology":
-        if re.search(r"[0-9A-F]{4}", shortcode):
+        if regex.search(r"[0-9A-F]{4}", shortcode):
             result = con.get("/ontology/" + shortcode + "/" + name + "/v2" + Ontology.ALL_LANGUAGES)
         else:
             result = con.get("/ontology/" + name + "/v2" + Ontology.ALL_LANGUAGES)

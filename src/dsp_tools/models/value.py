@@ -15,7 +15,7 @@ from dsp_tools.models.permission import Permissions, PermissionValue
 class KnoraStandoffXml:
     """Used to handle XML strings for standoff markup"""
 
-    __iriregexp = re.compile(r"IRI:[^:]*:IRI")
+    __iriregexp = regex.compile(r"IRI:[^:]*:IRI")
     __xmlstr: str
 
     def __init__(self, xmlstr: str) -> None:
@@ -31,7 +31,7 @@ class KnoraStandoffXml:
         self.__xmlstr = self.__xmlstr.replace(fromStr, toStr)
 
     def regex_replace(self, pattern: str, repl: str) -> None:
-        self.__xmlstr = re.sub(pattern=repr(pattern)[1:-1], repl=repl, string=self.__xmlstr)
+        self.__xmlstr = regex.sub(pattern=repr(pattern)[1:-1], repl=repl, string=self.__xmlstr)
 
 
 class Value:
@@ -222,7 +222,7 @@ class ColorValue(Value):
         #
         # a color value as used in HTML (e.g. "#aaccff"
         #
-        m = re.match("^#(?:[0-9a-fA-F]{3}){1,2}$", str(value))
+        m = regex.match("^#(?:[0-9a-fA-F]{3}){1,2}$", str(value))
         if not m:
             raise BaseError("Invalid ColorValue format! " + str(value))
         self._value = str(value)
@@ -280,7 +280,7 @@ class DateValue(Value):  # pylint: disable=too-many-instance-attributes
         #
         # A DSP date value
         #
-        m = re.match(
+        m = regex.match(
             r"^(GREGORIAN:|JULIAN:)?(CE:|BCE:)?(\d{4})(-\d{1,2})?(-\d{1,2})?"
             r"((:CE|:BCE)?(:\d{4})(-\d{1,2})?(-\d{1,2})?)?$",
             str(value),
@@ -445,7 +445,7 @@ class DecimalValue(Value):
     ):
         self._value = value
         if isinstance(value, str):
-            m = re.match(r"^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$", value)
+            m = regex.match(r"^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$", value)
             if m:
                 self._value = float(value)
             else:
@@ -588,7 +588,7 @@ class IntValue(Value):
         vark_url: Optional[str] = None,
     ):
         if isinstance(value, str):
-            m = re.match("^[-+]?[0-9]+$", value)
+            m = regex.match("^[-+]?[0-9]+$", value)
             if m and m.span()[1] == len(str(value)):
                 self._value = int(value)
             else:
@@ -746,7 +746,10 @@ class TimeValue(Value):
         ark_url: Optional[str] = None,
         vark_url: Optional[str] = None,
     ):
-        m = re.match(r"^\d{4}-[0-1]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(.\d{1,12})?(Z|[+-][0-1]\d:[0-5]\d)$", str(value))
+        m = regex.match(
+            r"^\d{4}-[0-1]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(.\d{1,12})?(Z|[+-][0-1]\d:[0-5]\d)$",
+            str(value),
+        )
         if m:
             self._value = str(value)
         else:
@@ -942,7 +945,7 @@ class LinkValue(Value):
         ark_url: Optional[str] = None,
         vark_url: Optional[str] = None,
     ):
-        m = re.match("^(http)s?://([\\w\\.\\-~]+)?(:\\d{,6})?(/[\\w\\-~]+)*(#[\\w\\-~]*)?", str(value))
+        m = regex.match("^(http)s?://([\\w\\.\\-~]+)?(:\\d{,6})?(/[\\w\\-~]+)*(#[\\w\\-~]*)?", str(value))
         if m:
             self._value = str(value)
         else:

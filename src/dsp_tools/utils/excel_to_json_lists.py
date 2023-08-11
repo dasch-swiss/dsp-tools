@@ -3,7 +3,6 @@ import glob
 import importlib.resources
 import json
 import os
-import re
 from typing import Any, Optional, Union
 
 import jsonschema

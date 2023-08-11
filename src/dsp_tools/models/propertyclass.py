@@ -1,9 +1,10 @@
 # pylint: disable=missing-class-docstring,missing-function-docstring,duplicate-code
 
 import json
-import re
 from typing import Any, Optional, Sequence, Union
 from urllib.parse import quote_plus
+
+import regex
 
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import BaseError

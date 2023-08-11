@@ -1,7 +1,7 @@
 import json
-import re
 from typing import Any, Optional, Union
 
+import regex
 import requests
 
 from dsp_tools.models.exceptions import BaseError

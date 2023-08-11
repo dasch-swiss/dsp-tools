@@ -1,6 +1,7 @@
 import json
-import re
 from typing import Optional
+
+import regex
 
 
 class BaseError(Exception):

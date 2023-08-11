@@ -7,7 +7,6 @@ import datetime
 import difflib
 import json
 import os
-import re
 import uuid
 import warnings
 from typing import Any, Callable, Iterable, Optional, Union

@@ -2,6 +2,7 @@
 
 # pylint: disable=missing-class-docstring,missing-function-docstring
 
+from typing import cast
 import unittest
 
 import pytest
@@ -68,7 +69,7 @@ class TestResource(unittest.TestCase):
         self.assertEqual(new_blue_thing.creation_date, DateTimeStamp("1999-12-31T23:59:59.9999999+01:00"))
 
         thing_picture = factory.get_resclass_type("anything:ThingPicture")
-        sipi = Sipi("http://0.0.0.0:1024", self.con.get_token())
+        sipi = Sipi("http://0.0.0.0:1024", cast(str, self.con.token))
         img = sipi.upload_bitstream("testdata/bitstreams/test.tif")
         file_ref = img["uploadedFiles"][0]["internalFilename"]
         res_perm = Permissions(

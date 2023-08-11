@@ -1,7 +1,7 @@
+from datetime import datetime
 import json
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, cast
 
-import regex
 import requests
 
 from dsp_tools.models.exceptions import BaseError
@@ -31,236 +31,250 @@ class Connection:
     """
     An Connection instance represents a connection to a DSP server.
 
-    Attributes
-    ----------
-
-    none (internal use attributes should not be modified/set directly)
+    Attributes:
+        server: dddress of the server, e.g https://api.dasch.swiss
+        prefixes: ontology prefixes used
+        token: session token received by the server after login
+        log: if True, the requests are written into a file
     """
 
-    _server: str
-    _prefixes: Union[dict[str, str], None]
-    _token: Union[str, None]
-    _log: bool
-
-    def __init__(self, server: str, prefixes: dict[str, str] = None):
-        """
-        Constructor requiring the server address, the user and password of DSP
-        :param server: Address of the server, e.g https://api.dasch.swiss
-        :param prefixes: Ontology prefixes used
-        """
-
-        self._server = regex.sub(r"\/$", "", server)
-        self._prefixes = prefixes
-        self._token = None
-        self._log = False
+    server: str
+    prefixes: Optional[dict[str, str]] = None
+    token: Union[str, None] = None
+    log: bool = False
 
     def login(self, email: str, password: str) -> None:
         """
-        Method to login into DSP which creates a session token.
-        :param email: Email of user, e.g., root@example.com
-        :param password: Password of the user, e.g. test
+        Retrieve a session token.
+
+        Args:
+            email: Email of user
+            password: Password of the user
         """
-
-        credentials = {"email": email, "password": password}
-        jsondata = json.dumps(credentials)
-
         response = requests.post(
-            self._server + "/v2/authentication",
+            self.server + "/v2/authentication",
             headers={"Content-Type": "application/json; charset=UTF-8"},
-            data=jsondata,
+            data=json.dumps({"email": email, "password": password}),
             timeout=20,
         )
         check_for_api_error(response)
         result = response.json()
-        self._token = result["token"]
-
-    def get_token(self) -> str:
-        """
-        Returns the token
-        :return: token string
-        """
-
-        return self._token
-
-    @property
-    def token(self) -> str:
-        """Get the token of this connection"""
-        return self._token
+        self.token = result["token"]
 
     def start_logging(self) -> None:
         """Start writing every API call to a file"""
-        self._log = True
+        self.log = True
 
-    def stop_logging(self):
+    def stop_logging(self) -> None:
         """Stop writing every API call to a file"""
-        self._log = False
+        self.log = False
 
     def logout(self) -> None:
-        """
-        Performs a logout
-        :return: None
-        """
-
-        if self._token is not None:
+        """Delete the session token"""
+        if self.token:
             response = requests.delete(
-                self._server + "/v2/authentication",
-                headers={"Authorization": "Bearer " + self._token},
+                self.server + "/v2/authentication",
+                headers={"Authorization": "Bearer " + self.token},
                 timeout=20,
             )
             check_for_api_error(response)
-            self._token = None
+            self.token = None
 
-    def __del__(self):
-        pass
-        # self.logout()
-
-    def post(self, path: str, jsondata: Optional[str] = None):
+    def write_log_file(
+        self,
+        method: str,
+        route: str,
+        headers: dict[str, str],
+        jsondata: Optional[str],
+        params: Optional[dict[str, Any]],
+        response: requests.Response,
+    ) -> None:
         """
-        Post Json data to a given server using a HTTP POST request
-        :param path: Path of RESTful route
-        :param jsondata: Valid JSON as string
-        :return: Response from server
-        """
+        If logging is enabled (self.log == True), write the request and response to a file.
 
+        Args:
+            method: HTTP method (POST, GET, PUT, DELETE)
+            route: route of DSP-API that was called
+            headers: headers of the HTTP request
+            jsondata: data sent to the server
+            response: response of the server
+        """
+        if not self.log:
+            return
+        logobj = {
+            "DSP server": self.server,
+            "method": method,
+            "headers": headers,
+            "route": route,
+            "params": params,
+            "body": json.loads(jsondata) if jsondata else None,
+            "return-headers": dict(response.headers),
+            "return": response.json()
+            if response.status_code == 200
+            else {"status": str(response.status_code), "message": response.text},
+        }
+        filename = f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')} POST {route.replace('/', '_')}.json"
+        with open(filename, "w", encoding="utf-8") as f:
+            json.dump(logobj, f, indent=4)
+
+    def post(
+        self,
+        path: str,
+        jsondata: Optional[str] = None,
+    ) -> dict[str, Any]:
+        """
+        Make a HTTP POST request to the server to which this connection has been established.
+
+        Args:
+            path: Path of RESTful route
+            jsondata: Valid JSON as string
+
+        Returns:
+            response from server
+        """
         # timeout must be None,
         # otherwise the client can get a timeout error while the API is still processing the request
         # in that case, the client's retry will fail, and the response of the original API call is lost
         timeout = None
-
-        if path[0] != "/":
+        if not path.startswith("/"):
             path = "/" + path
-        headers = None
-        if jsondata is None:
-            if self._token is not None:
-                headers = {"Authorization": "Bearer " + self._token}
-                response = requests.post(
-                    self._server + path,
-                    headers=headers,
-                    timeout=timeout,
-                )
-            else:
-                response = requests.post(self._server + path, timeout=timeout)
-        else:
-            if self._token is not None:
-                headers = {"Content-Type": "application/json; charset=UTF-8", "Authorization": "Bearer " + self._token}
-                response = requests.post(
-                    self._server + path,
-                    headers=headers,
-                    data=jsondata,
-                    timeout=timeout,
-                )
-            else:
-                headers = {"Content-Type": "application/json; charset=UTF-8"}
-                response = requests.post(
-                    self._server + path,
-                    headers=headers,
-                    data=jsondata,
-                    timeout=timeout,
-                )
-        if self._log:
-            if jsondata:
-                jsonobj = json.loads(jsondata)
-            else:
-                jsonobj = None
-            logobj = {
-                "method": "POST",
-                "headers": headers,
-                "route": path,
-                "body": jsonobj,
-                "return-headers": dict(response.headers),
-                "return": response.json()
-                if response.status_code == 200
-                else {"status": str(response.status_code), "message": response.text},
-            }
-            tmp = path.split("/")
-            filename = "POST" + "_".join(tmp) + ".json"
-            with open(filename, "w", encoding="utf-8") as f:
-                json.dump(logobj, f, indent=4)
+        headers = {}
+        if jsondata:
+            headers = {"Content-Type": "application/json; charset=UTF-8"}
+        if self.token:
+            headers["Authorization"] = "Bearer " + self.token
+
+        response = requests.post(
+            self.server + path,
+            headers=headers,
+            data=jsondata,
+            timeout=timeout,
+        )
+        self.write_log_file(
+            method="POST",
+            route=path,
+            headers=headers,
+            jsondata=jsondata,
+            params=None,
+            response=response,
+        )
         check_for_api_error(response)
-        result = response.json()
-        return result
-
-    def get(self, path: str, headers: Optional[dict[str, str]] = None) -> dict[str, Any]:
-        """
-        Get data from a server using a HTTP GET request
-        :param path: Path of RESTful route
-        :param headers: ...
-        :return: Response from server
-        """
-
-        if path[0] != "/":
-            path = "/" + path
-        if not self._token:
-            if not headers:
-                response = requests.get(self._server + path, timeout=20)
-            else:
-                response = requests.get(self._server + path, headers, timeout=20)
-        else:
-            if not headers:
-                response = requests.get(
-                    self._server + path,
-                    headers={"Authorization": "Bearer " + self._token},
-                    timeout=20,
-                )
-            else:
-                headers["Authorization"] = "Bearer " + self._token
-                response = requests.get(self._server + path, headers, timeout=20)
-
-        check_for_api_error(response)
-        json_response = response.json()
+        json_response = cast(dict[str, Any], response.json())
         return json_response
 
-    def put(self, path: str, jsondata: Optional[str] = None, content_type: str = "application/json"):
+    def get(
+        self,
+        path: str,
+        headers: Optional[dict[str, str]] = None,
+    ) -> dict[str, Any]:
         """
-        Send data to a RESTful server using a HTTP PUT request
-        :param path: Path of RESTful route
-        :param jsondata: Valid JSON as string
-        :param content_type: HTTP Content-Type [default: 'application/json']
-        :return:
-        """
+        Make a HTTP GET request to the server to which this connection has been established.
 
-        if path[0] != "/":
+        Args:
+            path: Path of RESTful route
+            headers: headers for the HTTP request
+
+        Returns:
+            response from server
+        """
+        if not path.startswith("/"):
             path = "/" + path
-        if jsondata is None:
-            response = requests.put(
-                self._server + path,
-                headers={"Authorization": "Bearer " + self._token},
-                timeout=20,
-            )
-        else:
-            response = requests.put(
-                self._server + path,
-                headers={"Content-Type": content_type + "; charset=UTF-8", "Authorization": "Bearer " + self._token},
-                data=jsondata,
-                timeout=20,
-            )
+        if not headers:
+            headers = {}
+        if self.token:
+            headers["Authorization"] = "Bearer " + self.token
+
+        response = requests.get(url=self.server + path, headers=headers, timeout=20)
+        self.write_log_file(
+            method="GET",
+            route=path,
+            headers=headers,
+            jsondata=None,
+            params=None,
+            response=response,
+        )
         check_for_api_error(response)
-        result = response.json()
-        return result
+        json_response = cast(dict[str, Any], response.json())
+        return json_response
 
-    def delete(self, path: str, params: Optional[any] = None):
+    def put(
+        self,
+        path: str,
+        jsondata: Optional[str] = None,
+        content_type: str = "application/json",
+    ) -> dict[str, Any]:
         """
-        Send a delete request using the HTTP DELETE request
-        :param path: Path of RESTful route
-        :return: Response from server
-        """
+        Make a HTTP GET request to the server to which this connection has been established.
 
-        if path[0] != "/":
+        Args:
+            path: Path of RESTful route
+            jsondata: Valid JSON as string
+            content_type: HTTP Content-Type [default: 'application/json']
+        """
+        # timeout must be None,
+        # otherwise the client can get a timeout error while the API is still processing the request
+        # in that case, the client's retry will fail, and the response of the original API call is lost
+        timeout = None
+        if not path.startswith("/"):
             path = "/" + path
-        if params is not None:
-            response = requests.delete(
-                self._server + path,
-                headers={"Authorization": "Bearer " + self._token},
-                params=params,
-                timeout=20,
-            )
+        headers = {}
+        if self.token:
+            headers["Authorization"] = "Bearer " + self.token
+        if jsondata:
+            headers["Content-Type"] = content_type + "; charset=UTF-8"
 
-        else:
-            response = requests.delete(
-                self._server + path,
-                headers={"Authorization": "Bearer " + self._token},
-                timeout=20,
-            )
+        response = requests.put(
+            self.server + path,
+            headers=headers,
+            data=jsondata,
+            timeout=timeout,
+        )
+        self.write_log_file(
+            method="PUT",
+            route=path,
+            headers=headers,
+            jsondata=jsondata,
+            params=None,
+            response=response,
+        )
         check_for_api_error(response)
-        result = response.json()
-        return result
+        json_response = cast(dict[str, Any], response.json())
+        return json_response
+
+    def delete(
+        self,
+        path: str,
+        params: Optional[dict[str, Any]] = None,
+    ) -> dict[str, Any]:
+        """
+        Make a HTTP GET request to the server to which this connection has been established.
+
+        Args:
+            path: Path of RESTful route
+            params: additional parameters for the HTTP request
+
+        Returns:
+            response from server
+        """
+        if not path.startswith("/"):
+            path = "/" + path
+        headers = {}
+        if self.token:
+            headers = {"Authorization": "Bearer " + self.token}
+        response = requests.delete(
+            self.server + path,
+            headers=headers,
+            params=params,
+            timeout=20,
+        )
+        self.write_log_file(
+            method="DELETE",
+            route=path,
+            headers=headers,
+            jsondata=None,
+            params=params,
+            response=response,
+        )
+        check_for_api_error(response)
+        json_response = cast(dict[str, Any], response.json())
+        return json_response

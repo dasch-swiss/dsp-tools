@@ -210,7 +210,7 @@ def _upload_without_processing(
             try:
                 response_upload = requests.post(
                     url=f"{regex.sub(r'/$', '', sipi_url)}/upload_without_processing",
-                    headers={"Authorization": f"Bearer {con.get_token()}"},
+                    headers={"Authorization": f"Bearer {con.token}"},
                     files={"file": bitstream},
                     timeout=8 * 60,
                 )

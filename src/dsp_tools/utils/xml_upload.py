@@ -539,12 +539,13 @@ def xml_upload(
 
     # Connect to the DaSCH Service Platform API and get the project context
     con = login(server=server, user=user, password=password)
+    assert con.token is not None
     try:
         proj_context = try_network_action(lambda: ProjectContext(con=con))
     except BaseError:
         logger.error("Unable to retrieve project context from DSP server", exc_info=True)
         raise UserError("Unable to retrieve project context from DSP server") from None
-    sipi_server = Sipi(sipi, con.get_token())
+    sipi_server = Sipi(sipi, con.token)
 
     # make Python object representations of the XML file
     resources: list[XMLResource] = []

@@ -1,6 +1,7 @@
+from dataclasses import dataclass
 from datetime import datetime
 import json
-from typing import Any, Optional, Union, cast
+from typing import Any, Optional, cast
 
 import requests
 
@@ -27,6 +28,7 @@ def check_for_api_error(response: requests.Response) -> None:
         )
 
 
+@dataclass
 class Connection:
     """
     An Connection instance represents a connection to a DSP server.

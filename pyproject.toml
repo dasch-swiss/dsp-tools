@@ -56,7 +56,7 @@ types-pyyaml = "^6.0.12.11"
 
 
 [tool.poetry.scripts]
-dsp-tools = "dsp_tools.dsp_tools:main"    # definition of the CLI entry point
+dsp-tools = "dsp_tools.cli:main"  # definition of the CLI entry point
 
 
 [tool.poetry-exec-plugin.commands]

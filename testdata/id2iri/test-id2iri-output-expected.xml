@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<knora xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://dasch.swiss/schema ../../src/dsp_tools/resources/schema/data.xsd" shortcode="4123" default-ontology="testonto">
+
+    <resource label="TestThing2Incremental" restype=":TestThing2" id="TestThing2Incremental">
+        <text-prop name=":hasSimpleText"><text encoding="xml">Text</text></text-prop>
+        <resptr-prop name=":hasTestThing">
+            <resptr>http://rdfh.ch/082E/ylRvrg7tQI6aVpcTJbVrwg</resptr>
+            <resptr>http://rdfh.ch/082E/JK63OpYWTDWNYVOYFN7FdQ</resptr>
+        </resptr-prop>
+    </resource>
+
+</knora>

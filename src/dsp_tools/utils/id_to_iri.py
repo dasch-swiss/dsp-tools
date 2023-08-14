@@ -84,7 +84,7 @@ def id_to_iri(
         out_file = file_name + "_replaced_" + timestamp_str + ".xml"
 
     et = etree.ElementTree(tree.getroot())
-    et.write(out_file, pretty_print=True)
+    et.write(out_file, pretty_print=True, xml_declaration=True, encoding="utf-8")
     print(f"XML with replaced IDs was written to file {out_file}.")
 
     return success

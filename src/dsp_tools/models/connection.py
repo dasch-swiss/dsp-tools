@@ -107,7 +107,7 @@ class Connection:
         """
         if not self.log:
             return
-        if response.status_code == 200:
+        if response.status_code == 200:  # pylint: disable=duplicate-code
             _return = response.json()
         else:
             _return = {"status": response.status_code, "message": response.text}

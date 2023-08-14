@@ -148,7 +148,7 @@ def create_lists(
         server: URL of the DSP server
         user: Username (e-mail) for the DSP server, must have the permissions to create a project
         password: Password of the user
-        dump: if True, the request is dumped as JSON (used for testing)
+        dump: if True, write every request to DSP-API into a file
 
     Raises:
         UserError:

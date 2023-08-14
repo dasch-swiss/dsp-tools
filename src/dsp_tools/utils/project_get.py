@@ -3,13 +3,14 @@ from typing import Any
 
 import regex
 
-from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.group import Group
 from dsp_tools.models.listnode import ListNode
 from dsp_tools.models.ontology import Ontology
 from dsp_tools.models.project import Project
 from dsp_tools.models.user import User
+
+from dsp_tools.utils.shared import login
 
 
 def get_project(
@@ -18,7 +19,8 @@ def get_project(
     server: str,
     user: str,
     password: str,
-    verbose: bool,
+    verbose: bool = False,
+    dump: bool = False,
 ) -> bool:
     """
     This function writes a project from a DSP server into a JSON file.
@@ -30,6 +32,7 @@ def get_project(
         user : the user (e-mail) who sends the request
         password : the password of the user who sends the request
         verbose : verbose option for the command, if used more output is given to the user
+        dump: if True, write every request to DSP-API into a file
 
     Raises:
         BaseError if something went wrong
@@ -37,9 +40,10 @@ def get_project(
     Returns:
         True if the process finishes without errors
     """
-    con = Connection(server)
-    if user and password:
-        con.login(user, password)
+    # establish connection to DSP server
+    con = login(server=server, user=user, password=password)
+    if dump:
+        con.start_logging()
 
     project = None
     if regex.match("[0-9A-F]{4}", project_identifier):  # shortcode

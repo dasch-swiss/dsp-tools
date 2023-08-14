@@ -488,10 +488,11 @@ def xml_upload(
     password: str,
     imgdir: str,
     sipi: str,
-    verbose: bool,
-    incremental: bool,
-    save_metrics: bool,
-    preprocessing_done: bool,
+    verbose: bool = False,
+    dump: bool = False,
+    incremental: bool = False,
+    save_metrics: bool = False,
+    preprocessing_done: bool = False,
 ) -> bool:
     """
     This function reads an XML file and imports the data described in it onto the DSP server.
@@ -504,6 +505,7 @@ def xml_upload(
         imgdir: the image directory
         sipi: the sipi instance to be used
         verbose: verbose option for the command, if used more output is given to the user
+        dump: if True, write every request to DSP-API into a file
         incremental: if set, IRIs instead of internal IDs are expected as resource pointers
         save_metrics: if true, saves time measurements into a "metrics" folder in the current working directory
         preprocessing_done: if set, all multimedia files referenced in the XML file must already be on the server
@@ -537,15 +539,19 @@ def xml_upload(
     metrics: list[MetricRecord] = []
     preparation_start = datetime.now()
 
-    # Connect to the DaSCH Service Platform API and get the project context
+    # establish connection to DSP server
     con = login(server=server, user=user, password=password)
+    if dump:
+        con.start_logging()
     assert con.token is not None
+    sipi_server = Sipi(sipi, con.token)
+
+    # get the project context
     try:
         proj_context = try_network_action(lambda: ProjectContext(con=con))
     except BaseError:
         logger.error("Unable to retrieve project context from DSP server", exc_info=True)
         raise UserError("Unable to retrieve project context from DSP server") from None
-    sipi_server = Sipi(sipi, con.token)
 
     # make Python object representations of the XML file
     resources: list[XMLResource] = []

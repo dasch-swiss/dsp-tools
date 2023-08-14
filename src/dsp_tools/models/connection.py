@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
 import json
+from pathlib import Path
 from typing import Any, Optional, cast
 
 import requests
@@ -44,6 +45,7 @@ class Connection:
     prefixes: Optional[dict[str, str]] = None
     token: Optional[str] = None
     log: bool = False
+    log_directory: Path = Path("HTTP requests")
 
     def login(self, email: str, password: str) -> None:
         """
@@ -66,6 +68,7 @@ class Connection:
     def start_logging(self) -> None:
         """Start writing every API call to a file"""
         self.log = True
+        self.log_directory.mkdir(exist_ok=True)
 
     def stop_logging(self) -> None:
         """Stop writing every API call to a file"""
@@ -105,9 +108,9 @@ class Connection:
             return
         logobj = {
             "DSP server": self.server,
+            "route": route,
             "method": method,
             "headers": headers,
-            "route": route,
             "params": params,
             "body": json.loads(jsondata) if jsondata else None,
             "return-headers": dict(response.headers),
@@ -115,8 +118,8 @@ class Connection:
             if response.status_code == 200
             else {"status": str(response.status_code), "message": response.text},
         }
-        filename = f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')} POST {route.replace('/', '_')}.json"
-        with open(filename, "w", encoding="utf-8") as f:
+        filename = f"{datetime.now().strftime('%Y-%m-%d %H.%M.%S.%f')} {method} {route.replace('/', '_')}.json"
+        with open(self.log_directory / filename, "w", encoding="utf-8") as f:
             json.dump(logobj, f, indent=4)
 
     def post(

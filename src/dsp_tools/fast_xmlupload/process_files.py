@@ -969,7 +969,7 @@ def process_files(
     while unprocessed_files:
         try:
             result, unprocessed_files = _process_files_in_parallel(
-                files_to_process=files_to_process,
+                files_to_process=unprocessed_files,
                 input_dir=input_dir_path,
                 output_dir=output_dir_path,
                 nthreads=nthreads,

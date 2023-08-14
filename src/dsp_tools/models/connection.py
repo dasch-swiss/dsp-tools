@@ -107,6 +107,10 @@ class Connection:
         """
         if not self.log:
             return
+        if response.status_code == 200:
+            _return = response.json()
+        else:
+            _return = {"status": response.status_code, "message": response.text}
         logobj = {
             "DSP server": self.server,
             "route": route,
@@ -115,9 +119,7 @@ class Connection:
             "params": params,
             "body": json.loads(jsondata) if jsondata else None,
             "return-headers": dict(response.headers),
-            "return": response.json()
-            if response.status_code == 200
-            else {"status": str(response.status_code), "message": response.text},
+            "return": _return,
         }
         filename = f"{datetime.now().strftime('%Y-%m-%d %H.%M.%S.%f')} {method} {route.replace('/', '_')}.json"
         with open(self.log_directory / filename, "w", encoding="utf-8") as f:

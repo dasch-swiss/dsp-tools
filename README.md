@@ -114,7 +114,7 @@ Find more information in the
 
 Publishing is automated with GitHub Actions and should _not_ be done manually. 
 Please follow the 
-[Pull Request Guidelines](https://docs.dasch.swiss/latest/developers/dsp/contribution/#pull-request-guidelines). 
+[Pull Request Guidelines](https://docs.dasch.swiss/latest/developers/contribution/#pull-request-guidelines). 
 If done correctly, when merging a pull request into `main`, 
 the `release-please` action will create or update a release PR. 
 This PR will follow semantic versioning and update the change log. 
@@ -156,8 +156,9 @@ We use
 - [black](https://pypi.org/project/black/) (configured in `pyproject.toml`)
 - [mypy](https://pypi.org/project/mypy/) (configured in `pyproject.toml`)
 - [pylint](https://pypi.org/project/pylint/) (configured in `pyproject.toml`)
+- [darglint](https://pypi.org/project/darglint/) (configured in `.darglint`)
 
-These 4 linters are integrated in the GitHub CI pipeline, 
+These linters are integrated in the GitHub CI pipeline, 
 so that every pull request is checked for code style violations.
 
 In addition, there are [pre-commit hooks](#pre-commit-hooks) 

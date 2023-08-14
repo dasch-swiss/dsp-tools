@@ -8,13 +8,13 @@ DSP-TOOLS uses the ones listed on this page.
 
 The decision to use this set of tools is based on the information in the following pages.
 
-
 | Task                                                            | Tool                                                               | Configuration                  |
 | --------------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------ |
 | [General formatting](./general-formatting.md)                   | [EditorConfig](https://EditorConfig.org/)                          | `.editorconfig`                |
 |                                                                 | [markdownlint](https://github.com/igorshubovych/markdownlint-cli/) | `.markdownlint.yml`            |
 | [Python formatting](./python-formatting.md)                     | [Black](https://pypi.org/project/black/)                           | `pyproject.toml`               |
 | [Python docstring formatting](./python-docstring-formatting.md) | [pydocstyle](https://pypi.org/project/pydocstyle/) *               |                                |
+|                                                                 | [darglint](https://pypi.org/project/darglint/)                     | `.darglint`                    |
 | [Python type checking](./python-type-checking.md)               | [Mypy](https://pypi.org/project/mypy/)                             | `pyproject.toml`               |
 | [Python linting](./python-linting.md)                           | [Ruff](https://pypi.org/project/ruff/) *                           |                                |
 |                                                                 | [Pylint](https://pypi.org/project/pylint/) **                      | `pyproject.toml`               |

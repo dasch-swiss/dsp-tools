@@ -35,7 +35,7 @@ def get_project(
         dump: if True, write every request to DSP-API into a file
 
     Raises:
-        BaseError if something went wrong
+        BaseError: if something went wrong
 
     Returns:
         True if the process finishes without errors

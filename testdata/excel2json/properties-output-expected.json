@@ -1,0 +1,416 @@
+[
+    {
+        "name": "correspondsToGenericAnthroponym",
+        "super": [
+            "hasLinkTo"
+        ],
+        "object": ":GenericAnthroponym",
+        "labels": {
+            "en": "only English"
+        },
+        "comments": {
+            "en": "I had already looked at several pieces of property when, one day, the notary, who had been giving me some necessary directions for one of my explorations, said to me:",
+            "de": "Ich hatte bereits mehrere Grundstücke besichtigt, als eines Tages der Notar, der mir die notwendigen Anweisungen für eine meiner Erkundungen gegeben hatte, zu mir sagte:",
+            "fr": "J'avais déjà examiné plusieurs propriétés quand, un jour, le notaire, qui me donnait des indications nécessaires pour une de mes explorations, me dit :",
+            "it": "Avevo già visto diverse proprietà quando un giorno il notaio,",
+            "rm": "Rumantsch"
+        },
+        "gui_element": "Searchbox"
+    },
+    {
+        "name": "hasAnthroponym",
+        "super": [
+            "hasValue",
+            "dcterms:creator"
+        ],
+        "object": "TextValue",
+        "labels": {
+            "de": "only German"
+        },
+        "comments": {
+            "en": "A strange chance put me in possession of this journal.",
+            "de": "Ein seltsamer Zufall brachte mich in den Besitz dieses Tagebuchs.",
+            "fr": "Un étrange hasard m'a mis en possession de ce journal.",
+            "it": "Uno strano caso mi mise in possesso di questo diario.",
+            "rm": "Rumantsch"
+        },
+        "gui_element": "Richtext"
+    },
+    {
+        "name": "hasGender",
+        "super": [
+            "hasValue"
+        ],
+        "object": "ListValue",
+        "labels": {
+            "fr": "only French"
+        },
+        "comments": {
+            "en": "I know nothing of it whatever; but if you would like to see it, monsieur, here are the precise directions how to find it.",
+            "de": "Ich weiß nichts davon, aber wenn Sie es sehen möchten, Monsieur, finden Sie hier die genaue Wegbeschreibung.",
+            "fr": "Je n'en sais rien du tout ; mais si vous voulez la voir, monsieur, voici les indications précises pour la trouver.",
+            "it": "Non ne so nulla; ma se volete vederla, signore, eccovi le indicazioni precise per trovarla.",
+            "rm": "Rumantsch"
+        },
+        "gui_element": "List",
+        "gui_attributes": {
+            "hlist": "gender"
+        }
+    },
+    {
+        "name": "isDesignatedAs",
+        "super": [
+            "hasValue"
+        ],
+        "object": "ListValue",
+        "labels": {
+            "it": "only Italian"
+        },
+        "comments": {
+            "en": "You will have to arrange the affair with the curé of the village of ——.\"",
+            "de": "Sie werden die Angelegenheit mit dem Pfarrer des Dorfes -- regeln müssen.\"",
+            "fr": "Vous devrez arranger l'affaire avec le curé du village de --.\"",
+            "it": "Dovrete organizzare l'affare con il curato del villaggio di --\".",
+            "rm": "Rumantsch"
+        },
+        "gui_element": "Radio",
+        "gui_attributes": {
+            "hlist": "designation"
+        }
+    },
+    {
+        "name": "hasTitle",
+        "super": [
+            "hasLinkTo"
+        ],
+        "object": ":Titles",
+        "labels": {
+            "rm": "only Romansh"
+        },
+        "comments": {
+            "en": "A strange chance put me in possession of this journal.",
+            "de": "Ein seltsamer Zufall brachte mich in den Besitz dieses Tagebuchs.",
+            "fr": "Un étrange hasard m'a mis en possession de ce journal.",
+            "it": "Uno strano caso mi mise in possesso di questo diario.",
+            "rm": "Rumantsch"
+        },
+        "gui_element": "Searchbox"
+    },
+    {
+        "name": "hasStatus",
+        "super": [
+            "hasValue"
+        ],
+        "object": "ListValue",
+        "labels": {
+            "en": "status",
+            "fr": "statut",
+            "rm": "Rumantsch"
+        },
+        "comments": {
+            "en": "only English"
+        },
+        "gui_element": "List",
+        "gui_attributes": {
+            "hlist": "status"
+        }
+    },
+    {
+        "name": "hasLifeYearAmount",
+        "super": [
+            "hasValue"
+        ],
+        "object": "IntValue",
+        "labels": {
+            "en": "age",
+            "fr": "Âge",
+            "rm": "Rumantsch"
+        },
+        "comments": {
+            "de": "only German"
+        },
+        "gui_element": "Spinbox"
+    },
+    {
+        "name": "hasBirthDate",
+        "super": [
+            "hasValue"
+        ],
+        "object": "DateValue",
+        "labels": {
+            "en": "birth date",
+            "fr": "Date de naissance",
+            "rm": "Rumantsch"
+        },
+        "comments": {
+            "fr": "only French"
+        },
+        "gui_element": "Date"
+    },
+    {
+        "name": "hasRepresentation",
+        "super": [
+            "hasRepresentation"
+        ],
+        "object": "Representation",
+        "labels": {
+            "en": "has a multimedia file",
+            "de": "hat eine Multimediadatei"
+        },
+        "comments": {
+            "rm": "only Rumantsch"
+        },
+        "gui_element": "Searchbox"
+    },
+    {
+        "name": "hasRemarks",
+        "super": [
+            "hasValue",
+            "dcterms:description"
+        ],
+        "object": "TextValue",
+        "labels": {
+            "en": "remark",
+            "fr": "Commentaire",
+            "rm": "Rumantsch"
+        },
+        "gui_element": "Textarea"
+    },
+    {
+        "name": "hasTerminusPostQuem",
+        "super": [
+            "hasValue"
+        ],
+        "object": "DateValue",
+        "labels": {
+            "en": "terminus post quem",
+            "fr": "terminus post quem",
+            "rm": "Rumantsch"
+        },
+        "comments": {
+            "en": "I had already looked at several pieces of property when, one day, the notary, who had been giving me some necessary directions for one of my explorations, said to me:",
+            "de": "Ich hatte bereits mehrere Grundstücke besichtigt, als eines Tages der Notar, der mir die notwendigen Anweisungen für eine meiner Erkundungen gegeben hatte, zu mir sagte:",
+            "fr": "J'avais déjà examiné plusieurs propriétés quand, un jour, le notaire, qui me donnait des indications nécessaires pour une de mes explorations, me dit :",
+            "it": "Avevo già visto diverse proprietà quando un giorno il notaio,",
+            "rm": "Rumantsch"
+        },
+        "gui_element": "Date"
+    },
+    {
+        "name": "hasGND",
+        "super": [
+            "hasValue"
+        ],
+        "object": "UriValue",
+        "labels": {
+            "en": "GND",
+            "de": "GND",
+            "fr": "GND",
+            "it": "GND",
+            "rm": "Rumantsch"
+        },
+        "comments": {
+            "en": "Gemeinsame Normdatei",
+            "de": "Gemeinsame Normdatei",
+            "fr": "Gemeinsame Normdatei",
+            "it": "Gemeinsame Normdatei",
+            "rm": "Rumantsch"
+        },
+        "gui_element": "SimpleText",
+        "gui_attributes": {
+            "size": 100
+        }
+    },
+    {
+        "name": "hasColor",
+        "super": [
+            "hasColor"
+        ],
+        "object": "ColorValue",
+        "labels": {
+            "en": "Color",
+            "de": "Farbe",
+            "rm": "Rumantsch"
+        },
+        "comments": {
+            "en": "Color",
+            "de": "Farbe"
+        },
+        "gui_element": "Colorpicker"
+    },
+    {
+        "name": "hasDecimal",
+        "super": [
+            "hasValue"
+        ],
+        "object": "DecimalValue",
+        "labels": {
+            "en": "Decimal number",
+            "de": "Dezimalzahl",
+            "fr": "Chiffre décimale",
+            "rm": "Rumantsch"
+        },
+        "comments": {
+            "en": "Decimal number",
+            "de": "Dezimalzahl",
+            "fr": "Chiffre décimale"
+        },
+        "gui_element": "Spinbox",
+        "gui_attributes": {
+            "min": 0.0,
+            "max": 100.0
+        }
+    },
+    {
+        "name": "hasTime",
+        "super": [
+            "hasValue"
+        ],
+        "object": "TimeValue",
+        "labels": {
+            "en": "Time",
+            "de": "Zeit",
+            "fr": "Temps",
+            "rm": "Rumantsch"
+        },
+        "comments": {
+            "en": "Time",
+            "de": "Zeit",
+            "fr": "Temps"
+        },
+        "gui_element": "TimeStamp"
+    },
+    {
+        "name": "hasInterval",
+        "super": [
+            "hasSequenceBounds"
+        ],
+        "object": "IntervalValue",
+        "labels": {
+            "en": "Time interval",
+            "de": "Zeitintervall"
+        },
+        "comments": {
+            "en": "Time interval",
+            "de": "Zeitintervall"
+        },
+        "gui_element": "Interval"
+    },
+    {
+        "name": "hasBoolean",
+        "super": [
+            "hasValue"
+        ],
+        "object": "BooleanValue",
+        "labels": {
+            "en": "Boolean value",
+            "de": "Bool'sche Variable"
+        },
+        "comments": {
+            "en": "Boolean value",
+            "de": "Bool'sche Variable"
+        },
+        "gui_element": "Checkbox"
+    },
+    {
+        "name": "hasGeoname",
+        "super": [
+            "hasValue"
+        ],
+        "object": "GeonameValue",
+        "labels": {
+            "en": "Geoname link",
+            "de": "Link zu Geonames"
+        },
+        "comments": {
+            "en": "Geoname link",
+            "de": "Link zu Geonames"
+        },
+        "gui_element": "Geonames"
+    },
+    {
+        "name": "partOfDocument",
+        "super": [
+            "isPartOf"
+        ],
+        "object": ":Documents",
+        "labels": {
+            "en": "is part of a document",
+            "de": "ist Teil eines Dokuments"
+        },
+        "comments": {
+            "en": "is part of a document",
+            "de": "ist Teil eines Dokuments"
+        },
+        "gui_element": "Searchbox"
+    },
+    {
+        "name": "linkstoRegion",
+        "super": [
+            "hasLinkTo"
+        ],
+        "object": "Region",
+        "labels": {
+            "en": "Links to a region of an image"
+        },
+        "gui_element": "Searchbox",
+        "gui_attributes": {
+            "numprops": 1
+        }
+    },
+    {
+        "name": "hasLinkToImage",
+        "super": [
+            "hasLinkTo"
+        ],
+        "object": "StillImageRepresentation",
+        "labels": {
+            "en": "link to image"
+        },
+        "gui_element": "Searchbox"
+    },
+    {
+        "name": "hasLinkToResource",
+        "super": [
+            "hasLinkTo"
+        ],
+        "object": "Resource",
+        "labels": {
+            "en": "hasLinkToResource"
+        },
+        "gui_element": "Searchbox"
+    },
+    {
+        "name": "hasLinkToArchiveRepresentation",
+        "super": [
+            "hasLinkTo"
+        ],
+        "object": "ArchiveRepresentation",
+        "labels": {
+            "en": "hasLinkToArchiveRepresentation"
+        },
+        "gui_element": "Searchbox"
+    },
+    {
+        "name": "hasLinkToMovingImageRepesentation",
+        "super": [
+            "hasLinkTo"
+        ],
+        "object": "MovingImageRepresentation",
+        "labels": {
+            "en": "hasLinkToMovingImageRepesentation"
+        },
+        "gui_element": "Searchbox"
+    },
+    {
+        "name": "hasLinkToAudioRepesentation",
+        "super": [
+            "hasLinkTo"
+        ],
+        "object": "AudioRepresentation",
+        "labels": {
+            "en": "hasLinkToAudioRepesentation"
+        },
+        "gui_element": "Searchbox"
+    }
+]

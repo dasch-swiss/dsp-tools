@@ -38,7 +38,12 @@ def _make_parser(
     root_user_pw: str,
 ) -> argparse.ArgumentParser:
     """
-    Create a parser for the command line arguments
+    Create a parser for the command line arguments.
+
+    Args:
+        default_dsp_api_url: URL of the DSP server (default value for localhost)
+        root_user_email: username (e-mail) used for authentication with the DSP-API (default value for localhost)
+        root_user_pw: password used for authentication with the DSP-API (default value for localhost)
 
     Returns:
         parser

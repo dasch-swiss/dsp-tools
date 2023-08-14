@@ -29,7 +29,7 @@ def id_to_iri(
         verbose: verbose feedback if set to True
 
     Raises:
-        BaseError if one of the two input files is not a valid file
+        BaseError: if one of the two input files is not a valid file
 
     Returns:
         True if everything went well, False otherwise

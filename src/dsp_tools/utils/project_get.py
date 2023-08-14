@@ -32,7 +32,7 @@ def get_project(
         verbose : verbose option for the command, if used more output is given to the user
 
     Raises:
-        BaseError if something went wrong
+        BaseError: if something went wrong
 
     Returns:
         True if the process finishes without errors

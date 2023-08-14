@@ -22,7 +22,7 @@ import regex
 from dsp_tools.utils.project_create_lists import create_lists
 
 
-class TestTools(unittest.TestCase):
+class TestCLI(unittest.TestCase):
     server = "http://0.0.0.0:3333"
     user = "root@example.com"
     password = "test"

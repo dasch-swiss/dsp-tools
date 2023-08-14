@@ -146,8 +146,8 @@ def _remove_circular_references(
     dict[XMLResource, dict[XMLProperty, list[str]]],
 ]:
     """
-    Temporarily removes problematic resource-references from a list of resources. A reference is problematic if
-    it creates a circle (circular references).
+    Temporarily removes problematic resource-references from a list of resources.
+    A reference is problematic if it creates a circle (circular references).
 
     Args:
         resources: list of resources that possibly contain circular references
@@ -279,20 +279,23 @@ def _stash_circular_references(
 
 def _convert_ark_v0_to_resource_iri(ark: str) -> str:
     """
-    Converts an ARK URL from salsah.org (ARK version 0) of the form ark:/72163/080c-779b9990a0c3f-6e to a DSP resource
-    IRI of the form http://rdfh.ch/080C/Ef9heHjPWDS7dMR_gGax2Q
+    Converts an ARK URL from salsah.org (ARK version 0) of the form ark:/72163/080c-779b9990a0c3f-6e
+    to a DSP resource IRI of the form http://rdfh.ch/080C/Ef9heHjPWDS7dMR_gGax2Q
 
-    This method is needed for the migration of projects from salsah.org to DSP. Resources need to be created with an
-    existing ARK, so the IRI needs to be extracted from that ARK in order for the ARK URL to be still valid after the
-    migration.
+    This method is needed for the migration of projects from salsah.org to DSP.
+    Resources need to be created with an existing ARK,
+    so the IRI needs to be extracted from that ARK
+    in order for the ARK URL to be still valid after the migration.
 
     Args:
-        ark: an ARK version 0 of the form ark:/72163/080c-779b9990a0c3f-6e, '72163' being the Name Assigning Authority
-        number, '080c' being the project shortcode, '779b9990a0c3f' being an ID derived from the object's Salsah ID and
-        '6e' being check digits
+        ark: an ARK version 0 of the form ark:/72163/080c-779b9990a0c3f-6e,
+            '72163' being the Name Assigning Authority number,
+            '080c' being the project shortcode,
+            '779b9990a0c3f' being an ID derived from the object's Salsah ID and
+            '6e' being check digits
 
     Raises:
-        BaseError if the ARK is invalid
+        BaseError: if the ARK is invalid
 
     Returns:
         Resource IRI (str) of the form http://rdfh.ch/080C/Ef9heHjPWDS7dMR_gGax2Q
@@ -389,10 +392,7 @@ def _check_consistency_with_ontology(
         verbose: verbose switch
 
     Raises:
-        UserError with a detailed error message if there is an inconsistency between the ontology and the data
-
-    Returns:
-        None if everything is okay
+        UserError: if there is an inconsistency between the ontology and the data
     """
     if verbose:
         print("Check if the resource types and properties are consistent with the ontology...")
@@ -509,8 +509,8 @@ def xml_upload(
         preprocessing_done: if set, all multimedia files referenced in the XML file must already be on the server
 
     Raises:
-        BaseError or UserError in case of permanent network or software failure
-        UserError if the XML file is invalid
+        BaseError: in case of permanent network or software failure
+        UserError: in case of permanent network or software failure, or if the XML file is invalid
 
     Returns:
         True if all resources could be uploaded without errors; False if one of the resources could not be
@@ -679,6 +679,7 @@ def _upload_resources(
         con: connection to DSP
         failed_uploads: ids of resources that could not be uploaded (initially empty, gets filled during the upload)
         metrics: list with the metric records collected until now (gets filled during the upload)
+        preprocessing_done: if set, all multimedia files referenced in the XML file must already be on the server
 
     Returns:
         id2iri_mapping, failed_uploads, metrics
@@ -1062,9 +1063,6 @@ def _handle_upload_error(
         stashed_resptr_props: all resptr props that have been stashed
         save_location: path where to save the diagnostic info
         timestamp_str: timestamp for the name of the diagnostic files
-
-    Returns:
-        None
     """
     print(
         f"\n==========================================\n"

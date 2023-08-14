@@ -145,7 +145,7 @@ def _write_result_to_pkl_file(processed_files: list[tuple[Path, Optional[Path]]]
         processed_files: the result of the file processing
 
     Raises:
-        UserError if the file could not be written
+        UserError: if the file could not be written
     """
     filename = Path(f"processing_result_{datetime.now().strftime('%Y-%m-%d_%H.%M.%S.%f')}.pkl")
 
@@ -326,6 +326,9 @@ def _convert_file_with_sipi(
             e.g. tmp/in/te/internal_file_name.jp2 if the internal filename is "internal_file_name"
         output_dir: the directory where the processed files are written to,
             e.g. tmp/in/te/ if the internal filename is "internal_file_name"
+
+    Returns:
+        success status
     """
     original_output_dir = output_dir.parent.parent
     in_file_sipi_path = Path("processing-input") / in_file_local_path.relative_to(input_dir)
@@ -356,6 +359,9 @@ def _create_orig_file(
         internal_file_name: the internal filename which should be used for the .orig file
         out_dir: the directory where the .orig file should be written to,
             e.g. tmp/in/te/ if the internal filename is "internal_file_name"
+
+    Returns:
+        success status
     """
     orig_ext = PurePath(in_file).suffix
     orig_file_full_path = Path(out_dir, f"{internal_file_name}{orig_ext}.orig")

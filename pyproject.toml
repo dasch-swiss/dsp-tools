@@ -104,7 +104,6 @@ exclude = [
     "src/dsp_tools/models/resource.py",           # TODO: activate this
     "src/dsp_tools/models/resourceclass.py",      # TODO: activate this
     "src/dsp_tools/models/set_encoder.py",        # TODO: activate this
-    "src/dsp_tools/models/sipi.py",               # TODO: activate this
     "src/dsp_tools/models/user.py    ",           # TODO: activate this
     "src/dsp_tools/models/value.py",              # TODO: activate this
     "src/dsp_tools/models/xmlallow.py",           # TODO: activate this

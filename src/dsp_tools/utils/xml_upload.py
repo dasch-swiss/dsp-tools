@@ -541,10 +541,11 @@ def xml_upload(
 
     # establish connection to DSP server
     con = login(server=server, user=user, password=password)
-    if dump:
-        con.start_logging()
     assert con.token is not None
     sipi_server = Sipi(sipi, con.token)
+    if dump:
+        con.start_logging()
+        sipi_server.start_logging()
 
     # get the project context
     try:

@@ -32,13 +32,14 @@ def check_for_api_error(response: requests.Response) -> None:
 @dataclass
 class Connection:
     """
-    An Connection instance represents a connection to a DSP server.
+    A Connection instance represents a connection to a DSP server.
 
     Attributes:
         server: address of the server, e.g https://api.dasch.swiss
         prefixes: ontology prefixes used
         token: session token received by the server after login
-        log: if True, the requests are written into a file
+        log: if True, every request is written into a file
+        log_directory: directory where the log files are written
     """
 
     server: str

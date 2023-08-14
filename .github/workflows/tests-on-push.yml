@@ -61,6 +61,9 @@ jobs:
 
       - name: Linting with black
         run: poetry run black --check .
+
+      - name: Linting with darglint
+        run: poetry exec darglint
       
 
       # Install programs for local processing (fast xmlupload)

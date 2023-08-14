@@ -7,69 +7,67 @@ separate unit tests/e2e tests."""
 # pylint: disable=missing-class-docstring,missing-function-docstring,duplicate-code
 
 import copy
-import datetime
 import json
-import os
-import unittest
+from pathlib import Path
+import shutil
+import subprocess
 from typing import Any, Optional, cast
+import unittest
 
 import jsonpath_ng
 import jsonpath_ng.ext
 import pytest
 import regex
 
-from dsp_tools.excel2xml import excel2xml
-from dsp_tools.utils.excel_to_json_lists import excel2lists, validate_lists_section_with_schema
-from dsp_tools.utils.excel_to_json_project import excel2json
-from dsp_tools.utils.excel_to_json_properties import excel2properties
-from dsp_tools.utils.excel_to_json_resources import excel2resources
-from dsp_tools.utils.id_to_iri import id_to_iri
-from dsp_tools.utils.project_create import create_project
 from dsp_tools.utils.project_create_lists import create_lists
-from dsp_tools.utils.project_get import get_project
-from dsp_tools.utils.project_validate import validate_project
-from dsp_tools.utils.shared import validate_xml_against_schema
-from dsp_tools.utils.xml_upload import xml_upload
 
 
-class TestTools(unittest.TestCase):
+class TestCLI(unittest.TestCase):
     server = "http://0.0.0.0:3333"
     user = "root@example.com"
     password = "test"
     imgdir = "."
     sipi = "http://0.0.0.0:1024"
-    test_project_systematic_file = "testdata/json-project/test-project-systematic.json"
-    test_project_minimal_file = "testdata/json-project/test-project-minimal.json"
-    test_project_hlist_file = "testdata/json-project/test-project-hlist-refers-label.json"
-    test_data_systematic_file = "testdata/xml-data/test-data-systematic.xml"
-    test_data_minimal_file = "testdata/xml-data/test-data-minimal.xml"
+    test_project_systematic_file = Path("testdata/json-project/test-project-systematic.json")
+    test_project_minimal_file = Path("testdata/json-project/test-project-minimal.json")
+    test_project_hlist_file = Path("testdata/json-project/test-project-hlist-refers-label.json")
+    test_data_systematic_file = Path("testdata/xml-data/test-data-systematic.xml")
+    test_data_minimal_file = Path("testdata/xml-data/test-data-minimal.xml")
+    cwd = Path("cwd")
+    testdata_tmp = Path("testdata/tmp")
 
     @classmethod
     def setUpClass(cls) -> None:
         """Is executed once before the methods of this class are run"""
-        os.makedirs("testdata/tmp", exist_ok=True)
+        cls.testdata_tmp.mkdir(exist_ok=True)
+        cls.cwd.mkdir(exist_ok=True)
 
     @classmethod
     def tearDownClass(cls) -> None:
         """Is executed after the methods of this class have all run through"""
-        for file in os.listdir("testdata/tmp"):
-            os.remove("testdata/tmp/" + file)
-        os.rmdir("testdata/tmp")
-        for file in [f for f in os.listdir(".") if regex.search(r"id2iri_.+\.json", f)]:
-            os.remove(file)
+        shutil.rmtree(cls.testdata_tmp)
+        shutil.rmtree(cls.cwd)
+        for f in Path().glob("id2iri_*.json"):
+            f.unlink()
 
     def test_validate_lists_section_with_schema(self) -> None:
-        self.assertTrue(validate_lists_section_with_schema(self.test_project_systematic_file))
+        subprocess.run(
+            f"poetry run dsp-tools create --lists-only --validate-only "
+            f"{self.test_project_systematic_file.absolute()}",
+            check=True,
+            shell=True,
+            capture_output=True,
+            cwd=self.cwd,
+        )
 
     def test_create_lists(self) -> None:
         # the project must already exist, so let's create a project without lists
-        create_project(
-            project_file_as_path_or_parsed=self.test_project_minimal_file,
-            server=self.server,
-            user_mail=self.user,
-            password="test",
-            verbose=True,
-            dump=False,
+        subprocess.run(
+            f"poetry run dsp-tools create {self.test_project_minimal_file.absolute()}",
+            check=True,
+            shell=True,
+            capture_output=True,
+            cwd=self.cwd,
         )
 
         # open a "lists" section and the project that was created
@@ -85,76 +83,75 @@ class TestTools(unittest.TestCase):
         # create another copy of the project that was created, insert the second list into it, and save it as file
         tp_minimal_with_list_2 = copy.deepcopy(test_project_minimal)
         tp_minimal_with_list_2["project"]["lists"] = [lists_section[1]]
-        with open("testdata/tmp/test_project_minimal_with_list_2.json", "x", encoding="utf-8") as f:
+        tp_minimal_with_list_2_file = Path("testdata/tmp/test_project_minimal_with_list_2.json")
+        with open(tp_minimal_with_list_2_file, "x", encoding="utf-8") as f:
             json.dump(tp_minimal_with_list_2, f)
 
-        # The method to be tested can now be called with both versions of the same project. One is loaded from disk,
-        # the other is a Python object. The two projects each contain another list.
+        # The method to be tested can now be called with both versions of the same project
+        # (each containing another list).
+        # The first is a python object and is created with a function call,
+        # the second is a file and is created with a command line call.
         name2iri_mapping1, success1 = create_lists(
             server=self.server,
             user=self.user,
             password=self.password,
             project_file_as_path_or_parsed=tp_minimal_with_list_1,
         )
-        name2iri_mapping2, success2 = create_lists(
-            server=self.server,
-            user=self.user,
-            password=self.password,
-            project_file_as_path_or_parsed="testdata/tmp/test_project_minimal_with_list_2.json",
+        subprocess.run(
+            f"poetry run dsp-tools create --lists-only {tp_minimal_with_list_2_file.absolute()}",
+            check=True,
+            shell=True,
+            capture_output=True,
+            cwd=self.cwd,
         )
 
-        # test that both lists have been correctly created
+        # In the first case (Python function call), it can be tested if the returned mapping is correct
         self.assertTrue(success1)
-        self.assertTrue(success2)
         name2iri_names_1 = [str(m.path) for m in jsonpath_ng.ext.parse("$..* where id").find(name2iri_mapping1)]
-        name2iri_names_2 = [str(m.path) for m in jsonpath_ng.ext.parse("$..* where id").find(name2iri_mapping2)]
         node_names_1 = [m.value for m in jsonpath_ng.ext.parse("$.project.lists[*]..name").find(tp_minimal_with_list_1)]
-        node_names_2 = [m.value for m in jsonpath_ng.ext.parse("$.project.lists[*]..name").find(tp_minimal_with_list_2)]
         self.assertListEqual(name2iri_names_1, node_names_1)
-        self.assertListEqual(name2iri_names_2, node_names_2)
 
     def test_validate_project(self) -> None:
-        self.assertTrue(validate_project(self.test_project_systematic_file))
+        subprocess.run(
+            f"poetry run dsp-tools create --validate-only {self.test_project_systematic_file.absolute()}",
+            check=True,
+            shell=True,
+            capture_output=True,
+            cwd=".",  # the JSON file contains a reference to an Excel file, which is relative to the root of the repo
+        )
 
     def test_create_project(self) -> None:
-        result = create_project(
-            project_file_as_path_or_parsed=self.test_project_systematic_file,
-            server=self.server,
-            user_mail=self.user,
-            password="test",
-            verbose=True,
-            dump=False,
+        subprocess.run(
+            f"poetry run dsp-tools create {self.test_project_systematic_file.absolute()} --verbose",
+            check=True,
+            shell=True,
+            capture_output=True,
+            cwd=".",  # the JSON file contains a reference to an Excel file, which is relative to the root of the repo
         )
-        self.assertTrue(result)
 
     def test_create_project_hlist_refers_label(self) -> None:
-        result = create_project(
-            project_file_as_path_or_parsed=self.test_project_hlist_file,
-            server=self.server,
-            user_mail=self.user,
-            password="test",
-            verbose=True,
-            dump=False,
+        subprocess.run(
+            f"poetry run dsp-tools create {self.test_project_hlist_file.absolute()} -v",
+            check=True,
+            shell=True,
+            capture_output=True,
+            cwd=self.cwd,
         )
-        self.assertTrue(result)
 
     def test_get_project(self) -> None:
         """
         Retrieve the systematic JSON project file with the "get" command,
         and check if the result is identical to the original file.
         """
-        # open original project and project that was returned from the server
-        project_original = self._get_original_project()
-        project_shortname = project_original["project"]["shortname"]
-
-        get_project(
-            project_identifier="tp",
-            outfile_path="testdata/tmp/_test-project-systematic.json",
-            server=self.server,
-            user=self.user,
-            password="test",
-            verbose=True,
+        out_file = Path("testdata/tmp/_test-project-systematic.json")
+        subprocess.run(
+            f"poetry run dsp-tools get --project tp {out_file.absolute()}",
+            check=True,
+            shell=True,
+            capture_output=True,
+            cwd=self.cwd,
         )
+        project_original = self._get_original_project()
         with open("testdata/tmp/_test-project-systematic.json", encoding="utf-8") as f:
             project_returned = json.load(f)
 
@@ -166,7 +163,7 @@ class TestTools(unittest.TestCase):
         self._compare_users(
             users_original=project_original["project"].get("users"),
             users_returned=project_returned["project"].get("users"),
-            project_shortname=project_shortname,
+            project_shortname=project_original["project"]["shortname"],
         )
         self._compare_lists(
             lists_original=project_original["project"].get("lists"),
@@ -191,123 +188,161 @@ class TestTools(unittest.TestCase):
             )
 
     def test_validate_xml_against_schema(self) -> None:
-        self.assertTrue(validate_xml_against_schema(input_file=self.test_data_systematic_file))
+        subprocess.run(
+            f"poetry run dsp-tools xmlupload --validate-only --verbose {self.test_data_systematic_file.absolute()}",
+            check=True,
+            shell=True,
+            capture_output=True,
+            cwd=self.cwd,
+        )
 
     def test_xml_upload(self) -> None:
-        result_minimal = xml_upload(
-            input_file=self.test_data_minimal_file,
-            server=self.server,
-            user=self.user,
-            password=self.password,
-            imgdir=self.imgdir,
-            sipi=self.sipi,
-            verbose=False,
-            incremental=False,
-            save_metrics=False,
-            preprocessing_done=False,
+        subprocess.run(
+            f"poetry run dsp-tools xmlupload -v {self.test_data_minimal_file.absolute()}",
+            check=True,
+            shell=True,
+            capture_output=True,
+            cwd=self.cwd,
         )
-        self.assertTrue(result_minimal)
 
-        result_systematic = xml_upload(
-            input_file=self.test_data_systematic_file,
-            server=self.server,
-            user=self.user,
-            password=self.password,
-            imgdir=self.imgdir,
-            sipi=self.sipi,
-            verbose=False,
-            incremental=False,
-            save_metrics=False,
-            preprocessing_done=False,
+    def test_xml_upload_incremental(self) -> None:
+        subprocess.run(
+            f"poetry run dsp-tools xmlupload {self.test_data_systematic_file.absolute()}",
+            check=True,
+            shell=True,
+            capture_output=True,
+            cwd=".",  # the XML file contains references to multimedia files that are relative to the root of the repo
         )
-        self.assertTrue(result_systematic)
 
-        mapping_file = ""
-        for mapping in [x for x in os.scandir(".") if x.name.startswith("test-data-systematic_id2iri_mapping_")]:
-            delta = datetime.datetime.now() - datetime.datetime.fromtimestamp(mapping.stat().st_mtime_ns / 1000000000)
-            if delta.seconds < 15:
-                mapping_file = mapping.name
-        self.assertNotEqual(mapping_file, "")
-
-        id2iri_replaced_xml_filename = "testdata/tmp/_test-id2iri-replaced.xml"
-        id_to_iri(
-            xml_file="testdata/id2iri/test-id2iri-data.xml",
-            json_file=mapping_file,
-            out_file=id2iri_replaced_xml_filename,
-            verbose=True,
+        mapping_file = list(Path().glob("test-data-systematic_id2iri_mapping_*.json"))[0]
+        xml_file_orig = Path("testdata/id2iri/test-id2iri-data.xml")
+        xml_file_replaced = Path("testdata/tmp/_test-id2iri-replaced.xml")
+        cmd_base = "poetry run dsp-tools id2iri --verbose"
+        subprocess.run(
+            f"{cmd_base} --outfile {xml_file_replaced.absolute()} {xml_file_orig.absolute()} {mapping_file.absolute()}",
+            check=True,
+            shell=True,
+            capture_output=True,
+            cwd=self.cwd,
         )
-        self.assertTrue(os.path.isfile(id2iri_replaced_xml_filename))
 
-        result_replaced = xml_upload(
-            input_file=id2iri_replaced_xml_filename,
-            server=self.server,
-            user=self.user,
-            password=self.password,
-            imgdir=self.imgdir,
-            sipi=self.sipi,
-            verbose=True,
-            incremental=True,
-            save_metrics=False,
-            preprocessing_done=False,
+        subprocess.run(
+            f"poetry run dsp-tools xmlupload --incremental -v {xml_file_replaced.absolute()}",
+            check=True,
+            shell=True,
+            capture_output=True,
+            cwd=self.cwd,
         )
-        self.assertTrue(result_replaced)
-        self.assertTrue(all(not f.name.startswith("stashed_text_properties_") for f in os.scandir(".")))
-        self.assertTrue(all(not f.name.startswith("stashed_resptr_properties_") for f in os.scandir(".")))
-
-        os.remove(mapping_file)
-        os.remove(id2iri_replaced_xml_filename)
+        self.assertListEqual(list(Path(self.cwd).glob("stashed_*_properties_*.txt")), [])
+        mapping_file.unlink()
+        xml_file_replaced.unlink()
 
     def test_excel_to_json_project(self) -> None:
-        excel2json(
-            data_model_files="testdata/excel2json/excel2json_files",
-            path_to_output_file="testdata/tmp/_out_project.json",
+        excel_folder = Path("testdata/excel2json/excel2json_files")
+        out_file = Path("testdata/tmp/_out_project.json")
+        subprocess.run(
+            f"poetry run dsp-tools excel2json {excel_folder.absolute()} {out_file.absolute()}",
+            check=True,
+            shell=True,
+            capture_output=True,
+            cwd=self.cwd,
         )
         with open("testdata/excel2json/excel2json-expected-output.json", encoding="utf-8") as f:
             output_expected = json.load(f)
-        with open("testdata/tmp/_out_project.json", encoding="utf-8") as f:
+        with open(out_file, encoding="utf-8") as f:
             output = json.load(f)
         self.assertDictEqual(output, output_expected)
-        os.remove("testdata/tmp/_out_project.json")
+        out_file.unlink()
 
     def test_excel_to_json_list(self) -> None:
-        excel2lists(
-            excelfolder="testdata/excel2json/lists-multilingual",
-            path_to_output_file="testdata/tmp/_lists-out.json",
+        excel_folder = Path("testdata/excel2json/lists-multilingual")
+        out_file = Path("testdata/tmp/_lists-out.json")
+        subprocess.run(
+            f"poetry run dsp-tools excel2lists {excel_folder.absolute()} {out_file.absolute()}",
+            check=True,
+            shell=True,
+            capture_output=True,
+            cwd=self.cwd,
         )
-        self.assertTrue(os.path.isfile("testdata/tmp/_lists-out.json"))
-        os.remove("testdata/tmp/_lists-out.json")
+        with open(out_file, encoding="utf-8") as f:
+            output_actual = json.load(f)
+        with open("testdata/excel2json/lists-multilingual-output-expected.json", encoding="utf-8") as f:
+            output_expected = json.load(f)
+        self.assertListEqual(output_actual, output_expected)
+        out_file.unlink()
 
     def test_excel_to_json_resources(self) -> None:
-        excel2resources(
-            excelfile="testdata/excel2json/excel2json_files/test-name (test_label)/resources.xlsx",
-            path_to_output_file="testdata/tmp/_out_resources.json",
+        excel_file = Path("testdata/excel2json/excel2json_files/test-name (test_label)/resources.xlsx")
+        out_file = Path("testdata/tmp/_out_resources.json")
+        subprocess.run(
+            f"poetry run dsp-tools excel2resources '{excel_file.absolute()}' {out_file.absolute()}",
+            check=True,
+            shell=True,
+            capture_output=True,
+            cwd=self.cwd,
         )
-        self.assertTrue(os.path.isfile("testdata/tmp/_out_resources.json"))
-        os.remove("testdata/tmp/_out_resources.json")
+        with open(out_file, encoding="utf-8") as f:
+            output_actual = json.load(f)
+        with open("testdata/excel2json/resources-output-expected.json", encoding="utf-8") as f:
+            output_expected = json.load(f)
+        self.assertListEqual(output_actual, output_expected)
+        out_file.unlink()
 
     def test_excel_to_json_properties(self) -> None:
-        excel2properties(
-            excelfile="testdata/excel2json/excel2json_files/test-name (test_label)/properties.xlsx",
-            path_to_output_file="testdata/tmp/_out_properties.json",
+        excel_file = Path("testdata/excel2json/excel2json_files/test-name (test_label)/properties.xlsx")
+        out_file = Path("testdata/tmp/_out_properties.json")
+        subprocess.run(
+            f"poetry run dsp-tools excel2properties '{excel_file.absolute()}' {out_file.absolute()}",
+            check=True,
+            shell=True,
+            capture_output=True,
+            cwd=self.cwd,
         )
-        self.assertTrue(os.path.isfile("testdata/tmp/_out_properties.json"))
-        os.remove("testdata/tmp/_out_properties.json")
+        with open(out_file, encoding="utf-8") as f:
+            output_actual = json.load(f)
+        with open("testdata/excel2json/properties-output-expected.json", encoding="utf-8") as f:
+            output_expected = json.load(f)
+        self.assertListEqual(output_actual, output_expected)
+        out_file.unlink()
 
     def test_id_to_iri(self) -> None:
-        id_to_iri(
-            xml_file="testdata/id2iri/test-id2iri-data.xml",
-            json_file="testdata/id2iri/test-id2iri-mapping.json",
-            out_file="testdata/tmp/test-id2iri-out.xml",
-            verbose=True,
+        xml_file = Path("testdata/id2iri/test-id2iri-data.xml")
+        mapping_file = Path("testdata/id2iri/test-id2iri-mapping.json")
+        out_file = Path("testdata/tmp/test-id2iri-out.xml")
+        cmd_base = "poetry run dsp-tools id2iri --verbose"
+        subprocess.run(
+            f"{cmd_base} --outfile {out_file.absolute()} {xml_file.absolute()} {mapping_file.absolute()}",
+            check=True,
+            shell=True,
+            capture_output=True,
+            cwd=self.cwd,
         )
-        self.assertTrue(os.path.isfile("testdata/tmp/test-id2iri-out.xml"))
-        os.remove("testdata/tmp/test-id2iri-out.xml")
+        with open(out_file, encoding="utf-8") as f:
+            output_actual = f.read()
+        with open("testdata/id2iri/test-id2iri-output-expected.xml", encoding="utf-8") as f:
+            output_expected = f.read()
+        self.assertEqual(output_actual, output_expected)
+        out_file.unlink()
 
     @pytest.mark.filterwarnings("ignore")
     def test_excel2xml(self) -> None:
-        excel2xml("testdata/excel2xml/excel2xml-testdata.xlsx", "1234", "excel2xml-output")
-        self.assertTrue(os.path.isfile("excel2xml-output-data.xml"))
-        os.remove("excel2xml-output-data.xml")
+        datafile = Path("testdata/excel2xml/excel2xml-testdata.xlsx")
+        shortcode = "1234"
+        onto_name = "excel2xml-output"
+        out_file = self.cwd / f"{onto_name}-data.xml"
+        subprocess.run(
+            f"poetry run dsp-tools excel2xml {datafile.absolute()} {shortcode} {onto_name}",
+            check=True,
+            shell=True,
+            capture_output=True,
+            cwd=self.cwd,
+        )
+        with open(out_file, encoding="utf-8") as f:
+            output_actual = f.read()
+        with open("testdata/excel2xml/excel2xml-expected-output.xml", encoding="utf-8") as f:
+            output_expected = f.read()
+        self.assertEqual(output_actual, output_expected)
+        out_file.unlink()
 
     def _get_original_project(self) -> dict[str, Any]:
         """

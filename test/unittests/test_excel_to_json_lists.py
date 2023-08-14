@@ -47,21 +47,14 @@ class TestExcelToJSONList(unittest.TestCase):
         lists_without_excel_reference_output = e2l.expand_lists_from_excel(lists_without_excel_reference)
         self.assertListEqual(lists_without_excel_reference, lists_without_excel_reference_output)
 
-    def test_make_json_lists_from_excel(self) -> None:
-        paths = [f"testdata/excel2json/lists-multilingual/{lang}.xlsx" for lang in ["de", "en", "fr"]]
-        lists_multilingual_output = e2l._make_json_lists_from_excel(paths)  # pylint: disable=protected-access
-        with open("testdata/excel2json/lists-multilingual-output-expected.json", encoding="utf-8") as f:
-            lists_multilingual_output_expected = json.load(f)
-        self.assertListEqual(lists_multilingual_output, lists_multilingual_output_expected)
-
     def test_validate_lists_section_with_schema(self) -> None:
         with open("testdata/excel2json/lists-multilingual-output-expected.json", encoding="utf-8") as f:
             lists_section_valid = json.load(f)
 
-        # validate the valid "lists" section in a correct way
+        # validate the valid "lists" section: should not raise an error
         self.assertTrue(e2l.validate_lists_section_with_schema(lists_section=lists_section_valid))
 
-        # remove mandatory "comments" section from root node
+        # remove mandatory "comments" section from root node: should raise an error
         lists_section_without_comment_at_rootnode = copy.deepcopy(lists_section_valid)
         del lists_section_without_comment_at_rootnode[0]["comments"]
         with self.assertRaisesRegex(
@@ -70,7 +63,7 @@ class TestExcelToJSONList(unittest.TestCase):
         ):
             e2l.validate_lists_section_with_schema(lists_section=lists_section_without_comment_at_rootnode)
 
-        # remove mandatory "comments" section from root node
+        # insert invalid language code in "comments" section: should raise an error
         lists_section_with_invalid_lang = copy.deepcopy(lists_section_valid)
         lists_section_with_invalid_lang[0]["comments"]["eng"] = "wrong English label"
         with self.assertRaisesRegex(
@@ -79,24 +72,19 @@ class TestExcelToJSONList(unittest.TestCase):
         ):
             e2l.validate_lists_section_with_schema(lists_section=lists_section_with_invalid_lang)
 
-        # wrong usage of the method
-        with self.assertRaisesRegex(
-            BaseError, "Validation of the 'lists' section works only if exactly one of the two arguments is given."
-        ):
+        # wrong usage of the method: should raise an error
+        with self.assertRaisesRegex(BaseError, "works only if exactly one of the two arguments is given"):
             e2l.validate_lists_section_with_schema(
                 path_to_json_project_file="testdata/json-project/test-project-systematic.json",
                 lists_section=lists_section_valid,
             )
-        with self.assertRaisesRegex(
-            BaseError, "Validation of the 'lists' section works only if exactly one of the two arguments is given."
-        ):
+        with self.assertRaisesRegex(BaseError, "works only if exactly one of the two arguments is given"):
             e2l.validate_lists_section_with_schema()
 
         # pass a file that doesn't have a "lists" section
+        tp_minimal = "testdata/json-project/test-project-minimal.json"
         with self.assertRaisesRegex(BaseError, "there is no 'lists' section"):
-            e2l.validate_lists_section_with_schema(
-                path_to_json_project_file="testdata/json-project/test-project-minimal.json"
-            )
+            e2l.validate_lists_section_with_schema(path_to_json_project_file=tp_minimal)
 
     def test_excel2lists(self) -> None:
         for mode in ["monolingual", "multilingual"]:

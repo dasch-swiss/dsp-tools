@@ -49,7 +49,7 @@ def make_xsd_id_compatible(string: str) -> str:
         BaseError: if the input cannot be transformed to an xsd:ID
 
     Returns:
-        an xsd:ID based on the input string
+        an xsd ID based on the input string
     """
 
     if not isinstance(string, str) or not check_notna(string):
@@ -268,7 +268,7 @@ def make_root(
 
     Args:
         shortcode: The shortcode of this project as defined in the JSON project file
-        default ontology: one of the ontologies of the JSON project file
+        default_ontology: one of the ontologies of the JSON project file
 
     Returns:
         The root element <knora>.
@@ -1272,10 +1272,10 @@ def make_unformatted_text_prop(
     for val in values:
         kwargs = {"permissions": val.permissions}
         if check_notna(val.comment):
-            kwargs["comment"] = val.comment  # type: ignore
+            kwargs["comment"] = val.comment  # type: ignore[assignment]
         value_ = etree.Element(
             "{%s}text" % (xml_namespace_map[None]),
-            **kwargs,  # type: ignore
+            **kwargs,  # type: ignore[arg-type]
             nsmap=xml_namespace_map,
         )
         value_.text = str(val.value)
@@ -1352,10 +1352,10 @@ def make_formatted_text_prop(
     for val in values:
         kwargs = {"permissions": val.permissions}
         if check_notna(val.comment):
-            kwargs["comment"] = val.comment  # type: ignore
+            kwargs["comment"] = val.comment  # type: ignore[assignment]
         value_ = etree.Element(
             "{%s}text" % xml_namespace_map[None],
-            **kwargs,  # type: ignore
+            **kwargs,  # type: ignore[arg-type]
             nsmap=xml_namespace_map,
         )
         # enforce that the text is well-formed XML: serialize tag ...
@@ -1802,9 +1802,13 @@ def create_json_excel_list_mapping(
 
 def _nested_dict_values_iterator(dicts: list[dict[str, Any]]) -> Iterable[str]:
     """
-    This function accepts a list of nested dictionaries as argument
-    and iterates over all values.
-    It yields the values iteratively.
+    Yield all values of a nested dictionary.
+
+    Args:
+        dicts: list of nested dictionaries
+
+    Yields:
+        values of the nested dictionaries
     """
     # Credits: https://thispointer.com/python-iterate-loop-over-all-nested-dictionary-values/
     for _dict in dicts:
@@ -1858,7 +1862,14 @@ def _name_label_mapper_iterator(
     language_label: str,
 ) -> Iterable[tuple[str, str]]:
     """
-    returns (label, name) pairs of JSON project list entries
+    Go through list nodes of a JSON project and yield (label, name) pairs.
+
+    Args:
+        json_subset: list of DSP lists (a DSP list being a dictionary with the keys "name", "labels" and "nodes")
+        language_label: which language of the label to choose
+
+    Yields:
+        (label, name) pairs
     """
     for node in json_subset:
         # node is the json object containing the entire json-list
@@ -1877,7 +1888,7 @@ def write_xml(
     filepath: str,
 ) -> None:
     """
-    Write the finished XML to a file
+    Write the finished XML to a file.
 
     Args:
         root: etree Element with the entire XML document
@@ -1885,9 +1896,6 @@ def write_xml(
 
     Raises:
         Warning: if the XML is not valid according to the schema
-
-    Returns:
-        None
     """
     etree.indent(root, space="    ")
     xml_string = etree.tostring(
@@ -1961,7 +1969,7 @@ def _validate_and_prepare_cli_input_file(dataframe: pd.DataFrame) -> pd.DataFram
         )
 
     # make sure there are no "i_encoding" columns
-    i_encoding_columns = [col for col in dataframe.columns if re.search(r"\d_encoding", col)]
+    i_encoding_columns = [col for col in dataframe.columns if regex.search(r"\d_encoding", col)]
     if any(i_encoding_columns):
         raise BaseError(f"Your input file contains the following deprecated columns: {i_encoding_columns}")
 
@@ -2355,7 +2363,7 @@ def excel2xml(
     It takes a tabular data source in CSV/XLS(X) format that is formatted according to the specifications,
     and transforms it into a DSP-conforming XML file
     that can be uploaded to a DSP server with the xmlupload command.
-    The output file is saved in the same directory as the input file,
+    The output file is saved in the current working directory,
     with the name [default_ontology]-data.xml.
 
     Please note that this method doesn't do any data cleaning or data transformation tasks.

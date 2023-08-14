@@ -27,7 +27,7 @@ def _validate_resources(
         excelfile: path to the Excel file containing the resources
 
     Raises:
-        BaseError with a detailed error report if the validation fails
+        BaseError: if the validation fails
 
     Returns:
         True if the "resources" section passed validation
@@ -104,7 +104,7 @@ def _row2resource(
         excelfile: Excel file where the data comes from
 
     Raises:
-        BaseError if the row or the details sheet contains invalid data
+        BaseError: if the row or the details sheet contains invalid data
 
     Returns:
         dict object of the resource
@@ -203,7 +203,7 @@ def excel2resources(
             (otherwise, it's only returned as return value)
 
     Raises:
-        BaseError if something went wrong
+        BaseError: if something went wrong
 
     Returns:
         a tuple consisting of the "resources" section as Python list,

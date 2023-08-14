@@ -36,7 +36,12 @@ class StackConfiguration:
     latest_dev_version: bool = False
 
     def __post_init__(self) -> None:
-        """Validate the input parameters passed by the user. Raises a UserError if one of the parameters is invalid."""
+        """
+        Validate the input parameters passed by the user.
+
+        Raises:
+            UserError: if one of the parameters is invalid
+        """
         if self.max_file_size is not None:
             if not 1 <= self.max_file_size <= 100_000:
                 raise UserError("max_file_size must be between 1 and 100000")
@@ -52,7 +57,12 @@ class StackHandler:
     __docker_path_of_user: Path
 
     def __init__(self, stack_configuration: StackConfiguration) -> None:
-        """Initialize a StackHandler with a StackConfiguration"""
+        """
+        Initialize a StackHandler with a StackConfiguration
+
+        Args:
+            stack_configuration: configuration information for the StackHandler
+        """
         self.__stack_configuration = stack_configuration
         self.__url_prefix = self._get_url_prefix()
         self.__docker_path_of_user = Path.home() / Path(".dsp-tools/start-stack")

@@ -35,6 +35,9 @@ def run_test(
         different_values: some valid values
         invalid_values: some invalid values
         listname: to check the method make_list_prop, a list name is necessary
+
+    Raises:
+        BaseError: if make_list_prop() should be tested, but no listname is provided
     """
     identical_values = [different_values[0]] * 3
     maximum = len(different_values)
@@ -535,7 +538,7 @@ class TestExcel2xml(unittest.TestCase):
             received = etree.tostring(
                 excel2xml.make_unformatted_text_prop(":test", excel2xml.PropertyElement(orig)), encoding="unicode"
             )
-            received = re.sub(r" xmlns(:.+?)?=\".+?\"", "", received)
+            received = regex.sub(r" xmlns(:.+?)?=\".+?\"", "", received)
             expected = (
                 f'<unformatted-text-prop name=":test"><text permissions="prop-default">{exp}'
                 "</text></unformatted-text-prop>"

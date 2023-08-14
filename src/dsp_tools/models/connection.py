@@ -32,7 +32,7 @@ class Connection:
     An Connection instance represents a connection to a DSP server.
 
     Attributes:
-        server: dddress of the server, e.g https://api.dasch.swiss
+        server: address of the server, e.g https://api.dasch.swiss
         prefixes: ontology prefixes used
         token: session token received by the server after login
         log: if True, the requests are written into a file
@@ -40,7 +40,7 @@ class Connection:
 
     server: str
     prefixes: Optional[dict[str, str]] = None
-    token: Union[str, None] = None
+    token: Optional[str] = None
     log: bool = False
 
     def login(self, email: str, password: str) -> None:

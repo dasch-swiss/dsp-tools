@@ -61,7 +61,7 @@ class Connection:
 
         if self.user_email and self.password:
             response = self.post(
-                path="/v2/authentication",
+                route="/v2/authentication",
                 jsondata=json.dumps({"email": self.user_email, "password": self.password}),
             )
             if not response.get("token"):
@@ -112,7 +112,7 @@ class Connection:
 
     def post(
         self,
-        path: str,
+        route: str,
         jsondata: Optional[str] = None,
         content_type: str = "application/json",
     ) -> dict[str, Any]:
@@ -120,7 +120,7 @@ class Connection:
         Make a HTTP POST request to the server to which this connection has been established.
 
         Args:
-            path: Path of RESTful route
+            route: route that will be called on the server
             jsondata: Valid JSON as string
             content_type: HTTP Content-Type [default: 'application/json']
 
@@ -131,8 +131,8 @@ class Connection:
         # otherwise the client can get a timeout error while the API is still processing the request
         # in that case, the client's retry will fail, and the response of the original API call is lost
         timeout = None
-        if not path.startswith("/"):
-            path = "/" + path
+        if not route.startswith("/"):
+            route = "/" + route
         headers = {}
         if jsondata:
             headers["Content-Type"] = f"{content_type}; charset=UTF-8"
@@ -140,7 +140,7 @@ class Connection:
             headers["Authorization"] = f"Bearer {self.token}"
 
         response = requests.post(
-            self.server + path,
+            self.server + route,
             headers=headers,
             data=jsondata,
             timeout=timeout,
@@ -148,7 +148,7 @@ class Connection:
         if self.dump:
             self.write_request_to_file(
                 method="POST",
-                route=path,
+                route=route,
                 headers=headers,
                 jsondata=jsondata,
                 params=None,
@@ -160,31 +160,31 @@ class Connection:
 
     def get(
         self,
-        path: str,
+        route: str,
         headers: Optional[dict[str, str]] = None,
     ) -> dict[str, Any]:
         """
         Make a HTTP GET request to the server to which this connection has been established.
 
         Args:
-            path: Path of RESTful route
+            route: route that will be called on the server
             headers: headers for the HTTP request
 
         Returns:
             response from server
         """
-        if not path.startswith("/"):
-            path = "/" + path
+        if not route.startswith("/"):
+            route = "/" + route
         if not headers:
             headers = {}
         if self.token:
             headers["Authorization"] = f"Bearer {self.token}"
 
-        response = requests.get(url=self.server + path, headers=headers, timeout=20)
+        response = requests.get(url=self.server + route, headers=headers, timeout=20)
         if self.dump:
             self.write_request_to_file(
                 method="GET",
-                route=path,
+                route=route,
                 headers=headers,
                 jsondata=None,
                 params=None,
@@ -196,7 +196,7 @@ class Connection:
 
     def put(
         self,
-        path: str,
+        route: str,
         jsondata: Optional[str] = None,
         content_type: str = "application/json",
     ) -> dict[str, Any]:
@@ -204,7 +204,7 @@ class Connection:
         Make a HTTP GET request to the server to which this connection has been established.
 
         Args:
-            path: Path of RESTful route
+            route: route that will be called on the server
             jsondata: Valid JSON as string
             content_type: HTTP Content-Type [default: 'application/json']
         """
@@ -212,8 +212,8 @@ class Connection:
         # otherwise the client can get a timeout error while the API is still processing the request
         # in that case, the client's retry will fail, and the response of the original API call is lost
         timeout = None
-        if not path.startswith("/"):
-            path = "/" + path
+        if not route.startswith("/"):
+            route = "/" + route
         headers = {}
         if jsondata:
             headers["Content-Type"] = f"{content_type}; charset=UTF-8"
@@ -221,7 +221,7 @@ class Connection:
             headers["Authorization"] = f"Bearer {self.token}"
 
         response = requests.put(
-            self.server + path,
+            self.server + route,
             headers=headers,
             data=jsondata,
             timeout=timeout,
@@ -229,7 +229,7 @@ class Connection:
         if self.dump:
             self.write_request_to_file(
                 method="PUT",
-                route=path,
+                route=route,
                 headers=headers,
                 jsondata=jsondata,
                 params=None,
@@ -241,26 +241,26 @@ class Connection:
 
     def delete(
         self,
-        path: str,
+        route: str,
         params: Optional[dict[str, Any]] = None,
     ) -> dict[str, Any]:
         """
         Make a HTTP GET request to the server to which this connection has been established.
 
         Args:
-            path: Path of RESTful route
+            route: route that will be called on the server
             params: additional parameters for the HTTP request
 
         Returns:
             response from server
         """
-        if not path.startswith("/"):
-            path = "/" + path
+        if not route.startswith("/"):
+            route = "/" + route
         headers = {}
         if self.token:
             headers["Authorization"] = f"Bearer {self.token}"
         response = requests.delete(
-            self.server + path,
+            self.server + route,
             headers=headers,
             params=params,
             timeout=20,
@@ -268,7 +268,7 @@ class Connection:
         if self.dump:
             self.write_request_to_file(
                 method="DELETE",
-                route=path,
+                route=route,
                 headers=headers,
                 jsondata=None,
                 params=params,

@@ -1,35 +1,36 @@
-from typing import Any, Optional
+from dataclasses import dataclass
+from typing import Optional
 
 from dsp_tools.models.helpers import Actions
 from dsp_tools.models.permission import Permissions
 
 
+@dataclass
 class Bitstream:
     """
-    Represents a bitstream object (file) which is attached to a resource
+    Represents a bitstream object (file) which is attached to a resource.
+
+    Attributes:
+        value: File path of the bitstream
+        permissions: Permissions of the bitstream
     """
 
-    _value: str
-    _permissions: Optional[Permissions]
+    value: str
+    permissions: Optional[Permissions] = None
 
-    def __init__(self, value: str, permissions: Optional[Permissions] = None):
-        self._value = value
-        self._permissions = permissions
+    def toJsonLdObj(self, action: Actions) -> dict[str, str]:
+        """
+        Create a JSON-LD object from this python object.
 
-    @property
-    def value(self) -> str:
-        """File path of the bitstream"""
-        return self._value
+        Args:
+            action: action for which this JSON-LD is used for: create, read, update, or delete
 
-    @property
-    def permissions(self) -> Optional[Permissions]:
-        """Permissions of the bitstream"""
-        return self._permissions
-
-    def toJsonLdObj(self, action: Actions) -> dict[str, Any]:  # pylint: disable=missing-function-docstring
+        Returns:
+            JSON-LD object
+        """
         tmp = {}
         if action == Actions.Create:
-            tmp["knora-api:fileValueHasFilename"] = self._value
-            if self._permissions:
+            tmp["knora-api:fileValueHasFilename"] = self.value
+            if self.permissions:
                 tmp["knora-api:hasPermissions"] = self.permissions.toJsonLdObj()
         return tmp

@@ -4,7 +4,7 @@ from typing import Any, Optional, Union
 import regex
 import requests
 
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import DspApiError
 
 
 def check_for_api_error(response: requests.Response) -> None:
@@ -18,7 +18,7 @@ def check_for_api_error(response: requests.Response) -> None:
         BaseError: If the status code of the response is not 200
     """
     if response.status_code != 200:
-        raise BaseError(
+        raise DspApiError(
             message="KNORA-ERROR: status code=" + str(response.status_code) + "\nMessage:" + response.text,
             status_code=response.status_code,
             json_content_of_api_response=response.text,

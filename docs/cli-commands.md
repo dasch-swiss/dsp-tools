@@ -141,7 +141,7 @@ The following options are available:
 - `-V` | `--validate` (optional): validate the XML file without uploading it
 - `-v` | `--verbose` (optional): print more information about the progress to the console
 - `-m` | `--metrics` (optional): write metrics into a 'metrics' folder
-- `-d` | `--dump` (optional): write every request to DSP-API into a file
+- `-d` | `--dump` (optional): write every request to DSP-API/SIPI into a file
 
 Output:
 

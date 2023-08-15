@@ -505,7 +505,7 @@ def xml_upload(
         imgdir: the image directory
         sipi: the sipi instance to be used
         verbose: verbose option for the command, if used more output is given to the user
-        dump: if True, write every request to DSP-API into a file
+        dump: if True, write every request to DSP-API/SIPI into a file
         incremental: if set, IRIs instead of internal IDs are expected as resource pointers
         save_metrics: if true, saves time measurements into a "metrics" folder in the current working directory
         preprocessing_done: if set, all multimedia files referenced in the XML file must already be on the server

@@ -114,6 +114,7 @@ class Connection:
         self,
         path: str,
         jsondata: Optional[str] = None,
+        content_type: str = "application/json",
     ) -> dict[str, Any]:
         """
         Make a HTTP POST request to the server to which this connection has been established.
@@ -121,6 +122,7 @@ class Connection:
         Args:
             path: Path of RESTful route
             jsondata: Valid JSON as string
+            content_type: HTTP Content-Type [default: 'application/json']
 
         Returns:
             response from server
@@ -133,9 +135,9 @@ class Connection:
             path = "/" + path
         headers = {}
         if jsondata:
-            headers = {"Content-Type": "application/json; charset=UTF-8"}
+            headers["Content-Type"] = f"{content_type}; charset=UTF-8"
         if self.token:
-            headers["Authorization"] = "Bearer " + self.token
+            headers["Authorization"] = f"Bearer {self.token}"
 
         response = requests.post(
             self.server + path,
@@ -176,7 +178,7 @@ class Connection:
         if not headers:
             headers = {}
         if self.token:
-            headers["Authorization"] = "Bearer " + self.token
+            headers["Authorization"] = f"Bearer {self.token}"
 
         response = requests.get(url=self.server + path, headers=headers, timeout=20)
         if self.dump:
@@ -213,10 +215,10 @@ class Connection:
         if not path.startswith("/"):
             path = "/" + path
         headers = {}
-        if self.token:
-            headers["Authorization"] = "Bearer " + self.token
         if jsondata:
-            headers["Content-Type"] = content_type + "; charset=UTF-8"
+            headers["Content-Type"] = f"{content_type}; charset=UTF-8"
+        if self.token:
+            headers["Authorization"] = f"Bearer {self.token}"
 
         response = requests.put(
             self.server + path,
@@ -256,7 +258,7 @@ class Connection:
             path = "/" + path
         headers = {}
         if self.token:
-            headers = {"Authorization": "Bearer " + self.token}
+            headers["Authorization"] = f"Bearer {self.token}"
         response = requests.delete(
             self.server + path,
             headers=headers,

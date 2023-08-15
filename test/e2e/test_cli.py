@@ -33,27 +33,27 @@ class TestCLI(unittest.TestCase):
     test_project_hlist_file = Path("testdata/json-project/test-project-hlist-refers-label.json")
     test_data_systematic_file = Path("testdata/xml-data/test-data-systematic.xml")
     test_data_minimal_file = Path("testdata/xml-data/test-data-minimal.xml")
-    default_cwd = Path("cwd")
+    cwd = Path("cwd")
     testdata_tmp = Path("testdata/tmp")
 
     @classmethod
     def setUpClass(cls) -> None:
         """Is executed once before the methods of this class are run"""
         cls.testdata_tmp.mkdir(exist_ok=True)
-        cls.default_cwd.mkdir(exist_ok=True)
+        cls.cwd.mkdir(exist_ok=True)
 
     @classmethod
     def tearDownClass(cls) -> None:
         """Is executed after the methods of this class have all run through"""
         shutil.rmtree(cls.testdata_tmp)
-        shutil.rmtree(cls.default_cwd)
+        shutil.rmtree(cls.cwd)
         for f in Path().glob("id2iri_*.json"):
             f.unlink()
 
     def _make_cli_call(
         self,
         cli_call: str,
-        working_directory: Path = default_cwd,
+        working_directory: Path = cwd,
     ) -> None:
         """
         Execute a CLI call, capture its stdout and stderr,
@@ -136,9 +136,8 @@ class TestCLI(unittest.TestCase):
 
     def test_create_project(self) -> None:
         cli_call = f"poetry run dsp-tools create {self.test_project_systematic_file.absolute()} --verbose"
-        cwd = Path(
-            "."
-        )  # the JSON file contains a reference to an Excel file, which is relative to the root of the repo
+        # the JSON file contains a reference to an Excel file, which is relative to the root of the repo
+        cwd = Path(".")
         self._make_cli_call(
             cli_call=cli_call,
             working_directory=cwd,
@@ -200,7 +199,8 @@ class TestCLI(unittest.TestCase):
 
     def test_xml_upload_incremental(self) -> None:
         cli_call_1 = f"poetry run dsp-tools xmlupload {self.test_data_systematic_file.absolute()}"
-        cwd = Path(".")  # the XML file contains references to multimedia files that are relative to the repo root
+        # the XML file contains references to multimedia files that are relative to the root of the repo
+        cwd = Path(".")
         self._make_cli_call(
             cli_call=cli_call_1,
             working_directory=cwd,
@@ -218,7 +218,7 @@ class TestCLI(unittest.TestCase):
         self._make_cli_call(cli_call_2)
 
         self._make_cli_call(f"poetry run dsp-tools xmlupload --incremental -v {xml_file_replaced.absolute()}")
-        self.assertListEqual(list(Path(self.default_cwd).glob("stashed_*_properties_*.txt")), [])
+        self.assertListEqual(list(Path(self.cwd).glob("stashed_*_properties_*.txt")), [])
         mapping_file.unlink()
         xml_file_replaced.unlink()
 
@@ -289,7 +289,7 @@ class TestCLI(unittest.TestCase):
         datafile = Path("testdata/excel2xml/excel2xml-testdata.xlsx")
         shortcode = "1234"
         onto_name = "excel2xml-output"
-        out_file = self.default_cwd / f"{onto_name}-data.xml"
+        out_file = self.cwd / f"{onto_name}-data.xml"
         self._make_cli_call(f"poetry run dsp-tools excel2xml {datafile.absolute()} {shortcode} {onto_name}")
         with open(out_file, encoding="utf-8") as f:
             output_actual = f.read()

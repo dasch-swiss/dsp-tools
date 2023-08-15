@@ -36,14 +36,12 @@ class Connection:
 
     Attributes:
         server: address of the server, e.g https://api.dasch.swiss
-        prefixes: ontology prefixes used
         token: session token received by the server after login
         log: if True, every request is written into a file
         log_directory: directory where the log files are written
     """
 
     server: str
-    prefixes: Optional[dict[str, str]] = None
     token: Optional[str] = None
     log: bool = False
     log_directory: Path = Path("HTTP requests")

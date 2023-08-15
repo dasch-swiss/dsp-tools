@@ -11,7 +11,14 @@ from dsp_tools.models.exceptions import BaseError
 
 
 class TestConnection(unittest.TestCase):
-    con = Connection(server="http://0.0.0.0:3333", user_email="root@example.com", password="test")
+    con: Connection
+
+    def setUp(self) -> None:
+        """
+        Creates a connection to DSP-API.
+        For each test method, a new TestCase instance is created, so setUp() is executed before each test method.
+        """
+        self.con = Connection(server="http://0.0.0.0:3333", user_email="root@example.com", password="test")
 
     def test_connection(self) -> None:
         self.assertIsNotNone(self.con.token)

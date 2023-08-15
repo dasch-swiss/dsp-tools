@@ -20,7 +20,7 @@ class TestPropertyClass(unittest.TestCase):
 
     onto: Ontology
     last_modification_date: DateTimeStamp
-    con = Connection(server="http://0.0.0.0:3333", user_email="root@example.com", password="test")
+    con: Connection
 
     name = "MyPropClassName"
     object = "TextValue"
@@ -29,8 +29,10 @@ class TestPropertyClass(unittest.TestCase):
 
     def setUp(self) -> None:
         """
-        is executed before each test method; creates a new ontology
+        Creates a connection and a new ontology.
+        For each test method, a new TestCase instance is created, so setUp() is executed before each test method.
         """
+        self.con = Connection(server="http://0.0.0.0:3333", user_email="root@example.com", password="test")
         self.onto = Ontology(
             con=self.con,
             project=self.project,

@@ -10,8 +10,15 @@ from dsp_tools.models.langstring import LangString, Languages
 
 
 class TestGroup(unittest.TestCase):  # pylint: disable=missing-class-docstring
-    con = Connection(server="http://0.0.0.0:3333", user_email="root@example.com", password="test")
     test_project = "http://rdfh.ch/projects/0001"
+    con: Connection
+
+    def setUp(self) -> None:
+        """
+        Creates a connection to DSP-API.
+        For each test method, a new TestCase instance is created, so setUp() is executed before each test method.
+        """
+        self.con = Connection(server="http://0.0.0.0:3333", user_email="root@example.com", password="test")
 
     def test_group_getAllGroups(self) -> None:
         """

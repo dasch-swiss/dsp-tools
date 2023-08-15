@@ -13,11 +13,18 @@ from dsp_tools.models.resourceclass import ResourceClass
 
 
 class TestResourceClass(unittest.TestCase):
-    con = Connection(server="http://0.0.0.0:3333", user_email="root@example.com", password="test")
     test_project = "http://rdfh.ch/projects/0001"
     res_name = "res_class_name"
     res_label = LangString({Languages.EN: "Resource Class Label"})
     res_comment = LangString({Languages.EN: "This is a resource class for testing"})
+    con: Connection
+
+    def setUp(self) -> None:
+        """
+        Creates a connection to DSP-API.
+        For each test method, a new TestCase instance is created, so setUp() is executed before each test method.
+        """
+        self.con = Connection(server="http://0.0.0.0:3333", user_email="root@example.com", password="test")
 
     def test_ResourceClass_create(self) -> None:
         onto = Ontology(

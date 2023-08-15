@@ -27,6 +27,10 @@ class Sipi:
     log: bool = False
     log_directory: Path = Path("HTTP requests")
 
+    def __post_init__(self) -> None:
+        if self.log:
+            self.log_directory.mkdir(exist_ok=True)
+
     def upload_bitstream(self, filepath: str) -> dict[Any, Any]:
         """
         Uploads a bitstream to the Sipi server
@@ -61,15 +65,6 @@ class Sipi:
         check_for_api_error(response)
         res: dict[Any, Any] = response.json()
         return res
-
-    def start_logging(self) -> None:
-        """Start writing every API call to a file"""
-        self.log = True
-        self.log_directory.mkdir(exist_ok=True)
-
-    def stop_logging(self) -> None:
-        """Stop writing every API call to a file"""
-        self.log = False
 
     def write_log_file(
         self,

@@ -55,29 +55,22 @@ class Connection:
         Raises:
             BaseError: if DSP-API returns no token with the provided user credentials
         """
-        if not self.user_email and not self.password:
-            return
-        response = self.post(
-            path=self.server + "/v2/authentication",
-            jsondata=json.dumps({"email": self.user_email, "password": self.password}),
-        )
-        if not response.get("token"):
-            raise BaseError(
-                f"Error when trying to login with user '{self.user_email}' and password '{self.password} "
-                f"on server '{self.server}'",
-                json_content_of_api_response=json.dumps(response),
-                api_route="/v2/authentication",
+        if self.log:
+            self.log_directory.mkdir(exist_ok=True)
+
+        if self.user_email and self.password:
+            response = self.post(
+                path=self.server + "/v2/authentication",
+                jsondata=json.dumps({"email": self.user_email, "password": self.password}),
             )
-        self.token = response["token"]
-
-    def start_logging(self) -> None:
-        """Start writing every API call to a file"""
-        self.log = True
-        self.log_directory.mkdir(exist_ok=True)
-
-    def stop_logging(self) -> None:
-        """Stop writing every API call to a file"""
-        self.log = False
+            if not response.get("token"):
+                raise BaseError(
+                    f"Error when trying to login with user '{self.user_email}' and password '{self.password} "
+                    f"on server '{self.server}'",
+                    json_content_of_api_response=json.dumps(response),
+                    api_route="/v2/authentication",
+                )
+            self.token = response["token"]
 
     def write_log_file(
         self,

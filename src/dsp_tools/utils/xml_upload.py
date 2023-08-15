@@ -30,7 +30,7 @@ from dsp_tools.models.xmlpermission import XmlPermission
 from dsp_tools.models.xmlproperty import XMLProperty
 from dsp_tools.models.xmlresource import XMLResource
 from dsp_tools.utils.logging import get_logger
-from dsp_tools.utils.shared import login, try_network_action, validate_xml_against_schema
+from dsp_tools.utils.shared import try_network_action, validate_xml_against_schema
 
 MetricRecord = namedtuple("MetricRecord", ["res_id", "filetype", "filesize_mb", "event", "duration_ms", "mb_per_sec"])
 
@@ -540,12 +540,18 @@ def xml_upload(
     preparation_start = datetime.now()
 
     # establish connection to DSP server
-    con = Connection(server=server, user_email=user, password=password)
+    con = Connection(
+        server=server,
+        user_email=user,
+        password=password,
+        log=dump,
+    )
     assert con.token is not None
-    sipi_server = Sipi(sipi, con.token)
-    if dump:
-        con.start_logging()
-        sipi_server.start_logging()
+    sipi_server = Sipi(
+        sipi_server=sipi,
+        token=con.token,
+        log=dump,
+    )
 
     # get the project context
     try:

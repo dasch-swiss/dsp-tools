@@ -7,7 +7,7 @@ from dsp_tools.models.project import Project
 from dsp_tools.utils.excel_to_json_lists import expand_lists_from_excel
 from dsp_tools.utils.logging import get_logger
 from dsp_tools.utils.project_validate import validate_project
-from dsp_tools.utils.shared import login, parse_json_input, try_network_action
+from dsp_tools.utils.shared import parse_json_input, try_network_action
 
 logger = get_logger(__name__)
 
@@ -189,9 +189,12 @@ def create_lists(
     print("JSON project file is syntactically correct and passed validation.")
 
     # connect to the DSP server
-    con = Connection(server=server, user_email=user, password=password)
-    if dump:
-        con.start_logging()
+    con = Connection(
+        server=server,
+        user_email=user,
+        password=password,
+        log=dump,
+    )
 
     # retrieve the project
     shortcode = project_definition["project"]["shortcode"]

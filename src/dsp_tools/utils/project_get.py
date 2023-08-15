@@ -10,7 +10,7 @@ from dsp_tools.models.ontology import Ontology
 from dsp_tools.models.project import Project
 from dsp_tools.models.user import User
 
-from dsp_tools.utils.shared import login
+from dsp_tools.models.connection import Connection
 
 
 def get_project(
@@ -41,9 +41,12 @@ def get_project(
         True if the process finishes without errors
     """
     # establish connection to DSP server
-    con = login(server=server, user=user, password=password)
-    if dump:
-        con.start_logging()
+    con = Connection(
+        server=server,
+        user_email=user,
+        password=password,
+        log=dump,
+    )
 
     project = None
     if regex.match("[0-9A-F]{4}", project_identifier):  # shortcode
@@ -76,7 +79,10 @@ def get_project(
     if verbose:
         print("Getting users...")
     users_obj: list[dict[str, Any]] = []
-    users = User.getAllUsersForProject(con=con, proj_shortcode=str(project.shortcode))
+    try:
+        users = User.getAllUsersForProject(con=con, proj_shortcode=str(project.shortcode))
+    except BaseError:
+        users = None
     if users:
         for usr in users:
             users_obj.append(

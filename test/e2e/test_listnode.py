@@ -9,15 +9,9 @@ from dsp_tools.models.listnode import ListNode
 
 
 class TestListNode(unittest.TestCase):  # pylint: disable=missing-class-docstring
+    con = Connection(server="http://0.0.0.0:3333", user_email="root@example.com", password="test")
     project = "http://rdfh.ch/projects/0001"
     otherTreeList = "http://rdfh.ch/lists/0001/otherTreeList"
-
-    def setUp(self) -> None:
-        """
-        is executed before each test method; sets up a connection and logs in as user root
-        """
-        self.con = Connection("http://0.0.0.0:3333")
-        self.con.login("root@example.com", "test")
 
     def test_ListNode_read(self) -> None:
         """

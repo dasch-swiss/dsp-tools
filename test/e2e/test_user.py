@@ -18,12 +18,7 @@ iri_group_images_reviewer = "http://rdfh.ch/groups/00FF/images-reviewer"
 
 
 class TestUser(unittest.TestCase):
-    def setUp(self) -> None:
-        """
-        is executed before each test method; sets up a connection and logs in as user root
-        """
-        self.con = Connection("http://0.0.0.0:3333")
-        self.con.login("root@example.com", "test")
+    con = Connection(server="http://0.0.0.0:3333", user_email="root@example.com", password="test")
 
     def test_user_create(self) -> None:
         user = User(
@@ -156,9 +151,7 @@ class TestUser(unittest.TestCase):
         user.update("test")
 
         # login as user wilee5 with new password (this would fail if password update wasn't successful)
-        con = Connection("http://0.0.0.0:3333")
-        con.login(user_email, user_new_pw)
-
+        con = Connection(server="http://0.0.0.0:3333", user_email="root@example.com", password="test")
         updated_user = User(con=con, email=user_email).read()
 
         # update password as user wilee5 (this would fail if password update wasn't successful)

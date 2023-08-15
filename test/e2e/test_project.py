@@ -12,14 +12,8 @@ from dsp_tools.models.project import Project
 
 
 class TestProject(unittest.TestCase):
+    con = Connection(server="http://0.0.0.0:3333", user_email="root@example.com", password="test")
     logo_file = "logo.gif"
-
-    def setUp(self) -> None:
-        """
-        is executed before each test method; sets up a connection and logs in as user root
-        """
-        self.con = Connection("http://0.0.0.0:3333")
-        self.con.login("root@example.com", "test")
 
     def test_Project(self) -> None:
         project = Project(

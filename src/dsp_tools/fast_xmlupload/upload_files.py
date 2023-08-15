@@ -12,7 +12,6 @@ from regex import regex
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.logging import get_logger
-from dsp_tools.utils.shared import login
 
 logger = get_logger(__name__)
 
@@ -397,11 +396,7 @@ def upload_files(
     logger.info(f"Found {len(internal_filenames_of_processed_files)} files to upload...")
 
     # create connection to DSP
-    con = login(
-        server=dsp_url,
-        user=user,
-        password=password,
-    )
+    con = Connection(server=dsp_url, user_email=user, password=password)
 
     # upload files in parallel
     start_time = datetime.now()

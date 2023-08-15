@@ -42,27 +42,33 @@ class Connection:
     """
 
     server: str
+    user_email: Optional[str] = None
+    password: Optional[str] = None
     token: Optional[str] = None
     log: bool = False
     log_directory: Path = Path("HTTP requests")
 
-    def login(self, email: str, password: str) -> None:
+    def __post_init__(self) -> None:
         """
-        Retrieve a session token.
+        If user credentials are provided, log in.
 
-        Args:
-            email: Email of user
-            password: Password of the user
+        Raises:
+            BaseError: if DSP-API returns no token with the provided user credentials
         """
-        response = requests.post(
-            self.server + "/v2/authentication",
-            headers={"Content-Type": "application/json; charset=UTF-8"},
-            data=json.dumps({"email": email, "password": password}),
-            timeout=20,
+        if not self.user_email and not self.password:
+            return
+        response = self.post(
+            path=self.server + "/v2/authentication",
+            jsondata=json.dumps({"email": self.user_email, "password": self.password}),
         )
-        check_for_api_error(response)
-        result = response.json()
-        self.token = result["token"]
+        if not response.get("token"):
+            raise BaseError(
+                f"Error when trying to login with user '{self.user_email}' and password '{self.password} "
+                f"on server '{self.server}'",
+                json_content_of_api_response=json.dumps(response),
+                api_route="/v2/authentication",
+            )
+        self.token = response["token"]
 
     def start_logging(self) -> None:
         """Start writing every API call to a file"""

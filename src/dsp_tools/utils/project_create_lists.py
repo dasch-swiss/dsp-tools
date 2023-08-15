@@ -189,7 +189,7 @@ def create_lists(
     print("JSON project file is syntactically correct and passed validation.")
 
     # connect to the DSP server
-    con = login(server, user, password)
+    con = Connection(server=server, user_email=user, password=password)
     if dump:
         con.start_logging()
 

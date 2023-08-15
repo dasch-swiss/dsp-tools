@@ -10,14 +10,8 @@ from dsp_tools.models.langstring import LangString, Languages
 
 
 class TestGroup(unittest.TestCase):  # pylint: disable=missing-class-docstring
+    con = Connection(server="http://0.0.0.0:3333", user_email="root@example.com", password="test")
     test_project = "http://rdfh.ch/projects/0001"
-
-    def setUp(self) -> None:
-        """
-        is executed before each test method; sets up a connection and logs in as user root
-        """
-        self.con = Connection("http://0.0.0.0:3333")
-        self.con.login("root@example.com", "test")
 
     def test_group_getAllGroups(self) -> None:
         """

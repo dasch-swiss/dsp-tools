@@ -24,36 +24,6 @@ from dsp_tools.utils.logging import get_logger
 logger = get_logger(__name__)
 
 
-def login(
-    server: str,
-    user: str,
-    password: str,
-) -> Connection:
-    """
-    Creates a connection,
-    makes a login (handling temporary network interruptions),
-    and returns the active connection.
-
-    Args:
-        server: URL of the DSP server to connect to
-        user: Username (e-mail)
-        password: Password of the user
-
-    Raises:
-        UserError: if the login fails permanently
-
-    Returns:
-        Connection instance
-    """
-    con = Connection(server)
-    try:
-        try_network_action(lambda: con.login(email=user, password=password))
-    except BaseError:
-        logger.error("Cannot login to DSP server", exc_info=True)
-        raise UserError("Cannot login to DSP server") from None
-    return con
-
-
 def http_call_with_retry(
     action: Callable[..., Any],
     *args: Any,

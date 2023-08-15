@@ -20,7 +20,7 @@ class TestPropertyClass(unittest.TestCase):
 
     onto: Ontology
     last_modification_date: DateTimeStamp
-    con: Connection
+    con = Connection(server="http://0.0.0.0:3333", user_email="root@example.com", password="test")
 
     name = "MyPropClassName"
     object = "TextValue"
@@ -29,19 +29,14 @@ class TestPropertyClass(unittest.TestCase):
 
     def setUp(self) -> None:
         """
-        is executed before each test method; sets up a connection and logs in as user root; creates a new ontology
+        is executed before each test method; creates a new ontology
         """
-        self.con = Connection("http://0.0.0.0:3333")
-        self.con.login("root@example.com", "test")
-
-        # Create a test ontology
         self.onto = Ontology(
             con=self.con,
             project=self.project,
             name=self.onto_name,
             label=self.onto_label,
         ).create()
-
         self.assertIsNotNone(self.onto.iri)
         self.last_modification_date = self.onto.lastModificationDate
 

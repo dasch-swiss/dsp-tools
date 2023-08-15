@@ -540,7 +540,7 @@ def xml_upload(
     preparation_start = datetime.now()
 
     # establish connection to DSP server
-    con = login(server=server, user=user, password=password)
+    con = Connection(server=server, user_email=user, password=password)
     assert con.token is not None
     sipi_server = Sipi(sipi, con.token)
     if dump:

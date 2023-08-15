@@ -11,20 +11,10 @@ from dsp_tools.models.exceptions import BaseError
 
 
 class TestConnection(unittest.TestCase):
-    def setUp(self) -> None:
-        """
-        is executed before each test method; sets up a connection and logs in as user root
-        """
-        self.con = Connection("http://0.0.0.0:3333")
-        self.con.login("root@example.com", "test")
+    con = Connection(server="http://0.0.0.0:3333", user_email="root@example.com", password="test")
 
-    def test_Connection(self) -> None:
-        self.assertIsInstance(self.con, Connection)
-
-    def test_log_in(self) -> None:
-        con = Connection("http://0.0.0.0:3333")
-        con.login("root@example.com", "test")
-        self.assertIsNotNone(con.token)
+    def test_connection(self) -> None:
+        self.assertIsNotNone(self.con.token)
 
     def test_get(self) -> None:
         res = self.con.get("/ontology/0001/anything/simple/v2")

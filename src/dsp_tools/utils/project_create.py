@@ -1034,7 +1034,7 @@ def create_project(
             )
 
     # establish connection to DSP server
-    con = login(server=server, user=user_mail, password=password)
+    con = Connection(server=server, user_email=user_mail, password=password)
     if dump:
         con.start_logging()
 

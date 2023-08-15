@@ -16,7 +16,6 @@ from requests import ReadTimeout, RequestException
 import requests
 from urllib3.exceptions import ReadTimeoutError
 
-from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.models.propertyelement import PropertyElement
 from dsp_tools.utils.logging import get_logger

@@ -164,7 +164,6 @@ class TestUser(unittest.TestCase):
         # update password as user wilee5 (this would fail if password update wasn't successful)
         updated_user.password = "BeepBeep5.3"
         newly_updated_user = updated_user.update(user_new_pw)
-        con.logout()
         self.assertIsNotNone(newly_updated_user)
 
     def test_user_add_to_group(self) -> None:
@@ -287,12 +286,6 @@ class TestUser(unittest.TestCase):
         all_users = User.getAllUsers(self.con)
         for user in all_users:
             self.assertIsNotNone(user.iri)
-
-    def tearDown(self) -> None:
-        """
-        is executed after all tests are run through; performs a log out
-        """
-        self.con.logout()
 
 
 if __name__ == "__main__":

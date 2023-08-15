@@ -25,10 +25,6 @@ class TestResource(unittest.TestCase):
         """
         cls.con.login("root@example.com", "test")
 
-    @classmethod
-    def tearDownClass(cls) -> None:
-        cls.con.logout()
-
     def test_resource_create(self) -> None:
         # make class factory for project anything. The factory creates classes that implement the CRUD methods
         # for the given resource classes

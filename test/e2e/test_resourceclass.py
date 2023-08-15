@@ -84,12 +84,6 @@ class TestResourceClass(unittest.TestCase):
         self.assertEqual(res_class.label["de"], "Dies ist ein Kommentar")
         self.assertEqual(res_class.comment["it"], "Commentario italiano")
 
-    def tearDown(self) -> None:
-        """
-        is executed after all tests are run through; performs a log out
-        """
-        self.con.logout()
-
 
 if __name__ == "__main__":
     pytest.main([__file__])

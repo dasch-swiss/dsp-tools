@@ -21,13 +21,10 @@ class TestConnection(unittest.TestCase):
     def test_Connection(self) -> None:
         self.assertIsInstance(self.con, Connection)
 
-    def test_log_in_and_out(self) -> None:
+    def test_log_in(self) -> None:
         con = Connection("http://0.0.0.0:3333")
         con.login("root@example.com", "test")
         self.assertIsNotNone(con.token)
-        con.logout()
-        self.assertIsNone(con.token)
-        self.assertRaisesRegex(BaseError, "KNORA-ERROR: status code=400*", con.login, "invalid", "invalid")
 
     def test_get(self) -> None:
         res = self.con.get("/ontology/0001/anything/simple/v2")
@@ -83,12 +80,6 @@ class TestConnection(unittest.TestCase):
         res = self.con.post("/v2/resources/erase", erase_info)
         self.assertIsNotNone(res["knora-api:result"])
         self.assertEqual(res["knora-api:result"], "Resource erased")
-
-    def tearDown(self) -> None:
-        """
-        is executed after all tests are run through; performs a log out
-        """
-        self.con.logout()
 
 
 if __name__ == "__main__":

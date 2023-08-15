@@ -89,12 +89,6 @@ class TestOntology(unittest.TestCase):
         self.assertIn("http://0.0.0.0:3333/ontology/0001/anything/v2", onto_list_ids)
         self.assertIn("http://0.0.0.0:3333/ontology/0001/test_onto_create/v2", onto_list_ids)
 
-    def tearDown(self) -> None:
-        """
-        is executed after all tests are run through; performs a log out
-        """
-        self.con.logout()
-
 
 if __name__ == "__main__":
     pytest.main([__file__])

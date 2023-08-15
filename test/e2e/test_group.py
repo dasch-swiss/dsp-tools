@@ -127,12 +127,6 @@ class TestGroup(unittest.TestCase):  # pylint: disable=missing-class-docstring
         self.assertFalse(deleted_group.status)
         self.assertFalse(deleted_group.selfjoin)
 
-    def tearDown(self) -> None:
-        """
-        is executed after all tests are run through; performs a log out
-        """
-        self.con.logout()
-
 
 if __name__ == "__main__":
     pytest.main([__file__])

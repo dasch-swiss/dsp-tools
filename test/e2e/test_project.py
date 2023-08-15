@@ -137,12 +137,6 @@ class TestProject(unittest.TestCase):
         self.assertEqual(deleted_project.status, False)
         self.assertEqual(deleted_project.keywords, {"test", "project", "delete"})
 
-    def tearDown(self) -> None:
-        """
-        is executed after all tests are run through; performs a log out
-        """
-        self.con.logout()
-
 
 if __name__ == "__main__":
     pytest.main([__file__])

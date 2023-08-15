@@ -75,17 +75,6 @@ class Connection:
         """Stop writing every API call to a file"""
         self.log = False
 
-    def logout(self) -> None:
-        """Delete the session token"""
-        if self.token:
-            response = requests.delete(
-                self.server + "/v2/authentication",
-                headers={"Authorization": "Bearer " + self.token},
-                timeout=20,
-            )
-            check_for_api_error(response)
-            self.token = None
-
     def write_log_file(
         self,
         method: str,

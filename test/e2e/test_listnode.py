@@ -138,12 +138,6 @@ class TestListNode(unittest.TestCase):  # pylint: disable=missing-class-docstrin
         self.assertEqual(root_node.children[2].children[1].name, "Other Tree list node 11")
         self.assertEqual(root_node.children[2].children[1].label["en"], "Other Tree list node 11")
 
-    def tearDown(self) -> None:
-        """
-        is executed after all tests are run through; performs a log out
-        """
-        self.con.logout()
-
 
 if __name__ == "__main__":
     pytest.main([__file__])

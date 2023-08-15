@@ -101,13 +101,13 @@ files = [
 
 [[package]]
 name = "cfgv"
-version = "3.3.1"
+version = "3.4.0"
 description = "Validate configuration and produce human readable error messages."
 optional = false
-python-versions = ">=3.6.1"
+python-versions = ">=3.8"
 files = [
-    {file = "cfgv-3.3.1-py2.py3-none-any.whl", hash = "sha256:c6a0883f3917a037485059700b9e75da2464e6c27051014ad85ba6aaa5884426"},
-    {file = "cfgv-3.3.1.tar.gz", hash = "sha256:f5a830efb9ce7a445376bb66ec94c638a9787422f96264c98edc6bdeed8ab736"},
+    {file = "cfgv-3.4.0-py2.py3-none-any.whl", hash = "sha256:b7265b1f29fd3316bfcd2b330d63d024f2bfd8bcb8b0272f8e19a504856c48f9"},
+    {file = "cfgv-3.4.0.tar.gz", hash = "sha256:e52591d4c5f5dead8e0f673fb16db7949d2cfb3f7da4582893288f0ded8fe560"},
 ]
 
 [[package]]
@@ -1559,13 +1559,13 @@ files = [
 
 [[package]]
 name = "types-beautifulsoup4"
-version = "4.12.0.5"
+version = "4.12.0.6"
 description = "Typing stubs for beautifulsoup4"
 optional = false
 python-versions = "*"
 files = [
-    {file = "types-beautifulsoup4-4.12.0.5.tar.gz", hash = "sha256:d9be456416a62a5b9740559592e1063a69d4b0a1b83911d878558c8ae8e07074"},
-    {file = "types_beautifulsoup4-4.12.0.5-py3-none-any.whl", hash = "sha256:718364c8e6787884501c700b1d22b6c0a8711bf9d6c9bf96e1fba81495bc46a8"},
+    {file = "types-beautifulsoup4-4.12.0.6.tar.gz", hash = "sha256:045ab285d3e540186e16133612f43f67e31f910e6d7578906b43a0ad8f811347"},
+    {file = "types_beautifulsoup4-4.12.0.6-py3-none-any.whl", hash = "sha256:3da00d754e73afae0ec2793253af0cb9aa1ff2c730e34b31c60313da781b4f6f"},
 ]
 
 [package.dependencies]
@@ -1612,13 +1612,13 @@ dev = ["black", "isort", "lxml (>=4.9,<5.0)", "mypy (==1.1.*)", "pyright (>=1.1.
 
 [[package]]
 name = "types-openpyxl"
-version = "3.1.0.15"
+version = "3.1.0.17"
 description = "Typing stubs for openpyxl"
 optional = false
 python-versions = "*"
 files = [
-    {file = "types-openpyxl-3.1.0.15.tar.gz", hash = "sha256:4eee0c32882c96cc4bf15b122da234385c5c7cdce2121727ef4e6a2637b05863"},
-    {file = "types_openpyxl-3.1.0.15-py3-none-any.whl", hash = "sha256:b8bb8665edb10ebe11ee7ce7e74024f6101b884f74186477495615415f51de6a"},
+    {file = "types-openpyxl-3.1.0.17.tar.gz", hash = "sha256:f16c5118cab7dbfc846ff1a293cc9d4d611d4d6f6bbf277929b46e6ad018c430"},
+    {file = "types_openpyxl-3.1.0.17-py3-none-any.whl", hash = "sha256:880b897a8b9ec1b7497d4b7646d34ae40d444bdcb2530a9d9159d763c0457f1e"},
 ]
 
 [[package]]
@@ -1709,13 +1709,13 @@ zstd = ["zstandard (>=0.18.0)"]
 
 [[package]]
 name = "virtualenv"
-version = "20.24.2"
+version = "20.24.3"
 description = "Virtual Python Environment builder"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "virtualenv-20.24.2-py3-none-any.whl", hash = "sha256:43a3052be36080548bdee0b42919c88072037d50d56c28bd3f853cbe92b953ff"},
-    {file = "virtualenv-20.24.2.tar.gz", hash = "sha256:fd8a78f46f6b99a67b7ec5cf73f92357891a7b3a40fd97637c27f854aae3b9e0"},
+    {file = "virtualenv-20.24.3-py3-none-any.whl", hash = "sha256:95a6e9398b4967fbcb5fef2acec5efaf9aa4972049d9ae41f95e0972a683fd02"},
+    {file = "virtualenv-20.24.3.tar.gz", hash = "sha256:e5c3b4ce817b0b328af041506a2a299418c98747c4b1e68cb7527e74ced23efc"},
 ]
 
 [package.dependencies]
@@ -1896,4 +1896,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "c551133fae8d98145987e94c3c12583e63953d29c5b49abf51d6804c955a074b"
+content-hash = "dc3de12a8efd8642ec45db7f5eabe800244cbd743e5c9aac9349a8c530828621"

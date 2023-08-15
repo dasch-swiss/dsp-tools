@@ -63,7 +63,7 @@ class Permissions:
         else:
             self._permissions[key].append(val)
 
-    def toJsonLdObj(self):
+    def toJsonLdObj(self) -> str:
         tmpstr = ""
         for permission, groups in self._permissions.items():
             if tmpstr:

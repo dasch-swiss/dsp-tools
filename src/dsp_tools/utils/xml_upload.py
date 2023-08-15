@@ -827,7 +827,7 @@ def _upload_stashed_xml_texts(
             continue
         res_iri = id2iri_mapping[resource.id]
         try:
-            existing_resource = try_network_action(con.get, path=f"/v2/resources/{quote_plus(res_iri)}")
+            existing_resource = try_network_action(con.get, route=f"/v2/resources/{quote_plus(res_iri)}")
         except BaseError as err:
             # print the message to keep track of the cause for the failure. Apart from that, no action is necessary:
             # this resource will remain in nonapplied_xml_texts, which will be handled by the caller
@@ -883,7 +883,7 @@ def _upload_stashed_xml_texts(
 
                 # execute API call
                 try:
-                    try_network_action(con.put, path="/v2/values", jsondata=jsondata)
+                    try_network_action(con.put, route="/v2/values", jsondata=jsondata)
                 except BaseError as err:
                     # print the message to keep track of the cause for the failure.
                     # Apart from that, no action is necessary:
@@ -966,7 +966,7 @@ def _upload_stashed_resptr_props(
             continue
         res_iri = id2iri_mapping[resource.id]
         try:
-            existing_resource = try_network_action(con.get, path=f"/v2/resources/{quote_plus(res_iri)}")
+            existing_resource = try_network_action(con.get, route=f"/v2/resources/{quote_plus(res_iri)}")
         except BaseError as err:
             # print the message to keep track of the cause for the failure. Apart from that, no action is necessary:
             # this resource will remain in nonapplied_resptr_props, which will be handled by the caller
@@ -997,7 +997,7 @@ def _upload_stashed_resptr_props(
                 }
                 jsondata = json.dumps(jsonobj, indent=4, separators=(",", ": "))
                 try:
-                    try_network_action(con.post, path="/v2/values", jsondata=jsondata)
+                    try_network_action(con.post, route="/v2/values", jsondata=jsondata)
                 except BaseError as err:
                     # print the message to keep track of the cause for the failure.
                     # Apart from that, no action is necessary:

@@ -61,7 +61,7 @@ class Connection:
 
         if self.user_email and self.password:
             response = self.post(
-                path=self.server + "/v2/authentication",
+                path="/v2/authentication",
                 jsondata=json.dumps({"email": self.user_email, "password": self.password}),
             )
             if not response.get("token"):

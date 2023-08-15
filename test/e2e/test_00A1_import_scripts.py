@@ -1,4 +1,4 @@
-# pylint: disable=missing-class-docstring,duplicate-code
+# pylint: disable=missing-class-docstring
 
 import os
 import subprocess

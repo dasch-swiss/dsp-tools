@@ -156,6 +156,7 @@ disable = [
     "no-else-return",                      # would be less readable
     "no-else-raise",                       # would be less readable
     "logging-fstring-interpolation",       # would be less readable
+    "duplicate-code",                      # too many false positives
     "invalid-name",                        # TODO: activate this
     "too-many-arguments",                  # TODO: activate this
     "too-many-branches",                   # TODO: activate this

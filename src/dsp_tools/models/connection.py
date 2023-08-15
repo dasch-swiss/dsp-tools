@@ -92,7 +92,7 @@ class Connection:
             jsondata: data sent to the server
             response: response of the server
         """
-        if response.status_code == 200:  # pylint: disable=duplicate-code
+        if response.status_code == 200:
             _return = response.json()
         else:
             _return = {"status": response.status_code, "message": response.text}

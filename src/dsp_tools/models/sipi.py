@@ -93,7 +93,7 @@ class Sipi:
         if response.status_code == 200:
             _return = response.json()
         else:
-            _return = {"status": response.status_code, "message": response.text}  # pylint: disable=duplicate-code
+            _return = {"status": response.status_code, "message": response.text}
         dumpobj = {
             "SIPI server": self.sipi_server,
             "route": route,

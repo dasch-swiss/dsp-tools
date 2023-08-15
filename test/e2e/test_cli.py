@@ -4,7 +4,7 @@ line. The methods are tested in the order in which teh appear in dsp_tools.py. T
 can be called with the basic configuration that is available via CLI. More thorough testing of each method is done in
 separate unit tests/e2e tests."""
 
-# pylint: disable=missing-class-docstring,missing-function-docstring,duplicate-code
+# pylint: disable=missing-class-docstring,missing-function-docstring
 
 import copy
 import json

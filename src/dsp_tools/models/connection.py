@@ -83,7 +83,7 @@ class Connection:
         response: requests.Response,
     ) -> None:
         """
-        If dumping is enabled, write the request and response to a file.
+        Write the request and response to a file.
 
         Args:
             method: HTTP method (POST, GET, PUT, DELETE)
@@ -92,8 +92,6 @@ class Connection:
             jsondata: data sent to the server
             response: response of the server
         """
-        if not self.dump:
-            return
         if response.status_code == 200:  # pylint: disable=duplicate-code
             _return = response.json()
         else:
@@ -145,14 +143,15 @@ class Connection:
             data=jsondata,
             timeout=timeout,
         )
-        self.write_request_to_file(
-            method="POST",
-            route=path,
-            headers=headers,
-            jsondata=jsondata,
-            params=None,
-            response=response,
-        )
+        if self.dump:
+            self.write_request_to_file(
+                method="POST",
+                route=path,
+                headers=headers,
+                jsondata=jsondata,
+                params=None,
+                response=response,
+            )
         check_for_api_error(response)
         json_response = cast(dict[str, Any], response.json())
         return json_response
@@ -180,14 +179,15 @@ class Connection:
             headers["Authorization"] = "Bearer " + self.token
 
         response = requests.get(url=self.server + path, headers=headers, timeout=20)
-        self.write_request_to_file(
-            method="GET",
-            route=path,
-            headers=headers,
-            jsondata=None,
-            params=None,
-            response=response,
-        )
+        if self.dump:
+            self.write_request_to_file(
+                method="GET",
+                route=path,
+                headers=headers,
+                jsondata=None,
+                params=None,
+                response=response,
+            )
         check_for_api_error(response)
         json_response = cast(dict[str, Any], response.json())
         return json_response
@@ -224,14 +224,15 @@ class Connection:
             data=jsondata,
             timeout=timeout,
         )
-        self.write_request_to_file(
-            method="PUT",
-            route=path,
-            headers=headers,
-            jsondata=jsondata,
-            params=None,
-            response=response,
-        )
+        if self.dump:
+            self.write_request_to_file(
+                method="PUT",
+                route=path,
+                headers=headers,
+                jsondata=jsondata,
+                params=None,
+                response=response,
+            )
         check_for_api_error(response)
         json_response = cast(dict[str, Any], response.json())
         return json_response
@@ -262,14 +263,15 @@ class Connection:
             params=params,
             timeout=20,
         )
-        self.write_request_to_file(
-            method="DELETE",
-            route=path,
-            headers=headers,
-            jsondata=None,
-            params=params,
-            response=response,
-        )
+        if self.dump:
+            self.write_request_to_file(
+                method="DELETE",
+                route=path,
+                headers=headers,
+                jsondata=None,
+                params=params,
+                response=response,
+            )
         check_for_api_error(response)
         json_response = cast(dict[str, Any], response.json())
         return json_response

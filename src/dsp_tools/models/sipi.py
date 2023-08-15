@@ -57,14 +57,15 @@ class Sipi:
                 files=files,
                 timeout=timeout,
             )
-            self.write_request_to_file(
-                method="POST",
-                route=route,
-                headers=headers,
-                filepath=filepath,
-                timeout=timeout,
-                response=response,
-            )
+            if self.dump:
+                self.write_request_to_file(
+                    method="POST",
+                    route=route,
+                    headers=headers,
+                    filepath=filepath,
+                    timeout=timeout,
+                    response=response,
+                )
         check_for_api_error(response)
         res: dict[Any, Any] = response.json()
         return res
@@ -79,7 +80,7 @@ class Sipi:
         response: requests.Response,
     ) -> None:
         """
-        If dumping is enabled, write the request and response to a file.
+        Write the request and response to a file.
 
         Args:
             method: HTTP method of the request (GET, POST, PUT, DELETE)
@@ -89,8 +90,6 @@ class Sipi:
             timeout: timeout of the HTTP request
             response: response of the server
         """
-        if not self.dump:
-            return
         if response.status_code == 200:
             _return = response.json()
         else:

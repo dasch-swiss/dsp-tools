@@ -544,13 +544,13 @@ def xml_upload(
         server=server,
         user_email=user,
         password=password,
-        log=dump,
+        dump=dump,
     )
     assert con.token is not None
     sipi_server = Sipi(
         sipi_server=sipi,
         token=con.token,
-        log=dump,
+        dump=dump,
     )
 
     # get the project context

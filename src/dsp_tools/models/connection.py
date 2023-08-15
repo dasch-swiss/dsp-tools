@@ -37,26 +37,27 @@ class Connection:
     Attributes:
         server: address of the server, e.g https://api.dasch.swiss
         token: session token received by the server after login
-        log: if True, every request is written into a file
-        log_directory: directory where the log files are written
+        dump: if True, every request is written into a file
+        dump_directory: directory where the HTTP requests are written
     """
 
     server: str
     user_email: Optional[str] = None
     password: Optional[str] = None
     token: Optional[str] = None
-    log: bool = False
-    log_directory: Path = Path("HTTP requests")
+    dump: bool = False
+    dump_directory: Path = Path("HTTP requests")
 
     def __post_init__(self) -> None:
         """
-        If user credentials are provided, log in.
+        Create dumping directory (if applicable),
+        and login (if credentials are provided).
 
         Raises:
             BaseError: if DSP-API returns no token with the provided user credentials
         """
-        if self.log:
-            self.log_directory.mkdir(exist_ok=True)
+        if self.dump:
+            self.dump_directory.mkdir(exist_ok=True)
 
         if self.user_email and self.password:
             response = self.post(
@@ -72,7 +73,7 @@ class Connection:
                 )
             self.token = response["token"]
 
-    def write_log_file(
+    def write_request_to_file(
         self,
         method: str,
         route: str,
@@ -82,7 +83,7 @@ class Connection:
         response: requests.Response,
     ) -> None:
         """
-        If logging is enabled (self.log == True), write the request and response to a file.
+        If dumping is enabled, write the request and response to a file.
 
         Args:
             method: HTTP method (POST, GET, PUT, DELETE)
@@ -91,13 +92,13 @@ class Connection:
             jsondata: data sent to the server
             response: response of the server
         """
-        if not self.log:
+        if not self.dump:
             return
         if response.status_code == 200:  # pylint: disable=duplicate-code
             _return = response.json()
         else:
             _return = {"status": response.status_code, "message": response.text}
-        logobj = {
+        dumpobj = {
             "DSP server": self.server,
             "route": route,
             "method": method,
@@ -108,8 +109,8 @@ class Connection:
             "return": _return,
         }
         filename = f"{datetime.now().strftime('%Y-%m-%d %H.%M.%S.%f')} {method} {route.replace('/', '_')}.json"
-        with open(self.log_directory / filename, "w", encoding="utf-8") as f:
-            json.dump(logobj, f, indent=4)
+        with open(self.dump_directory / filename, "w", encoding="utf-8") as f:
+            json.dump(dumpobj, f, indent=4)
 
     def post(
         self,
@@ -144,7 +145,7 @@ class Connection:
             data=jsondata,
             timeout=timeout,
         )
-        self.write_log_file(
+        self.write_request_to_file(
             method="POST",
             route=path,
             headers=headers,
@@ -179,7 +180,7 @@ class Connection:
             headers["Authorization"] = "Bearer " + self.token
 
         response = requests.get(url=self.server + path, headers=headers, timeout=20)
-        self.write_log_file(
+        self.write_request_to_file(
             method="GET",
             route=path,
             headers=headers,
@@ -223,7 +224,7 @@ class Connection:
             data=jsondata,
             timeout=timeout,
         )
-        self.write_log_file(
+        self.write_request_to_file(
             method="PUT",
             route=path,
             headers=headers,
@@ -261,7 +262,7 @@ class Connection:
             params=params,
             timeout=20,
         )
-        self.write_log_file(
+        self.write_request_to_file(
             method="DELETE",
             route=path,
             headers=headers,

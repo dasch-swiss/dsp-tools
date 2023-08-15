@@ -18,18 +18,21 @@ class Sipi:
     Attributes:
         sipi_server: address of the server, e.g https://iiif.dasch.swiss
         token: session token received by the server after login
-        log: if True, every request is written into a file
-        log_directory: directory where the log files are written
+        dump: if True, every request is written into a file
+        dump_directory: directory where the HTTP requests are written
     """
 
     sipi_server: str
     token: str
-    log: bool = False
-    log_directory: Path = Path("HTTP requests")
+    dump: bool = False
+    dump_directory: Path = Path("HTTP requests")
 
     def __post_init__(self) -> None:
-        if self.log:
-            self.log_directory.mkdir(exist_ok=True)
+        """
+        Create dumping directory (if applicable)
+        """
+        if self.dump:
+            self.dump_directory.mkdir(exist_ok=True)
 
     def upload_bitstream(self, filepath: str) -> dict[Any, Any]:
         """
@@ -54,7 +57,7 @@ class Sipi:
                 files=files,
                 timeout=timeout,
             )
-            self.write_log_file(
+            self.write_request_to_file(
                 method="POST",
                 route=route,
                 headers=headers,
@@ -66,7 +69,7 @@ class Sipi:
         res: dict[Any, Any] = response.json()
         return res
 
-    def write_log_file(
+    def write_request_to_file(
         self,
         method: str,
         route: str,
@@ -76,7 +79,7 @@ class Sipi:
         response: requests.Response,
     ) -> None:
         """
-        If logging is enabled (self.log == True), write the request and response to a file.
+        If dumping is enabled, write the request and response to a file.
 
         Args:
             method: HTTP method of the request (GET, POST, PUT, DELETE)
@@ -86,13 +89,13 @@ class Sipi:
             timeout: timeout of the HTTP request
             response: response of the server
         """
-        if not self.log:
+        if not self.dump:
             return
         if response.status_code == 200:
             _return = response.json()
         else:
             _return = {"status": response.status_code, "message": response.text}  # pylint: disable=duplicate-code
-        logobj = {
+        dumpobj = {
             "SIPI server": self.sipi_server,
             "route": route,
             "method": method,
@@ -104,5 +107,5 @@ class Sipi:
         }
         timestamp = datetime.now().strftime("%Y-%m-%d %H.%M.%S.%f")
         filename = f"{timestamp} {method} SIPI {route.replace('/', '_')} {filepath.replace('/', '_')}.json"
-        with open(self.log_directory / filename, "w", encoding="utf-8") as f:
-            json.dump(logobj, f, indent=4)
+        with open(self.dump_directory / filename, "w", encoding="utf-8") as f:
+            json.dump(dumpobj, f, indent=4)

@@ -45,7 +45,7 @@ def get_project(
         server=server,
         user_email=user,
         password=password,
-        log=dump,
+        dump=dump,
     )
 
     project = None

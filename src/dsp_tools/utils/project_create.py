@@ -1038,7 +1038,7 @@ def create_project(
         server=server,
         user_email=user_mail,
         password=password,
-        log=dump,
+        dump=dump,
     )
 
     # create project on DSP server

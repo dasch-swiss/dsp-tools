@@ -193,7 +193,7 @@ def create_lists(
         server=server,
         user_email=user,
         password=password,
-        log=dump,
+        dump=dump,
     )
 
     # retrieve the project

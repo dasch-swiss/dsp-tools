@@ -10,7 +10,7 @@ import requests
 from dsp_tools.models.connection import check_for_api_error
 
 
-@dataclass
+@dataclass(frozen=True)
 class Sipi:
     """
     A Sipi instance represents a connection to a SIPI server.

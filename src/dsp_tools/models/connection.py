@@ -60,23 +60,26 @@ class Connection:
             self.dump_directory.mkdir(exist_ok=True)
 
         if self.user_email and self.password:
-            response = self.post(
-                route="/v2/authentication",
-                jsondata=json.dumps({"email": self.user_email, "password": self.password}),
+            response = requests.post(
+                url=f"{self.server}/v2/authentication",
+                headers={"Content-Type": "application/json; charset=UTF-8"},
+                data=json.dumps({"email": self.user_email, "password": self.password}),
+                timeout=None,
             )
-            if not response.get("token"):
+            json_response = cast(dict[str, Any], response.json())
+            if not json_response.get("token"):
                 raise BaseError(
                     f"Error when trying to login with user '{self.user_email}' and password '{self.password} "
                     f"on server '{self.server}'",
                     json_content_of_api_response=json.dumps(response),
                     api_route="/v2/authentication",
                 )
-            self.token = response["token"]
+            self.token = json_response["token"]
 
-    def write_request_to_file(
+    def _write_request_to_file(
         self,
         method: str,
-        route: str,
+        url: str,
         headers: dict[str, str],
         jsondata: Optional[str],
         params: Optional[dict[str, Any]],
@@ -87,7 +90,7 @@ class Connection:
 
         Args:
             method: HTTP method (POST, GET, PUT, DELETE)
-            route: route of DSP-API that was called
+            url: complete URL (server + route of DSP-API) that was called
             headers: headers of the HTTP request
             jsondata: data sent to the server
             response: response of the server
@@ -98,7 +101,7 @@ class Connection:
             _return = {"status": response.status_code, "message": response.text}
         dumpobj = {
             "DSP server": self.server,
-            "route": route,
+            "url": url,
             "method": method,
             "headers": headers,
             "params": params,
@@ -106,7 +109,8 @@ class Connection:
             "return-headers": dict(response.headers),
             "return": _return,
         }
-        filename = f"{datetime.now().strftime('%Y-%m-%d %H.%M.%S.%f')} {method} {route.replace('/', '_')}.json"
+        route_for_filename = url.replace(self.server, "").replace("/", "_")
+        filename = f"{datetime.now().strftime('%Y-%m-%d %H.%M.%S.%f')} {method} {route_for_filename}.json"
         with open(self.dump_directory / filename, "w", encoding="utf-8") as f:
             json.dump(dumpobj, f, indent=4)
 
@@ -133,6 +137,7 @@ class Connection:
         timeout = None
         if not route.startswith("/"):
             route = "/" + route
+        url = self.server + route
         headers = {}
         if jsondata:
             headers["Content-Type"] = f"{content_type}; charset=UTF-8"
@@ -140,15 +145,15 @@ class Connection:
             headers["Authorization"] = f"Bearer {self.token}"
 
         response = requests.post(
-            self.server + route,
+            url=url,
             headers=headers,
             data=jsondata,
             timeout=timeout,
         )
         if self.dump:
-            self.write_request_to_file(
+            self._write_request_to_file(
                 method="POST",
-                route=route,
+                url=url,
                 headers=headers,
                 jsondata=jsondata,
                 params=None,
@@ -175,16 +180,21 @@ class Connection:
         """
         if not route.startswith("/"):
             route = "/" + route
+        url = self.server + route
         if not headers:
             headers = {}
         if self.token:
             headers["Authorization"] = f"Bearer {self.token}"
 
-        response = requests.get(url=self.server + route, headers=headers, timeout=20)
+        response = requests.get(
+            url=url,
+            headers=headers,
+            timeout=20,
+        )
         if self.dump:
-            self.write_request_to_file(
+            self._write_request_to_file(
                 method="GET",
-                route=route,
+                url=url,
                 headers=headers,
                 jsondata=None,
                 params=None,
@@ -214,6 +224,7 @@ class Connection:
         timeout = None
         if not route.startswith("/"):
             route = "/" + route
+        url = self.server + route
         headers = {}
         if jsondata:
             headers["Content-Type"] = f"{content_type}; charset=UTF-8"
@@ -221,15 +232,15 @@ class Connection:
             headers["Authorization"] = f"Bearer {self.token}"
 
         response = requests.put(
-            self.server + route,
+            url=url,
             headers=headers,
             data=jsondata,
             timeout=timeout,
         )
         if self.dump:
-            self.write_request_to_file(
+            self._write_request_to_file(
                 method="PUT",
-                route=route,
+                url=url,
                 headers=headers,
                 jsondata=jsondata,
                 params=None,
@@ -256,19 +267,20 @@ class Connection:
         """
         if not route.startswith("/"):
             route = "/" + route
+        url = self.server + route
         headers = {}
         if self.token:
             headers["Authorization"] = f"Bearer {self.token}"
         response = requests.delete(
-            self.server + route,
+            url=url,
             headers=headers,
             params=params,
             timeout=20,
         )
         if self.dump:
-            self.write_request_to_file(
+            self._write_request_to_file(
                 method="DELETE",
-                route=route,
+                url=url,
                 headers=headers,
                 jsondata=None,
                 params=params,

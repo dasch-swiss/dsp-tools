@@ -63,6 +63,7 @@ class Connection:
             self.dump_directory.mkdir(exist_ok=True)
 
         if self.user_email and self.password:
+            print(f"__post_init__ of Connection: login with self.server={self.server}")
             response = requests.post(
                 url=f"{self.server}/v2/authentication",
                 headers={"Content-Type": "application/json; charset=UTF-8"},

@@ -47,8 +47,8 @@ class Connection:
     user_email: Optional[str] = None
     password: Optional[str] = None
     dump: bool = False
-    dump_directory: Path = field(init=False)
-    token: Optional[str] = field(init=False)
+    dump_directory: Path = Path("HTTP requests")
+    token: Optional[str] = None
 
     def __post_init__(self) -> None:
         """
@@ -59,7 +59,6 @@ class Connection:
             BaseError: if DSP-API returns no token with the provided user credentials
         """
         if self.dump:
-            self.dump_directory = Path("HTTP requests")
             self.dump_directory.mkdir(exist_ok=True)
 
         if self.user_email and self.password:

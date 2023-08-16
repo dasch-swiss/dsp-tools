@@ -36,9 +36,11 @@ class Connection:
 
     Attributes:
         server: address of the server, e.g https://api.dasch.swiss
-        token: session token received by the server after login
+        user_email: email address of the user (used for login)
+        password: password of the user (used for login)
         dump: if True, every request is written into a file
         dump_directory: directory where the HTTP requests are written
+        token: session token received by the server after login
     """
 
     server: str

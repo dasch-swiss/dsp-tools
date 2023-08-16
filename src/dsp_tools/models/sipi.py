@@ -45,14 +45,12 @@ class Sipi:
             API response
         """
         with open(filepath, "rb") as bitstream_file:
-            files = {
-                "file": (os.path.basename(filepath), bitstream_file),
-            }
-            route = "/upload"
+            files = {"file": (os.path.basename(filepath), bitstream_file)}
+            url = self.sipi_server + "/upload"
             headers = {"Authorization": "Bearer " + self.token}
             timeout = 5 * 60
             response = requests.post(
-                url=self.sipi_server + route,
+                url=url,
                 headers=headers,
                 files=files,
                 timeout=timeout,
@@ -60,7 +58,7 @@ class Sipi:
             if self.dump:
                 self.write_request_to_file(
                     method="POST",
-                    route=route,
+                    url=url,
                     headers=headers,
                     filepath=filepath,
                     timeout=timeout,
@@ -73,7 +71,7 @@ class Sipi:
     def write_request_to_file(
         self,
         method: str,
-        route: str,
+        url: str,
         headers: dict[str, str],
         filepath: str,
         timeout: int,
@@ -84,7 +82,7 @@ class Sipi:
 
         Args:
             method: HTTP method of the request (GET, POST, PUT, DELETE)
-            route: route of SIPI that was called
+            url: complete URL (server + route of SIPI) that was called
             headers: headers of the HTTP request
             filepath: path to the file that was uploaded
             timeout: timeout of the HTTP request
@@ -96,7 +94,7 @@ class Sipi:
             _return = {"status": response.status_code, "message": response.text}
         dumpobj = {
             "SIPI server": self.sipi_server,
-            "route": route,
+            "url": url,
             "method": method,
             "filepath": filepath,
             "timeout": timeout,
@@ -105,6 +103,7 @@ class Sipi:
             "return": _return,
         }
         timestamp = datetime.now().strftime("%Y-%m-%d %H.%M.%S.%f")
-        filename = f"{timestamp} {method} SIPI {route.replace('/', '_')} {filepath.replace('/', '_')}.json"
+        route_for_filename = url.replace(self.sipi_server, "").replace("/", "_")
+        filename = f"{timestamp} {method} SIPI {route_for_filename} {filepath.replace('/', '_')}.json"
         with open(self.dump_directory / filename, "w", encoding="utf-8") as f:
             json.dump(dumpobj, f, indent=4)

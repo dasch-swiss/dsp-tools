@@ -66,9 +66,8 @@ class TestCLI(unittest.TestCase):
         Raises:
             AssertionError: detailed diagnostic message with stdout and stderr if the call fails
         """
-        result = None
         try:
-            result = subprocess.run(
+            subprocess.run(
                 cli_call,
                 check=True,
                 shell=True,
@@ -82,16 +81,6 @@ class TestCLI(unittest.TestCase):
                 f"Stderr:\n{e.stderr.decode('utf-8')}"
             )
             raise AssertionError(msg) from None
-        except Exception as e:
-            if result:
-                msg = (
-                    f"Failed CLI call:\n'{cli_call}'\n\n"
-                    f"Stdout:\n{result.stdout.decode('utf-8')}\n\n"
-                    f"Stderr:\n{result.stderr.decode('utf-8')}\n\n"
-                    f"Exception:\n{vars(e)}"
-                )
-                raise AssertionError(msg) from None
-            raise AssertionError("Something went wrong") from e
 
     def test_validate_lists_section_with_schema(self) -> None:
         cmd = f"poetry run dsp-tools create --lists-only --validate-only {self.test_project_systematic_file.absolute()}"

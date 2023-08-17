@@ -13,10 +13,10 @@ from dsp_tools.fast_xmlupload.process_files import process_files
 from dsp_tools.fast_xmlupload.upload_files import upload_files
 from dsp_tools.fast_xmlupload.upload_xml import fast_xmlupload
 from dsp_tools.models.exceptions import UserError
-from dsp_tools.utils.excel_to_json_lists import excel2lists, validate_lists_section_with_schema
-from dsp_tools.utils.excel_to_json_project import excel2json
-from dsp_tools.utils.excel_to_json_properties import excel2properties
-from dsp_tools.utils.excel_to_json_resources import excel2resources
+from dsp_tools.utils.excel_to_json.excel_to_json_lists import excel2lists, validate_lists_section_with_schema
+from dsp_tools.utils.excel_to_json.excel_to_json_project import excel2json
+from dsp_tools.utils.excel_to_json.excel_to_json_properties import excel2properties
+from dsp_tools.utils.excel_to_json.excel_to_json_resources import excel2resources
 from dsp_tools.utils.generate_templates import generate_template_repo
 from dsp_tools.utils.id_to_iri import id_to_iri
 from dsp_tools.utils.logging import get_logger

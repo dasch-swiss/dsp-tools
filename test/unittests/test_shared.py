@@ -100,9 +100,9 @@ class TestShared(unittest.TestCase):
     def test_prepare_dataframe(self) -> None:
         original_df = pd.DataFrame(
             {
-                "  TitLE of Column 1 ": ["1", " 0-1 ", "1-n ", pd.NA, "    ", " ", "", " 0-n ", np.nan],
+                "  TitLE of Column 1 ": ["1", " 0-1 ", "1-n ", pd.NA, "    ", " ", "", " 0-n ", pd.NA],
                 " Title of Column 2 ": [None, "1", 1, "text", "text", "text", "text", "text", "text"],
-                "Title of Column 3": ["", pd.NA, None, "text", "text", "text", "text", np.nan, "text"],
+                "Title of Column 3": ["", pd.NA, None, "text", "text", "text", "text", pd.NA, "text"],
             }
         )
         expected_df = pd.DataFrame(
@@ -124,7 +124,7 @@ class TestShared(unittest.TestCase):
         na_values = [
             None,
             pd.NA,
-            np.nan,
+            pd.NA,
             "",
             "  ",
             "-",

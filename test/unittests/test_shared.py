@@ -115,9 +115,7 @@ class TestShared(unittest.TestCase):
         returned_df = shared.prepare_dataframe(
             df=original_df, required_columns=["  TitLE of Column 1 ", " Title of Column 2 "], location_of_sheet=""
         )
-        for expected, returned in zip(expected_df.iterrows(), returned_df.iterrows()):
-            i, expected_row = expected
-            _, returned_row = returned
+        for (i, expected_row), (_, returned_row) in zip(expected_df.iterrows(), returned_df.iterrows()):
             self.assertListEqual(list(expected_row), list(returned_row), msg=f"Failed in row {i}")
 
     def test_check_notna(self) -> None:

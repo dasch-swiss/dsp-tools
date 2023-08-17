@@ -25,7 +25,8 @@ class TestUser(unittest.TestCase):
         Creates a connection to DSP-API.
         For each test method, a new TestCase instance is created, so setUp() is executed before each test method.
         """
-        self.con = Connection(server="http://0.0.0.0:3333", user_email="root@example.com", password="test")
+        self.con = Connection(server="http://0.0.0.0:3333")
+        self.con.login(email="root@example.com", password="test")
 
     def test_user_create(self) -> None:
         user = User(
@@ -158,7 +159,8 @@ class TestUser(unittest.TestCase):
         user.update("test")
 
         # login as user wilee5 with new password (this would fail if password update wasn't successful)
-        con = Connection(server="http://0.0.0.0:3333", user_email="root@example.com", password="test")
+        con = Connection(server="http://0.0.0.0:3333")
+        con.login(email="root@example.com", password="test")
         updated_user = User(con=con, email=user_email).read()
 
         # update password as user wilee5 (this would fail if password update wasn't successful)

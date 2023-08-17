@@ -189,12 +189,8 @@ def create_lists(
     print("JSON project file is syntactically correct and passed validation.")
 
     # connect to the DSP server
-    con = Connection(
-        server=server,
-        user_email=user,
-        password=password,
-        dump=dump,
-    )
+    con = Connection(server=server, dump=dump)
+    con.login(email=user, password=password)
 
     # retrieve the project
     shortcode = project_definition["project"]["shortcode"]

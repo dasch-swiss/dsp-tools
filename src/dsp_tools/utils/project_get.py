@@ -41,12 +41,8 @@ def get_project(
         True if the process finishes without errors
     """
     # establish connection to DSP server
-    con = Connection(
-        server=server,
-        user_email=user,
-        password=password,
-        dump=dump,
-    )
+    con = Connection(server=server, dump=dump)
+    con.login(email=user, password=password)
 
     project = None
     if regex.match("[0-9A-F]{4}", project_identifier):  # shortcode

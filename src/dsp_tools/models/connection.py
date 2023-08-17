@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 import json
 from pathlib import Path
@@ -36,41 +36,33 @@ class Connection:
 
     Attributes:
         server: address of the server, e.g https://api.dasch.swiss
-        user_email: email address of the user
-        password: password of the user
-        token: session token received by the server after login
         dump: if True, every request is written into a file
         dump_directory: directory where the HTTP requests are written
+        token: session token received by the server after login
     """
 
     server: str
-    user_email: Optional[str] = None
-    password: Optional[str] = None
-    token: Optional[str] = None
     dump: bool = False
-    dump_directory: Path = Path("HTTP requests")
+    dump_directory: Path = field(init=False, default=Path("HTTP requests"))
+    token: Optional[str] = field(init=False, default=None)
 
     def __post_init__(self) -> None:
         """
-        Create dumping directory (if applicable),
-        and login (if credentials are provided).
+        Create dumping directory (if applicable).
 
         Raises:
             BaseError: if DSP-API returns no token with the provided user credentials
         """
         if self.dump:
             self.dump_directory.mkdir(exist_ok=True)
-        if self.user_email and self.password:
-            self.login(email=self.user_email, password=self.password)
 
     def login(self, email: str, password: str) -> None:
         """
-        Retrieve a session token,
-        and store email and password as class attributes.
+        Retrieve a session token and store it as class attribute.
 
         Args:
-            email: Email of user
-            password: Password of the user
+            email: email address of the user
+            password: password of the user
 
         Raises:
             BaseError: if DSP-API returns no token with the provided user credentials
@@ -87,8 +79,6 @@ class Connection:
                 api_route="/v2/authentication",
             )
         self.token = response["token"]
-        self.user_email = email
-        self.password = password
 
     def _write_request_to_file(
         self,

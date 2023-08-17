@@ -396,7 +396,8 @@ def upload_files(
     logger.info(f"Found {len(internal_filenames_of_processed_files)} files to upload...")
 
     # create connection to DSP
-    con = Connection(server=dsp_url, user_email=user, password=password)
+    con = Connection(server=dsp_url)
+    con.login(email=user, password=password)
 
     # upload files in parallel
     start_time = datetime.now()

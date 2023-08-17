@@ -21,7 +21,8 @@ class TestOntology(unittest.TestCase):
         Creates a connection to DSP-API.
         For each test method, a new TestCase instance is created, so setUp() is executed before each test method.
         """
-        self.con = Connection(server="http://0.0.0.0:3333", user_email="root@example.com", password="test")
+        self.con = Connection(server="http://0.0.0.0:3333")
+        self.con.login(email="root@example.com", password="test")
 
     def test_Ontology(self) -> None:
         last_mod_date_str = "2017-12-19T15:23:42.166Z"

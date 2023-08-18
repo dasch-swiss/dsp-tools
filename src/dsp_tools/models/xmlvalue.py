@@ -1,6 +1,7 @@
 from typing import Optional, Union, cast
 
 from lxml import etree
+import regex
 
 from dsp_tools.models.value import KnoraStandoffXml
 
@@ -25,8 +26,11 @@ class XMLValue:
         if val_type == "formatted-text":  # "unformatted-text" is handled by the else branch
             node.attrib.clear()
             xmlstr = etree.tostring(node, encoding="unicode", method="xml")
-            xmlstr = xmlstr.replace('<text xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">', "")
-            xmlstr = xmlstr.replace("</text>", "")
+            xmlstr = regex.sub("<text.*?>", "", xmlstr)
+            xmlstr = regex.sub("</text>", "", xmlstr)
+            xmlstr = regex.sub("\n", " ", xmlstr)
+            xmlstr = regex.sub(" +", " ", xmlstr)
+            xmlstr = xmlstr.strip()
             self._value = KnoraStandoffXml(xmlstr)
             self._resrefs = list({x.split(":")[1] for x in self._value.get_all_iris() or []})
         elif val_type == "list":

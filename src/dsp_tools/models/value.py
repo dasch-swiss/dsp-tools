@@ -173,14 +173,14 @@ class UnformattedTextValue(Value):
     @classmethod
     def fromJsonLdObj(cls, jsonld_obj: Any) -> dict[str, Any]:
         tmp = Value.getFromJsonLd(jsonld_obj)
-        tmp["value"] = jsonld_obj.get("knora-api:valueAsString")
+        tmp["value"] = jsonld_obj.get("knora-api:valueHasString")
         return cls(**tmp)
 
     def toJsonLdObj(self, action: Actions) -> dict[str, Any]:
         tmp = super().toJsonLdObj(action)
         if action == Actions.Create:
             tmp["@type"] = "knora-api:UnformattedTextValue"
-            tmp["knora-api:valueAsString"] = self._value
+            tmp["knora-api:valueHasString"] = self._value
         return tmp
 
     def __str__(self) -> str:

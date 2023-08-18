@@ -15,14 +15,13 @@ def check_for_api_error(response: requests.Response) -> None:
         res: The requests.Response object that is returned by the API request
 
     Raises:
-        BaseError: If the status code of the response is not 200
+        DspApiError: If the status code of the response is not 200
     """
     if response.status_code != 200:
         raise DspApiError(
-            message="KNORA-ERROR: status code=" + str(response.status_code) + "\nMessage:" + response.text,
+            message=response.text,
             status_code=response.status_code,
-            json_content_of_api_response=response.text,
-            reason_from_api=response.reason,
+            reason=response.reason,
             api_route=response.url,
         )
 

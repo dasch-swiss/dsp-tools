@@ -13,11 +13,6 @@ class BaseError(Exception):
 
     Attributes:
         message: A message that describes the error
-        status_code: HTTP status code of the response from DSP-API (only applicable if error comes from DSP-API)
-        json_content_of_api_response: The message that DSP-API returns (only applicable if error comes from DSP-API)
-        orig_err_msg_from_api: Original error message that DSP-API returns (only applicable if error comes from DSP-API)
-        reason_from_api: Reason for the failure that DSP-API returns (only applicable if error comes from DSP-API)
-        api_route: The route that was called (only applicable if the error comes from DSP-API)
     """
 
     message: str

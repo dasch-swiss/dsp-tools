@@ -20,7 +20,7 @@ class KnoraStandoffXml:
     def __init__(self, xmlstr: str) -> None:
         # strip pretty-print whitespace at beginning and end of string
         for rgx in [r"^[\n\s]+", r"[\n\s]+$"]:
-            xmlstr = re.sub(rgx, "", xmlstr)
+            xmlstr = regex.sub(rgx, "", xmlstr)
         self.__xmlstr = xmlstr
 
     def __str__(self) -> str:

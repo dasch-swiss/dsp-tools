@@ -6,11 +6,13 @@ import json
 import os
 import unittest
 from typing import Any
-
+import pandas as pd
 import jsonpath_ng
 import jsonpath_ng.ext
 import pytest
+from pandas.testing import assert_frame_equal, assert_series_equal
 
+import dsp_tools.utils.excel_to_json.utils
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.excel_to_json import excel_to_json_properties as e2j
 
@@ -352,6 +354,158 @@ class TestExcelToProperties(unittest.TestCase):
         for file, message in testcases:
             with self.assertRaisesRegex(BaseError, message):
                 e2j.excel2properties(file, self.outfile)
+
+    def test__rename_lang_cols(self):
+        original_df = pd.DataFrame(
+            {"en": [1, 2, 3], "de": [1, 2, 3], "fr": [1, 2, 3], "it": [1, 2, 3], "rm": [1, 2, 3]}
+        )
+        expected_df = pd.DataFrame(
+            {
+                "label_en": [1, 2, 3],
+                "label_de": [1, 2, 3],
+                "label_fr": [1, 2, 3],
+                "label_it": [1, 2, 3],
+                "label_rm": [1, 2, 3],
+            }
+        )
+        returned_df = e2j._rename_lang_cols(input_df=original_df, excel_filename="Test")
+        assert_frame_equal(original_df, returned_df)
+        returned_df = e2j._rename_lang_cols(input_df=expected_df, excel_filename="Test")
+        assert_frame_equal(original_df, returned_df)
+
+    def test__get_labels(self):
+        original_df = pd.DataFrame(
+            {
+                "label_en": ["text_en", "text_en"],
+                "label_de": ["text_de", pd.NA],
+                "label_fr": ["text_fr", pd.NA],
+                "label_it": ["text_it", pd.NA],
+                "label_rm": ["text_rm", pd.NA],
+            }
+        )
+        expected_dict = {"de": "text_de", "en": "text_en", "fr": "text_fr", "it": "text_it", "rm": "text_rm"}
+        returned_dict = dsp_tools.utils.excel_to_json.utils.get_labels(original_df.loc[0, :])
+        self.assertDictEqual(expected_dict, returned_dict)
+        expected_dict = {"en": "text_en"}
+        returned_dict = dsp_tools.utils.excel_to_json.utils.get_labels(original_df.loc[1, :])
+        self.assertDictEqual(expected_dict, returned_dict)
+
+    def test__get_comments(self):
+        original_df = pd.DataFrame(
+            {
+                "comment_en": ["text_en", pd.NA],
+                "comment_de": ["text_de", pd.NA],
+                "comment_fr": ["text_fr", pd.NA],
+                "comment_it": ["text_it", pd.NA],
+                "comment_rm": ["text_rm", pd.NA],
+            }
+        )
+        expected_dict = {"de": "text_de", "en": "text_en", "fr": "text_fr", "it": "text_it", "rm": "text_rm"}
+        returned_dict = dsp_tools.utils.excel_to_json.utils.get_comments(original_df.loc[0, :])
+        self.assertDictEqual(expected_dict, returned_dict)
+        returned_dict = dsp_tools.utils.excel_to_json.utils.get_comments(original_df.loc[1, :])
+        self.assertIsNone(returned_dict)
+
+    def test__do_property_excel_compliance(self):
+        original_df = pd.DataFrame(
+            {
+                "name": ["name_1", "name_2", "name_3", "name_4", "name_5", "name_6"],
+                "label_en": ["label_en_1", "label_en_2", pd.NA, pd.NA, "label_en_5", pd.NA],
+                "label_de": ["label_de_1", pd.NA, "label_de_3", pd.NA, pd.NA, pd.NA],
+                "label_fr": ["label_fr_1", pd.NA, pd.NA, "label_fr_4", pd.NA, pd.NA],
+                "label_it": ["label_it_1", pd.NA, pd.NA, pd.NA, "label_it_5", pd.NA],
+                "label_rm": ["label_rm_1", pd.NA, pd.NA, pd.NA, pd.NA, "label_rm_6"],
+                "comment_en": ["comment_en_1", "comment_en_2", pd.NA, pd.NA, "comment_en_5", pd.NA],
+                "comment_de": ["comment_de_1", pd.NA, "comment_de_3", pd.NA, pd.NA, pd.NA],
+                "comment_fr": ["comment_fr_1", pd.NA, pd.NA, "comment_fr_4", pd.NA, pd.NA],
+                "comment_it": ["comment_it_1", pd.NA, pd.NA, pd.NA, "comment_it_5", pd.NA],
+                "comment_rm": ["comment_rm_1", pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
+                "super": ["super_1", "super_2", "super_3", "super_4.1, super_4.2, super_4.3", "super_5", "super_6"],
+                "subject": ["subject_1", "subject_2", "subject_3", "subject_4", "subject_5", "subject_6"],
+                "object": ["object_1", "object_2", "object_3", "object_4", "object_5", "object_6"],
+                "gui_element": ["Simple", "Searchbox", "Date", "Searchbox", "List", "Searchbox"],
+                "gui_attributes": ["size: 32, maxlength: 128", pd.NA, pd.NA, pd.NA, "hlist: languages", pd.NA],
+            }
+        )
+        e2j._do_property_excel_compliance(compliance_df=original_df, excel_filename="Test")
+
+        original_df = pd.DataFrame(
+            {
+                "name": ["name_1", "name_2", "name_3", "name_4", "name_5", "name_6", "name_7", pd.NA],
+                "label_en": ["label_en_1", pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
+                "label_de": [pd.NA, pd.NA, "label_de_3", pd.NA, pd.NA, pd.NA, pd.NA, "label_de_8"],
+                "label_fr": [pd.NA, pd.NA, pd.NA, "label_fr_4", pd.NA, pd.NA, pd.NA, pd.NA],
+                "label_it": [pd.NA, pd.NA, pd.NA, pd.NA, "label_it_5", pd.NA, pd.NA, pd.NA],
+                "label_rm": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, "label_rm_6", pd.NA, pd.NA],
+                "comment_en": ["comment_en_1", pd.NA, "comment_en_3", pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
+                "comment_de": [pd.NA, pd.NA, pd.NA, "comment_de_4", pd.NA, pd.NA, pd.NA, pd.NA],
+                "comment_fr": [pd.NA, pd.NA, pd.NA, pd.NA, "comment_fr_5", pd.NA, pd.NA, pd.NA],
+                "comment_it": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, "comment_it_6", pd.NA, pd.NA],
+                "comment_rm": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, "comment_rm_7", pd.NA],
+                "super": [
+                    pd.NA,
+                    "super_2",
+                    pd.NA,
+                    "super_4.1, super_4.2, super_4.3",
+                    "super_5",
+                    "super_6",
+                    "super_7",
+                    pd.NA,
+                ],
+                "subject": [
+                    "subject_1",
+                    "subject_2",
+                    "subject_3",
+                    "subject_4",
+                    "subject_5",
+                    "subject_6",
+                    "subject_7",
+                    pd.NA,
+                ],
+                "object": ["object_1", "object_2", "object_3", pd.NA, "object_5", "object_6", "object_7", pd.NA],
+                "gui_element": ["Simple", "Searchbox", "Date", "Date", pd.NA, "List", pd.NA, pd.NA],
+                "gui_attributes": ["size: 32, maxlength: 128", pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
+            }
+        )
+        with self.assertRaises(BaseError) as context:
+            e2j._do_property_excel_compliance(compliance_df=original_df, excel_filename="Test")
+            self.assertEqual(
+                context,
+                "The file '{excel_filename}' is missing values in some rows. See below for more information:\n"
+                "{error_str}",
+            )
+
+    def test__rename_hlist(self):
+        original_df = pd.DataFrame({"hlist": [pd.NA, pd.NA, "languages"]})
+        expected_df = pd.DataFrame({"gui_attributes": [pd.NA, pd.NA, "hlist:languages"]})
+        returned_df = e2j._rename_hlist(input_df=original_df, excel_filename="Test")
+        assert_frame_equal(expected_df, returned_df)
+
+        original_df = pd.DataFrame(
+            {"hlist": [pd.NA, pd.NA, "languages"], "gui_attributes": [pd.NA, "attribute_1", pd.NA]}
+        )
+        expected_df = pd.DataFrame({"gui_attributes": [pd.NA, "attribute_1", "hlist:languages"]})
+        returned_df = e2j._rename_hlist(input_df=original_df, excel_filename="Test")
+        assert_frame_equal(expected_df, returned_df)
+
+    def test__check_gui_attributes(self):
+        original_df = pd.DataFrame(
+            {
+                "gui_element": ["Spinbox", "List", "Searchbox", "Date", "Geonames", "Richtext", "TimeStamp"],
+                "gui_attributes": ["Spinbox_attr", "List_attr", pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
+            }
+        )
+        returned_value = e2j._check_gui_attributes(check_df=original_df)
+        self.assertIsNone(returned_value)
+        original_df = pd.DataFrame(
+            {
+                "gui_element": ["Spinbox", "List", "Searchbox", "Date", "Geonames", "Richtext", "TimeStamp"],
+                "gui_attributes": ["Spinbox_attr", pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, "TimeStamp_attr"],
+            }
+        )
+        expected_series = pd.Series([False, True, False, False, False, False, True])
+        returned_value = e2j._check_gui_attributes(check_df=original_df)
+        assert_series_equal(expected_series, returned_value["wrong gui_attributes"])
 
 
 if __name__ == "__main__":

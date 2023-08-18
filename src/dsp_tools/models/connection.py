@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 import json
 from pathlib import Path
@@ -43,8 +43,8 @@ class Connection:
 
     server: str
     dump: bool = False
-    dump_directory: Path = field(init=False, default=Path("HTTP requests"))
-    token: Optional[str] = field(init=False, default=None)
+    dump_directory = Path("HTTP requests")
+    token: Optional[str] = None
 
     def __post_init__(self) -> None:
         """

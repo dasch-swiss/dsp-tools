@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 import json
 import os
@@ -25,7 +25,7 @@ class Sipi:
     sipi_server: str
     token: str
     dump: bool = False
-    dump_directory: Path = field(init=False, default=Path("HTTP requests"))
+    dump_directory = Path("HTTP requests")
 
     def __post_init__(self) -> None:
         """

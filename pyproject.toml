@@ -91,12 +91,33 @@ addopts = ["--import-mode=importlib"]
 
 
 [tool.mypy]
-ignore_missing_imports = true              # TODO: deactivate this
+ignore_missing_imports = true                     # TODO: deactivate this
 show_column_numbers = true
 strict = true
 exclude = [
-    "src/dsp_tools/models",                # TODO: activate this
-    "src/dsp_tools/import_scripts",        # TODO: activate this
+    "src/dsp_tools/import_scripts",               # TODO: activate this
+    "src/dsp_tools/models/connection.py",         # TODO: activate this
+    "src/dsp_tools/models/exceptions.py",         # TODO: activate this
+    "src/dsp_tools/models/group.py",              # TODO: activate this
+    "src/dsp_tools/models/helpers.py ",           # TODO: activate this
+    "src/dsp_tools/models/langstring.py",         # TODO: activate this
+    "src/dsp_tools/models/listnode.py",           # TODO: activate this
+    "src/dsp_tools/models/model.py",              # TODO: activate this
+    "src/dsp_tools/models/ontology.py",           # TODO: activate this
+    "src/dsp_tools/models/permission.py",         # TODO: activate this
+    "src/dsp_tools/models/project.py",            # TODO: activate this
+    "src/dsp_tools/models/projectContext.py",     # TODO: activate this
+    "src/dsp_tools/models/propertyclass.py",      # TODO: activate this
+    "src/dsp_tools/models/propertyelement.py",    # TODO: activate this
+    "src/dsp_tools/models/resource.py",           # TODO: activate this
+    "src/dsp_tools/models/resourceclass.py",      # TODO: activate this
+    "src/dsp_tools/models/user.py",               # TODO: activate this
+    "src/dsp_tools/models/value.py",              # TODO: activate this
+    "src/dsp_tools/models/xmlbitstream.py",       # TODO: activate this
+    "src/dsp_tools/models/xmlpermission.py",      # TODO: activate this
+    "src/dsp_tools/models/xmlproperty.py",        # TODO: activate this
+    "src/dsp_tools/models/xmlresource.py",        # TODO: activate this
+    "src/dsp_tools/models/xmlvalue.py",           # TODO: activate this
 ]
 
 
@@ -133,6 +154,7 @@ disable = [
     "no-else-return",                      # would be less readable
     "no-else-raise",                       # would be less readable
     "logging-fstring-interpolation",       # would be less readable
+    "duplicate-code",                      # too many false positives
     "invalid-name",                        # TODO: activate this
     "too-many-arguments",                  # TODO: activate this
     "too-many-branches",                   # TODO: activate this

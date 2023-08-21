@@ -56,7 +56,7 @@ class TestFastXmlUpload(unittest.TestCase):
     def tearDown(self) -> None:
         """
         Delete all pickle files, all id2iri files and all "(un)processed_files.txt" files.
-        Is executed after each test method.
+        For each test method, a new TestCase instance is created, so tearDown() is executed after each test method.
         """
         for pickle_file in list(Path().glob("*.pkl")):
             pickle_file.unlink()

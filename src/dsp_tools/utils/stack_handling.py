@@ -18,7 +18,7 @@ from dsp_tools.utils.shared import http_call_with_retry
 logger = get_logger(__name__)
 
 
-@dataclass
+@dataclass(frozen=True)
 class StackConfiguration:
     """
     Groups together configuration information for the StackHandler.

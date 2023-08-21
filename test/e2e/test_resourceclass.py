@@ -14,17 +14,25 @@ from dsp_tools.models.resourceclass import ResourceClass
 
 class TestResourceClass(unittest.TestCase):
     test_project = "http://rdfh.ch/projects/0001"
-
     res_name = "res_class_name"
     res_label = LangString({Languages.EN: "Resource Class Label"})
     res_comment = LangString({Languages.EN: "This is a resource class for testing"})
+    con: Connection
 
     def setUp(self) -> None:
         """
-        is executed before each test method; sets up a connection and logs in as user root
+        Creates a connection to DSP-API.
+        For each test method, a new TestCase instance is created, so setUp() is executed before each test method.
         """
-        self.con = Connection("http://0.0.0.0:3333")
-        self.con.login("root@example.com", "test")
+        self.con = Connection(server="http://0.0.0.0:3333")
+        self.con.login(email="root@example.com", password="test")
+
+    def tearDown(self) -> None:
+        """
+        Logs out from DSP-API.
+        For each test method, a new TestCase instance is created, so tearDown() is executed after each test method.
+        """
+        self.con.logout()
 
     def test_ResourceClass_create(self) -> None:
         onto = Ontology(
@@ -83,12 +91,6 @@ class TestResourceClass(unittest.TestCase):
         last_modification_date, res_class = res_class.update(last_modification_date)
         self.assertEqual(res_class.label["de"], "Dies ist ein Kommentar")
         self.assertEqual(res_class.comment["it"], "Commentario italiano")
-
-    def tearDown(self) -> None:
-        """
-        is executed after all tests are run through; performs a log out
-        """
-        self.con.logout()
 
 
 if __name__ == "__main__":

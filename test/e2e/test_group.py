@@ -11,13 +11,22 @@ from dsp_tools.models.langstring import LangString, Languages
 
 class TestGroup(unittest.TestCase):  # pylint: disable=missing-class-docstring
     test_project = "http://rdfh.ch/projects/0001"
+    con: Connection
 
     def setUp(self) -> None:
         """
-        is executed before each test method; sets up a connection and logs in as user root
+        Creates a connection to DSP-API.
+        For each test method, a new TestCase instance is created, so setUp() is executed before each test method.
         """
-        self.con = Connection("http://0.0.0.0:3333")
-        self.con.login("root@example.com", "test")
+        self.con = Connection(server="http://0.0.0.0:3333")
+        self.con.login(email="root@example.com", password="test")
+
+    def tearDown(self) -> None:
+        """
+        Logs out from DSP-API.
+        For each test method, a new TestCase instance is created, so tearDown() is executed after each test method.
+        """
+        self.con.logout()
 
     def test_group_getAllGroups(self) -> None:
         """
@@ -126,12 +135,6 @@ class TestGroup(unittest.TestCase):  # pylint: disable=missing-class-docstring
         self.assertEqual(deleted_group.project, self.test_project)
         self.assertFalse(deleted_group.status)
         self.assertFalse(deleted_group.selfjoin)
-
-    def tearDown(self) -> None:
-        """
-        is executed after all tests are run through; performs a log out
-        """
-        self.con.logout()
 
 
 if __name__ == "__main__":

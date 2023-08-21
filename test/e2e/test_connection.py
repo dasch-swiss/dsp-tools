@@ -11,12 +11,22 @@ from dsp_tools.models.exceptions import BaseError
 
 
 class TestConnection(unittest.TestCase):
+    con: Connection
+
     def setUp(self) -> None:
         """
-        is executed before each test method; sets up a connection and logs in as user root
+        Creates a connection to DSP-API.
+        For each test method, a new TestCase instance is created, so setUp() is executed before each test method.
         """
-        self.con = Connection("http://0.0.0.0:3333")
-        self.con.login("root@example.com", "test")
+        self.con = Connection(server="http://0.0.0.0:3333")
+        self.con.login(email="root@example.com", password="test")
+
+    def tearDown(self) -> None:
+        """
+        Logs out from DSP-API.
+        For each test method, a new TestCase instance is created, so tearDown() is executed after each test method.
+        """
+        self.con.logout()
 
     def test_Connection(self) -> None:
         self.assertIsInstance(self.con, Connection)
@@ -83,12 +93,6 @@ class TestConnection(unittest.TestCase):
         res = self.con.post("/v2/resources/erase", erase_info)
         self.assertIsNotNone(res["knora-api:result"])
         self.assertEqual(res["knora-api:result"], "Resource erased")
-
-    def tearDown(self) -> None:
-        """
-        is executed after all tests are run through; performs a log out
-        """
-        self.con.logout()
 
 
 if __name__ == "__main__":

@@ -133,14 +133,14 @@ class TestUser(unittest.TestCase):
         self.assertFalse(updated_user.status)
         self.assertFalse(updated_user.sysadmin)
 
-    @pytest.mark.skip(reason="error in DSP-API, try to unignore at next deployment")
     def test_user_update_password(self) -> None:
-        user_email = "wilee.coyote5@canyon.com"
-        user_new_pw = "BeepBeep5.2"
-        user = User(
+        # the root user creates a new root user with the name wilee5
+        wilee_email = "wilee.coyote5@canyon.com"
+        wilee_new_pw = "BeepBeep5.2"
+        wilee = User(
             con=self.con,
             username="wilee5",
-            email=user_email,
+            email=wilee_email,
             givenName="Wile E.5",
             familyName="Coyote5",
             password="BeepBeep5.1",
@@ -151,21 +151,21 @@ class TestUser(unittest.TestCase):
             in_groups={iri_group_thing_searcher},
         ).create()
 
-        # change user's password as user root
-        user.password = user_new_pw
-        user.update("test")
+        # the root user changes wilee5's password
+        wilee.password = wilee_new_pw
+        wilee.update(requesterPassword="test")
 
-        # login as user wilee5 with new password (this would fail if password update wasn't successful)
-        con = Connection("http://0.0.0.0:3333")
-        con.login(user_email, user_new_pw)
+        # wilee5 logs in with his new password,
+        # and retrieves a User instance of himself
+        # (this would fail if password update wasn't successful)
+        con = Connection(server="http://0.0.0.0:3333")
+        con.login(email=wilee_email, password=wilee_new_pw)
+        wilee_updated_by_root = User(con=con, email=wilee_email).read()
 
-        updated_user = User(con=con, email=user_email).read()
-
-        # update password as user wilee5 (this would fail if password update wasn't successful)
-        updated_user.password = "BeepBeep5.3"
-        newly_updated_user = updated_user.update(user_new_pw)
-        con.logout()
-        self.assertIsNotNone(newly_updated_user)
+        # wilee5 updates his own password (this would fail if password update wasn't successful)
+        wilee_updated_by_root.password = "BeepBeep5.3"
+        wilee_updated_by_himself = wilee_updated_by_root.update(requesterPassword=wilee_new_pw)
+        self.assertIsNotNone(wilee_updated_by_himself)
 
     def test_user_add_to_group(self) -> None:
         user = User(

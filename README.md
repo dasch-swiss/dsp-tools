@@ -32,6 +32,7 @@ To get started quickly, without reading the details, just execute these commands
 - `poetry self add poetry-exec-plugin`
 - `poetry install`
 - `pre-commit install`
+- `brew install imagemagick ffmpeg`
 
 
 
@@ -143,6 +144,8 @@ Or even a certain method: `pytest test/unittests/test_excel2xml.py::TestExcel2xm
 
 This is useful in combination with the debugging mode of your IDE, 
 if you want to examine why a single line of code in a test method fails.
+
+Some e2e tests require ImageMagick and ffmpeg to be installed: `brew install imagemagick ffmpeg`
 
 
 

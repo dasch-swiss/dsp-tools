@@ -250,7 +250,11 @@
                         "comments": {
                             "de": "only German"
                         },
-                        "gui_element": "Spinbox"
+                        "gui_element": "Spinbox",
+                        "gui_attributes": {
+                            "min": 0.0,
+                            "max": 100.0
+                        }
                     },
                     {
                         "name": "hasBirthDate",

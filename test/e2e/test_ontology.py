@@ -12,6 +12,7 @@ from dsp_tools.models.ontology import Ontology
 
 
 class TestOntology(unittest.TestCase):
+    con: Connection
     test_project = "http://rdfh.ch/projects/0001"
     test_onto = "http://0.0.0.0:3333/ontology/0001/anything/v2"
     con: Connection

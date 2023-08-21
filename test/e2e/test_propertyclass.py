@@ -34,6 +34,8 @@ class TestPropertyClass(unittest.TestCase):
         """
         self.con = Connection(server="http://0.0.0.0:3333")
         self.con.login(email="root@example.com", password="test")
+
+        # Create a test ontology
         self.onto = Ontology(
             con=self.con,
             project=self.project,
@@ -51,6 +53,7 @@ class TestPropertyClass(unittest.TestCase):
         result = self.onto.delete()
         self.con.logout()
         self.assertIsNotNone(result)
+        self.con.logout()
 
     def test_PropertyClass_create(self) -> None:
         """

@@ -85,8 +85,7 @@ class Connection:
         Delete the token on the server and in this class.
         """
         if self.token:
-            response = self.delete(route="/v2/authentication")
-            check_for_api_error(response)
+            self.delete(route="/v2/authentication")
             self.token = None
 
     def _write_request_to_file(

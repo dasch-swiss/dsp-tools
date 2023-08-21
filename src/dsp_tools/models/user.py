@@ -629,7 +629,7 @@ class User(Model):  # pylint: disable=too-many-instance-attributes,too-many-publ
         user = User(con=self._con, iri=self._iri).read()
         return user
 
-    def delete(self):
+    def delete(self) -> User:
         """
         Delete the user in nore (NOT YET IMPLEMENTED)
         :return: None

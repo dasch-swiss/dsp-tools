@@ -121,7 +121,7 @@ class TestUser(unittest.TestCase):
         user.username = "roadrunner"
         user.givenName = "roadrunner"
         user.familyName = "Geococcyx"
-        user.lang = "fr"
+        user.lang = Languages.FR
         user.status = False
         user.sysadmin = False
         updated_user = user.update()

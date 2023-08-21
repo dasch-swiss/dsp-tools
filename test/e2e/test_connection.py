@@ -21,6 +21,13 @@ class TestConnection(unittest.TestCase):
         self.con = Connection(server="http://0.0.0.0:3333")
         self.con.login(email="root@example.com", password="test")
 
+    def tearDown(self) -> None:
+        """
+        Logs out from DSP-API.
+        For each test method, a new TestCase instance is created, so tearDown() is executed after each test method.
+        """
+        self.con.logout()
+
     def test_connection(self) -> None:
         self.assertIsNotNone(self.con.token)
 

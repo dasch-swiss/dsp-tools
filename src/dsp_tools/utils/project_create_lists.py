@@ -211,4 +211,7 @@ def create_lists(
     if not success:
         overall_success = False
 
+    # log out from DSP server
+    con.logout()
+
     return current_project_lists, overall_success

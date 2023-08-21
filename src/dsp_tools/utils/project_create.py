@@ -1115,4 +1115,7 @@ def create_project(
             f"but during the creation process, some problems occurred. Please carefully check the console output.",
         )
 
+    # log out from DSP server
+    con.logout()
+
     return overall_success

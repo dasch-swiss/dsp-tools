@@ -45,9 +45,11 @@ class TestPropertyClass(unittest.TestCase):
 
     def tearDown(self) -> None:
         """
-        is executed after all tests are run through; removes test ontology
+        Logs out from DSP-API and remove test ontology.
+        For each test method, a new TestCase instance is created, so tearDown() is executed after each test method.
         """
         result = self.onto.delete()
+        self.con.logout()
         self.assertIsNotNone(result)
 
     def test_PropertyClass_create(self) -> None:

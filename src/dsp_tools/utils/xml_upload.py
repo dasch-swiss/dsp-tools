@@ -659,6 +659,10 @@ def xml_upload(
     if success:
         print("All resources have successfully been uploaded.")
         logger.info("All resources have successfully been uploaded.")
+
+    # log out from DSP server
+    con.logout()
+
     return success
 
 

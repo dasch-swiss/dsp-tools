@@ -111,10 +111,8 @@ exclude = [
     "src/dsp_tools/models/propertyelement.py",    # TODO: activate this
     "src/dsp_tools/models/resource.py",           # TODO: activate this
     "src/dsp_tools/models/resourceclass.py",      # TODO: activate this
-    "src/dsp_tools/models/set_encoder.py",        # TODO: activate this
     "src/dsp_tools/models/user.py",               # TODO: activate this
     "src/dsp_tools/models/value.py",              # TODO: activate this
-    "src/dsp_tools/models/xmlallow.py",           # TODO: activate this
     "src/dsp_tools/models/xmlbitstream.py",       # TODO: activate this
     "src/dsp_tools/models/xmlpermission.py",      # TODO: activate this
     "src/dsp_tools/models/xmlproperty.py",        # TODO: activate this

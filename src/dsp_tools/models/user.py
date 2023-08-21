@@ -245,6 +245,18 @@ class User(Model):  # pylint: disable=too-many-instance-attributes,too-many-publ
         self._changed.add("email")
 
     @property
+    def password(self) -> Optional[str]:
+        """Password of this user"""
+        return self._password
+
+    @password.setter
+    def password(self, value: Optional[str]):
+        if value is None:
+            return
+        self._password = value
+        self._changed.add("password")
+
+    @property
     def givenName(self) -> Optional[str]:
         """Given name (firstname) of this user"""
         return self._givenName
@@ -527,7 +539,7 @@ class User(Model):  # pylint: disable=too-many-instance-attributes,too-many-publ
                 tmp = {}
         return tmp
 
-    def create(self) -> Any:
+    def create(self) -> User:
         """
         Create new user in DSP
 
@@ -550,7 +562,7 @@ class User(Model):  # pylint: disable=too-many-instance-attributes,too-many-publ
                 result = self._con.post(User.IRI + quote_plus(iri) + User.GROUP_MEMBERSHIPS + quote_plus(group))
         return User.fromJsonObj(self._con, result["user"])
 
-    def read(self) -> Any:
+    def read(self) -> User:
         """
         Read the user information from DSP. The User object must have a valid iri or email!
 
@@ -566,7 +578,7 @@ class User(Model):  # pylint: disable=too-many-instance-attributes,too-many-publ
             raise BaseError("Either user-iri or email is required!")
         return User.fromJsonObj(self._con, result["user"])
 
-    def update(self, requesterPassword: Optional[str] = None) -> Any:
+    def update(self, requesterPassword: Optional[str] = None) -> User:
         """
         Udate the user info in DSP with the modified data in this user instance
 
@@ -617,7 +629,7 @@ class User(Model):  # pylint: disable=too-many-instance-attributes,too-many-publ
         user = User(con=self._con, iri=self._iri).read()
         return user
 
-    def delete(self):
+    def delete(self) -> User:
         """
         Delete the user in nore (NOT YET IMPLEMENTED)
         :return: None

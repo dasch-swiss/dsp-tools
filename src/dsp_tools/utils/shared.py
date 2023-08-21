@@ -144,7 +144,7 @@ def try_network_action(
                 return action(*args, **kwargs)
             else:
                 return action()
-        except (TimeoutError, ReadTimeout):
+        except (TimeoutError, ReadTimeout, ReadTimeoutError):
             msg = f"Timeout Error: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
             print(f"{datetime.now().isoformat()}: {msg}")
             logger.error(f"{msg} {action_as_str} (retry-counter i={i})", exc_info=True)

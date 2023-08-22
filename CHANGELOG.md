@@ -1,5 +1,41 @@
 # Changelog
 
+## [4.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v3.0.0...v4.0.0) (2023-08-22)
+
+
+### ⚠ BREAKING CHANGES
+
+* harmonize CLI flags, rename CLI entry point and add tests for the CLI (DEV-2525) ([#463](https://github.com/dasch-swiss/dsp-tools/issues/463))
+
+### Bug Fixes
+
+* fix bandit workflow configuration (DEV-2536) [#470](https://github.com/dasch-swiss/dsp-tools/issues/470) ([4fd6a10](https://github.com/dasch-swiss/dsp-tools/commit/4fd6a1046cc3200e65e4df528b4be5bb0a18dd1c))
+* Make gui_attributes Mandatory for Spinbox in JSON Schema (DEV-2556) ([#478](https://github.com/dasch-swiss/dsp-tools/issues/478)) ([671d846](https://github.com/dasch-swiss/dsp-tools/commit/671d846247319753237eda0e6bf73a2e551d2ee6))
+* **process-files:** in case of Docker API error, don't processes files a second time (DEV-2533) [#468](https://github.com/dasch-swiss/dsp-tools/issues/468) ([bace9aa](https://github.com/dasch-swiss/dsp-tools/commit/bace9aa9fbb1cd0c4a23d542c015645e84ae3c32))
+* **upload-files:** handle server error, document how to circumvent resource leak (DEV-2528, DEV-2527) ([#464](https://github.com/dasch-swiss/dsp-tools/issues/464)) ([7aa7106](https://github.com/dasch-swiss/dsp-tools/commit/7aa7106774ac2305e2185e69e357d15a672d1a8b))
+
+
+### Maintenance
+
+* bump start-stack to 2023.08.02 (DEV-2561) [#482](https://github.com/dasch-swiss/dsp-tools/issues/482) ([84fb0a9](https://github.com/dasch-swiss/dsp-tools/commit/84fb0a9a3a39e2cd7e2454325eff1aa8dcdd2e4f))
+* configure bandit security checks (DEV-2532) ([#466](https://github.com/dasch-swiss/dsp-tools/issues/466)) ([28a4907](https://github.com/dasch-swiss/dsp-tools/commit/28a490764c428f722ed63bebca394bfd561752bc))
+* **deps:** bump dependencies [#467](https://github.com/dasch-swiss/dsp-tools/issues/467) ([a488161](https://github.com/dasch-swiss/dsp-tools/commit/a488161ae178ddb97eed63429a7fa6cdf45b6536))
+* **deps:** bump dependencies [#473](https://github.com/dasch-swiss/dsp-tools/issues/473) ([57aa687](https://github.com/dasch-swiss/dsp-tools/commit/57aa68755287e304b3a2d671995d84a5c1991dad))
+* diverse refactorings (DEV-2559) ([#480](https://github.com/dasch-swiss/dsp-tools/issues/480)) ([e29299b](https://github.com/dasch-swiss/dsp-tools/commit/e29299b7da262ef5f19037f06049c44f961a393b))
+* explain in readme that imagemagick and ffmpeg must be installed for local testing (DEV-2558) [#479](https://github.com/dasch-swiss/dsp-tools/issues/479) ([a000ab3](https://github.com/dasch-swiss/dsp-tools/commit/a000ab3f4907efd1f0fb0d9185e5786e26ca6632))
+* fix bandit: always exit with 0 (DEV-2536) [#476](https://github.com/dasch-swiss/dsp-tools/issues/476) ([c5351b4](https://github.com/dasch-swiss/dsp-tools/commit/c5351b439cfbbc81879d5eb17278138e7945ae51))
+* harmonize CLI flags, rename CLI entry point and add tests for the CLI (DEV-2525) ([#463](https://github.com/dasch-swiss/dsp-tools/issues/463)) ([c1218d6](https://github.com/dasch-swiss/dsp-tools/commit/c1218d6b2ca3c48b7aee18524775e6d2ed8e04a9))
+* lint XML models (DEV-2560) ([#481](https://github.com/dasch-swiss/dsp-tools/issues/481)) ([f2e4c88](https://github.com/dasch-swiss/dsp-tools/commit/f2e4c888630dce9d4632dfde94a5636d46d28082))
+* move to Python 3.11 (DEV-2524) [#461](https://github.com/dasch-swiss/dsp-tools/issues/461) ([74a93e5](https://github.com/dasch-swiss/dsp-tools/commit/74a93e522699d0987149aa3e31aa5a96b46e0658))
+* refactor models.bitstream (DEV-2538) [#472](https://github.com/dasch-swiss/dsp-tools/issues/472) ([6e2deff](https://github.com/dasch-swiss/dsp-tools/commit/6e2deff7837b17793404b553089f9893498251db))
+* replace re by regex (DEV-2531) ([#465](https://github.com/dasch-swiss/dsp-tools/issues/465)) ([8ac8c99](https://github.com/dasch-swiss/dsp-tools/commit/8ac8c9957215ad77176fdcc1fc815a19e9d0bbab))
+* use darglint to check if the docstrings match the actual implementation (DEV-2530) ([#453](https://github.com/dasch-swiss/dsp-tools/issues/453)) ([8183235](https://github.com/dasch-swiss/dsp-tools/commit/81832352485a5558267170fd9907319e55973b6c))
+
+
+### Documentation
+
+* update outdated link (DEV-2537) [#471](https://github.com/dasch-swiss/dsp-tools/issues/471) ([9f5c468](https://github.com/dasch-swiss/dsp-tools/commit/9f5c468b22e09adeb4501c4776ab91317cbb69d2))
+
 ## [3.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v2.5.0...v3.0.0) (2023-08-08)
 
 

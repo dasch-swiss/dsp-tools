@@ -610,30 +610,45 @@
                     },
                     "then": {
                         "properties": {
+                            "super": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "oneOf": [
+                                        {
+                                            "enum": [
+                                                "hasValue"
+                                            ]
+                                        },
+                                        {
+                                            "$ref": "#/definitions/prefixedname_or_uri"
+                                        }
+                                    ]
+                                }
+                            },
                             "gui_element": {
-                                "super": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "string",
-                                        "oneOf": [
-                                            {
-                                                "enum": [
-                                                    "hasValue"
-                                                ]
-                                            },
-                                            {
-                                                "$ref": "#/definitions/prefixedname_or_uri"
-                                            }
-                                        ]
-                                    }
-                                },
                                 "enum": [
                                     "List",
                                     "Radio",
                                     "Pulldown"
                                 ]
+                            },
+                            "gui_attributes": {
+                                "type": "object",
+                                "properties": {
+                                    "hlist": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "hlist"
+                                ],
+                                "additionalProperties": false
                             }
-                        }
+                        },
+                        "required": [
+                            "gui_attributes"
+                        ]
                     }
                 },
                 {

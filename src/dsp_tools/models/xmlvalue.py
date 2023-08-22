@@ -5,13 +5,13 @@ from lxml import etree
 from dsp_tools.models.value import KnoraStandoffXml
 
 
-class XMLValue:
+class XMLValue:  # pylint: disable=too-few-public-methods
     """Represents a value of a resource property in the XML used for data import"""
 
-    _value: Union[str, KnoraStandoffXml]
-    _resrefs: Optional[list[str]]
-    _comment: Optional[str]
-    _permissions: Optional[str]
+    value: Union[str, KnoraStandoffXml]
+    resrefs: Optional[list[str]]
+    comment: Optional[str]
+    permissions: Optional[str]
 
     def __init__(
         self,
@@ -31,34 +31,6 @@ class XMLValue:
             self._resrefs = list({x.split(":")[1] for x in self._value.get_all_iris() or []})
         elif val_type == "list":
             listname = cast(str, listname)
-            self._value = listname + ":" + "".join(node.itertext())
+            self.value = listname + ":" + "".join(node.itertext())
         else:
-            self._value = "".join(node.itertext())
-
-    @property
-    def value(self) -> Union[str, KnoraStandoffXml]:
-        """The actual value of the value instance"""
-        return self._value
-
-    @value.setter
-    def value(self, value: Union[str, KnoraStandoffXml]) -> None:
-        self._value = value
-
-    @property
-    def resrefs(self) -> Optional[list[str]]:
-        """List of resource references"""
-        return self._resrefs
-
-    @resrefs.setter
-    def resrefs(self, resrefs: Optional[list[str]]) -> None:
-        self._resrefs = resrefs
-
-    @property
-    def comment(self) -> Optional[str]:
-        """Comment about the value"""
-        return self._comment
-
-    @property
-    def permissions(self) -> Optional[str]:
-        """Reference to the set of permissions for the value"""
-        return self._permissions
+            self.value = "".join(node.itertext())

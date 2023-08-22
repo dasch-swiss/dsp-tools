@@ -29,6 +29,7 @@ class XMLValue:
             xmlstr = xmlstr.replace('<text xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">', "")
             xmlstr = xmlstr.replace("</text>", "")
             self._value = KnoraStandoffXml(xmlstr)
+            self._resrefs = list({x.split(":")[1] for x in self._value.get_all_iris() or []})
         elif val_type == "list":
             listname = cast(str, listname)
             self._value = listname + ":" + "".join(node.itertext())

@@ -113,7 +113,7 @@ exclude = [
     "src/dsp_tools/models/resourceclass.py",      # TODO: activate this
     "src/dsp_tools/models/user.py",               # TODO: activate this
     "src/dsp_tools/models/value.py",              # TODO: activate this
-    "src/dsp_tools/models/xmlresource.py"         # TODO: activate this
+    "src/dsp_tools/models/xmlresource.py",        # TODO: activate this
 ]
 
 

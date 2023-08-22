@@ -138,7 +138,7 @@ class XMLResource:  # pylint: disable=too-many-instance-attributes
         for prop in self._properties:
             if prop.valtype == "resptr":
                 for value in prop.values:
-                    resptrs.append(str(value.value))
+                    resptrs.append(value.value)
             elif prop.valtype == "text":
                 for value in prop.values:
                     if value.resrefs:
@@ -166,11 +166,11 @@ class XMLResource:  # pylint: disable=too-many-instance-attributes
             vals: list[Union[str, dict[str, str]]] = []
             for value in prop.values:
                 if prop.valtype == "resptr":  # we have a resptr, therefore simple lookup or IRI
-                    iri = resiri_lookup.get(str(value.value))
+                    iri = resiri_lookup.get(value.value)
                     if iri:
                         v = iri
                     else:
-                        v = str(value.value)  # if we do not find the id, we assume it's a valid DSP IRI
+                        v = value.value  # if we do not find the id, we assume it's a valid DSP IRI
                 elif prop.valtype == "text":
                     if isinstance(value.value, KnoraStandoffXml):
                         iri_refs = value.value.get_all_iris()
@@ -183,9 +183,9 @@ class XMLResource:  # pylint: disable=too-many-instance-attributes
                                     f"the following invalid resource: {res_id}."
                                 )
                             value.value.replace(iri_ref, iri)
-                    v = str(value.value)
+                    v = value.value
                 else:
-                    v = str(value.value)
+                    v = value.value
 
                 if value.comment is None and value.permissions is None:
                     # no comment or permissions

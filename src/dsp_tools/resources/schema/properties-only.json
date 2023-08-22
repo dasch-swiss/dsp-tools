@@ -264,15 +264,6 @@
                     },
                     "then": {
                         "properties": {
-                            "name": {
-                                "type": "string"
-                            },
-                            "labels": {
-                                "$ref": "#/definitions/langstring"
-                            },
-                            "comments": {
-                                "$ref": "#/definitions/langstring"
-                            },
                             "super": {
                                 "type": "array",
                                 "items": {
@@ -290,19 +281,14 @@
                                     ]
                                 }
                             },
-                            "object": {
-                                "const": "TextValue"
-                            },
                             "gui_element": {
                                 "enum": [
                                     "SimpleText",
                                     "Textarea",
                                     "Richtext"
                                 ]
-                            },
-                            "gui_attributes": true
-                        },
-                        "additionalProperties": false
+                            }
+                        }
                     }
                 },
                 {

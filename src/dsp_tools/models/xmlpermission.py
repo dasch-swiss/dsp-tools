@@ -11,7 +11,7 @@ class XmlPermission:
     _id: str
     _allows: list[XmlAllow]
 
-    def __init__(self, node: etree.Element, project_context: ProjectContext) -> None:
+    def __init__(self, node: etree._Element, project_context: ProjectContext) -> None:
         """
         Constructor which parses a XML DOM permissions element representing an named permission set
 

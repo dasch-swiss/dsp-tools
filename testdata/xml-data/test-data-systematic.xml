@@ -68,13 +68,16 @@
             <text>&amp;</text>
             <text>&amp;amp;</text>
             <text>
+
                 Poem
+
                 with line breaks
                 and empty lines
 
-                and pretty-print-whitespaces...
+                and     multiple     whitespaces	and		tabstops ...
                 Only the whitespaces/newlines at the beginning are removed.
                 The others stay in place.
+
             </text>
             <!-- <text>&lt;em&gt;text&lt;/em&gt;</text>
             <text>&lt;tag s=\"t\"&gt;</text> -->
@@ -86,7 +89,12 @@
             <text><em>text</em></text>
             <text>text &lt;not a tag&gt; text</text>
             <text permissions="prop-default">
-                This is <em>bold and <strong>strong</strong></em> text! It contains links to all resources:
+
+                This is <em>italicized and <strong>bold</strong></em> text! 
+
+                It    contains    multiple    whitespaces	and		tabstops.
+                
+                It contains links to all resources:
                 <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>
                 <a class="salsah-link" href="IRI:test_thing_1:IRI">test_thing_1</a>
                 <a class="salsah-link" href="IRI:image_thing_0:IRI">image_thing_0</a>
@@ -99,6 +107,7 @@
                 <a class="salsah-link" href="IRI:zip_thing_1:IRI">zip_thing_1</a>
                 <a class="salsah-link" href="IRI:audio_thing_1:IRI">audio_thing_1</a>
                 <a class="salsah-link" href="IRI:test_thing_2:IRI">test_thing_2</a>
+
             </text>
             <text>
                 Poem

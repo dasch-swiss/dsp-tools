@@ -816,6 +816,7 @@
                             }
                         },
                         "required": [
+                            "gui_element",
                             "gui_attributes"
                         ]
                     }

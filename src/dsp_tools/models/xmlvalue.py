@@ -1,7 +1,6 @@
 from typing import Optional, Union, cast
 
 from lxml import etree
-import regex
 
 from dsp_tools.models.value import KnoraStandoffXml
 

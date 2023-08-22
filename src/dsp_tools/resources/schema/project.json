@@ -16,18 +16,15 @@
         },
         "ncname": {
             "type": "string",
-            "pattern": "^[a-zA-Z_][\\w.-]*$",
-            "additionalProperties": false
+            "pattern": "^[a-zA-Z_][\\w.-]*$"
         },
         "prefixedname": {
             "type": "string",
-            "pattern": "^([a-zA-Z_][\\w.-]*)?:([\\w.-]+)$",
-            "additionalProperties": false
+            "pattern": "^([a-zA-Z_][\\w.-]*)?:([\\w.-]+)$"
         },
         "prefixedname_or_uri": {
             "type": "string",
-            "pattern": "^(([a-zA-Z_][\\w.-]*)?:([\\w.-]+))|(https?://.*)$",
-            "additionalProperties": false
+            "pattern": "^(([a-zA-Z_][\\w.-]*)?:([\\w.-]+))|(https?://.*)$"
         },
         "baseresource": {
             "type": "string",
@@ -119,8 +116,7 @@
         },
         "groupdef": {
             "type": "string",
-            "pattern": "^(([a-zA-Z_][\\w.-]*)?:([-\\w .]+))|(SystemAdmin)$",
-            "additionalProperties": false
+            "pattern": "^(([a-zA-Z_][\\w.-]*)?:([-\\w .]+))|(SystemAdmin)$"
         },
         "projectdef": {
             "type": "string",
@@ -437,6 +433,15 @@
                     },
                     "then": {
                         "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "labels": {
+                                "$ref": "#/definitions/langstring"
+                            },
+                            "comments": {
+                                "$ref": "#/definitions/langstring"
+                            },
                             "super": {
                                 "type": "array",
                                 "items": {
@@ -454,14 +459,19 @@
                                     ]
                                 }
                             },
+                            "object": {
+                                "const": "TextValue"
+                            },
                             "gui_element": {
                                 "enum": [
                                     "SimpleText",
                                     "Textarea",
                                     "Richtext"
                                 ]
-                            }
-                        }
+                            },
+                            "gui_attributes": true
+                        },
+                        "additionalProperties": false
                     }
                 },
                 {
@@ -942,6 +952,9 @@
                                         "type": "string"
                                     }
                                 },
+                                "required": [
+                                    "hlist"
+                                ],
                                 "additionalProperties": false
                             }
                         },

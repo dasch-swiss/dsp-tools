@@ -75,7 +75,7 @@ class Value:
 
     @property
     def iri(self) -> str:
-        return self.iri
+        return self._iri
 
     @property
     def ark_url(self) -> str:

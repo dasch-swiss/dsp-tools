@@ -23,7 +23,7 @@ class XMLResource:  # pylint: disable=too-many-instance-attributes
     _bitstream: Optional[XMLBitstream]
     _properties: list[XMLProperty]
 
-    def __init__(self, node: etree.Element, default_ontology: str) -> None:
+    def __init__(self, node: etree._Element, default_ontology: str) -> None:
         """
         Constructor that parses a resource node from the XML DOM
 
@@ -55,9 +55,7 @@ class XMLResource:  # pylint: disable=too-many-instance-attributes
         self._bitstream = None
         self._properties = []
         for subnode in node:
-            if subnode.tag is etree.Comment:
-                continue
-            elif subnode.tag == "bitstream":
+            if subnode.tag == "bitstream":
                 self._bitstream = XMLBitstream(subnode)
             else:
                 # get the property type which is in format type-prop, p.ex. <decimal-prop>
@@ -168,15 +166,14 @@ class XMLResource:  # pylint: disable=too-many-instance-attributes
             vals: list[Union[str, dict[str, str]]] = []
             for value in prop.values:
                 if prop.valtype == "resptr":  # we have a resptr, therefore simple lookup or IRI
-                    iri = resiri_lookup.get(value.value)
+                    iri = resiri_lookup.get(str(value.value))
                     if iri:
                         v = iri
                     else:
-                        v = value.value  # if we do not find the id, we assume it's a valid DSP IRI
-                elif prop.valtype == "text":
+                        v = str(value.value)  # if we do not find the id, we assume it's a valid DSP IRI
                     if isinstance(value.value, KnoraStandoffXml):
                         iri_refs = value.value.get_all_iris()
-                        for iri_ref in iri_refs:
+                        for iri_ref in iri_refs or []:
                             res_id = iri_ref.split(":")[1]
                             iri = resiri_lookup.get(res_id)
                             if not iri:
@@ -185,9 +182,9 @@ class XMLResource:  # pylint: disable=too-many-instance-attributes
                                     f"the following invalid resource: {res_id}."
                                 )
                             value.value.replace(iri_ref, iri)
-                    v = value.value
+                    v = str(value.value)
                 else:
-                    v = value.value
+                    v = str(value.value)
 
                 if value.comment is None and value.permissions is None:
                     # no comment or permissions
@@ -198,7 +195,9 @@ class XMLResource:  # pylint: disable=too-many-instance-attributes
                     if value.comment:
                         tmp["comment"] = value.comment
                     if value.permissions:
-                        tmp["permissions"] = permissions_lookup.get(value.permissions)
+                        permissions = permissions_lookup.get(value.permissions)
+                        if permissions:
+                            tmp["permissions"] = str(permissions)
                     vals.append(tmp)
             prop_data[prop.name] = vals if len(vals) > 1 else vals[0]
         return prop_data
@@ -216,10 +215,12 @@ class XMLResource:  # pylint: disable=too-many-instance-attributes
         Returns:
             A dict of the bitstream object
         """
-        tmp = None
+        tmp: Optional[dict[str, Union[str, Permissions]]] = None
         if self._bitstream:
             bitstream = self._bitstream
             tmp = {"value": bitstream.value, "internal_file_name": internal_file_name_bitstream}
             if bitstream.permissions:
-                tmp["permissions"] = permissions_lookup.get(bitstream.permissions)
+                permissions = permissions_lookup.get(bitstream.permissions)
+                if permissions:
+                    tmp["permissions"] = permissions
         return tmp

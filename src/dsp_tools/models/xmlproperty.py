@@ -1,5 +1,3 @@
-from typing import Optional
-
 from lxml import etree
 
 from dsp_tools.models.exceptions import XmlError
@@ -13,7 +11,7 @@ class XMLProperty:
     _valtype: str
     _values: list[XMLValue]
 
-    def __init__(self, node: etree.Element, valtype: str, default_ontology: Optional[str] = None):
+    def __init__(self, node: etree._Element, valtype: str, default_ontology: str):
         """
         The constructor for the DSP property
 

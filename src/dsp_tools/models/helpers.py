@@ -13,7 +13,7 @@ from dsp_tools.models.exceptions import BaseError
 #
 
 
-@dataclass
+@dataclass(frozen=True)
 class OntoIri:
     """
     Holds an ontology IRI

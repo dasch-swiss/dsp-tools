@@ -18,7 +18,7 @@ def get_project(
     server: str,
     user: str,
     password: str,
-    verbose: bool,
+    verbose: bool = False,
 ) -> bool:
     """
     This function writes a project from a DSP server into a JSON file.

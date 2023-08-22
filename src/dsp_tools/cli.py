@@ -85,7 +85,7 @@ def _make_parser(
         help="create only the lists (prerequisite: the project exists on the server)",
     )
     parser_create.add_argument("-v", "--verbose", action="store_true", help=verbose_text)
-    parser_create.add_argument("-d", "--dump", action="store_true", help="dump test files for DSP-API requests")
+    parser_create.add_argument("-d", "--dump", action="store_true", help="write every request to DSP-API into a file")
     parser_create.add_argument("project_definition", help="path to the JSON project file")
 
     # get

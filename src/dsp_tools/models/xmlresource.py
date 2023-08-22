@@ -196,9 +196,7 @@ class XMLResource:  # pylint: disable=too-many-instance-attributes
                     if value.comment:
                         tmp["comment"] = value.comment
                     if value.permissions:
-                        permissions = permissions_lookup.get(value.permissions)
-                        if permissions:
-                            tmp["permissions"] = str(permissions)
+                        tmp["permissions"] = permissions_lookup.get(value.permissions)
                     vals.append(tmp)
             prop_data[prop.name] = vals if len(vals) > 1 else vals[0]
         return prop_data

@@ -19,16 +19,16 @@ class XMLValue:  # pylint: disable=too-few-public-methods
         val_type: str,
         listname: Optional[str] = None,
     ) -> None:
-        self._resrefs = None
-        self._comment = node.get("comment")
-        self._permissions = node.get("permissions")
+        self.resrefs = None
+        self.comment = node.get("comment")
+        self.permissions = node.get("permissions")
         if val_type == "text" and node.get("encoding") == "xml":
             node.attrib.clear()
             xmlstr = etree.tostring(node, encoding="unicode", method="xml")
             xmlstr = xmlstr.replace('<text xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">', "")
             xmlstr = xmlstr.replace("</text>", "")
-            self._value = KnoraStandoffXml(xmlstr)
-            self._resrefs = list({x.split(":")[1] for x in self._value.get_all_iris() or []})
+            self.value = KnoraStandoffXml(xmlstr)
+            self.resrefs = list({x.split(":")[1] for x in self.value.get_all_iris() or []})
         elif val_type == "list":
             listname = cast(str, listname)
             self.value = listname + ":" + "".join(node.itertext())

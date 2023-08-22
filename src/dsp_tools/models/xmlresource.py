@@ -171,6 +171,7 @@ class XMLResource:  # pylint: disable=too-many-instance-attributes
                         v = iri
                     else:
                         v = str(value.value)  # if we do not find the id, we assume it's a valid DSP IRI
+                elif prop.valtype == "text":
                     if isinstance(value.value, KnoraStandoffXml):
                         iri_refs = value.value.get_all_iris()
                         for iri_ref in iri_refs or []:

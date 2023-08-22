@@ -11,19 +11,32 @@ from dsp_tools.models.xmlproperty import XMLProperty
 
 
 class XMLResource:  # pylint: disable=too-many-instance-attributes
-    """Represents a resource in the XML used for data import"""
+    """
+    Represents a resource in the XML used for data import.
 
-    _id: str
-    _iri: Optional[str]
-    _ark: Optional[str]
-    _label: str
-    _restype: str
-    _permissions: Optional[str]
-    _creation_date: Optional[DateTimeStamp]
-    _bitstream: Optional[XMLBitstream]
-    _properties: list[XMLProperty]
+    Attributes:
+        id: The unique id of the resource
+        iri: The custom IRI of the resource
+        ark: The custom ARK of the resource
+        label: The label of the resource
+        restype: The type of the resource
+        permissions: The reference to the permissions set for this resource
+        creation_date: The creation date of the resource
+        bitstream: The bitstream object belonging to the resource
+        properties: The list of properties of the resource
+    """
 
-    def __init__(self, node: etree.Element, default_ontology: str) -> None:
+    id: str
+    iri: Optional[str]
+    ark: Optional[str]
+    label: str
+    restype: str
+    permissions: Optional[str]
+    creation_date: Optional[DateTimeStamp]
+    bitstream: Optional[XMLBitstream]
+    properties: list[XMLProperty]
+
+    def __init__(self, node: etree._Element, default_ontology: str) -> None:
         """
         Constructor that parses a resource node from the XML DOM
 
@@ -34,84 +47,33 @@ class XMLResource:  # pylint: disable=too-many-instance-attributes
         Returns:
             None
         """
-        self._id = node.attrib["id"]
-        self._iri = node.attrib.get("iri")
-        self._ark = node.attrib.get("ark")
-        self._creation_date = None
+        self.id = node.attrib["id"]
+        self.iri = node.attrib.get("iri")
+        self.ark = node.attrib.get("ark")
+        self.creation_date = None
         if node.attrib.get("creation_date"):
-            self._creation_date = DateTimeStamp(node.attrib.get("creation_date"))
-        self._label = node.attrib["label"]
+            self.creation_date = DateTimeStamp(node.attrib.get("creation_date"))
+        self.label = node.attrib["label"]
         # get the resource type which is in format namespace:resourcetype, p.ex. rosetta:Image
         tmp_res_type = node.attrib["restype"].split(":")
         if len(tmp_res_type) > 1:
             if tmp_res_type[0]:
-                self._restype = node.attrib["restype"]
+                self.restype = node.attrib["restype"]
             else:
                 # replace an empty namespace with the default ontology name
-                self._restype = default_ontology + ":" + tmp_res_type[1]
+                self.restype = default_ontology + ":" + tmp_res_type[1]
         else:
-            self._restype = "knora-api:" + tmp_res_type[0]
-        self._permissions = node.attrib.get("permissions")
-        self._bitstream = None
-        self._properties = []
+            self.restype = "knora-api:" + tmp_res_type[0]
+        self.permissions = node.attrib.get("permissions")
+        self.bitstream = None
+        self.properties = []
         for subnode in node:
-            if subnode.tag is etree.Comment:
-                continue
-            elif subnode.tag == "bitstream":
-                self._bitstream = XMLBitstream(subnode)
+            if subnode.tag == "bitstream":
+                self.bitstream = XMLBitstream(subnode)
             else:
                 # get the property type which is in format type-prop, p.ex. <decimal-prop>
                 prop_type, _ = subnode.tag.rsplit("-", maxsplit=1)
-                self._properties.append(XMLProperty(subnode, prop_type, default_ontology))
-
-    @property
-    def id(self) -> str:
-        """The unique id of the resource"""
-        return self._id
-
-    @property
-    def iri(self) -> Optional[str]:
-        """The custom IRI of the resource"""
-        return self._iri
-
-    @property
-    def ark(self) -> Optional[str]:
-        """The custom ARK of the resource"""
-        return self._ark
-
-    @property
-    def creation_date(self) -> Optional[DateTimeStamp]:
-        """The creation date of the resource"""
-        return self._creation_date
-
-    @property
-    def label(self) -> str:
-        """The label of the resource"""
-        return self._label
-
-    @property
-    def restype(self) -> str:
-        """The type of the resource"""
-        return self._restype
-
-    @property
-    def permissions(self) -> Optional[str]:
-        """The reference to the permissions set for this resource"""
-        return self._permissions
-
-    @property
-    def bitstream(self) -> Optional[XMLBitstream]:
-        """The bitstream object belonging to the resource"""
-        return self._bitstream
-
-    @property
-    def properties(self) -> list[XMLProperty]:
-        """The list of properties of the resource"""
-        return self._properties
-
-    @properties.setter
-    def properties(self, new_properties: list[XMLProperty]) -> None:
-        self._properties = new_properties
+                self.properties.append(XMLProperty(subnode, prop_type, default_ontology))
 
     def get_props_with_links(self) -> list[XMLProperty]:
         """
@@ -119,7 +81,7 @@ class XMLResource:  # pylint: disable=too-many-instance-attributes
         or a standoff link in a text.
         """
         link_properties: list[XMLProperty] = []
-        for prop in self._properties:
+        for prop in self.properties:
             if prop.valtype == "resptr":
                 link_properties.append(prop)
             elif prop.valtype == "formatted-text":
@@ -137,10 +99,10 @@ class XMLResource:  # pylint: disable=too-many-instance-attributes
             List of resources identified by their unique id's (as given in the XML)
         """
         resptrs: list[str] = []
-        for prop in self._properties:
+        for prop in self.properties:
             if prop.valtype == "resptr":
                 for value in prop.values:
-                    resptrs.append(str(value.value))
+                    resptrs.append(value.value)
             elif prop.valtype == "formatted-text":
                 for value in prop.values:
                     if value.resrefs:
@@ -164,7 +126,7 @@ class XMLResource:  # pylint: disable=too-many-instance-attributes
             that Knora.create_resource() expects.
         """
         prop_data = {}
-        for prop in self._properties:
+        for prop in self.properties:
             vals: list[Union[str, dict[str, str]]] = []
             for value in prop.values:
                 if prop.valtype == "resptr":  # we have a resptr, therefore simple lookup or IRI
@@ -176,7 +138,7 @@ class XMLResource:  # pylint: disable=too-many-instance-attributes
                 elif prop.valtype == "formatted-text":  # "unformatted-text" is handled by the else branch
                     if isinstance(value.value, KnoraStandoffXml):
                         iri_refs = value.value.get_all_iris()
-                        for iri_ref in iri_refs:
+                        for iri_ref in iri_refs or []:
                             res_id = iri_ref.split(":")[1]
                             iri = resiri_lookup.get(res_id)
                             if not iri:
@@ -216,10 +178,12 @@ class XMLResource:  # pylint: disable=too-many-instance-attributes
         Returns:
             A dict of the bitstream object
         """
-        tmp = None
-        if self._bitstream:
-            bitstream = self._bitstream
+        tmp: Optional[dict[str, Union[str, Permissions]]] = None
+        if self.bitstream:
+            bitstream = self.bitstream
             tmp = {"value": bitstream.value, "internal_file_name": internal_file_name_bitstream}
             if bitstream.permissions:
-                tmp["permissions"] = permissions_lookup.get(bitstream.permissions)
+                permissions = permissions_lookup.get(bitstream.permissions)
+                if permissions:
+                    tmp["permissions"] = permissions
         return tmp

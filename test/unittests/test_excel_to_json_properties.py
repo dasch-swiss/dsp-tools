@@ -1,6 +1,6 @@
 """unit tests for excel to properties"""
 
-# pylint: disable=missing-class-docstring,missing-function-docstring,duplicate-code
+# pylint: disable=missing-class-docstring,missing-function-docstring
 
 import json
 import os

@@ -980,8 +980,8 @@ def create_project(
     server: str,
     user_mail: str,
     password: str,
-    verbose: bool,
-    dump: bool,
+    verbose: bool = False,
+    dump: bool = False,
 ) -> bool:
     """
     Creates a project from a JSON project file on a DSP server.
@@ -996,7 +996,7 @@ def create_project(
         user_mail: a username (e-mail) who has the permission to create a project
         password: the user's password
         verbose: prints more information if set to True
-        dump: dumps test files (JSON) for DSP API requests if set to True
+        dump: if True, write every request to DSP-API into a file
 
     Raises:
         UserError:

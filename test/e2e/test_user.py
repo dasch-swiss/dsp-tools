@@ -18,12 +18,22 @@ iri_group_images_reviewer = "http://rdfh.ch/groups/00FF/images-reviewer"
 
 
 class TestUser(unittest.TestCase):
+    con: Connection
+
     def setUp(self) -> None:
         """
-        is executed before each test method; sets up a connection and logs in as user root
+        Creates a connection to DSP-API.
+        For each test method, a new TestCase instance is created, so setUp() is executed before each test method.
         """
-        self.con = Connection("http://0.0.0.0:3333")
-        self.con.login("root@example.com", "test")
+        self.con = Connection(server="http://0.0.0.0:3333")
+        self.con.login(email="root@example.com", password="test")
+
+    def tearDown(self) -> None:
+        """
+        Logs out from DSP-API.
+        For each test method, a new TestCase instance is created, so tearDown() is executed after each test method.
+        """
+        self.con.logout()
 
     def test_user_create(self) -> None:
         user = User(
@@ -287,12 +297,6 @@ class TestUser(unittest.TestCase):
         all_users = User.getAllUsers(self.con)
         for user in all_users:
             self.assertIsNotNone(user.iri)
-
-    def tearDown(self) -> None:
-        """
-        is executed after all tests are run through; performs a log out
-        """
-        self.con.logout()
 
 
 if __name__ == "__main__":

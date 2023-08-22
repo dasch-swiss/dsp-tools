@@ -751,7 +751,10 @@
                                 },
                                 "additionalProperties": false
                             }
-                        }
+                        },
+                        "required": [
+                            "gui_attributes"
+                        ]
                     }
                 },
                 {

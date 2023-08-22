@@ -50,7 +50,7 @@ class KnoraStandoffXmlEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, o)
 
 
-@dataclass
+@dataclass(frozen=True)
 class Propinfo:
     valtype: Type
     cardinality: Cardinality

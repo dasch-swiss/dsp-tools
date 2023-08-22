@@ -12,15 +12,24 @@ from dsp_tools.models.ontology import Ontology
 
 
 class TestOntology(unittest.TestCase):
+    con: Connection
     test_project = "http://rdfh.ch/projects/0001"
     test_onto = "http://0.0.0.0:3333/ontology/0001/anything/v2"
 
     def setUp(self) -> None:
         """
-        is executed before each test method; sets up a connection and logs in as user root
+        Creates a connection to DSP-API.
+        For each test method, a new TestCase instance is created, so setUp() is executed before each test method.
         """
-        self.con = Connection("http://0.0.0.0:3333")
-        self.con.login("root@example.com", "test")
+        self.con = Connection(server="http://0.0.0.0:3333")
+        self.con.login(email="root@example.com", password="test")
+
+    def tearDown(self) -> None:
+        """
+        Logs out from DSP-API.
+        For each test method, a new TestCase instance is created, so tearDown() is executed after each test method.
+        """
+        self.con.logout()
 
     def test_Ontology(self) -> None:
         last_mod_date_str = "2017-12-19T15:23:42.166Z"
@@ -88,12 +97,6 @@ class TestOntology(unittest.TestCase):
         onto_list_ids = [l.iri for l in onto_list]
         self.assertIn("http://0.0.0.0:3333/ontology/0001/anything/v2", onto_list_ids)
         self.assertIn("http://0.0.0.0:3333/ontology/0001/test_onto_create/v2", onto_list_ids)
-
-    def tearDown(self) -> None:
-        """
-        is executed after all tests are run through; performs a log out
-        """
-        self.con.logout()
 
 
 if __name__ == "__main__":

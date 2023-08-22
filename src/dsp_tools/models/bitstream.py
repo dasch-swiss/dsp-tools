@@ -5,7 +5,7 @@ from dsp_tools.models.helpers import Actions
 from dsp_tools.models.permission import Permissions
 
 
-@dataclass
+@dataclass(frozen=True)
 class Bitstream:
     """
     Represents a bitstream object (file) which is attached to a resource.

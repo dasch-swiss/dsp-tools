@@ -29,10 +29,11 @@ class TestPropertyClass(unittest.TestCase):
 
     def setUp(self) -> None:
         """
-        is executed before each test method; sets up a connection and logs in as user root; creates a new ontology
+        Creates a connection and a new ontology.
+        For each test method, a new TestCase instance is created, so setUp() is executed before each test method.
         """
-        self.con = Connection("http://0.0.0.0:3333")
-        self.con.login("root@example.com", "test")
+        self.con = Connection(server="http://0.0.0.0:3333")
+        self.con.login(email="root@example.com", password="test")
 
         # Create a test ontology
         self.onto = Ontology(
@@ -47,10 +48,12 @@ class TestPropertyClass(unittest.TestCase):
 
     def tearDown(self) -> None:
         """
-        is executed after all tests are run through; removes test ontology
+        Logs out from DSP-API and remove test ontology.
+        For each test method, a new TestCase instance is created, so tearDown() is executed after each test method.
         """
         result = self.onto.delete()
         self.assertIsNotNone(result)
+        self.con.logout()
 
     def test_PropertyClass_create(self) -> None:
         """

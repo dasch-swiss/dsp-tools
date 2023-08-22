@@ -61,7 +61,7 @@ The following options are available:
 - `-V` | `--validate-only` (optional): validate the JSON file without creating it on the DSP server
 - `-l` | `--lists-only` (optional): create only the lists (prerequisite: the project exists on the server)
 - `-v` | `--verbose` (optional): print more information about the progress to the console
-- `-d` | `--dump` (optional): dump test files for DSP-API requests
+- `-d` | `--dump` (optional): write every request to DSP-API into a file
 
 The defaults are intended for local testing: 
 

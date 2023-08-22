@@ -23,16 +23,12 @@ class XMLValue:
         self._resrefs = None
         self._comment = node.get("comment")
         self._permissions = node.get("permissions")
-        if val_type == "formatted-text":  # "unformatted-text" is handled by the else branch
+        if val_type == "text" and node.get("encoding") == "xml":
             node.attrib.clear()
             xmlstr = etree.tostring(node, encoding="unicode", method="xml")
-            xmlstr = regex.sub("<text.*?>", "", xmlstr)
-            xmlstr = regex.sub("</text>", "", xmlstr)
-            xmlstr = regex.sub("\n", " ", xmlstr)
-            xmlstr = regex.sub(" +", " ", xmlstr)
-            xmlstr = xmlstr.strip()
+            xmlstr = xmlstr.replace('<text xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">', "")
+            xmlstr = xmlstr.replace("</text>", "")
             self._value = KnoraStandoffXml(xmlstr)
-            self._resrefs = list({x.split(":")[1] for x in self._value.get_all_iris() or []})
         elif val_type == "list":
             listname = cast(str, listname)
             self._value = listname + ":" + "".join(node.itertext())

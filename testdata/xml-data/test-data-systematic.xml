@@ -199,9 +199,6 @@
             <text permissions="prop-default" encoding="xml">
                 Another text without salsah-links
             </text>
-            <text permissions="prop-default" encoding="xml">
-                Another text without salsah-links
-            </text>
         </text-prop>
         <boolean-prop name=":hasBoolean">
             <boolean>false</boolean>

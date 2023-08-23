@@ -1,22 +1,20 @@
+from typing import cast, Optional
+
 from lxml import etree
 
 
-class XMLBitstream:
-    """Represents a bitstream object (file) of a resource in the XML used for data import"""
+class XMLBitstream:  # pylint: disable=too-few-public-methods
+    """
+    Represents a bitstream object (file) of a resource in the XML used for data import
 
-    _value: str
-    _permissions: str
+    Attributes:
+        value: The file path of the bitstream object
+        permissions: Reference to the set of permissions for the bitstream object
+    """
 
-    def __init__(self, node: etree.Element) -> None:
-        self._value = node.text
-        self._permissions = node.get("permissions")
+    value: str
+    permissions: Optional[str]
 
-    @property
-    def value(self) -> str:
-        """The file path of the bitstream object"""
-        return self._value
-
-    @property
-    def permissions(self) -> str:
-        """Reference to the set of permissions for the bitstream object"""
-        return self._permissions
+    def __init__(self, node: etree._Element) -> None:
+        self.value = cast(str, node.text)
+        self.permissions = node.get("permissions")

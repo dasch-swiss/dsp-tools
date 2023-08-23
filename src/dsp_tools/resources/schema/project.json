@@ -364,7 +364,10 @@
                             "super": {
                                 "const": "hasLinkTo"
                             }
-                        }
+                        },
+                        "required": [
+                            "super"
+                        ]
                     },
                     "then": {
                         "properties": {
@@ -380,7 +383,10 @@
                             "super": {
                                 "const": "isPartOf"
                             }
-                        }
+                        },
+                        "required": [
+                            "super"
+                        ]
                     },
                     "then": {
                         "properties": {
@@ -396,7 +402,10 @@
                             "object": {
                                 "const": "Representation"
                             }
-                        }
+                        },
+                        "required": [
+                            "object"
+                        ]
                     },
                     "then": {
                         "properties": {
@@ -429,7 +438,10 @@
                             "object": {
                                 "const": "TextValue"
                             }
-                        }
+                        },
+                        "required": [
+                            "object"
+                        ]
                     },
                     "then": {
                         "properties": {
@@ -466,7 +478,10 @@
                             "object": {
                                 "const": "ColorValue"
                             }
-                        }
+                        },
+                        "required": [
+                            "object"
+                        ]
                     },
                     "then": {
                         "properties": {
@@ -498,7 +513,10 @@
                             "object": {
                                 "const": "DateValue"
                             }
-                        }
+                        },
+                        "required": [
+                            "object"
+                        ]
                     },
                     "then": {
                         "properties": {
@@ -530,7 +548,10 @@
                             "object": {
                                 "const": "TimeValue"
                             }
-                        }
+                        },
+                        "required": [
+                            "object"
+                        ]
                     },
                     "then": {
                         "properties": {
@@ -562,7 +583,10 @@
                             "object": {
                                 "const": "DecimalValue"
                             }
-                        }
+                        },
+                        "required": [
+                            "object"
+                        ]
                     },
                     "then": {
                         "properties": {
@@ -597,7 +621,10 @@
                             "object": {
                                 "const": "GeonameValue"
                             }
-                        }
+                        },
+                        "required": [
+                            "object"
+                        ]
                     },
                     "then": {
                         "properties": {
@@ -629,7 +656,10 @@
                             "object": {
                                 "const": "IntValue"
                             }
-                        }
+                        },
+                        "required": [
+                            "object"
+                        ]
                     },
                     "then": {
                         "properties": {
@@ -665,7 +695,10 @@
                             "object": {
                                 "const": "BooleanValue"
                             }
-                        }
+                        },
+                        "required": [
+                            "object"
+                        ]
                     },
                     "then": {
                         "properties": {
@@ -697,7 +730,10 @@
                             "object": {
                                 "const": "UriValue"
                             }
-                        }
+                        },
+                        "required": [
+                            "object"
+                        ]
                     },
                     "then": {
                         "properties": {
@@ -729,7 +765,10 @@
                             "object": {
                                 "const": "IntervalValue"
                             }
-                        }
+                        },
+                        "required": [
+                            "object"
+                        ]
                     },
                     "then": {
                         "properties": {
@@ -761,7 +800,10 @@
                             "object": {
                                 "const": "ListValue"
                             }
-                        }
+                        },
+                        "required": [
+                            "object"
+                        ]
                     },
                     "then": {
                         "properties": {
@@ -813,7 +855,10 @@
                             "object": {
                                 "$ref": "#/definitions/prefixedname"
                             }
-                        }
+                        },
+                        "required": [
+                            "object"
+                        ]
                     },
                     "then": {
                         "properties": {
@@ -829,7 +874,10 @@
                             "gui_element": {
                                 "const": "SimpleText"
                             }
-                        }
+                        },
+                        "required": [
+                            "gui_element"
+                        ]
                     },
                     "then": {
                         "properties": {
@@ -854,7 +902,10 @@
                             "gui_element": {
                                 "const": "Textarea"
                             }
-                        }
+                        },
+                        "required": [
+                            "gui_element"
+                        ]
                     },
                     "then": {
                         "properties": {
@@ -889,7 +940,10 @@
                             "gui_element": {
                                 "const": "Colorpicker"
                             }
-                        }
+                        },
+                        "required": [
+                            "gui_element"
+                        ]
                     },
                     "then": {
                         "properties": {
@@ -911,7 +965,10 @@
                             "gui_element": {
                                 "const": "Spinbox"
                             }
-                        }
+                        },
+                        "required": [
+                            "gui_element"
+                        ]
                     },
                     "then": {
                         "properties": {
@@ -943,7 +1000,10 @@
                                     "Pulldown"
                                 ]
                             }
-                        }
+                        },
+                        "required": [
+                            "gui_element"
+                        ]
                     },
                     "then": {
                         "properties": {
@@ -971,7 +1031,10 @@
                             "gui_element": {
                                 "const": "Searchbox"
                             }
-                        }
+                        },
+                        "required": [
+                            "gui_element"
+                        ]
                     },
                     "then": {
                         "properties": {
@@ -1000,7 +1063,10 @@
                                     "Interval"
                                 ]
                             }
-                        }
+                        },
+                        "required": [
+                            "gui_element"
+                        ]
                     },
                     "then": {
                         "not": {

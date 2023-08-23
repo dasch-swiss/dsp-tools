@@ -8,7 +8,7 @@ from dsp_tools.models.xmlvalue import XMLValue
 
 class TestXmlValue(unittest.TestCase):
     def test_unformatted_text_value(self) -> None:
-        unformatted_text_orig = """
+        unformatted_text_orig = """<text permissions="prop-default">
 
                 Poem
                 with 1 line break:
@@ -22,7 +22,7 @@ class TestXmlValue(unittest.TestCase):
                 and spaces on empty lines.
 
 
-            """
+            </text>"""
         unformatted_text_expected = (
             "Poem"
             "\n"
@@ -32,11 +32,36 @@ class TestXmlValue(unittest.TestCase):
             "and multiple spaces and tabstops ...\n\n"
             "and spaces on empty lines."
         )
-        unformatted_node = etree.fromstring(
-            f'<unformatted-text-prop name=":foo"><text>{unformatted_text_orig}</text></unformatted-text-prop>'
-        )
-        unformatted_xml_value = XMLValue(unformatted_node, "unformatted-text")
+        unformatted_node = etree.fromstring(unformatted_text_orig)
+        unformatted_xml_value = XMLValue(node=unformatted_node, val_type="unformatted-text")
         self.assertEqual(unformatted_xml_value.value, unformatted_text_expected)
+
+    def test_formatted_text_value(self) -> None:
+        formatted_text_orig = """<text permissions="prop-default">
+
+                This is <em>italicized and <strong>bold</strong></em> text!
+                It contains <code>monospace text  that   preserves whitespaces and &amp; HTML-escapes</code>.
+
+                It    contains    multiple    whitespaces	and		tabstops.<br/><br/>
+                Line breaks must be done with <code><br/></code> tags.<br/>
+                Otherwise they will be removed.<br/><br/>
+                
+                It contains links to a resource:
+                <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>
+
+            </text>"""
+        formatted_text_expected = (
+            "This is <em>italicized and <strong>bold</strong></em> text! "
+            "It contains <code>monospace text  that   preserves whitespaces and &amp; HTML-escapes</code>. "
+            "It contains multiple whitespaces and tabstops.<br/><br/>"
+            "Line breaks must be done with <code><br/></code> tags.<br/>"
+            "Otherwise they will be removed.<br/><br/>"
+            "It contains links to a resource: "
+            '<a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>'
+        )
+        formatted_node = etree.fromstring(formatted_text_orig)
+        formatted_xml_value = XMLValue(node=formatted_node, val_type="formatted-text")
+        self.assertEqual(str(formatted_xml_value.value), formatted_text_expected)
 
 
 if __name__ == "__main__":

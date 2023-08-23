@@ -44,8 +44,8 @@ class XMLValue:  # pylint: disable=too-few-public-methods
         there may be non-text characters that must be removed.
         This method:
             - removes the <text> tags
-            - replaces (multiple) line breaks by spaces
-            - replaces multiple spaces by a single space
+            - replaces (multiple) line breaks by a space
+            - replaces multiple spaces or tabstops by a single space (except within <code> tags)
 
         Args:
             xmlstr_orig: original string from the XML file
@@ -53,13 +53,24 @@ class XMLValue:  # pylint: disable=too-few-public-methods
         Returns:
             purged string, suitable to be sent to DSP-API
         """
-        # TODO: es gibt einen HTML-tag, um monospace darzustellen.
-        # mehrfache leerschläge innerhalb von diesem tag müssen bestehen bleiben.
+        # remove the <text> tags
         xmlstr = regex.sub("<text.*?>", "", xmlstr_orig)
         xmlstr = regex.sub("</text>", "", xmlstr)
+
+        # replace (multiple) line breaks by a space
         xmlstr = regex.sub("\n+", " ", xmlstr)
-        xmlstr = regex.sub(" +", " ", xmlstr)
+
+        # replace multiple spaces or tabstops by a single space (except within <code> tags)
+        # the regex selects all spaces/tabstops not followed by </code> without <code in between.
+        # credits: https://stackoverflow.com/a/46937770/14414188
+        xmlstr = regex.sub("( {2,}|\t+)(?!(.(?!<code))*</code>)", " ", xmlstr)
+
+        # remove spaces after <br/> tags (except within <code> tags)
+        xmlstr = regex.sub("((?<=<br/?>) )(?!(.(?!<code))*</code>)", "", xmlstr)
+
+        # remove leading and trailing spaces
         xmlstr = xmlstr.strip()
+
         return xmlstr
 
     def _cleanup_unformatted_text(self, string_orig: str) -> str:

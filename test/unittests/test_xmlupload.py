@@ -149,6 +149,7 @@ class TestXMLUpload(unittest.TestCase):
             "test_thing_1": {
                 "testonto:hasFormattedText": [
                     "This is <em>italicized and <strong>bold</strong></em> text! "
+                    "It contains <code>monospace text  that   preserves whitespaces and &amp; HTML-escapes</code>."
                     "It    contains    multiple    whitespaces	and		tabstops."
                     "It contains links to all resources:\n"
                     '                <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>\n'

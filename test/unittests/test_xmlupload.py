@@ -148,40 +148,36 @@ class TestXMLUpload(unittest.TestCase):
         stashed_xml_texts_expected = {
             "test_thing_1": {
                 "testonto:hasFormattedText": [
-                    "This is <em>italicized and <strong>bold</strong></em> text! "
-                    "It contains <code>monospace text  that   preserves whitespaces and &amp; HTML-escapes</code>."
-                    "It    contains    multiple    whitespaces	and		tabstops."
-                    "It contains links to all resources:\n"
-                    '                <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>\n'
-                    '                <a class="salsah-link" href="IRI:test_thing_1:IRI">test_thing_1</a>\n'
-                    '                <a class="salsah-link" href="IRI:image_thing_0:IRI">image_thing_0</a>\n'
-                    '                <a class="salsah-link" href="IRI:compound_thing_0:IRI">compound_thing_0</a>\n'
-                    '                <a class="salsah-link" href="IRI:partof_thing_1:IRI">partof_thing_1</a>\n'
-                    '                <a class="salsah-link" href="IRI:partof_thing_2:IRI">partof_thing_2</a>\n'
-                    '                <a class="salsah-link" href="IRI:partof_thing_3:IRI">partof_thing_3</a>\n'
-                    '                <a class="salsah-link" href="IRI:document_thing_1:IRI">document_thing_1</a>\n'
-                    '                <a class="salsah-link" href="IRI:text_thing_1:IRI">text_thing_1</a>\n'
-                    '                <a class="salsah-link" href="IRI:zip_thing_1:IRI">zip_thing_1</a>\n'
-                    '                <a class="salsah-link" href="IRI:audio_thing_1:IRI">audio_thing_1</a>\n'
-                    '                <a class="salsah-link" href="IRI:test_thing_2:IRI">test_thing_2</a>'
+                    "This text contains links to all resources: "
+                    '<a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a> '
+                    '<a class="salsah-link" href="IRI:test_thing_1:IRI">test_thing_1</a> '
+                    '<a class="salsah-link" href="IRI:image_thing_0:IRI">image_thing_0</a> '
+                    '<a class="salsah-link" href="IRI:compound_thing_0:IRI">compound_thing_0</a> '
+                    '<a class="salsah-link" href="IRI:partof_thing_1:IRI">partof_thing_1</a> '
+                    '<a class="salsah-link" href="IRI:partof_thing_2:IRI">partof_thing_2</a> '
+                    '<a class="salsah-link" href="IRI:partof_thing_3:IRI">partof_thing_3</a> '
+                    '<a class="salsah-link" href="IRI:document_thing_1:IRI">document_thing_1</a> '
+                    '<a class="salsah-link" href="IRI:text_thing_1:IRI">text_thing_1</a> '
+                    '<a class="salsah-link" href="IRI:zip_thing_1:IRI">zip_thing_1</a> '
+                    '<a class="salsah-link" href="IRI:audio_thing_1:IRI">audio_thing_1</a> '
+                    '<a class="salsah-link" href="IRI:test_thing_2:IRI">test_thing_2</a>'
                 ]
             },
             "test_thing_2": {
                 "testonto:hasFormattedText": [
-                    "This is <em>italicized and <strong>bold</strong></em> text! "
-                    "It contains links to all resources:\n"
-                    '                <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>\n'
-                    '                <a class="salsah-link" href="IRI:test_thing_1:IRI">test_thing_1</a>\n'
-                    '                <a class="salsah-link" href="IRI:image_thing_0:IRI">image_thing_0</a>\n'
-                    '                <a class="salsah-link" href="IRI:compound_thing_0:IRI">compound_thing_0</a>\n'
-                    '                <a class="salsah-link" href="IRI:partof_thing_1:IRI">partof_thing_1</a>\n'
-                    '                <a class="salsah-link" href="IRI:partof_thing_2:IRI">partof_thing_2</a>\n'
-                    '                <a class="salsah-link" href="IRI:partof_thing_3:IRI">partof_thing_3</a>\n'
-                    '                <a class="salsah-link" href="IRI:document_thing_1:IRI">document_thing_1</a>\n'
-                    '                <a class="salsah-link" href="IRI:text_thing_1:IRI">text_thing_1</a>\n'
-                    '                <a class="salsah-link" href="IRI:zip_thing_1:IRI">zip_thing_1</a>\n'
-                    '                <a class="salsah-link" href="IRI:audio_thing_1:IRI">audio_thing_1</a>\n'
-                    '                <a class="salsah-link" href="IRI:test_thing_2:IRI">test_thing_2</a>'
+                    "This text contains links to all resources: "
+                    '<a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a> '
+                    '<a class="salsah-link" href="IRI:test_thing_1:IRI">test_thing_1</a> '
+                    '<a class="salsah-link" href="IRI:image_thing_0:IRI">image_thing_0</a> '
+                    '<a class="salsah-link" href="IRI:compound_thing_0:IRI">compound_thing_0</a> '
+                    '<a class="salsah-link" href="IRI:partof_thing_1:IRI">partof_thing_1</a> '
+                    '<a class="salsah-link" href="IRI:partof_thing_2:IRI">partof_thing_2</a> '
+                    '<a class="salsah-link" href="IRI:partof_thing_3:IRI">partof_thing_3</a> '
+                    '<a class="salsah-link" href="IRI:document_thing_1:IRI">document_thing_1</a> '
+                    '<a class="salsah-link" href="IRI:text_thing_1:IRI">text_thing_1</a> '
+                    '<a class="salsah-link" href="IRI:zip_thing_1:IRI">zip_thing_1</a> '
+                    '<a class="salsah-link" href="IRI:audio_thing_1:IRI">audio_thing_1</a> '
+                    '<a class="salsah-link" href="IRI:test_thing_2:IRI">test_thing_2</a>'
                 ]
             },
         }

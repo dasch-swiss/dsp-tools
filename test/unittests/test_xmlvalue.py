@@ -7,7 +7,10 @@ from dsp_tools.models.xmlvalue import XMLValue
 
 
 class TestXmlValue(unittest.TestCase):
-    def test_unformatted_text_value(self) -> None:
+    """Test the XMLValue class"""
+
+    def test_cleanup_unformatted_text(self) -> None:
+        """Test the removal of whitespaces and line breaks in unformatted text values"""
         unformatted_text_orig = """<text permissions="prop-default">
 
                 Poem
@@ -36,7 +39,8 @@ class TestXmlValue(unittest.TestCase):
         unformatted_xml_value = XMLValue(node=unformatted_node, val_type="unformatted-text")
         self.assertEqual(unformatted_xml_value.value, unformatted_text_expected)
 
-    def test_formatted_text_value(self) -> None:
+    def test_cleanup_formatted_text(self) -> None:
+        """Test the removal of whitespaces and line breaks in formatted text values"""
         formatted_text_orig = """<text permissions="prop-default">
 
                 This is <em>italicized and <strong>bold</strong></em> text!

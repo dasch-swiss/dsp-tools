@@ -69,7 +69,7 @@ class XMLValue:  # pylint: disable=too-few-public-methods
         This method:
             - removes the <text> tags
             - replaces multiple spaces or tabstops by a single space
-            - replaces 3+ line breaks by 2 line breaks
+            - replaces 3+ line breaks by 2 line breaks (=max. 1 empty line)
 
         Args:
             string_orig: original string from the XML file
@@ -77,10 +77,18 @@ class XMLValue:  # pylint: disable=too-few-public-methods
         Returns:
             purged string, suitable to be sent to DSP-API
         """
-        # TODO: mystr.split("\n"), dann strip(), dann wieder zusammenfügen mit \n dazwischen
+        # remove the <text> tags
         string = regex.sub("<text.*?>", "", string_orig)
         string = regex.sub("</text>", "", string)
+
+        # replace multiple spaces or tabstops by a single space
         string = regex.sub(r" {2,}|\t+", " ", string)
+
+        # replace 3+ line breaks by 2 line breaks
         string = regex.sub(r"(\n ?){3,}", "\n\n", string)
+
+        # remove leading and trailing spaces (of every line, but also of the entire string)
+        string = "\n".join([s.strip() for s in string.split("\n")])
         string = string.strip()
+
         return string

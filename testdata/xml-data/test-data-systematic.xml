@@ -70,13 +70,16 @@
             <text>
 
                 Poem
+                with 1 line break:
+                and 2 line breaks:
 
-                with line breaks
-                and empty lines
+                and 3 line breaks:
 
-                and     multiple     whitespaces	and		tabstops ...
-                Only the whitespaces/newlines at the beginning are removed.
-                The others stay in place.
+
+                and     multiple     spaces	and		tabstops ...
+                
+                and spaces on empty lines.
+
 
             </text>
             <!-- <text>&lt;em&gt;text&lt;/em&gt;</text>
@@ -115,7 +118,6 @@
                 and empty lines
 
                 and pretty-print-whitespaces...
-                In formatted text props, all of these are removed.
             </text>
             <text><br/>
                 Poem<br/>

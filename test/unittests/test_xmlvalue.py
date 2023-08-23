@@ -11,7 +11,7 @@ class TestXmlValue(unittest.TestCase):
 
     def test_cleanup_unformatted_text(self) -> None:
         """Test the removal of whitespaces and line breaks in utf8-encoded text values"""
-        unformatted_text_orig = """<text permissions="prop-default">
+        unformatted_text_orig = """<text permissions="prop-default" encoding="utf8">
 
                 Poem
                 with 1 line break:
@@ -36,12 +36,12 @@ class TestXmlValue(unittest.TestCase):
             "and spaces on empty lines."
         )
         unformatted_node = etree.fromstring(unformatted_text_orig)
-        unformatted_xml_value = XMLValue(node=unformatted_node, val_type="unformatted-text")
+        unformatted_xml_value = XMLValue(node=unformatted_node, val_type="text")
         self.assertEqual(unformatted_xml_value.value, unformatted_text_expected)
 
     def test_cleanup_formatted_text(self) -> None:
         """Test the removal of whitespaces and line breaks in xml-formatted text values"""
-        formatted_text_orig = """<text permissions="prop-default">
+        formatted_text_orig = """<text permissions="prop-default" encoding="xml">
 
                 This is <em>italicized and <strong>bold</strong></em> text!
                 It contains <code>monospace text  that   preserves whitespaces and &amp; HTML-escapes</code>.
@@ -64,7 +64,7 @@ class TestXmlValue(unittest.TestCase):
             '<a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>'
         )
         formatted_node = etree.fromstring(formatted_text_orig)
-        formatted_xml_value = XMLValue(node=formatted_node, val_type="formatted-text")
+        formatted_xml_value = XMLValue(node=formatted_node, val_type="text")
         self.assertEqual(str(formatted_xml_value.value), formatted_text_expected)
 
 

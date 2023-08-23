@@ -2,7 +2,7 @@
 
 [tool.poetry]
 name = "dsp-tools"
-version = "3.0.0"
+version = "4.0.0"
 description = "DSP-TOOLS is a Python package with a command line interface that helps you interact with a DaSCH service platform (DSP) server."
 authors = ["DaSCH - Swiss National Data and Service Center for the Humanities <info@dasch.swiss>"]
 readme = "docs/index.md"
@@ -113,11 +113,7 @@ exclude = [
     "src/dsp_tools/models/resourceclass.py",      # TODO: activate this
     "src/dsp_tools/models/user.py",               # TODO: activate this
     "src/dsp_tools/models/value.py",              # TODO: activate this
-    "src/dsp_tools/models/xmlbitstream.py",       # TODO: activate this
-    "src/dsp_tools/models/xmlpermission.py",      # TODO: activate this
-    "src/dsp_tools/models/xmlproperty.py",        # TODO: activate this
     "src/dsp_tools/models/xmlresource.py",        # TODO: activate this
-    "src/dsp_tools/models/xmlvalue.py",           # TODO: activate this
 ]
 
 

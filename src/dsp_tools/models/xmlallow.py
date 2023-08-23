@@ -1,14 +1,15 @@
 from lxml import etree
 
-from dsp_tools.models.projectContext import ProjectContext
 from dsp_tools.models.exceptions import XmlError
+from dsp_tools.models.permission import PermissionValue
+from dsp_tools.models.projectContext import ProjectContext
 
 
 class XmlAllow:
     """Represents the allow element of the XML used for data import"""
 
     _group: str
-    _permission: str
+    _permission: PermissionValue
 
     def __init__(self, node: etree._Element, project_context: ProjectContext) -> None:
         """
@@ -43,7 +44,7 @@ class XmlAllow:
                 raise XmlError(f'Group "{node.attrib["group"]}" is not known: ')
         if not node.text:
             raise XmlError("No permission set specified")
-        self._permission = node.text
+        self._permission = PermissionValue[node.text]
 
     @property
     def group(self) -> str:
@@ -51,6 +52,6 @@ class XmlAllow:
         return self._group
 
     @property
-    def permission(self) -> str:
+    def permission(self) -> PermissionValue:
         """The reference to a set of permissions"""
         return self._permission

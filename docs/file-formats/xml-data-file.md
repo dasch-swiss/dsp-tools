@@ -1129,7 +1129,7 @@ In addition, there is another complete example of an XML data file here:
             <list permissions="prop-default">Tree list node 02</list>
         </list-prop>
         <formatted-text-prop name=":hasFormattedText">
-            <text permissions="prop-default">This is <em>bold and <strong>strong</strong></em> text!</text>
+            <text permissions="prop-default">This is <em>italicized and <strong>bold</strong></em> text!</text>
         </formatted-text-prop>
         <unformatted-text-prop name=":hasUnformattedText">
             <text permissions="prop-default">aa bbb cccc ddddd</text>

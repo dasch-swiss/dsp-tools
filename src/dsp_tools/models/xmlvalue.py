@@ -23,18 +23,64 @@ class XMLValue:  # pylint: disable=too-few-public-methods
         self.resrefs = None
         self.comment = node.get("comment")
         self.permissions = node.get("permissions")
-        if val_type == "formatted-text":  # "unformatted-text" is handled by the else branch
-            node.attrib.clear()
-            xmlstr = etree.tostring(node, encoding="unicode", method="xml")
-            xmlstr = regex.sub("<text.*?>", "", xmlstr)
-            xmlstr = regex.sub("</text>", "", xmlstr)
-            xmlstr = regex.sub("\n", " ", xmlstr)
-            xmlstr = regex.sub(" +", " ", xmlstr)
-            xmlstr = xmlstr.strip()
-            self.value = KnoraStandoffXml(xmlstr)
+        if val_type == "formatted-text":
+            xmlstr_orig = etree.tostring(node, encoding="unicode", method="xml")
+            xmlstr_cleaned = self._cleanup_formatted_text(xmlstr_orig)
+            self.value = KnoraStandoffXml(xmlstr_cleaned)
             self.resrefs = list({x.split(":")[1] for x in self.value.get_all_iris() or []})
+        elif val_type == "unformatted-text":
+            str_orig = "".join(node.itertext())
+            str_cleaned = self._cleanup_unformatted_text(str_orig)
+            self.value = str_cleaned
         elif val_type == "list":
             listname = cast(str, listname)
             self.value = listname + ":" + "".join(node.itertext())
         else:
             self.value = "".join(node.itertext())
+
+    def _cleanup_formatted_text(self, xmlstr_orig: str) -> str:
+        """
+        In a formatted text value from the XML file,
+        there may be non-text characters that must be removed.
+        This method:
+            - removes the <text> tags
+            - replaces (multiple) line breaks by spaces
+            - replaces multiple spaces by a single space
+
+        Args:
+            xmlstr_orig: original string from the XML file
+
+        Returns:
+            purged string, suitable to be sent to DSP-API
+        """
+        # TODO: es gibt einen HTML-tag, um monospace darzustellen.
+        # mehrfache leerschläge innerhalb von diesem tag müssen bestehen bleiben.
+        xmlstr = regex.sub("<text.*?>", "", xmlstr_orig)
+        xmlstr = regex.sub("</text>", "", xmlstr)
+        xmlstr = regex.sub("\n+", " ", xmlstr)
+        xmlstr = regex.sub(" +", " ", xmlstr)
+        xmlstr = xmlstr.strip()
+        return xmlstr
+
+    def _cleanup_unformatted_text(self, string_orig: str) -> str:
+        """
+        In a unformatted text value from the XML file,
+        there may be non-text characters that must be removed.
+        This method:
+            - removes the <text> tags
+            - replaces multiple spaces or tabstops by a single space
+            - replaces 3+ line breaks by 2 line breaks
+
+        Args:
+            string_orig: original string from the XML file
+
+        Returns:
+            purged string, suitable to be sent to DSP-API
+        """
+        # TODO: mystr.split("\n"), dann strip(), dann wieder zusammenfügen mit \n dazwischen
+        string = regex.sub("<text.*?>", "", string_orig)
+        string = regex.sub("</text>", "", string)
+        string = regex.sub(r" {2,}|\t+", " ", string)
+        string = regex.sub(r"(\n ?){3,}", "\n\n", string)
+        string = string.strip()
+        return string

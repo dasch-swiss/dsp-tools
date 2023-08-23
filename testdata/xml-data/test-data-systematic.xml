@@ -91,7 +91,7 @@
             <text>&amp;</text>
             <text><em>text</em></text>
             <text>text &lt;not a tag&gt; text</text>
-            <text>his is <em>italicized and <strong>bold</strong></em> text! </text>
+            <text>This is <em>italicized and <strong>bold</strong></em> text! </text>
             <text permissions="prop-default">
                 This text contains links to all resources:
                 <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>
@@ -204,7 +204,7 @@
             <text>œ</text>
         </unformatted-text-prop>
         <formatted-text-prop name=":hasFormattedText">
-            <text>his is <em>italicized and <strong>bold</strong></em> text! </text>
+            <text>This is <em>italicized and <strong>bold</strong></em> text! </text>
             <text permissions="prop-default">
                 This text contains links to all resources:
                 <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>

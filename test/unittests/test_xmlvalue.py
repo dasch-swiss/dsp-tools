@@ -45,6 +45,7 @@ class TestXmlValue(unittest.TestCase):
 
                 This is <em>italicized and <strong>bold</strong></em> text!
                 It contains <code>monospace text  that   preserves whitespaces and &amp; HTML-escapes</code>.
+                The same <pre>is   true   for   preformatted   text</pre>.
 
                 It    contains    multiple    whitespaces	and		tabstops.<br/><br/>
                 Line breaks must be done with <code><br/></code> tags.<br/>
@@ -57,6 +58,7 @@ class TestXmlValue(unittest.TestCase):
         formatted_text_expected = (
             "This is <em>italicized and <strong>bold</strong></em> text! "
             "It contains <code>monospace text  that   preserves whitespaces and &amp; HTML-escapes</code>. "
+            "The same <pre>is   true   for   preformatted   text</pre>. "
             "It contains multiple whitespaces and tabstops.<br/><br/>"
             "Line breaks must be done with <code><br/></code> tags.<br/>"
             "Otherwise they will be removed.<br/><br/>"

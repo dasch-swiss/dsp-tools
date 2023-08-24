@@ -63,8 +63,7 @@ class XMLValue:  # pylint: disable=too-few-public-methods
         # replace multiple spaces or tabstops by a single space (except within <code> or <pre> tags)
         # the regex selects all spaces/tabstops not followed by </xyz> without <xyz in between.
         # credits: https://stackoverflow.com/a/46937770/14414188
-        xmlstr = regex.sub("( {2,}|\t+)(?!(.(?!<code))*</code>)", " ", xmlstr)
-        xmlstr = regex.sub("( {2,}|\t+)(?!(.(?!<pre))*</pre>)", " ", xmlstr)
+        xmlstr = regex.sub("( {2,}|\t+)(?!(.(?!<(code|pre)))*</(code|pre)>)", " ", xmlstr)
 
         # remove spaces after <br/> tags (except within <code> tags)
         xmlstr = regex.sub("((?<=<br/?>) )(?!(.(?!<code))*</code>)", "", xmlstr)

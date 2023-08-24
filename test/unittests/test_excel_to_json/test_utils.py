@@ -4,10 +4,10 @@ import unittest
 import pytest
 import pandas as pd
 
+from pandas.testing import assert_frame_equal, assert_series_equal
+
 from dsp_tools.models.exceptions import BaseError
 import dsp_tools.utils.excel_to_json.utils as utl
-
-from pandas.testing import assert_frame_equal, assert_series_equal
 
 
 class TestUtils(unittest.TestCase):

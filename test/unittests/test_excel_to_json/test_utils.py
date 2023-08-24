@@ -1,12 +1,12 @@
 # pylint: disable=f-string-without-interpolation,missing-class-docstring,missing-function-docstring
 
 import unittest
-import numpy as np
-import pandas as pd
+
 import pytest
 
-from dsp_tools.utils.excel_to_json.utils import *
 from dsp_tools.models.exceptions import BaseError
+from dsp_tools.utils.excel_to_json.utils import *
+
 from pandas.testing import assert_frame_equal, assert_series_equal
 
 
@@ -49,9 +49,9 @@ class TestUtils(unittest.TestCase):
                 "col_2": ["1.54", "0-1", "1-n", "text", "neu"],
             }
         )
-        check_duplicate_raise_erorr(check_df=original_df, duplicate_column="col_2")
+        check_duplicate_raise_error(check_df=original_df, duplicate_column="col_2")
         with self.assertRaises(BaseError) as context:
-            check_duplicate_raise_erorr(check_df=original_df, duplicate_column="col_1")
+            check_duplicate_raise_error(check_df=original_df, duplicate_column="col_1")
             self.assertEqual(
                 context,
                 "The column '{duplicate_column}' may not contain any duplicate values. "

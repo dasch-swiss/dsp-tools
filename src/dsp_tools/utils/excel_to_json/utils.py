@@ -73,7 +73,7 @@ def check_required_columns_raises_error(check_df: pd.DataFrame, required_columns
     are missing.
 
     Args:
-        check_df: pd.DataFrame that is checked.
+        check_df: pd.DataFrame that is checked
         required_columns: set of column names
 
     Raises:
@@ -86,7 +86,7 @@ def check_required_columns_raises_error(check_df: pd.DataFrame, required_columns
         )
 
 
-def check_duplicate_raise_erorr(check_df: pd.DataFrame, duplicate_column: str) -> None:
+def check_duplicate_raise_error(check_df: pd.DataFrame, duplicate_column: str) -> None:
     """
     This function checks if a specified column contains duplicate values. Empty cells (pd.NA) also count as duplicates.
     If there are any duplicate values, it creates a string with the duplicates which are displayed in the error message.
@@ -133,7 +133,7 @@ def check_required_values(check_df: pd.DataFrame, required_values_columns: list[
 def turn_bool_array_into_index_numbers(in_series: pd.Series[bool], true_remains: bool = True) -> list[int]:
     """
     This function takes a pd.Series which only contains boolean values, by default, the index numbers of the True values
-    are extracted. If the parameter "true_remains" is True then it creates a list with the index numbers of the True
+    are extracted. If the parameter "true_remains" is True, then it creates a list with the index numbers of the True
     values. If the parameter is False, then it inverses the pd.Series, and returns a list with the index numbers of
     the original False values.
 
@@ -177,7 +177,8 @@ def update_dict_ifnot_value_none(additional_dict: dict, to_update_dict: dict) ->
     "additional_dict" only if the value of a particular key is not None or pd.NA.
 
     Args:
-        additional_dict: The dictionary which contains information that may be transferred
+        additional_dict: The diction
+        ary which contains information that may be transferred
         to_update_dict: The dictionary to which the new information should be transferred
 
     Returns:
@@ -229,7 +230,7 @@ def find_one_full_cell_in_cols(check_df: pd.DataFrame, required_columns: list[st
     are then combined, and in the resulting np.array the values are only True if all the values from the pd.Series
     were True, meaning that in this row, all the specified columns have no values. If any of the values in the np.array
     are True, it converts it into a pd.Series (the data type is relevant at a later point) and returns it.
-    If all the values are False then it returns None.
+    If all the values are False, then it returns None.
 
     Args:
         check_df: The pd.DataFrame which should be checked

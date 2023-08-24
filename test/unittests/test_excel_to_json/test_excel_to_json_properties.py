@@ -10,12 +10,12 @@ import pandas as pd
 import jsonpath_ng
 import jsonpath_ng.ext
 import pytest
-from pandas.testing import assert_frame_equal, assert_series_equal
 
 from dsp_tools.models.exceptions import UserError
-import dsp_tools.utils.excel_to_json.utils as utl
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.excel_to_json import excel_to_json_properties as e2j
+
+from pandas.testing import assert_frame_equal, assert_series_equal
 
 
 class TestExcelToProperties(unittest.TestCase):

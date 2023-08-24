@@ -366,9 +366,6 @@ def parse_xml_file(input_file: Union[str, Path, etree._ElementTree[Any]]) -> etr
             elem.attrib["restype"] = "Region"
             elem.tag = "resource"
 
-    # remove unused namespace declarations
-    etree.cleanup_namespaces(tree)
-
     return tree.getroot()
 
 

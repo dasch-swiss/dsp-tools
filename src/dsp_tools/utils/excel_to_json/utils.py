@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from typing import Any
 import numpy as np
 import pandas as pd
 import regex
@@ -17,7 +18,8 @@ def read_excel_file(excel_filename: str) -> pd.DataFrame:
     Args:
         excel_filename: The name of the Excel file
 
-    Returns: A pd.DataFrame
+    Returns:
+        A pd.DataFrame
     """
     # load file
     try:
@@ -109,7 +111,7 @@ def check_duplicate_raise_error(check_df: pd.DataFrame, duplicate_column: str) -
         )
 
 
-def check_required_values(check_df: pd.DataFrame, required_values_columns: list[str]) -> dict[str : pd.Series]:
+def check_required_values(check_df: pd.DataFrame, required_values_columns: list[str]) -> dict[str, pd.Series]:
     """
     This function takes a pd.Dataframe and a list of column names which may not contain empty cells. If there are any
     empty cells in the column, it adds the column name and a boolean pd.Series to the dictionary. If there are no empty
@@ -151,7 +153,7 @@ def turn_bool_array_into_index_numbers(in_series: pd.Series[bool], true_remains:
     return list(in_series[in_series].index)
 
 
-def get_wrong_row_numbers(wrong_row_dict: dict[str : pd.Series], true_remains: bool = True) -> dict[str : list[int]]:
+def get_wrong_row_numbers(wrong_row_dict: dict[str, pd.Series], true_remains: bool = True) -> dict[str, list[int]]:
     """
     This function takes a dictionary with column names as key and a boolean pd.Series as value. From the boolean
     pd.Series the index numbers of the True values are extracted, and the resulting list is the new value of the
@@ -171,7 +173,7 @@ def get_wrong_row_numbers(wrong_row_dict: dict[str : pd.Series], true_remains: b
     return {k: [x + 2 for x in v] for k, v in wrong_row_dict.items()}
 
 
-def update_dict_ifnot_value_none(additional_dict: dict, to_update_dict: dict) -> dict:
+def update_dict_ifnot_value_none(additional_dict: dict[Any, Any], to_update_dict: dict[Any, Any]) -> dict[Any, Any]:
     """
     This function takes two dictionaries. The "to_update_dict" should be updated with the information from the
     "additional_dict" only if the value of a particular key is not None or pd.NA.
@@ -189,7 +191,7 @@ def update_dict_ifnot_value_none(additional_dict: dict, to_update_dict: dict) ->
     return to_update_dict
 
 
-def get_labels(df_row: pd.Series) -> dict[str:str]:
+def get_labels(df_row: pd.Series) -> dict[str, str]:
     """
     This function takes a pd.Series which has "label_[language tag]" in the index. If the value of the index is not
     pd.NA, the language tag and the value are added to a dictionary. If it is empty, it is omitted from the dictionary.
@@ -204,7 +206,7 @@ def get_labels(df_row: pd.Series) -> dict[str:str]:
     return {lang: df_row[f"label_{lang}"] for lang in languages if df_row[f"label_{lang}"] is not pd.NA}
 
 
-def get_comments(df_row: pd.Series) -> dict[str:str] or None:
+def get_comments(df_row: pd.Series) -> dict[str, str] | None:
     """
     This function takes a pd.Series which has "comment_[language tag]" in the index. If the value of the index is not
     pd.NA, the language tag and the value are added to a dictionary. If it is empty, it is omitted from the dictionary.
@@ -223,7 +225,7 @@ def get_comments(df_row: pd.Series) -> dict[str:str] or None:
         return comments
 
 
-def find_one_full_cell_in_cols(check_df: pd.DataFrame, required_columns: list[str]) -> pd.Series or None:
+def find_one_full_cell_in_cols(check_df: pd.DataFrame, required_columns: list[str]) -> pd.Series | None:
     """
     This function takes a pd.DataFrame and a list of column names where at least one cell must have a value per row.
     It creates a pd.Series with boolean values that are True if the cell is empty for each column. These series
@@ -255,7 +257,7 @@ def col_must_or_not_empty_based_on_other_col(
     substring_colname: str,
     check_empty_colname: str,
     must_have_value: bool,
-) -> pd.Series or None:
+) -> pd.Series | None:
     """
     It is presumed that the column "substring_colname" has no empty cells. Based on the string content of the individual
     rows, which is specified in the "substring_list", the cell is the column "check_empty_colname" is checked whether it

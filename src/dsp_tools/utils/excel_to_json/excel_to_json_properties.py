@@ -92,7 +92,7 @@ def _validate_properties(
     return True
 
 
-def _search_convert_numbers(value_str: str) -> str or int or float:
+def _search_convert_numbers(value_str: str) -> str | int | float:
     """
     This function takes a string and searches if the string contains a float or an integer. In those cases, it converts
     the string to the corresponding data type. If it is not a float or integer, it returns the string as is.
@@ -111,7 +111,7 @@ def _search_convert_numbers(value_str: str) -> str or int or float:
         return value_str
 
 
-def _unpack_gui_attributes(gui_str: str) -> dict[str:str]:
+def _unpack_gui_attributes(gui_str: str) -> dict[str, str]:
     """
     This function takes a string which contains the gui_attributes if they are formatted according to the documentation
     a correct dictionary with the attribute name and its value is created. If the string is not formatted correctly,
@@ -123,19 +123,22 @@ def _unpack_gui_attributes(gui_str: str) -> dict[str:str]:
 
     Returns:
         A dictionary with the gui_attribute name as key and the attribute as value.
+
+    Raises:
+        IndexError if the sub-lists do not contain each two items
     """
     # Create a list with several attributes
     gui_list = [x.strip() for x in gui_str.split(",") if not x.strip() == ""]
     # create a sub list with the kex value pair of the attribute if it is an empty string we exclude it.
     # this error will be detected when checking for the length of the lists
-    gui_list = [[sub.strip() for sub in x.split(":") if sub.strip() != ""] for x in gui_list]
+    sub_gui_list = [[sub.strip() for sub in x.split(":") if sub.strip() != ""] for x in gui_list]
     # if not all sublist contain two items, something is wrong with the attribute
-    if not all(len(sub) == 2 for sub in gui_list):
+    if not all(len(sub) == 2 for sub in sub_gui_list):
         raise IndexError
-    return {sub[0]: sub[1] for sub in gui_list}
+    return {sub[0]: sub[1] for sub in sub_gui_list}
 
 
-def _format_gui_attribute(attribute_str: str) -> dict[str : str or int or float]:
+def _format_gui_attribute(attribute_str: str) -> dict[str, str | int | float]:
     """
     This function takes a string containing the information about the gui_attributes. First, a dictionary is created
     separating different attribute names and their values; in the second step it converts the numbers which are stored
@@ -146,12 +149,15 @@ def _format_gui_attribute(attribute_str: str) -> dict[str : str or int or float]
 
     Returns:
         A dictionary with the attribute name as a key and the attribute as value.
+
+    Raises:
+        IndexError if the attributes are not formatted correctly
     """
     attribute_dict = _unpack_gui_attributes(gui_str=attribute_str)
     return {attrib: _search_convert_numbers(value_str=val) for attrib, val in attribute_dict.items()}
 
 
-def _get_gui_attribute(df_row: pd.Series, row_num: int, excel_filename: str) -> dict[str : int or str or float]:
+def _get_gui_attribute(df_row: pd.Series, row_num: int, excel_filename: str) -> dict[str, int | str | float] | None:
     """
     This function checks if the cell "gui_attributes" is empty. If it is, it returns None. If there is information,
     it extracts and formats it correctly. In case there is an unexpected format in the string, not according to the
@@ -210,7 +216,7 @@ def _row2prop(prop_row: pd.Series, row_count: int, excel_filename: str) -> dict[
     return _property
 
 
-def _check_gui_attributes(check_df: pd.DataFrame) -> dict[str : pd.Series] or None:
+def _check_gui_attributes(check_df: pd.DataFrame) -> dict[str, pd.Series] | None:
     """
     This function takes a pd.DataFrame and checks if the "gui_attributes" column is filled correctly. It does not check
     if the content is correct only if there is content, where mandatory or no content where it must be absent. If any
@@ -223,6 +229,9 @@ def _check_gui_attributes(check_df: pd.DataFrame) -> dict[str : pd.Series] or No
     Returns:
         A dictionary with a pd.Series that contains the information where there is a problem or None if all the
         checks passed.
+
+    Raises:
+        UserError if any of the checks fail
     """
     mandatory_attributes = ["Spinbox", "List"]
     mandatory_check = utl.col_must_or_not_empty_based_on_other_col(

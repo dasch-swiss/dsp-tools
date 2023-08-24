@@ -175,7 +175,6 @@
         <text-prop name=":hasSimpleText">
             <text permissions="prop-default" encoding="utf8">Dies ist ein einfacher Text ohne Markup</text>
             <text permissions="prop-restricted" encoding="xml">Ein XML-formatierter Text <strong>mit Markup</strong></text>
-            <text encoding="utf8"> </text>
             <text encoding="utf8">_</text>
             <text encoding="utf8">!</text>
             <text encoding="utf8">?</text>
@@ -198,9 +197,6 @@
                 <a class="salsah-link" href="IRI:zip_thing_1:IRI">zip_thing_1</a>
                 <a class="salsah-link" href="IRI:audio_thing_1:IRI">audio_thing_1</a>
                 <a class="salsah-link" href="IRI:test_thing_2:IRI">test_thing_2</a>
-            </text>
-            <text permissions="prop-default" encoding="xml">
-                Another text without salsah-links
             </text>
             <text permissions="prop-default" encoding="xml">
                 Another text without salsah-links

@@ -21,6 +21,19 @@ mandatory_properties = ["name", "object", "gui_element"]
 def _search_validation_error(
     list_properties: list[dict[str, Any]], excel_filename: str, validation_error: jsonschema.ValidationError
 ) -> str:
+    """
+    This function takes a list of properties, which are formatted as a dictionary and an error which was raised by the
+    calling function. It then searches which exact location of the property caused the error. The results are added
+    to a string which is used in the error that is raised in the calling function.
+
+    Args:
+        list_properties: List of properties
+        excel_filename: Name of the Excel file
+        validation_error: The error from the calling function
+
+    Returns:
+        A string which is used in the Error message that contains detailed information about the problem
+    """
     err_msg_list = [f"The 'properties' section defined in the Excel file '{excel_filename}' did not pass validation."]
     json_path_to_property = regex.search(r"^\$\[(\d+)\]", validation_error.json_path)
     if json_path_to_property:
@@ -54,7 +67,7 @@ def _validate_properties(
     excelfile: str,
 ) -> bool:
     """
-    This function checks if the "properties" section of a JSON project file is valid according to the JSON schema,
+    This function checks if the "properties" section of a JSON project file is valid, according to the JSON schema,
     and if the property names are unique.
 
     Args:
@@ -82,6 +95,16 @@ def _validate_properties(
 
 
 def _search_convert_numbers(value_str: str) -> str or int or float:
+    """
+    This function takes a string and searches if the string contains a float or an integer. In those cases, it converts
+    the string to the corresponding data type. If is not a float or integer it returns the string as is.
+
+    Args:
+        value_str: The value which is checked and may be converted
+
+    Returns:
+        A int if the string was an integer, float if the string was a float or str if it was neither
+    """
     if regex.search(r"^\d+\.\d+$", value_str):
         return float(value_str)
     elif regex.search(r"^\d+$", value_str):
@@ -91,30 +114,66 @@ def _search_convert_numbers(value_str: str) -> str or int or float:
 
 
 def _unpack_gui_attributes(gui_str: str) -> dict[str:str]:
+    """
+    This function takes a string which contains the gui_attribues, if they are formatted according to the documentation
+    a correct dictionary with the attribute name and its value is created. If the string is not formatted correctly,
+    then the resulting list may not be in the expected format, this raises an IndexError. Only very broad errors
+    can be caught with this function. Errors regarding the content will be diagnosed when the json is validated.
+
+    Args:
+        gui_str: A string containing the gui_attributes
+
+    Returns:
+        A dictionary with the gui_attribute name as key and the attribute as value.
+    """
     # Create a list with several attributes
     gui_list = [x.strip() for x in gui_str.split(",") if not x.strip() == ""]
     # create a sub list with the kex value pair of the attribute, if it is an empty string we exclude it
     # this error will be detected when checking for the length of the lists
     gui_list = [[sub.strip() for sub in x.split(":") if sub.strip() != ""] for x in gui_list]
-    # if not all sublist contain 2 items something is wrong with the attribute
+    # if not all sublist contain two items, something is wrong with the attribute
     if not all(len(sub) is 2 for sub in gui_list):
         raise IndexError
     return {sub[0]: sub[1] for sub in gui_list}
 
 
 def _format_gui_attribute(attribute_str: str) -> dict[str : str or int or float]:
+    """
+    This function takes a string containing the information about the gui_attributes. First, a dictionary is created
+    separating different attribute names and their values; in the second step it converts the numbers which are stored
+    as strings into int or float data types.
+
+    Args:
+        attribute_str: A string containing the attributes
+
+    Returns:
+        A dictionary with the attribute name as a key and the attribute as value.
+    """
     attribute_dict = _unpack_gui_attributes(gui_str=attribute_str)
-    return {attrb: _search_convert_numbers(value_str=val) for attrb, val in attribute_dict.items()}
+    return {attrib: _search_convert_numbers(value_str=val) for attrib, val in attribute_dict.items()}
 
 
-def _get_gui_attribute(
-    df_row: pd.Series,
-    row_num: int,
-    excel_filename: str,
-) -> dict[str : int or str or float]:
+def _get_gui_attribute(df_row: pd.Series, row_num: int, excel_filename: str) -> dict[str : int or str or float]:
+    """
+    This function checks if the cell "gui_attributes" is empty. If it is, it returns None. If there is information,
+    it extracts and formats it correctly. In case there is an unexpected format in the string, not according to the
+    specification, a called function raises an IndexError. This error is caught, and a UserError is raised,
+    which contains the row number and Excel file name.
+
+    Args:
+        df_row: Row of a pd.DataFrame
+        row_num: The number of the row (index + 2)
+        excel_filename: The name of the Excel file.
+
+    Returns:
+        A gui_attribute dictionary or None if there are no attributes
+
+    Raises:
+        UserError if there is a formatting error of the string
+    """
     if pd.isnull(df_row["gui_attributes"]):
         return None
-    # If the attribute is not in the correct format a called function may raise an IndexError
+    # If the attribute is not in the correct format, a called function may raise an IndexError
     try:
         return _format_gui_attribute(attribute_str=df_row["gui_attributes"])
     except IndexError:
@@ -124,21 +183,20 @@ def _get_gui_attribute(
         ) from None
 
 
-def _row2prop(
-    prop_row: pd.Series,
-    row_count: int,
-    excel_filename: str,
-) -> dict[str, Any]:
+def _row2prop(prop_row: pd.Series, row_count: int, excel_filename: str) -> dict[str, Any]:
     """
-    Takes a row from a pandas DataFrame, reads its content, and returns a dict object of the property
+    Takes a row from a pd.DataFrame, reads its content, and returns a dict object of the property
 
     Args:
-        prop_row: row from a pandas DataFrame that defines a property
+        prop_row: row from a pd.DataFrame that defines a property
         row_count: row number of Excel file
         excel_filename: name of the original Excel file
 
     Returns:
         dict object of the property
+
+    Raises:
+        UserError if there are any formal mistakes in the "gui_attributes" column
     """
     _property = {x: prop_row[x] for x in mandatory_properties}
     # These are also mandatory but require formatting
@@ -155,6 +213,19 @@ def _row2prop(
 
 
 def _check_gui_attributes(check_df: pd.DataFrame) -> dict[str : pd.Series] or None:
+    """
+    This function takes a pd.DataFrame and checks if the "gui_attributes" column is filled correctly. It does not check
+    if the content is correct only if there is content, where mandatory or no content where it must be absent. If any
+    or all of the checks fail, it creates a dictionary with a pd.Series as value which contains True for all rows where
+    there is a problem otherwise, it returns None.
+
+    Args:
+        check_df: pd.DataFrame that should be checked
+
+    Returns:
+        A dictionary with a pd.Series that contains the information where there is a problem or None if all the
+        checks passed.
+    """
     mandatory_attributes = ["Spinbox", "List"]
     mandatory_check = col_must_or_not_empty_based_on_other_col(
         check_df=check_df,
@@ -171,10 +242,10 @@ def _check_gui_attributes(check_df: pd.DataFrame) -> dict[str : pd.Series] or No
         check_empty_colname="gui_attributes",
         must_have_value=False,
     )
-    # If neither has a problem we return None
+    # If neither has a problem, we return None
     if mandatory_check is None and no_attribute_check is None:
         return None
-    # If both have problems we combine the series
+    # If both have problems, we combine the series
     elif mandatory_check is not None and no_attribute_check is not None:
         final_series = pd.Series(np.logical_or(mandatory_check, no_attribute_check))
     elif mandatory_check is not None:
@@ -186,9 +257,25 @@ def _check_gui_attributes(check_df: pd.DataFrame) -> dict[str : pd.Series] or No
 
 
 def _check_missing_values_in_row_raise_error(to_check_df: pd.DataFrame, excel_filename: str) -> None:
+    """
+    This function takes a pd.DataFrame which should be checked and the name of the original Excel file. It checks
+    that columns which are in the "required_values" list contain a value for each row. Additionally, it checks that
+    each row has at least one label in any language. Next, it checks if the gui_attributes comply. If all the checks
+    are ok, then the dictionary is empty; in that case, the function ends without any effect. If any of the
+    checks fail, the called functions return a dictionary with the column name as key, and the boolean pd.Series as
+    value. True in the pd.Series denotes that there is a problem in that row. After all the checks are done, the
+    series is converted into row numbers. This information is added to the error message and a UserError is raised.
+
+    Args:
+        to_check_df: pd.DataFrame that is to be checked
+        excel_filename: Name of the original Excel file
+
+    Raises:
+        UserError if any of the checks are failed
+    """
     # Every row in these columns must have a value
     required_values = ["name", "super", "object", "gui_element"]
-    # If there are no problem it returns an empty dict
+    # If there are no problems, it returns an empty dict
     missing_dict = check_required_values(check_df=to_check_df, required_values_columns=required_values)
     # This checks if the label columns have at least one value per row
     missing_labels = find_one_full_cell_in_cols(check_df=to_check_df, required_columns=language_label_col)
@@ -210,7 +297,19 @@ def _check_missing_values_in_row_raise_error(to_check_df: pd.DataFrame, excel_fi
 
 
 def _do_property_excel_compliance(compliance_df: pd.DataFrame, excel_filename: str) -> None:
-    # If does not pass any one of the tests the function stops
+    """
+    This function calls three separate functions which each checks if the pd.DataFrame is as we expect it. Each of
+    these functions raises a UserError if there is a problem. If the checks do not fail, this function ends without
+    an effect.
+
+    Args:
+        compliance_df: The pd.DataFrame that is checked
+        excel_filename: The name of the original Excel file
+
+    Raises:
+        UserError if any of the checks fail
+    """
+    # If it does not pass any one of the tests, the function stops
     required_columns = {
         "name",
         "label_en",
@@ -234,6 +333,22 @@ def _do_property_excel_compliance(compliance_df: pd.DataFrame, excel_filename: s
 
 
 def _rename_deprecated_hlist(rename_df: pd.DataFrame, excel_filename: str) -> pd.DataFrame:
+    """
+    This function deals with Excel files that do conform to a previous format. If the old column names are not
+    in the pd.DataFrame then it returns it as was. The column "hlist" formerly contained the list name of the
+    gui_element "ListValue". This information is transferred into the column "gui_attributes" if it exists, otherwise
+    it is renamed.
+
+    Args:
+        rename_df: The pd.DataFrame which is checked and renamed
+        excel_filename: Name of the original Excel file.
+
+    Returns:
+        Renamed pd.DataFrame or the original one
+
+    Warnings:
+        A warning for the user that the Excel file is not compliant with the new specifications
+    """
     # If the deprecated feature is not in the df then return the df
     if "hlist" not in rename_df.columns:
         return rename_df
@@ -253,7 +368,22 @@ def _rename_deprecated_hlist(rename_df: pd.DataFrame, excel_filename: str) -> pd
 
 
 def _rename_deprecated_lang_cols(rename_df: pd.DataFrame, excel_filename: str) -> pd.DataFrame:
-    # If the columns are named correctly return the df
+    """
+    This function takes a pd.DataFrame and checks if the columns with the language label are named according to the old
+    specifications. If they are, it renames them and informs the user that an old format is used. Otherwise it
+    returns the pd.Dataframe as was.
+
+    Args:
+        rename_df: pd.DataFrame which is to be checked
+        excel_filename: Name of the Excel file
+
+    Returns:
+        pd.DataFrame which has the columns renamed according to the new format
+
+    Warnings:
+        A warning for the user that the Excel file is not compliant with the new specifications
+    """
+    # If the columns are named correctly, return the df
     if set(language_label_col).issubset(set(rename_df.columns)):
         return rename_df
     if set(languages).issubset(set(rename_df.columns)):
@@ -267,6 +397,21 @@ def _rename_deprecated_lang_cols(rename_df: pd.DataFrame, excel_filename: str) -
 
 
 def _rename_deprecated_columnnames(in_df: pd.DataFrame, excel_filename: str) -> pd.DataFrame:
+    """
+    This function calls two other functions that check and rename a deprecated Excel format. Afterward, the
+    pd.DataFrame is compliant with the current format. In case the pd.DataFrame was already in the current format,
+    the function passes without an effect.
+
+    Args:
+        in_df: pd.DataFrame that is checked and renamed
+        excel_filename: Name of the original Excel
+
+    Returns:
+        pd.DataFrame that is renamed
+
+    Warnings:
+        Two user warnings if the pd.DataFrame is not according to the current specifications
+    """
     in_df = _rename_deprecated_lang_cols(rename_df=in_df, excel_filename=excel_filename)
     in_df = _rename_deprecated_hlist(rename_df=in_df, excel_filename=excel_filename)
     return in_df

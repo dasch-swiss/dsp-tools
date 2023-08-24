@@ -128,21 +128,19 @@ class TestCLI(unittest.TestCase):
         self.assertListEqual(name2iri_names_1, node_names_1)
 
     def test_validate_project(self) -> None:
-        cli_call = f"dsp-tools create --validate-only {self.test_project_systematic_file.absolute()}"
-        # the JSON file contains a reference to an Excel file, which is relative to the root of the repo
-        cwd = Path(".")
+        # the working directory must be ".", because the JSON file contains a reference to an Excel file,
+        # which is relative to the root of the repo
         self._make_cli_call(
-            cli_call=cli_call,
-            working_directory=cwd,
+            cli_call=f"dsp-tools create --validate-only {self.test_project_systematic_file.absolute()}",
+            working_directory=Path("."),
         )
 
     def test_create_project(self) -> None:
-        cli_call = f"dsp-tools create {self.test_project_systematic_file.absolute()} --verbose"
-        # the JSON file contains a reference to an Excel file, which is relative to the root of the repo
-        cwd = Path(".")
+        # the working directory must be ".", because the JSON file contains a reference to an Excel file,
+        # which is relative to the root of the repo
         self._make_cli_call(
-            cli_call=cli_call,
-            working_directory=cwd,
+            cli_call=f"dsp-tools create {self.test_project_systematic_file.absolute()} --verbose",
+            working_directory=Path("."),
         )
 
     def test_create_project_hlist_refers_label(self) -> None:
@@ -200,20 +198,18 @@ class TestCLI(unittest.TestCase):
         self._make_cli_call(f"dsp-tools xmlupload -v {self.test_data_minimal_file.absolute()}")
 
     def test_xml_upload_incremental(self) -> None:
-        cli_call_1 = f"dsp-tools xmlupload {self.test_data_systematic_file.absolute()}"
-        # the XML file contains references to multimedia files that are relative to the root of the repo
-        cwd = Path(".")
+        # the working directory must be ".", because the JSON file contains a reference to an Excel file,
+        # which is relative to the root of the repo
         self._make_cli_call(
-            cli_call=cli_call_1,
-            working_directory=cwd,
+            cli_call=f"dsp-tools xmlupload {self.test_data_systematic_file.absolute()}",
+            working_directory=Path("."),
         )
 
         mapping_file = list(Path().glob("test-data-systematic_id2iri_mapping_*.json"))[0]
         xml_file_orig = Path("testdata/id2iri/test-id2iri-data.xml")
-        cli_call_2 = f"dsp-tools id2iri {xml_file_orig.absolute()} {mapping_file.absolute()}"
-        self._make_cli_call(cli_call_2)
+        self._make_cli_call(f"dsp-tools id2iri {xml_file_orig.absolute()} {mapping_file.absolute()}")
 
-        xml_file_replaced = list(self.testdata_tmp.glob(f"{xml_file_orig.stem}_replaced_*.xml"))[0]
+        xml_file_replaced = list(self.cwd.glob(f"{xml_file_orig.stem}_replaced_*.xml"))[0]
         self._make_cli_call(f"dsp-tools xmlupload --incremental -v {xml_file_replaced.absolute()}")
         self.assertListEqual(list(Path(self.cwd).glob("stashed_*_properties_*.txt")), [])
         mapping_file.unlink()
@@ -266,9 +262,8 @@ class TestCLI(unittest.TestCase):
     def test_id_to_iri(self) -> None:
         xml_file = Path("testdata/id2iri/test-id2iri-data.xml")
         mapping_file = Path("testdata/id2iri/test-id2iri-mapping.json")
-        cli_call = f"dsp-tools id2iri {xml_file.absolute()} {mapping_file.absolute()}"
-        self._make_cli_call(cli_call)
-        out_file = list(self.testdata_tmp.glob(f"{xml_file.stem}_replaced_*.xml"))[0]
+        self._make_cli_call(f"dsp-tools id2iri {xml_file.absolute()} {mapping_file.absolute()}")
+        out_file = list(self.cwd.glob(f"{xml_file.stem}_replaced_*.xml"))[0]
         with open(out_file, encoding="utf-8") as f:
             output_actual = f.read()
         with open("testdata/id2iri/test-id2iri-output-expected.xml", encoding="utf-8") as f:

@@ -84,8 +84,9 @@
             <text encoding="xml">&amp;</text>
             <text encoding="xml"><em>text</em></text>
             <text encoding="xml">text &lt;not a tag&gt; text</text>
-            <text permissions="prop-default" encoding="xml">
-                This is <em>bold and <strong>strong</strong></em> text! It contains links to all resources:
+            <text encoding="xml">This is <em>italicized and <strong>bold</strong></em> text! </text>
+            <text encoding="xml" permissions="prop-default">
+                This text contains links to all resources:
                 <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>
                 <a class="salsah-link" href="IRI:test_thing_1:IRI">test_thing_1</a>
                 <a class="salsah-link" href="IRI:image_thing_0:IRI">image_thing_0</a>
@@ -182,8 +183,9 @@
             <text encoding="utf8">œ</text>
         </text-prop>
         <text-prop name=":hasRichtext">
-            <text encoding="xml">
-                This is <em>bold and <strong>strong</strong></em> text! It contains links to all resources:
+            <text encoding="xml">This is <em>italicized and <strong>bold</strong></em> text! </text>
+            <text encoding="xml" permissions="prop-default">
+                This text contains links to all resources:
                 <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>
                 <a class="salsah-link" href="IRI:test_thing_1:IRI">test_thing_1</a>
                 <a class="salsah-link" href="IRI:image_thing_0:IRI">image_thing_0</a>

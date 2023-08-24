@@ -700,7 +700,6 @@ Handling of pretty-print whitespaces and newlines:
     - leading and trailing whitespaces are removed
     - multiple spaces are replaced by a single space
     - (multiple) tabstops are replaced by a single space
-    - 3+ line breaks are replaced by 2 line breaks (=max. 1 empty line)
 - encoding `xml`:
     - leading and trailing whitespaces are removed
     - whitespaces and newlines don't have a meaning in XML, so they are removed. 

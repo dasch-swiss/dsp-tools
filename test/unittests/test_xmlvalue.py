@@ -31,7 +31,7 @@ class TestXmlValue(unittest.TestCase):
             "\n"
             "with 1 line break:\n"
             "and 2 line breaks:\n\n"
-            "and 3 line breaks:\n\n"  # max. 1 empty line. 2+ are replaced by 1.
+            "and 3 line breaks:\n\n\n"
             "and multiple spaces and tabstops ...\n\n"
             "and spaces on empty lines."
         )

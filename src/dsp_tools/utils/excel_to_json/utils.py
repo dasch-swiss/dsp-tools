@@ -240,7 +240,7 @@ def find_one_full_cell_in_cols(check_df: pd.DataFrame, required_columns: list[st
         None if there is no problem or a pd.Series if there is a problem in a row
     """
     # In order to combine more than two arrays, we need to reduce the arrays, which takes a tuple
-    result_arrays = tuple([check_df[col].isnull() for col in required_columns])
+    result_arrays = tuple(check_df[col].isnull() for col in required_columns)
     # If all are True logical_and returns True otherwise False
     combined_array = np.logical_and.reduce(result_arrays)
     if any(combined_array):

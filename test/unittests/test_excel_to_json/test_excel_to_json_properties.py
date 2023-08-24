@@ -1,6 +1,7 @@
 """unit tests for excel to properties"""
 
 # pylint: disable=missing-class-docstring,missing-function-docstring,duplicate-code
+# pylint: disable=protected-access
 
 import json
 import os
@@ -11,11 +12,10 @@ import jsonpath_ng
 import jsonpath_ng.ext
 import pytest
 
-from dsp_tools.models.exceptions import UserError
-from dsp_tools.models.exceptions import BaseError
-from dsp_tools.utils.excel_to_json import excel_to_json_properties as e2j
-
 from pandas.testing import assert_frame_equal, assert_series_equal
+
+from dsp_tools.models.exceptions import UserError, BaseError
+from dsp_tools.utils.excel_to_json import excel_to_json_properties as e2j
 
 
 class TestExcelToProperties(unittest.TestCase):

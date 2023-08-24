@@ -1,11 +1,11 @@
 # pylint: disable=f-string-without-interpolation,missing-class-docstring,missing-function-docstring
 
 import unittest
-
 import pytest
+import pandas as pd
 
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.utils.excel_to_json.utils import *
+import dsp_tools.utils.excel_to_json.utils as utl
 
 from pandas.testing import assert_frame_equal, assert_series_equal
 
@@ -26,32 +26,32 @@ class TestUtils(unittest.TestCase):
                 "title of column 3": [pd.NA, pd.NA, pd.NA, "text"],
             }
         )
-        returned_df = clean_data_frame(unclean_df=original_df)
+        returned_df = utl.clean_data_frame(unclean_df=original_df)
         assert_frame_equal(expected_df, returned_df)
 
     def test_check_required_columns_raises_error(self):
         original_df = pd.DataFrame(columns=["col1", "col2", "col3", "extra_col"])
         required = {"col1", "col2", "col3"}
-        check_required_columns_raises_error(check_df=original_df, required_columns=required)
+        utl.check_required_columns_raises_error(check_df=original_df, required_columns=required)
         required = {"col1", "col2", "col3", "col4"}
         with self.assertRaises(BaseError) as context:
-            check_required_columns_raises_error(check_df=original_df, required_columns=required)
+            utl.check_required_columns_raises_error(check_df=original_df, required_columns=required)
             self.assertEqual(
                 context,
                 "The following columns are missing in the excel: "
                 "{required_columns.difference(set(check_df.columns))}",
             )
 
-    def test_check_duplicate_raise_erorr(self):
+    def test_check_duplicate_raise_error(self):
         original_df = pd.DataFrame(
             {
                 "col_1": ["1.54", "0-1", "1-n", "0-1", "1.54"],
                 "col_2": ["1.54", "0-1", "1-n", "text", "neu"],
             }
         )
-        check_duplicate_raise_error(check_df=original_df, duplicate_column="col_2")
+        utl.check_duplicate_raise_error(check_df=original_df, duplicate_column="col_2")
         with self.assertRaises(BaseError) as context:
-            check_duplicate_raise_error(check_df=original_df, duplicate_column="col_1")
+            utl.check_duplicate_raise_error(check_df=original_df, duplicate_column="col_1")
             self.assertEqual(
                 context,
                 "The column '{duplicate_column}' may not contain any duplicate values. "
@@ -67,7 +67,7 @@ class TestUtils(unittest.TestCase):
             }
         )
         expected_dict = {"col_1": [False, False, False, True]}
-        returned_dict = check_required_values(check_df=original_df, required_values_columns=["col_1", "col_3"])
+        returned_dict = utl.check_required_values(check_df=original_df, required_values_columns=["col_1", "col_3"])
         self.assertListEqual(list(expected_dict.keys()), list(returned_dict.keys()))
         for key, expected_list in expected_dict.items():
             self.assertListEqual(list(returned_dict[key]), expected_list)
@@ -75,10 +75,10 @@ class TestUtils(unittest.TestCase):
     def test_turn_bool_array_into_index_numbers(self):
         original_series = pd.Series([False, True, False, True])
         expected_list = [1, 3]
-        returned_list = turn_bool_array_into_index_numbers(in_series=original_series, true_remains=True)
+        returned_list = utl.turn_bool_array_into_index_numbers(in_series=original_series, true_remains=True)
         self.assertListEqual(expected_list, returned_list)
         expected_list = [0, 2]
-        returned_list = turn_bool_array_into_index_numbers(in_series=original_series, true_remains=False)
+        returned_list = utl.turn_bool_array_into_index_numbers(in_series=original_series, true_remains=False)
         self.assertListEqual(expected_list, returned_list)
 
     def test_get_wrong_row_numbers(self):
@@ -87,14 +87,16 @@ class TestUtils(unittest.TestCase):
             "col_2": pd.Series([False, False, True, False]),
         }
         expected_dict = {"col_1": [3, 5], "col_2": [4]}
-        returned_dict = get_wrong_row_numbers(wrong_row_dict=original_dict, true_remains=True)
+        returned_dict = utl.get_wrong_row_numbers(wrong_row_dict=original_dict, true_remains=True)
         self.assertDictEqual(expected_dict, returned_dict)
 
     def test_update_dict_ifnot_value_none(self):
         original_dict = {0: 0}
         original_update_dict = {1: 1, 2: 2, 3: None, 4: pd.NA, 5: "5"}
         expected_dict = {0: 0, 1: 1, 2: 2, 5: "5"}
-        returned_dict = update_dict_ifnot_value_none(additional_dict=original_update_dict, to_update_dict=original_dict)
+        returned_dict = utl.update_dict_ifnot_value_none(
+            additional_dict=original_update_dict, to_update_dict=original_dict
+        )
         self.assertDictEqual(expected_dict, returned_dict)
 
     def test_find_one_full_cell_in_cols(self):
@@ -109,7 +111,7 @@ class TestUtils(unittest.TestCase):
             }
         )
         expected_array = pd.Series([False, True, False, False])
-        returned_array = find_one_full_cell_in_cols(check_df=original_df, required_columns=required_cols)
+        returned_array = utl.find_one_full_cell_in_cols(check_df=original_df, required_columns=required_cols)
         assert_series_equal(expected_array, returned_array)
         original_df = pd.DataFrame(
             {
@@ -120,12 +122,12 @@ class TestUtils(unittest.TestCase):
                 "label_rm": [pd.NA, pd.NA, 3, 4],
             }
         )
-        returned_array = find_one_full_cell_in_cols(check_df=original_df, required_columns=required_cols)
+        returned_array = utl.find_one_full_cell_in_cols(check_df=original_df, required_columns=required_cols)
         self.assertIsNone(returned_array)
 
     def test_col_must_or_not_empty_based_on_other_col(self):
         original_df = pd.DataFrame({"substring": ["1", "2", "3", "4", "5", "6"], "check": [1, pd.NA, 3, 4, pd.NA, 6]})
-        returned_value = col_must_or_not_empty_based_on_other_col(
+        returned_value = utl.col_must_or_not_empty_based_on_other_col(
             check_df=original_df,
             substring_list=["1", "3", "6"],
             substring_colname="substring",
@@ -134,7 +136,7 @@ class TestUtils(unittest.TestCase):
         )
         self.assertIsNone(returned_value)
         expected_series = pd.Series([True, False, False, False, False, False])
-        returned_series = col_must_or_not_empty_based_on_other_col(
+        returned_series = utl.col_must_or_not_empty_based_on_other_col(
             check_df=original_df,
             substring_list=["1", "2"],
             substring_colname="substring",
@@ -154,10 +156,10 @@ class TestUtils(unittest.TestCase):
             }
         )
         expected_dict = {"de": "text_de", "en": "text_en", "fr": "text_fr", "it": "text_it", "rm": "text_rm"}
-        returned_dict = get_labels(original_df.loc[0, :])
+        returned_dict = utl.get_labels(original_df.loc[0, :])
         self.assertDictEqual(expected_dict, returned_dict)
         expected_dict = {"en": "text_en"}
-        returned_dict = get_labels(original_df.loc[1, :])
+        returned_dict = utl.get_labels(original_df.loc[1, :])
         self.assertDictEqual(expected_dict, returned_dict)
 
     def test_get_comments(self):
@@ -171,9 +173,9 @@ class TestUtils(unittest.TestCase):
             }
         )
         expected_dict = {"de": "text_de", "en": "text_en", "fr": "text_fr", "it": "text_it", "rm": "text_rm"}
-        returned_dict = get_comments(original_df.loc[0, :])
+        returned_dict = utl.get_comments(original_df.loc[0, :])
         self.assertDictEqual(expected_dict, returned_dict)
-        returned_dict = get_comments(original_df.loc[1, :])
+        returned_dict = utl.get_comments(original_df.loc[1, :])
         self.assertIsNone(returned_dict)
 
 

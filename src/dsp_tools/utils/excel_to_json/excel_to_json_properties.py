@@ -4,8 +4,12 @@ import warnings
 from typing import Any, Optional
 import jsonpath_ng.ext
 import jsonschema
+import regex
+import pandas as pd
+import numpy as np
 
-from dsp_tools.utils.excel_to_json.utils import *
+import dsp_tools.utils.excel_to_json.utils as utl
+from dsp_tools.models.exceptions import UserError
 
 languages = ["en", "de", "fr", "it", "rm"]
 language_label_col = ["label_en", "label_de", "label_fr", "label_it", "label_rm"]
@@ -195,14 +199,14 @@ def _row2prop(prop_row: pd.Series, row_count: int, excel_filename: str) -> dict[
     _property = {x: prop_row[x] for x in mandatory_properties}
     # These are also mandatory but require formatting
     _property.update(
-        {"labels": get_labels(df_row=prop_row), "super": [s.strip() for s in prop_row["super"].split(",")]}
+        {"labels": utl.get_labels(df_row=prop_row), "super": [s.strip() for s in prop_row["super"].split(",")]}
     )
     non_mandatory = {
-        "comments": get_comments(df_row=prop_row),
+        "comments": utl.get_comments(df_row=prop_row),
         "gui_attributes": _get_gui_attribute(df_row=prop_row, row_num=row_count, excel_filename=excel_filename),
     }
     # These functions may return None, this is checked before the update
-    _property = update_dict_ifnot_value_none(additional_dict=non_mandatory, to_update_dict=_property)
+    _property = utl.update_dict_ifnot_value_none(additional_dict=non_mandatory, to_update_dict=_property)
     return _property
 
 
@@ -221,7 +225,7 @@ def _check_gui_attributes(check_df: pd.DataFrame) -> dict[str : pd.Series] or No
         checks passed.
     """
     mandatory_attributes = ["Spinbox", "List"]
-    mandatory_check = col_must_or_not_empty_based_on_other_col(
+    mandatory_check = utl.col_must_or_not_empty_based_on_other_col(
         check_df=check_df,
         substring_list=mandatory_attributes,
         substring_colname="gui_element",
@@ -229,7 +233,7 @@ def _check_gui_attributes(check_df: pd.DataFrame) -> dict[str : pd.Series] or No
         must_have_value=True,
     )
     no_attributes = ["Checkbox", "Date", "Geonames", "Richtext", "TimeStamp"]
-    no_attribute_check = col_must_or_not_empty_based_on_other_col(
+    no_attribute_check = utl.col_must_or_not_empty_based_on_other_col(
         check_df=check_df,
         substring_list=no_attributes,
         substring_colname="gui_element",
@@ -270,9 +274,9 @@ def _check_missing_values_in_row_raise_error(to_check_df: pd.DataFrame, excel_fi
     # Every row in these columns must have a value
     required_values = ["name", "super", "object", "gui_element"]
     # If there are no problems, it returns an empty dict
-    missing_dict = check_required_values(check_df=to_check_df, required_values_columns=required_values)
+    missing_dict = utl.check_required_values(check_df=to_check_df, required_values_columns=required_values)
     # This checks if the label columns have at least one value per row
-    missing_labels = find_one_full_cell_in_cols(check_df=to_check_df, required_columns=language_label_col)
+    missing_labels = utl.find_one_full_cell_in_cols(check_df=to_check_df, required_columns=language_label_col)
     # If everything is ok, we get None, otherwise we update the dict
     if missing_labels is not None:
         missing_dict.update({"label": missing_labels})
@@ -282,7 +286,7 @@ def _check_missing_values_in_row_raise_error(to_check_df: pd.DataFrame, excel_fi
         missing_dict.update(missing_gui_attributes)
     if missing_dict != {}:
         # Get the row numbers from the boolean series
-        missing_dict = get_wrong_row_numbers(wrong_row_dict=missing_dict, true_remains=True)
+        missing_dict = utl.get_wrong_row_numbers(wrong_row_dict=missing_dict, true_remains=True)
         error_str = "\n".join([f"Column Name:{k} Row Number: {v}" for k, v in missing_dict.items()])
         raise UserError(
             f"The file '{excel_filename}' is missing values in some rows. See below for more information:\n"
@@ -321,8 +325,8 @@ def _do_property_excel_compliance(compliance_df: pd.DataFrame, excel_filename: s
         "gui_element",
         "gui_attributes",
     }
-    check_required_columns_raises_error(check_df=compliance_df, required_columns=required_columns)
-    check_duplicate_raise_error(check_df=compliance_df, duplicate_column="name")
+    utl.check_required_columns_raises_error(check_df=compliance_df, required_columns=required_columns)
+    utl.check_duplicate_raise_error(check_df=compliance_df, duplicate_column="name")
     _check_missing_values_in_row_raise_error(to_check_df=compliance_df, excel_filename=excel_filename)
 
 
@@ -430,7 +434,7 @@ def excel2properties(
         a tuple consisting of the "properties" section as a Python list,
             and the success status (True if everything went well)
     """
-    property_df = read_excel_file(excel_filename=excelfile)
+    property_df = utl.read_excel_file(excel_filename=excelfile)
 
     property_df = _rename_deprecated_columnnames(in_df=property_df, excel_filename=excelfile)
 

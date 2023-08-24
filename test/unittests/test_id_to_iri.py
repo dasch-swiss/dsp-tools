@@ -1,8 +1,7 @@
-"""Unit tests for id to iri mapping"""
-
 # pylint: disable=missing-class-docstring,missing-function-docstring
 
-import os
+from pathlib import Path
+import shutil
 import unittest
 
 import pytest
@@ -13,27 +12,21 @@ from dsp_tools.utils.xml_upload import _parse_xml_file
 
 
 class TestIdToIri(unittest.TestCase):
-    out_file = "testdata/tmp/_test-id2iri-replaced.xml"
-
     @classmethod
     def setUpClass(cls) -> None:
         """Is executed once before the methods of this class are run"""
-        os.makedirs("testdata/tmp", exist_ok=True)
+        Path("testdata/tmp").mkdir(parents=True, exist_ok=True)
 
     @classmethod
     def tearDownClass(cls) -> None:
         """Is executed after the methods of this class have all run through"""
-        for file in os.listdir("testdata/tmp"):
-            os.remove("testdata/tmp/" + file)
-        os.rmdir("testdata/tmp")
+        shutil.rmtree("testdata/tmp")
 
     def test_invalid_xml_file_name(self) -> None:
         with self.assertRaisesRegex(BaseError, r"File test\.xml could not be found"):
             id_to_iri(
                 xml_file="test.xml",
                 json_file="testdata/id2iri/test-id2iri-mapping.json",
-                out_file=self.out_file,
-                verbose=True,
             )
 
     def test_invalid_json_file_name(self) -> None:
@@ -41,27 +34,19 @@ class TestIdToIri(unittest.TestCase):
             id_to_iri(
                 xml_file="testdata/id2iri/test-id2iri-data.xml",
                 json_file="test.json",
-                out_file=self.out_file,
-                verbose=True,
             )
 
     def test_replace_id_with_iri(self) -> None:
         id_to_iri(
             xml_file="testdata/id2iri/test-id2iri-data.xml",
             json_file="testdata/id2iri/test-id2iri-mapping.json",
-            out_file=self.out_file,
-            verbose=True,
         )
-
-        root = _parse_xml_file(self.out_file)
-
-        resource_elements = root.xpath("/knora/resource/resptr-prop/resptr")
-        result = []
-        for resptr_prop in resource_elements:
-            result.append(resptr_prop.text)
-
+        out_file = list(Path("testdata/tmp").glob("test-id2iri-data_replaced_*.xml"))[0]
+        out_file_parsed = _parse_xml_file(out_file)
+        resptr_props = out_file_parsed.xpath("/knora/resource/resptr-prop/resptr")
+        resptr_props_contents = [r.text for r in resptr_props]
         self.assertEqual(
-            result,
+            resptr_props_contents,
             ["http://rdfh.ch/082E/ylRvrg7tQI6aVpcTJbVrwg", "http://rdfh.ch/082E/JK63OpYWTDWNYVOYFN7FdQ"],
         )
 

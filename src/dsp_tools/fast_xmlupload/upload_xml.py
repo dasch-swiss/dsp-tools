@@ -45,9 +45,9 @@ def _get_paths_from_pkl_files(pkl_files: list[Path]) -> dict[str, str]:
 
 
 def replace_bitstream_paths(
-    xml_tree: "etree._ElementTree[etree._Element]",
+    xml_tree: etree._ElementTree[etree._Element],
     orig_path_2_uuid_filename: dict[str, str],
-) -> "etree._ElementTree[etree._Element]":
+) -> etree._ElementTree[etree._Element]:
     """
     Replace the original filepaths in the <bitstream> gags by the uuid filenames of the processed files.
 

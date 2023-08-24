@@ -58,6 +58,8 @@ class TestCLI(unittest.TestCase):
         """
         Execute a CLI call, capture its stdout and stderr,
         and raise an AssertionError with stdout and stderr if it fails.
+        Before every call, preprend "poetry run",
+        so that the correct virtual environment is used.
 
         Args:
             cli_call: a command that can be executed by the system shell
@@ -68,7 +70,7 @@ class TestCLI(unittest.TestCase):
         """
         try:
             subprocess.run(
-                cli_call,
+                f"poetry run {cli_call}",
                 check=True,
                 shell=True,
                 capture_output=True,
@@ -83,12 +85,12 @@ class TestCLI(unittest.TestCase):
             raise AssertionError(msg) from None
 
     def test_validate_lists_section_with_schema(self) -> None:
-        cmd = f"poetry run dsp-tools create --lists-only --validate-only {self.test_project_systematic_file.absolute()}"
+        cmd = f"dsp-tools create --lists-only --validate-only {self.test_project_systematic_file.absolute()}"
         self._make_cli_call(cmd)
 
     def test_create_lists(self) -> None:
         # the project must already exist, so let's create a project without lists
-        self._make_cli_call(f"poetry run dsp-tools create {self.test_project_minimal_file.absolute()}")
+        self._make_cli_call(f"dsp-tools create {self.test_project_minimal_file.absolute()}")
 
         # open a "lists" section and the project that was created
         with open("testdata/excel2json/lists-multilingual-output-expected.json", encoding="utf-8") as f:
@@ -103,7 +105,7 @@ class TestCLI(unittest.TestCase):
         # create another copy of the project that was created, insert the second list into it, and save it as file
         tp_minimal_with_list_2 = copy.deepcopy(test_project_minimal)
         tp_minimal_with_list_2["project"]["lists"] = [lists_section[1]]
-        tp_minimal_with_list_2_file = Path("testdata/tmp/test_project_minimal_with_list_2.json")
+        tp_minimal_with_list_2_file = self.testdata_tmp / "test_project_minimal_with_list_2.json"
         with open(tp_minimal_with_list_2_file, "x", encoding="utf-8") as f:
             json.dump(tp_minimal_with_list_2, f)
 
@@ -117,7 +119,7 @@ class TestCLI(unittest.TestCase):
             password=self.password,
             project_file_as_path_or_parsed=tp_minimal_with_list_1,
         )
-        self._make_cli_call(f"poetry run dsp-tools create --lists-only {tp_minimal_with_list_2_file.absolute()}")
+        self._make_cli_call(f"dsp-tools create --lists-only {tp_minimal_with_list_2_file.absolute()}")
 
         # In the first case (Python function call), it can be tested if the returned mapping is correct
         self.assertTrue(success1)
@@ -126,7 +128,7 @@ class TestCLI(unittest.TestCase):
         self.assertListEqual(name2iri_names_1, node_names_1)
 
     def test_validate_project(self) -> None:
-        cli_call = f"poetry run dsp-tools create --validate-only {self.test_project_systematic_file.absolute()}"
+        cli_call = f"dsp-tools create --validate-only {self.test_project_systematic_file.absolute()}"
         # the JSON file contains a reference to an Excel file, which is relative to the root of the repo
         cwd = Path(".")
         self._make_cli_call(
@@ -135,7 +137,7 @@ class TestCLI(unittest.TestCase):
         )
 
     def test_create_project(self) -> None:
-        cli_call = f"poetry run dsp-tools create {self.test_project_systematic_file.absolute()} --verbose"
+        cli_call = f"dsp-tools create {self.test_project_systematic_file.absolute()} --verbose"
         # the JSON file contains a reference to an Excel file, which is relative to the root of the repo
         cwd = Path(".")
         self._make_cli_call(
@@ -144,18 +146,18 @@ class TestCLI(unittest.TestCase):
         )
 
     def test_create_project_hlist_refers_label(self) -> None:
-        self._make_cli_call(f"poetry run dsp-tools create {self.test_project_hlist_file.absolute()} -v")
+        self._make_cli_call(f"dsp-tools create {self.test_project_hlist_file.absolute()} -v")
 
     def test_get_project(self) -> None:
         """
         Retrieve the systematic JSON project file with the "get" command,
         and check if the result is identical to the original file.
         """
-        out_file = Path("testdata/tmp/_test-project-systematic.json")
-        self._make_cli_call(f"poetry run dsp-tools get --project tp {out_file.absolute()}")
+        out_file = self.testdata_tmp / "_test-project-systematic.json"
+        self._make_cli_call(f"dsp-tools get --project tp {out_file.absolute()}")
 
         project_original = self._get_original_project()
-        with open("testdata/tmp/_test-project-systematic.json", encoding="utf-8") as f:
+        with open(self.testdata_tmp / "_test-project-systematic.json", encoding="utf-8") as f:
             project_returned = json.load(f)
 
         self._compare_project(project_original, project_returned)
@@ -191,14 +193,14 @@ class TestCLI(unittest.TestCase):
             )
 
     def test_validate_xml_against_schema(self) -> None:
-        cmd = f"poetry run dsp-tools xmlupload --validate-only --verbose {self.test_data_systematic_file.absolute()}"
+        cmd = f"dsp-tools xmlupload --validate-only --verbose {self.test_data_systematic_file.absolute()}"
         self._make_cli_call(cmd)
 
     def test_xml_upload(self) -> None:
-        self._make_cli_call(f"poetry run dsp-tools xmlupload -v {self.test_data_minimal_file.absolute()}")
+        self._make_cli_call(f"dsp-tools xmlupload -v {self.test_data_minimal_file.absolute()}")
 
     def test_xml_upload_incremental(self) -> None:
-        cli_call_1 = f"poetry run dsp-tools xmlupload {self.test_data_systematic_file.absolute()}"
+        cli_call_1 = f"dsp-tools xmlupload {self.test_data_systematic_file.absolute()}"
         # the XML file contains references to multimedia files that are relative to the root of the repo
         cwd = Path(".")
         self._make_cli_call(
@@ -208,24 +210,19 @@ class TestCLI(unittest.TestCase):
 
         mapping_file = list(Path().glob("test-data-systematic_id2iri_mapping_*.json"))[0]
         xml_file_orig = Path("testdata/id2iri/test-id2iri-data.xml")
-        xml_file_replaced = Path("testdata/tmp/_test-id2iri-replaced.xml")
-        cli_call_2 = (
-            f"poetry run dsp-tools id2iri --verbose "
-            f"--outfile {xml_file_replaced.absolute()} "
-            f"{xml_file_orig.absolute()} "
-            f"{mapping_file.absolute()}"
-        )
+        cli_call_2 = f"dsp-tools id2iri --verbose {xml_file_orig.absolute()} {mapping_file.absolute()}"
         self._make_cli_call(cli_call_2)
 
-        self._make_cli_call(f"poetry run dsp-tools xmlupload --incremental -v {xml_file_replaced.absolute()}")
+        xml_file_replaced = list(self.testdata_tmp.glob(f"{xml_file_orig.stem}_replaced_*.xml"))[0]
+        self._make_cli_call(f"dsp-tools xmlupload --incremental -v {xml_file_replaced.absolute()}")
         self.assertListEqual(list(Path(self.cwd).glob("stashed_*_properties_*.txt")), [])
         mapping_file.unlink()
         xml_file_replaced.unlink()
 
     def test_excel_to_json_project(self) -> None:
         excel_folder = Path("testdata/excel2json/excel2json_files")
-        out_file = Path("testdata/tmp/_out_project.json")
-        self._make_cli_call(f"poetry run dsp-tools excel2json {excel_folder.absolute()} {out_file.absolute()}")
+        out_file = self.testdata_tmp / "_out_project.json"
+        self._make_cli_call(f"dsp-tools excel2json {excel_folder.absolute()} {out_file.absolute()}")
         with open("testdata/excel2json/excel2json-expected-output.json", encoding="utf-8") as f:
             output_expected = json.load(f)
         with open(out_file, encoding="utf-8") as f:
@@ -235,8 +232,8 @@ class TestCLI(unittest.TestCase):
 
     def test_excel_to_json_list(self) -> None:
         excel_folder = Path("testdata/excel2json/lists-multilingual")
-        out_file = Path("testdata/tmp/_lists-out.json")
-        self._make_cli_call(f"poetry run dsp-tools excel2lists {excel_folder.absolute()} {out_file.absolute()}")
+        out_file = self.testdata_tmp / "_lists-out.json"
+        self._make_cli_call(f"dsp-tools excel2lists {excel_folder.absolute()} {out_file.absolute()}")
         with open(out_file, encoding="utf-8") as f:
             output_actual = json.load(f)
         with open("testdata/excel2json/lists-multilingual-output-expected.json", encoding="utf-8") as f:
@@ -246,8 +243,8 @@ class TestCLI(unittest.TestCase):
 
     def test_excel_to_json_resources(self) -> None:
         excel_file = Path("testdata/excel2json/excel2json_files/test-name (test_label)/resources.xlsx")
-        out_file = Path("testdata/tmp/_out_resources.json")
-        self._make_cli_call(f"poetry run dsp-tools excel2resources '{excel_file.absolute()}' {out_file.absolute()}")
+        out_file = self.testdata_tmp / "_out_resources.json"
+        self._make_cli_call(f"dsp-tools excel2resources '{excel_file.absolute()}' {out_file.absolute()}")
         with open(out_file, encoding="utf-8") as f:
             output_actual = json.load(f)
         with open("testdata/excel2json/resources-output-expected.json", encoding="utf-8") as f:
@@ -257,8 +254,8 @@ class TestCLI(unittest.TestCase):
 
     def test_excel_to_json_properties(self) -> None:
         excel_file = Path("testdata/excel2json/excel2json_files/test-name (test_label)/properties.xlsx")
-        out_file = Path("testdata/tmp/_out_properties.json")
-        self._make_cli_call(f"poetry run dsp-tools excel2properties '{excel_file.absolute()}' {out_file.absolute()}")
+        out_file = self.testdata_tmp / "_out_properties.json"
+        self._make_cli_call(f"dsp-tools excel2properties '{excel_file.absolute()}' {out_file.absolute()}")
         with open(out_file, encoding="utf-8") as f:
             output_actual = json.load(f)
         with open("testdata/excel2json/properties-output-expected.json", encoding="utf-8") as f:
@@ -269,14 +266,9 @@ class TestCLI(unittest.TestCase):
     def test_id_to_iri(self) -> None:
         xml_file = Path("testdata/id2iri/test-id2iri-data.xml")
         mapping_file = Path("testdata/id2iri/test-id2iri-mapping.json")
-        out_file = Path("testdata/tmp/test-id2iri-out.xml")
-        cli_call = (
-            f"poetry run dsp-tools id2iri --verbose "
-            f"--outfile {out_file.absolute()} "
-            f"{xml_file.absolute()} "
-            f"{mapping_file.absolute()}"
-        )
+        cli_call = f"dsp-tools id2iri --verbose {xml_file.absolute()} {mapping_file.absolute()}"
         self._make_cli_call(cli_call)
+        out_file = list(self.testdata_tmp.glob(f"{xml_file.stem}_replaced_*.xml"))[0]
         with open(out_file, encoding="utf-8") as f:
             output_actual = f.read()
         with open("testdata/id2iri/test-id2iri-output-expected.xml", encoding="utf-8") as f:
@@ -290,7 +282,7 @@ class TestCLI(unittest.TestCase):
         shortcode = "1234"
         onto_name = "excel2xml-output"
         out_file = self.cwd / f"{onto_name}-data.xml"
-        self._make_cli_call(f"poetry run dsp-tools excel2xml {datafile.absolute()} {shortcode} {onto_name}")
+        self._make_cli_call(f"dsp-tools excel2xml {datafile.absolute()} {shortcode} {onto_name}")
         with open(out_file, encoding="utf-8") as f:
             output_actual = f.read()
         with open("testdata/excel2xml/excel2xml-expected-output.xml", encoding="utf-8") as f:

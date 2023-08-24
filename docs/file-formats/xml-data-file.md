@@ -688,11 +688,23 @@ contains a link to  the resource `http://rdfh.ch/4123/nyOODvYySV2nJ5RWRdmOdQ`, w
 `gui_element` ([defined in the ontology](./json-project/ontologies.md#textvalue))
 as follows:
 
-| `gui_element`<br/>(JSON ontology) | `encoding`<br/>(XML data) | How DSP-APP renders the whitespaces                                                                                            |
-| --------------------------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| `SimpleText`                      | `utf8`                    | Pretty-print whitespaces and newlines from the XML are taken into the text field as they are.                                  |
-| `Textarea`                        | `utf8`                    | Pretty-print whitespaces and newlines from the XML are taken into the text field as they are.                                  |
-| `Richtext`                        | `xml`                     | Pretty-print whitespaces and newlines from the XML are removed. If you want a newline in the text field, use `<br />` instead. |
+| `gui_element`<br/>(JSON ontology) | `encoding`<br/>(XML data) | 
+| --------------------------------- | ------------------------- |
+| `SimpleText`                      | `utf8`                    | 
+| `Textarea`                        | `utf8`                    | 
+| `Richtext`                        | `xml`                     |
+
+Handling of pretty-print whitespaces and newlines:
+
+- encoding `utf8`: 
+    - leading and trailing whitespaces are removed
+    - multiple spaces are replaced by a single space
+    - (multiple) tabstops are replaced by a single space
+- encoding `xml`:
+    - leading and trailing whitespaces are removed
+    - whitespaces and newlines don't have a meaning in XML, so they are removed. 
+    - Newlines can be created with `<br/>`.
+    - Whitespaces are kept only inside `<code>` and `<pre>` tags.
 
 
 #### Special characters: Overview

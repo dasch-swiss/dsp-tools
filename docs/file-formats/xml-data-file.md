@@ -703,13 +703,19 @@ which already exists on the DSP server.
 
 #### Whitespaces and newlines
 
-`<unformatted-text-prop>`:
-Pretty-print whitespaces and newlines from the XML file 
-are taken into the text field as they are.
+`<unformatted-text-prop>`: 
 
-`<formatted-text-prop>`: 
-Pretty-print whitespaces and newlines from the XML file are removed.
-If you want a newline in the text field, use `<br />` instead.
+- leading and trailing whitespaces are removed
+- multiple spaces are replaced by a single space
+- (multiple) tabstops are replaced by a single space
+
+`<formatted-text-prop>`:
+
+- leading and trailing whitespaces are removed
+- whitespaces and newlines don't have a meaning in XML, so they are removed. 
+- Newlines can be created with `<br/>`.
+- Whitespaces are kept only inside `<code>` and `<pre>` tags.
+
 
 #### Special characters: Overview
 

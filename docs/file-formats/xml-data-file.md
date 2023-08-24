@@ -703,7 +703,9 @@ Handling of pretty-print whitespaces and newlines:
     - 3+ line breaks are replaced by 2 line breaks (=max. 1 empty line)
 - encoding `xml`:
     - leading and trailing whitespaces are removed
-    - whitespaces and newlines don't have a meaning in XML, so they are removed. Use `<br/>` instead.
+    - whitespaces and newlines don't have a meaning in XML, so they are removed. 
+    - Newlines can be created with `<br/>`.
+    - Whitespaces are kept only inside `<code>` and `<pre>` tags.
 
 
 #### Special characters: Overview

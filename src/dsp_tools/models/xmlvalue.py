@@ -45,7 +45,7 @@ class XMLValue:  # pylint: disable=too-few-public-methods
         This method:
             - removes the <text> tags
             - replaces (multiple) line breaks by a space
-            - replaces multiple spaces or tabstops by a single space (except within <code> tags)
+            - replaces multiple spaces or tabstops by a single space (except within <code> or <pre> tags)
 
         Args:
             xmlstr_orig: original string from the XML file
@@ -60,10 +60,11 @@ class XMLValue:  # pylint: disable=too-few-public-methods
         # replace (multiple) line breaks by a space
         xmlstr = regex.sub("\n+", " ", xmlstr)
 
-        # replace multiple spaces or tabstops by a single space (except within <code> tags)
-        # the regex selects all spaces/tabstops not followed by </code> without <code in between.
+        # replace multiple spaces or tabstops by a single space (except within <code> or <pre> tags)
+        # the regex selects all spaces/tabstops not followed by </xyz> without <xyz in between.
         # credits: https://stackoverflow.com/a/46937770/14414188
         xmlstr = regex.sub("( {2,}|\t+)(?!(.(?!<code))*</code>)", " ", xmlstr)
+        xmlstr = regex.sub("( {2,}|\t+)(?!(.(?!<pre))*</pre>)", " ", xmlstr)
 
         # remove spaces after <br/> tags (except within <code> tags)
         xmlstr = regex.sub("((?<=<br/?>) )(?!(.(?!<code))*</code>)", "", xmlstr)

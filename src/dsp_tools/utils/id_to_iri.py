@@ -6,6 +6,7 @@ from lxml import etree
 
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.logging import get_logger
+from dsp_tools.utils.xml_upload import parse_xml_file
 
 
 logger = get_logger(__name__)
@@ -57,7 +58,7 @@ def _parse_json_file(json_file: Path) -> dict[str, str]:
     return mapping
 
 
-def _parse_xml_and_remove_namespaces(xml_file: Path) -> etree._ElementTree[etree._Element]:
+def _parse_xml_and_remove_namespaces(xml_file: Path) -> "etree._ElementTree[etree._Element]":
     """
     Read XML file and remove namespace declarations.
 
@@ -78,9 +79,9 @@ def _parse_xml_and_remove_namespaces(xml_file: Path) -> etree._ElementTree[etree
 
 
 def _replace_ids_by_iris(
-    tree: etree._ElementTree[etree._Element],
+    tree: etree._Element,
     mapping: dict[str, str],
-) -> tuple[etree._ElementTree[etree._Element], bool]:
+) -> tuple[etree._Element, bool]:
     """
     Iterate over the `<resptr>` tags and replace the internal IDs by IRIs.
 
@@ -108,7 +109,7 @@ def _replace_ids_by_iris(
 
 def _write_output_file(
     orig_xml_file: Path,
-    tree: etree._ElementTree[etree._Element],
+    tree: etree._Element,
 ) -> None:
     """
     Write modified XML file with replaced IDs to disk.
@@ -119,7 +120,7 @@ def _write_output_file(
     """
     timestamp_str = datetime.now().strftime("%Y%m%d-%H%M%S")
     out_file = orig_xml_file.stem + "_replaced_" + timestamp_str + ".xml"
-    et = etree.ElementTree(tree.getroot())
+    et = etree.ElementTree(tree)
     et.write(out_file, pretty_print=True, xml_declaration=True, encoding="utf-8")
     logger.info(f"XML with replaced IDs was written to file {out_file}.")
     print(f"XML with replaced IDs was written to file {out_file}.")
@@ -146,7 +147,7 @@ def id_to_iri(
     """
     xml_file_as_path, json_file_as_path = _check_input_parameters(xml_file=xml_file, json_file=json_file)
     mapping = _parse_json_file(json_file_as_path)
-    tree = _parse_xml_and_remove_namespaces(xml_file_as_path)
+    tree = parse_xml_file(xml_file_as_path)
     tree, success = _replace_ids_by_iris(
         tree=tree,
         mapping=mapping,

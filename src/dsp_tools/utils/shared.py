@@ -216,7 +216,7 @@ def validate_xml_against_schema(input_file: Union[str, Path, etree._ElementTree[
     return True
 
 
-def _validate_xml_tags_in_text_properties(doc: Union[etree._ElementTree[etree._Element], etree._Element]) -> bool:
+def _validate_xml_tags_in_text_properties(doc: Union["etree._ElementTree[etree._Element]", etree._Element]) -> bool:
     """
     Makes sure that there are no XML tags in simple texts.
     This can only be done with a regex,

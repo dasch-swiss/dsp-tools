@@ -8,19 +8,21 @@ import pytest
 
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.id_to_iri import id_to_iri
-from dsp_tools.utils.xml_upload import _parse_xml_file
+from dsp_tools.utils.xml_upload import parse_xml_file
 
 
 class TestIdToIri(unittest.TestCase):
+    tmp_dir = Path("testdata/tmp")
+
     @classmethod
     def setUpClass(cls) -> None:
         """Is executed once before the methods of this class are run"""
-        Path("testdata/tmp").mkdir(parents=True, exist_ok=True)
+        cls.tmp_dir.mkdir(parents=True, exist_ok=True)
 
     @classmethod
     def tearDownClass(cls) -> None:
         """Is executed after the methods of this class have all run through"""
-        shutil.rmtree("testdata/tmp")
+        shutil.rmtree(cls.tmp_dir)
 
     def test_invalid_xml_file_name(self) -> None:
         with self.assertRaisesRegex(BaseError, r"File test\.xml could not be found"):
@@ -41,8 +43,9 @@ class TestIdToIri(unittest.TestCase):
             xml_file="testdata/id2iri/test-id2iri-data.xml",
             json_file="testdata/id2iri/test-id2iri-mapping.json",
         )
-        out_file = list(Path("testdata/tmp").glob("test-id2iri-data_replaced_*.xml"))[0]
-        out_file_parsed = _parse_xml_file(out_file)
+        out_file = list(Path(".").glob("test-id2iri-data_replaced_*.xml"))[0]
+        out_file_parsed = parse_xml_file(out_file)
+        out_file.unlink()
         resptr_props = out_file_parsed.xpath("/knora/resource/resptr-prop/resptr")
         resptr_props_contents = [r.text for r in resptr_props]
         self.assertEqual(

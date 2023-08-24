@@ -327,7 +327,7 @@ def _convert_ark_v0_to_resource_iri(ark: str) -> str:
     return "http://rdfh.ch/" + project_id + "/" + dsp_uuid
 
 
-def _parse_xml_file(input_file: Union[str, Path, etree._ElementTree[Any]]) -> etree._Element:
+def parse_xml_file(input_file: Union[str, Path, etree._ElementTree[Any]]) -> etree._Element:
     """
     Parse an XML file with DSP-conform data,
     remove namespace URI from the elements' names,
@@ -518,7 +518,7 @@ def xml_upload(
     """
     # parse the XML file
     validate_xml_against_schema(input_file=input_file)
-    root = _parse_xml_file(input_file=input_file)
+    root = parse_xml_file(input_file=input_file)
     if not preprocessing_done:
         _check_if_bitstreams_exist(root=root, imgdir=imgdir)
     shortcode = root.attrib["shortcode"]

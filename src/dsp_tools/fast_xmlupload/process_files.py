@@ -211,7 +211,7 @@ def _get_file_paths_from_xml(xml_file: Path) -> list[Path]:
     Returns:
         list of all paths in the <bitstream> tags
     """
-    tree: etree._ElementTree[etree._Element] = etree.parse(xml_file)
+    tree: "etree._ElementTree[etree._Element]" = etree.parse(xml_file)
     bitstream_paths: set[Path] = set()
     for x in tree.iter():
         if x.text and etree.QName(x).localname.endswith("bitstream"):

@@ -12,7 +12,8 @@ import jsonpath_ng.ext
 import pytest
 from pandas.testing import assert_frame_equal, assert_series_equal
 
-import dsp_tools.utils.excel_to_json.utils
+from dsp_tools.models.exceptions import UserError
+import dsp_tools.utils.excel_to_json.utils as utl
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.excel_to_json import excel_to_json_properties as e2j
 
@@ -355,7 +356,7 @@ class TestExcelToProperties(unittest.TestCase):
             with self.assertRaisesRegex(BaseError, message):
                 e2j.excel2properties(file, self.outfile)
 
-    def test__rename_lang_cols(self):
+    def test__rename_deprecated_lang_cols(self):
         original_df = pd.DataFrame(
             {"en": [1, 2, 3], "de": [1, 2, 3], "fr": [1, 2, 3], "it": [1, 2, 3], "rm": [1, 2, 3]}
         )
@@ -368,43 +369,10 @@ class TestExcelToProperties(unittest.TestCase):
                 "label_rm": [1, 2, 3],
             }
         )
-        returned_df = e2j._rename_lang_cols(input_df=original_df, excel_filename="Test")
+        returned_df = e2j._rename_deprecated_lang_cols(rename_df=original_df, excel_filename="Test")
         assert_frame_equal(original_df, returned_df)
-        returned_df = e2j._rename_lang_cols(input_df=expected_df, excel_filename="Test")
+        returned_df = e2j._rename_deprecated_lang_cols(rename_df=expected_df, excel_filename="Test")
         assert_frame_equal(original_df, returned_df)
-
-    def test__get_labels(self):
-        original_df = pd.DataFrame(
-            {
-                "label_en": ["text_en", "text_en"],
-                "label_de": ["text_de", pd.NA],
-                "label_fr": ["text_fr", pd.NA],
-                "label_it": ["text_it", pd.NA],
-                "label_rm": ["text_rm", pd.NA],
-            }
-        )
-        expected_dict = {"de": "text_de", "en": "text_en", "fr": "text_fr", "it": "text_it", "rm": "text_rm"}
-        returned_dict = dsp_tools.utils.excel_to_json.utils.get_labels(original_df.loc[0, :])
-        self.assertDictEqual(expected_dict, returned_dict)
-        expected_dict = {"en": "text_en"}
-        returned_dict = dsp_tools.utils.excel_to_json.utils.get_labels(original_df.loc[1, :])
-        self.assertDictEqual(expected_dict, returned_dict)
-
-    def test__get_comments(self):
-        original_df = pd.DataFrame(
-            {
-                "comment_en": ["text_en", pd.NA],
-                "comment_de": ["text_de", pd.NA],
-                "comment_fr": ["text_fr", pd.NA],
-                "comment_it": ["text_it", pd.NA],
-                "comment_rm": ["text_rm", pd.NA],
-            }
-        )
-        expected_dict = {"de": "text_de", "en": "text_en", "fr": "text_fr", "it": "text_it", "rm": "text_rm"}
-        returned_dict = dsp_tools.utils.excel_to_json.utils.get_comments(original_df.loc[0, :])
-        self.assertDictEqual(expected_dict, returned_dict)
-        returned_dict = dsp_tools.utils.excel_to_json.utils.get_comments(original_df.loc[1, :])
-        self.assertIsNone(returned_dict)
 
     def test__do_property_excel_compliance(self):
         original_df = pd.DataFrame(
@@ -475,18 +443,61 @@ class TestExcelToProperties(unittest.TestCase):
                 "{error_str}",
             )
 
-    def test__rename_hlist(self):
+    def test__rename_deprecated_hlist(self):
         original_df = pd.DataFrame({"hlist": [pd.NA, pd.NA, "languages"]})
         expected_df = pd.DataFrame({"gui_attributes": [pd.NA, pd.NA, "hlist:languages"]})
-        returned_df = e2j._rename_hlist(input_df=original_df, excel_filename="Test")
+        returned_df = e2j._rename_deprecated_hlist(rename_df=original_df, excel_filename="Test")
         assert_frame_equal(expected_df, returned_df)
 
         original_df = pd.DataFrame(
             {"hlist": [pd.NA, pd.NA, "languages"], "gui_attributes": [pd.NA, "attribute_1", pd.NA]}
         )
         expected_df = pd.DataFrame({"gui_attributes": [pd.NA, "attribute_1", "hlist:languages"]})
-        returned_df = e2j._rename_hlist(input_df=original_df, excel_filename="Test")
+        returned_df = e2j._rename_deprecated_hlist(rename_df=original_df, excel_filename="Test")
         assert_frame_equal(expected_df, returned_df)
+
+    def test__unpack_gui_attributes(self):
+        test_dict = {
+            "maxlength:1, size:32": {"maxlength": "1", "size": "32"},
+            "hlist: languages": {"hlist": "languages"},
+        }
+        for original, expected in test_dict.items():
+            self.assertDictEqual(e2j._unpack_gui_attributes(gui_str=original), expected)
+
+    def test__search_convert_numbers(self):
+        test_dict = {"1": 1, "string": "string", "1.453": 1.453, "sdf.asdf": "sdf.asdf"}
+        for original, expected in test_dict.items():
+            self.assertEqual(e2j._search_convert_numbers(value_str=original), expected)
+
+    def test__get_gui_attribute(self):
+        original_df = pd.DataFrame(
+            {"gui_attributes": [pd.NA, "max:1.4 / min:1.2", "hlist:", "234345", "hlist: languages,"]}
+        )
+        self.assertIsNone(e2j._get_gui_attribute(df_row=original_df.loc[0, :], row_num=2, excel_filename="Test"))
+        with self.assertRaises(UserError) as context:
+            e2j._get_gui_attribute(df_row=original_df.loc[1, :], row_num=3, excel_filename="Test")
+            self.assertEqual(
+                "Row {row_num} of Excel file {excel_filename} contains invalid data in column 'gui_attributes'. "
+                "The expected format is '[attribute: value, attribute: value]'.",
+                context,
+            )
+        with self.assertRaises(UserError) as context:
+            e2j._get_gui_attribute(df_row=original_df.loc[2, :], row_num=4, excel_filename="Test")
+            self.assertEqual(
+                "Row {row_num} of Excel file {excel_filename} contains invalid data in column 'gui_attributes'. "
+                "The expected format is '[attribute: value, attribute: value]'.",
+                context,
+            )
+        with self.assertRaises(UserError) as context:
+            e2j._get_gui_attribute(df_row=original_df.loc[3, :], row_num=5, excel_filename="Test")
+            self.assertEqual(
+                "Row {row_num} of Excel file {excel_filename} contains invalid data in column 'gui_attributes'. "
+                "The expected format is '[attribute: value, attribute: value]'.",
+                context,
+            )
+        expected_dict = {"hlist": "languages"}
+        returned_dict = e2j._get_gui_attribute(df_row=original_df.loc[4, :], row_num=6, excel_filename="Test")
+        self.assertDictEqual(expected_dict, returned_dict)
 
     def test__check_gui_attributes(self):
         original_df = pd.DataFrame(
@@ -506,6 +517,74 @@ class TestExcelToProperties(unittest.TestCase):
         expected_series = pd.Series([False, True, False, False, False, False, True])
         returned_value = e2j._check_gui_attributes(check_df=original_df)
         assert_series_equal(expected_series, returned_value["wrong gui_attributes"])
+
+    def test__row2prop(self):
+        original_df = pd.DataFrame(
+            {
+                "name": ["name_1", "name_2", "name_3"],
+                "label_en": ["label_en_1", "label_en_2", pd.NA],
+                "label_de": ["label_de_1", pd.NA, "label_de_3"],
+                "label_fr": ["label_fr_1", pd.NA, pd.NA],
+                "label_it": ["label_it_1", pd.NA, pd.NA],
+                "label_rm": ["label_rm_1", pd.NA, pd.NA],
+                "comment_en": ["comment_en_1", "comment_en_2", pd.NA],
+                "comment_de": ["comment_de_1", pd.NA, "comment_de_3"],
+                "comment_fr": ["comment_fr_1", pd.NA, pd.NA],
+                "comment_it": ["comment_it_1", pd.NA, pd.NA],
+                "comment_rm": ["comment_rm_1", pd.NA, pd.NA],
+                "super": ["super_1", "super_2.1, super_2.2", "super_3"],
+                "subject": ["subject_1", "subject_2", pd.NA],
+                "object": ["object_1", "object_2", "object_3"],
+                "gui_element": ["Simple", "Date", "List"],
+                "gui_attributes": ["size: 32, maxlength: 128", pd.NA, "hlist: languages"],
+            }
+        )
+        returned_dict = e2j._row2prop(prop_row=original_df.loc[0, :], row_count=0, excel_filename="Test")
+        expected_dict = {
+            "name": "name_1",
+            "object": "object_1",
+            "gui_element": "Simple",
+            "labels": {
+                "en": "label_en_1",
+                "de": "label_de_1",
+                "fr": "label_fr_1",
+                "it": "label_it_1",
+                "rm": "label_rm_1",
+            },
+            "super": ["super_1"],
+            "comments": {
+                "en": "comment_en_1",
+                "de": "comment_de_1",
+                "fr": "comment_fr_1",
+                "it": "comment_it_1",
+                "rm": "comment_rm_1",
+            },
+            "gui_attributes": {"size": 32, "maxlength": 128},
+        }
+        self.assertDictEqual(expected_dict, returned_dict)
+
+        returned_dict = e2j._row2prop(prop_row=original_df.loc[1, :], row_count=1, excel_filename="Test")
+        expected_dict = {
+            "comments": {"en": "comment_en_2"},
+            "gui_element": "Date",
+            "labels": {"en": "label_en_2"},
+            "name": "name_2",
+            "object": "object_2",
+            "super": ["super_2.1", "super_2.2"],
+        }
+        self.assertDictEqual(expected_dict, returned_dict)
+
+        returned_dict = e2j._row2prop(prop_row=original_df.loc[2, :], row_count=2, excel_filename="Test")
+        expected_dict = {
+            "comments": {"de": "comment_de_3"},
+            "gui_attributes": {"hlist": "languages"},
+            "gui_element": "List",
+            "labels": {"de": "label_de_3"},
+            "name": "name_3",
+            "object": "object_3",
+            "super": ["super_3"],
+        }
+        self.assertDictEqual(expected_dict, returned_dict)
 
 
 if __name__ == "__main__":

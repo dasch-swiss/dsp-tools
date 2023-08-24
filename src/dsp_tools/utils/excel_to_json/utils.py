@@ -32,7 +32,7 @@ def read_excel_file(excel_filename: str) -> pd.DataFrame:
 
 
 def clean_data_frame(unclean_df: pd.DataFrame) -> pd.DataFrame:
-    # remove leading and trailing blanks in column names and make them lower case
+    # Remove leading and trailing blanks in column names and make them lower case
     cleaned_df = unclean_df.rename(columns=lambda x: x.strip().lower())
     # Remove the values of all cells that do not at least contain one character of any known language
     cleaned_df = cleaned_df.applymap(
@@ -86,9 +86,9 @@ def get_wrong_row_numbers(wrong_row_dict: dict[str : pd.Series], true_remains: b
     return {k: [x + 2 for x in v] for k, v in wrong_row_dict.items()}
 
 
-def update_dict_ifnot_value_none(new_dict: dict, to_update_dict: dict) -> dict:
-    new_dict = {k: v for (k, v) in new_dict.items() if v is not None and v is not pd.NA}
-    to_update_dict.update(new_dict)
+def update_dict_ifnot_value_none(additional_dict: dict, to_update_dict: dict) -> dict:
+    additional_dict = {k: v for (k, v) in additional_dict.items() if v is not None and v is not pd.NA}
+    to_update_dict.update(additional_dict)
     return to_update_dict
 
 
@@ -116,18 +116,18 @@ def find_one_full_cell_in_cols(check_df: pd.DataFrame, required_columns: list[st
 
 
 def col_must_or_not_empty_based_on_other_col(
-    input_df: pd.DataFrame,
+    check_df: pd.DataFrame,
     substring_list: list[str],
     substring_colname: str,
     check_empty_colname: str,
     must_have_value: bool,
 ) -> pd.Series or None:
-    na_series = input_df[check_empty_colname].isna()
+    na_series = check_df[check_empty_colname].isna()
     # If the cells have to be empty, we need to reverse the series
     if not must_have_value:
         na_series = ~na_series
     # This returns true if it finds the substring in the cell
-    substring_array = input_df[substring_colname].str.contains("|".join(substring_list), na=False, regex=True)
+    substring_array = check_df[substring_colname].str.contains("|".join(substring_list), na=False, regex=True)
     # If both are True logical_and returns True otherwise False
     combined_array = np.logical_and(na_series, substring_array)
     if any(combined_array):

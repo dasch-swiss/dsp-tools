@@ -94,7 +94,7 @@ class TestUtils(unittest.TestCase):
         original_dict = {0: 0}
         original_update_dict = {1: 1, 2: 2, 3: None, 4: pd.NA, 5: "5"}
         expected_dict = {0: 0, 1: 1, 2: 2, 5: "5"}
-        returned_dict = update_dict_ifnot_value_none(new_dict=original_update_dict, to_update_dict=original_dict)
+        returned_dict = update_dict_ifnot_value_none(additional_dict=original_update_dict, to_update_dict=original_dict)
         self.assertDictEqual(expected_dict, returned_dict)
 
     def test_find_one_full_cell_in_cols(self):
@@ -126,7 +126,7 @@ class TestUtils(unittest.TestCase):
     def test_col_must_or_not_empty_based_on_other_col(self):
         original_df = pd.DataFrame({"substring": ["1", "2", "3", "4", "5", "6"], "check": [1, pd.NA, 3, 4, pd.NA, 6]})
         returned_value = col_must_or_not_empty_based_on_other_col(
-            input_df=original_df,
+            check_df=original_df,
             substring_list=["1", "3", "6"],
             substring_colname="substring",
             check_empty_colname="check",
@@ -135,13 +135,46 @@ class TestUtils(unittest.TestCase):
         self.assertIsNone(returned_value)
         expected_series = pd.Series([True, False, False, False, False, False])
         returned_series = col_must_or_not_empty_based_on_other_col(
-            input_df=original_df,
+            check_df=original_df,
             substring_list=["1", "2"],
             substring_colname="substring",
             check_empty_colname="check",
             must_have_value=False,
         )
         assert_series_equal(expected_series, returned_series)
+
+    def test__get_labels(self):
+        original_df = pd.DataFrame(
+            {
+                "label_en": ["text_en", "text_en"],
+                "label_de": ["text_de", pd.NA],
+                "label_fr": ["text_fr", pd.NA],
+                "label_it": ["text_it", pd.NA],
+                "label_rm": ["text_rm", pd.NA],
+            }
+        )
+        expected_dict = {"de": "text_de", "en": "text_en", "fr": "text_fr", "it": "text_it", "rm": "text_rm"}
+        returned_dict = get_labels(original_df.loc[0, :])
+        self.assertDictEqual(expected_dict, returned_dict)
+        expected_dict = {"en": "text_en"}
+        returned_dict = get_labels(original_df.loc[1, :])
+        self.assertDictEqual(expected_dict, returned_dict)
+
+    def test_get_comments(self):
+        original_df = pd.DataFrame(
+            {
+                "comment_en": ["text_en", pd.NA],
+                "comment_de": ["text_de", pd.NA],
+                "comment_fr": ["text_fr", pd.NA],
+                "comment_it": ["text_it", pd.NA],
+                "comment_rm": ["text_rm", pd.NA],
+            }
+        )
+        expected_dict = {"de": "text_de", "en": "text_en", "fr": "text_fr", "it": "text_it", "rm": "text_rm"}
+        returned_dict = get_comments(original_df.loc[0, :])
+        self.assertDictEqual(expected_dict, returned_dict)
+        returned_dict = get_comments(original_df.loc[1, :])
+        self.assertIsNone(returned_dict)
 
 
 if __name__ == "__main__":

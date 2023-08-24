@@ -58,26 +58,6 @@ def _parse_json_file(json_file: Path) -> dict[str, str]:
     return mapping
 
 
-def _parse_xml_and_remove_namespaces(xml_file: Path) -> "etree._ElementTree[etree._Element]":
-    """
-    Read XML file and remove namespace declarations.
-
-    Args:
-        xml_file: XML file to be parsed
-
-    Returns:
-        etree object of the parsed XML file, without namespace declarations
-    """
-    tree = etree.parse(xml_file)
-    for elem in tree.iter():
-        # skip comments and processing instructions as they do not have namespaces
-        # pylint: disable-next=protected-access
-        if not isinstance(elem, (etree._Comment, etree._ProcessingInstruction)):
-            # remove namespace declarations
-            elem.tag = etree.QName(elem).localname
-    return tree
-
-
 def _replace_ids_by_iris(
     tree: etree._Element,
     mapping: dict[str, str],

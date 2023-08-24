@@ -264,10 +264,6 @@ by IRIs provided in a mapping file.
 dsp-tools id2iri xmlfile.xml mapping.json
 ```
 
-The following options are available:
-
-- `-v` | `--verbose` (optional): print more information about the progress to the console
-
 The output file is written to `[original name]_replaced_[timestamp].xml`.
 
 This command cannot be used isolated, 

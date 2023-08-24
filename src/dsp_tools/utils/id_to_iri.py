@@ -19,6 +19,10 @@ def _check_input_parameters(
     Transform the input parameters into Path objects
     and check if they are valid files.
 
+    Args:
+        xml_file: the XML file with the data to be replaced
+        json_file: the JSON file with the mapping (dict) of internal IDs to IRIs
+
     Raises:
         UserError: if one of the files could not be found
 
@@ -39,7 +43,15 @@ def _check_input_parameters(
 
 
 def _parse_json_file(json_file: Path) -> dict[str, str]:
-    """Read JSON file and parse it into a dictionary"""
+    """
+    Read JSON file and parse it into a dictionary.
+
+    Args:
+        json_file: path to JSON file
+
+    Returns:
+        dictionary with the contents of the JSON file
+    """
     with open(json_file, encoding="utf-8", mode="r") as file:
         mapping: dict[str, str] = json.load(file)
     return mapping
@@ -69,6 +81,16 @@ def _replace_ids_by_iris(
     tree: etree._ElementTree[etree._Element],
     mapping: dict[str, str],
 ) -> tuple[etree._ElementTree[etree._Element], bool]:
+    """
+    Iterate over the `<resptr>` tags and replace the internal IDs by IRIs.
+
+    Args:
+        tree: parsed XML file
+        mapping: mapping of internal IDs to IRIs
+
+    Returns:
+        modified XML tree
+    """
     success = True
     resource_elements = tree.xpath("/knora/resource/resptr-prop/resptr")
     for resptr_prop in resource_elements:

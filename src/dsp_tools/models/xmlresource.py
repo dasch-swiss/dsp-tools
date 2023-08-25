@@ -143,8 +143,8 @@ class XMLResource:  # pylint: disable=too-many-instance-attributes
                             iri = resiri_lookup.get(res_id)
                             if not iri:
                                 raise BaseError(
-                                    f"Resource cannot be created, because it contains a salsah-Link to "
-                                    f"the following invalid resource: {res_id}."
+                                    f"Resource '{self.id}' cannot be created, because it contains a salsah-Link to "
+                                    f"the following invalid resource: '{res_id}'"
                                 )
                             value.value.replace(iri_ref, iri)
                     v = value.value

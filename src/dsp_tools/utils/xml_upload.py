@@ -767,11 +767,12 @@ def _upload_resources(
         except BaseError as err:
             err_msg = err.orig_err_msg_from_api or err.message
             print(f"WARNING: Unable to create resource '{resource.label}' ({resource.id}): {err_msg}")
-            logger.warning(
+            log_msg = (
                 f"Unable to create resource '{resource.label}' ({resource.id})\n"
-                f"Resource details:\n{vars(resource)}",
-                exc_info=True,
+                f"Resource details:\n{vars(resource)}\n"
+                f"Property details:\n" + "\n".join([str(vars(prop)) for prop in resource.properties])
             )
+            logger.warning(log_msg, exc_info=True)
             failed_uploads.append(resource.id)
             continue
         id2iri_mapping[resource.id] = created_resource.iri

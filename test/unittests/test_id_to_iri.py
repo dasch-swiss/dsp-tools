@@ -5,7 +5,6 @@ import shutil
 import unittest
 
 import pytest
-import regex
 
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.id_to_iri import id_to_iri

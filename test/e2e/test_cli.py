@@ -206,14 +206,14 @@ class TestCLI(unittest.TestCase):
         )
 
         mapping_file = list(Path().glob("test-data-systematic_id2iri_mapping_*.json"))[0]
-        xml_file_orig = Path("testdata/id2iri/test-id2iri-data.xml")
-        self._make_cli_call(f"dsp-tools id2iri {xml_file_orig.absolute()} {mapping_file.absolute()}")
+        second_xml_file_orig = Path("testdata/id2iri/test-id2iri-data.xml")
+        self._make_cli_call(f"dsp-tools id2iri {second_xml_file_orig.absolute()} {mapping_file.absolute()}")
 
-        xml_file_replaced = list(self.cwd.glob(f"{xml_file_orig.stem}_replaced_*.xml"))[0]
-        self._make_cli_call(f"dsp-tools xmlupload --incremental -v {xml_file_replaced.absolute()}")
+        second_xml_file_replaced = list(self.cwd.glob(f"{second_xml_file_orig.stem}_replaced_*.xml"))[0]
+        self._make_cli_call(f"dsp-tools xmlupload --incremental -v {second_xml_file_replaced.absolute()}")
         self.assertListEqual(list(Path(self.cwd).glob("stashed_*_properties_*.txt")), [])
         mapping_file.unlink()
-        xml_file_replaced.unlink()
+        second_xml_file_replaced.unlink()
 
     def test_excel_to_json_project(self) -> None:
         excel_folder = Path("testdata/excel2json/excel2json_files")

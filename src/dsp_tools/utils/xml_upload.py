@@ -327,7 +327,7 @@ def _convert_ark_v0_to_resource_iri(ark: str) -> str:
     return "http://rdfh.ch/" + project_id + "/" + dsp_uuid
 
 
-def _parse_xml_file(input_file: Union[str, Path, etree._ElementTree[Any]]) -> etree._Element:
+def parse_xml_file(input_file: Union[str, Path, etree._ElementTree[Any]]) -> etree._Element:
     """
     Parse an XML file with DSP-conform data,
     remove namespace URI from the elements' names,
@@ -365,9 +365,6 @@ def _parse_xml_file(input_file: Union[str, Path, etree._ElementTree[Any]]) -> et
         elif elem.tag == "region":
             elem.attrib["restype"] = "Region"
             elem.tag = "resource"
-
-    # remove unused namespace declarations
-    etree.cleanup_namespaces(tree)
 
     return tree.getroot()
 
@@ -518,7 +515,7 @@ def xml_upload(
     """
     # parse the XML file
     validate_xml_against_schema(input_file=input_file)
-    root = _parse_xml_file(input_file=input_file)
+    root = parse_xml_file(input_file=input_file)
     if not preprocessing_done:
         _check_if_bitstreams_exist(root=root, imgdir=imgdir)
     shortcode = root.attrib["shortcode"]
@@ -770,11 +767,12 @@ def _upload_resources(
         except BaseError as err:
             err_msg = err.orig_err_msg_from_api or err.message
             print(f"WARNING: Unable to create resource '{resource.label}' ({resource.id}): {err_msg}")
-            logger.warning(
+            log_msg = (
                 f"Unable to create resource '{resource.label}' ({resource.id})\n"
-                f"Resource details:\n{vars(resource)}",
-                exc_info=True,
+                f"Resource details:\n{vars(resource)}\n"
+                f"Property details:\n" + "\n".join([str(vars(prop)) for prop in resource.properties])
             )
+            logger.warning(log_msg, exc_info=True)
             failed_uploads.append(resource.id)
             continue
         id2iri_mapping[resource.id] = created_resource.iri

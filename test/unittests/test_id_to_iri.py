@@ -50,7 +50,12 @@ class TestIdToIri(unittest.TestCase):
         resptr_props_contents = [r.text for r in resptr_props]
         self.assertEqual(
             resptr_props_contents,
-            ["http://rdfh.ch/082E/ylRvrg7tQI6aVpcTJbVrwg", "http://rdfh.ch/082E/JK63OpYWTDWNYVOYFN7FdQ"],
+            [
+                "http://rdfh.ch/082E/ylRvrg7tQI6aVpcTJbVrwg",
+                "http://rdfh.ch/082E/JK63OpYWTDWNYVOYFN7FdQ",
+                "http://rdfh.ch/082E/ylRvrg7tQI6aVpcTJbVrwg",
+                "http://rdfh.ch/082E/JK63OpYWTDWNYVOYFN7FdQ",
+            ],
         )
 
 

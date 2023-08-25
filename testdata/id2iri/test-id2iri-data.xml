@@ -6,9 +6,61 @@
        shortcode="4123"
        default-ontology="testonto">
 
-    <resource label="TestThing2Incremental" restype=":TestThing2" id="TestThing2Incremental">
-        <text-prop name=":hasSimpleText"><text encoding="xml">Text</text></text-prop>
-        <resptr-prop name=":hasTestThing">
+    <resource label="no_replacements" restype=":TestThing" id="no_replacements">
+        <text-prop name=":hasSimpleText">
+            <text encoding="utf8">Text</text>
+        </text-prop>
+        <text-prop name=":hasRichtext">
+            <text encoding="xml">Text</text>
+        </text-prop>
+        <boolean-prop name=":hasBoolean">
+            <boolean>true</boolean>
+        </boolean-prop>
+    </resource>
+
+    <resource label="resptr_only" restype=":TestThing" id="resptr_only">
+        <text-prop name=":hasSimpleText">
+            <text encoding="utf8">Text</text>
+        </text-prop>
+        <text-prop name=":hasRichtext">
+            <text encoding="xml">Text</text>
+        </text-prop>
+        <resptr-prop name=":hasTestThing2">
+            <resptr>test_thing_1</resptr>
+            <resptr>test_thing_2</resptr>
+        </resptr-prop>
+    </resource>
+
+    <resource label="salsah_link_only" restype=":TestThing" id="salsah_link_only">
+        <text-prop name=":hasSimpleText">
+            <text encoding="utf8">Text</text>
+        </text-prop>
+        <text-prop name=":hasRichtext">
+            <text encoding="xml">
+                Text with <a class="salsah-link" href="IRI:test_thing_2:IRI">link to test_thing_2</a>
+                and <a class="salsah-link" href="IRI:test_thing_3:IRI">link to test_thing_3</a> 
+                and <strong>a bold <a class="salsah-link" href="IRI:test_thing_4:IRI">link to test_thing_4</a></strong>
+                and trailing text.
+            </text>
+        </text-prop>
+        <boolean-prop name=":hasBoolean">
+            <boolean>true</boolean>
+        </boolean-prop>
+    </resource>
+
+    <resource label="resptr_and_salsah_link" restype=":TestThing" id="resptr_and_salsah_link">
+        <text-prop name=":hasSimpleText">
+            <text encoding="utf8">Text</text>
+        </text-prop>
+        <text-prop name=":hasRichtext">
+            <text encoding="xml">
+                Text with <a class="salsah-link" href="IRI:test_thing_2:IRI">link to test_thing_2</a>
+                and <a class="salsah-link" href="IRI:test_thing_3:IRI">link to test_thing_3</a> 
+                and <strong>a bold <a class="salsah-link" href="IRI:test_thing_4:IRI">link to test_thing_4</a></strong>
+                and trailing text.
+            </text>
+        </text-prop>
+        <resptr-prop name=":hasTestThing2">
             <resptr>test_thing_1</resptr>
             <resptr>test_thing_2</resptr>
         </resptr-prop>

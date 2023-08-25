@@ -4,6 +4,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 import regex
+from unittest import mock
 
 from dsp_tools.models.exceptions import UserError
 
@@ -29,15 +30,9 @@ def read_excel_file(excel_filename: str) -> pd.DataFrame:
         # A strange behaviour of openpyxl prevents pandas from opening files with some formatting properties
         # (unclear which formatting properties exactly).
         # Apparently, the excel2json test files have one of the unsupported formatting properties.
-        # The following two lines of code help out.
         # Credits: https://stackoverflow.com/a/70537454/14414188
-        # pylint: disable-next=import-outside-toplevel
-        from unittest import mock
-
-        p = mock.patch("openpyxl.styles.fonts.Font.family.max", new=100)
-        p.start()
-        read_df = pd.read_excel(excel_filename)
-        p.stop()
+        with mock.patch("openpyxl.styles.fonts.Font.family.max", new=100):
+            read_df = pd.read_excel(excel_filename)
     read_df = clean_data_frame(unclean_df=read_df)
     return read_df
 

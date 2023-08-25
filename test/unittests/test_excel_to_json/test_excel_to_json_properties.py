@@ -1,7 +1,7 @@
 """unit tests for excel to properties"""
 
-# pylint: disable=missing-class-docstring,missing-function-docstring,duplicate-code
-# pylint: disable=protected-access
+# pylint: disable=missing-class-docstring,missing-function-docstring,duplicate-code,disable=protected-access
+# mypy: allow_untyped_calls
 
 import json
 import os
@@ -356,7 +356,7 @@ class TestExcelToProperties(unittest.TestCase):
             with self.assertRaisesRegex(BaseError, message):
                 e2j.excel2properties(file, self.outfile)
 
-    def test__rename_deprecated_lang_cols(self):
+    def test__rename_deprecated_lang_cols(self) -> None:
         original_df = pd.DataFrame(
             {"en": [1, 2, 3], "de": [1, 2, 3], "fr": [1, 2, 3], "it": [1, 2, 3], "rm": [1, 2, 3]}
         )
@@ -374,7 +374,7 @@ class TestExcelToProperties(unittest.TestCase):
         returned_df = e2j._rename_deprecated_lang_cols(rename_df=expected_df, excel_filename="Test")
         assert_frame_equal(original_df, returned_df)
 
-    def test__do_property_excel_compliance(self):
+    def test__do_property_excel_compliance(self) -> None:
         original_df = pd.DataFrame(
             {
                 "name": ["name_1", "name_2", "name_3", "name_4", "name_5", "name_6"],
@@ -443,7 +443,7 @@ class TestExcelToProperties(unittest.TestCase):
                 "{error_str}",
             )
 
-    def test__rename_deprecated_hlist(self):
+    def test__rename_deprecated_hlist(self) -> None:
         original_df = pd.DataFrame({"hlist": [pd.NA, pd.NA, "languages"]})
         expected_df = pd.DataFrame({"gui_attributes": [pd.NA, pd.NA, "hlist:languages"]})
         returned_df = e2j._rename_deprecated_hlist(rename_df=original_df, excel_filename="Test")
@@ -456,7 +456,7 @@ class TestExcelToProperties(unittest.TestCase):
         returned_df = e2j._rename_deprecated_hlist(rename_df=original_df, excel_filename="Test")
         assert_frame_equal(expected_df, returned_df)
 
-    def test__unpack_gui_attributes(self):
+    def test__unpack_gui_attributes(self) -> None:
         test_dict = {
             "maxlength:1, size:32": {"maxlength": "1", "size": "32"},
             "hlist: languages": {"hlist": "languages"},
@@ -464,12 +464,12 @@ class TestExcelToProperties(unittest.TestCase):
         for original, expected in test_dict.items():
             self.assertDictEqual(e2j._unpack_gui_attributes(gui_str=original), expected)
 
-    def test__search_convert_numbers(self):
+    def test__search_convert_numbers(self) -> None:
         test_dict = {"1": 1, "string": "string", "1.453": 1.453, "sdf.asdf": "sdf.asdf"}
         for original, expected in test_dict.items():
             self.assertEqual(e2j._search_convert_numbers(value_str=original), expected)
 
-    def test__get_gui_attribute(self):
+    def test__get_gui_attribute(self) -> None:
         original_df = pd.DataFrame(
             {"gui_attributes": [pd.NA, "max:1.4 / min:1.2", "hlist:", "234345", "hlist: languages,"]}
         )
@@ -499,7 +499,7 @@ class TestExcelToProperties(unittest.TestCase):
         returned_dict = e2j._get_gui_attribute(df_row=original_df.loc[4, :], row_num=6, excel_filename="Test")
         self.assertDictEqual(expected_dict, returned_dict)
 
-    def test__check_gui_attributes(self):
+    def test__check_gui_attributes(self) -> None:
         original_df = pd.DataFrame(
             {
                 "gui_element": ["Spinbox", "List", "Searchbox", "Date", "Geonames", "Richtext", "TimeStamp"],
@@ -518,7 +518,7 @@ class TestExcelToProperties(unittest.TestCase):
         returned_value = e2j._check_gui_attributes(check_df=original_df)
         assert_series_equal(expected_series, returned_value["wrong gui_attributes"])
 
-    def test__row2prop(self):
+    def test__row2prop(self) -> None:
         original_df = pd.DataFrame(
             {
                 "name": ["name_1", "name_2", "name_3"],

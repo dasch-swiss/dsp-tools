@@ -24,6 +24,9 @@
             <resptr>http://rdfh.ch/082E/ylRvrg7tQI6aVpcTJbVrwg</resptr>
             <resptr>http://rdfh.ch/082E/JK63OpYWTDWNYVOYFN7FdQ</resptr>
         </resptr-prop>
+        <boolean-prop name=":hasBoolean">
+            <boolean>true</boolean>
+        </boolean-prop>
     </resource>
 
     <resource label="salsah_link_only" restype=":TestThing" id="salsah_link_only">
@@ -59,6 +62,9 @@
             <resptr>http://rdfh.ch/082E/ylRvrg7tQI6aVpcTJbVrwg</resptr>
             <resptr>http://rdfh.ch/082E/JK63OpYWTDWNYVOYFN7FdQ</resptr>
         </resptr-prop>
+        <boolean-prop name=":hasBoolean">
+            <boolean>true</boolean>
+        </boolean-prop>
     </resource>
 
 </knora>

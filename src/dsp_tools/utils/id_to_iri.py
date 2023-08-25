@@ -79,8 +79,7 @@ def _replace_ids_by_iris(
     resptr_elems = tree.xpath("/knora/resource/resptr-prop/resptr")
     for resptr_elem in resptr_elems:
         value_before = resptr_elem.text
-        value_after = mapping.get(resptr_elem.text)
-        if value_after:
+        if value_after := mapping.get(resptr_elem.text):
             resptr_elem.text = value_after
         else:
             property_name = resptr_elem.getparent().tag
@@ -98,9 +97,8 @@ def _replace_ids_by_iris(
     ]
     for salsah_link in salsah_links:
         value_before = regex.sub("IRI:|:IRI", "", salsah_link.attrib.get("href", ""))
-        value_after = mapping.get(value_before)
-        if value_after:
-            salsah_link.attrib["href"] = f"IRI:{value_after}:IRI"
+        if value_after := mapping.get(value_before):
+            salsah_link.attrib["href"] = value_after
         else:
             property_name = [x for x in salsah_link.getparents() if x.tag == "text-prop"][0].tag
             resource_name = [x for x in salsah_link.getparents() if x.tag == "resource"][0].tag

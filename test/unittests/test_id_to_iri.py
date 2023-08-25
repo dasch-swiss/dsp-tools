@@ -58,7 +58,6 @@ class TestIdToIri(unittest.TestCase):
         self.assertEqual(resptr_props, resptr_props_expected)
 
         salsah_links = [x.attrib.get("href", "") for x in out_file_parsed.xpath("/knora/resource/text-prop/text//a")]
-        salsah_links = [regex.sub("IRI:|:IRI", "", x) for x in salsah_links]
         salsah_links_expected = [
             "http://rdfh.ch/082E/JK63OpYWTDWNYVOYFN7FdQ",
             "http://rdfh.ch/082E/1l63Oasdfopiujlkmn78ak",

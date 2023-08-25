@@ -102,8 +102,8 @@ def _replace_ids_by_iris(
         if value_after:
             salsah_link.attrib["href"] = f"IRI:{value_after}:IRI"
         else:
-            property_name = salsah_link.getparent().getparent().tag
-            resource_name = salsah_link.getparent().getparent().getparent().tag
+            property_name = [x for x in salsah_link.getparents() if x.tag == "text-prop"][0].tag
+            resource_name = [x for x in salsah_link.getparents() if x.tag == "resource"][0].tag
             msg = (
                 f"Could not find internal ID '{value_before}' of salsah-link in text-prop '{property_name}' "
                 f"of resource '{resource_name}' in mapping file. Skipping..."

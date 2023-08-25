@@ -64,7 +64,7 @@ def _replace_ids_by_iris(
     mapping: dict[str, str],
 ) -> tuple[etree._Element, bool]:
     """
-    Iterate over the `<resptr>` tags and the salsah-links of the <text-prop> tags,
+    Iterate over the `<resptr>` tags and the salsah-links of the <text> tags,
     and replace the internal IDs by IRIs.
 
     Args:
@@ -139,7 +139,8 @@ def id_to_iri(
     json_file: str,
 ) -> bool:
     """
-    Replace internal IDs contained in the `<resptr>` tags of an XML file
+    Replace internal IDs of an XML file
+    (<resptr> tags and salsah-links inside <text> tags)
     by IRIs provided in a mapping file.
     The output is written to a new XML file named "[original name]_replaced_[timestamp].xml".
 

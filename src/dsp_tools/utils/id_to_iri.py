@@ -64,8 +64,9 @@ def _replace_ids_by_iris(
     mapping: dict[str, str],
 ) -> tuple[etree._Element, bool]:
     """
-    Iterate over the `<resptr>` tags and the salsah-links of the <text> tags,
+    Iterate over the <resptr> tags and the salsah-links of the <text> tags,
     and replace the internal IDs by IRIs.
+    If an internal ID cannot be found in the mapping, the original ID is kept.
 
     Args:
         tree: parsed XML file
@@ -75,40 +76,35 @@ def _replace_ids_by_iris(
         modified XML tree
     """
     success = True
+    used_mapping_entries = set()
 
     resptr_elems = tree.xpath("/knora/resource/resptr-prop/resptr")
+    resptr_elems_replaced = 0
     for resptr_elem in resptr_elems:
         value_before = resptr_elem.text
-        if value_after := mapping.get(resptr_elem.text):
+        if value_after := mapping.get(value_before):
             resptr_elem.text = value_after
-        else:
-            property_name = resptr_elem.getparent().tag
-            resource_name = resptr_elem.getparent().getparent().tag
-            msg = (
-                f"Could not find internal ID '{value_before}' of resptr-prop '{property_name}' "
-                f"of resource '{resource_name}' in mapping file. Skipping..."
-            )
-            logger.warning(msg)
-            print(f"WARNING: {msg}")
-            success = False
+            resptr_elems_replaced += 1
+            used_mapping_entries.add(value_before)
 
     salsah_links = [
         x for x in tree.xpath("/knora/resource/text-prop/text//a") if x.attrib.get("class") == "salsah-link"
     ]
+    salsah_links_replaced = 0
     for salsah_link in salsah_links:
         value_before = regex.sub("IRI:|:IRI", "", salsah_link.attrib.get("href", ""))
         if value_after := mapping.get(value_before):
             salsah_link.attrib["href"] = value_after
-        else:
-            property_name = [x for x in salsah_link.getparents() if x.tag == "text-prop"][0].tag
-            resource_name = [x for x in salsah_link.getparents() if x.tag == "resource"][0].tag
-            msg = (
-                f"Could not find internal ID '{value_before}' of salsah-link in text-prop '{property_name}' "
-                f"of resource '{resource_name}' in mapping file. Skipping..."
-            )
-            logger.warning(msg)
-            print(f"WARNING: {msg}")
-            success = False
+            salsah_links_replaced += 1
+            used_mapping_entries.add(value_before)
+
+    msg = (
+        f"Replaced {resptr_elems_replaced}/{len(resptr_elems)} resptr links "
+        f"and {salsah_links_replaced}/{len(salsah_links)} salsah-links in the XML file. "
+        f"Used {len(used_mapping_entries)}/{len(mapping)} entries from the mapping file."
+    )
+    logger.info(msg)
+    print(msg)
 
     return tree, success
 
@@ -140,6 +136,7 @@ def id_to_iri(
     Replace internal IDs of an XML file
     (<resptr> tags and salsah-links inside <text> tags)
     by IRIs provided in a mapping file.
+    If an internal ID cannot be found in the mapping, the original ID is kept.
     The output is written to a new XML file named "[original name]_replaced_[timestamp].xml".
 
     Args:

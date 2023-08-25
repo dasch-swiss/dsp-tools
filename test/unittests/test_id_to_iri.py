@@ -5,6 +5,7 @@ import shutil
 import unittest
 
 import pytest
+import regex
 
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.id_to_iri import id_to_iri
@@ -46,17 +47,27 @@ class TestIdToIri(unittest.TestCase):
         out_file = list(Path(".").glob("test-id2iri-data_replaced_*.xml"))[0]
         out_file_parsed = parse_xml_file(out_file)
         out_file.unlink()
-        resptr_props = out_file_parsed.xpath("/knora/resource/resptr-prop/resptr")
-        resptr_props_contents = [r.text for r in resptr_props]
-        self.assertEqual(
-            resptr_props_contents,
-            [
-                "http://rdfh.ch/082E/ylRvrg7tQI6aVpcTJbVrwg",
-                "http://rdfh.ch/082E/qwasddoiu876flkjh67dss",
-                "http://rdfh.ch/082E/ylRvrg7tQI6aVpcTJbVrwg",
-                "http://rdfh.ch/082E/qwasddoiu876flkjh67dss",
-            ],
-        )
+
+        resptr_props = [x.text for x in out_file_parsed.xpath("/knora/resource/resptr-prop/resptr")]
+        resptr_props_expected = [
+            "http://rdfh.ch/082E/ylRvrg7tQI6aVpcTJbVrwg",
+            "http://rdfh.ch/082E/qwasddoiu876flkjh67dss",
+            "http://rdfh.ch/082E/ylRvrg7tQI6aVpcTJbVrwg",
+            "http://rdfh.ch/082E/qwasddoiu876flkjh67dss",
+        ]
+        self.assertEqual(resptr_props, resptr_props_expected)
+
+        salsah_links = [x.attrib.get("href", "") for x in out_file_parsed.xpath("/knora/resource/text-prop/text//a")]
+        salsah_links = [regex.sub("IRI:|:IRI", "", x) for x in salsah_links]
+        salsah_links_expected = [
+            "http://rdfh.ch/082E/JK63OpYWTDWNYVOYFN7FdQ",
+            "http://rdfh.ch/082E/1l63Oasdfopiujlkmn78ak",
+            "http://rdfh.ch/082E/qwasddoiu876flkjh67dss",
+            "http://rdfh.ch/082E/JK63OpYWTDWNYVOYFN7FdQ",
+            "http://rdfh.ch/082E/1l63Oasdfopiujlkmn78ak",
+            "http://rdfh.ch/082E/qwasddoiu876flkjh67dss",
+        ]
+        self.assertEqual(salsah_links, salsah_links_expected)
 
 
 if __name__ == "__main__":

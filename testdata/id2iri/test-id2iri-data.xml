@@ -61,16 +61,14 @@
         </text-prop>
         <text-prop name=":hasRichtext">
             <text encoding="xml">
-                <text encoding="xml">
-                    Text with a <a class="salsah-link" href="IRI:test_thing_1:IRI">link to test_thing_1</a>
-                    and <strong>a bold 
-                        <em>and italicized
-                            <a class="salsah-link" href="IRI:test_thing_2:IRI">link to test_thing_2</a>
-                        </em>
-                    </strong>
-                    and trailing text
-                    and a <a class="salsah-link" href="IRI:test_thing_with_ark_1:IRI">link to test_thing_with_ark_1</a> 
-                </text>
+                Text with a <a class="salsah-link" href="IRI:test_thing_1:IRI">link to test_thing_1</a>
+                and <strong>a bold 
+                    <em>and italicized
+                        <a class="salsah-link" href="IRI:test_thing_2:IRI">link to test_thing_2</a>
+                    </em>
+                </strong>
+                and trailing text
+                and a <a class="salsah-link" href="IRI:test_thing_with_ark_1:IRI">link to test_thing_with_ark_1</a> 
             </text>
         </text-prop>
         <resptr-prop name=":hasTestThing2">

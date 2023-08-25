@@ -26,8 +26,8 @@
             <text encoding="xml">Text</text>
         </text-prop>
         <resptr-prop name=":hasTestThing2">
-            <resptr>test_thing_1</resptr>
-            <resptr>test_thing_2</resptr>
+            <resptr>test_thing_0</resptr>
+            <resptr>test_thing_with_ark_1</resptr>
         </resptr-prop>
         <boolean-prop name=":hasBoolean">
             <boolean>true</boolean>
@@ -40,9 +40,11 @@
         </text-prop>
         <text-prop name=":hasRichtext">
             <text encoding="xml">
-                Text with <a class="salsah-link" href="IRI:test_thing_2:IRI">link to test_thing_2</a>
-                and <a class="salsah-link" href="IRI:test_thing_3:IRI">link to test_thing_3</a> 
-                and <strong>a bold <a class="salsah-link" href="IRI:test_thing_4:IRI">link to test_thing_4</a></strong>
+                Text with <a class="salsah-link" href="IRI:test_thing_1:IRI">link to test_thing_1</a>
+                and <a class="salsah-link" href="IRI:test_thing_2:IRI">link to test_thing_2</a> 
+                and <strong>a bold 
+                    <a class="salsah-link" href="IRI:test_thing_with_ark_1:IRI">link to test_thing_with_ark_1</a>
+                </strong>
                 and trailing text.
             </text>
         </text-prop>
@@ -57,15 +59,17 @@
         </text-prop>
         <text-prop name=":hasRichtext">
             <text encoding="xml">
-                Text with <a class="salsah-link" href="IRI:test_thing_2:IRI">link to test_thing_2</a>
-                and <a class="salsah-link" href="IRI:test_thing_3:IRI">link to test_thing_3</a> 
-                and <strong>a bold <a class="salsah-link" href="IRI:test_thing_4:IRI">link to test_thing_4</a></strong>
+                Text with <a class="salsah-link" href="IRI:test_thing_1:IRI">link to test_thing_1</a>
+                and <a class="salsah-link" href="IRI:test_thing_2:IRI">link to test_thing_2</a> 
+                and <strong>a bold 
+                    <a class="salsah-link" href="IRI:test_thing_with_ark_1:IRI">link to test_thing_with_ark_1</a>
+                </strong>
                 and trailing text.
             </text>
         </text-prop>
         <resptr-prop name=":hasTestThing2">
-            <resptr>test_thing_1</resptr>
-            <resptr>test_thing_2</resptr>
+            <resptr>test_thing_0</resptr>
+            <resptr>test_thing_with_ark_1</resptr>
         </resptr-prop>
         <boolean-prop name=":hasBoolean">
             <boolean>true</boolean>

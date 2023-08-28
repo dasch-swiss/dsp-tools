@@ -20,6 +20,7 @@ import pytest
 import regex
 
 from dsp_tools.utils.project_create_lists import create_lists
+from dsp_tools.utils.shared import get_most_recent_glob_match
 
 
 class TestCLI(unittest.TestCase):
@@ -47,7 +48,7 @@ class TestCLI(unittest.TestCase):
         """Is executed after the methods of this class have all run through"""
         shutil.rmtree(cls.testdata_tmp)
         shutil.rmtree(cls.cwd)
-        for f in Path().glob("id2iri_*.json"):
+        for f in Path().glob("*id2iri_*.json"):
             f.unlink()
 
     def _make_cli_call(
@@ -205,15 +206,15 @@ class TestCLI(unittest.TestCase):
             working_directory=Path("."),
         )
 
-        mapping_file = list(Path().glob("test-data-systematic_id2iri_mapping_*.json"))[0]
+        mapping_file = get_most_recent_glob_match("test-data-systematic_id2iri_mapping_*.json")
         second_xml_file_orig = Path("testdata/id2iri/test-id2iri-data.xml")
         self._make_cli_call(f"dsp-tools id2iri {second_xml_file_orig.absolute()} {mapping_file.absolute()}")
-
-        second_xml_file_replaced = list(self.cwd.glob(f"{second_xml_file_orig.stem}_replaced_*.xml"))[0]
-        self._make_cli_call(f"dsp-tools xmlupload --incremental -v {second_xml_file_replaced.absolute()}")
-        self.assertListEqual(list(Path(self.cwd).glob("stashed_*_properties_*.txt")), [])
         mapping_file.unlink()
+
+        second_xml_file_replaced = get_most_recent_glob_match(self.cwd / f"{second_xml_file_orig.stem}_replaced_*.xml")
+        self._make_cli_call(f"dsp-tools xmlupload --incremental -v {second_xml_file_replaced.absolute()}")
         second_xml_file_replaced.unlink()
+        self.assertListEqual(list(Path(self.cwd).glob("stashed_*_properties_*.txt")), [])
 
     def test_excel_to_json_project(self) -> None:
         excel_folder = Path("testdata/excel2json/excel2json_files")
@@ -263,13 +264,13 @@ class TestCLI(unittest.TestCase):
         xml_file = Path("testdata/id2iri/test-id2iri-data.xml")
         mapping_file = Path("testdata/id2iri/test-id2iri-mapping.json")
         self._make_cli_call(f"dsp-tools id2iri {xml_file.absolute()} {mapping_file.absolute()}")
-        out_file = list(self.cwd.glob(f"{xml_file.stem}_replaced_*.xml"))[0]
+        out_file = get_most_recent_glob_match(self.cwd / "test-id2iri-data_replaced_*.xml")
         with open(out_file, encoding="utf-8") as f:
             output_actual = f.read()
+        out_file.unlink()
         with open("testdata/id2iri/test-id2iri-output-expected.xml", encoding="utf-8") as f:
             output_expected = f.read()
         self.assertEqual(output_actual, output_expected)
-        out_file.unlink()
 
     @pytest.mark.filterwarnings("ignore")
     def test_excel2xml(self) -> None:

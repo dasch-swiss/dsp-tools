@@ -220,7 +220,7 @@ def _make_parser(
     # id2iri
     parser_id2iri = subparsers.add_parser(
         name="id2iri",
-        help="Replace internal IDs contained in the <resptr> tags of an XML file by IRIs provided in a mapping file",
+        help="Replace internal IDs of an XML file (resptr tags or salsah-links) by IRIs provided in a mapping file.",
     )
     parser_id2iri.set_defaults(action="id2iri")
     parser_id2iri.add_argument("xmlfile", help="path to the XML file containing the data to be replaced")

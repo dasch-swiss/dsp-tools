@@ -5,10 +5,11 @@ import shutil
 import unittest
 
 import pytest
+import regex
 
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.id_to_iri import id_to_iri
-from dsp_tools.utils.xml_upload import parse_xml_file
+from dsp_tools.utils.shared import get_most_recent_glob_match
 
 
 class TestIdToIri(unittest.TestCase):
@@ -39,24 +40,29 @@ class TestIdToIri(unittest.TestCase):
             )
 
     def test_replace_id_with_iri(self) -> None:
+        """Check that the correct IRIs appear in the correct order in the output file"""
         id_to_iri(
             xml_file="testdata/id2iri/test-id2iri-data.xml",
             json_file="testdata/id2iri/test-id2iri-mapping.json",
         )
-        out_file = list(Path(".").glob("test-id2iri-data_replaced_*.xml"))[0]
-        out_file_parsed = parse_xml_file(out_file)
+        out_file = get_most_recent_glob_match("test-id2iri-data_replaced_*.xml")
+        with open(out_file, encoding="utf-8", mode="r") as file:
+            out_file_content = file.read()
         out_file.unlink()
-        resptr_props = out_file_parsed.xpath("/knora/resource/resptr-prop/resptr")
-        resptr_props_contents = [r.text for r in resptr_props]
-        self.assertEqual(
-            resptr_props_contents,
-            [
-                "http://rdfh.ch/082E/ylRvrg7tQI6aVpcTJbVrwg",
-                "http://rdfh.ch/082E/qwasddoiu876flkjh67dss",
-                "http://rdfh.ch/082E/ylRvrg7tQI6aVpcTJbVrwg",
-                "http://rdfh.ch/082E/qwasddoiu876flkjh67dss",
-            ],
-        )
+        iris = regex.findall(r"http://rdfh\.ch/082E/\w+", out_file_content)
+        iris_expected = [
+            "http://rdfh.ch/082E/ylRvrg7tQI6aVpcTJbVrwg",
+            "http://rdfh.ch/082E/qwasddoiu876flkjh67dss",
+            "http://rdfh.ch/082E/JK63OpYWTDWNYVOYFN7FdQ",
+            "http://rdfh.ch/082E/1l63Oasdfopiujlkmn78ak",
+            "http://rdfh.ch/082E/qwasddoiu876flkjh67dss",
+            "http://rdfh.ch/082E/JK63OpYWTDWNYVOYFN7FdQ",
+            "http://rdfh.ch/082E/1l63Oasdfopiujlkmn78ak",
+            "http://rdfh.ch/082E/qwasddoiu876flkjh67dss",
+            "http://rdfh.ch/082E/ylRvrg7tQI6aVpcTJbVrwg",
+            "http://rdfh.ch/082E/qwasddoiu876flkjh67dss",
+        ]
+        self.assertListEqual(iris, iris_expected)
 
 
 if __name__ == "__main__":

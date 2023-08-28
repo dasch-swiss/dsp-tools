@@ -1,11 +1,10 @@
 # pylint: disable=f-string-without-interpolation,missing-class-docstring,missing-function-docstring
 # mypy: allow_untyped_calls
 
+from typing import cast
 import unittest
 import pytest
 import pandas as pd
-from typing import cast
-
 from pandas.testing import assert_frame_equal, assert_series_equal
 
 from dsp_tools.models.exceptions import BaseError

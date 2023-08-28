@@ -1,18 +1,17 @@
 """unit tests for excel to properties"""
 
-# pylint: disable=missing-class-docstring,missing-function-docstring,duplicate-code,disable=protected-access
-# mypy: allow_untyped_calls
+# pylint: disable=missing-class-docstring,missing-function-docstring,duplicate-code,disable=protected-access,
+# disable=wrong-import-order mypy: allow_untyped_calls
 
+from typing import Any, cast
 import json
 import os
 import unittest
-from typing import Any, cast
 import pandas as pd
 import jsonpath_ng
 import jsonpath_ng.ext
 import pytest
-
-from pandas.testing import assert_frame_equal, assert_series_equal
+from pandas.testing import assert_frame_equal
 
 from dsp_tools.models.exceptions import UserError, BaseError
 from dsp_tools.utils.excel_to_json import excel_to_json_properties as e2j

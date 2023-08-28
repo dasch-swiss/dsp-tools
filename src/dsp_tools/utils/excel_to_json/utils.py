@@ -1,3 +1,5 @@
+# pylint: disable=wrong-import-order
+
 from __future__ import annotations
 
 from typing import Any
@@ -63,7 +65,7 @@ def clean_data_frame(unclean_df: pd.DataFrame) -> pd.DataFrame:
     return cleaned_df
 
 
-def check_required_columns_raises_error(check_df: pd.DataFrame, required_columns: set[str]) -> None:
+def check_required_columns_raise_error(check_df: pd.DataFrame, required_columns: set[str]) -> None:
     """
     This function takes a pd.DataFrame and a set of required column names. It checks if all the columns from the set
     are in the pd.DataFrame. Additional columns to the ones in the set are allowed. It raises an error if any columns
@@ -74,7 +76,7 @@ def check_required_columns_raises_error(check_df: pd.DataFrame, required_columns
         required_columns: set of column names
 
     Raises:
-        UserError if there are required columns missing
+        UserError: if there are required columns missing
     """
     # This checks if the required columns are in the Dataframe. Other columns are also permitted.
     if not required_columns.issubset(set(check_df.columns)):
@@ -93,7 +95,7 @@ def check_duplicate_raise_error(check_df: pd.DataFrame, duplicate_column: str) -
         duplicate_column: Name of the column that must not contain duplicates
 
     Raises:
-        UserError if there are duplicates in the column
+        UserError: if there are duplicates in the column
     """
     # This checks if there are any duplicate values in a column,
     # pd.NA values also count as duplicates if there are several empty cells.

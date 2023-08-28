@@ -4,6 +4,7 @@
 import unittest
 import pytest
 import pandas as pd
+from typing import cast
 
 from pandas.testing import assert_frame_equal, assert_series_equal
 
@@ -30,13 +31,13 @@ class TestUtils(unittest.TestCase):
         returned_df = utl.clean_data_frame(unclean_df=original_df)
         assert_frame_equal(expected_df, returned_df)
 
-    def test_check_required_columns_raises_error(self) -> None:
+    def test_check_required_columns_raise_error(self) -> None:
         original_df = pd.DataFrame(columns=["col1", "col2", "col3", "extra_col"])
         required = {"col1", "col2", "col3"}
-        utl.check_required_columns_raises_error(check_df=original_df, required_columns=required)
+        utl.check_required_columns_raise_error(check_df=original_df, required_columns=required)
         required = {"col1", "col2", "col3", "col4"}
         with self.assertRaises(BaseError) as context:
-            utl.check_required_columns_raises_error(check_df=original_df, required_columns=required)
+            utl.check_required_columns_raise_error(check_df=original_df, required_columns=required)
             self.assertEqual(
                 context,
                 "The following columns are missing in the excel: "
@@ -175,9 +176,9 @@ class TestUtils(unittest.TestCase):
         )
         expected_dict = {"de": "text_de", "en": "text_en", "fr": "text_fr", "it": "text_it", "rm": "text_rm"}
         returned_dict = utl.get_comments(original_df.loc[0, :])
-        self.assertDictEqual(expected_dict, returned_dict)
-        returned_dict = utl.get_comments(original_df.loc[1, :])
-        self.assertIsNone(returned_dict)
+        self.assertDictEqual(expected_dict, cast(dict[str, str], returned_dict))
+        returned_none = utl.get_comments(original_df.loc[1, :])
+        self.assertIsNone(cast(None, returned_none))
 
 
 if __name__ == "__main__":

@@ -6,7 +6,7 @@
 import json
 import os
 import unittest
-from typing import Any
+from typing import Any, cast
 import pandas as pd
 import jsonpath_ng
 import jsonpath_ng.ext
@@ -497,7 +497,7 @@ class TestExcelToProperties(unittest.TestCase):
             )
         expected_dict = {"hlist": "languages"}
         returned_dict = e2j._get_gui_attribute(df_row=original_df.loc[4, :], row_num=6, excel_filename="Test")
-        self.assertDictEqual(expected_dict, returned_dict)
+        self.assertDictEqual(expected_dict, cast(dict[str, str], returned_dict))
 
     def test__check_gui_attributes(self) -> None:
         original_df = pd.DataFrame(
@@ -507,16 +507,18 @@ class TestExcelToProperties(unittest.TestCase):
             }
         )
         returned_value = e2j._check_gui_attributes(check_df=original_df)
-        self.assertIsNone(returned_value)
+        self.assertIsNone(cast(None, returned_value))
         original_df = pd.DataFrame(
             {
                 "gui_element": ["Spinbox", "List", "Searchbox", "Date", "Geonames", "Richtext", "TimeStamp"],
                 "gui_attributes": ["Spinbox_attr", pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, "TimeStamp_attr"],
             }
         )
-        expected_series = pd.Series([False, True, False, False, False, False, True])
-        returned_value = e2j._check_gui_attributes(check_df=original_df)
-        assert_series_equal(expected_series, returned_value["wrong gui_attributes"])
+        expected_dict = {"wrong gui_attributes": [False, True, False, False, False, False, True]}
+        returned_dict = e2j._check_gui_attributes(check_df=original_df)
+        returned_dict = cast(dict[str, list[pd.Series]], returned_dict)
+        casted_dict: dict[str, Any] = {"wrong gui_attributes": list(returned_dict["wrong gui_attributes"])}
+        self.assertDictEqual(expected_dict, casted_dict)
 
     def test__row2prop(self) -> None:
         original_df = pd.DataFrame(

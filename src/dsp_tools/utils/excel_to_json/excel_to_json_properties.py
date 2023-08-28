@@ -125,7 +125,7 @@ def _unpack_gui_attributes(gui_str: str) -> dict[str, str]:
         A dictionary with the gui_attribute name as key and the attribute as value.
 
     Raises:
-        IndexError if the sub-lists do not contain each two items
+        IndexError: if the sub-lists do not contain each two items
     """
     # Create a list with several attributes
     gui_list = [x.strip() for x in gui_str.split(",") if not x.strip() == ""]
@@ -173,7 +173,7 @@ def _get_gui_attribute(df_row: pd.Series, row_num: int, excel_filename: str) -> 
         A gui_attribute dictionary or None if there are no attributes
 
     Raises:
-        UserError if there is a formatting error of the string
+        UserError: if there is a formatting error of the string
     """
     if pd.isnull(df_row["gui_attributes"]):
         return None
@@ -278,7 +278,7 @@ def _check_missing_values_in_row_raise_error(to_check_df: pd.DataFrame, excel_fi
         excel_filename: Name of the original Excel file
 
     Raises:
-        UserError if any of the checks are failed
+        UserError: if any of the checks are failed
     """
     # Every row in these columns must have a value
     required_values = ["name", "super", "object", "gui_element"]
@@ -334,7 +334,7 @@ def _do_property_excel_compliance(compliance_df: pd.DataFrame, excel_filename: s
         "gui_element",
         "gui_attributes",
     }
-    utl.check_required_columns_raises_error(check_df=compliance_df, required_columns=required_columns)
+    utl.check_required_columns_raise_error(check_df=compliance_df, required_columns=required_columns)
     utl.check_duplicate_raise_error(check_df=compliance_df, duplicate_column="name")
     _check_missing_values_in_row_raise_error(to_check_df=compliance_df, excel_filename=excel_filename)
 

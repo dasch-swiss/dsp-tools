@@ -65,8 +65,7 @@ def _validate_properties(
     excelfile: str,
 ) -> bool:
     """
-    This function checks if the "properties" section of a JSON project file is valid, according to the JSON schema,
-    and if the property names are unique.
+    This function checks if the "properties" section of a JSON project file is valid, according to the JSON schema.
 
     Args:
         properties_list: the "properties" section of a JSON project as a list of dicts
@@ -103,6 +102,7 @@ def _search_convert_numbers(value_str: str) -> str | int | float:
     Returns:
         A int if the string was an integer, float if the string was a float or str if it was neither
     """
+    # TODO: fix regex: this would miss "1e+3" which is a valid representation of 1000.0 in python
     if regex.search(r"^\d+\.\d+$", value_str):
         return float(value_str)
     elif regex.search(r"^\d+$", value_str):
@@ -113,10 +113,8 @@ def _search_convert_numbers(value_str: str) -> str | int | float:
 
 def _unpack_gui_attributes(gui_str: str) -> dict[str, str]:
     """
-    This function takes a string which contains the gui_attributes if they are formatted according to the documentation
-    a correct dictionary with the attribute name and its value is created. If the string is not formatted correctly,
-    then the resulting list may not be in the expected format, this raises an IndexError. Only very broad errors
-    can be caught with this function. Errors regarding the content will be diagnosed when the json is validated.
+    This function takes a string which contains the gui_attributes if the string is not formatted correctly,
+    this raises an IndexError. Errors regarding the content will be diagnosed when the json is validated.
 
     Args:
         gui_str: A string containing the gui_attributes
@@ -140,10 +138,7 @@ def _unpack_gui_attributes(gui_str: str) -> dict[str, str]:
 
 def _format_gui_attribute(attribute_str: str) -> dict[str, str | int | float]:
     """
-    This function takes a string containing the information about the gui_attributes. First, a dictionary is created
-    separating different attribute names and their values; in the second step it converts the numbers which are stored
-    as strings into int or float data types.
-
+    This function takes a string containing the information about the gui_attributes and formats it correctly.
     Args:
         attribute_str: A string containing the attributes
 
@@ -160,9 +155,7 @@ def _format_gui_attribute(attribute_str: str) -> dict[str, str | int | float]:
 def _get_gui_attribute(df_row: pd.Series, row_num: int, excel_filename: str) -> dict[str, int | str | float] | None:
     """
     This function checks if the cell "gui_attributes" is empty. If it is, it returns None. If there is information,
-    it extracts and formats it correctly. In case there is an unexpected format in the string, not according to the
-    specification. The called function raises an IndexError. This error is caught, and a UserError is raised,
-    which contains the row number and Excel file name.
+    it extracts and formats it correctly.
 
     Args:
         df_row: Row of a pd.DataFrame
@@ -218,8 +211,7 @@ def _row2prop(prop_row: pd.Series, row_count: int, excel_filename: str) -> dict[
 
 def _check_gui_attributes(check_df: pd.DataFrame) -> dict[str, pd.Series] | None:
     """
-    This function takes a pd.DataFrame and checks if the "gui_attributes" column is filled correctly. It does not check
-    if the content is correct only if there is content, where mandatory or no content where it must be absent. If any
+    This function takes a pd.DataFrame and checks if the "gui_attributes" column is filled correctly. If any
     or all of the checks fail, it creates a dictionary with a pd.Series as value which contains True for all rows where
     there is a problem otherwise, it returns None.
 
@@ -265,13 +257,10 @@ def _check_gui_attributes(check_df: pd.DataFrame) -> dict[str, pd.Series] | None
 
 def _check_missing_values_in_row_raise_error(to_check_df: pd.DataFrame, excel_filename: str) -> None:
     """
-    This function takes a pd.DataFrame which should be checked and the name of the original Excel file. It checks
-    that columns which are in the "required_values" list contain a value for each row. Additionally, it checks that
-    each row has at least one label in any language. Next, it checks if the gui_attributes comply. If all the checks
-    are ok, then the dictionary is empty; in that case, the function ends without any effect. If any of the
-    checks fail, the called functions return a dictionary with the column name as key, and the boolean pd.Series as
-    value. True in the pd.Series denotes that there is a problem in that row. After all, the checks are done, the
-    series is converted into row numbers. This information is added to the error message and a UserError is raised.
+    This function checks if all the required values are in the df. If all the checks are ok, the function ends without
+    any effect. If any of the checks fail, the called functions return a dictionary with the column name as key,
+    After all the checks are done, the a UserError is raised which contains the information in which column and row
+    there are problems.
 
     Args:
         to_check_df: pd.DataFrame that is to be checked
@@ -342,9 +331,7 @@ def _do_property_excel_compliance(compliance_df: pd.DataFrame, excel_filename: s
 def _rename_deprecated_hlist(rename_df: pd.DataFrame, excel_filename: str) -> pd.DataFrame:
     """
     This function deals with Excel files that do conform to a previous format. If the old column names are not
-    in the pd.DataFrame, then it returns it as was. The column "hlist" formerly contained the list name of the
-    gui_element "ListValue". This information is transferred into the column "gui_attributes" if it exists, otherwise
-    it is renamed.
+    in the pd.DataFrame, then it returns it as was.
 
     Args:
         rename_df: The pd.DataFrame which is checked and renamed

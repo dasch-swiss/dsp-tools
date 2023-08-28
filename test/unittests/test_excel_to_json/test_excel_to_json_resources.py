@@ -12,7 +12,7 @@ import jsonpath_ng.ext
 import pytest
 
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.utils.excel_to_json import excel_to_json_resources as e2j
+from dsp_tools.utils.excel_to_json import resources as e2j
 
 
 class TestExcelToResource(unittest.TestCase):

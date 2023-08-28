@@ -15,7 +15,7 @@ import pytest
 import regex
 
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.utils.excel_to_json import excel_to_json_lists as e2l
+from dsp_tools.utils.excel_to_json import lists as e2l
 
 
 class TestExcelToJSONList(unittest.TestCase):

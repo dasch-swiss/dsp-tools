@@ -14,7 +14,7 @@ import pytest
 from pandas.testing import assert_frame_equal
 
 from dsp_tools.models.exceptions import UserError, BaseError
-from dsp_tools.utils.excel_to_json import excel_to_json_properties as e2j
+from dsp_tools.utils.excel_to_json import properties as e2j
 
 
 class TestExcelToProperties(unittest.TestCase):

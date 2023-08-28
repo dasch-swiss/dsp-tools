@@ -20,6 +20,7 @@ import pytest
 import regex
 
 from dsp_tools.utils.project_create_lists import create_lists
+from dsp_tools.utils.shared import get_most_recent_glob_match
 
 
 class TestCLI(unittest.TestCase):
@@ -205,14 +206,12 @@ class TestCLI(unittest.TestCase):
             working_directory=Path("."),
         )
 
-        mapping_file_candidates = Path().glob("test-data-systematic_id2iri_mapping_*.json")
-        mapping_file = sorted(mapping_file_candidates)[-1]  # most recent one
+        mapping_file = get_most_recent_glob_match("test-data-systematic_id2iri_mapping_*.json")
         second_xml_file_orig = Path("testdata/id2iri/test-id2iri-data.xml")
         self._make_cli_call(f"dsp-tools id2iri {second_xml_file_orig.absolute()} {mapping_file.absolute()}")
         mapping_file.unlink()
 
-        second_xml_file_replaced_candidates = self.cwd.glob(f"{second_xml_file_orig.stem}_replaced_*.xml")
-        second_xml_file_replaced = sorted(second_xml_file_replaced_candidates)[-1]  # most recent one
+        second_xml_file_replaced = get_most_recent_glob_match(self.cwd / f"{second_xml_file_orig.stem}_replaced_*.xml")
         self._make_cli_call(f"dsp-tools xmlupload --incremental -v {second_xml_file_replaced.absolute()}")
         second_xml_file_replaced.unlink()
         self.assertListEqual(list(Path(self.cwd).glob("stashed_*_properties_*.txt")), [])
@@ -265,8 +264,7 @@ class TestCLI(unittest.TestCase):
         xml_file = Path("testdata/id2iri/test-id2iri-data.xml")
         mapping_file = Path("testdata/id2iri/test-id2iri-mapping.json")
         self._make_cli_call(f"dsp-tools id2iri {xml_file.absolute()} {mapping_file.absolute()}")
-        out_file_candidates = self.cwd.glob(f"{xml_file.stem}_replaced_*.xml")
-        out_file = sorted(out_file_candidates)[-1]  # most recent one
+        out_file = get_most_recent_glob_match(self.cwd / "test-id2iri-data_replaced_*.xml")
         with open(out_file, encoding="utf-8") as f:
             output_actual = f.read()
         out_file.unlink()

@@ -9,6 +9,7 @@ import regex
 
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.id_to_iri import id_to_iri
+from dsp_tools.utils.shared import get_most_recent_glob_match
 
 
 class TestIdToIri(unittest.TestCase):
@@ -44,7 +45,7 @@ class TestIdToIri(unittest.TestCase):
             xml_file="testdata/id2iri/test-id2iri-data.xml",
             json_file="testdata/id2iri/test-id2iri-mapping.json",
         )
-        out_file = sorted(Path(".").glob("test-id2iri-data_replaced_*.xml"))[-1]  # most recent one
+        out_file = get_most_recent_glob_match("test-id2iri-data_replaced_*.xml")
         with open(out_file, encoding="utf-8", mode="r") as file:
             out_file_content = file.read()
         out_file.unlink()

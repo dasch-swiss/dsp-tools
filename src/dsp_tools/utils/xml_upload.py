@@ -327,7 +327,7 @@ def _convert_ark_v0_to_resource_iri(ark: str) -> str:
     return "http://rdfh.ch/" + project_id + "/" + dsp_uuid
 
 
-def _parse_xml_file(input_file: Union[str, Path, etree._ElementTree[Any]]) -> etree._Element:
+def parse_xml_file(input_file: Union[str, Path, etree._ElementTree[Any]]) -> etree._Element:
     """
     Parse an XML file with DSP-conform data,
     remove namespace URI from the elements' names,
@@ -365,9 +365,6 @@ def _parse_xml_file(input_file: Union[str, Path, etree._ElementTree[Any]]) -> et
         elif elem.tag == "region":
             elem.attrib["restype"] = "Region"
             elem.tag = "resource"
-
-    # remove unused namespace declarations
-    etree.cleanup_namespaces(tree)
 
     return tree.getroot()
 
@@ -488,10 +485,10 @@ def xml_upload(
     password: str,
     imgdir: str,
     sipi: str,
-    verbose: bool,
-    incremental: bool,
-    save_metrics: bool,
-    preprocessing_done: bool,
+    verbose: bool = False,
+    incremental: bool = False,
+    save_metrics: bool = False,
+    preprocessing_done: bool = False,
 ) -> bool:
     """
     This function reads an XML file and imports the data described in it onto the DSP server.
@@ -518,7 +515,7 @@ def xml_upload(
     """
     # parse the XML file
     validate_xml_against_schema(input_file=input_file)
-    root = _parse_xml_file(input_file=input_file)
+    root = parse_xml_file(input_file=input_file)
     if not preprocessing_done:
         _check_if_bitstreams_exist(root=root, imgdir=imgdir)
     shortcode = root.attrib["shortcode"]
@@ -537,14 +534,16 @@ def xml_upload(
     metrics: list[MetricRecord] = []
     preparation_start = datetime.now()
 
-    # Connect to the DaSCH Service Platform API and get the project context
+    # establish connection to DSP server
     con = login(server=server, user=user, password=password)
+    sipi_server = Sipi(sipi, con.get_token())
+
+    # get the project context
     try:
         proj_context = try_network_action(lambda: ProjectContext(con=con))
     except BaseError:
         logger.error("Unable to retrieve project context from DSP server", exc_info=True)
         raise UserError("Unable to retrieve project context from DSP server") from None
-    sipi_server = Sipi(sipi, con.get_token())
 
     # make Python object representations of the XML file
     resources: list[XMLResource] = []
@@ -768,7 +767,12 @@ def _upload_resources(
         except BaseError as err:
             err_msg = err.orig_err_msg_from_api or err.message
             print(f"WARNING: Unable to create resource '{resource.label}' ({resource.id}): {err_msg}")
-            logger.warning(f"Unable to create resource '{resource.label}' ({resource.id}).", exc_info=True)
+            log_msg = (
+                f"Unable to create resource '{resource.label}' ({resource.id})\n"
+                f"Resource details:\n{vars(resource)}\n"
+                f"Property details:\n" + "\n".join([str(vars(prop)) for prop in resource.properties])
+            )
+            logger.warning(log_msg, exc_info=True)
             failed_uploads.append(resource.id)
             continue
         id2iri_mapping[resource.id] = created_resource.iri

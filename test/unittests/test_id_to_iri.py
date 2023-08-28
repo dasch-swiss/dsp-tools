@@ -1,39 +1,35 @@
-"""Unit tests for id to iri mapping"""
-
 # pylint: disable=missing-class-docstring,missing-function-docstring
 
-import os
+from pathlib import Path
+import shutil
 import unittest
 
 import pytest
+import regex
 
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.id_to_iri import id_to_iri
-from dsp_tools.utils.xml_upload import _parse_xml_file
+from dsp_tools.utils.shared import get_most_recent_glob_match
 
 
 class TestIdToIri(unittest.TestCase):
-    out_file = "testdata/tmp/_test-id2iri-replaced.xml"
+    tmp_dir = Path("testdata/tmp")
 
     @classmethod
     def setUpClass(cls) -> None:
         """Is executed once before the methods of this class are run"""
-        os.makedirs("testdata/tmp", exist_ok=True)
+        cls.tmp_dir.mkdir(parents=True, exist_ok=True)
 
     @classmethod
     def tearDownClass(cls) -> None:
         """Is executed after the methods of this class have all run through"""
-        for file in os.listdir("testdata/tmp"):
-            os.remove("testdata/tmp/" + file)
-        os.rmdir("testdata/tmp")
+        shutil.rmtree(cls.tmp_dir)
 
     def test_invalid_xml_file_name(self) -> None:
         with self.assertRaisesRegex(BaseError, r"File test\.xml could not be found"):
             id_to_iri(
                 xml_file="test.xml",
                 json_file="testdata/id2iri/test-id2iri-mapping.json",
-                out_file=self.out_file,
-                verbose=True,
             )
 
     def test_invalid_json_file_name(self) -> None:
@@ -41,29 +37,32 @@ class TestIdToIri(unittest.TestCase):
             id_to_iri(
                 xml_file="testdata/id2iri/test-id2iri-data.xml",
                 json_file="test.json",
-                out_file=self.out_file,
-                verbose=True,
             )
 
     def test_replace_id_with_iri(self) -> None:
+        """Check that the correct IRIs appear in the correct order in the output file"""
         id_to_iri(
             xml_file="testdata/id2iri/test-id2iri-data.xml",
             json_file="testdata/id2iri/test-id2iri-mapping.json",
-            out_file=self.out_file,
-            verbose=True,
         )
-
-        root = _parse_xml_file(self.out_file)
-
-        resource_elements = root.xpath("/knora/resource/resptr-prop/resptr")
-        result = []
-        for resptr_prop in resource_elements:
-            result.append(resptr_prop.text)
-
-        self.assertEqual(
-            result,
-            ["http://rdfh.ch/082E/ylRvrg7tQI6aVpcTJbVrwg", "http://rdfh.ch/082E/JK63OpYWTDWNYVOYFN7FdQ"],
-        )
+        out_file = get_most_recent_glob_match("test-id2iri-data_replaced_*.xml")
+        with open(out_file, encoding="utf-8", mode="r") as file:
+            out_file_content = file.read()
+        out_file.unlink()
+        iris = regex.findall(r"http://rdfh\.ch/082E/\w+", out_file_content)
+        iris_expected = [
+            "http://rdfh.ch/082E/ylRvrg7tQI6aVpcTJbVrwg",
+            "http://rdfh.ch/082E/qwasddoiu876flkjh67dss",
+            "http://rdfh.ch/082E/JK63OpYWTDWNYVOYFN7FdQ",
+            "http://rdfh.ch/082E/1l63Oasdfopiujlkmn78ak",
+            "http://rdfh.ch/082E/qwasddoiu876flkjh67dss",
+            "http://rdfh.ch/082E/JK63OpYWTDWNYVOYFN7FdQ",
+            "http://rdfh.ch/082E/1l63Oasdfopiujlkmn78ak",
+            "http://rdfh.ch/082E/qwasddoiu876flkjh67dss",
+            "http://rdfh.ch/082E/ylRvrg7tQI6aVpcTJbVrwg",
+            "http://rdfh.ch/082E/qwasddoiu876flkjh67dss",
+        ]
+        self.assertListEqual(iris, iris_expected)
 
 
 if __name__ == "__main__":

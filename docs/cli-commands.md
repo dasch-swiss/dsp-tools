@@ -61,7 +61,7 @@ The following options are available:
 - `-V` | `--validate-only` (optional): validate the JSON file without creating it on the DSP server
 - `-l` | `--lists-only` (optional): create only the lists (prerequisite: the project exists on the server)
 - `-v` | `--verbose` (optional): print more information about the progress to the console
-- `-d` | `--dump` (optional): dump test files for DSP-API requests
+- `-d` | `--dump` (optional): write every request to DSP-API into a file
 
 The defaults are intended for local testing: 
 
@@ -257,17 +257,15 @@ which is described [here](./excel2xml-module.md).
 
 ## `id2iri`
 
-This command replaces internal IDs contained in the `<resptr>` tags of an XML file
+This command replaces internal IDs of an XML file
+(`<resptr>` tags and salsah-links inside `<text>` tags)
 by IRIs provided in a mapping file.
 
 ```bash
 dsp-tools id2iri xmlfile.xml mapping.json
 ```
 
-The following options are available:
-
-- `--outfile` (optional, default: `id2iri_replaced_[timestamp].xml`): path to the output file
-- `-v` | `--verbose` (optional): print more information about the progress to the console
+The output file is written to `[original name]_replaced_[timestamp].xml`.
 
 This command cannot be used isolated, 
 because it is part of a bigger procedure 

@@ -9,15 +9,24 @@ from dsp_tools.models.listnode import ListNode
 
 
 class TestListNode(unittest.TestCase):  # pylint: disable=missing-class-docstring
+    con: Connection
     project = "http://rdfh.ch/projects/0001"
     otherTreeList = "http://rdfh.ch/lists/0001/otherTreeList"
 
     def setUp(self) -> None:
         """
-        is executed before each test method; sets up a connection and logs in as user root
+        Creates a connection to DSP-API.
+        For each test method, a new TestCase instance is created, so setUp() is executed before each test method.
         """
-        self.con = Connection("http://0.0.0.0:3333")
-        self.con.login("root@example.com", "test")
+        self.con = Connection(server="http://0.0.0.0:3333")
+        self.con.login(email="root@example.com", password="test")
+
+    def tearDown(self) -> None:
+        """
+        Logs out from DSP-API.
+        For each test method, a new TestCase instance is created, so tearDown() is executed after each test method.
+        """
+        self.con.logout()
 
     def test_ListNode_read(self) -> None:
         """
@@ -137,12 +146,6 @@ class TestListNode(unittest.TestCase):  # pylint: disable=missing-class-docstrin
         self.assertEqual(root_node.children[2].children[1].iri, "http://rdfh.ch/lists/0001/otherTreeList11")
         self.assertEqual(root_node.children[2].children[1].name, "Other Tree list node 11")
         self.assertEqual(root_node.children[2].children[1].label["en"], "Other Tree list node 11")
-
-    def tearDown(self) -> None:
-        """
-        is executed after all tests are run through; performs a log out
-        """
-        self.con.logout()
 
 
 if __name__ == "__main__":

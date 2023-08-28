@@ -1,4 +1,4 @@
-# pylint: disable=missing-class-docstring,duplicate-code
+# pylint: disable=missing-class-docstring
 
 import os
 import subprocess
@@ -16,7 +16,8 @@ from dsp_tools.utils.xml_upload import xml_upload
 class TestImportScripts(unittest.TestCase):
     def tearDown(self) -> None:
         """
-        Remove generated data. This method is executed after every test method.
+        Remove generated data.
+        For each test method, a new TestCase instance is created, so tearDown() is executed after each test method.
         """
         if os.path.isfile("src/dsp_tools/import_scripts/data-processed.xml"):
             os.remove("src/dsp_tools/import_scripts/data-processed.xml")

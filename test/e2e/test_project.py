@@ -13,13 +13,22 @@ from dsp_tools.models.project import Project
 
 class TestProject(unittest.TestCase):
     logo_file = "logo.gif"
+    con: Connection
 
     def setUp(self) -> None:
         """
-        is executed before each test method; sets up a connection and logs in as user root
+        Creates a connection to DSP-API.
+        For each test method, a new TestCase instance is created, so setUp() is executed before each test method.
         """
-        self.con = Connection("http://0.0.0.0:3333")
-        self.con.login("root@example.com", "test")
+        self.con = Connection(server="http://0.0.0.0:3333")
+        self.con.login(email="root@example.com", password="test")
+
+    def tearDown(self) -> None:
+        """
+        Logs out from DSP-API.
+        For each test method, a new TestCase instance is created, so tearDown() is executed after each test method.
+        """
+        self.con.logout()
 
     def test_Project(self) -> None:
         project = Project(
@@ -136,12 +145,6 @@ class TestProject(unittest.TestCase):
         self.assertEqual(deleted_project.selfjoin, False)
         self.assertEqual(deleted_project.status, False)
         self.assertEqual(deleted_project.keywords, {"test", "project", "delete"})
-
-    def tearDown(self) -> None:
-        """
-        is executed after all tests are run through; performs a log out
-        """
-        self.con.logout()
 
 
 if __name__ == "__main__":

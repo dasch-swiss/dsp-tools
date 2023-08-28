@@ -15,18 +15,22 @@ from dsp_tools.models.value import KnoraStandoffXml, make_value
 
 
 class TestResource(unittest.TestCase):
-    con = Connection("http://0.0.0.0:3333")
+    con: Connection
 
-    @classmethod
-    def setUpClass(cls) -> None:
+    def setUp(self) -> None:
         """
-        Is executed once before the methods of this class are run
+        Creates a connection to DSP-API.
+        For each test method, a new TestCase instance is created, so setUp() is executed before each test method.
         """
-        cls.con.login("root@example.com", "test")
+        self.con = Connection(server="http://0.0.0.0:3333")
+        self.con.login(email="root@example.com", password="test")
 
-    @classmethod
-    def tearDownClass(cls) -> None:
-        cls.con.logout()
+    def tearDown(self) -> None:
+        """
+        Logs out from DSP-API.
+        For each test method, a new TestCase instance is created, so tearDown() is executed after each test method.
+        """
+        self.con.logout()
 
     def test_resource_create(self) -> None:
         # make class factory for project anything. The factory creates classes that implement the CRUD methods

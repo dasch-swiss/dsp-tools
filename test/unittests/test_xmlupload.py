@@ -13,7 +13,7 @@ from dsp_tools.models.xmlresource import XMLResource
 from dsp_tools.utils.xml_upload import (
     _convert_ark_v0_to_resource_iri,
     _determine_save_location_of_diagnostic_info,
-    _parse_xml_file,
+    parse_xml_file,
     _remove_circular_references,
     _transform_server_url_to_foldername,
 )
@@ -62,8 +62,8 @@ class TestXMLUpload(unittest.TestCase):
 
     def test_parse_xml_file(self) -> None:
         test_data_systematic_tree = etree.parse("testdata/xml-data/test-data-systematic.xml")
-        output1 = _parse_xml_file("testdata/xml-data/test-data-systematic.xml")
-        output2 = _parse_xml_file(test_data_systematic_tree)
+        output1 = parse_xml_file("testdata/xml-data/test-data-systematic.xml")
+        output2 = parse_xml_file(test_data_systematic_tree)
         result1 = regex.sub("\n", "", etree.tostring(output1, encoding=str))
         result1 = regex.sub(" +", " ", result1)
         result2 = regex.sub("\n", "", etree.tostring(output2, encoding=str))
@@ -119,7 +119,7 @@ class TestXMLUpload(unittest.TestCase):
 
     def test_remove_circular_references(self) -> None:
         # create a list of XMLResources from the test data file
-        root = _parse_xml_file("testdata/xml-data/test-data-systematic.xml")
+        root = parse_xml_file("testdata/xml-data/test-data-systematic.xml")
         resources = [XMLResource(x, "testonto") for x in root if x.tag == "resource"]
 
         # get the purged resources and the stashes from the function to be tested
@@ -148,40 +148,36 @@ class TestXMLUpload(unittest.TestCase):
         stashed_xml_texts_expected = {
             "test_thing_1": {
                 "testonto:hasRichtext": [
-                    "\n                This is <em>bold and <strong>strong</strong></em> text! "
-                    "It contains links to all resources:\n"
-                    '                <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>\n'
-                    '                <a class="salsah-link" href="IRI:test_thing_1:IRI">test_thing_1</a>\n'
-                    '                <a class="salsah-link" href="IRI:image_thing_0:IRI">image_thing_0</a>\n'
-                    '                <a class="salsah-link" href="IRI:compound_thing_0:IRI">compound_thing_0</a>\n'
-                    '                <a class="salsah-link" href="IRI:partof_thing_1:IRI">partof_thing_1</a>\n'
-                    '                <a class="salsah-link" href="IRI:partof_thing_2:IRI">partof_thing_2</a>\n'
-                    '                <a class="salsah-link" href="IRI:partof_thing_3:IRI">partof_thing_3</a>\n'
-                    '                <a class="salsah-link" href="IRI:document_thing_1:IRI">document_thing_1</a>\n'
-                    '                <a class="salsah-link" href="IRI:text_thing_1:IRI">text_thing_1</a>\n'
-                    '                <a class="salsah-link" href="IRI:zip_thing_1:IRI">zip_thing_1</a>\n'
-                    '                <a class="salsah-link" href="IRI:audio_thing_1:IRI">audio_thing_1</a>\n'
-                    '                <a class="salsah-link" href="IRI:test_thing_2:IRI">test_thing_2</a>\n'
-                    "            \n        "
+                    "This text contains links to all resources: "
+                    '<a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a> '
+                    '<a class="salsah-link" href="IRI:test_thing_1:IRI">test_thing_1</a> '
+                    '<a class="salsah-link" href="IRI:image_thing_0:IRI">image_thing_0</a> '
+                    '<a class="salsah-link" href="IRI:compound_thing_0:IRI">compound_thing_0</a> '
+                    '<a class="salsah-link" href="IRI:partof_thing_1:IRI">partof_thing_1</a> '
+                    '<a class="salsah-link" href="IRI:partof_thing_2:IRI">partof_thing_2</a> '
+                    '<a class="salsah-link" href="IRI:partof_thing_3:IRI">partof_thing_3</a> '
+                    '<a class="salsah-link" href="IRI:document_thing_1:IRI">document_thing_1</a> '
+                    '<a class="salsah-link" href="IRI:text_thing_1:IRI">text_thing_1</a> '
+                    '<a class="salsah-link" href="IRI:zip_thing_1:IRI">zip_thing_1</a> '
+                    '<a class="salsah-link" href="IRI:audio_thing_1:IRI">audio_thing_1</a> '
+                    '<a class="salsah-link" href="IRI:test_thing_2:IRI">test_thing_2</a>'
                 ]
             },
             "test_thing_2": {
                 "testonto:hasRichtext": [
-                    "\n                This is <em>bold and <strong>strong</strong></em> text! "
-                    "It contains links to all resources:\n"
-                    '                <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>\n'
-                    '                <a class="salsah-link" href="IRI:test_thing_1:IRI">test_thing_1</a>\n'
-                    '                <a class="salsah-link" href="IRI:image_thing_0:IRI">image_thing_0</a>\n'
-                    '                <a class="salsah-link" href="IRI:compound_thing_0:IRI">compound_thing_0</a>\n'
-                    '                <a class="salsah-link" href="IRI:partof_thing_1:IRI">partof_thing_1</a>\n'
-                    '                <a class="salsah-link" href="IRI:partof_thing_2:IRI">partof_thing_2</a>\n'
-                    '                <a class="salsah-link" href="IRI:partof_thing_3:IRI">partof_thing_3</a>\n'
-                    '                <a class="salsah-link" href="IRI:document_thing_1:IRI">document_thing_1</a>\n'
-                    '                <a class="salsah-link" href="IRI:text_thing_1:IRI">text_thing_1</a>\n'
-                    '                <a class="salsah-link" href="IRI:zip_thing_1:IRI">zip_thing_1</a>\n'
-                    '                <a class="salsah-link" href="IRI:audio_thing_1:IRI">audio_thing_1</a>\n'
-                    '                <a class="salsah-link" href="IRI:test_thing_2:IRI">test_thing_2</a>\n'
-                    "            \n            "
+                    "This text contains links to all resources: "
+                    '<a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a> '
+                    '<a class="salsah-link" href="IRI:test_thing_1:IRI">test_thing_1</a> '
+                    '<a class="salsah-link" href="IRI:image_thing_0:IRI">image_thing_0</a> '
+                    '<a class="salsah-link" href="IRI:compound_thing_0:IRI">compound_thing_0</a> '
+                    '<a class="salsah-link" href="IRI:partof_thing_1:IRI">partof_thing_1</a> '
+                    '<a class="salsah-link" href="IRI:partof_thing_2:IRI">partof_thing_2</a> '
+                    '<a class="salsah-link" href="IRI:partof_thing_3:IRI">partof_thing_3</a> '
+                    '<a class="salsah-link" href="IRI:document_thing_1:IRI">document_thing_1</a> '
+                    '<a class="salsah-link" href="IRI:text_thing_1:IRI">text_thing_1</a> '
+                    '<a class="salsah-link" href="IRI:zip_thing_1:IRI">zip_thing_1</a> '
+                    '<a class="salsah-link" href="IRI:audio_thing_1:IRI">audio_thing_1</a> '
+                    '<a class="salsah-link" href="IRI:test_thing_2:IRI">test_thing_2</a>'
                 ]
             },
         }

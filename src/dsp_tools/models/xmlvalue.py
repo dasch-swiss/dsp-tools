@@ -1,65 +1,101 @@
-from typing import Optional, Union
+from typing import Optional, Union, cast
 
 from lxml import etree
+import regex
 
 from dsp_tools.models.value import KnoraStandoffXml
 
 
-class XMLValue:
+class XMLValue:  # pylint: disable=too-few-public-methods
     """Represents a value of a resource property in the XML used for data import"""
 
-    _value: Union[str, KnoraStandoffXml]
-    _resrefs: Optional[list[str]]
-    _comment: str
-    _permissions: str
-    _is_richtext: bool
+    value: Union[str, KnoraStandoffXml]
+    resrefs: Optional[list[str]]
+    comment: Optional[str]
+    permissions: Optional[str]
 
-    def __init__(self, node: etree.Element, val_type: str, listname: Optional[str] = None) -> None:
-        self._resrefs = None
-        self._comment = node.get("comment")
-        self._permissions = node.get("permissions")
-        if node.get("encoding") == "xml":
-            node.attrib.clear()
-            xmlstr = etree.tostring(node, encoding="unicode", method="xml")
-            xmlstr = xmlstr.replace('<text xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">', "")
-            xmlstr = xmlstr.replace("</text>", "")
-            self._value = KnoraStandoffXml(xmlstr)
-            tmp_id_list = self._value.get_all_iris()
-            if tmp_id_list:
-                refs = set()
-                for tmp_id in tmp_id_list:
-                    refs.add(tmp_id.split(":")[1])
-                self._resrefs = list(refs)
+    def __init__(
+        self,
+        node: etree._Element,
+        val_type: str,
+        listname: Optional[str] = None,
+    ) -> None:
+        self.resrefs = None
+        self.comment = node.get("comment")
+        self.permissions = node.get("permissions")
+        if val_type == "text" and node.get("encoding") == "xml":
+            xmlstr_orig = etree.tostring(node, encoding="unicode", method="xml")
+            xmlstr_cleaned = self._cleanup_formatted_text(xmlstr_orig)
+            self.value = KnoraStandoffXml(xmlstr_cleaned)
+            self.resrefs = list({x.split(":")[1] for x in self.value.get_all_iris() or []})
+        elif val_type == "text" and node.get("encoding") == "utf8":
+            str_orig = "".join(node.itertext())
+            str_cleaned = self._cleanup_unformatted_text(str_orig)
+            self.value = str_cleaned
+        elif val_type == "list":
+            listname = cast(str, listname)
+            self.value = listname + ":" + "".join(node.itertext())
         else:
-            if val_type == "list":
-                self._value = listname + ":" + "".join(node.itertext())
-            else:
-                self._value = "".join(node.itertext())
+            self.value = "".join(node.itertext())
 
-    @property
-    def value(self) -> Union[str, KnoraStandoffXml]:
-        """The actual value of the value instance"""
-        return self._value
+    def _cleanup_formatted_text(self, xmlstr_orig: str) -> str:
+        """
+        In a xml-encoded text value from the XML file,
+        there may be non-text characters that must be removed.
+        This method:
+            - removes the <text> tags
+            - replaces (multiple) line breaks by a space
+            - replaces multiple spaces or tabstops by a single space (except within <code> or <pre> tags)
 
-    @value.setter
-    def value(self, value: Union[str, KnoraStandoffXml]) -> None:
-        self._value = value
+        Args:
+            xmlstr_orig: original string from the XML file
 
-    @property
-    def resrefs(self) -> Optional[list[str]]:
-        """List of resource references"""
-        return self._resrefs
+        Returns:
+            purged string, suitable to be sent to DSP-API
+        """
+        # remove the <text> tags
+        xmlstr = regex.sub("<text.*?>", "", xmlstr_orig)
+        xmlstr = regex.sub("</text>", "", xmlstr)
 
-    @resrefs.setter
-    def resrefs(self, resrefs: Optional[list[str]]) -> None:
-        self._resrefs = resrefs
+        # replace (multiple) line breaks by a space
+        xmlstr = regex.sub("\n+", " ", xmlstr)
 
-    @property
-    def comment(self) -> str:
-        """Comment about the value"""
-        return self._comment
+        # replace multiple spaces or tabstops by a single space (except within <code> or <pre> tags)
+        # the regex selects all spaces/tabstops not followed by </xyz> without <xyz in between.
+        # credits: https://stackoverflow.com/a/46937770/14414188
+        xmlstr = regex.sub("( {2,}|\t+)(?!(.(?!<(code|pre)))*</(code|pre)>)", " ", xmlstr)
 
-    @property
-    def permissions(self) -> str:
-        """Reference to the set of permissions for the value"""
-        return self._permissions
+        # remove spaces after <br/> tags (except within <code> tags)
+        xmlstr = regex.sub("((?<=<br/?>) )(?!(.(?!<code))*</code>)", "", xmlstr)
+
+        # remove leading and trailing spaces
+        xmlstr = xmlstr.strip()
+
+        return xmlstr
+
+    def _cleanup_unformatted_text(self, string_orig: str) -> str:
+        """
+        In a utf8-encoded text value from the XML file,
+        there may be non-text characters that must be removed.
+        This method:
+            - removes the <text> tags
+            - replaces multiple spaces or tabstops by a single space
+
+        Args:
+            string_orig: original string from the XML file
+
+        Returns:
+            purged string, suitable to be sent to DSP-API
+        """
+        # remove the <text> tags
+        string = regex.sub("<text.*?>", "", string_orig)
+        string = regex.sub("</text>", "", string)
+
+        # replace multiple spaces or tabstops by a single space
+        string = regex.sub(r" {2,}|\t+", " ", string)
+
+        # remove leading and trailing spaces (of every line, but also of the entire string)
+        string = "\n".join([s.strip() for s in string.split("\n")])
+        string = string.strip()
+
+        return string

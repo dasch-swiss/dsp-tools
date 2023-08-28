@@ -223,6 +223,9 @@ def _make_parser(
         help="Replace internal IDs of an XML file (resptr tags or salsah-links) by IRIs provided in a mapping file.",
     )
     parser_id2iri.set_defaults(action="id2iri")
+    parser_id2iri.add_argument(
+        "-r", "--remove-resources", action="store_true", help="remove resources if their ID is in the mapping"
+    )
     parser_id2iri.add_argument("xmlfile", help="path to the XML file containing the data to be replaced")
     parser_id2iri.add_argument("mapping", help="path to the JSON file containing the mapping of IDs to IRIs")
 

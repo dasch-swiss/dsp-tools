@@ -265,7 +265,18 @@ by IRIs provided in a mapping file.
 dsp-tools id2iri xmlfile.xml mapping.json
 ```
 
+The following options are available:
+
+- `-r` | `--remove-resources` (optional): remove resources if their ID is in the mapping 
+  (this prevents doubled resources on the DSP server,
+  because the resources occurring in the mapping already exist on the DSP server)
+
 The output file is written to `[original name]_replaced_[timestamp].xml`.
+
+If the flag `--remove-resources` is set,
+all resources of which the ID is in the mapping are removed from the XML file.
+This prevents doubled resources on the DSP server,
+because normally, the resources occurring in the mapping already exist on the DSP server.
 
 This command cannot be used isolated, 
 because it is part of a bigger procedure 

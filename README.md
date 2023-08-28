@@ -31,6 +31,7 @@ To get started quickly, without reading the details, just execute these commands
 - `curl -sSL https://install.python-poetry.org | python3 -`
 - `poetry self add poetry-exec-plugin`
 - `poetry install`
+- activate the virtual environment (see [Using the virtual environment](#using-the-virtual-environment))
 - `pre-commit install`
 - `brew install imagemagick ffmpeg`
 

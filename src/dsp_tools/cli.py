@@ -113,12 +113,6 @@ def _make_parser(
         "-i", "--imgdir", default=".", help="folder from where the paths in the <bitstream> tags are evaluated"
     )
     parser_upload.add_argument(
-        "-I",
-        "--incremental",
-        action="store_true",
-        help="The links in the XML file point to IRIs (on the server) instead of IDs (in the same XML file).",
-    )
-    parser_upload.add_argument(
         "-V", "--validate-only", action="store_true", help="validate the XML file without uploading it"
     )
     parser_upload.add_argument("-v", "--verbose", action="store_true", help=verbose_text)
@@ -463,7 +457,6 @@ def _call_requested_action(args: argparse.Namespace) -> bool:
                 imgdir=args.imgdir,
                 sipi=args.sipi_url,
                 verbose=args.verbose,
-                incremental=args.incremental,
                 save_metrics=args.metrics,
                 preprocessing_done=False,
             )

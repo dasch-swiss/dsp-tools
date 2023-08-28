@@ -3,6 +3,7 @@ from datetime import datetime
 from pathlib import Path
 
 from lxml import etree
+import regex
 
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.logging import get_logger
@@ -58,12 +59,78 @@ def _parse_json_file(json_file: Path) -> dict[str, str]:
     return mapping
 
 
+def _replace_resptrs(
+    tree: etree._Element,
+    mapping: dict[str, str],
+    used_mapping_entries: set[str],
+) -> tuple[etree._Element, set[str]]:
+    """
+    Replace the internal IDs in the <resptr> tags by IRIs.
+
+    Args:
+        tree: parsed XML file
+        mapping: mapping of internal IDs to IRIs
+        used_mapping_entries: IDs of the mapping that have been found in the XML and have been replaced
+
+    Returns:
+        a tuple of the modified XML tree and the set of the IDs that have been replaced
+    """
+    resptr_elems = tree.xpath("/knora/resource/resptr-prop/resptr")
+    resptr_elems_replaced = 0
+    for resptr_elem in resptr_elems:
+        value_before = resptr_elem.text
+        if value_after := mapping.get(value_before):
+            resptr_elem.text = value_after
+            resptr_elems_replaced += 1
+            used_mapping_entries.add(value_before)
+
+    logger.info(f"Replaced {resptr_elems_replaced}/{len(resptr_elems)} resptr links in the XML file")
+    print(f"Replaced {resptr_elems_replaced}/{len(resptr_elems)} resptr links in the XML file")
+
+    return tree, used_mapping_entries
+
+
+def _replace_salsah_links(
+    tree: etree._Element,
+    mapping: dict[str, str],
+    used_mapping_entries: set[str],
+) -> tuple[etree._Element, set[str]]:
+    """
+    Replace the internal IDs in the salsah-links of the <text> tags by IRIs.
+
+    Args:
+        tree: parsed XML file
+        mapping: mapping of internal IDs to IRIs
+        used_mapping_entries: IDs of the mapping that have been found in the XML and have been replaced
+
+    Returns:
+        a tuple of the modified XML tree and the set of the IDs that have been replaced
+    """
+    salsah_links = [
+        x for x in tree.xpath("/knora/resource/text-prop/text//a") if x.attrib.get("class") == "salsah-link"
+    ]
+    salsah_links_replaced = 0
+    for salsah_link in salsah_links:
+        value_before = regex.sub("IRI:|:IRI", "", salsah_link.attrib.get("href", ""))
+        if value_after := mapping.get(value_before):
+            salsah_link.attrib["href"] = value_after
+            salsah_links_replaced += 1
+            used_mapping_entries.add(value_before)
+
+    logger.info(f"Replaced {salsah_links_replaced}/{len(salsah_links)} salsah-links in the XML file")
+    print(f"Replaced {salsah_links_replaced}/{len(salsah_links)} salsah-links in the XML file")
+
+    return tree, used_mapping_entries
+
+
 def _replace_ids_by_iris(
     tree: etree._Element,
     mapping: dict[str, str],
 ) -> tuple[etree._Element, bool]:
     """
-    Iterate over the `<resptr>` tags and replace the internal IDs by IRIs.
+    Iterate over the <resptr> tags and the salsah-links of the <text> tags,
+    and replace the internal IDs by IRIs.
+    If an internal ID cannot be found in the mapping, the original ID is kept.
 
     Args:
         tree: parsed XML file
@@ -73,16 +140,22 @@ def _replace_ids_by_iris(
         modified XML tree
     """
     success = True
-    resource_elements = tree.xpath("/knora/resource/resptr-prop/resptr")
-    for resptr_prop in resource_elements:
-        value_before = resptr_prop.text
-        value_after = mapping.get(resptr_prop.text)
-        if value_after:
-            resptr_prop.text = value_after
-        else:
-            logger.warning(f"Could not find internal ID '{value_before}' in mapping file. Skipping...")
-            print(f"WARNING: Could not find internal ID '{value_before}' in mapping file. Skipping...")
-            success = False
+    used_mapping_entries: set[str] = set()
+
+    tree, used_mapping_entries = _replace_resptrs(
+        tree=tree,
+        mapping=mapping,
+        used_mapping_entries=used_mapping_entries,
+    )
+
+    tree, used_mapping_entries = _replace_salsah_links(
+        tree=tree,
+        mapping=mapping,
+        used_mapping_entries=used_mapping_entries,
+    )
+
+    logger.info(f"Used {len(used_mapping_entries)}/{len(mapping)} entries from the mapping file")
+    print(f"Used {len(used_mapping_entries)}/{len(mapping)} entries from the mapping file")
 
     return tree, success
 
@@ -111,8 +184,10 @@ def id_to_iri(
     json_file: str,
 ) -> bool:
     """
-    Replace internal IDs contained in the `<resptr>` tags of an XML file
+    Replace internal IDs of an XML file
+    (<resptr> tags and salsah-links inside <text> tags)
     by IRIs provided in a mapping file.
+    If an internal ID cannot be found in the mapping, the original ID is kept.
     The output is written to a new XML file named "[original name]_replaced_[timestamp].xml".
 
     Args:

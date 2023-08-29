@@ -102,11 +102,10 @@ def _search_convert_numbers(value_str: str) -> str | int | float:
     Returns:
         A int if the string was an integer, float if the string was a float or str if it was neither
     """
-    # TODO: fix regex: this would miss "1e+3" which is a valid representation of 1000.0 in python
-    if regex.search(r"^\d+\.\d+$", value_str):
-        return float(value_str)
-    elif regex.search(r"^\d+$", value_str):
+    if regex.search(r"^\d+$", value_str):
         return int(value_str)
+    elif regex.search(r"^\d+\.\d+$", value_str):
+        return float(value_str)
     else:
         return value_str
 
@@ -139,6 +138,7 @@ def _unpack_gui_attributes(gui_str: str) -> dict[str, str]:
 def _format_gui_attribute(attribute_str: str) -> dict[str, str | int | float]:
     """
     This function takes a string containing the information about the gui_attributes and formats it correctly.
+
     Args:
         attribute_str: A string containing the attributes
 
@@ -146,7 +146,7 @@ def _format_gui_attribute(attribute_str: str) -> dict[str, str | int | float]:
         A dictionary with the attribute name as a key and the attribute as value.
 
     Raises:
-        IndexError if the attributes are not formatted correctly
+        IndexError: if the attributes are not formatted correctly
     """
     attribute_dict = _unpack_gui_attributes(gui_str=attribute_str)
     return {attrib: _search_convert_numbers(value_str=val) for attrib, val in attribute_dict.items()}

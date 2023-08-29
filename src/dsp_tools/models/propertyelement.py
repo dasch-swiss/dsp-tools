@@ -20,17 +20,17 @@ class PropertyElement:
         See the difference between the first and the second example:
 
         >>> make_unformatted_text_prop(":testproperty", "first text")
-                <unformatted_text-prop name=":testproperty">
+                <unformatted-text-prop name=":testproperty">
                     <text permissions="prop-default">
                         first text
                     </text>
-                </unformatted_text-prop>
+                </unformatted-text-prop>
         >>> make_unformatted_text_prop(":testproperty", PropertyElement("first text", permissions="prop-restricted"))
-                <unformatted_text-prop name=":testproperty">
+                <unformatted-text-prop name=":testproperty">
                     <text permissions="prop-restricted">
                         first text
                     </text>
-                </unformatted_text-prop>
+                </unformatted-text-prop>
     """
 
     value: Union[str, int, float, bool]

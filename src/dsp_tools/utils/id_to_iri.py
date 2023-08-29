@@ -107,7 +107,7 @@ def _replace_salsah_links(
         a tuple of the modified XML tree and the set of the IDs that have been replaced
     """
     salsah_links = [
-        x for x in tree.xpath("/knora/resource/text-prop/text//a") if x.attrib.get("class") == "salsah-link"
+        x for x in tree.xpath("/knora/resource/formatted-text-prop/text//a") if x.attrib.get("class") == "salsah-link"
     ]
     salsah_links_replaced = 0
     for salsah_link in salsah_links:

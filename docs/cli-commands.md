@@ -257,7 +257,8 @@ which is described [here](./excel2xml-module.md).
 
 ## `id2iri`
 
-This command replaces internal IDs contained in the `<resptr>` tags of an XML file
+This command replaces internal IDs of an XML file
+(`<resptr>` tags and salsah-links inside `<text>` tags)
 by IRIs provided in a mapping file.
 
 ```bash

@@ -52,12 +52,13 @@ dsp-tools xmlupload --incremental additional_data.xml
 
 The third case, however, is a bit more complicated:
 The file `additional_data.xml` contains references like `<resptr>book_1</resptr>`,
+or `<text><a class="salsah-link" href="IRI:book_1:IRI">link to book_1</a></text>`,
 where `book_1` was the internal ID of a resource that had previously been uploaded to DSP.
+
 Before such an XML file can be uploaded,
-its internal IDs need to be replaced by their respective IRIs.
+its internal IDs must be replaced by their respective IRIs.
 That's where the JSON mapping file comes in:
 It contains a mapping from `book_1` to `http://rdfh.ch/4123/nyOODvYySV2nJ5RWRdmOdQ`.
-
 
 
 ### id2iri
@@ -68,12 +69,8 @@ with the [`id2iri` command](./cli-commands.md#id2iri),
 like this:
 
 ```bash
-dsp-tools id2iri additional_data.xml id2iri_mapping_[timestamp].json --outfile additional_data_replaced.xml
+dsp-tools id2iri additional_data.xml id2iri_mapping_[timestamp].json
 ```
-
-| <center>Important</center>                                                                                                                                                              |
-|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Only internal IDs inside the `<resptr>` tag are replaced. Salsah-links inside text properties (e.g. `<a class="salsah-link" href="IRI:book_1:IRI">link to an ID</a>`) are NOT replaced. |
 
 
 
@@ -82,7 +79,7 @@ dsp-tools id2iri additional_data.xml id2iri_mapping_[timestamp].json --outfile a
 As second step, the newly generated XML file can be uploaded to DSP:
 
 ```bash
-dsp-tools xmlupload --incremental additional_data_replaced.xml
+dsp-tools xmlupload --incremental additional_data_replaced_[timestamp].xml
 ```
 
 | <center>Important</center>                                                                                                                      |

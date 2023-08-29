@@ -141,7 +141,7 @@ def _make_parser(
     )
     parser_process_files.add_argument("--nthreads", type=int, default=None, help="number of threads to use")
     parser_process_files.add_argument(
-        "--batchsize", type=int, default=5000, help="number of files to process before Python exits"
+        "--batchsize", type=int, default=3000, help="number of files to process before Python exits"
     )
     parser_process_files.add_argument("xml_file", help="path to XML file containing the data")
 
@@ -222,11 +222,9 @@ def _make_parser(
     # id2iri
     parser_id2iri = subparsers.add_parser(
         name="id2iri",
-        help="Replace internal IDs in contained in the <resptr> tags of an XML file by IRIs provided in a mapping file",
+        help="Replace internal IDs of an XML file (resptr tags or salsah-links) by IRIs provided in a mapping file.",
     )
     parser_id2iri.set_defaults(action="id2iri")
-    parser_id2iri.add_argument("--outfile", help="path to the XML output file containing the replaced IDs")
-    parser_id2iri.add_argument("-v", "--verbose", action="store_true", help=verbose_text)
     parser_id2iri.add_argument("xmlfile", help="path to the XML file containing the data to be replaced")
     parser_id2iri.add_argument("mapping", help="path to the JSON file containing the mapping of IDs to IRIs")
 
@@ -529,8 +527,6 @@ def _call_requested_action(args: argparse.Namespace) -> bool:
         success = id_to_iri(
             xml_file=args.xmlfile,
             json_file=args.mapping,
-            out_file=args.outfile,
-            verbose=args.verbose,
         )
     elif args.action == "excel2xml":
         success = excel2xml(

@@ -27,19 +27,7 @@ wheels/
 *.egg
 MANIFEST
 
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
 # Environments
-.env
-.venv
 env/
 venv/
 ENV/
@@ -62,16 +50,13 @@ venv.bak/
 .vscode
 
 # created files
-lists.json
 out.json
 *id2iri_mapping*
-stashed*
 **/~$*.*
 testdata/tmp/
+cwd/
 testdata/test-list.json
-src/dsp_tools/docker/sipi.docker-config.lua
+*_replaced_*.xml
 metrics/
-
-# for testing in development
 tmp/
 /out/

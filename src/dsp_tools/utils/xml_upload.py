@@ -327,7 +327,7 @@ def _convert_ark_v0_to_resource_iri(ark: str) -> str:
     return "http://rdfh.ch/" + project_id + "/" + dsp_uuid
 
 
-def _parse_xml_file(input_file: Union[str, Path, etree._ElementTree[Any]]) -> etree._Element:
+def parse_xml_file(input_file: Union[str, Path, etree._ElementTree[Any]]) -> etree._Element:
     """
     Parse an XML file with DSP-conform data,
     remove namespace URI from the elements' names,
@@ -366,10 +366,34 @@ def _parse_xml_file(input_file: Union[str, Path, etree._ElementTree[Any]]) -> et
             elem.attrib["restype"] = "Region"
             elem.tag = "resource"
 
-    # remove unused namespace declarations
-    etree.cleanup_namespaces(tree)
-
     return tree.getroot()
+
+
+def _check_if_onto_name_exists(
+    resclass_name_2_type: dict[str, type],
+    ontoname: str,
+    shortcode: str,
+) -> None:
+    """
+    Check if the "default-ontology" of the <knora> tag of the XML file exists on the DSP server.
+
+    Args:
+        resclass_name_2_type: infos about the resource classes that exist on the DSP server for the current ontology
+        ontoname: name of the ontology as referenced in the XML file
+        shortcode: shortcode of the project as referenced in the XML file
+
+    Raises:
+        UserError: if the ontology does not exist on the DSP server
+    """
+    existing_onto_names = {x.split(":")[0] for x in resclass_name_2_type}
+    existing_onto_names.remove("knora-api")
+    if ontoname not in existing_onto_names:
+        err_msg = (
+            f"ERROR: The <knora> tag of your XML file references the default-ontology '{ontoname}', "
+            f"but the project {shortcode} on the DSP server contains only the ontologies {existing_onto_names}"
+        )
+        logger.error(err_msg)
+        raise UserError(err_msg)
 
 
 def _check_consistency_with_ontology(
@@ -404,6 +428,11 @@ def _check_consistency_with_ontology(
         )
         logger.error(err_msg)
         raise UserError(err_msg)
+    _check_if_onto_name_exists(
+        resclass_name_2_type=resclass_name_2_type,
+        ontoname=ontoname,
+        shortcode=shortcode,
+    )
     knora_properties = resclass_name_2_type[resources[0].restype].knora_properties  # type: ignore[attr-defined]
 
     for resource in resources:
@@ -518,7 +547,7 @@ def xml_upload(
     """
     # parse the XML file
     validate_xml_against_schema(input_file=input_file)
-    root = _parse_xml_file(input_file=input_file)
+    root = parse_xml_file(input_file=input_file)
     if not preprocessing_done:
         _check_if_bitstreams_exist(root=root, imgdir=imgdir)
     shortcode = root.attrib["shortcode"]
@@ -770,11 +799,12 @@ def _upload_resources(
         except BaseError as err:
             err_msg = err.orig_err_msg_from_api or err.message
             print(f"WARNING: Unable to create resource '{resource.label}' ({resource.id}): {err_msg}")
-            logger.warning(
+            log_msg = (
                 f"Unable to create resource '{resource.label}' ({resource.id})\n"
-                f"Resource details:\n{vars(resource)}",
-                exc_info=True,
+                f"Resource details:\n{vars(resource)}\n"
+                f"Property details:\n" + "\n".join([str(vars(prop)) for prop in resource.properties])
             )
+            logger.warning(log_msg, exc_info=True)
             failed_uploads.append(resource.id)
             continue
         id2iri_mapping[resource.id] = created_resource.iri

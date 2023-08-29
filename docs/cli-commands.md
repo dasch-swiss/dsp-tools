@@ -257,17 +257,15 @@ which is described [here](./excel2xml-module.md).
 
 ## `id2iri`
 
-This command replaces internal IDs contained in the `<resptr>` tags of an XML file
+This command replaces internal IDs of an XML file
+(`<resptr>` tags and salsah-links inside `<text>` tags)
 by IRIs provided in a mapping file.
 
 ```bash
 dsp-tools id2iri xmlfile.xml mapping.json
 ```
 
-The following options are available:
-
-- `--outfile` (optional, default: `id2iri_replaced_[timestamp].xml`): path to the output file
-- `-v` | `--verbose` (optional): print more information about the progress to the console
+The output file is written to `[original name]_replaced_[timestamp].xml`.
 
 This command cannot be used isolated, 
 because it is part of a bigger procedure 

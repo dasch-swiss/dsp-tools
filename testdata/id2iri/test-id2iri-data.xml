@@ -6,12 +6,78 @@
        shortcode="4123"
        default-ontology="testonto">
 
-    <resource label="TestThing2Incremental" restype=":TestThing2" id="TestThing2Incremental">
-        <unformatted-text-prop name=":hasSimpleText"><text>Text</text></unformatted-text-prop>
-        <resptr-prop name=":hasTestThing">
-            <resptr>test_thing_1</resptr>
-            <resptr>test_thing_2</resptr>
+    <resource label="no_replacements" restype=":TestThing" id="no_replacements">
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text>Text</text>
+        </unformatted-text-prop>
+        <formatted-text-prop name=":hasFormattedText">
+            <text>Text</text>
+        </formatted-text-prop>
+        <boolean-prop name=":hasBoolean">
+            <boolean>true</boolean>
+        </boolean-prop>
+    </resource>
+
+    <resource label="resptr_only" restype=":TestThing" id="resptr_only">
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text>Text</text>
+        </unformatted-text-prop>
+        <formatted-text-prop name=":hasFormattedText">
+            <text>Text</text>
+        </formatted-text-prop>
+        <resptr-prop name=":hasTestThing2">
+            <resptr>test_thing_0</resptr>
+            <resptr>test_thing_with_ark_1</resptr>
         </resptr-prop>
+        <boolean-prop name=":hasBoolean">
+            <boolean>true</boolean>
+        </boolean-prop>
+    </resource>
+
+    <resource label="salsah_link_only" restype=":TestThing" id="salsah_link_only">
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text>Text</text>
+        </unformatted-text-prop>
+        <formatted-text-prop name=":hasFormattedText">
+            <text>
+                Text with a <a class="salsah-link" href="IRI:test_thing_1:IRI">link to test_thing_1</a>
+                and <strong>a bold 
+                    <em>and italicized
+                        <a class="salsah-link" href="IRI:test_thing_2:IRI">link to test_thing_2</a>
+                    </em>
+                </strong>
+                and trailing text
+                and a <a class="salsah-link" href="IRI:test_thing_with_ark_1:IRI">link to test_thing_with_ark_1</a> 
+            </text>
+        </formatted-text-prop>
+        <boolean-prop name=":hasBoolean">
+            <boolean>true</boolean>
+        </boolean-prop>
+    </resource>
+
+    <resource label="resptr_and_salsah_link" restype=":TestThing" id="resptr_and_salsah_link">
+        <unformatted-text-prop name=":hasUnformattedText">
+            <text>Text</text>
+        </unformatted-text-prop>
+        <formatted-text-prop name=":hasFormattedText">
+            <text>
+                Text with a <a class="salsah-link" href="IRI:test_thing_1:IRI">link to test_thing_1</a>
+                and <strong>a bold 
+                    <em>and italicized
+                        <a class="salsah-link" href="IRI:test_thing_2:IRI">link to test_thing_2</a>
+                    </em>
+                </strong>
+                and trailing text
+                and a <a class="salsah-link" href="IRI:test_thing_with_ark_1:IRI">link to test_thing_with_ark_1</a> 
+            </text>
+        </formatted-text-prop>
+        <resptr-prop name=":hasTestThing2">
+            <resptr>test_thing_0</resptr>
+            <resptr>test_thing_with_ark_1</resptr>
+        </resptr-prop>
+        <boolean-prop name=":hasBoolean">
+            <boolean>true</boolean>
+        </boolean-prop>
     </resource>
 
 </knora>

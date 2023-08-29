@@ -16,13 +16,13 @@
                 "label": "nonexisting-cardinality-onto",
                 "properties": [
                     {
-                        "name": "hasSimpleText",
+                        "name": "hasUnformattedText",
                         "super": [
                             "hasValue"
                         ],
                         "object": "UnformattedTextValue",
                         "labels": {
-                            "en": "hasSimpleText"
+                            "en": "hasUnformattedText"
                         }
                     }
                 ],
@@ -41,7 +41,7 @@
                                 "cardinality": "1-n"
                             },
                             {
-                                "propname": ":hasSimpleText",
+                                "propname": ":hasUnformattedText",
                                 "cardinality": "0-n"
                             }
                         ]

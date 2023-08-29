@@ -9,7 +9,7 @@
     <resource label=""
               restype=":TestThing2"
               id="test_thing_with_empty_label">
-        <unformatted-text-prop name=":hasSimpleText"><text>Hello</text></unformatted-text-prop>
+        <unformatted-text-prop name=":hasUnformattedText"><text>Hello</text></unformatted-text-prop>
     </resource>
 
 </knora>

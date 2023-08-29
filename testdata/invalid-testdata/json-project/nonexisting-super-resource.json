@@ -16,13 +16,13 @@
                 "label": "nonexisting-super-resource-onto",
                 "properties": [
                     {
-                        "name": "hasSimpleText",
+                        "name": "hasUnformattedText",
                         "super": [
                             "hasValue"
                         ],
                         "object": "UnformattedTextValue",
                         "labels": {
-                            "en": "hasSimpleText"
+                            "en": "hasUnformattedText"
                         }
                     }
                 ],
@@ -37,7 +37,7 @@
                         },
                         "cardinalities": [
                             {
-                                "propname": ":hasSimpleText",
+                                "propname": ":hasUnformattedText",
                                 "cardinality": "0-n"
                             }
                         ]
@@ -52,7 +52,7 @@
                         },
                         "cardinalities": [
                             {
-                                "propname": ":hasSimpleText",
+                                "propname": ":hasUnformattedText",
                                 "cardinality": "0-n"
                             }
                         ]

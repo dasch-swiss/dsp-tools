@@ -2,10 +2,10 @@
 <knora xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://dasch.swiss/schema ../../src/dsp_tools/resources/schema/data.xsd" shortcode="4123" default-ontology="testonto">
 
     <resource label="no_replacements" restype=":TestThing" id="no_replacements">
-        <text-prop name=":hasSimpleText">
+        <text-prop name=":hasUnformattedText">
             <text encoding="utf8">Text</text>
         </text-prop>
-        <text-prop name=":hasRichtext">
+        <text-prop name=":hasFormattedText">
             <text encoding="xml">Text</text>
         </text-prop>
         <boolean-prop name=":hasBoolean">
@@ -14,10 +14,10 @@
     </resource>
 
     <resource label="resptr_only" restype=":TestThing" id="resptr_only">
-        <text-prop name=":hasSimpleText">
+        <text-prop name=":hasUnformattedText">
             <text encoding="utf8">Text</text>
         </text-prop>
-        <text-prop name=":hasRichtext">
+        <text-prop name=":hasFormattedText">
             <text encoding="xml">Text</text>
         </text-prop>
         <resptr-prop name=":hasTestThing2">
@@ -30,10 +30,10 @@
     </resource>
 
     <resource label="salsah_link_only" restype=":TestThing" id="salsah_link_only">
-        <text-prop name=":hasSimpleText">
+        <text-prop name=":hasUnformattedText">
             <text encoding="utf8">Text</text>
         </text-prop>
-        <text-prop name=":hasRichtext">
+        <text-prop name=":hasFormattedText">
             <text encoding="xml">
                 Text with a <a class="salsah-link" href="http://rdfh.ch/082E/JK63OpYWTDWNYVOYFN7FdQ">link to test_thing_1</a>
                 and <strong>a bold 
@@ -51,10 +51,10 @@
     </resource>
 
     <resource label="resptr_and_salsah_link" restype=":TestThing" id="resptr_and_salsah_link">
-        <text-prop name=":hasSimpleText">
+        <text-prop name=":hasUnformattedText">
             <text encoding="utf8">Text</text>
         </text-prop>
-        <text-prop name=":hasRichtext">
+        <text-prop name=":hasFormattedText">
             <text encoding="xml">
                 Text with a <a class="salsah-link" href="http://rdfh.ch/082E/JK63OpYWTDWNYVOYFN7FdQ">link to test_thing_1</a>
                 and <strong>a bold 

@@ -514,8 +514,8 @@ class TestCLI(unittest.TestCase):
         properties_original = properties_original or []
         properties_returned = properties_returned or []
 
-        # The original might have names in the form "currentonto:hasSimpleText".
-        # The returned file will have ":hasSimpleText", so we have to remove the onto name.
+        # The original might have names in the form "currentonto:hasUnformattedText".
+        # The returned file will have ":hasUnformattedText", so we have to remove the onto name.
         for prop in properties_original:
             if any(sup.startswith(onto_name) for sup in prop["super"]):
                 prop["super"] = [regex.sub(rf"^{onto_name}:", ":", sup) for sup in prop["super"]]
@@ -563,8 +563,8 @@ class TestCLI(unittest.TestCase):
         resources_original = resources_original or []
         resources_returned = resources_returned or []
 
-        # The original might have names in the form "currentonto:hasSimpleText".
-        # The returned file will have ":hasSimpleText", so we have to remove the onto name.
+        # The original might have names in the form "currentonto:hasUnformattedText".
+        # The returned file will have ":hasUnformattedText", so we have to remove the onto name.
         for res in resources_original:
             for card in res.get("cardinalities", []):
                 if card["propname"].startswith(onto_name):

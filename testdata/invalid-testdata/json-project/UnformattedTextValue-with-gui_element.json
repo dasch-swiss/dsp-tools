@@ -16,13 +16,13 @@
                 "label": "UnformattedTextValue-with-gui_element",
                 "properties": [
                     {
-                        "name": "hasSimpleText",
+                        "name": "hasUnformattedText",
                         "super": [
                             "hasValue"
                         ],
                         "object": "UnformattedTextValue",
                         "labels": {
-                            "en": "hasSimpleText"
+                            "en": "hasUnformattedText"
                         },
                         "gui_element": "SimpleText"
                     }

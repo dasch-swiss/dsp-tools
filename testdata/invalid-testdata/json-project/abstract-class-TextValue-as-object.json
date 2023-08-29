@@ -16,13 +16,13 @@
                 "label": "nabstract-class-TextValue-as-object",
                 "properties": [
                     {
-                        "name": "hasSimpleText",
+                        "name": "hasUnformattedText",
                         "super": [
                             "hasValue"
                         ],
                         "object": "TextValue",
                         "labels": {
-                            "en": "hasSimpleText"
+                            "en": "hasUnformattedText"
                         }
                     }
                 ],

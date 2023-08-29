@@ -162,7 +162,7 @@ class TestProjectCreation(unittest.TestCase):
         with self.assertRaisesRegex(
             BaseError,
             r"Your data model contains properties that are derived from an invalid super-property:\n"
-            r" - Ontology 'nonexisting-super-property-onto', property 'hasSimpleText': "
+            r" - Ontology 'nonexisting-super-property-onto', property 'hasUnformattedText': "
             r"\[':SuperPropertyThatWasNotDefined'\]",
         ):
             _check_for_undefined_super_property(self.tp_nonexisting_super_property)

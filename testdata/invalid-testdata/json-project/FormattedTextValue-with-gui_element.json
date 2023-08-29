@@ -16,15 +16,15 @@
                 "label": "FormattedTextValue-with-gui_element",
                 "properties": [
                     {
-                        "name": "hasSimpleText",
+                        "name": "hasFormattedText",
                         "super": [
                             "hasValue"
                         ],
                         "object": "FormattedTextValue",
                         "labels": {
-                            "en": "hasRichtext"
+                            "en": "hasFormattedText"
                         },
-                        "gui_element": "SimpleText"
+                        "gui_element": "Richtext"
                     }
                 ],
                 "resources": [

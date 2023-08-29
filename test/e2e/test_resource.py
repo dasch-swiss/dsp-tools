@@ -56,7 +56,7 @@ class TestResource(unittest.TestCase):
                     make_value(value="0.0:3.0", comment="first interval"),
                     make_value(value="3.5:3.7", comment="second interval"),
                 ],
-                "anything:hasRichtext": KnoraStandoffXml("This is <em>bold</em> text."),
+                "anything:hasFormattedText": KnoraStandoffXml("This is <em>bold</em> text."),
                 "anything:hasText": "Dies ist ein einfacher Text",
                 "anything:hasUri": "http://test.com:65500/res",
             },

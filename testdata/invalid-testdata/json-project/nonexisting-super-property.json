@@ -16,23 +16,23 @@
                 "label": "nonexisting-super-property-onto",
                 "properties": [
                     {
-                        "name": "hasSimpleText",
+                        "name": "hasUnformattedText",
                         "super": [
                             ":SuperPropertyThatWasNotDefined"
                         ],
                         "object": "UnformattedTextValue",
                         "labels": {
-                            "en": "hasSimpleText"
+                            "en": "hasUnformattedText"
                         }
                     },
                     {
-                        "name": "hasRichtext",
+                        "name": "hasFormattedText",
                         "super": [
                             "hasValue"
                         ],
                         "object": "FormattedTextValue",
                         "labels": {
-                            "en": "hasRichtext"
+                            "en": "hasFormattedText"
                         }
                     }
                 ],
@@ -47,11 +47,11 @@
                         },
                         "cardinalities": [
                             {
-                                "propname": ":hasSimpleText",
+                                "propname": ":hasUnformattedText",
                                 "cardinality": "1-n"
                             },
                             {
-                                "propname": ":hasRichtext",
+                                "propname": ":hasFormattedText",
                                 "cardinality": "0-n"
                             }
                         ]

@@ -10,14 +10,14 @@
               restype=":TestThing2"
               id="test_thing_with_iri_1"
               iri="http://rdfh.ch/4123/54SYvWF0QUW6a">
-        <unformatted-text-prop name=":hasSimpleText"><text>Hello</text></unformatted-text-prop>
+        <unformatted-text-prop name=":hasUnformattedText"><text>Hello</text></unformatted-text-prop>
     </resource>
 
     <resource label="TestthingWithIri2"
               restype=":TestThing2"
               id="test_thing_with_iri_2"
               iri="http://rdfh.ch/4123/54SYvWF0QUW6a">
-        <unformatted-text-prop name=":hasSimpleText"><text>Hello</text></unformatted-text-prop>
+        <unformatted-text-prop name=":hasUnformattedText"><text>Hello</text></unformatted-text-prop>
     </resource>
 
 </knora>

@@ -1,8 +1,8 @@
 # pylint: disable=missing-class-docstring,missing-function-docstring
 
-from pathlib import Path
 import shutil
 import unittest
+from pathlib import Path
 
 import pytest
 import regex

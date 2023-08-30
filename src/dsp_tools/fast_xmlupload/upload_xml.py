@@ -5,11 +5,10 @@ from typing import Optional, cast
 
 from lxml import etree
 
+from dsp_tools.fast_xmlupload.upload_files import get_pkl_files
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.logging import get_logger
 from dsp_tools.utils.xml_upload import xml_upload
-
-from dsp_tools.fast_xmlupload.upload_files import get_pkl_files
 
 logger = get_logger(__name__)
 

@@ -137,7 +137,7 @@ def _replace_ids_by_iris(
         mapping: mapping of internal IDs to IRIs
 
     Returns:
-        modified XML tree
+        a tuple of the modified XML tree and the success status
     """
     success = True
     used_mapping_entries: set[str] = set()
@@ -172,7 +172,7 @@ def _remove_resources_if_id_in_mapping(
         mapping: mapping of internal IDs to IRIs
 
     Returns:
-        modified XML tree
+        a tuple of the modified XML tree and the success status
     """
     success = True
     resources = tree.xpath("|".join([f"/knora/{x}" for x in ["resource", "annotation", "link", "region"]]))

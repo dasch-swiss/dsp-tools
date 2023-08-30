@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import regex
 
-import dsp_tools.utils.excel_to_json.utils as utl
+import dsp_tools.utils.excel2json.utils as utl
 from dsp_tools.models.exceptions import UserError
 
 languages = ["en", "de", "fr", "it", "rm"]

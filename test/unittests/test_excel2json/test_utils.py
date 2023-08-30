@@ -8,7 +8,7 @@ import pandas as pd
 import pytest
 from pandas.testing import assert_frame_equal, assert_series_equal
 
-import dsp_tools.utils.excel_to_json.utils as utl
+import dsp_tools.utils.excel2json.utils as utl
 from dsp_tools.models.exceptions import BaseError
 
 

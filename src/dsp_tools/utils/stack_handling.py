@@ -1,8 +1,8 @@
-from dataclasses import dataclass
 import importlib.resources
 import shutil
 import subprocess
 import time
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
@@ -12,7 +12,6 @@ import yaml
 
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.logging import get_logger
-
 from dsp_tools.utils.shared import http_call_with_retry
 
 logger = get_logger(__name__)

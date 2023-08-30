@@ -5,11 +5,11 @@ import unittest
 from pathlib import Path
 from typing import Any, Callable, Optional, Sequence, Union
 
-from lxml import etree
 import numpy as np
 import pandas as pd
 import pytest
 import regex
+from lxml import etree
 
 from dsp_tools import excel2xml
 from dsp_tools.models.exceptions import BaseError

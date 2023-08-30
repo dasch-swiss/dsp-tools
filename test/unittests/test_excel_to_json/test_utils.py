@@ -1,14 +1,15 @@
 # pylint: disable=f-string-without-interpolation,missing-class-docstring,missing-function-docstring
 # mypy: allow_untyped_calls
 
-from typing import cast
 import unittest
-import pytest
+from typing import cast
+
 import pandas as pd
+import pytest
 from pandas.testing import assert_frame_equal, assert_series_equal
 
-from dsp_tools.models.exceptions import BaseError
 import dsp_tools.utils.excel_to_json.utils as utl
+from dsp_tools.models.exceptions import BaseError
 
 
 class TestUtils(unittest.TestCase):
@@ -30,29 +31,29 @@ class TestUtils(unittest.TestCase):
         returned_df = utl.clean_data_frame(unclean_df=original_df)
         assert_frame_equal(expected_df, returned_df)
 
-    def test_check_required_columns_raise_error(self) -> None:
+    def test_check_contains_required_columns_else_raise_error(self) -> None:
         original_df = pd.DataFrame(columns=["col1", "col2", "col3", "extra_col"])
         required = {"col1", "col2", "col3"}
-        utl.check_required_columns_raise_error(check_df=original_df, required_columns=required)
+        utl.check_contains_required_columns_else_raise_error(check_df=original_df, required_columns=required)
         required = {"col1", "col2", "col3", "col4"}
         with self.assertRaises(BaseError) as context:
-            utl.check_required_columns_raise_error(check_df=original_df, required_columns=required)
+            utl.check_contains_required_columns_else_raise_error(check_df=original_df, required_columns=required)
             self.assertEqual(
                 context,
                 "The following columns are missing in the excel: "
                 "{required_columns.difference(set(check_df.columns))}",
             )
 
-    def test_check_duplicate_raise_error(self) -> None:
+    def test_check_column_for_duplicate_else_raise_error(self) -> None:
         original_df = pd.DataFrame(
             {
                 "col_1": ["1.54", "0-1", "1-n", "0-1", "1.54"],
                 "col_2": ["1.54", "0-1", "1-n", "text", "neu"],
             }
         )
-        utl.check_duplicate_raise_error(check_df=original_df, duplicate_column="col_2")
+        utl.check_column_for_duplicate_else_raise_error(to_check_df=original_df, to_check_column="col_2")
         with self.assertRaises(BaseError) as context:
-            utl.check_duplicate_raise_error(check_df=original_df, duplicate_column="col_1")
+            utl.check_column_for_duplicate_else_raise_error(to_check_df=original_df, to_check_column="col_1")
             self.assertEqual(
                 context,
                 "The column '{duplicate_column}' may not contain any duplicate values. "

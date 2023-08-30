@@ -12,9 +12,9 @@ from typing import Any, Callable, Optional, Union, cast
 
 import pandas as pd
 import regex
+import requests
 from lxml import etree
 from requests import ReadTimeout, RequestException
-import requests
 from urllib3.exceptions import ReadTimeoutError
 
 from dsp_tools.models.connection import Connection

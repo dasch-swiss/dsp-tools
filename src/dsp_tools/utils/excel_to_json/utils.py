@@ -1,32 +1,31 @@
-# pylint: disable=wrong-import-order
-
 from __future__ import annotations
 
 from typing import Any
+from unittest import mock
+
 import numpy as np
 import pandas as pd
 import regex
-from unittest import mock
 
 from dsp_tools.models.exceptions import UserError
 
 languages = ["en", "de", "fr", "it", "rm"]
 
 
-def read_excel_file(excel_filename: str) -> pd.DataFrame:
+def read_excel_file(excelfile: str) -> pd.DataFrame:
     """
     This function reads an Excel file, if there is a ValueError then it patches the openpyxl part that creates the
-    error and opens it with that patch. It cleans and then returns the pd.DataFrame.
+    error and opens it with that patch.
+    It cleans and then returns the pd.DataFrame.
 
     Args:
-        excel_filename: The name of the Excel file
+        excelfile: The name of the Excel file
 
     Returns:
         A pd.DataFrame
     """
-    # load file
     try:
-        read_df: pd.DataFrame = pd.read_excel(excel_filename)
+        read_df: pd.DataFrame = pd.read_excel(excelfile)
     except ValueError:
         # Pandas relies on openpyxl to parse XLSX files.
         # A strange behaviour of openpyxl prevents pandas from opening files with some formatting properties
@@ -34,7 +33,7 @@ def read_excel_file(excel_filename: str) -> pd.DataFrame:
         # Apparently, the excel2json test files have one of the unsupported formatting properties.
         # Credits: https://stackoverflow.com/a/70537454/14414188
         with mock.patch("openpyxl.styles.fonts.Font.family.max", new=100):
-            read_df = pd.read_excel(excel_filename)
+            read_df = pd.read_excel(excelfile)
     read_df = clean_data_frame(unclean_df=read_df)
     return read_df
 
@@ -43,9 +42,8 @@ def clean_data_frame(unclean_df: pd.DataFrame) -> pd.DataFrame:
     """
     This function takes a pd.DataFrame and removes:
         - Leading and trailing spaces from the column names
-        - Leading and trailing spaces from each cell
-        - Any characters in the cells that are not part of any known language, for example, linebreaks and replaces it
-          with a pd.NA.
+        - Leading and trailing spaces from each cell and any characters in the cells that are not part of any known
+        language, for example, linebreaks and replaces it with a pd.NA.
         - Removes all rows that are empty in all columns
 
     Args:
@@ -56,7 +54,8 @@ def clean_data_frame(unclean_df: pd.DataFrame) -> pd.DataFrame:
     """
     # Remove leading and trailing blanks in column names and make them lower case
     cleaned_df = unclean_df.rename(columns=lambda x: x.strip().lower())
-    # Remove the values of all cells that do not at least contain one character of any known language
+    # Remove the values of all cells that do not at least contain one character of any known language and removes
+    # leading and trailing spaces.
     cleaned_df = cleaned_df.applymap(
         lambda x: str(x).strip() if pd.notna(x) and regex.search(r"[\w\p{L}]", str(x), flags=regex.U) else pd.NA
     )
@@ -65,11 +64,12 @@ def clean_data_frame(unclean_df: pd.DataFrame) -> pd.DataFrame:
     return cleaned_df
 
 
-def check_required_columns_raise_error(check_df: pd.DataFrame, required_columns: set[str]) -> None:
+def check_contains_required_columns_else_raise_error(check_df: pd.DataFrame, required_columns: set[str]) -> None:
     """
-    This function takes a pd.DataFrame and a set of required column names. It checks if all the columns from the set
-    are in the pd.DataFrame. Additional columns to the ones in the set are allowed. It raises an error if any columns
-    are missing.
+    This function takes a pd.DataFrame and a set of required column names.
+    It checks if all the columns from the set are in the pd.DataFrame.
+    Additional columns to the ones in the set are allowed.
+    It raises an error if any columns are missing.
 
     Args:
         check_df: pd.DataFrame that is checked
@@ -78,42 +78,39 @@ def check_required_columns_raise_error(check_df: pd.DataFrame, required_columns:
     Raises:
         UserError: if there are required columns missing
     """
-    # This checks if the required columns are in the Dataframe. Other columns are also permitted.
     if not required_columns.issubset(set(check_df.columns)):
         raise UserError(
             f"The following columns are missing in the excel: " f"{required_columns.difference(set(check_df.columns))}"
         )
 
 
-def check_duplicate_raise_error(check_df: pd.DataFrame, duplicate_column: str) -> None:
+def check_column_for_duplicate_else_raise_error(to_check_df: pd.DataFrame, to_check_column: str) -> None:
     """
-    This function checks if a specified column contains duplicate values. Empty cells (pd.NA) also count as duplicates.
+    This function checks if a specified column contains duplicate values.
+    Empty cells (pd.NA) also count as duplicates.
     If there are any duplicate values, it creates a string with the duplicates which are displayed in the error message.
 
     Args:
-        check_df: pd.DataFrame that is checked for duplicates
-        duplicate_column: Name of the column that must not contain duplicates
+        to_check_df: pd.DataFrame that is checked for duplicates
+        to_check_column: Name of the column that must not contain duplicates
 
     Raises:
         UserError: if there are duplicates in the column
     """
-    # This checks if there are any duplicate values in a column,
-    # pd.NA values also count as duplicates if there are several empty cells.
-    if check_df[duplicate_column].duplicated().any():
+    if to_check_df[to_check_column].duplicated().any():
         # If it does, it creates a string with all the duplicate values and raises an error.
-        duplicate_values = ",".join(check_df[duplicate_column][check_df[duplicate_column].duplicated()].tolist())
+        duplicate_values = ",".join(to_check_df[to_check_column][to_check_df[to_check_column].duplicated()].tolist())
         raise UserError(
-            f"The column '{duplicate_column}' may not contain any duplicate values. "
+            f"The column '{to_check_column}' may not contain any duplicate values. "
             f"The following values appeared multiple times '{duplicate_values}'."
         )
 
 
 def check_required_values(check_df: pd.DataFrame, required_values_columns: list[str]) -> dict[str, pd.Series]:
     """
-    This function takes a pd.Dataframe and a list of column names which may not contain empty cells. If there are any
-    empty cells in the column, it adds the column name and a boolean pd.Series to the dictionary. If there are no empty
-    cells, then it is not included in the dictionary. If no column has any empty cells, then it returns an empty
-    dictionary.
+    If there are any empty cells in the column, it adds the column name and a boolean pd.Series to the dictionary.
+    If there are no empty cells, then it is not included in the dictionary.
+    If no column has any empty cells, then it returns an empty dictionary.
 
     Args:
         check_df: pd.DataFrame that is checked
@@ -132,8 +129,9 @@ def check_required_values(check_df: pd.DataFrame, required_values_columns: list[
 def turn_bool_array_into_index_numbers(in_series: pd.Series[bool], true_remains: bool = True) -> list[int]:
     """
     This function takes a pd.Series which only contains boolean values, by default, the index numbers of the True values
-    are extracted. If the parameter "true_remains" is True, then it creates a list with the index numbers of the True
-    values. If the parameter is False, then it inverses the pd.Series, and returns a list with the index numbers of
+    are extracted.
+    If the parameter "true_remains" is True, then it creates a list with the index numbers of the True values.
+    If the parameter is False, then it inverses the pd.Series, and returns a list with the index numbers of
     the original False values.
 
     Args:
@@ -152,10 +150,11 @@ def turn_bool_array_into_index_numbers(in_series: pd.Series[bool], true_remains:
 
 def get_wrong_row_numbers(wrong_row_dict: dict[str, pd.Series], true_remains: bool = True) -> dict[str, list[int]]:
     """
-    This function takes a dictionary with column names as key and a boolean pd.Series as value. From the boolean
-    pd.Series the index numbers of the True values are extracted, and the resulting list is the new value of the
-    dictionary. This new dictionary is taken and to each index number 2 is added, so that it corresponds to the Excel
-    row number. The result is intended to be used to communicate the exact location of a problem in an error message.
+    This function takes a dictionary with column names as key and a boolean pd.Series as value.
+    From the boolean pd.Series the index numbers of the True values are extracted,
+    and the resulting list is the new value of the dictionary.
+    This new dictionary is taken and to each index number 2 is added, so that it corresponds to the Excel row number.
+    The result is intended to be used to communicate the exact location of a problem in an error message.
 
     Args:
         wrong_row_dict: The dictionary which contains column names and a boolean pd.Series
@@ -172,8 +171,9 @@ def get_wrong_row_numbers(wrong_row_dict: dict[str, pd.Series], true_remains: bo
 
 def update_dict_ifnot_value_none(additional_dict: dict[Any, Any], to_update_dict: dict[Any, Any]) -> dict[Any, Any]:
     """
-    This function takes two dictionaries. The "to_update_dict" should be updated with the information from the
-    "additional_dict" only if the value of a particular key is not None or pd.NA.
+    This function takes two dictionaries.
+    The "to_update_dict" should be updated with the information from the "additional_dict"
+    only if the value of a particular key is not None or pd.NA.
 
     Args:
         additional_dict: The diction
@@ -190,8 +190,9 @@ def update_dict_ifnot_value_none(additional_dict: dict[Any, Any], to_update_dict
 
 def get_labels(df_row: pd.Series) -> dict[str, str]:
     """
-    This function takes a pd.Series which has "label_[language tag]" in the index. If the value of the index is not
-    pd.NA, the language tag and the value are added to a dictionary. If it is empty, it is omitted from the dictionary.
+    This function takes a pd.Series which has "label_[language tag]" in the index.
+    If the value of the index is not pd.NA, the language tag and the value are added to a dictionary.
+    If it is empty, it is omitted from the dictionary.
 
     Args:
         df_row: a pd.Series (usually a row of a pd.DataFrame) from which the content of the columns containing the
@@ -205,8 +206,9 @@ def get_labels(df_row: pd.Series) -> dict[str, str]:
 
 def get_comments(df_row: pd.Series) -> dict[str, str] | None:
     """
-    This function takes a pd.Series which has "comment_[language tag]" in the index. If the value of the index is not
-    pd.NA, the language tag and the value are added to a dictionary. If it is empty, it is omitted from the dictionary.
+    This function takes a pd.Series which has "comment_[language tag]" in the index.
+    If the value of the index is not pd.NA, the language tag and the value are added to a dictionary.
+    If it is empty, it is omitted from the dictionary.
 
     Args:
         df_row: a pd.Series (usually a row of a pd.DataFrame) from which the content of the columns containing the
@@ -225,10 +227,12 @@ def get_comments(df_row: pd.Series) -> dict[str, str] | None:
 def find_one_full_cell_in_cols(check_df: pd.DataFrame, required_columns: list[str]) -> pd.Series | None:
     """
     This function takes a pd.DataFrame and a list of column names where at least one cell must have a value per row.
-    It creates a pd.Series with boolean values that are True if the cell is empty for each column. These series
-    are then combined, and in the resulting np.array the values are only True if all the values from the pd.Series
-    were True, meaning that in this row, all the specified columns have no values. If any of the values in the np.array
-    are True, it converts it into a pd.Series (the data type is relevant at a later point) and returns it.
+    It creates a pd.Series with boolean values that are True if the cell is empty for each column.
+    These series are then combined.
+    In the resulting np.array the values are only True if all the values from the pd.Series were True,
+    meaning that in this row, all the specified columns have no values.
+    If any of the values in the np.array are True,
+    it converts it into a pd.Series (the data type is relevant at a later point) and returns it.
     If all the values are False, then it returns None.
 
     Args:
@@ -256,13 +260,15 @@ def col_must_or_not_empty_based_on_other_col(
     must_have_value: bool,
 ) -> pd.Series | None:
     """
-    It is presumed that the column "substring_colname" has no empty cells. Based on the string content of the individual
-    rows, which is specified in the "substring_list", the cell is the column "check_empty_colname" is checked whether it
-    is empty or not. The "substring_list" contains the different possibilities regarding the content of the cell. They
-    are joined in a RegEx "|" which denotes "or". If it does not match any of the sub-strings, then the RegEx returns
+    It is presumed that the column "substring_colname" has no empty cells.
+    Based on the string content of the individual rows, which is specified in the "substring_list",
+    the cell is the column "check_empty_colname" is checked whether it is empty or not.
+    The "substring_list" contains the different possibilities regarding the content of the cell.
+    They are joined in a RegEx "|" which denotes "or".
+    If it does not match any of the sub-strings, then the RegEx returns
     False which means that the value in the column "check_empty_colname" is not relevant.
-    If the parameter "must_have_value" is True, then the cell in the "check_empty_colname" column must
-    not be empty. If the parameter is set to False, then it must be empty.
+    If the parameter "must_have_value" is True, then the cell in the "check_empty_colname" column must not be empty.
+    If the parameter is set to False, then it must be empty.
 
     Args:
         check_df: The pd.DataFrame which is checked
@@ -272,7 +278,8 @@ def col_must_or_not_empty_based_on_other_col(
         must_have_value: True if the "check_empty_colname" should have a value or the reverse.
 
     Returns:
-        None if all rows are correctly filled or empty. A series which contains True values for the rows, where it does
+        None if all rows are correctly filled or empty.
+        A series which contains True values for the rows, where it does
         not comply with the specifications.
     """
     na_series = check_df[check_empty_colname].isna()

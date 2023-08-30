@@ -3,14 +3,13 @@ from typing import Any
 
 import regex
 
+from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.group import Group
 from dsp_tools.models.listnode import ListNode
 from dsp_tools.models.ontology import Ontology
 from dsp_tools.models.project import Project
 from dsp_tools.models.user import User
-
-from dsp_tools.models.connection import Connection
 
 
 def get_project(

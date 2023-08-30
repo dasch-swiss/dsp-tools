@@ -97,7 +97,6 @@ def _upload_xml(rosetta_folder: Path) -> bool:
         imgdir=str(rosetta_folder),
         sipi="http://0.0.0.0:1024",
         verbose=False,
-        incremental=False,
         save_metrics=False,
         preprocessing_done=False,
     )

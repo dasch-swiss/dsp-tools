@@ -88,13 +88,15 @@ class Connection:
             self.delete(route="/v2/authentication")
             self.token = None
 
-    def get_token(self) -> Optional[str]:
+    def get_token(self) -> str:
         """
         Return the token of this connection.
 
         Returns:
             token
         """
+        if not self.token:
+            raise BaseError("No token available.")
         return self.token
 
     def _write_request_to_file(

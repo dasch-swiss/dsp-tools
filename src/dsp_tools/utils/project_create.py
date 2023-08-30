@@ -1036,7 +1036,7 @@ def create_project(
     # establish connection to DSP server
     con = login(server=server, user=user_mail, password=password)
     if dump:
-        con.start_logging()
+        pass
 
     # create project on DSP server
     print(f"Create project '{proj_shortname}' ({proj_shortcode})...")

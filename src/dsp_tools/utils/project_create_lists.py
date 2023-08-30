@@ -191,7 +191,7 @@ def create_lists(
     # connect to the DSP server
     con = login(server, user, password)
     if dump:
-        con.start_logging()
+        pass
 
     # retrieve the project
     shortcode = project_definition["project"]["shortcode"]

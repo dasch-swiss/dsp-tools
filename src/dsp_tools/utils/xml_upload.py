@@ -15,9 +15,9 @@ from pathlib import Path
 from typing import Any, Optional, Union, cast
 from urllib.parse import quote_plus
 
-from lxml import etree
 import pandas as pd
 import regex
+from lxml import etree
 
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import BaseError, UserError

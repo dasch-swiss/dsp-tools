@@ -92,22 +92,18 @@ dsp-tools xmlupload --incremental additional_data_replaced_[timestamp].xml
 ## 4. Continue an interruped xmlupload
 
 If an xmlupload didn't finish successfully, 
-some resources have already been created, but others not.
-If the remaining resources have references to created ones,
-these references must be made with IRIs,
-and the created resources must be removed from the XML file
-(otherwise they would be created a second time).
+some resources have already been created, but others have not.
+If one of the remaining resources references a created resource by its ID,
+this ID must be replaced by the IRI of the created resource.
+
+In addition, the created resources must be removed from the XML file,
+otherwise they would be created a second time.
 
 In such a case, proceed as follows:
 
-```bash
-dsp-tools xmlupload data.xml
-# crash: some resources have been uploaded, and a id2iri_mapping_[timestamp].json file has been written
-# fix the reason for the crash
-
-# replace the IDs and remove the created resources with:
-dsp-tools id2iri data.xml --remove-resources id2iri_mapping_[timestamp].json
-
-# upload the outputted XML file with
-dsp-tools xmlupload data_replaced_[timestamp].xml
-```
+1. Initial xmlupload: `dsp-tools xmlupload data.xml`
+2. A crash happens. Some resources have been uploaded, and a `id2iri_mapping_[timestamp].json` file has been written
+3. Fix the reason for the crash
+4. Replace the IDs and remove the created resources with: 
+   `dsp-tools id2iri data.xml --remove-resources id2iri_mapping_[timestamp].json``
+5. Upload the outputted XML file with `dsp-tools xmlupload data_replaced_[timestamp].xml`

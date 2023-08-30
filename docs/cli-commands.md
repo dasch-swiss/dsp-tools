@@ -268,8 +268,6 @@ dsp-tools id2iri xmlfile.xml mapping.json
 The following options are available:
 
 - `-r` | `--remove-resources` (optional): remove resources if their ID is in the mapping 
-  (this prevents doubled resources on the DSP server,
-  because the resources occurring in the mapping already exist on the DSP server)
 
 The output file is written to `[original name]_replaced_[timestamp].xml`.
 

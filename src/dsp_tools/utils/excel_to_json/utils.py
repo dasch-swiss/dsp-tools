@@ -64,7 +64,7 @@ def clean_data_frame(unclean_df: pd.DataFrame) -> pd.DataFrame:
     return cleaned_df
 
 
-def check_contains_required_columns_else_raise_error(check_df: pd.DataFrame, required_columns: set[str]) -> None:
+def check_contains_required_columns_else_raise_error(to_check_df: pd.DataFrame, required_columns: set[str]) -> None:
     """
     This function takes a pd.DataFrame and a set of required column names.
     It checks if all the columns from the set are in the pd.DataFrame.
@@ -72,15 +72,16 @@ def check_contains_required_columns_else_raise_error(check_df: pd.DataFrame, req
     It raises an error if any columns are missing.
 
     Args:
-        check_df: pd.DataFrame that is checked
+        to_check_df: pd.DataFrame that is checked
         required_columns: set of column names
 
     Raises:
         UserError: if there are required columns missing
     """
-    if not required_columns.issubset(set(check_df.columns)):
+    if not required_columns.issubset(set(to_check_df.columns)):
         raise UserError(
-            f"The following columns are missing in the excel: " f"{required_columns.difference(set(check_df.columns))}"
+            f"The following columns are missing in the excel:\n"
+            f"{required_columns.difference(set(to_check_df.columns))}"
         )
 
 
@@ -106,14 +107,14 @@ def check_column_for_duplicate_else_raise_error(to_check_df: pd.DataFrame, to_ch
         )
 
 
-def check_required_values(check_df: pd.DataFrame, required_values_columns: list[str]) -> dict[str, pd.Series]:
+def check_required_values(to_check_df: pd.DataFrame, required_values_columns: list[str]) -> dict[str, pd.Series]:
     """
     If there are any empty cells in the column, it adds the column name and a boolean pd.Series to the dictionary.
     If there are no empty cells, then it is not included in the dictionary.
     If no column has any empty cells, then it returns an empty dictionary.
 
     Args:
-        check_df: pd.DataFrame that is checked
+        to_check_df: pd.DataFrame that is checked
         required_values_columns: a list of column names that may not contain empty cells
 
     Returns:
@@ -121,7 +122,7 @@ def check_required_values(check_df: pd.DataFrame, required_values_columns: list[
     """
     # It checks if any of the values in a specified column are empty. If they are, they are added to the dictionary
     # with the column name as key and a boolean series as value that contain true for every pd.NA
-    res_dict = {col: check_df[col].isnull() for col in required_values_columns if check_df[col].isnull().any()}
+    res_dict = {col: to_check_df[col].isnull() for col in required_values_columns if to_check_df[col].isnull().any()}
     # If all the columns are filled, then it returns an empty dictionary.
     return res_dict
 
@@ -169,7 +170,7 @@ def get_wrong_row_numbers(wrong_row_dict: dict[str, pd.Series], true_remains: bo
     return {k: [x + 2 for x in v] for k, v in wrong_row_dict.items()}
 
 
-def update_dict_ifnot_value_none(additional_dict: dict[Any, Any], to_update_dict: dict[Any, Any]) -> dict[Any, Any]:
+def update_dict_if_not_value_none(additional_dict: dict[Any, Any], to_update_dict: dict[Any, Any]) -> dict[Any, Any]:
     """
     This function takes two dictionaries.
     The "to_update_dict" should be updated with the information from the "additional_dict"
@@ -224,7 +225,7 @@ def get_comments(df_row: pd.Series) -> dict[str, str] | None:
         return comments
 
 
-def find_one_full_cell_in_cols(check_df: pd.DataFrame, required_columns: list[str]) -> pd.Series | None:
+def find_one_full_cell_in_cols(to_check_df: pd.DataFrame, required_columns: list[str]) -> pd.Series | None:
     """
     This function takes a pd.DataFrame and a list of column names where at least one cell must have a value per row.
     It creates a pd.Series with boolean values that are True if the cell is empty for each column.
@@ -236,14 +237,14 @@ def find_one_full_cell_in_cols(check_df: pd.DataFrame, required_columns: list[st
     If all the values are False, then it returns None.
 
     Args:
-        check_df: The pd.DataFrame which should be checked
+        to_check_df: The pd.DataFrame which should be checked
         required_columns: A list of column names where at least one cell per row must have a value
 
     Returns:
         None if there is no problem or a pd.Series if there is a problem in a row
     """
     # In order to combine more than two arrays, we need to reduce the arrays, which takes a tuple
-    result_arrays = tuple(check_df[col].isnull() for col in required_columns)
+    result_arrays = tuple(to_check_df[col].isnull() for col in required_columns)
     # If all are True logical_and returns True otherwise False
     combined_array = np.logical_and.reduce(result_arrays)
     if any(combined_array):
@@ -253,7 +254,7 @@ def find_one_full_cell_in_cols(check_df: pd.DataFrame, required_columns: list[st
 
 
 def col_must_or_not_empty_based_on_other_col(
-    check_df: pd.DataFrame,
+    to_check_df: pd.DataFrame,
     substring_list: list[str],
     substring_colname: str,
     check_empty_colname: str,
@@ -271,7 +272,7 @@ def col_must_or_not_empty_based_on_other_col(
     If the parameter is set to False, then it must be empty.
 
     Args:
-        check_df: The pd.DataFrame which is checked
+        to_check_df: The pd.DataFrame which is checked
         substring_list: A list of possible information that could be in the column "substring_colname"
         substring_colname: The name of the column that may contain any of the sub-strings
         check_empty_colname: The name of the column which is checked if it is empty or not
@@ -282,12 +283,12 @@ def col_must_or_not_empty_based_on_other_col(
         A series which contains True values for the rows, where it does
         not comply with the specifications.
     """
-    na_series = check_df[check_empty_colname].isna()
+    na_series = to_check_df[check_empty_colname].isna()
     # If the cells have to be empty, we need to reverse the series
     if not must_have_value:
         na_series = ~na_series
     # This returns True if it finds the substring in the cell
-    substring_array = check_df[substring_colname].str.contains("|".join(substring_list), na=False, regex=True)
+    substring_array = to_check_df[substring_colname].str.contains("|".join(substring_list), na=False, regex=True)
     # If both are True logical_and returns True otherwise False
     combined_array = np.logical_and(na_series, substring_array)
     if any(combined_array):

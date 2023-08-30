@@ -461,7 +461,7 @@ class TestExcelToProperties(unittest.TestCase):
             "hlist: languages": {"hlist": "languages"},
         }
         for original, expected in test_dict.items():
-            self.assertDictEqual(e2j._unpack_gui_attributes(gui_str=original), expected)
+            self.assertDictEqual(e2j._unpack_gui_attributes(attribute_str=original), expected)
 
     def test__search_convert_numbers(self) -> None:
         test_dict = {"1": 1, "string": "string", "1.453": 1.453, "sdf.asdf": "sdf.asdf"}
@@ -498,14 +498,14 @@ class TestExcelToProperties(unittest.TestCase):
         returned_dict = e2j._get_gui_attribute(df_row=original_df.loc[4, :], row_num=6, excelfile="Test")
         self.assertDictEqual(expected_dict, cast(dict[str, str], returned_dict))
 
-    def test__check_gui_attributes(self) -> None:
+    def test__check_compliance_gui_attributes(self) -> None:
         original_df = pd.DataFrame(
             {
                 "gui_element": ["Spinbox", "List", "Searchbox", "Date", "Geonames", "Richtext", "TimeStamp"],
                 "gui_attributes": ["Spinbox_attr", "List_attr", pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
             }
         )
-        returned_value = e2j._check_gui_attributes(check_df=original_df)
+        returned_value = e2j._check_compliance_gui_attributes(to_check_df=original_df)
         self.assertIsNone(cast(None, returned_value))
         original_df = pd.DataFrame(
             {
@@ -514,7 +514,7 @@ class TestExcelToProperties(unittest.TestCase):
             }
         )
         expected_dict = {"wrong gui_attributes": [False, True, False, False, False, False, True]}
-        returned_dict = e2j._check_gui_attributes(check_df=original_df)
+        returned_dict = e2j._check_compliance_gui_attributes(to_check_df=original_df)
         returned_dict = cast(dict[str, list[pd.Series]], returned_dict)
         casted_dict: dict[str, Any] = {"wrong gui_attributes": list(returned_dict["wrong gui_attributes"])}
         self.assertDictEqual(expected_dict, casted_dict)
@@ -540,7 +540,7 @@ class TestExcelToProperties(unittest.TestCase):
                 "gui_attributes": ["size: 32, maxlength: 128", pd.NA, "hlist: languages"],
             }
         )
-        returned_dict = e2j._row2prop(prop_row=original_df.loc[0, :], row_count=0, excelfile="Test")
+        returned_dict = e2j._row2prop(df_row=original_df.loc[0, :], row_num=0, excelfile="Test")
         expected_dict = {
             "name": "name_1",
             "object": "object_1",
@@ -564,7 +564,7 @@ class TestExcelToProperties(unittest.TestCase):
         }
         self.assertDictEqual(expected_dict, returned_dict)
 
-        returned_dict = e2j._row2prop(prop_row=original_df.loc[1, :], row_count=1, excelfile="Test")
+        returned_dict = e2j._row2prop(df_row=original_df.loc[1, :], row_num=1, excelfile="Test")
         expected_dict = {
             "comments": {"en": "comment_en_2"},
             "gui_element": "Date",
@@ -575,7 +575,7 @@ class TestExcelToProperties(unittest.TestCase):
         }
         self.assertDictEqual(expected_dict, returned_dict)
 
-        returned_dict = e2j._row2prop(prop_row=original_df.loc[2, :], row_count=2, excelfile="Test")
+        returned_dict = e2j._row2prop(df_row=original_df.loc[2, :], row_num=2, excelfile="Test")
         expected_dict = {
             "comments": {"de": "comment_de_3"},
             "gui_attributes": {"hlist": "languages"},

@@ -34,10 +34,10 @@ class TestUtils(unittest.TestCase):
     def test_check_contains_required_columns_else_raise_error(self) -> None:
         original_df = pd.DataFrame(columns=["col1", "col2", "col3", "extra_col"])
         required = {"col1", "col2", "col3"}
-        utl.check_contains_required_columns_else_raise_error(check_df=original_df, required_columns=required)
+        utl.check_contains_required_columns_else_raise_error(to_check_df=original_df, required_columns=required)
         required = {"col1", "col2", "col3", "col4"}
         with self.assertRaises(BaseError) as context:
-            utl.check_contains_required_columns_else_raise_error(check_df=original_df, required_columns=required)
+            utl.check_contains_required_columns_else_raise_error(to_check_df=original_df, required_columns=required)
             self.assertEqual(
                 context,
                 "The following columns are missing in the excel: "
@@ -69,7 +69,7 @@ class TestUtils(unittest.TestCase):
             }
         )
         expected_dict = {"col_1": [False, False, False, True]}
-        returned_dict = utl.check_required_values(check_df=original_df, required_values_columns=["col_1", "col_3"])
+        returned_dict = utl.check_required_values(to_check_df=original_df, required_values_columns=["col_1", "col_3"])
         self.assertListEqual(list(expected_dict.keys()), list(returned_dict.keys()))
         for key, expected_list in expected_dict.items():
             self.assertListEqual(list(returned_dict[key]), expected_list)
@@ -92,11 +92,11 @@ class TestUtils(unittest.TestCase):
         returned_dict = utl.get_wrong_row_numbers(wrong_row_dict=original_dict, true_remains=True)
         self.assertDictEqual(expected_dict, returned_dict)
 
-    def test_update_dict_ifnot_value_none(self) -> None:
+    def test_update_dict_if_not_value_none(self) -> None:
         original_dict = {0: 0}
         original_update_dict = {1: 1, 2: 2, 3: None, 4: pd.NA, 5: "5"}
         expected_dict = {0: 0, 1: 1, 2: 2, 5: "5"}
-        returned_dict = utl.update_dict_ifnot_value_none(
+        returned_dict = utl.update_dict_if_not_value_none(
             additional_dict=original_update_dict, to_update_dict=original_dict
         )
         self.assertDictEqual(expected_dict, returned_dict)
@@ -113,7 +113,7 @@ class TestUtils(unittest.TestCase):
             }
         )
         expected_array = pd.Series([False, True, False, False])
-        returned_array = utl.find_one_full_cell_in_cols(check_df=original_df, required_columns=required_cols)
+        returned_array = utl.find_one_full_cell_in_cols(to_check_df=original_df, required_columns=required_cols)
         assert_series_equal(expected_array, returned_array)
         original_df = pd.DataFrame(
             {
@@ -124,13 +124,13 @@ class TestUtils(unittest.TestCase):
                 "label_rm": [pd.NA, pd.NA, 3, 4],
             }
         )
-        returned_array = utl.find_one_full_cell_in_cols(check_df=original_df, required_columns=required_cols)
+        returned_array = utl.find_one_full_cell_in_cols(to_check_df=original_df, required_columns=required_cols)
         self.assertIsNone(returned_array)
 
     def test_col_must_or_not_empty_based_on_other_col(self) -> None:
         original_df = pd.DataFrame({"substring": ["1", "2", "3", "4", "5", "6"], "check": [1, pd.NA, 3, 4, pd.NA, 6]})
         returned_value = utl.col_must_or_not_empty_based_on_other_col(
-            check_df=original_df,
+            to_check_df=original_df,
             substring_list=["1", "3", "6"],
             substring_colname="substring",
             check_empty_colname="check",
@@ -139,7 +139,7 @@ class TestUtils(unittest.TestCase):
         self.assertIsNone(returned_value)
         expected_series = pd.Series([True, False, False, False, False, False])
         returned_series = utl.col_must_or_not_empty_based_on_other_col(
-            check_df=original_df,
+            to_check_df=original_df,
             substring_list=["1", "2"],
             substring_colname="substring",
             check_empty_colname="check",

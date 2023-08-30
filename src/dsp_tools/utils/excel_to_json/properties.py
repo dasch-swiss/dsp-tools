@@ -436,7 +436,7 @@ def excel2properties(
         a tuple consisting of the "properties" section as a Python list,
             and the success status (True if everything went well)
     """
-    property_df = utl.read_excel_file(excelfile=excelfile)
+    property_df = utl.read_and_clean_excel_file(excelfile=excelfile)
 
     property_df = _rename_deprecated_columnnames(in_df=property_df, excelfile=excelfile)
 

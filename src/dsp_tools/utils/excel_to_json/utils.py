@@ -12,7 +12,7 @@ from dsp_tools.models.exceptions import UserError
 languages = ["en", "de", "fr", "it", "rm"]
 
 
-def read_excel_file(excelfile: str) -> pd.DataFrame:
+def read_and_clean_excel_file(excelfile: str) -> pd.DataFrame:
     """
     This function reads an Excel file, if there is a ValueError then it patches the openpyxl part that creates the
     error and opens it with that patch.

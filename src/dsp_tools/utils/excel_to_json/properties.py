@@ -216,7 +216,7 @@ def _row2prop(df_row: pd.Series, row_num: int, excelfile: str) -> dict[str, Any]
     return _property
 
 
-def _check_compliance_gui_attributes(to_check_df: pd.DataFrame) -> dict[str, pd.Series] | None:
+def _check_compliance_gui_attributes(df: pd.DataFrame) -> dict[str, pd.Series] | None:
     """
     This function takes a pd.DataFrame and checks if the "gui_attributes" column is filled correctly.
     If any or all of the checks fail,
@@ -224,7 +224,7 @@ def _check_compliance_gui_attributes(to_check_df: pd.DataFrame) -> dict[str, pd.
     there is a problem otherwise, it returns None.
 
     Args:
-        to_check_df: pd.DataFrame that should be checked
+        df: pd.DataFrame that should be checked
 
     Returns:
         A dictionary with a pd.Series that contains the information where there is a problem or None if all the
@@ -235,7 +235,7 @@ def _check_compliance_gui_attributes(to_check_df: pd.DataFrame) -> dict[str, pd.
     """
     mandatory_attributes = ["Spinbox", "List"]
     mandatory_check = utl.col_must_or_not_empty_based_on_other_col(
-        to_check_df=to_check_df,
+        df=df,
         substring_list=mandatory_attributes,
         substring_colname="gui_element",
         check_empty_colname="gui_attributes",
@@ -243,7 +243,7 @@ def _check_compliance_gui_attributes(to_check_df: pd.DataFrame) -> dict[str, pd.
     )
     no_attributes = ["Checkbox", "Date", "Geonames", "Richtext", "TimeStamp"]
     no_attribute_check = utl.col_must_or_not_empty_based_on_other_col(
-        to_check_df=to_check_df,
+        df=df,
         substring_list=no_attributes,
         substring_colname="gui_element",
         check_empty_colname="gui_attributes",
@@ -263,7 +263,7 @@ def _check_compliance_gui_attributes(to_check_df: pd.DataFrame) -> dict[str, pd.
     return {"wrong gui_attributes": final_series}
 
 
-def _check_missing_values_in_row_raise_error(to_check_df: pd.DataFrame, excelfile: str) -> None:
+def _check_missing_values_in_row_raise_error(df: pd.DataFrame, excelfile: str) -> None:
     """
     This function checks if all the required values are in the df.
     If all the checks are ok, the function ends without any effect.
@@ -271,7 +271,7 @@ def _check_missing_values_in_row_raise_error(to_check_df: pd.DataFrame, excelfil
     are problems.
 
     Args:
-        to_check_df: pd.DataFrame that is to be checked
+        df: pd.DataFrame that is to be checked
         excelfile: Name of the original Excel file
 
     Raises:
@@ -280,14 +280,14 @@ def _check_missing_values_in_row_raise_error(to_check_df: pd.DataFrame, excelfil
     # Every row in these columns must have a value
     required_values = ["name", "super", "object", "gui_element"]
     # If there are no problems, it returns an empty dict
-    missing_dict = utl.check_required_values(to_check_df=to_check_df, required_values_columns=required_values)
+    missing_dict = utl.check_required_values(df=df, required_values_columns=required_values)
     # This checks if the label columns have at least one value per row
-    missing_labels = utl.find_one_full_cell_in_cols(to_check_df=to_check_df, required_columns=language_label_col)
+    missing_labels = utl.find_one_full_cell_in_cols(df=df, required_columns=language_label_col)
     # If everything is ok, we get None, otherwise we update the dict
     if missing_labels is not None:
         missing_dict.update({"label": missing_labels})
     # Some gui_element require a gui_attributes and others must not have one
-    missing_gui_attributes = _check_compliance_gui_attributes(to_check_df=to_check_df)
+    missing_gui_attributes = _check_compliance_gui_attributes(df=df)
     if missing_gui_attributes is not None:
         missing_dict.update(missing_gui_attributes)
     if missing_dict:
@@ -297,14 +297,14 @@ def _check_missing_values_in_row_raise_error(to_check_df: pd.DataFrame, excelfil
         raise UserError(f"The file '{excelfile}' is missing values in the following rows:\n" f"{error_str}")
 
 
-def _do_property_excel_compliance(compliance_df: pd.DataFrame, excelfile: str) -> None:
+def _do_property_excel_compliance(df: pd.DataFrame, excelfile: str) -> None:
     """
     This function calls three separate functions which each checks if the pd.DataFrame is as we expect it.
     Each of these functions raises a UserError if there is a problem.
     If the checks do not fail, this function ends without an effect.
 
     Args:
-        compliance_df: The pd.DataFrame that is checked
+        df: The pd.DataFrame that is checked
         excelfile: The name of the original Excel file
 
     Raises:
@@ -328,18 +328,18 @@ def _do_property_excel_compliance(compliance_df: pd.DataFrame, excelfile: str) -
         "gui_element",
         "gui_attributes",
     }
-    utl.check_contains_required_columns_else_raise_error(to_check_df=compliance_df, required_columns=required_columns)
-    utl.check_column_for_duplicate_else_raise_error(to_check_df=compliance_df, to_check_column="name")
-    _check_missing_values_in_row_raise_error(to_check_df=compliance_df, excelfile=excelfile)
+    utl.check_contains_required_columns_else_raise_error(df=df, required_columns=required_columns)
+    utl.check_column_for_duplicate_else_raise_error(df=df, to_check_column="name")
+    _check_missing_values_in_row_raise_error(df=df, excelfile=excelfile)
 
 
-def _rename_deprecated_hlist(rename_df: pd.DataFrame, excelfile: str) -> pd.DataFrame:
+def _rename_deprecated_hlist(df: pd.DataFrame, excelfile: str) -> pd.DataFrame:
     """
     This function deals with Excel files that do conform to a previous format.
     If the old column names are not in the pd.DataFrame, then it returns it as was.
 
     Args:
-        rename_df: The pd.DataFrame which is checked and renamed
+        df: The pd.DataFrame which is checked and renamed
         excelfile: Name of the original Excel file.
 
     Returns:
@@ -349,24 +349,24 @@ def _rename_deprecated_hlist(rename_df: pd.DataFrame, excelfile: str) -> pd.Data
         A warning for the user that the Excel file is not compliant with the new specifications
     """
     # If the deprecated feature is not in the df, then return the df
-    if "hlist" not in rename_df.columns:
-        return rename_df
+    if "hlist" not in df.columns:
+        return df
     warnings.warn(
         f"The file '{excelfile}' has a column 'hlist', which is deprecated. "
         f"Please use the column 'gui_attributes' for the attribute 'hlist'."
     )
     # Reformat the string according to the new convention
-    rename_df["hlist"] = rename_df["hlist"].apply(lambda x: f"hlist:{x}" if isinstance(x, str) else x)
+    df["hlist"] = df["hlist"].apply(lambda x: f"hlist:{x}" if isinstance(x, str) else x)
     # If gui_attributes already exists we have to merge the columns
-    if "gui_attributes" in rename_df.columns:
+    if "gui_attributes" in df.columns:
         # In case there is a hlist, it is the only valid value in gui_attributes and has precedence
-        rename_df["hlist"] = rename_df["hlist"].fillna(rename_df["gui_attributes"])
-        rename_df.pop("gui_attributes")
-    rename_df.rename(columns={"hlist": "gui_attributes"}, inplace=True)
-    return rename_df
+        df["hlist"] = df["hlist"].fillna(df["gui_attributes"])
+        df.pop("gui_attributes")
+    df.rename(columns={"hlist": "gui_attributes"}, inplace=True)
+    return df
 
 
-def _rename_deprecated_lang_cols(rename_df: pd.DataFrame, excelfile: str) -> pd.DataFrame:
+def _rename_deprecated_lang_cols(df: pd.DataFrame, excelfile: str) -> pd.DataFrame:
     """
     This function takes a pd.DataFrame and checks if the columns with the language label are named according to the old
     specifications.
@@ -374,7 +374,7 @@ def _rename_deprecated_lang_cols(rename_df: pd.DataFrame, excelfile: str) -> pd.
     Otherwise, it returns the pd.Dataframe as was.
 
     Args:
-        rename_df: pd.DataFrame, which is to be checked
+        df: pd.DataFrame, which is to be checked
         excelfile: Name of the Excel file
 
     Returns:
@@ -384,26 +384,26 @@ def _rename_deprecated_lang_cols(rename_df: pd.DataFrame, excelfile: str) -> pd.
         A warning for the user that the Excel file is not compliant with the new specifications
     """
     # If the columns are named correctly, return the df
-    if set(language_label_col).issubset(set(rename_df.columns)):
-        return rename_df
-    if set(languages).issubset(set(rename_df.columns)):
+    if set(language_label_col).issubset(set(df.columns)):
+        return df
+    if set(languages).issubset(set(df.columns)):
         warnings.warn(
             f"The file '{excelfile}' uses {languages} as column titles, which is deprecated. "
             f"Please use {[f'label_{lang}' for lang in languages]}"
         )
     rename_dict = dict(zip(languages, language_label_col))
-    rename_df.rename(columns=rename_dict, inplace=True)
-    return rename_df
+    df.rename(columns=rename_dict, inplace=True)
+    return df
 
 
-def _rename_deprecated_columnnames(rename_df: pd.DataFrame, excelfile: str) -> pd.DataFrame:
+def _rename_deprecated_columnnames(df: pd.DataFrame, excelfile: str) -> pd.DataFrame:
     """
     This function calls two other functions that check and rename a deprecated Excel format.
     Afterward, the pd.DataFrame is compliant with the current format.
     In case the pd.DataFrame was already in the current format, the function passes without an effect.
 
     Args:
-        rename_df: pd.DataFrame that is checked and renamed
+        df: pd.DataFrame that is checked and renamed
         excelfile: Name of the original Excel
 
     Returns:
@@ -412,9 +412,9 @@ def _rename_deprecated_columnnames(rename_df: pd.DataFrame, excelfile: str) -> p
     Warnings:
         Two user warnings if the pd.DataFrame is not according to the current specifications
     """
-    rename_df = _rename_deprecated_lang_cols(rename_df=rename_df, excelfile=excelfile)
-    rename_df = _rename_deprecated_hlist(rename_df=rename_df, excelfile=excelfile)
-    return rename_df
+    df = _rename_deprecated_lang_cols(df=df, excelfile=excelfile)
+    df = _rename_deprecated_hlist(df=df, excelfile=excelfile)
+    return df
 
 
 def excel2properties(
@@ -438,9 +438,9 @@ def excel2properties(
     """
     property_df = utl.read_and_clean_excel_file(excelfile=excelfile)
 
-    property_df = _rename_deprecated_columnnames(rename_df=property_df, excelfile=excelfile)
+    property_df = _rename_deprecated_columnnames(df=property_df, excelfile=excelfile)
 
-    _do_property_excel_compliance(compliance_df=property_df, excelfile=excelfile)
+    _do_property_excel_compliance(df=property_df, excelfile=excelfile)
 
     # transform every row into a property
     props: list[dict[str, Any]] = []

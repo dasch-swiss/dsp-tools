@@ -91,7 +91,7 @@ def _validate_resources(
 
 
 def _row2resource(
-    row: pd.Series,
+    df_row: pd.Series,
     excelfile: str,
 ) -> dict[str, Any]:
     """
@@ -100,7 +100,7 @@ def _row2resource(
     and builds a dict object of the resource.
 
     Args:
-        row: row from the "classes" DataFrame
+        df_row: row from the "classes" DataFrame
         excelfile: Excel file where the data comes from
 
     Raises:
@@ -110,12 +110,12 @@ def _row2resource(
         dict object of the resource
     """
 
-    name = row["name"]
-    labels = {lang: row[f"label_{lang}"] for lang in languages if row.get(f"label_{lang}")}
+    name = df_row["name"]
+    labels = {lang: df_row[f"label_{lang}"] for lang in languages if df_row.get(f"label_{lang}")}
     if not labels:
-        labels = {lang: row[lang] for lang in languages if row.get(lang)}
-    comments = {lang: row[f"comment_{lang}"] for lang in languages if row.get(f"comment_{lang}")}
-    supers = [s.strip() for s in row["super"].split(",")]
+        labels = {lang: df_row[lang] for lang in languages if df_row.get(lang)}
+    comments = {lang: df_row[f"comment_{lang}"] for lang in languages if df_row.get(f"comment_{lang}")}
+    supers = [s.strip() for s in df_row["super"].split(",")]
 
     # load the cardinalities of this resource
     try:

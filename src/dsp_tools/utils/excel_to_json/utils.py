@@ -28,7 +28,7 @@ def read_and_clean_excel_file(excelfile: str) -> pd.DataFrame:
         read_df: pd.DataFrame = pd.read_excel(excelfile)
     except ValueError:
         # Pandas relies on openpyxl to parse XLSX files.
-        # A strange behaviour of openpyxl prevents pandas from opening files with some formatting properties
+        # A strange behavior of openpyxl prevents pandas from opening files with some formatting properties
         # (unclear which formatting properties exactly).
         # Apparently, the excel2json test files have one of the unsupported formatting properties.
         # Credits: https://stackoverflow.com/a/70537454/14414188
@@ -128,20 +128,17 @@ def check_required_values(df: pd.DataFrame, required_values_columns: list[str]) 
 
 def turn_bool_array_into_index_numbers(series: pd.Series[bool], true_remains: bool = True) -> list[int]:
     """
-    This function takes a pd.Series which only contains boolean values, by default, the index numbers of the True values
-    are extracted.
-    If the parameter "true_remains" is True, then it creates a list with the index numbers of the True values.
-    If the parameter is False, then it inverses the pd.Series, and returns a list with the index numbers of
-    the original False values.
+    This function takes a pd.Series containing boolean values.
+    By default, this method extracts the index numbers of the True values.
+    If the index numbers of the False values are required, the parameter "true_remains" should be turned to False.
 
     Args:
         series: pd.Series, which only contains True and False values
-        true_remains: If True then the index numbers of the True values are extracted, if False then the reverse
+        true_remains: True if the index numbers of True are required, likewise with False
 
     Returns:
         A list of index numbers
     """
-    # By default, it takes the index numbers of the True values.
     # If the False are required, we need to invert the array.
     if not true_remains:
         series = ~series
@@ -150,9 +147,8 @@ def turn_bool_array_into_index_numbers(series: pd.Series[bool], true_remains: bo
 
 def get_wrong_row_numbers(wrong_row_dict: dict[str, pd.Series], true_remains: bool = True) -> dict[str, list[int]]:
     """
-    This function takes a dictionary with column names as key and a boolean pd.Series as value.
-    From the boolean pd.Series the index numbers of the True values are extracted,
-    and the resulting list is the new value of the dictionary.
+    From the boolean pd.Series the index numbers of the True values are extracted.
+    The resulting list is the new value of the dictionary.
     This new dictionary is taken and to each index number 2 is added, so that it corresponds to the Excel row number.
     The result is intended to be used to communicate the exact location of a problem in an error message.
 
@@ -176,8 +172,7 @@ def update_dict_if_not_value_none(additional_dict: dict[Any, Any], to_update_dic
     only if the value of a particular key is not None or pd.NA.
 
     Args:
-        additional_dict: The diction
-        ary which contains information that may be transferred
+        additional_dict: The dictionary which contains information that may be transferred
         to_update_dict: The dictionary to which the new information should be transferred
 
     Returns:
@@ -227,13 +222,7 @@ def get_comments(df_row: pd.Series) -> dict[str, str] | None:
 def find_one_full_cell_in_cols(df: pd.DataFrame, required_columns: list[str]) -> pd.Series | None:
     """
     This function takes a pd.DataFrame and a list of column names where at least one cell must have a value per row.
-    It creates a pd.Series with boolean values that are True if the cell is empty for each column.
-    These series are then combined.
-    In the resulting np.array the values are only True if all the values from the pd.Series were True,
-    meaning that in this row, all the specified columns have no values.
-    If any of the values in the np.array are True,
-    it converts it into a pd.Series (the data type is relevant at a later point) and returns it.
-    If all the values are False, then it returns None.
+    A pd.Series with boolean values is returned, True if any rows do not have a value in at least one column
 
     Args:
         df: The pd.DataFrame which should be checked
@@ -242,10 +231,12 @@ def find_one_full_cell_in_cols(df: pd.DataFrame, required_columns: list[str]) ->
     Returns:
         None if there is no problem or a pd.Series if there is a problem in a row
     """
+    # The series has True if the cell is empty
     # In order to combine more than two arrays, we need to reduce the arrays, which takes a tuple
     result_arrays = tuple(df[col].isnull() for col in required_columns)
     # If all are True logical_and returns True otherwise False
     combined_array = np.logical_and.reduce(result_arrays)
+    # if any of the values are True, it is turned into a pd.Series
     if any(combined_array):
         return pd.Series(combined_array)
     else:
@@ -262,11 +253,8 @@ def col_must_or_not_empty_based_on_other_col(
     """
     It is presumed that the column "substring_colname" has no empty cells.
     Based on the string content of the individual rows, which is specified in the "substring_list",
-    the cell is the column "check_empty_colname" is checked whether it is empty or not.
+    the cell in the column "check_empty_colname" is checked whether it is empty or not.
     The "substring_list" contains the different possibilities regarding the content of the cell.
-    They are joined in a RegEx "|" which denotes "or".
-    If it does not match any of the sub-strings, then the RegEx returns
-    False which means that the value in the column "check_empty_colname" is not relevant.
     If the parameter "must_have_value" is True, then the cell in the "check_empty_colname" column must not be empty.
     If the parameter is set to False, then it must be empty.
 
@@ -286,7 +274,9 @@ def col_must_or_not_empty_based_on_other_col(
     # If the cells have to be empty, we need to reverse the series
     if not must_have_value:
         na_series = ~na_series
-    # This returns True if it finds the substring in the cell
+    # This returns True if it finds the substring in the cell, they are joined in a RegEx "|" which denotes "or".
+    # If it does not match any of the sub-strings, then the RegEx returns False,
+    # which means that the value in the column "check_empty_colname" is not relevant.
     substring_array = df[substring_colname].str.contains("|".join(substring_list), na=False, regex=True)
     # If both are True logical_and returns True otherwise False
     combined_array = np.logical_and(na_series, substring_array)

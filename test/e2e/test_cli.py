@@ -212,7 +212,7 @@ class TestCLI(unittest.TestCase):
         mapping_file.unlink()
 
         second_xml_file_replaced = get_most_recent_glob_match(self.cwd / f"{second_xml_file_orig.stem}_replaced_*.xml")
-        self._make_cli_call(f"dsp-tools xmlupload --incremental -v {second_xml_file_replaced.absolute()}")
+        self._make_cli_call(f"dsp-tools xmlupload -v {second_xml_file_replaced.absolute()}")
         second_xml_file_replaced.unlink()
         self.assertListEqual(list(Path(self.cwd).glob("stashed_*_properties_*.txt")), [])
 

@@ -43,7 +43,7 @@ The file `additional_data.xml` contains references like `<resptr>http://rdfh.ch/
 Such a file can be uploaded with 
 
 ```bash
-dsp-tools xmlupload --incremental additional_data.xml
+dsp-tools xmlupload additional_data.xml
 ```
 
 
@@ -60,9 +60,6 @@ its internal IDs must be replaced by their respective IRIs.
 That's where the JSON mapping file comes in:
 It contains a mapping from `book_1` to `http://rdfh.ch/4123/nyOODvYySV2nJ5RWRdmOdQ`.
 
-
-### id2iri
-
 As a first step, 
 a new file must be generated 
 with the [`id2iri` command](./cli-commands.md#id2iri),
@@ -73,15 +70,8 @@ dsp-tools id2iri additional_data.xml id2iri_mapping_[timestamp].json
 ```
 
 
-
-### incremental xmlupload
-
 As second step, the newly generated XML file can be uploaded to DSP:
 
 ```bash
-dsp-tools xmlupload --incremental additional_data_replaced_[timestamp].xml
+dsp-tools xmlupload additional_data_replaced_[timestamp].xml
 ```
-
-| <center>Important</center>                                                                                                                      |
-|-------------------------------------------------------------------------------------------------------------------------------------------------|
-| Internal IDs and IRIs cannot be mixed within the same file. An XML file uploaded with the incremental option must not contain any internal IDs. |

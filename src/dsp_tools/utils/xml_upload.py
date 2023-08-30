@@ -905,7 +905,7 @@ def _upload_stashed_xml_texts(
 
                 # execute API call
                 try:
-                    try_network_action(con.put, path="/v2/values", jsondata=jsondata)
+                    try_network_action(con.put, route="/v2/values", jsondata=jsondata)
                 except BaseError as err:
                     # print the message to keep track of the cause for the failure.
                     # Apart from that, no action is necessary:
@@ -1019,7 +1019,7 @@ def _upload_stashed_resptr_props(
                 }
                 jsondata = json.dumps(jsonobj, indent=4, separators=(",", ": "))
                 try:
-                    try_network_action(con.post, path="/v2/values", jsondata=jsondata)
+                    try_network_action(con.post, route="/v2/values", jsondata=jsondata)
                 except BaseError as err:
                     # print the message to keep track of the cause for the failure.
                     # Apart from that, no action is necessary:

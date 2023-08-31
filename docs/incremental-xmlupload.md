@@ -16,11 +16,12 @@ What is this mapping used for?
 It can happen that at a later point of time,
 additional data is uploaded.
 Depending on what kind of references the additional data contains,
-there are 3 cases how this can happen:
+there are 4 cases how this can happen:
 
 1. no references to existing resources: normal xmlupload
 2. references to existing resources via IRIs: incremental xmlupload
 3. references to existing resources via internal IDs: first id2iri, then incremental xmlupload
+4. continue an interruped xmlupload: first id2iri, then incremental xmlupload
 
 
 
@@ -75,3 +76,24 @@ As second step, the newly generated XML file can be uploaded to DSP:
 ```bash
 dsp-tools xmlupload additional_data_replaced_[timestamp].xml
 ```
+
+
+
+## 4. Continue an interruped xmlupload
+
+If an xmlupload didn't finish successfully, 
+some resources have already been created, but others have not.
+If one of the remaining resources references a created resource by its ID,
+this ID must be replaced by the IRI of the created resource.
+
+In addition, the created resources must be removed from the XML file,
+otherwise they would be created a second time.
+
+In such a case, proceed as follows:
+
+1. Initial xmlupload: `dsp-tools xmlupload data.xml`
+2. A crash happens. Some resources have been uploaded, and a `id2iri_mapping_[timestamp].json` file has been written
+3. Fix the reason for the crash
+4. Replace the IDs and remove the created resources with: 
+   `dsp-tools id2iri data.xml --remove-resources id2iri_mapping_[timestamp].json``
+5. Upload the outputted XML file with `dsp-tools xmlupload data_replaced_[timestamp].xml`

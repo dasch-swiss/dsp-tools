@@ -8,13 +8,13 @@ import time
 import unicodedata
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Callable, Optional, Union, cast
+from typing import Any, Callable, Optional, TypeGuard, Union, cast
 
 import pandas as pd
 import regex
+import requests
 from lxml import etree
 from requests import ReadTimeout, RequestException
-import requests
 from urllib3.exceptions import ReadTimeoutError
 
 from dsp_tools.models.connection import Connection
@@ -334,7 +334,7 @@ def simplify_name(value: str) -> str:
     return simplified_value
 
 
-def check_notna(value: Optional[Any]) -> bool:
+def check_notna(value: Optional[Any]) -> TypeGuard[Any]:
     """
     Check a value if it is usable in the context of data archiving. A value is considered usable if it is
      - a number (integer or float, but not np.nan)

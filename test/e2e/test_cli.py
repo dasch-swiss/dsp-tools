@@ -8,11 +8,11 @@ separate unit tests/e2e tests."""
 
 import copy
 import json
-from pathlib import Path
 import shutil
 import subprocess
-from typing import Any, Optional, cast
 import unittest
+from pathlib import Path
+from typing import Any, Optional, cast
 
 import jsonpath_ng
 import jsonpath_ng.ext

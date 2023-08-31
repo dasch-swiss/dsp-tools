@@ -31,8 +31,11 @@ To get started quickly, without reading the details, just execute these commands
 - `curl -sSL https://install.python-poetry.org | python3 -`
 - `poetry self add poetry-exec-plugin`
 - `poetry install`
+- `poetry shell`
 - `pre-commit install`
 - `brew install imagemagick ffmpeg`
+
+To learn more about the meaning of these commands, read the remainder of this README.
 
 
 

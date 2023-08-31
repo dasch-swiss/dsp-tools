@@ -13,10 +13,10 @@ from dsp_tools.fast_xmlupload.process_files import process_files
 from dsp_tools.fast_xmlupload.upload_files import upload_files
 from dsp_tools.fast_xmlupload.upload_xml import fast_xmlupload
 from dsp_tools.models.exceptions import UserError
-from dsp_tools.utils.excel_to_json.lists import excel2lists, validate_lists_section_with_schema
-from dsp_tools.utils.excel_to_json.project import excel2json
-from dsp_tools.utils.excel_to_json.properties import excel2properties
-from dsp_tools.utils.excel_to_json.resources import excel2resources
+from dsp_tools.utils.excel2json.lists import excel2lists, validate_lists_section_with_schema
+from dsp_tools.utils.excel2json.project import excel2json
+from dsp_tools.utils.excel2json.properties import excel2properties
+from dsp_tools.utils.excel2json.resources import excel2resources
 from dsp_tools.utils.generate_templates import generate_template_repo
 from dsp_tools.utils.id_to_iri import id_to_iri
 from dsp_tools.utils.logging import get_logger
@@ -223,6 +223,9 @@ def _make_parser(
         help="Replace internal IDs of an XML file (resptr tags or salsah-links) by IRIs provided in a mapping file.",
     )
     parser_id2iri.set_defaults(action="id2iri")
+    parser_id2iri.add_argument(
+        "-r", "--remove-resources", action="store_true", help="remove resources if their ID is in the mapping"
+    )
     parser_id2iri.add_argument("xmlfile", help="path to the XML file containing the data to be replaced")
     parser_id2iri.add_argument("mapping", help="path to the JSON file containing the mapping of IDs to IRIs")
 

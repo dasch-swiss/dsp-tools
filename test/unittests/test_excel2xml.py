@@ -445,7 +445,7 @@ class TestExcel2xml(unittest.TestCase):
         invalid_values = [True, 10.0, 5]
         run_test(self, prop, method, different_values, invalid_values)
 
-    @pytest.mark.filterwarnings("ignore")
+    @pytest.mark.filterwarnings("ignore::UserWarning")
     def test_make_text_prop(self) -> None:
         # standard tests
         prop = "text"
@@ -714,7 +714,7 @@ class TestExcel2xml(unittest.TestCase):
         }
         self.assertDictEqual(testlist_mapping_returned, testlist_mapping_expected)
 
-    @pytest.mark.filterwarnings("ignore")
+    @pytest.mark.filterwarnings("ignore::UserWarning")
     def test_excel2xml(self) -> None:
         # test the valid files, 3 times identical, but in the three formats XLSX, XLS, and CSV
         with open("testdata/excel2xml/excel2xml-expected-output.xml", encoding="utf-8") as f:

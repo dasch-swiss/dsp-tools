@@ -272,7 +272,7 @@ class TestCLI(unittest.TestCase):
             output_expected = f.read()
         self.assertEqual(output_actual, output_expected)
 
-    @pytest.mark.filterwarnings("ignore")
+    @pytest.mark.filterwarnings("ignore::UserWarning")
     def test_excel2xml(self) -> None:
         datafile = Path("testdata/excel2xml/excel2xml-testdata.xlsx")
         shortcode = "1234"

@@ -19,7 +19,6 @@ from lxml import etree
 
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.logging import get_logger
-
 from dsp_tools.utils.shared import http_call_with_retry
 
 logger = get_logger(__name__, filesize_mb=100, backupcount=36)

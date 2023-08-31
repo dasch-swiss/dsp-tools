@@ -2,13 +2,12 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from lxml import etree
 import regex
+from lxml import etree
 
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.logging import get_logger
 from dsp_tools.utils.xml_upload import parse_xml_file
-
 
 logger = get_logger(__name__)
 

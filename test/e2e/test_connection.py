@@ -35,8 +35,6 @@ class TestConnection(unittest.TestCase):
         res = self.con.get("/ontology/0001/anything/simple/v2")
         self.assertIsNotNone(res["@graph"])
         self.assertRaises(BaseError, self.con.get, "/doesNotExist")
-        self.assertIsNotNone(res["@graph"])
-        self.assertRaises(BaseError, self.con.get, "/doesNotExist")
 
     def test_post(self) -> None:
         res_info = """{

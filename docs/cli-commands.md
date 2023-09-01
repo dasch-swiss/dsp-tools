@@ -101,6 +101,7 @@ The following options are available:
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API 
 - `-P` | `--project` (mandatory): shortcode, shortname or IRI of the project 
 - `-v` | `--verbose` (optional): print more information about the progress to the console
+- `-d` | `--dump` (optional): write every request to DSP-API into a file
 
 The defaults are intended for local testing: 
 
@@ -138,6 +139,7 @@ The following options are available:
 - `-V` | `--validate` (optional): validate the XML file without uploading it
 - `-v` | `--verbose` (optional): print more information about the progress to the console
 - `-m` | `--metrics` (optional): write metrics into a 'metrics' folder
+- `-d` | `--dump` (optional): write every request to DSP-API/SIPI into a file
 
 Output:
 

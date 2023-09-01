@@ -13,9 +13,9 @@ from dsp_tools.models.xmlresource import XMLResource
 from dsp_tools.utils.xml_upload import (
     _convert_ark_v0_to_resource_iri,
     _determine_save_location_of_diagnostic_info,
-    parse_xml_file,
     _remove_circular_references,
     _transform_server_url_to_foldername,
+    parse_xml_file,
 )
 
 

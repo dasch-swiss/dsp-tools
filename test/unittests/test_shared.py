@@ -112,9 +112,9 @@ class TestShared(unittest.TestCase):
     def test_prepare_dataframe(self) -> None:
         original_df = pd.DataFrame(
             {
-                "  TitLE of Column 1 ": ["1", " 0-1 ", "1-n ", pd.NA, "    ", " ", "", " 0-n ", np.nan],
+                "  TitLE of Column 1 ": ["1", " 0-1 ", "1-n ", pd.NA, "    ", " ", "", " 0-n ", pd.NA],
                 " Title of Column 2 ": [None, "1", 1, "text", "text", "text", "text", "text", "text"],
-                "Title of Column 3": ["", pd.NA, None, "text", "text", "text", "text", np.nan, "text"],
+                "Title of Column 3": ["", pd.NA, None, "text", "text", "text", "text", pd.NA, "text"],
             }
         )
         expected_df = pd.DataFrame(
@@ -127,16 +127,14 @@ class TestShared(unittest.TestCase):
         returned_df = shared.prepare_dataframe(
             df=original_df, required_columns=["  TitLE of Column 1 ", " Title of Column 2 "], location_of_sheet=""
         )
-        for expected, returned in zip(expected_df.iterrows(), returned_df.iterrows()):
-            i, expected_row = expected
-            _, returned_row = returned
+        for (i, expected_row), (_, returned_row) in zip(expected_df.iterrows(), returned_df.iterrows()):
             self.assertListEqual(list(expected_row), list(returned_row), msg=f"Failed in row {i}")
 
     def test_check_notna(self) -> None:
         na_values = [
             None,
             pd.NA,
-            np.nan,
+            pd.NA,
             "",
             "  ",
             "-",

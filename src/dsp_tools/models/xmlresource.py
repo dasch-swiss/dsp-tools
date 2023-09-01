@@ -93,7 +93,7 @@ class XMLResource:  # pylint: disable=too-many-instance-attributes
 
     def get_resptrs(self) -> list[str]:
         """
-        Get a list of all resource id's that are referenced by this resource
+        Get a list of all resource IDs/IRIs that are referenced by this resource.
 
         Returns:
             List of resources identified by their unique id's (as given in the XML)

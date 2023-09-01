@@ -64,6 +64,12 @@ jobs:
 
       - name: Linting with darglint
         run: poetry exec darglint
+
+
+      # Run unittests
+      ###############
+      - name: unittests
+        run: poetry run pytest test/unittests/
       
 
       # Install programs for local processing (fast xmlupload)
@@ -85,11 +91,8 @@ jobs:
         uses: mfinelli/setup-imagemagick@v2  # downloads the "magick" AppImage to ~/bin/magick
 
 
-      # Run unittests and e2e tests
-      #############################
-      - name: unittests
-        run: poetry run pytest test/unittests/
-
+      # Run e2e tests
+      ###############
       - name: start stack
         run: poetry run dsp-tools start-stack --no-prune --latest  # TODO: SET THIS BACK BEFORE MERGING INTO MAIN!!!
 

@@ -2,13 +2,12 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from lxml import etree
 import regex
+from lxml import etree
 
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.logging import get_logger
 from dsp_tools.utils.xml_upload import parse_xml_file
-
 
 logger = get_logger(__name__)
 
@@ -75,7 +74,8 @@ def _replace_resptrs(
     Returns:
         a tuple of the modified XML tree and the set of the IDs that have been replaced
     """
-    resptr_elems = tree.xpath("/knora/resource/resptr-prop/resptr")
+    resptr_xpath = "|".join([f"/knora/{x}/resptr-prop/resptr" for x in ["resource", "annotation", "link", "region"]])
+    resptr_elems = tree.xpath(resptr_xpath)
     resptr_elems_replaced = 0
     for resptr_elem in resptr_elems:
         value_before = resptr_elem.text
@@ -106,9 +106,10 @@ def _replace_salsah_links(
     Returns:
         a tuple of the modified XML tree and the set of the IDs that have been replaced
     """
-    salsah_links = [
-        x for x in tree.xpath("/knora/resource/formatted-text-prop/text//a") if x.attrib.get("class") == "salsah-link"
-    ]
+    salsah_xpath = "|".join(
+        [f"/knora/{x}/(un)?formatted-text-prop/text//a" for x in ["resource", "annotation", "link", "region"]]
+    )
+    salsah_links = [x for x in tree.xpath(salsah_xpath) if x.attrib.get("class") == "salsah-link"]
     salsah_links_replaced = 0
     for salsah_link in salsah_links:
         value_before = regex.sub("IRI:|:IRI", "", salsah_link.attrib.get("href", ""))
@@ -126,7 +127,7 @@ def _replace_salsah_links(
 def _replace_ids_by_iris(
     tree: etree._Element,
     mapping: dict[str, str],
-) -> tuple[etree._Element, bool]:
+) -> etree._Element:
     """
     Iterate over the <resptr> tags and the salsah-links of the <text> tags,
     and replace the internal IDs by IRIs.
@@ -137,9 +138,8 @@ def _replace_ids_by_iris(
         mapping: mapping of internal IDs to IRIs
 
     Returns:
-        modified XML tree
+        a tuple of the modified XML tree
     """
-    success = True
     used_mapping_entries: set[str] = set()
 
     tree, used_mapping_entries = _replace_resptrs(
@@ -157,7 +157,36 @@ def _replace_ids_by_iris(
     logger.info(f"Used {len(used_mapping_entries)}/{len(mapping)} entries from the mapping file")
     print(f"Used {len(used_mapping_entries)}/{len(mapping)} entries from the mapping file")
 
-    return tree, success
+    return tree
+
+
+def _remove_resources_if_id_in_mapping(
+    tree: etree._Element,
+    mapping: dict[str, str],
+) -> etree._Element:
+    """
+    Remove all resources from the XML file if their ID is in the mapping.
+
+    Args:
+        tree: parsed XML file
+        mapping: mapping of internal IDs to IRIs
+
+    Returns:
+        a tuple of the modified XML tree
+    """
+    resources = tree.xpath("|".join([f"/knora/{x}" for x in ["resource", "annotation", "link", "region"]]))
+    resources_to_remove = [x for x in resources if x.attrib.get("id") in mapping]
+    for resource in resources_to_remove:
+        resource.getparent().remove(resource)
+
+    msg = (
+        f"Removed {len(resources_to_remove)}/{len(resources)} resources from the XML file, "
+        "because their ID was in the mapping"
+    )
+    logger.info(msg)
+    print(msg)
+
+    return tree
 
 
 def _write_output_file(
@@ -179,9 +208,10 @@ def _write_output_file(
     print(f"XML with replaced IDs was written to file {out_file}.")
 
 
-def id_to_iri(
+def id2iri(
     xml_file: str,
     json_file: str,
+    remove_resource_if_id_in_mapping: bool = False,
 ) -> bool:
     """
     Replace internal IDs of an XML file
@@ -193,19 +223,25 @@ def id_to_iri(
     Args:
         xml_file: the XML file with the data to be replaced
         json_file: the JSON file with the mapping (dict) of internal IDs to IRIs
+        remove_resource_if_id_in_mapping: if True, remove all resources from the XML file if their ID is in the mapping
 
     Raises:
         BaseError: if one of the two input files is not a valid file
 
     Returns:
-        True if everything went well, False otherwise
+        success status
     """
     xml_file_as_path, json_file_as_path = _check_input_parameters(xml_file=xml_file, json_file=json_file)
     mapping = _parse_json_file(json_file_as_path)
     tree = parse_xml_file(xml_file_as_path)
-    tree, success = _replace_ids_by_iris(
+    tree = _replace_ids_by_iris(
         tree=tree,
         mapping=mapping,
     )
+    if remove_resource_if_id_in_mapping:
+        tree = _remove_resources_if_id_in_mapping(
+            tree=tree,
+            mapping=mapping,
+        )
     _write_output_file(orig_xml_file=xml_file_as_path, tree=tree)
-    return success
+    return True

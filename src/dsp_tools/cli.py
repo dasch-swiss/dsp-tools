@@ -13,12 +13,12 @@ from dsp_tools.fast_xmlupload.process_files import process_files
 from dsp_tools.fast_xmlupload.upload_files import upload_files
 from dsp_tools.fast_xmlupload.upload_xml import fast_xmlupload
 from dsp_tools.models.exceptions import UserError
-from dsp_tools.utils.excel_to_json_lists import excel2lists, validate_lists_section_with_schema
-from dsp_tools.utils.excel_to_json_project import excel2json
-from dsp_tools.utils.excel_to_json_properties import excel2properties
-from dsp_tools.utils.excel_to_json_resources import excel2resources
+from dsp_tools.utils.excel2json.lists import excel2lists, validate_lists_section_with_schema
+from dsp_tools.utils.excel2json.project import excel2json
+from dsp_tools.utils.excel2json.properties import excel2properties
+from dsp_tools.utils.excel2json.resources import excel2resources
 from dsp_tools.utils.generate_templates import generate_template_repo
-from dsp_tools.utils.id_to_iri import id_to_iri
+from dsp_tools.utils.id2iri import id2iri
 from dsp_tools.utils.logging import get_logger
 from dsp_tools.utils.project_create import create_project
 from dsp_tools.utils.project_create_lists import create_lists
@@ -113,12 +113,6 @@ def _make_parser(
     parser_upload.add_argument("-p", "--password", default=root_user_pw, help=password_text)
     parser_upload.add_argument(
         "-i", "--imgdir", default=".", help="folder from where the paths in the <bitstream> tags are evaluated"
-    )
-    parser_upload.add_argument(
-        "-I",
-        "--incremental",
-        action="store_true",
-        help="The links in the XML file point to IRIs (on the server) instead of IDs (in the same XML file).",
     )
     parser_upload.add_argument(
         "-V", "--validate-only", action="store_true", help="validate the XML file without uploading it"
@@ -225,6 +219,9 @@ def _make_parser(
         help="Replace internal IDs of an XML file (resptr tags or salsah-links) by IRIs provided in a mapping file.",
     )
     parser_id2iri.set_defaults(action="id2iri")
+    parser_id2iri.add_argument(
+        "-r", "--remove-resources", action="store_true", help="remove resources if their ID is in the mapping"
+    )
     parser_id2iri.add_argument("xmlfile", help="path to the XML file containing the data to be replaced")
     parser_id2iri.add_argument("mapping", help="path to the JSON file containing the mapping of IDs to IRIs")
 
@@ -473,7 +470,6 @@ def _call_requested_action(args: argparse.Namespace) -> bool:
                 imgdir=args.imgdir,
                 sipi=args.sipi_url,
                 verbose=args.verbose,
-                incremental=args.incremental,
                 save_metrics=args.metrics,
                 preprocessing_done=False,
             )
@@ -524,9 +520,10 @@ def _call_requested_action(args: argparse.Namespace) -> bool:
             path_to_output_file=args.properties_section,
         )
     elif args.action == "id2iri":
-        success = id_to_iri(
+        success = id2iri(
             xml_file=args.xmlfile,
             json_file=args.mapping,
+            remove_resource_if_id_in_mapping=args.remove_resources,
         )
     elif args.action == "excel2xml":
         success = excel2xml(

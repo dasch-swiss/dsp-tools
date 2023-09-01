@@ -8,7 +8,8 @@ import jsonschema
 import pandas as pd
 import regex
 
-from dsp_tools.models.exceptions import BaseError
+import dsp_tools.utils.excel2json.utils as utl
+from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.utils.shared import check_notna, prepare_dataframe
 
 languages = ["en", "de", "fr", "it", "rm"]
@@ -210,23 +211,8 @@ def excel2resources(
             and the success status (True if everything went well)
     """
 
-    # load file
-    try:
-        all_classes_df: pd.DataFrame = pd.read_excel(excelfile)
-    except ValueError:
-        # Pandas relies on openpyxl to parse XLSX files.
-        # A strange behaviour of openpyxl prevents pandas from opening files with some formatting properties
-        # (unclear which formatting properties exactly).
-        # Apparently, the excel2json test files have one of the unsupported formatting properties.
-        # The following two lines of code help out.
-        # Credits: https://stackoverflow.com/a/70537454/14414188
-        # pylint: disable-next=import-outside-toplevel
-        from unittest import mock
+    all_classes_df = utl.read_and_clean_excel_file(excelfile=excelfile)
 
-        p = mock.patch("openpyxl.styles.fonts.Font.family.max", new=100)
-        p.start()
-        all_classes_df = pd.read_excel(excelfile)
-        p.stop()
     all_classes_df = prepare_dataframe(
         df=all_classes_df,
         required_columns=["name"],

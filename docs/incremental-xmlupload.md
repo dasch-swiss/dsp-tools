@@ -95,5 +95,5 @@ In such a case, proceed as follows:
 2. A crash happens. Some resources have been uploaded, and a `id2iri_mapping_[timestamp].json` file has been written
 3. Fix the reason for the crash
 4. Replace the IDs and remove the created resources with: 
-   `dsp-tools id2iri data.xml --remove-resources id2iri_mapping_[timestamp].json``
+   `dsp-tools id2iri data.xml --remove-resources id2iri_mapping_[timestamp].json`
 5. Upload the outputted XML file with `dsp-tools xmlupload data_replaced_[timestamp].xml`

@@ -519,6 +519,7 @@ def xml_upload(
     imgdir: str,
     sipi: str,
     verbose: bool = False,
+    dump: bool = False,
     save_metrics: bool = False,
     preprocessing_done: bool = False,
 ) -> bool:
@@ -533,6 +534,7 @@ def xml_upload(
         imgdir: the image directory
         sipi: the sipi instance to be used
         verbose: verbose option for the command, if used more output is given to the user
+        dump: if true, dumps the XML file to the current working directory
         save_metrics: if true, saves time measurements into a "metrics" folder in the current working directory
         preprocessing_done: if set, all multimedia files referenced in the XML file must already be on the server
 
@@ -566,7 +568,7 @@ def xml_upload(
     preparation_start = datetime.now()
 
     # establish connection to DSP server
-    con = login(server=server, user=user, password=password)
+    con = login(server=server, user=user, password=password, dump=dump)
     sipi_server = Sipi(sipi, con.get_token())
 
     # get the project context

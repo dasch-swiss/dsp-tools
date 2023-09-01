@@ -9,8 +9,8 @@ After a successful upload of the data,
 an output file is written (called `id2iri_mapping_[timestamp].json`)
 with the mapping from the internal IDs used inside the XML 
 to their corresponding IRIs which uniquely identify them inside DSP. 
-This file should be kept if data is later added with the 
-`--incremental` [option](../incremental-xmlupload.md).
+This file should be kept if a second data delivery is added at a later point of time 
+[see here](../incremental-xmlupload.md).
 
 The import file must start with the standard XML header:
 
@@ -627,8 +627,7 @@ Attributes:
 #### `<resptr>`
 
 The `<resptr>` element contains either the internal ID of another resource inside the XML or the IRI of an already
-existing resource on DSP. Inside the same XML file, a mixture of the two is not possible. If referencing existing
-resources, `xmlupload --incremental` has to be used.
+existing resource on DSP. 
 
 Attributes:
 

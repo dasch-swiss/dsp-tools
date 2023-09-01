@@ -1,6 +1,5 @@
 """This module handles processing of files referenced in the bitstream tags of an XML file."""
 
-
 import hashlib
 import json
 import pickle
@@ -264,6 +263,7 @@ def _stop_and_remove_sipi_container() -> None:
     """
     global sipi_container
     if not sipi_container:
+        # the Sipi container is not stored in the global variable, but perhaps it exists
         docker_client = docker.from_env()
         try:
             sipi_container = docker_client.containers.get("sipi")
@@ -272,6 +272,7 @@ def _stop_and_remove_sipi_container() -> None:
             logger.warning("There is no Sipi container that could be removed.")
             return
 
+    # at this point, a Sipi container exists and is stored in the global variable
     try:
         sipi_container.stop()
         sipi_container.remove()

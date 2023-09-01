@@ -520,6 +520,7 @@ def _call_requested_action(args: argparse.Namespace) -> bool:
         success = id2iri(
             xml_file=args.xmlfile,
             json_file=args.mapping,
+            remove_resource_if_id_in_mapping=args.remove_resources,
         )
     elif args.action == "excel2xml":
         success = excel2xml(

@@ -18,7 +18,7 @@ from dsp_tools.utils.excel2json.project import excel2json
 from dsp_tools.utils.excel2json.properties import excel2properties
 from dsp_tools.utils.excel2json.resources import excel2resources
 from dsp_tools.utils.generate_templates import generate_template_repo
-from dsp_tools.utils.id_to_iri import id_to_iri
+from dsp_tools.utils.id2iri import id2iri
 from dsp_tools.utils.logging import get_logger
 from dsp_tools.utils.project_create import create_project
 from dsp_tools.utils.project_create_lists import create_lists
@@ -510,9 +510,10 @@ def _call_requested_action(args: argparse.Namespace) -> bool:
             path_to_output_file=args.properties_section,
         )
     elif args.action == "id2iri":
-        success = id_to_iri(
+        success = id2iri(
             xml_file=args.xmlfile,
             json_file=args.mapping,
+            remove_resource_if_id_in_mapping=args.remove_resources,
         )
     elif args.action == "excel2xml":
         success = excel2xml(

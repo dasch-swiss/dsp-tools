@@ -363,36 +363,6 @@ def _rename_deprecated_hlist(df: pd.DataFrame, excelfile: str) -> pd.DataFrame:
     return df
 
 
-def _rename_deprecated_lang_cols(df: pd.DataFrame, excelfile: str) -> pd.DataFrame:
-    """
-    This function takes a pd.DataFrame and checks if the columns with the language label are named according to the old
-    specifications.
-    If they are, it renames them and informs the user that an old format is used.
-    Otherwise, it returns the pd.Dataframe as was.
-
-    Args:
-        df: pd.DataFrame, which is to be checked
-        excelfile: Name of the Excel file
-
-    Returns:
-        pd.DataFrame which has the columns renamed according to the new format
-
-    Warnings:
-        A warning for the user that the Excel file is not compliant with the new specifications
-    """
-    # If the columns are named correctly, return the df
-    if set(language_label_col).issubset(set(df.columns)):
-        return df
-    if set(languages).issubset(set(df.columns)):
-        warnings.warn(
-            f"The file '{excelfile}' uses {languages} as column titles, which is deprecated. "
-            f"Please use {[f'label_{lang}' for lang in languages]}"
-        )
-    rename_dict = dict(zip(languages, language_label_col))
-    df.rename(columns=rename_dict, inplace=True)
-    return df
-
-
 def _rename_deprecated_columnnames(df: pd.DataFrame, excelfile: str) -> pd.DataFrame:
     """
     This function calls two other functions that check and rename a deprecated Excel format.
@@ -409,7 +379,7 @@ def _rename_deprecated_columnnames(df: pd.DataFrame, excelfile: str) -> pd.DataF
     Warnings:
         Two user warnings if the pd.DataFrame is not according to the current specifications
     """
-    df = _rename_deprecated_lang_cols(df=df, excelfile=excelfile)
+    df = utl.rename_deprecated_lang_cols(df=df, excelfile=excelfile)
     df = _rename_deprecated_hlist(df=df, excelfile=excelfile)
     return df
 

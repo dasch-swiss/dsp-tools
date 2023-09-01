@@ -180,6 +180,25 @@ class TestUtils(unittest.TestCase):
         returned_none = utl.get_comments(original_df.loc[1, :])
         self.assertIsNone(cast(None, returned_none))
 
+    @pytest.mark.filterwarnings("ignore::UserWarning")
+    def test_rename_deprecated_lang_cols(self) -> None:
+        original_df = pd.DataFrame(
+            {"en": [1, 2, 3], "de": [1, 2, 3], "fr": [1, 2, 3], "it": [1, 2, 3], "rm": [1, 2, 3]}
+        )
+        expected_df = pd.DataFrame(
+            {
+                "label_en": [1, 2, 3],
+                "label_de": [1, 2, 3],
+                "label_fr": [1, 2, 3],
+                "label_it": [1, 2, 3],
+                "label_rm": [1, 2, 3],
+            }
+        )
+        returned_df = utl.rename_deprecated_lang_cols(df=original_df, excelfile="Test")
+        assert_frame_equal(original_df, returned_df)
+        returned_df = utl.rename_deprecated_lang_cols(df=expected_df, excelfile="Test")
+        assert_frame_equal(original_df, returned_df)
+
 
 if __name__ == "__main__":
     pytest.main([__file__])

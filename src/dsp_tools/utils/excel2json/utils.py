@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import warnings
 from typing import Any
 from unittest import mock
 
@@ -8,6 +9,7 @@ import pandas as pd
 import regex
 
 from dsp_tools.models.exceptions import UserError
+from dsp_tools.utils.excel2json.properties import language_label_col, languages
 
 languages = ["en", "de", "fr", "it", "rm"]
 
@@ -304,3 +306,33 @@ def make_error_str_missing_values_col(missing_dict: dict[str, pd.Series], excelf
     missing_dict = get_wrong_row_numbers(wrong_row_dict=missing_dict, true_remains=True)
     error_str = "\n".join([f" - Column Name: {k} Row Number: {v}" for k, v in missing_dict.items()])
     raise UserError(f"The file '{excelfile}' is missing values in the following rows:\n" f"{error_str}")
+
+
+def rename_deprecated_lang_cols(df: pd.DataFrame, excelfile: str) -> pd.DataFrame:
+    """
+    This function takes a pd.DataFrame and checks if the columns with the language label are named according to the old
+    specifications.
+    If they are, it renames them and informs the user that an old format is used.
+    Otherwise, it returns the pd.Dataframe as was.
+
+    Args:
+        df: pd.DataFrame, which is to be checked
+        excelfile: Name of the Excel file
+
+    Returns:
+        pd.DataFrame which has the columns renamed according to the new format
+
+    Warnings:
+        A warning for the user that the Excel file is not compliant with the new specifications
+    """
+    # If the columns are named correctly, return the df
+    if set(language_label_col).issubset(set(df.columns)):
+        return df
+    if set(languages).issubset(set(df.columns)):
+        warnings.warn(
+            f"The file '{excelfile}' uses {languages} as column titles, which is deprecated. "
+            f"Please use {[f'label_{lang}' for lang in languages]}"
+        )
+    rename_dict = dict(zip(languages, language_label_col))
+    df.rename(columns=rename_dict, inplace=True)
+    return df

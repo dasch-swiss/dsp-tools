@@ -355,25 +355,6 @@ class TestExcelToProperties(unittest.TestCase):
             with self.assertRaisesRegex(UserError, message):
                 e2j.excel2properties(file, self.outfile)
 
-    @pytest.mark.filterwarnings("ignore::UserWarning")
-    def test__rename_deprecated_lang_cols(self) -> None:
-        original_df = pd.DataFrame(
-            {"en": [1, 2, 3], "de": [1, 2, 3], "fr": [1, 2, 3], "it": [1, 2, 3], "rm": [1, 2, 3]}
-        )
-        expected_df = pd.DataFrame(
-            {
-                "label_en": [1, 2, 3],
-                "label_de": [1, 2, 3],
-                "label_fr": [1, 2, 3],
-                "label_it": [1, 2, 3],
-                "label_rm": [1, 2, 3],
-            }
-        )
-        returned_df = e2j._rename_deprecated_lang_cols(df=original_df, excelfile="Test")
-        assert_frame_equal(original_df, returned_df)
-        returned_df = e2j._rename_deprecated_lang_cols(df=expected_df, excelfile="Test")
-        assert_frame_equal(original_df, returned_df)
-
     def test__do_property_excel_compliance(self) -> None:
         original_df = pd.DataFrame(
             {

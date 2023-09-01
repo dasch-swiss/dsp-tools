@@ -239,9 +239,10 @@ def _restart_sipi_container(
         input_dir: the root directory of the images that should be processed, is mounted into the container
         output_dir: the output directory where the processed files should be written to, is mounted into the container
     """
-    _stop_and_remove_sipi_container()
-    docker_client = docker.from_env()
     global sipi_container
+    if sipi_container:
+        _stop_and_remove_sipi_container()
+    docker_client = docker.from_env()
     sipi_container = docker_client.containers.run(
         image="daschswiss/sipi:3.8.1",
         name="sipi",
@@ -261,7 +262,7 @@ def _stop_and_remove_sipi_container() -> None:
     Stop and remove the SIPI container.
     """
     if not sipi_container:
-        print("WARNING: There is no Sipi container that could be removed.")
+        print(f"{datetime.now()}: WARNING: There is no Sipi container that could be removed.")
         logger.warning("There is no Sipi container that could be removed.")
         return
     try:

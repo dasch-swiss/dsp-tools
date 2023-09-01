@@ -291,10 +291,7 @@ def _check_missing_values_in_row_raise_error(df: pd.DataFrame, excelfile: str) -
     if missing_gui_attributes is not None:
         missing_dict.update(missing_gui_attributes)
     if missing_dict:
-        # Get the row numbers from the boolean series
-        missing_dict = utl.get_wrong_row_numbers(wrong_row_dict=missing_dict, true_remains=True)
-        error_str = "\n".join([f" - Column Name: {k} Row Number: {v}" for k, v in missing_dict.items()])
-        raise UserError(f"The file '{excelfile}' is missing values in the following rows:\n" f"{error_str}")
+        utl.make_error_str_missing_values_col(missing_dict=missing_dict, excelfile=excelfile)
 
 
 def _do_property_excel_compliance(df: pd.DataFrame, excelfile: str) -> None:

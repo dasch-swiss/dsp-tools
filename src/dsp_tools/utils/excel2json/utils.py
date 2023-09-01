@@ -284,3 +284,23 @@ def col_must_or_not_empty_based_on_other_col(
         return pd.Series(combined_array)
     else:
         return None
+
+
+def make_error_str_missing_values_col(missing_dict: dict[str, pd.Series], excelfile) -> None:
+    """
+    This function takes a dictionary with information regarding missing values in column.
+    The key contains the column where there are values missing
+    The value contains a boolean pd.Series which indicates in which row there is a problem.
+    It raises an error with a user-friendly message.
+
+    Args:
+        missing_dict: Dictionary containing information about missing values
+        excelfile: The name of the original Excel file.
+
+    Raises:
+        UserError: After the message is formatted it raises the error.
+    """
+    # Get the row numbers from the boolean series
+    missing_dict = get_wrong_row_numbers(wrong_row_dict=missing_dict, true_remains=True)
+    error_str = "\n".join([f" - Column Name: {k} Row Number: {v}" for k, v in missing_dict.items()])
+    raise UserError(f"The file '{excelfile}' is missing values in the following rows:\n" f"{error_str}")

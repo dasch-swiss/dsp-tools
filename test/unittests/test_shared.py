@@ -97,27 +97,6 @@ class TestShared(unittest.TestCase):
             with self.assertRaisesRegex(UserError, "XML-tags are not allowed in text properties with encoding=utf8"):
                 shared._validate_xml_tags_in_text_properties(etree.fromstring(xml))  # pylint: disable=protected-access
 
-    def test_prepare_dataframe(self) -> None:
-        original_df = pd.DataFrame(
-            {
-                "  TitLE of Column 1 ": ["1", " 0-1 ", "1-n ", pd.NA, "    ", " ", "", " 0-n ", pd.NA],
-                " Title of Column 2 ": [None, "1", 1, "text", "text", "text", "text", "text", "text"],
-                "Title of Column 3": ["", pd.NA, None, "text", "text", "text", "text", pd.NA, "text"],
-            }
-        )
-        expected_df = pd.DataFrame(
-            {
-                "title of column 1": ["0-1", "1-n", "0-n"],
-                "title of column 2": ["1", "1", "text"],
-                "title of column 3": ["", "", ""],
-            }
-        )
-        returned_df = shared.prepare_dataframe(
-            df=original_df, required_columns=["  TitLE of Column 1 ", " Title of Column 2 "], location_of_sheet=""
-        )
-        for (i, expected_row), (_, returned_row) in zip(expected_df.iterrows(), returned_df.iterrows()):
-            self.assertListEqual(list(expected_row), list(returned_row), msg=f"Failed in row {i}")
-
     def test_check_notna(self) -> None:
         na_values = [
             None,

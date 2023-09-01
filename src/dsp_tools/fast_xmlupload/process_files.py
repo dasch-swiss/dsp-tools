@@ -1,7 +1,6 @@
 """This module handles processing of files referenced in the bitstream tags of an XML file."""
 
 
-import contextlib
 import hashlib
 import json
 import pickle
@@ -12,13 +11,12 @@ import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from pathlib import Path, PurePath
-from typing import Any, Optional, Union, cast
+from typing import Any, Optional, Union
 
 import docker
 import requests
 from docker.models.containers import Container
 from lxml import etree
-from dsp_tools.models import sipi
 
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.logging import get_logger

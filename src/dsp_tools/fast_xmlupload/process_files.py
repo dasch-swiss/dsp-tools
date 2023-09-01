@@ -121,14 +121,16 @@ def _process_files_in_parallel(
     orig_filepath_2_uuid: list[tuple[Path, Optional[Path]]] = []
     for processed in as_completed(processing_jobs):
         try:
-            orig_filepath_2_uuid.append(processed.result())
+            orig_file, internal_file = processed.result()
+            orig_filepath_2_uuid.append((orig_file, internal_file))
+            print(f"{datetime.now()}: Successfully processed file {orig_file}")
+            logger.info(f"Successfully processed file {orig_file}")
         except docker.errors.APIError:
             print(f"{datetime.now()}: ERROR: A Docker exception occurred. Cancel jobs and restart SIPI...")
             logger.error("A Docker exception occurred. Cancel jobs and restart SIPI...", exc_info=True)
             for job in processing_jobs:
                 job.cancel()
-            _stop_and_remove_sipi_container()
-            _start_sipi_container_and_mount_volumes(input_dir, output_dir)
+            _restart_sipi_container(input_dir, output_dir)
             processed_paths = [x[0] for x in orig_filepath_2_uuid]
             unprocessed_paths = [x for x in files_to_process if x not in processed_paths]
             return orig_filepath_2_uuid, unprocessed_paths
@@ -225,53 +227,33 @@ def _get_file_paths_from_xml(xml_file: Path) -> list[Path]:
     return list(bitstream_paths)
 
 
-def _start_sipi_container_and_mount_volumes(
+def _restart_sipi_container(
     input_dir: Path,
     output_dir: Path,
 ) -> None:
     """
-    Creates and starts a Sipi container from the provided image.
-    Checks first if it already exists and if yes,
-    if it is already running.
+    Stop a possibly existing SIPI container,
+    then create and start a new one.
 
     Args:
         input_dir: the root directory of the images that should be processed, is mounted into the container
         output_dir: the output directory where the processed files should be written to, is mounted into the container
     """
-    # prepare parameters for container creation
-    container_name = "sipi"
-    volumes = [
-        f"{input_dir.absolute()}:/sipi/processing-input",
-        f"{output_dir.absolute()}:/sipi/processing-output",
-    ]
-    entrypoint = ["tail", "-f", "/dev/null"]
+    _stop_and_remove_sipi_container()
     docker_client = docker.from_env()
-
-    # get container. if it doesn't exist: create and run it
-    try:
-        container: Container = docker_client.containers.get(container_name)
-    except docker.errors.NotFound:
-        docker_client.containers.run(
-            image="daschswiss/sipi:3.8.1",
-            name=container_name,
-            volumes=volumes,
-            entrypoint=entrypoint,
-            detach=True,
-        )
-        container = docker_client.containers.get(container_name)
-        print(f"{datetime.now()}: Created and started Sipi container '{container_name}'.")
-        logger.info(f"Created and started Sipi container '{container_name}'.")
-
-    # the container exists. if it is not running, restart it
-    container_running = bool(container.attrs and container.attrs.get("State", {}).get("Running"))
-    if not container_running:
-        container.restart()
-
-    # make container globally available
     global sipi_container
-    sipi_container = docker_client.containers.get(container_name)
-    print(f"{datetime.now()}: Sipi container is running.")
-    logger.info("Sipi container is running.")
+    sipi_container = docker_client.containers.run(
+        image="daschswiss/sipi:3.8.1",
+        name="sipi",
+        volumes=[
+            f"{input_dir.absolute()}:/sipi/processing-input",
+            f"{output_dir.absolute()}:/sipi/processing-output",
+        ],
+        entrypoint=["tail", "-f", "/dev/null"],
+        detach=True,
+    )
+    print(f"{datetime.now()}: Created and started Sipi container.")
+    logger.info("Created and started Sipi container.")
 
 
 def _stop_and_remove_sipi_container() -> None:
@@ -279,13 +261,17 @@ def _stop_and_remove_sipi_container() -> None:
     Stop and remove the SIPI container.
     """
     if not sipi_container:
+        print("WARNING: There is no Sipi container that could be removed.")
+        logger.warning("There is no Sipi container that could be removed.")
         return
     try:
         sipi_container.stop()
         sipi_container.remove()
+        print("Stopped and removed Sipi container.")
         logger.info("Stopped and removed Sipi container.")
     except docker.errors.APIError:
-        pass
+        print("WARNING: It was not possible to stop and remove the Sipi container.")
+        logger.warning("It was not possible to stop and remove the Sipi container.")
 
 
 def _compute_sha256(file: Path) -> Optional[str]:
@@ -933,36 +919,27 @@ def process_files(
         Error raised --> exit code 1: an error occurred while processing the current batch
         exit with code 2:             Python interpreter exits after each batch
     """
-    # check the input parameters
     input_dir_path, output_dir_path, xml_file_path = _check_input_params(
         input_dir=input_dir,
         out_dir=output_dir,
         xml_file=xml_file,
     )
-
-    # startup the SIPI container
-    _start_sipi_container_and_mount_volumes(
+    all_files = _get_file_paths_from_xml(xml_file_path)
+    _restart_sipi_container(
         input_dir=input_dir_path,
         output_dir=output_dir_path,
     )
-
-    # get the files referenced in the XML file
-    all_files = _get_file_paths_from_xml(xml_file_path)
-
-    # find out if there was a previous processing attempt that should be continued
     files_to_process, is_last_batch = _determine_next_batch(
         all_files=all_files,
         batch_size=batch_size,
     )
-
-    # get shell script for processing video files
     if any(path.suffix == ".mp4" for path in files_to_process):
         _get_export_moving_image_frames_script()
 
-    # process the files in parallel
     start_time = datetime.now()
     print(f"{start_time}: Start local file processing...")
     logger.info("Start local file processing...")
+
     processed_files: list[tuple[Path, Optional[Path]]] = []
     unprocessed_files = files_to_process
     while unprocessed_files:
@@ -984,26 +961,18 @@ def process_files(
     print(f"{end_time}: Processing files took: {end_time - start_time}")
     logger.info(f"Processing files took: {end_time - start_time}")
 
-    # write results to files
     _write_processed_and_unprocessed_files_to_txt_files(
         all_files=all_files,
         processed_files=processed_files,
     )
     _write_result_to_pkl_file(processed_files)
-
-    # check if all files were processed
+    _stop_and_remove_sipi_container()
     success, exit_code = _determine_success_status_and_exit_code(
         files_to_process=files_to_process,
         processed_files=processed_files,
         is_last_batch=is_last_batch,
     )
-
-    # remove the SIPI container
-    if exit_code == 0:
-        _stop_and_remove_sipi_container()
-
-    # exit with correct exit code: 0 and 1 will automatically happen, but 2 must be done manually
-    if exit_code == 2:
+    if exit_code == 2:  # 0 and 1 will automatically happen
         sys.exit(2)
 
     return success

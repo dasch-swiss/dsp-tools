@@ -96,7 +96,6 @@ show_column_numbers = true
 strict = true
 exclude = [
     "src/dsp_tools/import_scripts",               # TODO: activate this
-    "src/dsp_tools/models/connection.py",         # TODO: activate this
     "src/dsp_tools/models/exceptions.py",         # TODO: activate this
     "src/dsp_tools/models/group.py",              # TODO: activate this
     "src/dsp_tools/models/helpers.py ",           # TODO: activate this

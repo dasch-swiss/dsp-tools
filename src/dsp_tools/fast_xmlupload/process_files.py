@@ -1,5 +1,7 @@
 """This module handles processing of files referenced in the bitstream tags of an XML file."""
 
+
+import contextlib
 import hashlib
 import json
 import pickle
@@ -10,12 +12,13 @@ import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from pathlib import Path, PurePath
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, cast
 
 import docker
 import requests
 from docker.models.containers import Container
 from lxml import etree
+from dsp_tools.models import sipi
 
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.logging import get_logger
@@ -119,12 +122,13 @@ def _process_files_in_parallel(
         processing_jobs = [pool.submit(_process_file, f, input_dir, output_dir) for f in files_to_process]
 
     orig_filepath_2_uuid: list[tuple[Path, Optional[Path]]] = []
-    for processed in as_completed(processing_jobs):
+    total = len(files_to_process)
+    for i, processed in enumerate(as_completed(processing_jobs)):
         try:
             orig_file, internal_file = processed.result()
             orig_filepath_2_uuid.append((orig_file, internal_file))
-            print(f"{datetime.now()}: Successfully processed file {orig_file}")
-            logger.info(f"Successfully processed file {orig_file}")
+            print(f"{datetime.now()}: Successfully processed file {i}/{total} of this batch: {orig_file}")
+            logger.info(f"Successfully processed file {i}/{total} of this batch: {orig_file}")
         except docker.errors.APIError:
             print(f"{datetime.now()}: ERROR: A Docker exception occurred. Cancel jobs and restart SIPI...")
             logger.error("A Docker exception occurred. Cancel jobs and restart SIPI...", exc_info=True)
@@ -239,9 +243,8 @@ def _restart_sipi_container(
         input_dir: the root directory of the images that should be processed, is mounted into the container
         output_dir: the output directory where the processed files should be written to, is mounted into the container
     """
+    _stop_and_remove_sipi_container()
     global sipi_container
-    if sipi_container:
-        _stop_and_remove_sipi_container()
     docker_client = docker.from_env()
     sipi_container = docker_client.containers.run(
         image="daschswiss/sipi:3.8.1",
@@ -261,14 +264,20 @@ def _stop_and_remove_sipi_container() -> None:
     """
     Stop and remove the SIPI container.
     """
+    global sipi_container
     if not sipi_container:
-        print(f"{datetime.now()}: WARNING: There is no Sipi container that could be removed.")
-        logger.warning("There is no Sipi container that could be removed.")
-        return
+        docker_client = docker.from_env()
+        try:
+            sipi_container = docker_client.containers.get("sipi")
+        except docker.errors.NotFound:
+            print(f"{datetime.now()}: WARNING: There is no Sipi container that could be removed.")
+            logger.warning("There is no Sipi container that could be removed.")
+            return
+
     try:
         sipi_container.stop()
         sipi_container.remove()
-        print("Stopped and removed Sipi container.")
+        print(f"{datetime.now()}: Stopped and removed Sipi container.")
         logger.info("Stopped and removed Sipi container.")
     except docker.errors.APIError:
         print("WARNING: It was not possible to stop and remove the Sipi container.")

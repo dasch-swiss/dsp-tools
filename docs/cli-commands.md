@@ -118,6 +118,9 @@ it is necessary to specify the following options:
 dsp-tools get -s https://api.dasch.swiss -u 'your@email.com' -p 'password' -P my_project project_definition.json
 ```
 
+It is possible to get a project from a DSP server without giving credentials.
+But in this case, the users won't be retrieved, due to privacy reasons.
+
 The expected JSON format is [documented here](./file-formats/json-project/overview.md).
 
 

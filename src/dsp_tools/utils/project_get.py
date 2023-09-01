@@ -1,6 +1,6 @@
-import contextlib
 import json
 from typing import Any
+import warnings
 
 import regex
 
@@ -17,8 +17,8 @@ def get_project(
     project_identifier: str,
     outfile_path: str,
     server: str,
-    user: str | None,
-    password: str | None,
+    user: str | None = None,
+    password: str | None = None,
     verbose: bool = False,
     dump: bool = False,
 ) -> bool:
@@ -42,8 +42,10 @@ def get_project(
     """
     con = Connection(server=server, dump=dump)
     if user and password:
-        with contextlib.suppress(BaseError):
+        try:
             con.login(user, password)
+        except BaseError:
+            warnings.warn("WARNING: Missing or wrong credentials. You won't get data about the users of this project.")
 
     project = None
     if regex.match("[0-9A-F]{4}", project_identifier):  # shortcode

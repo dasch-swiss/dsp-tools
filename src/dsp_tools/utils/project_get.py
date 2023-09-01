@@ -19,17 +19,19 @@ def get_project(
     user: str,
     password: str,
     verbose: bool = False,
+    dump: bool = False,
 ) -> bool:
     """
     This function writes a project from a DSP server into a JSON file.
 
     Args:
-        project_identifier : the project identifier, either shortcode, shortname or IRI of the project
-        outfile_path : the output file the JSON content should be written to
-        server : the DSP server where the data should be read from
-        user : the user (e-mail) who sends the request
-        password : the password of the user who sends the request
-        verbose : verbose option for the command, if used more output is given to the user
+        project_identifier: the project identifier, either shortcode, shortname or IRI of the project
+        outfile_path: the output file the JSON content should be written to
+        server: the DSP server where the data should be read from
+        user: the user (e-mail) who sends the request
+        password: the password of the user who sends the request
+        verbose: verbose option for the command, if used more output is given to the user
+        dump: if True, write every request to DSP-API into a file
 
     Raises:
         BaseError: if something went wrong
@@ -37,7 +39,7 @@ def get_project(
     Returns:
         True if the process finishes without errors
     """
-    con = Connection(server)
+    con = Connection(server=server, dump=dump)
     if user and password:
         con.login(user, password)
 
@@ -72,7 +74,10 @@ def get_project(
     if verbose:
         print("Getting users...")
     users_obj: list[dict[str, Any]] = []
-    users = User.getAllUsersForProject(con=con, proj_shortcode=str(project.shortcode))
+    try:
+        users = User.getAllUsersForProject(con=con, proj_shortcode=str(project.shortcode))
+    except BaseError:
+        users = None
     if users:
         for usr in users:
             users_obj.append(

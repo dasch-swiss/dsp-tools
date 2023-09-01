@@ -1,14 +1,14 @@
 # pylint: disable=missing-class-docstring,missing-function-docstring
 
-from pathlib import Path
 import shutil
 import unittest
+from pathlib import Path
 
 import pytest
 import regex
 
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.utils.id_to_iri import id_to_iri
+from dsp_tools.utils.id2iri import id2iri
 from dsp_tools.utils.shared import get_most_recent_glob_match
 
 
@@ -27,21 +27,21 @@ class TestIdToIri(unittest.TestCase):
 
     def test_invalid_xml_file_name(self) -> None:
         with self.assertRaisesRegex(BaseError, r"File test\.xml could not be found"):
-            id_to_iri(
+            id2iri(
                 xml_file="test.xml",
                 json_file="testdata/id2iri/test-id2iri-mapping.json",
             )
 
     def test_invalid_json_file_name(self) -> None:
         with self.assertRaisesRegex(BaseError, r"File test\.json could not be found"):
-            id_to_iri(
+            id2iri(
                 xml_file="testdata/id2iri/test-id2iri-data.xml",
                 json_file="test.json",
             )
 
     def test_replace_id_with_iri(self) -> None:
         """Check that the correct IRIs appear in the correct order in the output file"""
-        id_to_iri(
+        id2iri(
             xml_file="testdata/id2iri/test-id2iri-data.xml",
             json_file="testdata/id2iri/test-id2iri-mapping.json",
         )

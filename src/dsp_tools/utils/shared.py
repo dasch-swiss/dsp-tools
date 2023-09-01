@@ -8,13 +8,13 @@ import time
 import unicodedata
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Callable, Optional, Union, cast
+from typing import Any, Callable, Optional, TypeGuard, Union, cast
 
 import pandas as pd
 import regex
+import requests
 from lxml import etree
 from requests import ReadTimeout, RequestException
-import requests
 from urllib3.exceptions import ReadTimeoutError
 
 from dsp_tools.models.connection import Connection
@@ -29,6 +29,7 @@ def login(
     server: str,
     user: str,
     password: str,
+    dump: bool = False,
 ) -> Connection:
     """
     Creates a connection,
@@ -39,6 +40,7 @@ def login(
         server: URL of the DSP server to connect to
         user: Username (e-mail)
         password: Password of the user
+        dump: if True, every request is written into a file
 
     Raises:
         UserError: if the login fails permanently
@@ -46,7 +48,7 @@ def login(
     Returns:
         Connection instance
     """
-    con = Connection(server)
+    con = Connection(server=server, dump=dump)
     try:
         try_network_action(lambda: con.login(email=user, password=password))
     except BaseError:
@@ -334,7 +336,7 @@ def simplify_name(value: str) -> str:
     return simplified_value
 
 
-def check_notna(value: Optional[Any]) -> bool:
+def check_notna(value: Optional[Any]) -> TypeGuard[Any]:
     """
     Check a value if it is usable in the context of data archiving. A value is considered usable if it is
      - a number (integer or float, but not np.nan)

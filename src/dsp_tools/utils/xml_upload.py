@@ -15,9 +15,9 @@ from pathlib import Path
 from typing import Any, Optional, Union, cast
 from urllib.parse import quote_plus
 
-from lxml import etree
 import pandas as pd
 import regex
+from lxml import etree
 
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import BaseError, UserError
@@ -178,6 +178,7 @@ def _remove_circular_references(
     while len(resources) > 0 and cnt < 10000:
         for resource in resources:
             resptrs = resource.get_resptrs()
+            resptrs = [x for x in resptrs if not regex.search(r"https?://rdfh.ch/[a-fA-F0-9]{4}/\w{22}", x)]
             if len(resptrs) == 0:
                 ok_resources.append(resource)
                 ok_res_ids.append(resource.id)
@@ -518,7 +519,7 @@ def xml_upload(
     imgdir: str,
     sipi: str,
     verbose: bool = False,
-    incremental: bool = False,
+    dump: bool = False,
     save_metrics: bool = False,
     preprocessing_done: bool = False,
 ) -> bool:
@@ -533,7 +534,7 @@ def xml_upload(
         imgdir: the image directory
         sipi: the sipi instance to be used
         verbose: verbose option for the command, if used more output is given to the user
-        incremental: if set, IRIs instead of internal IDs are expected as resource pointers
+        dump: if true, dumps the XML file to the current working directory
         save_metrics: if true, saves time measurements into a "metrics" folder in the current working directory
         preprocessing_done: if set, all multimedia files referenced in the XML file must already be on the server
 
@@ -567,7 +568,7 @@ def xml_upload(
     preparation_start = datetime.now()
 
     # establish connection to DSP server
-    con = login(server=server, user=user, password=password)
+    con = login(server=server, user=user, password=password, dump=dump)
     sipi_server = Sipi(sipi, con.get_token())
 
     # get the project context
@@ -607,12 +608,8 @@ def xml_upload(
         verbose=verbose,
     )
 
-    # temporarily remove circular references, but only if not an incremental upload
-    if not incremental:
-        resources, stashed_xml_texts, stashed_resptr_props = _remove_circular_references(resources, verbose)
-    else:
-        stashed_xml_texts = dict()
-        stashed_resptr_props = dict()
+    # temporarily remove circular references
+    resources, stashed_xml_texts, stashed_resptr_props = _remove_circular_references(resources, verbose)
 
     preparation_duration = datetime.now() - preparation_start
     preparation_duration_ms = preparation_duration.seconds * 1000 + int(preparation_duration.microseconds / 1000)
@@ -848,7 +845,7 @@ def _upload_stashed_xml_texts(
             continue
         res_iri = id2iri_mapping[resource.id]
         try:
-            existing_resource = try_network_action(con.get, path=f"/v2/resources/{quote_plus(res_iri)}")
+            existing_resource = try_network_action(con.get, route=f"/v2/resources/{quote_plus(res_iri)}")
         except BaseError as err:
             # print the message to keep track of the cause for the failure. Apart from that, no action is necessary:
             # this resource will remain in nonapplied_xml_texts, which will be handled by the caller
@@ -903,7 +900,7 @@ def _upload_stashed_xml_texts(
 
                 # execute API call
                 try:
-                    try_network_action(con.put, path="/v2/values", jsondata=jsondata)
+                    try_network_action(con.put, route="/v2/values", jsondata=jsondata)
                 except BaseError as err:
                     # print the message to keep track of the cause for the failure.
                     # Apart from that, no action is necessary:
@@ -985,7 +982,7 @@ def _upload_stashed_resptr_props(
             continue
         res_iri = id2iri_mapping[resource.id]
         try:
-            existing_resource = try_network_action(con.get, path=f"/v2/resources/{quote_plus(res_iri)}")
+            existing_resource = try_network_action(con.get, route=f"/v2/resources/{quote_plus(res_iri)}")
         except BaseError as err:
             # print the message to keep track of the cause for the failure. Apart from that, no action is necessary:
             # this resource will remain in nonapplied_resptr_props, which will be handled by the caller
@@ -1015,7 +1012,7 @@ def _upload_stashed_resptr_props(
                 }
                 jsondata = json.dumps(jsonobj, indent=4, separators=(",", ": "))
                 try:
-                    try_network_action(con.post, path="/v2/values", jsondata=jsondata)
+                    try_network_action(con.post, route="/v2/values", jsondata=jsondata)
                 except BaseError as err:
                     # print the message to keep track of the cause for the failure.
                     # Apart from that, no action is necessary:

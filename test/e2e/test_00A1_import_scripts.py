@@ -22,7 +22,7 @@ class TestImportScripts(unittest.TestCase):
         if os.path.isfile("src/dsp_tools/import_scripts/data-processed.xml"):
             os.remove("src/dsp_tools/import_scripts/data-processed.xml")
 
-    @pytest.mark.filterwarnings("ignore")
+    @pytest.mark.filterwarnings("ignore::UserWarning")
     def test_import_scripts(self) -> None:
         """
         Execute the import script in its directory, create the project on the DSP server, and upload the created XML to
@@ -66,7 +66,6 @@ class TestImportScripts(unittest.TestCase):
             imgdir="src/dsp_tools/import_scripts/",
             sipi="http://0.0.0.0:1024",
             verbose=False,
-            incremental=False,
             save_metrics=False,
             preprocessing_done=False,
         )

@@ -9,7 +9,7 @@ After a successful upload of the data,
 an output file is written (called `id2iri_mapping_[timestamp].json`)
 with the mapping from the internal IDs used inside the XML 
 to their corresponding IRIs which uniquely identify them inside DSP. 
-This file should be kept if a second data delivery is later at a later point of time 
+This file should be kept if a second data delivery is added at a later point of time 
 [see here](../incremental-xmlupload.md).
 
 The import file must start with the standard XML header:

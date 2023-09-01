@@ -11,7 +11,7 @@ import jsonpath_ng
 import jsonpath_ng.ext
 import pytest
 
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.excel2json import resources as e2j
 
 
@@ -229,7 +229,7 @@ class TestExcelToResource(unittest.TestCase):
         ]
 
         for file, message in testcases:
-            with self.assertRaisesRegex(BaseError, message):
+            with self.assertRaisesRegex(UserError, message):
                 e2j.excel2resources(file, self.outfile)
 
 

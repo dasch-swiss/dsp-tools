@@ -40,6 +40,21 @@ def read_and_clean_excel_file(excelfile: str) -> pd.DataFrame:
     return read_df
 
 
+def read_and_clean_all_sheets_excel_file(excelfile: str) -> dict[str, pd.DataFrame]:
+    try:
+        df_dict = pd.read_excel(io=excelfile, sheet_name=None)
+    except ValueError:
+        # Pandas relies on openpyxl to parse XLSX files.
+        # A strange behavior of openpyxl prevents pandas from opening files with some formatting properties
+        # (unclear which formatting properties exactly).
+        # Apparently, the excel2json test files have one of the unsupported formatting properties.
+        # Credits: https://stackoverflow.com/a/70537454/14414188
+        with mock.patch("openpyxl.styles.fonts.Font.family.max", new=100):
+            df_dict = pd.read_excel(io=excelfile, sheet_name=None)
+    df_dict = {k: clean_data_frame(df) for k, df in df_dict.items()}
+    return df_dict
+
+
 def clean_data_frame(df: pd.DataFrame) -> pd.DataFrame:
     """
     This function takes a pd.DataFrame and removes:
@@ -66,7 +81,11 @@ def clean_data_frame(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def check_contains_required_columns_else_raise_error(df: pd.DataFrame, required_columns: set[str]) -> None:
+def check_contains_required_columns_else_raise_error(
+    df: pd.DataFrame,
+    required_columns: set[str],
+    excelfile: str,
+) -> None:
     """
     This function takes a pd.DataFrame and a set of required column names.
     It checks if all the columns from the set are in the pd.DataFrame.
@@ -76,17 +95,23 @@ def check_contains_required_columns_else_raise_error(df: pd.DataFrame, required_
     Args:
         df: pd.DataFrame that is checked
         required_columns: set of column names
+        excelfile: name of the excel
 
     Raises:
         UserError: if there are required columns missing
     """
     if not required_columns.issubset(set(df.columns)):
         raise UserError(
-            f"The following columns are missing in the excel:\n" f"{required_columns.difference(set(df.columns))}"
+            f"The following columns are missing in the excel '{excelfile}':\n"
+            f"{required_columns.difference(set(df.columns))}"
         )
 
 
-def check_column_for_duplicate_else_raise_error(df: pd.DataFrame, to_check_column: str) -> None:
+def check_column_for_duplicate_else_raise_error(
+    df: pd.DataFrame,
+    to_check_column: str,
+    excelfile: str,
+) -> None:
     """
     This function checks if a specified column contains duplicate values.
     Empty cells (pd.NA) also count as duplicates.
@@ -95,6 +120,7 @@ def check_column_for_duplicate_else_raise_error(df: pd.DataFrame, to_check_colum
     Args:
         df: pd.DataFrame that is checked for duplicates
         to_check_column: Name of the column that must not contain duplicates
+        excelfile: name of the excel
 
     Raises:
         UserError: if there are duplicates in the column
@@ -103,7 +129,8 @@ def check_column_for_duplicate_else_raise_error(df: pd.DataFrame, to_check_colum
         # If it does, it creates a string with all the duplicate values and raises an error.
         duplicate_values = ",".join(df[to_check_column][df[to_check_column].duplicated()].tolist())
         raise UserError(
-            f"The column '{to_check_column}' may not contain any duplicate values. "
+            f"The excel: '{excelfile}' contains an error.\n"
+            f"The column '{to_check_column}' may not contain any duplicate values.\n"
             f"The following values appeared multiple times '{duplicate_values}'."
         )
 
@@ -336,3 +363,28 @@ def rename_deprecated_lang_cols(df: pd.DataFrame, excelfile: str) -> pd.DataFram
     rename_dict = dict(zip(languages, language_label_col))
     df.rename(columns=rename_dict, inplace=True)
     return df
+
+
+def do_excel_file_compliance_else_raise_error(
+    df: pd.DataFrame,
+    required_columns: set[str],
+    no_duplicate_col_name: str,
+    excelfile: str,
+) -> None:
+    """
+    This function calls two separate functions which each checks if the pd.DataFrame is as we expect it.
+    Each of these functions raises a UserError if there is a problem.
+    If the checks do not fail, this function ends without an effect.
+
+    Args:
+        df: The pd.DataFrame that is checked
+        required_columns: name of the columns that must be in the excel
+        no_duplicate_col_name: name of the column that must not contain duplicates
+        excelfile: The name of the original Excel file
+
+    Raises:
+        UserError if any of the checks fail
+    """
+    # If it does not pass any one of the tests, the function stops
+    check_contains_required_columns_else_raise_error(df=df, required_columns=required_columns, excelfile=excelfile)
+    check_column_for_duplicate_else_raise_error(df=df, to_check_column=no_duplicate_col_name, excelfile=excelfile)

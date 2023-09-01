@@ -296,7 +296,7 @@ def _check_missing_values_in_row_raise_error(df: pd.DataFrame, excelfile: str) -
 
 def _do_property_excel_compliance(df: pd.DataFrame, excelfile: str) -> None:
     """
-    This function calls three separate functions which each checks if the pd.DataFrame is as we expect it.
+    This function calls two separate functions which each checks if the pd.DataFrame is as we expect it.
     Each of these functions raises a UserError if there is a problem.
     If the checks do not fail, this function ends without an effect.
 
@@ -325,8 +325,9 @@ def _do_property_excel_compliance(df: pd.DataFrame, excelfile: str) -> None:
         "gui_element",
         "gui_attributes",
     }
-    utl.check_contains_required_columns_else_raise_error(df=df, required_columns=required_columns)
-    utl.check_column_for_duplicate_else_raise_error(df=df, to_check_column="name")
+    utl.do_excel_file_compliance_else_raise_error(
+        df=df, required_columns=required_columns, no_duplicate_col_name="name", excelfile=excelfile
+    )
     _check_missing_values_in_row_raise_error(df=df, excelfile=excelfile)
 
 

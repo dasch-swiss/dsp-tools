@@ -13,6 +13,7 @@ from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.utils.shared import check_notna, prepare_dataframe
 
 languages = ["en", "de", "fr", "it", "rm"]
+language_label_col = ["label_en", "label_de", "label_fr", "label_it", "label_rm"]
 
 
 def _validate_resources(
@@ -190,6 +191,55 @@ def _row2resource(
     return resource
 
 
+def _check_missing_values_in_row_raise_error(df: pd.DataFrame, excelfile: str) -> None:
+    """
+    This function checks if all the required values are in the df.
+    If all the checks are ok, the function ends without any effect.
+    If any of the checks fail, a UserError is raised which contains the information in which column and row there
+    are problems.
+
+    Args:
+        df: pd.DataFrame that is to be checked
+        excelfile: Name of the original Excel file
+
+    Raises:
+        UserError: if any of the checks are failed
+    """
+    # this returns a dict if there are any missing values, if there aren't the dict is empty
+    missing_dict = utl.check_required_values(df=df, required_values_columns=["name", "super"])
+    # This returns a pd.Series if there are not at least one entry in any one column per row, else None
+    missing_labels = utl.find_one_full_cell_in_cols(df=df, required_columns=language_label_col)
+    if missing_labels is not None:
+        missing_dict.update({"label": missing_labels})
+    # if there are any entries in the dictionary we call a function that creates a user-friendly error message
+    if missing_dict:
+        utl.make_error_str_missing_values_col(missing_dict=missing_dict, excelfile=excelfile)
+
+
+def _do_resource_excel_compliance(df: pd.DataFrame, excelfile: str) -> None:
+    # check for prohibited duplicates
+    utl.check_column_for_duplicate_else_raise_error(df=df, to_check_column="name")
+    # check if all the required columns are in the Excel
+    required_columns = {
+        "name",
+        "label_en",
+        "label_de",
+        "label_fr",
+        "label_it",
+        "label_rm",
+        "comment_en",
+        "comment_de",
+        "comment_fr",
+        "comment_it",
+        "comment_rm",
+        "super",
+    }
+    utl.check_contains_required_columns_else_raise_error(df=df, required_columns=required_columns)
+    # check if all the columns that are mandatory are filled correctly
+
+    # check that all the classes have a separate sheet in the excel
+
+
 def excel2resources(
     excelfile: str,
     path_to_output_file: Optional[str] = None,
@@ -212,12 +262,6 @@ def excel2resources(
     """
 
     all_classes_df = utl.read_and_clean_excel_file(excelfile=excelfile)
-
-    all_classes_df = prepare_dataframe(
-        df=all_classes_df,
-        required_columns=["name"],
-        location_of_sheet=f"Sheet 'classes' in file '{excelfile}'",
-    )
 
     # validation
     for index, row in all_classes_df.iterrows():

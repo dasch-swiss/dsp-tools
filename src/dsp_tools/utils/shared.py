@@ -29,6 +29,7 @@ def login(
     server: str,
     user: str,
     password: str,
+    dump: bool = False,
 ) -> Connection:
     """
     Creates a connection,
@@ -39,6 +40,7 @@ def login(
         server: URL of the DSP server to connect to
         user: Username (e-mail)
         password: Password of the user
+        dump: if True, every request is written into a file
 
     Raises:
         UserError: if the login fails permanently
@@ -46,7 +48,7 @@ def login(
     Returns:
         Connection instance
     """
-    con = Connection(server)
+    con = Connection(server=server, dump=dump)
     try:
         try_network_action(lambda: con.login(email=user, password=password))
     except BaseError:

@@ -118,7 +118,6 @@ def fast_xmlupload(
         imgdir=".",
         sipi=sipi_url,
         verbose=False,
-        incremental=False,
         save_metrics=False,
         preprocessing_done=True,
     )

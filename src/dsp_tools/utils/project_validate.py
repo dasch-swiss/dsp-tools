@@ -10,7 +10,7 @@ import networkx as nx
 import regex
 
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.utils.excel_to_json.lists import expand_lists_from_excel
+from dsp_tools.utils.excel2json.lists import expand_lists_from_excel
 
 
 def _check_for_duplicate_names(project_definition: dict[str, Any]) -> bool:

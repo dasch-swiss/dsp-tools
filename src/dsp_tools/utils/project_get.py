@@ -1,3 +1,4 @@
+import contextlib
 import json
 from typing import Any
 
@@ -16,8 +17,8 @@ def get_project(
     project_identifier: str,
     outfile_path: str,
     server: str,
-    user: str,
-    password: str,
+    user: str | None,
+    password: str | None,
     verbose: bool = False,
     dump: bool = False,
 ) -> bool:
@@ -41,7 +42,8 @@ def get_project(
     """
     con = Connection(server=server, dump=dump)
     if user and password:
-        con.login(user, password)
+        with contextlib.suppress(BaseError):
+            con.login(user, password)
 
     project = None
     if regex.match("[0-9A-F]{4}", project_identifier):  # shortcode

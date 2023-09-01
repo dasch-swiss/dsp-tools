@@ -25,7 +25,6 @@ class TestXMLUpload(unittest.TestCase):
                 imgdir=self.imgdir,
                 sipi=self.sipi,
                 verbose=False,
-                incremental=False,
                 save_metrics=False,
                 preprocessing_done=False,
             )
@@ -43,7 +42,6 @@ class TestXMLUpload(unittest.TestCase):
                 imgdir=self.imgdir,
                 sipi=self.sipi,
                 verbose=False,
-                incremental=False,
                 save_metrics=False,
                 preprocessing_done=False,
             )

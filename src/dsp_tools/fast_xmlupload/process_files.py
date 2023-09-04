@@ -268,7 +268,7 @@ def _stop_and_remove_sipi_container() -> None:
         try:
             sipi_container = docker_client.containers.get("sipi")
         except docker.errors.NotFound:
-            print(f"{datetime.now()}: WARNING: There is no Sipi container that could be removed.")
+            # printing is not necessary, the user doesn't need to know that there is no Sipi container
             logger.warning("There is no Sipi container that could be removed.")
             return
 

@@ -208,7 +208,7 @@ def _get_file_paths_from_xml(xml_file: Path) -> list[Path]:
         xml_file: path to the XML file
 
     Raises:
-        BaseError: if a referenced file doesn't exist in the file system
+        UserError: if a referenced file doesn't exist in the file system
 
     Returns:
         list of all paths in the <bitstream> tags
@@ -221,9 +221,9 @@ def _get_file_paths_from_xml(xml_file: Path) -> list[Path]:
             if path.is_file():
                 bitstream_paths.add(path)
             else:
-                err_msg = f"'{path}' is referenced in the XML file, but it doesn't exist. Skipping..."
-                print(f"{datetime.now()}: ERROR: {err_msg}")
-                logger.error(err_msg)
+                msg = f"{datetime.now()}: ERROR: '{path}' is referenced in the XML file, but it doesn't exist."
+                logger.error(msg)
+                raise UserError(msg)
 
     return list(bitstream_paths)
 
@@ -819,15 +819,18 @@ def double_check_unprocessed_files(
     """
     unprocessed_files_txt_exists = sorted(unprocessed_files) != sorted(all_files)
     if unprocessed_files_txt_exists and not processed_files:
+        logger.error("There is a file 'unprocessed_files.txt', but no file 'processed_files.txt'")
         raise UserError("There is a file 'unprocessed_files.txt', but no file 'processed_files.txt'")
 
     if processed_files and sorted(unprocessed_files) == sorted(all_files):
+        logger.error("There is a file 'processed_files.txt', but no file 'unprocessed_files.txt'")
         raise UserError("There is a file 'processed_files.txt', but no file 'unprocessed_files.txt'")
 
     if unprocessed_files_txt_exists:
         # there is a 'unprocessed_files.txt' file. check it for consistency
         unprocessed_files_from_processed_files = [x for x in all_files if x not in processed_files]
         if not sorted(unprocessed_files_from_processed_files) == sorted(unprocessed_files):
+            logger.error("The files 'unprocessed_files.txt' and 'processed_files.txt' are inconsistent")
             raise UserError("The files 'unprocessed_files.txt' and 'processed_files.txt' are inconsistent")
 
 

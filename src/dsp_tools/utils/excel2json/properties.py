@@ -14,7 +14,7 @@ from dsp_tools.models.exceptions import UserError
 
 languages = ["en", "de", "fr", "it", "rm"]
 language_label_col = ["label_en", "label_de", "label_fr", "label_it", "label_rm"]
-mandatory_properties = ["name", "object", "gui_element"]
+mandatory_properties = ["name", "object"]
 
 
 def _search_json_validation_error_get_err_msg_str(
@@ -210,6 +210,7 @@ def _row2prop(df_row: pd.Series, row_num: int, excelfile: str) -> dict[str, Any]
     non_mandatory = {
         "comments": utl.get_comments(df_row=df_row),
         "gui_attributes": _get_gui_attribute(df_row=df_row, row_num=row_num, excelfile=excelfile),
+        "gui_element": df_row["gui_element"],
     }
     # These functions may return None, this is checked before the update
     _property = utl.update_dict_if_not_value_none(additional_dict=non_mandatory, to_update_dict=_property)
@@ -278,7 +279,7 @@ def _check_missing_values_in_row_raise_error(df: pd.DataFrame, excelfile: str) -
         UserError: if any of the checks are failed
     """
     # Every row in these columns must have a value
-    required_values = ["name", "super", "object", "gui_element"]
+    required_values = ["name", "super", "object"]
     # If there are no problems, it returns an empty dict
     missing_dict = utl.check_required_values(df=df, required_values_columns=required_values)
     # This checks if the label columns have at least one value per row

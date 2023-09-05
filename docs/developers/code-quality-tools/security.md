@@ -1,6 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# Security checks
+# Security Checks
 
 ## [Bandit](https://pypi.org/project/bandit/)
 

@@ -1,8 +1,8 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# Python linting
+# Python Linting
 
-## Existing linters
+## Existing Linters
 
 ### [Pylint](https://pypi.org/project/pylint/)
 

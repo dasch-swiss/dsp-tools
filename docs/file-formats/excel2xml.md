@@ -1,6 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# Excel file format to generate an XML data file
+# Excel File Format to Generate an XML Data File
 
 | <center>Hint</center>                                                                                                            |
 |:---------------------------------------------------------------------------------------------------------------------------------|

@@ -1,6 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# GitHub actions
+# GitHub Actions
 
 GitHub actions are workflows that are (remotely) run by GitHub 
 if a certain event happens.

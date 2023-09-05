@@ -1,8 +1,8 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# Dependency management, packaging, and distribution
+# Dependency Management, Packaging, and Distribution
 
-## General considerations
+## General Considerations
 
 There are a number of tasks necessary to develop and distribute a Python package, and a number of tools to assist with 
 these processes. The [Python Packaging User Guide](https://packaging.python.org) lists the following, among others:
@@ -47,7 +47,7 @@ In earlier times, there were some more configuration files, but thanks to poetry
 
 
 
-## Dependency management
+## Dependency Management
 
 The classic way to manage the dependencies was to write the required packages by hand into a `requirements.txt` and 
 into a `setup.py` file. 
@@ -88,7 +88,7 @@ his `site-packages` folder as the `src` folder of the dsp-tools repository. In o
 package. Since `site-packages` is on `sys.path`, the user can then import the package `dsp_tools` in his script.
 
 
-### Advantages of the src layout
+### Advantages of the src Layout
 
 Putting all packages into a `src` folder has an important consequence: It forces the developer to work with an 
 editable installation of his package. Why? Without an editable installation, it is impossible to write correct import 
@@ -120,7 +120,7 @@ For more in-depth explanations, please visit the following pages:
 - [https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout](https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout)
 
 
-## Publishing and distribution
+## Publishing and Distribution
 
 Publishing is automated with GitHub Actions and should _not_ be done manually. If you still need to do it, follow the
 steps below.

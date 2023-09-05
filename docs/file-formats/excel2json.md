@@ -1,8 +1,8 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# Excel file format to generate a JSON project
+# Excel File Format to Generate a JSON Project
 
-## The folder structure
+## The Folder Structure
 
 With the [`excel2json`](../cli-commands.md#excel2json) command, 
 a JSON project file can be created from Excel files.
@@ -54,7 +54,7 @@ Continue reading the following paragraphs to learn more about the expected struc
 
 
 
-## resources section
+## The "resources" Section
 
 With the [`excel2resources`](../cli-commands.md#excel2resources) command, 
 the `resources` section used in a data model (JSON) can be created from an Excel file. 
@@ -111,7 +111,7 @@ The expected columns are:
 
 
 
-## properties section
+## The "properties" Section
 
 With the [`excel2properties`](../cli-commands.md#excel2properties) command, 
 the `properties` section used in a data model (JSON) can be created from an Excel file.
@@ -163,7 +163,7 @@ files with column titles `hlist`, `en`, `de`, `fr`, `it`, or `rm` are valid, but
 
 
 
-## lists section
+## The "lists" Section
 
 With the [`excel2lists`](../cli-commands.md#excel2lists) command, 
 the `lists` section of a JSON project file can be created from one or several Excel files. 

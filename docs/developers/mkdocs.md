@@ -7,7 +7,7 @@ Please consider the following caveats:
 
 
 
-## Styling constraints in the documentation
+## Styling Constraints in the Documentation
 
 In our GitHub actions, we check PRs for dead links in the documentation. 
 Our tool [markdown-link-validator](https://github.com/webhintio/markdown-link-validator) is only able to check internal links
@@ -25,7 +25,7 @@ Please follow this constraint, so that markdown-link-validator can check the int
 
 
 
-## Handling false positives of markdown-link-validator
+## Handling False Positives of markdown-link-validator
 
 What can be done if your links are correct, but markdown-link-validator doesn't recognize them?
 One solution is to add an ignore pattern 
@@ -36,7 +36,7 @@ you can also add an invisible Unicode character, like in the examples above.
 
 
 
-## No duplicate headings, no special characters in headings
+## No Duplicate Headings, No Special Characters in Headings
 
 When linking to a heading, the name heading is slugified.
 Unfortunately, there are different flavors of Markdown, and different slug algorithms.
@@ -65,13 +65,13 @@ This can lead to broken links on [https://docs.dasch.swiss/](https://docs.dasch.
 without anyone noticing.
 
 
-### The best solution how to deal with this
+### The Best Solution How to Deal With This
 
 - **give a unique name to every heading within the same document**
 - **don't use special characters in headings**
 
 
-### A short overview of Markdown tools and slug algorithms
+### A Short Overview of Markdown Tools and Slug Algorithms
 
 - MkDocs uses [Python Markdown](https://python-markdown.github.io/) to translate Markdown files into HTML
   (see [here](https://www.mkdocs.org/user-guide/configuration/#markdown_extensions)).

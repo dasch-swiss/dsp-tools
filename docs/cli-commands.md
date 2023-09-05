@@ -1,8 +1,8 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# The CLI commands of DSP-TOOLS
+# The CLI Commands of DSP-TOOLS
 
-## Before starting: Have in mind the subdomains of a DSP server
+## Before Starting: Have in Mind the Subdomains of a DSP Server
 
 DaSCH follows some conventions when setting up DSP servers. 
 Most of the commands documented on this page

@@ -1,6 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# Fast XML upload
+# Fast XML Upload
 
 For projects with a lot of files, 
 the [`xmlupload`](../cli-commands.md#xmlupload) command is too slow.
@@ -23,7 +23,7 @@ The fast mass upload consists of the following steps:
 4. Create the resources on DSP with `dsp-tools fast-xmlupload`
 
 
-## 1. Prepare your data
+## 1. Prepare Your Data
 
 The following data structure is expected:
 
@@ -79,7 +79,7 @@ It contains a mapping from the original files to the processed files,
 e.g. `multimedia/dog.jpg` -> `tmp/0b/22/0b22570d-515f-4c3d-a6af-e42b458e7b2b.jp2`.
 
 
-### Important note
+### Important Note
 
 **Due to a resource leak, Python must be quitted after a certain time.**
 **For big datasets, only a batch of files is processed, then Python exits with exit code 2.**
@@ -127,7 +127,7 @@ This command will collect all pickle files in the current working directory
 that were created by the `process-files` command.
 
 
-### Note
+### Important Note
 
 **Due to a resource leak, Python must be quitted after a certain time.**
 **If there are multiple pickle files from the previous step,**

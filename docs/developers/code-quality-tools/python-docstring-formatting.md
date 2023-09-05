@@ -1,8 +1,8 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# Python Docstring formatting
+# Python Docstring Formatting
 
-## Docstring flavors
+## Docstring Flavors
 
 Python uses docstrings to document code. 
 A docstring is a string that is the first statement in a package, module, class or function. 
@@ -47,7 +47,7 @@ DSP-TOOLS uses the Google style without typing,
 as defined [here](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings).
 
 
-## Existing formatters
+## Existing Formatters
 
 ### [pydocstyle](https://pypi.org/project/pydocstyle/)
 

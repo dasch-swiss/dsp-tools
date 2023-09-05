@@ -1,8 +1,8 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# Code quality tools
+# Code Quality Tools
 
-There is a variety of tools that help to keep the code quality high.
+There are a variety of tools that help to keep code quality high.
 
 DSP-TOOLS uses the ones listed on this page.
 

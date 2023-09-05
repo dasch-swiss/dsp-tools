@@ -1,11 +1,11 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# Python formatting
+# Python Formatting
 
 There is a variety of style checkers (tools that give a feedback) 
 and autoformatters (tools that are able to fix the formatting violations automatically).
 
-## Existing type checkers and autoformatters
+## Existing Type Checkers and Autoformatters
 
 ### [pycodestyle](https://pypi.org/project/pycodestyle/)
 

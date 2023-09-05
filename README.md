@@ -11,7 +11,7 @@
 
 # DSP-TOOLS - DaSCH Service Platform Tools
 
-DSP-TOOLS is a command line tool that helps you to interact with the DaSCH Service Platform API. 
+DSP-TOOLS is a command line tool that helps you to interact with the DaSCH Service Platform (DSP) API. 
 This document is intended for developers who want to work with the code of DSP-TOOLS. 
 
 | <center>Hint</center>                                                                                                                                                                |
@@ -20,13 +20,13 @@ This document is intended for developers who want to work with the code of DSP-T
 
 This README contains basic information for getting started. 
 More details can be found in the 
-[developers documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/developers/index/).
+[developers documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/developers/).
 
 
 
-## Quick start
+## Quick Start
 
-To get started quickly, without reading the details, just execute these commands:
+To get started quickly, without reading the details, just execute these commands (a prior installation of [homebrew](https://brew.sh/) is required):
 
 - `curl -sSL https://install.python-poetry.org | python3 -`
 - `poetry self add poetry-exec-plugin`
@@ -35,11 +35,11 @@ To get started quickly, without reading the details, just execute these commands
 - `pre-commit install`
 - `brew install imagemagick ffmpeg`
 
-To learn more about the meaning of these commands, read the remainder of this README.
+The remainder of this README explains these commands in more detail.
 
 
 
-## Using poetry for dependency management
+## Using Poetry for Dependency Management
 
 Curious what poetry is and why we use it? 
 Check out the respective section in the
@@ -47,16 +47,16 @@ Check out the respective section in the
 
 If you want to work on the code of DSP-TOOLS, you first have to do the following:
 
-- install poetry with `curl -sSL https://install.python-poetry.org | python3 -` 
-  (for Windows, see [https://python-poetry.org/docs/](https://python-poetry.org/docs/))
-- install the exec plugin with `poetry self add poetry-exec-plugin`
-- execute `poetry install`, which will: 
-    - create a virtual environment (if there isn't already one) 
-    - install all dependencies (dev and non-dev) from `poetry.lock`. 
+- Install poetry with `curl -sSL https://install.python-poetry.org | python3 -` 
+  (for Windows, see [https://python-poetry.org/docs/](https://python-poetry.org/docs/)).
+- Install the exec plugin with `poetry self add poetry-exec-plugin`.
+- Execute `poetry install`, which will: 
+    - Create a virtual environment (if there isn't already one).
+    - Install all dependencies (dev and non-dev) from `poetry.lock`. 
       If `poetry.lock` doesn't exist, 
-      it installs the dependencies from `pyproject.toml`, 
+      it installs the dependencies from `pyproject.toml` 
       and creates a new `poetry.lock`.
-    - make an editable installation of DSP-TOOLS inside the virtual environment
+    - Make an editable installation of DSP-TOOLS inside the virtual environment.
 
 There are two files defining the dependencies:
 
@@ -65,14 +65,16 @@ There are two files defining the dependencies:
     - `[tool.poetry.group.dev.dependencies]` lists the dependencies used for developing and testing.
 - `poetry.lock` enables deterministic installations, 
   by exactly pinning the versions of all (sub-)dependencies. 
-  This is done automatically, you must not edit `poetry.lock`.
+  This is done automatically and you must not edit `poetry.lock`.
 
 If you want to install a new package, 
-install it with `poetry add package`. This 
+install it with `poetry add package`.
 
-- installs the package (incl. sub-dependencies) in your virtual environment
-- adds the package to the section `[tool.poetry.dependencies]` of `pyproject.toml`
-- adds the pinned versions of the package and all sub-dependencies to `poetry.lock`
+This
+
+- Installs the package (incl. sub-dependencies) in your virtual environment,
+- Adds the package to the section `[tool.poetry.dependencies]` of `pyproject.toml`,
+- Adds the pinned versions of the package and all sub-dependencies to `poetry.lock`.
 
 If a package is only needed for development, 
 please install it with `poetry add package --group dev`,
@@ -81,8 +83,8 @@ so it will be added to the `[tool.poetry.group.dev.dependencies]` section of `py
 For security reasons, the dependencies should be kept up to date.
 GitHub's dependabot is configured to automatically create a version bumping PR 
 if there is an update for a dependency.
-Version bumping PRs can also be created manually: 
-Execute `poetry add dependency@latest` for every dependency,
+Version bumping PRs can also be created manually for this, 
+execute `poetry add dependency@latest` for every dependency,
 and create a PR from the resulting changes.
 
 All developers working with the DSP-TOOLS repository should regularly execute `poetry self update` to update poetry, 
@@ -90,23 +92,22 @@ and `poetry install` to update the dependencies from `poetry.lock`.
 
 
 
-## Using the virtual environment
+## Using the Virtual Environment
 
 `poetry shell` spawns a shell within the virtual environment. 
 Even more convenient is to choose `/bin/python` inside poetry's virtual environment as the interpreter in your IDE.
 This way, every Terminal you open in your IDE will automatically be in the virtual environment.
 
 The advantage of being in a poetry shell is that the command `dsp-tools` is available, 
-because `poetry install` made an editable installation of DSP-TOOLS inside the virtual environment. 
-This means that inside the `site-packages` folder of your poetry virtual environment, 
-there is a folder called `dsp_tools-[version].dist-info` 
-containing a link to your local clone of the DSP-TOOLS repository. 
+because `poetry install` installed an editable version of DSP-TOOLS inside the virtual environment. 
+This means, that inside the `site-packages` folder of your poetry virtual environment, 
+there is a folder called `dsp_tools-[version].dist-info`, which contains a link to your local 
+clone of the DSP-TOOLS repository. 
 When you call `dsp-tools` from within the virtual environment, 
 the code of your local clone will be executed.
 
 
-
-## Using the git submodule
+## Using the Git Submodule
 
 This repository embeds a git submodule that needs to be initialised before you can start working with a fresh clone. 
 Find more information in the 
@@ -114,7 +115,7 @@ Find more information in the
 
 
 
-## Publishing/distribution
+## Publishing and Distribution
 
 Publishing is automated with GitHub Actions and should _not_ be done manually. 
 Please follow the 
@@ -136,27 +137,29 @@ The tests of this repository
 are written in the [unittest](https://docs.python.org/3/library/unittest.html) framework 
 and executed with the [pytest](https://docs.pytest.org) framework.
 There are two groups of tests: 
-The ones in `test/unittests` can be run directly, 
-whereas the ones in `test/e2e` need a DSP stack running in the background.
+- `test/unittests` they can be run directly, 
+- `test/e2e` need a DSP stack running in the background.
 A DSP stack can be started with the command 
 [`dsp-tools start-stack`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#start-stack)
 
-It is possible to run all tests in a given folder: `pytest test/unittests`  
-Or only the tests inside a singe file: `pytest test/unittests/test_excel2xml.py`  
-Or even a certain method: `pytest test/unittests/test_excel2xml.py::TestExcel2xml::test_make_boolean_prop`  
+Tests can be run in three different ways:
 
-This is useful in combination with the debugging mode of your IDE, 
+- Run all tests in a given folder: `pytest test/unittests`.
+- Run only the tests inside a single file: `pytest test/unittests/test_excel2xml.py`.
+- Run only the test for a single method: `pytest test/unittests/test_excel2xml.py::TestExcel2xml::test_make_boolean_prop`.
+
+This is useful in combination with the debugging mode of your IDE 
 if you want to examine why a single line of code in a test method fails.
 
 Some e2e tests require ImageMagick and ffmpeg to be installed: `brew install imagemagick ffmpeg`
 
 
 
-## Code style
+## Code Style
 
 When contributing to the project, 
 please make sure you use the same code style rules as we do. 
-We use 
+We use the following linters:
 
 - [markdownlint](https://github.com/igorshubovych/markdownlint-cli) (configured in `.markdownlint.yml`)
 - [black](https://pypi.org/project/black/) (configured in `pyproject.toml`)
@@ -171,34 +174,38 @@ In addition, there are [pre-commit hooks](#pre-commit-hooks)
 that run black and markdownlint locally before every commit.
 This prevents you from committing code style violations.
 
-To locally check your code for style violations, follow the instructions depending on your IDE:
+Your code can be checked for style violations locally before they are committed. 
+Depending on your IDE the installation is as follows.
 
 
 ### VSCode
 
-In VSCode, 
-
 - markdownlint can be installed as extension (`davidanson.vscode-markdownlint`), 
-  and be configured in the  VSCode settings.
+  and be configured in the VSCode settings.
 - black can be set as formatter in the `ms-python.python` extension.
   To do so, set `"python.formatting.provider": "black"` in the VSCode `settings.json`.
-  Alternatively, `ms-python.black-formatter` can be installed as extension.
-- mypy can be installed as extension (`matangover.mypy`), 
+  Alternatively, `ms-python.black-formatter` can be installed as and extension.
+- mypy can be installed as an extension (`matangover.mypy`), 
   and be configured in the VSCode settings.
     - This extension is different from the mypy functionality 
       of Microsoft's Python extension `ms-python.python`,
       which only lints each file separately, 
       leading to incomplete type checking.
-- pylint can be installed as extension (`ms-python.pylint`), 
+- pylint can be installed as an extension (`ms-python.pylint`), 
   and be configured in the VSCode settings.
 
-If configured correctly, you will see style violations in the "Problems" tab.
+If configured correctly, the style violations will be listed in the "Problems" tab.
 
 Make sure to set the docstring format to "google-notypes" in the VSCode settings:
 VS Code > Settings > Auto Docstring: Docstring Format > google-notypes.
 
 
 ### PyCharm
+
+- markdownlint
+- black
+- mypy
+- pylint
 
 In PyCharm, mypy is available as [plugin](https://plugins.jetbrains.com/plugin/11086-mypy), 
 and many style checks can be enabled in Settings > Editor > Inspections > Python.
@@ -208,16 +215,14 @@ PyCharm > Settings > Tools > Python Integrated Tools > Docstring format: Google 
 
 
 
-## Pre-commit hooks
+## Pre-Commit Hooks
 
-We use [pre-commit hooks](https://pre-commit.com/).
-They are configured in `.pre-commit-config.yaml`.
+We use [pre-commit hooks](https://pre-commit.com/), which are configured in `.pre-commit-config.yaml`.
 
 If you try to make a commit,
 the pre-commit hooks will be executed before the commit is created.
 
-If a hook fails, the commit will be aborted.
-Check the Git output to see what needs to be fixed.
+If a hook fails, the commit will be aborted, the Git output will list the problems in your code.
 
 If a hook modifies a file, the commit will be aborted.
 You can then stage the changes made by the hook,
@@ -225,7 +230,7 @@ and commit again.
 
 
 
-## Contributing to the documentation
+## Contributing to the Documentation
 
 The documentation is a collection of [Markdown](https://en.wikipedia.org/wiki/Markdown) files in the `docs` folder.
 They are converted to HTML with [MkDocs](https://pypi.org/project/mkdocs/).
@@ -242,20 +247,21 @@ mkdocs serve
 
 This allows you to look at a preview of the documentation in a browser. 
 
-Please note that this is not the final form how the documentation will be published.
-Rather, they are published together with the docs of DSP-API and DSP-APP on <https://docs.dasch.swiss/>. 
-This happens by embedding all three repositories as git submodules 
+Please note that this is not the final form in which the documentation will be published.
+Rather, they are published together with the docs of DSP-API and DSP-APP on <https://docs.dasch.swiss/> 
+by embedding all three repositories as git submodules 
 into the central [dsp-docs](https://github.com/dasch-swiss/dsp-docs) repository.
 If conflicting, the configurations of dsp-docs will override the configurations of the dsp-tools repository.
-In rare cases, a certain syntax is correctly rendered locally, 
+In rare cases, a certain syntax may correctly rendered locally, 
 but not on <https://docs.dasch.swiss/latest/DSP-TOOLS>. 
 In order to keep this difference minimal, 
-`mkdocs.yml` of dsp-tools should be as similar as possible as `mkdocs.yml` of dsp-docs.
+`mkdocs.yml` of dsp-tools should be as close as possible to the `mkdocs.yml` of dsp-docs.
 
 During the centralized deployment process of all components of the DSP software stack,
-the docs of DSP-TOOLS get built from the latest release tag to <https://docs.dasch.swiss/latest/DSP-TOOLS>.
-This means that in order to modify the contents of <https://docs.dasch.swiss/latest/DSP-TOOLS>, 
-it is necessary to 
+the docs of dsp-tools get built from the latest release tag to <https://docs.dasch.swiss/latest/DSP-TOOLS>.
 
-- merge the modifications into the main branch of the DSP-TOOLS repository
-- release DSP-TOOLS
+This means that in order to modify the contents of <https://docs.dasch.swiss/latest/DSP-TOOLS>, 
+it is necessary to:
+
+- Merge the modifications into the main branch of the DSP-TOOLS repository,
+- Release dsp-tools.

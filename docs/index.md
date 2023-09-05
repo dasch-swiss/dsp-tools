@@ -8,7 +8,7 @@
 [![](https://img.shields.io/badge/Link%20validation-markdown%20link%20validator-darkgreen)](
   https://www.npmjs.com/package/markdown-link-validator)
 
-# DSP-TOOLS documentation
+# DSP-TOOLS Documentation
 
 DSP-TOOLS is a Python package with a command line interface 
 that helps you interact with a DSP server. 

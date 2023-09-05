@@ -1,6 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# Caveats when working with a JSON project file
+# Caveats when Working With a JSON Project File
 
 ## Referencing Ontologies
 
@@ -28,7 +28,7 @@ it is necessary to reference entities that are defined elsewhere. The following 
 
 
 
-## DSP base resources and base properties to be used directly in the XML file
+## DSP Base Resources and Base Properties to be Used Directly in the XML File
 
 There is a number of DSP base resources that must not be subclassed in a project ontology. They are directly available 
 in the XML data file:

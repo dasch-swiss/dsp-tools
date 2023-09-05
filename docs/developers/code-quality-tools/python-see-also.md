@@ -1,6 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# See also
+# See Also
 
 ## [Prospector](https://pypi.org/project/prospector/)
 

@@ -1,8 +1,8 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# Python type checking
+# Python Type Checking
 
-## Python's typing system
+## Python's Typing System
 
 The Python language allows adding type hints (see [PEP 484](http://www.python.org/dev/peps/pep-0484/)), 
 but ignores them when running the code.
@@ -10,7 +10,7 @@ In this sense, type hints are similar to comments:
 A Python program can still be run, even if the type hints are wrong.
 The Python language leaves type checking to external tools that must be run separately.
 
-## Existing type checkers
+## Existing Type Checkers
 
 ### [mypy](https://pypi.org/project/mypy/)
 

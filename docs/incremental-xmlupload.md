@@ -1,6 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# Incremental xmlupload
+# Incremental `xmlupload`
 
 When uploading data with the [`xmlupload`](./cli-commands.md#xmlupload) command,
 resources can reference each other with an internal ID,
@@ -23,7 +23,7 @@ there are 4 different ways how new data has to be uploaded:
 
 
 
-## 1. No references to existing resources
+## 1. No References to Existing Resources
 
 The first case is the simplest one:
 No mapping is required and the additional data can be uploaded with:
@@ -34,7 +34,7 @@ dsp-tools xmlupload additional_data.xml
 
 
 
-## 2. References to existing resources via IRIs
+## 2. References to Existing Resources Via IRIs
 
 The second case is relatively easy, too:
 The file `additional_data.xml` contains references like `<resptr>http://rdfh.ch/4123/nyOODvYySV2nJ5RWRdmOdQ</resptr>`. 
@@ -46,7 +46,7 @@ dsp-tools xmlupload additional_data.xml
 
 
 
-## 3. References to existing resources via internal IDs
+## 3. References to Existing Resources Via Internal IDs
 
 The third case, however, is a bit more complicated:
 The file `additional_data.xml` contains references like `<resptr>book_1</resptr>`,
@@ -74,7 +74,7 @@ dsp-tools xmlupload additional_data_replaced_[timestamp].xml
 
 
 
-## 4. Continue an interrupted xmlupload
+## 4. Continue an Interrupted `xmlupload`
 
 If a xmlupload didn't finish successfully, 
 some resources have already been created, while others have not.

@@ -1,6 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# The "ontologies" array of a JSON project
+# The "ontologies" Array of a JSON Project
 
 An ontology is a formal representation of a set of terms which represent real world objects.
 Dependencies, attributes and relations of and between the individual components of the set are recorded in a logical,
@@ -26,7 +26,7 @@ resource or not. The cardinality definitions are explained [further below](#reso
 
 
 
-## The ontology object in detail
+## The "ontology" Object
 
 Example of an ontology object:
 
@@ -133,7 +133,7 @@ but in most cases it doesn't make sense to omit them.)
 
 
 
-## The property object in detail
+## The "property" Object
 
 ```json
 {
@@ -543,7 +543,7 @@ Example:
 ```
 
 
-#### hasComment property
+#### hasComment Property
 
 `"object": "TextValue"`
 
@@ -631,9 +631,9 @@ Example:
 ```
 
 
-### Link-properties
+### Link-Properties
 
-Link properties do not follow the pattern of the previous data types, because they do not connect to a final value but 
+Link-properties do not follow the pattern of the previous data types, because they do not connect to a final value but 
 to an existing resource. Thus, the `object` denominates the resource class the link will point to.
 
 
@@ -641,7 +641,7 @@ to an existing resource. Thus, the `object` denominates the resource class the l
 
 `"object": "<resourceclass>"`
 
-The most basic kind of link property is the `hasLinkTo` property. Its "super" element has to be `hasLinkTo` or derived 
+The most basic kind of link-property is the `hasLinkTo` property. Its "super" element has to be `hasLinkTo` or derived 
 from `hasLinkTo`. There are different groups of resource classes that can be the object:
 
 - project resources: a resource class defined in the present ontology itself
@@ -919,7 +919,7 @@ Example:
 
 
 
-## The resource object in detail
+## The "resource" Object
 
 ```json
 {

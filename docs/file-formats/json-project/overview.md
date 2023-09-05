@@ -1,6 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# JSON project definition format
+# JSON Project Definition Format
 
 This document describes the structure of a JSON project definition file 
 that can be uploaded to a DSP server
@@ -20,7 +20,7 @@ This documentation is divided into the following parts:
 
 
 
-## A short overview
+## A Short Overview
 
 A complete project definition looks like this:
 
@@ -61,7 +61,7 @@ A complete project definition looks like this:
 
 
 
-### prefixes object
+### The "prefixes" Object
 
 (optional)
 
@@ -87,7 +87,7 @@ more information about referencing ontologies.
 
 
 
-### "$schema" object
+### The "$schema" Object
 
 (required)
 
@@ -97,7 +97,7 @@ The `$schema` object refers to the JSON schema for DSP data model definitions an
 
 
 
-### "project" object
+### The "project" Object
 
 (required)
 
@@ -120,13 +120,13 @@ The following fields are optional (if one or more of these fields are not used, 
 
 
 
-## "project" object in detail
+## The "project" Object
 
 In the following section, all fields of the `project` object are explained in detail.
 
 
 
-### Shortcode
+### The "shortcode" Object
 
 (required)
 
@@ -137,7 +137,7 @@ the DaSCH.
 
 
 
-### Shortname
+### The "shortname" Object
 
 (required)
 
@@ -150,7 +150,7 @@ but with `-` and `_` are allowed (although not as first character).
 
 
 
-### Longname
+### The "longname" Object
 
 (required)
 
@@ -160,7 +160,7 @@ The longname is a string that provides the full name of the project.
 
 
 
-### Descriptions
+### The "descriptions" Object
 
 (required)
 
@@ -171,7 +171,7 @@ The description is represented as a collection of strings with language tags (cu
 
 
 
-### Keywords
+### The "keywords" Object
 
 (required)
 
@@ -181,7 +181,7 @@ Keywords are represented as an array of strings and are used to describe and/or 
 
 
 
-### Groups
+### The "groups" Object
 
 (optional)
 
@@ -220,7 +220,7 @@ Example:
 
 
 
-### Users
+### The "users" Object
 
 (optional)
 
@@ -276,7 +276,7 @@ The `users` element is optional. If not used, it should be omitted.
 
 
 
-### Lists
+### The "lists" Object
 
 (optional)
 
@@ -514,7 +514,7 @@ node), but as node name of the first children level below the root node.
 
 
 
-### Ontologies
+### The "ontologies" Object
 
 (required)
 
@@ -532,7 +532,7 @@ The `ontologies` array is [documented here](./ontologies.md)
 
 
 
-## Fully fleshed out example of a JSON project file
+## Fully Fleshed-Out Example of a JSON Project File
 
 DaSCH provides you with two example repositories that contain everything which is necessary to create a project and 
 upload data. Both of them also contain a JSON project definition file. You can find them here:

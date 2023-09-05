@@ -1,6 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# User data in the user's home directory
+# User Data in the User's Home Directory
 
 DSP-TOOLS saves user data in the user's home directory, 
 in the folder `.dsp-tools`. 
@@ -22,7 +22,7 @@ to the user's home directory.
 
 
 
-## How to ship data files to the user
+## How to Ship Data Files to the User
 
 Accessing non-Python files (a.k.a. resources, a.k.a data files) 
 in the code needs special attention.

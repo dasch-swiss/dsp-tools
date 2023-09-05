@@ -10,7 +10,7 @@ import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from pathlib import Path, PurePath
-from typing import Any, Optional, Union
+from typing import Any, Literal, Optional, Union
 
 import docker
 import requests
@@ -43,18 +43,17 @@ def _get_export_moving_image_frames_script() -> None:
         f.write(script_text)
 
 
-def _determine_success_status_and_exit_code(
+def _determine_exit_code(
     files_to_process: list[Path],
     processed_files: list[tuple[Path, Optional[Path]]],
     is_last_batch: bool,
-) -> tuple[bool, int]:
+) -> Literal[0, 1, 2]:
     """
     Based on the result of the file processing,
-    this function determines the success status and the exit code.
-    If some files of the current batch could not be processed,
-    the success status is false, and the exit code is 1.
-    If all files of the current batch were processed, the success status is true,
-    and the exit code is 0 if this is the last batch,
+    this function determines the exit code.
+    If some files of the current batch could not be processed, the exit code is 1.
+    If all files of the current batch were processed,
+    the exit code is 0 if this is the last batch,
     and 2 if there are more batches to process.
 
     Args:
@@ -63,21 +62,19 @@ def _determine_success_status_and_exit_code(
         is_last_batch: true if this is the last batch of files to process
 
     Returns:
-        tuple (success status, exit_code)
+        exit code
     """
     processed_paths = [x[1] for x in processed_files if x and x[1]]
     if len(processed_paths) == len(files_to_process):
-        success = True
         print(f"{datetime.now()}: All files ({len(files_to_process)}) of this batch were processed: Okay")
         logger.info(f"All files ({len(files_to_process)}) of this batch were processed: Okay")
         if is_last_batch:
-            exit_code = 0
             print(f"{datetime.now()}: All multimedia files referenced in the XML are processed. No more batches.")
             logger.info("All multimedia files referenced in the XML are processed. No more batches.")
+            return 0
         else:
-            exit_code = 2
+            return 2
     else:
-        success = False
         ratio = f"{len(processed_paths)}/{len(files_to_process)}"
         msg = f"Some files of this batch could not be processed: Only {ratio} were processed. The failed ones are:"
         print(f"{datetime.now()}: ERROR: {msg}")
@@ -86,9 +83,7 @@ def _determine_success_status_and_exit_code(
             if not output_file:
                 print(f" - {input_file}")
                 logger.error(f" - {input_file}")
-        exit_code = 1
-
-    return success, exit_code
+        return 1
 
 
 def _process_files_in_parallel(
@@ -929,8 +924,8 @@ def process_files(
 
     Returns:
         True         --> exit code 0: all multimedia files in the XML file were processed
-        False        --> exit code 1: an error occurred while processing the current batch
         Error raised --> exit code 1: an error occurred while processing the current batch
+        with exit code 1:             an error occurred while processing the current batch
         exit with code 2:             Python interpreter exits after each batch
     """
     # check the input parameters
@@ -991,19 +986,16 @@ def process_files(
     )
     _write_result_to_pkl_file(processed_files)
 
-    # check if all files were processed
-    success, exit_code = _determine_success_status_and_exit_code(
+    exit_code = _determine_exit_code(
         files_to_process=files_to_process,
         processed_files=processed_files,
         is_last_batch=is_last_batch,
     )
-
-    # remove the SIPI container
-    if exit_code == 0:
-        _stop_and_remove_sipi_container()
-
-    # exit with correct exit code: 0 and 1 will automatically happen, but 2 must be done manually
-    if exit_code == 2:
-        sys.exit(2)
-
-    return success
+    match exit_code:
+        case 0:
+            _stop_and_remove_sipi_container()
+            return True
+        case 1:
+            sys.exit(1)
+        case 2:
+            sys.exit(2)

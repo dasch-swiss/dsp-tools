@@ -126,12 +126,14 @@ class TestFastXmlUpload(unittest.TestCase):
                 batch_size=15,
             )
 
+        # first 2 batches: exit code 2 and success == True
         for i in range(2):
             with self.assertRaises(SystemExit) as cm:
                 success = action()
                 self.assertTrue(success)
             self.assertEqual(cm.exception.code, 2, msg=f"Failed in iteration {i}")
 
+        # third batch: exit code 0 and success == True
         success = action()
         self.assertTrue(success)
 

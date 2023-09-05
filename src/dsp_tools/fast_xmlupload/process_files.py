@@ -969,6 +969,7 @@ def process_files(
                 processed_files=processed_files,
                 exception=exc,
             )
+
     end_time = datetime.now()
     print(f"{end_time}: Processing files took: {end_time - start_time}")
     logger.info(f"Processing files took: {end_time - start_time}")

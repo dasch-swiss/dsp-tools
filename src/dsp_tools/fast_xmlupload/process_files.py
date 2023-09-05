@@ -124,8 +124,8 @@ def _process_files_in_parallel(
         try:
             orig_file, internal_file = processed.result()
             orig_filepath_2_uuid.append((orig_file, internal_file))
-            print(f"{datetime.now()}: Successfully processed file {i}/{total} of this batch: {orig_file}")
-            logger.info(f"Successfully processed file {i}/{total} of this batch: {orig_file}")
+            print(f"{datetime.now()}: Successfully processed file {i+1}/{total} of this batch: {orig_file}")
+            logger.info(f"Successfully processed file {i+1}/{total} of this batch: {orig_file}")
         except docker.errors.APIError:
             print(f"{datetime.now()}: ERROR: A Docker exception occurred. Cancel jobs and restart SIPI...")
             logger.error("A Docker exception occurred. Cancel jobs and restart SIPI...", exc_info=True)

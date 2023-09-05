@@ -987,6 +987,7 @@ def process_files(
     )
     match exit_code:
         case 0:
+            # if there were problems, don't remove the sipi container. it might contain valuable log data.
             _stop_and_remove_sipi_container()
             return True
         case 1:

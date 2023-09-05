@@ -114,16 +114,19 @@ def _process_files_in_parallel(
         processing_jobs = [pool.submit(_process_file, f, input_dir, output_dir) for f in files_to_process]
 
     orig_filepath_2_uuid: list[tuple[Path, Optional[Path]]] = []
-    for processed in as_completed(processing_jobs):
+    total = len(files_to_process)
+    for i, processed in enumerate(as_completed(processing_jobs)):
         try:
-            orig_filepath_2_uuid.append(processed.result())
+            orig_file, internal_file = processed.result()
+            orig_filepath_2_uuid.append((orig_file, internal_file))
+            print(f"{datetime.now()}: Successfully processed file {i+1}/{total} of this batch: {orig_file}")
+            logger.info(f"Successfully processed file {i+1}/{total} of this batch: {orig_file}")
         except docker.errors.APIError:
             print(f"{datetime.now()}: ERROR: A Docker exception occurred. Cancel jobs and restart SIPI...")
             logger.error("A Docker exception occurred. Cancel jobs and restart SIPI...", exc_info=True)
             for job in processing_jobs:
                 job.cancel()
-            _stop_and_remove_sipi_container()
-            _start_sipi_container_and_mount_volumes(input_dir, output_dir)
+            _restart_sipi_container(input_dir, output_dir)
             processed_paths = [x[0] for x in orig_filepath_2_uuid]
             unprocessed_paths = [x for x in files_to_process if x not in processed_paths]
             return orig_filepath_2_uuid, unprocessed_paths
@@ -200,7 +203,7 @@ def _get_file_paths_from_xml(xml_file: Path) -> list[Path]:
         xml_file: path to the XML file
 
     Raises:
-        BaseError: if a referenced file doesn't exist in the file system
+        UserError: if a referenced file doesn't exist in the file system
 
     Returns:
         list of all paths in the <bitstream> tags
@@ -213,74 +216,66 @@ def _get_file_paths_from_xml(xml_file: Path) -> list[Path]:
             if path.is_file():
                 bitstream_paths.add(path)
             else:
-                err_msg = f"'{path}' is referenced in the XML file, but it doesn't exist. Skipping..."
-                print(f"{datetime.now()}: ERROR: {err_msg}")
-                logger.error(err_msg)
+                msg = f"{datetime.now()}: ERROR: '{path}' is referenced in the XML file, but it doesn't exist."
+                logger.error(msg)
+                raise UserError(msg)
 
     return list(bitstream_paths)
 
 
-def _start_sipi_container_and_mount_volumes(
+def _restart_sipi_container(
     input_dir: Path,
     output_dir: Path,
 ) -> None:
     """
-    Creates and starts a Sipi container from the provided image.
-    Checks first if it already exists and if yes,
-    if it is already running.
+    Stop a possibly existing SIPI container,
+    then create and start a new one.
 
     Args:
         input_dir: the root directory of the images that should be processed, is mounted into the container
         output_dir: the output directory where the processed files should be written to, is mounted into the container
     """
-    # prepare parameters for container creation
-    container_name = "sipi"
-    volumes = [
-        f"{input_dir.absolute()}:/sipi/processing-input",
-        f"{output_dir.absolute()}:/sipi/processing-output",
-    ]
-    entrypoint = ["tail", "-f", "/dev/null"]
-    docker_client = docker.from_env()
-
-    # get container. if it doesn't exist: create and run it
-    try:
-        container: Container = docker_client.containers.get(container_name)
-    except docker.errors.NotFound:
-        docker_client.containers.run(
-            image="daschswiss/sipi:3.8.1",
-            name=container_name,
-            volumes=volumes,
-            entrypoint=entrypoint,
-            detach=True,
-        )
-        container = docker_client.containers.get(container_name)
-        print(f"{datetime.now()}: Created and started Sipi container '{container_name}'.")
-        logger.info(f"Created and started Sipi container '{container_name}'.")
-
-    # the container exists. if it is not running, restart it
-    container_running = bool(container.attrs and container.attrs.get("State", {}).get("Running"))
-    if not container_running:
-        container.restart()
-
-    # make container globally available
+    _stop_and_remove_sipi_container()
     global sipi_container
-    sipi_container = docker_client.containers.get(container_name)
-    print(f"{datetime.now()}: Sipi container is running.")
-    logger.info("Sipi container is running.")
+    docker_client = docker.from_env()
+    sipi_container = docker_client.containers.run(
+        image="daschswiss/sipi:3.8.1",
+        name="sipi",
+        volumes=[
+            f"{input_dir.absolute()}:/sipi/processing-input",
+            f"{output_dir.absolute()}:/sipi/processing-output",
+        ],
+        entrypoint=["tail", "-f", "/dev/null"],
+        detach=True,
+    )
+    print(f"{datetime.now()}: Created and started Sipi container.")
+    logger.info("Created and started Sipi container.")
 
 
 def _stop_and_remove_sipi_container() -> None:
     """
     Stop and remove the SIPI container.
     """
+    global sipi_container
     if not sipi_container:
-        return
+        # the Sipi container is not stored in the global variable, but perhaps it exists
+        docker_client = docker.from_env()
+        try:
+            sipi_container = docker_client.containers.get("sipi")
+        except docker.errors.NotFound:
+            # printing is not necessary, the user doesn't need to know that there is no Sipi container
+            logger.warning("There is no Sipi container that could be removed.")
+            return
+
+    # at this point, a Sipi container exists and is stored in the global variable
     try:
         sipi_container.stop()
         sipi_container.remove()
+        print(f"{datetime.now()}: Stopped and removed Sipi container.")
         logger.info("Stopped and removed Sipi container.")
     except docker.errors.APIError:
-        pass
+        print("WARNING: It was not possible to stop and remove the Sipi container.")
+        logger.warning("It was not possible to stop and remove the Sipi container.")
 
 
 def _compute_sha256(file: Path) -> Optional[str]:
@@ -937,7 +932,7 @@ def process_files(
         xml_file=xml_file,
     )
     all_files = _get_file_paths_from_xml(xml_file_path)
-    _start_sipi_container_and_mount_volumes(
+    _restart_sipi_container(
         input_dir=input_dir_path,
         output_dir=output_dir_path,
     )

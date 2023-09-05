@@ -819,15 +819,18 @@ def double_check_unprocessed_files(
     """
     unprocessed_files_txt_exists = sorted(unprocessed_files) != sorted(all_files)
     if unprocessed_files_txt_exists and not processed_files:
+        logger.error("There is a file 'unprocessed_files.txt', but no file 'processed_files.txt'")
         raise UserError("There is a file 'unprocessed_files.txt', but no file 'processed_files.txt'")
 
     if processed_files and sorted(unprocessed_files) == sorted(all_files):
+        logger.error("There is a file 'processed_files.txt', but no file 'unprocessed_files.txt'")
         raise UserError("There is a file 'processed_files.txt', but no file 'unprocessed_files.txt'")
 
     if unprocessed_files_txt_exists:
         # there is a 'unprocessed_files.txt' file. check it for consistency
         unprocessed_files_from_processed_files = [x for x in all_files if x not in processed_files]
         if not sorted(unprocessed_files_from_processed_files) == sorted(unprocessed_files):
+            logger.error("The files 'unprocessed_files.txt' and 'processed_files.txt' are inconsistent")
             raise UserError("The files 'unprocessed_files.txt' and 'processed_files.txt' are inconsistent")
 
 
@@ -928,36 +931,27 @@ def process_files(
         with exit code 1:             an error occurred while processing the current batch
         exit with code 2:             Python interpreter exits after each batch
     """
-    # check the input parameters
     input_dir_path, output_dir_path, xml_file_path = _check_input_params(
         input_dir=input_dir,
         out_dir=output_dir,
         xml_file=xml_file,
     )
-
-    # startup the SIPI container
+    all_files = _get_file_paths_from_xml(xml_file_path)
     _start_sipi_container_and_mount_volumes(
         input_dir=input_dir_path,
         output_dir=output_dir_path,
     )
-
-    # get the files referenced in the XML file
-    all_files = _get_file_paths_from_xml(xml_file_path)
-
-    # find out if there was a previous processing attempt that should be continued
     files_to_process, is_last_batch = _determine_next_batch(
         all_files=all_files,
         batch_size=batch_size,
     )
-
-    # get shell script for processing video files
     if any(path.suffix == ".mp4" for path in files_to_process):
         _get_export_moving_image_frames_script()
 
-    # process the files in parallel
     start_time = datetime.now()
     print(f"{start_time}: Start local file processing...")
     logger.info("Start local file processing...")
+
     processed_files: list[tuple[Path, Optional[Path]]] = []
     unprocessed_files = files_to_process
     while unprocessed_files:
@@ -979,7 +973,6 @@ def process_files(
     print(f"{end_time}: Processing files took: {end_time - start_time}")
     logger.info(f"Processing files took: {end_time - start_time}")
 
-    # write results to files
     _write_processed_and_unprocessed_files_to_txt_files(
         all_files=all_files,
         processed_files=processed_files,

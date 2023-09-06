@@ -19,7 +19,7 @@ from lxml import etree
 
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.logging import get_logger
-from dsp_tools.utils.shared import http_call_with_retry
+from dsp_tools.utils.shared import http_call_with_retry, make_chunks
 
 logger = get_logger(__name__, filesize_mb=100, backupcount=36)
 sipi_container: Optional[Container] = None
@@ -110,26 +110,30 @@ def _process_files_in_parallel(
         - a list of all paths that could not be processed
           (this list will only have content if a Docker API error led to a restart of the SIPI container)
     """
-    with ThreadPoolExecutor(max_workers=nthreads) as pool:
-        processing_jobs = [pool.submit(_process_file, f, input_dir, output_dir) for f in files_to_process]
-
     orig_filepath_2_uuid: list[tuple[Path, Optional[Path]]] = []
     total = len(files_to_process)
-    for i, processed in enumerate(as_completed(processing_jobs)):
-        try:
-            orig_file, internal_file = processed.result()
-            orig_filepath_2_uuid.append((orig_file, internal_file))
-            print(f"{datetime.now()}: Successfully processed file {i+1}/{total} of this batch: {orig_file}")
-            logger.info(f"Successfully processed file {i+1}/{total} of this batch: {orig_file}")
-        except docker.errors.APIError:
-            print(f"{datetime.now()}: ERROR: A Docker exception occurred. Cancel jobs and restart SIPI...")
-            logger.error("A Docker exception occurred. Cancel jobs and restart SIPI...", exc_info=True)
-            for job in processing_jobs:
-                job.cancel()
-            _restart_sipi_container(input_dir, output_dir)
-            processed_paths = [x[0] for x in orig_filepath_2_uuid]
-            unprocessed_paths = [x for x in files_to_process if x not in processed_paths]
-            return orig_filepath_2_uuid, unprocessed_paths
+    num_of_processed_files = 0
+    for subbatch in make_chunks(lst=files_to_process, length=100):
+        with ThreadPoolExecutor(max_workers=nthreads) as pool:
+            processing_jobs = [pool.submit(_process_file, f, input_dir, output_dir) for f in subbatch]
+
+        for processed in as_completed(processing_jobs):
+            try:
+                orig_file, internal_file = processed.result()
+                orig_filepath_2_uuid.append((orig_file, internal_file))
+                num_of_processed_files += 1
+                msg = f"Successfully processed file {num_of_processed_files}/{total} of this batch: {orig_file}"
+                print(f"{datetime.now()}: {msg}")
+                logger.info(msg)
+            except docker.errors.APIError:
+                print(f"{datetime.now()}: ERROR: A Docker exception occurred. Cancel jobs and restart SIPI...")
+                logger.error("A Docker exception occurred. Cancel jobs and restart SIPI...", exc_info=True)
+                for job in processing_jobs:
+                    job.cancel()
+                _restart_sipi_container(input_dir, output_dir)
+                processed_paths = [x[0] for x in orig_filepath_2_uuid]
+                unprocessed_paths = [x for x in files_to_process if x not in processed_paths]
+                return orig_filepath_2_uuid, unprocessed_paths
 
     return orig_filepath_2_uuid, []
 

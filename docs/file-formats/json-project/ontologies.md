@@ -364,8 +364,8 @@ Example:
 
 `"object": "DecimalValue"`
 
-A number with decimal point. See the [xmlupload documentation](../xml-data-file.md#the-decimal-prop-element) for more 
-information.
+A number with decimal point. 
+See the [xmlupload documentation](../xml-data-file.md#the-decimal-prop-element) for more information.
 
 *gui_elements / gui_attributes*:
 

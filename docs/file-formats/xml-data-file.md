@@ -224,7 +224,7 @@ Notes:
 
 - There is only _one_ `<bitstream>` element allowed per representation.
 - The `<bitstream>` element must be the first element.
-- By default, the path is relative to the working directory where `dsp-tools xmlupload` is executed in. This behaviour 
+- By default, the path is relative to the working directory where `dsp-tools xmlupload` is executed in. This behavior 
   can be modified with the flag [`--imgdir`](../cli-commands.md#xmlupload). If you keep the default,
   it is recommended to choose the project folder as working directory, `my_project` in the example below:
 
@@ -386,7 +386,8 @@ Example of a property with a public and a hidden date value:
 
 ### The `<decimal-prop>` Element
 
-The `<decimal-prop>` element is used for decimal values. It must contain at least one `<decimal>` element.
+The `<decimal-prop>` element is used for decimal values, they must be written with a decimal point `.` as a separator.
+It must contain at least one `<decimal>` element.
 
 Attributes:
 
@@ -525,7 +526,8 @@ Example of a property with a public link to Vienna and a hidden link to Basel:
 
 ### The `<integer-prop>` Element
 
-The `<integer-prop>` element is used for integer values. It must contain at least one `<integer>` element.
+The `<integer-prop>` element is used for integer values, these are whole numbers.
+It must contain at least one `<integer>` element.
 
 Attributes:
 
@@ -565,9 +567,10 @@ Attributes:
 
 #### `<interval>`
 
-A time interval is represented by plain decimal numbers (=seconds), without a special notation for minutes and hours. 
-The `<interval>` element contains two decimals separated by a colon (`:`). The places before the decimal point are 
-seconds, and the places after the decimal points are fractions of a second.
+A time interval is represented by plain decimal numbers in seconds, without a special notation for minutes and hours. 
+The `<interval>` element contains two decimals (written with a decimal point `.`) 
+separated by a colon (`:`). The values before the decimal point are seconds, 
+and the values after the decimal points are fractions of a second.
 
 Attributes:
 
@@ -794,8 +797,8 @@ which is defined as `yyyy-mm-ddThh:mm:ss.sssssssssssszzzzzz`.
 The following abbreviations describe this form:
 
 - `yyyy`: a four-digit numeral that represents the year. The value cannot start with a minus (-) or a plus (+) sign.
-  0001 is the lexical representation of the year 1 of the Common Era (also known as 1 AD). The value cannot be 0000. The
-  calendar is always the Gregorian calendar.
+  0001 is the lexical representation of the year 1 of the Common Era (also known as 1 AD). The value cannot be 0000. 
+  The calendar is always the Gregorian calendar.
 - `mm`: a two-digit numeral that represents the month
 - `dd`: a two-digit numeral that represents the day
 - `hh`: a two-digit numeral representing the hours. Must be between 0 and 23

@@ -434,8 +434,8 @@ Represents an integer value. See the [xmlupload documentation](../xml-data-file.
 
 - `Spinbox`: A GUI element for *IntegerValue*. A text field with and an "up" and a "down" button for increment/decrement.
     - *gui_attributes*:
-        - `max=decimal` (optional): Maximal value
-        - `min=decimal` (optional): Minimal value
+        - `max=decimal` (mandatory): Maximal value
+        - `min=decimal` (mandatory): Minimal value
 - `SimpleText`: A simple text entry box (one line only). 
     - *gui_attributes*:
         - `maxlength=integer` (optional): The maximum number of characters accepted
@@ -800,8 +800,8 @@ number of the image inside the compound object. Apart from this, `seqnum` is lik
 
 - `Spinbox`: A GUI element for *IntegerValue*. A text field with and an "up" and a "down" button for increment/decrement.
     - *gui_attributes*:
-        - `max=decimal` (optional): Maximal value
-        - `min=decimal` (optional): Minimal value
+        - `max=decimal` (mandatory): Maximal value
+        - `min=decimal` (mandatory): Minimal value
 - `SimpleText`: A simple text entry box (one line only). 
     - *gui_attributes*:
         - `maxlength=integer` (optional): The maximum number of characters accepted

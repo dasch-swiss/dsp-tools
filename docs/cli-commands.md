@@ -189,7 +189,8 @@ The following options are available:
 
 - `-v` | `--verbose` (optional): print more information about the progress to the console
 
-The expected Excel file format and the folder structure are documented [here](./file-formats/excel2json.md#lists-section).
+The expected Excel file format and the folder structure are documented [here]
+(./file-formats/excel2json.md#the-lists-section).
 
 | <center>Hint</center>                                                    |
 |--------------------------------------------------------------------------|
@@ -205,7 +206,7 @@ This command creates the "resources" section of a JSON project file from an Exce
 dsp-tools excel2resources resources.xlsx resources_section.json
 ```
 
-The expected Excel format is [documented here](./file-formats/excel2json.md#resources-section).
+The expected Excel format is [documented here](./file-formats/excel2json.md#the-resources-section).
 
 | <center>Hint</center>                                                    |
 |--------------------------------------------------------------------------|
@@ -221,7 +222,7 @@ This command creates the "properties" section of a JSON project file from an Exc
 dsp-tools excel2properties properties.xlsx properties_section.json
 ```
 
-The expected Excel format is [documented here](./file-formats/excel2json.md#properties-section).
+The expected Excel format is [documented here](./file-formats/excel2json.md#the-properties-section).
 
 | <center>Hint</center>                                                    |
 |--------------------------------------------------------------------------|

@@ -16,7 +16,8 @@ This document is intended for developers who want to work with the code of DSP-T
 
 | <center>Hint</center>                                                                                                                                                                |
 |:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| This technical document was written as a guide for developers. For the end user documentation, please consult [https://docs.dasch.swiss](https://docs.dasch.swiss/latest/DSP-TOOLS). |
+| This technical document was written as a guide for developers. For the end user documentation, 
+please consult [https://docs.dasch.swiss](https://docs.dasch.swiss/latest/DSP-TOOLS). |
 
 This README contains basic information for getting started. 
 More details can be found in the 
@@ -26,7 +27,8 @@ More details can be found in the
 
 ## Quick Start
 
-To get started quickly, without reading the details, just execute these commands (a prior installation of [homebrew](https://brew.sh/) is required):
+To get started quickly, without reading the details, just execute these commands (a prior installation of 
+[homebrew](https://brew.sh/) is required):
 
 - `curl -sSL https://install.python-poetry.org | python3 -`
 - `poetry self add poetry-exec-plugin`
@@ -137,6 +139,7 @@ The tests of this repository
 are written in the [unittest](https://docs.python.org/3/library/unittest.html) framework 
 and executed with the [pytest](https://docs.pytest.org) framework.
 There are two groups of tests: 
+
 - `test/unittests` they can be run directly, 
 - `test/e2e` need a DSP stack running in the background.
 A DSP stack can be started with the command 
@@ -146,7 +149,8 @@ Tests can be run in three different ways:
 
 - Run all tests in a given folder: `pytest test/unittests`.
 - Run only the tests inside a single file: `pytest test/unittests/test_excel2xml.py`.
-- Run only the test for a single method: `pytest test/unittests/test_excel2xml.py::TestExcel2xml::test_make_boolean_prop`.
+- Run only the test for a single method: 
+  `pytest test/unittests/test_excel2xml.py::TestExcel2xml::test_make_boolean_prop`.
 
 This is useful in combination with the debugging mode of your IDE 
 if you want to examine why a single line of code in a test method fails.
@@ -180,18 +184,18 @@ Depending on your IDE the installation is as follows.
 
 ### VSCode
 
-- markdownlint can be installed as extension (`davidanson.vscode-markdownlint`), 
+- **markdownlint** can be installed as extension (`davidanson.vscode-markdownlint`), 
   and be configured in the VSCode settings.
-- black can be set as formatter in the `ms-python.python` extension.
+- **black** can be set as formatter in the `ms-python.python` extension.
   To do so, set `"python.formatting.provider": "black"` in the VSCode `settings.json`.
   Alternatively, `ms-python.black-formatter` can be installed as and extension.
-- mypy can be installed as an extension (`matangover.mypy`), 
+- **mypy** can be installed as an extension (`matangover.mypy`), 
   and be configured in the VSCode settings.
     - This extension is different from the mypy functionality 
       of Microsoft's Python extension `ms-python.python`,
       which only lints each file separately, 
       leading to incomplete type checking.
-- pylint can be installed as an extension (`ms-python.pylint`), 
+- **pylint** can be installed as an extension (`ms-python.pylint`), 
   and be configured in the VSCode settings.
 
 If configured correctly, the style violations will be listed in the "Problems" tab.
@@ -202,10 +206,10 @@ VS Code > Settings > Auto Docstring: Docstring Format > google-notypes.
 
 ### PyCharm
 
-- markdownlint
-- black
-- mypy
-- pylint
+- **markdownlint**
+- **black**
+- **mypy**
+- **pylint**
 
 In PyCharm, mypy is available as [plugin](https://plugins.jetbrains.com/plugin/11086-mypy), 
 and many style checks can be enabled in Settings > Editor > Inspections > Python.

@@ -11,7 +11,7 @@ it is necessary to reference entities that are defined elsewhere. The following 
     - They are referenced as such and do not have a leading colon.
     - e.g. `Resource`, `DocumentRepresentation` or `hasValue`
 - An external ontology: 
-    - The ontology must be defined in the [prefixes](./overview.md#prefixes-object) section.
+    - The ontology must be defined in the [prefixes](./overview.md#the-prefixes-object) section.
     - The prefix can then be used for referencing the ontology.  
     - e.g. `foaf:familyName` or `sdo:Organization`
 - The current ontology: 
@@ -34,15 +34,18 @@ There is a number of DSP base resources that must not be subclassed in a project
 in the XML data file:
 
 - `Annotation` is an annotation to another resource of any class. It can be used in the XML file with the 
-  [&lt;annotation&gt; tag](../xml-data-file.md#annotation). It automatically has the following predefined properties:
+  [&lt;annotation&gt; tag](../xml-data-file.md#the-annotation-element). 
+  It automatically has the following predefined properties:
     - `hasComment` (1-n)
     - `isAnnotationOf` (1)
 - `LinkObj` is a resource linking together several other resources of different classes. It can be used in the XML file 
-  with the [&lt;link&gt; tag](../xml-data-file.md#link). It automatically has the following predefined properties:
+  with the [&lt;link&gt; tag](../xml-data-file.md#the-link-element). 
+  It automatically has the following predefined properties:
     - `hasComment` (1-n)
     - `hasLinkTo` (1-n)
 - A `Region` resource defines a region of interest (ROI) in an image. It can be used in the XML file with the 
-  [&lt;region&gt; tag](../xml-data-file.md#region). It automatically has the following predefined properties:
+  [&lt;region&gt; tag](../xml-data-file.md#the-region-element). 
+  It automatically has the following predefined properties:
     - `hasColor` (1)
     - `isRegionOf` (1)
     - `hasGeometry` (1)
@@ -53,19 +56,20 @@ subclassed and used in a resource class.
 
 - `hasLinkTo`: a link to another resource
     - can be subclassed ([hasLinkTo Property](./ontologies.md#haslinkto-property))
-    - can be used directly in the XML data file in the [&lt;link&gt; tag](../xml-data-file.md#link)
+    - can be used directly in the XML data file in the [&lt;link&gt; tag](../xml-data-file.md#the-link-element)
 - `hasColor`: Defines a color value. 
     - can be subclassed ([ColorValue](./ontologies.md#colorvalue))
-    - can be used directly in the XML data file in the [&lt;region&gt; tag](../xml-data-file.md#region)
+    - can be used directly in the XML data file in the [&lt;region&gt; tag](../xml-data-file.md#the-region-element)
 - `hasComment`: Defines a standard comment. 
     - can be subclassed ([hasComment Property](./ontologies.md#hascomment-property))
-    - can be used directly in the XML data file in the [&lt;region&gt; tag](../xml-data-file.md#region) or 
-      [&lt;link&gt; tag](../xml-data-file.md#link)
+    - can be used directly in the XML data file in the [&lt;region&gt; tag](../xml-data-file.md#the-region-element) or 
+      [&lt;link&gt; tag](../xml-data-file.md#the-link-element)
 - `hasGeometry`: Defines a geometry value (a JSON describing a polygon, circle or rectangle). 
-    - must be used directly in the XML data file in the [&lt;region&gt; tag](../xml-data-file.md#region)
+    - must be used directly in the XML data file in the [&lt;region&gt; tag](../xml-data-file.md#the-region-element)
 - `isRegionOf`: A special variant of `hasLinkTo`. 
   It means that the given resource class is a region of interest in an image. 
-    - must be used directly in the XML data file in the [&lt;region&gt; tag](../xml-data-file.md#region)
+    - must be used directly in the XML data file in the [&lt;region&gt; tag](../xml-data-file.md#the-region-element)
 - `isAnnotationOf`: A special variant of `hasLinkTo`. It means that the given resource class is an annotation to another
   resource class. 
-    - must be used directly in the XML data file in the [&lt;annotation&gt; tag](../xml-data-file.md#annotation)
+    - must be used directly in the XML data file in the 
+  [&lt;annotation&gt; tag](../xml-data-file.md#the-annotation-element)

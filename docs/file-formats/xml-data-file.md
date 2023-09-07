@@ -66,7 +66,7 @@ permissions. There are **built-in groups** and **project specific groups**:
     - `Creator`: The user is the owner of the element (created the element).
     - `SystemAdmin`: The user is a system administrator.
 - **Project specific groups**: 
-    - can be defined in the [JSON project file](./json-project/overview.md#groups)
+    - can be defined in the [JSON project file](./json-project/overview.md#the-groups-object)
 
 
 ### Rights
@@ -106,7 +106,8 @@ The `<permissions>` element defines which rights are given to which groups:
 </permissions>
 ```
 
-In addition to the DSP built-in groups, [project specific groups](./json-project/overview.md#groups) are supported as well.
+In addition to the DSP built-in groups, [project specific groups](./json-project/overview.md#the-groups-object) 
+are supported as well.
 A project specific group name has the form `project-shortname:groupname`.
 
 If you don't want a group to have access at all, leave it out. In the following example, resources or properties with 
@@ -415,12 +416,13 @@ Example of a property with a public and a hidden decimal value:
 ### The `<geometry-prop>` Element
 
 The `<geometry-prop>` element is used for a geometric definition of a 2-D region (e.g. a region on an image). It must
-contain at least one `<geometry>` element. A `<geometry-prop>` can only be used inside a [`<region>` tag](#region). 
+contain at least one `<geometry>` element. A `<geometry-prop>` can only be used inside a [`<region>` tag]
+(#the-region-element). 
 
 Attributes:
 
 - `name`: the only allowed name is `hasGeometry`, because this property is a DSP base property that can only be used in 
-  the [`<region>` tag](#region).
+  the [`<region>` tag](#the-region-element).
 
 
 #### `<geometry>`
@@ -493,8 +495,8 @@ that were defined above:
 
 ### The `<geoname-prop>` Element
 
-The `<geoname-prop>` element is used for values that contain a [geonames.org](https://www.geonames.org/) ID. It must contain
-at least one `<geoname>` element.
+The `<geoname-prop>` element is used for values that contain a [geonames.org](https://www.geonames.org/) ID. 
+It must contain at least one `<geoname>` element.
 
 Attributes:
 
@@ -635,7 +637,8 @@ Attributes:
   (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
-Example of a property with a public link to `<resource id="res_1" ...>` and a hidden link to and `<resource id="res_2" ...>`:
+Example of a property with a public link to `<resource id="res_1" ...>` and a hidden link to and 
+`<resource id="res_2" ...>`:
 
 ```xml
 <resptr-prop name=":hasReferenceTo">
@@ -661,7 +664,7 @@ The `<text>` element has the following attributes:
 - `encoding` (required)
     - `utf8`: simple text without markup
     - `xml`: complex text with markup. It must follow the XML format as defined by the
-  [DSP standard mapping](https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/xml-to-standoff-mapping/).
+  [DSP standard mapping](https://docs.dasch.swiss/latest/DSP-API/03-endpoints/api-v2/text/standard-standoff/).
 - `permissions`: Permission ID (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions 
   at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
@@ -712,7 +715,8 @@ Depending on the encoding of your text,
 special characters behave differently.
 There are two places where this must be taken into account:
 
-- When a string is passed to [`excel2xml.make_text_prop()`](../excel2xml-module.md#special-characters-in-text-properties)
+- When a string is passed to [`excel2xml.make_text_prop()`]
+- (../excel2xml-module.md#special-characters-in-text-properties)
 - When a string is written by hand into an XML file
 
 In the tables below,
@@ -774,7 +778,8 @@ If you write an XML file by hand:
 
 ### The `<time-prop>` Element
 
-The `<time-prop>` element is used for time values in the Gregorian calendar. It must contain at least one `<time>` element.
+The `<time-prop>` element is used for time values in the Gregorian calendar. 
+It must contain at least one `<time>` element.
 
 Attributes:
 
@@ -936,7 +941,7 @@ Example:
 </region>
 ```
 
-More details about the `<geometry-prop>` are documented [here](./xml-data-file.md#geometry-prop).
+More details about the `<geometry-prop>` are documented [here](./xml-data-file.md#the-geometry-prop-element).
 
 Technical note: A `<region>` is in fact a `<resource restype="Region">`. But it is mandatory to use the 
 shortcut, so that the XML file can be validated more precisely.

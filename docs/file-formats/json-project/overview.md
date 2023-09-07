@@ -120,7 +120,7 @@ The following fields are optional (if one or more of these fields are not used, 
 
 
 
-## The "project" Object
+## The "project" Object in Detail
 
 In the following section, all fields of the `project` object are explained in detail.
 
@@ -508,7 +508,7 @@ To do so, it would be necessary to place the following two files into the folder
 ![Colors_en](../../assets/images/img-json-list-from-excel-english.png)  
 ![Farben_de](../../assets/images/img-json-list-from-excel-german.png)
 
-The expected format of the Excel files is documented [here](../excel2json.md#lists-section). The only 
+The expected format of the Excel files is documented [here](../excel2json.md#the-lists-section). The only 
 difference to the explanations there is that column A of the Excel worksheet is not interpreted as list name (root 
 node), but as node name of the first children level below the root node.
 

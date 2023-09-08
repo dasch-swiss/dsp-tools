@@ -206,10 +206,6 @@ VS Code > Settings > Auto Docstring: Docstring Format > google-notypes.
 
 ### PyCharm
 
-- **markdownlint**
-- **black**
-- **mypy**
-- **pylint**
 
 In PyCharm, mypy is available as [plugin](https://plugins.jetbrains.com/plugin/11086-mypy), 
 and many style checks can be enabled in Settings > Editor > Inspections > Python.

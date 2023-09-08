@@ -8,7 +8,7 @@ import time
 import unicodedata
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Callable, Optional, TypeGuard, Union, cast
+from typing import Any, Callable, Iterable, Optional, TypeGuard, TypeVar, Union, cast
 
 import pandas as pd
 import regex
@@ -23,6 +23,27 @@ from dsp_tools.models.propertyelement import PropertyElement
 from dsp_tools.utils.logging import get_logger
 
 logger = get_logger(__name__)
+
+
+T = TypeVar("T")
+
+
+def make_chunks(lst: list[T], length: int) -> Iterable[list[T]]:
+    """
+    Split a list into length-sized chunks.
+    If length is greater than the length of the list,
+    the result will have only 1 chunk.
+
+    Args:
+        lst: list
+        length: length of the chunks
+
+    Yields:
+        chunks
+    """
+    length = min(length, len(lst))
+    for i in range(0, len(lst), length):
+        yield lst[i : i + length]
 
 
 def login(

@@ -1,5 +1,46 @@
 # Changelog
 
+## [5.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v4.0.0...v5.0.0) (2023-09-06)
+
+
+### ⚠ BREAKING CHANGES
+
+* **xmlupload:** allow both IDs and IRIs, remove --incremental flag (DEV-1339) ([#494](https://github.com/dasch-swiss/dsp-tools/issues/494))
+* refactor id2iri: remove --outfile and --verbose flags (DEV-2576) ([#488](https://github.com/dasch-swiss/dsp-tools/issues/488))
+
+### Enhancements
+
+* add --dump flag to "xmlupload" and "get" commands (DEV-2534) ([#502](https://github.com/dasch-swiss/dsp-tools/issues/502)) ([d9aeba9](https://github.com/dasch-swiss/dsp-tools/commit/d9aeba9f0fabb5761aa524305ecddd2b673be3e6))
+* get project without credentials (DEV-841) ([#504](https://github.com/dasch-swiss/dsp-tools/issues/504)) ([b5ea3e9](https://github.com/dasch-swiss/dsp-tools/commit/b5ea3e909971be215d8615bbb156947825ead581))
+* **id2iri:** add flag to remove created resources from XML (DEV-2571) ([#491](https://github.com/dasch-swiss/dsp-tools/issues/491)) ([bf25cb7](https://github.com/dasch-swiss/dsp-tools/commit/bf25cb72c1af1e2623c8a70927c7f5d98f3e1dbb))
+* **id2iri:** replace IDs also inside salsah-links, not only inside &lt;resptr&gt; tags (DEV-2578) ([#490](https://github.com/dasch-swiss/dsp-tools/issues/490)) ([047ba15](https://github.com/dasch-swiss/dsp-tools/commit/047ba155df8aa56e966468049b1c591c043b4cf7))
+* **xmlupload:** allow both IDs and IRIs, remove --incremental flag (DEV-1339) ([#494](https://github.com/dasch-swiss/dsp-tools/issues/494)) ([df1cf13](https://github.com/dasch-swiss/dsp-tools/commit/df1cf13eecf30bb95adbf6a81dd2e4b7a5a0c20a))
+
+
+### Bug Fixes
+
+* **process-files:** default value of batchsize is too big (DEV-2573) [#486](https://github.com/dasch-swiss/dsp-tools/issues/486) ([b1775a9](https://github.com/dasch-swiss/dsp-tools/commit/b1775a9be86f3c0254d052ab93550b1ae7bc4f7b))
+* **process-files:** remove docker container before starting / add user feedback (DEV-2601) ([#505](https://github.com/dasch-swiss/dsp-tools/issues/505)) ([8e1b77c](https://github.com/dasch-swiss/dsp-tools/commit/8e1b77c7f460b20c4aaf9e664b6a7450ddcf187a))
+* **process-files:** the derivatives are created only at the end (DEV-2625) ([#507](https://github.com/dasch-swiss/dsp-tools/issues/507)) ([1934403](https://github.com/dasch-swiss/dsp-tools/commit/19344034645ebabbccfb826c7d4967b9d130175d))
+* **xmlupload:** provide a helpful error message if default-ontology in XML file doesn't exist (DEV-2577) [#489](https://github.com/dasch-swiss/dsp-tools/issues/489) ([7b20ad8](https://github.com/dasch-swiss/dsp-tools/commit/7b20ad8bcfddc03892e3915f3a94fc324fc80c80))
+* **xmlupload:** sanitize textvalues: remove whitespaces and newlines (DEV-2569) ([#484](https://github.com/dasch-swiss/dsp-tools/issues/484)) ([d6c8110](https://github.com/dasch-swiss/dsp-tools/commit/d6c811068be6e7f48173d0345ec47ebfd2c7d092))
+
+
+### Maintenance
+
+* bump start-stack to 2023.09.01 (DEV-2630) ([#508](https://github.com/dasch-swiss/dsp-tools/issues/508)) ([d28f2d8](https://github.com/dasch-swiss/dsp-tools/commit/d28f2d83fe6a029c1b579b10282b7a7354395ca2))
+* **deps:** bump the all-dependencies group with 3 updates ([#501](https://github.com/dasch-swiss/dsp-tools/issues/501)) ([f4f6ff8](https://github.com/dasch-swiss/dsp-tools/commit/f4f6ff8cae535281ae1cb469477365bf1a6f643c))
+* excel2json (DEV-2547) ([#487](https://github.com/dasch-swiss/dsp-tools/issues/487)) ([504a4ec](https://github.com/dasch-swiss/dsp-tools/commit/504a4ec0d52c1199d42db5fa7eba70f35c0f4ac6))
+* improve release-please YAML file (DEV-2599) [#492](https://github.com/dasch-swiss/dsp-tools/issues/492) ([82b3b82](https://github.com/dasch-swiss/dsp-tools/commit/82b3b8269f21d9b2c6f1ee11fec7d043943baa82))
+* mute warnings in tests / update gitignore (DEV-2609) [#498](https://github.com/dasch-swiss/dsp-tools/issues/498) ([03e19d7](https://github.com/dasch-swiss/dsp-tools/commit/03e19d792d947236198afec5de441f8fa3963b0f))
+* refactor id2iri: remove --outfile and --verbose flags (DEV-2576) ([#488](https://github.com/dasch-swiss/dsp-tools/issues/488)) ([f814667](https://github.com/dasch-swiss/dsp-tools/commit/f814667751629471066ba95d43873027f1852ba5))
+* refactor models/connection.py (DEV-2534) ([#495](https://github.com/dasch-swiss/dsp-tools/issues/495)) ([a9caf98](https://github.com/dasch-swiss/dsp-tools/commit/a9caf98c1882cedf465e70bbb5a334c59bcd99fd))
+* refactor process-files (DEV-2623) ([#506](https://github.com/dasch-swiss/dsp-tools/issues/506)) ([7595846](https://github.com/dasch-swiss/dsp-tools/commit/75958461006b435ab5bdadb85ab44524138e5fb0))
+* rename excel_to_json to excel2json (DEV-2604) [#496](https://github.com/dasch-swiss/dsp-tools/issues/496) ([5a31d5d](https://github.com/dasch-swiss/dsp-tools/commit/5a31d5d3273fc37e71d25367e35792f16699169f))
+* run unit tests earlier in GitHub CI (DEV-2600) [#493](https://github.com/dasch-swiss/dsp-tools/issues/493) ([00d5ed6](https://github.com/dasch-swiss/dsp-tools/commit/00d5ed685783e67048043034f217c50233e80aea))
+* some small bug fixes and improvements (DEV-2564) ([#483](https://github.com/dasch-swiss/dsp-tools/issues/483)) ([ecd09e9](https://github.com/dasch-swiss/dsp-tools/commit/ecd09e9d8c568e51f6a719145ceaa973d809ac78))
+* use typing.TypeGuard for check_notna() (DEV-2608) [#497](https://github.com/dasch-swiss/dsp-tools/issues/497) ([2c4e2f8](https://github.com/dasch-swiss/dsp-tools/commit/2c4e2f8d025e28f918e08af7cde21bc2fde7fece))
+
 ## [4.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v3.0.0...v4.0.0) (2023-08-22)
 
 

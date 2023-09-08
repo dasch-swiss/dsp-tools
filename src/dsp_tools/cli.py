@@ -18,7 +18,7 @@ from dsp_tools.utils.excel2json.project import excel2json
 from dsp_tools.utils.excel2json.properties import excel2properties
 from dsp_tools.utils.excel2json.resources import excel2resources
 from dsp_tools.utils.generate_templates import generate_template_repo
-from dsp_tools.utils.id_to_iri import id_to_iri
+from dsp_tools.utils.id2iri import id2iri
 from dsp_tools.utils.logging import get_logger
 from dsp_tools.utils.project_create import create_project
 from dsp_tools.utils.project_create_lists import create_lists
@@ -99,6 +99,7 @@ def _make_parser(
     parser_get.add_argument("-p", "--password", default=root_user_pw, help=password_text)
     parser_get.add_argument("-P", "--project", help="shortcode, shortname or IRI of the project", required=True)
     parser_get.add_argument("-v", "--verbose", action="store_true", help=verbose_text)
+    parser_get.add_argument("-d", "--dump", action="store_true", help="write every request to DSP-API into a file")
     parser_get.add_argument("project_definition", help="path to the file the project should be written to")
 
     # xmlupload
@@ -113,16 +114,13 @@ def _make_parser(
         "-i", "--imgdir", default=".", help="folder from where the paths in the <bitstream> tags are evaluated"
     )
     parser_upload.add_argument(
-        "-I",
-        "--incremental",
-        action="store_true",
-        help="The links in the XML file point to IRIs (on the server) instead of IDs (in the same XML file).",
-    )
-    parser_upload.add_argument(
         "-V", "--validate-only", action="store_true", help="validate the XML file without uploading it"
     )
     parser_upload.add_argument("-v", "--verbose", action="store_true", help=verbose_text)
     parser_upload.add_argument("-m", "--metrics", action="store_true", help="write metrics into a 'metrics' folder")
+    parser_upload.add_argument(
+        "-d", "--dump", action="store_true", help="write every request to DSP-API/SIPI into a file"
+    )
     parser_upload.add_argument("xmlfile", help="path to the XML file containing the data")
 
     # process-files
@@ -453,6 +451,7 @@ def _call_requested_action(args: argparse.Namespace) -> bool:
             user=args.user,
             password=args.password,
             verbose=args.verbose,
+            dump=args.dump,
         )
     elif args.action == "xmlupload":
         if args.validate_only:
@@ -466,7 +465,7 @@ def _call_requested_action(args: argparse.Namespace) -> bool:
                 imgdir=args.imgdir,
                 sipi=args.sipi_url,
                 verbose=args.verbose,
-                incremental=args.incremental,
+                dump=args.dump,
                 save_metrics=args.metrics,
                 preprocessing_done=False,
             )
@@ -517,9 +516,10 @@ def _call_requested_action(args: argparse.Namespace) -> bool:
             path_to_output_file=args.properties_section,
         )
     elif args.action == "id2iri":
-        success = id_to_iri(
+        success = id2iri(
             xml_file=args.xmlfile,
             json_file=args.mapping,
+            remove_resource_if_id_in_mapping=args.remove_resources,
         )
     elif args.action == "excel2xml":
         success = excel2xml(

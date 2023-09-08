@@ -66,7 +66,6 @@ class TestImportScripts(unittest.TestCase):
             imgdir="src/dsp_tools/import_scripts/",
             sipi="http://0.0.0.0:1024",
             verbose=False,
-            incremental=False,
             save_metrics=False,
             preprocessing_done=False,
         )

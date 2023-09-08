@@ -101,6 +101,7 @@ The following options are available:
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API 
 - `-P` | `--project` (mandatory): shortcode, shortname or IRI of the project 
 - `-v` | `--verbose` (optional): print more information about the progress to the console
+- `-d` | `--dump` (optional): write every request to DSP-API into a file
 
 The defaults are intended for local testing: 
 
@@ -116,6 +117,9 @@ it is necessary to specify the following options:
 ```bash
 dsp-tools get -s https://api.dasch.swiss -u 'your@email.com' -p 'password' -P my_project project_definition.json
 ```
+
+It is possible to get a project from a DSP server without giving credentials.
+But in this case, the resulting JSON file won't have a "users" section.
 
 The expected JSON format is [documented here](./file-formats/json-project/overview.md).
 
@@ -135,16 +139,16 @@ The following options are available:
 - `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API 
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
 - `-i` | `--imgdir` (optional, default: `.`): folder from where the paths in the `<bitstream>` tags are evaluated
-- `-I` | `--incremental` (optional) : The links in the XML file point to IRIs (on the server) 
-                                    instead of IDs (in the same XML file).
 - `-V` | `--validate` (optional): validate the XML file without uploading it
 - `-v` | `--verbose` (optional): print more information about the progress to the console
 - `-m` | `--metrics` (optional): write metrics into a 'metrics' folder
+- `-d` | `--dump` (optional): write every request to DSP-API/SIPI into a file
 
 Output:
 
 - A file named `id2iri_mapping_[timestamp].json` is written to the current working directory.
-  This file should be kept if data is later added with the [`--incremental` option](./incremental-xmlupload.md)
+  This file should be kept if a second data delivery is added at a later point of time 
+  [see here](./incremental-xmlupload.md).
 
 The defaults are intended for local testing: 
 

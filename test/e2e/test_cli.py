@@ -212,7 +212,7 @@ class TestCLI(unittest.TestCase):
         mapping_file.unlink()
 
         second_xml_file_replaced = get_most_recent_glob_match(self.cwd / f"{second_xml_file_orig.stem}_replaced_*.xml")
-        self._make_cli_call(f"dsp-tools xmlupload --incremental -v {second_xml_file_replaced.absolute()}")
+        self._make_cli_call(f"dsp-tools xmlupload -v {second_xml_file_replaced.absolute()}")
         second_xml_file_replaced.unlink()
         self.assertListEqual(list(Path(self.cwd).glob("stashed_*_properties_*.txt")), [])
 
@@ -260,7 +260,7 @@ class TestCLI(unittest.TestCase):
         self.assertListEqual(output_actual, output_expected)
         out_file.unlink()
 
-    def test_id_to_iri(self) -> None:
+    def test_id2iri(self) -> None:
         xml_file = Path("testdata/id2iri/test-id2iri-data.xml")
         mapping_file = Path("testdata/id2iri/test-id2iri-mapping.json")
         self._make_cli_call(f"dsp-tools id2iri {xml_file.absolute()} {mapping_file.absolute()}")
@@ -269,6 +269,18 @@ class TestCLI(unittest.TestCase):
             output_actual = f.read()
         out_file.unlink()
         with open("testdata/id2iri/test-id2iri-output-expected.xml", encoding="utf-8") as f:
+            output_expected = f.read()
+        self.assertEqual(output_actual, output_expected)
+
+    def test_id2iri_remove_resources(self) -> None:
+        xml_file = Path("testdata/id2iri/remove-resources/data.xml")
+        mapping_file = Path("testdata/id2iri/remove-resources/mapping.json")
+        self._make_cli_call(f"dsp-tools id2iri --remove-resources {xml_file.absolute()} {mapping_file.absolute()}")
+        out_file = get_most_recent_glob_match(self.cwd / "data_replaced_*.xml")
+        with open(out_file, encoding="utf-8") as f:
+            output_actual = f.read()
+        out_file.unlink()
+        with open("testdata/id2iri/remove-resources/output-expected.xml", encoding="utf-8") as f:
             output_expected = f.read()
         self.assertEqual(output_actual, output_expected)
 

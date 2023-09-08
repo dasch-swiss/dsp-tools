@@ -206,7 +206,7 @@ def _write_output_file(
     print(f"XML with replaced IDs was written to file {out_file}.")
 
 
-def id_to_iri(
+def id2iri(
     xml_file: str,
     json_file: str,
     remove_resource_if_id_in_mapping: bool = False,

@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import regex
 
-from dsp_tools.models.exceptions import UserError
+from src.dsp_tools.models.exceptions import UserError
 
 languages = ["en", "de", "fr", "it", "rm"]
 

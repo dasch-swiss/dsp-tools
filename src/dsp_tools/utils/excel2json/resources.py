@@ -8,8 +8,8 @@ import jsonschema
 import pandas as pd
 import regex
 
-from dsp_tools.models.exceptions import BaseError
-from dsp_tools.utils.shared import check_notna, prepare_dataframe
+from src.dsp_tools.models.exceptions import BaseError
+from src.dsp_tools.utils.shared import check_notna, prepare_dataframe
 
 languages = ["en", "de", "fr", "it", "rm"]
 

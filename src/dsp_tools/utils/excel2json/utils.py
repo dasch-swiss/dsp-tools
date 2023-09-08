@@ -60,7 +60,7 @@ def clean_data_frame(df: pd.DataFrame) -> pd.DataFrame:
         lambda x: str(x).strip() if pd.notna(x) and regex.search(r"[\w\p{L}]", str(x), flags=regex.U) else pd.NA
     )
     # drop all the rows that are entirely empty
-    df.dropna(axis=0, how="all", inplace=True)
+    df = df.dropna(axis=0, how="all")
     return df
 
 

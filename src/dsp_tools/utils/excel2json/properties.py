@@ -9,8 +9,8 @@ import numpy as np
 import pandas as pd
 import regex
 
-import src.dsp_tools.utils.excel2json.utils as utl
-from src.dsp_tools.models.exceptions import UserError
+import dsp_tools.utils.excel2json.utils as utl
+from dsp_tools.models.exceptions import UserError
 
 languages = ["en", "de", "fr", "it", "rm"]
 language_label_col = ["label_en", "label_de", "label_fr", "label_it", "label_rm"]

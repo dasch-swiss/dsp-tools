@@ -304,8 +304,8 @@ Example:
 
 `"object": "ColorValue"`
 
-A string representation of a color in the hexadecimal form. See the 
-[xmlupload documentation](../xml-data-file.md#the-color-prop-element) for more information.
+A string representation of a color in the hexadecimal form. 
+See the [xmlupload documentation](../xml-data-file.md#the-color-prop-element) for more information.
 
 *gui_elements / gui_attributes*:
 
@@ -334,8 +334,8 @@ Example:
 
 `object": "DateValue"`  
 
-Represents a date. It's a string with the format `calendar:start:end`. See the 
-[xmlupload documentation](../xml-data-file.md#the-date-prop-element) for more information.
+Represents a date. It's a string with the format `calendar:start:end`. 
+See the [xmlupload documentation](../xml-data-file.md#the-date-prop-element) for more information.
 
 *gui_elements / gui_attributes*:
 
@@ -402,8 +402,8 @@ Example:
 
 `"object": "GeonameValue"`
 
-Represents a location ID of [geonames.org](https://www.geonames.org). See the 
-[xmlupload documentation](../xml-data-file.md#the-geoname-prop-element) for more information.
+Represents a location ID of [geonames.org](https://www.geonames.org). 
+See the [xmlupload documentation](../xml-data-file.md#the-geoname-prop-element) for more information.
 
 *gui_elements / gui_attributes*:
 
@@ -432,8 +432,8 @@ Example:
 
 `"object": "IntValue"`
 
-Represents an integer value. See the [xmlupload documentation]
-(../xml-data-file.md#the-integer-prop-element) for more information.
+Represents an integer value. 
+See the [xmlupload documentation](../xml-data-file.md#the-integer-prop-element) for more information.
 
 *gui_elements / gui_attributes*:
 
@@ -473,8 +473,7 @@ Example:
 `"object": "ListValue"`
 
 Represents a node of a (possibly hierarchical) list. 
-See the [xmlupload documentation](../xml-data-file.md#the-list-prop-element) 
-for more information.
+See the [xmlupload documentation](../xml-data-file.md#the-list-prop-element) for more information.
 
 *gui_elements / gui_attributes*:
 
@@ -512,8 +511,7 @@ Example:
 `"object": "TextValue"`
 
 Represents a text that may contain standoff markup. 
-See the [xmlupload documentation](../xml-data-file.md#the-text-prop-element) 
-for more information.
+See the [xmlupload documentation](../xml-data-file.md#the-text-prop-element) for more information.
 
 *gui_elements / gui_attributes*:
 

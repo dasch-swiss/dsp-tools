@@ -27,7 +27,7 @@ The `<knora>` element describes all resources that should be imported. It has th
 - `xmlns:xsi`: URL to the XML Schema instance namespace of W3C (required, always the same)
 - `xsi:schemaLocation`: URL to the DSP XML schema, located in the DSP-TOOLS GitHub repository (required, always the same)
 - `shortcode`: project shortcode, e.g. "0801" (required, dependent on the project)
-- `default-ontology`: name of the ontology (required, dependent on the projet)
+- `default-ontology`: name of the ontology (required, dependent on the project)
 
 The `<knora>` element may look as follows:
 
@@ -341,7 +341,7 @@ Attributes:
 
 #### `<date>`
 
-the `<date>` element contains a DSP-specific date value. It has the following format:
+The `<date>` element contains a DSP-specific date value. It has the following format:
 
 ```text
 calendar:epoch:yyyy-mm-dd:epoch:yyyy-mm-dd
@@ -558,7 +558,7 @@ Example of a property with a public and a hidden integer value:
 
 The `<interval-prop>` element is used for intervals with a start and an end point on a timeline, 
 e.g. relative to the beginning of an audio or video file. 
-An `<interval-prop>`  must contain at least one `<interval>` element.
+An `<interval-prop>` must contain at least one `<interval>` element.
 
 Attributes:
 
@@ -693,10 +693,10 @@ contains a link to  the resource `http://rdfh.ch/4123/nyOODvYySV2nJ5RWRdmOdQ`, w
 `gui_element` ([defined in the ontology](./json-project/ontologies.md#textvalue))
 as follows:
 
-| `gui_element`<br/>(JSON ontology) | `encoding`<br/>(XML data) | 
+| `gui_element`<br/>(JSON ontology) | `encoding`<br/>(XML data) |
 | --------------------------------- | ------------------------- |
-| `SimpleText`                      | `utf8`                    | 
-| `Textarea`                        | `utf8`                    | 
+| `SimpleText`                      | `utf8`                    |
+| `Textarea`                        | `utf8`                    |
 | `Richtext`                        | `xml`                     |
 
 Handling of pretty-print whitespaces and newlines:
@@ -704,12 +704,12 @@ Handling of pretty-print whitespaces and newlines:
 - encoding `utf8`: 
     - leading and trailing whitespaces are removed
     - multiple spaces are replaced by a single space
-    - (multiple) tabstops are replaced by a single space
+    - (multiple) tab stops are replaced by a single space
 - encoding `xml`:
     - leading and trailing whitespaces are removed
     - whitespaces and newlines don't have a meaning in XML, so they are removed. 
-    - Newlines can be created with `<br/>`.
-    - Whitespaces are kept only inside `<code>` and `<pre>` tags.
+    - newlines can be created with `<br/>`.
+    - whitespaces are kept only inside `<code>` and `<pre>` tags.
 
 
 #### Special Characters: Overview
@@ -874,7 +874,7 @@ Example of a property with a public and a hidden URI:
 ## DSP Base Resources and Base Properties to Be Used Directly in the XML File
 
 There is a number of base resources and base properties
-that must not be subclassed in a project ontology. 
+that from which no subclasses can be derived in a project ontology. 
 They are directly available in the XML data file. 
 Please have in mind that built-in names of the knora-base ontology
 must be used without prepended colon.  

@@ -27,7 +27,7 @@ Via Pylance, it is included in VS Code's Python extension `ms-python.python`.
 
 ### [Pyre](https://pypi.org/project/pyre-check/)
 
-Performant type checker by Facebook, compliant with the relevant PEPs.
+Performant type checker by Facebook, compliant with the relevant PEP conventions.
 Pyre can analyze codebases with millions of lines of code incrementally,
 providing instantaneous feedback to developers as they write code.
 Depends on [watchman](https://facebook.github.io/watchman/), 

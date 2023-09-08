@@ -26,7 +26,7 @@ there are 4 different ways how new data has to be uploaded:
 ## 1. No References to Existing Resources
 
 The first case is the simplest one:
-No mapping is required and the additional data can be uploaded with:
+No mapping is required, and the additional data can be uploaded with:
 
 ```bash
 dsp-tools xmlupload additional_data.xml

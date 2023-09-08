@@ -28,7 +28,7 @@ Please follow this constraint, so that markdown-link-validator can check the int
 ## Handling False Positives of markdown-link-validator
 
 What can be done if your links are correct, but markdown-link-validator doesn't recognize them?
-One solution is to add an ignore pattern 
+One solution is to add an "ignore" pattern 
 to the call to markdown-link-validator in `.github/workflows/tests-on-push.yml`.
 
 If your link is in a code block, and isn't intended to be used as link,
@@ -52,7 +52,7 @@ First heading with this name
 Second heading with this name
 
 # Further down in the document
-[link to second heading]⁣(#heading-title_1)    <!--mkdocs supports only this syntax-->
+[link to second heading]⁣(#heading-title_1)    <!--MkDocs supports only this syntax-->
 [link to second heading]⁣(#heading--title-1)   <!--npm markdown-link-validator supports only this syntax-->
 ```
 

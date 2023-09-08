@@ -8,9 +8,9 @@ Prospector is a wrapper around the following tools:
 
 - pylint (very through linter and error detector)
 - pycodestyle (checks formatting for violations of PEP 8)
-- pyflakes (error detector)
+- Pyflakes (error detector)
 - McCabe (complexity checker)
-- Dodgy (simple regex check to detect accidental SCM diff checkins or secrets hard coded into files)
+- Dodgy (simple regex check to detect accidental SCM diff checks or secrets hard coded into files)
 - Pydocstyle (docstring checker)
 - Pyroma (checks `setup.py` files)
 - Vulture (finds unused code)

@@ -70,13 +70,12 @@ Some notes:
 ## Renaming a Parent Directory of the Submodule
 
 Renaming a parent directory of the submodule should be done with `git mv old-name new-name`, so that git won't be 
-confused that the path to the submodule changed. If this doesn't help, it might be necessary to manually modify 
+confused that the path to the submodule changed. If this doesn't help, it might be necessary to manually modify: 
 
-- the `gitdir` in `src/dsptools/import_scripts/.git`
-- the `path` in `.gitmodules`, and the name of the submodule in the title of that file
-- the `worktree` entry in `.git/modules/src/dsptools/import_scripts/config` and the affected folder names in 
-  the path containing that file
-
+- the `gitdir` in `src/dsptools/import_scripts/.git`,
+- the `path` in `.gitmodules`, and the name of the submodule in the title of that file,
+- the `worktree` entry in `.git/modules/knora/dsplib/import_scripts/config` and the affected folder names in 
+  the path containing that file.
 
 
 ## Actively Working with the Contents of the Submodule
@@ -102,7 +101,7 @@ git push origin feature-branch        # push to origin of dsp-tools
 
 When switching between branches, there are two options:
 
-1. By default (`submodule.recurse` is false AND branches are switched with `git checkout <branch>`), the contents of 
+1. By default, (`submodule.recurse` is false AND branches are switched with `git checkout <branch>`), the contents of 
    submodules will not be updated.
 2. If `submodule.recurse` has been set to true, OR if branches are switched with `git checkout <branch> 
     --recurse-submodules`, the contents of submodules will be updated according to the commit recorded in the 

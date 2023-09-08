@@ -6,7 +6,7 @@
 
 Python uses docstrings to document code. 
 A docstring is a string that is the first statement in a package, module, class or function. 
-Python docsrings are written in the
+Python docstrings are written in the
 [reStructuredText](https://docutils.sourceforge.io/rst.html) syntax (abbreviated as RST or reST).
 
 There are at least 4 flavors of docstrings,
@@ -52,7 +52,7 @@ as defined [here](https://google.github.io/styleguide/pyguide.html#38-comments-a
 ### [pydocstyle](https://pypi.org/project/pydocstyle/)
 
 Static analysis tool for checking compliance with Python docstring conventions.
-Pydocstyle supports most of [PEP 257](http://www.python.org/dev/peps/pep-0257/) out of the box, 
+Pydocstyle supports most [PEP 257](http://www.python.org/dev/peps/pep-0257/) conventions out of the box, 
 but it should not be considered a reference implementation.
 Pydocstyle seems to be the most popular docstring checker.
 It supports the styles "pep257", "numpy", and "google".
@@ -61,7 +61,7 @@ It supports the styles "pep257", "numpy", and "google".
 
 A docstring formatter that follows 
 [PEP 8](http://www.python.org/dev/peps/pep-0008/) and [PEP 257](http://www.python.org/dev/peps/pep-0257/) 
-but makes some of the more controversial elements of the PEPs optional.
+but makes some of the more controversial elements of PEP optional.
 Can be configured for other styles as well. 
 This project is heavily inspired by docformatter.
 Supported styles: "pep257", "numpy".

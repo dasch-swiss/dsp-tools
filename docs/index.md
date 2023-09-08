@@ -83,5 +83,5 @@ DSP-TOOLS provides the following functionalities:
 - [`dsp-tools template`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#template)
   creates a template repository with a minimal JSON and XML file.
 - [`dsp-tools rosetta`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#rosetta)
-  clones the most up to data rosetta repository,
+  clones the most up to date rosetta repository,
   creates the data model and uploads the data.

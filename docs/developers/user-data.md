@@ -11,8 +11,8 @@ Here is an overview of its structure:
 | xmluploads                 | `xmlupload`      | saves id2iri mappings and error reports                                                    |
 | docker                     | `start-stack`    | files necessary to startup Docker containers                                               |
 | rosetta                    | `rosetta`        | a clone of [the rosetta test project](https://github.com/dasch-swiss/082e-rosetta-scripts) |
-| logging.log, logging.log.1 | several ones     | These two grow up to 3MB, then the oldest entries are deleted                              |
-| fast-xmlupload             | fast xmlupload   | shell script for local processing                                                          |
+| logging.log, logging.log.1 | several ones     | These two grow up to 3 MB, then the oldest entries are deleted                             |
+| fast-xmlupload             | several ones     | shell script for local processing                                                          |
 
 
 Remark: Docker is normally not able to access files 
@@ -24,7 +24,7 @@ to the user's home directory.
 
 ## How to Ship Data Files to the User
 
-Accessing non-Python files (a.k.a. resources, a.k.a data files) 
+Accessing non-Python files (aka resources, aka data files) 
 in the code needs special attention.
 
 Firstly, the build tool must be told to include this folder/files in the distribution.

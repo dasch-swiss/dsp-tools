@@ -17,11 +17,11 @@ simplified example. For this use case, it is necessary to write a Python script 
 undefined state X into a DSP-conforming XML file that can be uploaded with `dsp-tools xmlupload`. For this, you need to
 import the module `excel2xml` into your Python script.
 
-The second use case is less frequent: We migrate data DaSCH-internally from one server to another. In this case, the 
+The second use case is less frequent: In DaSCH we migrate data internally from one server to another. In this case, the 
 data already has the correct structure, and can automatically be transformed to XML. 
 This can be done with the [CLI command `excel2xml`](./cli-commands.md#excel2xml).
 
-**This page deals only with the first use case, the module `excel2xml`** .
+**This page deals only with the first use case, the module `excel2xml`**.
 
 
 ## Module `excel2xml`: Convert a Data Source to XML
@@ -179,7 +179,7 @@ With the help of Pandas, you can then iterate through the rows of your Excel/CSV
 
 ### 6. Create the `<resource>` Tag
 
-There are four kind of resources that can be created: 
+There are four kinds of resources that can be created: 
 
 | super        | tag            | method              |
 |--------------|----------------|---------------------|
@@ -205,7 +205,7 @@ ID in a dict, so that you can retrieve it later. The example script contains an 
 For every property, there is a helper function that explains itself when you hover over it. So you don't need to worry 
 anymore how to construct a certain XML value for a certain property. 
 
-Here's how the Docstrings assist you:
+Here's how the docstrings assist you:
 
 - method signature: names of the parameters and accepted types
 - short explanation how the method behaves
@@ -362,7 +362,7 @@ Notes:
 - The years 0000-2999 are supported, in 4-digit form.
 - Dates written with slashes are always interpreted in a European manner: 5/11/2021 is the 5th of November.
 
-Currently supported date formats:
+Current supported date formats:
 
 | Input             | Output                                |
 |-------------------|---------------------------------------|

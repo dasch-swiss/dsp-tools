@@ -69,7 +69,7 @@ The defaults are intended for local testing:
 dsp-tools create project_definition.json
 ```
 
-will create the project defined in `project_definition.json` on `localhost` for local viewing.
+Will create the project defined in `project_definition.json` on `localhost` for local viewing.
 
 In order to create the same project
 on the DSP server `https://admin.dasch.swiss`,
@@ -151,7 +151,7 @@ The defaults are intended for local testing:
 dsp-tools xmlupload xml_data_file.xml
 ```
 
-will upload the data defined in `xml_data_file.xml` on `localhost` for local viewing.
+Will upload the data defined in `xml_data_file.xml` on `localhost` for local viewing.
 
 In order to upload the same data 
 to the DSP server `https://admin.dasch.swiss`,
@@ -234,7 +234,7 @@ The expected Excel format is [documented here](./file-formats/excel2json.md#the-
 
 This command creates an XML file
 from an Excel/CSV file that is already structured according to the DSP specifications.
-This is mostly used for DaSCH-internal data migration.
+This is mostly used for DaSCH internal data migration.
 
 ```bash
 dsp-tools excel2xml data_source.xlsx project_shortcode ontology_name
@@ -290,7 +290,7 @@ This command runs a local instance of DSP-API and DSP-APP.
 dsp-tools start-stack
 ```
 
-dsp-tools will ask you for permission to clean Docker with a `docker system prune`.
+`dsp-tools` will ask you for permission to clean Docker with a `docker system prune`.
 This will remove all unused containers, networks and images.
 If you don't know what that means, just type `y` ("yes") and then `Enter`.
 
@@ -351,7 +351,7 @@ A DSP stack must be running before executing this command.
 
 ## `process-files`
 
-DaSCH-internal command to process multimedia files locally,
+DaSCH internal command to process multimedia files locally,
 before uploading them to a DSP server.
 See [here](./internal/fast-xmlupload.md) for more information.
 
@@ -359,13 +359,13 @@ See [here](./internal/fast-xmlupload.md) for more information.
 
 ## `upload-files`
 
-DaSCH-internal command to upload processed multimedia files to a DSP server.
+DaSCH internal command to upload processed multimedia files to a DSP server.
 See [here](./internal/fast-xmlupload.md) for more information.
 
 
 
 ## `fast-xmlupload`
 
-DaSCH-internal command to create the resources of an XML file
+DaSCH internal command to create the resources of an XML file
 after the processed multimedia files have been uploaded already.
 See [here](./internal/fast-xmlupload.md) for more information.

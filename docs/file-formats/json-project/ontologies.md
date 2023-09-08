@@ -250,34 +250,33 @@ These three are related as follows:
 
 #### Overview
 
-| DSP base property (`super`) | `object`                                                            | `gui_element`                        |
-| --------------------------- | ------------------------------------------------------------------- | ------------------------------------ |
-| hasValue                    | BooleanValue                                                        | Checkbox                             |
-| hasColor                    | ColorValue                                                          | Colorpicker                          |
-| hasValue                    | DateValue                                                           | Date                                 |
-| hasValue                    | DecimalValue                                                        | Spinbox, <br>SimpleText              |
-| hasValue                    | GeonameValue                                                        | Geonames                             |
-| hasValue                    | IntValue                                                            | Spinbox, <br>SimpleText              |
-| hasValue                    | ListValue                                                           | List                                 |
-| hasValue                    | TextValue                                                           | SimpleText,<br>Textarea,<br>Richtext |
-| hasComment                  | TextValue                                                           | SimpleText                           |
-| hasValue                    | TimeValue                                                           | TimeStamp                            |
-| hasValue                    | UriValue                                                            | SimpleText                           |
-| hasLinkTo                   | (resourceclass)                                                     | Searchbox                            |
-| hasRepresentation           | Representation                                                      | Searchbox                            |
-| isPartOf                    | (resourceclass)                                                     | Searchbox                            |
-| seqnum                      | IntValue                                                            | Spinbox, <br>SimpleText              |
-| isSequenceOf                | (AudioRepresentation,<br>MovingImageRepresentation,<br>or subclass) | Searchbox                            |
-| hasSequenceBounds           | IntervalValue                                                       | Interval                             |
+| DSP base property (`super`) | `object`                                                           | `gui_element`                          |
+| --------------------------- | ------------------------------------------------------------------ | -------------------------------------- |
+| hasValue                    | BooleanValue                                                       | Checkbox                               |
+| hasColor                    | ColorValue                                                         | Colorpicker                            |
+| hasValue                    | DateValue                                                          | Date                                   |
+| hasValue                    | DecimalValue                                                       | Spinbox, <br>SimpleText                |
+| hasValue                    | GeonameValue                                                       | Geonames                               |
+| hasValue                    | IntValue                                                           | Spinbox, <br>SimpleText                |
+| hasValue                    | ListValue                                                          | List                                   |
+| hasValue                    | TextValue                                                          | SimpleText, <br>Textarea, <br>Richtext |
+| hasComment                  | TextValue                                                          | SimpleText                             |
+| hasValue                    | TimeValue                                                          | TimeStamp                              |
+| hasValue                    | UriValue                                                           | SimpleText                             |
+| hasLinkTo                   | (resourceclass)                                                    | Searchbox                              |
+| hasRepresentation           | Representation                                                     | Searchbox                              |
+| isPartOf                    | (resourceclass)                                                    | Searchbox                              |
+| seqnum                      | IntValue                                                           | Spinbox, <br>SimpleText                |
+| isSequenceOf                | (AudioRepresentation, <br>MovingImageRepresentation, <br>subclass) | Searchbox                              |
+| hasSequenceBounds           | IntervalValue                                                      | Interval                               |
 
 
 #### BooleanValue
 
 `"object": "BooleanValue"`
 
-Represents a Boolean ("true" or "false"). See the [xmlupload documentation]
-(../xml-data-file.md#the-boolean-prop-element)
-for more information.
+Represents a Boolean ("true" or "false"). 
+See the [xmlupload documentation](../xml-data-file.md#the-boolean-prop-element) for more information.
 
 *gui_elements / gui_attributes*:
 
@@ -369,7 +368,7 @@ See the [xmlupload documentation](../xml-data-file.md#the-decimal-prop-element) 
 
 *gui_elements / gui_attributes*:
 
-- `Spinbox`: Provides a spinbox to select a decimal value.
+- `Spinbox`: Provides a Spinbox to select a decimal value.
     - *gui_attributes*:
         - `max=decimal` (mandatory): maximal value
         - `min=decimal` (mandatory): minimal value
@@ -484,7 +483,7 @@ for more information.
         - `hlist=<list-name>` (required): The name of a list defined in the 
   ["lists" section](./overview.md#the-lists-object).
 - `Radio` and `Pulldown` are allowed, too, 
-  but they don't have a different behaviour than `List`. 
+  but they don't have a different behavior than `List`. 
   It is recommended to use `List`.
 
 
@@ -735,7 +734,7 @@ e.g. to leaf through pages of a book.
 The DSP base properties `isPartOf` and `seqnum` 
 can be used to derive a custom property from them, 
 or they can be used directly as cardinalities in a resource. 
-The example belows shows both possibilities.
+The example below shows both possibilities.
 
 *gui_elements/gui_attributes*:
 

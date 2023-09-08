@@ -106,7 +106,7 @@ The expected columns are:
 - [`gui_order`](./json-project/ontologies.md#resource-cardinalities) 
   (optional): By default, DSP-APP displays the properties in the order how they are listed in the Excel sheet.
   If you prefer another order, you can make a numbering in this column.
-  Example: You order the propnames alphabetically in the Excel, 
+  Example: You order the property names alphabetically in the Excel, 
   but they should be displayed in another order in DSP-APP.
 
 

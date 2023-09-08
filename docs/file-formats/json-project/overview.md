@@ -68,7 +68,7 @@ A complete project definition looks like this:
 `"prefixes": { "prefix": "<iri>", ...}`
 
 The `prefixes` object contains the prefixes of external ontologies that are used in the current file. All prefixes
-are composed of the prefix and a URI. The prefix is used as namespace so one does not have to write the
+are composed of the prefix and a URI. The prefix is used as namespace, so one does not have to write the
 fully qualified name of the referenced object each time it is used. Instead of writing a property called "familyName" 
 as `http://xmlns.com/foaf/0.1/familyName` one can simply write `foaf:familyName`.
 
@@ -554,8 +554,8 @@ In addition, there is another complete example of a JSON project file here:
     "shortname": "teimp",
     "longname": "Test Import",
     "descriptions": {
-      "en": "This is a project for testing the creation of ontologies and data",
-      "de": "Dies ist ein Projekt, um die Erstellung von Ontologien und Datenimport zu testen"
+      "en": "This is a project for testing the creation of ontologies and data.",
+      "de": "Dies ist ein Projekt, um die Erstellung von Ontologien und Datenimport zu testen."
     },
     "keywords": [
       "test",

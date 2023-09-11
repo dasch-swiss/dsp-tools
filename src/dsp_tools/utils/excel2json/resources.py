@@ -9,8 +9,7 @@ import pandas as pd
 import regex
 
 import dsp_tools.utils.excel2json.utils as utl
-from dsp_tools.models.exceptions import BaseError, UserError
-from dsp_tools.utils.shared import check_notna, prepare_dataframe
+from dsp_tools.models.exceptions import UserError
 
 languages = ["en", "de", "fr", "it", "rm"]
 language_label_col = ["label_en", "label_de", "label_fr", "label_it", "label_rm"]
@@ -20,6 +19,7 @@ def _validate_resources(
     resources_list: list[dict[str, Any]],
     excelfile: str,
 ) -> bool:
+    # TODO: revamp
     """
     This function checks if the "resources" section of a JSON project file is valid according to the JSON schema,
     and if the resource names are unique.
@@ -29,7 +29,7 @@ def _validate_resources(
         excelfile: path to the Excel file containing the resources
 
     Raises:
-        BaseError: if the validation fails
+        UserError: if the validation fails
 
     Returns:
         True if the "resources" section passed validation
@@ -72,7 +72,7 @@ def _validate_resources(
                     )
         else:
             err_msg += f"The error message is: {err.message}\nThe error occurred at {err.json_path}"
-        raise BaseError(err_msg) from None
+        raise UserError(err_msg) from None
 
     # check if resource names are unique
     all_names = [r["name"] for r in resources_list]
@@ -87,15 +87,16 @@ def _validate_resources(
         )
         for row_no, resname in duplicates.items():
             err_msg += f" - Row {row_no}: {resname}\n"
-        raise BaseError(err_msg)
+        raise UserError(err_msg)
 
     return True
 
 
-def _row2resource(
-    df_row: pd.Series,
-    excelfile: str,
-) -> dict[str, Any]:
+def _check_fill_gui_order(resource_df: pd.DataFrame, excel_sheet: str, excelfile: str) -> pd.DataFrame:
+    pass
+
+
+def _row2resource(df_row: pd.Series, excelfile: str, entire_df: str) -> dict[str, Any]:
     """
     Method that reads one row from the "classes" DataFrame,
     opens the corresponding details DataFrame,
@@ -104,14 +105,17 @@ def _row2resource(
     Args:
         df_row: row from the "classes" DataFrame
         excelfile: Excel file where the data comes from
+        entire_df: pd.DataFrame that contains the property information
 
     Raises:
-        BaseError: if the row or the details sheet contains invalid data
+        UserError: if the row or the details sheet contains invalid data
 
     Returns:
         dict object of the resource
     """
+    # TODO: complete revamp
 
+    # TODO: change this to utl function and move it into the write function
     name = df_row["name"]
     labels = {lang: df_row[f"label_{lang}"] for lang in languages if df_row.get(f"label_{lang}")}
     if not labels:
@@ -119,32 +123,7 @@ def _row2resource(
     comments = {lang: df_row[f"comment_{lang}"] for lang in languages if df_row.get(f"comment_{lang}")}
     supers = [s.strip() for s in df_row["super"].split(",")]
 
-    # load the cardinalities of this resource
-    try:
-        details_df = pd.read_excel(excelfile, sheet_name=name)
-    except ValueError:
-        # Pandas relies on openpyxl to parse XLSX files.
-        # A strange behaviour of openpyxl prevents pandas from opening files with some formatting properties
-        # (unclear which formatting properties exactly).
-        # Apparently, the excel2json test files have one of the unsupported formatting properties.
-        # The following two lines of code help out.
-        # Credits: https://stackoverflow.com/a/70537454/14414188
-        # pylint: disable-next=import-outside-toplevel
-        from unittest import mock
-
-        p = mock.patch("openpyxl.styles.fonts.Font.family.max", new=100)
-        p.start()
-        try:
-            details_df = pd.read_excel(excelfile, sheet_name=name)
-        except ValueError as err:
-            raise BaseError(str(err)) from None
-        p.stop()
-    details_df = prepare_dataframe(
-        df=details_df,
-        required_columns=["Property", "Cardinality"],
-        location_of_sheet=f"Sheet '{name}' in file '{excelfile}'",
-    )
-
+    # TODO: remove this to own function
     # validation
     # 4 cases:
     #  - column gui_order absent
@@ -152,26 +131,26 @@ def _row2resource(
     #  - column gui_order present but not properly filled in (missing values / not integers)
     #  - column gui_order present and properly filled in
     all_gui_order_cells = []
-    if "gui_order" in details_df:
-        all_gui_order_cells = [x for x in details_df["gui_order"] if x]
+    if "gui_order" in entire_df:
+        all_gui_order_cells = [x for x in entire_df["gui_order"] if x]
     validation_passed = True
     if not all_gui_order_cells:  # column gui_order absent or empty
         pass
-    elif len(all_gui_order_cells) == len(details_df["property"]):  # column gui_order filled in. try casting to int
+    elif len(all_gui_order_cells) == len(entire_df["property"]):  # column gui_order filled in. try casting to int
         try:
-            [int(float(x)) for x in details_df["gui_order"]]
+            [int(float(x)) for x in entire_df["gui_order"]]
         except ValueError:
             validation_passed = False
     else:  # column gui_order present but not properly filled in (missing values)
         validation_passed = False
     if not validation_passed:
-        raise BaseError(
+        raise UserError(
             f"Sheet '{name}' in file '{excelfile}' has invalid content in column 'gui_order': "
             f"only positive integers allowed (or leave column empty altogether)"
         )
 
     cards = []
-    for j, detail_row in details_df.iterrows():
+    for j, detail_row in entire_df.iterrows():
         j = int(str(j))  # j is a label/index/hashable, but we need an int
         gui_order = detail_row.get("gui_order", "")
         gui_order = regex.sub(r"\.0+", "", str(gui_order))
@@ -191,7 +170,50 @@ def _row2resource(
     return resource
 
 
-def _check_missing_values_in_row_raise_error(df: pd.DataFrame, excelfile: str) -> None:
+# TODO: this comes when we construct the individual sheets, otherwise the error message gets too messy
+def _do_individual_class_resource_excel_compliance(
+    class_df: pd.DataFrame,
+    df_dict: dict[str, pd.DataFrame],
+    excelfile: str,
+) -> None:
+    # TODO: Testing
+    # check that each sheet complies
+    required_columns = {"Property", "Cardinality"}
+    accepted_values = {"1", "0-1", "1-n", "0-n"}
+
+
+def _check_if_all_classes_have_sheet(
+    class_df: pd.DataFrame,
+    df_dict: dict[str, pd.DataFrame],
+    excelfile: str,
+) -> None:
+    # TODO: Testing
+    """
+    This function checks if all the classes listed in the "classes" sheet have their own excel sheet and all the
+    sheets are listed in the "classes" sheet.
+    If not, it raises an error.
+    Else it passes without an effect.
+
+    Args:
+        class_df: df from the "classes" sheet
+        df_dict: dictionary with dfs from the other sheets
+        excelfile: name of the Excel file
+
+    Raises:
+        UserError: If not all classes have sheets or reverse it raises the error.
+    """
+    classes = set(class_df["name"].tolist())
+    sheets = set(df_dict.keys())
+    if classes != sheets:
+        difference = classes.symmetric_difference(sheets)
+        raise UserError(
+            f"All classes must also have their own excel sheet, "
+            f"likewise all excel sheets must be listed in the 'classes' sheet.\n"
+            f"In the excel file '{excelfile}' this is not the case for the class(es): {', '.join(difference)}."
+        )
+
+
+def _check_missing_values_in_class_sheet(df: pd.DataFrame, excelfile: str) -> None:
     """
     This function checks if all the required values are in the df.
     If all the checks are ok, the function ends without any effect.
@@ -205,20 +227,29 @@ def _check_missing_values_in_row_raise_error(df: pd.DataFrame, excelfile: str) -
     Raises:
         UserError: if any of the checks are failed
     """
-    # this returns a dict if there are any missing values, if there aren't the dict is empty
-    missing_dict = utl.check_required_values(df=df, required_values_columns=["name", "super"])
-    # This returns a pd.Series if there are not at least one entry in any one column per row, else None
-    missing_labels = utl.find_one_full_cell_in_cols(df=df, required_columns=language_label_col)
-    if missing_labels is not None:
-        missing_dict.update({"label": missing_labels})
-    # if there are any entries in the dictionary we call a function that creates a user-friendly error message
+    missing_dict = utl.find_missing_values_in_df(df=df, required_values_columns=["name", "super"])
+    # if there are any entries in the dictionary, we call a function that creates a user-friendly error message
     if missing_dict:
-        utl.make_error_str_missing_values_col(missing_dict=missing_dict, excelfile=excelfile)
+        utl.create_missing_values_info_raise_error(missing_dict=missing_dict, excelfile=excelfile)
 
 
-def _do_resource_excel_compliance(df: pd.DataFrame, excelfile: str) -> None:
-    # check for prohibited duplicates
-    utl.check_column_for_duplicate_else_raise_error(df=df, to_check_column="name")
+def _do_general_resource_excel_compliance(
+    class_df: pd.DataFrame,
+    df_dict: dict[str, pd.DataFrame],
+    excelfile: str,
+) -> None:
+    """
+    This function calls three separate functions which each checks if the pd.DataFrame is as we expect it.
+    Each of these functions raises a UserError if there is a problem.
+    If the checks do not fail, this function ends without an effect.
+
+    Args:
+        class_df: The pd.DataFrame that is checked
+        excelfile: The name of the original Excel file
+
+    Raises:
+        UserError if any of the checks fail
+    """
     # check if all the required columns are in the Excel
     required_columns = {
         "name",
@@ -234,10 +265,54 @@ def _do_resource_excel_compliance(df: pd.DataFrame, excelfile: str) -> None:
         "comment_rm",
         "super",
     }
-    utl.check_contains_required_columns_else_raise_error(df=df, required_columns=required_columns)
-    # check if all the columns that are mandatory are filled correctly
+    utl.check_contains_required_columns_else_raise_error(
+        df=class_df,
+        required_columns=required_columns,
+        excelfile=excelfile,
+    )
+    utl.check_column_for_duplicate_else_raise_error(
+        df=class_df,
+        to_check_column="name",
+        excelfile=excelfile,
+    )
 
-    # check that all the classes have a separate sheet in the excel
+    _check_missing_values_in_class_sheet(df=class_df, excelfile=excelfile)
+
+    _check_if_all_classes_have_sheet(class_df=class_df, df_dict=df_dict, excelfile=excelfile)
+
+
+def _separate_classes_sheet_from_dict(
+    df_dict: dict[str : pd.DataFrame],
+    excelfile: str,
+) -> pd.DataFrame and dict[str : pd.DataFrame]:
+    """
+    This function takes a dictionary which contains the Excel sheets as keys and the sheets as pd.DataFrame as values.
+    The general sheet "classes" will be removed.
+    If it doesn't exist, then the function raises an error informing the user.
+
+    Args:
+        df_dict: dictionary with df
+        excelfile: name of the Excel file
+
+    Returns:
+        single df with the general information and the dict with that df removed
+
+    Raises:
+        UserError: If the sheet "classes" doesn't exist
+    """
+    try:
+        # extract the df with the general class information
+        class_df = df_dict["classes"]
+    except KeyError:
+        raise UserError(
+            f"The excel file must contain a sheet called 'classes'.\n"
+            f"The file: '{excelfile}' contains the following sheets:\n"
+            f"{', '.join(df_dict.keys())}"
+        ) from None
+
+    # remove that df from the dictionary
+    df_dict.pop("classes")
+    return class_df, df_dict
 
 
 def excel2resources(
@@ -254,34 +329,34 @@ def excel2resources(
             (otherwise, it's only returned as return value)
 
     Raises:
-        BaseError: if something went wrong
+        UserError: if something went wrong
 
     Returns:
-        a tuple consisting of the "resources" section as Python list,
+        a tuple consisting of the "resources" section as a Python list,
             and the success status (True if everything went well)
     """
 
-    all_classes_df = utl.read_and_clean_excel_file(excelfile=excelfile)
+    df_dict = utl.read_and_clean_all_sheets_excel_file(excelfile=excelfile)
 
-    # validation
-    for index, row in all_classes_df.iterrows():
-        index = int(str(index))  # index is a label/index/hashable, but we need an int
-        if not check_notna(row["super"]):
-            raise BaseError(f"Sheet 'classes' of '{excelfile}' has a missing value in row {index + 2}, column 'super'")
-    if any(all_classes_df.get(lang) is not None for lang in languages):
-        warnings.warn(
-            f"The file {excelfile} uses {languages} as column titles, which is deprecated. "
-            f"Please use {[f'label_{lang}' for lang in languages]}"
-        )
+    # separate the first sheet from the dict with the other dfs
+    class_df, df_dict = _separate_classes_sheet_from_dict(df_dict=df_dict, excelfile=excelfile)
+
+    # check if the old language columns are used if they are, rename them
+    class_df = utl.rename_deprecated_lang_cols(df=class_df, excelfile=excelfile)
+
+    # check if the first sheet: "classes" is compliant to the specifications
+    _do_general_resource_excel_compliance(class_df=class_df, df_dict=df_dict, excelfile=excelfile)
 
     # transform every row into a resource
-    resources = [_row2resource(row, excelfile) for i, row in all_classes_df.iterrows()]
+    resources = [
+        _row2resource(df_row=row, excelfile=excelfile, entire_df="property_df") for i, row in class_df.iterrows()
+    ]
 
-    # write final "resources" section into a JSON file
+    # write the final "resources" section into a JSON file
     _validate_resources(resources_list=resources, excelfile=excelfile)
     if path_to_output_file:
         with open(file=path_to_output_file, mode="w", encoding="utf-8") as file:
             json.dump(resources, file, indent=4, ensure_ascii=False)
-            print('"resources" section was created successfully and written to file:', path_to_output_file)
+            print("'resources' section was created successfully and written to file:", path_to_output_file)
 
     return resources, True

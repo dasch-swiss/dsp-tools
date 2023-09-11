@@ -51,7 +51,7 @@ def read_and_clean_all_sheets_excel_file(excelfile: str) -> dict[str, pd.DataFra
         # Credits: https://stackoverflow.com/a/70537454/14414188
         with mock.patch("openpyxl.styles.fonts.Font.family.max", new=100):
             df_dict = pd.read_excel(io=excelfile, sheet_name=None)
-    df_dict = {k: clean_data_frame(df) for k, df in df_dict.items()}
+    df_dict = {k.strip(): clean_data_frame(df) for k, df in df_dict.items()}
     return df_dict
 
 
@@ -77,7 +77,7 @@ def clean_data_frame(df: pd.DataFrame) -> pd.DataFrame:
         lambda x: str(x).strip() if pd.notna(x) and regex.search(r"[\w\p{L}]", str(x), flags=regex.U) else pd.NA
     )
     # drop all the rows that are entirely empty
-    df.dropna(axis=0, how="all", inplace=True)
+    df = df.dropna(axis=0, how="all")
     return df
 
 
@@ -315,7 +315,7 @@ def col_must_or_not_empty_based_on_other_col(
         return None
 
 
-def make_error_str_missing_values_col(missing_dict: dict[str, pd.Series], excelfile) -> None:
+def create_missing_values_info_raise_error(missing_dict: dict[str, pd.Series], excelfile) -> None:
     """
     This function takes a dictionary with information regarding missing values in column.
     The key contains the column where there are values missing
@@ -361,30 +361,16 @@ def rename_deprecated_lang_cols(df: pd.DataFrame, excelfile: str) -> pd.DataFram
             f"Please use {[f'label_{lang}' for lang in languages]}"
         )
     rename_dict = dict(zip(languages, language_label_col))
-    df.rename(columns=rename_dict, inplace=True)
+    df = df.rename(columns=rename_dict)
     return df
 
 
-def do_excel_file_compliance_else_raise_error(
-    df: pd.DataFrame,
-    required_columns: set[str],
-    no_duplicate_col_name: str,
-    excelfile: str,
-) -> None:
-    """
-    This function calls two separate functions which each checks if the pd.DataFrame is as we expect it.
-    Each of these functions raises a UserError if there is a problem.
-    If the checks do not fail, this function ends without an effect.
-
-    Args:
-        df: The pd.DataFrame that is checked
-        required_columns: name of the columns that must be in the excel
-        no_duplicate_col_name: name of the column that must not contain duplicates
-        excelfile: The name of the original Excel file
-
-    Raises:
-        UserError if any of the checks fail
-    """
-    # If it does not pass any one of the tests, the function stops
-    check_contains_required_columns_else_raise_error(df=df, required_columns=required_columns, excelfile=excelfile)
-    check_column_for_duplicate_else_raise_error(df=df, to_check_column=no_duplicate_col_name, excelfile=excelfile)
+def find_missing_values_in_df(df: pd.DataFrame, required_values_columns: list[str]) -> dict[str, pd.Series or None]:
+    # TODO: maybe change this into an error raising function -> then gui_attributes have to be changed
+    # this returns a dict if there are any missing values, if there aren't the dict is empty
+    missing_dict = check_required_values(df=df, required_values_columns=required_values_columns)
+    # This returns a pd.Series if there are not at least one entry in any one column per row, else None
+    missing_labels = find_one_full_cell_in_cols(df=df, required_columns=language_label_col)
+    if missing_labels is not None:
+        missing_dict.update({"label": missing_labels})
+    return missing_dict

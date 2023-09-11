@@ -279,19 +279,13 @@ def _check_missing_values_in_row_raise_error(df: pd.DataFrame, excelfile: str) -
     """
     # Every row in these columns must have a value
     required_values = ["name", "super", "object", "gui_element"]
-    # If there are no problems, it returns an empty dict
-    missing_dict = utl.check_required_values(df=df, required_values_columns=required_values)
-    # This checks if the label columns have at least one value per row
-    missing_labels = utl.find_one_full_cell_in_cols(df=df, required_columns=language_label_col)
-    # If everything is ok, we get None, otherwise we update the dict
-    if missing_labels is not None:
-        missing_dict.update({"label": missing_labels})
+    missing_dict = utl.find_missing_values_in_df(df=df, required_values_columns=required_values)
     # Some gui_element require a gui_attributes and others must not have one
     missing_gui_attributes = _check_compliance_gui_attributes(df=df)
     if missing_gui_attributes is not None:
         missing_dict.update(missing_gui_attributes)
     if missing_dict:
-        utl.make_error_str_missing_values_col(missing_dict=missing_dict, excelfile=excelfile)
+        utl.create_missing_values_info_raise_error(missing_dict=missing_dict, excelfile=excelfile)
 
 
 def _do_property_excel_compliance(df: pd.DataFrame, excelfile: str) -> None:
@@ -325,9 +319,8 @@ def _do_property_excel_compliance(df: pd.DataFrame, excelfile: str) -> None:
         "gui_element",
         "gui_attributes",
     }
-    utl.do_excel_file_compliance_else_raise_error(
-        df=df, required_columns=required_columns, no_duplicate_col_name="name", excelfile=excelfile
-    )
+    utl.check_contains_required_columns_else_raise_error(df=df, required_columns=required_columns, excelfile=excelfile)
+    utl.check_column_for_duplicate_else_raise_error(df=df, to_check_column="name", excelfile=excelfile)
     _check_missing_values_in_row_raise_error(df=df, excelfile=excelfile)
 
 
@@ -360,7 +353,7 @@ def _rename_deprecated_hlist(df: pd.DataFrame, excelfile: str) -> pd.DataFrame:
         # In case there is a hlist, it is the only valid value in gui_attributes and has precedence
         df["hlist"] = df["hlist"].fillna(df["gui_attributes"])
         df.pop("gui_attributes")
-    df.rename(columns={"hlist": "gui_attributes"}, inplace=True)
+    df = df.rename(columns={"hlist": "gui_attributes"})
     return df
 
 

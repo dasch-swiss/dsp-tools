@@ -199,38 +199,6 @@ class TestUtils(unittest.TestCase):
         returned_df = utl.rename_deprecated_lang_cols(df=expected_df, excelfile="Test")
         assert_frame_equal(original_df, returned_df)
 
-    def test_do_excel_file_compliance_else_raise_error(self):
-        original_df = pd.DataFrame(
-            {
-                "col1": [pd.NA, "11", "111"],
-                "col2": ["2", "22", "222"],
-                "col3": ["3", "33", "333"],
-                "col4": ["4", "4", "44"],
-            }
-        )
-        utl.do_excel_file_compliance_else_raise_error(
-            df=original_df, required_columns={"col1", "col2"}, no_duplicate_col_name="col3", excelfile="Test"
-        )
-        with self.assertRaises(UserError) as context:
-            utl.do_excel_file_compliance_else_raise_error(
-                df=original_df, required_columns={"col1", "col2"}, no_duplicate_col_name="col4", excelfile="Test"
-            )
-            self.assertEqual(
-                context,
-                "The excel: '{excelfile}' contains an error.\n"
-                "The column '{to_check_column}' may not contain any duplicate values.\n"
-                "The following values appeared multiple times '{duplicate_values}'.",
-            )
-        with self.assertRaises(UserError) as context:
-            utl.do_excel_file_compliance_else_raise_error(
-                df=original_df, required_columns={"col1", "col6"}, no_duplicate_col_name="col1", excelfile="Test"
-            )
-            self.assertEqual(
-                context,
-                "The following columns are missing in the excel '{excelfile}':\n"
-                "{required_columns.difference(set(df.columns))}",
-            )
-
 
 if __name__ == "__main__":
     pytest.main([__file__])

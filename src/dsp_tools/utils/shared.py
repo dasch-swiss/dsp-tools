@@ -18,7 +18,7 @@ from requests import ReadTimeout, RequestException
 from urllib3.exceptions import ReadTimeoutError
 
 from dsp_tools.models.connection import Connection
-from dsp_tools.models.exceptions import BaseError, UserError
+from dsp_tools.models.exceptions import BaseError, DspApiError, UserError
 from dsp_tools.models.propertyelement import PropertyElement
 from dsp_tools.utils.logging import get_logger
 
@@ -159,9 +159,9 @@ def try_network_action(
             logger.error(f"{msg} {action_as_str} (retry-counter i={i})", exc_info=True)
             time.sleep(2**i)
             continue
-        except BaseError as err:
+        except (BaseError, DspApiError) as err:
             in_500_range = False
-            if err.status_code:
+            if hasattr(err, "status_code") and err.status_code:
                 in_500_range = 500 <= err.status_code < 600
             try_again_later = "try again later" in err.message
             if try_again_later or in_500_range:

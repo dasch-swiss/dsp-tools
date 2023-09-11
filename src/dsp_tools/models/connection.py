@@ -1,12 +1,12 @@
+import json
 from dataclasses import dataclass
 from datetime import datetime
-import json
 from pathlib import Path
 from typing import Any, Optional, cast
 
 import requests
 
-from dsp_tools.models.exceptions import DspApiError
+from dsp_tools.models.exceptions import BaseError, DspApiError
 
 
 def check_for_api_error(response: requests.Response) -> None:
@@ -48,9 +48,6 @@ class Connection:
     def __post_init__(self) -> None:
         """
         Create dumping directory (if applicable).
-
-        Raises:
-            BaseError: if DSP-API returns no token with the provided user credentials
         """
         if self.dump:
             self.dump_directory.mkdir(exist_ok=True)
@@ -64,17 +61,16 @@ class Connection:
             password: password of the user
 
         Raises:
-            BaseError: if DSP-API returns no token with the provided user credentials
+            DspApiError: if DSP-API returns no token with the provided user credentials
         """
         response = self.post(
             route="/v2/authentication",
             jsondata=json.dumps({"email": email, "password": password}),
         )
         if not response.get("token"):
-            raise BaseError(
-                f"Error when trying to login with user '{email}' and password '{password} "
-                f"on server '{self.server}'",
-                json_content_of_api_response=json.dumps(response),
+            raise DspApiError(
+                f"Error when trying to login in with user '{email}' and password '{password}' "
+                f"on server '{self.server}': no token received.",
                 api_route="/v2/authentication",
             )
         self.token = response["token"]

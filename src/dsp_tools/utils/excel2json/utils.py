@@ -56,7 +56,7 @@ def clean_data_frame(df: pd.DataFrame) -> pd.DataFrame:
     df = df.rename(columns=lambda x: x.strip().lower())
     # Remove the values of all cells that do not at least contain one character of any known language and removes
     # leading and trailing spaces.
-    df = df.applymap(
+    df = df.map(
         lambda x: str(x).strip() if pd.notna(x) and regex.search(r"[\w\p{L}]", str(x), flags=regex.U) else pd.NA
     )
     # drop all the rows that are entirely empty

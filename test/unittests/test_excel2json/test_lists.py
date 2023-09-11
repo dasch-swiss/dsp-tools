@@ -90,7 +90,7 @@ class TestExcelToJSONList(unittest.TestCase):
         for mode in ["monolingual", "multilingual"]:
             # create output files
             input_df = pd.read_excel(f"testdata/excel2json/lists-{mode}/de.xlsx", header=None, dtype="str")
-            input_df = input_df.applymap(
+            input_df = input_df.map(
                 lambda x: x if pd.notna(x) and regex.search(r"\p{L}", str(x), flags=regex.UNICODE) else pd.NA
             )
             input_df = input_df.dropna(axis="index", how="all")

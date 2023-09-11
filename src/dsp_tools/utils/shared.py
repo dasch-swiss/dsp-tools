@@ -319,7 +319,7 @@ def prepare_dataframe(
     new_df = df.rename(columns=lambda x: x.strip().lower())
     required_columns = [x.strip().lower() for x in required_columns]
     # strip every cell, and insert "" if there is no valid word in it
-    new_df = new_df.applymap(
+    new_df = new_df.map(
         lambda x: str(x).strip() if pd.notna(x) and regex.search(r"[\w\p{L}]", str(x), flags=regex.U) else ""
     )
     # delete rows that don't have the required columns

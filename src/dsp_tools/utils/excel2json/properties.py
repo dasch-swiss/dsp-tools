@@ -362,7 +362,7 @@ def _rename_deprecated_hlist(df: pd.DataFrame, excelfile: str) -> pd.DataFrame:
         # In case there is a hlist, it is the only valid value in gui_attributes and has precedence
         df["hlist"] = df["hlist"].fillna(df["gui_attributes"])
         df.pop("gui_attributes")
-    df.rename(columns={"hlist": "gui_attributes"}, inplace=True)
+    df = df.rename(columns={"hlist": "gui_attributes"})
     return df
 
 
@@ -392,7 +392,7 @@ def _rename_deprecated_lang_cols(df: pd.DataFrame, excelfile: str) -> pd.DataFra
             f"Please use {[f'label_{lang}' for lang in languages]}"
         )
     rename_dict = dict(zip(languages, language_label_col))
-    df.rename(columns=rename_dict, inplace=True)
+    df = df.rename(columns=rename_dict)
     return df
 
 

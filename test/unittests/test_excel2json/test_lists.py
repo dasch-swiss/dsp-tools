@@ -93,7 +93,7 @@ class TestExcelToJSONList(unittest.TestCase):
             input_df = input_df.map(
                 lambda x: x if pd.notna(x) and regex.search(r"\p{L}", str(x), flags=regex.UNICODE) else pd.NA
             )
-            input_df.dropna(axis="index", how="all", inplace=True)
+            input_df = input_df.dropna(axis="index", how="all")
             excelfolder = f"testdata/excel2json/lists-{mode}"
             outfile = f"testdata/tmp/lists_output_{mode}.json"
             output_from_method, _ = e2l.excel2lists(excelfolder=excelfolder, path_to_output_file=outfile)

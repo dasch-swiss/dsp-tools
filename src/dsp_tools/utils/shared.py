@@ -180,9 +180,9 @@ def try_network_action(
             logger.error(f"{msg} {action_as_str} (retry-counter i={i})", exc_info=True)
             time.sleep(2**i)
             continue
-        except (BaseError, DspApiError) as err:
+        except BaseError as err:
             in_500_range = False
-            if hasattr(err, "status_code") and err.status_code:
+            if isinstance(err, DspApiError) and err.status_code:  # pylint: disable=no-member
                 in_500_range = 500 <= err.status_code < 600
             try_again_later = "try again later" in err.message
             if try_again_later or in_500_range:

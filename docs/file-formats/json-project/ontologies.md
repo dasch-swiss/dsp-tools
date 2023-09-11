@@ -437,7 +437,7 @@ See the [xmlupload documentation](../xml-data-file.md#the-integer-prop-element) 
 
 *gui_elements / gui_attributes*:
 
-- `Spinbox`: A GUI element for *IntegerValue*. A text field with and an "up" and a "down" 
+- `Spinbox`: A GUI element for *IntValue*. A text field with and an "up" and a "down" 
   button for increment/decrement.
     - *gui_attributes*:
         - `max=decimal` (mandatory): Maximal value
@@ -804,7 +804,7 @@ number of the image inside the compound object. Apart from this, `seqnum` is lik
 
 *gui_elements / gui_attributes*:
 
-- `Spinbox`: A GUI element for *IntegerValue*. A text field with and an "up" and a "down" 
+- `Spinbox`: A GUI element for *IntValue*. A text field with and an "up" and a "down" 
   button for increment/decrement.
     - *gui_attributes*:
         - `max=decimal` (mandatory): Maximal value

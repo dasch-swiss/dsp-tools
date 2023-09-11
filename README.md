@@ -27,8 +27,8 @@ More details can be found in the
 
 ## Quick Start
 
-To get started quickly, without reading the details, just execute these commands (a prior installation of 
-[homebrew](https://brew.sh/) is required):
+To get started quickly, without reading the details, just execute these commands 
+(a prior installation of [Homebrew](https://brew.sh/) is required):
 
 - `curl -sSL https://install.python-poetry.org | python3 -`
 - `poetry self add poetry-exec-plugin`

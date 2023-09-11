@@ -8,7 +8,7 @@ import time
 import unicodedata
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Callable, Optional, TypeGuard, Union, cast
+from typing import Any, Callable, Iterable, Optional, TypeGuard, TypeVar, Union, cast
 
 import pandas as pd
 import regex
@@ -23,6 +23,27 @@ from dsp_tools.models.propertyelement import PropertyElement
 from dsp_tools.utils.logging import get_logger
 
 logger = get_logger(__name__)
+
+
+T = TypeVar("T")
+
+
+def make_chunks(lst: list[T], length: int) -> Iterable[list[T]]:
+    """
+    Split a list into length-sized chunks.
+    If length is greater than the length of the list,
+    the result will have only 1 chunk.
+
+    Args:
+        lst: list
+        length: length of the chunks
+
+    Yields:
+        chunks
+    """
+    length = min(length, len(lst))
+    for i in range(0, len(lst), length):
+        yield lst[i : i + length]
 
 
 def login(
@@ -298,7 +319,7 @@ def prepare_dataframe(
     new_df = df.rename(columns=lambda x: x.strip().lower())
     required_columns = [x.strip().lower() for x in required_columns]
     # strip every cell, and insert "" if there is no valid word in it
-    new_df = new_df.applymap(
+    new_df = new_df.map(
         lambda x: str(x).strip() if pd.notna(x) and regex.search(r"[\w\p{L}]", str(x), flags=regex.U) else ""
     )
     # delete rows that don't have the required columns

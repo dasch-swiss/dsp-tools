@@ -1897,7 +1897,7 @@ def _validate_and_prepare_cli_input_file(dataframe: pd.DataFrame) -> pd.DataFram
         )
 
     # replace NA-like cells by NA
-    dataframe = dataframe.applymap(
+    dataframe = dataframe.map(
         lambda x: x if pd.notna(x) and regex.search(r"[\p{L}\d_!?\-]", str(x), flags=regex.U) else pd.NA
     )
 

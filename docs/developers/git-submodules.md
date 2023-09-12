@@ -1,6 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# Git submodules
+# Git Submodules
 
 This repository embeds 
 [https://github.com/dasch-swiss/00A1-import-scripts](https://github.com/dasch-swiss/00A1-import-scripts) 
@@ -10,7 +10,7 @@ as usual, `src/dsp_tools/import_scripts` will be empty.
 
 
 
-## Rationale to use a git submodule
+## Rationale to Use a Git Submodule
 
 The code of the `00A1-import-scripts` repository is closely related to the documentation of the `excel2xml` module. 
 When something changes in `excel2xml`, the changes need not only be reflected in the docs, but also in 
@@ -28,7 +28,7 @@ will access these files via GitHub, and not via the distributed code. For this r
 
 
 
-## Passively using the contents of the submodule
+## Passively Using the Contents of the Submodule
 
 If you don't have a clone of DSP-TOOLS yet, clone it with 
 
@@ -67,19 +67,19 @@ Some notes:
 
 
 
-## Renaming a parent directory of the submodule
+## Renaming a Parent Directory of the Submodule
 
 Renaming a parent directory of the submodule should be done with `git mv old-name new-name`, so that git won't be 
-confused that the path to the submodule changed. If this doesn't help, it might be necessary to manually modify 
+confused that the path to the submodule changed. If this doesn't help, it might be necessary to manually modify: 
 
-- the `gitdir` in `src/dsptools/import_scripts/.git`
-- the `path` in `.gitmodules`, and the name of the submodule in the title of that file
-- the `worktree` entry in `.git/modules/src/dsptools/import_scripts/config` and the affected folder names in 
-  the path containing that file
+- the `gitdir` in `src/dsptools/import_scripts/.git`,
+- the `path` in `.gitmodules`, and the name of the submodule in the title of that file,
+- the `worktree` entry in `.git/modules/knora/dsplib/import_scripts/config` and the affected folder names in 
+  the path containing that file.
 
 
 
-## Actively working with the contents of the submodule
+## Actively Working with the Contents of the Submodule
 
 After retrieving the contents of a submodule as described in the paragraph above, 
 it is in "detached HEAD" state. 
@@ -102,7 +102,7 @@ git push origin feature-branch        # push to origin of dsp-tools
 
 When switching between branches, there are two options:
 
-1. By default (`submodule.recurse` is false AND branches are switched with `git checkout <branch>`), the contents of 
+1. By default, (`submodule.recurse` is false AND branches are switched with `git checkout <branch>`), the contents of 
    submodules will not be updated.
 2. If `submodule.recurse` has been set to true, OR if branches are switched with `git checkout <branch> 
     --recurse-submodules`, the contents of submodules will be updated according to the commit recorded in the 

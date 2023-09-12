@@ -1,12 +1,12 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# Security checks
+# Security Checks
 
 ## [Bandit](https://pypi.org/project/bandit/)
 
 Finds common security issues in Python code.
 For every single file, Bandit builds an AST, and runs plugins (i.e. tests) against the AST nodes.
-Bandit supports many different plugins (i.e. tests) to detect various security issues. 
+Bandit supports many plugins (i.e. tests) to detect various security issues. 
 
 ## [Dependabot](https://docs.github.com/en/code-security/dependabot)
 

@@ -1,6 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# How to maintain the `start-stack` command
+# Maintaining the `start-stack` Command
 
 The [start-stack command](../cli-commands.md#start-stack) 
 starts Docker containers of DSP-API and DSP-APP, 

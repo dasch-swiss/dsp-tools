@@ -1,13 +1,13 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# Python linting
+# Python Linting
 
-## Existing linters
+## Existing Linters
 
 ### [Pylint](https://pypi.org/project/pylint/)
 
 Checks Python code against a very broad list of rules, 
-some of which are purley formatting oriented, 
+some of which are purely formatting oriented, 
 but some of which are very sophisticated code smell and error detectors.
 Pylint is very slow, but perhaps the most thorough linter around. 
 A big plus is that it makes an inference of actual types, 

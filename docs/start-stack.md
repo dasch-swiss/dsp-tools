@@ -1,6 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# Run the DSP stack on your local machine 
+# Run the DSP Stack on Your Local Machine 
 
 DSP-API is the heart of the DaSCH service platform. 
 It is a server application for archiving data from the Humanities. 
@@ -25,7 +25,7 @@ Here's an overview of the two ways:
 
 
 
-## Simple way: `dsp-tools start-stack`
+## The Simple Way: `dsp-tools start-stack`
 
 The [`start-stack`](./cli-commands.md#start-stack) command runs Docker images 
 with the latest released versions of DSP-API and DSP-APP, 
@@ -46,7 +46,7 @@ Some notes:
 
 
 
-### When should I restart DSP-API?
+### When Should I Restart the DSP-API?
 
 After creating a data model and adding some data into your local DSP stack, 
 you can work on DSP as if it was the live platform. 
@@ -62,7 +62,7 @@ But after some uploads, DSP is cluttered with data, so you might want to restart
 
 
 
-## Advanced way
+## The Advanced Way
 
 If you want to run a specific branch of DSP-API / DSP-APP, or to modify them yourself, you need to:
 

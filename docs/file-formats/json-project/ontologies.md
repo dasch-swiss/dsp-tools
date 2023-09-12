@@ -1,6 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# The "ontologies" array of a JSON project
+# The `ontologies` Array of a JSON Project
 
 An ontology is a formal representation of a set of terms which represent real world objects.
 Dependencies, attributes and relations of and between the individual components of the set are recorded in a logical,
@@ -26,7 +26,7 @@ resource or not. The cardinality definitions are explained [further below](#reso
 
 
 
-## The ontology object in detail
+## The `ontology` Object
 
 Example of an ontology object:
 
@@ -46,7 +46,7 @@ Example of an ontology object:
 
 
 
-### Ontology: Name
+### Ontology: `name`
 
 (required)
 
@@ -57,7 +57,7 @@ means a string without blanks or special characters but `-` and `_` are allowed 
 
 
 
-### Ontology: Label
+### Ontology: `label`
 
 (required)
 
@@ -67,7 +67,7 @@ A string that provides the full name of the ontology.
 
 
 
-### Ontology: Comment
+### Ontology: `comment`
 
 (optional)
 
@@ -77,7 +77,7 @@ A string that provides a comment to the ontology.
 
 
 
-### Ontology: Properties
+### Ontology: `properties`
 
 (required)
 
@@ -100,11 +100,11 @@ The following fields are optional:
 - `subject`
 - `gui_attributes`
 
-A detailed description of `properties` can be found [below](#the-property-object-in-detail).
+A detailed description of `properties` can be found [below](#the-property-object).
 
 
 
-### Ontology: Resources
+### Ontology: `resources`
 
 (required)
 
@@ -126,14 +126,14 @@ The following field is optional:
 
 - `comments` 
 
-A detailed description of `resources` can be found [below](#the-resource-object-in-detail).
+A detailed description of `resources` can be found [below](#the-resource-object).
 
 (*It is technically possible to have a resource without cardinalities,
 but in most cases it doesn't make sense to omit them.)
 
 
 
-## The property object in detail
+## The `property` Object
 
 ```json
 {
@@ -158,7 +158,7 @@ but in most cases it doesn't make sense to omit them.)
 
 
 
-### Property: Name
+### Property: `name`
 
 (required)
 
@@ -172,7 +172,7 @@ By convention, property names start with a lower case letter.
 
 
 
-### Property: Labels
+### Property: `label`
 
 (required)
 
@@ -183,17 +183,18 @@ and "rm" are supported).
 
 
 
-### Property: Comments
+### Property: `comments`
 
 (optional)
 
 `"comments": { "<lang>": "<comment>", "<lang>": "<comment>", ... }`
 
-Comments with language tags. Currently, "de", "en", "fr", "it", and "rm" are supported. The `comments` element is optional.
+Comments with language tags. Currently, "de", "en", "fr", "it", and "rm" are supported. 
+The `comments` element is optional.
 
 
 
-### Property: Super
+### Property: `super`
 
 (required)
 
@@ -206,16 +207,19 @@ super-property:
 - properties defined in external ontologies
 - properties defined in the project ontology itself
 
-The syntax how to refer to these different groups of properties is described [here](./caveats.md#referencing-ontologies).
+The syntax how to refer to these different groups of properties is described [here]
+(./caveats.md#referencing-ontologies).
 
 The following DSP base properties are available:
 
-- `hasValue`: This is the most general case, to be used in all cases when your property is none of the special cases below.
+- `hasValue`: This is the most general case, 
+  to be used in all cases when your property is none of the special cases below.
 - `hasLinkTo`: a link to another resource
 - `isPartOf`: A special variant of `hasLinkTo`. It says that an instance of the given resource class is an integral part
   of another resource class. E.g. a "page" is part of a "book".
-- `seqnum`: An integer that is used to define a sequence number in an ordered set of instances, e.g. the ordering of the
-  pages in a book. A resource that has a property derived from `seqnum` must also have a property derived from `isPartOf`.
+- `seqnum`: An integer that is used to define a sequence number in an ordered set of instances, 
+  e.g. the ordering of the pages in a book. 
+  A resource that has a property derived from `seqnum` must also have a property derived from `isPartOf`.
 - `hasColor`: Defines a color value.  
 - `hasComment`: Defines a standard comment.
 - `isSequenceOf`: A special variant of `hasLinkTo`. It says that an instance of the given resource class is a section 
@@ -225,7 +229,7 @@ The following DSP base properties are available:
 
 
 
-### Property: Subject
+### Property: `subject`
 
 (optional)
 
@@ -236,7 +240,7 @@ resource class (see [here](./caveats.md#referencing-ontologies) on how prefixed 
 
 
 
-### Property: object, gui_element, gui_attributes
+### Property: `object`, `gui_element`, `gui_attributes`
 
 These three are related as follows:
 
@@ -246,33 +250,33 @@ These three are related as follows:
 
 #### Overview
 
-| DSP base property (`super`) | `object`                                                            | `gui_element`                        |
-| --------------------------- | ------------------------------------------------------------------- | ------------------------------------ |
-| hasValue                    | BooleanValue                                                        | Checkbox                             |
-| hasColor                    | ColorValue                                                          | Colorpicker                          |
-| hasValue                    | DateValue                                                           | Date                                 |
-| hasValue                    | DecimalValue                                                        | Spinbox, <br>SimpleText              |
-| hasValue                    | GeonameValue                                                        | Geonames                             |
-| hasValue                    | IntValue                                                            | Spinbox, <br>SimpleText              |
-| hasValue                    | ListValue                                                           | List                                 |
-| hasValue                    | TextValue                                                           | SimpleText,<br>Textarea,<br>Richtext |
-| hasComment                  | TextValue                                                           | SimpleText                           |
-| hasValue                    | TimeValue                                                           | TimeStamp                            |
-| hasValue                    | UriValue                                                            | SimpleText                           |
-| hasLinkTo                   | (resourceclass)                                                     | Searchbox                            |
-| hasRepresentation           | Representation                                                      | Searchbox                            |
-| isPartOf                    | (resourceclass)                                                     | Searchbox                            |
-| seqnum                      | IntValue                                                            | Spinbox, <br>SimpleText              |
-| isSequenceOf                | (AudioRepresentation,<br>MovingImageRepresentation,<br>or subclass) | Searchbox                            |
-| hasSequenceBounds           | IntervalValue                                                       | Interval                             |
+| DSP base property (`super`) | `object`                                                           | `gui_element`                          |
+| --------------------------- | ------------------------------------------------------------------ | -------------------------------------- |
+| hasValue                    | BooleanValue                                                       | Checkbox                               |
+| hasColor                    | ColorValue                                                         | Colorpicker                            |
+| hasValue                    | DateValue                                                          | Date                                   |
+| hasValue                    | DecimalValue                                                       | Spinbox, <br>SimpleText                |
+| hasValue                    | GeonameValue                                                       | Geonames                               |
+| hasValue                    | IntValue                                                           | Spinbox, <br>SimpleText                |
+| hasValue                    | ListValue                                                          | List                                   |
+| hasValue                    | TextValue                                                          | SimpleText, <br>Textarea, <br>Richtext |
+| hasComment                  | TextValue                                                          | SimpleText                             |
+| hasValue                    | TimeValue                                                          | TimeStamp                              |
+| hasValue                    | UriValue                                                           | SimpleText                             |
+| hasLinkTo                   | (resourceclass)                                                    | Searchbox                              |
+| hasRepresentation           | Representation                                                     | Searchbox                              |
+| isPartOf                    | (resourceclass)                                                    | Searchbox                              |
+| seqnum                      | IntValue                                                           | Spinbox, <br>SimpleText                |
+| isSequenceOf                | (AudioRepresentation, <br>MovingImageRepresentation, <br>subclass) | Searchbox                              |
+| hasSequenceBounds           | IntervalValue                                                      | Interval                               |
 
 
-#### BooleanValue
+#### `BooleanValue`
 
 `"object": "BooleanValue"`
 
-Represents a Boolean ("true" or "false"). See the [xmlupload documentation](../xml-data-file.md#boolean-prop)
-for more information.
+Represents a Boolean ("true" or "false"). 
+See the [xmlupload documentation](../xml-data-file.md#boolean-prop) for more information.
 
 *gui_elements / gui_attributes*:
 
@@ -296,12 +300,12 @@ Example:
 ```
 
 
-#### ColorValue
+#### `ColorValue`
 
 `"object": "ColorValue"`
 
-A string representation of a color in the hexadecimal form. See the 
-[xmlupload documentation](../xml-data-file.md#color-prop) for more information.
+A string representation of a color in the hexadecimal form. 
+See the [xmlupload documentation](../xml-data-file.md#color-prop) for more information.
 
 *gui_elements / gui_attributes*:
 
@@ -326,12 +330,12 @@ Example:
 ```
 
 
-#### DateValue
+#### `DateValue`
 
 `object": "DateValue"`  
 
-Represents a date. It's a string with the format `calendar:start:end`. See the 
-[xmlupload documentation](../xml-data-file.md#date-prop) for more information.
+Represents a date. It's a string with the format `calendar:start:end`. 
+See the [xmlupload documentation](../xml-data-file.md#date-prop) for more information.
 
 *gui_elements / gui_attributes*:
 
@@ -355,16 +359,16 @@ Example:
 ```
 
 
-#### DecimalValue
+#### `DecimalValue`
 
 `"object": "DecimalValue"`
 
-A number with decimal point. See the [xmlupload documentation](../xml-data-file.md#decimal-prop) for more 
-information.
+A number with decimal point. 
+See the [xmlupload documentation](../xml-data-file.md#decimal-prop) for more information.
 
 *gui_elements / gui_attributes*:
 
-- `Spinbox`: Provides a spinbox to select a decimal value.
+- `Spinbox`: Provides a Spinbox to select a decimal value.
     - *gui_attributes*:
         - `max=decimal` (mandatory): maximal value
         - `min=decimal` (mandatory): minimal value
@@ -394,12 +398,12 @@ Example:
 ```
 
 
-#### GeonameValue
+#### `GeonameValue`
 
 `"object": "GeonameValue"`
 
-Represents a location ID of [geonames.org](https://www.geonames.org). See the 
-[xmlupload documentation](../xml-data-file.md#geoname-prop) for more information.
+Represents a location ID of [geonames.org](https://www.geonames.org). 
+See the [xmlupload documentation](../xml-data-file.md#geoname-prop) for more information.
 
 *gui_elements / gui_attributes*:
 
@@ -424,18 +428,20 @@ Example:
 ```
 
 
-#### IntValue
+#### `IntValue`
 
 `"object": "IntValue"`
 
-Represents an integer value. See the [xmlupload documentation](../xml-data-file.md#integer-prop) for more information.
+Represents an integer value. 
+See the [xmlupload documentation](../xml-data-file.md#integer-prop) for more information.
 
 *gui_elements / gui_attributes*:
 
-- `Spinbox`: A GUI element for *IntegerValue*. A text field with and an "up" and a "down" button for increment/decrement.
+- `Spinbox`: A GUI element for *IntValue*. 
+  A text field with and an "up" and a "down" button for increment/decrement.
     - *gui_attributes*:
-        - `max=decimal` (optional): Maximal value
-        - `min=decimal` (optional): Minimal value
+        - `max=decimal` (mandatory): Maximal value
+        - `min=decimal` (mandatory): Minimal value
 - `SimpleText`: A simple text entry box (one line only). 
     - *gui_attributes*:
         - `maxlength=integer` (optional): The maximum number of characters accepted
@@ -462,21 +468,21 @@ Example:
 ```
 
 
-#### ListValue
+#### `ListValue`
 
 `"object": "ListValue"`
 
 Represents a node of a (possibly hierarchical) list. 
-See the [xmlupload documentation](../xml-data-file.md#list-prop) 
-for more information.
+See the [xmlupload documentation](../xml-data-file.md#list-prop) for more information.
 
 *gui_elements / gui_attributes*:
 
 - `List`: A GUI element for *ListValue*. A dropdown to select a list node.
     - *gui_attributes*:
-        - `hlist=<list-name>` (required): The name of a list defined in the ["lists" section](./overview.md#lists).
+        - `hlist=<list-name>` (required): 
+          The name of a list defined in the [`lists` section](./overview.md#lists).
 - `Radio` and `Pulldown` are allowed, too, 
-  but they don't have a different behaviour than `List`. 
+  but they don't have a different behavior than `List`. 
   It is recommended to use `List`.
 
 
@@ -500,12 +506,12 @@ Example:
 ```
 
 
-#### TextValue
+#### `TextValue`
 
 `"object": "TextValue"`
 
-Represents a text that may contain standoff markup. See the [xmlupload documentation](../xml-data-file.md#text-prop) 
-for more information.
+Represents a text that may contain standoff markup. 
+See the [xmlupload documentation](../xml-data-file.md#text-prop) for more information.
 
 *gui_elements / gui_attributes*:
 
@@ -543,7 +549,7 @@ Example:
 ```
 
 
-#### hasComment property
+#### `hasComment` Property
 
 `"object": "TextValue"`
 
@@ -568,7 +574,7 @@ Example:
 ```
 
 
-#### TimeValue
+#### `TimeValue`
 
 `"object": "TimeValue"`
 
@@ -597,7 +603,7 @@ Example:
 ```
 
 
-#### UriValue
+#### `UriValue`
 
 `"object": "UriValue"`
 
@@ -631,17 +637,17 @@ Example:
 ```
 
 
-### Link-properties
+### Link-Properties
 
-Link properties do not follow the pattern of the previous data types, because they do not connect to a final value but 
+Link-properties do not follow the pattern of the previous data types, because they do not connect to a final value but 
 to an existing resource. Thus, the `object` denominates the resource class the link will point to.
 
 
-#### hasLinkTo Property
+#### `hasLinkTo` Property
 
 `"object": "<resourceclass>"`
 
-The most basic kind of link property is the `hasLinkTo` property. Its "super" element has to be `hasLinkTo` or derived 
+The most basic kind of link-property is the `hasLinkTo` property. Its "super" element has to be `hasLinkTo` or derived 
 from `hasLinkTo`. There are different groups of resource classes that can be the object:
 
 - project resources: a resource class defined in the present ontology itself
@@ -676,7 +682,7 @@ Example:
 ```
 
 
-#### hasRepresentation Property
+#### `hasRepresentation` Property
 
 `"object": "Representation"`
 
@@ -711,7 +717,7 @@ Example:
 ```
 
 
-#### isPartOf Property
+#### `isPartOf` Property
 
 `"object": "<resourceclass>"`
 
@@ -726,7 +732,7 @@ e.g. to leaf through pages of a book.
 The DSP base properties `isPartOf` and `seqnum` 
 can be used to derive a custom property from them, 
 or they can be used directly as cardinalities in a resource. 
-The example belows shows both possibilities.
+The example below shows both possibilities.
 
 *gui_elements/gui_attributes*:
 
@@ -788,7 +794,7 @@ Example:
 ```
 
 
-#### seqnum Property
+#### `seqnum` Property
 
 `"object": "IntValue"`
 
@@ -798,10 +804,11 @@ number of the image inside the compound object. Apart from this, `seqnum` is lik
 
 *gui_elements / gui_attributes*:
 
-- `Spinbox`: A GUI element for *IntegerValue*. A text field with and an "up" and a "down" button for increment/decrement.
+- `Spinbox`: A GUI element for *IntValue*. 
+  A text field with and an "up" and a "down" button for increment/decrement.
     - *gui_attributes*:
-        - `max=decimal` (optional): Maximal value
-        - `min=decimal` (optional): Minimal value
+        - `max=decimal` (mandatory): Maximal value
+        - `min=decimal` (mandatory): Minimal value
 - `SimpleText`: A simple text entry box (one line only). 
     - *gui_attributes*:
         - `maxlength=integer` (optional): The maximum number of characters accepted
@@ -810,7 +817,7 @@ number of the image inside the compound object. Apart from this, `seqnum` is lik
 Example: See the [isPartOf Property](#ispartof-property) above.
 
 
-#### isSequenceOf Property
+#### `isSequenceOf` Property
 
 `"object": <AudioRepresentation/MovingImageRepresentation or a subclass of one of them>`
 
@@ -883,7 +890,7 @@ Example:
 ```
 
 
-#### hasSequenceBounds Property
+#### `hasSequenceBounds` Property
 
 `"object": "IntervalValue"`
 
@@ -919,7 +926,7 @@ Example:
 
 
 
-## The resource object in detail
+## The `resource` Object
 
 ```json
 {
@@ -959,7 +966,7 @@ Example:
 
 
 
-### Resource: Name
+### Resource: `name`
 
 (required)
 
@@ -973,7 +980,7 @@ By convention, resource names start with an upper case letter.
 
 
 
-### Resource: Labels
+### Resource: `labels`
 
 (required)
 
@@ -984,7 +991,7 @@ and "rm" are supported).
 
 
 
-### Resource: Super
+### Resource: `super`
 
 (required)
 
@@ -1017,7 +1024,7 @@ The following base resources can be used as super-resource:
 
 
 
-### Resource: Cardinalities
+### Resource: `cardinalities`
 
 (required*)
 
@@ -1058,10 +1065,11 @@ but in most cases it doesn't make sense to omit them.)
 
 
 
-### Resource: Comments
+### Resource: `comments`
 
 (optional)
 
 `"comments": { "<lang>": "<comment>", "<lang>": "<comment>", ... }`
 
-Comments with language tags. Currently, "de", "en", "fr", "it", and "rm" are supported. The `comments` element is optional.
+Comments with language tags. Currently, "de", "en", "fr", "it", and "rm" are supported. 
+The `comments` element is optional.

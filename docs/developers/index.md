@@ -1,6 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# Developers documentation
+# Developers Documentation
 
 These pages contain important background information 
 for developers of the DSP-TOOLS code repository, 

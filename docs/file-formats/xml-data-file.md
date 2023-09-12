@@ -1,6 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# The XML file format for importing data
+# The XML File Format for Importing Data
 
 With the [`xmlupload`](../cli-commands.md#xmlupload) command, 
 data can be imported into a DSP repository (on a DSP server) from an XML file. 
@@ -19,7 +19,7 @@ The import file must start with the standard XML header:
 ```
 
 
-## The root element &lt;knora&gt;
+## The Root Element `<knora>`
 
 The `<knora>` element describes all resources that should be imported. It has the following attributes:
 
@@ -27,7 +27,7 @@ The `<knora>` element describes all resources that should be imported. It has th
 - `xmlns:xsi`: URL to the XML Schema instance namespace of W3C (required, always the same)
 - `xsi:schemaLocation`: URL to the DSP XML schema, located in the DSP-TOOLS GitHub repository (required, always the same)
 - `shortcode`: project shortcode, e.g. "0801" (required, dependent on the project)
-- `default-ontology`: name of the ontology (required, dependent on the projet)
+- `default-ontology`: name of the ontology (required, dependent on the project)
 
 The `<knora>` element may look as follows:
 
@@ -48,7 +48,7 @@ The `<knora>` element can only contain the following sub-elements:
 - `<resource>`
 
 
-## The DSP permissions
+## DSP Permissions
 
 The DSP server provides access control for every resource and every property.
 
@@ -87,7 +87,7 @@ A group can have exactly one of these rights:
 Every right of this row includes all previous rights.
 
 
-### Defining permissions with the `<permissions>` element
+### Defining Permissions With the `<permissions>` Element
 
 The `<permissions>` element defines a _permission ID_ that can subsequently be used in a 
 [permissions attribute](#using-permissions-with-the-permissions-attribute) of a `<resource>` or `<xyz-prop>` tag.
@@ -106,7 +106,8 @@ The `<permissions>` element defines which rights are given to which groups:
 </permissions>
 ```
 
-In addition to the DSP built-in groups, [project specific groups](./json-project/overview.md#groups) are supported as well.
+In addition to the DSP built-in groups, [project specific groups](./json-project/overview.md#groups) 
+are supported as well.
 A project specific group name has the form `project-shortname:groupname`.
 
 If you don't want a group to have access at all, leave it out. In the following example, resources or properties with 
@@ -119,7 +120,7 @@ permission `special-permission` can only be viewed by `ProjectAdmin`s:
 ```
 
 
-### Using permissions with the `permissions` attribute
+### Using Permissions With the `permissions` Attribute
 
 Once defined, the permission IDs can be used as `permissions` attribute
 in the `<resource>` and `<xyz-prop>` tags.
@@ -148,7 +149,7 @@ To take as example `KnownUser`, i.e. a logged-in user who is not member of the p
   upwards are able to look at the image.
 
 
-## Describing resources with the &lt;resource&gt; element
+## Describing Resources With the `<resource>` Element
 
 A `<resource>` element contains all necessary information to create a resource. It has the following attributes:
 
@@ -223,7 +224,7 @@ Notes:
 
 - There is only _one_ `<bitstream>` element allowed per representation.
 - The `<bitstream>` element must be the first element.
-- By default, the path is relative to the working directory where `dsp-tools xmlupload` is executed in. This behaviour 
+- By default, the path is relative to the working directory where `dsp-tools xmlupload` is executed in. This behavior 
   can be modified with the flag [`--imgdir`](../cli-commands.md#xmlupload). If you keep the default,
   it is recommended to choose the project folder as working directory, `my_project` in the example below:
 
@@ -340,7 +341,7 @@ Attributes:
 
 #### `<date>`
 
-the `<date>` element contains a DSP-specific date value. It has the following format:
+The `<date>` element contains a DSP-specific date value. It has the following format:
 
 ```text
 calendar:epoch:yyyy-mm-dd:epoch:yyyy-mm-dd
@@ -385,7 +386,8 @@ Example of a property with a public and a hidden date value:
 
 ### `<decimal-prop>`
 
-The `<decimal-prop>` element is used for decimal values. It must contain at least one `<decimal>` element.
+The `<decimal-prop>` element is used for decimal values.
+It must contain at least one `<decimal>` element.
 
 Attributes:
 
@@ -394,7 +396,7 @@ Attributes:
 
 #### `<decimal>`
 
-The `<decimal>` element contains a decimal number.
+The `<decimal>` element contains a decimal number, they must be written with a decimal point `.` as a separator.
 
 Attributes:
 
@@ -415,7 +417,8 @@ Example of a property with a public and a hidden decimal value:
 ### `<geometry-prop>`
 
 The `<geometry-prop>` element is used for a geometric definition of a 2-D region (e.g. a region on an image). It must
-contain at least one `<geometry>` element. A `<geometry-prop>` can only be used inside a [`<region>` tag](#region). 
+contain at least one `<geometry>` element. A `<geometry-prop>` can only be used inside a 
+[`<region>` tag](#region). 
 
 Attributes:
 
@@ -493,8 +496,8 @@ that were defined above:
 
 ### `<geoname-prop>`
 
-The `<geoname-prop>` element is used for values that contain a [geonames.org](https://www.geonames.org/) ID. It must contain
-at least one `<geoname>` element.
+The `<geoname-prop>` element is used for values that contain a [geonames.org](https://www.geonames.org/) ID. 
+It must contain at least one `<geoname>` element.
 
 Attributes:
 
@@ -523,7 +526,8 @@ Example of a property with a public link to Vienna and a hidden link to Basel:
 
 ### `<integer-prop>`
 
-The `<integer-prop>` element is used for integer values. It must contain at least one `<integer>` element.
+The `<integer-prop>` element is used for integer values.
+It must contain at least one `<integer>` element.
 
 Attributes:
 
@@ -532,7 +536,7 @@ Attributes:
 
 #### `<integer>`
 
-The `<integer>` element contains an integer value.
+The `<integer>` element contains an integer value, these are whole numbers.
 
 Attributes:
 
@@ -554,7 +558,7 @@ Example of a property with a public and a hidden integer value:
 
 The `<interval-prop>` element is used for intervals with a start and an end point on a timeline, 
 e.g. relative to the beginning of an audio or video file. 
-An `<interval-prop>`  must contain at least one `<interval>` element.
+An `<interval-prop>` must contain at least one `<interval>` element.
 
 Attributes:
 
@@ -563,9 +567,10 @@ Attributes:
 
 #### `<interval>`
 
-A time interval is represented by plain decimal numbers (=seconds), without a special notation for minutes and hours. 
-The `<interval>` element contains two decimals separated by a colon (`:`). The places before the decimal point are 
-seconds, and the places after the decimal points are fractions of a second.
+A time interval is represented by plain decimal numbers in seconds, without a special notation for minutes and hours. 
+The `<interval>` element contains two decimals (written with a decimal point `.`) 
+separated by a colon (`:`). The values before the decimal point are seconds, 
+and the values after the decimal points are fractions of a second.
 
 Attributes:
 
@@ -635,7 +640,8 @@ Attributes:
   (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
-Example of a property with a public link to `<resource id="res_1" ...>` and a hidden link to and `<resource id="res_2" ...>`:
+Example of a property with a public link to `<resource id="res_1" ...>` 
+and a hidden link to `<resource id="res_2" ...>`:
 
 ```xml
 <resptr-prop name=":hasReferenceTo">
@@ -687,10 +693,10 @@ contains a link to  the resource `http://rdfh.ch/4123/nyOODvYySV2nJ5RWRdmOdQ`, w
 `gui_element` ([defined in the ontology](./json-project/ontologies.md#textvalue))
 as follows:
 
-| `gui_element`<br/>(JSON ontology) | `encoding`<br/>(XML data) | 
+| `gui_element`<br/>(JSON ontology) | `encoding`<br/>(XML data) |
 | --------------------------------- | ------------------------- |
-| `SimpleText`                      | `utf8`                    | 
-| `Textarea`                        | `utf8`                    | 
+| `SimpleText`                      | `utf8`                    |
+| `Textarea`                        | `utf8`                    |
 | `Richtext`                        | `xml`                     |
 
 Handling of pretty-print whitespaces and newlines:
@@ -698,28 +704,29 @@ Handling of pretty-print whitespaces and newlines:
 - encoding `utf8`: 
     - leading and trailing whitespaces are removed
     - multiple spaces are replaced by a single space
-    - (multiple) tabstops are replaced by a single space
+    - (multiple) tab stops are replaced by a single space
 - encoding `xml`:
     - leading and trailing whitespaces are removed
     - whitespaces and newlines don't have a meaning in XML, so they are removed. 
-    - Newlines can be created with `<br/>`.
-    - Whitespaces are kept only inside `<code>` and `<pre>` tags.
+    - newlines can be created with `<br/>`.
+    - whitespaces are kept only inside `<code>` and `<pre>` tags.
 
 
-#### Special characters: Overview
+#### Special Characters: Overview
 
 Depending on the encoding of your text,
 special characters behave differently.
 There are two places where this must be taken into account:
 
-- When a string is passed to [`excel2xml.make_text_prop()`](../excel2xml-module.md#special-characters-in-text-properties)
+- When a string is passed to 
+  [`excel2xml.make_text_prop()`](../excel2xml-module.md#special-characters-in-text-properties)
 - When a string is written by hand into an XML file
 
 In the tables below,
 the second column is the output of the first column,
 and the third column is how DSP-APP displays the second column.
 
-Behaviour of simple text (`SimpleText`/`Textarea` + `utf8`):
+Behavior of simple text (`SimpleText`/`Textarea` + `utf8`):
 
 | input to `excel2xml` | XML file | DSP-APP | Remarks                                      |
 | -------------------- | -------- | ------- | -------------------------------------------- |
@@ -734,7 +741,7 @@ Behaviour of simple text (`SimpleText`/`Textarea` + `utf8`):
 |                      | `<tag>`  | ⛔      | forbidden: Simple text is not rich text      |
 
 
-Behaviour of text with markup (`Richtext` + `xml`):
+Behavior of text with markup (`Richtext` + `xml`):
 
 | input to `excel2xml`  | XML file            | DSP-APP       | Remarks                                   |
 | --------------------- | ------------------- | ------------- | ----------------------------------------- |
@@ -752,7 +759,7 @@ Behaviour of text with markup (`Richtext` + `xml`):
 |                       | `&lt;not a tag&gt;` | `<not a tag>` |                                           |
 
 
-#### Special characters: Rules
+#### Special Characters: Rules
 
 From the systematic analysis above, 
 the following rules can be derived:
@@ -774,7 +781,8 @@ If you write an XML file by hand:
 
 ### `<time-prop>`
 
-The `<time-prop>` element is used for time values in the Gregorian calendar. It must contain at least one `<time>` element.
+The `<time-prop>` element is used for time values in the Gregorian calendar. 
+It must contain at least one `<time>` element.
 
 Attributes:
 
@@ -789,8 +797,8 @@ which is defined as `yyyy-mm-ddThh:mm:ss.sssssssssssszzzzzz`.
 The following abbreviations describe this form:
 
 - `yyyy`: a four-digit numeral that represents the year. The value cannot start with a minus (-) or a plus (+) sign.
-  0001 is the lexical representation of the year 1 of the Common Era (also known as 1 AD). The value cannot be 0000. The
-  calendar is always the Gregorian calendar.
+  0001 is the lexical representation of the year 1 of the Common Era (also known as 1 AD). The value cannot be 0000. 
+  The calendar is always the Gregorian calendar.
 - `mm`: a two-digit numeral that represents the month
 - `dd`: a two-digit numeral that represents the day
 - `hh`: a two-digit numeral representing the hours. Must be between 0 and 23
@@ -863,10 +871,9 @@ Example of a property with a public and a hidden URI:
 ```
 
 
-## DSP base resources and base properties to be used directly in the XML file
+## DSP Base Resources and Base Properties to Be Used Directly in the XML File
 
-There is a number of base resources and base properties
-that must not be subclassed in a project ontology. 
+There is a number of base resources and base properties from which no subclasses can be derived in a project ontology. 
 They are directly available in the XML data file. 
 Please have in mind that built-in names of the knora-base ontology
 must be used without prepended colon.  
@@ -972,7 +979,7 @@ shortcut, so that the XML file can be validated more precisely.
 
 
 
-## Complete example
+## Complete Example
 
 DaSCH provides you with two example repositories that contain everything which is necessary to create a project and 
 upload data. Both of them also contain an XML data file. You can find them here:

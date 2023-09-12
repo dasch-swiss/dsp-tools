@@ -1,6 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# See also
+# See Also
 
 ## [Prospector](https://pypi.org/project/prospector/)
 
@@ -8,7 +8,7 @@ Prospector is a wrapper around the following tools:
 
 - pylint (very through linter and error detector)
 - pycodestyle (checks formatting for violations of PEP 8)
-- pyflakes (error detector)
+- Pyflakes (error detector)
 - McCabe (complexity checker)
 - Dodgy (simple regex check to detect accidental SCM diff checkins or secrets hard coded into files)
 - Pydocstyle (docstring checker)

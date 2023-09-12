@@ -448,7 +448,7 @@ def excel2properties(
         props.append(
             _row2prop(
                 df_row=row,
-                row_num=int(str(index)),  # index is a label/index/hashable, but we need an int
+                row_num=int(str(index)) + 2,  # index is a label/index/hashable, but we need an int
                 excelfile=excelfile,
             )
         )

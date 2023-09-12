@@ -130,7 +130,7 @@ The expected columns are:
 
 - [`name`](./json-project/ontologies.md#property-name)
   (mandatory): Unique identifier for the property
-- [`label_en`, `label_de`, `label_fr`, `label_it`, `label_rm`](./json-project/ontologies.md#property-labels):
+- [`label_en`, `label_de`, `label_fr`, `label_it`, `label_rm`](./json-project/ontologies.md#property-label):
   (one language mandatory): Label of the property that will be displayed in DSP-APP. 
   Should be rather short.
 - [`comment_en`, `comment_de`, `comment_fr`, `comment_it`, `comment_rm`](./json-project/ontologies.md#property-comments)

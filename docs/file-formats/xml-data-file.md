@@ -66,7 +66,7 @@ permissions. There are **built-in groups** and **project specific groups**:
     - `Creator`: The user is the owner of the element (created the element).
     - `SystemAdmin`: The user is a system administrator.
 - **Project specific groups**: 
-    - can be defined in the [JSON project file](./json-project/overview.md#the-groups-object)
+    - can be defined in the [JSON project file](./json-project/overview.md#groups)
 
 
 ### Rights
@@ -106,7 +106,7 @@ The `<permissions>` element defines which rights are given to which groups:
 </permissions>
 ```
 
-In addition to the DSP built-in groups, [project specific groups](./json-project/overview.md#the-groups-object) 
+In addition to the DSP built-in groups, [project specific groups](./json-project/overview.md#groups) 
 are supported as well.
 A project specific group name has the form `project-shortname:groupname`.
 
@@ -943,7 +943,7 @@ Example:
 </region>
 ```
 
-More details about the `<geometry-prop>` are documented [here](./xml-data-file.md#the-geometry-prop-element).
+More details about the `<geometry-prop>` are documented [here](./xml-data-file.md#geometry-prop).
 
 Technical note: A `<region>` is in fact a `<resource restype="Region">`. But it is mandatory to use the 
 shortcut, so that the XML file can be validated more precisely.

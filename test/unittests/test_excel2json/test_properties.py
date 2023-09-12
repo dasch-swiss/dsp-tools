@@ -370,9 +370,9 @@ class TestExcelToProperties(unittest.TestCase):
             }
         )
         returned_df = e2j._rename_deprecated_lang_cols(df=original_df, excelfile="Test")
-        assert_frame_equal(original_df, returned_df)
+        assert_frame_equal(expected_df, returned_df)
         returned_df = e2j._rename_deprecated_lang_cols(df=expected_df, excelfile="Test")
-        assert_frame_equal(original_df, returned_df)
+        assert_frame_equal(expected_df, returned_df)
 
     def test__do_property_excel_compliance(self) -> None:
         original_df = pd.DataFrame(

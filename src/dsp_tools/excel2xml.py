@@ -1902,8 +1902,8 @@ def _validate_and_prepare_cli_input_file(dataframe: pd.DataFrame) -> pd.DataFram
     )
 
     # remove empty columns/rows
-    dataframe.dropna(axis="columns", how="all", inplace=True)
-    dataframe.dropna(axis="index", how="all", inplace=True)
+    dataframe = dataframe.dropna(axis="columns", how="all")
+    dataframe = dataframe.dropna(axis="index", how="all")
 
     return dataframe
 

@@ -1,7 +1,6 @@
 """unit tests for excel to properties"""
 
-# pylint: disable=missing-class-docstring,missing-function-docstring,protected-access,
-# disable=wrong-import-order mypy: allow_untyped_calls
+# pylint: disable=missing-class-docstring,missing-function-docstring,protected-access
 
 import json
 import os

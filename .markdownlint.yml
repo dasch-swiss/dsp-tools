@@ -2,9 +2,6 @@
 
 # Config file for https://github.com/igorshubovych/markdownlint-cli
 
-# MD006/ul-start-left - Consider starting bulleted lists at the beginning of the line
-MD006: false
-
 # MD007/ul-indent - Unordered list indentation
 MD007: 
     # Whether to indent the first level of the list

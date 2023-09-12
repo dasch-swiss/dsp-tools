@@ -1,5 +1,4 @@
-# pylint: disable=f-string-without-interpolation,missing-class-docstring,missing-function-docstring
-# mypy: allow_untyped_calls
+# pylint: disable=missing-class-docstring,missing-function-docstring
 
 import unittest
 from typing import cast

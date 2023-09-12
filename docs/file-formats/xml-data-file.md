@@ -19,7 +19,7 @@ The import file must start with the standard XML header:
 ```
 
 
-## The "root" Element &lt;knora&gt;
+## The Root Element `<knora>`
 
 The `<knora>` element describes all resources that should be imported. It has the following attributes:
 
@@ -149,7 +149,7 @@ To take as example `KnownUser`, i.e. a logged-in user who is not member of the p
   upwards are able to look at the image.
 
 
-## Describing Resources With the &lt;resource&gt; Element
+## Describing Resources With the `<resource>` Element
 
 A `<resource>` element contains all necessary information to create a resource. It has the following attributes:
 
@@ -214,7 +214,7 @@ The following property elements exist:
 - `<uri-prop>`: contains URI values
 
 
-### The `<bitstream>` Object
+### `<bitstream>`
 
 The `<bitstream>` element is used for bitstream data. It contains the path to a bitstream object like an image file, a
 ZIP container, an audio file etc. It must only be used if the resource is a `StillImageRepresentation`, an
@@ -269,7 +269,7 @@ Example of a public image inside a `StillImageRepresentation`:
 ```
 
 
-### The `<boolean-prop>` Element
+### `<boolean-prop>`
 
 The `<boolean-prop>` element is used for boolean values. It must contain exactly one `<boolean>` element.
 
@@ -300,7 +300,7 @@ Example of a public and a hidden boolean property:
 ```
 
 
-### The `<color-prop>` Element
+### `<color-prop>`
 
 The `<color-prop>` element is used for color values. It must contain at least one `<color>` element.
 
@@ -330,7 +330,7 @@ Example of a property with a public and a hidden color value:
 ```
 
 
-### The `<date-prop>` Element
+### `<date-prop>`
 
 The `<date-prop>` element is used for date values. It must contain at least one `<date>` element.
 
@@ -384,7 +384,7 @@ Example of a property with a public and a hidden date value:
 ```
 
 
-### The `<decimal-prop>` Element
+### `<decimal-prop>`
 
 The `<decimal-prop>` element is used for decimal values, they must be written with a decimal point `.` as a separator.
 It must contain at least one `<decimal>` element.
@@ -414,7 +414,7 @@ Example of a property with a public and a hidden decimal value:
 ```
 
 
-### The `<geometry-prop>` Element
+### `<geometry-prop>`
 
 The `<geometry-prop>` element is used for a geometric definition of a 2-D region (e.g. a region on an image). It must
 contain at least one `<geometry>` element. A `<geometry-prop>` can only be used inside a [`<region>` tag]
@@ -423,7 +423,7 @@ contain at least one `<geometry>` element. A `<geometry-prop>` can only be used 
 Attributes:
 
 - `name`: the only allowed name is `hasGeometry`, because this property is a DSP base property that can only be used in 
-  the [`<region>` tag](#the-region-element).
+  the [`<region>` tag](#region).
 
 
 #### `<geometry>`
@@ -494,7 +494,7 @@ that were defined above:
 
 
 
-### The `<geoname-prop>` Element
+### `<geoname-prop>`
 
 The `<geoname-prop>` element is used for values that contain a [geonames.org](https://www.geonames.org/) ID. 
 It must contain at least one `<geoname>` element.
@@ -524,7 +524,7 @@ Example of a property with a public link to Vienna and a hidden link to Basel:
 ```
 
 
-### The `<integer-prop>` Element
+### `<integer-prop>`
 
 The `<integer-prop>` element is used for integer values, these are whole numbers.
 It must contain at least one `<integer>` element.
@@ -554,7 +554,7 @@ Example of a property with a public and a hidden integer value:
 ```
 
 
-### The `<interval-prop>` Element
+### `<interval-prop>`
 
 The `<interval-prop>` element is used for intervals with a start and an end point on a timeline, 
 e.g. relative to the beginning of an audio or video file. 
@@ -588,7 +588,7 @@ Example of a property with a public and a hidden interval value:
 ```
 
 
-### The `<list-prop>` Element
+### `<list-prop>`
 
 The `<list-prop>` element is used as entry point into a list (list node). List nodes are identified by their `name`
 attribute that was given when creating the list nodes (which must be unique within each list!). It must contain at least
@@ -620,7 +620,7 @@ Example of a property with a public and a hidden list value:
 ```
 
 
-### The `<resptr-prop>` Element
+### `<resptr-prop>`
 
 The `<resptr-prop>` element is used to link other resources within DSP. It must contain at least one `<resptr>` element.
 
@@ -651,7 +651,7 @@ Example of a property with a public link to `<resource id="res_1" ...>` and a hi
 ```
 
 
-### The `<text-prop>` Element
+### `<text-prop>`
 
 The `<text-prop>` element is used for text values. It must contain at least one `<text>` element.
 
@@ -779,7 +779,7 @@ If you write an XML file by hand:
 - Rich text: The special characters `<`, `>` and `&` must be escaped if they are not part of a valid HTML tag.
 
 
-### The `<time-prop>` Element
+### `<time-prop>`
 
 The `<time-prop>` element is used for time values in the Gregorian calendar. 
 It must contain at least one `<time>` element.
@@ -841,7 +841,7 @@ Example of a property with a public and a hidden time value:
 ```
 
 
-### The `<uri-prop>` Element
+### `<uri-prop>`
 
 The `<uri-prop>` represents a [Uniform Resource Identifier](https://en.wikipedia.org/wiki/Uniform_Resource_Identifier).
 It must contain at least one `<uri>` element.
@@ -881,7 +881,7 @@ must be used without prepended colon.
 See also [the related part of the JSON project documentation](./json-project/caveats.md#dsp-base-resources-and-base-properties-to-be-used-directly-in-the-xml-file)
 
 
-### The `<annotation>` Element
+### `<annotation>`
 
 `<annotation>` is an annotation to another resource of any class. It must have the following predefined properties:
 
@@ -905,7 +905,7 @@ Technical note: An `<annotation>` is in fact a `<resource restype="Annotation">`
 shortcut, so that the XML file can be validated more precisely.
 
 
-### The `<region>` Element
+### `<region>`
 
 A `<region>` resource defines a region of interest (ROI) in an image. It must have the following predefined properties:
 
@@ -950,7 +950,7 @@ Technical note: A `<region>` is in fact a `<resource restype="Region">`. But it 
 shortcut, so that the XML file can be validated more precisely.
 
 
-### The `<link>` Element
+### `<link>`
 
 `<link>` is a resource linking together several other resources of different classes. It must have the following 
 predefined properties:

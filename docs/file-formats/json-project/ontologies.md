@@ -1,6 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# The "ontologies" Array of a JSON Project
+# The `ontologies` Array of a JSON Project
 
 An ontology is a formal representation of a set of terms which represent real world objects.
 Dependencies, attributes and relations of and between the individual components of the set are recorded in a logical,
@@ -26,7 +26,7 @@ resource or not. The cardinality definitions are explained [further below](#reso
 
 
 
-## The "ontology" Object
+## The `ontology` Object
 
 Example of an ontology object:
 
@@ -46,7 +46,7 @@ Example of an ontology object:
 
 
 
-### Ontology: Name
+### Ontology: `name`
 
 (required)
 
@@ -57,7 +57,7 @@ means a string without blanks or special characters but `-` and `_` are allowed 
 
 
 
-### Ontology: Label
+### Ontology: `label`
 
 (required)
 
@@ -67,7 +67,7 @@ A string that provides the full name of the ontology.
 
 
 
-### Ontology: Comment
+### Ontology: `comment`
 
 (optional)
 
@@ -77,7 +77,7 @@ A string that provides a comment to the ontology.
 
 
 
-### Ontology: Properties
+### Ontology: `properties`
 
 (required)
 
@@ -104,7 +104,7 @@ A detailed description of `properties` can be found [below](#the-property-object
 
 
 
-### Ontology: Resources
+### Ontology: `resources`
 
 (required)
 
@@ -133,7 +133,7 @@ but in most cases it doesn't make sense to omit them.)
 
 
 
-## The "property" Object
+## The `property` Object
 
 ```json
 {
@@ -158,7 +158,7 @@ but in most cases it doesn't make sense to omit them.)
 
 
 
-### Property: Name
+### Property: `name`
 
 (required)
 
@@ -172,7 +172,7 @@ By convention, property names start with a lower case letter.
 
 
 
-### Property: Labels
+### Property: `label`
 
 (required)
 
@@ -183,7 +183,7 @@ and "rm" are supported).
 
 
 
-### Property: Comments
+### Property: `comments`
 
 (optional)
 
@@ -194,7 +194,7 @@ The `comments` element is optional.
 
 
 
-### Property: Super
+### Property: `super`
 
 (required)
 
@@ -229,7 +229,7 @@ The following DSP base properties are available:
 
 
 
-### Property: Subject
+### Property: `subject`
 
 (optional)
 
@@ -240,7 +240,7 @@ resource class (see [here](./caveats.md#referencing-ontologies) on how prefixed 
 
 
 
-### Property: object, gui_element, gui_attributes
+### Property: `object`, `gui_element`, `gui_attributes`
 
 These three are related as follows:
 
@@ -271,7 +271,7 @@ These three are related as follows:
 | hasSequenceBounds           | IntervalValue                                                      | Interval                               |
 
 
-#### BooleanValue
+#### `BooleanValue`
 
 `"object": "BooleanValue"`
 
@@ -300,7 +300,7 @@ Example:
 ```
 
 
-#### ColorValue
+#### `ColorValue`
 
 `"object": "ColorValue"`
 
@@ -330,7 +330,7 @@ Example:
 ```
 
 
-#### DateValue
+#### `DateValue`
 
 `object": "DateValue"`  
 
@@ -359,7 +359,7 @@ Example:
 ```
 
 
-#### DecimalValue
+#### `DecimalValue`
 
 `"object": "DecimalValue"`
 
@@ -398,7 +398,7 @@ Example:
 ```
 
 
-#### GeonameValue
+#### `GeonameValue`
 
 `"object": "GeonameValue"`
 
@@ -428,7 +428,7 @@ Example:
 ```
 
 
-#### IntValue
+#### `IntValue`
 
 `"object": "IntValue"`
 
@@ -468,7 +468,7 @@ Example:
 ```
 
 
-#### ListValue
+#### `ListValue`
 
 `"object": "ListValue"`
 
@@ -506,7 +506,7 @@ Example:
 ```
 
 
-#### TextValue
+#### `TextValue`
 
 `"object": "TextValue"`
 
@@ -549,7 +549,7 @@ Example:
 ```
 
 
-#### hasComment Property
+#### `hasComment` Property
 
 `"object": "TextValue"`
 
@@ -574,7 +574,7 @@ Example:
 ```
 
 
-#### TimeValue
+#### `TimeValue`
 
 `"object": "TimeValue"`
 
@@ -603,7 +603,7 @@ Example:
 ```
 
 
-#### UriValue
+#### `UriValue`
 
 `"object": "UriValue"`
 
@@ -643,7 +643,7 @@ Link-properties do not follow the pattern of the previous data types, because th
 to an existing resource. Thus, the `object` denominates the resource class the link will point to.
 
 
-#### hasLinkTo Property
+#### `hasLinkTo` Property
 
 `"object": "<resourceclass>"`
 
@@ -682,7 +682,7 @@ Example:
 ```
 
 
-#### hasRepresentation Property
+#### `hasRepresentation` Property
 
 `"object": "Representation"`
 
@@ -717,7 +717,7 @@ Example:
 ```
 
 
-#### isPartOf Property
+#### `isPartOf` Property
 
 `"object": "<resourceclass>"`
 
@@ -794,7 +794,7 @@ Example:
 ```
 
 
-#### seqnum Property
+#### `seqnum` Property
 
 `"object": "IntValue"`
 
@@ -817,7 +817,7 @@ number of the image inside the compound object. Apart from this, `seqnum` is lik
 Example: See the [isPartOf Property](#ispartof-property) above.
 
 
-#### isSequenceOf Property
+#### `isSequenceOf` Property
 
 `"object": <AudioRepresentation/MovingImageRepresentation or a subclass of one of them>`
 
@@ -890,7 +890,7 @@ Example:
 ```
 
 
-#### hasSequenceBounds Property
+#### `hasSequenceBounds` Property
 
 `"object": "IntervalValue"`
 
@@ -926,7 +926,7 @@ Example:
 
 
 
-## The "resource" Object
+## The `resource` Object
 
 ```json
 {
@@ -966,7 +966,7 @@ Example:
 
 
 
-### Resource: Name
+### Resource: `name`
 
 (required)
 
@@ -980,7 +980,7 @@ By convention, resource names start with an upper case letter.
 
 
 
-### Resource: Labels
+### Resource: `labels`
 
 (required)
 
@@ -991,7 +991,7 @@ and "rm" are supported).
 
 
 
-### Resource: Super
+### Resource: `super`
 
 (required)
 
@@ -1024,7 +1024,7 @@ The following base resources can be used as super-resource:
 
 
 
-### Resource: Cardinalities
+### Resource: `cardinalities`
 
 (required*)
 
@@ -1065,7 +1065,7 @@ but in most cases it doesn't make sense to omit them.)
 
 
 
-### Resource: Comments
+### Resource: `comments`
 
 (optional)
 

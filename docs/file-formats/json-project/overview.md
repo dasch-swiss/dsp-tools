@@ -61,7 +61,7 @@ A complete project definition looks like this:
 
 
 
-### The "prefixes" Object
+### `prefixes`
 
 (optional)
 
@@ -87,7 +87,7 @@ more information about referencing ontologies.
 
 
 
-### The "$schema" Object
+### `$schema`
 
 (required)
 
@@ -97,7 +97,7 @@ The `$schema` object refers to the JSON schema for DSP data model definitions an
 
 
 
-### The "project" Object
+### `project`
 
 (required)
 
@@ -120,13 +120,13 @@ The following fields are optional (if one or more of these fields are not used, 
 
 
 
-## The "project" Object in Detail
+## The `project` Object in Detail
 
 In the following section, all fields of the `project` object are explained in detail.
 
 
 
-### The "shortcode" Object
+### `shortcode`
 
 (required)
 
@@ -137,7 +137,7 @@ the DaSCH.
 
 
 
-### The "shortname" Object
+### `shortname`
 
 (required)
 
@@ -150,7 +150,7 @@ but with `-` and `_` are allowed (although not as first character).
 
 
 
-### The "longname" Object
+### `longname`
 
 (required)
 
@@ -160,7 +160,7 @@ The longname is a string that provides the full name of the project.
 
 
 
-### The "descriptions" Object
+### `descriptions`
 
 (required)
 
@@ -171,7 +171,7 @@ The description is represented as a collection of strings with language tags (cu
 
 
 
-### The "keywords" Object
+### `keywords`
 
 (required)
 
@@ -181,7 +181,7 @@ Keywords are represented as an array of strings and are used to describe and/or 
 
 
 
-### The "groups" Object
+### `groups`
 
 (optional)
 
@@ -220,7 +220,7 @@ Example:
 
 
 
-### The "users" Object
+### `users`
 
 (optional)
 
@@ -276,7 +276,7 @@ The `users` element is optional. If not used, it should be omitted.
 
 
 
-### The "lists" Object
+### `lists`
 
 (optional)
 
@@ -463,7 +463,7 @@ Example of a "lists" section that contains the two lists "color" and "category":
 
 
 
-#### Lists from Excel
+#### `lists` from Excel
 
 Instead of being described in JSON, a list can be imported from one or several Excel files. In this case, the 
 `nodes` element of the root node consists of `{"folder": "<path-to-folder-containing-the-excel-files>"}`. In the above 
@@ -514,7 +514,7 @@ node), but as node name of the first children level below the root node.
 
 
 
-### The "ontologies" Object
+### `ontologies`
 
 (required)
 

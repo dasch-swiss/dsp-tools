@@ -1,8 +1,8 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# The excel2xml module
+# The excel2xml Module
 
-## Two use cases - two approaches
+## Two Use Cases - Two Approaches
 
 There are two kinds of Excel files that can be transformed into an XML file:
 
@@ -17,14 +17,14 @@ simplified example. For this use case, it is necessary to write a Python script 
 undefined state X into a DSP-conforming XML file that can be uploaded with `dsp-tools xmlupload`. For this, you need to
 import the module `excel2xml` into your Python script.
 
-The second use case is less frequent: We migrate data DaSCH-internally from one server to another. In this case, the 
+The second use case is less frequent: In DaSCH we migrate data internally from one server to another. In this case, the 
 data already has the correct structure, and can automatically be transformed to XML. 
 This can be done with the [CLI command `excel2xml`](./cli-commands.md#excel2xml).
 
-**This page deals only with the first use case, the module `excel2xml`** .
+**This page deals only with the first use case, the module `excel2xml`**.
 
 
-## Module `excel2xml`: Convert a data source to XML
+## Module `excel2xml`: Convert a Data Source to XML
 
 To demonstrate the usage of the `excel2xml` module, 
 there is a GitHub repository named `00A1-import-scripts`.
@@ -70,18 +70,18 @@ This is the simplified pattern how the Python script works:
 These steps are now explained in-depth:
 
 
-## 1. Read in your data source
+## 1. Read in Your Data Source
 
 In the first paragraph of the sample script, insert your ontology name, project shortcode, and the path to your data 
 source. If necessary, activate one of the lines that are commented out.  
 
 
-## 2. Create root element `<knora>`
+## 2. Create Root Element `<knora>`
 
 Then, the root element is created, which represents the `<knora>` tag of the XML document. 
 
 
-## 3. Append the permissions
+## 3. Append the Permissions
 
 As first children of `<knora>`, some standard permissions are added. At the end, please carefully check the permissions 
 of the finished XML file to ensure that they meet your requirements, and adapt them if necessary.  
@@ -94,7 +94,7 @@ invisible for all users except project admins and system admins. [Read more abou
 here](./file-formats/xml-data-file.md#using-permissions-with-the-permissions-attribute).
 
 
-## 4. Create list mappings
+## 4. Create List Mappings
 
 Let's assume that your data source has a column
 containing list values named after the "label" of the JSON project list, 
@@ -172,14 +172,14 @@ The sample Python scripts features an example how to call these two methods, and
 used.
 
 
-## 5. Iterate through the rows of your data source
+## 5. Iterate Through the Rows of Your Data Source
 
 With the help of Pandas, you can then iterate through the rows of your Excel/CSV, and create resources and properties.
 
 
-### 6. Create the `<resource>` tag
+### 6. Create the `<resource>` Tag
 
-There are four kind of resources that can be created: 
+There are four kinds of resources that can be created: 
 
 | super        | tag            | method              |
 |--------------|----------------|---------------------|
@@ -200,12 +200,12 @@ If later, another resource would like to set a resptr-link to the resource that 
 ID in a dict, so that you can retrieve it later. The example script contains an example of such a dict. 
 
 
-### 7. Append the properties
+### 7. Append the Properties
 
 For every property, there is a helper function that explains itself when you hover over it. So you don't need to worry 
 anymore how to construct a certain XML value for a certain property. 
 
-Here's how the Docstrings assist you:
+Here's how the docstrings assist you:
 
 - method signature: names of the parameters and accepted types
 - short explanation how the method behaves
@@ -219,9 +219,9 @@ Here's how the Docstrings assist you:
 ![docstring example](./assets/images/img-excel2xml-module-docstring.png)
 
 
-#### Fine-tuning with `PropertyElement`
+#### Fine-Tuning With the `PropertyElement`
 
-There are two possibilities how to create a property: The value can be passed as it is, or as `PropertyElement`. If it
+There are two possibilities how to create a property: The value can be passed as it is, or as a `PropertyElement`. If it
 is passed as it is, the `permissions` are assumed to be `prop-default`, texts are assumed to be encoded as `utf8`, and 
 the value won't have a comment:
 
@@ -256,7 +256,7 @@ make_text_prop(
 ```
 
 
-#### Supported boolean formats
+#### Supported Boolean Formats
 
 For `make_boolean_prop(cell)`, the following formats are supported:
 
@@ -278,26 +278,26 @@ else:
     excel2xml.make_boolean_prop(":hasBoolean", False)
 ```
 
-#### Special characters in text properties
+#### Special Characters in Text Properties
 
 Depending on the encoding of your text, special characters behave differently. 
 Please consult the systematic overview [here](./file-formats/xml-data-file.md#special-characters-overview) 
 to fully understand the implications.
 
 
-### 8. Append the resource to root
+### 8. Append the Resource to the Root
 
 At the end of the for-loop, it is important not to forget to append the finished resource to the root. 
 
 
-## 9. Save the file
+## 9. Save the File
 
 At the very end, save the file under a name that you can choose yourself.
 
 
-## Other helper methods
+## Other Helper Methods
 
-### Check if a cell contains a usable value
+### Check if a Cell Contains a Usable Value
 
 The method `check_notna(cell)` checks a value if it is usable in the context of data archiving. A value is considered 
 usable if it is
@@ -349,7 +349,7 @@ might expect:
 In contrast, `check_notna(cell)` will return the expected value for all cases in the table!
 
 
-### Calendar date parsing
+### Calendar Date Parsing
 
 The method `find_date_in_string(string)` tries to find a calendar date in a string. If successful, it 
 returns the DSP-formatted date string.
@@ -362,7 +362,7 @@ Notes:
 - The years 0000-2999 are supported, in 4-digit form.
 - Dates written with slashes are always interpreted in a European manner: 5/11/2021 is the 5th of November.
 
-Currently supported date formats:
+Supported date formats:
 
 | Input             | Output                                |
 |-------------------|---------------------------------------|

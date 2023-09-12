@@ -1,6 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# Fast XML upload
+# Fast XML Upload
 
 For projects with a lot of files, 
 the [`xmlupload`](../cli-commands.md#xmlupload) command is too slow.
@@ -23,7 +23,7 @@ The fast mass upload consists of the following steps:
 4. Create the resources on DSP with `dsp-tools fast-xmlupload`
 
 
-## 1. Prepare your data
+## 1. Prepare Your Data
 
 The following data structure is expected:
 
@@ -73,13 +73,12 @@ The processed files
 will be stored in the given `--output-dir` directory.
 If the output directory doesn't exist, it will be created automatically.
 
-Additionally to the output directory,
-a pickle file is written with the name `processing_result_[timestamp].pkl`.
+Additionally, a pickle file is written to the output directory with the name `processing_result_[timestamp].pkl`.
 It contains a mapping from the original files to the processed files,
-e.g. `multimedia/dog.jpg` -> `tmp/0b/22/0b22570d-515f-4c3d-a6af-e42b458e7b2b.jp2`.
+e.g. `multimedia/dog.jpg` → `tmp/0b/22/0b22570d-515f-4c3d-a6af-e42b458e7b2b.jp2`.
 
 
-### Important note
+### Important Note: Resource Leak
 
 **Due to a resource leak, Python must be quitted after a certain time.**
 **For big datasets, only a batch of files is processed, then Python exits with exit code 2.**
@@ -127,11 +126,11 @@ This command will collect all pickle files in the current working directory
 that were created by the `process-files` command.
 
 
-### Note
+### Important Note
 
 **Due to a resource leak, Python must be quitted after a certain time.**
 **If there are multiple pickle files from the previous step,**
-**it is not recommended to execute `upload-files` with all pickle files being present.**
+**it is not recommended executing `upload-files` with all pickle files being present.**
 **Rather, store them somewhere else, and execute `upload-files` with only a part of the pickle files.**
 
 

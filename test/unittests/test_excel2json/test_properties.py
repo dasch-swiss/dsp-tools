@@ -342,11 +342,17 @@ class TestExcelToProperties(unittest.TestCase):
                 r"'Interval' was expected",
             ),
             (
-                "testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute.xlsx",
+                "testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute_values.xlsx",
                 "did not pass validation.\n"
                 "The problematic property is 'hasInteger' in Excel row 4.\n"
                 r"The problem is that the column 'gui_attributes' has an invalid value: "
                 r"Additional properties are not allowed \('rows' was unexpected\)",
+            ),
+            (
+                "testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute_format.xlsx",
+                r"Row 4 of Excel file testdata\/invalid\-testdata\/excel2json\/properties\-invalid\-gui_attribute_"
+                r"format\.xlsx contains invalid data in column 'gui_attributes'\.\n"
+                r"The expected format is '\[attribute\: value, attribute\: value\]'\.",
             ),
         ]
 

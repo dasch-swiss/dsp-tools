@@ -311,7 +311,7 @@ See the [xmlupload documentation](../xml-data-file.md#color-prop) for more infor
 
 - `Colorpicker`: The only GUI element for colors. It's used to choose a color.
     - *gui_attributes*:
-        - `ncolors=integer` (optional): Number of colors the color picker should present.
+        - `ncolors:integer` (optional): Number of colors the color picker should present.
 
 Example:
 
@@ -370,12 +370,12 @@ See the [xmlupload documentation](../xml-data-file.md#decimal-prop) for more inf
 
 - `Spinbox`: Provides a Spinbox to select a decimal value.
     - *gui_attributes*:
-        - `max=decimal` (mandatory): maximal value
-        - `min=decimal` (mandatory): minimal value
+        - `max:decimal` (mandatory): maximal value
+        - `min:decimal` (mandatory): minimal value
 - `SimpleText`: A simple text entry box (one line only).
     - *gui_attributes*:
-        - `maxlength=integer` (optional): maximum number of characters accepted
-        - `size=integer` (optional): size of the input field
+        - `maxlength:integer` (optional): maximum number of characters accepted
+        - `size:integer` (optional): size of the input field
 
 Example:
 
@@ -440,12 +440,12 @@ See the [xmlupload documentation](../xml-data-file.md#integer-prop) for more inf
 - `Spinbox`: A GUI element for *IntValue*. 
   A text field with and an "up" and a "down" button for increment/decrement.
     - *gui_attributes*:
-        - `max=decimal` (mandatory): Maximal value
-        - `min=decimal` (mandatory): Minimal value
+        - `max:decimal` (mandatory): Maximal value
+        - `min:decimal` (mandatory): Minimal value
 - `SimpleText`: A simple text entry box (one line only). 
     - *gui_attributes*:
-        - `maxlength=integer` (optional): The maximum number of characters accepted
-        - `size=integer` (optional): The size of the input field
+        - `maxlength:integer` (optional): The maximum number of characters accepted
+        - `size:integer` (optional): The size of the input field
 
 Example:
 
@@ -479,7 +479,7 @@ See the [xmlupload documentation](../xml-data-file.md#list-prop) for more inform
 
 - `List`: A GUI element for *ListValue*. A dropdown to select a list node.
     - *gui_attributes*:
-        - `hlist=<list-name>` (required): 
+        - `hlist:<list-name>` (required): 
           The name of a list defined in the [`lists` section](./overview.md#lists).
 - `Radio` and `Pulldown` are allowed, too, 
   but they don't have a different behavior than `List`. 
@@ -517,14 +517,14 @@ See the [xmlupload documentation](../xml-data-file.md#text-prop) for more inform
 
 - `SimpleText`: one-line text entry box (for text **without** markup)
     - *gui_attributes*:
-        - `maxlength=integer` (optional): maximal length (number of characters accepted)
-        - `size=integer` (optional): size (width) of widget
+        - `maxlength:integer` (optional): maximal length (number of characters accepted)
+        - `size:integer` (optional): size (width) of widget
 - `Textarea`: multiline text entry box (for text **without** markup)
     - *gui_attributes*:
-        - `cols=integer` (optional): number of columns of the textarea
-        - `rows=integer` (optional): number of rows of the textarea
-        - `width=percent` (optional): width of the textarea on the screen
-        - `wrap=soft|hard` (optional): wrapping of text
+        - `cols:integer` (optional): number of columns of the textarea
+        - `rows:integer` (optional): number of rows of the textarea
+        - `width:percent` (optional): width of the textarea on the screen
+        - `wrap:soft|hard` (optional): wrapping of text
 - `Richtext`: multiline rich-text editor (for text **with** markup)
     - *gui_attributes*: No attributes
 
@@ -613,8 +613,8 @@ Represents an URI. See the [xmlupload documentation](../xml-data-file.md#uri-pro
 
 - `SimpleText`: A simple text entry box (one line only).
     - *gui_attributes*:
-        - `maxlength=integer` (optional): The maximum number of characters accepted
-        - `size=integer` (optional): The size of the input field
+        - `maxlength:integer` (optional): The maximum number of characters accepted
+        - `size:integer` (optional): The size of the input field
 
 Example:
 
@@ -661,11 +661,11 @@ from `hasLinkTo`. There are different groups of resource classes that can be the
 
 The syntax how to refer to these different groups of resources is described [here](./caveats.md#referencing-ontologies).
 
-*gui_elements/gui_attributes*:
+*gui_elements / gui_attributes*:
 
 - `Searchbox`: The only GUI element for *hasLinkTo*. Allows searching resources by entering the target resource name.
     - *gui_attributes*:
-        - `numprops=integer` (optional): Number of search results to be displayed
+        - `numprops:integer` (optional): Number of search results to be displayed
 
 Example:
 
@@ -697,7 +697,7 @@ This generic property can point to any type of the aforementioned representation
 - `Searchbox`: Allows searching resources that have super class `Representation` 
   by entering at least 3 characters into a searchbox.
     - *gui_attributes*:
-        - `numprops=integer` (optional): While dynamically displaying the search result,
+        - `numprops:integer` (optional): While dynamically displaying the search result,
           the number of properties that should be displayed.
 
 Example:
@@ -734,11 +734,11 @@ can be used to derive a custom property from them,
 or they can be used directly as cardinalities in a resource. 
 The example below shows both possibilities.
 
-*gui_elements/gui_attributes*:
+*gui_elements / gui_attributes*:
 
 - `Searchbox`: The only GUI element for *isPartOf*. Allows searching resources by entering the target resource name.
     - *gui_attributes*:
-        - `numprops=integer` (optional): Number of search results to be displayed
+        - `numprops:integer` (optional): Number of search results to be displayed
 
 Example:
 
@@ -807,12 +807,12 @@ number of the image inside the compound object. Apart from this, `seqnum` is lik
 - `Spinbox`: A GUI element for *IntValue*. 
   A text field with and an "up" and a "down" button for increment/decrement.
     - *gui_attributes*:
-        - `max=decimal` (mandatory): Maximal value
-        - `min=decimal` (mandatory): Minimal value
+        - `max:decimal` (mandatory): Maximal value
+        - `min:decimal` (mandatory): Minimal value
 - `SimpleText`: A simple text entry box (one line only). 
     - *gui_attributes*:
-        - `maxlength=integer` (optional): The maximum number of characters accepted
-        - `size=integer` (optional): The size of the input field
+        - `maxlength:integer` (optional): The maximum number of characters accepted
+        - `size:integer` (optional): The size of the input field
 
 Example: See the [isPartOf Property](#ispartof-property) above.
 
@@ -828,11 +828,11 @@ would be the time interval of the sequence.
 The DSP base properties `isSequenceOf` and `hasSequenceBounds` can be used to derive a custom property from them, or 
 they can be used directly as cardinalities in a resource. The example below shows both possibilities.
 
-*gui_elements/gui_attributes*:
+*gui_elements / gui_attributes*:
 
 - `Searchbox`: The only GUI element for *isSequenceOf*. Allows searching resources by entering the target resource name.
     - *gui_attributes*:
-        - `numprops=integer` (optional): Number of search results to be displayed
+        - `numprops:integer` (optional): Number of search results to be displayed
 
 Example:
 

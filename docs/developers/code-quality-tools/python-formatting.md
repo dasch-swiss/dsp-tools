@@ -16,7 +16,7 @@ Checks Python code against some style conventions in [PEP 8](http://www.python.o
 Automatically fixes most of the formatting issues reported by pycodestyle.
 Since PEP 8 is rather liberal, autopep8/pycodestyle don't modify code too much.
 
-### [black](https://pypi.org/project/black/)
+### [Black](https://pypi.org/project/black/)
 
 A PEP 8 compliant opinionated auto-formatter with its own style, going further than autopep8/pycodestyle.
 Style configuration options are deliberately limited to a minimum.

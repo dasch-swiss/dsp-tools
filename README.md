@@ -14,14 +14,13 @@
 DSP-TOOLS is a command line tool that helps you to interact with the DaSCH Service Platform (DSP) API. 
 This document is intended for developers who want to work with the code of DSP-TOOLS. 
 
-| <center>Hint</center>                                                                                                                                                                |
-|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| This technical document was written as a guide for developers. For the end user documentation, 
-please consult [https://docs.dasch.swiss](https://docs.dasch.swiss/latest/DSP-TOOLS). |
+| <center>Hint</center>                                                                                                 |
+| :-------------------------------------------------------------------------------------------------------------------- |
+| This technical document was written as a guide for developers.                                                        |
+| For the end user documentation, please consult [https://docs.dasch.swiss](https://docs.dasch.swiss/latest/DSP-TOOLS). |
 
 This README contains basic information for getting started. 
-More details can be found in the 
-[developers documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/developers/).
+More details can be found in the [developers' documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/developers/).
 
 
 
@@ -45,7 +44,7 @@ The remainder of this README explains these commands in more detail.
 
 Curious what poetry is and why we use it? 
 Check out the respective section in the
-[developers documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/developers/packaging/).
+[developers' documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/developers/packaging/).
 
 If you want to work on the code of DSP-TOOLS, you first have to do the following:
 
@@ -67,7 +66,7 @@ There are two files defining the dependencies:
     - `[tool.poetry.group.dev.dependencies]` lists the dependencies used for developing and testing.
 - `poetry.lock` enables deterministic installations, 
   by exactly pinning the versions of all (sub-)dependencies. 
-  This is done automatically and you must not edit `poetry.lock`.
+  This is done automatically, and you must not edit `poetry.lock`.
 
 If you want to install a new package, 
 install it with `poetry add package`.
@@ -165,8 +164,8 @@ When contributing to the project,
 please make sure you use the same code style rules as we do. 
 We use the following linters:
 
-- [markdownlint](https://github.com/igorshubovych/markdownlint-cli) (configured in `.markdownlint.yml`)
-- [black](https://pypi.org/project/black/) (configured in `pyproject.toml`)
+- [MarkdownLint](https://github.com/igorshubovych/markdownlint-cli) (configured in `.markdownlint.yml`)
+- [Black](https://pypi.org/project/black/) (configured in `pyproject.toml`)
 - [mypy](https://pypi.org/project/mypy/) (configured in `pyproject.toml`)
 - [pylint](https://pypi.org/project/pylint/) (configured in `pyproject.toml`)
 - [darglint](https://pypi.org/project/darglint/) (configured in `.darglint`)
@@ -175,7 +174,7 @@ These linters are integrated in the GitHub CI pipeline,
 so that every pull request is checked for code style violations.
 
 In addition, there are [pre-commit hooks](#pre-commit-hooks) 
-that run black and markdownlint locally before every commit.
+that run Black and MarkdownLint locally before every commit.
 This prevents you from committing code style violations.
 
 Your code can be checked for style violations locally before they are committed. 
@@ -184,9 +183,9 @@ Depending on your IDE the installation is as follows.
 
 ### VSCode
 
-- **markdownlint** can be installed as extension (`davidanson.vscode-markdownlint`), 
+- **MarkdownLint** can be installed as extension (`davidanson.vscode-markdownlint`), 
   and be configured in the VSCode settings.
-- **black** can be set as formatter in the `ms-python.python` extension.
+- **Black** can be set as formatter in the `ms-python.python` extension.
   To do so, set `"python.formatting.provider": "black"` in the VSCode `settings.json`.
   Alternatively, `ms-python.black-formatter` can be installed as and extension.
 - **mypy** can be installed as an extension (`matangover.mypy`), 

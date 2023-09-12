@@ -1,6 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# Incremental `xmlupload`
+# Incremental Xmlupload
 
 When uploading data with the [`xmlupload`](./cli-commands.md#xmlupload) command,
 resources can reference each other with an internal ID,
@@ -74,12 +74,12 @@ dsp-tools xmlupload additional_data_replaced_[timestamp].xml
 
 
 
-## 4. Continue an Interrupted `xmlupload`
+## 4. Continue an Interrupted Xmlupload
 
 If a xmlupload didn't finish successfully, 
 some resources have already been created, while others have not.
 If one of the remaining resources references a newly created resource by its internal ID,
-this internal ID must also be replaced by the IRI of the newly created resource.
+this internal ID must be replaced by the IRI of the newly created resource.
 
 Additionally, the newly created resources must be removed from the XML file.
 Otherwise, they would be created a second time.

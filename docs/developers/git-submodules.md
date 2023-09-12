@@ -78,6 +78,7 @@ confused that the path to the submodule changed. If this doesn't help, it might 
   the path containing that file.
 
 
+
 ## Actively Working with the Contents of the Submodule
 
 After retrieving the contents of a submodule as described in the paragraph above, 

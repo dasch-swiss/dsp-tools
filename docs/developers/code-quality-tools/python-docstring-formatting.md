@@ -61,7 +61,7 @@ It supports the styles "pep257", "numpy", and "google".
 
 A docstring formatter that follows 
 [PEP 8](http://www.python.org/dev/peps/pep-0008/) and [PEP 257](http://www.python.org/dev/peps/pep-0257/) 
-but makes some of the more controversial elements of PEP optional.
+but makes some of the more controversial elements of those PEPs optional.
 Can be configured for other styles as well. 
 This project is heavily inspired by docformatter.
 Supported styles: "pep257", "numpy".

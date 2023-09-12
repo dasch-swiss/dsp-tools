@@ -386,7 +386,7 @@ Example of a property with a public and a hidden date value:
 
 ### `<decimal-prop>`
 
-The `<decimal-prop>` element is used for decimal values, they must be written with a decimal point `.` as a separator.
+The `<decimal-prop>` element is used for decimal values.
 It must contain at least one `<decimal>` element.
 
 Attributes:
@@ -396,7 +396,7 @@ Attributes:
 
 #### `<decimal>`
 
-The `<decimal>` element contains a decimal number.
+The `<decimal>` element contains a decimal number, they must be written with a decimal point `.` as a separator.
 
 Attributes:
 
@@ -417,8 +417,8 @@ Example of a property with a public and a hidden decimal value:
 ### `<geometry-prop>`
 
 The `<geometry-prop>` element is used for a geometric definition of a 2-D region (e.g. a region on an image). It must
-contain at least one `<geometry>` element. A `<geometry-prop>` can only be used inside a [`<region>` tag]
-(#the-region-element). 
+contain at least one `<geometry>` element. A `<geometry-prop>` can only be used inside a 
+[`<region>` tag](#region). 
 
 Attributes:
 
@@ -526,7 +526,7 @@ Example of a property with a public link to Vienna and a hidden link to Basel:
 
 ### `<integer-prop>`
 
-The `<integer-prop>` element is used for integer values, these are whole numbers.
+The `<integer-prop>` element is used for integer values.
 It must contain at least one `<integer>` element.
 
 Attributes:
@@ -536,7 +536,7 @@ Attributes:
 
 #### `<integer>`
 
-The `<integer>` element contains an integer value.
+The `<integer>` element contains an integer value, these are whole numbers.
 
 Attributes:
 
@@ -640,8 +640,8 @@ Attributes:
   (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
 - `comment`: a comment for this specific value (optional)
 
-Example of a property with a public link to `<resource id="res_1" ...>` and a hidden link to and 
-`<resource id="res_2" ...>`:
+Example of a property with a public link to `<resource id="res_1" ...>` 
+and a hidden link to `<resource id="res_2" ...>`:
 
 ```xml
 <resptr-prop name=":hasReferenceTo">
@@ -718,8 +718,8 @@ Depending on the encoding of your text,
 special characters behave differently.
 There are two places where this must be taken into account:
 
-- When a string is passed to [`excel2xml.make_text_prop()`]
-- (../excel2xml-module.md#special-characters-in-text-properties)
+- When a string is passed to 
+  [`excel2xml.make_text_prop()`](../excel2xml-module.md#special-characters-in-text-properties)
 - When a string is written by hand into an XML file
 
 In the tables below,
@@ -873,8 +873,7 @@ Example of a property with a public and a hidden URI:
 
 ## DSP Base Resources and Base Properties to Be Used Directly in the XML File
 
-There is a number of base resources and base properties
-that from which no subclasses can be derived in a project ontology. 
+There is a number of base resources and base properties from which no subclasses can be derived in a project ontology. 
 They are directly available in the XML data file. 
 Please have in mind that built-in names of the knora-base ontology
 must be used without prepended colon.  

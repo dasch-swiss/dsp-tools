@@ -217,9 +217,9 @@ The following DSP base properties are available:
 - `hasLinkTo`: a link to another resource
 - `isPartOf`: A special variant of `hasLinkTo`. It says that an instance of the given resource class is an integral part
   of another resource class. E.g. a "page" is part of a "book".
-- `seqnum`: An integer that is used to define a sequence number in an ordered set of instances, e.g. the ordering of the
-  pages in a book. A resource that has a property derived from 
-  `seqnum` must also have a property derived from `isPartOf`.
+- `seqnum`: An integer that is used to define a sequence number in an ordered set of instances, 
+  e.g. the ordering of the pages in a book. 
+  A resource that has a property derived from `seqnum` must also have a property derived from `isPartOf`.
 - `hasColor`: Defines a color value.  
 - `hasComment`: Defines a standard comment.
 - `isSequenceOf`: A special variant of `hasLinkTo`. It says that an instance of the given resource class is a section 
@@ -437,8 +437,8 @@ See the [xmlupload documentation](../xml-data-file.md#the-integer-prop-element) 
 
 *gui_elements / gui_attributes*:
 
-- `Spinbox`: A GUI element for *IntValue*. A text field with and an "up" and a "down" 
-  button for increment/decrement.
+- `Spinbox`: A GUI element for *IntValue*. 
+  A text field with and an "up" and a "down" button for increment/decrement.
     - *gui_attributes*:
         - `max=decimal` (mandatory): Maximal value
         - `min=decimal` (mandatory): Minimal value
@@ -479,8 +479,8 @@ See the [xmlupload documentation](../xml-data-file.md#the-list-prop-element) for
 
 - `List`: A GUI element for *ListValue*. A dropdown to select a list node.
     - *gui_attributes*:
-        - `hlist=<list-name>` (required): The name of a list defined in the 
-  ["lists" section](./overview.md#the-lists-object).
+        - `hlist=<list-name>` (required): 
+          The name of a list defined in the [`lists` section](./overview.md#the-lists-object).
 - `Radio` and `Pulldown` are allowed, too, 
   but they don't have a different behavior than `List`. 
   It is recommended to use `List`.
@@ -804,8 +804,8 @@ number of the image inside the compound object. Apart from this, `seqnum` is lik
 
 *gui_elements / gui_attributes*:
 
-- `Spinbox`: A GUI element for *IntValue*. A text field with and an "up" and a "down" 
-  button for increment/decrement.
+- `Spinbox`: A GUI element for *IntValue*. 
+  A text field with and an "up" and a "down" button for increment/decrement.
     - *gui_attributes*:
         - `max=decimal` (mandatory): Maximal value
         - `min=decimal` (mandatory): Minimal value

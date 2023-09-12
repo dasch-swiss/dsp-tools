@@ -23,10 +23,10 @@ used in the DSP-TOOLS repository are:
 
 | File           | Purpose                                                                        |
 | -------------- | ------------------------------------------------------------------------------ |
-| README.md      | Markdown-formatted info for developers                                        |
+| README.md      | Markdown-formatted info for developers                                         |
 | pyproject.toml | Modern configuration/metadata file replacing the deprecated files listed below |
 | .gitignore     | List of files not under version control (won't be uploaded to GitHub)          |
-| .gitmodules    | DSP-TOOLS contains a Git submodule (more info below)                          |
+| .gitmodules    | DSP-TOOLS contains a Git submodule (more info below)                           |
 | CHANGELOG.md   | Markdown-formatted release notes (must not be edited by hand)                  |
 | LICENSE        | Text file with the license how to use the source code of DSP-TOOLS             |
 | poetry.lock    | Pinned versions of all (sub-)dependencies, allows a deterministic installation |

@@ -362,7 +362,7 @@ Notes:
 - The years 0000-2999 are supported, in 4-digit form.
 - Dates written with slashes are always interpreted in a European manner: 5/11/2021 is the 5th of November.
 
-Current supported date formats:
+Supported date formats:
 
 | Input             | Output                                |
 |-------------------|---------------------------------------|

@@ -84,8 +84,8 @@ so it will be added to the `[tool.poetry.group.dev.dependencies]` section of `py
 For security reasons, the dependencies should be kept up to date.
 GitHub's dependabot is configured to automatically create a version bumping PR 
 if there is an update for a dependency.
-Version bumping PRs can also be created manually for this, 
-execute `poetry add dependency@latest` for every dependency,
+Version bumping PRs can also be created manually. 
+To do this, execute `poetry add dependency@latest` for every dependency,
 and create a PR from the resulting changes.
 
 All developers working with the DSP-TOOLS repository should regularly execute `poetry self update` to update poetry, 
@@ -102,17 +102,18 @@ This way, every Terminal you open in your IDE will automatically be in the virtu
 The advantage of being in a poetry shell is that the command `dsp-tools` is available, 
 because `poetry install` installed an editable version of DSP-TOOLS inside the virtual environment. 
 This means, that inside the `site-packages` folder of your poetry virtual environment, 
-there is a folder called `dsp_tools-[version].dist-info`, which contains a link to your local 
-clone of the DSP-TOOLS repository. 
+there is a folder called `dsp_tools-[version].dist-info`, 
+which contains a link to your local clone of the DSP-TOOLS repository. 
 When you call `dsp-tools` from within the virtual environment, 
 the code of your local clone will be executed.
 
 
+
 ## Using the Git Submodule
 
-This repository embeds a git submodule that needs to be initialised before you can start working with a fresh clone. 
+This repository embeds a git submodule that needs to be initialized before you can start working with a fresh clone. 
 Find more information in the 
-[developers documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/developers/git-submodules/).
+[developers' documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/developers/git-submodules/).
 
 
 
@@ -141,8 +142,8 @@ There are two groups of tests:
 
 - `test/unittests` they can be run directly, 
 - `test/e2e` need a DSP stack running in the background.
-A DSP stack can be started with the command 
-[`dsp-tools start-stack`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#start-stack)
+  A DSP stack can be started with the command 
+  [`dsp-tools start-stack`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#start-stack)
 
 Tests can be run in three different ways:
 
@@ -183,11 +184,11 @@ Depending on your IDE the installation is as follows.
 
 ### VSCode
 
-- **MarkdownLint** can be installed as extension (`davidanson.vscode-markdownlint`), 
+- **MarkdownLint** can be installed as an extension (`davidanson.vscode-markdownlint`), 
   and be configured in the VSCode settings.
 - **Black** can be set as formatter in the `ms-python.python` extension.
   To do so, set `"python.formatting.provider": "black"` in the VSCode `settings.json`.
-  Alternatively, `ms-python.black-formatter` can be installed as and extension.
+  Alternatively, `ms-python.black-formatter` can be installed as an extension.
 - **mypy** can be installed as an extension (`matangover.mypy`), 
   and be configured in the VSCode settings.
     - This extension is different from the mypy functionality 
@@ -205,7 +206,6 @@ VS Code > Settings > Auto Docstring: Docstring Format > google-notypes.
 
 ### PyCharm
 
-
 In PyCharm, mypy is available as [plugin](https://plugins.jetbrains.com/plugin/11086-mypy), 
 and many style checks can be enabled in Settings > Editor > Inspections > Python.
 
@@ -221,11 +221,10 @@ We use [pre-commit hooks](https://pre-commit.com/), which are configured in `.pr
 If you try to make a commit,
 the pre-commit hooks will be executed before the commit is created.
 
-If a hook fails, the commit will be aborted, the Git output will list the problems in your code.
+If a hook fails, the commit will be aborted and the Git output will list the problems in your code.
 
 If a hook modifies a file, the commit will be aborted.
-You can then stage the changes made by the hook,
-and commit again. 
+You can then stage the changes made by the hook, and commit again. 
 
 
 
@@ -251,7 +250,7 @@ Rather, they are published together with the docs of DSP-API and DSP-APP on <htt
 by embedding all three repositories as git submodules 
 into the central [dsp-docs](https://github.com/dasch-swiss/dsp-docs) repository.
 If conflicting, the configurations of dsp-docs will override the configurations of the dsp-tools repository.
-In rare cases, a certain syntax may correctly rendered locally, 
+In rare cases, a certain syntax may be correctly rendered locally, 
 but not on <https://docs.dasch.swiss/latest/DSP-TOOLS>. 
 In order to keep this difference minimal, 
 `mkdocs.yml` of dsp-tools should be as close as possible to the `mkdocs.yml` of dsp-docs.
@@ -262,5 +261,5 @@ the docs of dsp-tools get built from the latest release tag to <https://docs.das
 This means that in order to modify the contents of <https://docs.dasch.swiss/latest/DSP-TOOLS>, 
 it is necessary to:
 
-- Merge the modifications into the main branch of the DSP-TOOLS repository,
-- Release dsp-tools.
+- Merge the modifications into the main branch of the dsp-tools repository,
+- Release DSP-TOOLS.

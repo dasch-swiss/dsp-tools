@@ -69,7 +69,7 @@ The defaults are intended for local testing:
 dsp-tools create project_definition.json
 ```
 
-Will create the project defined in `project_definition.json` on `localhost` for local viewing.
+This will create the project defined in `project_definition.json` on `localhost` for local viewing.
 
 In order to create the same project
 on the DSP server `https://admin.dasch.swiss`,
@@ -295,7 +295,7 @@ This command runs a local instance of DSP-API and DSP-APP.
 dsp-tools start-stack
 ```
 
-`dsp-tools` will ask you for permission to clean Docker with a `docker system prune`.
+DSP-TOOLS will ask you for permission to clean Docker with a `docker system prune`.
 This will remove all unused containers, networks and images.
 If you don't know what that means, just type `y` ("yes") and then `Enter`.
 

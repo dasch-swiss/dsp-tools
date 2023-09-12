@@ -8,25 +8,25 @@ For several fields (e.g. `super` in both `resources` and `properties`, or `propn
 it is necessary to reference entities that are defined elsewhere. The following cases are possible:
 
 - DSP-API internals: 
-    - They are referenced as such and do not have a leading colon.
-    - e.g. `Resource`, `DocumentRepresentation` or `hasValue`
+    - They are referenced as such and do not have a leading colon,  
+      e.g. `Resource`, `DocumentRepresentation` or `hasValue`
 - An external ontology: 
-    - The prefix of the ontology must be declared in the "[prefixes]"(./overview.md#the-prefixes-object) object.
-    - The prefix can then be used for referencing the corresponding external ontology.  
-    - e.g. `foaf:familyName` or `sdo:Organization`
+    - The prefix of the ontology must be declared in the ["prefixes"](./overview.md#the-prefixes-object) object.
+    - The prefix can then be used for referencing the corresponding external ontology,  
+      e.g. `foaf:familyName` or `sdo:Organization`
 - The current ontology: 
-    - Within the same ontology, references can be made by prepending a colon without a prefix `:`.
-    - e.g. `:hasName`.
-    - Optionally, the current ontology can be referenced by its `name`
-    - e.g. `sameOnto:hasName`
-    - It is not necessary to add `sameOnto` to the "[prefixes]"(./overview.md#the-prefixes-object) object.
+    - Within the same ontology, references can be made by prepending a colon without a prefix `:`,  
+      e.g. `:hasName`.
+    - Optionally, the current ontology can be referenced by its `name`,  
+      e.g. `sameOnto:hasName`
+    - It is not necessary to add `sameOnto` to the ["prefixes"](./overview.md#the-prefixes-object) object.
 - A different ontology defined in the same file: 
     - Within one data model file, multiple ontologies can be defined.
       These will be created in the exact order they appear in the `ontologies` array. 
     - Once an ontology has been created,
-      it can be referenced by the following ontologies by its `name`
+      it can be referenced by the following ontologies by its `name`,  
       e.g. `first-onto:hasName`
-    - It is not necessary to add `first-onto` to "[prefixes]"(./overview.md#the-prefixes-object) object.
+    - It is not necessary to add `first-onto` to ["prefixes"](./overview.md#the-prefixes-object) object.
 
 
 

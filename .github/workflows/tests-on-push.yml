@@ -40,7 +40,9 @@ jobs:
       # Build and check docs
       ######################
       - name: build docs
-        run: poetry run mkdocs build --strict
+        run: |
+          poetry exec generate-pyreverse
+          poetry run mkdocs build --strict
 
       - name: check external links in docs
         run: |

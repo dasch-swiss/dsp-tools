@@ -75,11 +75,14 @@ darglint = """
     -not -path "./.git/*" \
     | xargs poetry run darglint -v 2\
 """
-docs-serve = """
+generate-pyreverse = """
     ./docs/assets/pyreverse/pyreverse.sh
     for file in ./docs/assets/pyreverse/*.dot; do
         dot -Tpng $file -o ${file}.png
     done
+"""
+docs-serve = """
+    poetry exec generate-pyreverse
     mkdocs serve
 """
 

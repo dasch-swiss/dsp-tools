@@ -1,9 +1,23 @@
-# https://pylint.pycqa.org/en/latest/pyreverse.html
+# Generate UML diagrams of the dsp_tools package
+################################################
+
+# This script generates 2 UML diagrams of the dsp_tools package:
+# "package.png" shows the interconnections between the modules,
+# "classes.png" shows the interconnections between the classes.
+
+# Requirements: pylint, graphviz
+# See https://pylint.pycqa.org/en/latest/pyreverse.html
+
+# Usage: 
+# chmod u+x docs/assets/pyreverse/pyreverse.sh
+# ./docs/assets/pyreversepyreverse.sh
+# If "--only-classnames" is used, the attributes and methods of the classes are omitted.
 
 pyreverse \
---output png \
+--ignore import_scripts,logging.py,shared.py,utils.py,model.py,exceptions.py,connection.py,helpers.py,propertyelement.py,set_encoder.py \
+--only-classnames \
+--output-directory docs/assets/pyreverse \
 --max-color-depth 3 \
 --colorized  \
---ignore __init__.py,logging.py,exceptions.py,connection.py,helpers.py,propertyelement.py,utils.py,import_scripts,shared.py,set_encoder.py \
---output-directory docs/assets/pyreverse \
+--output png \
 src/dsp_tools

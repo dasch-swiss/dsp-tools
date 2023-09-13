@@ -23,8 +23,8 @@ dsp-tools
 
 ## Interdependence of the modules
 
-![](../assets/pyreverse/packages.png)
+![](../assets/pyreverse/packages.dot.png)
 
 ## Interdependence of the classes
 
-![](../assets/pyreverse/classes.png)
+![](../assets/pyreverse/classes.dot.png)

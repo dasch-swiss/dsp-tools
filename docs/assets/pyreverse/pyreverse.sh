@@ -9,8 +9,8 @@
 # See https://pylint.pycqa.org/en/latest/pyreverse.html
 
 # Usage: 
-# chmod u+x docs/assets/pyreverse/pyreverse.sh
-# ./docs/assets/pyreversepyreverse.sh
+# $ chmod u+x docs/assets/pyreverse/pyreverse.sh
+# $ ./docs/assets/pyreverse/pyreverse.sh
 # If "--only-classnames" is used, the attributes and methods of the classes are omitted.
 
 pyreverse \
@@ -19,5 +19,5 @@ pyreverse \
 --output-directory docs/assets/pyreverse \
 --max-color-depth 3 \
 --colorized  \
---output png \
+--output dot \
 src/dsp_tools

@@ -65,3 +65,4 @@ testdata/bitstreams/nested
 processing_result_*.pkl
 processed_files.txt
 docs/assets/pyreverse/*.png
+docs/assets/pyreverse/*.dot

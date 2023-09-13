@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Generate UML diagrams of the dsp_tools package
 ################################################
 

@@ -34,7 +34,7 @@ To get started quickly, without reading the details, just execute these commands
 - `poetry install`
 - `poetry shell`
 - `pre-commit install`
-- `brew install imagemagick ffmpeg`
+- `brew install imagemagick ffmpeg graphviz`
 
 The remainder of this README explains these commands in more detail.
 
@@ -263,3 +263,6 @@ it is necessary to:
 
 - Merge the modifications into the main branch of the dsp-tools repository,
 - Release DSP-TOOLS.
+
+The documentation contains UML diagrams created by [pyreverse](https://pylint.pycqa.org/en/latest/pyreverse.html).
+In order to create them, graphviz needs to be installed: `brew install graphviz`.

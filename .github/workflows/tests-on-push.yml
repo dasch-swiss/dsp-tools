@@ -15,7 +15,7 @@ jobs:
     steps:
 
       # Checkout source, install Python, install dependencies
-      ######################################################
+      #######################################################
       - name: Checkout source
         uses: actions/checkout@v3
         with:
@@ -39,6 +39,9 @@ jobs:
 
       # Build and check docs
       ######################
+      - name: Setup Graphviz
+        uses: ts-graphviz/setup-graphviz@v1
+
       - name: build docs
         run: |
           poetry exec generate-pyreverse

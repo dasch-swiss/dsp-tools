@@ -440,13 +440,17 @@ class TestExcelToProperties(unittest.TestCase):
                 "gui_attributes": ["size: 32, maxlength: 128", pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
             }
         )
-        with self.assertRaises(BaseError) as context:
+        with self.assertRaisesRegex(
+            UserError,
+            r"The file 'Test' is missing values in the following rows\:\n"
+            r"\- Column Name\: name Row Number\: \[9\]\n"
+            r"\- Column Name\: super Row Number\: \[2, 4, 9\]\n"
+            r"\- Column Name\: object Row Number\: \[5, 9\]\n"
+            r"\- Column Name\: gui_element Row Number\: \[6, 8, 9\]\n"
+            r"\- Column Name\: label Row Number\: \[3, 8\]\n"
+            r"\- Column Name\: wrong gui_attributes Row Number\: \[7\]",
+        ):
             e2j._do_property_excel_compliance(df=original_df, excelfile="Test")
-            self.assertEqual(
-                context,
-                "The file '{excel_filename}' is missing values in some rows. See below for more information:\n"
-                "{error_str}",
-            )
 
     @pytest.mark.filterwarnings("ignore::UserWarning")
     def test__rename_deprecated_hlist(self) -> None:
@@ -480,27 +484,28 @@ class TestExcelToProperties(unittest.TestCase):
             {"gui_attributes": [pd.NA, "max:1.4 / min:1.2", "hlist:", "234345", "hlist: languages,"]}
         )
         self.assertIsNone(e2j._get_gui_attribute(df_row=original_df.loc[0, :], row_num=2, excelfile="Test"))
-        with self.assertRaises(UserError) as context:
+
+        with self.assertRaisesRegex(
+            UserError,
+            r"Row 3 of Excel file Test contains invalid data in column 'gui_attributes'\.\n"
+            r"The expected format is '\[attribute\: value, attribute\: value\]'\.",
+        ):
             e2j._get_gui_attribute(df_row=original_df.loc[1, :], row_num=3, excelfile="Test")
-            self.assertEqual(
-                "Row {row_num} of Excel file {excel_filename} contains invalid data in column 'gui_attributes'. "
-                "The expected format is '[attribute: value, attribute: value]'.",
-                context,
-            )
-        with self.assertRaises(UserError) as context:
+
+        with self.assertRaisesRegex(
+            UserError,
+            r"Row 4 of Excel file Test contains invalid data in column 'gui_attributes'\.\n"
+            r"The expected format is '\[attribute\: value, attribute\: value\]'\.",
+        ):
             e2j._get_gui_attribute(df_row=original_df.loc[2, :], row_num=4, excelfile="Test")
-            self.assertEqual(
-                "Row {row_num} of Excel file {excel_filename} contains invalid data in column 'gui_attributes'. "
-                "The expected format is '[attribute: value, attribute: value]'.",
-                context,
-            )
-        with self.assertRaises(UserError) as context:
+
+        with self.assertRaisesRegex(
+            UserError,
+            r"Row 5 of Excel file Test contains invalid data in column 'gui_attributes'\.\n"
+            r"The expected format is '\[attribute\: value, attribute\: value\]'\.",
+        ):
             e2j._get_gui_attribute(df_row=original_df.loc[3, :], row_num=5, excelfile="Test")
-            self.assertEqual(
-                "Row {row_num} of Excel file {excel_filename} contains invalid data in column 'gui_attributes'. "
-                "The expected format is '[attribute: value, attribute: value]'.",
-                context,
-            )
+
         expected_dict = {"hlist": "languages"}
         returned_dict = e2j._get_gui_attribute(df_row=original_df.loc[4, :], row_num=6, excelfile="Test")
         self.assertDictEqual(expected_dict, cast(dict[str, str], returned_dict))

@@ -20,7 +20,7 @@ def read_and_clean_excel_file(excelfile: str, sheetname: str | int = 0) -> pd.Da
 
     Args:
         excelfile: The name of the Excel file
-        sheetname: The name of the Excel sheet, by default it reads the first
+        sheetname: The name or index (zero-based) of the Excel sheet, by default it reads the first
 
     Returns:
         A pd.DataFrame

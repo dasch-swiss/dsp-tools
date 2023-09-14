@@ -284,3 +284,12 @@ def col_must_or_not_empty_based_on_other_col(
         return pd.Series(combined_array)
     else:
         return None
+
+
+def add_optional_columns(df: pd.DataFrame, optional_col_set: set[str]) -> pd.DataFrame:
+    in_df_cols = set(df.columns)
+    if not optional_col_set.issubset(in_df_cols):
+        additional_col = list(optional_col_set.difference(in_df_cols))
+        additional_df = pd.DataFrame(columns=additional_col, index=df.index)
+        df = pd.concat(objs=[df, additional_df], axis=1)
+    return df

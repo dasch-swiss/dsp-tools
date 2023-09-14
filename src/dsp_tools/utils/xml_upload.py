@@ -370,6 +370,33 @@ def parse_xml_file(input_file: Union[str, Path, etree._ElementTree[Any]]) -> etr
     return tree.getroot()
 
 
+def _check_if_onto_name_exists(
+    resclass_name_2_type: dict[str, type],
+    ontoname: str,
+    shortcode: str,
+) -> None:
+    """
+    Check if the "default-ontology" of the <knora> tag of the XML file exists on the DSP server.
+
+    Args:
+        resclass_name_2_type: infos about the resource classes that exist on the DSP server for the current ontology
+        ontoname: name of the ontology as referenced in the XML file
+        shortcode: shortcode of the project as referenced in the XML file
+
+    Raises:
+        UserError: if the ontology does not exist on the DSP server
+    """
+    existing_onto_names = {x.split(":")[0] for x in resclass_name_2_type}
+    existing_onto_names.remove("knora-api")
+    if ontoname not in existing_onto_names:
+        err_msg = (
+            f"ERROR: The <knora> tag of your XML file references the default-ontology '{ontoname}', "
+            f"but the project {shortcode} on the DSP server contains only the ontologies {existing_onto_names}"
+        )
+        logger.error(err_msg)
+        raise UserError(err_msg)
+
+
 def _check_consistency_with_ontology(
     resources: list[XMLResource],
     resclass_name_2_type: dict[str, type],
@@ -403,33 +430,6 @@ def _check_consistency_with_ontology(
     )
     _check_if_resource_types_exist(resources=resources, resclass_name_2_type=resclass_name_2_type)
     _check_if_property_types_exist(resources=resources, resclass_name_2_type=resclass_name_2_type)
-
-
-def _check_if_onto_name_exists(
-    resclass_name_2_type: dict[str, type],
-    ontoname: str,
-    shortcode: str,
-) -> None:
-    """
-    Check if the "default-ontology" of the <knora> tag of the XML file exists on the DSP server.
-
-    Args:
-        resclass_name_2_type: infos about the resource classes that exist on the DSP server for the current ontology
-        ontoname: name of the ontology as referenced in the XML file
-        shortcode: shortcode of the project as referenced in the XML file
-
-    Raises:
-        UserError: if the ontology does not exist on the DSP server
-    """
-    existing_onto_names = {x.split(":")[0] for x in resclass_name_2_type}
-    existing_onto_names.remove("knora-api")
-    if ontoname not in existing_onto_names:
-        err_msg = (
-            f"ERROR: The <knora> tag of your XML file references the default-ontology '{ontoname}', "
-            f"but the project {shortcode} on the DSP server contains only the ontologies {existing_onto_names}"
-        )
-        logger.error(err_msg)
-        raise UserError(err_msg)
 
 
 def _check_if_resource_types_exist(

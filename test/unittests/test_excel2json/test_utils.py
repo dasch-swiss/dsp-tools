@@ -202,9 +202,9 @@ class TestUtils(unittest.TestCase):
         # this would cause the validation to fail
         returned_df = returned_df.sort_index(axis=1)
         assert_frame_equal(expected_df, returned_df)
-        # here all the columns exist
-        returned_df = utl.add_optional_columns(df=expected_df, optional_col_set=optional_cols)
-        assert_frame_equal(expected_df, returned_df)
+        # if all columns exist, the df should be returned unchanged
+        unchanged_df = utl.add_optional_columns(df=expected_df, optional_col_set=optional_cols)
+        assert_frame_equal(expected_df, unchanged_df)
 
 
 if __name__ == "__main__":

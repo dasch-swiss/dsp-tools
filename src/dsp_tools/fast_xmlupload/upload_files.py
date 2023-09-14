@@ -207,26 +207,21 @@ def _upload_without_processing(
     """
     try:
         with open(file, "rb") as bitstream:
-            try:
-                response_upload = requests.post(
-                    url=f"{regex.sub(r'/$', '', sipi_url)}/upload_without_processing",
-                    headers={"Authorization": f"Bearer {con.get_token()}"},
-                    files={"file": bitstream},
-                    timeout=8 * 60,
-                )
-            except Exception:  # pylint: disable=broad-exception-caught
-                return _call_upload_without_processing_recursively(
-                    file=file,
-                    sipi_url=sipi_url,
-                    con=con,
-                    err_msg=f"The /upload_without_processing route raised an exception for {file}. Retrying...",
-                )
+            response_upload = requests.post(
+                url=f"{regex.sub(r'/$', '', sipi_url)}/upload_without_processing",
+                headers={"Authorization": f"Bearer {con.get_token()}"},
+                files={"file": bitstream},
+                timeout=8 * 60,
+            )
     except Exception:  # pylint: disable=broad-exception-caught
         return _call_upload_without_processing_recursively(
             file=file,
             sipi_url=sipi_url,
             con=con,
-            err_msg=f"Opening the file {file} raised an exception. Retrying...",
+            err_msg=(
+                f"An exception occurred while opening the file {file} "
+                "or while sending it to the /upload_without_processing route. Retrying..."
+            ),
         )
 
     if response_upload.json().get("message") == "server.fs.mkdir() failed: File exists":

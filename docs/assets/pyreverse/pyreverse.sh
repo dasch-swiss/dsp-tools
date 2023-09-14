@@ -13,7 +13,9 @@
 # Usage: 
 # $ chmod u+x docs/assets/pyreverse/pyreverse.sh
 # $ ./docs/assets/pyreverse/pyreverse.sh
-# If "--only-classnames" is used, the attributes and methods of the classes are omitted.
+
+# If the "pyreverse" command is called with the "--only-classnames" flag,
+# the attributes and methods of the classes are omitted.
 
 pyreverse \
 --ignore import_scripts,logging.py,shared.py,utils.py,model.py,exceptions.py,connection.py,helpers.py,propertyelement.py,set_encoder.py \

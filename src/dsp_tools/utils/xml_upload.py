@@ -397,45 +397,20 @@ def _check_if_onto_name_exists(
         raise UserError(err_msg)
 
 
-def _check_consistency_with_ontology(
+def _check_if_resource_types_exist(
     resources: list[XMLResource],
     resclass_name_2_type: dict[str, type],
-    shortcode: str,
-    ontoname: str,
-    verbose: bool = False,
 ) -> None:
     """
-    Checks if the resource types and properties in the XML are consistent with the ontology.
+    Check if the resource types in the XML file are consistent with the ontology.
 
     Args:
         resources: a list of parsed XMLResources
         resclass_name_2_type: infos about the resource classes that exist on the DSP server for the current ontology
-        shortcode: the shortcode of the project
-            as referenced in the attribute "shortcode" of the <knora> tag of the XML file
-        ontoname: the name of the ontology
-            as referenced in the attribute "default-ontology" of the <knora> tag of the XML file
-        verbose: verbose switch
 
     Raises:
         UserError: if there is an inconsistency between the ontology and the data
     """
-    if verbose:
-        print("Check if the resource types and properties are consistent with the ontology...")
-        logger.info("Check if the resource types and properties are consistent with the ontology...")
-    if not any(x.startswith(ontoname) for x in resclass_name_2_type.keys()):
-        err_msg = (
-            f"The <knora> tag of your XML file references the ontology '{ontoname}', "
-            f"but the project {shortcode} on the DSP server doesn't contain an ontology with this name."
-        )
-        logger.error(err_msg)
-        raise UserError(err_msg)
-    _check_if_onto_name_exists(
-        resclass_name_2_type=resclass_name_2_type,
-        ontoname=ontoname,
-        shortcode=shortcode,
-    )
-    knora_properties = resclass_name_2_type[resources[0].restype].knora_properties  # type: ignore[attr-defined]
-
     for resource in resources:
         # check that the resource type is consistent with the ontology
         if resource.restype not in resclass_name_2_type:
@@ -460,6 +435,24 @@ def _check_consistency_with_ontology(
             logger.error(err_msg)
             raise UserError(err_msg)
 
+
+def _check_if_property_types_exist(
+    resources: list[XMLResource],
+    resclass_name_2_type: dict[str, type],
+) -> None:
+    """
+    Check if the property types in the XML file are either a DSP base property
+    or a property that was defined for this specific resource (not every resource can have every property).
+
+    Args:
+        resources: a list of parsed XMLResources
+        resclass_name_2_type: infos about the resource classes that exist on the DSP server for the current ontology
+
+    Raises:
+        UserError: if there is an inconsistency between the ontology and the data
+    """
+    knora_properties = resclass_name_2_type[resources[0].restype].knora_properties  # type: ignore[attr-defined]
+    for resource in resources:
         # check that the property types are consistent with the ontology
         resource_properties = resclass_name_2_type[resource.restype].properties.keys()  # type: ignore[attr-defined]
         for propname in [prop.name for prop in resource.properties]:
@@ -486,6 +479,41 @@ def _check_consistency_with_ontology(
 
     print("Resource types and properties are consistent with the ontology.")
     logger.info("Resource types and properties are consistent with the ontology.")
+
+
+def _check_consistency_with_ontology(
+    resources: list[XMLResource],
+    resclass_name_2_type: dict[str, type],
+    shortcode: str,
+    ontoname: str,
+    verbose: bool = False,
+) -> None:
+    """
+    Checks if the "default-ontology" of the <knora> tag of the XML file exists on the DSP server,
+    and if the resource types and property types in the XML are consistent with the ontology.
+
+    Args:
+        resources: a list of parsed XMLResources
+        resclass_name_2_type: infos about the resource classes that exist on the DSP server for the current ontology
+        shortcode: the shortcode of the project
+            as referenced in the attribute "shortcode" of the <knora> tag of the XML file
+        ontoname: the name of the ontology
+            as referenced in the attribute "default-ontology" of the <knora> tag of the XML file
+        verbose: verbose switch
+
+    Raises:
+        UserError: if there is an inconsistency between the ontology and the data
+    """
+    if verbose:
+        print("Check if the resource types and properties are consistent with the ontology...")
+        logger.info("Check if the resource types and properties are consistent with the ontology...")
+    _check_if_onto_name_exists(
+        resclass_name_2_type=resclass_name_2_type,
+        ontoname=ontoname,
+        shortcode=shortcode,
+    )
+    _check_if_resource_types_exist(resources=resources, resclass_name_2_type=resclass_name_2_type)
+    _check_if_property_types_exist(resources=resources, resclass_name_2_type=resclass_name_2_type)
 
 
 def _check_if_bitstreams_exist(

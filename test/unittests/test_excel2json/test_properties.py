@@ -13,7 +13,7 @@ import pandas as pd
 import pytest
 from pandas.testing import assert_frame_equal
 
-from dsp_tools.models.exceptions import BaseError, UserError
+from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.excel2json import properties as e2j
 
 

@@ -443,12 +443,12 @@ class TestExcelToProperties(unittest.TestCase):
         with self.assertRaisesRegex(
             UserError,
             r"The file 'Test' is missing values in the following rows\:\n"
-            r"\- Column Name\: name Row Number\: \[9\]\n"
-            r"\- Column Name\: super Row Number\: \[2, 4, 9\]\n"
-            r"\- Column Name\: object Row Number\: \[5, 9\]\n"
-            r"\- Column Name\: gui_element Row Number\: \[6, 8, 9\]\n"
-            r"\- Column Name\: label Row Number\: \[3, 8\]\n"
-            r"\- Column Name\: wrong gui_attributes Row Number\: \[7\]",
+            r"\- Column 'name' Row Number\(s\)\: \[9\]\n"
+            r"\- Column 'super' Row Number\(s\)\: \[2, 4, 9\]\n"
+            r"\- Column 'object' Row Number\(s\)\: \[5, 9\]\n"
+            r"\- Column 'gui_element' Row Number\(s\)\: \[6, 8, 9\]\n"
+            r"\- Column 'label' Row Number\(s\)\: \[3, 8\]\n"
+            r"\- Column 'gui_attributes' Row Number\(s\)\: \[7\]",
         ):
             e2j._do_property_excel_compliance(df=original_df, excelfile="Test")
 
@@ -525,10 +525,10 @@ class TestExcelToProperties(unittest.TestCase):
                 "gui_attributes": ["Spinbox_attr", pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, "TimeStamp_attr"],
             }
         )
-        expected_dict = {"wrong gui_attributes": [False, True, False, False, False, False, True]}
+        expected_dict = {"gui_attributes": [False, True, False, False, False, False, True]}
         returned_dict = e2j._check_compliance_gui_attributes(df=original_df)
         returned_dict = cast(dict[str, list[pd.Series]], returned_dict)
-        casted_dict: dict[str, Any] = {"wrong gui_attributes": list(returned_dict["wrong gui_attributes"])}
+        casted_dict: dict[str, Any] = {"gui_attributes": list(returned_dict["gui_attributes"])}
         self.assertDictEqual(expected_dict, casted_dict)
 
     def test__row2prop(self) -> None:

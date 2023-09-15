@@ -11,7 +11,7 @@ from openpyxl import load_workbook
 from openpyxl.cell import Cell
 from openpyxl.worksheet.worksheet import Worksheet
 
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.utils.shared import simplify_name
 
 list_of_lists_of_previous_cell_values: list[list[str]] = []
@@ -36,7 +36,7 @@ def expand_lists_from_excel(
             If this is an empty list, an empty list will be returned.
 
     Raises:
-        BaseError: if a problem occurred while trying to expand the Excel files
+        UserError: if a problem occurred while trying to expand the Excel files
 
     Returns:
         the same "lists" section, but without references to Excel files
@@ -63,7 +63,7 @@ def expand_lists_from_excel(
                 f"files therein have been temporarily expanded into the 'lists' section of your project."
             )
         except BaseError as err:
-            raise BaseError(
+            raise UserError(
                 f"\tWARNING: The list '{_list['name']}' contains a reference to the folder '{foldername}', but a "
                 f"problem occurred while trying to expand the Excel files therein into the 'lists' section of "
                 f"your project: {err.message}"
@@ -95,7 +95,7 @@ def _get_values_from_excel(
         verbose: verbose switch
 
     Raises:
-        BaseError: if one of the Excel files contains invalid data
+        UserError: if one of the Excel files contains invalid data
 
     Returns:
         int: Row index for the next loop (current row index minus 1)
@@ -108,7 +108,7 @@ def _get_values_from_excel(
 
     for excelfile in excelfiles.values():
         if any((not excelfile["A1"].value, excelfile["B1"].value)):
-            raise BaseError(
+            raise UserError(
                 f"ERROR: Inconsistency in Excel list: The first row must consist of exactly one value, in cell A1. "
                 f"All other cells of row 1 must be empty.\nInstead, found the following:\n"
                 f" - Cell A1: '{excelfile['A1'].value}'\n"
@@ -124,7 +124,7 @@ def _get_values_from_excel(
         # check if all predecessors in row (values to the left) are consistent with the values in preval list
         for idx, val in enumerate(preval[:-1]):
             if val != str(base_file_ws.cell(column=idx + 1, row=row).value).strip():
-                raise BaseError(
+                raise UserError(
                     "ERROR: Inconsistency in Excel list: "
                     f"{val} not equal to {str(base_file_ws.cell(column=idx+1, row=row).value).strip()}"
                 )
@@ -144,13 +144,13 @@ def _get_values_from_excel(
 
         # if value was last in row (no further values to the right), it's a node, continue here
         else:
-            # check if there are duplicate nodes (i.e. identical rows), raise a BaseError if so
+            # check if there are duplicate nodes (i.e. identical rows), raise a UserError if so
             new_check_list = preval.copy()
             new_check_list.append(str(cell.value).strip())
             list_of_lists_of_previous_cell_values.append(new_check_list)
 
             if any(list_of_lists_of_previous_cell_values.count(x) > 1 for x in list_of_lists_of_previous_cell_values):
-                raise BaseError(
+                raise UserError(
                     f"ERROR: There is at least one duplicate node in the list. "
                     f"Found duplicate in column {cell.column}, row {cell.row}:\n'{str(cell.value).strip()}'"
                 )
@@ -169,7 +169,7 @@ def _get_values_from_excel(
             for other_lang, ws_other_lang in excelfiles.items():
                 cell_value = ws_other_lang.cell(column=col, row=row).value
                 if not (isinstance(cell_value, str) and len(cell_value) > 0):
-                    raise BaseError(
+                    raise UserError(
                         "ERROR: Malformed Excel file: The Excel file with the language code "
                         f"'{other_lang}' should have a value in row {row}, column {col}"
                     )
@@ -208,7 +208,7 @@ def _make_json_lists_from_excel(
         verbose: verbose switch
 
     Raises:
-        BaseError: if one of the Excel files contains invalid data
+        UserError: if one of the Excel files contains invalid data
 
     Returns:
         The finished "lists" section
@@ -272,13 +272,13 @@ def validate_lists_section_with_schema(
         lists_section: the "lists" section as Python object
 
     Raises:
-        BaseError: if the validation fails
+        UserError: if the validation fails
 
     Returns:
         True if the "lists" section passed validation
     """
     if bool(path_to_json_project_file) == bool(lists_section):
-        raise BaseError("Validation of the 'lists' section works only if exactly one of the two arguments is given.")
+        raise UserError("Validation of the 'lists' section works only if exactly one of the two arguments is given.")
 
     with importlib.resources.files("dsp_tools").joinpath("resources/schema/lists-only.json").open(
         encoding="utf-8"
@@ -290,7 +290,7 @@ def validate_lists_section_with_schema(
             project = json.load(f)
             lists_section = project["project"].get("lists")
             if not lists_section:
-                raise BaseError(
+                raise UserError(
                     f"Cannot validate 'lists' section of {path_to_json_project_file}, "
                     "because there is no 'lists' section in this file."
                 )
@@ -298,7 +298,7 @@ def validate_lists_section_with_schema(
     try:
         jsonschema.validate(instance={"lists": lists_section}, schema=lists_schema)
     except jsonschema.ValidationError as err:
-        raise BaseError(
+        raise UserError(
             f"'lists' section did not pass validation. The error message is: {err.message}\n"
             f"The error occurred at {err.json_path}"
         ) from None
@@ -315,13 +315,13 @@ def _extract_excel_file_paths(excelfolder: str) -> list[str]:
         excelfolder: path to the folder containing the Excel file(s)
 
     Raises:
-        BaseError: if excelfolder is not a directory, or if one of the files in it has an invalid name
+        UserError: if excelfolder is not a directory, or if one of the files in it has an invalid name
 
     Returns:
         list of the Excel file paths to process
     """
     if not os.path.isdir(excelfolder):
-        raise BaseError(f"ERROR: {excelfolder} is not a directory.")
+        raise UserError(f"ERROR: {excelfolder} is not a directory.")
 
     excel_file_paths = [
         filename
@@ -331,7 +331,7 @@ def _extract_excel_file_paths(excelfolder: str) -> list[str]:
 
     for filepath in excel_file_paths:
         if not regex.search(r"^(de|en|fr|it|rm)\.xlsx$", os.path.basename(filepath)):
-            raise BaseError(f"Invalid file name '{filepath}'. Expected format: 'languagecode.xlsx'")
+            raise UserError(f"Invalid file name '{filepath}'. Expected format: 'languagecode.xlsx'")
 
     return excel_file_paths
 
@@ -350,7 +350,7 @@ def excel2lists(
         verbose: verbose switch
 
     Raises:
-        BaseError if something went wrong
+        UserError if something went wrong
 
     Returns:
         a tuple consisting of the "lists" section as Python list, and the success status (True if everything went well)

@@ -3,7 +3,7 @@ import os
 
 import regex
 
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.excel2json.lists import excel2lists
 from dsp_tools.utils.excel2json.properties import excel2properties
 from dsp_tools.utils.excel2json.resources import excel2resources
@@ -34,7 +34,7 @@ def excel2json(
         path_to_output_file: path to the file where the output JSON file will be saved
 
     Raises:
-        BaseError: if something went wrong
+        UserError: if something went wrong
 
     Returns:
         True if everything went well
@@ -45,19 +45,19 @@ def excel2json(
     # validate input
     # --------------
     if not os.path.isdir(data_model_files):
-        raise BaseError(f"ERROR: {data_model_files} is not a directory.")
+        raise UserError(f"ERROR: {data_model_files} is not a directory.")
     folder = [x for x in os.scandir(data_model_files) if not regex.search(r"^(\.|~\$).+", x.name)]
 
     processed_files = []
     onto_folders = [x for x in folder if os.path.isdir(x) and regex.search(r"([\w.-]+) \(([\w.\- ]+)\)", x.name)]
     if len(onto_folders) == 0:
-        raise BaseError(
+        raise UserError(
             f"'{data_model_files}' must contain at least one subfolder named after the pattern 'onto_name (onto_label)'"
         )
     for onto_folder in onto_folders:
         contents = sorted([x.name for x in os.scandir(onto_folder) if not regex.search(r"^(\.|~\$).+", x.name)])
         if contents != ["properties.xlsx", "resources.xlsx"]:
-            raise BaseError(
+            raise UserError(
                 f"ERROR: '{data_model_files}/{onto_folder.name}' must contain one file 'properties.xlsx' "
                 "and one file 'resources.xlsx', but nothing else."
             )
@@ -67,13 +67,13 @@ def excel2json(
     if listfolder:
         listfolder_contents = [x for x in os.scandir(listfolder[0]) if not regex.search(r"^(\.|~\$).+", x.name)]
         if not all(regex.search(r"(de|en|fr|it|rm).xlsx", file.name) for file in listfolder_contents):
-            raise BaseError(
+            raise UserError(
                 f"The only files allowed in '{data_model_files}/lists' are en.xlsx, de.xlsx, fr.xlsx, it.xlsx, rm.xlsx"
             )
         processed_files = [f"{data_model_files}/lists/{file.name}" for file in listfolder_contents] + processed_files
 
     if len(onto_folders) + len(listfolder) != len(folder):
-        raise BaseError(
+        raise UserError(
             f"The only allowed subfolders in '{data_model_files}' are 'lists' "
             "and folders that match the pattern 'onto_name (onto_label)'"
         )

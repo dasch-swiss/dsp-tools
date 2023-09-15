@@ -35,6 +35,7 @@ def excel2json(
 
     Raises:
         UserError: if something went wrong
+        BaseError: if something went wrong
 
     Returns:
         True if everything went well

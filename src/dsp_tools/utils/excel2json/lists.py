@@ -273,6 +273,7 @@ def validate_lists_section_with_schema(
 
     Raises:
         UserError: if the validation fails
+        BaseError: if the validation fails
 
     Returns:
         True if the "lists" section passed validation
@@ -350,7 +351,8 @@ def excel2lists(
         verbose: verbose switch
 
     Raises:
-        UserError if something went wrong
+        UserError: if something went wrong
+        BaseError: if something went wrong
 
     Returns:
         a tuple consisting of the "lists" section as Python list, and the success status (True if everything went well)

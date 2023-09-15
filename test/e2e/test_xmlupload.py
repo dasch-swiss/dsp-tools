@@ -31,8 +31,8 @@ class TestXMLUpload(unittest.TestCase):
 
         with self.assertRaisesRegex(
             UserError,
-            r"The <knora> tag of your XML file references the ontology 'notexistingfantasyonto', "
-            r"but the project 4124 on the DSP server doesn't contain an ontology with this name",
+            r"The <knora> tag of your XML file references the default-ontology 'notexistingfantasyonto', "
+            r"but the project 4124 on the DSP server contains only the ontologies {'testonto'}",
         ):
             xml_upload(
                 input_file="testdata/invalid-testdata/xml-data/inexistent-ontoname.xml",

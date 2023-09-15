@@ -1,8 +1,8 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# Excel file format to generate a JSON project
+# Excel File Format to Generate a JSON Project
 
-## The folder structure
+## The Folder Structure
 
 With the [`excel2json`](../cli-commands.md#excel2json) command, 
 a JSON project file can be created from Excel files.
@@ -54,7 +54,7 @@ Continue reading the following paragraphs to learn more about the expected struc
 
 
 
-## resources section
+## The `resources` Section
 
 With the [`excel2resources`](../cli-commands.md#excel2resources) command, 
 the `resources` section used in a data model (JSON) can be created from an Excel file. 
@@ -106,12 +106,12 @@ The expected columns are:
 - [`gui_order`](./json-project/ontologies.md#resource-cardinalities) 
   (optional): By default, DSP-APP displays the properties in the order how they are listed in the Excel sheet.
   If you prefer another order, you can make a numbering in this column.
-  Example: You order the propnames alphabetically in the Excel, 
+  Example: You order the property names alphabetically in the Excel, 
   but they should be displayed in another order in DSP-APP.
 
 
 
-## properties section
+## The `properties` Section
 
 With the [`excel2properties`](../cli-commands.md#excel2properties) command, 
 the `properties` section used in a data model (JSON) can be created from an Excel file.
@@ -130,7 +130,7 @@ The expected columns are:
 
 - [`name`](./json-project/ontologies.md#property-name)
   (mandatory): Unique identifier for the property
-- [`label_en`, `label_de`, `label_fr`, `label_it`, `label_rm`](./json-project/ontologies.md#property-labels):
+- [`label_en`, `label_de`, `label_fr`, `label_it`, `label_rm`](./json-project/ontologies.md#property-label):
   (one language mandatory): Label of the property that will be displayed in DSP-APP. 
   Should be rather short.
 - [`comment_en`, `comment_de`, `comment_fr`, `comment_it`, `comment_rm`](./json-project/ontologies.md#property-comments)
@@ -163,7 +163,7 @@ files with column titles `hlist`, `en`, `de`, `fr`, `it`, or `rm` are valid, but
 
 
 
-## lists section
+## The `lists` Section
 
 With the [`excel2lists`](../cli-commands.md#excel2lists) command, 
 the `lists` section of a JSON project file can be created from one or several Excel files. 

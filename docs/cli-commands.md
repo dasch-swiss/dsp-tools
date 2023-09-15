@@ -1,8 +1,8 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# The CLI commands of DSP-TOOLS
+# The CLI Commands of DSP-TOOLS
 
-## Before starting: Have in mind the subdomains of a DSP server
+## Before Starting: Have in Mind the Subdomains of a DSP Server
 
 DaSCH follows some conventions when setting up DSP servers. 
 Most of the commands documented on this page
@@ -69,7 +69,7 @@ The defaults are intended for local testing:
 dsp-tools create project_definition.json
 ```
 
-will create the project defined in `project_definition.json` on `localhost` for local viewing.
+This will create the project defined in `project_definition.json` on `localhost` for local viewing.
 
 In order to create the same project
 on the DSP server `https://admin.dasch.swiss`,
@@ -101,6 +101,7 @@ The following options are available:
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API 
 - `-P` | `--project` (mandatory): shortcode, shortname or IRI of the project 
 - `-v` | `--verbose` (optional): print more information about the progress to the console
+- `-d` | `--dump` (optional): write every request to DSP-API into a file
 
 The defaults are intended for local testing: 
 
@@ -116,6 +117,9 @@ it is necessary to specify the following options:
 ```bash
 dsp-tools get -s https://api.dasch.swiss -u 'your@email.com' -p 'password' -P my_project project_definition.json
 ```
+
+It is possible to get a project from a DSP server without giving credentials.
+But in this case, the resulting JSON file won't have a "users" section.
 
 The expected JSON format is [documented here](./file-formats/json-project/overview.md).
 
@@ -138,6 +142,7 @@ The following options are available:
 - `-V` | `--validate` (optional): validate the XML file without uploading it
 - `-v` | `--verbose` (optional): print more information about the progress to the console
 - `-m` | `--metrics` (optional): write metrics into a 'metrics' folder
+- `-d` | `--dump` (optional): write every request to DSP-API/SIPI into a file
 
 Output:
 
@@ -151,7 +156,7 @@ The defaults are intended for local testing:
 dsp-tools xmlupload xml_data_file.xml
 ```
 
-will upload the data defined in `xml_data_file.xml` on `localhost` for local viewing.
+Will upload the data defined in `xml_data_file.xml` on `localhost` for local viewing.
 
 In order to upload the same data 
 to the DSP server `https://admin.dasch.swiss`,
@@ -189,7 +194,8 @@ The following options are available:
 
 - `-v` | `--verbose` (optional): print more information about the progress to the console
 
-The expected Excel file format and the folder structure are documented [here](./file-formats/excel2json.md#lists-section).
+The expected Excel file format and the folder structure are documented [here]
+(./file-formats/excel2json.md#the-lists-section).
 
 | <center>Hint</center>                                                    |
 |--------------------------------------------------------------------------|
@@ -205,7 +211,7 @@ This command creates the "resources" section of a JSON project file from an Exce
 dsp-tools excel2resources resources.xlsx resources_section.json
 ```
 
-The expected Excel format is [documented here](./file-formats/excel2json.md#resources-section).
+The expected Excel format is [documented here](./file-formats/excel2json.md#the-resources-section).
 
 | <center>Hint</center>                                                    |
 |--------------------------------------------------------------------------|
@@ -221,7 +227,7 @@ This command creates the "properties" section of a JSON project file from an Exc
 dsp-tools excel2properties properties.xlsx properties_section.json
 ```
 
-The expected Excel format is [documented here](./file-formats/excel2json.md#properties-section).
+The expected Excel format is [documented here](./file-formats/excel2json.md#the-properties-section).
 
 | <center>Hint</center>                                                    |
 |--------------------------------------------------------------------------|
@@ -233,7 +239,7 @@ The expected Excel format is [documented here](./file-formats/excel2json.md#prop
 
 This command creates an XML file
 from an Excel/CSV file that is already structured according to the DSP specifications.
-This is mostly used for DaSCH-internal data migration.
+This is mostly used for DaSCH internal data migration.
 
 ```bash
 dsp-tools excel2xml data_source.xlsx project_shortcode ontology_name
@@ -289,7 +295,7 @@ This command runs a local instance of DSP-API and DSP-APP.
 dsp-tools start-stack
 ```
 
-dsp-tools will ask you for permission to clean Docker with a `docker system prune`.
+DSP-TOOLS will ask you for permission to clean Docker with a `docker system prune`.
 This will remove all unused containers, networks and images.
 If you don't know what that means, just type `y` ("yes") and then `Enter`.
 
@@ -350,7 +356,7 @@ A DSP stack must be running before executing this command.
 
 ## `process-files`
 
-DaSCH-internal command to process multimedia files locally,
+DaSCH internal command to process multimedia files locally,
 before uploading them to a DSP server.
 See [here](./internal/fast-xmlupload.md) for more information.
 
@@ -358,14 +364,14 @@ See [here](./internal/fast-xmlupload.md) for more information.
 
 ## `upload-files`
 
-DaSCH-internal command to upload processed multimedia files to a DSP server.
+DaSCH internal command to upload processed multimedia files to a DSP server.
 See [here](./internal/fast-xmlupload.md) for more information.
 
 
 
 ## `fast-xmlupload`
 
-DaSCH-internal command to create the resources of an XML file
+DaSCH internal command to create the resources of an XML file
 after the processed multimedia files have been uploaded already.
 See [here](./internal/fast-xmlupload.md) for more information.
 

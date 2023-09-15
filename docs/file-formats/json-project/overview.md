@@ -1,6 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools)
 
-# JSON project definition format
+# JSON Project Definition Format
 
 This document describes the structure of a JSON project definition file 
 that can be uploaded to a DSP server
@@ -20,7 +20,7 @@ This documentation is divided into the following parts:
 
 
 
-## A short overview
+## A Short Overview
 
 A complete project definition looks like this:
 
@@ -61,14 +61,14 @@ A complete project definition looks like this:
 
 
 
-### prefixes object
+### `prefixes`
 
 (optional)
 
 `"prefixes": { "prefix": "<iri>", ...}`
 
 The `prefixes` object contains the prefixes of external ontologies that are used in the current file. All prefixes
-are composed of the prefix and a URI. The prefix is used as namespace so one does not have to write the
+are composed of the prefix and a URI. The prefix is used as namespace, so one does not have to write the
 fully qualified name of the referenced object each time it is used. Instead of writing a property called "familyName" 
 as `http://xmlns.com/foaf/0.1/familyName` one can simply write `foaf:familyName`.
 
@@ -87,7 +87,7 @@ more information about referencing ontologies.
 
 
 
-### "$schema" object
+### `$schema`
 
 (required)
 
@@ -97,7 +97,7 @@ The `$schema` object refers to the JSON schema for DSP data model definitions an
 
 
 
-### "project" object
+### `project`
 
 (required)
 
@@ -120,13 +120,13 @@ The following fields are optional (if one or more of these fields are not used, 
 
 
 
-## "project" object in detail
+## The `project` Object in Detail
 
 In the following section, all fields of the `project` object are explained in detail.
 
 
 
-### Shortcode
+### `shortcode`
 
 (required)
 
@@ -137,7 +137,7 @@ the DaSCH.
 
 
 
-### Shortname
+### `shortname`
 
 (required)
 
@@ -150,7 +150,7 @@ but with `-` and `_` are allowed (although not as first character).
 
 
 
-### Longname
+### `longname`
 
 (required)
 
@@ -160,7 +160,7 @@ The longname is a string that provides the full name of the project.
 
 
 
-### Descriptions
+### `descriptions`
 
 (required)
 
@@ -171,7 +171,7 @@ The description is represented as a collection of strings with language tags (cu
 
 
 
-### Keywords
+### `keywords`
 
 (required)
 
@@ -181,7 +181,7 @@ Keywords are represented as an array of strings and are used to describe and/or 
 
 
 
-### Groups
+### `groups`
 
 (optional)
 
@@ -220,7 +220,7 @@ Example:
 
 
 
-### Users
+### `users`
 
 (optional)
 
@@ -276,7 +276,7 @@ The `users` element is optional. If not used, it should be omitted.
 
 
 
-### Lists
+### `lists`
 
 (optional)
 
@@ -463,7 +463,7 @@ Example of a "lists" section that contains the two lists "color" and "category":
 
 
 
-#### Lists from Excel
+#### `lists` from Excel
 
 Instead of being described in JSON, a list can be imported from one or several Excel files. In this case, the 
 `nodes` element of the root node consists of `{"folder": "<path-to-folder-containing-the-excel-files>"}`. In the above 
@@ -508,13 +508,13 @@ To do so, it would be necessary to place the following two files into the folder
 ![Colors_en](../../assets/images/img-json-list-from-excel-english.png)  
 ![Farben_de](../../assets/images/img-json-list-from-excel-german.png)
 
-The expected format of the Excel files is documented [here](../excel2json.md#lists-section). The only 
+The expected format of the Excel files is documented [here](../excel2json.md#the-lists-section). The only 
 difference to the explanations there is that column A of the Excel worksheet is not interpreted as list name (root 
 node), but as node name of the first children level below the root node.
 
 
 
-### Ontologies
+### `ontologies`
 
 (required)
 
@@ -532,7 +532,7 @@ The `ontologies` array is [documented here](./ontologies.md)
 
 
 
-## Fully fleshed out example of a JSON project file
+## Fully Fleshed-Out Example of a JSON Project File
 
 DaSCH provides you with two example repositories that contain everything which is necessary to create a project and 
 upload data. Both of them also contain a JSON project definition file. You can find them here:
@@ -554,8 +554,8 @@ In addition, there is another complete example of a JSON project file here:
     "shortname": "teimp",
     "longname": "Test Import",
     "descriptions": {
-      "en": "This is a project for testing the creation of ontologies and data",
-      "de": "Dies ist ein Projekt, um die Erstellung von Ontologien und Datenimport zu testen"
+      "en": "This is a project for testing the creation of ontologies and data.",
+      "de": "Dies ist ein Projekt, um die Erstellung von Ontologien und Datenimport zu testen."
     },
     "keywords": [
       "test",

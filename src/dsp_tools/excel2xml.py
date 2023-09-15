@@ -1974,13 +1974,13 @@ def _validate_and_prepare_cli_input_file(dataframe: pd.DataFrame) -> pd.DataFram
         raise BaseError(f"Your input file contains the following deprecated columns: {i_encoding_columns}")
 
     # replace NA-like cells by NA
-    dataframe = dataframe.applymap(
+    dataframe = dataframe.map(
         lambda x: x if pd.notna(x) and regex.search(r"[\p{L}\d_!?\-]", str(x), flags=regex.U) else pd.NA
     )
 
     # remove empty columns/rows
-    dataframe.dropna(axis="columns", how="all", inplace=True)
-    dataframe.dropna(axis="index", how="all", inplace=True)
+    dataframe = dataframe.dropna(axis="columns", how="all")
+    dataframe = dataframe.dropna(axis="index", how="all")
 
     return dataframe
 

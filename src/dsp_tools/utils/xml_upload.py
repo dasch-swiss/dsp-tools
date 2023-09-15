@@ -405,7 +405,8 @@ def _check_consistency_with_ontology(
     verbose: bool = False,
 ) -> None:
     """
-    Checks if the resource types and properties in the XML are consistent with the ontology.
+    Checks if the "default-ontology" of the <knora> tag of the XML file exists on the DSP server,
+    and if the resource types and property types in the XML are consistent with the ontology.
 
     Args:
         resources: a list of parsed XMLResources
@@ -422,20 +423,29 @@ def _check_consistency_with_ontology(
     if verbose:
         print("Check if the resource types and properties are consistent with the ontology...")
         logger.info("Check if the resource types and properties are consistent with the ontology...")
-    if not any(x.startswith(ontoname) for x in resclass_name_2_type.keys()):
-        err_msg = (
-            f"The <knora> tag of your XML file references the ontology '{ontoname}', "
-            f"but the project {shortcode} on the DSP server doesn't contain an ontology with this name."
-        )
-        logger.error(err_msg)
-        raise UserError(err_msg)
     _check_if_onto_name_exists(
         resclass_name_2_type=resclass_name_2_type,
         ontoname=ontoname,
         shortcode=shortcode,
     )
-    knora_properties = resclass_name_2_type[resources[0].restype].knora_properties  # type: ignore[attr-defined]
+    _check_if_resource_types_exist(resources=resources, resclass_name_2_type=resclass_name_2_type)
+    _check_if_property_types_exist(resources=resources, resclass_name_2_type=resclass_name_2_type)
 
+
+def _check_if_resource_types_exist(
+    resources: list[XMLResource],
+    resclass_name_2_type: dict[str, type],
+) -> None:
+    """
+    Check if the resource types in the XML file are consistent with the ontology.
+
+    Args:
+        resources: a list of parsed XMLResources
+        resclass_name_2_type: infos about the resource classes that exist on the DSP server for the current ontology
+
+    Raises:
+        UserError: if there is an inconsistency between the ontology and the data
+    """
     for resource in resources:
         # check that the resource type is consistent with the ontology
         if resource.restype not in resclass_name_2_type:
@@ -460,6 +470,24 @@ def _check_consistency_with_ontology(
             logger.error(err_msg)
             raise UserError(err_msg)
 
+
+def _check_if_property_types_exist(
+    resources: list[XMLResource],
+    resclass_name_2_type: dict[str, type],
+) -> None:
+    """
+    Check if the property types in the XML file are either a DSP base property
+    or a property that was defined for this specific resource (not every resource can have every property).
+
+    Args:
+        resources: a list of parsed XMLResources
+        resclass_name_2_type: infos about the resource classes that exist on the DSP server for the current ontology
+
+    Raises:
+        UserError: if there is an inconsistency between the ontology and the data
+    """
+    knora_properties = resclass_name_2_type[resources[0].restype].knora_properties  # type: ignore[attr-defined]
+    for resource in resources:
         # check that the property types are consistent with the ontology
         resource_properties = resclass_name_2_type[resource.restype].properties.keys()  # type: ignore[attr-defined]
         for propname in [prop.name for prop in resource.properties]:
@@ -519,6 +547,7 @@ def xml_upload(
     imgdir: str,
     sipi: str,
     verbose: bool = False,
+    dump: bool = False,
     save_metrics: bool = False,
     preprocessing_done: bool = False,
 ) -> bool:
@@ -533,6 +562,7 @@ def xml_upload(
         imgdir: the image directory
         sipi: the sipi instance to be used
         verbose: verbose option for the command, if used more output is given to the user
+        dump: if true, dumps the XML file to the current working directory
         save_metrics: if true, saves time measurements into a "metrics" folder in the current working directory
         preprocessing_done: if set, all multimedia files referenced in the XML file must already be on the server
 
@@ -566,7 +596,7 @@ def xml_upload(
     preparation_start = datetime.now()
 
     # establish connection to DSP server
-    con = login(server=server, user=user, password=password)
+    con = login(server=server, user=user, password=password, dump=dump)
     sipi_server = Sipi(sipi, con.get_token())
 
     # get the project context
@@ -844,7 +874,7 @@ def _upload_stashed_xml_texts(
             continue
         res_iri = id2iri_mapping[resource.id]
         try:
-            existing_resource = try_network_action(con.get, path=f"/v2/resources/{quote_plus(res_iri)}")
+            existing_resource = try_network_action(con.get, route=f"/v2/resources/{quote_plus(res_iri)}")
         except BaseError as err:
             # print the message to keep track of the cause for the failure. Apart from that, no action is necessary:
             # this resource will remain in nonapplied_xml_texts, which will be handled by the caller
@@ -900,7 +930,7 @@ def _upload_stashed_xml_texts(
 
                 # execute API call
                 try:
-                    try_network_action(con.put, path="/v2/values", jsondata=jsondata)
+                    try_network_action(con.put, route="/v2/values", jsondata=jsondata)
                 except BaseError as err:
                     # print the message to keep track of the cause for the failure.
                     # Apart from that, no action is necessary:
@@ -983,7 +1013,7 @@ def _upload_stashed_resptr_props(
             continue
         res_iri = id2iri_mapping[resource.id]
         try:
-            existing_resource = try_network_action(con.get, path=f"/v2/resources/{quote_plus(res_iri)}")
+            existing_resource = try_network_action(con.get, route=f"/v2/resources/{quote_plus(res_iri)}")
         except BaseError as err:
             # print the message to keep track of the cause for the failure. Apart from that, no action is necessary:
             # this resource will remain in nonapplied_resptr_props, which will be handled by the caller
@@ -1014,7 +1044,7 @@ def _upload_stashed_resptr_props(
                 }
                 jsondata = json.dumps(jsonobj, indent=4, separators=(",", ": "))
                 try:
-                    try_network_action(con.post, path="/v2/values", jsondata=jsondata)
+                    try_network_action(con.post, route="/v2/values", jsondata=jsondata)
                 except BaseError as err:
                     # print the message to keep track of the cause for the failure.
                     # Apart from that, no action is necessary:
@@ -1113,7 +1143,7 @@ def _handle_upload_error(
     )
 
     if id2iri_mapping:
-        id2iri_mapping_file = f"{save_location}/{timestamp_str}_id2iri_mapping.json\n"
+        id2iri_mapping_file = f"{save_location}/{timestamp_str}_id2iri_mapping.json"
         with open(id2iri_mapping_file, "x", encoding="utf-8") as f:
             json.dump(id2iri_mapping, f, ensure_ascii=False, indent=4)
         print(f"The mapping of internal IDs to IRIs was written to {id2iri_mapping_file}")

@@ -261,7 +261,7 @@ def _check_compliance_gui_attributes(df: pd.DataFrame) -> dict[str, pd.Series] |
     else:
         final_series = no_attribute_check
     # The boolean series is returned
-    return {"wrong gui_attributes": final_series}
+    return {"gui_attributes": final_series}
 
 
 def _check_missing_values_in_row_raise_error(df: pd.DataFrame, excelfile: str) -> None:
@@ -294,7 +294,7 @@ def _check_missing_values_in_row_raise_error(df: pd.DataFrame, excelfile: str) -
     if missing_dict:
         # Get the row numbers from the boolean series
         missing_dict = utl.get_wrong_row_numbers(wrong_row_dict=missing_dict, true_remains=True)
-        error_str = "\n".join([f" - Column Name: {k} Row Number: {v}" for k, v in missing_dict.items()])
+        error_str = "\n".join([f"- Column '{k}' Row Number(s): {v}" for k, v in missing_dict.items()])
         raise UserError(f"The file '{excelfile}' is missing values in the following rows:\n" f"{error_str}")
 
 
@@ -314,16 +314,6 @@ def _do_property_excel_compliance(df: pd.DataFrame, excelfile: str) -> None:
     # If it does not pass any one of the tests, the function stops
     required_columns = {
         "name",
-        "label_en",
-        "label_de",
-        "label_fr",
-        "label_it",
-        "label_rm",
-        "comment_en",
-        "comment_de",
-        "comment_fr",
-        "comment_it",
-        "comment_rm",
         "super",
         "object",
         "gui_element",
@@ -363,7 +353,7 @@ def _rename_deprecated_hlist(df: pd.DataFrame, excelfile: str) -> pd.DataFrame:
         # In case there is a hlist, it is the only valid value in gui_attributes and has precedence
         df["hlist"] = df["hlist"].fillna(df["gui_attributes"])
         df.pop("gui_attributes")
-    df.rename(columns={"hlist": "gui_attributes"}, inplace=True)
+    df = df.rename(columns={"hlist": "gui_attributes"})
     return df
 
 
@@ -393,7 +383,7 @@ def _rename_deprecated_lang_cols(df: pd.DataFrame, excelfile: str) -> pd.DataFra
             f"Please use {[f'label_{lang}' for lang in languages]}"
         )
     rename_dict = dict(zip(languages, language_label_col))
-    df.rename(columns=rename_dict, inplace=True)
+    df = df.rename(columns=rename_dict)
     return df
 
 
@@ -443,13 +433,30 @@ def excel2properties(
 
     _do_property_excel_compliance(df=property_df, excelfile=excelfile)
 
+    # Not all columns have to be filled, users may delete some for ease of use, but it would generate an error later
+    property_df = utl.add_optional_columns(
+        df=property_df,
+        optional_col_set={
+            "label_en",
+            "label_de",
+            "label_fr",
+            "label_it",
+            "label_rm",
+            "comment_en",
+            "comment_de",
+            "comment_fr",
+            "comment_it",
+            "comment_rm",
+        },
+    )
+
     # transform every row into a property
     props: list[dict[str, Any]] = []
     for index, row in property_df.iterrows():
         props.append(
             _row2prop(
                 df_row=row,
-                row_num=int(str(index)),  # index is a label/index/hashable, but we need an int
+                row_num=int(str(index)) + 2,  # index is a label/index/hashable, but we need an int
                 excelfile=excelfile,
             )
         )

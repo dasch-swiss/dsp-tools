@@ -1,7 +1,6 @@
 """unit tests for excel to properties"""
 
-# pylint: disable=missing-class-docstring,missing-function-docstring,protected-access,
-# disable=wrong-import-order mypy: allow_untyped_calls
+# pylint: disable=missing-class-docstring,missing-function-docstring,protected-access
 
 import json
 import os
@@ -14,7 +13,7 @@ import pandas as pd
 import pytest
 from pandas.testing import assert_frame_equal
 
-from dsp_tools.models.exceptions import BaseError, UserError
+from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.excel2json import properties as e2j
 
 
@@ -341,11 +340,17 @@ class TestExcelToProperties(unittest.TestCase):
                 r"'Interval' was expected",
             ),
             (
-                "testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute.xlsx",
+                "testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute_values.xlsx",
                 "did not pass validation.\n"
                 "The problematic property is 'hasInteger' in Excel row 4.\n"
                 r"The problem is that the column 'gui_attributes' has an invalid value: "
                 r"Additional properties are not allowed \('rows' was unexpected\)",
+            ),
+            (
+                "testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute_format.xlsx",
+                r"Row 4 of Excel file testdata\/invalid\-testdata\/excel2json\/properties\-invalid\-gui_attribute_"
+                r"format\.xlsx contains invalid data in column 'gui_attributes'\.\n"
+                r"The expected format is '\[attribute\: value, attribute\: value\]'\.",
             ),
         ]
 
@@ -368,9 +373,9 @@ class TestExcelToProperties(unittest.TestCase):
             }
         )
         returned_df = e2j._rename_deprecated_lang_cols(df=original_df, excelfile="Test")
-        assert_frame_equal(original_df, returned_df)
+        assert_frame_equal(expected_df, returned_df)
         returned_df = e2j._rename_deprecated_lang_cols(df=expected_df, excelfile="Test")
-        assert_frame_equal(original_df, returned_df)
+        assert_frame_equal(expected_df, returned_df)
 
     def test__do_property_excel_compliance(self) -> None:
         original_df = pd.DataFrame(
@@ -433,13 +438,17 @@ class TestExcelToProperties(unittest.TestCase):
                 "gui_attributes": ["size: 32, maxlength: 128", pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
             }
         )
-        with self.assertRaises(BaseError) as context:
+        with self.assertRaisesRegex(
+            UserError,
+            r"The file 'Test' is missing values in the following rows\:\n"
+            r"\- Column 'name' Row Number\(s\)\: \[9\]\n"
+            r"\- Column 'super' Row Number\(s\)\: \[2, 4, 9\]\n"
+            r"\- Column 'object' Row Number\(s\)\: \[5, 9\]\n"
+            r"\- Column 'gui_element' Row Number\(s\)\: \[6, 8, 9\]\n"
+            r"\- Column 'label' Row Number\(s\)\: \[3, 8\]\n"
+            r"\- Column 'gui_attributes' Row Number\(s\)\: \[7\]",
+        ):
             e2j._do_property_excel_compliance(df=original_df, excelfile="Test")
-            self.assertEqual(
-                context,
-                "The file '{excel_filename}' is missing values in some rows. See below for more information:\n"
-                "{error_str}",
-            )
 
     @pytest.mark.filterwarnings("ignore::UserWarning")
     def test__rename_deprecated_hlist(self) -> None:
@@ -473,27 +482,28 @@ class TestExcelToProperties(unittest.TestCase):
             {"gui_attributes": [pd.NA, "max:1.4 / min:1.2", "hlist:", "234345", "hlist: languages,"]}
         )
         self.assertIsNone(e2j._get_gui_attribute(df_row=original_df.loc[0, :], row_num=2, excelfile="Test"))
-        with self.assertRaises(UserError) as context:
+
+        with self.assertRaisesRegex(
+            UserError,
+            r"Row 3 of Excel file Test contains invalid data in column 'gui_attributes'\.\n"
+            r"The expected format is '\[attribute\: value, attribute\: value\]'\.",
+        ):
             e2j._get_gui_attribute(df_row=original_df.loc[1, :], row_num=3, excelfile="Test")
-            self.assertEqual(
-                "Row {row_num} of Excel file {excel_filename} contains invalid data in column 'gui_attributes'. "
-                "The expected format is '[attribute: value, attribute: value]'.",
-                context,
-            )
-        with self.assertRaises(UserError) as context:
+
+        with self.assertRaisesRegex(
+            UserError,
+            r"Row 4 of Excel file Test contains invalid data in column 'gui_attributes'\.\n"
+            r"The expected format is '\[attribute\: value, attribute\: value\]'\.",
+        ):
             e2j._get_gui_attribute(df_row=original_df.loc[2, :], row_num=4, excelfile="Test")
-            self.assertEqual(
-                "Row {row_num} of Excel file {excel_filename} contains invalid data in column 'gui_attributes'. "
-                "The expected format is '[attribute: value, attribute: value]'.",
-                context,
-            )
-        with self.assertRaises(UserError) as context:
+
+        with self.assertRaisesRegex(
+            UserError,
+            r"Row 5 of Excel file Test contains invalid data in column 'gui_attributes'\.\n"
+            r"The expected format is '\[attribute\: value, attribute\: value\]'\.",
+        ):
             e2j._get_gui_attribute(df_row=original_df.loc[3, :], row_num=5, excelfile="Test")
-            self.assertEqual(
-                "Row {row_num} of Excel file {excel_filename} contains invalid data in column 'gui_attributes'. "
-                "The expected format is '[attribute: value, attribute: value]'.",
-                context,
-            )
+
         expected_dict = {"hlist": "languages"}
         returned_dict = e2j._get_gui_attribute(df_row=original_df.loc[4, :], row_num=6, excelfile="Test")
         self.assertDictEqual(expected_dict, cast(dict[str, str], returned_dict))
@@ -513,10 +523,10 @@ class TestExcelToProperties(unittest.TestCase):
                 "gui_attributes": ["Spinbox_attr", pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, "TimeStamp_attr"],
             }
         )
-        expected_dict = {"wrong gui_attributes": [False, True, False, False, False, False, True]}
+        expected_dict = {"gui_attributes": [False, True, False, False, False, False, True]}
         returned_dict = e2j._check_compliance_gui_attributes(df=original_df)
         returned_dict = cast(dict[str, list[pd.Series]], returned_dict)
-        casted_dict: dict[str, Any] = {"wrong gui_attributes": list(returned_dict["wrong gui_attributes"])}
+        casted_dict: dict[str, Any] = {"gui_attributes": list(returned_dict["gui_attributes"])}
         self.assertDictEqual(expected_dict, casted_dict)
 
     def test__row2prop(self) -> None:

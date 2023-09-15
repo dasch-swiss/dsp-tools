@@ -1272,7 +1272,7 @@ def make_unformatted_text_prop(
     for val in values:
         kwargs = {"permissions": val.permissions}
         if check_notna(val.comment):
-            kwargs["comment"] = val.comment  # type: ignore[assignment]
+            kwargs["comment"] = val.comment
         value_ = etree.Element(
             "{%s}text" % (xml_namespace_map[None]),
             **kwargs,  # type: ignore[arg-type]

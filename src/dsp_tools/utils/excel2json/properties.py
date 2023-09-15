@@ -313,16 +313,6 @@ def _do_property_excel_compliance(df: pd.DataFrame, excelfile: str) -> None:
     # If it does not pass any one of the tests, the function stops
     required_columns = {
         "name",
-        "label_en",
-        "label_de",
-        "label_fr",
-        "label_it",
-        "label_rm",
-        "comment_en",
-        "comment_de",
-        "comment_fr",
-        "comment_it",
-        "comment_rm",
         "super",
         "object",
         "gui_element",
@@ -441,6 +431,23 @@ def excel2properties(
     property_df = _rename_deprecated_columnnames(df=property_df, excelfile=excelfile)
 
     _do_property_excel_compliance(df=property_df, excelfile=excelfile)
+
+    # Not all columns have to be filled, users may delete some for ease of use, but it would generate an error later
+    property_df = utl.add_optional_columns(
+        df=property_df,
+        optional_col_set={
+            "label_en",
+            "label_de",
+            "label_fr",
+            "label_it",
+            "label_rm",
+            "comment_en",
+            "comment_de",
+            "comment_fr",
+            "comment_it",
+            "comment_rm",
+        },
+    )
 
     # transform every row into a property
     props: list[dict[str, Any]] = []

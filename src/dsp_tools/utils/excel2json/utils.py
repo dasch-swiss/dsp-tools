@@ -285,3 +285,25 @@ def col_must_or_not_empty_based_on_other_col(
         return pd.Series(combined_array)
     else:
         return None
+
+
+def add_optional_columns(df: pd.DataFrame, optional_col_set: set[str]) -> pd.DataFrame:
+    """
+    This function takes a df and a set of columns which may not be in the df,
+    but whose absence could cause errors in the code following.
+    The columns are added, without any values in the rows.
+
+    Args:
+        df: Original df
+        optional_col_set: set of columns that may not be in the df, if they are not, they will be added.
+
+    Returns:
+        The df with the added columns.
+        If all are already there, the df is returned unchanged.
+    """
+    in_df_cols = set(df.columns)
+    if not optional_col_set.issubset(in_df_cols):
+        additional_col = list(optional_col_set.difference(in_df_cols))
+        additional_df = pd.DataFrame(columns=additional_col, index=df.index)
+        df = pd.concat(objs=[df, additional_df], axis=1)
+    return df

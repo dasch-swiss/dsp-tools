@@ -273,7 +273,7 @@ def validate_lists_section_with_schema(
 
     Raises:
         UserError: if the validation fails
-        BaseError: if the validation fails
+        BaseError: if this function is called with invalid parameters
 
     Returns:
         True if the "lists" section passed validation

@@ -278,7 +278,7 @@ def validate_lists_section_with_schema(
         True if the "lists" section passed validation
     """
     if bool(path_to_json_project_file) == bool(lists_section):
-        raise UserError("Validation of the 'lists' section works only if exactly one of the two arguments is given.")
+        raise BaseError("Validation of the 'lists' section works only if exactly one of the two arguments is given.")
 
     with importlib.resources.files("dsp_tools").joinpath("resources/schema/lists-only.json").open(
         encoding="utf-8"

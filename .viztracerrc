@@ -1,4 +1,4 @@
 [default]
 include_files = src/dsp_tools/cli.py ./src/dsp_tools/utils/xml_upload.py src/dsp_tools/utils/shared.py src/dsp_tools/models/connection.py
 tracer_entries = 2000000
-output_file = result1.json
+output_file = viztracer_result.json

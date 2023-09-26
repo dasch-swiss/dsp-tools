@@ -662,7 +662,18 @@ def xml_upload(
             metrics=metrics,
             preprocessing_done=preprocessing_done,
         )
-        tracer = VizTracer()
+        tracer = VizTracer(
+            tracer_entries=3_000_000,
+            minimize_memory=True,
+            # ignore_c_function=True,
+            # ignore_frozen=True,
+            include_files=[
+                "src/dsp_tools/cli.py",
+                "./src/dsp_tools/utils/xml_upload.py",
+                "src/dsp_tools/utils/shared.py",
+                "src/dsp_tools/models/connection.py",
+            ],
+        )
         tracer.start()
         if stashed_xml_texts:
             nonapplied_xml_texts = _upload_stashed_xml_texts(
@@ -678,12 +689,6 @@ def xml_upload(
                 con=con,
                 stashed_resptr_props=stashed_resptr_props,
             )
-        tracer.stop()
-        if not isinstance(input_file, etree._ElementTree):  # pylint: disable=protected-access
-            output_file = f"viztracer/viztracer_{Path(input_file).stem}.json"
-        else:
-            output_file = f"viztracer/viztracer_{datetime.now().strftime('%Y-%m-%d_%H%M%S')}.json"
-        tracer.save(output_file=output_file)
         if nonapplied_resptr_props or nonapplied_xml_texts:
             msg = "Some stashed resptrs or XML texts could not be reapplied to their resources on the DSP server."
             logger.error(msg)
@@ -701,6 +706,13 @@ def xml_upload(
             save_location=save_location,
             timestamp_str=timestamp_str,
         )
+    finally:
+        tracer.stop()
+        if not isinstance(input_file, etree._ElementTree):  # pylint: disable=protected-access
+            output_file = f"viztracer/viztracer_{Path(input_file).stem}.json"
+        else:
+            output_file = f"viztracer/viztracer_{datetime.now().strftime('%Y-%m-%d_%H%M%S')}.json"
+        tracer.save(output_file=output_file)
 
     # write id2iri mapping, metrics, and print some final info
     success = _write_id2iri_mapping_and_metrics(

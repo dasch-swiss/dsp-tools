@@ -2,7 +2,7 @@
 
 repos:
   - repo: https://github.com/psf/black
-    rev: 23.3.0
+    rev: 23.9.1
     hooks:
       - id: black
         # It is recommended to specify the latest version of Python supported by your project here,
@@ -38,7 +38,12 @@ repos:
       - id: text-unicode-replacement-char
 
   - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.35.0
+    rev: v0.37.0
     hooks:
     - id: markdownlint
       args: [--config, .markdownlint.yml, --ignore, CHANGELOG.md]
+
+  - repo: https://github.com/PyCQA/isort 
+    rev: 5.11.5
+    hooks:
+    - id: isort

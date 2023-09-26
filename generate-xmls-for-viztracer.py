@@ -2,7 +2,15 @@ from enum import Enum
 
 from lxml import etree
 
-from dsp_tools.excel2xml import PropertyElement, make_root, make_resource, make_resptr_prop, make_text_prop, write_xml
+from dsp_tools.excel2xml import (
+    PropertyElement,
+    make_boolean_prop,
+    make_resource,
+    make_resptr_prop,
+    make_root,
+    make_text_prop,
+    write_xml,
+)
 
 
 class __Letter(Enum):
@@ -22,15 +30,17 @@ def __make_one_resource(resource_counter: int, letter: __Letter) -> etree._Eleme
     resource = make_resource(restype=":TestThing", label=id_1, id=id_1)
     resource.append(make_resptr_prop(name=":hasResource", value=id_2))
     resource.append(make_text_prop(name=":hasRichtext", value=PropertyElement(salsah_link, encoding="xml")))
+    resource.append(make_text_prop(":hasSimpleText", "foo"))
+    resource.append(make_boolean_prop(":hasBoolean", "True"))
     return resource
 
 
 def __generate_xmls_for_viztracer() -> None:
-    number_of_circles = 10
-    root = make_root("4123", "testonto")
-    for i in range(1, number_of_circles + 1):
-        root.extend(__make_circle(resource_counter=i))
-    write_xml(root, f"circles-{number_of_circles}.xml")
+    for number_of_circles in (10, 100, 1000, 10_000):
+        root = make_root("4123", "testonto")
+        for i in range(1, number_of_circles + 1):
+            root.extend(__make_circle(resource_counter=i))
+        write_xml(root, f"circles-{number_of_circles}.xml")
 
 
 if __name__ == "__main__":

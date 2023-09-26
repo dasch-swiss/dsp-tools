@@ -1,6 +1,6 @@
+import json
 from dataclasses import dataclass
 from datetime import datetime
-import json
 from pathlib import Path
 from typing import Any, Optional, cast
 

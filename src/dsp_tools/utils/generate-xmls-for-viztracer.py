@@ -1,4 +1,5 @@
 from enum import Enum
+from pathlib import Path
 
 from lxml import etree
 
@@ -40,7 +41,8 @@ def __generate_xmls_for_viztracer() -> None:
         root = make_root("4123", "testonto")
         for i in range(1, number_of_circles + 1):
             root.extend(__make_circle(resource_counter=i))
-        write_xml(root, f"circles-{number_of_circles}.xml")
+        Path("viztracer").mkdir(exist_ok=True)
+        write_xml(root, f"viztracer/circles-{number_of_circles}.xml")
 
 
 if __name__ == "__main__":

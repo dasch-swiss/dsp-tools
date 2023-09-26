@@ -2,10 +2,12 @@
 
 ## Preparation
 
-Update the dependencies in the virtual environment with `poetry install`.
-Create the data model with `dsp-tools create testdata/json-project/test-project-systematic.json`.
+- update the dependencies in the virtual environment: `poetry install`
+- activate the virtual environment: `poetry shell`
+- create the data model: `dsp-tools create testdata/json-project/test-project-systematic.json`
+- generate the XML files: `python src/dsp_tools/utils/generate-xmls-for-viztracer.py`
 
-```bash
-for number in 10 100 1000 10000:
-    viztracer --output_file=viztracer_$number.json -- src/dsp_tools/cli.py xmlupload circles-$number.xml
-```
+## Run VizTracer
+
+- run `dsp-tools xmlupload viztracer/circles-10.xml`
+- run `vizviewer viztracer/viztracer_circles-10.json`

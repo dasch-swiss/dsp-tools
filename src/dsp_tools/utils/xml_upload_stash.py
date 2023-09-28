@@ -78,7 +78,7 @@ def _log_iri_does_not_exist_error(
     """
     err_msg = (
         f"Unable to upload the xml text of '{all_link_props.name}' of resource '{stashed_resource.id}'"
-        f"because {received_error.args[0]} does not exist in the triplestore."
+        f"because the resource with the internal id '{received_error.args[0]}' does not exist in the triplestore."
     )
     print(f"    WARNING: {err_msg}")
     logger.warning(err_msg, exc_info=True)
@@ -89,7 +89,7 @@ def _get_text_hash_value(old_xmltext: str) -> str:
     This function extracts the hash values in the text
 
     Args:
-        old_xmltext: Text with has values.
+        old_xmltext: Text with hash values.
 
     Returns:
         hash values
@@ -97,24 +97,50 @@ def _get_text_hash_value(old_xmltext: str) -> str:
     return regex.sub(r"(<\?xml.+>\s*)?<text>\s*(.+)\s*<\/text>", r"\2", old_xmltext)
 
 
-def _replace_internal_ids_with_iris(
-    new_xmltext: KnoraStandoffXml,
+def _do_id2iri_href_mapping_for_one_id(
+    internal_id: str,
+    xml_with_id: KnoraStandoffXml,
     id2iri_mapping: dict[str, str],
-) -> KnoraStandoffXml:
+) -> None:
     """
-    This function replaces the internal ids with the new IRIs from the triplestore.
+    This function takes one internal id and one xml string
+    It replaces the internal id with the iri according to the mapping dictionary
+    It replaces every occurrence of that id in the text
 
     Args:
-        new_xmltext: the text with the ids
-        id2iri_mapping: the dictionary that contains the mapping information
+        internal_id: string of the internal id that is to be replaced
+        xml_with_id: string of the xml text where the id has to be replaced
+        id2iri_mapping: dictionary that contains the mapping information
 
     Returns:
-        the xml value with the old ids replaced
+
     """
-    # replace the outdated internal ids by their IRI
-    for _id, _iri in id2iri_mapping.items():
-        new_xmltext.regex_replace(f'href="IRI:{_id}:IRI"', f'href="{_iri}"')
-    return new_xmltext
+    xml_with_id.regex_replace(
+        pattern=r'href="IRI:' + internal_id + r':IRI"',
+        repl='href="IRI:' + id2iri_mapping[internal_id] + ':IRI"',
+    )
+
+
+def _replace_internal_ids_with_iris(
+    id2iri_mapping: dict[str, str], xml_with_id: KnoraStandoffXml, id_set: set[str]
+) -> KnoraStandoffXml:
+    """
+    This function takes an XML string and a set with internal ids that are in that string
+    It replaces all internal ids of that set with the corresponding iri according to the mapping dictionary
+
+    Args:
+        id2iri_mapping: dictionary with id and iri mapping
+        xml_with_id: string with the id that should be replaced
+        id_set: set of ids that are in the string
+
+    Returns:
+
+    """
+    for internal_id in id_set:
+        _do_id2iri_href_mapping_for_one_id(
+            internal_id=internal_id, xml_with_id=xml_with_id, id2iri_mapping=id2iri_mapping
+        )
+    return xml_with_id
 
 
 def _create_XMLResource_json_object_to_update(
@@ -196,15 +222,16 @@ def upload_single_link_xml_property(
     # if the pure text is a hash, the replacement must be made
     # this hash originates from _stash_circular_references(), and identifies the XML texts
     try:
-        # In both of these calls, KeyErrors can occur
-        # The error message and handling is identical for both
         new_xmltext = hash_to_value[text_hash_value]
-        new_xmltext = _replace_internal_ids_with_iris(new_xmltext=new_xmltext, id2iri_mapping=id2iri_mapping)
     except KeyError as err:
         _log_iri_does_not_exist_error(received_error=err, stashed_resource=stashed_resource, all_link_props=link_prop)
         # no action necessary: this property will remain in nonapplied_xml_texts,
         # which will be handled by the caller
         return nonapplied_xml_texts
+
+    id_set = new_xmltext.find_all_substring_in_xmlstr(pattern='href="IRI:(.*?):IRI"')
+
+    new_xmltext = _replace_internal_ids_with_iris(id2iri_mapping=id2iri_mapping, xml_with_id=new_xmltext, id_set=id_set)
 
     # prepare API call
     jsondata = _create_XMLResource_json_object_to_update(

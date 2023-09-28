@@ -213,7 +213,7 @@ def upload_single_link_xml_property(
     return nonapplied_xml_texts
 
 
-def iterate_over_all_link_props_of_single_resource(
+def upload_all_link_props_of_single_resource(
     res_iri: str,
     stashed_resource: XMLResource,
     resource_in_triplestore: dict[str, Any],
@@ -226,8 +226,7 @@ def iterate_over_all_link_props_of_single_resource(
 ) -> dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]]:
     """
     This function takes one resource and extracts all the link properties of that resource.
-    If there is only one, it uploads that to the triplestore.
-    If there are several it iterates over them and uploads them to the triplestore.
+    It sends all the resources to the DSP-API.
 
     Args:
         res_iri: resource IRI

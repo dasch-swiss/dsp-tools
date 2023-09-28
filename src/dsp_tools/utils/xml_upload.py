@@ -890,7 +890,7 @@ def _upload_stashed_xml_texts(
         print(f'  Upload XML text(s) of resource "{stashed_resource.id}"...')
         logger.info(f'  Upload XML text(s) of resource "{stashed_resource.id}"...')
         for link_prop, hash_to_value in all_link_props.items():
-            nonapplied_xml_texts = xml_upload_stash.iterate_over_all_link_props_of_single_resource(
+            nonapplied_xml_texts = xml_upload_stash.upload_all_link_props_of_single_resource(
                 res_iri=res_iri,
                 stashed_resource=stashed_resource,
                 resource_in_triplestore=resource_in_triplestore,

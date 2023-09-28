@@ -226,7 +226,7 @@ def upload_all_link_props_of_single_resource(
 ) -> dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]]:
     """
     This function takes one resource and extracts all the link properties of that resource.
-    It sends all the resources to the DSP-API.
+    It sends all the link props to the DSP-API.
 
     Args:
         res_iri: resource IRI

@@ -46,7 +46,7 @@ def _log_unable_to_upload_xml_resource(
     all_link_props: XMLProperty,
 ) -> None:
     """
-    This function logs if it is unable to upload a xml resource.
+    This function logs if it is not possible to upload a xml resource.
 
     Args:
         received_error: Error received

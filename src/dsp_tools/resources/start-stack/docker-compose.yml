@@ -7,7 +7,7 @@ services:
   app:
     # on the verge of every deployment (fortnightly), update the "image" value from the "app" value of
     # https://github.com/dasch-swiss/ops-deploy/blob/main/roles/dsp-deploy/files/RELEASE.json
-    image: daschswiss/dsp-app:v10.23.3
+    image: daschswiss/dsp-app:v10.23.4
     ports:
       - "4200:4200"
     networks:
@@ -16,7 +16,7 @@ services:
   db:
     # on the verge of every deployment (fortnightly), update the "image" value from the "db" value of
     # https://github.com/dasch-swiss/ops-deploy/blob/main/roles/dsp-deploy/files/RELEASE.json
-    image: daschswiss/apache-jena-fuseki:2.1.0
+    image: daschswiss/apache-jena-fuseki:2.1.1
     ports:
       - "3030:3030"
     networks:
@@ -28,7 +28,7 @@ services:
 
   sipi:
     # on the verge of every deployment (fortnightly), take the same tag as DSP-API
-    image: daschswiss/knora-sipi:v30.0.0
+    image: daschswiss/knora-sipi:v30.2.1
     ports:
       - "1024:1024"
     volumes:
@@ -49,7 +49,7 @@ services:
   api:
     # on the verge of every deployment (fortnightly), update the "image" value from the "api" value of
     # https://github.com/dasch-swiss/ops-deploy/blob/main/roles/dsp-deploy/files/RELEASE.json
-    image: daschswiss/knora-api:v30.0.0
+    image: daschswiss/knora-api:v30.2.1
     depends_on:
       - sipi
       - db

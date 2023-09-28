@@ -15,8 +15,8 @@ from dsp_tools.models.project import Project
 from dsp_tools.models.propertyclass import PropertyClass
 from dsp_tools.models.resourceclass import ResourceClass
 from dsp_tools.models.user import User
+from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.excel2json.lists import expand_lists_from_excel
-from dsp_tools.utils.logging import get_logger
 from dsp_tools.utils.project_create_lists import create_lists_on_server
 from dsp_tools.utils.project_validate import validate_project
 from dsp_tools.utils.shared import login, parse_json_input, try_network_action

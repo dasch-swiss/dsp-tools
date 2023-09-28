@@ -1049,7 +1049,8 @@ In addition, there is another complete example of an XML data file here:
         </list-prop>
         <formatted-text-prop name=":hasFormattedText">
             <text permissions="prop-default">
-                The <strong>third</strong> object and a <a class="salsah-link" href="IRI:obj_0003:IRI">link</a> to.
+                The <strong>third</strong> object and a <a class="salsah-link" href="IRI:obj_0003:IRI">link to an ID</a>
+                and a <a class="salsah-link" href="http://rdfh.ch/4123/nyOODvYySV2nJ5RWRdmOdQ">link to an IRI</a>.
             </text>
         </formatted-text-prop>
         <unformatted-text-prop name=":hasUnformattedText">

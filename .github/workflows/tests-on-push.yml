@@ -62,6 +62,9 @@ jobs:
       - name: Linting with black
         run: poetry run black --check .
 
+      - name: Linting with isort
+        run: poetry run isort . --check --diff
+
       - name: Linting with darglint
         run: poetry exec darglint
 

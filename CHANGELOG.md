@@ -1,5 +1,30 @@
 # Changelog
 
+## [5.0.1](https://github.com/dasch-swiss/dsp-tools/compare/v5.0.0...v5.0.1) (2023-09-20)
+
+
+### Bug Fixes
+
+* **excel2json:** correct row number in error message (DEV-2650) ([#513](https://github.com/dasch-swiss/dsp-tools/issues/513)) ([03a59ee](https://github.com/dasch-swiss/dsp-tools/commit/03a59ee23e7dc66cdb7419bd8e05438a4ac2deb7))
+* **excel2json:** don't crash if optional columns are deleted in "properties" Excel file (DEV-2652) ([#518](https://github.com/dasch-swiss/dsp-tools/issues/518)) ([09c3940](https://github.com/dasch-swiss/dsp-tools/commit/09c39402bc02e4959852e318bb01fd6a2d3458a9))
+* id2iri mapping is written with a question mark after the file extension (DEV-2670) [#522](https://github.com/dasch-swiss/dsp-tools/issues/522) ([3fc1bb9](https://github.com/dasch-swiss/dsp-tools/commit/3fc1bb942adccc08374e24fc90ef50601f237f66))
+* no-op test that doesn't test anything (DEV-2655) ([#517](https://github.com/dasch-swiss/dsp-tools/issues/517)) ([76f1db2](https://github.com/dasch-swiss/dsp-tools/commit/76f1db263fe6121e5e76b8a40ef978163224b266))
+* **upload-files:** close file handle before handling error (DEV-2666) [#519](https://github.com/dasch-swiss/dsp-tools/issues/519) ([439a139](https://github.com/dasch-swiss/dsp-tools/commit/439a1399fa2eff0c403b055f674a30cac9bbc157))
+
+
+### Maintenance
+
+* bump start-stack to 2023.09.02 (DEV-2690) ([#524](https://github.com/dasch-swiss/dsp-tools/issues/524)) ([6f5b935](https://github.com/dasch-swiss/dsp-tools/commit/6f5b935e70cd48a5ab3010ca7a553c9d8e7cf00b))
+* documenation cleaning (DEV-2602) ([#503](https://github.com/dasch-swiss/dsp-tools/issues/503)) ([52485c0](https://github.com/dasch-swiss/dsp-tools/commit/52485c0a01e67eb9618554a8e52c41fd03c79a18))
+* **excel2json:** replace BaseError with UserError (DEV-2671) ([#523](https://github.com/dasch-swiss/dsp-tools/issues/523)) ([eaf8dd6](https://github.com/dasch-swiss/dsp-tools/commit/eaf8dd6f967ac83db365001d9af13719f2cdd2d3))
+* **excel2json:** replace excel reader in excel2resources (DEV-2668) ([#520](https://github.com/dasch-swiss/dsp-tools/issues/520)) ([f2f0d4e](https://github.com/dasch-swiss/dsp-tools/commit/f2f0d4e2b22eae4b9d3496f9bb0cd98dbe8a479f))
+* fix gui_attributes notation (DEV-2651) ([#514](https://github.com/dasch-swiss/dsp-tools/issues/514)) ([8c97cc3](https://github.com/dasch-swiss/dsp-tools/commit/8c97cc34bf1a9285721e81d8709352187716dd79))
+* improve PR title checking regex (DEV-2635) ([#509](https://github.com/dasch-swiss/dsp-tools/issues/509)) ([c25f3b7](https://github.com/dasch-swiss/dsp-tools/commit/c25f3b78c9fcdf7ad1de9f6f0efe8b6c2fcda2ce))
+* pandas deprecated .applymap (DEV-2617) ([#510](https://github.com/dasch-swiss/dsp-tools/issues/510)) ([925b13d](https://github.com/dasch-swiss/dsp-tools/commit/925b13d4d07673220de9f657f2e7f758894ba26e))
+* pandas deprecates inplace parameter (DEV-2618) ([#511](https://github.com/dasch-swiss/dsp-tools/issues/511)) ([8d6d3f7](https://github.com/dasch-swiss/dsp-tools/commit/8d6d3f7ce4cfcea51aa118794d73a5618683ed3a))
+* small corrections (DEV-2653) [#515](https://github.com/dasch-swiss/dsp-tools/issues/515) ([99db5f1](https://github.com/dasch-swiss/dsp-tools/commit/99db5f1cd82e0fc1e39b73d39e5977016f84c4a1))
+* **xmlupload:** split up _check_consistency_with_ontology() into smaller functions (DEV-2669) ([#521](https://github.com/dasch-swiss/dsp-tools/issues/521)) ([79a50cf](https://github.com/dasch-swiss/dsp-tools/commit/79a50cfebcd93940d512a6b1d6d3c5b7772f3046))
+
 ## [5.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v4.0.0...v5.0.0) (2023-09-06)
 
 

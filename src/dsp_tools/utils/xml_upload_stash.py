@@ -110,7 +110,7 @@ def _create_XMLResource_json_object_to_update(
     link_prop_name: str,
 ) -> str:
     """
-    This function returns a json object which is given to the api.
+    This function creates a JSON object that can be sent as update request to DSP-API.
 
     Args:
         res_iri: the iri of the resource

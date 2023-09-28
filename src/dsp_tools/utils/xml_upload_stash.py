@@ -110,7 +110,7 @@ def _create_XMLResource_json_object_to_update(
     link_prop_in_triplestore: dict[str, Any],
     new_xmltext: KnoraStandoffXml,
     link_prop_name: str,
-) -> json:
+) -> str:
     """
     This function returns a json object which is given to the api.
     Args:
@@ -223,7 +223,7 @@ def iterate_over_all_link_props_of_single_resource(
     nonapplied_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
     verbose: bool,
     con: Connection,
-):
+) -> dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]]:
     """
     This function takes one resource and extracts all the link properties of that resource.
     If there is only one, it uploads that to the triplestore.

@@ -246,8 +246,11 @@ def iterate_over_all_link_props_of_single_resource(
     all_link_props_in_triplestore = resource_in_triplestore[link_prop.name]
 
     if not isinstance(all_link_props_in_triplestore, list):
+        all_link_props_in_triplestore = [all_link_props_in_triplestore]
+
+    for link_prop_in_triplestore in all_link_props_in_triplestore:
         nonapplied_xml_texts = upload_single_link_xml_property(
-            link_prop_in_triplestore=all_link_props_in_triplestore,
+            link_prop_in_triplestore=link_prop_in_triplestore,
             res_iri=res_iri,
             stashed_resource=stashed_resource,
             resource_in_triplestore=resource_in_triplestore,
@@ -258,18 +261,4 @@ def iterate_over_all_link_props_of_single_resource(
             verbose=verbose,
             con=con,
         )
-    else:
-        for link_prop_in_triplestore in all_link_props_in_triplestore:
-            nonapplied_xml_texts = upload_single_link_xml_property(
-                link_prop_in_triplestore=link_prop_in_triplestore,
-                res_iri=res_iri,
-                stashed_resource=stashed_resource,
-                resource_in_triplestore=resource_in_triplestore,
-                link_prop=link_prop,
-                hash_to_value=hash_to_value,
-                id2iri_mapping=id2iri_mapping,
-                nonapplied_xml_texts=nonapplied_xml_texts,
-                verbose=verbose,
-                con=con,
-            )
     return nonapplied_xml_texts

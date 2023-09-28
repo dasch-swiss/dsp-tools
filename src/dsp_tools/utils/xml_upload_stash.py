@@ -41,7 +41,7 @@ def log_unable_to_retrieve_resource(
 
 
 def _log_unable_to_upload_xml_resource(
-    received_error: BaseError,
+    received_error: Exception,
     stashed_resource: XMLResource,
     all_link_props: XMLProperty,
 ) -> None:
@@ -79,22 +79,19 @@ def _get_text_hash_value(old_xmltext: str) -> str:
 
 
 def _replace_internal_ids_with_iris(
-    pure_text: str,
+    new_xmltext: KnoraStandoffXml,
     id2iri_mapping: dict[str, str],
-    hash_to_value: dict[str, KnoraStandoffXml],
 ) -> KnoraStandoffXml:
     """
     This function replaces the internal ids with the new IRIs from the triplestore.
 
     Args:
-        pure_text: the text with the ids
+        new_xmltext: the text with the ids
         id2iri_mapping: the dictionary that contains the mapping information
-        hash_to_value: the dictionary that contains the hash of the string and the xml value
 
     Returns:
         the xml value with the old ids replaced
     """
-    new_xmltext = hash_to_value[pure_text]
     # replace the outdated internal ids by their IRI
     for _id, _iri in id2iri_mapping.items():
         new_xmltext.regex_replace(f'href="IRI:{_id}:IRI"', f'href="{_iri}"')
@@ -179,14 +176,18 @@ def upload_single_link_xml_property(
 
     # if the pure text is a hash, the replacement must be made
     # this hash originates from _stash_circular_references(), and identifies the XML texts
-    if text_hash_value not in hash_to_value:
+    try:
+        # In both of these calls, KeyErrors can occur
+        # The error message and handling is identical for both
+        new_xmltext = hash_to_value[text_hash_value]
+        new_xmltext = _replace_internal_ids_with_iris(new_xmltext=new_xmltext, id2iri_mapping=id2iri_mapping)
+    except KeyError as err:
+        _log_unable_to_upload_xml_resource(
+            received_error=err, stashed_resource=stashed_resource, all_link_props=link_prop
+        )
         # no action necessary: this property will remain in nonapplied_xml_texts,
         # which will be handled by the caller
         return nonapplied_xml_texts
-
-    new_xmltext = _replace_internal_ids_with_iris(
-        pure_text=text_hash_value, id2iri_mapping=id2iri_mapping, hash_to_value=hash_to_value
-    )
 
     # prepare API call
     jsondata = _create_XMLResource_json_object_to_update(

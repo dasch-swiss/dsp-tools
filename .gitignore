@@ -64,4 +64,3 @@ testdata/preprocessed_files/
 testdata/bitstreams/nested
 processing_result_*.pkl
 processed_files.txt
-viztracer/

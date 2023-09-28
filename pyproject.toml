@@ -53,7 +53,6 @@ types-jsonschema = "^4.17.0.10"
 types-openpyxl = "^3.1.0.15"
 types-regex = "^2023.8.8.0"
 types-pyyaml = "^6.0.12.11"
-viztracer = "^0.15.6"
 isort = "^5.12.0"
 
 

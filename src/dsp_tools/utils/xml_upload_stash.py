@@ -22,7 +22,7 @@ def log_unable_to_retrieve_resource(
     received_error: BaseError,
 ) -> None:
     """
-    This function logs the error if it is unable to retrieve the resource.
+    This function logs the error if it is not possible to retrieve the resource.
 
     Args:
         resource: the resource

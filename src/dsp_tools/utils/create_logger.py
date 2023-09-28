@@ -26,6 +26,8 @@ def get_logger(
     _logger = logging.getLogger(name)
     _logger.setLevel(level)
     formatter = logging.Formatter(fmt="{asctime} {filename: <20} {levelname: <8} {message}", style="{")
+    formatter.default_time_format = "%Y-%m-%d %H:%M:%S"
+    formatter.default_msec_format = "%s.%03d"
     # a RotatingFileHandler fills "filename" until it is "maxBytes" big,
     # then appends ".1" to it and starts with a new file "filename",
     # fills it until it is "maxBytes" big,

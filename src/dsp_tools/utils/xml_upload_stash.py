@@ -88,7 +88,7 @@ def _replace_internal_ids_with_iris(
 
     Args:
         pure_text: the text with the ids
-        id2iri_mapping: the dictionaries that contains the mapping information
+        id2iri_mapping: the dictionary that contains the mapping information
         hash_to_value: the dictionary that contains the hash of the string and the xml value
 
     Returns:

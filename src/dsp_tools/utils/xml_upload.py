@@ -203,6 +203,7 @@ def _remove_circular_references(
                     nok_resources.append(resource)
         resources = nok_resources
         if len(nok_resources) == nok_len:
+            # there are circular references. go through all problematic resources, and stash the problematic references.
             (
                 nok_resources,
                 ok_res_ids,

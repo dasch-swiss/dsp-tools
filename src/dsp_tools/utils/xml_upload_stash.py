@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-from collections import namedtuple
 from typing import Any
 
 import regex
@@ -14,8 +13,6 @@ from dsp_tools.models.xmlproperty import XMLProperty
 from dsp_tools.models.xmlresource import XMLResource
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import try_network_action
-
-MetricRecord = namedtuple("MetricRecord", ["res_id", "filetype", "filesize_mb", "event", "duration_ms", "mb_per_sec"])
 
 logger = get_logger(__name__)
 

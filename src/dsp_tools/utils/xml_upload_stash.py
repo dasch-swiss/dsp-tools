@@ -115,7 +115,7 @@ def _replace_internal_ids_with_iris(
     for internal_id in id_set:
         xml_with_id.regex_replace(
             pattern=r'href="IRI:' + internal_id + r':IRI"',
-            repl='href="IRI:' + id2iri_mapping[internal_id] + ':IRI"',
+            repl='href="' + id2iri_mapping[internal_id] + '"',
         )
     return xml_with_id
 
@@ -199,16 +199,18 @@ def upload_single_link_xml_property(
     # if the pure text is a hash, the replacement must be made
     # this hash originates from _stash_circular_references(), and identifies the XML texts
     try:
-        new_xmltext = hash_to_value[text_hash_value]
+        xml_from_stash = hash_to_value[text_hash_value]
     except KeyError as err:
         _log_iri_does_not_exist_error(received_error=err, stashed_resource=stashed_resource, all_link_props=link_prop)
         # no action necessary: this property will remain in nonapplied_xml_texts,
         # which will be handled by the caller
         return nonapplied_xml_texts
 
-    id_set = new_xmltext.find_all_substring_in_xmlstr(pattern='href="IRI:(.*?):IRI"')
+    id_set = xml_from_stash.find_all_substring_in_xmlstr(pattern='href="IRI:(.*?):IRI"')
 
-    new_xmltext = _replace_internal_ids_with_iris(id2iri_mapping=id2iri_mapping, xml_with_id=new_xmltext, id_set=id_set)
+    xml_from_stash = _replace_internal_ids_with_iris(
+        id2iri_mapping=id2iri_mapping, xml_with_id=xml_from_stash, id_set=id_set
+    )
 
     # prepare API call
     jsondata = _create_XMLResource_json_object_to_update(
@@ -216,7 +218,7 @@ def upload_single_link_xml_property(
         resource_in_triplestore=resource_in_triplestore,
         stashed_resource=stashed_resource,
         link_prop_in_triplestore=link_prop_in_triplestore,
-        new_xmltext=new_xmltext,
+        new_xmltext=xml_from_stash,
         link_prop_name=link_prop.name,
     )
 

@@ -41,7 +41,7 @@ def log_unable_to_retrieve_resource(
 
 
 def _log_unable_to_upload_xml_resource(
-    received_error: Exception,
+    received_error: BaseError,
     stashed_resource: XMLResource,
     all_link_props: XMLProperty,
 ) -> None:
@@ -52,9 +52,6 @@ def _log_unable_to_upload_xml_resource(
         received_error: Error received
         stashed_resource: resource that is stashed
         all_link_props: all the link properties from that resource
-
-    Returns:
-
     """
     # print the message to keep track of the cause for the failure
     # apart from that; no action is necessary:
@@ -62,6 +59,28 @@ def _log_unable_to_upload_xml_resource(
     orig_err_msg = received_error.orig_err_msg_from_api or received_error.message
     err_msg = f"Unable to upload the xml text of '{all_link_props.name}' of resource '{stashed_resource.id}'."
     print(f"    WARNING: {err_msg} Original error message: {orig_err_msg}")
+    logger.warning(err_msg, exc_info=True)
+
+
+def _log_iri_does_not_exist_error(
+    received_error: KeyError,
+    stashed_resource: XMLResource,
+    all_link_props: XMLProperty,
+) -> None:
+    """
+    This function logs if it is not possible to upload an XML resource
+    if a linked resource does not have an IRI in the triplestore.
+
+    Args:
+        received_error: Error received
+        stashed_resource: resource that is stashed
+        all_link_props: all the link properties from that resource
+    """
+    err_msg = (
+        f"Unable to upload the xml text of '{all_link_props.name}' of resource '{stashed_resource.id}'"
+        f"because {received_error.args[0]} does not exist in the triplestore."
+    )
+    print(f"    WARNING: {err_msg}")
     logger.warning(err_msg, exc_info=True)
 
 
@@ -182,9 +201,7 @@ def upload_single_link_xml_property(
         new_xmltext = hash_to_value[text_hash_value]
         new_xmltext = _replace_internal_ids_with_iris(new_xmltext=new_xmltext, id2iri_mapping=id2iri_mapping)
     except KeyError as err:
-        _log_unable_to_upload_xml_resource(
-            received_error=err, stashed_resource=stashed_resource, all_link_props=link_prop
-        )
+        _log_iri_does_not_exist_error(received_error=err, stashed_resource=stashed_resource, all_link_props=link_prop)
         # no action necessary: this property will remain in nonapplied_xml_texts,
         # which will be handled by the caller
         return nonapplied_xml_texts

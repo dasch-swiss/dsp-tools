@@ -1039,13 +1039,8 @@ In addition, there is another complete example of an XML data file here:
         </list-prop>
         <text-prop name=":hasRichtext">
             <text permissions="prop-default" encoding="xml">
-                The <strong>third</strong> object and a <a class="salsah-link" href="IRI:obj_0003:IRI">link</a>.
-            </text>
-        </text-prop>
-        <text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml">
-                The <strong>third</strong> object 
-                and a <a class="salsah-link" href="http://rdfh.ch/4123/nyOODvYySV2nJ5RWRdmOdQ">link</a>.
+                The <strong>third</strong> object and a <a class="salsah-link" href="IRI:obj_0003:IRI">link to an ID</a>
+                and a <a class="salsah-link" href="http://rdfh.ch/4123/nyOODvYySV2nJ5RWRdmOdQ">link to an IRI</a>.
             </text>
         </text-prop>
         <text-prop name=":hasText">

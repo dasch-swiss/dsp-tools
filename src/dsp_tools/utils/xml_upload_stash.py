@@ -25,13 +25,11 @@ def log_unable_to_retrieve_resource(
     received_error: BaseError,
 ) -> None:
     """
-    This function logs the error if it is unable to retieve the resource.
+    This function logs the error if it is unable to retrieve the resource.
+
     Args:
         resource: the resource
         received_error: the error
-
-    Returns:
-        None
     """
     # print the message to keep track of the cause for the failure
     # apart from that; no action is necessary:
@@ -52,6 +50,7 @@ def _log_unable_to_upload_xml_resource(
 ) -> None:
     """
     This function logs if it is unable to upload a xml resource.
+
     Args:
         received_error: Error received
         stashed_resource: resource that is stashed
@@ -72,6 +71,7 @@ def _log_unable_to_upload_xml_resource(
 def _get_text_hash_value(old_xmltext: str) -> str:
     """
     This function extracts the hash values in the text
+
     Args:
         old_xmltext: Text with has values.
 
@@ -88,6 +88,7 @@ def _replace_internal_ids_with_iris(
 ) -> KnoraStandoffXml:
     """
     This function replaces the internal ids with the new IRIs from the triplestore.
+
     Args:
         pure_text: the text with the ids
         id2iri_mapping: the dictionaries that contains the mapping information
@@ -113,6 +114,7 @@ def _create_XMLResource_json_object_to_update(
 ) -> str:
     """
     This function returns a json object which is given to the api.
+
     Args:
         res_iri: the iri of the resource
         resource_in_triplestore: the resource received from the triplestore
@@ -122,7 +124,7 @@ def _create_XMLResource_json_object_to_update(
         link_prop_name: the name of the link property
 
     Returns:
-
+        json string
     """
     jsonobj = {
         "@id": res_iri,
@@ -152,6 +154,7 @@ def upload_single_link_xml_property(
 ) -> dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]]:
     """
     This function uploads a single xml link property, which was previously stashed.
+
     Args:
         link_prop_in_triplestore: the link property from the triplestore
         res_iri: the iri of the resource
@@ -228,6 +231,7 @@ def iterate_over_all_link_props_of_single_resource(
     This function takes one resource and extracts all the link properties of that resource.
     If there is only one, it uploads that to the triplestore.
     If there are several it iterates over them and uploads them to the triplestore.
+
     Args:
         res_iri: resource IRI
         stashed_resource: the resource from the stash
@@ -240,7 +244,7 @@ def iterate_over_all_link_props_of_single_resource(
         con: connection to the api
 
     Returns:
-
+        the dictionary which contains the unprocessed resources
     """
     all_link_props_in_triplestore = resource_in_triplestore[link_prop.name]
 

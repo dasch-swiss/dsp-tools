@@ -244,7 +244,6 @@ def _stash_circular_references(
         BaseError
     """
     for res in nok_resources.copy():
-        # iterate over res
         for link_prop in res.get_props_with_links():
             if link_prop.valtype == "text":
                 for value in link_prop.values:

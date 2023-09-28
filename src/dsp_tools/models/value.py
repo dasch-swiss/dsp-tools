@@ -30,7 +30,10 @@ class KnoraStandoffXml:
         self.__xmlstr = self.__xmlstr.replace(fromStr, toStr)
 
     def regex_replace(self, pattern: str, repl: str) -> None:
-        self.__xmlstr = regex.sub(pattern=repr(pattern)[1:-1], repl=repl, string=self.__xmlstr)
+        self.__xmlstr = regex.sub(pattern=pattern, repl=repl, string=self.__xmlstr)
+
+    def find_all_substring_in_xmlstr(self, pattern) -> set[str]:
+        return set(regex.findall(pattern=pattern, string=self.__xmlstr))
 
 
 class Value:

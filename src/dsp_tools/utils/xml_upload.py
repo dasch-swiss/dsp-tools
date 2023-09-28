@@ -18,7 +18,6 @@ from urllib.parse import quote_plus
 import pandas as pd
 import regex
 from lxml import etree
-from viztracer import VizTracer
 
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import BaseError, UserError
@@ -33,6 +32,7 @@ from dsp_tools.models.xmlresource import XMLResource
 from dsp_tools.utils import xml_upload_stash
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import login, try_network_action, validate_xml_against_schema
+from viztracer import VizTracer
 
 MetricRecord = namedtuple("MetricRecord", ["res_id", "filetype", "filesize_mb", "event", "duration_ms", "mb_per_sec"])
 
@@ -681,6 +681,7 @@ def xml_upload(
                 "./src/dsp_tools/utils/xml_upload.py",
                 "src/dsp_tools/utils/shared.py",
                 "src/dsp_tools/models/connection.py",
+                "src/dsp_tools/utils/xml_upload_stash.py",
             ],
         )
         tracer.start()

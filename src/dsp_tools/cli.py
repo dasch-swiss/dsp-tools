@@ -27,9 +27,8 @@ from dsp_tools.utils.project_validate import validate_project
 from dsp_tools.utils.rosetta import upload_rosetta
 from dsp_tools.utils.shared import validate_xml_against_schema
 from dsp_tools.utils.stack_handling import StackConfiguration, StackHandler
-from dsp_tools.utils.xml_upload import xml_upload
-
 from dsp_tools.utils.update_text_props import update_text_properties
+from dsp_tools.utils.xml_upload import xml_upload
 
 logger = get_logger(__name__)
 

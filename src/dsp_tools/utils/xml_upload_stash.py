@@ -114,7 +114,7 @@ def _create_XMLResource_json_object_to_update(
 
     Args:
         res_iri: the iri of the resource
-        resource_in_triplestore: the resource received from the triplestore
+        resource_in_triplestore: the resource existing in the triplestore
         stashed_resource: the same resource from the stash
         link_prop_in_triplestore: the link property in the triplestore
         new_xmltext: the new xml text with the IRIs

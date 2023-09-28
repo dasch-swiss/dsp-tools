@@ -1,0 +1,4 @@
+[default]
+include_files = src/dsp_tools/cli.py ./src/dsp_tools/utils/xml_upload.py src/dsp_tools/utils/shared.py src/dsp_tools/models/connection.py
+tracer_entries = 2000000
+minimize_memory = True       # Use json.dump to dump chunks to file to save memory

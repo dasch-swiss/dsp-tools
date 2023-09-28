@@ -20,17 +20,12 @@ MetricRecord = namedtuple("MetricRecord", ["res_id", "filetype", "filesize_mb", 
 logger = get_logger(__name__)
 
 
-# TODO: docstring
-
-# TODO: separate unittests
-
-
 def log_unable_to_retrieve_resource(
     resource: XMLResource,
     received_error: BaseError,
 ) -> None:
     # print the message to keep track of the cause for the failure
-    # apart from that, no action is necessary:
+    # apart from that; no action is necessary:
     # this resource will remain in nonapplied_xml_texts, which will be handled by the caller
     orig_err_msg = received_error.orig_err_msg_from_api or received_error.message
     err_msg = (
@@ -55,7 +50,7 @@ def _log_unable_to_upload_xml_resource(
     logger.warning(err_msg, exc_info=True)
 
 
-def _get_pure_text(old_xmltext: str) -> str:
+def _get_text_hash_value(old_xmltext: str) -> str:
     return regex.sub(r"(<\?xml.+>\s*)?<text>\s*(.+)\s*<\/text>", r"\2", old_xmltext)
 
 
@@ -75,7 +70,7 @@ def _create_XMLResource_json_object_to_update(
     res_iri: str,
     resource_in_triplestore: Any,
     stashed_resource: XMLResource,
-    link_prop_in_triplestore: KnoraStandoffXml,
+    link_prop_in_triplestore: XMLProperty,
     new_xmltext: KnoraStandoffXml,
     link_prop_name: str,
 ) -> json:
@@ -112,16 +107,17 @@ def upload_single_link_xml_property(
         return nonapplied_xml_texts
 
     # strip all xml tags from the old xmltext, so that the pure text itself remains
-    pure_text = _get_pure_text(xmltext_in_triplestore)
+    text_hash_value = _get_text_hash_value(xmltext_in_triplestore)
 
     # if the pure text is a hash, the replacement must be made
     # this hash originates from _stash_circular_references(), and identifies the XML texts
-    if pure_text not in hash_to_value:
+    if text_hash_value not in hash_to_value:
         # no action necessary: this property will remain in nonapplied_xml_texts,
         # which will be handled by the caller
         return nonapplied_xml_texts
+
     new_xmltext = _replace_internal_ids_with_iris(
-        pure_text=pure_text, id2iri_mapping=id2iri_mapping, hash_to_value=hash_to_value
+        pure_text=text_hash_value, id2iri_mapping=id2iri_mapping, hash_to_value=hash_to_value
     )
 
     # prepare API call
@@ -145,14 +141,14 @@ def upload_single_link_xml_property(
     if verbose:
         print(f'  Successfully uploaded xml text of "{link_prop.name}"\n')
         logger.info(f'  Successfully uploaded xml text of "{link_prop.name}"\n')
-    nonapplied_xml_texts[stashed_resource][link_prop].pop(pure_text)
+    nonapplied_xml_texts[stashed_resource][link_prop].pop(text_hash_value)
     return nonapplied_xml_texts
 
 
 def iterate_over_all_link_props_of_single_resource(
     res_iri: str,
     stashed_resource: XMLResource,
-    resource_in_triplestore: Any,
+    resource_in_triplestore: dict[str, Any],
     link_prop: XMLProperty,
     hash_to_value: dict[str, KnoraStandoffXml],
     id2iri_mapping: dict[str, str],

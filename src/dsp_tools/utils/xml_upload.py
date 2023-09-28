@@ -29,6 +29,7 @@ from dsp_tools.models.value import KnoraStandoffXml
 from dsp_tools.models.xmlpermission import XmlPermission
 from dsp_tools.models.xmlproperty import XMLProperty
 from dsp_tools.models.xmlresource import XMLResource
+from dsp_tools.utils import xml_upload_stash
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import login, try_network_action, validate_xml_against_schema
 
@@ -171,25 +172,33 @@ def _remove_circular_references(
 
     # sort the resources according to outgoing resptrs
     ok_resources: list[XMLResource] = []
+    # resources with circular references
     nok_resources: list[XMLResource] = []
+    # internal ids for the resources that do not have circular references
     ok_res_ids: list[str] = []
     cnt = 0
     nok_len = 9999999
     while len(resources) > 0 and cnt < 10000:
         for resource in resources:
             resptrs = resource.get_resptrs()
+            # get all the resptrs which have an internal id, i.e. that do not exist in the triplestore
             resptrs = [x for x in resptrs if not regex.search(r"https?://rdfh.ch/[a-fA-F0-9]{4}/\w{22}", x)]
+            # if there are no resptrs references, append to the ok resources
             if len(resptrs) == 0:
                 ok_resources.append(resource)
                 ok_res_ids.append(resource.id)
             else:
                 ok = True
+                # iterate over the list with all the resptrs that have internal links
                 for resptr in resptrs:
+                    # if that resptr is not in the ok list, set the flag to false
                     if resptr not in ok_res_ids:
                         ok = False
+                # if all the resptr are in the ok list, then there are no circular references
                 if ok:
                     ok_resources.append(resource)
                     ok_res_ids.append(resource.id)
+                # if any of the resptr are not in the ok list append the resource to the not ok list
                 else:
                     nok_resources.append(resource)
         resources = nok_resources
@@ -866,84 +875,32 @@ def _upload_stashed_xml_texts(
     print("Upload the stashed XML texts...")
     logger.info("Upload the stashed XML texts...")
     nonapplied_xml_texts = stashed_xml_texts.copy()
-    for resource, link_props in stashed_xml_texts.items():
-        if resource.id not in id2iri_mapping:
+    for stashed_resource, all_link_props in stashed_xml_texts.items():
+        if stashed_resource.id not in id2iri_mapping:
             # resource could not be uploaded to DSP, so the stash cannot be uploaded either
             # no action necessary: this resource will remain in nonapplied_xml_texts,
             # which will be handled by the caller
             continue
-        res_iri = id2iri_mapping[resource.id]
+        res_iri = id2iri_mapping[stashed_resource.id]
         try:
-            existing_resource = try_network_action(con.get, route=f"/v2/resources/{quote_plus(res_iri)}")
+            resource_in_triplestore = try_network_action(con.get, route=f"/v2/resources/{quote_plus(res_iri)}")
         except BaseError as err:
-            # print the message to keep track of the cause for the failure. Apart from that, no action is necessary:
-            # this resource will remain in nonapplied_xml_texts, which will be handled by the caller
-            orig_err_msg = err.orig_err_msg_from_api or err.message
-            err_msg = (
-                f"Unable to upload XML texts of resource '{resource.id}', "
-                "because the resource cannot be retrieved from the DSP server."
-            )
-            print(f"  WARNING: {err_msg} Original error message: {orig_err_msg}")
-            logger.warning(err_msg, exc_info=True)
+            xml_upload_stash.log_unable_to_retrieve_resource(resource=stashed_resource, received_error=err)
             continue
-        print(f'  Upload XML text(s) of resource "{resource.id}"...')
-        logger.info(f'  Upload XML text(s) of resource "{resource.id}"...')
-        for link_prop, hash_to_value in link_props.items():
-            existing_values = existing_resource[link_prop.name]
-            if not isinstance(existing_values, list):
-                existing_values = [existing_values]
-            for existing_value in existing_values:
-                old_xmltext = existing_value.get("knora-api:textValueAsXml")
-                if not old_xmltext:
-                    # no action necessary: this property will remain in nonapplied_xml_texts,
-                    # which will be handled by the caller
-                    continue
-
-                # strip all xml tags from the old xmltext, so that the pure text itself remains
-                pure_text = regex.sub(r"(<\?xml.+>\s*)?<text>\s*(.+)\s*<\/text>", r"\2", old_xmltext)
-
-                # if the pure text is a hash, the replacement must be made. This hash originates from
-                # _stash_circular_references(), and identifies the XML texts
-                if pure_text not in hash_to_value:
-                    # no action necessary: this property will remain in nonapplied_xml_texts,
-                    # which will be handled by the caller
-                    continue
-                new_xmltext = hash_to_value[pure_text]
-
-                # replace the outdated internal ids by their IRI
-                for _id, _iri in id2iri_mapping.items():
-                    new_xmltext.regex_replace(f'href="IRI:{_id}:IRI"', f'href="{_iri}"')
-
-                # prepare API call
-                jsonobj = {
-                    "@id": res_iri,
-                    "@type": resource.restype,
-                    link_prop.name: {
-                        "@id": existing_value["@id"],
-                        "@type": "knora-api:TextValue",
-                        "knora-api:textValueAsXml": new_xmltext,
-                        "knora-api:textValueHasMapping": {"@id": "http://rdfh.ch/standoff/mappings/StandardMapping"},
-                    },
-                    "@context": existing_resource["@context"],
-                }
-                jsondata = json.dumps(jsonobj, indent=4, separators=(",", ": "), cls=KnoraStandoffXmlEncoder)
-
-                # execute API call
-                try:
-                    try_network_action(con.put, route="/v2/values", jsondata=jsondata)
-                except BaseError as err:
-                    # print the message to keep track of the cause for the failure.
-                    # Apart from that, no action is necessary:
-                    # this resource will remain in nonapplied_xml_texts, which will be handled by the caller
-                    orig_err_msg = err.orig_err_msg_from_api or err.message
-                    err_msg = f"Unable to upload the xml text of '{link_prop.name}' of resource '{resource.id}'."
-                    print(f"    WARNING: {err_msg} Original error message: {orig_err_msg}")
-                    logger.warning(err_msg, exc_info=True)
-                    continue
-                nonapplied_xml_texts[resource][link_prop].pop(pure_text)
-                if verbose:
-                    print(f'  Successfully uploaded xml text of "{link_prop.name}"\n')
-                    logger.info(f'  Successfully uploaded xml text of "{link_prop.name}"\n')
+        print(f'  Upload XML text(s) of resource "{stashed_resource.id}"...')
+        logger.info(f'  Upload XML text(s) of resource "{stashed_resource.id}"...')
+        for link_prop, hash_to_value in all_link_props.items():
+            nonapplied_xml_texts = xml_upload_stash.upload_all_link_props_of_single_resource(
+                res_iri=res_iri,
+                stashed_resource=stashed_resource,
+                resource_in_triplestore=resource_in_triplestore,
+                link_prop=link_prop,
+                hash_to_value=hash_to_value,
+                id2iri_mapping=id2iri_mapping,
+                nonapplied_xml_texts=nonapplied_xml_texts,
+                verbose=verbose,
+                con=con,
+            )
 
     # make a purged version of nonapplied_xml_texts, without empty entries
     nonapplied_xml_texts = _purge_stashed_xml_texts(

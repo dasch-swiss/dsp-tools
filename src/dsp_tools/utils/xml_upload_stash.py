@@ -97,30 +97,6 @@ def _get_text_hash_value(old_xmltext: str) -> str:
     return regex.sub(r"(<\?xml.+>\s*)?<text>\s*(.+)\s*<\/text>", r"\2", old_xmltext)
 
 
-def _do_id2iri_href_mapping_for_one_id(
-    internal_id: str,
-    xml_with_id: KnoraStandoffXml,
-    id2iri_mapping: dict[str, str],
-) -> None:
-    """
-    This function takes one internal id and one xml string
-    It replaces the internal id with the iri according to the mapping dictionary
-    It replaces every occurrence of that id in the text
-
-    Args:
-        internal_id: string of the internal id that is to be replaced
-        xml_with_id: string of the xml text where the id has to be replaced
-        id2iri_mapping: dictionary that contains the mapping information
-
-    Returns:
-
-    """
-    xml_with_id.regex_replace(
-        pattern=r'href="IRI:' + internal_id + r':IRI"',
-        repl='href="IRI:' + id2iri_mapping[internal_id] + ':IRI"',
-    )
-
-
 def _replace_internal_ids_with_iris(
     id2iri_mapping: dict[str, str], xml_with_id: KnoraStandoffXml, id_set: set[str]
 ) -> KnoraStandoffXml:
@@ -130,15 +106,16 @@ def _replace_internal_ids_with_iris(
 
     Args:
         id2iri_mapping: dictionary with id and iri mapping
-        xml_with_id: string with the id that should be replaced
+        xml_with_id: KnoraStandoffXml with the string that should have replacements
         id_set: set of ids that are in the string
 
     Returns:
-
+        Text has now replaced ids
     """
     for internal_id in id_set:
-        _do_id2iri_href_mapping_for_one_id(
-            internal_id=internal_id, xml_with_id=xml_with_id, id2iri_mapping=id2iri_mapping
+        xml_with_id.regex_replace(
+            pattern=r'href="IRI:' + internal_id + r':IRI"',
+            repl='href="IRI:' + id2iri_mapping[internal_id] + ':IRI"',
         )
     return xml_with_id
 
@@ -159,7 +136,7 @@ def _create_XMLResource_json_object_to_update(
         resource_in_triplestore: the resource existing in the triplestore
         stashed_resource: the same resource from the stash
         link_prop_in_triplestore: the link property in the triplestore
-        new_xmltext: the new xml text with the IRIs
+        new_xmltext: The KnoraStandOffXml with replaced ids
         link_prop_name: the name of the link property
 
     Returns:
@@ -200,7 +177,7 @@ def upload_single_link_xml_property(
         stashed_resource: the stashed resource
         resource_in_triplestore: the resource retrieved from the triplestore
         link_prop: the name of the link property
-        hash_to_value: the has value of the xml text
+        hash_to_value: the hash value of the xml text
         id2iri_mapping: the dictionary with the internal ids and the new IRIs
         nonapplied_xml_texts: the dictionary with the stashes
         verbose: what is printed out
@@ -278,7 +255,7 @@ def upload_all_link_props_of_single_resource(
         stashed_resource: the resource from the stash
         resource_in_triplestore: the resource from the triplestore
         link_prop: the link property
-        hash_to_value: the dictionary which stored the hashes and their corresponding text
+        hash_to_value: the dictionary which stored the hashes and the KnoraStandoffXml with the corresponding texts
         id2iri_mapping: the dictionary that has the internal ids and IRIs to map
         nonapplied_xml_texts: the dictionary which contains the unprocessed resources
         verbose: how much information should be printed

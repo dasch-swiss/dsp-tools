@@ -444,7 +444,6 @@ class TestExcelToProperties(unittest.TestCase):
             r"\- Column 'name' Row Number\(s\)\: \[9\]\n"
             r"\- Column 'super' Row Number\(s\)\: \[2, 4, 9\]\n"
             r"\- Column 'object' Row Number\(s\)\: \[5, 9\]\n"
-            r"\- Column 'gui_element' Row Number\(s\)\: \[6, 8, 9\]\n"
             r"\- Column 'label' Row Number\(s\)\: \[3, 8\]\n"
             r"\- Column 'gui_attributes' Row Number\(s\)\: \[7\]",
         ):

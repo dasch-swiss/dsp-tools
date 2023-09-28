@@ -242,7 +242,7 @@ def _check_compliance_gui_attributes(df: pd.DataFrame) -> dict[str, pd.Series] |
         check_empty_colname="gui_attributes",
         must_have_value=True,
     )
-    no_attributes = ["Checkbox", "Date", "Geonames", "Richtext", "TimeStamp"]
+    no_attributes = ["Checkbox", "Date", "Geonames", "TimeStamp"]
     no_attribute_check = utl.col_must_or_not_empty_based_on_other_col(
         df=df,
         substring_list=no_attributes,

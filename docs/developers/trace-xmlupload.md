@@ -4,6 +4,7 @@
 
 - update the dependencies in the virtual environment: `poetry install`
 - activate the virtual environment: `poetry shell`
+- start docker and create a stack with `dsp-tools start-stack`
 - create the data model: `dsp-tools create testdata/json-project/test-project-systematic.json`
 - generate the XML files: `python src/dsp_tools/utils/generate-xmls-for-viztracer.py`
 - you will get XML files with 10, 100, 1000, and 10'000 circles

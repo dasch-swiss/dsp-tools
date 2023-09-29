@@ -156,7 +156,7 @@ def _create_XMLResource_json_object_to_update(
     return json.dumps(jsonobj, indent=4, separators=(",", ": "), cls=KnoraStandoffXmlEncoder)
 
 
-def upload_single_link_xml_property(
+def _upload_single_link_xml_property(
     link_prop_in_triplestore: Any,
     res_iri: str,
     stashed_resource: XMLResource,
@@ -272,7 +272,7 @@ def upload_all_link_props_of_single_resource(
         all_link_props_in_triplestore = [all_link_props_in_triplestore]
 
     for link_prop_in_triplestore in all_link_props_in_triplestore:
-        nonapplied_xml_texts = upload_single_link_xml_property(
+        nonapplied_xml_texts = _upload_single_link_xml_property(
             link_prop_in_triplestore=link_prop_in_triplestore,
             res_iri=res_iri,
             stashed_resource=stashed_resource,

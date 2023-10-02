@@ -98,22 +98,27 @@ def _get_text_hash_value(old_xmltext: str) -> str:
 
 
 def _replace_internal_ids_with_iris(
-    id2iri_mapping: dict[str, str], xml_with_id: KnoraStandoffXml, id_set: set[str]
+    id2iri_mapping: dict[str, str],
+    xml_with_id: KnoraStandoffXml,
+    id_set: set[str],
 ) -> KnoraStandoffXml:
     """
     This function takes an XML string and a set with internal ids that are in that string
     It replaces all internal ids of that set with the corresponding iri according to the mapping dictionary
 
     Args:
-        id2iri_mapping: dictionary with id and iri mapping
+        id2iri_mapping: dictionary with id to iri mapping
         xml_with_id: KnoraStandoffXml with the string that should have replacements
         id_set: set of ids that are in the string
 
     Returns:
-        Text has now replaced ids
+        the xml value with the old ids replaced
     """
     for internal_id in id_set:
-        xml_with_id.replace_one_internal_id_with_iri_in_string(internal_id=internal_id, iri=id2iri_mapping[internal_id])
+        xml_with_id.replace_one_internal_id_with_iri_in_string(
+            internal_id=internal_id,
+            iri=id2iri_mapping[internal_id],
+        )
     return xml_with_id
 
 
@@ -182,7 +187,7 @@ def _upload_single_link_xml_property(
 
     Returns:
         The stash dictionary with the newly uploaded resource removed.
-        If the upload was not sucessfull it returns the dictionary as it was before.
+        If the upload was not sucessfull, it returns the dictionary as it was before.
     """
     xmltext_in_triplestore = link_prop_in_triplestore.get("knora-api:textValueAsXml")
     if not xmltext_in_triplestore:
@@ -198,7 +203,11 @@ def _upload_single_link_xml_property(
     try:
         xml_from_stash = hash_to_value[text_hash_value]
     except KeyError as err:
-        _log_iri_does_not_exist_error(received_error=err, stashed_resource=stashed_resource, all_link_props=link_prop)
+        _log_iri_does_not_exist_error(
+            received_error=err,
+            stashed_resource=stashed_resource,
+            all_link_props=link_prop,
+        )
         # no action necessary: this property will remain in nonapplied_xml_texts,
         # which will be handled by the caller
         return nonapplied_xml_texts
@@ -206,7 +215,9 @@ def _upload_single_link_xml_property(
     id_set = xml_from_stash.find_all_iri_in_xmlstr()
 
     xml_from_stash = _replace_internal_ids_with_iris(
-        id2iri_mapping=id2iri_mapping, xml_with_id=xml_from_stash, id_set=id_set
+        id2iri_mapping=id2iri_mapping,
+        xml_with_id=xml_from_stash,
+        id_set=id_set,
     )
 
     # prepare API call

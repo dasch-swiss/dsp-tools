@@ -4,8 +4,8 @@ from unittest import TestCase
 
 import pytest
 
-import dsp_tools.utils.xml_upload_stash as upld
 from dsp_tools.models.value import KnoraStandoffXml
+from dsp_tools.utils import xml_upload_stash
 
 
 class TestXMLUploadStash(TestCase):
@@ -32,9 +32,9 @@ class TestXMLUploadStash(TestCase):
             one_link_KnoraStandoffXml: {"r2_id"},
             three_link_KnoraStandoffXml: {"r2_id", "r3_id"},
         }
-        for test_instance, expected in test_dict.items():
-            returned = test_instance.find_all_iri_in_xmlstr()
-            self.assertEqual(expected, returned)
+        for xml_string, expected_set in test_dict.items():
+            returned = xml_string.find_all_iri_in_xmlstr()
+            self.assertEqual(expected_set, returned)
 
     def test__replace_internal_ids_with_iris(self) -> None:
         test_id2iri = {"r1_id": "r1_iri", "r2_id": "r2_iri", "r3_id": "r3_iri"}
@@ -78,11 +78,11 @@ class TestXMLUploadStash(TestCase):
                 ),
             ),
         }
-        for test_instance, (test_set, expected) in test_dict.items():
-            returned_instance = upld._replace_internal_ids_with_iris(
-                id2iri_mapping=test_id2iri, xml_with_id=test_instance, id_set=test_set
+        for test_xml, (test_set, expected_str) in test_dict.items():
+            returned_instance = xml_upload_stash._replace_internal_ids_with_iris(
+                id2iri_mapping=test_id2iri, xml_with_id=test_xml, id_set=test_set
             )
-            self.assertEqual(expected, str(returned_instance))
+            self.assertEqual(expected_str, str(returned_instance))
 
 
 if __name__ == "__main__":

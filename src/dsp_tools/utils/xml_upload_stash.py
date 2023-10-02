@@ -103,8 +103,8 @@ def _replace_internal_ids_with_iris(
     id_set: set[str],
 ) -> KnoraStandoffXml:
     """
-    This function takes an XML string and a set with internal ids that are referenced in salsah-links in that string
-    It replaces all internal ids of that set with the corresponding iri according to the mapping dictionary
+    This function takes an XML string and a set with internal ids that are referenced in salsah-links in that string.
+    It replaces all internal ids of that set with the corresponding iri according to the mapping dictionary.
 
     Args:
         id2iri_mapping: dictionary with id to iri mapping
@@ -159,7 +159,7 @@ def _create_XMLResource_json_object_to_update(
 
 
 def _upload_single_link_xml_property(
-    link_prop_in_triplestore: Any,
+    link_prop_in_triplestore: dict[str, Any],
     res_iri: str,
     stashed_resource: XMLResource,
     resource_in_triplestore: dict[str, Any],

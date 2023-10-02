@@ -128,7 +128,7 @@ def _create_XMLResource_json_object_to_update(
         "@type": stashed_resource.restype,
         link_prop_name: {
             "@id": link_prop_in_triplestore["@id"],
-            "@type": "knora-api:TextValue",
+            "@type": "knora-api:FormattedTextValue",
             "knora-api:textValueAsXml": new_xmltext,
             "knora-api:textValueHasMapping": {"@id": "http://rdfh.ch/standoff/mappings/StandardMapping"},
         },

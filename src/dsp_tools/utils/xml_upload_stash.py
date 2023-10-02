@@ -124,7 +124,7 @@ def _replace_internal_ids_with_iris(
 
 def _create_XMLResource_json_object_to_update(
     res_iri: str,
-    resource_in_triplestore: Any,
+    resource_in_triplestore: dict[str, Any],
     stashed_resource: XMLResource,
     link_prop_in_triplestore: dict[str, Any],
     new_xmltext: KnoraStandoffXml,
@@ -162,7 +162,7 @@ def _upload_single_link_xml_property(
     link_prop_in_triplestore: Any,
     res_iri: str,
     stashed_resource: XMLResource,
-    resource_in_triplestore: Any,
+    resource_in_triplestore: dict[str, Any],
     link_prop: XMLProperty,
     hash_to_value: dict[str, KnoraStandoffXml],
     id2iri_mapping: dict[str, str],

@@ -103,7 +103,7 @@ def _replace_internal_ids_with_iris(
     id_set: set[str],
 ) -> KnoraStandoffXml:
     """
-    This function takes an XML string and a set with internal ids that are in that string
+    This function takes an XML string and a set with internal ids that are referenced in salsah-links in that string
     It replaces all internal ids of that set with the corresponding iri according to the mapping dictionary
 
     Args:
@@ -115,7 +115,7 @@ def _replace_internal_ids_with_iris(
         the xml value with the old ids replaced
     """
     for internal_id in id_set:
-        xml_with_id.replace_one_internal_id_with_iri_in_string(
+        xml_with_id.replace_one_id_with_iri_in_salsah_link(
             internal_id=internal_id,
             iri=id2iri_mapping[internal_id],
         )
@@ -212,7 +212,7 @@ def _upload_single_link_xml_property(
         # which will be handled by the caller
         return nonapplied_xml_texts
 
-    id_set = xml_from_stash.find_all_iri_in_xmlstr()
+    id_set = xml_from_stash.find_ids_referenced_in_salsah_links()
 
     xml_from_stash = _replace_internal_ids_with_iris(
         id2iri_mapping=id2iri_mapping,

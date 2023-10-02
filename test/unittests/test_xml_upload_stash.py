@@ -9,7 +9,7 @@ from dsp_tools.utils import xml_upload_stash
 
 
 class TestXMLUploadStash(TestCase):
-    def test_find_all_substring_in_xmlstr_one_link(self) -> None:
+    def test_find_ids_referenced_in_salsah_links_one_link(self) -> None:
         one_link_KnoraStandoffXml = KnoraStandoffXml(
             xmlstr=(
                 '<resource label="r1_label" restype="r1_restype" id="r1_id" permissions="res-default">'
@@ -18,10 +18,10 @@ class TestXMLUploadStash(TestCase):
                 "</text></text-prop></resource>"
             )
         )
-        returned_set = one_link_KnoraStandoffXml.find_all_iri_in_xmlstr()
+        returned_set = one_link_KnoraStandoffXml.find_ids_referenced_in_salsah_links()
         self.assertEqual({"r2_id"}, returned_set)
 
-    def test_find_all_substring_in_xmlstr_three_links(self) -> None:
+    def test_find_ids_referenced_in_salsah_links_three_links(self) -> None:
         three_link_KnoraStandoffXml = KnoraStandoffXml(
             xmlstr=(
                 '<resource label="r1_label" restype="r1_restype" id="r1_id" permissions="res-default">'
@@ -32,7 +32,7 @@ class TestXMLUploadStash(TestCase):
                 "</text></text-prop></resource>"
             )
         )
-        returned_set = three_link_KnoraStandoffXml.find_all_iri_in_xmlstr()
+        returned_set = three_link_KnoraStandoffXml.find_ids_referenced_in_salsah_links()
         self.assertEqual({"r2_id", "r3_id"}, returned_set)
 
     def test__replace_internal_ids_with_iris_one_link(self) -> None:

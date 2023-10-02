@@ -23,16 +23,16 @@ class KnoraStandoffXml:
     def __str__(self) -> str:
         return self.__xmlstr
 
-    def replace(self, fromStr: str, toStr: str) -> None:
-        self.__xmlstr = self.__xmlstr.replace(fromStr, toStr)
-
     def get_all_iris(self) -> Optional[list[str]]:
         return self.__iriregexp.findall(self.__xmlstr)
 
-    def find_all_iri_in_xmlstr(self) -> set[str]:
+    def find_ids_referenced_in_salsah_links(self) -> set[str]:
         return set(regex.findall(pattern='href="IRI:(.*?):IRI"', string=self.__xmlstr))
 
-    def replace_one_internal_id_with_iri_in_string(self, internal_id: str, iri: str) -> None:
+    def replace(self, fromStr: str, toStr: str) -> None:
+        self.__xmlstr = self.__xmlstr.replace(fromStr, toStr)
+
+    def replace_one_id_with_iri_in_salsah_link(self, internal_id: str, iri: str) -> None:
         self.__xmlstr = regex.sub(
             pattern=f'href="IRI:{internal_id}:IRI"',
             repl=f'href="{iri}"',

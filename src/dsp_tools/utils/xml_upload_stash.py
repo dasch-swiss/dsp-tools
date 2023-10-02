@@ -52,9 +52,6 @@ def _log_unable_to_upload_xml_resource(
         received_error: Error received
         stashed_resource: resource that is stashed
         all_link_props: all the link properties from that resource
-
-    Returns:
-
     """
     # print the message to keep track of the cause for the failure
     # apart from that; no action is necessary:
@@ -65,12 +62,34 @@ def _log_unable_to_upload_xml_resource(
     logger.warning(err_msg, exc_info=True)
 
 
+def _log_iri_does_not_exist_error(
+    received_error: KeyError,
+    stashed_resource: XMLResource,
+    all_link_props: XMLProperty,
+) -> None:
+    """
+    This function logs if it is not possible to upload an XML resource
+    if a linked resource does not have an IRI in the triplestore.
+
+    Args:
+        received_error: Error received
+        stashed_resource: resource that is stashed
+        all_link_props: all the link properties from that resource
+    """
+    err_msg = (
+        f"Unable to upload the xml text of '{all_link_props.name}' of resource '{stashed_resource.id}'"
+        f"because the resource with the internal id '{received_error.args[0]}' does not exist in the triplestore."
+    )
+    print(f"    WARNING: {err_msg}")
+    logger.warning(err_msg, exc_info=True)
+
+
 def _get_text_hash_value(old_xmltext: str) -> str:
     """
     This function extracts the hash values in the text
 
     Args:
-        old_xmltext: Text with has values.
+        old_xmltext: Text with hash values.
 
     Returns:
         hash values
@@ -79,31 +98,33 @@ def _get_text_hash_value(old_xmltext: str) -> str:
 
 
 def _replace_internal_ids_with_iris(
-    pure_text: str,
     id2iri_mapping: dict[str, str],
-    hash_to_value: dict[str, KnoraStandoffXml],
+    xml_with_id: KnoraStandoffXml,
+    id_set: set[str],
 ) -> KnoraStandoffXml:
     """
-    This function replaces the internal ids with the new IRIs from the triplestore.
+    This function takes an XML string and a set with internal ids that are referenced in salsah-links in that string.
+    It replaces all internal ids of that set with the corresponding iri according to the mapping dictionary.
 
     Args:
-        pure_text: the text with the ids
-        id2iri_mapping: the dictionary that contains the mapping information
-        hash_to_value: the dictionary that contains the hash of the string and the xml value
+        id2iri_mapping: dictionary with id to iri mapping
+        xml_with_id: KnoraStandoffXml with the string that should have replacements
+        id_set: set of ids that are in the string
 
     Returns:
         the xml value with the old ids replaced
     """
-    new_xmltext = hash_to_value[pure_text]
-    # replace the outdated internal ids by their IRI
-    for _id, _iri in id2iri_mapping.items():
-        new_xmltext.regex_replace(f'href="IRI:{_id}:IRI"', f'href="{_iri}"')
-    return new_xmltext
+    for internal_id in id_set:
+        xml_with_id.replace_one_id_with_iri_in_salsah_link(
+            internal_id=internal_id,
+            iri=id2iri_mapping[internal_id],
+        )
+    return xml_with_id
 
 
 def _create_XMLResource_json_object_to_update(
     res_iri: str,
-    resource_in_triplestore: Any,
+    resource_in_triplestore: dict[str, Any],
     stashed_resource: XMLResource,
     link_prop_in_triplestore: dict[str, Any],
     new_xmltext: KnoraStandoffXml,
@@ -117,7 +138,7 @@ def _create_XMLResource_json_object_to_update(
         resource_in_triplestore: the resource existing in the triplestore
         stashed_resource: the same resource from the stash
         link_prop_in_triplestore: the link property in the triplestore
-        new_xmltext: the new xml text with the IRIs
+        new_xmltext: The KnoraStandOffXml with replaced ids
         link_prop_name: the name of the link property
 
     Returns:
@@ -137,11 +158,11 @@ def _create_XMLResource_json_object_to_update(
     return json.dumps(jsonobj, indent=4, separators=(",", ": "), cls=KnoraStandoffXmlEncoder)
 
 
-def upload_single_link_xml_property(
-    link_prop_in_triplestore: Any,
+def _upload_single_link_xml_property(
+    link_prop_in_triplestore: dict[str, Any],
     res_iri: str,
     stashed_resource: XMLResource,
-    resource_in_triplestore: Any,
+    resource_in_triplestore: dict[str, Any],
     link_prop: XMLProperty,
     hash_to_value: dict[str, KnoraStandoffXml],
     id2iri_mapping: dict[str, str],
@@ -158,7 +179,7 @@ def upload_single_link_xml_property(
         stashed_resource: the stashed resource
         resource_in_triplestore: the resource retrieved from the triplestore
         link_prop: the name of the link property
-        hash_to_value: the has value of the xml text
+        hash_to_value: the hash value of the xml text
         id2iri_mapping: the dictionary with the internal ids and the new IRIs
         nonapplied_xml_texts: the dictionary with the stashes
         verbose: what is printed out
@@ -166,7 +187,7 @@ def upload_single_link_xml_property(
 
     Returns:
         The stash dictionary with the newly uploaded resource removed.
-        If the upload was not sucessfull it returns the dictionary as it was before.
+        If the upload was not sucessfull, it returns the dictionary as it was before.
     """
     xmltext_in_triplestore = link_prop_in_triplestore.get("knora-api:textValueAsXml")
     if not xmltext_in_triplestore:
@@ -179,13 +200,24 @@ def upload_single_link_xml_property(
 
     # if the pure text is a hash, the replacement must be made
     # this hash originates from _stash_circular_references(), and identifies the XML texts
-    if text_hash_value not in hash_to_value:
+    try:
+        xml_from_stash = hash_to_value[text_hash_value]
+    except KeyError as err:
+        _log_iri_does_not_exist_error(
+            received_error=err,
+            stashed_resource=stashed_resource,
+            all_link_props=link_prop,
+        )
         # no action necessary: this property will remain in nonapplied_xml_texts,
         # which will be handled by the caller
         return nonapplied_xml_texts
 
-    new_xmltext = _replace_internal_ids_with_iris(
-        pure_text=text_hash_value, id2iri_mapping=id2iri_mapping, hash_to_value=hash_to_value
+    id_set = xml_from_stash.find_ids_referenced_in_salsah_links()
+
+    xml_from_stash = _replace_internal_ids_with_iris(
+        id2iri_mapping=id2iri_mapping,
+        xml_with_id=xml_from_stash,
+        id_set=id_set,
     )
 
     # prepare API call
@@ -194,7 +226,7 @@ def upload_single_link_xml_property(
         resource_in_triplestore=resource_in_triplestore,
         stashed_resource=stashed_resource,
         link_prop_in_triplestore=link_prop_in_triplestore,
-        new_xmltext=new_xmltext,
+        new_xmltext=xml_from_stash,
         link_prop_name=link_prop.name,
     )
 
@@ -233,7 +265,7 @@ def upload_all_link_props_of_single_resource(
         stashed_resource: the resource from the stash
         resource_in_triplestore: the resource from the triplestore
         link_prop: the link property
-        hash_to_value: the dictionary which stored the hashes and their corresponding text
+        hash_to_value: the dictionary which stored the hashes and the KnoraStandoffXml with the corresponding texts
         id2iri_mapping: the dictionary that has the internal ids and IRIs to map
         nonapplied_xml_texts: the dictionary which contains the unprocessed resources
         verbose: how much information should be printed
@@ -248,7 +280,7 @@ def upload_all_link_props_of_single_resource(
         all_link_props_in_triplestore = [all_link_props_in_triplestore]
 
     for link_prop_in_triplestore in all_link_props_in_triplestore:
-        nonapplied_xml_texts = upload_single_link_xml_property(
+        nonapplied_xml_texts = _upload_single_link_xml_property(
             link_prop_in_triplestore=link_prop_in_triplestore,
             res_iri=res_iri,
             stashed_resource=stashed_resource,

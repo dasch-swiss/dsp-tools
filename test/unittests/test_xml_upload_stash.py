@@ -9,7 +9,7 @@ from dsp_tools.models.value import KnoraStandoffXml
 
 
 class TestXMLUploadStash(TestCase):
-    def test_find_all_substring_in_xmlstr(self):
+    def test_find_all_substring_in_xmlstr(self) -> None:
         one_link_KnoraStandoffXml = KnoraStandoffXml(
             xmlstr=(
                 '<resource label="r1_label" restype="r1_restype" id="r1_id" permissions="res-default">'
@@ -36,7 +36,7 @@ class TestXMLUploadStash(TestCase):
             returned = test_instance.find_all_iri_in_xmlstr()
             self.assertEqual(expected, returned)
 
-    def test__replace_internal_ids_with_iris(self):
+    def test__replace_internal_ids_with_iris(self) -> None:
         test_id2iri = {"r1_id": "r1_iri", "r2_id": "r2_iri", "r3_id": "r3_iri"}
         one_link_KnoraStandoffXml = KnoraStandoffXml(
             xmlstr=(

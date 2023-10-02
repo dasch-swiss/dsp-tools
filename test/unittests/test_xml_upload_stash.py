@@ -33,7 +33,7 @@ class TestXMLUploadStash(TestCase):
             three_link_KnoraStandoffXml: {"r2_id", "r3_id"},
         }
         for test_instance, expected in test_dict.items():
-            returned = test_instance.find_all_substring_in_xmlstr(pattern='href="IRI:(.*?):IRI"')
+            returned = test_instance.find_all_iri_in_xmlstr()
             self.assertEqual(expected, returned)
 
     def test__replace_internal_ids_with_iris(self):

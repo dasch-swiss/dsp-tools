@@ -113,10 +113,7 @@ def _replace_internal_ids_with_iris(
         Text has now replaced ids
     """
     for internal_id in id_set:
-        xml_with_id.regex_replace(
-            pattern=r'href="IRI:' + internal_id + r':IRI"',
-            repl='href="' + id2iri_mapping[internal_id] + '"',
-        )
+        xml_with_id.replace_one_internal_id_with_iri_in_string(internal_id=internal_id, iri=id2iri_mapping[internal_id])
     return xml_with_id
 
 
@@ -206,7 +203,7 @@ def _upload_single_link_xml_property(
         # which will be handled by the caller
         return nonapplied_xml_texts
 
-    id_set = xml_from_stash.find_all_substring_in_xmlstr(pattern='href="IRI:(.*?):IRI"')
+    id_set = xml_from_stash.find_all_iri_in_xmlstr()
 
     xml_from_stash = _replace_internal_ids_with_iris(
         id2iri_mapping=id2iri_mapping, xml_with_id=xml_from_stash, id_set=id_set

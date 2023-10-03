@@ -8,7 +8,7 @@ from lxml import etree
 from dsp_tools.fast_xmlupload.upload_files import get_pkl_files
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.create_logger import get_logger
-from dsp_tools.utils.xml_upload import xml_upload
+from dsp_tools.utils.xmlupload.xmlupload import xmlupload
 
 logger = get_logger(__name__)
 
@@ -110,7 +110,7 @@ def fast_xmlupload(
     start_time = datetime.now()
     print(f"{start_time}: Start with fast XML upload...")
 
-    xml_upload(
+    xmlupload(
         input_file=xml_tree_replaced,
         server=dsp_url,
         user=user,

@@ -5,7 +5,7 @@ import unittest
 import pytest
 
 from dsp_tools.models.exceptions import UserError
-from dsp_tools.utils.xml_upload import xml_upload
+from dsp_tools.utils.xmlupload.xmlupload import xmlupload
 
 
 class TestXMLUpload(unittest.TestCase):
@@ -17,7 +17,7 @@ class TestXMLUpload(unittest.TestCase):
 
     def test_xml_upload(self) -> None:
         with self.assertRaisesRegex(UserError, r"A project with shortcode 9999 could not be found on the DSP server"):
-            xml_upload(
+            xmlupload(
                 input_file="testdata/invalid-testdata/xml-data/inexistent-shortcode.xml",
                 server=self.server,
                 user=self.user,
@@ -34,7 +34,7 @@ class TestXMLUpload(unittest.TestCase):
             r"The <knora> tag of your XML file references the default-ontology 'notexistingfantasyonto', "
             r"but the project 4124 on the DSP server contains only the ontologies {'testonto'}",
         ):
-            xml_upload(
+            xmlupload(
                 input_file="testdata/invalid-testdata/xml-data/inexistent-ontoname.xml",
                 server=self.server,
                 user=self.user,

@@ -27,7 +27,7 @@ from dsp_tools.utils.project_validate import validate_project
 from dsp_tools.utils.rosetta import upload_rosetta
 from dsp_tools.utils.shared import validate_xml_against_schema
 from dsp_tools.utils.stack_handling import StackConfiguration, StackHandler
-from dsp_tools.utils.xml_upload import xml_upload
+from dsp_tools.utils.xmlupload.xmlupload import xmlupload
 
 logger = get_logger(__name__)
 
@@ -457,7 +457,7 @@ def _call_requested_action(args: argparse.Namespace) -> bool:
         if args.validate_only:
             success = validate_xml_against_schema(input_file=args.xmlfile)
         else:
-            success = xml_upload(
+            success = xmlupload(
                 input_file=args.xmlfile,
                 server=args.server,
                 user=args.user,

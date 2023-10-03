@@ -41,8 +41,10 @@ logger = get_logger(__name__)
 
 
 def _extract_resources_and_permissions(
-    root: etree._Element, proj_context: ProjectContext, default_ontology: str
-) -> dict[str, XmlPermission] and list[XMLResource]:
+    root: etree._Element,
+    proj_context: ProjectContext,
+    default_ontology: str,
+) -> tuple[dict[str, XmlPermission], list[XMLResource]]:
     """
     This function takes the root of the tree the project context on the server and the name of the default ontology
     From the root it separates the permissions from the resources
@@ -136,19 +138,16 @@ def xmlupload(
         raise UserError("Unable to retrieve project context from DSP server") from None
 
     permissions, resources = _extract_resources_and_permissions(
-        root=root, proj_context=proj_context, default_ontology=default_ontology
+        root=root,
+        proj_context=proj_context,
+        default_ontology=default_ontology,
     )
 
-    # get the project information and project ontology from the server
-    try:
-        res_inst_factory = try_network_action(lambda: ResourceInstanceFactory(con, shortcode))
-    except BaseError:
-        logger.error(f"A project with shortcode {shortcode} could not be found on the DSP server", exc_info=True)
-        raise UserError(f"A project with shortcode {shortcode} could not be found on the DSP server") from None
-    permissions_lookup: dict[str, Permissions] = {s: perm.get_permission_instance() for s, perm in permissions.items()}
-    resclass_name_2_type: dict[str, type] = {
-        s: res_inst_factory.get_resclass_type(s) for s in res_inst_factory.get_resclass_names()
-    }
+    permissions_lookup, resclass_name_2_type = _get_project_info_from_server(
+        server_connection=con,
+        permissions=permissions,
+        shortcode=shortcode,
+    )
 
     # check if the data in the XML is consistent with the ontology
     check_consistency_with_ontology(
@@ -229,6 +228,32 @@ def xmlupload(
         print("All resources have successfully been uploaded.")
         logger.info("All resources have successfully been uploaded.")
     return success
+
+
+def _get_project_info_from_server(
+    server_connection: Connection,
+    permissions: dict[str, XmlPermission],
+    shortcode: str,
+) -> tuple[dict[str, Permissions], dict[str, type]]:
+    # get the project information and project ontology from the server
+    try:
+        res_inst_factory = try_network_action(
+            lambda: ResourceInstanceFactory(con=server_connection, projident=shortcode)
+        )
+    except BaseError:
+        logger.error(
+            f"A project with shortcode {shortcode} could not be found on the DSP server",
+            exc_info=True,
+        )
+        raise UserError(f"A project with shortcode {shortcode} could not be found on the DSP server") from None
+    permissions_lookup = {
+        permission_name: perm.get_permission_instance() for permission_name, perm in permissions.items()
+    }
+    resclass_name_2_type = {
+        resource_class_name: res_inst_factory.get_resclass_type(prefixedresclass=resource_class_name)
+        for resource_class_name in res_inst_factory.get_resclass_names()
+    }
+    return permissions_lookup, resclass_name_2_type
 
 
 def _upload_resources(

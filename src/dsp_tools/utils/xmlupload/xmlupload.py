@@ -72,6 +72,30 @@ def _extract_resources_and_permissions_from_xml(
     return permissions, resources
 
 
+def _get_project_context_from_server(connection: Connection) -> ProjectContext:
+    """
+    This function retrieves the project context previously uploaded on the server (json file)
+
+    Args:
+        connection: connection to the server
+
+    Returns:
+        Project context
+
+    Raises:
+        UserError: If the project was not previously uploaded on the server
+    """
+    try:
+        proj_context: ProjectContext = try_network_action(lambda: ProjectContext(con=connection))
+    except BaseError:
+        logger.error(
+            "Unable to retrieve project context from DSP server",
+            exc_info=True,
+        )
+        raise UserError("Unable to retrieve project context from DSP server") from None
+    return proj_context
+
+
 def _get_project_permissions_and_classes_from_server(
     server_connection: Connection,
     permissions: dict[str, XmlPermission],
@@ -322,30 +346,6 @@ def xmlupload(
         print("All resources have successfully been uploaded.")
         logger.info("All resources have successfully been uploaded.")
     return success
-
-
-def _get_project_context_from_server(connection: Connection) -> ProjectContext:
-    """
-    This function retrieves the project context previously uploaded on the server (json file)
-
-    Args:
-        connection: connection to the server
-
-    Returns:
-        Project context
-
-    Raises:
-        UserError: If the project was not previously uploaded on the server
-    """
-    try:
-        proj_context: ProjectContext = try_network_action(lambda: ProjectContext(con=connection))
-    except BaseError:
-        logger.error(
-            "Unable to retrieve project context from DSP server",
-            exc_info=True,
-        )
-        raise UserError("Unable to retrieve project context from DSP server") from None
-    return proj_context
 
 
 def _upload_resources(

@@ -5,7 +5,7 @@ import unittest
 import pytest
 
 from dsp_tools.models.exceptions import UserError
-from dsp_tools.utils.xmlupload.xml_upload import xml_upload
+from dsp_tools.utils.xmlupload.xmlupload import xml_upload
 
 
 class TestXMLUpload(unittest.TestCase):

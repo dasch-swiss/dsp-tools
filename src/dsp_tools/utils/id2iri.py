@@ -7,7 +7,7 @@ from lxml import etree
 
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.create_logger import get_logger
-from dsp_tools.utils.xmlupload.xml_upload import parse_xml_file
+from dsp_tools.utils.xmlupload.read_validate_xml_file import parse_xml_file
 
 logger = get_logger(__name__)
 

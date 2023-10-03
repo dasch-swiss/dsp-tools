@@ -4,7 +4,7 @@ from pathlib import Path
 
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.project_create import create_project
-from dsp_tools.utils.xmlupload.xml_upload import xml_upload
+from dsp_tools.utils.xmlupload.xmlupload import xml_upload
 
 
 def _update_possibly_existing_repo(rosetta_folder: Path) -> bool:

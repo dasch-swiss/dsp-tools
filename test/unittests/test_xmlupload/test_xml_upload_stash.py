@@ -5,7 +5,7 @@ from unittest import TestCase
 import pytest
 
 from dsp_tools.models.value import KnoraStandoffXml
-from dsp_tools.utils.xmlupload import xml_upload_stash
+from dsp_tools.utils.xmlupload import upload_stashed_StandoffLink
 
 
 class TestXMLUploadStash(TestCase):
@@ -45,7 +45,7 @@ class TestXMLUploadStash(TestCase):
                 "</text></text-prop></resource>"
             )
         )
-        returned_instance = xml_upload_stash._replace_internal_ids_with_iris(
+        returned_instance = upload_stashed_StandoffLink._replace_internal_ids_with_iris(
             id2iri_mapping=test_id2iri, xml_with_id=one_link_KnoraStandoffXml, id_set={"r2_id"}
         )
         expected_str = (
@@ -68,7 +68,7 @@ class TestXMLUploadStash(TestCase):
                 "</text></text-prop></resource>"
             )
         )
-        returned_instance = xml_upload_stash._replace_internal_ids_with_iris(
+        returned_instance = upload_stashed_StandoffLink._replace_internal_ids_with_iris(
             id2iri_mapping=test_id2iri, xml_with_id=three_link_KnoraStandoffXml, id_set={"r2_id", "r3_id"}
         )
         expected_str = (

@@ -10,7 +10,7 @@ import regex
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.project_create import create_project
 from dsp_tools.utils.shared import check_notna
-from dsp_tools.utils.xmlupload.xml_upload import xml_upload
+from dsp_tools.utils.xmlupload.xmlupload import xml_upload
 
 
 class TestImportScripts(unittest.TestCase):

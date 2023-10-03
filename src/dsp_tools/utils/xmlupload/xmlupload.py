@@ -77,7 +77,7 @@ def xmlupload(
     """
     # parse the XML file
     default_ontology, root, shortcode = validate_and_parse_xml_file(
-        imgdir=imgdir,
+        bitstream_directory=imgdir,
         input_file=input_file,
         preprocessing_done=preprocessing_done,
     )

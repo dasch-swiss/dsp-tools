@@ -184,12 +184,28 @@ def check_if_bitstreams_exist(
 
 
 def validate_and_parse_xml_file(
-    imgdir: str, input_file: Union[str, Path, etree._ElementTree[Any]], preprocessing_done: bool
-):
+    bitstream_directory: str,
+    input_file: Union[str, Path, etree._ElementTree[Any]],
+    preprocessing_done: bool,
+) -> str and etree._Element and str:
+    """
+    This function takes an element tree or a path to an XML file
+    It validates the file against the XML schema
+    It checks if all the mentioned bitstream files are in the specified location
+    It retrieves the shortcode and default ontology from the XML file
+
+    Args:
+        bitstream_directory: directory to the bitstream files
+        input_file: file or etree that will be processed
+        preprocessing_done: True if the bitstream files have already been processed
+
+    Returns:
+        The ontology name, the parsed XML file and the shortcode of the project
+    """
     validate_xml_against_schema(input_file=input_file)
     root = parse_and_clean_xml_file(input_file=input_file)
     if not preprocessing_done:
-        check_if_bitstreams_exist(root=root, imgdir=imgdir)
+        check_if_bitstreams_exist(root=root, imgdir=bitstream_directory)
     shortcode = root.attrib["shortcode"]
     default_ontology = root.attrib["default-ontology"]
     logger.info(f"Validated and parsed the XML file. Shortcode='{shortcode}' and default_ontology='{default_ontology}'")

@@ -140,6 +140,37 @@ def _get_project_permissions_and_classes_from_server(
     return permissions_lookup, resclass_name_2_type
 
 
+def _calculate_multimedia_file_size(
+    resources: list[XMLResource], imgdir: str, preprocessing_done: bool
+) -> tuple[list[float], float | int]:
+    """
+    This function calculates the size of the bitstream files in the specified directory.
+
+    Args:
+        resources: List of resources to identify the files used
+        imgdir: directory where the files are
+        preprocessing_done: True if sipi has preprocessed the files
+
+    Returns:
+        List with all the file sizes
+        Total of all the file sizes
+    """
+    # If there are multimedia files: calculate their total size
+    bitstream_all_sizes_mb = [
+        Path(Path(imgdir) / Path(res.bitstream.value)).stat().st_size / 1000000
+        if res.bitstream and not preprocessing_done
+        else 0.0
+        for res in resources
+    ]
+    if sum(bitstream_all_sizes_mb) > 0:
+        bitstream_size_total_mb = round(sum(bitstream_all_sizes_mb), 1)
+        print(f"This xmlupload contains multimedia files with a total size of {bitstream_size_total_mb} MB.")
+        logger.info(f"This xmlupload contains multimedia files with a total size of {bitstream_size_total_mb} MB.")
+    else:  # make Pylance happy
+        bitstream_size_total_mb = 0.0
+    return bitstream_all_sizes_mb, bitstream_size_total_mb
+
+
 def _upload_resources(
     resources: list[XMLResource],
     imgdir: str,
@@ -173,21 +204,13 @@ def _upload_resources(
         id2iri_mapping, failed_uploads, metrics
     """
 
-    # If there are multimedia files: calculate their total size
-    bitstream_all_sizes_mb = [
-        Path(Path(imgdir) / Path(res.bitstream.value)).stat().st_size / 1000000
-        if res.bitstream and not preprocessing_done
-        else 0.0
-        for res in resources
-    ]
-    if sum(bitstream_all_sizes_mb) > 0:
-        bitstream_size_total_mb = round(sum(bitstream_all_sizes_mb), 1)
-        bitstream_size_uploaded_mb = 0.0
-        print(f"This xmlupload contains multimedia files with a total size of {bitstream_size_total_mb} MB.")
-        logger.info(f"This xmlupload contains multimedia files with a total size of {bitstream_size_total_mb} MB.")
-    else:  # make Pylance happy
-        bitstream_size_total_mb = 0.0
-        bitstream_size_uploaded_mb = 0.0
+    bitstream_all_sizes_mb, bitstream_size_total_mb = _calculate_multimedia_file_size(
+        resources=resources,
+        imgdir=imgdir,
+        preprocessing_done=preprocessing_done,
+    )
+
+    bitstream_size_uploaded_mb = 0.0
 
     for i, resource in enumerate(resources):
         resource_start = datetime.now()

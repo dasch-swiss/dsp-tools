@@ -22,8 +22,7 @@ from dsp_tools.models.xmlpermission import XmlPermission
 from dsp_tools.models.xmlproperty import XMLProperty
 from dsp_tools.models.xmlresource import XMLResource
 from dsp_tools.utils.create_logger import get_logger
-from dsp_tools.utils.shared import login, try_network_action, validate_xml_against_schema
-from dsp_tools.utils.xml_utils import parse_and_clean_xml_file
+from dsp_tools.utils.shared import login, try_network_action
 from dsp_tools.utils.xmlupload.ark2iri import convert_ark_v0_to_resource_iri
 from dsp_tools.utils.xmlupload.stash_circular_references import remove_circular_references
 from dsp_tools.utils.xmlupload.upload_stashed_resptr_props import (
@@ -31,7 +30,7 @@ from dsp_tools.utils.xmlupload.upload_stashed_resptr_props import (
     upload_stashed_resptr_props,
 )
 from dsp_tools.utils.xmlupload.upload_stashed_xml_texts import purge_stashed_xml_texts, upload_stashed_xml_texts
-from dsp_tools.utils.xmlupload.validate_xml_file import check_consistency_with_ontology, check_if_bitstreams_exist
+from dsp_tools.utils.xmlupload.validate_xml_file import check_consistency_with_ontology, validate_and_parse_xml_file
 from dsp_tools.utils.xmlupload.write_diagnostic_info import (
     MetricRecord,
     determine_save_location_of_diagnostic_info,
@@ -77,13 +76,11 @@ def xmlupload(
         uploaded because there is an error in it
     """
     # parse the XML file
-    validate_xml_against_schema(input_file=input_file)
-    root = parse_and_clean_xml_file(input_file=input_file)
-    if not preprocessing_done:
-        check_if_bitstreams_exist(root=root, imgdir=imgdir)
-    shortcode = root.attrib["shortcode"]
-    default_ontology = root.attrib["default-ontology"]
-    logger.info(f"Validated and parsed the XML file. Shortcode='{shortcode}' and default_ontology='{default_ontology}'")
+    default_ontology, root, shortcode = validate_and_parse_xml_file(
+        imgdir=imgdir,
+        input_file=input_file,
+        preprocessing_done=preprocessing_done,
+    )
 
     # determine save location that will be used for diagnostic info if the xmlupload is interrupted
     save_location, server_as_foldername, timestamp_str = determine_save_location_of_diagnostic_info(

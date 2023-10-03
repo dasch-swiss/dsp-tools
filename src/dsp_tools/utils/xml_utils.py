@@ -7,7 +7,7 @@ from typing import Any, Union
 from lxml import etree
 
 
-def _parse_xml_file(input_file: Union[str, Path]) -> etree._Element:
+def _parse_xml_file(input_file: Union[str, Path]) -> etree._ElementTree[etree._Element]:
     """
     This function parses an XML file and returns an Element Tree
 
@@ -21,7 +21,9 @@ def _parse_xml_file(input_file: Union[str, Path]) -> etree._Element:
     return etree.parse(source=input_file, parser=parser)
 
 
-def _remove_comments_from_element_tree(input_tree: etree._Element) -> etree._Element:
+def _remove_comments_from_element_tree(
+    input_tree: etree._ElementTree[etree._Element],
+) -> etree._ElementTree[etree._Element]:
     """
     This function comments and processing instructions
     Commented out properties break the XMLProperty constructor
@@ -40,7 +42,9 @@ def _remove_comments_from_element_tree(input_tree: etree._Element) -> etree._Ele
     return tree
 
 
-def _remove_qnames_and_transform_special_tags(input_tree: etree._Element) -> etree._Element:
+def _remove_qnames_and_transform_special_tags(
+    input_tree: etree._ElementTree[etree._Element],
+) -> etree._ElementTree[etree._Element]:
     """
     This function removes namespace URI from the elements name
     And transform the special tags to their technically correct form
@@ -65,7 +69,9 @@ def _remove_qnames_and_transform_special_tags(input_tree: etree._Element) -> etr
     return input_tree
 
 
-def parse_and_clean_xml_file(input_file: Union[str, Path, etree._ElementTree[Any]]) -> etree._Element:
+def parse_and_clean_xml_file(
+    input_file: Union[str, Path, etree._ElementTree[etree._Element]],
+) -> etree._Element:
     """
     Parse an XML file with DSP-conform data,
     remove namespace URI from the elements' names,

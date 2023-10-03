@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any, Union
 
 from lxml import etree
 
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.models.xmlresource import XMLResource
 from dsp_tools.utils.create_logger import get_logger
+from dsp_tools.utils.shared import validate_xml_against_schema
+from dsp_tools.utils.xml_utils import parse_and_clean_xml_file
 
 logger = get_logger(__name__)
 
@@ -178,3 +181,16 @@ def check_if_bitstreams_exist(
             raise UserError(
                 f"Bitstream '{pth!s}' of resource '{res.attrib['label']}' does not exist in the imgdir '{imgdir}'."
             )
+
+
+def validate_and_parse_xml_file(
+    imgdir: str, input_file: Union[str, Path, etree._ElementTree[Any]], preprocessing_done: bool
+):
+    validate_xml_against_schema(input_file=input_file)
+    root = parse_and_clean_xml_file(input_file=input_file)
+    if not preprocessing_done:
+        check_if_bitstreams_exist(root=root, imgdir=imgdir)
+    shortcode = root.attrib["shortcode"]
+    default_ontology = root.attrib["default-ontology"]
+    logger.info(f"Validated and parsed the XML file. Shortcode='{shortcode}' and default_ontology='{default_ontology}'")
+    return default_ontology, root, shortcode

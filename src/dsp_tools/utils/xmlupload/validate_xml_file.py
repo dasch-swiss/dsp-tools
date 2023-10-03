@@ -187,7 +187,7 @@ def validate_and_parse_xml_file(
     bitstream_directory: str,
     input_file: Union[str, Path, etree._ElementTree[Any]],
     preprocessing_done: bool,
-) -> str and etree._Element and str:
+) -> tuple[str, etree._Element, str]:
     """
     This function takes an element tree or a path to an XML file
     It validates the file against the XML schema

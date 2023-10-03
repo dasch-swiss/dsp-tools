@@ -10,13 +10,13 @@ from lxml import etree
 
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.xmlresource import XMLResource
-from dsp_tools.utils.xmlupload.documentation import (
+from dsp_tools.utils.xmlupload.ark2iri import convert_ark_v0_to_resource_iri
+from dsp_tools.utils.xmlupload.read_validate_xml_file import parse_xml_file
+from dsp_tools.utils.xmlupload.stash_circular_references import remove_circular_references
+from dsp_tools.utils.xmlupload.write_diagnostic_info import (
     _transform_server_url_to_foldername,
     determine_save_location_of_diagnostic_info,
 )
-from dsp_tools.utils.xmlupload.read_validate_xml_file import parse_xml_file
-from dsp_tools.utils.xmlupload.salsah_migration import convert_ark_v0_to_resource_iri
-from dsp_tools.utils.xmlupload.stash_circular_references import remove_circular_references
 
 
 class TestXMLUpload(unittest.TestCase):

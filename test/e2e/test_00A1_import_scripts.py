@@ -10,7 +10,7 @@ import regex
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.project_create import create_project
 from dsp_tools.utils.shared import check_notna
-from dsp_tools.utils.xmlupload.xmlupload import xml_upload
+from dsp_tools.utils.xmlupload.xmlupload import xmlupload
 
 
 class TestImportScripts(unittest.TestCase):
@@ -58,7 +58,7 @@ class TestImportScripts(unittest.TestCase):
         )
         self.assertTrue(success_on_creation)
 
-        success_on_xmlupload = xml_upload(
+        success_on_xmlupload = xmlupload(
             input_file="src/dsp_tools/import_scripts/data-processed.xml",
             server="http://0.0.0.0:3333",
             user="root@example.com",

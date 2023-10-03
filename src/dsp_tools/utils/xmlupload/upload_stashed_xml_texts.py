@@ -246,7 +246,7 @@ def _upload_single_link_xml_property(
     return nonapplied_xml_texts
 
 
-def _upload_all_link_props_of_single_resource(
+def _upload_all_xml_texts_of_single_resource(
     res_iri: str,
     stashed_resource: XMLResource,
     resource_in_triplestore: dict[str, Any],
@@ -333,7 +333,7 @@ def upload_stashed_xml_texts(
         print(f'  Upload XML text(s) of resource "{stashed_resource.id}"...')
         logger.info(f'  Upload XML text(s) of resource "{stashed_resource.id}"...')
         for link_prop, hash_to_value in all_link_props.items():
-            nonapplied_xml_texts = _upload_all_link_props_of_single_resource(
+            nonapplied_xml_texts = _upload_all_xml_texts_of_single_resource(
                 res_iri=res_iri,
                 stashed_resource=stashed_resource,
                 resource_in_triplestore=resource_in_triplestore,

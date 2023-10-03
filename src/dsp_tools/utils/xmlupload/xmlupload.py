@@ -23,28 +23,28 @@ from dsp_tools.models.xmlproperty import XMLProperty
 from dsp_tools.models.xmlresource import XMLResource
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import login, try_network_action, validate_xml_against_schema
-from dsp_tools.utils.xmlupload.documentation import (
-    MetricRecord,
-    determine_save_location_of_diagnostic_info,
-    write_id2iri_mapping_and_metrics,
-)
+from dsp_tools.utils.xmlupload.ark2iri import convert_ark_v0_to_resource_iri
 from dsp_tools.utils.xmlupload.read_validate_xml_file import (
     check_consistency_with_ontology,
     check_if_bitstreams_exist,
     parse_xml_file,
 )
-from dsp_tools.utils.xmlupload.salsah_migration import convert_ark_v0_to_resource_iri
 from dsp_tools.utils.xmlupload.stash_circular_references import remove_circular_references
-from dsp_tools.utils.xmlupload.upload_stashed_ResourceLink import (
+from dsp_tools.utils.xmlupload.upload_stashed_resptr_props import (
     purge_stashed_resptr_props,
     upload_stashed_resptr_props,
 )
-from dsp_tools.utils.xmlupload.upload_stashed_StandoffLink import purge_stashed_xml_texts, upload_stashed_xml_texts
+from dsp_tools.utils.xmlupload.upload_stashed_xml_texts import purge_stashed_xml_texts, upload_stashed_xml_texts
+from dsp_tools.utils.xmlupload.write_diagnostic_info import (
+    MetricRecord,
+    determine_save_location_of_diagnostic_info,
+    write_id2iri_mapping_and_metrics,
+)
 
 logger = get_logger(__name__)
 
 
-def xml_upload(
+def xmlupload(
     input_file: Union[str, Path, etree._ElementTree[Any]],
     server: str,
     user: str,

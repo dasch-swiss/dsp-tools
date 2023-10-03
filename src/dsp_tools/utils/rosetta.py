@@ -4,7 +4,7 @@ from pathlib import Path
 
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.project_create import create_project
-from dsp_tools.utils.xmlupload.xmlupload import xml_upload
+from dsp_tools.utils.xmlupload.xmlupload import xmlupload
 
 
 def _update_possibly_existing_repo(rosetta_folder: Path) -> bool:
@@ -89,7 +89,7 @@ def _upload_xml(rosetta_folder: Path) -> bool:
         True if all data could be uploaded without problems, False if something went wrong during the upload process
     """
     print("Execute 'dsp-tools xmlupload rosetta.xml'...")
-    success = xml_upload(
+    success = xmlupload(
         input_file=rosetta_folder / "rosetta.xml",
         server="http://0.0.0.0:3333",
         user="root@example.com",

@@ -40,6 +40,36 @@ from dsp_tools.utils.xmlupload.write_diagnostic_info import (
 logger = get_logger(__name__)
 
 
+def _extract_resources_and_permissions(
+    root: etree._Element, proj_context: ProjectContext, default_ontology: str
+) -> dict[str, XmlPermission] and list[XMLResource]:
+    """
+    This function takes the root of the tree the project context on the server and the name of the default ontology
+    From the root it separates the permissions from the resources
+    It creates corresponding Python objects of the elements
+    It returns a collection with the Python objects
+
+    Args:
+        root: root of the parsed XML file
+        proj_context: Project context retrieved from server
+        default_ontology: name of the default ontology as specified in the XML file
+
+    Returns:
+        A dictionary with the permission name and the permission object
+        A list with the XML resource Python objects
+    """
+    # make Python object representations of the XML file
+    resources: list[XMLResource] = []
+    permissions: dict[str, XmlPermission] = {}
+    for child in root:
+        if child.tag == "permissions":
+            permission = XmlPermission(child, proj_context)
+            permissions[permission.id] = permission
+        elif child.tag == "resource":
+            resources.append(XMLResource(child, default_ontology))
+    return permissions, resources
+
+
 def xmlupload(
     input_file: Union[str, Path, etree._ElementTree[Any]],
     server: str,
@@ -105,15 +135,9 @@ def xmlupload(
         logger.error("Unable to retrieve project context from DSP server", exc_info=True)
         raise UserError("Unable to retrieve project context from DSP server") from None
 
-    # make Python object representations of the XML file
-    resources: list[XMLResource] = []
-    permissions: dict[str, XmlPermission] = {}
-    for child in root:
-        if child.tag == "permissions":
-            permission = XmlPermission(child, proj_context)
-            permissions[permission.id] = permission
-        elif child.tag == "resource":
-            resources.append(XMLResource(child, default_ontology))
+    permissions, resources = _extract_resources_and_permissions(
+        root=root, proj_context=proj_context, default_ontology=default_ontology
+    )
 
     # get the project information and project ontology from the server
     try:
@@ -333,8 +357,8 @@ def _upload_resources(
             continue
         id2iri_mapping[resource.id] = created_resource.iri
         resource_designation = f"'{created_resource.label}' (ID: '{resource.id}', IRI: '{created_resource.iri}')"
-        print(f"Created resource {i+1}/{len(resources)}: {resource_designation}")
-        logger.info(f"Created resource {i+1}/{len(resources)}: {resource_designation}")
+        print(f"Created resource {i + 1}/{len(resources)}: {resource_designation}")
+        logger.info(f"Created resource {i + 1}/{len(resources)}: {resource_designation}")
         resource_duration = datetime.now() - resource_start
         resource_duration_ms = resource_duration.seconds * 1000 + int(resource_duration.microseconds / 1000)
         looping_overhead_ms = resource_duration_ms - resource_creation_duration_ms - (bitstream_duration_ms or 0)

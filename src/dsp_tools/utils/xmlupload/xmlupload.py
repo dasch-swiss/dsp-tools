@@ -72,11 +72,29 @@ def _extract_resources_and_permissions(
     return permissions, resources
 
 
-def _get_project_info_from_server(
+def _get_project_permissions_and_classes_from_server(
     server_connection: Connection,
     permissions: dict[str, XmlPermission],
     shortcode: str,
 ) -> tuple[dict[str, Permissions], dict[str, type]]:
+    """
+    This function tries to connect to the server and retrieve the project information
+    If the project is not on the server, it raises a UserError
+    From the information from the server it creates a dictionary with the permission information
+    And a dictionary with the information about the classes
+
+    Args:
+        server_connection: connection to the server
+        permissions: the permissions extracted from the XML
+        shortcode: the shortcode specified in the XML
+
+    Returns:
+        A dictionary with the name of the permission with the Python object
+        And a dictionary with the class name as string and the Python type of the class
+    Raises:
+        UserError: If the project is not uploaded on the server
+
+    """
     # get the project information and project ontology from the server
     try:
         res_inst_factory = try_network_action(
@@ -156,12 +174,7 @@ def xmlupload(
     con = login(server=server, user=user, password=password, dump=dump)
     sipi_server = Sipi(sipi, con.get_token())
 
-    # get the project context
-    try:
-        proj_context = try_network_action(lambda: ProjectContext(con=con))
-    except BaseError:
-        logger.error("Unable to retrieve project context from DSP server", exc_info=True)
-        raise UserError("Unable to retrieve project context from DSP server") from None
+    proj_context = _get_project_context_from_server(connection=con)
 
     permissions, resources = _extract_resources_and_permissions(
         root=root,
@@ -169,7 +182,7 @@ def xmlupload(
         default_ontology=default_ontology,
     )
 
-    permissions_lookup, resclass_name_2_type = _get_project_info_from_server(
+    permissions_lookup, resclass_name_2_type = _get_project_permissions_and_classes_from_server(
         server_connection=con,
         permissions=permissions,
         shortcode=shortcode,
@@ -254,6 +267,18 @@ def xmlupload(
         print("All resources have successfully been uploaded.")
         logger.info("All resources have successfully been uploaded.")
     return success
+
+
+def _get_project_context_from_server(connection: Connection) -> ProjectContext:
+    try:
+        proj_context = try_network_action(lambda: ProjectContext(con=connection))
+    except BaseError:
+        logger.error(
+            "Unable to retrieve project context from DSP server",
+            exc_info=True,
+        )
+        raise UserError("Unable to retrieve project context from DSP server") from None
+    return proj_context
 
 
 def _upload_resources(

@@ -45,7 +45,7 @@ class TestXMLUploadStash(TestCase):
                 "</text></text-prop></resource>"
             )
         )
-        returned_instance = upload_stashed_StandoffLink._replace_internal_ids_with_iris(
+        returned_instance = upload_stashed_xml_texts._replace_internal_ids_with_iris(
             id2iri_mapping=test_id2iri, xml_with_id=one_link_KnoraStandoffXml, id_set={"r2_id"}
         )
         expected_str = (
@@ -68,7 +68,7 @@ class TestXMLUploadStash(TestCase):
                 "</text></text-prop></resource>"
             )
         )
-        returned_instance = upload_stashed_StandoffLink._replace_internal_ids_with_iris(
+        returned_instance = upload_stashed_xml_texts._replace_internal_ids_with_iris(
             id2iri_mapping=test_id2iri, xml_with_id=three_link_KnoraStandoffXml, id_set={"r2_id", "r3_id"}
         )
         expected_str = (

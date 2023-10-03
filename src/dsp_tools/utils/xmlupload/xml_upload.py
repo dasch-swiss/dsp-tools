@@ -29,9 +29,9 @@ from dsp_tools.models.value import KnoraStandoffXml
 from dsp_tools.models.xmlpermission import XmlPermission
 from dsp_tools.models.xmlproperty import XMLProperty
 from dsp_tools.models.xmlresource import XMLResource
-from dsp_tools.utils import xml_upload_stash
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import login, try_network_action, validate_xml_against_schema
+from dsp_tools.utils.xmlupload import xml_upload_stash
 
 MetricRecord = namedtuple("MetricRecord", ["res_id", "filetype", "filesize_mb", "event", "duration_ms", "mb_per_sec"])
 

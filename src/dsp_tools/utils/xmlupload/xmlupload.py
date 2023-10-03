@@ -72,6 +72,32 @@ def _extract_resources_and_permissions(
     return permissions, resources
 
 
+def _get_project_info_from_server(
+    server_connection: Connection,
+    permissions: dict[str, XmlPermission],
+    shortcode: str,
+) -> tuple[dict[str, Permissions], dict[str, type]]:
+    # get the project information and project ontology from the server
+    try:
+        res_inst_factory = try_network_action(
+            lambda: ResourceInstanceFactory(con=server_connection, projident=shortcode)
+        )
+    except BaseError:
+        logger.error(
+            f"A project with shortcode {shortcode} could not be found on the DSP server",
+            exc_info=True,
+        )
+        raise UserError(f"A project with shortcode {shortcode} could not be found on the DSP server") from None
+    permissions_lookup = {
+        permission_name: perm.get_permission_instance() for permission_name, perm in permissions.items()
+    }
+    resclass_name_2_type = {
+        resource_class_name: res_inst_factory.get_resclass_type(prefixedresclass=resource_class_name)
+        for resource_class_name in res_inst_factory.get_resclass_names()
+    }
+    return permissions_lookup, resclass_name_2_type
+
+
 def xmlupload(
     input_file: Union[str, Path, etree._ElementTree[Any]],
     server: str,
@@ -228,32 +254,6 @@ def xmlupload(
         print("All resources have successfully been uploaded.")
         logger.info("All resources have successfully been uploaded.")
     return success
-
-
-def _get_project_info_from_server(
-    server_connection: Connection,
-    permissions: dict[str, XmlPermission],
-    shortcode: str,
-) -> tuple[dict[str, Permissions], dict[str, type]]:
-    # get the project information and project ontology from the server
-    try:
-        res_inst_factory = try_network_action(
-            lambda: ResourceInstanceFactory(con=server_connection, projident=shortcode)
-        )
-    except BaseError:
-        logger.error(
-            f"A project with shortcode {shortcode} could not be found on the DSP server",
-            exc_info=True,
-        )
-        raise UserError(f"A project with shortcode {shortcode} could not be found on the DSP server") from None
-    permissions_lookup = {
-        permission_name: perm.get_permission_instance() for permission_name, perm in permissions.items()
-    }
-    resclass_name_2_type = {
-        resource_class_name: res_inst_factory.get_resclass_type(prefixedresclass=resource_class_name)
-        for resource_class_name in res_inst_factory.get_resclass_names()
-    }
-    return permissions_lookup, resclass_name_2_type
 
 
 def _upload_resources(

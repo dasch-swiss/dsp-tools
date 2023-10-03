@@ -116,6 +116,96 @@ def _get_project_permissions_and_classes_from_server(
     return permissions_lookup, resclass_name_2_type
 
 
+def _upload_all_data_to_the_server(
+    connection: Connection,
+    sipi_server: Sipi,
+    imgdir: str,
+    resources: list[XMLResource],
+    permissions_lookup: dict[str, Permissions],
+    resclass_name_2_type: dict[str, type],
+    stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]],
+    stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
+    preprocessing_done: bool,
+    save_location: Path,
+    timestamp_str: str,
+    metrics: list[MetricRecord],
+    verbose: bool,
+) -> tuple[list[str], dict[str, str], list[MetricRecord]]:
+    """
+    This function takes the information retrieved from the XMl and the project information from the server
+    It uploads all the data on the server,
+
+    Args:
+        connection: connection to the server
+        sipi_server: the sipi server in use
+        imgdir: directory to the bitstream data
+        resources: list of the resources from the XML
+        permissions_lookup: the name of the permission and its Python object
+        resclass_name_2_type: the name of the class and its Python type
+        stashed_resptr_props: the stashed resptr-prop to upload after the upload of the "resources" is done
+        stashed_xml_texts: the stashed XML texts to upload after the upload of the "resources" is done
+        preprocessing_done: True if the images were previously processed by sipi
+        save_location: location to save the metrics
+        timestamp_str: the timestamp for the metrics
+        metrics: the list with the metric objects
+        verbose: if True it logs more information
+
+    Returns:
+        a list with information about unsuccessful uploads
+        internal ID to IRI (newly generated) mapping
+        list with the metric record
+    """
+    failed_uploads: list[str] = []
+    id2iri_mapping: dict[str, str] = {}
+    nonapplied_resptr_props = {}
+    nonapplied_xml_texts = {}
+    try:
+        id2iri_mapping, failed_uploads, metrics = _upload_resources(
+            resources=resources,
+            imgdir=imgdir,
+            sipi_server=sipi_server,
+            permissions_lookup=permissions_lookup,
+            resclass_name_2_type=resclass_name_2_type,
+            id2iri_mapping=id2iri_mapping,
+            con=connection,
+            failed_uploads=failed_uploads,
+            metrics=metrics,
+            preprocessing_done=preprocessing_done,
+        )
+        if stashed_xml_texts:
+            nonapplied_xml_texts = upload_stashed_xml_texts(
+                verbose=verbose,
+                id2iri_mapping=id2iri_mapping,
+                con=connection,
+                stashed_xml_texts=stashed_xml_texts,
+            )
+        if stashed_resptr_props:
+            nonapplied_resptr_props = upload_stashed_resptr_props(
+                verbose=verbose,
+                id2iri_mapping=id2iri_mapping,
+                con=connection,
+                stashed_resptr_props=stashed_resptr_props,
+            )
+        if nonapplied_resptr_props or nonapplied_xml_texts:
+            msg = "Some stashed resptrs or XML texts could not be reapplied to their resources on the DSP server."
+            logger.error(msg)
+            raise BaseError(msg)
+    except BaseException as err:  # pylint: disable=broad-except
+        # The foreseeable errors are already handled by the variables
+        # failed_uploads, nonapplied_xml_texts, and nonapplied_resptr_props.
+        # Here we catch the unforeseeable exceptions, hence BaseException (=the base class of all exceptions)
+        _handle_upload_error(
+            err=err,
+            id2iri_mapping=id2iri_mapping,
+            failed_uploads=failed_uploads,
+            stashed_xml_texts=nonapplied_xml_texts or stashed_xml_texts,
+            stashed_resptr_props=nonapplied_resptr_props or stashed_resptr_props,
+            save_location=save_location,
+            timestamp_str=timestamp_str,
+        )
+    return failed_uploads, id2iri_mapping, metrics
+
+
 def xmlupload(
     input_file: Union[str, Path, etree._ElementTree[Any]],
     server: str,
@@ -203,54 +293,21 @@ def xmlupload(
     metrics.append(MetricRecord("", "", "", "xml upload preparation", preparation_duration_ms, ""))
 
     # upload all resources, then update the resources with the stashed XML texts and resptrs
-    id2iri_mapping: dict[str, str] = {}
-    failed_uploads: list[str] = []
-    nonapplied_resptr_props = {}
-    nonapplied_xml_texts = {}
-    try:
-        id2iri_mapping, failed_uploads, metrics = _upload_resources(
-            resources=resources,
-            imgdir=imgdir,
-            sipi_server=sipi_server,
-            permissions_lookup=permissions_lookup,
-            resclass_name_2_type=resclass_name_2_type,
-            id2iri_mapping=id2iri_mapping,
-            con=con,
-            failed_uploads=failed_uploads,
-            metrics=metrics,
-            preprocessing_done=preprocessing_done,
-        )
-        if stashed_xml_texts:
-            nonapplied_xml_texts = upload_stashed_xml_texts(
-                verbose=verbose,
-                id2iri_mapping=id2iri_mapping,
-                con=con,
-                stashed_xml_texts=stashed_xml_texts,
-            )
-        if stashed_resptr_props:
-            nonapplied_resptr_props = upload_stashed_resptr_props(
-                verbose=verbose,
-                id2iri_mapping=id2iri_mapping,
-                con=con,
-                stashed_resptr_props=stashed_resptr_props,
-            )
-        if nonapplied_resptr_props or nonapplied_xml_texts:
-            msg = "Some stashed resptrs or XML texts could not be reapplied to their resources on the DSP server."
-            logger.error(msg)
-            raise BaseError(msg)
-    except BaseException as err:  # pylint: disable=broad-except
-        # The forseeable errors are already handled by the variables
-        # failed_uploads, nonapplied_xml_texts, and nonapplied_resptr_props.
-        # Here we catch the unforseeable exceptions, hence BaseException (=the base class of all exceptions)
-        _handle_upload_error(
-            err=err,
-            id2iri_mapping=id2iri_mapping,
-            failed_uploads=failed_uploads,
-            stashed_xml_texts=nonapplied_xml_texts or stashed_xml_texts,
-            stashed_resptr_props=nonapplied_resptr_props or stashed_resptr_props,
-            save_location=save_location,
-            timestamp_str=timestamp_str,
-        )
+    failed_uploads, id2iri_mapping, metrics = _upload_all_data_to_the_server(
+        connection=con,
+        sipi_server=sipi_server,
+        imgdir=imgdir,
+        resources=resources,
+        permissions_lookup=permissions_lookup,
+        resclass_name_2_type=resclass_name_2_type,
+        stashed_resptr_props=stashed_resptr_props,
+        stashed_xml_texts=stashed_xml_texts,
+        preprocessing_done=preprocessing_done,
+        save_location=save_location,
+        timestamp_str=timestamp_str,
+        metrics=metrics,
+        verbose=verbose,
+    )
 
     # write id2iri mapping, metrics, and print some final info
     success = write_id2iri_mapping_and_metrics(
@@ -269,7 +326,7 @@ def xmlupload(
 
 def _get_project_context_from_server(connection: Connection) -> ProjectContext:
     try:
-        proj_context = try_network_action(lambda: ProjectContext(con=connection))
+        proj_context: ProjectContext = try_network_action(lambda: ProjectContext(con=connection))
     except BaseError:
         logger.error(
             "Unable to retrieve project context from DSP server",

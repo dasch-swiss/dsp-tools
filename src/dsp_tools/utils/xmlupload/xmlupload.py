@@ -325,6 +325,18 @@ def xmlupload(
 
 
 def _get_project_context_from_server(connection: Connection) -> ProjectContext:
+    """
+    This function retrieves the project context previously uploaded on the server (json file)
+
+    Args:
+        connection: connection to the server
+
+    Returns:
+        Project context
+
+    Raises:
+        UserError: If the project was not previously uploaded on the server
+    """
     try:
         proj_context: ProjectContext = try_network_action(lambda: ProjectContext(con=connection))
     except BaseError:

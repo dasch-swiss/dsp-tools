@@ -141,7 +141,9 @@ def _get_project_permissions_and_classes_from_server(
 
 
 def _calculate_multimedia_file_size(
-    resources: list[XMLResource], imgdir: str, preprocessing_done: bool
+    resources: list[XMLResource],
+    imgdir: str,
+    preprocessing_done: bool,
 ) -> tuple[list[float], float | int]:
     """
     This function calculates the size of the bitstream files in the specified directory.

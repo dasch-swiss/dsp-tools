@@ -40,7 +40,7 @@ from dsp_tools.utils.xmlupload.write_diagnostic_info import (
 logger = get_logger(__name__)
 
 
-def _extract_resources_and_permissions(
+def _extract_resources_and_permissions_from_xml(
     root: etree._Element,
     proj_context: ProjectContext,
     default_ontology: str,
@@ -151,14 +151,12 @@ def xmlupload(
         True if all resources could be uploaded without errors; False if one of the resources could not be
         uploaded because there is an error in it
     """
-    # parse the XML file
     default_ontology, root, shortcode = validate_and_parse_xml_file(
         bitstream_directory=imgdir,
         input_file=input_file,
         preprocessing_done=preprocessing_done,
     )
 
-    # determine save location that will be used for diagnostic info if the xmlupload is interrupted
     save_location, server_as_foldername, timestamp_str = determine_save_location_of_diagnostic_info(
         server=server,
         proj_shortcode=shortcode,
@@ -176,7 +174,7 @@ def xmlupload(
 
     proj_context = _get_project_context_from_server(connection=con)
 
-    permissions, resources = _extract_resources_and_permissions(
+    permissions, resources = _extract_resources_and_permissions_from_xml(
         root=root,
         proj_context=proj_context,
         default_ontology=default_ontology,

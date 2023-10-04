@@ -67,7 +67,7 @@ def _remove_comments_from_element_tree(
 ) -> etree._ElementTree[etree._Element]:
     """
     This function removes comments and processing instructions.
-    Commented out properties break the XMLProperty constructor
+    Commented out properties break the XMLProperty constructor.
 
     Args:
         input_tree: etree that will be cleaned

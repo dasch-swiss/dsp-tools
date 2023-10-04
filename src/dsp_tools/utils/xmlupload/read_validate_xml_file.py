@@ -24,10 +24,12 @@ def validate_and_parse_xml_file(
     It validates the file against the XML schema
     It checks if all the mentioned bitstream files are in the specified location
     It retrieves the shortcode and default ontology from the XML file
+
     Args:
         imgdir: directory to the bitstream files
         input_file: file or etree that will be processed
         preprocessing_done: True if the bitstream files have already been processed
+
     Returns:
         The ontology name, the parsed XML file and the shortcode of the project
     """

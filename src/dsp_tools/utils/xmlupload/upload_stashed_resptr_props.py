@@ -46,15 +46,10 @@ def upload_stashed_resptr_props(
         try:
             existing_resource = try_network_action(con.get, route=f"/v2/resources/{quote_plus(res_iri)}")
         except BaseError as err:
-            # print the message to keep track of the cause for the failure. Apart from that, no action is necessary:
-            # this resource will remain in nonapplied_resptr_props, which will be handled by the caller
-            orig_err_msg = err.orig_err_msg_from_api or err.message
-            err_msg = (
-                f"Unable to upload resptrs of resource '{resource.id}', "
-                "because the resource cannot be retrieved from the DSP server."
+            _unable_to_retrieve_resource(
+                error=err,
+                resource=resource,
             )
-            print(f"  WARNING: {err_msg} Original error message: {orig_err_msg}")
-            logger.warning(err_msg, exc_info=True)
             continue
         print(f'  Upload resptrs of resource "{resource.id}"...')
         logger.info(f'  Upload resptrs of resource "{resource.id}"...')
@@ -90,6 +85,18 @@ def upload_stashed_resptr_props(
         id2iri_mapping=id2iri_mapping,
     )
     return nonapplied_resptr_props
+
+
+def _unable_to_retrieve_resource(error: BaseError, resource: XMLResource) -> None:
+    # print the message to keep track of the cause for the failure. Apart from that, no action is necessary:
+    # this resource will remain in nonapplied_resptr_props, which will be handled by the caller
+    orig_err_msg = error.orig_err_msg_from_api or error.message
+    err_msg = (
+        f"Unable to upload resptrs of resource '{resource.id}', "
+        "because the resource cannot be retrieved from the DSP server."
+    )
+    print(f"  WARNING: {err_msg} Original error message: {orig_err_msg}")
+    logger.warning(err_msg, exc_info=True)
 
 
 def _create_resptr_prop_json_object_to_update(

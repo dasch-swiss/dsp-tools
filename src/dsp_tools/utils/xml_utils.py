@@ -52,8 +52,10 @@ def _remove_qnames_and_transform_special_tags(
     input_tree: etree._ElementTree[etree._Element],
 ) -> etree._ElementTree[etree._Element]:
     """
-    This function removes namespace URI from the elements name
-    And transform the special tags to their technically correct form
+    This function removes the namespace URIs from the elements' names
+    and transforms the special tags <annotation>, <region>, and <link>
+    to their technically correct form
+    <resource restype="Annotation">, <resource restype="Region">, and <resource restype="LinkObj">.
 
     Args:
         input_tree: unclean tree
@@ -79,8 +81,8 @@ def _remove_comments_from_element_tree(
     input_tree: etree._ElementTree[etree._Element],
 ) -> etree._ElementTree[etree._Element]:
     """
-    This function comments and processing instructions
-    Commented out properties break the XMLProperty constructor
+    This function removes comments and processing instructions.
+    Commented out properties break the XMLProperty constructor.
 
     Args:
         input_tree: etree that will be cleaned

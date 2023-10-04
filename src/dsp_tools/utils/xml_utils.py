@@ -25,6 +25,9 @@ def parse_and_clean_xml_file(input_file: Union[str, Path, etree._ElementTree[Any
 
     Returns:
         the root element of the parsed XML file
+
+    Raises:
+        UserError: if the input is not of either the expected types
     """
 
     # remove comments and processing instructions (commented out properties break the XMLProperty constructor)

@@ -337,7 +337,7 @@ def _get_projects_where_user_is_admin(
         # full_project_name has the form '[project_name]:member' or '[project_name]:admin'
         if ":" not in full_project_name:
             print(f"\tWARNING: Provided project '{full_project_name}' for user '{username}' is not valid. Skipping...")
-            logger.warning(f"Provided project '{full_project_name}' for user '{username}' is not valid.")
+            logger.warning(f"Provided project '{full_project_name}' for user '{username}' is not valid. Skipping...")
             success = False
             continue
 

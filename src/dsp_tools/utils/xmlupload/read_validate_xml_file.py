@@ -20,10 +20,10 @@ def validate_and_parse_xml_file(
     preprocessing_done: bool,
 ) -> tuple[str, etree._Element, str]:
     """
-    This function takes an element tree or a path to an XML file
-    It validates the file against the XML schema
-    It checks if all the mentioned bitstream files are in the specified location
-    It retrieves the shortcode and default ontology from the XML file
+    This function takes an element tree or a path to an XML file.
+    It validates the file against the XML schema.
+    It checks if all the mentioned bitstream files are in the specified location.
+    It retrieves the shortcode and default ontology from the XML file.
 
     Args:
         imgdir: directory to the bitstream files

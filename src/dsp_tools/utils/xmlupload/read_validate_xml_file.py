@@ -1,14 +1,44 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any, Union
 
 from lxml import etree
 
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.models.xmlresource import XMLResource
 from dsp_tools.utils.create_logger import get_logger
+from dsp_tools.utils.shared import validate_xml_against_schema
+from dsp_tools.utils.xml_utils import parse_and_clean_xml_file
 
 logger = get_logger(__name__)
+
+
+def validate_and_parse_xml_file(
+    imgdir: str,
+    input_file: Union[str, Path, etree._ElementTree[Any]],
+    preprocessing_done: bool,
+) -> tuple[str, etree._Element, str]:
+    """
+    This function takes an element tree or a path to an XML file
+    It validates the file against the XML schema
+    It checks if all the mentioned bitstream files are in the specified location
+    It retrieves the shortcode and default ontology from the XML file
+    Args:
+        imgdir: directory to the bitstream files
+        input_file: file or etree that will be processed
+        preprocessing_done: True if the bitstream files have already been processed
+    Returns:
+        The ontology name, the parsed XML file and the shortcode of the project
+    """
+    validate_xml_against_schema(input_file=input_file)
+    root = parse_and_clean_xml_file(input_file=input_file)
+    if not preprocessing_done:
+        check_if_bitstreams_exist(root=root, imgdir=imgdir)
+    shortcode = root.attrib["shortcode"]
+    default_ontology = root.attrib["default-ontology"]
+    logger.info(f"Validated and parsed the XML file. Shortcode='{shortcode}' and default_ontology='{default_ontology}'")
+    return default_ontology, root, shortcode
 
 
 def _check_if_onto_name_exists(

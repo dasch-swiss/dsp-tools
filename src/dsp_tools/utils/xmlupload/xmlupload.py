@@ -110,11 +110,11 @@ def xmlupload(
     )
 
     permissions_lookup, resclass_name_2_type = _get_project_permissions_and_classes_from_server(
+        server_connection=con,
         permissions=permissions,
         shortcode=shortcode,
     )
 
-    # check if the data in the XML is consistent with the ontology
     check_consistency_with_ontology(
         resources=resources,
         resclass_name_2_type=resclass_name_2_type,
@@ -124,7 +124,10 @@ def xmlupload(
     )
 
     # temporarily remove circular references
-    resources, stashed_xml_texts, stashed_resptr_props = remove_circular_references(resources, verbose)
+    resources, stashed_xml_texts, stashed_resptr_props = remove_circular_references(
+        resources=resources,
+        verbose=verbose,
+    )
 
     preparation_duration = datetime.now() - preparation_start
     preparation_duration_ms = preparation_duration.seconds * 1000 + int(preparation_duration.microseconds / 1000)
@@ -203,7 +206,7 @@ def _get_project_permissions_and_classes_from_server(
     """
     This function tries to connect to the server and retrieve the project information
     If the project is not on the server, it raises a UserError
-    From the information from the server it creates a dictionary with the permission information
+    From the information from the server, it creates a dictionary with the permission information
     And a dictionary with the information about the classes
 
     Args:
@@ -214,9 +217,9 @@ def _get_project_permissions_and_classes_from_server(
     Returns:
         A dictionary with the name of the permission with the Python object
         And a dictionary with the class name as string and the Python type of the class
+
     Raises:
         UserError: If the project is not uploaded on the server
-
     """
     # get the project information and project ontology from the server
     try:
@@ -328,27 +331,19 @@ def _upload_resources(
         id2iri_mapping, failed_uploads, metrics
     """
 
-    # If there are multimedia files: calculate their total size
-    bitstream_all_sizes_mb = [
-        Path(Path(imgdir) / Path(res.bitstream.value)).stat().st_size / 1000000
-        if res.bitstream and not preprocessing_done
-        else 0.0
-        for res in resources
-    ]
-    if sum(bitstream_all_sizes_mb) > 0:
-        bitstream_size_total_mb = round(sum(bitstream_all_sizes_mb), 1)
-        bitstream_size_uploaded_mb = 0.0
-        print(f"This xmlupload contains multimedia files with a total size of {bitstream_size_total_mb} MB.")
-        logger.info(f"This xmlupload contains multimedia files with a total size of {bitstream_size_total_mb} MB.")
-    else:  # make Pylance happy
-        bitstream_size_total_mb = 0.0
-        bitstream_size_uploaded_mb = 0.0
+    bitstream_all_sizes_mb, bitstream_size_total_mb = _calculate_multimedia_file_size(
+        resources=resources,
+        imgdir=imgdir,
+        preprocessing_done=preprocessing_done,
+    )
+    bitstream_size_uploaded_mb = 0.0
 
     for i, resource in enumerate(resources):
         resource_start = datetime.now()
         filetype = ""
         filesize = round(bitstream_all_sizes_mb[i], 1)
         bitstream_duration_ms = None
+
         resource_iri = resource.iri
         if resource.ark:
             resource_iri = convert_ark_v0_to_resource_iri(resource.ark)
@@ -429,6 +424,39 @@ def _upload_resources(
         metrics.append(MetricRecord(resource.id, filetype, filesize, "looping overhead", looping_overhead_ms, ""))
 
     return id2iri_mapping, failed_uploads, metrics
+
+
+def _calculate_multimedia_file_size(
+    resources: list[XMLResource],
+    imgdir: str,
+    preprocessing_done: bool,
+) -> tuple[list[float], float | int]:
+    """
+    This function calculates the size of the bitstream files in the specified directory.
+
+    Args:
+        resources: List of resources to identify the files used
+        imgdir: directory where the files are
+        preprocessing_done: True if sipi has preprocessed the files
+
+    Returns:
+        List with all the file sizes
+        Total of all the file sizes
+    """
+    # If there are multimedia files: calculate their total size
+    bitstream_all_sizes_mb = [
+        Path(Path(imgdir) / Path(res.bitstream.value)).stat().st_size / 1000000
+        if res.bitstream and not preprocessing_done
+        else 0.0
+        for res in resources
+    ]
+    if sum(bitstream_all_sizes_mb) > 0:
+        bitstream_size_total_mb = round(sum(bitstream_all_sizes_mb), 1)
+        print(f"This xmlupload contains multimedia files with a total size of {bitstream_size_total_mb} MB.")
+        logger.info(f"This xmlupload contains multimedia files with a total size of {bitstream_size_total_mb} MB.")
+    else:  # make Pylance happy
+        bitstream_size_total_mb = 0.0
+    return bitstream_all_sizes_mb, bitstream_size_total_mb
 
 
 def _handle_upload_error(

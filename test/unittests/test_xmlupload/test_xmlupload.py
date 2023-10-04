@@ -10,12 +10,12 @@ from lxml import etree
 
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.xmlresource import XMLResource
-from dsp_tools.utils.xml_upload import (
-    _convert_ark_v0_to_resource_iri,
-    _determine_save_location_of_diagnostic_info,
-    _remove_circular_references,
+from dsp_tools.utils.xmlupload.ark2iri import convert_ark_v0_to_resource_iri
+from dsp_tools.utils.xmlupload.read_validate_xml_file import parse_xml_file
+from dsp_tools.utils.xmlupload.stash_circular_references import remove_circular_references
+from dsp_tools.utils.xmlupload.write_diagnostic_info import (
     _transform_server_url_to_foldername,
-    parse_xml_file,
+    determine_save_location_of_diagnostic_info,
 )
 
 
@@ -45,7 +45,7 @@ class TestXMLUpload(unittest.TestCase):
             ),
         ]
         for server, expected_path in testcases:
-            save_location, _, _ = _determine_save_location_of_diagnostic_info(
+            save_location, _, _ = determine_save_location_of_diagnostic_info(
                 server=server,
                 proj_shortcode=shortcode,
                 onto_name=onto_name,
@@ -94,28 +94,28 @@ class TestXMLUpload(unittest.TestCase):
 
     def test_convert_ark_v0_to_resource_iri(self) -> None:
         ark = "ark:/72163/080c-779b9990a0c3f-6e"
-        iri = _convert_ark_v0_to_resource_iri(ark)
+        iri = convert_ark_v0_to_resource_iri(ark)
         self.assertEqual("http://rdfh.ch/080C/Ef9heHjPWDS7dMR_gGax2Q", iri)
 
         with self.assertRaisesRegex(
             BaseError, r"converting ARK 'ark:/72163/080c-779b999-0a0c3f-6e'\. The ARK seems to be invalid"
         ):
-            _convert_ark_v0_to_resource_iri("ark:/72163/080c-779b999-0a0c3f-6e")
+            convert_ark_v0_to_resource_iri("ark:/72163/080c-779b999-0a0c3f-6e")
 
         with self.assertRaisesRegex(
             BaseError, r"converting ARK 'ark:/72163/080X-779b9990a0c3f-6e'\. Invalid project shortcode '080X'"
         ):
-            _convert_ark_v0_to_resource_iri("ark:/72163/080X-779b9990a0c3f-6e")
+            convert_ark_v0_to_resource_iri("ark:/72163/080X-779b9990a0c3f-6e")
 
         with self.assertRaisesRegex(
             BaseError, r"converting ARK 'ark:/72163/080c1-779b9990a0c3f-6e'\. Invalid project shortcode '080C1'"
         ):
-            _convert_ark_v0_to_resource_iri("ark:/72163/080c1-779b9990a0c3f-6e")
+            convert_ark_v0_to_resource_iri("ark:/72163/080c1-779b9990a0c3f-6e")
 
         with self.assertRaisesRegex(
             BaseError, r"converting ARK 'ark:/72163/080c-779b99\+90a0c3f-6e'\. Invalid Salsah ID '779b99\+90a0c3f'"
         ):
-            _convert_ark_v0_to_resource_iri("ark:/72163/080c-779b99+90a0c3f-6e")
+            convert_ark_v0_to_resource_iri("ark:/72163/080c-779b99+90a0c3f-6e")
 
     def test_remove_circular_references(self) -> None:
         # create a list of XMLResources from the test data file
@@ -123,7 +123,7 @@ class TestXMLUpload(unittest.TestCase):
         resources = [XMLResource(x, "testonto") for x in root if x.tag == "resource"]
 
         # get the purged resources and the stashes from the function to be tested
-        resources, stashed_xml_texts_original, stashed_resptr_props_original = _remove_circular_references(
+        resources, stashed_xml_texts_original, stashed_resptr_props_original = remove_circular_references(
             resources=resources,
             verbose=False,
         )

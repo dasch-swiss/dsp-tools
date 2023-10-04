@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from typing import Any
+from urllib.parse import quote_plus
 
 import regex
 
@@ -245,7 +246,7 @@ def _upload_single_link_xml_property(
     return nonapplied_xml_texts
 
 
-def upload_all_link_props_of_single_resource(
+def _upload_all_xml_texts_of_single_resource(
     res_iri: str,
     stashed_resource: XMLResource,
     resource_in_triplestore: dict[str, Any],
@@ -292,4 +293,91 @@ def upload_all_link_props_of_single_resource(
             verbose=verbose,
             con=con,
         )
+    return nonapplied_xml_texts
+
+
+def upload_stashed_xml_texts(
+    verbose: bool,
+    id2iri_mapping: dict[str, str],
+    con: Connection,
+    stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
+) -> dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]]:
+    """
+    After all resources are uploaded, the stashed xml texts must be applied to their resources in DSP.
+
+    Args:
+        verbose: bool
+        id2iri_mapping: mapping of ids from the XML file to IRIs in DSP
+        con: connection to DSP
+        stashed_xml_texts: all xml texts that have been stashed
+
+    Returns:
+        nonapplied_xml_texts: the xml texts that could not be uploaded
+    """
+
+    print("Upload the stashed XML texts...")
+    logger.info("Upload the stashed XML texts...")
+    nonapplied_xml_texts = stashed_xml_texts.copy()
+    for stashed_resource, all_link_props in stashed_xml_texts.items():
+        if stashed_resource.id not in id2iri_mapping:
+            # resource could not be uploaded to DSP, so the stash cannot be uploaded either
+            # no action necessary: this resource will remain in nonapplied_xml_texts,
+            # which will be handled by the caller
+            continue
+        res_iri = id2iri_mapping[stashed_resource.id]
+        try:
+            resource_in_triplestore = try_network_action(con.get, route=f"/v2/resources/{quote_plus(res_iri)}")
+        except BaseError as err:
+            log_unable_to_retrieve_resource(resource=stashed_resource, received_error=err)
+            continue
+        print(f'  Upload XML text(s) of resource "{stashed_resource.id}"...')
+        logger.info(f'  Upload XML text(s) of resource "{stashed_resource.id}"...')
+        for link_prop, hash_to_value in all_link_props.items():
+            nonapplied_xml_texts = _upload_all_xml_texts_of_single_resource(
+                res_iri=res_iri,
+                stashed_resource=stashed_resource,
+                resource_in_triplestore=resource_in_triplestore,
+                link_prop=link_prop,
+                hash_to_value=hash_to_value,
+                id2iri_mapping=id2iri_mapping,
+                nonapplied_xml_texts=nonapplied_xml_texts,
+                verbose=verbose,
+                con=con,
+            )
+
+    # make a purged version of nonapplied_xml_texts, without empty entries
+    nonapplied_xml_texts = purge_stashed_xml_texts(
+        stashed_xml_texts=nonapplied_xml_texts,
+        id2iri_mapping=id2iri_mapping,
+    )
+    return nonapplied_xml_texts
+
+
+def purge_stashed_xml_texts(
+    stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
+    id2iri_mapping: dict[str, str],
+) -> dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]]:
+    """
+    Accepts a stash of XML texts and purges it of resources that could not be uploaded (=don't exist in DSP), and of
+    resources that had all their XML texts reapplied. It returns a new dict with only the resources that exist in DSP,
+    but whose XML texts could not all be uploaded.
+
+    Args:
+        stashed_xml_texts: the stash to purge
+        id2iri_mapping: used to check if a resource could be uploaded
+
+    Returns:
+        a purged version of stashed_xml_text
+    """
+    # remove resources that couldn't be uploaded. If they don't exist in DSP, it's not worth caring about their xmltexts
+    stashed_xml_texts = {res: propdict for res, propdict in stashed_xml_texts.items() if res.id in id2iri_mapping}
+
+    # remove resources that don't have stashed xmltexts (=all xmltexts had been reapplied)
+    nonapplied_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]] = {}
+    for res, propdict in stashed_xml_texts.items():
+        for prop, xmldict in propdict.items():
+            if len(xmldict) > 0:
+                if res not in nonapplied_xml_texts:
+                    nonapplied_xml_texts[res] = {}
+                nonapplied_xml_texts[res][prop] = xmldict
     return nonapplied_xml_texts

@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-import copy
 from pathlib import Path
-from typing import Any, Union
 
 from lxml import etree
 
@@ -11,48 +9,6 @@ from dsp_tools.models.xmlresource import XMLResource
 from dsp_tools.utils.create_logger import get_logger
 
 logger = get_logger(__name__)
-
-
-def parse_xml_file(input_file: Union[str, Path, etree._ElementTree[Any]]) -> etree._Element:
-    """
-    Parse an XML file with DSP-conform data,
-    remove namespace URI from the elements' names,
-    and transform the special tags <annotation>, <region>, and <link>
-    to their technically correct form
-    <resource restype="Annotation">, <resource restype="Region">, and <resource restype="LinkObj">.
-
-    Args:
-        input_file: path to the XML file, or parsed ElementTree
-
-    Returns:
-        the root element of the parsed XML file
-    """
-
-    # remove comments and processing instructions (commented out properties break the XMLProperty constructor)
-    if isinstance(input_file, (str, Path)):
-        parser = etree.XMLParser(remove_comments=True, remove_pis=True)
-        tree = etree.parse(source=input_file, parser=parser)
-    else:
-        tree = copy.deepcopy(input_file)
-        for c in tree.xpath("//comment()"):
-            c.getparent().remove(c)
-        for c in tree.xpath("//processing-instruction()"):
-            c.getparent().remove(c)
-
-    # remove namespace URI from the elements' names and transform the special tags to their technically correct form
-    for elem in tree.iter():
-        elem.tag = etree.QName(elem).localname  # remove namespace URI in the element's name
-        if elem.tag == "annotation":
-            elem.attrib["restype"] = "Annotation"
-            elem.tag = "resource"
-        elif elem.tag == "link":
-            elem.attrib["restype"] = "LinkObj"
-            elem.tag = "resource"
-        elif elem.tag == "region":
-            elem.attrib["restype"] = "Region"
-            elem.tag = "resource"
-
-    return tree.getroot()
 
 
 def _check_if_onto_name_exists(

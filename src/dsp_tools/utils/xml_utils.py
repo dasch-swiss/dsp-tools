@@ -64,7 +64,7 @@ def _remove_comments_from_element_tree(
     input_tree: etree._ElementTree[etree._Element],
 ) -> etree._ElementTree[etree._Element]:
     """
-    This function comments and processing instructions
+    This function removes comments and processing instructions.
     Commented out properties break the XMLProperty constructor
 
     Args:

@@ -348,38 +348,22 @@ def _upload_resources(
         if resource.ark:
             resource_iri = convert_ark_v0_to_resource_iri(resource.ark)
 
-        # in case of a multimedia resource: upload the multimedia file
-        resource_bitstream = None
-        if preprocessing_done and resource.bitstream:
-            resource_bitstream = resource.get_bitstream(resource.bitstream.value, permissions_lookup)
-        elif resource.bitstream:
-            pth = resource.bitstream.value
-            try:
-                bitstream_start = datetime.now()
-                filetype = Path(pth).suffix[1:]
-                img: Optional[dict[Any, Any]] = try_network_action(
-                    sipi_server.upload_bitstream,
-                    filepath=str(Path(imgdir) / Path(pth)),
-                )
-                bitstream_duration = datetime.now() - bitstream_start
-                bitstream_duration_ms = bitstream_duration.seconds * 1000 + int(bitstream_duration.microseconds / 1000)
-                mb_per_sec = round((filesize / bitstream_duration_ms) * 1000, 1)
-                metrics.append(
-                    MetricRecord(resource.id, filetype, filesize, "bitstream upload", bitstream_duration_ms, mb_per_sec)
-                )
-            except BaseError as err:
-                err_msg = err.orig_err_msg_from_api or err.message
-                msg = f"Unable to upload file '{pth}' of resource '{resource.label}' ({resource.id})"
-                print(f"WARNING: {msg}: {err_msg}")
-                logger.warning(msg, exc_info=True)
-                failed_uploads.append(resource.id)
-                continue
-            bitstream_size_uploaded_mb += bitstream_all_sizes_mb[i]
-            msg = f"Uploaded file '{pth}' ({bitstream_size_uploaded_mb:.1f} MB / {bitstream_size_total_mb} MB)"
-            print(msg)
-            logger.info(msg)
-            internal_file_name_bitstream = img["uploadedFiles"][0]["internalFilename"]  # type: ignore[index]
-            resource_bitstream = resource.get_bitstream(internal_file_name_bitstream, permissions_lookup)
+        upload_bitstream_successful, resource_bitstream = _check_for_bitstream_and_upload_if_there(
+            resource=resource,
+            sipi_server=sipi_server,
+            imgdir=imgdir,
+            filesize=filesize,
+            bitstream_size_uploaded_mb=bitstream_size_uploaded_mb,
+            permissions_lookup=permissions_lookup,
+            metrics=metrics,
+            bitstream_size_total_mb=bitstream_size_total_mb,
+            preprocessing_done=preprocessing_done,
+        )
+        if not upload_bitstream_successful:
+            failed_uploads.append(resource.id)
+            continue
+        else:
+            bitstream_size_uploaded_mb += filesize
 
         # create the resource in DSP
         resclass_type = resclass_name_2_type[resource.restype]
@@ -424,6 +408,120 @@ def _upload_resources(
         metrics.append(MetricRecord(resource.id, filetype, filesize, "looping overhead", looping_overhead_ms, ""))
 
     return id2iri_mapping, failed_uploads, metrics
+
+
+def _upload_multimedia_to_sipi(
+    resource: XMLResource,
+    sipi_server: Sipi,
+    imgdir: str,
+    filesize: float,
+    permissions_lookup: dict[str, Permissions],
+    metrics: list[MetricRecord],
+    preprocessing_done: bool,
+) -> dict[str, str | Permissions] | None:
+    """
+    This function takes a resource with a corresponding bitstream filepath.
+    If the pre-processing is not done, it retrieves the file from the directory and uploads it to sipi.
+    If pre-processing is done it retrieves the bitstream information from sipi.
+
+    Args:
+        resource: resource with that has a bitstream
+        sipi_server: server to upload
+        imgdir: directory of the file
+        filesize: size of the file
+        permissions_lookup: dictionary that contains the permission name as string and the corresponding Python object
+        metrics: to store metric information in
+        preprocessing_done: If True, then no upload is necessary
+
+    Returns:
+        The information from sipi which is needed to establish a link from the resource
+    """
+    if preprocessing_done:
+        resource_bitstream = resource.get_bitstream(
+            internal_file_name_bitstream=resource.bitstream.value,  # type: ignore[union-attr]
+            permissions_lookup=permissions_lookup,
+        )
+    else:
+        pth = resource.bitstream.value  # type: ignore[union-attr]
+        bitstream_start = datetime.now()
+        filetype = Path(pth).suffix[1:]
+        img: Optional[dict[Any, Any]] = try_network_action(
+            sipi_server.upload_bitstream,
+            filepath=str(Path(imgdir) / Path(pth)),
+        )
+        bitstream_duration = datetime.now() - bitstream_start
+        bitstream_duration_ms = bitstream_duration.seconds * 1000 + int(bitstream_duration.microseconds / 1000)
+        mb_per_sec = round((filesize / bitstream_duration_ms) * 1000, 1)
+        metrics.append(
+            MetricRecord(resource.id, filetype, filesize, "bitstream upload", bitstream_duration_ms, mb_per_sec)
+        )
+
+        internal_file_name_bitstream = img["uploadedFiles"][0]["internalFilename"]  # type: ignore[index]
+        resource_bitstream = resource.get_bitstream(
+            internal_file_name_bitstream=internal_file_name_bitstream,
+            permissions_lookup=permissions_lookup,
+        )
+    return resource_bitstream
+
+
+def _check_for_bitstream_and_upload_if_there(
+    resource: XMLResource,
+    sipi_server: Sipi,
+    imgdir: str,
+    filesize: float,
+    bitstream_size_uploaded_mb: float,
+    permissions_lookup: dict[str, Permissions],
+    metrics: list[MetricRecord],
+    bitstream_size_total_mb: float,
+    preprocessing_done: bool,
+) -> tuple[bool, dict[str, str | Permissions] | None]:
+    """
+    This function takes a resource and checks if it contains a link to a multimedia file.
+    If there is a file, it attempts to upload it to sipi.
+    In case of an error, it is handled, logged, and the function returns False, to indicate a failure.
+    If it is successful, it returns the information that is needed to establish a connection in the triplestore.
+
+    Args:
+        resource: Resource that references the multimedia file
+        sipi_server: server to upload
+        imgdir: directory of the file
+        filesize: size of the file
+        bitstream_size_uploaded_mb: size of the uploaded files
+        permissions_lookup: dictionary that contains the permission name as string and the corresponding Python object
+        metrics: to store metric information in
+        preprocessing_done: If True, then no upload is necessary
+        bitstream_size_total_mb: size of all the bitstream files
+
+    Returns:
+        True if successful if BaseError from called function then False.
+        And
+        None if there is no multimedia file or if the upload was unsuccessful or information that is needed to
+        reference the file in sipi
+    """
+    if resource.bitstream:
+        try:
+            resource_bitstream = _upload_multimedia_to_sipi(
+                resource=resource,
+                sipi_server=sipi_server,
+                imgdir=imgdir,
+                filesize=filesize,
+                permissions_lookup=permissions_lookup,
+                metrics=metrics,
+                preprocessing_done=preprocessing_done,
+            )
+        except BaseError as err:
+            pth = resource.bitstream.value
+            err_msg = err.orig_err_msg_from_api or err.message
+            msg = f"Unable to upload file '{pth}' of resource '{resource.label}' ({resource.id})"
+            print(f"WARNING: {msg}: {err_msg}")
+            logger.warning(msg, exc_info=True)
+            msg = f"Uploaded file '{pth}' ({bitstream_size_uploaded_mb:.1f} MB / {bitstream_size_total_mb} MB)"
+            print(msg)
+            logger.info(msg)
+            return False, None
+    else:
+        resource_bitstream = None
+    return True, resource_bitstream
 
 
 def _calculate_multimedia_file_size(

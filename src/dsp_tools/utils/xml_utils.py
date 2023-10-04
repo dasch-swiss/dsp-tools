@@ -34,7 +34,7 @@ def parse_and_clean_xml_file(input_file: Union[str, Path, etree._ElementTree[Any
             tree = _parse_xml_file(input_file)
         case Path():
             tree = _parse_xml_file(input_file)
-        case etree._ElementTree():
+        case etree._ElementTree():  # pylint: disable=protected-access
             tree = _remove_comments_from_element_tree(input_file)
         case _:
             message = (

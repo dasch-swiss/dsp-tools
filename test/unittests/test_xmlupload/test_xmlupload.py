@@ -10,8 +10,8 @@ from lxml import etree
 
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.xmlresource import XMLResource
+from dsp_tools.utils.xml_utils import parse_and_clean_xml_file
 from dsp_tools.utils.xmlupload.ark2iri import convert_ark_v0_to_resource_iri
-from dsp_tools.utils.xmlupload.read_validate_xml_file import parse_xml_file
 from dsp_tools.utils.xmlupload.stash_circular_references import remove_circular_references
 from dsp_tools.utils.xmlupload.write_diagnostic_info import (
     _transform_server_url_to_foldername,
@@ -62,8 +62,8 @@ class TestXMLUpload(unittest.TestCase):
 
     def test_parse_xml_file(self) -> None:
         test_data_systematic_tree = etree.parse("testdata/xml-data/test-data-systematic.xml")
-        output1 = parse_xml_file("testdata/xml-data/test-data-systematic.xml")
-        output2 = parse_xml_file(test_data_systematic_tree)
+        output1 = parse_and_clean_xml_file("testdata/xml-data/test-data-systematic.xml")
+        output2 = parse_and_clean_xml_file(test_data_systematic_tree)
         result1 = regex.sub("\n", "", etree.tostring(output1, encoding=str))
         result1 = regex.sub(" +", " ", result1)
         result2 = regex.sub("\n", "", etree.tostring(output2, encoding=str))
@@ -119,7 +119,7 @@ class TestXMLUpload(unittest.TestCase):
 
     def test_remove_circular_references(self) -> None:
         # create a list of XMLResources from the test data file
-        root = parse_xml_file("testdata/xml-data/test-data-systematic.xml")
+        root = parse_and_clean_xml_file("testdata/xml-data/test-data-systematic.xml")
         resources = [XMLResource(x, "testonto") for x in root if x.tag == "resource"]
 
         # get the purged resources and the stashes from the function to be tested

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import copy
 from pathlib import Path
 from typing import Any, Union
 
@@ -9,50 +8,39 @@ from lxml import etree
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.models.xmlresource import XMLResource
 from dsp_tools.utils.create_logger import get_logger
+from dsp_tools.utils.shared import validate_xml_against_schema
+from dsp_tools.utils.xml_utils import parse_and_clean_xml_file
 
 logger = get_logger(__name__)
 
 
-def parse_xml_file(input_file: Union[str, Path, etree._ElementTree[Any]]) -> etree._Element:
+def validate_and_parse_xml_file(
+    imgdir: str,
+    input_file: Union[str, Path, etree._ElementTree[Any]],
+    preprocessing_done: bool,
+) -> tuple[str, etree._Element, str]:
     """
-    Parse an XML file with DSP-conform data,
-    remove namespace URI from the elements' names,
-    and transform the special tags <annotation>, <region>, and <link>
-    to their technically correct form
-    <resource restype="Annotation">, <resource restype="Region">, and <resource restype="LinkObj">.
+    This function takes an element tree or a path to an XML file.
+    It validates the file against the XML schema.
+    It checks if all the mentioned bitstream files are in the specified location.
+    It retrieves the shortcode and default ontology from the XML file.
 
     Args:
-        input_file: path to the XML file, or parsed ElementTree
+        imgdir: directory to the bitstream files
+        input_file: file or etree that will be processed
+        preprocessing_done: True if the bitstream files have already been processed
 
     Returns:
-        the root element of the parsed XML file
+        The ontology name, the parsed XML file and the shortcode of the project
     """
-
-    # remove comments and processing instructions (commented out properties break the XMLProperty constructor)
-    if isinstance(input_file, (str, Path)):
-        parser = etree.XMLParser(remove_comments=True, remove_pis=True)
-        tree = etree.parse(source=input_file, parser=parser)
-    else:
-        tree = copy.deepcopy(input_file)
-        for c in tree.xpath("//comment()"):
-            c.getparent().remove(c)
-        for c in tree.xpath("//processing-instruction()"):
-            c.getparent().remove(c)
-
-    # remove namespace URI from the elements' names and transform the special tags to their technically correct form
-    for elem in tree.iter():
-        elem.tag = etree.QName(elem).localname  # remove namespace URI in the element's name
-        if elem.tag == "annotation":
-            elem.attrib["restype"] = "Annotation"
-            elem.tag = "resource"
-        elif elem.tag == "link":
-            elem.attrib["restype"] = "LinkObj"
-            elem.tag = "resource"
-        elif elem.tag == "region":
-            elem.attrib["restype"] = "Region"
-            elem.tag = "resource"
-
-    return tree.getroot()
+    validate_xml_against_schema(input_file=input_file)
+    root = parse_and_clean_xml_file(input_file=input_file)
+    if not preprocessing_done:
+        check_if_bitstreams_exist(root=root, imgdir=imgdir)
+    shortcode = root.attrib["shortcode"]
+    default_ontology = root.attrib["default-ontology"]
+    logger.info(f"Validated and parsed the XML file. Shortcode='{shortcode}' and default_ontology='{default_ontology}'")
+    return default_ontology, root, shortcode
 
 
 def _check_if_onto_name_exists(

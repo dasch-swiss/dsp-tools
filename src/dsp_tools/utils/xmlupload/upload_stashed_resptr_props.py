@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from typing import Any
 from urllib.parse import quote_plus
 
 from dsp_tools.models.connection import Connection
@@ -59,20 +60,14 @@ def upload_stashed_resptr_props(
         logger.info(f'  Upload resptrs of resource "{resource.id}"...')
         for link_prop, resptrs in prop_2_resptrs.items():
             for resptr in resptrs.copy():
-                jsonobj = {
-                    "@id": res_iri,
-                    "@type": resource.restype,
-                    f"{link_prop.name}Value": {
-                        "@type": "knora-api:LinkValue",
-                        "knora-api:linkValueHasTargetIri": {
-                            # if target doesn't exist in DSP, send the (invalid) resource ID of target to DSP,
-                            # which will produce an understandable error message
-                            "@id": id2iri_mapping.get(resptr, resptr)
-                        },
-                    },
-                    "@context": existing_resource["@context"],
-                }
-                jsondata = json.dumps(jsonobj, indent=4, separators=(",", ": "))
+                jsondata = _create_resptr_prop_json_object_to_update(
+                    resource=resource,
+                    existing_resource=existing_resource,
+                    property_name=resptr,
+                    link_prop=link_prop,
+                    res_iri=res_iri,
+                    id2iri_mapping=id2iri_mapping,
+                )
                 try:
                     try_network_action(con.post, route="/v2/values", jsondata=jsondata)
                 except BaseError as err:
@@ -95,6 +90,31 @@ def upload_stashed_resptr_props(
         id2iri_mapping=id2iri_mapping,
     )
     return nonapplied_resptr_props
+
+
+def _create_resptr_prop_json_object_to_update(
+    resource: XMLResource,
+    existing_resource: dict[str, Any],
+    property_name: str,
+    link_prop: XMLProperty,
+    res_iri: str,
+    id2iri_mapping: dict[str, str],
+) -> str:
+    jsonobj = {
+        "@id": res_iri,
+        "@type": resource.restype,
+        f"{link_prop.name}Value": {
+            "@type": "knora-api:LinkValue",
+            "knora-api:linkValueHasTargetIri": {
+                # if target doesn't exist in DSP, send the (invalid) resource ID of target to DSP,
+                # which will produce an understandable error message
+                "@id": id2iri_mapping.get(property_name, property_name)
+            },
+        },
+        "@context": existing_resource["@context"],
+    }
+    jsondata = json.dumps(jsonobj, indent=4, separators=(",", ": "))
+    return jsondata
 
 
 def purge_stashed_resptr_props(

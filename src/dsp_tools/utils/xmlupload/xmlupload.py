@@ -100,12 +100,7 @@ def xmlupload(
     con = login(server=server, user=user, password=password, dump=dump)
     sipi_server = Sipi(sipi, con.get_token())
 
-    # get the project context
-    try:
-        proj_context = try_network_action(lambda: ProjectContext(con=con))
-    except BaseError:
-        logger.error("Unable to retrieve project context from DSP server", exc_info=True)
-        raise UserError("Unable to retrieve project context from DSP server") from None
+    proj_context = _get_project_context_from_server(connection=con)
 
     # make Python object representations of the XML file
     permissions, resources = _extract_resources_and_permissions_from_xml(
@@ -114,16 +109,10 @@ def xmlupload(
         proj_context=proj_context,
     )
 
-    # get the project information and project ontology from the server
-    try:
-        res_inst_factory = try_network_action(lambda: ResourceInstanceFactory(con, shortcode))
-    except BaseError:
-        logger.error(f"A project with shortcode {shortcode} could not be found on the DSP server", exc_info=True)
-        raise UserError(f"A project with shortcode {shortcode} could not be found on the DSP server") from None
-    permissions_lookup: dict[str, Permissions] = {s: perm.get_permission_instance() for s, perm in permissions.items()}
-    resclass_name_2_type: dict[str, type] = {
-        s: res_inst_factory.get_resclass_type(s) for s in res_inst_factory.get_resclass_names()
-    }
+    permissions_lookup, resclass_name_2_type = _get_project_permissions_and_classes_from_server(
+        permissions=permissions,
+        shortcode=shortcode,
+    )
 
     # check if the data in the XML is consistent with the ontology
     check_consistency_with_ontology(
@@ -204,6 +193,74 @@ def xmlupload(
         print("All resources have successfully been uploaded.")
         logger.info("All resources have successfully been uploaded.")
     return success
+
+
+def _get_project_permissions_and_classes_from_server(
+    server_connection: Connection,
+    permissions: dict[str, XmlPermission],
+    shortcode: str,
+) -> tuple[dict[str, Permissions], dict[str, type]]:
+    """
+    This function tries to connect to the server and retrieve the project information
+    If the project is not on the server, it raises a UserError
+    From the information from the server it creates a dictionary with the permission information
+    And a dictionary with the information about the classes
+
+    Args:
+        server_connection: connection to the server
+        permissions: the permissions extracted from the XML
+        shortcode: the shortcode specified in the XML
+
+    Returns:
+        A dictionary with the name of the permission with the Python object
+        And a dictionary with the class name as string and the Python type of the class
+    Raises:
+        UserError: If the project is not uploaded on the server
+
+    """
+    # get the project information and project ontology from the server
+    try:
+        res_inst_factory = try_network_action(
+            lambda: ResourceInstanceFactory(con=server_connection, projident=shortcode)
+        )
+    except BaseError:
+        logger.error(
+            f"A project with shortcode {shortcode} could not be found on the DSP server",
+            exc_info=True,
+        )
+        raise UserError(f"A project with shortcode {shortcode} could not be found on the DSP server") from None
+    permissions_lookup = {
+        permission_name: perm.get_permission_instance() for permission_name, perm in permissions.items()
+    }
+    resclass_name_2_type = {
+        resource_class_name: res_inst_factory.get_resclass_type(prefixedresclass=resource_class_name)
+        for resource_class_name in res_inst_factory.get_resclass_names()
+    }
+    return permissions_lookup, resclass_name_2_type
+
+
+def _get_project_context_from_server(connection: Connection) -> ProjectContext:
+    """
+    This function retrieves the project context previously uploaded on the server (json file)
+
+    Args:
+        connection: connection to the server
+
+    Returns:
+        Project context
+
+    Raises:
+        UserError: If the project was not previously uploaded on the server
+    """
+    try:
+        proj_context: ProjectContext = try_network_action(lambda: ProjectContext(con=connection))
+    except BaseError:
+        logger.error(
+            "Unable to retrieve project context from DSP server",
+            exc_info=True,
+        )
+        raise UserError("Unable to retrieve project context from DSP server") from None
+    return proj_context
 
 
 def _extract_resources_and_permissions_from_xml(

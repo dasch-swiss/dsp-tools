@@ -6,7 +6,6 @@ from typing import Any, Union
 
 from lxml import etree
 
-from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.create_logger import get_logger
 
 logger = get_logger(__name__)
@@ -32,19 +31,10 @@ def parse_and_clean_xml_file(input_file: Union[str, Path, etree._ElementTree[Any
 
     # remove comments and processing instructions (commented out properties break the XMLProperty constructor)
 
-    match input_file:
-        case str():
-            tree = _parse_xml_file(input_file)
-        case Path():
-            tree = _parse_xml_file(input_file)
-        case etree._ElementTree():  # pylint: disable=protected-access
-            tree = _remove_comments_from_element_tree(input_file)
-        case _:
-            message = (
-                f"The input '{input_file}' is not valid. This function expects either a element tree or a filepath."
-            )
-            logger.error(msg=message, exc_info=True)
-            raise UserError(message)
+    if isinstance(input_file, (str, Path)):
+        tree = _parse_xml_file(input_file)
+    else:
+        tree = _remove_comments_from_element_tree(input_file)
 
     _remove_qnames_and_transform_special_tags(tree)
 

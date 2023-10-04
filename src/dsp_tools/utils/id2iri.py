@@ -7,7 +7,7 @@ from lxml import etree
 
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.create_logger import get_logger
-from dsp_tools.utils.xmlupload.read_validate_xml_file import parse_xml_file
+from dsp_tools.utils.xml_utils import parse_and_clean_xml_file
 
 logger = get_logger(__name__)
 
@@ -231,7 +231,7 @@ def id2iri(
     """
     xml_file_as_path, json_file_as_path = _check_input_parameters(xml_file=xml_file, json_file=json_file)
     mapping = _parse_json_file(json_file_as_path)
-    tree = parse_xml_file(xml_file_as_path)
+    tree = parse_and_clean_xml_file(xml_file_as_path)
     tree = _replace_ids_by_iris(
         tree=tree,
         mapping=mapping,

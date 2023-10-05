@@ -1,7 +1,7 @@
 from typing import Optional, Union
 
-from lxml import etree
 import regex
+from lxml import etree
 
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import DateTimeStamp

@@ -19,13 +19,14 @@ def create_and_save_circular_references_test_graph(number_of_graphs: int, save_l
     excel2xml.write_xml(root, os.path.join(save_location, f"test_circular_references_{number_of_graphs}.xml"))
 
 
-def create_circular_references_test_graph(replication_counter: int) -> etree._ElementTree:
+def create_circular_references_test_graph(replication_counter: int) -> etree._Element:
     root = excel2xml.make_root("4123", "testonto")
     for i in range(1, replication_counter + 1):
         root.extend(_make_circle_list(replication_counter=f"{i}1"))
         root.extend(_make_complex_dependencies(replication_counter=f"{i}2"))
         root.extend(_make_complex_dependencies_add_on(replication_counter=f"{i}3"))
         root.extend(_make_two_references(replication_counter=f"{i}4"))
+        root.append(_make_reflexive_reference(replication_counter=f"{i}5"))
     return root
 
 
@@ -126,3 +127,9 @@ def _make_two_references(replication_counter: str) -> list[etree._Element]:
     res_li[0].append(excel2xml.make_resptr_prop(name=":hasResource", value=res_li[1].attrib["id"]))
     res_li[1].append(_make_salsah_link_prop(res_li[0]))
     return res_li
+
+
+def _make_reflexive_reference(replication_counter: str) -> Any:
+    res = _make_list_of_resources(1, replication_counter)[0]
+    res.append(excel2xml.make_resptr_prop(name=":hasResource", value=res.attrib["id"]))
+    return res

@@ -97,7 +97,12 @@ def xmlupload(
     preparation_start = datetime.now()
 
     # establish connection to DSP server
-    con = login(server=server, user=user, password=password, dump=dump)
+    con = login(
+        server=server,
+        user=user,
+        password=password,
+        dump=dump,
+    )
     sipi_server = Sipi(sipi, con.get_token())
 
     proj_context = _get_project_context_from_server(connection=con)
@@ -399,9 +404,11 @@ def _upload_resources(
             failed_uploads.append(resource.id)
             continue
         id2iri_mapping[resource.id] = created_resource.iri
+
         resource_designation = f"'{created_resource.label}' (ID: '{resource.id}', IRI: '{created_resource.iri}')"
         print(f"Created resource {i+1}/{len(resources)}: {resource_designation}")
         logger.info(f"Created resource {i+1}/{len(resources)}: {resource_designation}")
+
         resource_duration = datetime.now() - resource_start
         resource_duration_ms = resource_duration.seconds * 1000 + int(resource_duration.microseconds / 1000)
         looping_overhead_ms = resource_duration_ms - resource_creation_duration_ms - (bitstream_duration_ms or 0)
@@ -610,18 +617,11 @@ def _handle_upload_error(
         logger.info(f"The mapping of internal IDs to IRIs was written to {id2iri_mapping_file}")
 
     if stashed_xml_texts:
-        stashed_xml_texts_serializable = {
-            r.id: {p.name: xml for p, xml in rdict.items()} for r, rdict in stashed_xml_texts.items()
-        }
-        xml_filename = f"{save_location}/{timestamp_str}_stashed_text_properties.json"
-        with open(xml_filename, "x", encoding="utf-8") as f:
-            json.dump(
-                obj=stashed_xml_texts_serializable,
-                fp=f,
-                ensure_ascii=False,
-                indent=4,
-                cls=KnoraStandoffXmlEncoder,
-            )
+        xml_filename = save_json_stashed_text_properties(
+            stashed_xml_texts=stashed_xml_texts,
+            save_location=save_location,
+            timestamp_str=timestamp_str,
+        )
         msg = (
             f"There are stashed text properties that could not be reapplied to the resources they were stripped from. "
             f"They were saved to {xml_filename}.\n"
@@ -630,17 +630,11 @@ def _handle_upload_error(
         logger.info(msg)
 
     if stashed_resptr_props:
-        stashed_resptr_props_serializable = {
-            r.id: {p.name: plist for p, plist in rdict.items()} for r, rdict in stashed_resptr_props.items()
-        }
-        resptr_filename = f"{save_location}/{timestamp_str}_stashed_resptr_properties.json"
-        with open(resptr_filename, "x", encoding="utf-8") as f:
-            json.dump(
-                obj=stashed_resptr_props_serializable,
-                fp=f,
-                ensure_ascii=False,
-                indent=4,
-            )
+        resptr_filename = save_json_stashed_resptr_properties(
+            stashed_resptr_props=stashed_resptr_props,
+            save_location=save_location,
+            timestamp_str=timestamp_str,
+        )
         msg = (
             f"There are stashed resptr properties that could not be reapplied "
             f"to the resources they were stripped from. They were saved to {resptr_filename}\n"
@@ -655,3 +649,68 @@ def _handle_upload_error(
         logger.info(msg)
 
     sys.exit(1)
+
+
+def save_json_stashed_resptr_properties(
+    stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]],
+    save_location: Path,
+    timestamp_str: str,
+) -> str:
+    """
+    This function saves the stashed resptr properties in a JSON file.
+    It returns the name of the file.
+
+    Args:
+        stashed_resptr_props: Dictionary with the stash
+        save_location: filepath to the save location
+        timestamp_str: timestamp from the beginning of the upload
+
+    Returns:
+        name of the JSON file
+    """
+    stashed_resptr_props_serializable = {
+        resource.id: {_property.name: property_list for _property, property_list in res_dict.items()}
+        for resource, res_dict in stashed_resptr_props.items()
+    }
+    resptr_filename = f"{save_location}/{timestamp_str}_stashed_resptr_properties.json"
+    with open(resptr_filename, "x", encoding="utf-8") as f:
+        json.dump(
+            obj=stashed_resptr_props_serializable,
+            fp=f,
+            ensure_ascii=False,
+            indent=4,
+        )
+    return resptr_filename
+
+
+def save_json_stashed_text_properties(
+    stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
+    save_location: Path,
+    timestamp_str: str,
+) -> str:
+    """
+    This function saves the stashed XML properties in a JSON file.
+    It returns the name of the file.
+
+    Args:
+        stashed_xml_texts: Dictionary with the stash
+        save_location: filepath to the save location
+        timestamp_str: timestamp from the beginning of the upload
+
+    Returns:
+        name of the JSON file
+    """
+    stashed_xml_texts_serializable = {
+        resource.id: {_property.name: xml for _property, xml in res_dict.items()}
+        for resource, res_dict in stashed_xml_texts.items()
+    }
+    xml_filename = f"{save_location}/{timestamp_str}_stashed_text_properties.json"
+    with open(xml_filename, "x", encoding="utf-8") as file:
+        json.dump(
+            obj=stashed_xml_texts_serializable,
+            fp=file,
+            ensure_ascii=False,
+            indent=4,
+            cls=KnoraStandoffXmlEncoder,
+        )
+    return xml_filename

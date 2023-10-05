@@ -77,10 +77,10 @@
                 "password": "test0815",
                 "lang": "it",
                 "groups": [
-                    "tp:testgroupViewers"
+                    "systematic-tp:testgroupViewers"
                 ],
                 "projects": [
-                    "tp:member"
+                    "systematic-tp:member"
                 ]
             },
             {

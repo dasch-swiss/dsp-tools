@@ -1,5 +1,36 @@
 # Changelog
 
+## [5.0.2](https://github.com/dasch-swiss/dsp-tools/compare/v5.0.1...v5.0.2) (2023-10-05)
+
+
+### Bug Fixes
+
+* **fast-xmlupload:** CLI-command in documentation has outdated information (DEV-2779) ([#545](https://github.com/dasch-swiss/dsp-tools/issues/545)) ([334ea49](https://github.com/dasch-swiss/dsp-tools/commit/334ea4959c31188c9035892330147ebd3184ac41))
+* ModuleNotFoundError when importing logging due to identical file name (DEV-2708) ([#530](https://github.com/dasch-swiss/dsp-tools/issues/530)) ([d2c6ec8](https://github.com/dasch-swiss/dsp-tools/commit/d2c6ec830e93cbdf6bc162112fabe2b027701797))
+* **xmlupload:** fix performance slowdown during stash applying (DEV-2717) ([#533](https://github.com/dasch-swiss/dsp-tools/issues/533)) ([add40b2](https://github.com/dasch-swiss/dsp-tools/commit/add40b231eb9ded285cd19ef3c74e55a25949219))
+
+
+### Maintenance
+
+* add isort check in pre-commit and GitHub CI (DEV-2707) ([#529](https://github.com/dasch-swiss/dsp-tools/issues/529)) ([89ef086](https://github.com/dasch-swiss/dsp-tools/commit/89ef086ddc83943a9058ff8611d42f7a742f7d2e))
+* add logging statements to "create" command (DEV-2776) ([#544](https://github.com/dasch-swiss/dsp-tools/issues/544)) ([73183c4](https://github.com/dasch-swiss/dsp-tools/commit/73183c46a2e17a9e728ca68563db3e27d827ac10))
+* bump start-stack to 2023.10.01 (DEV-2748) ([#546](https://github.com/dasch-swiss/dsp-tools/issues/546)) ([3240d5d](https://github.com/dasch-swiss/dsp-tools/commit/3240d5dc289d62b31a15170d925650771cff6798))
+* **deps:** bump dependencies ([#535](https://github.com/dasch-swiss/dsp-tools/issues/535)) ([bf93bc8](https://github.com/dasch-swiss/dsp-tools/commit/bf93bc884926983781ee6633d72b27466ac7bb0c))
+* **deps:** bump dependencies ([#537](https://github.com/dasch-swiss/dsp-tools/issues/537)) ([cbcd2f3](https://github.com/dasch-swiss/dsp-tools/commit/cbcd2f3503aae7b23ec4fa05f54745fa93627cc4))
+* harmonize timestamps between terminal output and log file (DEV-2716) ([#534](https://github.com/dasch-swiss/dsp-tools/issues/534)) ([9160eea](https://github.com/dasch-swiss/dsp-tools/commit/9160eea87f241d485cd0aee1fa92a8bce548d117))
+* remove unnecessary PR template (DEV-2691) ([#525](https://github.com/dasch-swiss/dsp-tools/issues/525)) ([e2c41ec](https://github.com/dasch-swiss/dsp-tools/commit/e2c41ec3bbf9485368931156e372dfd4b5a0214b))
+* use faster black in pre-commit hook (DEV-2736) ([#536](https://github.com/dasch-swiss/dsp-tools/issues/536)) ([ad00e4b](https://github.com/dasch-swiss/dsp-tools/commit/ad00e4bf6c51880ed0f18a34384988f2540022f2))
+* **xmlupload:** _upload_stashed_xml_texts (DEV-2710) ([#532](https://github.com/dasch-swiss/dsp-tools/issues/532)) ([9d2dd35](https://github.com/dasch-swiss/dsp-tools/commit/9d2dd35cd3d7af562da3bd7190a65bcb037f836c))
+* **xmlupload:** create new directory and move scripts (DEV-2715) ([#538](https://github.com/dasch-swiss/dsp-tools/issues/538)) ([6bad8d0](https://github.com/dasch-swiss/dsp-tools/commit/6bad8d0ab937096817e01fe12f96c3b9eee79d0e))
+* **xmlupload:** file upload_stashed_resptr_props.py (DEV-2774) ([#542](https://github.com/dasch-swiss/dsp-tools/issues/542)) ([422bbb3](https://github.com/dasch-swiss/dsp-tools/commit/422bbb39da9e5200994eba4567ec0d830a0a802b))
+* **xmlupload:** file xmlupload.py (DEV-2775) ([#543](https://github.com/dasch-swiss/dsp-tools/issues/543)) ([16fefae](https://github.com/dasch-swiss/dsp-tools/commit/16fefae3e20231dbe2484e908e084688b195c893))
+* **xmlupload:** modularise individual functions in file read_validate_xml_file.py (DEV-2767) ([#541](https://github.com/dasch-swiss/dsp-tools/issues/541)) ([dc5c5a7](https://github.com/dasch-swiss/dsp-tools/commit/dc5c5a721f3ea713b661170b08207be238ff24d8))
+
+
+### Documentation
+
+* **xmlupload:** invalid example: properties must be unique (DEV-2711) ([#531](https://github.com/dasch-swiss/dsp-tools/issues/531)) ([5f9060f](https://github.com/dasch-swiss/dsp-tools/commit/5f9060f612182eff42879adbd881d015dd74444c))
+
 ## [5.0.1](https://github.com/dasch-swiss/dsp-tools/compare/v5.0.0...v5.0.1) (2023-09-20)
 
 

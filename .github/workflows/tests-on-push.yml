@@ -120,38 +120,7 @@ jobs:
           cache: poetry
       - name: Install Python dependencies
         run: poetry install
-      # run tests
-      - name: start stack
-        run: poetry run dsp-tools start-stack --no-prune
-      - name: e2e tests
-        run: poetry run pytest test/e2e/
-      - name: stop stack  # see if this command can run (it isn't tested anywhere else)
-        run: poetry run dsp-tools stop-stack
-
-  others:
-    name: Other Tests
-    runs-on: ubuntu-latest
-    steps:
-      # Setup
-      - name: Checkout source
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
-      - name: Install poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          poetry self add poetry-exec-plugin
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.11
-          # attempt to restore dependencies from cache (if successful, the following `poetry install` will be a no-op)
-          cache: poetry
-      - name: Install Python dependencies
-        run: poetry install
-
       # Install programs for local processing (fast xmlupload)
-      ########################################################
       - name: Fast xmlupload - Install ffmpeg
         uses: FedericoCarboni/setup-ffmpeg@v2
 
@@ -163,9 +132,13 @@ jobs:
         with:
           path: ~/bin/magick        # AppImage containing all binaries + dependencies
           key: imagemagick          # don't check for a new version, because version checking is fairly complex
-
       - name: Fast xmlupload - ImageMagick - Installation
         if: ${{ steps.search-cached-imagemagick.outputs.cache-hit != 'true' }}
         uses: mfinelli/setup-imagemagick@v2  # downloads the "magick" AppImage to ~/bin/magick
-
-
+      # run tests
+      - name: start stack
+        run: poetry run dsp-tools start-stack --no-prune
+      - name: e2e tests
+        run: poetry run pytest test/e2e/
+      - name: stop stack  # see if this command can run (it isn't tested anywhere else)
+        run: poetry run dsp-tools stop-stack

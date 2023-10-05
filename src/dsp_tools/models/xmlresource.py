@@ -112,7 +112,7 @@ class XMLResource:  # pylint: disable=too-many-instance-attributes
 
     def get_internal_resptrs(self) -> set[str]:
         """
-        Get a set of all resource ID that are referenced by this resource by means of a document internal ID.
+        Get a set of all resource IDs that are referenced by this resource by means of an internal ID.
         Returns:
             Set of resources identified by their unique id's (as given in the XML)
         """

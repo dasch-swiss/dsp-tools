@@ -133,15 +133,6 @@ def _log_if_unable_to_retrieve_resource(
     err: BaseError,
     resource: XMLResource,
 ) -> None:
-    """
-    This function takes an error and a resource that was not successfully uploaded to the DSP-API.
-    It extracts the message of the error.
-    It logs and prints the error message.
-
-    Args:
-        err: error from calling function
-        resource: the resource that was not successfully uploaded
-    """
     orig_err_msg = err.orig_err_msg_from_api or err.message
     err_msg = (
         f"Unable to upload resptrs of resource '{resource.id}', "

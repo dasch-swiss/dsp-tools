@@ -126,6 +126,3 @@ def _make_two_references(replication_counter: str) -> list[etree._Element]:
     res_li[0].append(excel2xml.make_resptr_prop(name=":hasResource", value=res_li[1].attrib["id"]))
     res_li[1].append(_make_salsah_link_prop(res_li[0]))
     return res_li
-
-
-create_and_save_circular_references_test_graph(1)

@@ -46,12 +46,9 @@ def upload_stashed_resptr_props(
         try:
             existing_resource = try_network_action(con.get, route=f"/v2/resources/{quote_plus(res_iri)}")
         except BaseError as err:
-            # print the message to keep track of the cause for the failure. Apart from that, no action is necessary:
+            # Apart from that, no action is necessary:
             # this resource will remain in nonapplied_resptr_props, which will be handled by the caller
-            _log_if_unable_to_retrieve_resource(
-                error=err,
-                resource=resource,
-            )
+            _log_if_unable_to_retrieve_resource(err=err, resource=resource)
             continue
         print(f'  Upload resptrs of resource "{resource.id}"...')
         logger.info(f'  Upload resptrs of resource "{resource.id}"...')
@@ -133,7 +130,7 @@ def _upload_all_resptr_props_of_single_resource(
 
 
 def _log_if_unable_to_retrieve_resource(
-    error: BaseError,
+    err: BaseError,
     resource: XMLResource,
 ) -> None:
     """
@@ -142,10 +139,10 @@ def _log_if_unable_to_retrieve_resource(
     It logs and prints the error message.
 
     Args:
-        error: error from calling function
+        err: error from calling function
         resource: the resource that was not successfully uploaded
     """
-    orig_err_msg = error.orig_err_msg_from_api or error.message
+    orig_err_msg = err.orig_err_msg_from_api or err.message
     err_msg = (
         f"Unable to upload resptrs of resource '{resource.id}', "
         "because the resource cannot be retrieved from the DSP server."

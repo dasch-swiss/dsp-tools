@@ -137,7 +137,7 @@ that were created by the `process-files` command.
 ## 4. `dsp-tools fast-xmlupload`
 
 ```bash
-dsp-tools fast-xmlupload --pkl-file=processing_result_20230414_152810.pkl data.xml
+dsp-tools fast-xmlupload data.xml
 ```
 
 The following options are available:

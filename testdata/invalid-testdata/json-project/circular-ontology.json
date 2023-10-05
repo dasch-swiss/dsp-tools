@@ -2,7 +2,7 @@
     "$schema": "../../../src/dsp_tools/resources/schema/project.json",
     "project": {
         "shortcode": "1233",
-        "shortname": "circular-onto-project",
+        "shortname": "circular-onto",
         "longname": "circular-onto-project",
         "descriptions": {
             "en": "test"

@@ -2,7 +2,7 @@
     "$schema": "../../../src/dsp_tools/resources/schema/project.json",
     "project": {
         "shortcode": "4123",
-        "shortname": "nonexisting-super-property-project",
+        "shortname": "nonexist-super-prop",
         "longname": "nonexisting-super-property-project",
         "descriptions": {
             "en": "nonexisting-super-property-project"

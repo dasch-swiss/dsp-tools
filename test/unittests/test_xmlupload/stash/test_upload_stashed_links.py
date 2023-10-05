@@ -29,7 +29,7 @@ class StashUploadServiceMock:
         return {}
 
 
-class TestUploadStashedLinks:
+class TestUploadStashedLinks:  # pylint: disable=too-few-public-methods
     """Class for testing the upload_stashed_links function."""
 
     def test_upload_stashed_links_no_stashed_links(self) -> None:

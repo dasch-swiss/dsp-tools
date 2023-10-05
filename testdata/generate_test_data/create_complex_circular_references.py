@@ -70,6 +70,13 @@ def _make_complex_dependencies(replication_counter: str) -> list[etree._Element]
     return _make_complex_dependencies_resource_E(all_resources)
 
 
+def _make_complex_dependencies_resource_ABC(resource_list: list[etree._Element]) -> list[etree._Element]:
+    link_l = [_make_salsah_link_prop(target_res=resource_list[3]) for i in range(3)]
+    for i in range(3):
+        resource_list[i].append(link_l[i])
+    return resource_list
+
+
 def _make_complex_dependencies_resource_D(resource_list: list[etree._Element]) -> list[etree._Element]:
     resource_list[3].append(excel2xml.make_resptr_prop(name=":hasResource", value=resource_list[4].attrib["id"]))
     return resource_list
@@ -78,13 +85,6 @@ def _make_complex_dependencies_resource_D(resource_list: list[etree._Element]) -
 def _make_complex_dependencies_resource_E(resource_list: list[etree._Element]) -> list[etree._Element]:
     resource_list[4].append(_make_resptr_prop(target_res=resource_list[0:2]))
     resource_list[4].append(_make_salsah_link_prop(target_res=resource_list[2]))
-    return resource_list
-
-
-def _make_complex_dependencies_resource_ABC(resource_list: list[etree._Element]) -> list[etree._Element]:
-    link_l = [_make_salsah_link_prop(target_res=resource_list[3]) for i in range(3)]
-    for i in range(3):
-        resource_list[i].append(link_l[i])
     return resource_list
 
 
@@ -107,6 +107,10 @@ def _make_one_circle_with_three_resources(replication_counter: str) -> list[etre
 
 
 def _make_two_references(replication_counter: str) -> list[etree._Element]:
+    """
+    A -> B (resptr-prop)
+    B -> A (salsah-link)
+    """
     res_li = _make_list_of_resources(2, replication_counter)
     res_li[0].append(_make_resptr_prop([res_li[1]]))
     res_li[1].append(_make_salsah_link_prop(res_li[0]))
@@ -114,6 +118,9 @@ def _make_two_references(replication_counter: str) -> list[etree._Element]:
 
 
 def _make_reflexive_reference(replication_counter: str) -> Any:
+    """
+    A -> A
+    """
     res = _make_list_of_resources(1, replication_counter)[0]
     res.append(_make_resptr_prop([res]))
     return res

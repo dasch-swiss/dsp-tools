@@ -14,8 +14,26 @@ jobs:
     name: Build docs
     runs-on: ubuntu-latest
     steps:
-      - name: Run Preparatory Steps
-        uses: dasch-swiss/dsp-tools/.github/actions/preparation@main
+      # Setup
+      - name: Checkout source
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - name: Install poetry
+        shell: bin/bash
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          poetry self add poetry-exec-plugin
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+          # attempt to restore dependencies from cache (if successful, the following `poetry install` will be a no-op)
+          cache: poetry
+      - name: Install Python dependencies
+        shell: bin/bash
+        run: poetry install
+      # run tests
       - name: build docs
         run: poetry run mkdocs build --strict
       - name: check external links in docs
@@ -29,8 +47,26 @@ jobs:
     name: Lint code
     runs-on: ubuntu-latest
     steps:
-      - name: Run Preparatory Steps
-        uses: dasch-swiss/dsp-tools/.github/actions/preparation@main
+      # Setup
+      - name: Checkout source
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - name: Install poetry
+        shell: bin/bash
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          poetry self add poetry-exec-plugin
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+          # attempt to restore dependencies from cache (if successful, the following `poetry install` will be a no-op)
+          cache: poetry
+      - name: Install Python dependencies
+        shell: bin/bash
+        run: poetry install
+      # run tests
       - name: Linting with Pylint
         run: poetry run pylint src test
       - name: Linting with mypy
@@ -46,8 +82,26 @@ jobs:
     name: Run Unittests
     runs-on: ubuntu-latest
     steps:
-      - name: Run Preparatory Steps
-        uses: dasch-swiss/dsp-tools/.github/actions/preparation@main
+      # Setup
+      - name: Checkout source
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - name: Install poetry
+        shell: bin/bash
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          poetry self add poetry-exec-plugin
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+          # attempt to restore dependencies from cache (if successful, the following `poetry install` will be a no-op)
+          cache: poetry
+      - name: Install Python dependencies
+        shell: bin/bash
+        run: poetry install
+      # run tests
       - name: unittests
         run: poetry run pytest test/unittests/
       
@@ -55,8 +109,26 @@ jobs:
     name: Run E2E/Integration Tests
     runs-on: ubuntu-latest
     steps:
-      - name: Run Preparatory Steps
-        uses: dasch-swiss/dsp-tools/.github/actions/preparation@main
+      # Setup
+      - name: Checkout source
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - name: Install poetry
+        shell: bin/bash
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          poetry self add poetry-exec-plugin
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+          # attempt to restore dependencies from cache (if successful, the following `poetry install` will be a no-op)
+          cache: poetry
+      - name: Install Python dependencies
+        shell: bin/bash
+        run: poetry install
+      # run tests
       - name: start stack
         run: poetry run dsp-tools start-stack --no-prune
       - name: e2e tests
@@ -68,8 +140,25 @@ jobs:
     name: Other Tests
     runs-on: ubuntu-latest
     steps:
-      - name: Run Preparatory Steps
-        uses: dasch-swiss/dsp-tools/.github/actions/preparation@main
+      # Setup
+      - name: Checkout source
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - name: Install poetry
+        shell: bin/bash
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          poetry self add poetry-exec-plugin
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+          # attempt to restore dependencies from cache (if successful, the following `poetry install` will be a no-op)
+          cache: poetry
+      - name: Install Python dependencies
+        shell: bin/bash
+        run: poetry install
 
       # Install programs for local processing (fast xmlupload)
       ########################################################

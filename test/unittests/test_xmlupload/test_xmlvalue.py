@@ -36,7 +36,7 @@ class TestXmlValue(unittest.TestCase):
             "and spaces on empty lines."
         )
         unformatted_node = etree.fromstring(unformatted_text_orig)
-        unformatted_xml_value = XMLValue(node=unformatted_node, val_type="text")
+        unformatted_xml_value = XMLValue.fromXml(node=unformatted_node, val_type="text")
         self.assertEqual(unformatted_xml_value.value, unformatted_text_expected)
 
     def test_cleanup_formatted_text(self) -> None:
@@ -66,7 +66,7 @@ class TestXmlValue(unittest.TestCase):
             '<a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>'
         )
         formatted_node = etree.fromstring(formatted_text_orig)
-        formatted_xml_value = XMLValue(node=formatted_node, val_type="text")
+        formatted_xml_value = XMLValue.fromXml(node=formatted_node, val_type="text")
         self.assertEqual(str(formatted_xml_value.value), formatted_text_expected)
 
 

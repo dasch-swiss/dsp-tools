@@ -1,9 +1,14 @@
+from __future__ import annotations
+
+from dataclasses import dataclass
+
 from lxml import etree
 
 from dsp_tools.models.exceptions import XmlError
 from dsp_tools.models.xmlvalue import XMLValue
 
 
+@dataclass
 class XMLProperty:  # pylint: disable=too-few-public-methods
     """
     Represents a property of a resource in the XML used for data import.
@@ -18,7 +23,8 @@ class XMLProperty:  # pylint: disable=too-few-public-methods
     valtype: str
     values: list[XMLValue]
 
-    def __init__(self, node: etree._Element, valtype: str, default_ontology: str):
+    @staticmethod
+    def fromXml(node: etree._Element, valtype: str, default_ontology: str) -> XMLProperty:
         """
         The constructor for the DSP property
 
@@ -31,19 +37,19 @@ class XMLProperty:  # pylint: disable=too-few-public-methods
         tmp_prop_name = node.attrib["name"].split(":")
         if len(tmp_prop_name) > 1:
             if tmp_prop_name[0]:
-                self.name = node.attrib["name"]
+                name = node.attrib["name"]
             else:
                 # replace an empty namespace with the default ontology name
-                self.name = default_ontology + ":" + tmp_prop_name[1]
+                name = default_ontology + ":" + tmp_prop_name[1]
         else:
-            self.name = "knora-api:" + tmp_prop_name[0]
+            name = "knora-api:" + tmp_prop_name[0]
         listname = node.attrib.get("list")  # safe the list name if given (only for lists)
-        self.valtype = valtype
-        self.values = []
+        values = []
 
         # parse the subnodes of the property nodes which contain the actual values of the property
         for subnode in node:
             if subnode.tag == valtype:  # the subnode must correspond to the expected value type
-                self.values.append(XMLValue(subnode, valtype, listname))
+                values.append(XMLValue.fromXml(subnode, valtype, listname))
             else:
                 raise XmlError(f"ERROR Unexpected tag: '{subnode.tag}'. Property may contain only value tags!")
+        return XMLProperty(name, valtype, values)

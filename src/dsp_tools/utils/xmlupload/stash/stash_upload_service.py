@@ -27,6 +27,8 @@ class StashUploadService(Protocol):
 
         Returns:
             nonapplied_resptr_props: the resptr props that could not be uploaded
+
+        # noqa: DAR202
         """
 
     def upload_standoff_links(
@@ -47,4 +49,6 @@ class StashUploadService(Protocol):
 
         Returns:
             nonapplied_xml_texts: the xml texts that could not be uploaded
+
+        # noqa: DAR202
         """

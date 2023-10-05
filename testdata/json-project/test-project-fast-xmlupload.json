@@ -2,7 +2,7 @@
     "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json",
     "project": {
         "shortcode": "00E0",
-        "shortname": "fast-xmlupload-testproject",
+        "shortname": "fast-xmlupload-tp",
         "longname": "fast-xmlupload-testproject",
         "descriptions": {
             "en": "fast-xmlupload-testproject"

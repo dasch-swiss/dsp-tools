@@ -3,8 +3,6 @@ from __future__ import annotations
 from datetime import datetime
 from typing import cast
 
-import regex
-
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.value import KnoraStandoffXml
 from dsp_tools.models.xmlproperty import XMLProperty
@@ -16,13 +14,13 @@ logger = get_logger(__name__)
 
 def _stash_circular_references(
     nok_resources: list[XMLResource],
-    ok_res_ids: list[str],
+    ok_res_ids: set[str],
     ok_resources: list[XMLResource],
     stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
     stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]],
 ) -> tuple[
     list[XMLResource],
-    list[str],
+    set[str],
     list[XMLResource],
     dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
     dict[XMLResource, dict[XMLProperty, list[str]]],
@@ -69,7 +67,7 @@ def _stash_circular_references(
                 res.properties.remove(link_prop)
 
         ok_resources.append(res)
-        ok_res_ids.append(res.id)
+        ok_res_ids.add(res.id)
         nok_resources.remove(res)
 
     return nok_resources, ok_res_ids, ok_resources, stashed_xml_texts, stashed_resptr_props
@@ -112,32 +110,20 @@ def remove_circular_references(
     # resources with circular references
     nok_resources: list[XMLResource] = []
     # internal ids for the resources that do not have circular references
-    ok_res_ids: list[str] = []
+    ok_res_ids: set[str] = set()
     cnt = 0
     nok_len = 9999999
     while len(resources) > 0 and cnt < 10000:
         for resource in resources:
-            resptrs = resource.get_resptrs()
-            # get all the resptrs which have an internal id, i.e. that do not exist in the triplestore
-            resptrs = [x for x in resptrs if not regex.search(r"https?://rdfh.ch/[a-fA-F0-9]{4}/\w{22}", x)]
-            # if there are no resptrs references, append to the ok resources
-            if len(resptrs) == 0:
+            resptrs = resource.get_internal_resptrs()
+            # if there are no resptrs references
+            # or all of them are in the ok resources,
+            # append the resource to the ok resources
+            if len(resptrs) == 0 or resptrs.issubset(ok_res_ids):
                 ok_resources.append(resource)
-                ok_res_ids.append(resource.id)
+                ok_res_ids.add(resource.id)
             else:
-                ok = True
-                # iterate over the list with all the resptrs that have internal links
-                for resptr in resptrs:
-                    # if that resptr is not in the ok list, set the flag to false
-                    if resptr not in ok_res_ids:
-                        ok = False
-                # if all the resptr are in the ok list, then there are no circular references
-                if ok:
-                    ok_resources.append(resource)
-                    ok_res_ids.append(resource.id)
-                # if any of the resptr are not in the ok list append the resource to the not ok list
-                else:
-                    nok_resources.append(resource)
+                nok_resources.append(resource)
         resources = nok_resources
         if len(nok_resources) == nok_len:
             # there are circular references. go through all problematic resources, and stash the problematic references.

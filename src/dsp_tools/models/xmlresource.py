@@ -1,5 +1,6 @@
 from typing import Optional, Union
 
+import regex
 from lxml import etree
 
 from dsp_tools.models.exceptions import BaseError
@@ -108,6 +109,14 @@ class XMLResource:  # pylint: disable=too-many-instance-attributes
                     if value.resrefs:
                         resptrs.extend(value.resrefs)
         return resptrs
+
+    def get_internal_resptrs(self) -> set[str]:
+        """
+        Get a set of all resource IDs that are referenced by this resource by means of an internal ID.
+        Returns:
+            Set of resources identified by their unique id's (as given in the XML)
+        """
+        return {x for x in self.get_resptrs() if not regex.search(r"https?://rdfh.ch/[a-fA-F0-9]{4}/\w{22}", x)}
 
     def get_propvals(
         self,

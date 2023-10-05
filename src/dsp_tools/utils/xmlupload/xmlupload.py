@@ -269,10 +269,9 @@ def _extract_resources_and_permissions_from_xml(
     default_ontology: str,
 ) -> tuple[dict[str, XmlPermission], list[XMLResource]]:
     """
-    This function takes the root of the tree the project context on the server and the name of the default ontology
-    From the root it separates the permissions from the resources
-    It creates corresponding Python objects of the elements
-    It returns a collection with the Python objects
+    This function takes the root of the tree, the project context on the server and the name of the default ontology.
+    From the root it separates the resource permissions.
+    It returns a collection of corresponding Python objects.
 
     Args:
         root: root of the parsed XML file

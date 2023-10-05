@@ -97,12 +97,7 @@ def xmlupload(
     preparation_start = datetime.now()
 
     # establish connection to DSP server
-    con = login(
-        server=server,
-        user=user,
-        password=password,
-        dump=dump,
-    )
+    con = login(server=server, user=user, password=password, dump=dump)
     sipi_server = Sipi(sipi, con.get_token())
 
     proj_context = _get_project_context_from_server(connection=con)
@@ -129,10 +124,7 @@ def xmlupload(
     )
 
     # temporarily remove circular references
-    resources, stashed_xml_texts, stashed_resptr_props = remove_circular_references(
-        resources=resources,
-        verbose=verbose,
-    )
+    resources, stashed_xml_texts, stashed_resptr_props = remove_circular_references(resources, verbose=verbose)
 
     preparation_duration = datetime.now() - preparation_start
     preparation_duration_ms = preparation_duration.seconds * 1000 + int(preparation_duration.microseconds / 1000)
@@ -209,10 +201,10 @@ def _get_project_permissions_and_classes_from_server(
     shortcode: str,
 ) -> tuple[dict[str, Permissions], dict[str, type]]:
     """
-    This function tries to connect to the server and retrieve the project information
-    If the project is not on the server, it raises a UserError
-    From the information from the server, it creates a dictionary with the permission information
-    And a dictionary with the information about the classes
+    This function tries to connect to the server and retrieve the project information.
+    If the project is not on the server, it raises a UserError.
+    From the information from the server, it creates a dictionary with the permission information,
+    and a dictionary with the information about the classes.
 
     Args:
         server_connection: connection to the server
@@ -417,7 +409,7 @@ def _upload_resources(
     return id2iri_mapping, failed_uploads, metrics
 
 
-def _upload_multimedia_to_sipi(
+def _get_sipi_multimedia_information(
     resource: XMLResource,
     sipi_server: Sipi,
     imgdir: str,
@@ -444,30 +436,46 @@ def _upload_multimedia_to_sipi(
         The information from sipi which is needed to establish a link from the resource
     """
     if preprocessing_done:
-        resource_bitstream = resource.get_bitstream(
+        resource_bitstream = resource.get_bitstream_information_from_sipi(
             internal_file_name_bitstream=resource.bitstream.value,  # type: ignore[union-attr]
             permissions_lookup=permissions_lookup,
         )
     else:
-        pth = resource.bitstream.value  # type: ignore[union-attr]
-        bitstream_start = datetime.now()
-        filetype = Path(pth).suffix[1:]
-        img: Optional[dict[Any, Any]] = try_network_action(
-            sipi_server.upload_bitstream,
-            filepath=str(Path(imgdir) / Path(pth)),
-        )
-        bitstream_duration = datetime.now() - bitstream_start
-        bitstream_duration_ms = bitstream_duration.seconds * 1000 + int(bitstream_duration.microseconds / 1000)
-        mb_per_sec = round((filesize / bitstream_duration_ms) * 1000, 1)
-        metrics.append(
-            MetricRecord(resource.id, filetype, filesize, "bitstream upload", bitstream_duration_ms, mb_per_sec)
-        )
-
-        internal_file_name_bitstream = img["uploadedFiles"][0]["internalFilename"]  # type: ignore[index]
-        resource_bitstream = resource.get_bitstream(
-            internal_file_name_bitstream=internal_file_name_bitstream,
+        resource_bitstream = _upload_multimedia_to_sipi(
+            resource=resource,
+            sipi_server=sipi_server,
+            imgdir=imgdir,
+            filesize=filesize,
             permissions_lookup=permissions_lookup,
+            metrics=metrics,
         )
+    return resource_bitstream
+
+
+def _upload_multimedia_to_sipi(
+    resource: XMLResource,
+    sipi_server: Sipi,
+    imgdir: str,
+    filesize: float,
+    permissions_lookup: dict[str, Permissions],
+    metrics: list[MetricRecord],
+) -> dict[str, str | Permissions] | None:
+    pth = resource.bitstream.value  # type: ignore[union-attr]
+    bitstream_start = datetime.now()
+    filetype = Path(pth).suffix[1:]
+    img: Optional[dict[Any, Any]] = try_network_action(
+        sipi_server.upload_bitstream,
+        filepath=str(Path(imgdir) / Path(pth)),
+    )
+    bitstream_duration = datetime.now() - bitstream_start
+    bitstream_duration_ms = bitstream_duration.seconds * 1000 + int(bitstream_duration.microseconds / 1000)
+    mb_per_sec = round((filesize / bitstream_duration_ms) * 1000, 1)
+    metrics.append(MetricRecord(resource.id, filetype, filesize, "bitstream upload", bitstream_duration_ms, mb_per_sec))
+    internal_file_name_bitstream = img["uploadedFiles"][0]["internalFilename"]  # type: ignore[index]
+    resource_bitstream = resource.get_bitstream_information_from_sipi(
+        internal_file_name_bitstream=internal_file_name_bitstream,
+        permissions_lookup=permissions_lookup,
+    )
     return resource_bitstream
 
 
@@ -507,7 +515,7 @@ def _check_for_bitstream_and_upload_if_there(
     """
     if resource.bitstream:
         try:
-            resource_bitstream = _upload_multimedia_to_sipi(
+            resource_bitstream = _get_sipi_multimedia_information(
                 resource=resource,
                 sipi_server=sipi_server,
                 imgdir=imgdir,

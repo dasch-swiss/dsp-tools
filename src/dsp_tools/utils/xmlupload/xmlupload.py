@@ -32,6 +32,7 @@ from dsp_tools.utils.xmlupload.resource_multimedia import (
     calculate_multimedia_file_size,
     get_sipi_multimedia_information,
 )
+from dsp_tools.utils.xmlupload.stash.stash_upload_service import StashUploadService
 from dsp_tools.utils.xmlupload.stash.stash_upload_service_live import StashUploadServiceLive
 from dsp_tools.utils.xmlupload.stash.upload_stashed_resptr_props import purge_stashed_resptr_props
 from dsp_tools.utils.xmlupload.stash.upload_stashed_xml_texts import purge_stashed_xml_texts
@@ -135,8 +136,8 @@ def xmlupload(
     # upload all resources, then update the resources with the stashed XML texts and resptrs
     id2iri_mapping: dict[str, str] = {}
     failed_uploads: list[str] = []
-    nonapplied_resptr_props = {}
-    nonapplied_xml_texts = {}
+    # nonapplied_resptr_props = {}
+    # nonapplied_xml_texts = {}
     try:
         id2iri_mapping, failed_uploads, metrics = _upload_resources(
             resources=resources,
@@ -151,20 +152,9 @@ def xmlupload(
             preprocessing_done=preprocessing_done,
         )
         stashUploader = StashUploadServiceLive()
-        if stashed_xml_texts:
-            nonapplied_xml_texts = stashUploader.upload_standoff_links(
-                verbose=verbose,
-                id2iri_mapping=id2iri_mapping,
-                con=con,
-                stashed_xml_texts=stashed_xml_texts,
-            )
-        if stashed_resptr_props:
-            nonapplied_resptr_props = stashUploader.upload_links(
-                verbose=verbose,
-                id2iri_mapping=id2iri_mapping,
-                con=con,
-                stashed_resptr_props=stashed_resptr_props,
-            )
+        nonapplied_xml_texts, nonapplied_resptr_props = _upload_stashed_links(
+            stashUploader, verbose, id2iri_mapping, con, stashed_xml_texts, stashed_resptr_props
+        )
         if nonapplied_resptr_props or nonapplied_xml_texts:
             msg = "Some stashed resptrs or XML texts could not be reapplied to their resources on the DSP server."
             logger.error(msg)
@@ -417,6 +407,32 @@ def _upload_resources(
         metrics.append(MetricRecord(resource.id, filetype, filesize, "looping overhead", looping_overhead_ms, ""))
 
     return id2iri_mapping, failed_uploads, metrics
+
+
+def _upload_stashed_links(
+    stashUploadService: StashUploadService,
+    verbose: bool,
+    id2iri_mapping: dict[str, str],
+    con: Connection,
+    stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
+    stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]],
+) -> tuple[
+    dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
+    dict[XMLResource, dict[XMLProperty, list[str]]],
+]:
+    nonapplied_links = stashUploadService.upload_links(
+        verbose=verbose,
+        id2iri_mapping=id2iri_mapping,
+        con=con,
+        stashed_resptr_props=stashed_resptr_props,
+    )
+    nonapplied_standoff_links = stashUploadService.upload_standoff_links(
+        verbose=verbose,
+        id2iri_mapping=id2iri_mapping,
+        con=con,
+        stashed_xml_texts=stashed_xml_texts,
+    )
+    return nonapplied_standoff_links, nonapplied_links
 
 
 def _handle_upload_error(

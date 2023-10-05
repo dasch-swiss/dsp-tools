@@ -31,8 +31,12 @@ class StashUploadServiceLive:
         Returns:
             nonapplied_resptr_props: the resptr props that could not be uploaded
         """
-        return upload_stashed_resptr_props(
-            verbose=verbose, id2iri_mapping=id2iri_mapping, con=con, stashed_resptr_props=stashed_resptr_props
+        return (
+            upload_stashed_resptr_props(
+                verbose=verbose, id2iri_mapping=id2iri_mapping, con=con, stashed_resptr_props=stashed_resptr_props
+            )
+            if stashed_resptr_props
+            else {}
         )
 
     def upload_standoff_links(
@@ -54,6 +58,10 @@ class StashUploadServiceLive:
         Returns:
             nonapplied_xml_texts: the xml texts that could not be uploaded
         """
-        return upload_stashed_xml_texts(
-            verbose=verbose, id2iri_mapping=id2iri_mapping, con=con, stashed_xml_texts=stashed_xml_texts
+        return (
+            upload_stashed_xml_texts(
+                verbose=verbose, id2iri_mapping=id2iri_mapping, con=con, stashed_xml_texts=stashed_xml_texts
+            )
+            if stashed_xml_texts
+            else {}
         )

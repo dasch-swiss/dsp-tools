@@ -153,7 +153,7 @@ class TestCLI(unittest.TestCase):
         and check if the result is identical to the original file.
         """
         out_file = self.testdata_tmp / "_test-project-systematic.json"
-        self._make_cli_call(f"dsp-tools get --project tp {out_file.absolute()}")
+        self._make_cli_call(f"dsp-tools get --project systematic-tp {out_file.absolute()}")
 
         project_original = self._get_original_project()
         with open(self.testdata_tmp / "_test-project-systematic.json", encoding="utf-8") as f:

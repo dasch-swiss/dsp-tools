@@ -10,70 +10,66 @@ on:
 
 
 jobs:
-  tests-on-push:
+  build-docs:
+    name: Build docs
     runs-on: ubuntu-latest
     steps:
-
-      # Checkout source, install Python, install dependencies
-      ######################################################
-      - name: Checkout source
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
-
-      - name: Install poetry
-        run: | 
-          curl -sSL https://install.python-poetry.org | python3 -
-          poetry self add poetry-exec-plugin
-
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.11
-          # attempt to restore dependencies from cache (if successful, the following `poetry install` will be a no-op)
-          cache: poetry
-
-      - name: Install Python dependencies
-        run: poetry install
-      
-
-      # Build and check docs
-      ######################
+      - name: Run Preparatory Steps
+        uses: dasch-swiss/dsp-tools/.github/actions/preparation@main
       - name: build docs
         run: poetry run mkdocs build --strict
-
       - name: check external links in docs
         run: |
           npm install -g markdown-link-validator
           poetry exec check-links
-      
       - name: markdownlint
         run: docker run -v $PWD:/workdir ghcr.io/igorshubovych/markdownlint-cli:latest --config .markdownlint.yml --ignore CHANGELOG.md "**/*.md"
 
-
-      # Code Linting
-      ##############
+  lint:
+    name: Lint code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run Preparatory Steps
+        uses: dasch-swiss/dsp-tools/.github/actions/preparation@main
       - name: Linting with Pylint
         run: poetry run pylint src test
-
       - name: Linting with mypy
         run: poetry run mypy .
-
       - name: Linting with black
         run: poetry run black --check .
-
       - name: Linting with isort
         run: poetry run isort . --check --diff
-
       - name: Linting with darglint
         run: poetry exec darglint
 
-
-      # Run unittests
-      ###############
+  unittests:
+    name: Run Unittests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run Preparatory Steps
+        uses: dasch-swiss/dsp-tools/.github/actions/preparation@main
       - name: unittests
         run: poetry run pytest test/unittests/
       
+  e2e-tests:
+    name: Run E2E/Integration Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run Preparatory Steps
+        uses: dasch-swiss/dsp-tools/.github/actions/preparation@main
+      - name: start stack
+        run: poetry run dsp-tools start-stack --no-prune
+      - name: e2e tests
+        run: poetry run pytest test/e2e/
+      - name: stop stack  # see if this command can run (it isn't tested anywhere else)
+        run: poetry run dsp-tools stop-stack
+
+  others:
+    name: Other Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run Preparatory Steps
+        uses: dasch-swiss/dsp-tools/.github/actions/preparation@main
 
       # Install programs for local processing (fast xmlupload)
       ########################################################
@@ -94,13 +90,3 @@ jobs:
         uses: mfinelli/setup-imagemagick@v2  # downloads the "magick" AppImage to ~/bin/magick
 
 
-      # Run e2e tests
-      ###############
-      - name: start stack
-        run: poetry run dsp-tools start-stack --no-prune
-
-      - name: e2e tests
-        run: poetry run pytest test/e2e/
-      
-      - name: stop stack  # see if this command can run (it isn't tested anywhere else)
-        run: poetry run dsp-tools stop-stack

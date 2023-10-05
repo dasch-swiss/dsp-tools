@@ -46,6 +46,8 @@ class Connection(Protocol):
 
         Returns:
             response from server
+
+        # noqa: DAR202
         """
 
     def post(
@@ -64,6 +66,8 @@ class Connection(Protocol):
 
         Returns:
             response from server
+
+        # noqa: DAR202
         """
 
     def put(
@@ -79,6 +83,8 @@ class Connection(Protocol):
             route: route that will be called on the server
             jsondata: Valid JSON as string
             content_type: HTTP Content-Type [default: 'application/json']
+
+        # noqa: DAR202
         """
 
 

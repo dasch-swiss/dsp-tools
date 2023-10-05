@@ -1,17 +1,9 @@
 import os.path
-from enum import Enum
-from pathlib import Path
 from typing import Any
 
 from lxml import etree
 
 from dsp_tools import excel2xml
-
-
-class _Letter(Enum):
-    A = 0
-    B = 1
-    C = 2
 
 
 def create_and_save_circular_references_test_graph(number_of_graphs: int, save_location: str = "") -> None:
@@ -22,12 +14,31 @@ def create_and_save_circular_references_test_graph(number_of_graphs: int, save_l
 def create_circular_references_test_graph(replication_counter: int) -> etree._Element:
     root = excel2xml.make_root("4123", "testonto")
     for i in range(1, replication_counter + 1):
-        root.extend(_make_circle_list(replication_counter=f"{i}1"))
+        root.extend(_make_one_circle_with_three_resources(replication_counter=f"{i}1"))
         root.extend(_make_complex_dependencies(replication_counter=f"{i}2"))
         root.extend(_make_complex_dependencies_add_on(replication_counter=f"{i}3"))
         root.extend(_make_two_references(replication_counter=f"{i}4"))
         root.append(_make_reflexive_reference(replication_counter=f"{i}5"))
     return root
+
+
+def _make_list_of_resources(number_of_resources: int, replication_counter: str, start_range: int = 65) -> list[Any]:
+    letters = [chr(x) for x in range(start_range, start_range + number_of_resources)]
+    return [
+        excel2xml.make_resource(
+            restype=":TestThing", label=f"res_{let}_{replication_counter}", id=f"res_{let}_{replication_counter}"
+        )
+        for let in letters
+    ]
+
+
+def _make_salsah_link_prop(target_res: etree._Element) -> etree._Element:
+    salsah_link = f'<a class="salsah-link" href="IRI:{target_res.attrib["id"]}:IRI">{target_res.attrib["id"]}</a>'
+    return excel2xml.make_text_prop(name=":hasRichtext", value=excel2xml.PropertyElement(salsah_link, encoding="xml"))
+
+
+def _make_resptr_prop(target_res: list[etree._Element]) -> etree._Element:
+    return excel2xml.make_resptr_prop(name=":hasResource", value=[x.attrib["id"] for x in target_res])
 
 
 def _make_complex_dependencies_add_on(replication_counter: str) -> list[etree._Element]:
@@ -59,39 +70,13 @@ def _make_complex_dependencies(replication_counter: str) -> list[etree._Element]
     return _make_complex_dependencies_resource_E(all_resources)
 
 
-def _make_circle_list(replication_counter: str) -> list[etree._Element]:
-    """
-    A -> B (salsah-link)
-    B -> C (resptr-prop)
-    C -> A (resptr-prop)
-    C -> A (salsah-link)
-    """
-    return [_make_one_circle_with_three_resources(replication_counter=replication_counter, letter=x) for x in _Letter]
-
-
-def _get_letter_list(number_of_letters: int, start_range: int = 65) -> list[str]:
-    return [chr(x) for x in range(start_range, start_range + number_of_letters)]
-
-
-def _make_list_of_resources(number_of_resources: int, replication_counter: str) -> list[Any]:
-    letters = _get_letter_list(number_of_resources)
-    return [
-        excel2xml.make_resource(
-            restype=":TestThing", label=f"res_{let}_{replication_counter}", id=f"res_{let}_{replication_counter}"
-        )
-        for let in letters
-    ]
-
-
 def _make_complex_dependencies_resource_D(resource_list: list[etree._Element]) -> list[etree._Element]:
     resource_list[3].append(excel2xml.make_resptr_prop(name=":hasResource", value=resource_list[4].attrib["id"]))
     return resource_list
 
 
 def _make_complex_dependencies_resource_E(resource_list: list[etree._Element]) -> list[etree._Element]:
-    resource_list[4].append(
-        excel2xml.make_resptr_prop(name=":hasResource", value=[x.attrib["id"] for x in resource_list[0:2]])
-    )
+    resource_list[4].append(_make_resptr_prop(target_res=resource_list[0:2]))
     resource_list[4].append(_make_salsah_link_prop(target_res=resource_list[2]))
     return resource_list
 
@@ -103,33 +88,32 @@ def _make_complex_dependencies_resource_ABC(resource_list: list[etree._Element])
     return resource_list
 
 
-def _make_salsah_link_prop(target_res: etree._Element) -> etree._Element:
-    salsah_link = f'<a class="salsah-link" href="IRI:{target_res.attrib["id"]}:IRI">{target_res.attrib["id"]}</a>'
-    return excel2xml.make_text_prop(name=":hasRichtext", value=excel2xml.PropertyElement(salsah_link, encoding="xml"))
-
-
-def _make_one_circle_with_three_resources(replication_counter: str, letter: _Letter) -> etree._Element:
-    id_1 = f"resource_{replication_counter}_{letter.name}"
-    id_2 = f"resource_{replication_counter}_{_Letter((letter.value + 1) % len(_Letter)).name}"
-    salsah_link = f'<a class="salsah-link" href="IRI:{id_2}:IRI">{id_2}</a>'
-    resource = excel2xml.make_resource(restype=":TestThing", label=id_1, id=id_1)
-    resource.append(excel2xml.make_resptr_prop(name=":hasResource", value=id_2))
-    resource.append(
-        excel2xml.make_text_prop(name=":hasRichtext", value=excel2xml.PropertyElement(salsah_link, encoding="xml"))
-    )
-    resource.append(excel2xml.make_text_prop(":hasSimpleText", "foo"))
-    resource.append(excel2xml.make_boolean_prop(":hasBoolean", "True"))
-    return resource
+def _make_one_circle_with_three_resources(replication_counter: str) -> list[etree._Element]:
+    """
+    A -> B (salsah-link) & (resptr-prop)
+    B -> C (salsah-link) & (resptr-prop)
+    C -> A (salsah-link) & (resptr-prop)
+    """
+    res_li = _make_list_of_resources(number_of_resources=3, replication_counter=replication_counter)
+    salsah_list = [_make_salsah_link_prop(x) for x in res_li]
+    resptr_list = [_make_resptr_prop([x]) for x in res_li]
+    res_li[0].append(salsah_list[1])
+    res_li[0].append(resptr_list[1])
+    res_li[1].append(salsah_list[2])
+    res_li[1].append(resptr_list[2])
+    res_li[2].append(salsah_list[0])
+    res_li[2].append(resptr_list[0])
+    return res_li
 
 
 def _make_two_references(replication_counter: str) -> list[etree._Element]:
     res_li = _make_list_of_resources(2, replication_counter)
-    res_li[0].append(excel2xml.make_resptr_prop(name=":hasResource", value=res_li[1].attrib["id"]))
+    res_li[0].append(_make_resptr_prop([res_li[1]]))
     res_li[1].append(_make_salsah_link_prop(res_li[0]))
     return res_li
 
 
 def _make_reflexive_reference(replication_counter: str) -> Any:
     res = _make_list_of_resources(1, replication_counter)[0]
-    res.append(excel2xml.make_resptr_prop(name=":hasResource", value=res.attrib["id"]))
+    res.append(_make_resptr_prop([res]))
     return res

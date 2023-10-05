@@ -32,12 +32,10 @@ from dsp_tools.utils.xmlupload.resource_multimedia import (
     calculate_multimedia_file_size,
     get_sipi_multimedia_information,
 )
+from dsp_tools.utils.xmlupload.stash.stash_upload_service_live import StashUploadServiceLive
+from dsp_tools.utils.xmlupload.stash.upload_stashed_resptr_props import purge_stashed_resptr_props
+from dsp_tools.utils.xmlupload.stash.upload_stashed_xml_texts import purge_stashed_xml_texts
 from dsp_tools.utils.xmlupload.stash_circular_references import remove_circular_references
-from dsp_tools.utils.xmlupload.upload_stashed_resptr_props import (
-    purge_stashed_resptr_props,
-    upload_stashed_resptr_props,
-)
-from dsp_tools.utils.xmlupload.upload_stashed_xml_texts import purge_stashed_xml_texts, upload_stashed_xml_texts
 from dsp_tools.utils.xmlupload.write_diagnostic_info import (
     MetricRecord,
     determine_save_location_of_diagnostic_info,
@@ -152,15 +150,16 @@ def xmlupload(
             metrics=metrics,
             preprocessing_done=preprocessing_done,
         )
+        stashUploader = StashUploadServiceLive()
         if stashed_xml_texts:
-            nonapplied_xml_texts = upload_stashed_xml_texts(
+            nonapplied_xml_texts = stashUploader.upload_standoff_links(
                 verbose=verbose,
                 id2iri_mapping=id2iri_mapping,
                 con=con,
                 stashed_xml_texts=stashed_xml_texts,
             )
         if stashed_resptr_props:
-            nonapplied_resptr_props = upload_stashed_resptr_props(
+            nonapplied_resptr_props = stashUploader.upload_links(
                 verbose=verbose,
                 id2iri_mapping=id2iri_mapping,
                 con=con,

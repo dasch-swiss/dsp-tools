@@ -5,7 +5,7 @@ from unittest import TestCase
 import pytest
 
 from dsp_tools.models.value import KnoraStandoffXml
-from dsp_tools.utils.xmlupload import upload_stashed_xml_texts
+from dsp_tools.utils.xmlupload.stash import upload_stashed_xml_texts
 
 
 class TestXMLUploadStash(TestCase):

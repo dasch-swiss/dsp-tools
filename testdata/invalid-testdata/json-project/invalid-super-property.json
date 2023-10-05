@@ -2,7 +2,7 @@
     "$schema": "../../../src/dsp_tools/resources/schema/project.json",
     "project": {
         "shortcode": "4124",
-        "shortname": "invalid-super-property-project",
+        "shortname": "invalid-super-prop",
         "longname": "invalid-super-property-project",
         "descriptions": {
             "en": "invalid-super-property-project"

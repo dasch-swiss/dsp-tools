@@ -174,7 +174,7 @@ class XMLResource:  # pylint: disable=too-many-instance-attributes
             prop_data[prop.name] = vals if len(vals) > 1 else vals[0]
         return prop_data
 
-    def get_bitstream(
+    def get_bitstream_information_from_sipi(
         self, internal_file_name_bitstream: str, permissions_lookup: dict[str, Permissions]
     ) -> Optional[dict[str, Union[str, Permissions]]]:
         """

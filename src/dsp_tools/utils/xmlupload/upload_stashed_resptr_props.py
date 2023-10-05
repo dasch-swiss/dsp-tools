@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from typing import Any
 from urllib.parse import quote_plus
 
 from dsp_tools.models.connection import Connection
@@ -45,49 +46,24 @@ def upload_stashed_resptr_props(
         try:
             existing_resource = try_network_action(con.get, route=f"/v2/resources/{quote_plus(res_iri)}")
         except BaseError as err:
-            # print the message to keep track of the cause for the failure. Apart from that, no action is necessary:
+            # Apart from that, no action is necessary:
             # this resource will remain in nonapplied_resptr_props, which will be handled by the caller
-            orig_err_msg = err.orig_err_msg_from_api or err.message
-            err_msg = (
-                f"Unable to upload resptrs of resource '{resource.id}', "
-                "because the resource cannot be retrieved from the DSP server."
-            )
-            print(f"  WARNING: {err_msg} Original error message: {orig_err_msg}")
-            logger.warning(err_msg, exc_info=True)
+            _log_if_unable_to_retrieve_resource(err=err, resource=resource)
             continue
         print(f'  Upload resptrs of resource "{resource.id}"...')
         logger.info(f'  Upload resptrs of resource "{resource.id}"...')
         for link_prop, resptrs in prop_2_resptrs.items():
-            for resptr in resptrs.copy():
-                jsonobj = {
-                    "@id": res_iri,
-                    "@type": resource.restype,
-                    f"{link_prop.name}Value": {
-                        "@type": "knora-api:LinkValue",
-                        "knora-api:linkValueHasTargetIri": {
-                            # if target doesn't exist in DSP, send the (invalid) resource ID of target to DSP,
-                            # which will produce an understandable error message
-                            "@id": id2iri_mapping.get(resptr, resptr)
-                        },
-                    },
-                    "@context": existing_resource["@context"],
-                }
-                jsondata = json.dumps(jsonobj, indent=4, separators=(",", ": "))
-                try:
-                    try_network_action(con.post, route="/v2/values", jsondata=jsondata)
-                except BaseError as err:
-                    # print the message to keep track of the cause for the failure.
-                    # Apart from that, no action is necessary:
-                    # this resource will remain in nonapplied_resptr_props, which will be handled by the caller
-                    orig_err_msg = err.orig_err_msg_from_api or err.message
-                    err_msg = f"Unable to upload the resptr prop of '{link_prop.name}' of resource '{resource.id}'."
-                    print(f"    WARNING: {err_msg} Original error message: {orig_err_msg}")
-                    logger.warning(err_msg, exc_info=True)
-                    continue
-                nonapplied_resptr_props[resource][link_prop].remove(resptr)
-                if verbose:
-                    print(f'  Successfully uploaded resptr-prop of "{link_prop.name}". Value: {resptr}')
-                    logger.info(f'Successfully uploaded resptr-prop of "{link_prop.name}". Value: {resptr}')
+            nonapplied_resptr_props = _upload_all_resptr_props_of_single_resource(
+                resource_in_triplestore=existing_resource,
+                stashed_resource=resource,
+                link_prop=link_prop,
+                res_iri=res_iri,
+                resptrs=resptrs,
+                id2iri_mapping=id2iri_mapping,
+                con=con,
+                nonapplied_resptr_props=nonapplied_resptr_props,
+                verbose=verbose,
+            )
 
     # make a purged version of nonapplied_resptr_props, without empty entries
     nonapplied_resptr_props = purge_stashed_resptr_props(
@@ -95,6 +71,114 @@ def upload_stashed_resptr_props(
         id2iri_mapping=id2iri_mapping,
     )
     return nonapplied_resptr_props
+
+
+def _upload_all_resptr_props_of_single_resource(
+    resource_in_triplestore: dict[str, Any],
+    stashed_resource: XMLResource,
+    link_prop: XMLProperty,
+    res_iri: str,
+    resptrs: list[str],
+    id2iri_mapping: dict[str, str],
+    con: Connection,
+    nonapplied_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]],
+    verbose: bool,
+) -> dict[XMLResource, dict[XMLProperty, list[str]]]:
+    """
+    This function takes one resource stashed resource and resptr-props that are specific to a property.
+    It sends them to the DSP-API and removes them from the nonapplied_resptr_props dictionary.
+
+    Args:
+        resource_in_triplestore: The resource retried from the triplestore
+        stashed_resource: The resource from the stash
+        link_prop: the property object to which the stashed resptrs belong to
+        res_iri: the IRI as given by the DSP-API
+        resptrs: List with all the resptr-props for that one property
+        id2iri_mapping: mapping of internal id to the IRI from the DSP-API
+        con: Connection to the DSP-API
+        nonapplied_resptr_props: stashed resources
+        verbose: If True, more information is logged
+
+    Returns:
+        The nonapplied_resptr_props dictionary with the uploaded resource removed
+    """
+    for resptr in resptrs.copy():
+        jsondata = _create_resptr_prop_json_object_to_update(
+            stashed_resource=stashed_resource,
+            resource_in_triplestore=resource_in_triplestore,
+            property_name=resptr,
+            link_prop=link_prop,
+            res_iri=res_iri,
+            id2iri_mapping=id2iri_mapping,
+        )
+        try:
+            try_network_action(con.post, route="/v2/values", jsondata=jsondata)
+        except BaseError as err:
+            # print the message to keep track of the cause for the failure.
+            # Apart from that, no action is necessary:
+            # this resource will remain in nonapplied_resptr_props, which will be handled by the caller
+            orig_err_msg = err.orig_err_msg_from_api or err.message
+            err_msg = f"Unable to upload the resptr prop of '{link_prop.name}' of resource '{stashed_resource.id}'."
+            print(f"    WARNING: {err_msg} Original error message: {orig_err_msg}")
+            logger.warning(err_msg, exc_info=True)
+            continue
+        if verbose:
+            print(f'  Successfully uploaded resptr-prop of "{link_prop.name}". Value: {resptr}')
+            logger.info(f'Successfully uploaded resptr-prop of "{link_prop.name}". Value: {resptr}')
+        nonapplied_resptr_props[stashed_resource][link_prop].remove(resptr)
+    return nonapplied_resptr_props
+
+
+def _log_if_unable_to_retrieve_resource(
+    err: BaseError,
+    resource: XMLResource,
+) -> None:
+    orig_err_msg = err.orig_err_msg_from_api or err.message
+    err_msg = (
+        f"Unable to upload resptrs of resource '{resource.id}', "
+        "because the resource cannot be retrieved from the DSP server."
+    )
+    print(f"  WARNING: {err_msg} Original error message: {orig_err_msg}")
+    logger.warning(err_msg, exc_info=True)
+
+
+def _create_resptr_prop_json_object_to_update(
+    stashed_resource: XMLResource,
+    resource_in_triplestore: dict[str, Any],
+    property_name: str,
+    link_prop: XMLProperty,
+    res_iri: str,
+    id2iri_mapping: dict[str, str],
+) -> str:
+    """
+    This function creates a JSON object that can be sent as an update request to the DSP-API.
+
+    Args:
+        stashed_resource: Resource that contains the information to be sent to the DSP-API
+        resource_in_triplestore: Resource that is retrieved from the DSP-API
+        property_name: name of the property with which the resources are linked
+        link_prop: XMLProperty with the information
+        res_iri: IRI from the DSP-API
+        id2iri_mapping: mapping of the internal id to the IRI
+
+    Returns:
+        A JSON object that is suitable for the upload.
+    """
+    jsonobj = {
+        "@id": res_iri,
+        "@type": stashed_resource.restype,
+        f"{link_prop.name}Value": {
+            "@type": "knora-api:LinkValue",
+            "knora-api:linkValueHasTargetIri": {
+                # if target doesn't exist in DSP, send the (invalid) resource ID of target to DSP,
+                # which will produce an understandable error message
+                "@id": id2iri_mapping.get(property_name, property_name)
+            },
+        },
+        "@context": resource_in_triplestore["@context"],
+    }
+    jsondata = json.dumps(jsonobj, indent=4, separators=(",", ": "))
+    return jsondata
 
 
 def purge_stashed_resptr_props(

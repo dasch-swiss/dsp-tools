@@ -20,7 +20,6 @@ jobs:
         with:
           submodules: recursive
       - name: Install poetry
-        shell: bin/bash
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
           poetry self add poetry-exec-plugin
@@ -31,7 +30,6 @@ jobs:
           # attempt to restore dependencies from cache (if successful, the following `poetry install` will be a no-op)
           cache: poetry
       - name: Install Python dependencies
-        shell: bin/bash
         run: poetry install
       # run tests
       - name: build docs
@@ -53,7 +51,6 @@ jobs:
         with:
           submodules: recursive
       - name: Install poetry
-        shell: bin/bash
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
           poetry self add poetry-exec-plugin
@@ -64,7 +61,6 @@ jobs:
           # attempt to restore dependencies from cache (if successful, the following `poetry install` will be a no-op)
           cache: poetry
       - name: Install Python dependencies
-        shell: bin/bash
         run: poetry install
       # run tests
       - name: Linting with Pylint
@@ -88,7 +84,6 @@ jobs:
         with:
           submodules: recursive
       - name: Install poetry
-        shell: bin/bash
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
           poetry self add poetry-exec-plugin
@@ -99,7 +94,6 @@ jobs:
           # attempt to restore dependencies from cache (if successful, the following `poetry install` will be a no-op)
           cache: poetry
       - name: Install Python dependencies
-        shell: bin/bash
         run: poetry install
       # run tests
       - name: unittests
@@ -115,7 +109,6 @@ jobs:
         with:
           submodules: recursive
       - name: Install poetry
-        shell: bin/bash
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
           poetry self add poetry-exec-plugin
@@ -126,7 +119,6 @@ jobs:
           # attempt to restore dependencies from cache (if successful, the following `poetry install` will be a no-op)
           cache: poetry
       - name: Install Python dependencies
-        shell: bin/bash
         run: poetry install
       # run tests
       - name: start stack
@@ -146,7 +138,6 @@ jobs:
         with:
           submodules: recursive
       - name: Install poetry
-        shell: bin/bash
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
           poetry self add poetry-exec-plugin
@@ -157,7 +148,6 @@ jobs:
           # attempt to restore dependencies from cache (if successful, the following `poetry install` will be a no-op)
           cache: poetry
       - name: Install Python dependencies
-        shell: bin/bash
         run: poetry install
 
       # Install programs for local processing (fast xmlupload)

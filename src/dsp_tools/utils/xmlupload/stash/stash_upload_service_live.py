@@ -26,7 +26,6 @@ class StashUploadServiceLive:
         Args:
             verbose: bool
             id2iri_mapping: mapping of ids from the XML file to IRIs in DSP
-            con: connection to DSP
             stashed_resptr_props: all resptr props that have been stashed
 
         Returns:
@@ -52,7 +51,6 @@ class StashUploadServiceLive:
         Args:
             verbose: bool
             id2iri_mapping: mapping of ids from the XML file to IRIs in DSP
-            con: connection to DSP
             stashed_xml_texts: all xml texts that have been stashed
 
         Returns:

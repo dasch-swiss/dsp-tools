@@ -17,9 +17,9 @@ def upload_stashed_links(
     """Uploads all stashed links and standoff links to DSP.
 
     Args:
+        stashUploadService: service that handles uploading of stashed links and standoff links to DSP
         verbose: bool
         id2iri_mapping: mapping of ids from the XML file to IRIs in DSP
-        con: connection to DSP
         stashed_xml_texts: all xml text props that have been stashed
         stashed_resptr_props: all resptr props that have been stashed
 

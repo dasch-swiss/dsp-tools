@@ -2,7 +2,7 @@ import json
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional, cast
+from typing import Any, Optional, Protocol, cast
 
 import requests
 
@@ -29,8 +29,61 @@ def check_for_api_error(response: requests.Response) -> None:
         )
 
 
+class Connection(Protocol):
+    """Interface for ConnectionLive (TODO: add missing methods)"""
+
+    def get(
+        self,
+        route: str,
+        headers: Optional[dict[str, str]] = None,
+    ) -> dict[str, Any]:
+        """
+        Make a HTTP GET request to the server to which this connection has been established.
+
+        Args:
+            route: route that will be called on the server
+            headers: headers for the HTTP request
+
+        Returns:
+            response from server
+        """
+
+    def post(
+        self,
+        route: str,
+        jsondata: Optional[str] = None,
+        content_type: str = "application/json",
+    ) -> dict[str, Any]:
+        """
+        Make a HTTP POST request to the server to which this connection has been established.
+
+        Args:
+            route: route that will be called on the server
+            jsondata: Valid JSON as string
+            content_type: HTTP Content-Type [default: 'application/json']
+
+        Returns:
+            response from server
+        """
+
+    def put(
+        self,
+        route: str,
+        jsondata: Optional[str] = None,
+        content_type: str = "application/json",
+    ) -> dict[str, Any]:
+        """
+        Make a HTTP GET request to the server to which this connection has been established.
+
+        Args:
+            route: route that will be called on the server
+            jsondata: Valid JSON as string
+            content_type: HTTP Content-Type [default: 'application/json']
+        """
+
+
 @dataclass
-class Connection:
+class ConnectionLive:
     """
     A Connection instance represents a connection to a DSP server.
 

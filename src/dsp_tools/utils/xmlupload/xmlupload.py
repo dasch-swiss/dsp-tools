@@ -11,7 +11,7 @@ from typing import Any, Union
 
 from lxml import etree
 
-from dsp_tools.models.connection import Connection
+from dsp_tools.models.connection import ConnectionLive
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.models.permission import Permissions
 from dsp_tools.models.projectContext import ProjectContext
@@ -151,9 +151,9 @@ def xmlupload(
             metrics=metrics,
             preprocessing_done=preprocessing_done,
         )
-        stashUploader = StashUploadServiceLive()
+        stashUploader = StashUploadServiceLive(con)
         nonapplied_xml_texts, nonapplied_resptr_props = _upload_stashed_links(
-            stashUploader, verbose, id2iri_mapping, con, stashed_xml_texts, stashed_resptr_props
+            stashUploader, verbose, id2iri_mapping, stashed_xml_texts, stashed_resptr_props
         )
         if nonapplied_resptr_props or nonapplied_xml_texts:
             msg = "Some stashed resptrs or XML texts could not be reapplied to their resources on the DSP server."
@@ -189,7 +189,7 @@ def xmlupload(
 
 
 def _get_project_permissions_and_classes_from_server(
-    server_connection: Connection,
+    server_connection: ConnectionLive,
     permissions: dict[str, XmlPermission],
     shortcode: str,
 ) -> tuple[dict[str, Permissions], dict[str, type]]:
@@ -232,7 +232,7 @@ def _get_project_permissions_and_classes_from_server(
     return permissions_lookup, resclass_name_2_type
 
 
-def _get_project_context_from_server(connection: Connection) -> ProjectContext:
+def _get_project_context_from_server(connection: ConnectionLive) -> ProjectContext:
     """
     This function retrieves the project context previously uploaded on the server (json file)
 
@@ -294,7 +294,7 @@ def _upload_resources(
     permissions_lookup: dict[str, Permissions],
     resclass_name_2_type: dict[str, type],
     id2iri_mapping: dict[str, str],
-    con: Connection,
+    con: ConnectionLive,
     failed_uploads: list[str],
     metrics: list[MetricRecord],
     preprocessing_done: bool,
@@ -413,7 +413,6 @@ def _upload_stashed_links(
     stashUploadService: StashUploadService,
     verbose: bool,
     id2iri_mapping: dict[str, str],
-    con: Connection,
     stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
     stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]],
 ) -> tuple[
@@ -423,13 +422,11 @@ def _upload_stashed_links(
     nonapplied_links = stashUploadService.upload_links(
         verbose=verbose,
         id2iri_mapping=id2iri_mapping,
-        con=con,
         stashed_resptr_props=stashed_resptr_props,
     )
     nonapplied_standoff_links = stashUploadService.upload_standoff_links(
         verbose=verbose,
         id2iri_mapping=id2iri_mapping,
-        con=con,
         stashed_xml_texts=stashed_xml_texts,
     )
     return nonapplied_standoff_links, nonapplied_links

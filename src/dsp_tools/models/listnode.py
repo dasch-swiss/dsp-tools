@@ -27,7 +27,7 @@ from pprint import pprint
 from typing import Any, Optional, Union
 from urllib.parse import quote_plus
 
-from dsp_tools.models.connection import Connection
+from dsp_tools.models.connection import ConnectionLive
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import Actions
 from dsp_tools.models.langstring import LangString, Languages
@@ -36,7 +36,7 @@ from dsp_tools.models.project import Project
 from dsp_tools.models.set_encoder import SetEncoder
 
 
-def list_creator(con: Connection, project: Project, parent_node: "ListNode", nodes: list[dict]) -> list["ListNode"]:
+def list_creator(con: ConnectionLive, project: Project, parent_node: "ListNode", nodes: list[dict]) -> list["ListNode"]:
     nodelist: list[ListNode] = []
 
     for n in nodes:
@@ -142,7 +142,7 @@ class ListNode(Model):  # pylint: disable=too-many-instance-attributes,too-many-
 
     def __init__(
         self,
-        con: Connection,
+        con: ConnectionLive,
         iri: Optional[str] = None,
         project: Optional[Union[Project, str]] = None,
         label: Optional[LangString] = None,
@@ -323,7 +323,7 @@ class ListNode(Model):  # pylint: disable=too-many-instance-attributes,too-many-
 
     @staticmethod
     def __getChildren(
-        con: Connection,
+        con: ConnectionLive,
         parent_iri: str,
         project_iri: str,
         children: list[Any],
@@ -359,7 +359,7 @@ class ListNode(Model):  # pylint: disable=too-many-instance-attributes,too-many-
         raise BaseError("rootNodeIri cannot be set!")
 
     @classmethod
-    def fromJsonObj(cls, con: Connection, json_obj: Any) -> Any:
+    def fromJsonObj(cls, con: ConnectionLive, json_obj: Any) -> Any:
         """
         Internal method! Should not be used directly!
 
@@ -522,7 +522,7 @@ class ListNode(Model):  # pylint: disable=too-many-instance-attributes,too-many-
         return root
 
     @staticmethod
-    def getAllLists(con: Connection, project_iri: Optional[str] = None) -> list["ListNode"]:
+    def getAllLists(con: ConnectionLive, project_iri: Optional[str] = None) -> list["ListNode"]:
         """
         Get all lists. If a project IRI is given, it returns the lists of the specified project
 

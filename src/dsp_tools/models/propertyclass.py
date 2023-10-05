@@ -6,7 +6,7 @@ from urllib.parse import quote_plus
 
 import regex
 
-from dsp_tools.models.connection import Connection
+from dsp_tools.models.connection import ConnectionLive
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import Actions, Context, DateTimeStamp, WithId
 from dsp_tools.models.langstring import LangString, Languages
@@ -34,7 +34,7 @@ class PropertyClass(Model):  # pylint: disable=too-many-instance-attributes,too-
 
     def __init__(
         self,
-        con: Connection,
+        con: ConnectionLive,
         context: Context,
         iri: Optional[str] = None,
         name: Optional[str] = None,
@@ -218,10 +218,10 @@ class PropertyClass(Model):  # pylint: disable=too-many-instance-attributes,too-
         raise BaseError('"linkvalue" cannot be modified!')
 
     @classmethod
-    def fromJsonObj(cls, con: Connection, context: Context, json_obj: Any) -> "PropertyClass":
+    def fromJsonObj(cls, con: ConnectionLive, context: Context, json_obj: Any) -> "PropertyClass":
         if isinstance(json_obj, list):
             json_obj = json_obj[0]
-        if not isinstance(con, Connection):
+        if not isinstance(con, ConnectionLive):
             raise BaseError('"con"-parameter must be an instance of Connection')
         if not isinstance(context, Context):
             raise BaseError('"context"-parameter must be an instance of Context')

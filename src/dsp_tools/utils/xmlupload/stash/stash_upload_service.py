@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Protocol
 
 from dsp_tools.models.connection import Connection
@@ -6,14 +7,16 @@ from dsp_tools.models.xmlproperty import XMLProperty
 from dsp_tools.models.xmlresource import XMLResource
 
 
+@dataclass
 class StashUploadService(Protocol):
     """Service that handles uploading of stashed links and standoff links to DSP."""
+
+    con: Connection
 
     def upload_links(
         self,
         verbose: bool,
         id2iri_mapping: dict[str, str],
-        con: Connection,
         stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]],
     ) -> dict[XMLResource, dict[XMLProperty, list[str]]]:
         """
@@ -35,7 +38,6 @@ class StashUploadService(Protocol):
         self,
         verbose: bool,
         id2iri_mapping: dict[str, str],
-        con: Connection,
         stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
     ) -> dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]]:
         """

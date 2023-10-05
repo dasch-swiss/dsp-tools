@@ -6,21 +6,21 @@ import unittest
 
 import pytest
 
-from dsp_tools.models.connection import Connection
+from dsp_tools.models.connection import ConnectionLive
 from dsp_tools.models.langstring import LangString, Languages
 from dsp_tools.models.project import Project
 
 
 class TestProject(unittest.TestCase):
     logo_file = "logo.gif"
-    con: Connection
+    con: ConnectionLive
 
     def setUp(self) -> None:
         """
         Creates a connection to DSP-API.
         For each test method, a new TestCase instance is created, so setUp() is executed before each test method.
         """
-        self.con = Connection(server="http://0.0.0.0:3333")
+        self.con = ConnectionLive(server="http://0.0.0.0:3333")
         self.con.login(email="root@example.com", password="test")
 
     def tearDown(self) -> None:

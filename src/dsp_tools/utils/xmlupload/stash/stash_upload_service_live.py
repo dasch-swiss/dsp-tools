@@ -12,11 +12,12 @@ from dsp_tools.utils.xmlupload.stash.upload_stashed_xml_texts import upload_stas
 class StashUploadServiceLive:
     """Service that handles uploading of stashed links and standoff links to DSP."""
 
+    con: Connection
+
     def upload_links(
         self,
         verbose: bool,
         id2iri_mapping: dict[str, str],
-        con: Connection,
         stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]],
     ) -> dict[XMLResource, dict[XMLProperty, list[str]]]:
         """
@@ -33,7 +34,7 @@ class StashUploadServiceLive:
         """
         return (
             upload_stashed_resptr_props(
-                verbose=verbose, id2iri_mapping=id2iri_mapping, con=con, stashed_resptr_props=stashed_resptr_props
+                verbose=verbose, id2iri_mapping=id2iri_mapping, con=self.con, stashed_resptr_props=stashed_resptr_props
             )
             if stashed_resptr_props
             else {}
@@ -43,7 +44,6 @@ class StashUploadServiceLive:
         self,
         verbose: bool,
         id2iri_mapping: dict[str, str],
-        con: Connection,
         stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
     ) -> dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]]:
         """
@@ -60,7 +60,7 @@ class StashUploadServiceLive:
         """
         return (
             upload_stashed_xml_texts(
-                verbose=verbose, id2iri_mapping=id2iri_mapping, con=con, stashed_xml_texts=stashed_xml_texts
+                verbose=verbose, id2iri_mapping=id2iri_mapping, con=self.con, stashed_xml_texts=stashed_xml_texts
             )
             if stashed_xml_texts
             else {}

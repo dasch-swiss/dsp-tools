@@ -29,7 +29,7 @@ import urllib.parse
 from typing import Any, Optional, Union
 from urllib.parse import quote_plus
 
-from dsp_tools.models.connection import Connection
+from dsp_tools.models.connection import ConnectionLive
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.group import Group
 from dsp_tools.models.helpers import Actions
@@ -148,7 +148,7 @@ class User(Model):  # pylint: disable=too-many-instance-attributes,too-many-publ
 
     def __init__(
         self,
-        con: Connection,
+        con: ConnectionLive,
         iri: Optional[str] = None,
         username: Optional[str] = None,
         email: Optional[str] = None,
@@ -428,7 +428,7 @@ class User(Model):  # pylint: disable=too-many-instance-attributes,too-many-publ
             raise BaseError("User is not member of project!")
 
     @classmethod
-    def fromJsonObj(cls, con: Connection, json_obj: Any) -> User:
+    def fromJsonObj(cls, con: ConnectionLive, json_obj: Any) -> User:
         """
         Internal method! Should not be used directly!
 
@@ -638,7 +638,7 @@ class User(Model):  # pylint: disable=too-many-instance-attributes,too-many-publ
         return User.fromJsonObj(self._con, result["user"])
 
     @staticmethod
-    def getAllUsers(con: Connection) -> list[Any]:
+    def getAllUsers(con: ConnectionLive) -> list[Any]:
         """
         Get a list of all users (static method)
 
@@ -652,7 +652,7 @@ class User(Model):  # pylint: disable=too-many-instance-attributes,too-many-publ
         return [User.fromJsonObj(con, a) for a in result["users"]]
 
     @staticmethod
-    def getAllUsersForProject(con: Connection, proj_shortcode: str) -> Optional[list[User]]:
+    def getAllUsersForProject(con: ConnectionLive, proj_shortcode: str) -> Optional[list[User]]:
         """
         Get a list of all users that belong to a project (static method)
 
@@ -669,7 +669,7 @@ class User(Model):  # pylint: disable=too-many-instance-attributes,too-many-publ
 
     def createDefinitionFileObj(
         self,
-        con: Connection,
+        con: ConnectionLive,
         proj_shortname: str,
         proj_iri: str,
     ) -> dict[str, Union[str, list[str], None]]:

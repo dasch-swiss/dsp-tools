@@ -34,7 +34,7 @@ from urllib.parse import quote_plus
 
 import regex
 
-from dsp_tools.models.connection import Connection
+from dsp_tools.models.connection import ConnectionLive
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import Actions, Context, DateTimeStamp, WithId
 from dsp_tools.models.model import Model
@@ -62,7 +62,7 @@ class Ontology(Model):  # pylint: disable=too-many-instance-attributes
 
     def __init__(
         self,
-        con: Connection,
+        con: ConnectionLive,
         iri: Optional[str] = None,
         project: Optional[Union[str, Project]] = None,
         name: Optional[str] = None,
@@ -168,7 +168,7 @@ class Ontology(Model):  # pylint: disable=too-many-instance-attributes
         raise BaseError('"Context" cannot be set!')
 
     @classmethod
-    def fromJsonObj(cls, con: Connection, json_obj: Any) -> "Ontology":
+    def fromJsonObj(cls, con: ConnectionLive, json_obj: Any) -> "Ontology":
         #
         # First let's get the ID (IRI) of the ontology
         #
@@ -232,7 +232,7 @@ class Ontology(Model):  # pylint: disable=too-many-instance-attributes
         )
 
     @classmethod
-    def __oneOntologiesFromJsonObj(cls, con: Connection, json_obj: Any, context: Context) -> "Ontology":
+    def __oneOntologiesFromJsonObj(cls, con: ConnectionLive, json_obj: Any, context: Context) -> "Ontology":
         rdfs = context.prefix_from_iri("http://www.w3.org/2000/01/rdf-schema#")
         owl = context.prefix_from_iri("http://www.w3.org/2002/07/owl#")
         knora_api = context.prefix_from_iri("http://api.knora.org/ontology/knora-api/v2#")
@@ -270,7 +270,7 @@ class Ontology(Model):  # pylint: disable=too-many-instance-attributes
         )
 
     @classmethod
-    def allOntologiesFromJsonObj(cls, con: Connection, json_obj: Any) -> list["Ontology"]:
+    def allOntologiesFromJsonObj(cls, con: ConnectionLive, json_obj: Any) -> list["Ontology"]:
         context = Context(json_obj.get("@context"))
         ontos: list["Ontology"] = []
         if json_obj.get("@graph") is not None:
@@ -340,19 +340,19 @@ class Ontology(Model):  # pylint: disable=too-many-instance-attributes
         return result.get("knora-api:result")
 
     @staticmethod
-    def getAllOntologies(con: Connection) -> list["Ontology"]:
+    def getAllOntologies(con: ConnectionLive) -> list["Ontology"]:
         result = con.get(Ontology.ROUTE + Ontology.METADATA)
         return Ontology.allOntologiesFromJsonObj(con, result)
 
     @staticmethod
-    def getProjectOntologies(con: Connection, project_id: str) -> list["Ontology"]:
+    def getProjectOntologies(con: ConnectionLive, project_id: str) -> list["Ontology"]:
         if project_id is None:
             raise BaseError("Project ID must be defined!")
         result = con.get(Ontology.ROUTE + Ontology.METADATA + quote_plus(project_id) + Ontology.ALL_LANGUAGES)
         return Ontology.allOntologiesFromJsonObj(con, result)
 
     @staticmethod
-    def getOntologyFromServer(con: Connection, shortcode: str, name: str) -> "Ontology":
+    def getOntologyFromServer(con: ConnectionLive, shortcode: str, name: str) -> "Ontology":
         if regex.search(r"[0-9A-F]{4}", shortcode):
             result = con.get("/ontology/" + shortcode + "/" + name + "/v2" + Ontology.ALL_LANGUAGES)
         else:

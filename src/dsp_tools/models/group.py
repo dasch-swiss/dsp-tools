@@ -29,7 +29,7 @@ import json
 from typing import Any, Optional, Union
 from urllib.parse import quote_plus
 
-from dsp_tools.models.connection import Connection
+from dsp_tools.models.connection import ConnectionLive
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import Actions
 from dsp_tools.models.langstring import LangString
@@ -83,7 +83,7 @@ class Group(Model):  # pylint: disable=too-many-instance-attributes
 
     def __init__(
         self,
-        con: Connection,
+        con: ConnectionLive,
         iri: Optional[str] = None,
         name: Optional[str] = None,
         descriptions: Optional[LangString] = None,
@@ -155,7 +155,7 @@ class Group(Model):  # pylint: disable=too-many-instance-attributes
         self._changed.add("status")
 
     @classmethod
-    def fromJsonObj(cls, con: Connection, json_obj: Any):
+    def fromJsonObj(cls, con: ConnectionLive, json_obj: Any):
         group_id = json_obj.get("id")
         if group_id is None:
             raise BaseError('Group "id" is missing')
@@ -239,12 +239,12 @@ class Group(Model):  # pylint: disable=too-many-instance-attributes
         return Group.fromJsonObj(self._con, result["group"])
 
     @staticmethod
-    def getAllGroups(con: Connection) -> list[Group]:
+    def getAllGroups(con: ConnectionLive) -> list[Group]:
         result = con.get(Group.ROUTE)
         return [Group.fromJsonObj(con, group_item) for group_item in result["groups"]]
 
     @staticmethod
-    def getAllGroupsForProject(con: Connection, proj_iri: str) -> Optional[list[Group]]:
+    def getAllGroupsForProject(con: ConnectionLive, proj_iri: str) -> Optional[list[Group]]:
         return [g for g in Group.getAllGroups(con) if g.project == proj_iri]
 
     def createDefinitionFileObj(self) -> dict[str, Any]:

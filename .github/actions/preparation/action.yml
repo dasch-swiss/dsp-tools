@@ -8,18 +8,20 @@ runs:
       uses: actions/checkout@v3
       with:
         submodules: recursive
+
     - name: Install poetry
-      uses: abatilo/actions-poetry@v2
-    - name: Setup a local virtual environment (if no poetry.toml file)
-      shell: /bin/bash
+      shell: bin/bash
       run: |
-        poetry config virtualenvs.create true --local
-        poetry config virtualenvs.in-project true --local
-    - uses: actions/cache@v3
-      name: Define a cache for the virtual environment based on the dependencies lock file
+        curl -sSL https://install.python-poetry.org | python3 -
+        poetry self add poetry-exec-plugin
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
       with:
-        path: ./.venv
-        key: venv-${{ hashFiles('poetry.lock') }}
-    - name: Install the project dependencies
-      shell: /bin/bash
+        python-version: 3.11
+        # attempt to restore dependencies from cache (if successful, the following `poetry install` will be a no-op)
+        cache: poetry
+
+    - name: Install Python dependencies
+      shell: bin/bash
       run: poetry install

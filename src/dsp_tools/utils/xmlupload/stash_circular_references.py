@@ -3,8 +3,6 @@ from __future__ import annotations
 from datetime import datetime
 from typing import cast
 
-import regex
-
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.value import KnoraStandoffXml
 from dsp_tools.models.xmlproperty import XMLProperty

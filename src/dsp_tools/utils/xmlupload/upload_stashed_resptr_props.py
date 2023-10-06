@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
+from typing import Iterable
 from urllib.parse import quote_plus
 
 from dsp_tools.models.connection import Connection
@@ -77,19 +78,8 @@ def upload_stashed_resptr_props(
             continue
         logger.info(f'  Upload resptrs of resource "{resource.id}"...')
         context: dict[str, str] = existing_resource["@context"]
-        stash_items: list[LinkStashItem] = []
         prop_name_2_prop = {prop.name: prop for prop in resource.properties}
-        for link_prop, resptrs in prop_2_resptrs.items():
-            for resptr in resptrs:
-                stash_items.append(
-                    LinkStashItem(
-                        res_id=resptr,
-                        res_iri=res_iri,
-                        res_type=resource.restype,
-                        link_name=link_prop.name,
-                        link_target_iri=id2iri_mapping.get(resptr, resptr),
-                    )
-                )
+        stash_items = list(_create_stash_items(id2iri_mapping, resource, prop_2_resptrs, res_iri))
         stash = ResourceLinkStash(
             res_id=resource.id,
             res_iri=res_iri,
@@ -112,6 +102,23 @@ def upload_stashed_resptr_props(
         id2iri_mapping=id2iri_mapping,
     )
     return nonapplied_resptr_props
+
+
+def _create_stash_items(
+    id2iri_mapping: dict[str, str],
+    resource: XMLResource,
+    prop_2_resptrs: dict[XMLProperty, list[str]],
+    res_iri: str,
+) -> Iterable[LinkStashItem]:
+    for link_prop, resptrs in prop_2_resptrs.items():
+        for resptr in resptrs:
+            yield LinkStashItem(
+                res_id=resptr,
+                res_iri=res_iri,
+                res_type=resource.restype,
+                link_name=link_prop.name,
+                link_target_iri=id2iri_mapping.get(resptr, resptr),
+            )
 
 
 def _upload_all_resptr_props_of_single_resource(

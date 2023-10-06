@@ -132,18 +132,14 @@ def _upload_all_resptr_props_of_single_resource(
     It sends them to the DSP-API and removes them from the nonapplied_resptr_props dictionary.
 
     Args:
-        resource_in_triplestore: The resource retried from the triplestore
-        stashed_resource: The resource from the stash
-        link_prop: the property object to which the stashed resptrs belong to
-        res_iri: the IRI as given by the DSP-API
-        resptrs: List with all the resptr-props for that one property
-        id2iri_mapping: mapping of internal id to the IRI from the DSP-API
+        stash: All stashed links for the resource
         con: Connection to the DSP-API
-        nonapplied_resptr_props: stashed resources
+        context: the JSON-LD context for the resource
         verbose: If True, more information is logged
 
     Returns:
-        ...
+        A list of tuples (link name and resource id) that have been uploaded
+        and can be removed from the nonapplied_resptr_props dictionary.
     """
     res: list[tuple[str, str]] = []
     for stash_item in stash.stash:
@@ -187,12 +183,8 @@ def _create_resptr_prop_json_object_to_update(
     This function creates a JSON object that can be sent as an update request to the DSP-API.
 
     Args:
-        stashed_resource: Resource that contains the information to be sent to the DSP-API
-        resource_in_triplestore: Resource that is retrieved from the DSP-API
-        property_name: name of the property with which the resources are linked
-        link_prop: XMLProperty with the information
-        res_iri: IRI from the DSP-API
-        id2iri_mapping: mapping of the internal id to the IRI
+        stash: the stashed resptr prop
+        context: the JSON-LD context for the resource
 
     Returns:
         A JSON object that is suitable for the upload.

@@ -16,7 +16,7 @@ def create_and_save_circular_references_test_graph(replication_counter: int = 1,
         save_location: path to the folder, where the file should be saved
     """
     root = create_circular_references_test_graph(replication_counter=replication_counter)
-    excel2xml.write_xml(root, os.path.join(save_location, f"test_circular_references_{replication_counter}.xml"))
+    excel2xml.write_xml(root, Path(save_location / f"test_circular_references_{replication_counter}.xml"))
 
 
 def create_circular_references_test_graph(replication_counter: int) -> etree._Element:

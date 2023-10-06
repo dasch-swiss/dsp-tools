@@ -2,7 +2,7 @@
     "$schema": "../../src/dsp_tools/resources/schema/project.json",
     "project": {
         "shortcode": "0700",
-        "shortname": "simplecircles",
+        "shortname": "simcir",
         "longname": "Very small ontology.",
         "descriptions": {
             "en": "Very small ontology."
@@ -13,11 +13,11 @@
         ],
         "ontologies": [
             {
-                "name": "simplecircles",
+                "name": "simcir",
                 "label": "Test ontology",
                 "comment": "To test the circular references.",
                 "properties": [
-                    {
+                    {Å
                         "name": "hasRichtext",
                         "super": [
                             "hasValue"

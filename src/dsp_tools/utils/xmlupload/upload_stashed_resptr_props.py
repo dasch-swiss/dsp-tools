@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from typing import Any
+from dataclasses import dataclass
 from urllib.parse import quote_plus
 
 from dsp_tools.models.connection import Connection
@@ -12,6 +12,18 @@ from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import try_network_action
 
 logger = get_logger(__name__)
+
+
+@dataclass(frozen=True)
+class LinkStash:
+    """
+    This class holds information about a stashed (resptr) link.
+    """
+
+    res_iri: str
+    res_type: str
+    link_name: str
+    link_target_iri: str
 
 
 def upload_stashed_resptr_props(
@@ -50,11 +62,10 @@ def upload_stashed_resptr_props(
             # this resource will remain in nonapplied_resptr_props, which will be handled by the caller
             _log_if_unable_to_retrieve_resource(err=err, resource=resource)
             continue
-        print(f'  Upload resptrs of resource "{resource.id}"...')
         logger.info(f'  Upload resptrs of resource "{resource.id}"...')
+        context: dict[str, str] = existing_resource["@context"]
         for link_prop, resptrs in prop_2_resptrs.items():
             nonapplied_resptr_props = _upload_all_resptr_props_of_single_resource(
-                resource_in_triplestore=existing_resource,
                 stashed_resource=resource,
                 link_prop=link_prop,
                 res_iri=res_iri,
@@ -62,6 +73,7 @@ def upload_stashed_resptr_props(
                 id2iri_mapping=id2iri_mapping,
                 con=con,
                 nonapplied_resptr_props=nonapplied_resptr_props,
+                context=context,
                 verbose=verbose,
             )
 
@@ -74,7 +86,6 @@ def upload_stashed_resptr_props(
 
 
 def _upload_all_resptr_props_of_single_resource(
-    resource_in_triplestore: dict[str, Any],
     stashed_resource: XMLResource,
     link_prop: XMLProperty,
     res_iri: str,
@@ -82,6 +93,7 @@ def _upload_all_resptr_props_of_single_resource(
     id2iri_mapping: dict[str, str],
     con: Connection,
     nonapplied_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]],
+    context: dict[str, str],
     verbose: bool,
 ) -> dict[XMLResource, dict[XMLProperty, list[str]]]:
     """
@@ -103,14 +115,13 @@ def _upload_all_resptr_props_of_single_resource(
         The nonapplied_resptr_props dictionary with the uploaded resource removed
     """
     for resptr in resptrs.copy():
-        jsondata = _create_resptr_prop_json_object_to_update(
-            stashed_resource=stashed_resource,
-            resource_in_triplestore=resource_in_triplestore,
-            property_name=resptr,
-            link_prop=link_prop,
+        stash = LinkStash(
             res_iri=res_iri,
-            id2iri_mapping=id2iri_mapping,
+            res_type=stashed_resource.restype,
+            link_name=link_prop.name,
+            link_target_iri=id2iri_mapping.get(resptr, resptr),
         )
+        jsondata = _create_resptr_prop_json_object_to_update(stash, context)
         try:
             try_network_action(con.post, route="/v2/values", jsondata=jsondata)
         except BaseError as err:
@@ -143,12 +154,8 @@ def _log_if_unable_to_retrieve_resource(
 
 
 def _create_resptr_prop_json_object_to_update(
-    stashed_resource: XMLResource,
-    resource_in_triplestore: dict[str, Any],
-    property_name: str,
-    link_prop: XMLProperty,
-    res_iri: str,
-    id2iri_mapping: dict[str, str],
+    stash: LinkStash,
+    context: dict[str, str],
 ) -> str:
     """
     This function creates a JSON object that can be sent as an update request to the DSP-API.
@@ -165,17 +172,17 @@ def _create_resptr_prop_json_object_to_update(
         A JSON object that is suitable for the upload.
     """
     jsonobj = {
-        "@id": res_iri,
-        "@type": stashed_resource.restype,
-        f"{link_prop.name}Value": {
+        "@id": stash.res_iri,
+        "@type": stash.res_type,
+        f"{stash.link_name}Value": {
             "@type": "knora-api:LinkValue",
             "knora-api:linkValueHasTargetIri": {
                 # if target doesn't exist in DSP, send the (invalid) resource ID of target to DSP,
                 # which will produce an understandable error message
-                "@id": id2iri_mapping.get(property_name, property_name)
+                "@id": stash.link_target_iri
             },
         },
-        "@context": resource_in_triplestore["@context"],
+        "@context": context,
     }
     jsondata = json.dumps(jsonobj, indent=4, separators=(",", ": "))
     return jsondata

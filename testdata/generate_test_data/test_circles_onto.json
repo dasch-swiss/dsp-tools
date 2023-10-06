@@ -1,13 +1,11 @@
 {
     "$schema": "../../src/dsp_tools/resources/schema/project.json",
     "project": {
-        "shortcode": "4123",
-        "shortname": "systematic-tp",
-        "longname": "systematic test project",
+        "shortcode": "9000",
+        "shortname": "simple",
+        "longname": "Very small ontology.",
         "descriptions": {
-            "en": "A systematic test project",
-            "de": "Ein systematisches Testprojekt",
-            "rm": "Rumantsch descripziun"
+            "en": "Very small ontology."
         },
         "keywords": [
             "test",

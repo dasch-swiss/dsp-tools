@@ -15,15 +15,28 @@ logger = get_logger(__name__)
 
 
 @dataclass(frozen=True)
-class LinkStash:
+class LinkStashItem:
     """
-    This class holds information about a stashed (resptr) link.
+    This class holds information about a single stashed (resptr) link.
     """
 
+    res_id: str
     res_iri: str
     res_type: str
     link_name: str
     link_target_iri: str
+
+
+@dataclass(frozen=True)
+class ResourceLinkStash:
+    """
+    This class holds information about all stashed (resptr) links or a single resource.
+    """
+
+    res_id: str
+    res_iri: str
+    res_type: str
+    stash: list[LinkStashItem]
 
 
 def upload_stashed_resptr_props(
@@ -64,18 +77,34 @@ def upload_stashed_resptr_props(
             continue
         logger.info(f'  Upload resptrs of resource "{resource.id}"...')
         context: dict[str, str] = existing_resource["@context"]
+        stash_items: list[LinkStashItem] = []
+        prop_name_2_prop = {prop.name: prop for prop in resource.properties}
         for link_prop, resptrs in prop_2_resptrs.items():
-            nonapplied_resptr_props = _upload_all_resptr_props_of_single_resource(
-                stashed_resource=resource,
-                link_prop=link_prop,
-                res_iri=res_iri,
-                resptrs=resptrs,
-                id2iri_mapping=id2iri_mapping,
-                con=con,
-                nonapplied_resptr_props=nonapplied_resptr_props,
-                context=context,
-                verbose=verbose,
-            )
+            for resptr in resptrs:
+                stash_items.append(
+                    LinkStashItem(
+                        res_id=resptr,
+                        res_iri=res_iri,
+                        res_type=resource.restype,
+                        link_name=link_prop.name,
+                        link_target_iri=id2iri_mapping.get(resptr, resptr),
+                    )
+                )
+        stash = ResourceLinkStash(
+            res_id=resource.id,
+            res_iri=res_iri,
+            res_type=resource.restype,
+            stash=stash_items,
+        )
+        to_remove = _upload_all_resptr_props_of_single_resource(
+            stash=stash,
+            con=con,
+            context=context,
+            verbose=verbose,
+        )
+        for link_name, res_id in to_remove:
+            link_prop = prop_name_2_prop[link_name]
+            nonapplied_resptr_props[resource][link_prop].remove(res_id)
 
     # make a purged version of nonapplied_resptr_props, without empty entries
     nonapplied_resptr_props = purge_stashed_resptr_props(
@@ -86,16 +115,11 @@ def upload_stashed_resptr_props(
 
 
 def _upload_all_resptr_props_of_single_resource(
-    stashed_resource: XMLResource,
-    link_prop: XMLProperty,
-    res_iri: str,
-    resptrs: list[str],
-    id2iri_mapping: dict[str, str],
+    stash: ResourceLinkStash,
     con: Connection,
-    nonapplied_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]],
     context: dict[str, str],
     verbose: bool,
-) -> dict[XMLResource, dict[XMLProperty, list[str]]]:
+) -> list[tuple[str, str]]:
     """
     This function takes one resource stashed resource and resptr-props that are specific to a property.
     It sends them to the DSP-API and removes them from the nonapplied_resptr_props dictionary.
@@ -112,16 +136,11 @@ def _upload_all_resptr_props_of_single_resource(
         verbose: If True, more information is logged
 
     Returns:
-        The nonapplied_resptr_props dictionary with the uploaded resource removed
+        ...
     """
-    for resptr in resptrs.copy():
-        stash = LinkStash(
-            res_iri=res_iri,
-            res_type=stashed_resource.restype,
-            link_name=link_prop.name,
-            link_target_iri=id2iri_mapping.get(resptr, resptr),
-        )
-        jsondata = _create_resptr_prop_json_object_to_update(stash, context)
+    res: list[tuple[str, str]] = []
+    for stash_item in stash.stash:
+        jsondata = _create_resptr_prop_json_object_to_update(stash_item, context)
         try:
             try_network_action(con.post, route="/v2/values", jsondata=jsondata)
         except BaseError as err:
@@ -129,15 +148,15 @@ def _upload_all_resptr_props_of_single_resource(
             # Apart from that, no action is necessary:
             # this resource will remain in nonapplied_resptr_props, which will be handled by the caller
             orig_err_msg = err.orig_err_msg_from_api or err.message
-            err_msg = f"Unable to upload the resptr prop of '{link_prop.name}' of resource '{stashed_resource.id}'."
+            err_msg = f"Unable to upload the resptr prop of '{stash_item.link_name}' of resource '{stash.res_id}'."
             print(f"    WARNING: {err_msg} Original error message: {orig_err_msg}")
             logger.warning(err_msg, exc_info=True)
             continue
         if verbose:
-            print(f'  Successfully uploaded resptr-prop of "{link_prop.name}". Value: {resptr}')
-            logger.info(f'Successfully uploaded resptr-prop of "{link_prop.name}". Value: {resptr}')
-        nonapplied_resptr_props[stashed_resource][link_prop].remove(resptr)
-    return nonapplied_resptr_props
+            print(f'  Successfully uploaded resptr-prop of "{stash_item.link_name}". Value: {stash_item.res_id}')
+        logger.debug(f'Successfully uploaded resptr-prop of "{stash_item.link_name}". Value: {stash_item.res_id}')
+        res.append((stash_item.link_name, stash_item.res_id))
+    return res
 
 
 def _log_if_unable_to_retrieve_resource(
@@ -154,7 +173,7 @@ def _log_if_unable_to_retrieve_resource(
 
 
 def _create_resptr_prop_json_object_to_update(
-    stash: LinkStash,
+    stash: LinkStashItem,
     context: dict[str, str],
 ) -> str:
     """

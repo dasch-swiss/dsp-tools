@@ -38,16 +38,21 @@ def _make_salsah_link_prop(target_res: etree._Element) -> etree._Element:
     return excel2xml.make_text_prop(name=":hasRichtext", value=excel2xml.PropertyElement(salsah_link, encoding="xml"))
 
 
-def _make_resptr_prop(target_res: list[etree._Element]) -> etree._Element:
-    return excel2xml.make_resptr_prop(name=":hasResource", value=[x.attrib["id"] for x in target_res])
+def _make_resptr_prop(target_res: list[etree._Element] | etree._Element) -> etree._Element:
+    match target_res:
+        case etree._Element():
+            link = excel2xml.make_resptr_prop(name=":hasResource", value=target_res.attrib["id"])
+        case list:
+            link = excel2xml.make_resptr_prop(name=":hasResource", value=[x.attrib["id"] for x in target_res])
+    return link
 
 
 def _make_chain(replication_counter: str) -> list[etree._Element]:
     """
-    A -> B -> C -> D -> E
+    A -> B -> C -> D -> E (resptr-prop)
     """
     resources = _make_list_of_resources(5, replication_counter)
-    resptr = [_make_resptr_prop(x) for x in resources[1:-1]]
+    resptr = [_make_resptr_prop(x) for x in resources[1:]]
     for i, link in enumerate(resptr):
         resources[i].append(link)
     return resources
@@ -61,7 +66,7 @@ def _make_one_circle_with_three_resources(replication_counter: str) -> list[etre
     """
     res_li = _make_list_of_resources(number_of_resources=3, replication_counter=replication_counter)
     salsah_list = [_make_salsah_link_prop(x) for x in res_li]
-    resptr_list = [_make_resptr_prop([x]) for x in res_li]
+    resptr_list = [_make_resptr_prop(x) for x in res_li]
     res_li[0].append(salsah_list[1])
     res_li[0].append(resptr_list[1])
     res_li[1].append(salsah_list[2])
@@ -77,17 +82,17 @@ def _make_two_references(replication_counter: str) -> list[etree._Element]:
     B -> A (salsah-link)
     """
     res_li = _make_list_of_resources(2, replication_counter)
-    res_li[0].append(_make_resptr_prop([res_li[1]]))
+    res_li[0].append(_make_resptr_prop(res_li[1]))
     res_li[1].append(_make_salsah_link_prop(res_li[0]))
     return res_li
 
 
 def _make_reflexive_reference(replication_counter: str) -> Any:
     """
-    A -> A
+    A -> A (resptr-prop)
     """
     res = _make_list_of_resources(1, replication_counter)[0]
-    res.append(_make_resptr_prop([res]))
+    res.append(_make_resptr_prop(res))
     return res
 
 

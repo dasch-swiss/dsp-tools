@@ -79,7 +79,7 @@ class XMLResource:  # pylint: disable=too-many-instance-attributes
             else:
                 # get the property type which is in format type-prop, p.ex. <decimal-prop>
                 prop_type, _ = subnode.tag.split("-")
-                properties.append(XMLProperty(subnode, prop_type, default_ontology))
+                properties.append(XMLProperty.fromXml(subnode, prop_type, default_ontology))
         return XMLResource(id_, iri, ark, label, restype, permissions, creation_date, bitstream, properties)
 
     def get_props_with_links(self) -> list[XMLProperty]:

@@ -16,7 +16,7 @@ def create_and_save_circular_references_test_graph(replication_counter: int = 1,
         save_location: path to the folder, where the file should be saved
     """
     root = create_circular_references_test_graph(replication_counter=replication_counter)
-    excel2xml.write_xml(root, Path(save_location / f"test_circular_references_{replication_counter}.xml"))
+    excel2xml.write_xml(root, Path(save_location) / f"test_circular_references_{replication_counter}.xml")
 
 
 def create_circular_references_test_graph(replication_counter: int) -> etree._Element:
@@ -62,7 +62,7 @@ def _make_xml_text_prop(target_res: etree._Element | list[etree._Element]) -> et
         case etree._Element():
             salsah_link = _make_salsah_link(target_res)
             # one resource with many targets
-        case list(etree._Element):
+        case list():
             salsah_link = "".join([_make_salsah_link(x) for x in target_res])
     return excel2xml.make_text_prop(name=":hasRichtext", value=excel2xml.PropertyElement(salsah_link, encoding="xml"))
 

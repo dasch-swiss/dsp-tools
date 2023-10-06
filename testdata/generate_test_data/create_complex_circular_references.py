@@ -19,7 +19,7 @@ def create_circular_references_test_graph(replication_counter: int) -> etree._El
     """
     This function creates a graph with circular references.
     It is capable of reproducing one graph with all the references a specified number of times.
-    Each circle type has its own additional number in order to differentiate them by their ID.
+    Each circle type has its own sub-graph number in order to differentiate them by their ID.
     The resulting etree is suitable for upload to the DSP-API.
     """
     root = excel2xml.make_root("4123", "testonto")
@@ -76,9 +76,9 @@ def _make_chain(replication_counter: str) -> list[etree._Element]:
 
 def _make_one_circle_with_three_resources(replication_counter: str) -> list[etree._Element]:
     """
-    A -> B (salsah-link) & (resptr-prop)
-    B -> C (salsah-link) & (resptr-prop)
-    C -> A (salsah-link) & (resptr-prop)
+    A -> B (xml-text) & (resptr-prop)
+    B -> C (xml-text) & (resptr-prop)
+    C -> A (xml-text) & (resptr-prop)
     """
     res_li = _make_list_of_resources(number_of_resources=3, replication_counter=replication_counter)
     salsah_list = [_make_salsah_link_prop(x) for x in res_li]
@@ -95,7 +95,7 @@ def _make_one_circle_with_three_resources(replication_counter: str) -> list[etre
 def _make_two_references(replication_counter: str) -> list[etree._Element]:
     """
     A -> B (resptr-prop)
-    B -> A (salsah-link)
+    B -> A (xml-text)
     """
     res_li = _make_list_of_resources(2, replication_counter)
     res_li[0].append(_make_resptr_prop(res_li[1]))
@@ -129,9 +129,9 @@ def _make_complex_dependencies_with_simpletext(replication_counter: str) -> list
 
 def _make_complex_dependencies(replication_counter: str) -> list[etree._Element]:
     """
-    A -> D (salsah-link)
-    B -> D (salsah-link)
-    C -> D (salsah-link)
+    A -> D (xml-text)
+    B -> D (xml-text)
+    C -> D (xml-text)
     D -> E (resptr-prop)
     E -> A / B / C (resptr-prop)
     """

@@ -6,10 +6,10 @@ from lxml import etree
 from dsp_tools import excel2xml
 
 
-def create_and_save_circular_references_test_graph(number_of_graphs: int, save_location: str = "") -> None:
+def create_and_save_circular_references_test_graph(number_of_graphs: int = 1, save_location: str = "") -> None:
     """
     This function creates a graph with circular references.
-    By default, it saves it in the current directory, this can be changes with the parameter save_location.
+    By default, it saves it in the current directory; this can be changed with the parameter save_location.
     """
     root = create_circular_references_test_graph(replication_counter=number_of_graphs)
     excel2xml.write_xml(root, os.path.join(save_location, f"test_circular_references_{number_of_graphs}.xml"))
@@ -28,7 +28,7 @@ def create_circular_references_test_graph(replication_counter: int) -> etree._El
         root.extend(_make_complex_dependencies(replication_counter=f"{i}2"))
         root.extend(_make_complex_dependencies_add_on(replication_counter=f"{i}3"))
         root.extend(_make_two_references(replication_counter=f"{i}4"))
-        root.append(_make_reflexive_reference(replication_counter=f"{i}5"))
+        root.append(_make_complex_dependencies_with_simpletext(replication_counter=f"{i}5"))
         root.extend(_make_chain(replication_counter=f"{i}6"))
     return root
 
@@ -52,9 +52,15 @@ def _make_resptr_prop(target_res: list[etree._Element] | etree._Element) -> etre
     match target_res:
         case etree._Element():
             link = excel2xml.make_resptr_prop(name=":hasResource", value=target_res.attrib["id"])
-        case list:
+        # one resource with many targets
+        case list():
             link = excel2xml.make_resptr_prop(name=":hasResource", value=[x.attrib["id"] for x in target_res])
     return link
+
+
+def _make_simple_text(resource: etree._Element) -> etree._Element:
+    resource.append(excel2xml.make_text_prop(name=":hasSimpleText", value="This is text."))
+    return resource
 
 
 def _make_chain(replication_counter: str) -> list[etree._Element]:
@@ -97,15 +103,6 @@ def _make_two_references(replication_counter: str) -> list[etree._Element]:
     return res_li
 
 
-def _make_reflexive_reference(replication_counter: str) -> Any:
-    """
-    A -> A (resptr-prop)
-    """
-    res = _make_list_of_resources(1, replication_counter)[0]
-    res.append(_make_resptr_prop(res))
-    return res
-
-
 def _make_complex_dependencies_add_on(replication_counter: str) -> list[etree._Element]:
     """
     Same as _make_complex_dependencies
@@ -119,6 +116,15 @@ def _make_complex_dependencies_add_on(replication_counter: str) -> list[etree._E
     complex_dep_li[3].append(s_link)
     complex_dep_li.append(f_res)
     return complex_dep_li
+
+
+def _make_complex_dependencies_with_simpletext(replication_counter: str) -> list[etree._Element]:
+    """
+    Same as _make_complex_dependencies
+    plus each value has a simple text property
+    """
+    complex_dep_li = _make_complex_dependencies(replication_counter)
+    return [_make_simple_text(x) for x in complex_dep_li]
 
 
 def _make_complex_dependencies(replication_counter: str) -> list[etree._Element]:

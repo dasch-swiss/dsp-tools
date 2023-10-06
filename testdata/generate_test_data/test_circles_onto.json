@@ -13,7 +13,7 @@
         ],
         "ontologies": [
             {
-                "name": "testonto",
+                "name": "simple",
                 "label": "Test ontology",
                 "comment": "To test the circular references.",
                 "properties": [

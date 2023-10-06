@@ -57,7 +57,7 @@ def _make_salsah_link(target_res: etree._Element) -> etree._Element:
     return f'<a class="salsah-link" href="IRI:{target_res.attrib["id"]}:IRI">{target_res.attrib["id"]}</a>'
 
 
-def _make_xml_text_prop(target_res: etree._Element) -> etree._Element:
+def _make_xml_text_prop(target_res: etree._Element | list[etree._Element]) -> etree._Element:
     match target_res:
         case etree._Element():
             salsah_link = _make_salsah_link(target_res)

@@ -7,11 +7,21 @@ from dsp_tools import excel2xml
 
 
 def create_and_save_circular_references_test_graph(number_of_graphs: int, save_location: str = "") -> None:
+    """
+    This function creates a graph with circular references.
+    By default, it saves it in the current directory, this can be changes with the parameter save_location.
+    """
     root = create_circular_references_test_graph(replication_counter=number_of_graphs)
     excel2xml.write_xml(root, os.path.join(save_location, f"test_circular_references_{number_of_graphs}.xml"))
 
 
 def create_circular_references_test_graph(replication_counter: int) -> etree._Element:
+    """
+    This function creates a graph with circular references.
+    It is capable of reproducing one graph with all the references a specified number of times.
+    Each circle type has its own additional number in order to differentiate them by their ID.
+    The resulting etree is suitable for upload to the DSP-API.
+    """
     root = excel2xml.make_root("4123", "testonto")
     for i in range(1, replication_counter + 1):
         root.extend(_make_one_circle_with_three_resources(replication_counter=f"{i}1"))

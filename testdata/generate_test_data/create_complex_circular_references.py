@@ -34,11 +34,11 @@ def create_circular_references_test_graph(replication_counter: int) -> etree._El
     """
     root = excel2xml.make_root("4123", "testonto")
     for i in range(1, replication_counter + 1):
-        # root.extend(_make_one_circle_with_three_resources(replication_counter=f"{i}1"))
-        # root.extend(_make_complex_dependencies(replication_counter=f"{i}2"))
-        # root.extend(_make_complex_dependencies_add_on(replication_counter=f"{i}3"))
-        # root.extend(_make_two_references(replication_counter=f"{i}4"))
-        # root.extend(_make_chain(replication_counter=f"{i}5"))
+        root.extend(_make_one_circle_with_three_resources(replication_counter=f"{i}1"))
+        root.extend(_make_complex_dependencies(replication_counter=f"{i}2"))
+        root.extend(_make_complex_dependencies_add_on(replication_counter=f"{i}3"))
+        root.extend(_make_two_references(replication_counter=f"{i}4"))
+        root.extend(_make_chain(replication_counter=f"{i}5"))
         root.extend(_make_inverted_complex_dependencies(replication_counter=f"{i}6"))
     return root
 
@@ -53,8 +53,17 @@ def _make_list_of_resources(number_of_resources: int, replication_counter: str, 
     ]
 
 
+def _make_salsah_link(target_res: etree._Element) -> etree._Element:
+    return f'<a class="salsah-link" href="IRI:{target_res.attrib["id"]}:IRI">{target_res.attrib["id"]}</a>'
+
+
 def _make_xml_text_prop(target_res: etree._Element) -> etree._Element:
-    salsah_link = f'<a class="salsah-link" href="IRI:{target_res.attrib["id"]}:IRI">{target_res.attrib["id"]}</a>'
+    match target_res:
+        case etree._Element():
+            salsah_link = _make_salsah_link(target_res)
+            # one resource with many targets
+        case list():
+            salsah_link = "".join([_make_salsah_link(x) for x in target_res])
     return excel2xml.make_text_prop(name=":hasRichtext", value=excel2xml.PropertyElement(salsah_link, encoding="xml"))
 
 
@@ -136,8 +145,7 @@ def _make_complex_dependencies_resource_D(resource_list: list[etree._Element]) -
 
 
 def _make_complex_dependencies_resource_E(resource_list: list[etree._Element]) -> list[etree._Element]:
-    resource_list[4].append(_make_resptr_prop(target_res=resource_list[0:2]))
-    resource_list[4].append(_make_xml_text_prop(target_res=resource_list[2]))
+    resource_list[4].append(_make_resptr_prop(target_res=resource_list[0:3]))
     return resource_list
 
 
@@ -163,3 +171,33 @@ def _make_complex_dependencies_with_simpletext(replication_counter: str) -> list
 
     complex_dep_li = _make_complex_dependencies(replication_counter)
     return [_make_simple_text(x) for x in complex_dep_li]
+
+
+def _make_inverted_complex_dependencies(replication_counter: str) -> list[etree._Element]:
+    # A -> D (resptr-prop)
+    # B -> D (resptr-prop)
+    # C -> D (resptr-prop)
+    # D -> E (xml-text)
+    # E -> A / B / C (xml-text)
+
+    all_resources = _make_list_of_resources(number_of_resources=5, replication_counter=replication_counter)
+    all_resources = _make_inverted_complex_dependencies_resource_ABC(all_resources)
+    all_resources = _make_inverted_complex_dependencies_resource_D(all_resources)
+    return _make_inverted_complex_dependencies_resource_E(all_resources)
+
+
+def _make_inverted_complex_dependencies_resource_ABC(resource_list: list[etree._Element]) -> list[etree._Element]:
+    link_l = [_make_resptr_prop(target_res=resource_list[3]) for i in range(3)]
+    for i in range(3):
+        resource_list[i].append(link_l[i])
+    return resource_list
+
+
+def _make_inverted_complex_dependencies_resource_D(resource_list: list[etree._Element]) -> list[etree._Element]:
+    resource_list[3].append(_make_xml_text_prop(resource_list[4]))
+    return resource_list
+
+
+def _make_inverted_complex_dependencies_resource_E(resource_list: list[etree._Element]) -> list[etree._Element]:
+    resource_list[4].append(_make_xml_text_prop(target_res=resource_list[0:3]))
+    return resource_list

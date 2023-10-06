@@ -1,4 +1,4 @@
-import os.path
+from pathlib import Path
 from typing import Any
 
 from lxml import etree

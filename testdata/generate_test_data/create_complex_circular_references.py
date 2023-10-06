@@ -19,6 +19,7 @@ def create_circular_references_test_graph(replication_counter: int) -> etree._El
         root.extend(_make_complex_dependencies_add_on(replication_counter=f"{i}3"))
         root.extend(_make_two_references(replication_counter=f"{i}4"))
         root.append(_make_reflexive_reference(replication_counter=f"{i}5"))
+        root.extend(_make_chain(replication_counter=f"{i}6"))
     return root
 
 
@@ -39,6 +40,55 @@ def _make_salsah_link_prop(target_res: etree._Element) -> etree._Element:
 
 def _make_resptr_prop(target_res: list[etree._Element]) -> etree._Element:
     return excel2xml.make_resptr_prop(name=":hasResource", value=[x.attrib["id"] for x in target_res])
+
+
+def _make_chain(replication_counter: str) -> list[etree._Element]:
+    """
+    A -> B -> C -> D -> E
+    """
+    resources = _make_list_of_resources(5, replication_counter)
+    resptr = [_make_resptr_prop(x) for x in resources[1:-1]]
+    for i, link in enumerate(resptr):
+        resources[i].append(link)
+    return resources
+
+
+def _make_one_circle_with_three_resources(replication_counter: str) -> list[etree._Element]:
+    """
+    A -> B (salsah-link) & (resptr-prop)
+    B -> C (salsah-link) & (resptr-prop)
+    C -> A (salsah-link) & (resptr-prop)
+    """
+    res_li = _make_list_of_resources(number_of_resources=3, replication_counter=replication_counter)
+    salsah_list = [_make_salsah_link_prop(x) for x in res_li]
+    resptr_list = [_make_resptr_prop([x]) for x in res_li]
+    res_li[0].append(salsah_list[1])
+    res_li[0].append(resptr_list[1])
+    res_li[1].append(salsah_list[2])
+    res_li[1].append(resptr_list[2])
+    res_li[2].append(salsah_list[0])
+    res_li[2].append(resptr_list[0])
+    return res_li
+
+
+def _make_two_references(replication_counter: str) -> list[etree._Element]:
+    """
+    A -> B (resptr-prop)
+    B -> A (salsah-link)
+    """
+    res_li = _make_list_of_resources(2, replication_counter)
+    res_li[0].append(_make_resptr_prop([res_li[1]]))
+    res_li[1].append(_make_salsah_link_prop(res_li[0]))
+    return res_li
+
+
+def _make_reflexive_reference(replication_counter: str) -> Any:
+    """
+    A -> A
+    """
+    res = _make_list_of_resources(1, replication_counter)[0]
+    res.append(_make_resptr_prop([res]))
+    return res
 
 
 def _make_complex_dependencies_add_on(replication_counter: str) -> list[etree._Element]:
@@ -86,41 +136,3 @@ def _make_complex_dependencies_resource_E(resource_list: list[etree._Element]) -
     resource_list[4].append(_make_resptr_prop(target_res=resource_list[0:2]))
     resource_list[4].append(_make_salsah_link_prop(target_res=resource_list[2]))
     return resource_list
-
-
-def _make_one_circle_with_three_resources(replication_counter: str) -> list[etree._Element]:
-    """
-    A -> B (salsah-link) & (resptr-prop)
-    B -> C (salsah-link) & (resptr-prop)
-    C -> A (salsah-link) & (resptr-prop)
-    """
-    res_li = _make_list_of_resources(number_of_resources=3, replication_counter=replication_counter)
-    salsah_list = [_make_salsah_link_prop(x) for x in res_li]
-    resptr_list = [_make_resptr_prop([x]) for x in res_li]
-    res_li[0].append(salsah_list[1])
-    res_li[0].append(resptr_list[1])
-    res_li[1].append(salsah_list[2])
-    res_li[1].append(resptr_list[2])
-    res_li[2].append(salsah_list[0])
-    res_li[2].append(resptr_list[0])
-    return res_li
-
-
-def _make_two_references(replication_counter: str) -> list[etree._Element]:
-    """
-    A -> B (resptr-prop)
-    B -> A (salsah-link)
-    """
-    res_li = _make_list_of_resources(2, replication_counter)
-    res_li[0].append(_make_resptr_prop([res_li[1]]))
-    res_li[1].append(_make_salsah_link_prop(res_li[0]))
-    return res_li
-
-
-def _make_reflexive_reference(replication_counter: str) -> Any:
-    """
-    A -> A
-    """
-    res = _make_list_of_resources(1, replication_counter)[0]
-    res.append(_make_resptr_prop([res]))
-    return res

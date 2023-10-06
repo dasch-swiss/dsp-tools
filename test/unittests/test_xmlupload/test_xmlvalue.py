@@ -3,7 +3,7 @@ import unittest
 import pytest
 from lxml import etree
 
-from dsp_tools.models.xmlvalue import XMLValue
+from dsp_tools.models.xml.xmlvalue import XMLValue
 
 
 class TestXmlValue(unittest.TestCase):

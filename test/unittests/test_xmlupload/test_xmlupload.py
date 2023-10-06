@@ -120,7 +120,7 @@ class TestXMLUpload(unittest.TestCase):
     def test_remove_circular_references(self) -> None:
         # create a list of XMLResources from the test data file
         root = parse_and_clean_xml_file("testdata/xml-data/test-data-systematic.xml")
-        resources = [XMLResource(x, "testonto") for x in root if x.tag == "resource"]
+        resources = [XMLResource.fromXml(x, "testonto") for x in root if x.tag == "resource"]
 
         # get the purged resources and the stashes from the function to be tested
         resources, stashed_xml_texts_original, stashed_resptr_props_original = remove_circular_references(
@@ -137,11 +137,11 @@ class TestXMLUpload(unittest.TestCase):
 
         # make a version of the stashes with the IDs from the XML file instead of the Python objects
         stashed_xml_texts = {
-            res.id: {prop.name: [str(x) for x in d.values()] for prop, d in _dict.items()}
+            res.id_: {prop.name: [str(x) for x in d.values()] for prop, d in _dict.items()}
             for res, _dict in stashed_xml_texts_original.items()
         }
         stashed_resptr_props = {
-            res.id: {prop.name: l for prop, l in _dict.items()} for res, _dict in stashed_resptr_props_original.items()
+            res.id_: {prop.name: l for prop, l in _dict.items()} for res, _dict in stashed_resptr_props_original.items()
         }
 
         # hardcode the expected values

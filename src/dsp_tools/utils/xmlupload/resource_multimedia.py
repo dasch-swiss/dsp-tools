@@ -108,7 +108,9 @@ def _upload_multimedia_to_sipi(
     bitstream_duration = datetime.now() - bitstream_start
     bitstream_duration_ms = bitstream_duration.seconds * 1000 + int(bitstream_duration.microseconds / 1000)
     mb_per_sec = round((filesize / bitstream_duration_ms) * 1000, 1)
-    metrics.append(MetricRecord(resource.id, filetype, filesize, "bitstream upload", bitstream_duration_ms, mb_per_sec))
+    metrics.append(
+        MetricRecord(resource.id_, filetype, filesize, "bitstream upload", bitstream_duration_ms, mb_per_sec)
+    )
     internal_file_name_bitstream = img["uploadedFiles"][0]["internalFilename"]  # type: ignore[index]
     resource_bitstream = resource.get_bitstream_information_from_sipi(
         internal_file_name_bitstream=internal_file_name_bitstream,

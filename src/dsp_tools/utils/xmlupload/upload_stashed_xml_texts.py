@@ -10,7 +10,7 @@ from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.resource import KnoraStandoffXmlEncoder
 from dsp_tools.models.value import KnoraStandoffXml
-from dsp_tools.models.xmlproperty import XMLProperty
+from dsp_tools.models.xml.xmlproperty import XMLProperty
 from dsp_tools.models.xmlresource import XMLResource
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import try_network_action
@@ -34,7 +34,7 @@ def log_unable_to_retrieve_resource(
     # this resource will remain in nonapplied_xml_texts, which will be handled by the caller
     orig_err_msg = received_error.orig_err_msg_from_api or received_error.message
     err_msg = (
-        f"Unable to upload XML texts of resource '{resource.id}', "
+        f"Unable to upload XML texts of resource '{resource.id_}', "
         "because the resource cannot be retrieved from the DSP server."
     )
     print(f"  WARNING: {err_msg} Original error message: {orig_err_msg}")
@@ -58,7 +58,7 @@ def _log_unable_to_upload_xml_resource(
     # apart from that; no action is necessary:
     # this resource will remain in nonapplied_xml_texts, which will be handled by the caller
     orig_err_msg = received_error.orig_err_msg_from_api or received_error.message
-    err_msg = f"Unable to upload the xml text of '{all_link_props.name}' of resource '{stashed_resource.id}'."
+    err_msg = f"Unable to upload the xml text of '{all_link_props.name}' of resource '{stashed_resource.id_}'."
     print(f"    WARNING: {err_msg} Original error message: {orig_err_msg}")
     logger.warning(err_msg, exc_info=True)
 
@@ -78,7 +78,7 @@ def _log_iri_does_not_exist_error(
         all_link_props: all the link properties from that resource
     """
     err_msg = (
-        f"Unable to upload the xml text of '{all_link_props.name}' of resource '{stashed_resource.id}'"
+        f"Unable to upload the xml text of '{all_link_props.name}' of resource '{stashed_resource.id_}'"
         f"because the resource with the internal id '{received_error.args[0]}' does not exist in the triplestore."
     )
     print(f"    WARNING: {err_msg}")
@@ -319,19 +319,19 @@ def upload_stashed_xml_texts(
     logger.info("Upload the stashed XML texts...")
     nonapplied_xml_texts = stashed_xml_texts.copy()
     for stashed_resource, all_link_props in stashed_xml_texts.items():
-        if stashed_resource.id not in id2iri_mapping:
+        if stashed_resource.id_ not in id2iri_mapping:
             # resource could not be uploaded to DSP, so the stash cannot be uploaded either
             # no action necessary: this resource will remain in nonapplied_xml_texts,
             # which will be handled by the caller
             continue
-        res_iri = id2iri_mapping[stashed_resource.id]
+        res_iri = id2iri_mapping[stashed_resource.id_]
         try:
             resource_in_triplestore = try_network_action(con.get, route=f"/v2/resources/{quote_plus(res_iri)}")
         except BaseError as err:
             log_unable_to_retrieve_resource(resource=stashed_resource, received_error=err)
             continue
-        print(f'  Upload XML text(s) of resource "{stashed_resource.id}"...')
-        logger.info(f'  Upload XML text(s) of resource "{stashed_resource.id}"...')
+        print(f'  Upload XML text(s) of resource "{stashed_resource.id_}"...')
+        logger.info(f'  Upload XML text(s) of resource "{stashed_resource.id_}"...')
         for link_prop, hash_to_value in all_link_props.items():
             nonapplied_xml_texts = _upload_all_xml_texts_of_single_resource(
                 res_iri=res_iri,
@@ -370,7 +370,7 @@ def purge_stashed_xml_texts(
         a purged version of stashed_xml_text
     """
     # remove resources that couldn't be uploaded. If they don't exist in DSP, it's not worth caring about their xmltexts
-    stashed_xml_texts = {res: propdict for res, propdict in stashed_xml_texts.items() if res.id in id2iri_mapping}
+    stashed_xml_texts = {res: propdict for res, propdict in stashed_xml_texts.items() if res.id_ in id2iri_mapping}
 
     # remove resources that don't have stashed xmltexts (=all xmltexts had been reapplied)
     nonapplied_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]] = {}

@@ -19,11 +19,18 @@ class XMLValue:  # pylint: disable=too-few-public-methods
     permissions: Optional[str]
 
     @staticmethod
-    def fromXml(
-        node: etree._Element,
-        val_type: str,
-        listname: Optional[str] = None,
-    ) -> XMLValue:
+    def fromXml(node: etree._Element, val_type: str, listname: Optional[str] = None) -> XMLValue:
+        """
+        Factory method which parses a XML DOM value element representing a value of a resource property.
+
+        Args:
+            node: The DOM node to be processed (representing a value of a resource property)
+            val_type: The type of the value (e.g. text, int, decimal, boolean, list)
+            listname: The name of the list (only for list values)
+
+        Returns:
+            XMLValue: _description_
+        """
         value: Union[str, KnoraStandoffXml]
         resrefs = None
         comment = node.get("comment")

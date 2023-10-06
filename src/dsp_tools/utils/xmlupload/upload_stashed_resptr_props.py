@@ -6,7 +6,7 @@ from urllib.parse import quote_plus
 
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.xmlproperty import XMLProperty
+from dsp_tools.models.xml.xmlproperty import XMLProperty
 from dsp_tools.models.xmlresource import XMLResource
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import try_network_action
@@ -37,12 +37,12 @@ def upload_stashed_resptr_props(
     logger.info("Upload the stashed resptrs...")
     nonapplied_resptr_props = stashed_resptr_props.copy()
     for resource, prop_2_resptrs in stashed_resptr_props.items():
-        if resource.id not in id2iri_mapping:
+        if resource.id_ not in id2iri_mapping:
             # resource could not be uploaded to DSP, so the stash cannot be uploaded either
             # no action necessary: this resource will remain in nonapplied_resptr_props,
             # which will be handled by the caller
             continue
-        res_iri = id2iri_mapping[resource.id]
+        res_iri = id2iri_mapping[resource.id_]
         try:
             existing_resource = try_network_action(con.get, route=f"/v2/resources/{quote_plus(res_iri)}")
         except BaseError as err:
@@ -50,8 +50,8 @@ def upload_stashed_resptr_props(
             # this resource will remain in nonapplied_resptr_props, which will be handled by the caller
             _log_if_unable_to_retrieve_resource(err=err, resource=resource)
             continue
-        print(f'  Upload resptrs of resource "{resource.id}"...')
-        logger.info(f'  Upload resptrs of resource "{resource.id}"...')
+        print(f'  Upload resptrs of resource "{resource.id_}"...')
+        logger.info(f'  Upload resptrs of resource "{resource.id_}"...')
         for link_prop, resptrs in prop_2_resptrs.items():
             nonapplied_resptr_props = _upload_all_resptr_props_of_single_resource(
                 resource_in_triplestore=existing_resource,
@@ -118,7 +118,7 @@ def _upload_all_resptr_props_of_single_resource(
             # Apart from that, no action is necessary:
             # this resource will remain in nonapplied_resptr_props, which will be handled by the caller
             orig_err_msg = err.orig_err_msg_from_api or err.message
-            err_msg = f"Unable to upload the resptr prop of '{link_prop.name}' of resource '{stashed_resource.id}'."
+            err_msg = f"Unable to upload the resptr prop of '{link_prop.name}' of resource '{stashed_resource.id_}'."
             print(f"    WARNING: {err_msg} Original error message: {orig_err_msg}")
             logger.warning(err_msg, exc_info=True)
             continue
@@ -135,7 +135,7 @@ def _log_if_unable_to_retrieve_resource(
 ) -> None:
     orig_err_msg = err.orig_err_msg_from_api or err.message
     err_msg = (
-        f"Unable to upload resptrs of resource '{resource.id}', "
+        f"Unable to upload resptrs of resource '{resource.id_}', "
         "because the resource cannot be retrieved from the DSP server."
     )
     print(f"  WARNING: {err_msg} Original error message: {orig_err_msg}")
@@ -198,7 +198,7 @@ def purge_stashed_resptr_props(
         a purged version of stashed_resptr_props
     """
     # remove resources that couldn't be uploaded. If they don't exist in DSP, it's not worth caring about their resptrs
-    stashed_resptr_props = {res: pdict for res, pdict in stashed_resptr_props.items() if res.id in id2iri_mapping}
+    stashed_resptr_props = {res: pdict for res, pdict in stashed_resptr_props.items() if res.id_ in id2iri_mapping}
 
     # remove resources that don't have stashed resptrs (=all resptrs had been reapplied)
     nonapplied_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]] = {}

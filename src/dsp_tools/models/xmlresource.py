@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+from dataclasses import dataclass
 from typing import Optional, Union
 
 import regex
@@ -7,10 +10,11 @@ from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import DateTimeStamp
 from dsp_tools.models.permission import Permissions
 from dsp_tools.models.value import KnoraStandoffXml
-from dsp_tools.models.xmlbitstream import XMLBitstream
-from dsp_tools.models.xmlproperty import XMLProperty
+from dsp_tools.models.xml.xmlbitstream import XMLBitstream
+from dsp_tools.models.xml.xmlproperty import XMLProperty
 
 
+@dataclass
 class XMLResource:  # pylint: disable=too-many-instance-attributes
     """
     Represents a resource in the XML used for data import.
@@ -27,7 +31,7 @@ class XMLResource:  # pylint: disable=too-many-instance-attributes
         properties: The list of properties of the resource
     """
 
-    id: str
+    id_: str
     iri: Optional[str]
     ark: Optional[str]
     label: str
@@ -37,9 +41,10 @@ class XMLResource:  # pylint: disable=too-many-instance-attributes
     bitstream: Optional[XMLBitstream]
     properties: list[XMLProperty]
 
-    def __init__(self, node: etree._Element, default_ontology: str) -> None:
+    @staticmethod
+    def fromXml(node: etree._Element, default_ontology: str) -> XMLResource:
         """
-        Constructor that parses a resource node from the XML DOM
+        Factory method that parses a resource node from the XML DOM
 
         Args:
             node: The DOM node to be processed representing a resource (which is a child of the DSP element)
@@ -48,33 +53,34 @@ class XMLResource:  # pylint: disable=too-many-instance-attributes
         Returns:
             None
         """
-        self.id = node.attrib["id"]
-        self.iri = node.attrib.get("iri")
-        self.ark = node.attrib.get("ark")
-        self.creation_date = None
+        id_ = node.attrib["id"]
+        iri = node.attrib.get("iri")
+        ark = node.attrib.get("ark")
+        creation_date = None
         if node.attrib.get("creation_date"):
-            self.creation_date = DateTimeStamp(node.attrib.get("creation_date"))
-        self.label = node.attrib["label"]
+            creation_date = DateTimeStamp(node.attrib.get("creation_date"))
+        label = node.attrib["label"]
         # get the resource type which is in format namespace:resourcetype, p.ex. rosetta:Image
         tmp_res_type = node.attrib["restype"].split(":")
         if len(tmp_res_type) > 1:
             if tmp_res_type[0]:
-                self.restype = node.attrib["restype"]
+                restype = node.attrib["restype"]
             else:
                 # replace an empty namespace with the default ontology name
-                self.restype = default_ontology + ":" + tmp_res_type[1]
+                restype = default_ontology + ":" + tmp_res_type[1]
         else:
-            self.restype = "knora-api:" + tmp_res_type[0]
-        self.permissions = node.attrib.get("permissions")
-        self.bitstream = None
-        self.properties = []
+            restype = "knora-api:" + tmp_res_type[0]
+        permissions = node.attrib.get("permissions")
+        bitstream = None
+        properties = []
         for subnode in node:
             if subnode.tag == "bitstream":
-                self.bitstream = XMLBitstream(subnode)
+                bitstream = XMLBitstream.fromXml(subnode)
             else:
                 # get the property type which is in format type-prop, p.ex. <decimal-prop>
                 prop_type, _ = subnode.tag.split("-")
-                self.properties.append(XMLProperty(subnode, prop_type, default_ontology))
+                properties.append(XMLProperty(subnode, prop_type, default_ontology))
+        return XMLResource(id_, iri, ark, label, restype, permissions, creation_date, bitstream, properties)
 
     def get_props_with_links(self) -> list[XMLProperty]:
         """
@@ -152,7 +158,7 @@ class XMLResource:  # pylint: disable=too-many-instance-attributes
                             iri = resiri_lookup.get(res_id)
                             if not iri:
                                 raise BaseError(
-                                    f"Resource '{self.id}' cannot be created, because it contains a salsah-Link to "
+                                    f"Resource '{self.id_}' cannot be created, because it contains a salsah-Link to "
                                     f"the following invalid resource: '{res_id}'"
                                 )
                             value.value.replace(iri_ref, iri)

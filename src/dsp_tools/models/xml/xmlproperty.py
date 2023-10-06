@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from lxml import etree
 
 from dsp_tools.models.exceptions import XmlError
-from dsp_tools.models.xmlvalue import XMLValue
+from dsp_tools.models.xml.xmlvalue import XMLValue
 
 
 @dataclass

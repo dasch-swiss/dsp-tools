@@ -134,7 +134,7 @@ def _check_if_resource_types_exist(
             ]
             err_msg = (
                 f"=========================\n"
-                f"ERROR: Resource '{resource.label}' (ID: {resource.id}) "
+                f"ERROR: Resource '{resource.label}' (ID: {resource.id_}) "
                 f"has an invalid resource type '{resource.restype}'. "
                 "Is your syntax correct? Remember the rules:\n"
             )
@@ -177,7 +177,7 @@ def _check_if_property_types_exist(
                 ]
                 err_msg = (
                     f"=========================\n"
-                    f"ERROR: Resource '{resource.label}' (ID: {resource.id}) has an invalid property '{propname}'. "
+                    f"ERROR: Resource '{resource.label}' (ID: {resource.id_}) has an invalid property '{propname}'. "
                     f"Is your syntax correct? Remember the rules:\n"
                 )
                 for prop_syntax, prop_explanation in zip(prop_syntaxes, prop_explanations):

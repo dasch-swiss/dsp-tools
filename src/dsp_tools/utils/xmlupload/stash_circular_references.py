@@ -5,7 +5,7 @@ from typing import cast
 
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.value import KnoraStandoffXml
-from dsp_tools.models.xmlproperty import XMLProperty
+from dsp_tools.models.xml.xmlproperty import XMLProperty
 from dsp_tools.models.xmlresource import XMLResource
 from dsp_tools.utils.create_logger import get_logger
 
@@ -67,7 +67,7 @@ def _stash_circular_references(
                 res.properties.remove(link_prop)
 
         ok_resources.append(res)
-        ok_res_ids.add(res.id)
+        ok_res_ids.add(res.id_)
         nok_resources.remove(res)
 
     return nok_resources, ok_res_ids, ok_resources, stashed_xml_texts, stashed_resptr_props
@@ -121,7 +121,7 @@ def remove_circular_references(
             # append the resource to the ok resources
             if len(resptrs) == 0 or resptrs.issubset(ok_res_ids):
                 ok_resources.append(resource)
-                ok_res_ids.add(resource.id)
+                ok_res_ids.add(resource.id_)
             else:
                 nok_resources.append(resource)
         resources = nok_resources

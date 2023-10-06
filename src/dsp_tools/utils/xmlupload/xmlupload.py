@@ -18,8 +18,8 @@ from dsp_tools.models.projectContext import ProjectContext
 from dsp_tools.models.resource import KnoraStandoffXmlEncoder, ResourceInstance, ResourceInstanceFactory
 from dsp_tools.models.sipi import Sipi
 from dsp_tools.models.value import KnoraStandoffXml
-from dsp_tools.models.xmlpermission import XmlPermission
-from dsp_tools.models.xmlproperty import XMLProperty
+from dsp_tools.models.xml.xmlpermission import XmlPermission
+from dsp_tools.models.xml.xmlproperty import XMLProperty
 from dsp_tools.models.xmlresource import XMLResource
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import login, try_network_action
@@ -291,10 +291,10 @@ def _extract_resources_and_permissions_from_xml(
     permissions: dict[str, XmlPermission] = {}
     for child in root:
         if child.tag == "permissions":
-            permission = XmlPermission(child, proj_context)
-            permissions[permission.id] = permission
+            permission = XmlPermission.fromXml(child, proj_context)
+            permissions[permission.id_] = permission
         elif child.tag == "resource":
-            resources.append(XMLResource(child, default_ontology))
+            resources.append(XMLResource.fromXml(child, default_ontology))
     return permissions, resources
 
 
@@ -363,7 +363,7 @@ def _upload_resources(
             except BaseError as err:
                 pth = resource.bitstream.value
                 err_msg = err.orig_err_msg_from_api or err.message
-                msg = f"Unable to upload file '{pth}' of resource '{resource.label}' ({resource.id})"
+                msg = f"Unable to upload file '{pth}' of resource '{resource.label}' ({resource.id_})"
                 print(f"WARNING: {msg}: {err_msg}")
                 logger.warning(msg, exc_info=True)
                 msg = f"Uploaded file '{pth}' ({bitstream_size_uploaded_mb:.1f} MB / {bitstream_size_total_mb} MB)"
@@ -393,29 +393,29 @@ def _upload_resources(
                 resource_creation_duration.microseconds / 1000
             )
             metrics.append(
-                MetricRecord(resource.id, filetype, filesize, "resource creation", resource_creation_duration_ms, "")
+                MetricRecord(resource.id_, filetype, filesize, "resource creation", resource_creation_duration_ms, "")
             )
         except BaseError as err:
             err_msg = err.orig_err_msg_from_api or err.message
-            print(f"WARNING: Unable to create resource '{resource.label}' ({resource.id}): {err_msg}")
+            print(f"WARNING: Unable to create resource '{resource.label}' ({resource.id_}): {err_msg}")
             log_msg = (
-                f"Unable to create resource '{resource.label}' ({resource.id})\n"
+                f"Unable to create resource '{resource.label}' ({resource.id_})\n"
                 f"Resource details:\n{vars(resource)}\n"
                 f"Property details:\n" + "\n".join([str(vars(prop)) for prop in resource.properties])
             )
             logger.warning(log_msg, exc_info=True)
-            failed_uploads.append(resource.id)
+            failed_uploads.append(resource.id_)
             continue
-        id2iri_mapping[resource.id] = created_resource.iri
+        id2iri_mapping[resource.id_] = created_resource.iri
 
-        resource_designation = f"'{created_resource.label}' (ID: '{resource.id}', IRI: '{created_resource.iri}')"
+        resource_designation = f"'{created_resource.label}' (ID: '{resource.id_}', IRI: '{created_resource.iri}')"
         print(f"Created resource {i+1}/{len(resources)}: {resource_designation}")
         logger.info(f"Created resource {i+1}/{len(resources)}: {resource_designation}")
 
         resource_duration = datetime.now() - resource_start
         resource_duration_ms = resource_duration.seconds * 1000 + int(resource_duration.microseconds / 1000)
         looping_overhead_ms = resource_duration_ms - resource_creation_duration_ms - (bitstream_duration_ms or 0)
-        metrics.append(MetricRecord(resource.id, filetype, filesize, "looping overhead", looping_overhead_ms, ""))
+        metrics.append(MetricRecord(resource.id_, filetype, filesize, "looping overhead", looping_overhead_ms, ""))
 
     return id2iri_mapping, failed_uploads, metrics
 
@@ -525,7 +525,7 @@ def save_json_stashed_resptr_properties(
         name of the JSON file
     """
     stashed_resptr_props_serializable = {
-        resource.id: {_property.name: property_list for _property, property_list in res_dict.items()}
+        resource.id_: {_property.name: property_list for _property, property_list in res_dict.items()}
         for resource, res_dict in stashed_resptr_props.items()
     }
     resptr_filename = f"{save_location}/{timestamp_str}_stashed_resptr_properties.json"
@@ -557,7 +557,7 @@ def save_json_stashed_text_properties(
         name of the JSON file
     """
     stashed_xml_texts_serializable = {
-        resource.id: {_property.name: xml for _property, xml in res_dict.items()}
+        resource.id_: {_property.name: xml for _property, xml in res_dict.items()}
         for resource, res_dict in stashed_xml_texts.items()
     }
     xml_filename = f"{save_location}/{timestamp_str}_stashed_text_properties.json"

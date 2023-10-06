@@ -1,8 +1,8 @@
 {
     "$schema": "../../src/dsp_tools/resources/schema/project.json",
     "project": {
-        "shortcode": "9000",
-        "shortname": "simple",
+        "shortcode": "0700",
+        "shortname": "simplecircles",
         "longname": "Very small ontology.",
         "descriptions": {
             "en": "Very small ontology."
@@ -13,7 +13,7 @@
         ],
         "ontologies": [
             {
-                "name": "simple",
+                "name": "simplecircles",
                 "label": "Test ontology",
                 "comment": "To test the circular references.",
                 "properties": [

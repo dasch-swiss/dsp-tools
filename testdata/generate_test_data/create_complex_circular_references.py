@@ -32,14 +32,14 @@ def create_circular_references_test_graph(replication_counter: int) -> etree._El
     Returns:
         A etree which is suitable for an upload into the DSP-API
     """
-    root = excel2xml.make_root("9000", "simple")
+    root = excel2xml.make_root("0700", "simplecircles")
     for i in range(1, replication_counter + 1):
-        root.extend(_make_one_circle_with_three_resources(replication_counter=f"{i}1"))
+        # root.extend(_make_one_circle_with_three_resources(replication_counter=f"{i}1"))
         root.extend(_make_complex_dependencies(replication_counter=f"{i}2"))
-        root.extend(_make_complex_dependencies_add_on(replication_counter=f"{i}3"))
-        root.extend(_make_two_references(replication_counter=f"{i}4"))
-        root.extend(_make_chain(replication_counter=f"{i}5"))
-        root.extend(_make_inverted_complex_dependencies(replication_counter=f"{i}6"))
+        # root.extend(_make_complex_dependencies_add_on(replication_counter=f"{i}3"))
+        # root.extend(_make_two_references(replication_counter=f"{i}4"))
+        # root.extend(_make_chain(replication_counter=f"{i}5"))
+        # root.extend(_make_inverted_complex_dependencies(replication_counter=f"{i}6"))
     return root
 
 

@@ -28,7 +28,7 @@ def create_circular_references_test_graph(replication_counter: int) -> etree._El
         root.extend(_make_complex_dependencies(replication_counter=f"{i}2"))
         root.extend(_make_complex_dependencies_add_on(replication_counter=f"{i}3"))
         root.extend(_make_two_references(replication_counter=f"{i}4"))
-        root.append(_make_complex_dependencies_with_simpletext(replication_counter=f"{i}5"))
+        root.extend(_make_complex_dependencies_with_simpletext(replication_counter=f"{i}5"))
         root.extend(_make_chain(replication_counter=f"{i}6"))
     return root
 
@@ -157,3 +157,6 @@ def _make_complex_dependencies_resource_E(resource_list: list[etree._Element]) -
     resource_list[4].append(_make_resptr_prop(target_res=resource_list[0:2]))
     resource_list[4].append(_make_salsah_link_prop(target_res=resource_list[2]))
     return resource_list
+
+
+create_and_save_circular_references_test_graph()

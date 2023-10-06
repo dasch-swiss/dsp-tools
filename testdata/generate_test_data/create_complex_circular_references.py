@@ -53,7 +53,7 @@ def _make_list_of_resources(number_of_resources: int, replication_counter: str, 
     ]
 
 
-def _make_salsah_link(target_res: etree._Element) -> etree._Element:
+def _make_salsah_link(target_res: etree._Element) -> str:
     return f'<a class="salsah-link" href="IRI:{target_res.attrib["id"]}:IRI">{target_res.attrib["id"]}</a>'
 
 
@@ -62,7 +62,7 @@ def _make_xml_text_prop(target_res: etree._Element | list[etree._Element]) -> et
         case etree._Element():
             salsah_link = _make_salsah_link(target_res)
             # one resource with many targets
-        case list():
+        case list(etree._Element):
             salsah_link = "".join([_make_salsah_link(x) for x in target_res])
     return excel2xml.make_text_prop(name=":hasRichtext", value=excel2xml.PropertyElement(salsah_link, encoding="xml"))
 

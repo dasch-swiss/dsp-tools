@@ -157,6 +157,3 @@ def _make_complex_dependencies_resource_E(resource_list: list[etree._Element]) -
     resource_list[4].append(_make_resptr_prop(target_res=resource_list[0:2]))
     resource_list[4].append(_make_salsah_link_prop(target_res=resource_list[2]))
     return resource_list
-
-
-create_and_save_circular_references_test_graph()

@@ -38,8 +38,7 @@ def create_circular_references_test_graph(replication_counter: int) -> etree._El
         root.extend(_make_complex_dependencies(replication_counter=f"{i}2"))
         root.extend(_make_complex_dependencies_add_on(replication_counter=f"{i}3"))
         root.extend(_make_two_references(replication_counter=f"{i}4"))
-        root.extend(_make_complex_dependencies_with_simpletext(replication_counter=f"{i}5"))
-        root.extend(_make_chain(replication_counter=f"{i}6"))
+        root.extend(_make_chain(replication_counter=f"{i}5"))
     return root
 
 

@@ -109,30 +109,6 @@ def _make_two_references(replication_counter: str) -> list[etree._Element]:
     return res_li
 
 
-def _make_complex_dependencies_add_on(replication_counter: str) -> list[etree._Element]:
-    # Same as _make_complex_dependencies
-    # plus
-    # D -> F (xml-text)
-    # F -> E (resptr-prop)
-
-    complex_dep_li = _make_complex_dependencies(replication_counter)
-    f_id = f"res_F_{replication_counter}"
-    f_res: etree._Element = excel2xml.make_resource(restype=":TestThing", label=f_id, id=f_id)
-    s_link = _make_salsah_link_prop(target_res=f_res)
-    f_res.append(_make_resptr_prop(complex_dep_li[-1]))
-    complex_dep_li[3].append(s_link)
-    complex_dep_li.append(f_res)
-    return complex_dep_li
-
-
-def _make_complex_dependencies_with_simpletext(replication_counter: str) -> list[etree._Element]:
-    # Same as _make_complex_dependencies
-    # plus each value has a simple text property
-
-    complex_dep_li = _make_complex_dependencies(replication_counter)
-    return [_make_simple_text(x) for x in complex_dep_li]
-
-
 def _make_complex_dependencies(replication_counter: str) -> list[etree._Element]:
     # A -> D (xml-text)
     # B -> D (xml-text)
@@ -162,3 +138,27 @@ def _make_complex_dependencies_resource_E(resource_list: list[etree._Element]) -
     resource_list[4].append(_make_resptr_prop(target_res=resource_list[0:2]))
     resource_list[4].append(_make_salsah_link_prop(target_res=resource_list[2]))
     return resource_list
+
+
+def _make_complex_dependencies_add_on(replication_counter: str) -> list[etree._Element]:
+    # Same as _make_complex_dependencies
+    # plus
+    # D -> F (xml-text)
+    # F -> E (resptr-prop)
+
+    complex_dep_li = _make_complex_dependencies(replication_counter)
+    f_id = f"res_F_{replication_counter}"
+    f_res: etree._Element = excel2xml.make_resource(restype=":TestThing", label=f_id, id=f_id)
+    s_link = _make_salsah_link_prop(target_res=f_res)
+    f_res.append(_make_resptr_prop(complex_dep_li[-1]))
+    complex_dep_li[3].append(s_link)
+    complex_dep_li.append(f_res)
+    return complex_dep_li
+
+
+def _make_complex_dependencies_with_simpletext(replication_counter: str) -> list[etree._Element]:
+    # Same as _make_complex_dependencies
+    # plus each value has a simple text property
+
+    complex_dep_li = _make_complex_dependencies(replication_counter)
+    return [_make_simple_text(x) for x in complex_dep_li]

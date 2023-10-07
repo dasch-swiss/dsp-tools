@@ -76,31 +76,6 @@ def _log_iri_does_not_exist_error(res_id: str, prop_name: str) -> None:
     logger.warning(err_msg, exc_info=True)
 
 
-def _replace_internal_ids_with_iris(
-    id2iri_mapping: dict[str, str],
-    xml_with_id: KnoraStandoffXml,
-    id_set: set[str],
-) -> KnoraStandoffXml:
-    """
-    This function takes an XML string and a set with internal ids that are referenced in salsah-links in that string.
-    It replaces all internal ids of that set with the corresponding iri according to the mapping dictionary.
-
-    Args:
-        id2iri_mapping: dictionary with id to iri mapping
-        xml_with_id: KnoraStandoffXml with the string that should have replacements
-        id_set: set of ids that are in the string
-
-    Returns:
-        the xml value with the old ids replaced
-    """
-    for internal_id in id_set:
-        xml_with_id.replace_one_id_with_iri_in_salsah_link(
-            internal_id=internal_id,
-            iri=id2iri_mapping[internal_id],
-        )
-    return xml_with_id
-
-
 def _create_XMLResource_json_object_to_update(
     res_iri: str,
     res_type: str,
@@ -188,7 +163,6 @@ def upload_stashed_xml_texts(
                 res_id=res_id,
                 value_iri=value_iri,
                 id2iri_mapping=id2iri_mapping,
-                verbose=verbose,
                 con=con,
                 context=context,
             )
@@ -226,7 +200,6 @@ def _upload_stash_item(
     res_id: str,
     value_iri: str,
     id2iri_mapping: dict[str, str],
-    verbose: bool,
     con: Connection,
     context: dict[str, str],
 ) -> bool:
@@ -240,17 +213,13 @@ def _upload_stash_item(
         res_id: the internal id of the resource
         value_iri: the iri of the value
         id2iri_mapping: mapping of ids from the XML file to IRIs in DSP
-        verbose: bool
         con: connection to DSP
         context: the JSON-LD context of the resource
 
     Returns:
         True, if the upload was successful, False otherwise
     """
-    adjusted_text_value = _replace_internal_ids_with_iris(
-        id2iri_mapping, stash_item.value, stash_item.value.find_ids_referenced_in_salsah_links()
-    )
-
+    adjusted_text_value = stash_item.value.with_iris(id2iri_mapping)
     jsondata = _create_XMLResource_json_object_to_update(
         res_iri,
         res_type,
@@ -264,8 +233,6 @@ def _upload_stash_item(
     except BaseError as err:
         _log_unable_to_upload_xml_resource(err, res_id, stash_item.prop_name)
         return False
-    if verbose:
-        print(f'  Successfully uploaded xml text of "{stash_item.prop_name}"\n')
     logger.debug(f'  Successfully uploaded xml text of "{stash_item.prop_name}"\n')
     return True
 

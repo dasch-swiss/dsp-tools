@@ -1,4 +1,5 @@
 # pylint: disable=missing-class-docstring,missing-function-docstring
+from __future__ import annotations
 
 from typing import Any, Optional, Union
 
@@ -32,12 +33,19 @@ class KnoraStandoffXml:
     def replace(self, fromStr: str, toStr: str) -> None:
         self.__xmlstr = self.__xmlstr.replace(fromStr, toStr)
 
-    def replace_one_id_with_iri_in_salsah_link(self, internal_id: str, iri: str) -> None:
-        self.__xmlstr = regex.sub(
-            pattern=f'href="IRI:{internal_id}:IRI"',
-            repl=f'href="{iri}"',
-            string=self.__xmlstr,
-        )
+    def with_iris(self, id_2_iri: dict[str, str]) -> KnoraStandoffXml:
+        """
+        Returns a copy of this object, where all internal ids are replaced with iris according to the provided mapping.
+        """
+        s = self.__xmlstr
+        for internal_id in self.find_ids_referenced_in_salsah_links():
+            iri = id_2_iri[internal_id]
+            s = regex.sub(
+                pattern=f'href="IRI:{internal_id}:IRI"',
+                repl=f'href="{iri}"',
+                string=self.__xmlstr,
+            )
+        return KnoraStandoffXml(s)
 
 
 class Value:

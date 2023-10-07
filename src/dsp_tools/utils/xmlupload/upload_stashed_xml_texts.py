@@ -50,8 +50,8 @@ def _log_unable_to_upload_xml_resource(
 
     Args:
         received_error: Error received
-        stashed_resource: resource that is stashed
-        all_link_props: all the link properties from that resource
+        stashed_resource_id: id of the resource
+        prop_name: name of the property
     """
     # print the message to keep track of the cause for the failure
     # apart from that; no action is necessary:
@@ -175,20 +175,48 @@ def upload_stashed_xml_texts(
         if verbose:
             print(f'  Upload XML text(s) of resource "{res_id}"...')
         logger.debug(f'  Upload XML text(s) of resource "{res_id}"...')
+        context = resource_in_triplestore["@context"]
         for stash_item in stash_items:
+            value_iri = _get_value_iri(stash_item.prop_name, resource_in_triplestore, stash_item.uuid, res_id)
+            if not value_iri:
+                not_uploaded.append((xmlres, stash_item))  # does that even make sense to hold on to that one?
+                continue
             success = _upload_stash_item(
                 stash_item=stash_item,
                 res_iri=res_iri,
                 res_type=xmlres.restype,
                 res_id=res_id,
-                resource_in_triplestore=resource_in_triplestore,
+                value_iri=value_iri,
                 id2iri_mapping=id2iri_mapping,
                 verbose=verbose,
                 con=con,
+                context=context,
             )
             if not success:
                 not_uploaded.append((xmlres, stash_item))
     return StandoffStash.make(not_uploaded)
+
+
+def _get_value_iri(
+    property_name: str,
+    resource: dict[str, Any],
+    uuid: str,
+    res_id: str,
+) -> str | None:
+    values_on_server = resource.get(property_name)
+    if not isinstance(values_on_server, list):
+        values_on_server = [values_on_server]
+
+    # get the IRI of the value that contains the UUID in its text
+    text_and_iris = ((v["knora-api:textValueAsXml"], v["@id"]) for v in values_on_server)
+    value_iri: str | None = next((iri for text, iri in text_and_iris if uuid in text), None)
+    if not value_iri:
+        # the value that contains the UUID in its text does not exist in DSP
+        # no action necessary: this resource will remain in nonapplied_xml_texts,
+        # which will be handled by the caller
+        _log_iri_does_not_exist_error(res_id, property_name)
+        return None
+    return value_iri
 
 
 def _upload_stash_item(
@@ -196,10 +224,11 @@ def _upload_stash_item(
     res_iri: str,
     res_type: str,
     res_id: str,
-    resource_in_triplestore: dict[str, Any],
+    value_iri: str,
     id2iri_mapping: dict[str, str],
     verbose: bool,
     con: Connection,
+    context: dict[str, str],
 ) -> bool:
     """
     Upload a single stashed xml text to DSP.
@@ -209,28 +238,15 @@ def _upload_stash_item(
         res_iri: the iri of the resource
         res_type: the type of the resource
         res_id: the internal id of the resource
-        resource_in_triplestore: the resource as retrieved from the DSP
+        value_iri: the iri of the value
         id2iri_mapping: mapping of ids from the XML file to IRIs in DSP
         verbose: bool
         con: connection to DSP
+        context: the JSON-LD context of the resource
 
     Returns:
         True, if the upload was successful, False otherwise
     """
-    values_on_server = resource_in_triplestore.get(stash_item.link_prop.name)
-    if not isinstance(values_on_server, list):
-        values_on_server = [values_on_server]
-
-    # get the IRI of the value that contains the UUID in its text
-    text_and_iris = ((v["knora-api:textValueAsXml"], v["@id"]) for v in values_on_server)
-    value_iri: str | None = next((iri for text, iri in text_and_iris if stash_item.uuid in text), None)
-    if not value_iri:
-        # the value that contains the UUID in its text does not exist in DSP
-        # no action necessary: this resource will remain in nonapplied_xml_texts,
-        # which will be handled by the caller
-        _log_iri_does_not_exist_error(res_id, stash_item.link_prop.name)
-        return False
-    assert value_iri  # TODO: handle this case properly # pylint: disable=fixme
     adjusted_text_value = _replace_internal_ids_with_iris(
         id2iri_mapping, stash_item.value, stash_item.value.find_ids_referenced_in_salsah_links()
     )
@@ -238,19 +254,19 @@ def _upload_stash_item(
     jsondata = _create_XMLResource_json_object_to_update(
         res_iri,
         res_type,
-        stash_item.link_prop.name,
+        stash_item.prop_name,
         value_iri,
         adjusted_text_value,
-        resource_in_triplestore["@context"],
+        context,
     )
     try:
         try_network_action(con.put, route="/v2/values", jsondata=jsondata)
     except BaseError as err:
-        _log_unable_to_upload_xml_resource(err, res_id, stash_item.link_prop.name)
+        _log_unable_to_upload_xml_resource(err, res_id, stash_item.prop_name)
         return False
     if verbose:
-        print(f'  Successfully uploaded xml text of "{stash_item.link_prop.name}"\n')
-    logger.debug(f'  Successfully uploaded xml text of "{stash_item.link_prop.name}"\n')
+        print(f'  Successfully uploaded xml text of "{stash_item.prop_name}"\n')
+    logger.debug(f'  Successfully uploaded xml text of "{stash_item.prop_name}"\n')
     return True
 
 

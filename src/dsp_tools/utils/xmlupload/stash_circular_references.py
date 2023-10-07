@@ -39,7 +39,7 @@ def _stash_circular_references(
                         # and remove the problematic resrefs from the XMLValue's resrefs list
                         standoff_xml = cast(KnoraStandoffXml, value.value)
                         uuid = str(uuid4())
-                        stash_item = StandoffStashItem(uuid=uuid, link_prop=link_prop, value=standoff_xml)
+                        stash_item = StandoffStashItem(uuid=uuid, prop_name=link_prop.name, value=standoff_xml)
                         stashed_standoff_values.append((res, stash_item))
                         value.value = KnoraStandoffXml(uuid)
                         value.resrefs = [_id for _id in value.resrefs if _id in ok_res_ids]

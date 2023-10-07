@@ -3,7 +3,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from dsp_tools.models.value import KnoraStandoffXml
-from dsp_tools.models.xmlproperty import XMLProperty
 from dsp_tools.models.xmlresource import XMLResource
 
 
@@ -14,7 +13,7 @@ class StandoffStashItem:
     """
 
     uuid: str
-    link_prop: XMLProperty
+    prop_name: str
     value: KnoraStandoffXml
     # Permissions missing still
 

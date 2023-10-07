@@ -259,7 +259,7 @@ def _upload_stash_item(
     """..."""
     # TODO: find link prop from triplestore resource
     print(json.dumps(resource_in_triplestore, indent=4))
-    print(json.dumps(resource_in_triplestore.keys(), indent=4))
+    print(json.dumps(list(resource_in_triplestore.keys()), indent=4))
     print(stash_item)
     print("  resource:")
     print(f"    id: {stash_item.resource.id}")

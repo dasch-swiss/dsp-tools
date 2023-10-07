@@ -199,7 +199,7 @@ def upload_stashed_xml_texts(
             print(f'  Upload XML text(s) of resource "{stash_item.resource.id}"...')
         logger.debug(f'  Upload XML text(s) of resource "{stash_item.resource.id}"...')
 
-        if _upload_stash_item(
+        if not _upload_stash_item(
             stash_item=stash_item,
             res_iri=res_iri,
             resource_in_triplestore=resource_in_triplestore,
@@ -207,6 +207,7 @@ def upload_stashed_xml_texts(
             verbose=verbose,
             con=con,
         ):
+            print(f"failed to upload stash item {uuid} - {stash_item.link_prop.name}")
             nonapplied_xml_texts[uuid] = stash_item
             # TODO: are we missing the pop here?
     # TODO: do I need purging?

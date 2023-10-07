@@ -258,8 +258,21 @@ def _upload_stash_item(
 ) -> bool:
     """..."""
     # TODO: find link prop from triplestore resource
-    print(resource_in_triplestore)
+    print(json.dumps(resource_in_triplestore, indent=4))
+    print(json.dumps(resource_in_triplestore.keys(), indent=4))
     print(stash_item)
+    print("  resource:")
+    print(f"    id: {stash_item.resource.id}")
+    print(f"    iri: {stash_item.resource.iri}")
+    print(f"    restype: {stash_item.resource.restype}")
+    print(f"    permissions: {stash_item.resource.permissions}")
+    print(f"    properties: {stash_item.resource.properties}")
+    print("  link_prop:")
+    print(f"    name: {stash_item.link_prop.name}")
+    print(f"    valtype: {stash_item.link_prop.valtype}")
+    print(f"    values: {stash_item.link_prop.values}")
+    print("  value:")
+    print(f"    value: {stash_item.value.__xmlstr}")
     raise AssertionError("TODO: this should not pass!")
     return False
 

@@ -140,7 +140,7 @@ class TestXMLUpload(unittest.TestCase):
     #         for res, _dict in stashed_xml_texts_original.items()
     #     }
     #     stashed_resptr_props = {
-    #         res.id: {prop.name: l for prop, l in _dict.items()} for res, _dict in stashed_resptr_props_original.items()
+    #         res.id: {prop.name: l for prop, l in _dict.items()} for res, _dict in stashed_resptr_props_original.items() # pylint: disable=line-too-long
     #     }
 
     #     # hardcode the expected values
@@ -160,7 +160,7 @@ class TestXMLUpload(unittest.TestCase):
     #                 '<a class="salsah-link" href="IRI:zip_thing_1:IRI">zip_thing_1</a> '
     #                 '<a class="salsah-link" href="IRI:audio_thing_1:IRI">audio_thing_1</a> '
     #                 '<a class="salsah-link" href="IRI:test_thing_2:IRI">test_thing_2</a> '
-    #                 '<a class="salsah-link" href="http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA">test_thing_with_iri_1</a>'
+    #                 '<a class="salsah-link" href="http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA">test_thing_with_iri_1</a>' # pylint: disable=line-too-long
     #             ]
     #         },
     #         "test_thing_2": {

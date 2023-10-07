@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 
 from dsp_tools.models.value import KnoraStandoffXml
@@ -12,7 +14,29 @@ class StandoffStashItem:
     """
 
     uuid: str
-    resource: XMLResource
     link_prop: XMLProperty
     value: KnoraStandoffXml
     # Permissions missing still
+
+
+@dataclass(frozen=True)
+class StandoffStash:
+    """..."""
+
+    res_2_stash_items: dict[str, list[StandoffStashItem]]
+    res_2_xmlres: dict[str, XMLResource]
+
+    @staticmethod
+    def make(tups: list[tuple[XMLResource, StandoffStashItem]]) -> StandoffStash | None:
+        """..."""
+        if not tups:
+            return None
+        res_2_stash_items = {}
+        res_2_xmlres = {}
+        for xmlres, stash_item in tups:
+            if xmlres.id not in res_2_stash_items:
+                res_2_stash_items[xmlres.id] = [stash_item]
+                res_2_xmlres[xmlres.id] = xmlres
+            else:
+                res_2_stash_items[xmlres.id].append(stash_item)
+        return StandoffStash(res_2_stash_items, res_2_xmlres)

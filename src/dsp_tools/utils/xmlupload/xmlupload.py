@@ -32,7 +32,7 @@ from dsp_tools.utils.xmlupload.resource_multimedia import (
     calculate_multimedia_file_size,
     get_sipi_multimedia_information,
 )
-from dsp_tools.utils.xmlupload.stash.stash_models import StandoffStashItem
+from dsp_tools.utils.xmlupload.stash.stash_models import StandoffStash, StandoffStashItem
 from dsp_tools.utils.xmlupload.stash_circular_references import remove_circular_references
 from dsp_tools.utils.xmlupload.upload_stashed_resptr_props import (
     purge_stashed_resptr_props,
@@ -139,7 +139,7 @@ def xmlupload(
     id2iri_mapping: dict[str, str] = {}
     failed_uploads: list[str] = []
     nonapplied_resptr_props = {}
-    nonapplied_xml_texts = {}
+    nonapplied_xml_texts: StandoffStash | None = None
     try:
         id2iri_mapping, failed_uploads, metrics = _upload_resources(
             resources=resources,
@@ -425,7 +425,7 @@ def _handle_upload_error(
     err: BaseException,
     id2iri_mapping: dict[str, str],
     failed_uploads: list[str],
-    stashed_xml_texts: dict[str, StandoffStashItem],
+    stashed_xml_texts: StandoffStash | None,
     stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]],
     save_location: Path,
     timestamp_str: str,
@@ -542,7 +542,7 @@ def save_json_stashed_resptr_properties(
 
 
 def save_json_stashed_text_properties(
-    stashed_xml_texts: dict[str, StandoffStashItem],
+    stashed_xml_texts: StandoffStash,
     save_location: Path,
     timestamp_str: str,
 ) -> str:

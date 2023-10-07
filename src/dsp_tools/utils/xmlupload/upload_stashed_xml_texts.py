@@ -14,12 +14,12 @@ from dsp_tools.models.xmlproperty import XMLProperty
 from dsp_tools.models.xmlresource import XMLResource
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import try_network_action
-from dsp_tools.utils.xmlupload.stash.stash_models import StandoffStashItem
+from dsp_tools.utils.xmlupload.stash.stash_models import StandoffStash, StandoffStashItem
 
 logger = get_logger(__name__)
 
 
-def log_unable_to_retrieve_resource(
+def _log_unable_to_retrieve_resource(
     resource: XMLResource,
     received_error: BaseError,
 ) -> None:
@@ -44,8 +44,8 @@ def log_unable_to_retrieve_resource(
 
 def _log_unable_to_upload_xml_resource(
     received_error: BaseError,
-    stashed_resource: XMLResource,
-    all_link_props: XMLProperty,
+    stashed_resource_id: str,
+    prop_name: str,
 ) -> None:
     """
     This function logs if it is not possible to upload a xml resource.
@@ -59,7 +59,7 @@ def _log_unable_to_upload_xml_resource(
     # apart from that; no action is necessary:
     # this resource will remain in nonapplied_xml_texts, which will be handled by the caller
     orig_err_msg = received_error.orig_err_msg_from_api or received_error.message
-    err_msg = f"Unable to upload the xml text of '{all_link_props.name}' of resource '{stashed_resource.id}'."
+    err_msg = f"Unable to upload the xml text of '{prop_name}' of resource '{stashed_resource_id}'."
     print(f"    WARNING: {err_msg} Original error message: {orig_err_msg}")
     logger.warning(err_msg, exc_info=True)
 
@@ -164,8 +164,8 @@ def upload_stashed_xml_texts(
     verbose: bool,
     id2iri_mapping: dict[str, str],
     con: Connection,
-    stashed_xml_texts: dict[str, StandoffStashItem],
-) -> dict[str, StandoffStashItem]:
+    stashed_xml_texts: StandoffStash,
+) -> StandoffStash | None:
     """
     After all resources are uploaded, the stashed xml texts must be applied to their resources in DSP.
 
@@ -181,42 +181,44 @@ def upload_stashed_xml_texts(
 
     print("Upload the stashed XML texts...")
     logger.info("Upload the stashed XML texts...")
-    nonapplied_xml_texts: dict[str, StandoffStashItem] = {}
-    for uuid, stash_item in stashed_xml_texts.items():
-        res_iri = id2iri_mapping.get(stash_item.resource.id)
+    not_uploaded: list[tuple[XMLResource, StandoffStashItem]] = []
+    for res_id, stash_items in stashed_xml_texts.res_2_stash_items.items():
+        res_iri = id2iri_mapping.get(res_id)
         if not res_iri:
             # resource could not be uploaded to DSP, so the stash cannot be uploaded either
             # no action necessary: this resource will remain in nonapplied_xml_texts,
             # which will be handled by the caller
             continue
+        xmlres: XMLResource = stashed_xml_texts.res_2_xmlres[res_id]
         try:
             resource_in_triplestore = try_network_action(con.get, route=f"/v2/resources/{quote_plus(res_iri)}")
-            # TODO: now we're requesting each resource multiple times; cache them temporarily
         except BaseError as err:
-            log_unable_to_retrieve_resource(resource=stash_item.resource, received_error=err)
+            _log_unable_to_retrieve_resource(resource=xmlres, received_error=err)
             continue
         if verbose:
-            print(f'  Upload XML text(s) of resource "{stash_item.resource.id}"...')
-        logger.debug(f'  Upload XML text(s) of resource "{stash_item.resource.id}"...')
-
-        if not _upload_stash_item(
-            stash_item=stash_item,
-            res_iri=res_iri,
-            resource_in_triplestore=resource_in_triplestore,
-            id2iri_mapping=id2iri_mapping,
-            verbose=verbose,
-            con=con,
-        ):
-            print(f"failed to upload stash item {uuid} - {stash_item.link_prop.name}")
-            nonapplied_xml_texts[uuid] = stash_item
-            # TODO: are we missing the pop here?
-    # TODO: do I need purging?
-    return nonapplied_xml_texts
+            print(f'  Upload XML text(s) of resource "{res_id}"...')
+        logger.debug(f'  Upload XML text(s) of resource "{res_id}"...')
+        for stash_item in stash_items:
+            success = _upload_stash_item(
+                stash_item=stash_item,
+                res_iri=res_iri,
+                res_type=xmlres.restype,
+                res_id=res_id,
+                resource_in_triplestore=resource_in_triplestore,
+                id2iri_mapping=id2iri_mapping,
+                verbose=verbose,
+                con=con,
+            )
+            if not success:
+                not_uploaded.append((xmlres, stash_item))
+    return StandoffStash.make(not_uploaded)
 
 
 def _upload_stash_item(
     stash_item: StandoffStashItem,
     res_iri: str,
+    res_type: str,
+    res_id: str,
     resource_in_triplestore: dict[str, Any],
     id2iri_mapping: dict[str, str],
     verbose: bool,
@@ -237,7 +239,7 @@ def _upload_stash_item(
 
     jsondata = _create_XMLResource_json_object_to_update(
         res_iri,
-        stash_item.resource.restype,
+        res_type,
         stash_item.link_prop.name,
         value_iri,
         adjusted_text_value,
@@ -246,9 +248,7 @@ def _upload_stash_item(
     try:
         try_network_action(con.put, route="/v2/values", jsondata=jsondata)
     except BaseError as err:
-        _log_unable_to_upload_xml_resource(
-            received_error=err, stashed_resource=stash_item.resource, all_link_props=stash_item.link_prop
-        )
+        _log_unable_to_upload_xml_resource(err, res_id, stash_item.link_prop.name)
         return False
     if verbose:
         print(f'  Successfully uploaded xml text of "{stash_item.link_prop.name}"\n')

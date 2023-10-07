@@ -14,6 +14,7 @@ from dsp_tools.models.xmlproperty import XMLProperty
 from dsp_tools.models.xmlresource import XMLResource
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import try_network_action
+from dsp_tools.utils.xmlupload.stash.stash_models import StandoffStashItem
 
 logger = get_logger(__name__)
 
@@ -246,62 +247,78 @@ def _upload_single_link_xml_property(
     return nonapplied_xml_texts
 
 
-def _upload_all_xml_texts_of_single_resource(
+def _upload_stash_item(
+    stash_item: StandoffStashItem,
     res_iri: str,
-    stashed_resource: XMLResource,
     resource_in_triplestore: dict[str, Any],
-    link_prop: XMLProperty,
-    hash_to_value: dict[str, KnoraStandoffXml],
     id2iri_mapping: dict[str, str],
-    nonapplied_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
+    nonapplied_xml_texts: dict[str, StandoffStashItem],
     verbose: bool,
     con: Connection,
-) -> dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]]:
-    """
-    This function takes one resource and extracts all the link properties of that resource.
-    It sends all the link props to the DSP-API.
+) -> bool:
+    """..."""
+    # TODO: find link prop from triplestore resource
+    print(resource_in_triplestore)
+    print(stash_item)
+    return False
 
-    Args:
-        res_iri: resource IRI
-        stashed_resource: the resource from the stash
-        resource_in_triplestore: the resource from the triplestore
-        link_prop: the link property
-        hash_to_value: the dictionary which stored the hashes and the KnoraStandoffXml with the corresponding texts
-        id2iri_mapping: the dictionary that has the internal ids and IRIs to map
-        nonapplied_xml_texts: the dictionary which contains the unprocessed resources
-        verbose: how much information should be printed
-        con: connection to the api
 
-    Returns:
-        the dictionary which contains the unprocessed resources
-    """
-    all_link_props_in_triplestore = resource_in_triplestore[link_prop.name]
+# def _upload_all_xml_texts_of_single_resource(
+#     res_iri: str,
+#     stashed_resource: XMLResource,
+#     resource_in_triplestore: dict[str, Any],
+#     link_prop: XMLProperty,
+#     hash_to_value: dict[str, KnoraStandoffXml],
+#     id2iri_mapping: dict[str, str],
+#     nonapplied_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
+#     verbose: bool,
+#     con: Connection,
+# ) -> dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]]:
+#     """
+#     This function takes one resource and extracts all the link properties of that resource.
+#     It sends all the link props to the DSP-API.
 
-    if not isinstance(all_link_props_in_triplestore, list):
-        all_link_props_in_triplestore = [all_link_props_in_triplestore]
+#     Args:
+#         res_iri: resource IRI
+#         stashed_resource: the resource from the stash
+#         resource_in_triplestore: the resource from the triplestore
+#         link_prop: the link property
+#         hash_to_value: the dictionary which stored the hashes and the KnoraStandoffXml with the corresponding texts
+#         id2iri_mapping: the dictionary that has the internal ids and IRIs to map
+#         nonapplied_xml_texts: the dictionary which contains the unprocessed resources
+#         verbose: how much information should be printed
+#         con: connection to the api
 
-    for link_prop_in_triplestore in all_link_props_in_triplestore:
-        nonapplied_xml_texts = _upload_single_link_xml_property(
-            link_prop_in_triplestore=link_prop_in_triplestore,
-            res_iri=res_iri,
-            stashed_resource=stashed_resource,
-            resource_in_triplestore=resource_in_triplestore,
-            link_prop=link_prop,
-            hash_to_value=hash_to_value,
-            id2iri_mapping=id2iri_mapping,
-            nonapplied_xml_texts=nonapplied_xml_texts,
-            verbose=verbose,
-            con=con,
-        )
-    return nonapplied_xml_texts
+#     Returns:
+#         the dictionary which contains the unprocessed resources
+#     """
+#     all_link_props_in_triplestore = resource_in_triplestore[link_prop.name]
+
+#     if not isinstance(all_link_props_in_triplestore, list):
+#         all_link_props_in_triplestore = [all_link_props_in_triplestore]
+
+#     for link_prop_in_triplestore in all_link_props_in_triplestore:
+#         nonapplied_xml_texts = _upload_single_link_xml_property(
+#             link_prop_in_triplestore=link_prop_in_triplestore,
+#             res_iri=res_iri,
+#             stashed_resource=stashed_resource,
+#             resource_in_triplestore=resource_in_triplestore,
+#             link_prop=link_prop,
+#             hash_to_value=hash_to_value,
+#             id2iri_mapping=id2iri_mapping,
+#             nonapplied_xml_texts=nonapplied_xml_texts,
+#             verbose=verbose,
+#             con=con,
+#         )
+#     return nonapplied_xml_texts
 
 
 def upload_stashed_xml_texts(
     verbose: bool,
     id2iri_mapping: dict[str, str],
     con: Connection,
-    stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
-) -> dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]]:
+    stashed_xml_texts: dict[str, StandoffStashItem],
+) -> dict[str, StandoffStashItem]:
     """
     After all resources are uploaded, the stashed xml texts must be applied to their resources in DSP.
 
@@ -317,39 +334,33 @@ def upload_stashed_xml_texts(
 
     print("Upload the stashed XML texts...")
     logger.info("Upload the stashed XML texts...")
-    nonapplied_xml_texts = stashed_xml_texts.copy()
-    for stashed_resource, all_link_props in stashed_xml_texts.items():
-        if stashed_resource.id not in id2iri_mapping:
+    nonapplied_xml_texts: dict[str, StandoffStashItem] = {}
+    for uuid, stash_item in stashed_xml_texts.items():
+        res_iri = id2iri_mapping.get(stash_item.resource.id)
+        if not res_iri:
             # resource could not be uploaded to DSP, so the stash cannot be uploaded either
             # no action necessary: this resource will remain in nonapplied_xml_texts,
             # which will be handled by the caller
             continue
-        res_iri = id2iri_mapping[stashed_resource.id]
         try:
             resource_in_triplestore = try_network_action(con.get, route=f"/v2/resources/{quote_plus(res_iri)}")
         except BaseError as err:
-            log_unable_to_retrieve_resource(resource=stashed_resource, received_error=err)
+            log_unable_to_retrieve_resource(resource=stash_item.resource, received_error=err)
             continue
-        print(f'  Upload XML text(s) of resource "{stashed_resource.id}"...')
-        logger.info(f'  Upload XML text(s) of resource "{stashed_resource.id}"...')
-        for link_prop, hash_to_value in all_link_props.items():
-            nonapplied_xml_texts = _upload_all_xml_texts_of_single_resource(
-                res_iri=res_iri,
-                stashed_resource=stashed_resource,
-                resource_in_triplestore=resource_in_triplestore,
-                link_prop=link_prop,
-                hash_to_value=hash_to_value,
-                id2iri_mapping=id2iri_mapping,
-                nonapplied_xml_texts=nonapplied_xml_texts,
-                verbose=verbose,
-                con=con,
-            )
-
-    # make a purged version of nonapplied_xml_texts, without empty entries
-    nonapplied_xml_texts = purge_stashed_xml_texts(
-        stashed_xml_texts=nonapplied_xml_texts,
-        id2iri_mapping=id2iri_mapping,
-    )
+        if verbose:
+            print(f'  Upload XML text(s) of resource "{stash_item.resource.id}"...')
+        logger.debug(f'  Upload XML text(s) of resource "{stash_item.resource.id}"...')
+        if _upload_stash_item(
+            stash_item=stash_item,
+            res_iri=res_iri,
+            resource_in_triplestore=resource_in_triplestore,
+            id2iri_mapping=id2iri_mapping,
+            nonapplied_xml_texts=nonapplied_xml_texts,
+            verbose=verbose,
+            con=con,
+        ):
+            nonapplied_xml_texts[uuid] = stash_item
+    # TODO: do I need purging?
     return nonapplied_xml_texts
 
 

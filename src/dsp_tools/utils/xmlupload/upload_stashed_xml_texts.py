@@ -260,6 +260,7 @@ def _upload_stash_item(
     # TODO: find link prop from triplestore resource
     print(resource_in_triplestore)
     print(stash_item)
+    raise AssertionError("TODO: this should not pass!")
     return False
 
 

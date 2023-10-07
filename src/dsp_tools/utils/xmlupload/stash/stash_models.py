@@ -9,7 +9,7 @@ from dsp_tools.models.xmlresource import XMLResource
 @dataclass(frozen=True)
 class StandoffStashItem:
     """
-    A dataclass for a stashed standoff xml.
+    Holds information about a single stashed XML text value.
     """
 
     uuid: str
@@ -20,7 +20,9 @@ class StandoffStashItem:
 
 @dataclass(frozen=True)
 class StandoffStash:
-    """..."""
+    """
+    Holds information about a number of stashed XML text values, organized by resource instance.
+    """
 
     res_2_stash_items: dict[str, list[StandoffStashItem]]
     res_2_xmlres: dict[str, XMLResource]

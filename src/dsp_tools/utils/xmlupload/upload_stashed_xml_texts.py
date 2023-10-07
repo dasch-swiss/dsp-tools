@@ -4,8 +4,6 @@ import json
 from typing import Any
 from urllib.parse import quote_plus
 
-import regex
-
 from dsp_tools.models.connection import Connection
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.resource import KnoraStandoffXmlEncoder
@@ -64,39 +62,18 @@ def _log_unable_to_upload_xml_resource(
     logger.warning(err_msg, exc_info=True)
 
 
-def _log_iri_does_not_exist_error(
-    received_error: KeyError,
-    stashed_resource: XMLResource,
-    all_link_props: XMLProperty,
-) -> None:
+def _log_iri_does_not_exist_error(res_id: str, prop_name: str) -> None:
     """
     This function logs if it is not possible to upload an XML resource
     if a linked resource does not have an IRI in the triplestore.
 
     Args:
-        received_error: Error received
-        stashed_resource: resource that is stashed
-        all_link_props: all the link properties from that resource
+        res_id: id of the resource
+        prop_name: name of the property
     """
-    err_msg = (
-        f"Unable to upload the xml text of '{all_link_props.name}' of resource '{stashed_resource.id}'"
-        f"because the resource with the internal id '{received_error.args[0]}' does not exist in the triplestore."
-    )
+    err_msg = f"Unable to upload the xml text of '{prop_name}' of resource '{res_id}'."
     print(f"    WARNING: {err_msg}")
     logger.warning(err_msg, exc_info=True)
-
-
-def _get_text_hash_value(old_xmltext: str) -> str:
-    """
-    This function extracts the hash values in the text
-
-    Args:
-        old_xmltext: Text with hash values.
-
-    Returns:
-        hash values
-    """
-    return regex.sub(r"(<\?xml.+>\s*)?<text>\s*(.+)\s*<\/text>", r"\2", old_xmltext)
 
 
 def _replace_internal_ids_with_iris(
@@ -126,7 +103,7 @@ def _replace_internal_ids_with_iris(
 
 def _create_XMLResource_json_object_to_update(
     res_iri: str,
-    rey_type: str,
+    res_type: str,
     link_prop_name: str,
     value_iri: str,
     new_xmltext: KnoraStandoffXml,
@@ -137,18 +114,18 @@ def _create_XMLResource_json_object_to_update(
 
     Args:
         res_iri: the iri of the resource
-        resource_in_triplestore: the resource existing in the triplestore
-        stashed_resource: the same resource from the stash
-        link_prop_in_triplestore: the link property in the triplestore
-        new_xmltext: The KnoraStandOffXml with replaced ids
+        res_type: the type of the resource
         link_prop_name: the name of the link property
+        value_iri: the iri of the value
+        new_xmltext: the new xml text to be uploaded
+        context: the JSON-LD context of the resource
 
     Returns:
         json string
     """
     jsonobj = {
         "@id": res_iri,
-        "@type": rey_type,
+        "@type": res_type,
         link_prop_name: {
             "@id": value_iri,
             "@type": "knora-api:TextValue",
@@ -224,14 +201,35 @@ def _upload_stash_item(
     verbose: bool,
     con: Connection,
 ) -> bool:
-    """..."""
+    """
+    Upload a single stashed xml text to DSP.
+
+    Args:
+        stash_item: the stashed text value to upload
+        res_iri: the iri of the resource
+        res_type: the type of the resource
+        res_id: the internal id of the resource
+        resource_in_triplestore: the resource as retrieved from the DSP
+        id2iri_mapping: mapping of ids from the XML file to IRIs in DSP
+        verbose: bool
+        con: connection to DSP
+
+    Returns:
+        True, if the upload was successful, False otherwise
+    """
     values_on_server = resource_in_triplestore.get(stash_item.link_prop.name)
     if not isinstance(values_on_server, list):
         values_on_server = [values_on_server]
 
     # get the IRI of the value that contains the UUID in its text
     text_and_iris = ((v["knora-api:textValueAsXml"], v["@id"]) for v in values_on_server)
-    value_iri = next((iri for text, iri in text_and_iris if stash_item.uuid in text), None)
+    value_iri: str | None = next((iri for text, iri in text_and_iris if stash_item.uuid in text), None)
+    if not value_iri:
+        # the value that contains the UUID in its text does not exist in DSP
+        # no action necessary: this resource will remain in nonapplied_xml_texts,
+        # which will be handled by the caller
+        _log_iri_does_not_exist_error(res_id, stash_item.link_prop.name)
+        return False
     assert value_iri  # TODO: handle this case properly # pylint: disable=fixme
     adjusted_text_value = _replace_internal_ids_with_iris(
         id2iri_mapping, stash_item.value, stash_item.value.find_ids_referenced_in_salsah_links()

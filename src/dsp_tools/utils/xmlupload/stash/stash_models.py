@@ -28,7 +28,15 @@ class StandoffStash:
 
     @staticmethod
     def make(tups: list[tuple[XMLResource, StandoffStashItem]]) -> StandoffStash | None:
-        """..."""
+        """
+        Factory method for StandoffStash.
+
+        Args:
+            tups: A list of tuples of XMLResource and StandoffStashItem.
+
+        Returns:
+            StandoffStash | None: A StandoffStash object or None, if an empty list was passed.
+        """
         if not tups:
             return None
         res_2_stash_items = {}

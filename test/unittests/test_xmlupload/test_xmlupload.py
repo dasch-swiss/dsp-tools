@@ -9,10 +9,8 @@ import regex
 from lxml import etree
 
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.xmlresource import XMLResource
 from dsp_tools.utils.xml_utils import parse_and_clean_xml_file
 from dsp_tools.utils.xmlupload.ark2iri import convert_ark_v0_to_resource_iri
-from dsp_tools.utils.xmlupload.stash_circular_references import remove_circular_references
 from dsp_tools.utils.xmlupload.write_diagnostic_info import (
     _transform_server_url_to_foldername,
     determine_save_location_of_diagnostic_info,
@@ -117,7 +115,7 @@ class TestXMLUpload(unittest.TestCase):
         ):
             convert_ark_v0_to_resource_iri("ark:/72163/080c-779b99+90a0c3f-6e")
 
-    # TODO: fix this test
+    # TODO: fix this test # pylint: disable=fixme
     # def test_remove_circular_references(self) -> None:
     #     # create a list of XMLResources from the test data file
     #     root = parse_and_clean_xml_file("testdata/xml-data/test-data-systematic.xml")

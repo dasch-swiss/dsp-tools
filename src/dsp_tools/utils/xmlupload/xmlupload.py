@@ -17,7 +17,6 @@ from dsp_tools.models.permission import Permissions
 from dsp_tools.models.projectContext import ProjectContext
 from dsp_tools.models.resource import KnoraStandoffXmlEncoder, ResourceInstance, ResourceInstanceFactory
 from dsp_tools.models.sipi import Sipi
-from dsp_tools.models.value import KnoraStandoffXml
 from dsp_tools.models.xmlpermission import XmlPermission
 from dsp_tools.models.xmlproperty import XMLProperty
 from dsp_tools.models.xmlresource import XMLResource
@@ -32,13 +31,13 @@ from dsp_tools.utils.xmlupload.resource_multimedia import (
     calculate_multimedia_file_size,
     get_sipi_multimedia_information,
 )
-from dsp_tools.utils.xmlupload.stash.stash_models import StandoffStash, StandoffStashItem
+from dsp_tools.utils.xmlupload.stash.stash_models import StandoffStash
 from dsp_tools.utils.xmlupload.stash_circular_references import remove_circular_references
 from dsp_tools.utils.xmlupload.upload_stashed_resptr_props import (
     purge_stashed_resptr_props,
     upload_stashed_resptr_props,
 )
-from dsp_tools.utils.xmlupload.upload_stashed_xml_texts import purge_stashed_xml_texts, upload_stashed_xml_texts
+from dsp_tools.utils.xmlupload.upload_stashed_xml_texts import upload_stashed_xml_texts
 from dsp_tools.utils.xmlupload.write_diagnostic_info import (
     MetricRecord,
     determine_save_location_of_diagnostic_info,
@@ -457,7 +456,7 @@ def _handle_upload_error(
     logger.error("xmlupload must be aborted because of an error", exc_info=err)
 
     # only stashed properties of resources that already exist in DSP are of interest
-    # TODO: check if this is still necessary
+    # TODO: check if this is still necessary # pylint: disable=fixme
     # stashed_xml_texts = purge_stashed_xml_texts(
     #     stashed_xml_texts=stashed_xml_texts,
     #     id2iri_mapping=id2iri_mapping,
@@ -558,11 +557,6 @@ def save_json_stashed_text_properties(
     Returns:
         name of the JSON file
     """
-    # stashed_xml_texts_serializable = {
-    #     resource.id: {_property.name: xml for _property, xml in res_dict.items()}
-    #     for resource, res_dict in stashed_xml_texts.items()
-    # }
-    # TODO: enough?
     xml_filename = f"{save_location}/{timestamp_str}_stashed_text_properties.json"
     with open(xml_filename, "x", encoding="utf-8") as file:
         json.dump(

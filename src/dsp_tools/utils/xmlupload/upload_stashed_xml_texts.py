@@ -232,7 +232,7 @@ def _upload_stash_item(
     # get the IRI of the value that contains the UUID in its text
     text_and_iris = ((v["knora-api:textValueAsXml"], v["@id"]) for v in values_on_server)
     value_iri = next((iri for text, iri in text_and_iris if stash_item.uuid in text), None)
-    assert value_iri  # TODO: handle this case properly
+    assert value_iri  # TODO: handle this case properly # pylint: disable=fixme
     adjusted_text_value = _replace_internal_ids_with_iris(
         id2iri_mapping, stash_item.value, stash_item.value.find_ids_referenced_in_salsah_links()
     )

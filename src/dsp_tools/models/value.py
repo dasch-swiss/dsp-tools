@@ -40,11 +40,7 @@ class KnoraStandoffXml:
         s = self.__xmlstr
         for internal_id in self.find_ids_referenced_in_salsah_links():
             iri = id_2_iri[internal_id]
-            s = regex.sub(
-                pattern=f'href="IRI:{internal_id}:IRI"',
-                repl=f'href="{iri}"',
-                string=self.__xmlstr,
-            )
+            s = s.replace(f'href="IRI:{internal_id}:IRI"', f'href="{iri}"')
         return KnoraStandoffXml(s)
 
 

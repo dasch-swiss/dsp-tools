@@ -106,12 +106,8 @@ def xmlupload(
 
     proj_context = _get_project_context_from_server(connection=con)
 
-    # make Python object representations of the XML file
-    permissions, resources = _extract_resources_and_permissions_from_xml(
-        root=root,
-        default_ontology=default_ontology,
-        proj_context=proj_context,
-    )
+    permissions = _extract_permissions_from_xml(root, proj_context)
+    resources = _extract_resources_from_xml(root, default_ontology)
 
     permissions_lookup, resclass_name_2_type = _get_project_permissions_and_classes_from_server(
         server_connection=con,
@@ -267,35 +263,15 @@ def _get_project_context_from_server(connection: Connection) -> ProjectContext:
     return proj_context
 
 
-def _extract_resources_and_permissions_from_xml(
-    root: etree._Element,
-    proj_context: ProjectContext,
-    default_ontology: str,
-) -> tuple[dict[str, XmlPermission], list[XMLResource]]:
-    """
-    This function takes the root of the tree, the project context on the server and the name of the default ontology.
-    From the root it separates the resource permissions.
-    It returns a collection of corresponding Python objects.
+def _extract_permissions_from_xml(root: etree._Element, proj_context: ProjectContext) -> dict[str, XmlPermission]:
+    permissions = root.iter(tag="permissions")
+    permissions = [XmlPermission(permission, proj_context) for permission in permissions]
+    return {permission.id: permission for permission in permissions}
 
-    Args:
-        root: root of the parsed XML file
-        proj_context: Project context retrieved from server
-        default_ontology: name of the default ontology as specified in the XML file
 
-    Returns:
-        A dictionary with the permission name and the permission object
-        A list with the XML resource Python objects
-    """
-    # make Python object representations of the XML file
-    resources: list[XMLResource] = []
-    permissions: dict[str, XmlPermission] = {}
-    for child in root:
-        if child.tag == "permissions":
-            permission = XmlPermission(child, proj_context)
-            permissions[permission.id] = permission
-        elif child.tag == "resource":
-            resources.append(XMLResource(child, default_ontology))
-    return permissions, resources
+def _extract_resources_from_xml(root: etree._Element, default_ontology: str) -> list[XMLResource]:
+    resources = root.iter(tag="resource")
+    return [XMLResource(res, default_ontology) for res in resources]
 
 
 def _upload_resources(

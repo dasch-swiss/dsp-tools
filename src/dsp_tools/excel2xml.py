@@ -9,6 +9,7 @@ import json
 import os
 import uuid
 import warnings
+from pathlib import Path
 from typing import Any, Callable, Iterable, Optional, Union
 
 import pandas as pd
@@ -1813,7 +1814,7 @@ def _name_label_mapper_iterator(
 
 def write_xml(
     root: etree._Element,
-    filepath: str,
+    filepath: str | Path,
 ) -> None:
     """
     Write the finished XML to a file.

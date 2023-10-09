@@ -1,13 +1,14 @@
 from __future__ import annotations
 
-from datetime import datetime
 from typing import cast
+from uuid import uuid4
 
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.value import KnoraStandoffXml
 from dsp_tools.models.xmlproperty import XMLProperty
 from dsp_tools.models.xmlresource import XMLResource
 from dsp_tools.utils.create_logger import get_logger
+from dsp_tools.utils.xmlupload.stash.stash_models import StandoffStash, StandoffStashItem
 
 logger = get_logger(__name__)
 
@@ -16,34 +17,31 @@ def _stash_circular_references(
     nok_resources: list[XMLResource],
     ok_res_ids: set[str],
     ok_resources: list[XMLResource],
-    stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
     stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]],
 ) -> tuple[
     list[XMLResource],
     set[str],
     list[XMLResource],
-    dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
+    StandoffStash | None,
     dict[XMLResource, dict[XMLProperty, list[str]]],
 ]:
     """
     Raises:
         BaseError
     """
+    stashed_standoff_values: list[tuple[XMLResource, StandoffStashItem]] = []
     for res in nok_resources.copy():
         for link_prop in res.get_props_with_links():
             if link_prop.valtype == "text":
                 for value in link_prop.values:
                     if value.resrefs and not all(_id in ok_res_ids for _id in value.resrefs):
-                        # stash this XML text, replace it by its hash, and remove the
-                        # problematic resrefs from the XMLValue's resrefs list
-                        value_hash = str(hash(f"{value.value}{datetime.now()}"))
-                        if res not in stashed_xml_texts:
-                            stashed_xml_texts[res] = {link_prop: {value_hash: cast(KnoraStandoffXml, value.value)}}
-                        elif link_prop not in stashed_xml_texts[res]:
-                            stashed_xml_texts[res][link_prop] = {value_hash: cast(KnoraStandoffXml, value.value)}
-                        else:
-                            stashed_xml_texts[res][link_prop][value_hash] = cast(KnoraStandoffXml, value.value)
-                        value.value = KnoraStandoffXml(value_hash)
+                        # replace the problematic XML with a UUID
+                        # and remove the problematic resrefs from the XMLValue's resrefs list
+                        standoff_xml = cast(KnoraStandoffXml, value.value)
+                        uuid = str(uuid4())
+                        stash_item = StandoffStashItem(uuid=uuid, prop_name=link_prop.name, value=standoff_xml)
+                        stashed_standoff_values.append((res, stash_item))
+                        value.value = KnoraStandoffXml(uuid)
                         value.resrefs = [_id for _id in value.resrefs if _id in ok_res_ids]
             elif link_prop.valtype == "resptr":
                 for value in link_prop.values.copy():
@@ -70,17 +68,15 @@ def _stash_circular_references(
         ok_res_ids.add(res.id)
         nok_resources.remove(res)
 
-    return nok_resources, ok_res_ids, ok_resources, stashed_xml_texts, stashed_resptr_props
+    standoff_stash = StandoffStash.make(stashed_standoff_values)
+
+    return nok_resources, ok_res_ids, ok_resources, standoff_stash, stashed_resptr_props
 
 
 def remove_circular_references(
     resources: list[XMLResource],
     verbose: bool,
-) -> tuple[
-    list[XMLResource],
-    dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
-    dict[XMLResource, dict[XMLProperty, list[str]]],
-]:
+) -> tuple[list[XMLResource], StandoffStash | None, dict[XMLResource, dict[XMLProperty, list[str]]],]:
     """
     Temporarily removes problematic resource-references from a list of resources.
     A reference is problematic if it creates a circle (circular references).
@@ -102,7 +98,7 @@ def remove_circular_references(
         print("Checking resources for unresolvable references...")
         logger.info("Checking resources for unresolvable references...")
 
-    stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]] = {}
+    stashed_xml_texts: StandoffStash | None = None
     stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]] = {}
 
     # sort the resources according to outgoing resptrs
@@ -137,7 +133,6 @@ def remove_circular_references(
                 nok_resources=nok_resources,
                 ok_res_ids=ok_res_ids,
                 ok_resources=ok_resources,
-                stashed_xml_texts=stashed_xml_texts,
                 stashed_resptr_props=stashed_resptr_props,
             )
         nok_len = len(nok_resources)
@@ -146,4 +141,5 @@ def remove_circular_references(
         if verbose:
             print(f"{cnt}. ordering pass finished.")
             logger.info(f"{cnt}. ordering pass finished.")
+
     return ok_resources, stashed_xml_texts, stashed_resptr_props

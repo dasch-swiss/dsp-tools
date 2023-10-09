@@ -15,5 +15,6 @@ def test_remove_circular_references() -> None:
     assert len(ok_resources) >= 26
 
 
+#
 if __name__ == "__main__":
     pytest.main([__file__])

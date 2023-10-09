@@ -12,7 +12,7 @@ resources = _extract_resources_from_xml(test_root, "simcir")
 
 def test_remove_circular_references() -> None:
     ok_resources, _, _ = remove_circular_references(resources, False)
-    assert len(ok_resources) <= 26
+    assert len(ok_resources) >= 26
 
 
 if __name__ == "__main__":

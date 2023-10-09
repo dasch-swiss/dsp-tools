@@ -1,6 +1,17 @@
 from unittest.mock import Mock, patch
 
+import pytest
+
 from dsp_tools import cli
+
+
+# test invalid arguments
+def test_invalid_arguments() -> None:
+    """Test the 'dsp-tools' command with invalid arguments"""
+    args = "invalid".split()
+    with pytest.raises(SystemExit) as ex:
+        cli.run(args)
+    assert ex.value.code == 2
 
 
 # test lists validate
@@ -107,4 +118,63 @@ def test_xmlupload(xmlupload: Mock) -> None:
         dump=False,
         save_metrics=False,
         preprocessing_done=False,
+    )
+
+
+# TODO: id2iri too?
+
+
+# test process-files
+@patch("dsp_tools.cli.process_files")
+def test_process_files(process_files: Mock) -> None:
+    """Test the 'dsp-tools process-files' command"""
+    process_files.return_value = True
+    input_dir = "input"
+    output_dir = "output"
+    nthreads = 12
+    file = "filename.xml"
+    args = f"process-files --input-dir {input_dir} --output-dir {output_dir} --nthreads {nthreads} {file}".split()
+    cli.run(args)
+    process_files.assert_called_once_with(
+        input_dir=input_dir,
+        output_dir=output_dir,
+        xml_file=file,
+        nthreads=nthreads,
+        batch_size=3000,
+    )
+
+
+# test upload-files
+@patch("dsp_tools.cli.upload_files")
+def test_upload_files(upload_files: Mock) -> None:
+    """Test the 'dsp-tools upload-files' command"""
+    upload_files.return_value = True
+    processed_dir = "processed"
+    nthreads = 12
+    args = f"upload-files --processed-dir {processed_dir} --nthreads {nthreads}".split()
+    cli.run(args)
+    upload_files.assert_called_once_with(
+        dir_with_processed_files=processed_dir,
+        nthreads=nthreads,
+        user="root@example.com",
+        password="test",
+        dsp_url="http://0.0.0.0:3333",
+        sipi_url="http://0.0.0.0:1024",
+    )
+
+
+# test fast-xmlupload
+@patch("dsp_tools.cli.fast_xmlupload")
+def test_fast_xmlupload(fast_xmlupload: Mock) -> None:
+    """Test the 'dsp-tools fast-xmlupload' command"""
+    fast_xmlupload.return_value = True
+    file = "filename.xml"
+    args = f"fast-xmlupload {file}".split()
+    cli.run(args)
+    fast_xmlupload.assert_called_once_with(
+        xml_file=file,
+        user="root@example.com",
+        password="test",
+        dsp_url="http://0.0.0.0:3333",
+        sipi_url="http://0.0.0.0:1024",
     )

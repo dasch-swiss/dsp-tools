@@ -420,7 +420,7 @@ def _call_requested_action(args: argparse.Namespace) -> bool:
     if args.action == "create":
         if args.lists_only:
             if args.validate_only:
-                success = validate_lists_section_with_schema(path_to_json_project_file=args.project_definition)
+                success = validate_lists_section_with_schema(args.project_definition)
                 print("'Lists' section of the JSON project file is syntactically correct and passed validation.")
             else:
                 _, success = create_lists(

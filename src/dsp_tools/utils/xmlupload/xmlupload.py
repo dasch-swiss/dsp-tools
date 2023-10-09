@@ -455,12 +455,6 @@ def _handle_upload_error(
     )
     logger.error("xmlupload must be aborted because of an error", exc_info=err)
 
-    # only stashed properties of resources that already exist in DSP are of interest
-    # TODO: check if this is still necessary # pylint: disable=fixme
-    # stashed_xml_texts = purge_stashed_xml_texts(
-    #     stashed_xml_texts=stashed_xml_texts,
-    #     id2iri_mapping=id2iri_mapping,
-    # )
     stashed_resptr_props = purge_stashed_resptr_props(
         stashed_resptr_props=stashed_resptr_props,
         id2iri_mapping=id2iri_mapping,

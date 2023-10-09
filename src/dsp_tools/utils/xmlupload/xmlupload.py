@@ -265,7 +265,7 @@ def _get_project_context_from_server(connection: Connection) -> ProjectContext:
 
 def _extract_permissions_from_xml(root: etree._Element, proj_context: ProjectContext) -> dict[str, XmlPermission]:
     permission_ele = list(root.iter(tag="permissions"))
-    permissions: list[XmlPermission] = [XmlPermission(permission, proj_context) for permission in permission_ele]
+    permissions = [XmlPermission(permission, proj_context) for permission in permission_ele]
     return {permission.id: permission for permission in permissions}
 
 

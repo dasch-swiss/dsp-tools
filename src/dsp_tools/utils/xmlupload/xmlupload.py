@@ -17,7 +17,6 @@ from dsp_tools.models.permission import Permissions
 from dsp_tools.models.projectContext import ProjectContext
 from dsp_tools.models.resource import KnoraStandoffXmlEncoder, ResourceInstance, ResourceInstanceFactory
 from dsp_tools.models.sipi import Sipi
-from dsp_tools.models.value import KnoraStandoffXml
 from dsp_tools.models.xmlpermission import XmlPermission
 from dsp_tools.models.xmlproperty import XMLProperty
 from dsp_tools.models.xmlresource import XMLResource
@@ -32,12 +31,13 @@ from dsp_tools.utils.xmlupload.resource_multimedia import (
     calculate_multimedia_file_size,
     get_sipi_multimedia_information,
 )
+from dsp_tools.utils.xmlupload.stash.stash_models import StandoffStash
 from dsp_tools.utils.xmlupload.stash_circular_references import remove_circular_references
 from dsp_tools.utils.xmlupload.upload_stashed_resptr_props import (
     purge_stashed_resptr_props,
     upload_stashed_resptr_props,
 )
-from dsp_tools.utils.xmlupload.upload_stashed_xml_texts import purge_stashed_xml_texts, upload_stashed_xml_texts
+from dsp_tools.utils.xmlupload.upload_stashed_xml_texts import upload_stashed_xml_texts
 from dsp_tools.utils.xmlupload.write_diagnostic_info import (
     MetricRecord,
     determine_save_location_of_diagnostic_info,
@@ -138,7 +138,7 @@ def xmlupload(
     id2iri_mapping: dict[str, str] = {}
     failed_uploads: list[str] = []
     nonapplied_resptr_props = {}
-    nonapplied_xml_texts = {}
+    nonapplied_xml_texts: StandoffStash | None = None
     try:
         id2iri_mapping, failed_uploads, metrics = _upload_resources(
             resources=resources,
@@ -424,7 +424,7 @@ def _handle_upload_error(
     err: BaseException,
     id2iri_mapping: dict[str, str],
     failed_uploads: list[str],
-    stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
+    stashed_xml_texts: StandoffStash | None,
     stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]],
     save_location: Path,
     timestamp_str: str,
@@ -455,11 +455,6 @@ def _handle_upload_error(
     )
     logger.error("xmlupload must be aborted because of an error", exc_info=err)
 
-    # only stashed properties of resources that already exist in DSP are of interest
-    stashed_xml_texts = purge_stashed_xml_texts(
-        stashed_xml_texts=stashed_xml_texts,
-        id2iri_mapping=id2iri_mapping,
-    )
     stashed_resptr_props = purge_stashed_resptr_props(
         stashed_resptr_props=stashed_resptr_props,
         id2iri_mapping=id2iri_mapping,
@@ -540,7 +535,7 @@ def save_json_stashed_resptr_properties(
 
 
 def save_json_stashed_text_properties(
-    stashed_xml_texts: dict[XMLResource, dict[XMLProperty, dict[str, KnoraStandoffXml]]],
+    stashed_xml_texts: StandoffStash,
     save_location: Path,
     timestamp_str: str,
 ) -> str:
@@ -556,14 +551,10 @@ def save_json_stashed_text_properties(
     Returns:
         name of the JSON file
     """
-    stashed_xml_texts_serializable = {
-        resource.id: {_property.name: xml for _property, xml in res_dict.items()}
-        for resource, res_dict in stashed_xml_texts.items()
-    }
     xml_filename = f"{save_location}/{timestamp_str}_stashed_text_properties.json"
     with open(xml_filename, "x", encoding="utf-8") as file:
         json.dump(
-            obj=stashed_xml_texts_serializable,
+            obj=stashed_xml_texts,
             fp=file,
             ensure_ascii=False,
             indent=4,

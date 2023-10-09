@@ -12,7 +12,7 @@ def create_and_save_circular_references_test_graph(replication_counter: int = 1,
     By default, it saves it in the current directory; this can be changed with the parameter save_location.
 
     Args:
-        replication_counter: number of times the sub-graphs should be created in one root-graph.
+        replication_counter: number of times the sub-graphs should be created in one root-graph
         save_location: path to the folder, where the file should be saved
     """
     root = create_circular_references_test_graph(replication_counter=replication_counter)
@@ -30,16 +30,16 @@ def create_circular_references_test_graph(replication_counter: int) -> etree._El
         replication_counter: number of times the sub-graphs should be created in one root-graph.
 
     Returns:
-        A etree which is suitable for an upload into the DSP-API
+        An etree which is suitable for an upload into the DSP-API
     """
     root = excel2xml.make_root("0700", "simcir")
     for i in range(1, replication_counter + 1):
-        # root.extend(_make_one_circle_with_three_resources(replication_counter=f"{i}1"))
+        root.extend(_make_one_circle_with_three_resources(replication_counter=f"{i}1"))
         root.extend(_make_complex_dependencies(replication_counter=f"{i}2"))
-        # root.extend(_make_complex_dependencies_add_on(replication_counter=f"{i}3"))
-        # root.extend(_make_two_references(replication_counter=f"{i}4"))
-        # root.extend(_make_chain(replication_counter=f"{i}5"))
-        # root.extend(_make_inverted_complex_dependencies(replication_counter=f"{i}6"))
+        root.extend(_make_complex_dependencies_add_on(replication_counter=f"{i}3"))
+        root.extend(_make_two_references(replication_counter=f"{i}4"))
+        root.extend(_make_chain(replication_counter=f"{i}5"))
+        root.extend(_make_inverted_complex_dependencies(replication_counter=f"{i}6"))
     return root
 
 
@@ -53,17 +53,17 @@ def _make_list_of_resources(number_of_resources: int, replication_counter: str, 
     ]
 
 
-def _make_salsah_link(target_res: etree._Element) -> str:
-    return f'<a class="salsah-link" href="IRI:{target_res.attrib["id"]}:IRI">{target_res.attrib["id"]}</a>'
+def _make_salsah_link(target_id: str) -> str:
+    return f'<a class="salsah-link" href="IRI:{target_id}:IRI">{target_id}</a>'
 
 
 def _make_xml_text_prop(target_res: etree._Element | list[etree._Element]) -> etree._Element:
     match target_res:
         case etree._Element():
-            salsah_link = _make_salsah_link(target_res)
+            salsah_link = _make_salsah_link(target_res.attrib["id"])
             # one resource with many targets
         case list():
-            salsah_link = "".join([_make_salsah_link(x) for x in target_res])
+            salsah_link = "".join([_make_salsah_link(x.attrib["id"]) for x in target_res])
     return excel2xml.make_text_prop(name=":hasRichtext", value=excel2xml.PropertyElement(salsah_link, encoding="xml"))
 
 

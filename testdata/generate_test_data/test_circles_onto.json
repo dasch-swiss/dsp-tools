@@ -17,7 +17,7 @@
                 "label": "Test ontology",
                 "comment": "To test the circular references.",
                 "properties": [
-                    {Å
+                    {
                         "name": "hasRichtext",
                         "super": [
                             "hasValue"

@@ -28,3 +28,51 @@ def test_lists_create(create_lists: Mock) -> None:
         password="test",
         dump=False,
     )
+
+
+# test project validate
+@patch("dsp_tools.cli.validate_project")
+def test_project_validate(validate_project: Mock) -> None:
+    """Test the 'dsp-tools create --validate-only' command"""
+    file = "filename.json"
+    args = f"create --validate-only {file}".split()
+    cli.main(args)
+    validate_project.assert_called_once_with(file)
+
+
+# test project create
+@patch("dsp_tools.cli.create_project")
+def test_project_create(create_project: Mock) -> None:
+    """Test the 'dsp-tools create' command"""
+    create_project.return_value = True
+    file = "filename.json"
+    args = f"create {file}".split()
+    cli.main(args)
+    create_project.assert_called_once_with(
+        project_file_as_path_or_parsed=file,
+        server="http://0.0.0.0:3333",
+        user_mail="root@example.com",
+        password="test",
+        verbose=False,
+        dump=False,
+    )
+
+
+# test project get
+@patch("dsp_tools.cli.get_project")
+def test_project_get(get_project: Mock) -> None:
+    """Test the 'dsp-tools get --project' command"""
+    get_project.return_value = True
+    file = "filename.json"
+    project = "shortname"
+    args = f"get --project {project} {file}".split()
+    cli.main(args)
+    get_project.assert_called_once_with(
+        project_identifier=project,
+        outfile_path=file,
+        server="http://0.0.0.0:3333",
+        user="root@example.com",
+        password="test",
+        verbose=False,
+        dump=False,
+    )

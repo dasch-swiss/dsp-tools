@@ -552,9 +552,20 @@ def _call_requested_action(args: argparse.Namespace) -> bool:
     return success
 
 
-def main(args: list[str]) -> None:
+def main() -> None:
     """
     Main entry point of the program as referenced in pyproject.toml
+    """
+    run(sys.argv[1:])
+
+
+def run(args: list[str]) -> None:
+    """
+    Main function of the CLI.
+
+    Args:
+        args: a list of arguments passed by the user from the command line,
+            excluding the leading "dsp-tools" command.
     """
     default_dsp_api_url = "http://0.0.0.0:3333"
     default_sipi_url = "http://0.0.0.0:1024"
@@ -589,6 +600,4 @@ def main(args: list[str]) -> None:
 
 
 if __name__ == "__main__":
-    args = sys.argv[1:]
-    print(f"Called DSP-TOOLS with these arguments: {args}")
-    main(args)
+    main()

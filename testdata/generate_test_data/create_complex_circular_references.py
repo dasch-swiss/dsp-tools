@@ -12,7 +12,7 @@ def create_and_save_circular_references_test_graph(replication_counter: int = 1,
     By default, it saves it in the current directory; this can be changed with the parameter save_location.
 
     Args:
-        replication_counter: number of times the sub-graphs should be created in one root-graph.
+        replication_counter: number of times the sub-graphs should be created in one root-graph
         save_location: path to the folder, where the file should be saved
     """
     root = create_circular_references_test_graph(replication_counter=replication_counter)

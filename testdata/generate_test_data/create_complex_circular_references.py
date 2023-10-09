@@ -30,7 +30,7 @@ def create_circular_references_test_graph(replication_counter: int) -> etree._El
         replication_counter: number of times the sub-graphs should be created in one root-graph.
 
     Returns:
-        A etree which is suitable for an upload into the DSP-API
+        An etree which is suitable for an upload into the DSP-API
     """
     root = excel2xml.make_root("0700", "simcir")
     for i in range(1, replication_counter + 1):

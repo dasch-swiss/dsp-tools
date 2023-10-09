@@ -63,28 +63,6 @@ def _log_unable_to_upload_xml_resource(
     logger.warning(err_msg, exc_info=True)
 
 
-def _log_iri_does_not_exist_error(
-    received_error: KeyError,
-    stashed_resource: XMLResource,
-    all_link_props: XMLProperty,
-) -> None:
-    """
-    This function logs if it is not possible to upload an XML resource
-    if a linked resource does not have an IRI in the triplestore.
-
-    Args:
-        received_error: Error received
-        stashed_resource: resource that is stashed
-        all_link_props: all the link properties from that resource
-    """
-    err_msg = (
-        f"Unable to upload the xml text of '{all_link_props.name}' of resource '{stashed_resource.id}'"
-        f"because the resource with the internal id '{received_error.args[0]}' does not exist in the triplestore."
-    )
-    print(f"    WARNING: {err_msg}")
-    logger.warning(err_msg, exc_info=True)
-
-
 def _get_text_hash_value(old_xmltext: str) -> str:
     """
     This function extracts the hash values in the text
@@ -203,12 +181,7 @@ def _upload_single_link_xml_property(
     # this hash originates from _stash_circular_references(), and identifies the XML texts
     try:
         xml_from_stash = hash_to_value[text_hash_value]
-    except KeyError as err:
-        _log_iri_does_not_exist_error(
-            received_error=err,
-            stashed_resource=stashed_resource,
-            all_link_props=link_prop,
-        )
+    except KeyError:
         # no action necessary: this property will remain in nonapplied_xml_texts,
         # which will be handled by the caller
         return nonapplied_xml_texts

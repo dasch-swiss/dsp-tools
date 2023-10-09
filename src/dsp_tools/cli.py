@@ -455,7 +455,7 @@ def _call_requested_action(args: argparse.Namespace) -> bool:
         )
     elif args.action == "xmlupload":
         if args.validate_only:
-            success = validate_xml_against_schema(input_file=args.xmlfile)
+            success = validate_xml_against_schema(args.xmlfile)
         else:
             success = xmlupload(
                 input_file=args.xmlfile,

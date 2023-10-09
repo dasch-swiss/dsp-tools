@@ -76,3 +76,35 @@ def test_project_get(get_project: Mock) -> None:
         verbose=False,
         dump=False,
     )
+
+
+# test xmlupload validate
+@patch("dsp_tools.cli.validate_xml_against_schema")
+def test_xmlupload_validate(validate_xml: Mock) -> None:
+    """Test the 'dsp-tools xmlupload --validate-only' command"""
+    file = "filename.xml"
+    args = f"xmlupload --validate-only {file}".split()
+    cli.run(args)
+    validate_xml.assert_called_once_with(file)
+
+
+# test xmlupload
+@patch("dsp_tools.cli.xmlupload")
+def test_xmlupload(xmlupload: Mock) -> None:
+    """Test the 'dsp-tools xmlupload' command"""
+    xmlupload.return_value = True
+    file = "filename.xml"
+    args = f"xmlupload {file}".split()
+    cli.run(args)
+    xmlupload.assert_called_once_with(
+        input_file=file,
+        server="http://0.0.0.0:3333",
+        user="root@example.com",
+        password="test",
+        imgdir=".",
+        sipi="http://0.0.0.0:1024",
+        verbose=False,
+        dump=False,
+        save_metrics=False,
+        preprocessing_done=False,
+    )

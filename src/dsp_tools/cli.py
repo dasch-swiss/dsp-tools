@@ -552,7 +552,7 @@ def _call_requested_action(args: argparse.Namespace) -> bool:
     return success
 
 
-def main() -> None:
+def main(args: list[str]) -> None:
     """
     Main entry point of the program as referenced in pyproject.toml
     """
@@ -567,7 +567,7 @@ def main() -> None:
         root_user_pw=root_user_pw,
     )
     parsed_arguments = _parse_arguments(
-        user_args=sys.argv[1:],
+        user_args=args,
         parser=parser,
     )
     _log_cli_arguments(parsed_arguments)
@@ -589,4 +589,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])

@@ -62,20 +62,6 @@ def _log_unable_to_upload_xml_resource(
     logger.warning(err_msg, exc_info=True)
 
 
-def _log_iri_does_not_exist_error(res_id: str, prop_name: str) -> None:
-    """
-    This function logs if it is not possible to upload an XML resource
-    if a linked resource does not have an IRI in the triplestore.
-
-    Args:
-        res_id: id of the resource
-        prop_name: name of the property
-    """
-    err_msg = f"Unable to upload the xml text of '{prop_name}' of resource '{res_id}'."
-    print(f"    WARNING: {err_msg}")
-    logger.warning(err_msg, exc_info=True)
-
-
 def _create_XMLResource_json_object_to_update(
     res_iri: str,
     res_type: str,
@@ -152,7 +138,7 @@ def upload_stashed_xml_texts(
         logger.debug(f'  Upload XML text(s) of resource "{res_id}"...')
         context = resource_in_triplestore["@context"]
         for stash_item in stash_items:
-            value_iri = _get_value_iri(stash_item.prop_name, resource_in_triplestore, stash_item.uuid, res_id)
+            value_iri = _get_value_iri(stash_item.prop_name, resource_in_triplestore, stash_item.uuid)
             if not value_iri:
                 not_uploaded.append((xmlres, stash_item))  # does that even make sense to hold on to that one?
                 continue
@@ -175,7 +161,6 @@ def _get_value_iri(
     property_name: str,
     resource: dict[str, Any],
     uuid: str,
-    res_id: str,
 ) -> str | None:
     values_on_server = resource.get(property_name)
     if not isinstance(values_on_server, list):
@@ -188,7 +173,6 @@ def _get_value_iri(
         # the value that contains the UUID in its text does not exist in DSP
         # no action necessary: this resource will remain in nonapplied_xml_texts,
         # which will be handled by the caller
-        _log_iri_does_not_exist_error(res_id, property_name)
         return None
     return value_iri
 

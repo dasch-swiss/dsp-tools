@@ -68,7 +68,7 @@ def _stash_circular_references(
 
     standoff_stash = StandoffStash.make(stashed_standoff_values)
     link_value_stash = LinkValueStash.make(stashed_link_values)
-    stash = Stash(standoff_stash, link_value_stash) if standoff_stash or link_value_stash else None
+    stash = Stash.make(standoff_stash, link_value_stash)
 
     return nok_resources, ok_res_ids, ok_resources, stash
 

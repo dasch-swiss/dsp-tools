@@ -87,3 +87,19 @@ class Stash:
 
     standoff_stash: StandoffStash | None
     link_value_stash: LinkValueStash | None
+
+    @staticmethod
+    def make(standoff_stash: StandoffStash | None, link_value_stash: LinkValueStash | None) -> Stash | None:
+        """
+        Factory method for Stash.
+
+        Args:
+            standoff_stash: A StandoffStash object or None.
+            link_value_stash: A LinkValueStash object or None.
+
+        Returns:
+            Stash: A Stash object, or None if both iunputs are None.
+        """
+        if standoff_stash or link_value_stash:
+            return Stash(standoff_stash, link_value_stash)
+        return None

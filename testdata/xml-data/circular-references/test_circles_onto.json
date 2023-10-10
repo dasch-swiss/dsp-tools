@@ -1,0 +1,150 @@
+{
+    "$schema": "../../../src/dsp_tools/resources/schema/project.json",
+    "project": {
+        "shortcode": "0700",
+        "shortname": "simcir",
+        "longname": "Very small ontology.",
+        "descriptions": {
+            "en": "Very small ontology."
+        },
+        "keywords": [
+            "test",
+            "testing"
+        ],
+        "ontologies": [
+            {
+                "name": "simcir",
+                "label": "Test ontology",
+                "comment": "To test the circular references.",
+                "properties": [
+                    {
+                        "name": "hasRichtext",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "hasRichtext"
+                        },
+                        "gui_element": "Richtext"
+                    },
+                    {
+                        "name": "hasResource1",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": "Resource",
+                        "labels": {
+                            "en": "hasResource"
+                        },
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "hasResource2",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": "Resource",
+                        "labels": {
+                            "en": "hasResource"
+                        },
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "hasResource3",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": "Resource",
+                        "labels": {
+                            "en": "hasResource"
+                        },
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "hasResource4",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": "Resource",
+                        "labels": {
+                            "en": "hasResource"
+                        },
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "hasResource5",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": "Resource",
+                        "labels": {
+                            "en": "hasResource"
+                        },
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "hasSimpleText",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "hasSimpleText"
+                        },
+                        "gui_element": "SimpleText"
+                    }
+                ],
+                "resources": [
+                    {
+                        "name": "TestThing",
+                        "super": [
+                            "Resource"
+                        ],
+                        "labels": {
+                            "en": "TestThing",
+                            "rm": "TestThing in Rumantsch"
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasRichtext",
+                                "cardinality": "0-n",
+                                "gui_order": 0
+                            },
+                            {
+                                "propname": ":hasSimpleText",
+                                "cardinality": "0-n",
+                                "gui_order": 1
+                            },
+                            {
+                                "propname": ":hasResource1",
+                                "cardinality": "0-n",
+                                "gui_order": 2
+                            },
+                            {
+                                "propname": ":hasResource2",
+                                "cardinality": "0-n",
+                                "gui_order": 3
+                            },
+                            {
+                                "propname": ":hasResource3",
+                                "cardinality": "0-n",
+                                "gui_order": 4
+                            },
+                            {
+                                "propname": ":hasResource4",
+                                "cardinality": "0-n",
+                                "gui_order": 5
+                            },
+                            {
+                                "propname": ":hasResource5",
+                                "cardinality": "0-n",
+                                "gui_order": 6
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

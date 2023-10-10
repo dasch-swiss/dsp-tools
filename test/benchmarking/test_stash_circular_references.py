@@ -14,12 +14,12 @@ def test_get_length_ok_resources() -> None:
     ok_resources, _, _ = remove_circular_references(resources, False)
     print_str = (
         f"\n\n---------------------\n"
-        f"Original length: 26\n"
+        f"Original length: 36\n"
         f"New length: {len(ok_resources)}"
         f"\n---------------------\n"
     )
     cprint(text=print_str, color="yellow", attrs=["bold"])
-    assert len(ok_resources) >= 26
+    assert len(ok_resources) >= 36
 
 
 if __name__ == "__main__":

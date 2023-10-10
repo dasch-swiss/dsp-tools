@@ -9,7 +9,7 @@ from dsp_tools.utils.xmlupload.xmlupload import _extract_resources_from_xml
 
 
 def test_get_length_ok_resources() -> None:
-    test_root = parse_and_clean_xml_file("testdata/generate_test_data/test_circular_references_1.xml")
+    test_root = parse_and_clean_xml_file("testdata/xml-data/circular-references/test_circular_references_1.xml")
     resources = _extract_resources_from_xml(test_root, "simcir")
     ok_resources, _, _ = remove_circular_references(resources, False)
     print_str = (

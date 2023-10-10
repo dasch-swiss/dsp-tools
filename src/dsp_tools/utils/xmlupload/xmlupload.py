@@ -124,7 +124,7 @@ def xmlupload(
     )
 
     # temporarily remove circular references
-    resources, stashed_xml_texts, stashed_resptr_props = remove_circular_references(resources, verbose=verbose)
+    resources, stash = remove_circular_references(resources, verbose=verbose)
 
     preparation_duration = datetime.now() - preparation_start
     preparation_duration_ms = preparation_duration.seconds * 1000 + int(preparation_duration.microseconds / 1000)

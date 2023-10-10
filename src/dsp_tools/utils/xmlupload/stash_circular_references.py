@@ -76,7 +76,7 @@ def _stash_circular_references(
 def remove_circular_references(
     resources: list[XMLResource],
     verbose: bool,
-) -> tuple[list[XMLResource], StandoffStash | None, dict[XMLResource, dict[XMLProperty, list[str]]],]:
+) -> tuple[list[XMLResource], StandoffStash | None, dict[XMLResource, dict[XMLProperty, list[str]]]]:
     """
     Temporarily removes problematic resource-references from a list of resources.
     A reference is problematic if it creates a circle (circular references).

@@ -18,7 +18,6 @@ from dsp_tools.models.projectContext import ProjectContext
 from dsp_tools.models.resource import KnoraStandoffXmlEncoder, ResourceInstance, ResourceInstanceFactory
 from dsp_tools.models.sipi import Sipi
 from dsp_tools.models.xmlpermission import XmlPermission
-from dsp_tools.models.xmlproperty import XMLProperty
 from dsp_tools.models.xmlresource import XMLResource
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import login, try_network_action
@@ -31,13 +30,8 @@ from dsp_tools.utils.xmlupload.resource_multimedia import (
     calculate_multimedia_file_size,
     get_sipi_multimedia_information,
 )
-from dsp_tools.utils.xmlupload.stash.stash_models import StandoffStash
+from dsp_tools.utils.xmlupload.stash.stash_models import Stash
 from dsp_tools.utils.xmlupload.stash_circular_references import remove_circular_references
-from dsp_tools.utils.xmlupload.upload_stashed_resptr_props import (
-    purge_stashed_resptr_props,
-    upload_stashed_resptr_props,
-)
-from dsp_tools.utils.xmlupload.upload_stashed_xml_texts import upload_stashed_xml_texts
 from dsp_tools.utils.xmlupload.write_diagnostic_info import (
     MetricRecord,
     determine_save_location_of_diagnostic_info,
@@ -133,8 +127,6 @@ def xmlupload(
     # upload all resources, then update the resources with the stashed XML texts and resptrs
     id2iri_mapping: dict[str, str] = {}
     failed_uploads: list[str] = []
-    nonapplied_resptr_props = {}
-    nonapplied_xml_texts: StandoffStash | None = None
     try:
         id2iri_mapping, failed_uploads, metrics = _upload_resources(
             resources=resources,
@@ -148,21 +140,8 @@ def xmlupload(
             metrics=metrics,
             preprocessing_done=preprocessing_done,
         )
-        if stashed_xml_texts:
-            nonapplied_xml_texts = upload_stashed_xml_texts(
-                verbose=verbose,
-                id2iri_mapping=id2iri_mapping,
-                con=con,
-                stashed_xml_texts=stashed_xml_texts,
-            )
-        if stashed_resptr_props:
-            nonapplied_resptr_props = upload_stashed_resptr_props(
-                verbose=verbose,
-                id2iri_mapping=id2iri_mapping,
-                con=con,
-                stashed_resptr_props=stashed_resptr_props,
-            )
-        if nonapplied_resptr_props or nonapplied_xml_texts:
+        nonapplied_stash = _upload_stash(stash) if stash else None
+        if nonapplied_stash:
             msg = "Some stashed resptrs or XML texts could not be reapplied to their resources on the DSP server."
             logger.error(msg)
             raise BaseError(msg)
@@ -174,8 +153,7 @@ def xmlupload(
             err=err,
             id2iri_mapping=id2iri_mapping,
             failed_uploads=failed_uploads,
-            stashed_xml_texts=nonapplied_xml_texts or stashed_xml_texts,
-            stashed_resptr_props=nonapplied_resptr_props or stashed_resptr_props,
+            stash=stash,
             save_location=save_location,
             timestamp_str=timestamp_str,
         )
@@ -193,6 +171,24 @@ def xmlupload(
         print("All resources have successfully been uploaded.")
         logger.info("All resources have successfully been uploaded.")
     return success
+
+
+def _upload_stash(stash: Stash) -> Stash | None:
+    ...
+    # if stashed_xml_texts:
+    #     nonapplied_xml_texts = upload_stashed_xml_texts(
+    #         verbose=verbose,
+    #         id2iri_mapping=id2iri_mapping,
+    #         con=con,
+    #         stashed_xml_texts=stashed_xml_texts,
+    #     )
+    # if stashed_resptr_props:
+    #     nonapplied_resptr_props = upload_stashed_resptr_props(
+    #         verbose=verbose,
+    #         id2iri_mapping=id2iri_mapping,
+    #         con=con,
+    #         stashed_resptr_props=stashed_resptr_props,
+    #     )
 
 
 def _get_project_permissions_and_classes_from_server(
@@ -400,8 +396,7 @@ def _handle_upload_error(
     err: BaseException,
     id2iri_mapping: dict[str, str],
     failed_uploads: list[str],
-    stashed_xml_texts: StandoffStash | None,
-    stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]],
+    stash: Stash | None,
     save_location: Path,
     timestamp_str: str,
 ) -> None:
@@ -431,11 +426,6 @@ def _handle_upload_error(
     )
     logger.error("xmlupload must be aborted because of an error", exc_info=err)
 
-    stashed_resptr_props = purge_stashed_resptr_props(
-        stashed_resptr_props=stashed_resptr_props,
-        id2iri_mapping=id2iri_mapping,
-    )
-
     if id2iri_mapping:
         id2iri_mapping_file = f"{save_location}/{timestamp_str}_id2iri_mapping.json"
         with open(id2iri_mapping_file, "x", encoding="utf-8") as f:
@@ -443,28 +433,15 @@ def _handle_upload_error(
         print(f"The mapping of internal IDs to IRIs was written to {id2iri_mapping_file}")
         logger.info(f"The mapping of internal IDs to IRIs was written to {id2iri_mapping_file}")
 
-    if stashed_xml_texts:
-        xml_filename = save_json_stashed_text_properties(
-            stashed_xml_texts=stashed_xml_texts,
+    if stash:
+        filename = _save_stash_as_json(
+            stash=stash,
             save_location=save_location,
             timestamp_str=timestamp_str,
         )
         msg = (
-            f"There are stashed text properties that could not be reapplied to the resources they were stripped from. "
-            f"They were saved to {xml_filename}.\n"
-        )
-        print(msg)
-        logger.info(msg)
-
-    if stashed_resptr_props:
-        resptr_filename = save_json_stashed_resptr_properties(
-            stashed_resptr_props=stashed_resptr_props,
-            save_location=save_location,
-            timestamp_str=timestamp_str,
-        )
-        msg = (
-            f"There are stashed resptr properties that could not be reapplied "
-            f"to the resources they were stripped from. They were saved to {resptr_filename}\n"
+            f"There are stashed links that could not be reapplied to the resources they were stripped from. "
+            f"They were saved to {filename}\n"
         )
         print(msg)
         logger.info(msg)
@@ -478,62 +455,18 @@ def _handle_upload_error(
     sys.exit(1)
 
 
-def save_json_stashed_resptr_properties(
-    stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]],
+def _save_stash_as_json(
+    stash: Stash,
     save_location: Path,
     timestamp_str: str,
 ) -> str:
-    """
-    This function saves the stashed resptr properties in a JSON file.
-    It returns the name of the file.
-
-    Args:
-        stashed_resptr_props: Dictionary with the stash
-        save_location: filepath to the save location
-        timestamp_str: timestamp from the beginning of the upload
-
-    Returns:
-        name of the JSON file
-    """
-    stashed_resptr_props_serializable = {
-        resource.id: {_property.name: property_list for _property, property_list in res_dict.items()}
-        for resource, res_dict in stashed_resptr_props.items()
-    }
-    resptr_filename = f"{save_location}/{timestamp_str}_stashed_resptr_properties.json"
-    with open(resptr_filename, "x", encoding="utf-8") as f:
+    filename = f"{save_location}/{timestamp_str}_stashed_links.json"
+    with open(filename, "x", encoding="utf-8") as file:
         json.dump(
-            obj=stashed_resptr_props_serializable,
-            fp=f,
-            ensure_ascii=False,
-            indent=4,
-        )
-    return resptr_filename
-
-
-def save_json_stashed_text_properties(
-    stashed_xml_texts: StandoffStash,
-    save_location: Path,
-    timestamp_str: str,
-) -> str:
-    """
-    This function saves the stashed XML properties in a JSON file.
-    It returns the name of the file.
-
-    Args:
-        stashed_xml_texts: Dictionary with the stash
-        save_location: filepath to the save location
-        timestamp_str: timestamp from the beginning of the upload
-
-    Returns:
-        name of the JSON file
-    """
-    xml_filename = f"{save_location}/{timestamp_str}_stashed_text_properties.json"
-    with open(xml_filename, "x", encoding="utf-8") as file:
-        json.dump(
-            obj=stashed_xml_texts,
+            obj=stash,
             fp=file,
             ensure_ascii=False,
             indent=4,
             cls=KnoraStandoffXmlEncoder,
         )
-    return xml_filename
+    return filename

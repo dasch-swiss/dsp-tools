@@ -50,7 +50,6 @@ def test_project_validate(validate_project: Mock) -> None:
 @patch("dsp_tools.cli.create_project")
 def test_project_create(create_project: Mock) -> None:
     """Test the 'dsp-tools create' command"""
-    create_project.return_value = True
     file = "filename.json"
     args = f"create {file}".split()
     cli.run(args)
@@ -67,7 +66,6 @@ def test_project_create(create_project: Mock) -> None:
 @patch("dsp_tools.cli.get_project")
 def test_project_get(get_project: Mock) -> None:
     """Test the 'dsp-tools get --project' command"""
-    get_project.return_value = True
     file = "filename.json"
     project = "shortname"
     args = f"get --project {project} {file}".split()
@@ -95,7 +93,6 @@ def test_xmlupload_validate(validate_xml: Mock) -> None:
 @patch("dsp_tools.cli.xmlupload")
 def test_xmlupload(xmlupload: Mock) -> None:
     """Test the 'dsp-tools xmlupload' command"""
-    xmlupload.return_value = True
     file = "filename.xml"
     args = f"xmlupload {file}".split()
     cli.run(args)
@@ -116,7 +113,6 @@ def test_xmlupload(xmlupload: Mock) -> None:
 @patch("dsp_tools.cli.process_files")
 def test_process_files(process_files: Mock) -> None:
     """Test the 'dsp-tools process-files' command"""
-    process_files.return_value = True
     input_dir = "input"
     output_dir = "output"
     nthreads = 12
@@ -135,7 +131,6 @@ def test_process_files(process_files: Mock) -> None:
 @patch("dsp_tools.cli.upload_files")
 def test_upload_files(upload_files: Mock) -> None:
     """Test the 'dsp-tools upload-files' command"""
-    upload_files.return_value = True
     processed_dir = "processed"
     nthreads = 12
     args = f"upload-files --processed-dir {processed_dir} --nthreads {nthreads}".split()
@@ -153,7 +148,6 @@ def test_upload_files(upload_files: Mock) -> None:
 @patch("dsp_tools.cli.fast_xmlupload")
 def test_fast_xmlupload(fast_xmlupload: Mock) -> None:
     """Test the 'dsp-tools fast-xmlupload' command"""
-    fast_xmlupload.return_value = True
     file = "filename.xml"
     args = f"fast-xmlupload {file}".split()
     cli.run(args)
@@ -169,13 +163,12 @@ def test_fast_xmlupload(fast_xmlupload: Mock) -> None:
 @patch("dsp_tools.cli.excel2json")
 def test_excel2json(excel2json: Mock) -> None:
     """Test the 'dsp-tools excel2json' command"""
-    excel2json.return_value = True
-    file = "filename.xlsx"
+    folder = "folder"
     out_file = "filename.json"
-    args = f"excel2json {file} {out_file}".split()
+    args = f"excel2json {folder} {out_file}".split()
     cli.run(args)
     excel2json.assert_called_once_with(
-        data_model_files=file,
+        data_model_files=folder,
         path_to_output_file=out_file,
     )
 
@@ -226,7 +219,6 @@ def test_excel2properties(excel2properties: Mock) -> None:
 @patch("dsp_tools.cli.id2iri")
 def test_id2iri(id2iri: Mock) -> None:
     """Test the 'dsp-tools id2iri' command"""
-    id2iri.return_value = True
     xml_file = "filename.xml"
     json_file = "filename.json"
     args = f"id2iri {xml_file} {json_file}".split()
@@ -241,7 +233,6 @@ def test_id2iri(id2iri: Mock) -> None:
 @patch("dsp_tools.cli.excel2xml")
 def test_excel2xml(excel2xml: Mock) -> None:
     """Test the 'dsp-tools excel2xml' command"""
-    excel2xml.return_value = True
     excel_file = "filename.xlsx"
     shortcode = "1234"
     onto = "someonto"

@@ -420,7 +420,7 @@ def _call_requested_action(args: argparse.Namespace) -> bool:
     if args.action == "create":
         if args.lists_only:
             if args.validate_only:
-                success = validate_lists_section_with_schema(path_to_json_project_file=args.project_definition)
+                success = validate_lists_section_with_schema(args.project_definition)
                 print("'Lists' section of the JSON project file is syntactically correct and passed validation.")
             else:
                 _, success = create_lists(
@@ -455,7 +455,7 @@ def _call_requested_action(args: argparse.Namespace) -> bool:
         )
     elif args.action == "xmlupload":
         if args.validate_only:
-            success = validate_xml_against_schema(input_file=args.xmlfile)
+            success = validate_xml_against_schema(args.xmlfile)
         else:
             success = xmlupload(
                 input_file=args.xmlfile,
@@ -556,6 +556,17 @@ def main() -> None:
     """
     Main entry point of the program as referenced in pyproject.toml
     """
+    run(sys.argv[1:])
+
+
+def run(args: list[str]) -> None:
+    """
+    Main function of the CLI.
+
+    Args:
+        args: a list of arguments passed by the user from the command line,
+            excluding the leading "dsp-tools" command.
+    """
     default_dsp_api_url = "http://0.0.0.0:3333"
     default_sipi_url = "http://0.0.0.0:1024"
     root_user_email = "root@example.com"
@@ -567,7 +578,7 @@ def main() -> None:
         root_user_pw=root_user_pw,
     )
     parsed_arguments = _parse_arguments(
-        user_args=sys.argv[1:],
+        user_args=args,
         parser=parser,
     )
     _log_cli_arguments(parsed_arguments)

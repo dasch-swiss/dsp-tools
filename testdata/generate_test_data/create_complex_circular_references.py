@@ -15,11 +15,12 @@ def create_and_save_circular_references_test_graph(replication_counter: int = 1,
         replication_counter: number of times the sub-graphs should be created in one root-graph
         save_location: path to the folder, where the file should be saved
     """
-    root = create_circular_references_test_graph(replication_counter=replication_counter)
+    root = excel2xml.make_root("0700", "simcir")
+    root = create_single_link_circular_references_test_graph(root, replication_counter)
     excel2xml.write_xml(root, Path(save_location) / f"test_circular_references_{replication_counter}.xml")
 
 
-def create_circular_references_test_graph(replication_counter: int) -> etree._Element:
+def create_single_link_circular_references_test_graph(root: etree._Element, replication_counter: int) -> etree._Element:
     """
     This function creates a graph with circular references.
     It is capable of reproducing one graph with all the references a specified number of times.
@@ -32,7 +33,6 @@ def create_circular_references_test_graph(replication_counter: int) -> etree._El
     Returns:
         An etree which is suitable for an upload into the DSP-API
     """
-    root = excel2xml.make_root("0700", "simcir")
     for i in range(1, replication_counter + 1):
         root.extend(_make_one_circle_with_three_resources(replication_counter=f"{i}1"))
         root.extend(_make_complex_dependencies(replication_counter=f"{i}2"))

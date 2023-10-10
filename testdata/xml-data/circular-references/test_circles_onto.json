@@ -1,5 +1,5 @@
 {
-    "$schema": "../../src/dsp_tools/resources/schema/project.json",
+    "$schema": "../../../src/dsp_tools/resources/schema/project.json",
     "project": {
         "shortcode": "0700",
         "shortname": "simcir",

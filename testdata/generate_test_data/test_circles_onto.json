@@ -29,7 +29,51 @@
                         "gui_element": "Richtext"
                     },
                     {
-                        "name": "hasResource",
+                        "name": "hasResource1",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": "Resource",
+                        "labels": {
+                            "en": "hasResource"
+                        },
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "hasResource2",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": "Resource",
+                        "labels": {
+                            "en": "hasResource"
+                        },
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "hasResource3",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": "Resource",
+                        "labels": {
+                            "en": "hasResource"
+                        },
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "hasResource4",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": "Resource",
+                        "labels": {
+                            "en": "hasResource"
+                        },
+                        "gui_element": "Searchbox"
+                    },
+                    {
+                        "name": "hasResource5",
                         "super": [
                             "hasLinkTo"
                         ],
@@ -63,19 +107,39 @@
                         },
                         "cardinalities": [
                             {
-                                "propname": ":hasResource",
+                                "propname": ":hasRichtext",
                                 "cardinality": "0-n",
                                 "gui_order": 0
                             },
                             {
-                                "propname": ":hasRichtext",
+                                "propname": ":hasSimpleText",
                                 "cardinality": "0-n",
                                 "gui_order": 1
                             },
                             {
-                                "propname": ":hasSimpleText",
+                                "propname": ":hasResource1",
                                 "cardinality": "0-n",
                                 "gui_order": 2
+                            },
+                            {
+                                "propname": ":hasResource2",
+                                "cardinality": "0-n",
+                                "gui_order": 3
+                            },
+                            {
+                                "propname": ":hasResource3",
+                                "cardinality": "0-n",
+                                "gui_order": 4
+                            },
+                            {
+                                "propname": ":hasResource4",
+                                "cardinality": "0-n",
+                                "gui_order": 5
+                            },
+                            {
+                                "propname": ":hasResource5",
+                                "cardinality": "0-n",
+                                "gui_order": 6
                             }
                         ]
                     }

@@ -158,9 +158,6 @@ def try_network_action(
         the return value of action
     """
     action_as_str = f"action='{action}', args='{args}', kwargs='{kwargs}'"
-    print("-" * 80)
-    print(action_as_str)
-    print("-" * 80)
     for i in range(7):
         try:
             if args and not kwargs:
@@ -195,7 +192,6 @@ def try_network_action(
                 time.sleep(2**i)
                 continue
             else:
-                print(err.message)
                 raise err
 
     logger.error("Permanently unable to execute the network action. See logs for more details.")

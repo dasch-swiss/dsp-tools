@@ -36,7 +36,6 @@ def upload_stashed_resptr_props(
     logger.info("Upload the stashed resptrs...")
     not_uploaded: list[LinkValueStashItem] = []
     for res_id, stash_items in stashed_resptr_props.res_2_stash_items.items():
-        print(f"- Upload resptrs of resource '{res_id}'...")
         if res_id not in id2iri_mapping:
             # resource could not be uploaded to DSP, so the stash cannot be uploaded either
             # no action necessary: this resource will remain in nonapplied_resptr_props,
@@ -44,7 +43,6 @@ def upload_stashed_resptr_props(
             print(f"  Did not find resource '{res_id}' in id2iri_mapping. Skipping...")
             continue
         res_iri = id2iri_mapping[res_id]
-        print(f"  Uploading to resource '{res_iri}'...")
         try:
             existing_resource = try_network_action(con.get, route=f"/v2/resources/{quote_plus(res_iri)}")
         except BaseError as err:
@@ -55,12 +53,10 @@ def upload_stashed_resptr_props(
         logger.debug(f'  Upload resptrs of resource "{res_id}"...')
         context: dict[str, str] = existing_resource["@context"]
         for stash_item in stash_items:
-            print(f"  - Upload resptr of prop '{stash_item.prop_name}'...")
             target_iri = id2iri_mapping.get(stash_item.target_id)
             if not target_iri:
                 continue
             success = _upload_stash_item(stash_item, res_iri, target_iri, con, context)
-            print(f"    {'OK' if success else 'FAILED'}")
             if not success:
                 not_uploaded.append(stash_item)
     return LinkValueStash.make(not_uploaded)
@@ -91,7 +87,6 @@ def _upload_stash_item(
         try_network_action(con.put, route="/v2/values", jsondata=jsondata)
     except BaseError as err:
         _log_unable_to_upload_link_value(err.orig_err_msg_from_api or err.message, stash.res_id, stash.prop_name)
-        print(f"payload was: {jsondata}")
         return False
     logger.debug(f'  Successfully uploaded xml text of "{stash.prop_name}"\n')
     return True

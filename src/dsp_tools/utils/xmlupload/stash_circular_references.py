@@ -30,8 +30,6 @@ def _stash_circular_references(
     stashed_link_values: list[LinkValueStashItem] = []
     ok_resources: list[XMLResource] = []
 
-    print("Stashing circular references...")
-
     for res in nok_resources.copy():
         for link_prop in res.get_props_with_links():
             if link_prop.valtype == "text":
@@ -45,9 +43,6 @@ def _stash_circular_references(
                         stashed_standoff_values.append((res, standoff_stash_item))
                         value.value = KnoraStandoffXml(uuid)
                         value.resrefs = [_id for _id in value.resrefs if _id in ok_res_ids]
-                        print(
-                            f"- Stashed standoff value of resource '{res.id}' pointing to resource(s) '{value.resrefs}'"
-                        )
             elif link_prop.valtype == "resptr":
                 for value in link_prop.values.copy():
                     if value.value not in ok_res_ids:
@@ -60,7 +55,6 @@ def _stash_circular_references(
                         )
                         stashed_link_values.append(link_stash_item)
                         link_prop.values.remove(value)
-                        print(f"- Stashed link value of resource '{res.id}' pointing to resource '{value.value}'")
             else:
                 logger.error("ERROR in remove_circular_references(): link_prop.valtype is neither text nor resptr.")
                 raise BaseError("ERROR in remove_circular_references(): link_prop.valtype is neither text nor resptr.")
@@ -76,9 +70,6 @@ def _stash_circular_references(
     standoff_stash = StandoffStash.make(stashed_standoff_values)
     link_value_stash = LinkValueStash.make(stashed_link_values)
     stash = Stash.make(standoff_stash, link_value_stash)
-
-    print(f"Stash: {stash}")
-    print(f"ok resources ({len(ok_resources)}): {[res.id for res in ok_resources]}")
 
     return nok_resources, ok_res_ids, ok_resources, stash
 

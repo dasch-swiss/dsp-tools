@@ -9,7 +9,7 @@ from dsp_tools.analyse_xml_data.extract_links_from_XML import (
     _extract_id_one_text,
     _extract_id_one_text_prop,
     _get_all_links_one_resource,
-    _get_links_all_resources_from_root,
+    get_links_all_resources_from_root,
 )
 
 
@@ -31,7 +31,7 @@ def test_get_links_all_resources_from_root() -> None:
         'href="IRI:res_A_11:IRI">res_A_11</a></text></text-prop><resptr-prop name=":hasResource1"><resptr '
         'permissions="prop-default">res_A_11</resptr></resptr-prop></resource></knora>'
     )
-    res = _get_links_all_resources_from_root(test_root)
+    res = get_links_all_resources_from_root(test_root)
     expected = {
         "res_A_11": ["res_B_11", "res_B_11"],
         "res_B_11": ["res_C_11", "res_C_11"],
@@ -60,8 +60,7 @@ def test_get_all_links_one_resource_no_links() -> None:
         '<resource label="res_B_18" restype=":TestThing" id="res_B_18" permissions="res-default"/>'
     )
     res = _get_all_links_one_resource(test_ele)
-    expected = []
-    assert expected == res
+    assert None == res
 
 
 def test_text_only_get_all_links_one_resource() -> None:

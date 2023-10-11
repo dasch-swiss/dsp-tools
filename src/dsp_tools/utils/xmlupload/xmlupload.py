@@ -421,8 +421,7 @@ def _handle_upload_error(
         err: error that was the cause of the abort
         id2iri_mapping: mapping of ids from the XML file to IRIs in DSP (only successful uploads appear here)
         failed_uploads: resources that caused an error when uploading to DSP
-        stashed_xml_texts: all xml texts that have been stashed
-        stashed_resptr_props: all resptr props that have been stashed
+        stash: an object that contains all stashed links that could not be reapplied to their resources
         save_location: path where to save the diagnostic info
         timestamp_str: timestamp for the name of the diagnostic files
     """

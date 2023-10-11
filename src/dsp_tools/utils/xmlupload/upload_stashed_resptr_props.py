@@ -72,11 +72,9 @@ def _upload_stash_item(
     Upload a single stashed link value to DSP.
 
     Args:
-        stash_item: the stashed link value to upload
+        stash: the stashed link value to upload
         res_iri: the iri of the resource
-        res_type: the type of the resource
-        res_id: the internal id of the resource
-        id2iri_mapping: mapping of ids from the XML file to IRIs in DSP
+        target_iri: the iri of the target resource
         con: connection to DSP
         context: the JSON-LD context of the resource
 

@@ -4,7 +4,7 @@ import regex
 from lxml import etree
 
 
-def _get_links_all_resources_from_root(root: etree._Element) -> dict[str : list[Any]]:
+def get_links_all_resources_from_root(root: etree._Element) -> dict[str : list[Any]]:
     resource_links = dict()
     for resource in root.iter(tag="{https://dasch.swiss/schema}resource"):
         resource_links[resource.attrib["id"]] = _get_all_links_one_resource(resource)

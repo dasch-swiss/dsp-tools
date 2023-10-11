@@ -59,6 +59,7 @@ def _stash_circular_references(
                             target_id=str(value.value),
                         )
                         stashed_link_values.append(link_stash_item)
+                        link_prop.values.remove(value)
                         print(f"- Stashed link value of resource '{res.id}' pointing to resource '{value.value}'")
             else:
                 logger.error("ERROR in remove_circular_references(): link_prop.valtype is neither text nor resptr.")

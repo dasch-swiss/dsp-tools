@@ -3,9 +3,18 @@ from lxml import etree
 
 
 def _extract_id_one_text_prop(text_prop: etree._Element) -> list[str]:
+    # if the same ID is in several separate text-props they are considered separate links
+    all_links = []
+    for text in text_prop.getchildren():
+        all_links.extend(_extract_id_one_text(text))
+    return all_links
+
+
+def _extract_id_one_text(text: etree._Element) -> list[str]:
+    # the same id in one text, still only mean one link to the resource
     all_links = set()
-    for child in text_prop.iterdescendants():
-        if href := child.attrib.get("href"):
+    for ele in text.iterdescendants():
+        if href := ele.attrib.get("href"):
             searched = regex.search(r"IRI:(.*):IRI", href)
             match searched:
                 case regex.Match():

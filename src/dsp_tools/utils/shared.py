@@ -158,6 +158,9 @@ def try_network_action(
         the return value of action
     """
     action_as_str = f"action='{action}', args='{args}', kwargs='{kwargs}'"
+    print("-" * 80)
+    print(action_as_str)
+    print("-" * 80)
     for i in range(7):
         try:
             if args and not kwargs:

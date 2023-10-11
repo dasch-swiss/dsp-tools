@@ -36,6 +36,7 @@ def upload_stashed_resptr_props(
     logger.info("Upload the stashed resptrs...")
     not_uploaded: list[LinkValueStashItem] = []
     for res_id, stash_items in stashed_resptr_props.res_2_stash_items.items():
+        print(f"- Upload resptrs of resource '{res_id}'...")
         if res_id not in id2iri_mapping:
             # resource could not be uploaded to DSP, so the stash cannot be uploaded either
             # no action necessary: this resource will remain in nonapplied_resptr_props,
@@ -52,10 +53,12 @@ def upload_stashed_resptr_props(
         logger.debug(f'  Upload resptrs of resource "{res_id}"...')
         context: dict[str, str] = existing_resource["@context"]
         for stash_item in stash_items:
+            print(f"  - Upload resptr of prop '{stash_item.prop_name}'...")
             target_iri = id2iri_mapping.get(stash_item.target_id)
             if not target_iri:
                 continue
             success = _upload_stash_item(stash_item, res_iri, target_iri, con, context)
+            print(f"    {'OK' if success else 'FAILED'}")
             if not success:
                 not_uploaded.append(stash_item)
     return LinkValueStash.make(not_uploaded)

@@ -241,4 +241,21 @@
         </text-prop>
     </resource>
     <resource label="res_C_17" restype=":TestThing" id="res_C_17" permissions="res-default"/>
+    <resource label="res_A_18" restype=":TestThing" id="res_A_18" permissions="res-default">
+        <resptr-prop name=":hasResource1">
+            <resptr permissions="prop-default">res_B_18</resptr>
+            <resptr permissions="prop-default">res_C_18</resptr>
+        </resptr-prop>
+    </resource>
+    <resource label="res_B_18" restype=":TestThing" id="res_B_18" permissions="res-default"/>
+    <resource label="res_C_18" restype=":TestThing" id="res_C_18" permissions="res-default">
+        <text-prop name=":hasRichtext">
+            <text permissions="prop-default" encoding="xml">
+                <a class="salsah-link" href="IRI:res_A_18:IRI">res_A_18</a>
+            </text>
+            <text permissions="prop-default" encoding="xml">
+                <a class="salsah-link" href="IRI:res_B_18:IRI">res_B_18</a>
+            </text>
+        </text-prop>
+    </resource>
 </knora>

@@ -4,7 +4,7 @@ import regex
 from lxml import etree
 
 
-def get_links_all_resources_from_root(root: etree._Element) -> dict[str : list[str]]:
+def get_links_all_resources_from_root(root: etree._Element) -> dict[str, list[str]]:
     """
     This function takes the root of an XML file an extracts all the links from the resources.
     It returns a dictionary with the resources that contain links as keys

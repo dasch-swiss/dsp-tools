@@ -4,10 +4,21 @@ import regex
 from lxml import etree
 
 
-def _get_all_text_prop_one_resource(resource: etree._Element) -> list[Any]:
+def _get_links_all_resources_from_root(root: etree._Element) -> dict[str : list[Any]]:
+    resource_links = dict()
+    for resource in root.iter(tag="{https://dasch.swiss/schema}resource"):
+        resource_links[resource.attrib["id"]] = _get_all_links_one_resource(resource)
+    return resource_links
+
+
+def _get_all_links_one_resource(resource: etree._Element) -> list[Any]:
     id_list = []
-    for text_prop in resource.iter("{https://dasch.swiss/schema}text-prop"):
-        id_list.extend(_extract_id_one_text_prop(text_prop))
+    for prop in resource.getchildren():
+        match prop.tag:
+            case "{https://dasch.swiss/schema}text-prop":
+                id_list.extend(_extract_id_one_text_prop(prop))
+            case "{https://dasch.swiss/schema}resptr-prop":
+                id_list.extend(_extract_id_one_resptr_prop(prop))
     return id_list
 
 

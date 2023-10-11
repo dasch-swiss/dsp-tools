@@ -99,9 +99,12 @@ def _make_chain(replication_counter: str) -> list[etree._Element]:
 
 
 def _make_one_circle_with_three_resources(replication_counter: str) -> list[etree._Element]:
-    # A -> B (xml-text) & (resptr-prop)
-    # B -> C (xml-text) & (resptr-prop)
-    # C -> A (xml-text) & (resptr-prop)
+    # A -> B (xml-text)
+    # A -> B (resptr-prop)
+    # B -> C (xml-text)
+    # B -> C (resptr-prop)
+    # C -> A (xml-text)
+    # C -> A (resptr-prop)
 
     res_li = _make_list_of_resources(number_of_resources=3, replication_counter=replication_counter)
     salsah_list = [_make_xml_text_prop(x) for x in res_li]

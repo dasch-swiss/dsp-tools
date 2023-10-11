@@ -55,6 +55,7 @@ types-regex = "^2023.8.8.0"
 types-pyyaml = "^6.0.12.11"
 isort = "^5.12.0"
 termcolor = "^2.3.0"
+pytest-unordered = "^0.5.2"
 
 
 [tool.poetry.scripts]

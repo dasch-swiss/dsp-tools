@@ -264,6 +264,3 @@ def _make_three_resource_circle_multiple_diverse_links(replication_counter: str)
     resources = _make_three_resource_circle_with_multiple_text_prop(replication_counter)
     resources[0].append(_make_xml_text_prop(resources[1:]))
     return resources
-
-
-create_and_save_circular_references_test_graph()

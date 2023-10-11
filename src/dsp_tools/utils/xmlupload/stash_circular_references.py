@@ -77,6 +77,7 @@ def _stash_circular_references(
     stash = Stash.make(standoff_stash, link_value_stash)
 
     print(f"Stash: {stash}")
+    print(f"ok resources ({len(ok_resources)}): {[res.id for res in ok_resources]}")
 
     return nok_resources, ok_res_ids, ok_resources, stash
 

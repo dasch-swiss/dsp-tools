@@ -318,6 +318,8 @@ def _upload_resources(
     bitstream_size_uploaded_mb = 0.0
 
     for i, resource in enumerate(resources):
+        print(f"uploading resource: {resource.id} ...")
+
         resource_start = datetime.now()
         filetype = ""
         filesize = round(bitstream_all_sizes_mb[i], 1)

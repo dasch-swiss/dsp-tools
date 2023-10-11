@@ -45,6 +45,7 @@ def create_circular_references_test_graph(root: etree._Element, replication_coun
         root.extend(_make_inverted_complex_dependencies(replication_counter=f"{i}6"))
         root.extend(_make_two_resource_circle_plus_non_circle_link(replication_counter=f"{i}7"))
         root.extend(_make_three_resource_circle_with_multiple_text_prop(replication_counter=f"{i}8"))
+        root.extend(_make_three_resource_circle_multiple_diverse_links(replication_counter=f"{i}9"))
     return root
 
 
@@ -257,3 +258,12 @@ def _make_three_resource_circle_with_multiple_text_prop(replication_counter: str
     resptr_links = _make_resptr_prop([x.attrib["id"] for x in all_resources[1:]])
     all_resources[0].append(resptr_links)
     return all_resources
+
+
+def _make_three_resource_circle_multiple_diverse_links(replication_counter: str) -> list[etree._Element]:
+    resources = _make_three_resource_circle_with_multiple_text_prop(replication_counter)
+    resources[0].append(_make_xml_text_prop(resources[1:]))
+    return resources
+
+
+create_and_save_circular_references_test_graph()

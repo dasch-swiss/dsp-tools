@@ -19,7 +19,7 @@ def test_get_length_ok_resources() -> None:
         f"\n---------------------\n"
     )
     cprint(text=print_str, color="yellow", attrs=["bold"])
-    assert len(ok_resources) >= 36
+    assert len(ok_resources) >= 42
 
 
 if __name__ == "__main__":

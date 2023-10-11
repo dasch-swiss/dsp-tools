@@ -41,15 +41,17 @@ def upload_stashed_resptr_props(
             # resource could not be uploaded to DSP, so the stash cannot be uploaded either
             # no action necessary: this resource will remain in nonapplied_resptr_props,
             # which will be handled by the caller
+            print(f"  Did not find resource '{res_id}' in id2iri_mapping. Skipping...")
             continue
         res_iri = id2iri_mapping[res_id]
+        print(f"  Uploading to resource '{res_iri}'...")
         try:
             existing_resource = try_network_action(con.get, route=f"/v2/resources/{quote_plus(res_iri)}")
         except BaseError as err:
             _log_if_unable_to_retrieve_resource(err, res_id)
             continue
         if verbose:
-            logger.info(f'  Upload resptrs of resource "{res_id}"...')
+            print(f'  Upload resptrs of resource "{res_id}"...')
         logger.debug(f'  Upload resptrs of resource "{res_id}"...')
         context: dict[str, str] = existing_resource["@context"]
         for stash_item in stash_items:

@@ -32,6 +32,8 @@ from dsp_tools.utils.xmlupload.resource_multimedia import (
 )
 from dsp_tools.utils.xmlupload.stash.stash_models import Stash
 from dsp_tools.utils.xmlupload.stash_circular_references import remove_circular_references
+from dsp_tools.utils.xmlupload.upload_stashed_resptr_props import upload_stashed_resptr_props
+from dsp_tools.utils.xmlupload.upload_stashed_xml_texts import upload_stashed_xml_texts
 from dsp_tools.utils.xmlupload.write_diagnostic_info import (
     MetricRecord,
     determine_save_location_of_diagnostic_info,
@@ -140,7 +142,7 @@ def xmlupload(
             metrics=metrics,
             preprocessing_done=preprocessing_done,
         )
-        nonapplied_stash = _upload_stash(stash) if stash else None
+        nonapplied_stash = _upload_stash(stash, id2iri_mapping, con, verbose) if stash else None
         if nonapplied_stash:
             msg = "Some stashed resptrs or XML texts could not be reapplied to their resources on the DSP server."
             logger.error(msg)
@@ -173,22 +175,27 @@ def xmlupload(
     return success
 
 
-def _upload_stash(stash: Stash) -> Stash | None:
-    ...
-    # if stashed_xml_texts:
-    #     nonapplied_xml_texts = upload_stashed_xml_texts(
-    #         verbose=verbose,
-    #         id2iri_mapping=id2iri_mapping,
-    #         con=con,
-    #         stashed_xml_texts=stashed_xml_texts,
-    #     )
-    # if stashed_resptr_props:
-    #     nonapplied_resptr_props = upload_stashed_resptr_props(
-    #         verbose=verbose,
-    #         id2iri_mapping=id2iri_mapping,
-    #         con=con,
-    #         stashed_resptr_props=stashed_resptr_props,
-    #     )
+def _upload_stash(
+    stash: Stash,
+    id2iri_mapping: dict[str, str],
+    con: Connection,
+    verbose: bool,
+) -> Stash | None:
+    if stash.standoff_stash:
+        nonapplied_standoff = upload_stashed_xml_texts(
+            verbose=verbose,
+            id2iri_mapping=id2iri_mapping,
+            con=con,
+            stashed_xml_texts=stash.standoff_stash,
+        )
+    if stash.link_value_stash:
+        nonapplied_resptr_props = upload_stashed_resptr_props(
+            verbose=verbose,
+            id2iri_mapping=id2iri_mapping,
+            con=con,
+            stashed_resptr_props=stash.link_value_stash,
+        )
+    return Stash.make(nonapplied_standoff, nonapplied_resptr_props)
 
 
 def _get_project_permissions_and_classes_from_server(

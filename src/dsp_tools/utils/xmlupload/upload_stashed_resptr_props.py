@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
-from typing import Iterable
 from urllib.parse import quote_plus
 
 from dsp_tools.models.connection import Connection
@@ -11,41 +9,17 @@ from dsp_tools.models.xmlproperty import XMLProperty
 from dsp_tools.models.xmlresource import XMLResource
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import try_network_action
+from dsp_tools.utils.xmlupload.stash.stash_models import LinkValueStash, LinkValueStashItem
 
 logger = get_logger(__name__)
-
-
-@dataclass(frozen=True)
-class LinkStashItem:
-    """
-    This class holds information about a single stashed (resptr) link.
-    """
-
-    res_id: str
-    res_iri: str
-    res_type: str
-    link_name: str
-    link_target_iri: str
-
-
-@dataclass(frozen=True)
-class ResourceLinkStash:
-    """
-    This class holds information about all stashed (resptr) links or a single resource.
-    """
-
-    res_id: str
-    res_iri: str
-    res_type: str
-    stash: list[LinkStashItem]
 
 
 def upload_stashed_resptr_props(
     verbose: bool,
     id2iri_mapping: dict[str, str],
     con: Connection,
-    stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]],
-) -> dict[XMLResource, dict[XMLProperty, list[str]]]:
+    stashed_resptr_props: LinkValueStash,
+) -> LinkValueStash | None:
     """
     After all resources are uploaded, the stashed resptr props must be applied to their resources in DSP.
 
@@ -59,116 +33,78 @@ def upload_stashed_resptr_props(
         nonapplied_resptr_props: the resptr props that could not be uploaded
     """
 
+    # XXX: how to handle not found resources. currently nothing happens apart from a warning.
     print("Upload the stashed resptrs...")
     logger.info("Upload the stashed resptrs...")
-    nonapplied_resptr_props = stashed_resptr_props.copy()
-    for resource, prop_2_resptrs in stashed_resptr_props.items():
-        if resource.id not in id2iri_mapping:
+    not_uploaded: list[LinkValueStashItem] = []
+    for res_id, stash_items in stashed_resptr_props.res_2_stash_items.items():
+        if res_id not in id2iri_mapping:
             # resource could not be uploaded to DSP, so the stash cannot be uploaded either
             # no action necessary: this resource will remain in nonapplied_resptr_props,
             # which will be handled by the caller
             continue
-        res_iri = id2iri_mapping[resource.id]
+        res_iri = id2iri_mapping[res_id]
         try:
             existing_resource = try_network_action(con.get, route=f"/v2/resources/{quote_plus(res_iri)}")
         except BaseError as err:
-            # Apart from that, no action is necessary:
-            # this resource will remain in nonapplied_resptr_props, which will be handled by the caller
-            _log_if_unable_to_retrieve_resource(err=err, resource=resource)
-            continue
-        logger.info(f'  Upload resptrs of resource "{resource.id}"...')
-        context: dict[str, str] = existing_resource["@context"]
-        prop_name_2_prop = {prop.name: prop for prop in resource.properties}
-        stash_items = list(_create_stash_items(id2iri_mapping, resource, prop_2_resptrs, res_iri))
-        stash = ResourceLinkStash(
-            res_id=resource.id,
-            res_iri=res_iri,
-            res_type=resource.restype,
-            stash=stash_items,
-        )
-        to_remove = _upload_all_resptr_props_of_single_resource(
-            stash=stash,
-            con=con,
-            context=context,
-            verbose=verbose,
-        )
-        for link_name, res_id in to_remove:
-            link_prop = prop_name_2_prop[link_name]
-            nonapplied_resptr_props[resource][link_prop].remove(res_id)
-
-    # make a purged version of nonapplied_resptr_props, without empty entries
-    nonapplied_resptr_props = purge_stashed_resptr_props(
-        stashed_resptr_props=nonapplied_resptr_props,
-        id2iri_mapping=id2iri_mapping,
-    )
-    return nonapplied_resptr_props
-
-
-def _create_stash_items(
-    id2iri_mapping: dict[str, str],
-    resource: XMLResource,
-    prop_2_resptrs: dict[XMLProperty, list[str]],
-    res_iri: str,
-) -> Iterable[LinkStashItem]:
-    for link_prop, resptrs in prop_2_resptrs.items():
-        for resptr in resptrs:
-            yield LinkStashItem(
-                res_id=resptr,
-                res_iri=res_iri,
-                res_type=resource.restype,
-                link_name=link_prop.name,
-                link_target_iri=id2iri_mapping.get(resptr, resptr),
-            )
-
-
-def _upload_all_resptr_props_of_single_resource(
-    stash: ResourceLinkStash,
-    con: Connection,
-    context: dict[str, str],
-    verbose: bool,
-) -> list[tuple[str, str]]:
-    """
-    This function takes one resource stashed resource and resptr-props that are specific to a property.
-    It sends them to the DSP-API and removes them from the nonapplied_resptr_props dictionary.
-
-    Args:
-        stash: All stashed links for the resource
-        con: Connection to the DSP-API
-        context: the JSON-LD context for the resource
-        verbose: If True, more information is logged
-
-    Returns:
-        A list of tuples (link name and resource id) that have been uploaded
-        and can be removed from the nonapplied_resptr_props dictionary.
-    """
-    res: list[tuple[str, str]] = []
-    for stash_item in stash.stash:
-        jsondata = _create_resptr_prop_json_object_to_update(stash_item, context)
-        try:
-            try_network_action(con.post, route="/v2/values", jsondata=jsondata)
-        except BaseError as err:
-            # print the message to keep track of the cause for the failure.
-            # Apart from that, no action is necessary:
-            # this resource will remain in nonapplied_resptr_props, which will be handled by the caller
-            orig_err_msg = err.orig_err_msg_from_api or err.message
-            err_msg = f"Unable to upload the resptr prop of '{stash_item.link_name}' of resource '{stash.res_id}'."
-            print(f"    WARNING: {err_msg} Original error message: {orig_err_msg}")
-            logger.warning(err_msg, exc_info=True)
+            _log_if_unable_to_retrieve_resource(err, res_id)
             continue
         if verbose:
-            print(f'  Successfully uploaded resptr-prop of "{stash_item.link_name}". Value: {stash_item.res_id}')
-        logger.debug(f'Successfully uploaded resptr-prop of "{stash_item.link_name}". Value: {stash_item.res_id}')
-        res.append((stash_item.link_name, stash_item.res_id))
-    return res
+            logger.info(f'  Upload resptrs of resource "{res_id}"...')
+        logger.debug(f'  Upload resptrs of resource "{res_id}"...')
+        context: dict[str, str] = existing_resource["@context"]
+        for stash_item in stash_items:
+            target_iri = id2iri_mapping.get(stash_item.target_id)
+            if not target_iri:
+                continue
+            success = _upload_stash_item(stash_item, res_iri, target_iri, con, context)
+            if not success:
+                not_uploaded.append(stash_item)
+    return LinkValueStash.make(not_uploaded)
+
+
+def _upload_stash_item(
+    stash: LinkValueStashItem,
+    res_iri: str,
+    target_iri: str,
+    con: Connection,
+    context: dict[str, str],
+) -> bool:
+    """
+    Upload a single stashed link value to DSP.
+
+    Args:
+        stash_item: the stashed link value to upload
+        res_iri: the iri of the resource
+        res_type: the type of the resource
+        res_id: the internal id of the resource
+        id2iri_mapping: mapping of ids from the XML file to IRIs in DSP
+        con: connection to DSP
+        context: the JSON-LD context of the resource
+
+    Returns:
+        True, if the upload was successful, False otherwise
+    """
+    jsondata = _create_resptr_prop_json_object_to_update(stash, res_iri, target_iri, context)
+    try:
+        try_network_action(con.put, route="/v2/values", jsondata=jsondata)
+    except BaseError as err:
+        orig_err_msg = err.orig_err_msg_from_api or err.message
+        err_msg = f"Unable to upload the resptr prop of '{stash.prop_name}' of resource '{stash.res_id}'."
+        print(f"    WARNING: {err_msg} Original error message: {orig_err_msg}")
+        logger.warning(err_msg, exc_info=True)
+        return False
+    logger.debug(f'  Successfully uploaded xml text of "{stash.prop_name}"\n')
+    return True
 
 
 def _log_if_unable_to_retrieve_resource(
     err: BaseError,
-    resource: XMLResource,
+    resource_id: str,
 ) -> None:
     orig_err_msg = err.orig_err_msg_from_api or err.message
     err_msg = (
-        f"Unable to upload resptrs of resource '{resource.id}', "
+        f"Unable to upload resptrs of resource '{resource_id}', "
         "because the resource cannot be retrieved from the DSP server."
     )
     print(f"  WARNING: {err_msg} Original error message: {orig_err_msg}")
@@ -176,29 +112,20 @@ def _log_if_unable_to_retrieve_resource(
 
 
 def _create_resptr_prop_json_object_to_update(
-    stash: LinkStashItem,
+    stash: LinkValueStashItem,
+    res_iri: str,
+    target_iri: str,
     context: dict[str, str],
 ) -> str:
     """
     This function creates a JSON object that can be sent as an update request to the DSP-API.
-
-    Args:
-        stash: the stashed resptr prop
-        context: the JSON-LD context for the resource
-
-    Returns:
-        A JSON object that is suitable for the upload.
     """
     jsonobj = {
-        "@id": stash.res_iri,
+        "@id": res_iri,
         "@type": stash.res_type,
-        f"{stash.link_name}Value": {
+        f"{stash.prop_name}Value": {
             "@type": "knora-api:LinkValue",
-            "knora-api:linkValueHasTargetIri": {
-                # if target doesn't exist in DSP, send the (invalid) resource ID of target to DSP,
-                # which will produce an understandable error message
-                "@id": stash.link_target_iri
-            },
+            "knora-api:linkValueHasTargetIri": {"@id": target_iri},
         },
         "@context": context,
     }

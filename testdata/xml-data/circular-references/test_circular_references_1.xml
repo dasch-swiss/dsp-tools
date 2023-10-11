@@ -167,6 +167,9 @@
         <resptr-prop name=":hasResource1">
             <resptr permissions="prop-default">res_B_14.2</resptr>
         </resptr-prop>
+        <resptr-prop name=":hasResource2">
+            <resptr permissions="prop-default">res_B_14.2</resptr>
+        </resptr-prop>
     </resource>
     <resource label="res_B_14.2" restype=":TestThing" id="res_B_14.2" permissions="res-default">
         <text-prop name=":hasRichtext">

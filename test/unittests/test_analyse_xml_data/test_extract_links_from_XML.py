@@ -55,6 +55,15 @@ def test_get_all_links_one_resource() -> None:
     assert expected == unordered(res)
 
 
+def test_get_all_links_one_resource_no_links() -> None:
+    test_ele = etree.fromstring(
+        '<resource label="res_B_18" restype=":TestThing" id="res_B_18" permissions="res-default"/>'
+    )
+    res = _get_all_links_one_resource(test_ele)
+    expected = []
+    assert expected == res
+
+
 def test_text_only_get_all_links_one_resource() -> None:
     test_ele = etree.fromstring(
         '<resource xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '

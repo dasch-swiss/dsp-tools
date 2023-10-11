@@ -60,7 +60,7 @@ def test_get_all_links_one_resource_no_links() -> None:
         '<resource label="res_B_18" restype=":TestThing" id="res_B_18" permissions="res-default"/>'
     )
     res = _get_all_links_one_resource(test_ele)
-    assert None == res
+    assert None is res
 
 
 def test_text_only_get_all_links_one_resource() -> None:

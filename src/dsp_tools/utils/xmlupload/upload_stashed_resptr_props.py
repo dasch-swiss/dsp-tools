@@ -40,7 +40,6 @@ def upload_stashed_resptr_props(
             # resource could not be uploaded to DSP, so the stash cannot be uploaded either
             # no action necessary: this resource will remain in nonapplied_resptr_props,
             # which will be handled by the caller
-            print(f"  Did not find resource '{res_id}' in id2iri_mapping. Skipping...")
             continue
         res_iri = id2iri_mapping[res_id]
         try:

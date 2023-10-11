@@ -65,5 +65,37 @@ def _extract_id_one_text(text: etree._Element) -> list[Any]:
     return list(all_links)
 
 
-def _extract_id_one_resptr_prop(resptr_prop: etree._Element) -> list[Any]:
+def _extract_id_one_resptr_prop(resptr_prop: etree._Element) -> list[str]:
     return [x.text for x in resptr_prop.getchildren()]
+
+
+def _extract_weighted_id_one_resource(resource: etree._Element) -> dict[str, int | float] | None:
+    id_list: list[dict[str, int | float]] = []
+    for prop in resource.getchildren():
+        match prop.tag:
+            case "{https://dasch.swiss/schema}text-prop":
+                id_list.extend(_extract_weighted_id_one_text_prop(prop))
+            case "{https://dasch.swiss/schema}resptr-prop":
+                resptr_links = _extract_id_one_resptr_prop(prop)
+                # TODO change tuple
+                resptr_links = [tuple(x, 1) for x in resptr_links]
+                id_list.extend(resptr_links)
+    if len(id_list) == 0:
+        return None
+    else:
+        # TODO: count
+        return id_list
+
+
+def _extract_weighted_id_one_text_prop(text_prop: etree._Element) -> list[dict[str, int | float]]:
+    # the same ID is in several separate <text> in one <text-prop> are considered separate links
+    all_links = []
+    for text in text_prop.getchildren():
+        all_links.append(_extract_weighted_text_id(text))
+    return all_links
+
+
+def _extract_weighted_text_id(text: etree._Element) -> dict[str, int | float]:
+    ids = _extract_id_one_text(text)
+    weight = 1 / len(ids)
+    return {_id: weight for _id in ids}

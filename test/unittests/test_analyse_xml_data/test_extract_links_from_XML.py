@@ -8,6 +8,8 @@ from dsp_tools.analyse_xml_data.extract_links_from_XML import (
     _extract_id_one_resptr_prop,
     _extract_id_one_text,
     _extract_id_one_text_prop,
+    _extract_weighted_id_one_text_prop,
+    _extract_weighted_text_id,
     _get_all_links_one_resource,
     get_links_all_resources_from_root,
 )
@@ -138,6 +140,41 @@ def test_extract_several_id_resptr_prop() -> None:
     )
     res = _extract_id_one_resptr_prop(test_ele)
     expected = ["res_A_13", "res_B_13", "res_C_13"]
+    assert expected == unordered(res)
+
+
+def test_extract_extract_weighted_id_one_text_prop_one_link() -> None:
+    test_ele = etree.fromstring(
+        '<text permissions="prop-default" encoding="xml"><a class="salsah-link" '
+        'href="IRI:res_A_18:IRI">res_A_18</a></text>'
+    )
+    res = _extract_weighted_text_id(test_ele)
+    expected = {"res_A_18": 1}
+    assert expected == res
+
+
+def test_extract_extract_weighted_id_one_text_prop_three_link() -> None:
+    test_ele = etree.fromstring(
+        '<text-prop xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+        'name=":hasRichtext"><text permissions="prop-default" encoding="xml"><a class="salsah-link" '
+        'href="IRI:res_A_16:IRI">res_A_16</a><a class="salsah-link" href="IRI:res_B_16:IRI">res_B_16</a><a '
+        'class="salsah-link" href="IRI:res_C_16:IRI">res_C_16</a></text></text-prop>'
+    )
+    res = _extract_weighted_text_id(test_ele)
+    expected_keys = ["res_A_16", "res_B_16", "res_C_16"]
+    assert expected_keys == unordered(list(res.keys()))
+    assert sum(res.values()) == 1
+
+
+def test_extract_weighted_id_one_text_prop() -> None:
+    test_ele = etree.fromstring(
+        '<text-prop xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+        'name=":hasRichtext"><text permissions="prop-default" encoding="xml"><a class="salsah-link" '
+        'href="IRI:res_A_19:IRI">res_A_19</a></text><text permissions="prop-default" encoding="xml"><a '
+        'class="salsah-link" href="IRI:res_B_19:IRI">res_B_19</a></text></text-prop>'
+    )
+    res = _extract_weighted_id_one_text_prop(test_ele)
+    expected = [{"res_A_19": 1}, {"res_B_19": 1}]
     assert expected == unordered(res)
 
 

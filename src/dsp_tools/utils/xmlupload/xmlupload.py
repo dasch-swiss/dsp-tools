@@ -195,7 +195,7 @@ def _upload_stash(
             con=con,
             stashed_resptr_props=stash.link_value_stash,
         )
-    return Stash.make(nonapplied_standoff, nonapplied_resptr_props)
+    return Stash.make(nonapplied_standoff or None, nonapplied_resptr_props or None)
 
 
 def _get_project_permissions_and_classes_from_server(

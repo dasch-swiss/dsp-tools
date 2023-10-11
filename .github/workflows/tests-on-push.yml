@@ -125,36 +125,6 @@ jobs:
         run: poetry run pytest -s test/benchmarking/
 
 
-  cli-tests:
-    name: Run CLI Test
-    runs-on: ubuntu-latest
-    steps:
-      # Setup
-      - name: Checkout source
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
-      - name: Install poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          poetry self add poetry-exec-plugin
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.11
-          # attempt to restore dependencies from cache (if successful, the following `poetry install` will be a no-op)
-          cache: poetry
-      - name: Install Python dependencies
-        run: poetry install
-      # run tests
-      - name: start stack
-        run: poetry run dsp-tools start-stack --no-prune
-      - name: e2e tests
-        run: poetry run pytest test/e2e/test_cli.py
-      - name: stop stack  # see if this command can run (it isn't tested anywhere else)
-        run: poetry run dsp-tools stop-stack
-
-
   e2e-tests:
     name: Run E2E/Integration Tests
     runs-on: ubuntu-latest

@@ -28,7 +28,7 @@ def get_links_all_resources_from_root(root: etree._Element) -> dict[str : list[s
     return resource_links
 
 
-def _get_all_links_one_resource(resource: etree._Element) -> list[Any] | None:
+def _get_all_links_one_resource(resource: etree._Element) -> list[str] | None:
     id_list = []
     for prop in resource.getchildren():
         match prop.tag:

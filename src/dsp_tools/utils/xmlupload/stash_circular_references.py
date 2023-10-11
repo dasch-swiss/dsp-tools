@@ -21,7 +21,6 @@ logger = get_logger(__name__)
 def _stash_circular_references(
     nok_resources: list[XMLResource],
     ok_res_ids: set[str],
-    ok_resources: list[XMLResource],
 ) -> tuple[list[XMLResource], set[str], list[XMLResource], Stash | None]:
     """
     Raises:
@@ -29,6 +28,7 @@ def _stash_circular_references(
     """
     stashed_standoff_values: list[tuple[XMLResource, StandoffStashItem]] = []
     stashed_link_values: list[LinkValueStashItem] = []
+    ok_resources: list[XMLResource] = []
 
     print("Stashing circular references...")
 
@@ -130,21 +130,13 @@ def remove_circular_references(
         resources = nok_resources
         if len(nok_resources) == nok_len:
             # there are circular references. go through all problematic resources, and stash the problematic references.
-            (
-                nok_resources,
-                ok_res_ids,
-                ok_resources,
-                stash,
-            ) = _stash_circular_references(
-                nok_resources=nok_resources,
-                ok_res_ids=ok_res_ids,
-                ok_resources=ok_resources,
-            )
+            nok_resources, ok_res_ids, ok_res, stash = _stash_circular_references(nok_resources, ok_res_ids)
+            ok_resources.extend(ok_res)
         nok_len = len(nok_resources)
         nok_resources = []
         cnt += 1
         if verbose:
             print(f"{cnt}. ordering pass finished.")
-            logger.info(f"{cnt}. ordering pass finished.")
+        logger.debug(f"{cnt}. ordering pass finished.")
 
     return ok_resources, stash

@@ -192,6 +192,7 @@ def try_network_action(
                 time.sleep(2**i)
                 continue
             else:
+                print(err.message)
                 raise err
 
     logger.error("Permanently unable to execute the network action. See logs for more details.")

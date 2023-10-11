@@ -275,7 +275,8 @@ def _make_three_resource_circle_multiple_diverse_links(replication_counter: str)
     # A -> B (resptr-prop)
     # A -> B & C (xml-text) single <text> ele
     # A -> C (resptr-prop)
-    # C -> A & B (xml-prop)
+    # C -> A (xml-prop)
+    # C -> B (xml-prop)
 
     resources = _make_three_resource_circle_with_multiple_text_prop(replication_counter)
     resources[0].append(_make_xml_text_prop(resources[1:]))

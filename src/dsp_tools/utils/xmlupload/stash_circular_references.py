@@ -90,8 +90,7 @@ def remove_circular_references(
 
     Returns:
         list: list of cleaned resources
-        stashed_xml_texts: dict with the stashed XML texts
-        stashed_resptr_props: dict with the stashed resptr-props
+        stash: an object that contains the problematic references
     """
 
     if verbose:

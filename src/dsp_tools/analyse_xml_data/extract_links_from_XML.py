@@ -44,7 +44,7 @@ def _get_all_links_one_resource(resource: etree._Element) -> list[str] | None:
 
 
 def _extract_id_one_text_prop(text_prop: etree._Element) -> list[Any]:
-    # the same ID is in several separate <text-props> are considered separate links
+    # the same ID is in several separate <text> in one <text-prop> are considered separate links
     all_links = []
     for text in text_prop.getchildren():
         all_links.extend(_extract_id_one_text(text))

@@ -32,7 +32,7 @@ def _stash_circular_references(
     stashed_standoff_values: list[tuple[XMLResource, StandoffStashItem]] = []
     for res in nok_resources.copy():
         for link_prop in res.get_props_with_links():
-            if link_prop.valtype == "text":
+            if link_prop.valtype == " ":
                 for value in link_prop.values:
                     if value.resrefs and not all(_id in ok_res_ids for _id in value.resrefs):
                         # replace the problematic XML with a UUID

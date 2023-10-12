@@ -365,8 +365,10 @@ Notes:
   For example:
     - "1893" will be expanded to a range from January 1st 1893 to December 31st 1893.
     - "1893-01" will be expanded to a range from January 1st 1893 to January 31st 1893.
-    - "1893-01-01" will be expanded to a range from January 1st 1893 to January 1st 1893 
-      (technically also a range).
+    - "1893-01-01" will be expanded to a range from January 1st 1893 **to the entire year 1893**.
+- **Therefore, a day-precision date should always be written with start and end date:** 
+  `GREGORIAN:CE:1893-01-01:CE:1893-01-01`
+      
 
 Attributes:
 
@@ -378,7 +380,7 @@ Example of a property with a public and a hidden date value:
 
 ```xml
 <date-prop name=":hasDate">
-  <date permissions="prop-default">GREGORIAN:CE:2014-01-31</date>
+  <date permissions="prop-default">GREGORIAN:CE:2014-01-31:CE:2014-01-31</date>
   <date>GREGORIAN:CE:1930-09-02:CE:1930-09-03</date>
 </date-prop>
 ```

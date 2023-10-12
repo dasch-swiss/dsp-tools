@@ -32,7 +32,6 @@ from dsp_tools.models.value import (
     TimeValue,
     UriValue,
     Value,
-    fromJsonLdObj,
 )
 
 
@@ -224,44 +223,6 @@ class ResourceInstance(Model):
     def clone(self) -> "ResourceInstance":
         return deepcopy(self)
 
-    def fromJsonLdObj(self, jsonld_obj: dict[str, Any]) -> "ResourceInstance":
-        newinstance = self.clone()
-        newinstance._iri = jsonld_obj.get("@id")
-        newinstance._label = jsonld_obj.get("rdfs:label")
-        newinstance._ark = Value.get_typed_value("knora-api:arkUrl", jsonld_obj)
-        newinstance._version_ark = Value.get_typed_value("knora-api:versionArkUrl", jsonld_obj)
-        newinstance._permissions = Permissions.fromString(jsonld_obj.get("knora-api:hasPermissions"))
-        newinstance._user_permission = PermissionValue[jsonld_obj.get("knora-api:userHasPermission", jsonld_obj)]
-        to_be_ignored = [
-            "@id",
-            "@type",
-            "@context",
-            "rdfs:label",
-            "knora-api:arkUrl",
-            "knora-api:versionArkUrl",
-            "knora-api:creationDate",
-            "knora-api:attachedToUser",
-            "knora-api:attachedToProject",
-            "knora-api:hasPermissions",
-            "knora-api:userHasPermission",
-        ]
-        if id is None:
-            raise BaseError('Resource "id" is missing in JSON-LD from DSP-API')
-        newinstance._values: dict[str, Union[Value, list[Value]]] = {}
-        for key, obj in jsonld_obj.items():
-            if key in to_be_ignored:
-                continue
-            try:
-                if isinstance(obj, list):
-                    newinstance._values[key] = []
-                    for o in obj:
-                        newinstance._values[key].append(fromJsonLdObj(o))
-                else:
-                    newinstance._values[key] = fromJsonLdObj(obj)
-            except KeyError as kerr:
-                raise BaseError(f'Invalid data in JSON-LD: "{key}" has value class "{obj.get("@type")}"!') from kerr
-        return newinstance
-
     def toJsonLdObj(self, action: Actions) -> Any:
         tmp = {}
         if action == Actions.Create:
@@ -334,10 +295,6 @@ class ResourceInstance(Model):
         newinstance._ark = result["knora-api:arkUrl"]["@value"]
         newinstance._version_ark = result["knora-api:versionArkUrl"]["@value"]
         return newinstance
-
-    def read(self) -> "ResourceInstance":
-        result = self._con.get(ResourceInstance.ROUTE + "/" + quote_plus(self._iri))
-        return self.fromJsonLdObj(result)
 
     def update(self):
         pass

@@ -32,7 +32,9 @@ services:
     ports:
       - "1024:1024"
     volumes:
-      - .:/docker
+      - ./tmp:/tmp
+      - .:/sipi/config
+      - ./sipi/images:/sipi/images
     networks:
       - knora-net
     environment:
@@ -44,7 +46,7 @@ services:
       - SIPI_WEBAPI_PORT=3333
       - KNORA_WEBAPI_KNORA_API_EXTERNAL_HOST=0.0.0.0
       - KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT=3333
-    command: --config=/docker/sipi.docker-config.lua
+    command: --config=/sipi/config/sipi.docker-config.lua
 
   api:
     # on the verge of every deployment (fortnightly), update the "image" value from the "api" value of
@@ -73,6 +75,24 @@ services:
       - KNORA_WEBAPI_ALLOW_RELOAD_OVER_HTTP=true
       - KNORA_WEBAPI_KNORA_API_EXTERNAL_HOST=0.0.0.0
       - KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT=3333
+
+  ingest:
+    image: daschswiss/dsp-ingest:latest
+    ports:
+      - "3340:3340"
+    volumes:
+      - ./sipi/images:/opt/images
+      - ./sipi/tmp-dsp-ingest:/opt/temp
+    environment:
+      - SERVICE_HOST=0.0.0.0
+      - SERVICE_PORT=3340
+      - SERVICE_LOG_FORMAT=text
+      - STORAGE_ASSET_DIR=/opt/images
+      - STORAGE_TEMP_DIR=/opt/temp
+      - JWT_AUDIENCE=http://localhost:3340
+      - JWT_ISSUER=0.0.0.0:3333
+      - JWT_SECRET=UP 4888, nice 4-8-4 steam engine
+      - SIPI_USE_LOCAL_DEV=false
 
 networks:
   knora-net:

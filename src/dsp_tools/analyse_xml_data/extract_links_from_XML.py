@@ -3,55 +3,85 @@ from typing import Any
 import regex
 from lxml import etree
 
+from dsp_tools.analyse_xml_data.xml_to_graph_models import ResptrLink, TripleGraph, XMLLink
 
-def get_links_all_resources_from_root(root: etree._Element) -> dict[str, list[str]]:
-    """
-    This function takes the root of an XML file an extracts all the links from the resources.
-    It returns a dictionary with the resources that contain links as keys
-    And a list of the target resources as keys.
-    If a resource does not have any targets links it is not in the dictionary
 
-    Args:
-        root: root of an xml
-
-    Returns:
-        Dictionary with resource ids as key and a list with links as value
-    """
-    resource_links = dict()
+def _create_classes_from_root(root: etree._Element) -> list[ResptrLink] and list[XMLLink]:
+    resptr_instances = []
+    xml_instances = []
     for resource in root.iter(tag="{https://dasch.swiss/schema}resource"):
-        links = _get_all_links_one_resource(resource)
-        match links:
-            case list():
-                resource_links[resource.attrib["id"]] = links
-            case None:
-                continue
-    return resource_links
+        resptr, xml = _create_classes_single_resource(resource)
+        if resptr:
+            resptr_instances.extend(resptr)
+        if xml:
+            xml_instances.extend(xml)
 
 
-def _get_all_links_one_resource(resource: etree._Element) -> list[str] | None:
-    id_list = []
+def _create_classes_single_resource(resource: etree._Element) -> list[ResptrLink] | None and list[XMLLink] | None:
+    subject_id = resource.attrib("id")
+    resptr_links, xml_links = _get_all_links_one_resource(resource)
+    if resptr_links:
+        weight_dict = _make_weighted_resptr_links(resptr_links)
+        resptr_links = [ResptrLink(subject_id=subject_id, object_id=k, edge_weight=v) for k, v in weight_dict.items()]
+    if xml_links:
+        xml_links = [XMLLink(subject_id=subject_id, object_ids=x) for x in xml_links]
+    return resptr_links, xml_links
+
+
+def _make_weighted_resptr_links(resptr_links: list[str]) -> dict[str, int]:
+    weight_dict = {link: 0 for link in set(resptr_links)}
+    for link in resptr_links:
+        weight_dict[link] += 1
+    return weight_dict
+
+
+def _get_all_links_one_resource(resource: etree._Element) -> list[str] | None and list[set[str]] | None:
+    resptr_links = []
+    xml_links = []
     for prop in resource.getchildren():
         match prop.tag:
             case "{https://dasch.swiss/schema}text-prop":
-                id_list.extend(_extract_id_one_text_prop(prop))
+                links = _extract_id_one_text_prop(prop)
+                match links:
+                    case list():
+                        xml_links.extend(links)
+                    case None:
+                        continue
             case "{https://dasch.swiss/schema}resptr-prop":
-                id_list.extend(_extract_id_one_resptr_prop(prop))
-    match len(id_list):
-        case 0:
-            return None
-        case _:
-            return id_list
+                links = _extract_id_one_resptr_prop(prop)
+                match links:
+                    case list():
+                        resptr_links.extend(links)
+                    case None:
+                        continue
+    if len(resptr_links) == 0:
+        resptr_links = None
+    if len(xml_links) == 0:
+        xml_links = None
+    return resptr_links, xml_links
 
 
-def _extract_id_one_text_prop(text_prop: etree._Element) -> list[Any]:
+def _extract_id_one_resptr_prop(resptr_prop: etree._Element) -> list[str]:
+    return [x.text for x in resptr_prop.getchildren()]
+
+
+def _extract_id_one_text_prop(text_prop: etree._Element) -> list[set[str]] | None:
     # the same ID is in several separate <text> in one <text-prop> are considered separate links
-    all_links = []
+    xml_props = []
     for text in text_prop.getchildren():
-        all_links.extend(_extract_id_one_text(text))
-    return all_links
+        links = _extract_id_one_text(text)
+        match links:
+            case set():
+                xml_props.append(links)
+            case None:
+                continue
+    if len(xml_props) == 0:
+        return None
+    else:
+        return xml_props
 
 
-def _extract_id_one_text(text: etree._Element) -> list[Any]:
+def _extract_id_one_text(text: etree._Element) -> set[str] | None:
     # the same id in one <text> only means one link to the resource
     all_links = set()
     for ele in text.iterdescendants():
@@ -62,40 +92,7 @@ def _extract_id_one_text(text: etree._Element) -> list[Any]:
                     all_links.add(searched.group(1))
                 case None:
                     continue
-    return list(all_links)
-
-
-def _extract_id_one_resptr_prop(resptr_prop: etree._Element) -> list[str]:
-    return [x.text for x in resptr_prop.getchildren()]
-
-
-def _extract_weighted_id_one_resource(resource: etree._Element) -> dict[str, int | float] | None:
-    id_list: list[dict[str, int | float]] = []
-    for prop in resource.getchildren():
-        match prop.tag:
-            case "{https://dasch.swiss/schema}text-prop":
-                id_list.extend(_extract_weighted_id_one_text_prop(prop))
-            case "{https://dasch.swiss/schema}resptr-prop":
-                resptr_links = _extract_id_one_resptr_prop(prop)
-                # TODO change tuple
-                resptr_links = [tuple(x, 1) for x in resptr_links]
-                id_list.extend(resptr_links)
-    if len(id_list) == 0:
+    if len(all_links) == 0:
         return None
     else:
-        # TODO: count
-        return id_list
-
-
-def _extract_weighted_id_one_text_prop(text_prop: etree._Element) -> list[dict[str, int | float]]:
-    # the same ID is in several separate <text> in one <text-prop> are considered separate links
-    all_links = []
-    for text in text_prop.getchildren():
-        all_links.append(_extract_weighted_text_id(text))
-    return all_links
-
-
-def _extract_weighted_text_id(text: etree._Element) -> dict[str, int | float]:
-    ids = _extract_id_one_text(text)
-    weight = 1 / len(ids)
-    return {_id: weight for _id in ids}
+        return all_links

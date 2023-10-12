@@ -12,8 +12,8 @@ class TripleGraph:
     Contains all classes that express links between resources.
     """
 
-    resptr_links: Optional[list[ResptrLink]]
-    xml_links: Optional[list[XMLLink]]
+    resptr_links: list[ResptrLink]
+    xml_links: list[XMLLink]
 
 
 @dataclass

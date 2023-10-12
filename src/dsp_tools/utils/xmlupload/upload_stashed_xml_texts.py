@@ -116,7 +116,6 @@ def upload_stashed_xml_texts(
         nonapplied_xml_texts: the xml texts that could not be uploaded
     """
 
-    # XXX: how to handle not found resources. currently nothing happens apart from a warning. # pylint: disable=fixme
     print("Upload the stashed XML texts...")
     logger.info("Upload the stashed XML texts...")
     not_uploaded: list[tuple[XMLResource, StandoffStashItem]] = []

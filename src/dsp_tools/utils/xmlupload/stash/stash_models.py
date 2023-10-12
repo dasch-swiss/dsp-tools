@@ -60,7 +60,7 @@ class LinkValueStashItem:
 
 @dataclass(frozen=True)
 class LinkValueStash:
-    """Holds information about a number of stashed link values, organized by resource instance."""
+    """Holds information about a number of stashed link values (resptr-props), organized by resource instance."""
 
     res_2_stash_items: dict[str, list[LinkValueStashItem]]
 

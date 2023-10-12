@@ -31,7 +31,6 @@ def upload_stashed_resptr_props(
         nonapplied_resptr_props: the resptr props that could not be uploaded
     """
 
-    # XXX: how to handle not found resources. currently nothing happens apart from a warning. # pylint: disable=fixme
     print("Upload the stashed resptrs...")
     logger.info("Upload the stashed resptrs...")
     not_uploaded: list[LinkValueStashItem] = []

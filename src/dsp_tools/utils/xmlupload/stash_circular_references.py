@@ -5,10 +5,15 @@ from uuid import uuid4
 
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.value import KnoraStandoffXml
-from dsp_tools.models.xmlproperty import XMLProperty
 from dsp_tools.models.xmlresource import XMLResource
 from dsp_tools.utils.create_logger import get_logger
-from dsp_tools.utils.xmlupload.stash.stash_models import StandoffStash, StandoffStashItem
+from dsp_tools.utils.xmlupload.stash.stash_models import (
+    LinkValueStash,
+    LinkValueStashItem,
+    StandoffStash,
+    StandoffStashItem,
+    Stash,
+)
 
 logger = get_logger(__name__)
 
@@ -16,20 +21,15 @@ logger = get_logger(__name__)
 def _stash_circular_references(
     nok_resources: list[XMLResource],
     ok_res_ids: set[str],
-    ok_resources: list[XMLResource],
-    stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]],
-) -> tuple[
-    list[XMLResource],
-    set[str],
-    list[XMLResource],
-    StandoffStash | None,
-    dict[XMLResource, dict[XMLProperty, list[str]]],
-]:
+) -> tuple[list[XMLResource], set[str], list[XMLResource], Stash | None]:
     """
     Raises:
         BaseError
     """
     stashed_standoff_values: list[tuple[XMLResource, StandoffStashItem]] = []
+    stashed_link_values: list[LinkValueStashItem] = []
+    ok_resources: list[XMLResource] = []
+
     for res in nok_resources.copy():
         for link_prop in res.get_props_with_links():
             if link_prop.valtype == "text":
@@ -39,22 +39,21 @@ def _stash_circular_references(
                         # and remove the problematic resrefs from the XMLValue's resrefs list
                         standoff_xml = cast(KnoraStandoffXml, value.value)
                         uuid = str(uuid4())
-                        stash_item = StandoffStashItem(uuid=uuid, prop_name=link_prop.name, value=standoff_xml)
-                        stashed_standoff_values.append((res, stash_item))
+                        standoff_stash_item = StandoffStashItem(uuid=uuid, prop_name=link_prop.name, value=standoff_xml)
+                        stashed_standoff_values.append((res, standoff_stash_item))
                         value.value = KnoraStandoffXml(uuid)
                         value.resrefs = [_id for _id in value.resrefs if _id in ok_res_ids]
             elif link_prop.valtype == "resptr":
                 for value in link_prop.values.copy():
                     if value.value not in ok_res_ids:
                         # value.value is the id of the target resource. stash it, then delete it
-                        if res not in stashed_resptr_props:
-                            stashed_resptr_props[res] = {}
-                            stashed_resptr_props[res][link_prop] = [str(value.value)]
-                        else:
-                            if link_prop not in stashed_resptr_props[res]:
-                                stashed_resptr_props[res][link_prop] = [str(value.value)]
-                            else:
-                                stashed_resptr_props[res][link_prop].append(str(value.value))
+                        link_stash_item = LinkValueStashItem(
+                            res_id=res.id,
+                            res_type=res.restype,
+                            prop_name=link_prop.name,
+                            target_id=str(value.value),
+                        )
+                        stashed_link_values.append(link_stash_item)
                         link_prop.values.remove(value)
             else:
                 logger.error("ERROR in remove_circular_references(): link_prop.valtype is neither text nor resptr.")
@@ -69,14 +68,16 @@ def _stash_circular_references(
         nok_resources.remove(res)
 
     standoff_stash = StandoffStash.make(stashed_standoff_values)
+    link_value_stash = LinkValueStash.make(stashed_link_values)
+    stash = Stash.make(standoff_stash, link_value_stash)
 
-    return nok_resources, ok_res_ids, ok_resources, standoff_stash, stashed_resptr_props
+    return nok_resources, ok_res_ids, ok_resources, stash
 
 
 def remove_circular_references(
     resources: list[XMLResource],
     verbose: bool,
-) -> tuple[list[XMLResource], StandoffStash | None, dict[XMLResource, dict[XMLProperty, list[str]]]]:
+) -> tuple[list[XMLResource], Stash | None]:
     """
     Temporarily removes problematic resource-references from a list of resources.
     A reference is problematic if it creates a circle (circular references).
@@ -90,17 +91,14 @@ def remove_circular_references(
 
     Returns:
         list: list of cleaned resources
-        stashed_xml_texts: dict with the stashed XML texts
-        stashed_resptr_props: dict with the stashed resptr-props
+        stash: an object that contains the problematic references
     """
 
     if verbose:
         print("Checking resources for unresolvable references...")
         logger.info("Checking resources for unresolvable references...")
 
-    stashed_xml_texts: StandoffStash | None = None
-    stashed_resptr_props: dict[XMLResource, dict[XMLProperty, list[str]]] = {}
-
+    stash: Stash | None = None
     # sort the resources according to outgoing resptrs
     ok_resources: list[XMLResource] = []
     # resources with circular references
@@ -123,23 +121,13 @@ def remove_circular_references(
         resources = nok_resources
         if len(nok_resources) == nok_len:
             # there are circular references. go through all problematic resources, and stash the problematic references.
-            (
-                nok_resources,
-                ok_res_ids,
-                ok_resources,
-                stashed_xml_texts,
-                stashed_resptr_props,
-            ) = _stash_circular_references(
-                nok_resources=nok_resources,
-                ok_res_ids=ok_res_ids,
-                ok_resources=ok_resources,
-                stashed_resptr_props=stashed_resptr_props,
-            )
+            nok_resources, ok_res_ids, ok_res, stash = _stash_circular_references(nok_resources, ok_res_ids)
+            ok_resources.extend(ok_res)
         nok_len = len(nok_resources)
         nok_resources = []
         cnt += 1
         if verbose:
             print(f"{cnt}. ordering pass finished.")
-            logger.info(f"{cnt}. ordering pass finished.")
+        logger.debug(f"{cnt}. ordering pass finished.")
 
-    return ok_resources, stashed_xml_texts, stashed_resptr_props
+    return ok_resources, stash

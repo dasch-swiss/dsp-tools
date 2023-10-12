@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import uuid
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional
 from uuid import UUID
 
@@ -24,7 +24,7 @@ class ResptrLink:
 
     subject_id: str
     object_id: str
-    edge_weight: float | int = 1
+    edge_weight: float = 1
 
     def to_networkX_format(self):
         return (self.subject_id, self.object_id), self.edge_weight
@@ -39,22 +39,9 @@ class XMLLink:
 
     subject_id: str
     object_link_ids: set[str]
-    edge_weight: float | int
-    reified_object_id: UUID
-    reified_ede_weight: float | int
-
-    def __init__(
-        self,
-        subject_id: str,
-        object_ids: set[str],
-        edge_weight: int | float = 1,
-        reified_ede_weight: int | float = 999999999,
-    ):
-        self.subject_id = subject_id
-        self.object_ids = object_ids
-        self.reified_object_id = uuid.uuid1()
-        self.edge_weight = edge_weight
-        self.reified_ede_weight = reified_ede_weight
+    edge_weight: float
+    reified_object_id: UUID = field(init=False, default_factory=uuid.uuid4)
+    reified_ede_weight: float = 999999999
 
     def to_reified_networkX_format(self):
         main_node = (self.subject_id, self.reified_object_id), self.edge_weight

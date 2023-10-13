@@ -134,18 +134,17 @@ def remove_leaf_nodes(g: rx.PyDiGraph) -> None:
         g.remove_nodes_from(leaf_nodes)
 
 
-def find_cheapest_node(g: rx.PyDiGraph, cycle: rx.EdgeList) -> tuple[int, int, float]:
+def find_cheapest_node(g: rx.PyDiGraph, cycle: rx.EdgeList) -> tuple[int, float]:
     costs = []
-    for source, target in cycle:
+    for source, _ in cycle:
         edges_in = g.in_edges(source)
         node_gain = len(edges_in)
         edges_out = g.out_edges(source)
         node_cost = sum(x[2] for x in edges_out)
         node_value = node_cost / node_gain
-        print(f"node: {source}, node_value: {node_value} (node_cost: {node_cost}, node_gain: {node_gain})")
-        costs.append((source, target, node_value))
-    out_going_link_to_remove = sorted(costs, key=lambda x: x[2])[0]
-    return out_going_link_to_remove
+        costs.append((source, node_value))
+    cheapest_node = sorted(costs, key=lambda x: x[1])[0]
+    return cheapest_node
 
 
 def main() -> None:
@@ -164,20 +163,23 @@ def main() -> None:
     print(f"number of nodes remaining: {g.num_nodes()}")
     print(f"number of edges remaining: {g.num_edges()}")
     print("=" * 80)
-    removed_edges = []
-    while cycle := rx.digraph_find_cycle(g):
-        all_cycles = rx.simple_cycles(g)
-        for c in all_cycles:
-            print(c)
-        quit()
-        print(f"total cycles {all_cycles}")
+    removed_nodes = []
+    while g.num_nodes() > 0:
+        cycle = rx.digraph_find_cycle(g)
+        print("-" * 10)
         print(f"cycle: {cycle}")
-        link = find_cheapest_node(g, cycle)
-        source, target, _ = link
-        g.remove_edge(source, target)
-        removed_edges.append(link)
-        print("-" * 20)
-    print(removed_edges)
+        node = find_cheapest_node(g, cycle)
+        source, _ = node
+        g.remove_node(source)
+        removed_nodes.append(node)
+        print(f"removed link: {node}")
+        print("-" * 40)
+        remove_leaf_nodes(g)
+        print(f"total number of nodes remaining: {g.num_nodes()}")
+        print("-" * 50)
+    print("=" * 80)
+    print(removed_nodes)
+    print("=" * 80)
 
 
 if __name__ == "__main__":

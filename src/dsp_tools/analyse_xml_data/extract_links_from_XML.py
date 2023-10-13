@@ -16,7 +16,8 @@ def create_classes_from_root(root: etree._Element) -> list[ResptrLink] and list[
             resptr_instances.extend(resptr)
         if xml:
             xml_instances.extend(xml)
-        all_link_ids.extend(all_links)
+        if all_link_ids:
+            all_link_ids.extend(all_links)
     return resptr_instances, xml_instances, set(all_link_ids)
 
 
@@ -26,12 +27,12 @@ def _create_classes_single_resource(
     subject_id = resource.attrib.get("id")
     all_used_ids = []
     resptr_links, xml_links = _get_all_links_one_resource(resource)
-    all_used_ids.extend(resptr_links)
-    all_used_ids.extend(chain.from_iterable(xml_links))
     if resptr_links:
+        all_used_ids.extend(resptr_links)
         weight_dict = _make_weighted_resptr_links(resptr_links)
         resptr_links = [ResptrLink(subject_id=subject_id, object_id=k, edge_weight=v) for k, v in weight_dict.items()]
     if xml_links:
+        all_used_ids.extend(chain.from_iterable(xml_links))
         xml_links = [XMLLink(subject_id=subject_id, object_link_ids=x) for x in xml_links]
     return resptr_links, xml_links, all_used_ids
 

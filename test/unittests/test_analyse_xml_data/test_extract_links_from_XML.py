@@ -5,12 +5,39 @@ from lxml import etree
 from pytest_unordered import unordered
 
 from dsp_tools.analyse_xml_data.extract_links_from_XML import (
+    _create_classes_single_resource,
     _extract_id_one_resptr_prop,
     _extract_id_one_text,
     _extract_id_one_text_prop,
     _get_all_links_one_resource,
     _make_weighted_resptr_links,
 )
+from dsp_tools.analyse_xml_data.xml_to_graph_models import ResptrLink, XMLLink
+
+
+def test_create_classes_single_resource() -> None:
+    test_ele = etree.fromstring(
+        '<resource xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+        'label="res_A_19" restype=":TestThing" id="res_A_19" permissions="res-default"><resptr-prop '
+        'name=":hasResource1"><resptr permissions="prop-default">res_B_19</resptr><resptr '
+        'permissions="prop-default">res_C_19</resptr></resptr-prop><text-prop name=":hasRichtext"><text '
+        'permissions="prop-default" encoding="xml"><a class="salsah-link" href="IRI:res_B_19:IRI">res_B_19</a><a '
+        'class="salsah-link" href="IRI:res_C_19:IRI">res_C_19</a></text></text-prop></resource>'
+    )
+    res_resptr_links, res_xml_links, res_all_used_ids = _create_classes_single_resource(test_ele)
+    #########
+    res_B_19 = any(filter(lambda obj: obj.object_id == "res_B_19", res_resptr_links))
+    assert res_B_19
+    res_C_19 = any(filter(lambda obj: obj.object_id == "res_C_19", res_resptr_links))
+    assert res_C_19
+    #########
+    expected_ids = ["res_B_19", "res_C_19", "res_B_19", "res_C_19"]
+    assert expected_ids == unordered(res_all_used_ids)
+    ########
+    expected_xml = {"subject_id": "res_A_19", "object_link_ids": {"res_B_19", "res_C_19"}}
+    res_xml_dict = res_xml_links[0].__dict__
+    for k, v in expected_xml.items():
+        assert v == res_xml_dict[k]
 
 
 def test_get_all_links_one_resource() -> None:

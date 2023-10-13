@@ -1,4 +1,4 @@
-from typing import Any
+from itertools import chain
 
 import regex
 from lxml import etree
@@ -6,26 +6,34 @@ from lxml import etree
 from dsp_tools.analyse_xml_data.xml_to_graph_models import ResptrLink, TripleGraph, XMLLink
 
 
-def _create_classes_from_root(root: etree._Element) -> list[ResptrLink] and list[XMLLink]:
+def create_classes_from_root(root: etree._Element) -> list[ResptrLink] and list[XMLLink] and set[str]:
     resptr_instances = []
     xml_instances = []
+    all_link_ids = []
     for resource in root.iter(tag="{https://dasch.swiss/schema}resource"):
-        resptr, xml = _create_classes_single_resource(resource)
+        resptr, xml, all_links = _create_classes_single_resource(resource)
         if resptr:
             resptr_instances.extend(resptr)
         if xml:
             xml_instances.extend(xml)
+        all_link_ids.extend(all_links)
+    return resptr_instances, xml_instances, set(all_link_ids)
 
 
-def _create_classes_single_resource(resource: etree._Element) -> list[ResptrLink] | None and list[XMLLink] | None:
-    subject_id = resource.attrib("id")
+def _create_classes_single_resource(
+    resource: etree._Element,
+) -> list[ResptrLink] | None and list[XMLLink] | None and list[str] | None:
+    subject_id = resource.attrib.get("id")
+    all_used_ids = []
     resptr_links, xml_links = _get_all_links_one_resource(resource)
+    all_used_ids.extend(resptr_links)
+    all_used_ids.extend(chain.from_iterable(xml_links))
     if resptr_links:
         weight_dict = _make_weighted_resptr_links(resptr_links)
         resptr_links = [ResptrLink(subject_id=subject_id, object_id=k, edge_weight=v) for k, v in weight_dict.items()]
     if xml_links:
-        xml_links = [XMLLink(subject_id=subject_id, object_ids=x) for x in xml_links]
-    return resptr_links, xml_links
+        xml_links = [XMLLink(subject_id=subject_id, object_link_ids=x) for x in xml_links]
+    return resptr_links, xml_links, all_used_ids
 
 
 def _make_weighted_resptr_links(resptr_links: list[str]) -> dict[str, int]:
@@ -40,18 +48,18 @@ def _get_all_links_one_resource(resource: etree._Element) -> list[str] | None an
     xml_links = []
     for prop in resource.getchildren():
         match prop.tag:
-            case "{https://dasch.swiss/schema}text-prop":
-                links = _extract_id_one_text_prop(prop)
-                match links:
-                    case list():
-                        xml_links.extend(links)
-                    case None:
-                        continue
             case "{https://dasch.swiss/schema}resptr-prop":
                 links = _extract_id_one_resptr_prop(prop)
                 match links:
                     case list():
                         resptr_links.extend(links)
+                    case None:
+                        continue
+            case "{https://dasch.swiss/schema}text-prop":
+                links = _extract_id_one_text_prop(prop)
+                match links:
+                    case list():
+                        xml_links.extend(links)
                     case None:
                         continue
     if len(resptr_links) == 0:

@@ -24,6 +24,7 @@ class ResptrLink:
 
     subject_id: str
     object_id: str
+    rx_edge_index: Optional[int] = None
     edge_weight: float = 1
 
     def to_networkX_format(self):
@@ -39,7 +40,8 @@ class XMLLink:
 
     subject_id: str
     object_link_ids: set[str]
-    edge_weight: float
+    rx_edge_index: Optional[int] = None
+    edge_weight: float = 1
     reified_object_id: UUID = field(init=False, default_factory=uuid.uuid4)
     reified_ede_weight: float = 999999999
 

@@ -12,7 +12,7 @@ from dsp_tools.analyse_xml_data.extract_links_from_XML import (
     _get_all_links_one_resource,
     _make_weighted_resptr_links,
 )
-from dsp_tools.analyse_xml_data.xml_to_graph_models import ResptrLink, XMLLink
+from dsp_tools.analyse_xml_data.models_xml_to_graph import ResptrLink, XMLLink
 
 
 def test_create_classes_single_resource() -> None:

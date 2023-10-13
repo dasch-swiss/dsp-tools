@@ -35,11 +35,6 @@ def write_id2iri_mapping(
         logger.info(f"The mapping of internal IDs to IRIs was written to {id2iri_filename}")
 
 
-def warn_failed_uploads(failed_uploads: list[str]) -> None:
-    print(f"\nWARNING: Could not upload the following resources: {failed_uploads}\n")
-    logger.warning(f"Could not upload the following resources: {failed_uploads}")
-
-
 def write_metrics(
     metrics: list[MetricRecord],
     input_file: str | Path | etree._ElementTree[Any],

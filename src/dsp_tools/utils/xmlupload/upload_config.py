@@ -46,9 +46,8 @@ class UploadConfig:
     save_location: Path = field(default_factory=lambda: Path.home() / Path(".dsp-tools") / "xmluploads")
     timestamp_str: str = field(default_factory=lambda: datetime.now().strftime("%Y-%m-%d_%H%M%S"))
 
-    @staticmethod
     def with_specific_save_location(
-        config: UploadConfig,
+        self,
         server: str,
         shortcode: str,
         onto_name: str,
@@ -59,7 +58,7 @@ class UploadConfig:
         save_location.mkdir(parents=True, exist_ok=True)
         logger.info(f"save_location='{save_location}'")
         return dataclasses.replace(
-            config,
+            self,
             save_location=save_location,
             server_as_foldername=server_as_foldername,
         )

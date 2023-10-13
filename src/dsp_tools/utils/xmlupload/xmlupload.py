@@ -35,12 +35,7 @@ from dsp_tools.utils.xmlupload.stash_circular_references import remove_circular_
 from dsp_tools.utils.xmlupload.upload_config import UploadConfig
 from dsp_tools.utils.xmlupload.upload_stashed_resptr_props import upload_stashed_resptr_props
 from dsp_tools.utils.xmlupload.upload_stashed_xml_texts import upload_stashed_xml_texts
-from dsp_tools.utils.xmlupload.write_diagnostic_info import (
-    MetricRecord,
-    warn_failed_uploads,
-    write_id2iri_mapping,
-    write_metrics,
-)
+from dsp_tools.utils.xmlupload.write_diagnostic_info import MetricRecord, write_id2iri_mapping, write_metrics
 
 logger = get_logger(__name__)
 
@@ -80,9 +75,7 @@ def xmlupload(
         preprocessing_done=config.preprocessing_done,
     )
 
-    # determine save location that will be used for diagnostic info if the xmlupload is interrupted
-    config = UploadConfig.with_specific_save_location(
-        config=config,
+    config = config.with_specific_save_location(
         server=server,
         shortcode=shortcode,
         onto_name=default_ontology,
@@ -119,7 +112,8 @@ def xmlupload(
         print("All resources have successfully been uploaded.")
         logger.info("All resources have successfully been uploaded.")
     else:
-        warn_failed_uploads(failed_uploads)
+        print(f"\nWARNING: Could not upload the following resources: {failed_uploads}\n")
+        logger.warning(f"Could not upload the following resources: {failed_uploads}")
     return success
 
 

@@ -16,7 +16,7 @@ def create_classes_from_root(root: etree._Element) -> list[ResptrLink] and list[
             resptr_instances.extend(resptr)
         if xml:
             xml_instances.extend(xml)
-        if all_link_ids:
+        if all_links:
             all_link_ids.extend(all_links)
     return resptr_instances, xml_instances, set(all_link_ids)
 
@@ -25,7 +25,7 @@ def _create_classes_single_resource(
     resource: etree._Element,
 ) -> list[ResptrLink] | None and list[XMLLink] | None and list[str] | None:
     subject_id = resource.attrib.get("id")
-    all_used_ids = []
+    all_used_ids = [subject_id]
     resptr_links, xml_links = _get_all_links_one_resource(resource)
     if resptr_links:
         all_used_ids.extend(resptr_links)

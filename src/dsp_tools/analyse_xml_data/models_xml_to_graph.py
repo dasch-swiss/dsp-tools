@@ -27,9 +27,6 @@ class ResptrLink:
     rx_edge_index: Optional[int] = None
     edge_weight: float = 1
 
-    def to_networkX_format(self):
-        return (self.subject_id, self.object_id), self.edge_weight
-
 
 @dataclass
 class XMLLink:
@@ -43,9 +40,7 @@ class XMLLink:
     rx_edge_index: Optional[int] = None
     edge_weight: float = 1
     reified_object_id: UUID = field(init=False, default_factory=uuid.uuid4)
-    reified_ede_weight: float = 999999999
 
-    def to_reified_networkX_format(self):
-        main_node = (self.subject_id, self.reified_object_id), self.edge_weight
-        reified_node = [(self.reified_object_id, x) for x in self.object_link_ids]
-        return main_node, reified_node, self.reified_ede_weight
+    @property
+    def cost_links(self):
+        return 1 / len(self.object_link_ids)

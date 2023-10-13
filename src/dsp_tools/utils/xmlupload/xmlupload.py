@@ -223,6 +223,8 @@ def _upload_stash(
             con=con,
             stashed_xml_texts=stash.standoff_stash,
         )
+    else:
+        nonapplied_standoff = None
     if stash.link_value_stash:
         nonapplied_resptr_props = upload_stashed_resptr_props(
             verbose=verbose,
@@ -230,7 +232,9 @@ def _upload_stash(
             con=con,
             stashed_resptr_props=stash.link_value_stash,
         )
-    return Stash.make(nonapplied_standoff or None, nonapplied_resptr_props or None)
+    else:
+        nonapplied_resptr_props = None
+    return Stash.make(nonapplied_standoff, nonapplied_resptr_props)
 
 
 def _get_project_permissions_and_classes_from_server(

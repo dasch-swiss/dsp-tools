@@ -32,12 +32,14 @@ from dsp_tools.utils.xmlupload.resource_multimedia import (
 )
 from dsp_tools.utils.xmlupload.stash.stash_models import Stash
 from dsp_tools.utils.xmlupload.stash_circular_references import remove_circular_references
+from dsp_tools.utils.xmlupload.upload_config import UploadConfig
 from dsp_tools.utils.xmlupload.upload_stashed_resptr_props import upload_stashed_resptr_props
 from dsp_tools.utils.xmlupload.upload_stashed_xml_texts import upload_stashed_xml_texts
 from dsp_tools.utils.xmlupload.write_diagnostic_info import (
     MetricRecord,
-    determine_save_location_of_diagnostic_info,
-    write_id2iri_mapping_and_metrics,
+    warn_failed_uploads,
+    write_id2iri_mapping,
+    write_metrics,
 )
 
 logger = get_logger(__name__)
@@ -50,10 +52,7 @@ def xmlupload(
     password: str,
     imgdir: str,
     sipi: str,
-    verbose: bool = False,
-    dump: bool = False,
-    save_metrics: bool = False,
-    preprocessing_done: bool = False,
+    config: UploadConfig = UploadConfig(),
 ) -> bool:
     """
     This function reads an XML file and imports the data described in it onto the DSP server.
@@ -65,10 +64,7 @@ def xmlupload(
         password: the password of the user with which the data should be imported
         imgdir: the image directory
         sipi: the sipi instance to be used
-        verbose: verbose option for the command, if used more output is given to the user
-        dump: if true, dumps the XML file to the current working directory
-        save_metrics: if true, saves time measurements into a "metrics" folder in the current working directory
-        preprocessing_done: if set, all multimedia files referenced in the XML file must already be on the server
+        config: the upload configuration
 
     Raises:
         BaseError: in case of permanent network or software failure
@@ -81,53 +77,88 @@ def xmlupload(
     default_ontology, root, shortcode = validate_and_parse_xml_file(
         input_file=input_file,
         imgdir=imgdir,
-        preprocessing_done=preprocessing_done,
+        preprocessing_done=config.preprocessing_done,
     )
 
     # determine save location that will be used for diagnostic info if the xmlupload is interrupted
-    save_location, server_as_foldername, timestamp_str = determine_save_location_of_diagnostic_info(
+    config = UploadConfig.with_specific_save_location(
+        config=config,
         server=server,
-        proj_shortcode=shortcode,
+        shortcode=shortcode,
         onto_name=default_ontology,
     )
-    logger.info(f"save_location='{save_location}'")
 
     # start metrics
     metrics: list[MetricRecord] = []
-    preparation_start = datetime.now()
 
     # establish connection to DSP server
-    con = login(server=server, user=user, password=password, dump=dump)
+    con = login(server=server, user=user, password=password, dump=config.dump)
     sipi_server = Sipi(sipi, con.get_token())
 
-    proj_context = _get_project_context_from_server(connection=con)
-
-    permissions = _extract_permissions_from_xml(root, proj_context)
-    resources = _extract_resources_from_xml(root, default_ontology)
-
-    permissions_lookup, resclass_name_2_type = _get_project_permissions_and_classes_from_server(
-        server_connection=con,
-        permissions=permissions,
-        shortcode=shortcode,
+    resources, permissions_lookup, resclass_name_2_type, stash = _prepare_upload(
+        root, con, default_ontology, shortcode, config.verbose, metrics
     )
 
-    check_consistency_with_ontology(
+    id2iri_mapping, failed_uploads, metrics = _upload(
         resources=resources,
+        imgdir=imgdir,
+        sipi_server=sipi_server,
+        permissions_lookup=permissions_lookup,
         resclass_name_2_type=resclass_name_2_type,
+        con=con,
+        metrics=metrics,
+        stash=stash,
+        config=config,
+    )
+
+    write_id2iri_mapping(id2iri_mapping, input_file, config.timestamp_str)
+    if config.save_metrics and metrics:
+        write_metrics(metrics, input_file, config)
+    success = not failed_uploads
+    if success:
+        print("All resources have successfully been uploaded.")
+        logger.info("All resources have successfully been uploaded.")
+    else:
+        warn_failed_uploads(failed_uploads)
+    return success
+
+
+def _prepare_upload(
+    root: etree._Element,
+    con: Connection,
+    default_ontology: str,
+    shortcode: str,
+    verbose: bool,
+    metrics: list[MetricRecord],
+) -> tuple[list[XMLResource], dict[str, Permissions], dict[str, type], Stash | None]:
+    preparation_start = datetime.now()
+    resources, permissions_lookup, resclass_name_2_type = _get_data_from_xml(
+        con=con,
+        root=root,
+        default_ontology=default_ontology,
         shortcode=shortcode,
-        ontoname=default_ontology,
         verbose=verbose,
     )
-
     # temporarily remove circular references
     resources, stash = remove_circular_references(resources, verbose=verbose)
-
     preparation_duration = datetime.now() - preparation_start
     preparation_duration_ms = preparation_duration.seconds * 1000 + int(preparation_duration.microseconds / 1000)
     metrics.append(MetricRecord("", "", "", "xml upload preparation", preparation_duration_ms, ""))
+    return resources, permissions_lookup, resclass_name_2_type, stash
 
+
+def _upload(
+    resources: list[XMLResource],
+    imgdir: str,
+    sipi_server: Sipi,
+    permissions_lookup: dict[str, Permissions],
+    resclass_name_2_type: dict[str, type],
+    con: Connection,
+    metrics: list[MetricRecord],
+    stash: Stash | None,
+    config: UploadConfig,
+) -> tuple[dict[str, str], list[str], list[MetricRecord]]:
     # upload all resources, then update the resources with the stashed XML texts and resptrs
-    id2iri_mapping: dict[str, str] = {}
     failed_uploads: list[str] = []
     try:
         id2iri_mapping, failed_uploads, metrics = _upload_resources(
@@ -136,13 +167,11 @@ def xmlupload(
             sipi_server=sipi_server,
             permissions_lookup=permissions_lookup,
             resclass_name_2_type=resclass_name_2_type,
-            id2iri_mapping=id2iri_mapping,
             con=con,
-            failed_uploads=failed_uploads,
             metrics=metrics,
-            preprocessing_done=preprocessing_done,
+            preprocessing_done=config.preprocessing_done,
         )
-        nonapplied_stash = _upload_stash(stash, id2iri_mapping, con, verbose) if stash else None
+        nonapplied_stash = _upload_stash(stash, id2iri_mapping, con, config.verbose) if stash else None
         if nonapplied_stash:
             msg = "Some stashed resptrs or XML texts could not be reapplied to their resources on the DSP server."
             logger.error(msg)
@@ -156,23 +185,35 @@ def xmlupload(
             id2iri_mapping=id2iri_mapping,
             failed_uploads=failed_uploads,
             stash=stash,
-            save_location=save_location,
-            timestamp_str=timestamp_str,
+            save_location=config.save_location,
+            timestamp_str=config.timestamp_str,
         )
+    return id2iri_mapping, failed_uploads, metrics
 
-    # write id2iri mapping, metrics, and print some final info
-    success = write_id2iri_mapping_and_metrics(
-        id2iri_mapping=id2iri_mapping,
-        failed_uploads=failed_uploads,
-        metrics=metrics if save_metrics else None,
-        input_file=input_file,
-        timestamp_str=timestamp_str,
-        server_as_foldername=server_as_foldername,
+
+def _get_data_from_xml(
+    con: Connection,
+    root: etree._Element,
+    default_ontology: str,
+    shortcode: str,
+    verbose: bool,
+) -> tuple[list[XMLResource], dict[str, Permissions], dict[str, type]]:
+    proj_context = _get_project_context_from_server(connection=con)
+    permissions = _extract_permissions_from_xml(root, proj_context)
+    resources = _extract_resources_from_xml(root, default_ontology)
+    permissions_lookup, resclass_name_2_type = _get_project_permissions_and_classes_from_server(
+        server_connection=con,
+        permissions=permissions,
+        shortcode=shortcode,
     )
-    if success:
-        print("All resources have successfully been uploaded.")
-        logger.info("All resources have successfully been uploaded.")
-    return success
+    check_consistency_with_ontology(
+        resources=resources,
+        resclass_name_2_type=resclass_name_2_type,
+        shortcode=shortcode,
+        ontoname=default_ontology,
+        verbose=verbose,
+    )
+    return resources, permissions_lookup, resclass_name_2_type
 
 
 def _upload_stash(
@@ -283,9 +324,7 @@ def _upload_resources(
     sipi_server: Sipi,
     permissions_lookup: dict[str, Permissions],
     resclass_name_2_type: dict[str, type],
-    id2iri_mapping: dict[str, str],
     con: Connection,
-    failed_uploads: list[str],
     metrics: list[MetricRecord],
     preprocessing_done: bool,
 ) -> tuple[dict[str, str], list[str], list[MetricRecord]]:
@@ -300,15 +339,15 @@ def _upload_resources(
         sipi_server: Sipi instance
         permissions_lookup: maps permission strings to Permission objects
         resclass_name_2_type: maps resource class names to their types
-        id2iri_mapping: mapping of ids from the XML file to IRIs in DSP (initially empty, gets filled during the upload)
         con: connection to DSP
-        failed_uploads: ids of resources that could not be uploaded (initially empty, gets filled during the upload)
         metrics: list with the metric records collected until now (gets filled during the upload)
         preprocessing_done: if set, all multimedia files referenced in the XML file must already be on the server
 
     Returns:
         id2iri_mapping, failed_uploads, metrics
     """
+    id2iri_mapping: dict[str, str] = {}
+    failed_uploads: list[str] = []
 
     bitstream_all_sizes_mb, bitstream_size_total_mb = calculate_multimedia_file_size(
         resources=resources,

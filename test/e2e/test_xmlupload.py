@@ -5,6 +5,7 @@ import unittest
 import pytest
 
 from dsp_tools.models.exceptions import UserError
+from dsp_tools.utils.xmlupload.upload_config import UploadConfig
 from dsp_tools.utils.xmlupload.xmlupload import xmlupload
 
 
@@ -24,9 +25,7 @@ class TestXMLUpload(unittest.TestCase):
                 password=self.password,
                 imgdir=self.imgdir,
                 sipi=self.sipi,
-                verbose=False,
-                save_metrics=False,
-                preprocessing_done=False,
+                config=UploadConfig(),
             )
 
         with self.assertRaisesRegex(
@@ -41,9 +40,7 @@ class TestXMLUpload(unittest.TestCase):
                 password=self.password,
                 imgdir=self.imgdir,
                 sipi=self.sipi,
-                verbose=False,
-                save_metrics=False,
-                preprocessing_done=False,
+                config=UploadConfig(),
             )
 
 

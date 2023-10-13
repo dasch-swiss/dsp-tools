@@ -8,6 +8,7 @@ from lxml import etree
 from dsp_tools.fast_xmlupload.upload_files import get_pkl_files
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.create_logger import get_logger
+from dsp_tools.utils.xmlupload.upload_config import UploadConfig
 from dsp_tools.utils.xmlupload.xmlupload import xmlupload
 
 logger = get_logger(__name__)
@@ -117,9 +118,7 @@ def fast_xmlupload(
         password=password,
         imgdir=".",
         sipi=sipi_url,
-        verbose=False,
-        save_metrics=False,
-        preprocessing_done=True,
+        config=UploadConfig(preprocessing_done=True),
     )
 
     end_time = datetime.now()

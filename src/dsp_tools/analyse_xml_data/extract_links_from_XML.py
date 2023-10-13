@@ -3,7 +3,7 @@ from itertools import chain
 import regex
 from lxml import etree
 
-from dsp_tools.analyse_xml_data.xml_to_graph_models import ResptrLink, TripleGraph, XMLLink
+from dsp_tools.analyse_xml_data.models_xml_to_graph import ResptrLink, TripleGraph, XMLLink
 
 
 def create_classes_from_root(root: etree._Element) -> list[ResptrLink] and list[XMLLink] and set[str]:

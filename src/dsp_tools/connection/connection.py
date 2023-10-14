@@ -2,6 +2,16 @@ from typing import Any, Protocol
 
 
 class Connection(Protocol):
+    """
+    Protocol class/interface for the connection object.
+
+    Exposes:
+        - get
+        - put
+        - post
+        - delete
+    """
+
     def get(
         self,
         route: str,

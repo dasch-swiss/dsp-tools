@@ -1,9 +1,6 @@
 from __future__ import annotations
 
-import uuid
-from dataclasses import dataclass, field
-from typing import Optional
-from uuid import UUID
+from dataclasses import dataclass
 
 
 @dataclass
@@ -24,7 +21,7 @@ class ResptrLink:
 
     subject_id: str
     object_id: str
-    rx_edge_index: Optional[int] = None
+    # rx_edge_index: Optional[int] = None
     edge_weight: float = 1
 
 
@@ -37,10 +34,11 @@ class XMLLink:
 
     subject_id: str
     object_link_ids: set[str]
-    rx_edge_index: Optional[int] = None
-    edge_weight: float = 1
-    reified_object_id: UUID = field(init=False, default_factory=uuid.uuid4)
+    # rx_edge_index: Optional[int] = None
+    # edge_weight: float = 1
+    # reified_object_id: UUID = field(init=False, default_factory=uuid.uuid4)
 
     @property
-    def cost_links(self):
+    def cost_links(self) -> float:
+        """The cost of this outgoing link (1 / number of links in the XML text)"""
         return 1 / len(self.object_link_ids)

@@ -21,8 +21,6 @@ class ResptrLink:
 
     subject_id: str
     object_id: str
-    # rx_edge_index: Optional[int] = None
-    edge_weight: float = 1
 
 
 @dataclass
@@ -34,9 +32,6 @@ class XMLLink:
 
     subject_id: str
     object_link_ids: set[str]
-    # rx_edge_index: Optional[int] = None
-    # edge_weight: float = 1
-    # reified_object_id: UUID = field(init=False, default_factory=uuid.uuid4)
 
     @property
     def cost_links(self) -> float:

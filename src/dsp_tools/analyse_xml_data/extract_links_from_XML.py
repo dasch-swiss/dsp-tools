@@ -34,19 +34,11 @@ def _create_classes_single_resource(
     resptr_links, xml_links = _get_all_links_one_resource(resource)
     if resptr_links:
         all_used_ids.extend(resptr_links)
-        weight_dict = _make_weighted_resptr_links(resptr_links)
-        resptr_link_objects = [ResptrLink(subject_id, k, v) for k, v in weight_dict.items()]
+        resptr_link_objects = [ResptrLink(subject_id, object_id) for object_id in resptr_links]
     if xml_links:
         all_used_ids.extend(chain.from_iterable(xml_links))
         xml_link_objects = [XMLLink(subject_id, x) for x in xml_links]
     return resptr_link_objects, xml_link_objects, all_used_ids
-
-
-def _make_weighted_resptr_links(resptr_links: list[str]) -> dict[str, int]:
-    weight_dict = {link: 0 for link in set(resptr_links)}
-    for link in resptr_links:
-        weight_dict[link] += 1
-    return weight_dict
 
 
 def _get_all_links_one_resource(resource: etree._Element) -> tuple[list[str], list[set[str]]]:
@@ -86,7 +78,7 @@ def _extract_id_one_text(text: etree._Element) -> set[str]:
     return all_links
 
 
-def make_graph(
+def _make_graph(
     resptr_instances: list[ResptrLink], xml_instances: list[XMLLink], all_link_ids: set[str]
 ) -> rx.PyDiGraph[Any, Any]:  # pylint: disable=no-member
     g = rx.PyDiGraph[Any, Any]()  # pylint: disable=no-member
@@ -128,6 +120,9 @@ def _find_cheapest_node(
 
 
 def main() -> None:
+    """run the script"""
+    # - remove main() before merging to main branch
+    # - remove al print() statements before merging to main branch
     print("-" * 20)
     tree = etree.parse("testdata/xml-data/circular-references/test_circular_references_1.xml")
     root = tree.getroot()
@@ -136,7 +131,7 @@ def main() -> None:
     print(f"number of resptr instances: {len(resptr_instances)}")
     print(f"number of xml instances: {len(xml_instances)}")
     print("-" * 20)
-    g = make_graph(resptr_instances, xml_instances, all_link_ids)
+    g = _make_graph(resptr_instances, xml_instances, all_link_ids)
     print("-" * 20)
     _remove_leaf_nodes(g)
     print("-" * 20)

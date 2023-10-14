@@ -89,7 +89,12 @@ def xmlupload(
     sipi_server = Sipi(sipi, con.get_token())
 
     resources, permissions_lookup, resclass_name_2_type, stash = _prepare_upload(
-        root, con, default_ontology, shortcode, config.verbose, metrics
+        root=root,
+        con=con,
+        default_ontology=default_ontology,
+        shortcode=shortcode,
+        verbose=config.verbose,
+        metrics=metrics,
     )
 
     id2iri_mapping, failed_uploads, metrics = _upload(

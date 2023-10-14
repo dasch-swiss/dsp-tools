@@ -43,8 +43,8 @@ class UploadConfig:
     save_metrics: bool = False
     preprocessing_done: bool = False
     server_as_foldername: str = field(default="unknown")
-    save_location: Path = field(default_factory=lambda: Path.home() / Path(".dsp-tools") / "xmluploads")
-    timestamp_str: str = field(default_factory=lambda: datetime.now().strftime("%Y-%m-%d_%H%M%S"))
+    save_location: Path = field(default=Path.home() / ".dsp-tools" / "xmluploads")
+    timestamp_str: str = field(default=datetime.now().strftime("%Y-%m-%d_%H%M%S"))
 
     def with_specific_save_location(
         self,

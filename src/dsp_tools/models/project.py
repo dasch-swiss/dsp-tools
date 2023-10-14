@@ -30,7 +30,7 @@ import json
 from typing import Any, Optional, Union
 from urllib.parse import quote_plus
 
-from dsp_tools.models.connection import Connection
+from dsp_tools.models.connection import ConnectionLive
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import Actions
 from dsp_tools.models.langstring import LangString, Languages
@@ -116,7 +116,7 @@ class Project(Model):  # pylint: disable=too-many-instance-attributes,too-many-p
 
     def __init__(
         self,
-        con: Connection,
+        con: ConnectionLive,
         iri: Optional[str] = None,
         shortcode: Optional[str] = None,
         shortname: Optional[str] = None,
@@ -312,7 +312,7 @@ class Project(Model):  # pylint: disable=too-many-instance-attributes,too-many-p
             self._changed.add("logo")
 
     @classmethod
-    def fromJsonObj(cls, con: Connection, json_obj: Any) -> Project:
+    def fromJsonObj(cls, con: ConnectionLive, json_obj: Any) -> Project:
         """
         Internal method! Should not be used directly!
 
@@ -477,7 +477,7 @@ class Project(Model):  # pylint: disable=too-many-instance-attributes,too-many-p
         return Project.fromJsonObj(self._con, result["project"])
 
     @staticmethod
-    def getAllProjects(con: Connection) -> list[Project]:
+    def getAllProjects(con: ConnectionLive) -> list[Project]:
         """
         Get all existing projects in DSP
 

@@ -30,7 +30,7 @@ def check_for_api_error(response: requests.Response) -> None:
 
 
 @dataclass
-class Connection:
+class ConnectionLive:
     """
     A Connection instance represents a connection to a DSP server.
 

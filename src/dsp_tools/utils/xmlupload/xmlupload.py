@@ -11,7 +11,7 @@ from typing import Any, Union
 
 from lxml import etree
 
-from dsp_tools.models.connection import Connection
+from dsp_tools.models.connection import ConnectionLive
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.models.permission import Permissions
 from dsp_tools.models.projectContext import ProjectContext
@@ -124,7 +124,7 @@ def xmlupload(
 
 def _prepare_upload(
     root: etree._Element,
-    con: Connection,
+    con: ConnectionLive,
     default_ontology: str,
     shortcode: str,
     verbose: bool,
@@ -152,7 +152,7 @@ def _upload(
     sipi_server: Sipi,
     permissions_lookup: dict[str, Permissions],
     resclass_name_2_type: dict[str, type],
-    con: Connection,
+    con: ConnectionLive,
     metrics: list[MetricRecord],
     stash: Stash | None,
     config: UploadConfig,
@@ -191,7 +191,7 @@ def _upload(
 
 
 def _get_data_from_xml(
-    con: Connection,
+    con: ConnectionLive,
     root: etree._Element,
     default_ontology: str,
     shortcode: str,
@@ -218,7 +218,7 @@ def _get_data_from_xml(
 def _upload_stash(
     stash: Stash,
     id2iri_mapping: dict[str, str],
-    con: Connection,
+    con: ConnectionLive,
     verbose: bool,
 ) -> Stash | None:
     if stash.standoff_stash:
@@ -243,7 +243,7 @@ def _upload_stash(
 
 
 def _get_project_permissions_and_classes_from_server(
-    server_connection: Connection,
+    server_connection: ConnectionLive,
     permissions: dict[str, XmlPermission],
     shortcode: str,
 ) -> tuple[dict[str, Permissions], dict[str, type]]:
@@ -286,7 +286,7 @@ def _get_project_permissions_and_classes_from_server(
     return permissions_lookup, resclass_name_2_type
 
 
-def _get_project_context_from_server(connection: Connection) -> ProjectContext:
+def _get_project_context_from_server(connection: ConnectionLive) -> ProjectContext:
     """
     This function retrieves the project context previously uploaded on the server (json file)
 
@@ -327,7 +327,7 @@ def _upload_resources(
     sipi_server: Sipi,
     permissions_lookup: dict[str, Permissions],
     resclass_name_2_type: dict[str, type],
-    con: Connection,
+    con: ConnectionLive,
     metrics: list[MetricRecord],
     preprocessing_done: bool,
 ) -> tuple[dict[str, str], list[str], list[MetricRecord]]:

@@ -6,7 +6,7 @@ import unittest
 
 import pytest
 
-from dsp_tools.models.connection import Connection
+from dsp_tools.models.connection import ConnectionLive
 from dsp_tools.models.helpers import DateTimeStamp
 from dsp_tools.models.permission import Permissions, PermissionValue
 from dsp_tools.models.resource import ResourceInstanceFactory
@@ -15,14 +15,14 @@ from dsp_tools.models.value import KnoraStandoffXml, make_value
 
 
 class TestResource(unittest.TestCase):
-    con: Connection
+    con: ConnectionLive
 
     def setUp(self) -> None:
         """
         Creates a connection to DSP-API.
         For each test method, a new TestCase instance is created, so setUp() is executed before each test method.
         """
-        self.con = Connection(server="http://0.0.0.0:3333")
+        self.con = ConnectionLive(server="http://0.0.0.0:3333")
         self.con.login(email="root@example.com", password="test")
 
     def tearDown(self) -> None:

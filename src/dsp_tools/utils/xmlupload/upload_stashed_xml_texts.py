@@ -4,7 +4,7 @@ import json
 from typing import Any
 from urllib.parse import quote_plus
 
-from dsp_tools.models.connection import Connection
+from dsp_tools.models.connection import ConnectionLive
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.resource import KnoraStandoffXmlEncoder
 from dsp_tools.models.value import KnoraStandoffXml
@@ -100,7 +100,7 @@ def _create_XMLResource_json_object_to_update(
 def upload_stashed_xml_texts(
     verbose: bool,
     id2iri_mapping: dict[str, str],
-    con: Connection,
+    con: ConnectionLive,
     stashed_xml_texts: StandoffStash,
 ) -> StandoffStash | None:
     """
@@ -183,7 +183,7 @@ def _upload_stash_item(
     res_id: str,
     value_iri: str,
     id2iri_mapping: dict[str, str],
-    con: Connection,
+    con: ConnectionLive,
     context: dict[str, str],
 ) -> bool:
     """

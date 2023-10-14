@@ -9,7 +9,7 @@ from typing import Optional
 import requests
 from regex import regex
 
-from dsp_tools.models.connection import Connection
+from dsp_tools.models.connection import ConnectionLive
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import login
@@ -155,7 +155,7 @@ def _check_upload_candidates(
 def _call_upload_without_processing_recursively(
     file: Path,
     sipi_url: str,
-    con: Connection,
+    con: ConnectionLive,
     err_msg: str,
 ) -> bool:
     """
@@ -189,7 +189,7 @@ def _call_upload_without_processing_recursively(
 def _upload_without_processing(
     file: Path,
     sipi_url: str,
-    con: Connection,
+    con: ConnectionLive,
 ) -> bool:
     """
     Send a single file to the "upload_without_processing" route.
@@ -244,7 +244,7 @@ def _upload_file(
     dir_with_processed_files: Path,
     internal_filename_of_processed_file: Path,
     sipi_url: str,
-    con: Connection,
+    con: ConnectionLive,
 ) -> tuple[Path, bool]:
     """
     Retrieves all derivatives of one file and uploads them to the SIPI server.
@@ -292,7 +292,7 @@ def _upload_files_in_parallel(
     dir_with_processed_files: Path,
     internal_filenames_of_processed_files: list[Path],
     sipi_url: str,
-    con: Connection,
+    con: ConnectionLive,
     nthreads: int,
 ) -> list[tuple[Path, bool]]:
     """

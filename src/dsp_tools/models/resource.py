@@ -7,7 +7,7 @@ from urllib.parse import quote_plus
 import regex
 
 from dsp_tools.models.bitstream import Bitstream
-from dsp_tools.models.connection import Connection
+from dsp_tools.models.connection import ConnectionLive
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import Actions, Cardinality, Context, DateTimeStamp, OntoIri
 from dsp_tools.models.listnode import ListNode
@@ -97,7 +97,7 @@ class ResourceInstance(Model):
 
     def __init__(
         self,
-        con: Connection,
+        con: ConnectionLive,
         iri: Optional[str] = None,
         ark: Optional[str] = None,
         version_ark: Optional[str] = None,
@@ -347,13 +347,13 @@ class ResourceInstance(Model):
 
 
 class ResourceInstanceFactory:
-    _con: Connection
+    _con: ConnectionLive
     _project: Project
     _lists = list[ListNode]
     _ontologies = dict[str, Ontology]
     _context: Context
 
-    def __init__(self, con: Connection, projident: str) -> None:
+    def __init__(self, con: ConnectionLive, projident: str) -> None:
         self._con = con
         if regex.match("^[0-9a-fA-F]{4}$", projident):
             project = Project(con=con, shortcode=projident)

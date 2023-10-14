@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from urllib.parse import quote_plus
 
-from dsp_tools.models.connection import Connection
+from dsp_tools.models.connection import ConnectionLive
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import try_network_action
@@ -15,7 +15,7 @@ logger = get_logger(__name__)
 def upload_stashed_resptr_props(
     verbose: bool,
     id2iri_mapping: dict[str, str],
-    con: Connection,
+    con: ConnectionLive,
     stashed_resptr_props: LinkValueStash,
 ) -> LinkValueStash | None:
     """
@@ -64,7 +64,7 @@ def _upload_stash_item(
     stash: LinkValueStashItem,
     res_iri: str,
     target_iri: str,
-    con: Connection,
+    con: ConnectionLive,
     context: dict[str, str],
 ) -> bool:
     """

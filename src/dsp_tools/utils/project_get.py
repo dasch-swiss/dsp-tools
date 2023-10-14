@@ -4,7 +4,7 @@ from typing import Any
 
 import regex
 
-from dsp_tools.models.connection import Connection
+from dsp_tools.models.connection import ConnectionLive
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.group import Group
 from dsp_tools.models.listnode import ListNode
@@ -40,7 +40,7 @@ def get_project(
     Returns:
         True if the process finishes without errors
     """
-    con = Connection(server=server, dump=dump)
+    con = ConnectionLive(server=server, dump=dump)
     if user and password:
         try:
             con.login(user, password)

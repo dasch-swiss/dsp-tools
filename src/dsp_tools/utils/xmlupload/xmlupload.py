@@ -11,6 +11,7 @@ from typing import Any, Union
 
 from lxml import etree
 
+from dsp_tools.connection.connection import Connection
 from dsp_tools.connection.connection_live import ConnectionLive
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.models.permission import Permissions
@@ -85,7 +86,7 @@ def xmlupload(
     metrics: list[MetricRecord] = []
 
     # establish connection to DSP server
-    con = login(server=server, user=user, password=password, dump=config.dump)
+    con: ConnectionLive = login(server=server, user=user, password=password, dump=config.dump)
     sipi_server = Sipi(sipi, con.get_token())
 
     resources, permissions_lookup, resclass_name_2_type, stash = _prepare_upload(
@@ -124,7 +125,7 @@ def xmlupload(
 
 def _prepare_upload(
     root: etree._Element,
-    con: ConnectionLive,
+    con: Connection,
     default_ontology: str,
     shortcode: str,
     verbose: bool,
@@ -191,7 +192,7 @@ def _upload(
 
 
 def _get_data_from_xml(
-    con: ConnectionLive,
+    con: Connection,
     root: etree._Element,
     default_ontology: str,
     shortcode: str,
@@ -243,7 +244,7 @@ def _upload_stash(
 
 
 def _get_project_permissions_and_classes_from_server(
-    server_connection: ConnectionLive,
+    server_connection: Connection,
     permissions: dict[str, XmlPermission],
     shortcode: str,
 ) -> tuple[dict[str, Permissions], dict[str, type]]:
@@ -286,7 +287,7 @@ def _get_project_permissions_and_classes_from_server(
     return permissions_lookup, resclass_name_2_type
 
 
-def _get_project_context_from_server(connection: ConnectionLive) -> ProjectContext:
+def _get_project_context_from_server(connection: Connection) -> ProjectContext:
     """
     This function retrieves the project context previously uploaded on the server (json file)
 

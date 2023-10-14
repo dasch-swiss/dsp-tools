@@ -1,6 +1,6 @@
 from typing import Optional
 
-from dsp_tools.connection.connection_live import ConnectionLive
+from dsp_tools.connection.connection import Connection
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.group import Group
 from dsp_tools.models.project import Project
@@ -16,7 +16,7 @@ class ProjectContext:
     _shortcode: Optional[str]
     _project_name: Optional[str]
 
-    def __init__(self, con: ConnectionLive, shortcode: Optional[str] = None):
+    def __init__(self, con: Connection, shortcode: Optional[str] = None):
         self._shortcode = shortcode
         self._projects = Project.getAllProjects(con=con)
         self._inv_project_map: dict[str, str] = {x.iri: x.shortname for x in self._projects}

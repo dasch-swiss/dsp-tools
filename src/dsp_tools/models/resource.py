@@ -6,6 +6,7 @@ from urllib.parse import quote_plus
 
 import regex
 
+from dsp_tools.connection.connection import Connection
 from dsp_tools.connection.connection_live import ConnectionLive
 from dsp_tools.models.bitstream import Bitstream
 from dsp_tools.models.exceptions import BaseError
@@ -347,13 +348,13 @@ class ResourceInstance(Model):
 
 
 class ResourceInstanceFactory:
-    _con: ConnectionLive
+    _con: Connection
     _project: Project
     _lists = list[ListNode]
     _ontologies = dict[str, Ontology]
     _context: Context
 
-    def __init__(self, con: ConnectionLive, projident: str) -> None:
+    def __init__(self, con: Connection, projident: str) -> None:
         self._con = con
         if regex.match("^[0-9a-fA-F]{4}$", projident):
             project = Project(con=con, shortcode=projident)

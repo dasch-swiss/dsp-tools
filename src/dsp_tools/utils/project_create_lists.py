@@ -1,6 +1,6 @@
 from typing import Any, Optional, Union
 
-from dsp_tools.models.connection_live import ConnectionLive
+from dsp_tools.connection.connection_live import ConnectionLive
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.models.listnode import ListNode
 from dsp_tools.models.project import Project

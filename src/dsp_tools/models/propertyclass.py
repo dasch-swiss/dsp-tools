@@ -6,7 +6,7 @@ from urllib.parse import quote_plus
 
 import regex
 
-from dsp_tools.models.connection_live import ConnectionLive
+from dsp_tools.connection.connection_live import ConnectionLive
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import Actions, Context, DateTimeStamp, WithId
 from dsp_tools.models.langstring import LangString, Languages

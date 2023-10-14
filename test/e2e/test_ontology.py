@@ -6,7 +6,7 @@ import unittest
 
 import pytest
 
-from dsp_tools.models.connection_live import ConnectionLive
+from dsp_tools.connection.connection_live import ConnectionLive
 from dsp_tools.models.helpers import DateTimeStamp
 from dsp_tools.models.ontology import Ontology
 

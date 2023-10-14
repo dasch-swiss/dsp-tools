@@ -9,7 +9,7 @@ from typing import Optional
 import requests
 from regex import regex
 
-from dsp_tools.models.connection_live import ConnectionLive
+from dsp_tools.connection.connection_live import ConnectionLive
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import login

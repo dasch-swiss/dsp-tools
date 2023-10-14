@@ -5,7 +5,7 @@ from typing import Any, Optional, Union, cast
 
 import regex
 
-from dsp_tools.models.connection_live import ConnectionLive
+from dsp_tools.connection.connection_live import ConnectionLive
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.models.group import Group
 from dsp_tools.models.helpers import Cardinality, Context, DateTimeStamp

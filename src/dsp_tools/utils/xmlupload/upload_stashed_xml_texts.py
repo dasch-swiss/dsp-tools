@@ -4,7 +4,7 @@ import json
 from typing import Any
 from urllib.parse import quote_plus
 
-from dsp_tools.models.connection_live import ConnectionLive
+from dsp_tools.connection.connection_live import ConnectionLive
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.resource import KnoraStandoffXmlEncoder
 from dsp_tools.models.value import KnoraStandoffXml

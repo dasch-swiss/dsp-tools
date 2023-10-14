@@ -1,4 +1,4 @@
-from dsp_tools.models.connection import ConnectionLive
+from dsp_tools.models.connection_live import ConnectionLive
 from dsp_tools.models.exceptions import BaseError
 
 

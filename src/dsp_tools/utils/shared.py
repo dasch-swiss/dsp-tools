@@ -17,7 +17,7 @@ from lxml import etree
 from requests import ReadTimeout, RequestException
 from urllib3.exceptions import ReadTimeoutError
 
-from dsp_tools.models.connection import ConnectionLive
+from dsp_tools.models.connection_live import ConnectionLive
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.models.propertyelement import PropertyElement
 from dsp_tools.utils.create_logger import get_logger

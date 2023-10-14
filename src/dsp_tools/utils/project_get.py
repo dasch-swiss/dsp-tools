@@ -4,7 +4,7 @@ from typing import Any
 
 import regex
 
-from dsp_tools.models.connection import ConnectionLive
+from dsp_tools.models.connection_live import ConnectionLive
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.group import Group
 from dsp_tools.models.listnode import ListNode

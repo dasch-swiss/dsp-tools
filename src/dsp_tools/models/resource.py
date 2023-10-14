@@ -7,7 +7,7 @@ from urllib.parse import quote_plus
 import regex
 
 from dsp_tools.models.bitstream import Bitstream
-from dsp_tools.models.connection import ConnectionLive
+from dsp_tools.models.connection_live import ConnectionLive
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import Actions, Cardinality, Context, DateTimeStamp, OntoIri
 from dsp_tools.models.listnode import ListNode

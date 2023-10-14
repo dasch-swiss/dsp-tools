@@ -6,7 +6,7 @@ import unittest
 
 import pytest
 
-from dsp_tools.models.connection import ConnectionLive
+from dsp_tools.models.connection_live import ConnectionLive
 from dsp_tools.models.langstring import Languages
 from dsp_tools.models.user import User
 

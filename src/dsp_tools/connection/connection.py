@@ -23,9 +23,6 @@ class Connection(Protocol):
         Args:
             route: route that will be called on the server
             headers: headers for the HTTP request
-
-        Returns:
-            response from server
         """
 
     def put(
@@ -56,9 +53,6 @@ class Connection(Protocol):
             route: route that will be called on the server
             jsondata: Valid JSON as string
             content_type: HTTP Content-Type [default: 'application/json']
-
-        Returns:
-            response from server
         """
 
     def delete(
@@ -72,7 +66,4 @@ class Connection(Protocol):
         Args:
             route: route that will be called on the server
             params: additional parameters for the HTTP request
-
-        Returns:
-            response from server
         """

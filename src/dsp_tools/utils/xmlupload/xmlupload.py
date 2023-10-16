@@ -267,7 +267,7 @@ def _get_project_permissions_and_classes_from_server(
     """
     # get the project information and project ontology from the server
     try:
-        res_inst_factory = try_network_action(
+        res_inst_factory: ResourceInstanceFactory = try_network_action(
             lambda: ResourceInstanceFactory(con=server_connection, projident=shortcode)
         )
     except BaseError:
@@ -360,6 +360,7 @@ def _upload_resources(
     bitstream_size_uploaded_mb = 0.0
 
     for i, resource in enumerate(resources):
+        # XXX: use DTO instead of XMLResource
         resource_start = datetime.now()
         filetype = ""
         filesize = round(bitstream_all_sizes_mb[i], 1)
@@ -369,31 +370,36 @@ def _upload_resources(
         if resource.ark:
             resource_iri = convert_ark_v0_to_resource_iri(resource.ark)
 
-        if resource.bitstream:
+        # XXX: extract bitstream logic into separate function
+        if bs := resource.bitstream:
             try:
-                resource_bitstream = get_sipi_multimedia_information(
-                    resource=resource,
-                    sipi_server=sipi_server,
-                    imgdir=imgdir,
-                    filesize=filesize,
-                    permissions_lookup=permissions_lookup,
-                    metrics=metrics,
-                    preprocessing_done=preprocessing_done,
-                )
-                bitstream_size_uploaded_mb += filesize
+                if preprocessing_done:
+                    # XXX: untangle
+                    resource_bitstream = resource.get_bitstream_information_from_sipi(bs.value, permissions_lookup)
+                else:
+                    # XXX: should not require the full XMLResource object
+                    resource_bitstream = get_sipi_multimedia_information(
+                        resource=resource,
+                        sipi_server=sipi_server,
+                        imgdir=imgdir,
+                        filesize=filesize,
+                        permissions_lookup=permissions_lookup,
+                        metrics=metrics,
+                    )
+                    bitstream_size_uploaded_mb += filesize
+                    msg = f"Uploaded file '{bs.value}' ({bitstream_size_uploaded_mb:.1f} MB / {bitstream_size_total_mb} MB)"
+                    print(msg)
+                    logger.info(msg)
             except BaseError as err:
-                pth = resource.bitstream.value
                 err_msg = err.orig_err_msg_from_api or err.message
-                msg = f"Unable to upload file '{pth}' of resource '{resource.label}' ({resource.id})"
+                msg = f"Unable to upload file '{bs.value}' of resource '{resource.label}' ({resource.id})"
                 print(f"WARNING: {msg}: {err_msg}")
                 logger.warning(msg, exc_info=True)
-                msg = f"Uploaded file '{pth}' ({bitstream_size_uploaded_mb:.1f} MB / {bitstream_size_total_mb} MB)"
-                print(msg)
-                logger.info(msg)
                 continue
         else:
             resource_bitstream = None
 
+        # XXX: extract resource creation logic into separate function
         # create the resource in DSP
         resclass_type = resclass_name_2_type[resource.restype]
         properties = resource.get_propvals(id2iri_mapping, permissions_lookup)

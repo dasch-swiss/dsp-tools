@@ -54,7 +54,6 @@ def get_sipi_multimedia_information(
     filesize: float,
     permissions_lookup: dict[str, Permissions],
     metrics: list[MetricRecord],
-    preprocessing_done: bool,
 ) -> dict[str, str | Permissions] | None:
     """
     This function takes a resource with a corresponding bitstream filepath.
@@ -73,31 +72,6 @@ def get_sipi_multimedia_information(
     Returns:
         The information from sipi which is needed to establish a link from the resource
     """
-    if preprocessing_done:
-        resource_bitstream = resource.get_bitstream_information_from_sipi(
-            internal_file_name_bitstream=resource.bitstream.value,  # type: ignore[union-attr]
-            permissions_lookup=permissions_lookup,
-        )
-    else:
-        resource_bitstream = _upload_multimedia_to_sipi(
-            resource=resource,
-            sipi_server=sipi_server,
-            imgdir=imgdir,
-            filesize=filesize,
-            permissions_lookup=permissions_lookup,
-            metrics=metrics,
-        )
-    return resource_bitstream
-
-
-def _upload_multimedia_to_sipi(
-    resource: XMLResource,
-    sipi_server: Sipi,
-    imgdir: str,
-    filesize: float,
-    permissions_lookup: dict[str, Permissions],
-    metrics: list[MetricRecord],
-) -> dict[str, str | Permissions] | None:
     pth = resource.bitstream.value  # type: ignore[union-attr]
     bitstream_start = datetime.now()
     filetype = Path(pth).suffix[1:]

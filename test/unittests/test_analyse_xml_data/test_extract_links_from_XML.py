@@ -70,7 +70,7 @@ def test_text_only_get_all_links_one_resource() -> None:
     )
     res_resptr, res_xml = _get_all_links_one_resource(test_ele)
     expected_xml = [{"res_A_18"}, {"res_B_18"}]
-    assert res_resptr == []
+    assert not res_resptr
     assert expected_xml == unordered(res_xml)
 
 

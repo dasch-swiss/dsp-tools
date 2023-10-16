@@ -128,8 +128,8 @@ def _find_cheapest_node(
 
 
 def _generate_upload_order(
-    g: rx.PyDiGraph,
-) -> list[UploadResource]:  # type: ignore[type-arg] # pylint: disable=no-member
+    g: rx.PyDiGraph,  # type: ignore[type-arg] # pylint: disable=no-member
+) -> list[UploadResource]:
     removed_nodes = []
     leaf_nodes = _remove_leaf_nodes(g)
     removed_nodes.extend(leaf_nodes)

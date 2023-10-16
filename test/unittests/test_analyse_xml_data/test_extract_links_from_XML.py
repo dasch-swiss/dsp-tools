@@ -10,9 +10,7 @@ from dsp_tools.analyse_xml_data.extract_links_from_XML import (
     _extract_id_one_text,
     _extract_id_one_text_prop,
     _get_all_links_one_resource,
-    _make_weighted_resptr_links,
 )
-from dsp_tools.analyse_xml_data.models_xml_to_graph import ResptrLink, XMLLink
 
 
 def test_create_classes_single_resource() -> None:
@@ -31,7 +29,7 @@ def test_create_classes_single_resource() -> None:
     res_C_19 = any(filter(lambda obj: obj.object_id == "res_C_19", res_resptr_links))
     assert res_C_19
     #########
-    expected_ids = ["res_B_19", "res_C_19", "res_B_19", "res_C_19"]
+    expected_ids = ["res_B_19", "res_C_19", "res_B_19", "res_C_19", "res_A_19"]
     assert expected_ids == unordered(res_all_used_ids)
     ########
     expected_xml = {"subject_id": "res_A_19", "object_link_ids": {"res_B_19", "res_C_19"}}
@@ -59,7 +57,7 @@ def test_get_all_links_one_resource_no_links() -> None:
         '<resource label="res_B_18" restype=":TestThing" id="res_B_18" permissions="res-default"/>'
     )
     res = _get_all_links_one_resource(test_ele)
-    assert (None, None) == res
+    assert ([], []) == res
 
 
 def test_text_only_get_all_links_one_resource() -> None:
@@ -72,7 +70,7 @@ def test_text_only_get_all_links_one_resource() -> None:
     )
     res_resptr, res_xml = _get_all_links_one_resource(test_ele)
     expected_xml = [{"res_A_18"}, {"res_B_18"}]
-    assert res_resptr is None
+    assert res_resptr == []
     assert expected_xml == unordered(res_xml)
 
 
@@ -92,7 +90,7 @@ def test_extract_id_one_text_with_iri() -> None:
         'href="http://rdfh.ch/0801/RDE7_KU1STuDhHnGr5uu0g">res_A_11</a></text>'
     )
     res = _extract_id_one_text(test_ele)
-    assert res is None
+    assert res == set()
 
 
 def test_extract_id_one_text_with_several_id() -> None:
@@ -138,15 +136,6 @@ def test_extract_several_id_resptr_prop() -> None:
     res = _extract_id_one_resptr_prop(test_ele)
     expected = ["res_A_13", "res_B_13", "res_C_13"]
     assert expected == unordered(res)
-
-
-def test_make_weighted_resptr_links() -> None:
-    links = ["A", "B", "C", "D", "A", "A", "B", "A", "D", "D"]
-    res_dict = _make_weighted_resptr_links(links)
-    expected_dict = {"A": 4, "B": 2, "C": 1, "D": 3}
-    assert set(expected_dict.keys()) == set(expected_dict.keys())
-    for k, v in expected_dict.items():
-        assert v == res_dict[k]
 
 
 if __name__ == "__main__":

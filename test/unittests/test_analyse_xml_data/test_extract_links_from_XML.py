@@ -7,8 +7,8 @@ from pytest_unordered import unordered
 from dsp_tools.analyse_xml_data.extract_links_from_XML import (
     _create_classes_single_resource,
     _extract_id_one_resptr_prop,
-    _extract_id_one_text,
     _extract_id_one_text_prop,
+    _extract_ids_from_one_text_value,
     _get_all_links_one_resource,
 )
 
@@ -79,7 +79,7 @@ def test__extract_id_one_text_with_one_id() -> None:
         '<text permissions="prop-default" encoding="xml"><a class="salsah-link" '
         'href="IRI:res_A_11:IRI">res_A_11</a></text>'
     )
-    res = _extract_id_one_text(test_ele)
+    res = _extract_ids_from_one_text_value(test_ele)
     expected = {"res_A_11"}
     assert expected == res
 
@@ -89,7 +89,7 @@ def test_extract_id_one_text_with_iri() -> None:
         '<text permissions="prop-default" encoding="xml"><a class="salsah-link" '
         'href="http://rdfh.ch/0801/RDE7_KU1STuDhHnGr5uu0g">res_A_11</a></text>'
     )
-    res = _extract_id_one_text(test_ele)
+    res = _extract_ids_from_one_text_value(test_ele)
     assert res == set()
 
 
@@ -99,7 +99,7 @@ def test_extract_id_one_text_with_several_id() -> None:
         'href="IRI:res_A_11:IRI">res_A_11</a><a class="salsah-link" href="IRI:res_B_11:IRI">res_A_11</a><a '
         'class="salsah-link" href="IRI:res_B_11:IRI">res_A_11</a></text>'
     )
-    res = _extract_id_one_text(test_ele)
+    res = _extract_ids_from_one_text_value(test_ele)
     expected = {"res_A_11", "res_B_11"}
     assert expected == res
 

@@ -15,7 +15,7 @@ def _create_classes_from_root(root: etree._Element) -> tuple[list[ResptrLink], l
     xml_instances = []
     all_link_ids = []
     for resource in root.iter(tag="{https://dasch.swiss/schema}resource"):
-        resptr, xml, all_links = _create_classes_single_resource(resource)
+        resptr, xml, all_links = _create_classes_from_single_resource(resource)
         if resptr:
             resptr_instances.extend(resptr)
         if xml:
@@ -32,7 +32,7 @@ def _create_classes_from_single_resource(
     if not subject_id:
         return None, None, None
     all_used_ids = [subject_id]
-    resptr_links, xml_links = _get_all_links_one_resource(resource)
+    resptr_links, xml_links = _get_all_links_from_one_resource(resource)
     resptr_link_objects = []
     xml_link_objects = []
     if resptr_links:
@@ -50,9 +50,9 @@ def _get_all_links_from_one_resource(resource: etree._Element) -> tuple[list[str
     for prop in resource.getchildren():
         match prop.tag:
             case "{https://dasch.swiss/schema}resptr-prop":
-                resptr_links.extend(_extract_id_one_resptr_prop(prop))
+                resptr_links.extend(_extract_ids_from_one_resptr_prop(prop))
             case "{https://dasch.swiss/schema}text-prop":
-                xml_links.extend(_extract_id_one_text_prop(prop))
+                xml_links.extend(_extract_ids_from_text_prop(prop))
     return resptr_links, xml_links
 
 
@@ -64,13 +64,13 @@ def _extract_ids_from_text_prop(text_prop: etree._Element) -> list[set[str]]:
     # if the same ID is in several separate <text> values of one <text-prop>, they are considered separate links
     xml_props = []
     for text in text_prop.getchildren():
-        links = _extract_id_one_text(text)
+        links = _extract_ids_from_one_text_value(text)
         if links:
             xml_props.append(links)
     return xml_props
 
 
-def _extract_id_one_text(text: etree._Element) -> set[str]:
+def _extract_ids_from_one_text_value(text: etree._Element) -> set[str]:
     # the same id in one <text> only means one link to the resource
     all_links = set()
     for ele in text.iterdescendants():
@@ -148,7 +148,7 @@ def _generate_upload_order(
     return removed_nodes
 
 
-def analyse_circles_in_data(xml_filepath: str, tracer_output: str) -> None:
+def analyse_circles_in_data(xml_filepath: str, tracer_output_file: str) -> None:
     """
     This function takes an XML filepath
     It analyzes how many and which links have to be removed
@@ -156,7 +156,7 @@ def analyse_circles_in_data(xml_filepath: str, tracer_output: str) -> None:
 
     Args:
         xml_filepath: path to the file
-        tracer_output: name of the file where the viztracer results should be saved
+        tracer_output_file: name of the file where the viztracer results should be saved
     """
     print(datetime.now())
     print("=" * 80)
@@ -178,7 +178,7 @@ def analyse_circles_in_data(xml_filepath: str, tracer_output: str) -> None:
     print("=" * 80)
     removed_nodes = _generate_upload_order(g)
     tracer.stop()
-    tracer.save(output_file=tracer_output)
+    tracer.save(output_file=tracer_output_file)
     print("=" * 80)
     for n in removed_nodes:
         print(n)

@@ -10,7 +10,7 @@ from dsp_tools.connection.connection_live import ConnectionLive
 from dsp_tools.models.exceptions import BaseError
 
 
-class TestConnection(unittest.TestCase):
+class TestConnectionLive(unittest.TestCase):
     con: ConnectionLive
 
     def setUp(self) -> None:

@@ -67,3 +67,11 @@ class Connection(Protocol):
             route: route that will be called on the server
             params: additional parameters for the HTTP request
         """
+
+    def get_token(self) -> str:
+        """
+        Return the token of this connection.
+
+        Raises:
+            BaseError: if no token is available
+        """

@@ -7,7 +7,6 @@ from urllib.parse import quote_plus
 import regex
 
 from dsp_tools.connection.connection import Connection
-from dsp_tools.connection.connection_live import ConnectionLive
 from dsp_tools.models.bitstream import Bitstream
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import Actions, Cardinality, Context, DateTimeStamp, OntoIri
@@ -40,7 +39,7 @@ from dsp_tools.models.value import (
 class KnoraStandoffXmlEncoder(json.JSONEncoder):
     """Classes used as wrapper for DSP standoff-XML"""
 
-    def default(self, o) -> str:
+    def default(self, o: Any) -> str:
         if isinstance(o, KnoraStandoffXml):
             return '<?xml version="1.0" encoding="UTF-8"?>\n<text>' + str(o) + "</text>"
         elif isinstance(o, OntoIri):
@@ -98,7 +97,7 @@ class ResourceInstance(Model):
 
     def __init__(
         self,
-        con: ConnectionLive,
+        con: Connection,
         iri: Optional[str] = None,
         ark: Optional[str] = None,
         version_ark: Optional[str] = None,
@@ -194,7 +193,7 @@ class ResourceInstance(Model):
                         f"Property '{property_name}' is not part of ontology"
                     )
 
-    def value(self, item) -> Optional[list[Value]]:
+    def value(self, item: Any) -> Optional[list[Value]]:
         if self._values.get(item):
             value = self._values[item]
 

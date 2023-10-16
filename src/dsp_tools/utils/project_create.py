@@ -5,7 +5,7 @@ from typing import Any, Optional, Union, cast
 
 import regex
 
-from dsp_tools.connection.connection_live import ConnectionLive
+from dsp_tools.connection.connection import Connection
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.models.group import Group
 from dsp_tools.models.helpers import Cardinality, Context, DateTimeStamp
@@ -30,7 +30,7 @@ def _create_project_on_server(
     longname: str,
     descriptions: Optional[dict[str, str]],
     keywords: Optional[list[str]],
-    con: ConnectionLive,
+    con: Connection,
     verbose: bool,
 ) -> tuple[Project, bool]:
     """
@@ -146,7 +146,7 @@ def _update_basic_info_of_project(
 
 
 def _create_groups(
-    con: ConnectionLive,
+    con: Connection,
     groups: list[dict[str, str]],
     project: Project,
 ) -> tuple[dict[str, Group], bool]:
@@ -224,7 +224,7 @@ def _get_group_iris_for_user(
     json_user_definition: dict[str, str],
     current_project: Project,
     current_project_groups: dict[str, Group],
-    con: ConnectionLive,
+    con: Connection,
     verbose: bool,
 ) -> tuple[set[str], bool, bool]:
     """
@@ -314,7 +314,7 @@ def _get_group_iris_for_user(
 def _get_projects_where_user_is_admin(
     json_user_definition: dict[str, str],
     current_project: Project,
-    con: ConnectionLive,
+    con: Connection,
     verbose: bool,
 ) -> tuple[dict[str, bool], bool]:
     """
@@ -377,7 +377,7 @@ def _get_projects_where_user_is_admin(
 
 
 def _create_users(
-    con: ConnectionLive,
+    con: Connection,
     users_section: list[dict[str, str]],
     current_project_groups: dict[str, Group],
     current_project: Project,
@@ -537,7 +537,7 @@ def _create_ontology(
     onto_label: str,
     onto_comment: Optional[str],
     project_ontologies: list[Ontology],
-    con: ConnectionLive,
+    con: Connection,
     project_remote: Project,
     context: Context,
     verbose: bool,
@@ -604,7 +604,7 @@ def _create_ontology(
 
 
 def _create_ontologies(
-    con: ConnectionLive,
+    con: Connection,
     context: Context,
     knora_api_prefix: str,
     names_and_iris_of_list_nodes: dict[str, Any],
@@ -708,7 +708,7 @@ def _add_resource_classes_to_remote_ontology(
     onto_name: str,
     resclass_definitions: list[dict[str, Any]],
     ontology_remote: Ontology,
-    con: ConnectionLive,
+    con: Connection,
     last_modification_date: DateTimeStamp,
     verbose: bool,
 ) -> tuple[DateTimeStamp, dict[str, ResourceClass], bool]:
@@ -773,7 +773,7 @@ def _add_property_classes_to_remote_ontology(
     property_definitions: list[dict[str, Any]],
     ontology_remote: Ontology,
     names_and_iris_of_list_nodes: dict[str, Any],
-    con: ConnectionLive,
+    con: Connection,
     last_modification_date: DateTimeStamp,
     knora_api_prefix: str,
     verbose: bool,

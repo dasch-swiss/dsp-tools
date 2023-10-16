@@ -1,6 +1,6 @@
 from typing import Any, Optional, Union
 
-from dsp_tools.connection.connection_live import ConnectionLive
+from dsp_tools.connection.connection import Connection
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.models.listnode import ListNode
 from dsp_tools.models.project import Project
@@ -13,7 +13,7 @@ logger = get_logger(__name__)
 
 
 def _create_list_node(
-    con: ConnectionLive,
+    con: Connection,
     project: Project,
     node: dict[str, Any],
     parent_node: Optional[ListNode] = None,
@@ -74,7 +74,7 @@ def _create_list_node(
 
 def create_lists_on_server(
     lists_to_create: list[dict[str, Any]],
-    con: ConnectionLive,
+    con: Connection,
     project_remote: Project,
 ) -> tuple[dict[str, Any], bool]:
     """

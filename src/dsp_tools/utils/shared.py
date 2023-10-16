@@ -17,6 +17,7 @@ from lxml import etree
 from requests import ReadTimeout, RequestException
 from urllib3.exceptions import ReadTimeoutError
 
+from dsp_tools.connection.connection import Connection
 from dsp_tools.connection.connection_live import ConnectionLive
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.models.propertyelement import PropertyElement
@@ -51,7 +52,7 @@ def login(
     user: str,
     password: str,
     dump: bool = False,
-) -> ConnectionLive:
+) -> Connection:
     """
     Creates a connection,
     makes a login (handling temporary network interruptions),

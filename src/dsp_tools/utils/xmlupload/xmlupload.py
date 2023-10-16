@@ -12,7 +12,6 @@ from typing import Any, Union
 from lxml import etree
 
 from dsp_tools.connection.connection import Connection
-from dsp_tools.connection.connection_live import ConnectionLive
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.models.permission import Permissions
 from dsp_tools.models.projectContext import ProjectContext
@@ -86,7 +85,7 @@ def xmlupload(
     metrics: list[MetricRecord] = []
 
     # establish connection to DSP server
-    con: ConnectionLive = login(server=server, user=user, password=password, dump=config.dump)
+    con: Connection = login(server=server, user=user, password=password, dump=config.dump)
     sipi_server = Sipi(sipi, con.get_token())
 
     resources, permissions_lookup, resclass_name_2_type, stash = _prepare_upload(
@@ -153,7 +152,7 @@ def _upload(
     sipi_server: Sipi,
     permissions_lookup: dict[str, Permissions],
     resclass_name_2_type: dict[str, type],
-    con: ConnectionLive,
+    con: Connection,
     metrics: list[MetricRecord],
     stash: Stash | None,
     config: UploadConfig,
@@ -219,7 +218,7 @@ def _get_data_from_xml(
 def _upload_stash(
     stash: Stash,
     id2iri_mapping: dict[str, str],
-    con: ConnectionLive,
+    con: Connection,
     verbose: bool,
 ) -> Stash | None:
     if stash.standoff_stash:
@@ -328,7 +327,7 @@ def _upload_resources(
     sipi_server: Sipi,
     permissions_lookup: dict[str, Permissions],
     resclass_name_2_type: dict[str, type],
-    con: ConnectionLive,
+    con: Connection,
     metrics: list[MetricRecord],
     preprocessing_done: bool,
 ) -> tuple[dict[str, str], list[str], list[MetricRecord]]:

@@ -29,7 +29,7 @@ import urllib.parse
 from typing import Any, Optional, Union
 from urllib.parse import quote_plus
 
-from dsp_tools.connection.connection_live import ConnectionLive
+from dsp_tools.connection.connection import Connection
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.group import Group
 from dsp_tools.models.helpers import Actions
@@ -148,7 +148,7 @@ class User(Model):  # pylint: disable=too-many-instance-attributes,too-many-publ
 
     def __init__(
         self,
-        con: ConnectionLive,
+        con: Connection,
         iri: Optional[str] = None,
         username: Optional[str] = None,
         email: Optional[str] = None,
@@ -226,7 +226,7 @@ class User(Model):  # pylint: disable=too-many-instance-attributes,too-many-publ
         return self._username
 
     @username.setter
-    def username(self, value: Optional[str]):
+    def username(self, value: Optional[str]) -> None:
         if value is None:
             return
         self._username = str(value)
@@ -238,7 +238,7 @@ class User(Model):  # pylint: disable=too-many-instance-attributes,too-many-publ
         return self._email
 
     @email.setter
-    def email(self, value: Optional[str]):
+    def email(self, value: Optional[str]) -> None:
         if value is None:
             return
         self._email = str(value)
@@ -250,7 +250,7 @@ class User(Model):  # pylint: disable=too-many-instance-attributes,too-many-publ
         return self._password
 
     @password.setter
-    def password(self, value: Optional[str]):
+    def password(self, value: Optional[str]) -> None:
         if value is None:
             return
         self._password = value
@@ -262,7 +262,7 @@ class User(Model):  # pylint: disable=too-many-instance-attributes,too-many-publ
         return self._givenName
 
     @givenName.setter
-    def givenName(self, value: Optional[str]):
+    def givenName(self, value: Optional[str]) -> None:
         if value is None:
             return
         self._givenName = str(value)
@@ -274,7 +274,7 @@ class User(Model):  # pylint: disable=too-many-instance-attributes,too-many-publ
         return self._familyName
 
     @familyName.setter
-    def familyName(self, value: Optional[str]):
+    def familyName(self, value: Optional[str]) -> None:
         if value is None:
             return
         self._familyName = str(value)
@@ -286,7 +286,7 @@ class User(Model):  # pylint: disable=too-many-instance-attributes,too-many-publ
         return self._lang
 
     @lang.setter
-    def lang(self, value: Optional[Union[str, Languages]]):
+    def lang(self, value: Optional[Union[str, Languages]]) -> None:
         if value is None:
             return
         if isinstance(value, Languages):
@@ -316,7 +316,7 @@ class User(Model):  # pylint: disable=too-many-instance-attributes,too-many-publ
         return self._sysadmin
 
     @sysadmin.setter
-    def sysadmin(self, value: bool):
+    def sysadmin(self, value: bool) -> None:
         self._sysadmin = None if value is None else bool(value)
         if value is not None:
             self._changed.add("sysadmin")
@@ -326,7 +326,7 @@ class User(Model):  # pylint: disable=too-many-instance-attributes,too-many-publ
         """Set of group IRI's the user is member of"""
         return self._in_groups
 
-    def addToGroup(self, value: str):
+    def addToGroup(self, value: str) -> None:
         """
         Add the user to the given group (executed at next update)
 
@@ -342,7 +342,7 @@ class User(Model):  # pylint: disable=too-many-instance-attributes,too-many-publ
         else:
             raise BaseError("Already member of this group!")
 
-    def rmFromGroup(self, value: str):
+    def rmFromGroup(self, value: str) -> None:
         """
         Remove the user from the given group (executed at next update)
 
@@ -363,7 +363,7 @@ class User(Model):  # pylint: disable=too-many-instance-attributes,too-many-publ
         """dict with project-IRI as key, boolean(True=project admin) as value"""
         return self._in_projects
 
-    def addToProject(self, value: str, padmin: bool = False):
+    def addToProject(self, value: str, padmin: bool = False) -> None:
         """
         Add the user to the given project (executed at next update)
 
@@ -380,7 +380,7 @@ class User(Model):  # pylint: disable=too-many-instance-attributes,too-many-publ
         else:
             raise BaseError("Already member of this project!")
 
-    def rmFromProject(self, value: str):
+    def rmFromProject(self, value: str) -> None:
         """
         Remove the user from the given project (executed at next update)
 
@@ -396,7 +396,7 @@ class User(Model):  # pylint: disable=too-many-instance-attributes,too-many-publ
         else:
             raise BaseError("Project is not in list of member projects!")
 
-    def makeProjectAdmin(self, value: str):
+    def makeProjectAdmin(self, value: str) -> None:
         """
         Make the user project administrator in the given project  (executed at next update)
 
@@ -412,7 +412,7 @@ class User(Model):  # pylint: disable=too-many-instance-attributes,too-many-publ
         else:
             raise BaseError("User is not member of project!")
 
-    def unmakeProjectAdmin(self, value: str):
+    def unmakeProjectAdmin(self, value: str) -> None:
         """
         Revoke project administrator right for the user from the given project  (executed at next update)
 
@@ -428,7 +428,7 @@ class User(Model):  # pylint: disable=too-many-instance-attributes,too-many-publ
             raise BaseError("User is not member of project!")
 
     @classmethod
-    def fromJsonObj(cls, con: ConnectionLive, json_obj: Any) -> User:
+    def fromJsonObj(cls, con: Connection, json_obj: Any) -> User:
         """
         Internal method! Should not be used directly!
 
@@ -486,7 +486,7 @@ class User(Model):  # pylint: disable=too-many-instance-attributes,too-many-publ
             in_groups=in_groups,
         )
 
-    def toJsonObj(self, action: Actions):
+    def toJsonObj(self, action: Actions) -> dict[str, Any]:
         """
         Internal method! Should not be used directly!
 
@@ -638,7 +638,7 @@ class User(Model):  # pylint: disable=too-many-instance-attributes,too-many-publ
         return User.fromJsonObj(self._con, result["user"])
 
     @staticmethod
-    def getAllUsers(con: ConnectionLive) -> list[Any]:
+    def getAllUsers(con: Connection) -> list[Any]:
         """
         Get a list of all users (static method)
 
@@ -652,7 +652,7 @@ class User(Model):  # pylint: disable=too-many-instance-attributes,too-many-publ
         return [User.fromJsonObj(con, a) for a in result["users"]]
 
     @staticmethod
-    def getAllUsersForProject(con: ConnectionLive, proj_shortcode: str) -> Optional[list[User]]:
+    def getAllUsersForProject(con: Connection, proj_shortcode: str) -> Optional[list[User]]:
         """
         Get a list of all users that belong to a project (static method)
 
@@ -669,10 +669,10 @@ class User(Model):  # pylint: disable=too-many-instance-attributes,too-many-publ
 
     def createDefinitionFileObj(
         self,
-        con: ConnectionLive,
+        con: Connection,
         proj_shortname: str,
         proj_iri: str,
-    ) -> dict[str, Union[str, list[str], None]]:
+    ) -> dict[str, Union[str, list[str], bool, None]]:
         """Create a JSON object that can be used to create a project definition file"""
         user: dict[str, Union[str, list[str], bool, None]] = {
             "username": self.username,

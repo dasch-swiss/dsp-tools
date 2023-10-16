@@ -61,7 +61,7 @@ def _extract_ids_from_one_resptr_prop(resptr_prop: etree._Element) -> list[str]:
 
 
 def _extract_id_one_text_prop(text_prop: etree._Element) -> list[set[str]]:
-    # the same ID is in several separate <text> in one <text-prop> are considered separate links
+    # if the same ID is in several separate <text> values of one <text-prop>, they are considered separate links
     xml_props = []
     for text in text_prop.getchildren():
         links = _extract_id_one_text(text)

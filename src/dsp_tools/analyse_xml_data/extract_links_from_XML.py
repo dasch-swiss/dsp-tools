@@ -1,3 +1,4 @@
+from datetime import datetime
 from itertools import chain
 
 import regex
@@ -7,7 +8,7 @@ from lxml import etree
 from dsp_tools.analyse_xml_data.models_xml_to_graph import ResptrLink, UploadResource, XMLLink
 
 
-def create_classes_from_root(root: etree._Element) -> tuple[list[ResptrLink], list[XMLLink], set[str]]:
+def _create_classes_from_root(root: etree._Element) -> tuple[list[ResptrLink], list[XMLLink], set[str]]:
     """Create instances of the classes ResptrLink and XMLLink from the root of the XML file."""
     resptr_instances = []
     xml_instances = []
@@ -144,14 +145,20 @@ def _generate_upload_order(g: rx.PyDiGraph) -> list[UploadResource]:  # type: ig
     return removed_nodes
 
 
-def main() -> None:
-    """run the script"""
-    # - remove main() before merging to main branch
-    # - remove al print() statements before merging to main branch
-    print("-" * 20)
-    tree = etree.parse("testdata/xml-data/circular-references/test_circular_references_1.xml")
+def analyse_circles_in_data(xml_filepath: str) -> None:
+    """
+    This function takes an XML filepath
+    It analyzes how many and which links have to be removed
+    so that all circular references are broken up.
+
+    Args:
+        xml_filepath: path to the file
+    """
+    print(datetime.now())
+    print("=" * 80)
+    tree = etree.parse(xml_filepath)
     root = tree.getroot()
-    resptr_instances, xml_instances, all_link_ids = create_classes_from_root(root)
+    resptr_instances, xml_instances, all_link_ids = _create_classes_from_root(root)
     print(f"number of node ids: {len(all_link_ids)}")
     print(f"number of resptr instances: {len(resptr_instances)}")
     print(f"number of xml instances: {len(xml_instances)}")
@@ -163,7 +170,4 @@ def main() -> None:
     for n in removed_nodes:
         print(n)
     print("=" * 80)
-
-
-if __name__ == "__main__":
-    main()
+    print(datetime.now())

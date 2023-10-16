@@ -4,6 +4,7 @@ from itertools import chain
 import regex
 import rustworkx as rx
 from lxml import etree
+from viztracer import VizTracer
 
 from dsp_tools.analyse_xml_data.models_xml_to_graph import ResptrLink, UploadResource, XMLLink
 
@@ -126,7 +127,9 @@ def _find_cheapest_node(
     return cheapest_node, removed_target_ids
 
 
-def _generate_upload_order(g: rx.PyDiGraph) -> list[UploadResource]:  # type: ignore[type-arg] # pylint: disable=no-member
+def _generate_upload_order(
+    g: rx.PyDiGraph,
+) -> list[UploadResource]:  # type: ignore[type-arg] # pylint: disable=no-member
     removed_nodes = []
     leaf_nodes = _remove_leaf_nodes(g)
     removed_nodes.extend(leaf_nodes)
@@ -145,7 +148,7 @@ def _generate_upload_order(g: rx.PyDiGraph) -> list[UploadResource]:  # type: ig
     return removed_nodes
 
 
-def analyse_circles_in_data(xml_filepath: str) -> None:
+def analyse_circles_in_data(xml_filepath: str, tracer_output: str) -> None:
     """
     This function takes an XML filepath
     It analyzes how many and which links have to be removed
@@ -156,6 +159,13 @@ def analyse_circles_in_data(xml_filepath: str) -> None:
     """
     print(datetime.now())
     print("=" * 80)
+    tracer = VizTracer(
+        minimize_memory=True,
+        ignore_c_function=True,
+        ignore_frozen=True,
+        include_files=["extract_links_from_XML.py", "models_xml_to_graph.py"],
+    )
+    tracer.start()
     tree = etree.parse(xml_filepath)
     root = tree.getroot()
     resptr_instances, xml_instances, all_link_ids = _create_classes_from_root(root)
@@ -166,6 +176,8 @@ def analyse_circles_in_data(xml_filepath: str) -> None:
     g = _make_graph(resptr_instances, xml_instances, all_link_ids)
     print("=" * 80)
     removed_nodes = _generate_upload_order(g)
+    tracer.stop()
+    tracer.save(output_file=tracer_output)
     print("=" * 80)
     for n in removed_nodes:
         print(n)

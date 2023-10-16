@@ -56,7 +56,7 @@ def _get_all_links_from_one_resource(resource: etree._Element) -> tuple[list[str
     return resptr_links, xml_links
 
 
-def _extract_id_one_resptr_prop(resptr_prop: etree._Element) -> list[str]:
+def _extract_ids_from_one_resptr_prop(resptr_prop: etree._Element) -> list[str]:
     return [x.text for x in resptr_prop.getchildren() if x.text]
 
 

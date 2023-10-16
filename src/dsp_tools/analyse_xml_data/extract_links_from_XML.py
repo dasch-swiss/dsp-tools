@@ -27,7 +27,7 @@ def _create_classes_from_root(root: etree._Element) -> tuple[list[ResptrLink], l
 
 def _create_classes_single_resource(
     resource: etree._Element,
-) -> tuple[list[ResptrLink] | None, list[XMLLink] | None, list[str] | None]:
+) -> tuple[list[ResptrLink], list[XMLLink], list[str]] | tuple[None, None, None]:
     subject_id = resource.attrib.get("id")
     if not subject_id:
         return None, None, None

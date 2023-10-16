@@ -4,6 +4,7 @@ from typing import cast
 
 import pytest
 
+from dsp_tools.connection.connection import Connection
 from dsp_tools.connection.connection_live import ConnectionLive
 from dsp_tools.models.group import Group
 from dsp_tools.models.langstring import LangString, Languages
@@ -11,14 +12,14 @@ from dsp_tools.models.langstring import LangString, Languages
 
 class TestGroup(unittest.TestCase):  # pylint: disable=missing-class-docstring
     test_project = "http://rdfh.ch/projects/0001"
-    con: ConnectionLive
+    con: Connection
 
     def setUp(self) -> None:
         """
         Creates a connection to DSP-API.
         For each test method, a new TestCase instance is created, so setUp() is executed before each test method.
         """
-        self.con = ConnectionLive(server="http://0.0.0.0:3333")
+        self.con: Connection = ConnectionLive(server="http://0.0.0.0:3333")
         self.con.login(email="root@example.com", password="test")
 
     def tearDown(self) -> None:

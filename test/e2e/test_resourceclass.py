@@ -6,6 +6,7 @@ import unittest
 
 import pytest
 
+from dsp_tools.connection.connection import Connection
 from dsp_tools.connection.connection_live import ConnectionLive
 from dsp_tools.models.langstring import LangString, Languages
 from dsp_tools.models.ontology import Ontology
@@ -17,7 +18,7 @@ class TestResourceClass(unittest.TestCase):
     res_name = "res_class_name"
     res_label = LangString({Languages.EN: "Resource Class Label"})
     res_comment = LangString({Languages.EN: "This is a resource class for testing"})
-    con: ConnectionLive
+    con: Connection
 
     def setUp(self) -> None:
         """

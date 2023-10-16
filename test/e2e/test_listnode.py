@@ -3,13 +3,14 @@ import unittest
 
 import pytest
 
+from dsp_tools.connection.connection import Connection
 from dsp_tools.connection.connection_live import ConnectionLive
 from dsp_tools.models.langstring import LangString, Languages
 from dsp_tools.models.listnode import ListNode
 
 
 class TestListNode(unittest.TestCase):  # pylint: disable=missing-class-docstring
-    con: ConnectionLive
+    con: Connection
     project = "http://rdfh.ch/projects/0001"
     otherTreeList = "http://rdfh.ch/lists/0001/otherTreeList"
 

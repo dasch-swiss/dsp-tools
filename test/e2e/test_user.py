@@ -6,6 +6,7 @@ import unittest
 
 import pytest
 
+from dsp_tools.connection.connection import Connection
 from dsp_tools.connection.connection_live import ConnectionLive
 from dsp_tools.models.langstring import Languages
 from dsp_tools.models.user import User
@@ -18,7 +19,7 @@ iri_group_images_reviewer = "http://rdfh.ch/groups/00FF/images-reviewer"
 
 
 class TestUser(unittest.TestCase):
-    con: ConnectionLive
+    con: Connection
 
     def setUp(self) -> None:
         """

@@ -6,13 +6,14 @@ import unittest
 
 import pytest
 
+from dsp_tools.connection.connection import Connection
 from dsp_tools.connection.connection_live import ConnectionLive
 from dsp_tools.models.helpers import DateTimeStamp
 from dsp_tools.models.ontology import Ontology
 
 
 class TestOntology(unittest.TestCase):
-    con: ConnectionLive
+    con: Connection
     test_project = "http://rdfh.ch/projects/0001"
     test_onto = "http://0.0.0.0:3333/ontology/0001/anything/v2"
 

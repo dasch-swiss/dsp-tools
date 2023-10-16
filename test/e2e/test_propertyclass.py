@@ -6,6 +6,7 @@ import unittest
 
 import pytest
 
+from dsp_tools.connection.connection import Connection
 from dsp_tools.connection.connection_live import ConnectionLive
 from dsp_tools.models.helpers import DateTimeStamp
 from dsp_tools.models.langstring import LangString, Languages
@@ -20,7 +21,7 @@ class TestPropertyClass(unittest.TestCase):
 
     onto: Ontology
     last_modification_date: DateTimeStamp
-    con: ConnectionLive
+    con: Connection
 
     name = "MyPropClassName"
     object = "TextValue"

@@ -75,3 +75,20 @@ class Connection(Protocol):
         Raises:
             BaseError: if no token is available
         """
+
+    def login(self, email: str, password: str) -> None:
+        """
+        Retrieve a session token and store it as class attribute.
+
+        Args:
+            email: email address of the user
+            password: password of the user
+
+        Raises:
+            BaseError: if DSP-API returns no token with the provided user credentials
+        """
+
+    def logout(self) -> None:
+        """
+        Delete the token on the server and in this class.
+        """

@@ -6,6 +6,7 @@ import unittest
 
 import pytest
 
+from dsp_tools.connection.connection import Connection
 from dsp_tools.connection.connection_live import ConnectionLive
 from dsp_tools.models.langstring import LangString, Languages
 from dsp_tools.models.project import Project
@@ -13,7 +14,7 @@ from dsp_tools.models.project import Project
 
 class TestProject(unittest.TestCase):
     logo_file = "logo.gif"
-    con: ConnectionLive
+    con: Connection
 
     def setUp(self) -> None:
         """

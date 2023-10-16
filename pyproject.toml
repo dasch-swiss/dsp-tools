@@ -57,6 +57,7 @@ types-pyyaml = "^6.0.12.11"
 isort = "^5.12.0"
 termcolor = "^2.3.0"
 pytest-unordered = "^0.5.2"
+viztracer = "^0.16.0"
 
 
 [tool.poetry.scripts]

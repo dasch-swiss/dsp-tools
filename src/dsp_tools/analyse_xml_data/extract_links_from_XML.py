@@ -44,7 +44,7 @@ def _create_classes_from_single_resource(
     return resptr_link_objects, xml_link_objects, all_used_ids
 
 
-def _get_all_links_one_resource(resource: etree._Element) -> tuple[list[str], list[set[str]]]:
+def _get_all_links_from_one_resource(resource: etree._Element) -> tuple[list[str], list[set[str]]]:
     resptr_links: list[str] = []
     xml_links: list[set[str]] = []
     for prop in resource.getchildren():

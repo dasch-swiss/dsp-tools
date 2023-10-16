@@ -156,6 +156,7 @@ def analyse_circles_in_data(xml_filepath: str, tracer_output: str) -> None:
 
     Args:
         xml_filepath: path to the file
+        tracer_output: name of the file where the viztracer results should be saved
     """
     print(datetime.now())
     print("=" * 80)

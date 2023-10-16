@@ -11,53 +11,9 @@ from lxml import etree
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.xml_utils import parse_and_clean_xml_file
 from dsp_tools.utils.xmlupload.ark2iri import convert_ark_v0_to_resource_iri
-from dsp_tools.utils.xmlupload.write_diagnostic_info import (
-    _transform_server_url_to_foldername,
-    determine_save_location_of_diagnostic_info,
-)
 
 
 class TestXMLUpload(unittest.TestCase):
-    def test_transform_server_url_to_foldername(self) -> None:
-        testcases: list[tuple[str, str]] = [
-            ("https://api.test.dasch.swiss/", "test.dasch.swiss"),
-            ("http://api.082e-test-server.dasch.swiss/", "082e-test-server.dasch.swiss"),
-            ("http://0.0.0.0:12345", "localhost"),
-            ("https://0.0.0.0:80/", "localhost"),
-        ]
-        for _input, expected_output in testcases:
-            actual_output = _transform_server_url_to_foldername(_input)
-            self.assertEqual(actual_output, expected_output)
-
-    def test_determine_save_location_of_logs(self) -> None:
-        shortcode = "082E"
-        onto_name = "rosetta"
-        testcases: list[tuple[str, str]] = [
-            (
-                "https://api.test.dasch.swiss/",
-                f"/.dsp-tools/xmluploads/test.dasch.swiss/{shortcode}/{onto_name}",
-            ),
-            (
-                "http://api.082e-test-server.dasch.swiss/",
-                f"/.dsp-tools/xmluploads/082e-test-server.dasch.swiss/{shortcode}/{onto_name}",
-            ),
-        ]
-        for server, expected_path in testcases:
-            save_location, _, _ = determine_save_location_of_diagnostic_info(
-                server=server,
-                proj_shortcode=shortcode,
-                onto_name=onto_name,
-            )
-            self.assertTrue(str(save_location).endswith(expected_path))
-            self.assertTrue(save_location.is_dir())
-            try:
-                save_location.rmdir()
-                save_location.parent.rmdir()
-                save_location.parent.parent.rmdir()
-            except OSError:
-                # there was already stuff in the folder before this test: do nothing
-                pass
-
     def test_parse_xml_file(self) -> None:
         test_data_systematic_tree = etree.parse("testdata/xml-data/test-data-systematic.xml")
         output1 = parse_and_clean_xml_file("testdata/xml-data/test-data-systematic.xml")

@@ -27,6 +27,7 @@ from dsp_tools.utils.project_validate import validate_project
 from dsp_tools.utils.rosetta import upload_rosetta
 from dsp_tools.utils.shared import validate_xml_against_schema
 from dsp_tools.utils.stack_handling import StackConfiguration, StackHandler
+from dsp_tools.utils.xmlupload.upload_config import UploadConfig
 from dsp_tools.utils.xmlupload.xmlupload import xmlupload
 
 logger = get_logger(__name__)
@@ -464,10 +465,11 @@ def _call_requested_action(args: argparse.Namespace) -> bool:
                 password=args.password,
                 imgdir=args.imgdir,
                 sipi=args.sipi_url,
-                verbose=args.verbose,
-                dump=args.dump,
-                save_metrics=args.metrics,
-                preprocessing_done=False,
+                config=UploadConfig(
+                    verbose=args.verbose,
+                    dump=args.dump,
+                    save_metrics=args.metrics,
+                ),
             )
     elif args.action == "process-files":
         success = process_files(

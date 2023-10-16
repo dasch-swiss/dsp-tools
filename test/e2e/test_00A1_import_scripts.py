@@ -10,6 +10,7 @@ import regex
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.project_create import create_project
 from dsp_tools.utils.shared import check_notna
+from dsp_tools.utils.xmlupload.upload_config import UploadConfig
 from dsp_tools.utils.xmlupload.xmlupload import xmlupload
 
 
@@ -65,9 +66,7 @@ class TestImportScripts(unittest.TestCase):
             password="test",
             imgdir="src/dsp_tools/import_scripts/",
             sipi="http://0.0.0.0:1024",
-            verbose=False,
-            save_metrics=False,
-            preprocessing_done=False,
+            config=UploadConfig(),
         )
         self.assertTrue(success_on_xmlupload)
 

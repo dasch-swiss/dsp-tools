@@ -3,6 +3,7 @@ from unittest.mock import Mock, patch
 import pytest
 
 from dsp_tools import cli
+from dsp_tools.utils.xmlupload.upload_config import UploadConfig
 
 
 def test_invalid_arguments() -> None:
@@ -103,10 +104,7 @@ def test_xmlupload(xmlupload: Mock) -> None:
         password="test",
         imgdir=".",
         sipi="http://0.0.0.0:1024",
-        verbose=False,
-        dump=False,
-        save_metrics=False,
-        preprocessing_done=False,
+        config=UploadConfig(),
     )
 
 

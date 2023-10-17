@@ -202,20 +202,20 @@ def analyse_circles_in_data(xml_filepath: Path, tracer_output_file: str) -> list
     tree = etree.parse(xml_filepath)
     root = tree.getroot()
     resptr_instances, xml_instances, all_resource_ids = _create_info_from_xml_for_graph(root)
-    print(f"number of node ids: {len(all_resource_ids)}")
-    print(f"number of resptr instances: {len(resptr_instances)}")
-    print(f"number of xml instances: {len(xml_instances)}")
-    print("-" * 20)
+    print(f"Total Number of Resources: {len(all_resource_ids)}")
+    print(f"Total Number of resptr Links: {len(resptr_instances)}")
+    print(f"Total Number of XML Texts with Links: {len(xml_instances)}")
+    print("=" * 80)
     g, node_index_lookup = _make_graph(resptr_instances, xml_instances, all_resource_ids)
     print("=" * 80)
-    removed_nodes = _generate_upload_order(g, node_index_lookup)
+    resource_upload_order = _generate_upload_order(g, node_index_lookup)
     print("=" * 80)
     tracer.stop()
     tracer.save(output_file=tracer_output_file)
     print("=" * 80)
-    print("start time:", start)
-    print("end time:", datetime.now())
-    return removed_nodes
+    print("Start time:", start)
+    print("End time:", datetime.now())
+    return resource_upload_order
 
 
 if __name__ == "__main__":

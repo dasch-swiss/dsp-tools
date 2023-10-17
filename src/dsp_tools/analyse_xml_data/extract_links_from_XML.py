@@ -125,7 +125,7 @@ def _remove_leaf_nodes(
 
 def _find_cheapest_node(
     g: rx.PyDiGraph,  # type: ignore[type-arg] # pylint: disable=no-member
-    cycle: rx.EdgeList,
+    cycle: rx.EdgeList,  # type: ignore[type-arg] # pylint: disable=no-member
     node_index_lookup: dict[int, str],
 ) -> tuple[int, list[str]]:
     costs = []

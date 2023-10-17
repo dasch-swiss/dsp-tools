@@ -99,14 +99,12 @@ def make_graph(
     node_id_lookup = dict(zip(node_ids, node_inidices))
     node_index_lookup = dict(zip(node_inidices, node_ids))
     print(f"number of nodes: {len(nodes)}")
-    resptr_edges = [(node_id_lookup[x.subject_id], node_id_lookup[x.object_id], 1) for x in resptr_instances]
+    resptr_edges = [(node_id_lookup[x.subject_id], node_id_lookup[x.object_id], x) for x in resptr_instances]
     g.add_edges_from(resptr_edges)
     print(f"number of resptr edges: {len(resptr_edges)}")
     xml_edges = []
     for xml in xml_instances:
-        xml_edges.extend(
-            [(node_id_lookup[xml.subject_id], node_id_lookup[x], xml.cost_links) for x in xml.object_link_ids]
-        )
+        xml_edges.extend([(node_id_lookup[xml.subject_id], node_id_lookup[x], xml) for x in xml.object_link_ids])
     g.add_edges_from(xml_edges)
     print(f"number of xml edges: {len(xml_edges)}")
     return g, node_index_lookup
@@ -134,7 +132,7 @@ def _find_cheapest_node(
         edges_in = g.in_edges(source)
         node_gain = len(edges_in)
         edges_out = g.out_edges(source)
-        node_cost = sum(x[2] for x in edges_out)
+        node_cost = sum(x[2].cost_links for x in edges_out)
         node_value = node_cost / node_gain
         costs.append((source, node_value, edges_out))
     sorted_nodes = sorted(costs, key=lambda x: x[1])
@@ -181,7 +179,9 @@ def _generate_upload_order(
     return removed_nodes
 
 
-def analyse_circles_in_data(xml_filepath: Path, tracer_output_file: str) -> list[UploadResource]:
+def analyse_circles_in_data(
+    xml_filepath: Path, tracer_output_file: str, save_tracer: bool = False
+) -> list[UploadResource]:
     """
     This function takes an XML filepath
     It analyzes how many and which links have to be removed
@@ -215,7 +215,8 @@ def analyse_circles_in_data(xml_filepath: Path, tracer_output_file: str) -> list
     resource_upload_order = _generate_upload_order(g, node_index_lookup)
     print("=" * 80)
     tracer.stop()
-    tracer.save(output_file=tracer_output_file)
+    if save_tracer:
+        tracer.save(output_file=tracer_output_file)
     print("=" * 80)
     print("Start time:", start)
     print("End time:", datetime.now())

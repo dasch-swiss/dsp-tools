@@ -10,6 +10,10 @@ class ResptrLink:
     subject_id: str
     object_id: str
 
+    @property
+    def cost_links(self) -> float:
+        return 1
+
 
 @dataclass
 class XMLLink:

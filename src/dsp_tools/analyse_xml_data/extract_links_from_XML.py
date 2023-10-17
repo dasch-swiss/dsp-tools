@@ -117,7 +117,7 @@ def _remove_leaf_nodes(
 
 
 def _find_cheapest_node(
-    g: rx.PyDiGraph,
+    g: rx.PyDiGraph,  # type: ignore[type-arg] # pylint: disable=no-member,
     cycle: rx.EdgeList,  # type: ignore[type-arg] # pylint: disable=no-member,
     node_index_lookup: dict[int : tuple[str, None, None]],
 ) -> tuple[int, list[str]]:
@@ -158,7 +158,7 @@ def _generate_upload_order(
     return removed_nodes
 
 
-def analyse_circles_in_data(xml_filepath: str, tracer_output_file: str) -> None:
+def analyse_circles_in_data(xml_filepath: str, tracer_output_file: str) -> list[UploadResource]:
     """
     This function takes an XML filepath
     It analyzes how many and which links have to be removed
@@ -193,3 +193,4 @@ def analyse_circles_in_data(xml_filepath: str, tracer_output_file: str) -> None:
     print("=" * 80)
     print("start time:", start)
     print("end time:", datetime.now())
+    return removed_nodes

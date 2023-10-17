@@ -28,10 +28,8 @@ def test_create_info_from_xml_for_graph_from_one_resource() -> None:
     res_C_19 = [obj.object_id for obj in res_resptr_links]
     assert "res_C_19" in res_C_19
     assert "res_A_19" == res_all_used_ids
-    expected_xml = {"subject_id": "res_A_19", "object_link_ids": {"res_B_19", "res_C_19"}}
-    res_xml_dict = res_xml_links[0].__dict__
-    for k, v in expected_xml.items():
-        assert res_xml_dict[k] == v
+    assert res_xml_links[0].subject_id == "res_A_19"
+    assert res_xml_links[0].object_link_ids == {"res_B_19", "res_C_19"}
 
 
 def test_get_all_links_from_one_resource() -> None:

@@ -6,19 +6,19 @@ import unittest
 
 import pytest
 
-from dsp_tools.models.connection import Connection
+from dsp_tools.connection.connection_live import ConnectionLive
 from dsp_tools.models.exceptions import BaseError
 
 
-class TestConnection(unittest.TestCase):
-    con: Connection
+class TestConnectionLive(unittest.TestCase):
+    con: ConnectionLive
 
     def setUp(self) -> None:
         """
         Creates a connection to DSP-API.
         For each test method, a new TestCase instance is created, so setUp() is executed before each test method.
         """
-        self.con = Connection(server="http://0.0.0.0:3333")
+        self.con = ConnectionLive(server="http://0.0.0.0:3333")
         self.con.login(email="root@example.com", password="test")
 
     def tearDown(self) -> None:
@@ -29,10 +29,10 @@ class TestConnection(unittest.TestCase):
         self.con.logout()
 
     def test_Connection(self) -> None:
-        self.assertIsInstance(self.con, Connection)
+        self.assertIsInstance(self.con, ConnectionLive)
 
     def test_log_in_and_out(self) -> None:
-        con = Connection("http://0.0.0.0:3333")
+        con = ConnectionLive("http://0.0.0.0:3333")
         con.login("root@example.com", "test")
         self.assertIsNotNone(con.token)
         con.logout()

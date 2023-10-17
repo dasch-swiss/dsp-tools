@@ -29,7 +29,7 @@ import json
 from typing import Any, Optional, Union
 from urllib.parse import quote_plus
 
-from dsp_tools.models.connection import Connection
+from dsp_tools.connection.connection import Connection
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import Actions
 from dsp_tools.models.langstring import LangString
@@ -75,7 +75,7 @@ class Group(Model):  # pylint: disable=too-many-instance-attributes
     ROUTE_SLASH: str = ROUTE + "/"
 
     _iri: Optional[str]
-    _name: str
+    _name: str | None
     _descriptions: LangString
     _project: str
     _selfjoin: bool
@@ -115,7 +115,7 @@ class Group(Model):  # pylint: disable=too-many-instance-attributes
         return self._name
 
     @name.setter
-    def name(self, value: str):
+    def name(self, value: str) -> None:
         self._name = value
         self._changed.add("name")
 
@@ -129,12 +129,8 @@ class Group(Model):  # pylint: disable=too-many-instance-attributes
         self._changed.add("descriptions")
 
     @property
-    def project(self):
+    def project(self) -> str:
         return self._project
-
-    @project.setter
-    def project(self, value: str):
-        raise BaseError("project id cannot be modified!")
 
     @property
     def selfjoin(self) -> bool:
@@ -155,7 +151,7 @@ class Group(Model):  # pylint: disable=too-many-instance-attributes
         self._changed.add("status")
 
     @classmethod
-    def fromJsonObj(cls, con: Connection, json_obj: Any):
+    def fromJsonObj(cls, con: Connection, json_obj: Any) -> Group:
         group_id = json_obj.get("id")
         if group_id is None:
             raise BaseError('Group "id" is missing')
@@ -185,7 +181,7 @@ class Group(Model):  # pylint: disable=too-many-instance-attributes
             status=status,
         )
 
-    def toJsonObj(self, action: Actions):
+    def toJsonObj(self, action: Actions) -> dict[str, Any]:
         tmp = {}
         if action == Actions.Create:
             if self._name is None:

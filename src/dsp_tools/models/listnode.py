@@ -21,13 +21,14 @@ UPDATE:
 DELETE
     * NOT YET IMPLEMENTED!
 """
+from __future__ import annotations
 
 import json
 from pprint import pprint
 from typing import Any, Optional, Union
 from urllib.parse import quote_plus
 
-from dsp_tools.models.connection import Connection
+from dsp_tools.connection.connection import Connection
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import Actions
 from dsp_tools.models.langstring import LangString, Languages
@@ -208,10 +209,6 @@ class ListNode(Model):  # pylint: disable=too-many-instance-attributes,too-many-
     def iri(self) -> Optional[str]:
         return self._id
 
-    @iri.setter
-    def iri(self, value: str) -> None:
-        raise BaseError("ListNode iri cannot be modified!")
-
     @property
     def project(self) -> Optional[str]:
         return self._project
@@ -299,7 +296,7 @@ class ListNode(Model):  # pylint: disable=too-many-instance-attributes,too-many-
         return self._parent if self._parent else None
 
     @parent.setter
-    def parent(self, value: Union[str, "ListNode"]):
+    def parent(self, value: Union[str, "ListNode"]) -> None:
         if isinstance(value, ListNode):
             self._parent = value.iri
         else:
@@ -354,12 +351,8 @@ class ListNode(Model):  # pylint: disable=too-many-instance-attributes,too-many-
     def rootNodeIri(self) -> Optional[str]:
         return self._rootNodeIri
 
-    @rootNodeIri.setter
-    def rootNodeIri(self, value: str):
-        raise BaseError("rootNodeIri cannot be set!")
-
     @classmethod
-    def fromJsonObj(cls, con: Connection, json_obj: Any) -> Any:
+    def fromJsonObj(cls, con: Connection, json_obj: Any) -> ListNode:
         """
         Internal method! Should not be used directly!
 
@@ -402,7 +395,7 @@ class ListNode(Model):  # pylint: disable=too-many-instance-attributes,too-many-
             rootNodeIri=rootNodeIri,
         )
 
-    def toJsonObj(self, action: Actions, listIri: str = None) -> Any:
+    def toJsonObj(self, action: Actions, listIri: str | None = None) -> dict[str, Any]:
         """
         Internal method! Should not be used directly!
 
@@ -446,7 +439,7 @@ class ListNode(Model):  # pylint: disable=too-many-instance-attributes,too-many-
 
         return tmp
 
-    def create(self) -> "ListNode":
+    def create(self) -> ListNode:
         """
         Create a new List
 
@@ -522,7 +515,7 @@ class ListNode(Model):  # pylint: disable=too-many-instance-attributes,too-many-
         return root
 
     @staticmethod
-    def getAllLists(con: Connection, project_iri: Optional[str] = None) -> list["ListNode"]:
+    def getAllLists(con: Connection, project_iri: Optional[str] = None) -> list[ListNode]:
         """
         Get all lists. If a project IRI is given, it returns the lists of the specified project
 
@@ -538,7 +531,7 @@ class ListNode(Model):  # pylint: disable=too-many-instance-attributes,too-many-
             raise BaseError("Request got no lists!")
         return list(map(lambda a: ListNode.fromJsonObj(con, a), result["lists"]))
 
-    def _createDefinitionFileObj(self, children: list["ListNode"]):
+    def _createDefinitionFileObj(self, children: list[ListNode]) -> list[dict[str, Any]]:
         """
         Create an object that corresponds to the syntax of the input to "create_onto".
         Node: This method must be used only internally (for recursion)!!

@@ -7,7 +7,7 @@ from typing import Any
 
 import requests
 
-from dsp_tools.models.connection import check_for_api_error
+from dsp_tools.connection.connection_live import check_for_api_error
 
 
 @dataclass(frozen=True)

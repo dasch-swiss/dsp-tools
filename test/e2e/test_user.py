@@ -6,7 +6,8 @@ import unittest
 
 import pytest
 
-from dsp_tools.models.connection import Connection
+from dsp_tools.connection.connection import Connection
+from dsp_tools.connection.connection_live import ConnectionLive
 from dsp_tools.models.langstring import Languages
 from dsp_tools.models.user import User
 
@@ -25,7 +26,7 @@ class TestUser(unittest.TestCase):
         Creates a connection to DSP-API.
         For each test method, a new TestCase instance is created, so setUp() is executed before each test method.
         """
-        self.con = Connection(server="http://0.0.0.0:3333")
+        self.con = ConnectionLive(server="http://0.0.0.0:3333")
         self.con.login(email="root@example.com", password="test")
 
     def tearDown(self) -> None:
@@ -168,7 +169,7 @@ class TestUser(unittest.TestCase):
         # wilee5 logs in with his new password,
         # and retrieves a User instance of himself
         # (this would fail if password update wasn't successful)
-        con = Connection(server="http://0.0.0.0:3333")
+        con = ConnectionLive(server="http://0.0.0.0:3333")
         con.login(email=wilee_email, password=wilee_new_pw)
         wilee_updated_by_root = User(con=con, email=wilee_email).read()
 

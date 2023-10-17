@@ -7,6 +7,8 @@ This model implements the handling of resource classes. It contains two classes 
 
 # pylint: disable=missing-class-docstring,missing-function-docstring,too-many-instance-attributes
 
+from __future__ import annotations
+
 import json
 from enum import Enum
 from typing import Any, Optional, Sequence, Union
@@ -14,7 +16,7 @@ from urllib.parse import quote_plus
 
 import regex
 
-from dsp_tools.models.connection import Connection
+from dsp_tools.connection.connection import Connection
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import Actions, Cardinality, Context, DateTimeStamp
 from dsp_tools.models.langstring import LangString, Languages
@@ -79,10 +81,6 @@ class HasProperty(Model):
     def property_id(self) -> Optional[str]:
         return self._property_id
 
-    @property_id.setter
-    def property_id(self, value: str) -> None:
-        raise BaseError(f'property_id "{self._property_id}" cannot be modified!')
-
     @property
     def resclass_id(self) -> Optional[str]:
         return self._resclass_id
@@ -114,12 +112,7 @@ class HasProperty(Model):
         return self._ptype
 
     @classmethod
-    def fromJsonObj(cls, con: Connection, context: Context, jsonld_obj: Any) -> tuple[str, "HasProperty"]:
-        if not isinstance(con, Connection):
-            raise BaseError('"con"-parameter must be an instance of Connection')
-        if not isinstance(context, Context):
-            raise BaseError('"context"-parameter must be an instance of Context')
-
+    def fromJsonObj(cls, con: Connection, context: Context, jsonld_obj: Any) -> tuple[str, HasProperty]:
         rdf = context.prefix_from_iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
         rdfs = context.prefix_from_iri("http://www.w3.org/2000/01/rdf-schema#")
         owl = context.prefix_from_iri("http://www.w3.org/2002/07/owl#")
@@ -181,7 +174,7 @@ class HasProperty(Model):
             ptype=ptype,
         )
 
-    def toJsonObj(self, lastModificationDate: DateTimeStamp, action: Actions) -> Any:
+    def toJsonObj(self, lastModificationDate: DateTimeStamp, action: Actions) -> dict[str, Any]:
         if self._cardinality is None:
             raise BaseError("There must be a cardinality given!")
         tmp = {}
@@ -234,7 +227,7 @@ class HasProperty(Model):
                 tmp["@graph"][0]["rdfs:subClassOf"]["salsah-gui:guiOrder"] = self._gui_order
         return tmp
 
-    def create(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, "ResourceClass"]:
+    def create(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, ResourceClass]:
         if self._ontology_id is None:
             raise BaseError("Ontology id required")
         if self._property_id is None:
@@ -248,7 +241,7 @@ class HasProperty(Model):
         last_modification_date = DateTimeStamp(result["knora-api:lastModificationDate"])
         return last_modification_date, ResourceClass.fromJsonObj(self._con, self._context, result["@graph"])
 
-    def update(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, "ResourceClass"]:
+    def update(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, ResourceClass]:
         if self._ontology_id is None:
             raise BaseError("Ontology id required")
         if self._property_id is None:
@@ -261,7 +254,7 @@ class HasProperty(Model):
         last_modification_date = DateTimeStamp(result["knora-api:lastModificationDate"])
         return last_modification_date, ResourceClass.fromJsonObj(self._con, self._context, result["@graph"])
 
-    def createDefinitionFileObj(self, context: Context, shortname: str):
+    def createDefinitionFileObj(self, context: Context, shortname: str) -> dict[str, Any]:
         cardinality = {}
         if self._ptype == HasProperty.Ptype.other or self.property_id in [
             "knora-api:isSequenceOf",
@@ -392,10 +385,6 @@ class ResourceClass(Model):
         :param has_properties:
         """
         super().__init__(con)
-        if not isinstance(con, Connection):
-            raise BaseError('"con"-parameter must be an instance of Connection')
-        if not isinstance(context, Context):
-            raise BaseError('"context"-parameter must be an instance of Context')
         self._context = context
         self._iri = iri
         self._name = name
@@ -440,33 +429,17 @@ class ResourceClass(Model):
     def name(self) -> Optional[str]:
         return self._name
 
-    @name.setter
-    def name(self, value: str) -> None:
-        raise BaseError('"name" cannot be modified!')
-
     @property
     def iri(self) -> Optional[str]:
         return self._iri
-
-    @iri.setter
-    def iri(self, value: str) -> None:
-        raise BaseError('"iri" cannot be modified!')
 
     @property
     def ontology_id(self) -> Optional[str]:
         return self._ontology_id
 
-    @ontology_id.setter
-    def ontology_id(self, value: str) -> None:
-        raise BaseError('"ontology_id" cannot be modified!')
-
     @property
     def superclasses(self) -> Optional[list[str]]:
         return self._superclasses
-
-    @superclasses.setter
-    def superclasses(self, value: list[str]) -> None:
-        raise BaseError('"superclasses" cannot be modified!')
 
     @property
     def label(self) -> LangString:
@@ -522,19 +495,11 @@ class ResourceClass(Model):
     def permissions(self) -> Optional[str]:
         return self._permissions
 
-    @permissions.setter
-    def permissions(self, value: str) -> None:
-        raise BaseError('"permissions" cannot be modified!')
-
     @property
     def has_properties(self) -> dict[str, HasProperty]:
         return self._has_properties
 
-    @has_properties.setter
-    def has_properties(self, value: str) -> None:
-        raise BaseError('"has_property" cannot be modified!')
-
-    def getProperty(self, property_id) -> Optional[HasProperty]:
+    def getProperty(self, property_id: str) -> Optional[HasProperty]:
         if self._has_properties is None:
             return None
         else:
@@ -566,13 +531,9 @@ class ResourceClass(Model):
             raise BaseError("Property already has cardinality in this class! " + property_id)
 
     @classmethod
-    def fromJsonObj(cls, con: Connection, context: Context, json_obj: Any) -> Any:
+    def fromJsonObj(cls, con: Connection, context: Context, json_obj: Any) -> ResourceClass:
         if isinstance(json_obj, list):
             json_obj = json_obj[0]
-        if not isinstance(con, Connection):
-            raise BaseError('"con"-parameter must be an instance of Connection')
-        if not isinstance(context, Context):
-            raise BaseError('"context"-parameter must be an instance of Context')
         rdfs = context.prefix_from_iri("http://www.w3.org/2000/01/rdf-schema#")
         owl = context.prefix_from_iri("http://www.w3.org/2002/07/owl#")
         knora_api = context.prefix_from_iri("http://api.knora.org/ontology/knora-api/v2#")
@@ -622,7 +583,7 @@ class ResourceClass(Model):
         )
 
     def toJsonObj(self, lastModificationDate: DateTimeStamp, action: Actions, what: Optional[str] = None) -> Any:
-        def resolve_resref(resref: str):
+        def resolve_resref(resref: str) -> dict[str, str]:
             tmp = resref.split(":")
             if len(tmp) > 1:
                 if tmp[0] and self._context.iri_from_prefix(tmp[0]) != self._ontology_id:
@@ -728,7 +689,7 @@ class ResourceClass(Model):
         )
         return DateTimeStamp(result["knora-api:lastModificationDate"])
 
-    def createDefinitionFileObj(self, context: Context, shortname: str, skiplist: list[str]):
+    def createDefinitionFileObj(self, context: Context, shortname: str, skiplist: list[str]) -> dict[str, Any]:
         resource = {"name": self._name}
         if self._superclasses:
             if len(self._superclasses) > 1:

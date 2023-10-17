@@ -25,10 +25,7 @@ from dsp_tools.utils.xmlupload.read_validate_xml_file import (
     check_consistency_with_ontology,
     validate_and_parse_xml_file,
 )
-from dsp_tools.utils.xmlupload.resource_multimedia import (
-    calculate_multimedia_file_size,
-    get_sipi_multimedia_information,
-)
+from dsp_tools.utils.xmlupload.resource_multimedia import handle_bitstream
 from dsp_tools.utils.xmlupload.stash.stash_models import Stash
 from dsp_tools.utils.xmlupload.stash_circular_references import remove_circular_references
 from dsp_tools.utils.xmlupload.upload_config import UploadConfig
@@ -336,50 +333,27 @@ def _upload_resources(
     id2iri_mapping: dict[str, str] = {}
     failed_uploads: list[str] = []
 
-    bitstream_all_sizes_mb, bitstream_size_total_mb = calculate_multimedia_file_size(
-        resources=resources,
-        imgdir=imgdir,
-        preprocessing_done=preprocessing_done,
-    )
-    bitstream_size_uploaded_mb = 0.0
-
     for i, resource in enumerate(resources):
-        # XXX: use DTO instead of XMLResource
-        filesize = round(bitstream_all_sizes_mb[i], 1)
-
         resource_iri = resource.iri
         if resource.ark:
             resource_iri = convert_ark_v0_to_resource_iri(resource.ark)
 
-        # XXX: extract bitstream logic into separate function
-        if bs := resource.bitstream:
-            try:
-                if preprocessing_done:
-                    # XXX: untangle
-                    resource_bitstream = resource.get_bitstream_information_from_sipi(bs.value, permissions_lookup)
-                else:
-                    # XXX: should not require the full XMLResource object
-                    resource_bitstream = get_sipi_multimedia_information(
-                        resource=resource,
-                        sipi_server=sipi_server,
-                        imgdir=imgdir,
-                        permissions_lookup=permissions_lookup,
-                    )
-                    bitstream_size_uploaded_mb += filesize
-                    msg = f"Uploaded file '{bs.value}' ({bitstream_size_uploaded_mb:.1f} MB / {bitstream_size_total_mb} MB)"
-                    print(msg)
-                    logger.info(msg)
-            except BaseError as err:
-                err_msg = err.orig_err_msg_from_api or err.message
-                msg = f"Unable to upload file '{bs.value}' of resource '{resource.label}' ({resource.id})"
-                print(f"WARNING: {msg}: {err_msg}")
-                logger.warning(msg, exc_info=True)
+        bitstream_information = None
+        if bitstream := resource.bitstream:
+            bitstream_information = handle_bitstream(
+                resource=resource,
+                bitstream=bitstream,
+                preprocessing_done=preprocessing_done,
+                permissions_lookup=permissions_lookup,
+                sipi_server=sipi_server,
+                imgdir=imgdir,
+            )
+            if not bitstream_information:
+                # Note: previously, if the bitstream could not be uploaded, the resource was skipped without adding to
+                # the failed_uploads list, which I'm not sure was as intended
+                failed_uploads.append(resource.id)
                 continue
-        else:
-            resource_bitstream = None
 
-        # XXX: extract resource creation logic into separate function
-        # create the resource in DSP
         resclass_type = resclass_name_2_type[resource.restype]
         properties = resource.get_propvals(id2iri_mapping, permissions_lookup)
         try:
@@ -389,7 +363,7 @@ def _upload_resources(
                 iri=resource_iri,
                 permissions=permissions_lookup.get(str(resource.permissions)),
                 creation_date=resource.creation_date,
-                bitstream=resource_bitstream,
+                bitstream=bitstream_information,
                 values=properties,
             )
             created_resource: ResourceInstance = try_network_action(resource_instance.create)
@@ -411,6 +385,10 @@ def _upload_resources(
         logger.info(f"Created resource {i+1}/{len(resources)}: {resource_designation}")
 
     return id2iri_mapping, failed_uploads
+
+
+def _create_resource(restype: type) -> ResourceInstance | None:
+    ...
 
 
 def _handle_upload_error(

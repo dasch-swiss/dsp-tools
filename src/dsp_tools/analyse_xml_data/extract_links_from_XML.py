@@ -116,7 +116,11 @@ def _remove_leaf_nodes(
     node_index_lookup: dict[int, str],
 ) -> list[UploadResource]:
     res: list[UploadResource] = []
-    while leaf_nodes := [x for x in g.node_indexes() if g.out_degree(x) == 0]:
+
+    def _check_if_leaf(node):
+        return g.out_degree(node) == 0
+
+    while leaf_nodes := g.filter_nodes(_check_if_leaf):
         print(f"number of leaf nodes removed: {len(leaf_nodes)}")
         res.extend(UploadResource(node_index_lookup[n]) for n in leaf_nodes)
         g.remove_nodes_from(leaf_nodes)

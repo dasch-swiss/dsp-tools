@@ -99,7 +99,7 @@ def _make_graph(
 
 
 def _remove_leaf_nodes(
-    g: rx.PyDiGraph,  # type: ignore[type-arg] # pylint: disable=no-member
+    g: rx.PyDiGraph,  # type: ignore[type-arg] # pylint: disable=no-member,
     node_index_lookup: dict[int, str],
 ) -> list[UploadResource]:
     res: list[UploadResource] = []

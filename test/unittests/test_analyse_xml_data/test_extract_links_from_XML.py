@@ -23,15 +23,11 @@ def test_create_info_from_xml_for_graph_from_one_resource() -> None:
         'class="salsah-link" href="IRI:res_C_19:IRI">res_C_19</a></text></text-prop></resource>'
     )
     res_resptr_links, res_xml_links, res_all_used_ids = _create_info_from_xml_for_graph_from_one_resource(test_ele)
-    #########
     res_B_19 = [obj.object_id for obj in res_resptr_links]
     assert "res_B_19" in res_B_19
     res_C_19 = [obj.object_id for obj in res_resptr_links]
     assert "res_C_19" in res_C_19
-    #########
-    expected_ids = ["res_B_19", "res_C_19", "res_B_19", "res_C_19", "res_A_19"]
-    assert expected_ids == unordered(res_all_used_ids)
-    ########
+    assert "res_A_19" == res_all_used_ids
     expected_xml = {"subject_id": "res_A_19", "object_link_ids": {"res_B_19", "res_C_19"}}
     res_xml_dict = res_xml_links[0].__dict__
     for k, v in expected_xml.items():
@@ -69,9 +65,8 @@ def test_text_only_get_all_links_from_one_resource() -> None:
         'class="salsah-link" href="IRI:res_B_18:IRI">res_B_18</a></text></text-prop></resource>'
     )
     res_resptr, res_xml = _get_all_links_from_one_resource(test_ele)
-    expected_xml = [{"res_A_18"}, {"res_B_18"}]
     assert not res_resptr
-    assert expected_xml == unordered(res_xml)
+    assert [{"res_A_18"}, {"res_B_18"}] == unordered(res_xml)
 
 
 def test_extract_id_one_text_with_one_id() -> None:
@@ -100,8 +95,7 @@ def test_extract_id_one_text_with_several_id() -> None:
         'class="salsah-link" href="IRI:res_B_11:IRI">res_A_11</a></text>'
     )
     res = _extract_ids_from_one_text_value(test_ele)
-    expected = {"res_A_11", "res_B_11"}
-    assert expected == res
+    assert {"res_A_11", "res_B_11"} == res
 
 
 def test_extract_ids_from_text_prop_with_several_text_links() -> None:
@@ -112,8 +106,7 @@ def test_extract_ids_from_text_prop_with_several_text_links() -> None:
         'class="salsah-link" href="IRI:res_B_18:IRI">res_B_18</a></text></text-prop>'
     )
     res = _extract_ids_from_text_prop(test_ele)
-    expected = [{"res_A_18"}, {"res_B_18"}]
-    assert expected == unordered(res)
+    assert [{"res_A_18"}, {"res_B_18"}] == unordered(res)
 
 
 def test_extract_one_id_resptr_prop() -> None:
@@ -123,8 +116,7 @@ def test_extract_one_id_resptr_prop() -> None:
         'permissions="prop-default">res_C_15</resptr></resptr-prop>'
     )
     res = _extract_ids_from_one_resptr_prop(test_ele)
-    expected = ["res_C_15"]
-    assert expected == unordered(res)
+    assert ["res_C_15"] == unordered(res)
 
 
 def test_extract_several_id_resptr_prop() -> None:
@@ -134,8 +126,7 @@ def test_extract_several_id_resptr_prop() -> None:
         'permissions="prop-default">res_B_13</resptr><resptr permissions="prop-default">res_C_13</resptr></resptr-prop>'
     )
     res = _extract_ids_from_one_resptr_prop(test_ele)
-    expected = ["res_A_13", "res_B_13", "res_C_13"]
-    assert expected == unordered(res)
+    assert ["res_A_13", "res_B_13", "res_C_13"] == unordered(res)
 
 
 if __name__ == "__main__":

@@ -13,7 +13,10 @@ class ResptrLink:
 
 @dataclass
 class XMLLink:
-    """This class represents a link between a resource and an XMl text which contains links to other resources."""
+    """
+    This class represents a link between a resource and an XML text
+    the text contains links to one or more other resources.
+    """
 
     subject_id: str
     object_link_ids: set[str]

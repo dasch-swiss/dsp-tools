@@ -76,10 +76,22 @@ def _extract_ids_from_one_text_value(text: etree._Element) -> set[str]:
 
 
 def _make_graph(
-    resptr_instances: list[ResptrLink], xml_instances: list[XMLLink], all_link_ids: set[str]
+    resptr_instances: list[ResptrLink], xml_instances: list[XMLLink], all_resource_ids: set[str]
 ) -> tuple[rx.PyDiGraph, dict[int, str]]:  # type: ignore[type-arg] # pylint: disable=no-member
+    """
+    This function takes information about the resources (nodes) and links between them (edges).
+    From that it constructs a rustworkx directed graph.
+
+    Args:
+        resptr_instances: Instances of resptr links
+        xml_instances: Instances of links to texts containing links to other resources
+        all_resource_ids: IDs of all the resources in the graph
+
+    Returns:
+        The rustworkx graph and a dictionary that contains the index number of the nodes with the original resource id
+    """
     g: rx.PyDiGraph = rx.PyDiGraph()  # type: ignore[type-arg] # pylint: disable=no-member
-    nodes = [(id_, None, None) for id_ in all_link_ids]
+    nodes = [(id_, None, None) for id_ in all_resource_ids]
     node_ids = [x[0] for x in nodes]
     node_inidices = g.add_nodes_from(nodes)
     node_id_lookup = dict(zip(node_ids, node_inidices))
@@ -134,6 +146,17 @@ def _generate_upload_order(
     g: rx.PyDiGraph,  # type: ignore[type-arg] # pylint: disable=no-member
     node_index_lookup: dict[int, str],
 ) -> list[UploadResource]:
+    """
+    This function takes a graph and a dictionary with the mapping between the graph indices and original ids.
+    It generates the order in which the resources should be uploaded to the DSP-API based on the dependencies.
+
+    Args:
+        g: graph
+        node_index_lookup: reference between graph indices and original id
+
+    Returns:
+        List of instances that contain the information of the resource id and its links.
+    """
     removed_nodes = []
     leaf_nodes = _remove_leaf_nodes(g, node_index_lookup)
     removed_nodes.extend(leaf_nodes)
@@ -177,12 +200,12 @@ def analyse_circles_in_data(xml_filepath: str, tracer_output_file: str) -> list[
     tracer.start()
     tree = etree.parse(xml_filepath)
     root = tree.getroot()
-    resptr_instances, xml_instances, all_link_ids = _create_info_from_xml_for_graph(root)
-    print(f"number of node ids: {len(all_link_ids)}")
+    resptr_instances, xml_instances, all_resource_ids = _create_info_from_xml_for_graph(root)
+    print(f"number of node ids: {len(all_resource_ids)}")
     print(f"number of resptr instances: {len(resptr_instances)}")
     print(f"number of xml instances: {len(xml_instances)}")
     print("-" * 20)
-    g, node_index_lookup = _make_graph(resptr_instances, xml_instances, all_link_ids)
+    g, node_index_lookup = _make_graph(resptr_instances, xml_instances, all_resource_ids)
     print("=" * 80)
     removed_nodes = _generate_upload_order(g, node_index_lookup)
     print("=" * 80)

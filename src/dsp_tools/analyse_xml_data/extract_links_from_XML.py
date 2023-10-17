@@ -1,12 +1,11 @@
 from datetime import datetime
-from itertools import chain
 
 import regex
 import rustworkx as rx
 from lxml import etree
 from viztracer import VizTracer
 
-from dsp_tools.analyse_xml_data.models_xml_to_graph import ResptrLink, UploadResource, XMLLink
+from dsp_tools.analyse_xml_data.models import ResptrLink, UploadResource, XMLLink
 
 
 def _create_info_from_xml_for_graph(root: etree._Element) -> tuple[list[ResptrLink], list[XMLLink], set[str]]:
@@ -173,7 +172,7 @@ def analyse_circles_in_data(xml_filepath: str, tracer_output_file: str) -> list[
         minimize_memory=True,
         ignore_c_function=True,
         ignore_frozen=True,
-        include_files=["extract_links_from_XML.py", "models_xml_to_graph.py"],
+        include_files=["extract_links_from_XML.py", "models.py"],
     )
     tracer.start()
     tree = etree.parse(xml_filepath)

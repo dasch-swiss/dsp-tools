@@ -11,15 +11,19 @@ from dsp_tools.utils.xmlupload.xmlupload import _extract_resources_from_xml
 def test_get_length_ok_resources() -> None:
     test_root = parse_and_clean_xml_file("testdata/xml-data/circular-references/test_circular_references_1.xml")
     resources = _extract_resources_from_xml(test_root, "simcir")
-    ok_resources, _ = remove_circular_references(resources, False)
+    _, stash = remove_circular_references(resources, False)
+    len_standoff = len(stash.standoff_stash.res_2_stash_items)  # type: ignore[union-attr]
+    len_resptr = len(stash.link_value_stash.res_2_stash_items)  # type: ignore[union-attr]
+    stashed_links = len_standoff + len_resptr
     print_str = (
         f"\n\n---------------------\n"
-        f"Original length: 36\n"
-        f"New length: {len(ok_resources)}"
+        f"Total Resources: 63\n"
+        f"Previous Stash Size: 32\n"
+        f"Current Stash Size: {stashed_links}"
         f"\n---------------------\n"
     )
     cprint(text=print_str, color="yellow", attrs=["bold"])
-    assert len(ok_resources) >= 36
+    assert stashed_links <= 32
 
 
 if __name__ == "__main__":

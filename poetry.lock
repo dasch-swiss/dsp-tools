@@ -926,6 +926,17 @@ files = [
 ]
 
 [[package]]
+name = "objprint"
+version = "0.2.3"
+description = "A library that can print Python objects in human readable format"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "objprint-0.2.3-py3-none-any.whl", hash = "sha256:1721e6f97bae5c5b86c2716a0d45a9dd2c9a4cd9f52cfc8a0dfbe801805554cb"},
+    {file = "objprint-0.2.3.tar.gz", hash = "sha256:73d0ad5a7c3151fce634c8892e5c2a050ccae3b1a353bf1316f08b7854da863b"},
+]
+
+[[package]]
 name = "odfpy"
 version = "1.4.1"
 description = "Python API and tools to manipulate OpenDocument files"
@@ -1181,6 +1192,20 @@ pluggy = ">=0.12,<2.0"
 
 [package.extras]
 testing = ["argcomplete", "attrs (>=19.2.0)", "hypothesis (>=3.56)", "mock", "nose", "pygments (>=2.7.2)", "requests", "setuptools", "xmlschema"]
+
+[[package]]
+name = "pytest-unordered"
+version = "0.5.2"
+description = "Test equality of unordered collections in pytest"
+optional = false
+python-versions = "*"
+files = [
+    {file = "pytest-unordered-0.5.2.tar.gz", hash = "sha256:8187e6d68a7d54e5447e88c229cbeafa38205e55baf7da7ae57cc965c1ecdbb3"},
+    {file = "pytest_unordered-0.5.2-py3-none-any.whl", hash = "sha256:b01bb0e8ba80db6dd8c840fe24ad1804c8672919303dc9302688221390a7dc29"},
+]
+
+[package.dependencies]
+pytest = ">=6.0.0"
 
 [[package]]
 name = "python-dateutil"
@@ -1554,6 +1579,85 @@ files = [
 ]
 
 [[package]]
+name = "rustworkx"
+version = "0.13.2"
+description = "A python graph library implemented in Rust"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "rustworkx-0.13.2-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:915aae559ac9eef1f5fc4f6b8c094d353e2b62df0cd164ac5fb44f2c5ebe19d5"},
+    {file = "rustworkx-0.13.2-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:51856470f221796be84497aaf933f14964395e0aff41b6d8fd342d9ac43d8f00"},
+    {file = "rustworkx-0.13.2-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:371a3f7bdf0e35280bb7d7fc3e2a70aec6d76a564b3878563d5c0f7cf14f2cfa"},
+    {file = "rustworkx-0.13.2-cp310-cp310-manylinux_2_12_i686.manylinux2010_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:76042e30b18735bca37f03182b3e6159977bdd568d85ef7f996e520f64f81061"},
+    {file = "rustworkx-0.13.2-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:1b9b46cc9f89944a5d5e26d6c1602ceeff76b1f4d95790dd7ec47c9f1cc6b95f"},
+    {file = "rustworkx-0.13.2-cp310-cp310-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:3909942339d7a95a894c3255f8c74ffc7686354a1358e7984abd6059c60f36a6"},
+    {file = "rustworkx-0.13.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:e96b80a3821d27ce04f4429e3aa1cb29b369b8c09c517512693bacb8a36c0868"},
+    {file = "rustworkx-0.13.2-cp310-cp310-musllinux_1_1_x86_64.whl", hash = "sha256:1ca99cd92c5e969c220a4ae8fa413c6d679e83c0dbce5f86c0fff8874fd5ed9f"},
+    {file = "rustworkx-0.13.2-cp310-cp310-win32.whl", hash = "sha256:5961b11ee36fefe2909373ef4551e58588000bf2bc1c177ce190b4bf796a1a73"},
+    {file = "rustworkx-0.13.2-cp310-cp310-win_amd64.whl", hash = "sha256:01b26cb2827fda7ad2de35e166fa54ad23b4136080b6cf4f897a18450f2cfb67"},
+    {file = "rustworkx-0.13.2-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:cfed0f9ee080d1b16d57ad82559bbdef3cca87b9aa3d573b7108d3ca4ad29388"},
+    {file = "rustworkx-0.13.2-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:4731701e661f4fb6f7e1c16441f71a071804ec6c9da7d76d742d7e9a7d19d6e4"},
+    {file = "rustworkx-0.13.2-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:c147a9efca672a4b8dd774a6f2bb78dfbce8efaea52933e3eb520d3618302832"},
+    {file = "rustworkx-0.13.2-cp311-cp311-manylinux_2_12_i686.manylinux2010_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:bbec49f04dc387a2e22b3d54a9283d4c7dbef0bd7222ee70b7d68f927da7f7fd"},
+    {file = "rustworkx-0.13.2-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:8ef239663d3baf4cbdd7a8a2752f8edf544d853e89024d159bbb742efa83f26a"},
+    {file = "rustworkx-0.13.2-cp311-cp311-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:a1a174674489f416d852ea42b346a59cc4c02e4bd0e11404f94c5e499de05a29"},
+    {file = "rustworkx-0.13.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:546d089917ad9b1ac9c95af2d6295d2b343392a651805b458958347a0e568a82"},
+    {file = "rustworkx-0.13.2-cp311-cp311-musllinux_1_1_x86_64.whl", hash = "sha256:60933aea34c014b3dfaa6a8f5d81f6c92cf49d21cab2a3d2989590d477776997"},
+    {file = "rustworkx-0.13.2-cp311-cp311-win32.whl", hash = "sha256:cd10e5654d1ce9c112f344034865a0a94b4da805764485889a723f2da2699cb7"},
+    {file = "rustworkx-0.13.2-cp311-cp311-win_amd64.whl", hash = "sha256:d5b640d5eff6574096a073d9c854d462effb30682aefeb71e5070d0ecd65c700"},
+    {file = "rustworkx-0.13.2-cp312-cp312-macosx_10_9_universal2.whl", hash = "sha256:ec1260a0b81d457858a014646c1aec02d1440d62e7b8f9fb72bd819feae86865"},
+    {file = "rustworkx-0.13.2-cp312-cp312-macosx_10_9_x86_64.whl", hash = "sha256:59562edf290ba2d5383ecbac047adc5ab95c9fd8f15f2c1d540562acb4aadf66"},
+    {file = "rustworkx-0.13.2-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:24a5daf8ef6d7a80c08bc1a00dea1e7b668160cf6264be1e717c1e451b486bd8"},
+    {file = "rustworkx-0.13.2-cp312-cp312-manylinux_2_12_i686.manylinux2010_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:a658895541772e76aa895de289e3bedcf1e4676314e4f78d23520b1d5bef2146"},
+    {file = "rustworkx-0.13.2-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:b2fcd805e378eec3fc9ed4338d17d2c6ee517021f9d60187dc9975d2cd761b0e"},
+    {file = "rustworkx-0.13.2-cp312-cp312-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:542263b7eb8587e48b1f9ea010c6c9d24102b8082870b11a388dac1e74ab135a"},
+    {file = "rustworkx-0.13.2-cp312-cp312-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:bdc0745fa448d0a05d92c4c85af3a65d7264a9d2ec714f9e6645272f7e4d1cfc"},
+    {file = "rustworkx-0.13.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:b3cfc0cecb0f400155bedcb7ba1078921f51faf14ad7231d166f2ede42fdba7b"},
+    {file = "rustworkx-0.13.2-cp312-cp312-musllinux_1_1_x86_64.whl", hash = "sha256:cbecd5ebd5679909f400e1de990d2a1fdbc2aa6a243faa23699511e4601777c5"},
+    {file = "rustworkx-0.13.2-cp312-cp312-win32.whl", hash = "sha256:0fdf8733323684d4d4d3a37d05ae6f46a13483bee96ac329b841c44216328c9d"},
+    {file = "rustworkx-0.13.2-cp312-cp312-win_amd64.whl", hash = "sha256:a66a7fc98a30e7fefd225ee6eed4b8850af9baeaa7ea1df90f4091419dfa3b4b"},
+    {file = "rustworkx-0.13.2-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:844d14a37e4ba5b56f791c2d3f23275f26649b1e11685d05cd5009b3cd4100cf"},
+    {file = "rustworkx-0.13.2-cp37-cp37m-manylinux_2_12_i686.manylinux2010_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:88b83dc818bfea1ad743f324d1edc6920ede7345943932453628771ce290d8b2"},
+    {file = "rustworkx-0.13.2-cp37-cp37m-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:7207c52417b48e01e11018cb116b53873c67effd528f2696baa1b6d936c00e99"},
+    {file = "rustworkx-0.13.2-cp37-cp37m-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:7014e33d25b3cd7c03004849b685fb7cf934e409c71854fe888bc71f86a26804"},
+    {file = "rustworkx-0.13.2-cp37-cp37m-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:d99b6bfae1b2e59c23badaba1317a8fe527f493aa9d037a2d2910060af460852"},
+    {file = "rustworkx-0.13.2-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:38773f5421c7125339251864fdbad205d9ecaf960000f3a69157ccae0060970e"},
+    {file = "rustworkx-0.13.2-cp37-cp37m-musllinux_1_1_x86_64.whl", hash = "sha256:2a1cf52ed583225960c5f11faa88090f7e871075f29603bead69e67d4a661ad7"},
+    {file = "rustworkx-0.13.2-cp37-cp37m-win32.whl", hash = "sha256:47b12d3b6aa3196f1f0747f233a8e9eece9b81a5e7eb41e1cae3960db87d18d1"},
+    {file = "rustworkx-0.13.2-cp37-cp37m-win_amd64.whl", hash = "sha256:15cc9d8f684b850aba3e89f9bdbba0f0cf249a17c8eb42ef015adf6a56e29c20"},
+    {file = "rustworkx-0.13.2-cp38-cp38-macosx_10_9_universal2.whl", hash = "sha256:e044469483508b53f2e246b737e49fc04f0f4ab5a6178a8eb9d423e52ebf6ead"},
+    {file = "rustworkx-0.13.2-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:6cc15ea8feed0568f7682045e7d7b18974455f910e1fc3e0b6bdcbf526bd6673"},
+    {file = "rustworkx-0.13.2-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:d82e269b5c293e301334e1e7ff10d406767bbfac70bc398496f33cfa4e80fec4"},
+    {file = "rustworkx-0.13.2-cp38-cp38-manylinux_2_12_i686.manylinux2010_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:80e7f20cd3ecbdaa1d5ff149ce2dae0d389c9983c84dec6b95c9db669b6aedd0"},
+    {file = "rustworkx-0.13.2-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:7c06b37d8b1c1d454cde38ebc5ed82eded26db865df79ba46532aef996b3f8ac"},
+    {file = "rustworkx-0.13.2-cp38-cp38-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:af329d05b4e39bf98cbfb412438dc2dc14f017a53feafec003d1fcf6470f82c8"},
+    {file = "rustworkx-0.13.2-cp38-cp38-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:1f5650813ce4379c5399f1559870ba42f745d01bac05fc0c3b4805128ee03161"},
+    {file = "rustworkx-0.13.2-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:d585d9336b039b3bf5e31daa7a25d6400fe9d2025c1d1ccedcfa757132a2a15d"},
+    {file = "rustworkx-0.13.2-cp38-cp38-musllinux_1_1_x86_64.whl", hash = "sha256:2f677a13a33a92ce185973d83be4a4621a149924800bacb37d538b617b160981"},
+    {file = "rustworkx-0.13.2-cp38-cp38-win32.whl", hash = "sha256:604038ee0fe9b6f72d1c4b0529da1d15b46b757381be569f66540ab5ffb0f9c8"},
+    {file = "rustworkx-0.13.2-cp38-cp38-win_amd64.whl", hash = "sha256:24bfa0d22db1c0ec34074655f4533fb780db65d87e2189569d47608e5e80c852"},
+    {file = "rustworkx-0.13.2-cp39-cp39-macosx_10_9_universal2.whl", hash = "sha256:df27694f9822b35902a9e89458f8d37b02e452586dc30fcfeee3d95672846ac7"},
+    {file = "rustworkx-0.13.2-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:cc29b6b08d41f06aa8d011bcfc7dba17599231a1c4b172d6007a6eb5ae589124"},
+    {file = "rustworkx-0.13.2-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:907fa93a377b18ae7360f64a20b1949e06d50faeeaaa5ff4620b697598eb1214"},
+    {file = "rustworkx-0.13.2-cp39-cp39-manylinux_2_12_i686.manylinux2010_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:c62c99cfad1f8112297e80a9e7a23ca420b4d86a8c49f7ebdf7e1f31d43122f5"},
+    {file = "rustworkx-0.13.2-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:9553deb3a834a14192f354d2da80c2bda146523df270c7505501b1800057dc88"},
+    {file = "rustworkx-0.13.2-cp39-cp39-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:69183adf48ab25361ec2ac62b789662de49190b532a03533b2c711a4cbbd7c40"},
+    {file = "rustworkx-0.13.2-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:3db0224b41e68b1905814c4817d39a35b0d8174850a265cc3ef129439b39bc6a"},
+    {file = "rustworkx-0.13.2-cp39-cp39-musllinux_1_1_x86_64.whl", hash = "sha256:51fd1c1d9db2aec6f445b9f06a12e8cb579af6f208f6d8909014d00cef03b23f"},
+    {file = "rustworkx-0.13.2-cp39-cp39-win32.whl", hash = "sha256:36980ad7a5e831284cc77c9f6f13631429af81010c6692c1d39519919c6901ca"},
+    {file = "rustworkx-0.13.2-cp39-cp39-win_amd64.whl", hash = "sha256:3f47df1ceda48cf1351fbeefa15fb7704c28c2f6d72c10e15f45f0eb708903bd"},
+    {file = "rustworkx-0.13.2.tar.gz", hash = "sha256:0276cf0b989211859e8797b67d4c16ed6ac9eb32edb67e0a47e70d7d71e80574"},
+]
+
+[package.dependencies]
+numpy = ">=1.16.0"
+
+[package.extras]
+all = ["matplotlib (>=3.0)", "pillow (>=5.4)"]
+graphviz = ["pillow (>=5.4)"]
+mpl = ["matplotlib (>=3.0)"]
+
+[[package]]
 name = "setuptools"
 version = "68.0.0"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
@@ -1768,6 +1872,52 @@ docs = ["furo (>=2023.5.20)", "proselint (>=0.13)", "sphinx (>=7.0.1)", "sphinx-
 test = ["covdefaults (>=2.3)", "coverage (>=7.2.7)", "coverage-enable-subprocess (>=1)", "flaky (>=3.7)", "packaging (>=23.1)", "pytest (>=7.4)", "pytest-env (>=0.8.2)", "pytest-freezer (>=0.4.8)", "pytest-mock (>=3.11.1)", "pytest-randomly (>=3.12)", "pytest-timeout (>=2.1)", "setuptools (>=68)", "time-machine (>=2.10)"]
 
 [[package]]
+name = "viztracer"
+version = "0.16.0"
+description = "A debugging and profiling tool that can trace and visualize python code execution"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "viztracer-0.16.0-cp310-cp310-macosx_10_15_x86_64.whl", hash = "sha256:334e303c275bb9da78effa2035dc2109ddbfbdc3ea79dfea766c71081bc4a2f2"},
+    {file = "viztracer-0.16.0-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:c8c477fbebde7c9ea01ebad97ad2c07a487bcd0b84e78a0bb37e56bd2a5c2c83"},
+    {file = "viztracer-0.16.0-cp310-cp310-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:fb3caacff02dcf3c13bcfa69d3c7b2af182f2dca346364e9ca49f9c633d2d070"},
+    {file = "viztracer-0.16.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:31c36bf33ed1a7d40e2c92cbf8f30669b5731eed94091106fcca2cea6de13d5f"},
+    {file = "viztracer-0.16.0-cp310-cp310-win32.whl", hash = "sha256:79745c6c2a0d715319a743d8bf8c518c96f972dae2acdd7e7b14d737e43521fc"},
+    {file = "viztracer-0.16.0-cp310-cp310-win_amd64.whl", hash = "sha256:14f5af5e7386796170b6e05900868a693b997d9fcc29061e767e0c44a226638d"},
+    {file = "viztracer-0.16.0-cp311-cp311-macosx_10_15_x86_64.whl", hash = "sha256:70f4456303e671b624fbbabe5be7cdd0faa5afca68b98c51a8bd0959b33c047a"},
+    {file = "viztracer-0.16.0-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:87056eb227b40855d7f3a128779fb26eb957bbfc134c4a76cdfc05a5d93d2492"},
+    {file = "viztracer-0.16.0-cp311-cp311-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:8b3842642efe73d7ede92d29e92c6ee508ddd5b7b1aacbc615b771548a16fa9d"},
+    {file = "viztracer-0.16.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:2920f144d55dce1dfb2877f1be99ecad0b4092295d10b804a3b85088a0b41407"},
+    {file = "viztracer-0.16.0-cp311-cp311-win32.whl", hash = "sha256:c91b364d09d2b661a97372c985cca0bc644b1575d13942d7e7c60b8e03e0dbba"},
+    {file = "viztracer-0.16.0-cp311-cp311-win_amd64.whl", hash = "sha256:d0637df42cde083175fd831cb808a2d2b6634f14121330edf39743d1d9247a4d"},
+    {file = "viztracer-0.16.0-cp312-cp312-macosx_10_15_x86_64.whl", hash = "sha256:e9a5fc0040bf81eca44df9e5e93b38f33d1e48c6041288267f909cecf90ca282"},
+    {file = "viztracer-0.16.0-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:2de12b7a3ba47448abfa2969bc57f0ef498da9ca8c351445c2b2fd7ca4d003b1"},
+    {file = "viztracer-0.16.0-cp312-cp312-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:a4652686574f304a97afc4b8ed376fd22832435e105565d2f3ecee6695fb7637"},
+    {file = "viztracer-0.16.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:b329a1c6ac7b40d00f14978d63d13d4651fa496882f5ea7764aacb7f0e49c98f"},
+    {file = "viztracer-0.16.0-cp312-cp312-win32.whl", hash = "sha256:0cfc8d9d1145215335af21625405dc07692539f41491df0de4f7ecf6b2f51259"},
+    {file = "viztracer-0.16.0-cp312-cp312-win_amd64.whl", hash = "sha256:3431e3f4d8346c782a5f388795f41838d6a95f62e85719f8912591b52e9a0828"},
+    {file = "viztracer-0.16.0-cp38-cp38-macosx_10_15_x86_64.whl", hash = "sha256:e3bfa351da503b64bb742694b1f0d4c89ba0b84d59b7461c468f9c1f09ceaba1"},
+    {file = "viztracer-0.16.0-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:97e80a118baab28ac0cf69bd17c77c59c6d7b8dc1f7ec5f231d28b8577884aed"},
+    {file = "viztracer-0.16.0-cp38-cp38-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:4b6a71b4d5e93e044cef08412034e5e63d407aafdaf1ab21f0743cf6bdb7d3ef"},
+    {file = "viztracer-0.16.0-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:bc0f389e6f7344484f4280f4324148eeb970cacb2df599a0e7f864755fe0554d"},
+    {file = "viztracer-0.16.0-cp38-cp38-win32.whl", hash = "sha256:1bdabe95ea851ba4ee0ff71b36d85ff9f6d82ba863f6ae45a43827d75bfe86a4"},
+    {file = "viztracer-0.16.0-cp38-cp38-win_amd64.whl", hash = "sha256:b016d4991bef001864827b22dec24d3b193ed312fa0d07d949c93538ce2e32a6"},
+    {file = "viztracer-0.16.0-cp39-cp39-macosx_10_15_x86_64.whl", hash = "sha256:8e9ebae7e1515da9f913e77b4086d676b19c4cc3ca3aa67a210f5cb7aa772fcd"},
+    {file = "viztracer-0.16.0-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:536cc9c23295c45a3b163a1d09d625902f4ecb2ab16669c02a4a23ccb42b1d14"},
+    {file = "viztracer-0.16.0-cp39-cp39-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:169d240e4b32457bd1694019c6c1faf64cf001f04ac684627890fb12f8eaabaa"},
+    {file = "viztracer-0.16.0-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:af94ad611ac0c58b4ac7f50dd1105173c8f38e09f049ecf497b765054769e7db"},
+    {file = "viztracer-0.16.0-cp39-cp39-win32.whl", hash = "sha256:626eb1605587a04b65c46b083729ff6af082ce22c2ecc5307a639f5f04339c84"},
+    {file = "viztracer-0.16.0-cp39-cp39-win_amd64.whl", hash = "sha256:a5ea63d298c94f084eed34a49722c5b49d14f6e4cbf08e7604634d694ddd732f"},
+    {file = "viztracer-0.16.0.tar.gz", hash = "sha256:934a99d4985f4bde23c8039cef4ab248f4b55e799b785c33b55fe314d29fac80"},
+]
+
+[package.dependencies]
+objprint = ">0.1.3"
+
+[package.extras]
+full = ["orjson"]
+
+[[package]]
 name = "watchdog"
 version = "3.0.0"
 description = "Filesystem events monitoring"
@@ -1936,4 +2086,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "56780c3e4fae5d82af71cc7e04f3a0dc2f9929ed850e89dfcc1ca9364e575de7"
+content-hash = "916185687190073f767df1b1e20ebff29a141e879710e9bbc5859a4162001301"

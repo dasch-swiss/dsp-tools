@@ -83,35 +83,43 @@ def _extract_ids_from_one_text_value(text: etree._Element) -> set[str]:
 
 def _make_graph(
     resptr_instances: list[ResptrLink], xml_instances: list[XMLLink], all_link_ids: set[str]
-) -> rx.PyDiGraph:  # type: ignore[type-arg] # pylint: disable=no-member
+) -> tuple[rx.PyDiGraph, dict[int : tuple[str, None, None]]]:  # type: ignore[type-arg] # pylint: disable=no-member
     g: rx.PyDiGraph = rx.PyDiGraph()  # type: ignore[type-arg] # pylint: disable=no-member
     nodes = [(id_, None, None) for id_ in all_link_ids]
     node_ids = [x[0] for x in nodes]
     node_inidices = g.add_nodes_from(nodes)
-    lookup = dict(zip(node_ids, node_inidices))
+    node_id_lookup = dict(zip(node_ids, node_inidices))
+    node_index_lookup = dict(zip(node_inidices, node_ids))
     print(f"number of nodes: {len(nodes)}")
-    resptr_edges = [(lookup[x.subject_id], lookup[x.object_id], 1) for x in resptr_instances]
+    resptr_edges = [(node_id_lookup[x.subject_id], node_id_lookup[x.object_id], 1) for x in resptr_instances]
     g.add_edges_from(resptr_edges)
     print(f"number of resptr edges: {len(resptr_edges)}")
     xml_edges = []
     for xml in xml_instances:
-        xml_edges.extend([(lookup[xml.subject_id], lookup[x], xml.cost_links) for x in xml.object_link_ids])
+        xml_edges.extend(
+            [(node_id_lookup[xml.subject_id], node_id_lookup[x], xml.cost_links) for x in xml.object_link_ids]
+        )
     g.add_edges_from(xml_edges)
     print(f"number of xml edges: {len(xml_edges)}")
-    return g
+    return g, node_index_lookup
 
 
-def _remove_leaf_nodes(g: rx.PyDiGraph) -> list[UploadResource]:  # type: ignore[type-arg] # pylint: disable=no-member
+def _remove_leaf_nodes(
+    g: rx.PyDiGraph,  # type: ignore[type-arg] # pylint: disable=no-member
+    node_index_lookup: dict[int : tuple[str, None, None]],
+) -> list[UploadResource]:
     res: list[UploadResource] = []
     while leaf_nodes := [x for x in g.node_indexes() if g.out_degree(x) == 0]:
         print(f"number of leaf nodes removed: {len(leaf_nodes)}")
-        res.extend(UploadResource(g[n][0]) for n in leaf_nodes)
+        res.extend(UploadResource(node_index_lookup[n]) for n in leaf_nodes)
         g.remove_nodes_from(leaf_nodes)
     return res
 
 
 def _find_cheapest_node(
-    g: rx.PyDiGraph, cycle: rx.EdgeList  # type: ignore[type-arg] # pylint: disable=no-member
+    g: rx.PyDiGraph,
+    cycle: rx.EdgeList,  # type: ignore[type-arg] # pylint: disable=no-member,
+    node_index_lookup: dict[int : tuple[str, None, None]],
 ) -> tuple[int, list[str]]:
     costs = []
     for source, _ in cycle:
@@ -123,27 +131,29 @@ def _find_cheapest_node(
         costs.append((source, node_value, edges_out))
     sorted_nodes = sorted(costs, key=lambda x: x[1])
     cheapest_node, _, edges_out = sorted_nodes[0]
-    removed_target_ids = [g[x[1]][0] for x in edges_out]
+    print("cheapest", cheapest_node)
+    removed_target_ids = [node_index_lookup[x[1]] for x in edges_out]
     return cheapest_node, removed_target_ids
 
 
 def _generate_upload_order(
     g: rx.PyDiGraph,  # type: ignore[type-arg] # pylint: disable=no-member
+    node_index_lookup: dict[int : tuple[str, None, None]],
 ) -> list[UploadResource]:
     removed_nodes = []
-    leaf_nodes = _remove_leaf_nodes(g)
+    leaf_nodes = _remove_leaf_nodes(g, node_index_lookup)
     removed_nodes.extend(leaf_nodes)
     while g.num_nodes():
         print(f"total number of nodes remaining: {g.num_nodes()}")
         cycle = rx.digraph_find_cycle(g)  # type: ignore[attr-defined]  # pylint: disable=no-member
         print("-" * 10)
         print(f"cycle: {cycle}")
-        node = _find_cheapest_node(g, cycle)
+        node = _find_cheapest_node(g, cycle, node_index_lookup)
         source, targets = node
         removed_nodes.append(UploadResource(g[source][0], targets))
         g.remove_node(source)
         print(f"removed link: {node}")
-        leaf_nodes = _remove_leaf_nodes(g)
+        leaf_nodes = _remove_leaf_nodes(g, node_index_lookup)
         removed_nodes.extend(leaf_nodes)
     return removed_nodes
 
@@ -158,7 +168,7 @@ def analyse_circles_in_data(xml_filepath: str, tracer_output_file: str) -> None:
         xml_filepath: path to the file
         tracer_output_file: name of the file where the viztracer results should be saved
     """
-    print(datetime.now())
+    start = datetime.now()
     print("=" * 80)
     tracer = VizTracer(
         minimize_memory=True,
@@ -174,13 +184,12 @@ def analyse_circles_in_data(xml_filepath: str, tracer_output_file: str) -> None:
     print(f"number of resptr instances: {len(resptr_instances)}")
     print(f"number of xml instances: {len(xml_instances)}")
     print("-" * 20)
-    g = _make_graph(resptr_instances, xml_instances, all_link_ids)
+    g, node_index_lookup = _make_graph(resptr_instances, xml_instances, all_link_ids)
     print("=" * 80)
-    removed_nodes = _generate_upload_order(g)
+    removed_nodes = _generate_upload_order(g, node_index_lookup)
+    print("=" * 80)
     tracer.stop()
     tracer.save(output_file=tracer_output_file)
     print("=" * 80)
-    for n in removed_nodes:
-        print(n)
-    print("=" * 80)
-    print(datetime.now())
+    print("start time:", start)
+    print("end time:", datetime.now())

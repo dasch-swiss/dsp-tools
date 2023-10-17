@@ -30,7 +30,7 @@ import json
 from typing import Any, Optional, Union
 from urllib.parse import quote_plus
 
-from dsp_tools.models.connection import Connection
+from dsp_tools.connection.connection import Connection
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import Actions
 from dsp_tools.models.langstring import LangString, Languages
@@ -157,7 +157,7 @@ class Project(Model):  # pylint: disable=too-many-instance-attributes,too-many-p
         self._status = status
         self._logo = logo
 
-    def __str__(self):
+    def __str__(self) -> str:
         tmpstr = self._iri + "\n  " + self._shortcode + "\n  " + self._shortname
         return tmpstr
 
@@ -237,7 +237,7 @@ class Project(Model):  # pylint: disable=too-many-instance-attributes,too-many-p
         return self._keywords
 
     @keywords.setter
-    def keywords(self, value: Union[list[str], set[str]]):
+    def keywords(self, value: Union[list[str], set[str]]) -> None:
         if isinstance(value, set):
             self._keywords = value
             self._changed.add("keywords")
@@ -247,7 +247,7 @@ class Project(Model):  # pylint: disable=too-many-instance-attributes,too-many-p
         else:
             raise BaseError("Must be a set of strings!")
 
-    def addKeyword(self, value: str):
+    def addKeyword(self, value: str) -> None:
         """
         Add a new keyword to the set of keywords. (executed at next update)
         May raise a BaseError
@@ -259,7 +259,7 @@ class Project(Model):  # pylint: disable=too-many-instance-attributes,too-many-p
         self._keywords.add(value)
         self._changed.add("keywords")
 
-    def rmKeyword(self, value: str):
+    def rmKeyword(self, value: str) -> None:
         """
         Remove a keyword from the list of keywords (executed at next update)
         May raise a BaseError

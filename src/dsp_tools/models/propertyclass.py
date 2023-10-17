@@ -6,7 +6,7 @@ from urllib.parse import quote_plus
 
 import regex
 
-from dsp_tools.models.connection import Connection
+from dsp_tools.connection.connection import Connection
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import Actions, Context, DateTimeStamp, WithId
 from dsp_tools.models.langstring import LangString, Languages
@@ -131,17 +131,9 @@ class PropertyClass(Model):  # pylint: disable=too-many-instance-attributes,too-
     def rdf_object(self) -> Optional[str]:
         return self._rdf_object
 
-    @rdf_object.setter
-    def rdf_object(self, value: Any):
-        raise BaseError('"rdf_object" cannot be modified!')
-
     @property
     def rdf_subject(self) -> Optional[str]:
         return self._rdf_subject
-
-    @rdf_subject.setter
-    def rdf_subject(self, value: Any):
-        raise BaseError('"rdf_subject" cannot be modified!')
 
     @property
     def gui_element(self) -> Optional[str]:
@@ -221,10 +213,6 @@ class PropertyClass(Model):  # pylint: disable=too-many-instance-attributes,too-
     def fromJsonObj(cls, con: Connection, context: Context, json_obj: Any) -> "PropertyClass":
         if isinstance(json_obj, list):
             json_obj = json_obj[0]
-        if not isinstance(con, Connection):
-            raise BaseError('"con"-parameter must be an instance of Connection')
-        if not isinstance(context, Context):
-            raise BaseError('"context"-parameter must be an instance of Context')
         rdfs = context.prefix_from_iri("http://www.w3.org/2000/01/rdf-schema#")
         knora_api = context.prefix_from_iri("http://api.knora.org/ontology/knora-api/v2#")
         salsah_gui = context.prefix_from_iri("http://api.knora.org/ontology/salsah-gui/v2#")
@@ -287,11 +275,11 @@ class PropertyClass(Model):  # pylint: disable=too-many-instance-attributes,too-
         )
 
     def toJsonObj(self, lastModificationDate: DateTimeStamp, action: Actions, what: Optional[str] = None) -> Any:
-        def resolve_propref(resref: str):
+        def resolve_propref(resref: str) -> dict[str, str]:
             tmp = resref.split(":")
             if len(tmp) > 1:
                 if tmp[0]:
-                    #                    return {"@id": resref}  # fully qualified name in the form "prefix:name"
+                    # return {"@id": resref}  # fully qualified name in the form "prefix:name"
                     return {
                         "@id": self._context.get_qualified_iri(resref)
                     }  # fully qualified name in the form "prefix:name"
@@ -403,7 +391,7 @@ class PropertyClass(Model):  # pylint: disable=too-many-instance-attributes,too-
         )
         return DateTimeStamp(result["knora-api:lastModificationDate"])
 
-    def createDefinitionFileObj(self, context: Context, shortname: str):
+    def createDefinitionFileObj(self, context: Context, shortname: str) -> dict[str, Any]:
         """
         Create an object that can be used as input for `create_onto()` to create an ontology on a DSP server
 

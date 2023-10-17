@@ -14,7 +14,7 @@ def check_for_api_error(response: requests.Response) -> None:
     Check the response of an API request if it contains an error raised by DSP-API.
 
     Args:
-        res: The requests.Response object that is returned by the API request
+        response: The requests.Response object that is returned by the API request
 
     Raises:
         BaseError: If the status code of the response is not 200
@@ -30,7 +30,7 @@ def check_for_api_error(response: requests.Response) -> None:
 
 
 @dataclass
-class Connection:
+class ConnectionLive:
     """
     A Connection instance represents a connection to a DSP server.
 
@@ -94,6 +94,9 @@ class Connection:
 
         Returns:
             token
+
+        Raises:
+            BaseError: if no token is available
         """
         if not self.token:
             raise BaseError("No token available.")
@@ -116,6 +119,7 @@ class Connection:
             url: complete URL (server + route of DSP-API) that was called
             headers: headers of the HTTP request
             jsondata: data sent to the server
+            params: additional parameters for the HTTP request
             response: response of the server
         """
         if response.status_code == 200:
@@ -240,6 +244,9 @@ class Connection:
             route: route that will be called on the server
             jsondata: Valid JSON as string
             content_type: HTTP Content-Type [default: 'application/json']
+
+        Returns:
+            response from server
         """
         # timeout must be None,
         # otherwise the client can get a timeout error while the API is still processing the request

@@ -189,6 +189,9 @@ def analyse_circles_in_data(xml_filepath: Path, tracer_output_file: str) -> list
     Args:
         xml_filepath: path to the file
         tracer_output_file: name of the file where the viztracer results should be saved
+
+    Returns:
+        The order in which the resources should be uploaded.
     """
     start = datetime.now()
     print("=" * 80)

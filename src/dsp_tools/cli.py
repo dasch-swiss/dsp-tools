@@ -465,11 +465,7 @@ def _call_requested_action(args: argparse.Namespace) -> bool:
                 password=args.password,
                 imgdir=args.imgdir,
                 sipi=args.sipi_url,
-                config=UploadConfig(
-                    verbose=args.verbose,
-                    dump=args.dump,
-                    save_metrics=args.metrics,
-                ),
+                config=UploadConfig(verbose=args.verbose, dump=args.dump),
             )
     elif args.action == "process-files":
         success = process_files(

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from datetime import datetime
 from pathlib import Path
 from typing import Any, Optional
 
@@ -9,7 +8,6 @@ from dsp_tools.models.sipi import Sipi
 from dsp_tools.models.xmlresource import XMLResource
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import try_network_action
-from dsp_tools.utils.xmlupload.write_diagnostic_info import MetricRecord
 
 logger = get_logger(__name__)
 
@@ -51,9 +49,7 @@ def get_sipi_multimedia_information(
     resource: XMLResource,
     sipi_server: Sipi,
     imgdir: str,
-    filesize: float,
     permissions_lookup: dict[str, Permissions],
-    metrics: list[MetricRecord],
 ) -> dict[str, str | Permissions] | None:
     """
     This function takes a resource with a corresponding bitstream filepath.
@@ -73,16 +69,10 @@ def get_sipi_multimedia_information(
         The information from sipi which is needed to establish a link from the resource
     """
     pth = resource.bitstream.value  # type: ignore[union-attr]
-    bitstream_start = datetime.now()
-    filetype = Path(pth).suffix[1:]
     img: Optional[dict[Any, Any]] = try_network_action(
         sipi_server.upload_bitstream,
         filepath=str(Path(imgdir) / Path(pth)),
     )
-    bitstream_duration = datetime.now() - bitstream_start
-    bitstream_duration_ms = bitstream_duration.seconds * 1000 + int(bitstream_duration.microseconds / 1000)
-    mb_per_sec = round((filesize / bitstream_duration_ms) * 1000, 1)
-    metrics.append(MetricRecord(resource.id, filetype, filesize, "bitstream upload", bitstream_duration_ms, mb_per_sec))
     internal_file_name_bitstream = img["uploadedFiles"][0]["internalFilename"]  # type: ignore[index]
     resource_bitstream = resource.get_bitstream_information_from_sipi(
         internal_file_name_bitstream=internal_file_name_bitstream,

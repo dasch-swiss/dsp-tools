@@ -20,6 +20,7 @@ class XMLLink:
 
     subject_id: str
     object_link_ids: set[str]
+    text_str: str
 
     @property
     def cost_links(self) -> float:

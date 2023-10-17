@@ -9,7 +9,7 @@ from viztracer import VizTracer
 from dsp_tools.analyse_xml_data.models import ResptrLink, UploadResource, XMLLink
 
 
-def _create_info_from_xml_for_graph(root: etree._Element) -> tuple[list[ResptrLink], list[XMLLink], set[str]]:
+def create_info_from_xml_for_graph(root: etree._Element) -> tuple[list[ResptrLink], list[XMLLink], set[str]]:
     """Create instances of the classes ResptrLink and XMLLink from the root of the XML file."""
     resptr_instances = []
     xml_instances = []
@@ -35,13 +35,13 @@ def _create_info_from_xml_for_graph_from_one_resource(
     if resptr_links:
         resptr_link_objects = [ResptrLink(subject_id, object_id) for object_id in resptr_links]
     if xml_links:
-        xml_link_objects = [XMLLink(subject_id, x) for x in xml_links]
+        xml_link_objects = [XMLLink(subject_id, obj_ids, text) for (obj_ids, text) in xml_links]
     return resptr_link_objects, xml_link_objects, subject_id
 
 
-def _get_all_links_from_one_resource(resource: etree._Element) -> tuple[list[str], list[set[str]]]:
+def _get_all_links_from_one_resource(resource: etree._Element) -> tuple[list[str], list[tuple[set[str], str]]]:
     resptr_links: list[str] = []
-    xml_links: list[set[str]] = []
+    xml_links: list[tuple[set[str], str]] = []
     for prop in resource.getchildren():
         match prop.tag:
             case "{https://dasch.swiss/schema}resptr-prop":
@@ -55,13 +55,14 @@ def _extract_ids_from_one_resptr_prop(resptr_prop: etree._Element) -> list[str]:
     return [x.text for x in resptr_prop.getchildren() if x.text]
 
 
-def _extract_ids_from_text_prop(text_prop: etree._Element) -> list[set[str]]:
+def _extract_ids_from_text_prop(text_prop: etree._Element) -> list[tuple[set[str], str]]:
     # if the same ID is in several separate <text> values of one <text-prop>, they are considered separate links
     xml_props = []
     for text in text_prop.getchildren():
         links = _extract_ids_from_one_text_value(text)
         if links:
-            xml_props.append(links)
+            text_ele = etree.tostring(text, pretty_print=True, encoding="unicode")
+            xml_props.append((links, text_ele))
     return xml_props
 
 
@@ -76,7 +77,7 @@ def _extract_ids_from_one_text_value(text: etree._Element) -> set[str]:
     return all_links
 
 
-def _make_graph(
+def make_graph(
     resptr_instances: list[ResptrLink], xml_instances: list[XMLLink], all_resource_ids: set[str]
 ) -> tuple[rx.PyDiGraph, dict[int, str]]:  # type: ignore[type-arg] # pylint: disable=no-member
     """
@@ -204,12 +205,12 @@ def analyse_circles_in_data(xml_filepath: Path, tracer_output_file: str) -> list
     tracer.start()
     tree = etree.parse(xml_filepath)
     root = tree.getroot()
-    resptr_instances, xml_instances, all_resource_ids = _create_info_from_xml_for_graph(root)
+    resptr_instances, xml_instances, all_resource_ids = create_info_from_xml_for_graph(root)
     print(f"Total Number of Resources: {len(all_resource_ids)}")
     print(f"Total Number of resptr Links: {len(resptr_instances)}")
     print(f"Total Number of XML Texts with Links: {len(xml_instances)}")
     print("=" * 80)
-    g, node_index_lookup = _make_graph(resptr_instances, xml_instances, all_resource_ids)
+    g, node_index_lookup = make_graph(resptr_instances, xml_instances, all_resource_ids)
     print("=" * 80)
     resource_upload_order = _generate_upload_order(g, node_index_lookup)
     print("=" * 80)

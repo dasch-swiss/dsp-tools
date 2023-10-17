@@ -41,9 +41,15 @@ def test_get_all_links_from_one_resource() -> None:
         'permissions="prop-default">res_B_11</resptr></resptr-prop></resource>'
     )
     res_resptr, res_xml = _get_all_links_from_one_resource(test_ele)
-    expected_resptr, expected_xml = ["res_B_11"], [{"res_B_11"}]
-    assert expected_resptr == res_resptr
-    assert unordered(res_xml) == expected_xml
+    assert res_resptr == ["res_B_11"]
+    res_xml_ids, res_xml_text = res_xml[0]
+    assert res_xml_ids == {"res_B_11"}
+    expected_xml_text = (
+        '<text xmlns="https://dasch.swiss/schema" '
+        'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" permissions="prop-default" '
+        'encoding="xml">\n  <a class="salsah-link" href="IRI:res_B_11:IRI">res_B_11</a>\n</text>\n'
+    )
+    assert res_xml_text == expected_xml_text
 
 
 def test_get_all_links_from_one_resource_no_links() -> None:
@@ -64,7 +70,8 @@ def test_text_only_get_all_links_from_one_resource() -> None:
     )
     res_resptr, res_xml = _get_all_links_from_one_resource(test_ele)
     assert not res_resptr
-    assert unordered(res_xml) == [{"res_A_18"}, {"res_B_18"}]
+    res_xml_ids = [x[0] for x in res_xml]
+    assert unordered(res_xml_ids) == [{"res_A_18"}, {"res_B_18"}]
 
 
 def test_extract_id_one_text_with_one_id() -> None:
@@ -103,7 +110,8 @@ def test_extract_ids_from_text_prop_with_several_text_links() -> None:
         'class="salsah-link" href="IRI:res_B_18:IRI">res_B_18</a></text></text-prop>'
     )
     res = _extract_ids_from_text_prop(test_ele)
-    assert unordered(res) == [{"res_A_18"}, {"res_B_18"}]
+    res_ids = [x[0] for x in res]
+    assert unordered(res_ids) == [{"res_A_18"}, {"res_B_18"}]
 
 
 def test_extract_one_id_resptr_prop() -> None:

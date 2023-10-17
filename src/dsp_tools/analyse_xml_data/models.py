@@ -12,6 +12,7 @@ class ResptrLink:
 
     @property
     def cost_links(self) -> float:
+        """The cost of this outgoing is consistently 1"""
         return 1
 
 

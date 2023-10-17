@@ -190,6 +190,7 @@ def analyse_circles_in_data(
     Args:
         xml_filepath: path to the file
         tracer_output_file: name of the file where the viztracer results should be saved
+        save_tracer: True if the output of the viztracer should be saved
 
     Returns:
         The order in which the resources should be uploaded.

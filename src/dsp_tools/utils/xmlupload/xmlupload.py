@@ -324,7 +324,6 @@ def _upload_resources(
         permissions_lookup: maps permission strings to Permission objects
         resclass_name_2_type: maps resource class names to their types
         con: connection to DSP
-        metrics: list with the metric records collected until now (gets filled during the upload)
         preprocessing_done: if set, all multimedia files referenced in the XML file must already be on the server
 
     Returns:

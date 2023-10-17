@@ -27,7 +27,6 @@ def _upload_bitstream(
         resource: resource with that has a bitstream
         sipi_server: server to upload
         imgdir: directory of the file
-        filesize: size of the file
         permissions_lookup: dictionary that contains the permission name as string and the corresponding Python object
 
     Returns:
@@ -58,9 +57,12 @@ def handle_bitstream(
     Upload a bitstream file to SIPI
 
     Args:
+        resource: resource holding the bitstream
+        bitstream: the bitstream object
+        preprocessing_done: whether the preprocessing is done already
+        permissions_lookup: dictionary that contains the permission name as string and the corresponding Python object
         sipi_server: server to upload
         imgdir: directory of the file
-        filepath: path of the file
 
     Returns:
         The information from sipi which is needed to establish a link from the resource

@@ -26,6 +26,7 @@ DELETE
       that is, that You've read before
     * Call the ``delete``-method on the instance
 """
+from __future__ import annotations
 
 import copy
 import json
@@ -34,7 +35,7 @@ from urllib.parse import quote_plus
 
 import regex
 
-from dsp_tools.models.connection import Connection
+from dsp_tools.connection.connection import Connection
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import Actions, Context, DateTimeStamp, WithId
 from dsp_tools.models.model import Model
@@ -97,41 +98,29 @@ class Ontology(Model):  # pylint: disable=too-many-instance-attributes
     def iri(self) -> str:
         return self._iri
 
-    @iri.setter
-    def iri(self, value: str):
-        raise BaseError("Ontology iri cannot be modified!")
-
     @property
     def project(self) -> str:
         return self._project
-
-    @project.setter
-    def project(self, value: str):
-        raise BaseError("An ontology's project cannot be modified!")
 
     @property
     def name(self) -> str:
         return self._name
 
-    @name.setter
-    def name(self, value: str):
-        raise BaseError("An ontology's name cannot be modified!")
-
     @property
-    def label(self):
+    def label(self) -> str:
         return self._label
 
     @label.setter
-    def label(self, value: str):
+    def label(self, value: str) -> None:
         self._label = str(value)
         self._changed.add("label")
 
     @property
-    def comment(self):
+    def comment(self) -> str:
         return self._comment
 
     @comment.setter
-    def comment(self, value: str):
+    def comment(self, value: str) -> None:
         self._comment = str(value)
         self._changed.add("comment")
 
@@ -140,7 +129,7 @@ class Ontology(Model):  # pylint: disable=too-many-instance-attributes
         return self._lastModificationDate
 
     @lastModificationDate.setter
-    def lastModificationDate(self, value: Union[str, DateTimeStamp]):
+    def lastModificationDate(self, value: Union[str, DateTimeStamp]) -> None:
         self._lastModificationDate = DateTimeStamp(value)
 
     @property
@@ -156,16 +145,12 @@ class Ontology(Model):  # pylint: disable=too-many-instance-attributes
         return self._property_classes
 
     @property_classes.setter
-    def property_classes(self, value: list[PropertyClass]):
+    def property_classes(self, value: list[PropertyClass]) -> None:
         self._property_classes = value
 
     @property
-    def context(self):
+    def context(self) -> Context:
         return self._context
-
-    @context.setter
-    def context(self, value: Context):
-        raise BaseError('"Context" cannot be set!')
 
     @classmethod
     def fromJsonObj(cls, con: Connection, json_obj: Any) -> "Ontology":
@@ -232,7 +217,7 @@ class Ontology(Model):  # pylint: disable=too-many-instance-attributes
         )
 
     @classmethod
-    def __oneOntologiesFromJsonObj(cls, con: Connection, json_obj: Any, context: Context) -> "Ontology":
+    def __oneOntologiesFromJsonObj(cls, con: Connection, json_obj: Any, context: Context) -> Ontology:
         rdfs = context.prefix_from_iri("http://www.w3.org/2000/01/rdf-schema#")
         owl = context.prefix_from_iri("http://www.w3.org/2002/07/owl#")
         knora_api = context.prefix_from_iri("http://api.knora.org/ontology/knora-api/v2#")

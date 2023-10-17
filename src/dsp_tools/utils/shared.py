@@ -17,7 +17,8 @@ from lxml import etree
 from requests import ReadTimeout, RequestException
 from urllib3.exceptions import ReadTimeoutError
 
-from dsp_tools.models.connection import Connection
+from dsp_tools.connection.connection import Connection
+from dsp_tools.connection.connection_live import ConnectionLive
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.models.propertyelement import PropertyElement
 from dsp_tools.utils.create_logger import get_logger
@@ -69,7 +70,7 @@ def login(
     Returns:
         Connection instance
     """
-    con = Connection(server=server, dump=dump)
+    con = ConnectionLive(server=server, dump=dump)
     try:
         try_network_action(lambda: con.login(email=user, password=password))
     except BaseError:

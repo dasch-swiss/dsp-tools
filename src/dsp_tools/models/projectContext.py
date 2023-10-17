@@ -1,6 +1,6 @@
 from typing import Optional
 
-from dsp_tools.models.connection import Connection
+from dsp_tools.connection.connection import Connection
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.group import Group
 from dsp_tools.models.project import Project

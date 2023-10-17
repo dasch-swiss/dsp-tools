@@ -6,7 +6,8 @@ import unittest
 
 import pytest
 
-from dsp_tools.models.connection import Connection
+from dsp_tools.connection.connection import Connection
+from dsp_tools.connection.connection_live import ConnectionLive
 from dsp_tools.models.helpers import DateTimeStamp
 from dsp_tools.models.langstring import LangString, Languages
 from dsp_tools.models.ontology import Ontology
@@ -32,7 +33,7 @@ class TestPropertyClass(unittest.TestCase):
         Creates a connection and a new ontology.
         For each test method, a new TestCase instance is created, so setUp() is executed before each test method.
         """
-        self.con = Connection(server="http://0.0.0.0:3333")
+        self.con = ConnectionLive(server="http://0.0.0.0:3333")
         self.con.login(email="root@example.com", password="test")
 
         # Create a test ontology

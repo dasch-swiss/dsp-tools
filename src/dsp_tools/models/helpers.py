@@ -1,5 +1,7 @@
 # pylint: disable=missing-class-docstring,missing-function-docstring
 
+from __future__ import annotations
+
 from dataclasses import dataclass
 from enum import Enum, unique
 from typing import Any, Optional, Pattern, Union
@@ -436,15 +438,15 @@ class DateTimeStamp:
             other = DateTimeStamp(other)
         return self._dateTimeStamp >= other._dateTimeStamp
 
-    def __ne__(self, other: "DateTimeStamp") -> bool:
+    def __ne__(self, other: DateTimeStamp) -> bool:
         if isinstance(other, str):
             other = DateTimeStamp(other)
         return self._dateTimeStamp != other._dateTimeStamp
 
-    def __str__(self: "DateTimeStamp") -> Union[None, str]:
+    def __str__(self: "DateTimeStamp") -> str:
         return self._dateTimeStamp
 
-    def toJsonObj(self):
+    def toJsonObj(self) -> dict[str, str]:
         return {"@type": "xsd:dateTimeStamp", "@value": self._dateTimeStamp}
 
 

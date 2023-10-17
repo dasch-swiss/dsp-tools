@@ -9,39 +9,34 @@ from viztracer import VizTracer
 from dsp_tools.analyse_xml_data.models_xml_to_graph import ResptrLink, UploadResource, XMLLink
 
 
-def _create_classes_from_root(root: etree._Element) -> tuple[list[ResptrLink], list[XMLLink], set[str]]:
+def _create_info_from_xml_for_graph(root: etree._Element) -> tuple[list[ResptrLink], list[XMLLink], set[str]]:
     """Create instances of the classes ResptrLink and XMLLink from the root of the XML file."""
     resptr_instances = []
     xml_instances = []
-    all_link_ids = []
+    all_resource_ids = set()
     for resource in root.iter(tag="{https://dasch.swiss/schema}resource"):
-        resptr, xml, all_links = _create_classes_from_single_resource(resource)
+        resptr, xml, subject_id = _create_info_from_xml_for_graph_from_one_resource(resource)
         if resptr:
             resptr_instances.extend(resptr)
         if xml:
             xml_instances.extend(xml)
-        if all_links:
-            all_link_ids.extend(all_links)
-    return resptr_instances, xml_instances, set(all_link_ids)
+        if subject_id:
+            all_resource_ids.add(subject_id)
+    return resptr_instances, xml_instances, set(all_resource_ids)
 
 
-def _create_classes_from_single_resource(
+def _create_info_from_xml_for_graph_from_one_resource(
     resource: etree._Element,
-) -> tuple[list[ResptrLink], list[XMLLink], list[str]] | tuple[None, None, None]:
-    subject_id = resource.attrib.get("id")
-    if not subject_id:
-        return None, None, None
-    all_used_ids = [subject_id]
+) -> tuple[list[ResptrLink], list[XMLLink], str]:
+    subject_id = resource.attrib["id"]
     resptr_links, xml_links = _get_all_links_from_one_resource(resource)
     resptr_link_objects = []
     xml_link_objects = []
     if resptr_links:
-        all_used_ids.extend(resptr_links)
         resptr_link_objects = [ResptrLink(subject_id, object_id) for object_id in resptr_links]
     if xml_links:
-        all_used_ids.extend(chain.from_iterable(xml_links))
         xml_link_objects = [XMLLink(subject_id, x) for x in xml_links]
-    return resptr_link_objects, xml_link_objects, all_used_ids
+    return resptr_link_objects, xml_link_objects, subject_id
 
 
 def _get_all_links_from_one_resource(resource: etree._Element) -> tuple[list[str], list[set[str]]]:
@@ -83,7 +78,7 @@ def _extract_ids_from_one_text_value(text: etree._Element) -> set[str]:
 
 def _make_graph(
     resptr_instances: list[ResptrLink], xml_instances: list[XMLLink], all_link_ids: set[str]
-) -> tuple[rx.PyDiGraph, dict[int : tuple[str, None, None]]]:  # type: ignore[type-arg] # pylint: disable=no-member
+) -> tuple[rx.PyDiGraph, dict[int, str]]:  # type: ignore[type-arg] # pylint: disable=no-member
     g: rx.PyDiGraph = rx.PyDiGraph()  # type: ignore[type-arg] # pylint: disable=no-member
     nodes = [(id_, None, None) for id_ in all_link_ids]
     node_ids = [x[0] for x in nodes]
@@ -106,7 +101,7 @@ def _make_graph(
 
 def _remove_leaf_nodes(
     g: rx.PyDiGraph,  # type: ignore[type-arg] # pylint: disable=no-member
-    node_index_lookup: dict[int : tuple[str, None, None]],
+    node_index_lookup: dict[int, str],
 ) -> list[UploadResource]:
     res: list[UploadResource] = []
     while leaf_nodes := [x for x in g.node_indexes() if g.out_degree(x) == 0]:
@@ -117,9 +112,9 @@ def _remove_leaf_nodes(
 
 
 def _find_cheapest_node(
-    g: rx.PyDiGraph,  # type: ignore[type-arg] # pylint: disable=no-member,
-    cycle: rx.EdgeList,  # type: ignore[type-arg] # pylint: disable=no-member,
-    node_index_lookup: dict[int : tuple[str, None, None]],
+    g: rx.PyDiGraph,  # type: ignore[type-arg] # pylint: disable=no-member
+    cycle: rx.EdgeList,
+    node_index_lookup: dict[int, str],
 ) -> tuple[int, list[str]]:
     costs = []
     for source, _ in cycle:
@@ -132,17 +127,18 @@ def _find_cheapest_node(
     sorted_nodes = sorted(costs, key=lambda x: x[1])
     cheapest_node, _, edges_out = sorted_nodes[0]
     print("cheapest", cheapest_node)
-    removed_target_ids = [node_index_lookup[x[1]] for x in edges_out]
+    removed_target_ids: list[str] = [node_index_lookup[x[1]] for x in edges_out]
     return cheapest_node, removed_target_ids
 
 
 def _generate_upload_order(
     g: rx.PyDiGraph,  # type: ignore[type-arg] # pylint: disable=no-member
-    node_index_lookup: dict[int : tuple[str, None, None]],
+    node_index_lookup: dict[int, str],
 ) -> list[UploadResource]:
     removed_nodes = []
     leaf_nodes = _remove_leaf_nodes(g, node_index_lookup)
     removed_nodes.extend(leaf_nodes)
+    removed_from_cycle = 0
     while g.num_nodes():
         print(f"total number of nodes remaining: {g.num_nodes()}")
         cycle = rx.digraph_find_cycle(g)  # type: ignore[attr-defined]  # pylint: disable=no-member
@@ -152,9 +148,12 @@ def _generate_upload_order(
         source, targets = node
         removed_nodes.append(UploadResource(g[source][0], targets))
         g.remove_node(source)
+        removed_from_cycle += 1
         print(f"removed link: {node}")
         leaf_nodes = _remove_leaf_nodes(g, node_index_lookup)
         removed_nodes.extend(leaf_nodes)
+    print("=" * 80)
+    print(f"removed links total: {removed_from_cycle}")
     return removed_nodes
 
 
@@ -179,7 +178,7 @@ def analyse_circles_in_data(xml_filepath: str, tracer_output_file: str) -> list[
     tracer.start()
     tree = etree.parse(xml_filepath)
     root = tree.getroot()
-    resptr_instances, xml_instances, all_link_ids = _create_classes_from_root(root)
+    resptr_instances, xml_instances, all_link_ids = _create_info_from_xml_for_graph(root)
     print(f"number of node ids: {len(all_link_ids)}")
     print(f"number of resptr instances: {len(resptr_instances)}")
     print(f"number of xml instances: {len(xml_instances)}")

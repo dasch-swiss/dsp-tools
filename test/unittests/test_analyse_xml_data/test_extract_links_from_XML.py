@@ -5,7 +5,7 @@ from lxml import etree
 from pytest_unordered import unordered
 
 from dsp_tools.analyse_xml_data.extract_links_from_XML import (
-    _create_classes_from_single_resource,
+    _create_info_from_xml_for_graph_from_one_resource,
     _extract_ids_from_one_resptr_prop,
     _extract_ids_from_one_text_value,
     _extract_ids_from_text_prop,
@@ -13,7 +13,7 @@ from dsp_tools.analyse_xml_data.extract_links_from_XML import (
 )
 
 
-def test_create_classes_from_single_resource() -> None:
+def test_create_info_from_xml_for_graph_from_one_resource() -> None:
     test_ele = etree.fromstring(
         '<resource xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
         'label="res_A_19" restype=":TestThing" id="res_A_19" permissions="res-default"><resptr-prop '
@@ -22,18 +22,18 @@ def test_create_classes_from_single_resource() -> None:
         'permissions="prop-default" encoding="xml"><a class="salsah-link" href="IRI:res_B_19:IRI">res_B_19</a><a '
         'class="salsah-link" href="IRI:res_C_19:IRI">res_C_19</a></text></text-prop></resource>'
     )
-    res_resptr_links, res_xml_links, res_all_used_ids = _create_classes_from_single_resource(test_ele)
+    res_resptr_links, res_xml_links, res_all_used_ids = _create_info_from_xml_for_graph_from_one_resource(test_ele)
     #########
-    res_B_19 = [obj.object_id for obj in res_resptr_links]  # type: ignore[union-attr]
+    res_B_19 = [obj.object_id for obj in res_resptr_links]
     assert "res_B_19" in res_B_19
-    res_C_19 = [obj.object_id for obj in res_resptr_links]  # type: ignore[union-attr]
+    res_C_19 = [obj.object_id for obj in res_resptr_links]
     assert "res_C_19" in res_C_19
     #########
     expected_ids = ["res_B_19", "res_C_19", "res_B_19", "res_C_19", "res_A_19"]
     assert expected_ids == unordered(res_all_used_ids)
     ########
     expected_xml = {"subject_id": "res_A_19", "object_link_ids": {"res_B_19", "res_C_19"}}
-    res_xml_dict = res_xml_links[0].__dict__  # type: ignore[index]
+    res_xml_dict = res_xml_links[0].__dict__
     for k, v in expected_xml.items():
         assert v == res_xml_dict[k]
 

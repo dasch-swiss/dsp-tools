@@ -12,7 +12,9 @@ def test_get_length_ok_resources() -> None:
     test_root = parse_and_clean_xml_file("testdata/xml-data/circular-references/test_circular_references_1.xml")
     resources = _extract_resources_from_xml(test_root, "simcir")
     ok_resources, stash = remove_circular_references(resources, False)
-    stashed_links = len(stash.standoff_stash.res_2_stash_items) + len(stash.link_value_stash.res_2_stash_items)
+    len_standoff = len(stash.standoff_stash.res_2_stash_items)  # type: ignore[union-attr]
+    len_resptr = len(stash.link_value_stash.res_2_stash_items)  # type: ignore[union-attr]
+    stashed_links = len_standoff + len_resptr
     print_str = (
         f"\n\n---------------------\n"
         f"Total Resources: 63\n"

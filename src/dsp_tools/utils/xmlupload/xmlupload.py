@@ -354,41 +354,60 @@ def _upload_resources(
                 failed_uploads.append(resource.id)
                 continue
 
-        resclass_type = resclass_name_2_type[resource.restype]
-        properties = resource.get_propvals(id2iri_mapping, permissions_lookup)
-        try:
-            resource_instance: ResourceInstance = resclass_type(
-                con=con,
-                label=resource.label,
-                iri=resource_iri,
-                permissions=permissions_lookup.get(str(resource.permissions)),
-                creation_date=resource.creation_date,
-                bitstream=bitstream_information,
-                values=properties,
-            )
-            created_resource: ResourceInstance = try_network_action(resource_instance.create)
-        except BaseError as err:
-            err_msg = err.orig_err_msg_from_api or err.message
-            print(f"WARNING: Unable to create resource '{resource.label}' ({resource.id}): {err_msg}")
-            log_msg = (
-                f"Unable to create resource '{resource.label}' ({resource.id})\n"
-                f"Resource details:\n{vars(resource)}\n"
-                f"Property details:\n" + "\n".join([str(vars(prop)) for prop in resource.properties])
-            )
-            logger.warning(log_msg, exc_info=True)
+        res = _create_resource(
+            res_type=resclass_name_2_type[resource.restype],
+            resource=resource,
+            resource_iri=resource_iri,
+            bitstream_information=bitstream_information,
+            con=con,
+            permissions_lookup=permissions_lookup,
+            id2iri_mapping=id2iri_mapping,
+        )
+        if not res:
             failed_uploads.append(resource.id)
             continue
-        id2iri_mapping[resource.id] = created_resource.iri
+        iri, label = res
+        id2iri_mapping[resource.id] = iri
 
-        resource_designation = f"'{created_resource.label}' (ID: '{resource.id}', IRI: '{created_resource.iri}')"
+        resource_designation = f"'{label}' (ID: '{resource.id}', IRI: '{iri}')"
         print(f"Created resource {i+1}/{len(resources)}: {resource_designation}")
         logger.info(f"Created resource {i+1}/{len(resources)}: {resource_designation}")
 
     return id2iri_mapping, failed_uploads
 
 
-def _create_resource(restype: type) -> ResourceInstance | None:
-    ...
+def _create_resource(
+    res_type: type,
+    resource: XMLResource,
+    resource_iri: str | None,
+    bitstream_information: dict[str, Any] | None,
+    con: Connection,
+    permissions_lookup: dict[str, Permissions],
+    id2iri_mapping: dict[str, str],
+) -> tuple[str, str] | None:
+    properties = resource.get_propvals(id2iri_mapping, permissions_lookup)
+    try:
+        resource_instance: ResourceInstance = res_type(
+            con=con,
+            label=resource.label,
+            iri=resource_iri,
+            permissions=permissions_lookup.get(str(resource.permissions)),
+            creation_date=resource.creation_date,
+            bitstream=bitstream_information,
+            values=properties,
+        )
+        created_resource: ResourceInstance = try_network_action(resource_instance.create)
+        return created_resource.iri, created_resource.label
+    except BaseError as err:
+        err_msg = err.orig_err_msg_from_api or err.message
+        print(f"WARNING: Unable to create resource '{resource.label}' ({resource.id}): {err_msg}")
+        log_msg = (
+            f"Unable to create resource '{resource.label}' ({resource.id})\n"
+            f"Resource details:\n{vars(resource)}\n"
+            f"Property details:\n" + "\n".join([str(vars(prop)) for prop in resource.properties])
+        )
+        logger.warning(log_msg, exc_info=True)
+        return None
 
 
 def _handle_upload_error(

@@ -98,7 +98,7 @@ class Stash:
             link_value_stash: A LinkValueStash object or None.
 
         Returns:
-            Stash: A Stash object, or None if both iunputs are None.
+            Stash: A Stash object, or None if both inputs are None.
         """
         if standoff_stash or link_value_stash:
             return Stash(standoff_stash, link_value_stash)

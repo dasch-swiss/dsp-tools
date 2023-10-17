@@ -70,8 +70,9 @@ def _make_xml_text_prop(target_res: etree._Element | list[etree._Element]) -> et
             salsah_link = _make_salsah_link(target_res.attrib["id"])
             # one resource with many targets
         case list():
-            salsah_link = "".join([_make_salsah_link(x.attrib["id"]) for x in target_res])
-    return excel2xml.make_text_prop(name=":hasRichtext", value=excel2xml.PropertyElement(salsah_link, encoding="xml"))
+            salsah_link = "blabla".join([_make_salsah_link(x.attrib["id"]) for x in target_res])
+    text_value = "Start text" + salsah_link + "end text."
+    return excel2xml.make_text_prop(name=":hasRichtext", value=excel2xml.PropertyElement(text_value, encoding="xml"))
 
 
 def _make_resptr_prop(target_id: list[str] | str, property_name: str = ":hasResource1") -> etree._Element:
@@ -257,7 +258,8 @@ def _make_two_resource_circle_plus_non_circle_link(replication_counter: str) -> 
 
 def _make_single_text_ele_for_text_prop(target_resource_id: list[str]) -> etree._Element:
     salsa_links = [_make_salsah_link(x) for x in target_resource_id]
-    xml_props = [excel2xml.PropertyElement(salsah_link, encoding="xml") for salsah_link in salsa_links]
+    text_values = [f"Start text{link}end text." for link in salsa_links]
+    xml_props = [excel2xml.PropertyElement(text_value, encoding="xml") for text_value in text_values]
     return excel2xml.make_text_prop(name=":hasRichtext", value=xml_props)
 
 
@@ -297,3 +299,7 @@ def _make_complex_circle_with_leaf_nodes(replication_counter: str) -> list[etree
     resource_list[-1].append(xml_prop)
     resource_list.extend(leaf_resources)
     return resource_list
+
+
+if __name__ == "__main__":
+    create_and_save_circular_references_test_graph()

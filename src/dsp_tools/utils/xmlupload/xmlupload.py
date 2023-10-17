@@ -85,7 +85,7 @@ def xmlupload(
     metrics: list[MetricRecord] = []
 
     # establish connection to DSP server
-    con: Connection = login(server=server, user=user, password=password, dump=config.dump)
+    con = login(server=server, user=user, password=password, dump=config.dump)
     sipi_server = Sipi(sipi, con.get_token())
 
     resources, permissions_lookup, resclass_name_2_type, stash = _prepare_upload(

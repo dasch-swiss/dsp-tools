@@ -19,7 +19,7 @@ class TestGroup(unittest.TestCase):  # pylint: disable=missing-class-docstring
         Creates a connection to DSP-API.
         For each test method, a new TestCase instance is created, so setUp() is executed before each test method.
         """
-        self.con: Connection = ConnectionLive(server="http://0.0.0.0:3333")
+        self.con = ConnectionLive(server="http://0.0.0.0:3333")
         self.con.login(email="root@example.com", password="test")
 
     def tearDown(self) -> None:

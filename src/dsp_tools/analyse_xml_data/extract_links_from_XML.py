@@ -1,4 +1,5 @@
 from datetime import datetime
+from pathlib import Path
 
 import regex
 import rustworkx as rx
@@ -179,7 +180,7 @@ def _generate_upload_order(
     return removed_nodes
 
 
-def analyse_circles_in_data(xml_filepath: str, tracer_output_file: str) -> list[UploadResource]:
+def analyse_circles_in_data(xml_filepath: Path, tracer_output_file: str) -> list[UploadResource]:
     """
     This function takes an XML filepath
     It analyzes how many and which links have to be removed
@@ -215,3 +216,10 @@ def analyse_circles_in_data(xml_filepath: str, tracer_output_file: str) -> list[
     print("start time:", start)
     print("end time:", datetime.now())
     return removed_nodes
+
+
+if __name__ == "__main__":
+    analyse_circles_in_data(
+        xml_filepath=Path("testdata/xml-data/circular-references/test_circular_references_1.xml"),
+        tracer_output_file="circular_references_tracer.json",
+    )

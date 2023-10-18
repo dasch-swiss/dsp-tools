@@ -94,7 +94,7 @@ class TestUploadLinkValueStashes:
 
 
 class TestUploadTextValueStashes:
-    def test_upload_link_value_stash(self) -> None:
+    def test_upload_text_value_stash(self) -> None:
         """Upload stashed text values (standoff), if all goes well."""
         value_uuid = str(uuid4())
         property_name = "someprop"
@@ -139,7 +139,7 @@ class TestUploadTextValueStashes:
         )
         assert nonapplied is None
 
-    def test_not_upload_link_value_stash_if_uuid_not_on_value(self) -> None:
+    def test_not_upload_text_value_stash_if_uuid_not_on_value(self) -> None:
         """
         Do not upload stashed text values (standoff), if the resource has no value containing the UUID of the stashed
         text value in its text.

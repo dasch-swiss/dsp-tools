@@ -287,10 +287,7 @@ def analyse_circles_in_data(
 
 if __name__ == "__main__":
     analyse_circles_in_data(
-        xml_filepath=Path(
-            "/Users/noraammann/Documents/Miscelaneous/dsp-tools_notes/improve_xmlupload/analyse_real_data/sgv_data/sgv-v8.7_v3.0_final-clean-up.xml"
-        ),
-        # xml_filepath=Path("testdata/xml-data/circular-references/test_circular_references_1.xml"),
+        xml_filepath=Path("testdata/xml-data/circular-references/test_circular_references_1.xml"),
         tracer_output_file="circular_references_tracer.json",
         save_tracer=True,
     )

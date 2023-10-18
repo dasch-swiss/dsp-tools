@@ -90,19 +90,6 @@ def _log_unable_to_upload_link_value(msg: str, res_id: str, prop_name: str) -> N
     logger.warning(err_msg, exc_info=True)
 
 
-def _log_if_unable_to_retrieve_resource(
-    err: BaseError,
-    resource_id: str,
-) -> None:
-    orig_err_msg = err.orig_err_msg_from_api or err.message
-    err_msg = (
-        f"Unable to upload resptrs of resource '{resource_id}', "
-        "because the resource cannot be retrieved from the DSP server."
-    )
-    print(f"  WARNING: {err_msg} Original error message: {orig_err_msg}")
-    logger.warning(err_msg, exc_info=True)
-
-
 def _create_resptr_prop_json_object_to_update(
     stash: LinkValueStashItem,
     res_iri: str,

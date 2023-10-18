@@ -8,7 +8,6 @@ from dsp_tools.connection.connection import Connection
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.resource import KnoraStandoffXmlEncoder
 from dsp_tools.models.value import KnoraStandoffXml
-from dsp_tools.models.xmlresource import XMLResource
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import try_network_action
 from dsp_tools.utils.xmlupload.stash.stash_models import StandoffStash, StandoffStashItem
@@ -17,14 +16,14 @@ logger = get_logger(__name__)
 
 
 def _log_unable_to_retrieve_resource(
-    resource: XMLResource,
+    resource: str,
     received_error: BaseError,
 ) -> None:
     """
     This function logs the error if it is not possible to retrieve the resource.
 
     Args:
-        resource: the resource
+        resource: the resource id
         received_error: the error
     """
     # print the message to keep track of the cause for the failure
@@ -32,7 +31,7 @@ def _log_unable_to_retrieve_resource(
     # this resource will remain in nonapplied_xml_texts, which will be handled by the caller
     orig_err_msg = received_error.orig_err_msg_from_api or received_error.message
     err_msg = (
-        f"Unable to upload XML texts of resource '{resource.id}', "
+        f"Unable to upload XML texts of resource '{resource}', "
         "because the resource cannot be retrieved from the DSP server."
     )
     print(f"  WARNING: {err_msg} Original error message: {orig_err_msg}")
@@ -118,7 +117,7 @@ def upload_stashed_xml_texts(
 
     print("Upload the stashed XML texts...")
     logger.info("Upload the stashed XML texts...")
-    not_uploaded: list[tuple[XMLResource, StandoffStashItem]] = []
+    not_uploaded: list[StandoffStashItem] = []
     for res_id, stash_items in stashed_xml_texts.res_2_stash_items.items():
         res_iri = id2iri_mapping.get(res_id)
         if not res_iri:
@@ -126,11 +125,11 @@ def upload_stashed_xml_texts(
             # no action necessary: this resource will remain in nonapplied_xml_texts,
             # which will be handled by the caller
             continue
-        xmlres: XMLResource = stashed_xml_texts.res_2_xmlres[res_id]
+        # xmlres: XMLResource = stashed_xml_texts.res_2_xmlres[res_id]
         try:
             resource_in_triplestore = try_network_action(con.get, route=f"/v2/resources/{quote_plus(res_iri)}")
         except BaseError as err:
-            _log_unable_to_retrieve_resource(resource=xmlres, received_error=err)
+            _log_unable_to_retrieve_resource(resource=res_id, received_error=err)
             continue
         if verbose:
             print(f'  Upload XML text(s) of resource "{res_id}"...')
@@ -139,12 +138,12 @@ def upload_stashed_xml_texts(
         for stash_item in stash_items:
             value_iri = _get_value_iri(stash_item.prop_name, resource_in_triplestore, stash_item.uuid)
             if not value_iri:
-                not_uploaded.append((xmlres, stash_item))  # does that even make sense to hold on to that one?
+                not_uploaded.append(stash_item)
                 continue
             success = _upload_stash_item(
                 stash_item=stash_item,
                 res_iri=res_iri,
-                res_type=xmlres.restype,
+                res_type=stash_item.res_type,
                 res_id=res_id,
                 value_iri=value_iri,
                 id2iri_mapping=id2iri_mapping,
@@ -152,7 +151,7 @@ def upload_stashed_xml_texts(
                 context=context,
             )
             if not success:
-                not_uploaded.append((xmlres, stash_item))
+                not_uploaded.append(stash_item)
     return StandoffStash.make(not_uploaded)
 
 

@@ -190,3 +190,47 @@ class TestUploadTextValueStashes:
             verbose=False,
         )
         assert nonapplied is None
+
+    def test_not_upload_link_value_stash_if_uuid_not_on_value(self) -> None:
+        """
+        Do not upload stashed text values (standoff), if the resource has no value containing the UUID of the stashed
+        text value in its text.
+        """
+        value_uuid = str(uuid4())
+        property_name = "someprop"
+        stash = Stash.make(
+            standoff_stash=StandoffStash.make(
+                [
+                    StandoffStashItem(
+                        "001", "sometype", value_uuid, property_name, KnoraStandoffXml("<p>some text</p>")
+                    ),
+                ]
+            ),
+            link_value_stash=None,
+        )
+        assert stash
+        id2iri_mapping = {
+            "001": "http://www.rdfh.ch/0001/001",
+            "002": "http://www.rdfh.ch/0001/002",
+        }
+        con: Connection = ConnectionMock(
+            get_responses=[
+                {
+                    property_name: [
+                        {
+                            "@id": "http://www.rdfh.ch/0001/001/values/01",
+                            "knora-api:textValueAsXml": "<p>not relevant</p>",
+                        },
+                    ],
+                    "@context": {},
+                },
+            ],
+            put_responses=[{}],
+        )
+        nonapplied = _upload_stash(
+            stash=stash,
+            id2iri_mapping=id2iri_mapping,
+            con=con,
+            verbose=False,
+        )
+        assert nonapplied == stash

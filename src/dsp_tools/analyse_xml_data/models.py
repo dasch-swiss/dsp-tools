@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass, field
-from uuid import UUID
 
 
 @dataclass(frozen=True)
@@ -11,7 +10,7 @@ class ResptrLink:
 
     subject_id: str
     object_id: str
-    link_uuid: UUID = field(default_factory=lambda: str(uuid.uuid4()))
+    link_uuid: str = field(default_factory=lambda: str(uuid.uuid4()))
 
     @property
     def cost_links(self) -> float:
@@ -28,7 +27,7 @@ class XMLLink:
 
     subject_id: str
     object_link_ids: set[str]
-    link_uuid: UUID = field(default_factory=lambda: str(uuid.uuid4()))
+    link_uuid: str = field(default_factory=lambda: str(uuid.uuid4()))
 
     @property
     def cost_links(self) -> float:

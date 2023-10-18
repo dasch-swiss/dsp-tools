@@ -86,6 +86,7 @@ def make_graph(
     rx.PyDiGraph,  # type: ignore[type-arg] # pylint: disable=no-member
     dict[int, str],
     list[tuple[int, int, ResptrLink | XMLLink]],
+    set[int],
 ]:
     """
     This function takes information about the resources (nodes) and links between them (edges).
@@ -102,6 +103,7 @@ def make_graph(
     g: rx.PyDiGraph = rx.PyDiGraph()  # type: ignore[type-arg] # pylint: disable=no-member
     nodes = [(id_, None, None) for id_ in all_resource_ids]
     node_inidices = g.add_nodes_from(nodes)
+    node_inidices = list(node_inidices)
     node_id_lookup = dict(zip(all_resource_ids, node_inidices))
     node_index_lookup = dict(zip(node_inidices, all_resource_ids))
     print(f"number of nodes: {len(nodes)}")
@@ -112,21 +114,23 @@ def make_graph(
         edges.extend([(node_id_lookup[xml.subject_id], node_id_lookup[x], xml) for x in xml.object_link_ids])
     g.add_edges_from(edges)
     print(f"number of edges: {len(edges)}")
-    return g, node_index_lookup, edges
+    return g, node_index_lookup, edges, set(node_inidices)
 
 
 def _remove_leaf_nodes(
     g: rx.PyDiGraph,  # type: ignore[type-arg] # pylint: disable=no-member
     node_index_lookup: dict[int, str],
-) -> list[ResourceStashInfo]:
+    node_inidices: set[int],
+) -> tuple[list[ResourceStashInfo], set[int]]:
     res: list[ResourceStashInfo] = []
     # TODO: research g.node_indexes() get as list/set
-    while leaf_nodes := [x for x in g.node_indexes() if g.out_degree(x) == 0]:
+    while leaf_nodes := [x for x in node_inidices if g.out_degree(x) == 0]:
         print(f"number of leaf nodes removed: {len(leaf_nodes)}")
         res.extend(ResourceStashInfo(node_index_lookup[n]) for n in leaf_nodes)
         # TODO: remove indices form the node ingex list/set return
         g.remove_nodes_from(leaf_nodes)
-    return res
+        node_inidices = node_inidices - set(leaf_nodes)
+    return res, node_inidices
 
 
 def _find_cheapest_node(
@@ -162,6 +166,7 @@ def _generate_upload_order(
     g: rx.PyDiGraph,  # type: ignore[type-arg] # pylint: disable=no-member
     node_index_lookup: dict[int, str],
     edge_list: list[tuple[int, int, XMLLink | ResptrLink]],
+    node_inidices: set[int],
 ) -> list[ResourceStashInfo]:
     """
     This function takes a graph and a dictionary with the mapping between the graph indices and original ids.
@@ -175,7 +180,7 @@ def _generate_upload_order(
         List of instances that contain the information of the resource id and its links.
     """
     removed_nodes = []
-    leaf_nodes = _remove_leaf_nodes(g, node_index_lookup)
+    leaf_nodes, node_inidices = _remove_leaf_nodes(g, node_index_lookup, node_inidices)
     removed_nodes.extend(leaf_nodes)
     removed_from_cycle = 0
     while g.num_nodes():
@@ -199,7 +204,7 @@ def _generate_upload_order(
         removed_nodes.append(ResourceStashInfo(node_index_lookup[source]))
         removed_from_cycle += 1
         print(f"removed link: {node_edges}")
-        leaf_nodes = _remove_leaf_nodes(g, node_index_lookup)
+        leaf_nodes, node_inidices = _remove_leaf_nodes(g, node_index_lookup, node_inidices)
         removed_nodes.extend(leaf_nodes)
     print("=" * 80)
     print(f"total cycles broken: {removed_from_cycle}")
@@ -239,9 +244,9 @@ def analyse_circles_in_data(
     print(f"Total Number of XML Texts with Links: {len(xml_instances)}")
     print("=" * 80)
     # TODO: we also need the xml_instances later
-    g, node_index_lookup, edges = make_graph(resptr_instances, xml_instances, all_resource_ids)
+    g, node_index_lookup, edges, node_inidices = make_graph(resptr_instances, xml_instances, all_resource_ids)
     print("=" * 80)
-    resource_upload_order = _generate_upload_order(g, node_index_lookup, edges)
+    resource_upload_order = _generate_upload_order(g, node_index_lookup, edges, node_inidices)
     print("=" * 80)
     tracer.stop()
     if save_tracer:

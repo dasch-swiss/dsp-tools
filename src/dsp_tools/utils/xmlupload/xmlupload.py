@@ -32,6 +32,7 @@ from dsp_tools.utils.xmlupload.upload_config import UploadConfig
 from dsp_tools.utils.xmlupload.upload_stashed_resptr_props import upload_stashed_resptr_props
 from dsp_tools.utils.xmlupload.upload_stashed_xml_texts import upload_stashed_xml_texts
 from dsp_tools.utils.xmlupload.write_diagnostic_info import write_id2iri_mapping
+from viztracer import VizTracer
 
 logger = get_logger(__name__)
 
@@ -203,6 +204,20 @@ def _upload_stash(
     con: Connection,
     verbose: bool,
 ) -> Stash | None:
+    tracer = VizTracer(
+        tracer_entries=3_000_000,
+        minimize_memory=True,
+        ignore_c_function=True,
+        ignore_frozen=True,
+        include_files=[
+            "src/dsp_tools/utils/xmlupload/xmlupload.py",
+            "src/dsp_tools/utils/xmlupload/upload_stashed_resptr_props.py",
+            "src/dsp_tools/utils/xmlupload/upload_stashed_xml_texts.py",
+            "src/dsp_tools/utils/shared.py",
+            "src/dsp_tools/connection/connection_live.py",
+        ],
+    )
+    tracer.start()
     if stash.standoff_stash:
         nonapplied_standoff = upload_stashed_xml_texts(
             verbose=verbose,
@@ -221,6 +236,8 @@ def _upload_stash(
         )
     else:
         nonapplied_resptr_props = None
+    tracer.stop()
+    tracer.save(output_file="viztracer.json")
     return Stash.make(nonapplied_standoff, nonapplied_resptr_props)
 
 

@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import json
 import sys
-from datetime import datetime
 from pathlib import Path
 from typing import Any, Union
 
@@ -26,16 +25,13 @@ from dsp_tools.utils.xmlupload.read_validate_xml_file import (
     check_consistency_with_ontology,
     validate_and_parse_xml_file,
 )
-from dsp_tools.utils.xmlupload.resource_multimedia import (
-    calculate_multimedia_file_size,
-    get_sipi_multimedia_information,
-)
+from dsp_tools.utils.xmlupload.resource_multimedia import handle_bitstream
 from dsp_tools.utils.xmlupload.stash.stash_models import Stash
 from dsp_tools.utils.xmlupload.stash_circular_references import remove_circular_references
 from dsp_tools.utils.xmlupload.upload_config import UploadConfig
 from dsp_tools.utils.xmlupload.upload_stashed_resptr_props import upload_stashed_resptr_props
 from dsp_tools.utils.xmlupload.upload_stashed_xml_texts import upload_stashed_xml_texts
-from dsp_tools.utils.xmlupload.write_diagnostic_info import MetricRecord, write_id2iri_mapping, write_metrics
+from dsp_tools.utils.xmlupload.write_diagnostic_info import write_id2iri_mapping
 
 logger = get_logger(__name__)
 
@@ -81,9 +77,6 @@ def xmlupload(
         onto_name=default_ontology,
     )
 
-    # start metrics
-    metrics: list[MetricRecord] = []
-
     # establish connection to DSP server
     con = login(server=server, user=user, password=password, dump=config.dump)
     sipi_server = Sipi(sipi, con.get_token())
@@ -94,24 +87,20 @@ def xmlupload(
         default_ontology=default_ontology,
         shortcode=shortcode,
         verbose=config.verbose,
-        metrics=metrics,
     )
 
-    id2iri_mapping, failed_uploads, metrics = _upload(
+    id2iri_mapping, failed_uploads = _upload(
         resources=resources,
         imgdir=imgdir,
         sipi_server=sipi_server,
         permissions_lookup=permissions_lookup,
         resclass_name_2_type=resclass_name_2_type,
         con=con,
-        metrics=metrics,
         stash=stash,
         config=config,
     )
 
     write_id2iri_mapping(id2iri_mapping, input_file, config.timestamp_str)
-    if config.save_metrics and metrics:
-        write_metrics(metrics, input_file, config)
     success = not failed_uploads
     if success:
         print("All resources have successfully been uploaded.")
@@ -128,9 +117,7 @@ def _prepare_upload(
     default_ontology: str,
     shortcode: str,
     verbose: bool,
-    metrics: list[MetricRecord],
 ) -> tuple[list[XMLResource], dict[str, Permissions], dict[str, type], Stash | None]:
-    preparation_start = datetime.now()
     resources, permissions_lookup, resclass_name_2_type = _get_data_from_xml(
         con=con,
         root=root,
@@ -140,9 +127,6 @@ def _prepare_upload(
     )
     # temporarily remove circular references
     resources, stash = remove_circular_references(resources, verbose=verbose)
-    preparation_duration = datetime.now() - preparation_start
-    preparation_duration_ms = preparation_duration.seconds * 1000 + int(preparation_duration.microseconds / 1000)
-    metrics.append(MetricRecord("", "", "", "xml upload preparation", preparation_duration_ms, ""))
     return resources, permissions_lookup, resclass_name_2_type, stash
 
 
@@ -153,21 +137,19 @@ def _upload(
     permissions_lookup: dict[str, Permissions],
     resclass_name_2_type: dict[str, type],
     con: Connection,
-    metrics: list[MetricRecord],
     stash: Stash | None,
     config: UploadConfig,
-) -> tuple[dict[str, str], list[str], list[MetricRecord]]:
+) -> tuple[dict[str, str], list[str]]:
     # upload all resources, then update the resources with the stashed XML texts and resptrs
     failed_uploads: list[str] = []
     try:
-        id2iri_mapping, failed_uploads, metrics = _upload_resources(
+        id2iri_mapping, failed_uploads = _upload_resources(
             resources=resources,
             imgdir=imgdir,
             sipi_server=sipi_server,
             permissions_lookup=permissions_lookup,
             resclass_name_2_type=resclass_name_2_type,
             con=con,
-            metrics=metrics,
             preprocessing_done=config.preprocessing_done,
         )
         nonapplied_stash = _upload_stash(stash, id2iri_mapping, con, config.verbose) if stash else None
@@ -187,7 +169,7 @@ def _upload(
             save_location=config.save_location,
             timestamp_str=config.timestamp_str,
         )
-    return id2iri_mapping, failed_uploads, metrics
+    return id2iri_mapping, failed_uploads
 
 
 def _get_data_from_xml(
@@ -267,7 +249,7 @@ def _get_project_permissions_and_classes_from_server(
     """
     # get the project information and project ontology from the server
     try:
-        res_inst_factory = try_network_action(
+        res_inst_factory: ResourceInstanceFactory = try_network_action(
             lambda: ResourceInstanceFactory(con=server_connection, projident=shortcode)
         )
     except BaseError:
@@ -328,9 +310,8 @@ def _upload_resources(
     permissions_lookup: dict[str, Permissions],
     resclass_name_2_type: dict[str, type],
     con: Connection,
-    metrics: list[MetricRecord],
     preprocessing_done: bool,
-) -> tuple[dict[str, str], list[str], list[MetricRecord]]:
+) -> tuple[dict[str, str], list[str]]:
     """
     Iterates through all resources and tries to upload them to DSP.
     If a temporary exception occurs, the action is repeated until success,
@@ -343,7 +324,6 @@ def _upload_resources(
         permissions_lookup: maps permission strings to Permission objects
         resclass_name_2_type: maps resource class names to their types
         con: connection to DSP
-        metrics: list with the metric records collected until now (gets filled during the upload)
         preprocessing_done: if set, all multimedia files referenced in the XML file must already be on the server
 
     Returns:
@@ -352,93 +332,81 @@ def _upload_resources(
     id2iri_mapping: dict[str, str] = {}
     failed_uploads: list[str] = []
 
-    bitstream_all_sizes_mb, bitstream_size_total_mb = calculate_multimedia_file_size(
-        resources=resources,
-        imgdir=imgdir,
-        preprocessing_done=preprocessing_done,
-    )
-    bitstream_size_uploaded_mb = 0.0
-
     for i, resource in enumerate(resources):
-        resource_start = datetime.now()
-        filetype = ""
-        filesize = round(bitstream_all_sizes_mb[i], 1)
-        bitstream_duration_ms = None
-
         resource_iri = resource.iri
         if resource.ark:
             resource_iri = convert_ark_v0_to_resource_iri(resource.ark)
 
-        if resource.bitstream:
-            try:
-                resource_bitstream = get_sipi_multimedia_information(
-                    resource=resource,
-                    sipi_server=sipi_server,
-                    imgdir=imgdir,
-                    filesize=filesize,
-                    permissions_lookup=permissions_lookup,
-                    metrics=metrics,
-                    preprocessing_done=preprocessing_done,
-                )
-                bitstream_size_uploaded_mb += filesize
-            except BaseError as err:
-                pth = resource.bitstream.value
-                err_msg = err.orig_err_msg_from_api or err.message
-                msg = f"Unable to upload file '{pth}' of resource '{resource.label}' ({resource.id})"
-                print(f"WARNING: {msg}: {err_msg}")
-                logger.warning(msg, exc_info=True)
-                msg = f"Uploaded file '{pth}' ({bitstream_size_uploaded_mb:.1f} MB / {bitstream_size_total_mb} MB)"
-                print(msg)
-                logger.info(msg)
+        bitstream_information = None
+        if bitstream := resource.bitstream:
+            bitstream_information = handle_bitstream(
+                resource=resource,
+                bitstream=bitstream,
+                preprocessing_done=preprocessing_done,
+                permissions_lookup=permissions_lookup,
+                sipi_server=sipi_server,
+                imgdir=imgdir,
+            )
+            if not bitstream_information:
+                # Note: previously, if the bitstream could not be uploaded, the resource was skipped without adding to
+                # the failed_uploads list, which I'm not sure was as intended
+                failed_uploads.append(resource.id)
                 continue
-        else:
-            resource_bitstream = None
 
-        # create the resource in DSP
-        resclass_type = resclass_name_2_type[resource.restype]
-        properties = resource.get_propvals(id2iri_mapping, permissions_lookup)
-        try:
-            resource_instance: ResourceInstance = resclass_type(
-                con=con,
-                label=resource.label,
-                iri=resource_iri,
-                permissions=permissions_lookup.get(str(resource.permissions)),
-                creation_date=resource.creation_date,
-                bitstream=resource_bitstream,
-                values=properties,
-            )
-            resource_creation_start = datetime.now()
-            created_resource: ResourceInstance = try_network_action(resource_instance.create)
-            resource_creation_duration = datetime.now() - resource_creation_start
-            resource_creation_duration_ms = resource_creation_duration.seconds * 1000 + int(
-                resource_creation_duration.microseconds / 1000
-            )
-            metrics.append(
-                MetricRecord(resource.id, filetype, filesize, "resource creation", resource_creation_duration_ms, "")
-            )
-        except BaseError as err:
-            err_msg = err.orig_err_msg_from_api or err.message
-            print(f"WARNING: Unable to create resource '{resource.label}' ({resource.id}): {err_msg}")
-            log_msg = (
-                f"Unable to create resource '{resource.label}' ({resource.id})\n"
-                f"Resource details:\n{vars(resource)}\n"
-                f"Property details:\n" + "\n".join([str(vars(prop)) for prop in resource.properties])
-            )
-            logger.warning(log_msg, exc_info=True)
+        res = _create_resource(
+            res_type=resclass_name_2_type[resource.restype],
+            resource=resource,
+            resource_iri=resource_iri,
+            bitstream_information=bitstream_information,
+            con=con,
+            permissions_lookup=permissions_lookup,
+            id2iri_mapping=id2iri_mapping,
+        )
+        if not res:
             failed_uploads.append(resource.id)
             continue
-        id2iri_mapping[resource.id] = created_resource.iri
+        iri, label = res
+        id2iri_mapping[resource.id] = iri
 
-        resource_designation = f"'{created_resource.label}' (ID: '{resource.id}', IRI: '{created_resource.iri}')"
+        resource_designation = f"'{label}' (ID: '{resource.id}', IRI: '{iri}')"
         print(f"Created resource {i+1}/{len(resources)}: {resource_designation}")
         logger.info(f"Created resource {i+1}/{len(resources)}: {resource_designation}")
 
-        resource_duration = datetime.now() - resource_start
-        resource_duration_ms = resource_duration.seconds * 1000 + int(resource_duration.microseconds / 1000)
-        looping_overhead_ms = resource_duration_ms - resource_creation_duration_ms - (bitstream_duration_ms or 0)
-        metrics.append(MetricRecord(resource.id, filetype, filesize, "looping overhead", looping_overhead_ms, ""))
+    return id2iri_mapping, failed_uploads
 
-    return id2iri_mapping, failed_uploads, metrics
+
+def _create_resource(
+    res_type: type,
+    resource: XMLResource,
+    resource_iri: str | None,
+    bitstream_information: dict[str, Any] | None,
+    con: Connection,
+    permissions_lookup: dict[str, Permissions],
+    id2iri_mapping: dict[str, str],
+) -> tuple[str, str] | None:
+    properties = resource.get_propvals(id2iri_mapping, permissions_lookup)
+    try:
+        resource_instance: ResourceInstance = res_type(
+            con=con,
+            label=resource.label,
+            iri=resource_iri,
+            permissions=permissions_lookup.get(str(resource.permissions)),
+            creation_date=resource.creation_date,
+            bitstream=bitstream_information,
+            values=properties,
+        )
+        created_resource: ResourceInstance = try_network_action(resource_instance.create)
+        return created_resource.iri, created_resource.label
+    except BaseError as err:
+        err_msg = err.orig_err_msg_from_api or err.message
+        print(f"WARNING: Unable to create resource '{resource.label}' ({resource.id}): {err_msg}")
+        log_msg = (
+            f"Unable to create resource '{resource.label}' ({resource.id})\n"
+            f"Resource details:\n{vars(resource)}\n"
+            f"Property details:\n" + "\n".join([str(vars(prop)) for prop in resource.properties])
+        )
+        logger.warning(log_msg, exc_info=True)
+        return None
 
 
 def _handle_upload_error(

@@ -80,14 +80,12 @@ class TestUploadLinkValueStashes:
             "001": "http://www.rdfh.ch/0001/001",
             "002": "http://www.rdfh.ch/0001/002",
         }
-        con: Connection = ConnectionMock(
-            get_responses=[{"@context": {}}],
-            post_responses=[{}],
-        )
+        con: Connection = ConnectionMock(post_responses=[{}])
         nonapplied = _upload_stash(
             stash=stash,
             id2iri_mapping=id2iri_mapping,
             con=con,
+            context={},
             verbose=False,
         )
         assert nonapplied is None
@@ -135,6 +133,7 @@ class TestUploadTextValueStashes:
             stash=stash,
             id2iri_mapping=id2iri_mapping,
             con=con,
+            context={},
             verbose=False,
         )
         assert nonapplied is None
@@ -179,6 +178,7 @@ class TestUploadTextValueStashes:
             stash=stash,
             id2iri_mapping=id2iri_mapping,
             con=con,
+            context={},
             verbose=False,
         )
         assert nonapplied == stash

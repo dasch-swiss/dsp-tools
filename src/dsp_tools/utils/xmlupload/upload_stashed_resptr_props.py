@@ -26,6 +26,7 @@ def upload_stashed_resptr_props(
         id2iri_mapping: mapping of ids from the XML file to IRIs in DSP
         con: connection to DSP
         stashed_resptr_props: all resptr props that have been stashed
+        context: the JSON-LD context of the resource
 
     Returns:
         nonapplied_resptr_props: the resptr props that could not be uploaded

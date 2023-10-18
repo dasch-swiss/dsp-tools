@@ -4,6 +4,7 @@ from pathlib import Path
 import regex
 import rustworkx as rx
 from lxml import etree
+from rustworkx import NoEdgeBetweenNodes
 from viztracer import VizTracer
 
 from dsp_tools.analyse_xml_data.models import ResourceStashInfo, ResptrLink, XMLLink
@@ -134,32 +135,36 @@ def _remove_leaf_nodes(
 
 
 def _find_cheapest_node(
-    g: rx.PyDiGraph,  # type: ignore[type-arg] # pylint: disable=no-member
-    cycle: rx.EdgeList,  # pylint: disable=no-member
-) -> tuple[int, int]:
+    cycle: list[tuple[int, int]],
+    edge_list: list[tuple[int, int, XMLLink | ResptrLink]],
+) -> list[tuple[int, int, XMLLink | ResptrLink]]:
     costs = []
     for source, target in cycle:
-        edges_in = g.in_edges(source)
-        node_gain = len(edges_in)
-        edges_out = g.out_edges(source)
-        node_cost = sum(x[2].cost_links for x in edges_out)
-        node_value = node_cost / node_gain
-        costs.append((source, node_value, target))
-    sorted_nodes = sorted(costs, key=lambda x: x[1])
-    cheapest_node, _, target_node = sorted_nodes[0]
-    print("cheapest node", cheapest_node)
-    return cheapest_node, target_node
+        links_between_nodes = [x for x in edge_list if x[0] == source and x[1] == target]
+        costs.append(links_between_nodes)
+
+    # TODO: problem now is that the xml links are not removed for all the links
+    # TODO: this way a cycle may remain that is no longer a cycle as it was stashed previously
+    # TODO: this has no consequence for the upload as the link stash is the same
+    # TODO: but it could increase the runtime
+    # TODO: save the stashes as dict, so that the returned stash is only once
+    # TODO: or in edges out check if any other has the XML and then add it to the removed edges
+    cheapest_links = min(sorted(costs), key=lambda x: len(x))
+    print("cheapest node", cheapest_links)
+    return cheapest_links
 
 
 def _remove_edges_get_removed_class_instances(
     g: rx.PyDiGraph,  # type: ignore[type-arg] # pylint: disable=no-member,
-    edges_to_remove: tuple[int, int],  # pylint: disable=no-member
+    edges_to_remove: list[tuple[int, int, XMLLink | ResptrLink]],
     node_index_lookup: dict[int, str],
-    edge_list: list[tuple[int, int, XMLLink | ResptrLink]],
 ) -> ResourceStashInfo:
-    g.remove_nodes_from(edges_to_remove)
-    links_to_stash = [x[2] for x in edge_list if x[0] == edges_to_remove[0] and x[1] == edges_to_remove[1]]
-    return ResourceStashInfo(node_index_lookup[edges_to_remove[0]], links_to_stash)
+    source, target = edges_to_remove[0][0], edges_to_remove[0][1]
+    # if only one (source, target) is entered, it removes only one edge, not all
+    g.remove_edges_from([(source, target) for i in range(len(edges_to_remove))])
+    links_to_stash = [x[2] for x in edges_to_remove]
+    print("links to stash:", links_to_stash)
+    return ResourceStashInfo(node_index_lookup[source], links_to_stash)
 
 
 def _generate_upload_order(
@@ -167,7 +172,7 @@ def _generate_upload_order(
     node_index_lookup: dict[int, str],
     edge_list: list[tuple[int, int, XMLLink | ResptrLink]],
     node_inidices: set[int],
-) -> list[ResourceStashInfo]:
+) -> tuple[list[ResourceStashInfo], int]:
     """
     This function takes a graph and a dictionary with the mapping between the graph indices and original ids.
     It generates the order in which the resources should be uploaded to the DSP-API based on the dependencies.
@@ -183,6 +188,7 @@ def _generate_upload_order(
     leaf_nodes, node_inidices = _remove_leaf_nodes(g, node_index_lookup, node_inidices)
     removed_nodes.extend(leaf_nodes)
     removed_from_cycle = 0
+    stash_counter = 0
     while node_inidices:
         # TODO: find length of cycles in real data
         cycles = list(rx.simple_cycles(g))
@@ -190,25 +196,23 @@ def _generate_upload_order(
         # TODO: find overlap (innumerate iteration over list) find not overlapping set
         # TODO: get the original list from cycles and
         print(f"total number of nodes remaining: {g.num_nodes()}")
-        cycle = rx.digraph_find_cycle(g)  # type: ignore[attr-defined]  # pylint: disable=no-member
+        cycle = list(rx.digraph_find_cycle(g))  # type: ignore[attr-defined]  # pylint: disable=no-member
         print("-" * 10)
         print(f"cycle: {cycle}")
-        node_edges = _find_cheapest_node(g, cycle)
+        links_to_remove = _find_cheapest_node(cycle, edge_list)
+        stash_counter += len(links_to_remove)
         removed_nodes.append(
             _remove_edges_get_removed_class_instances(
-                g=g, edges_to_remove=node_edges, node_index_lookup=node_index_lookup, edge_list=edge_list
+                g=g, edges_to_remove=links_to_remove, node_index_lookup=node_index_lookup
             )
         )
-        source, targets = node_edges
-        g.remove_node(source)
-        removed_nodes.append(ResourceStashInfo(node_index_lookup[source]))
         removed_from_cycle += 1
-        print(f"removed link: {node_edges}")
+        print(f"removed link: {links_to_remove}")
         leaf_nodes, node_inidices = _remove_leaf_nodes(g, node_index_lookup, node_inidices)
         removed_nodes.extend(leaf_nodes)
     print("=" * 80)
     print(f"total cycles broken: {removed_from_cycle}")
-    return removed_nodes
+    return removed_nodes, stash_counter
 
 
 def analyse_circles_in_data(
@@ -233,7 +237,7 @@ def analyse_circles_in_data(
         minimize_memory=True,
         ignore_c_function=True,
         ignore_frozen=True,
-        include_files=["extract_links_from_XML.py", "models.py"],
+        include_files=["extract_links_from_XML.py"],
     )
     tracer.start()
     tree = etree.parse(xml_filepath)
@@ -246,7 +250,8 @@ def analyse_circles_in_data(
     # TODO: we also need the xml_instances later
     g, node_index_lookup, edges, node_inidices = make_graph(resptr_instances, xml_instances, all_resource_ids)
     print("=" * 80)
-    resource_upload_order = _generate_upload_order(g, node_index_lookup, edges, node_inidices)
+    resource_upload_order, stash_size = _generate_upload_order(g, node_index_lookup, edges, node_inidices)
+    print("Stash Size:", stash_size)
     print("=" * 80)
     tracer.stop()
     if save_tracer:
@@ -259,9 +264,8 @@ def analyse_circles_in_data(
 
 if __name__ == "__main__":
     analyse_circles_in_data(
-        xml_filepath=Path(
-            "/Users/noraammann/Documents/Miscelaneous/dsp-tools_notes/improve_xmlupload/analyse_real_data/sgv_data/sgv-v8.7_v3.0_final-clean-up.xml"
-        ),
+        # xml_filepath=Path("/Users/noraammann/Documents/Miscelaneous/dsp-tools_notes/improve_xmlupload/analyse_real_data/sgv_data/sgv-v8.7_v3.0_final-clean-up.xml"),
+        xml_filepath=Path("testdata/xml-data/circular-references/test_circular_references_1.xml"),
         tracer_output_file="circular_references_tracer.json",
         save_tracer=False,
     )

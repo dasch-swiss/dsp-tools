@@ -13,7 +13,7 @@ from dsp_tools.utils.xmlupload.stash.stash_models import (
 )
 from dsp_tools.utils.xmlupload.xmlupload import _upload_stash
 
-# pylint: disable=unused-argument,missing-function-docstring,missing-class-docstring
+# pylint: disable=unused-argument,missing-function-docstring,missing-class-docstring,too-few-public-methods
 
 
 @dataclass

@@ -6,63 +6,66 @@ import rustworkx as rx
 from lxml import etree
 from viztracer import VizTracer
 
-from dsp_tools.analyse_xml_data.models import ResptrLink, UploadResource, XMLLink
+from dsp_tools.analyse_xml_data.models import ResourceStashInfo, ResptrLink, XMLLink
 
 
-def create_info_from_xml_for_graph(root: etree._Element) -> tuple[list[ResptrLink], list[XMLLink], set[str]]:
+def create_info_from_xml_for_graph(
+    root: etree._Element,
+) -> tuple[etree._Element, list[ResptrLink], list[XMLLink], list[str]]:
     """Create instances of the classes ResptrLink and XMLLink from the root of the XML file."""
     resptr_instances = []
     xml_instances = []
-    all_resource_ids = set()
+    all_resource_ids = []
     for resource in root.iter(tag="{https://dasch.swiss/schema}resource"):
         resptr, xml, subject_id = _create_info_from_xml_for_graph_from_one_resource(resource)
-        if resptr:
-            resptr_instances.extend(resptr)
-        if xml:
-            xml_instances.extend(xml)
-        if subject_id:
-            all_resource_ids.add(subject_id)
-    return resptr_instances, xml_instances, set(all_resource_ids)
+        all_resource_ids.append(subject_id)
+        resptr_instances.extend(resptr)
+        xml_instances.extend(xml)
+    return root, resptr_instances, xml_instances, all_resource_ids
 
 
 def _create_info_from_xml_for_graph_from_one_resource(
     resource: etree._Element,
 ) -> tuple[list[ResptrLink], list[XMLLink], str]:
     subject_id = resource.attrib["id"]
-    resptr_links, xml_links = _get_all_links_from_one_resource(resource)
-    resptr_link_objects = []
-    xml_link_objects = []
-    if resptr_links:
-        resptr_link_objects = [ResptrLink(subject_id, object_id) for object_id in resptr_links]
-    if xml_links:
-        xml_link_objects = [XMLLink(subject_id, obj_ids, text) for (obj_ids, text) in xml_links]
-    return resptr_link_objects, xml_link_objects, subject_id
+    resptr_links, xml_links = _get_all_links_from_one_resource(subject_id, resource)
+    # TODO: etree ele should not need to be returned, check
+    return resptr_links, xml_links, subject_id
 
 
-def _get_all_links_from_one_resource(resource: etree._Element) -> tuple[list[str], list[tuple[set[str], str]]]:
-    resptr_links: list[str] = []
-    xml_links: list[tuple[set[str], str]] = []
+def _get_all_links_from_one_resource(
+    subject_id: str, resource: etree._Element
+) -> tuple[list[ResptrLink], list[XMLLink]]:
+    resptr_links: list[ResptrLink] = []
+    xml_links: list[XMLLink] = []
     for prop in resource.getchildren():
         match prop.tag:
             case "{https://dasch.swiss/schema}resptr-prop":
-                resptr_links.extend(_extract_ids_from_one_resptr_prop(prop))
+                resptr_links.extend(_create_class_instance_resptr_link(subject_id, prop))
             case "{https://dasch.swiss/schema}text-prop":
-                xml_links.extend(_extract_ids_from_text_prop(prop))
+                xml_links.extend(_create_class_instance_text_prop(subject_id, prop))
     return resptr_links, xml_links
 
 
-def _extract_ids_from_one_resptr_prop(resptr_prop: etree._Element) -> list[str]:
-    return [x.text for x in resptr_prop.getchildren() if x.text]
+def _create_class_instance_resptr_link(subject_id: str, resptr_prop: etree._Element) -> list[ResptrLink]:
+    resptr_links = []
+    for resptr in resptr_prop.getchildren():
+        if r_text := resptr.text:
+            instance = ResptrLink(subject_id, r_text)
+            resptr.attrib["stashUUID"] = instance.link_uuid
+            resptr_links.append(instance)
+    return resptr_links
 
 
-def _extract_ids_from_text_prop(text_prop: etree._Element) -> list[tuple[set[str], str]]:
+def _create_class_instance_text_prop(subject_id: str, text_prop: etree._Element) -> list[XMLLink]:
     # if the same ID is in several separate <text> values of one <text-prop>, they are considered separate links
     xml_props = []
     for text in text_prop.getchildren():
         links = _extract_ids_from_one_text_value(text)
         if links:
-            text_ele = etree.tostring(text, pretty_print=True, encoding="unicode")
-            xml_props.append((links, text_ele))
+            xml_link = XMLLink(subject_id, links)
+            xml_props.append(xml_link)
+            text.attrib["stashUUID"] = xml_link.link_uuid
     return xml_props
 
 
@@ -78,8 +81,12 @@ def _extract_ids_from_one_text_value(text: etree._Element) -> set[str]:
 
 
 def make_graph(
-    resptr_instances: list[ResptrLink], xml_instances: list[XMLLink], all_resource_ids: set[str]
-) -> tuple[rx.PyDiGraph, dict[int, str]]:  # type: ignore[type-arg] # pylint: disable=no-member
+    resptr_instances: list[ResptrLink], xml_instances: list[XMLLink], all_resource_ids: list[str]
+) -> tuple[
+    rx.PyDiGraph,  # type: ignore[type-arg] # pylint: disable=no-member
+    dict[int, str],
+    list[tuple[int, int, ResptrLink | XMLLink]],
+]:
     """
     This function takes information about the resources (nodes) and links between them (edges).
     From that it constructs a rustworkx directed graph.
@@ -94,30 +101,30 @@ def make_graph(
     """
     g: rx.PyDiGraph = rx.PyDiGraph()  # type: ignore[type-arg] # pylint: disable=no-member
     nodes = [(id_, None, None) for id_ in all_resource_ids]
-    node_ids = [x[0] for x in nodes]
     node_inidices = g.add_nodes_from(nodes)
-    node_id_lookup = dict(zip(node_ids, node_inidices))
-    node_index_lookup = dict(zip(node_inidices, node_ids))
+    node_id_lookup = dict(zip(all_resource_ids, node_inidices))
+    node_index_lookup = dict(zip(node_inidices, all_resource_ids))
     print(f"number of nodes: {len(nodes)}")
-    resptr_edges = [(node_id_lookup[x.subject_id], node_id_lookup[x.object_id], x) for x in resptr_instances]
-    g.add_edges_from(resptr_edges)
-    print(f"number of resptr edges: {len(resptr_edges)}")
-    xml_edges = []
+    edges: list[tuple[int, int, ResptrLink | XMLLink]] = [
+        (node_id_lookup[x.subject_id], node_id_lookup[x.object_id], x) for x in resptr_instances
+    ]
     for xml in xml_instances:
-        xml_edges.extend([(node_id_lookup[xml.subject_id], node_id_lookup[x], xml) for x in xml.object_link_ids])
-    g.add_edges_from(xml_edges)
-    print(f"number of xml edges: {len(xml_edges)}")
-    return g, node_index_lookup
+        edges.extend([(node_id_lookup[xml.subject_id], node_id_lookup[x], xml) for x in xml.object_link_ids])
+    g.add_edges_from(edges)
+    print(f"number of edges: {len(edges)}")
+    return g, node_index_lookup, edges
 
 
 def _remove_leaf_nodes(
     g: rx.PyDiGraph,  # type: ignore[type-arg] # pylint: disable=no-member
     node_index_lookup: dict[int, str],
-) -> list[UploadResource]:
-    res: list[UploadResource] = []
+) -> list[ResourceStashInfo]:
+    res: list[ResourceStashInfo] = []
+    # TODO: research g.node_indexes() get as list/set
     while leaf_nodes := [x for x in g.node_indexes() if g.out_degree(x) == 0]:
         print(f"number of leaf nodes removed: {len(leaf_nodes)}")
-        res.extend(UploadResource(node_index_lookup[n]) for n in leaf_nodes)
+        res.extend(ResourceStashInfo(node_index_lookup[n]) for n in leaf_nodes)
+        # TODO: remove indices form the node ingex list/set return
         g.remove_nodes_from(leaf_nodes)
     return res
 
@@ -125,27 +132,37 @@ def _remove_leaf_nodes(
 def _find_cheapest_node(
     g: rx.PyDiGraph,  # type: ignore[type-arg] # pylint: disable=no-member
     cycle: rx.EdgeList,  # pylint: disable=no-member
-    node_index_lookup: dict[int, str],
-) -> tuple[int, list[str]]:
+) -> tuple[int, int]:
     costs = []
-    for source, _ in cycle:
+    for source, target in cycle:
         edges_in = g.in_edges(source)
         node_gain = len(edges_in)
         edges_out = g.out_edges(source)
         node_cost = sum(x[2].cost_links for x in edges_out)
         node_value = node_cost / node_gain
-        costs.append((source, node_value, edges_out))
+        costs.append((source, node_value, target))
     sorted_nodes = sorted(costs, key=lambda x: x[1])
-    cheapest_node, _, edges_out = sorted_nodes[0]
-    print("cheapest", cheapest_node)
-    removed_target_ids: list[str] = [node_index_lookup[x[1]] for x in edges_out]
-    return cheapest_node, removed_target_ids
+    cheapest_node, _, target_node = sorted_nodes[0]
+    print("cheapest node", cheapest_node)
+    return cheapest_node, target_node
+
+
+def _remove_edges_get_removed_class_instances(
+    g: rx.PyDiGraph,  # type: ignore[type-arg] # pylint: disable=no-member,
+    edges_to_remove: tuple[int, int],  # pylint: disable=no-member
+    node_index_lookup: dict[int, str],
+    edge_list: list[tuple[int, int, XMLLink | ResptrLink]],
+) -> ResourceStashInfo:
+    g.remove_nodes_from(edges_to_remove)
+    links_to_stash = [x[2] for x in edge_list if x[0] == edges_to_remove[0] and x[1] == edges_to_remove[1]]
+    return ResourceStashInfo(node_index_lookup[edges_to_remove[0]], links_to_stash)
 
 
 def _generate_upload_order(
     g: rx.PyDiGraph,  # type: ignore[type-arg] # pylint: disable=no-member
     node_index_lookup: dict[int, str],
-) -> list[UploadResource]:
+    edge_list: list[tuple[int, int, XMLLink | ResptrLink]],
+) -> list[ResourceStashInfo]:
     """
     This function takes a graph and a dictionary with the mapping between the graph indices and original ids.
     It generates the order in which the resources should be uploaded to the DSP-API based on the dependencies.
@@ -162,26 +179,36 @@ def _generate_upload_order(
     removed_nodes.extend(leaf_nodes)
     removed_from_cycle = 0
     while g.num_nodes():
+        # TODO: find length of cycles in real data
+        cycles = list(rx.simple_cycles(g))
+        # TODO: make sets then find ones that don't overlap
+        # TODO: find overlap (innumerate iteration over list) find not overlapping set
+        # TODO: get the original list from cycles and
         print(f"total number of nodes remaining: {g.num_nodes()}")
         cycle = rx.digraph_find_cycle(g)  # type: ignore[attr-defined]  # pylint: disable=no-member
         print("-" * 10)
         print(f"cycle: {cycle}")
-        node = _find_cheapest_node(g, cycle, node_index_lookup)
-        source, targets = node
-        removed_nodes.append(UploadResource(g[source][0], targets))
+        node_edges = _find_cheapest_node(g, cycle)
+        removed_nodes.append(
+            _remove_edges_get_removed_class_instances(
+                g=g, edges_to_remove=node_edges, node_index_lookup=node_index_lookup, edge_list=edge_list
+            )
+        )
+        source, targets = node_edges
         g.remove_node(source)
+        removed_nodes.append(ResourceStashInfo(node_index_lookup[source]))
         removed_from_cycle += 1
-        print(f"removed link: {node}")
+        print(f"removed link: {node_edges}")
         leaf_nodes = _remove_leaf_nodes(g, node_index_lookup)
         removed_nodes.extend(leaf_nodes)
     print("=" * 80)
-    print(f"removed links total: {removed_from_cycle}")
+    print(f"total cycles broken: {removed_from_cycle}")
     return removed_nodes
 
 
 def analyse_circles_in_data(
     xml_filepath: Path, tracer_output_file: str, save_tracer: bool = False
-) -> list[UploadResource]:
+) -> list[ResourceStashInfo]:
     """
     This function takes an XML filepath
     It analyzes how many and which links have to be removed
@@ -206,14 +233,15 @@ def analyse_circles_in_data(
     tracer.start()
     tree = etree.parse(xml_filepath)
     root = tree.getroot()
-    resptr_instances, xml_instances, all_resource_ids = create_info_from_xml_for_graph(root)
+    root, resptr_instances, xml_instances, all_resource_ids = create_info_from_xml_for_graph(root)
     print(f"Total Number of Resources: {len(all_resource_ids)}")
     print(f"Total Number of resptr Links: {len(resptr_instances)}")
     print(f"Total Number of XML Texts with Links: {len(xml_instances)}")
     print("=" * 80)
-    g, node_index_lookup = make_graph(resptr_instances, xml_instances, all_resource_ids)
+    # TODO: we also need the xml_instances later
+    g, node_index_lookup, edges = make_graph(resptr_instances, xml_instances, all_resource_ids)
     print("=" * 80)
-    resource_upload_order = _generate_upload_order(g, node_index_lookup)
+    resource_upload_order = _generate_upload_order(g, node_index_lookup, edges)
     print("=" * 80)
     tracer.stop()
     if save_tracer:
@@ -228,4 +256,5 @@ if __name__ == "__main__":
     analyse_circles_in_data(
         xml_filepath=Path("testdata/xml-data/circular-references/test_circular_references_1.xml"),
         tracer_output_file="circular_references_tracer.json",
+        save_tracer=False,
     )

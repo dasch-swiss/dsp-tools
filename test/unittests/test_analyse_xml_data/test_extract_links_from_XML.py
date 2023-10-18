@@ -5,10 +5,10 @@ from lxml import etree
 from pytest_unordered import unordered
 
 from dsp_tools.analyse_xml_data.extract_links_from_XML import (
+    _create_class_instance_text_prop,
     _create_info_from_xml_for_graph_from_one_resource,
     _extract_ids_from_one_resptr_prop,
     _extract_ids_from_one_text_value,
-    _extract_ids_from_text_prop,
     _get_all_links_from_one_resource,
 )
 
@@ -109,7 +109,7 @@ def test_extract_ids_from_text_prop_with_several_text_links() -> None:
         'href="IRI:res_A_18:IRI">res_A_18</a></text><text permissions="prop-default" encoding="xml"><a '
         'class="salsah-link" href="IRI:res_B_18:IRI">res_B_18</a></text></text-prop>'
     )
-    res = _extract_ids_from_text_prop(test_ele)
+    res = _create_class_instance_text_prop(test_ele)
     res_ids = [x[0] for x in res]
     assert unordered(res_ids) == [{"res_A_18"}, {"res_B_18"}]
 

@@ -1,14 +1,17 @@
 from __future__ import annotations
 
+import uuid
 from dataclasses import dataclass, field
+from uuid import UUID
 
 
-@dataclass
+@dataclass(frozen=True)
 class ResptrLink:
     """This class represents a link between two resources."""
 
     subject_id: str
     object_id: str
+    link_uuid: UUID = field(default_factory=lambda: str(uuid.uuid4()))
 
     @property
     def cost_links(self) -> float:
@@ -16,7 +19,7 @@ class ResptrLink:
         return 1
 
 
-@dataclass
+@dataclass(frozen=True)
 class XMLLink:
     """
     This class represents a link between a resource and an XML text
@@ -25,7 +28,7 @@ class XMLLink:
 
     subject_id: str
     object_link_ids: set[str]
-    text_str: str
+    link_uuid: UUID = field(default_factory=lambda: str(uuid.uuid4()))
 
     @property
     def cost_links(self) -> float:
@@ -34,13 +37,13 @@ class XMLLink:
 
 
 @dataclass
-class UploadResource:
+class ResourceStashInfo:
     """
     Holds information about a resource that can be uploaded to the DSP.
 
     May hold information about the links that need to be stashed from this resource before it can be uploaded.
-    A ordered list of UploadResources can be used to determine the order in which resources need to be uploaded.
+    An ordered list of UploadResources can be used to determine the order in which resources need to be uploaded.
     """
 
     res_id: str
-    stash_links_to: list[str] = field(default_factory=list)
+    stash_links_to: list[XMLLink | ResptrLink] = field(default_factory=list)

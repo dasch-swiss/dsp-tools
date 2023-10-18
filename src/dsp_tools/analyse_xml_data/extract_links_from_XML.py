@@ -183,7 +183,7 @@ def _generate_upload_order(
     leaf_nodes, node_inidices = _remove_leaf_nodes(g, node_index_lookup, node_inidices)
     removed_nodes.extend(leaf_nodes)
     removed_from_cycle = 0
-    while g.num_nodes():
+    while node_inidices:
         # TODO: find length of cycles in real data
         cycles = list(rx.simple_cycles(g))
         # TODO: make sets then find ones that don't overlap
@@ -259,7 +259,9 @@ def analyse_circles_in_data(
 
 if __name__ == "__main__":
     analyse_circles_in_data(
-        xml_filepath=Path("testdata/xml-data/circular-references/test_circular_references_1.xml"),
+        xml_filepath=Path(
+            "/Users/noraammann/Documents/Miscelaneous/dsp-tools_notes/improve_xmlupload/analyse_real_data/sgv_data/sgv-v8.7_v3.0_final-clean-up.xml"
+        ),
         tracer_output_file="circular_references_tracer.json",
         save_tracer=False,
     )

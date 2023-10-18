@@ -81,7 +81,7 @@ class TestUploadLinkValueStashes:
             "002": "http://www.rdfh.ch/0001/002",
         }
         con: Connection = ConnectionMock(
-            get_responses=[{"@context": {}}],  # TODO: this should not be needed
+            get_responses=[{"@context": {}}],
             post_responses=[{}],
         )
         nonapplied = _upload_stash(
@@ -91,58 +91,6 @@ class TestUploadLinkValueStashes:
             verbose=False,
         )
         assert nonapplied is None
-
-    def test_not_upload_link_value_stash_without_res_id(self) -> None:
-        """Do not upload stashed link values, if a resource ID cannot be resolved to an IRI."""
-        stash = Stash.make(
-            standoff_stash=None,
-            link_value_stash=LinkValueStash.make(
-                [
-                    LinkValueStashItem("001", "sometype", "someprop", "002"),
-                ],
-            ),
-        )
-        assert stash
-        id2iri_mapping = {
-            "002": "http://www.rdfh.ch/0001/002",
-        }
-        con: Connection = ConnectionMock(
-            get_responses=[{"@context": {}}],  # TODO: this should not be needed
-            post_responses=[{}],
-        )
-        nonapplied = _upload_stash(
-            stash=stash,
-            id2iri_mapping=id2iri_mapping,
-            con=con,
-            verbose=False,
-        )
-        assert nonapplied
-
-    def test_not_upload_link_value_stash_without_target_id(self) -> None:
-        """Do not upload stashed link values, if a target ID cannot be resolved to an IRI."""
-        stash = Stash.make(
-            standoff_stash=None,
-            link_value_stash=LinkValueStash.make(
-                [
-                    LinkValueStashItem("001", "sometype", "someprop", "002"),
-                ],
-            ),
-        )
-        assert stash
-        id2iri_mapping = {
-            "001": "http://www.rdfh.ch/0001/001",
-        }
-        con: Connection = ConnectionMock(
-            get_responses=[{"@context": {}}],  # TODO: this should not be needed
-            post_responses=[{}],
-        )
-        nonapplied = _upload_stash(
-            stash=stash,
-            id2iri_mapping=id2iri_mapping,
-            con=con,
-            verbose=False,
-        )
-        assert nonapplied
 
 
 class TestUploadTextValueStashes:

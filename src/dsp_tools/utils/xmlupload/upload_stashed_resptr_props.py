@@ -39,7 +39,7 @@ def upload_stashed_resptr_props(
             # resource could not be uploaded to DSP, so the stash cannot be uploaded either
             # no action necessary: this resource will remain in nonapplied_resptr_props,
             # which will be handled by the caller
-            continue  # TODO: should we handle this?
+            continue
         res_iri = id2iri_mapping[res_id]
         try:
             existing_resource = try_network_action(con.get, route=f"/v2/resources/{quote_plus(res_iri)}")
@@ -53,7 +53,7 @@ def upload_stashed_resptr_props(
         for stash_item in stash_items:
             target_iri = id2iri_mapping.get(stash_item.target_id)
             if not target_iri:
-                continue  # TODO: should we handle this?
+                continue
             success = _upload_stash_item(stash_item, res_iri, target_iri, con, context)
             if not success:
                 not_uploaded.append(stash_item)

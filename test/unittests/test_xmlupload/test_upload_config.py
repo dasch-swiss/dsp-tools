@@ -41,7 +41,7 @@ def test_save_location() -> None:
     onto_name = "testonto"
     expected_path = f"/.dsp-tools/xmluploads/{server}/{shortcode}/{onto_name}"
     config = UploadConfig()
-    config_with_save_location = config.with_specific_save_location(
+    config_with_save_location = config.with_server_info(
         server=server,
         shortcode=shortcode,
         onto_name=onto_name,

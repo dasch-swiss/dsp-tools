@@ -135,21 +135,26 @@ def _remove_leaf_nodes(
 
 
 def _find_cheapest_node(
+    g: rx.PyDiGraph,  # type: ignore[type-arg] # pylint: disable=no-member
     cycle: list[tuple[int, int]],
     edge_list: list[tuple[int, int, XMLLink | ResptrLink]],
 ) -> list[tuple[int, int, XMLLink | ResptrLink]]:
     costs = []
     for source, target in cycle:
-        links_between_nodes = [x for x in edge_list if x[0] == source and x[1] == target]
-        costs.append(links_between_nodes)
-
+        edges_in = g.in_edges(source)
+        node_gain = len(edges_in)
+        edges_out = g.out_edges(source)
+        node_cost = sum(x[2].cost_links for x in edges_out)
+        node_value = node_cost / node_gain
+        costs.append((source, target, node_value, edges_out))
+    cheapest_nodes = sorted(costs, key=lambda x: x[2])[0]
+    cheapest_links = [x for x in edge_list if x[0] == cheapest_nodes[0] and x[1] == cheapest_nodes[1]]
     # TODO: problem now is that the xml links are not removed for all the links
     # TODO: this way a cycle may remain that is no longer a cycle as it was stashed previously
     # TODO: this has no consequence for the upload as the link stash is the same
     # TODO: but it could increase the runtime
     # TODO: save the stashes as dict, so that the returned stash is only once
     # TODO: or in edges out check if any other has the XML and then add it to the removed edges
-    cheapest_links = min(sorted(costs), key=lambda x: len(x))
     print("cheapest node", cheapest_links)
     return cheapest_links
 
@@ -199,7 +204,7 @@ def _generate_upload_order(
         cycle = list(rx.digraph_find_cycle(g))  # type: ignore[attr-defined]  # pylint: disable=no-member
         print("-" * 10)
         print(f"cycle: {cycle}")
-        links_to_remove = _find_cheapest_node(cycle, edge_list)
+        links_to_remove = _find_cheapest_node(g, cycle, edge_list)
         stash_counter += len(links_to_remove)
         removed_nodes.append(
             _remove_edges_get_removed_class_instances(

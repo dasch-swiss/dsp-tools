@@ -1,8 +1,16 @@
 from dataclasses import dataclass, field
 from typing import Any
+from uuid import uuid4
 
 from dsp_tools.connection.connection import Connection
-from dsp_tools.utils.xmlupload.stash.stash_models import LinkValueStash, LinkValueStashItem, StandoffStash, Stash
+from dsp_tools.models.value import KnoraStandoffXml
+from dsp_tools.utils.xmlupload.stash.stash_models import (
+    LinkValueStash,
+    LinkValueStashItem,
+    StandoffStash,
+    StandoffStashItem,
+    Stash,
+)
 from dsp_tools.utils.xmlupload.xmlupload import _upload_stash
 
 # pylint: disable=unused-argument,missing-function-docstring
@@ -14,6 +22,7 @@ class ConnectionMock:
 
     get_responses: list[dict[str, Any]] = field(default_factory=list)
     post_responses: list[dict[str, Any]] = field(default_factory=list)
+    put_responses: list[dict[str, Any]] = field(default_factory=list)
 
     def get(
         self,
@@ -36,7 +45,7 @@ class ConnectionMock:
         jsondata: str | None = None,
         content_type: str = "application/json",
     ) -> dict[str, Any]:
-        raise AssertionError("'put' not implemented")
+        return self.put_responses.pop(0)
 
     def delete(
         self,
@@ -59,7 +68,7 @@ class TestUploadLinkValueStashes:
     def test_upload_link_value_stash(self) -> None:
         """Upload stashed link values (resptr), if all goes well."""
         stash = Stash.make(
-            standoff_stash=StandoffStash.make([]),
+            standoff_stash=None,
             link_value_stash=LinkValueStash.make(
                 [
                     LinkValueStashItem("001", "sometype", "someprop", "002"),
@@ -86,7 +95,7 @@ class TestUploadLinkValueStashes:
     def test_not_upload_link_value_stash_without_res_id(self) -> None:
         """Do not upload stashed link values, if a resource ID cannot be resolved to an IRI."""
         stash = Stash.make(
-            standoff_stash=StandoffStash.make([]),
+            standoff_stash=None,
             link_value_stash=LinkValueStash.make(
                 [
                     LinkValueStashItem("001", "sometype", "someprop", "002"),
@@ -112,7 +121,7 @@ class TestUploadLinkValueStashes:
     def test_not_upload_link_value_stash_without_target_id(self) -> None:
         """Do not upload stashed link values, if a target ID cannot be resolved to an IRI."""
         stash = Stash.make(
-            standoff_stash=StandoffStash.make([]),
+            standoff_stash=None,
             link_value_stash=LinkValueStash.make(
                 [
                     LinkValueStashItem("001", "sometype", "someprop", "002"),
@@ -134,3 +143,50 @@ class TestUploadLinkValueStashes:
             verbose=False,
         )
         assert nonapplied
+
+
+class TestUploadTextValueStashes:
+    def test_upload_link_value_stash(self) -> None:
+        """Upload stashed text values (standoff), if all goes well."""
+        value_uuid = str(uuid4())
+        property_name = "someprop"
+        stash = Stash.make(
+            standoff_stash=StandoffStash.make(
+                [
+                    StandoffStashItem(
+                        "001", "sometype", value_uuid, property_name, KnoraStandoffXml("<p>some text</p>")
+                    ),
+                ]
+            ),
+            link_value_stash=None,
+        )
+        assert stash
+        id2iri_mapping = {
+            "001": "http://www.rdfh.ch/0001/001",
+            "002": "http://www.rdfh.ch/0001/002",
+        }
+        con: Connection = ConnectionMock(
+            get_responses=[
+                {
+                    property_name: [
+                        {
+                            "@id": "http://www.rdfh.ch/0001/001/values/01",
+                            "knora-api:textValueAsXml": "<p>not relevant</p>",
+                        },
+                        {
+                            "@id": "http://www.rdfh.ch/0001/001/values/01",
+                            "knora-api:textValueAsXml": f"<p>{value_uuid}</p>",
+                        },
+                    ],
+                    "@context": {},
+                },
+            ],
+            put_responses=[{}],
+        )
+        nonapplied = _upload_stash(
+            stash=stash,
+            id2iri_mapping=id2iri_mapping,
+            con=con,
+            verbose=False,
+        )
+        assert nonapplied is None

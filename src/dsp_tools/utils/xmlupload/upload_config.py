@@ -40,7 +40,6 @@ class UploadConfig:
 
     verbose: bool = False
     dump: bool = False
-    save_metrics: bool = False
     preprocessing_done: bool = False
     server_as_foldername: str = field(default="unknown")
     save_location: Path = field(default=Path.home() / ".dsp-tools" / "xmluploads")

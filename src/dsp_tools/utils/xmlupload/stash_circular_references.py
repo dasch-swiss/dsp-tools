@@ -26,7 +26,7 @@ def _stash_circular_references(
     Raises:
         BaseError
     """
-    stashed_standoff_values: list[tuple[XMLResource, StandoffStashItem]] = []
+    stashed_standoff_values: list[StandoffStashItem] = []
     stashed_link_values: list[LinkValueStashItem] = []
     ok_resources: list[XMLResource] = []
 
@@ -39,8 +39,14 @@ def _stash_circular_references(
                         # and remove the problematic resrefs from the XMLValue's resrefs list
                         standoff_xml = cast(KnoraStandoffXml, value.value)
                         uuid = str(uuid4())
-                        standoff_stash_item = StandoffStashItem(uuid=uuid, prop_name=link_prop.name, value=standoff_xml)
-                        stashed_standoff_values.append((res, standoff_stash_item))
+                        standoff_stash_item = StandoffStashItem(
+                            res_id=res.id,
+                            res_type=res.restype,
+                            uuid=uuid,
+                            prop_name=link_prop.name,
+                            value=standoff_xml,
+                        )
+                        stashed_standoff_values.append(standoff_stash_item)
                         value.value = KnoraStandoffXml(uuid)
                         value.resrefs = [_id for _id in value.resrefs if _id in ok_res_ids]
             elif link_prop.valtype == "resptr":

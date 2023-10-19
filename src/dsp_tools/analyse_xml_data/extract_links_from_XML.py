@@ -120,7 +120,7 @@ def _remove_leaf_nodes(
     g: rx.PyDiGraph,  # type: ignore[type-arg] # pylint: disable=no-member
     node_index_lookup: dict[int, str],
     node_indices: set[int],
-) -> tuple[list[ResourceStashInfo], set[int]]:
+) -> tuple[list[str], set[int]]:
     """
     Leaf nodes are nodes that do not have any outgoing links.
     This means that they have no dependencies and are ok to upload.
@@ -135,9 +135,9 @@ def _remove_leaf_nodes(
         A list with the ids of the removed leaf nodes
         The set with the remaining nodes minus the leaf nodes
     """
-    res: list[ResourceStashInfo] = []
+    res: list[str] = []
     while leaf_nodes := [x for x in node_indices if g.out_degree(x) == 0]:
-        res.extend(ResourceStashInfo(node_index_lookup[n]) for n in leaf_nodes)
+        res.extend(node_index_lookup[n] for n in leaf_nodes)
         g.remove_nodes_from(leaf_nodes)
         node_indices = node_indices - set(leaf_nodes)
     return res, node_indices
@@ -180,7 +180,7 @@ def _remove_edges_get_removed_class_instances(
     node_index_lookup: dict[int, str],
     edge_list: list[tuple[int, int, XMLLink | ResptrLink]],
     remaining_nodes: set[int],
-) -> ResourceStashInfo:
+) -> list[XMLLink | ResptrLink]:
     """
     This function removes the edges from the graph in order to break a cycle.
     It returns the information that enables us to identify the links in the real data.
@@ -193,7 +193,7 @@ def _remove_edges_get_removed_class_instances(
         remaining_nodes: set with the indexes of the nodes in the graph
 
     Returns:
-
+        a list with the class instances that represent links to stash
     """
     source, target = edges_to_remove[0][0], edges_to_remove[0][1]
     links_to_stash = [x[2] for x in edges_to_remove]
@@ -206,7 +206,7 @@ def _remove_edges_get_removed_class_instances(
             phantom_links.extend(_find_remove_phantom_xml_edges(source, target, edge_list, instance, remaining_nodes))
     to_remove_list.extend(phantom_links)
     g.remove_edges_from(to_remove_list)
-    return ResourceStashInfo(node_index_lookup[source], links_to_stash)
+    return links_to_stash
 
 
 def _find_remove_phantom_xml_edges(
@@ -243,12 +243,25 @@ def _find_remove_phantom_xml_edges(
     return [(x[0], x[1]) for x in edge_list if check(x)]
 
 
+def _add_stash_to_lookup_dict(
+    stash_dict: dict[str, list[str]], to_stash_links: list[XMLLink | ResptrLink]
+) -> dict[str, list[str]]:
+    stash_list = [stash_link.link_uuid for stash_link in to_stash_links]
+    # all stashed links have the same subject id, so we can just take the first one
+    subj_id = to_stash_links[0].subject_id
+    if subj_id in stash_dict.keys():
+        stash_dict[subj_id].extend(stash_list)
+    else:
+        stash_dict[subj_id] = stash_list
+    return stash_dict
+
+
 def generate_upload_order(
     g: rx.PyDiGraph,  # type: ignore[type-arg] # pylint: disable=no-member
     node_index_lookup: dict[int, str],
     edge_list: list[tuple[int, int, XMLLink | ResptrLink]],
     node_indices: set[int],
-) -> tuple[list[ResourceStashInfo], int]:
+) -> tuple[dict[str, list[str]], list[str], int]:
     """
     This function takes a graph and a dictionary with the mapping between the graph indices and original ids.
     It generates the order in which the resources should be uploaded to the DSP-API based on the dependencies.
@@ -263,26 +276,26 @@ def generate_upload_order(
         List of instances that contain the information of the resource id and its links.
         The number of links in the stash.
     """
-    removed_nodes = []
+    upload_order: list[str] = []
+    stash_lookup: dict[str, list[str]] = {}
     leaf_nodes, node_indices = _remove_leaf_nodes(g, node_index_lookup, node_indices)
-    removed_nodes.extend(leaf_nodes)
+    upload_order.extend(leaf_nodes)
     stash_counter = 0
     while node_indices:
         cycle = list(rx.digraph_find_cycle(g))  # type: ignore[attr-defined]  # pylint: disable=no-member
         links_to_remove = _find_cheapest_outgoing_links(g, cycle, edge_list)
         stash_counter += len(links_to_remove)
-        removed_nodes.append(
-            _remove_edges_get_removed_class_instances(
-                g=g,
-                edges_to_remove=links_to_remove,
-                node_index_lookup=node_index_lookup,
-                edge_list=edge_list,
-                remaining_nodes=node_indices,
-            )
+        links_to_stash = _remove_edges_get_removed_class_instances(
+            g=g,
+            edges_to_remove=links_to_remove,
+            node_index_lookup=node_index_lookup,
+            edge_list=edge_list,
+            remaining_nodes=node_indices,
         )
+        stash_lookup = _add_stash_to_lookup_dict(stash_lookup, links_to_stash)
         leaf_nodes, node_indices = _remove_leaf_nodes(g, node_index_lookup, node_indices)
-        removed_nodes.extend(leaf_nodes)
-    return removed_nodes, stash_counter
+        upload_order.extend(leaf_nodes)
+    return stash_lookup, upload_order, stash_counter
 
 
 def analyse_circles_in_data(
@@ -316,8 +329,8 @@ def analyse_circles_in_data(
     print(f"Total Number of XML Texts with Links: {len(xml_instances)}")
     print("=" * 80)
     g, node_index_lookup, edges, node_indices = _make_graph(resptr_instances, xml_instances, all_resource_ids)
-    resource_upload_order, stash_size = generate_upload_order(g, node_index_lookup, edges, node_indices)
-    print("Number of Links Stashed:", stash_size)
+    _, _, stash_counter = generate_upload_order(g, node_index_lookup, edges, node_indices)
+    print("Number of Links Stashed:", stash_counter)
     tracer.stop()
     if save_tracer:
         tracer.save(output_file=tracer_output_file)
@@ -325,7 +338,8 @@ def analyse_circles_in_data(
     print("Start time:", start)
     print("End time:", datetime.now())
     print("=" * 80)
-    return resource_upload_order
+    # TODO: change here to list with IDs
+    # TODO: change here to dict
 
 
 if __name__ == "__main__":

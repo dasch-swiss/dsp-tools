@@ -237,7 +237,7 @@ def _find_remove_phantom_xml_edges(
 
     def check(x: tuple[int, int, XMLLink | ResptrLink]) -> bool:
         # if we do not check if the target is in the remaining_nodes (maybe removed because of leaf node)
-        # we would get an NoEdgeBetweenNodes error
+        # we would get a NoEdgeBetweenNodes error
         return x[0] == source and x[1] != target and x[2] == xml_instance and x[1] in remaining_nodes
 
     return [(x[0], x[1]) for x in edge_list if check(x)]

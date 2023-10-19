@@ -55,7 +55,8 @@ def test_create_info_from_xml_for_graph_from_one_resource_one() -> None:
         </resource>
         """
     )
-    res_resptr, res_xml, sub_id = _create_info_from_xml_for_graph_from_one_resource(test_ele)
+    res_resptr, res_xml, subject_id = _create_info_from_xml_for_graph_from_one_resource(test_ele)
+    assert subject_id == "res_A_11"
     assert res_resptr[0].object_id == "res_B_11"
     assert isinstance(res_resptr[0], ResptrLink)
     assert res_xml[0].object_link_ids == {"res_B_11"}

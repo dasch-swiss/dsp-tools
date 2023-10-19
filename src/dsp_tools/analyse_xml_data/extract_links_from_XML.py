@@ -25,15 +25,15 @@ def _create_info_from_xml_for_graph(
         a list of all the rich-text links represented in a class instance
         a list with all the resource IDs used in the file
     """
-    resptr_instances = []
-    xml_instances = []
+    resptr_links = []
+    xml_links = []
     all_resource_ids = []
     for resource in root.iter(tag="{https://dasch.swiss/schema}resource"):
         resptr, xml, subject_id = _create_info_from_xml_for_graph_from_one_resource(resource)
         all_resource_ids.append(subject_id)
-        resptr_instances.extend(resptr)
-        xml_instances.extend(xml)
-    return resptr_instances, xml_instances, all_resource_ids
+        resptr_links.extend(resptr)
+        xml_links.extend(xml)
+    return resptr_links, xml_links, all_resource_ids
 
 
 def _create_info_from_xml_for_graph_from_one_resource(
@@ -94,7 +94,7 @@ def _extract_ids_from_one_text_value(text: etree._Element) -> set[str]:
 
 
 def _make_graph(
-    resptr_instances: list[ResptrLink], xml_instances: list[XMLLink], all_resource_ids: list[str]
+    resptr_links: list[ResptrLink], xml_links: list[XMLLink], all_resource_ids: list[str]
 ) -> tuple[  # type: ignore[type-arg]
     rx.PyDiGraph,  # pylint: disable=no-member
     dict[int, str],
@@ -106,8 +106,8 @@ def _make_graph(
     From that it constructs a rustworkx directed graph.
 
     Args:
-        resptr_instances: Instances of resptr links
-        xml_instances: Instances of links to texts containing links to other resources
+        resptr_links: Instances of resptr links
+        xml_links: Instances of links to texts containing links to other resources
         all_resource_ids: IDs of all the resources in the graph
 
     Returns:
@@ -120,9 +120,9 @@ def _make_graph(
     node_id_lookup = dict(zip(all_resource_ids, node_indices))
     node_index_lookup = dict(zip(node_indices, all_resource_ids))
     edges: list[tuple[int, int, ResptrLink | XMLLink]] = [
-        (node_id_lookup[x.subject_id], node_id_lookup[x.object_id], x) for x in resptr_instances
+        (node_id_lookup[x.subject_id], node_id_lookup[x.object_id], x) for x in resptr_links
     ]
-    for xml in xml_instances:
+    for xml in xml_links:
         edges.extend([(node_id_lookup[xml.subject_id], node_id_lookup[x], xml) for x in xml.object_link_ids])
     g.add_edges_from(edges)
     return g, node_index_lookup, edges, set(node_indices)
@@ -330,12 +330,12 @@ def analyse_circles_in_data(xml_filepath: Path, tracer_output_file: str, save_tr
     tracer.start()
     tree = etree.parse(xml_filepath)
     root = tree.getroot()
-    resptr_instances, xml_instances, all_resource_ids = _create_info_from_xml_for_graph(root)
+    resptr_links, xml_links, all_resource_ids = _create_info_from_xml_for_graph(root)
     print(f"Total Number of Resources: {len(all_resource_ids)}")
-    print(f"Total Number of resptr Links: {len(resptr_instances)}")
-    print(f"Total Number of XML Texts with Links: {len(xml_instances)}")
+    print(f"Total Number of resptr Links: {len(resptr_links)}")
+    print(f"Total Number of XML Texts with Links: {len(xml_links)}")
     print("=" * 80)
-    g, node_index_lookup, edges, node_indices = _make_graph(resptr_instances, xml_instances, all_resource_ids)
+    g, node_index_lookup, edges, node_indices = _make_graph(resptr_links, xml_links, all_resource_ids)
     _, _, stash_counter = generate_upload_order(g, node_index_lookup, edges, node_indices)
     print("Number of Links Stashed:", stash_counter)
     tracer.stop()

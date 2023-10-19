@@ -4,7 +4,6 @@ from pathlib import Path
 import regex
 import rustworkx as rx
 from lxml import etree
-from rustworkx import NoEdgeBetweenNodes
 from viztracer import VizTracer
 
 from dsp_tools.analyse_xml_data.models import ResourceStashInfo, ResptrLink, XMLLink
@@ -30,7 +29,6 @@ def _create_info_from_xml_for_graph_from_one_resource(
 ) -> tuple[list[ResptrLink], list[XMLLink], str]:
     subject_id = resource.attrib["id"]
     resptr_links, xml_links = _get_all_links_from_one_resource(subject_id, resource)
-    # TODO: etree ele should not need to be returned, check
     return resptr_links, xml_links, subject_id
 
 
@@ -104,7 +102,7 @@ def make_graph(
     g: rx.PyDiGraph = rx.PyDiGraph()  # type: ignore[type-arg] # pylint: disable=no-member
     nodes = [(id_, None, None) for id_ in all_resource_ids]
     node_inidices = g.add_nodes_from(nodes)
-    node_inidices = list(node_inidices)
+    node_inidices = list(node_inidices)  # type: ignore[assignment]
     node_id_lookup = dict(zip(all_resource_ids, node_inidices))
     node_index_lookup = dict(zip(node_inidices, all_resource_ids))
     print(f"number of nodes: {len(nodes)}")
@@ -164,9 +162,9 @@ def _remove_edges_get_removed_class_instances(
     to_remove_list = [(source, target) for i in range(len(edges_to_remove))]
     phantom_links = []
     for instance in links_to_stash:
-        if type(instance) == XMLLink:
+        if isinstance(instance, XMLLink):
             phantom_links.extend(_find_remove_phantom_xml_edges(source, target, edge_list, instance, remaining_nodes))
-    to_remove_list.extend(list(set(phantom_links)))
+    to_remove_list.extend(phantom_links)
     g.remove_edges_from(to_remove_list)
     print("links to stash:", links_to_stash)
     return ResourceStashInfo(node_index_lookup[source], links_to_stash)
@@ -198,6 +196,8 @@ def _generate_upload_order(
     Args:
         g: graph
         node_index_lookup: reference between graph indices and original id
+        edge_list: list of edges in the graph as tuple (source_node, target_node, Class Instance)
+        node_inidices: index numbers of the nodes still in the graph
 
     Returns:
         List of instances that contain the information of the resource id and its links.
@@ -208,11 +208,6 @@ def _generate_upload_order(
     removed_from_cycle = 0
     stash_counter = 0
     while node_inidices:
-        # TODO: find length of cycles in real data
-        # cycles = list(rx.simple_cycles(g))
-        # TODO: make sets then find ones that don't overlap
-        # TODO: find overlap (innumerate iteration over list) find not overlapping set
-        # TODO: get the original list from cycles and
         print(f"total number of nodes remaining: {len(node_inidices)}")
         cycle = list(rx.digraph_find_cycle(g))  # type: ignore[attr-defined]  # pylint: disable=no-member
         print("-" * 10)
@@ -257,11 +252,9 @@ def analyse_circles_in_data(
     print("=" * 80)
     tracer = VizTracer(
         minimize_memory=True,
-        # ignore_c_function=True,
-        # ignore_frozen=True,
         max_stack_depth=3,
-        # include_files=["extract_links_from_XML.py", "models.py"],
     )
+    # TODO: change the way the stash looks like
     tracer.start()
     tree = etree.parse(xml_filepath)
     root = tree.getroot()
@@ -270,7 +263,6 @@ def analyse_circles_in_data(
     print(f"Total Number of resptr Links: {len(resptr_instances)}")
     print(f"Total Number of XML Texts with Links: {len(xml_instances)}")
     print("=" * 80)
-    # TODO: we also need the xml_instances later
     g, node_index_lookup, edges, node_inidices = make_graph(resptr_instances, xml_instances, all_resource_ids)
     print("=" * 80)
     resource_upload_order, stash_size = _generate_upload_order(g, node_index_lookup, edges, node_inidices)
@@ -289,5 +281,5 @@ if __name__ == "__main__":
     analyse_circles_in_data(
         xml_filepath=Path("testdata/xml-data/circular-references/test_circular_references_1.xml"),
         tracer_output_file="circular_references_tracer.json",
-        save_tracer=True,
+        save_tracer=False,
     )

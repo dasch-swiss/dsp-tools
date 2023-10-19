@@ -28,8 +28,7 @@ class ResptrLink:
 @dataclass(frozen=True)
 class XMLLink:
     """
-    This class represents a link between a resource and an XML text
-    the text contains links to one or more other resources.
+    This class represents a link between a resource and an XML text, which contains links to other resources.
 
     Args:
         subject_id: resource ID that is in subject position of the triple

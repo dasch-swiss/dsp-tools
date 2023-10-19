@@ -105,14 +105,12 @@ def _make_graph(
     node_indices = list(node_indices)  # type: ignore[assignment]
     node_id_lookup = dict(zip(all_resource_ids, node_indices))
     node_index_lookup = dict(zip(node_indices, all_resource_ids))
-    print(f"number of nodes: {len(nodes)}")
     edges: list[tuple[int, int, ResptrLink | XMLLink]] = [
         (node_id_lookup[x.subject_id], node_id_lookup[x.object_id], x) for x in resptr_instances
     ]
     for xml in xml_instances:
         edges.extend([(node_id_lookup[xml.subject_id], node_id_lookup[x], xml) for x in xml.object_link_ids])
     g.add_edges_from(edges)
-    print(f"number of edges: {len(edges)}")
     return g, node_index_lookup, edges, set(node_indices)
 
 
@@ -123,7 +121,6 @@ def _remove_leaf_nodes(
 ) -> tuple[list[ResourceStashInfo], set[int]]:
     res: list[ResourceStashInfo] = []
     while leaf_nodes := [x for x in node_indices if g.out_degree(x) == 0]:
-        print(f"number of leaf nodes removed: {len(leaf_nodes)}")
         res.extend(ResourceStashInfo(node_index_lookup[n]) for n in leaf_nodes)
         g.remove_nodes_from(leaf_nodes)
         node_indices = node_indices - set(leaf_nodes)
@@ -145,7 +142,6 @@ def _find_cheapest_outgoing_links(
         costs.append((source, target, node_value, edges_out))
     cheapest_nodes = sorted(costs, key=lambda x: x[2])[0]
     cheapest_links = [x for x in edge_list if x[0] == cheapest_nodes[0] and x[1] == cheapest_nodes[1]]
-    print("cheapest node", cheapest_links)
     return cheapest_links
 
 
@@ -166,7 +162,6 @@ def _remove_edges_get_removed_class_instances(
             phantom_links.extend(_find_remove_phantom_xml_edges(source, target, edge_list, instance, remaining_nodes))
     to_remove_list.extend(phantom_links)
     g.remove_edges_from(to_remove_list)
-    print("links to stash:", links_to_stash)
     return ResourceStashInfo(node_index_lookup[source], links_to_stash)
 
 
@@ -183,7 +178,7 @@ def _find_remove_phantom_xml_edges(
     return [(x[0], x[1]) for x in edge_list if check(x)]
 
 
-def _generate_upload_order(
+def generate_upload_order(
     g: rx.PyDiGraph,  # type: ignore[type-arg] # pylint: disable=no-member
     node_index_lookup: dict[int, str],
     edge_list: list[tuple[int, int, XMLLink | ResptrLink]],
@@ -201,17 +196,14 @@ def _generate_upload_order(
 
     Returns:
         List of instances that contain the information of the resource id and its links.
+        The number of links in the stash.
     """
     removed_nodes = []
     leaf_nodes, node_indices = _remove_leaf_nodes(g, node_index_lookup, node_indices)
     removed_nodes.extend(leaf_nodes)
-    removed_from_cycle = 0
     stash_counter = 0
     while node_indices:
-        print(f"total number of nodes remaining: {len(node_indices)}")
         cycle = list(rx.digraph_find_cycle(g))  # type: ignore[attr-defined]  # pylint: disable=no-member
-        print("-" * 10)
-        print(f"cycle: {cycle}")
         links_to_remove = _find_cheapest_outgoing_links(g, cycle, edge_list)
         stash_counter += len(links_to_remove)
         removed_nodes.append(
@@ -223,12 +215,8 @@ def _generate_upload_order(
                 remaining_nodes=node_indices,
             )
         )
-        removed_from_cycle += 1
-        print(f"removed link: {links_to_remove}")
         leaf_nodes, node_indices = _remove_leaf_nodes(g, node_index_lookup, node_indices)
         removed_nodes.extend(leaf_nodes)
-    print("=" * 80)
-    print(f"total cycles broken: {removed_from_cycle}")
     return removed_nodes, stash_counter
 
 
@@ -263,16 +251,15 @@ def analyse_circles_in_data(
     print(f"Total Number of XML Texts with Links: {len(xml_instances)}")
     print("=" * 80)
     g, node_index_lookup, edges, node_indices = _make_graph(resptr_instances, xml_instances, all_resource_ids)
-    print("=" * 80)
-    resource_upload_order, stash_size = _generate_upload_order(g, node_index_lookup, edges, node_indices)
-    print("Stash Size:", stash_size)
-    print("=" * 80)
+    resource_upload_order, stash_size = generate_upload_order(g, node_index_lookup, edges, node_indices)
+    print("Number of Links Stashed:", stash_size)
     tracer.stop()
     if save_tracer:
         tracer.save(output_file=tracer_output_file)
     print("=" * 80)
     print("Start time:", start)
     print("End time:", datetime.now())
+    print("=" * 80)
     return resource_upload_order
 
 

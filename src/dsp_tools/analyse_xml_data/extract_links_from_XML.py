@@ -6,7 +6,7 @@ import rustworkx as rx
 from lxml import etree
 from viztracer import VizTracer
 
-from dsp_tools.analyse_xml_data.models import ResourceStashInfo, ResptrLink, XMLLink
+from dsp_tools.analyse_xml_data.models import ResptrLink, XMLLink
 
 
 def _create_info_from_xml_for_graph(
@@ -177,7 +177,6 @@ def _find_cheapest_outgoing_links(
 def _remove_edges_get_removed_class_instances(
     g: rx.PyDiGraph,  # type: ignore[type-arg] # pylint: disable=no-member,
     edges_to_remove: list[tuple[int, int, XMLLink | ResptrLink]],
-    node_index_lookup: dict[int, str],
     edge_list: list[tuple[int, int, XMLLink | ResptrLink]],
     remaining_nodes: set[int],
 ) -> list[XMLLink | ResptrLink]:
@@ -188,7 +187,6 @@ def _remove_edges_get_removed_class_instances(
     Args:
         g: graph
         edges_to_remove: list of all the edges that should be removed
-        node_index_lookup: lookup to identify our IDs according to rx node indices
         edge_list: list of all the edges in the original graph
         remaining_nodes: set with the indexes of the nodes in the graph
 
@@ -288,7 +286,6 @@ def generate_upload_order(
         links_to_stash = _remove_edges_get_removed_class_instances(
             g=g,
             edges_to_remove=links_to_remove,
-            node_index_lookup=node_index_lookup,
             edge_list=edge_list,
             remaining_nodes=node_indices,
         )
@@ -298,21 +295,17 @@ def generate_upload_order(
     return stash_lookup, upload_order, stash_counter
 
 
-def analyse_circles_in_data(
-    xml_filepath: Path, tracer_output_file: str, save_tracer: bool = False
-) -> list[ResourceStashInfo]:
+def analyse_circles_in_data(xml_filepath: Path, tracer_output_file: str, save_tracer: bool = False) -> None:
     """
     This function takes an XML filepath
     It analyzes how many and which links have to be removed
     so that all circular references are broken up.
+    This is for analysis purposes only.
 
     Args:
         xml_filepath: path to the file
         tracer_output_file: name of the file where the viztracer results should be saved
         save_tracer: True if the output of the viztracer should be saved
-
-    Returns:
-        The order in which the resources should be uploaded.
     """
     start = datetime.now()
     print("=" * 80)
@@ -338,8 +331,6 @@ def analyse_circles_in_data(
     print("Start time:", start)
     print("End time:", datetime.now())
     print("=" * 80)
-    # TODO: change here to list with IDs
-    # TODO: change here to dict
 
 
 if __name__ == "__main__":

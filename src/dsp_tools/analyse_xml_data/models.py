@@ -33,16 +33,3 @@ class XMLLink:
     def cost_links(self) -> float:
         """The cost of this outgoing link (1 / number of links in the XML text)"""
         return 1 / len(self.object_link_ids)
-
-
-@dataclass
-class ResourceStashInfo:
-    """
-    Holds information about a resource that can be uploaded to the DSP.
-
-    May hold information about the links that need to be stashed from this resource before it can be uploaded.
-    An ordered list of UploadResources can be used to determine the order in which resources need to be uploaded.
-    """
-
-    res_id: str
-    stash_links_to: list[XMLLink | ResptrLink] = field(default_factory=list)

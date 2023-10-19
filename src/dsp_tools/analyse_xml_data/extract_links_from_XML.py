@@ -40,13 +40,6 @@ def _create_info_from_xml_for_graph_from_one_resource(
     resource: etree._Element,
 ) -> tuple[list[ResptrLink], list[XMLLink], str]:
     subject_id = resource.attrib["id"]
-    resptr_links, xml_links = _get_all_links_from_one_resource(subject_id, resource)
-    return resptr_links, xml_links, subject_id
-
-
-def _get_all_links_from_one_resource(
-    subject_id: str, resource: etree._Element
-) -> tuple[list[ResptrLink], list[XMLLink]]:
     resptr_links: list[ResptrLink] = []
     xml_links: list[XMLLink] = []
     for prop in resource.getchildren():
@@ -55,7 +48,7 @@ def _get_all_links_from_one_resource(
                 resptr_links.extend(_create_resptr_link_objects(subject_id, prop))
             case "{https://dasch.swiss/schema}text-prop":
                 xml_links.extend(_create_text_link_objects(subject_id, prop))
-    return resptr_links, xml_links
+    return resptr_links, xml_links, subject_id
 
 
 def _create_resptr_link_objects(subject_id: str, resptr_prop: etree._Element) -> list[ResptrLink]:

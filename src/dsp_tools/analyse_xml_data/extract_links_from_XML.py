@@ -81,8 +81,8 @@ def _extract_ids_from_one_text_value(text: etree._Element) -> set[str]:
 
 def make_graph(
     resptr_instances: list[ResptrLink], xml_instances: list[XMLLink], all_resource_ids: list[str]
-) -> tuple[
-    rx.PyDiGraph,  # type: ignore[type-arg] # pylint: disable=no-member
+) -> tuple[  # type: ignore[type-arg]  # pylint: disable=no-member
+    rx.PyDiGraph,
     dict[int, str],
     list[tuple[int, int, ResptrLink | XMLLink]],
     set[int],
@@ -101,10 +101,10 @@ def make_graph(
     """
     g: rx.PyDiGraph = rx.PyDiGraph()  # type: ignore[type-arg] # pylint: disable=no-member
     nodes = [(id_, None, None) for id_ in all_resource_ids]
-    node_inidices = g.add_nodes_from(nodes)
-    node_inidices = list(node_inidices)  # type: ignore[assignment]
-    node_id_lookup = dict(zip(all_resource_ids, node_inidices))
-    node_index_lookup = dict(zip(node_inidices, all_resource_ids))
+    node_indices = g.add_nodes_from(nodes)
+    node_indices = list(node_indices)  # type: ignore[assignment]
+    node_id_lookup = dict(zip(all_resource_ids, node_indices))
+    node_index_lookup = dict(zip(node_indices, all_resource_ids))
     print(f"number of nodes: {len(nodes)}")
     edges: list[tuple[int, int, ResptrLink | XMLLink]] = [
         (node_id_lookup[x.subject_id], node_id_lookup[x.object_id], x) for x in resptr_instances
@@ -113,24 +113,24 @@ def make_graph(
         edges.extend([(node_id_lookup[xml.subject_id], node_id_lookup[x], xml) for x in xml.object_link_ids])
     g.add_edges_from(edges)
     print(f"number of edges: {len(edges)}")
-    return g, node_index_lookup, edges, set(node_inidices)
+    return g, node_index_lookup, edges, set(node_indices)
 
 
 def _remove_leaf_nodes(
     g: rx.PyDiGraph,  # type: ignore[type-arg] # pylint: disable=no-member
     node_index_lookup: dict[int, str],
-    node_inidices: set[int],
+    node_indices: set[int],
 ) -> tuple[list[ResourceStashInfo], set[int]]:
     res: list[ResourceStashInfo] = []
-    while leaf_nodes := [x for x in node_inidices if g.out_degree(x) == 0]:
+    while leaf_nodes := [x for x in node_indices if g.out_degree(x) == 0]:
         print(f"number of leaf nodes removed: {len(leaf_nodes)}")
         res.extend(ResourceStashInfo(node_index_lookup[n]) for n in leaf_nodes)
         g.remove_nodes_from(leaf_nodes)
-        node_inidices = node_inidices - set(leaf_nodes)
-    return res, node_inidices
+        node_indices = node_indices - set(leaf_nodes)
+    return res, node_indices
 
 
-def _find_cheapest_node(
+def _find_cheapest_outgoing_links(
     g: rx.PyDiGraph,  # type: ignore[type-arg] # pylint: disable=no-member
     cycle: list[tuple[int, int]],
     edge_list: list[tuple[int, int, XMLLink | ResptrLink]],
@@ -159,7 +159,7 @@ def _remove_edges_get_removed_class_instances(
     source, target = edges_to_remove[0][0], edges_to_remove[0][1]
     links_to_stash = [x[2] for x in edges_to_remove]
     # if only one (source, target) is entered, it removes only one edge, not all
-    to_remove_list = [(source, target) for i in range(len(edges_to_remove))]
+    to_remove_list = [(x[0], x[1]) for x in edges_to_remove]
     phantom_links = []
     for instance in links_to_stash:
         if isinstance(instance, XMLLink):
@@ -178,7 +178,7 @@ def _find_remove_phantom_xml_edges(
     remaining_nodes: set[int],
 ) -> list[tuple[int, int]]:
     def check(x: tuple[int, int, XMLLink | ResptrLink]) -> bool:
-        return x[0] == source and x[2] == xml_instance and x[1] != target and x[1] in remaining_nodes
+        return x[0] == source and x[1] != target and x[2] == xml_instance and x[1] in remaining_nodes
 
     return [(x[0], x[1]) for x in edge_list if check(x)]
 
@@ -187,7 +187,7 @@ def _generate_upload_order(
     g: rx.PyDiGraph,  # type: ignore[type-arg] # pylint: disable=no-member
     node_index_lookup: dict[int, str],
     edge_list: list[tuple[int, int, XMLLink | ResptrLink]],
-    node_inidices: set[int],
+    node_indices: set[int],
 ) -> tuple[list[ResourceStashInfo], int]:
     """
     This function takes a graph and a dictionary with the mapping between the graph indices and original ids.
@@ -197,22 +197,22 @@ def _generate_upload_order(
         g: graph
         node_index_lookup: reference between graph indices and original id
         edge_list: list of edges in the graph as tuple (source_node, target_node, Class Instance)
-        node_inidices: index numbers of the nodes still in the graph
+        node_indices: index numbers of the nodes still in the graph
 
     Returns:
         List of instances that contain the information of the resource id and its links.
     """
     removed_nodes = []
-    leaf_nodes, node_inidices = _remove_leaf_nodes(g, node_index_lookup, node_inidices)
+    leaf_nodes, node_indices = _remove_leaf_nodes(g, node_index_lookup, node_indices)
     removed_nodes.extend(leaf_nodes)
     removed_from_cycle = 0
     stash_counter = 0
-    while node_inidices:
-        print(f"total number of nodes remaining: {len(node_inidices)}")
+    while node_indices:
+        print(f"total number of nodes remaining: {len(node_indices)}")
         cycle = list(rx.digraph_find_cycle(g))  # type: ignore[attr-defined]  # pylint: disable=no-member
         print("-" * 10)
         print(f"cycle: {cycle}")
-        links_to_remove = _find_cheapest_node(g, cycle, edge_list)
+        links_to_remove = _find_cheapest_outgoing_links(g, cycle, edge_list)
         stash_counter += len(links_to_remove)
         removed_nodes.append(
             _remove_edges_get_removed_class_instances(
@@ -220,12 +220,12 @@ def _generate_upload_order(
                 edges_to_remove=links_to_remove,
                 node_index_lookup=node_index_lookup,
                 edge_list=edge_list,
-                remaining_nodes=node_inidices,
+                remaining_nodes=node_indices,
             )
         )
         removed_from_cycle += 1
         print(f"removed link: {links_to_remove}")
-        leaf_nodes, node_inidices = _remove_leaf_nodes(g, node_index_lookup, node_inidices)
+        leaf_nodes, node_indices = _remove_leaf_nodes(g, node_index_lookup, node_indices)
         removed_nodes.extend(leaf_nodes)
     print("=" * 80)
     print(f"total cycles broken: {removed_from_cycle}")
@@ -263,9 +263,9 @@ def analyse_circles_in_data(
     print(f"Total Number of resptr Links: {len(resptr_instances)}")
     print(f"Total Number of XML Texts with Links: {len(xml_instances)}")
     print("=" * 80)
-    g, node_index_lookup, edges, node_inidices = make_graph(resptr_instances, xml_instances, all_resource_ids)
+    g, node_index_lookup, edges, node_indices = make_graph(resptr_instances, xml_instances, all_resource_ids)
     print("=" * 80)
-    resource_upload_order, stash_size = _generate_upload_order(g, node_index_lookup, edges, node_inidices)
+    resource_upload_order, stash_size = _generate_upload_order(g, node_index_lookup, edges, node_indices)
     print("Stash Size:", stash_size)
     print("=" * 80)
     tracer.stop()

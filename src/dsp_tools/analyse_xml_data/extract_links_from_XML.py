@@ -12,7 +12,20 @@ from dsp_tools.analyse_xml_data.models import ResptrLink, XMLLink
 def _create_info_from_xml_for_graph(
     root: etree._Element,
 ) -> tuple[etree._Element, list[ResptrLink], list[XMLLink], list[str]]:
-    """Create instances of the classes ResptrLink and XMLLink from the root of the XML file."""
+    """
+    Create instances of the classes ResptrLink and XMLLink from the root of the XML file.
+    It adds a reference UUID with which the class instances that represent the links can be linked to the actual
+    XML elements.
+
+    Args:
+        root: root of the parsed XML file
+
+    Returns:
+        root with UUID added
+        a list of all the resptr links represented in a class
+        a list of all the rich-text links represented in a class
+        a list with all the resource IDs used in the file.
+    """
     resptr_instances = []
     xml_instances = []
     all_resource_ids = []
@@ -40,13 +53,13 @@ def _get_all_links_from_one_resource(
     for prop in resource.getchildren():
         match prop.tag:
             case "{https://dasch.swiss/schema}resptr-prop":
-                resptr_links.extend(_create_class_instance_resptr_link(subject_id, prop))
+                resptr_links.extend(_create_resptr_link_objects(subject_id, prop))
             case "{https://dasch.swiss/schema}text-prop":
-                xml_links.extend(_create_class_instance_text_prop(subject_id, prop))
+                xml_links.extend(_create_text_link_objects(subject_id, prop))
     return resptr_links, xml_links
 
 
-def _create_class_instance_resptr_link(subject_id: str, resptr_prop: etree._Element) -> list[ResptrLink]:
+def _create_resptr_link_objects(subject_id: str, resptr_prop: etree._Element) -> list[ResptrLink]:
     resptr_links = []
     for resptr in resptr_prop.getchildren():
         if r_text := resptr.text:
@@ -57,7 +70,7 @@ def _create_class_instance_resptr_link(subject_id: str, resptr_prop: etree._Elem
     return resptr_links
 
 
-def _create_class_instance_text_prop(subject_id: str, text_prop: etree._Element) -> list[XMLLink]:
+def _create_text_link_objects(subject_id: str, text_prop: etree._Element) -> list[XMLLink]:
     # if the same ID is in several separate <text> values of one <text-prop>, they are considered separate links
     xml_props = []
     for text in text_prop.getchildren():
@@ -174,7 +187,7 @@ def _find_cheapest_outgoing_links(
     return cheapest_links
 
 
-def _remove_edges_get_removed_class_instances(
+def _remove_edges_to_stash(
     g: rx.PyDiGraph,  # type: ignore[type-arg] # pylint: disable=no-member,
     edges_to_remove: list[tuple[int, int, XMLLink | ResptrLink]],
     edge_list: list[tuple[int, int, XMLLink | ResptrLink]],
@@ -201,13 +214,13 @@ def _remove_edges_get_removed_class_instances(
     phantom_links = []
     for instance in links_to_stash:
         if isinstance(instance, XMLLink):
-            phantom_links.extend(_find_remove_phantom_xml_edges(source, target, edge_list, instance, remaining_nodes))
+            phantom_links.extend(_find_phantom_xml_edges(source, target, edge_list, instance, remaining_nodes))
     to_remove_list.extend(phantom_links)
     g.remove_edges_from(to_remove_list)
     return links_to_stash
 
 
-def _find_remove_phantom_xml_edges(
+def _find_phantom_xml_edges(
     source: int,
     target: int,
     edge_list: list[tuple[int, int, XMLLink | ResptrLink]],
@@ -271,7 +284,9 @@ def generate_upload_order(
         node_indices: index numbers of the nodes still in the graph
 
     Returns:
-        List of instances that contain the information of the resource id and its links.
+        Dictionary, which stores the information which resources have stashes
+        and which UUIDs of the elements should be stashed
+        A list that of resource IDs which gives the order in which the resources should be uploaded in the API
         The number of links in the stash.
     """
     upload_order: list[str] = []
@@ -283,7 +298,7 @@ def generate_upload_order(
         cycle = list(rx.digraph_find_cycle(g))  # type: ignore[attr-defined]  # pylint: disable=no-member
         links_to_remove = _find_cheapest_outgoing_links(g, cycle, edge_list)
         stash_counter += len(links_to_remove)
-        links_to_stash = _remove_edges_get_removed_class_instances(
+        links_to_stash = _remove_edges_to_stash(
             g=g,
             edges_to_remove=links_to_remove,
             edge_list=edge_list,

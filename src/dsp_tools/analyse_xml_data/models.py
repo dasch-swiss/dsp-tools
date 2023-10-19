@@ -6,7 +6,14 @@ from dataclasses import dataclass, field
 
 @dataclass(frozen=True)
 class ResptrLink:
-    """This class represents a link between two resources."""
+    """
+    This class represents a link between two resources.
+
+    Args:
+        subject_id: resource ID that is in subject position of the triple
+        object_id: resource ID that is in object position of the triple
+        link_uuid: each link, which is represented in the graph gets a UUID
+    """
 
     subject_id: str
     object_id: str
@@ -23,6 +30,11 @@ class XMLLink:
     """
     This class represents a link between a resource and an XML text
     the text contains links to one or more other resources.
+
+    Args:
+        subject_id: resource ID that is in subject position of the triple
+        object_link_ids: a set that contains the resource IDs which were embedded in the <text> element
+        link_uuid: each link, which is represented in the graph gets a UUID
     """
 
     subject_id: str

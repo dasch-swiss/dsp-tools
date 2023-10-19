@@ -5,10 +5,10 @@ from lxml import etree
 from pytest_unordered import unordered
 
 from dsp_tools.analyse_xml_data.extract_links_from_XML import (
-    _create_class_instance_resptr_link,
-    _create_class_instance_text_prop,
     _create_info_from_xml_for_graph,
     _create_info_from_xml_for_graph_from_one_resource,
+    _create_resptr_link_objects,
+    _create_text_link_objects,
     _extract_ids_from_one_text_value,
     _get_all_links_from_one_resource,
 )
@@ -103,7 +103,7 @@ def test_extract_ids_from_text_prop_with_several_text_links() -> None:
         'href="IRI:res_A_18:IRI">res_A_18</a></text><text permissions="prop-default" encoding="xml"><a '
         'class="salsah-link" href="IRI:res_B_18:IRI">res_B_18</a></text></text-prop>'
     )
-    res = _create_class_instance_text_prop("res_C_18", test_ele)
+    res = _create_text_link_objects("res_C_18", test_ele)
     res_ids = [x.object_link_ids for x in res]
     assert unordered(res_ids) == [{"res_A_18"}, {"res_B_18"}]
 
@@ -114,7 +114,7 @@ def test_create_class_instance_resptr_link_one_link() -> None:
         'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name=":hasResource1"><resptr '
         'permissions="prop-default">res_C_15</resptr></resptr-prop>'
     )
-    res = _create_class_instance_resptr_link("res_A_15", test_ele)
+    res = _create_resptr_link_objects("res_A_15", test_ele)
     assert res[0].object_id == "res_C_15"
 
 
@@ -124,7 +124,7 @@ def test_create_class_instance_resptr_link_several() -> None:
         'name=":hasResource1"><resptr permissions="prop-default">res_A_13</resptr><resptr '
         'permissions="prop-default">res_B_13</resptr><resptr permissions="prop-default">res_C_13</resptr></resptr-prop>'
     )
-    res = _create_class_instance_resptr_link("res_D_13", test_ele)
+    res = _create_resptr_link_objects("res_D_13", test_ele)
     assert res[0].object_id == "res_A_13"
     assert res[1].object_id == "res_B_13"
     assert res[2].object_id == "res_C_13"

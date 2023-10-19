@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-from urllib.parse import quote_plus
 
 from dsp_tools.connection.connection import Connection
 from dsp_tools.models.exceptions import BaseError
@@ -17,6 +16,7 @@ def upload_stashed_resptr_props(
     id2iri_mapping: dict[str, str],
     con: Connection,
     stashed_resptr_props: LinkValueStash,
+    context: dict[str, str],
 ) -> LinkValueStash | None:
     """
     After all resources are uploaded, the stashed resptr props must be applied to their resources in DSP.
@@ -26,6 +26,7 @@ def upload_stashed_resptr_props(
         id2iri_mapping: mapping of ids from the XML file to IRIs in DSP
         con: connection to DSP
         stashed_resptr_props: all resptr props that have been stashed
+        context: the JSON-LD context of the resource
 
     Returns:
         nonapplied_resptr_props: the resptr props that could not be uploaded
@@ -41,15 +42,9 @@ def upload_stashed_resptr_props(
             # which will be handled by the caller
             continue
         res_iri = id2iri_mapping[res_id]
-        try:
-            existing_resource = try_network_action(con.get, route=f"/v2/resources/{quote_plus(res_iri)}")
-        except BaseError as err:
-            _log_if_unable_to_retrieve_resource(err, res_id)
-            continue
         if verbose:
             print(f'  Upload resptrs of resource "{res_id}"...')
         logger.debug(f'  Upload resptrs of resource "{res_id}"...')
-        context: dict[str, str] = existing_resource["@context"]
         for stash_item in stash_items:
             target_iri = id2iri_mapping.get(stash_item.target_id)
             if not target_iri:
@@ -93,19 +88,6 @@ def _upload_stash_item(
 def _log_unable_to_upload_link_value(msg: str, res_id: str, prop_name: str) -> None:
     err_msg = f"Unable to upload the resptr prop of '{prop_name}' of resource '{res_id}'."
     print(f"    WARNING: {err_msg} Original error message: {msg}")
-    logger.warning(err_msg, exc_info=True)
-
-
-def _log_if_unable_to_retrieve_resource(
-    err: BaseError,
-    resource_id: str,
-) -> None:
-    orig_err_msg = err.orig_err_msg_from_api or err.message
-    err_msg = (
-        f"Unable to upload resptrs of resource '{resource_id}', "
-        "because the resource cannot be retrieved from the DSP server."
-    )
-    print(f"  WARNING: {err_msg} Original error message: {orig_err_msg}")
     logger.warning(err_msg, exc_info=True)
 
 

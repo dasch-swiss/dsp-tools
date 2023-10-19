@@ -71,7 +71,7 @@ def xmlupload(
         preprocessing_done=config.preprocessing_done,
     )
 
-    config = config.with_specific_save_location(
+    config = config.with_server_info(
         server=server,
         shortcode=shortcode,
         onto_name=default_ontology,
@@ -152,7 +152,17 @@ def _upload(
             con=con,
             preprocessing_done=config.preprocessing_done,
         )
-        nonapplied_stash = _upload_stash(stash, id2iri_mapping, con, config.verbose) if stash else None
+        nonapplied_stash = (
+            _upload_stash(
+                stash=stash,
+                id2iri_mapping=id2iri_mapping,
+                con=con,
+                context=config.json_ld_context,
+                verbose=config.verbose,
+            )
+            if stash
+            else None
+        )
         if nonapplied_stash:
             msg = "Some stashed resptrs or XML texts could not be reapplied to their resources on the DSP server."
             logger.error(msg)
@@ -201,6 +211,7 @@ def _upload_stash(
     stash: Stash,
     id2iri_mapping: dict[str, str],
     con: Connection,
+    context: dict[str, str],
     verbose: bool,
 ) -> Stash | None:
     if stash.standoff_stash:
@@ -218,6 +229,7 @@ def _upload_stash(
             id2iri_mapping=id2iri_mapping,
             con=con,
             stashed_resptr_props=stash.link_value_stash,
+            context=context,
         )
     else:
         nonapplied_resptr_props = None

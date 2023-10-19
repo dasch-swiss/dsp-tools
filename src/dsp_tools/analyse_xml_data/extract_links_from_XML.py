@@ -9,7 +9,7 @@ from viztracer import VizTracer
 from dsp_tools.analyse_xml_data.models import ResourceStashInfo, ResptrLink, XMLLink
 
 
-def create_info_from_xml_for_graph(
+def _create_info_from_xml_for_graph(
     root: etree._Element,
 ) -> tuple[etree._Element, list[ResptrLink], list[XMLLink], list[str]]:
     """Create instances of the classes ResptrLink and XMLLink from the root of the XML file."""
@@ -79,10 +79,10 @@ def _extract_ids_from_one_text_value(text: etree._Element) -> set[str]:
     return all_links
 
 
-def make_graph(
+def _make_graph(
     resptr_instances: list[ResptrLink], xml_instances: list[XMLLink], all_resource_ids: list[str]
-) -> tuple[  # type: ignore[type-arg]  # pylint: disable=no-member
-    rx.PyDiGraph,
+) -> tuple[  # type: ignore[type-arg]
+    rx.PyDiGraph,  # pylint: disable=no-member
     dict[int, str],
     list[tuple[int, int, ResptrLink | XMLLink]],
     set[int],
@@ -254,16 +254,15 @@ def analyse_circles_in_data(
         minimize_memory=True,
         max_stack_depth=3,
     )
-    # TODO: change the way the stash looks like
     tracer.start()
     tree = etree.parse(xml_filepath)
     root = tree.getroot()
-    root, resptr_instances, xml_instances, all_resource_ids = create_info_from_xml_for_graph(root)
+    root, resptr_instances, xml_instances, all_resource_ids = _create_info_from_xml_for_graph(root)
     print(f"Total Number of Resources: {len(all_resource_ids)}")
     print(f"Total Number of resptr Links: {len(resptr_instances)}")
     print(f"Total Number of XML Texts with Links: {len(xml_instances)}")
     print("=" * 80)
-    g, node_index_lookup, edges, node_indices = make_graph(resptr_instances, xml_instances, all_resource_ids)
+    g, node_index_lookup, edges, node_indices = _make_graph(resptr_instances, xml_instances, all_resource_ids)
     print("=" * 80)
     resource_upload_order, stash_size = _generate_upload_order(g, node_index_lookup, edges, node_indices)
     print("Stash Size:", stash_size)

@@ -7,6 +7,7 @@ from pytest_unordered import unordered
 from dsp_tools.analyse_xml_data.extract_links_from_XML import (
     _create_class_instance_resptr_link,
     _create_class_instance_text_prop,
+    _create_info_from_xml_for_graph,
     _create_info_from_xml_for_graph_from_one_resource,
     _extract_ids_from_one_text_value,
     _get_all_links_from_one_resource,
@@ -127,6 +128,29 @@ def test_create_class_instance_resptr_link_several() -> None:
     assert res[0].object_id == "res_A_13"
     assert res[1].object_id == "res_B_13"
     assert res[2].object_id == "res_C_13"
+
+
+def test_create_info_from_xml_for_graph_check_UUID_in_root() -> None:
+    root = etree.fromstring(
+        b'<?xml version="1.0" encoding="UTF-8"?><knora xmlns="https://dasch.swiss/schema" '
+        b'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://dasch.swiss/schema '
+        b'https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/data.xsd" '
+        b'shortcode="0700" default-ontology="simcir"><resource label="res_A_11" restype=":TestThing" id="res_A_11" '
+        b'permissions="res-default"><resptr-prop name=":hasResource1"><resptr '
+        b'permissions="prop-default">res_B_11</resptr></resptr-prop></resource><resource label="res_B_11" '
+        b'restype=":TestThing" id="res_B_11" permissions="res-default"><text-prop name=":hasRichtext"><text '
+        b'permissions="prop-default" encoding="xml">Start text<a class="salsah-link" '
+        b'href="IRI:res_C_11:IRI">res_C_11</a>end text.</text></text-prop></resource><resource label="res_C_11" '
+        b'restype=":TestThing" id="res_C_11" permissions="res-default"></resource></knora>'
+    )
+    res_root, res_resptr_li, res_xml_li, res_all_ids = _create_info_from_xml_for_graph(root)
+    res_resptr = res_resptr_li[0]
+    res_xml = res_xml_li[0]
+    assert unordered(res_all_ids) == ["res_A_11", "res_B_11", "res_C_11"]
+    xml_res_resptr = res_root.find(".//{https://dasch.swiss/schema}resptr")
+    assert xml_res_resptr.attrib["stashUUID"] == res_resptr.link_uuid  # type: ignore[union-attr]
+    xml_res_text = res_root.find(".//{https://dasch.swiss/schema}text")
+    assert xml_res_text.attrib["stashUUID"] == res_xml.link_uuid  # type: ignore[union-attr]
 
 
 if __name__ == "__main__":

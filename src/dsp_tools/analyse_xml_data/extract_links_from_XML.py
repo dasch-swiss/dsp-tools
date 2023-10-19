@@ -51,6 +51,7 @@ def _create_class_instance_resptr_link(subject_id: str, resptr_prop: etree._Elem
     for resptr in resptr_prop.getchildren():
         if r_text := resptr.text:
             instance = ResptrLink(subject_id, r_text)
+            # this UUID is so that the links that were stashed can be identified in the XML data file
             resptr.attrib["stashUUID"] = instance.link_uuid
             resptr_links.append(instance)
     return resptr_links
@@ -64,6 +65,7 @@ def _create_class_instance_text_prop(subject_id: str, text_prop: etree._Element)
         if links:
             xml_link = XMLLink(subject_id, links)
             xml_props.append(xml_link)
+            # this UUID is so that the links that were stashed can be identified in the XML data file
             text.attrib["stashUUID"] = xml_link.link_uuid
     return xml_props
 
@@ -119,6 +121,20 @@ def _remove_leaf_nodes(
     node_index_lookup: dict[int, str],
     node_indices: set[int],
 ) -> tuple[list[ResourceStashInfo], set[int]]:
+    """
+    Leaf nodes are nodes that do not have any outgoing links.
+    This means that they have no dependencies and are ok to upload.
+    This function removes them from the graph and the set with remaining nodes in the graph.
+
+    Args:
+        g: graph
+        node_index_lookup: the dictionary so that we can find our IDs with the nodes index number from rx
+        node_indices: The set with the remaining node indices in the graph
+
+    Returns:
+        A list with the ids of the removed leaf nodes
+        The set with the remaining nodes minus the leaf nodes
+    """
     res: list[ResourceStashInfo] = []
     while leaf_nodes := [x for x in node_indices if g.out_degree(x) == 0]:
         res.extend(ResourceStashInfo(node_index_lookup[n]) for n in leaf_nodes)
@@ -132,6 +148,19 @@ def _find_cheapest_outgoing_links(
     cycle: list[tuple[int, int]],
     edge_list: list[tuple[int, int, XMLLink | ResptrLink]],
 ) -> list[tuple[int, int, XMLLink | ResptrLink]]:
+    """
+    This function searches for the nodes whose outgoing links should be removed in order to break the cycle.
+    It calculates which links between the resources create the smallest stash.
+
+    Args:
+        g: graph
+        cycle: the list with (source, target) for each edge in the cycle
+        edge_list: list of all the edges that were in the original graph
+
+    Returns:
+        A list with the links that should be stashed.
+        It contains all the edges connecting the two nodes.
+    """
     costs = []
     for source, target in cycle:
         edges_in = g.in_edges(source)
@@ -152,9 +181,24 @@ def _remove_edges_get_removed_class_instances(
     edge_list: list[tuple[int, int, XMLLink | ResptrLink]],
     remaining_nodes: set[int],
 ) -> ResourceStashInfo:
+    """
+    This function removes the edges from the graph in order to break a cycle.
+    It returns the information that enables us to identify the links in the real data.
+
+    Args:
+        g: graph
+        edges_to_remove: list of all the edges that should be removed
+        node_index_lookup: lookup to identify our IDs according to rx node indices
+        edge_list: list of all the edges in the original graph
+        remaining_nodes: set with the indexes of the nodes in the graph
+
+    Returns:
+
+    """
     source, target = edges_to_remove[0][0], edges_to_remove[0][1]
     links_to_stash = [x[2] for x in edges_to_remove]
     # if only one (source, target) is entered, it removes only one edge, not all
+    # therefore we need as many entries in the list as there are edges between the source and target to break the cycle
     to_remove_list = [(x[0], x[1]) for x in edges_to_remove]
     phantom_links = []
     for instance in links_to_stash:
@@ -172,7 +216,28 @@ def _find_remove_phantom_xml_edges(
     xml_instance: XMLLink,
     remaining_nodes: set[int],
 ) -> list[tuple[int, int]]:
+    """
+    If an edge that will be removed represents an XML link
+    the link may contain further links to other resources.
+    If we stash the XMLLink then in the real data all the links are stashed.
+    This is not automatically the case in the rx graph.
+    We identify all the edges that need to be removed so that the rx graph represents the links that remain
+    in the real data.
+
+    Args:
+        source: index of source node
+        target: index of target node
+        edge_list: list of all the edges in the original graph
+        xml_instance: class instance that will be stashed
+        remaining_nodes: indexes of all the nodes in the graph
+
+    Returns:
+        list with edges that represent the links in the original XML text
+    """
+
     def check(x: tuple[int, int, XMLLink | ResptrLink]) -> bool:
+        # if we do not check if the target is in the remaining_nodes (maybe removed because of leaf node)
+        # we would get an NoEdgeBetweenNodes error
         return x[0] == source and x[1] != target and x[2] == xml_instance and x[1] in remaining_nodes
 
     return [(x[0], x[1]) for x in edge_list if check(x)]

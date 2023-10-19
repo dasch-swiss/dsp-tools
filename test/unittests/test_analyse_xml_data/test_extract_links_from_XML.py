@@ -12,16 +12,24 @@ from dsp_tools.analyse_xml_data.extract_links_from_XML import (
     _extract_ids_from_one_text_value,
     _get_all_links_from_one_resource,
 )
+from dsp_tools.analyse_xml_data.models import ResptrLink, XMLLink
 
 
 def test_create_info_from_xml_for_graph_from_one_resource() -> None:
     test_ele = etree.fromstring(
-        '<resource xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
-        'label="res_A_19" restype=":TestThing" id="res_A_19" permissions="res-default"><resptr-prop '
-        'name=":hasResource1"><resptr permissions="prop-default">res_B_19</resptr><resptr '
-        'permissions="prop-default">res_C_19</resptr></resptr-prop><text-prop name=":hasRichtext"><text '
-        'permissions="prop-default" encoding="xml"><a class="salsah-link" href="IRI:res_B_19:IRI">res_B_19</a><a '
-        'class="salsah-link" href="IRI:res_C_19:IRI">res_C_19</a></text></text-prop></resource>'
+        """<resource xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+        label="res_A_19" restype=":TestThing" id="res_A_19" permissions="res-default">
+            <resptr-prop name=":hasResource1">
+                <resptr permissions="prop-default">res_B_19</resptr>
+                <resptr permissions="prop-default">res_C_19</resptr>
+            </resptr-prop>
+            <text-prop name=":hasRichtext">
+                <text permissions="prop-default" encoding="xml">
+                    <a class="salsah-link" href="IRI:res_B_19:IRI">res_B_19</a>
+                    <a class="salsah-link" href="IRI:res_C_19:IRI">res_C_19</a>
+                </text>
+            </text-prop>
+        </resource>"""
     )
     res_resptr_links, res_xml_links, res_all_used_ids = _create_info_from_xml_for_graph_from_one_resource(test_ele)
     res_B_19 = [obj.object_id for obj in res_resptr_links]
@@ -42,8 +50,9 @@ def test_get_all_links_from_one_resource() -> None:
     )
     res_resptr, res_xml = _get_all_links_from_one_resource("res_A_11", test_ele)
     assert res_resptr[0].object_id == "res_B_11"
-    res_xml_ids = res_xml[0]
-    assert res_xml_ids.object_link_ids == {"res_B_11"}
+    assert isinstance(res_resptr[0], ResptrLink)
+    assert res_xml[0].object_link_ids == {"res_B_11"}
+    assert isinstance(res_xml[0], XMLLink)
 
 
 def test_get_all_links_from_one_resource_no_links() -> None:
@@ -125,6 +134,7 @@ def test_create_class_instance_resptr_link_several() -> None:
         'permissions="prop-default">res_B_13</resptr><resptr permissions="prop-default">res_C_13</resptr></resptr-prop>'
     )
     res = _create_resptr_link_objects("res_D_13", test_ele)
+    assert all(isinstance(x, ResptrLink) for x in res)
     assert res[0].object_id == "res_A_13"
     assert res[1].object_id == "res_B_13"
     assert res[2].object_id == "res_C_13"
@@ -145,7 +155,9 @@ def test_create_info_from_xml_for_graph_check_UUID_in_root() -> None:
     )
     res_root, res_resptr_li, res_xml_li, res_all_ids = _create_info_from_xml_for_graph(root)
     res_resptr = res_resptr_li[0]
+    assert isinstance(res_resptr, ResptrLink)
     res_xml = res_xml_li[0]
+    assert isinstance(res_xml, XMLLink)
     assert unordered(res_all_ids) == ["res_A_11", "res_B_11", "res_C_11"]
     xml_res_resptr = res_root.find(".//{https://dasch.swiss/schema}resptr")
     assert xml_res_resptr.attrib["stashUUID"] == res_resptr.link_uuid  # type: ignore[union-attr]

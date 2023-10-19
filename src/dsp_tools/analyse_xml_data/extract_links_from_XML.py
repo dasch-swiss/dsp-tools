@@ -11,7 +11,7 @@ from dsp_tools.analyse_xml_data.models import ResptrLink, XMLLink
 
 def _create_info_from_xml_for_graph(
     root: etree._Element,
-) -> tuple[etree._Element, list[ResptrLink], list[XMLLink], list[str]]:
+) -> tuple[list[ResptrLink], list[XMLLink], list[str]]:
     """
     Create instances of the classes ResptrLink and XMLLink from the root of the XML file.
     It adds a reference UUID with which the class instances that represent the links can be linked to the actual
@@ -21,10 +21,9 @@ def _create_info_from_xml_for_graph(
         root: root of the parsed XML file
 
     Returns:
-        root with UUID added
-        a list of all the resptr links represented in a class
-        a list of all the rich-text links represented in a class
-        a list with all the resource IDs used in the file.
+        a list of all the resptr links represented in a class instance
+        a list of all the rich-text links represented in a class instance
+        a list with all the resource IDs used in the file
     """
     resptr_instances = []
     xml_instances = []
@@ -34,7 +33,7 @@ def _create_info_from_xml_for_graph(
         all_resource_ids.append(subject_id)
         resptr_instances.extend(resptr)
         xml_instances.extend(xml)
-    return root, resptr_instances, xml_instances, all_resource_ids
+    return resptr_instances, xml_instances, all_resource_ids
 
 
 def _create_info_from_xml_for_graph_from_one_resource(
@@ -331,7 +330,7 @@ def analyse_circles_in_data(xml_filepath: Path, tracer_output_file: str, save_tr
     tracer.start()
     tree = etree.parse(xml_filepath)
     root = tree.getroot()
-    root, resptr_instances, xml_instances, all_resource_ids = _create_info_from_xml_for_graph(root)
+    resptr_instances, xml_instances, all_resource_ids = _create_info_from_xml_for_graph(root)
     print(f"Total Number of Resources: {len(all_resource_ids)}")
     print(f"Total Number of resptr Links: {len(resptr_instances)}")
     print(f"Total Number of XML Texts with Links: {len(xml_instances)}")

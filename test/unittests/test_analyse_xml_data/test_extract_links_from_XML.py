@@ -184,15 +184,15 @@ def test_create_info_from_xml_for_graph_check_UUID_in_root() -> None:
         b'href="IRI:res_C_11:IRI">res_C_11</a>end text.</text></text-prop></resource><resource label="res_C_11" '
         b'restype=":TestThing" id="res_C_11" permissions="res-default"></resource></knora>'
     )
-    res_root, res_resptr_li, res_xml_li, res_all_ids = _create_info_from_xml_for_graph(root)
+    res_resptr_li, res_xml_li, res_all_ids = _create_info_from_xml_for_graph(root)
     res_resptr = res_resptr_li[0]
     assert isinstance(res_resptr, ResptrLink)
     res_xml = res_xml_li[0]
     assert isinstance(res_xml, XMLLink)
     assert unordered(res_all_ids) == ["res_A_11", "res_B_11", "res_C_11"]
-    xml_res_resptr = res_root.find(".//{https://dasch.swiss/schema}resptr")
+    xml_res_resptr = root.find(".//{https://dasch.swiss/schema}resptr")
     assert xml_res_resptr.attrib["stashUUID"] == res_resptr.link_uuid  # type: ignore[union-attr]
-    xml_res_text = res_root.find(".//{https://dasch.swiss/schema}text")
+    xml_res_text = root.find(".//{https://dasch.swiss/schema}text")
     assert xml_res_text.attrib["stashUUID"] == res_xml.link_uuid  # type: ignore[union-attr]
 
 

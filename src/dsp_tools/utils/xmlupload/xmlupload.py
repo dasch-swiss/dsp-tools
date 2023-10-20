@@ -339,7 +339,7 @@ def _upload_resources(
         preprocessing_done: if set, all multimedia files referenced in the XML file must already be on the server
 
     Returns:
-        id2iri_mapping, failed_uploads, metrics
+        id2iri_mapping, failed_uploads
     """
     id2iri_mapping: dict[str, str] = {}
     failed_uploads: list[str] = []

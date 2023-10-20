@@ -57,7 +57,6 @@ testdata/tmp/
 cwd/
 testdata/test-list.json
 *_replaced_*.xml
-metrics/
 tmp/
 /out/
 testdata/preprocessed_files/

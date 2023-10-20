@@ -1,5 +1,41 @@
 # Changelog
 
+## [5.0.3](https://github.com/dasch-swiss/dsp-tools/compare/v5.0.2...v5.0.3) (2023-10-20)
+
+
+### Bug Fixes
+
+* **xmlupload:** misleading warning when uploading stashed XML texts (DEV-2793) ([#559](https://github.com/dasch-swiss/dsp-tools/issues/559)) ([1e2c8f2](https://github.com/dasch-swiss/dsp-tools/commit/1e2c8f265ad1942d170ad43fb9c344361848a7f0))
+
+
+### Maintenance
+
+* bump dependencies ([#578](https://github.com/dasch-swiss/dsp-tools/issues/578)) ([6d9f082](https://github.com/dasch-swiss/dsp-tools/commit/6d9f082d281da529720fc6473e8b7c317915fe6f))
+* bump start-stack to 2023.10.02 ([#584](https://github.com/dasch-swiss/dsp-tools/issues/584)) ([37ca185](https://github.com/dasch-swiss/dsp-tools/commit/37ca185b1e2c3943d9586c75466d8da402e324de))
+* bump start-stack to 2023.10.02 (DEV-2823) ([#571](https://github.com/dasch-swiss/dsp-tools/issues/571)) ([863c631](https://github.com/dasch-swiss/dsp-tools/commit/863c63179f804eecedc1d3dba8c7b90c6ce4db8f))
+* **CI:** split up test action into several jobs ([#553](https://github.com/dasch-swiss/dsp-tools/issues/553)) ([cfb5042](https://github.com/dasch-swiss/dsp-tools/commit/cfb5042ef0a4e96045ac5ce5c8b63542b876732c))
+* clarify isort and pre-commit in readme (DEV-2781) ([#549](https://github.com/dasch-swiss/dsp-tools/issues/549)) ([e58fec1](https://github.com/dasch-swiss/dsp-tools/commit/e58fec136b0c63ea084cfca386ed01c7337f280c))
+* create composite setup action and allow more PR titles ([#550](https://github.com/dasch-swiss/dsp-tools/issues/550)) ([2084999](https://github.com/dasch-swiss/dsp-tools/commit/2084999c68a4d230cbd09fcac303715f165aebba))
+* create JSON-LD context without API request (DEV-2845) ([#581](https://github.com/dasch-swiss/dsp-tools/issues/581)) ([dcc655d](https://github.com/dasch-swiss/dsp-tools/commit/dcc655df92033449e415f077c98b5f20f6e2230c))
+* create specific objects for stash information (DEV-2787) ([#557](https://github.com/dasch-swiss/dsp-tools/issues/557)) ([b38c2d3](https://github.com/dasch-swiss/dsp-tools/commit/b38c2d3320b699b8372d488a58149a90a62bde11))
+* **deps:** bump urllib3 from 2.0.6 to 2.0.7 ([#575](https://github.com/dasch-swiss/dsp-tools/issues/575)) ([a41b174](https://github.com/dasch-swiss/dsp-tools/commit/a41b174fac879058c4af4715f551f645cf4384bb))
+* identify temporary text values with UUID instead of text hash (DEV-2790) ([#558](https://github.com/dasch-swiss/dsp-tools/issues/558)) ([08624b2](https://github.com/dasch-swiss/dsp-tools/commit/08624b2bdf0acd4f1cd2f126e2f5511f4b633d15))
+* integrate DSP-INGEST in start-stack ([#566](https://github.com/dasch-swiss/dsp-tools/issues/566)) ([e8fb38b](https://github.com/dasch-swiss/dsp-tools/commit/e8fb38bc50284317d6561aef35212aec923f1368))
+* introduce abstraction layer for connection (DEV-2820) ([#570](https://github.com/dasch-swiss/dsp-tools/issues/570)) ([87c1e18](https://github.com/dasch-swiss/dsp-tools/commit/87c1e18a9a9e838dc21aaa5ed0d91af5cbcb33df))
+* modularize xmlupload (DEV-2813) ([#568](https://github.com/dasch-swiss/dsp-tools/issues/568)) ([8026fcb](https://github.com/dasch-swiss/dsp-tools/commit/8026fcbe7b28335beb562564c30e4e7184d8678f))
+* modularize xmlupload method (DEV-2836) ([#574](https://github.com/dasch-swiss/dsp-tools/issues/574)) ([b9588c3](https://github.com/dasch-swiss/dsp-tools/commit/b9588c3436514cc2490c7cfde4ee06f83b64f9b4))
+* remove leftovers of old --metrics flag ([#583](https://github.com/dasch-swiss/dsp-tools/issues/583)) ([3234318](https://github.com/dasch-swiss/dsp-tools/commit/3234318869780cb385e4d14a9eb71306ab7c7cb2))
+* remove use of XMLResource in stash models (DEV-2843) ([#577](https://github.com/dasch-swiss/dsp-tools/issues/577)) ([05dc486](https://github.com/dasch-swiss/dsp-tools/commit/05dc48695039c4f460c4a236efde9ed5c87905a1))
+* **start-stack:** downgrade DSP-APP ([#576](https://github.com/dasch-swiss/dsp-tools/issues/576)) ([8c109e4](https://github.com/dasch-swiss/dsp-tools/commit/8c109e4a65b7bb85c8b1c692c5d6bac5e024b109))
+* use sets instead of lists for stashing circular references (DEV-2771) ([#548](https://github.com/dasch-swiss/dsp-tools/issues/548)) ([68605bd](https://github.com/dasch-swiss/dsp-tools/commit/68605bd8859e73732c41742f15ab620ad73efa7b))
+* **xmlupload:** optimize stash links (DEV-2847) ([#573](https://github.com/dasch-swiss/dsp-tools/issues/573)) ([1d20fad](https://github.com/dasch-swiss/dsp-tools/commit/1d20fad9acbe918c46656e99c5309633a64359a3))
+* **xmlupload:** split up get resources and permissions function (DEV-2796) ([#560](https://github.com/dasch-swiss/dsp-tools/issues/560)) ([02eff6b](https://github.com/dasch-swiss/dsp-tools/commit/02eff6bf69378e587ddb497635b77bd9a58cc64e))
+
+
+### Documentation
+
+* **xmlupload:** day-precision dates should be written with end date (DEV-2802) ([#564](https://github.com/dasch-swiss/dsp-tools/issues/564)) ([c69af60](https://github.com/dasch-swiss/dsp-tools/commit/c69af6007c4f5edfe184ae544b4c2c39ff63f8d3))
+
 ## [5.0.2](https://github.com/dasch-swiss/dsp-tools/compare/v5.0.1...v5.0.2) (2023-10-05)
 
 

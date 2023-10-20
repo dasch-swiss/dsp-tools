@@ -167,21 +167,22 @@ def _find_cheapest_outgoing_links(
         A list with the links that should be stashed.
         It contains all the edges connecting the two nodes.
     """
-    costs = []
-    for source, target in cycle:
-        edges_in = g.in_edges(source)
-        node_gain = len(edges_in)
-        edges_out = g.out_edges(source)
-        node_cost = sum(x[2].cost_links for x in edges_out)
-        node_value = node_cost / node_gain
-        costs.append((source, target, node_value, edges_out))
-    cheapest_nodes = sorted(costs, key=lambda x: x[2])[0]
-    cheapest_links = [x for x in edge_list if x[0] == cheapest_nodes[0] and x[1] == cheapest_nodes[1]]
+    cycle_nodes = [x[0] for x in cycle]
+
+    def get_all_links_in_cycle(source: int) -> tuple[int, list[tuple[int, int, XMLLink | ResptrLink]]]:
+        out_links_in_cycle = []
+        for node in cycle_nodes:
+            out_links_in_cycle.extend([x for x in edge_list if x[0] == source and x[1] == node])
+        # TODO: value of XML change
+        return len(out_links_in_cycle), out_links_in_cycle
+
+    costs = [get_all_links_in_cycle(x) for x in cycle_nodes]
+    cheapest_links = sorted(costs, key=lambda x: x[0])[0][1]
     return cheapest_links
 
 
 def _remove_edges_to_stash(
-    g: rx.PyDiGraph,  # type: ignore[type-arg] ,
+    g: rx.PyDiGraph,  # type: ignore[type-arg]
     edges_to_remove: list[tuple[int, int, XMLLink | ResptrLink]],
     edge_list: list[tuple[int, int, XMLLink | ResptrLink]],
     remaining_nodes: set[int],

@@ -1,6 +1,8 @@
 # pylint: disable=missing-class-docstring,missing-function-docstring,protected-access,disable=no-member
 # mypy: disable-error-code="var-annotated,assignment,arg-type"
 
+from unittest.mock import patch
+
 import pytest
 import rustworkx as rx
 from lxml import etree
@@ -11,6 +13,7 @@ from dsp_tools.analyse_xml_data.construct_and_analyze_graph import (
     _create_resptr_link_objects,
     _create_text_link_objects,
     _extract_ids_from_one_text_value,
+    _find_cheapest_outgoing_links,
     _remove_leaf_nodes,
     create_info_from_xml_for_graph,
     make_graph,
@@ -219,8 +222,8 @@ def test_make_graph() -> None:
 
 
 def test_remove_leaf_nodes() -> None:
-    nodes = ["a", "b", "c", "d", "e", "f"]
     g = rx.PyDiGraph()
+    nodes = ["a", "b", "c", "d", "e", "f"]
     node_idx = g.add_nodes_from(nodes)
     node_idx_lookup = dict(zip(node_idx, nodes))
     node_idx = set(node_idx)
@@ -246,6 +249,44 @@ def test_remove_leaf_nodes() -> None:
     assert remaining_node_idx == {0, 1, 3}
     assert unordered(g.nodes()) == ["a", "b", "d"]
     assert unordered(g.edges()) == ["ab", "bd", "da"]
+
+
+def test_find_cheapest_outgoing_links_only_resptr() -> None:
+    g = rx.PyDiGraph()
+    nodes = [
+        #      in / out
+        "a",  # 4 / 2
+        "b",  # 3 / 2
+        "c",  # 2 / 5
+        "d",
+        "e",
+        "f",
+    ]
+    ab1_resptr = ResptrLink("a", "b")
+    ab2_resptr = ResptrLink("a", "b")
+    with patch("dsp_tools.analyse_xml_data.models.ResptrLink.cost_links", 1):
+        edges = [
+            (0, 1, ab1_resptr),
+            (0, 1, ab2_resptr),
+            (1, 2, ResptrLink),
+            (1, 2, ResptrLink),
+            (2, 0, ResptrLink),
+            (2, 0, ResptrLink),
+            (2, 1, ResptrLink),
+            (2, 3, ResptrLink),
+            (2, 4, ResptrLink),
+            (3, 4, ResptrLink),
+            (3, 5, ResptrLink),
+            (4, 5, ResptrLink),
+            (5, 0, ResptrLink),
+            (5, 0, ResptrLink),
+        ]
+        circle = [(0, 1), (1, 2), (2, 0)]
+        g.add_nodes_from(nodes)
+        g.add_edges_from(edges)
+        cheapest_links = _find_cheapest_outgoing_links(g, circle, edges)
+        expected = [(0, 1, ab1_resptr), (0, 1, ab2_resptr)]
+        assert unordered(cheapest_links) == expected
 
 
 if __name__ == "__main__":

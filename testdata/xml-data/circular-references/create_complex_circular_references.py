@@ -7,7 +7,7 @@ from dsp_tools import excel2xml
 
 
 def create_and_save_circular_references_test_graph(replication_counter: int = 1, save_location: str = "") -> None:
-    """
+    """foo
     This function creates a graph with circular references.
     By default, it saves it in the current directory; this can be changed with the parameter save_location.
 

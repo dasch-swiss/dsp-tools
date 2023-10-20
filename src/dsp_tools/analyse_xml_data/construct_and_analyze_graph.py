@@ -1,10 +1,6 @@
-from datetime import datetime
-from pathlib import Path
-
 import regex
 import rustworkx as rx
 from lxml import etree
-from viztracer import VizTracer
 
 from dsp_tools.analyse_xml_data.models import ResptrLink, XMLLink
 
@@ -99,8 +95,11 @@ def make_graph(
     From that it constructs a rustworkx directed graph.
 
     Args:
-        resptr_links: Instances of resptr links
-        xml_links: Instances of links to texts containing links to other resources
+        resptr_links: A list of objects representing a direct link (resptr)
+                      between a starting resource and a target resource
+        xml_links: A list of objects representing one or more links from a single starting resource
+                   to a set of target resources, where all target resources are linked to
+                   from a single text value on the starting resource.
         all_resource_ids: IDs of all the resources in the graph
 
     Returns:

@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 @dataclass(frozen=True)
 class ResptrLink:
     """
-    This class represents a link between two resources.
+    This class represents a direct link (resptr) between a starting resource and a target resource.
 
     Args:
         subject_id: resource ID that is in subject position of the triple
@@ -28,7 +28,8 @@ class ResptrLink:
 @dataclass(frozen=True)
 class XMLLink:
     """
-    This class represents a link between a resource and an XML text, which contains links to other resources.
+    This class represents one or more links from a single starting resource to a set of target resources,
+    where all target resources are linked to from a single text value on the starting resource.
 
     Args:
         subject_id: resource ID that is in subject position of the triple

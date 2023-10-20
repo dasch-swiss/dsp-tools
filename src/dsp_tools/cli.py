@@ -118,7 +118,6 @@ def _make_parser(
         "-V", "--validate-only", action="store_true", help="validate the XML file without uploading it"
     )
     parser_upload.add_argument("-v", "--verbose", action="store_true", help=verbose_text)
-    parser_upload.add_argument("-m", "--metrics", action="store_true", help="write metrics into a 'metrics' folder")
     parser_upload.add_argument(
         "-d", "--dump", action="store_true", help="write every request to DSP-API/SIPI into a file"
     )

@@ -66,7 +66,7 @@ jobs:
       - name: Linting with Pylint
         run: poetry run pylint src test
       - name: Linting with mypy
-        run: poetry run mypy .
+        run: poetry run mypy -v .
       - name: Linting with black
         run: poetry run black --check .
       - name: Linting with isort

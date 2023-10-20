@@ -1,6 +1,7 @@
 # pylint: disable=missing-class-docstring,missing-function-docstring,protected-access
 
 import pytest
+import rustworkx as rx
 from lxml import etree
 from pytest_unordered import unordered
 
@@ -9,6 +10,7 @@ from dsp_tools.analyse_xml_data.construct_and_analyze_graph import (
     _create_resptr_link_objects,
     _create_text_link_objects,
     _extract_ids_from_one_text_value,
+    _remove_leaf_nodes,
     create_info_from_xml_for_graph,
     make_graph,
 )
@@ -213,6 +215,30 @@ def test_make_graph() -> None:
     assert node_index_lookup[2] == "c"
     assert unordered(edges) == [(0, 1, resptr), (0, 1, xml), (0, 2, xml)]
     assert node_indices == {0, 1, 2}
+
+
+def test_remove_leaf_nodes() -> None:
+    nodes = ["a", "b", "c", "d", "e", "f"]
+    g = rx.PyDiGraph()
+    node_idx = g.add_nodes_from(nodes)
+    node_idx_lookup = dict(zip(node_idx, nodes))
+    node_idx = set(node_idx)
+    g.add_edges_from(
+        [
+            (0, 1, "ab"),
+            (0, 4, "ae"),
+            (0, 3, "ac"),
+            (1, 2, "bc"),
+            (1, 3, "bd"),
+            (2, 4, "ce"),  # c is a second degree leaf
+            (3, 1, "da"),
+            (3, 4, "de"),  # e is a leaf
+        ]
+    )  # f has no edges
+
+    removed_leaf_id, remaining_node_idx = _remove_leaf_nodes(g, node_idx_lookup, node_idx)
+    assert unordered(removed_leaf_id) == ["c", "e", "f"]
+    assert remaining_node_idx == {0, 1, 3}
 
 
 if __name__ == "__main__":

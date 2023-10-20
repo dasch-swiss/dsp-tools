@@ -1,4 +1,5 @@
 # pylint: disable=missing-class-docstring,missing-function-docstring,protected-access,disable=no-member
+# mypy: disable-error-code="var-annotated,assignment,arg-type"
 
 import pytest
 import rustworkx as rx
@@ -225,17 +226,20 @@ def test_remove_leaf_nodes() -> None:
     node_idx = set(node_idx)
     g.add_edges_from(
         [
-            (0, 1, "ab"),  # remains
+            (0, 1, "ab"),
             (0, 4, "ae"),
             (0, 2, "ac"),
             (1, 2, "bc"),
-            (1, 3, "bd"),  # remains
-            (2, 4, "ce"),  # c is a second degree leaf
-            (3, 1, "da"),  # remains
+            (1, 3, "bd"),
+            (2, 4, "ce"),
+            (3, 1, "da"),
             (3, 2, "dc"),
-            (3, 4, "de"),  # e is a leaf
+            (3, 4, "de"),
         ]
-    )  # f has no edges
+    )
+    # c is a second degree leaf
+    # e is a leaf
+    # f has no edges
 
     removed_leaf_id, remaining_node_idx = _remove_leaf_nodes(g, node_idx_lookup, node_idx)
     assert unordered(removed_leaf_id) == ["c", "e", "f"]

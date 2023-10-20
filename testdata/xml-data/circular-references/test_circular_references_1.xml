@@ -2,9 +2,7 @@
 <knora xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://dasch.swiss/schema https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/data.xsd" shortcode="0700" default-ontology="simcir">
     <resource label="res_A_11" restype=":TestThing" id="res_A_11" permissions="res-default">
         <text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_B_11:IRI">res_B_11</a>
-            </text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_B_11:IRI">res_B_11</a>end text.</text>
         </text-prop>
         <resptr-prop name=":hasResource1">
             <resptr permissions="prop-default">res_B_11</resptr>
@@ -12,9 +10,7 @@
     </resource>
     <resource label="res_B_11" restype=":TestThing" id="res_B_11" permissions="res-default">
         <text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_C_11:IRI">res_C_11</a>
-            </text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_C_11:IRI">res_C_11</a>end text.</text>
         </text-prop>
         <resptr-prop name=":hasResource1">
             <resptr permissions="prop-default">res_C_11</resptr>
@@ -22,9 +18,7 @@
     </resource>
     <resource label="res_C_11" restype=":TestThing" id="res_C_11" permissions="res-default">
         <text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_A_11:IRI">res_A_11</a>
-            </text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_A_11:IRI">res_A_11</a>end text.</text>
         </text-prop>
         <resptr-prop name=":hasResource1">
             <resptr permissions="prop-default">res_A_11</resptr>
@@ -32,23 +26,17 @@
     </resource>
     <resource label="res_A_12.1" restype=":TestThing" id="res_A_12.1" permissions="res-default">
         <text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_D_12.1:IRI">res_D_12.1</a>
-            </text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_D_12.1:IRI">res_D_12.1</a>end text.</text>
         </text-prop>
     </resource>
     <resource label="res_B_12.1" restype=":TestThing" id="res_B_12.1" permissions="res-default">
         <text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_D_12.1:IRI">res_D_12.1</a>
-            </text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_D_12.1:IRI">res_D_12.1</a>end text.</text>
         </text-prop>
     </resource>
     <resource label="res_C_12.1" restype=":TestThing" id="res_C_12.1" permissions="res-default">
         <text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_D_12.1:IRI">res_D_12.1</a>
-            </text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_D_12.1:IRI">res_D_12.1</a>end text.</text>
         </text-prop>
     </resource>
     <resource label="res_D_12.1" restype=":TestThing" id="res_D_12.1" permissions="res-default">
@@ -65,23 +53,17 @@
     </resource>
     <resource label="res_A_12.2" restype=":TestThing" id="res_A_12.2" permissions="res-default">
         <text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_D_12.2:IRI">res_D_12.2</a>
-            </text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_D_12.2:IRI">res_D_12.2</a>end text.</text>
         </text-prop>
     </resource>
     <resource label="res_B_12.2" restype=":TestThing" id="res_B_12.2" permissions="res-default">
         <text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_D_12.2:IRI">res_D_12.2</a>
-            </text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_D_12.2:IRI">res_D_12.2</a>end text.</text>
         </text-prop>
     </resource>
     <resource label="res_C_12.2" restype=":TestThing" id="res_C_12.2" permissions="res-default">
         <text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_D_12.2:IRI">res_D_12.2</a>
-            </text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_D_12.2:IRI">res_D_12.2</a>end text.</text>
         </text-prop>
     </resource>
     <resource label="res_D_12.2" restype=":TestThing" id="res_D_12.2" permissions="res-default">
@@ -110,23 +92,17 @@
     </resource>
     <resource label="res_A_13" restype=":TestThing" id="res_A_13" permissions="res-default">
         <text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_D_13:IRI">res_D_13</a>
-            </text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_D_13:IRI">res_D_13</a>end text.</text>
         </text-prop>
     </resource>
     <resource label="res_B_13" restype=":TestThing" id="res_B_13" permissions="res-default">
         <text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_D_13:IRI">res_D_13</a>
-            </text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_D_13:IRI">res_D_13</a>end text.</text>
         </text-prop>
     </resource>
     <resource label="res_C_13" restype=":TestThing" id="res_C_13" permissions="res-default">
         <text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_D_13:IRI">res_D_13</a>
-            </text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_D_13:IRI">res_D_13</a>end text.</text>
         </text-prop>
     </resource>
     <resource label="res_D_13" restype=":TestThing" id="res_D_13" permissions="res-default">
@@ -134,9 +110,7 @@
             <resptr permissions="prop-default">res_E_13</resptr>
         </resptr-prop>
         <text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_F_13:IRI">res_F_13</a>
-            </text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_F_13:IRI">res_F_13</a>end text.</text>
         </text-prop>
     </resource>
     <resource label="res_E_13" restype=":TestThing" id="res_E_13" permissions="res-default">
@@ -158,9 +132,7 @@
     </resource>
     <resource label="res_B_14.1" restype=":TestThing" id="res_B_14.1" permissions="res-default">
         <text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_A_14.1:IRI">res_A_14.1</a>
-            </text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_A_14.1:IRI">res_A_14.1</a>end text.</text>
         </text-prop>
     </resource>
     <resource label="res_A_14.2" restype=":TestThing" id="res_A_14.2" permissions="res-default">
@@ -173,9 +145,7 @@
     </resource>
     <resource label="res_B_14.2" restype=":TestThing" id="res_B_14.2" permissions="res-default">
         <text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_A_14.2:IRI">res_A_14.2</a>
-            </text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_A_14.2:IRI">res_A_14.2</a>end text.</text>
         </text-prop>
     </resource>
     <resource label="res_A_15" restype=":TestThing" id="res_A_15" permissions="res-default">
@@ -216,18 +186,12 @@
     </resource>
     <resource label="res_D_16" restype=":TestThing" id="res_D_16" permissions="res-default">
         <text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_E_16:IRI">res_E_16</a>
-            </text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_E_16:IRI">res_E_16</a>end text.</text>
         </text-prop>
     </resource>
     <resource label="res_E_16" restype=":TestThing" id="res_E_16" permissions="res-default">
         <text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_A_16:IRI">res_A_16</a>
-                <a class="salsah-link" href="IRI:res_B_16:IRI">res_B_16</a>
-                <a class="salsah-link" href="IRI:res_C_16:IRI">res_C_16</a>
-            </text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_A_16:IRI">res_A_16</a>blabla<a class="salsah-link" href="IRI:res_B_16:IRI">res_B_16</a>blabla<a class="salsah-link" href="IRI:res_C_16:IRI">res_C_16</a>end text.</text>
         </text-prop>
     </resource>
     <resource label="res_A_17" restype=":TestThing" id="res_A_17" permissions="res-default">
@@ -238,9 +202,7 @@
     </resource>
     <resource label="res_B_17" restype=":TestThing" id="res_B_17" permissions="res-default">
         <text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_A_17:IRI">res_A_17</a>
-            </text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_A_17:IRI">res_A_17</a>end text.</text>
         </text-prop>
     </resource>
     <resource label="res_C_17" restype=":TestThing" id="res_C_17" permissions="res-default"/>
@@ -253,12 +215,8 @@
     <resource label="res_B_18" restype=":TestThing" id="res_B_18" permissions="res-default"/>
     <resource label="res_C_18" restype=":TestThing" id="res_C_18" permissions="res-default">
         <text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_A_18:IRI">res_A_18</a>
-            </text>
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_B_18:IRI">res_B_18</a>
-            </text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_A_18:IRI">res_A_18</a>end text.</text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_B_18:IRI">res_B_18</a>end text.</text>
         </text-prop>
     </resource>
     <resource label="res_A_19" restype=":TestThing" id="res_A_19" permissions="res-default">
@@ -267,42 +225,29 @@
             <resptr permissions="prop-default">res_C_19</resptr>
         </resptr-prop>
         <text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_B_19:IRI">res_B_19</a>
-                <a class="salsah-link" href="IRI:res_C_19:IRI">res_C_19</a>
-            </text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_B_19:IRI">res_B_19</a>blabla<a class="salsah-link" href="IRI:res_C_19:IRI">res_C_19</a>end text.</text>
         </text-prop>
     </resource>
     <resource label="res_B_19" restype=":TestThing" id="res_B_19" permissions="res-default"/>
     <resource label="res_C_19" restype=":TestThing" id="res_C_19" permissions="res-default">
         <text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_A_19:IRI">res_A_19</a>
-            </text>
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_B_19:IRI">res_B_19</a>
-            </text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_A_19:IRI">res_A_19</a>end text.</text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_B_19:IRI">res_B_19</a>end text.</text>
         </text-prop>
     </resource>
     <resource label="res_A_110" restype=":TestThing" id="res_A_110" permissions="res-default">
         <text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_D_110:IRI">res_D_110</a>
-            </text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_D_110:IRI">res_D_110</a>end text.</text>
         </text-prop>
     </resource>
     <resource label="res_B_110" restype=":TestThing" id="res_B_110" permissions="res-default">
         <text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_D_110:IRI">res_D_110</a>
-            </text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_D_110:IRI">res_D_110</a>end text.</text>
         </text-prop>
     </resource>
     <resource label="res_C_110" restype=":TestThing" id="res_C_110" permissions="res-default">
         <text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_D_110:IRI">res_D_110</a>
-            </text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_D_110:IRI">res_D_110</a>end text.</text>
         </text-prop>
     </resource>
     <resource label="res_D_110" restype=":TestThing" id="res_D_110" permissions="res-default">
@@ -310,9 +255,7 @@
             <resptr permissions="prop-default">res_E_110</resptr>
         </resptr-prop>
         <text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_F_110:IRI">res_F_110</a>
-            </text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_F_110:IRI">res_F_110</a>end text.</text>
         </text-prop>
     </resource>
     <resource label="res_E_110" restype=":TestThing" id="res_E_110" permissions="res-default">
@@ -327,51 +270,21 @@
             <resptr permissions="prop-default">res_E_110</resptr>
         </resptr-prop>
         <text-prop name=":hasRichtext">
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_K_110:IRI">res_K_110</a>
-            </text>
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_L_110:IRI">res_L_110</a>
-            </text>
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_M_110:IRI">res_M_110</a>
-            </text>
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_N_110:IRI">res_N_110</a>
-            </text>
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_O_110:IRI">res_O_110</a>
-            </text>
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_P_110:IRI">res_P_110</a>
-            </text>
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_Q_110:IRI">res_Q_110</a>
-            </text>
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_R_110:IRI">res_R_110</a>
-            </text>
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_S_110:IRI">res_S_110</a>
-            </text>
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_T_110:IRI">res_T_110</a>
-            </text>
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_U_110:IRI">res_U_110</a>
-            </text>
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_V_110:IRI">res_V_110</a>
-            </text>
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_W_110:IRI">res_W_110</a>
-            </text>
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_X_110:IRI">res_X_110</a>
-            </text>
-            <text permissions="prop-default" encoding="xml">
-                <a class="salsah-link" href="IRI:res_Y_110:IRI">res_Y_110</a>
-            </text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_K_110:IRI">res_K_110</a>end text.</text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_L_110:IRI">res_L_110</a>end text.</text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_M_110:IRI">res_M_110</a>end text.</text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_N_110:IRI">res_N_110</a>end text.</text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_O_110:IRI">res_O_110</a>end text.</text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_P_110:IRI">res_P_110</a>end text.</text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_Q_110:IRI">res_Q_110</a>end text.</text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_R_110:IRI">res_R_110</a>end text.</text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_S_110:IRI">res_S_110</a>end text.</text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_T_110:IRI">res_T_110</a>end text.</text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_U_110:IRI">res_U_110</a>end text.</text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_V_110:IRI">res_V_110</a>end text.</text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_W_110:IRI">res_W_110</a>end text.</text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_X_110:IRI">res_X_110</a>end text.</text>
+            <text permissions="prop-default" encoding="xml">Start text<a class="salsah-link" href="IRI:res_Y_110:IRI">res_Y_110</a>end text.</text>
         </text-prop>
     </resource>
     <resource label="res_K_110" restype=":TestThing" id="res_K_110" permissions="res-default"/>

@@ -10,6 +10,7 @@ from dsp_tools.analyse_xml_data.construct_and_analyze_graph import (
     _create_text_link_objects,
     _extract_ids_from_one_text_value,
     create_info_from_xml_for_graph,
+    make_graph,
 )
 from dsp_tools.analyse_xml_data.models import ResptrLink, XMLLink
 
@@ -196,6 +197,22 @@ def test_create_info_from_xml_for_graph_check_UUID_in_root() -> None:
     assert xml_res_resptr.attrib["stashUUID"] == res_resptr.link_uuid  # type: ignore[union-attr]
     xml_res_text = root.find(".//{https://dasch.swiss/schema}text")
     assert xml_res_text.attrib["stashUUID"] == res_xml.link_uuid  # type: ignore[union-attr]
+
+
+def test_make_graph() -> None:
+    resptr = ResptrLink("a", "b")
+    resptr_links = [resptr]
+    xml = XMLLink("a", {"b", "c"})
+    xml_links = [xml]
+    all_ids = ["a", "b", "c"]
+    g, node_index_lookup, edges, node_indices = make_graph(resptr_links, xml_links, all_ids)
+    assert g.num_nodes() == 3
+    assert g.num_edges() == 3
+    assert node_index_lookup[0] == "a"
+    assert node_index_lookup[1] == "b"
+    assert node_index_lookup[2] == "c"
+    assert unordered(edges) == [(0, 1, resptr), (0, 1, xml), (0, 2, xml)]
+    assert node_indices == {0, 1, 2}
 
 
 if __name__ == "__main__":

@@ -1,3 +1,5 @@
+# pylint: disable=no-member
+
 import regex
 import rustworkx as rx
 from lxml import etree
@@ -85,7 +87,7 @@ def _extract_ids_from_one_text_value(text: etree._Element) -> set[str]:
 def make_graph(
     resptr_links: list[ResptrLink], xml_links: list[XMLLink], all_resource_ids: list[str]
 ) -> tuple[  # type: ignore[type-arg]
-    rx.PyDiGraph,  # pylint: disable=no-member
+    rx.PyDiGraph,
     dict[int, str],
     list[tuple[int, int, ResptrLink | XMLLink]],
     set[int],
@@ -105,7 +107,7 @@ def make_graph(
     Returns:
         The rustworkx graph and a dictionary that contains the index number of the nodes with the original resource id
     """
-    g: rx.PyDiGraph = rx.PyDiGraph()  # type: ignore[type-arg] # pylint: disable=no-member
+    g: rx.PyDiGraph = rx.PyDiGraph()  # type: ignore[type-arg]
     nodes = [(id_, None, None) for id_ in all_resource_ids]
     node_indices = g.add_nodes_from(nodes)
     node_indices = list(node_indices)  # type: ignore[assignment]
@@ -121,7 +123,7 @@ def make_graph(
 
 
 def _remove_leaf_nodes(
-    g: rx.PyDiGraph,  # type: ignore[type-arg] # pylint: disable=no-member
+    g: rx.PyDiGraph,  # type: ignore[type-arg]
     node_index_lookup: dict[int, str],
     node_indices: set[int],
 ) -> tuple[list[str], set[int]]:
@@ -148,7 +150,7 @@ def _remove_leaf_nodes(
 
 
 def _find_cheapest_outgoing_links(
-    g: rx.PyDiGraph,  # type: ignore[type-arg] # pylint: disable=no-member
+    g: rx.PyDiGraph,  # type: ignore[type-arg]
     cycle: list[tuple[int, int]],
     edge_list: list[tuple[int, int, XMLLink | ResptrLink]],
 ) -> list[tuple[int, int, XMLLink | ResptrLink]]:
@@ -179,7 +181,7 @@ def _find_cheapest_outgoing_links(
 
 
 def _remove_edges_to_stash(
-    g: rx.PyDiGraph,  # type: ignore[type-arg] # pylint: disable=no-member,
+    g: rx.PyDiGraph,  # type: ignore[type-arg] ,
     edges_to_remove: list[tuple[int, int, XMLLink | ResptrLink]],
     edge_list: list[tuple[int, int, XMLLink | ResptrLink]],
     remaining_nodes: set[int],
@@ -259,7 +261,7 @@ def _add_stash_to_lookup_dict(
 
 
 def generate_upload_order(
-    g: rx.PyDiGraph,  # type: ignore[type-arg] # pylint: disable=no-member
+    g: rx.PyDiGraph,  # type: ignore[type-arg]
     node_index_lookup: dict[int, str],
     edge_list: list[tuple[int, int, XMLLink | ResptrLink]],
     node_indices: set[int],
@@ -286,7 +288,7 @@ def generate_upload_order(
     upload_order.extend(leaf_nodes)
     stash_counter = 0
     while node_indices:
-        cycle = list(rx.digraph_find_cycle(g))  # type: ignore[attr-defined]  # pylint: disable=no-member
+        cycle = list(rx.digraph_find_cycle(g))  # type: ignore[attr-defined]
         links_to_remove = _find_cheapest_outgoing_links(g, cycle, edge_list)
         stash_counter += len(links_to_remove)
         links_to_stash = _remove_edges_to_stash(

@@ -4,12 +4,12 @@ import pytest
 from lxml import etree
 from pytest_unordered import unordered
 
-from dsp_tools.analyse_xml_data.extract_links_from_XML import (
-    _create_info_from_xml_for_graph,
+from dsp_tools.analyse_xml_data.construct_and_analyze_graph import (
     _create_info_from_xml_for_graph_from_one_resource,
     _create_resptr_link_objects,
     _create_text_link_objects,
     _extract_ids_from_one_text_value,
+    create_info_from_xml_for_graph,
 )
 from dsp_tools.analyse_xml_data.models import ResptrLink, XMLLink
 
@@ -186,7 +186,7 @@ def test_create_info_from_xml_for_graph_check_UUID_in_root() -> None:
         b'href="IRI:res_C_11:IRI">res_C_11</a>end text.</text></text-prop></resource><resource label="res_C_11" '
         b'restype=":TestThing" id="res_C_11" permissions="res-default"></resource></knora>'
     )
-    res_resptr_li, res_xml_li, res_all_ids = _create_info_from_xml_for_graph(root)
+    res_resptr_li, res_xml_li, res_all_ids = create_info_from_xml_for_graph(root)
     res_resptr = res_resptr_li[0]
     assert isinstance(res_resptr, ResptrLink)
     res_xml = res_xml_li[0]

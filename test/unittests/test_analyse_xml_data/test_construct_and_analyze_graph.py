@@ -1,4 +1,4 @@
-# pylint: disable=missing-class-docstring,missing-function-docstring,protected-access
+# pylint: disable=missing-class-docstring,missing-function-docstring,protected-access,disable=no-member
 
 import pytest
 import rustworkx as rx
@@ -225,13 +225,14 @@ def test_remove_leaf_nodes() -> None:
     node_idx = set(node_idx)
     g.add_edges_from(
         [
-            (0, 1, "ab"),
+            (0, 1, "ab"),  # remains
             (0, 4, "ae"),
-            (0, 3, "ac"),
+            (0, 2, "ac"),
             (1, 2, "bc"),
-            (1, 3, "bd"),
+            (1, 3, "bd"),  # remains
             (2, 4, "ce"),  # c is a second degree leaf
-            (3, 1, "da"),
+            (3, 1, "da"),  # remains
+            (3, 2, "dc"),
             (3, 4, "de"),  # e is a leaf
         ]
     )  # f has no edges
@@ -239,6 +240,8 @@ def test_remove_leaf_nodes() -> None:
     removed_leaf_id, remaining_node_idx = _remove_leaf_nodes(g, node_idx_lookup, node_idx)
     assert unordered(removed_leaf_id) == ["c", "e", "f"]
     assert remaining_node_idx == {0, 1, 3}
+    assert unordered(g.nodes()) == ["a", "b", "d"]
+    assert unordered(g.edges()) == ["ab", "bd", "da"]
 
 
 if __name__ == "__main__":

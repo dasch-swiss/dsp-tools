@@ -252,7 +252,6 @@ def test_remove_leaf_nodes() -> None:
 
 
 def test_find_cheapest_outgoing_links_one_resptr_link() -> None:
-    g = rx.PyDiGraph()
     nodes = [
         #      out in cycle
         "a",  # 1
@@ -261,9 +260,8 @@ def test_find_cheapest_outgoing_links_one_resptr_link() -> None:
         "d",  # 4
         "e",
     ]
-    g.add_nodes_from(nodes)
     circle = [(0, 1), (1, 2), (2, 3), (3, 0)]
-    with patch("dsp_tools.analyse_xml_data.models.ResptrLink.cost_links", 1):
+    with patch("dsp_tools.analyse_xml_data.models.ResptrLink"):
         edges = [
             (0, 1, ResptrLink),
             (0, 4, ResptrLink),
@@ -278,13 +276,11 @@ def test_find_cheapest_outgoing_links_one_resptr_link() -> None:
             (3, 1, ResptrLink),
             (3, 2, ResptrLink),
         ]
-        g.add_edges_from(edges)
-        cheapest_links = _find_cheapest_outgoing_links(g, circle, edges)
+        cheapest_links = _find_cheapest_outgoing_links(circle, edges)
         assert cheapest_links == [(0, 1, ResptrLink)]  # type: ignore[comparison-overlap]
 
 
 def test_find_cheapest_outgoing_links_four_circle() -> None:
-    g = rx.PyDiGraph()
     nodes = [
         #       out in cycle
         "a",  # 1
@@ -294,8 +290,7 @@ def test_find_cheapest_outgoing_links_four_circle() -> None:
         "e",
         "f",
     ]
-    g.add_nodes_from(nodes)
-    with patch("dsp_tools.analyse_xml_data.models.ResptrLink.cost_links", 1):
+    with patch("dsp_tools.analyse_xml_data.models.ResptrLink"):
         edges = [
             (0, 1, ResptrLink),
             (1, 2, ResptrLink),
@@ -314,85 +309,85 @@ def test_find_cheapest_outgoing_links_four_circle() -> None:
             (4, 2, ResptrLink),
             (4, 2, ResptrLink),
         ]
-        g.add_edges_from(edges)
         circle = [(0, 1), (1, 2), (2, 3), (3, 0)]
-        cheapest_links = _find_cheapest_outgoing_links(g, circle, edges)
+        cheapest_links = _find_cheapest_outgoing_links(circle, edges)
         assert cheapest_links == [(0, 1, ResptrLink)]  # type: ignore[comparison-overlap]
 
 
-# def test_find_cheapest_outgoing_links_only_resptr() -> None:
-#     g = rx.PyDiGraph()
-#     nodes = [
-#         #      in / out
-#         "a",  # 4 / 2
-#         "b",  # 3 / 2
-#         "c",  # 2 / 5
-#         "d",
-#         "e",
-#         "f",
-#     ]
-#     ab1_resptr = ResptrLink("a", "b")
-#     ab2_resptr = ResptrLink("a", "b")
-#     with patch("dsp_tools.analyse_xml_data.models.ResptrLink.cost_links", 1):
-#         edges = [
-#             (0, 1, ab1_resptr),
-#             (0, 1, ab2_resptr),
-#             (1, 2, ResptrLink),
-#             (1, 2, ResptrLink),
-#             (2, 0, ResptrLink),
-#             (2, 0, ResptrLink),
-#             (2, 1, ResptrLink),
-#             (2, 3, ResptrLink),
-#             (2, 4, ResptrLink),
-#             (3, 4, ResptrLink),
-#             (3, 5, ResptrLink),
-#             (4, 5, ResptrLink),
-#             (5, 0, ResptrLink),
-#             (5, 0, ResptrLink),
-#         ]
-#         circle = [(0, 1), (1, 2), (2, 0)]
-#         g.add_nodes_from(nodes)
-#         g.add_edges_from(edges)
-#         cheapest_links = _find_cheapest_outgoing_links(g, circle, edges)
-#         expected = [(0, 1, ab1_resptr), (0, 1, ab2_resptr)]
-#         assert unordered(cheapest_links) == expected
-#
-#
-# def test_find_cheapest_outgoing_links_xml() -> None:
-#     g = rx.PyDiGraph()
-#     nodes = [
-#         #      in / out in cycle
-#         "a",  # 1 / 2
-#         "b",  # 2 / 2
-#         "c",  # 2 / 1
-#         "d",  # 5 / 2
-#         "e",
-#         "f"
-#     ]
-#     g.add_nodes_from(nodes)
-#     a_de_xml = XMLLink("a", {"d", "e"})
-#     b_d_xml = XMLLink("b", {"d"})
-#     c_bdf_xml = XMLLink("c", {"b", "d", "f"})
-#     circle = [(0, 1), (1, 2), (2, 3), (3, 0)]
-#     with patch("dsp_tools.analyse_xml_data.models.ResptrLink.cost_links", 1):
-#         edges = [
-#             (0, 2, ResptrLink),
-#             (0, 3, a_de_xml),
-#             (0, 4, a_de_xml),
-#             (1, 0, ResptrLink),
-#             (1, 3, b_d_xml),
-#             (2, 1, c_bdf_xml),
-#             (2, 3, c_bdf_xml),
-#             (2, 5, c_bdf_xml),
-#             (3, 2, ResptrLink),
-#             (3, 5, ResptrLink),
-#         ]
-#         g.add_edges_from(edges)
-#         cheapest_links = _find_cheapest_outgoing_links(g, circle, edges)
+def test_find_cheapest_outgoing_links_only_resptr() -> None:
+    nodes = [
+        #       out in cycle
+        "a",  # 2
+        "b",  # 4
+        "c",  # 3
+        "d",
+        "e",
+        "f",
+    ]
+    ab1_resptr = ResptrLink("a", "b")
+    ab2_resptr = ResptrLink("a", "b")
+    with patch("dsp_tools.analyse_xml_data.models.ResptrLink"):
+        edges = [
+            (0, 1, ab1_resptr),
+            (0, 1, ab2_resptr),
+            (1, 2, ResptrLink),
+            (1, 2, ResptrLink),
+            (1, 2, ResptrLink),
+            (1, 2, ResptrLink),
+            (2, 0, ResptrLink),
+            (2, 0, ResptrLink),
+            (2, 0, ResptrLink),
+            (2, 1, ResptrLink),
+            (2, 3, ResptrLink),
+            (2, 4, ResptrLink),
+            (3, 4, ResptrLink),
+            (3, 5, ResptrLink),
+            (4, 5, ResptrLink),
+            (5, 0, ResptrLink),
+            (5, 0, ResptrLink),
+        ]
+        circle = [(0, 1), (1, 2), (2, 0)]
+        cheapest_links = _find_cheapest_outgoing_links(circle, edges)
+        expected = [(0, 1, ab1_resptr), (0, 1, ab2_resptr)]
+        assert unordered(cheapest_links) == expected
+
+
+def test_find_cheapest_outgoing_links_xml() -> None:
+    nodes = [
+        #       out in cycle
+        "a",  # 2
+        "b",  # 2
+        "c",  # 1
+        "d",  # 3
+        "e",
+        "f",
+    ]
+    a_de_xml = XMLLink("a", {"d", "e"})
+    b_d_xml = XMLLink("b", {"d"})
+    c_bdf_xml = XMLLink("c", {"b", "d", "f"})
+    circle = [(0, 1), (1, 2), (2, 3), (3, 0)]
+    with patch("dsp_tools.analyse_xml_data.models.ResptrLink"):
+        edges = [
+            (0, 1, ResptrLink),
+            (0, 1, ResptrLink),
+            (0, 2, ResptrLink),
+            (0, 3, a_de_xml),
+            (0, 4, a_de_xml),
+            (1, 2, ResptrLink),
+            (1, 2, ResptrLink),
+            (1, 3, b_d_xml),
+            (2, 1, c_bdf_xml),
+            (2, 3, c_bdf_xml),
+            (2, 5, c_bdf_xml),
+            (3, 0, ResptrLink),
+            (3, 0, ResptrLink),
+            (3, 0, ResptrLink),
+        ]
+        cheapest_links = _find_cheapest_outgoing_links(circle, edges)
+        assert cheapest_links == [(2, 3, c_bdf_xml)]
 
 
 # def test_find_cheapest_outgoing_links_mixed_links() -> None:
-#     g = rx.PyDiGraph()
 #     nodes = [
 #         #      out in cycle
 #         "a",  # 2
@@ -401,10 +396,9 @@ def test_find_cheapest_outgoing_links_four_circle() -> None:
 #         "d",  # 3 xml that are the same XMLLink -> 1
 #         "e",
 #     ]
-#     g.add_nodes_from(nodes)
 #     circle = [(0, 1), (1, 2), (2, 3), (3, 0)]
 #     xml_link = XMLLink("d", {"a", "b", "c", "e"})
-#     with patch("dsp_tools.analyse_xml_data.models.ResptrLink.cost_links", 1):
+#     with patch("dsp_tools.analyse_xml_data.models.ResptrLink"):
 #         edges = [
 #             (0, 1, ResptrLink),
 #             (0, 3, ResptrLink),
@@ -421,8 +415,7 @@ def test_find_cheapest_outgoing_links_four_circle() -> None:
 #             (3, 2, xml_link),
 #             (3, 4, xml_link),
 #         ]
-#     g.add_edges_from(edges)
-#     cheapest_links = _find_cheapest_outgoing_links(g, circle, edges)
+#     cheapest_links = _find_cheapest_outgoing_links(circle, edges)
 #     # TODO: this cannot be handled at the moment,
 #     #  XMl all count the same, because they are only cheaper than resptr if they are in the same circle,
 #     #  otherwise they are the same value

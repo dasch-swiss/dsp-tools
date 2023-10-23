@@ -103,3 +103,9 @@ def _parse_xml_file(input_file: Union[str, Path]) -> etree._ElementTree[etree._E
     """
     parser = etree.XMLParser(remove_comments=True, remove_pis=True)
     return etree.parse(source=input_file, parser=parser)
+
+
+def read_xml_file(file: Path) -> etree._Element:
+    parser = etree.XMLParser(remove_comments=True, remove_pis=True)
+    tree = etree.parse(source=file, parser=parser)
+    return tree.getroot()

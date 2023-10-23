@@ -252,14 +252,14 @@ def test_remove_leaf_nodes() -> None:
 
 
 def test_find_cheapest_outgoing_links_one_resptr_link() -> None:
-    nodes = [
-        #      out in cycle
-        "a",  # 1
-        "b",  # 2
-        "c",  # 3
-        "d",  # 4
-        "e",
-    ]
+    # nodes = [
+    #     #      out in cycle
+    #     "a",  # 1
+    #     "b",  # 2
+    #     "c",  # 3
+    #     "d",  # 4
+    #     "e",
+    # ]
     circle = [(0, 1), (1, 2), (2, 3), (3, 0)]
     with patch("dsp_tools.analyse_xml_data.models.ResptrLink"):
         edges = [
@@ -281,15 +281,15 @@ def test_find_cheapest_outgoing_links_one_resptr_link() -> None:
 
 
 def test_find_cheapest_outgoing_links_four_circle() -> None:
-    nodes = [
-        #       out in cycle
-        "a",  # 1
-        "b",  # 2
-        "c",  # 3
-        "d",  # 2
-        "e",
-        "f",
-    ]
+    # nodes = [
+    #     #       out in cycle
+    #     "a",  # 1
+    #     "b",  # 2
+    #     "c",  # 3
+    #     "d",  # 2
+    #     "e",
+    #     "f",
+    # ]
     with patch("dsp_tools.analyse_xml_data.models.ResptrLink"):
         edges = [
             (0, 1, ResptrLink),
@@ -315,15 +315,15 @@ def test_find_cheapest_outgoing_links_four_circle() -> None:
 
 
 def test_find_cheapest_outgoing_links_only_resptr() -> None:
-    nodes = [
-        #       out in cycle
-        "a",  # 2
-        "b",  # 4
-        "c",  # 3
-        "d",
-        "e",
-        "f",
-    ]
+    # nodes = [
+    #     #       out in cycle
+    #     "a",  # 2
+    #     "b",  # 4
+    #     "c",  # 3
+    #     "d",
+    #     "e",
+    #     "f",
+    # ]
     ab1_resptr = ResptrLink("a", "b")
     ab2_resptr = ResptrLink("a", "b")
     with patch("dsp_tools.analyse_xml_data.models.ResptrLink"):
@@ -353,15 +353,15 @@ def test_find_cheapest_outgoing_links_only_resptr() -> None:
 
 
 def test_find_cheapest_outgoing_links_xml() -> None:
-    nodes = [
-        #       out in cycle
-        "a",  # 2
-        "b",  # 2
-        "c",  # 1
-        "d",  # 3
-        "e",
-        "f",
-    ]
+    # nodes = [
+    #     #       out in cycle
+    #     "a",  # 2
+    #     "b",  # 2
+    #     "c",  # 1
+    #     "d",  # 3
+    #     "e",
+    #     "f",
+    # ]
     a_de_xml = XMLLink("a", {"d", "e"})
     b_d_xml = XMLLink("b", {"d"})
     c_bdf_xml = XMLLink("c", {"b", "d", "f"})

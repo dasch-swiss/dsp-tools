@@ -3,7 +3,6 @@
 import regex
 import rustworkx as rx
 from lxml import etree
-from rustworkx import NoEdgeBetweenNodes
 
 from dsp_tools.analyse_xml_data.models import ResptrLink, XMLLink
 
@@ -171,6 +170,7 @@ def _find_cheapest_outgoing_links(
     def get_cycle_links(source: int, target: int) -> list[tuple[int, int, XMLLink | ResptrLink]]:
         return [x for x in edge_list if x[0] == source and x[1] == target]
 
+    # TODO: how to calculate XML?
     costs = [get_cycle_links(x[0], x[1]) for x in cycle]
     cheapest_links = sorted(costs, key=lambda x: len(x))[0]
     return cheapest_links

@@ -14,6 +14,7 @@ from dsp_tools.analyse_xml_data.construct_and_analyze_graph import (
     _create_text_link_objects,
     _extract_ids_from_one_text_value,
     _find_cheapest_outgoing_links,
+    _remove_edges_to_stash,
     _remove_leaf_nodes,
     create_info_from_xml_for_graph,
     make_graph,
@@ -357,6 +358,39 @@ def test_find_cheapest_outgoing_links_xml() -> None:
         g.add_edges_from(edges)
         cheapest_links = _find_cheapest_outgoing_links(g, circle, edges)
         assert cheapest_links == [(2, 3, c_bdf_xml)]
+
+
+def test_remove_edges_to_stash_phantom_xml() -> None:
+    nodes = ["a", "b", "c", "d", "e", "f"]
+    g = rx.PyDiGraph()
+    g.add_nodes_from(nodes)
+    a_de_xml = XMLLink("a", {"d", "e"})
+    b_d_xml = XMLLink("b", {"d"})
+    c_bdf_xml = XMLLink("c", {"b", "d", "f"})
+    edges_to_remove = [(2, 3, c_bdf_xml)]
+    remaining_nodes = set(range(10))
+    edges = [
+        (0, 1, ResptrLink),
+        (0, 1, ResptrLink),
+        (0, 2, ResptrLink),
+        (0, 3, a_de_xml),
+        (0, 4, a_de_xml),
+        (1, 2, ResptrLink),
+        (1, 2, ResptrLink),
+        (1, 3, b_d_xml),
+        (2, 1, c_bdf_xml),
+        (2, 3, c_bdf_xml),
+        (2, 5, c_bdf_xml),
+        (3, 0, ResptrLink),
+        (3, 0, ResptrLink),
+        (3, 0, ResptrLink),
+    ]
+    g.add_edges_from(edges)
+    res_links_to_stash = _remove_edges_to_stash(g, edges_to_remove, edges, remaining_nodes)
+    assert res_links_to_stash == [c_bdf_xml]
+    remaining_edges = list(g.edge_list())
+    expected_edges = [(0, 1), (0, 1), (0, 2), (0, 3), (0, 4), (1, 2), (1, 2), (1, 3), (3, 0), (3, 0), (3, 0)]
+    assert unordered(remaining_edges) == expected_edges
 
 
 if __name__ == "__main__":

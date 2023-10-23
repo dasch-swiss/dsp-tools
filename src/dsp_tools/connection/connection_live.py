@@ -158,10 +158,11 @@ class ConnectionLive:
         Returns:
             response from server
         """
-        # timeout must be None,
+        # timeout must be high enough,
         # otherwise the client can get a timeout error while the API is still processing the request
-        # in that case, the client's retry will fail, and the response of the original API call is lost
-        timeout = None
+        # in that case, the client's retry will have undesired side effects (e.g. duplicated resources),
+        # and the response of the original API call will be lost
+        timeout = 60
         if not route.startswith("/"):
             route = "/" + route
         url = self.server + route
@@ -248,10 +249,10 @@ class ConnectionLive:
         Returns:
             response from server
         """
-        # timeout must be None,
+        # timeout must be high enough,
         # otherwise the client can get a timeout error while the API is still processing the request
-        # in that case, the client's retry will fail, and the response of the original API call is lost
-        timeout = None
+        # in that case, the client's retry will fail, and the response of the original API call will be lost
+        timeout = 60
         if not route.startswith("/"):
             route = "/" + route
         url = self.server + route

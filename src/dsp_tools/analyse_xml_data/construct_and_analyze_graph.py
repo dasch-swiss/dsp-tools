@@ -3,6 +3,7 @@
 import regex
 import rustworkx as rx
 from lxml import etree
+from rustworkx import NoEdgeBetweenNodes
 
 from dsp_tools.analyse_xml_data.models import ResptrLink, XMLLink
 
@@ -150,7 +151,6 @@ def _remove_leaf_nodes(
 
 
 def _find_cheapest_outgoing_links(
-    g: rx.PyDiGraph,  # type: ignore[type-arg]
     cycle: list[tuple[int, int]],
     edge_list: list[tuple[int, int, XMLLink | ResptrLink]],
 ) -> list[tuple[int, int, XMLLink | ResptrLink]]:
@@ -167,22 +167,17 @@ def _find_cheapest_outgoing_links(
         A list with the links that should be stashed.
         It contains all the edges connecting the two nodes.
     """
-    cycle_nodes = [x[0] for x in cycle]
 
-    def get_all_links_in_cycle(source: int) -> tuple[int, list[tuple[int, int, XMLLink | ResptrLink]]]:
-        out_links_in_cycle = []
-        for node in cycle_nodes:
-            out_links_in_cycle.extend([x for x in edge_list if x[0] == source and x[1] == node])
-        # TODO: value of XML change
-        return len(out_links_in_cycle), out_links_in_cycle
+    def get_cycle_links(source: int, target: int) -> list[tuple[int, int, XMLLink | ResptrLink]]:
+        return [x for x in edge_list if x[0] == source and x[1] == target]
 
-    costs = [get_all_links_in_cycle(x) for x in cycle_nodes]
-    cheapest_links = sorted(costs, key=lambda x: x[0])[0][1]
+    costs = [get_cycle_links(x[0], x[1]) for x in cycle]
+    cheapest_links = sorted(costs, key=lambda x: len(x))[0]
     return cheapest_links
 
 
 def _remove_edges_to_stash(
-    g: rx.PyDiGraph,  # type: ignore[type-arg]
+    g: rx.PyDiGraph,  # type: ignore[type-arg] # pylint: disable=no-member,
     edges_to_remove: list[tuple[int, int, XMLLink | ResptrLink]],
     edge_list: list[tuple[int, int, XMLLink | ResptrLink]],
     remaining_nodes: set[int],
@@ -243,21 +238,21 @@ def _find_phantom_xml_edges(
     def check(x: tuple[int, int, XMLLink | ResptrLink]) -> bool:
         # if we do not check if the target is in the remaining_nodes (maybe removed because of leaf node)
         # we would get a NoEdgeBetweenNodes error
-        return x[0] == source and x[1] != target and x[2] == xml_instance and x[1] in remaining_nodes
+        return x[1] in remaining_nodes and x[0] == source and x[1] != target and x[2] == xml_instance
 
     return [(x[0], x[1]) for x in edge_list if check(x)]
 
 
 def _add_stash_to_lookup_dict(
-    stash_dict: dict[str, list[str]], to_stash_links: list[XMLLink | ResptrLink]
-) -> dict[str, list[str]]:
-    stash_list = [stash_link.link_uuid for stash_link in to_stash_links]
+    stash_dict: dict[str, set[str]], to_stash_links: list[XMLLink | ResptrLink]
+) -> dict[str, set[str]]:
+    new_stash_uuid = set(stash_link.link_uuid for stash_link in to_stash_links)
     # all stashed links have the same subject id, so we can just take the first one
     subj_id = to_stash_links[0].subject_id
     if subj_id in stash_dict.keys():
-        stash_dict[subj_id].extend(stash_list)
+        stash_dict[subj_id].update(new_stash_uuid)
     else:
-        stash_dict[subj_id] = stash_list
+        stash_dict[subj_id] = new_stash_uuid
     return stash_dict
 
 
@@ -266,7 +261,7 @@ def generate_upload_order(
     node_index_lookup: dict[int, str],
     edge_list: list[tuple[int, int, XMLLink | ResptrLink]],
     node_indices: set[int],
-) -> tuple[dict[str, list[str]], list[str], int]:
+) -> tuple[dict[str, set[str]], list[str], int]:
     """
     This function takes a graph and a dictionary with the mapping between the graph indices and original ids.
     It generates the order in which the resources should be uploaded to the DSP-API based on the dependencies.
@@ -284,13 +279,13 @@ def generate_upload_order(
         The number of links in the stash.
     """
     upload_order: list[str] = []
-    stash_lookup: dict[str, list[str]] = {}
+    stash_lookup: dict[str, set[str]] = {}
     leaf_nodes, node_indices = _remove_leaf_nodes(g, node_index_lookup, node_indices)
     upload_order.extend(leaf_nodes)
     stash_counter = 0
     while node_indices:
         cycle = list(rx.digraph_find_cycle(g))  # type: ignore[attr-defined]
-        links_to_remove = _find_cheapest_outgoing_links(g, cycle, edge_list)
+        links_to_remove = _find_cheapest_outgoing_links(cycle, edge_list)
         stash_counter += len(links_to_remove)
         links_to_stash = _remove_edges_to_stash(
             g=g,

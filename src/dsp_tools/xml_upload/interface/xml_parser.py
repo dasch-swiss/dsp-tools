@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from copy import deepcopy
+from dataclasses import dataclass
 from itertools import chain
 from typing import Iterable
 
@@ -29,15 +32,6 @@ from dsp_tools.xml_upload.domain.model.value import (
 logger = get_logger(__name__)
 
 
-def get_resources_from_xml(root: etree._Element) -> UploadResourceCollection:
-    # XXX: schema validation
-    shortcode = root.attrib["shortcode"]
-    default_ontology = root.attrib["default-ontology"]
-    processed_root = _remove_qnames_and_transform_special_tags(root)
-    resources = list(_parse(processed_root, default_ontology))
-    return UploadResourceCollection(shortcode, default_ontology, resources)
-
-
 def _remove_qnames_and_transform_special_tags(
     root: etree._Element,
 ) -> etree._Element:
@@ -58,192 +52,149 @@ def _remove_qnames_and_transform_special_tags(
     return cp
 
 
-def _parse(root: etree._Element, default_ontology: str) -> Iterable[Resource]:
-    resources = list(root.iter(tag="resource"))
-    for res in resources:
-        res_id = res.attrib["id"]
-        res_type = _get_restype(res.attrib["restype"], default_ontology)
-        label = res.attrib["label"]
-        values = list(chain.from_iterable(_get_values(v) for v in res))
-        bitstream = None
-        if (bs := res.find("bitstream")) is not None:
-            bitstream = bs.text
-            assert bitstream
-        permissions = res.attrib.get("permissions")
-        # XXX: iri
-        # XXX: ark
-        # XXX: creation_date
-        resource = Resource(
-            resource_id=res_id,
-            resource_type=res_type,
-            label=label,
-            values=values,
-            bitstream=bitstream,
-            permissions=permissions,
-        )
-        yield resource
+# XXX: should this be a service with interface?
 
 
-def _get_restype(s: str, defaut_ontology: str) -> str:
-    m = regex.match(r"((\w+)?(:))?(\w+)", s)
-    match m.groups() if m else None:
-        case (_, None, None, restype):
-            return f"knora-api:{restype}"
-        case (_, None, ":", restype):
-            return f"{defaut_ontology}:{restype}"
-        case (_, prefix, _, restype):
-            return f"{prefix}:{restype}"
-        case _:
-            raise BaseError(f"Invalid resource type: {s}")
+@dataclass(frozen=True)
+class XmlParserLive:
+    shortcode: str
+    default_ontology: str
+    root: etree._Element
 
+    @staticmethod
+    def make(root: etree._Element) -> XmlParserLive:
+        # XXX: schema validation
+        shortcode = root.attrib["shortcode"]
+        default_ontology = root.attrib["default-ontology"]
+        processed_root = _remove_qnames_and_transform_special_tags(root)
+        return XmlParserLive(shortcode, default_ontology, processed_root)
 
-def _get_values(elem: etree._Element) -> list[Value]:
-    match elem.tag:
-        case "bitstream":
+    def get_resources(self) -> UploadResourceCollection:
+        resources = list(self._parse())
+        return UploadResourceCollection(self.shortcode, self.default_ontology, resources)
+
+    def _parse(self) -> Iterable[Resource]:
+        resources = list(self.root.iter(tag="resource"))
+        for res in resources:
+            res_id = res.attrib["id"]
+            res_type = self._with_prefix(res.attrib["restype"])
+            label = res.attrib["label"]
+            values = list(chain.from_iterable(self._get_values(v) for v in res))
+            bitstream = None
+            if (bs := res.find("bitstream")) is not None:
+                bitstream = bs.text
+                assert bitstream
+            permissions = res.attrib.get("permissions")  # XXX: handle correctly
+            # XXX: iri
+            # XXX: ark
+            # XXX: creation_date
+            resource = Resource(
+                resource_id=res_id,
+                resource_type=res_type,
+                label=label,
+                values=values,
+                bitstream=bitstream,
+                permissions=permissions,
+            )
+            yield resource
+
+    def _with_prefix(self, s: str) -> str:
+        m = regex.match(r"((\w+)?(:))?(\w+)", s)
+        match m.groups() if m else None:
+            case (_, None, None, restype):
+                return f"knora-api:{restype}"
+            case (_, None, ":", restype):
+                return f"{self.default_ontology}:{restype}"
+            case (_, prefix, _, restype):
+                return f"{prefix}:{restype}"
+            case _:
+                raise BaseError(f"Invalid resource type: {s}")
+
+    def _get_values(self, elem: etree._Element) -> list[Value]:
+        if elem.tag == "bitstream":
             return []  # XXX: handle more elegantly
-        case "boolean-prop":
-            return _get_boolean_value(elem)
-        case "color-prop":
-            return _get_color_values(elem)
-        case "date-prop":
-            return _get_date_values(elem)
-        case "decimal-prop":
-            return _get_decimal_values(elem)
-        case "geometry-prop":
-            return _get_geometry_values(elem)
-        case "geoname-prop":
-            return _get_geoname_values(elem)
-        case "integer-prop":
-            return _get_integer_values(elem)
-        case "interval-prop":
-            return _get_interval_values(elem)
-        case "list-prop":
-            return _get_list_values(elem)
-        case "resptr-prop":
-            return _get_link_values(elem)
-        case "text-prop":
-            return _get_text_values(elem)
-        case "time-prop":
-            return _get_time_values(elem)
-        case "uri-prop":
-            return _get_uri_values(elem)
-        case _:
-            raise NotImplementedError(f"Unknown property type: {elem.tag}")
+        name = self._with_prefix(elem.attrib["name"])
+        match elem.tag:
+            case "boolean-prop":
+                return _get_boolean_value(name, elem)
+            case "color-prop":
+                return _get_color_values(name, elem)
+            case "date-prop":
+                return _get_date_values(name, elem)
+            case "decimal-prop":
+                return _get_decimal_values(name, elem)
+            case "geometry-prop":
+                return _get_geometry_values(name, elem)
+            case "geoname-prop":
+                return _get_geoname_values(name, elem)
+            case "integer-prop":
+                return _get_integer_values(name, elem)
+            case "interval-prop":
+                return _get_interval_values(name, elem)
+            case "list-prop":
+                return _get_list_values(name, elem)
+            case "resptr-prop":
+                return _get_link_values(name, elem)
+            case "text-prop":
+                return _get_text_values(name, elem)
+            case "time-prop":
+                return _get_time_values(name, elem)
+            case "uri-prop":
+                return _get_uri_values(name, elem)
+            case _:
+                raise NotImplementedError(f"Unknown property type: {elem.tag}")
 
 
-def _get_boolean_value(elem: etree._Element) -> list[Value]:
-    return [
-        BooleanValue(
-            property_name=elem.attrib["name"],
-            value=_get_text_content(v),
-            permissions=v.attrib.get("permissions"),
-        )
-        for v in elem
-    ]
+def _get_boolean_value(name: str, elem: etree._Element) -> list[Value]:
+    return [BooleanValue(name, _get_text_content(v), v.attrib.get("permissions")) for v in elem]
 
 
-def _get_color_values(elem: etree._Element) -> list[Value]:
-    return [
-        ColorValue(
-            property_name=elem.attrib["name"],
-            value=_get_text_content(v),
-            permissions=v.attrib.get("permissions"),
-        )
-        for v in elem
-    ]
+def _get_color_values(name: str, elem: etree._Element) -> list[Value]:
+    return [ColorValue(name, _get_text_content(v), v.attrib.get("permissions")) for v in elem]
 
 
-def _get_date_values(elem: etree._Element) -> list[Value]:
-    return [
-        DateValue(
-            property_name=elem.attrib["name"],
-            value=_get_text_content(v),
-            permissions=v.attrib.get("permissions"),
-        )
-        for v in elem
-    ]
+def _get_date_values(name: str, elem: etree._Element) -> list[Value]:
+    return [DateValue(name, _get_text_content(v), v.attrib.get("permissions")) for v in elem]
 
 
-def _get_decimal_values(elem: etree._Element) -> list[Value]:
-    return [
-        DecimalValue(
-            property_name=elem.attrib["name"],
-            value=_get_text_content(v),
-            permissions=v.attrib.get("permissions"),
-        )
-        for v in elem
-    ]
+def _get_decimal_values(name: str, elem: etree._Element) -> list[Value]:
+    return [DecimalValue(name, _get_text_content(v), v.attrib.get("permissions")) for v in elem]
 
 
-def _get_geometry_values(elem: etree._Element) -> list[Value]:
-    return [
-        GeometryValue(
-            property_name=elem.attrib["name"],
-            value=_get_text_content(v),
-            permissions=v.attrib.get("permissions"),
-        )
-        for v in elem
-    ]
+def _get_geometry_values(name: str, elem: etree._Element) -> list[Value]:
+    return [GeometryValue(name, _get_text_content(v), v.attrib.get("permissions")) for v in elem]
 
 
-def _get_geoname_values(elem: etree._Element) -> list[Value]:
-    return [
-        GeonamesValue(
-            property_name=elem.attrib["name"],
-            value=_get_text_content(v),
-            permissions=v.attrib.get("permissions"),
-        )
-        for v in elem
-    ]
+def _get_geoname_values(name: str, elem: etree._Element) -> list[Value]:
+    return [GeonamesValue(name, _get_text_content(v), v.attrib.get("permissions")) for v in elem]
 
 
-def _get_integer_values(elem: etree._Element) -> list[Value]:
-    return [
-        IntegerValue(
-            property_name=elem.attrib["name"],
-            value=_get_text_content(v),
-            permissions=v.attrib.get("permissions"),
-        )
-        for v in elem
-    ]
+def _get_integer_values(name: str, elem: etree._Element) -> list[Value]:
+    return [IntegerValue(name, _get_text_content(v), v.attrib.get("permissions")) for v in elem]
 
 
-def _get_interval_values(elem: etree._Element) -> list[Value]:
-    return [
-        IntervalValue(
-            property_name=elem.attrib["name"],
-            value=_get_text_content(v),
-            permissions=v.attrib.get("permissions"),
-        )
-        for v in elem
-    ]
+def _get_interval_values(name: str, elem: etree._Element) -> list[Value]:
+    return [IntervalValue(name, _get_text_content(v), v.attrib.get("permissions")) for v in elem]
 
 
-def _get_list_values(elem: etree._Element) -> list[Value]:
-    return [
-        ListValue(
-            property_name=elem.attrib["name"],
-            value=_get_text_content(v),
-            permissions=v.attrib.get("permissions"),
-        )
-        for v in elem
-    ]
+def _get_list_values(name: str, elem: etree._Element) -> list[Value]:
+    return [ListValue(name, _get_text_content(v), v.attrib.get("permissions")) for v in elem]
 
 
-def _get_link_values(elem: etree._Element) -> list[Value]:
-    return [
-        LinkValue(
-            property_name=elem.attrib["name"],
-            value=_get_text_content(v),
-            permissions=v.attrib.get("permissions"),
-        )
-        for v in elem
-    ]
+def _get_link_values(name: str, elem: etree._Element) -> list[Value]:
+    return [LinkValue(name, _get_text_content(v), v.attrib.get("permissions")) for v in elem]
 
 
-def _get_text_values(elem: etree._Element) -> list[Value]:
+def _get_time_values(name: str, elem: etree._Element) -> list[Value]:
+    return [TimeValue(name, _get_text_content(v), v.attrib.get("permissions")) for v in elem]
+
+
+def _get_uri_values(name: str, elem: etree._Element) -> list[Value]:
+    return [UriValue(name, _get_text_content(v), v.attrib.get("permissions")) for v in elem]
+
+
+def _get_text_values(name: str, elem: etree._Element) -> list[Value]:
     res: list[Value] = []
-    name = elem.attrib["name"]
     for v in elem:
         match v.get("encoding"):
             case "xml":
@@ -270,28 +221,6 @@ def _get_text_values(elem: etree._Element) -> list[Value]:
             case _:
                 raise NotImplementedError(f"Unknown encoding: {elem.get('encoding')}")
     return res
-
-
-def _get_time_values(elem: etree._Element) -> list[Value]:
-    return [
-        TimeValue(
-            property_name=elem.attrib["name"],
-            value=_get_text_content(v),
-            permissions=v.attrib.get("permissions"),
-        )
-        for v in elem
-    ]
-
-
-def _get_uri_values(elem: etree._Element) -> list[Value]:
-    return [
-        UriValue(
-            property_name=elem.attrib["name"],
-            value=_get_text_content(v),
-            permissions=v.attrib.get("permissions"),
-        )
-        for v in elem
-    ]
 
 
 def _get_text_content(elem: etree._Element) -> str:

@@ -1,3 +1,4 @@
+import json
 from dataclasses import dataclass
 from typing import Any, assert_never
 
@@ -28,7 +29,8 @@ class DspUploadRepoLive:
     def create_resource(self, resource: Resource) -> None:
         """Creates an instance of a resource in DSP-API."""
         json_ld = _resource_to_json_ld(resource)
-        print(json_ld)
+        print(json.dumps(json_ld, indent=2))
+        quit()
 
 
 def _resource_to_json_ld(res: Resource) -> dict[str, Any]:

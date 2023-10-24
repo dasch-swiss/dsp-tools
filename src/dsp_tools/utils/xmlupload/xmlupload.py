@@ -6,7 +6,9 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+from dsp_tools.models.sipi import Sipi
 from dsp_tools.utils.create_logger import get_logger
+from dsp_tools.utils.shared import login
 from dsp_tools.utils.xml_utils import read_xml_file
 from dsp_tools.utils.xmlupload.upload_config import UploadConfig
 from dsp_tools.utils.xmlupload.write_diagnostic_info import write_id2iri_mapping
@@ -47,13 +49,9 @@ def xmlupload(
         True if all resources could be uploaded without errors; False if one of the resources could not be
         uploaded because there is an error in it
     """
-    # default_ontology, root, shortcode = validate_and_parse_xml_file(
-    #     input_file=input_file,
-    #     imgdir=imgdir,
-    #     preprocessing_done=config.preprocessing_done,
-    # )
-    root = read_xml_file(input_file)
-    parser = XmlParserLive.make(root)
+    parser = XmlParserLive.from_file(input_file)
+    if not parser:
+        return False
     resources = parser.get_resources()
     # XXX: remove circular references
 
@@ -62,13 +60,10 @@ def xmlupload(
         shortcode=resources.shortcode,
         onto_name=resources.default_ontology,
     )
+    connection = login(server=server, user=user, password=password, dump=config.dump)
+    sipi_connection = Sipi(sipi, connection.get_token())
 
-    # establish connection to DSP server
-    # XXX: bring back
-    # con = login(server=server, user=user, password=password, dump=config.dump)
-    # sipi_server = Sipi(sipi, con.get_token())
-
-    repo = DspUploadRepoLive()
+    repo = DspUploadRepoLive(connection, sipi_connection)
 
     upload_service: UploadService = UploadServiceLive(repo, config)
     upload_service.upload_resources(resources)

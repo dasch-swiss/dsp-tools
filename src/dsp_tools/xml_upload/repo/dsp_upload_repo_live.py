@@ -2,7 +2,9 @@ import json
 from dataclasses import dataclass
 from typing import Any, assert_never
 
-from dsp_tools.xml_upload.domain.model.resource import Resource
+from dsp_tools.connection.connection import Connection
+from dsp_tools.models.sipi import Sipi
+from dsp_tools.xml_upload.domain.model.resource import InputResource
 from dsp_tools.xml_upload.domain.model.value import (
     BooleanValue,
     ColorValue,
@@ -26,14 +28,17 @@ from dsp_tools.xml_upload.domain.model.value import (
 class DspUploadRepoLive:
     """Live implementation of the DSP upload repository protocol, interacting with an instance of DSP-API."""
 
-    def create_resource(self, resource: Resource) -> None:
+    connection: Connection
+    sipi: Sipi
+
+    def create_resource(self, resource: InputResource) -> None:
         """Creates an instance of a resource in DSP-API."""
         json_ld = _resource_to_json_ld(resource)
         print(json.dumps(json_ld, indent=2))
         quit()
 
 
-def _resource_to_json_ld(res: Resource) -> dict[str, Any]:
+def _resource_to_json_ld(res: InputResource) -> dict[str, Any]:
     context = {
         "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
         "knora-api": "http://api.knora.org/ontology/knora-api/v2#",
@@ -44,8 +49,8 @@ def _resource_to_json_ld(res: Resource) -> dict[str, Any]:
         "@type": res.resource_type,
         "rdfs:label": res.label,
     }
-    if res.bitstream:
-        json_ld["bitstream"] = res.bitstream  # XXX: should actually be different, I suppose?
+    if res.bitstream_path:
+        json_ld["bitstream"] = res.bitstream_path  # XXX: should actually be different, I suppose?
     if res.permissions:
         json_ld["knora-api:hasPermissions"] = res.permissions
     if res.iri:

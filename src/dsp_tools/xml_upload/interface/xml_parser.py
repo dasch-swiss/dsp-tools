@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import importlib.resources
 from copy import deepcopy
 from dataclasses import dataclass
 from itertools import chain
+from pathlib import Path
 from typing import Iterable
 
 import regex
@@ -10,7 +12,8 @@ from lxml import etree
 
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.create_logger import get_logger
-from dsp_tools.xml_upload.domain.model.resource import Resource, UploadResourceCollection
+from dsp_tools.utils.xml_utils import read_xml_file
+from dsp_tools.xml_upload.domain.model.resource import InputPermissions, InputResource, InputResourceCollection
 from dsp_tools.xml_upload.domain.model.value import (
     BooleanValue,
     ColorValue,
@@ -52,28 +55,116 @@ def _remove_qnames_and_transform_special_tags(
     return cp
 
 
+def _validate_xml_against_schema(xml: etree._Element) -> tuple[bool, str | None]:
+    """
+    Validates an XML file against the DSP XSD schema.
+
+    Args:
+        xml: the xml element tree to be validated
+
+    Returns:
+        True and None if the XML file is valid, False and an error message if not
+    """
+    with importlib.resources.files("dsp_tools").joinpath("resources/schema/data.xsd").open(
+        encoding="utf-8"
+    ) as schema_file:
+        xmlschema = etree.XMLSchema(etree.parse(schema_file))
+
+    if not xmlschema.validate(xml):
+        error_msg = "The XML file cannot be uploaded due to the following validation error(s):"
+        for error in xmlschema.error_log:
+            error_msg = error_msg + f"\n  Line {error.line}: {error.message}"
+        error_msg = error_msg.replace("{https://dasch.swiss/schema}", "")
+        return False, error_msg
+
+    logger.info("The XML file is syntactically correct and passed validation.")
+    print("The XML file is syntactically correct and passed validation.")
+    return True, None
+
+
+def _validate_xml_tags_in_text_properties(xml: etree._Element) -> tuple[bool, str | None]:
+    """
+    Makes sure that there are no XML tags in simple texts.
+    This can only be done with a regex,
+    because even if the simple text contains some XML tags,
+    the simple text itself is not valid XML that could be parsed.
+    The extra challenge is that lxml transforms
+    "pebble (&lt;2cm) and boulder (&gt;20cm)" into
+    "pebble (<2cm) and boulder (>20cm)"
+    (but only if &gt; follows &lt;).
+    This forces us to write a regex that carefully distinguishes
+    between a real tag (which is not allowed) and a false-positive-tag.
+
+    Args:
+        xml: parsed XML file
+
+    Returns:
+        True and None if the XML file is valid, False and an error message if not
+    """
+    resources_with_illegal_xml_tags = list()
+    for text in xml.findall(path="resource/text-prop/text"):
+        if text.attrib["encoding"] == "utf8":
+            if (
+                regex.search(r'<([a-zA-Z/"]+|[^\s0-9].*[^\s0-9])>', str(text.text))
+                or len(list(text.iterchildren())) > 0
+            ):
+                sourceline = f" line {text.sourceline}: " if text.sourceline else " "
+                propname = text.getparent().attrib["name"]  # type: ignore[union-attr]
+                resname = text.getparent().getparent().attrib["id"]  # type: ignore[union-attr]
+                resources_with_illegal_xml_tags.append(f" -{sourceline}resource '{resname}', property '{propname}'")
+    if resources_with_illegal_xml_tags:
+        err_msg = (
+            "XML-tags are not allowed in text properties with encoding=utf8. "
+            "The following resources of your XML file violate this rule:\n"
+        )
+        err_msg += "\n".join(resources_with_illegal_xml_tags)
+        return False, err_msg
+
+    return True, None
+
+
 # XXX: should this be a service with interface?
 
 
 @dataclass(frozen=True)
 class XmlParserLive:
+    """XML parser"""
+
     shortcode: str
     default_ontology: str
     root: etree._Element
 
     @staticmethod
-    def make(root: etree._Element) -> XmlParserLive:
-        # XXX: schema validation
+    def from_file(path: Path) -> XmlParserLive | None:
+        """Creates an XML parser from a file. Returns None, if the file is invalid."""
+        root = read_xml_file(path)
+        return XmlParserLive.make(root)
+
+    @staticmethod
+    def make(root: etree._Element) -> XmlParserLive | None:
+        """Creates an XML parser from an XML ElementTree. Returns None, if the XML is invalid."""
+        valid, error_msg = _validate_xml_against_schema(root)
+        if not valid:
+            print(f"ERROR: {error_msg}")
+            logger.error(error_msg)
+            return None
         shortcode = root.attrib["shortcode"]
         default_ontology = root.attrib["default-ontology"]
         processed_root = _remove_qnames_and_transform_special_tags(root)
+        valid, error_msg = _validate_xml_tags_in_text_properties(processed_root)
+        if not valid:
+            print(f"ERROR: {error_msg}")
+            logger.error(error_msg)
+            return None
         return XmlParserLive(shortcode, default_ontology, processed_root)
 
-    def get_resources(self) -> UploadResourceCollection:
+    def get_resources(self) -> InputResourceCollection:
+        """Get a collection of resources from the XML file."""
         resources = list(self._parse())
-        return UploadResourceCollection(self.shortcode, self.default_ontology, resources)
+        return InputResourceCollection(self.shortcode, self.default_ontology, resources)
 
-    def _parse(self) -> Iterable[Resource]:
+    def _parse(self) -> Iterable[InputResource]:
+        permission_lookup = self._get_permission_lookup()
         resources = list(self.root.iter(tag="resource"))
         for res in resources:
             res_id = res.attrib["id"]
@@ -84,19 +175,29 @@ class XmlParserLive:
             if (bs := res.find("bitstream")) is not None:
                 bitstream = bs.text
                 assert bitstream
-            permissions = res.attrib.get("permissions")  # XXX: handle correctly
+            permission_id = res.attrib.get("permissions")
+            permissions = permission_lookup[permission_id] if permission_id else None
             # XXX: iri
             # XXX: ark
             # XXX: creation_date
-            resource = Resource(
+            resource = InputResource(
                 resource_id=res_id,
                 resource_type=res_type,
                 label=label,
                 values=values,
-                bitstream=bitstream,
+                bitstream_path=bitstream,
                 permissions=permissions,
             )
             yield resource
+
+    def _get_permission_lookup(self) -> dict[str, InputPermissions]:
+        permissions = self.root.findall("permissions")
+        res = {}
+        for perm in permissions:
+            name = perm.attrib["name"]
+            allows = perm.findall("allow")
+            res[name] = InputPermissions({a.attrib["group"]: a.text or "" for a in allows})
+        return res
 
     def _with_prefix(self, s: str) -> str:
         m = regex.match(r"((\w+)?(:))?(\w+)", s)

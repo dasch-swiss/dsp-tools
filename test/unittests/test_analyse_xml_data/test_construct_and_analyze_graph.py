@@ -456,7 +456,7 @@ def test_remove_edges_to_stash_missing_nodes() -> None:
 
 
 def test_find_phantom_xml_edges_no_remaining() -> None:
-    xml_link = XMLLink("a", {"b", "d"})
+    xml_link = XMLLink("0", {"2", "3"})
     edges = [
         (0, 1, xml_link),
         (1, 2, ResptrLink),
@@ -468,7 +468,7 @@ def test_find_phantom_xml_edges_no_remaining() -> None:
 
 
 def test_find_phantom_xml_edges_one_link() -> None:
-    xml_link = XMLLink("a", {"b", "d"})
+    xml_link = XMLLink("0", {"1", "3"})
     edges = [
         (0, 1, xml_link),
         (0, 3, xml_link),
@@ -481,15 +481,15 @@ def test_find_phantom_xml_edges_one_link() -> None:
 
 
 def test_add_stash_to_lookup_dict_none_existing() -> None:
-    resptr_a1 = ResptrLink("a", "b")
-    resptr_a2 = ResptrLink("a", "b")
-    xml_a = XMLLink("a", {"b", "c"})
+    resptr_a1 = ResptrLink("0", "1")
+    resptr_a2 = ResptrLink("0", "1")
+    xml_a = XMLLink("0", {"1", "2"})
     to_stash = [resptr_a1, resptr_a2, xml_a]
-    expected = {"a": [resptr_a1.link_uuid, resptr_a2.link_uuid, xml_a.link_uuid]}
+    expected = {"0": [resptr_a1.link_uuid, resptr_a2.link_uuid, xml_a.link_uuid]}
     stash_dict = dict()
     result = _add_stash_to_lookup_dict(stash_dict, to_stash)
     assert result.keys() == expected.keys()
-    assert unordered(result["a"]) == expected["a"]
+    assert unordered(result["0"]) == expected["0"]
 
 
 def test_add_stash_to_lookup_dict() -> None:

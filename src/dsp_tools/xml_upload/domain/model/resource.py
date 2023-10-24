@@ -2,8 +2,6 @@ from dataclasses import dataclass
 
 from dsp_tools.xml_upload.domain.model.value import Value
 
-# TODO: use wrappers where it makes sense
-
 
 @dataclass(frozen=True)
 class InputPermissions:
@@ -14,6 +12,8 @@ class InputPermissions:
 
 @dataclass(frozen=True)
 class InputResource:
+    """All information of a resource as provided by the XML input."""
+
     resource_id: str
     resource_type: str
     label: str
@@ -27,6 +27,8 @@ class InputResource:
 
 @dataclass(frozen=True)
 class InputResourceCollection:
+    """A collection of resources as provided by the XML input."""
+
     shortcode: str
     default_ontology: str
     resources: list[InputResource]
@@ -34,6 +36,8 @@ class InputResourceCollection:
 
 @dataclass(frozen=True)
 class ProcessedResource:
+    """All information of a resource after preprocessing."""
+
     resource_id: str
     resource_type: str
     label: str
@@ -43,3 +47,4 @@ class ProcessedResource:
     iri: str | None = None
     ark: str | None = None
     creation_date: str | None = None
+    # XXX: stash could be included here?

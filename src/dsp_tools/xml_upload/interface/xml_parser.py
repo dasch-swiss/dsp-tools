@@ -194,7 +194,7 @@ class XmlParserLive:
         permissions = self.root.findall("permissions")
         res = {}
         for perm in permissions:
-            name = perm.attrib["name"]
+            name = perm.attrib["id"]
             allows = perm.findall("allow")
             res[name] = InputPermissions({a.attrib["group"]: a.text or "" for a in allows})
         return res

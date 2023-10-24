@@ -9,7 +9,6 @@ from typing import Any
 from dsp_tools.models.sipi import Sipi
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import login
-from dsp_tools.utils.xml_utils import read_xml_file
 from dsp_tools.utils.xmlupload.upload_config import UploadConfig
 from dsp_tools.utils.xmlupload.write_diagnostic_info import write_id2iri_mapping
 from dsp_tools.xml_upload.domain.service.upload_service import UploadService

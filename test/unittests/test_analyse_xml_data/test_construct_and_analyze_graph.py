@@ -334,39 +334,42 @@ def test_find_cheapest_outgoing_links_four_circle() -> None:
 def test_find_cheapest_outgoing_links_xml() -> None:
     nodes = [
         #      out / in
-        "a",  # 4 (2 XML) / 3
-        "b",  # 3 / 3
-        "c",  # 1 (3 XML) / 3
-        "d",  # 3 / 3
-        "e",
-        "f",
+        "0",  # 4 (2 XML) / 3
+        "1",  # 3 / 3
+        "2",  # 1 (3 XML) / 3
+        "3",  # 3 / 3
+        "4",
+        "5",
     ]
     g = rx.PyDiGraph()
     g.add_nodes_from(nodes)
-    a_de_xml = XMLLink("a", {"d", "e"})
-    b_d_xml = XMLLink("b", {"d"})
-    c_bdf_xml = XMLLink("c", {"b", "d", "f"})
+    a_de_xml = XMLLink("0", {"3", "4"})
+    b_d_xml = XMLLink("1", {"3"})
+    c_bdf_xml = XMLLink("2", {"1", "3", "5"})
     circle = [(0, 1), (1, 2), (2, 3), (3, 0)]
-    with patch("dsp_tools.analyse_xml_data.models.ResptrLink.cost_links", 1):
-        edges = [
-            (0, 1, ResptrLink),
-            (0, 1, ResptrLink),
-            (0, 2, ResptrLink),
-            (0, 3, a_de_xml),
-            (0, 4, a_de_xml),
-            (1, 2, ResptrLink),
-            (1, 2, ResptrLink),
-            (1, 3, b_d_xml),
-            (2, 1, c_bdf_xml),
-            (2, 3, c_bdf_xml),
-            (2, 5, c_bdf_xml),
-            (3, 0, ResptrLink),
-            (3, 0, ResptrLink),
-            (3, 0, ResptrLink),
-        ]
-        g.add_edges_from(edges)
-        cheapest_links = _find_cheapest_outgoing_links(g, circle, edges)
-        assert cheapest_links == [(2, 3, c_bdf_xml)]
+    edges_resptr = [
+        (0, 1),
+        (0, 1),
+        (0, 2),
+        (1, 2),
+        (1, 2),
+        (3, 0),
+        (3, 0),
+        (3, 0),
+    ]
+    xml_edges = [
+        (1, 3, b_d_xml),
+        (2, 1, c_bdf_xml),
+        (2, 3, c_bdf_xml),
+        (2, 5, c_bdf_xml),
+        (0, 3, a_de_xml),
+        (0, 4, a_de_xml),
+    ]
+    edges = get_resptr_instances(edges_resptr)
+    edges.extend(xml_edges)
+    g.add_edges_from(edges)
+    cheapest_links = _find_cheapest_outgoing_links(g, circle, edges)
+    assert cheapest_links == [edges[10]]
 
 
 def test_remove_edges_to_stash_phantom_xml() -> None:

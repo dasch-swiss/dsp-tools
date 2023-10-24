@@ -424,14 +424,14 @@ def test_remove_edges_to_stash_several_resptr() -> None:
         (2, 0),
         (2, 0),
     ]
-    edges = get_resptr_instances(edges)
-    g.add_edges_from(edges)
-    edges_to_remove = edges[0:2]
+    all_edges = get_resptr_instances(edges)
+    g.add_edges_from(all_edges)
+    edges_to_remove = all_edges[0:2]
     remaining_nodes = set(range(10))
     res_links = _remove_edges_to_stash(g, edges_to_remove, edges, remaining_nodes)
     remaining_edges = list(g.edge_list())
     assert unordered(remaining_edges) == [(1, 2), (1, 2), (1, 2), (1, 2), (1, 2), (2, 0), (2, 0), (2, 0), (2, 0)]
-    assert unordered(res_links) == [edges[0][2], edges[1][2]]
+    assert unordered(res_links) == [all_edges[0][2], all_edges[1][2]]
 
 
 def test_remove_edges_to_stash_missing_nodes() -> None:
@@ -530,6 +530,8 @@ def test_generate_upload_order_with_stash() -> None:
     assert upload_order[2:] == ["5", "0", "3", "2", "1"]
     assert stash_lookup.keys() == expected_stash_lookup.keys()
     assert stash_lookup["0"] == expected_stash_lookup["0"]
+    assert list(g.edges()) == []
+    assert list(g.nodes()) == []
 
 
 def test_generate_upload_order_no_stash() -> None:
@@ -554,6 +556,50 @@ def test_generate_upload_order_no_stash() -> None:
     assert stash_lookup == dict()
     assert stash_counter == 0
     assert upload_order == ["3", "2", "1", "0"]
+    assert list(g.edges()) == []
+    assert list(g.nodes()) == []
+
+
+def test_generate_upload_order_two_circles() -> None:
+    g = rx.PyDiGraph()
+    nodes = ["0", "1", "2", "3", "4", "5", "6"]
+    node_idx = g.add_nodes_from(nodes)
+    node_idx_lookup = dict(zip(node_idx, nodes))
+    node_idx = set(node_idx)
+    edges = [
+        (0, 1),
+        (0, 5),
+        (1, 2),
+        (2, 3),
+        (2, 0),
+        (3, 0),
+        (3, 0),
+        (3, 0),
+        (3, 4),
+        (5, 6),
+        (5, 6),
+        (6, 5),
+        (6, 5),
+        (6, 5),
+    ]
+    all_edges = get_resptr_instances(edges)
+    g.add_edges_from(all_edges)
+    stash_lookup, upload_order, stash_counter = generate_upload_order(
+        g,
+        node_idx_lookup,
+        all_edges,
+        node_idx,
+    )
+    circles = ["0", "1", "2", "3", "5", "6"]
+    expected_stash = {"0": [all_edges[0][2].link_uuid], "5": [x[2].link_uuid for x in all_edges[9:11]]}
+    assert upload_order[0] == "4"
+    assert unordered(upload_order[1:]) == circles
+    assert stash_counter == 3
+    assert stash_lookup.keys() == expected_stash.keys()
+    assert stash_lookup["0"] == expected_stash["0"]
+    assert unordered(stash_lookup["5"]) == expected_stash["5"]
+    assert list(g.edges()) == []
+    assert list(g.nodes()) == []
 
 
 if __name__ == "__main__":

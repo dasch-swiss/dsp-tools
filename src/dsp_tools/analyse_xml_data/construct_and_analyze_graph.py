@@ -87,7 +87,9 @@ def _extract_ids_from_one_text_value(text: etree._Element) -> set[str]:
 
 
 def make_graph(
-    resptr_links: list[ResptrLink], xml_links: list[XMLLink], all_resource_ids: list[str]
+    resptr_links: list[ResptrLink],
+    xml_links: list[XMLLink],
+    all_resource_ids: list[str],
 ) -> tuple[rx.PyDiGraph[Any, Any], dict[int, str], list[tuple[int, int, ResptrLink | XMLLink]], set[int]]:
     """
     This function takes information about the resources (nodes) and links between them (edges).
@@ -244,7 +246,8 @@ def _find_phantom_xml_edges(
 
 
 def _add_stash_to_lookup_dict(
-    stash_dict: dict[str, list[str]], links_to_stash: list[XMLLink | ResptrLink]
+    stash_dict: dict[str, list[str]],
+    links_to_stash: list[XMLLink | ResptrLink],
 ) -> dict[str, list[str]]:
     stash_list = [stash_link.link_uuid for stash_link in links_to_stash]
     # all stashed links have the same subject id, so we can just take the first one

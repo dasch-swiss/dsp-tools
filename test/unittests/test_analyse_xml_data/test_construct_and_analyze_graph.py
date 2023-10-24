@@ -410,31 +410,30 @@ def test_remove_edges_to_stash_phantom_xml() -> None:
 
 
 def test_remove_edges_to_stash_several_resptr() -> None:
-    nodes = ["a", "b", "c"]
+    nodes = ["0", "1", "2"]
     g = rx.PyDiGraph()
     g.add_nodes_from(nodes)
-    resptr_1 = ResptrLink("a", "b")
-    resptr_2 = ResptrLink("a", "b")
     edges = [
-        (0, 1, resptr_1),
-        (0, 1, resptr_2),
-        (1, 2, ResptrLink),
-        (1, 2, ResptrLink),
-        (1, 2, ResptrLink),
-        (1, 2, ResptrLink),
-        (1, 2, ResptrLink),
-        (2, 0, ResptrLink),
-        (2, 0, ResptrLink),
-        (2, 0, ResptrLink),
-        (2, 0, ResptrLink),
+        (0, 1),
+        (0, 1),
+        (1, 2),
+        (1, 2),
+        (1, 2),
+        (1, 2),
+        (1, 2),
+        (2, 0),
+        (2, 0),
+        (2, 0),
+        (2, 0),
     ]
+    edges = get_resptr_instances(edges)
     g.add_edges_from(edges)
-    edges_to_remove = [(0, 1, resptr_1), (0, 1, resptr_2)]
+    edges_to_remove = edges[0:2]
     remaining_nodes = set(range(10))
     res_links = _remove_edges_to_stash(g, edges_to_remove, edges, remaining_nodes)
     remaining_edges = list(g.edge_list())
     assert unordered(remaining_edges) == [(1, 2), (1, 2), (1, 2), (1, 2), (1, 2), (2, 0), (2, 0), (2, 0), (2, 0)]
-    assert unordered(res_links) == [resptr_1, resptr_2]
+    assert unordered(res_links) == [edges[0][2], edges[1][2]]
 
 
 def test_remove_edges_to_stash_missing_nodes() -> None:

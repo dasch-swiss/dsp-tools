@@ -513,8 +513,7 @@ def test_generate_upload_order_with_stash() -> None:
         expected_stash_lookup = {"a": [abf_xml.link_uuid]}
         assert stash_counter == 1
         assert unordered(upload_order[0:2]) == ["e", "g"]
-        assert upload_order[2] == "f"
-        assert unordered(upload_order[3:]) == ["a", "b", "c", "d"]
+        assert upload_order[2:] == ["f", "a", "d", "c", "b"]
         assert stash_lookup.keys() == expected_stash_lookup.keys()
         assert stash_lookup["a"] == expected_stash_lookup["a"]
 

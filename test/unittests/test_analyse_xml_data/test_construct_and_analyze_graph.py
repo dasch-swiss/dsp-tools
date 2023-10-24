@@ -214,12 +214,12 @@ def test_make_graph() -> None:
     xml = XMLLink("a", {"b", "c"})
     xml_links = [xml]
     all_ids = ["a", "b", "c"]
-    graph, node_index_lookup, edges, node_indices = make_graph(resptr_links, xml_links, all_ids)
+    graph, rustworkx_index_to_id, edges, node_indices = make_graph(resptr_links, xml_links, all_ids)
     assert graph.num_nodes() == 3
     assert graph.num_edges() == 3
-    assert node_index_lookup[0] == "a"
-    assert node_index_lookup[1] == "b"
-    assert node_index_lookup[2] == "c"
+    assert rustworkx_index_to_id[0] == "a"
+    assert rustworkx_index_to_id[1] == "b"
+    assert rustworkx_index_to_id[2] == "c"
     assert unordered(edges) == [(0, 1, resptr), (0, 1, xml), (0, 2, xml)]
     assert node_indices == {0, 1, 2}
 

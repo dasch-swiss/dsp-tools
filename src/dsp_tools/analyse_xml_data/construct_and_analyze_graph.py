@@ -13,17 +13,17 @@ def create_info_from_xml_for_graph(
     root: etree._Element,
 ) -> tuple[list[ResptrLink], list[XMLLink], list[str]]:
     """
-    Create instances of the classes ResptrLink and XMLLink from the root of the XML file.
-    It adds a reference UUID with which the class instances that represent the links can be linked to the actual
-    XML elements.
+    Create link objects (ResptrLink/XMLLink) from the XML file,
+    and add a reference UUID to each XML element that contains a link (<resptr> or <text>).
+    With this UUID, the link objects can be identified in the XML data file.
 
     Args:
         root: root of the parsed XML file
 
     Returns:
-        a list of all the resptr links represented in a class instance
-        a list of all the rich-text links represented in a class instance
-        a list with all the resource IDs used in the file
+        all resptr links contained in the XML file, represented as ResptrLink objects
+        all XML links contained in the XML file, represented as XMLLink objects
+        a list with all resource IDs used in the XML file
     """
     resptr_links = []
     xml_links = []

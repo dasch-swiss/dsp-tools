@@ -295,39 +295,40 @@ def test_find_cheapest_outgoing_links_one_resptr_link() -> None:
 def test_find_cheapest_outgoing_links_four_circle() -> None:
     nodes = [
         #     out / in
-        "a",  # 1 / 3
-        "b",  # 2 / 1
-        "c",  # 3 / 6
-        "d",  # 6 / 3
-        "e",
-        "f",
+        "0",  # 1 / 3
+        "1",  # 2 / 1
+        "2",  # 3 / 6
+        "3",  # 6 / 3
+        "4",
+        "5",
     ]
     g = rx.PyDiGraph()
     g.add_nodes_from(nodes)
-    with patch("dsp_tools.analyse_xml_data.models.ResptrLink.cost_links", 1):
-        edges = [
-            (0, 1, ResptrLink),
-            (1, 0, ResptrLink),
-            (1, 2, ResptrLink),
-            (1, 2, ResptrLink),
-            (2, 3, ResptrLink),
-            (2, 3, ResptrLink),
-            (2, 3, ResptrLink),
-            (3, 0, ResptrLink),
-            (3, 0, ResptrLink),
-            (3, 5, ResptrLink),
-            (3, 5, ResptrLink),
-            (3, 5, ResptrLink),
-            (3, 5, ResptrLink),
-            (4, 2, ResptrLink),
-            (4, 2, ResptrLink),
-            (4, 2, ResptrLink),
-            (4, 2, ResptrLink),
-        ]
-        g.add_edges_from(edges)
-        circle = [(0, 1), (1, 2), (2, 3), (3, 0)]
-        cheapest_links = _find_cheapest_outgoing_links(g, circle, edges)
-        assert cheapest_links == [(0, 1, ResptrLink)]  # type: ignore[comparison-overlap]
+    edges = [
+        (0, 1),
+        (1, 0),
+        (1, 2),
+        (1, 2),
+        (2, 3),
+        (2, 3),
+        (2, 3),
+        (3, 0),
+        (3, 0),
+        (3, 5),
+        (3, 5),
+        (3, 5),
+        (3, 5),
+        (4, 2),
+        (4, 2),
+        (4, 2),
+        (4, 2),
+    ]
+    edges = get_resptr_instances(edges)
+    g.add_edges_from(edges)
+    g.add_edges_from(edges)
+    circle = [(0, 1), (1, 2), (2, 3), (3, 0)]
+    cheapest_links = _find_cheapest_outgoing_links(g, circle, edges)
+    assert cheapest_links == [edges[0]]  # type: ignore[comparison-overlap]
 
 
 def test_find_cheapest_outgoing_links_xml() -> None:

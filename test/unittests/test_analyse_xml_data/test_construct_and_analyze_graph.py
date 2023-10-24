@@ -287,7 +287,7 @@ def test_find_cheapest_outgoing_links_one_resptr_link() -> None:
     edges_returned: list[tuple[int, int, XMLLink | ResptrLink]] = list(get_resptr_instances(edges))
     g.add_edges_from(edges_returned)
     cheapest_links = _find_cheapest_outgoing_links(g, circle, edges_returned)
-    assert cheapest_links == [edges[3]]  # type: ignore[comparison-overlap]
+    assert cheapest_links == [edges_returned[3]]  # type: ignore[comparison-overlap]
 
 
 def test_find_cheapest_outgoing_links_four_circle() -> None:

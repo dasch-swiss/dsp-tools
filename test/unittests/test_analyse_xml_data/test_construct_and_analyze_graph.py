@@ -255,36 +255,41 @@ def test_remove_leaf_nodes() -> None:
     assert unordered(g.edges()) == ["ab", "bd", "da"]
 
 
+def get_resptr_instances(edges_list: list[tuple[int, int]]) -> list[tuple[int, int, ResptrLink]]:
+    resptrs = [ResptrLink(str(x[0]), str(x[1])) for x in edges_list]
+    return [(x[0], x[1], link) for x, link in zip(edges_list, resptrs)]
+
+
 def test_find_cheapest_outgoing_links_one_resptr_link() -> None:
     nodes = [
         #     out / in
-        "a",  # 3 / 3
-        "b",  # 2 / 3
-        "c",  # 3 / 2
-        "d",  # 4 / 2
-        "e",
+        "0",  # 3 / 3
+        "1",  # 2 / 3
+        "2",  # 3 / 2
+        "3",  # 4 / 2
+        "4",
     ]
     g = rx.PyDiGraph()
     g.add_nodes_from(nodes)
     circle = [(0, 1), (1, 2), (2, 3), (3, 0)]
-    with patch("dsp_tools.analyse_xml_data.models.ResptrLink.cost_links", 1):
-        edges = [
-            (0, 1, ResptrLink),
-            (0, 4, ResptrLink),
-            (0, 4, ResptrLink),
-            (1, 2, ResptrLink),
-            (1, 3, ResptrLink),
-            (2, 0, ResptrLink),
-            (2, 1, ResptrLink),
-            (2, 3, ResptrLink),
-            (3, 0, ResptrLink),
-            (3, 0, ResptrLink),
-            (3, 1, ResptrLink),
-            (3, 2, ResptrLink),
-        ]
-        g.add_edges_from(edges)
-        cheapest_links = _find_cheapest_outgoing_links(g, circle, edges)
-        assert cheapest_links == [(1, 2, ResptrLink)]  # type: ignore[comparison-overlap]
+    edges = [
+        (0, 1),
+        (0, 4),
+        (0, 4),
+        (1, 2),
+        (1, 3),
+        (2, 0),
+        (2, 1),
+        (2, 3),
+        (3, 0),
+        (3, 0),
+        (3, 1),
+        (3, 2),
+    ]
+    edges = get_resptr_instances(edges)
+    g.add_edges_from(edges)
+    cheapest_links = _find_cheapest_outgoing_links(g, circle, edges)
+    assert cheapest_links == [edges[3]]  # type: ignore[comparison-overlap]
 
 
 def test_find_cheapest_outgoing_links_four_circle() -> None:

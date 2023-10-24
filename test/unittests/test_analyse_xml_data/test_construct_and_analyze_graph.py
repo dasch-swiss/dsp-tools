@@ -536,26 +536,26 @@ def test_generate_upload_order_with_stash() -> None:
 
 def test_generate_upload_order_no_stash() -> None:
     g = rx.PyDiGraph()
-    nodes = ["a", "b", "c", "d"]
+    nodes = ["0", "1", "2", "3"]
     node_idx = g.add_nodes_from(nodes)
     node_idx_lookup = dict(zip(node_idx, nodes))
     node_idx = set(node_idx)
-    with patch("dsp_tools.analyse_xml_data.models.ResptrLink.cost_links", 1):
-        edges = [
-            (0, 1, ResptrLink),
-            (1, 2, ResptrLink),
-            (2, 3, ResptrLink),
-        ]
-        g.add_edges_from(edges)
-        stash_lookup, upload_order, stash_counter = generate_upload_order(
-            g,
-            node_idx_lookup,
-            edges,
-            node_idx,
-        )
-        assert stash_lookup == dict()
-        assert stash_counter == 0
-        assert upload_order == ["d", "c", "b", "a"]
+    edges = [
+        (0, 1),
+        (1, 2),
+        (2, 3),
+    ]
+    edges = get_resptr_instances(edges)
+    g.add_edges_from(edges)
+    stash_lookup, upload_order, stash_counter = generate_upload_order(
+        g,
+        node_idx_lookup,
+        edges,
+        node_idx,
+    )
+    assert stash_lookup == dict()
+    assert stash_counter == 0
+    assert upload_order == ["3", "2", "1", "0"]
 
 
 if __name__ == "__main__":

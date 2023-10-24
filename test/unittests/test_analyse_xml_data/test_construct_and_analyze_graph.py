@@ -265,24 +265,23 @@ def test_find_cheapest_outgoing_links_one_resptr_link() -> None:
     g: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()
     g.add_nodes_from(nodes)
     circle = [(0, 1), (1, 2), (2, 3), (3, 0)]
-    edges = [
-        (0, 1),
-        (0, 4),
-        (0, 4),
-        (1, 2),
-        (1, 3),
-        (2, 0),
-        (2, 1),
-        (2, 3),
-        (3, 0),
-        (3, 0),
-        (3, 1),
-        (3, 2),
+    edges: list[tuple[int, int, XMLLink | ResptrLink]] = [
+        (0, 1, ResptrLink("", "")),
+        (0, 4, ResptrLink("", "")),
+        (0, 4, ResptrLink("", "")),
+        (1, 2, ResptrLink("", "")),
+        (1, 3, ResptrLink("", "")),
+        (2, 0, ResptrLink("", "")),
+        (2, 1, ResptrLink("", "")),
+        (2, 3, ResptrLink("", "")),
+        (3, 0, ResptrLink("", "")),
+        (3, 0, ResptrLink("", "")),
+        (3, 1, ResptrLink("", "")),
+        (3, 2, ResptrLink("", "")),
     ]
-    edges_with_links = _get_resptr_instances(edges)
-    g.add_edges_from(edges_with_links)
-    cheapest_links = _find_cheapest_outgoing_links(g, circle, edges_with_links)
-    assert cheapest_links == [edges_with_links[3]]
+    g.add_edges_from(edges)
+    cheapest_links = _find_cheapest_outgoing_links(g, circle, edges)
+    assert cheapest_links == [edges[3]]
 
 
 def test_find_cheapest_outgoing_links_four_circle() -> None:
@@ -297,31 +296,29 @@ def test_find_cheapest_outgoing_links_four_circle() -> None:
     ]
     g: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()
     g.add_nodes_from(nodes)
-    edges = [
-        (0, 1),
-        (1, 0),
-        (1, 2),
-        (1, 2),
-        (2, 3),
-        (2, 3),
-        (2, 3),
-        (3, 0),
-        (3, 0),
-        (3, 5),
-        (3, 5),
-        (3, 5),
-        (3, 5),
-        (4, 2),
-        (4, 2),
-        (4, 2),
-        (4, 2),
+    edges: list[tuple[int, int, XMLLink | ResptrLink]] = [
+        (0, 1, ResptrLink("", "")),
+        (1, 0, ResptrLink("", "")),
+        (1, 2, ResptrLink("", "")),
+        (1, 2, ResptrLink("", "")),
+        (2, 3, ResptrLink("", "")),
+        (2, 3, ResptrLink("", "")),
+        (2, 3, ResptrLink("", "")),
+        (3, 0, ResptrLink("", "")),
+        (3, 0, ResptrLink("", "")),
+        (3, 5, ResptrLink("", "")),
+        (3, 5, ResptrLink("", "")),
+        (3, 5, ResptrLink("", "")),
+        (3, 5, ResptrLink("", "")),
+        (4, 2, ResptrLink("", "")),
+        (4, 2, ResptrLink("", "")),
+        (4, 2, ResptrLink("", "")),
+        (4, 2, ResptrLink("", "")),
     ]
-    edges_with_links = _get_resptr_instances(edges)
-    g.add_edges_from(edges_with_links)
-    g.add_edges_from(edges_with_links)
+    g.add_edges_from(edges)
     circle = [(0, 1), (1, 2), (2, 3), (3, 0)]
-    cheapest_links = _find_cheapest_outgoing_links(g, circle, edges_with_links)
-    assert cheapest_links == [edges_with_links[0]]
+    cheapest_links = _find_cheapest_outgoing_links(g, circle, edges)
+    assert cheapest_links == [edges[0]]
 
 
 def test_find_cheapest_outgoing_links_xml() -> None:
@@ -340,17 +337,15 @@ def test_find_cheapest_outgoing_links_xml() -> None:
     b_d_xml = XMLLink("1", {"3"})
     c_bdf_xml = XMLLink("2", {"1", "3", "5"})
     circle = [(0, 1), (1, 2), (2, 3), (3, 0)]
-    edges_resptr = [
-        (0, 1),
-        (0, 1),
-        (0, 2),
-        (1, 2),
-        (1, 2),
-        (3, 0),
-        (3, 0),
-        (3, 0),
-    ]
-    xml_edges = [
+    edges: list[tuple[int, int, XMLLink | ResptrLink]] = [
+        (0, 1, ResptrLink("", "")),
+        (0, 1, ResptrLink("", "")),
+        (0, 2, ResptrLink("", "")),
+        (1, 2, ResptrLink("", "")),
+        (1, 2, ResptrLink("", "")),
+        (3, 0, ResptrLink("", "")),
+        (3, 0, ResptrLink("", "")),
+        (3, 0, ResptrLink("", "")),
         (1, 3, b_d_xml),
         (2, 1, c_bdf_xml),
         (2, 3, c_bdf_xml),
@@ -358,11 +353,9 @@ def test_find_cheapest_outgoing_links_xml() -> None:
         (0, 3, a_de_xml),
         (0, 4, a_de_xml),
     ]
-    edges_with_links = _get_resptr_instances(edges_resptr)
-    edges_with_links.extend(xml_edges)
-    g.add_edges_from(edges_with_links)
-    cheapest_links = _find_cheapest_outgoing_links(g, circle, edges_with_links)
-    assert cheapest_links == [edges_with_links[10]]
+    g.add_edges_from(edges)
+    cheapest_links = _find_cheapest_outgoing_links(g, circle, edges)
+    assert cheapest_links == [edges[10]]
 
 
 def test_remove_edges_to_stash_phantom_xml() -> None:
@@ -374,17 +367,15 @@ def test_remove_edges_to_stash_phantom_xml() -> None:
     c_bdf_xml = XMLLink("2", {"1", "3", "5"})
     edges_to_remove: list[tuple[int, int, XMLLink | ResptrLink]] = [(2, 3, c_bdf_xml)]
     remaining_nodes = set(range(10))
-    resptr_edges = [
-        (0, 1),
-        (0, 1),
-        (0, 2),
-        (1, 2),
-        (1, 2),
-        (3, 0),
-        (3, 0),
-        (3, 0),
-    ]
-    xml_edges = [
+    edges: list[tuple[int, int, XMLLink | ResptrLink]] = [
+        (0, 1, ResptrLink("", "")),
+        (0, 1, ResptrLink("", "")),
+        (0, 2, ResptrLink("", "")),
+        (1, 2, ResptrLink("", "")),
+        (1, 2, ResptrLink("", "")),
+        (3, 0, ResptrLink("", "")),
+        (3, 0, ResptrLink("", "")),
+        (3, 0, ResptrLink("", "")),
         (0, 3, a_de_xml),
         (0, 4, a_de_xml),
         (1, 3, b_d_xml),
@@ -392,10 +383,8 @@ def test_remove_edges_to_stash_phantom_xml() -> None:
         (2, 3, c_bdf_xml),
         (2, 5, c_bdf_xml),
     ]
-    edges_with_links = _get_resptr_instances(resptr_edges)
-    edges_with_links.extend(xml_edges)
-    g.add_edges_from(edges_with_links)
-    res_links_to_stash = _remove_edges_to_stash(g, edges_to_remove, edges_with_links, remaining_nodes)
+    g.add_edges_from(edges)
+    res_links_to_stash = _remove_edges_to_stash(g, edges_to_remove, edges, remaining_nodes)
     assert res_links_to_stash == [c_bdf_xml]
     remaining_edges = list(g.edge_list())
     expected_edges = [(0, 1), (0, 1), (0, 2), (0, 3), (0, 4), (1, 2), (1, 2), (1, 3), (3, 0), (3, 0), (3, 0)]
@@ -406,27 +395,26 @@ def test_remove_edges_to_stash_several_resptr() -> None:
     nodes = ["0", "1", "2"]
     g: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()
     g.add_nodes_from(nodes)
-    edges = [
-        (0, 1),
-        (0, 1),
-        (1, 2),
-        (1, 2),
-        (1, 2),
-        (1, 2),
-        (1, 2),
-        (2, 0),
-        (2, 0),
-        (2, 0),
-        (2, 0),
+    edges: list[tuple[int, int, XMLLink | ResptrLink]] = [
+        (0, 1, ResptrLink("", "")),
+        (0, 1, ResptrLink("", "")),
+        (1, 2, ResptrLink("", "")),
+        (1, 2, ResptrLink("", "")),
+        (1, 2, ResptrLink("", "")),
+        (1, 2, ResptrLink("", "")),
+        (1, 2, ResptrLink("", "")),
+        (2, 0, ResptrLink("", "")),
+        (2, 0, ResptrLink("", "")),
+        (2, 0, ResptrLink("", "")),
+        (2, 0, ResptrLink("", "")),
     ]
-    all_edges = _get_resptr_instances(edges)
-    g.add_edges_from(all_edges)
-    edges_to_remove = all_edges[0:2]
+    g.add_edges_from(edges)
+    edges_to_remove = edges[0:2]
     remaining_nodes = set(range(10))
-    res_links = _remove_edges_to_stash(g, edges_to_remove, all_edges, remaining_nodes)
+    res_links = _remove_edges_to_stash(g, edges_to_remove, edges, remaining_nodes)
     remaining_edges = list(g.edge_list())
     assert unordered(remaining_edges) == [(1, 2), (1, 2), (1, 2), (1, 2), (1, 2), (2, 0), (2, 0), (2, 0), (2, 0)]
-    assert unordered(res_links) == [all_edges[0][2], all_edges[1][2]]
+    assert unordered(res_links) == [edges[0][2], edges[1][2]]
 
 
 def test_remove_edges_to_stash_missing_nodes() -> None:
@@ -500,24 +488,19 @@ def test_generate_upload_order_with_stash() -> None:
     node_idx = set(g.add_nodes_from(nodes))
     node_idx_lookup = dict(zip(node_idx, nodes))
     abf_xml = XMLLink("0", {"1", "5"})
-    edges = [
-        (1, 2),
-        (2, 3),
-        (3, 0),
-        (3, 0),
-        (3, 0),
-        (3, 4),
-        (5, 6),
-    ]
-    xml_edges = [
+    edges: list[tuple[int, int, XMLLink | ResptrLink]] = [
+        (1, 2, ResptrLink("", "")),
+        (2, 3, ResptrLink("", "")),
+        (3, 0, ResptrLink("", "")),
+        (3, 0, ResptrLink("", "")),
+        (3, 0, ResptrLink("", "")),
+        (3, 4, ResptrLink("", "")),
+        (5, 6, ResptrLink("", "")),
         (0, 1, abf_xml),
         (0, 5, abf_xml),
     ]
-    edges_with_links = _get_resptr_instances(edges)
-    edges_with_links.extend(xml_edges)
-
-    g.add_edges_from(edges_with_links)
-    stash_lookup, upload_order, stash_counter = generate_upload_order(g, node_idx_lookup, edges_with_links, node_idx)
+    g.add_edges_from(edges)
+    stash_lookup, upload_order, stash_counter = generate_upload_order(g, node_idx_lookup, edges, node_idx)
     expected_stash_lookup = {"0": [abf_xml.link_uuid]}
     assert stash_counter == 1
     assert unordered(upload_order[0:2]) == ["4", "6"]
@@ -533,17 +516,16 @@ def test_generate_upload_order_no_stash() -> None:
     nodes = ["0", "1", "2", "3"]
     node_idx = set(g.add_nodes_from(nodes))
     node_idx_lookup = dict(zip(node_idx, nodes))
-    edges = [
-        (0, 1),
-        (1, 2),
-        (2, 3),
+    edges: list[tuple[int, int, XMLLink | ResptrLink]] = [
+        (0, 1, ResptrLink("", "")),
+        (1, 2, ResptrLink("", "")),
+        (2, 3, ResptrLink("", "")),
     ]
-    edges_with_links = _get_resptr_instances(edges)
-    g.add_edges_from(edges_with_links)
+    g.add_edges_from(edges)
     stash_lookup, upload_order, stash_counter = generate_upload_order(
         g,
         node_idx_lookup,
-        edges_with_links,
+        edges,
         node_idx,
     )
     assert stash_lookup == dict()
@@ -558,32 +540,31 @@ def test_generate_upload_order_two_circles() -> None:
     nodes = ["0", "1", "2", "3", "4", "5", "6"]
     node_idx = set(g.add_nodes_from(nodes))
     node_idx_lookup = dict(zip(node_idx, nodes))
-    edges = [
-        (0, 1),
-        (0, 5),
-        (1, 2),
-        (2, 3),
-        (2, 0),
-        (3, 0),
-        (3, 0),
-        (3, 0),
-        (3, 4),
-        (5, 6),
-        (5, 6),
-        (6, 5),
-        (6, 5),
-        (6, 5),
+    edges: list[tuple[int, int, XMLLink | ResptrLink]] = [
+        (0, 1, ResptrLink("0", "1")),
+        (0, 5, ResptrLink("0", "5")),
+        (1, 2, ResptrLink("1", "2")),
+        (2, 3, ResptrLink("2", "3")),
+        (2, 0, ResptrLink("2", "0")),
+        (3, 0, ResptrLink("3", "0")),
+        (3, 0, ResptrLink("3", "0")),
+        (3, 0, ResptrLink("3", "0")),
+        (3, 4, ResptrLink("3", "4")),
+        (5, 6, ResptrLink("5", "6")),
+        (5, 6, ResptrLink("5", "6")),
+        (6, 5, ResptrLink("6", "5")),
+        (6, 5, ResptrLink("6", "5")),
+        (6, 5, ResptrLink("6", "5")),
     ]
-    all_edges = _get_resptr_instances(edges)
-    g.add_edges_from(all_edges)
+    g.add_edges_from(edges)
     stash_lookup, upload_order, stash_counter = generate_upload_order(
         g,
         node_idx_lookup,
-        all_edges,
+        edges,
         node_idx,
     )
     circles = ["0", "1", "2", "3", "5", "6"]
-    expected_stash = {"0": [all_edges[0][2].link_uuid], "5": [x[2].link_uuid for x in all_edges[9:11]]}
+    expected_stash = {"0": [edges[0][2].link_uuid], "5": [x[2].link_uuid for x in edges[9:11]]}
     assert upload_order[0] == "4"
     assert unordered(upload_order[1:]) == circles
     assert stash_counter == 3
@@ -592,11 +573,6 @@ def test_generate_upload_order_two_circles() -> None:
     assert unordered(stash_lookup["5"]) == expected_stash["5"]
     assert not list(g.edges())
     assert not list(g.nodes())
-
-
-def _get_resptr_instances(edges_list: list[tuple[int, int]]) -> list[tuple[int, int, XMLLink | ResptrLink]]:
-    resptrs = [ResptrLink(str(x[0]), str(x[1])) for x in edges_list]
-    return [(x[0], x[1], link) for x, link in zip(edges_list, resptrs)]
 
 
 if __name__ == "__main__":

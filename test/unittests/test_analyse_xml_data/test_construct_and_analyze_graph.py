@@ -41,12 +41,12 @@ def test_create_info_from_xml_for_graph_from_one_resource() -> None:
         </resource>"""
     )
     res_resptr_links, res_xml_links, subject_id = _create_info_from_xml_for_graph_from_one_resource(test_ele)
-    res_B_19 = [obj.object_id for obj in res_resptr_links]
+    res_B_19 = [obj.target_id for obj in res_resptr_links]
     assert "res_B_19" in res_B_19
     assert "res_C_19" in res_B_19
     assert "res_A_19" == subject_id
-    assert res_xml_links[0].subject_id == "res_A_19"
-    assert res_xml_links[0].object_link_ids == {"res_B_19", "res_C_19"}
+    assert res_xml_links[0].source_id == "res_A_19"
+    assert res_xml_links[0].target_ids == {"res_B_19", "res_C_19"}
 
 
 def test_create_info_from_xml_for_graph_from_one_resource_one() -> None:
@@ -67,9 +67,9 @@ def test_create_info_from_xml_for_graph_from_one_resource_one() -> None:
     )
     res_resptr, res_xml, subject_id = _create_info_from_xml_for_graph_from_one_resource(test_ele)
     assert subject_id == "res_A_11"
-    assert res_resptr[0].object_id == "res_B_11"
+    assert res_resptr[0].target_id == "res_B_11"
     assert isinstance(res_resptr[0], ResptrLink)
-    assert res_xml[0].object_link_ids == {"res_B_11"}
+    assert res_xml[0].target_ids == {"res_B_11"}
     assert isinstance(res_xml[0], XMLLink)
 
 
@@ -101,7 +101,7 @@ def test_text_only_create_info_from_xml_for_graph_from_one_resource() -> None:
     res_resptr, res_xml, subject_id = _create_info_from_xml_for_graph_from_one_resource(test_ele)
     assert subject_id == "res_C_18"
     assert not res_resptr
-    res_xml_ids = [x.object_link_ids for x in res_xml]
+    res_xml_ids = [x.target_ids for x in res_xml]
     assert unordered(res_xml_ids) == [{"res_A_18"}, {"res_B_18"}]
 
 
@@ -148,7 +148,7 @@ def test_extract_ids_from_text_prop_with_several_text_links() -> None:
         'class="salsah-link" href="IRI:res_B_18:IRI">res_B_18</a></text></text-prop>'
     )
     res = _create_text_link_objects("res_C_18", test_ele)
-    res_ids = [x.object_link_ids for x in res]
+    res_ids = [x.target_ids for x in res]
     assert unordered(res_ids) == [{"res_A_18"}, {"res_B_18"}]
 
 
@@ -162,7 +162,7 @@ def test_create_class_instance_resptr_link_one_link() -> None:
         """
     )
     res = _create_resptr_link_objects("res_A_15", test_ele)
-    assert res[0].object_id == "res_C_15"
+    assert res[0].target_id == "res_C_15"
 
 
 def test_create_class_instance_resptr_link_several() -> None:
@@ -178,9 +178,9 @@ def test_create_class_instance_resptr_link_several() -> None:
     )
     res = _create_resptr_link_objects("res_D_13", test_ele)
     assert all(isinstance(x, ResptrLink) for x in res)
-    assert res[0].object_id == "res_A_13"
-    assert res[1].object_id == "res_B_13"
-    assert res[2].object_id == "res_C_13"
+    assert res[0].target_id == "res_A_13"
+    assert res[1].target_id == "res_B_13"
+    assert res[2].target_id == "res_C_13"
 
 
 def test_create_info_from_xml_for_graph_check_UUID_in_root() -> None:
@@ -214,9 +214,9 @@ def test_make_graph() -> None:
     xml = XMLLink("a", {"b", "c"})
     xml_links = [xml]
     all_ids = ["a", "b", "c"]
-    g, node_index_lookup, edges, node_indices = make_graph(resptr_links, xml_links, all_ids)
-    assert g.num_nodes() == 3
-    assert g.num_edges() == 3
+    graph, node_index_lookup, edges, node_indices = make_graph(resptr_links, xml_links, all_ids)
+    assert graph.num_nodes() == 3
+    assert graph.num_edges() == 3
     assert node_index_lookup[0] == "a"
     assert node_index_lookup[1] == "b"
     assert node_index_lookup[2] == "c"
@@ -225,11 +225,11 @@ def test_make_graph() -> None:
 
 
 def test_remove_leaf_nodes() -> None:
-    g: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()
+    graph: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()
     nodes = ["a", "b", "c", "d", "e", "f"]
-    node_idx = set(g.add_nodes_from(nodes))
+    node_idx = set(graph.add_nodes_from(nodes))
     node_idx_lookup = dict(zip(node_idx, nodes))
-    g.add_edges_from(
+    graph.add_edges_from(
         [
             (0, 1, "ab"),
             (0, 4, "ae"),
@@ -246,11 +246,11 @@ def test_remove_leaf_nodes() -> None:
     # e is a leaf
     # f has no edges
 
-    removed_leaf_id, remaining_node_idx = _remove_leaf_nodes(g, node_idx_lookup, node_idx)
+    removed_leaf_id, remaining_node_idx = _remove_leaf_nodes(graph, node_idx_lookup, node_idx)
     assert unordered(removed_leaf_id) == ["c", "e", "f"]
     assert remaining_node_idx == {0, 1, 3}
-    assert unordered(g.nodes()) == ["a", "b", "d"]
-    assert unordered(g.edges()) == ["ab", "bd", "da"]
+    assert unordered(graph.nodes()) == ["a", "b", "d"]
+    assert unordered(graph.edges()) == ["ab", "bd", "da"]
 
 
 def test_find_cheapest_outgoing_links_one_resptr_link() -> None:
@@ -262,8 +262,8 @@ def test_find_cheapest_outgoing_links_one_resptr_link() -> None:
         "3",  # 4 / 2
         "4",
     ]
-    g: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()
-    g.add_nodes_from(nodes)
+    graph: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()
+    graph.add_nodes_from(nodes)
     circle = [(0, 1), (1, 2), (2, 3), (3, 0)]
     edges: list[tuple[int, int, XMLLink | ResptrLink]] = [
         (0, 1, ResptrLink("", "")),
@@ -279,8 +279,8 @@ def test_find_cheapest_outgoing_links_one_resptr_link() -> None:
         (3, 1, ResptrLink("", "")),
         (3, 2, ResptrLink("", "")),
     ]
-    g.add_edges_from(edges)
-    cheapest_links = _find_cheapest_outgoing_links(g, circle, edges)
+    graph.add_edges_from(edges)
+    cheapest_links = _find_cheapest_outgoing_links(graph, circle, edges)
     assert cheapest_links == [edges[3]]
 
 
@@ -294,8 +294,8 @@ def test_find_cheapest_outgoing_links_four_circle() -> None:
         "4",
         "5",
     ]
-    g: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()
-    g.add_nodes_from(nodes)
+    graph: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()
+    graph.add_nodes_from(nodes)
     edges: list[tuple[int, int, XMLLink | ResptrLink]] = [
         (0, 1, ResptrLink("", "")),
         (1, 0, ResptrLink("", "")),
@@ -315,9 +315,9 @@ def test_find_cheapest_outgoing_links_four_circle() -> None:
         (4, 2, ResptrLink("", "")),
         (4, 2, ResptrLink("", "")),
     ]
-    g.add_edges_from(edges)
+    graph.add_edges_from(edges)
     circle = [(0, 1), (1, 2), (2, 3), (3, 0)]
-    cheapest_links = _find_cheapest_outgoing_links(g, circle, edges)
+    cheapest_links = _find_cheapest_outgoing_links(graph, circle, edges)
     assert cheapest_links == [edges[0]]
 
 
@@ -331,8 +331,8 @@ def test_find_cheapest_outgoing_links_xml() -> None:
         "4",
         "5",
     ]
-    g: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()
-    g.add_nodes_from(nodes)
+    graph: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()
+    graph.add_nodes_from(nodes)
     a_de_xml = XMLLink("0", {"3", "4"})
     b_d_xml = XMLLink("1", {"3"})
     c_bdf_xml = XMLLink("2", {"1", "3", "5"})
@@ -353,15 +353,15 @@ def test_find_cheapest_outgoing_links_xml() -> None:
         (0, 3, a_de_xml),
         (0, 4, a_de_xml),
     ]
-    g.add_edges_from(edges)
-    cheapest_links = _find_cheapest_outgoing_links(g, circle, edges)
+    graph.add_edges_from(edges)
+    cheapest_links = _find_cheapest_outgoing_links(graph, circle, edges)
     assert cheapest_links == [edges[10]]
 
 
 def test_remove_edges_to_stash_phantom_xml() -> None:
     nodes = ["0", "1", "2", "3", "4", "5"]
-    g: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()
-    g.add_nodes_from(nodes)
+    graph: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()
+    graph.add_nodes_from(nodes)
     a_de_xml = XMLLink("0", {"3", "4"})
     b_d_xml = XMLLink("1", {"3"})
     c_bdf_xml = XMLLink("2", {"1", "3", "5"})
@@ -383,18 +383,18 @@ def test_remove_edges_to_stash_phantom_xml() -> None:
         (2, 3, c_bdf_xml),
         (2, 5, c_bdf_xml),
     ]
-    g.add_edges_from(edges)
-    res_links_to_stash = _remove_edges_to_stash(g, edges_to_remove, edges, remaining_nodes)
+    graph.add_edges_from(edges)
+    res_links_to_stash = _remove_edges_to_stash(graph, edges_to_remove, edges, remaining_nodes)
     assert res_links_to_stash == [c_bdf_xml]
-    remaining_edges = list(g.edge_list())
+    remaining_edges = list(graph.edge_list())
     expected_edges = [(0, 1), (0, 1), (0, 2), (0, 3), (0, 4), (1, 2), (1, 2), (1, 3), (3, 0), (3, 0), (3, 0)]
     assert unordered(remaining_edges) == expected_edges
 
 
 def test_remove_edges_to_stash_several_resptr() -> None:
     nodes = ["0", "1", "2"]
-    g: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()
-    g.add_nodes_from(nodes)
+    graph: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()
+    graph.add_nodes_from(nodes)
     edges: list[tuple[int, int, XMLLink | ResptrLink]] = [
         (0, 1, ResptrLink("", "")),
         (0, 1, ResptrLink("", "")),
@@ -408,30 +408,30 @@ def test_remove_edges_to_stash_several_resptr() -> None:
         (2, 0, ResptrLink("", "")),
         (2, 0, ResptrLink("", "")),
     ]
-    g.add_edges_from(edges)
+    graph.add_edges_from(edges)
     edges_to_remove = edges[0:2]
     remaining_nodes = set(range(10))
-    res_links = _remove_edges_to_stash(g, edges_to_remove, edges, remaining_nodes)
-    remaining_edges = list(g.edge_list())
+    res_links = _remove_edges_to_stash(graph, edges_to_remove, edges, remaining_nodes)
+    remaining_edges = list(graph.edge_list())
     assert unordered(remaining_edges) == [(1, 2), (1, 2), (1, 2), (1, 2), (1, 2), (2, 0), (2, 0), (2, 0), (2, 0)]
     assert unordered(res_links) == [edges[0][2], edges[1][2]]
 
 
 def test_remove_edges_to_stash_missing_nodes() -> None:
     nodes = ["a", "b", "c", "d"]
-    g: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()
-    g.add_nodes_from(nodes)
+    graph: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()
+    graph.add_nodes_from(nodes)
     xml_link = XMLLink("a", {"b", "d"})
     edges: list[tuple[int, int, XMLLink | ResptrLink]] = [
         (0, 1, xml_link),
         (1, 2, ResptrLink("", "")),
         (2, 0, ResptrLink("", "")),
     ]
-    g.add_edges_from(edges)
+    graph.add_edges_from(edges)
     remaining_nodes = {0, 1, 2}
     edges_to_remove: list[tuple[int, int, XMLLink | ResptrLink]] = [(0, 1, xml_link)]
-    res_links = _remove_edges_to_stash(g, edges_to_remove, edges, remaining_nodes)
-    remaining_edges = list(g.edge_list())
+    res_links = _remove_edges_to_stash(graph, edges_to_remove, edges, remaining_nodes)
+    remaining_edges = list(graph.edge_list())
     assert unordered(remaining_edges) == [(1, 2), (2, 0)]
     assert res_links == [xml_link]
 
@@ -483,9 +483,9 @@ def test_add_stash_to_lookup_dict() -> None:
 
 
 def test_generate_upload_order_with_stash() -> None:
-    g: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()
+    graph: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()
     nodes = ["0", "1", "2", "3", "4", "5", "6"]
-    node_idx = set(g.add_nodes_from(nodes))
+    node_idx = set(graph.add_nodes_from(nodes))
     node_idx_lookup = dict(zip(node_idx, nodes))
     abf_xml = XMLLink("0", {"1", "5"})
     edges: list[tuple[int, int, XMLLink | ResptrLink]] = [
@@ -499,31 +499,31 @@ def test_generate_upload_order_with_stash() -> None:
         (0, 1, abf_xml),
         (0, 5, abf_xml),
     ]
-    g.add_edges_from(edges)
-    stash_lookup, upload_order, stash_counter = generate_upload_order(g, node_idx_lookup, edges, node_idx)
+    graph.add_edges_from(edges)
+    stash_lookup, upload_order, stash_counter = generate_upload_order(graph, node_idx_lookup, edges, node_idx)
     expected_stash_lookup = {"0": [abf_xml.link_uuid]}
     assert stash_counter == 1
     assert unordered(upload_order[0:2]) == ["4", "6"]
     assert upload_order[2:] == ["5", "0", "3", "2", "1"]
     assert stash_lookup.keys() == expected_stash_lookup.keys()
     assert stash_lookup["0"] == expected_stash_lookup["0"]
-    assert not list(g.edges())
-    assert not list(g.nodes())
+    assert not list(graph.edges())
+    assert not list(graph.nodes())
 
 
 def test_generate_upload_order_no_stash() -> None:
-    g: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()
+    graph: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()
     nodes = ["0", "1", "2", "3"]
-    node_idx = set(g.add_nodes_from(nodes))
+    node_idx = set(graph.add_nodes_from(nodes))
     node_idx_lookup = dict(zip(node_idx, nodes))
     edges: list[tuple[int, int, XMLLink | ResptrLink]] = [
         (0, 1, ResptrLink("", "")),
         (1, 2, ResptrLink("", "")),
         (2, 3, ResptrLink("", "")),
     ]
-    g.add_edges_from(edges)
+    graph.add_edges_from(edges)
     stash_lookup, upload_order, stash_counter = generate_upload_order(
-        g,
+        graph,
         node_idx_lookup,
         edges,
         node_idx,
@@ -531,14 +531,14 @@ def test_generate_upload_order_no_stash() -> None:
     assert stash_lookup == dict()
     assert stash_counter == 0
     assert upload_order == ["3", "2", "1", "0"]
-    assert not list(g.edges())
-    assert not list(g.nodes())
+    assert not list(graph.edges())
+    assert not list(graph.nodes())
 
 
 def test_generate_upload_order_two_circles() -> None:
-    g: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()
+    graph: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()
     nodes = ["0", "1", "2", "3", "4", "5", "6"]
-    node_idx = set(g.add_nodes_from(nodes))
+    node_idx = set(graph.add_nodes_from(nodes))
     node_idx_lookup = dict(zip(node_idx, nodes))
     edges: list[tuple[int, int, XMLLink | ResptrLink]] = [
         (0, 1, ResptrLink("0", "1")),
@@ -556,9 +556,9 @@ def test_generate_upload_order_two_circles() -> None:
         (6, 5, ResptrLink("6", "5")),
         (6, 5, ResptrLink("6", "5")),
     ]
-    g.add_edges_from(edges)
+    graph.add_edges_from(edges)
     stash_lookup, upload_order, stash_counter = generate_upload_order(
-        g,
+        graph,
         node_idx_lookup,
         edges,
         node_idx,
@@ -571,8 +571,8 @@ def test_generate_upload_order_two_circles() -> None:
     assert stash_lookup.keys() == expected_stash.keys()
     assert stash_lookup["0"] == expected_stash["0"]
     assert unordered(stash_lookup["5"]) == expected_stash["5"]
-    assert not list(g.edges())
-    assert not list(g.nodes())
+    assert not list(graph.edges())
+    assert not list(graph.nodes())
 
 
 if __name__ == "__main__":

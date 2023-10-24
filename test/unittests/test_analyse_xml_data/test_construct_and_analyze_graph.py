@@ -419,11 +419,11 @@ def test_remove_edges_to_stash_several_resptr() -> None:
         (2, 0),
         (2, 0),
     ]
-    all_edges = _get_resptr_instances(edges)
+    all_edges: list[tuple[int, int, XMLLink | ResptrLink]] = list(_get_resptr_instances(edges))
     g.add_edges_from(all_edges)
     edges_to_remove: list[tuple[int, int, XMLLink | ResptrLink]] = list(all_edges[0:2])
     remaining_nodes = set(range(10))
-    res_links = _remove_edges_to_stash(g, edges_to_remove, edges, remaining_nodes)
+    res_links = _remove_edges_to_stash(g, edges_to_remove, all_edges, remaining_nodes)
     remaining_edges = list(g.edge_list())
     assert unordered(remaining_edges) == [(1, 2), (1, 2), (1, 2), (1, 2), (1, 2), (2, 0), (2, 0), (2, 0), (2, 0)]
     assert unordered(res_links) == [all_edges[0][2], all_edges[1][2]]

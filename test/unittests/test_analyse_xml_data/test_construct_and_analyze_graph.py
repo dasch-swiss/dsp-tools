@@ -530,8 +530,8 @@ def test_generate_upload_order_with_stash() -> None:
     assert upload_order[2:] == ["5", "0", "3", "2", "1"]
     assert stash_lookup.keys() == expected_stash_lookup.keys()
     assert stash_lookup["0"] == expected_stash_lookup["0"]
-    assert list(g.edges()) == []
-    assert list(g.nodes()) == []
+    assert not list(g.edges())
+    assert not list(g.nodes())
 
 
 def test_generate_upload_order_no_stash() -> None:
@@ -556,8 +556,8 @@ def test_generate_upload_order_no_stash() -> None:
     assert stash_lookup == dict()
     assert stash_counter == 0
     assert upload_order == ["3", "2", "1", "0"]
-    assert list(g.edges()) == []
-    assert list(g.nodes()) == []
+    assert not list(g.edges())
+    assert not list(g.nodes())
 
 
 def test_generate_upload_order_two_circles() -> None:
@@ -598,8 +598,8 @@ def test_generate_upload_order_two_circles() -> None:
     assert stash_lookup.keys() == expected_stash.keys()
     assert stash_lookup["0"] == expected_stash["0"]
     assert unordered(stash_lookup["5"]) == expected_stash["5"]
-    assert list(g.edges()) == []
-    assert list(g.nodes()) == []
+    assert not list(g.edges())
+    assert not list(g.nodes())
 
 
 if __name__ == "__main__":

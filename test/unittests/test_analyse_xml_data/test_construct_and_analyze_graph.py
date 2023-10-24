@@ -503,31 +503,35 @@ def test_add_stash_to_lookup_dict() -> None:
 
 def test_generate_upload_order_with_stash() -> None:
     g = rx.PyDiGraph()
-    nodes = ["a", "b", "c", "d", "e", "f", "g"]
+    nodes = ["0", "1", "2", "3", "4", "5", "6"]
     node_idx = g.add_nodes_from(nodes)
     node_idx_lookup = dict(zip(node_idx, nodes))
     node_idx = set(node_idx)
-    abf_xml = XMLLink("a", {"b", "f"})
-    with patch("dsp_tools.analyse_xml_data.models.ResptrLink.cost_links", 1):
-        edges = [
-            (0, 1, abf_xml),
-            (0, 5, abf_xml),
-            (1, 2, ResptrLink),
-            (2, 3, ResptrLink),
-            (3, 0, ResptrLink),
-            (3, 0, ResptrLink),
-            (3, 0, ResptrLink),
-            (3, 4, ResptrLink),
-            (5, 6, ResptrLink),
-        ]
-        g.add_edges_from(edges)
-        stash_lookup, upload_order, stash_counter = generate_upload_order(g, node_idx_lookup, edges, node_idx)
-        expected_stash_lookup = {"a": [abf_xml.link_uuid]}
-        assert stash_counter == 1
-        assert unordered(upload_order[0:2]) == ["e", "g"]
-        assert upload_order[2:] == ["f", "a", "d", "c", "b"]
-        assert stash_lookup.keys() == expected_stash_lookup.keys()
-        assert stash_lookup["a"] == expected_stash_lookup["a"]
+    abf_xml = XMLLink("0", {"1", "5"})
+    edges = [
+        (1, 2),
+        (2, 3),
+        (3, 0),
+        (3, 0),
+        (3, 0),
+        (3, 4),
+        (5, 6),
+    ]
+    xml_edges = [
+        (0, 1, abf_xml),
+        (0, 5, abf_xml),
+    ]
+    edges = get_resptr_instances(edges)
+    edges.extend(xml_edges)
+
+    g.add_edges_from(edges)
+    stash_lookup, upload_order, stash_counter = generate_upload_order(g, node_idx_lookup, edges, node_idx)
+    expected_stash_lookup = {"0": [abf_xml.link_uuid]}
+    assert stash_counter == 1
+    assert unordered(upload_order[0:2]) == ["4", "6"]
+    assert upload_order[2:] == ["5", "0", "3", "2", "1"]
+    assert stash_lookup.keys() == expected_stash_lookup.keys()
+    assert stash_lookup["0"] == expected_stash_lookup["0"]
 
 
 def test_generate_upload_order_no_stash() -> None:

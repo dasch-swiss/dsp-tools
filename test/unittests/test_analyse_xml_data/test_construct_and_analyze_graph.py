@@ -284,9 +284,9 @@ def test_find_cheapest_outgoing_links_one_resptr_link() -> None:
         (3, 1),
         (3, 2),
     ]
-    edges = get_resptr_instances(edges)
-    g.add_edges_from(edges)
-    cheapest_links = _find_cheapest_outgoing_links(g, circle, edges)
+    edges_returned: list[tuple[int, int, XMLLink | ResptrLink]] = list(get_resptr_instances(edges))
+    g.add_edges_from(edges_returned)
+    cheapest_links = _find_cheapest_outgoing_links(g, circle, edges_returned)
     assert cheapest_links == [edges[3]]  # type: ignore[comparison-overlap]
 
 
@@ -321,11 +321,11 @@ def test_find_cheapest_outgoing_links_four_circle() -> None:
         (4, 2),
         (4, 2),
     ]
-    edges = get_resptr_instances(edges)
-    g.add_edges_from(edges)
-    g.add_edges_from(edges)
+    edges_returned: list[tuple[int, int, XMLLink | ResptrLink]] = list(get_resptr_instances(edges))
+    g.add_edges_from(edges_returned)
+    g.add_edges_from(edges_returned)
     circle = [(0, 1), (1, 2), (2, 3), (3, 0)]
-    cheapest_links = _find_cheapest_outgoing_links(g, circle, edges)
+    cheapest_links = _find_cheapest_outgoing_links(g, circle, edges_returned)
     assert cheapest_links == [edges[0]]  # type: ignore[comparison-overlap]
 
 
@@ -363,21 +363,21 @@ def test_find_cheapest_outgoing_links_xml() -> None:
         (0, 3, a_de_xml),
         (0, 4, a_de_xml),
     ]
-    edges = get_resptr_instances(edges_resptr)
-    edges.extend(xml_edges)
-    g.add_edges_from(edges)
-    cheapest_links = _find_cheapest_outgoing_links(g, circle, edges)
-    assert cheapest_links == [edges[10]]
+    edges_returned: list[tuple[int, int, XMLLink | ResptrLink]] = list(get_resptr_instances(edges_resptr))
+    edges_returned.extend(xml_edges)
+    g.add_edges_from(edges_returned)
+    cheapest_links = _find_cheapest_outgoing_links(g, circle, edges_returned)
+    assert cheapest_links == [edges_returned[10]]
 
 
 def test_remove_edges_to_stash_phantom_xml() -> None:
     nodes = ["0", "1", "2", "3", "4", "5"]
-    g = rx.PyDiGraph()
+    g: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()
     g.add_nodes_from(nodes)
     a_de_xml = XMLLink("0", {"3", "4"})
     b_d_xml = XMLLink("1", {"3"})
     c_bdf_xml = XMLLink("2", {"1", "3", "5"})
-    edges_to_remove = [(2, 3, c_bdf_xml)]
+    edges_to_remove: list[tuple[int, int, XMLLink | ResptrLink]] = [(2, 3, c_bdf_xml)]
     remaining_nodes = set(range(10))
     resptr_edges = [
         (0, 1),
@@ -397,10 +397,10 @@ def test_remove_edges_to_stash_phantom_xml() -> None:
         (2, 3, c_bdf_xml),
         (2, 5, c_bdf_xml),
     ]
-    edges = get_resptr_instances(resptr_edges)
-    edges.extend(xml_edges)
-    g.add_edges_from(edges)
-    res_links_to_stash = _remove_edges_to_stash(g, edges_to_remove, edges, remaining_nodes)
+    edges_returned: list[tuple[int, int, XMLLink | ResptrLink]] = list(get_resptr_instances(resptr_edges))
+    edges_returned.extend(xml_edges)
+    g.add_edges_from(edges_returned)
+    res_links_to_stash = _remove_edges_to_stash(g, edges_to_remove, edges_returned, remaining_nodes)
     assert res_links_to_stash == [c_bdf_xml]
     remaining_edges = list(g.edge_list())
     expected_edges = [(0, 1), (0, 1), (0, 2), (0, 3), (0, 4), (1, 2), (1, 2), (1, 3), (3, 0), (3, 0), (3, 0)]
@@ -409,7 +409,7 @@ def test_remove_edges_to_stash_phantom_xml() -> None:
 
 def test_remove_edges_to_stash_several_resptr() -> None:
     nodes = ["0", "1", "2"]
-    g = rx.PyDiGraph()
+    g: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()
     g.add_nodes_from(nodes)
     edges = [
         (0, 1),
@@ -426,7 +426,7 @@ def test_remove_edges_to_stash_several_resptr() -> None:
     ]
     all_edges = get_resptr_instances(edges)
     g.add_edges_from(all_edges)
-    edges_to_remove = all_edges[0:2]
+    edges_to_remove: list[tuple[int, int, XMLLink | ResptrLink]] = list(all_edges[0:2])
     remaining_nodes = set(range(10))
     res_links = _remove_edges_to_stash(g, edges_to_remove, edges, remaining_nodes)
     remaining_edges = list(g.edge_list())
@@ -484,7 +484,7 @@ def test_add_stash_to_lookup_dict_none_existing() -> None:
     xml_a = XMLLink("0", {"1", "2"})
     to_stash: list[XMLLink | ResptrLink] = [resptr_a1, resptr_a2, xml_a]
     expected = {"0": [resptr_a1.link_uuid, resptr_a2.link_uuid, xml_a.link_uuid]}
-    stash_dict = dict()
+    stash_dict: dict[str, list[str]] = dict()
     result = _add_stash_to_lookup_dict(stash_dict, to_stash)
     assert result.keys() == expected.keys()
     assert unordered(result["0"]) == expected["0"]
@@ -500,11 +500,10 @@ def test_add_stash_to_lookup_dict() -> None:
 
 
 def test_generate_upload_order_with_stash() -> None:
-    g = rx.PyDiGraph()
+    g: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()
     nodes = ["0", "1", "2", "3", "4", "5", "6"]
-    node_idx = g.add_nodes_from(nodes)
+    node_idx = set(g.add_nodes_from(nodes))
     node_idx_lookup = dict(zip(node_idx, nodes))
-    node_idx = set(node_idx)
     abf_xml = XMLLink("0", {"1", "5"})
     edges = [
         (1, 2),
@@ -519,11 +518,11 @@ def test_generate_upload_order_with_stash() -> None:
         (0, 1, abf_xml),
         (0, 5, abf_xml),
     ]
-    edges = get_resptr_instances(edges)
+    edges_returned: list[tuple[int, int, XMLLink | ResptrLink]] = list(get_resptr_instances(edges))
     edges.extend(xml_edges)
 
-    g.add_edges_from(edges)
-    stash_lookup, upload_order, stash_counter = generate_upload_order(g, node_idx_lookup, edges, node_idx)
+    g.add_edges_from(edges_returned)
+    stash_lookup, upload_order, stash_counter = generate_upload_order(g, node_idx_lookup, edges_returned, node_idx)
     expected_stash_lookup = {"0": [abf_xml.link_uuid]}
     assert stash_counter == 1
     assert unordered(upload_order[0:2]) == ["4", "6"]
@@ -535,22 +534,21 @@ def test_generate_upload_order_with_stash() -> None:
 
 
 def test_generate_upload_order_no_stash() -> None:
-    g = rx.PyDiGraph()
+    g: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()
     nodes = ["0", "1", "2", "3"]
-    node_idx = g.add_nodes_from(nodes)
+    node_idx = set(g.add_nodes_from(nodes))
     node_idx_lookup = dict(zip(node_idx, nodes))
-    node_idx = set(node_idx)
     edges = [
         (0, 1),
         (1, 2),
         (2, 3),
     ]
-    edges = get_resptr_instances(edges)
-    g.add_edges_from(edges)
+    edges_returned: list[tuple[int, int, XMLLink | ResptrLink]] = list(get_resptr_instances(edges))
+    g.add_edges_from(edges_returned)
     stash_lookup, upload_order, stash_counter = generate_upload_order(
         g,
         node_idx_lookup,
-        edges,
+        edges_returned,
         node_idx,
     )
     assert stash_lookup == dict()
@@ -561,11 +559,10 @@ def test_generate_upload_order_no_stash() -> None:
 
 
 def test_generate_upload_order_two_circles() -> None:
-    g = rx.PyDiGraph()
+    g: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()
     nodes = ["0", "1", "2", "3", "4", "5", "6"]
-    node_idx = g.add_nodes_from(nodes)
+    node_idx = set(g.add_nodes_from(nodes))
     node_idx_lookup = dict(zip(node_idx, nodes))
-    node_idx = set(node_idx)
     edges = [
         (0, 1),
         (0, 5),
@@ -582,7 +579,7 @@ def test_generate_upload_order_two_circles() -> None:
         (6, 5),
         (6, 5),
     ]
-    all_edges = get_resptr_instances(edges)
+    all_edges: list[tuple[int, int, XMLLink | ResptrLink]] = list(get_resptr_instances(edges))
     g.add_edges_from(all_edges)
     stash_lookup, upload_order, stash_counter = generate_upload_order(
         g,

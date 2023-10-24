@@ -9,11 +9,13 @@ from lxml import etree
 from pytest_unordered import unordered
 
 from dsp_tools.analyse_xml_data.construct_and_analyze_graph import (
+    _add_stash_to_lookup_dict,
     _create_info_from_xml_for_graph_from_one_resource,
     _create_resptr_link_objects,
     _create_text_link_objects,
     _extract_ids_from_one_text_value,
     _find_cheapest_outgoing_links,
+    _find_phantom_xml_edges,
     _remove_edges_to_stash,
     _remove_leaf_nodes,
     create_info_from_xml_for_graph,
@@ -254,7 +256,7 @@ def test_remove_leaf_nodes() -> None:
 
 def test_find_cheapest_outgoing_links_one_resptr_link() -> None:
     nodes = [
-        #      out / in
+        #     out / in
         "a",  # 3 / 3
         "b",  # 2 / 3
         "c",  # 3 / 2
@@ -286,7 +288,7 @@ def test_find_cheapest_outgoing_links_one_resptr_link() -> None:
 
 def test_find_cheapest_outgoing_links_four_circle() -> None:
     nodes = [
-        #      out / in
+        #     out / in
         "a",  # 1 / 3
         "b",  # 2 / 1
         "c",  # 3 / 6
@@ -391,6 +393,99 @@ def test_remove_edges_to_stash_phantom_xml() -> None:
     remaining_edges = list(g.edge_list())
     expected_edges = [(0, 1), (0, 1), (0, 2), (0, 3), (0, 4), (1, 2), (1, 2), (1, 3), (3, 0), (3, 0), (3, 0)]
     assert unordered(remaining_edges) == expected_edges
+
+
+def test_remove_edges_to_stash_several_resptr() -> None:
+    nodes = ["a", "b", "c"]
+    g = rx.PyDiGraph()
+    g.add_nodes_from(nodes)
+    resptr_1 = ResptrLink("a", "b")
+    resptr_2 = ResptrLink("a", "b")
+    edges = [
+        (0, 1, resptr_1),
+        (0, 1, resptr_2),
+        (1, 2, ResptrLink),
+        (1, 2, ResptrLink),
+        (1, 2, ResptrLink),
+        (1, 2, ResptrLink),
+        (1, 2, ResptrLink),
+        (2, 0, ResptrLink),
+        (2, 0, ResptrLink),
+        (2, 0, ResptrLink),
+        (2, 0, ResptrLink),
+    ]
+    g.add_edges_from(edges)
+    edges_to_remove = [(0, 1, resptr_1), (0, 1, resptr_2)]
+    remaining_nodes = set(range(10))
+    res_links = _remove_edges_to_stash(g, edges_to_remove, edges, remaining_nodes)  # type: ignore[union-attr]
+    remaining_edges = list(g.edge_list())
+    assert unordered(remaining_edges) == [(1, 2), (1, 2), (1, 2), (1, 2), (1, 2), (2, 0), (2, 0), (2, 0), (2, 0)]
+    assert unordered(res_links) == [resptr_1, resptr_2]
+
+
+def test_remove_edges_to_stash_missing_nodes() -> None:
+    nodes = ["a", "b", "c", "d"]
+    g = rx.PyDiGraph()
+    g.add_nodes_from(nodes)
+    xml_link = XMLLink("a", {"b", "d"})
+    edges = [
+        (0, 1, xml_link),
+        (1, 2, ResptrLink),
+        (2, 0, ResptrLink),
+    ]
+    g.add_edges_from(edges)
+    remaining_nodes = {0, 1, 2}
+    edges_to_remove = [(0, 1, xml_link)]
+    res_links = _remove_edges_to_stash(g, edges_to_remove, edges, remaining_nodes)
+    remaining_edges = list(g.edge_list())
+    assert unordered(remaining_edges) == [(1, 2), (2, 0)]
+    assert res_links == [xml_link]
+
+
+def test_find_phantom_xml_edges_no_remaining() -> None:
+    xml_link = XMLLink("a", {"b", "d"})
+    edges = [
+        (0, 1, xml_link),
+        (1, 2, ResptrLink),
+        (2, 0, ResptrLink),
+    ]
+    remaining_nodes = {0, 1, 2}
+    phantoms = _find_phantom_xml_edges(0, 1, edges, xml_link, remaining_nodes)
+    assert phantoms == []
+
+
+def test_find_phantom_xml_edges_one_link() -> None:
+    xml_link = XMLLink("a", {"b", "d"})
+    edges = [
+        (0, 1, xml_link),
+        (0, 3, xml_link),
+        (1, 2, ResptrLink),
+        (2, 0, ResptrLink),
+    ]
+    remaining_nodes = {0, 1, 2, 3}
+    phantoms = _find_phantom_xml_edges(0, 1, edges, xml_link, remaining_nodes)
+    assert phantoms == [(0, 3)]
+
+
+def test_add_stash_to_lookup_dict_none_existing() -> None:
+    resptr_a1 = ResptrLink("a", "b")
+    resptr_a2 = ResptrLink("a", "b")
+    xml_a = XMLLink("a", {"b", "c"})
+    to_stash = [resptr_a1, resptr_a2, xml_a]
+    expected = {"a": [resptr_a1.link_uuid, resptr_a2.link_uuid, xml_a.link_uuid]}
+    stash_dict = dict()
+    result = _add_stash_to_lookup_dict(stash_dict, to_stash)
+    assert result.keys() == expected.keys()
+    assert unordered(result["a"]) == expected["a"]
+
+
+def test_add_stash_to_lookup_dict() -> None:
+    resptr_a1 = ResptrLink("a", "b")
+    stash_dict = {"a": ["existingUUID1", "existingUUID2"], "b": ["existingUUID1"]}
+    expected = {"a": ["existingUUID1", "existingUUID2", resptr_a1.link_uuid], "b": ["existingUUID1"]}
+    result = _add_stash_to_lookup_dict(stash_dict, [resptr_a1])
+    assert result.keys() == expected.keys()
+    assert unordered(result["a"]) == expected["a"]
 
 
 if __name__ == "__main__":

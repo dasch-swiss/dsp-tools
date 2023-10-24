@@ -113,10 +113,10 @@ def make_graph(
     node_id_lookup = dict(zip(all_resource_ids, node_indices))
     node_index_lookup = dict(zip(node_indices, all_resource_ids))
     edges: list[tuple[int, int, ResptrLink | XMLLink]] = [
-        (node_id_lookup[x.subject_id], node_id_lookup[x.object_id], x) for x in resptr_links
+        (node_id_lookup[x.source_id], node_id_lookup[x.target_id], x) for x in resptr_links
     ]
     for xml in xml_links:
-        edges.extend([(node_id_lookup[xml.subject_id], node_id_lookup[x], xml) for x in xml.object_link_ids])
+        edges.extend([(node_id_lookup[xml.source_id], node_id_lookup[x], xml) for x in xml.target_ids])
     g.add_edges_from(edges)
     return g, node_index_lookup, edges, set(node_indices)
 
@@ -251,7 +251,7 @@ def _add_stash_to_lookup_dict(
 ) -> dict[str, list[str]]:
     stash_list = [stash_link.link_uuid for stash_link in to_stash_links]
     # all stashed links have the same subject id, so we can just take the first one
-    subj_id = to_stash_links[0].subject_id
+    subj_id = to_stash_links[0].source_id
     if subj_id in stash_dict.keys():
         stash_dict[subj_id].extend(stash_list)
     else:

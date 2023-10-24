@@ -10,13 +10,13 @@ class ResptrLink:
     This class represents a direct link (resptr) between a starting resource and a target resource.
 
     Args:
-        subject_id: resource ID that is in subject position of the triple
-        object_id: resource ID that is in object position of the triple
-        link_uuid: each link, which is represented in the graph gets a UUID
+        source_id: ID of the resource from which the link originates
+        target_id: ID of the resource where the link points to
+        link_uuid: identifier of this link
     """
 
-    subject_id: str
-    object_id: str
+    source_id: str
+    target_id: str
     link_uuid: str = field(default_factory=lambda: str(uuid.uuid4()))
 
     @property
@@ -28,20 +28,20 @@ class ResptrLink:
 @dataclass(frozen=True)
 class XMLLink:
     """
-    This class represents one or more links from a single starting resource to a set of target resources,
-    where all target resources are linked to from a single text value on the starting resource.
+    This class represents one or more links from a starting resource to a set of target resources,
+    where all target resources are linked to from a single text value of the starting resource.
 
     Args:
-        subject_id: resource ID that is in subject position of the triple
-        object_link_ids: a set that contains the resource IDs which were embedded in the <text> element
-        link_uuid: each link, which is represented in the graph gets a UUID
+        source_id: ID of the resource from which the link(s) originate
+        target_ids: IDs of the resources that are referenced in the text value
+        link_uuid: identifier of this link
     """
 
-    subject_id: str
-    object_link_ids: set[str]
+    source_id: str
+    target_ids: set[str]
     link_uuid: str = field(default_factory=lambda: str(uuid.uuid4()))
 
     @property
     def cost_links(self) -> float:
         """The cost of this outgoing link (1 / number of links in the XML text)"""
-        return 1 / len(self.object_link_ids)
+        return 1 / len(self.target_ids)

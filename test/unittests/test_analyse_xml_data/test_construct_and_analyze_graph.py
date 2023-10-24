@@ -41,12 +41,12 @@ def test_create_info_from_xml_for_graph_from_one_resource() -> None:
         </resource>"""
     )
     res_resptr_links, res_xml_links, subject_id = _create_info_from_xml_for_graph_from_one_resource(test_ele)
-    res_B_19 = [obj.object_id for obj in res_resptr_links]
+    res_B_19 = [obj.target_id for obj in res_resptr_links]
     assert "res_B_19" in res_B_19
     assert "res_C_19" in res_B_19
     assert "res_A_19" == subject_id
-    assert res_xml_links[0].subject_id == "res_A_19"
-    assert res_xml_links[0].object_link_ids == {"res_B_19", "res_C_19"}
+    assert res_xml_links[0].source_id == "res_A_19"
+    assert res_xml_links[0].target_ids == {"res_B_19", "res_C_19"}
 
 
 def test_create_info_from_xml_for_graph_from_one_resource_one() -> None:
@@ -67,9 +67,9 @@ def test_create_info_from_xml_for_graph_from_one_resource_one() -> None:
     )
     res_resptr, res_xml, subject_id = _create_info_from_xml_for_graph_from_one_resource(test_ele)
     assert subject_id == "res_A_11"
-    assert res_resptr[0].object_id == "res_B_11"
+    assert res_resptr[0].target_id == "res_B_11"
     assert isinstance(res_resptr[0], ResptrLink)
-    assert res_xml[0].object_link_ids == {"res_B_11"}
+    assert res_xml[0].target_ids == {"res_B_11"}
     assert isinstance(res_xml[0], XMLLink)
 
 
@@ -101,7 +101,7 @@ def test_text_only_create_info_from_xml_for_graph_from_one_resource() -> None:
     res_resptr, res_xml, subject_id = _create_info_from_xml_for_graph_from_one_resource(test_ele)
     assert subject_id == "res_C_18"
     assert not res_resptr
-    res_xml_ids = [x.object_link_ids for x in res_xml]
+    res_xml_ids = [x.target_ids for x in res_xml]
     assert unordered(res_xml_ids) == [{"res_A_18"}, {"res_B_18"}]
 
 
@@ -148,7 +148,7 @@ def test_extract_ids_from_text_prop_with_several_text_links() -> None:
         'class="salsah-link" href="IRI:res_B_18:IRI">res_B_18</a></text></text-prop>'
     )
     res = _create_text_link_objects("res_C_18", test_ele)
-    res_ids = [x.object_link_ids for x in res]
+    res_ids = [x.target_ids for x in res]
     assert unordered(res_ids) == [{"res_A_18"}, {"res_B_18"}]
 
 
@@ -162,7 +162,7 @@ def test_create_class_instance_resptr_link_one_link() -> None:
         """
     )
     res = _create_resptr_link_objects("res_A_15", test_ele)
-    assert res[0].object_id == "res_C_15"
+    assert res[0].target_id == "res_C_15"
 
 
 def test_create_class_instance_resptr_link_several() -> None:
@@ -178,9 +178,9 @@ def test_create_class_instance_resptr_link_several() -> None:
     )
     res = _create_resptr_link_objects("res_D_13", test_ele)
     assert all(isinstance(x, ResptrLink) for x in res)
-    assert res[0].object_id == "res_A_13"
-    assert res[1].object_id == "res_B_13"
-    assert res[2].object_id == "res_C_13"
+    assert res[0].target_id == "res_A_13"
+    assert res[1].target_id == "res_B_13"
+    assert res[2].target_id == "res_C_13"
 
 
 def test_create_info_from_xml_for_graph_check_UUID_in_root() -> None:

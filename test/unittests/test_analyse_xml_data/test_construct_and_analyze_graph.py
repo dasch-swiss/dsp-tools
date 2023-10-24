@@ -19,6 +19,7 @@ from dsp_tools.analyse_xml_data.construct_and_analyze_graph import (
     _remove_edges_to_stash,
     _remove_leaf_nodes,
     create_info_from_xml_for_graph,
+    generate_upload_order,
     make_graph,
 )
 from dsp_tools.analyse_xml_data.models import ResptrLink, XMLLink
@@ -486,6 +487,35 @@ def test_add_stash_to_lookup_dict() -> None:
     result = _add_stash_to_lookup_dict(stash_dict, [resptr_a1])
     assert result.keys() == expected.keys()
     assert unordered(result["a"]) == expected["a"]
+
+
+def test_generate_upload_order() -> None:
+    g = rx.PyDiGraph()
+    nodes = ["a", "b", "c", "d", "e", "f", "g"]
+    node_idx = g.add_nodes_from(nodes)
+    node_idx_lookup = dict(zip(node_idx, nodes))
+    node_idx = set(node_idx)
+    abf_xml = XMLLink("a", {"b", "f"})
+    with patch("dsp_tools.analyse_xml_data.models.ResptrLink.cost_links", 1):
+        edges = [
+            (0, 1, abf_xml),
+            (0, 5, abf_xml),
+            (1, 2, ResptrLink),
+            (2, 3, ResptrLink),
+            (3, 0, ResptrLink),
+            (3, 0, ResptrLink),
+            (3, 0, ResptrLink),
+            (3, 4, ResptrLink),
+            (5, 6, ResptrLink),
+        ]
+        g.add_edges_from(edges)
+        stash_lookup, upload_order, stash_counter = generate_upload_order(g, node_idx_lookup, edges, node_idx)
+        expected_stash_lookup = {"a": [abf_xml.link_uuid]}
+        assert stash_counter == 1
+        assert unordered(upload_order[0:3]) == ["e", "f", "g"]
+        assert unordered(upload_order[3:]) == ["a", "b", "c", "d"]
+        assert stash_lookup.keys() == expected_stash_lookup.keys()
+        assert stash_lookup["a"] == expected_stash_lookup["a"]
 
 
 if __name__ == "__main__":

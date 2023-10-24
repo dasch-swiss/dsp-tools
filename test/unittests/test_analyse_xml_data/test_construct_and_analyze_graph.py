@@ -418,7 +418,7 @@ def test_remove_edges_to_stash_several_resptr() -> None:
     g.add_edges_from(edges)
     edges_to_remove = [(0, 1, resptr_1), (0, 1, resptr_2)]
     remaining_nodes = set(range(10))
-    res_links = _remove_edges_to_stash(g, edges_to_remove, edges, remaining_nodes)  # type: ignore[union-attr]
+    res_links = _remove_edges_to_stash(g, edges_to_remove, edges, remaining_nodes)
     remaining_edges = list(g.edge_list())
     assert unordered(remaining_edges) == [(1, 2), (1, 2), (1, 2), (1, 2), (1, 2), (2, 0), (2, 0), (2, 0), (2, 0)]
     assert unordered(res_links) == [resptr_1, resptr_2]
@@ -489,7 +489,7 @@ def test_add_stash_to_lookup_dict() -> None:
     assert unordered(result["a"]) == expected["a"]
 
 
-def test_generate_upload_order() -> None:
+def test_generate_upload_order_with_stash() -> None:
     g = rx.PyDiGraph()
     nodes = ["a", "b", "c", "d", "e", "f", "g"]
     node_idx = g.add_nodes_from(nodes)
@@ -512,10 +512,35 @@ def test_generate_upload_order() -> None:
         stash_lookup, upload_order, stash_counter = generate_upload_order(g, node_idx_lookup, edges, node_idx)
         expected_stash_lookup = {"a": [abf_xml.link_uuid]}
         assert stash_counter == 1
-        assert unordered(upload_order[0:3]) == ["e", "f", "g"]
+        assert unordered(upload_order[0:2]) == ["e", "g"]
+        assert upload_order[2] == "f"
         assert unordered(upload_order[3:]) == ["a", "b", "c", "d"]
         assert stash_lookup.keys() == expected_stash_lookup.keys()
         assert stash_lookup["a"] == expected_stash_lookup["a"]
+
+
+def test_generate_upload_order_no_stash() -> None:
+    g = rx.PyDiGraph()
+    nodes = ["a", "b", "c", "d"]
+    node_idx = g.add_nodes_from(nodes)
+    node_idx_lookup = dict(zip(node_idx, nodes))
+    node_idx = set(node_idx)
+    with patch("dsp_tools.analyse_xml_data.models.ResptrLink.cost_links", 1):
+        edges = [
+            (0, 1, ResptrLink),
+            (1, 2, ResptrLink),
+            (2, 3, ResptrLink),
+        ]
+        g.add_edges_from(edges)
+        stash_lookup, upload_order, stash_counter = generate_upload_order(
+            g,
+            node_idx_lookup,
+            edges,
+            node_idx,
+        )
+        assert stash_lookup == dict()
+        assert stash_counter == 0
+        assert upload_order == ["d", "c", "b", "a"]
 
 
 if __name__ == "__main__":

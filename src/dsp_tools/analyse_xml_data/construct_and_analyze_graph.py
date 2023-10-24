@@ -88,12 +88,7 @@ def _extract_ids_from_one_text_value(text: etree._Element) -> set[str]:
 
 def make_graph(
     resptr_links: list[ResptrLink], xml_links: list[XMLLink], all_resource_ids: list[str]
-) -> tuple[
-    rx.PyDiGraph[Any, Any],  # pylint: disable=no-member
-    dict[int, str],
-    list[tuple[int, int, ResptrLink | XMLLink]],
-    set[int],
-]:
+) -> tuple[rx.PyDiGraph[Any, Any], dict[int, str], list[tuple[int, int, ResptrLink | XMLLink]], set[int]]:
     """
     This function takes information about the resources (nodes) and links between them (edges).
     From that it constructs a rustworkx directed graph.
@@ -124,7 +119,7 @@ def make_graph(
 
 
 def _remove_leaf_nodes(
-    g: rx.PyDiGraph[Any, Any],  # pylint: disable=no-member
+    g: rx.PyDiGraph[Any, Any],
     node_index_lookup: dict[int, str],
     node_indices: set[int],
 ) -> tuple[list[str], set[int]]:
@@ -151,7 +146,7 @@ def _remove_leaf_nodes(
 
 
 def _find_cheapest_outgoing_links(
-    g: rx.PyDiGraph[Any, Any],  # pylint: disable=no-member
+    g: rx.PyDiGraph[Any, Any],
     cycle: list[tuple[int, int]],
     edge_list: list[tuple[int, int, XMLLink | ResptrLink]],
 ) -> list[tuple[int, int, XMLLink | ResptrLink]]:
@@ -182,7 +177,7 @@ def _find_cheapest_outgoing_links(
 
 
 def _remove_edges_to_stash(
-    g: rx.PyDiGraph[Any, Any],  # pylint: disable=no-member,
+    g: rx.PyDiGraph[Any, Any],
     edges_to_remove: list[tuple[int, int, XMLLink | ResptrLink]],
     edge_list: list[tuple[int, int, XMLLink | ResptrLink]],
     remaining_nodes: set[int],
@@ -262,7 +257,7 @@ def _add_stash_to_lookup_dict(
 
 
 def generate_upload_order(
-    g: rx.PyDiGraph[Any, Any],  # pylint: disable=no-member
+    g: rx.PyDiGraph[Any, Any],
     node_index_lookup: dict[int, str],
     edge_list: list[tuple[int, int, XMLLink | ResptrLink]],
     node_indices: set[int],

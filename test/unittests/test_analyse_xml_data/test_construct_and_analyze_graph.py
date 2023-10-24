@@ -373,30 +373,34 @@ def test_find_cheapest_outgoing_links_xml() -> None:
 
 
 def test_remove_edges_to_stash_phantom_xml() -> None:
-    nodes = ["a", "b", "c", "d", "e", "f"]
+    nodes = ["0", "1", "2", "3", "4", "5"]
     g = rx.PyDiGraph()
     g.add_nodes_from(nodes)
-    a_de_xml = XMLLink("a", {"d", "e"})
-    b_d_xml = XMLLink("b", {"d"})
-    c_bdf_xml = XMLLink("c", {"b", "d", "f"})
+    a_de_xml = XMLLink("0", {"3", "4"})
+    b_d_xml = XMLLink("1", {"3"})
+    c_bdf_xml = XMLLink("2", {"1", "3", "5"})
     edges_to_remove = [(2, 3, c_bdf_xml)]
     remaining_nodes = set(range(10))
-    edges = [
-        (0, 1, ResptrLink),
-        (0, 1, ResptrLink),
-        (0, 2, ResptrLink),
+    resptr_edges = [
+        (0, 1),
+        (0, 1),
+        (0, 2),
+        (1, 2),
+        (1, 2),
+        (3, 0),
+        (3, 0),
+        (3, 0),
+    ]
+    xml_edges = [
         (0, 3, a_de_xml),
         (0, 4, a_de_xml),
-        (1, 2, ResptrLink),
-        (1, 2, ResptrLink),
         (1, 3, b_d_xml),
         (2, 1, c_bdf_xml),
         (2, 3, c_bdf_xml),
         (2, 5, c_bdf_xml),
-        (3, 0, ResptrLink),
-        (3, 0, ResptrLink),
-        (3, 0, ResptrLink),
     ]
+    edges = get_resptr_instances(resptr_edges)
+    edges.extend(xml_edges)
     g.add_edges_from(edges)
     res_links_to_stash = _remove_edges_to_stash(g, edges_to_remove, edges, remaining_nodes)
     assert res_links_to_stash == [c_bdf_xml]

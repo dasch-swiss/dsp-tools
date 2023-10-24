@@ -326,7 +326,7 @@ def test_find_cheapest_outgoing_links_four_circle() -> None:
     g.add_edges_from(edges_returned)
     circle = [(0, 1), (1, 2), (2, 3), (3, 0)]
     cheapest_links = _find_cheapest_outgoing_links(g, circle, edges_returned)
-    assert cheapest_links == [edges[0]]  # type: ignore[comparison-overlap]
+    assert cheapest_links == [edges_returned[0]]  # type: ignore[comparison-overlap]
 
 
 def test_find_cheapest_outgoing_links_xml() -> None:
@@ -519,7 +519,7 @@ def test_generate_upload_order_with_stash() -> None:
         (0, 5, abf_xml),
     ]
     edges_returned: list[tuple[int, int, XMLLink | ResptrLink]] = list(get_resptr_instances(edges))
-    edges.extend(xml_edges)
+    edges_returned.extend(xml_edges)
 
     g.add_edges_from(edges_returned)
     stash_lookup, upload_order, stash_counter = generate_upload_order(g, node_idx_lookup, edges_returned, node_idx)

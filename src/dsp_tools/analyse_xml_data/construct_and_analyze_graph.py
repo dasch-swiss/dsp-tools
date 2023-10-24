@@ -272,9 +272,9 @@ def generate_upload_order(
         node_indices: index numbers of the nodes still in the graph
 
     Returns:
-        Dictionary that maps the resources that have stashes to the UUIDs of the stashed links
-        A list of resource IDs which gives the order in which the resources should be uploaded to DSP-API
-        The number of links in the stash
+        A dictionary which maps the resources that have stashes to the UUIDs of the stashed links.
+        A list of resource IDs which gives the order in which the resources should be uploaded to DSP-API.
+        The number of links in the stash.
     """
     upload_order: list[str] = []
     stash_lookup: dict[str, list[str]] = {}

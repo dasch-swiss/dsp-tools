@@ -28,7 +28,7 @@ class ResptrLink:
 @dataclass(frozen=True)
 class XMLLink:
     """
-    This class represents one or more links from a starting resource to a set of target resources,
+    This class represents one or more links from a single starting resource to a set of target resources,
     where all target resources are linked to from a single text value of the starting resource.
 
     Args:

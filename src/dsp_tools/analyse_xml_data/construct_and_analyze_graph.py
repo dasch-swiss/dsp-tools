@@ -92,19 +92,21 @@ def make_graph(
     all_resource_ids: list[str],
 ) -> tuple[rx.PyDiGraph[Any, Any], dict[int, str], list[tuple[int, int, ResptrLink | XMLLink]], set[int]]:
     """
-    This function takes information about the resources (nodes) and links between them (edges).
+    This function takes information about the resources of an XML file and links between them.
     From that it constructs a rustworkx directed graph.
+    Resources are represented as nodes and links as edges.
 
     Args:
-        resptr_links: A list of objects representing a direct link (resptr)
-                      between a starting resource and a target resource
-        xml_links: A list of objects representing one or more links from a single starting resource
-                   to a set of target resources, where all target resources are linked to
-                   from a single text value on the starting resource.
-        all_resource_ids: IDs of all the resources in the graph
+        resptr_links: objects representing a direct link between a starting resource and a target resource
+        xml_links: objects representing one or more links from a single text value of a single starting resource
+                   to a set of target resources
+        all_resource_ids: IDs of all resources in the graph
 
     Returns:
-        The rustworkx graph and a dictionary that contains the index number of the nodes with the original resource id
+        The rustworkx graph.
+        A dictionary that maps the rustworkx index number of the nodes to the original resource ID from the XML file.
+        A list with all the edges in the graph.
+        A set with the rustworkx index numbers of all the nodes in the graph.
     """
     graph: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()  # pylint: disable=no-member
     nodes = [(id_, None, None) for id_ in all_resource_ids]

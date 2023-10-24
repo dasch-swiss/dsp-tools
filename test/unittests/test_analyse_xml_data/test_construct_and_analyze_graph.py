@@ -246,9 +246,9 @@ def test_remove_leaf_nodes() -> None:
     # e is a leaf
     # f has no edges
 
-    removed_leaf_id, remaining_node_idx = _remove_leaf_nodes(graph, node_idx_lookup, node_idx)
-    assert unordered(removed_leaf_id) == ["c", "e", "f"]
-    assert remaining_node_idx == {0, 1, 3}
+    removed_leaf_nodes, remaining_node_indices = _remove_leaf_nodes(graph, node_idx_lookup, node_idx)
+    assert unordered(removed_leaf_nodes) == ["c", "e", "f"]
+    assert remaining_node_indices == {0, 1, 3}
     assert unordered(graph.nodes()) == ["a", "b", "d"]
     assert unordered(graph.edges()) == ["ab", "bd", "da"]
 

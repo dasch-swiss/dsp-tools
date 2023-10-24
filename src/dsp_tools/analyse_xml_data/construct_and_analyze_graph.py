@@ -129,23 +129,24 @@ def _remove_leaf_nodes(
     """
     Leaf nodes are nodes that do not have any outgoing links.
     This means that they have no dependencies and are ok to upload.
-    This function removes them from the graph and the set with remaining nodes in the graph.
+    This function removes them from the graph.
 
     Args:
         graph: graph
         rustworkx_index_to_id: the dictionary so that we can find our IDs with the nodes index number from rx
-        node_indices: The set with the remaining node indices in the graph
+        node_indices: node indices that are in the graph
 
     Returns:
-        A list with the ids of the removed leaf nodes
-        The set with the remaining nodes minus the leaf nodes
+        A list with the IDs of the removed leaf nodes
+        A set with the indices of the nodes that remain in the graph
     """
-    res: list[str] = []
+    removed_leaf_nodes: list[str] = []
+    remaining_node_indices = set(node_indices)
     while leaf_nodes := [x for x in node_indices if graph.out_degree(x) == 0]:
-        res.extend(rustworkx_index_to_id[n] for n in leaf_nodes)
+        removed_leaf_nodes.extend(rustworkx_index_to_id[n] for n in leaf_nodes)
         graph.remove_nodes_from(leaf_nodes)
-        node_indices = node_indices - set(leaf_nodes)
-    return res, node_indices
+        remaining_node_indices = remaining_node_indices - set(leaf_nodes)
+    return removed_leaf_nodes, remaining_node_indices
 
 
 def _find_cheapest_outgoing_links(

@@ -1,8 +1,6 @@
 # pylint: disable=missing-class-docstring,missing-function-docstring,protected-access,no-member
 # mypy: disable-error-code="var-annotated,assignment,arg-type"
 
-from unittest.mock import patch
-
 import pytest
 import rustworkx as rx
 from lxml import etree

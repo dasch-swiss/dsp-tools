@@ -21,9 +21,9 @@ def create_info_from_xml_for_graph(
         root: root of the parsed XML file
 
     Returns:
-        all resptr links contained in the XML file, represented as ResptrLink objects
-        all XML links contained in the XML file, represented as XMLLink objects
-        a list with all resource IDs used in the XML file
+        - All resptr links contained in the XML file, represented as ResptrLink objects.
+        - All XML links contained in the XML file, represented as XMLLink objects.
+        - A list with all resource IDs used in the XML file.
     """
     resptr_links = []
     xml_links = []
@@ -103,9 +103,9 @@ def make_graph(
         all_resource_ids: IDs of all resources in the graph
 
     Returns:
-        The rustworkx graph.
-        A dictionary that maps the rustworkx index number of the nodes to the original resource ID from the XML file.
-        A list with all the edges in the graph.
+        - The rustworkx graph.
+        - A dictionary that maps the rustworkx index number of the nodes to the original resource ID from the XML file.
+        - A list with all the edges in the graph.
     """
     graph: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()  # pylint: disable=no-member
     nodes = [(id_, None, None) for id_ in all_resource_ids]
@@ -137,8 +137,8 @@ def _remove_leaf_nodes(
         node_indices: node indices that are in the graph
 
     Returns:
-        A list with the IDs of the removed leaf nodes
-        A set with the indices of the nodes that remain in the graph
+        - A list with the IDs of the removed leaf nodes.
+        - A set with the indices of the nodes that remain in the graph.
     """
     removed_leaf_nodes: list[str] = []
     remaining_node_indices = set(node_indices)
@@ -164,8 +164,8 @@ def _find_cheapest_outgoing_links(
         edge_list: list of all the edges that were in the original graph
 
     Returns:
-        A list with the links that should be stashed.
-        It contains all the edges connecting the two nodes.
+        - A list with the links that should be stashed.
+        - It contains all the edges connecting the two nodes.
     """
     costs = []
     for source, target in cycle:
@@ -275,9 +275,9 @@ def generate_upload_order(
         edge_list: list of edges in the graph as tuple (source node, target node, link info)
 
     Returns:
-        A dictionary which maps the resources that have stashes to the UUIDs of the stashed links.
-        A list of resource IDs which gives the order in which the resources should be uploaded to DSP-API.
-        The number of links in the stash.
+        - A dictionary which maps the resources that have stashes to the UUIDs of the stashed links.
+        - A list of resource IDs which gives the order in which the resources should be uploaded to DSP-API.
+        - The number of links in the stash.
     """
     upload_order: list[str] = []
     stash_lookup: dict[str, list[str]] = {}

@@ -279,10 +279,10 @@ def test_find_cheapest_outgoing_links_one_resptr_link() -> None:
         (3, 1),
         (3, 2),
     ]
-    edges_returned = _get_resptr_instances(edges)
-    g.add_edges_from(edges_returned)
-    cheapest_links = _find_cheapest_outgoing_links(g, circle, edges_returned)
-    assert cheapest_links == [edges_returned[3]]
+    edges_with_links = _get_resptr_instances(edges)
+    g.add_edges_from(edges_with_links)
+    cheapest_links = _find_cheapest_outgoing_links(g, circle, edges_with_links)
+    assert cheapest_links == [edges_with_links[3]]
 
 
 def test_find_cheapest_outgoing_links_four_circle() -> None:
@@ -316,12 +316,12 @@ def test_find_cheapest_outgoing_links_four_circle() -> None:
         (4, 2),
         (4, 2),
     ]
-    edges_returned = _get_resptr_instances(edges)
-    g.add_edges_from(edges_returned)
-    g.add_edges_from(edges_returned)
+    edges_with_links = _get_resptr_instances(edges)
+    g.add_edges_from(edges_with_links)
+    g.add_edges_from(edges_with_links)
     circle = [(0, 1), (1, 2), (2, 3), (3, 0)]
-    cheapest_links = _find_cheapest_outgoing_links(g, circle, edges_returned)
-    assert cheapest_links == [edges_returned[0]]
+    cheapest_links = _find_cheapest_outgoing_links(g, circle, edges_with_links)
+    assert cheapest_links == [edges_with_links[0]]
 
 
 def test_find_cheapest_outgoing_links_xml() -> None:
@@ -358,11 +358,11 @@ def test_find_cheapest_outgoing_links_xml() -> None:
         (0, 3, a_de_xml),
         (0, 4, a_de_xml),
     ]
-    edges_returned = _get_resptr_instances(edges_resptr)
-    edges_returned.extend(xml_edges)
-    g.add_edges_from(edges_returned)
-    cheapest_links = _find_cheapest_outgoing_links(g, circle, edges_returned)
-    assert cheapest_links == [edges_returned[10]]
+    edges_with_links = _get_resptr_instances(edges_resptr)
+    edges_with_links.extend(xml_edges)
+    g.add_edges_from(edges_with_links)
+    cheapest_links = _find_cheapest_outgoing_links(g, circle, edges_with_links)
+    assert cheapest_links == [edges_with_links[10]]
 
 
 def test_remove_edges_to_stash_phantom_xml() -> None:
@@ -392,10 +392,10 @@ def test_remove_edges_to_stash_phantom_xml() -> None:
         (2, 3, c_bdf_xml),
         (2, 5, c_bdf_xml),
     ]
-    edges_returned = _get_resptr_instances(resptr_edges)
-    edges_returned.extend(xml_edges)
-    g.add_edges_from(edges_returned)
-    res_links_to_stash = _remove_edges_to_stash(g, edges_to_remove, edges_returned, remaining_nodes)
+    edges_with_links = _get_resptr_instances(resptr_edges)
+    edges_with_links.extend(xml_edges)
+    g.add_edges_from(edges_with_links)
+    res_links_to_stash = _remove_edges_to_stash(g, edges_to_remove, edges_with_links, remaining_nodes)
     assert res_links_to_stash == [c_bdf_xml]
     remaining_edges = list(g.edge_list())
     expected_edges = [(0, 1), (0, 1), (0, 2), (0, 3), (0, 4), (1, 2), (1, 2), (1, 3), (3, 0), (3, 0), (3, 0)]
@@ -513,11 +513,11 @@ def test_generate_upload_order_with_stash() -> None:
         (0, 1, abf_xml),
         (0, 5, abf_xml),
     ]
-    edges_returned = _get_resptr_instances(edges)
-    edges_returned.extend(xml_edges)
+    edges_with_links = _get_resptr_instances(edges)
+    edges_with_links.extend(xml_edges)
 
-    g.add_edges_from(edges_returned)
-    stash_lookup, upload_order, stash_counter = generate_upload_order(g, node_idx_lookup, edges_returned, node_idx)
+    g.add_edges_from(edges_with_links)
+    stash_lookup, upload_order, stash_counter = generate_upload_order(g, node_idx_lookup, edges_with_links, node_idx)
     expected_stash_lookup = {"0": [abf_xml.link_uuid]}
     assert stash_counter == 1
     assert unordered(upload_order[0:2]) == ["4", "6"]
@@ -538,12 +538,12 @@ def test_generate_upload_order_no_stash() -> None:
         (1, 2),
         (2, 3),
     ]
-    edges_returned = _get_resptr_instances(edges)
-    g.add_edges_from(edges_returned)
+    edges_with_links = _get_resptr_instances(edges)
+    g.add_edges_from(edges_with_links)
     stash_lookup, upload_order, stash_counter = generate_upload_order(
         g,
         node_idx_lookup,
-        edges_returned,
+        edges_with_links,
         node_idx,
     )
     assert stash_lookup == dict()

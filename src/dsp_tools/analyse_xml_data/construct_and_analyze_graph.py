@@ -121,7 +121,7 @@ def make_graph(
     graph.add_edges_from(edges)
     return graph, rustworkx_index_to_id, edges, set(node_indices)
 
-
+  
 def _remove_leaf_nodes(
     graph: rx.PyDiGraph[Any, Any],
     rustworkx_index_to_id: dict[int, str],

@@ -1,7 +1,7 @@
 # pylint: disable=missing-class-docstring,missing-function-docstring,protected-access,no-member
 
 from typing import Any
-from unittest.mock import patch
+
 import pytest
 import rustworkx as rx
 from lxml import etree
@@ -288,8 +288,8 @@ def test_find_cheapest_outgoing_links_one_resptr_link() -> None:
     g.add_edges_from(edges)
     cheapest_links = _find_cheapest_outgoing_links(g, circle, edges)
     assert cheapest_links == [edges[3]]  # type: ignore[comparison-overlap]
-    
-    
+
+
 def test_find_cheapest_outgoing_links_four_circle() -> None:
     nodes = [
         #     out / in

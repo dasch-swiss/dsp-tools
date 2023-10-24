@@ -90,7 +90,7 @@ def make_graph(
     resptr_links: list[ResptrLink],
     xml_links: list[XMLLink],
     all_resource_ids: list[str],
-) -> tuple[rx.PyDiGraph[Any, Any], dict[int, str], list[tuple[int, int, ResptrLink | XMLLink]], set[int]]:
+) -> tuple[rx.PyDiGraph[Any, Any], dict[int, str], list[tuple[int, int, ResptrLink | XMLLink]]]:
     """
     This function takes information about the resources of an XML file and links between them.
     From that it constructs a rustworkx directed graph.
@@ -106,7 +106,6 @@ def make_graph(
         The rustworkx graph.
         A dictionary that maps the rustworkx index number of the nodes to the original resource ID from the XML file.
         A list with all the edges in the graph.
-        A set with the rustworkx index numbers of all the nodes in the graph.
     """
     graph: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()  # pylint: disable=no-member
     nodes = [(id_, None, None) for id_ in all_resource_ids]
@@ -119,9 +118,9 @@ def make_graph(
     for xml in xml_links:
         edges.extend([(id_to_rustworkx_index[xml.source_id], id_to_rustworkx_index[x], xml) for x in xml.target_ids])
     graph.add_edges_from(edges)
-    return graph, rustworkx_index_to_id, edges, set(node_indices)
+    return graph, rustworkx_index_to_id, edges
 
-  
+
 def _remove_leaf_nodes(
     graph: rx.PyDiGraph[Any, Any],
     rustworkx_index_to_id: dict[int, str],
@@ -265,7 +264,6 @@ def generate_upload_order(
     graph: rx.PyDiGraph[Any, Any],
     rustworkx_index_to_id: dict[int, str],
     edge_list: list[tuple[int, int, XMLLink | ResptrLink]],
-    node_indices: set[int],
 ) -> tuple[dict[str, list[str]], list[str], int]:
     """
     Generate the order in which the resources should be uploaded to the DSP-API based on the dependencies.
@@ -274,7 +272,6 @@ def generate_upload_order(
         graph: graph
         rustworkx_index_to_id: mapping between graph indices and original IDs
         edge_list: list of edges in the graph as tuple (source node, target node, link info)
-        node_indices: index numbers of the nodes still in the graph
 
     Returns:
         A dictionary which maps the resources that have stashes to the UUIDs of the stashed links.
@@ -283,10 +280,11 @@ def generate_upload_order(
     """
     upload_order: list[str] = []
     stash_lookup: dict[str, list[str]] = {}
-    leaf_nodes, node_indices = _remove_leaf_nodes(graph, rustworkx_index_to_id, node_indices)
+    node_indices = set(rustworkx_index_to_id.keys())
+    leaf_nodes, remaining_node_indices = _remove_leaf_nodes(graph, rustworkx_index_to_id, node_indices)
     upload_order.extend(leaf_nodes)
     stash_counter = 0
-    while node_indices:
+    while remaining_node_indices:
         cycle = list(rx.digraph_find_cycle(graph))  # type: ignore[attr-defined]  # pylint: disable=no-member
         links_to_remove = _find_cheapest_outgoing_links(graph, cycle, edge_list)
         stash_counter += len(links_to_remove)
@@ -294,9 +292,9 @@ def generate_upload_order(
             graph=graph,
             edges_to_remove=links_to_remove,
             edge_list=edge_list,
-            remaining_nodes=node_indices,
+            remaining_nodes=remaining_node_indices,
         )
         stash_lookup = _add_stash_to_lookup_dict(stash_lookup, links_to_stash)
-        leaf_nodes, node_indices = _remove_leaf_nodes(graph, rustworkx_index_to_id, node_indices)
+        leaf_nodes, remaining_node_indices = _remove_leaf_nodes(graph, rustworkx_index_to_id, remaining_node_indices)
         upload_order.extend(leaf_nodes)
     return stash_lookup, upload_order, stash_counter

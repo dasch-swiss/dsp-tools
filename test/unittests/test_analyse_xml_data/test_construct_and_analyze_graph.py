@@ -214,14 +214,14 @@ def test_make_graph() -> None:
     xml = XMLLink("a", {"b", "c"})
     xml_links = [xml]
     all_ids = ["a", "b", "c"]
-    graph, rustworkx_index_to_id, edges, node_indices = make_graph(resptr_links, xml_links, all_ids)
+    graph, rustworkx_index_to_id, edges = make_graph(resptr_links, xml_links, all_ids)
     assert graph.num_nodes() == 3
     assert graph.num_edges() == 3
     assert rustworkx_index_to_id[0] == "a"
     assert rustworkx_index_to_id[1] == "b"
     assert rustworkx_index_to_id[2] == "c"
     assert unordered(edges) == [(0, 1, resptr), (0, 1, xml), (0, 2, xml)]
-    assert node_indices == {0, 1, 2}
+    assert set(rustworkx_index_to_id.keys()) == {0, 1, 2}
 
 
 def test_remove_leaf_nodes() -> None:
@@ -500,7 +500,7 @@ def test_generate_upload_order_with_stash() -> None:
         (0, 5, abf_xml),
     ]
     graph.add_edges_from(edges)
-    stash_lookup, upload_order, stash_counter = generate_upload_order(graph, node_idx_lookup, edges, node_idx)
+    stash_lookup, upload_order, stash_counter = generate_upload_order(graph, node_idx_lookup, edges)
     expected_stash_lookup = {"0": [abf_xml.link_uuid]}
     assert stash_counter == 1
     assert unordered(upload_order[0:2]) == ["4", "6"]
@@ -522,12 +522,7 @@ def test_generate_upload_order_no_stash() -> None:
         (2, 3, ResptrLink("", "")),
     ]
     graph.add_edges_from(edges)
-    stash_lookup, upload_order, stash_counter = generate_upload_order(
-        graph,
-        node_idx_lookup,
-        edges,
-        node_idx,
-    )
+    stash_lookup, upload_order, stash_counter = generate_upload_order(graph, node_idx_lookup, edges)
     assert stash_lookup == dict()
     assert stash_counter == 0
     assert upload_order == ["3", "2", "1", "0"]
@@ -557,12 +552,7 @@ def test_generate_upload_order_two_circles() -> None:
         (6, 5, ResptrLink("6", "5")),
     ]
     graph.add_edges_from(edges)
-    stash_lookup, upload_order, stash_counter = generate_upload_order(
-        graph,
-        node_idx_lookup,
-        edges,
-        node_idx,
-    )
+    stash_lookup, upload_order, stash_counter = generate_upload_order(graph, node_idx_lookup, edges)
     circles = ["0", "1", "2", "3", "5", "6"]
     expected_stash = {"0": [edges[0][2].link_uuid], "5": [x[2].link_uuid for x in edges[9:11]]}
     assert upload_order[0] == "4"

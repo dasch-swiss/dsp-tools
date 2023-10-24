@@ -493,12 +493,12 @@ def test_add_stash_to_lookup_dict_none_existing() -> None:
 
 
 def test_add_stash_to_lookup_dict() -> None:
-    resptr_a1 = ResptrLink("a", "b")
-    stash_dict = {"a": ["existingUUID1", "existingUUID2"], "b": ["existingUUID1"]}
-    expected = {"a": ["existingUUID1", "existingUUID2", resptr_a1.link_uuid], "b": ["existingUUID1"]}
+    resptr_a1 = ResptrLink("0", "1")
+    stash_dict = {"0": ["existingUUID1", "existingUUID2"], "1": ["existingUUID1"]}
+    expected = {"0": ["existingUUID1", "existingUUID2", resptr_a1.link_uuid], "1": ["existingUUID1"]}
     result = _add_stash_to_lookup_dict(stash_dict, [resptr_a1])
     assert result.keys() == expected.keys()
-    assert unordered(result["a"]) == expected["a"]
+    assert unordered(result["0"]) == expected["0"]
 
 
 def test_generate_upload_order_with_stash() -> None:

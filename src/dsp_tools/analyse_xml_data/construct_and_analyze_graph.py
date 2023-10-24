@@ -247,12 +247,12 @@ def _find_phantom_xml_edges(
 
 
 def _add_stash_to_lookup_dict(
-    stash_dict: dict[str, list[str]], to_stash_links: list[XMLLink | ResptrLink]
+    stash_dict: dict[str, list[str]], links_to_stash: list[XMLLink | ResptrLink]
 ) -> dict[str, list[str]]:
-    stash_list = [stash_link.link_uuid for stash_link in to_stash_links]
+    stash_list = [stash_link.link_uuid for stash_link in links_to_stash]
     # all stashed links have the same subject id, so we can just take the first one
-    subj_id = to_stash_links[0].source_id
-    if subj_id in stash_dict.keys():
+    subj_id = links_to_stash[0].source_id
+    if subj_id in stash_dict:
         stash_dict[subj_id].extend(stash_list)
     else:
         stash_dict[subj_id] = stash_list
@@ -266,20 +266,18 @@ def generate_upload_order(
     node_indices: set[int],
 ) -> tuple[dict[str, list[str]], list[str], int]:
     """
-    This function takes a graph and a dictionary with the mapping between the graph indices and original ids.
-    It generates the order in which the resources should be uploaded to the DSP-API based on the dependencies.
+    Generate the order in which the resources should be uploaded to the DSP-API based on the dependencies.
 
     Args:
         g: graph
-        node_index_lookup: reference between graph indices and original id
-        edge_list: list of edges in the graph as tuple (source_node, target_node, Class Instance)
+        node_index_lookup: mapping between graph indices and original IDs
+        edge_list: list of edges in the graph as tuple (source node, target node, link info)
         node_indices: index numbers of the nodes still in the graph
 
     Returns:
-        Dictionary, which stores the information which resources have stashes
-        and which UUIDs of the elements should be stashed
-        A list that of resource IDs which gives the order in which the resources should be uploaded in the API
-        The number of links in the stash.
+        Dictionary that maps the resources that have stashes to the UUIDs of the stashed links
+        A list of resource IDs which gives the order in which the resources should be uploaded to DSP-API
+        The number of links in the stash
     """
     upload_order: list[str] = []
     stash_lookup: dict[str, list[str]] = {}

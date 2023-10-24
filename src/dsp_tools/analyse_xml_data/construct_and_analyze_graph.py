@@ -142,7 +142,7 @@ def _remove_leaf_nodes(
     """
     removed_leaf_nodes: list[str] = []
     remaining_node_indices = set(node_indices)
-    while leaf_nodes := [x for x in node_indices if graph.out_degree(x) == 0]:
+    while leaf_nodes := [x for x in remaining_node_indices if graph.out_degree(x) == 0]:
         removed_leaf_nodes.extend(rustworkx_index_to_id[n] for n in leaf_nodes)
         graph.remove_nodes_from(leaf_nodes)
         remaining_node_indices = remaining_node_indices - set(leaf_nodes)

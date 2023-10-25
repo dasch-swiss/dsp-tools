@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-from collections import namedtuple
 from typing import Any
 
 import regex
 import rustworkx as rx
 from lxml import etree
 
-from dsp_tools.analyse_xml_data.models import Edge, ResptrLink, XMLLink
+from dsp_tools.analyse_xml_data.models import Cost, Edge, ResptrLink, XMLLink
 
 
 def create_info_from_xml_for_graph(
@@ -167,7 +166,6 @@ def _find_cheapest_outgoing_links(
     Returns:
         The edges (i.e. links) that should be stashed (containing all the edges connecting the two nodes)
     """
-    Cost = namedtuple("Cost", ["source", "target", "node_value", "edges_out"])
     costs: list[Cost] = []
     for source, target in cycle:
         edges_in = graph.in_edges(source)
@@ -175,7 +173,7 @@ def _find_cheapest_outgoing_links(
         edges_out = graph.out_edges(source)
         node_cost = sum(x[2].cost_links for x in edges_out)
         node_value = node_cost / node_gain
-        costs.append(Cost(source, target, node_value, edges_out))
+        costs.append(Cost(source, target, node_value))
     cheapest_cost = sorted(costs, key=lambda x: x.node_value)[0]
     cheapest_links = [
         x for x in edges if x.source_rx_index == cheapest_cost.source and x.target_rx_index == cheapest_cost.target

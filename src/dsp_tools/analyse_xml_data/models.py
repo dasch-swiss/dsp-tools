@@ -65,3 +65,17 @@ class Edge:
     def as_tuple(self) -> tuple[int, int, ResptrLink | XMLLink]:
         """Returns a representation of this edge as a tuple of the source index, target index and link object"""
         return self.source_rx_index, self.target_rx_index, self.link_object
+
+
+@dataclass(frozen=True)
+class Cost:
+    """
+    Attributes:
+        source: rustworkx index of the resource from which the link originates
+        target: rustworkx index of the resource where the link points to
+        node_value: cost-gain-ratio if this link is stashed
+    """
+
+    source: int
+    target: int
+    node_value: float

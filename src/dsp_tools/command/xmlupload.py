@@ -5,9 +5,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from dsp_tools.command.xml_upload.repo.dsp_upload_repo_live import DspUploadRepoLive
 from dsp_tools.command.xml_upload.service.upload_service import UploadService
 from dsp_tools.command.xml_upload.service.upload_service_live import UploadServiceLive
+from dsp_tools.command.xml_upload.upload_api_client.api_client_live import DspUploadRepoLive
 from dsp_tools.command.xml_upload.xml_parser.xml_parser_live import XmlParserLive
 from dsp_tools.models.sipi import Sipi
 from dsp_tools.utils.create_logger import get_logger

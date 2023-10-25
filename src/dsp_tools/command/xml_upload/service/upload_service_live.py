@@ -2,8 +2,10 @@ from dataclasses import dataclass
 
 from dsp_tools.command.xml_upload.models.resource import InputResourceCollection
 from dsp_tools.command.xml_upload.models.upload_result import UploadResult
-from dsp_tools.command.xml_upload.repo.dsp_upload_repo import DspUploadRepo
+from dsp_tools.command.xml_upload.upload_api_client.api_client import DspUploadRepo
 from dsp_tools.utils.xmlupload.upload_config import UploadConfig
+
+# XXX: do we really need this "service"?
 
 
 @dataclass(frozen=True)

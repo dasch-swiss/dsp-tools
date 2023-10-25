@@ -1,7 +1,7 @@
 from typing import Protocol
 
-from dsp_tools.xml_upload.domain.model.resource import InputResourceCollection
-from dsp_tools.xml_upload.domain.model.upload_result import UploadResult
+from dsp_tools.command.xml_upload.models.resource import InputResourceCollection
+from dsp_tools.command.xml_upload.models.upload_result import UploadResult
 
 
 class UploadService(Protocol):

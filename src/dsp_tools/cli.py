@@ -8,6 +8,7 @@ from importlib.metadata import version
 
 import regex
 
+from dsp_tools.command.xmlupload import xmlupload
 from dsp_tools.excel2xml import excel2xml
 from dsp_tools.fast_xmlupload.process_files import process_files
 from dsp_tools.fast_xmlupload.upload_files import upload_files
@@ -28,7 +29,6 @@ from dsp_tools.utils.rosetta import upload_rosetta
 from dsp_tools.utils.shared import validate_xml_against_schema
 from dsp_tools.utils.stack_handling import StackConfiguration, StackHandler
 from dsp_tools.utils.xmlupload.upload_config import UploadConfig
-from dsp_tools.utils.xmlupload.xmlupload import xmlupload
 
 logger = get_logger(__name__)
 

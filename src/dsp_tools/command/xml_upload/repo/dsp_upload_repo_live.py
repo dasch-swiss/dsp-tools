@@ -2,10 +2,8 @@ import json
 from dataclasses import dataclass
 from typing import Any, assert_never
 
-from dsp_tools.connection.connection import Connection
-from dsp_tools.models.sipi import Sipi
-from dsp_tools.xml_upload.domain.model.resource import InputResource
-from dsp_tools.xml_upload.domain.model.value import (
+from dsp_tools.command.xml_upload.models.resource import InputResource
+from dsp_tools.command.xml_upload.models.value import (
     BooleanValue,
     ColorValue,
     DateValue,
@@ -22,6 +20,8 @@ from dsp_tools.xml_upload.domain.model.value import (
     UriValue,
     Value,
 )
+from dsp_tools.connection.connection import Connection
+from dsp_tools.models.sipi import Sipi
 
 
 @dataclass(frozen=True)

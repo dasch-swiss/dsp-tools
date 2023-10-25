@@ -3,9 +3,9 @@
 import pytest
 from termcolor import cprint
 
+from dsp_tools.command.xmlupload import _extract_resources_from_xml
 from dsp_tools.utils.xml_utils import parse_and_clean_xml_file
 from dsp_tools.utils.xmlupload.stash_circular_references import remove_circular_references
-from dsp_tools.utils.xmlupload.xmlupload import _extract_resources_from_xml
 
 
 def test_get_length_ok_resources() -> None:

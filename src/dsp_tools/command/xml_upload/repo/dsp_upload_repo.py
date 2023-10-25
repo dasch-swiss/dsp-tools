@@ -1,6 +1,6 @@
 from typing import Protocol
 
-from dsp_tools.xml_upload.domain.model.resource import InputResource
+from dsp_tools.command.xml_upload.models.resource import InputResource
 
 
 class DspUploadRepo(Protocol):

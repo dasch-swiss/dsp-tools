@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from dsp_tools.xml_upload.domain.model.value import Value
+from dsp_tools.command.xml_upload.models.value import Value
 
 
 @dataclass(frozen=True)

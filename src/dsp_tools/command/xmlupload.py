@@ -4,17 +4,16 @@ This module handles the import of XML data into the DSP platform.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
 
+from dsp_tools.command.xml_upload.repo.dsp_upload_repo_live import DspUploadRepoLive
+from dsp_tools.command.xml_upload.service.upload_service import UploadService
+from dsp_tools.command.xml_upload.service.upload_service_live import UploadServiceLive
+from dsp_tools.command.xml_upload.xml_parser.xml_parser_live import XmlParserLive
 from dsp_tools.models.sipi import Sipi
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import login
 from dsp_tools.utils.xmlupload.upload_config import UploadConfig
 from dsp_tools.utils.xmlupload.write_diagnostic_info import write_id2iri_mapping
-from dsp_tools.xml_upload.domain.service.upload_service import UploadService
-from dsp_tools.xml_upload.domain.service.upload_service_live import UploadServiceLive
-from dsp_tools.xml_upload.interface.xml_parser import XmlParserLive
-from dsp_tools.xml_upload.repo.dsp_upload_repo_live import DspUploadRepoLive
 
 logger = get_logger(__name__)
 

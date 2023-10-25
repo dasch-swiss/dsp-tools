@@ -198,25 +198,18 @@ def _remove_edges_to_stash(
         all_edges: all edges in the original graph
         remaining_nodes: indices of the nodes in the graph
     """
-    # find the normal edges to remove
     normal_edges_to_remove = [(x.source_rx_index, x.target_rx_index) for x in edges_to_remove]
     # if only one (source, target) is removed, it removes only one edge, not all
     # therefore we need as many entries in the list as there are edges between the source and the target
 
-    # find the phantom edges to remove
     phantom_edges_to_remove = []
+    source, target = edges_to_remove[0].source_rx_index, edges_to_remove[0].target_rx_index
     for link_to_stash in [x.link_object for x in edges_to_remove]:
         if isinstance(link_to_stash, XMLLink):
-            new_phantoms = _find_phantom_xml_edges(
-                edges_to_remove[0].source_rx_index,
-                edges_to_remove[0].target_rx_index,
-                all_edges,
-                link_to_stash,
-                remaining_nodes,
+            phantom_edges_to_remove.extend(
+                _find_phantom_xml_edges(source, target, all_edges, link_to_stash, remaining_nodes)
             )
-            phantom_edges_to_remove.extend(new_phantoms)
 
-    # remove the normal edges and the phantom edges
     all_edges_to_remove = normal_edges_to_remove + phantom_edges_to_remove
     graph.remove_edges_from(all_edges_to_remove)
 

@@ -110,13 +110,11 @@ def make_graph(
     graph: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()  # pylint: disable=no-member
     nodes = [(id_, None, None) for id_ in all_resource_ids]
     node_indices = list(graph.add_nodes_from(nodes))
-    id_to_rustworkx_index = dict(zip(all_resource_ids, node_indices))
+    id_to_node = dict(zip(all_resource_ids, node_indices))
     node_to_id = dict(zip(node_indices, all_resource_ids))
-    edges = [Edge(id_to_rustworkx_index[x.source_id], id_to_rustworkx_index[x.target_id], x) for x in resptr_links]
+    edges = [Edge(id_to_node[x.source_id], id_to_node[x.target_id], x) for x in resptr_links]
     for xml in xml_links:
-        edges.extend(
-            [Edge(id_to_rustworkx_index[xml.source_id], id_to_rustworkx_index[x], xml) for x in xml.target_ids]
-        )
+        edges.extend([Edge(id_to_node[xml.source_id], id_to_node[x], xml) for x in xml.target_ids])
     graph.add_edges_from([e.as_tuple() for e in edges])
     return graph, node_to_id, edges
 

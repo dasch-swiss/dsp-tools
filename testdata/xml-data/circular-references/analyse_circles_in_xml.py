@@ -37,8 +37,8 @@ def analyse_circles_in_data(xml_filepath: Path, tracer_output_file: str, save_tr
     print(f"Total Number of resptr Links: {len(resptr_links)}")
     print(f"Total Number of XML Texts with Links: {len(xml_links)}")
     print("=" * 80)
-    graph, rustworkx_index_to_id, edges = make_graph(resptr_links, xml_links, all_resource_ids)
-    _, _, stash_counter = generate_upload_order(graph, rustworkx_index_to_id, edges)
+    graph, node_to_id, edges = make_graph(resptr_links, xml_links, all_resource_ids)
+    _, _, stash_counter = generate_upload_order(graph, node_to_id, edges)
     print("Number of Links Stashed:", stash_counter)
     tracer.stop()
     if save_tracer:

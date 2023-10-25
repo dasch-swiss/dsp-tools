@@ -111,19 +111,19 @@ def make_graph(
     nodes = [(id_, None, None) for id_ in all_resource_ids]
     node_indices = list(graph.add_nodes_from(nodes))
     id_to_rustworkx_index = dict(zip(all_resource_ids, node_indices))
-    rustworkx_index_to_id = dict(zip(node_indices, all_resource_ids))
+    node_to_id = dict(zip(node_indices, all_resource_ids))
     edges = [Edge(id_to_rustworkx_index[x.source_id], id_to_rustworkx_index[x.target_id], x) for x in resptr_links]
     for xml in xml_links:
         edges.extend(
             [Edge(id_to_rustworkx_index[xml.source_id], id_to_rustworkx_index[x], xml) for x in xml.target_ids]
         )
     graph.add_edges_from([e.as_tuple() for e in edges])
-    return graph, rustworkx_index_to_id, edges
+    return graph, node_to_id, edges
 
 
 def _remove_leaf_nodes(
     graph: rx.PyDiGraph[Any, Any],
-    rustworkx_index_to_id: dict[int, str],
+    node_to_id: dict[int, str],
     node_indices: set[int],
 ) -> tuple[list[str], set[int]]:
     """
@@ -133,7 +133,7 @@ def _remove_leaf_nodes(
 
     Args:
         graph: graph
-        rustworkx_index_to_id: the dictionary so that we can find our IDs with the nodes index number from rx
+        node_to_id: mapping of the rustworkx index number of the nodes to the original resource ID from the XML file
         node_indices: node indices that are in the graph
 
     Returns:
@@ -143,7 +143,7 @@ def _remove_leaf_nodes(
     removed_leaf_nodes: list[str] = []
     remaining_node_indices = set(node_indices)
     while leaf_nodes := [x for x in remaining_node_indices if graph.out_degree(x) == 0]:
-        removed_leaf_nodes.extend(rustworkx_index_to_id[n] for n in leaf_nodes)
+        removed_leaf_nodes.extend(node_to_id[n] for n in leaf_nodes)
         graph.remove_nodes_from(leaf_nodes)
         remaining_node_indices = remaining_node_indices - set(leaf_nodes)
     return removed_leaf_nodes, remaining_node_indices
@@ -265,7 +265,7 @@ def _add_stash_to_lookup_dict(
 
 def generate_upload_order(
     graph: rx.PyDiGraph[Any, Any],
-    rustworkx_index_to_id: dict[int, str],
+    node_to_id: dict[int, str],
     edges: list[Edge],
 ) -> tuple[dict[str, list[str]], list[str], int]:
     """
@@ -273,7 +273,7 @@ def generate_upload_order(
 
     Args:
         graph: graph
-        rustworkx_index_to_id: mapping between indices of the graph nodes and original resource IDs from the XML file
+        node_to_id: mapping between indices of the graph nodes and original resource IDs from the XML file
         edges: edges in the graph (contains info about source node, target node, and link info)
 
     Returns:
@@ -283,8 +283,8 @@ def generate_upload_order(
     """
     upload_order: list[str] = []
     stash_lookup: dict[str, list[str]] = {}
-    node_indices = set(rustworkx_index_to_id.keys())
-    leaf_nodes, remaining_node_indices = _remove_leaf_nodes(graph, rustworkx_index_to_id, node_indices)
+    node_indices = set(node_to_id.keys())
+    leaf_nodes, remaining_node_indices = _remove_leaf_nodes(graph, node_to_id, node_indices)
     upload_order.extend(leaf_nodes)
     stash_counter = 0
     while remaining_node_indices:
@@ -298,6 +298,6 @@ def generate_upload_order(
             remaining_nodes=remaining_node_indices,
         )
         stash_lookup = _add_stash_to_lookup_dict(stash_lookup, [x.link_object for x in links_to_remove])
-        leaf_nodes, remaining_node_indices = _remove_leaf_nodes(graph, rustworkx_index_to_id, remaining_node_indices)
+        leaf_nodes, remaining_node_indices = _remove_leaf_nodes(graph, node_to_id, remaining_node_indices)
         upload_order.extend(leaf_nodes)
     return stash_lookup, upload_order, stash_counter

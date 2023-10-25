@@ -214,14 +214,14 @@ def test_make_graph() -> None:
     xml = XMLLink("a", {"b", "c"})
     xml_links = [xml]
     all_ids = ["a", "b", "c"]
-    graph, rustworkx_index_to_id, edges = make_graph(resptr_links, xml_links, all_ids)
+    graph, node_to_id, edges = make_graph(resptr_links, xml_links, all_ids)
     assert graph.num_nodes() == 3
     assert graph.num_edges() == 3
-    assert rustworkx_index_to_id[0] == "a"
-    assert rustworkx_index_to_id[1] == "b"
-    assert rustworkx_index_to_id[2] == "c"
+    assert node_to_id[0] == "a"
+    assert node_to_id[1] == "b"
+    assert node_to_id[2] == "c"
     assert unordered(edges) == [Edge(0, 1, resptr), Edge(0, 1, xml), Edge(0, 2, xml)]
-    assert set(rustworkx_index_to_id.keys()) == {0, 1, 2}
+    assert set(node_to_id.keys()) == {0, 1, 2}
 
 
 def test_remove_leaf_nodes() -> None:

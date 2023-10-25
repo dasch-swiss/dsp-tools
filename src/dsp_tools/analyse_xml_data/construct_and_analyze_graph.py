@@ -198,38 +198,48 @@ def _remove_edges_to_stash(
         all_edges: all edges in the original graph
         remaining_nodes: indices of the nodes in the graph
     """
-    source, target = edges_to_remove[0].source_rx_index, edges_to_remove[0].target_rx_index
-    # if only one (source, target) is entered, it removes only one edge, not all
-    # therefore we need as many entries in the list as there are edges between the source and target to break the cycle
-    to_remove_list = [(x.source_rx_index, x.target_rx_index) for x in edges_to_remove]
-    phantom_links = []
+    # find the normal edges to remove
+    normal_edges_to_remove = [(x.source_rx_index, x.target_rx_index) for x in edges_to_remove]
+    # if only one (source, target) is removed, it removes only one edge, not all
+    # therefore we need as many entries in the list as there are edges between the source and the target
+
+    # find the phantom edges to remove
+    phantom_edges_to_remove = []
     for link_to_stash in [x.link_object for x in edges_to_remove]:
         if isinstance(link_to_stash, XMLLink):
-            phantom_links.extend(_find_phantom_xml_edges(source, target, all_edges, link_to_stash, remaining_nodes))
-    to_remove_list.extend(phantom_links)
-    graph.remove_edges_from(to_remove_list)
+            new_phantoms = _find_phantom_xml_edges(
+                edges_to_remove[0].source_rx_index,
+                edges_to_remove[0].target_rx_index,
+                all_edges,
+                link_to_stash,
+                remaining_nodes,
+            )
+            phantom_edges_to_remove.extend(new_phantoms)
+
+    # remove the normal edges and the phantom edges
+    all_edges_to_remove = normal_edges_to_remove + phantom_edges_to_remove
+    graph.remove_edges_from(all_edges_to_remove)
 
 
 def _find_phantom_xml_edges(
-    source: int,
-    target: int,
-    edges: list[Edge],
-    xml_instance: XMLLink,
+    source_rx_index: int,
+    target_rx_index: int,
+    all_edges: list[Edge],
+    xml_link_to_stash: XMLLink,
     remaining_nodes: set[int],
 ) -> list[tuple[int, int]]:
     """
-    If an edge that will be removed represents an XML link
-    the link may contain further links to other resources.
-    If we stash the XMLLink then in the real data all the links are stashed.
-    This is not automatically the case in the rx graph.
-    We identify all the edges that need to be removed so that the rx graph represents the links that remain
-    in the real data.
+    If an edge that will be removed represents an XML link,
+    the text value may contain further links to other resources.
+    If we stash the XMLLink, then in the real data all links of that text value are stashed.
+    So, the rx graph must be purged from these "phantom" links that are not in the real data any more.
+    This function identifies the edges that must be removed from the rx graph.
 
     Args:
-        source: rustworkx index of source node
-        target: rustworkx index of target node
-        edges: all edges in the original graph
-        xml_instance: XML link that will be stashed
+        source_rx_index: rustworkx index of source node
+        target_rx_index: rustworkx index of target node
+        all_edges: all edges in the original graph
+        xml_link_to_stash: XML link that will be stashed
         remaining_nodes: indices of all nodes in the graph
 
     Returns:
@@ -237,18 +247,16 @@ def _find_phantom_xml_edges(
     """
 
     def check(x: Edge) -> bool:
-        # if we do not check if the target is in the remaining_nodes (maybe removed because of leaf node)
-        # we would get a NoEdgeBetweenNodes error
         return all(
             (
-                x.source_rx_index == source,
-                x.target_rx_index != target,
-                x.link_object == xml_instance,
-                x.target_rx_index in remaining_nodes,
+                x.source_rx_index == source_rx_index,
+                x.target_rx_index != target_rx_index,
+                x.link_object == xml_link_to_stash,
+                x.target_rx_index in remaining_nodes,  # could be removed because of leaf node -> NoEdgeBetweenNodes err
             )
         )
 
-    return [(x.source_rx_index, x.target_rx_index) for x in edges if check(x)]
+    return [(x.source_rx_index, x.target_rx_index) for x in all_edges if check(x)]
 
 
 def _add_stash_to_lookup_dict(

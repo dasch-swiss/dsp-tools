@@ -175,9 +175,7 @@ def _find_cheapest_outgoing_links(
         node_value = node_cost / node_gain
         costs.append(Cost(source, target, node_value))
     cheapest_cost = sorted(costs, key=lambda x: x.node_value)[0]
-    cheapest_links = [
-        x for x in edges if x.source_rx_index == cheapest_cost.source and x.target_rx_index == cheapest_cost.target
-    ]
+    cheapest_links = [x for x in edges if x.source == cheapest_cost.source and x.target == cheapest_cost.target]
     return cheapest_links
 
 
@@ -196,12 +194,12 @@ def _remove_edges_to_stash(
         all_edges: all edges in the original graph
         remaining_nodes: indices of the nodes in the graph
     """
-    normal_edges_to_remove = [(x.source_rx_index, x.target_rx_index) for x in edges_to_remove]
+    normal_edges_to_remove = [(x.source, x.target) for x in edges_to_remove]
     # if only one (source, target) is removed, it removes only one edge, not all
     # therefore we need as many entries in the list as there are edges between the source and the target
 
     phantom_edges_to_remove = []
-    source, target = edges_to_remove[0].source_rx_index, edges_to_remove[0].target_rx_index
+    source, target = edges_to_remove[0].source, edges_to_remove[0].target
     for link_to_stash in [x.link_object for x in edges_to_remove]:
         if isinstance(link_to_stash, XMLLink):
             phantom_edges_to_remove.extend(
@@ -240,15 +238,15 @@ def _find_phantom_xml_edges(
     def check(x: Edge) -> bool:
         return all(
             (
-                x.source_rx_index == source_node_index,
-                x.target_rx_index != target_node_index,
+                x.source == source_node_index,
+                x.target != target_node_index,
                 x.link_object == xml_link_to_stash,
-                x.target_rx_index in remaining_nodes,
+                x.target in remaining_nodes,
                 # the target could have been removed because it was a leaf node, so we must check if it is still there
             )
         )
 
-    return [(x.source_rx_index, x.target_rx_index) for x in all_edges if check(x)]
+    return [(x.source, x.target) for x in all_edges if check(x)]
 
 
 def _add_stash_to_lookup_dict(

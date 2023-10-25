@@ -53,18 +53,18 @@ class Edge:
     This class represents an edge in the rustworkx graph.
 
     Attributes:
-        source_rx_index: rustworkx index of the resource from which the link originates
-        target_rx_index: rustworkx index of the resource where the link points to
+        source: rustworkx index of the resource from which the link originates
+        target: rustworkx index of the resource where the link points to
         link_object: the link that connects the source with the target
     """
 
-    source_rx_index: int
-    target_rx_index: int
+    source: int
+    target: int
     link_object: ResptrLink | XMLLink
 
     def as_tuple(self) -> tuple[int, int, ResptrLink | XMLLink]:
         """Returns a representation of this edge as a tuple of the source index, target index and link object"""
-        return self.source_rx_index, self.target_rx_index, self.link_object
+        return self.source, self.target, self.link_object
 
 
 @dataclass(frozen=True)

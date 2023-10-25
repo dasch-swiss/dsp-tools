@@ -36,10 +36,6 @@ def xmlupload(
         imgdir: the image directory
         config: the upload configuration
 
-    Raises:
-        BaseError: in case of permanent network or software failure
-        UserError: in case of permanent network or software failure, or if the XML file is invalid
-
     Returns:
         True if all resources could be uploaded without errors; False if one of the resources could not be
         uploaded because there is an error in it
@@ -51,6 +47,7 @@ def xmlupload(
     return _upload(parser, config, credentials)
 
 
+# LATER: implement xml upload without image processing in terms of a different XmlParser
 def xmlupload_without_image_processing(
     root: etree._Element,
     config: UploadConfig,

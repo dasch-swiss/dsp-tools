@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field, replace
 from itertools import chain
 from pathlib import Path
 from typing import Iterable
@@ -8,7 +8,7 @@ from typing import Iterable
 import regex
 from lxml import etree
 
-from dsp_tools.command.xml_upload.models.resource import InputPermissions, InputResource, InputResourceCollection
+from dsp_tools.command.xml_upload.models.resource import InputPermissions, InputResource
 from dsp_tools.command.xml_upload.models.value import (
     BooleanValue,
     ColorValue,
@@ -45,15 +45,16 @@ class XmlParserLive:
     shortcode: str
     default_ontology: str
     root: etree._Element
+    image_directory: str = "."
 
     @staticmethod
-    def from_file(path: Path) -> XmlParserLive | None:
+    def from_file(path: Path, imgdir: str = ".") -> XmlParserLive | None:
         """Creates an XML parser from a file. Returns None, if the file is invalid."""
         root = read_xml_file(path)
-        return XmlParserLive.make(root)
+        return XmlParserLive.make(root, imgdir)
 
     @staticmethod
-    def make(root: etree._Element) -> XmlParserLive | None:
+    def make(root: etree._Element, imgdir: str = ".") -> XmlParserLive | None:
         """Creates an XML parser from an XML ElementTree. Returns None, if the XML is invalid."""
         valid, error_msg = validate_xml_against_schema(root)
         if not valid:
@@ -68,12 +69,11 @@ class XmlParserLive:
             print(f"ERROR: {error_msg}")
             logger.error(error_msg)
             return None
-        return XmlParserLive(shortcode, default_ontology, processed_root)
+        return XmlParserLive(shortcode, default_ontology, processed_root, imgdir)
 
-    def get_resources(self) -> InputResourceCollection:
+    def get_resources(self) -> list[InputResource]:
         """Get a collection of resources from the XML file."""
-        resources = list(self._parse())
-        return InputResourceCollection(self.shortcode, self.default_ontology, resources)
+        return list(self._parse())
 
     def _parse(self) -> Iterable[InputResource]:
         permission_lookup = self._get_permission_lookup()

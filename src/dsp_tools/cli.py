@@ -5,6 +5,7 @@ import argparse
 import datetime
 import sys
 from importlib.metadata import version
+from pathlib import Path
 
 import regex
 
@@ -28,7 +29,7 @@ from dsp_tools.utils.project_validate import validate_project
 from dsp_tools.utils.rosetta import upload_rosetta
 from dsp_tools.utils.shared import validate_xml_against_schema
 from dsp_tools.utils.stack_handling import StackConfiguration, StackHandler
-from dsp_tools.utils.xmlupload.upload_config import UploadConfig
+from dsp_tools.utils.xmlupload.upload_config import Credentials, UploadConfig
 
 logger = get_logger(__name__)
 
@@ -457,15 +458,16 @@ def _call_requested_action(args: argparse.Namespace) -> bool:
         if args.validate_only:
             success = validate_xml_against_schema(args.xmlfile)
         else:
-            success = xmlupload(
-                input_file=args.xmlfile,
+            file = Path(args.xmlfile)
+            config = UploadConfig(
+                verbose=args.verbose,
+                dump=args.dump,
                 server=args.server,
-                user=args.user,
-                password=args.password,
-                imgdir=args.imgdir,
                 sipi=args.sipi_url,
-                config=UploadConfig(verbose=args.verbose, dump=args.dump),
+                input_file_name=file.stem,
             )
+            credentials = Credentials(user=args.user, password=args.password)
+            success = xmlupload(input_file=file, credentials=credentials, imgdir=args.imgdir, config=config)
     elif args.action == "process-files":
         success = process_files(
             input_dir=args.input_dir,

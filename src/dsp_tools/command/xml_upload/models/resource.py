@@ -26,15 +26,6 @@ class InputResource:
 
 
 @dataclass(frozen=True)
-class InputResourceCollection:
-    """A collection of resources as provided by the XML input."""
-
-    shortcode: str
-    default_ontology: str
-    resources: list[InputResource]
-
-
-@dataclass(frozen=True)
 class ProcessedResource:
     """All information of a resource after preprocessing."""
 

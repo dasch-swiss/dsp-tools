@@ -35,13 +35,24 @@ def _transform_server_url_to_foldername(server: str) -> str:
 
 
 @dataclass(frozen=True)
+class Credentials:
+    """Credentials for the DSP server."""
+
+    user: str
+    password: str
+
+
+@dataclass(frozen=True)
 class UploadConfig:
     """Configuration for the upload process."""
 
     verbose: bool = False
     dump: bool = False
     preprocessing_done: bool = False
+    server: str = "http://0.0.0.0:3333"
+    sipi: str = "http://0.0.0.0:1024"
     server_as_foldername: str = field(default="unknown")
+    input_file_name: str | None = None
     save_location: Path = field(default=Path.home() / ".dsp-tools" / "xmluploads")
     timestamp_str: str = field(default=datetime.now().strftime("%Y-%m-%d_%H%M%S"))
     json_ld_context: dict[str, str] = field(
@@ -57,19 +68,18 @@ class UploadConfig:
 
     def with_server_info(
         self,
-        server: str,
         shortcode: str,
         onto_name: str,
     ) -> UploadConfig:
         """Create a new UploadConfig with the given server."""
-        server_as_foldername = _transform_server_url_to_foldername(server)
+        server_as_foldername = _transform_server_url_to_foldername(self.server)
         save_location = Path.home() / Path(".dsp-tools") / "xmluploads" / server_as_foldername / shortcode / onto_name
         save_location.mkdir(parents=True, exist_ok=True)
         logger.info(f"save_location='{save_location}'")
-        context_iri = f"{server}/ontology/{shortcode}/{onto_name}/v2#"
+        context_iri = f"{self.server}/ontology/{shortcode}/{onto_name}/v2#"
         return dataclasses.replace(
             self,
-            save_location=save_location,
             server_as_foldername=server_as_foldername,
+            save_location=save_location,
             json_ld_context=self.json_ld_context | {onto_name: context_iri},
         )

@@ -22,6 +22,7 @@ from dsp_tools.connection.connection_live import ConnectionLive
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.models.propertyelement import PropertyElement
 from dsp_tools.utils.create_logger import get_logger
+from dsp_tools.utils.xmlupload.upload_config import Credentials
 
 logger = get_logger(__name__)
 
@@ -47,12 +48,7 @@ def make_chunks(lst: list[T], length: int) -> Iterable[list[T]]:
         yield lst[i : i + length]
 
 
-def login(
-    server: str,
-    user: str,
-    password: str,
-    dump: bool = False,
-) -> Connection:
+def login(server: str, credentials: Credentials, dump: bool = False) -> Connection:
     """
     Creates a connection,
     makes a login (handling temporary network interruptions),
@@ -72,7 +68,7 @@ def login(
     """
     con = ConnectionLive(server=server, dump=dump)
     try:
-        try_network_action(lambda: con.login(email=user, password=password))
+        try_network_action(lambda: con.login(email=credentials.user, password=credentials.password))
     except BaseError:
         logger.error("Cannot login to DSP server", exc_info=True)
         raise UserError("Cannot login to DSP server") from None

@@ -68,14 +68,25 @@ def _make_resource(
 def _make_bitstream_file_value(bitstream_info: BitstreamInfo) -> dict[str, Any]:
     file_ending = bitstream_info.local_file.rsplit(".", 1)[-1]
     match file_ending:
-        case "jpg" | "jpeg" | "png" | "tif" | "tiff":
-            return {
-                "knora-api:hasStillImageFileValue": {
-                    "@type": "knora-api:StillImageFileValue",
-                    "knora-api:fileValueAsUrl": bitstream_info.internal_file_name,
-                }
+        case "jpg" | "jpeg" | "jp2" | "png" | "tif" | "tiff":
+            file_value = {
+                "@type": "knora-api:StillImageFileValue",
+                "knora-api:internalFileName": bitstream_info.internal_file_name,
+                "knora-api:originalFilename": bitstream_info.local_file,
             }
-        case _:
+            if bitstream_info.permissions:
+                file_value["knora-api:hasPermissions"] = str(bitstream_info.permissions)
+            return {"knora-api:hasStillImageFileValue": file_value}
+        case "odd" | "rng" | "txt" | "xml" | "xsd" | "xsl":
+            file_value = {
+                "@type": "knora-api:TextFileValue",
+                "knora-api:internalFileName": bitstream_info.internal_file_name,
+                "knora-api:originalFilename": bitstream_info.local_file,
+            }
+            if bitstream_info.permissions:
+                file_value["knora-api:hasPermissions"] = str(bitstream_info.permissions)
+            return {"knora-api:hasTextFileValue": file_value}
+        case _:  # TODO: add other file types
             print(f"!!! No idea how to handle this file type: .{file_ending} !!!")
             print(f"({bitstream_info.local_file} - {bitstream_info.internal_file_name})")
             sys.exit(-1)

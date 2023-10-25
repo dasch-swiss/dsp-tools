@@ -188,54 +188,51 @@ def _remove_edges_to_stash(
     edges_to_remove: list[Edge],
     all_edges: list[Edge],
     remaining_nodes: set[int],
-) -> list[XMLLink | ResptrLink]:
+) -> None:
     """
     This function removes the edges from the graph in order to break a cycle.
-    It returns the information that enables us to identify the links in the real data.
 
     Args:
         graph: graph
         edges_to_remove: edges that should be removed
         all_edges: all edges in the original graph
         remaining_nodes: indices of the nodes in the graph
-
-    Returns:
-        the links that should be stashed
     """
+    normal_edges_to_remove = [(x.source_rx_index, x.target_rx_index) for x in edges_to_remove]
+    # if only one (source, target) is removed, it removes only one edge, not all
+    # therefore we need as many entries in the list as there are edges between the source and the target
+
+    phantom_edges_to_remove = []
     source, target = edges_to_remove[0].source_rx_index, edges_to_remove[0].target_rx_index
-    links_to_stash = [x.link_object for x in edges_to_remove]
-    # if only one (source, target) is entered, it removes only one edge, not all
-    # therefore we need as many entries in the list as there are edges between the source and target to break the cycle
-    to_remove_list = [(x.source_rx_index, x.target_rx_index) for x in edges_to_remove]
-    phantom_links = []
-    for link_to_stash in links_to_stash:
+    for link_to_stash in [x.link_object for x in edges_to_remove]:
         if isinstance(link_to_stash, XMLLink):
-            phantom_links.extend(_find_phantom_xml_edges(source, target, all_edges, link_to_stash, remaining_nodes))
-    to_remove_list.extend(phantom_links)
-    graph.remove_edges_from(to_remove_list)
-    return links_to_stash
+            phantom_edges_to_remove.extend(
+                _find_phantom_xml_edges(source, target, all_edges, link_to_stash, remaining_nodes)
+            )
+
+    all_edges_to_remove = normal_edges_to_remove + phantom_edges_to_remove
+    graph.remove_edges_from(all_edges_to_remove)
 
 
 def _find_phantom_xml_edges(
-    source: int,
-    target: int,
-    edges: list[Edge],
-    xml_instance: XMLLink,
+    source_node_index: int,
+    target_node_index: int,
+    all_edges: list[Edge],
+    xml_link_to_stash: XMLLink,
     remaining_nodes: set[int],
 ) -> list[tuple[int, int]]:
     """
-    If an edge that will be removed represents an XML link
-    the link may contain further links to other resources.
-    If we stash the XMLLink then in the real data all the links are stashed.
-    This is not automatically the case in the rx graph.
-    We identify all the edges that need to be removed so that the rx graph represents the links that remain
-    in the real data.
+    If an edge that will be removed represents an XML link,
+    the text value may contain further links to other resources.
+    If we stash the XMLLink, then in the real data all links of that text value are stashed.
+    So, these "phantom" links must be removed from the graph.
+    This function identifies the edges that must be removed from the rx graph.
 
     Args:
-        source: rustworkx index of source node
-        target: rustworkx index of target node
-        edges: all edges in the original graph
-        xml_instance: XML link that will be stashed
+        source_node_index: rustworkx index of source node
+        target_node_index: rustworkx index of target node
+        all_edges: all edges in the original graph
+        xml_link_to_stash: XML link that will be stashed
         remaining_nodes: indices of all nodes in the graph
 
     Returns:
@@ -243,18 +240,17 @@ def _find_phantom_xml_edges(
     """
 
     def check(x: Edge) -> bool:
-        # if we do not check if the target is in the remaining_nodes (maybe removed because of leaf node)
-        # we would get a NoEdgeBetweenNodes error
         return all(
             (
-                x.source_rx_index == source,
-                x.target_rx_index != target,
-                x.link_object == xml_instance,
+                x.source_rx_index == source_node_index,
+                x.target_rx_index != target_node_index,
+                x.link_object == xml_link_to_stash,
                 x.target_rx_index in remaining_nodes,
+                # the target could have been removed because it was a leaf node, so we must check if it is still there
             )
         )
 
-    return [(x.source_rx_index, x.target_rx_index) for x in edges if check(x)]
+    return [(x.source_rx_index, x.target_rx_index) for x in all_edges if check(x)]
 
 
 def _add_stash_to_lookup_dict(
@@ -299,13 +295,13 @@ def generate_upload_order(
         cycle = list(rx.digraph_find_cycle(graph))  # type: ignore[attr-defined]  # pylint: disable=no-member
         links_to_remove = _find_cheapest_outgoing_links(graph, cycle, edges)
         stash_counter += len(links_to_remove)
-        links_to_stash = _remove_edges_to_stash(
+        _remove_edges_to_stash(
             graph=graph,
             edges_to_remove=links_to_remove,
             all_edges=edges,
             remaining_nodes=remaining_node_indices,
         )
-        stash_lookup = _add_stash_to_lookup_dict(stash_lookup, links_to_stash)
+        stash_lookup = _add_stash_to_lookup_dict(stash_lookup, [x.link_object for x in links_to_remove])
         leaf_nodes, remaining_node_indices = _remove_leaf_nodes(graph, rustworkx_index_to_id, remaining_node_indices)
         upload_order.extend(leaf_nodes)
     return stash_lookup, upload_order, stash_counter

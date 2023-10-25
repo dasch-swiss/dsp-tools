@@ -215,8 +215,8 @@ def _remove_edges_to_stash(
 
 
 def _find_phantom_xml_edges(
-    source_rx_index: int,
-    target_rx_index: int,
+    source_node_index: int,
+    target_node_index: int,
     all_edges: list[Edge],
     xml_link_to_stash: XMLLink,
     remaining_nodes: set[int],
@@ -225,12 +225,12 @@ def _find_phantom_xml_edges(
     If an edge that will be removed represents an XML link,
     the text value may contain further links to other resources.
     If we stash the XMLLink, then in the real data all links of that text value are stashed.
-    So, the rx graph must be purged from these "phantom" links that are not in the real data any more.
+    So, these "phantom" links must be removed from the graph.
     This function identifies the edges that must be removed from the rx graph.
 
     Args:
-        source_rx_index: rustworkx index of source node
-        target_rx_index: rustworkx index of target node
+        source_node_index: rustworkx index of source node
+        target_node_index: rustworkx index of target node
         all_edges: all edges in the original graph
         xml_link_to_stash: XML link that will be stashed
         remaining_nodes: indices of all nodes in the graph
@@ -242,10 +242,11 @@ def _find_phantom_xml_edges(
     def check(x: Edge) -> bool:
         return all(
             (
-                x.source_rx_index == source_rx_index,
-                x.target_rx_index != target_rx_index,
+                x.source_rx_index == source_node_index,
+                x.target_rx_index != target_node_index,
                 x.link_object == xml_link_to_stash,
-                x.target_rx_index in remaining_nodes,  # could be removed because of leaf node -> NoEdgeBetweenNodes err
+                x.target_rx_index in remaining_nodes,
+                # the target could have been removed because it was a leaf node, so we must check if it is still there
             )
         )
 

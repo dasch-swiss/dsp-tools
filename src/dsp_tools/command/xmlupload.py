@@ -5,6 +5,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from lxml import etree
+
 from dsp_tools.command.xml_upload.service.upload_service import UploadService
 from dsp_tools.command.xml_upload.service.upload_service_live import UploadServiceLive
 from dsp_tools.command.xml_upload.upload_api_client.api_client_live import DspUploadRepoLive
@@ -46,6 +48,17 @@ def xmlupload(
     if not parser:
         return False
     config = config.with_server_info(shortcode=parser.shortcode, onto_name=parser.default_ontology)
+    return _upload(parser, config, credentials)
+
+
+def xmlupload_without_image_processing(
+    root: etree._Element,
+    config: UploadConfig,
+    credentials: Credentials,
+) -> bool:
+    parser = XmlParserLive.make(root)
+    if not parser:
+        return False
     return _upload(parser, config, credentials)
 
 

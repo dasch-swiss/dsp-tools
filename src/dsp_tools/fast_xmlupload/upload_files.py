@@ -13,6 +13,7 @@ from dsp_tools.connection.connection import Connection
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import login
+from dsp_tools.utils.xmlupload.upload_config import Credentials
 
 logger = get_logger(__name__)
 
@@ -363,8 +364,7 @@ def _check_if_all_files_were_uploaded(
 def upload_files(
     dir_with_processed_files: str,
     nthreads: int,
-    user: str,
-    password: str,
+    credentials: Credentials,
     dsp_url: str,
     sipi_url: str,
 ) -> bool:
@@ -392,11 +392,7 @@ def upload_files(
     logger.info(f"Found {len(internal_filenames_of_processed_files)} files to upload...")
 
     # create connection to DSP
-    con = login(
-        server=dsp_url,
-        user=user,
-        password=password,
-    )
+    con = login(server=dsp_url, credentials=credentials)
 
     # upload files in parallel
     start_time = datetime.now()

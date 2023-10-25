@@ -477,19 +477,19 @@ def _call_requested_action(args: argparse.Namespace) -> bool:
             batch_size=args.batchsize,
         )
     elif args.action == "upload-files":
+        credentials = Credentials(user=args.user, password=args.password)
         success = upload_files(
             dir_with_processed_files=args.processed_dir,
             nthreads=args.nthreads,
-            user=args.user,
-            password=args.password,
+            credentials=credentials,
             dsp_url=args.server,
             sipi_url=args.sipi_url,
         )
     elif args.action == "fast-xmlupload":
+        credentials = Credentials(user=args.user, password=args.password)
         success = fast_xmlupload(
             xml_file=args.xml_file,
-            user=args.user,
-            password=args.password,
+            credentials=credentials,
             dsp_url=args.server,
             sipi_url=args.sipi_url,
         )

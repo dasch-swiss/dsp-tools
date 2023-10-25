@@ -5,11 +5,11 @@ from typing import Optional, cast
 
 from lxml import etree
 
-from dsp_tools.command.xmlupload import xmlupload
+from dsp_tools.command.xmlupload import xmlupload_without_image_processing
 from dsp_tools.fast_xmlupload.upload_files import get_pkl_files
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.create_logger import get_logger
-from dsp_tools.utils.xmlupload.upload_config import UploadConfig
+from dsp_tools.utils.xmlupload.upload_config import Credentials, UploadConfig
 
 logger = get_logger(__name__)
 
@@ -45,11 +45,11 @@ def _get_paths_from_pkl_files(pkl_files: list[Path]) -> dict[str, str]:
 
 
 def replace_bitstream_paths(
-    xml_tree: "etree._ElementTree[etree._Element]",
+    xml_tree: etree._ElementTree[etree._Element],
     orig_path_2_uuid_filename: dict[str, str],
-) -> "etree._ElementTree[etree._Element]":
+) -> etree._ElementTree[etree._Element]:
     """
-    Replace the original filepaths in the <bitstream> gags by the uuid filenames of the processed files.
+    Replace the original filepaths in the <bitstream> tags by the uuid filenames of the processed files.
 
     Args:
         xml_tree: The parsed original XML tree
@@ -76,8 +76,7 @@ def replace_bitstream_paths(
 
 def fast_xmlupload(
     xml_file: str,
-    user: str,
-    password: str,
+    credentials: Credentials,
     dsp_url: str,
     sipi_url: str,
 ) -> bool:
@@ -111,14 +110,10 @@ def fast_xmlupload(
     start_time = datetime.now()
     print(f"{start_time}: Start with fast XML upload...")
 
-    xmlupload(
-        input_file=xml_tree_replaced,
-        server=dsp_url,
-        user=user,
-        password=password,
-        imgdir=".",
-        sipi=sipi_url,
-        config=UploadConfig(preprocessing_done=True),
+    xmlupload_without_image_processing(
+        root=xml_tree_replaced.getroot(),
+        config=UploadConfig(preprocessing_done=True, server=dsp_url, sipi=sipi_url),
+        credentials=credentials,
     )
 
     end_time = datetime.now()

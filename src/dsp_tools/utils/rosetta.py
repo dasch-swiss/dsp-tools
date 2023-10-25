@@ -5,7 +5,7 @@ from pathlib import Path
 from dsp_tools.command.xmlupload import xmlupload
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.project_create import create_project
-from dsp_tools.utils.xmlupload.upload_config import UploadConfig
+from dsp_tools.utils.xmlupload.upload_config import Credentials, UploadConfig
 
 
 def _update_possibly_existing_repo(rosetta_folder: Path) -> bool:
@@ -92,11 +92,8 @@ def _upload_xml(rosetta_folder: Path) -> bool:
     print("Execute 'dsp-tools xmlupload rosetta.xml'...")
     success = xmlupload(
         input_file=rosetta_folder / "rosetta.xml",
-        server="http://0.0.0.0:3333",
-        user="root@example.com",
-        password="test",
+        credentials=Credentials("root@example.com", "test"),
         imgdir=str(rosetta_folder),
-        sipi="http://0.0.0.0:1024",
         config=UploadConfig(),
     )
     return success

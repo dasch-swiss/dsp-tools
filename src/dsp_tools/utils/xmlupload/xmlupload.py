@@ -14,17 +14,15 @@ from dsp_tools.connection.connection import Connection
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.models.permission import Permissions
 from dsp_tools.models.projectContext import ProjectContext
-from dsp_tools.models.resource import KnoraStandoffXmlEncoder, ResourceInstance, ResourceInstanceFactory
+from dsp_tools.models.resource import KnoraStandoffXmlEncoder
 from dsp_tools.models.sipi import Sipi
 from dsp_tools.models.xmlpermission import XmlPermission
 from dsp_tools.models.xmlresource import XMLResource
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import login, try_network_action
 from dsp_tools.utils.xmlupload.ark2iri import convert_ark_v0_to_resource_iri
-from dsp_tools.utils.xmlupload.read_validate_xml_file import (
-    check_consistency_with_ontology,
-    validate_and_parse_xml_file,
-)
+from dsp_tools.utils.xmlupload.create_resource import actually_crearte_resource
+from dsp_tools.utils.xmlupload.read_validate_xml_file import validate_and_parse_xml_file
 from dsp_tools.utils.xmlupload.resource_multimedia import handle_bitstream
 from dsp_tools.utils.xmlupload.stash.stash_models import Stash
 from dsp_tools.utils.xmlupload.stash_circular_references import remove_circular_references
@@ -81,11 +79,10 @@ def xmlupload(
     con = login(server=server, user=user, password=password, dump=config.dump)
     sipi_server = Sipi(sipi, con.get_token())
 
-    resources, permissions_lookup, resclass_name_2_type, stash = _prepare_upload(
+    resources, permissions_lookup, stash = _prepare_upload(
         root=root,
         con=con,
         default_ontology=default_ontology,
-        shortcode=shortcode,
         verbose=config.verbose,
     )
 
@@ -94,7 +91,6 @@ def xmlupload(
         imgdir=imgdir,
         sipi_server=sipi_server,
         permissions_lookup=permissions_lookup,
-        resclass_name_2_type=resclass_name_2_type,
         con=con,
         stash=stash,
         config=config,
@@ -115,19 +111,16 @@ def _prepare_upload(
     root: etree._Element,
     con: Connection,
     default_ontology: str,
-    shortcode: str,
     verbose: bool,
-) -> tuple[list[XMLResource], dict[str, Permissions], dict[str, type], Stash | None]:
-    resources, permissions_lookup, resclass_name_2_type = _get_data_from_xml(
+) -> tuple[list[XMLResource], dict[str, Permissions], Stash | None]:
+    resources, permissions_lookup = _get_data_from_xml(
         con=con,
         root=root,
         default_ontology=default_ontology,
-        shortcode=shortcode,
-        verbose=verbose,
     )
     # temporarily remove circular references
     resources, stash = remove_circular_references(resources, verbose=verbose)
-    return resources, permissions_lookup, resclass_name_2_type, stash
+    return resources, permissions_lookup, stash
 
 
 def _upload(
@@ -135,7 +128,6 @@ def _upload(
     imgdir: str,
     sipi_server: Sipi,
     permissions_lookup: dict[str, Permissions],
-    resclass_name_2_type: dict[str, type],
     con: Connection,
     stash: Stash | None,
     config: UploadConfig,
@@ -148,9 +140,8 @@ def _upload(
             imgdir=imgdir,
             sipi_server=sipi_server,
             permissions_lookup=permissions_lookup,
-            resclass_name_2_type=resclass_name_2_type,
             con=con,
-            preprocessing_done=config.preprocessing_done,
+            config=config,
         )
         nonapplied_stash = (
             _upload_stash(
@@ -167,7 +158,13 @@ def _upload(
             msg = "Some stashed resptrs or XML texts could not be reapplied to their resources on the DSP server."
             logger.error(msg)
             raise BaseError(msg)
-    except BaseException as err:  # pylint: disable=broad-except
+    except KeyboardInterrupt:
+        print("!!! xmlupload was interrupted by the user. !!!")
+        sys.exit(0)
+    except SystemExit as ex:
+        print(f"!!! system exit: {ex.code} ({ex}) !!!")
+        sys.exit(0)
+    except Exception as err:  # pylint: disable=broad-except
         # The forseeable errors are already handled by the variables
         # failed_uploads, nonapplied_xml_texts, and nonapplied_resptr_props.
         # Here we catch the unforseeable exceptions, hence BaseException (=the base class of all exceptions)
@@ -186,25 +183,18 @@ def _get_data_from_xml(
     con: Connection,
     root: etree._Element,
     default_ontology: str,
-    shortcode: str,
-    verbose: bool,
-) -> tuple[list[XMLResource], dict[str, Permissions], dict[str, type]]:
+) -> tuple[list[XMLResource], dict[str, Permissions]]:
     proj_context = _get_project_context_from_server(connection=con)
     permissions = _extract_permissions_from_xml(root, proj_context)
     resources = _extract_resources_from_xml(root, default_ontology)
-    permissions_lookup, resclass_name_2_type = _get_project_permissions_and_classes_from_server(
-        server_connection=con,
-        permissions=permissions,
-        shortcode=shortcode,
-    )
-    check_consistency_with_ontology(
-        resources=resources,
-        resclass_name_2_type=resclass_name_2_type,
-        shortcode=shortcode,
-        ontoname=default_ontology,
-        verbose=verbose,
-    )
-    return resources, permissions_lookup, resclass_name_2_type
+    permissions_lookup = _get_project_permissions_and_classes_from_server(permissions=permissions)
+    # check_consistency_with_ontology(
+    #     resources=resources,
+    #     shortcode=shortcode,
+    #     ontoname=default_ontology,
+    #     verbose=verbose,
+    # )
+    return resources, permissions_lookup
 
 
 def _upload_stash(
@@ -236,11 +226,7 @@ def _upload_stash(
     return Stash.make(nonapplied_standoff, nonapplied_resptr_props)
 
 
-def _get_project_permissions_and_classes_from_server(
-    server_connection: Connection,
-    permissions: dict[str, XmlPermission],
-    shortcode: str,
-) -> tuple[dict[str, Permissions], dict[str, type]]:
+def _get_project_permissions_and_classes_from_server(permissions: dict[str, XmlPermission]) -> dict[str, Permissions]:
     """
     This function tries to connect to the server and retrieve the project information.
     If the project is not on the server, it raises a UserError.
@@ -248,36 +234,12 @@ def _get_project_permissions_and_classes_from_server(
     and a dictionary with the information about the classes.
 
     Args:
-        server_connection: connection to the server
         permissions: the permissions extracted from the XML
-        shortcode: the shortcode specified in the XML
 
     Returns:
         A dictionary with the name of the permission with the Python object
-        And a dictionary with the class name as string and the Python type of the class
-
-    Raises:
-        UserError: If the project is not uploaded on the server
     """
-    # get the project information and project ontology from the server
-    try:
-        res_inst_factory: ResourceInstanceFactory = try_network_action(
-            lambda: ResourceInstanceFactory(con=server_connection, projident=shortcode)
-        )
-    except BaseError:
-        logger.error(
-            f"A project with shortcode {shortcode} could not be found on the DSP server",
-            exc_info=True,
-        )
-        raise UserError(f"A project with shortcode {shortcode} could not be found on the DSP server") from None
-    permissions_lookup = {
-        permission_name: perm.get_permission_instance() for permission_name, perm in permissions.items()
-    }
-    resclass_name_2_type = {
-        resource_class_name: res_inst_factory.get_resclass_type(prefixedresclass=resource_class_name)
-        for resource_class_name in res_inst_factory.get_resclass_names()
-    }
-    return permissions_lookup, resclass_name_2_type
+    return {permission_name: perm.get_permission_instance() for permission_name, perm in permissions.items()}
 
 
 def _get_project_context_from_server(connection: Connection) -> ProjectContext:
@@ -320,9 +282,8 @@ def _upload_resources(
     imgdir: str,
     sipi_server: Sipi,
     permissions_lookup: dict[str, Permissions],
-    resclass_name_2_type: dict[str, type],
     con: Connection,
-    preprocessing_done: bool,
+    config: UploadConfig,
 ) -> tuple[dict[str, str], list[str]]:
     """
     Iterates through all resources and tries to upload them to DSP.
@@ -334,7 +295,6 @@ def _upload_resources(
         imgdir: folder containing the multimedia files
         sipi_server: Sipi instance
         permissions_lookup: maps permission strings to Permission objects
-        resclass_name_2_type: maps resource class names to their types
         con: connection to DSP
         preprocessing_done: if set, all multimedia files referenced in the XML file must already be on the server
 
@@ -345,16 +305,12 @@ def _upload_resources(
     failed_uploads: list[str] = []
 
     for i, resource in enumerate(resources):
-        resource_iri = resource.iri
-        if resource.ark:
-            resource_iri = convert_ark_v0_to_resource_iri(resource.ark)
-
         bitstream_information = None
         if bitstream := resource.bitstream:
             bitstream_information = handle_bitstream(
                 resource=resource,
                 bitstream=bitstream,
-                preprocessing_done=preprocessing_done,
+                preprocessing_done=config.preprocessing_done,
                 permissions_lookup=permissions_lookup,
                 sipi_server=sipi_server,
                 imgdir=imgdir,
@@ -366,13 +322,12 @@ def _upload_resources(
                 continue
 
         res = _create_resource(
-            res_type=resclass_name_2_type[resource.restype],
             resource=resource,
-            resource_iri=resource_iri,
             bitstream_information=bitstream_information,
             con=con,
             permissions_lookup=permissions_lookup,
             id2iri_mapping=id2iri_mapping,
+            json_ld_context=config.json_ld_context,
         )
         if not res:
             failed_uploads.append(resource.id)
@@ -388,27 +343,24 @@ def _upload_resources(
 
 
 def _create_resource(
-    res_type: type,
     resource: XMLResource,
-    resource_iri: str | None,
     bitstream_information: dict[str, Any] | None,
     con: Connection,
     permissions_lookup: dict[str, Permissions],
     id2iri_mapping: dict[str, str],
+    json_ld_context: dict[str, str],
 ) -> tuple[str, str] | None:
-    properties = resource.get_propvals(id2iri_mapping, permissions_lookup)
     try:
-        resource_instance: ResourceInstance = res_type(
+        project_iri = ""  # TODO: get actual project IRI
+        return actually_crearte_resource(
+            resource=resource,
+            bitstream_information=bitstream_information,
             con=con,
-            label=resource.label,
-            iri=resource_iri,
-            permissions=permissions_lookup.get(str(resource.permissions)),
-            creation_date=resource.creation_date,
-            bitstream=bitstream_information,
-            values=properties,
+            permissions_lookup=permissions_lookup,
+            id2iri_mapping=id2iri_mapping,
+            json_ld_context=json_ld_context,
+            project_iri=project_iri,
         )
-        created_resource: ResourceInstance = try_network_action(resource_instance.create)
-        return created_resource.iri, created_resource.label
     except BaseError as err:
         err_msg = err.orig_err_msg_from_api or err.message
         print(f"WARNING: Unable to create resource '{resource.label}' ({resource.id}): {err_msg}")

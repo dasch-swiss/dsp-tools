@@ -17,7 +17,7 @@ from dsp_tools.models.projectContext import ProjectContext
 from dsp_tools.models.resource import KnoraStandoffXmlEncoder
 from dsp_tools.models.sipi import Sipi
 from dsp_tools.models.xmlpermission import XmlPermission
-from dsp_tools.models.xmlresource import XMLResource
+from dsp_tools.models.xmlresource import BitstreamInfo, XMLResource
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import login, try_network_action
 from dsp_tools.utils.xmlupload.ark2iri import convert_ark_v0_to_resource_iri
@@ -344,7 +344,7 @@ def _upload_resources(
 
 def _create_resource(
     resource: XMLResource,
-    bitstream_information: dict[str, Any] | None,
+    bitstream_information: BitstreamInfo | None,
     con: Connection,
     permissions_lookup: dict[str, Permissions],
     id2iri_mapping: dict[str, str],

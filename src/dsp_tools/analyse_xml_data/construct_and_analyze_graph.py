@@ -188,7 +188,7 @@ def _remove_edges_to_stash(
     edges_to_remove: list[Edge],
     all_edges: list[Edge],
     remaining_nodes: set[int],
-) -> list[XMLLink | ResptrLink]:
+) -> None:
     """
     This function removes the edges from the graph in order to break a cycle.
     It returns the information that enables us to identify the links in the real data.
@@ -203,17 +203,15 @@ def _remove_edges_to_stash(
         the links that should be stashed
     """
     source, target = edges_to_remove[0].source_rx_index, edges_to_remove[0].target_rx_index
-    links_to_stash = [x.link_object for x in edges_to_remove]
     # if only one (source, target) is entered, it removes only one edge, not all
     # therefore we need as many entries in the list as there are edges between the source and target to break the cycle
     to_remove_list = [(x.source_rx_index, x.target_rx_index) for x in edges_to_remove]
     phantom_links = []
-    for link_to_stash in links_to_stash:
+    for link_to_stash in [x.link_object for x in edges_to_remove]:
         if isinstance(link_to_stash, XMLLink):
             phantom_links.extend(_find_phantom_xml_edges(source, target, all_edges, link_to_stash, remaining_nodes))
     to_remove_list.extend(phantom_links)
     graph.remove_edges_from(to_remove_list)
-    return links_to_stash
 
 
 def _find_phantom_xml_edges(
@@ -299,13 +297,13 @@ def generate_upload_order(
         cycle = list(rx.digraph_find_cycle(graph))  # type: ignore[attr-defined]  # pylint: disable=no-member
         links_to_remove = _find_cheapest_outgoing_links(graph, cycle, edges)
         stash_counter += len(links_to_remove)
-        links_to_stash = _remove_edges_to_stash(
+        _remove_edges_to_stash(
             graph=graph,
             edges_to_remove=links_to_remove,
             all_edges=edges,
             remaining_nodes=remaining_node_indices,
         )
-        stash_lookup = _add_stash_to_lookup_dict(stash_lookup, links_to_stash)
+        stash_lookup = _add_stash_to_lookup_dict(stash_lookup, [x.link_object for x in links_to_remove])
         leaf_nodes, remaining_node_indices = _remove_leaf_nodes(graph, rustworkx_index_to_id, remaining_node_indices)
         upload_order.extend(leaf_nodes)
     return stash_lookup, upload_order, stash_counter

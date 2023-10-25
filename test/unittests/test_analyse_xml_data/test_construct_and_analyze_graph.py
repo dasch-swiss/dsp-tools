@@ -384,8 +384,7 @@ def test_remove_edges_to_stash_phantom_xml() -> None:
         Edge(2, 5, c_bdf_xml),
     ]
     graph.add_edges_from([e.as_tuple() for e in edges])
-    res_links_to_stash = _remove_edges_to_stash(graph, edges_to_remove, edges, remaining_nodes)
-    assert res_links_to_stash == [c_bdf_xml]
+    _remove_edges_to_stash(graph, edges_to_remove, edges, remaining_nodes)
     remaining_edges = list(graph.edge_list())
     expected_edges = [(0, 1), (0, 1), (0, 2), (0, 3), (0, 4), (1, 2), (1, 2), (1, 3), (3, 0), (3, 0), (3, 0)]
     assert unordered(remaining_edges) == expected_edges
@@ -411,10 +410,9 @@ def test_remove_edges_to_stash_several_resptr() -> None:
     graph.add_edges_from([e.as_tuple() for e in edges])
     edges_to_remove = edges[0:2]
     remaining_nodes = set(range(10))
-    res_links = _remove_edges_to_stash(graph, edges_to_remove, edges, remaining_nodes)
+    _remove_edges_to_stash(graph, edges_to_remove, edges, remaining_nodes)
     remaining_edges = list(graph.edge_list())
     assert unordered(remaining_edges) == [(1, 2), (1, 2), (1, 2), (1, 2), (1, 2), (2, 0), (2, 0), (2, 0), (2, 0)]
-    assert unordered(res_links) == [edges[0].link_object, edges[1].link_object]
 
 
 def test_remove_edges_to_stash_missing_nodes() -> None:
@@ -430,10 +428,9 @@ def test_remove_edges_to_stash_missing_nodes() -> None:
     graph.add_edges_from([e.as_tuple() for e in edges])
     remaining_nodes = {0, 1, 2}
     edges_to_remove = [Edge(0, 1, xml_link)]
-    res_links = _remove_edges_to_stash(graph, edges_to_remove, edges, remaining_nodes)
+    _remove_edges_to_stash(graph, edges_to_remove, edges, remaining_nodes)
     remaining_edges = list(graph.edge_list())
     assert unordered(remaining_edges) == [(1, 2), (2, 0)]
-    assert res_links == [xml_link]
 
 
 def test_find_phantom_xml_edges_no_remaining() -> None:

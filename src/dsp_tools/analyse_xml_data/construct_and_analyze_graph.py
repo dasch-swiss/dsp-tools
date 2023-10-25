@@ -191,16 +191,12 @@ def _remove_edges_to_stash(
 ) -> None:
     """
     This function removes the edges from the graph in order to break a cycle.
-    It returns the information that enables us to identify the links in the real data.
 
     Args:
         graph: graph
         edges_to_remove: edges that should be removed
         all_edges: all edges in the original graph
         remaining_nodes: indices of the nodes in the graph
-
-    Returns:
-        the links that should be stashed
     """
     source, target = edges_to_remove[0].source_rx_index, edges_to_remove[0].target_rx_index
     # if only one (source, target) is entered, it removes only one edge, not all

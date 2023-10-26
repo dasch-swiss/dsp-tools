@@ -10,8 +10,8 @@ from dsp_tools.utils.xmlupload.xmlupload import _extract_resources_from_xml
 
 def test_get_length_ok_resources() -> None:
     test_root = parse_and_clean_xml_file("testdata/xml-data/circular-references/test_circular_references_1.xml")
-    resources = _extract_resources_from_xml(test_root, "simcir")
     stash_lookup = identify_circular_references(test_root, False)
+    resources = _extract_resources_from_xml(test_root, "simcir")
     stash = stash_circular_references(resources, stash_lookup)
     len_standoff = len(stash.standoff_stash.res_2_stash_items)  # type: ignore[union-attr]
     len_resptr = len(stash.link_value_stash.res_2_stash_items)  # type: ignore[union-attr]

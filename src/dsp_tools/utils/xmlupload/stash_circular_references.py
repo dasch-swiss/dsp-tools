@@ -91,7 +91,7 @@ def stash_circular_references(
 def identify_circular_references(
     root: etree._Element,
     verbose: bool,
-) -> dict[str, list[str]]:
+) -> tuple[dict[str, list[str]], list[str]]:
     """
     Identifies problematic resource-references inside an XML tree.
     A reference is problematic if it creates a circle (circular references).
@@ -104,11 +104,12 @@ def identify_circular_references(
 
     Returns:
         stash_lookup: A dictionary which maps the resources that have stashes to the UUIDs of the stashed links
+        upload_order: A list of resource IDs in the order in which they should be uploaded
     """
     logger.info("Checking resources for circular references...")
     if verbose:
         print("Checking resources for circular references...")
     resptr_links, xml_links, all_resource_ids = create_info_from_xml_for_graph(root)
     graph, node_to_id, edges = make_graph(resptr_links, xml_links, all_resource_ids)
-    stash_lookup, _, _ = generate_upload_order(graph, node_to_id, edges)
-    return stash_lookup
+    stash_lookup, upload_order, _ = generate_upload_order(graph, node_to_id, edges)
+    return stash_lookup, upload_order

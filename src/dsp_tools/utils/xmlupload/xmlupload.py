@@ -118,7 +118,7 @@ def _prepare_upload(
     shortcode: str,
     verbose: bool,
 ) -> tuple[list[XMLResource], dict[str, Permissions], dict[str, type], Stash | None]:
-    stash_lookup = identify_circular_references(root, verbose=verbose)
+    stash_lookup, upload_order = identify_circular_references(root, verbose=verbose)
     resources, permissions_lookup, resclass_name_2_type = _get_data_from_xml(
         con=con,
         root=root,
@@ -126,6 +126,7 @@ def _prepare_upload(
         shortcode=shortcode,
         verbose=verbose,
     )
+    resources = sorted(resources, key=lambda res: upload_order.index(res.id))
     stash = stash_circular_references(resources, stash_lookup)
     return resources, permissions_lookup, resclass_name_2_type, stash
 

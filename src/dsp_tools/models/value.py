@@ -15,7 +15,6 @@ from dsp_tools.models.permission import Permissions, PermissionValue
 class KnoraStandoffXml:
     """Used to handle XML strings for standoff markup"""
 
-    __iriregexp = regex.compile(r"IRI:[^:]*:IRI")
     __xmlstr: str
 
     def __init__(self, xmlstr: str) -> None:
@@ -23,9 +22,6 @@ class KnoraStandoffXml:
 
     def __str__(self) -> str:
         return self.__xmlstr
-
-    def get_all_iris(self) -> Optional[list[str]]:
-        return self.__iriregexp.findall(self.__xmlstr)
 
     def find_ids_referenced_in_salsah_links(self) -> set[str]:
         return set(regex.findall(pattern='href="IRI:(.*?):IRI"', string=self.__xmlstr))

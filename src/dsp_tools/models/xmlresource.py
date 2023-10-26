@@ -42,8 +42,8 @@ class XMLResource:  # pylint: disable=too-many-instance-attributes
         Constructor that parses a resource node from the XML DOM
 
         Args:
-            node: The DOM node to be processed representing a resource (which is a child of the DSP element)
-            default_ontology: The default ontology (given in the attribute default-ontology of the DSP element)
+            node: The DOM node to be processed representing a resource (which is a child of the <knora> element)
+            default_ontology: The default ontology (given in the attribute default-ontology of the <knora> element)
 
         Returns:
             None

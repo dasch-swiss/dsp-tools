@@ -38,7 +38,8 @@ class XMLValue:  # pylint: disable=too-few-public-methods
             self.value = listname + ":" + "".join(node.itertext())
         else:
             self.value = "".join(node.itertext())
-        self.link_uuid = node.attrib["linkUUID"]
+        if link_uuid := node.attrib.get("linkUUID"):
+            self.link_uuid = link_uuid
 
     def _cleanup_formatted_text(self, xmlstr_orig: str) -> str:
         """

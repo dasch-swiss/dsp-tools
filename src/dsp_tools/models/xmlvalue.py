@@ -13,6 +13,7 @@ class XMLValue:  # pylint: disable=too-few-public-methods
     resrefs: Optional[list[str]]
     comment: Optional[str]
     permissions: Optional[str]
+    link_uuid: Optional[str]
 
     def __init__(
         self,

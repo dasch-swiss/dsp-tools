@@ -1,24 +1,25 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast
 
-import regex
 import rustworkx as rx
-from lxml import etree
 
 from dsp_tools.analyse_xml_data.models import Cost, Edge, ResptrLink, XMLLink
+from dsp_tools.models.value import KnoraStandoffXml
+from dsp_tools.models.xmlproperty import XMLProperty
+from dsp_tools.models.xmlresource import XMLResource
 
 
 def create_info_from_xml_for_graph(
-    root: etree._Element,
+    resources: list[XMLResource],
 ) -> tuple[list[ResptrLink], list[XMLLink], list[str]]:
     """
-    Create link objects (ResptrLink/XMLLink) from the XML file,
-    and add a reference UUID to each XML element that contains a link (<resptr> or <text>).
-    With this UUID, the link objects can be identified in the XML data file.
+    Create link objects (ResptrLink/XMLLink) from the parsed resources,
+    and add a reference UUID to each element that contains a link (<resptr> or <text>).
+    With this UUID, the link objects can be identified in the resource objects.
 
     Args:
-        root: root of the parsed XML file
+        resources: resources, parsed from the XML file
 
     Returns:
         - All resptr links contained in the XML file, represented as ResptrLink objects.
@@ -28,61 +29,50 @@ def create_info_from_xml_for_graph(
     resptr_links = []
     xml_links = []
     all_resource_ids = []
-    for resource in root.iter(tag="{https://dasch.swiss/schema}resource"):
+    for resource in resources:
         resptr, xml = _create_info_from_xml_for_graph_from_one_resource(resource)
-        all_resource_ids.append(resource.attrib["id"])
+        all_resource_ids.append(resource.id)
         resptr_links.extend(resptr)
         xml_links.extend(xml)
     return resptr_links, xml_links, all_resource_ids
 
 
 def _create_info_from_xml_for_graph_from_one_resource(
-    resource: etree._Element,
+    resource: XMLResource,
 ) -> tuple[list[ResptrLink], list[XMLLink]]:
     resptr_links: list[ResptrLink] = []
     xml_links: list[XMLLink] = []
-    for prop in resource.getchildren():
-        match prop.tag:
-            case "{https://dasch.swiss/schema}resptr-prop":
-                resptr_links.extend(_create_resptr_link_objects(resource.attrib["id"], prop))
-            case "{https://dasch.swiss/schema}text-prop":
-                xml_links.extend(_create_text_link_objects(resource.attrib["id"], prop))
+    for prop in resource.get_props_with_links():
+        if prop.valtype == "resptr":
+            resptr_links.extend(_create_resptr_link_objects(resource.id, prop))
+        if prop.valtype == "text":
+            xml_links.extend(_create_text_link_objects(resource.id, prop))
     return resptr_links, xml_links
 
 
-def _create_resptr_link_objects(subject_id: str, resptr_prop: etree._Element) -> list[ResptrLink]:
+def _create_resptr_link_objects(subject_id: str, resptr_prop: XMLProperty) -> list[ResptrLink]:
     resptr_links = []
-    for resptr in resptr_prop.getchildren():
-        if r_text := resptr.text:
-            instance = ResptrLink(subject_id, r_text)
-            # this UUID is so that the links that were stashed can be identified in the XML data file
-            resptr.attrib["stashUUID"] = instance.link_uuid
-            resptr_links.append(instance)
+    for resptr in resptr_prop.values:
+        r_text = cast(str, resptr.value)
+        link_object = ResptrLink(subject_id, r_text)
+        # this UUID is so that the links that were stashed can be identified in the XMLValue object
+        resptr.link_uuid = link_object.link_uuid
+        resptr_links.append(link_object)
     return resptr_links
 
 
-def _create_text_link_objects(subject_id: str, text_prop: etree._Element) -> list[XMLLink]:
+def _create_text_link_objects(subject_id: str, text_prop: XMLProperty) -> list[XMLLink]:
     # if the same ID is in several separate <text> values of one <text-prop>, they are considered separate links
     xml_props = []
-    for text in text_prop.getchildren():
-        links = _extract_ids_from_one_text_value(text)
+    for text in text_prop.values:
+        text_value = cast(KnoraStandoffXml, text.value)
+        links = text_value.find_ids_referenced_in_salsah_links()
         if links:
             xml_link = XMLLink(subject_id, links)
             xml_props.append(xml_link)
             # this UUID is so that the links that were stashed can be identified in the XML data file
-            text.attrib["stashUUID"] = xml_link.link_uuid
+            text.link_uuid = xml_link.link_uuid
     return xml_props
-
-
-def _extract_ids_from_one_text_value(text: etree._Element) -> set[str]:
-    # the same id in one <text> only means one link to the resource
-    all_links = set()
-    for ele in text.iterdescendants():
-        if href := ele.attrib.get("href"):
-            searched = regex.search(r"IRI:(.*):IRI", href)
-            if searched:
-                all_links.add(searched.group(1))
-    return all_links
 
 
 def make_graph(

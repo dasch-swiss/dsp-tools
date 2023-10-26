@@ -28,7 +28,7 @@ def create_info_from_xml_for_graph(
     resptr_links = []
     xml_links = []
     all_resource_ids = []
-    for resource in root.iter(tag="{https://dasch.swiss/schema}resource"):
+    for resource in root.iter(tag="resource"):
         resptr, xml = _create_info_from_xml_for_graph_from_one_resource(resource)
         all_resource_ids.append(resource.attrib["id"])
         resptr_links.extend(resptr)
@@ -43,9 +43,9 @@ def _create_info_from_xml_for_graph_from_one_resource(
     xml_links: list[XMLLink] = []
     for prop in resource.getchildren():
         match prop.tag:
-            case "{https://dasch.swiss/schema}resptr-prop":
+            case "resptr-prop":
                 resptr_links.extend(_create_resptr_link_objects(resource.attrib["id"], prop))
-            case "{https://dasch.swiss/schema}text-prop":
+            case "text-prop":
                 xml_links.extend(_create_text_link_objects(resource.attrib["id"], prop))
     return resptr_links, xml_links
 

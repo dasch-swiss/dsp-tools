@@ -40,6 +40,7 @@ def test_create_info_from_xml_for_graph_from_one_resource() -> None:
             </text-prop>
         </resource>"""
     )
+    remove_namespace(test_ele)
     res_resptr_links, res_xml_links = _create_info_from_xml_for_graph_from_one_resource(test_ele)
     res_B_19 = [obj.target_id for obj in res_resptr_links]
     assert "res_B_19" in res_B_19
@@ -64,6 +65,7 @@ def test_create_info_from_xml_for_graph_from_one_resource_one() -> None:
         </resource>
         """
     )
+    remove_namespace(test_ele)
     res_resptr, res_xml = _create_info_from_xml_for_graph_from_one_resource(test_ele)
     assert res_resptr[0].target_id == "res_B_11"
     assert isinstance(res_resptr[0], ResptrLink)
@@ -75,6 +77,7 @@ def test_create_info_from_xml_for_graph_from_one_resource_no_links() -> None:
     test_ele = etree.fromstring(
         '<resource label="res_B_18" restype=":TestThing" id="res_B_18" permissions="res-default"/>'
     )
+    remove_namespace(test_ele)
     res_resptr, res_xml = _create_info_from_xml_for_graph_from_one_resource(test_ele)
     assert (res_resptr, res_xml) == ([], [])
 
@@ -95,6 +98,7 @@ def test_text_only_create_info_from_xml_for_graph_from_one_resource() -> None:
         </resource>
         """
     )
+    remove_namespace(test_ele)
     res_resptr, res_xml = _create_info_from_xml_for_graph_from_one_resource(test_ele)
     assert not res_resptr
     res_xml_ids = [x.target_ids for x in res_xml]
@@ -109,6 +113,7 @@ def test_extract_id_one_text_with_one_id() -> None:
         </text>
         """
     )
+    remove_namespace(test_ele)
     res = _extract_ids_from_one_text_value(test_ele)
     assert res == {"res_A_11"}
 
@@ -118,6 +123,7 @@ def test_extract_id_one_text_with_iri() -> None:
         '<text permissions="prop-default" encoding="xml"><a class="salsah-link" '
         'href="http://rdfh.ch/0801/RDE7_KU1STuDhHnGr5uu0g">res_A_11</a></text>'
     )
+    remove_namespace(test_ele)
     res = _extract_ids_from_one_text_value(test_ele)
     assert res == set()
 
@@ -132,6 +138,7 @@ def test_extract_id_one_text_with_several_id() -> None:
         </text>
         """
     )
+    remove_namespace(test_ele)
     res = _extract_ids_from_one_text_value(test_ele)
     assert res == {"res_A_11", "res_B_11"}
 
@@ -143,6 +150,7 @@ def test_extract_ids_from_text_prop_with_several_text_links() -> None:
         'href="IRI:res_A_18:IRI">res_A_18</a></text><text permissions="prop-default" encoding="xml"><a '
         'class="salsah-link" href="IRI:res_B_18:IRI">res_B_18</a></text></text-prop>'
     )
+    remove_namespace(test_ele)
     res = _create_text_link_objects("res_C_18", test_ele)
     res_ids = [x.target_ids for x in res]
     assert unordered(res_ids) == [{"res_A_18"}, {"res_B_18"}]
@@ -157,6 +165,7 @@ def test_create_class_instance_resptr_link_one_link() -> None:
         </resptr-prop>
         """
     )
+    remove_namespace(test_ele)
     res = _create_resptr_link_objects("res_A_15", test_ele)
     assert res[0].target_id == "res_C_15"
 
@@ -172,6 +181,7 @@ def test_create_class_instance_resptr_link_several() -> None:
         </resptr-prop>
         """
     )
+    remove_namespace(test_ele)
     res = _create_resptr_link_objects("res_D_13", test_ele)
     assert all(isinstance(x, ResptrLink) for x in res)
     assert res[0].target_id == "res_A_13"
@@ -192,15 +202,16 @@ def test_create_info_from_xml_for_graph_check_UUID_in_root() -> None:
         b'href="IRI:res_C_11:IRI">res_C_11</a>end text.</text></text-prop></resource><resource label="res_C_11" '
         b'restype=":TestThing" id="res_C_11" permissions="res-default"></resource></knora>'
     )
+    remove_namespace(root)
     res_resptr_li, res_xml_li, res_all_ids = create_info_from_xml_for_graph(root)
     res_resptr = res_resptr_li[0]
     assert isinstance(res_resptr, ResptrLink)
     res_xml = res_xml_li[0]
     assert isinstance(res_xml, XMLLink)
     assert unordered(res_all_ids) == ["res_A_11", "res_B_11", "res_C_11"]
-    xml_res_resptr = root.find(".//{https://dasch.swiss/schema}resptr")
+    xml_res_resptr = root.find(".//resptr")
     assert xml_res_resptr.attrib["stashUUID"] == res_resptr.link_uuid  # type: ignore[union-attr]
-    xml_res_text = root.find(".//{https://dasch.swiss/schema}text")
+    xml_res_text = root.find(".//text")
     assert xml_res_text.attrib["stashUUID"] == res_xml.link_uuid  # type: ignore[union-attr]
 
 
@@ -556,6 +567,12 @@ def test_generate_upload_order_two_circles() -> None:
     assert unordered(stash_lookup["5"]) == expected_stash["5"]
     assert not list(graph.edges())
     assert not list(graph.nodes())
+
+
+def remove_namespace(tag: etree._Element) -> None:
+    """Remove namespace URI from the element's name, including all its children."""
+    for elem in tag.iter():
+        elem.tag = etree.QName(elem).localname
 
 
 if __name__ == "__main__":

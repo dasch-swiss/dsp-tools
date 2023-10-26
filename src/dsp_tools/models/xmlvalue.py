@@ -27,7 +27,7 @@ class XMLValue:  # pylint: disable=too-few-public-methods
             xmlstr_orig = etree.tostring(node, encoding="unicode", method="xml")
             xmlstr_cleaned = self._cleanup_formatted_text(xmlstr_orig)
             self.value = KnoraStandoffXml(xmlstr_cleaned)
-            self.resrefs = list({x.split(":")[1] for x in self.value.get_all_iris() or []})
+            self.resrefs = list(self.value.find_ids_referenced_in_salsah_links())
         elif val_type == "text" and node.get("encoding") == "utf8":
             str_orig = "".join(node.itertext())
             str_cleaned = self._cleanup_unformatted_text(str_orig)

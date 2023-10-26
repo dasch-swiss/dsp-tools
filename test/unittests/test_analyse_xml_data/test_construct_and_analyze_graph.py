@@ -199,9 +199,9 @@ def test_create_info_from_xml_for_graph_check_UUID_in_root() -> None:
     assert isinstance(res_xml, XMLLink)
     assert unordered(res_all_ids) == ["res_A_11", "res_B_11", "res_C_11"]
     xml_res_resptr = root.find(".//{https://dasch.swiss/schema}resptr")
-    assert xml_res_resptr.attrib["stashUUID"] == res_resptr.link_uuid  # type: ignore[union-attr]
+    assert xml_res_resptr.attrib["linkUUID"] == res_resptr.link_uuid  # type: ignore[union-attr]
     xml_res_text = root.find(".//{https://dasch.swiss/schema}text")
-    assert xml_res_text.attrib["stashUUID"] == res_xml.link_uuid  # type: ignore[union-attr]
+    assert xml_res_text.attrib["linkUUID"] == res_xml.link_uuid  # type: ignore[union-attr]
 
 
 def test_make_graph() -> None:

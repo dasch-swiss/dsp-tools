@@ -13,6 +13,7 @@ class XMLValue:  # pylint: disable=too-few-public-methods
     resrefs: Optional[list[str]]
     comment: Optional[str]
     permissions: Optional[str]
+    link_uuid: str
 
     def __init__(
         self,
@@ -37,6 +38,7 @@ class XMLValue:  # pylint: disable=too-few-public-methods
             self.value = listname + ":" + "".join(node.itertext())
         else:
             self.value = "".join(node.itertext())
+        self.link_uuid = node.attrib["linkUUID"]
 
     def _cleanup_formatted_text(self, xmlstr_orig: str) -> str:
         """

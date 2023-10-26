@@ -56,7 +56,7 @@ def _create_resptr_link_objects(subject_id: str, resptr_prop: etree._Element) ->
         if r_text := resptr.text:
             instance = ResptrLink(subject_id, r_text)
             # this UUID is so that the links that were stashed can be identified in the XML data file
-            resptr.attrib["stashUUID"] = instance.link_uuid
+            resptr.attrib["linkUUID"] = instance.link_uuid
             resptr_links.append(instance)
     return resptr_links
 
@@ -70,7 +70,7 @@ def _create_text_link_objects(subject_id: str, text_prop: etree._Element) -> lis
             xml_link = XMLLink(subject_id, links)
             xml_props.append(xml_link)
             # this UUID is so that the links that were stashed can be identified in the XML data file
-            text.attrib["stashUUID"] = xml_link.link_uuid
+            text.attrib["linkUUID"] = xml_link.link_uuid
     return xml_props
 
 

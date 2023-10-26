@@ -548,7 +548,7 @@ def test_generate_upload_order_two_circles() -> None:
     assert not list(graph.nodes())
 
 
-def remove_namespace(tag: etree._Element):
+def remove_namespace(tag: etree._Element) -> None:
     """Remove namespace URI from the element's name, including all its children."""
     for elem in tag.iter():
         elem.tag = etree.QName(elem).localname

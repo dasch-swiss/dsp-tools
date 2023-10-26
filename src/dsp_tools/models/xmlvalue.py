@@ -38,9 +38,7 @@ class XMLValue:  # pylint: disable=too-few-public-methods
             self.value = listname + ":" + "".join(node.itertext())
         else:
             self.value = "".join(node.itertext())
-        if "linkUUID" in node.attrib:
-            # not all richtexts have a link, so this attribute is optional
-            self.link_uuid = node.attrib["linkUUID"]
+        self.link_uuid = node.attrib.get("linkUUID")  # not all richtexts have a link, so this attribute is optional
 
     def _cleanup_formatted_text(self, xmlstr_orig: str) -> str:
         """

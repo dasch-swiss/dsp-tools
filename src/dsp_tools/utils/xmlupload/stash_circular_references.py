@@ -32,11 +32,12 @@ def stash_circular_references(
     Stashes problematic resource-references from a list of resources.
     The resources are modified in-place.
 
+    Args:
+        resources: all resources of the XML file
+        stash_lookup: A dictionary which maps the resources that have stashes to the UUIDs of the stashed links
+
     Returns:
         stash: an object that contains the stashed references
-
-    Raises:
-        BaseError
     """
     stashed_standoff_values: list[StandoffStashItem] = []
     stashed_link_values: list[LinkValueStashItem] = []

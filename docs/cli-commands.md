@@ -193,8 +193,8 @@ The following options are available:
 
 - `-v` | `--verbose` (optional): print more information about the progress to the console
 
-The expected Excel file format and the folder structure are documented [here]
-(./file-formats/excel2json.md#the-lists-section).
+The expected Excel file format and the folder structure are documented 
+[here](./file-formats/excel2json.md#the-lists-section).
 
 | <center>Hint</center>                                                    |
 |--------------------------------------------------------------------------|

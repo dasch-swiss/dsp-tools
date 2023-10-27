@@ -80,7 +80,10 @@ class TestCLI(unittest.TestCase):
             raise AssertionError(msg) from None
 
     def test_validate_lists_section_with_schema(self) -> None:
-        """Test if the resource file 'src/dsp_tools/resources/schema/lists-only.json' can be accessed"""
+        """
+        Test if the resource file 'src/dsp_tools/resources/schema/lists-only.json' can be accessed.
+        For this, a real CLI call from another working directory is necessary.
+        """
         cmd = f"dsp-tools create --lists-only --validate-only {self.test_project_systematic_file.absolute()}"
         self._make_cli_call(cmd)
 
@@ -117,6 +120,11 @@ class TestCLI(unittest.TestCase):
         self.assertListEqual(names_returned, node_names)
 
     def test_validate_project(self) -> None:
+        """
+        Test if the resource file 'src/dsp_tools/resources/schema/project.json' can be accessed.
+        For this, a real CLI call from another working directory is necessary.
+        TODO: widersprüchlich!
+        """
         # the working directory must be ".", because the JSON file contains a reference to an Excel file,
         # which is relative to the root of the repo
         self._make_cli_call(

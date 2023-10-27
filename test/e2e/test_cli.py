@@ -123,13 +123,9 @@ class TestCLI(unittest.TestCase):
         """
         Test if the resource file 'src/dsp_tools/resources/schema/project.json' can be accessed.
         For this, a real CLI call from another working directory is necessary.
-        TODO: widersprüchlich!
         """
-        # the working directory must be ".", because the JSON file contains a reference to an Excel file,
-        # which is relative to the root of the repo
         self._make_cli_call(
-            cli_call=f"dsp-tools create --validate-only {self.test_project_systematic_file.absolute()}",
-            working_directory=Path("."),
+            cli_call=f"dsp-tools create --validate-only {self.test_project_minimal_file.absolute()}",
         )
 
     def test_create_project(self) -> None:

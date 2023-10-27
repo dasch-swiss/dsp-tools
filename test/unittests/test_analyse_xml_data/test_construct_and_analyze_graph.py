@@ -119,8 +119,7 @@ def test_extract_id_one_text_with_several_id() -> None:
             <a class="salsah-link" href="IRI:res_A_11:IRI">res_A_11</a>
             <a class="salsah-link" href="IRI:res_B_11:IRI">res_B_11</a>
             <a class="salsah-link" href="IRI:res_B_11:IRI">res_B_11</a>
-        </text>
-        """
+        </text>"""
     )
     res = _extract_ids_from_one_text_value(test_ele)
     assert res == {"res_A_11", "res_B_11"}

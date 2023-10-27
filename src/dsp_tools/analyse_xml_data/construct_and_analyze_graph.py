@@ -28,9 +28,9 @@ def create_info_from_xml_for_graph(
     resptr_links = []
     xml_links = []
     all_resource_ids = []
-    for resource in root.iter(tag="{https://dasch.swiss/schema}resource"):
-        resptr, xml, subject_id = _create_info_from_xml_for_graph_from_one_resource(resource)
-        all_resource_ids.append(subject_id)
+    for resource in root.iter(tag="resource"):
+        resptr, xml = _create_info_from_xml_for_graph_from_one_resource(resource)
+        all_resource_ids.append(resource.attrib["id"])
         resptr_links.extend(resptr)
         xml_links.extend(xml)
     return resptr_links, xml_links, all_resource_ids
@@ -38,17 +38,16 @@ def create_info_from_xml_for_graph(
 
 def _create_info_from_xml_for_graph_from_one_resource(
     resource: etree._Element,
-) -> tuple[list[ResptrLink], list[XMLLink], str]:
-    subject_id = resource.attrib["id"]
+) -> tuple[list[ResptrLink], list[XMLLink]]:
     resptr_links: list[ResptrLink] = []
     xml_links: list[XMLLink] = []
     for prop in resource.getchildren():
         match prop.tag:
-            case "{https://dasch.swiss/schema}resptr-prop":
-                resptr_links.extend(_create_resptr_link_objects(subject_id, prop))
-            case "{https://dasch.swiss/schema}text-prop":
-                xml_links.extend(_create_text_link_objects(subject_id, prop))
-    return resptr_links, xml_links, subject_id
+            case "resptr-prop":
+                resptr_links.extend(_create_resptr_link_objects(resource.attrib["id"], prop))
+            case "text-prop":
+                xml_links.extend(_create_text_link_objects(resource.attrib["id"], prop))
+    return resptr_links, xml_links
 
 
 def _create_resptr_link_objects(subject_id: str, resptr_prop: etree._Element) -> list[ResptrLink]:

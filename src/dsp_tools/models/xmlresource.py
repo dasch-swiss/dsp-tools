@@ -50,8 +50,8 @@ class XMLResource:  # pylint: disable=too-many-instance-attributes
         Constructor that parses a resource node from the XML DOM
 
         Args:
-            node: The DOM node to be processed representing a resource (which is a child of the DSP element)
-            default_ontology: The default ontology (given in the attribute default-ontology of the DSP element)
+            node: The DOM node to be processed representing a resource (which is a child of the <knora> element)
+            default_ontology: The default ontology (given in the attribute default-ontology of the <knora> element)
 
         Returns:
             None
@@ -154,16 +154,15 @@ class XMLResource:  # pylint: disable=too-many-instance-attributes
                         v = value.value  # if we do not find the id, we assume it's a valid DSP IRI
                 elif prop.valtype == "text":
                     if isinstance(value.value, KnoraStandoffXml):
-                        iri_refs = value.value.get_all_iris()
-                        for iri_ref in iri_refs or []:
-                            res_id = iri_ref.split(":")[1]
+                        res_ids = value.value.find_ids_referenced_in_salsah_links()
+                        for res_id in res_ids:
                             iri = resiri_lookup.get(res_id)
                             if not iri:
                                 raise BaseError(
                                     f"Resource '{self.id}' cannot be created, because it contains a salsah-Link to "
                                     f"the following invalid resource: '{res_id}'"
                                 )
-                            value.value.replace(iri_ref, iri)
+                            value.value.replace(f"IRI:{res_id}:IRI", iri)
                     v = value.value
                 else:
                     v = value.value

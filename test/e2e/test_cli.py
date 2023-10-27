@@ -25,7 +25,6 @@ class TestCLI(unittest.TestCase):
     sipi = "http://0.0.0.0:1024"
     test_project_systematic_file = Path("testdata/json-project/test-project-systematic.json")
     test_project_minimal_file = Path("testdata/json-project/test-project-minimal.json")
-    test_project_hlist_file = Path("testdata/json-project/test-project-hlist-refers-label.json")
     test_data_systematic_file = Path("testdata/xml-data/test-data-systematic.xml")
     test_data_minimal_file = Path("testdata/xml-data/test-data-minimal.xml")
     cwd = Path("cwd")
@@ -134,10 +133,6 @@ class TestCLI(unittest.TestCase):
             cli_call=f"dsp-tools create {self.test_project_systematic_file.absolute()} --verbose",
             working_directory=Path("."),
         )
-
-    def test_create_project_hlist_refers_label(self) -> None:
-        # TODO: Replace this with a unit test, in a separate PR
-        self._make_cli_call(f"dsp-tools create {self.test_project_hlist_file.absolute()} -v")
 
     def test_get_project(self) -> None:
         """

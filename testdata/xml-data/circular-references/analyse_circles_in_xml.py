@@ -23,28 +23,31 @@ def analyse_circles_in_data(xml_filepath: Path, tracer_output_file: str, save_tr
         tracer_output_file: name of the file where the viztracer results should be saved
         save_tracer: True if the output of the viztracer should be saved
     """
-    start = datetime.now()
-    print("=" * 80)
-    tracer = VizTracer(
-        minimize_memory=True,
-        max_stack_depth=3,
-    )
-    tracer.start()
     root = parse_and_clean_xml_file(xml_filepath)
     resptr_links, xml_links, all_resource_ids = create_info_from_xml_for_graph(root)
+    if save_tracer:
+        tracer = VizTracer(
+            minimize_memory=True,
+            max_stack_depth=3,
+        )
+        tracer.start()
+    start = datetime.now()
+    print("=" * 80)
     print(f"Total Number of Resources: {len(all_resource_ids)}")
     print(f"Total Number of resptr Links: {len(resptr_links)}")
     print(f"Total Number of XML Texts with Links: {len(xml_links)}")
     print("=" * 80)
     graph, node_to_id, edges = make_graph(resptr_links, xml_links, all_resource_ids)
     _, _, stash_counter = generate_upload_order(graph, node_to_id, edges)
-    tracer.stop()
+    end = datetime.now()
     if save_tracer:
+        tracer.stop()
         tracer.save(output_file=tracer_output_file)
     print("Number of Links Stashed:", stash_counter)
     print("=" * 80)
     print("Start time:", start)
-    print("End time:", datetime.now())
+    print("End time:", end)
+    print("Duration:", end - start)
     print("=" * 80)
 
 

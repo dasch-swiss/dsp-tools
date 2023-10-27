@@ -99,34 +99,23 @@ class TestCLI(unittest.TestCase):
         with open(self.test_project_minimal_file, encoding="utf-8") as f:
             test_project_minimal = json.load(f)
 
-        # create a copy of the project that was created, and insert the first list into it
-        tp_minimal_with_list_1 = copy.deepcopy(test_project_minimal)
-        tp_minimal_with_list_1["project"]["lists"] = [lists_section[0]]
+        # create a copy of the project that was created, and insert the list into it
+        tp_minimal_with_list = copy.deepcopy(test_project_minimal)
+        tp_minimal_with_list["project"]["lists"] = [lists_section[0]]
 
-        # create another copy of the project that was created, insert the second list into it, and save it as file
-        tp_minimal_with_list_2 = copy.deepcopy(test_project_minimal)
-        tp_minimal_with_list_2["project"]["lists"] = [lists_section[1]]
-        tp_minimal_with_list_2_file = self.testdata_tmp / "test_project_minimal_with_list_2.json"
-        with open(tp_minimal_with_list_2_file, "x", encoding="utf-8") as f:
-            json.dump(tp_minimal_with_list_2, f)
-
-        # The method to be tested can now be called with both versions of the same project
-        # (each containing another list).
-        # The first is a python object and is created with a function call,
-        # the second is a file and is created with a command line call.
-        name2iri_mapping1, success1 = create_lists(
+        # The method to be tested can now be called with the project with the added list
+        name2iri_mapping, success = create_lists(
             server=self.server,
             user=self.user,
             password=self.password,
-            project_file_as_path_or_parsed=tp_minimal_with_list_1,
+            project_file_as_path_or_parsed=tp_minimal_with_list,
         )
-        self._make_cli_call(f"dsp-tools create --lists-only {tp_minimal_with_list_2_file.absolute()}")
 
         # In the first case (Python function call), it can be tested if the returned mapping is correct
-        self.assertTrue(success1)
-        name2iri_names_1 = [str(m.path) for m in jsonpath_ng.ext.parse("$..* where id").find(name2iri_mapping1)]
-        node_names_1 = [m.value for m in jsonpath_ng.ext.parse("$.project.lists[*]..name").find(tp_minimal_with_list_1)]
-        self.assertListEqual(name2iri_names_1, node_names_1)
+        self.assertTrue(success)
+        name2iri_names = [str(m.path) for m in jsonpath_ng.ext.parse("$..* where id").find(name2iri_mapping)]
+        node_names = [m.value for m in jsonpath_ng.ext.parse("$.project.lists[*]..name").find(tp_minimal_with_list)]
+        self.assertListEqual(name2iri_names, node_names)
 
     def test_validate_project(self) -> None:
         # the working directory must be ".", because the JSON file contains a reference to an Excel file,

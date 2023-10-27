@@ -11,6 +11,7 @@ from dsp_tools.analyse_xml_data.construct_and_analyze_graph import (
     make_graph,
 )
 from dsp_tools.models.value import KnoraStandoffXml
+from dsp_tools.models.xmlproperty import XMLProperty
 from dsp_tools.models.xmlresource import XMLResource
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.xmlupload.stash.stash_models import (
@@ -22,6 +23,54 @@ from dsp_tools.utils.xmlupload.stash.stash_models import (
 )
 
 logger = get_logger(__name__)
+
+
+def _stash_standoff(
+    res_id: str,
+    restype: str,
+    link_prop: XMLProperty,
+    stash_lookup: dict[str, list[str]],
+) -> list[StandoffStashItem]:
+    stashed_items = []
+    for value in link_prop.values:
+        if value.link_uuid not in stash_lookup[res_id]:
+            continue
+        # value.value is a KnoraStandoffXml text with problematic links.
+        # stash it, then replace the problematic text with a UUID
+        standoff_xml = cast(KnoraStandoffXml, value.value)
+        uuid = str(uuid4())
+        standoff_stash_item = StandoffStashItem(
+            res_id=res_id,
+            res_type=restype,
+            uuid=uuid,
+            prop_name=link_prop.name,
+            value=standoff_xml,
+        )
+        value.value = KnoraStandoffXml(uuid)
+        stashed_items.append(standoff_stash_item)
+    return stashed_items
+
+
+def _stash_resptr(
+    res_id: str,
+    restype: str,
+    link_prop: XMLProperty,
+    stash_lookup: dict[str, list[str]],
+) -> list[LinkValueStashItem]:
+    stashed_items = []
+    for value in link_prop.values.copy():
+        if value.link_uuid not in stash_lookup[res_id]:
+            continue
+        # value.value is the ID of the target resource. stash it, then delete it
+        link_stash_item = LinkValueStashItem(
+            res_id=res_id,
+            res_type=restype,
+            prop_name=link_prop.name,
+            target_id=str(value.value),
+        )
+        link_prop.values.remove(value)
+        stashed_items.append(link_stash_item)
+    return stashed_items
 
 
 def stash_circular_references(
@@ -48,35 +97,11 @@ def stash_circular_references(
         for link_prop in res.get_props_with_links():
             assert link_prop.valtype in ["text", "resptr"]
             if link_prop.valtype == "text":
-                for value in link_prop.values:
-                    if value.link_uuid not in stash_lookup[res.id]:
-                        continue
-                    # value.value is a KnoraStandoffXml text with problematic links.
-                    # stash it, then replace the problematic text with a UUID
-                    standoff_xml = cast(KnoraStandoffXml, value.value)
-                    uuid = str(uuid4())
-                    standoff_stash_item = StandoffStashItem(
-                        res_id=res.id,
-                        res_type=res.restype,
-                        uuid=uuid,
-                        prop_name=link_prop.name,
-                        value=standoff_xml,
-                    )
-                    stashed_standoff_values.append(standoff_stash_item)
-                    value.value = KnoraStandoffXml(uuid)
+                standoff_stash_item = _stash_standoff(res.id, res.restype, link_prop, stash_lookup)
+                stashed_standoff_values.extend(standoff_stash_item)
             elif link_prop.valtype == "resptr":
-                for value in link_prop.values.copy():
-                    if value.link_uuid not in stash_lookup[res.id]:
-                        continue
-                    # value.value is the ID of the target resource. stash it, then delete it
-                    link_stash_item = LinkValueStashItem(
-                        res_id=res.id,
-                        res_type=res.restype,
-                        prop_name=link_prop.name,
-                        target_id=str(value.value),
-                    )
-                    stashed_link_values.append(link_stash_item)
-                    link_prop.values.remove(value)
+                link_stash_item = _stash_resptr(res.id, res.restype, link_prop, stash_lookup)
+                stashed_link_values.extend(link_stash_item)
 
             if len(link_prop.values) == 0:
                 # if all values of a link property have been stashed, the property needs to be removed

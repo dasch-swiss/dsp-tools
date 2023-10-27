@@ -1,10 +1,4 @@
-"""
-This test class tests the basic functionalities of dsp-tools, i.e. all commands that can be called from the command
-line. The methods are tested in the order in which teh appear in dsp_tools.py. This class only tests that the methods
-can be called with the basic configuration that is available via CLI. More thorough testing of each method is done in
-separate unit tests/e2e tests."""
-
-# pylint: disable=missing-class-docstring,missing-function-docstring
+# pylint: disable=missing-class-docstring
 
 import copy
 import json
@@ -86,10 +80,15 @@ class TestCLI(unittest.TestCase):
             raise AssertionError(msg) from None
 
     def test_validate_lists_section_with_schema(self) -> None:
+        """Test if the resource file 'src/dsp_tools/resources/schema/lists-only.json' can be accessed"""
         cmd = f"dsp-tools create --lists-only --validate-only {self.test_project_systematic_file.absolute()}"
         self._make_cli_call(cmd)
 
     def test_create_lists(self) -> None:
+        """
+        Test that the 'lists' section of a JSON file is correctly created,
+        and that the returned {node name: iri} mapping contains the same node names than the original list.
+        """
         # the project must already exist, so let's create a project without lists
         self._make_cli_call(f"dsp-tools create {self.test_project_minimal_file.absolute()}")
 
@@ -111,11 +110,11 @@ class TestCLI(unittest.TestCase):
             project_file_as_path_or_parsed=tp_minimal_with_list,
         )
 
-        # In the first case (Python function call), it can be tested if the returned mapping is correct
+        # test if the returned mapping contains the same node names than the original list
         self.assertTrue(success)
-        name2iri_names = [str(m.path) for m in jsonpath_ng.ext.parse("$..* where id").find(name2iri_mapping)]
+        names_returned = [str(m.path) for m in jsonpath_ng.ext.parse("$..* where id").find(name2iri_mapping)]
         node_names = [m.value for m in jsonpath_ng.ext.parse("$.project.lists[*]..name").find(tp_minimal_with_list)]
-        self.assertListEqual(name2iri_names, node_names)
+        self.assertListEqual(names_returned, node_names)
 
     def test_validate_project(self) -> None:
         # the working directory must be ".", because the JSON file contains a reference to an Excel file,

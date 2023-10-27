@@ -156,8 +156,8 @@ def test_extract_ids_from_text_prop_with_iris_and_ids() -> None:
     assert len(res) == 1
     assert res[0].target_ids == {"res_B_18"}
     children = list(test_ele.iterchildren())
-    assert not children[0].attrib.get("stashUUID")
-    assert children[1].attrib.get("stashUUID")
+    assert not children[0].attrib.get("linkUUID")
+    assert children[1].attrib.get("linkUUID")
 
 
 def test_create_class_instance_resptr_link_one_link() -> None:
@@ -199,9 +199,9 @@ def test_create_class_instance_resptr_link_with_iris() -> None:
     assert res[0].target_id == "res_A_13"
     assert res[1].target_id == "res_B_13"
     children = list(test_ele.iterchildren())
-    assert children[0].attrib.get("stashUUID")
-    assert children[1].attrib.get("stashUUID")
-    assert not children[2].attrib.get("stashUUID")
+    assert children[0].attrib.get("linkUUID")
+    assert children[1].attrib.get("linkUUID")
+    assert not children[2].attrib.get("linkUUID")
 
 
 def test_create_info_from_xml_for_graph_check_UUID_in_root() -> None:

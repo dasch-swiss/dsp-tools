@@ -1,34 +1,39 @@
-# pylint: disable=protected-access,missing-class-docstring,missing-function-docstring
+# pylint: disable=protected-access,missing-function-docstring,redefined-outer-name
 
-import shutil
-import unittest
+import tempfile
 from pathlib import Path
+from typing import Iterator
 
 import pytest
 
 from dsp_tools.utils import rosetta
 
 
-class TestRosetta(unittest.TestCase):
-    def test_rosetta(self) -> None:
-        enclosing_folder = Path("tmp/.dsp-tools/rosetta")
-        enclosing_folder.mkdir(parents=True, exist_ok=True)
-        rosetta_folder = enclosing_folder / "082E-rosetta-scripts"
-        shutil.rmtree(rosetta_folder, ignore_errors=True)
+@pytest.fixture(scope="module", autouse=True)
+def rosetta_folder() -> Iterator[Path]:
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        yield Path(tmpdirname) / "082E-rosetta-scripts"
 
-        is_rosetta_up_to_date = rosetta._update_possibly_existing_repo(rosetta_folder=rosetta_folder)
-        self.assertFalse(is_rosetta_up_to_date)
 
-        rosetta._clone_repo(rosetta_folder=rosetta_folder, enclosing_folder=enclosing_folder)
-        is_rosetta_up_to_date = rosetta._update_possibly_existing_repo(rosetta_folder=rosetta_folder)
-        self.assertTrue(is_rosetta_up_to_date)
+def test_update_repo_before_cloning(rosetta_folder: Path) -> None:
+    is_rosetta_up_to_date = rosetta._update_possibly_existing_repo(rosetta_folder=rosetta_folder)
+    assert not is_rosetta_up_to_date
 
-        success1 = rosetta._create_json(rosetta_folder=rosetta_folder)
-        self.assertTrue(success1)
-        success2 = rosetta._upload_xml(rosetta_folder=rosetta_folder)
-        self.assertTrue(success2)
 
-        shutil.rmtree("tmp", ignore_errors=True)
+def test_update_repo_after_cloning(rosetta_folder: Path) -> None:
+    rosetta._clone_repo(rosetta_folder=rosetta_folder, enclosing_folder=rosetta_folder.parent)
+    is_rosetta_up_to_date = rosetta._update_possibly_existing_repo(rosetta_folder=rosetta_folder)
+    assert is_rosetta_up_to_date
+
+
+def test_create_data_model(rosetta_folder: Path) -> None:
+    success = rosetta._create_json(rosetta_folder=rosetta_folder)
+    assert success
+
+
+def test_upload_data(rosetta_folder: Path) -> None:
+    success = rosetta._upload_xml(rosetta_folder=rosetta_folder)
+    assert success
 
 
 if __name__ == "__main__":

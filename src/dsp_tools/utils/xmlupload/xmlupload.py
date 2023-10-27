@@ -126,7 +126,8 @@ def _prepare_upload(
         shortcode=shortcode,
         verbose=verbose,
     )
-    resources = sorted(resources, key=lambda res: upload_order.index(res.id))
+    sorting_lookup = {res.id: res for res in resources}
+    resources = [sorting_lookup[res_id] for res_id in upload_order]
     stash = stash_circular_references(resources, stash_lookup)
     return resources, permissions_lookup, resclass_name_2_type, stash
 

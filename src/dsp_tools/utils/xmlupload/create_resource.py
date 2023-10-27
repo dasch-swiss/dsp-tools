@@ -1,8 +1,10 @@
 import json
 import sys
+from pathlib import Path
 from typing import Any, assert_never
 
 from dsp_tools.connection.connection import Connection
+from dsp_tools.models.exceptions import UserError
 from dsp_tools.models.permission import Permissions
 from dsp_tools.models.value import KnoraStandoffXml
 from dsp_tools.models.xmlresource import BitstreamInfo, XMLResource
@@ -67,30 +69,66 @@ def _make_resource(
 
 
 def _make_bitstream_file_value(bitstream_info: BitstreamInfo) -> dict[str, Any]:
-    file_ending = bitstream_info.local_file.rsplit(".", 1)[-1]
+    local_file = Path(bitstream_info.local_file)
+    file_ending = "".join(local_file.suffixes)[1:]
+    file_name = local_file.name
     match file_ending:
+        case "zip" | "tar" | "gz" | "z" | "tar.gz" | "tgz" | "gzip" | "7z":
+            file_value = {
+                "@type": "knora-api:ArchiveFileValue",
+                "knora-api:internalFileName": bitstream_info.internal_file_name,
+                "knora-api:originalFilename": file_name,
+            }
+            if bitstream_info.permissions:
+                file_value["knora-api:hasPermissions"] = str(bitstream_info.permissions)
+            return {"knora-api:hasArchiveFileValue": file_value}
+        case "mp3" | "wav":
+            file_value = {
+                "@type": "knora-api:AudioFileValue",
+                "knora-api:internalFileName": bitstream_info.internal_file_name,
+                "knora-api:originalFilename": file_name,
+            }
+            if bitstream_info.permissions:
+                file_value["knora-api:hasPermissions"] = str(bitstream_info.permissions)
+            return {"knora-api:hasAudioFileValue": file_value}
+        case "pdf" | "doc" | "docx" | "xls" | "xlsx" | "ppt" | "pptx":
+            file_value = {
+                "@type": "knora-api:DocumentFileValue",
+                "knora-api:internalFileName": bitstream_info.internal_file_name,
+                "knora-api:originalFilename": file_name,
+            }
+            if bitstream_info.permissions:
+                file_value["knora-api:hasPermissions"] = str(bitstream_info.permissions)
+            return {"knora-api:hasDocumentFileValue": file_value}
+        case "mp4":
+            file_value = {
+                "@type": "knora-api:MovingImageFileValue",
+                "knora-api:internalFileName": bitstream_info.internal_file_name,
+                "knora-api:originalFilename": file_name,
+            }
+            if bitstream_info.permissions:
+                file_value["knora-api:hasPermissions"] = str(bitstream_info.permissions)
+            return {"knora-api:hasMovingImageFileValue": file_value}
         case "jpg" | "jpeg" | "jp2" | "png" | "tif" | "tiff":
             file_value = {
                 "@type": "knora-api:StillImageFileValue",
                 "knora-api:internalFileName": bitstream_info.internal_file_name,
-                "knora-api:originalFilename": bitstream_info.local_file,
+                "knora-api:originalFilename": file_name,
             }
             if bitstream_info.permissions:
                 file_value["knora-api:hasPermissions"] = str(bitstream_info.permissions)
             return {"knora-api:hasStillImageFileValue": file_value}
-        case "odd" | "rng" | "txt" | "xml" | "xsd" | "xsl":
+        case "odd" | "rng" | "txt" | "xml" | "xsd" | "xsl" | "xslt" | "csv":
             file_value = {
                 "@type": "knora-api:TextFileValue",
                 "knora-api:internalFileName": bitstream_info.internal_file_name,
-                "knora-api:originalFilename": bitstream_info.local_file,
+                "knora-api:originalFilename": file_name,
             }
             if bitstream_info.permissions:
                 file_value["knora-api:hasPermissions"] = str(bitstream_info.permissions)
             return {"knora-api:hasTextFileValue": file_value}
-        case _:  # TODO: add other file types
-            print(f"!!! No idea how to handle this file type: .{file_ending} !!!")
-            print(f"({bitstream_info.local_file} - {bitstream_info.internal_file_name})")
-            sys.exit(-1)
+        case _:
+            raise UserError(f"Unknown file ending: {file_ending} for file {local_file}")
 
 
 def _make_values(

@@ -61,7 +61,7 @@ def _make_resource(
     if resource.creation_date:
         res["knora-api:creationDate"] = {
             "@type": "xsd:dateTimeStamp",
-            "@value": resource.creation_date,
+            "@value": str(resource.creation_date),
         }
     if bitstream_information:
         res.update(_make_bitstream_file_value(bitstream_information))
@@ -144,11 +144,72 @@ def _make_values(
 
 def _make_value(value: XMLValue, value_type: str) -> dict[str, Any]:
     match value_type:
+        case "color":
+            return _make_color_value(value)
+        case "geometry":
+            return _make_geometry_value(value)
+        case "integer":
+            return _make_integer_value(value)
+        case "interval":
+            return _make_interval_value(value)
+        case "resptr":
+            return _make_link_value(value)
         case "text":
             return _make_text_value(value)
+        case "uri":
+            return _make_uri_value(value)
         case _:
             print(f"!!! No idea how to handle this value type: {value_type} !!!")
             sys.exit(-1)
+
+
+def _make_color_value(value: XMLValue) -> dict[str, Any]:
+    return {
+        "@type": "knora-api:ColorValue",
+        "knora-api:colorValueAsColor": value.value,
+    }
+
+
+def _make_geometry_value(value: XMLValue) -> dict[str, Any]:
+    return {
+        "@type": "knora-api:GeometryValue",
+        "knora-api:geometryValueHasGeometry": value.value,
+    }
+
+
+def _make_integer_value(value: XMLValue) -> dict[str, Any]:
+    return {
+        "@type": "knora-api:IntValue",
+        "knora-api:intValueAsInt": value.value,
+    }
+
+
+def _make_interval_value(value: XMLValue) -> dict[str, Any]:
+    match value.value:
+        case str() as s:
+            start, end = tuple(s.split(":", 1))
+            return {
+                "@type": "knora-api:IntervalValue",
+                "knora-api:intervalValueHasStart": {
+                    "@type": "xsd:decimal",
+                    "@value": str(float(start)),
+                },
+                "knora-api:intervalValueHasEnd": {
+                    "@type": "xsd:decimal",
+                    "@value": str(float(end)),
+                },
+            }
+        case _:
+            raise UserError(f"Unexpected interval value: {value.value}")
+
+
+def _make_link_value(value: XMLValue) -> dict[str, Any]:
+    return {
+        "@type": "knora-api:LinkValue",
+        "knora-api:linkValueHasTarget": {
+            "@id": value.value,
+        },
+    }
 
 
 def _make_text_value(value: XMLValue) -> dict[str, Any]:
@@ -168,3 +229,13 @@ def _make_text_value(value: XMLValue) -> dict[str, Any]:
             }
         case _:
             assert_never(value.value)
+
+
+def _make_uri_value(value: XMLValue) -> dict[str, Any]:
+    return {
+        "@type": "knora-api:UriValue",
+        "knora-api:uriValueAsUri": {
+            "@type": "xsd:anyURI",
+            "@value": value.value,
+        },
+    }

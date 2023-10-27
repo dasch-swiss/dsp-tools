@@ -126,7 +126,7 @@ class TestCLI(unittest.TestCase):
         self._make_cli_call(cli_call=f"dsp-tools create --validate-only {self.test_project_minimal_file.absolute()}")
 
     def test_create_project(self) -> None:
-        """Test if the systematic project JSON file can be uploaded without producing an error on its way"""
+        """Test if the systematic JSON project file can be uploaded without producing an error on its way"""
         # the working directory must be ".", because the JSON file contains a reference to an Excel file,
         # which is relative to the root of the repo
         self._make_cli_call(
@@ -178,14 +178,15 @@ class TestCLI(unittest.TestCase):
                 onto_name=onto_original["name"],
             )
 
-    def test_validate_xml_against_schema(self) -> None:
-        cmd = f"dsp-tools xmlupload --validate-only --verbose {self.test_data_systematic_file.absolute()}"
-        self._make_cli_call(cmd)
-
     def test_xml_upload(self) -> None:
+        """Test if the resource file 'src/dsp_tools/resources/schema/data.xsd' can be accessed"""
         self._make_cli_call(f"dsp-tools xmlupload -v {self.test_data_minimal_file.absolute()}")
 
     def test_xml_upload_incremental(self) -> None:
+        """
+        Test if the systematic XML data file can be uploaded without producing an error on its way,
+        and if the 'id2iri' replacement works, so that the 2nd upload works.
+        """
         # the working directory must be ".", because the JSON file contains a reference to an Excel file,
         # which is relative to the root of the repo
         self._make_cli_call(

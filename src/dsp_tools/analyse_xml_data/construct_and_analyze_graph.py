@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast
 
 import regex
 import rustworkx as rx
@@ -53,11 +53,12 @@ def _create_info_from_xml_for_graph_from_one_resource(
 def _create_resptr_link_objects(subject_id: str, resptr_prop: etree._Element) -> list[ResptrLink]:
     resptr_links = []
     for resptr in resptr_prop.getchildren():
-        if r_text := resptr.text:
-            instance = ResptrLink(subject_id, r_text)
+        resptr.text = cast(str, resptr.text)
+        if not regex.search(r"https?://rdfh.ch/[a-fA-F0-9]{4}/\w{22}", resptr.text):
+            link_object = ResptrLink(subject_id, resptr.text)
             # this UUID is so that the links that were stashed can be identified in the XML data file
-            resptr.attrib["stashUUID"] = instance.link_uuid
-            resptr_links.append(instance)
+            resptr.attrib["stashUUID"] = link_object.link_uuid
+            resptr_links.append(link_object)
     return resptr_links
 
 
@@ -79,9 +80,8 @@ def _extract_ids_from_one_text_value(text: etree._Element) -> set[str]:
     all_links = set()
     for ele in text.iterdescendants():
         if href := ele.attrib.get("href"):
-            searched = regex.search(r"IRI:(.*):IRI", href)
-            if searched:
-                all_links.add(searched.group(1))
+            if internal_id := regex.search(r"IRI:(.*):IRI", href):
+                all_links.add(internal_id.group(1))
     return all_links
 
 

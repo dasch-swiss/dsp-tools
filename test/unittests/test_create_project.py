@@ -29,14 +29,6 @@ class TestProjectCreation(unittest.TestCase):
         tp_systematic: dict[str, Any] = json.load(json_file)
         tp_systematic_ontology: dict[str, Any] = tp_systematic["project"]["ontologies"][0]
 
-    tp_hlist_file = "testdata/json-project/test-project-hlist-refers-label.json"
-    with open(tp_hlist_file, encoding="utf-8") as json_file:
-        tp_hlist: dict[str, Any] = json.load(json_file)
-
-    tp_hlist_refers_nonexisting_list_file = "testdata/invalid-testdata/json-project/hlist-refers-nonexisting-list.json"
-    with open(tp_hlist_refers_nonexisting_list_file, encoding="utf-8") as json_file:
-        tp_hlist_refers_nonexisting_list: dict[str, Any] = json.load(json_file)
-
     tp_circular_ontology_file = "testdata/invalid-testdata/json-project/circular-ontology.json"
     with open(tp_circular_ontology_file, encoding="utf-8") as json_file:
         tp_circular_ontology: dict[str, Any] = json.load(json_file)
@@ -172,22 +164,69 @@ class TestProjectCreation(unittest.TestCase):
             _check_for_undefined_super_resource(self.tp_nonexisting_super_resource)
 
     def test_rectify_hlist_of_properties(self) -> None:
+        lists = [
+            {
+                "name": "list-no-1",
+                "labels": {"en": "List number one", "de": "Liste Nummer eins"},
+                "nodes": [{"name": "first node", "labels": {"en": "First node"}}],
+            },
+            {
+                "name": "list-no-2",
+                "labels": {"en": "List number two", "de": "Liste Nummer zwei"},
+                "nodes": [{"name": "second node", "labels": {"en": "second node"}}],
+            },
+        ]
+        properties = [
+            {
+                "name": "hasList1",
+                "super": ["hasValue"],
+                "object": "ListValue",
+                "labels": {"en": "hasList1"},
+                "gui_element": "List",
+                "gui_attributes": {"hlist": "List number one"},
+            },
+            {
+                "name": "hasList2",
+                "super": ["hasValue"],
+                "object": "ListValue",
+                "labels": {"en": "hasList2"},
+                "gui_element": "List",
+                "gui_attributes": {"hlist": "Liste Nummer zwei"},
+            },
+        ]
         properties_returned = _rectify_hlist_of_properties(
-            lists=self.tp_hlist["project"]["lists"],
-            properties=self.tp_hlist["project"]["ontologies"][0]["properties"],
+            lists=lists,
+            properties=properties,
         )
         returned_hlists = [x["gui_attributes"]["hlist"] for x in properties_returned]
         expected_hlists = ["list-no-1", "list-no-2"]
         self.assertListEqual(returned_hlists, expected_hlists)
 
     def test_rectify_hlist_of_properties_nonexisting_list(self) -> None:
+        lists = [
+            {
+                "name": "list-no-1",
+                "labels": {"en": "List number one", "de": "Liste Nummer eins"},
+                "nodes": [{"name": "first node", "labels": {"en": "First node"}}],
+            }
+        ]
+        properties = [
+            {
+                "name": "hasList1",
+                "super": ["hasValue"],
+                "object": "ListValue",
+                "labels": {"en": "hasList1"},
+                "gui_element": "List",
+                "gui_attributes": {"hlist": "Nonexisting list"},
+            }
+        ]
         with self.assertRaisesRegex(
             UserError,
-            r"Property 'hasList1' references an unknown list: 'inexisting-list'",
+            r"Property 'hasList1' references an unknown list: 'Nonexisting list'",
         ):
             _rectify_hlist_of_properties(
-                lists=self.tp_hlist_refers_nonexisting_list["project"]["lists"],
-                properties=self.tp_hlist_refers_nonexisting_list["project"]["ontologies"][0]["properties"],
+                lists=lists,
+                properties=properties,
             )
 
 

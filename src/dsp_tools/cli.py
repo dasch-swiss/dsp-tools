@@ -154,15 +154,15 @@ def _make_parser(
     parser_upload_files.add_argument("-p", "--password", default=root_user_pw, help=password_text)
 
     # fast-xmlupload
-    parser_fast_xmlupload_files = subparsers.add_parser(
+    parser_fast_xmlupload = subparsers.add_parser(
         name="fast-xmlupload",
         help="For internal use only: create resources with already uploaded files",
     )
-    parser_fast_xmlupload_files.set_defaults(action="fast-xmlupload")
-    parser_fast_xmlupload_files.add_argument("-s", "--server", default=default_dsp_api_url, help=dsp_server_text)
-    parser_fast_xmlupload_files.add_argument("-u", "--user", default=root_user_email, help=username_text)
-    parser_fast_xmlupload_files.add_argument("-p", "--password", default=root_user_pw, help=password_text)
-    parser_fast_xmlupload_files.add_argument("xml_file", help="path to XML file containing the data")
+    parser_fast_xmlupload.set_defaults(action="fast-xmlupload")
+    parser_fast_xmlupload.add_argument("-s", "--server", default=default_dsp_api_url, help=dsp_server_text)
+    parser_fast_xmlupload.add_argument("-u", "--user", default=root_user_email, help=username_text)
+    parser_fast_xmlupload.add_argument("-p", "--password", default=root_user_pw, help=password_text)
+    parser_fast_xmlupload.add_argument("xml_file", help="path to XML file containing the data")
 
     # excel2json
     parser_excel2json = subparsers.add_parser(

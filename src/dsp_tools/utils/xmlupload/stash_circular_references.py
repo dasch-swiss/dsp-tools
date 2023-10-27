@@ -42,13 +42,14 @@ def stash_circular_references(
     stashed_standoff_values: list[StandoffStashItem] = []
     stashed_link_values: list[LinkValueStashItem] = []
 
-    for res in resources.copy():
+    for res in resources:
         if not res.id in stash_lookup:
             continue
         for link_prop in res.get_props_with_links():
+            assert link_prop.valtype in ["text", "resptr"]
             if link_prop.valtype == "text":
                 for value in link_prop.values:
-                    if not value.link_uuid in stash_lookup[res.id]:
+                    if value.link_uuid not in stash_lookup[res.id]:
                         continue
                     # value.value is a KnoraStandoffXml text with problematic links.
                     # stash it, then replace the problematic text with a UUID
@@ -65,7 +66,7 @@ def stash_circular_references(
                     value.value = KnoraStandoffXml(uuid)
             elif link_prop.valtype == "resptr":
                 for value in link_prop.values.copy():
-                    if not value.link_uuid in stash_lookup[res.id]:
+                    if value.link_uuid not in stash_lookup[res.id]:
                         continue
                     # value.value is the ID of the target resource. stash it, then delete it
                     link_stash_item = LinkValueStashItem(

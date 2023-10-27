@@ -124,11 +124,10 @@ class TestCLI(unittest.TestCase):
         Test if the resource file 'src/dsp_tools/resources/schema/project.json' can be accessed.
         For this, a real CLI call from another working directory is necessary.
         """
-        self._make_cli_call(
-            cli_call=f"dsp-tools create --validate-only {self.test_project_minimal_file.absolute()}",
-        )
+        self._make_cli_call(cli_call=f"dsp-tools create --validate-only {self.test_project_minimal_file.absolute()}")
 
     def test_create_project(self) -> None:
+        """Test if the systematic project JSON file can be uploaded without producing an error on its way"""
         # the working directory must be ".", because the JSON file contains a reference to an Excel file,
         # which is relative to the root of the repo
         self._make_cli_call(
@@ -137,6 +136,7 @@ class TestCLI(unittest.TestCase):
         )
 
     def test_create_project_hlist_refers_label(self) -> None:
+        # TODO: Replace this with a unit test, in a separate PR
         self._make_cli_call(f"dsp-tools create {self.test_project_hlist_file.absolute()} -v")
 
     def test_get_project(self) -> None:

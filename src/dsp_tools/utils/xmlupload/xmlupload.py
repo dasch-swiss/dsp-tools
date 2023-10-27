@@ -118,7 +118,11 @@ def _prepare_upload(
     shortcode: str,
     verbose: bool,
 ) -> tuple[list[XMLResource], dict[str, Permissions], dict[str, type], Stash | None]:
-    stash_lookup, upload_order = identify_circular_references(root, verbose=verbose)
+    logger.info("Checking resources for circular references...")
+    if verbose:
+        print("Checking resources for circular references...")
+    stash_lookup, upload_order = identify_circular_references(root)
+    logger.info("Get data from XML...")
     resources, permissions_lookup, resclass_name_2_type = _get_data_from_xml(
         con=con,
         root=root,
@@ -128,6 +132,9 @@ def _prepare_upload(
     )
     sorting_lookup = {res.id: res for res in resources}
     resources = [sorting_lookup[res_id] for res_id in upload_order]
+    logger.info("Stashing circular references...")
+    if verbose:
+        print("Stashing circular references...")
     stash = stash_circular_references(resources, stash_lookup)
     return resources, permissions_lookup, resclass_name_2_type, stash
 

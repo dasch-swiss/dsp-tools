@@ -44,7 +44,7 @@ def upload_stashed_resptr_props(
         res_iri = id2iri_mapping[res_id]
         if verbose:
             print(f'  Upload resptrs of resource "{res_id}"...')
-        logger.debug(f'  Upload resptrs of resource "{res_id}"...')
+        logger.info(f'  Upload resptrs of resource "{res_id}"...')
         for stash_item in stash_items:
             target_iri = id2iri_mapping.get(stash_item.target_id)
             if not target_iri:

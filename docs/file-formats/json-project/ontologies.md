@@ -207,8 +207,8 @@ super-property:
 - properties defined in external ontologies
 - properties defined in the project ontology itself
 
-The syntax how to refer to these different groups of properties is described [here]
-(./caveats.md#referencing-ontologies).
+The syntax how to refer to these different groups of properties is described 
+[here](./caveats.md#referencing-ontologies).
 
 The following DSP base properties are available:
 

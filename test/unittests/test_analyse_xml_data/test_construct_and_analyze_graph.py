@@ -117,8 +117,8 @@ def test_extract_id_one_text_with_several_id() -> None:
     test_ele = etree.fromstring(
         """<text permissions="prop-default" encoding="xml">
             <a class="salsah-link" href="IRI:res_A_11:IRI">res_A_11</a>
-            <a class="salsah-link" href="IRI:res_B_11:IRI">res_A_11</a>
-            <a class="salsah-link" href="IRI:res_B_11:IRI">res_A_11</a>
+            <a class="salsah-link" href="IRI:res_B_11:IRI">res_B_11</a>
+            <a class="salsah-link" href="IRI:res_B_11:IRI">res_B_11</a>
         </text>"""
     )
     res = _extract_ids_from_one_text_value(test_ele)
@@ -139,6 +139,25 @@ def test_extract_ids_from_text_prop_with_several_text_links() -> None:
     res = _create_text_link_objects("res_C_18", test_ele)
     res_ids = [x.target_ids for x in res]
     assert unordered(res_ids) == [{"res_A_18"}, {"res_B_18"}]
+
+
+def test_extract_ids_from_text_prop_with_iris_and_ids() -> None:
+    test_ele = etree.fromstring(
+        """<text-prop name=":hasRichtext">
+            <text permissions="prop-default" encoding="xml">
+                <a class="salsah-link" href="http://rdfh.ch/4123/vEpjk7zAQBC2j3pvTGSxcw">foo</a>
+            </text>
+            <text permissions="prop-default" encoding="xml">
+                <a class="salsah-link" href="IRI:res_B_18:IRI">res_B_18</a>
+            </text>
+        </text-prop>"""
+    )
+    res = _create_text_link_objects("foo", test_ele)
+    assert len(res) == 1
+    assert res[0].target_ids == {"res_B_18"}
+    children = list(test_ele.iterchildren())
+    assert not children[0].attrib.get("linkUUID")
+    assert children[1].attrib.get("linkUUID")
 
 
 def test_create_class_instance_resptr_link_one_link() -> None:
@@ -167,6 +186,24 @@ def test_create_class_instance_resptr_link_several() -> None:
     assert res[2].target_id == "res_C_13"
 
 
+def test_create_class_instance_resptr_link_with_iris() -> None:
+    test_ele = etree.fromstring(
+        """<resptr-prop name=":hasResource1">
+            <resptr permissions="prop-default">res_A_13</resptr>
+            <resptr permissions="prop-default">res_B_13</resptr>
+            <resptr permissions="prop-default">http://rdfh.ch/4123/vEpjk7zAQBC2j3pvTGSxcw</resptr>
+        </resptr-prop>"""
+    )
+    res = _create_resptr_link_objects("foo", test_ele)
+    assert len(res) == 2
+    assert res[0].target_id == "res_A_13"
+    assert res[1].target_id == "res_B_13"
+    children = list(test_ele.iterchildren())
+    assert children[0].attrib.get("linkUUID")
+    assert children[1].attrib.get("linkUUID")
+    assert not children[2].attrib.get("linkUUID")
+
+
 def test_create_info_from_xml_for_graph_check_UUID_in_root() -> None:
     root = etree.fromstring(
         """<knora shortcode="0700" default-ontology="simcir">
@@ -192,9 +229,9 @@ def test_create_info_from_xml_for_graph_check_UUID_in_root() -> None:
     assert isinstance(res_xml, XMLLink)
     assert unordered(res_all_ids) == ["res_A_11", "res_B_11", "res_C_11"]
     xml_res_resptr = root.find(".//resptr")
-    assert xml_res_resptr.attrib["stashUUID"] == res_resptr.link_uuid  # type: ignore[union-attr]
+    assert xml_res_resptr.attrib["linkUUID"] == res_resptr.link_uuid  # type: ignore[union-attr]
     xml_res_text = root.find(".//text")
-    assert xml_res_text.attrib["stashUUID"] == res_xml.link_uuid  # type: ignore[union-attr]
+    assert xml_res_text.attrib["linkUUID"] == res_xml.link_uuid  # type: ignore[union-attr]
 
 
 def test_make_graph() -> None:

@@ -13,6 +13,7 @@ class XMLValue:  # pylint: disable=too-few-public-methods
     resrefs: Optional[list[str]]
     comment: Optional[str]
     permissions: Optional[str]
+    link_uuid: Optional[str]
 
     def __init__(
         self,
@@ -37,6 +38,7 @@ class XMLValue:  # pylint: disable=too-few-public-methods
             self.value = listname + ":" + "".join(node.itertext())
         else:
             self.value = "".join(node.itertext())
+        self.link_uuid = node.attrib.get("linkUUID")  # not all richtexts have a link, so this attribute is optional
 
     def _cleanup_formatted_text(self, xmlstr_orig: str) -> str:
         """

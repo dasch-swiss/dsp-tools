@@ -25,7 +25,7 @@ from dsp_tools.utils.xmlupload.create_resource import ResourceCreateClient
 from dsp_tools.utils.xmlupload.read_validate_xml_file import validate_and_parse_xml_file
 from dsp_tools.utils.xmlupload.resource_multimedia import handle_bitstream
 from dsp_tools.utils.xmlupload.stash.stash_models import Stash
-from dsp_tools.utils.xmlupload.stash_circular_references import remove_circular_references
+from dsp_tools.utils.xmlupload.stash_circular_references import identify_circular_references, stash_circular_references
 from dsp_tools.utils.xmlupload.upload_config import UploadConfig
 from dsp_tools.utils.xmlupload.upload_stashed_resptr_props import upload_stashed_resptr_props
 from dsp_tools.utils.xmlupload.upload_stashed_xml_texts import upload_stashed_xml_texts
@@ -116,13 +116,15 @@ def _prepare_upload(
     default_ontology: str,
     verbose: bool,
 ) -> tuple[list[XMLResource], dict[str, Permissions], Stash | None]:
+    stash_lookup, upload_order = identify_circular_references(root, verbose=verbose)
     resources, permissions_lookup = _get_data_from_xml(
         con=con,
         root=root,
         default_ontology=default_ontology,
     )
-    # temporarily remove circular references
-    resources, stash = remove_circular_references(resources, verbose=verbose)
+    sorting_lookup = {res.id: res for res in resources}
+    resources = [sorting_lookup[res_id] for res_id in upload_order]
+    stash = stash_circular_references(resources, stash_lookup)
     return resources, permissions_lookup, stash
 
 

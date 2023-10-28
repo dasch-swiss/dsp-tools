@@ -6,7 +6,7 @@
             <text encoding="xml">Text</text>
         </text-prop>
         <resptr-prop name=":foo-bar">
-            <resptr>http://rdfh.ch/082E/ylRvrg7tQI6aVpcTJbVrwg</resptr>
+            <resptr>http://rdfh.ch/082E/-lRvrg7tQI6aVpcTJbVrwg</resptr>
             <resptr>http://rdfh.ch/082E/JK63OpYWTDWNYVOYFN7FdQ</resptr>
         </resptr-prop>
     </resource>
@@ -14,11 +14,11 @@
     <resource label="resptr_and_salsah_link" restype=":foo" id="resptr_and_salsah_link">
         <text-prop name=":bar">
             <text encoding="xml">
-                Text with a <a class="salsah-link" href="http://rdfh.ch/082E/ylRvrg7tQI6aVpcTJbVrwg">link to no_replacements</a>
+                Text with a <a class="salsah-link" href="http://rdfh.ch/082E/-lRvrg7tQI6aVpcTJbVrwg">link to no_replacements</a>
             </text>
         </text-prop>
         <resptr-prop name=":foo-bar">
-            <resptr>http://rdfh.ch/082E/ylRvrg7tQI6aVpcTJbVrwg</resptr>
+            <resptr>http://rdfh.ch/082E/-lRvrg7tQI6aVpcTJbVrwg</resptr>
         </resptr-prop>
     </resource>
 

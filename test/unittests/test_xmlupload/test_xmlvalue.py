@@ -11,7 +11,7 @@ class TestXmlValue(unittest.TestCase):
 
     def test_cleanup_unformatted_text(self) -> None:
         """Test the removal of whitespaces and line breaks in utf8-encoded text values"""
-        unformatted_text_orig = """<text permissions="prop-default" encoding="utf8">
+        unformatted_text_orig = """<text permissions="prop-default" encoding="utf8" linkUUID="foo">
 
                 Poem
                 with 1 line break:
@@ -41,7 +41,7 @@ class TestXmlValue(unittest.TestCase):
 
     def test_cleanup_formatted_text(self) -> None:
         """Test the removal of whitespaces and line breaks in xml-formatted text values"""
-        formatted_text_orig = """<text permissions="prop-default" encoding="xml">
+        formatted_text_orig = """<text permissions="prop-default" encoding="xml" linkUUID="foo">
 
                 This is <em>italicized and <strong>bold</strong></em> text!
                 It contains <code>monospace text  that   preserves whitespaces and &amp; HTML-escapes</code>.

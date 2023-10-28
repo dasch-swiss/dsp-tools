@@ -49,18 +49,18 @@ class TestIdToIri(unittest.TestCase):
         with open(out_file, encoding="utf-8", mode="r") as file:
             out_file_content = file.read()
         out_file.unlink()
-        iris = regex.findall(r"http://rdfh\.ch/082E/\w+", out_file_content)
+        iris = regex.findall(r"http://rdfh\.ch/082E/[\w-]{22}", out_file_content)
         iris_expected = [
-            "http://rdfh.ch/082E/ylRvrg7tQI6aVpcTJbVrwg",
-            "http://rdfh.ch/082E/qwasddoiu876flkjh67dss",
+            "http://rdfh.ch/082E/-lRvrg7tQI6aVpcTJbVrwg",
+            "http://rdfh.ch/082E/qwasddoiu8_6flkjh67dss",
             "http://rdfh.ch/082E/JK63OpYWTDWNYVOYFN7FdQ",
             "http://rdfh.ch/082E/1l63Oasdfopiujlkmn78ak",
-            "http://rdfh.ch/082E/qwasddoiu876flkjh67dss",
+            "http://rdfh.ch/082E/qwasddoiu8_6flkjh67dss",
             "http://rdfh.ch/082E/JK63OpYWTDWNYVOYFN7FdQ",
             "http://rdfh.ch/082E/1l63Oasdfopiujlkmn78ak",
-            "http://rdfh.ch/082E/qwasddoiu876flkjh67dss",
-            "http://rdfh.ch/082E/ylRvrg7tQI6aVpcTJbVrwg",
-            "http://rdfh.ch/082E/qwasddoiu876flkjh67dss",
+            "http://rdfh.ch/082E/qwasddoiu8_6flkjh67dss",
+            "http://rdfh.ch/082E/-lRvrg7tQI6aVpcTJbVrwg",
+            "http://rdfh.ch/082E/qwasddoiu8_6flkjh67dss",
         ]
         self.assertListEqual(iris, iris_expected)
 

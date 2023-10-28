@@ -1,6 +1,7 @@
 # pylint: disable=missing-class-docstring,missing-function-docstring
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Any, Optional, Union
 
 import regex
@@ -12,6 +13,7 @@ from dsp_tools.models.listnode import ListNode
 from dsp_tools.models.permission import Permissions, PermissionValue
 
 
+@dataclass
 class KnoraStandoffXml:
     """Used to handle XML strings for standoff markup"""
 

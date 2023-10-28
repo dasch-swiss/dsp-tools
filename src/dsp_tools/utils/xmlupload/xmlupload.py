@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 import sys
+from dataclasses import asdict
 from pathlib import Path
 from typing import Any, Union
 
@@ -443,10 +444,10 @@ def _save_stash_as_json(
     filename = f"{save_location}/{timestamp_str}_stashed_links.json"
     with open(filename, "x", encoding="utf-8") as file:
         json.dump(
-            obj=stash,
+            obj=asdict(stash),
             fp=file,
             ensure_ascii=False,
             indent=4,
-            cls=KnoraStandoffXmlEncoder,
+            # cls=KnoraStandoffXmlEncoder,
         )
     return filename

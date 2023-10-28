@@ -20,7 +20,7 @@ from dsp_tools.models.xmlpermission import XmlPermission
 from dsp_tools.models.xmlresource import BitstreamInfo, XMLResource
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import login, try_network_action
-from dsp_tools.utils.xmlupload.create_resource import actually_crearte_resource
+from dsp_tools.utils.xmlupload.create_resource import ResourceCreateClient
 from dsp_tools.utils.xmlupload.read_validate_xml_file import validate_and_parse_xml_file
 from dsp_tools.utils.xmlupload.resource_multimedia import handle_bitstream
 from dsp_tools.utils.xmlupload.stash.stash_models import Stash
@@ -303,6 +303,14 @@ def _upload_resources(
     id2iri_mapping: dict[str, str] = {}
     failed_uploads: list[str] = []
 
+    resource_create_client = ResourceCreateClient(
+        con=con,
+        project_iri="",  # TODO: get actual project IRI
+        json_ld_context=config.json_ld_context,
+        id2iri_mapping=id2iri_mapping,
+        permissions_lookup=permissions_lookup,
+    )
+
     for i, resource in enumerate(resources):
         bitstream_information = None
         if bitstream := resource.bitstream:
@@ -320,14 +328,7 @@ def _upload_resources(
                 failed_uploads.append(resource.id)
                 continue
 
-        res = _create_resource(
-            resource=resource,
-            bitstream_information=bitstream_information,
-            con=con,
-            permissions_lookup=permissions_lookup,
-            id2iri_mapping=id2iri_mapping,
-            json_ld_context=config.json_ld_context,
-        )
+        res = _create_resource(resource, bitstream_information, resource_create_client)
         if not res:
             failed_uploads.append(resource.id)
             continue
@@ -344,22 +345,10 @@ def _upload_resources(
 def _create_resource(
     resource: XMLResource,
     bitstream_information: BitstreamInfo | None,
-    con: Connection,
-    permissions_lookup: dict[str, Permissions],
-    id2iri_mapping: dict[str, str],
-    json_ld_context: dict[str, str],
+    resource_create_client: ResourceCreateClient,
 ) -> tuple[str, str] | None:
     try:
-        project_iri = ""  # TODO: get actual project IRI
-        return actually_crearte_resource(
-            resource=resource,
-            bitstream_information=bitstream_information,
-            con=con,
-            permissions_lookup=permissions_lookup,
-            id2iri_mapping=id2iri_mapping,
-            json_ld_context=json_ld_context,
-            project_iri=project_iri,
-        )
+        return resource_create_client.create_resource(resource, bitstream_information)
     except BaseError as err:
         err_msg = err.orig_err_msg_from_api or err.message
         print(f"WARNING: Unable to create resource '{resource.label}' ({resource.id}): {err_msg}")

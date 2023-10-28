@@ -1,3 +1,4 @@
+import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, assert_never
@@ -16,6 +17,8 @@ from dsp_tools.utils.xmlupload.ark2iri import convert_ark_v0_to_resource_iri
 
 @dataclass(frozen=True)
 class ResourceCreateClient:
+    """client class that creates resources on a DSP server."""
+
     con: Connection
     project_iri: str
     json_ld_context: dict[str, str]
@@ -27,14 +30,31 @@ class ResourceCreateClient:
         resource: XMLResource,
         bitstream_information: BitstreamInfo | None,
     ) -> tuple[str, str]:
+        """Creates a resource on the DSP server."""
+        resource_json_ld = self._make_resource_with_values(resource, bitstream_information)
+        print(f"attempting to create resource: {resource_json_ld}")
+        # TODO: upload resource
+        return "TODO", "TODO"
+
+    def _make_json_ld_resource(
+        self,
+        resource: XMLResource,
+        bitstream_information: BitstreamInfo | None,
+    ) -> str:
+        return json.dumps(self._make_resource_with_values(resource, bitstream_information))
+
+    def _make_resource_with_values(
+        self,
+        resource: XMLResource,
+        bitstream_information: BitstreamInfo | None,
+    ) -> dict[str, Any]:
         res = self._make_resource(
             resource=resource,
             bitstream_information=bitstream_information,
         )
         vals = self._make_values(resource)
         res.update(vals)
-        # TODO: upload resource
-        return "TODO", "TODO"
+        return res
 
     def _make_resource(
         self,

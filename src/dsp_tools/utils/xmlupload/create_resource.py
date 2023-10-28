@@ -1,4 +1,5 @@
 import json
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, assert_never
@@ -12,7 +13,13 @@ from dsp_tools.models.value import KnoraStandoffXml
 from dsp_tools.models.xmlproperty import XMLProperty
 from dsp_tools.models.xmlresource import BitstreamInfo, XMLResource
 from dsp_tools.models.xmlvalue import XMLValue
+from dsp_tools.utils.shared import try_network_action
 from dsp_tools.utils.xmlupload.ark2iri import convert_ark_v0_to_resource_iri
+
+# TODO:
+# - subproperties of isPartOf etc. are not created correctly
+# - second ontology doesn't resolve (context?)
+# - list values are not created correctly(?)
 
 
 @dataclass(frozen=True)
@@ -31,17 +38,25 @@ class ResourceCreateClient:
         bitstream_information: BitstreamInfo | None,
     ) -> tuple[str, str]:
         """Creates a resource on the DSP server."""
-        resource_json_ld = self._make_resource_with_values(resource, bitstream_information)
-        print(f"attempting to create resource: {resource_json_ld}")
-        # TODO: upload resource
-        return "TODO", "TODO"
+        resource_json_ld = self._make_json_ld_resource(resource, bitstream_information)
+        print("-" * 80)
+        print(resource_json_ld)
+        print("-" * 20)
+        res = try_network_action(self.con.post, route="/v2/resources", jsondata=resource_json_ld)
+        # res = self.con.post("/v2/resources", resource_json_ld)  # pylint: disable=assignment-from-no-return
+        iri = res["@id"]
+        print(f"created resource with IRI: {iri}")
+        label = res["rdfs:label"]
+        return iri, label
 
     def _make_json_ld_resource(
         self,
         resource: XMLResource,
         bitstream_information: BitstreamInfo | None,
     ) -> str:
-        return json.dumps(self._make_resource_with_values(resource, bitstream_information))
+        return json.dumps(
+            self._make_resource_with_values(resource, bitstream_information), ensure_ascii=False, indent=4
+        )
 
     def _make_resource_with_values(
         self,
@@ -84,7 +99,18 @@ class ResourceCreateClient:
         return res
 
     def _make_values(self, resource: XMLResource) -> dict[str, Any]:
-        return {prop.name: self._make_value_for_property(prop) for prop in resource.properties}
+        # TODO: should also include the poject specific subproperties of these properties
+        def prop_name(p: str) -> str:
+            if p in [
+                "knora-api:isPartOf",
+                "knora-api:isRegionOf",
+                "knora-api:isSequenceOf",
+                "knora-api:isAnnotationOf",
+            ]:
+                return p + "Value"
+            return p
+
+        return {prop_name(prop.name): self._make_value_for_property(prop) for prop in resource.properties}
 
     def _make_value_for_property(self, prop: XMLProperty) -> list[dict[str, Any]]:
         return [self._make_value(v, prop.valtype) for v in prop.values]
@@ -108,7 +134,7 @@ class ResourceCreateClient:
             case "interval":
                 res = _make_interval_value(value)
             case "resptr":
-                res = _make_link_value(value)
+                res = _make_link_value(value, self.id2iri_mapping)
             case "list":
                 res = _make_list_value(value)
             case "text":
@@ -129,64 +155,34 @@ class ResourceCreateClient:
 def _make_bitstream_file_value(bitstream_info: BitstreamInfo) -> dict[str, Any]:
     local_file = Path(bitstream_info.local_file)
     file_ending = "".join(local_file.suffixes)[1:]
-    file_name = local_file.name
     match file_ending:
         case "zip" | "tar" | "gz" | "z" | "tar.gz" | "tgz" | "gzip" | "7z":
-            file_value = {
-                "@type": "knora-api:ArchiveFileValue",
-                "knora-api:internalFileName": bitstream_info.internal_file_name,
-                "knora-api:originalFilename": file_name,
-            }
-            if bitstream_info.permissions:
-                file_value["knora-api:hasPermissions"] = str(bitstream_info.permissions)
-            return {"knora-api:hasArchiveFileValue": file_value}
+            prop = "knora-api:hasArchiveFileValue"
+            value_type = "ArchiveFileValue"
         case "mp3" | "wav":
-            file_value = {
-                "@type": "knora-api:AudioFileValue",
-                "knora-api:internalFileName": bitstream_info.internal_file_name,
-                "knora-api:originalFilename": file_name,
-            }
-            if bitstream_info.permissions:
-                file_value["knora-api:hasPermissions"] = str(bitstream_info.permissions)
-            return {"knora-api:hasAudioFileValue": file_value}
+            prop = "knora-api:hasAudioFileValue"
+            value_type = "AudioFileValue"
         case "pdf" | "doc" | "docx" | "xls" | "xlsx" | "ppt" | "pptx":
-            file_value = {
-                "@type": "knora-api:DocumentFileValue",
-                "knora-api:internalFileName": bitstream_info.internal_file_name,
-                "knora-api:originalFilename": file_name,
-            }
-            if bitstream_info.permissions:
-                file_value["knora-api:hasPermissions"] = str(bitstream_info.permissions)
-            return {"knora-api:hasDocumentFileValue": file_value}
+            prop = "knora-api:hasDocumentFileValue"
+            value_type = "DocumentFileValue"
         case "mp4":
-            file_value = {
-                "@type": "knora-api:MovingImageFileValue",
-                "knora-api:internalFileName": bitstream_info.internal_file_name,
-                "knora-api:originalFilename": file_name,
-            }
-            if bitstream_info.permissions:
-                file_value["knora-api:hasPermissions"] = str(bitstream_info.permissions)
-            return {"knora-api:hasMovingImageFileValue": file_value}
+            prop = "knora-api:hasMovingImageFileValue"
+            value_type = "MovingImageFileValue"
         case "jpg" | "jpeg" | "jp2" | "png" | "tif" | "tiff":
-            file_value = {
-                "@type": "knora-api:StillImageFileValue",
-                "knora-api:internalFileName": bitstream_info.internal_file_name,
-                "knora-api:originalFilename": file_name,
-            }
-            if bitstream_info.permissions:
-                file_value["knora-api:hasPermissions"] = str(bitstream_info.permissions)
-            return {"knora-api:hasStillImageFileValue": file_value}
+            prop = "knora-api:hasStillImageFileValue"
+            value_type = "StillImageFileValue"
         case "odd" | "rng" | "txt" | "xml" | "xsd" | "xsl" | "xslt" | "csv":
-            file_value = {
-                "@type": "knora-api:TextFileValue",
-                "knora-api:internalFileName": bitstream_info.internal_file_name,
-                "knora-api:originalFilename": file_name,
-            }
-            if bitstream_info.permissions:
-                file_value["knora-api:hasPermissions"] = str(bitstream_info.permissions)
-            return {"knora-api:hasTextFileValue": file_value}
+            prop = "knora-api:hasTextFileValue"
+            value_type = "TextFileValue"
         case _:
             raise UserError(f"Unknown file ending: {file_ending} for file {local_file}")
+    file_value = {
+        "@type": f"knora-api:{value_type}",
+        "knora-api:fileValueHasFilename": bitstream_info.internal_file_name,
+    }
+    if bitstream_info.permissions:
+        file_value["knora-api:hasPermissions"] = str(bitstream_info.permissions)
+    return {prop: file_value}
 
 
 def _make_boolean_value(value: XMLValue) -> dict[str, Any]:
@@ -274,9 +270,11 @@ def _make_decimal_value(value: XMLValue) -> dict[str, Any]:
 
 
 def _make_geometry_value(value: XMLValue) -> dict[str, Any]:
+    assert isinstance(value.value, str)
+    encoded_value = json.dumps(json.loads(value.value))
     return {
-        "@type": "knora-api:GeometryValue",
-        "knora-api:geometryValueHasGeometry": value.value,
+        "@type": "knora-api:GeomValue",
+        "knora-api:geometryValueAsGeometry": encoded_value,
     }
 
 
@@ -314,12 +312,16 @@ def _make_interval_value(value: XMLValue) -> dict[str, Any]:
             raise UserError(f"Unexpected interval value: {value.value}")
 
 
-def _make_link_value(value: XMLValue) -> dict[str, Any]:
-    # TODO: replace link id with IRI from id2iri_mapping
+def _make_link_value(value: XMLValue, id_to_iri_mapping: dict[str, str]) -> dict[str, Any]:
+    assert isinstance(value.value, str)
+    iri = id_to_iri_mapping.get(value.value)
+    if not iri:
+        print(f"WARNING: could not find IRI for resource ID {value.value}")
+        raise AssertionError(f"WARNING: could not find IRI for resource ID {value.value}")
     return {
         "@type": "knora-api:LinkValue",
-        "knora-api:linkValueHasTarget": {
-            "@id": value.value,
+        "knora-api:linkValueHasTargetIri": {
+            "@id": iri,
         },
     }
 
@@ -346,7 +348,7 @@ def _make_text_value(value: XMLValue) -> dict[str, Any]:
             # TODO: replace link IDs with IRIs from id2iri_mapping
             return {
                 "@type": "knora-api:TextValue",
-                "knora-api:valueAsXml": str(xml),
+                "knora-api:textValueAsXml": f'<?xml version="1.0" encoding="UTF-8"?>\n<text>{str(xml)}</text>',
                 "knora-api:textValueHasMapping": {
                     "@id": "http://rdfh.ch/standoff/mappings/StandardMapping",
                 },

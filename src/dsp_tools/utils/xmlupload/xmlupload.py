@@ -7,8 +7,9 @@ import json
 import sys
 from dataclasses import asdict
 from pathlib import Path
-from typing import Any, Union
+from typing import Any, Union, cast
 
+import requests
 from lxml import etree
 
 from dsp_tools.connection.connection import Connection
@@ -85,7 +86,7 @@ def xmlupload(
         verbose=config.verbose,
     )
 
-    project_iri = _get_project_iri(shortcode, con)
+    project_iri = _get_project_iri(config, con)
 
     id2iri_mapping, failed_uploads = _upload(
         resources=resources,
@@ -125,8 +126,12 @@ def _prepare_upload(
     return resources, permissions_lookup, stash
 
 
-def _get_project_iri(shortcode: str, con: Connection) -> str:
-    return "TODO"
+# TODO: move behind an interface
+def _get_project_iri(config: UploadConfig, con: Connection) -> str:
+    url = f"{config.server}/admin/projects/shortcode/{config.shortcode}"
+    res = requests.get(url, timeout=5)
+    assert res.status_code == 200
+    return cast(str, res.json()["project"]["id"])
 
 
 def _upload(
@@ -322,6 +327,7 @@ def _upload_resources(
     )
 
     for i, resource in enumerate(resources):
+        print()
         bitstream_information = None
         if bitstream := resource.bitstream:
             bitstream_information = handle_bitstream(
@@ -346,6 +352,9 @@ def _upload_resources(
         resource_designation = f"'{label}' (ID: '{resource.id}', IRI: '{iri}')"
         print(f"Created resource {i+1}/{len(resources)}: {resource_designation}")
         logger.info(f"Created resource {i+1}/{len(resources)}: {resource_designation}")
+        print()
+        print("#" * 120)
+        print()
 
     return id2iri_mapping, failed_uploads
 

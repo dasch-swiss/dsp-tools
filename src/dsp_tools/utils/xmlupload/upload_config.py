@@ -41,7 +41,9 @@ class UploadConfig:
     verbose: bool = False
     dump: bool = False
     preprocessing_done: bool = False
-    server_as_foldername: str = field(default="unknown")
+    server: str = "unknown"
+    shortcode: str = "unknown"
+    server_as_foldername: str = "unknown"
     save_location: Path = field(default=Path.home() / ".dsp-tools" / "xmluploads")
     timestamp_str: str = field(default=datetime.now().strftime("%Y-%m-%d_%H%M%S"))
     json_ld_context: dict[str, str] = field(
@@ -69,6 +71,8 @@ class UploadConfig:
         context_iri = f"{server}/ontology/{shortcode}/{onto_name}/v2#"
         return dataclasses.replace(
             self,
+            server=server,
+            shortcode=shortcode,
             save_location=save_location,
             server_as_foldername=server_as_foldername,
             json_ld_context=self.json_ld_context | {onto_name: context_iri},

@@ -85,6 +85,8 @@ def xmlupload(
         verbose=config.verbose,
     )
 
+    project_iri = _get_project_iri(shortcode, con)
+
     id2iri_mapping, failed_uploads = _upload(
         resources=resources,
         imgdir=imgdir,
@@ -93,6 +95,7 @@ def xmlupload(
         con=con,
         stash=stash,
         config=config,
+        project_iri=project_iri,
     )
 
     write_id2iri_mapping(id2iri_mapping, input_file, config.timestamp_str)
@@ -122,6 +125,10 @@ def _prepare_upload(
     return resources, permissions_lookup, stash
 
 
+def _get_project_iri(shortcode: str, con: Connection) -> str:
+    return "TODO"
+
+
 def _upload(
     resources: list[XMLResource],
     imgdir: str,
@@ -130,6 +137,7 @@ def _upload(
     con: Connection,
     stash: Stash | None,
     config: UploadConfig,
+    project_iri: str,
 ) -> tuple[dict[str, str], list[str]]:
     # upload all resources, then update the resources with the stashed XML texts and resptrs
     failed_uploads: list[str] = []
@@ -141,6 +149,7 @@ def _upload(
             permissions_lookup=permissions_lookup,
             con=con,
             config=config,
+            project_iri=project_iri,
         )
         nonapplied_stash = (
             _upload_stash(
@@ -283,6 +292,7 @@ def _upload_resources(
     permissions_lookup: dict[str, Permissions],
     con: Connection,
     config: UploadConfig,
+    project_iri: str,
 ) -> tuple[dict[str, str], list[str]]:
     """
     Iterates through all resources and tries to upload them to DSP.
@@ -305,7 +315,7 @@ def _upload_resources(
 
     resource_create_client = ResourceCreateClient(
         con=con,
-        project_iri="",  # TODO: get actual project IRI
+        project_iri=project_iri,
         json_ld_context=config.json_ld_context,
         id2iri_mapping=id2iri_mapping,
         permissions_lookup=permissions_lookup,
@@ -323,8 +333,6 @@ def _upload_resources(
                 imgdir=imgdir,
             )
             if not bitstream_information:
-                # Note: previously, if the bitstream could not be uploaded, the resource was skipped without adding to
-                # the failed_uploads list, which I'm not sure was as intended
                 failed_uploads.append(resource.id)
                 continue
 

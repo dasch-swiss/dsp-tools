@@ -146,6 +146,7 @@ def _upload(
 ) -> tuple[dict[str, str], list[str]]:
     # upload all resources, then update the resources with the stashed XML texts and resptrs
     failed_uploads: list[str] = []
+    id2iri_mapping: dict[str, str] = {}
     try:
         id2iri_mapping, failed_uploads = _upload_resources(
             resources=resources,
@@ -327,7 +328,6 @@ def _upload_resources(
     )
 
     for i, resource in enumerate(resources):
-        print()
         bitstream_information = None
         if bitstream := resource.bitstream:
             bitstream_information = handle_bitstream(
@@ -352,9 +352,6 @@ def _upload_resources(
         resource_designation = f"'{label}' (ID: '{resource.id}', IRI: '{iri}')"
         print(f"Created resource {i+1}/{len(resources)}: {resource_designation}")
         logger.info(f"Created resource {i+1}/{len(resources)}: {resource_designation}")
-        print()
-        print("#" * 120)
-        print()
 
     return id2iri_mapping, failed_uploads
 

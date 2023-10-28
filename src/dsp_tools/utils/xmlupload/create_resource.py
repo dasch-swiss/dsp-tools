@@ -39,13 +39,9 @@ class ResourceCreateClient:
     ) -> tuple[str, str]:
         """Creates a resource on the DSP server."""
         resource_json_ld = self._make_json_ld_resource(resource, bitstream_information)
-        print("-" * 80)
-        print(resource_json_ld)
-        print("-" * 20)
         res = try_network_action(self.con.post, route="/v2/resources", jsondata=resource_json_ld)
         # res = self.con.post("/v2/resources", resource_json_ld)  # pylint: disable=assignment-from-no-return
         iri = res["@id"]
-        print(f"created resource with IRI: {iri}")
         label = res["rdfs:label"]
         return iri, label
 

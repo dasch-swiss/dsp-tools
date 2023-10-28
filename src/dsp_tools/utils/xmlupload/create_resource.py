@@ -9,6 +9,7 @@ from dsp_tools.connection.connection import Connection
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.models.permission import Permissions
 from dsp_tools.models.value import KnoraStandoffXml
+from dsp_tools.models.xmlproperty import XMLProperty
 from dsp_tools.models.xmlresource import BitstreamInfo, XMLResource
 from dsp_tools.models.xmlvalue import XMLValue
 from dsp_tools.utils.xmlupload.ark2iri import convert_ark_v0_to_resource_iri
@@ -23,7 +24,6 @@ def actually_crearte_resource(
     json_ld_context: dict[str, str],
     project_iri: str,
 ) -> tuple[str, str]:
-    print("-" * 120)
     res = _make_resource(
         resource=resource,
         bitstream_information=bitstream_information,
@@ -33,10 +33,7 @@ def actually_crearte_resource(
     )
     vals = _make_values(resource, id2iri_mapping, permissions_lookup)
     res.update(vals)
-    print(json.dumps(res, indent=2))
-    print("-" * 120)
     # TODO: upload resource
-    # sys.exit(0)
     return "TODO", "TODO"
 
 
@@ -138,45 +135,55 @@ def _make_values(
     id2iri_mapping: dict[str, str],
     permissions_lookup: dict[str, Permissions],
 ) -> dict[str, Any]:
-    values: dict[str, Any] = {}
-    for prop in resource.properties:
-        values[prop.name] = [_make_value(v, prop.valtype) for v in prop.values]
-    # TODO: comments
-    # TODO: permissions
-    return values
+    return {prop.name: _make_value_for_property(prop, permissions_lookup) for prop in resource.properties}
 
 
-def _make_value(value: XMLValue, value_type: str) -> dict[str, Any]:
+def _make_value_for_property(
+    prop: XMLProperty,
+    permissions_lookup: dict[str, Permissions],
+) -> list[dict[str, Any]]:
+    return [_make_value(v, prop.valtype, permissions_lookup) for v in prop.values]
+
+
+def _make_value(
+    value: XMLValue,
+    value_type: str,
+    permissions_lookup: dict[str, Permissions],
+) -> dict[str, Any]:
     match value_type:
         case "boolean":
-            return _make_boolean_value(value)
+            res = _make_boolean_value(value)
         case "color":
-            return _make_color_value(value)
+            res = _make_color_value(value)
         case "date":
-            return _make_date_value(value)
+            res = _make_date_value(value)
         case "decimal":
-            return _make_decimal_value(value)
+            res = _make_decimal_value(value)
         case "geometry":
-            return _make_geometry_value(value)
+            res = _make_geometry_value(value)
         case "geoname":
-            return _make_geoname_value(value)
+            res = _make_geoname_value(value)
         case "integer":
-            return _make_integer_value(value)
+            res = _make_integer_value(value)
         case "interval":
-            return _make_interval_value(value)
+            res = _make_interval_value(value)
         case "resptr":
-            return _make_link_value(value)
+            res = _make_link_value(value)
         case "list":
-            return _make_list_value(value)
+            res = _make_list_value(value)
         case "text":
-            return _make_text_value(value)
+            res = _make_text_value(value)
         case "time":
-            return _make_time_value(value)
+            res = _make_time_value(value)
         case "uri":
-            return _make_uri_value(value)
+            res = _make_uri_value(value)
         case _:
-            print(f"!!! No idea how to handle this value type: {value_type} !!!")
-            sys.exit(-1)
+            raise UserError(f"Unknown value type: {value_type}")
+    if value.comment:
+        res["knora-api:valueHasComment"] = value.comment
+    if value.permissions:
+        res["knora-api:hasPermissions"] = str(permissions_lookup[value.permissions])
+    return res
 
 
 def _make_boolean_value(value: XMLValue) -> dict[str, Any]:
@@ -253,9 +260,13 @@ def _parse_date(date: str) -> tuple[str, str | None, str | None]:
 
 
 def _make_decimal_value(value: XMLValue) -> dict[str, Any]:
+    assert isinstance(value.value, str)
     return {
         "@type": "knora-api:DecimalValue",
-        "knora-api:decimalValueAsDecimal": value.value,  # XXX
+        "knora-api:decimalValueAsDecimal": {
+            "@type": "xsd:decimal",
+            "@value": str(float(value.value)),
+        },
     }
 
 
@@ -269,14 +280,15 @@ def _make_geometry_value(value: XMLValue) -> dict[str, Any]:
 def _make_geoname_value(value: XMLValue) -> dict[str, Any]:
     return {
         "@type": "knora-api:GeonameValue",
-        "knora-api:geonameValueHasGeoname": value.value,  # XXX
+        "knora-api:geonameValueAsGeonameCode": value.value,
     }
 
 
 def _make_integer_value(value: XMLValue) -> dict[str, Any]:
+    assert isinstance(value.value, str)
     return {
         "@type": "knora-api:IntValue",
-        "knora-api:intValueAsInt": value.value,  # XXX
+        "knora-api:intValueAsInt": int(value.value),
     }
 
 
@@ -309,10 +321,14 @@ def _make_link_value(value: XMLValue) -> dict[str, Any]:
 
 
 def _make_list_value(value: XMLValue) -> dict[str, Any]:
-    return {
+    res = {
         "@type": "knora-api:ListValue",
-        "knora-api:listValueAsListNode": {"@id": value.value},  # XXX
+        "knora-api:listValueAsListNode": {
+            "@id": value.value,
+        },  # XXX: make sure to get the actual list node IRI here
     }
+    print(f"attempting to create list value: {res}")
+    return res
 
 
 def _make_text_value(value: XMLValue) -> dict[str, Any]:
@@ -335,10 +351,12 @@ def _make_text_value(value: XMLValue) -> dict[str, Any]:
 
 
 def _make_time_value(value: XMLValue) -> dict[str, Any]:
-    return {
+    res = {
         "@type": "knora-api:TimeValue",
-        "knora-api:timeValueAsTime": value.value,  # XXX
+        "knora-api:timeValueAsTime": value.value,  # XXX: check if this is correct! probably not
     }
+    print(f"attempting to create time value: {res}")
+    return res
 
 
 def _make_uri_value(value: XMLValue) -> dict[str, Any]:

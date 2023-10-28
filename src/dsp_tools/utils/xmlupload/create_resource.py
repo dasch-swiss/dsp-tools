@@ -1,5 +1,4 @@
-import json
-import sys
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, assert_never
 
@@ -15,56 +14,96 @@ from dsp_tools.models.xmlvalue import XMLValue
 from dsp_tools.utils.xmlupload.ark2iri import convert_ark_v0_to_resource_iri
 
 
-def actually_crearte_resource(
-    resource: XMLResource,
-    bitstream_information: BitstreamInfo | None,
-    con: Connection,
-    permissions_lookup: dict[str, Permissions],
-    id2iri_mapping: dict[str, str],
-    json_ld_context: dict[str, str],
-    project_iri: str,
-) -> tuple[str, str]:
-    res = _make_resource(
-        resource=resource,
-        bitstream_information=bitstream_information,
-        permission_lookup=permissions_lookup,
-        json_ld_context=json_ld_context,
-        project_iri=project_iri,
-    )
-    vals = _make_values(resource, id2iri_mapping, permissions_lookup)
-    res.update(vals)
-    # TODO: upload resource
-    return "TODO", "TODO"
+@dataclass(frozen=True)
+class ResourceCreateClient:
+    con: Connection
+    project_iri: str
+    json_ld_context: dict[str, str]
+    id2iri_mapping: dict[str, str]
+    permissions_lookup: dict[str, Permissions]
 
+    def create_resource(
+        self,
+        resource: XMLResource,
+        bitstream_information: BitstreamInfo | None,
+    ) -> tuple[str, str]:
+        res = self._make_resource(
+            resource=resource,
+            bitstream_information=bitstream_information,
+        )
+        vals = self._make_values(resource)
+        res.update(vals)
+        # TODO: upload resource
+        return "TODO", "TODO"
 
-def _make_resource(
-    resource: XMLResource,
-    bitstream_information: BitstreamInfo | None,
-    permission_lookup: dict[str, Permissions],
-    json_ld_context: dict[str, str],
-    project_iri: str,
-) -> dict[str, Any]:
-    resource_iri = resource.iri
-    if resource.ark:
-        resource_iri = convert_ark_v0_to_resource_iri(resource.ark)
-    res = {
-        "@type": resource.restype,
-        "rdfs:label": resource.label,
-        "knora-api:attachedToProject": {"@id": project_iri},
-        "@context": json_ld_context,
-    }
-    if resource_iri:
-        res["@id"] = resource_iri
-    if resource.permissions:
-        res["knora-api:hasPermissions"] = str(permission_lookup[resource.permissions])
-    if resource.creation_date:
-        res["knora-api:creationDate"] = {
-            "@type": "xsd:dateTimeStamp",
-            "@value": str(resource.creation_date),
+    def _make_resource(
+        self,
+        resource: XMLResource,
+        bitstream_information: BitstreamInfo | None,
+    ) -> dict[str, Any]:
+        resource_iri = resource.iri
+        if resource.ark:
+            resource_iri = convert_ark_v0_to_resource_iri(resource.ark)
+        res = {
+            "@type": resource.restype,
+            "rdfs:label": resource.label,
+            "knora-api:attachedToProject": {"@id": self.project_iri},
+            "@context": self.json_ld_context,
         }
-    if bitstream_information:
-        res.update(_make_bitstream_file_value(bitstream_information))
-    return res
+        if resource_iri:
+            res["@id"] = resource_iri
+        if resource.permissions:
+            res["knora-api:hasPermissions"] = str(self.permissions_lookup[resource.permissions])
+        if resource.creation_date:
+            res["knora-api:creationDate"] = {
+                "@type": "xsd:dateTimeStamp",
+                "@value": str(resource.creation_date),
+            }
+        if bitstream_information:
+            res.update(_make_bitstream_file_value(bitstream_information))
+        return res
+
+    def _make_values(self, resource: XMLResource) -> dict[str, Any]:
+        return {prop.name: self._make_value_for_property(prop) for prop in resource.properties}
+
+    def _make_value_for_property(self, prop: XMLProperty) -> list[dict[str, Any]]:
+        return [self._make_value(v, prop.valtype) for v in prop.values]
+
+    def _make_value(self, value: XMLValue, value_type: str) -> dict[str, Any]:
+        match value_type:
+            case "boolean":
+                res = _make_boolean_value(value)
+            case "color":
+                res = _make_color_value(value)
+            case "date":
+                res = _make_date_value(value)
+            case "decimal":
+                res = _make_decimal_value(value)
+            case "geometry":
+                res = _make_geometry_value(value)
+            case "geoname":
+                res = _make_geoname_value(value)
+            case "integer":
+                res = _make_integer_value(value)
+            case "interval":
+                res = _make_interval_value(value)
+            case "resptr":
+                res = _make_link_value(value)
+            case "list":
+                res = _make_list_value(value)
+            case "text":
+                res = _make_text_value(value)
+            case "time":
+                res = _make_time_value(value)
+            case "uri":
+                res = _make_uri_value(value)
+            case _:
+                raise UserError(f"Unknown value type: {value_type}")
+        if value.comment:
+            res["knora-api:valueHasComment"] = value.comment
+        if value.permissions:
+            res["knora-api:hasPermissions"] = str(self.permissions_lookup[value.permissions])
+        return res
 
 
 def _make_bitstream_file_value(bitstream_info: BitstreamInfo) -> dict[str, Any]:
@@ -128,62 +167,6 @@ def _make_bitstream_file_value(bitstream_info: BitstreamInfo) -> dict[str, Any]:
             return {"knora-api:hasTextFileValue": file_value}
         case _:
             raise UserError(f"Unknown file ending: {file_ending} for file {local_file}")
-
-
-def _make_values(
-    resource: XMLResource,
-    id2iri_mapping: dict[str, str],
-    permissions_lookup: dict[str, Permissions],
-) -> dict[str, Any]:
-    return {prop.name: _make_value_for_property(prop, permissions_lookup) for prop in resource.properties}
-
-
-def _make_value_for_property(
-    prop: XMLProperty,
-    permissions_lookup: dict[str, Permissions],
-) -> list[dict[str, Any]]:
-    return [_make_value(v, prop.valtype, permissions_lookup) for v in prop.values]
-
-
-def _make_value(
-    value: XMLValue,
-    value_type: str,
-    permissions_lookup: dict[str, Permissions],
-) -> dict[str, Any]:
-    match value_type:
-        case "boolean":
-            res = _make_boolean_value(value)
-        case "color":
-            res = _make_color_value(value)
-        case "date":
-            res = _make_date_value(value)
-        case "decimal":
-            res = _make_decimal_value(value)
-        case "geometry":
-            res = _make_geometry_value(value)
-        case "geoname":
-            res = _make_geoname_value(value)
-        case "integer":
-            res = _make_integer_value(value)
-        case "interval":
-            res = _make_interval_value(value)
-        case "resptr":
-            res = _make_link_value(value)
-        case "list":
-            res = _make_list_value(value)
-        case "text":
-            res = _make_text_value(value)
-        case "time":
-            res = _make_time_value(value)
-        case "uri":
-            res = _make_uri_value(value)
-        case _:
-            raise UserError(f"Unknown value type: {value_type}")
-    if value.comment:
-        res["knora-api:valueHasComment"] = value.comment
-    if value.permissions:
-        res["knora-api:hasPermissions"] = str(permissions_lookup[value.permissions])
-    return res
 
 
 def _make_boolean_value(value: XMLValue) -> dict[str, Any]:
@@ -312,6 +295,7 @@ def _make_interval_value(value: XMLValue) -> dict[str, Any]:
 
 
 def _make_link_value(value: XMLValue) -> dict[str, Any]:
+    # TODO: replace link id with IRI from id2iri_mapping
     return {
         "@type": "knora-api:LinkValue",
         "knora-api:linkValueHasTarget": {
@@ -339,6 +323,7 @@ def _make_text_value(value: XMLValue) -> dict[str, Any]:
                 "knora-api:valueAsString": s,
             }
         case KnoraStandoffXml() as xml:
+            # TODO: replace link IDs with IRIs from id2iri_mapping
             return {
                 "@type": "knora-api:TextValue",
                 "knora-api:valueAsXml": str(xml),

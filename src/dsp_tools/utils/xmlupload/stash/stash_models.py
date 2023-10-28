@@ -15,7 +15,8 @@ class StandoffStashItem:
     uuid: str
     prop_name: str
     value: KnoraStandoffXml
-    # Permissions missing still
+    # TODO: replace KnoraStandoffXml with str
+    # TODO: Permissions missing still
 
 
 @dataclass(frozen=True)

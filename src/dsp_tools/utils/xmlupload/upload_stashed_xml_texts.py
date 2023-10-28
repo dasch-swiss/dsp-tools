@@ -93,7 +93,9 @@ def _create_XMLResource_json_object_to_update(
         },
         "@context": context,
     }
-    return json.dumps(jsonobj, indent=4, separators=(",", ": "), cls=KnoraStandoffXmlEncoder)
+    return json.dumps(
+        jsonobj, indent=4, separators=(",", ": "), cls=KnoraStandoffXmlEncoder
+    )  # TODO: get rid of the encoder
 
 
 def upload_stashed_xml_texts(

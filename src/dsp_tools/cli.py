@@ -4,7 +4,7 @@ The code in this file handles the arguments passed by the user from the command 
 import argparse
 import datetime
 import sys
-from importlib.metadata import version
+from importlib.metadata import files, version
 
 import regex
 
@@ -296,27 +296,32 @@ def _log_cli_arguments(parsed_args: argparse.Namespace) -> None:
     Args:
         parsed_args: parsed arguments
     """
-    msg = (
-        f"*** DSP-TOOLS {version('dsp-tools')}: "
-        f"Called the action '{parsed_args.action}' from the command line with these parameters:"
-    )
+    opening_lines = [
+        f"*** DSP-TOOLS {version('dsp-tools')}: Called the action '{parsed_args.action}' from the command line"
+    ]
+    if binary_file := [f for f in files("dsp-tools") or [] if "bin/dsp-tools" in str(f)]:
+        opening_lines.append(f"*** Path to binary file: {binary_file[0]}")
+    opening_lines.append("*** CLI arguments:")
+
     parameters_to_log = {key: value for key, value in vars(parsed_args).items() if key != "action"}
     longest_key_length = max(len(key) for key in parameters_to_log) if parameters_to_log else 0
-    lines = list()
+    parameter_lines = list()
     for key, value in parameters_to_log.items():
         if key == "password":
-            lines.append(f"***   {key:<{longest_key_length}} = {'*' * len(value)}")
+            parameter_lines.append(f"***   {key:<{longest_key_length}} = {'*' * len(value)}")
         else:
-            lines.append(f"***   {key:<{longest_key_length}} = {value}")
-    if not lines:
-        lines.append("***   (no parameters)")
+            parameter_lines.append(f"***   {key:<{longest_key_length}} = {value}")
+    if not parameter_lines:
+        parameter_lines.append("***   (no parameters)")
     asterisk_count = max(
-        len(msg),
-        max(len(line) for line in lines),
+        max(len(line) for line in opening_lines),
+        max(len(line) for line in parameter_lines),
     )
+
     logger.info("*" * asterisk_count)
-    logger.info(msg)
-    for line in lines:
+    for line in opening_lines:
+        logger.info(line)
+    for line in parameter_lines:
         logger.info(line)
     logger.info("*" * asterisk_count)
 

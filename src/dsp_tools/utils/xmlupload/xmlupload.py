@@ -87,7 +87,7 @@ def xmlupload(
         verbose=config.verbose,
     )
 
-    project_client = ProjectClientLive(config=config)
+    project_client = ProjectClientLive(config.server, config.shortcode)
     project_iri = project_client.get_project_iri()
     logger.info(f"Project IRI: {project_iri}")
     ontos = project_client.get_ontologies()
@@ -123,7 +123,7 @@ def _prepare_upload(
     default_ontology: str,
     verbose: bool,
 ) -> tuple[list[XMLResource], dict[str, Permissions], Stash | None]:
-    stash_lookup, upload_order = identify_circular_references(root, verbose=verbose)
+    stash_lookup, upload_order = identify_circular_references(root)
     resources, permissions_lookup = _get_data_from_xml(
         con=con,
         root=root,

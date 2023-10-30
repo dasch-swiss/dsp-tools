@@ -1,16 +1,15 @@
 import logging
 import logging.handlers
 from pathlib import Path
-from typing import cast
 
-rotating_file_handler: logging.handlers.RotatingFileHandler | None = None
+_rotating_file_handler: logging.handlers.RotatingFileHandler | None = None
 
 
 def _make_handler(
     logfile_directory: Path,
     filesize_mb: int,
     backupcount: int,
-) -> None:
+) -> logging.handlers.RotatingFileHandler:
     """
     Create a formatter and a rotating file handler.
     They must live on module level, so that they are created only once.
@@ -37,9 +36,7 @@ def _make_handler(
         backupCount=backupcount,
     )
     handler.setFormatter(formatter)
-
-    global rotating_file_handler
-    rotating_file_handler = handler
+    return handler
 
 
 def get_logger(
@@ -57,15 +54,14 @@ def get_logger(
     Returns:
         the logger instance
     """
-    global rotating_file_handler
-    if not rotating_file_handler:
-        _make_handler(
+    global _rotating_file_handler
+    if not _rotating_file_handler:
+        _rotating_file_handler = _make_handler(
             Path.home() / Path(".dsp-tools"),
             filesize_mb=20,
             backupcount=10,
         )
-        rotating_file_handler = cast(logging.handlers.RotatingFileHandler, rotating_file_handler)
     logger = logging.getLogger(name)
     logger.setLevel(level)
-    logger.addHandler(rotating_file_handler)
+    logger.addHandler(_rotating_file_handler)
     return logger

@@ -21,6 +21,7 @@ from dsp_tools.models.xmlpermission import XmlPermission
 from dsp_tools.models.xmlresource import BitstreamInfo, XMLResource
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import login, try_network_action
+from dsp_tools.utils.xmlupload.project_client import ProjectClientLive
 from dsp_tools.utils.xmlupload.read_validate_xml_file import validate_and_parse_xml_file
 from dsp_tools.utils.xmlupload.resource_create_client import ResourceCreateClient
 from dsp_tools.utils.xmlupload.resource_multimedia import handle_bitstream
@@ -86,7 +87,13 @@ def xmlupload(
         verbose=config.verbose,
     )
 
-    project_iri = _get_project_iri(config, con)
+    project_client = ProjectClientLive(config=config)
+    project_iri = project_client.get_project_iri()
+    logger.info(f"Project IRI: {project_iri}")
+    ontos = project_client.get_ontologies()
+    print(f"Ontologies: {ontos}")
+
+    sys.exit(0)
 
     id2iri_mapping, failed_uploads = _upload(
         resources=resources,
@@ -126,15 +133,6 @@ def _prepare_upload(
     resources = [sorting_lookup[res_id] for res_id in upload_order]
     stash = stash_circular_references(resources, stash_lookup)
     return resources, permissions_lookup, stash
-
-
-# TODO: move behind an interface
-def _get_project_iri(config: UploadConfig, con: Connection) -> str:
-    url = f"{config.server}/admin/projects/shortcode/{config.shortcode}"
-    res = requests.get(url, timeout=5)
-    if res.status_code != 200:
-        raise UserError(f"A project with shortcode {config.shortcode} could not be found on the DSP server")
-    return cast(str, res.json()["project"]["id"])
 
 
 def _upload(

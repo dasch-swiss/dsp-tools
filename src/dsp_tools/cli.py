@@ -293,14 +293,15 @@ def _parse_arguments(
 def _get_version() -> str:
     result = subprocess.run("pip freeze | grep dsp-tools", check=False, shell=True, capture_output=True)
     _detail_version = result.stdout.decode("utf-8")
-    # _detail_version is something like:
-    # 'dsp-tools==5.0.3\n'
-    # 'dsp-tools @ git+https://github.com/dasch-swiss/dsp-tools.git@1f95f8d1b79bd5170a652c0d04e7ada417d76734\n'
-    # ''
-    _detail_version = regex.sub(r"^dsp-tools==|^dsp-tools @ ", "", _detail_version)
-    _detail_version = regex.sub(r"\n$", "", _detail_version)
-    _version = _detail_version or version("dsp-tools")
-    return _version
+    # _detail_version has one of the following formats:
+    # - 'dsp-tools==5.0.3\n'
+    # - 'dsp-tools @ git+https://github.com/dasch-swiss/dsp-tools.git@1f95f8d1b79bd5170a652c0d04e7ada417d76734\n'
+    # - ''
+    if version_number := regex.search(r"\d+\.\d+\.\d+", _detail_version):
+        return version_number.group(0)
+    if regex.search(r"dsp-tools @", _detail_version):
+        return regex.sub(r"dsp-tools @ |\n", "", _detail_version)
+    return version("dsp-tools")
 
 
 def _log_cli_arguments(parsed_args: argparse.Namespace) -> None:

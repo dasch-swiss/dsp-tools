@@ -21,8 +21,8 @@
             <text encoding="xml">Text</text>
         </text-prop>
         <resptr-prop name=":hasTestThing2">
-            <resptr>http://rdfh.ch/082E/ylRvrg7tQI6aVpcTJbVrwg</resptr>
-            <resptr>http://rdfh.ch/082E/qwasddoiu876flkjh67dss</resptr>
+            <resptr>http://rdfh.ch/082E/-lRvrg7tQI6aVpcTJbVrwg</resptr>
+            <resptr>http://rdfh.ch/082E/qwasddoiu8_6flkjh67dss</resptr>
         </resptr-prop>
         <boolean-prop name=":hasBoolean">
             <boolean>true</boolean>
@@ -42,7 +42,7 @@
                     </em>
                 </strong>
                 and trailing text
-                and a <a class="salsah-link" href="http://rdfh.ch/082E/qwasddoiu876flkjh67dss">link to test_thing_with_ark_1</a> 
+                and a <a class="salsah-link" href="http://rdfh.ch/082E/qwasddoiu8_6flkjh67dss">link to test_thing_with_ark_1</a> 
             </text>
         </text-prop>
         <boolean-prop name=":hasBoolean">
@@ -63,12 +63,12 @@
                     </em>
                 </strong>
                 and trailing text
-                and a <a class="salsah-link" href="http://rdfh.ch/082E/qwasddoiu876flkjh67dss">link to test_thing_with_ark_1</a> 
+                and a <a class="salsah-link" href="http://rdfh.ch/082E/qwasddoiu8_6flkjh67dss">link to test_thing_with_ark_1</a> 
             </text>
         </text-prop>
         <resptr-prop name=":hasTestThing2">
-            <resptr>http://rdfh.ch/082E/ylRvrg7tQI6aVpcTJbVrwg</resptr>
-            <resptr>http://rdfh.ch/082E/qwasddoiu876flkjh67dss</resptr>
+            <resptr>http://rdfh.ch/082E/-lRvrg7tQI6aVpcTJbVrwg</resptr>
+            <resptr>http://rdfh.ch/082E/qwasddoiu8_6flkjh67dss</resptr>
         </resptr-prop>
         <boolean-prop name=":hasBoolean">
             <boolean>true</boolean>

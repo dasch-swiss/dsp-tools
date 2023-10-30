@@ -133,7 +133,7 @@ def upload_stashed_xml_texts(
             continue
         if verbose:
             print(f'  Upload XML text(s) of resource "{res_id}"...')
-        logger.debug(f'  Upload XML text(s) of resource "{res_id}"...')
+        logger.info(f'  Upload XML text(s) of resource "{res_id}"...')
         context = resource_in_triplestore["@context"]
         for stash_item in stash_items:
             value_iri = _get_value_iri(stash_item.prop_name, resource_in_triplestore, stash_item.uuid)
@@ -215,5 +215,5 @@ def _upload_stash_item(
     except BaseError as err:
         _log_unable_to_upload_xml_resource(err, res_id, stash_item.prop_name)
         return False
-    logger.debug(f'  Successfully uploaded xml text of "{stash_item.prop_name}"\n')
+    logger.debug(f'  Successfully uploaded xml text of "{stash_item.prop_name}"')
     return True

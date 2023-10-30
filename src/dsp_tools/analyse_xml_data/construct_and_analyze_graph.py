@@ -54,10 +54,10 @@ def _create_resptr_link_objects(subject_id: str, resptr_prop: etree._Element) ->
     resptr_links = []
     for resptr in resptr_prop.getchildren():
         resptr.text = cast(str, resptr.text)
-        if not regex.search(r"https?://rdfh.ch/[a-fA-F0-9]{4}/\w{22}", resptr.text):
+        if not regex.search(r"https?://rdfh.ch/[a-fA-F0-9]{4}/[\w-]{22}", resptr.text):
             link_object = ResptrLink(subject_id, resptr.text)
             # this UUID is so that the links that were stashed can be identified in the XML data file
-            resptr.attrib["stashUUID"] = link_object.link_uuid
+            resptr.attrib["linkUUID"] = link_object.link_uuid
             resptr_links.append(link_object)
     return resptr_links
 
@@ -71,7 +71,7 @@ def _create_text_link_objects(subject_id: str, text_prop: etree._Element) -> lis
             xml_link = XMLLink(subject_id, links)
             xml_props.append(xml_link)
             # this UUID is so that the links that were stashed can be identified in the XML data file
-            text.attrib["stashUUID"] = xml_link.link_uuid
+            text.attrib["linkUUID"] = xml_link.link_uuid
     return xml_props
 
 

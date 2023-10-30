@@ -154,15 +154,15 @@ def _make_parser(
     parser_upload_files.add_argument("-p", "--password", default=root_user_pw, help=password_text)
 
     # fast-xmlupload
-    parser_fast_xmlupload_files = subparsers.add_parser(
+    parser_fast_xmlupload = subparsers.add_parser(
         name="fast-xmlupload",
         help="For internal use only: create resources with already uploaded files",
     )
-    parser_fast_xmlupload_files.set_defaults(action="fast-xmlupload")
-    parser_fast_xmlupload_files.add_argument("-s", "--server", default=default_dsp_api_url, help=dsp_server_text)
-    parser_fast_xmlupload_files.add_argument("-u", "--user", default=root_user_email, help=username_text)
-    parser_fast_xmlupload_files.add_argument("-p", "--password", default=root_user_pw, help=password_text)
-    parser_fast_xmlupload_files.add_argument("xml_file", help="path to XML file containing the data")
+    parser_fast_xmlupload.set_defaults(action="fast-xmlupload")
+    parser_fast_xmlupload.add_argument("-s", "--server", default=default_dsp_api_url, help=dsp_server_text)
+    parser_fast_xmlupload.add_argument("-u", "--user", default=root_user_email, help=username_text)
+    parser_fast_xmlupload.add_argument("-p", "--password", default=root_user_pw, help=password_text)
+    parser_fast_xmlupload.add_argument("xml_file", help="path to XML file containing the data")
 
     # excel2json
     parser_excel2json = subparsers.add_parser(
@@ -296,24 +296,29 @@ def _log_cli_arguments(parsed_args: argparse.Namespace) -> None:
     Args:
         parsed_args: parsed arguments
     """
-    msg = f"*** Called the DSP-TOOLS action '{parsed_args.action}' from the command line with these parameters:"
+    metadata_lines = []
+    _version = version("dsp-tools")
+    metadata_lines.append(f"DSP-TOOLS {_version}: Called the action '{parsed_args.action}' from the command line")
+    metadata_lines.append(f"Location of this installation: {__file__}")
+    metadata_lines.append("CLI arguments:")
+    metadata_lines = [f"*** {line}" for line in metadata_lines]
+
+    parameter_lines = list()
     parameters_to_log = {key: value for key, value in vars(parsed_args).items() if key != "action"}
     longest_key_length = max(len(key) for key in parameters_to_log) if parameters_to_log else 0
-    lines = list()
     for key, value in parameters_to_log.items():
         if key == "password":
-            lines.append(f"***   {key:<{longest_key_length}} = {'*' * len(value)}")
+            parameter_lines.append(f"{key:<{longest_key_length}} = {'*' * len(value)}")
         else:
-            lines.append(f"***   {key:<{longest_key_length}} = {value}")
-    if not lines:
-        lines.append("***   (no parameters)")
-    asterisk_count = max(
-        len(msg),
-        max(len(line) for line in lines),
-    )
+            parameter_lines.append(f"{key:<{longest_key_length}} = {value}")
+    parameter_lines = parameter_lines or ["(no parameters)"]
+    parameter_lines = [f"***   {line}" for line in parameter_lines]
+
+    asterisk_count = max(len(line) for line in metadata_lines + parameter_lines)
     logger.info("*" * asterisk_count)
-    logger.info(msg)
-    for line in lines:
+    for line in metadata_lines:
+        logger.info(line)
+    for line in parameter_lines:
         logger.info(line)
     logger.info("*" * asterisk_count)
 

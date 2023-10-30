@@ -27,7 +27,7 @@ from dsp_tools.utils.xmlupload.read_validate_xml_file import (
 )
 from dsp_tools.utils.xmlupload.resource_multimedia import handle_bitstream
 from dsp_tools.utils.xmlupload.stash.stash_models import Stash
-from dsp_tools.utils.xmlupload.stash_circular_references import remove_circular_references
+from dsp_tools.utils.xmlupload.stash_circular_references import identify_circular_references, stash_circular_references
 from dsp_tools.utils.xmlupload.upload_config import UploadConfig
 from dsp_tools.utils.xmlupload.upload_stashed_resptr_props import upload_stashed_resptr_props
 from dsp_tools.utils.xmlupload.upload_stashed_xml_texts import upload_stashed_xml_texts
@@ -118,6 +118,11 @@ def _prepare_upload(
     shortcode: str,
     verbose: bool,
 ) -> tuple[list[XMLResource], dict[str, Permissions], dict[str, type], Stash | None]:
+    logger.info("Checking resources for circular references...")
+    if verbose:
+        print("Checking resources for circular references...")
+    stash_lookup, upload_order = identify_circular_references(root)
+    logger.info("Get data from XML...")
     resources, permissions_lookup, resclass_name_2_type = _get_data_from_xml(
         con=con,
         root=root,
@@ -125,8 +130,12 @@ def _prepare_upload(
         shortcode=shortcode,
         verbose=verbose,
     )
-    # temporarily remove circular references
-    resources, stash = remove_circular_references(resources, verbose=verbose)
+    sorting_lookup = {res.id: res for res in resources}
+    resources = [sorting_lookup[res_id] for res_id in upload_order]
+    logger.info("Stashing circular references...")
+    if verbose:
+        print("Stashing circular references...")
+    stash = stash_circular_references(resources, stash_lookup)
     return resources, permissions_lookup, resclass_name_2_type, stash
 
 

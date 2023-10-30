@@ -7,9 +7,9 @@ rotating_file_handler: logging.handlers.RotatingFileHandler | None = None
 
 
 def _make_handler(
-    logfile_directory: Path = Path.home() / Path(".dsp-tools"),
-    filesize_mb: int = 20,
-    backupcount: int = 10,
+    logfile_directory: Path,
+    filesize_mb: int,
+    backupcount: int,
 ) -> None:
     """
     Create a formatter and a rotating file handler.
@@ -54,7 +54,11 @@ def get_logger(
     """
     global rotating_file_handler
     if not rotating_file_handler:
-        _make_handler()
+        _make_handler(
+            Path.home() / Path(".dsp-tools"),
+            filesize_mb=20,
+            backupcount=10,
+        )
         rotating_file_handler = cast(logging.handlers.RotatingFileHandler, rotating_file_handler)
     _logger = logging.getLogger(name)
     _logger.setLevel(level)

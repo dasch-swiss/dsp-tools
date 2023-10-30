@@ -311,8 +311,7 @@ def _log_cli_arguments(parsed_args: argparse.Namespace) -> None:
             parameter_lines.append(f"{key:<{longest_key_length}} = {'*' * len(value)}")
         else:
             parameter_lines.append(f"{key:<{longest_key_length}} = {value}")
-    if not parameter_lines:
-        parameter_lines.append("(no parameters)")
+    parameter_lines = parameter_lines or ["(no parameters)"]
     parameter_lines = [f"***   {line}" for line in parameter_lines]
 
     asterisk_count = max(len(line) for line in metadata_lines + parameter_lines)

@@ -24,7 +24,7 @@ def _make_handler(
         filesize_mb: maximum size of a logfile in MB
         backupcount: number of logfiles to keep
     """
-    formatter = logging.Formatter(fmt="{asctime} {filename: <20} {levelname: <8} {message}", style="{")
+    formatter = logging.Formatter(fmt="{asctime} {filename: <30} {levelname: <8} {message}", style="{")
     formatter.default_time_format = "%Y-%m-%d %H:%M:%S"
     formatter.default_msec_format = "%s.%03d"
 

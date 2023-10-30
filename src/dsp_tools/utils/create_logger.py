@@ -60,7 +60,7 @@ def get_logger(
             backupcount=10,
         )
         rotating_file_handler = cast(logging.handlers.RotatingFileHandler, rotating_file_handler)
-    _logger = logging.getLogger(name)
-    _logger.setLevel(level)
-    _logger.addHandler(rotating_file_handler)
-    return _logger
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+    logger.addHandler(rotating_file_handler)
+    return logger

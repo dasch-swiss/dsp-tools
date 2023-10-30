@@ -4,7 +4,7 @@ The code in this file handles the arguments passed by the user from the command 
 import argparse
 import datetime
 import sys
-from importlib.metadata import files, version
+from importlib.metadata import version
 
 import regex
 
@@ -299,8 +299,7 @@ def _log_cli_arguments(parsed_args: argparse.Namespace) -> None:
     metadata_lines = []
     _version = version("dsp-tools")
     metadata_lines.append(f"DSP-TOOLS {_version}: Called the action '{parsed_args.action}' from the command line")
-    if binary_file := [f for f in files("dsp-tools") or [] if "bin/dsp-tools" in str(f)]:
-        metadata_lines.append(f"Path to binary file: {binary_file[0]}")
+    metadata_lines.append(f"Location of this installation: {__file__}")
     metadata_lines.append("CLI arguments:")
     metadata_lines = [f"*** {line}" for line in metadata_lines]
 

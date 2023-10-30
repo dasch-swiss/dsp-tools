@@ -296,7 +296,10 @@ def _log_cli_arguments(parsed_args: argparse.Namespace) -> None:
     Args:
         parsed_args: parsed arguments
     """
-    msg = f"*** Called the DSP-TOOLS action '{parsed_args.action}' from the command line with these parameters:"
+    msg = (
+        f"*** DSP-TOOLS {version('dsp-tools')}: "
+        f"Called the action '{parsed_args.action}' from the command line with these parameters:"
+    )
     parameters_to_log = {key: value for key, value in vars(parsed_args).items() if key != "action"}
     longest_key_length = max(len(key) for key in parameters_to_log) if parameters_to_log else 0
     lines = list()

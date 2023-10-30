@@ -14,7 +14,7 @@ from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import login
 
-logger = get_logger(__name__, filesize_mb=20, backupcount=10)
+logger = get_logger(__name__)
 
 
 def _check_processed_dir(dir_with_processed_files: str) -> Path:

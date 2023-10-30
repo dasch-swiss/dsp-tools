@@ -1,45 +1,58 @@
 import logging
 import logging.handlers
 from pathlib import Path
+from typing import cast
+
+rotating_file_handler: logging.handlers.RotatingFileHandler | None = None
 
 
-def get_logger(
-    name: str,
-    level: int = logging.INFO,
-    filesize_mb: int = 5,
-    backupcount: int = 4,
-) -> logging.Logger:
-    """
-    Create a logger instance,
-    set its level to INFO,
-    and configure it to write to a file in the user's home directory.
-
-    Args:
-        name: name of the logger
-        level: logging level, defaults to logging.INFO
-        filesize_mb: maximum size per log file in MB, defaults to 5
-        backupcount: number of log files to keep, defaults to 4
-
-    Returns:
-        the logger instance
-    """
-    _logger = logging.getLogger(name)
-    _logger.setLevel(level)
+def _make_handler() -> None:
+    """Create a formatter and a handler. They must live on module level, so that they are created only once."""
+    # create a formatter
     formatter = logging.Formatter(fmt="{asctime} {filename: <20} {levelname: <8} {message}", style="{")
     formatter.default_time_format = "%Y-%m-%d %H:%M:%S"
     formatter.default_msec_format = "%s.%03d"
+
+    # create a handler
+    logfile_directory = Path.home() / Path(".dsp-tools")
+    logfile_directory.mkdir(exist_ok=True)
     # a RotatingFileHandler fills "filename" until it is "maxBytes" big,
     # then appends ".1" to it and starts with a new file "filename",
     # fills it until it is "maxBytes" big,
     # then appends ".1" to it (replacing the old ".1" file)
-    logfile_directory = Path.home() / Path(".dsp-tools")
-    logfile_directory.mkdir(exist_ok=True)
     handler = logging.handlers.RotatingFileHandler(
         filename=logfile_directory / "logging.log",
         mode="a",
-        maxBytes=filesize_mb * 1024 * 1024,
-        backupCount=backupcount,
+        maxBytes=20 * 1024 * 1024,
+        backupCount=10,
     )
     handler.setFormatter(formatter)
-    _logger.addHandler(handler)
+
+    # set the handler
+    global rotating_file_handler
+    rotating_file_handler = handler
+
+
+def get_logger(
+    name: str,
+    level: int = logging.DEBUG,
+) -> logging.Logger:
+    """
+    Create a logger instance,
+    and configure it to write to a file in the user's home directory.
+
+    Args:
+        name: name of the logger
+        level: logging level, defaults to logging.DEBUG
+
+    Returns:
+        the logger instance
+    """
+    global rotating_file_handler
+    if not rotating_file_handler:
+        _make_handler()
+        rotating_file_handler = cast(logging.handlers.RotatingFileHandler, rotating_file_handler)
+    _logger = logging.getLogger(name)
+    _logger.setLevel(level)
+    _logger.addHandler(rotating_file_handler)
     return _logger

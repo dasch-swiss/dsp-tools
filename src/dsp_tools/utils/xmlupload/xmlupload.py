@@ -423,9 +423,11 @@ def _handle_upload_error(
             save_location=save_location,
             timestamp_str=timestamp_str,
         )
+        logfile = Path.home() / ".dsp_tools" / "logging.log"
         msg = (
             f"There are stashed links that could not be reapplied to the resources they were stripped from. "
             f"They were saved to {filename}\n"
+            f"For more information, see the log file: {logfile}"
         )
         print(msg)
         logger.info(msg)

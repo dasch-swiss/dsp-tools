@@ -356,7 +356,11 @@ def _make_text_value(value: XMLValue) -> dict[str, Any]:
 def _make_time_value(value: XMLValue) -> dict[str, Any]:
     res = {
         "@type": "knora-api:TimeValue",
-        "knora-api:timeValueAsTime": value.value,  # XXX: check if this is correct! probably not
+        "knora-api:timeValueAsTimeStamp": {
+            "@type": "xsd:dateTimeStamp",
+            "@value": value.value,
+        }
+        # value.value,  # XXX: check if this is correct! probably not
     }
     print(f"attempting to create time value: {res}")
     return res

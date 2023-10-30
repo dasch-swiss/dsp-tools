@@ -132,7 +132,8 @@ def _prepare_upload(
 def _get_project_iri(config: UploadConfig, con: Connection) -> str:
     url = f"{config.server}/admin/projects/shortcode/{config.shortcode}"
     res = requests.get(url, timeout=5)
-    assert res.status_code == 200
+    if res.status_code != 200:
+        raise UserError(f"A project with shortcode {config.shortcode} could not be found on the DSP server")
     return cast(str, res.json()["project"]["id"])
 
 

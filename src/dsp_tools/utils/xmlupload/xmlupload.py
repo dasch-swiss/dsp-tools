@@ -422,7 +422,7 @@ def _create_resource(
             iri=resource_iri,
             permissions=permissions_lookup.get(str(resource.permissions)),
             creation_date=resource.creation_date,
-            bitstream=bitstream_information,
+            bitstream=bitstream_info,
             values=properties,
         )
         created_resource: ResourceInstance = try_network_action(resource_instance.create)

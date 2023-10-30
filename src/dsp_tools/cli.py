@@ -311,9 +311,8 @@ def _log_cli_arguments(parsed_args: argparse.Namespace) -> None:
         parsed_args: parsed arguments
     """
     metadata_lines = []
-    _version = _get_version()
     metadata_lines.append(f"DSP-TOOLS: Called the action '{parsed_args.action}' from the command line")
-    metadata_lines.append(f"DSP-TOOLS version: {_version}")
+    metadata_lines.append(f"DSP-TOOLS version: {_get_version()}")
     metadata_lines.append(f"Location of this installation: {__file__}")
     metadata_lines.append("CLI arguments:")
     metadata_lines = [f"*** {line}" for line in metadata_lines]

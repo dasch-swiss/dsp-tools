@@ -6,29 +6,33 @@ from typing import cast
 rotating_file_handler: logging.handlers.RotatingFileHandler | None = None
 
 
-def _make_handler() -> None:
-    """Create a formatter and a handler. They must live on module level, so that they are created only once."""
-    # create a formatter
+def _make_handler(
+    logfile_directory: Path = Path.home() / Path(".dsp-tools"),
+    filesize_mb: int = 20,
+    backupcount: int = 10,
+) -> None:
+    """
+    Create a formatter and a rotating file handler.
+    They must live on module level, so that they are created only once.
+
+    A RotatingFileHandler fills "filename" until it is "maxBytes" big,
+    then appends ".1" to it and starts with a new file "filename",
+    fills it until it is "maxBytes" big,
+    then appends ".1" to it (replacing the old ".1" file)
+    """
     formatter = logging.Formatter(fmt="{asctime} {filename: <20} {levelname: <8} {message}", style="{")
     formatter.default_time_format = "%Y-%m-%d %H:%M:%S"
     formatter.default_msec_format = "%s.%03d"
 
-    # create a handler
-    logfile_directory = Path.home() / Path(".dsp-tools")
     logfile_directory.mkdir(exist_ok=True)
-    # a RotatingFileHandler fills "filename" until it is "maxBytes" big,
-    # then appends ".1" to it and starts with a new file "filename",
-    # fills it until it is "maxBytes" big,
-    # then appends ".1" to it (replacing the old ".1" file)
     handler = logging.handlers.RotatingFileHandler(
         filename=logfile_directory / "logging.log",
         mode="a",
-        maxBytes=20 * 1024 * 1024,
-        backupCount=10,
+        maxBytes=filesize_mb * 1024 * 1024,
+        backupCount=backupcount,
     )
     handler.setFormatter(formatter)
 
-    # set the handler
     global rotating_file_handler
     rotating_file_handler = handler
 

@@ -21,8 +21,8 @@ from dsp_tools.models.xmlpermission import XmlPermission
 from dsp_tools.models.xmlresource import BitstreamInfo, XMLResource
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import login, try_network_action
-from dsp_tools.utils.xmlupload.create_resource import ResourceCreateClient
 from dsp_tools.utils.xmlupload.read_validate_xml_file import validate_and_parse_xml_file
+from dsp_tools.utils.xmlupload.resource_create_client import ResourceCreateClient
 from dsp_tools.utils.xmlupload.resource_multimedia import handle_bitstream
 from dsp_tools.utils.xmlupload.stash.stash_models import Stash
 from dsp_tools.utils.xmlupload.stash_circular_references import identify_circular_references, stash_circular_references

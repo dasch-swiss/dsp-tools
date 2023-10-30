@@ -60,8 +60,8 @@ def get_logger(
     if not _rotating_file_handler:
         _rotating_file_handler = _make_handler(
             Path.home() / Path(".dsp-tools"),
-            filesize_mb=20,
-            backupcount=10,
+            filesize_mb=100,
+            backupcount=30,
         )
     logger = logging.getLogger(name)
     logger.setLevel(level)

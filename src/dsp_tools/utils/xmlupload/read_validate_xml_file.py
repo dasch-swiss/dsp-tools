@@ -93,9 +93,9 @@ def check_consistency_with_ontology(
     Raises:
         UserError: if there is an inconsistency between the ontology and the data
     """
+    logger.info("Check if the resource types and properties are consistent with the ontology...")
     if verbose:
         print("Check if the resource types and properties are consistent with the ontology...")
-        logger.info("Check if the resource types and properties are consistent with the ontology...")
     _check_if_onto_name_exists(
         resclass_name_2_type=resclass_name_2_type,
         ontoname=ontoname,

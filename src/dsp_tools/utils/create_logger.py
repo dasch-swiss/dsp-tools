@@ -2,6 +2,7 @@ import logging
 import logging.handlers
 from pathlib import Path
 
+# the handler must live on module level, so that it is created only once
 _rotating_file_handler: logging.handlers.RotatingFileHandler | None = None
 
 
@@ -11,9 +12,7 @@ def _make_handler(
     backupcount: int,
 ) -> logging.handlers.RotatingFileHandler:
     """
-    Create a formatter and a rotating file handler.
-    They must live on module level, so that they are created only once.
-
+    Create a rotating file handler.
     A RotatingFileHandler fills "filename" until it is "maxBytes" big,
     then appends ".1" to it and starts with a new file "filename",
     fills it until it is "maxBytes" big,
@@ -23,6 +22,9 @@ def _make_handler(
         logfile_directory: directory to store the logfiles in
         filesize_mb: maximum size of a logfile in MB
         backupcount: number of logfiles to keep
+
+    Returns:
+        handler instance
     """
     formatter = logging.Formatter(fmt="{asctime} {filename: <30} {levelname: <8} {message}", style="{")
     formatter.default_time_format = "%Y-%m-%d %H:%M:%S"

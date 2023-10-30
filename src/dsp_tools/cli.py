@@ -296,30 +296,29 @@ def _log_cli_arguments(parsed_args: argparse.Namespace) -> None:
     Args:
         parsed_args: parsed arguments
     """
-    opening_lines = [
-        f"*** DSP-TOOLS {version('dsp-tools')}: Called the action '{parsed_args.action}' from the command line"
-    ]
+    metadata_lines = []
+    _version = version("dsp-tools")
+    metadata_lines.append(f"DSP-TOOLS {_version}: Called the action '{parsed_args.action}' from the command line")
     if binary_file := [f for f in files("dsp-tools") or [] if "bin/dsp-tools" in str(f)]:
-        opening_lines.append(f"*** Path to binary file: {binary_file[0]}")
-    opening_lines.append("*** CLI arguments:")
+        metadata_lines.append(f"Path to binary file: {binary_file[0]}")
+    metadata_lines.append("CLI arguments:")
+    metadata_lines = [f"*** {line}" for line in metadata_lines]
 
+    parameter_lines = list()
     parameters_to_log = {key: value for key, value in vars(parsed_args).items() if key != "action"}
     longest_key_length = max(len(key) for key in parameters_to_log) if parameters_to_log else 0
-    parameter_lines = list()
     for key, value in parameters_to_log.items():
         if key == "password":
-            parameter_lines.append(f"***   {key:<{longest_key_length}} = {'*' * len(value)}")
+            parameter_lines.append(f"{key:<{longest_key_length}} = {'*' * len(value)}")
         else:
-            parameter_lines.append(f"***   {key:<{longest_key_length}} = {value}")
+            parameter_lines.append(f"{key:<{longest_key_length}} = {value}")
     if not parameter_lines:
-        parameter_lines.append("***   (no parameters)")
-    asterisk_count = max(
-        max(len(line) for line in opening_lines),
-        max(len(line) for line in parameter_lines),
-    )
+        parameter_lines.append("(no parameters)")
+    parameter_lines = [f"***   {line}" for line in parameter_lines]
 
+    asterisk_count = max(len(line) for line in metadata_lines + parameter_lines)
     logger.info("*" * asterisk_count)
-    for line in opening_lines:
+    for line in metadata_lines:
         logger.info(line)
     for line in parameter_lines:
         logger.info(line)

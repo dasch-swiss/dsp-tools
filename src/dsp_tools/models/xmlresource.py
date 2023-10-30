@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Optional, Union
 
 import regex
@@ -9,6 +10,18 @@ from dsp_tools.models.permission import Permissions
 from dsp_tools.models.value import KnoraStandoffXml
 from dsp_tools.models.xmlbitstream import XMLBitstream
 from dsp_tools.models.xmlproperty import XMLProperty
+
+
+@dataclass(frozen=True)
+class BitstreamInfo:
+    """
+    Represents a bitstream object, consisting of it's file name on the local file system,
+    the internal file name assigned by SIPi and optionally its permissions.
+    """
+
+    local_file: str
+    internal_file_name: str
+    permissions: Permissions | None = None
 
 
 class XMLResource:  # pylint: disable=too-many-instance-attributes
@@ -175,7 +188,7 @@ class XMLResource:  # pylint: disable=too-many-instance-attributes
 
     def get_bitstream_information(
         self, internal_file_name_bitstream: str, permissions_lookup: dict[str, Permissions]
-    ) -> Optional[dict[str, Union[str, Permissions]]]:
+    ) -> BitstreamInfo | None:
         """
         Get the bitstream object belonging to the resource
 
@@ -184,14 +197,13 @@ class XMLResource:  # pylint: disable=too-many-instance-attributes
             permissions_lookup: Is used to resolve the permission id's to permission sets
 
         Returns:
-            A dict of the bitstream object
+            A BitstreamInfo object
         """
-        tmp: Optional[dict[str, Union[str, Permissions]]] = None
-        if self.bitstream:
-            bitstream = self.bitstream
-            tmp = {"value": bitstream.value, "internal_file_name": internal_file_name_bitstream}
-            if bitstream.permissions:
-                permissions = permissions_lookup.get(bitstream.permissions)
-                if permissions:
-                    tmp["permissions"] = permissions
-        return tmp
+        if not self.bitstream:
+            return None
+        permissions = permissions_lookup.get(self.bitstream.permissions) if self.bitstream.permissions else None
+        return BitstreamInfo(
+            local_file=self.bitstream.value,
+            internal_file_name=internal_file_name_bitstream,
+            permissions=permissions,
+        )

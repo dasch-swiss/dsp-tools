@@ -1132,14 +1132,14 @@ def create_project(
     if overall_success:
         msg = (
             f"Successfully created project '{proj_shortname}' ({proj_shortcode}) with all its ontologies. "
-            f"There were no problems during the creation process.",
+            f"There were no problems during the creation process."
         )
         print(f"========================================================\n{msg}")
         logger.info(msg)
     else:
         msg = (
             f"The project '{proj_shortname}' ({proj_shortcode}) with its ontologies could be created, "
-            f"but during the creation process, some problems occurred. Please carefully check the console output.",
+            f"but during the creation process, some problems occurred. Please carefully check the console output."
         )
         print(f"========================================================\nWARNING: {msg}")
         logger.warning(msg)

@@ -131,6 +131,9 @@ def _prepare_upload(
     )
     sorting_lookup = {res.id: res for res in resources}
     resources = [sorting_lookup[res_id] for res_id in upload_order]
+    logger.info("Stashing circular references...")
+    if verbose:
+        print("Stashing circular references...")
     stash = stash_circular_references(resources, stash_lookup)
     return resources, permissions_lookup, stash
 

@@ -109,7 +109,7 @@ def http_call_with_retry(
         raise BaseError(
             "This function can only be used with the methods get, post, put, and delete of the Python requests library."
         )
-    action_as_str = f"action='{action}', args='{args}', kwargs='{kwargs}'"
+    action_as_str = f"{action=}, {args=}, {kwargs=}"
     timeout = initial_timeout
     for i in range(7):
         try:
@@ -126,7 +126,7 @@ def http_call_with_retry(
             timeout += 10
             msg = f"Timeout Error: Retry request with timeout {timeout} in {2 ** i} seconds..."
             print(f"{datetime.now()}: {msg}")
-            logger.error(f"{msg} {action_as_str} (retry-counter i={i})", exc_info=True)
+            logger.error(f"{msg} {action_as_str} (retry-counter {i=:})", exc_info=True)
             time.sleep(2**i)
             continue
 
@@ -158,7 +158,7 @@ def try_network_action(
     Returns:
         the return value of action
     """
-    action_as_str = f"action='{action}', args='{args}', kwargs='{kwargs}'"
+    action_as_str = f"{action=}, {args=}, {kwargs=}"
     for i in range(7):
         try:
             if args and not kwargs:
@@ -172,13 +172,13 @@ def try_network_action(
         except (TimeoutError, ReadTimeout, ReadTimeoutError):
             msg = f"Timeout Error: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
             print(f"{datetime.now()}: {msg}")
-            logger.error(f"{msg} {action_as_str} (retry-counter i={i})", exc_info=True)
+            logger.error(f"{msg} {action_as_str} (retry-counter {i=:})", exc_info=True)
             time.sleep(2**i)
             continue
         except (ConnectionError, RequestException):
             msg = f"Network Error: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
             print(f"{datetime.now()}: {msg}")
-            logger.error(f"{msg} {action_as_str} (retry-counter i={i})", exc_info=True)
+            logger.error(f"{msg} {action_as_str} (retry-counter {i=:})", exc_info=True)
             time.sleep(2**i)
             continue
         except BaseError as err:
@@ -189,7 +189,7 @@ def try_network_action(
             if try_again_later or in_500_range:
                 msg = f"Transient Error: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
                 print(f"{datetime.now()}: {msg}")
-                logger.error(f"{msg} {action_as_str} (retry-counter i={i})", exc_info=True)
+                logger.error(f"{msg} {action_as_str} (retry-counter {i=:})", exc_info=True)
                 time.sleep(2**i)
                 continue
             else:

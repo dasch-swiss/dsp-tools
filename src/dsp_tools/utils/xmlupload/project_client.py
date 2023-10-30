@@ -1,12 +1,12 @@
-import json
 from dataclasses import dataclass, field
-from typing import Any, Protocol, cast
+from typing import Any, Protocol
 from urllib.parse import quote_plus
 
 import requests
+from requests import Response
 
-from dsp_tools.models.exceptions import BaseError, UserError
-from dsp_tools.utils.xmlupload.upload_config import UploadConfig
+from dsp_tools.models.exceptions import UserError
+from dsp_tools.utils.shared import try_network_action
 
 
 @dataclass(frozen=True)
@@ -31,61 +31,59 @@ class ProjectClient(Protocol):
 class ProjectClientLive:
     """Client handling project-related requests to the DSP-API."""
 
-    config: UploadConfig
+    server: str
+    shortcode: str
     project_info: ProjectInfo | None = field(init=False, default=None)
 
     def get_project_iri(self) -> str:
         """Get the IRI of the project to which the data is being uploaded."""
         if not self.project_info:
-            self.project_info = self._get_project_info_from_server()
+            self.project_info = _get_project_info_from_server(self.server, self.shortcode)
         return self.project_info.project_iri
 
     def get_ontologies(self) -> list[str]:
         """Get the ontology IRIs and names of the project to which the data is being uploaded."""
         if not self.project_info:
-            self.project_info = self._get_project_info_from_server()
+            self.project_info = _get_project_info_from_server(self.server, self.shortcode)
         return self.project_info.ontologies
 
     def get_ontology_name_dict(self) -> dict[str, str]:
         """Returns a mapping of ontology names to ontology IRIs."""
         if not self.project_info:
-            self.project_info = self._get_project_info_from_server()
+            self.project_info = _get_project_info_from_server(self.server, self.shortcode)
         return {_extract_name_from_iri(iri): iri for iri in self.project_info.ontologies}
 
     def get_ontology_iri_dict(self) -> dict[str, str]:
         """Returns a mapping of ontology IRIs to ontology names."""
         if not self.project_info:
-            self.project_info = self._get_project_info_from_server()
+            self.project_info = _get_project_info_from_server(self.server, self.server)
         return {iri: _extract_name_from_iri(iri) for iri in self.project_info.ontologies}
 
-    def _get_project_info_from_server(self) -> ProjectInfo:
-        project_iri = self._get_project_iri_from_server()
-        ontologies = self._get_ontologies_from_server(project_iri)
-        return ProjectInfo(project_iri=project_iri, ontologies=ontologies)
 
-    def _get_project_iri_from_server(self) -> str:
-        url = f"{self.config.server}/admin/projects/shortcode/{self.config.shortcode}"
-        res = requests.get(url, timeout=5)
-        # TODO: add retry
-        if res.status_code != 200:
-            raise UserError(f"A project with shortcode {self.config.shortcode} could not be found on the DSP server")
-        iri: str = res.json()["project"]["id"]
-        return iri
+def _get_project_info_from_server(server: str, shortcode: str) -> ProjectInfo:
+    project_iri = _get_project_iri_from_server(server, shortcode)
+    ontologies = _get_ontologies_from_server(server, project_iri)
+    return ProjectInfo(project_iri=project_iri, ontologies=ontologies)
 
-    def _get_ontologies_from_server(self, project_iri: str) -> list[str]:
-        url = f"{self.config.server}/v2/ontologies/metadata/{quote_plus(project_iri)}"
-        res = requests.get(url, timeout=5)
-        if res.status_code != 200:
-            # raise UserError(
-            #     f"The <knora> tag of your XML file references the default-ontology "
-            #     f"'{self.config.default_ontology}', but the project {self.config.shortcode} on the DSP server "
-            #     f"contains only the ontologies {self.project_info.ontologies}"
-            # )
-            raise UserError(f"No ontology found for project {self.config.shortcode}")
-        graph: list[dict[str, Any]] | dict[str, Any] = res.json()["@graph"]
-        if isinstance(graph, dict):
-            graph = [graph]
-        return [o["@id"] for o in graph]
+
+def _get_project_iri_from_server(server: str, shortcode: str) -> str:
+    url = f"{server}/admin/projects/shortcode/{shortcode}"
+    res: Response = try_network_action(requests.get, url=url, timeout=5)
+    if res.status_code != 200:
+        raise UserError(f"A project with shortcode {shortcode} could not be found on the DSP server")
+    iri: str = res.json()["project"]["id"]
+    return iri
+
+
+def _get_ontologies_from_server(server: str, project_iri: str) -> list[str]:
+    url = f"{server}/v2/ontologies/metadata/{quote_plus(project_iri)}"
+    res: Response = try_network_action(requests.get, url=url, timeout=5)
+    if res.status_code != 200:
+        raise UserError(f"No ontology found for project {project_iri}")
+    graph: list[dict[str, Any]] | dict[str, Any] = res.json()["@graph"]
+    if isinstance(graph, dict):
+        graph = [graph]
+    return [o["@id"] for o in graph]
 
 
 def _extract_name_from_iri(iri: str) -> str:

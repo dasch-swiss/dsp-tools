@@ -39,7 +39,7 @@ def validate_and_parse_xml_file(
         check_if_bitstreams_exist(root=root, imgdir=imgdir)
     shortcode = root.attrib["shortcode"]
     default_ontology = root.attrib["default-ontology"]
-    logger.info(f"Validated and parsed the XML file. Shortcode='{shortcode}' and default_ontology='{default_ontology}'")
+    logger.info(f"Validated and parsed the XML file. {shortcode=:} and {default_ontology=:}")
     return default_ontology, root, shortcode
 
 
@@ -92,10 +92,10 @@ def _check_if_onto_name_exists(
 #     Raises:
 #         UserError: if there is an inconsistency between the ontology and the data
 #     """
-#     if verbose:
+#     logger.info("Check if the resource types and properties are consistent with the ontology...")
+# if verbose:
 #         print("Check if the resource types and properties are consistent with the ontology...")
-#         logger.info("Check if the resource types and properties are consistent with the ontology...")
-#     _check_if_onto_name_exists(
+# #     _check_if_onto_name_exists(
 #         resclass_name_2_type=resclass_name_2_type,
 #         ontoname=ontoname,
 #         shortcode=shortcode,

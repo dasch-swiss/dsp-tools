@@ -44,7 +44,7 @@ def upload_stashed_resptr_props(
         res_iri = id2iri_mapping[res_id]
         if verbose:
             print(f'  Upload resptrs of resource "{res_id}"...')
-        logger.debug(f'  Upload resptrs of resource "{res_id}"...')
+        logger.info(f'  Upload resptrs of resource "{res_id}"...')
         for stash_item in stash_items:
             target_iri = id2iri_mapping.get(stash_item.target_id)
             if not target_iri:
@@ -81,7 +81,7 @@ def _upload_stash_item(
     except BaseError as err:
         _log_unable_to_upload_link_value(err.orig_err_msg_from_api or err.message, stash.res_id, stash.prop_name)
         return False
-    logger.debug(f'  Successfully uploaded xml text of "{stash.prop_name}"\n')
+    logger.debug(f'  Successfully uploaded xml text of "{stash.prop_name}"')
     return True
 
 

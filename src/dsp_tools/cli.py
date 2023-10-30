@@ -296,11 +296,12 @@ def _get_version() -> str:
     # _detail_version has one of the following formats:
     # - 'dsp-tools==5.0.3\n'
     # - 'dsp-tools @ git+https://github.com/dasch-swiss/dsp-tools.git@1f95f8d1b79bd5170a652c0d04e7ada417d76734\n'
+    # - '-e git+ssh://git@github.com/dasch-swiss/dsp-tools.git@af9a35692b542676f2aa0a802ca7fc3b35f5713d#egg=dsp_tools\n'
     # - ''
     if version_number := regex.search(r"\d+\.\d+\.\d+", _detail_version):
         return version_number.group(0)
-    if regex.search(r"dsp-tools @", _detail_version):
-        return regex.sub(r"dsp-tools @ |\n", "", _detail_version)
+    if regex.search(r"github.com", _detail_version):
+        return _detail_version.replace("\n", "")
     return version("dsp-tools")
 
 

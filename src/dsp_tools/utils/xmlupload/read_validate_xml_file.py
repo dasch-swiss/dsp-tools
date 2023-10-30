@@ -39,7 +39,7 @@ def validate_and_parse_xml_file(
         check_if_bitstreams_exist(root=root, imgdir=imgdir)
     shortcode = root.attrib["shortcode"]
     default_ontology = root.attrib["default-ontology"]
-    logger.info(f"Validated and parsed the XML file. Shortcode='{shortcode}' and default_ontology='{default_ontology}'")
+    logger.info(f"Validated and parsed the XML file. {shortcode=:} and {default_ontology=:}")
     return default_ontology, root, shortcode
 
 

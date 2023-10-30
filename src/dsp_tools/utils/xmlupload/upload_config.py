@@ -65,7 +65,7 @@ class UploadConfig:
         server_as_foldername = _transform_server_url_to_foldername(server)
         save_location = Path.home() / Path(".dsp-tools") / "xmluploads" / server_as_foldername / shortcode / onto_name
         save_location.mkdir(parents=True, exist_ok=True)
-        logger.info(f"save_location='{save_location}'")
+        logger.info(f"{save_location=:}")
         context_iri = f"{server}/ontology/{shortcode}/{onto_name}/v2#"
         return dataclasses.replace(
             self,

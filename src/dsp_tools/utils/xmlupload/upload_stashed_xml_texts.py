@@ -215,5 +215,5 @@ def _upload_stash_item(
     except BaseError as err:
         _log_unable_to_upload_xml_resource(err, res_id, stash_item.prop_name)
         return False
-    logger.debug(f'  Successfully uploaded xml text of "{stash_item.prop_name}"\n')
+    logger.debug(f'  Successfully uploaded xml text of "{stash_item.prop_name}"')
     return True

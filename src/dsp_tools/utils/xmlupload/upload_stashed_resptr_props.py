@@ -81,7 +81,7 @@ def _upload_stash_item(
     except BaseError as err:
         _log_unable_to_upload_link_value(err.orig_err_msg_from_api or err.message, stash.res_id, stash.prop_name)
         return False
-    logger.debug(f'  Successfully uploaded xml text of "{stash.prop_name}"\n')
+    logger.debug(f'  Successfully uploaded xml text of "{stash.prop_name}"')
     return True
 
 

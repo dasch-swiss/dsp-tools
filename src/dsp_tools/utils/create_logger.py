@@ -19,6 +19,11 @@ def _make_handler(
     then appends ".1" to it and starts with a new file "filename",
     fills it until it is "maxBytes" big,
     then appends ".1" to it (replacing the old ".1" file)
+
+    Args:
+        logfile_directory: directory to store the logfiles in
+        filesize_mb: maximum size of a logfile in MB
+        backupcount: number of logfiles to keep
     """
     formatter = logging.Formatter(fmt="{asctime} {filename: <20} {levelname: <8} {message}", style="{")
     formatter.default_time_format = "%Y-%m-%d %H:%M:%S"

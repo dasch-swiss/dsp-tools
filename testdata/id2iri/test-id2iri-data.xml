@@ -85,7 +85,7 @@
             <text encoding="utf8">Text</text>
         </text-prop>
     </resource>
-    
+
     <resource label="links_to_same_file_wont_be_replaced" restype=":TestThing" id="links_to_same_file_wont_be_replaced">
         <text-prop name=":hasSimpleText">
             <text encoding="utf8">Text</text>

@@ -226,7 +226,7 @@ class TestCLI(unittest.TestCase):
         )
         mapping_file.unlink()
 
-        second_xml_file_replaced = get_most_recent_glob_match(self.cwd / f"{second_xml_file_orig.stem}_replaced_*.xml")
+        second_xml_file_replaced = get_most_recent_glob_match(f"{second_xml_file_orig.stem}_replaced_*.xml")
         xmlupload(
             input_file=second_xml_file_replaced,
             server=self.server,

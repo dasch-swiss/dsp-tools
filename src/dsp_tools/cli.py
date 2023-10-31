@@ -3,6 +3,7 @@ The code in this file handles the arguments passed by the user from the command 
 """
 import argparse
 import datetime
+import subprocess
 import sys
 from importlib.metadata import version
 
@@ -289,6 +290,21 @@ def _parse_arguments(
     return args
 
 
+def _get_version() -> str:
+    result = subprocess.run("pip freeze | grep dsp-tools", check=False, shell=True, capture_output=True)
+    _detail_version = result.stdout.decode("utf-8")
+    # _detail_version has one of the following formats:
+    # - 'dsp-tools==5.0.3\n'
+    # - 'dsp-tools @ git+https://github.com/dasch-swiss/dsp-tools.git@1f95f8d1b79bd5170a652c0d04e7ada417d76734\n'
+    # - '-e git+ssh://git@github.com/dasch-swiss/dsp-tools.git@af9a35692b542676f2aa0a802ca7fc3b35f5713d#egg=dsp_tools\n'
+    # - ''
+    if version_number := regex.search(r"\d+\.\d+\.\d+", _detail_version):
+        return version_number.group(0)
+    if regex.search(r"github.com", _detail_version):
+        return _detail_version.replace("\n", "")
+    return version("dsp-tools")
+
+
 def _log_cli_arguments(parsed_args: argparse.Namespace) -> None:
     """
     Log the CLI arguments passed by the user from the command line.
@@ -297,8 +313,8 @@ def _log_cli_arguments(parsed_args: argparse.Namespace) -> None:
         parsed_args: parsed arguments
     """
     metadata_lines = []
-    _version = version("dsp-tools")
-    metadata_lines.append(f"DSP-TOOLS {_version}: Called the action '{parsed_args.action}' from the command line")
+    metadata_lines.append(f"DSP-TOOLS: Called the action '{parsed_args.action}' from the command line")
+    metadata_lines.append(f"DSP-TOOLS version: {_get_version()}")
     metadata_lines.append(f"Location of this installation: {__file__}")
     metadata_lines.append("CLI arguments:")
     metadata_lines = [f"*** {line}" for line in metadata_lines]

@@ -234,7 +234,7 @@ This object contains user definitions. A user has the following elements:
 - `givenName`: first name of the user
 - `familyName`: surname of the user
 - `password`: password of the user
-- `lang`: the default language of the user: `en`, `de`, `fr`, `it`, `rm` (optional, default: "en")
+- `lang`: the default language of the user: `en`, `de`, `fr`, `it`, `rm` (optional, default: `en`)
 - `groups` (optional): List of groups the user belongs to. The group names must be provided in one of the following forms:
     - `other_project_shortname:groupname`
     - `:groupname` (for groups defined in the current JSON project file)

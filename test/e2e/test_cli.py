@@ -204,6 +204,21 @@ class TestCLI(unittest.TestCase):
         second_xml_file_replaced.unlink()
         self.assertListEqual(list(Path(self.cwd).glob("stashed_*_properties_*.txt")), [])
 
+    def test_excel_to_json_project(self) -> None:
+        """
+        Test if the excel2json command handles the expected folder structure correctly,
+        and that every file in the nested folder structure is correctly translated into JSON.
+        """
+        excel_folder = Path("testdata/excel2json/excel2json_files")
+        out_file = self.testdata_tmp / "_out_project.json"
+        self._make_cli_call(f"dsp-tools excel2json {excel_folder.absolute()} {out_file.absolute()}")
+        with open("testdata/excel2json/excel2json-expected-output.json", encoding="utf-8") as f:
+            output_expected = json.load(f)
+        with open(out_file, encoding="utf-8") as f:
+            output = json.load(f)
+        self.assertDictEqual(output, output_expected)
+        out_file.unlink()
+
     @pytest.mark.filterwarnings("ignore::UserWarning")
     def test_excel2xml(self) -> None:
         datafile = Path("testdata/excel2xml/excel2xml-testdata.xlsx")

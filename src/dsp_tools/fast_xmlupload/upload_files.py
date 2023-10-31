@@ -107,10 +107,9 @@ def _get_upload_candidates(
         glob.glob(f"{dir_with_processed_files}/**/**/{internal_filename_of_processed_file.stem}*.*")
     )
     upload_candidates_paths = [Path(c) for c in upload_candidates]
-    upload_candidates_as_str = "\n - " + "\n - ".join([str(c) for c in upload_candidates])
-    logger.info(
-        f"Found the following upload candidates for {internal_filename_of_processed_file}: {upload_candidates_as_str}"
-    )
+    logger.info(f"Found the following upload candidates for {internal_filename_of_processed_file}:")
+    for cand in upload_candidates:
+        logger.info(f" - {cand}")
     return upload_candidates_paths
 
 
@@ -324,6 +323,8 @@ def _upload_files_in_parallel(
     result: list[tuple[Path, bool]] = []
     for uploaded in as_completed(upload_jobs):
         result.append(uploaded.result())
+        if len(result) % 1000 == 0:
+            print(f"{datetime.now()}: Uploaded {len(result)} files so far, continue...")
     return result
 
 
@@ -385,6 +386,9 @@ def upload_files(
     """
     dir_with_processed_files_path = _check_processed_dir(dir_with_processed_files)
     pkl_file_paths = get_pkl_files()
+    logger.info("Found the following pickle files:")
+    for pkl in pkl_file_paths:
+        logger.info(f" - {str(pkl)}")
 
     # read paths from pkl file
     internal_filenames_of_processed_files = _get_paths_from_pkl_files(pkl_files=pkl_file_paths)

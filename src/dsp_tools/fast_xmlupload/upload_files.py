@@ -107,10 +107,9 @@ def _get_upload_candidates(
         glob.glob(f"{dir_with_processed_files}/**/**/{internal_filename_of_processed_file.stem}*.*")
     )
     upload_candidates_paths = [Path(c) for c in upload_candidates]
-    upload_candidates_as_str = "\n - " + "\n - ".join([str(c) for c in upload_candidates])
-    logger.info(
-        f"Found the following upload candidates for {internal_filename_of_processed_file}: {upload_candidates_as_str}"
-    )
+    logger.info(f"Found the following upload candidates for {internal_filename_of_processed_file}:")
+    for cand in upload_candidates:
+        logger.info(f" - {cand}")
     return upload_candidates_paths
 
 

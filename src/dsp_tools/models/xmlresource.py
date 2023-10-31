@@ -15,8 +15,10 @@ from dsp_tools.models.xmlproperty import XMLProperty
 @dataclass(frozen=True)
 class BitstreamInfo:
     """
-    Represents a bitstream object, consisting of its file name on the local file system,
-    the internal file name assigned by SIPI and optionally its permissions.
+    Represents a bitstream object,
+    consisting of its file name on the local file system,
+    the internal file name assigned by SIPI
+    and optionally its permissions.
     """
 
     local_file: str

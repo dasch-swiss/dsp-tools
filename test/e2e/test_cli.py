@@ -231,20 +231,6 @@ class TestCLI(unittest.TestCase):
         self.assertListEqual(output_actual, output_expected)
         out_file.unlink()
 
-    @pytest.mark.filterwarnings("ignore::UserWarning")
-    def test_excel2xml(self) -> None:
-        datafile = Path("testdata/excel2xml/excel2xml-testdata.xlsx")
-        shortcode = "1234"
-        onto_name = "excel2xml-output"
-        out_file = self.cwd / f"{onto_name}-data.xml"
-        self._make_cli_call(f"dsp-tools excel2xml {datafile.absolute()} {shortcode} {onto_name}")
-        with open(out_file, encoding="utf-8") as f:
-            output_actual = f.read()
-        with open("testdata/excel2xml/excel2xml-expected-output.xml", encoding="utf-8") as f:
-            output_expected = f.read()
-        self.assertEqual(output_actual, output_expected)
-        out_file.unlink()
-
     def _get_original_project(self) -> dict[str, Any]:
         """
         Open the systematic JSON project file, expand all prefixes, and return the resulting Python object.

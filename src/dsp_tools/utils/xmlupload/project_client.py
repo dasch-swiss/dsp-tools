@@ -23,8 +23,14 @@ class ProjectClient(Protocol):
     def get_project_iri(self) -> str:
         """Get the IRI of the project to which the data is being uploaded."""
 
-    def get_ontologies(self) -> list[tuple[str, str]]:
+    def get_ontologies(self) -> list[str]:
         """Get the ontology IRIs and names of the project to which the data is being uploaded."""
+
+    def get_ontology_name_dict(self) -> dict[str, str]:
+        """Returns a mapping of ontology names to ontology IRIs."""
+
+    def get_ontology_iri_dict(self) -> dict[str, str]:
+        """Returns a mapping of ontology IRIs to ontology names."""
 
 
 @dataclass()

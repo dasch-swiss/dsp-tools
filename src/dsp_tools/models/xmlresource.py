@@ -15,8 +15,8 @@ from dsp_tools.models.xmlproperty import XMLProperty
 @dataclass(frozen=True)
 class BitstreamInfo:
     """
-    Represents a bitstream object, consisting of it's file name on the local file system,
-    the internal file name assigned by SIPi and optionally its permissions.
+    Represents a bitstream object, consisting of its file name on the local file system,
+    the internal file name assigned by SIPI and optionally its permissions.
     """
 
     local_file: str
@@ -194,7 +194,7 @@ class XMLResource:  # pylint: disable=too-many-instance-attributes
 
         Args:
             internal_file_name_bitstream: Internal file name of bitstream object as returned from Sipi
-            permissions_lookup: Is used to resolve the permission id's to permission sets
+            permissions_lookup: Is used to resolve the permission IDs to permission sets
 
         Returns:
             A BitstreamInfo object

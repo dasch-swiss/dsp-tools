@@ -13,8 +13,13 @@ import jsonpath_ng.ext
 import pytest
 import regex
 
+from dsp_tools.utils.excel2json.project import excel2json
+from dsp_tools.utils.id2iri import id2iri
+from dsp_tools.utils.project_create import create_project
 from dsp_tools.utils.project_create_lists import create_lists
+from dsp_tools.utils.project_get import get_project
 from dsp_tools.utils.shared import get_most_recent_glob_match
+from dsp_tools.utils.xmlupload.xmlupload import xmlupload
 
 
 class TestCLI(unittest.TestCase):
@@ -92,7 +97,13 @@ class TestCLI(unittest.TestCase):
         and that the returned {node name: iri} mapping contains the same node names than the original list.
         """
         # the project must already exist, so let's create a project without lists
-        self._make_cli_call(f"dsp-tools create {self.test_project_minimal_file.absolute()}")
+        create_project(
+            project_file_as_path_or_parsed=self.test_project_minimal_file.absolute(),
+            server=self.server,
+            user_mail=self.user,
+            password=self.password,
+            verbose=True,
+        )
 
         # open a "lists" section and the project that was created
         with open("testdata/excel2json/lists-multilingual-output-expected.json", encoding="utf-8") as f:
@@ -127,11 +138,12 @@ class TestCLI(unittest.TestCase):
 
     def test_create_project(self) -> None:
         """Test if the systematic JSON project file can be uploaded without producing an error on its way"""
-        # the working directory must be ".", because the JSON file contains a reference to an Excel file,
-        # which is relative to the root of the repo
-        self._make_cli_call(
-            cli_call=f"dsp-tools create {self.test_project_systematic_file.absolute()} --verbose",
-            working_directory=Path("."),
+        create_project(
+            project_file_as_path_or_parsed=self.test_project_systematic_file.absolute(),
+            server=self.server,
+            user_mail=self.user,
+            password=self.password,
+            verbose=True,
         )
 
     def test_get_project(self) -> None:
@@ -140,10 +152,17 @@ class TestCLI(unittest.TestCase):
         and check if the result is identical to the original file.
         """
         out_file = self.testdata_tmp / "_test-project-systematic.json"
-        self._make_cli_call(f"dsp-tools get --project systematic-tp {out_file.absolute()}")
+        get_project(
+            project_identifier="systematic-tp",
+            outfile_path=str(out_file),
+            server=self.server,
+            user=self.user,
+            password=self.password,
+            verbose=True,
+        )
 
         project_original = self._get_original_project()
-        with open(self.testdata_tmp / "_test-project-systematic.json", encoding="utf-8") as f:
+        with open(out_file, encoding="utf-8") as f:
             project_returned = json.load(f)
 
         self._compare_project(project_original, project_returned)
@@ -179,7 +198,10 @@ class TestCLI(unittest.TestCase):
             )
 
     def test_xml_upload(self) -> None:
-        """Test if the resource file 'src/dsp_tools/resources/schema/data.xsd' can be accessed"""
+        """
+        Test if the resource file 'src/dsp_tools/resources/schema/data.xsd' can be accessed.
+        For this, a real CLI call from another working directory is necessary.
+        """
         self._make_cli_call(f"dsp-tools xmlupload -v {self.test_data_minimal_file.absolute()}")
 
     def test_xml_upload_incremental(self) -> None:
@@ -187,20 +209,32 @@ class TestCLI(unittest.TestCase):
         Test if the systematic XML data file can be uploaded without producing an error on its way,
         and if the 'id2iri' replacement works, so that the 2nd upload works.
         """
-        # the working directory must be ".", because the JSON file contains a reference to an Excel file,
-        # which is relative to the root of the repo
-        self._make_cli_call(
-            cli_call=f"dsp-tools xmlupload {self.test_data_systematic_file.absolute()}",
-            working_directory=Path("."),
+        xmlupload(
+            input_file=self.test_data_systematic_file,
+            server=self.server,
+            user=self.user,
+            password=self.password,
+            imgdir=self.imgdir,
+            sipi=self.sipi,
         )
 
         mapping_file = get_most_recent_glob_match("test-data-systematic_id2iri_mapping_*.json")
         second_xml_file_orig = Path("testdata/id2iri/test-id2iri-data.xml")
-        self._make_cli_call(f"dsp-tools id2iri {second_xml_file_orig.absolute()} {mapping_file.absolute()}")
+        id2iri(
+            xml_file=str(second_xml_file_orig),
+            json_file=str(mapping_file),
+        )
         mapping_file.unlink()
 
         second_xml_file_replaced = get_most_recent_glob_match(self.cwd / f"{second_xml_file_orig.stem}_replaced_*.xml")
-        self._make_cli_call(f"dsp-tools xmlupload -v {second_xml_file_replaced.absolute()}")
+        xmlupload(
+            input_file=second_xml_file_replaced,
+            server=self.server,
+            user=self.user,
+            password=self.password,
+            imgdir=self.imgdir,
+            sipi=self.sipi,
+        )
         second_xml_file_replaced.unlink()
         self.assertListEqual(list(Path(self.cwd).glob("stashed_*_properties_*.txt")), [])
 
@@ -211,7 +245,7 @@ class TestCLI(unittest.TestCase):
         """
         excel_folder = Path("testdata/excel2json/excel2json_files")
         out_file = self.testdata_tmp / "_out_project.json"
-        self._make_cli_call(f"dsp-tools excel2json {excel_folder.absolute()} {out_file.absolute()}")
+        excel2json(str(excel_folder), str(out_file))
         with open("testdata/excel2json/excel2json-expected-output.json", encoding="utf-8") as f:
             output_expected = json.load(f)
         with open(out_file, encoding="utf-8") as f:

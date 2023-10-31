@@ -302,7 +302,7 @@ At the very end, save the file under a name that you can choose yourself.
 The method `check_notna(cell)` checks a value if it is usable in the context of data archiving. A value is considered 
 usable if it is
 
-- a number (integer or float, but not numpy.nan)
+- a number (integer or float, but not `numpy.nan`)
 - a boolean
 - a string with at least one Unicode letter (matching the regex ``\\p{L}``) or number, or at least one _, !, or ?
   (The strings "None", "&lt;NA&gt;", "N/A", and "-" are considered invalid.)
@@ -340,8 +340,8 @@ might expect:
 |--------------|------------------------------|------------------------------------------------------------------|
 | 0            | False                        | True, because 0 is a valid integer for your integer property     |
 | " "          | True                         | False, because an empty string is not usable for a text property |
-| numpy.nan    | True                         | False, because N/A is not a usable value                         |
-| pandas.NA    | TypeError (*)                | False, because N/A is not a usable value                         |
+| `numpy.nan`  | True                         | False, because N/A is not a usable value                         |
+| `pandas.NA`  | TypeError (*)                | False, because N/A is not a usable value                         |
 | "&lt;NA&gt;" | True                         | False, because this is the string representation of N/A          |
 | "-"          | True                         | False, because this is a placeholder in an empty text field      |
 (*) TypeError: boolean value of NA is ambiguous

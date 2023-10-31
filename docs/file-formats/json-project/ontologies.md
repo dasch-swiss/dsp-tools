@@ -14,9 +14,9 @@ An ontology thus has to offer at least two things:
 - **properties** describing these resources. These properties are linked either to a final value or may define a 
   relationship to another resource. 
 
-Let's assume that we define a resource class called "Person" and two properties called "hasBirthday" and "hasParent". 
-For a specific **instance** of a "Person", "hasBirthday" will have a final value such as "1960-05-21", whereas
-"hasParent" will link to another instance of a "Person".
+Let's assume that we define a resource class called `Person` and two properties called `hasBirthday` and `hasParent`. 
+For a specific **instance** of a `Person`, `hasBirthday` will have a final value such as "1960-05-21", whereas
+`hasParent` will link to another instance of a `Person`.
 
 Within DSP, properties may be re-used for different resources. E.g. a property "description" may be used for a resource
 called "image" as well as "movie". Therefore, the list of properties is separated from the list of resources. The
@@ -164,7 +164,7 @@ but in most cases it doesn't make sense to omit them.)
 
 `"name": "<string>"`
 
-A name for the property, e.g. "pageOf", "hasBirthdate", "createdBy". It should be in the form of
+A name for the property, e.g. `pageOf`, `hasBirthdate`, `createdBy`. It should be in the form of
 a [xsd:NCNAME](https://www.w3.org/TR/xmlschema11-2/#NCName). This means a string without blanks or special characters
 but `-` and `_` are allowed (although not as first character).
 
@@ -178,8 +178,8 @@ By convention, property names start with a lower case letter.
 
 `"labels": {"<language>": "<string>", ...}`
 
-Collection of `labels` for the property as strings with language tag (currently "en", "de", "fr", "it",
-and "rm" are supported).
+Collection of `labels` for the property as strings with language tag 
+(currently, `en`, `de`, `fr`, `it`, and `rm` are supported).
 
 
 
@@ -189,7 +189,7 @@ and "rm" are supported).
 
 `"comments": { "<lang>": "<comment>", "<lang>": "<comment>", ... }`
 
-Comments with language tags. Currently, "de", "en", "fr", "it", and "rm" are supported. 
+Comments with language tags. Currently, `de`, `en`, `fr`, `it`, and `rm` are supported. 
 The `comments` element is optional.
 
 
@@ -986,9 +986,8 @@ By convention, resource names start with an upper case letter.
 
 `"labels": {"<language>": "<string>", ...}`
 
-Collection of `labels` for the resource as strings with language tag (currently "en", "de", "fr", "it", 
-and "rm" are supported).
-
+Collection of `labels` for the resource as strings with language tag 
+(currently, `en`, `de`, `fr`, `it`, and `rm` are supported).
 
 
 ### Resource: `super`
@@ -1071,5 +1070,6 @@ but in most cases it doesn't make sense to omit them.)
 
 `"comments": { "<lang>": "<comment>", "<lang>": "<comment>", ... }`
 
-Comments with language tags. Currently, "de", "en", "fr", "it", and "rm" are supported. 
+Comments with language tags
+(currently, `en`, `de`, `fr`, `it`, and `rm` are supported).
 The `comments` element is optional.

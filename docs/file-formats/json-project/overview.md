@@ -69,7 +69,7 @@ A complete project definition looks like this:
 
 The `prefixes` object contains the prefixes of external ontologies that are used in the current file. All prefixes
 are composed of the prefix and a URI. The prefix is used as namespace, so one does not have to write the
-fully qualified name of the referenced object each time it is used. Instead of writing a property called "familyName" 
+fully qualified name of the referenced object each time it is used. Instead of writing a property called `familyName` 
 as `http://xmlns.com/foaf/0.1/familyName` one can simply write `foaf:familyName`.
 
 ```json
@@ -166,8 +166,8 @@ The longname is a string that provides the full name of the project.
 
 `"descriptions": {"<lang>": "<string>", ...}`
 
-The description is represented as a collection of strings with language tags (currently, "en", "de", "fr", "it", and 
-"rm" are supported). 
+The description is represented as a collection of strings with language tags
+(currently, `en`, `de`, `fr`, `it`, and `rm` are supported).
 
 
 
@@ -197,8 +197,9 @@ The groups that were created here are then available in the XML file in the
 A project specific group definition has the following elements:
 
 - _name_ (mandatory): name of the group
-- _descriptions_ (mandatory): description of the group with language tags in the form `"descriptions": {"<lang>": 
-  "<string>", ...}` (currently, "en", "de", "fr", "it", and "rm" are supported)
+- _descriptions_ (mandatory): description of the group with language tags in the form 
+  `"descriptions": {"<lang>": "<string>", ...}` 
+  (currently, `en`, `de`, `fr`, `it`, and `rm` are supported).
 - _selfjoin_ (optional): true if users are allowed to join the group themselves, 
   false (default) if a `ProjectAdmin` has to add them
 - _status_ (optional): true (default) if the group is active, false if the group is inactive
@@ -228,23 +229,23 @@ Example:
 
 This object contains user definitions. A user has the following elements:
 
-- _username_: username used for login
-- _email_: email that identifies the user, has to be unique within DSP
-- _givenName_: first name of the user
-- _familyName_: surname of the user
-- _password_: password of the user
-- _lang_: the default language of the user: "en", "de", "fr", "it", "rm" (optional, default: "en")
-- _groups_ (optional): List of groups the user belongs to. The group names must be provided in one of the following forms:
+- `username`: username used for login
+- `email`: email that identifies the user, has to be unique within DSP
+- `givenName`: first name of the user
+- `familyName`: surname of the user
+- `password`: password of the user
+- `lang`: the default language of the user: `en`, `de`, `fr`, `it`, `rm` (optional, default: `en`)
+- `groups` (optional): List of groups the user belongs to. The group names must be provided in one of the following forms:
     - `other_project_shortname:groupname`
     - `:groupname` (for groups defined in the current JSON project file)
     - `SystemAdmin` (the most powerful group, built-in into DSP)
-- _projects_ (optional): List of projects the user belongs to. The project name has to be followed by a `:` and either 
+- `projects` (optional): List of projects the user belongs to. The project name has to be followed by a `:` and either 
   `member` or `admin`. This indicates if the new user has admin rights in the given project or is an ordinary
   user. `myproject:admin` would add the user as admin to the project `myproject`. The project defined in the same
   JSON project file can be omitted, so only `:admin` or `:member` is enough. Note that in order to give a user `:admin` 
   rights, he also needs to be a `:member` of the project.
     - If _projects_ is omitted, the user won't be part in any project.
-- _status_ (optional): true (default) if the user is active, false if the user is deleted/inactive
+- `status` (optional): true (default) if the user is active, false if the user is deleted/inactive
 
 Example:
 
@@ -298,9 +299,9 @@ A node of a list may have the following elements:
 
 - `name` (mandatory): Name of the node. Has to be unique within the entire "lists" section.
 - `labels` (mandatory): Label with language tags in the form `{"<lang>": "<label>", "<lang>": "<label>", ... }`. 
-  At least one language needs to be specified. Currently, "de", "en", "fr", "it", and "rm" are supported.
+  At least one language needs to be specified. Currently, `en`, `de`, `fr`, `it`, and `rm` are supported.
 - `comments` (mandatory for root node, optional for all other nodes): Comment with language tags in the form 
-  `{"<lang>": "<comment>", "<lang>": "<comment>", ... }`. Currently, "de", "en", "fr", "it", and "rm" are supported. 
+  `{"<lang>": "<comment>", "<lang>": "<comment>", ... }`. Currently, `en`, `de`, `fr`, `it`, and `rm` are supported.
 - `nodes` (optional): Array of sub-nodes.
 
 Example of a "lists" section that contains the two lists "color" and "category":
@@ -505,8 +506,8 @@ example, the list "color" could be imported as follows:
 ```
 
 To do so, it would be necessary to place the following two files into the folder "path-to-folder":  
-![Colors_en](../../assets/images/img-json-list-from-excel-english.png)  
-![Farben_de](../../assets/images/img-json-list-from-excel-german.png)
+![`Colors_en`](../../assets/images/img-json-list-from-excel-english.png)  
+![`Farben_de`](../../assets/images/img-json-list-from-excel-german.png)
 
 The expected format of the Excel files is documented [here](../excel2json.md#the-lists-section). The only 
 difference to the explanations there is that column A of the Excel worksheet is not interpreted as list name (root 

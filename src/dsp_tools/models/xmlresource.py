@@ -187,14 +187,20 @@ class XMLResource:  # pylint: disable=too-many-instance-attributes
         return prop_data
 
     def get_bitstream_information(
-        self, internal_file_name_bitstream: str, permissions_lookup: dict[str, Permissions]
+        self,
+        internal_file_name_bitstream: str,
+        permissions_lookup: dict[str, Permissions],
     ) -> BitstreamInfo | None:
         """
-        Get the bitstream object belonging to the resource
+        This method constructs a `BitstreamInfo` object from the current resource,
+        or None, if the resource does not have a bitstream representation.
+        The `BitstreamInfo` object contains the local file name (relative to the imgdir directory),
+        the internal file name assigned by SIPI
+        and the permissions of the bitstream representation, if permissions are defined.
 
         Args:
             internal_file_name_bitstream: Internal file name of bitstream object as returned from Sipi
-            permissions_lookup: Is used to resolve the permission IDs to permission sets
+            permissions_lookup: Is used to resolve the permission id's to permission sets
 
         Returns:
             A BitstreamInfo object

@@ -17,7 +17,7 @@ from dsp_tools.models.projectContext import ProjectContext
 from dsp_tools.models.resource import KnoraStandoffXmlEncoder, ResourceInstance, ResourceInstanceFactory
 from dsp_tools.models.sipi import Sipi
 from dsp_tools.models.xmlpermission import XmlPermission
-from dsp_tools.models.xmlresource import XMLResource
+from dsp_tools.models.xmlresource import BitstreamInfo, XMLResource
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import login, try_network_action
 from dsp_tools.utils.xmlupload.ark2iri import convert_ark_v0_to_resource_iri
@@ -400,20 +400,29 @@ def _create_resource(
     res_type: type,
     resource: XMLResource,
     resource_iri: str | None,
-    bitstream_information: dict[str, Any] | None,
+    bitstream_information: BitstreamInfo | None,
     con: Connection,
     permissions_lookup: dict[str, Permissions],
     id2iri_mapping: dict[str, str],
 ) -> tuple[str, str] | None:
     properties = resource.get_propvals(id2iri_mapping, permissions_lookup)
     try:
+        if bitstream_information:
+            bitstream_info: dict[str, str | Permissions] | None = {
+                "value": bitstream_information.local_file,
+                "internal_file_name": bitstream_information.internal_file_name,
+            }
+            if bitstream_information.permissions and bitstream_info:
+                bitstream_info["permissions"] = bitstream_information.permissions
+        else:
+            bitstream_info = None
         resource_instance: ResourceInstance = res_type(
             con=con,
             label=resource.label,
             iri=resource_iri,
             permissions=permissions_lookup.get(str(resource.permissions)),
             creation_date=resource.creation_date,
-            bitstream=bitstream_information,
+            bitstream=bitstream_info,
             values=properties,
         )
         created_resource: ResourceInstance = try_network_action(resource_instance.create)

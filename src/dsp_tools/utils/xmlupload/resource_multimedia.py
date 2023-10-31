@@ -7,7 +7,7 @@ from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.permission import Permissions
 from dsp_tools.models.sipi import Sipi
 from dsp_tools.models.xmlbitstream import XMLBitstream
-from dsp_tools.models.xmlresource import XMLResource
+from dsp_tools.models.xmlresource import BitstreamInfo, XMLResource
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import try_network_action
 
@@ -19,7 +19,7 @@ def _upload_bitstream(
     sipi_server: Sipi,
     imgdir: str,
     permissions_lookup: dict[str, Permissions],
-) -> dict[str, str | Permissions] | None:
+) -> BitstreamInfo | None:
     """
     This function uploads a specified bitstream file to SIPI and then returns the file information from SIPI.
 
@@ -52,7 +52,7 @@ def handle_bitstream(
     permissions_lookup: dict[str, Permissions],
     sipi_server: Sipi,
     imgdir: str,
-) -> dict[str, Any] | None:
+) -> BitstreamInfo | None:
     """
     Upload a bitstream file to SIPI
 

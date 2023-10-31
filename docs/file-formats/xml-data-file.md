@@ -156,7 +156,7 @@ A `<resource>` element contains all necessary information to create a resource. 
 - `label` (required): a human-readable, preferably meaningful short name of the resource
 - `restype` (required): the resource type as defined within the ontology 
 - `id` (required): an arbitrary string providing a unique ID to the resource
-  in order to be referencable by other resources; 
+  in order to be referenceable by other resources; 
   the ID is only used during the import process 
   and later replaced by the IRI used internally by DSP 
 - `permissions` 
@@ -687,7 +687,7 @@ Example of a public and a hidden text:
 ```
 
 The second text above contains a link to the resource `obj_0003`, which is defined in the same XML file. It also 
-contains a link to  the resource `http://rdfh.ch/4123/nyOODvYySV2nJ5RWRdmOdQ`, which already exists on the DSP server.
+contains a link to the resource `http://rdfh.ch/4123/nyOODvYySV2nJ5RWRdmOdQ`, which already exists on the DSP server.
 
 #### `encoding` and `gui_element`
 

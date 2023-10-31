@@ -33,7 +33,7 @@ it is necessary to reference entities that are defined elsewhere. The following 
 
 ## DSP Base Resources and Base Properties to be Used Directly in the XML File
 
-From several DSP base resources no subclasses can be created in a project ontology. 
+From several DSP base resources, no subclasses can be created in a project ontology. 
 However, they can be used directly in the XML data file:
 
 - `Annotation` is an annotation to another resource of any class. 

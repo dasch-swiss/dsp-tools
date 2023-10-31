@@ -84,7 +84,7 @@ The expected columns are:
   (optional): Description of the resource class. Can be longer than the label.
 - [`super`](./json-project/ontologies.md#resource-super)
   (mandatory): The type of this resource class, 
-  i.e. the base resource class(es) that this resource class is derived from.
+  i.e. the base resource class/classes that this resource class is derived from.
   Must be one of the values listed in the documentation. 
   If more than one: separated by commas. 
 
@@ -136,7 +136,7 @@ The expected columns are:
 - [`comment_en`, `comment_de`, `comment_fr`, `comment_it`, `comment_rm`](./json-project/ontologies.md#property-comments)
   (optional): Description of the property. Can be longer than the label.
 - [`super`](./json-project/ontologies.md#property-super) 
-  (mandatory): The type of this property, i.e. the base property/ies that this property is derived from.
+  (mandatory): The type of this property, i.e. the base property/properties that this property is derived from.
   Must be one of the values listed in the documentation.
   If more than one: separated by commas.
 - [`object`](./json-project/ontologies.md#property-object-gui_element-gui_attributes) 
@@ -154,7 +154,7 @@ The expected columns are:
 - [`gui_attributes`](./json-project/ontologies.md#property-object-gui_element-gui_attributes) 
   (only mandatory for lists): Some `gui_element`s need further specifications. 
   Read the documentation of the respective `object` to learn if your `gui_element` needs a `gui_attributes`.
-  Form: "attr: value, attr: value". 
+  Form: `attr: value, attr: value`. 
 
 The optional columns may be omitted in the Excel.  
 
@@ -188,7 +188,7 @@ Some notes:
   file has to be in the exact same cell as the one in the first Excel file.
 - Only Excel files with file extension `.xlsx` are considered. 
 - The file name must consist of the language label, e.g. `de.xlsx` / `en.xlsx`. 
-- The language has to be one of {de, en, fr, it, rm}.
+- The language has to be one of {`de`, `en`, `fr`, `it`, `rm`}.
 - As node name, a simplified version of the English label is taken. If English is not available, one of the other 
   languages is taken.
 - If there are two nodes with the same name, an incrementing number is appended to the name.

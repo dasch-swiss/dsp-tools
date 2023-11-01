@@ -6,18 +6,6 @@
        shortcode="4123"
        default-ontology="testonto">
 
-<resource label="no_replacements" restype=":TestThing" id="no_replacements">
-        <text-prop name=":hasSimpleText">
-            <text encoding="utf8">Text</text>
-        </text-prop>
-        <text-prop name=":hasRichtext">
-            <text encoding="xml">Text</text>
-        </text-prop>
-        <boolean-prop name=":hasBoolean">
-            <boolean>true</boolean>
-        </boolean-prop>
-    </resource>
-
     <resource label="resptr_only" restype=":TestThing" id="resptr_only">
         <text-prop name=":hasSimpleText">
             <text encoding="utf8">Text</text>

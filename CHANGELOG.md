@@ -1,5 +1,45 @@
 # Changelog
 
+## [5.1.0](https://github.com/dasch-swiss/dsp-tools/compare/v5.0.3...v5.1.0) (2023-11-01)
+
+
+### Enhancements
+
+* **xmlupload:** reduce stash size of circular references (DEV-2848) ([#599](https://github.com/dasch-swiss/dsp-tools/issues/599)) ([228b1f7](https://github.com/dasch-swiss/dsp-tools/commit/228b1f7488ee61307dc9e9c730f096c44508555e))
+
+
+### Bug Fixes
+
+* don't create logging handler multiple times (DEV-2891) ([#609](https://github.com/dasch-swiss/dsp-tools/issues/609)) ([e6aa47c](https://github.com/dasch-swiss/dsp-tools/commit/e6aa47cfeb70136a1e5107bf49490168a13d5b96))
+* ignore IRIs in stashing algorithm (DEV-2885) ([#603](https://github.com/dasch-swiss/dsp-tools/issues/603)) ([635bc5c](https://github.com/dasch-swiss/dsp-tools/commit/635bc5cf3ce5651b5ee0a80734dfc9d33548cd81))
+* IRI regex used in multiple places is incorrect (DEV-2888) ([#606](https://github.com/dasch-swiss/dsp-tools/issues/606)) ([096f47e](https://github.com/dasch-swiss/dsp-tools/commit/096f47e9c1e525be750a9d57c5c087c360cc0205))
+* prevent endless waiting for response, without creating resources multiple times (DEV-2860) ([#586](https://github.com/dasch-swiss/dsp-tools/issues/586)) ([caa16b7](https://github.com/dasch-swiss/dsp-tools/commit/caa16b7126c63acc82d68932b6693a431042d986))
+
+
+### Maintenance
+
+* add a client for project related API requests (DEV-2890) ([#610](https://github.com/dasch-swiss/dsp-tools/issues/610)) ([e100b26](https://github.com/dasch-swiss/dsp-tools/commit/e100b26e74a6691b82b8f84bfbbef43ff5eee846))
+* add logging to stashing algorithm (DEV-2881) ([#608](https://github.com/dasch-swiss/dsp-tools/issues/608)) ([736f02b](https://github.com/dasch-swiss/dsp-tools/commit/736f02bc6152f4e3aee73867a8d2c4e2d4e7dc48))
+* add specific model for bitstream information (DEV-2893) ([#613](https://github.com/dasch-swiss/dsp-tools/issues/613)) ([8d0d61d](https://github.com/dasch-swiss/dsp-tools/commit/8d0d61da83ead342c49af3730341bb22df7a63d4))
+* bump start-stack to 2023.10.03 ([#616](https://github.com/dasch-swiss/dsp-tools/issues/616)) ([213c301](https://github.com/dasch-swiss/dsp-tools/commit/213c3017c7ae4a9b25f68520a633814d342ae110))
+* **deps:** bump the all-dependencies group with 8 updates ([#617](https://github.com/dasch-swiss/dsp-tools/issues/617)) ([1a2fdd6](https://github.com/dasch-swiss/dsp-tools/commit/1a2fdd60cc7baa4b9fe876d693b7aaaf2806acb4))
+* fix analyse_circles_in_data() (remove namespaces) ([#598](https://github.com/dasch-swiss/dsp-tools/issues/598)) ([72f710c](https://github.com/dasch-swiss/dsp-tools/commit/72f710c01707c0373008dcfc89f53028da50c548))
+* fix logging statements ([#611](https://github.com/dasch-swiss/dsp-tools/issues/611)) ([1f95f8d](https://github.com/dasch-swiss/dsp-tools/commit/1f95f8d1b79bd5170a652c0d04e7ada417d76734))
+* further refactoring of graph analysing ([#590](https://github.com/dasch-swiss/dsp-tools/issues/590)) ([d0779ac](https://github.com/dasch-swiss/dsp-tools/commit/d0779aceaaee5e611d8cbe82dceab4f31bb91070))
+* improve logging for upload-files ([#614](https://github.com/dasch-swiss/dsp-tools/issues/614)) ([f99e755](https://github.com/dasch-swiss/dsp-tools/commit/f99e75537cec73a14927b26350e24cfdf5bfcd44))
+* log dsp-tools version ([#612](https://github.com/dasch-swiss/dsp-tools/issues/612)) ([ab9ffef](https://github.com/dasch-swiss/dsp-tools/commit/ab9ffeff41d39357b4258f8ab4489ea925a2fdd9))
+* refactor graph analysing ([#589](https://github.com/dasch-swiss/dsp-tools/issues/589)) ([14a6e83](https://github.com/dasch-swiss/dsp-tools/commit/14a6e8395a583e644d589c69acec157e50ef5468))
+* split up test_rosetta.py into smaller functions ([#601](https://github.com/dasch-swiss/dsp-tools/issues/601)) ([33c9fce](https://github.com/dasch-swiss/dsp-tools/commit/33c9fce4ffc20aae9ea6e53e10f1def24cefdf4e))
+* **test_construct_and_analyze_graph:** remove namespace, add semantic line breaks ([#602](https://github.com/dasch-swiss/dsp-tools/issues/602)) ([b693a94](https://github.com/dasch-swiss/dsp-tools/commit/b693a9415d4e087fc8667a397de38370708c4f8b))
+* tidy up graph analyzing ([#595](https://github.com/dasch-swiss/dsp-tools/issues/595)) ([f2d4488](https://github.com/dasch-swiss/dsp-tools/commit/f2d4488a147ed5b9109cf06b2dca7d8232a696f8))
+* tidy up KnoraStandoffXml class ([#597](https://github.com/dasch-swiss/dsp-tools/issues/597)) ([c430b67](https://github.com/dasch-swiss/dsp-tools/commit/c430b67b103faf8808026988f52d365dde040d74))
+
+
+### Documentation
+
+* fix broken links ([#604](https://github.com/dasch-swiss/dsp-tools/issues/604)) ([7c19894](https://github.com/dasch-swiss/dsp-tools/commit/7c198940d1b9fce897f6f07f39c5e749937744a8))
+* fix typos in docs ([#615](https://github.com/dasch-swiss/dsp-tools/issues/615)) ([a7ecd47](https://github.com/dasch-swiss/dsp-tools/commit/a7ecd47156b62edc07270c04574bcf105941e2d3))
+
 ## [5.0.3](https://github.com/dasch-swiss/dsp-tools/compare/v5.0.2...v5.0.3) (2023-10-20)
 
 

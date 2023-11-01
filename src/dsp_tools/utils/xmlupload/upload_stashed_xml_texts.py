@@ -6,7 +6,6 @@ from urllib.parse import quote_plus
 
 from dsp_tools.connection.connection import Connection
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.resource import KnoraStandoffXmlEncoder
 from dsp_tools.models.value import KnoraStandoffXml
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import try_network_action
@@ -88,13 +87,12 @@ def _create_XMLResource_json_object_to_update(
         link_prop_name: {
             "@id": value_iri,
             "@type": "knora-api:TextValue",
-            "knora-api:textValueAsXml": new_xmltext,
+            "knora-api:textValueAsXml": '<?xml version="1.0" encoding="UTF-8"?>\n<text>' + str(new_xmltext) + "</text>",
             "knora-api:textValueHasMapping": {"@id": "http://rdfh.ch/standoff/mappings/StandardMapping"},
         },
         "@context": context,
     }
-    return json.dumps(jsonobj, indent=4, separators=(",", ": "), cls=KnoraStandoffXmlEncoder)
-    # TODO: get rid of the encoder
+    return json.dumps(jsonobj, indent=4, separators=(",", ": "))
 
 
 def upload_stashed_xml_texts(

@@ -4,6 +4,10 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Optional, cast
 
+from dsp_tools.utils.create_logger import get_logger
+
+logger = get_logger(__name__)
+
 import requests
 
 from dsp_tools.models.exceptions import BaseError
@@ -175,7 +179,7 @@ class ConnectionLive:
         response = requests.post(
             url=url,
             headers=headers,
-            data=jsondata,
+            data=jsondata.encode("utf-8") if jsondata else None,
             timeout=timeout,
         )
         if self.dump:
@@ -265,7 +269,7 @@ class ConnectionLive:
         response = requests.put(
             url=url,
             headers=headers,
-            data=jsondata,
+            data=jsondata.encode("utf-8") if jsondata else None,
             timeout=timeout,
         )
         if self.dump:

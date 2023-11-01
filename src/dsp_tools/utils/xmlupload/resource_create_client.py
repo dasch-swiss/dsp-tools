@@ -1,9 +1,7 @@
-import base64
 import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, assert_never
-from urllib.request import Request, urlopen
 
 import regex
 
@@ -19,11 +17,6 @@ from dsp_tools.utils.shared import try_network_action
 from dsp_tools.utils.xmlupload.ark2iri import convert_ark_v0_to_resource_iri
 
 logger = get_logger(__name__)
-
-# TODO:
-# - subproperties of isPartOf etc. are not created correctly
-# - second ontology doesn't resolve (context?)
-# - list values are not created correctly(?)
 
 
 @dataclass(frozen=True)
@@ -97,17 +90,9 @@ class ResourceCreateClient:
         return res
 
     def _make_values(self, resource: XMLResource) -> dict[str, Any]:
-        # TODO: should also include the poject specific subproperties of these properties
         def prop_name(p: XMLProperty) -> str:
             if p.valtype == "resptr":
                 return p.name + "Value"
-            # if p in [
-            #     "knora-api:isPartOf",
-            #     "knora-api:isRegionOf",
-            #     "knora-api:isSequenceOf",
-            #     "knora-api:isAnnotationOf",
-            # ]:
-            #     return p + "Value"
             return p.name
 
         return {
@@ -219,14 +204,23 @@ def _make_date_value(value: XMLValue) -> dict[str, Any]:
     date_groups = date_match.groups()
     match date_groups:
         case (str() | None, str() | None, str(), str() | None, str() | None):
+            # start_era cannot be None, and this provides a useful type hint
             pass
         case ("ISLAMIC", era, _, end_era, _) if era or end_era:
             raise UserError(f"ISLAMIC calendar does not support eras: {value.value}")
         case _:
             raise UserError(f"Could not parse date: {value.value}")
-
     res: dict[str, Any] = {"@type": "knora-api:DateValue"}
     calendar, start_era, start_date, end_era, end_date = date_groups
+    if not calendar:
+        calendar = "GREGORIAN"
+    if not end_date:
+        end_date = start_date
+    if calendar != "ISLAMIC":
+        if not start_era:
+            start_era = "CE"
+        if end_date and not end_era:
+            end_era = "CE"
 
     year, month, day = _parse_date(start_date)
     res["knora-api:dateValueHasStartYear"] = int(year)
@@ -248,7 +242,6 @@ def _make_date_value(value: XMLValue) -> dict[str, Any]:
             res["knora-api:dateValueHasEndMonth"] = int(month)
         if day:
             res["knora-api:dateValueHasEndDay"] = int(day)
-    # XXX: some issue here?
     return res
 
 
@@ -368,16 +361,13 @@ def _make_text_value(value: XMLValue, id2iri_mapping: dict[str, str]) -> dict[st
 
 
 def _make_time_value(value: XMLValue) -> dict[str, Any]:
-    res = {
+    return {
         "@type": "knora-api:TimeValue",
         "knora-api:timeValueAsTimeStamp": {
             "@type": "xsd:dateTimeStamp",
             "@value": value.value,
-        }
-        # value.value,  # XXX: check if this is correct! probably not
+        },
     }
-    print(f"attempting to create time value: {res}")
-    return res
 
 
 def _make_uri_value(value: XMLValue) -> dict[str, Any]:

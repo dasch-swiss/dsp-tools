@@ -173,9 +173,10 @@ def _remove_resources_if_id_in_mapping(
         mapping: mapping of internal IDs to IRIs
 
     Returns:
-        a tuple of the modified XML tree
+        a modified copy of the XML tree
     """
-    resources = tree.xpath("|".join([f"/knora/{x}" for x in ["resource", "annotation", "link", "region"]]))
+    modified_tree = copy.deepcopy(tree)
+    resources = modified_tree.xpath("|".join([f"/knora/{x}" for x in ["resource", "annotation", "link", "region"]]))
     resources_to_remove = [x for x in resources if x.attrib.get("id") in mapping]
     for resource in resources_to_remove:
         resource.getparent().remove(resource)
@@ -187,7 +188,7 @@ def _remove_resources_if_id_in_mapping(
     logger.info(msg)
     print(msg)
 
-    return tree
+    return modified_tree
 
 
 def _write_output_file(

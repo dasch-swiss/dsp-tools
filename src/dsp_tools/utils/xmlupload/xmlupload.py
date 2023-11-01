@@ -21,6 +21,7 @@ from dsp_tools.models.xmlresource import BitstreamInfo, XMLResource
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.json_ld_util import get_json_ld_context_for_project
 from dsp_tools.utils.shared import login, try_network_action
+from dsp_tools.utils.xmlupload.list_client import ListClient, ListClientLive
 from dsp_tools.utils.xmlupload.project_client import ProjectClient, ProjectClientLive
 from dsp_tools.utils.xmlupload.read_validate_xml_file import validate_and_parse_xml_file
 from dsp_tools.utils.xmlupload.resource_create_client import ResourceCreateClient
@@ -88,6 +89,7 @@ def xmlupload(
     )
 
     project_client = ProjectClientLive(config.server, config.shortcode)
+    list_client = ListClientLive(config.server, project_client.get_project_iri())
 
     id2iri_mapping, failed_uploads = _upload(
         resources=resources,
@@ -98,6 +100,7 @@ def xmlupload(
         stash=stash,
         config=config,
         project_client=project_client,
+        list_client=list_client,
     )
 
     write_id2iri_mapping(id2iri_mapping, input_file, config.timestamp_str)
@@ -141,6 +144,7 @@ def _upload(
     stash: Stash | None,
     config: UploadConfig,
     project_client: ProjectClient,
+    list_client: ListClient,
 ) -> tuple[dict[str, str], list[str]]:
     # upload all resources, then update the resources with the stashed XML texts and resptrs
     failed_uploads: list[str] = []
@@ -154,6 +158,7 @@ def _upload(
             con=con,
             config=config,
             project_client=project_client,
+            list_client=list_client,
         )
         nonapplied_stash = (
             _upload_stash(
@@ -298,6 +303,7 @@ def _upload_resources(
     con: Connection,
     config: UploadConfig,
     project_client: ProjectClient,
+    list_client: ListClient,
 ) -> tuple[dict[str, str], list[str]]:
     """
     Iterates through all resources and tries to upload them to DSP.
@@ -320,6 +326,7 @@ def _upload_resources(
 
     project_iri = project_client.get_project_iri()
     json_ld_context = get_json_ld_context_for_project(project_client.get_ontology_name_dict())
+    listnode_lookup = list_client.get_list_node_iri_lookup()
 
     resource_create_client = ResourceCreateClient(
         con=con,
@@ -327,6 +334,7 @@ def _upload_resources(
         json_ld_context=json_ld_context,
         id2iri_mapping=id2iri_mapping,
         permissions_lookup=permissions_lookup,
+        listnode_lookup=listnode_lookup,
     )
 
     for i, resource in enumerate(resources):

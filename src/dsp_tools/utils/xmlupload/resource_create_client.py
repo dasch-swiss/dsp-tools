@@ -28,6 +28,7 @@ class ResourceCreateClient:
     json_ld_context: dict[str, str]
     id2iri_mapping: dict[str, str]
     permissions_lookup: dict[str, Permissions]
+    listnode_lookup: dict[str, str]
 
     def create_resource(
         self,
@@ -95,11 +96,7 @@ class ResourceCreateClient:
                 return p.name + "Value"
             return p.name
 
-        return {
-            prop_name(prop): self._make_value_for_property(prop)
-            for prop in resource.properties
-            if prop.valtype != "list"
-        }
+        return {prop_name(prop): self._make_value_for_property(prop) for prop in resource.properties}
 
     def _make_value_for_property(self, prop: XMLProperty) -> list[dict[str, Any]]:
         return [self._make_value(v, prop.valtype) for v in prop.values]
@@ -125,7 +122,7 @@ class ResourceCreateClient:
             case "resptr":
                 res = _make_link_value(value, self.id2iri_mapping)
             case "list":
-                res = _make_list_value(value)
+                res = _make_list_value(value, self.listnode_lookup)
             case "text":
                 res = _make_text_value(value, self.id2iri_mapping)
             case "time":
@@ -324,7 +321,7 @@ def _make_link_value(value: XMLValue, id_to_iri_mapping: dict[str, str]) -> dict
     }
 
 
-def _make_list_value(value: XMLValue) -> dict[str, Any]:
+def _make_list_value(value: XMLValue, iri_lookup: dict[str, str]) -> dict[str, Any]:
     res = {
         "@type": "knora-api:ListValue",
         "knora-api:listValueAsListNode": {

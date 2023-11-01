@@ -1,7 +1,9 @@
+import base64
 import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, assert_never
+from urllib.request import Request, urlopen
 
 import regex
 
@@ -12,8 +14,11 @@ from dsp_tools.models.value import KnoraStandoffXml
 from dsp_tools.models.xmlproperty import XMLProperty
 from dsp_tools.models.xmlresource import BitstreamInfo, XMLResource
 from dsp_tools.models.xmlvalue import XMLValue
+from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import try_network_action
 from dsp_tools.utils.xmlupload.ark2iri import convert_ark_v0_to_resource_iri
+
+logger = get_logger(__name__)
 
 # TODO:
 # - subproperties of isPartOf etc. are not created correctly
@@ -37,9 +42,9 @@ class ResourceCreateClient:
         bitstream_information: BitstreamInfo | None,
     ) -> tuple[str, str]:
         """Creates a resource on the DSP server."""
+        logger.info(f"Attempting to create resource {resource.id} (label: {resource.label}, iri: {resource.iri})...")
         resource_json_ld = self._make_json_ld_resource(resource, bitstream_information)
         res = try_network_action(self.con.post, route="/v2/resources", jsondata=resource_json_ld)
-        # res = self.con.post("/v2/resources", resource_json_ld)  # pylint: disable=assignment-from-no-return
         iri = res["@id"]
         label = res["rdfs:label"]
         return iri, label
@@ -49,9 +54,7 @@ class ResourceCreateClient:
         resource: XMLResource,
         bitstream_information: BitstreamInfo | None,
     ) -> str:
-        return json.dumps(
-            self._make_resource_with_values(resource, bitstream_information), ensure_ascii=False, indent=4
-        )
+        return json.dumps(self._make_resource_with_values(resource, bitstream_information), ensure_ascii=False)
 
     def _make_resource_with_values(
         self,
@@ -95,17 +98,23 @@ class ResourceCreateClient:
 
     def _make_values(self, resource: XMLResource) -> dict[str, Any]:
         # TODO: should also include the poject specific subproperties of these properties
-        def prop_name(p: str) -> str:
-            if p in [
-                "knora-api:isPartOf",
-                "knora-api:isRegionOf",
-                "knora-api:isSequenceOf",
-                "knora-api:isAnnotationOf",
-            ]:
-                return p + "Value"
-            return p
+        def prop_name(p: XMLProperty) -> str:
+            if p.valtype == "resptr":
+                return p.name + "Value"
+            # if p in [
+            #     "knora-api:isPartOf",
+            #     "knora-api:isRegionOf",
+            #     "knora-api:isSequenceOf",
+            #     "knora-api:isAnnotationOf",
+            # ]:
+            #     return p + "Value"
+            return p.name
 
-        return {prop_name(prop.name): self._make_value_for_property(prop) for prop in resource.properties}
+        return {
+            prop_name(prop): self._make_value_for_property(prop)
+            for prop in resource.properties
+            if prop.valtype != "list"
+        }
 
     def _make_value_for_property(self, prop: XMLProperty) -> list[dict[str, Any]]:
         return [self._make_value(v, prop.valtype) for v in prop.values]
@@ -133,7 +142,7 @@ class ResourceCreateClient:
             case "list":
                 res = _make_list_value(value)
             case "text":
-                res = _make_text_value(value)
+                res = _make_text_value(value, self.id2iri_mapping)
             case "time":
                 res = _make_time_value(value)
             case "uri":
@@ -239,6 +248,7 @@ def _make_date_value(value: XMLValue) -> dict[str, Any]:
             res["knora-api:dateValueHasEndMonth"] = int(month)
         if day:
             res["knora-api:dateValueHasEndDay"] = int(day)
+    # XXX: some issue here?
     return res
 
 
@@ -325,14 +335,15 @@ def _make_list_value(value: XMLValue) -> dict[str, Any]:
     res = {
         "@type": "knora-api:ListValue",
         "knora-api:listValueAsListNode": {
-            "@id": value.value,
+            # "@id": value.value,
+            "@id": "http://rdfh.ch/lists/0001/treeList",
         },  # XXX: make sure to get the actual list node IRI here
     }
     print(f"attempting to create list value: {res}")
     return res
 
 
-def _make_text_value(value: XMLValue) -> dict[str, Any]:
+def _make_text_value(value: XMLValue, id2iri_mapping: dict[str, str]) -> dict[str, Any]:
     match value.value:
         case str() as s:
             return {
@@ -340,7 +351,11 @@ def _make_text_value(value: XMLValue) -> dict[str, Any]:
                 "knora-api:valueAsString": s,
             }
         case KnoraStandoffXml() as xml:
-            # TODO: replace link IDs with IRIs from id2iri_mapping
+            ids = set(regex.findall(pattern='href="IRI:(.*?):IRI"', string=str(xml)))
+            xml_str = f'<?xml version="1.0" encoding="UTF-8"?>\n<text>{str(xml)}</text>'
+            for internal_id in ids:
+                iri = id2iri_mapping[internal_id]
+                xml_str = xml_str.replace(f'href="IRI:{internal_id}:IRI"', f'href="{iri}"')
             return {
                 "@type": "knora-api:TextValue",
                 "knora-api:textValueAsXml": f'<?xml version="1.0" encoding="UTF-8"?>\n<text>{str(xml)}</text>',

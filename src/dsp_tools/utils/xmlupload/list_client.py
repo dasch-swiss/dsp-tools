@@ -58,6 +58,9 @@ class ListClientLive:
         Get a mapping of list node IDs to their respective IRIs.
         A list node ID is structured as follows:
         <list name>:<node name> where the list name is the node name of the root node.
+
+        Returns:
+            The mapping of list node IDs to IRIs.
         """
         if not self.list_info:
             self.list_info = _get_list_info_from_server(self.server, self.project_iri)

@@ -315,7 +315,9 @@ def _upload_resources(
         sipi_server: Sipi instance
         permissions_lookup: maps permission strings to Permission objects
         con: connection to DSP
-        preprocessing_done: if set, all multimedia files referenced in the XML file must already be on the server
+        config: the upload configuration
+        project_client: a client for HTTP communication with the DSP-API
+        list_client: a client for HTTP communication with the DSP-API
 
     Returns:
         id2iri_mapping, failed_uploads
@@ -406,8 +408,7 @@ def _handle_upload_error(
         id2iri_mapping: mapping of ids from the XML file to IRIs in DSP (only successful uploads appear here)
         failed_uploads: resources that caused an error when uploading to DSP
         stash: an object that contains all stashed links that could not be reapplied to their resources
-        save_location: path where to save the diagnostic info
-        timestamp_str: timestamp for the name of the diagnostic files
+        diagnostics: the diagnostics configuration
     """
     print(
         f"\n==========================================\n"

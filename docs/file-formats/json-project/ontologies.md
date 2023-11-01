@@ -1030,7 +1030,7 @@ The following base resources can be used as super-resource:
 ```json
 "cardinalities": [
   {
-    "propname": "hasText",
+    "propname": ":hasText",
     "gui_order": 1,
     "cardinality": "1-n"
   },

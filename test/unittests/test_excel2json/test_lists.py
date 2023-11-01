@@ -2,7 +2,6 @@
 
 # pylint: disable=missing-class-docstring,missing-function-docstring
 
-import copy
 import json
 import os
 import unittest
@@ -19,6 +18,8 @@ from dsp_tools.utils.excel2json import lists as e2l
 
 
 class TestExcelToJSONList(unittest.TestCase):
+    lists_section_valid: list[dict[str, Any]]
+
     @classmethod
     def setUpClass(cls) -> None:
         """Is executed once before the methods of this class are run"""
@@ -30,6 +31,11 @@ class TestExcelToJSONList(unittest.TestCase):
         for file in os.listdir("testdata/tmp"):
             os.remove("testdata/tmp/" + file)
         os.rmdir("testdata/tmp")
+
+    def setUp(self) -> None:
+        """Is executed before each test method"""
+        with open("testdata/excel2json/lists-multilingual-output-expected.json", encoding="utf-8") as f:
+            self.lists_section_valid = json.load(f)
 
     def test_expand_lists_from_excel(self) -> None:
         # take the "lists" section of the systematic test project, expand it, and check if it is equal to the expanded
@@ -47,46 +53,45 @@ class TestExcelToJSONList(unittest.TestCase):
         lists_without_excel_reference_output = e2l.expand_lists_from_excel(lists_without_excel_reference)
         self.assertListEqual(lists_without_excel_reference, lists_without_excel_reference_output)
 
-    def test_validate_lists_section_with_schema(self) -> None:
-        with open("testdata/excel2json/lists-multilingual-output-expected.json", encoding="utf-8") as f:
-            lists_section_valid = json.load(f)
+    def test_validate_lists_section(self) -> None:
+        """validate the valid "lists" section: should not raise an error"""
+        self.assertTrue(e2l.validate_lists_section_with_schema(lists_section=self.lists_section_valid))
 
-        # validate the valid "lists" section: should not raise an error
-        self.assertTrue(e2l.validate_lists_section_with_schema(lists_section=lists_section_valid))
-
-        # remove mandatory "comments" section from root node: should raise an error
-        lists_section_without_comment_at_rootnode = copy.deepcopy(lists_section_valid)
-        del lists_section_without_comment_at_rootnode[0]["comments"]
+    def test_validate_lists_section_without_comments(self) -> None:
+        """remove mandatory "comments" section from root node: should raise an error"""
+        del self.lists_section_valid[0]["comments"]
         with self.assertRaisesRegex(
             BaseError,
             "'lists' section did not pass validation. The error message is: 'comments' is a required property",
         ):
-            e2l.validate_lists_section_with_schema(lists_section=lists_section_without_comment_at_rootnode)
+            e2l.validate_lists_section_with_schema(lists_section=self.lists_section_valid)
 
-        # insert invalid language code in "comments" section: should raise an error
-        lists_section_with_invalid_lang = copy.deepcopy(lists_section_valid)
-        lists_section_with_invalid_lang[0]["comments"]["eng"] = "wrong English label"
+    def test_validate_lists_section_with_invalid_lang(self) -> None:
+        """insert invalid language code in "comments" section: should raise an error"""
+        self.lists_section_valid[0]["comments"]["eng"] = "wrong English label"
         with self.assertRaisesRegex(
             BaseError,
             "'lists' section did not pass validation. The error message is: 'eng' does not match any of the regexes",
         ):
-            e2l.validate_lists_section_with_schema(lists_section=lists_section_with_invalid_lang)
+            e2l.validate_lists_section_with_schema(lists_section=self.lists_section_valid)
 
-        # wrong usage of the method: should raise an error
+    def test_validate_lists_section_wrong_signature(self) -> None:
+        """wrong usage of the function: should raise an error"""
         with self.assertRaisesRegex(BaseError, "works only if exactly one of the two arguments is given"):
             e2l.validate_lists_section_with_schema(
                 path_to_json_project_file="testdata/json-project/test-project-systematic.json",
-                lists_section=lists_section_valid,
+                lists_section=self.lists_section_valid,
             )
         with self.assertRaisesRegex(BaseError, "works only if exactly one of the two arguments is given"):
             e2l.validate_lists_section_with_schema()
 
-        # pass a file that doesn't have a "lists" section
+    def test_validate_lists_section_file_without_list(self) -> None:
+        """pass a file that doesn't have a "lists" section"""
         tp_minimal = "testdata/json-project/test-project-minimal.json"
         with self.assertRaisesRegex(BaseError, "there is no 'lists' section"):
             e2l.validate_lists_section_with_schema(path_to_json_project_file=tp_minimal)
 
-    def test_excel2lists(self) -> None:
+    def test_excel2lists_monolingual_multilingual(self) -> None:
         for mode in ["monolingual", "multilingual"]:
             # create output files
             input_df = pd.read_excel(f"testdata/excel2json/lists-{mode}/de.xlsx", header=None, dtype="str")
@@ -129,9 +134,12 @@ class TestExcelToJSONList(unittest.TestCase):
                     f"output JSON file.",
                 )
 
+    def test_excel2lists_invalid1(self) -> None:
         # make sure that the invalid lists raise an Error
         with self.assertRaisesRegex(BaseError, r"Found duplicate in column 2, row 9"):
             e2l.excel2lists(excelfolder="testdata/invalid-testdata/excel2json/lists-invalid-1")
+
+    def test_excel2lists_invalid2(self) -> None:
         with self.assertRaisesRegex(
             BaseError, r"The Excel file with the language code 'de' should have a value in row 10, column 2"
         ):

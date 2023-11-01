@@ -5,7 +5,7 @@ from urllib.parse import quote_plus
 import requests
 from requests import Response
 
-from dsp_tools.models.exceptions import UserError
+from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.utils.shared import try_network_action
 
 
@@ -86,10 +86,18 @@ def _get_ontologies_from_server(server: str, project_iri: str) -> list[str]:
     res: Response = try_network_action(requests.get, url=url, timeout=5)
     if res.status_code != 200:
         raise UserError(f"No ontology found for project {project_iri}")
-    graph: list[dict[str, Any]] | dict[str, Any] = res.json()["@graph"]
-    if isinstance(graph, dict):
-        graph = [graph]
-    return [o["@id"] for o in graph]
+    json_response: dict[str, Any] = res.json()
+    if "@graph" in json_response:
+        body = json_response["@graph"]
+    else:
+        body = json_response
+    match body:
+        case list():
+            return [o["@id"] for o in body]
+        case dict():
+            return [body["@id"]]
+        case _:
+            raise BaseError(f"Unexpected response from server: {body}")
 
 
 def _extract_name_from_iri(iri: str) -> str:

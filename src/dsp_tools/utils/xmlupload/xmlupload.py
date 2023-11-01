@@ -7,9 +7,8 @@ import json
 import sys
 from dataclasses import asdict
 from pathlib import Path
-from typing import Any, Union, cast
+from typing import Any, Union
 
-import requests
 from lxml import etree
 
 from dsp_tools.connection.connection import Connection
@@ -20,7 +19,7 @@ from dsp_tools.models.sipi import Sipi
 from dsp_tools.models.xmlpermission import XmlPermission
 from dsp_tools.models.xmlresource import BitstreamInfo, XMLResource
 from dsp_tools.utils.create_logger import get_logger
-from dsp_tools.utils.json_ld_util import get_default_json_ld_context, get_json_ld_context_for_project
+from dsp_tools.utils.json_ld_util import get_json_ld_context_for_project
 from dsp_tools.utils.shared import login, try_network_action
 from dsp_tools.utils.xmlupload.project_client import ProjectClient, ProjectClientLive
 from dsp_tools.utils.xmlupload.read_validate_xml_file import validate_and_parse_xml_file

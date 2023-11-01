@@ -1,3 +1,4 @@
+import copy
 import json
 from datetime import datetime
 from pathlib import Path
@@ -72,10 +73,11 @@ def _replace_resptrs(
         used_mapping_entries: IDs of the mapping that have been found in the XML and have been replaced
 
     Returns:
-        a tuple of the modified XML tree and the set of the IDs that have been replaced
+        a tuple of the modified copy of the XML tree, and the set of the IDs that have been replaced
     """
+    modified_tree = copy.deepcopy(tree)
     resptr_xpath = "|".join([f"/knora/{x}/resptr-prop/resptr" for x in ["resource", "annotation", "link", "region"]])
-    resptr_elems = tree.xpath(resptr_xpath)
+    resptr_elems = modified_tree.xpath(resptr_xpath)
     resptr_elems_replaced = 0
     for resptr_elem in resptr_elems:
         value_before = resptr_elem.text
@@ -87,7 +89,7 @@ def _replace_resptrs(
     logger.info(f"Replaced {resptr_elems_replaced}/{len(resptr_elems)} resptr links in the XML file")
     print(f"Replaced {resptr_elems_replaced}/{len(resptr_elems)} resptr links in the XML file")
 
-    return tree, used_mapping_entries
+    return modified_tree, used_mapping_entries
 
 
 def _replace_salsah_links(
@@ -104,10 +106,11 @@ def _replace_salsah_links(
         used_mapping_entries: IDs of the mapping that have been found in the XML and have been replaced
 
     Returns:
-        a tuple of the modified XML tree and the set of the IDs that have been replaced
+        a tuple of the modified copy of the XML tree, and the set of the IDs that have been replaced
     """
+    modified_tree = copy.deepcopy(tree)
     salsah_xpath = "|".join([f"/knora/{x}/text-prop/text//a" for x in ["resource", "annotation", "link", "region"]])
-    salsah_links = [x for x in tree.xpath(salsah_xpath) if x.attrib.get("class") == "salsah-link"]
+    salsah_links = [x for x in modified_tree.xpath(salsah_xpath) if x.attrib.get("class") == "salsah-link"]
     salsah_links_replaced = 0
     for salsah_link in salsah_links:
         value_before = regex.sub("IRI:|:IRI", "", salsah_link.attrib.get("href", ""))
@@ -119,7 +122,7 @@ def _replace_salsah_links(
     logger.info(f"Replaced {salsah_links_replaced}/{len(salsah_links)} salsah-links in the XML file")
     print(f"Replaced {salsah_links_replaced}/{len(salsah_links)} salsah-links in the XML file")
 
-    return tree, used_mapping_entries
+    return modified_tree, used_mapping_entries
 
 
 def _replace_ids_by_iris(
@@ -136,7 +139,7 @@ def _replace_ids_by_iris(
         mapping: mapping of internal IDs to IRIs
 
     Returns:
-        a tuple of the modified XML tree
+        a modified copy of the XML tree
     """
     used_mapping_entries: set[str] = set()
 

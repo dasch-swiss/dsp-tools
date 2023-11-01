@@ -20,7 +20,7 @@ from dsp_tools.models.sipi import Sipi
 from dsp_tools.models.xmlpermission import XmlPermission
 from dsp_tools.models.xmlresource import BitstreamInfo, XMLResource
 from dsp_tools.utils.create_logger import get_logger
-from dsp_tools.utils.json_ld_util import get_default_json_ld_context
+from dsp_tools.utils.json_ld_util import get_default_json_ld_context, get_json_ld_context_for_project
 from dsp_tools.utils.shared import login, try_network_action
 from dsp_tools.utils.xmlupload.project_client import ProjectClient, ProjectClientLive
 from dsp_tools.utils.xmlupload.read_validate_xml_file import validate_and_parse_xml_file
@@ -161,8 +161,8 @@ def _upload(
                 stash=stash,
                 id2iri_mapping=id2iri_mapping,
                 con=con,
-                context=config.json_ld_context,
                 verbose=config.verbose,
+                project_client=project_client,
             )
             if stash
             else None
@@ -214,8 +214,8 @@ def _upload_stash(
     stash: Stash,
     id2iri_mapping: dict[str, str],
     con: Connection,
-    context: dict[str, str],
     verbose: bool,
+    project_client: ProjectClient,
 ) -> Stash | None:
     if stash.standoff_stash:
         nonapplied_standoff = upload_stashed_xml_texts(
@@ -226,6 +226,7 @@ def _upload_stash(
         )
     else:
         nonapplied_standoff = None
+    context = get_json_ld_context_for_project(project_client.get_ontology_name_dict())
     if stash.link_value_stash:
         nonapplied_resptr_props = upload_stashed_resptr_props(
             verbose=verbose,
@@ -319,8 +320,7 @@ def _upload_resources(
     failed_uploads: list[str] = []
 
     project_iri = project_client.get_project_iri()
-    json_ld_context = get_default_json_ld_context()
-    json_ld_context.update(project_client.get_ontology_name_dict())
+    json_ld_context = get_json_ld_context_for_project(project_client.get_ontology_name_dict())
 
     resource_create_client = ResourceCreateClient(
         con=con,

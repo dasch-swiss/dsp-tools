@@ -16,6 +16,22 @@ from dsp_tools.utils.xmlupload.xmlupload import _upload_stash
 # pylint: disable=unused-argument,missing-function-docstring,missing-class-docstring,too-few-public-methods
 
 
+class ProjectClientStub:
+    """Stub class for ProjectClient."""
+
+    def get_project_iri(self) -> str:
+        raise NotImplementedError("get_project_iri not implemented")
+
+    def get_ontologies(self) -> list[str]:
+        raise NotImplementedError("get_project_iri not implemented")
+
+    def get_ontology_name_dict(self) -> dict[str, str]:
+        return {}
+
+    def get_ontology_iri_dict(self) -> dict[str, str]:
+        raise NotImplementedError("get_project_iri not implemented")
+
+
 @dataclass
 class ConnectionMock:
     """Mock class for Connection."""
@@ -85,8 +101,8 @@ class TestUploadLinkValueStashes:
             stash=stash,
             id2iri_mapping=id2iri_mapping,
             con=con,
-            context={},
             verbose=False,
+            project_client=ProjectClientStub(),
         )
         assert nonapplied is None
 
@@ -133,8 +149,8 @@ class TestUploadTextValueStashes:
             stash=stash,
             id2iri_mapping=id2iri_mapping,
             con=con,
-            context={},
             verbose=False,
+            project_client=ProjectClientStub(),
         )
         assert nonapplied is None
 
@@ -178,7 +194,7 @@ class TestUploadTextValueStashes:
             stash=stash,
             id2iri_mapping=id2iri_mapping,
             con=con,
-            context={},
             verbose=False,
+            project_client=ProjectClientStub(),
         )
         assert nonapplied == stash

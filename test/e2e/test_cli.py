@@ -1,6 +1,5 @@
 # pylint: disable=missing-class-docstring
 
-import copy
 import json
 import shutil
 import subprocess
@@ -105,28 +104,25 @@ class TestCLI(unittest.TestCase):
             verbose=True,
         )
 
-        # open a "lists" section and the project that was created
+        # insert a "lists" section into the project that was created
         with open("testdata/excel2json/lists-multilingual-output-expected.json", encoding="utf-8") as f:
             lists_section = json.load(f)
         with open(self.test_project_minimal_file, encoding="utf-8") as f:
             test_project_minimal = json.load(f)
-
-        # create a copy of the project that was created, and insert the list into it
-        tp_minimal_with_list = copy.deepcopy(test_project_minimal)
-        tp_minimal_with_list["project"]["lists"] = [lists_section[0]]
+        test_project_minimal["project"]["lists"] = [lists_section[0]]
 
         # The method to be tested can now be called with the project with the added list
         name2iri_mapping, success = create_lists(
             server=self.server,
             user=self.user,
             password=self.password,
-            project_file_as_path_or_parsed=tp_minimal_with_list,
+            project_file_as_path_or_parsed=test_project_minimal,
         )
 
         # test if the returned mapping contains the same node names than the original list
         self.assertTrue(success)
         names_returned = [str(m.path) for m in jsonpath_ng.ext.parse("$..* where id").find(name2iri_mapping)]
-        node_names = [m.value for m in jsonpath_ng.ext.parse("$.project.lists[*]..name").find(tp_minimal_with_list)]
+        node_names = [m.value for m in jsonpath_ng.ext.parse("$.project.lists[*]..name").find(test_project_minimal)]
         self.assertListEqual(names_returned, node_names)
 
     def test_validate_project(self) -> None:

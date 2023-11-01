@@ -16,7 +16,7 @@ class TestXMLUpload(unittest.TestCase):
     imgdir = "."
     sipi = "http://0.0.0.0:1024"
 
-    def test_xml_upload(self) -> None:
+    def test_error_on_nonexistant_shortcode(self) -> None:
         with self.assertRaisesRegex(UserError, r"A project with shortcode 9999 could not be found on the DSP server"):
             xmlupload(
                 input_file="testdata/invalid-testdata/xml-data/inexistent-shortcode.xml",
@@ -28,6 +28,7 @@ class TestXMLUpload(unittest.TestCase):
                 config=UploadConfig(),
             )
 
+    def test_error_on_nonexistant_onto_name(self) -> None:
         with self.assertRaisesRegex(
             UserError,
             r"The <knora> tag of your XML file references the default-ontology 'notexistingfantasyonto', "

@@ -22,6 +22,7 @@ class TestCreateLists(unittest.TestCase):
         and that the returned {node name: iri} mapping contains the same node names than the original list.
         """
         # create a project without lists
+        # (if it was already created in a previous test, the function returns False, which doesn't matter)
         create_project(
             project_file_as_path_or_parsed=self.test_project_minimal_file.absolute(),
             server=self.server,

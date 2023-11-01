@@ -7,8 +7,13 @@ from pathlib import Path
 
 import pytest
 
+from dsp_tools.utils.project_create import create_project
+
 
 class TestCLI(unittest.TestCase):
+    server = "http://0.0.0.0:3333"
+    user = "root@example.com"
+    password = "test"
     test_project_systematic_file = Path("testdata/json-project/test-project-systematic.json")
     test_project_minimal_file = Path("testdata/json-project/test-project-minimal.json")
     test_data_minimal_file = Path("testdata/xml-data/test-data-minimal.xml")
@@ -39,13 +44,22 @@ class TestCLI(unittest.TestCase):
         Test if the resource file 'src/dsp_tools/resources/schema/project.json' can be accessed.
         For this, a real CLI call from another working directory is necessary.
         """
-        self._make_cli_call(cli_call=f"dsp-tools create {self.test_project_minimal_file.absolute()}")
+        self._make_cli_call(cli_call=f"dsp-tools create --validate-only {self.test_project_minimal_file.absolute()}")
 
     def test_xml_upload(self) -> None:
         """
         Test if the resource file 'src/dsp_tools/resources/schema/data.xsd' can be accessed.
         For this, a real CLI call from another working directory is necessary.
         """
+        # create the necessary project
+        # (if it was already created in a previous test, the function returns False, which doesn't matter)
+        create_project(
+            project_file_as_path_or_parsed=self.test_project_minimal_file.absolute(),
+            server=self.server,
+            user_mail=self.user,
+            password=self.password,
+            verbose=True,
+        )
         self._make_cli_call(f"dsp-tools xmlupload -v {self.test_data_minimal_file.absolute()}")
 
     def _make_cli_call(

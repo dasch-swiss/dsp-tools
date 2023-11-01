@@ -29,11 +29,7 @@ class TestXMLUpload(unittest.TestCase):
             )
 
     def test_error_on_nonexistant_onto_name(self) -> None:
-        with self.assertRaisesRegex(
-            UserError,
-            r"The <knora> tag of your XML file references the default-ontology 'notexistingfantasyonto', "
-            r"but the project 4124 on the DSP server contains only the ontologies {'testonto'}",
-        ):
+        with self.assertRaisesRegex(UserError, r"The default ontology 'notexistingfantasyonto' "):
             xmlupload(
                 input_file="testdata/invalid-testdata/xml-data/inexistent-ontoname.xml",
                 server=self.server,

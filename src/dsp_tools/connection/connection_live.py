@@ -4,13 +4,12 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Optional, cast
 
-from dsp_tools.utils.create_logger import get_logger
-
-logger = get_logger(__name__)
-
 import requests
 
 from dsp_tools.models.exceptions import BaseError
+from dsp_tools.utils.create_logger import get_logger
+
+logger = get_logger(__name__)
 
 
 def check_for_api_error(response: requests.Response) -> None:

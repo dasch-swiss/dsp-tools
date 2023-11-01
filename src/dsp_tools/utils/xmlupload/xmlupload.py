@@ -28,7 +28,7 @@ from dsp_tools.utils.xmlupload.resource_create_client import ResourceCreateClien
 from dsp_tools.utils.xmlupload.resource_multimedia import handle_bitstream
 from dsp_tools.utils.xmlupload.stash.stash_models import Stash
 from dsp_tools.utils.xmlupload.stash_circular_references import identify_circular_references, stash_circular_references
-from dsp_tools.utils.xmlupload.upload_config import UploadConfig
+from dsp_tools.utils.xmlupload.upload_config import DiagnosticsConfig, UploadConfig
 from dsp_tools.utils.xmlupload.upload_stashed_resptr_props import upload_stashed_resptr_props
 from dsp_tools.utils.xmlupload.upload_stashed_xml_texts import upload_stashed_xml_texts
 from dsp_tools.utils.xmlupload.write_diagnostic_info import write_id2iri_mapping
@@ -78,14 +78,14 @@ def xmlupload(
     )
 
     # establish connection to DSP server
-    con = login(server=server, user=user, password=password, dump=config.dump)
+    con = login(server=server, user=user, password=password, dump=config.diagnostics.dump)
     sipi_server = Sipi(sipi, con.get_token())
 
     resources, permissions_lookup, stash = _prepare_upload(
         root=root,
         con=con,
         default_ontology=default_ontology,
-        verbose=config.verbose,
+        verbose=config.diagnostics.verbose,
     )
 
     project_client: ProjectClient = ProjectClientLive(config.server, config.shortcode)
@@ -103,7 +103,7 @@ def xmlupload(
         list_client=list_client,
     )
 
-    write_id2iri_mapping(id2iri_mapping, input_file, config.timestamp_str)
+    write_id2iri_mapping(id2iri_mapping, input_file, config.diagnostics.timestamp_str)
     success = not failed_uploads
     if success:
         print("All resources have successfully been uploaded.")
@@ -165,7 +165,7 @@ def _upload(
                 stash=stash,
                 id2iri_mapping=id2iri_mapping,
                 con=con,
-                verbose=config.verbose,
+                verbose=config.diagnostics.verbose,
                 project_client=project_client,
             )
             if stash
@@ -190,8 +190,7 @@ def _upload(
             id2iri_mapping=id2iri_mapping,
             failed_uploads=failed_uploads,
             stash=stash,
-            save_location=config.save_location,
-            timestamp_str=config.timestamp_str,
+            diagnostics=config.diagnostics,
         )
     return id2iri_mapping, failed_uploads
 
@@ -390,8 +389,7 @@ def _handle_upload_error(
     id2iri_mapping: dict[str, str],
     failed_uploads: list[str],
     stash: Stash | None,
-    save_location: Path,
-    timestamp_str: str,
+    diagnostics: DiagnosticsConfig,
 ) -> None:
     """
     In case the xmlupload must be interrupted,
@@ -419,7 +417,7 @@ def _handle_upload_error(
     logger.error("xmlupload must be aborted because of an error", exc_info=err)
 
     if id2iri_mapping:
-        id2iri_mapping_file = f"{save_location}/{timestamp_str}_id2iri_mapping.json"
+        id2iri_mapping_file = f"{diagnostics.save_location}/{diagnostics.timestamp_str}_id2iri_mapping.json"
         with open(id2iri_mapping_file, "x", encoding="utf-8") as f:
             json.dump(id2iri_mapping, f, ensure_ascii=False, indent=4)
         print(f"The mapping of internal IDs to IRIs was written to {id2iri_mapping_file}")
@@ -428,8 +426,8 @@ def _handle_upload_error(
     if stash:
         filename = _save_stash_as_json(
             stash=stash,
-            save_location=save_location,
-            timestamp_str=timestamp_str,
+            save_location=diagnostics.save_location,
+            timestamp_str=diagnostics.timestamp_str,
         )
         logfile = Path.home() / ".dsp_tools" / "logging.log"
         msg = (

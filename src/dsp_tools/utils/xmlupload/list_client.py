@@ -9,6 +9,8 @@ import requests
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.create_logger import get_logger
 
+# pylint: disable=too-few-public-methods
+
 logger = get_logger(__name__)
 
 

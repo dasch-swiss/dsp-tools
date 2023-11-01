@@ -35,17 +35,24 @@ def _transform_server_url_to_foldername(server: str) -> str:
 
 
 @dataclass(frozen=True)
-class UploadConfig:
-    """Configuration for the upload process."""
+class DiagnosticsConfig:
+    """Configures all diagnostics for a given upload."""
 
     verbose: bool = False
     dump: bool = False
-    preprocessing_done: bool = False
-    server: str = "unknown"
-    shortcode: str = "unknown"
     server_as_foldername: str = "unknown"
     save_location: Path = field(default=Path.home() / ".dsp-tools" / "xmluploads")
     timestamp_str: str = field(default=datetime.now().strftime("%Y-%m-%d_%H%M%S"))
+
+
+@dataclass(frozen=True)
+class UploadConfig:
+    """Configuration for the upload process."""
+
+    preprocessing_done: bool = False
+    server: str = "unknown"
+    shortcode: str = "unknown"
+    diagnostics: DiagnosticsConfig = field(default_factory=DiagnosticsConfig)
 
     def with_server_info(
         self,
@@ -58,10 +65,9 @@ class UploadConfig:
         save_location = Path.home() / Path(".dsp-tools") / "xmluploads" / server_as_foldername / shortcode / onto_name
         save_location.mkdir(parents=True, exist_ok=True)
         logger.info(f"{save_location=:}")
-        return dataclasses.replace(
-            self,
-            server=server,
-            shortcode=shortcode,
-            save_location=save_location,
+        diagnostics: DiagnosticsConfig = dataclasses.replace(
+            self.diagnostics,
             server_as_foldername=server_as_foldername,
+            save_location=save_location,
         )
+        return dataclasses.replace(self, server=server, shortcode=shortcode, diagnostics=diagnostics)

@@ -15,8 +15,8 @@ class StandoffStashItem:
     uuid: str
     prop_name: str
     value: KnoraStandoffXml
-    # TODO: replace KnoraStandoffXml with str
-    # TODO: Permissions missing still
+    # TODO: replace KnoraStandoffXml with str  #pylint: disable=fixme
+    # TODO: Permissions missing still          #pylint: disable=fixme
 
 
 @dataclass(frozen=True)

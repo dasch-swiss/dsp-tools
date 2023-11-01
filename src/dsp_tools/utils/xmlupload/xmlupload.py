@@ -88,8 +88,8 @@ def xmlupload(
         verbose=config.verbose,
     )
 
-    project_client = ProjectClientLive(config.server, config.shortcode)
-    list_client = ListClientLive(config.server, project_client.get_project_iri())
+    project_client: ProjectClient = ProjectClientLive(config.server, config.shortcode)
+    list_client: ListClient = ListClientLive(config.server, project_client.get_project_iri())
 
     id2iri_mapping, failed_uploads = _upload(
         resources=resources,
@@ -326,7 +326,7 @@ def _upload_resources(
 
     project_iri = project_client.get_project_iri()
     json_ld_context = get_json_ld_context_for_project(project_client.get_ontology_name_dict())
-    listnode_lookup = list_client.get_list_node_iri_lookup()
+    listnode_lookup = list_client.get_list_node_id_to_iri_lookup()
 
     resource_create_client = ResourceCreateClient(
         con=con,

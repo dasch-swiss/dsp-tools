@@ -322,15 +322,13 @@ def _make_link_value(value: XMLValue, id_to_iri_mapping: dict[str, str]) -> dict
 
 
 def _make_list_value(value: XMLValue, iri_lookup: dict[str, str]) -> dict[str, Any]:
-    res = {
+    assert isinstance(value.value, str)
+    return {
         "@type": "knora-api:ListValue",
         "knora-api:listValueAsListNode": {
-            # "@id": value.value,
-            "@id": "http://rdfh.ch/lists/0001/treeList",
-        },  # XXX: make sure to get the actual list node IRI here
+            "@id": iri_lookup[value.value],
+        },
     }
-    print(f"attempting to create list value: {res}")
-    return res
 
 
 def _make_text_value(value: XMLValue, id2iri_mapping: dict[str, str]) -> dict[str, Any]:

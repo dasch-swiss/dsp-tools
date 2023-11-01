@@ -1,5 +1,3 @@
-# pylint: disable=missing-class-docstring
-
 import shutil
 import subprocess
 import unittest
@@ -11,6 +9,11 @@ from dsp_tools.utils.project_create import create_project
 
 
 class TestCLI(unittest.TestCase):
+    """
+    Test if the files in 'src/dsp_tools/resources/schema' are accessible
+    if the CLI is called from another working directory.
+    """
+
     server = "http://0.0.0.0:3333"
     user = "root@example.com"
     password = "test"
@@ -18,39 +21,53 @@ class TestCLI(unittest.TestCase):
     test_project_minimal_file = Path("testdata/json-project/test-project-minimal.json")
     test_data_minimal_file = Path("testdata/xml-data/test-data-minimal.xml")
     cwd = Path("cwd")
+    testdata_tmp = Path("testdata/tmp")
 
     @classmethod
     def setUpClass(cls) -> None:
         """Is executed once before the methods of this class are run"""
+        cls.testdata_tmp.mkdir(exist_ok=True)
         cls.cwd.mkdir(exist_ok=True)
 
     @classmethod
     def tearDownClass(cls) -> None:
         """Is executed after the methods of this class have all run through"""
+        shutil.rmtree(cls.testdata_tmp)
         shutil.rmtree(cls.cwd)
         for f in Path().glob("*id2iri_*.json"):
             f.unlink()
 
     def test_validate_lists_section_with_schema(self) -> None:
-        """
-        Test if the resource file 'src/dsp_tools/resources/schema/lists-only.json' can be accessed.
-        For this, a real CLI call from another working directory is necessary.
-        """
+        """Test if the resource file 'src/dsp_tools/resources/schema/lists-only.json' can be accessed."""
         cmd = f"dsp-tools create --lists-only --validate-only {self.test_project_systematic_file.absolute()}"
         self._make_cli_call(cmd)
 
+    def test_excel_to_json_resources(self) -> None:
+        """
+        Test if the resource file 'src/dsp_tools/resources/schema/resources-only.json' can be accessed.
+        The output is not tested here, this is done in the unit tests.
+        """
+        excel_file = Path("testdata/excel2json/excel2json_files/test-name (test_label)/resources.xlsx")
+        out_file = self.testdata_tmp / "_out_resources.json"
+        self._make_cli_call(f"dsp-tools excel2resources '{excel_file.absolute()}' {out_file.absolute()}")
+        out_file.unlink()
+
+    def test_excel_to_json_properties(self) -> None:
+        """
+        Test if the resource file 'src/dsp_tools/resources/schema/properties-only.json' can be accessed.
+        The output is not tested here, this is done in the unit tests.
+        """
+        excel_file = Path("testdata/excel2json/excel2json_files/test-name (test_label)/properties.xlsx")
+        out_file = self.testdata_tmp / "_out_properties.json"
+        self._make_cli_call(f"dsp-tools excel2properties '{excel_file.absolute()}' {out_file.absolute()}")
+        out_file.unlink()
+
     def test_validate_project(self) -> None:
-        """
-        Test if the resource file 'src/dsp_tools/resources/schema/project.json' can be accessed.
-        For this, a real CLI call from another working directory is necessary.
-        """
+        """Test if the resource file 'src/dsp_tools/resources/schema/project.json' can be accessed."""
         self._make_cli_call(cli_call=f"dsp-tools create --validate-only {self.test_project_minimal_file.absolute()}")
 
     def test_xml_upload(self) -> None:
-        """
-        Test if the resource file 'src/dsp_tools/resources/schema/data.xsd' can be accessed.
-        For this, a real CLI call from another working directory is necessary.
-        """
+        """Test if the resource file 'src/dsp_tools/resources/schema/data.xsd' can be accessed."""
         # create the necessary project
         # (if it was already created in a previous test, the function returns False, which doesn't matter)
         create_project(

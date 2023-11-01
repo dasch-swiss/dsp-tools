@@ -90,8 +90,10 @@ def xmlupload(
 
     project_client: ProjectClient = ProjectClientLive(config.server, config.shortcode)
     if default_ontology not in project_client.get_ontology_name_dict():
-        msg = f"The default ontology '{default_ontology}' specified in the XML file is not part of the project on the DSP server."
-        raise UserError(msg)
+        raise UserError(
+            f"The default ontology '{default_ontology}' "
+            "specified in the XML file is not part of the project on the DSP server."
+        )
     list_client: ListClient = ListClientLive(config.server, project_client.get_project_iri())
 
     id2iri_mapping, failed_uploads = _upload(
@@ -207,6 +209,7 @@ def _get_data_from_xml(
     permissions = _extract_permissions_from_xml(root, proj_context)
     resources = _extract_resources_from_xml(root, default_ontology)
     permissions_lookup = _get_project_permissions_and_classes_from_server(permissions=permissions)
+    # TODO: check what we're missing and what can be removed
     # check_consistency_with_ontology(
     #     resources=resources,
     #     shortcode=shortcode,

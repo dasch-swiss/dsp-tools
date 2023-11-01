@@ -95,7 +95,7 @@ class TestCLI(unittest.TestCase):
         Test that the 'lists' section of a JSON file is correctly created,
         and that the returned {node name: iri} mapping contains the same node names than the original list.
         """
-        # the project must already exist, so let's create a project without lists
+        # create a project without lists
         create_project(
             project_file_as_path_or_parsed=self.test_project_minimal_file.absolute(),
             server=self.server,
@@ -478,7 +478,7 @@ class TestCLI(unittest.TestCase):
         properties_returned = properties_returned or []
 
         # The original might have names in the form "currentonto:hasSimpleText".
-        # The returned file will have ":hasSimpleText", so we have to remove the onto name.
+        # The returned file will have ":hasSimpleText" --> remove the onto name.
         for prop in properties_original:
             if any(sup.startswith(onto_name) for sup in prop["super"]):
                 prop["super"] = [regex.sub(rf"^{onto_name}:", ":", sup) for sup in prop["super"]]
@@ -527,7 +527,7 @@ class TestCLI(unittest.TestCase):
         resources_returned = resources_returned or []
 
         # The original might have names in the form "currentonto:hasSimpleText".
-        # The returned file will have ":hasSimpleText", so we have to remove the onto name.
+        # The returned file will have ":hasSimpleText" --> remove the onto name.
         for res in resources_original:
             for card in res.get("cardinalities", []):
                 if card["propname"].startswith(onto_name):
@@ -540,7 +540,7 @@ class TestCLI(unittest.TestCase):
         # (or a subproperty of a cardinality of its superclass),
         # these cardinalities are implicitly added, so the "get" command will return them.
         # It would be too complicated to test this behaviour,
-        # so we need to remove the cardinalities of all subclasses from both original file and returned file.
+        # --> remove the cardinalities of all subclasses from both original file and returned file.
         for res in resources_original:
             supers_as_list = [res["super"]] if isinstance(res["super"], str) else res["super"]
             for sup in supers_as_list:

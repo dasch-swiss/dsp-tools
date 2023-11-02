@@ -180,13 +180,7 @@ def _upload(
             msg = "Some stashed resptrs or XML texts could not be reapplied to their resources on the DSP server."
             logger.error(msg)
             raise BaseError(msg)
-    except KeyboardInterrupt:
-        print("!!! xmlupload was interrupted by the user. !!!")
-        sys.exit(0)
-    except SystemExit as ex:
-        print(f"!!! system exit: {ex.code} ({ex}) !!!")
-        sys.exit(0)
-    except Exception as err:  # pylint: disable=broad-except
+    except BaseException as err:  # pylint: disable=broad-except
         # The forseeable errors are already handled by the variables
         # failed_uploads, nonapplied_xml_texts, and nonapplied_resptr_props.
         # Here we catch the unforseeable exceptions, hence BaseException (=the base class of all exceptions)
@@ -263,6 +257,7 @@ def _get_project_permissions_and_classes_from_server(permissions: dict[str, XmlP
         A dictionary with the name of the permission with the Python object
     """
     return {permission_name: perm.get_permission_instance() for permission_name, perm in permissions.items()}
+    # TODO: doesn't make sense anymore, name is outdated
 
 
 def _get_project_context_from_server(connection: Connection) -> ProjectContext:

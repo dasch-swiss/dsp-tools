@@ -7,9 +7,6 @@ from typing import Any, Optional, cast
 import requests
 
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.utils.create_logger import get_logger
-
-logger = get_logger(__name__)
 
 
 def check_for_api_error(response: requests.Response) -> None:
@@ -178,6 +175,8 @@ class ConnectionLive:
         response = requests.post(
             url=url,
             headers=headers,
+            # if data is not encoded as bytes, issues can occur with non-ASCII characters,
+            # where the content-length of the request will turn out to be different from the actual length
             data=jsondata.encode("utf-8") if jsondata else None,
             timeout=timeout,
         )
@@ -268,6 +267,8 @@ class ConnectionLive:
         response = requests.put(
             url=url,
             headers=headers,
+            # if data is not encoded as bytes, issues can occur with non-ASCII characters,
+            # where the content-length of the request will turn out to be different from the actual length
             data=jsondata.encode("utf-8") if jsondata else None,
             timeout=timeout,
         )

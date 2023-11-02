@@ -14,7 +14,7 @@ class ProjectInfo:
     """Information about a project."""
 
     project_iri: str
-    ontologies: list[str]
+    ontology_iris: list[str]
 
 
 class ProjectClient(Protocol):
@@ -23,8 +23,8 @@ class ProjectClient(Protocol):
     def get_project_iri(self) -> str:
         """Get the IRI of the project to which the data is being uploaded."""
 
-    def get_ontologies(self) -> list[str]:
-        """Get the ontology IRIs and names of the project to which the data is being uploaded."""
+    def get_ontology_iris(self) -> list[str]:
+        """Get the ontology IRIs of the project to which the data is being uploaded."""
 
     def get_ontology_name_dict(self) -> dict[str, str]:
         """Returns a mapping of ontology names to ontology IRIs."""
@@ -47,29 +47,29 @@ class ProjectClientLive:
             self.project_info = _get_project_info_from_server(self.server, self.shortcode)
         return self.project_info.project_iri
 
-    def get_ontologies(self) -> list[str]:
-        """Get the ontology IRIs and names of the project to which the data is being uploaded."""
+    def get_ontology_iris(self) -> list[str]:
+        """Get the ontology IRIs of the project to which the data is being uploaded."""
         if not self.project_info:
             self.project_info = _get_project_info_from_server(self.server, self.shortcode)
-        return self.project_info.ontologies
+        return self.project_info.ontology_iris
 
     def get_ontology_name_dict(self) -> dict[str, str]:
         """Returns a mapping of ontology names to ontology IRIs."""
         if not self.project_info:
             self.project_info = _get_project_info_from_server(self.server, self.shortcode)
-        return {_extract_name_from_iri(iri): iri for iri in self.project_info.ontologies}
+        return {_extract_name_from_onto_iri(iri): iri for iri in self.project_info.ontology_iris}
 
     def get_ontology_iri_dict(self) -> dict[str, str]:
         """Returns a mapping of ontology IRIs to ontology names."""
         if not self.project_info:
             self.project_info = _get_project_info_from_server(self.server, self.server)
-        return {iri: _extract_name_from_iri(iri) for iri in self.project_info.ontologies}
+        return {iri: _extract_name_from_onto_iri(iri) for iri in self.project_info.ontology_iris}
 
 
 def _get_project_info_from_server(server: str, shortcode: str) -> ProjectInfo:
     project_iri = _get_project_iri_from_server(server, shortcode)
     ontologies = _get_ontologies_from_server(server, project_iri)
-    return ProjectInfo(project_iri=project_iri, ontologies=ontologies)
+    return ProjectInfo(project_iri=project_iri, ontology_iris=ontologies)
 
 
 def _get_project_iri_from_server(server: str, shortcode: str) -> str:
@@ -100,5 +100,5 @@ def _get_ontologies_from_server(server: str, project_iri: str) -> list[str]:
             raise BaseError(f"Unexpected response from server: {body}")
 
 
-def _extract_name_from_iri(iri: str) -> str:
+def _extract_name_from_onto_iri(iri: str) -> str:
     return iri.split("/")[-2]

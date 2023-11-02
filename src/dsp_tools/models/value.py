@@ -17,25 +17,19 @@ from dsp_tools.models.permission import Permissions, PermissionValue
 class KnoraStandoffXml:
     """Used to handle XML strings for standoff markup"""
 
-    __xmlstr: str
-
-    def __init__(self, xmlstr: str) -> None:
-        self.__xmlstr = str(xmlstr)
-
-    def __str__(self) -> str:
-        return self.__xmlstr
+    xmlstr: str
 
     def find_ids_referenced_in_salsah_links(self) -> set[str]:
-        return set(regex.findall(pattern='href="IRI:(.*?):IRI"', string=self.__xmlstr))
+        return set(regex.findall(pattern='href="IRI:(.*?):IRI"', string=self.xmlstr))
 
     def replace(self, fromStr: str, toStr: str) -> None:
-        self.__xmlstr = self.__xmlstr.replace(fromStr, toStr)
+        self.xmlstr = self.xmlstr.replace(fromStr, toStr)
 
     def with_iris(self, id_2_iri: dict[str, str]) -> KnoraStandoffXml:
         """
         Returns a copy of this object, where all internal ids are replaced with iris according to the provided mapping.
         """
-        s = self.__xmlstr
+        s = self.xmlstr
         for internal_id in self.find_ids_referenced_in_salsah_links():
             iri = id_2_iri[internal_id]
             s = s.replace(f'href="IRI:{internal_id}:IRI"', f'href="{iri}"')

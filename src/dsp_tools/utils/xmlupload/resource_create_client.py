@@ -96,10 +96,10 @@ class ResourceCreateClient:
                 return p.name + "Value"
             return p.name
 
-        return {prop_name(prop): self._make_value_for_property(prop) for prop in resource.properties}
+        def make_values(p: XMLProperty) -> list[dict[str, Any]]:
+            return [self._make_value(v, p.valtype) for v in p.values]
 
-    def _make_value_for_property(self, prop: XMLProperty) -> list[dict[str, Any]]:
-        return [self._make_value(v, prop.valtype) for v in prop.values]
+        return {prop_name(prop): make_values(prop) for prop in resource.properties}
 
     def _make_value(self, value: XMLValue, value_type: str) -> dict[str, Any]:
         match value_type:

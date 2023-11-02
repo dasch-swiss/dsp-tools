@@ -350,7 +350,7 @@ def _make_text_value(value: XMLValue, id2iri_mapping: dict[str, str]) -> dict[st
                 xml_str = xml_str.replace(f'href="IRI:{internal_id}:IRI"', f'href="{iri}"')
             return {
                 "@type": "knora-api:TextValue",
-                "knora-api:textValueAsXml": f'<?xml version="1.0" encoding="UTF-8"?>\n<text>{str(xml)}</text>',
+                "knora-api:textValueAsXml": xml_str,
                 "knora-api:textValueHasMapping": {
                     "@id": "http://rdfh.ch/standoff/mappings/StandardMapping",
                 },

@@ -6,7 +6,6 @@ from typing import Any, Union
 from lxml import etree
 
 from dsp_tools.models.exceptions import UserError
-from dsp_tools.models.xmlresource import XMLResource
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import validate_xml_against_schema
 from dsp_tools.utils.xml_utils import parse_and_clean_xml_file
@@ -41,91 +40,6 @@ def validate_and_parse_xml_file(
     default_ontology = root.attrib["default-ontology"]
     logger.info(f"Validated and parsed the XML file. {shortcode=:} and {default_ontology=:}")
     return default_ontology, root, shortcode
-
-
-# TODO: do we still need those?
-def _check_if_resource_types_exist(
-    resources: list[XMLResource],
-    resclass_name_2_type: dict[str, type],
-) -> None:
-    """
-    Check if the resource types in the XML file are consistent with the ontology.
-
-    Args:
-        resources: a list of parsed XMLResources
-        resclass_name_2_type: infos about the resource classes that exist on the DSP server for the current ontology
-
-    Raises:
-        UserError: if there is an inconsistency between the ontology and the data
-    """
-    for resource in resources:
-        # check that the resource type is consistent with the ontology
-        if resource.restype not in resclass_name_2_type:
-            res_syntaxes = [
-                'DSP-API internals: <resource restype="restype">',
-                'current ontology:  <resource restype=":restype">',
-                'other ontology:    <resource restype="other:restype">',
-            ]
-            res_explanations = [
-                'will be interpreted as "knora-api:restype"',
-                '"restype" must be defined in the "resources" section of your ontology',
-                'not yet implemented: "other" must be defined in the same JSON project file as your ontology',
-            ]
-            err_msg = (
-                f"=========================\n"
-                f"ERROR: Resource '{resource.label}' (ID: {resource.id}) "
-                f"has an invalid resource type '{resource.restype}'. "
-                "Is your syntax correct? Remember the rules:\n"
-            )
-            for res_syntax, res_explanation in zip(res_syntaxes, res_explanations):
-                err_msg += f" - {res_syntax:<55} ({res_explanation})\n"
-            logger.error(err_msg)
-            raise UserError(err_msg)
-
-
-def _check_if_property_types_exist(
-    resources: list[XMLResource],
-    resclass_name_2_type: dict[str, type],
-) -> None:
-    """
-    Check if the property types in the XML file are either a DSP base property
-    or a property that was defined for this specific resource (not every resource can have every property).
-
-    Args:
-        resources: a list of parsed XMLResources
-        resclass_name_2_type: infos about the resource classes that exist on the DSP server for the current ontology
-
-    Raises:
-        UserError: if there is an inconsistency between the ontology and the data
-    """
-    knora_properties = resclass_name_2_type[resources[0].restype].knora_properties  # type: ignore[attr-defined]
-    for resource in resources:
-        # check that the property types are consistent with the ontology
-        resource_properties = resclass_name_2_type[resource.restype].properties.keys()  # type: ignore[attr-defined]
-        for propname in [prop.name for prop in resource.properties]:
-            if propname not in knora_properties and propname not in resource_properties:
-                prop_syntaxes = [
-                    'DSP-API internals: <text-prop name="propname">',
-                    'current ontology:  <text-prop name=":propname">',
-                    'other ontology:    <text-prop name="other:propname">',
-                ]
-                prop_explanations = [
-                    'will be interpreted as "knora-api:propname"',
-                    '"propname" must be defined in the "properties" section of your ontology',
-                    'not yet implemented: "other" must be defined in the same JSON project file as your ontology',
-                ]
-                err_msg = (
-                    f"=========================\n"
-                    f"ERROR: Resource '{resource.label}' (ID: {resource.id}) has an invalid property '{propname}'. "
-                    f"Is your syntax correct? Remember the rules:\n"
-                )
-                for prop_syntax, prop_explanation in zip(prop_syntaxes, prop_explanations):
-                    err_msg += f" - {prop_syntax:<55} ({prop_explanation})\n"
-                logger.error(err_msg)
-                raise UserError(err_msg)
-
-    print("Resource types and properties are consistent with the ontology.")
-    logger.info("Resource types and properties are consistent with the ontology.")
 
 
 def check_if_bitstreams_exist(

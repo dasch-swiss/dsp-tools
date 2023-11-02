@@ -203,7 +203,6 @@ def _get_data_from_xml(
     permissions = _extract_permissions_from_xml(root, proj_context)
     resources = _extract_resources_from_xml(root, default_ontology)
     permissions_lookup = {name: perm.get_permission_instance() for name, perm in permissions.items()}
-    # TODO: do we still want to ckeck stuff here?
     return resources, permissions_lookup
 
 

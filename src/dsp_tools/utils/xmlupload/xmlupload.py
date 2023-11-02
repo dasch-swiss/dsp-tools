@@ -202,14 +202,8 @@ def _get_data_from_xml(
     proj_context = _get_project_context_from_server(connection=con)
     permissions = _extract_permissions_from_xml(root, proj_context)
     resources = _extract_resources_from_xml(root, default_ontology)
-    permissions_lookup = _get_project_permissions_and_classes_from_server(permissions=permissions)
-    # TODO: check what we're missing and what can be removed
-    # check_consistency_with_ontology(
-    #     resources=resources,
-    #     shortcode=shortcode,
-    #     ontoname=default_ontology,
-    #     verbose=verbose,
-    # )
+    permissions_lookup = {name: perm.get_permission_instance() for name, perm in permissions.items()}
+    # TODO: do we still want to ckeck stuff here?
     return resources, permissions_lookup
 
 
@@ -241,23 +235,6 @@ def _upload_stash(
     else:
         nonapplied_resptr_props = None
     return Stash.make(nonapplied_standoff, nonapplied_resptr_props)
-
-
-def _get_project_permissions_and_classes_from_server(permissions: dict[str, XmlPermission]) -> dict[str, Permissions]:
-    """
-    This function tries to connect to the server and retrieve the project information.
-    If the project is not on the server, it raises a UserError.
-    From the information from the server, it creates a dictionary with the permission information,
-    and a dictionary with the information about the classes.
-
-    Args:
-        permissions: the permissions extracted from the XML
-
-    Returns:
-        A dictionary with the name of the permission with the Python object
-    """
-    return {permission_name: perm.get_permission_instance() for permission_name, perm in permissions.items()}
-    # TODO: doesn't make sense anymore, name is outdated
 
 
 def _get_project_context_from_server(connection: Connection) -> ProjectContext:

@@ -309,10 +309,14 @@ def _make_interval_value(value: XMLValue) -> dict[str, Any]:
 
 def _make_link_value(value: XMLValue, id_to_iri_mapping: dict[str, str]) -> dict[str, Any]:
     assert isinstance(value.value, str)
-    iri = id_to_iri_mapping.get(value.value)
-    if not iri:
-        print(f"WARNING: could not find IRI for resource ID {value.value}")
-        raise AssertionError(f"WARNING: could not find IRI for resource ID {value.value}")
+    if regex.search(r"https?://rdfh.ch/[a-fA-F0-9]{4}/[\w-]{22}", value.value):
+        iri = value.value
+    else:
+        resolved_iri = id_to_iri_mapping.get(value.value)
+        if not resolved_iri:
+            print(f"WARNING: could not find IRI for resource ID {value.value}")
+            raise AssertionError(f"WARNING: could not find IRI for resource ID {value.value}")
+        iri = resolved_iri
     return {
         "@type": "knora-api:LinkValue",
         "knora-api:linkValueHasTargetIri": {

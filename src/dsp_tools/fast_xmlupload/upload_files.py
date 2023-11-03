@@ -324,8 +324,6 @@ def _upload_files_in_parallel(
     result: list[tuple[Path, bool]] = []
     for uploaded in as_completed(upload_jobs):
         result.append(uploaded.result())
-        if len(result) % 1000 == 0:
-            print(f"{datetime.now()}: Uploaded {len(result)} files so far, continue...")
     return result
 
 

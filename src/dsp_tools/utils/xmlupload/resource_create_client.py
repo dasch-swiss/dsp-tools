@@ -3,8 +3,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, assert_never
 
-import regex
-
 from dsp_tools.connection.connection import Connection
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.models.permission import Permissions
@@ -13,6 +11,8 @@ from dsp_tools.models.xmlproperty import XMLProperty
 from dsp_tools.models.xmlresource import BitstreamInfo, XMLResource
 from dsp_tools.models.xmlvalue import XMLValue
 from dsp_tools.utils.create_logger import get_logger
+from dsp_tools.utils.date_util import parse_date_string
+from dsp_tools.utils.iri_util import is_iri
 from dsp_tools.utils.shared import try_network_action
 from dsp_tools.utils.xmlupload.ark2iri import convert_ark_v0_to_resource_iri
 
@@ -190,94 +190,63 @@ def _make_boolean_value(value: XMLValue) -> dict[str, Any]:
 
 
 def _make_color_value(value: XMLValue) -> dict[str, Any]:
+    string_value = _assert_string(value.value)
+    boolean = _validate_boolean(string_value)
     return {
         "@type": "knora-api:ColorValue",
-        "knora-api:colorValueAsColor": value.value,
+        "knora-api:colorValueAsColor": boolean,
     }
 
 
-def _make_date_value(value: XMLValue) -> dict[str, Any]:
-    entire_pattern = r"""
-    ^
-    (?:(GREGORIAN|JULIAN|ISLAMIC):)?        # optional calendar
-    (?:(CE|BCE|BC|AD):)?                    # optional era
-    (\d{4}(?:-\d{1,2})?(?:-\d{1,2})?)       # date
-    (?::(CE|BCE|BC|AD))?                    # optional era
-    (?::(\d{4}(?:-\d{1,2})?(?:-\d{1,2})?))? # optional date
-    $
-"""
-    assert isinstance(value.value, str)
-    date_match = regex.search(entire_pattern, value.value, flags=regex.VERBOSE)
-    assert date_match
-    date_groups = date_match.groups()
-    match date_groups:
-        case (str() | None, str() | None, str(), str() | None, str() | None):
-            # start_era cannot be None, and this provides a useful type hint
-            pass
-        case ("ISLAMIC", era, _, end_era, _) if era or end_era:
-            raise UserError(f"ISLAMIC calendar does not support eras: {value.value}")
+def _validate_boolean(s: str) -> bool:
+    match s:
+        case "True" | "true" | "1" | 1 | True:
+            return True
+        case "False" | "false" | "0" | 0 | False:
+            return False
         case _:
-            raise UserError(f"Could not parse date: {value.value}")
+            raise BaseError(f"Could not parse boolean value: {s}")
+
+
+def _make_date_value(value: XMLValue) -> dict[str, Any]:
+    string_value = _assert_string(value.value)
+    date = parse_date_string(string_value)
     res: dict[str, Any] = {"@type": "knora-api:DateValue"}
-    calendar, start_era, start_date, end_era, end_date = date_groups
-    if not calendar:
-        calendar = "GREGORIAN"
-    if not end_date:
-        end_date = start_date
-    if calendar != "ISLAMIC":
-        if not start_era:
-            start_era = "CE"
-        if end_date and not end_era:
-            end_era = "CE"
-
-    year, month, day = _parse_date(start_date)
-    res["knora-api:dateValueHasStartYear"] = int(year)
-    if month:
-        res["knora-api:dateValueHasStartMonth"] = int(month)
-    if day:
-        res["knora-api:dateValueHasStartDay"] = int(day)
-    if end_era:
-        res["knora-api:dateValueHasEndEra"] = end_era
-
-    if calendar:
-        res["knora-api:dateValueHasCalendar"] = calendar
-    if start_era:
-        res["knora-api:dateValueHasStartEra"] = start_era
-    if end_date:
-        year, month, day = _parse_date(end_date)
-        res["knora-api:dateValueHasEndYear"] = int(year)
-        if month:
-            res["knora-api:dateValueHasEndMonth"] = int(month)
-        if day:
-            res["knora-api:dateValueHasEndDay"] = int(day)
+    res["knora-api:dateValueHasStartYear"] = date.start.year
+    if month := date.start.month:
+        res["knora-api:dateValueHasStartMonth"] = month
+    if day := date.start.day:
+        res["knora-api:dateValueHasStartDay"] = day
+    if era := date.start.era:
+        res["knora-api:dateValueHasStartEra"] = era.value
+    if calendar := date.calendar:
+        res["knora-api:dateValueHasCalendar"] = calendar.value
+    if date.end:
+        res["knora-api:dateValueHasEndYear"] = date.end.year
+        if month := date.end.month:
+            res["knora-api:dateValueHasEndMonth"] = month
+        if day := date.end.day:
+            res["knora-api:dateValueHasEndDay"] = day
+        if era := date.end.era:
+            res["knora-api:dateValueHasEndEra"] = era.value
     return res
 
 
-def _parse_date(date: str) -> tuple[str, str | None, str | None]:
-    date_pattern = r"(\d{4})(?:-(\d{1,2}))?(?:-(\d{1,2}))?"
-    date_match = regex.search(date_pattern, date)
-    assert date_match
-    match date_match.groups():
-        case (year, month, day):
-            assert year
-            return year, month, day
-    raise UserError(f"Could not parse date: {date}")
-
-
 def _make_decimal_value(value: XMLValue) -> dict[str, Any]:
-    assert isinstance(value.value, str)
+    s = _assert_string(value.value)
     return {
         "@type": "knora-api:DecimalValue",
         "knora-api:decimalValueAsDecimal": {
             "@type": "xsd:decimal",
-            "@value": str(float(value.value)),
+            "@value": str(float(s)),
         },
     }
 
 
 def _make_geometry_value(value: XMLValue) -> dict[str, Any]:
-    assert isinstance(value.value, str)
-    encoded_value = json.dumps(json.loads(value.value))
+    s = _assert_string(value.value)
+    # this removes all whitespaces from the embedded json string
+    encoded_value = json.dumps(json.loads(s))
     return {
         "@type": "knora-api:GeomValue",
         "knora-api:geometryValueAsGeometry": encoded_value,
@@ -292,17 +261,17 @@ def _make_geoname_value(value: XMLValue) -> dict[str, Any]:
 
 
 def _make_integer_value(value: XMLValue) -> dict[str, Any]:
-    assert isinstance(value.value, str)
+    s = _assert_string(value.value)
     return {
         "@type": "knora-api:IntValue",
-        "knora-api:intValueAsInt": int(value.value),
+        "knora-api:intValueAsInt": int(s),
     }
 
 
 def _make_interval_value(value: XMLValue) -> dict[str, Any]:
-    match value.value:
-        case str() as s:
-            start, end = tuple(s.split(":", 1))
+    s = _assert_string(value.value)
+    match s.split(":", 1):
+        case [start, end]:
             return {
                 "@type": "knora-api:IntervalValue",
                 "knora-api:intervalValueHasStart": {
@@ -315,18 +284,17 @@ def _make_interval_value(value: XMLValue) -> dict[str, Any]:
                 },
             }
         case _:
-            raise UserError(f"Unexpected interval value: {value.value}")
+            raise BaseError(f"Could not parse interval value: {s}")
 
 
 def _make_link_value(value: XMLValue, id_to_iri_mapping: dict[str, str]) -> dict[str, Any]:
-    assert isinstance(value.value, str)
-    if regex.search(r"https?://rdfh.ch/[a-fA-F0-9]{4}/[\w-]{22}", value.value):
-        iri = value.value
+    s = _assert_string(value.value)
+    if is_iri(s):
+        iri = s
     else:
-        resolved_iri = id_to_iri_mapping.get(value.value)
+        resolved_iri = id_to_iri_mapping.get(s)
         if not resolved_iri:
-            print(f"WARNING: could not find IRI for resource ID {value.value}")
-            raise AssertionError(f"WARNING: could not find IRI for resource ID {value.value}")
+            raise BaseError(f"Could not resolve ID {s} to IRI.")
         iri = resolved_iri
     return {
         "@type": "knora-api:LinkValue",
@@ -337,11 +305,14 @@ def _make_link_value(value: XMLValue, id_to_iri_mapping: dict[str, str]) -> dict
 
 
 def _make_list_value(value: XMLValue, iri_lookup: dict[str, str]) -> dict[str, Any]:
-    assert isinstance(value.value, str)
+    s = _assert_string(value.value)
+    iri = iri_lookup.get(s)
+    if not iri:
+        raise BaseError(f"Could not resolve list node ID {s} to IRI.")
     return {
         "@type": "knora-api:ListValue",
         "knora-api:listValueAsListNode": {
-            "@id": iri_lookup[value.value],
+            "@id": iri,
         },
     }
 
@@ -384,3 +355,13 @@ def _make_uri_value(value: XMLValue) -> dict[str, Any]:
             "@value": value.value,
         },
     }
+
+
+def _assert_string(value: str | KnoraStandoffXml) -> str:
+    match value:
+        case str() as s:
+            return s
+        case KnoraStandoffXml() as xml:
+            raise BaseError(f"Expected string value, but got XML value: {xml.as_xml()}")
+        case _:
+            assert_never(value)

@@ -98,7 +98,7 @@ def xmlupload(
         )
     list_client: ListClient = ListClientLive(con, project_client.get_project_iri())
 
-    id2iri_mapping, failed_uploads = _upload(
+    iri_resolver, failed_uploads = _upload(
         resources=resources,
         imgdir=imgdir,
         sipi_server=sipi_server,
@@ -110,7 +110,7 @@ def xmlupload(
         list_client=list_client,
     )
 
-    write_id2iri_mapping(id2iri_mapping, input_file, config.diagnostics.timestamp_str)
+    write_id2iri_mapping(iri_resolver.lookup, input_file, config.diagnostics.timestamp_str)
     success = not failed_uploads
     if success:
         print("All resources have successfully been uploaded.")
@@ -156,12 +156,11 @@ def _upload(
     config: UploadConfig,
     project_client: ProjectClient,
     list_client: ListClient,
-) -> tuple[dict[str, str], list[str]]:
+) -> tuple[IriResolver, list[str]]:
     # upload all resources, then update the resources with the stashed XML texts and resptrs
     failed_uploads: list[str] = []
-    id2iri_mapping: dict[str, str] = {}
     try:
-        id2iri_mapping, failed_uploads = _upload_resources(
+        iri_resolver, failed_uploads = _upload_resources(
             resources=resources,
             imgdir=imgdir,
             sipi_server=sipi_server,
@@ -174,7 +173,7 @@ def _upload(
         nonapplied_stash = (
             _upload_stash(
                 stash=stash,
-                id2iri_mapping=id2iri_mapping,
+                iri_resolver=iri_resolver,
                 con=con,
                 verbose=config.diagnostics.verbose,
                 project_client=project_client,
@@ -192,12 +191,12 @@ def _upload(
         # Here we catch the unforseeable exceptions, hence BaseException (=the base class of all exceptions)
         _handle_upload_error(
             err=err,
-            id2iri_mapping=id2iri_mapping,
+            iri_resolver=iri_resolver,
             failed_uploads=failed_uploads,
             stash=stash,
             diagnostics=config.diagnostics,
         )
-    return id2iri_mapping, failed_uploads
+    return iri_resolver, failed_uploads
 
 
 def _get_data_from_xml(
@@ -214,7 +213,7 @@ def _get_data_from_xml(
 
 def _upload_stash(
     stash: Stash,
-    id2iri_mapping: dict[str, str],
+    iri_resolver: IriResolver,
     con: Connection,
     verbose: bool,
     project_client: ProjectClient,
@@ -222,7 +221,7 @@ def _upload_stash(
     if stash.standoff_stash:
         nonapplied_standoff = upload_stashed_xml_texts(
             verbose=verbose,
-            id2iri_mapping=id2iri_mapping,
+            iri_resolver=iri_resolver,
             con=con,
             stashed_xml_texts=stash.standoff_stash,
         )
@@ -232,7 +231,7 @@ def _upload_stash(
     if stash.link_value_stash:
         nonapplied_resptr_props = upload_stashed_resptr_props(
             verbose=verbose,
-            id2iri_mapping=id2iri_mapping,
+            iri_resolver=iri_resolver,
             con=con,
             stashed_resptr_props=stash.link_value_stash,
             context=context,
@@ -286,7 +285,7 @@ def _upload_resources(
     config: UploadConfig,
     project_client: ProjectClient,
     list_client: ListClient,
-) -> tuple[dict[str, str], list[str]]:
+) -> tuple[IriResolver, list[str]]:
     """
     Iterates through all resources and tries to upload them to DSP.
     If a temporary exception occurs, the action is repeated until success,
@@ -348,7 +347,7 @@ def _upload_resources(
         print(f"Created resource {i+1}/{len(resources)}: {resource_designation}")
         logger.info(f"Created resource {i+1}/{len(resources)}: {resource_designation}")
 
-    return id_to_iri_resolver.lookup, failed_uploads
+    return id_to_iri_resolver, failed_uploads
 
 
 def _create_resource(
@@ -377,7 +376,7 @@ def _create_resource(
 
 def _handle_upload_error(
     err: BaseException,
-    id2iri_mapping: dict[str, str],
+    iri_resolver: IriResolver,
     failed_uploads: list[str],
     stash: Stash | None,
     diagnostics: DiagnosticsConfig,
@@ -408,10 +407,10 @@ def _handle_upload_error(
     )
     logger.error("xmlupload must be aborted because of an error", exc_info=err)
 
-    if id2iri_mapping:
+    if iri_resolver.non_empty():
         id2iri_mapping_file = f"{diagnostics.save_location}/{diagnostics.timestamp_str}_id2iri_mapping.json"
         with open(id2iri_mapping_file, "x", encoding="utf-8") as f:
-            json.dump(id2iri_mapping, f, ensure_ascii=False, indent=4)
+            json.dump(iri_resolver.lookup, f, ensure_ascii=False, indent=4)
         print(f"The mapping of internal IDs to IRIs was written to {id2iri_mapping_file}")
         logger.info(f"The mapping of internal IDs to IRIs was written to {id2iri_mapping_file}")
 

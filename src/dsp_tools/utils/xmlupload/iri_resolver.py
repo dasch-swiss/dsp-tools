@@ -11,6 +11,10 @@ class IriResolver:
         """Adds an IRI to the resolver."""
         self.lookup[internal_id] = iri
 
-    def resolve(self, internal_id: str) -> str | None:
+    def get(self, internal_id: str) -> str | None:
         """Resolves an internal ID to an IRI."""
         return self.lookup.get(internal_id)
+
+    def non_empty(self) -> bool:
+        """Checks if the resolver is empty."""
+        return bool(self.lookup)

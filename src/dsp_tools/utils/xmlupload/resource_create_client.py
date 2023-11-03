@@ -293,7 +293,7 @@ def _make_link_value(value: XMLValue, iri_resolver: IriResolver) -> dict[str, An
     if is_iri(s):
         iri = s
     else:
-        resolved_iri = iri_resolver.resolve(s)
+        resolved_iri = iri_resolver.get(s)
         if not resolved_iri:
             raise BaseError(f"Could not resolve ID {s} to IRI.")
         iri = resolved_iri

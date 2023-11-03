@@ -35,7 +35,7 @@ class KnoraStandoffXml:
         """
         s = self.xmlstr
         for internal_id in self.find_internal_ids():
-            iri = iri_resolver.resolve(internal_id)
+            iri = iri_resolver.get(internal_id)
             if not iri:
                 raise BaseError(f"Internal ID {internal_id} could not be resolved to an IRI")
             s = s.replace(f'href="IRI:{internal_id}:IRI"', f'href="{iri}"')

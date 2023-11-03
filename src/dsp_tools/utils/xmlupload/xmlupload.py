@@ -393,7 +393,7 @@ def _handle_upload_error(
 
     Args:
         err: error that was the cause of the abort
-        id2iri_mapping: mapping of ids from the XML file to IRIs in DSP (only successful uploads appear here)
+        iri_resolver: a resolver for internal IDs to IRIs
         failed_uploads: resources that caused an error when uploading to DSP
         stash: an object that contains all stashed links that could not be reapplied to their resources
         diagnostics: the diagnostics configuration

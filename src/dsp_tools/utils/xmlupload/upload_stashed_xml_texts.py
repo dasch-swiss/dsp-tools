@@ -107,7 +107,7 @@ def upload_stashed_xml_texts(
 
     Args:
         verbose: bool
-        id2iri_mapping: mapping of ids from the XML file to IRIs in DSP
+        iri_resolver: resolver to map ids from the XML file to IRIs in DSP
         con: connection to DSP
         stashed_xml_texts: all xml texts that have been stashed
 

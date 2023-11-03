@@ -6,6 +6,7 @@ from __future__ import annotations
 import json
 import sys
 from dataclasses import asdict
+from logging import FileHandler
 from pathlib import Path
 from typing import Any, Union
 
@@ -396,10 +397,12 @@ def _handle_upload_error(
         stash: an object that contains all stashed links that could not be reapplied to their resources
         diagnostics: the diagnostics configuration
     """
+    logfiles = ", ".join([handler.baseFilename for handler in logger.handlers if isinstance(handler, FileHandler)])
     print(
         f"\n==========================================\n"
         f"xmlupload must be aborted because of an error.\n"
         f"Error message: '{err}'\n"
+        f"For more information, see the log file: {logfiles}\n"
     )
     logger.error("xmlupload must be aborted because of an error", exc_info=err)
 
@@ -416,11 +419,9 @@ def _handle_upload_error(
             save_location=diagnostics.save_location,
             timestamp_str=diagnostics.timestamp_str,
         )
-        logfile = Path.home() / ".dsp_tools" / "logging.log"
         msg = (
             f"There are stashed links that could not be reapplied to the resources they were stripped from. "
             f"They were saved to {filename}\n"
-            f"For more information, see the log file: {logfile}"
         )
         print(msg)
         logger.info(msg)

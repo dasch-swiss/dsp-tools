@@ -114,7 +114,7 @@ def parse_date_string(s: str) -> Date:
     return Date(calendar_enum, start, end)
 
 
-def _split_date_sting(s: str) -> tuple[str | None, str | None, str, str | None, str | None]:  # type: ignore[return]
+def _split_date_sting(s: str) -> tuple[str | None, str | None, str, str | None, str | None]:
     date_match = regex.search(_full_date_pattern, s, flags=regex.VERBOSE)
     if not date_match:
         raise BaseError(f"Could not parse date: {s}")

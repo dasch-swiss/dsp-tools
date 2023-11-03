@@ -37,18 +37,12 @@ class ResourceCreateClient:
     ) -> tuple[str, str]:
         """Creates a resource on the DSP server."""
         logger.info(f"Attempting to create resource {resource.id} (label: {resource.label}, iri: {resource.iri})...")
-        resource_json_ld = self._make_json_ld_resource(resource, bitstream_information)
+        resource_dict = self._make_resource_with_values(resource, bitstream_information)
+        resource_json_ld = json.dumps(resource_dict, ensure_ascii=False)
         res = try_network_action(self.con.post, route="/v2/resources", jsondata=resource_json_ld)
         iri = res["@id"]
         label = res["rdfs:label"]
         return iri, label
-
-    def _make_json_ld_resource(
-        self,
-        resource: XMLResource,
-        bitstream_information: BitstreamInfo | None,
-    ) -> str:
-        return json.dumps(self._make_resource_with_values(resource, bitstream_information), ensure_ascii=False)
 
     def _make_resource_with_values(
         self,

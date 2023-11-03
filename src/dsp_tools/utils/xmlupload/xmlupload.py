@@ -361,6 +361,11 @@ def _create_resource(
         )
         logger.warning(log_msg, exc_info=True)
         return None
+    except Exception as err:  # pylint: disable=broad-except
+        msg = f"Unable to create resource '{resource.label}' ({resource.id})"
+        print(f"WARNING: {msg}: {err}")
+        logger.exception(msg)
+        return None
 
 
 def _handle_upload_error(

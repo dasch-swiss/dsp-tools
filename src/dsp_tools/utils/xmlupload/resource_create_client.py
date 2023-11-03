@@ -6,7 +6,7 @@ from typing import Any, assert_never
 import regex
 
 from dsp_tools.connection.connection import Connection
-from dsp_tools.models.exceptions import UserError
+from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.models.permission import Permissions
 from dsp_tools.models.value import KnoraStandoffXml
 from dsp_tools.models.xmlproperty import XMLProperty
@@ -39,10 +39,19 @@ class ResourceCreateClient:
         logger.info(f"Attempting to create resource {resource.id} (label: {resource.label}, iri: {resource.iri})...")
         resource_dict = self._make_resource_with_values(resource, bitstream_information)
         resource_json_ld = json.dumps(resource_dict, ensure_ascii=False)
-        res = try_network_action(self.con.post, route="/v2/resources", jsondata=resource_json_ld)
-        iri = res["@id"]
-        label = res["rdfs:label"]
-        return iri, label
+        try:
+            res = try_network_action(self.con.post, route="/v2/resources", jsondata=resource_json_ld)
+            iri = res["@id"]
+            label = res["rdfs:label"]
+            return iri, label
+        except BaseError as e:
+            msg = f"Could not create resource {resource.id} (label: {resource.label}, iri: {resource.iri})"
+            logger.exception(msg)
+            raise BaseError(msg) from e
+        except KeyError as e:
+            msg = f"Could not create resource {resource.id}: unexpected response from server"
+            logger.exception(msg)
+            raise BaseError(msg) from e
 
     def _make_resource_with_values(
         self,
@@ -74,7 +83,12 @@ class ResourceCreateClient:
         if resource_iri:
             res["@id"] = resource_iri
         if resource.permissions:
-            res["knora-api:hasPermissions"] = str(self.permissions_lookup[resource.permissions])
+            perm = self.permissions_lookup.get(resource.permissions)
+            if not perm:
+                raise BaseError(
+                    f"Could not find permissions for resource {resource.id} with permissions {resource.permissions}"
+                )
+            res["knora-api:hasPermissions"] = str(perm)
         if resource.creation_date:
             res["knora-api:creationDate"] = {
                 "@type": "xsd:dateTimeStamp",
@@ -128,7 +142,10 @@ class ResourceCreateClient:
         if value.comment:
             res["knora-api:valueHasComment"] = value.comment
         if value.permissions:
-            res["knora-api:hasPermissions"] = str(self.permissions_lookup[value.permissions])
+            perm = self.permissions_lookup.get(value.permissions)
+            if not perm:
+                raise BaseError(f"Could not find permissions for value: {value.permissions}")
+            res["knora-api:hasPermissions"] = str(perm)
         return res
 
 
@@ -155,7 +172,7 @@ def _make_bitstream_file_value(bitstream_info: BitstreamInfo) -> dict[str, Any]:
             prop = "knora-api:hasTextFileValue"
             value_type = "TextFileValue"
         case _:
-            raise UserError(f"Unknown file ending: {file_ending} for file {local_file}")
+            raise BaseError(f"Unknown file ending: {file_ending} for file {local_file}")
     file_value = {
         "@type": f"knora-api:{value_type}",
         "knora-api:fileValueHasFilename": bitstream_info.internal_file_name,

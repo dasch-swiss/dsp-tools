@@ -15,6 +15,7 @@ from dsp_tools.utils.date_util import parse_date_string
 from dsp_tools.utils.iri_util import is_iri
 from dsp_tools.utils.shared import try_network_action
 from dsp_tools.utils.xmlupload.ark2iri import convert_ark_v0_to_resource_iri
+from dsp_tools.utils.xmlupload.iri_resolver import IriResolver
 
 logger = get_logger(__name__)
 
@@ -25,8 +26,8 @@ class ResourceCreateClient:
 
     con: Connection
     project_iri: str
+    id_to_iri_resolver: IriResolver
     json_ld_context: dict[str, str]
-    id2iri_mapping: dict[str, str]
     permissions_lookup: dict[str, Permissions]
     listnode_lookup: dict[str, str]
 
@@ -128,11 +129,11 @@ class ResourceCreateClient:
             case "interval":
                 res = _make_interval_value(value)
             case "resptr":
-                res = _make_link_value(value, self.id2iri_mapping)
+                res = _make_link_value(value, self.id_to_iri_resolver)
             case "list":
                 res = _make_list_value(value, self.listnode_lookup)
             case "text":
-                res = _make_text_value(value, self.id2iri_mapping)
+                res = _make_text_value(value, self.id_to_iri_resolver)
             case "time":
                 res = _make_time_value(value)
             case "uri":
@@ -287,12 +288,12 @@ def _make_interval_value(value: XMLValue) -> dict[str, Any]:
             raise BaseError(f"Could not parse interval value: {s}")
 
 
-def _make_link_value(value: XMLValue, id_to_iri_mapping: dict[str, str]) -> dict[str, Any]:
+def _make_link_value(value: XMLValue, iri_resolver: IriResolver) -> dict[str, Any]:
     s = _assert_string(value.value)
     if is_iri(s):
         iri = s
     else:
-        resolved_iri = id_to_iri_mapping.get(s)
+        resolved_iri = iri_resolver.resolve(s)
         if not resolved_iri:
             raise BaseError(f"Could not resolve ID {s} to IRI.")
         iri = resolved_iri
@@ -317,7 +318,7 @@ def _make_list_value(value: XMLValue, iri_lookup: dict[str, str]) -> dict[str, A
     }
 
 
-def _make_text_value(value: XMLValue, id2iri_mapping: dict[str, str]) -> dict[str, Any]:
+def _make_text_value(value: XMLValue, iri_resolver: IriResolver) -> dict[str, Any]:
     match value.value:
         case str() as s:
             return {
@@ -325,7 +326,7 @@ def _make_text_value(value: XMLValue, id2iri_mapping: dict[str, str]) -> dict[st
                 "knora-api:valueAsString": s,
             }
         case KnoraStandoffXml() as xml:
-            xml_with_iris = xml.with_iris(id2iri_mapping)
+            xml_with_iris = xml.with_iris(iri_resolver)
             return {
                 "@type": "knora-api:TextValue",
                 "knora-api:textValueAsXml": xml_with_iris.as_xml(),

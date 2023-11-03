@@ -5,6 +5,7 @@ from unittest import TestCase
 import pytest
 
 from dsp_tools.models.value import KnoraStandoffXml
+from dsp_tools.utils.xmlupload.iri_resolver import IriResolver
 
 
 class TestXMLUploadStash(TestCase):
@@ -35,7 +36,7 @@ class TestXMLUploadStash(TestCase):
         self.assertEqual({"r2_id", "r3_id"}, returned_set)
 
     def test__replace_internal_ids_with_iris_one_link(self) -> None:
-        test_id2iri = {"r1_id": "r1_iri", "r2_id": "r2_iri", "r3_id": "r3_iri"}
+        resolver = IriResolver({"r1_id": "r1_iri", "r2_id": "r2_iri", "r3_id": "r3_iri"})
         one_link_KnoraStandoffXml = KnoraStandoffXml(
             xmlstr=(
                 '<resource label="r1_label" restype="r1_restype" id="r1_id" permissions="res-default">'
@@ -44,7 +45,7 @@ class TestXMLUploadStash(TestCase):
                 "</text></text-prop></resource>"
             )
         )
-        returned_instance = one_link_KnoraStandoffXml.with_iris(test_id2iri)
+        returned_instance = one_link_KnoraStandoffXml.with_iris(resolver)
         expected_str = (
             '<resource label="r1_label" restype="r1_restype" id="r1_id" permissions="res-default">'
             '<text-prop name=":hasRichtext"><text permissions="res-default" encoding="xml">'
@@ -54,7 +55,7 @@ class TestXMLUploadStash(TestCase):
         self.assertEqual(expected_str, returned_instance.xmlstr)
 
     def test__replace_internal_ids_with_iris_three_links(self) -> None:
-        test_id2iri = {"r1_id": "r1_iri", "r2_id": "r2_iri", "r3_id": "r3_iri"}
+        resolver = IriResolver({"r1_id": "r1_iri", "r2_id": "r2_iri", "r3_id": "r3_iri"})
         three_link_KnoraStandoffXml = KnoraStandoffXml(
             xmlstr=(
                 '<resource label="r1_label" restype="r1_restype" id="r1_id" permissions="res-default">'
@@ -65,7 +66,7 @@ class TestXMLUploadStash(TestCase):
                 "</text></text-prop></resource>"
             )
         )
-        returned_instance = three_link_KnoraStandoffXml.with_iris(test_id2iri)
+        returned_instance = three_link_KnoraStandoffXml.with_iris(resolver)
         expected_str = (
             '<resource label="r1_label" restype="r1_restype" id="r1_id" permissions="res-default">'
             '<text-prop name=":hasRichtext"><text permissions="res-default" encoding="xml">'

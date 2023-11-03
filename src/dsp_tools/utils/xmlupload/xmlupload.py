@@ -22,6 +22,7 @@ from dsp_tools.models.xmlresource import BitstreamInfo, XMLResource
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.json_ld_util import get_json_ld_context_for_project
 from dsp_tools.utils.shared import login, try_network_action
+from dsp_tools.utils.xmlupload.iri_resolver import IriResolver
 from dsp_tools.utils.xmlupload.list_client import ListClient, ListClientLive
 from dsp_tools.utils.xmlupload.project_client import ProjectClient, ProjectClientLive
 from dsp_tools.utils.xmlupload.read_validate_xml_file import validate_and_parse_xml_file
@@ -304,18 +305,19 @@ def _upload_resources(
     Returns:
         id2iri_mapping, failed_uploads
     """
-    id2iri_mapping: dict[str, str] = {}
     failed_uploads: list[str] = []
 
     project_iri = project_client.get_project_iri()
     json_ld_context = get_json_ld_context_for_project(project_client.get_ontology_name_dict())
     listnode_lookup = list_client.get_list_node_id_to_iri_lookup()
 
+    id_to_iri_resolver = IriResolver()
+
     resource_create_client = ResourceCreateClient(
         con=con,
         project_iri=project_iri,
+        id_to_iri_resolver=id_to_iri_resolver,
         json_ld_context=json_ld_context,
-        id2iri_mapping=id2iri_mapping,
         permissions_lookup=permissions_lookup,
         listnode_lookup=listnode_lookup,
     )
@@ -340,13 +342,13 @@ def _upload_resources(
             failed_uploads.append(resource.id)
             continue
         iri, label = res
-        id2iri_mapping[resource.id] = iri
+        id_to_iri_resolver.add_iri(resource.id, iri)
 
         resource_designation = f"'{label}' (ID: '{resource.id}', IRI: '{iri}')"
         print(f"Created resource {i+1}/{len(resources)}: {resource_designation}")
         logger.info(f"Created resource {i+1}/{len(resources)}: {resource_designation}")
 
-    return id2iri_mapping, failed_uploads
+    return id_to_iri_resolver.lookup, failed_uploads
 
 
 def _create_resource(

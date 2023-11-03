@@ -88,13 +88,14 @@ def xmlupload(
         verbose=config.diagnostics.verbose,
     )
 
+    # TODO: should use Connection too?
     project_client: ProjectClient = ProjectClientLive(config.server, config.shortcode)
     if default_ontology not in project_client.get_ontology_name_dict():
         raise UserError(
             f"The default ontology '{default_ontology}' "
             "specified in the XML file is not part of the project on the DSP server."
         )
-    list_client: ListClient = ListClientLive(config.server, project_client.get_project_iri())
+    list_client: ListClient = ListClientLive(con, project_client.get_project_iri())
 
     id2iri_mapping, failed_uploads = _upload(
         resources=resources,

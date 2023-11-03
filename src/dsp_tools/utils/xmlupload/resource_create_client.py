@@ -344,7 +344,7 @@ def _make_text_value(value: XMLValue, id2iri_mapping: dict[str, str]) -> dict[st
             }
         case KnoraStandoffXml() as xml:
             ids = set(regex.findall(pattern='href="IRI:(.*?):IRI"', string=str(xml)))
-            xml_str = f'<?xml version="1.0" encoding="UTF-8"?>\n<text>{str(xml)}</text>'
+            xml_str = f'<?xml version="1.0" encoding="UTF-8"?>\n<text>{str(xml)}</text>'  # FIXME: not correct anymore
             for internal_id in ids:
                 iri = id2iri_mapping[internal_id]
                 xml_str = xml_str.replace(f'href="IRI:{internal_id}:IRI"', f'href="{iri}"')

@@ -22,7 +22,7 @@ class ProjectClientStub:
     def get_project_iri(self) -> str:
         raise NotImplementedError("get_project_iri not implemented")
 
-    def get_ontologies(self) -> list[str]:
+    def get_ontology_iris(self) -> list[str]:
         raise NotImplementedError("get_project_iri not implemented")
 
     def get_ontology_name_dict(self) -> dict[str, str]:

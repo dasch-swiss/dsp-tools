@@ -17,7 +17,7 @@ class TestXMLUploadStash(TestCase):
                 "</text></text-prop></resource>"
             )
         )
-        returned_set = one_link_KnoraStandoffXml.find_ids_referenced_in_salsah_links()
+        returned_set = one_link_KnoraStandoffXml.find_internal_ids()
         self.assertEqual({"r2_id"}, returned_set)
 
     def test_find_ids_referenced_in_salsah_links_three_links(self) -> None:
@@ -31,7 +31,7 @@ class TestXMLUploadStash(TestCase):
                 "</text></text-prop></resource>"
             )
         )
-        returned_set = three_link_KnoraStandoffXml.find_ids_referenced_in_salsah_links()
+        returned_set = three_link_KnoraStandoffXml.find_internal_ids()
         self.assertEqual({"r2_id", "r3_id"}, returned_set)
 
     def test__replace_internal_ids_with_iris_one_link(self) -> None:

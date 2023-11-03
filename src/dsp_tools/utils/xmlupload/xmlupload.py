@@ -88,7 +88,6 @@ def xmlupload(
         verbose=config.diagnostics.verbose,
     )
 
-    # TODO: should use Connection too?
     project_client: ProjectClient = ProjectClientLive(con, config.shortcode)
     if default_ontology not in project_client.get_ontology_name_dict():
         raise UserError(

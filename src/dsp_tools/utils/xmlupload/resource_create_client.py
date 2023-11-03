@@ -343,14 +343,10 @@ def _make_text_value(value: XMLValue, id2iri_mapping: dict[str, str]) -> dict[st
                 "knora-api:valueAsString": s,
             }
         case KnoraStandoffXml() as xml:
-            ids = set(regex.findall(pattern='href="IRI:(.*?):IRI"', string=str(xml)))
-            xml_str = f'<?xml version="1.0" encoding="UTF-8"?>\n<text>{str(xml)}</text>'  # FIXME: not correct anymore
-            for internal_id in ids:
-                iri = id2iri_mapping[internal_id]
-                xml_str = xml_str.replace(f'href="IRI:{internal_id}:IRI"', f'href="{iri}"')
+            xml_with_iris = xml.with_iris(id2iri_mapping)
             return {
                 "@type": "knora-api:TextValue",
-                "knora-api:textValueAsXml": xml_str,
+                "knora-api:textValueAsXml": xml_with_iris.as_xml(),
                 "knora-api:textValueHasMapping": {
                     "@id": "http://rdfh.ch/standoff/mappings/StandardMapping",
                 },

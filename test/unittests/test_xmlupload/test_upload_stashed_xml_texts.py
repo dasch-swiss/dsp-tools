@@ -51,7 +51,7 @@ class TestXMLUploadStash(TestCase):
             '<a class="salsah-link" href="r2_iri">r2_id</a>'
             "</text></text-prop></resource>"
         )
-        self.assertEqual(expected_str, str(returned_instance))
+        self.assertEqual(expected_str, returned_instance.xmlstr)
 
     def test__replace_internal_ids_with_iris_three_links(self) -> None:
         test_id2iri = {"r1_id": "r1_iri", "r2_id": "r2_iri", "r3_id": "r3_iri"}
@@ -74,7 +74,7 @@ class TestXMLUploadStash(TestCase):
             '<a class="salsah-link" href="r2_iri">r2_id</a>'
             "</text></text-prop></resource>"
         )
-        self.assertEqual(expected_str, str(returned_instance))
+        self.assertEqual(expected_str, returned_instance.xmlstr)
 
 
 if __name__ == "__main__":

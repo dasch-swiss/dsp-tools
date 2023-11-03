@@ -447,6 +447,5 @@ def _save_stash_as_json(
             fp=file,
             ensure_ascii=False,
             indent=4,
-            # cls=KnoraStandoffXmlEncoder,
         )
     return filename

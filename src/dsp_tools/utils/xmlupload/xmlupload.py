@@ -125,7 +125,11 @@ def _prepare_upload(
     default_ontology: str,
     verbose: bool,
 ) -> tuple[list[XMLResource], dict[str, Permissions], Stash | None]:
+    logger.info("Checking resources for circular references...")
+    if verbose:
+        print("Checking resources for circular references...")
     stash_lookup, upload_order = identify_circular_references(root)
+    logger.info("Get data from XML...")
     resources, permissions_lookup = _get_data_from_xml(
         con=con,
         root=root,

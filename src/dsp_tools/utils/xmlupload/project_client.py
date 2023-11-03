@@ -76,7 +76,7 @@ def _get_project_info_from_server(con: Connection, shortcode: str) -> ProjectInf
 def _get_project_iri_from_server(con: Connection, shortcode: str) -> str:
     try:
         url = f"/admin/projects/shortcode/{shortcode}"
-        res: dict[str, Any] = try_network_action(con.get, route=url, timeout=5)
+        res: dict[str, Any] = try_network_action(con.get, route=url)
         iri: str = res["project"]["id"]
     except BaseError as e:
         logger.exception(e)
@@ -91,7 +91,7 @@ def _get_ontologies_from_server(con: Connection, project_iri: str) -> list[str]:
     try:
         iri = quote_plus(project_iri)
         url = f"/v2/ontologies/metadata/{iri}"
-        res: dict[str, Any] = try_network_action(con.get, route=url, timeout=5)
+        res: dict[str, Any] = try_network_action(con.get, route=url)
         if "@graph" in res:
             body = res["@graph"]
         else:

@@ -8,6 +8,7 @@ from typing import Optional
 
 import requests
 from regex import regex
+from requests import JSONDecodeError
 
 from dsp_tools.connection.connection import Connection
 from dsp_tools.models.exceptions import UserError
@@ -223,7 +224,12 @@ def _upload_without_processing(
             ),
         )
 
-    if response_upload.json().get("message") == "server.fs.mkdir() failed: File exists":
+    try:
+        msg = response_upload.json().get("message")
+    except JSONDecodeError:
+        msg = None
+
+    if msg == "server.fs.mkdir() failed: File exists":
         # This error can be safely ignored, since the file was uploaded correctly.
         logger.info(f"In spite of 'server.fs.mkdir() failed: File exists', successfully uploaded file {file}")
     elif response_upload.status_code != 200:

@@ -108,9 +108,9 @@ def _get_upload_candidates(
         glob.glob(f"{dir_with_processed_files}/**/**/{internal_filename_of_processed_file.stem}*.*")
     )
     upload_candidates_paths = [Path(c) for c in upload_candidates]
-    logger.info(f"Found the following upload candidates for {internal_filename_of_processed_file}:")
-    for cand in upload_candidates:
-        logger.info(f" - {cand}")
+    linestart = "\n" + " " * 67 + "- "
+    cand = linestart + linestart.join([str(c) for c in upload_candidates])
+    logger.info(f"Found the following upload candidates for {internal_filename_of_processed_file}: {cand}")
     return upload_candidates_paths
 
 
@@ -142,7 +142,8 @@ def _check_upload_candidates(
 
     min_num_of_candidates = 4 if internal_filename_of_processed_file.suffix == ".mp4" else 3
     if len(upload_candidates) < min_num_of_candidates:
-        cand = "\n - " + "\n - ".join([str(c) for c in upload_candidates])
+        linestart = "\n" + " " * 67 + "- "
+        cand = linestart + linestart.join([str(c) for c in upload_candidates])
         msg = f"Found the following files for {internal_filename_of_processed_file}, but more were expected: {cand}"
         print(f"{datetime.now()}: ERROR: {msg}")
         logger.error(msg)

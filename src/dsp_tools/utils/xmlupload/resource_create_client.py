@@ -183,7 +183,7 @@ def _make_bitstream_file_value(bitstream_info: BitstreamInfo) -> dict[str, Any]:
 
 def _make_boolean_value(value: XMLValue) -> dict[str, Any]:
     string_value = _assert_is_string(value.value)
-    boolean = _validate_boolean(string_value)
+    boolean = _to_boolean(string_value)
     return {
         "@type": "knora-api:BooleanValue",
         "knora-api:booleanValueAsBoolean": boolean,
@@ -197,7 +197,7 @@ def _make_color_value(value: XMLValue) -> dict[str, Any]:
     }
 
 
-def _validate_boolean(s: str) -> bool:
+def _to_boolean(s: str) -> bool:
     match s:
         case "True" | "true" | "1" | 1 | True:
             return True

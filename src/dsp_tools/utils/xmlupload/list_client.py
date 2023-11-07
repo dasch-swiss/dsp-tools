@@ -27,7 +27,7 @@ class List:
 
     root_iri: str
     list_name: str
-    children: list[ListNode]
+    nodes: list[ListNode]
 
 
 @dataclass(frozen=True)
@@ -69,7 +69,7 @@ class ListClientLive:
 def _get_node_tuples(lists: list[List]) -> Iterable[tuple[str, str]]:
     for l in lists:
         list_name = l.list_name
-        for node in l.children:
+        for node in l.nodes:
             node_name = node.node_name
             node_id = f"{list_name}:{node_name}"
             yield node_id, node.node_iri

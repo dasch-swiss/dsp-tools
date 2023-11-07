@@ -3,6 +3,7 @@ import unittest
 import pytest
 from lxml import etree
 
+from dsp_tools.models.value import KnoraStandoffXml
 from dsp_tools.models.xmlvalue import XMLValue
 
 
@@ -67,7 +68,10 @@ class TestXmlValue(unittest.TestCase):
         )
         formatted_node = etree.fromstring(formatted_text_orig)
         formatted_xml_value = XMLValue(node=formatted_node, val_type="text")
-        self.assertEqual(str(formatted_xml_value.value), formatted_text_expected)
+        xml_value = formatted_xml_value.value
+        self.assertIsInstance(xml_value, KnoraStandoffXml)
+        assert isinstance(xml_value, KnoraStandoffXml)
+        self.assertEqual(xml_value.xmlstr, formatted_text_expected)
 
 
 if __name__ == "__main__":

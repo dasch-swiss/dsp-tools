@@ -35,25 +35,24 @@ def _transform_server_url_to_foldername(server: str) -> str:
 
 
 @dataclass(frozen=True)
-class UploadConfig:
-    """Configuration for the upload process."""
+class DiagnosticsConfig:
+    """Configures all diagnostics for a given upload."""
 
     verbose: bool = False
     dump: bool = False
-    preprocessing_done: bool = False
-    server_as_foldername: str = field(default="unknown")
+    server_as_foldername: str = "unknown"
     save_location: Path = field(default=Path.home() / ".dsp-tools" / "xmluploads")
     timestamp_str: str = field(default=datetime.now().strftime("%Y-%m-%d_%H%M%S"))
-    json_ld_context: dict[str, str] = field(
-        default_factory=lambda: {
-            "knora-api": "http://api.knora.org/ontology/knora-api/v2#",
-            "salsah-gui": "http://api.knora.org/ontology/salsah-gui/v2#",
-            "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-            "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-            "owl": "http://www.w3.org/2002/07/owl#",
-            "xsd": "http://www.w3.org/2001/XMLSchema#",
-        }
-    )
+
+
+@dataclass(frozen=True)
+class UploadConfig:
+    """Configuration for the upload process."""
+
+    preprocessing_done: bool = False
+    server: str = "unknown"
+    shortcode: str = "unknown"
+    diagnostics: DiagnosticsConfig = field(default_factory=DiagnosticsConfig)
 
     def with_server_info(
         self,
@@ -66,10 +65,9 @@ class UploadConfig:
         save_location = Path.home() / Path(".dsp-tools") / "xmluploads" / server_as_foldername / shortcode / onto_name
         save_location.mkdir(parents=True, exist_ok=True)
         logger.info(f"{save_location=:}")
-        context_iri = f"{server}/ontology/{shortcode}/{onto_name}/v2#"
-        return dataclasses.replace(
-            self,
-            save_location=save_location,
+        diagnostics: DiagnosticsConfig = dataclasses.replace(
+            self.diagnostics,
             server_as_foldername=server_as_foldername,
-            json_ld_context=self.json_ld_context | {onto_name: context_iri},
+            save_location=save_location,
         )
+        return dataclasses.replace(self, server=server, shortcode=shortcode, diagnostics=diagnostics)

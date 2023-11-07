@@ -6,6 +6,7 @@ from dsp_tools.connection.connection import Connection
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import try_network_action
+from dsp_tools.utils.xmlupload.iri_resolver import IriResolver
 from dsp_tools.utils.xmlupload.stash.stash_models import LinkValueStash, LinkValueStashItem
 
 logger = get_logger(__name__)
@@ -13,7 +14,7 @@ logger = get_logger(__name__)
 
 def upload_stashed_resptr_props(
     verbose: bool,
-    id2iri_mapping: dict[str, str],
+    iri_resolver: IriResolver,
     con: Connection,
     stashed_resptr_props: LinkValueStash,
     context: dict[str, str],
@@ -23,7 +24,7 @@ def upload_stashed_resptr_props(
 
     Args:
         verbose: bool
-        id2iri_mapping: mapping of ids from the XML file to IRIs in DSP
+        iri_resolver: resolver with a mapping of ids from the XML file to IRIs in DSP
         con: connection to DSP
         stashed_resptr_props: all resptr props that have been stashed
         context: the JSON-LD context of the resource
@@ -36,17 +37,17 @@ def upload_stashed_resptr_props(
     logger.info("Upload the stashed resptrs...")
     not_uploaded: list[LinkValueStashItem] = []
     for res_id, stash_items in stashed_resptr_props.res_2_stash_items.items():
-        if res_id not in id2iri_mapping:
+        res_iri = iri_resolver.get(res_id)
+        if not res_iri:
             # resource could not be uploaded to DSP, so the stash cannot be uploaded either
             # no action necessary: this resource will remain in nonapplied_resptr_props,
             # which will be handled by the caller
             continue
-        res_iri = id2iri_mapping[res_id]
         if verbose:
             print(f'  Upload resptrs of resource "{res_id}"...')
         logger.info(f'  Upload resptrs of resource "{res_id}"...')
         for stash_item in stash_items:
-            target_iri = id2iri_mapping.get(stash_item.target_id)
+            target_iri = iri_resolver.get(stash_item.target_id)
             if not target_iri:
                 continue
             success = _upload_stash_item(stash_item, res_iri, target_iri, con, context)

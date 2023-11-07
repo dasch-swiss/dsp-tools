@@ -215,6 +215,10 @@ def _make_parser(
     parser_excel2xml.add_argument("data_source", help="path to the CSV or XLS(X) file containing the data")
     parser_excel2xml.add_argument("project_shortcode", help="shortcode of the project that this data belongs to")
     parser_excel2xml.add_argument("ontology_name", help="name of the ontology that this data belongs to")
+    parser_excel2xml.add_argument("-mw", "--mute-warnings", action="store_true", help="don't print warnings")
+    parser_excel2xml.add_argument(
+        "-pe", "--print-errors", action="store_true", help="print errors instead of raising them"
+    )
 
     # id2iri
     parser_id2iri = subparsers.add_parser(
@@ -544,6 +548,8 @@ def _call_requested_action(args: argparse.Namespace) -> bool:
             datafile=args.data_source,
             shortcode=args.project_shortcode,
             default_ontology=args.ontology_name,
+            mute_warnings=args.mute_warnings,
+            print_errors=args.print_errors,
         )
     elif args.action == "start-stack":
         stack_handler = StackHandler(

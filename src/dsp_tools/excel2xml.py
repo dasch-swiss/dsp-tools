@@ -1912,6 +1912,7 @@ def _validate_and_prepare_cli_input_file(dataframe: pd.DataFrame) -> pd.DataFram
 def _convert_rows_to_xml(
     dataframe: pd.DataFrame,
     max_num_of_props: int,
+    print_errors: bool,
 ) -> list[etree._Element]:
     """
     Iterate through the rows of the CSV/Excel input file,
@@ -1951,7 +1952,7 @@ def _convert_rows_to_xml(
             # in all cases (except for the very first iteration), a previous resource exists
             if resource is not None:
                 resources.append(resource)
-            resource = _convert_resource_row_to_xml(row_number=row_number, row=row)
+            resource = _convert_resource_row_to_xml(row_number=row_number, row=row, print_errors=print_errors)
 
         # this is a property-row
         else:
@@ -1965,6 +1966,7 @@ def _convert_rows_to_xml(
                 row=row,
                 max_num_of_props=max_num_of_props,
                 resource_id=resource.attrib["id"],
+                print_errors=print_errors,
             )
             resource.append(prop)
 
@@ -2021,6 +2023,7 @@ def _append_bitstream_to_resource(
 def _convert_resource_row_to_xml(
     row_number: int,
     row: pd.Series,
+    print_errors: bool,
 ) -> etree._Element:
     """
     Convert a resource-row to an XML resource element.
@@ -2041,17 +2044,32 @@ def _convert_resource_row_to_xml(
     resource_id = row["id"]
     resource_label = row.get("label")
     if pd.isna([resource_label]):
-        raise BaseError(f"Missing label for resource '{resource_id}' (Excel row {row_number})")
+        msg = f"Missing label for resource '{resource_id}' (Excel row {row_number})"
+        if print_errors:
+            resource_label = ""
+            print(msg)
+        else:
+            raise BaseError(msg)
     if not check_notna(resource_label):
         warnings.warn(
             f"The label of resource '{resource_id}' looks suspicious: '{resource_label}' (Excel row {row_number})"
         )
     resource_restype = row.get("restype")
     if not check_notna(resource_restype):
-        raise BaseError(f"Missing restype for resource '{resource_id}' (Excel row {row_number})")
+        msg = f"Missing restype for resource '{resource_id}' (Excel row {row_number})"
+        if print_errors:
+            resource_restype = ""
+            print(msg)
+        else:
+            raise BaseError(msg)
     resource_permissions = row.get("permissions")
     if not check_notna(resource_permissions):
-        raise BaseError(f"Missing permissions for resource '{resource_id}' (Excel row {row_number})")
+        msg = f"Missing permissions for resource '{resource_id}' (Excel row {row_number})"
+        if print_errors:
+            resource_permissions = ""
+            print(msg)
+        else:
+            raise BaseError(f"Missing permissions for resource '{resource_id}' (Excel row {row_number})")
 
     # construct the kwargs for the method call
     kwargs_resource = {"label": resource_label, "permissions": resource_permissions, "id": resource_id}
@@ -2130,6 +2148,7 @@ def _convert_row_to_property_elements(
     max_num_of_props: int,
     row_number: int,
     resource_id: str,
+    print_errors: bool,
 ) -> list[PropertyElement]:
     """
     Every property contains i elements,
@@ -2160,21 +2179,29 @@ def _convert_row_to_property_elements(
             notna_cell_headers = [x for x in other_cell_headers if check_notna(row.get(x))]
             notna_cell_headers_str = ", ".join([f"'{x}'" for x in notna_cell_headers])
             if notna_cell_headers_str:
-                raise BaseError(
+                msg = (
                     f"Error in resource '{resource_id}': Excel row {row_number} has an entry "
                     f"in column(s) {notna_cell_headers_str}, but not in '{i}_value'. "
                     r"Please note that cell contents that don't meet the requirements of the regex [\p{L}\d_!?\-] "
                     "are considered inexistent."
                 )
+                if print_errors:
+                    print(msg)
+                else:
+                    raise BaseError(msg)
             continue
 
         # construct a PropertyElement from this property element
         kwargs_propelem = {"value": value, "permissions": str(row.get(f"{i}_permissions"))}
         if not check_notna(row.get(f"{i}_permissions")):
-            raise BaseError(
+            msg = (
                 f"Resource '{resource_id}': "
                 f"Missing permissions in column '{i}_permissions' of property '{row['prop name']}'"
             )
+            if print_errors:
+                print(msg)
+            else:
+                raise BaseError(msg)
         if check_notna(row.get(f"{i}_comment")):
             kwargs_propelem["comment"] = str(row[f"{i}_comment"])
         if check_notna(row.get(f"{i}_encoding")):
@@ -2183,15 +2210,23 @@ def _convert_row_to_property_elements(
 
     # validate the end result before returning it
     if len(property_elements) == 0:
-        raise BaseError(
+        msg = (
             f"At least one value per property is required, "
             f"but resource '{resource_id}' (Excel row {row_number}) doesn't contain any values."
         )
+        if print_errors:
+            print(msg)
+        else:
+            raise BaseError(msg)
     if row.get("prop type") == "boolean-prop" and len(property_elements) != 1:
-        raise BaseError(
+        msg = (
             f"A <boolean-prop> can only have a single value, "
             f"but resource '{resource_id}' (Excel row {row_number}) contains more than one value."
         )
+        if print_errors:
+            print(msg)
+        else:
+            raise BaseError(msg)
 
     return property_elements
 
@@ -2201,6 +2236,7 @@ def _convert_property_row_to_xml(
     row: pd.Series,
     max_num_of_props: int,
     resource_id: str,
+    print_errors: bool,
 ) -> etree._Element:
     """
     Convert a property-row of the CSV/Excel sheet to an XML element.
@@ -2229,6 +2265,7 @@ def _convert_property_row_to_xml(
         max_num_of_props=max_num_of_props,
         row_number=row_number,
         resource_id=resource_id,
+        print_errors=print_errors,
     )
 
     # create the property
@@ -2281,6 +2318,8 @@ def excel2xml(
     datafile: str,
     shortcode: str,
     default_ontology: str,
+    mute_warnings: bool = False,
+    print_errors: bool = False,
 ) -> bool:
     """
     This is a method that is called from the command line.
@@ -2317,15 +2356,21 @@ def excel2xml(
     root = append_permissions(root)
 
     # parse the input file row by row
-    resources = _convert_rows_to_xml(
-        dataframe=dataframe,
-        max_num_of_props=max_num_of_props,
-    )
-    for resource in resources:
-        root.append(resource)
+    with warnings.catch_warnings(record=True) as w:
+        if not mute_warnings:
+            warnings.simplefilter("always")
+        resources = _convert_rows_to_xml(
+            dataframe=dataframe,
+            max_num_of_props=max_num_of_props,
+            print_errors=print_errors,
+        )
+        for resource in resources:
+            root.append(resource)
 
     # write file
     with warnings.catch_warnings(record=True) as w:
+        if not mute_warnings:
+            warnings.simplefilter("always")
         write_xml(root, f"{default_ontology}-data.xml")
         if len(w) > 0:
             success = False

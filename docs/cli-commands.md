@@ -250,6 +250,11 @@ Arguments:
 - project_shortcode (mandatory): shortcode of the project that this data belongs to
 - ontology_name (mandatory): name of the ontology that the data belongs to
 
+The following options are available:
+
+- `-mw` | `--mute-warnings` (optional): don't print warnings
+- `-pe` | `--print-errors` (optional): print errors instead of raising them
+
 The expected Excel format is [documented here](./file-formats/excel2xml.md).
 
 If your data source is not yet structured according to the DSP specifications, 

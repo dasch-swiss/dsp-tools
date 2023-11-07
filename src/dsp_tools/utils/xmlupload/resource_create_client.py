@@ -12,7 +12,7 @@ from dsp_tools.models.xmlresource import BitstreamInfo, XMLResource
 from dsp_tools.models.xmlvalue import XMLValue
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.date_util import parse_date_string
-from dsp_tools.utils.iri_util import is_iri
+from dsp_tools.utils.iri_util import is_resource_iri
 from dsp_tools.utils.shared import try_network_action
 from dsp_tools.utils.xmlupload.ark2iri import convert_ark_v0_to_resource_iri
 from dsp_tools.utils.xmlupload.iri_resolver import IriResolver
@@ -45,10 +45,10 @@ class ResourceCreateClient:
             iri = res["@id"]
             label = res["rdfs:label"]
             return iri, label
-        except BaseError as e:
+        except BaseError:
             msg = f"Could not create resource {resource.id} (label: {resource.label}, iri: {resource.iri})"
             logger.exception(msg)
-            raise BaseError(msg) from e
+            raise BaseError(msg) from None
         except KeyError as e:
             msg = f"Could not create resource {resource.id}: unexpected response from server"
             logger.exception(msg)
@@ -290,7 +290,7 @@ def _make_interval_value(value: XMLValue) -> dict[str, Any]:
 
 def _make_link_value(value: XMLValue, iri_resolver: IriResolver) -> dict[str, Any]:
     s = _assert_string(value.value)
-    if is_iri(s):
+    if is_resource_iri(s):
         iri = s
     else:
         resolved_iri = iri_resolver.get(s)

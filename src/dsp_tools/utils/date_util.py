@@ -20,7 +20,7 @@ $
 _single_date_pattern = r"(\d{4})(?:-(\d{1,2}))?(?:-(\d{1,2}))?"
 
 
-class Calenadar(Enum):
+class Calendar(Enum):
     """Enum for calendar types."""
 
     GREGORIAN = "GREGORIAN"
@@ -28,15 +28,15 @@ class Calenadar(Enum):
     JULIAN = "JULIAN"
 
     @staticmethod
-    def from_string(s: str) -> Calenadar:
+    def from_string(s: str) -> Calendar:
         """Parses a string into a calendar type, potentially failing with a BaseError."""
         match s:
             case "GREGORIAN":
-                return Calenadar.GREGORIAN
+                return Calendar.GREGORIAN
             case "ISLAMIC":
-                return Calenadar.ISLAMIC
+                return Calendar.ISLAMIC
             case "JULIAN":
-                return Calenadar.JULIAN
+                return Calendar.JULIAN
             case _:
                 raise BaseError(f"Invalid calendar type: {s}")
 
@@ -79,7 +79,7 @@ class SingleDate:
 class Date:
     """Information about a date."""
 
-    calendar: Calenadar
+    calendar: Calendar
     start: SingleDate
     end: SingleDate | None
 
@@ -97,11 +97,11 @@ def parse_date_string(s: str) -> Date:
         BaseError: if the date string cannot be parsed
     """
 
-    calendar, start_era, start_date, end_era, end_date = _split_date_sting(s)
-    calendar_enum = Calenadar.from_string(calendar or "GREGORIAN")
+    calendar, start_era, start_date, end_era, end_date = _split_date_string(s)
+    calendar_enum = Calendar.from_string(calendar or "GREGORIAN")
     if not end_date:
         end_date = start_date
-    if calendar_enum != Calenadar.ISLAMIC:
+    if calendar_enum != Calendar.ISLAMIC:
         if not start_era:
             start_era = "CE"
         if end_date and not end_era:
@@ -114,7 +114,7 @@ def parse_date_string(s: str) -> Date:
     return Date(calendar_enum, start, end)
 
 
-def _split_date_sting(s: str) -> tuple[str | None, str | None, str, str | None, str | None]:
+def _split_date_string(s: str) -> tuple[str | None, str | None, str, str | None, str | None]:
     date_match = regex.search(_full_date_pattern, s, flags=regex.VERBOSE)
     if not date_match:
         raise BaseError(f"Could not parse date: {s}")

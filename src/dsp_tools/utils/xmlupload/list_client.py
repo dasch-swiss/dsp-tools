@@ -98,7 +98,8 @@ def _get_list_from_server(con: Connection, list_iri: str) -> List:
     list_info = list_object["listinfo"]
     children: list[dict[str, Any]] = list_object["children"]
     root_iri = list_info["id"]
-    list_name = list_info["name"]
+    # if the root node does not have a name, use the label instead
+    list_name: str = list_info.get("name") or list_info["labels"][0]["value"]
     root_node = ListNode(root_iri, list_name)
     nodes = [root_node] + _children_to_nodes(children)
     return List(root_iri, list_name, nodes)

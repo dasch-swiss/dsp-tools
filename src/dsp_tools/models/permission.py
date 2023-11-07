@@ -49,7 +49,7 @@ class Permissions:
     def __contains__(self, key: PermissionValue) -> bool:
         return key in self._permissions
 
-    def __str__(self):
+    def __str__(self) -> str:
         tmpstr = ""
         for permission, groups in self._permissions.items():
             if tmpstr:

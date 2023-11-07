@@ -3,7 +3,7 @@ from typing import Any, Protocol
 from urllib.parse import quote_plus
 
 from dsp_tools.connection.connection import Connection
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import try_network_action
 
@@ -79,11 +79,9 @@ def _get_project_iri_from_server(con: Connection, shortcode: str) -> str:
         res: dict[str, Any] = try_network_action(con.get, route=url)
         iri: str = res["project"]["id"]
     except BaseError as e:
-        logger.exception(e)
-        raise BaseError(f"A project with shortcode {shortcode} could not be found on the DSP server") from None
+        raise UserError(f"A project with shortcode {shortcode} could not be found on the DSP server") from e
     except KeyError as e:
-        logger.exception(e)
-        raise BaseError(f"Unexpected response from server: {res}") from None
+        raise BaseError(f"Unexpected response from server: {res}") from e
     return iri
 
 

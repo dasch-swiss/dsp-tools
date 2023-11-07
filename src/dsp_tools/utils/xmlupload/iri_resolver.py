@@ -7,8 +7,8 @@ class IriResolver:
 
     lookup: dict[str, str] = field(default_factory=dict)
 
-    def add_iri(self, internal_id: str, iri: str) -> None:
-        """Adds an IRI to the resolver."""
+    def update(self, internal_id: str, iri: str) -> None:
+        """Adds or updates an internal ID to IRI mapping"""
         self.lookup[internal_id] = iri
 
     def get(self, internal_id: str) -> str | None:

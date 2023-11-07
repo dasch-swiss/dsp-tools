@@ -45,13 +45,11 @@ class ResourceCreateClient:
             iri = res["@id"]
             label = res["rdfs:label"]
             return iri, label
-        except BaseError:
+        except BaseError as e:
             msg = f"Could not create resource {resource.id} (label: {resource.label}, iri: {resource.iri})"
-            logger.exception(msg)
-            raise BaseError(msg) from None
+            raise BaseError(msg) from e
         except KeyError as e:
             msg = f"Could not create resource {resource.id}: unexpected response from server"
-            logger.exception(msg)
             raise BaseError(msg) from e
 
     def _make_resource_with_values(
@@ -173,7 +171,7 @@ def _make_bitstream_file_value(bitstream_info: BitstreamInfo) -> dict[str, Any]:
             prop = "knora-api:hasTextFileValue"
             value_type = "TextFileValue"
         case _:
-            raise BaseError(f"Unknown file ending: {file_ending} for file {local_file}")
+            raise BaseError(f"Unknown file ending '{file_ending}' for file '{local_file}'")
     file_value = {
         "@type": f"knora-api:{value_type}",
         "knora-api:fileValueHasFilename": bitstream_info.internal_file_name,
@@ -184,7 +182,7 @@ def _make_bitstream_file_value(bitstream_info: BitstreamInfo) -> dict[str, Any]:
 
 
 def _make_boolean_value(value: XMLValue) -> dict[str, Any]:
-    string_value = _assert_string(value.value)
+    string_value = _assert_is_string(value.value)
     boolean = _validate_boolean(string_value)
     return {
         "@type": "knora-api:BooleanValue",
@@ -210,7 +208,7 @@ def _validate_boolean(s: str) -> bool:
 
 
 def _make_date_value(value: XMLValue) -> dict[str, Any]:
-    string_value = _assert_string(value.value)
+    string_value = _assert_is_string(value.value)
     date = parse_date_string(string_value)
     res: dict[str, Any] = {"@type": "knora-api:DateValue"}
     res["knora-api:dateValueHasStartYear"] = date.start.year
@@ -234,7 +232,7 @@ def _make_date_value(value: XMLValue) -> dict[str, Any]:
 
 
 def _make_decimal_value(value: XMLValue) -> dict[str, Any]:
-    s = _assert_string(value.value)
+    s = _assert_is_string(value.value)
     return {
         "@type": "knora-api:DecimalValue",
         "knora-api:decimalValueAsDecimal": {
@@ -245,7 +243,7 @@ def _make_decimal_value(value: XMLValue) -> dict[str, Any]:
 
 
 def _make_geometry_value(value: XMLValue) -> dict[str, Any]:
-    s = _assert_string(value.value)
+    s = _assert_is_string(value.value)
     # this removes all whitespaces from the embedded json string
     encoded_value = json.dumps(json.loads(s))
     return {
@@ -262,7 +260,7 @@ def _make_geoname_value(value: XMLValue) -> dict[str, Any]:
 
 
 def _make_integer_value(value: XMLValue) -> dict[str, Any]:
-    s = _assert_string(value.value)
+    s = _assert_is_string(value.value)
     return {
         "@type": "knora-api:IntValue",
         "knora-api:intValueAsInt": int(s),
@@ -270,7 +268,7 @@ def _make_integer_value(value: XMLValue) -> dict[str, Any]:
 
 
 def _make_interval_value(value: XMLValue) -> dict[str, Any]:
-    s = _assert_string(value.value)
+    s = _assert_is_string(value.value)
     match s.split(":", 1):
         case [start, end]:
             return {
@@ -289,7 +287,7 @@ def _make_interval_value(value: XMLValue) -> dict[str, Any]:
 
 
 def _make_link_value(value: XMLValue, iri_resolver: IriResolver) -> dict[str, Any]:
-    s = _assert_string(value.value)
+    s = _assert_is_string(value.value)
     if is_resource_iri(s):
         iri = s
     else:
@@ -306,7 +304,7 @@ def _make_link_value(value: XMLValue, iri_resolver: IriResolver) -> dict[str, An
 
 
 def _make_list_value(value: XMLValue, iri_lookup: dict[str, str]) -> dict[str, Any]:
-    s = _assert_string(value.value)
+    s = _assert_is_string(value.value)
     iri = iri_lookup.get(s)
     if not iri:
         raise BaseError(f"Could not resolve list node ID {s} to IRI.")
@@ -358,7 +356,7 @@ def _make_uri_value(value: XMLValue) -> dict[str, Any]:
     }
 
 
-def _assert_string(value: str | KnoraStandoffXml) -> str:
+def _assert_is_string(value: str | KnoraStandoffXml) -> str:
     match value:
         case str() as s:
             return s

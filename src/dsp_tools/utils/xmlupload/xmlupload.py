@@ -341,7 +341,7 @@ def _upload_resources(
             failed_uploads.append(resource.id)
             continue
         iri, label = res
-        id_to_iri_resolver.add_iri(resource.id, iri)
+        id_to_iri_resolver.update(resource.id, iri)
 
         resource_designation = f"'{label}' (ID: '{resource.id}', IRI: '{iri}')"
         print(f"Created resource {i+1}/{len(resources)}: {resource_designation}")

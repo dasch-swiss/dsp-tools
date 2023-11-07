@@ -8,6 +8,7 @@ from typing import Optional
 
 import requests
 from regex import regex
+from requests import JSONDecodeError
 
 from dsp_tools.connection.connection import Connection
 from dsp_tools.models.exceptions import UserError
@@ -107,9 +108,9 @@ def _get_upload_candidates(
         glob.glob(f"{dir_with_processed_files}/**/**/{internal_filename_of_processed_file.stem}*.*")
     )
     upload_candidates_paths = [Path(c) for c in upload_candidates]
-    logger.info(f"Found the following upload candidates for {internal_filename_of_processed_file}:")
-    for cand in upload_candidates:
-        logger.info(f" - {cand}")
+    linestart = "\n" + " " * 67 + "- "
+    cand = linestart + linestart.join([str(c) for c in upload_candidates])
+    logger.info(f"Found the following upload candidates for {internal_filename_of_processed_file}: {cand}")
     return upload_candidates_paths
 
 
@@ -141,7 +142,8 @@ def _check_upload_candidates(
 
     min_num_of_candidates = 4 if internal_filename_of_processed_file.suffix == ".mp4" else 3
     if len(upload_candidates) < min_num_of_candidates:
-        cand = "\n - " + "\n - ".join([str(c) for c in upload_candidates])
+        linestart = "\n" + " " * 67 + "- "
+        cand = linestart + linestart.join([str(c) for c in upload_candidates])
         msg = f"Found the following files for {internal_filename_of_processed_file}, but more were expected: {cand}"
         print(f"{datetime.now()}: ERROR: {msg}")
         logger.error(msg)
@@ -223,7 +225,12 @@ def _upload_without_processing(
             ),
         )
 
-    if response_upload.json().get("message") == "server.fs.mkdir() failed: File exists":
+    try:
+        msg = response_upload.json().get("message")
+    except JSONDecodeError:
+        msg = None
+
+    if msg == "server.fs.mkdir() failed: File exists":
         # This error can be safely ignored, since the file was uploaded correctly.
         logger.info(f"In spite of 'server.fs.mkdir() failed: File exists', successfully uploaded file {file}")
     elif response_upload.status_code != 200:
@@ -323,8 +330,6 @@ def _upload_files_in_parallel(
     result: list[tuple[Path, bool]] = []
     for uploaded in as_completed(upload_jobs):
         result.append(uploaded.result())
-        if len(result) % 1000 == 0:
-            print(f"{datetime.now()}: Uploaded {len(result)} files so far, continue...")
     return result
 
 

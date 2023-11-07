@@ -111,6 +111,6 @@ def _children_to_nodes(children: list[dict[str, Any]]) -> list[ListNode]:
         node_iri = child["id"]
         node_name = child["name"]
         nodes.append(ListNode(node_iri=node_iri, node_name=node_name))
-        if child["children"]:
+        if "children" in child:
             nodes.extend(_children_to_nodes(child["children"]))
     return nodes

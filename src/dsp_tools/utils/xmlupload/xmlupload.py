@@ -142,7 +142,7 @@ def _prepare_upload(
     logger.info("Stashing circular references...")
     if verbose:
         print("Stashing circular references...")
-    stash = stash_circular_references(resources, stash_lookup)
+    stash = stash_circular_references(resources, stash_lookup, permissions_lookup)
     return resources, permissions_lookup, stash
 
 

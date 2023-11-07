@@ -82,7 +82,7 @@ def _upload_stash_item(
     except BaseError as err:
         _log_unable_to_upload_link_value(err.orig_err_msg_from_api or err.message, stash.res_id, stash.prop_name)
         return False
-    logger.debug(f'  Successfully uploaded xml text of "{stash.prop_name}"')
+    logger.debug(f'  Successfully uploaded resptr links of "{stash.prop_name}"')
     return True
 
 
@@ -99,14 +99,17 @@ def _create_resptr_prop_json_object_to_update(
     context: dict[str, str],
 ) -> str:
     """This function creates a JSON object that can be sent as an update request to the DSP-API."""
+    linkVal = {
+        "@type": "knora-api:LinkValue",
+        "knora-api:linkValueHasTargetIri": {"@id": target_iri},
+    }
+    if stash.permission:
+        linkVal["knora-api:hasPermissions"] = stash.permission
     jsonobj = {
         "@id": res_iri,
         "@type": stash.res_type,
-        f"{stash.prop_name}Value": {
-            "@type": "knora-api:LinkValue",
-            "knora-api:linkValueHasTargetIri": {"@id": target_iri},
-        },
+        f"{stash.prop_name}Value": linkVal,
         "@context": context,
     }
-    jsondata = json.dumps(jsonobj, indent=4, separators=(",", ": "))
+    jsondata = json.dumps(jsonobj)
     return jsondata

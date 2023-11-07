@@ -89,6 +89,7 @@ def stash_circular_references(
     Args:
         resources: all resources of the XML file
         stash_lookup: A dictionary which maps the resources that have stashes to the UUIDs of the stashed links
+        permission_lookup: A dictionary which maps the permissions of the stashed links to their string representation
 
     Returns:
         stash: an object that contains the stashed references

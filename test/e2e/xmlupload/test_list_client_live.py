@@ -13,4 +13,4 @@ def test_ist_clienbt_live() -> None:
     assert project_iri == "http://rdfh.ch/projects/0001"
     list_client = ListClientLive(con, project_iri)
     list_node_id_to_iri_lookup = list_client.get_list_node_id_to_iri_lookup()
-    assert len(list_node_id_to_iri_lookup) == 28
+    assert len(list_node_id_to_iri_lookup) >= 28

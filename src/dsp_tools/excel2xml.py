@@ -2212,7 +2212,7 @@ def _convert_row_to_property_elements(
     if len(property_elements) == 0:
         msg = (
             f"At least one value per property is required, "
-            f"but resource '{resource_id}' (Excel row {row_number}) doesn't contain any values."
+            f"but resource '{resource_id}', property '{row['prop name']}' (Excel row {row_number}) doesn't contain any values."
         )
         if print_errors:
             print(msg)
@@ -2221,7 +2221,7 @@ def _convert_row_to_property_elements(
     if row.get("prop type") == "boolean-prop" and len(property_elements) != 1:
         msg = (
             f"A <boolean-prop> can only have a single value, "
-            f"but resource '{resource_id}' (Excel row {row_number}) contains more than one value."
+            f"but resource '{resource_id}', property '{row['prop name']}' (Excel row {row_number}) contains more than one value."
         )
         if print_errors:
             print(msg)

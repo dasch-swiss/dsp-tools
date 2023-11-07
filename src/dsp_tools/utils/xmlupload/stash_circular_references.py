@@ -10,6 +10,7 @@ from dsp_tools.analyse_xml_data.construct_and_analyze_graph import (
     generate_upload_order,
     make_graph,
 )
+from dsp_tools.models.permission import Permissions
 from dsp_tools.models.value import KnoraStandoffXml
 from dsp_tools.models.xmlproperty import XMLProperty
 from dsp_tools.models.xmlresource import XMLResource
@@ -56,17 +57,20 @@ def _stash_resptr(
     restype: str,
     link_prop: XMLProperty,
     stash_lookup: dict[str, list[str]],
+    permission_lookup: dict[str, Permissions],
 ) -> list[LinkValueStashItem]:
     stashed_items = []
     for value in link_prop.values.copy():
         if value.link_uuid not in stash_lookup[res_id]:
             continue
+        permission = str(permission_lookup[value.permissions]) if value.permissions else None
         # value.value is the ID of the target resource. stash it, then delete it
         link_stash_item = LinkValueStashItem(
             res_id=res_id,
             res_type=restype,
             prop_name=link_prop.name,
             target_id=str(value.value),
+            permission=permission,
         )
         link_prop.values.remove(value)
         stashed_items.append(link_stash_item)
@@ -76,6 +80,7 @@ def _stash_resptr(
 def stash_circular_references(
     resources: list[XMLResource],
     stash_lookup: dict[str, list[str]],
+    permission_lookup: dict[str, Permissions],
 ) -> Stash | None:
     """
     Stashes problematic resource-references from a list of resources.
@@ -100,7 +105,7 @@ def stash_circular_references(
                 standoff_stash_item = _stash_standoff(res.id, res.restype, link_prop, stash_lookup)
                 stashed_standoff_values.extend(standoff_stash_item)
             elif link_prop.valtype == "resptr":
-                link_stash_item = _stash_resptr(res.id, res.restype, link_prop, stash_lookup)
+                link_stash_item = _stash_resptr(res.id, res.restype, link_prop, stash_lookup, permission_lookup)
                 stashed_link_values.extend(link_stash_item)
 
             if len(link_prop.values) == 0:

@@ -161,7 +161,7 @@ class XMLResource:  # pylint: disable=too-many-instance-attributes
                         v = value.value  # if we do not find the id, we assume it's a valid DSP IRI
                 elif prop.valtype == "text":
                     if isinstance(value.value, KnoraStandoffXml):
-                        res_ids = value.value.find_ids_referenced_in_salsah_links()
+                        res_ids = value.value.find_internal_ids()
                         for res_id in res_ids:
                             iri = resiri_lookup.get(res_id)
                             if not iri:

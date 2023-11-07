@@ -11,6 +11,7 @@ from dsp_tools.models.helpers import Actions, IriTest
 from dsp_tools.models.langstring import LangString
 from dsp_tools.models.listnode import ListNode
 from dsp_tools.models.permission import Permissions, PermissionValue
+from dsp_tools.utils.xmlupload.iri_resolver import IriResolver
 
 
 @dataclass
@@ -19,19 +20,24 @@ class KnoraStandoffXml:
 
     xmlstr: str
 
-    def find_ids_referenced_in_salsah_links(self) -> set[str]:
+    def as_xml(self) -> str:
+        return f'<?xml version="1.0" encoding="UTF-8"?>\n<text>{self.xmlstr}</text>'
+
+    def find_internal_ids(self) -> set[str]:
         return set(regex.findall(pattern='href="IRI:(.*?):IRI"', string=self.xmlstr))
 
     def replace(self, fromStr: str, toStr: str) -> None:
         self.xmlstr = self.xmlstr.replace(fromStr, toStr)
 
-    def with_iris(self, id_2_iri: dict[str, str]) -> KnoraStandoffXml:
+    def with_iris(self, iri_resolver: IriResolver) -> KnoraStandoffXml:
         """
         Returns a copy of this object, where all internal ids are replaced with iris according to the provided mapping.
         """
         s = self.xmlstr
-        for internal_id in self.find_ids_referenced_in_salsah_links():
-            iri = id_2_iri[internal_id]
+        for internal_id in self.find_internal_ids():
+            iri = iri_resolver.get(internal_id)
+            if not iri:
+                raise BaseError(f"Internal ID {internal_id} could not be resolved to an IRI")
             s = s.replace(f'href="IRI:{internal_id}:IRI"', f'href="{iri}"')
         return KnoraStandoffXml(s)
 

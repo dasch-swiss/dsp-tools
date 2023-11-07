@@ -4,10 +4,9 @@ from dataclasses import dataclass, field
 from typing import Any, Iterable, Protocol
 from urllib.parse import quote_plus
 
-import requests
-
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.connection.connection import Connection
 from dsp_tools.utils.create_logger import get_logger
+from dsp_tools.utils.shared import try_network_action
 
 # pylint: disable=too-few-public-methods
 
@@ -49,7 +48,7 @@ class ListClient(Protocol):
 class ListClientLive:
     """Client handling list-related requests to the DSP-API."""
 
-    server: str
+    con: Connection
     project_iri: str
     list_info: ProjectLists | None = field(init=False, default=None)
 
@@ -63,7 +62,7 @@ class ListClientLive:
             The mapping of list node IDs to IRIs.
         """
         if not self.list_info:
-            self.list_info = _get_list_info_from_server(self.server, self.project_iri)
+            self.list_info = _get_list_info_from_server(self.con, self.project_iri)
         return dict(_get_node_tuples(self.list_info.lists))
 
 
@@ -76,30 +75,26 @@ def _get_node_tuples(lists: list[List]) -> Iterable[tuple[str, str]]:
             yield node_id, node.node_iri
 
 
-def _get_list_info_from_server(server: str, project_iri: str) -> ProjectLists:
+def _get_list_info_from_server(con: Connection, project_iri: str) -> ProjectLists:
     logger.info(f"Retrieving lists of project {project_iri}")
-    list_iris = _get_list_iris_from_server(server, project_iri)
-    lists = [_get_list_from_server(server, list_iri) for list_iri in list_iris]
+    list_iris = _get_list_iris_from_server(con, project_iri)
+    lists = [_get_list_from_server(con, list_iri) for list_iri in list_iris]
     return ProjectLists(lists)
 
 
-def _get_list_iris_from_server(server: str, project_iri: str) -> list[str]:
+def _get_list_iris_from_server(con: Connection, project_iri: str) -> list[str]:
     iri = quote_plus(project_iri)
-    res = requests.get(f"{server}/admin/lists?projectIri={iri}", timeout=5)
-    if res.status_code != 200:
-        raise BaseError(f"Could not retrieve lists of project {project_iri}")
-    lists: list[dict[str, Any]] = res.json()["lists"]
+    res: dict[str, Any] = try_network_action(con.get, f"/admin/lists?projectIri={iri}")
+    lists: list[dict[str, Any]] = res["lists"]
     logger.info(f"Found {len(lists)} lists for project")
     return [l["id"] for l in lists]
 
 
-def _get_list_from_server(server: str, list_iri: str) -> List:
+def _get_list_from_server(con: Connection, list_iri: str) -> List:
     logger.info(f"Retrieving nodes of list {list_iri}")
     iri = quote_plus(list_iri)
-    res = requests.get(f"{server}/admin/lists/{iri}", timeout=5)
-    if res.status_code != 200:
-        raise BaseError(f"Could not retrieve nodes of list {list_iri}")
-    list_object: dict[str, Any] = res.json()["list"]
+    res = try_network_action(con.get, f"/admin/lists/{iri}")
+    list_object: dict[str, Any] = res["list"]
     list_info = list_object["listinfo"]
     children: list[dict[str, Any]] = list_object["children"]
     root_iri = list_info["id"]

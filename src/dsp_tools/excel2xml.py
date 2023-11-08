@@ -2344,21 +2344,18 @@ def excel2xml(
     Returns:
         True if everything went well, False otherwise
     """
-    # read and prepare the input file
     success = True
     dataframe = _read_cli_input_file(datafile)
     dataframe = _validate_and_prepare_cli_input_file(dataframe)
     last_column_title = str(list(dataframe)[-1])  # last column title, in the format "i_comment"
     max_num_of_props = int(last_column_title.split("_")[0])
 
-    # create the XML root element
     root = make_root(shortcode=shortcode, default_ontology=default_ontology)
     root = append_permissions(root)
 
-    # parse the input file row by row
     with warnings.catch_warnings(record=True) as w:
         if not mute_warnings:
-            warnings.simplefilter("always")
+            warnings.simplefilter("default")
         resources = _convert_rows_to_xml(
             dataframe=dataframe,
             max_num_of_props=max_num_of_props,
@@ -2366,11 +2363,6 @@ def excel2xml(
         )
         for resource in resources:
             root.append(resource)
-
-    # write file
-    with warnings.catch_warnings(record=True) as w:
-        if not mute_warnings:
-            warnings.simplefilter("always")
         write_xml(root, f"{default_ontology}-data.xml")
         if len(w) > 0:
             success = False

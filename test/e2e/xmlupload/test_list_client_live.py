@@ -5,7 +5,7 @@ from dsp_tools.utils.xmlupload.project_client import ProjectClientLive
 # pylint: disable=missing-function-docstring
 
 
-def test_ist_clienbt_live() -> None:
+def test_list_client_live() -> None:
     con = ConnectionLive("http://localhost:3333")
     con.login("root@example.com", "test")
     project_client = ProjectClientLive(con, "0001")

@@ -2334,6 +2334,7 @@ def excel2xml(
             success = False
             for warning in catched_warnings:
                 print(f"WARNING: {warning.message}")
+
     print(f"XML file successfully created at {default_ontology}-data.xml")
 
     return success, catched_warnings

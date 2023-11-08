@@ -253,7 +253,6 @@ Arguments:
 The following options are available:
 
 - `-mw` | `--mute-warnings` (optional): don't print warnings
-- `-pe` | `--print-errors` (optional): print errors instead of raising them
 
 The expected Excel format is [documented here](./file-formats/excel2xml.md).
 

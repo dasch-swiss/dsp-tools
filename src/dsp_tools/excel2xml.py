@@ -2285,7 +2285,6 @@ def excel2xml(
     datafile: str,
     shortcode: str,
     default_ontology: str,
-    mute_warnings: bool = False,
 ) -> bool:
     """
     This is a method that is called from the command line.

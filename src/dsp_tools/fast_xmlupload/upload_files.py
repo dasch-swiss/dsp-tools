@@ -315,6 +315,7 @@ def _upload_files_in_parallel(
     Returns:
         _description_
     """
+    result: list[tuple[Path, bool]] = []
     with ThreadPoolExecutor(max_workers=nthreads) as pool:
         upload_jobs = [
             pool.submit(
@@ -326,10 +327,8 @@ def _upload_files_in_parallel(
             )
             for internal_filename_of_processed_file in internal_filenames_of_processed_files
         ]
-
-    result: list[tuple[Path, bool]] = []
-    for uploaded in as_completed(upload_jobs):
-        result.append(uploaded.result())
+        for uploaded in as_completed(upload_jobs):
+            result.append(uploaded.result())
     return result
 
 

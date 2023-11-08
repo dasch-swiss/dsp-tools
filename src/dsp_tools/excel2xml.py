@@ -2074,23 +2074,25 @@ def _convert_resource_row_to_xml(
         kwargs_resource["creation_date"] = row["created"]
 
     # call the appropriate method
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")  # prevent dublette warnings: most problems were already checked above
-        if resource_restype == "Region":
+    if resource_restype == "Region":
+        with warnings.catch_warnings():  # prevent dublette warnings: most problems were already checked above
             resource = make_region(**kwargs_resource)
-        elif resource_restype == "Annotation":
+    elif resource_restype == "Annotation":
+        with warnings.catch_warnings():  # prevent dublette warnings: most problems were already checked above
             resource = make_annotation(**kwargs_resource)
-        elif resource_restype == "LinkObj":
+    elif resource_restype == "LinkObj":
+        with warnings.catch_warnings():  # prevent dublette warnings: most problems were already checked above
             resource = make_link(**kwargs_resource)
-        else:
-            kwargs_resource["restype"] = resource_restype
+    else:
+        kwargs_resource["restype"] = resource_restype
+        with warnings.catch_warnings():  # prevent dublette warnings: most problems were already checked above
             resource = make_resource(**kwargs_resource)
-            if check_notna(row.get("file")):
-                resource = _append_bitstream_to_resource(
-                    resource=resource,
-                    row=row,
-                    row_number=row_number,
-                )
+        if check_notna(row.get("file")):
+            resource = _append_bitstream_to_resource(
+                resource=resource,
+                row=row,
+                row_number=row_number,
+            )
 
     return resource
 

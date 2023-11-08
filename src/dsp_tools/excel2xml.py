@@ -2010,6 +2010,7 @@ def _append_bitstream_to_resource(
                 f"An attempt to deduce them from the resource permissions failed."
             )
     with warnings.catch_warnings():
+        warnings.simplefilter("ignore")  # ignore warnings about not existing files
         resource.append(
             make_bitstream_prop(
                 path=str(row["file"]),
@@ -2045,10 +2046,6 @@ def _convert_resource_row_to_xml(
     if pd.isna([resource_label]):
         resource_label = ""
         warnings.warn(f"Missing label for resource '{resource_id}' (Excel row {row_number})")
-    elif not check_notna(resource_label):
-        warnings.warn(
-            f"The label of resource '{resource_id}' looks suspicious: '{resource_label}' (Excel row {row_number})"
-        )
     resource_restype = row.get("restype")
     if not check_notna(resource_restype):
         resource_restype = ""
@@ -2073,21 +2070,23 @@ def _convert_resource_row_to_xml(
         kwargs_resource["creation_date"] = row["created"]
 
     # call the appropriate method
-    if resource_restype == "Region":
-        resource = make_region(**kwargs_resource)
-    elif resource_restype == "Annotation":
-        resource = make_annotation(**kwargs_resource)
-    elif resource_restype == "LinkObj":
-        resource = make_link(**kwargs_resource)
-    else:
-        kwargs_resource["restype"] = resource_restype
-        resource = make_resource(**kwargs_resource)
-        if check_notna(row.get("file")):
-            resource = _append_bitstream_to_resource(
-                resource=resource,
-                row=row,
-                row_number=row_number,
-            )
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")  # prevent dublette warnings: most problems were already checked above
+        if resource_restype == "Region":
+            resource = make_region(**kwargs_resource)
+        elif resource_restype == "Annotation":
+            resource = make_annotation(**kwargs_resource)
+        elif resource_restype == "LinkObj":
+            resource = make_link(**kwargs_resource)
+        else:
+            kwargs_resource["restype"] = resource_restype
+            resource = make_resource(**kwargs_resource)
+            if check_notna(row.get("file")):
+                resource = _append_bitstream_to_resource(
+                    resource=resource,
+                    row=row,
+                    row_number=row_number,
+                )
 
     return resource
 
@@ -2321,8 +2320,6 @@ def excel2xml(
     root = append_permissions(root)
 
     with warnings.catch_warnings(record=True) as w:
-        if not mute_warnings:
-            warnings.simplefilter("default")
         resources = _convert_rows_to_xml(
             dataframe=dataframe,
             max_num_of_props=max_num_of_props,
@@ -2332,6 +2329,8 @@ def excel2xml(
         write_xml(root, f"{default_ontology}-data.xml")
         if len(w) > 0:
             success = False
+            for warning in w:
+                print(f"WARNING: {warning.message}")
     print(f"XML file successfully created at {default_ontology}-data.xml")
 
     return success

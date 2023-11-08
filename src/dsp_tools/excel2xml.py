@@ -381,7 +381,7 @@ def make_resource(
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#describing-resources-with-the-resource-element
     """
     if not check_notna(label):
-        warnings.warn(f"WARNING: Your resource's label looks suspicious (resource with id '{id}' and label '{label}'")
+        warnings.warn(f"WARNING: Your resource's label looks suspicious (resource with id '{id}' and label '{label}')")
     if not check_notna(id):
         warnings.warn(f"WARNING: Your resource's id looks suspicious (resource with id '{id}' and label '{label}'")
     kwargs = {"label": label, "restype": restype, "id": id, "permissions": permissions, "nsmap": xml_namespace_map}

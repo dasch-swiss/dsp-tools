@@ -757,10 +757,10 @@ class TestExcel2xml(unittest.TestCase):
                 f"{invalid_prefix}/no-bitstream-permissions.xlsx",
                 "Missing file permissions",
             ),
-            # (
-            #     f"{invalid_prefix}/single-invalid-value-for-property.xlsx",
-            #     "row 3 has an entry in column.+ '1_encoding', '1_permissions', but not",
-            # ),
+            (
+                f"{invalid_prefix}/single-invalid-value-for-property.xlsx",
+                "row 3 has an entry in column.+ '1_encoding', '1_permissions', but not",
+            ),
         ]
         for file, _regex in warning_cases:
             _, catched_warnings = excel2xml.excel2xml(file, "1234", "excel2xml-invalid")

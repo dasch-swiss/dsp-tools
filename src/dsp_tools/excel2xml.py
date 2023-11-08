@@ -2075,23 +2075,29 @@ def _convert_resource_row_to_xml(
     # call the appropriate method
     if resource_restype == "Region":
         with warnings.catch_warnings():  # prevent dublette warnings: most problems were already checked above
+            warnings.filterwarnings("ignore")
             resource = make_region(**kwargs_resource)
     elif resource_restype == "Annotation":
         with warnings.catch_warnings():  # prevent dublette warnings: most problems were already checked above
+            warnings.filterwarnings("ignore")
             resource = make_annotation(**kwargs_resource)
     elif resource_restype == "LinkObj":
         with warnings.catch_warnings():  # prevent dublette warnings: most problems were already checked above
+            warnings.filterwarnings("ignore")
             resource = make_link(**kwargs_resource)
     else:
         kwargs_resource["restype"] = resource_restype
         with warnings.catch_warnings():  # prevent dublette warnings: most problems were already checked above
+            warnings.filterwarnings("ignore")
             resource = make_resource(**kwargs_resource)
-        if check_notna(row.get("file")):
-            resource = _append_bitstream_to_resource(
-                resource=resource,
-                row=row,
-                row_number=row_number,
-            )
+        with warnings.catch_warnings():  # ignore only the warnings about not existing files
+            warnings.filterwarnings("ignore", message=".*path doesn't point to a file.*")
+            if check_notna(row.get("file")):
+                resource = _append_bitstream_to_resource(
+                    resource=resource,
+                    row=row,
+                    row_number=row_number,
+                )
 
     return resource
 

@@ -2289,7 +2289,7 @@ def excel2xml(
     datafile: str,
     shortcode: str,
     default_ontology: str,
-) -> bool:
+) -> tuple[bool, list[warnings.WarningMessage]]:
     """
     This is a method that is called from the command line.
     It isn't intended to be used in a Python script.
@@ -2322,7 +2322,7 @@ def excel2xml(
     root = make_root(shortcode=shortcode, default_ontology=default_ontology)
     root = append_permissions(root)
 
-    with warnings.catch_warnings(record=True) as w:
+    with warnings.catch_warnings(record=True) as catched_warnings:
         resources = _convert_rows_to_xml(
             dataframe=dataframe,
             max_num_of_props=max_num_of_props,
@@ -2330,10 +2330,10 @@ def excel2xml(
         for resource in resources:
             root.append(resource)
         write_xml(root, f"{default_ontology}-data.xml")
-        if len(w) > 0:
+        if len(catched_warnings) > 0:
             success = False
-            for warning in w:
+            for warning in catched_warnings:
                 print(f"WARNING: {warning.message}")
     print(f"XML file successfully created at {default_ontology}-data.xml")
 
-    return success
+    return success, catched_warnings

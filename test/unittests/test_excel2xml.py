@@ -737,10 +737,10 @@ class TestExcel2xml(unittest.TestCase):
                 f"{invalid_prefix}/empty-property.xlsx",
                 "At least one value per property is required",
             ),
-            # (
-            #     f"{invalid_prefix}/missing-prop-permissions.xlsx",
-            #     "Missing permissions in column '2_permissions' of property ':hasName'",
-            # ),
+            (
+                f"{invalid_prefix}/missing-prop-permissions.xlsx",
+                "Missing permissions in column '2_permissions' of property ':hasName'",
+            ),
             (
                 f"{invalid_prefix}/missing-resource-label.xlsx",
                 "Missing label for resource",
@@ -753,10 +753,10 @@ class TestExcel2xml(unittest.TestCase):
                 f"{invalid_prefix}/missing-restype.xlsx",
                 "Missing restype",
             ),
-            # (
-            #     f"{invalid_prefix}/no-bitstream-permissions.xlsx",
-            #     "Missing file permissions",
-            # ),
+            (
+                f"{invalid_prefix}/no-bitstream-permissions.xlsx",
+                "Missing file permissions",
+            ),
             # (
             #     f"{invalid_prefix}/single-invalid-value-for-property.xlsx",
             #     "row 3 has an entry in column.+ '1_encoding', '1_permissions', but not",
@@ -766,7 +766,7 @@ class TestExcel2xml(unittest.TestCase):
             _, catched_warnings = excel2xml.excel2xml(file, "1234", "excel2xml-invalid")
             self.assertTrue(len(catched_warnings) > 0)
             messages = [str(w.message) for w in catched_warnings]
-            self.assertTrue(any([regex.match(_regex, msg) for msg in messages]), msg=f"Failed with file '{file}'")
+            self.assertTrue(any(regex.search(_regex, msg) for msg in messages), msg=f"Failed with file '{file}'")
 
         error_cases = [
             (

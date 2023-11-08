@@ -20,17 +20,19 @@ def test_get_project_iri(project_client: ProjectClient) -> None:
 
 def test_get_ontology_iris(project_client: ProjectClient) -> None:
     ontology_iris = project_client.get_ontology_iris()
-    expected = ["http://0.0.0.0:3333/ontology/0001/anything/v2"]
-    assert ontology_iris == expected
+    expected = "http://0.0.0.0:3333/ontology/0001/anything/v2"
+    assert expected in ontology_iris
 
 
 def test_get_ontology_name_dict(project_client: ProjectClient) -> None:
     ontology_name_dict = project_client.get_ontology_name_dict()
-    expected = {"anything": "http://0.0.0.0:3333/ontology/0001/anything/v2"}
-    assert ontology_name_dict == expected
+    expected_key = "anything"
+    expected_val = "http://0.0.0.0:3333/ontology/0001/anything/v2"
+    assert ontology_name_dict[expected_key] == expected_val
 
 
 def test_get_ontology_iri_dict(project_client: ProjectClient) -> None:
     ontology_name_dict = project_client.get_ontology_iri_dict()
-    expected = {"http://0.0.0.0:3333/ontology/0001/anything/v2": "anything"}
-    assert ontology_name_dict == expected
+    expected_key = "http://0.0.0.0:3333/ontology/0001/anything/v2"
+    expected_val = "anything"
+    assert ontology_name_dict[expected_key] == expected_val

@@ -1823,8 +1823,8 @@ def write_xml(
         root: etree Element with the entire XML document
         filepath: where to save the file
 
-    Raises:
-        Warning: if the XML is not valid according to the schema
+    Warning:
+        if the XML is not valid according to the schema
     """
     etree.indent(root, space="    ")
     xml_string = etree.tostring(
@@ -1989,8 +1989,8 @@ def _append_bitstream_to_resource(
         row: the row of the CSV/Excel file from where all information comes from
         row_number: row number of the CSV/Excel sheet
 
-    Raises:
-        BaseError: if the file permissions are missing and cannot be deduced from the resource permissions
+    Warning:
+        if the file permissions are missing and cannot be deduced from the resource permissions
 
     Returns:
         the resource element with the appended bitstream-prop element
@@ -2034,8 +2034,8 @@ def _convert_resource_row_to_xml(
         row_number: row number of the CSV/Excel sheet
         row: the pandas series representing the current row
 
-    Raises:
-        BaseError: if a mandatory cell is missing
+    Warning:
+        if a mandatory cell is missing
 
     Returns:
         the resource element created from the row
@@ -2046,6 +2046,10 @@ def _convert_resource_row_to_xml(
     if pd.isna([resource_label]):
         resource_label = ""
         warnings.warn(f"Missing label for resource '{resource_id}' (Excel row {row_number})")
+    elif not check_notna(resource_label):
+        warnings.warn(
+            f"The label of resource '{resource_id}' looks suspicious: '{resource_label}' (Excel row {row_number})"
+        )
     resource_restype = row.get("restype")
     if not check_notna(resource_restype):
         resource_restype = ""
@@ -2148,8 +2152,8 @@ def _convert_row_to_property_elements(
         row_number: row number of the CSV/Excel sheet
         resource_id: id of resource to which this property belongs to
 
-    Raises:
-        BaseError: if a mandatory cell is missing, or if there are too many/too few values per property
+    Warning:
+        if a mandatory cell is missing, or if there are too many/too few values per property
 
     Returns:
         list of PropertyElement objects

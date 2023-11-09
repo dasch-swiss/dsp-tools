@@ -368,7 +368,12 @@ def _create_resource(
     except Exception as err:  # pylint: disable=broad-except
         msg = f"Unable to create resource '{resource.label}' ({resource.id})"
         print(f"{datetime.now()}: WARNING: {msg}: {err}")
-        logger.exception(msg)
+        log_msg = (
+            f"Unable to create resource '{resource.label}' ({resource.id})\n"
+            f"Resource details:\n{vars(resource)}\n"
+            f"Property details:\n" + "\n".join([str(vars(prop)) for prop in resource.properties])
+        )
+        logger.exception(log_msg)
         return None
 
 

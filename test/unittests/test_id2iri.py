@@ -193,12 +193,13 @@ class TestIdToIri(unittest.TestCase):
             </resource>
         </knora>
         """
-        xml_expected = regex.sub(r"^(\n +)|(\n +)$", "", xml_expected)
+        xml_expected = xml_expected.replace("\n", "").replace(" ", "")
         tree_returned = _remove_resources_if_id_in_mapping(
             tree=etree.fromstring(xml),
             mapping=self.mapping,
         )
-        xml_returned = etree.tostring(tree_returned).decode("utf-8")
+        xml_returned = etree.tostring(tree_returned, pretty_print=False).decode("utf-8")
+        xml_returned = xml_returned.replace("\n", "").replace(" ", "")
         self.assertEqual(xml_returned, xml_expected)
 
 

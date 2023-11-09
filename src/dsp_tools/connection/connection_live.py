@@ -175,7 +175,9 @@ class ConnectionLive:
         response = requests.post(
             url=url,
             headers=headers,
-            data=jsondata,
+            # if data is not encoded as bytes, issues can occur with non-ASCII characters,
+            # where the content-length of the request will turn out to be different from the actual length
+            data=jsondata.encode("utf-8") if jsondata else None,
             timeout=timeout,
         )
         if self.dump:
@@ -265,7 +267,9 @@ class ConnectionLive:
         response = requests.put(
             url=url,
             headers=headers,
-            data=jsondata,
+            # if data is not encoded as bytes, issues can occur with non-ASCII characters,
+            # where the content-length of the request will turn out to be different from the actual length
+            data=jsondata.encode("utf-8") if jsondata else None,
             timeout=timeout,
         )
         if self.dump:

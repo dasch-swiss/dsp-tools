@@ -6,10 +6,10 @@ from urllib.parse import quote_plus
 
 from dsp_tools.connection.connection import Connection
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.resource import KnoraStandoffXmlEncoder
 from dsp_tools.models.value import KnoraStandoffXml
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import try_network_action
+from dsp_tools.utils.xmlupload.iri_resolver import IriResolver
 from dsp_tools.utils.xmlupload.stash.stash_models import StandoffStash, StandoffStashItem
 
 logger = get_logger(__name__)
@@ -88,17 +88,17 @@ def _create_XMLResource_json_object_to_update(
         link_prop_name: {
             "@id": value_iri,
             "@type": "knora-api:TextValue",
-            "knora-api:textValueAsXml": new_xmltext,
+            "knora-api:textValueAsXml": '<?xml version="1.0" encoding="UTF-8"?>\n<text>' + str(new_xmltext) + "</text>",
             "knora-api:textValueHasMapping": {"@id": "http://rdfh.ch/standoff/mappings/StandardMapping"},
         },
         "@context": context,
     }
-    return json.dumps(jsonobj, indent=4, separators=(",", ": "), cls=KnoraStandoffXmlEncoder)
+    return json.dumps(jsonobj, indent=4, separators=(",", ": "))
 
 
 def upload_stashed_xml_texts(
     verbose: bool,
-    id2iri_mapping: dict[str, str],
+    iri_resolver: IriResolver,
     con: Connection,
     stashed_xml_texts: StandoffStash,
 ) -> StandoffStash | None:
@@ -107,7 +107,7 @@ def upload_stashed_xml_texts(
 
     Args:
         verbose: bool
-        id2iri_mapping: mapping of ids from the XML file to IRIs in DSP
+        iri_resolver: resolver to map ids from the XML file to IRIs in DSP
         con: connection to DSP
         stashed_xml_texts: all xml texts that have been stashed
 
@@ -119,7 +119,7 @@ def upload_stashed_xml_texts(
     logger.info("Upload the stashed XML texts...")
     not_uploaded: list[StandoffStashItem] = []
     for res_id, stash_items in stashed_xml_texts.res_2_stash_items.items():
-        res_iri = id2iri_mapping.get(res_id)
+        res_iri = iri_resolver.get(res_id)
         if not res_iri:
             # resource could not be uploaded to DSP, so the stash cannot be uploaded either
             # no action necessary: this resource will remain in nonapplied_xml_texts,
@@ -146,7 +146,7 @@ def upload_stashed_xml_texts(
                 res_type=stash_item.res_type,
                 res_id=res_id,
                 value_iri=value_iri,
-                id2iri_mapping=id2iri_mapping,
+                iri_resolver=iri_resolver,
                 con=con,
                 context=context,
             )
@@ -181,7 +181,7 @@ def _upload_stash_item(
     res_type: str,
     res_id: str,
     value_iri: str,
-    id2iri_mapping: dict[str, str],
+    iri_resolver: IriResolver,
     con: Connection,
     context: dict[str, str],
 ) -> bool:
@@ -194,14 +194,14 @@ def _upload_stash_item(
         res_type: the type of the resource
         res_id: the internal id of the resource
         value_iri: the iri of the value
-        id2iri_mapping: mapping of ids from the XML file to IRIs in DSP
+        iri_resolver: resolver to map ids from the XML file to IRIs in DSP
         con: connection to DSP
         context: the JSON-LD context of the resource
 
     Returns:
         True, if the upload was successful, False otherwise
     """
-    adjusted_text_value = stash_item.value.with_iris(id2iri_mapping)
+    adjusted_text_value = stash_item.value.with_iris(iri_resolver)
     jsondata = _create_XMLResource_json_object_to_update(
         res_iri,
         res_type,

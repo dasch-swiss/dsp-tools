@@ -46,12 +46,13 @@ def test_save_location() -> None:
         shortcode=shortcode,
         onto_name=onto_name,
     )
-    result = str(config_with_save_location.save_location)
+    diagnostics = config_with_save_location.diagnostics
+    result = str(diagnostics.save_location)
     assert result.endswith(expected_path)
     try:
-        config_with_save_location.save_location.rmdir()
-        config_with_save_location.save_location.parent.rmdir()
-        config_with_save_location.save_location.parent.parent.rmdir()
+        diagnostics.save_location.rmdir()
+        diagnostics.save_location.parent.rmdir()
+        diagnostics.save_location.parent.parent.rmdir()
     except OSError:
         # there was already stuff in the folder before this test: do nothing
         pass

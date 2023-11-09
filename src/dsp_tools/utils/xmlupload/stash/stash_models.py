@@ -15,7 +15,6 @@ class StandoffStashItem:
     uuid: str
     prop_name: str
     value: KnoraStandoffXml
-    # Permissions missing still
 
 
 @dataclass(frozen=True)
@@ -49,6 +48,7 @@ class LinkValueStashItem:
     res_type: str
     prop_name: str
     target_id: str
+    permission: str | None = None
 
 
 @dataclass(frozen=True)

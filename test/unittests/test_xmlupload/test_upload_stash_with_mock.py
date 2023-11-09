@@ -4,6 +4,7 @@ from uuid import uuid4
 
 from dsp_tools.connection.connection import Connection
 from dsp_tools.models.value import KnoraStandoffXml
+from dsp_tools.utils.xmlupload.iri_resolver import IriResolver
 from dsp_tools.utils.xmlupload.stash.stash_models import (
     LinkValueStash,
     LinkValueStashItem,
@@ -14,6 +15,22 @@ from dsp_tools.utils.xmlupload.stash.stash_models import (
 from dsp_tools.utils.xmlupload.xmlupload import _upload_stash
 
 # pylint: disable=unused-argument,missing-function-docstring,missing-class-docstring,too-few-public-methods
+
+
+class ProjectClientStub:
+    """Stub class for ProjectClient."""
+
+    def get_project_iri(self) -> str:
+        raise NotImplementedError("get_project_iri not implemented")
+
+    def get_ontology_iris(self) -> list[str]:
+        raise NotImplementedError("get_project_iri not implemented")
+
+    def get_ontology_name_dict(self) -> dict[str, str]:
+        return {}
+
+    def get_ontology_iri_dict(self) -> dict[str, str]:
+        raise NotImplementedError("get_project_iri not implemented")
 
 
 @dataclass
@@ -76,17 +93,19 @@ class TestUploadLinkValueStashes:
             ),
         )
         assert stash
-        id2iri_mapping = {
-            "001": "http://www.rdfh.ch/0001/001",
-            "002": "http://www.rdfh.ch/0001/002",
-        }
+        iri_resolver = IriResolver(
+            {
+                "001": "http://www.rdfh.ch/0001/001",
+                "002": "http://www.rdfh.ch/0001/002",
+            }
+        )
         con: Connection = ConnectionMock(post_responses=[{}])
         nonapplied = _upload_stash(
             stash=stash,
-            id2iri_mapping=id2iri_mapping,
+            iri_resolver=iri_resolver,
             con=con,
-            context={},
             verbose=False,
+            project_client=ProjectClientStub(),
         )
         assert nonapplied is None
 
@@ -107,10 +126,12 @@ class TestUploadTextValueStashes:
             link_value_stash=None,
         )
         assert stash
-        id2iri_mapping = {
-            "001": "http://www.rdfh.ch/0001/001",
-            "002": "http://www.rdfh.ch/0001/002",
-        }
+        iri_resolver = IriResolver(
+            {
+                "001": "http://www.rdfh.ch/0001/001",
+                "002": "http://www.rdfh.ch/0001/002",
+            }
+        )
         con: Connection = ConnectionMock(
             get_responses=[
                 {
@@ -131,10 +152,10 @@ class TestUploadTextValueStashes:
         )
         nonapplied = _upload_stash(
             stash=stash,
-            id2iri_mapping=id2iri_mapping,
+            iri_resolver=iri_resolver,
             con=con,
-            context={},
             verbose=False,
+            project_client=ProjectClientStub(),
         )
         assert nonapplied is None
 
@@ -156,10 +177,12 @@ class TestUploadTextValueStashes:
             link_value_stash=None,
         )
         assert stash
-        id2iri_mapping = {
-            "001": "http://www.rdfh.ch/0001/001",
-            "002": "http://www.rdfh.ch/0001/002",
-        }
+        iri_resolver = IriResolver(
+            {
+                "001": "http://www.rdfh.ch/0001/001",
+                "002": "http://www.rdfh.ch/0001/002",
+            }
+        )
         con: Connection = ConnectionMock(
             get_responses=[
                 {
@@ -176,9 +199,9 @@ class TestUploadTextValueStashes:
         )
         nonapplied = _upload_stash(
             stash=stash,
-            id2iri_mapping=id2iri_mapping,
+            iri_resolver=iri_resolver,
             con=con,
-            context={},
             verbose=False,
+            project_client=ProjectClientStub(),
         )
         assert nonapplied == stash

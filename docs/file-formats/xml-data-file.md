@@ -280,7 +280,7 @@ Attributes:
 
 #### `<boolean>`
 
-The `<boolean>` element must contain the string "true" or "false", or the numeral 1 (true) or 0 (false).
+The `<boolean>` element must contain the string "true"/"True" or "false"/"False", or the numeral 1 (true) or 0 (false).
 
 Attributes:
 

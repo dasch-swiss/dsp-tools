@@ -157,6 +157,7 @@ def _upload(
 ) -> tuple[IriResolver, list[str]]:
     # upload all resources, then update the resources with the stashed XML texts and resptrs
     failed_uploads: list[str] = []
+    iri_resolver = IriResolver()
     try:
         iri_resolver, failed_uploads = _upload_resources(
             resources=resources,
@@ -167,6 +168,7 @@ def _upload(
             config=config,
             project_client=project_client,
             list_client=list_client,
+            id_to_iri_resolver=iri_resolver,
         )
         nonapplied_stash = (
             _upload_stash(
@@ -283,6 +285,7 @@ def _upload_resources(
     config: UploadConfig,
     project_client: ProjectClient,
     list_client: ListClient,
+    id_to_iri_resolver: IriResolver,
 ) -> tuple[IriResolver, list[str]]:
     """
     Iterates through all resources and tries to upload them to DSP.
@@ -307,8 +310,6 @@ def _upload_resources(
     project_iri = project_client.get_project_iri()
     json_ld_context = get_json_ld_context_for_project(project_client.get_ontology_name_dict())
     listnode_lookup = list_client.get_list_node_id_to_iri_lookup()
-
-    id_to_iri_resolver = IriResolver()
 
     resource_create_client = ResourceCreateClient(
         con=con,

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -24,5 +25,5 @@ def write_id2iri_mapping(
             id2iri_filename = f"{timestamp_str}_id2iri_mapping.json"
     with open(id2iri_filename, "x", encoding="utf-8") as f:
         json.dump(id2iri_mapping, f, ensure_ascii=False, indent=4)
-        print(f"The mapping of internal IDs to IRIs was written to {id2iri_filename}")
+        print(f"{datetime.now()}: The mapping of internal IDs to IRIs was written to {id2iri_filename}")
         logger.info(f"The mapping of internal IDs to IRIs was written to {id2iri_filename}")

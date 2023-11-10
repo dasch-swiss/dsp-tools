@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime
 from typing import Any
 from urllib.parse import quote_plus
 
@@ -34,7 +35,7 @@ def _log_unable_to_retrieve_resource(
         f"Unable to upload XML texts of resource '{resource}', "
         "because the resource cannot be retrieved from the DSP server."
     )
-    print(f"  WARNING: {err_msg} Original error message: {orig_err_msg}")
+    print(f"{datetime.now()}:   WARNING: {err_msg} Original error message: {orig_err_msg}")
     logger.warning(err_msg, exc_info=True)
 
 
@@ -56,7 +57,7 @@ def _log_unable_to_upload_xml_resource(
     # this resource will remain in nonapplied_xml_texts, which will be handled by the caller
     orig_err_msg = received_error.orig_err_msg_from_api or received_error.message
     err_msg = f"Unable to upload the xml text of '{prop_name}' of resource '{stashed_resource_id}'."
-    print(f"    WARNING: {err_msg} Original error message: {orig_err_msg}")
+    print(f"{datetime.now()}:     WARNING: {err_msg} Original error message: {orig_err_msg}")
     logger.warning(err_msg, exc_info=True)
 
 
@@ -115,7 +116,7 @@ def upload_stashed_xml_texts(
         nonapplied_xml_texts: the xml texts that could not be uploaded
     """
 
-    print("Upload the stashed XML texts...")
+    print(f"{datetime.now()}: Upload the stashed XML texts...")
     logger.info("Upload the stashed XML texts...")
     not_uploaded: list[StandoffStashItem] = []
     for res_id, stash_items in stashed_xml_texts.res_2_stash_items.items():
@@ -132,8 +133,8 @@ def upload_stashed_xml_texts(
             _log_unable_to_retrieve_resource(resource=res_id, received_error=err)
             continue
         if verbose:
-            print(f'  Upload XML text(s) of resource "{res_id}"...')
-        logger.info(f'  Upload XML text(s) of resource "{res_id}"...')
+            print(f"{datetime.now()}:   Upload XML text(s) of resource '{res_id}'...")
+        logger.info(f"  Upload XML text(s) of resource '{res_id}'...")
         context = resource_in_triplestore["@context"]
         for stash_item in stash_items:
             value_iri = _get_value_iri(stash_item.prop_name, resource_in_triplestore, stash_item.uuid)

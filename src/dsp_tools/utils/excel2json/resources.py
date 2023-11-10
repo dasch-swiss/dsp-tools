@@ -224,6 +224,6 @@ def excel2resources(
     if path_to_output_file:
         with open(file=path_to_output_file, mode="w", encoding="utf-8") as file:
             json.dump(resources, file, indent=4, ensure_ascii=False)
-            print('"resources" section was created successfully and written to file:', path_to_output_file)
+            print(f"resources section was created successfully and written to file '{path_to_output_file}'")
 
     return resources, True

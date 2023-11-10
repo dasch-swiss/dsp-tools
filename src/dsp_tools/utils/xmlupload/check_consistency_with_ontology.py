@@ -17,7 +17,7 @@ def _get_project_ontology_names_from_server(con: Connection, project_shortcode: 
 
 def _get_all_project_ontologies_from_server(
     con: Connection, project_shortcode: str, ontology_names: list[str]
-) -> dict[str, list[dict[str, Any]]]:
+) -> dict[str, ProjectOntology]:
     onto_dict = dict()
     for onto in ontology_names:
         onto_dict[onto] = _get_single_ontology_from_server(con, project_shortcode, onto)

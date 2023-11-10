@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Optional
 
@@ -78,12 +79,12 @@ def handle_bitstream(
                 permissions_lookup=permissions_lookup,
             )
             msg = f"Uploaded file '{bitstream.value}'"
-            print(msg)
+            print(f"{datetime.now()}: {msg}")
             logger.info(msg)
         return resource_bitstream
     except BaseError as err:
         err_msg = err.orig_err_msg_from_api or err.message
         msg = f"Unable to upload file '{bitstream.value}' of resource '{resource.label}' ({resource.id})"
-        print(f"WARNING: {msg}: {err_msg}")
+        print(f"{datetime.now()}: WARNING: {msg}: {err_msg}")
         logger.warning(msg, exc_info=True)
         return None

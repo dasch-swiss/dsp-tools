@@ -237,7 +237,7 @@ def validate_xml_against_schema(input_file: Union[str, Path, etree._ElementTree[
     _validate_xml_tags_in_text_properties(doc)
 
     logger.info("The XML file is syntactically correct and passed validation.")
-    print("The XML file is syntactically correct and passed validation.")
+    print(f"{datetime.now()}: The XML file is syntactically correct and passed validation.")
     return True
 
 

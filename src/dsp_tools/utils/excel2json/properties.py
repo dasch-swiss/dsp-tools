@@ -465,6 +465,6 @@ def excel2properties(
     if path_to_output_file:
         with open(file=path_to_output_file, mode="w", encoding="utf-8") as file:
             json.dump(props, file, indent=4, ensure_ascii=False)
-            print('"properties" section was created successfully and written to file:', path_to_output_file)
+            print(f"properties section was created successfully and written to file '{path_to_output_file}'")
 
     return props, True

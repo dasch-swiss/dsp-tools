@@ -228,7 +228,7 @@ def test_id2iri(id2iri: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.excel2xml")
+@patch("dsp_tools.cli.excel2xml", return_value=("foo", "bar"))
 def test_excel2xml(excel2xml: Mock) -> None:
     """Test the 'dsp-tools excel2xml' command"""
     excel_file = "filename.xlsx"

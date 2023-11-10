@@ -6,18 +6,6 @@
        shortcode="4123"
        default-ontology="testonto">
 
-    <resource label="no_replacements" restype=":TestThing" id="no_replacements">
-        <text-prop name=":hasSimpleText">
-            <text encoding="utf8">Text</text>
-        </text-prop>
-        <text-prop name=":hasRichtext">
-            <text encoding="xml">Text</text>
-        </text-prop>
-        <boolean-prop name=":hasBoolean">
-            <boolean>true</boolean>
-        </boolean-prop>
-    </resource>
-
     <resource label="resptr_only" restype=":TestThing" id="resptr_only">
         <text-prop name=":hasSimpleText">
             <text encoding="utf8">Text</text>
@@ -74,30 +62,6 @@
         <resptr-prop name=":hasTestThing2">
             <resptr>test_thing_0</resptr>
             <resptr>test_thing_with_ark_1</resptr>
-        </resptr-prop>
-        <boolean-prop name=":hasBoolean">
-            <boolean>true</boolean>
-        </boolean-prop>
-    </resource>
-
-    <resource label="test_thing_2_in_same_file" restype=":TestThing2" id="test_thing_2_in_same_file">
-        <text-prop name=":hasSimpleText">
-            <text encoding="utf8">Text</text>
-        </text-prop>
-    </resource>
-
-    <resource label="links_to_same_file_wont_be_replaced" restype=":TestThing" id="links_to_same_file_wont_be_replaced">
-        <text-prop name=":hasSimpleText">
-            <text encoding="utf8">Text</text>
-        </text-prop>
-        <text-prop name=":hasRichtext">
-            <text encoding="xml">
-                Text with a <a class="salsah-link" href="IRI:no_replacements:IRI">link to no_replacements</a>
-                and a <a class="salsah-link" href="IRI:resptr_only:IRI">link to resptr_only</a> 
-            </text>
-        </text-prop>
-        <resptr-prop name=":hasTestThing2">
-            <resptr>test_thing_2_in_same_file</resptr>
         </resptr-prop>
         <boolean-prop name=":hasBoolean">
             <boolean>true</boolean>

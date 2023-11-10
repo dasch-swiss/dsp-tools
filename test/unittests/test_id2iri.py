@@ -5,15 +5,21 @@ import unittest
 from pathlib import Path
 
 import pytest
+import regex
 from lxml import etree
 
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.utils.id2iri import id2iri
-from dsp_tools.utils.shared import get_most_recent_glob_match
+from dsp_tools.utils.id2iri import _remove_resources_if_id_in_mapping, _replace_ids_by_iris, id2iri
 
 
 class TestIdToIri(unittest.TestCase):
     tmp_dir = Path("testdata/tmp")
+    mapping = {
+        "test_thing_0": "http://rdfh.ch/082E/-lRvrg7tQI6aVpcTJbVrwg",
+        "test_thing_1": "http://rdfh.ch/082E/JK63OpYWTDWNYVOYFN7FdQ",
+        "test_thing_2": "http://rdfh.ch/082E/1l63Oasdfopiujlkmn78ak",
+        "test_thing_with_ark_1": "http://rdfh.ch/082E/qwasddoiu8_6flkjh67dss",
+    }
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -39,72 +45,162 @@ class TestIdToIri(unittest.TestCase):
                 json_file="test.json",
             )
 
-    def test_replace_id_with_iri(self) -> None:
-        """Check that the IRIs appear at the correct place in the output file"""
-        id2iri(
-            xml_file="testdata/id2iri/test-id2iri-data.xml",
-            json_file="testdata/id2iri/test-id2iri-mapping.json",
-        )
-        out_file = get_most_recent_glob_match("test-id2iri-data_replaced_*.xml")
-        root = etree.parse(out_file).getroot()
-        out_file.unlink()
-        resources = root.getchildren()
-        iris = [
-            resources[1].getchildren()[2].getchildren()[0].text,
-            resources[1].getchildren()[2].getchildren()[1].text,
-            resources[2].getchildren()[1].getchildren()[0][0].attrib["href"],
-            resources[2].getchildren()[1].getchildren()[0][1][0][0].attrib["href"],
-            resources[2].getchildren()[1].getchildren()[0][2].attrib["href"],
-            resources[3].getchildren()[1].getchildren()[0][0].attrib["href"],
-            resources[3].getchildren()[1].getchildren()[0][1][0][0].attrib["href"],
-            resources[3].getchildren()[1].getchildren()[0][2].attrib["href"],
-            resources[3].getchildren()[2].getchildren()[0].text,
-            resources[3].getchildren()[2].getchildren()[1].text,
-        ]
-        iris_expected = [
-            "http://rdfh.ch/082E/-lRvrg7tQI6aVpcTJbVrwg",
-            "http://rdfh.ch/082E/qwasddoiu8_6flkjh67dss",
-            "http://rdfh.ch/082E/JK63OpYWTDWNYVOYFN7FdQ",
-            "http://rdfh.ch/082E/1l63Oasdfopiujlkmn78ak",
-            "http://rdfh.ch/082E/qwasddoiu8_6flkjh67dss",
-            "http://rdfh.ch/082E/JK63OpYWTDWNYVOYFN7FdQ",
-            "http://rdfh.ch/082E/1l63Oasdfopiujlkmn78ak",
-            "http://rdfh.ch/082E/qwasddoiu8_6flkjh67dss",
-            "http://rdfh.ch/082E/-lRvrg7tQI6aVpcTJbVrwg",
-            "http://rdfh.ch/082E/qwasddoiu8_6flkjh67dss",
-        ]
-        self.assertListEqual(iris, iris_expected)
+    def test_replace_ids_by_iris_no_replacements(self) -> None:
+        xml = """
+        <knora shortcode="4123" default-ontology="testonto">
+            <resource label="no_replacements" restype=":TestThing" id="no_replacements">
+                <text-prop name=":hasRichtext">
+                    <text encoding="xml"><a class="salsa-link" href="IRI:id_that_is_not_in_mapping:IRI">link</a></text>
+                </text-prop>
+            </resource>
+        </knora>
+        """
+        xml = regex.sub(r"^(\n +)|(\n +)$", "", xml)
+        root_replaced = _replace_ids_by_iris(etree.fromstring(xml), self.mapping)
+        xml_replaced = etree.tostring(root_replaced).decode("utf-8")
+        self.assertEqual(xml_replaced, xml)
+
+    def test_replace_ids_by_iris_resptr_only(self) -> None:
+        xml = """
+        <knora shortcode="4123" default-ontology="testonto">
+            <resource label="resptr_only" restype=":TestThing" id="resptr_only">
+                <text-prop name=":hasRichtext">
+                    <text encoding="xml">Text</text>
+                </text-prop>
+                <resptr-prop name=":hasTestThing2">
+                    <resptr>test_thing_0</resptr>
+                    <resptr>test_thing_with_ark_1</resptr>
+                </resptr-prop>
+            </resource>
+        </knora>
+        """
+        xml_expected = """
+        <knora shortcode="4123" default-ontology="testonto">
+            <resource label="resptr_only" restype=":TestThing" id="resptr_only">
+                <text-prop name=":hasRichtext">
+                    <text encoding="xml">Text</text>
+                </text-prop>
+                <resptr-prop name=":hasTestThing2">
+                    <resptr>http://rdfh.ch/082E/-lRvrg7tQI6aVpcTJbVrwg</resptr>
+                    <resptr>http://rdfh.ch/082E/qwasddoiu8_6flkjh67dss</resptr>
+                </resptr-prop>
+            </resource>
+        </knora>
+        """
+        xml_expected = regex.sub(r"^(\n +)|(\n +)$", "", xml_expected)
+        root_replaced = _replace_ids_by_iris(etree.fromstring(xml), self.mapping)
+        xml_replaced = etree.tostring(root_replaced).decode("utf-8")
+        self.assertEqual(xml_replaced, xml_expected)
+
+    def test_replace_ids_by_iris_salsah_link_only(self) -> None:
+        xml = """
+        <knora shortcode="4123" default-ontology="testonto">
+            <resource label="salsah_link_only" restype=":TestThing" id="salsah_link_only">
+                <text-prop name=":hasRichtext">
+                    <text encoding="xml">
+                        Text with a <a class="salsah-link" href="IRI:test_thing_1:IRI">
+                        link to test_thing_1</a> and <strong>a bold <em>and italicized
+                        <a class="salsah-link" href="IRI:test_thing_2:IRI">
+                        link to test_thing_2</a></em></strong>and a 
+                        <a class="salsah-link" href="IRI:test_thing_with_ark_1:IRI">link</a> 
+                    </text>
+                </text-prop>
+            </resource>
+        </knora>
+        """
+        xml_expected = """
+        <knora shortcode="4123" default-ontology="testonto">
+            <resource label="salsah_link_only" restype=":TestThing" id="salsah_link_only">
+                <text-prop name=":hasRichtext">
+                    <text encoding="xml">
+                        Text with a <a class="salsah-link" href="http://rdfh.ch/082E/JK63OpYWTDWNYVOYFN7FdQ">
+                        link to test_thing_1</a> and <strong>a bold <em>and italicized
+                        <a class="salsah-link" href="http://rdfh.ch/082E/1l63Oasdfopiujlkmn78ak">
+                        link to test_thing_2</a></em></strong>and a 
+                        <a class="salsah-link" href="http://rdfh.ch/082E/qwasddoiu8_6flkjh67dss">link</a> 
+                    </text>
+                </text-prop>
+            </resource>
+        </knora>
+        """
+        xml_expected = regex.sub(r"^(\n +)|(\n +)$", "", xml_expected)
+        root_replaced = _replace_ids_by_iris(etree.fromstring(xml), self.mapping)
+        xml_replaced = etree.tostring(root_replaced).decode("utf-8")
+        self.assertEqual(xml_replaced, xml_expected)
+
+    def test_replace_ids_by_iris_resptr_and_salsah_link(self) -> None:
+        xml = """
+        <knora shortcode="4123" default-ontology="testonto">
+            <resource label="resptr_and_salsah_link" restype=":TestThing" id="resptr_and_salsah_link">
+                <text-prop name=":hasRichtext">
+                    <text encoding="xml">
+                        Text with a <a class="salsah-link" href="IRI:test_thing_1:IRI">
+                        link to test_thing_1</a> and <strong>a bold <em>and italicized
+                        <a class="salsah-link" href="IRI:test_thing_2:IRI">
+                        link to test_thing_2</a></em></strong>and a 
+                        <a class="salsah-link" href="IRI:test_thing_with_ark_1:IRI">link</a> 
+                    </text>
+                </text-prop>
+                <resptr-prop name=":hasTestThing2">
+                    <resptr>test_thing_0</resptr>
+                    <resptr>test_thing_with_ark_1</resptr>
+                </resptr-prop>
+            </resource>
+        </knora>
+        """
+        xml_expected = """
+        <knora shortcode="4123" default-ontology="testonto">
+            <resource label="resptr_and_salsah_link" restype=":TestThing" id="resptr_and_salsah_link">
+                <text-prop name=":hasRichtext">
+                    <text encoding="xml">
+                        Text with a <a class="salsah-link" href="http://rdfh.ch/082E/JK63OpYWTDWNYVOYFN7FdQ">
+                        link to test_thing_1</a> and <strong>a bold <em>and italicized
+                        <a class="salsah-link" href="http://rdfh.ch/082E/1l63Oasdfopiujlkmn78ak">
+                        link to test_thing_2</a></em></strong>and a 
+                        <a class="salsah-link" href="http://rdfh.ch/082E/qwasddoiu8_6flkjh67dss">link</a> 
+                    </text>
+                </text-prop>
+                <resptr-prop name=":hasTestThing2">
+                    <resptr>http://rdfh.ch/082E/-lRvrg7tQI6aVpcTJbVrwg</resptr>
+                    <resptr>http://rdfh.ch/082E/qwasddoiu8_6flkjh67dss</resptr>
+                </resptr-prop>
+            </resource>
+        </knora>
+        """
+        xml_expected = regex.sub(r"^(\n +)|(\n +)$", "", xml_expected)
+        root_replaced = _replace_ids_by_iris(etree.fromstring(xml), self.mapping)
+        xml_replaced = etree.tostring(root_replaced).decode("utf-8")
+        self.assertEqual(xml_replaced, xml_expected)
 
     def test_id2iri_remove_resources(self) -> None:
+        xml = """
+        <knora shortcode="4123" default-ontology="testonto">
+            <resource label="test_thing_0" restype=":TestThing" id="test_thing_0">
+                <text-prop name=":hasRichtext"><text encoding="xml">Hello world</text></text-prop>
+            </resource>
+            <resource label="id_that_is_not_in_mapping" restype=":TestThing" id="id_that_is_not_in_mapping">
+                <resptr-prop name=":foo"><resptr>test_thing_0</resptr></resptr-prop>
+            </resource>
+            <resource label="test_thing_1" restype=":TestThing" id="test_thing_1">
+                <resptr-prop name=":foo"><resptr>test_thing_0</resptr></resptr-prop>
+            </resource>
+        </knora>
         """
-        Check that the IRIs appear at the correct place in the output file,
-        and that all resources are deleted where no replacement had taken place.
+        xml_expected = """
+        <knora shortcode="4123" default-ontology="testonto">
+            <resource label="id_that_is_not_in_mapping" restype=":TestThing" id="id_that_is_not_in_mapping">
+                <resptr-prop name=":foo"><resptr>test_thing_0</resptr></resptr-prop>
+            </resource>
+        </knora>
         """
-        id2iri(
-            xml_file="testdata/id2iri/remove-resources/data.xml",
-            json_file="testdata/id2iri/remove-resources/mapping.json",
-            remove_resource_if_id_in_mapping=True,
+        xml_expected = xml_expected.replace("\n", "").replace(" ", "")
+        tree_returned = _remove_resources_if_id_in_mapping(
+            tree=etree.fromstring(xml),
+            mapping=self.mapping,
         )
-        out_file = get_most_recent_glob_match("data_replaced_*.xml")
-        root = etree.parse(out_file).getroot()
-        out_file.unlink()
-        resources = root.getchildren()
-        iris = [
-            resources[0].getchildren()[1].getchildren()[0].text,
-            resources[0].getchildren()[1].getchildren()[1].text,
-            resources[1].getchildren()[0].getchildren()[0][0].attrib["href"],
-            resources[1].getchildren()[1].getchildren()[0].text,
-        ]
-        iris_expected = [
-            "http://rdfh.ch/082E/-lRvrg7tQI6aVpcTJbVrwg",
-            "http://rdfh.ch/082E/JK63OpYWTDWNYVOYFN7FdQ",
-            "http://rdfh.ch/082E/-lRvrg7tQI6aVpcTJbVrwg",
-            "http://rdfh.ch/082E/-lRvrg7tQI6aVpcTJbVrwg",
-        ]
-        self.assertListEqual(iris, iris_expected)
-
-        all_resource_labels = [r.attrib["label"] for r in resources]
-        self.assertListEqual(all_resource_labels, ["resptr_only", "resptr_and_salsah_link"])
+        xml_returned = etree.tostring(tree_returned, pretty_print=False).decode("utf-8")
+        xml_returned = xml_returned.replace("\n", "").replace(" ", "")
+        self.assertEqual(xml_returned, xml_expected)
 
 
 if __name__ == "__main__":

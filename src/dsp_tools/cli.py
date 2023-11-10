@@ -540,7 +540,7 @@ def _call_requested_action(args: argparse.Namespace) -> bool:
             remove_resource_if_id_in_mapping=args.remove_resources,
         )
     elif args.action == "excel2xml":
-        success = excel2xml(
+        success, _ = excel2xml(
             datafile=args.data_source,
             shortcode=args.project_shortcode,
             default_ontology=args.ontology_name,
@@ -609,11 +609,13 @@ def run(args: list[str]) -> None:
         )
         success = _call_requested_action(parsed_arguments)
     except UserError as err:
+        logger.error(f"Terminate because of this UserError: {err.message}")
         print(err.message)
         sys.exit(1)
     # let BaseError and all unexpected errors escalate, so that a stack trace is printed
 
     if not success:
+        logger.error("Terminate without success")
         sys.exit(1)
 
 

@@ -61,7 +61,7 @@ class TestFastXmlUpload(unittest.TestCase):
         for pickle_file in list(Path().glob("*.pkl")):
             pickle_file.unlink()
 
-        for id2iri_file in list(Path().glob("*id2iri_mapping.json")):
+        for id2iri_file in list(Path().glob("*id2iri_mapping*.json")):
             id2iri_file.unlink()
 
         for txt_file in self.txt_files:

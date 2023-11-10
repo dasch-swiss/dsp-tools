@@ -301,6 +301,7 @@ def _upload_resources(
         config: the upload configuration
         project_client: a client for HTTP communication with the DSP-API
         list_client: a client for HTTP communication with the DSP-API
+        id_to_iri_resolver: a resolver for internal IDs to IRIs
 
     Returns:
         id2iri_mapping, failed_uploads

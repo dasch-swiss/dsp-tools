@@ -278,7 +278,7 @@ def _stop_and_remove_sipi_container() -> None:
         print(f"{datetime.now()}: Stopped and removed Sipi container.")
         logger.info("Stopped and removed Sipi container.")
     except docker.errors.APIError:
-        print("WARNING: It was not possible to stop and remove the Sipi container.")
+        print(f"{datetime.now()}: WARNING: It was not possible to stop and remove the Sipi container.")
         logger.warning("It was not possible to stop and remove the Sipi container.")
 
 

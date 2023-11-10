@@ -2325,6 +2325,7 @@ def excel2xml(
     dataframe = _validate_and_prepare_cli_input_file(dataframe)
     last_column_title = str(list(dataframe)[-1])  # last column title, in the format "i_comment"
     max_num_of_props = int(last_column_title.split("_")[0])
+    output_file = Path(f"{default_ontology}-data.xml")
 
     root = make_root(shortcode=shortcode, default_ontology=default_ontology)
     root = append_permissions(root)
@@ -2336,12 +2337,19 @@ def excel2xml(
         )
         for resource in resources:
             root.append(resource)
-        write_xml(root, f"{default_ontology}-data.xml")
+        write_xml(root, output_file)
         if len(catched_warnings) > 0:
             success = False
             for warning in catched_warnings:
                 print(f"WARNING: {warning.message}")
 
-    print(f"XML file successfully created at {default_ontology}-data.xml")
+    if success:
+        print(f"XML file successfully written to '{output_file!s}'")
+    else:
+        red = "\033[31m"
+        end = "\033[0m"
+        print(
+            f"{red}Some problems occurred. The XML file was written to '{output_file!s}', but it might be corrupt{end}"
+        )
 
     return success, catched_warnings

@@ -95,10 +95,10 @@ class TestParseDateStringWithEra:
         assert result == expected
 
     def test_start_and_end_date_bce_on_start_only(self) -> None:
-        date_string = "BCE:2020-01-01:2021-02-02"
+        date_string = "BCE:2021-01-01:2020-02-02"
         result = parse_date_string(date_string)
-        expected_start = SingleDate(era=Era.BCE, year=2020, month=1, day=1)
-        expected_end = SingleDate(era=Era.BCE, year=2021, month=2, day=2)
+        expected_start = SingleDate(era=Era.BCE, year=2021, month=1, day=1)
+        expected_end = SingleDate(era=Era.BCE, year=2020, month=2, day=2)
         expected = Date(Calendar.GREGORIAN, expected_start, expected_end)
         assert result == expected
 
@@ -238,10 +238,11 @@ class TestParseSingleDate:
         expected = SingleDate(era=Era.CE, year=860, month=1, day=1)
         assert result == expected
 
-    def test_do_not_allow_fewer_digits_in_year(self) -> None:
+    def test_fewer_digits_in_year(self) -> None:
         date_string = "860-1-1"
-        with pytest.raises(BaseError):
-            _parse_single_date(date_string, Era.CE)
+        result = _parse_single_date(date_string, Era.CE)
+        expected = SingleDate(era=Era.CE, year=860, month=1, day=1)
+        assert result == expected
 
     def test_do_not_allow_more_digits_in_year(self) -> None:
         date_string = "08600-1-1"

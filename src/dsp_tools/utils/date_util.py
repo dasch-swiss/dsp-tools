@@ -12,12 +12,12 @@ _full_date_pattern = r"""
 ^
 (?:(GREGORIAN|JULIAN|ISLAMIC):)?        # optional calendar
 (?:(CE|BCE|BC|AD):)?                    # optional era
-(\d{4}(?:-\d{1,2})?(?:-\d{1,2})?)       # date
+(\d{1,4}(?:-\d{1,2})?(?:-\d{1,2})?)       # date
 (?::(CE|BCE|BC|AD))?                    # optional era
 (?::(\d{4}(?:-\d{1,2})?(?:-\d{1,2})?))? # optional date
 $
 """
-_single_date_pattern = r"^(\d{4})(?:-(\d{1,2}))?(?:-(\d{1,2}))?$"
+_single_date_pattern = r"^(\d{1,4})(?:-(\d{1,2}))?(?:-(\d{1,2}))?$"
 
 
 class Calendar(Enum):

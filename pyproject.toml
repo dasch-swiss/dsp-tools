@@ -4,9 +4,7 @@
 name = "dsp-tools"
 version = "5.1.0"
 description = "DSP-TOOLS is a Python package with a command line interface that helps you interact with a DaSCH service platform (DSP) server."
-authors = [
-    "DaSCH - Swiss National Data and Service Center for the Humanities <info@dasch.swiss>",
-]
+authors = ["DaSCH - Swiss National Data and Service Center for the Humanities <info@dasch.swiss>"]
 readme = "docs/index.md"
 license = "GPL-3.0-only"
 classifiers = [
@@ -19,7 +17,7 @@ homepage = "https://www.dasch.swiss/"
 repository = "https://github.com/dasch-swiss/dsp-tools"
 include = [
     "src/dsp_tools/resources/*",
-    "src/dsp_tools/py.typed",    # see https://mypy.readthedocs.io/en/stable/installed_packages.html#making-pep-561-compatible-packages
+    "src/dsp_tools/py.typed"  # see https://mypy.readthedocs.io/en/stable/installed_packages.html#making-pep-561-compatible-packages
 ]
 exclude = ["src/dsp_tools/import_scripts/*"]
 
@@ -33,9 +31,7 @@ requests = "^2.31.0"
 jsonschema = "^4.19.1"
 openpyxl = "^3.1.2"
 networkx = "^3.1"
-pandas = { version = "^2.0.3", extras = [
-    "excel",
-] } # extra package that contains xlrd that is necessary for reading old .xls Excel files
+pandas = {version = "^2.0.3", extras = ["excel"]}  # extra package that contains xlrd that is necessary for reading old .xls Excel files
 regex = "^2023.10.3"
 docker = "^6.1.3"
 pyyaml = "^6.0.1"
@@ -65,7 +61,7 @@ viztracer = "^0.16.0"
 
 
 [tool.poetry.scripts]
-dsp-tools = "dsp_tools.cli:main" # definition of the CLI entry point
+dsp-tools = "dsp_tools.cli:main"  # definition of the CLI entry point
 
 
 [tool.poetry-exec-plugin.commands]
@@ -101,7 +97,7 @@ pythonpath = [".", "src", "test"]
 
 
 [tool.mypy]
-ignore_missing_imports = true # TODO: deactivate this
+ignore_missing_imports = true                 # TODO: deactivate this
 show_column_numbers = true
 strict = true
 exclude = [

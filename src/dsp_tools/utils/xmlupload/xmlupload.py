@@ -108,7 +108,7 @@ def xmlupload(
         list_client=list_client,
     )
 
-    write_id2iri_mapping(iri_resolver.lookup, input_file, config.diagnostics.timestamp_str)
+    write_id2iri_mapping(iri_resolver.lookup, input_file, config.diagnostics)
     success = not failed_uploads
     if success:
         print(f"{datetime.now()}: All resources have successfully been uploaded.")
@@ -411,7 +411,9 @@ def _handle_upload_error(
     logger.error("xmlupload must be aborted because of an error", exc_info=err)
 
     if iri_resolver.non_empty():
-        id2iri_mapping_file = f"{diagnostics.save_location}/{diagnostics.timestamp_str}_id2iri_mapping.json"
+        timestamp = diagnostics.timestamp_str
+        servername = diagnostics.server_as_foldername
+        id2iri_mapping_file = f"{diagnostics.save_location}/{timestamp}_id2iri_mapping_{servername}.json"
         with open(id2iri_mapping_file, "x", encoding="utf-8") as f:
             json.dump(iri_resolver.lookup, f, ensure_ascii=False, indent=4)
         print(f"The mapping of internal IDs to IRIs was written to {id2iri_mapping_file}")

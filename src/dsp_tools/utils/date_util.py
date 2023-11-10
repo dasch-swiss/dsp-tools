@@ -12,12 +12,12 @@ _full_date_pattern = r"""
 ^
 (?:(GREGORIAN|JULIAN|ISLAMIC):)?        # optional calendar
 (?:(CE|BCE|BC|AD):)?                    # optional era
-(\d{4}(?:-\d{1,2})?(?:-\d{1,2})?)       # date
+(\d{1,4}(?:-\d{1,2})?(?:-\d{1,2})?)       # date
 (?::(CE|BCE|BC|AD))?                    # optional era
 (?::(\d{4}(?:-\d{1,2})?(?:-\d{1,2})?))? # optional date
 $
 """
-_single_date_pattern = r"(\d{4})(?:-(\d{1,2}))?(?:-(\d{1,2}))?"
+_single_date_pattern = r"^(\d{1,4})(?:-(\d{1,2}))?(?:-(\d{1,2}))?$"
 
 
 class Calendar(Enum):
@@ -105,7 +105,7 @@ def parse_date_string(s: str) -> Date:
         if not start_era:
             start_era = "CE"
         if end_date and not end_era:
-            end_era = "CE"
+            end_era = start_era
     start_era_enum = Era.from_string(start_era) if start_era else None
     end_era_enum = Era.from_string(end_era) if end_era else None
     start = _parse_single_date(start_date, start_era_enum)

@@ -40,16 +40,10 @@ repos:
   - repo: https://github.com/igorshubovych/markdownlint-cli
     rev: v0.37.0
     hooks:
-      - id: markdownlint
-        args: [--config, .markdownlint.yml, --ignore, CHANGELOG.md]
+    - id: markdownlint
+      args: [--config, .markdownlint.yml, --ignore, CHANGELOG.md]
 
   - repo: https://github.com/PyCQA/isort 
     rev: 5.11.5
     hooks:
-      - id: isort
-
-  - repo: https://github.com/terrencepreilly/darglint
-    rev: v1.8.0
-    hooks:
-      - id: darglint
-        entry: poetry exec darglint
+    - id: isort

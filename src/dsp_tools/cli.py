@@ -540,7 +540,7 @@ def _call_requested_action(args: argparse.Namespace) -> bool:
             remove_resource_if_id_in_mapping=args.remove_resources,
         )
     elif args.action == "excel2xml":
-        success = excel2xml(
+        success, _ = excel2xml(
             datafile=args.data_source,
             shortcode=args.project_shortcode,
             default_ontology=args.ontology_name,

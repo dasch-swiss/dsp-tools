@@ -381,7 +381,7 @@ def make_resource(
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#describing-resources-with-the-resource-element
     """
     if not check_notna(label):
-        warnings.warn(f"WARNING: Your resource's label looks suspicious (resource with id '{id}' and label '{label}'")
+        warnings.warn(f"WARNING: Your resource's label looks suspicious (resource with id '{id}' and label '{label}')")
     if not check_notna(id):
         warnings.warn(f"WARNING: Your resource's id looks suspicious (resource with id '{id}' and label '{label}'")
     kwargs = {"label": label, "restype": restype, "id": id, "permissions": permissions, "nsmap": xml_namespace_map}
@@ -1823,8 +1823,8 @@ def write_xml(
         root: etree Element with the entire XML document
         filepath: where to save the file
 
-    Raises:
-        Warning: if the XML is not valid according to the schema
+    Warning:
+        if the XML is not valid according to the schema
     """
     etree.indent(root, space="    ")
     xml_string = etree.tostring(
@@ -1989,8 +1989,8 @@ def _append_bitstream_to_resource(
         row: the row of the CSV/Excel file from where all information comes from
         row_number: row number of the CSV/Excel sheet
 
-    Raises:
-        BaseError: if the file permissions are missing and cannot be deduced from the resource permissions
+    Warning:
+        if the file permissions are missing and cannot be deduced from the resource permissions
 
     Returns:
         the resource element with the appended bitstream-prop element
@@ -2003,18 +2003,20 @@ def _append_bitstream_to_resource(
         elif resource_permissions == "res-restricted":
             file_permissions = "prop-restricted"
         else:
-            raise BaseError(
+            file_permissions = ""
+            warnings.warn(
                 f"Missing file permissions for file "
                 f"'{row['file']}' (Resource ID '{row['id']}', Excel row {row_number}). "
                 f"An attempt to deduce them from the resource permissions failed."
             )
-    resource.append(
-        make_bitstream_prop(
-            path=str(row["file"]),
-            permissions=str(file_permissions),
-            calling_resource=row["id"],
+    with warnings.catch_warnings():  # ignore warnings about non-existing files
+        resource.append(
+            make_bitstream_prop(
+                path=str(row["file"]),
+                permissions=str(file_permissions),
+                calling_resource=row["id"],
+            )
         )
-    )
     return resource
 
 
@@ -2031,8 +2033,8 @@ def _convert_resource_row_to_xml(
         row_number: row number of the CSV/Excel sheet
         row: the pandas series representing the current row
 
-    Raises:
-        BaseError: if a mandatory cell is missing
+    Warning:
+        if a mandatory cell is missing
 
     Returns:
         the resource element created from the row
@@ -2041,17 +2043,20 @@ def _convert_resource_row_to_xml(
     resource_id = row["id"]
     resource_label = row.get("label")
     if pd.isna([resource_label]):
-        raise BaseError(f"Missing label for resource '{resource_id}' (Excel row {row_number})")
-    if not check_notna(resource_label):
+        resource_label = ""
+        warnings.warn(f"Missing label for resource '{resource_id}' (Excel row {row_number})")
+    elif not check_notna(resource_label):
         warnings.warn(
             f"The label of resource '{resource_id}' looks suspicious: '{resource_label}' (Excel row {row_number})"
         )
     resource_restype = row.get("restype")
     if not check_notna(resource_restype):
-        raise BaseError(f"Missing restype for resource '{resource_id}' (Excel row {row_number})")
+        resource_restype = ""
+        warnings.warn(f"Missing restype for resource '{resource_id}' (Excel row {row_number})")
     resource_permissions = row.get("permissions")
     if not check_notna(resource_permissions):
-        raise BaseError(f"Missing permissions for resource '{resource_id}' (Excel row {row_number})")
+        resource_permissions = ""
+        warnings.warn(f"Missing permissions for resource '{resource_id}' (Excel row {row_number})")
 
     # construct the kwargs for the method call
     kwargs_resource = {"label": resource_label, "permissions": resource_permissions, "id": resource_id}
@@ -2069,20 +2074,30 @@ def _convert_resource_row_to_xml(
 
     # call the appropriate method
     if resource_restype == "Region":
-        resource = make_region(**kwargs_resource)
+        with warnings.catch_warnings():  # prevent dublette warnings: most problems were already checked above
+            warnings.filterwarnings("ignore")
+            resource = make_region(**kwargs_resource)
     elif resource_restype == "Annotation":
-        resource = make_annotation(**kwargs_resource)
+        with warnings.catch_warnings():  # prevent dublette warnings: most problems were already checked above
+            warnings.filterwarnings("ignore")
+            resource = make_annotation(**kwargs_resource)
     elif resource_restype == "LinkObj":
-        resource = make_link(**kwargs_resource)
+        with warnings.catch_warnings():  # prevent dublette warnings: most problems were already checked above
+            warnings.filterwarnings("ignore")
+            resource = make_link(**kwargs_resource)
     else:
         kwargs_resource["restype"] = resource_restype
-        resource = make_resource(**kwargs_resource)
-        if check_notna(row.get("file")):
-            resource = _append_bitstream_to_resource(
-                resource=resource,
-                row=row,
-                row_number=row_number,
-            )
+        with warnings.catch_warnings():  # prevent dublette warnings: most problems were already checked above
+            warnings.filterwarnings("ignore")
+            resource = make_resource(**kwargs_resource)
+        with warnings.catch_warnings():  # ignore only the warnings about not existing files
+            warnings.filterwarnings("ignore", message=".*path doesn't point to a file.*")
+            if check_notna(row.get("file")):
+                resource = _append_bitstream_to_resource(
+                    resource=resource,
+                    row=row,
+                    row_number=row_number,
+                )
 
     return resource
 
@@ -2144,8 +2159,8 @@ def _convert_row_to_property_elements(
         row_number: row number of the CSV/Excel sheet
         resource_id: id of resource to which this property belongs to
 
-    Raises:
-        BaseError: if a mandatory cell is missing, or if there are too many/too few values per property
+    Warning:
+        if a mandatory cell is missing, or if there are too many/too few values per property
 
     Returns:
         list of PropertyElement objects
@@ -2154,13 +2169,13 @@ def _convert_row_to_property_elements(
     for i in range(1, max_num_of_props + 1):
         value = row[f"{i}_value"]
         if pd.isna(value):
-            # raise error if other cells of this property element are not empty
+            # issue a warning if other cells of this property element are not empty
             # if all other cells are empty, continue with next property element
             other_cell_headers = [f"{i}_{x}" for x in ["encoding", "permissions", "comment"]]
             notna_cell_headers = [x for x in other_cell_headers if check_notna(row.get(x))]
             notna_cell_headers_str = ", ".join([f"'{x}'" for x in notna_cell_headers])
             if notna_cell_headers_str:
-                raise BaseError(
+                warnings.warn(
                     f"Error in resource '{resource_id}': Excel row {row_number} has an entry "
                     f"in column(s) {notna_cell_headers_str}, but not in '{i}_value'. "
                     r"Please note that cell contents that don't meet the requirements of the regex [\p{L}\d_!?\-] "
@@ -2171,7 +2186,7 @@ def _convert_row_to_property_elements(
         # construct a PropertyElement from this property element
         kwargs_propelem = {"value": value, "permissions": str(row.get(f"{i}_permissions"))}
         if not check_notna(row.get(f"{i}_permissions")):
-            raise BaseError(
+            warnings.warn(
                 f"Resource '{resource_id}': "
                 f"Missing permissions in column '{i}_permissions' of property '{row['prop name']}'"
             )
@@ -2183,14 +2198,14 @@ def _convert_row_to_property_elements(
 
     # validate the end result before returning it
     if len(property_elements) == 0:
-        raise BaseError(
+        warnings.warn(
             f"At least one value per property is required, "
-            f"but resource '{resource_id}' (Excel row {row_number}) doesn't contain any values."
+            f"but resource '{resource_id}', property '{row['prop name']}' (Excel row {row_number}) doesn't contain any values."
         )
-    if row.get("prop type") == "boolean-prop" and len(property_elements) != 1:
-        raise BaseError(
+    if row.get("prop type") == "boolean-prop" and len(property_elements) > 1:
+        warnings.warn(
             f"A <boolean-prop> can only have a single value, "
-            f"but resource '{resource_id}' (Excel row {row_number}) contains more than one value."
+            f"but resource '{resource_id}', property '{row['prop name']}' (Excel row {row_number}) contains more than one value."
         )
 
     return property_elements
@@ -2281,7 +2296,7 @@ def excel2xml(
     datafile: str,
     shortcode: str,
     default_ontology: str,
-) -> bool:
+) -> tuple[bool, list[warnings.WarningMessage]]:
     """
     This is a method that is called from the command line.
     It isn't intended to be used in a Python script.
@@ -2305,30 +2320,36 @@ def excel2xml(
     Returns:
         True if everything went well, False otherwise
     """
-    # read and prepare the input file
     success = True
     dataframe = _read_cli_input_file(datafile)
     dataframe = _validate_and_prepare_cli_input_file(dataframe)
     last_column_title = str(list(dataframe)[-1])  # last column title, in the format "i_comment"
     max_num_of_props = int(last_column_title.split("_")[0])
+    output_file = Path(f"{default_ontology}-data.xml")
 
-    # create the XML root element
     root = make_root(shortcode=shortcode, default_ontology=default_ontology)
     root = append_permissions(root)
 
-    # parse the input file row by row
-    resources = _convert_rows_to_xml(
-        dataframe=dataframe,
-        max_num_of_props=max_num_of_props,
-    )
-    for resource in resources:
-        root.append(resource)
-
-    # write file
-    with warnings.catch_warnings(record=True) as w:
-        write_xml(root, f"{default_ontology}-data.xml")
-        if len(w) > 0:
+    with warnings.catch_warnings(record=True) as catched_warnings:
+        resources = _convert_rows_to_xml(
+            dataframe=dataframe,
+            max_num_of_props=max_num_of_props,
+        )
+        for resource in resources:
+            root.append(resource)
+        write_xml(root, output_file)
+        if len(catched_warnings) > 0:
             success = False
-    print(f"XML file successfully created at {default_ontology}-data.xml")
+            for warning in catched_warnings:
+                print(f"WARNING: {warning.message}")
 
-    return success
+    if success:
+        print(f"XML file successfully written to '{output_file!s}'")
+    else:
+        red = "\033[31m"
+        end = "\033[0m"
+        print(
+            f"{red}Some problems occurred. The XML file was written to '{output_file!s}', but it might be corrupt{end}"
+        )
+
+    return success, catched_warnings

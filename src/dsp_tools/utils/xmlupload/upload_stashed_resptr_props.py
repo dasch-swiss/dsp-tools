@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime
 
 from dsp_tools.connection.connection import Connection
 from dsp_tools.models.exceptions import BaseError
@@ -33,7 +34,7 @@ def upload_stashed_resptr_props(
         nonapplied_resptr_props: the resptr props that could not be uploaded
     """
 
-    print("Upload the stashed resptrs...")
+    print(f"{datetime.now()}: Upload the stashed resptrs...")
     logger.info("Upload the stashed resptrs...")
     not_uploaded: list[LinkValueStashItem] = []
     for res_id, stash_items in stashed_resptr_props.res_2_stash_items.items():
@@ -44,8 +45,8 @@ def upload_stashed_resptr_props(
             # which will be handled by the caller
             continue
         if verbose:
-            print(f'  Upload resptrs of resource "{res_id}"...')
-        logger.info(f'  Upload resptrs of resource "{res_id}"...')
+            print(f"{datetime.now()}:   Upload resptrs of resource '{res_id}''...")
+        logger.info(f"  Upload resptrs of resource '{res_id}'...")
         for stash_item in stash_items:
             target_iri = iri_resolver.get(stash_item.target_id)
             if not target_iri:
@@ -88,7 +89,7 @@ def _upload_stash_item(
 
 def _log_unable_to_upload_link_value(msg: str, res_id: str, prop_name: str) -> None:
     err_msg = f"Unable to upload the resptr prop of '{prop_name}' of resource '{res_id}'."
-    print(f"    WARNING: {err_msg} Original error message: {msg}")
+    print(f"{datetime.now()}:     WARNING: {err_msg} Original error message: {msg}")
     logger.warning(err_msg, exc_info=True)
 
 

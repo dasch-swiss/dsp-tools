@@ -8,8 +8,8 @@ import pytest
 import regex
 from lxml import etree
 
+from dsp_tools.commands.id2iri import _remove_resources_if_id_in_mapping, _replace_ids_by_iris, id2iri
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.utils.id2iri import _remove_resources_if_id_in_mapping, _replace_ids_by_iris, id2iri
 
 
 class TestIdToIri(unittest.TestCase):

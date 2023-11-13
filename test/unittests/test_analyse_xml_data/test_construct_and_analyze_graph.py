@@ -7,7 +7,6 @@ import rustworkx as rx
 from lxml import etree
 from pytest_unordered import unordered
 
-from dsp_tools.commands.xmlupload.analyse_xml_data import Edge, ResptrLink, XMLLink
 from dsp_tools.commands.xmlupload.analyse_xml_data.construct_and_analyze_graph import (
     _add_stash_to_lookup_dict,
     _create_info_from_xml_for_graph_from_one_resource,
@@ -22,6 +21,7 @@ from dsp_tools.commands.xmlupload.analyse_xml_data.construct_and_analyze_graph i
     generate_upload_order,
     make_graph,
 )
+from dsp_tools.commands.xmlupload.analyse_xml_data.models import Edge, ResptrLink, XMLLink
 
 
 def test_create_info_from_xml_for_graph_from_one_resource() -> None:

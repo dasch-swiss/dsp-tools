@@ -7,7 +7,7 @@ from typing import Any, Optional, cast
 import regex
 
 from dsp_tools.commands.id2iri import id2iri
-from dsp_tools.commands.project_commands.create import create_project
+from dsp_tools.commands.project_commands.create.project_create import create_project
 from dsp_tools.commands.project_commands.get import get_project
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from dsp_tools.utils.shared import get_most_recent_glob_match

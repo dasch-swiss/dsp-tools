@@ -9,7 +9,7 @@ import pytest
 from dsp_tools.connection.connection import Connection
 from dsp_tools.connection.connection_live import ConnectionLive
 from dsp_tools.models.helpers import DateTimeStamp
-from dsp_tools.models.ontology import Ontology
+from dsp_tools.models.project.ontology import Ontology
 
 
 class TestOntology(unittest.TestCase):

@@ -3,12 +3,12 @@
 import pytest
 from termcolor import cprint
 
+from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.stash_circular_references import (
     identify_circular_references,
     stash_circular_references,
 )
 from dsp_tools.commands.xmlupload.xmlupload import _extract_resources_from_xml
-from dsp_tools.models.permission import Permissions
 from dsp_tools.utils.xml_utils import parse_and_clean_xml_file
 
 

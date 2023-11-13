@@ -6,7 +6,7 @@ import pytest
 from dsp_tools.connection.connection import Connection
 from dsp_tools.connection.connection_live import ConnectionLive
 from dsp_tools.models.langstring import LangString, Languages
-from dsp_tools.models.listnode import ListNode
+from dsp_tools.models.project.listnode import ListNode
 
 
 class TestListNode(unittest.TestCase):  # pylint: disable=missing-class-docstring

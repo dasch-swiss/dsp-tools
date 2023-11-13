@@ -9,7 +9,7 @@ import pytest
 from dsp_tools.connection.connection import Connection
 from dsp_tools.connection.connection_live import ConnectionLive
 from dsp_tools.models.langstring import Languages
-from dsp_tools.models.user import User
+from dsp_tools.models.project.user import User
 
 # define variables for testing
 iri_project_0001 = "http://rdfh.ch/projects/0001"

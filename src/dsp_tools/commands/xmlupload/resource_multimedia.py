@@ -4,11 +4,11 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Optional
 
+from dsp_tools.commands.xmlupload.models.permission import Permissions
+from dsp_tools.commands.xmlupload.models.sipi import Sipi
 from dsp_tools.commands.xmlupload.models.xmlbitstream import XMLBitstream
 from dsp_tools.commands.xmlupload.models.xmlresource import BitstreamInfo, XMLResource
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.permission import Permissions
-from dsp_tools.models.sipi import Sipi
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import try_network_action
 

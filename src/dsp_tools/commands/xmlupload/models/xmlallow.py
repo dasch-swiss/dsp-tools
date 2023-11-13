@@ -1,7 +1,7 @@
 from lxml import etree
 
+from dsp_tools.commands.xmlupload.models.permission import PermissionValue
 from dsp_tools.models.exceptions import XmlError
-from dsp_tools.models.permission import PermissionValue
 from dsp_tools.models.projectContext import ProjectContext
 
 

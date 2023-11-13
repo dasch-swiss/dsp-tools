@@ -9,8 +9,8 @@ import pytest
 from dsp_tools.connection.connection import Connection
 from dsp_tools.connection.connection_live import ConnectionLive
 from dsp_tools.models.langstring import LangString, Languages
-from dsp_tools.models.ontology import Ontology
-from dsp_tools.models.resourceclass import ResourceClass
+from dsp_tools.models.project.ontology import Ontology
+from dsp_tools.models.project.resourceclass import ResourceClass
 
 
 class TestResourceClass(unittest.TestCase):

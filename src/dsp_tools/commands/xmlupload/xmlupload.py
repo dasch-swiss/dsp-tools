@@ -12,6 +12,8 @@ from lxml import etree
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.list_client import ListClient, ListClientLive
+from dsp_tools.commands.xmlupload.models.permission import Permissions
+from dsp_tools.commands.xmlupload.models.sipi import Sipi
 from dsp_tools.commands.xmlupload.models.xmlpermission import XmlPermission
 from dsp_tools.commands.xmlupload.models.xmlresource import BitstreamInfo, XMLResource
 from dsp_tools.commands.xmlupload.project_client import ProjectClient, ProjectClientLive
@@ -29,9 +31,7 @@ from dsp_tools.commands.xmlupload.upload_stashed_xml_texts import upload_stashed
 from dsp_tools.commands.xmlupload.write_diagnostic_info import write_id2iri_mapping
 from dsp_tools.connection.connection import Connection
 from dsp_tools.models.exceptions import BaseError, UserError
-from dsp_tools.models.permission import Permissions
 from dsp_tools.models.projectContext import ProjectContext
-from dsp_tools.models.sipi import Sipi
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.json_ld_util import get_json_ld_context_for_project
 from dsp_tools.utils.shared import login, try_network_action

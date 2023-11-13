@@ -32,9 +32,9 @@ from dsp_tools.connection.connection import Connection
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import Actions
 from dsp_tools.models.langstring import LangString, Languages
-from dsp_tools.models.model import Model
 from dsp_tools.models.project import Project
-from dsp_tools.models.set_encoder import SetEncoder
+from dsp_tools.models.project.model import Model
+from dsp_tools.models.project.set_encoder import SetEncoder
 
 
 def list_creator(con: Connection, project: Project, parent_node: "ListNode", nodes: list[dict]) -> list["ListNode"]:

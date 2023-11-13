@@ -1,9 +1,9 @@
 from pytest import raises
 
+from dsp_tools.commands.xmlupload.models.permission import Permissions, PermissionValue
 from dsp_tools.commands.xmlupload.models.xmlresource import BitstreamInfo
 from dsp_tools.commands.xmlupload.resource_create_client import _make_bitstream_file_value, _to_boolean
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.permission import Permissions, PermissionValue
 
 # pylint: disable=missing-class-docstring,missing-function-docstring,unused-argument,redefined-outer-name,too-many-public-methods
 

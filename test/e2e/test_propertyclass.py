@@ -10,8 +10,8 @@ from dsp_tools.connection.connection import Connection
 from dsp_tools.connection.connection_live import ConnectionLive
 from dsp_tools.models.helpers import DateTimeStamp
 from dsp_tools.models.langstring import LangString, Languages
-from dsp_tools.models.ontology import Ontology
-from dsp_tools.models.propertyclass import PropertyClass
+from dsp_tools.models.project.ontology import Ontology
+from dsp_tools.models.project.propertyclass import PropertyClass
 
 
 class TestPropertyClass(unittest.TestCase):

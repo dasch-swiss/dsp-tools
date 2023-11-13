@@ -31,11 +31,11 @@ from urllib.parse import quote_plus
 
 from dsp_tools.connection.connection import Connection
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.group import Group
 from dsp_tools.models.helpers import Actions
 from dsp_tools.models.langstring import Languages
-from dsp_tools.models.model import Model
 from dsp_tools.models.project import Project
+from dsp_tools.models.project.group import Group
+from dsp_tools.models.project.model import Model
 
 
 class User(Model):  # pylint: disable=too-many-instance-attributes,too-many-public-methods

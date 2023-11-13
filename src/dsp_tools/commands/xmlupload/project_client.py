@@ -2,8 +2,8 @@ from dataclasses import dataclass, field
 from typing import Any, Protocol
 from urllib.parse import quote_plus
 
-from dsp_tools.connection.connection import Connection
 from dsp_tools.models.exceptions import BaseError, UserError
+from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import try_network_action
 

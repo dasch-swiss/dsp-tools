@@ -12,7 +12,7 @@ from dsp_tools.commands.xmlupload.stash.stash_models import (
     Stash,
 )
 from dsp_tools.commands.xmlupload.xmlupload import _upload_stash
-from dsp_tools.connection.connection import Connection
+from dsp_tools.utils.connection import Connection
 
 # pylint: disable=unused-argument,missing-function-docstring,missing-class-docstring,too-few-public-methods
 

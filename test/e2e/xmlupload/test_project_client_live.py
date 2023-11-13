@@ -1,7 +1,7 @@
 from pytest import fixture
 
 from dsp_tools.commands.xmlupload.project_client import ProjectClient, ProjectClientLive
-from dsp_tools.connection.connection_live import ConnectionLive
+from dsp_tools.utils.connection_live import ConnectionLive
 
 # pylint: disable=missing-function-docstring,redefined-outer-name
 

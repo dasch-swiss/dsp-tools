@@ -4,10 +4,10 @@ from typing import cast
 
 import pytest
 
-from dsp_tools.connection.connection import Connection
-from dsp_tools.connection.connection_live import ConnectionLive
 from dsp_tools.models.langstring import LangString, Languages
 from dsp_tools.models.project.group import Group
+from dsp_tools.utils.connection import Connection
+from dsp_tools.utils.connection_live import ConnectionLive
 
 
 class TestGroup(unittest.TestCase):  # pylint: disable=missing-class-docstring

@@ -6,8 +6,8 @@ import unittest
 
 import pytest
 
-from dsp_tools.connection.connection_live import ConnectionLive
 from dsp_tools.models.exceptions import BaseError
+from dsp_tools.utils.connection_live import ConnectionLive
 
 
 class TestConnectionLive(unittest.TestCase):

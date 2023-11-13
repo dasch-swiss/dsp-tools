@@ -10,8 +10,8 @@ from dsp_tools.commands.xmlupload.models.value import KnoraStandoffXml
 from dsp_tools.commands.xmlupload.models.xmlproperty import XMLProperty
 from dsp_tools.commands.xmlupload.models.xmlresource import BitstreamInfo, XMLResource
 from dsp_tools.commands.xmlupload.models.xmlvalue import XMLValue
-from dsp_tools.connection.connection import Connection
 from dsp_tools.models.exceptions import BaseError, UserError
+from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.date_util import parse_date_string
 from dsp_tools.utils.iri_util import is_resource_iri

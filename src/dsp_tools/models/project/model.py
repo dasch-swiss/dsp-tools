@@ -1,4 +1,4 @@
-from dsp_tools.connection.connection import Connection
+from dsp_tools.utils.connection import Connection
 
 
 class Model:  # pylint: disable=too-few-public-methods

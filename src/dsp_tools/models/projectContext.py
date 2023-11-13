@@ -1,9 +1,9 @@
 from typing import Optional
 
-from dsp_tools.connection.connection import Connection
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.project.group import Group
 from dsp_tools.models.project.project import Project
+from dsp_tools.utils.connection import Connection
 
 
 class ProjectContext:

@@ -10,8 +10,8 @@ import requests
 from regex import regex
 from requests import JSONDecodeError
 
-from dsp_tools.connection.connection import Connection
 from dsp_tools.models.exceptions import UserError
+from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import login
 

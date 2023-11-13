@@ -6,13 +6,13 @@ from urllib.parse import quote_plus
 
 import regex
 
-from dsp_tools.connection.connection import Connection
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import Actions, Context, DateTimeStamp, WithId
 from dsp_tools.models.langstring import LangString, Languages
 from dsp_tools.models.project.listnode import ListNode
 from dsp_tools.models.project.model import Model
 from dsp_tools.models.project.set_encoder import SetEncoder
+from dsp_tools.utils.connection import Connection
 
 
 class PropertyClass(Model):  # pylint: disable=too-many-instance-attributes,too-many-public-methods

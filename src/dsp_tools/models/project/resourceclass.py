@@ -16,12 +16,12 @@ from urllib.parse import quote_plus
 
 import regex
 
-from dsp_tools.connection.connection import Connection
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import Actions, Cardinality, Context, DateTimeStamp
 from dsp_tools.models.langstring import LangString, Languages
 from dsp_tools.models.project.model import Model
 from dsp_tools.models.project.set_encoder import SetEncoder
+from dsp_tools.utils.connection import Connection
 
 
 class HasProperty(Model):

@@ -29,9 +29,9 @@ from dsp_tools.commands.xmlupload.upload_config import DiagnosticsConfig, Upload
 from dsp_tools.commands.xmlupload.upload_stashed_resptr_props import upload_stashed_resptr_props
 from dsp_tools.commands.xmlupload.upload_stashed_xml_texts import upload_stashed_xml_texts
 from dsp_tools.commands.xmlupload.write_diagnostic_info import write_id2iri_mapping
-from dsp_tools.connection.connection import Connection
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.models.projectContext import ProjectContext
+from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.json_ld_util import get_json_ld_context_for_project
 from dsp_tools.utils.shared import login, try_network_action

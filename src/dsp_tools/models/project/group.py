@@ -29,12 +29,12 @@ import json
 from typing import Any, Optional, Union
 from urllib.parse import quote_plus
 
-from dsp_tools.connection.connection import Connection
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import Actions
 from dsp_tools.models.langstring import LangString
 from dsp_tools.models.project.model import Model
 from dsp_tools.models.project.project import Project
+from dsp_tools.utils.connection import Connection
 
 
 class Group(Model):  # pylint: disable=too-many-instance-attributes

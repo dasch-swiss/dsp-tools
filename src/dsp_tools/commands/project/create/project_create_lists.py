@@ -1,9 +1,9 @@
 from typing import Any, Optional, Union
 
 from dsp_tools.commands.excel2json.lists import expand_lists_from_excel
-from dsp_tools.commands.project_commands.create.project_validate import validate_project
-from dsp_tools.commands.project_commands.models.listnode import ListNode
-from dsp_tools.commands.project_commands.models.project import Project
+from dsp_tools.commands.project.create.project_validate import validate_project
+from dsp_tools.commands.project.models.listnode import ListNode
+from dsp_tools.commands.project.models.project import Project
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.create_logger import get_logger

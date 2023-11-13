@@ -6,7 +6,7 @@ from typing import Any, Optional, Union
 
 import regex
 
-from dsp_tools.commands.project_commands.models.listnode import ListNode
+from dsp_tools.commands.project.models.listnode import ListNode
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.permission import Permissions, PermissionValue
 from dsp_tools.models.exceptions import BaseError

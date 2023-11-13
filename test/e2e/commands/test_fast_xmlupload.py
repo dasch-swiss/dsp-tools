@@ -7,7 +7,7 @@ import pytest
 from dsp_tools.commands.fast_xmlupload.process_files import process_files
 from dsp_tools.commands.fast_xmlupload.upload_files import upload_files
 from dsp_tools.commands.fast_xmlupload.upload_xml import fast_xmlupload
-from dsp_tools.commands.project_commands.create.project_create import create_project
+from dsp_tools.commands.project.create.project_create import create_project
 
 
 class TestFastXmlUpload(unittest.TestCase):

@@ -2,7 +2,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from dsp_tools.commands.project_commands.create.project_create import create_project
+from dsp_tools.commands.project.create.project_create import create_project
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from dsp_tools.models.exceptions import UserError

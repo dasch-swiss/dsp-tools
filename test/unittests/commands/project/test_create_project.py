@@ -9,12 +9,12 @@ from typing import Any
 
 import pytest
 
-from dsp_tools.commands.project_commands.create.project_create import (
+from dsp_tools.commands.project.create.project_create import (
     _rectify_hlist_of_properties,
     _sort_prop_classes,
     _sort_resources,
 )
-from dsp_tools.commands.project_commands.create.project_validate import (
+from dsp_tools.commands.project.create.project_validate import (
     _check_for_duplicate_names,
     _check_for_undefined_cardinalities,
     _check_for_undefined_super_property,

@@ -4,11 +4,11 @@ from typing import Any
 
 import regex
 
-from dsp_tools.commands.project_commands.models.group import Group
-from dsp_tools.commands.project_commands.models.listnode import ListNode
-from dsp_tools.commands.project_commands.models.ontology import Ontology
-from dsp_tools.commands.project_commands.models.project import Project
-from dsp_tools.commands.project_commands.models.user import User
+from dsp_tools.commands.project.models.group import Group
+from dsp_tools.commands.project.models.listnode import ListNode
+from dsp_tools.commands.project.models.ontology import Ontology
+from dsp_tools.commands.project.models.project import Project
+from dsp_tools.commands.project.models.user import User
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.connection_live import ConnectionLive
 

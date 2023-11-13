@@ -18,10 +18,10 @@ from dsp_tools.commands.fast_xmlupload.process_files import process_files
 from dsp_tools.commands.fast_xmlupload.upload_files import upload_files
 from dsp_tools.commands.fast_xmlupload.upload_xml import fast_xmlupload
 from dsp_tools.commands.id2iri import id2iri
-from dsp_tools.commands.project_commands.create.project_create import create_project
-from dsp_tools.commands.project_commands.create.project_create_lists import create_lists
-from dsp_tools.commands.project_commands.create.project_validate import validate_project
-from dsp_tools.commands.project_commands.get import get_project
+from dsp_tools.commands.project.create.project_create import create_project
+from dsp_tools.commands.project.create.project_create_lists import create_lists
+from dsp_tools.commands.project.create.project_validate import validate_project
+from dsp_tools.commands.project.get import get_project
 from dsp_tools.commands.rosetta import upload_rosetta
 from dsp_tools.commands.start_stack import StackConfiguration, StackHandler
 from dsp_tools.commands.template import generate_template_repo

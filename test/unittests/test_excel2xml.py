@@ -149,6 +149,9 @@ def run_test(
 
 
 class TestExcel2xml(unittest.TestCase):
+    def tearDown(self) -> None:
+        Path("excel2xml-invalid-data.xml").unlink(missing_ok=True)
+
     def test_make_xsd_id_compatible(self) -> None:
         teststring = "0aüZ/_-äöü1234567890?`^':.;+*ç%&/()=±“#Ç[]|{}≠₂₃āṇśṣr̥ṁñἄ𝝺𝝲𝛆’الشعرُאדםПопрыгуньяşğ"
         expected_ = "_0a_Z__-___1234567890_____.__________________________r______________________________"

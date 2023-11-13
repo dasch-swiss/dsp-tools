@@ -6,10 +6,10 @@ import regex
 
 from dsp_tools.connection.connection_live import ConnectionLive
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.project import Project
 from dsp_tools.models.project.group import Group
 from dsp_tools.models.project.listnode import ListNode
 from dsp_tools.models.project.ontology import Ontology
+from dsp_tools.models.project.project import Project
 from dsp_tools.models.project.user import User
 
 

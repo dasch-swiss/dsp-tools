@@ -12,9 +12,9 @@ from dsp_tools.connection.connection import Connection
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.models.helpers import Cardinality, Context, DateTimeStamp
 from dsp_tools.models.langstring import LangString
-from dsp_tools.models.project import Project
 from dsp_tools.models.project.group import Group
 from dsp_tools.models.project.ontology import Ontology
+from dsp_tools.models.project.project import Project
 from dsp_tools.models.project.propertyclass import PropertyClass
 from dsp_tools.models.project.resourceclass import ResourceClass
 from dsp_tools.models.project.user import User

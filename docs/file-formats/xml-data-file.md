@@ -348,10 +348,10 @@ calendar:epoch:yyyy-mm-dd:epoch:yyyy-mm-dd
 ```
 
 - `calendar`: either "JULIAN" or "GREGORIAN" (optional, default: GREGORIAN)
-- `epoch`: either "BCE" or "CE" (optional, default CE)
-- `yyyy`: year with four digits (required)
-- `mm`: month with two digits (optional, e.g. 01, 02, ..., 12)
-- `dd`: day with two digits (optional, e.g. 01, 02, ..., 31)
+- `epoch`: either "AD", "BC", "BCE" or "CE" (optional, default CE)
+- `yyyy`: year with one to four digits (required)
+- `mm`: month with one or two digits (optional, e.g. 01, 02, ..., 12)
+- `dd`: day with one or two digits (optional, e.g. 01, 02, ..., 31)
 
 Notes:
 

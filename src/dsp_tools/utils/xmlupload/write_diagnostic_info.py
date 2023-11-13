@@ -8,6 +8,7 @@ from typing import Any
 from lxml import etree
 
 from dsp_tools.utils.create_logger import get_logger
+from dsp_tools.utils.xmlupload.upload_config import DiagnosticsConfig
 
 logger = get_logger(__name__)
 
@@ -15,14 +16,16 @@ logger = get_logger(__name__)
 def write_id2iri_mapping(
     id2iri_mapping: dict[str, str],
     input_file: str | Path | etree._ElementTree[Any],
-    timestamp_str: str,
+    diagnostics: DiagnosticsConfig,
 ) -> None:
     """Writes the mapping of internal IDs to IRIs to a file."""
+    timestamp = diagnostics.timestamp_str
+    servername = diagnostics.server_as_foldername
     match input_file:
         case str() | Path():
-            id2iri_filename = f"{Path(input_file).stem}_id2iri_mapping_{timestamp_str}.json"
+            id2iri_filename = f"{Path(input_file).stem}_id2iri_mapping_{servername}_{timestamp}.json"
         case _:
-            id2iri_filename = f"{timestamp_str}_id2iri_mapping.json"
+            id2iri_filename = f"{timestamp}_id2iri_mapping_{servername}.json"
     with open(id2iri_filename, "x", encoding="utf-8") as f:
         json.dump(id2iri_mapping, f, ensure_ascii=False, indent=4)
         print(f"{datetime.now()}: The mapping of internal IDs to IRIs was written to {id2iri_filename}")

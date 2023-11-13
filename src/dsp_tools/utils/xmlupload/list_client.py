@@ -27,7 +27,7 @@ class List:
 
     root_iri: str
     list_name: str
-    children: list[ListNode]
+    nodes: list[ListNode]
 
 
 @dataclass(frozen=True)
@@ -69,7 +69,7 @@ class ListClientLive:
 def _get_node_tuples(lists: list[List]) -> Iterable[tuple[str, str]]:
     for l in lists:
         list_name = l.list_name
-        for node in l.children:
+        for node in l.nodes:
             node_name = node.node_name
             node_id = f"{list_name}:{node_name}"
             yield node_id, node.node_iri
@@ -98,7 +98,8 @@ def _get_list_from_server(con: Connection, list_iri: str) -> List:
     list_info = list_object["listinfo"]
     children: list[dict[str, Any]] = list_object["children"]
     root_iri = list_info["id"]
-    list_name = list_info["name"]
+    # if the root node does not have a name, use the label instead
+    list_name: str = list_info.get("name") or list_info["labels"][0]["value"]
     root_node = ListNode(root_iri, list_name)
     nodes = [root_node] + _children_to_nodes(children)
     return List(root_iri, list_name, nodes)
@@ -110,6 +111,6 @@ def _children_to_nodes(children: list[dict[str, Any]]) -> list[ListNode]:
         node_iri = child["id"]
         node_name = child["name"]
         nodes.append(ListNode(node_iri=node_iri, node_name=node_name))
-        if child["children"]:
+        if "children" in child:
             nodes.extend(_children_to_nodes(child["children"]))
     return nodes

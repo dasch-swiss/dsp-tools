@@ -190,14 +190,7 @@ def _make_boolean_value(value: XMLValue) -> dict[str, Any]:
     }
 
 
-def _make_color_value(value: XMLValue) -> dict[str, Any]:
-    return {
-        "@type": "knora-api:ColorValue",
-        "knora-api:colorValueAsColor": value.value,
-    }
-
-
-def _to_boolean(s: str) -> bool:
+def _to_boolean(s: str | int | bool) -> bool:
     match s:
         case "True" | "true" | "1" | 1 | True:
             return True
@@ -205,6 +198,13 @@ def _to_boolean(s: str) -> bool:
             return False
         case _:
             raise BaseError(f"Could not parse boolean value: {s}")
+
+
+def _make_color_value(value: XMLValue) -> dict[str, Any]:
+    return {
+        "@type": "knora-api:ColorValue",
+        "knora-api:colorValueAsColor": value.value,
+    }
 
 
 def _make_date_value(value: XMLValue) -> dict[str, Any]:

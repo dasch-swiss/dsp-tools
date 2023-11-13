@@ -77,6 +77,7 @@ check-links = """
 darglint = """
     find . -name "*.py" \
     -not -path "./src/dsp_tools/models/*" \
+    -not -path "./src/dsp_tools/commands/xmlupload/models/*" \
     -not -path "./.git/*" \
     | xargs poetry run darglint -v 2\
 """

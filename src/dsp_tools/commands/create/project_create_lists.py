@@ -1,12 +1,12 @@
 from typing import Any, Optional, Union
 
+from dsp_tools.commands.create.project_validate import validate_project
+from dsp_tools.commands.excel2json.lists import expand_lists_from_excel
 from dsp_tools.connection.connection import Connection
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.models.listnode import ListNode
 from dsp_tools.models.project import Project
 from dsp_tools.utils.create_logger import get_logger
-from dsp_tools.utils.excel2json.lists import expand_lists_from_excel
-from dsp_tools.utils.project_validate import validate_project
 from dsp_tools.utils.shared import login, parse_json_input, try_network_action
 
 logger = get_logger(__name__)

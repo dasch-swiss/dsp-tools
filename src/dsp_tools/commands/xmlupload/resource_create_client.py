@@ -3,6 +3,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, assert_never
 
+from dsp_tools.commands.xmlupload.ark2iri import convert_ark_v0_to_resource_iri
+from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.connection.connection import Connection
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.models.permission import Permissions
@@ -14,8 +16,6 @@ from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.date_util import parse_date_string
 from dsp_tools.utils.iri_util import is_resource_iri
 from dsp_tools.utils.shared import try_network_action
-from dsp_tools.utils.xmlupload.ark2iri import convert_ark_v0_to_resource_iri
-from dsp_tools.utils.xmlupload.iri_resolver import IriResolver
 
 logger = get_logger(__name__)
 

@@ -7,8 +7,8 @@ from typing import Any
 
 from lxml import etree
 
+from dsp_tools.commands.xmlupload.upload_config import DiagnosticsConfig
 from dsp_tools.utils.create_logger import get_logger
-from dsp_tools.utils.xmlupload.upload_config import DiagnosticsConfig
 
 logger = get_logger(__name__)
 

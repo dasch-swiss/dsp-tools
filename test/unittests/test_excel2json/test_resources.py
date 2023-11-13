@@ -11,8 +11,8 @@ import jsonpath_ng
 import jsonpath_ng.ext
 import pytest
 
+from dsp_tools.commands.excel2json import resources as e2j
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.utils.excel2json import resources as e2j
 
 
 class TestExcelToResource(unittest.TestCase):

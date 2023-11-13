@@ -8,7 +8,7 @@ import jsonschema
 import pandas as pd
 import regex
 
-import dsp_tools.utils.excel2json.utils as utl
+import dsp_tools.commands.excel2json.utils as utl
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.shared import check_notna, prepare_dataframe
 

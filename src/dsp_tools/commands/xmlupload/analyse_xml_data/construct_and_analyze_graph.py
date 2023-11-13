@@ -6,7 +6,7 @@ import regex
 import rustworkx as rx
 from lxml import etree
 
-from dsp_tools.analyse_xml_data.models import Cost, Edge, ResptrLink, XMLLink
+from dsp_tools.commands.xmlupload.analyse_xml_data.models import Cost, Edge, ResptrLink, XMLLink
 
 
 def create_info_from_xml_for_graph(

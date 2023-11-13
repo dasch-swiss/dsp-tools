@@ -5,7 +5,7 @@ from uuid import uuid4
 
 from lxml import etree
 
-from dsp_tools.analyse_xml_data.construct_and_analyze_graph import (
+from dsp_tools.commands.xmlupload.analyse_xml_data.construct_and_analyze_graph import (
     create_info_from_xml_for_graph,
     generate_upload_order,
     make_graph,

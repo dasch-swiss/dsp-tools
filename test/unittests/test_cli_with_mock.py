@@ -3,7 +3,7 @@ from unittest.mock import Mock, patch
 import pytest
 
 from dsp_tools import cli
-from dsp_tools.utils.xmlupload.upload_config import UploadConfig
+from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 
 
 def test_invalid_arguments() -> None:

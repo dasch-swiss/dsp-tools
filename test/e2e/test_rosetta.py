@@ -6,7 +6,7 @@ from typing import Iterator
 
 import pytest
 
-from dsp_tools.utils import rosetta
+from dsp_tools.commands import rosetta
 
 
 @pytest.fixture(scope="module", autouse=True)

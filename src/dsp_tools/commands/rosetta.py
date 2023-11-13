@@ -2,10 +2,10 @@ import shutil
 import subprocess
 from pathlib import Path
 
+from dsp_tools.commands.create.project_create import create_project
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from dsp_tools.models.exceptions import UserError
-from dsp_tools.utils.project_create import create_project
 
 
 def _update_possibly_existing_repo(rosetta_folder: Path) -> bool:

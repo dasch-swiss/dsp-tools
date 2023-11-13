@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from test.unittests.helpers.connection_mock import ConnectionMockBase
 from typing import Any
 
-from dsp_tools.utils.xmlupload.list_client import (
+from dsp_tools.commands.xmlupload.list_client import (
     List,
     ListClientLive,
     ListNode,

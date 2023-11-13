@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from dsp_tools.utils.project_create import create_project
+from dsp_tools.commands.create.project_create import create_project
 
 
 class TestCLI(unittest.TestCase):

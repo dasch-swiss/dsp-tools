@@ -4,9 +4,9 @@ import unittest
 
 import pytest
 
+from dsp_tools.commands.xmlupload.upload_config import UploadConfig
+from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.utils.xmlupload.upload_config import UploadConfig
-from dsp_tools.utils.xmlupload.xmlupload import xmlupload
 
 
 class TestXMLUpload(unittest.TestCase):

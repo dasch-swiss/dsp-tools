@@ -8,9 +8,9 @@ import pytest
 import regex
 from lxml import etree
 
+from dsp_tools.commands.xmlupload.ark2iri import convert_ark_v0_to_resource_iri
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.xml_utils import parse_and_clean_xml_file
-from dsp_tools.utils.xmlupload.ark2iri import convert_ark_v0_to_resource_iri
 
 
 class TestXMLUpload(unittest.TestCase):

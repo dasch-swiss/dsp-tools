@@ -1,4 +1,4 @@
-from dsp_tools.utils.xmlupload.upload_config import UploadConfig, _transform_server_url_to_foldername
+from dsp_tools.commands.xmlupload.upload_config import UploadConfig, _transform_server_url_to_foldername
 
 # pylint: disable=missing-class-docstring,missing-function-docstring
 

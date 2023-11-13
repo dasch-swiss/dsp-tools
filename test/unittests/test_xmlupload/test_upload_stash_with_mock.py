@@ -2,17 +2,17 @@ from dataclasses import dataclass, field
 from typing import Any
 from uuid import uuid4
 
-from dsp_tools.connection.connection import Connection
-from dsp_tools.models.value import KnoraStandoffXml
-from dsp_tools.utils.xmlupload.iri_resolver import IriResolver
-from dsp_tools.utils.xmlupload.stash.stash_models import (
+from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
+from dsp_tools.commands.xmlupload.stash.stash_models import (
     LinkValueStash,
     LinkValueStashItem,
     StandoffStash,
     StandoffStashItem,
     Stash,
 )
-from dsp_tools.utils.xmlupload.xmlupload import _upload_stash
+from dsp_tools.commands.xmlupload.xmlupload import _upload_stash
+from dsp_tools.connection.connection import Connection
+from dsp_tools.models.value import KnoraStandoffXml
 
 # pylint: disable=unused-argument,missing-function-docstring,missing-class-docstring,too-few-public-methods
 

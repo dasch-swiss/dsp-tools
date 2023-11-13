@@ -13,8 +13,8 @@ import pandas as pd
 import pytest
 import regex
 
+from dsp_tools.commands.excel2json import lists as e2l
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.utils.excel2json import lists as e2l
 
 
 class TestExcelToJSONList(unittest.TestCase):

@@ -1,8 +1,8 @@
 import regex
 
+from dsp_tools.commands.xmlupload.list_client import ListClientLive
+from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
 from dsp_tools.connection.connection_live import ConnectionLive
-from dsp_tools.utils.xmlupload.list_client import ListClientLive
-from dsp_tools.utils.xmlupload.project_client import ProjectClientLive
 
 # pylint: disable=missing-function-docstring
 

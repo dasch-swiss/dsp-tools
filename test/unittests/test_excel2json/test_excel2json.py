@@ -3,7 +3,7 @@ import shutil
 import unittest
 from pathlib import Path
 
-from dsp_tools.utils.excel2json.project import excel2json
+from dsp_tools.commands.excel2json.project import excel2json
 
 
 class TestExcel2Json(unittest.TestCase):

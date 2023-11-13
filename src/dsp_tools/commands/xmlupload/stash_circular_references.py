@@ -10,6 +10,8 @@ from dsp_tools.analyse_xml_data.construct_and_analyze_graph import (
     generate_upload_order,
     make_graph,
 )
+from dsp_tools.commands.xmlupload.models.xmlproperty import XMLProperty
+from dsp_tools.commands.xmlupload.models.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.stash.stash_models import (
     LinkValueStash,
     LinkValueStashItem,
@@ -19,8 +21,6 @@ from dsp_tools.commands.xmlupload.stash.stash_models import (
 )
 from dsp_tools.models.permission import Permissions
 from dsp_tools.models.value import KnoraStandoffXml
-from dsp_tools.models.xmlproperty import XMLProperty
-from dsp_tools.models.xmlresource import XMLResource
 from dsp_tools.utils.create_logger import get_logger
 
 logger = get_logger(__name__)

@@ -1,7 +1,7 @@
 from lxml import etree
 
+from dsp_tools.commands.xmlupload.models.xmlvalue import XMLValue
 from dsp_tools.models.exceptions import XmlError
-from dsp_tools.models.xmlvalue import XMLValue
 
 
 class XMLProperty:  # pylint: disable=too-few-public-methods

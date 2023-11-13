@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from test.unittests.helpers.connection_mock import ConnectionMockBase
+from test.unittests.commands.xmlupload.connection_mock import ConnectionMockBase
 from typing import Any
 
 from dsp_tools.commands.xmlupload.list_client import (

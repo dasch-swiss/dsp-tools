@@ -105,24 +105,24 @@ pythonpath = [".", "src", "test"]
 
 
 [tool.mypy]
-ignore_missing_imports = true                 # TODO: deactivate this
+ignore_missing_imports = true                                               # TODO: deactivate this
 show_column_numbers = true
 strict = true
 exclude = [
-    "src/dsp_tools/commands/xmlupload/models/value.py",         # TODO: activate this
-    "src/dsp_tools/commands/xmlupload/models/permission.py",    # TODO: activate this
-    "src/dsp_tools/commands/xmlupload/models/xmlresource.py",   # TODO: activate this
-    "src/dsp_tools/models/helpers.py",                          # TODO: activate this
-    "src/dsp_tools/models/langstring.py",                       # TODO: activate this
-    "src/dsp_tools/models/project/group.py",                    # TODO: activate this
-    "src/dsp_tools/models/project/listnode.py",                 # TODO: activate this
-    "src/dsp_tools/models/project/ontology.py",                 # TODO: activate this
-    "src/dsp_tools/models/project/project.py",                  # TODO: activate this
-    "src/dsp_tools/models/projectContext.py",                   # TODO: activate this
-    "src/dsp_tools/models/project/propertyclass.py",            # TODO: activate this
-    "src/dsp_tools/models/project/resourceclass.py",            # TODO: activate this
-    "src/dsp_tools/models/project/user.py",                     # TODO: activate this
-    "src/dsp_tools/import_scripts",                             # TODO: activate this
+    "src/dsp_tools/commands/xmlupload/models/value.py",                     # TODO: activate this
+    "src/dsp_tools/commands/xmlupload/models/permission.py",                # TODO: activate this
+    "src/dsp_tools/commands/xmlupload/models/xmlresource.py",               # TODO: activate this
+    "src/dsp_tools/models/helpers.py",                                      # TODO: activate this
+    "src/dsp_tools/models/langstring.py",                                   # TODO: activate this
+    "src/dsp_tools/commands/project_commands/models/group.py",              # TODO: activate this
+    "src/dsp_tools/commands/project_commands/models/listnode.py",           # TODO: activate this
+    "src/dsp_tools/commands/project_commands/models/ontology.py",           # TODO: activate this
+    "src/dsp_tools/commands/project_commands/models/project.py",            # TODO: activate this
+    "src/dsp_tools/models/projectContext.py",                               # TODO: activate this
+    "src/dsp_tools/commands/project_commands/models/propertyclass.py",      # TODO: activate this
+    "src/dsp_tools/commands/project_commands/models/resourceclass.py",      # TODO: activate this
+    "src/dsp_tools/commands/project_commands/models/user.py",               # TODO: activate this
+    "src/dsp_tools/import_scripts",                                         # TODO: activate this
 ]
 
 

@@ -3,7 +3,7 @@ from unittest.mock import Mock, patch
 import pytest
 
 from dsp_tools import cli
-from dsp_tools.utils.xmlupload.upload_config import UploadConfig
+from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 
 
 def test_invalid_arguments() -> None:
@@ -243,7 +243,7 @@ def test_excel2xml(excel2xml: Mock) -> None:
     )
 
 
-@patch("dsp_tools.utils.stack_handling.StackHandler.start_stack")
+@patch("dsp_tools.commands.start_stack.StackHandler.start_stack")
 def test_start_stack(start_stack: Mock) -> None:
     """Test the 'dsp-tools start-stack' command"""
     args = "start-stack".split()
@@ -251,7 +251,7 @@ def test_start_stack(start_stack: Mock) -> None:
     start_stack.assert_called_once_with()
 
 
-@patch("dsp_tools.utils.stack_handling.StackHandler.stop_stack")
+@patch("dsp_tools.commands.start_stack.StackHandler.stop_stack")
 def test_stop_stack(stop_stack: Mock) -> None:
     """Test the 'dsp-tools stop-stack' command"""
     args = "stop-stack".split()

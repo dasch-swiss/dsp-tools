@@ -72,7 +72,7 @@ dsp-tools create project_definition.json
 This will create the project defined in `project_definition.json` on `localhost` for local viewing.
 
 In order to create the same project
-on the DSP server `https://admin.dasch.swiss`,
+on the DSP server `https://app.dasch.swiss`,
 it is necessary to specify the following options:
 
 ```bash
@@ -111,7 +111,7 @@ dsp-tools get -P my_project project_definition.json
 
 will get `my_project` from `localhost`.
 
-In order to get a project from the DSP server `https://admin.dasch.swiss`,
+In order to get a project from the DSP server `https://app.dasch.swiss`,
 it is necessary to specify the following options:
 
 ```bash
@@ -158,7 +158,7 @@ dsp-tools xmlupload xml_data_file.xml
 Will upload the data defined in `xml_data_file.xml` on `localhost` for local viewing.
 
 In order to upload the same data 
-to the DSP server `https://admin.dasch.swiss`,
+to the DSP server `https://app.dasch.swiss`,
 it is necessary to specify the following options:
 
 ```bash

@@ -10,6 +10,21 @@ from typing import Any, Union
 
 from lxml import etree
 
+from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
+from dsp_tools.commands.xmlupload.list_client import ListClient, ListClientLive
+from dsp_tools.commands.xmlupload.project_client import ProjectClient, ProjectClientLive
+from dsp_tools.commands.xmlupload.read_validate_xml_file import validate_and_parse_xml_file
+from dsp_tools.commands.xmlupload.resource_create_client import ResourceCreateClient
+from dsp_tools.commands.xmlupload.resource_multimedia import handle_bitstream
+from dsp_tools.commands.xmlupload.stash.stash_models import Stash
+from dsp_tools.commands.xmlupload.stash_circular_references import (
+    identify_circular_references,
+    stash_circular_references,
+)
+from dsp_tools.commands.xmlupload.upload_config import DiagnosticsConfig, UploadConfig
+from dsp_tools.commands.xmlupload.upload_stashed_resptr_props import upload_stashed_resptr_props
+from dsp_tools.commands.xmlupload.upload_stashed_xml_texts import upload_stashed_xml_texts
+from dsp_tools.commands.xmlupload.write_diagnostic_info import write_id2iri_mapping
 from dsp_tools.connection.connection import Connection
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.models.permission import Permissions
@@ -20,18 +35,6 @@ from dsp_tools.models.xmlresource import BitstreamInfo, XMLResource
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.json_ld_util import get_json_ld_context_for_project
 from dsp_tools.utils.shared import login, try_network_action
-from dsp_tools.utils.xmlupload.iri_resolver import IriResolver
-from dsp_tools.utils.xmlupload.list_client import ListClient, ListClientLive
-from dsp_tools.utils.xmlupload.project_client import ProjectClient, ProjectClientLive
-from dsp_tools.utils.xmlupload.read_validate_xml_file import validate_and_parse_xml_file
-from dsp_tools.utils.xmlupload.resource_create_client import ResourceCreateClient
-from dsp_tools.utils.xmlupload.resource_multimedia import handle_bitstream
-from dsp_tools.utils.xmlupload.stash.stash_models import Stash
-from dsp_tools.utils.xmlupload.stash_circular_references import identify_circular_references, stash_circular_references
-from dsp_tools.utils.xmlupload.upload_config import DiagnosticsConfig, UploadConfig
-from dsp_tools.utils.xmlupload.upload_stashed_resptr_props import upload_stashed_resptr_props
-from dsp_tools.utils.xmlupload.upload_stashed_xml_texts import upload_stashed_xml_texts
-from dsp_tools.utils.xmlupload.write_diagnostic_info import write_id2iri_mapping
 
 logger = get_logger(__name__)
 

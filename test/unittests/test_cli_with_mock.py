@@ -243,7 +243,7 @@ def test_excel2xml(excel2xml: Mock) -> None:
     )
 
 
-@patch("dsp_tools.utils.stack_handling.StackHandler.start_stack")
+@patch("dsp_tools.commands.start-stack.StackHandler.start_stack")
 def test_start_stack(start_stack: Mock) -> None:
     """Test the 'dsp-tools start-stack' command"""
     args = "start-stack".split()
@@ -251,7 +251,7 @@ def test_start_stack(start_stack: Mock) -> None:
     start_stack.assert_called_once_with()
 
 
-@patch("dsp_tools.utils.stack_handling.StackHandler.stop_stack")
+@patch("dsp_tools.commands.start-stack.StackHandler.stop_stack")
 def test_stop_stack(stop_stack: Mock) -> None:
     """Test the 'dsp-tools stop-stack' command"""
     args = "stop-stack".split()

@@ -6,8 +6,8 @@ import unittest
 
 import pytest
 
+from dsp_tools.commands.xmlupload.models.value import DateValue
 from dsp_tools.models.helpers import Actions
-from dsp_tools.models.value import DateValue
 
 
 class TestValue(unittest.TestCase):

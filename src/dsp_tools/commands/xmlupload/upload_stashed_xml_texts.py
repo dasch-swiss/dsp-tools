@@ -6,10 +6,10 @@ from typing import Any
 from urllib.parse import quote_plus
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
+from dsp_tools.commands.xmlupload.models.value import KnoraStandoffXml
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStash, StandoffStashItem
 from dsp_tools.connection.connection import Connection
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.value import KnoraStandoffXml
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import try_network_action
 

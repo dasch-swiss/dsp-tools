@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from itertools import groupby
 
-from dsp_tools.models.value import KnoraStandoffXml
+from dsp_tools.commands.xmlupload.models.value import KnoraStandoffXml
 
 
 @dataclass(frozen=True)

@@ -3,7 +3,7 @@ from typing import Optional, Union, cast
 import regex
 from lxml import etree
 
-from dsp_tools.models.value import KnoraStandoffXml
+from dsp_tools.commands.xmlupload.models.value import KnoraStandoffXml
 
 
 class XMLValue:  # pylint: disable=too-few-public-methods

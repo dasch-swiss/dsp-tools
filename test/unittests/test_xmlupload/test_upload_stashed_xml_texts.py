@@ -5,7 +5,7 @@ from unittest import TestCase
 import pytest
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
-from dsp_tools.models.value import KnoraStandoffXml
+from dsp_tools.commands.xmlupload.models.value import KnoraStandoffXml
 
 
 class TestXMLUploadStash(TestCase):

@@ -3,8 +3,8 @@ import unittest
 import pytest
 from lxml import etree
 
+from dsp_tools.commands.xmlupload.models.value import KnoraStandoffXml
 from dsp_tools.commands.xmlupload.models.xmlvalue import XMLValue
-from dsp_tools.models.value import KnoraStandoffXml
 
 
 class TestXmlValue(unittest.TestCase):

@@ -105,7 +105,7 @@ exclude = [
     "src/dsp_tools/commands/xmlupload/models/value.py",         # TODO: activate this
     "src/dsp_tools/commands/xmlupload/models/permission.py",    # TODO: activate this
     "src/dsp_tools/commands/xmlupload/models/xmlresource.py",   # TODO: activate this
-    "src/dsp_tools/models/helpers.py ",                         # TODO: activate this
+    "src/dsp_tools/models/helpers.py",                          # TODO: activate this
     "src/dsp_tools/models/langstring.py",                       # TODO: activate this
     "src/dsp_tools/models/project/group.py",                    # TODO: activate this
     "src/dsp_tools/models/project/listnode.py",                 # TODO: activate this

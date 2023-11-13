@@ -1,8 +1,7 @@
 from typing import Optional
 
+from dsp_tools.commands.project_commands.models import Group, Project
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.project.group import Group
-from dsp_tools.models.project.project import Project
 from dsp_tools.utils.connection import Connection
 
 

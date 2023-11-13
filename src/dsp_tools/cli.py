@@ -9,9 +9,6 @@ from importlib.metadata import version
 
 import regex
 
-from dsp_tools.commands.create.project_create import create_project
-from dsp_tools.commands.create.project_create_lists import create_lists
-from dsp_tools.commands.create.project_validate import validate_project
 from dsp_tools.commands.excel2json.lists import excel2lists, validate_lists_section_with_schema
 from dsp_tools.commands.excel2json.project import excel2json
 from dsp_tools.commands.excel2json.properties import excel2properties
@@ -20,8 +17,9 @@ from dsp_tools.commands.excel2xml import excel2xml
 from dsp_tools.commands.fast_xmlupload.process_files import process_files
 from dsp_tools.commands.fast_xmlupload.upload_files import upload_files
 from dsp_tools.commands.fast_xmlupload.upload_xml import fast_xmlupload
-from dsp_tools.commands.get import get_project
 from dsp_tools.commands.id2iri import id2iri
+from dsp_tools.commands.project_commands.create import create_lists, create_project, validate_project
+from dsp_tools.commands.project_commands.get import get_project
 from dsp_tools.commands.rosetta import upload_rosetta
 from dsp_tools.commands.start_stack import StackConfiguration, StackHandler
 from dsp_tools.commands.template import generate_template_repo

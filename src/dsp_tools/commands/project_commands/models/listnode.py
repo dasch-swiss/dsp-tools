@@ -28,12 +28,12 @@ from pprint import pprint
 from typing import Any, Optional, Union
 from urllib.parse import quote_plus
 
+from dsp_tools.commands.project_commands.models.model import Model
+from dsp_tools.commands.project_commands.models.project import Project
+from dsp_tools.commands.project_commands.models.set_encoder import SetEncoder
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import Actions
 from dsp_tools.models.langstring import LangString, Languages
-from dsp_tools.models.project.model import Model
-from dsp_tools.models.project.project import Project
-from dsp_tools.models.project.set_encoder import SetEncoder
 from dsp_tools.utils.connection import Connection
 
 

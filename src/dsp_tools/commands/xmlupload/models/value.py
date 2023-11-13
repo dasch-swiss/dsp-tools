@@ -6,12 +6,12 @@ from typing import Any, Optional, Union
 
 import regex
 
+from dsp_tools.commands.project_commands.models import ListNode
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.permission import Permissions, PermissionValue
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import Actions, IriTest
 from dsp_tools.models.langstring import LangString
-from dsp_tools.models.project.listnode import ListNode
 
 
 @dataclass

@@ -9,14 +9,16 @@ from typing import Any
 
 import pytest
 
-from dsp_tools.commands.create.project_create import _rectify_hlist_of_properties, _sort_prop_classes, _sort_resources
-from dsp_tools.commands.create.project_validate import (
+from dsp_tools.commands.project_commands.create import (
     _check_for_duplicate_names,
     _check_for_undefined_cardinalities,
     _check_for_undefined_super_property,
     _check_for_undefined_super_resource,
     _collect_link_properties,
     _identify_problematic_cardinalities,
+    _rectify_hlist_of_properties,
+    _sort_prop_classes,
+    _sort_resources,
     validate_project,
 )
 from dsp_tools.models.exceptions import BaseError, UserError

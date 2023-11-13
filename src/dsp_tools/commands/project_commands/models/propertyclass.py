@@ -6,12 +6,12 @@ from urllib.parse import quote_plus
 
 import regex
 
+from dsp_tools.commands.project_commands.models.listnode import ListNode
+from dsp_tools.commands.project_commands.models.model import Model
+from dsp_tools.commands.project_commands.models.set_encoder import SetEncoder
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import Actions, Context, DateTimeStamp, WithId
 from dsp_tools.models.langstring import LangString, Languages
-from dsp_tools.models.project.listnode import ListNode
-from dsp_tools.models.project.model import Model
-from dsp_tools.models.project.set_encoder import SetEncoder
 from dsp_tools.utils.connection import Connection
 
 

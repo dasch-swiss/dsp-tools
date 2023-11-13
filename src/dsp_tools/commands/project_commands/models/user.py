@@ -29,12 +29,12 @@ import urllib.parse
 from typing import Any, Optional, Union
 from urllib.parse import quote_plus
 
+from dsp_tools.commands.project_commands.models.group import Group
+from dsp_tools.commands.project_commands.models.model import Model
+from dsp_tools.commands.project_commands.models.project import Project
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import Actions
 from dsp_tools.models.langstring import Languages
-from dsp_tools.models.project.group import Group
-from dsp_tools.models.project.model import Model
-from dsp_tools.models.project.project import Project
 from dsp_tools.utils.connection import Connection
 
 

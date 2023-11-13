@@ -5,18 +5,18 @@ from typing import Any, Optional, Union, cast
 
 import regex
 
-from dsp_tools.commands.create.project_create_lists import create_lists_on_server
-from dsp_tools.commands.create.project_validate import validate_project
 from dsp_tools.commands.excel2json.lists import expand_lists_from_excel
+from dsp_tools.commands.project_commands.create.project_create_lists import create_lists_on_server
+from dsp_tools.commands.project_commands.create.project_validate import validate_project
+from dsp_tools.commands.project_commands.models.group import Group
+from dsp_tools.commands.project_commands.models.ontology import Ontology
+from dsp_tools.commands.project_commands.models.project import Project
+from dsp_tools.commands.project_commands.models.propertyclass import PropertyClass
+from dsp_tools.commands.project_commands.models.resourceclass import ResourceClass
+from dsp_tools.commands.project_commands.models.user import User
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.models.helpers import Cardinality, Context, DateTimeStamp
 from dsp_tools.models.langstring import LangString
-from dsp_tools.models.project.group import Group
-from dsp_tools.models.project.ontology import Ontology
-from dsp_tools.models.project.project import Project
-from dsp_tools.models.project.propertyclass import PropertyClass
-from dsp_tools.models.project.resourceclass import ResourceClass
-from dsp_tools.models.project.user import User
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import login, parse_json_input, try_network_action

@@ -6,10 +6,10 @@ import unittest
 
 import pytest
 
+from dsp_tools.commands.project_commands.models import PropertyClass
+from dsp_tools.commands.project_commands.models.ontology import Ontology
 from dsp_tools.models.helpers import DateTimeStamp
 from dsp_tools.models.langstring import LangString, Languages
-from dsp_tools.models.project.ontology import Ontology
-from dsp_tools.models.project.propertyclass import PropertyClass
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
 

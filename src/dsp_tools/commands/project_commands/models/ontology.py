@@ -35,13 +35,13 @@ from urllib.parse import quote_plus
 
 import regex
 
+from dsp_tools.commands.project_commands.models.model import Model
+from dsp_tools.commands.project_commands.models.project import Project
+from dsp_tools.commands.project_commands.models.propertyclass import PropertyClass
+from dsp_tools.commands.project_commands.models.resourceclass import ResourceClass
+from dsp_tools.commands.project_commands.models.set_encoder import SetEncoder
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import Actions, Context, DateTimeStamp, WithId
-from dsp_tools.models.project.model import Model
-from dsp_tools.models.project.project import Project
-from dsp_tools.models.project.propertyclass import PropertyClass
-from dsp_tools.models.project.resourceclass import ResourceClass
-from dsp_tools.models.project.set_encoder import SetEncoder
 from dsp_tools.utils.connection import Connection
 
 

@@ -6,9 +6,9 @@ import unittest
 
 import pytest
 
+from dsp_tools.commands.project_commands.models import ResourceClass
+from dsp_tools.commands.project_commands.models.ontology import Ontology
 from dsp_tools.models.langstring import LangString, Languages
-from dsp_tools.models.project.ontology import Ontology
-from dsp_tools.models.project.resourceclass import ResourceClass
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
 

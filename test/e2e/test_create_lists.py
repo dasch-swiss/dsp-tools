@@ -6,8 +6,7 @@ from pathlib import Path
 
 import jsonpath_ng.ext
 
-from dsp_tools.commands.create.project_create import create_project
-from dsp_tools.commands.create.project_create_lists import create_lists
+from dsp_tools.commands.project_commands.create import create_lists, create_project
 
 
 class TestCreateLists(unittest.TestCase):

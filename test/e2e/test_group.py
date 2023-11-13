@@ -4,8 +4,8 @@ from typing import cast
 
 import pytest
 
+from dsp_tools.commands.project_commands.models import Group
 from dsp_tools.models.langstring import LangString, Languages
-from dsp_tools.models.project.group import Group
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
 

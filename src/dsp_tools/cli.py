@@ -22,14 +22,14 @@ from dsp_tools.commands.fast_xmlupload.upload_xml import fast_xmlupload
 from dsp_tools.commands.get import get_project
 from dsp_tools.commands.id2iri import id2iri
 from dsp_tools.commands.rosetta import upload_rosetta
+from dsp_tools.commands.start_stack import StackConfiguration, StackHandler
+from dsp_tools.commands.template import generate_template_repo
 from dsp_tools.commands.xmlupload.upload_config import DiagnosticsConfig, UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from dsp_tools.excel2xml import excel2xml
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.create_logger import get_logger
-from dsp_tools.utils.generate_templates import generate_template_repo
 from dsp_tools.utils.shared import validate_xml_against_schema
-from dsp_tools.utils.stack_handling import StackConfiguration, StackHandler
 
 logger = get_logger(__name__)
 

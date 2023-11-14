@@ -38,7 +38,7 @@ class OntologyClientLive:
 
     con: ConnectionLive
     shortcode: str
-    ontology_names: list[str] | None = None
+    ontology_names: list[str] = field(default_factory=list)
 
     def get_all_ontologies_from_server(self) -> dict[str, Ontology]:
         """
@@ -69,7 +69,7 @@ class OntologyClientLive:
         project_onto = self._format_ontology(onto_graph)
         return project_onto
 
-    def _get_ontology_names_from_server(self):
+    def _get_ontology_names_from_server(self) -> None:
         try:
             url = f"/admin/projects/shortcode/{self.shortcode}"
             res: dict[str, Any] = try_network_action(self.con.get, route=url)
@@ -91,7 +91,7 @@ class OntologyClientLive:
                 f"Ontologies for project {self.shortcode} could not be retrieved from the DSP server"
             ) from None
         try:
-            onto_graph = res["@graph"]
+            onto_graph: list[dict[str, Any]] = res["@graph"]
         except KeyError as e:
             raise BaseError(f"Unexpected response from server: {res}") from e
         return onto_graph
@@ -108,7 +108,7 @@ class OntologyClientLive:
         except BaseError:
             raise BaseError("Knora-api ontology could not be retrieved from the DSP server") from None
         try:
-            onto_graph = res["@graph"]
+            onto_graph: list[dict[str, Any]] = res["@graph"]
         except KeyError as e:
             raise BaseError(f"Unexpected response from server when retrieving knora-api ontology: {res}") from e
         return onto_graph

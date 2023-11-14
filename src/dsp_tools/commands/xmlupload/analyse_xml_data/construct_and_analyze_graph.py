@@ -7,6 +7,7 @@ import rustworkx as rx
 from lxml import etree
 
 from dsp_tools.commands.xmlupload.analyse_xml_data.models import Cost, Edge, ResptrLink, XMLLink
+from dsp_tools.utils.iri_util import is_resource_iri
 
 
 def create_info_from_xml_for_graph(
@@ -54,7 +55,7 @@ def _create_resptr_link_objects(subject_id: str, resptr_prop: etree._Element) ->
     resptr_links = []
     for resptr in resptr_prop.getchildren():
         resptr.text = cast(str, resptr.text)
-        if not regex.search(r"https?://rdfh.ch/[a-fA-F0-9]{4}/[\w-]{22}", resptr.text):
+        if not is_resource_iri(resptr.text):
             link_object = ResptrLink(subject_id, resptr.text)
             # this UUID is so that the links that were stashed can be identified in the XML data file
             resptr.attrib["linkUUID"] = link_object.link_uuid

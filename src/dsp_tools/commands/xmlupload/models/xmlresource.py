@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from typing import Optional, Union
 
-import regex
 from lxml import etree
 
 from dsp_tools.commands.xmlupload.models.permission import Permissions
@@ -10,6 +9,7 @@ from dsp_tools.commands.xmlupload.models.xmlbitstream import XMLBitstream
 from dsp_tools.commands.xmlupload.models.xmlproperty import XMLProperty
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import DateTimeStamp
+from dsp_tools.utils.iri_util import is_resource_iri
 
 
 @dataclass(frozen=True)
@@ -131,7 +131,7 @@ class XMLResource:  # pylint: disable=too-many-instance-attributes
         Returns:
             Set of resources identified by their unique id's (as given in the XML)
         """
-        return {x for x in self.get_resptrs() if not regex.search(r"https?://rdfh.ch/[a-fA-F0-9]{4}/[\w-]{22}", x)}
+        return {x for x in self.get_resptrs() if not is_resource_iri(x)}
 
     def get_propvals(
         self,

@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from typing import Any, Protocol
 
 from dsp_tools.models.exceptions import BaseError, UserError
-from dsp_tools.utils.connection_live import ConnectionLive
+from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import try_network_action
 
@@ -22,13 +22,10 @@ class Ontology:
 class OntologyClient(Protocol):
     """Interface (protocol) for ontology-related requests to the DSP-API."""
 
-    def get_ontology_iris(self) -> list[str]:
-        """Get the ontology IRIs of the project to which the data is being uploaded."""
+    def get_all_ontologies_from_server(self) -> list[str]:
+        """Get all the ontologies for a project and the knora-api ontology from the server."""
 
-    def get_ontology_names_from_server(self) -> list[str]:
-        """Returns the names of the project ontologies on the server."""
-
-    def get_ontology_from_server(self) -> dict[str, Any]:
+    def get_ontology(self) -> Ontology:
         """Returns the response from the server."""
 
 
@@ -36,7 +33,7 @@ class OntologyClient(Protocol):
 class OntologyClientLive:
     """Client handling ontology-related requests to the DSP-API."""
 
-    con: ConnectionLive
+    con: Connection
     shortcode: str
     ontology_names: list[str] = field(default_factory=list)
 
@@ -122,21 +119,3 @@ class OntologyClientLive:
             else:
                 onto.properties.append(ele["id"])
         return onto
-
-
-def get_project_and_knora_ontology_from_server(con: ConnectionLive, project_shortcode: str) -> dict[str, Ontology]:
-    """
-    This function takes a connection to the server and the shortcode of a project.
-    It retrieves the project ontologies and the knora-api ontology.
-    Knora-api is saved with an empty string as key.
-
-    Args:
-        con: connection to the server
-        project_shortcode: shortcode of the project
-
-    Returns:
-        Dictionary with the ontology names as keys and the ontology in a structured manner as values.
-    """
-    client = OntologyClientLive(con, project_shortcode)
-    ontologies = client.get_all_ontologies_from_server()
-    return ontologies

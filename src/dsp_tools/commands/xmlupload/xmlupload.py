@@ -20,14 +20,14 @@ from dsp_tools.commands.xmlupload.project_client import ProjectClient, ProjectCl
 from dsp_tools.commands.xmlupload.read_validate_xml_file import validate_and_parse_xml_file
 from dsp_tools.commands.xmlupload.resource_create_client import ResourceCreateClient
 from dsp_tools.commands.xmlupload.resource_multimedia import handle_bitstream
-from dsp_tools.commands.xmlupload.stash.stash_models import Stash
-from dsp_tools.commands.xmlupload.stash_circular_references import (
+from dsp_tools.commands.xmlupload.stash.stash_circular_references import (
     identify_circular_references,
     stash_circular_references,
 )
+from dsp_tools.commands.xmlupload.stash.stash_models import Stash
+from dsp_tools.commands.xmlupload.stash.upload_stashed_resptr_props import upload_stashed_resptr_props
+from dsp_tools.commands.xmlupload.stash.upload_stashed_xml_texts import upload_stashed_xml_texts
 from dsp_tools.commands.xmlupload.upload_config import DiagnosticsConfig, UploadConfig
-from dsp_tools.commands.xmlupload.upload_stashed_resptr_props import upload_stashed_resptr_props
-from dsp_tools.commands.xmlupload.upload_stashed_xml_texts import upload_stashed_xml_texts
 from dsp_tools.commands.xmlupload.write_diagnostic_info import write_id2iri_mapping
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.models.projectContext import ProjectContext

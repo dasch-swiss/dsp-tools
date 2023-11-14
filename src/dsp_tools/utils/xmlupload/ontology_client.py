@@ -11,6 +11,8 @@ logger = get_logger(__name__)
 
 @dataclass
 class Ontology:
+    """This class saves the properties and the classes from an ontology."""
+
     ontology_name: str | None = None
     classes: list[str] = field(default_factory=lambda: list())
     properties: list[str] = field(default_factory=lambda: list())
@@ -46,7 +48,7 @@ class OntologyClientLive:
         Returns:
             Dictionary with the ontology names and an instance of Ontology.
         """
-        self.ontology_names = self._get_ontology_names_from_server()
+        self._get_ontology_names_from_server()
         project_ontos = dict()
         for onto in self.ontology_names:
             project_ontos[onto] = self.get_ontology(onto)
@@ -104,7 +106,7 @@ class OntologyClientLive:
         try:
             res: dict[str, Any] = try_network_action(self.con.get, route=url)
         except BaseError:
-            raise BaseError(f"Knora-api ontology could not be retrieved from the DSP server") from None
+            raise BaseError("Knora-api ontology could not be retrieved from the DSP server") from None
         try:
             onto_graph = res["@graph"]
         except KeyError as e:
@@ -123,6 +125,18 @@ class OntologyClientLive:
 
 
 def get_project_and_knora_ontology_from_server(con: ConnectionLive, project_shortcode: str) -> dict[str, Ontology]:
+    """
+    This function takes a connection to the server and the shortcode of a project.
+    It retrieves the project ontologies and the knora-api ontology.
+    Knora-api is saved with an empty string as key.
+
+    Args:
+        con: connection to the server
+        project_shortcode: shortcode of the project
+
+    Returns:
+        Dictionary with the ontology names as keys and the ontology in a structured manner as values.
+    """
     client = OntologyClientLive(con, project_shortcode)
     ontologies = client.get_all_ontologies_from_server()
     return ontologies

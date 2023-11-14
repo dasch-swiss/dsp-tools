@@ -9,27 +9,27 @@ from importlib.metadata import version
 
 import regex
 
-from dsp_tools.excel2xml import excel2xml
-from dsp_tools.fast_xmlupload.process_files import process_files
-from dsp_tools.fast_xmlupload.upload_files import upload_files
-from dsp_tools.fast_xmlupload.upload_xml import fast_xmlupload
+from dsp_tools.commands.excel2json.lists import excel2lists, validate_lists_section_with_schema
+from dsp_tools.commands.excel2json.project import excel2json
+from dsp_tools.commands.excel2json.properties import excel2properties
+from dsp_tools.commands.excel2json.resources import excel2resources
+from dsp_tools.commands.excel2xml import excel2xml
+from dsp_tools.commands.fast_xmlupload.process_files import process_files
+from dsp_tools.commands.fast_xmlupload.upload_files import upload_files
+from dsp_tools.commands.fast_xmlupload.upload_xml import fast_xmlupload
+from dsp_tools.commands.id2iri import id2iri
+from dsp_tools.commands.project.create.project_create import create_project
+from dsp_tools.commands.project.create.project_create_lists import create_lists
+from dsp_tools.commands.project.create.project_validate import validate_project
+from dsp_tools.commands.project.get import get_project
+from dsp_tools.commands.rosetta import upload_rosetta
+from dsp_tools.commands.start_stack import StackConfiguration, StackHandler
+from dsp_tools.commands.template import generate_template_repo
+from dsp_tools.commands.xmlupload.upload_config import DiagnosticsConfig, UploadConfig
+from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.create_logger import get_logger
-from dsp_tools.utils.excel2json.lists import excel2lists, validate_lists_section_with_schema
-from dsp_tools.utils.excel2json.project import excel2json
-from dsp_tools.utils.excel2json.properties import excel2properties
-from dsp_tools.utils.excel2json.resources import excel2resources
-from dsp_tools.utils.generate_templates import generate_template_repo
-from dsp_tools.utils.id2iri import id2iri
-from dsp_tools.utils.project_create import create_project
-from dsp_tools.utils.project_create_lists import create_lists
-from dsp_tools.utils.project_get import get_project
-from dsp_tools.utils.project_validate import validate_project
-from dsp_tools.utils.rosetta import upload_rosetta
 from dsp_tools.utils.shared import validate_xml_against_schema
-from dsp_tools.utils.stack_handling import StackConfiguration, StackHandler
-from dsp_tools.utils.xmlupload.upload_config import DiagnosticsConfig, UploadConfig
-from dsp_tools.utils.xmlupload.xmlupload import xmlupload
 
 logger = get_logger(__name__)
 
@@ -540,7 +540,7 @@ def _call_requested_action(args: argparse.Namespace) -> bool:
             remove_resource_if_id_in_mapping=args.remove_resources,
         )
     elif args.action == "excel2xml":
-        success = excel2xml(
+        success, _ = excel2xml(
             datafile=args.data_source,
             shortcode=args.project_shortcode,
             default_ontology=args.ontology_name,

@@ -7,11 +7,11 @@ import unittest
 import pytest
 import regex
 
+from dsp_tools.commands.project.create.project_create import create_project
+from dsp_tools.commands.xmlupload.upload_config import UploadConfig
+from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.utils.project_create import create_project
 from dsp_tools.utils.shared import check_notna
-from dsp_tools.utils.xmlupload.upload_config import UploadConfig
-from dsp_tools.utils.xmlupload.xmlupload import xmlupload
 
 
 class TestImportScripts(unittest.TestCase):

@@ -4,7 +4,7 @@ import pytest
 from termcolor import cprint
 
 from dsp_tools.commands.xmlupload.models.permission import Permissions
-from dsp_tools.commands.xmlupload.stash_circular_references import (
+from dsp_tools.commands.xmlupload.stash.stash_circular_references import (
     identify_circular_references,
     stash_circular_references,
 )

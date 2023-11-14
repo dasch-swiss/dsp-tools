@@ -3,10 +3,12 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Union
 
+import regex
 from lxml import etree
 
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.create_logger import get_logger
+from dsp_tools.utils.iri_util import is_resource_iri
 from dsp_tools.utils.shared import validate_xml_against_schema
 from dsp_tools.utils.xml_utils import parse_and_clean_xml_file
 
@@ -34,15 +36,60 @@ def validate_and_parse_xml_file(
     """
     validate_xml_against_schema(input_file=input_file)
     root = parse_and_clean_xml_file(input_file=input_file)
+    _check_if_link_targets_exist(root)
     if not preprocessing_done:
-        check_if_bitstreams_exist(root=root, imgdir=imgdir)
+        _check_if_bitstreams_exist(root=root, imgdir=imgdir)
     shortcode = root.attrib["shortcode"]
     default_ontology = root.attrib["default-ontology"]
     logger.info(f"Validated and parsed the XML file. {shortcode=:} and {default_ontology=:}")
     return default_ontology, root, shortcode
 
 
-def check_if_bitstreams_exist(
+def _check_if_link_targets_exist(root: etree._Element) -> None:
+    """
+    Make sure that all targets of links (resptr and salsah-links)
+    are either IRIsl or IDs that exist in the present XML file.
+
+    Args:
+        root: parsed XML file
+
+    Raises:
+        UserError: if a link target does not exist in the XML file
+    """
+    resptr_errors = _check_if_resptr_targets_exist(root)
+    salsah_errors = _check_if_salsah_targets_exist(root)
+    errors = resptr_errors + salsah_errors
+    if errors:
+        raise UserError("\n".join(errors))
+
+
+def _check_if_resptr_targets_exist(root: etree._Element) -> list[str]:
+    link_values = [x for x in root.iter() if x.tag == "resptr"]
+    resource_ids = [x.attrib["id"] for x in root.iter() if x.tag == "resource"]
+    invalid_link_values = [x for x in link_values if x.text not in resource_ids]
+    invalid_link_values = [x for x in invalid_link_values if not is_resource_iri(str(x.text))]
+    errors = []
+    for inv in invalid_link_values:
+        prop_name = next(inv.iterancestors(tag="resptr-prop")).attrib["name"]
+        res_id = next(inv.iterancestors(tag="resource")).attrib["id"]
+        errors.append(f"Resource '{res_id}', property '{prop_name}' has an invalid link target '{inv.text}'")
+    return errors
+
+
+def _check_if_salsah_targets_exist(root: etree._Element) -> list[str]:
+    link_values = [x for x in root.iter() if x.tag == "a"]
+    resource_ids = [x.attrib["id"] for x in root.iter() if x.tag == "resource"]
+    invalid_link_values = [x for x in link_values if regex.sub(r"IRI:|:IRI", "", x.attrib["href"]) not in resource_ids]
+    invalid_link_values = [x for x in invalid_link_values if not is_resource_iri(x.attrib["href"])]
+    errors = []
+    for inv in invalid_link_values:
+        prop_name = next(inv.iterancestors(tag="text-prop")).attrib["name"]
+        res_id = next(inv.iterancestors(tag="resource")).attrib["id"]
+        errors.append(f"Resource '{res_id}', property '{prop_name}' has an invalid link target '{inv.attrib['href']}'")
+    return errors
+
+
+def _check_if_bitstreams_exist(
     root: etree._Element,
     imgdir: str,
 ) -> None:

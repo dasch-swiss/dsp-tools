@@ -60,7 +60,9 @@ def _check_if_link_targets_exist(root: etree._Element) -> None:
     salsah_errors = _check_if_salsah_targets_exist(root)
     errors = resptr_errors + salsah_errors
     if errors:
-        raise UserError("\n".join(errors))
+        sep = "\n - "
+        msg = f"It is not possible to upload the XML file, because it contains invalid links:{sep}" + sep.join(errors)
+        raise UserError(msg)
 
 
 def _check_if_resptr_targets_exist(root: etree._Element) -> list[str]:

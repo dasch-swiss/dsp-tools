@@ -13,7 +13,7 @@ from dsp_tools.commands.excel2json.lists import excel2lists, validate_lists_sect
 from dsp_tools.commands.excel2json.project import excel2json
 from dsp_tools.commands.excel2json.properties import excel2properties
 from dsp_tools.commands.excel2json.resources import excel2resources
-from dsp_tools.commands.excel2xml import excel2xml
+from dsp_tools.commands.excel2xml.excel2xml import excel2xml
 from dsp_tools.commands.fast_xmlupload.process_files import process_files
 from dsp_tools.commands.fast_xmlupload.upload_files import upload_files
 from dsp_tools.commands.fast_xmlupload.upload_xml import fast_xmlupload

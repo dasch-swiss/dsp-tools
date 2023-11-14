@@ -17,18 +17,11 @@ import regex
 from lxml import etree
 from lxml.builder import E  # pylint: disable=no-name-in-module
 
+from dsp_tools.commands.excel2xml.propertyelement import PropertyElement
 from dsp_tools.commands.xmlupload.models.value import UriValue
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import DateTimeStamp
-
-# explicitly export PropertyElement, so that API users can import it from this module
-# (see https://mypy.readthedocs.io/en/stable/command_line.html#cmdoption-mypy-no-implicit-reexport)
-# doing this requires silencing the corresponding pylint warning
-# (see https://pylint.readthedocs.io/en/latest/user_guide/messages/convention/useless-import-alias.html)
-from dsp_tools.models.propertyelement import PropertyElement as PropertyElement  # pylint: disable=useless-import-alias
-from dsp_tools.utils.shared import check_notna as check_notna  # pylint: disable=useless-import-alias
-from dsp_tools.utils.shared import simplify_name as simplify_name  # pylint: disable=useless-import-alias
-from dsp_tools.utils.shared import validate_xml_against_schema
+from dsp_tools.utils.shared import check_notna, simplify_name, validate_xml_against_schema
 
 xml_namespace_map = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 

@@ -10,7 +10,7 @@ from dsp_tools.models.exceptions import BaseError
 
 @dataclass
 class FormattedTextValue:
-    """Represents a formatted text value with standoard standoff markup"""
+    """Represents a formatted text value with standard standoff markup"""
 
     xmlstr: str
 

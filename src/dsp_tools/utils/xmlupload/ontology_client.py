@@ -14,8 +14,8 @@ class Ontology:
     """This class saves the properties and the classes from an ontology."""
 
     ontology_name: str | None = None
-    classes: list[str] = field(default_factory=lambda: list())
-    properties: list[str] = field(default_factory=lambda: list())
+    classes: list[str] = field(default_factory=list)
+    properties: list[str] = field(default_factory=list)
     is_default_onto: bool = False
 
 

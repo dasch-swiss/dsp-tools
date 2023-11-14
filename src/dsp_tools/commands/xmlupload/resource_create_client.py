@@ -45,9 +45,6 @@ class ResourceCreateClient:
             iri = res["@id"]
             label = res["rdfs:label"]
             return iri, label
-        except BaseError as e:
-            msg = f"Could not create resource {resource.id} (label: {resource.label}, iri: {resource.iri})"
-            raise BaseError(msg) from e
         except KeyError as e:
             msg = f"Could not create resource {resource.id}: unexpected response from server"
             raise BaseError(msg) from e

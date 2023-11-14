@@ -12,6 +12,7 @@ import regex
 from lxml import etree
 
 from dsp_tools import excel2xml
+from dsp_tools.commands.excel2xml import excel2xml_cli
 from dsp_tools.models.exceptions import BaseError
 
 
@@ -722,7 +723,7 @@ class TestExcel2xml(unittest.TestCase):
         with open("testdata/excel2xml/excel2xml-expected-output.xml", encoding="utf-8") as f:
             expected = f.read()
         for ext in ["xlsx", "xls", "csv"]:
-            excel2xml.excel2xml(f"testdata/excel2xml/excel2xml-testdata.{ext}", "1234", "excel2xml-output")
+            excel2xml_cli.excel2xml(f"testdata/excel2xml/excel2xml-testdata.{ext}", "1234", "excel2xml-output")
             with open("excel2xml-output-data.xml", encoding="utf-8") as f:
                 returned = f.read()
                 self.assertEqual(returned, expected, msg=f"Failed with extension {ext}")
@@ -766,7 +767,7 @@ class TestExcel2xml(unittest.TestCase):
             ),
         ]
         for file, _regex in warning_cases:
-            _, catched_warnings = excel2xml.excel2xml(file, "1234", "excel2xml-invalid")
+            _, catched_warnings = excel2xml_cli.excel2xml(file, "1234", "excel2xml-invalid")
             self.assertTrue(len(catched_warnings) > 0)
             messages = [str(w.message) for w in catched_warnings]
             self.assertTrue(any(regex.search(_regex, msg) for msg in messages), msg=f"Failed with file '{file}'")
@@ -791,7 +792,7 @@ class TestExcel2xml(unittest.TestCase):
         ]
         for file, _regex in error_cases:
             with self.assertRaisesRegex(BaseError, _regex, msg=f"Failed with file '{file}'"):
-                excel2xml.excel2xml(file, "1234", "excel2xml-invalid")
+                excel2xml_cli.excel2xml(file, "1234", "excel2xml-invalid")
 
 
 if __name__ == "__main__":

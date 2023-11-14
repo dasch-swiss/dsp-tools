@@ -3,7 +3,7 @@ from typing import Any
 from uuid import uuid4
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
-from dsp_tools.commands.xmlupload.models.value import KnoraStandoffXml
+from dsp_tools.commands.xmlupload.models.value import FormattedTextValue
 from dsp_tools.commands.xmlupload.stash.stash_models import (
     LinkValueStash,
     LinkValueStashItem,
@@ -119,7 +119,7 @@ class TestUploadTextValueStashes:
             standoff_stash=StandoffStash.make(
                 [
                     StandoffStashItem(
-                        "001", "sometype", value_uuid, property_name, KnoraStandoffXml("<p>some text</p>")
+                        "001", "sometype", value_uuid, property_name, FormattedTextValue("<p>some text</p>")
                     ),
                 ]
             ),
@@ -170,7 +170,7 @@ class TestUploadTextValueStashes:
             standoff_stash=StandoffStash.make(
                 [
                     StandoffStashItem(
-                        "001", "sometype", value_uuid, property_name, KnoraStandoffXml("<p>some text</p>")
+                        "001", "sometype", value_uuid, property_name, FormattedTextValue("<p>some text</p>")
                     ),
                 ]
             ),

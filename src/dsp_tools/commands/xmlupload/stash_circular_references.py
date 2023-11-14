@@ -11,7 +11,7 @@ from dsp_tools.commands.xmlupload.analyse_xml_data.construct_and_analyze_graph i
     make_graph,
 )
 from dsp_tools.commands.xmlupload.models.permission import Permissions
-from dsp_tools.commands.xmlupload.models.value import KnoraStandoffXml
+from dsp_tools.commands.xmlupload.models.value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.xmlproperty import XMLProperty
 from dsp_tools.commands.xmlupload.models.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.stash.stash_models import (
@@ -38,7 +38,7 @@ def _stash_standoff(
             continue
         # value.value is a KnoraStandoffXml text with problematic links.
         # stash it, then replace the problematic text with a UUID
-        standoff_xml = cast(KnoraStandoffXml, value.value)
+        standoff_xml = cast(FormattedTextValue, value.value)
         uuid = str(uuid4())
         standoff_stash_item = StandoffStashItem(
             res_id=res_id,
@@ -47,7 +47,7 @@ def _stash_standoff(
             prop_name=link_prop.name,
             value=standoff_xml,
         )
-        value.value = KnoraStandoffXml(uuid)
+        value.value = FormattedTextValue(uuid)
         stashed_items.append(standoff_stash_item)
     return stashed_items
 

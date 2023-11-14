@@ -3,13 +3,13 @@ from typing import Optional, Union, cast
 import regex
 from lxml import etree
 
-from dsp_tools.commands.xmlupload.models.value import KnoraStandoffXml
+from dsp_tools.commands.xmlupload.models.value import FormattedTextValue
 
 
 class XMLValue:  # pylint: disable=too-few-public-methods
     """Represents a value of a resource property in the XML used for data import"""
 
-    value: Union[str, KnoraStandoffXml]
+    value: Union[str, FormattedTextValue]
     resrefs: Optional[list[str]]
     comment: Optional[str]
     permissions: Optional[str]
@@ -27,7 +27,7 @@ class XMLValue:  # pylint: disable=too-few-public-methods
         if val_type == "text" and node.get("encoding") == "xml":
             xmlstr_orig = etree.tostring(node, encoding="unicode", method="xml")
             xmlstr_cleaned = self._cleanup_formatted_text(xmlstr_orig)
-            self.value = KnoraStandoffXml(xmlstr_cleaned)
+            self.value = FormattedTextValue(xmlstr_cleaned)
             self.resrefs = list(self.value.find_internal_ids())
         elif val_type == "text" and node.get("encoding") == "utf8":
             str_orig = "".join(node.itertext())

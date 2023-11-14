@@ -1,9 +1,8 @@
 from dataclasses import dataclass, field
 from typing import Any, Protocol
-from urllib.parse import quote_plus
 
-from dsp_tools.connection.connection import Connection
 from dsp_tools.models.exceptions import BaseError, UserError
+from dsp_tools.utils.connection_live import ConnectionLive
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import try_network_action
 
@@ -35,7 +34,7 @@ class OntologyClient(Protocol):
 class OntologyClientLive:
     """Client handling ontology-related requests to the DSP-API."""
 
-    con: Connection
+    con: ConnectionLive
     shortcode: str
     ontology_names: list[str] | None = None
 
@@ -123,7 +122,7 @@ class OntologyClientLive:
         return onto
 
 
-def get_project_and_knora_ontology_from_server(con: Connection, project_shortcode: str) -> dict[str, Ontology]:
+def get_project_and_knora_ontology_from_server(con: ConnectionLive, project_shortcode: str) -> dict[str, Ontology]:
     client = OntologyClientLive(con, project_shortcode)
     ontologies = client.get_all_ontologies_from_server()
     return ontologies

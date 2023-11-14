@@ -17,8 +17,8 @@ from lxml import etree
 from requests import ReadTimeout, RequestException
 from urllib3.exceptions import ReadTimeoutError
 
+from dsp_tools.commands.excel2xml.propertyelement import PropertyElement
 from dsp_tools.models.exceptions import BaseError, UserError
-from dsp_tools.models.propertyelement import PropertyElement
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
 from dsp_tools.utils.create_logger import get_logger

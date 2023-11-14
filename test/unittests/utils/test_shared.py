@@ -8,8 +8,8 @@ import pandas as pd
 import pytest
 from lxml import etree
 
+from dsp_tools.commands.excel2xml.propertyelement import PropertyElement
 from dsp_tools.models.exceptions import UserError
-from dsp_tools.models.propertyelement import PropertyElement
 from dsp_tools.utils import shared
 
 

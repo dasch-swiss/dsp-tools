@@ -123,7 +123,6 @@ exclude = [
     "src/dsp_tools/commands/project/models/propertyclass.py",       # TODO: activate this
     "src/dsp_tools/commands/project/models/resourceclass.py",       # TODO: activate this
     "src/dsp_tools/commands/project/models/user.py",                # TODO: activate this
-    "src/dsp_tools/import_scripts",                                 # TODO: activate this
 ]
 
 

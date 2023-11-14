@@ -40,14 +40,10 @@ class ResourceCreateClient:
         logger.info(f"Attempting to create resource {resource.id} (label: {resource.label}, iri: {resource.iri})...")
         resource_dict = self._make_resource_with_values(resource, bitstream_information)
         resource_json_ld = json.dumps(resource_dict, ensure_ascii=False)
-        try:
-            res = try_network_action(self.con.post, route="/v2/resources", jsondata=resource_json_ld)
-            iri = res["@id"]
-            label = res["rdfs:label"]
-            return iri, label
-        except KeyError as e:
-            msg = f"Could not create resource {resource.id}: unexpected response from server"
-            raise BaseError(msg) from e
+        res = try_network_action(self.con.post, route="/v2/resources", jsondata=resource_json_ld)
+        iri = res["@id"]
+        label = res["rdfs:label"]
+        return iri, label
 
     def _make_resource_with_values(
         self,

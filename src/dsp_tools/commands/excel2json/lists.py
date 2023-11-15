@@ -223,10 +223,10 @@ def _make_json_lists_from_excel(
     startrow = 1
     startcol = 1
 
-    # make a dict with the language labels and the worksheets
-    lang_to_worksheet: dict[str, Worksheet] = {}
-    for filepath in excel_file_paths:
-        lang_to_worksheet[os.path.basename(filepath)[0:2]] = load_workbook(filepath, read_only=True).worksheets[0]
+    lang_to_worksheet = {
+        os.path.basename(filepath)[:2]: load_workbook(filepath, read_only=True).worksheets[0]
+        for filepath in excel_file_paths
+    }
 
     # take English as base file. If English is not available, take a random one.
     base_lang = "en" if "en" in lang_to_worksheet else list(lang_to_worksheet.keys())[0]

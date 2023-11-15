@@ -448,15 +448,14 @@ def excel2properties(
     )
 
     # transform every row into a property
-    props: list[dict[str, Any]] = []
-    for index, row in property_df.iterrows():
-        props.append(
-            _row2prop(
-                df_row=row,
-                row_num=int(str(index)) + 2,  # index is a label/index/hashable, but we need an int
-                excelfile=excelfile,
-            )
+    props = [
+        _row2prop(
+            df_row=row,
+            row_num=int(str(index)) + 2,  # index is a label/index/hashable, but we need an int
+            excelfile=excelfile,
         )
+        for index, row in property_df.iterrows()
+    ]
 
     # write final JSON file
     _validate_properties(properties_list=props, excelfile=excelfile)

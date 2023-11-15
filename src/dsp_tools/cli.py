@@ -312,14 +312,15 @@ def _log_cli_arguments(parsed_args: argparse.Namespace) -> None:
     Args:
         parsed_args: parsed arguments
     """
-    metadata_lines = []
-    metadata_lines.append(f"DSP-TOOLS: Called the action '{parsed_args.action}' from the command line")
-    metadata_lines.append(f"DSP-TOOLS version: {_get_version()}")
-    metadata_lines.append(f"Location of this installation: {__file__}")
-    metadata_lines.append("CLI arguments:")
+    metadata_lines = [
+        f"DSP-TOOLS: Called the action '{parsed_args.action}' from the command line",
+        f"DSP-TOOLS version: {_get_version()}",
+        f"Location of this installation: {__file__}",
+        "CLI arguments:",
+    ]
     metadata_lines = [f"*** {line}" for line in metadata_lines]
 
-    parameter_lines = list()
+    parameter_lines = []
     parameters_to_log = {key: value for key, value in vars(parsed_args).items() if key != "action"}
     longest_key_length = max(len(key) for key in parameters_to_log) if parameters_to_log else 0
     for key, value in parameters_to_log.items():
@@ -451,7 +452,7 @@ def _call_requested_action(args: argparse.Namespace) -> bool:
                     password=args.password,
                     dump=args.dump,
                 )
-        else:
+        else:  # sourcery skip: merge-else-if-into-elif
             if args.validate_only:
                 success = validate_project(args.project_definition)
                 print("JSON project file is syntactically correct and passed validation.")

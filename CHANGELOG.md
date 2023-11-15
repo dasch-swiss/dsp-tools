@@ -1,5 +1,43 @@
 # Changelog
 
+## [5.2.0](https://github.com/dasch-swiss/dsp-tools/compare/v5.1.0...v5.2.0) (2023-11-15)
+
+
+### Enhancements
+
+* **xmlupload:** add check if links point to valid resource ID (DEV-2902) ([#639](https://github.com/dasch-swiss/dsp-tools/issues/639)) ([803c9f6](https://github.com/dasch-swiss/dsp-tools/commit/803c9f68a27cac686f935d2ff2993144bfca905b))
+* **xmlupload:** id2iri mapping contains servername (DEV-1889) ([#628](https://github.com/dasch-swiss/dsp-tools/issues/628)) ([19a3f29](https://github.com/dasch-swiss/dsp-tools/commit/19a3f29b91c5491843b309bfa9a9e7f50031b8f2))
+
+
+### Bug Fixes
+
+* retain value permissions if a link gets stashed because of circular dependencies (DEV-1489) ([#623](https://github.com/dasch-swiss/dsp-tools/issues/623)) ([3ccb75b](https://github.com/dasch-swiss/dsp-tools/commit/3ccb75b06cef51ba930d8159ad763fc1bc0769c9))
+* **upload-files:** handle JSONDecodeError (DEV-2907) ([#621](https://github.com/dasch-swiss/dsp-tools/issues/621)) ([40000a8](https://github.com/dasch-swiss/dsp-tools/commit/40000a85e97d321928a3da1793b2e68d386000fd))
+* **upload-files:** prevent crash (DEV-2918) ([#626](https://github.com/dasch-swiss/dsp-tools/issues/626)) ([19d179e](https://github.com/dasch-swiss/dsp-tools/commit/19d179ea0781ca00d96ec8ebea6d3c666bee301a))
+* **xmlupload:** fix non-initialized variable (DEV-2922) ([#629](https://github.com/dasch-swiss/dsp-tools/issues/629)) ([afb16b1](https://github.com/dasch-swiss/dsp-tools/commit/afb16b1a4208398dd734f93098f8d47f0be32b76))
+* **xmlupload:** print reason of failure if resource cannot be created (DEV-2925) ([#637](https://github.com/dasch-swiss/dsp-tools/issues/637)) ([e3a194a](https://github.com/dasch-swiss/dsp-tools/commit/e3a194a0c2849fcedb9b893dcd47ca2b31ce61ac))
+
+
+### Maintenance
+
+* add clean script to remove unnecessary files ([#631](https://github.com/dasch-swiss/dsp-tools/issues/631)) ([7f98045](https://github.com/dasch-swiss/dsp-tools/commit/7f9804543781287d9c2fe1e5b68318df341ca6e7))
+* add more logs and timestamps ([#627](https://github.com/dasch-swiss/dsp-tools/issues/627)) ([21ed1d8](https://github.com/dasch-swiss/dsp-tools/commit/21ed1d8535e81f4dce12627f0f5d1b97724b9fd4))
+* bump start-stack (apply DSP-APP fix) ([#641](https://github.com/dasch-swiss/dsp-tools/issues/641)) ([f901399](https://github.com/dasch-swiss/dsp-tools/commit/f901399ab6b19e52c1a9f141706951df0153351e))
+* bump start-stack to 2023.11.01 ([#633](https://github.com/dasch-swiss/dsp-tools/issues/633)) ([81daf2a](https://github.com/dasch-swiss/dsp-tools/commit/81daf2afa11020d8c8f160eea174fb07585d089d))
+* **excel2xml:** suppress irrelevant warnings, turn non-fatal errors into warnings (DEV-2917) ([#625](https://github.com/dasch-swiss/dsp-tools/issues/625)) ([b6943a2](https://github.com/dasch-swiss/dsp-tools/commit/b6943a2c426944850237a42b71e306d56692f105))
+* remove unused code (DEV-2950) ([#638](https://github.com/dasch-swiss/dsp-tools/issues/638)) ([fbbafec](https://github.com/dasch-swiss/dsp-tools/commit/fbbafece69501c07f5e264456f03ac1c389e0f05))
+* reorganize excel2xml ([#635](https://github.com/dasch-swiss/dsp-tools/issues/635)) ([6773513](https://github.com/dasch-swiss/dsp-tools/commit/67735134ef53ebacdee30684562543b2f2a046cf))
+* reorganize excel2xml unit tests ([#636](https://github.com/dasch-swiss/dsp-tools/issues/636)) ([d015f9f](https://github.com/dasch-swiss/dsp-tools/commit/d015f9fbbce1a19b441afd496204015e732a55ea))
+* replace resource instance factory (DEV-2876) ([#594](https://github.com/dasch-swiss/dsp-tools/issues/594)) ([906a211](https://github.com/dasch-swiss/dsp-tools/commit/906a2116cbe54759f9619e537994d418fc420b34))
+* restructure repository ([#632](https://github.com/dasch-swiss/dsp-tools/issues/632)) ([8a05b2c](https://github.com/dasch-swiss/dsp-tools/commit/8a05b2ccd052260853a8f0344451e7175ddfab37))
+* restructure stash-related files ([#640](https://github.com/dasch-swiss/dsp-tools/issues/640)) ([a49fa59](https://github.com/dasch-swiss/dsp-tools/commit/a49fa59cb1b8ab269b4be77cb74fc5986b8ed6be))
+* **upload-files:** thread-safe logging of bullet point lists ([#619](https://github.com/dasch-swiss/dsp-tools/issues/619)) ([37040a6](https://github.com/dasch-swiss/dsp-tools/commit/37040a694ef65d113dbb4a1d62c0f18e6a174a27))
+
+
+### Documentation
+
+* replace admin.dasch.swiss by app.dasch.swiss ([#634](https://github.com/dasch-swiss/dsp-tools/issues/634)) ([ae06161](https://github.com/dasch-swiss/dsp-tools/commit/ae0616166fae7622477bd02bc5d47e8f927b7583))
+
 ## [5.1.0](https://github.com/dasch-swiss/dsp-tools/compare/v5.0.3...v5.1.0) (2023-11-01)
 
 

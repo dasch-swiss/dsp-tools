@@ -452,7 +452,7 @@ def _call_requested_action(args: argparse.Namespace) -> bool:
                     password=args.password,
                     dump=args.dump,
                 )
-        else:  # sourcery skip: merge-else-if-into-elif
+        else:
             if args.validate_only:
                 success = validate_project(args.project_definition)
                 print("JSON project file is syntactically correct and passed validation.")

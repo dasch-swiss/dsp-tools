@@ -168,11 +168,9 @@ def _get_value_iri(
     # get the IRI of the value that contains the UUID in its text
     text_and_iris = ((v["knora-api:textValueAsXml"], v["@id"]) for v in values_on_server)
     value_iri: str | None = next((iri for text, iri in text_and_iris if uuid in text), None)
-    if not value_iri:
-        # the value that contains the UUID in its text does not exist in DSP
-        # no action necessary: this resource will remain in nonapplied_xml_texts,
-        # which will be handled by the caller
-        return None
+    # in case that "value_iri" is None, the value that contains the UUID in its text does not exist in DSP
+    # no action necessary: this resource will remain in nonapplied_xml_texts,
+    # which will be handled by the caller
     return value_iri
 
 

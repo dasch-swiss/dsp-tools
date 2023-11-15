@@ -1784,9 +1784,8 @@ def _name_label_mapper_iterator(
         # node is the json object containing the entire json-list
         if "nodes" in node:
             # "nodes" is the json sub-object containing the entries of the json-list
-            for value in _name_label_mapper_iterator(node["nodes"], language_label):
-                yield value
-                # "value" is a (label, name) pair of a single list entry
+            yield from _name_label_mapper_iterator(node["nodes"], language_label)
+            # each yielded value is a (label, name) pair of a single list entry
         if "name" in node:
             yield (node["labels"][language_label], node["name"])
             # the actual values of the name and the label

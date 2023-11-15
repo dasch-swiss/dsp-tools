@@ -102,7 +102,7 @@ def _get_values_from_excel(
         dict: The JSON list up to the current recursion. At the last recursion, this is the final JSON list.
     """
     nodes: list[dict[str, Any]] = []
-    currentnode: dict[str, Any] = dict()
+    currentnode: dict[str, Any] = {}
     base_file_ws: Worksheet = list(base_file.values())[0]
     cell: Cell = base_file_ws.cell(column=col, row=row)
 
@@ -142,7 +142,6 @@ def _get_values_from_excel(
                 verbose=verbose,
             )
 
-        # if value was last in row (no further values to the right), it's a node, continue here
         else:
             # check if there are duplicate nodes (i.e. identical rows), raise a UserError if so
             new_check_list = preval.copy()
@@ -162,7 +161,7 @@ def _get_values_from_excel(
             # append a number (p.ex. node-name-2) if there are list nodes with identical names
             n = list_of_previous_node_names.count(nodename)
             if n > 1:
-                nodename = nodename + "-" + str(n)
+                nodename = f"{nodename}-{n}"
 
             # read label values from the other Excel files (other languages)
             labels_dict: dict[str, str] = {}

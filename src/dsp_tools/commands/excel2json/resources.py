@@ -41,8 +41,7 @@ def _validate_resources(
         jsonschema.validate(instance=resources_list, schema=resources_schema)
     except jsonschema.ValidationError as err:
         err_msg = f"The 'resources' section defined in the Excel file '{excelfile}' did not pass validation. "
-        json_path_to_resource = regex.search(r"^\$\[(\d+)\]", err.json_path)
-        if json_path_to_resource:
+        if json_path_to_resource := regex.search(r"^\$\[(\d+)\]", err.json_path):
             # fmt: off
             wrong_resource_name = (
                 jsonpath_ng.ext.parse(json_path_to_resource.group(0))
@@ -75,7 +74,7 @@ def _validate_resources(
 
     # check if resource names are unique
     all_names = [r["name"] for r in resources_list]
-    duplicates: dict[int, str] = dict()
+    duplicates: dict[int, str] = {}
     for index, resdef in enumerate(resources_list):
         if all_names.count(resdef["name"]) > 1:
             duplicates[index + 2] = resdef["name"]

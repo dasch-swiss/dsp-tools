@@ -118,6 +118,17 @@ def _get_all_properties_from_graph(onto_graph: list[dict[str, Any]]) -> list[str
 
 
 def format_ontology(onto_graph: list[dict[str, Any]]) -> Ontology:
+    """
+    This function takes an ontology graph from the DSP-API.
+    It extracts the classes and properties.
+    And saves them in an instance of the class Ontology.
+
+    Args:
+        onto_graph: graph from DSP-API
+
+    Returns:
+        Ontology instance with the classes and properties
+    """
     classes = _get_all_classes_from_graph(onto_graph)
     properties = _get_all_properties_from_graph(onto_graph)
     onto = Ontology(classes, properties)

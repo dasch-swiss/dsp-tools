@@ -20,11 +20,8 @@ class Ontology:
 class OntologyClient(Protocol):
     """Interface (protocol) for ontology-related requests to the DSP-API."""
 
-    def get_all_ontologies_from_server(self) -> list[str]:
+    def get_all_ontologies_from_server(self) -> dict[str, list[dict[str, Any]]]:
         """Get all the ontologies for a project and the knora-api ontology from the server."""
-
-    def get_ontology(self) -> Ontology:
-        """Returns the response from the server."""
 
 
 @dataclass()

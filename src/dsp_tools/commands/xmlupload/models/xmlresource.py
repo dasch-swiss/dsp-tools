@@ -1,13 +1,11 @@
 from dataclasses import dataclass
-from typing import Optional, Union
+from typing import Optional
 
 from lxml import etree
 
 from dsp_tools.commands.xmlupload.models.permission import Permissions
-from dsp_tools.commands.xmlupload.models.value import KnoraStandoffXml
 from dsp_tools.commands.xmlupload.models.xmlbitstream import XMLBitstream
 from dsp_tools.commands.xmlupload.models.xmlproperty import XMLProperty
-from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import DateTimeStamp
 from dsp_tools.utils.iri_util import is_resource_iri
 
@@ -106,87 +104,6 @@ class XMLResource:  # pylint: disable=too-many-instance-attributes
                         link_properties.append(prop)
                         break
         return link_properties
-
-    def get_resptrs(self) -> list[str]:
-        """
-        Get a list of all resource IDs/IRIs that are referenced by this resource.
-
-        Returns:
-            List of resources identified by their unique id's (as given in the XML)
-        """
-        resptrs: list[str] = []
-        for prop in self.properties:
-            if prop.valtype == "resptr":
-                for value in prop.values:
-                    resptrs.append(value.value)
-            elif prop.valtype == "text":
-                for value in prop.values:
-                    if value.resrefs:
-                        resptrs.extend(value.resrefs)
-        return resptrs
-
-    def get_internal_resptrs(self) -> set[str]:
-        """
-        Get a set of all resource IDs that are referenced by this resource by means of an internal ID.
-        Returns:
-            Set of resources identified by their unique id's (as given in the XML)
-        """
-        return {x for x in self.get_resptrs() if not is_resource_iri(x)}
-
-    def get_propvals(
-        self,
-        resiri_lookup: dict[str, str],
-        permissions_lookup: dict[str, Permissions],
-    ) -> dict[str, Union[list[Union[str, dict[str, str]]], str, dict[str, str]]]:
-        """
-        Get a dictionary of the property names and their values. Replace the internal ids by their IRI first.
-
-        Args:
-            resiri_lookup: Is used to solve internal unique id's of resources to real IRI's
-            permissions_lookup: Is used to resolve the permission id's to permission sets
-
-        Returns:
-            A dict of values with the property name as key and a single value. This dict represents the JSON structure
-            that Knora.create_resource() expects.
-        """
-        prop_data = {}
-        for prop in self.properties:
-            vals: list[Union[str, dict[str, str]]] = []
-            for value in prop.values:
-                if prop.valtype == "resptr":  # we have a resptr, therefore simple lookup or IRI
-                    iri = resiri_lookup.get(value.value)
-                    if iri:
-                        v = iri
-                    else:
-                        v = value.value  # if we do not find the id, we assume it's a valid DSP IRI
-                elif prop.valtype == "text":
-                    if isinstance(value.value, KnoraStandoffXml):
-                        res_ids = value.value.find_internal_ids()
-                        for res_id in res_ids:
-                            iri = resiri_lookup.get(res_id)
-                            if not iri:
-                                raise BaseError(
-                                    f"Resource '{self.id}' cannot be created, because it contains a salsah-Link to "
-                                    f"the following invalid resource: '{res_id}'"
-                                )
-                            value.value.replace(f"IRI:{res_id}:IRI", iri)
-                    v = value.value
-                else:
-                    v = value.value
-
-                if value.comment is None and value.permissions is None:
-                    # no comment or permissions
-                    vals.append(v)
-                else:
-                    # we have comment or permissions
-                    tmp = {"value": v}
-                    if value.comment:
-                        tmp["comment"] = value.comment
-                    if value.permissions:
-                        tmp["permissions"] = permissions_lookup.get(value.permissions)
-                    vals.append(tmp)
-            prop_data[prop.name] = vals if len(vals) > 1 else vals[0]
-        return prop_data
 
     def get_bitstream_information(
         self,

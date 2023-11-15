@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from itertools import groupby
 
-from dsp_tools.commands.xmlupload.models.value import KnoraStandoffXml
+from dsp_tools.commands.xmlupload.models.value import FormattedTextValue
 
 
 @dataclass(frozen=True)
@@ -14,7 +14,7 @@ class StandoffStashItem:
     res_type: str
     uuid: str
     prop_name: str
-    value: KnoraStandoffXml
+    value: FormattedTextValue
 
 
 @dataclass(frozen=True)

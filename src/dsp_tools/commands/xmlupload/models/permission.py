@@ -1,4 +1,5 @@
 # pylint: disable=missing-class-docstring,missing-function-docstring
+from __future__ import annotations
 
 from enum import Enum, unique
 from typing import Optional, Union
@@ -14,7 +15,7 @@ class PermissionValue(Enum):
     D = 8
     CR = 16
 
-    def __str__(self):
+    def __str__(self) -> str:
         tmp = {
             1: "RV",
             2: "V",
@@ -26,7 +27,7 @@ class PermissionValue(Enum):
 
 
 class Permissions:
-    _permissions: Union[dict[PermissionValue, list[str]], None]
+    _permissions: dict[PermissionValue, list[str]]
 
     def __init__(self, permissions: Optional[dict[PermissionValue, list[str]]] = None):
         if permissions is None:
@@ -57,7 +58,7 @@ class Permissions:
             tmpstr += str(permission) + " " + ",".join(groups)
         return tmpstr
 
-    def add(self, key: PermissionValue, val: str):
+    def add(self, key: PermissionValue, val: str) -> None:
         if self._permissions.get(key) is None:
             self._permissions[key] = [val]
         else:
@@ -72,7 +73,7 @@ class Permissions:
         return tmpstr
 
     @classmethod
-    def fromString(cls, permstr: str):
+    def fromString(cls, permstr: str) -> Permissions:
         tmpstr = permstr.split("|")
         permissions: dict[PermissionValue, list[str]] = {}
         for s in tmpstr:

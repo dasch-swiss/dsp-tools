@@ -11,7 +11,7 @@ from dsp_tools.commands.xmlupload.ontology_client import (
     format_ontology,
 )
 
-# pylint: disable=missing-class-docstring,missing-function-docstring,unused-argument,redefined-outer-name
+# pylint: disable=missing-class-docstring,missing-function-docstring,unused-argument,redefined-outer-name,protected-access
 
 
 @dataclass

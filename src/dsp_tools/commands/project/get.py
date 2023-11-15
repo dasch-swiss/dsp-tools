@@ -21,7 +21,7 @@ def get_project(
     password: str | None = None,
     verbose: bool = False,
     dump: bool = False,
-) -> bool:  # sourcery skip: low-code-quality
+) -> bool:
     """
     This function writes a project from a DSP server into a JSON file.
 

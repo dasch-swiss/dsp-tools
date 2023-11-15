@@ -142,6 +142,7 @@ def _get_values_from_excel(
                 verbose=verbose,
             )
 
+        # if value was last in row (no further values to the right), it's a node, continue here
         else:
             # check if there are duplicate nodes (i.e. identical rows), raise a UserError if so
             new_check_list = preval.copy()

@@ -44,9 +44,9 @@ def _check_for_duplicate_names(project_definition: dict[str, Any]) -> bool:
                 if propnames.count(elem) > 1:
                     if propnames_duplicates.get(onto["name"]):
                         propnames_duplicates[onto["name"]].add(elem)
-
                     else:
                         propnames_duplicates[onto["name"]] = {elem}
+
     if not resnames_duplicates and not propnames_duplicates:
         return True
 
@@ -62,7 +62,6 @@ def _check_for_duplicate_names(project_definition: dict[str, Any]) -> bool:
 
 
 def _check_for_undefined_super_resource(project_definition: dict[str, Any]) -> bool:
-    # sourcery skip: merge-assign-and-aug-assign
     """
     Check the superresources that claim to point to a resource defined in the same JSON project.
     Check if the resource they point to actually exists.
@@ -109,7 +108,6 @@ def _check_for_undefined_super_resource(project_definition: dict[str, Any]) -> b
 
 
 def _check_for_undefined_super_property(project_definition: dict[str, Any]) -> bool:
-    # sourcery skip: merge-assign-and-aug-assign
     """
     Check the superproperties that claim to point to a property defined in the same JSON project.
     Check if the property they point to actually exists.
@@ -156,7 +154,6 @@ def _check_for_undefined_super_property(project_definition: dict[str, Any]) -> b
 
 
 def _check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> bool:
-    # sourcery skip: merge-assign-and-aug-assign
     """
     Check if the propnames that are used in the cardinalities of each resource are defined in the "properties"
     section. (DSP base properties and properties from other ontologies are not considered.)
@@ -276,7 +273,6 @@ def validate_project(
 
 
 def _check_cardinalities_of_circular_references(project_definition: dict[Any, Any]) -> bool:
-    # sourcery skip: remove-unnecessary-else
     """
     Check a JSON project file if it contains properties derived from hasLinkTo that form a circular reference. If so,
     these properties must have the cardinality 0-1 or 0-n, because during the xmlupload process, these values

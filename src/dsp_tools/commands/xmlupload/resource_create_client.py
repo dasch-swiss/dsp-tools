@@ -62,7 +62,7 @@ class ResourceCreateClient:
         self,
         resource: XMLResource,
         bitstream_information: BitstreamInfo | None,
-    ) -> dict[str, Any]:  # sourcery skip: dict-assign-update-to-union
+    ) -> dict[str, Any]:
         resource_iri = resource.iri
         if resource.ark:
             resource_iri = convert_ark_v0_to_resource_iri(resource.ark)

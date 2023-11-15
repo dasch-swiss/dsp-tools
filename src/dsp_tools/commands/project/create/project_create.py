@@ -76,6 +76,7 @@ def _create_project_on_server(
         # There are other things from this file that can be created on the server,
         # e.g. the groups and users, so the process must continue.
         return project_remote, False
+
     success = True
     project_local = Project(
         con=con,
@@ -185,6 +186,7 @@ def _create_groups(
 
     for group in groups:
         group_name = group["name"]
+
         # if the group already exists, add it to "current_project_groups" (for later usage), then skip it
         if remotely_existing_group := [g for g in remote_groups if g.name == group_name]:
             current_project_groups[group_name] = remotely_existing_group[0]
@@ -313,7 +315,7 @@ def _get_projects_where_user_is_admin(
     current_project: Project,
     con: Connection,
     verbose: bool,
-) -> tuple[dict[str, bool], bool]:  # sourcery skip: remove-unnecessary-cast
+) -> tuple[dict[str, bool], bool]:
     """
     Create a dict that tells for every project if the user is administrator in that project or not.
 

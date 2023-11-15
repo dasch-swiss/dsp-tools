@@ -35,10 +35,9 @@ class OntologyClientLive:
     shortcode: str
     ontology_names: list[str] = field(default_factory=list)
 
-    def get_all_ontologies_from_server(self) -> dict[str, Ontology]:
+    def get_all_ontologies_from_server(self) -> dict[str, list[dict[str, Any]]]:
         """
         This function retrieves all ontologies from a project plus the knora-api ontology from a server.
-        As the base ontology knora-api is saved in the dictionary with an empty string.
 
         Returns:
             Dictionary with the ontology names and an instance of Ontology.
@@ -46,23 +45,9 @@ class OntologyClientLive:
         self._get_ontology_names_from_server()
         project_ontos = dict()
         for onto in self.ontology_names:
-            project_ontos[onto] = self.get_ontology(onto)
-        project_ontos[""] = self._get_knora_api()
+            project_ontos[onto] = self._get_ontology_from_server(onto)
+        project_ontos["knora"] = self._get_knora_api_from_server()
         return project_ontos
-
-    def get_ontology(self, ontology_name: str) -> Ontology:
-        """
-        This function retrieves one ontology from a server based on its name.
-
-        Args:
-            ontology_name: name of the ontology
-
-        Returns:
-            The ontology saved as an instance of Ontology.
-        """
-        onto_graph = self._get_ontology_from_server(ontology_name)
-        project_onto = self._format_ontology(onto_graph)
-        return project_onto
 
     def _get_ontology_names_from_server(self) -> None:
         try:
@@ -90,11 +75,6 @@ class OntologyClientLive:
         except KeyError as e:
             raise BaseError(f"Unexpected response from server: {res}") from e
         return onto_graph
-
-    def _get_knora_api(self) -> Ontology:
-        knora_graph = self._get_knora_api_from_server()
-        knora_api = self._format_ontology(knora_graph)
-        return knora_api
 
     def _get_knora_api_from_server(self) -> list[dict[str, Any]]:
         url = "/ontology/knora-api/v2#"

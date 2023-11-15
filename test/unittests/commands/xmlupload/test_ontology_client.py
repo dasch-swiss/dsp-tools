@@ -2,7 +2,10 @@ from dataclasses import dataclass
 from test.unittests.commands.xmlupload.connection_mock import ConnectionMockBase
 from typing import Any
 
+from pytest_unordered import unordered
+
 from dsp_tools.commands.xmlupload.ontology_client import (
+    OntologyClientLive,
     _get_all_classes_from_graph,
     _get_all_properties_from_graph,
     format_ontology,
@@ -13,9 +16,9 @@ from dsp_tools.commands.xmlupload.ontology_client import (
 
 @dataclass
 class ConnectionMock(ConnectionMockBase):
-    get_responses: dict[str, Any]
+    get_responses: dict[Any, Any]
 
-    def get(self, route: str, headers: dict[str, str] | None = None) -> dict[str, Any]:
+    def get(self, route: str, headers: dict[str, str] | None = None) -> dict[Any, Any]:
         return self.get_responses
 
 
@@ -186,3 +189,84 @@ def test_format_ontology() -> None:
     res_onto = format_ontology(test_graph)
     assert res_onto.classes == ["knora-api:Annotation"]
     assert res_onto.properties == ["knora-api:hasLinkTo"]
+
+
+def test_get_ontology_names_from_server() -> None:
+    response = {
+        "project": {
+            "description": [],
+            "id": "http://rdfh.ch/projects/yTerZGyxjZVqFMNNKXCDPF",
+            "keywords": [],
+            "logo": None,
+            "longname": "Bernoulli-Euler Online",
+            "ontologies": [
+                "http://www.knora.org/ontology/0801/biblio",
+                "http://www.knora.org/ontology/0801/newton",
+                "http://www.knora.org/ontology/0801/leibniz",
+                "http://www.knora.org/ontology/0801/beol",
+            ],
+            "selfjoin": False,
+            "shortcode": "0801",
+            "shortname": "beol",
+            "status": True,
+        }
+    }
+    con = ConnectionMock(response)
+    onto_cli = OntologyClientLive(con, "0801")
+    onto_cli._get_ontology_names_from_server()
+    assert unordered(onto_cli.ontology_names) == ["biblio", "newton", "leibniz", "beol"]
+
+
+def test_get_ontology_from_server() -> None:
+    response = {
+        "knora-api:lastModificationDate": {"@value": "2022-04-27T08:47:20.815147225Z", "@type": "xsd:dateTimeStamp"},
+        "rdfs:label": "The BEOL ontology",
+        "@graph": [
+            {"resource_class": ["Information"]},
+            {"property": ["Information"]},
+        ],
+        "knora-api:attachedToProject": {"@id": "http://rdfh.ch/projects/yTerZGyxjZVqFMNNKXCDPF"},
+        "@type": "owl:Ontology",
+        "@id": "http://api.dasch.swiss/ontology/0801/beol/v2",
+        "@context": {
+            "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+            "standoff": "http://api.knora.org/ontology/standoff/v2#",
+            "knora-api": "http://api.knora.org/ontology/knora-api/v2#",
+            "owl": "http://www.w3.org/2002/07/owl#",
+            "salsah-gui": "http://api.knora.org/ontology/salsah-gui/v2#",
+            "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+            "beol": "http://api.dasch.swiss/ontology/0801/beol/v2#",
+            "xsd": "http://www.w3.org/2001/XMLSchema#",
+            "biblio": "http://api.dasch.swiss/ontology/0801/biblio/v2#",
+        },
+    }
+    con = ConnectionMock(response)
+    onto_cli = OntologyClientLive(con, "0801")
+    res_graph = onto_cli._get_ontology_from_server("beol")
+    assert unordered(res_graph) == [{"resource_class": ["Information"]}, {"property": ["Information"]}]
+
+
+def test_get_knora_api_from_server() -> None:
+    response = {
+        "rdfs:label": "The knora-api ontology in the complex schema",
+        "@graph": [
+            {"resource_class": ["Information"]},
+            {"property": ["Information"]},
+        ],
+        "knora-api:attachedToProject": {"@id": "http://www.knora.org/ontology/knora-admin#SystemProject"},
+        "knora-api:isBuiltIn": True,
+        "@type": "owl:Ontology",
+        "@id": "http://api.knora.org/ontology/knora-api/v2",
+        "@context": {
+            "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+            "knora-api": "http://api.knora.org/ontology/knora-api/v2#",
+            "owl": "http://www.w3.org/2002/07/owl#",
+            "salsah-gui": "http://api.knora.org/ontology/salsah-gui/v2#",
+            "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+            "xsd": "http://www.w3.org/2001/XMLSchema#",
+        },
+    }
+    con = ConnectionMock(response)
+    onto_cli = OntologyClientLive(con, "")
+    res_graph = onto_cli._get_knora_api_from_server()
+    assert unordered(res_graph) == [{"resource_class": ["Information"]}, {"property": ["Information"]}]

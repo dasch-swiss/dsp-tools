@@ -58,7 +58,7 @@ class OntologyClientLive:
             onto_iri: list[str] = res["project"]["ontologies"]
         except KeyError as e:
             raise BaseError(f"Unexpected response from server: {res}") from e
-        onto_names: list[str] = [iri.split("/")[-2] for iri in onto_iri]
+        onto_names: list[str] = [iri.split("/")[-1] for iri in onto_iri]
         self.ontology_names = onto_names
 
     def _get_ontology_from_server(self, ontology_name: str) -> list[dict[str, Any]]:

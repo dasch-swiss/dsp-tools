@@ -11,7 +11,7 @@ from dsp_tools.utils.date_util import (
     parse_date_string,
 )
 
-# pylint: disable=missing-class-docstring,missing-function-docstring,too-many-public-methods,too-few-public-methods
+# pylint: disable=missing-function-docstring
 
 
 class TestParseDateStringWithDateOnly:

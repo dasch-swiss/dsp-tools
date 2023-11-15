@@ -1,4 +1,4 @@
-# pylint: disable=missing-class-docstring,missing-function-docstring,protected-access
+# pylint: disable=missing-class-docstring,missing-function-docstring
 
 from unittest import TestCase
 

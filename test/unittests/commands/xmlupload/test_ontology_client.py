@@ -63,7 +63,7 @@ def test_get_all_classes_from_graph_property() -> None:
     assert not res_cls
 
 
-def test_get_all_properties_from_graph_hasLinkTo() -> None:
+def test_get_all_properties_from_graph_haslinkto() -> None:
     test_graph = [
         {
             "rdfs:label": "hasResource",

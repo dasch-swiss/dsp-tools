@@ -9,6 +9,7 @@ from typing import Any, Optional, Pattern, Union
 import regex
 
 from dsp_tools.models.exceptions import BaseError
+from dsp_tools.utils.iri_util import is_iri
 
 #
 # here we do some data typing that should help
@@ -30,15 +31,6 @@ class OntoIri:
 
 
 ContextType = dict[str, OntoIri]
-
-
-class IriTest:  # pylint: disable=too-few-public-methods
-    __iri_regexp = regex.compile("^(http)s?://([\\w\\.\\-~]+)?(:\\d{,6})?(/[\\w\\-~]+)*(#[\\w\\-~]*)?")
-
-    @classmethod
-    def test(cls, val: str) -> bool:
-        m = cls.__iri_regexp.match(val)
-        return m.span()[1] == len(val) if m else False
 
 
 @unique
@@ -225,7 +217,7 @@ class Context:
         :return: The full IRI without trailing "#"
         """
         # if self.__is_iri(prefix):
-        if IriTest.test(prefix):
+        if is_iri(prefix):
             return prefix
         if self._context.get(prefix) is not None:
             return self._context.get(prefix).iri
@@ -243,7 +235,7 @@ class Context:
         :return: the prefix of this context element, or None, if not found
         """
         # if not self.__is_iri(iri):
-        if not IriTest.test(iri):
+        if not is_iri(iri):
             raise BaseError("String does not conform to IRI patter: " + iri)
         if iri.endswith("#"):
             iri = iri[:-1]
@@ -278,7 +270,7 @@ class Context:
         """
         if not val:
             return None
-        if IriTest.test(val):
+        if is_iri(val):
             return val
         tmp = val.split(":")
         if len(tmp) < 2:
@@ -313,7 +305,7 @@ class Context:
         if m and m.span()[1] == len(iri):
             return iri
 
-        if not IriTest.test(iri):
+        if not is_iri(iri):
             raise BaseError(f"The IRI '{iri}' does not conform to the IRI pattern.")
 
         split_point = iri.find("#")
@@ -356,7 +348,7 @@ class Context:
         knora_api = self.prefix_from_iri("http://api.knora.org/ontology/knora-api/v2#")
         salsah_gui = self.prefix_from_iri("http://api.knora.org/ontology/salsah-gui/v2#")
 
-        if IriTest.test(iri_str):
+        if is_iri(iri_str):
             if self.get_prefixed_iri(iri_str):
                 iri_str = self.get_prefixed_iri(iri_str)
         tmp = iri_str.split(":")

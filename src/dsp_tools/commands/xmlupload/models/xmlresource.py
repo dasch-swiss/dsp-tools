@@ -12,7 +12,7 @@ from dsp_tools.models.helpers import DateTimeStamp
 @dataclass(frozen=True)
 class BitstreamInfo:
     """
-    Represents a bitstream object, foo
+    Represents a bitstream object,
     consisting of its file name on the local file system,
     the internal file name assigned by SIPI
     and optionally its permissions.
@@ -60,7 +60,7 @@ class XMLResource:  # pylint: disable=too-many-instance-attributes
         Returns:
             None
         """
-        self.id = node.attrib["id"]
+        self.id = node.attrib["idfoo"]
         self.iri = node.attrib.get("iri")
         self.ark = node.attrib.get("ark")
         self.creation_date = None

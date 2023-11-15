@@ -9,14 +9,12 @@ from dsp_tools.utils.shared import try_network_action
 logger = get_logger(__name__)
 
 
-@dataclass
+@dataclass(frozen=True)
 class Ontology:
     """This class saves the properties and the classes from an ontology."""
 
-    ontology_name: str | None = None
     classes: list[str] = field(default_factory=list)
     properties: list[str] = field(default_factory=list)
-    is_default_onto: bool = False
 
 
 class OntologyClient(Protocol):
@@ -110,12 +108,17 @@ class OntologyClientLive:
             raise BaseError(f"Unexpected response from server when retrieving knora-api ontology: {res}") from e
         return onto_graph
 
-    @staticmethod
-    def _format_ontology(onto_graph: list[dict[str, Any]]) -> Ontology:
-        onto = Ontology()
-        for ele in onto_graph:
-            if ele.get("knora-api:isResourceClass"):
-                onto.classes.append(ele["@id"])
-            else:
-                onto.properties.append(ele["id"])
-        return onto
+
+def _get_all_classes_from_graph(onto_graph: list[dict[str, Any]]) -> list[str]:
+    return [ele["@id"] for ele in onto_graph if ele.get("knora-api:isResourceClass")]
+
+
+def _get_all_properties_from_graph(onto_graph: list[dict[str, Any]]) -> list[str]:
+    return [ele["@id"] for ele in onto_graph if not ele.get("knora-api:isResourceClass")]
+
+
+def format_ontology(onto_graph: list[dict[str, Any]]) -> Ontology:
+    classes = _get_all_classes_from_graph(onto_graph)
+    properties = _get_all_properties_from_graph(onto_graph)
+    onto = Ontology(classes, properties)
+    return onto

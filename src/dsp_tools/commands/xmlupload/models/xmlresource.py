@@ -60,7 +60,7 @@ class XMLResource:  # pylint: disable=too-many-instance-attributes
         Returns:
             None
         """
-        self.id = node.attrib["idfoo"]
+        self.id = node.attrib["id"]
         self.iri = node.attrib.get("iri")
         self.ark = node.attrib.get("ark")
         self.creation_date = None

@@ -6,7 +6,7 @@ from typing import Any
 from urllib.parse import quote_plus
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
-from dsp_tools.commands.xmlupload.models.value import KnoraStandoffXml
+from dsp_tools.commands.xmlupload.models.value import FormattedTextValue
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStash, StandoffStashItem
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.connection import Connection
@@ -66,7 +66,7 @@ def _create_XMLResource_json_object_to_update(
     res_type: str,
     link_prop_name: str,
     value_iri: str,
-    new_xmltext: KnoraStandoffXml,
+    new_xmltext: FormattedTextValue,
     context: dict[str, str],
 ) -> str:
     """

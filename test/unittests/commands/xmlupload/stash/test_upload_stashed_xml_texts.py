@@ -5,12 +5,12 @@ from unittest import TestCase
 import pytest
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
-from dsp_tools.commands.xmlupload.models.value import KnoraStandoffXml
+from dsp_tools.commands.xmlupload.models.value import FormattedTextValue
 
 
 class TestXMLUploadStash(TestCase):
     def test_find_ids_referenced_in_salsah_links_one_link(self) -> None:
-        one_link_KnoraStandoffXml = KnoraStandoffXml(
+        one_link_KnoraStandoffXml = FormattedTextValue(
             xmlstr=(
                 '<resource label="r1_label" restype="r1_restype" id="r1_id" permissions="res-default">'
                 '<text-prop name=":hasRichtext"><text permissions="res-default" encoding="xml">'
@@ -22,7 +22,7 @@ class TestXMLUploadStash(TestCase):
         self.assertEqual({"r2_id"}, returned_set)
 
     def test_find_ids_referenced_in_salsah_links_three_links(self) -> None:
-        three_link_KnoraStandoffXml = KnoraStandoffXml(
+        three_link_KnoraStandoffXml = FormattedTextValue(
             xmlstr=(
                 '<resource label="r1_label" restype="r1_restype" id="r1_id" permissions="res-default">'
                 '<text-prop name=":hasRichtext"><text permissions="res-default" encoding="xml">'
@@ -37,7 +37,7 @@ class TestXMLUploadStash(TestCase):
 
     def test__replace_internal_ids_with_iris_one_link(self) -> None:
         resolver = IriResolver({"r1_id": "r1_iri", "r2_id": "r2_iri", "r3_id": "r3_iri"})
-        one_link_KnoraStandoffXml = KnoraStandoffXml(
+        one_link_KnoraStandoffXml = FormattedTextValue(
             xmlstr=(
                 '<resource label="r1_label" restype="r1_restype" id="r1_id" permissions="res-default">'
                 '<text-prop name=":hasRichtext"><text permissions="res-default" encoding="xml">'
@@ -56,7 +56,7 @@ class TestXMLUploadStash(TestCase):
 
     def test__replace_internal_ids_with_iris_three_links(self) -> None:
         resolver = IriResolver({"r1_id": "r1_iri", "r2_id": "r2_iri", "r3_id": "r3_iri"})
-        three_link_KnoraStandoffXml = KnoraStandoffXml(
+        three_link_KnoraStandoffXml = FormattedTextValue(
             xmlstr=(
                 '<resource label="r1_label" restype="r1_restype" id="r1_id" permissions="res-default">'
                 '<text-prop name=":hasRichtext"><text permissions="res-default" encoding="xml">'

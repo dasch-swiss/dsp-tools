@@ -6,7 +6,7 @@ from typing import Any, assert_never
 from dsp_tools.commands.xmlupload.ark2iri import convert_ark_v0_to_resource_iri
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.permission import Permissions
-from dsp_tools.commands.xmlupload.models.value import KnoraStandoffXml
+from dsp_tools.commands.xmlupload.models.value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.xmlproperty import XMLProperty
 from dsp_tools.commands.xmlupload.models.xmlresource import BitstreamInfo, XMLResource
 from dsp_tools.commands.xmlupload.models.xmlvalue import XMLValue
@@ -316,7 +316,7 @@ def _make_text_value(value: XMLValue, iri_resolver: IriResolver) -> dict[str, An
                 "@type": "knora-api:TextValue",
                 "knora-api:valueAsString": s,
             }
-        case KnoraStandoffXml() as xml:
+        case FormattedTextValue() as xml:
             xml_with_iris = xml.with_iris(iri_resolver)
             return {
                 "@type": "knora-api:TextValue",
@@ -349,11 +349,11 @@ def _make_uri_value(value: XMLValue) -> dict[str, Any]:
     }
 
 
-def _assert_is_string(value: str | KnoraStandoffXml) -> str:
+def _assert_is_string(value: str | FormattedTextValue) -> str:
     match value:
         case str() as s:
             return s
-        case KnoraStandoffXml() as xml:
+        case FormattedTextValue() as xml:
             raise BaseError(f"Expected string value, but got XML value: {xml.as_xml()}")
         case _:
             assert_never(value)

@@ -12,7 +12,7 @@ from dsp_tools.models.helpers import DateTimeStamp
 @dataclass(frozen=True)
 class BitstreamInfo:
     """
-    Represents a bitstream object,
+    Represents a bitstream object, foo
     consisting of its file name on the local file system,
     the internal file name assigned by SIPI
     and optionally its permissions.

@@ -20,7 +20,7 @@ def _upload_bitstream(
     sipi_server: Sipi,
     imgdir: str,
     permissions_lookup: dict[str, Permissions],
-) -> BitstreamInfo | None:
+) -> BitstreamInfo | None:  # sourcery skip: inline-immediately-returned-variable
     """
     This function uploads a specified bitstream file to SIPI and then returns the file information from SIPI.
 

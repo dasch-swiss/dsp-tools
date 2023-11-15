@@ -1,12 +1,6 @@
 import regex
 
-_iri_pattern = r"""
-    ^(http)s?://
-    [\w\.\-~]*
-    (:\d{,6})?
-    (/[\w\-~]+)*
-    (#[\w\-~]*)?
-"""
+_iri_pattern = r"^(http)s?://[\w\.\-~]*(:\d{,6})?(/[\w\-~]+)*(#[\w\-~]*)?"
 _resource_iri_pattern = r"https?://rdfh.ch/[a-fA-F0-9]{4}/[\w-]{22}"
 
 

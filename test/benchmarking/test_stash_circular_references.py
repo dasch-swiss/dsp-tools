@@ -1,4 +1,4 @@
-# pylint: disable=missing-class-docstring,missing-function-docstring,protected-access
+# pylint: disable=missing-function-docstring
 
 import pytest
 from termcolor import cprint

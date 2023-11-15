@@ -20,4 +20,4 @@ jobs:
       - uses: sourcery-ai/action@v1
         with:
           token: ${{ secrets.SOURCERY_TOKEN }}
-          diff_ref: main
+          diff_ref: ${{ github.event.pull_request.base.sha }}

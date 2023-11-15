@@ -16,10 +16,10 @@ from lxml import etree
 from lxml.builder import E  # pylint: disable=no-name-in-module
 
 from dsp_tools.commands.excel2xml.propertyelement import PropertyElement
-from dsp_tools.commands.xmlupload.models.value import UriValue
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import DateTimeStamp
 from dsp_tools.utils.shared import check_notna, simplify_name, validate_xml_against_schema
+from dsp_tools.utils.uri_util import is_uri
 
 xml_namespace_map = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 
@@ -1419,13 +1419,11 @@ def make_uri_prop(
 
     # check value type
     for val in values:
-        try:
-            UriValue(str(val.value))
-        except BaseError:
+        if not is_uri(str(val.value)):
             raise BaseError(
                 f"Failed validation in resource '{calling_resource}', property '{name}': "
                 f"'{val.value}' is not a valid URI."
-            ) from None
+            )
 
     # make xml structure of the valid values
     prop_ = etree.Element(

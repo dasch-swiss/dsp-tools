@@ -26,27 +26,27 @@ def _check_for_duplicate_names(project_definition: dict[str, Any]) -> bool:
     Returns:
         True if the resource/property names are unique
     """
-    resnames_duplicates: dict[str, set[str]] = dict()
-    propnames_duplicates: dict[str, set[str]] = dict()
+    resnames_duplicates: dict[str, set[str]] = {}
+    propnames_duplicates: dict[str, set[str]] = {}
     for onto in project_definition["project"]["ontologies"]:
         resnames = [r["name"] for r in onto["resources"]]
         if len(set(resnames)) != len(resnames):
             for elem in resnames:
                 if resnames.count(elem) > 1:
-                    if not resnames_duplicates.get(onto["name"]):
-                        resnames_duplicates[onto["name"]] = {elem}
-                    else:
+                    if resnames_duplicates.get(onto["name"]):
                         resnames_duplicates[onto["name"]].add(elem)
+                    else:
+                        resnames_duplicates[onto["name"]] = {elem}
 
         propnames = [p["name"] for p in onto["properties"]]
         if len(set(propnames)) != len(propnames):
             for elem in propnames:
                 if propnames.count(elem) > 1:
-                    if not propnames_duplicates.get(onto["name"]):
-                        propnames_duplicates[onto["name"]] = {elem}
-                    else:
+                    if propnames_duplicates.get(onto["name"]):
                         propnames_duplicates[onto["name"]].add(elem)
 
+                    else:
+                        propnames_duplicates[onto["name"]] = {elem}
     if not resnames_duplicates and not propnames_duplicates:
         return True
 
@@ -62,6 +62,7 @@ def _check_for_duplicate_names(project_definition: dict[str, Any]) -> bool:
 
 
 def _check_for_undefined_super_resource(project_definition: dict[str, Any]) -> bool:
+    # sourcery skip: merge-assign-and-aug-assign
     """
     Check the superresources that claim to point to a resource defined in the same JSON project.
     Check if the resource they point to actually exists.
@@ -76,7 +77,7 @@ def _check_for_undefined_super_resource(project_definition: dict[str, Any]) -> b
     Returns:
         True if the superresource are valid
     """
-    errors: dict[str, list[str]] = dict()
+    errors: dict[str, list[str]] = {}
     for onto in project_definition["project"]["ontologies"]:
         ontoname = onto["name"]
         resnames = [r["name"] for r in onto["resources"]]
@@ -97,8 +98,7 @@ def _check_for_undefined_super_resource(project_definition: dict[str, Any]) -> b
             # convert to short form
             supers = [regex.sub(f"^{ontoname}", "", s) for s in supers]
 
-            invalid_references = [s for s in supers if regex.sub(":", "", s) not in resnames]
-            if invalid_references:
+            if invalid_references := [s for s in supers if regex.sub(":", "", s) not in resnames]:
                 errors[f"Ontology '{ontoname}', resource '{res['name']}'"] = invalid_references
 
     if errors:
@@ -109,6 +109,7 @@ def _check_for_undefined_super_resource(project_definition: dict[str, Any]) -> b
 
 
 def _check_for_undefined_super_property(project_definition: dict[str, Any]) -> bool:
+    # sourcery skip: merge-assign-and-aug-assign
     """
     Check the superproperties that claim to point to a property defined in the same JSON project.
     Check if the property they point to actually exists.
@@ -123,7 +124,7 @@ def _check_for_undefined_super_property(project_definition: dict[str, Any]) -> b
     Returns:
         True if the superproperties are valid
     """
-    errors: dict[str, list[str]] = dict()
+    errors: dict[str, list[str]] = {}
     for onto in project_definition["project"]["ontologies"]:
         ontoname = onto["name"]
         propnames = [p["name"] for p in onto["properties"]]
@@ -144,8 +145,7 @@ def _check_for_undefined_super_property(project_definition: dict[str, Any]) -> b
             # convert to short form
             supers = [regex.sub(f"^{ontoname}", "", s) for s in supers]
 
-            invalid_references = [s for s in supers if regex.sub(":", "", s) not in propnames]
-            if invalid_references:
+            if invalid_references := [s for s in supers if regex.sub(":", "", s) not in propnames]:
                 errors[f"Ontology '{ontoname}', property '{prop['name']}'"] = invalid_references
 
     if errors:
@@ -156,6 +156,7 @@ def _check_for_undefined_super_property(project_definition: dict[str, Any]) -> b
 
 
 def _check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> bool:
+    # sourcery skip: merge-assign-and-aug-assign
     """
     Check if the propnames that are used in the cardinalities of each resource are defined in the "properties"
     section. (DSP base properties and properties from other ontologies are not considered.)
@@ -169,7 +170,7 @@ def _check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> bo
     Returns:
         True if all cardinalities are defined in the "properties" section
     """
-    errors: dict[str, list[str]] = dict()
+    errors: dict[str, list[str]] = {}
     for onto in project_definition["project"]["ontologies"]:
         ontoname = onto["name"]
         propnames = [prop["name"] for prop in onto["properties"]]
@@ -190,8 +191,7 @@ def _check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> bo
             # convert to short form
             cardnames = [regex.sub(f"^{ontoname}:", ":", card) for card in cardnames]
 
-            invalid_cardnames = [card for card in cardnames if regex.sub(":", "", card) not in propnames]
-            if invalid_cardnames:
+            if invalid_cardnames := [card for card in cardnames if regex.sub(":", "", card) not in propnames]:
                 errors[f"Ontology '{ontoname}', resource '{res['name']}'"] = invalid_cardnames
 
     if errors:
@@ -249,8 +249,7 @@ def validate_project(
     # expand all lists referenced in the "lists" section of the project definition,
     # and add them to the project definition
     if expand_lists:
-        new_lists = expand_lists_from_excel(project_definition["project"].get("lists", []))
-        if new_lists:
+        if new_lists := expand_lists_from_excel(project_definition["project"].get("lists", [])):
             project_definition["project"]["lists"] = new_lists
 
     # validate the project definition against the schema
@@ -277,6 +276,7 @@ def validate_project(
 
 
 def _check_cardinalities_of_circular_references(project_definition: dict[Any, Any]) -> bool:
+    # sourcery skip: remove-unnecessary-else
     """
     Check a JSON project file if it contains properties derived from hasLinkTo that form a circular reference. If so,
     these properties must have the cardinality 0-1 or 0-n, because during the xmlupload process, these values
@@ -323,9 +323,9 @@ def _collect_link_properties(project_definition: dict[Any, Any]) -> dict[str, li
     """
     ontos = project_definition["project"]["ontologies"]
     hasLinkTo_props = {"hasLinkTo", "isPartOf", "isRegionOf", "isAnnotationOf"}
-    link_properties: dict[str, list[str]] = dict()
+    link_properties: dict[str, list[str]] = {}
     for index, onto in enumerate(ontos):
-        hasLinkTo_matches = list()
+        hasLinkTo_matches = []
         # look for child-properties down to 5 inheritance levels that are derived from hasLinkTo-properties
         for _ in range(5):
             for hasLinkTo_prop in hasLinkTo_props:
@@ -336,7 +336,7 @@ def _collect_link_properties(project_definition: dict[Any, Any]) -> dict[str, li
                 )
             # make the children from this iteration to the parents of the next iteration
             hasLinkTo_props = {x.value["name"] for x in hasLinkTo_matches}
-        prop_obj_pair: dict[str, list[str]] = dict()
+        prop_obj_pair: dict[str, list[str]] = {}
         for match in hasLinkTo_matches:
             prop = onto["name"] + ":" + match.value["name"]
             target = match.value["object"]
@@ -347,8 +347,8 @@ def _collect_link_properties(project_definition: dict[Any, Any]) -> dict[str, li
         link_properties.update(prop_obj_pair)
 
     # in case the object of a property is "Resource", the link can point to any resource class
-    all_res_names: list[str] = list()
-    for index, onto in enumerate(ontos):
+    all_res_names: list[str] = []
+    for onto in ontos:
         matches = jsonpath_ng.ext.parse("$.resources[*].name").find(onto)
         tmp = [f"{onto['name']}:{match.value}" for match in matches]
         all_res_names.extend(tmp)
@@ -377,8 +377,8 @@ def _identify_problematic_cardinalities(
     # make 2 dicts of the following form:
     # dependencies = {"rosetta:Text": {"rosetta:hasImage2D": ["rosetta:Image2D"], ...}}
     # cardinalities = {"rosetta:Text": {"rosetta:hasImage2D": "0-1", ...}}
-    dependencies: dict[str, dict[str, list[str]]] = dict()
-    cardinalities: dict[str, dict[str, str]] = dict()
+    dependencies: dict[str, dict[str, list[str]]] = {}
+    cardinalities: dict[str, dict[str, str]] = {}
     for onto in project_definition["project"]["ontologies"]:
         for resource in onto["resources"]:
             resname: str = onto["name"] + ":" + resource["name"]
@@ -393,10 +393,8 @@ def _identify_problematic_cardinalities(
                     # For this reason, `targets` must be created with `targets = list(link_properties[cardname])`
                     targets = list(link_properties[cardname])
                     if resname not in dependencies:
-                        dependencies[resname] = dict()
-                        dependencies[resname][cardname] = targets
-                        cardinalities[resname] = dict()
-                        cardinalities[resname][cardname] = card["cardinality"]
+                        dependencies[resname] = {cardname: targets}
+                        cardinalities[resname] = {cardname: card["cardinality"]}
                     elif cardname not in dependencies[resname]:
                         dependencies[resname][cardname] = targets
                         cardinalities[resname][cardname] = card["cardinality"]

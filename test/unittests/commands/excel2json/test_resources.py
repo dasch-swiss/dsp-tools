@@ -4,6 +4,7 @@
 
 import json
 import os
+import shutil
 import unittest
 from typing import Any
 
@@ -26,9 +27,7 @@ class TestExcelToResource(unittest.TestCase):
     @classmethod
     def tearDownClass(cls) -> None:
         """Is executed after the methods of this class have all run through"""
-        for file in os.listdir("testdata/tmp"):
-            os.remove("testdata/tmp/" + file)
-        os.rmdir("testdata/tmp")
+        shutil.rmtree("testdata/tmp", ignore_errors=True)
 
     def test_excel2resources(self) -> None:
         excelfile = "testdata/excel2json/excel2json_files/test-name (test_label)/resources.xlsx"
@@ -62,62 +61,64 @@ class TestExcelToResource(unittest.TestCase):
             ["DocumentRepresentation"],
         ]
 
-        excel_labels = dict()
-        excel_labels["en"] = [
-            "Owner",
-            "Title",
-            "Generic anthroponym",
-            "Family member",
-            "Mentioned person",
-            "Alias",
-            "Only English",
-            "",
-            "",
-            "",
-            "",
-        ]
-        excel_labels["rm"] = [
-            "Rumantsch",
-            "Rumantsch",
-            "Rumantsch",
-            "Rumantsch",
-            "Rumantsch",
-            "Rumantsch",
-            "",
-            "",
-            "",
-            "",
-            "Only Rumantsch",
-        ]
+        excel_labels = {
+            "en": [
+                "Owner",
+                "Title",
+                "Generic anthroponym",
+                "Family member",
+                "Mentioned person",
+                "Alias",
+                "Only English",
+                "",
+                "",
+                "",
+                "",
+            ],
+            "rm": [
+                "Rumantsch",
+                "Rumantsch",
+                "Rumantsch",
+                "Rumantsch",
+                "Rumantsch",
+                "Rumantsch",
+                "",
+                "",
+                "",
+                "",
+                "Only Rumantsch",
+            ],
+        }
         excel_labels_of_image = {"en": "Only English"}
 
-        excel_comments = dict()
-        excel_comments["comment_de"] = [
-            "Ein seltsamer Zufall brachte mich in den Besitz dieses Tagebuchs.",
-            "",
-            "Only German",
-            "",
-            "",
-            "",
-            "Bild",
-            "Video",
-            "Audio",
-            "ZIP",
-            "PDF-Dokument",
-        ]
-        excel_comments["comment_fr"] = [
-            "Un étrange hasard m'a mis en possession de ce journal.",
-            "",
-            "",
-            "Only French",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-        ]
+        excel_comments = {
+            "comment_de": [
+                "Ein seltsamer Zufall brachte mich in den Besitz dieses Tagebuchs.",
+                "",
+                "Only German",
+                "",
+                "",
+                "",
+                "Bild",
+                "Video",
+                "Audio",
+                "ZIP",
+                "PDF-Dokument",
+            ],
+            "comment_fr": [
+                "Un étrange hasard m'a mis en possession de ce journal.",
+                "",
+                "",
+                "Only French",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+            ],
+        }
         excel_comments_of_image = {"en": "Image", "de": "Bild"}
 
         excel_first_class_properties = [
@@ -165,18 +166,15 @@ class TestExcelToResource(unittest.TestCase):
         json_supers = [match.value for match in jsonpath_ng.parse("$[*].super").find(output_from_file)]
 
         json_labels_all = [match.value for match in jsonpath_ng.parse("$[*].labels").find(output_from_file)]
-        json_labels: dict[str, list[str]] = dict()
-        for lang in ["en", "rm"]:
-            json_labels[lang] = [label.get(lang, "").strip() for label in json_labels_all]
+        json_labels = {lang: [label.get(lang, "").strip() for label in json_labels_all] for lang in ["en", "rm"]}
         json_labels_of_image = jsonpath_ng.ext.parse('$[?name="Image"].labels').find(output_from_file)[0].value
 
-        json_comments: dict[str, list[str]] = dict()
-        for lang in ["de", "fr"]:
-            # make sure the lists of the json comments contain a blank string even if there is no "comments" section
-            # at all in this resource
-            json_comments[f"comment_{lang}"] = [
-                resource.get("comments", {}).get(lang, "").strip() for resource in output_from_file
-            ]
+        # make sure the lists of the json comments contain a blank string,
+        # even if there is no "comments" section at all in this resource
+        json_comments = {
+            f"comment_{lang}": [resource.get("comments", {}).get(lang, "").strip() for resource in output_from_file]
+            for lang in ["de", "fr"]
+        }
         json_comments_of_image = jsonpath_ng.ext.parse('$[?name="Image"].comments').find(output_from_file)[0].value
 
         json_first_class_properties = [

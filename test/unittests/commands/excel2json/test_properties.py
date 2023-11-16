@@ -4,6 +4,7 @@
 
 import json
 import os
+import shutil
 import unittest
 from typing import Any, cast
 
@@ -28,9 +29,7 @@ class TestExcelToProperties(unittest.TestCase):
     @classmethod
     def tearDownClass(cls) -> None:
         """Is executed after the methods of this class have all run through"""
-        for file in os.listdir("testdata/tmp"):
-            os.remove("testdata/tmp/" + file)
-        os.rmdir("testdata/tmp")
+        shutil.rmtree("testdata/tmp", ignore_errors=True)
 
     def test_excel2properties(self) -> None:
         excelfile = "testdata/excel2json/excel2json_files/test-name (test_label)/properties.xlsx"
@@ -119,123 +118,121 @@ class TestExcelToProperties(unittest.TestCase):
             "AudioRepresentation",
         ]
 
-        excel_labels = dict()
-        # there are also labels in other languages, but they are not tested
-        excel_labels["de"] = [
-            "",
-            "only German",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "hat eine Multimediadatei",
-            "",
-            "",
-            "GND",
-            "Farbe",
-            "Dezimalzahl",
-            "Zeit",
-            "Zeitintervall",
-            "Bool'sche Variable",
-            "Link zu Geonames",
-            "ist Teil eines Dokuments",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-        ]
-        excel_labels["it"] = [
-            "",
-            "",
-            "",
-            "only Italian",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "GND",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-        ]
-
-        excel_comments = dict()
-        # there are also comments in other languages, but they are not tested
-        excel_comments["comment_fr"] = [
-            "J'avais déjà examiné plusieurs propriétés quand, un jour, le notaire, qui me "
-            "donnait des indications nécessaires pour une de mes explorations, me dit :",
-            "Un étrange hasard m'a mis en possession de ce journal.",
-            "Je n'en sais rien du tout ; mais si vous voulez la voir, monsieur, voici les "
-            "indications précises pour la trouver.",
-            "Vous devrez arranger l'affaire avec le curé du village de --.\"",
-            "Un étrange hasard m'a mis en possession de ce journal.",
-            "",
-            "",
-            "only French",
-            "",
-            "",
-            "J'avais déjà examiné plusieurs propriétés quand, un jour, le notaire, qui me "
-            "donnait des indications nécessaires pour une de mes explorations, me dit :",
-            "Gemeinsame Normdatei",
-            "",
-            "Chiffre décimale",
-            "Temps",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-        ]
-        excel_comments["comment_it"] = [
-            "Avevo già visto diverse proprietà quando un giorno il notaio,",
-            "Uno strano caso mi mise in possesso di questo diario.",
-            "Non ne so nulla; ma se volete vederla, signore, eccovi le indicazioni precise per trovarla.",
-            "Dovrete organizzare l'affare con il curato del villaggio di --\".",
-            "Uno strano caso mi mise in possesso di questo diario.",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "Avevo già visto diverse proprietà quando un giorno il notaio,",
-            "Gemeinsame Normdatei",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-        ]
-
+        excel_labels = {
+            "de": [
+                "",
+                "only German",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "hat eine Multimediadatei",
+                "",
+                "",
+                "GND",
+                "Farbe",
+                "Dezimalzahl",
+                "Zeit",
+                "Zeitintervall",
+                "Bool'sche Variable",
+                "Link zu Geonames",
+                "ist Teil eines Dokuments",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+            ],
+            "it": [
+                "",
+                "",
+                "",
+                "only Italian",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "GND",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+            ],
+        }  # there are also labels in other languages, but they are not tested
+        excel_comments = {
+            "comment_fr": [
+                "J'avais déjà examiné plusieurs propriétés quand, un jour, le notaire, qui me "
+                "donnait des indications nécessaires pour une de mes explorations, me dit :",
+                "Un étrange hasard m'a mis en possession de ce journal.",
+                "Je n'en sais rien du tout ; mais si vous voulez la voir, monsieur, voici les "
+                "indications précises pour la trouver.",
+                "Vous devrez arranger l'affaire avec le curé du village de --.\"",
+                "Un étrange hasard m'a mis en possession de ce journal.",
+                "",
+                "",
+                "only French",
+                "",
+                "",
+                "J'avais déjà examiné plusieurs propriétés quand, un jour, le notaire, qui me "
+                "donnait des indications nécessaires pour une de mes explorations, me dit :",
+                "Gemeinsame Normdatei",
+                "",
+                "Chiffre décimale",
+                "Temps",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+            ],
+            "comment_it": [
+                "Avevo già visto diverse proprietà quando un giorno il notaio,",
+                "Uno strano caso mi mise in possesso di questo diario.",
+                "Non ne so nulla; ma se volete vederla, signore, eccovi le indicazioni precise per trovarla.",
+                "Dovrete organizzare l'affare con il curato del villaggio di --\".",
+                "Uno strano caso mi mise in possesso di questo diario.",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "Avevo già visto diverse proprietà quando un giorno il notaio,",
+                "Gemeinsame Normdatei",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+            ],
+        }  # there are also comments in other languages, but they are not tested
         excel_gui_elements = [
             "Searchbox",
             "Richtext",
@@ -281,16 +278,11 @@ class TestExcelToProperties(unittest.TestCase):
         json_objects = [match.value for match in jsonpath_ng.parse("$[*].object").find(output_from_file)]
 
         json_labels_all = [match.value for match in jsonpath_ng.parse("$[*].labels").find(output_from_file)]
-        json_labels: dict[str, list[str]] = dict()
-        for lang in ["de", "it"]:
-            json_labels[lang] = [label.get(lang, "").strip() for label in json_labels_all]
-
-        json_comments: dict[str, list[str]] = dict()
-        for lang in ["fr", "it"]:
-            json_comments[f"comment_{lang}"] = [
-                resource.get("comments", {}).get(lang, "").strip() for resource in output_from_file
-            ]
-
+        json_labels = {lang: [label.get(lang, "").strip() for label in json_labels_all] for lang in ["de", "it"]}
+        json_comments = {
+            f"comment_{lang}": [resource.get("comments", {}).get(lang, "").strip() for resource in output_from_file]
+            for lang in ["fr", "it"]
+        }
         json_gui_elements = [match.value for match in jsonpath_ng.parse("$[*].gui_element").find(output_from_file)]
 
         json_gui_attributes_hasGender = (

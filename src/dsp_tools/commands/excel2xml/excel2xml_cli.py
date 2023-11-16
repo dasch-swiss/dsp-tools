@@ -327,8 +327,7 @@ def _get_prop_function(
     }
     if row.get("prop type") not in proptype_2_function:
         raise BaseError(f"Invalid prop type for property {row.get('prop name')} in resource {resource_id}")
-    make_prop_function = proptype_2_function[row["prop type"]]
-    return make_prop_function
+    return proptype_2_function[row["prop type"]]
 
 
 def _convert_row_to_property_elements(
@@ -437,13 +436,12 @@ def _convert_property_row_to_xml(
     )
 
     # create the property
-    prop = _create_property(
+    return _create_property(
         make_prop_function=make_prop_function,
         row=row,
         property_elements=property_elements,
         resource_id=resource_id,
     )
-    return prop
 
 
 def _create_property(
@@ -473,9 +471,7 @@ def _create_property(
     if check_notna(row.get("prop list")):
         kwargs_propfunc["list_name"] = str(row["prop list"])
 
-    prop = make_prop_function(**kwargs_propfunc)
-
-    return prop
+    return make_prop_function(**kwargs_propfunc)
 
 
 def excel2xml(

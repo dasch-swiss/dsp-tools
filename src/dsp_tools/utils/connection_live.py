@@ -190,8 +190,7 @@ class ConnectionLive:
                 response=response,
             )
         check_for_api_error(response)
-        json_response = cast(dict[str, Any], response.json())
-        return json_response
+        return cast(dict[str, Any], response.json())
 
     def get(
         self,
@@ -231,8 +230,7 @@ class ConnectionLive:
                 response=response,
             )
         check_for_api_error(response)
-        json_response = cast(dict[str, Any], response.json())
-        return json_response
+        return cast(dict[str, Any], response.json())
 
     def put(
         self,
@@ -282,8 +280,7 @@ class ConnectionLive:
                 response=response,
             )
         check_for_api_error(response)
-        json_response = cast(dict[str, Any], response.json())
-        return json_response
+        return cast(dict[str, Any], response.json())
 
     def delete(
         self,
@@ -322,5 +319,4 @@ class ConnectionLive:
                 response=response,
             )
         check_for_api_error(response)
-        json_response = cast(dict[str, Any], response.json())
-        return json_response
+        return cast(dict[str, Any], response.json())

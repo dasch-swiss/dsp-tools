@@ -81,12 +81,15 @@ class TestShared(unittest.TestCase):
             'text &lt;text text="text" &gt; text',
         ]
         utf8_texts_with_allowed_html_escapes = [
-            f'<knora shortcode="4123" default-ontology="testonto" xmlns="https://dasch.swiss/schema" '
-            + f'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
-            + f'<resource label="label" restype=":restype" id="id">'
-            + f'<text-prop name=":name">'
-            + f'<text encoding="utf8">{txt}'
-            + f"</text></text-prop></resource></knora>"
+            f"""
+            <knora shortcode="4123" default-ontology="testonto">
+                <resource label="label" restype=":restype" id="id">
+                    <text-prop name=":name">
+                        <text encoding="utf8">{txt}</text>
+                    </text-prop>
+                </resource>
+            </knora>
+            """
             for txt in utf8_texts_with_allowed_html_escapes
         ]
         for xml in utf8_texts_with_allowed_html_escapes:
@@ -96,12 +99,15 @@ class TestShared(unittest.TestCase):
 
         utf8_texts_with_forbidden_html_escapes = ['&lt;tag s="t"&gt;', "&lt;em&gt;text&lt;/em&gt;"]
         utf8_texts_with_forbidden_html_escapes = [
-            f'<knora shortcode="4123" default-ontology="testonto" xmlns="https://dasch.swiss/schema" '
-            f'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
-            + f'<resource label="label" restype=":restype" id="id">'
-            + f'<text-prop name=":name">'
-            + f'<text encoding="utf8">{txt}'
-            + f"</text></text-prop></resource></knora>"
+            f"""
+            <knora shortcode="4123" default-ontology="testonto">
+                <resource label="label" restype=":restype" id="id">
+                    <text-prop name=":name">
+                        <text encoding="utf8">{txt}</text>
+                    </text-prop>
+                </resource>
+            </knora>
+            """
             for txt in utf8_texts_with_forbidden_html_escapes
         ]
         for xml in utf8_texts_with_forbidden_html_escapes:

@@ -322,7 +322,7 @@ def _log_cli_arguments(parsed_args: argparse.Namespace) -> None:
 
     parameter_lines = []
     parameters_to_log = {key: value for key, value in vars(parsed_args).items() if key != "action"}
-    longest_key_length = max(len(key) for key in parameters_to_log) if parameters_to_log else 0
+    longest_key_length = max((len(key) for key in parameters_to_log), default=0)
     for key, value in parameters_to_log.items():
         if key == "password":
             parameter_lines.append(f"{key:<{longest_key_length}} = {'*' * len(value)}")

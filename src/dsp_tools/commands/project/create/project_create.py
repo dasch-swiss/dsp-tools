@@ -367,7 +367,8 @@ def _get_projects_where_user_is_admin(
                 continue
             in_project = in_project_list[0]
 
-        project_info[str(in_project.iri)] = bool(project_role == "admin")
+        is_admin = project_role == "admin"
+        project_info[str(in_project.iri)] = is_admin
         if verbose:
             print(f"\tAdded user '{username}' as {project_role} to project '{in_project.shortname}'.")
         logger.info(f"Added user '{username}' as {project_role} to project '{in_project.shortname}'.")

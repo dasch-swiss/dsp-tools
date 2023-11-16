@@ -17,11 +17,9 @@ from dsp_tools.utils.shared import check_notna
 
 
 class TestImportScripts(unittest.TestCase):
-    def tearDown(self) -> None:
-        """
-        Remove generated data.
-        For each test method, a new TestCase instance is created, so tearDown() is executed after each test method.
-        """
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Is executed after the methods of this class have all run through"""
         Path("src/dsp_tools/import_scripts/data-processed.xml").unlink(missing_ok=True)
 
     @pytest.mark.filterwarnings("ignore::UserWarning")

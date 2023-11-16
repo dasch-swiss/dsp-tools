@@ -13,20 +13,21 @@ from dsp_tools.utils.shared import try_network_action
 logger = get_logger(__name__)
 
 
+@dataclass
 class OntologyClient(Protocol):
     """Interface (protocol) for ontology-related requests to the DSP-API."""
 
     con: Connection
     shortcode: str
     default_ontology: str
-    ontology_names: list[str] = field(default_factory=list)
     save_location: Path
+    ontology_names: list[str] = field(default_factory=list)
 
     def get_all_ontologies_from_server(self) -> dict[str, list[dict[str, Any]]]:
         """Get all the ontologies for a project and the knora-api ontology from the server."""
 
 
-@dataclass()
+@dataclass
 class OntologyClientLive:
     """Client handling ontology-related requests to the DSP-API."""
 

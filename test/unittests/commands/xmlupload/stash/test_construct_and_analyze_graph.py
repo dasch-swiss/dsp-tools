@@ -434,7 +434,7 @@ def test_remove_edges_to_stash_several_resptr() -> None:
         Edge(2, 0, ResptrLink("", "")),
     ]
     graph.add_edges_from([e.as_tuple() for e in edges])
-    edges_to_remove = edges[0:2]
+    edges_to_remove = edges[:2]
     remaining_nodes = set(range(10))
     _remove_edges_to_stash(graph, edges_to_remove, edges, remaining_nodes)
     remaining_edges = list(graph.edge_list())
@@ -490,8 +490,7 @@ def test_add_stash_to_lookup_dict_none_existing() -> None:
     xml_a = XMLLink("0", {"1", "2"})
     to_stash: list[XMLLink | ResptrLink] = [resptr_a1, resptr_a2, xml_a]
     expected = {"0": [resptr_a1.link_uuid, resptr_a2.link_uuid, xml_a.link_uuid]}
-    stash_dict: dict[str, list[str]] = dict()
-    result = _add_stash_to_lookup_dict(stash_dict, to_stash)
+    result = _add_stash_to_lookup_dict({}, to_stash)
     assert result.keys() == expected.keys()
     assert unordered(result["0"]) == expected["0"]
 
@@ -526,7 +525,7 @@ def test_generate_upload_order_with_stash() -> None:
     stash_lookup, upload_order, stash_counter = generate_upload_order(graph, node_idx_lookup, edges)
     expected_stash_lookup = {"0": [abf_xml.link_uuid]}
     assert stash_counter == 1
-    assert unordered(upload_order[0:2]) == ["4", "6"]
+    assert unordered(upload_order[:2]) == ["4", "6"]
     assert upload_order[2:] == ["5", "0", "3", "2", "1"]
     assert stash_lookup.keys() == expected_stash_lookup.keys()
     assert stash_lookup["0"] == expected_stash_lookup["0"]
@@ -546,7 +545,7 @@ def test_generate_upload_order_no_stash() -> None:
     ]
     graph.add_edges_from([e.as_tuple() for e in edges])
     stash_lookup, upload_order, stash_counter = generate_upload_order(graph, node_idx_lookup, edges)
-    assert stash_lookup == dict()
+    assert not stash_lookup
     assert stash_counter == 0
     assert upload_order == ["3", "2", "1", "0"]
     assert not list(graph.edges())

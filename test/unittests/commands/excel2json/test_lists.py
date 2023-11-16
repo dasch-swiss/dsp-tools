@@ -4,6 +4,7 @@
 
 import json
 import os
+import shutil
 import unittest
 from typing import Any
 
@@ -28,9 +29,7 @@ class TestExcelToJSONList(unittest.TestCase):
     @classmethod
     def tearDownClass(cls) -> None:
         """Is executed after the methods of this class have all run through"""
-        for file in os.listdir("testdata/tmp"):
-            os.remove("testdata/tmp/" + file)
-        os.rmdir("testdata/tmp")
+        shutil.rmtree("testdata/tmp", ignore_errors=True)
 
     def setUp(self) -> None:
         """Is executed before each test method"""

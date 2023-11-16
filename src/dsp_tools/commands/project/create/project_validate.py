@@ -296,18 +296,18 @@ def _check_cardinalities_of_circular_references(project_definition: dict[Any, An
 
     if len(errors) == 0:
         return True
-    else:
-        error_message = (
-            "ERROR: Your ontology contains properties derived from 'hasLinkTo' that allow circular references "
-            "between resources. This is not a problem in itself, but if you try to upload data that actually "
-            "contains circular references, these 'hasLinkTo' properties will be temporarily removed from the "
-            "affected resources. Therefore, it is necessary that all involved 'hasLinkTo' properties have a "
-            "cardinality of 0-1 or 0-n. \n"
-            "Please make sure that the following properties have a cardinality of 0-1 or 0-n:"
-        )
-        for error in errors:
-            error_message = f"{error_message}\n\t- Resource {error[0]}, property {error[1]}"
-        raise BaseError(error_message)
+
+    error_message = (
+        "ERROR: Your ontology contains properties derived from 'hasLinkTo' that allow circular references "
+        "between resources. This is not a problem in itself, but if you try to upload data that actually "
+        "contains circular references, these 'hasLinkTo' properties will be temporarily removed from the "
+        "affected resources. Therefore, it is necessary that all involved 'hasLinkTo' properties have a "
+        "cardinality of 0-1 or 0-n. \n"
+        "Please make sure that the following properties have a cardinality of 0-1 or 0-n:"
+    )
+    for error in errors:
+        error_message = f"{error_message}\n\t- Resource {error[0]}, property {error[1]}"
+    raise BaseError(error_message)
 
 
 def _collect_link_properties(project_definition: dict[Any, Any]) -> dict[str, list[str]]:

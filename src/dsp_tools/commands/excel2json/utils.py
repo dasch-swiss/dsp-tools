@@ -122,9 +122,8 @@ def check_required_values(df: pd.DataFrame, required_values_columns: list[str]) 
     """
     # It checks if any of the values in a specified column are empty. If they are, they are added to the dictionary
     # with the column name as key and a boolean series as value that contain true for every pd.NA
-    res_dict = {col: df[col].isnull() for col in required_values_columns if df[col].isnull().any()}
     # If all the columns are filled, then it returns an empty dictionary.
-    return res_dict
+    return {col: df[col].isnull() for col in required_values_columns if df[col].isnull().any()}
 
 
 def turn_bool_array_into_index_numbers(series: pd.Series[bool], true_remains: bool = True) -> list[int]:

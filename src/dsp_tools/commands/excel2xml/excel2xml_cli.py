@@ -364,8 +364,7 @@ def _convert_row_to_property_elements(
             # if all other cells are empty, continue with next property element
             other_cell_headers = [f"{i}_{x}" for x in ["encoding", "permissions", "comment"]]
             notna_cell_headers = [x for x in other_cell_headers if check_notna(row.get(x))]
-            notna_cell_headers_str = ", ".join([f"'{x}'" for x in notna_cell_headers])
-            if notna_cell_headers_str:
+            if notna_cell_headers_str := ", ".join([f"'{x}'" for x in notna_cell_headers]):
                 warnings.warn(
                     f"Error in resource '{resource_id}': Excel row {row_number} has an entry "
                     f"in column(s) {notna_cell_headers_str}, but not in '{i}_value'. "
@@ -388,7 +387,7 @@ def _convert_row_to_property_elements(
         property_elements.append(PropertyElement(**kwargs_propelem))
 
     # validate the end result before returning it
-    if len(property_elements) == 0:
+    if not property_elements:
         warnings.warn(
             f"At least one value per property is required, "
             f"but resource '{resource_id}', property '{row['prop name']}' (Excel row {row_number}) doesn't contain any values."
@@ -468,12 +467,8 @@ def _create_property(
     kwargs_propfunc: dict[str, Union[str, PropertyElement, list[PropertyElement]]] = {
         "name": row["prop name"],
         "calling_resource": resource_id,
+        "value": property_elements[0] if row.get("prop type") == "boolean-prop" else property_elements,
     }
-
-    if row.get("prop type") == "boolean-prop":
-        kwargs_propfunc["value"] = property_elements[0]
-    else:
-        kwargs_propfunc["value"] = property_elements
 
     if check_notna(row.get("prop list")):
         kwargs_propfunc["list_name"] = str(row["prop list"])

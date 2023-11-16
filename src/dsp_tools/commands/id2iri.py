@@ -203,7 +203,7 @@ def _write_output_file(
         tree: modified XML tree with replaced IDs
     """
     timestamp_str = datetime.now().strftime("%Y%m%d-%H%M%S")
-    out_file = orig_xml_file.stem + "_replaced_" + timestamp_str + ".xml"
+    out_file = f"{orig_xml_file.stem}_replaced_{timestamp_str}.xml"
     et = etree.ElementTree(tree)
     et.write(out_file, pretty_print=True, xml_declaration=True, encoding="utf-8")
     logger.info(f"XML with replaced IDs was written to file {out_file}.")

@@ -90,10 +90,7 @@ def _get_ontologies_from_server(con: Connection, project_iri: str) -> list[str]:
         iri = quote_plus(project_iri)
         url = f"/v2/ontologies/metadata/{iri}"
         res: dict[str, Any] = try_network_action(con.get, route=url)
-        if "@graph" in res:
-            body = res["@graph"]
-        else:
-            body = res
+        body = res.get("@graph", res)
         match body:
             case list():
                 return [o["@id"] for o in body]

@@ -1,6 +1,6 @@
 import importlib.resources
 import json
-import os
+from pathlib import Path
 from typing import Any, Union
 
 import jsonpath_ng
@@ -238,7 +238,7 @@ def validate_project(
         project_definition = input_file_or_json
     elif (
         isinstance(input_file_or_json, str)
-        and os.path.isfile(input_file_or_json)
+        and Path(input_file_or_json).is_file()
         and regex.search(r"\.json$", input_file_or_json)
     ):
         with open(input_file_or_json, encoding="utf-8") as f:

@@ -1,8 +1,7 @@
 """This module handles all the operations which are used for the creation of JSON lists from Excel files."""
-import glob
 import importlib.resources
 import json
-import os
+from pathlib import Path
 from typing import Any, Optional, Union
 
 import jsonschema
@@ -196,7 +195,7 @@ def _get_values_from_excel(
 
 
 def _make_json_lists_from_excel(
-    excel_file_paths: list[str],
+    excel_file_paths: list[Path],
     verbose: bool = False,
 ) -> list[dict[str, Any]]:
     """
@@ -224,10 +223,7 @@ def _make_json_lists_from_excel(
     startcol = 1
 
     # make a dict with the language labels and the worksheets
-    lang_to_worksheet = {
-        os.path.basename(filepath)[:2]: load_workbook(filepath, read_only=True).worksheets[0]
-        for filepath in excel_file_paths
-    }
+    lang_to_worksheet = {x.stem: load_workbook(x, read_only=True).worksheets[0] for x in excel_file_paths}
 
     # take English as base file. If English is not available, take a random one.
     base_lang = "en" if "en" in lang_to_worksheet else list(lang_to_worksheet.keys())[0]
@@ -308,7 +304,7 @@ def validate_lists_section_with_schema(
     return True
 
 
-def _extract_excel_file_paths(excelfolder: str) -> list[str]:
+def _extract_excel_file_paths(excelfolder: str) -> list[Path]:
     """
     This method extracts the names of the Excel files that are in the folder, and asserts that they are named according
     to the requirements.
@@ -322,17 +318,14 @@ def _extract_excel_file_paths(excelfolder: str) -> list[str]:
     Returns:
         list of the Excel file paths to process
     """
-    if not os.path.isdir(excelfolder):
+    if not Path(excelfolder).is_dir():
         raise UserError(f"ERROR: {excelfolder} is not a directory.")
 
-    excel_file_paths = [
-        filename
-        for filename in glob.iglob(f"{excelfolder}/*.xlsx")
-        if not os.path.basename(filename).startswith("~$") and os.path.isfile(filename)
-    ]
+    supported_files = ["en.xlsx", "de.xlsx", "fr.xlsx", "it.xlsx", "rm.xlsx"]
+    excel_file_paths = [x for x in Path(excelfolder).glob("*.xlsx") if x.is_file() and not x.name.startswith("~$")]
 
     for filepath in excel_file_paths:
-        if not regex.search(r"^(de|en|fr|it|rm)\.xlsx$", os.path.basename(filepath)):
+        if filepath.name not in supported_files:
             raise UserError(f"Invalid file name '{filepath}'. Expected format: 'languagecode.xlsx'")
 
     return excel_file_paths

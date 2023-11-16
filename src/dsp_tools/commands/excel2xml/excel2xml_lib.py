@@ -423,7 +423,7 @@ def make_bitstream_prop(
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#bitstream
     """
 
-    if not os.path.isfile(path):
+    if not Path(path).is_file():
         warnings.warn(
             f"Failed validation in bitstream tag of resource '{calling_resource}': "
             f"The following path doesn't point to a file: {path}",

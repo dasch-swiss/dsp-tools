@@ -7,7 +7,6 @@ from pathlib import Path
 
 import pytest
 import regex
-from lxml import etree
 
 from dsp_tools.commands.project.create.project_create import create_project
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
@@ -17,14 +16,19 @@ from dsp_tools.utils.shared import check_notna
 
 
 class TestImportScripts(unittest.TestCase):
-    @classmethod
-    def tearDownClass(cls) -> None:
-        """Is executed after the methods of this class have all run through"""
+    def tearDown(self) -> None:
+        """
+        Remove generated data.
+        For each test method, a new TestCase instance is created, so tearDown() is executed after each test method.
+        """
         Path("src/dsp_tools/import_scripts/data-processed.xml").unlink(missing_ok=True)
 
     @pytest.mark.filterwarnings("ignore::UserWarning")
-    def test_script(self) -> None:
-        """Execute the import script in its directory"""
+    def test_import_scripts(self) -> None:
+        """
+        Execute the import script in its directory, create the project on the DSP server, and upload the created XML to
+        the DSP server.
+        """
         # pull the latest state of the git submodule
         subprocess.run("git submodule update --init --recursive", check=True, shell=True)
         from dsp_tools.import_scripts import import_script  # pylint: disable=import-outside-toplevel
@@ -42,20 +46,8 @@ class TestImportScripts(unittest.TestCase):
             xml_expected = _derandomize_xsd_id(f.read(), multiple_occurrences=True)
         with open("src/dsp_tools/import_scripts/data-processed.xml", encoding="utf-8") as f:
             xml_returned = _derandomize_xsd_id(f.read(), multiple_occurrences=True)
+        self.assertEqual(xml_expected, xml_returned)
 
-        # sort the elements in each tree by their ID
-        xml_expected_tree = etree.fromstring(xml_expected.encode("utf-8"))
-        xml_returned_tree = etree.fromstring(xml_returned.encode("utf-8"))
-        for elem in xml_expected_tree.iter():
-            elem[:] = sorted(elem, key=lambda x: x.attrib.get("id", ""))
-        for elem in xml_returned_tree.iter():
-            elem[:] = sorted(elem, key=lambda x: x.attrib.get("id", ""))
-
-        # compare the resulting strings
-        self.assertEqual(etree.tostring(xml_expected_tree), etree.tostring(xml_returned_tree))
-
-    def test_upload(self) -> None:
-        """Create the project on the DSP server, and upload the created XML to the DSP server"""
         # create the JSON project file, and upload the XML
         success_on_creation = create_project(
             project_file_as_path_or_parsed="src/dsp_tools/import_scripts/import_project.json",

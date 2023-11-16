@@ -8,6 +8,7 @@ from dsp_tools.commands.xmlupload.ontology_client import (
     OntologyClientLive,
     _get_all_classes_from_graph,
     _get_all_properties_from_graph,
+    _remove_prefixes,
     format_ontology,
 )
 
@@ -187,8 +188,8 @@ def test_format_ontology() -> None:
         },
     ]
     res_onto = format_ontology(test_graph)
-    assert res_onto.classes == ["knora-api:Annotation"]
-    assert res_onto.properties == ["knora-api:hasLinkTo"]
+    assert res_onto.classes == ["Annotation"]
+    assert res_onto.properties == ["hasLinkTo"]
 
 
 def test_get_ontology_names_from_server() -> None:
@@ -212,7 +213,7 @@ def test_get_ontology_names_from_server() -> None:
         }
     }
     con = ConnectionMock(response)
-    onto_cli = OntologyClientLive(con, "0801")
+    onto_cli = OntologyClientLive(con, "0801", "beol")
     onto_cli._get_ontology_names_from_server()
     assert unordered(onto_cli.ontology_names) == ["biblio", "newton", "leibniz", "beol"]
 
@@ -241,7 +242,7 @@ def test_get_ontology_from_server() -> None:
         },
     }
     con = ConnectionMock(response)
-    onto_cli = OntologyClientLive(con, "0801")
+    onto_cli = OntologyClientLive(con, "0801", "beol")
     res_graph = onto_cli._get_ontology_from_server("beol")
     assert unordered(res_graph) == [{"resource_class": ["Information"]}, {"property": ["Information"]}]
 
@@ -267,6 +268,18 @@ def test_get_knora_api_from_server() -> None:
         },
     }
     con = ConnectionMock(response)
-    onto_cli = OntologyClientLive(con, "")
+    onto_cli = OntologyClientLive(con, "", "")
     res_graph = onto_cli._get_knora_api_from_server()
     assert unordered(res_graph) == [{"resource_class": ["Information"]}, {"property": ["Information"]}]
+
+
+def test_remove_prefixes_knora_classes() -> None:
+    test_elements = ["knora-api:Annotation", "knora-api:ArchiveFileValue", "knora-api:ArchiveRepresentation"]
+    res = _remove_prefixes(test_elements)
+    assert unordered(res) == ["Annotation", "ArchiveFileValue", "ArchiveRepresentation"]
+
+
+def test_remove_prefixes_knora_properties() -> None:
+    test_elements = ["knora-api:attachedToUser", "knora-api:deletedBy"]
+    res = _remove_prefixes(test_elements)
+    assert unordered(res) == ["attachedToUser", "deletedBy"]

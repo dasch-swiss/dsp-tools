@@ -32,6 +32,7 @@ class OntologyClientLive:
 
     con: Connection
     shortcode: str
+    default_ontology: str
     ontology_names: list[str] = field(default_factory=list)
 
     def get_all_ontologies_from_server(self) -> dict[str, list[dict[str, Any]]]:
@@ -88,14 +89,6 @@ class OntologyClientLive:
         return onto_graph
 
 
-def _get_all_classes_from_graph(onto_graph: list[dict[str, Any]]) -> list[str]:
-    return [ele["@id"] for ele in onto_graph if ele.get("knora-api:isResourceClass")]
-
-
-def _get_all_properties_from_graph(onto_graph: list[dict[str, Any]]) -> list[str]:
-    return [ele["@id"] for ele in onto_graph if not ele.get("knora-api:isResourceClass")]
-
-
 def format_ontology(onto_graph: list[dict[str, Any]]) -> Ontology:
     """
     This function takes an ontology graph from the DSP-API.
@@ -108,7 +101,28 @@ def format_ontology(onto_graph: list[dict[str, Any]]) -> Ontology:
     Returns:
         Ontology instance with the classes and properties
     """
+    classes = _get_all_cleaned_classes_from_graph(onto_graph)
+    properties = _get_all_cleaned_properties_from_graph(onto_graph)
+    return Ontology(classes, properties)
+
+
+def _get_all_cleaned_classes_from_graph(onto_graph: list[dict[str, Any]]) -> list[str]:
     classes = _get_all_classes_from_graph(onto_graph)
-    properties = _get_all_properties_from_graph(onto_graph)
-    onto = Ontology(classes, properties)
-    return onto
+    return _remove_prefixes(classes)
+
+
+def _get_all_classes_from_graph(onto_graph: list[dict[str, Any]]) -> list[str]:
+    return [ele["@id"] for ele in onto_graph if ele.get("knora-api:isResourceClass")]
+
+
+def _get_all_cleaned_properties_from_graph(onto_graph: list[dict[str, Any]]) -> list[str]:
+    props = _get_all_properties_from_graph(onto_graph)
+    return _remove_prefixes(props)
+
+
+def _get_all_properties_from_graph(onto_graph: list[dict[str, Any]]) -> list[str]:
+    return [ele["@id"] for ele in onto_graph if not ele.get("knora-api:isResourceClass")]
+
+
+def _remove_prefixes(ontology_elements: list[str]) -> list[str]:
+    return [x.split(":")[1] for x in ontology_elements]

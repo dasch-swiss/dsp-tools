@@ -163,7 +163,7 @@ def try_network_action(
         try:
             if args and not kwargs:
                 return action(*args)
-            elif kwargs and not args:
+            elif not args and kwargs:
                 return action(**kwargs)
             elif args and kwargs:
                 return action(*args, **kwargs)
@@ -174,13 +174,11 @@ def try_network_action(
             print(f"{datetime.now()}: {msg}")
             logger.error(f"{msg} {action_as_str} (retry-counter {i=:})", exc_info=True)
             time.sleep(2**i)
-            continue
         except (ConnectionError, RequestException):
             msg = f"Network Error: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
             print(f"{datetime.now()}: {msg}")
             logger.error(f"{msg} {action_as_str} (retry-counter {i=:})", exc_info=True)
             time.sleep(2**i)
-            continue
         except BaseError as err:
             in_500_range = False
             if err.status_code:
@@ -191,7 +189,6 @@ def try_network_action(
                 print(f"{datetime.now()}: {msg}")
                 logger.error(f"{msg} {action_as_str} (retry-counter {i=:})", exc_info=True)
                 time.sleep(2**i)
-                continue
             else:
                 raise err
 

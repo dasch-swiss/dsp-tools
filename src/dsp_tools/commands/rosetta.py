@@ -68,7 +68,7 @@ def _create_json(rosetta_folder: Path) -> bool:
         True if the project could be created without problems, False if something went wrong during the creation process
     """
     print("Execute 'dsp-tools create rosetta.json'...")
-    success = create_project(
+    return create_project(
         project_file_as_path_or_parsed=rosetta_folder / "rosetta.json",
         server="http://0.0.0.0:3333",
         user_mail="root@example.com",
@@ -76,7 +76,6 @@ def _create_json(rosetta_folder: Path) -> bool:
         verbose=False,
         dump=False,
     )
-    return success
 
 
 def _upload_xml(rosetta_folder: Path) -> bool:
@@ -90,7 +89,7 @@ def _upload_xml(rosetta_folder: Path) -> bool:
         True if all data could be uploaded without problems, False if something went wrong during the upload process
     """
     print("Execute 'dsp-tools xmlupload rosetta.xml'...")
-    success = xmlupload(
+    return xmlupload(
         input_file=rosetta_folder / "rosetta.xml",
         server="http://0.0.0.0:3333",
         user="root@example.com",
@@ -99,7 +98,6 @@ def _upload_xml(rosetta_folder: Path) -> bool:
         sipi="http://0.0.0.0:1024",
         config=UploadConfig(),
     )
-    return success
 
 
 def upload_rosetta() -> bool:

@@ -3,6 +3,7 @@
 from dataclasses import dataclass, field
 
 import regex
+from lxml import etree
 from regex import Pattern
 
 from dsp_tools.commands.xmlupload.ontology_client import Ontology, OntologyClient, format_ontology
@@ -39,6 +40,11 @@ def get_project_and_knora_ontology_from_server(onto_client: OntologyClient) -> d
 def _diagnose_classes(class_str: str, onto_regex: OntoRegEx, onto_lookup: dict[str, Ontology]) -> bool:
     prefix, cls = _identify_ontology(class_str, onto_regex)
     return cls in onto_lookup[prefix].classes
+
+
+def _diagnose_properties(prop_str: str, onto_regex: OntoRegEx, onto_lookup: dict[str, Ontology]) -> bool:
+    prefix, prop = _identify_ontology(prop_str, onto_regex)
+    return prop in onto_lookup[prefix].properties
 
 
 def _identify_ontology(prop_cls: str, onto_regex: OntoRegEx) -> tuple[str, ...]:

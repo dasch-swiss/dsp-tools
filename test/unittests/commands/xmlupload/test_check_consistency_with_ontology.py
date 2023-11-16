@@ -3,6 +3,7 @@ import pytest
 from dsp_tools.commands.xmlupload.check_consistency_with_ontology import (
     OntoRegEx,
     _diagnose_classes,
+    _diagnose_properties,
     _identify_ontology,
 )
 from dsp_tools.commands.xmlupload.ontology_client import Ontology
@@ -43,6 +44,38 @@ def test_diagnose_classes_default_prefix() -> None:
         "knora-api": Ontology(classes=["knoraClassA"], properties=["knoraPropA"]),
     }
     assert _diagnose_classes("test:classB", onto_regex, onto_lookup)
+
+
+def test_diagnose_properties_no_knora_prefix() -> None:
+    onto_lookup = {
+        "test": Ontology(classes=["classA", "classB"], properties=["propA", "propB"]),
+        "knora-api": Ontology(classes=["knoraClassA"], properties=["knoraPropA"]),
+    }
+    assert _diagnose_properties("knoraPropA", onto_regex, onto_lookup)
+
+
+def test_diagnose_properties_knora_prefix() -> None:
+    onto_lookup = {
+        "test": Ontology(classes=["classA", "classB"], properties=["propA", "propB"]),
+        "knora-api": Ontology(classes=["knoraClassA"], properties=["knoraPropA"]),
+    }
+    assert _diagnose_properties("knora-api:knoraPropA", onto_regex, onto_lookup)
+
+
+def test_diagnose_properties_no_default_prefix() -> None:
+    onto_lookup = {
+        "test": Ontology(classes=["classA", "classB"], properties=["propA", "propB"]),
+        "knora-api": Ontology(classes=["knoraClassA"], properties=["knoraPropA"]),
+    }
+    assert _diagnose_properties(":propA", onto_regex, onto_lookup)
+
+
+def test_diagnose_properties_default_prefix() -> None:
+    onto_lookup = {
+        "test": Ontology(classes=["classA", "classB"], properties=["propA", "propB"]),
+        "knora-api": Ontology(classes=["knoraClassA"], properties=["knoraPropA"]),
+    }
+    assert _diagnose_properties("test:propB", onto_regex, onto_lookup)
 
 
 def test_identify_ontology() -> None:

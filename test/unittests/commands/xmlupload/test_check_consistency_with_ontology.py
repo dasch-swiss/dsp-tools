@@ -94,16 +94,16 @@ def test_get_all_properties_from_root() -> None:
 
 
 def test_identify_ontology() -> None:
-    onto_regex = OntoRegEx(default_ontology_prefix=r"beol")
+    onto_regex = OntoRegEx(default_ontology_prefix="beol")
     assert _identify_ontology(":hasSimpleText", onto_regex) == ("beol", "hasSimpleText")
-    assert _identify_ontology("knora-api:isPartOf", onto_regex) == ("knora", "isPartOf")
-    assert _identify_ontology("hasComment", onto_regex) == ("", "hasComment")
+    assert _identify_ontology("knora-api:isPartOf", onto_regex) == ("knora-api", "isPartOf")
+    assert _identify_ontology("hasComment", onto_regex) == ("knora-api", "hasComment")
     assert _identify_ontology("beol:hasSimpleText", onto_regex) == ("beol", "hasSimpleText")
     assert _identify_ontology("test:hasSimpleText", onto_regex) == ("test", "hasSimpleText")
 
 
 def test_identify_ontology_error() -> None:
-    onto_regex = OntoRegEx(default_ontology_prefix=r"beol")
+    onto_regex = OntoRegEx(default_ontology_prefix="beol")
     with pytest.raises(
         BaseError, match="The input property or class: '123654' does not follow a known ontology pattern."
     ):

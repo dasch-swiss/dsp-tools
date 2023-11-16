@@ -47,10 +47,10 @@ def get_pkl_files() -> list[Path]:
     Returns:
         list of pickle files
     """
-    pkl_file_paths = [Path(x) for x in glob.glob("processing_result_*.pkl")]
-    if len(pkl_file_paths) == 0:
+    if pkl_file_paths := [Path(x) for x in glob.glob("processing_result_*.pkl")]:
+        return pkl_file_paths
+    else:
         raise UserError("No pickle file found. Please run the processing step first.")
-    return pkl_file_paths
 
 
 def _get_paths_from_pkl_files(pkl_files: list[Path]) -> list[Path]:
@@ -100,10 +100,7 @@ def _get_upload_candidates(
     Returns:
         list of all processed files that belong to the same original file
     """
-    upload_candidates: list[str] = []
-    upload_candidates.extend(
-        glob.glob(f"{dir_with_processed_files}/**/**/{internal_filename_of_processed_file.stem}/*.*")
-    )
+    upload_candidates = glob.glob(f"{dir_with_processed_files}/**/**/{internal_filename_of_processed_file.stem}/*.*")
     upload_candidates.extend(
         glob.glob(f"{dir_with_processed_files}/**/**/{internal_filename_of_processed_file.stem}*.*")
     )

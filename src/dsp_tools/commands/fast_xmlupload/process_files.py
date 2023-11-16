@@ -489,14 +489,14 @@ def _get_file_category_from_extension(file: Path) -> Optional[str]:
     Returns:
         the file category, either IMAGE, VIDEO or OTHER (or None)
     """
-    extensions: dict[str, list[str]] = dict()
-    extensions["image"] = [".jpg", ".jpeg", ".tif", ".tiff", ".jp2", ".png"]
-    extensions["video"] = [".mp4"]
-    extensions["archive"] = [".7z", ".gz", ".gzip", ".tar", ".tar.gz", ".tgz", ".z", ".zip"]
-    extensions["text"] = [".csv", ".txt", ".xml", ".xsd", ".xsl"]
-    extensions["document"] = [".doc", ".docx", ".pdf", ".ppt", ".pptx", ".xls", ".xlsx"]
-    extensions["audio"] = [".mp3", ".wav"]
-
+    extensions = {
+        "image": [".jpg", ".jpeg", ".tif", ".tiff", ".jp2", ".png"],
+        "video": [".mp4"],
+        "archive": [".7z", ".gz", ".gzip", ".tar", ".tar.gz", ".tgz", ".z", ".zip"],
+        "text": [".csv", ".txt", ".xml", ".xsd", ".xsl"],
+        "document": [".doc", ".docx", ".pdf", ".ppt", ".pptx", ".xls", ".xlsx"],
+        "audio": [".mp3", ".wav"],
+    }
     if file.suffix.lower() in extensions["video"]:
         category = "VIDEO"
     elif file.suffix.lower() in extensions["image"]:
@@ -524,10 +524,7 @@ def _extract_preview_from_video(file: Path) -> bool:
     """
 
     result = subprocess.call(["/bin/bash", f"{export_moving_image_frames_script}", "-i", f"{file}"])
-    if result != 0:
-        return False
-    else:
-        return True
+    return result == 0
 
 
 def _process_file(
@@ -560,7 +557,7 @@ def _process_file(
 
     # get random UUID for internal file handling, and create directory structure
     internal_filename = str(uuid.uuid4())
-    out_dir_full = Path(output_dir, internal_filename[0:2], internal_filename[2:4])
+    out_dir_full = Path(output_dir, internal_filename[:2], internal_filename[2:4])
     out_dir_full.mkdir(parents=True, exist_ok=True)
 
     # create .orig file
@@ -751,14 +748,13 @@ def _write_processed_and_unprocessed_files_to_txt_files(
     if Path("processed_files.txt").is_file():
         with open("processed_files.txt", "r", encoding="utf-8") as f:
             previously_processed_files = [Path(x) for x in f.read().splitlines()]
-        processed_original_paths = processed_original_paths + previously_processed_files
+        processed_original_paths += previously_processed_files
 
     with open("processed_files.txt", "w", encoding="utf-8") as f:
         f.write("\n".join([str(x) for x in processed_original_paths]))
     msg = "Wrote 'processed_files.txt'"
 
-    unprocessed_original_paths = [x for x in all_files if x not in processed_original_paths]
-    if unprocessed_original_paths:
+    if unprocessed_original_paths := [x for x in all_files if x not in processed_original_paths]:
         with open("unprocessed_files.txt", "w", encoding="utf-8") as f:
             f.write("\n".join([str(x) for x in unprocessed_original_paths]))
         msg += " and 'unprocessed_files.txt'"
@@ -828,7 +824,7 @@ def double_check_unprocessed_files(
     if unprocessed_files_txt_exists:
         # there is a 'unprocessed_files.txt' file. check it for consistency
         unprocessed_files_from_processed_files = [x for x in all_files if x not in processed_files]
-        if not sorted(unprocessed_files_from_processed_files) == sorted(unprocessed_files):
+        if sorted(unprocessed_files_from_processed_files) != sorted(unprocessed_files):
             logger.error("The files 'unprocessed_files.txt' and 'processed_files.txt' are inconsistent")
             raise UserError("The files 'unprocessed_files.txt' and 'processed_files.txt' are inconsistent")
 

@@ -21,7 +21,7 @@ def check_for_api_error(response: requests.Response) -> None:
     """
     if response.status_code != 200:
         raise BaseError(
-            message="KNORA-ERROR: status code=" + str(response.status_code) + "\nMessage:" + response.text,
+            message=f"KNORA-ERROR: status code={response.status_code}\nMessage: {response.text}",
             status_code=response.status_code,
             json_content_of_api_response=response.text,
             reason_from_api=response.reason,
@@ -164,7 +164,7 @@ class ConnectionLive:
         # and the response of the original API call will be lost
         timeout = 60
         if not route.startswith("/"):
-            route = "/" + route
+            route = f"/{route}"
         url = self.server + route
         headers = {}
         if jsondata:
@@ -209,7 +209,7 @@ class ConnectionLive:
             response from server
         """
         if not route.startswith("/"):
-            route = "/" + route
+            route = f"/{route}"
         url = self.server + route
         if not headers:
             headers = {}
@@ -256,7 +256,7 @@ class ConnectionLive:
         # in that case, the client's retry will fail, and the response of the original API call will be lost
         timeout = 60
         if not route.startswith("/"):
-            route = "/" + route
+            route = f"/{route}"
         url = self.server + route
         headers = {}
         if jsondata:
@@ -301,7 +301,7 @@ class ConnectionLive:
             response from server
         """
         if not route.startswith("/"):
-            route = "/" + route
+            route = f"/{route}"
         url = self.server + route
         headers = {}
         if self.token:

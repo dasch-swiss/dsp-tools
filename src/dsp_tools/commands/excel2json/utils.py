@@ -214,10 +214,7 @@ def get_comments(df_row: pd.Series) -> dict[str, str] | None:
         A dictionary with the language tag and the content of the cell
     """
     comments = {lang: df_row[f"comment_{lang}"] for lang in languages if df_row[f"comment_{lang}"] is not pd.NA}
-    if comments == {}:
-        return None
-    else:
-        return comments
+    return comments or None
 
 
 def find_one_full_cell_in_cols(df: pd.DataFrame, required_columns: list[str]) -> pd.Series | None:
@@ -238,10 +235,7 @@ def find_one_full_cell_in_cols(df: pd.DataFrame, required_columns: list[str]) ->
     # If all are True logical_and returns True otherwise False
     combined_array = np.logical_and.reduce(result_arrays)
     # if any of the values are True, it is turned into a pd.Series
-    if any(combined_array):
-        return pd.Series(combined_array)
-    else:
-        return None
+    return pd.Series(combined_array) if any(combined_array) else None
 
 
 def col_must_or_not_empty_based_on_other_col(
@@ -281,10 +275,7 @@ def col_must_or_not_empty_based_on_other_col(
     substring_array = df[substring_colname].str.contains("|".join(substring_list), na=False, regex=True)
     # If both are True logical_and returns True otherwise False
     combined_array = np.logical_and(na_series, substring_array)
-    if any(combined_array):
-        return pd.Series(combined_array)
-    else:
-        return None
+    return pd.Series(combined_array) if any(combined_array) else None
 
 
 def add_optional_columns(df: pd.DataFrame, optional_col_set: set[str]) -> pd.DataFrame:

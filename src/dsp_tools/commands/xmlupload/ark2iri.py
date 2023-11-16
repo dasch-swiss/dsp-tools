@@ -58,4 +58,4 @@ def convert_ark_v0_to_resource_iri(ark: str) -> str:
     dsp_uuid = dsp_uuid[:-2]
 
     # use the new UUID to create the resource IRI
-    return "http://rdfh.ch/" + project_id + "/" + dsp_uuid
+    return f"http://rdfh.ch/{project_id}/{dsp_uuid}"

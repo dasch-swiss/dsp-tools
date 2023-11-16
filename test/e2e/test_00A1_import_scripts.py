@@ -25,7 +25,7 @@ class TestImportScripts(unittest.TestCase):
         Path("src/dsp_tools/import_scripts/data-processed.xml").unlink(missing_ok=True)
 
     @pytest.mark.filterwarnings("ignore::UserWarning")
-    def test_import_scripts(self) -> None:
+    def test_script(self) -> None:
         """
         Execute the import script in its directory, create the project on the DSP server, and upload the created XML to
         the DSP server.
@@ -59,6 +59,7 @@ class TestImportScripts(unittest.TestCase):
         # compare the resulting strings
         self.assertEqual(etree.tostring(xml_expected_tree), etree.tostring(xml_returned_tree))
 
+    def test_upload(self) -> None:
         # create the JSON project file, and upload the XML
         success_on_creation = create_project(
             project_file_as_path_or_parsed="src/dsp_tools/import_scripts/import_project.json",

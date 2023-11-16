@@ -1,5 +1,4 @@
 import pytest
-import regex.regex
 from lxml import etree
 
 from dsp_tools.commands.xmlupload.check_consistency_with_ontology import (
@@ -106,6 +105,6 @@ def test_identify_ontology() -> None:
 def test_identify_ontology_error() -> None:
     onto_regex = OntoRegEx(default_ontology_prefix=r"beol")
     with pytest.raises(
-        BaseException, match="The input property or class: '123654' does not follow a known ontology pattern."
+        BaseError, match="The input property or class: '123654' does not follow a known ontology pattern."
     ):
         _identify_ontology("123654", onto_regex)

@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 import regex
+from lxml import etree
 
 from dsp_tools.commands.project.create.project_create import create_project
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
@@ -46,7 +47,17 @@ class TestImportScripts(unittest.TestCase):
             xml_expected = _derandomize_xsd_id(f.read(), multiple_occurrences=True)
         with open("src/dsp_tools/import_scripts/data-processed.xml", encoding="utf-8") as f:
             xml_returned = _derandomize_xsd_id(f.read(), multiple_occurrences=True)
-        self.assertEqual(xml_expected, xml_returned)
+
+        # sort the elements in each tree by their ID
+        xml_expected_tree = etree.fromstring(xml_expected.encode("utf-8"))
+        xml_returned_tree = etree.fromstring(xml_returned.encode("utf-8"))
+        for elem in xml_expected_tree.iter():
+            elem[:] = sorted(elem, key=lambda x: x.attrib.get("id", ""))
+        for elem in xml_returned_tree.iter():
+            elem[:] = sorted(elem, key=lambda x: x.attrib.get("id", ""))
+
+        # compare the resulting strings
+        self.assertEqual(etree.tostring(xml_expected_tree), etree.tostring(xml_returned_tree))
 
         # create the JSON project file, and upload the XML
         success_on_creation = create_project(

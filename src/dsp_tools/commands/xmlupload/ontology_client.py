@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Protocol
 
+from dsp_tools.commands.xmlupload.ontology_diagnose_models import Ontology
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.create_logger import get_logger
@@ -11,16 +13,14 @@ from dsp_tools.utils.shared import try_network_action
 logger = get_logger(__name__)
 
 
-@dataclass(frozen=True)
-class Ontology:
-    """This class saves the properties and the classes from an ontology."""
-
-    classes: list[str] = field(default_factory=list)
-    properties: list[str] = field(default_factory=list)
-
-
 class OntologyClient(Protocol):
     """Interface (protocol) for ontology-related requests to the DSP-API."""
+
+    con: Connection
+    shortcode: str
+    default_ontology: str
+    ontology_names: list[str] = field(default_factory=list)
+    save_location: Path
 
     def get_all_ontologies_from_server(self) -> dict[str, list[dict[str, Any]]]:
         """Get all the ontologies for a project and the knora-api ontology from the server."""

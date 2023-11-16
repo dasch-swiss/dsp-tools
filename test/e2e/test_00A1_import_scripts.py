@@ -1,3 +1,5 @@
+# pylint: disable=redefined-outer-name
+
 import os
 import subprocess
 from collections.abc import Iterator
@@ -13,20 +15,17 @@ from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.shared import check_notna
 
-generated_xml_file = Path("src/dsp_tools/import_scripts/data-processed.xml")
 
-
-@pytest.fixture(scope="module", autouse=True)
-def teardown_module() -> Iterator[None]:
-    """Remove the generated XML file"""
-    # setup
-    yield None
-    # teardown
-    generated_xml_file.unlink(missing_ok=True)
+@pytest.fixture(scope="module")
+def generated_xml_file() -> Iterator[Path]:
+    """Yield the generated XML file as fixture, and delete it afterwards"""
+    xml_file = Path("src/dsp_tools/import_scripts/data-processed.xml")
+    yield xml_file
+    xml_file.unlink(missing_ok=True)
 
 
 @pytest.mark.filterwarnings("ignore::UserWarning")
-def test_script() -> None:
+def test_script(generated_xml_file: Path) -> None:
     """Execute the import script in its directory"""
     # pull the latest state of the git submodule
     subprocess.run("git submodule update --init --recursive", check=True, shell=True)
@@ -48,7 +47,7 @@ def test_script() -> None:
     assert _sort_xml_by_id(xml_expected) == _sort_xml_by_id(xml_returned)
 
 
-def test_upload() -> None:
+def test_upload(generated_xml_file: Path) -> None:
     """Create the project on the DSP server, and upload the created XML to the DSP server"""
     success_on_creation = create_project(
         project_file_as_path_or_parsed="src/dsp_tools/import_scripts/import_project.json",

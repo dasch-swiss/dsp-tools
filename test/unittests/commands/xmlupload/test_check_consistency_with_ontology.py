@@ -97,7 +97,7 @@ def test_identify_ontology() -> None:
     onto_regex = OntoRegEx(default_ontology_prefix=r"beol")
     assert _identify_ontology(":hasSimpleText", onto_regex) == ("beol", "hasSimpleText")
     assert _identify_ontology("knora-api:isPartOf", onto_regex) == ("knora", "isPartOf")
-    assert _identify_ontology("hasComment", onto_regex) == ("knora", "hasComment")
+    assert _identify_ontology("hasComment", onto_regex) == ("", "hasComment")
     assert _identify_ontology("beol:hasSimpleText", onto_regex) == ("beol", "hasSimpleText")
     assert _identify_ontology("test:hasSimpleText", onto_regex) == ("test", "hasSimpleText")
 

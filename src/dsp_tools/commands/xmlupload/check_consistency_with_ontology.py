@@ -60,7 +60,7 @@ def _identify_ontology(prop_cls: str, onto_regex: OntoRegEx) -> tuple[str, ...]:
     if onto_regex.knora_declared.match(prop_cls):
         return "knora", _remove_prefix(prop_cls)
     elif onto_regex.knora_undeclared.match(prop_cls):
-        return "knora", prop_cls
+        return "", prop_cls
     elif onto_regex.default_prefixed.match(prop_cls):
         return onto_regex.default_ontology_prefix, _remove_prefix(prop_cls)
     elif onto_regex.default_ontology_colon.match(prop_cls):

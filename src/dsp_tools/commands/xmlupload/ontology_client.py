@@ -44,10 +44,7 @@ class OntologyClientLive:
         """
         self._get_ontology_names_from_server()
         project_ontos = {onto: self._get_ontology_from_server(onto) for onto in self.ontology_names}
-        knora_onto = self._get_knora_api_from_server()
-        project_ontos["knora-api"] = knora_onto
-        project_ontos[""] = knora_onto
-        project_ontos[":"] = project_ontos[self.default_ontology]
+        project_ontos["knora-api"] = self._get_knora_api_from_server()
         return project_ontos
 
     def _get_ontology_names_from_server(self) -> None:

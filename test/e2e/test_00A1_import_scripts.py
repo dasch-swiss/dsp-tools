@@ -26,10 +26,7 @@ class TestImportScripts(unittest.TestCase):
 
     @pytest.mark.filterwarnings("ignore::UserWarning")
     def test_script(self) -> None:
-        """
-        Execute the import script in its directory, create the project on the DSP server, and upload the created XML to
-        the DSP server.
-        """
+        """Execute the import script in its directory"""
         # pull the latest state of the git submodule
         subprocess.run("git submodule update --init --recursive", check=True, shell=True)
         from dsp_tools.import_scripts import import_script  # pylint: disable=import-outside-toplevel
@@ -60,6 +57,7 @@ class TestImportScripts(unittest.TestCase):
         self.assertEqual(etree.tostring(xml_expected_tree), etree.tostring(xml_returned_tree))
 
     def test_upload(self) -> None:
+        """Create the project on the DSP server, and upload the created XML to the DSP server"""
         # create the JSON project file, and upload the XML
         success_on_creation = create_project(
             project_file_as_path_or_parsed="src/dsp_tools/import_scripts/import_project.json",

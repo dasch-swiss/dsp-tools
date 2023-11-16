@@ -36,6 +36,11 @@ def get_project_and_knora_ontology_from_server(onto_client: OntologyClient) -> d
     return {onto_name: format_ontology(onto_graph) for onto_name, onto_graph in ontologies.items()}
 
 
+def _diagnose_classes(class_str: str, onto_regex: OntoRegEx, onto_lookup: dict[str, Ontology]) -> bool:
+    prefix, cls = _identify_ontology(class_str, onto_regex)
+    return cls in onto_lookup[prefix].classes
+
+
 def _identify_ontology(prop_cls: str, onto_regex: OntoRegEx) -> tuple[str, ...]:
     if onto_regex.default_ontology_colon.match(prop_cls):
         return onto_regex.default_ontology_prefix, prop_cls.lstrip(":")
@@ -45,13 +50,3 @@ def _identify_ontology(prop_cls: str, onto_regex: OntoRegEx) -> tuple[str, ...]:
         return tuple(prop_cls.split(":"))
     else:
         raise BaseError(f"The input property or class: '{prop_cls}' does not follow a known ontology pattern.")
-
-
-def _check_if_properties_exist(
-    property_set: set[tuple[str, str]], onto_lookup: dict[str, Ontology]
-) -> set[tuple] | None:
-    return {x for x in property_set if x[1] not in onto_lookup[x[0]].properties}
-
-
-def _check_if_classes_exist(property_set: set[tuple[str, str]], onto_lookup: dict[str, Ontology]) -> set[tuple] | None:
-    return {x for x in property_set if x[1] not in onto_lookup[x[0]].classes}

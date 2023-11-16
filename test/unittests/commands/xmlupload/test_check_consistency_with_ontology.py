@@ -7,14 +7,14 @@ from dsp_tools.commands.xmlupload.check_consistency_with_ontology import (
     _diagnose_properties,
     _identify_ontology,
 )
-from dsp_tools.commands.xmlupload.ontology_diagnose_models import OntoDiagnoseTool, Ontology
+from dsp_tools.commands.xmlupload.ontology_diagnose_models import OntoCheckTool, Ontology
 from dsp_tools.models.exceptions import BaseError
 
 # pylint: disable=missing-function-docstring
 
 
 def test_diagnose_classes_no_knora_prefix() -> None:
-    onto_tool = OntoDiagnoseTool(
+    onto_tool = OntoCheckTool(
         default_ontology_prefix="test",
         save_location=Path(""),
         onto_lookup={
@@ -26,7 +26,7 @@ def test_diagnose_classes_no_knora_prefix() -> None:
 
 
 def test_diagnose_classes_knora_prefix() -> None:
-    onto_tool = OntoDiagnoseTool(
+    onto_tool = OntoCheckTool(
         default_ontology_prefix="test",
         save_location=Path(""),
         onto_lookup={
@@ -39,7 +39,7 @@ def test_diagnose_classes_knora_prefix() -> None:
 
 
 def test_diagnose_classes_no_default_prefix() -> None:
-    onto_tool = OntoDiagnoseTool(
+    onto_tool = OntoCheckTool(
         default_ontology_prefix="test",
         save_location=Path(""),
         onto_lookup={
@@ -51,7 +51,7 @@ def test_diagnose_classes_no_default_prefix() -> None:
 
 
 def test_diagnose_classes_default_prefix() -> None:
-    onto_tool = OntoDiagnoseTool(
+    onto_tool = OntoCheckTool(
         default_ontology_prefix="test",
         save_location=Path(""),
         onto_lookup={
@@ -63,7 +63,7 @@ def test_diagnose_classes_default_prefix() -> None:
 
 
 def test_diagnose_properties_no_knora_prefix() -> None:
-    onto_tool = OntoDiagnoseTool(
+    onto_tool = OntoCheckTool(
         default_ontology_prefix="test",
         save_location=Path(""),
         onto_lookup={
@@ -75,7 +75,7 @@ def test_diagnose_properties_no_knora_prefix() -> None:
 
 
 def test_diagnose_properties_knora_prefix() -> None:
-    onto_tool = OntoDiagnoseTool(
+    onto_tool = OntoCheckTool(
         default_ontology_prefix="test",
         save_location=Path(""),
         onto_lookup={
@@ -87,7 +87,7 @@ def test_diagnose_properties_knora_prefix() -> None:
 
 
 def test_diagnose_properties_no_default_prefix() -> None:
-    onto_tool = OntoDiagnoseTool(
+    onto_tool = OntoCheckTool(
         default_ontology_prefix="test",
         save_location=Path(""),
         onto_lookup={
@@ -99,7 +99,7 @@ def test_diagnose_properties_no_default_prefix() -> None:
 
 
 def test_diagnose_properties_default_prefix() -> None:
-    onto_tool = OntoDiagnoseTool(
+    onto_tool = OntoCheckTool(
         default_ontology_prefix="test",
         save_location=Path(""),
         onto_lookup={
@@ -111,7 +111,7 @@ def test_diagnose_properties_default_prefix() -> None:
 
 
 def test_identify_ontology() -> None:
-    onto_tool = OntoDiagnoseTool(
+    onto_tool = OntoCheckTool(
         default_ontology_prefix="test",
         save_location=Path(""),
         onto_lookup={
@@ -126,7 +126,7 @@ def test_identify_ontology() -> None:
 
 
 def test_identify_ontology_error() -> None:
-    onto_tool = OntoDiagnoseTool(
+    onto_tool = OntoCheckTool(
         default_ontology_prefix="test",
         save_location=Path(""),
         onto_lookup={

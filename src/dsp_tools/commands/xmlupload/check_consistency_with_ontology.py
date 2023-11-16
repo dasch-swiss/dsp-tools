@@ -3,7 +3,7 @@
 from lxml import etree
 
 from dsp_tools.commands.xmlupload.ontology_client import OntologyClient, format_ontology
-from dsp_tools.commands.xmlupload.ontology_diagnose_models import OntoDiagnoseTool, Ontology, UnknownOntologyElements
+from dsp_tools.commands.xmlupload.ontology_diagnose_models import OntoCheckTool, Ontology, UnknownOntologyElements
 from dsp_tools.models.exceptions import BaseError
 
 
@@ -21,7 +21,7 @@ def do_xml_consistency_check(onto_client: OntologyClient, root: etree._Element) 
      Raises:
          UserError: if there are any unknown properties or classes
     """
-    onto_tool = OntoDiagnoseTool(
+    onto_tool = OntoCheckTool(
         default_ontology_prefix=onto_client.default_ontology,
         onto_lookup=_get_project_and_knora_ontology_from_server(onto_client),
         save_location=onto_client.save_location,
@@ -34,7 +34,7 @@ def _get_project_and_knora_ontology_from_server(onto_client: OntologyClient) -> 
     return {onto_name: format_ontology(onto_graph) for onto_name, onto_graph in ontologies.items()}
 
 
-def _iterate_over_xml_find_problems(root: etree._Element, onto_tool: OntoDiagnoseTool) -> None:
+def _iterate_over_xml_find_problems(root: etree._Element, onto_tool: OntoCheckTool) -> None:
     unknown_eles = UnknownOntologyElements(save_path=onto_tool.save_location)
     for resource in root.iterchildren():
         if not _diagnose_classes(resource.tag, onto_tool):
@@ -45,12 +45,12 @@ def _iterate_over_xml_find_problems(root: etree._Element, onto_tool: OntoDiagnos
         unknown_eles.execute_problem_protocol()
 
 
-def _diagnose_classes(class_str: str, onto_tool: OntoDiagnoseTool) -> bool:
+def _diagnose_classes(class_str: str, onto_tool: OntoCheckTool) -> bool:
     prefix, cls = _identify_ontology(class_str, onto_tool)
     return cls in onto_tool.onto_lookup[prefix].classes
 
 
-def _diagnose_all_properties(resource: etree._Element, onto_tool: OntoDiagnoseTool) -> list[tuple[str, str]]:
+def _diagnose_all_properties(resource: etree._Element, onto_tool: OntoCheckTool) -> list[tuple[str, str]]:
     return [
         (resource.attrib["id"], prop.attrib["name"])
         for prop in resource.iterchildren()
@@ -58,12 +58,12 @@ def _diagnose_all_properties(resource: etree._Element, onto_tool: OntoDiagnoseTo
     ]
 
 
-def _diagnose_properties(prop_str: str, onto_tool: OntoDiagnoseTool) -> bool:
+def _diagnose_properties(prop_str: str, onto_tool: OntoCheckTool) -> bool:
     prefix, prop = _identify_ontology(prop_str, onto_tool)
     return prop in onto_tool.onto_lookup[prefix].properties
 
 
-def _identify_ontology(prop_cls: str, onto_tool: OntoDiagnoseTool) -> tuple[str, ...]:
+def _identify_ontology(prop_cls: str, onto_tool: OntoCheckTool) -> tuple[str, ...]:
     if onto_tool.default_ontology_colon.match(prop_cls):
         return onto_tool.default_ontology_prefix, prop_cls.lstrip(":")
     elif onto_tool.knora_undeclared.match(prop_cls):

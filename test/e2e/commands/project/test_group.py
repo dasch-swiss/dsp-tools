@@ -35,10 +35,7 @@ class TestGroup(unittest.TestCase):  # pylint: disable=missing-class-docstring
         :return: None
         """
         groups = Group.getAllGroups(self.con)
-        group_ids = []
-        for group in groups:
-            group_ids.append(group.iri)
-
+        group_ids = [group.iri for group in groups]
         group_ids_expected = [
             "http://rdfh.ch/groups/00FF/images-reviewer",
             "http://rdfh.ch/groups/0001/thing-searcher",

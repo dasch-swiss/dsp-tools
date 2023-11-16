@@ -13,10 +13,7 @@ ignore:
 rule_settings:
   enable:
     - default
-  disable: [
-    inline-immediately-returned-variable,
-    max-min-default,
-  ]
+  disable: []
   rule_types:
     - refactoring
     - suggestion

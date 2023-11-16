@@ -98,7 +98,7 @@ def stash_circular_references(
     stashed_link_values: list[LinkValueStashItem] = []
 
     for res in resources:
-        if not res.id in stash_lookup:
+        if res.id not in stash_lookup:
             continue
         for link_prop in res.get_props_with_links():
             assert link_prop.valtype in ["text", "resptr"]
@@ -115,9 +115,7 @@ def stash_circular_references(
 
     standoff_stash = StandoffStash.make(stashed_standoff_values)
     link_value_stash = LinkValueStash.make(stashed_link_values)
-    stash = Stash.make(standoff_stash, link_value_stash)
-
-    return stash
+    return Stash.make(standoff_stash, link_value_stash)
 
 
 def identify_circular_references(root: etree._Element) -> tuple[dict[str, list[str]], list[str]]:

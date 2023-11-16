@@ -421,9 +421,7 @@ def upload_files(
     end_time = datetime.now()
     print(f"{datetime.now()}: Uploading files took {end_time - start_time}")
     logger.info(f"Uploading files took {end_time - start_time}")
-    success = _check_if_all_files_were_uploaded(
+    return _check_if_all_files_were_uploaded(
         result=result,
         internal_filenames_of_processed_files=internal_filenames_of_processed_files,
     )
-
-    return success

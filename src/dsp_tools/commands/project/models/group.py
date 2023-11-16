@@ -244,10 +244,9 @@ class Group(Model):  # pylint: disable=too-many-instance-attributes
         return [g for g in Group.getAllGroups(con) if g.project == proj_iri]
 
     def createDefinitionFileObj(self) -> dict[str, Any]:
-        group = {
+        return {
             "name": self.name,
             "descriptions": self.descriptions.createDefinitionFileObj(),
             "selfjoin": self.selfjoin,
             "status": self.status,
         }
-        return group

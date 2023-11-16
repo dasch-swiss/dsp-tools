@@ -32,8 +32,8 @@ class OntoCheckTool:
 
 @dataclass
 class UnknownOntologyElements:
-    """This class saves
-    and puts out the information ontology classes and properties that are in the XML but not the ontology."""
+    """This class saves and prints out the information regarding ontology classes and properties
+    that are in the XML but not the ontology."""
 
     save_path: Path
     classes: list[tuple[str, str]] = field(default_factory=list)

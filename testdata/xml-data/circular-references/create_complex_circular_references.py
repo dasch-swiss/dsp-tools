@@ -66,12 +66,12 @@ def _make_salsah_link(target_id: str) -> str:
 
 def _make_xml_text_prop(target_res: etree._Element | list[etree._Element]) -> etree._Element:
     match target_res:
-        case etree._Element():
+        case etree._Element():  # pylint: disable=protected-access
             salsah_link = _make_salsah_link(target_res.attrib["id"])
             # one resource with many targets
         case list():
             salsah_link = "blabla".join([_make_salsah_link(x.attrib["id"]) for x in target_res])
-    text_value = "Start text" + salsah_link + "end text."
+    text_value = f"Start text{salsah_link}end text."
     return excel2xml.make_text_prop(name=":hasRichtext", value=excel2xml.PropertyElement(text_value, encoding="xml"))
 
 
@@ -146,7 +146,7 @@ def _make_complex_dependencies_single_link(replication_counter: str) -> list[etr
 
 
 def _make_complex_dependencies_single_link_resource_ABC(resource_list: list[etree._Element]) -> list[etree._Element]:
-    link_l = [_make_xml_text_prop(target_res=resource_list[3]) for i in range(3)]
+    link_l = [_make_xml_text_prop(target_res=resource_list[3]) for _ in range(3)]
     for i in range(3):
         resource_list[i].append(link_l[i])
     return resource_list
@@ -158,7 +158,7 @@ def _make_complex_dependencies_single_link_resource_D(resource_list: list[etree.
 
 
 def _make_complex_dependencies_single_link_resource_E(resource_list: list[etree._Element]) -> list[etree._Element]:
-    resource_list[4].append(_make_resptr_prop(target_id=[x.attrib["id"] for x in resource_list[0:3]]))
+    resource_list[4].append(_make_resptr_prop(target_id=[x.attrib["id"] for x in resource_list[:3]]))
     return resource_list
 
 
@@ -202,7 +202,7 @@ def _make_inverted_complex_dependencies(replication_counter: str) -> list[etree.
 def _make_single_link_inverted_complex_dependencies_resource_ABC(
     resource_list: list[etree._Element],
 ) -> list[etree._Element]:
-    link_l = [_make_resptr_prop(target_id=resource_list[3].attrib["id"]) for i in range(3)]
+    link_l = [_make_resptr_prop(target_id=resource_list[3].attrib["id"]) for _ in range(3)]
     for i in range(3):
         resource_list[i].append(link_l[i])
     return resource_list
@@ -214,7 +214,7 @@ def _make_inverted_complex_dependencies_resource_D(resource_list: list[etree._El
 
 
 def _make_inverted_complex_dependencies_resource_E(resource_list: list[etree._Element]) -> list[etree._Element]:
-    resource_list[4].append(_make_xml_text_prop(target_res=resource_list[0:3]))
+    resource_list[4].append(_make_xml_text_prop(target_res=resource_list[:3]))
     return resource_list
 
 
@@ -270,7 +270,7 @@ def _make_three_resource_circle_with_multiple_text_prop(replication_counter: str
     # C -> B (xml-prop)
 
     all_resources = _make_list_of_resources(3, replication_counter)
-    xml_links = _make_single_text_ele_for_text_prop([x.attrib["id"] for x in all_resources[0:2]])
+    xml_links = _make_single_text_ele_for_text_prop([x.attrib["id"] for x in all_resources[:2]])
     all_resources[2].append(xml_links)
     resptr_links = _make_resptr_prop([x.attrib["id"] for x in all_resources[1:]])
     all_resources[0].append(resptr_links)

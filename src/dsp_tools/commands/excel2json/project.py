@@ -51,7 +51,7 @@ def excel2json(
 
     processed_files = []
     onto_folders = [x for x in folder if os.path.isdir(x) and regex.search(r"([\w.-]+) \(([\w.\- ]+)\)", x.name)]
-    if len(onto_folders) == 0:
+    if not onto_folders:
         raise UserError(
             f"'{data_model_files}' must contain at least one subfolder named after the pattern 'onto_name (onto_label)'"
         )

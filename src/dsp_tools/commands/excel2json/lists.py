@@ -102,7 +102,7 @@ def _get_values_from_excel(
         dict: The JSON list up to the current recursion. At the last recursion, this is the final JSON list.
     """
     nodes: list[dict[str, Any]] = []
-    currentnode: dict[str, Any] = dict()
+    currentnode: dict[str, Any] = {}
     base_file_ws: Worksheet = list(base_file.values())[0]
     cell: Cell = base_file_ws.cell(column=col, row=row)
 
@@ -162,7 +162,7 @@ def _get_values_from_excel(
             # append a number (p.ex. node-name-2) if there are list nodes with identical names
             n = list_of_previous_node_names.count(nodename)
             if n > 1:
-                nodename = nodename + "-" + str(n)
+                nodename = f"{nodename}-{n}"
 
             # read label values from the other Excel files (other languages)
             labels_dict: dict[str, str] = {}
@@ -224,9 +224,10 @@ def _make_json_lists_from_excel(
     startcol = 1
 
     # make a dict with the language labels and the worksheets
-    lang_to_worksheet: dict[str, Worksheet] = {}
-    for filepath in excel_file_paths:
-        lang_to_worksheet[os.path.basename(filepath)[0:2]] = load_workbook(filepath, read_only=True).worksheets[0]
+    lang_to_worksheet = {
+        os.path.basename(filepath)[:2]: load_workbook(filepath, read_only=True).worksheets[0]
+        for filepath in excel_file_paths
+    }
 
     # take English as base file. If English is not available, take a random one.
     base_lang = "en" if "en" in lang_to_worksheet else list(lang_to_worksheet.keys())[0]

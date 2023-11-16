@@ -103,7 +103,7 @@ def create_lists_on_server(
         )
     except BaseError:
         err_msg = "Unable to retrieve existing lists on DSP server. Cannot check if your lists are already existing."
-        print("WARNING: " + err_msg)
+        print(f"WARNING: {err_msg}")
         logger.warning(err_msg, exc_info=True)
         existing_lists = []
         overall_success = False

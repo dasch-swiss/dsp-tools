@@ -41,9 +41,8 @@ class StackConfiguration:
         Raises:
             UserError: if one of the parameters is invalid
         """
-        if self.max_file_size is not None:
-            if not 1 <= self.max_file_size <= 100_000:
-                raise UserError("max_file_size must be between 1 and 100000")
+        if self.max_file_size is not None and not 1 <= self.max_file_size <= 100_000:
+            raise UserError("max_file_size must be between 1 and 100000")
         if self.enforce_docker_system_prune and self.suppress_docker_system_prune:
             raise UserError('The arguments "--prune" and "--no-prune" are mutually exclusive')
 

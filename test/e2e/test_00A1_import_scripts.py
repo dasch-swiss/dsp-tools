@@ -1,12 +1,11 @@
-# pylint: disable=missing-class-docstring
-
 import os
 import subprocess
-import unittest
+from collections.abc import Iterator
 from pathlib import Path
 
 import pytest
 import regex
+from lxml import etree
 
 from dsp_tools.commands.project.create.project_create import create_project
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
@@ -14,61 +13,71 @@ from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.shared import check_notna
 
+generated_xml_file = Path("src/dsp_tools/import_scripts/data-processed.xml")
 
-class TestImportScripts(unittest.TestCase):
-    def tearDown(self) -> None:
-        """
-        Remove generated data.
-        For each test method, a new TestCase instance is created, so tearDown() is executed after each test method.
-        """
-        Path("src/dsp_tools/import_scripts/data-processed.xml").unlink(missing_ok=True)
 
-    @pytest.mark.filterwarnings("ignore::UserWarning")
-    def test_import_scripts(self) -> None:
-        """
-        Execute the import script in its directory, create the project on the DSP server, and upload the created XML to
-        the DSP server.
-        """
-        # pull the latest state of the git submodule
-        subprocess.run("git submodule update --init --recursive", check=True, shell=True)
-        from dsp_tools.import_scripts import import_script  # pylint: disable=import-outside-toplevel
+@pytest.fixture(scope="module", autouse=True)
+def teardown_module() -> Iterator[None]:
+    """Remove the generated XML file"""
+    # setup
+    yield None
+    # teardown
+    generated_xml_file.unlink(missing_ok=True)
 
-        # execute the import script in its directory
-        old_working_directory = os.getcwd()
-        os.chdir("src/dsp_tools/import_scripts")
-        try:
-            import_script.main()
-        finally:
-            os.chdir(old_working_directory)
 
-        # check the output XML (but before, remove random components from resource IDs and resptr targets)
-        with open("testdata/excel2xml/00A1-data-processed-expected.xml", encoding="utf-8") as f:
-            xml_expected = _derandomize_xsd_id(f.read(), multiple_occurrences=True)
-        with open("src/dsp_tools/import_scripts/data-processed.xml", encoding="utf-8") as f:
-            xml_returned = _derandomize_xsd_id(f.read(), multiple_occurrences=True)
-        self.assertEqual(xml_expected, xml_returned)
+@pytest.mark.filterwarnings("ignore::UserWarning")
+def test_script() -> None:
+    """Execute the import script in its directory"""
+    # pull the latest state of the git submodule
+    subprocess.run("git submodule update --init --recursive", check=True, shell=True)
+    from dsp_tools.import_scripts import import_script  # pylint: disable=import-outside-toplevel
 
-        # create the JSON project file, and upload the XML
-        success_on_creation = create_project(
-            project_file_as_path_or_parsed="src/dsp_tools/import_scripts/import_project.json",
-            server="http://0.0.0.0:3333",
-            user_mail="root@example.com",
-            password="test",
-            verbose=False,
-            dump=False,
-        )
-        self.assertTrue(success_on_creation)
+    # execute the import script in its directory
+    old_working_directory = os.getcwd()
+    os.chdir("src/dsp_tools/import_scripts")
+    try:
+        import_script.main()
+    finally:
+        os.chdir(old_working_directory)
 
-        success_on_xmlupload = xmlupload(
-            input_file="src/dsp_tools/import_scripts/data-processed.xml",
-            server="http://0.0.0.0:3333",
-            user="root@example.com",
-            password="test",
-            imgdir="src/dsp_tools/import_scripts/",
-            sipi="http://0.0.0.0:1024",
-            config=UploadConfig(),
-        )
-        self.assertTrue(success_on_xmlupload)
+    # check the output XML
+    with open("testdata/excel2xml/00A1-data-processed-expected.xml", encoding="utf-8") as f:
+        xml_expected = _derandomize_xsd_id(f.read(), multiple_occurrences=True)
+    with open(generated_xml_file, encoding="utf-8") as f:
+        xml_returned = _derandomize_xsd_id(f.read(), multiple_occurrences=True)
+    assert _sort_xml_by_id(xml_expected) == _sort_xml_by_id(xml_returned)
+
+
+def test_upload() -> None:
+    """Create the project on the DSP server, and upload the created XML to the DSP server"""
+    success_on_creation = create_project(
+        project_file_as_path_or_parsed="src/dsp_tools/import_scripts/import_project.json",
+        server="http://0.0.0.0:3333",
+        user_mail="root@example.com",
+        password="test",
+        verbose=False,
+        dump=False,
+    )
+    assert success_on_creation
+
+    success_on_xmlupload = xmlupload(
+        input_file=generated_xml_file,
+        server="http://0.0.0.0:3333",
+        user="root@example.com",
+        password="test",
+        imgdir="src/dsp_tools/import_scripts/",
+        sipi="http://0.0.0.0:1024",
+        config=UploadConfig(),
+    )
+    assert success_on_xmlupload
+
+
+def _sort_xml_by_id(xml: str) -> str:
+    """Sort the elements in the XML by their ID"""
+    xml_tree = etree.fromstring(xml.encode("utf-8"))
+    for elem in xml_tree.iter():
+        elem[:] = sorted(elem, key=lambda x: x.attrib.get("id", ""))
+    return etree.tostring(xml_tree).decode("utf-8")
 
 
 def _derandomize_xsd_id(

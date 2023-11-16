@@ -3,6 +3,7 @@
 import os
 import subprocess
 import unittest
+from pathlib import Path
 
 import pytest
 import regex
@@ -20,8 +21,7 @@ class TestImportScripts(unittest.TestCase):
         Remove generated data.
         For each test method, a new TestCase instance is created, so tearDown() is executed after each test method.
         """
-        if os.path.isfile("src/dsp_tools/import_scripts/data-processed.xml"):
-            os.remove("src/dsp_tools/import_scripts/data-processed.xml")
+        Path("src/dsp_tools/import_scripts/data-processed.xml").unlink(missing_ok=True)
 
     @pytest.mark.filterwarnings("ignore::UserWarning")
     def test_import_scripts(self) -> None:

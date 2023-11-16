@@ -270,9 +270,10 @@ def _validate_xml_tags_in_text_properties(doc: Union[etree._ElementTree[etree._E
     # then: make the test
     resources_with_illegal_xml_tags = []
     for text in doc_without_namespace.findall(path="resource/text-prop/text"):
-        if text.attrib["encoding"] == "utf8" and (
-            regex.search(r'<([a-zA-Z/"]+|[^\s0-9].*[^\s0-9])>', str(text.text)) or list(text.iterchildren())
-        ):
+        regex_finds_tags = bool(regex.search(r'<([a-zA-Z/"]+|[^\s0-9].*[^\s0-9])>', str(text.text)))
+        etree_finds_tags = bool(list(text.iterchildren()))
+        has_tags = regex_finds_tags or etree_finds_tags
+        if text.attrib["encoding"] == "utf8" and has_tags:
             sourceline = f" line {text.sourceline}: " if text.sourceline else " "
             propname = text.getparent().attrib["name"]  # type: ignore[union-attr]
             resname = text.getparent().getparent().attrib["id"]  # type: ignore[union-attr]

@@ -36,4 +36,5 @@ def _get_all_properties_from_root(root: etree._Element) -> set[str]:
 
 
 def _get_all_properties_from_one_resource(resource_ele: etree._Element) -> set[str]:
-    return {prop.attrib.get("name") for prop in list(resource_ele.iterchildren()) if prop.attrib.get("name")}
+    props: set[etree._Element] = {prop for prop in list(resource_ele.iterchildren()) if prop.attrib.get("name")}
+    return {prop.attrib["name"] for prop in props}

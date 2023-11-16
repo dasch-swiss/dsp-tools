@@ -5,10 +5,10 @@
 
 version: '1'  
 
-# ignore:
-  # - src/dsp_tools/commands/project/models
-  # - src/dsp_tools/commands/xmlupload/models
-  # - src/dsp_tools/models
+ignore:
+  - src/dsp_tools/commands/project/models
+  - src/dsp_tools/commands/xmlupload/models
+  - src/dsp_tools/models
 
 rule_settings:
   enable:

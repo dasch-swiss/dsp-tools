@@ -1,14 +1,12 @@
-from typing import Any
-
 from lxml import etree
-from pytest_unordered import unordered
 
 from dsp_tools.commands.xmlupload.check_consistency_with_ontology import (
     _get_all_properties_from_one_resource,
     _get_all_properties_from_root,
     _get_resource_class_from_root,
 )
-from dsp_tools.commands.xmlupload.ontology_client import Ontology, OntologyClient
+
+# pylint: disable=missing-function-docstring
 
 
 def test_get_resource_class_from_one_resource() -> None:

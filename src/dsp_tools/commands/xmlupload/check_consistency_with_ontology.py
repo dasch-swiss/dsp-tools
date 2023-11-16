@@ -1,5 +1,3 @@
-from typing import Any
-
 from lxml import etree
 
 from dsp_tools.commands.xmlupload.ontology_client import Ontology, OntologyClient, format_ontology

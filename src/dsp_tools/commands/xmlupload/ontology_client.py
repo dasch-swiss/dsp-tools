@@ -43,9 +43,7 @@ class OntologyClientLive:
             Dictionary with the ontology names and an instance of Ontology.
         """
         self._get_ontology_names_from_server()
-        project_ontos = {}
-        for onto in self.ontology_names:
-            project_ontos[onto] = self._get_ontology_from_server(onto)
+        project_ontos = {onto: self._get_ontology_from_server(onto) for onto in self.ontology_names}
         project_ontos["knora"] = self._get_knora_api_from_server()
         return project_ontos
 

@@ -1,6 +1,25 @@
+# sourcery skip: use-fstring-for-concatenation
+
+from dataclasses import dataclass, field
+
+import regex
 from lxml import etree
+from regex import Pattern
 
 from dsp_tools.commands.xmlupload.ontology_client import Ontology, OntologyClient, format_ontology
+from dsp_tools.models.exceptions import BaseError
+
+
+@dataclass
+class OntoRegEx:
+    """This class returns the regex for the ontology"""
+
+    default_ontology_prefix: str = r""
+    default_prefixed: Pattern[str] = field(default=regex.compile(r"^" + default_ontology_prefix + r":[A-Za-z]+$"))
+    knora_declared: Pattern[str] = field(default=regex.compile(r"^knora-api:[A-Za-z]+$"))
+    knora_undeclared: Pattern[str] = field(default=regex.compile(r"^[A-Za-z]+$"))
+    default_ontology_colon: Pattern[str] = field(default=regex.compile(r"^:[A-Za-z]+$"))
+    generic_prefixed_ontology: Pattern[str] = field(default=regex.compile(r"^[A-Za-z]+:[A-Za-z]+$"))
 
 
 def get_project_and_knora_ontology_from_server(onto_client: OntologyClient) -> dict[str, Ontology]:
@@ -17,10 +36,7 @@ def get_project_and_knora_ontology_from_server(onto_client: OntologyClient) -> d
     """
 
     ontologies = onto_client.get_all_ontologies_from_server()
-    out_ontologies = {}
-    for onto_name, onto_graph in ontologies.items():
-        out_ontologies[onto_name] = format_ontology(onto_graph)
-    return out_ontologies
+    return {onto_name: format_ontology(onto_graph) for onto_name, onto_graph in ontologies.items()}
 
 
 def _get_resource_class_from_root(root: etree._Element) -> set[str]:
@@ -38,3 +54,22 @@ def _get_all_properties_from_root(root: etree._Element) -> set[str]:
 def _get_all_properties_from_one_resource(resource_ele: etree._Element) -> set[str]:
     props: set[etree._Element] = {prop for prop in list(resource_ele.iterchildren()) if prop.attrib.get("name")}
     return {prop.attrib["name"] for prop in props}
+
+
+def _identify_ontology(prop_cls: str, onto_regex: OntoRegEx) -> tuple[str, ...]:
+    if onto_regex.knora_declared.match(prop_cls):
+        return "knora", _remove_prefix(prop_cls)
+    elif onto_regex.knora_undeclared.match(prop_cls):
+        return "knora", prop_cls
+    elif onto_regex.default_prefixed.match(prop_cls):
+        return onto_regex.default_ontology_prefix, _remove_prefix(prop_cls)
+    elif onto_regex.default_ontology_colon.match(prop_cls):
+        return onto_regex.default_ontology_prefix, prop_cls.lstrip(":")
+    elif onto_regex.generic_prefixed_ontology.match(prop_cls):
+        return tuple(prop_cls.split(":"))
+    else:
+        raise BaseError(f"The input property or class: '{prop_cls}' does not follow a known ontology pattern.")
+
+
+def _remove_prefix(in_str: str) -> str:
+    return in_str.split(":")[1]

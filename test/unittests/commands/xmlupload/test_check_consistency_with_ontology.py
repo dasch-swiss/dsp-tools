@@ -1,15 +1,20 @@
+import pytest
+import regex.regex
 from lxml import etree
 
 from dsp_tools.commands.xmlupload.check_consistency_with_ontology import (
+    OntoRegEx,
     _get_all_properties_from_one_resource,
     _get_all_properties_from_root,
     _get_resource_class_from_root,
+    _identify_ontology,
 )
+from dsp_tools.models.exceptions import BaseError
 
 # pylint: disable=missing-function-docstring
 
 
-def test_get_resource_class_from_one_resource() -> None:
+def test__get_resource_class_from_root() -> None:
     test_ele = etree.fromstring(
         """<knora shortcode="0700" default-ontology="simcir">
                 <resource label="res_A_19" restype=":TestThing1" id="res_B" permissions="res-default">
@@ -87,3 +92,20 @@ def test_get_all_properties_from_root() -> None:
     )
     result = _get_all_properties_from_root(test_ele)
     assert result == {":hasSimpleText", "knora-api:isPartOf", "hasComment"}
+
+
+def test_identify_ontology() -> None:
+    onto_regex = OntoRegEx(default_ontology_prefix=r"beol")
+    assert _identify_ontology(":hasSimpleText", onto_regex) == ("beol", "hasSimpleText")
+    assert _identify_ontology("knora-api:isPartOf", onto_regex) == ("knora", "isPartOf")
+    assert _identify_ontology("hasComment", onto_regex) == ("knora", "hasComment")
+    assert _identify_ontology("beol:hasSimpleText", onto_regex) == ("beol", "hasSimpleText")
+    assert _identify_ontology("test:hasSimpleText", onto_regex) == ("test", "hasSimpleText")
+
+
+def test_identify_ontology_error() -> None:
+    onto_regex = OntoRegEx(default_ontology_prefix=r"beol")
+    with pytest.raises(
+        BaseException, match="The input property or class: '123654' does not follow a known ontology pattern."
+    ):
+        _identify_ontology("123654", onto_regex)

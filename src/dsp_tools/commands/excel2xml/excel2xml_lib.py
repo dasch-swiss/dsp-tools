@@ -273,7 +273,7 @@ def make_root(
     schema_url = "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/data.xsd"
     schema_location_key = str(etree.QName("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation"))
     schema_location_value = f"https://dasch.swiss/schema {schema_url}"
-    root = etree.Element(
+    return etree.Element(
         "{%s}knora" % xml_namespace_map[None],
         attrib={
             schema_location_key: schema_location_value,
@@ -282,7 +282,6 @@ def make_root(
         },
         nsmap=xml_namespace_map,
     )
-    return root
 
 
 def append_permissions(root_element: etree._Element) -> etree._Element:
@@ -394,8 +393,7 @@ def make_resource(
             ) from None
         kwargs["creation_date"] = creation_date
 
-    resource_ = etree.Element("{%s}resource" % xml_namespace_map[None], **kwargs)  # type: ignore[arg-type]
-    return resource_
+    return etree.Element("{%s}resource" % xml_namespace_map[None], **kwargs)  # type: ignore[arg-type]
 
 
 def make_bitstream_prop(
@@ -1495,11 +1493,10 @@ def make_region(
             ) from None
         kwargs["creation_date"] = creation_date
 
-    region_ = etree.Element(
+    return etree.Element(
         "{%s}region" % xml_namespace_map[None],
         **kwargs,  # type: ignore[arg-type]
     )
-    return region_
 
 
 def make_annotation(
@@ -1553,11 +1550,10 @@ def make_annotation(
             ) from None
         kwargs["creation_date"] = creation_date
 
-    annotation_ = etree.Element(
+    return etree.Element(
         "{%s}annotation" % xml_namespace_map[None],
         **kwargs,  # type: ignore[arg-type]
     )
-    return annotation_
 
 
 def make_link(
@@ -1611,11 +1607,10 @@ def make_link(
             ) from None
         kwargs["creation_date"] = creation_date
 
-    link_ = etree.Element(
+    return etree.Element(
         "{%s}link" % xml_namespace_map[None],
         **kwargs,  # type: ignore[arg-type]
     )
-    return link_
 
 
 def create_json_excel_list_mapping(

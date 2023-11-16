@@ -19,8 +19,8 @@ class Ontology:
 
 
 @dataclass
-class OntoDiagnoseTool:
-    """This class returns the regex for the ontology"""
+class OntoCheckTool:
+    """This class saves information that is needed to check if consistency with the ontology."""
 
     default_ontology_prefix: str
     onto_lookup: dict[str, Ontology]
@@ -54,13 +54,13 @@ class UnknownOntologyElements:
         If there are more than 100 entries combined, then the result is also saved as an excel.
 
         Raises:
-            UserError: If properties or classes has any entries the problems.
+            UserError: If properties or classes have any entries.
         """
         if len(self.classes) + len(self.properties) > 100:
             self._save_problems_as_excel()
         cls_msg = self._print_problem_string_cls()
         prop_msg = self._print_problem_string_props()
-        raise UserError("Some property and or class type(s) used in the XML are unknown:\n" + cls_msg + prop_msg)
+        raise UserError("Some property and or class type(s) used in the XML are unknown:\n" + cls_msg + "\n" + prop_msg)
 
     def _save_problems_as_excel(self) -> None:
         cls_di = {
@@ -80,14 +80,14 @@ class UnknownOntologyElements:
 
     def _print_problem_string_cls(self) -> str:
         if self.classes:
-            problems = [f"\tResource ID: {x[0]}, Resource Type: {x[1]}" for x in self.classes]
-            return "\n\tThe following resources have an invalid resource type:\n\t" + "\n\t- ".join(problems)
+            problems = [f"Resource ID: '{x[0]}', Resource Type: '{x[1]}'" for x in self.classes]
+            return "The following resource(s) have an invalid resource type:\n\t- " + "\n\t- ".join(problems)
         else:
             return ""
 
     def _print_problem_string_props(self) -> str:
         if self.properties:
-            problems = [f"\tResource ID: {x[0]}, Property Name: {x[1]}" for x in self.properties]
-            return "\n\tThe following resources have an invalid property type(s):\n\t" + "\n\t- ".join(problems)
+            problems = [f"Resource ID: '{x[0]}', Property Name: '{x[1]}'" for x in self.properties]
+            return "The following resource(s) have invalid property type(s):\n\t- " + "\n\t- ".join(problems)
         else:
             return ""

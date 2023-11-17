@@ -4,8 +4,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 import pandas as pd
-import regex
-from regex import Pattern
 
 from dsp_tools.models.exceptions import UserError
 
@@ -25,9 +23,6 @@ class OntoCheckInformation:
     default_ontology_prefix: str
     onto_lookup: dict[str, Ontology]
     save_location: Path
-    default_ontology_colon: Pattern[str] = field(default=regex.compile(r"^:[A-Za-z]+$"))
-    knora_undeclared: Pattern[str] = field(default=regex.compile(r"^[A-Za-z]+$"))
-    generic_prefixed_ontology: Pattern[str] = field(default=regex.compile(r"^[A-Za-z]+-?[A-Za-z]+:[A-Za-z]+$"))
 
 
 @dataclass
@@ -36,17 +31,8 @@ class InvalidOntologyElements:
     that are in the XML but not the ontology."""
 
     save_path: Path
-    classes: list[tuple[str, str]] = field(default_factory=list)
-    properties: list[tuple[str, str]] = field(default_factory=list)
-
-    def not_empty(self) -> bool:
-        """
-        Returns false if there are no classes or properties saved.
-
-        Returns:
-            bool
-        """
-        return any([self.classes, self.properties])
+    classes: list[list[str]] = field(default_factory=list)
+    properties: list[list[str]] = field(default_factory=list)
 
     def execute_problem_protocol(self) -> None:
         """
@@ -56,38 +42,53 @@ class InvalidOntologyElements:
         Raises:
             UserError: If properties or classes have any entries.
         """
-        if len(self.classes) + len(self.properties) > 100:
-            self._save_problems_as_excel()
+        extra_separator = "\n----------------------------"
+        msg = "Some property and or class type(s) used in the XML are unknown:" + extra_separator
         cls_msg = self._print_problem_string_cls()
+        if cls_msg:
+            msg += cls_msg + extra_separator
         prop_msg = self._print_problem_string_props()
-        raise UserError("Some property and or class type(s) used in the XML are unknown:\n" + cls_msg + "\n" + prop_msg)
+        if prop_msg:
+            msg += prop_msg
+        if len(self.classes) + len(self.properties) > 50:
+            ex_name = "InvalidOntologyElements_in_XML.xlsx"
+            self._get_and_save_problems_as_excel(ex_name)
+            msg += extra_separator + f"\nAn excel: '{ex_name}' was saved at '{self.save_path}' listing the problems."
+        raise UserError(msg)
 
-    def _save_problems_as_excel(self) -> None:
+    def _get_and_save_problems_as_excel(self, excel_name) -> None:
+        df = self._get_problems_as_df()
+        df.to_excel(excel_writer=Path(self.save_path, excel_name), sheet_name=" ", index=False)
+
+    def _get_problems_as_df(self) -> pd.DataFrame:
         cls_di = {
-            "type": "resources",
             "resource id": [x[0] for x in self.classes],
             "problematic type": [x[1] for x in self.classes],
+            "problem": [x[2] for x in self.classes],
         }
         prop_di = {
-            "type": "property",
             "resource id": [x[0] for x in self.properties],
             "problematic type": [x[1] for x in self.properties],
+            "problem": [x[2] for x in self.properties],
         }
-        df = pd.DataFrame.from_records([cls_di, prop_di])
-        df.to_excel(
-            excel_writer=Path(self.save_path, "ProblematicOntologyElements_in_XML.xlsx"), sheet_name=" ", index=False
-        )
+        return pd.DataFrame.from_records([cls_di, prop_di])
 
     def _print_problem_string_cls(self) -> str:
         if self.classes:
-            problems = [f"Resource ID: '{x[0]}', Resource Type: '{x[1]}'" for x in self.classes]
-            return "The following resource(s) have an invalid resource type:\n\t- " + "\n\t- ".join(problems)
+            separator = "\n----------------------------\n"
+            problems = [
+                f"\tResource ID: '{x[0]}'\n\tResource Type: '{x[1]}'\n\tProblem: '{x[2]}'" for x in self.classes
+            ]
+            return "The following resource(s) have an invalid resource type:\n" + separator.join(problems)
         else:
             return ""
 
     def _print_problem_string_props(self) -> str:
         if self.properties:
-            problems = [f"Resource ID: '{x[0]}', Property Name: '{x[1]}'" for x in self.properties]
-            return "The following resource(s) have invalid property type(s):\n\t- " + "\n\t- ".join(problems)
+            separator = "\n----------------------------\n"
+            problems = [
+                f"\tResource ID: '{x[0]}'\n\tProperty Name: '{x[1]}'\n\tProblem: '{x[2]}'" for x in self.properties
+            ]
+            return "The following resource(s) have invalid property type(s):\n" + separator.join(problems)
         else:
             return ""

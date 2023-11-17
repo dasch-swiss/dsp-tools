@@ -8,26 +8,14 @@ from dsp_tools.models.exceptions import UserError
 # pylint: disable=missing-function-docstring,anomalous-backslash-in-string,protected-access
 
 
-def test_not_empty_false() -> None:
-    onto = InvalidOntologyElements(Path(""), [], [])
-    assert not onto.not_empty()
-
-
-def test_not_empty_true_cls() -> None:
-    onto = InvalidOntologyElements(Path(""), [("a", "b")], [])
-    assert onto.not_empty()
-
-
-def test_not_empty_true_prop() -> None:
-    onto = InvalidOntologyElements(Path(""), [], [("a", "b")])
-    assert onto.not_empty()
-
-
 def test_print_problem_string_cls() -> None:
-    onto = InvalidOntologyElements(Path(""), [("idA", "clsA")], [])
+    onto = InvalidOntologyElements(Path(""), [["idA", "clsA", "wrong"]], [])
     msg = onto._print_problem_string_cls()
     assert msg == (
-        "The following resource(s) have an invalid resource type:\n\t- Resource ID: 'idA', Resource Type: 'clsA'"
+        "The following resource(s) have an invalid resource type:\n"
+        "\tResource ID: 'idA'\n"
+        "\tResource Type: 'clsA'\n"
+        "\tProblem: 'wrong'"
     )
 
 
@@ -38,10 +26,13 @@ def test_print_problem_string_no_cls() -> None:
 
 
 def test_print_problem_string_prop() -> None:
-    onto = InvalidOntologyElements(Path(""), [], [("idA", "propA")])
+    onto = InvalidOntologyElements(Path(""), [], [["idA", "propA", "wrong"]])
     msg = onto._print_problem_string_props()
     assert msg == (
-        "The following resource(s) have invalid property type(s):\n\t- Resource ID: 'idA', Property Name: 'propA'"
+        "The following resource(s) have invalid property type(s):\n"
+        "\tResource ID: 'idA'\n"
+        "\tProperty Name: 'propA'\n"
+        "\tProblem: 'wrong'"
     )
 
 
@@ -52,11 +43,19 @@ def test_print_problem_string_no_prop() -> None:
 
 
 def test_execute_problem_protocol() -> None:
-    onto = InvalidOntologyElements(Path(""), [("idB", "clsB")], [("idA", "propA")])
+    onto = InvalidOntologyElements(Path(""), [["idA", "clsA", "wrong"]], [["idA", "propA", "wrong"]])
     expected_msg = (
-        "Some property and or class type\(s\) used in the XML are unknown\:\n"
-        "The following resource\(s\) have an invalid resource type:\n\t- Resource ID\: 'idB', Resource Type\: 'clsB'\n"
-        "The following resource\(s\) have invalid property type\(s\):\n\t- Resource ID\: 'idA', Property Name\: 'propA'"
+        "Some property and or class type\(s\) used in the XML are unknown\:"
+        "\n----------------------------"
+        "The following resource\(s\) have an invalid resource type\:\n"
+        "\tResource ID\: 'idA'\n"
+        "\tResource Type\: 'clsA'\n"
+        "\tProblem\: 'wrong'"
+        "\n----------------------------"
+        "The following resource\(s\) have invalid property type\(s\)\:\n"
+        "\tResource ID\: 'idA'\n"
+        "\tProperty Name\: 'propA'\n"
+        "\tProblem\: 'wrong'"
     )
     with pytest.raises(UserError, match=expected_msg):
         onto.execute_problem_protocol()

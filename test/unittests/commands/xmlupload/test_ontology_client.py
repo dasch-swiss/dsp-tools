@@ -9,7 +9,7 @@ from dsp_tools.commands.xmlupload.ontology_client import (
     _get_all_classes_from_graph,
     _get_all_properties_from_graph,
     _remove_prefixes,
-    format_ontology,
+    deserialize_ontology,
 )
 
 # pylint: disable=missing-class-docstring,missing-function-docstring,unused-argument,redefined-outer-name,protected-access
@@ -187,7 +187,7 @@ def test_format_ontology() -> None:
             "rdfs:comment": "Represents a direct connection between two resources",
         },
     ]
-    res_onto = format_ontology(test_graph)
+    res_onto = deserialize_ontology(test_graph)
     assert res_onto.classes == ["Annotation"]
     assert res_onto.properties == ["hasLinkTo"]
 

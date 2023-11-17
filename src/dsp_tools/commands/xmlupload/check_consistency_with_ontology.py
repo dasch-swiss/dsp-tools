@@ -2,8 +2,12 @@
 
 from lxml import etree
 
-from dsp_tools.commands.xmlupload.ontology_client import OntologyClient, format_ontology
-from dsp_tools.commands.xmlupload.ontology_diagnose_models import OntoCheckTool, Ontology, UnknownOntologyElements
+from dsp_tools.commands.xmlupload.models.ontology_diagnose_models import (
+    InvalidOntologyElements,
+    OntoCheckInformation,
+    Ontology,
+)
+from dsp_tools.commands.xmlupload.ontology_client import OntologyClient, deserialize_ontology
 from dsp_tools.models.exceptions import BaseError
 
 
@@ -21,36 +25,36 @@ def do_xml_consistency_check(onto_client: OntologyClient, root: etree._Element) 
      Raises:
          UserError: if there are any unknown properties or classes
     """
-    onto_tool = OntoCheckTool(
+    onto_tool = OntoCheckInformation(
         default_ontology_prefix=onto_client.default_ontology,
         onto_lookup=_get_project_and_knora_ontology_from_server(onto_client),
         save_location=onto_client.save_location,
     )
-    _iterate_over_xml_find_problems(root, onto_tool)
+    _find_problems_in_xml(root, onto_tool)
 
 
 def _get_project_and_knora_ontology_from_server(onto_client: OntologyClient) -> dict[str, Ontology]:
     ontologies = onto_client.get_all_ontologies_from_server()
-    return {onto_name: format_ontology(onto_graph) for onto_name, onto_graph in ontologies.items()}
+    return {onto_name: deserialize_ontology(onto_graph) for onto_name, onto_graph in ontologies.items()}
 
 
-def _iterate_over_xml_find_problems(root: etree._Element, onto_tool: OntoCheckTool) -> None:
-    unknown_eles = UnknownOntologyElements(save_path=onto_tool.save_location)
+def _find_problems_in_xml(root: etree._Element, onto_tool: OntoCheckInformation) -> None:
+    unknown_elems = InvalidOntologyElements(save_path=onto_tool.save_location)
     for resource in root.iterchildren():
-        if not _diagnose_classes(resource.tag, onto_tool):
-            unknown_eles.classes.append((resource.attrib["id"], resource.attrib["restype"]))
+        if not _diagnose_class(resource.tag, onto_tool):
+            unknown_elems.classes.append((resource.attrib["id"], resource.attrib["restype"]))
         if problems := _diagnose_all_properties(resource, onto_tool):
-            unknown_eles.properties.extend(problems)
-    if unknown_eles.not_empty():
-        unknown_eles.execute_problem_protocol()
+            unknown_elems.properties.extend(problems)
+    if unknown_elems.not_empty():
+        unknown_elems.execute_problem_protocol()
 
 
-def _diagnose_classes(class_str: str, onto_tool: OntoCheckTool) -> bool:
-    prefix, cls = _identify_ontology(class_str, onto_tool)
-    return cls in onto_tool.onto_lookup[prefix].classes
+def _diagnose_class(class_str: str, onto_tool: OntoCheckInformation) -> bool:
+    prefix, cls_ = _get_prefix_and_prop_cls_identifier(class_str, onto_tool)
+    return cls_ in onto_tool.onto_lookup[prefix].classes
 
 
-def _diagnose_all_properties(resource: etree._Element, onto_tool: OntoCheckTool) -> list[tuple[str, str]]:
+def _diagnose_all_properties(resource: etree._Element, onto_tool: OntoCheckInformation) -> list[tuple[str, str]]:
     return [
         (resource.attrib["id"], prop.attrib["name"])
         for prop in resource.iterchildren()
@@ -58,12 +62,12 @@ def _diagnose_all_properties(resource: etree._Element, onto_tool: OntoCheckTool)
     ]
 
 
-def _diagnose_properties(prop_str: str, onto_tool: OntoCheckTool) -> bool:
-    prefix, prop = _identify_ontology(prop_str, onto_tool)
+def _diagnose_properties(prop_str: str, onto_tool: OntoCheckInformation) -> bool:
+    prefix, prop = _get_prefix_and_prop_cls_identifier(prop_str, onto_tool)
     return prop in onto_tool.onto_lookup[prefix].properties
 
 
-def _identify_ontology(prop_cls: str, onto_tool: OntoCheckTool) -> tuple[str, ...]:
+def _get_prefix_and_prop_cls_identifier(prop_cls: str, onto_tool: OntoCheckInformation) -> tuple[str, ...]:
     if onto_tool.default_ontology_colon.match(prop_cls):
         return onto_tool.default_ontology_prefix, prop_cls.lstrip(":")
     elif onto_tool.knora_undeclared.match(prop_cls):

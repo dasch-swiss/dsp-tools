@@ -19,7 +19,7 @@ class Ontology:
 
 
 @dataclass
-class OntoCheckTool:
+class OntoCheckInformation:
     """This class saves information that is needed to check if consistency with the ontology."""
 
     default_ontology_prefix: str
@@ -31,7 +31,7 @@ class OntoCheckTool:
 
 
 @dataclass
-class UnknownOntologyElements:
+class InvalidOntologyElements:
     """This class saves and prints out the information regarding ontology classes and properties
     that are in the XML but not the ontology."""
 

@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Protocol
 
-from dsp_tools.commands.xmlupload.ontology_diagnose_models import Ontology
+from dsp_tools.commands.xmlupload.models.ontology_diagnose_models import Ontology
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.create_logger import get_logger
@@ -88,7 +88,7 @@ class OntologyClientLive:
         return onto_graph
 
 
-def format_ontology(onto_graph: list[dict[str, Any]]) -> Ontology:
+def deserialize_ontology(onto_graph: list[dict[str, Any]]) -> Ontology:
     """
     This function takes an ontology graph from the DSP-API.
     It extracts the classes and properties.
@@ -111,7 +111,7 @@ def _get_all_cleaned_classes_from_graph(onto_graph: list[dict[str, Any]]) -> lis
 
 
 def _get_all_classes_from_graph(onto_graph: list[dict[str, Any]]) -> list[str]:
-    return [ele["@id"] for ele in onto_graph if ele.get("knora-api:isResourceClass")]
+    return [elem["@id"] for elem in onto_graph if elem.get("knora-api:isResourceClass")]
 
 
 def _get_all_cleaned_properties_from_graph(onto_graph: list[dict[str, Any]]) -> list[str]:
@@ -120,7 +120,7 @@ def _get_all_cleaned_properties_from_graph(onto_graph: list[dict[str, Any]]) -> 
 
 
 def _get_all_properties_from_graph(onto_graph: list[dict[str, Any]]) -> list[str]:
-    return [ele["@id"] for ele in onto_graph if not ele.get("knora-api:isResourceClass")]
+    return [elem["@id"] for elem in onto_graph if not elem.get("knora-api:isResourceClass")]
 
 
 def _remove_prefixes(ontology_elements: list[str]) -> list[str]:

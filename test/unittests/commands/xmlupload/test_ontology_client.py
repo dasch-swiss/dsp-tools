@@ -23,69 +23,89 @@ class ConnectionMock(ConnectionMockBase):
         return self.get_responses
 
 
-def test_get_all_classes_from_graph() -> None:
-    test_graph = [
-        {
-            "knora-api:isResourceClass": True,
-            "rdfs:label": "Sequenz einer Audio-Ressource",
-            "knora-api:canBeInstantiated": True,
-            "rdfs:subClassOf": [
-                {"@id": "knora-api:Resource"},
-                {"@type": "owl:Restriction", "owl:onProperty": {"@id": "testonto:hasBounds"}, "owl:cardinality": 1},
-                {
-                    "@type": "owl:Restriction",
-                    "owl:onProperty": {"@id": "testonto:sequenceOfAudio"},
-                    "owl:cardinality": 1,
-                },
-            ],
-            "@type": "owl:Class",
-            "@id": "testonto:AudioSequence",
-        },
-    ]
-    res_cls = _get_all_classes_from_graph(test_graph)
-    assert res_cls == ["testonto:AudioSequence"]
+class TestGetAllClassesFromGraph:
+    @staticmethod
+    def test_single_class() -> None:
+        test_graph = [
+            {
+                "knora-api:isResourceClass": True,
+                "rdfs:label": "Sequenz einer Audio-Ressource",
+                "knora-api:canBeInstantiated": True,
+                "rdfs:subClassOf": [],
+                "@type": "owl:Class",
+                "@id": "testonto:AudioSequence",
+            },
+        ]
+        res_cls = _get_all_classes_from_graph(test_graph)
+        assert res_cls == ["testonto:AudioSequence"]
 
+    @staticmethod
+    def test_property() -> None:
+        test_graph = [
+            {
+                "rdfs:label": "URI",
+                "rdfs:subPropertyOf": {},
+                "knora-api:isEditable": True,
+                "knora-api:isResourceProperty": True,
+                "@type": "owl:ObjectProperty",
+                "salsah-gui:guiAttribute": [],
+                "knora-api:objectType": {},
+                "salsah-gui:guiElement": {},
+                "@id": "testonto:hasUri",
+            },
+        ]
+        res_cls = _get_all_classes_from_graph(test_graph)
+        assert not res_cls
 
-def test_get_all_classes_from_graph_property() -> None:
-    test_graph = [
-        {
-            "rdfs:label": "URI",
-            "rdfs:subPropertyOf": {"@id": "knora-api:hasValue"},
-            "knora-api:isEditable": True,
-            "knora-api:isResourceProperty": True,
-            "@type": "owl:ObjectProperty",
-            "salsah-gui:guiAttribute": ["maxlength=255", "size=80"],
-            "knora-api:objectType": {"@id": "knora-api:UriValue"},
-            "salsah-gui:guiElement": {"@id": "salsah-gui:SimpleText"},
-            "@id": "testonto:hasUri",
-        },
-    ]
-    res_cls = _get_all_classes_from_graph(test_graph)
-    assert not res_cls
+    @staticmethod
+    def test_from_graph_resources_and_properties() -> None:
+        test_graph = [
+            {
+                "knora-api:isResourceClass": True,
+                "rdfs:label": "Sequenz einer Audio-Ressource",
+                "knora-api:canBeInstantiated": True,
+                "rdfs:subClassOf": [],
+                "@type": "owl:Class",
+                "@id": "testonto:AudioSequence",
+            },
+            {
+                "rdfs:label": "URI",
+                "rdfs:subPropertyOf": {},
+                "knora-api:isEditable": True,
+                "knora-api:isResourceProperty": True,
+                "@type": "owl:ObjectProperty",
+                "salsah-gui:guiAttribute": [],
+                "knora-api:objectType": {},
+                "salsah-gui:guiElement": {},
+                "@id": "testonto:hasUri",
+            },
+        ]
+        res_cls = _get_all_classes_from_graph(test_graph)
+        assert res_cls == ["testonto:AudioSequence"]
 
 
 def test_get_all_properties_from_graph_haslinkto() -> None:
     test_graph = [
         {
             "rdfs:label": "hasResource",
-            "rdfs:subPropertyOf": {"@id": "knora-api:hasLinkTo"},
+            "rdfs:subPropertyOf": {},
             "knora-api:isEditable": True,
             "knora-api:isResourceProperty": True,
             "knora-api:isLinkProperty": True,
             "@type": "owl:ObjectProperty",
-            "knora-api:objectType": {"@id": "knora-api:Resource"},
-            "salsah-gui:guiElement": {"@id": "salsah-gui:Searchbox"},
+            "knora-api:objectType": {},
+            "salsah-gui:guiElement": {},
             "@id": "testonto:hasResource",
         },
         {
             "knora-api:isLinkValueProperty": True,
             "rdfs:label": "hasResource",
-            "rdfs:subPropertyOf": {"@id": "knora-api:hasLinkToValue"},
+            "rdfs:subPropertyOf": {},
             "knora-api:isEditable": True,
             "knora-api:isResourceProperty": True,
             "@type": "owl:ObjectProperty",
-            "knora-api:objectType": {"@id": "knora-api:LinkValue"},
-            "salsah-gui:guiElement": {"@id": "salsah-gui:Searchbox"},
+            "knora-api:objectType": {},
+            "salsah-gui:guiElement": {},
             "@id": "testonto:hasResourceValue",
         },
     ]
@@ -99,27 +119,19 @@ def test_get_all_properties_from_graph_resources_and_properties() -> None:
             "knora-api:isResourceClass": True,
             "rdfs:label": "Sequenz einer Audio-Ressource",
             "knora-api:canBeInstantiated": True,
-            "rdfs:subClassOf": [
-                {"@id": "knora-api:Resource"},
-                {"@type": "owl:Restriction", "owl:onProperty": {"@id": "testonto:hasBounds"}, "owl:cardinality": 1},
-                {
-                    "@type": "owl:Restriction",
-                    "owl:onProperty": {"@id": "testonto:sequenceOfAudio"},
-                    "owl:cardinality": 1,
-                },
-            ],
+            "rdfs:subClassOf": [],
             "@type": "owl:Class",
             "@id": "testonto:AudioSequence",
         },
         {
             "rdfs:label": "URI",
-            "rdfs:subPropertyOf": {"@id": "knora-api:hasValue"},
+            "rdfs:subPropertyOf": {},
             "knora-api:isEditable": True,
             "knora-api:isResourceProperty": True,
             "@type": "owl:ObjectProperty",
-            "salsah-gui:guiAttribute": ["maxlength=255", "size=80"],
-            "knora-api:objectType": {"@id": "knora-api:UriValue"},
-            "salsah-gui:guiElement": {"@id": "salsah-gui:SimpleText"},
+            "salsah-gui:guiAttribute": [],
+            "knora-api:objectType": {},
+            "salsah-gui:guiElement": {},
             "@id": "testonto:hasUri",
         },
     ]
@@ -127,62 +139,26 @@ def test_get_all_properties_from_graph_resources_and_properties() -> None:
     assert res_prop == ["testonto:hasUri"]
 
 
-def test_get_all_classes_from_graph_from_graph_resources_and_properties() -> None:
-    test_graph = [
-        {
-            "knora-api:isResourceClass": True,
-            "rdfs:label": "Sequenz einer Audio-Ressource",
-            "knora-api:canBeInstantiated": True,
-            "rdfs:subClassOf": [
-                {"@id": "knora-api:Resource"},
-                {"@type": "owl:Restriction", "owl:onProperty": {"@id": "testonto:hasBounds"}, "owl:cardinality": 1},
-                {
-                    "@type": "owl:Restriction",
-                    "owl:onProperty": {"@id": "testonto:sequenceOfAudio"},
-                    "owl:cardinality": 1,
-                },
-            ],
-            "@type": "owl:Class",
-            "@id": "testonto:AudioSequence",
-        },
-        {
-            "rdfs:label": "URI",
-            "rdfs:subPropertyOf": {"@id": "knora-api:hasValue"},
-            "knora-api:isEditable": True,
-            "knora-api:isResourceProperty": True,
-            "@type": "owl:ObjectProperty",
-            "salsah-gui:guiAttribute": ["maxlength=255", "size=80"],
-            "knora-api:objectType": {"@id": "knora-api:UriValue"},
-            "salsah-gui:guiElement": {"@id": "salsah-gui:SimpleText"},
-            "@id": "testonto:hasUri",
-        },
-    ]
-    res_cls = _get_all_classes_from_graph(test_graph)
-    assert res_cls == ["testonto:AudioSequence"]
-
-
-def test_format_ontology() -> None:
+def test_deserialize_ontology() -> None:
     test_graph = [
         {
             "knora-api:isResourceClass": True,
             "rdfs:label": "Annotation",
             "knora-api:canBeInstantiated": True,
-            "rdfs:subClassOf": [
-                {"@id": "knora-api:Resource"},
-            ],
+            "rdfs:subClassOf": [],
             "rdfs:comment": "A generic class for representing annotations",
             "@type": "owl:Class",
             "@id": "knora-api:Annotation",
         },
         {
             "rdfs:label": "has Link to",
-            "rdfs:subPropertyOf": {"@id": "knora-api:resourceProperty"},
+            "rdfs:subPropertyOf": {},
             "knora-api:isEditable": True,
             "knora-api:isResourceProperty": True,
             "@type": "owl:ObjectProperty",
-            "knora-api:objectType": {"@id": "knora-api:Resource"},
+            "knora-api:objectType": {},
             "@id": "knora-api:hasLinkTo",
-            "knora-api:subjectType": {"@id": "knora-api:Resource"},
+            "knora-api:subjectType": {},
             "knora-api:isLinkProperty": True,
             "rdfs:comment": "Represents a direct connection between two resources",
         },
@@ -220,26 +196,16 @@ def test_get_ontology_names_from_server() -> None:
 
 def test_get_ontology_from_server() -> None:
     response = {
-        "knora-api:lastModificationDate": {"@value": "2022-04-27T08:47:20.815147225Z", "@type": "xsd:dateTimeStamp"},
+        "knora-api:lastModificationDate": {},
         "rdfs:label": "The BEOL ontology",
         "@graph": [
             {"resource_class": ["Information"]},
             {"property": ["Information"]},
         ],
-        "knora-api:attachedToProject": {"@id": "http://rdfh.ch/projects/yTerZGyxjZVqFMNNKXCDPF"},
+        "knora-api:attachedToProject": {},
         "@type": "owl:Ontology",
         "@id": "http://api.dasch.swiss/ontology/0801/beol/v2",
-        "@context": {
-            "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-            "standoff": "http://api.knora.org/ontology/standoff/v2#",
-            "knora-api": "http://api.knora.org/ontology/knora-api/v2#",
-            "owl": "http://www.w3.org/2002/07/owl#",
-            "salsah-gui": "http://api.knora.org/ontology/salsah-gui/v2#",
-            "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-            "beol": "http://api.dasch.swiss/ontology/0801/beol/v2#",
-            "xsd": "http://www.w3.org/2001/XMLSchema#",
-            "biblio": "http://api.dasch.swiss/ontology/0801/biblio/v2#",
-        },
+        "@context": {},
     }
     con = ConnectionMock(response)
     onto_cli = OntologyClientLive(con, "0801", "beol")
@@ -254,18 +220,11 @@ def test_get_knora_api_from_server() -> None:
             {"resource_class": ["Information"]},
             {"property": ["Information"]},
         ],
-        "knora-api:attachedToProject": {"@id": "http://www.knora.org/ontology/knora-admin#SystemProject"},
+        "knora-api:attachedToProject": {},
         "knora-api:isBuiltIn": True,
         "@type": "owl:Ontology",
         "@id": "http://api.knora.org/ontology/knora-api/v2",
-        "@context": {
-            "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-            "knora-api": "http://api.knora.org/ontology/knora-api/v2#",
-            "owl": "http://www.w3.org/2002/07/owl#",
-            "salsah-gui": "http://api.knora.org/ontology/salsah-gui/v2#",
-            "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-            "xsd": "http://www.w3.org/2001/XMLSchema#",
-        },
+        "@context": {},
     }
     con = ConnectionMock(response)
     onto_cli = OntologyClientLive(con, "", "")

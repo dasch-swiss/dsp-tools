@@ -2,12 +2,8 @@
 
 from lxml import etree
 
-from dsp_tools.commands.xmlupload.models.ontology_diagnose_models import (
-    InvalidOntologyElements,
-    OntoCheckInformation,
-    Ontology,
-)
-from dsp_tools.commands.xmlupload.ontology_client import OntologyClient, deserialize_ontology
+from dsp_tools.commands.xmlupload.models.ontology_diagnose_models import InvalidOntologyElements, OntoCheckInformation
+from dsp_tools.commands.xmlupload.ontology_client import OntologyClient
 from dsp_tools.models.exceptions import BaseError
 
 
@@ -16,37 +12,32 @@ def do_xml_consistency_check(onto_client: OntologyClient, root: etree._Element) 
     This function takes an OntologyClient and the root of an XML.
     It retrieves the ontologies from the server.
     It iterates over the root.
-    If it finds any unknown properties or classes, they are printed out and a UserError is raised.
+    If it finds any invalid properties or classes, they are printed out and a UserError is raised.
 
      Args:
          onto_client: client for the ontology retrieval
          root: root of the XML
 
      Raises:
-         UserError: if there are any unknown properties or classes
+         UserError: if there are any invalid properties or classes
     """
     onto_tool = OntoCheckInformation(
         default_ontology_prefix=onto_client.default_ontology,
-        onto_lookup=_get_project_and_knora_ontology_from_server(onto_client),
+        onto_lookup=onto_client.get_all_ontologies_from_server(),
         save_location=onto_client.save_location,
     )
     _find_problems_in_xml(root, onto_tool)
 
 
-def _get_project_and_knora_ontology_from_server(onto_client: OntologyClient) -> dict[str, Ontology]:
-    ontologies = onto_client.get_all_ontologies_from_server()
-    return {onto_name: deserialize_ontology(onto_graph) for onto_name, onto_graph in ontologies.items()}
-
-
 def _find_problems_in_xml(root: etree._Element, onto_tool: OntoCheckInformation) -> None:
-    unknown_elems = InvalidOntologyElements(save_path=onto_tool.save_location)
+    invalid_elems = InvalidOntologyElements(save_path=onto_tool.save_location)
     for resource in root.iterchildren():
         if not _diagnose_class(resource.tag, onto_tool):
-            unknown_elems.classes.append((resource.attrib["id"], resource.attrib["restype"]))
+            invalid_elems.classes.append((resource.attrib["id"], resource.attrib["restype"]))
         if problems := _diagnose_all_properties(resource, onto_tool):
-            unknown_elems.properties.extend(problems)
-    if unknown_elems.not_empty():
-        unknown_elems.execute_problem_protocol()
+            invalid_elems.properties.extend(problems)
+    if invalid_elems.not_empty():
+        invalid_elems.execute_problem_protocol()
 
 
 def _diagnose_class(class_str: str, onto_tool: OntoCheckInformation) -> bool:

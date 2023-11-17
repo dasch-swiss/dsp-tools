@@ -37,10 +37,10 @@ class OntologyClientLive:
     ontology_names: list[str] = field(default_factory=list)
 
     def get_all_ontologies_from_server(self) -> dict[str, Ontology]:
-        ontologies = self._get_all_ontologies_from_server()
-        return {onto_name: format_ontology(onto_graph) for onto_name, onto_graph in ontologies.items()}
+        ontologies = self._get_all_ontology_jsons_from_server()
+        return {onto_name: deserialize_ontology(onto_graph) for onto_name, onto_graph in ontologies.items()}
 
-    def _get_all_ontologies_from_server(self) -> dict[str, list[dict[str, Any]]]:
+    def _get_all_ontology_jsons_from_server(self) -> dict[str, list[dict[str, Any]]]:
         self._get_ontology_names_from_server()
         project_ontos = {onto: self._get_ontology_from_server(onto) for onto in self.ontology_names}
         project_ontos["knora-api"] = self._get_knora_api_from_server()

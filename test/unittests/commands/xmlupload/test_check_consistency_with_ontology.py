@@ -13,104 +13,108 @@ from dsp_tools.models.exceptions import BaseError
 # pylint: disable=missing-function-docstring
 
 
-def test_diagnose_classes_no_knora_prefix() -> None:
-    onto_tool = OntoCheckInformation(
-        default_ontology_prefix="test",
-        save_location=Path(""),
-        onto_lookup={
-            "test": Ontology(classes=["classA", "classB"], properties=["propA", "propB"]),
-            "knora-api": Ontology(classes=["knoraClassA"], properties=["knoraPropA"]),
-        },
-    )
-    assert _diagnose_class("knoraClassA", onto_tool)
+class TestDiagnoseClass:
+    @staticmethod
+    def test_no_knora_prefix() -> None:
+        onto_tool = OntoCheckInformation(
+            default_ontology_prefix="test",
+            save_location=Path(""),
+            onto_lookup={
+                "test": Ontology(classes=["classA", "classB"], properties=["propA", "propB"]),
+                "knora-api": Ontology(classes=["knoraClassA"], properties=["knoraPropA"]),
+            },
+        )
+        assert _diagnose_class("knoraClassA", onto_tool)
+
+    @staticmethod
+    def test_knora_prefix() -> None:
+        onto_tool = OntoCheckInformation(
+            default_ontology_prefix="test",
+            save_location=Path(""),
+            onto_lookup={
+                "test": Ontology(classes=["classA", "classB"], properties=["propA", "propB"]),
+                "knora-api": Ontology(classes=["knoraClassA"], properties=["knoraPropA"]),
+            },
+        )
+
+        assert _diagnose_class("knora-api:knoraClassA", onto_tool)
+
+    @staticmethod
+    def test_no_default_prefix() -> None:
+        onto_tool = OntoCheckInformation(
+            default_ontology_prefix="test",
+            save_location=Path(""),
+            onto_lookup={
+                "test": Ontology(classes=["classA", "classB"], properties=["propA", "propB"]),
+                "knora-api": Ontology(classes=["knoraClassA"], properties=["knoraPropA"]),
+            },
+        )
+        assert _diagnose_class(":classA", onto_tool)
+
+    @staticmethod
+    def test_default_prefix() -> None:
+        onto_tool = OntoCheckInformation(
+            default_ontology_prefix="test",
+            save_location=Path(""),
+            onto_lookup={
+                "test": Ontology(classes=["classA", "classB"], properties=["propA", "propB"]),
+                "knora-api": Ontology(classes=["knoraClassA"], properties=["knoraPropA"]),
+            },
+        )
+        assert _diagnose_class("test:classB", onto_tool)
 
 
-def test_diagnose_classes_knora_prefix() -> None:
-    onto_tool = OntoCheckInformation(
-        default_ontology_prefix="test",
-        save_location=Path(""),
-        onto_lookup={
-            "test": Ontology(classes=["classA", "classB"], properties=["propA", "propB"]),
-            "knora-api": Ontology(classes=["knoraClassA"], properties=["knoraPropA"]),
-        },
-    )
+class TestDiagnoseProperties:
+    @staticmethod
+    def test_no_knora_prefix() -> None:
+        onto_tool = OntoCheckInformation(
+            default_ontology_prefix="test",
+            save_location=Path(""),
+            onto_lookup={
+                "test": Ontology(classes=["classA", "classB"], properties=["propA", "propB"]),
+                "knora-api": Ontology(classes=["knoraClassA"], properties=["knoraPropA"]),
+            },
+        )
+        assert _diagnose_properties("knoraPropA", onto_tool)
 
-    assert _diagnose_class("knora-api:knoraClassA", onto_tool)
+    @staticmethod
+    def test_knora_prefix() -> None:
+        onto_tool = OntoCheckInformation(
+            default_ontology_prefix="test",
+            save_location=Path(""),
+            onto_lookup={
+                "test": Ontology(classes=["classA", "classB"], properties=["propA", "propB"]),
+                "knora-api": Ontology(classes=["knoraClassA"], properties=["knoraPropA"]),
+            },
+        )
+        assert _diagnose_properties("knora-api:knoraPropA", onto_tool)
 
+    @staticmethod
+    def test_no_default_prefix() -> None:
+        onto_tool = OntoCheckInformation(
+            default_ontology_prefix="test",
+            save_location=Path(""),
+            onto_lookup={
+                "test": Ontology(classes=["classA", "classB"], properties=["propA", "propB"]),
+                "knora-api": Ontology(classes=["knoraClassA"], properties=["knoraPropA"]),
+            },
+        )
+        assert _diagnose_properties(":propA", onto_tool)
 
-def test_diagnose_classes_no_default_prefix() -> None:
-    onto_tool = OntoCheckInformation(
-        default_ontology_prefix="test",
-        save_location=Path(""),
-        onto_lookup={
-            "test": Ontology(classes=["classA", "classB"], properties=["propA", "propB"]),
-            "knora-api": Ontology(classes=["knoraClassA"], properties=["knoraPropA"]),
-        },
-    )
-    assert _diagnose_class(":classA", onto_tool)
-
-
-def test_diagnose_classes_default_prefix() -> None:
-    onto_tool = OntoCheckInformation(
-        default_ontology_prefix="test",
-        save_location=Path(""),
-        onto_lookup={
-            "test": Ontology(classes=["classA", "classB"], properties=["propA", "propB"]),
-            "knora-api": Ontology(classes=["knoraClassA"], properties=["knoraPropA"]),
-        },
-    )
-    assert _diagnose_class("test:classB", onto_tool)
-
-
-def test_diagnose_properties_no_knora_prefix() -> None:
-    onto_tool = OntoCheckInformation(
-        default_ontology_prefix="test",
-        save_location=Path(""),
-        onto_lookup={
-            "test": Ontology(classes=["classA", "classB"], properties=["propA", "propB"]),
-            "knora-api": Ontology(classes=["knoraClassA"], properties=["knoraPropA"]),
-        },
-    )
-    assert _diagnose_properties("knoraPropA", onto_tool)
-
-
-def test_diagnose_properties_knora_prefix() -> None:
-    onto_tool = OntoCheckInformation(
-        default_ontology_prefix="test",
-        save_location=Path(""),
-        onto_lookup={
-            "test": Ontology(classes=["classA", "classB"], properties=["propA", "propB"]),
-            "knora-api": Ontology(classes=["knoraClassA"], properties=["knoraPropA"]),
-        },
-    )
-    assert _diagnose_properties("knora-api:knoraPropA", onto_tool)
+    @staticmethod
+    def test_default_prefix() -> None:
+        onto_tool = OntoCheckInformation(
+            default_ontology_prefix="test",
+            save_location=Path(""),
+            onto_lookup={
+                "test": Ontology(classes=["classA", "classB"], properties=["propA", "propB"]),
+                "knora-api": Ontology(classes=["knoraClassA"], properties=["knoraPropA"]),
+            },
+        )
+        assert _diagnose_properties("test:propB", onto_tool)
 
 
-def test_diagnose_properties_no_default_prefix() -> None:
-    onto_tool = OntoCheckInformation(
-        default_ontology_prefix="test",
-        save_location=Path(""),
-        onto_lookup={
-            "test": Ontology(classes=["classA", "classB"], properties=["propA", "propB"]),
-            "knora-api": Ontology(classes=["knoraClassA"], properties=["knoraPropA"]),
-        },
-    )
-    assert _diagnose_properties(":propA", onto_tool)
-
-
-def test_diagnose_properties_default_prefix() -> None:
-    onto_tool = OntoCheckInformation(
-        default_ontology_prefix="test",
-        save_location=Path(""),
-        onto_lookup={
-            "test": Ontology(classes=["classA", "classB"], properties=["propA", "propB"]),
-            "knora-api": Ontology(classes=["knoraClassA"], properties=["knoraPropA"]),
-        },
-    )
-    assert _diagnose_properties("test:propB", onto_tool)
-
-
-def test_identify_ontology() -> None:
+def test_get_prefix_and_prop_cls_identifier() -> None:
     onto_tool = OntoCheckInformation(
         default_ontology_prefix="test",
         save_location=Path(""),
@@ -125,7 +129,7 @@ def test_identify_ontology() -> None:
     assert _get_prefix_and_prop_cls_identifier("test:propA", onto_tool) == ("test", "propA")
 
 
-def test_identify_ontology_error() -> None:
+def test_get_prefix_and_prop_cls_identifier_error() -> None:
     onto_tool = OntoCheckInformation(
         default_ontology_prefix="test",
         save_location=Path(""),

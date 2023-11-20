@@ -19,7 +19,7 @@ from lxml import etree
 
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.create_logger import get_logger
-from dsp_tools.utils.shared import http_call_with_retry, make_chunks
+from dsp_tools.utils.shared import http_call_with_retry
 
 logger = get_logger(__name__)
 sipi_container: Optional[Container] = None
@@ -113,10 +113,8 @@ def _process_files_in_parallel(
     orig_filepath_2_uuid: list[tuple[Path, Optional[Path]]] = []
     total = len(files_to_process)
     num_of_processed_files = 0
-    for subbatch in make_chunks(lst=files_to_process, length=100):
-        with ThreadPoolExecutor(max_workers=nthreads) as pool:
-            processing_jobs = [pool.submit(_process_file, f, input_dir, output_dir) for f in subbatch]
-
+    with ThreadPoolExecutor(max_workers=nthreads) as pool:
+        processing_jobs = [pool.submit(_process_file, f, input_dir, output_dir) for f in files_to_process]
         for processed in as_completed(processing_jobs):
             try:
                 orig_file, internal_file = processed.result()
@@ -190,9 +188,9 @@ def _check_input_params(
         raise UserError(f"Couldn't create directory {out_dir_path}") from None
 
     if not input_dir_path.is_dir():
-        raise UserError("input_dir is not a directory")
+        raise UserError(f"{input_dir} is not a directory")
     if not xml_file_path.is_file():
-        raise UserError("xml_file is not a file")
+        raise UserError(f"{xml_file} is not a file")
 
     return input_dir_path, out_dir_path, xml_file_path
 
@@ -733,34 +731,22 @@ def _write_processed_and_unprocessed_files_to_txt_files(
     processed_files: list[tuple[Path, Optional[Path]]],
 ) -> None:
     """
-    Determine the files that were processed until now
-    (taking into account a possibly existing file 'processed_files.txt')
-    and write them to 'processed_files.txt'.
-    Determine the files that were not processed until now,
-    and write them to 'unprocessed_files.txt'
-    (possibly overwriting an existing file).
+    Determine the files that were processed and write them to 'processed_files.txt'.
+    Determine the files that were not processed and write them to 'unprocessed_files.txt'.
 
     Args:
         all_files: list of all paths that should be processed
         processed_files: list of tuples (orig path, processed path). 2nd path is None if a file could not be processed.
     """
     processed_original_paths = [x[0] for x in processed_files]
-    if Path("processed_files.txt").is_file():
-        with open("processed_files.txt", "r", encoding="utf-8") as f:
-            previously_processed_files = [Path(x) for x in f.read().splitlines()]
-        processed_original_paths += previously_processed_files
-
-    with open("processed_files.txt", "w", encoding="utf-8") as f:
+    with open("processed_files.txt", "x", encoding="utf-8") as f:
         f.write("\n".join([str(x) for x in processed_original_paths]))
     msg = "Wrote 'processed_files.txt'"
 
     if unprocessed_original_paths := [x for x in all_files if x not in processed_original_paths]:
-        with open("unprocessed_files.txt", "w", encoding="utf-8") as f:
+        with open("unprocessed_files.txt", "x", encoding="utf-8") as f:
             f.write("\n".join([str(x) for x in unprocessed_original_paths]))
         msg += " and 'unprocessed_files.txt'"
-    elif Path("unprocessed_files.txt").is_file():
-        Path("unprocessed_files.txt").unlink()
-        msg += " and removed 'unprocessed_files.txt'"
 
     print(f"{datetime.now()}: {msg}")
     logger.info(msg)
@@ -829,76 +815,11 @@ def double_check_unprocessed_files(
             raise UserError("The files 'unprocessed_files.txt' and 'processed_files.txt' are inconsistent")
 
 
-def _determine_next_batch(
-    all_files: list[Path],
-    batch_size: int,
-) -> tuple[list[Path], bool]:
-    """
-    Looks in the input directory for txt files that contain the already processed files and the still unprocessed files.
-    If no such files are found, this run of `dsp-tools process-files` is the first one.
-    In this case, the first batch_size files (or less if there are less) are returned.
-    If such files are found, the already processed files are read from them,
-    and the next batch_size files are returned.
-    If all files have been processed, an empty list is returned.
-
-    Args:
-        all_files: list of all paths in the <bitstream> tags of the XML file
-        batch_size: number of files to process before Python exits
-
-    Raises:
-        UserError: if the files 'unprocessed_files.txt' and 'processed_files.txt' are inconsistent
-
-    Returns:
-        - the next batch of up to batch_size files that should be processed
-          (or empty list if all files have been processed)
-        - a boolean indicating if this is the last batch
-    """
-    # read the already processed files
-    if Path("processed_files.txt").is_file():
-        with open("processed_files.txt", "r", encoding="utf-8") as f:
-            processed_files = [Path(x.strip()) for x in f.readlines()]
-    else:
-        processed_files = []
-
-    # read the still unprocessed files
-    if Path("unprocessed_files.txt").is_file():
-        with open("unprocessed_files.txt", "r", encoding="utf-8") as f:
-            unprocessed_files = [Path(x.strip()) for x in f.readlines()]
-    else:
-        unprocessed_files = all_files
-
-    # consistency check
-    double_check_unprocessed_files(
-        all_files=all_files,
-        processed_files=processed_files,
-        unprocessed_files=unprocessed_files,
-    )
-
-    # determine next batch
-    if len(unprocessed_files) <= batch_size:
-        next_batch = unprocessed_files
-        is_last_batch = True
-    else:
-        next_batch = unprocessed_files[:batch_size]
-        is_last_batch = False
-
-    # print and log
-    msg = (
-        f"Found {len(all_files)} bitstreams in the XML file, {len(unprocessed_files)} of them unprocessed. "
-        f"Process batch of {len(next_batch)} files..."
-    )
-    print(f"{datetime.now()}: {msg}")
-    logger.info(msg)
-
-    return next_batch, is_last_batch
-
-
 def process_files(
     input_dir: str,
     output_dir: str,
     xml_file: str,
     nthreads: Optional[int],
-    batch_size: int,
 ) -> bool:
     """
     Process the files referenced in the given XML file.
@@ -908,23 +829,14 @@ def process_files(
     Additionally, writes a pickle file containing the mapping between the original files and the processed files,
     e.g. Path('multimedia/nested/subfolder/test.tif'), Path('tmp/0b/22/0b22570d-515f-4c3d-a6af-e42b458e7b2b.jp2').
 
-    Due to a resource leak, the Python interpreter must be quitted after a while.
-    For this reason, the processing is done in batches, each batch containing batch_size files.
-    After each batch, the Python interpreter exits, and the CLI command must be executed again.
-    It automatically resumes where it left off.
-
     Args:
         input_dir: path to the directory where the files should be read from
         output_dir: path to the directory where the transformed / created files should be written to
         xml_file: path to xml file containing the resources
         nthreads: number of threads to use for processing
-        batch_size: number of files to process before Python exits
 
     Returns:
-        True         --> exit code 0: all multimedia files in the XML file were processed
-        Error raised --> exit code 1: an error occurred while processing the current batch
-        with exit code 1:             an error occurred while processing the current batch
-        exit with code 2:             Python interpreter exits after each batch
+        True if all multimedia files in the XML file were processed, False otherwise
     """
     input_dir_path, output_dir_path, xml_file_path = _check_input_params(
         input_dir=input_dir,
@@ -936,11 +848,7 @@ def process_files(
         input_dir=input_dir_path,
         output_dir=output_dir_path,
     )
-    files_to_process, is_last_batch = _determine_next_batch(
-        all_files=all_files,
-        batch_size=batch_size,
-    )
-    if any(path.suffix == ".mp4" for path in files_to_process):
+    if any(path.suffix == ".mp4" for path in all_files):
         _get_export_moving_image_frames_script()
 
     start_time = datetime.now()
@@ -948,7 +856,7 @@ def process_files(
     logger.info("Start local file processing...")
 
     processed_files: list[tuple[Path, Optional[Path]]] = []
-    unprocessed_files = files_to_process
+    unprocessed_files = all_files
     while unprocessed_files:
         try:
             result, unprocessed_files = _process_files_in_parallel(
@@ -975,17 +883,6 @@ def process_files(
     )
     _write_result_to_pkl_file(processed_files)
 
-    exit_code = _determine_exit_code(
-        files_to_process=files_to_process,
-        processed_files=processed_files,
-        is_last_batch=is_last_batch,
-    )
-    match exit_code:
-        case 0:
-            # if there were problems, don't remove the sipi container. it might contain valuable log data.
-            _stop_and_remove_sipi_container()
-            return True
-        case 1:
-            sys.exit(1)
-        case 2:
-            sys.exit(2)
+    # if there were problems, don't remove the sipi container. it might contain valuable log data.
+    _stop_and_remove_sipi_container()
+    return True

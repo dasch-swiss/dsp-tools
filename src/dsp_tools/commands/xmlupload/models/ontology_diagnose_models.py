@@ -25,7 +25,7 @@ class OntoCheckInformation:
     save_location: Path
 
 
-@dataclass
+@dataclass(frozen=True)
 class InvalidOntologyElements:
     """This class saves and prints out the information regarding ontology classes and properties
     that are in the XML but not the ontology."""

@@ -102,7 +102,6 @@ def find_date_in_string(string: str) -> Optional[str]:
     # sanitize input, just in case that the method was called on an empty or N/A cell
     if not check_notna(string):
         return None
-    string = str(string)
 
     months_dict = {
         "January": 1,
@@ -214,9 +213,9 @@ def find_date_in_string(string: str) -> Optional[str]:
     elif year_range:
         startyear = int(year_range.group(1))
         endyear = int(year_range.group(2))
-        if int(endyear / 100) == 0:
+        if endyear // 100 == 0:
             # endyear is only 2-digit: add the first two digits of startyear
-            endyear = int(startyear / 100) * 100 + endyear
+            endyear = startyear // 100 * 100 + endyear
 
     elif year_only:
         startyear = int(year_only.group(0))
@@ -274,7 +273,7 @@ def make_root(
     schema_url = "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/data.xsd"
     schema_location_key = str(etree.QName("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation"))
     schema_location_value = f"https://dasch.swiss/schema {schema_url}"
-    root = etree.Element(
+    return etree.Element(
         "{%s}knora" % xml_namespace_map[None],
         attrib={
             schema_location_key: schema_location_value,
@@ -283,7 +282,6 @@ def make_root(
         },
         nsmap=xml_namespace_map,
     )
-    return root
 
 
 def append_permissions(root_element: etree._Element) -> etree._Element:
@@ -395,8 +393,7 @@ def make_resource(
             ) from None
         kwargs["creation_date"] = creation_date
 
-    resource_ = etree.Element("{%s}resource" % xml_namespace_map[None], **kwargs)  # type: ignore[arg-type]
-    return resource_
+    return etree.Element("{%s}resource" % xml_namespace_map[None], **kwargs)  # type: ignore[arg-type]
 
 
 def make_bitstream_prop(
@@ -426,7 +423,7 @@ def make_bitstream_prop(
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#bitstream
     """
 
-    if not os.path.isfile(path):
+    if not Path(path).is_file():
         warnings.warn(
             f"Failed validation in bitstream tag of resource '{calling_resource}': "
             f"The following path doesn't point to a file: {path}",
@@ -1265,10 +1262,7 @@ def make_text_prop(
         kwargs = {"permissions": val.permissions}
         if check_notna(val.comment):
             kwargs["comment"] = val.comment
-        if check_notna(val.encoding):
-            kwargs["encoding"] = val.encoding
-        else:
-            kwargs["encoding"] = "utf8"
+        kwargs["encoding"] = val.encoding if check_notna(val.encoding) else "utf8"
         value_ = etree.Element(
             "{%s}text" % xml_namespace_map[None],
             **kwargs,  # type: ignore[arg-type]
@@ -1499,11 +1493,10 @@ def make_region(
             ) from None
         kwargs["creation_date"] = creation_date
 
-    region_ = etree.Element(
+    return etree.Element(
         "{%s}region" % xml_namespace_map[None],
         **kwargs,  # type: ignore[arg-type]
     )
-    return region_
 
 
 def make_annotation(
@@ -1557,11 +1550,10 @@ def make_annotation(
             ) from None
         kwargs["creation_date"] = creation_date
 
-    annotation_ = etree.Element(
+    return etree.Element(
         "{%s}annotation" % xml_namespace_map[None],
         **kwargs,  # type: ignore[arg-type]
     )
-    return annotation_
 
 
 def make_link(
@@ -1615,11 +1607,10 @@ def make_link(
             ) from None
         kwargs["creation_date"] = creation_date
 
-    link_ = etree.Element(
+    return etree.Element(
         "{%s}link" % xml_namespace_map[None],
         **kwargs,  # type: ignore[arg-type]
     )
-    return link_
 
 
 def create_json_excel_list_mapping(
@@ -1680,7 +1671,7 @@ def create_json_excel_list_mapping(
     corrections = corrections or {}
 
     # split the values, if necessary
-    excel_values_new = list()
+    excel_values_new = []
     for val in excel_values:
         if isinstance(val, str):
             excel_values_new.extend([x.strip() for x in val.split(sep) if x])
@@ -1688,24 +1679,23 @@ def create_json_excel_list_mapping(
     # read the list of the JSON project (works also for nested lists)
     with open(path_to_json, encoding="utf-8") as f:
         json_file = json.load(f)
-    json_subset = list()
+    json_subset = []
     for elem in json_file["project"]["lists"]:
         if elem["name"] == list_name:
             json_subset = elem["nodes"]
     json_values = set(_nested_dict_values_iterator(json_subset))
 
     # build dictionary with the mapping, based on string similarity
-    res = dict()
+    res = {}
     for excel_value in excel_values_new:
         excel_value_corrected = corrections.get(excel_value, excel_value)
         excel_value_simpl = simplify_name(excel_value_corrected)  # increase match probability by removing illegal chars
-        matches: list[str] = difflib.get_close_matches(
+        if matches := difflib.get_close_matches(
             word=excel_value_simpl,
             possibilities=json_values,
             n=1,
             cutoff=0.6,
-        )
-        if matches:
+        ):
             res[excel_value] = matches[0]
             res[excel_value.lower()] = matches[0]
         else:
@@ -1731,8 +1721,7 @@ def _nested_dict_values_iterator(dicts: list[dict[str, Any]]) -> Iterable[str]:
     # Credits: https://thispointer.com/python-iterate-loop-over-all-nested-dictionary-values/
     for _dict in dicts:
         if "nodes" in _dict:
-            for value in _nested_dict_values_iterator(_dict["nodes"]):
-                yield value
+            yield from _nested_dict_values_iterator(_dict["nodes"])
         if "name" in _dict:
             yield _dict["name"]
 
@@ -1760,10 +1749,7 @@ def create_json_list_mapping(
     """
     with open(path_to_json, encoding="utf-8") as f:
         json_file = json.load(f)
-    json_subset = list()
-    for numbered_json_obj in json_file["project"]["lists"]:
-        if numbered_json_obj["name"] == list_name:
-            json_subset.append(numbered_json_obj)
+    json_subset = [x for x in json_file["project"]["lists"] if x["name"] == list_name]
     # json_subset is a list containing one item, namely the json object containing the entire json-list
 
     res = {}
@@ -1793,9 +1779,8 @@ def _name_label_mapper_iterator(
         # node is the json object containing the entire json-list
         if "nodes" in node:
             # "nodes" is the json sub-object containing the entries of the json-list
-            for value in _name_label_mapper_iterator(node["nodes"], language_label):
-                yield value
-                # "value" is a (label, name) pair of a single list entry
+            yield from _name_label_mapper_iterator(node["nodes"], language_label)
+            # each yielded value is a (label, name) pair of a single list entry
         if "name" in node:
             yield (node["labels"][language_label], node["name"])
             # the actual values of the name and the label

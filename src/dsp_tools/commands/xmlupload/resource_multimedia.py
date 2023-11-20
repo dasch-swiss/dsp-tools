@@ -39,11 +39,10 @@ def _upload_bitstream(
         filepath=str(Path(imgdir) / Path(pth)),
     )
     internal_file_name_bitstream = img["uploadedFiles"][0]["internalFilename"]  # type: ignore[index]
-    resource_bitstream = resource.get_bitstream_information(
+    return resource.get_bitstream_information(
         internal_file_name_bitstream=internal_file_name_bitstream,
         permissions_lookup=permissions_lookup,
     )
-    return resource_bitstream
 
 
 def handle_bitstream(

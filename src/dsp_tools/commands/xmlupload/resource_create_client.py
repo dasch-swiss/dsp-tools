@@ -75,12 +75,12 @@ class ResourceCreateClient:
         if resource_iri:
             res["@id"] = resource_iri
         if resource.permissions:
-            perm = self.permissions_lookup.get(resource.permissions)
-            if not perm:
+            if perm := self.permissions_lookup.get(resource.permissions):
+                res["knora-api:hasPermissions"] = str(perm)
+            else:
                 raise BaseError(
                     f"Could not find permissions for resource {resource.id} with permissions {resource.permissions}"
                 )
-            res["knora-api:hasPermissions"] = str(perm)
         if resource.creation_date:
             res["knora-api:creationDate"] = {
                 "@type": "xsd:dateTimeStamp",
@@ -92,9 +92,7 @@ class ResourceCreateClient:
 
     def _make_values(self, resource: XMLResource) -> dict[str, Any]:
         def prop_name(p: XMLProperty) -> str:
-            if p.valtype == "resptr":
-                return p.name + "Value"
-            return p.name
+            return f"{p.name}Value" if p.valtype == "resptr" else p.name
 
         def make_values(p: XMLProperty) -> list[dict[str, Any]]:
             return [self._make_value(v, p.valtype) for v in p.values]
@@ -134,10 +132,10 @@ class ResourceCreateClient:
         if value.comment:
             res["knora-api:valueHasComment"] = value.comment
         if value.permissions:
-            perm = self.permissions_lookup.get(value.permissions)
-            if not perm:
+            if perm := self.permissions_lookup.get(value.permissions):
+                res["knora-api:hasPermissions"] = str(perm)
+            else:
                 raise BaseError(f"Could not find permissions for value: {value.permissions}")
-            res["knora-api:hasPermissions"] = str(perm)
         return res
 
 
@@ -203,8 +201,10 @@ def _make_color_value(value: XMLValue) -> dict[str, Any]:
 def _make_date_value(value: XMLValue) -> dict[str, Any]:
     string_value = _assert_is_string(value.value)
     date = parse_date_string(string_value)
-    res: dict[str, Any] = {"@type": "knora-api:DateValue"}
-    res["knora-api:dateValueHasStartYear"] = date.start.year
+    res: dict[str, Any] = {
+        "@type": "knora-api:DateValue",
+        "knora-api:dateValueHasStartYear": date.start.year,
+    }
     if month := date.start.month:
         res["knora-api:dateValueHasStartMonth"] = month
     if day := date.start.day:
@@ -283,11 +283,10 @@ def _make_link_value(value: XMLValue, iri_resolver: IriResolver) -> dict[str, An
     s = _assert_is_string(value.value)
     if is_resource_iri(s):
         iri = s
-    else:
-        resolved_iri = iri_resolver.get(s)
-        if not resolved_iri:
-            raise BaseError(f"Could not resolve ID {s} to IRI.")
+    elif resolved_iri := iri_resolver.get(s):
         iri = resolved_iri
+    else:
+        raise BaseError(f"Could not resolve ID {s} to IRI.")
     return {
         "@type": "knora-api:LinkValue",
         "knora-api:linkValueHasTargetIri": {
@@ -298,15 +297,15 @@ def _make_link_value(value: XMLValue, iri_resolver: IriResolver) -> dict[str, An
 
 def _make_list_value(value: XMLValue, iri_lookup: dict[str, str]) -> dict[str, Any]:
     s = _assert_is_string(value.value)
-    iri = iri_lookup.get(s)
-    if not iri:
+    if iri := iri_lookup.get(s):
+        return {
+            "@type": "knora-api:ListValue",
+            "knora-api:listValueAsListNode": {
+                "@id": iri,
+            },
+        }
+    else:
         raise BaseError(f"Could not resolve list node ID {s} to IRI.")
-    return {
-        "@type": "knora-api:ListValue",
-        "knora-api:listValueAsListNode": {
-            "@id": iri,
-        },
-    }
 
 
 def _make_text_value(value: XMLValue, iri_resolver: IriResolver) -> dict[str, Any]:

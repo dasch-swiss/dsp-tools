@@ -66,8 +66,7 @@ def get_project(
     if verbose:
         print("Getting groups...")
     groups_obj: list[dict[str, Any]] = []
-    groups = Group.getAllGroupsForProject(con=con, proj_iri=str(project.iri))
-    if groups:
+    if groups := Group.getAllGroupsForProject(con=con, proj_iri=str(project.iri)):
         for group in groups:
             groups_obj.append(group.createDefinitionFileObj())
             if verbose:
@@ -99,8 +98,7 @@ def get_project(
     if verbose:
         print("Getting lists...")
     list_obj: list[dict[str, Any]] = []
-    list_roots = ListNode.getAllLists(con=con, project_iri=project.iri)
-    if list_roots:
+    if list_roots := ListNode.getAllLists(con=con, project_iri=project.iri):
         for list_root in list_roots:
             complete_list = list_root.getAllNodes()
             list_obj.append(complete_list.createDefinitionFileObj())
@@ -112,7 +110,7 @@ def get_project(
     if verbose:
         print("Getting ontologies...")
     project_obj["ontologies"] = []
-    prefixes: dict[str, str] = dict()
+    prefixes: dict[str, str] = {}
     ontologies = Ontology.getProjectOntologies(con, str(project.iri))
     ontology_ids = [onto.iri for onto in ontologies]
     for ontology_id in ontology_ids:

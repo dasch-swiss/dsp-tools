@@ -163,7 +163,7 @@ def try_network_action(
         try:
             if args and not kwargs:
                 return action(*args)
-            elif kwargs and not args:
+            elif not args and kwargs:
                 return action(**kwargs)
             elif args and kwargs:
                 return action(*args, **kwargs)
@@ -174,13 +174,11 @@ def try_network_action(
             print(f"{datetime.now()}: {msg}")
             logger.error(f"{msg} {action_as_str} (retry-counter {i=:})", exc_info=True)
             time.sleep(2**i)
-            continue
         except (ConnectionError, RequestException):
             msg = f"Network Error: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
             print(f"{datetime.now()}: {msg}")
             logger.error(f"{msg} {action_as_str} (retry-counter {i=:})", exc_info=True)
             time.sleep(2**i)
-            continue
         except BaseError as err:
             in_500_range = False
             if err.status_code:
@@ -191,7 +189,6 @@ def try_network_action(
                 print(f"{datetime.now()}: {msg}")
                 logger.error(f"{msg} {action_as_str} (retry-counter {i=:})", exc_info=True)
                 time.sleep(2**i)
-                continue
             else:
                 raise err
 
@@ -271,17 +268,16 @@ def _validate_xml_tags_in_text_properties(doc: Union[etree._ElementTree[etree._E
             elem.tag = etree.QName(elem).localname
 
     # then: make the test
-    resources_with_illegal_xml_tags = list()
+    resources_with_illegal_xml_tags = []
     for text in doc_without_namespace.findall(path="resource/text-prop/text"):
-        if text.attrib["encoding"] == "utf8":
-            if (
-                regex.search(r'<([a-zA-Z/"]+|[^\s0-9].*[^\s0-9])>', str(text.text))
-                or len(list(text.iterchildren())) > 0
-            ):
-                sourceline = f" line {text.sourceline}: " if text.sourceline else " "
-                propname = text.getparent().attrib["name"]  # type: ignore[union-attr]
-                resname = text.getparent().getparent().attrib["id"]  # type: ignore[union-attr]
-                resources_with_illegal_xml_tags.append(f" -{sourceline}resource '{resname}', property '{propname}'")
+        regex_finds_tags = bool(regex.search(r'<([a-zA-Z/"]+|[^\s0-9].*[^\s0-9])>', str(text.text)))
+        etree_finds_tags = bool(list(text.iterchildren()))
+        has_tags = regex_finds_tags or etree_finds_tags
+        if text.attrib["encoding"] == "utf8" and has_tags:
+            sourceline = f" line {text.sourceline}: " if text.sourceline else " "
+            propname = text.getparent().attrib["name"]  # type: ignore[union-attr]
+            resname = text.getparent().getparent().attrib["id"]  # type: ignore[union-attr]
+            resources_with_illegal_xml_tags.append(f" -{sourceline}resource '{resname}', property '{propname}'")
     if resources_with_illegal_xml_tags:
         err_msg = (
             "XML-tags are not allowed in text properties with encoding=utf8. "
@@ -344,7 +340,7 @@ def simplify_name(value: str) -> str:
     Returns:
         str: The simplified value
     """
-    simplified_value = str(value).lower()
+    simplified_value = value.lower()
 
     # normalize characters (p.ex. ä becomes a)
     simplified_value = unicodedata.normalize("NFKD", simplified_value)
@@ -445,5 +441,4 @@ def get_most_recent_glob_match(glob_pattern: Union[str, Path]) -> Path:
         the most recently created file that matches the glob pattern
     """
     candidates = [Path(x) for x in glob.glob(str(glob_pattern))]
-    most_recent_file = max(candidates, key=lambda item: item.stat().st_ctime)
-    return most_recent_file
+    return max(candidates, key=lambda item: item.stat().st_ctime)

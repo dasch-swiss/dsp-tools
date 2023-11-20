@@ -41,45 +41,42 @@ def _validate_resources(
         jsonschema.validate(instance=resources_list, schema=resources_schema)
     except jsonschema.ValidationError as err:
         err_msg = f"The 'resources' section defined in the Excel file '{excelfile}' did not pass validation. "
-        json_path_to_resource = regex.search(r"^\$\[(\d+)\]", err.json_path)
-        if json_path_to_resource:
+        if json_path_to_resource := regex.search(r"^\$\[(\d+)\]", err.json_path):
             # fmt: off
-            wrong_resource_name = (
+            wrong_res_name = (
                 jsonpath_ng.ext.parse(json_path_to_resource.group(0))
                 .find(resources_list)[0]
                 .value["name"]
             )
             # fmt: on
-            affected_field = regex.search(r"name|labels|comments|super|cardinalities\[(\d+)\]", err.json_path)
-            if affected_field and affected_field.group(0) in ["name", "labels", "comments", "super"]:
-                excel_row = int(json_path_to_resource.group(1)) + 2
-                err_msg += (
-                    f"The problem is that the Excel sheet 'classes' contains an invalid value for resource "
-                    f"'{wrong_resource_name}', in row {excel_row}, column '{affected_field.group(0)}': {err.message}"
-                )
-            elif affected_field and "cardinalities" in affected_field.group(0):
-                excel_row = int(affected_field.group(1)) + 2
-                if err.json_path.endswith("cardinality"):
+            if affected_field := regex.search(r"name|labels|comments|super|cardinalities\[(\d+)\]", err.json_path):
+                if affected_field.group(0) in ["name", "labels", "comments", "super"]:
+                    excel_row = int(json_path_to_resource.group(1)) + 2
                     err_msg += (
-                        f"The problem is that the Excel sheet '{wrong_resource_name}' contains an invalid value "
-                        f"in row {excel_row}, column 'Cardinality': {err.message}"
+                        f"The problem is that the Excel sheet 'classes' contains an invalid value for resource "
+                        f"'{wrong_res_name}', in row {excel_row}, column '{affected_field.group(0)}': {err.message}"
                     )
-                elif err.json_path.endswith("propname"):
-                    err_msg += (
-                        f"The problem is that the Excel sheet '{wrong_resource_name}' contains an invalid value "
-                        f"in row {excel_row}, column 'Property': {err.message}"
-                    )
+                elif "cardinalities" in affected_field.group(0):
+                    excel_row = int(affected_field.group(1)) + 2
+                    if err.json_path.endswith("cardinality"):
+                        err_msg += (
+                            f"The problem is that the Excel sheet '{wrong_res_name}' contains an invalid value "
+                            f"in row {excel_row}, column 'Cardinality': {err.message}"
+                        )
+                    elif err.json_path.endswith("propname"):
+                        err_msg += (
+                            f"The problem is that the Excel sheet '{wrong_res_name}' contains an invalid value "
+                            f"in row {excel_row}, column 'Property': {err.message}"
+                        )
         else:
             err_msg += f"The error message is: {err.message}\nThe error occurred at {err.json_path}"
         raise UserError(err_msg) from None
 
     # check if resource names are unique
     all_names = [r["name"] for r in resources_list]
-    duplicates: dict[int, str] = dict()
-    for index, resdef in enumerate(resources_list):
-        if all_names.count(resdef["name"]) > 1:
-            duplicates[index + 2] = resdef["name"]
-    if duplicates:
+    if duplicates := {
+        index + 2: resdef["name"] for index, resdef in enumerate(resources_list) if all_names.count(resdef["name"]) > 1
+    }:
         err_msg = (
             f"Resource names must be unique inside every ontology, "
             f"but your Excel file '{excelfile}' contains duplicates:\n"

@@ -103,32 +103,30 @@ def create_lists_on_server(
         )
     except BaseError:
         err_msg = "Unable to retrieve existing lists on DSP server. Cannot check if your lists are already existing."
-        print("WARNING: " + err_msg)
+        print(f"WARNING: {err_msg}")
         logger.warning(err_msg, exc_info=True)
         existing_lists = []
         overall_success = False
 
     current_project_lists: dict[str, Any] = {}
-    for new_list in lists_to_create:
-        # if list exists already, add it to "current_project_lists" (for later usage), then skip it
-        existing_list = [x for x in existing_lists if x.project == project_remote.iri and x.name == new_list["name"]]
-        if existing_list:
-            existing_list_name = existing_list[0].name
+    for new_lst in lists_to_create:
+        if existing_lst := [x for x in existing_lists if x.project == project_remote.iri and x.name == new_lst["name"]]:
+            existing_list_name = existing_lst[0].name
             if not existing_list_name:
-                raise BaseError(f"Node {existing_list[0]} has no name.")
+                raise BaseError(f"Node {existing_lst[0]} has no name.")
             current_project_lists[existing_list_name] = {
-                "id": existing_list[0].iri,
-                "nodes": new_list["nodes"],
+                "id": existing_lst[0].iri,
+                "nodes": new_lst["nodes"],
             }
-            print(f"\tWARNING: List '{new_list['name']}' already exists on the DSP server. Skipping...")
+            print(f"\tWARNING: List '{new_lst['name']}' already exists on the DSP server. Skipping...")
             overall_success = False
             continue
 
-        created_list, success = _create_list_node(con=con, project=project_remote, node=new_list)
+        created_list, success = _create_list_node(con=con, project=project_remote, node=new_lst)
         current_project_lists.update(created_list)
         if not success:
             overall_success = False
-        print(f"\tCreated list '{new_list['name']}'.")
+        print(f"\tCreated list '{new_lst['name']}'.")
 
     return current_project_lists, overall_success
 
@@ -178,8 +176,6 @@ def create_lists(
         or one of the nodes could not be created),
         it is False.
     """
-    overall_success = True
-
     project_definition = parse_json_input(project_file_as_path_or_parsed=project_file_as_path_or_parsed)
     if not project_definition.get("project", {}).get("lists"):
         return {}, True
@@ -207,7 +203,5 @@ def create_lists(
         con=con,
         project_remote=project_remote,
     )
-    if not success:
-        overall_success = False
 
-    return current_project_lists, overall_success
+    return current_project_lists, success

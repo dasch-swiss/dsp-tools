@@ -1,0 +1,21 @@
+# Sourcery configuration file.
+# 📚 For a complete reference to this file, see the documentation at
+# https://docs.sourcery.ai/Configuration/Project-Settings/
+
+
+version: '1'  
+
+ignore:
+  - src/dsp_tools/commands/project/models
+  - src/dsp_tools/commands/xmlupload/models
+  - src/dsp_tools/models
+
+rule_settings:
+  enable:
+    - default
+  disable: []
+  rule_types:
+    - refactoring
+    - suggestion
+    - comment
+  python_version: '3.11' 

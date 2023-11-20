@@ -112,5 +112,4 @@ def _create_resptr_prop_json_object_to_update(
         f"{stash.prop_name}Value": linkVal,
         "@context": context,
     }
-    jsondata = json.dumps(jsonobj)
-    return jsondata
+    return json.dumps(jsonobj)

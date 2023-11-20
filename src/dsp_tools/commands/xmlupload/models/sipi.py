@@ -1,5 +1,4 @@
 import json
-import os
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -45,7 +44,7 @@ class Sipi:
             API response
         """
         with open(filepath, "rb") as bitstream_file:
-            files = {"file": (os.path.basename(filepath), bitstream_file)}
+            files = {"file": (Path(filepath).name, bitstream_file)}
             url = self.sipi_server + "/upload"
             headers = {"Authorization": "Bearer " + self.token}
             timeout = 5 * 60

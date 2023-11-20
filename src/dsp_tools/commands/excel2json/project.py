@@ -1,5 +1,5 @@
 import json
-import os
+from pathlib import Path
 
 import regex
 
@@ -45,18 +45,18 @@ def excel2json(
 
     # validate input
     # --------------
-    if not os.path.isdir(data_model_files):
+    if not Path(data_model_files).is_dir():
         raise UserError(f"ERROR: {data_model_files} is not a directory.")
-    folder = [x for x in os.scandir(data_model_files) if not regex.search(r"^(\.|~\$).+", x.name)]
+    folder = [x for x in Path(data_model_files).glob("*") if not regex.search(r"^(\.|~\$).+", x.name)]
 
     processed_files = []
-    onto_folders = [x for x in folder if os.path.isdir(x) and regex.search(r"([\w.-]+) \(([\w.\- ]+)\)", x.name)]
-    if len(onto_folders) == 0:
+    onto_folders = [x for x in folder if x.is_dir() and regex.search(r"([\w.-]+) \(([\w.\- ]+)\)", x.name)]
+    if not onto_folders:
         raise UserError(
             f"'{data_model_files}' must contain at least one subfolder named after the pattern 'onto_name (onto_label)'"
         )
     for onto_folder in onto_folders:
-        contents = sorted([x.name for x in os.scandir(onto_folder) if not regex.search(r"^(\.|~\$).+", x.name)])
+        contents = sorted([x.name for x in Path(onto_folder).glob("*") if not regex.search(r"^(\.|~\$).+", x.name)])
         if contents != ["properties.xlsx", "resources.xlsx"]:
             raise UserError(
                 f"ERROR: '{data_model_files}/{onto_folder.name}' must contain one file 'properties.xlsx' "
@@ -64,9 +64,9 @@ def excel2json(
             )
         processed_files.extend([f"{data_model_files}/{onto_folder.name}/{file}" for file in contents])
 
-    listfolder = [x for x in folder if os.path.isdir(x) and x.name == "lists"]
+    listfolder = [x for x in folder if x.is_dir() and x.name == "lists"]
     if listfolder:
-        listfolder_contents = [x for x in os.scandir(listfolder[0]) if not regex.search(r"^(\.|~\$).+", x.name)]
+        listfolder_contents = [x for x in Path(listfolder[0]).glob("*") if not regex.search(r"^(\.|~\$).+", x.name)]
         if not all(regex.search(r"(de|en|fr|it|rm).xlsx", file.name) for file in listfolder_contents):
             raise UserError(
                 f"The only files allowed in '{data_model_files}/lists' are en.xlsx, de.xlsx, fr.xlsx, it.xlsx, rm.xlsx"

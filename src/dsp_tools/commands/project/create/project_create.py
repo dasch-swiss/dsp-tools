@@ -1,5 +1,7 @@
 """This module handles the ontology creation, update and upload to a DSP server. This includes the creation and update
 of the project, the creation of groups, users, lists, resource classes, properties and cardinalities."""
+
+import contextlib
 from pathlib import Path
 from typing import Any, Optional, Union, cast
 
@@ -52,8 +54,8 @@ def _create_project_on_server(
     Returns:
         a tuple of the remote project and the success status (True if everything went smoothly, False otherwise)
     """
-    try:
-        # the normal, expected case is that this try block fails
+    with contextlib.suppress(BaseError):
+        # the normal, expected case is that this block fails
         project_local = Project(con=con, shortcode=shortcode)
         project_remote: Project = try_network_action(project_local.read)
         proj_designation = f"'{project_remote.shortname}' ({project_remote.shortcode})"
@@ -74,8 +76,6 @@ def _create_project_on_server(
         # There are other things from this file that can be created on the server,
         # e.g. the groups and users, so the process must continue.
         return project_remote, False
-    except BaseError:
-        pass
 
     success = True
     project_local = Project(
@@ -188,8 +188,7 @@ def _create_groups(
         group_name = group["name"]
 
         # if the group already exists, add it to "current_project_groups" (for later usage), then skip it
-        remotely_existing_group = [g for g in remote_groups if g.name == group_name]
-        if remotely_existing_group:
+        if remotely_existing_group := [g for g in remote_groups if g.name == group_name]:
             current_project_groups[group_name] = remotely_existing_group[0]
             print(f"\tWARNING: Group name '{group_name}' already exists on the DSP server. Skipping...")
             logger.warning(f"Group name '{group_name}' already exists on the DSP server. Skipping...")
@@ -368,7 +367,8 @@ def _get_projects_where_user_is_admin(
                 continue
             in_project = in_project_list[0]
 
-        project_info[str(in_project.iri)] = bool(project_role == "admin")
+        is_admin = project_role == "admin"
+        project_info[str(in_project.iri)] = is_admin
         if verbose:
             print(f"\tAdded user '{username}' as {project_role} to project '{in_project.shortname}'.")
         logger.info(f"Added user '{username}' as {project_role} to project '{in_project.shortname}'.")
@@ -403,16 +403,13 @@ def _create_users(
         username = json_user_definition["username"]
 
         # skip the user if he already exists
-        try:
-            # the normal case is that this try block fails
+        with contextlib.suppress(BaseError):
+            # the normal case is that this block fails
             try_network_action(User(con, email=json_user_definition["email"]).read)
             print(f"\tWARNING: User '{username}' already exists on the DSP server. Skipping...")
             logger.warning(f"User '{username}' already exists on the DSP server. Skipping...")
             overall_success = False
             continue
-        except BaseError:
-            pass
-
         # add user to the group(s)
         group_iris, sysadmin, success = _get_group_iris_for_user(
             json_user_definition=json_user_definition,
@@ -478,12 +475,11 @@ def _sort_resources(
 
     # do not modify the original unsorted_resources, which points to the original JSON project file
     resources_to_sort = unsorted_resources.copy()
-    sorted_resources: list[dict[str, Any]] = list()
-    ok_resource_names: list[str] = list()
-    while len(resources_to_sort) > 0:
+    sorted_resources: list[dict[str, Any]] = []
+    ok_resource_names: list[str] = []
+    while resources_to_sort:
         # inside the for loop, resources_to_sort is modified, so a copy must be made to iterate over
         for res in resources_to_sort.copy():
-            res_name = f'{onto_name}:{res["name"]}'
             parent_classes = res["super"]
             if isinstance(parent_classes, str):
                 parent_classes = [parent_classes]
@@ -491,6 +487,7 @@ def _sort_resources(
             parent_classes_ok = [not p.startswith(onto_name) or p in ok_resource_names for p in parent_classes]
             if all(parent_classes_ok):
                 sorted_resources.append(res)
+                res_name = f'{onto_name}:{res["name"]}'
                 ok_resource_names.append(res_name)
                 resources_to_sort.remove(res)
     return sorted_resources
@@ -514,9 +511,9 @@ def _sort_prop_classes(
 
     # do not modify the original unsorted_prop_classes, which points to the original JSON project file
     prop_classes_to_sort = unsorted_prop_classes.copy()
-    sorted_prop_classes: list[dict[str, Any]] = list()
-    ok_propclass_names: list[str] = list()
-    while len(prop_classes_to_sort) > 0:
+    sorted_prop_classes: list[dict[str, Any]] = []
+    ok_propclass_names: list[str] = []
+    while prop_classes_to_sort:
         # inside the for loop, resources_to_sort is modified, so a copy must be made to iterate over
         for prop in prop_classes_to_sort.copy():
             prop_name = f'{onto_name}:{prop["name"]}'
@@ -591,7 +588,7 @@ def _create_ontology(
 
     context.add_context(
         ontology_remote.name,
-        ontology_remote.iri + ("#" if not ontology_remote.iri.endswith("#") else ""),
+        ontology_remote.iri + ("" if ontology_remote.iri.endswith("#") else "#"),
     )
 
     # add the prefixes defined in the JSON file
@@ -898,7 +895,7 @@ def _add_cardinalities_to_resource_classes(
         "1-n": Cardinality.C_1_n,
     }
     for res_class in resclass_definitions:
-        res_class_remote = remote_res_classes.get(ontology_remote.iri + "#" + res_class["name"])
+        res_class_remote = remote_res_classes.get(f"{ontology_remote.iri}#{res_class['name']}")
         if not res_class_remote:
             msg = (
                 f"Unable to add cardinalities to resource class '{res_class['name']}': "
@@ -1040,8 +1037,7 @@ def create_project(
     context = Context(project_definition.get("prefixes", {}))
 
     # expand the Excel files referenced in the "lists" section of the project (if any), and add them to the project
-    new_lists = expand_lists_from_excel(project_definition.get("project", {}).get("lists", []))
-    if new_lists:
+    if new_lists := expand_lists_from_excel(project_definition.get("project", {}).get("lists", [])):
         project_definition["project"]["lists"] = new_lists
 
     # validate against JSON schema

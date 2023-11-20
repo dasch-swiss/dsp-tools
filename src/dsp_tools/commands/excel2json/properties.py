@@ -37,8 +37,7 @@ def _search_json_validation_error_get_err_msg_str(
         A string which is used in the Error message that contains detailed information about the problem
     """
     err_msg_list = [f"The 'properties' section defined in the Excel file '{excelfile}' did not pass validation."]
-    json_path_to_property = regex.search(r"^\$\[(\d+)\]", validation_error.json_path)
-    if json_path_to_property:
+    if json_path_to_property := regex.search(r"^\$\[(\d+)\]", validation_error.json_path):
         # fmt: off
         wrong_property_name = (
             jsonpath_ng.ext.parse(json_path_to_property.group(0))
@@ -48,11 +47,10 @@ def _search_json_validation_error_get_err_msg_str(
         # fmt: on
         excel_row = int(json_path_to_property.group(1)) + 2
         err_msg_list.append(f"The problematic property is '{wrong_property_name}' in Excel row {excel_row}.")
-        affected_field = regex.search(
+        if affected_field := regex.search(
             r"name|labels|comments|super|subject|object|gui_element|gui_attributes",
             validation_error.json_path,
-        )
-        if affected_field:
+        ):
             err_msg_list.append(
                 f"The problem is that the column '{affected_field.group(0)}' has an invalid value: "
                 f"{validation_error.message}"
@@ -131,12 +129,12 @@ def _unpack_gui_attributes(attribute_str: str) -> dict[str, str]:
         IndexError: if the sub-lists do not contain each two items
     """
     # Create a list with several attributes
-    gui_list = [x.strip() for x in attribute_str.split(",") if not x.strip() == ""]
+    gui_list = [x.strip() for x in attribute_str.split(",") if x.strip() != ""]
     # create a sub list with the kex value pair of the attribute if it is an empty string we exclude it.
     # this error will be detected when checking for the length of the lists
     sub_gui_list = [[sub.strip() for sub in x.split(":") if sub.strip() != ""] for x in gui_list]
     # if not all sublist contain two items, something is wrong with the attribute
-    if not all(len(sub) == 2 for sub in sub_gui_list):
+    if any(len(sub) != 2 for sub in sub_gui_list):
         raise IndexError
     return {sub[0]: sub[1] for sub in sub_gui_list}
 
@@ -450,15 +448,14 @@ def excel2properties(
     )
 
     # transform every row into a property
-    props: list[dict[str, Any]] = []
-    for index, row in property_df.iterrows():
-        props.append(
-            _row2prop(
-                df_row=row,
-                row_num=int(str(index)) + 2,  # index is a label/index/hashable, but we need an int
-                excelfile=excelfile,
-            )
+    props = [
+        _row2prop(
+            df_row=row,
+            row_num=int(str(index)) + 2,  # index is a label/index/hashable, but we need an int
+            excelfile=excelfile,
         )
+        for index, row in property_df.iterrows()
+    ]
 
     # write final JSON file
     _validate_properties(properties_list=props, excelfile=excelfile)

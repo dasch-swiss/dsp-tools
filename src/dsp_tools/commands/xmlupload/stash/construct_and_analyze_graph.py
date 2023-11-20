@@ -67,8 +67,7 @@ def _create_text_link_objects(subject_id: str, text_prop: etree._Element) -> lis
     # if the same ID is in several separate <text> values of one <text-prop>, they are considered separate links
     xml_props = []
     for text in text_prop.getchildren():
-        links = _extract_ids_from_one_text_value(text)
-        if links:
+        if links := _extract_ids_from_one_text_value(text):
             xml_link = XMLLink(subject_id, links)
             xml_props.append(xml_link)
             # this UUID is so that the links that were stashed can be identified in the XML data file
@@ -173,8 +172,7 @@ def _find_cheapest_outgoing_links(
         node_value = node_cost / node_gain
         costs.append(Cost(source, target, node_value))
     cheapest_cost = sorted(costs, key=lambda x: x.node_value)[0]
-    cheapest_links = [x for x in edges if x.source == cheapest_cost.source and x.target == cheapest_cost.target]
-    return cheapest_links
+    return [x for x in edges if x.source == cheapest_cost.source and x.target == cheapest_cost.target]
 
 
 def _remove_edges_to_stash(

@@ -42,7 +42,7 @@ def run_test(
     maximum = len(different_values)
 
     # prepare the test cases of the form (expected_xml, kwargs for the method to generate XML)
-    testcases: list[tuple[str, dict[str, Any]]] = list()
+    testcases: list[tuple[str, dict[str, Any]]] = []
     # pass every element of different_values separately
     for val in different_values:
         testcases.extend(
@@ -514,10 +514,8 @@ class TestExcel2xmlLib(unittest.TestCase):
                 "&lt;escaped tag&gt;",
             ],
         ]
-        all_inputs = ""
-        all_outputs = ""
-        all_inputs += " ".join([input for input, output in testcases_xml])
-        all_outputs += " ".join([output for input, output in testcases_xml])
+        all_inputs = " ".join([input for input, _ in testcases_xml])
+        all_outputs = " ".join([output for _, output in testcases_xml])
         testcases_xml.append([all_inputs, all_outputs])
 
         for orig, exp in testcases_xml:

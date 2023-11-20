@@ -1,7 +1,7 @@
 # pylint: disable=missing-class-docstring,missing-function-docstring
 
-import os
 import unittest
+from pathlib import Path
 
 import regex
 
@@ -19,8 +19,7 @@ class TestExcel2xmlCli(unittest.TestCase):
             with open("excel2xml-output-data.xml", encoding="utf-8") as f:
                 returned = f.read()
                 self.assertEqual(returned, expected, msg=f"Failed with extension {ext}")
-            if os.path.isfile("excel2xml-output-data.xml"):
-                os.remove("excel2xml-output-data.xml")
+            Path("excel2xml-output-data.xml").unlink(missing_ok=True)
 
         # test the invalid files
         invalid_prefix = "testdata/invalid-testdata/excel2xml"

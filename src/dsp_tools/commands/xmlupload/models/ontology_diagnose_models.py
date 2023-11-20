@@ -61,17 +61,25 @@ class InvalidOntologyElements:
         df.to_excel(excel_writer=Path(self.save_path, excel_name), sheet_name=" ", index=False)
 
     def _get_problems_as_df(self) -> pd.DataFrame:
-        cls_di = {
-            "resource id": [x[0] for x in self.classes],
-            "problematic type": [x[1] for x in self.classes],
-            "problem": [x[2] for x in self.classes],
-        }
-        prop_di = {
-            "resource id": [x[0] for x in self.properties],
-            "problematic type": [x[1] for x in self.properties],
-            "problem": [x[2] for x in self.properties],
-        }
-        return pd.DataFrame.from_records([cls_di, prop_di])
+        problems = [
+            {
+                "resource id": x[0],
+                "problematic type": x[1],
+                "problem": x[2],
+            }
+            for x in self.classes
+        ]
+        problems.extend(
+            [
+                {
+                    "resource id": x[0],
+                    "problematic type": x[1],
+                    "problem": x[2],
+                }
+                for x in self.properties
+            ]
+        )
+        return pd.DataFrame.from_records(problems)
 
     def _print_problem_string_cls(self) -> str:
         if self.classes:

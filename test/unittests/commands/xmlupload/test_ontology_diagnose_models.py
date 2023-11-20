@@ -1,6 +1,8 @@
 from pathlib import Path
 
+import pandas as pd
 import pytest
+from pandas.testing import assert_frame_equal
 
 from dsp_tools.commands.xmlupload.models.ontology_diagnose_models import InvalidOntologyElements
 from dsp_tools.models.exceptions import UserError
@@ -59,3 +61,18 @@ def test_execute_problem_protocol() -> None:
     )
     with pytest.raises(UserError, match=expected_msg):
         onto.execute_problem_protocol()
+
+
+def test_get_problems_as_df() -> None:
+    onto = InvalidOntologyElements(
+        Path(""), [["idA", "clsA", "wrongA"], ["idC", "clsC", "wrongC"]], [["idB", "propB", "wrongB"]]
+    )
+    expected_df = pd.DataFrame(
+        {
+            "resource id": ["idA", "idC", "idB"],
+            "problematic type": ["clsA", "clsC", "propB"],
+            "problem": ["wrongA", "wrongC", "wrongB"],
+        }
+    )
+    res_df = onto._get_problems_as_df()
+    assert_frame_equal(res_df, expected_df)

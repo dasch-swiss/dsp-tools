@@ -309,6 +309,6 @@ def test_get_prefix_and_prop_cls_identifier() -> None:
 
 def test_get_prefix_and_prop_cls_identifier_error() -> None:
     with pytest.raises(
-        BaseError, match="The input property or class: '123654' does not follow a known ontology pattern."
+        BaseError, match="The input property or class: '123654/' does not follow a known ontology pattern."
     ):
-        _get_prefix_and_prop_cls_identifier("123654", "test")
+        _get_prefix_and_prop_cls_identifier("123654/", "test")

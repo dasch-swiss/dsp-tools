@@ -42,7 +42,7 @@ class InvalidOntologyElements:
         Raises:
             UserError: If properties or classes have any entries.
         """
-        extra_separator = "\n----------------------------"
+        extra_separator = "\n\n----------------------------\n\n"
         msg = "Some property and or class type(s) used in the XML are unknown:" + extra_separator
         cls_msg = self._print_problem_string_cls()
         if cls_msg:
@@ -87,7 +87,7 @@ class InvalidOntologyElements:
             problems = [
                 f"\tResource ID: '{x[0]}'\n\tResource Type: '{x[1]}'\n\tProblem: '{x[2]}'" for x in self.classes
             ]
-            return "The following resource(s) have an invalid resource type:\n" + separator.join(problems)
+            return "The following resource(s) have an invalid resource type:\n\n" + separator.join(problems)
         else:
             return ""
 
@@ -97,6 +97,6 @@ class InvalidOntologyElements:
             problems = [
                 f"\tResource ID: '{x[0]}'\n\tProperty Name: '{x[1]}'\n\tProblem: '{x[2]}'" for x in self.properties
             ]
-            return "The following resource(s) have invalid property type(s):\n" + separator.join(problems)
+            return "The following resource(s) have invalid property type(s):\n\n" + separator.join(problems)
         else:
             return ""

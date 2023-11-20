@@ -4,15 +4,15 @@ from lxml import etree
 from regex import Pattern
 
 from dsp_tools.commands.xmlupload.models.ontology_diagnose_models import InvalidOntologyElements, OntoCheckInformation
-from dsp_tools.commands.xmlupload.ontology_client import OntologyClient
+from dsp_tools.commands.xmlupload.ontology_client import OntologyClientLive
 from dsp_tools.models.exceptions import BaseError
 
-defaultOntologyColon: Pattern[str] = regex.compile(r"^:[A-Za-z]+$")
-knoraUndeclared: Pattern[str] = regex.compile(r"^[A-Za-z]+$")
-genericPrefixedOntology: Pattern[str] = regex.compile(r"^[A-Za-z]+-?[A-Za-z]+:[A-Za-z]+$")
+defaultOntologyColon: Pattern[str] = regex.compile(r"^:\w+$")
+knoraUndeclared: Pattern[str] = regex.compile(r"^\w+$")
+genericPrefixedOntology: Pattern[str] = regex.compile(r"^[A-Za-z]+-?[A-Za-z]+:\w+$")
 
 
-def do_xml_consistency_check(onto_client: OntologyClient, root: etree._Element) -> None:
+def do_xml_consistency_check(onto_client: OntologyClientLive, root: etree._Element) -> None:
     """
     This function takes an OntologyClient and the root of an XML.
     It retrieves the ontologies from the server.
@@ -38,17 +38,17 @@ def do_xml_consistency_check(onto_client: OntologyClient, root: etree._Element) 
 def _get_all_classes_and_properties(root: etree._Element) -> tuple[list[list[str]], list[list[str]]]:
     classes = _get_all_class_types_and_ids(root)
     properties = []
-    for resource in root.iterchildren():
+    for resource in root.iterchildren(tag="resource"):
         properties.extend(_get_all_property_names_and_resource_ids(resource))
     return classes, properties
 
 
 def _get_all_class_types_and_ids(root: etree._Element) -> list[list[str]]:
-    return [[resource.attrib["id"], resource.attrib["restype"]] for resource in root.iterchildren()]
+    return [[resource.attrib["id"], resource.attrib["restype"]] for resource in root.iterchildren(tag="resource")]
 
 
 def _get_all_property_names_and_resource_ids(resource: etree._Element) -> list[list[str]]:
-    return [[resource.attrib["id"], prop.attrib["name"]] for prop in resource.iterchildren()]
+    return [[resource.attrib["id"], prop.attrib["name"]] for prop in resource.iterchildren() if prop.tag != "bitstream"]
 
 
 def _find_problems_in_classes_and_properties(
@@ -59,7 +59,7 @@ def _find_problems_in_classes_and_properties(
     if not class_problems and not property_problems:
         return None
     problems = InvalidOntologyElements(
-        save_path=OntoCheckInformation.save_location, classes=class_problems, properties=property_problems
+        save_path=onto_check_info.save_location, classes=class_problems, properties=property_problems
     )
     problems.execute_problem_protocol()
 

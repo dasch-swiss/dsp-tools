@@ -10,12 +10,14 @@ from typing import Any, Union
 
 from lxml import etree
 
+from dsp_tools.commands.xmlupload.check_consistency_with_ontology import do_xml_consistency_check
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.list_client import ListClient, ListClientLive
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.sipi import Sipi
 from dsp_tools.commands.xmlupload.models.xmlpermission import XmlPermission
 from dsp_tools.commands.xmlupload.models.xmlresource import BitstreamInfo, XMLResource
+from dsp_tools.commands.xmlupload.ontology_client import OntologyClient, OntologyClientLive
 from dsp_tools.commands.xmlupload.project_client import ProjectClient, ProjectClientLive
 from dsp_tools.commands.xmlupload.read_validate_xml_file import validate_and_parse_xml_file
 from dsp_tools.commands.xmlupload.resource_create_client import ResourceCreateClient
@@ -83,6 +85,11 @@ def xmlupload(
     # establish connection to DSP server
     con = login(server=server, user=user, password=password, dump=config.diagnostics.dump)
     sipi_server = Sipi(sipi, con.get_token())
+
+    ontology_client = OntologyClientLive(
+        con=con, shortcode=shortcode, default_ontology=default_ontology, save_location=config.diagnostics.save_location
+    )
+    do_xml_consistency_check(onto_client=ontology_client, root=root)
 
     resources, permissions_lookup, stash = _prepare_upload(
         root=root,

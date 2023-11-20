@@ -112,8 +112,7 @@ def _process_files_in_parallel(
     """
     orig_filepath_2_uuid: list[tuple[Path, Optional[Path]]] = []
     for batch in make_chunks(lst=files_to_process, length=1000):
-        unprocessed_paths = _launch_thread_pool(nthreads, input_dir, output_dir, batch, orig_filepath_2_uuid)
-        if unprocessed_paths:
+        if unprocessed_paths := _launch_thread_pool(nthreads, input_dir, output_dir, batch, orig_filepath_2_uuid):
             return orig_filepath_2_uuid, unprocessed_paths
     return orig_filepath_2_uuid, []
 

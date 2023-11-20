@@ -19,7 +19,7 @@ from lxml import etree
 
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.create_logger import get_logger
-from dsp_tools.utils.shared import http_call_with_retry
+from dsp_tools.utils.shared import http_call_with_retry, make_chunks
 
 logger = get_logger(__name__)
 sipi_container: Optional[Container] = None
@@ -111,16 +111,28 @@ def _process_files_in_parallel(
           (this list will only have content if a Docker API error led to a restart of the SIPI container)
     """
     orig_filepath_2_uuid: list[tuple[Path, Optional[Path]]] = []
+    for batch in make_chunks(lst=files_to_process, length=1000):
+        unprocessed_paths = _launch_thread_pool(nthreads, input_dir, output_dir, batch, orig_filepath_2_uuid)
+        if unprocessed_paths:
+            return orig_filepath_2_uuid, unprocessed_paths
+    return orig_filepath_2_uuid, []
+
+
+def _launch_thread_pool(
+    nthreads: int | None,
+    input_dir: Path,
+    output_dir: Path,
+    files_to_process: list[Path],
+    orig_filepath_2_uuid: list[tuple[Path, Optional[Path]]],
+) -> list[Path]:
     total = len(files_to_process)
-    num_of_processed_files = 0
     with ThreadPoolExecutor(max_workers=nthreads) as pool:
         processing_jobs = [pool.submit(_process_file, f, input_dir, output_dir) for f in files_to_process]
         for processed in as_completed(processing_jobs):
             try:
                 orig_file, internal_file = processed.result()
                 orig_filepath_2_uuid.append((orig_file, internal_file))
-                num_of_processed_files += 1
-                msg = f"Successfully processed file {num_of_processed_files}/{total} of this batch: {orig_file}"
+                msg = f"Successfully processed file {len(orig_filepath_2_uuid)}/{total} of this batch: {orig_file}"
                 print(f"{datetime.now()}: {msg}")
                 logger.info(msg)
             except docker.errors.APIError:
@@ -131,9 +143,8 @@ def _process_files_in_parallel(
                 _restart_sipi_container(input_dir, output_dir)
                 processed_paths = [x[0] for x in orig_filepath_2_uuid]
                 unprocessed_paths = [x for x in files_to_process if x not in processed_paths]
-                return orig_filepath_2_uuid, unprocessed_paths
-
-    return orig_filepath_2_uuid, []
+                return unprocessed_paths
+    return []
 
 
 def _write_result_to_pkl_file(processed_files: list[tuple[Path, Optional[Path]]]) -> None:

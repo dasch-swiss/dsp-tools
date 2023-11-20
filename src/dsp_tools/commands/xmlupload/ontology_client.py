@@ -37,6 +37,12 @@ class OntologyClientLive:
     ontology_names: list[str] = field(default_factory=list)
 
     def get_all_ontologies_from_server(self) -> dict[str, Ontology]:
+        """
+        This function returns all the project and knora-api ontology that are on the server.
+
+        Returns: a dictionary with the ontology name as key and the ontology as value.
+
+        """
         ontologies = self._get_all_ontology_jsons_from_server()
         return {onto_name: deserialize_ontology(onto_graph) for onto_name, onto_graph in ontologies.items()}
 

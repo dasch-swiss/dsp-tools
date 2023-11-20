@@ -13,7 +13,7 @@ from requests import JSONDecodeError
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.create_logger import get_logger
-from dsp_tools.utils.shared import login
+from dsp_tools.utils.shared import login, make_chunks
 
 logger = get_logger(__name__)
 
@@ -313,21 +313,22 @@ def _upload_files_in_parallel(
         _description_
     """
     result: list[tuple[Path, bool]] = []
-    with ThreadPoolExecutor(max_workers=nthreads) as pool:
-        upload_jobs = [
-            pool.submit(
-                _upload_file,
-                dir_with_processed_files,
-                internal_filename_of_processed_file,
-                sipi_url,
-                con,
-            )
-            for internal_filename_of_processed_file in internal_filenames_of_processed_files
-        ]
-        for uploaded in as_completed(upload_jobs):
-            result.append(uploaded.result())
-            if len(result) % 1000 == 0:
-                print(f"{datetime.now()}: Uploaded {len(result)} files...")
+    for subbatch in make_chunks(lst=internal_filenames_of_processed_files, length=1000):
+        with ThreadPoolExecutor(max_workers=nthreads) as pool:
+            upload_jobs = [
+                pool.submit(
+                    _upload_file,
+                    dir_with_processed_files,
+                    internal_filename_of_processed_file,
+                    sipi_url,
+                    con,
+                )
+                for internal_filename_of_processed_file in subbatch
+            ]
+            for uploaded in as_completed(upload_jobs):
+                result.append(uploaded.result())
+                if len(result) % 1000 == 0:
+                    print(f"{datetime.now()}: Uploaded {len(result)} files...")
     return result
 
 

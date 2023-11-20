@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from pathlib import Path
 from test.unittests.commands.xmlupload.connection_mock import ConnectionMockBase
 from typing import Any
 
@@ -189,7 +190,7 @@ def test_get_ontology_names_from_server() -> None:
         }
     }
     con = ConnectionMock(response)
-    onto_cli = OntologyClientLive(con, "0801", "beol")
+    onto_cli = OntologyClientLive(con, "0801", "beol", Path(""))
     onto_cli._get_ontology_names_from_server()
     assert unordered(onto_cli.ontology_names) == ["biblio", "newton", "leibniz", "beol"]
 
@@ -208,7 +209,7 @@ def test_get_ontology_from_server() -> None:
         "@context": {},
     }
     con = ConnectionMock(response)
-    onto_cli = OntologyClientLive(con, "0801", "beol")
+    onto_cli = OntologyClientLive(con, "0801", "beol", Path(""))
     res_graph = onto_cli._get_ontology_from_server("beol")
     assert unordered(res_graph) == [{"resource_class": ["Information"]}, {"property": ["Information"]}]
 
@@ -227,7 +228,7 @@ def test_get_knora_api_from_server() -> None:
         "@context": {},
     }
     con = ConnectionMock(response)
-    onto_cli = OntologyClientLive(con, "", "")
+    onto_cli = OntologyClientLive(con, "", "", Path(""))
     res_graph = onto_cli._get_knora_api_from_server()
     assert unordered(res_graph) == [{"resource_class": ["Information"]}, {"property": ["Information"]}]
 

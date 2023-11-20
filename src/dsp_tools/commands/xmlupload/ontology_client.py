@@ -34,6 +34,7 @@ class OntologyClientLive:
     con: Connection
     shortcode: str
     default_ontology: str
+    save_location: Path
     ontology_names: list[str] = field(default_factory=list)
 
     def get_all_ontologies_from_server(self) -> dict[str, Ontology]:

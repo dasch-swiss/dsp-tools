@@ -89,7 +89,9 @@ def test_find_problems_in_classes_and_properties() -> None:
     )
     classes = [["idA", "knoraClassA"]]
     properties = [["idA", "knora-api:knoraPropA"]]
-    assert not _find_problems_in_classes_and_properties(classes, properties, onto_check_info)
+    assert not _find_problems_in_classes_and_properties(
+        classes, properties, onto_check_info
+    )  # type: ignore[func-returns-value]
 
 
 class TestDiagnoseClass:

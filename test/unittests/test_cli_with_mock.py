@@ -122,7 +122,6 @@ def test_process_files(process_files: Mock) -> None:
         output_dir=output_dir,
         xml_file=file,
         nthreads=nthreads,
-        batch_size=3000,
     )
 
 

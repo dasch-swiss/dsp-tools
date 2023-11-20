@@ -10,7 +10,7 @@ from dsp_tools.commands.xmlupload.list_client import (
     _get_list_iris_from_server,
 )
 
-# pylint: disable=missing-class-docstring,missing-function-docstring,unused-argument
+# pylint: disable=missing-class-docstring,missing-function-docstring
 
 
 @dataclass

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Any
 
-# pylint: disable=missing-class-docstring,missing-function-docstring,unused-argument
+# pylint: disable=missing-function-docstring,unused-argument
 
 
 @dataclass

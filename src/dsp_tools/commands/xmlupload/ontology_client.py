@@ -41,7 +41,8 @@ class OntologyClientLive:
         """
         This function returns all the project and knora-api ontology that are on the server.
 
-        Returns: a dictionary with the ontology name as key and the ontology as value.
+        Returns:
+            a dictionary with the ontology name as key and the ontology as value.
 
         """
         ontologies = self._get_all_ontology_jsons_from_server()

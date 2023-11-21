@@ -17,7 +17,7 @@ from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.sipi import Sipi
 from dsp_tools.commands.xmlupload.models.xmlpermission import XmlPermission
 from dsp_tools.commands.xmlupload.models.xmlresource import BitstreamInfo, XMLResource
-from dsp_tools.commands.xmlupload.ontology_client import OntologyClient, OntologyClientLive
+from dsp_tools.commands.xmlupload.ontology_client import OntologyClientLive
 from dsp_tools.commands.xmlupload.project_client import ProjectClient, ProjectClientLive
 from dsp_tools.commands.xmlupload.read_validate_xml_file import validate_and_parse_xml_file
 from dsp_tools.commands.xmlupload.resource_create_client import ResourceCreateClient

@@ -137,9 +137,6 @@ def _make_parser(
         "--output-dir", help="path to the output directory where the processed/transformed files should be written to"
     )
     parser_process_files.add_argument("--nthreads", type=int, default=None, help="number of threads to use")
-    parser_process_files.add_argument(
-        "--batchsize", type=int, default=3000, help="number of files to process before Python exits"
-    )
     parser_process_files.add_argument("xml_file", help="path to XML file containing the data")
 
     # upload-files
@@ -494,7 +491,6 @@ def _call_requested_action(args: argparse.Namespace) -> bool:
             output_dir=args.output_dir,
             xml_file=args.xml_file,
             nthreads=args.nthreads,
-            batch_size=args.batchsize,
         )
     elif args.action == "upload-files":
         success = upload_files(

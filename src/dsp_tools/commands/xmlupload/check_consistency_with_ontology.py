@@ -66,8 +66,8 @@ def _find_problems_in_classes_and_properties(
 
 def _diagnose_all_classes(classes: list[list[str]], onto_check_info: OntoCheckInformation) -> list[list[str]]:
     problem_list = []
-    for prop_info in classes:
-        if problem := _diagnose_class(prop_info, onto_check_info):
+    for cls_info in classes:
+        if problem := _diagnose_class(cls_info, onto_check_info):
             problem_list.append(problem)
     return problem_list
 

@@ -739,7 +739,7 @@ def _process_video_file(
 def _write_processed_and_unprocessed_files_to_txt_files(
     all_files: list[Path],
     processed_files: list[tuple[Path, Optional[Path]]],
-) -> None:
+) -> bool:
     """
     Determine the files that were processed and write them to 'processed_files.txt'.
     Determine the files that were not processed and write them to 'unprocessed_files.txt'.
@@ -747,7 +747,11 @@ def _write_processed_and_unprocessed_files_to_txt_files(
     Args:
         all_files: list of all paths that should be processed
         processed_files: list of tuples (orig path, processed path). 2nd path is None if a file could not be processed.
+
+    Returns:
+        True if all multimedia files in the XML file were processed, False otherwise
     """
+    success = True
     processed_original_paths = [x[0] for x in processed_files]
     with open("processed_files.txt", "x", encoding="utf-8") as f:
         f.write("\n".join([str(x) for x in processed_original_paths]))
@@ -757,9 +761,11 @@ def _write_processed_and_unprocessed_files_to_txt_files(
         with open("unprocessed_files.txt", "x", encoding="utf-8") as f:
             f.write("\n".join([str(x) for x in unprocessed_original_paths]))
         msg += " and 'unprocessed_files.txt'"
+        success = False
 
     print(f"{datetime.now()}: {msg}")
     logger.info(msg)
+    return success
 
 
 def handle_interruption(
@@ -887,12 +893,16 @@ def process_files(
     print(f"{end_time}: Processing files took: {end_time - start_time}")
     logger.info(f"Processing files took: {end_time - start_time}")
 
-    _write_processed_and_unprocessed_files_to_txt_files(
+    success = _write_processed_and_unprocessed_files_to_txt_files(
         all_files=all_files,
         processed_files=processed_files,
     )
     _write_result_to_pkl_file(processed_files)
 
-    # if there were problems, don't remove the sipi container. it might contain valuable log data.
-    _stop_and_remove_sipi_container()
-    return True
+    if success:
+        # if there were problems, don't remove the sipi container. it might contain valuable log data.
+        _stop_and_remove_sipi_container()
+        return True
+    else:
+        print("Something went wrong. The SIPI container is still available to be analyzed. Don't forget to remove it.")
+        return False

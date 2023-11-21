@@ -56,7 +56,7 @@ class InvalidOntologyElements:
             msg += extra_separator + f"\nAn excel: '{ex_name}' was saved at '{self.save_path}' listing the problems."
         raise UserError(msg)
 
-    def _get_and_save_problems_as_excel(self, excel_name) -> None:
+    def _get_and_save_problems_as_excel(self, excel_name: str) -> None:
         df = self._get_problems_as_df()
         df.to_excel(excel_writer=Path(self.save_path, excel_name), sheet_name=" ", index=False)
 

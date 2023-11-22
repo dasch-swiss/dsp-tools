@@ -11,7 +11,7 @@ from dsp_tools.models.exceptions import BaseError, UserError
 
 defaultOntologyColon: Pattern[str] = regex.compile(r"^:\w+$")
 knoraUndeclared: Pattern[str] = regex.compile(r"^\w+$")
-genericPrefixedOntology: Pattern[str] = regex.compile(r"^[A-Za-z]+-?[A-Za-z]+:\w+$")
+genericPrefixedOntology: Pattern[str] = regex.compile(r"^[\w\-]+:\w+$")
 
 
 def do_xml_consistency_check(onto_client: OntologyClientLive, root: etree._Element) -> None:

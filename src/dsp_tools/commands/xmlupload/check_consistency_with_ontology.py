@@ -31,7 +31,6 @@ def do_xml_consistency_check(onto_client: OntologyClient, root: etree._Element) 
     onto_check_info = OntoCheckInformation(
         default_ontology_prefix=onto_client.default_ontology,
         onto_lookup=onto_client.get_all_ontologies_from_server(),
-        input_file=onto_client.input_file,
         save_location=onto_client.save_location,
     )
     classes, properties = _get_all_classes_and_properties(root)
@@ -48,7 +47,7 @@ def _find_problems_in_classes_and_properties(
     problems = InvalidOntologyElements(classes=class_problems, properties=property_problems)
     msg, df = problems.execute_problem_protocol()
     if df:
-        ex_name = f"{onto_check_info.input_file}_syntax_errors.xlsx"
+        ex_name = "XML_syntax_errors.xlsx"
         df.to_excel(excel_writer=Path(onto_check_info.save_location, ex_name), sheet_name=" ", index=False)
         msg += (
             "\n\n---------------------------------------\n\n"
@@ -61,7 +60,7 @@ def _get_all_classes_and_properties(root: etree._Element) -> tuple[dict[str, lis
     cls_dict = _get_all_class_types_and_ids(root)
     prop_dict: dict[str, list[str]] = {}
     for resource in root.iterchildren(tag="resource"):
-        prop_dict = _get_all_property_names_and_resource_ids_one_resouce(resource, prop_dict)
+        prop_dict = _get_all_property_names_and_resource_ids_one_resource(resource, prop_dict)
     return cls_dict, prop_dict
 
 
@@ -76,7 +75,7 @@ def _get_all_class_types_and_ids(root: etree._Element) -> dict[str, list[str]]:
     return cls_dict
 
 
-def _get_all_property_names_and_resource_ids_one_resouce(
+def _get_all_property_names_and_resource_ids_one_resource(
     resource: etree._Element, prop_dict: dict[str, list[str]]
 ) -> dict[str, list[str]]:
     for prop in resource.iterchildren():

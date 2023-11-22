@@ -190,7 +190,7 @@ def test_get_ontology_names_from_server() -> None:
         }
     }
     con = ConnectionMock(response)
-    onto_client = OntologyClientLive(con, "0801", "beol", Path(""), "")
+    onto_client = OntologyClientLive(con, "0801", "beol", Path(""))
     onto_client._get_ontology_names_from_server()
     assert unordered(onto_client.ontology_names) == ["biblio", "newton", "leibniz", "beol"]
 
@@ -209,7 +209,7 @@ def test_get_ontology_from_server() -> None:
         "@context": {},
     }
     con = ConnectionMock(response)
-    onto_client = OntologyClientLive(con, "0801", "beol", Path(""), "")
+    onto_client = OntologyClientLive(con, "0801", "beol", Path(""))
     res_graph = onto_client._get_ontology_from_server("beol")
     assert unordered(res_graph) == [{"resource_class": ["Information"]}, {"property": ["Information"]}]
 
@@ -228,7 +228,7 @@ def test_get_knora_api_from_server() -> None:
         "@context": {},
     }
     con = ConnectionMock(response)
-    onto_client = OntologyClientLive(con, "", "", Path(""), "")
+    onto_client = OntologyClientLive(con, "", "", Path(""))
     res_graph = onto_client._get_knora_api_ontology_from_server()
     assert unordered(res_graph) == [{"resource_class": ["Information"]}, {"property": ["Information"]}]
 

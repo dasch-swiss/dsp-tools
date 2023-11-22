@@ -21,7 +21,6 @@ class OntologyClient(Protocol):
     shortcode: str
     default_ontology: str
     save_location: Path
-    input_file: str
     ontology_names: list[str] = field(default_factory=list)
 
     def get_all_ontologies_from_server(self) -> dict[str, OntoInfo]:
@@ -36,7 +35,6 @@ class OntologyClientLive:
     shortcode: str
     default_ontology: str
     save_location: Path
-    input_file: str
     ontology_names: list[str] = field(default_factory=list)
 
     def get_all_ontologies_from_server(self) -> dict[str, OntoInfo]:

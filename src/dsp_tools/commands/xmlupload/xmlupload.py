@@ -91,7 +91,6 @@ def xmlupload(
         shortcode=shortcode,
         default_ontology=default_ontology,
         save_location=config.diagnostics.save_location,
-        input_file=input_file,
     )
     do_xml_consistency_check(onto_client=ontology_client, root=root)
 

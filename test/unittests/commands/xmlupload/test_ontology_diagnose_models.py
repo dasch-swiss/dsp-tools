@@ -45,7 +45,7 @@ def test_execute_problem_protocol() -> None:
         [("clsA", ["idA"], "wrong")], [("propA", ["idA"], "wrong"), ("propB", ["idB", "idC"], "wrong")]
     )
     expected_msg = (
-        "\nSome property and or class type(s) used in the XML are unknown:"
+        "\nSome property and/or class type(s) used in the XML are unknown:"
         "\n\n---------------------------------------\n\n"
         "The following resource(s) have an invalid resource type:\n\n"
         "\tResource Type: 'clsA'\n"

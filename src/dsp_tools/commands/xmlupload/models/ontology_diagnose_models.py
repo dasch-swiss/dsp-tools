@@ -21,7 +21,6 @@ class OntoCheckInformation:
 
     default_ontology_prefix: str
     onto_lookup: dict[str, OntoInfo]
-    input_file: str
     save_location: Path
 
 

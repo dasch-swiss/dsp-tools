@@ -6,7 +6,7 @@ from lxml import etree
 from regex import Pattern
 
 from dsp_tools.commands.xmlupload.models.ontology_diagnose_models import InvalidOntologyElements, OntoCheckInformation
-from dsp_tools.commands.xmlupload.ontology_client import OntologyClientLive
+from dsp_tools.commands.xmlupload.ontology_client import OntologyClient
 from dsp_tools.models.exceptions import BaseError, UserError
 
 defaultOntologyColon: Pattern[str] = regex.compile(r"^:\w+$")
@@ -14,7 +14,7 @@ knoraUndeclared: Pattern[str] = regex.compile(r"^\w+$")
 genericPrefixedOntology: Pattern[str] = regex.compile(r"^[\w\-]+:\w+$")
 
 
-def do_xml_consistency_check(onto_client: OntologyClientLive, root: etree._Element) -> None:
+def do_xml_consistency_check(onto_client: OntologyClient, root: etree._Element) -> None:
     """
     This function takes an OntologyClient and the root of an XML.
     It retrieves the ontologies from the server.

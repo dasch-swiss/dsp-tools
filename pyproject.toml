@@ -124,51 +124,12 @@ exclude = [
 ]
 
 
-[tool.black]
+
+[tool.ruff]
 line-length = 120
+
 
 
 [tool.isort]
 profile = "black"
 line_length = 120
-
-
-[tool.pylint.MASTER]
-ignore-paths = ["src/dsp_tools/models/resource.py"] # TODO: activate this
-suggestion-mode = true
-
-
-[tool.pylint.format]
-max-line-length = 120
-
-
-[tool.pylint."messages control"]
-disable = [
-    "raw-checker-failed",            # disabled by default
-    "bad-inline-option",             # disabled by default
-    "locally-disabled",              # disabled by default
-    "file-ignored",                  # disabled by default
-    "suppressed-message",            # disabled by default
-    "deprecated-pragma",             # disabled by default
-    "use-symbolic-message-instead",  # disabled by default
-    "c-extension-no-member",         # probably not necessary
-    "use-dict-literal",              # not worth the effort
-    "use-list-literal",              # not worth the effort
-    "missing-module-docstring",      # not worth the effort
-    "trailing-whitespace",           # not worth the effort
-    "use-maxsplit-arg",              # not worth the effort
-    "global-statement",              # not worth the effort
-    "no-else-continue",              # would be less readable
-    "no-else-return",                # would be less readable
-    "no-else-raise",                 # would be less readable
-    "logging-fstring-interpolation", # would be less readable
-    "duplicate-code",                # too many false positives
-    "invalid-name",                  # TODO: activate this
-    "too-many-arguments",            # TODO: activate this
-    "too-many-branches",             # TODO: activate this
-    "too-many-lines",                # TODO: activate this
-    "too-many-locals",               # TODO: activate this
-    "too-many-nested-blocks",        # TODO: activate this
-    "too-many-return-statements",    # TODO: activate this
-    "too-many-statements",           # TODO: activate this
-]

@@ -16,7 +16,7 @@ from dsp_tools.commands.xmlupload.check_consistency_with_ontology import (
     _get_prefix_and_prop_or_cls_identifier,
 )
 from dsp_tools.commands.xmlupload.models.ontology_diagnose_models import OntoCheckInformation, OntoInfo
-from dsp_tools.models.exceptions import BaseError, UserError
+from dsp_tools.models.exceptions import UserError
 
 # pylint: disable=missing-function-docstring,missing-class-docstring
 
@@ -311,7 +311,4 @@ def test_get_prefix_and_prop_cls_identifier() -> None:
 
 
 def test_get_prefix_and_prop_cls_identifier_error() -> None:
-    with pytest.raises(
-        BaseError, match="The input property or class: '123654/' does not follow a known ontology pattern."
-    ):
-        _get_prefix_and_prop_or_cls_identifier("123654/", "test")
+    assert _get_prefix_and_prop_or_cls_identifier("123654/", "test") == (None, None)

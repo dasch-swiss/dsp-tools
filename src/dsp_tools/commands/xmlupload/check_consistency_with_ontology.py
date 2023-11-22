@@ -7,7 +7,7 @@ from regex import Pattern
 
 from dsp_tools.commands.xmlupload.models.ontology_diagnose_models import InvalidOntologyElements, OntoCheckInformation
 from dsp_tools.commands.xmlupload.ontology_client import OntologyClient
-from dsp_tools.models.exceptions import BaseError, UserError
+from dsp_tools.models.exceptions import UserError
 
 defaultOntologyColon: Pattern[str] = regex.compile(r"^:\w+$")
 knoraUndeclared: Pattern[str] = regex.compile(r"^\w+$")
@@ -99,15 +99,12 @@ def _diagnose_all_classes(
 
 
 def _diagnose_class(cls_type: str, onto_check_info: OntoCheckInformation) -> str | None:
-    try:
-        prefix, cls_ = _get_prefix_and_prop_or_cls_identifier(cls_type, onto_check_info.default_ontology_prefix)
-    except BaseError:
-        return "Resource type does not follow a known ontology pattern"
-    try:
-        if cls_ not in onto_check_info.onto_lookup[prefix].classes:
-            return "Invalid Class Type"
-        return None
-    except KeyError:
+    prefix, cls_ = _get_prefix_and_prop_or_cls_identifier(cls_type, onto_check_info.default_ontology_prefix)
+    if not prefix:
+        return "Property name does not follow a known ontology pattern"
+    if onto := onto_check_info.onto_lookup.get(prefix):
+        return "Invalid Class Type" if cls_ not in onto.classes else None
+    else:
         return "Unknown ontology prefix"
 
 
@@ -122,19 +119,18 @@ def _diagnose_all_properties(
 
 
 def _diagnose_property(prop_name: str, onto_check_info: OntoCheckInformation) -> str | None:
-    try:
-        prefix, prop = _get_prefix_and_prop_or_cls_identifier(prop_name, onto_check_info.default_ontology_prefix)
-    except BaseError:
+    prefix, prop = _get_prefix_and_prop_or_cls_identifier(prop_name, onto_check_info.default_ontology_prefix)
+    if not prefix:
         return "Property name does not follow a known ontology pattern"
-    try:
-        if prop not in onto_check_info.onto_lookup[prefix].properties:
-            return "Invalid Property"
-        return None
-    except KeyError:
+    if onto := onto_check_info.onto_lookup.get(prefix):
+        return "Invalid Property" if prop not in onto.properties else None
+    else:
         return "Unknown ontology prefix"
 
 
-def _get_prefix_and_prop_or_cls_identifier(prop_or_cls: str, default_ontology_prefix: str) -> tuple[str, ...]:
+def _get_prefix_and_prop_or_cls_identifier(
+    prop_or_cls: str, default_ontology_prefix: str
+) -> tuple[str, ...] | tuple[None, None]:
     if defaultOntologyColon.match(prop_or_cls):
         return default_ontology_prefix, prop_or_cls.lstrip(":")
     elif knoraUndeclared.match(prop_or_cls):
@@ -142,4 +138,4 @@ def _get_prefix_and_prop_or_cls_identifier(prop_or_cls: str, default_ontology_pr
     elif genericPrefixedOntology.match(prop_or_cls):
         return tuple(prop_or_cls.split(":"))
     else:
-        raise BaseError(f"The input property or class: '{prop_or_cls}' does not follow a known ontology pattern.")
+        return None, None

@@ -35,24 +35,40 @@ def do_xml_consistency_check(onto_client: OntologyClientLive, root: etree._Eleme
     _find_problems_in_classes_and_properties(classes, properties, onto_check_info)
 
 
-def _get_all_classes_and_properties(root: etree._Element) -> tuple[list[list[str]], list[list[str]]]:
-    classes = _get_all_class_types_and_ids(root)
-    properties = []
+def _get_all_classes_and_properties(root: etree._Element) -> tuple[dict[str, list[str]], dict[str, list[str]]]:
+    cls_dict = _get_all_class_types_and_ids(root)
+    prop_dict = {}
     for resource in root.iterchildren(tag="resource"):
-        properties.extend(_get_all_property_names_and_resource_ids(resource))
-    return classes, properties
+        prop_dict = _get_all_property_names_and_resource_ids_one_resouce(resource, prop_dict)
+    return cls_dict, prop_dict
 
 
-def _get_all_class_types_and_ids(root: etree._Element) -> list[list[str]]:
-    return [[resource.attrib["id"], resource.attrib["restype"]] for resource in root.iterchildren(tag="resource")]
+def _get_all_class_types_and_ids(root: etree._Element) -> dict[str, list[str]]:
+    cls_dict = {}
+    for resource in root.iterchildren(tag="resource"):
+        restype = resource.attrib["restype"]
+        if restype in cls_dict:
+            cls_dict[restype].append(resource.attrib["id"])
+        else:
+            cls_dict[restype] = [resource.attrib["id"]]
+    return cls_dict
 
 
-def _get_all_property_names_and_resource_ids(resource: etree._Element) -> list[list[str]]:
-    return [[resource.attrib["id"], prop.attrib["name"]] for prop in resource.iterchildren() if prop.tag != "bitstream"]
+def _get_all_property_names_and_resource_ids_one_resouce(
+    resource: etree._Element, prop_dict: dict[str, [list[str]]]
+) -> dict[str, [list[str]]]:
+    for prop in resource.iterchildren():
+        if prop.tag != "bitstream":
+            prop_name = prop.attrib["name"]
+            if prop_name in prop_dict:
+                prop_dict[prop_name].append(resource.attrib["id"])
+            else:
+                prop_dict[prop_name] = [resource.attrib["id"]]
+    return prop_dict
 
 
 def _find_problems_in_classes_and_properties(
-    classes: list[list[str]], properties: list[list[str]], onto_check_info: OntoCheckInformation
+    classes: dict[str, [list[str]]], properties: dict[str, [list[str]]], onto_check_info: OntoCheckInformation
 ) -> None:
     class_problems = _diagnose_all_classes(classes, onto_check_info)
     property_problems = _diagnose_all_properties(properties, onto_check_info)
@@ -64,52 +80,50 @@ def _find_problems_in_classes_and_properties(
     problems.execute_problem_protocol()
 
 
-def _diagnose_all_classes(classes: list[list[str]], onto_check_info: OntoCheckInformation) -> list[list[str]]:
+def _diagnose_all_classes(
+    classes: dict[str, list[str]], onto_check_info: OntoCheckInformation
+) -> list[tuple[str, list[str], str]]:
     problem_list = []
-    for cls_info in classes:
-        if problem := _diagnose_class(cls_info, onto_check_info):
-            problem_list.append(problem)
+    for cls_type, ids in classes.items():
+        if problem := _diagnose_class(cls_type, onto_check_info):
+            problem_list.append((cls_type, ids, problem))
     return problem_list
 
 
-def _diagnose_class(class_info: list[str], onto_check_info: OntoCheckInformation) -> list[str] | None:
+def _diagnose_class(cls_type: str, onto_check_info: OntoCheckInformation) -> str | None:
     try:
-        prefix, cls_ = _get_prefix_and_prop_cls_identifier(class_info[1], onto_check_info.default_ontology_prefix)
+        prefix, cls_ = _get_prefix_and_prop_cls_identifier(cls_type, onto_check_info.default_ontology_prefix)
     except BaseError:
-        class_info.append("Resource type does not follow a known ontology pattern")
-        return class_info
+        return "Resource type does not follow a known ontology pattern"
     try:
         if cls_ not in onto_check_info.onto_lookup[prefix].classes:
-            class_info.append("Invalid Class Type")
-            return class_info
+            return "Invalid Class Type"
         return None
     except KeyError:
-        class_info.append("Unknown ontology prefix")
-        return class_info
+        return "Unknown ontology prefix"
 
 
-def _diagnose_all_properties(properties: list[list[str]], onto_check_info: OntoCheckInformation) -> list[list[str]]:
+def _diagnose_all_properties(
+    properties: dict[str, list[str]], onto_check_info: OntoCheckInformation
+) -> list[tuple[str, list[str], str]]:
     problem_list = []
-    for prop_info in properties:
-        if problem := _diagnose_properties(prop_info, onto_check_info):
-            problem_list.append(problem)
+    for prop_name, ids in properties.items():
+        if problem := _diagnose_properties(prop_name, onto_check_info):
+            problem_list.append((prop_name, ids, problem))
     return problem_list
 
 
-def _diagnose_properties(prop_info: list[str], onto_check_info: OntoCheckInformation) -> list[str] | None:
+def _diagnose_properties(prop_name: str, onto_check_info: OntoCheckInformation) -> str | None:
     try:
-        prefix, prop = _get_prefix_and_prop_cls_identifier(prop_info[1], onto_check_info.default_ontology_prefix)
+        prefix, prop = _get_prefix_and_prop_cls_identifier(prop_name, onto_check_info.default_ontology_prefix)
     except BaseError:
-        prop_info.append("Property name does not follow a known ontology pattern")
-        return prop_info
+        return "Property name does not follow a known ontology pattern"
     try:
         if prop not in onto_check_info.onto_lookup[prefix].properties:
-            prop_info.append("Invalid Property")
-            return prop_info
+            return "Invalid Property"
         return None
     except KeyError:
-        prop_info.append("Unknown ontology prefix")
-        return prop_info
+        return "Unknown ontology prefix"
 
 
 def _get_prefix_and_prop_cls_identifier(prop_cls: str, default_ontology_prefix: str) -> tuple[str, ...]:

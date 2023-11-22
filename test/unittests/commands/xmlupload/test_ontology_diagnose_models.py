@@ -8,7 +8,7 @@ from dsp_tools.commands.xmlupload.models.ontology_diagnose_models import Invalid
 
 def test_print_problem_string_cls() -> None:
     onto = InvalidOntologyElements([("clsA", ["idA"], "wrong")], [])
-    msg = onto._print_problem_string_cls()
+    msg = onto._compose_problem_string_cls()
     assert msg == (
         "The following resource(s) have an invalid resource type:\n\n"
         "\tResource Type: 'clsA'\n"
@@ -20,12 +20,12 @@ def test_print_problem_string_cls() -> None:
 
 def test_print_problem_string_no_cls() -> None:
     onto = InvalidOntologyElements([], [])
-    assert not onto._print_problem_string_cls()
+    assert not onto._compose_problem_string_cls()
 
 
 def test_print_problem_string_prop() -> None:
     onto = InvalidOntologyElements([], [("propA", ["idA"], "wrong")])
-    msg = onto._print_problem_string_props()
+    msg = onto._compose_problem_string_props()
     assert msg == (
         "The following resource(s) have invalid property type(s):\n\n"
         "\tProperty Name: 'propA'\n"
@@ -37,7 +37,7 @@ def test_print_problem_string_prop() -> None:
 
 def test_print_problem_string_no_prop() -> None:
     onto = InvalidOntologyElements([], [])
-    assert not onto._print_problem_string_props()
+    assert not onto._compose_problem_string_props()
 
 
 def test_execute_problem_protocol() -> None:

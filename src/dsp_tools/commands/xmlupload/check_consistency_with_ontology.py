@@ -31,6 +31,7 @@ def do_xml_consistency_check(onto_client: OntologyClient, root: etree._Element) 
     onto_check_info = OntoCheckInformation(
         default_ontology_prefix=onto_client.default_ontology,
         onto_lookup=onto_client.get_all_ontologies_from_server(),
+        input_file=onto_client.input_file,
         save_location=onto_client.save_location,
     )
     classes, properties = _get_all_classes_and_properties(root)
@@ -47,7 +48,7 @@ def _find_problems_in_classes_and_properties(
     problems = InvalidOntologyElements(classes=class_problems, properties=property_problems)
     msg, df = problems.execute_problem_protocol()
     if df:
-        ex_name = "InvalidOntologyElements_in_XML.xlsx"
+        ex_name = f"{onto_check_info.input_file}_syntax_errors.xlsx"
         df.to_excel(excel_writer=Path(onto_check_info.save_location, ex_name), sheet_name=" ", index=False)
         msg += (
             "\n\n---------------------------------------\n\n"
@@ -100,7 +101,7 @@ def _diagnose_all_classes(
 
 def _diagnose_class(cls_type: str, onto_check_info: OntoCheckInformation) -> str | None:
     try:
-        prefix, cls_ = _get_prefix_and_prop_cls_identifier(cls_type, onto_check_info.default_ontology_prefix)
+        prefix, cls_ = _get_prefix_and_prop_or_cls_identifier(cls_type, onto_check_info.default_ontology_prefix)
     except BaseError:
         return "Resource type does not follow a known ontology pattern"
     try:
@@ -116,14 +117,14 @@ def _diagnose_all_properties(
 ) -> list[tuple[str, list[str], str]]:
     problem_list = []
     for prop_name, ids in properties.items():
-        if problem := _diagnose_properties(prop_name, onto_check_info):
+        if problem := _diagnose_property(prop_name, onto_check_info):
             problem_list.append((prop_name, ids, problem))
     return problem_list
 
 
-def _diagnose_properties(prop_name: str, onto_check_info: OntoCheckInformation) -> str | None:
+def _diagnose_property(prop_name: str, onto_check_info: OntoCheckInformation) -> str | None:
     try:
-        prefix, prop = _get_prefix_and_prop_cls_identifier(prop_name, onto_check_info.default_ontology_prefix)
+        prefix, prop = _get_prefix_and_prop_or_cls_identifier(prop_name, onto_check_info.default_ontology_prefix)
     except BaseError:
         return "Property name does not follow a known ontology pattern"
     try:
@@ -134,12 +135,12 @@ def _diagnose_properties(prop_name: str, onto_check_info: OntoCheckInformation) 
         return "Unknown ontology prefix"
 
 
-def _get_prefix_and_prop_cls_identifier(prop_cls: str, default_ontology_prefix: str) -> tuple[str, ...]:
-    if defaultOntologyColon.match(prop_cls):
-        return default_ontology_prefix, prop_cls.lstrip(":")
-    elif knoraUndeclared.match(prop_cls):
-        return "knora-api", prop_cls
-    elif genericPrefixedOntology.match(prop_cls):
-        return tuple(prop_cls.split(":"))
+def _get_prefix_and_prop_or_cls_identifier(prop_or_cls: str, default_ontology_prefix: str) -> tuple[str, ...]:
+    if defaultOntologyColon.match(prop_or_cls):
+        return default_ontology_prefix, prop_or_cls.lstrip(":")
+    elif knoraUndeclared.match(prop_or_cls):
+        return "knora-api", prop_or_cls
+    elif genericPrefixedOntology.match(prop_or_cls):
+        return tuple(prop_or_cls.split(":"))
     else:
-        raise BaseError(f"The input property or class: '{prop_cls}' does not follow a known ontology pattern.")
+        raise BaseError(f"The input property or class: '{prop_or_cls}' does not follow a known ontology pattern.")

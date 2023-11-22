@@ -8,14 +8,14 @@ from dsp_tools.commands.xmlupload.check_consistency_with_ontology import (
     _diagnose_all_classes,
     _diagnose_all_properties,
     _diagnose_class,
-    _diagnose_properties,
+    _diagnose_property,
     _find_problems_in_classes_and_properties,
     _get_all_class_types_and_ids,
     _get_all_classes_and_properties,
     _get_all_property_names_and_resource_ids_one_resouce,
-    _get_prefix_and_prop_cls_identifier,
+    _get_prefix_and_prop_or_cls_identifier,
 )
-from dsp_tools.commands.xmlupload.models.ontology_diagnose_models import OntoCheckInformation, Ontology
+from dsp_tools.commands.xmlupload.models.ontology_diagnose_models import OntoCheckInformation, OntoInfo
 from dsp_tools.models.exceptions import BaseError, UserError
 
 # pylint: disable=missing-function-docstring,missing-class-docstring
@@ -59,12 +59,9 @@ def test_get_all_classes_and_properties() -> None:
 def test_get_all_class_types_and_ids() -> None:
     test_ele = etree.fromstring(
         """<knora shortcode="4123" default-ontology="test">
-                <resource label="resA" restype=":TestThing1" id="resA" permissions="res-default">
-                </resource>
-                <resource label="resB" restype=":TestThing2" id="resB" permissions="res-default">
-                </resource>
-                <resource label="resC" restype=":TestThing2" id="resC" permissions="res-default">
-                </resource>
+                <resource label="resA" restype=":TestThing1" id="resA" permissions="res-default"/>
+                <resource label="resB" restype=":TestThing2" id="resB" permissions="res-default"/>
+                <resource label="resC" restype=":TestThing2" id="resC" permissions="res-default"/>
         </knora>"""
     )
     expected_classes = {":TestThing1": ["resA"], ":TestThing2": ["resB", "resC"]}
@@ -96,9 +93,10 @@ def test_find_problems_in_classes_and_properties_all_good() -> None:
     onto_check_info = OntoCheckInformation(
         default_ontology_prefix="test",
         save_location=Path(""),
+        input_file="",
         onto_lookup={
-            "test": Ontology(classes=["classA", "classB"], properties=["propA", "propB"]),
-            "knora-api": Ontology(classes=["knoraClassA"], properties=["knoraPropA"]),
+            "test": OntoInfo(classes=["classA", "classB"], properties=["propA", "propB"]),
+            "knora-api": OntoInfo(classes=["knoraClassA"], properties=["knoraPropA"]),
         },
     )
     classes = {"knoraClassA": ["idA"]}
@@ -110,9 +108,10 @@ def test_find_problems_in_classes_and_properties_problem() -> None:
     onto_check_info = OntoCheckInformation(
         default_ontology_prefix="test",
         save_location=Path(""),
+        input_file="",
         onto_lookup={
-            "test": Ontology(classes=["classA", "classB"], properties=["propA", "propB"]),
-            "knora-api": Ontology(classes=["knoraClassA"], properties=["knoraPropA"]),
+            "test": OntoInfo(classes=["classA", "classB"], properties=["propA", "propB"]),
+            "knora-api": OntoInfo(classes=["knoraClassA"], properties=["knoraPropA"]),
         },
     )
     classes = {"knora": ["idA"]}
@@ -126,9 +125,10 @@ class TestDiagnoseClass:
         onto_check_info = OntoCheckInformation(
             default_ontology_prefix="test",
             save_location=Path(""),
+            input_file="",
             onto_lookup={
-                "test": Ontology(classes=["classA", "classB"], properties=[]),
-                "knora-api": Ontology(classes=["knoraClassA"], properties=[]),
+                "test": OntoInfo(classes=["classA", "classB"], properties=[]),
+                "knora-api": OntoInfo(classes=["knoraClassA"], properties=[]),
             },
         )
         assert not _diagnose_class("knoraClassA", onto_check_info)
@@ -137,9 +137,10 @@ class TestDiagnoseClass:
         onto_check_info = OntoCheckInformation(
             default_ontology_prefix="test",
             save_location=Path(""),
+            input_file="",
             onto_lookup={
-                "test": Ontology(classes=["classA", "classB"], properties=[]),
-                "knora-api": Ontology(classes=["knoraClassA"], properties=[]),
+                "test": OntoInfo(classes=["classA", "classB"], properties=[]),
+                "knora-api": OntoInfo(classes=["knoraClassA"], properties=[]),
             },
         )
         assert not _diagnose_class("knora-api:knoraClassA", onto_check_info)
@@ -148,9 +149,10 @@ class TestDiagnoseClass:
         onto_check_info = OntoCheckInformation(
             default_ontology_prefix="test",
             save_location=Path(""),
+            input_file="",
             onto_lookup={
-                "test": Ontology(classes=["classA", "classB"], properties=[]),
-                "knora-api": Ontology(classes=["knoraClassA"], properties=[]),
+                "test": OntoInfo(classes=["classA", "classB"], properties=[]),
+                "knora-api": OntoInfo(classes=["knoraClassA"], properties=[]),
             },
         )
         assert not _diagnose_class(":classA", onto_check_info)
@@ -159,9 +161,10 @@ class TestDiagnoseClass:
         onto_check_info = OntoCheckInformation(
             default_ontology_prefix="test",
             save_location=Path(""),
+            input_file="",
             onto_lookup={
-                "test": Ontology(classes=["classA", "classB"], properties=[]),
-                "knora-api": Ontology(classes=["knoraClassA"], properties=[]),
+                "test": OntoInfo(classes=["classA", "classB"], properties=[]),
+                "knora-api": OntoInfo(classes=["knoraClassA"], properties=[]),
             },
         )
         assert not _diagnose_class("test:classB", onto_check_info)
@@ -170,9 +173,10 @@ class TestDiagnoseClass:
         onto_check_info = OntoCheckInformation(
             default_ontology_prefix="test",
             save_location=Path(""),
+            input_file="",
             onto_lookup={
-                "test": Ontology(classes=["classA", "classB"], properties=[]),
-                "knora-api": Ontology(classes=["knoraClassA"], properties=[]),
+                "test": OntoInfo(classes=["classA", "classB"], properties=[]),
+                "knora-api": OntoInfo(classes=["knoraClassA"], properties=[]),
             },
         )
         assert _diagnose_class("test:classC", onto_check_info) == "Invalid Class Type"
@@ -181,9 +185,10 @@ class TestDiagnoseClass:
         onto_check_info = OntoCheckInformation(
             default_ontology_prefix="test",
             save_location=Path(""),
+            input_file="",
             onto_lookup={
-                "test": Ontology(classes=["classA", "classB"], properties=[]),
-                "knora-api": Ontology(classes=["knoraClassA"], properties=[]),
+                "test": OntoInfo(classes=["classA", "classB"], properties=[]),
+                "knora-api": OntoInfo(classes=["knoraClassA"], properties=[]),
             },
         )
         assert _diagnose_class("other:classC", onto_check_info) == "Unknown ontology prefix"
@@ -192,9 +197,10 @@ class TestDiagnoseClass:
         onto_check_info = OntoCheckInformation(
             default_ontology_prefix="test",
             save_location=Path(""),
+            input_file="",
             onto_lookup={
-                "test": Ontology(classes=["classA", "classB"], properties=[]),
-                "knora-api": Ontology(classes=["knoraClassA"], properties=[]),
+                "test": OntoInfo(classes=["classA", "classB"], properties=[]),
+                "knora-api": OntoInfo(classes=["knoraClassA"], properties=[]),
             },
         )
         test_classes = {"knora-api:knoraClassA": ["idA"], ":classB": ["idB"]}
@@ -204,9 +210,10 @@ class TestDiagnoseClass:
         onto_check_info = OntoCheckInformation(
             default_ontology_prefix="test",
             save_location=Path(""),
+            input_file="",
             onto_lookup={
-                "test": Ontology(classes=["classA", "classB"], properties=[]),
-                "knora-api": Ontology(classes=["knoraClassA"], properties=[]),
+                "test": OntoInfo(classes=["classA", "classB"], properties=[]),
+                "knora-api": OntoInfo(classes=["knoraClassA"], properties=[]),
             },
         )
         test_classes = {"knoraClassA": ["idA"], ":classD": ["idD"]}
@@ -218,75 +225,82 @@ class TestDiagnoseProperties:
         onto_check_info = OntoCheckInformation(
             default_ontology_prefix="test",
             save_location=Path(""),
+            input_file="",
             onto_lookup={
-                "test": Ontology(classes=[], properties=["propA", "propB"]),
-                "knora-api": Ontology(classes=[], properties=["knoraPropA"]),
+                "test": OntoInfo(classes=[], properties=["propA", "propB"]),
+                "knora-api": OntoInfo(classes=[], properties=["knoraPropA"]),
             },
         )
-        assert not _diagnose_properties("knoraPropA", onto_check_info)
+        assert not _diagnose_property("knoraPropA", onto_check_info)
 
     def test_knora_prefix(self) -> None:
         onto_check_info = OntoCheckInformation(
             default_ontology_prefix="test",
             save_location=Path(""),
+            input_file="",
             onto_lookup={
-                "test": Ontology(classes=[], properties=["propA", "propB"]),
-                "knora-api": Ontology(classes=[], properties=["knoraPropA"]),
+                "test": OntoInfo(classes=[], properties=["propA", "propB"]),
+                "knora-api": OntoInfo(classes=[], properties=["knoraPropA"]),
             },
         )
-        assert not _diagnose_properties("knora-api:knoraPropA", onto_check_info)
+        assert not _diagnose_property("knora-api:knoraPropA", onto_check_info)
 
     def test_no_default_prefix(self) -> None:
         onto_check_info = OntoCheckInformation(
             default_ontology_prefix="test",
             save_location=Path(""),
+            input_file="",
             onto_lookup={
-                "test": Ontology(classes=[], properties=["propA", "propB"]),
-                "knora-api": Ontology(classes=[], properties=["knoraPropA"]),
+                "test": OntoInfo(classes=[], properties=["propA", "propB"]),
+                "knora-api": OntoInfo(classes=[], properties=["knoraPropA"]),
             },
         )
-        assert not _diagnose_properties(":propA", onto_check_info)
+        assert not _diagnose_property(":propA", onto_check_info)
 
     def test_default_prefix(self) -> None:
         onto_check_info = OntoCheckInformation(
             default_ontology_prefix="test",
             save_location=Path(""),
+            input_file="",
             onto_lookup={
-                "test": Ontology(classes=[], properties=["propA", "propB"]),
-                "knora-api": Ontology(classes=[], properties=["knoraPropA"]),
+                "test": OntoInfo(classes=[], properties=["propA", "propB"]),
+                "knora-api": OntoInfo(classes=[], properties=["knoraPropA"]),
             },
         )
-        assert not _diagnose_properties("test:propB", onto_check_info)
+        assert not _diagnose_property("test:propB", onto_check_info)
 
     def test_unknown_prefix(self) -> None:
         onto_check_info = OntoCheckInformation(
             default_ontology_prefix="test",
             save_location=Path(""),
+            input_file="",
             onto_lookup={
-                "test": Ontology(classes=[], properties=["propA", "propB"]),
-                "knora-api": Ontology(classes=[], properties=["knoraPropA"]),
+                "test": OntoInfo(classes=[], properties=["propA", "propB"]),
+                "knora-api": OntoInfo(classes=[], properties=["knoraPropA"]),
             },
         )
-        assert _diagnose_properties("other:propB", onto_check_info) == "Unknown ontology prefix"
+        assert _diagnose_property("other:propB", onto_check_info) == "Unknown ontology prefix"
 
     def test_unknown_property(self) -> None:
         onto_check_info = OntoCheckInformation(
             default_ontology_prefix="test",
             save_location=Path(""),
+            input_file="",
             onto_lookup={
-                "test": Ontology(classes=[], properties=["propA", "propB"]),
-                "knora-api": Ontology(classes=[], properties=["knoraPropA"]),
+                "test": OntoInfo(classes=[], properties=["propA", "propB"]),
+                "knora-api": OntoInfo(classes=[], properties=["knoraPropA"]),
             },
         )
-        assert _diagnose_properties("test:propC", onto_check_info) == "Invalid Property"
+        assert _diagnose_property("test:propC", onto_check_info) == "Invalid Property"
 
     def test_diagnose_all_properties_problems(self) -> None:
         onto_check_info = OntoCheckInformation(
             default_ontology_prefix="test",
             save_location=Path(""),
+            input_file="",
             onto_lookup={
-                "test": Ontology(classes=[], properties=["propA", "propB"]),
-                "knora-api": Ontology(classes=[], properties=["knoraPropA"]),
+                "test": OntoInfo(classes=[], properties=["propA", "propB"]),
+                "knora-api": OntoInfo(classes=[], properties=["knoraPropA"]),
             },
         )
         test_properties = {"test:propB": ["idB"], "other:propB": ["idB"], "test:propD": ["idD"]}
@@ -297,9 +311,10 @@ class TestDiagnoseProperties:
         onto_check_info = OntoCheckInformation(
             default_ontology_prefix="test",
             save_location=Path(""),
+            input_file="",
             onto_lookup={
-                "test": Ontology(classes=[], properties=["propA", "propB"]),
-                "knora-api": Ontology(classes=[], properties=["knoraPropA"]),
+                "test": OntoInfo(classes=[], properties=["propA", "propB"]),
+                "knora-api": OntoInfo(classes=[], properties=["knoraPropA"]),
             },
         )
         test_properties = {"test:propB": ["idB"], "knoraPropA": ["idA"]}
@@ -307,14 +322,14 @@ class TestDiagnoseProperties:
 
 
 def test_get_prefix_and_prop_cls_identifier() -> None:
-    assert _get_prefix_and_prop_cls_identifier(":propA", "test") == ("test", "propA")
-    assert _get_prefix_and_prop_cls_identifier("knora-api:knoraPropA", "test") == ("knora-api", "knoraPropA")
-    assert _get_prefix_and_prop_cls_identifier("knoraPropB", "test") == ("knora-api", "knoraPropB")
-    assert _get_prefix_and_prop_cls_identifier("test:propA", "test") == ("test", "propA")
+    assert _get_prefix_and_prop_or_cls_identifier(":propA", "test") == ("test", "propA")
+    assert _get_prefix_and_prop_or_cls_identifier("knora-api:knoraPropA", "test") == ("knora-api", "knoraPropA")
+    assert _get_prefix_and_prop_or_cls_identifier("knoraPropB", "test") == ("knora-api", "knoraPropB")
+    assert _get_prefix_and_prop_or_cls_identifier("test:propA", "test") == ("test", "propA")
 
 
 def test_get_prefix_and_prop_cls_identifier_error() -> None:
     with pytest.raises(
         BaseError, match="The input property or class: '123654/' does not follow a known ontology pattern."
     ):
-        _get_prefix_and_prop_cls_identifier("123654/", "test")
+        _get_prefix_and_prop_or_cls_identifier("123654/", "test")

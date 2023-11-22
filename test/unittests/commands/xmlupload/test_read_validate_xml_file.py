@@ -5,8 +5,6 @@ from dsp_tools.commands.xmlupload.read_validate_xml_file import (
     _check_if_salsah_targets_exist,
 )
 
-# pylint: disable=missing-function-docstring
-
 
 def test_check_if_resptr_targets_exist() -> None:
     """Check correct input"""

@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Protocol
 
-from dsp_tools.commands.xmlupload.models.ontology_diagnose_models import Ontology
+from dsp_tools.commands.xmlupload.models.ontology_diagnose_models import OntoInfo
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.create_logger import get_logger
@@ -21,9 +21,10 @@ class OntologyClient(Protocol):
     shortcode: str
     default_ontology: str
     save_location: Path
+    input_file: str
     ontology_names: list[str] = field(default_factory=list)
 
-    def get_all_ontologies_from_server(self) -> dict[str, Ontology]:
+    def get_all_ontologies_from_server(self) -> dict[str, OntoInfo]:
         """Get all the ontologies for a project and the knora-api ontology from the server."""
 
 
@@ -35,15 +36,15 @@ class OntologyClientLive:
     shortcode: str
     default_ontology: str
     save_location: Path
+    input_file: str
     ontology_names: list[str] = field(default_factory=list)
 
-    def get_all_ontologies_from_server(self) -> dict[str, Ontology]:
+    def get_all_ontologies_from_server(self) -> dict[str, OntoInfo]:
         """
-        This function returns all the project and knora-api ontology that are on the server.
+        This function returns all the project ontologies plus the knora-api ontology that are on the server.
 
         Returns:
             a dictionary with the ontology name as key and the ontology as value.
-
         """
         ontologies = self._get_all_ontology_jsons_from_server()
         return {onto_name: deserialize_ontology(onto_graph) for onto_name, onto_graph in ontologies.items()}
@@ -51,7 +52,7 @@ class OntologyClientLive:
     def _get_all_ontology_jsons_from_server(self) -> dict[str, list[dict[str, Any]]]:
         self._get_ontology_names_from_server()
         project_ontos = {onto: self._get_ontology_from_server(onto) for onto in self.ontology_names}
-        project_ontos["knora-api"] = self._get_knora_api_from_server()
+        project_ontos["knora-api"] = self._get_knora_api_ontology_from_server()
         return project_ontos
 
     def _get_ontology_names_from_server(self) -> None:
@@ -81,7 +82,7 @@ class OntologyClientLive:
             raise BaseError(f"Unexpected response from server: {res}") from e
         return onto_graph
 
-    def _get_knora_api_from_server(self) -> list[dict[str, Any]]:
+    def _get_knora_api_ontology_from_server(self) -> list[dict[str, Any]]:
         url = "/ontology/knora-api/v2#"
         try:
             res: dict[str, Any] = try_network_action(self.con.get, route=url)
@@ -94,7 +95,7 @@ class OntologyClientLive:
         return onto_graph
 
 
-def deserialize_ontology(onto_graph: list[dict[str, Any]]) -> Ontology:
+def deserialize_ontology(onto_graph: list[dict[str, Any]]) -> OntoInfo:
     """
     This function takes an ontology graph from the DSP-API.
     It extracts the classes and properties.
@@ -108,7 +109,7 @@ def deserialize_ontology(onto_graph: list[dict[str, Any]]) -> Ontology:
     """
     classes = _get_all_cleaned_classes_from_graph(onto_graph)
     properties = _get_all_cleaned_properties_from_graph(onto_graph)
-    return Ontology(classes, properties)
+    return OntoInfo(classes, properties)
 
 
 def _get_all_cleaned_classes_from_graph(onto_graph: list[dict[str, Any]]) -> list[str]:

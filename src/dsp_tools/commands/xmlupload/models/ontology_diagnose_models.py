@@ -8,7 +8,7 @@ import pandas as pd
 
 
 @dataclass(frozen=True)
-class Ontology:
+class OntoInfo:
     """This class saves the properties and the classes from an ontology."""
 
     classes: list[str] = field(default_factory=list)
@@ -17,10 +17,11 @@ class Ontology:
 
 @dataclass
 class OntoCheckInformation:
-    """This class saves information that is needed to check if consistency with the ontology."""
+    """This class saves information needed to check the consistency with the ontology."""
 
     default_ontology_prefix: str
-    onto_lookup: dict[str, Ontology]
+    onto_lookup: dict[str, OntoInfo]
+    input_file: str
     save_location: Path
 
 
@@ -34,18 +35,18 @@ class InvalidOntologyElements:
 
     def execute_problem_protocol(self) -> tuple[str, pd.DataFrame | None]:
         """
-        This function is executed if there are any elements in properties or classes.
-        If there are more than 100 entries combined, then the result is also saved as an excel.
+        If there are any elements in properties or classes,
+        this method composes an error message.
 
-        Raises:
-            UserError: If properties or classes have any entries.
+        Returns:
+            the error message and a dataframe with the errors if they exceed 50 or None
         """
         extra_separator = "\n\n---------------------------------------\n\n"
         msg = "\nSome property and or class type(s) used in the XML are unknown:" + extra_separator
-        cls_msg = self._print_problem_string_cls()
+        cls_msg = self._compose_problem_string_cls()
         if cls_msg:
             msg += cls_msg + extra_separator
-        prop_msg = self._print_problem_string_props()
+        prop_msg = self._compose_problem_string_props()
         if prop_msg:
             msg += prop_msg
         if len(self.classes) + len(self.properties) > 50:
@@ -81,7 +82,7 @@ class InvalidOntologyElements:
         unpacked: list[dict[str, str]] = list(itertools.chain(*problems))
         return pd.DataFrame.from_records(unpacked)
 
-    def _print_problem_string_cls(self) -> str | None:
+    def _compose_problem_string_cls(self) -> str | None:
         if self.classes:
             separator = "\n----------------------------\n"
 
@@ -95,7 +96,7 @@ class InvalidOntologyElements:
         else:
             return None
 
-    def _print_problem_string_props(self) -> str | None:
+    def _compose_problem_string_props(self) -> str | None:
         if self.properties:
             separator = "\n----------------------------\n"
 

@@ -13,15 +13,15 @@ from dsp_tools.commands.xmlupload.ontology_client import (
     deserialize_ontology,
 )
 
-# pylint: disable=missing-class-docstring,missing-function-docstring,unused-argument,redefined-outer-name,protected-access
+# pylint: disable=missing-class-docstring,missing-function-docstring,unused-argument,protected-access
 
 
 @dataclass
 class ConnectionMock(ConnectionMockBase):
-    get_responses: dict[Any, Any]
+    get_response: dict[Any, Any]
 
     def get(self, route: str, headers: dict[str, str] | None = None) -> dict[Any, Any]:
-        return self.get_responses
+        return self.get_response
 
 
 class TestGetAllClassesFromGraph:
@@ -190,9 +190,9 @@ def test_get_ontology_names_from_server() -> None:
         }
     }
     con = ConnectionMock(response)
-    onto_cli = OntologyClientLive(con, "0801", "beol", Path(""))
-    onto_cli._get_ontology_names_from_server()
-    assert unordered(onto_cli.ontology_names) == ["biblio", "newton", "leibniz", "beol"]
+    onto_client = OntologyClientLive(con, "0801", "beol", Path(""), "")
+    onto_client._get_ontology_names_from_server()
+    assert unordered(onto_client.ontology_names) == ["biblio", "newton", "leibniz", "beol"]
 
 
 def test_get_ontology_from_server() -> None:
@@ -209,8 +209,8 @@ def test_get_ontology_from_server() -> None:
         "@context": {},
     }
     con = ConnectionMock(response)
-    onto_cli = OntologyClientLive(con, "0801", "beol", Path(""))
-    res_graph = onto_cli._get_ontology_from_server("beol")
+    onto_client = OntologyClientLive(con, "0801", "beol", Path(""), "")
+    res_graph = onto_client._get_ontology_from_server("beol")
     assert unordered(res_graph) == [{"resource_class": ["Information"]}, {"property": ["Information"]}]
 
 
@@ -228,8 +228,8 @@ def test_get_knora_api_from_server() -> None:
         "@context": {},
     }
     con = ConnectionMock(response)
-    onto_cli = OntologyClientLive(con, "", "", Path(""))
-    res_graph = onto_cli._get_knora_api_from_server()
+    onto_client = OntologyClientLive(con, "", "", Path(""), "")
+    res_graph = onto_client._get_knora_api_ontology_from_server()
     assert unordered(res_graph) == [{"resource_class": ["Information"]}, {"property": ["Information"]}]
 
 

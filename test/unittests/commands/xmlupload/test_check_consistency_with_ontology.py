@@ -103,9 +103,7 @@ def test_find_problems_in_classes_and_properties_all_good() -> None:
     )
     classes = {"knoraClassA": ["idA"]}
     properties = {"knora-api:knoraPropA": ["idA"]}
-    assert not _find_problems_in_classes_and_properties(
-        classes, properties, onto_check_info
-    )  # type: ignore[func-returns-value]
+    _find_problems_in_classes_and_properties(classes, properties, onto_check_info)
 
 
 def test_find_problems_in_classes_and_properties_problem() -> None:

@@ -111,7 +111,7 @@ class TestListNode(unittest.TestCase):  # pylint: disable=missing-class-docstrin
         :return: None
         """
         lists = ListNode.getAllLists(self.con, self.project)
-        list_ids = list(map(lambda l: l.iri, lists))
+        list_ids = list(map(lambda lst: lst.iri, lists))
         self.assertIn(self.otherTreeList, list_ids)
         self.assertIn("http://rdfh.ch/lists/0001/treeList", list_ids)
 

@@ -67,9 +67,9 @@ class ListClientLive:
 
 
 def _get_node_tuples(lists: list[List]) -> Iterable[tuple[str, str]]:
-    for l in lists:
-        list_name = l.list_name
-        for node in l.nodes:
+    for lst in lists:
+        list_name = lst.list_name
+        for node in lst.nodes:
             node_name = node.node_name
             node_id = f"{list_name}:{node_name}"
             yield node_id, node.node_iri
@@ -87,7 +87,7 @@ def _get_list_iris_from_server(con: Connection, project_iri: str) -> list[str]:
     res: dict[str, Any] = try_network_action(con.get, f"/admin/lists?projectIri={iri}")
     lists: list[dict[str, Any]] = res["lists"]
     logger.info(f"Found {len(lists)} lists for project")
-    return [l["id"] for l in lists]
+    return [lst["id"] for lst in lists]
 
 
 def _get_list_from_server(con: Connection, list_iri: str) -> List:

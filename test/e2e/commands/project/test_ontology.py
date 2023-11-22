@@ -95,7 +95,7 @@ class TestOntology(unittest.TestCase):
 
     def test_ontology_getProjectOntologies(self) -> None:
         onto_list = Ontology.getProjectOntologies(self.con, self.test_project)
-        onto_list_ids = [l.iri for l in onto_list]
+        onto_list_ids = [lst.iri for lst in onto_list]
         self.assertIn("http://0.0.0.0:3333/ontology/0001/anything/v2", onto_list_ids)
         self.assertIn("http://0.0.0.0:3333/ontology/0001/test_onto_create/v2", onto_list_ids)
 

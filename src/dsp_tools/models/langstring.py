@@ -105,9 +105,9 @@ class LangString:
             # self._simplestring = None  # Let's delete the string without language if there is one...
         if isinstance(key, Enum):
             if self._langstrs.get(key) is None:
-                for l in self._langstrs:
-                    if self._langstrs.get(l) is not None:
-                        return self._langstrs[l]
+                for lst in self._langstrs:
+                    if self._langstrs.get(lst) is not None:
+                        return self._langstrs[lst]
                 if self._simplestring is not None:
                     return self._simplestring
                 return None
@@ -118,9 +118,9 @@ class LangString:
             if lmap.get(key.lower()) is None:
                 raise BaseError('Invalid language string "' + key + '"!')
             if self._langstrs.get(lmap[key.lower()]) is None:
-                for l in self._langstrs:
-                    if self._langstrs.get(l) is not None:
-                        return self._langstrs[l]
+                for lst in self._langstrs:
+                    if self._langstrs.get(lst) is not None:
+                        return self._langstrs[lst]
                 if self._simplestring is not None:
                     return self._simplestring
                 return None

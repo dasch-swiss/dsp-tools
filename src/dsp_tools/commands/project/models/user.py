@@ -615,7 +615,7 @@ class User(Model):  # pylint: disable=too-many-instance-attributes,too-many-publ
             self._con.delete(User.IRI + quote_plus(self._iri) + User.PROJECT_MEMBERSHIPS + quote_plus(p))
 
         for p in self._change_admin.items():
-            if not p[0] in self._in_projects:
+            if p[0] not in self._in_projects:
                 raise BaseError("user must be member of project!")
             if p[1]:
                 self._con.post(User.IRI + quote_plus(self._iri) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p[0]))

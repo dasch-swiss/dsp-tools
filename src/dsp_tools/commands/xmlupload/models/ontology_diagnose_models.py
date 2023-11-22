@@ -42,7 +42,7 @@ class InvalidOntologyElements:
             the error message and a dataframe with the errors if they exceed 50 or None
         """
         extra_separator = "\n\n---------------------------------------\n\n"
-        msg = "\nSome property and or class type(s) used in the XML are unknown:" + extra_separator
+        msg = "\nSome property and/or class type(s) used in the XML are unknown:" + extra_separator
         cls_msg = self._compose_problem_string_cls()
         if cls_msg:
             msg += cls_msg + extra_separator

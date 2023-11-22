@@ -1,11 +1,13 @@
 # sourcery skip: use-fstring-for-concatenation
+from pathlib import Path
+
 import regex
 from lxml import etree
 from regex import Pattern
 
 from dsp_tools.commands.xmlupload.models.ontology_diagnose_models import InvalidOntologyElements, OntoCheckInformation
 from dsp_tools.commands.xmlupload.ontology_client import OntologyClientLive
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import BaseError, UserError
 
 defaultOntologyColon: Pattern[str] = regex.compile(r"^:\w+$")
 knoraUndeclared: Pattern[str] = regex.compile(r"^\w+$")
@@ -35,16 +37,35 @@ def do_xml_consistency_check(onto_client: OntologyClientLive, root: etree._Eleme
     _find_problems_in_classes_and_properties(classes, properties, onto_check_info)
 
 
+def _find_problems_in_classes_and_properties(
+    classes: dict[str, list[str]], properties: dict[str, list[str]], onto_check_info: OntoCheckInformation
+) -> None:
+    class_problems = _diagnose_all_classes(classes, onto_check_info)
+    property_problems = _diagnose_all_properties(properties, onto_check_info)
+    if not class_problems and not property_problems:
+        return None
+    problems = InvalidOntologyElements(classes=class_problems, properties=property_problems)
+    msg, df = problems.execute_problem_protocol()
+    if df:
+        ex_name = "InvalidOntologyElements_in_XML.xlsx"
+        df.to_excel(excel_writer=Path(onto_check_info.save_location, ex_name), sheet_name=" ", index=False)
+        msg += (
+            "\n\n---------------------------------------\n\n"
+            f"\nAn excel: '{ex_name}' was saved at '{onto_check_info.save_location}' listing the problems."
+        )
+    raise UserError(msg)
+
+
 def _get_all_classes_and_properties(root: etree._Element) -> tuple[dict[str, list[str]], dict[str, list[str]]]:
     cls_dict = _get_all_class_types_and_ids(root)
-    prop_dict = {}
+    prop_dict: dict[str, list[str]] = {}
     for resource in root.iterchildren(tag="resource"):
         prop_dict = _get_all_property_names_and_resource_ids_one_resouce(resource, prop_dict)
     return cls_dict, prop_dict
 
 
 def _get_all_class_types_and_ids(root: etree._Element) -> dict[str, list[str]]:
-    cls_dict = {}
+    cls_dict: dict[str, list[str]] = {}
     for resource in root.iterchildren(tag="resource"):
         restype = resource.attrib["restype"]
         if restype in cls_dict:
@@ -55,8 +76,8 @@ def _get_all_class_types_and_ids(root: etree._Element) -> dict[str, list[str]]:
 
 
 def _get_all_property_names_and_resource_ids_one_resouce(
-    resource: etree._Element, prop_dict: dict[str, [list[str]]]
-) -> dict[str, [list[str]]]:
+    resource: etree._Element, prop_dict: dict[str, list[str]]
+) -> dict[str, list[str]]:
     for prop in resource.iterchildren():
         if prop.tag != "bitstream":
             prop_name = prop.attrib["name"]
@@ -65,19 +86,6 @@ def _get_all_property_names_and_resource_ids_one_resouce(
             else:
                 prop_dict[prop_name] = [resource.attrib["id"]]
     return prop_dict
-
-
-def _find_problems_in_classes_and_properties(
-    classes: dict[str, [list[str]]], properties: dict[str, [list[str]]], onto_check_info: OntoCheckInformation
-) -> None:
-    class_problems = _diagnose_all_classes(classes, onto_check_info)
-    property_problems = _diagnose_all_properties(properties, onto_check_info)
-    if not class_problems and not property_problems:
-        return None
-    problems = InvalidOntologyElements(
-        save_path=onto_check_info.save_location, classes=class_problems, properties=property_problems
-    )
-    problems.execute_problem_protocol()
 
 
 def _diagnose_all_classes(

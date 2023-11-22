@@ -16,7 +16,7 @@ from dsp_tools.commands.xmlupload.check_consistency_with_ontology import (
     _get_prefix_and_prop_cls_identifier,
 )
 from dsp_tools.commands.xmlupload.models.ontology_diagnose_models import OntoCheckInformation, Ontology
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import BaseError, UserError
 
 # pylint: disable=missing-function-docstring,missing-class-docstring
 
@@ -92,7 +92,7 @@ def test_get_all_property_names_and_resource_ids_one_resouce() -> None:
         assert unordered(v) == expected[k]
 
 
-def test_find_problems_in_classes_and_properties() -> None:
+def test_find_problems_in_classes_and_properties_all_good() -> None:
     onto_check_info = OntoCheckInformation(
         default_ontology_prefix="test",
         save_location=Path(""),
@@ -106,6 +106,21 @@ def test_find_problems_in_classes_and_properties() -> None:
     assert not _find_problems_in_classes_and_properties(
         classes, properties, onto_check_info
     )  # type: ignore[func-returns-value]
+
+
+def test_find_problems_in_classes_and_properties_problem() -> None:
+    onto_check_info = OntoCheckInformation(
+        default_ontology_prefix="test",
+        save_location=Path(""),
+        onto_lookup={
+            "test": Ontology(classes=["classA", "classB"], properties=["propA", "propB"]),
+            "knora-api": Ontology(classes=["knoraClassA"], properties=["knoraPropA"]),
+        },
+    )
+    classes = {"knora": ["idA"]}
+    properties = {"knora-api:knoraPropA": ["idA"]}
+    with pytest.raises(UserError):
+        _find_problems_in_classes_and_properties(classes, properties, onto_check_info)
 
 
 class TestDiagnoseClass:

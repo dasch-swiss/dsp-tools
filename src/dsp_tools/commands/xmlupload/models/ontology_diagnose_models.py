@@ -1,11 +1,10 @@
 # sourcery skip: use-fstring-for-concatenation
 
+import itertools
 from dataclasses import dataclass, field
 from pathlib import Path
 
 import pandas as pd
-
-from dsp_tools.models.exceptions import UserError
 
 
 @dataclass(frozen=True)
@@ -30,11 +29,10 @@ class InvalidOntologyElements:
     """This class saves and prints out the information regarding ontology classes and properties
     that are in the XML but not the ontology."""
 
-    save_path: Path
-    classes: list[list[str]] = field(default_factory=list)
-    properties: list[list[str]] = field(default_factory=list)
+    classes: list[tuple[str, list[str], str]]
+    properties: list[tuple[str, list[str], str]]
 
-    def execute_problem_protocol(self) -> None:
+    def execute_problem_protocol(self) -> tuple[str, pd.DataFrame | None]:
         """
         This function is executed if there are any elements in properties or classes.
         If there are more than 100 entries combined, then the result is also saved as an excel.
@@ -42,8 +40,8 @@ class InvalidOntologyElements:
         Raises:
             UserError: If properties or classes have any entries.
         """
-        extra_separator = "\n\n----------------------------\n\n"
-        msg = "Some property and or class type(s) used in the XML are unknown:" + extra_separator
+        extra_separator = "\n\n---------------------------------------\n\n"
+        msg = "\nSome property and or class type(s) used in the XML are unknown:" + extra_separator
         cls_msg = self._print_problem_string_cls()
         if cls_msg:
             msg += cls_msg + extra_separator
@@ -51,52 +49,61 @@ class InvalidOntologyElements:
         if prop_msg:
             msg += prop_msg
         if len(self.classes) + len(self.properties) > 50:
-            ex_name = "InvalidOntologyElements_in_XML.xlsx"
-            self._get_and_save_problems_as_excel(ex_name)
-            msg += extra_separator + f"\nAn excel: '{ex_name}' was saved at '{self.save_path}' listing the problems."
-        raise UserError(msg)
-
-    def _get_and_save_problems_as_excel(self, excel_name: str) -> None:
-        df = self._get_problems_as_df()
-        df.to_excel(excel_writer=Path(self.save_path, excel_name), sheet_name=" ", index=False)
+            df = self._get_problems_as_df()
+            return msg, df
+        return msg, None
 
     def _get_problems_as_df(self) -> pd.DataFrame:
         problems = [
-            {
-                "resource id": x[0],
-                "problematic type": x[1],
-                "problem": x[2],
-            }
-            for x in self.classes
+            [
+                {
+                    "problematic type": probs[0],
+                    "resource id": x,
+                    "problem": probs[2],
+                }
+                for x in probs[1]
+            ]
+            for probs in self.classes
         ]
         problems.extend(
             [
-                {
-                    "resource id": x[0],
-                    "problematic type": x[1],
-                    "problem": x[2],
-                }
-                for x in self.properties
+                [
+                    {
+                        "problematic type": probs[0],
+                        "resource id": x,
+                        "problem": probs[2],
+                    }
+                    for x in probs[1]
+                ]
+                for probs in self.properties
             ]
         )
-        return pd.DataFrame.from_records(problems)
+        unpacked: list[dict[str, str]] = list(itertools.chain(*problems))
+        return pd.DataFrame.from_records(unpacked)
 
-    def _print_problem_string_cls(self) -> str:
+    def _print_problem_string_cls(self) -> str | None:
         if self.classes:
             separator = "\n----------------------------\n"
-            problems = [
-                f"\tResource ID: '{x[0]}'\n\tResource Type: '{x[1]}'\n\tProblem: '{x[2]}'" for x in self.classes
-            ]
+
+            def _format_cls(cls_tup: tuple[str, list[str], str]) -> str:
+                ids = "\n\t- " + "\n\t- ".join(cls_tup[1])
+                return f"\tResource Type: '{cls_tup[0]}'\n\tProblem: '{cls_tup[2]}'\n\tResource ID(s):{ids}"
+
+            problems = [_format_cls(x) for x in self.classes]
+
             return "The following resource(s) have an invalid resource type:\n\n" + separator.join(problems)
         else:
-            return ""
+            return None
 
-    def _print_problem_string_props(self) -> str:
+    def _print_problem_string_props(self) -> str | None:
         if self.properties:
             separator = "\n----------------------------\n"
-            problems = [
-                f"\tResource ID: '{x[0]}'\n\tProperty Name: '{x[1]}'\n\tProblem: '{x[2]}'" for x in self.properties
-            ]
+
+            def _format_prop(prop_tup: tuple[str, list[str], str]) -> str:
+                ids = "\n\t- " + "\n\t- ".join(prop_tup[1])
+                return f"\tProperty Name: '{prop_tup[0]}'\n\tProblem: '{prop_tup[2]}'\n\tResource ID(s):{ids}"
+
+            problems = [_format_prop(x) for x in self.properties]
             return "The following resource(s) have invalid property type(s):\n\n" + separator.join(problems)
         else:
-            return ""
+            return None

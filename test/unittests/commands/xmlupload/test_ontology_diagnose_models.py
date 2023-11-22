@@ -1,77 +1,84 @@
-from pathlib import Path
-
 import pandas as pd
-import pytest
 from pandas.testing import assert_frame_equal
 
 from dsp_tools.commands.xmlupload.models.ontology_diagnose_models import InvalidOntologyElements
-from dsp_tools.models.exceptions import UserError
 
-# pylint: disable=missing-function-docstring,anomalous-backslash-in-string,protected-access
+# pylint: disable=missing-function-docstring,protected-access
 
 
 def test_print_problem_string_cls() -> None:
-    onto = InvalidOntologyElements(Path(""), [["idA", "clsA", "wrong"]], [])
+    onto = InvalidOntologyElements([("clsA", ["idA"], "wrong")], [])
     msg = onto._print_problem_string_cls()
     assert msg == (
         "The following resource(s) have an invalid resource type:\n\n"
-        "\tResource ID: 'idA'\n"
         "\tResource Type: 'clsA'\n"
-        "\tProblem: 'wrong'"
+        "\tProblem: 'wrong'\n"
+        "\tResource ID(s):\n"
+        "\t- idA"
     )
 
 
 def test_print_problem_string_no_cls() -> None:
-    onto = InvalidOntologyElements(Path(""), [], [])
-    msg = onto._print_problem_string_cls()
-    assert msg == ""
+    onto = InvalidOntologyElements([], [])
+    assert not onto._print_problem_string_cls()
 
 
 def test_print_problem_string_prop() -> None:
-    onto = InvalidOntologyElements(Path(""), [], [["idA", "propA", "wrong"]])
+    onto = InvalidOntologyElements([], [("propA", ["idA"], "wrong")])
     msg = onto._print_problem_string_props()
     assert msg == (
         "The following resource(s) have invalid property type(s):\n\n"
-        "\tResource ID: 'idA'\n"
         "\tProperty Name: 'propA'\n"
-        "\tProblem: 'wrong'"
+        "\tProblem: 'wrong'\n"
+        "\tResource ID(s):\n"
+        "\t- idA"
     )
 
 
 def test_print_problem_string_no_prop() -> None:
-    onto = InvalidOntologyElements(Path(""), [], [])
-    msg = onto._print_problem_string_props()
-    assert msg == ""
+    onto = InvalidOntologyElements([], [])
+    assert not onto._print_problem_string_props()
 
 
 def test_execute_problem_protocol() -> None:
-    onto = InvalidOntologyElements(Path(""), [["idA", "clsA", "wrong"]], [["idA", "propA", "wrong"]])
-    expected_msg = (
-        "Some property and or class type\(s\) used in the XML are unknown\:"
-        "\n\n----------------------------\n\n"
-        "The following resource\(s\) have an invalid resource type\:\n\n"
-        "\tResource ID\: 'idA'\n"
-        "\tResource Type\: 'clsA'\n"
-        "\tProblem\: 'wrong'"
-        "\n\n----------------------------\n\n"
-        "The following resource\(s\) have invalid property type\(s\)\:\n\n"
-        "\tResource ID\: 'idA'\n"
-        "\tProperty Name\: 'propA'\n"
-        "\tProblem\: 'wrong'"
+    onto = InvalidOntologyElements(
+        [("clsA", ["idA"], "wrong")], [("propA", ["idA"], "wrong"), ("propB", ["idB", "idC"], "wrong")]
     )
-    with pytest.raises(UserError, match=expected_msg):
-        onto.execute_problem_protocol()
+    expected_msg = (
+        "\nSome property and or class type(s) used in the XML are unknown:"
+        "\n\n---------------------------------------\n\n"
+        "The following resource(s) have an invalid resource type:\n\n"
+        "\tResource Type: 'clsA'\n"
+        "\tProblem: 'wrong'\n"
+        "\tResource ID(s):\n"
+        "\t- idA"
+        "\n\n---------------------------------------\n\n"
+        "The following resource(s) have invalid property type(s):\n\n"
+        "\tProperty Name: 'propA'\n"
+        "\tProblem: 'wrong'\n"
+        "\tResource ID(s):\n"
+        "\t- idA"
+        "\n----------------------------\n"
+        "\tProperty Name: 'propB'\n"
+        "\tProblem: 'wrong'\n"
+        "\tResource ID(s):\n"
+        "\t- idB\n"
+        "\t- idC"
+    )
+    msg, df = onto.execute_problem_protocol()
+    assert not df
+    assert msg == expected_msg
 
 
 def test_get_problems_as_df() -> None:
     onto = InvalidOntologyElements(
-        Path(""), [["idA", "clsA", "wrongA"], ["idC", "clsC", "wrongC"]], [["idB", "propB", "wrongB"]]
+        [("clsA", ["idA"], "wrongA")], [("propB", ["idB"], "wrongB"), ("propC", ["idC1", "idC2"], "wrongC")]
     )
     expected_df = pd.DataFrame(
         {
-            "resource id": ["idA", "idC", "idB"],
-            "problematic type": ["clsA", "clsC", "propB"],
-            "problem": ["wrongA", "wrongC", "wrongB"],
+            "problematic type": ["clsA", "propB", "propC", "propC"],
+            "resource id": ["idA", "idB", "idC1", "idC2"],
+            "problem": ["wrongA", "wrongB", "wrongC", "wrongC"],
         }
     )
     res_df = onto._get_problems_as_df()

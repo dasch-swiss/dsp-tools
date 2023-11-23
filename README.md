@@ -193,7 +193,7 @@ Depending on your IDE the installation is as follows.
       of Microsoft's Python extension `ms-python.python`,
       which only lints each file separately, 
       leading to incomplete type checking.
-- **ruff** can be installed as an extension (``), 
+- **ruff** can be installed as an extension (`charliermarsh.ruff`), 
   and be configured in the VSCode settings.
 
 If configured correctly, the style violations will be listed in the "Problems" tab.

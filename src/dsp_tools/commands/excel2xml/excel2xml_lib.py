@@ -68,7 +68,7 @@ def find_date_in_string(string: str) -> Optional[str]:
     Notes:
         - All dates are interpreted in the Christian era and the Gregorian calendar. There is no support for BC dates or
           non-Gregorian calendars.
-        - The years 0000-2999 are supported, in 4-digit form.
+        - The years 0000-2999 are supported, in 3/4-digit form.
         - Dates written with slashes are always interpreted in a European manner: 5/11/2021 is the 5th of November.
 
     Currently supported date formats:
@@ -80,6 +80,7 @@ def find_date_in_string(string: str) -> Optional[str]:
         - February26,2051 -> GREGORIAN:CE:2051-02-26:CE:2051-02-26
         - 28.2.-1.12.1515 -> GREGORIAN:CE:1515-02-28:CE:1515-12-01
         - 25.-26.2.0800 -> GREGORIAN:CE:0800-02-25:CE:0800-02-26
+        - 800 -> GREGORIAN:CE:800:CE:800
         - 1.9.2022-3.1.2024 -> GREGORIAN:CE:2022-09-01:CE:2024-01-03
         - 1848 -> GREGORIAN:CE:1848:CE:1848
         - 1849/1850 -> GREGORIAN:CE:1849:CE:1850
@@ -134,7 +135,7 @@ def find_date_in_string(string: str) -> Optional[str]:
     startyear: Optional[int] = None
     endyear: Optional[int] = None
 
-    year_regex = r"([0-2][0-9][0-9][0-9])"
+    year_regex = r"([0-2]?[0-9][0-9][0-9])"
     month_regex = r"([0-1]?[0-9])"
     day_regex = r"([0-3]?[0-9])"
     sep_regex = r"[\./]"

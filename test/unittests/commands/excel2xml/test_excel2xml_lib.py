@@ -188,7 +188,7 @@ class TestExcel2xmlLib(unittest.TestCase):
         Path("special-characters.xml").unlink()
 
     def test_find_date_in_string(self) -> None:
-        # template: 2021-01-01 | 2015_01_02
+        # template: 2021-01-01
         testcases = {
             "text 1492-10-12, text": "GREGORIAN:CE:1492-10-12:CE:1492-10-12",
             "Text 0476-09-04. text": "GREGORIAN:CE:0476-09-04:CE:0476-09-04",
@@ -206,7 +206,7 @@ class TestExcel2xmlLib(unittest.TestCase):
         for testcase, expected in testcases.items():
             self.assertEqual(excel2xml.find_date_in_string(testcase), expected, msg=f"Failed with '{testcase}'")
 
-        # template: 26.2.-24.3.1948
+        # template: 2015_01_02
         testcases = {
             "Text ...2193_01_26... text": "GREGORIAN:CE:2193-01-26:CE:2193-01-26",
             "Text -2193_01_26- text": "GREGORIAN:CE:2193-01-26:CE:2193-01-26",
@@ -215,7 +215,7 @@ class TestExcel2xmlLib(unittest.TestCase):
         for testcase, expected in testcases.items():
             self.assertEqual(excel2xml.find_date_in_string(testcase), expected, msg=f"Failed with '{testcase}'")
 
-        # template: 27.-28.1.1900
+        # template: 26.2.-24.3.1948
         testcases = {
             "Text _1.3. - 25.4.2022_ text": "GREGORIAN:CE:2022-03-01:CE:2022-04-25",
             "Text (01.03. - 25.04.2022) text": "GREGORIAN:CE:2022-03-01:CE:2022-04-25",
@@ -225,7 +225,7 @@ class TestExcel2xmlLib(unittest.TestCase):
         for testcase, expected in testcases.items():
             self.assertEqual(excel2xml.find_date_in_string(testcase), expected, msg=f"Failed with '{testcase}'")
 
-        # template: 1.12.1973 - 6.1.1974
+        # template: 27.-28.1.1900
         testcases = {
             "Text 25.-26.2.0800 text": "GREGORIAN:CE:0800-02-25:CE:0800-02-26",
             "Text 25. - 26.2.0800 text": "GREGORIAN:CE:0800-02-25:CE:0800-02-26",
@@ -234,7 +234,7 @@ class TestExcel2xmlLib(unittest.TestCase):
         for testcase, expected in testcases.items():
             self.assertEqual(excel2xml.find_date_in_string(testcase), expected, msg=f"Failed with '{testcase}'")
 
-        # template: 31.4.2021 | 5/11/2021
+        # template: 1.12.1973 - 6.1.1974
         testcases = {
             "Text 1.9.2022-3.1.2024 text": "GREGORIAN:CE:2022-09-01:CE:2024-01-03",
             "Text 25.12.2022 - 3.1.2024 text": "GREGORIAN:CE:2022-12-25:CE:2024-01-03",

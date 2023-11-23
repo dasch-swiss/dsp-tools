@@ -268,6 +268,8 @@ class TestExcel2xmlLib(unittest.TestCase):
             "Text 1845-1850, text": "GREGORIAN:CE:1845:CE:1850",
             "Text 800-900, text": "GREGORIAN:CE:800:CE:900",
             "Text 840-50, text": "GREGORIAN:CE:840:CE:850",
+            "Text 844-8, text": "GREGORIAN:CE:844:CE:848",
+            "Text 1840-1, text": "GREGORIAN:CE:1840:CE:1841",
             "Text 0750-0760 text": "GREGORIAN:CE:750:CE:760",
             "Text 1849/50. text": "GREGORIAN:CE:1849:CE:1850",
             "Text (1845-50) text": "GREGORIAN:CE:1845:CE:1850",

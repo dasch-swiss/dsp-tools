@@ -86,6 +86,7 @@ def find_date_in_string(string: str) -> Optional[str]:
         - 1849/50 -> GREGORIAN:CE:1849:CE:1850
         - 1845-50 -> GREGORIAN:CE:1845:CE:1850
         - 840-50 -> GREGORIAN:CE:840:CE:850
+        - 840-1 -> GREGORIAN:CE:840:CE:841
 
     Args:
         string: string to check
@@ -162,7 +163,7 @@ def find_date_in_string(string: str) -> Optional[str]:
     monthname_date_regex = rf"{lookbehind}({all_months}) ?{day_regex}, ?{year_regex}{lookahead}"
     monthname_date = regex.search(monthname_date_regex, string)
     # template: 1849/50 | 1849-50 | 1849/1850
-    year_range = regex.search(lookbehind + year_regex + r"[/-](\d{2,4})" + lookahead, string)
+    year_range = regex.search(lookbehind + year_regex + r"[/-](\d{1,4})" + lookahead, string)
     # template: 1907
     year_only = regex.search(rf"{lookbehind}{year_regex}{lookahead}", string)
 
@@ -214,8 +215,11 @@ def find_date_in_string(string: str) -> Optional[str]:
     elif year_range:
         startyear = int(year_range.group(1))
         endyear = int(year_range.group(2))
-        if endyear // 100 == 0:
-            # endyear is only 2-digit: add the first two digits of startyear
+        if endyear // 10 == 0:
+            # endyear is only 1-digit: add the first 2-3 digits of startyear
+            endyear = startyear // 10 * 10 + endyear
+        elif endyear // 100 == 0:
+            # endyear is only 2-digit: add the first 1-2 digits of startyear
             endyear = startyear // 100 * 100 + endyear
 
     elif year_only:

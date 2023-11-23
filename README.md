@@ -1,7 +1,6 @@
 [![](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools) 
 [![](https://img.shields.io/pypi/pyversions/dsp-tools.svg)](https://pypi.org/project/dsp-tools/) 
-[![](https://img.shields.io/badge/Python%20code%20style-black-000000.svg)](https://github.com/psf/black) 
-[![](https://img.shields.io/badge/Python%20linting-pylint-darkgreen)](https://github.com/pylint-dev/pylint) 
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![](https://img.shields.io/badge/Python%20typing-mypy-darkgreen)](https://github.com/python/mypy) 
 [![](https://img.shields.io/badge/Markdown%20linting-markdownlint-darkgreen)](
   https://github.com/igorshubovych/markdownlint-cli) 
@@ -166,9 +165,8 @@ please make sure you use the same code style rules as we do.
 We use the following linters:
 
 - [MarkdownLint](https://github.com/igorshubovych/markdownlint-cli) (configured in `.markdownlint.yml`)
-- [Black](https://pypi.org/project/black/) (configured in `pyproject.toml`)
 - [mypy](https://pypi.org/project/mypy/) (configured in `pyproject.toml`)
-- [pylint](https://pypi.org/project/pylint/) (configured in `pyproject.toml`)
+- [ruff](https://pypi.org/project/ruff/) (configured in `pyproject.toml`)
 - [isort](https://pypi.org/project/isort/) (configured in `pyproject.toml`)
 - [darglint](https://pypi.org/project/darglint/) (configured in `.darglint`)
 
@@ -189,16 +187,13 @@ Depending on your IDE the installation is as follows.
 
 - **MarkdownLint** can be installed as an extension (`davidanson.vscode-markdownlint`), 
   and be configured in the VSCode settings.
-- **Black** can be set as formatter in the `ms-python.python` extension.
-  To do so, set `"python.formatting.provider": "black"` in the VSCode `settings.json`.
-  Alternatively, `ms-python.black-formatter` can be installed as an extension.
 - **mypy** can be installed as an extension (`matangover.mypy`), 
   and be configured in the VSCode settings.
     - This extension is different from the mypy functionality 
       of Microsoft's Python extension `ms-python.python`,
       which only lints each file separately, 
       leading to incomplete type checking.
-- **pylint** can be installed as an extension (`ms-python.pylint`), 
+- **ruff** can be installed as an extension (``), 
   and be configured in the VSCode settings.
 
 If configured correctly, the style violations will be listed in the "Problems" tab.

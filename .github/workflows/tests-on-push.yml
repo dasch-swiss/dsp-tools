@@ -63,12 +63,12 @@ jobs:
       - name: Install Python dependencies
         run: poetry install
       # run tests
-      - name: Linting with Pylint
-        run: poetry run pylint src test
+      - name: Linting with ruff
+        run: poetry run ruff check .
+      - name: Formatting with ruff
+        run: poetry run ruff format .
       - name: Linting with mypy
         run: poetry run mypy .
-      - name: Linting with black
-        run: poetry run black --check .
       - name: Linting with isort
         run: poetry run isort . --check --diff
       - name: Linting with darglint

@@ -259,11 +259,13 @@ class TestExcel2xmlLib(unittest.TestCase):
 
         # template: 1907
         self.assertEqual(excel2xml.find_date_in_string("Text 1848 text"), "GREGORIAN:CE:1848:CE:1848")
+        self.assertEqual(excel2xml.find_date_in_string("Text 0800 text"), "GREGORIAN:CE:800:CE:800")
 
         # template: 1849/50 | 1845-50 | 1849/1850
         testcases = {
             "Text 1849/1850? text": "GREGORIAN:CE:1849:CE:1850",
             "Text 1845-1850, text": "GREGORIAN:CE:1845:CE:1850",
+            "Text 0750-0760 text": "GREGORIAN:CE:750:CE:760",
             "Text 1849/50. text": "GREGORIAN:CE:1849:CE:1850",
             "Text (1845-50) text": "GREGORIAN:CE:1845:CE:1850",
             "Text [1849/1850] text": "GREGORIAN:CE:1849:CE:1850",

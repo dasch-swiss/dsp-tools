@@ -1,11 +1,11 @@
-[![](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools) 
-[![](https://img.shields.io/pypi/pyversions/dsp-tools.svg)](https://pypi.org/project/dsp-tools/) 
-[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-[![](https://img.shields.io/badge/Python%20typing-mypy-darkgreen)](https://github.com/python/mypy) 
-[![](https://img.shields.io/badge/Markdown%20linting-markdownlint-darkgreen)](
-  https://github.com/igorshubovych/markdownlint-cli) 
-[![](https://img.shields.io/badge/Link%20validation-markdown%20link%20validator-darkgreen)](
-  https://www.npmjs.com/package/markdown-link-validator)
+[![](https://img.shields.io/pypi/v/dsp-tools.svg)](https://pypi.org/project/dsp-tools/) 
+[![](https://img.shields.io/pypi/l/dsp-tools.svg)](https://pypi.org/project/dsp-tools/) 
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)
+  ](https://github.com/astral-sh/ruff) 
+[![](https://img.shields.io/badge/mypy-blue)](https://github.com/python/mypy) 
+[![](https://img.shields.io/badge/markdownlint-darkgreen)](https://github.com/igorshubovych/markdownlint-cli) 
+[![](https://img.shields.io/badge/markdown%20link%20validator-darkgreen)
+  ](https://www.npmjs.com/package/markdown-link-validator) 
 
 
 # DSP-TOOLS - DaSCH Service Platform Tools

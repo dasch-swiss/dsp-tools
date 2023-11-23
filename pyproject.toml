@@ -40,7 +40,6 @@ ruff = "^0.1.6"
 
 
 [tool.poetry.group.dev.dependencies]
-black = "^23.10.0"
 mkdocs = "^1.5.3"
 mkdocs-material = "^9.4.6"
 mkdocs-include-markdown-plugin = "^6.0.3"

@@ -124,11 +124,3 @@ exclude = [
 
 [tool.ruff]
 line-length = 120
-
-
-
-[tool.ruff.lint]
-extend-select = [
-  "UP",  # pyupgrade
-  "I",   # isort
-]

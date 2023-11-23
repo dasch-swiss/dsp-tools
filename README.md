@@ -167,14 +167,13 @@ We use the following linters:
 - [MarkdownLint](https://github.com/igorshubovych/markdownlint-cli) (configured in `.markdownlint.yml`)
 - [mypy](https://pypi.org/project/mypy/) (configured in `pyproject.toml`)
 - [ruff](https://pypi.org/project/ruff/) (configured in `pyproject.toml`)
-- [isort](https://pypi.org/project/isort/) (configured in `pyproject.toml`)
 - [darglint](https://pypi.org/project/darglint/) (configured in `.darglint`)
 
 These linters are integrated in the GitHub CI pipeline, 
 so that every pull request is checked for code style violations.
 
 In addition, there are [pre-commit hooks](#pre-commit-hooks) 
-that run Black and MarkdownLint locally before every commit.
+that run Ruff and MarkdownLint locally before every commit.
 This prevents you from committing code style violations.
 Pre-commit is contained in the dependencies, 
 but before the first use, the hooks must be installed with `pre-commit install`

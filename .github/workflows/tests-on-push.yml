@@ -69,8 +69,6 @@ jobs:
         run: poetry run ruff format .
       - name: Linting with mypy
         run: poetry run mypy .
-      - name: Linting with isort
-        run: poetry run isort . --check --diff
       - name: Linting with darglint
         run: poetry exec darglint
 

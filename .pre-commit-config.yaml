@@ -40,8 +40,3 @@ repos:
     hooks:
     - id: markdownlint
       args: [--config, .markdownlint.yml, --ignore, CHANGELOG.md]
-
-  - repo: https://github.com/PyCQA/isort 
-    rev: 5.11.5
-    hooks:
-    - id: isort

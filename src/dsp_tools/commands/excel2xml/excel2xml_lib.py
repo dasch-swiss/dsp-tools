@@ -80,12 +80,12 @@ def find_date_in_string(string: str) -> Optional[str]:
         - February26,2051 -> GREGORIAN:CE:2051-02-26:CE:2051-02-26
         - 28.2.-1.12.1515 -> GREGORIAN:CE:1515-02-28:CE:1515-12-01
         - 25.-26.2.0800 -> GREGORIAN:CE:0800-02-25:CE:0800-02-26
-        - 800 -> GREGORIAN:CE:800:CE:800
         - 1.9.2022-3.1.2024 -> GREGORIAN:CE:2022-09-01:CE:2024-01-03
-        - 1848 -> GREGORIAN:CE:1848:CE:1848
+        - 800 -> GREGORIAN:CE:800:CE:800
         - 1849/1850 -> GREGORIAN:CE:1849:CE:1850
         - 1849/50 -> GREGORIAN:CE:1849:CE:1850
         - 1845-50 -> GREGORIAN:CE:1845:CE:1850
+        - 840-50 -> GREGORIAN:CE:840:CE:850
 
     Args:
         string: string to check
@@ -162,7 +162,7 @@ def find_date_in_string(string: str) -> Optional[str]:
     monthname_date_regex = rf"{lookbehind}({all_months}) ?{day_regex}, ?{year_regex}{lookahead}"
     monthname_date = regex.search(monthname_date_regex, string)
     # template: 1849/50 | 1849-50 | 1849/1850
-    year_range = regex.search(lookbehind + year_regex + r"[/-](\d{2}|\d{4})" + lookahead, string)
+    year_range = regex.search(lookbehind + year_regex + r"[/-](\d{2,4})" + lookahead, string)
     # template: 1907
     year_only = regex.search(rf"{lookbehind}{year_regex}{lookahead}", string)
 

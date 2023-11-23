@@ -24,7 +24,7 @@ class TestPropertyClass(unittest.TestCase):
     con: Connection
 
     name = "MyPropClassName"
-    object = "TextValue"
+    object = "TextValue"  # noqa: A003 (redefined-builtin)
     label = LangString({Languages.DE: "MyPropClassLabel"})
     comment = LangString({Languages.DE: "This is a property class for testing"})
 

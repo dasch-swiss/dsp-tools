@@ -454,5 +454,5 @@ class WithId:  # pylint: disable=too-few-public-methods
             return
         self._tmp = obj.get("@id")
 
-    def str(self) -> Optional[str]:
+    def str(self) -> Optional[str]:  # noqa: A003 (redefined-builtin)
         return self._tmp

@@ -3,7 +3,7 @@ from typing import Optional, Union
 
 from dsp_tools.models.exceptions import BaseError
 
-# pylint: disable=line-too-long
+# ruff: noqa: E501
 
 
 @dataclass(frozen=True)

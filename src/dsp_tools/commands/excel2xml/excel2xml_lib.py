@@ -1,4 +1,4 @@
-# pylint: disable=line-too-long
+# ruff: noqa: E501
 
 
 import dataclasses
@@ -342,7 +342,7 @@ def append_permissions(root_element: etree._Element) -> etree._Element:
 def make_resource(
     label: str,
     restype: str,
-    id: str,  # pylint: disable=redefined-builtin
+    id: str,  # noqa: A002 (redefined-builtin)
     permissions: str = "res-default",
     ark: Optional[str] = None,
     iri: Optional[str] = None,
@@ -1442,7 +1442,7 @@ def make_uri_prop(
 
 def make_region(
     label: str,
-    id: str,  # pylint: disable=redefined-builtin
+    id: str,  # noqa: A002 (redefined-builtin)
     permissions: str = "res-default",
     ark: Optional[str] = None,
     iri: Optional[str] = None,
@@ -1501,7 +1501,7 @@ def make_region(
 
 def make_annotation(
     label: str,
-    id: str,  # pylint: disable=redefined-builtin
+    id: str,  # noqa: A002 (redefined-builtin)
     permissions: str = "res-default",
     ark: Optional[str] = None,
     iri: Optional[str] = None,
@@ -1558,7 +1558,7 @@ def make_annotation(
 
 def make_link(
     label: str,
-    id: str,  # pylint: disable=redefined-builtin
+    id: str,  # noqa: A002 (redefined-builtin)
     permissions: str = "res-default",
     ark: Optional[str] = None,
     iri: Optional[str] = None,

@@ -1,4 +1,5 @@
-# pylint: disable=line-too-long,consider-using-f-string
+# pylint: disable=consider-using-f-string
+# ruff: noqa: E501
 
 from __future__ import annotations
 

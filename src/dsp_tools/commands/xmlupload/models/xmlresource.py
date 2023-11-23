@@ -39,7 +39,7 @@ class XMLResource:  # pylint: disable=too-many-instance-attributes
         properties: The list of properties of the resource
     """
 
-    id: str
+    id: str  # noqa: A003 (redefined-builtin)
     iri: Optional[str]
     ark: Optional[str]
     label: str

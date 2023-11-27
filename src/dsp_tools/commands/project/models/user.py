@@ -38,7 +38,7 @@ from dsp_tools.models.langstring import Languages
 from dsp_tools.utils.connection import Connection
 
 
-class User(Model):  # pylint: disable=too-many-public-methods
+class User(Model):
     """
     This class represents a user in DSP.
 

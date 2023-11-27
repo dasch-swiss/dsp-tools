@@ -58,7 +58,7 @@ def list_creator(con: Connection, project: Project, parent_node: "ListNode", nod
     return nodelist
 
 
-class ListNode(Model):  # pylint: disable=too-many-public-methods
+class ListNode(Model):
     """
     This class represents a list node
 

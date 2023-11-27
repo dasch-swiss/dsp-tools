@@ -1,4 +1,3 @@
-# pylint: disable=too-many-public-methods
 # ruff: noqa: D102 (undocumented-public-method)
 
 from pytest import raises

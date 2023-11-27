@@ -39,7 +39,7 @@ from dsp_tools.models.langstring import LangString, Languages
 from dsp_tools.utils.connection import Connection
 
 
-class Project(Model):  # pylint: disable=too-many-public-methods
+class Project(Model):
     """
     This class represents a project in DSP.
 

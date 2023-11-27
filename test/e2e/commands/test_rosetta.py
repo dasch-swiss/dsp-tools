@@ -1,4 +1,4 @@
-# pylint: disable=protected-access,redefined-outer-name
+# pylint: disable=protected-access
 # ruff: noqa: D103 (undocumented-public-function)
 
 import tempfile

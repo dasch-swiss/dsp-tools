@@ -2,7 +2,6 @@ from pytest import fixture
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 
-# pylint: disable=redefined-outer-name
 # ruff: noqa: D103 (undocumented-public-function)
 
 

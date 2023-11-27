@@ -1,5 +1,3 @@
-# pylint: disable=redefined-outer-name
-
 import os
 import subprocess
 from collections.abc import Iterator

@@ -77,6 +77,12 @@ class UserError(BaseError):
     """
 
 
+class InputError(BaseError):
+    """
+    Class for errors that is called when the user input is invalid.
+    """
+
+
 class XmlError(Exception):
     """Represents an error raised in the context of the XML import"""
 

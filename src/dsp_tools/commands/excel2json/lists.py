@@ -71,6 +71,45 @@ def expand_lists_from_excel(
     return new_lists
 
 
+def excel2lists(
+    excelfolder: str,
+    path_to_output_file: Optional[str] = None,
+    verbose: bool = False,
+) -> tuple[list[dict[str, Any]], bool]:
+    """
+    Converts lists described in Excel files into a "lists" section that can be inserted into a JSON project file.
+
+    Args:
+        excelfolder: path to the folder containing the Excel file(s)
+        path_to_output_file: if provided, the output is written into this JSON file
+        verbose: verbose switch
+
+    Raises:
+        UserError: if something went wrong
+        BaseError: if something went wrong
+
+    Returns:
+        a tuple consisting of the "lists" section as Python list, and the success status (True if everything went well)
+    """
+    # read the data
+    excel_file_paths = _extract_excel_file_paths(excelfolder)
+    if verbose:
+        print("The following Excel files will be processed:")
+        print(*(f" - {filename}" for filename in excel_file_paths), sep="\n")
+
+    # construct the "lists" section
+    finished_lists = _make_json_lists_from_excel(excel_file_paths, verbose=verbose)
+    validate_lists_section_with_schema(lists_section=finished_lists)
+
+    # write final "lists" section
+    if path_to_output_file:
+        with open(path_to_output_file, "w", encoding="utf-8") as fp:
+            json.dump(finished_lists, fp, indent=4, ensure_ascii=False)
+            print(f"lists section was created successfully and written to file '{path_to_output_file}'")
+
+    return finished_lists, True
+
+
 def _get_values_from_excel(
     excelfiles: dict[str, Worksheet],
     base_file: dict[str, Worksheet],
@@ -336,42 +375,3 @@ def _extract_excel_file_paths(excelfolder: str) -> list[Path]:
             raise UserError(f"Invalid file name '{filepath}'. Expected format: 'languagecode.xlsx'")
 
     return excel_file_paths
-
-
-def excel2lists(
-    excelfolder: str,
-    path_to_output_file: Optional[str] = None,
-    verbose: bool = False,
-) -> tuple[list[dict[str, Any]], bool]:
-    """
-    Converts lists described in Excel files into a "lists" section that can be inserted into a JSON project file.
-
-    Args:
-        excelfolder: path to the folder containing the Excel file(s)
-        path_to_output_file: if provided, the output is written into this JSON file
-        verbose: verbose switch
-
-    Raises:
-        UserError: if something went wrong
-        BaseError: if something went wrong
-
-    Returns:
-        a tuple consisting of the "lists" section as Python list, and the success status (True if everything went well)
-    """
-    # read the data
-    excel_file_paths = _extract_excel_file_paths(excelfolder)
-    if verbose:
-        print("The following Excel files will be processed:")
-        print(*(f" - {filename}" for filename in excel_file_paths), sep="\n")
-
-    # construct the "lists" section
-    finished_lists = _make_json_lists_from_excel(excel_file_paths, verbose=verbose)
-    validate_lists_section_with_schema(lists_section=finished_lists)
-
-    # write final "lists" section
-    if path_to_output_file:
-        with open(path_to_output_file, "w", encoding="utf-8") as fp:
-            json.dump(finished_lists, fp, indent=4, ensure_ascii=False)
-            print(f"lists section was created successfully and written to file '{path_to_output_file}'")
-
-    return finished_lists, True

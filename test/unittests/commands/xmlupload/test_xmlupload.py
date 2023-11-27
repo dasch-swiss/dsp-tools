@@ -37,7 +37,7 @@ class TestXMLUpload(unittest.TestCase):
             '<resource restype="Annotation/Region/LinkObj">',
         )
 
-        comments = [e for e in output1.iter() if isinstance(e, etree._Comment)]  # pylint: disable=protected-access
+        comments = [e for e in output1.iter() if isinstance(e, etree._Comment)]
         self.assertEqual(
             len(comments),
             0,

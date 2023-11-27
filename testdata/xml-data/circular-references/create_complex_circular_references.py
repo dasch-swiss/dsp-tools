@@ -66,7 +66,7 @@ def _make_salsah_link(target_id: str) -> str:
 
 def _make_xml_text_prop(target_res: etree._Element | list[etree._Element]) -> etree._Element:
     match target_res:
-        case etree._Element():  # pylint: disable=protected-access
+        case etree._Element():
             salsah_link = _make_salsah_link(target_res.attrib["id"])
             # one resource with many targets
         case list():

@@ -1,6 +1,5 @@
 """unit tests for excel to properties"""
 
-# pylint: disable=protected-access
 # ruff: noqa: D101 (undocumented-public-class)
 # ruff: noqa: D102 (undocumented-public-method)
 
@@ -311,7 +310,7 @@ class TestExcelToProperties(unittest.TestCase):
     def test_validate_properties(self) -> None:
         # it is not possible to call the method to be tested directly.
         # So let's make a reference to it, so that it can be found by the usage search
-        lambda x: e2j._validate_properties([], "file")  # pylint: disable=expression-not-assigned,protected-access
+        lambda x: e2j._validate_properties([], "file")  # pylint: disable=expression-not-assigned
 
         testcases = [
             (

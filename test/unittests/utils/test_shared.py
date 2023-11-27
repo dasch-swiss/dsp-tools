@@ -94,9 +94,7 @@ class TestShared(unittest.TestCase):
             for txt in utf8_texts_with_allowed_html_escapes
         ]
         for xml in utf8_texts_with_allowed_html_escapes:
-            self.assertTrue(
-                shared._validate_xml_tags_in_text_properties(etree.fromstring(xml))  # pylint: disable=protected-access
-            )
+            self.assertTrue(shared._validate_xml_tags_in_text_properties(etree.fromstring(xml)))
 
         utf8_texts_with_forbidden_html_escapes = ['&lt;tag s="t"&gt;', "&lt;em&gt;text&lt;/em&gt;"]
         utf8_texts_with_forbidden_html_escapes = [
@@ -113,7 +111,7 @@ class TestShared(unittest.TestCase):
         ]
         for xml in utf8_texts_with_forbidden_html_escapes:
             with self.assertRaisesRegex(UserError, "XML-tags are not allowed in text properties with encoding=utf8"):
-                shared._validate_xml_tags_in_text_properties(etree.fromstring(xml))  # pylint: disable=protected-access
+                shared._validate_xml_tags_in_text_properties(etree.fromstring(xml))
 
     def test_prepare_dataframe(self) -> None:
         original_df = pd.DataFrame(

@@ -1,5 +1,3 @@
-# pylint: disable=useless-import-alias
-
 # explicitly re-export imported stuff, so that API users can import it from this module
 # (see https://mypy.readthedocs.io/en/stable/command_line.html#cmdoption-mypy-no-implicit-reexport)
 # doing this requires silencing the corresponding pylint warning

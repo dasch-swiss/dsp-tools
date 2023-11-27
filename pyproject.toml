@@ -141,6 +141,7 @@ select = [
     "ISC",      # flake8-implicit-str-concat plugin which checks for problematic string concatenation
     "INP",      # flake8-no-pep420 plugin which checks for missing __init__.py files
     "UP031",    # pyupgrade: printf-string-formatting
+    "ICN",      # flake8-import-conventions plugin which checks for import conventions
     "D101",     # pydocstyle: undocumented-public-class
     "D102",     # pydocstyle: undocumented-public-method
     "D103",     # pydocstyle: undocumented-public-function

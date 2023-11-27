@@ -155,7 +155,7 @@ ignore = [
 
 
 [tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["F401", "F403"]
+"__init__.py" = ["F401", "F403", "PLC0414"]
 
 
 [tool.ruff.lint.isort]

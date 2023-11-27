@@ -213,8 +213,8 @@ def _make_json_lists_from_excel(
         The finished "lists" section
     """
     # reset the global variables
-    global list_of_previous_node_names
-    global list_of_lists_of_previous_cell_values
+    global list_of_previous_node_names  # noqa: PLW0603 (global-statement)
+    global list_of_lists_of_previous_cell_values  # noqa: PLW0603 (global-statement)
     list_of_previous_node_names = []
     list_of_lists_of_previous_cell_values = []
 

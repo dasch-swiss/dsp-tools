@@ -32,7 +32,7 @@ def _get_export_moving_image_frames_script() -> None:
     """
     user_folder = Path.home() / Path(".dsp-tools/fast-xmlupload")
     user_folder.mkdir(parents=True, exist_ok=True)
-    global export_moving_image_frames_script
+    global export_moving_image_frames_script  # noqa: PLW0603 (global-statement)
     export_moving_image_frames_script = user_folder / "export-moving-image-frames.sh"
     script_text_response = http_call_with_retry(
         action=requests.get,
@@ -248,7 +248,7 @@ def _restart_sipi_container(
         output_dir: the output directory where the processed files should be written to, is mounted into the container
     """
     _stop_and_remove_sipi_container()
-    global sipi_container
+    global sipi_container  # noqa: PLW0603 (global-statement)
     docker_client = docker.from_env()
     sipi_container = docker_client.containers.run(
         image="daschswiss/sipi:3.8.1",
@@ -268,7 +268,7 @@ def _stop_and_remove_sipi_container() -> None:
     """
     Stop and remove the SIPI container.
     """
-    global sipi_container
+    global sipi_container  # noqa: PLW0603 (global-statement)
     if not sipi_container:
         # the Sipi container is not stored in the global variable, but perhaps it exists
         docker_client = docker.from_env()

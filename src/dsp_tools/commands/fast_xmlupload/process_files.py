@@ -194,7 +194,7 @@ def _check_input_params(
 
     try:
         out_dir_path.mkdir(parents=True, exist_ok=True)
-    except Exception:  # noqa: BLE001 (broad-exception-caught)
+    except Exception:  # noqa: BLE001 (blind-except)
         raise UserError(f"Couldn't create directory {out_dir_path}") from None
 
     if not input_dir_path.is_dir():
@@ -370,7 +370,7 @@ def _create_orig_file(
         shutil.copyfile(in_file, orig_file_full_path)
         logger.info(f"Created .orig file {orig_file_full_path}")
         return True
-    except Exception:  # pylint: disable=broad-exception-caught
+    except Exception:
         print(f"{datetime.now()}: ERROR: Couldn't create .orig file {orig_file_full_path}")
         logger.error(f"Couldn't create .orig file {orig_file_full_path}", exc_info=True)
         return False
@@ -407,7 +407,7 @@ def _get_video_metadata_with_ffprobe(file_path: Path) -> Optional[dict[str, Any]
             universal_newlines=True,
             check=False,
         )
-    except Exception:  # pylint: disable=broad-exception-caught
+    except Exception:
         print(f"{datetime.now()}: ERROR: Exception occurred while running ffprobe for {file_path}")
         logger.error(f"Exception occurred while running ffprobe for {file_path}", exc_info=True)
         return None
@@ -632,7 +632,7 @@ def _process_other_file(
     converted_file_full_path = out_dir / Path(internal_filename).with_suffix(in_file.suffix)
     try:
         shutil.copyfile(in_file, converted_file_full_path)
-    except Exception:  # pylint: disable=broad-exception-caught
+    except Exception:
         print(f"{datetime.now()}: ERROR: Couldn't process file of category OTHER: {in_file}")
         logger.error(f"Couldn't process file of category OTHER: {in_file}", exc_info=True)
         return in_file, None
@@ -711,7 +711,7 @@ def _process_video_file(
     # create derivate file (identical to original file)
     try:
         shutil.copyfile(in_file, converted_file_full_path)
-    except Exception:  # pylint: disable=broad-exception-caught
+    except Exception:
         print(f"{datetime.now()}: ERROR: Couldn't create derivate file for video '{in_file}'")
         logger.error(f"Couldn't create derivate file for video '{in_file}'", exc_info=True)
         return in_file, None
@@ -882,7 +882,7 @@ def process_files(
                 nthreads=nthreads,
             )
             processed_files.extend(result)
-        except BaseException as exc:  # noqa: BLE001 (broad-exception-caught)
+        except BaseException as exc:  # noqa: BLE001 (blind-except)
             handle_interruption(
                 all_files=all_files,
                 processed_files=processed_files,

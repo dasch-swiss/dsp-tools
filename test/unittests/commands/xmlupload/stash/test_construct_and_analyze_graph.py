@@ -1,4 +1,4 @@
-# pylint: disable=missing-function-docstring
+# ruff: noqa: D103 (undocumented-public-function)
 
 from typing import Any
 

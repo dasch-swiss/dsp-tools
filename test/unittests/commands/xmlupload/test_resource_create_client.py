@@ -1,4 +1,5 @@
 # ruff: noqa: D102 (undocumented-public-method)
+# ruff: noqa: D103 (undocumented-public-function)
 
 from pytest import raises
 

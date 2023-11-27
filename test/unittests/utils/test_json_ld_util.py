@@ -1,6 +1,6 @@
 from dsp_tools.utils.json_ld_util import get_default_json_ld_context, get_json_ld_context_for_project
 
-# pylint: disable=missing-function-docstring
+# ruff: noqa: D103 (undocumented-public-function)
 
 
 def test_get_default_context() -> None:

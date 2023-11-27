@@ -1,6 +1,6 @@
 from dsp_tools.utils.iri_util import is_resource_iri
 
-# pylint: disable=missing-function-docstring
+# ruff: noqa: D103 (undocumented-public-function)
 
 
 def test_is_resource_iri() -> None:

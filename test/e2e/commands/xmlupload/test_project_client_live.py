@@ -3,7 +3,8 @@ from pytest import fixture
 from dsp_tools.commands.xmlupload.project_client import ProjectClient, ProjectClientLive
 from dsp_tools.utils.connection_live import ConnectionLive
 
-# pylint: disable=missing-function-docstring,redefined-outer-name
+# pylint: disable=redefined-outer-name
+# ruff: noqa: D103 (undocumented-public-function)
 
 
 @fixture

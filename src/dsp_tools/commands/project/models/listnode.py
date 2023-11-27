@@ -1,4 +1,5 @@
 # ruff: noqa: D102 (undocumented-public-method)
+# ruff: noqa: D103 (undocumented-public-function)
 
 """
 This module implements the handling (CRUD) of list nodes and adds some function to read whole lists.

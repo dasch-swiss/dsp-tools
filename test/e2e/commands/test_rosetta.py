@@ -1,4 +1,5 @@
-# pylint: disable=protected-access,missing-function-docstring,redefined-outer-name
+# pylint: disable=protected-access,redefined-outer-name
+# ruff: noqa: D103 (undocumented-public-function)
 
 import tempfile
 from collections.abc import Iterator

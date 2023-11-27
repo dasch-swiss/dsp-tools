@@ -25,7 +25,7 @@ class XmlPermission:
             self._allows.append(XmlAllow(allow_node, project_context))
 
     @property
-    def id(self) -> str:  # noqa: A003 (redefined-builtin)
+    def id(self) -> str:  # noqa: A003 (builtin-attribute-shadowing)
         """The id of the permission set, p.ex. res-default"""
         return self._id
 

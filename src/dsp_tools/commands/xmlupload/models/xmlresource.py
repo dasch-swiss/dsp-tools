@@ -39,7 +39,7 @@ class XMLResource:
         properties: The list of properties of the resource
     """
 
-    id: str  # noqa: A003 (redefined-builtin)
+    id: str  # noqa: A003 (builtin-attribute-shadowing)
     iri: Optional[str]
     ark: Optional[str]
     label: str

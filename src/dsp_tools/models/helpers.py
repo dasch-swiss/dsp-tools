@@ -455,5 +455,5 @@ class WithId:
             return
         self._tmp = obj.get("@id")
 
-    def str(self) -> Optional[str]:  # noqa: A003 (redefined-builtin)
+    def str(self) -> Optional[str]:  # noqa: A003 (builtin-attribute-shadowing)
         return self._tmp

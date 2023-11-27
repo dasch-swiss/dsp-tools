@@ -107,7 +107,7 @@ class Group(Model):
         return self._iri
 
     @iri.setter
-    def iri(self, value: str) -> None:
+    def iri(self, value: str) -> None:  # noqa: ARG002 (unused-method-argument)
         raise BaseError("Group iri cannot be modified!")
 
     @property

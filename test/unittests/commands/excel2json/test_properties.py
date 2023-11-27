@@ -310,7 +310,7 @@ class TestExcelToProperties(unittest.TestCase):
     def test_validate_properties(self) -> None:
         # it is not possible to call the method to be tested directly.
         # So let's make a reference to it, so that it can be found by the usage search
-        lambda x: e2j._validate_properties([], "file")
+        lambda _: e2j._validate_properties([], "file")
 
         testcases = [
             (

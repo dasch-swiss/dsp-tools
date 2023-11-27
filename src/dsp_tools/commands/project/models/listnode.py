@@ -308,7 +308,7 @@ class ListNode(Model):
         return self._isRootNode
 
     @isRootNode.setter
-    def isRootNode(self, value: bool) -> None:
+    def isRootNode(self, value: bool) -> None:  # noqa: ARG002 (unused-method-argument)
         raise BaseError("Property isRootNode cannot be set!")
 
     @property

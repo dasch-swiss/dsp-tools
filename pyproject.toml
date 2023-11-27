@@ -140,6 +140,7 @@ select = [
     "D103",     # pydocstyle: undocumented-public-function
     "RUF100",   # ruff: unused-noqa
     "B023",     # flake8-bugbear: function-uses-loop-variable
+    "ARG",      # flake8-unused-arguments
 ]
 ignore = [
     "PLR0915",  # pylint: too-many-statements                                   # TODO: activate this

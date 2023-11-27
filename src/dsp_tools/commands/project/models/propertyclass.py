@@ -101,7 +101,7 @@ class PropertyClass(Model):
         return self._name
 
     @name.setter
-    def name(self, value: str) -> None:
+    def name(self, value: str) -> None:  # noqa: ARG002 (unused-method-argument)
         raise BaseError('"name" cannot be modified!')
 
     @property
@@ -109,7 +109,7 @@ class PropertyClass(Model):
         return self._iri
 
     @iri.setter
-    def iri(self, value: str) -> None:
+    def iri(self, value: str) -> None:  # noqa: ARG002 (unused-method-argument)
         raise BaseError('"iri" cannot be modified!')
 
     @property
@@ -117,7 +117,7 @@ class PropertyClass(Model):
         return self._ontology_id
 
     @ontology_id.setter
-    def ontology_id(self, value: str) -> None:
+    def ontology_id(self, value: str) -> None:  # noqa: ARG002 (unused-method-argument)
         raise BaseError('"ontology_id" cannot be modified!')
 
     @property
@@ -125,7 +125,7 @@ class PropertyClass(Model):
         return self._superproperties
 
     @superproperties.setter
-    def superproperties(self, value: str) -> None:
+    def superproperties(self, value: str) -> None:  # noqa: ARG002 (unused-method-argument)
         raise BaseError('"superproperties" cannot be modified!')
 
     @property
@@ -199,7 +199,7 @@ class PropertyClass(Model):
         return self._editable
 
     @editable.setter
-    def editable(self, value: bool) -> None:
+    def editable(self, value: bool) -> None:  # noqa: ARG002 (unused-method-argument)
         raise BaseError('"editable" cannot be modified!')
 
     @property

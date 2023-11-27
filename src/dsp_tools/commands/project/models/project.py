@@ -169,7 +169,7 @@ class Project(Model):
         return self._iri
 
     @iri.setter
-    def iri(self, value: str) -> None:
+    def iri(self, value: str) -> None:  # noqa: ARG002 (unused-method-argument)
         raise BaseError("Project iri cannot be modified!")
 
     @property
@@ -177,7 +177,7 @@ class Project(Model):
         return self._shortcode
 
     @shortcode.setter
-    def shortcode(self, value: str) -> None:
+    def shortcode(self, value: str) -> None:  # noqa: ARG002 (unused-method-argument)
         raise BaseError("Shortcode id cannot be modified!")
 
     @property
@@ -278,7 +278,7 @@ class Project(Model):
         return self._ontologies
 
     @ontologies.setter
-    def ontologies(self, value: set[str]) -> None:
+    def ontologies(self, value: set[str]) -> None:  # noqa: ARG002 (unused-method-argument)
         raise BaseError("Cannot add a ontology!")
 
     @property

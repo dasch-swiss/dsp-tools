@@ -188,7 +188,7 @@ def _upload(
             msg = "Some stashed resptrs or XML texts could not be reapplied to their resources on the DSP server."
             logger.error(msg)
             raise BaseError(msg)
-    except BaseException as err:  # pylint: disable=broad-except
+    except BaseException as err:  # noqa: BLE001 (broad-exception-caught)
         # The forseeable errors are already handled by the variables
         # failed_uploads, nonapplied_xml_texts, and nonapplied_resptr_props.
         # Here we catch the unforseeable exceptions, hence BaseException (=the base class of all exceptions)

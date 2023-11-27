@@ -211,7 +211,7 @@ def _upload_without_processing(
                 files={"file": bitstream},
                 timeout=8 * 60,
             )
-    except Exception:  # pylint: disable=broad-exception-caught
+    except Exception:  # noqa: BLE001 (broad-exception-caught)
         return _call_upload_without_processing_recursively(
             file=file,
             sipi_url=sipi_url,

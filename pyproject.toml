@@ -132,6 +132,7 @@ select = [
     "E",        # pycodestyle errors
     "F",        # pyflakes
     "A",        # flake8-builtins
+    "BLE",      # flake8-blind-except
 #    "I",        # isort
 ]
 ignore = [

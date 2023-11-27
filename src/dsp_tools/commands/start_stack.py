@@ -180,7 +180,7 @@ class StackHandler:
                 )
                 if response.ok:
                     break
-            except Exception:  # pylint: disable=broad-exception-caught
+            except Exception:  # noqa: BLE001 (broad-exception-caught)
                 time.sleep(1)
             time.sleep(1)
 

@@ -194,7 +194,7 @@ def _check_input_params(
 
     try:
         out_dir_path.mkdir(parents=True, exist_ok=True)
-    except Exception:  # pylint: disable=broad-exception-caught
+    except Exception:  # noqa: BLE001 (broad-exception-caught)
         raise UserError(f"Couldn't create directory {out_dir_path}") from None
 
     if not input_dir_path.is_dir():
@@ -882,7 +882,7 @@ def process_files(
                 nthreads=nthreads,
             )
             processed_files.extend(result)
-        except BaseException as exc:  # pylint: disable=broad-exception-caught
+        except BaseException as exc:  # noqa: BLE001 (broad-exception-caught)
             handle_interruption(
                 all_files=all_files,
                 processed_files=processed_files,

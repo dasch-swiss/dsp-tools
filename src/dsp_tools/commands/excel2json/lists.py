@@ -143,43 +143,8 @@ def _get_values_from_excel(
 
         # if value was last in row (no further values to the right), it's a node, continue here
         else:
-            # check if there are duplicate nodes (i.e. identical rows), raise a UserError if so
-            new_check_list = preval.copy()
-            new_check_list.append(str(cell.value).strip())
-            list_of_lists_of_previous_cell_values.append(new_check_list)
-
-            if any(list_of_lists_of_previous_cell_values.count(x) > 1 for x in list_of_lists_of_previous_cell_values):
-                raise UserError(
-                    f"ERROR: There is at least one duplicate node in the list. "
-                    f"Found duplicate in column {cell.column}, row {cell.row}:\n'{str(cell.value).strip()}'"
-                )
-
-            # create a simplified version of the cell value and use it as name of the node
-            nodename = simplify_name(str(cell.value).strip())
-            list_of_previous_node_names.append(nodename)
-
-            # append a number (p.ex. node-name-2) if there are list nodes with identical names
-            n = list_of_previous_node_names.count(nodename)
-            if n > 1:
-                nodename = f"{nodename}-{n}"
-
-            # read label values from the other Excel files (other languages)
-            labels_dict: dict[str, str] = {}
-            for other_lang, ws_other_lang in excelfiles.items():
-                cell_value = ws_other_lang.cell(column=col, row=row).value
-                if not (isinstance(cell_value, str) and len(cell_value) > 0):
-                    raise UserError(
-                        "ERROR: Malformed Excel file: The Excel file with the language code "
-                        f"'{other_lang}' should have a value in row {row}, column {col}"
-                    )
-                else:
-                    labels_dict[other_lang] = cell_value.strip()
-
-            # create current node from extracted cell values and append it to the nodes list
-            currentnode = {"name": nodename, "labels": labels_dict}
+            currentnode = _make_new_node(cell, col, excelfiles, preval, row, verbose)
             nodes.append(currentnode)
-            if verbose:
-                print(f"Added list node: {str(cell.value).strip()} ({nodename})")
 
         # go one row down and repeat loop if there is a value
         row += 1
@@ -192,6 +157,48 @@ def _get_values_from_excel(
     parentnode["nodes"] = nodes
 
     return row - 1, parentnode
+
+
+def _make_new_node(
+    cell: Cell,
+    col: int,
+    excelfiles: dict[str, Worksheet],
+    preval: list[str],
+    row: int,
+    verbose: bool = False,
+) -> dict[str, Any]:
+    # check if there are duplicate nodes (i.e. identical rows), raise a UserError if so
+    new_check_list = preval.copy()
+    new_check_list.append(str(cell.value).strip())
+    list_of_lists_of_previous_cell_values.append(new_check_list)
+    if any(list_of_lists_of_previous_cell_values.count(x) > 1 for x in list_of_lists_of_previous_cell_values):
+        raise UserError(
+            f"ERROR: There is at least one duplicate node in the list. "
+            f"Found duplicate in column {cell.column}, row {cell.row}:\n'{str(cell.value).strip()}'"
+        )
+    # create a simplified version of the cell value and use it as name of the node
+    nodename = simplify_name(str(cell.value).strip())
+    list_of_previous_node_names.append(nodename)
+    # append a number (p.ex. node-name-2) if there are list nodes with identical names
+    n = list_of_previous_node_names.count(nodename)
+    if n > 1:
+        nodename = f"{nodename}-{n}"
+    # read label values from the other Excel files (other languages)
+    labels_dict: dict[str, str] = {}
+    for other_lang, ws_other_lang in excelfiles.items():
+        cell_value = ws_other_lang.cell(column=col, row=row).value
+        if not (isinstance(cell_value, str) and len(cell_value) > 0):
+            raise UserError(
+                "ERROR: Malformed Excel file: The Excel file with the language code "
+                f"'{other_lang}' should have a value in row {row}, column {col}"
+            )
+        else:
+            labels_dict[other_lang] = cell_value.strip()
+    # create current node from extracted cell values and append it to the nodes list
+    currentnode = {"name": nodename, "labels": labels_dict}
+    if verbose:
+        print(f"Added list node: {str(cell.value).strip()} ({nodename})")
+    return currentnode
 
 
 def _make_json_lists_from_excel(

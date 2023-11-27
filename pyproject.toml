@@ -135,12 +135,12 @@ select = [
     "BLE",      # flake8-blind-except
     "I",        # isort
     "ARG",      # flake8-unused-arguments
+    "RUF",      # ruff-specific rules
     "UP031",    # pyupgrade: printf-string-formatting
     "D101",     # pydocstyle: undocumented-public-class
     "D102",     # pydocstyle: undocumented-public-method
     "D103",     # pydocstyle: undocumented-public-function
     "D417",     # pydocstyle: undocumented-param
-    "RUF100",   # ruff: unused-noqa
     "B023",     # flake8-bugbear: function-uses-loop-variable
 ]
 ignore = [

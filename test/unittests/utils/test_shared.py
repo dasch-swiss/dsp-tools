@@ -146,8 +146,8 @@ class TestShared(unittest.TestCase):
             ".",
             "*",
             " ⳰",
-            " ῀ ",
-            " ῾ ",
+            " ῀ ",  # noqa: RUF001 (ambiguous-unicode-character-string)
+            " ῾ ",  # noqa: RUF001 (ambiguous-unicode-character-string)
             " \n\t ",
             "N/A",
             "n/a",

@@ -102,7 +102,7 @@ def _get_values_from_excel(  # noqa: PLR0912 (too-many-branches)
     """
     nodes: list[dict[str, Any]] = []
     currentnode: dict[str, Any] = {}
-    base_file_ws: Worksheet = list(base_file.values())[0]
+    base_file_ws: Worksheet = next(iter(base_file.values()))
     cell: Cell = base_file_ws.cell(column=col, row=row)
 
     for excelfile in excelfiles.values():
@@ -226,7 +226,7 @@ def _make_json_lists_from_excel(
     lang_to_worksheet = {x.stem: load_workbook(x, read_only=True).worksheets[0] for x in excel_file_paths}
 
     # take English as base file. If English is not available, take a random one.
-    base_lang = "en" if "en" in lang_to_worksheet else list(lang_to_worksheet.keys())[0]
+    base_lang = "en" if "en" in lang_to_worksheet else next(iter(lang_to_worksheet.keys()))
     base_file = {base_lang: lang_to_worksheet[base_lang]}
 
     # construct the entire "lists" section as children of a fictive dummy parent node

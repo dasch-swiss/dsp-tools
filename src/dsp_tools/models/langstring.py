@@ -100,7 +100,7 @@ class LangString:
             if self._simplestring:
                 return self._simplestring
             elif len(self._langstrs) != 0:
-                return list(self._langstrs)[0]
+                return next(iter(self._langstrs))
             else:
                 return None
         else:

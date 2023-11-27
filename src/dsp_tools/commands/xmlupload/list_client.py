@@ -99,7 +99,7 @@ def _get_list_from_server(con: Connection, list_iri: str) -> List:
     # if the root node does not have a name, use the label instead
     list_name: str = list_info.get("name") or list_info["labels"][0]["value"]
     root_node = ListNode(root_iri, list_name)
-    nodes = [root_node] + _children_to_nodes(children)
+    nodes = [root_node, *_children_to_nodes(children)]
     return List(root_iri, list_name, nodes)
 
 

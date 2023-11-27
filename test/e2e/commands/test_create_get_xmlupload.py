@@ -434,7 +434,7 @@ class TestCreateGetXMLUpload(unittest.TestCase):
                     if res.get("cardinalities"):
                         del res["cardinalities"]
                     # remove from returned file, too
-                    res_returned = [x for x in resources_returned if x["name"] == res["name"]][0]
+                    res_returned = next(x for x in resources_returned if x["name"] == res["name"])
                     if res_returned.get("cardinalities"):
                         del res_returned["cardinalities"]
 

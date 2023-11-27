@@ -4,6 +4,7 @@
 import shutil
 import unittest
 from pathlib import Path
+from typing import ClassVar
 
 import pytest
 import regex
@@ -15,7 +16,7 @@ from dsp_tools.models.exceptions import BaseError
 
 class TestIdToIri(unittest.TestCase):
     tmp_dir = Path("testdata/tmp")
-    mapping = {
+    mapping: ClassVar = {
         "test_thing_0": "http://rdfh.ch/082E/-lRvrg7tQI6aVpcTJbVrwg",
         "test_thing_1": "http://rdfh.ch/082E/JK63OpYWTDWNYVOYFN7FdQ",
         "test_thing_2": "http://rdfh.ch/082E/1l63Oasdfopiujlkmn78ak",

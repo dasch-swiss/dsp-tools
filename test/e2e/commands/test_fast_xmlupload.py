@@ -1,6 +1,7 @@
 import shutil
 import unittest
 from pathlib import Path
+from typing import ClassVar
 
 import pytest
 
@@ -24,7 +25,7 @@ class TestFastXmlUpload(unittest.TestCase):
     output_dir = "testdata/preprocessed_files"
     xml_file = "testdata/xml-data/test-data-fast-xmlupload.xml"
     json_file = "testdata/json-project/test-project-fast-xmlupload.json"
-    txt_files = ["processed_files.txt", "unprocessed_files.txt"]
+    txt_files: ClassVar = ["processed_files.txt", "unprocessed_files.txt"]
 
     @classmethod
     def setUpClass(cls) -> None:

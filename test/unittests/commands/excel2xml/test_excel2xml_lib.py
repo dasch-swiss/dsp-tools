@@ -153,7 +153,7 @@ class TestExcel2xmlLib(unittest.TestCase):
         Path("excel2xml-invalid-data.xml").unlink(missing_ok=True)
 
     def test_make_xsd_id_compatible(self) -> None:
-        teststring = "0aüZ/_-äöü1234567890?`^':.;+*ç%&/()=±“#Ç[]|{}≠₂₃āṇśṣr̥ṁñἄ𝝺𝝲𝛆’الشعرُאדםПопрыгуньяşğ"
+        teststring = "0aüZ/_-äöü1234567890?`^':.;+*ç%&/()=±“#Ç[]|{}≠₂₃āṇśṣr̥ṁñἄ𝝺𝝲𝛆’الشعرُאדםПопрыгуньяşğ"  # noqa: RUF001
         expected_ = "_0a_Z__-___1234567890_____.__________________________r______________________________"
 
         # test that the results are distinct from each other

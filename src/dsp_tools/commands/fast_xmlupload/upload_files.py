@@ -403,7 +403,7 @@ def upload_files(
     pkl_file_paths = get_pkl_files()
     logger.info("Found the following pickle files:")
     for pkl in pkl_file_paths:
-        logger.info(f" - {str(pkl)}")
+        logger.info(f" - {pkl!s}")
 
     # read paths from pkl file
     internal_filenames_of_processed_files = _get_paths_from_pkl_files(pkl_files=pkl_file_paths)

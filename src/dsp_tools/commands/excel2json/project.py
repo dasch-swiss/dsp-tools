@@ -16,7 +16,6 @@ def excel2json(
     """
     Converts a folder containing Excel files into a JSON data model file. The folder must be structured like this:
 
-    ::
 
         data_model_files
         |-- lists
@@ -41,14 +40,24 @@ def excel2json(
         True if everything went well
     """
 
-    overall_success = True
+    listfolder, onto_folders = _validate_folder_structure_get_filenames(data_model_files)
 
-    # validate input
-    # --------------
+    # create output
+    # -------------
+    overall_success, project = _create_project_json(data_model_files, listfolder, onto_folders)
+
+    with open(path_to_output_file, "w", encoding="utf-8") as f:
+        json.dump(project, f, indent=4, ensure_ascii=False)
+
+    print(f"JSON project file successfully saved at {path_to_output_file}")
+
+    return overall_success
+
+
+def _validate_folder_structure_get_filenames(data_model_files):
     if not Path(data_model_files).is_dir():
         raise UserError(f"ERROR: {data_model_files} is not a directory.")
     folder = [x for x in Path(data_model_files).glob("*") if not regex.search(r"^(\.|~\$).+", x.name)]
-
     processed_files = []
     onto_folders = [x for x in folder if x.is_dir() and regex.search(r"([\w.-]+) \(([\w.\- ]+)\)", x.name)]
     if not onto_folders:
@@ -63,7 +72,6 @@ def excel2json(
                 "and one file 'resources.xlsx', but nothing else."
             )
         processed_files.extend([f"{data_model_files}/{onto_folder.name}/{file}" for file in contents])
-
     listfolder = [x for x in folder if x.is_dir() and x.name == "lists"]
     if listfolder:
         listfolder_contents = [x for x in Path(listfolder[0]).glob("*") if not regex.search(r"^(\.|~\$).+", x.name)]
@@ -72,22 +80,21 @@ def excel2json(
                 f"The only files allowed in '{data_model_files}/lists' are en.xlsx, de.xlsx, fr.xlsx, it.xlsx, rm.xlsx"
             )
         processed_files = [f"{data_model_files}/lists/{file.name}" for file in listfolder_contents] + processed_files
-
     if len(onto_folders) + len(listfolder) != len(folder):
         raise UserError(
             f"The only allowed subfolders in '{data_model_files}' are 'lists' "
             "and folders that match the pattern 'onto_name (onto_label)'"
         )
-
     print("The following files will be processed:")
     print(*(f" - {file}" for file in processed_files), sep="\n")
+    return listfolder, onto_folders
 
-    # create output
-    # -------------
+
+def _create_project_json(data_model_files, listfolder, onto_folders):
+    overall_success = True
     lists, success = excel2lists(excelfolder=f"{data_model_files}/lists") if listfolder else (None, True)
     if not success:
         overall_success = False
-
     ontologies = []
     for onto_folder in onto_folders:
         name, label = regex.search(r"([\w.-]+) \(([\w.\- ]+)\)", onto_folder.name).groups()  # type: ignore[union-attr]
@@ -103,7 +110,6 @@ def excel2json(
                 "resources": resources,
             }
         )
-
     schema = "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json"
     project = {
         "prefixes": {"": ""},
@@ -119,10 +125,4 @@ def excel2json(
     if lists:
         project["project"]["lists"] = lists  # type: ignore[index]
     project["project"]["ontologies"] = ontologies  # type: ignore[index]
-
-    with open(path_to_output_file, "w", encoding="utf-8") as f:
-        json.dump(project, f, indent=4, ensure_ascii=False)
-
-    print(f"JSON project file successfully saved at {path_to_output_file}")
-
-    return overall_success
+    return overall_success, project

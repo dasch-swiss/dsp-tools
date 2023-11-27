@@ -1,6 +1,7 @@
 """unit tests for excel to properties"""
 
-# pylint: disable=missing-class-docstring,protected-access
+# pylint: disable=protected-access
+# ruff: noqa: D101 (undocumented-public-class)
 # ruff: noqa: D102 (undocumented-public-method)
 
 import json

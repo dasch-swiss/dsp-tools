@@ -8,9 +8,11 @@ from dsp_tools.commands.template import generate_template_repo
 from dsp_tools.models.exceptions import UserError
 
 
-class TestGenerateTemplates(unittest.TestCase):  # pylint: disable=missing-class-docstring
+class TestGenerateTemplates(unittest.TestCase):
+    """Test the CLI command 'template'"""
+
     def test_generate_template_repo(self) -> None:
-        """Test the CLI command 'template'"""
+        """Test that the command succeeds the first time, fails the second time, and that the JSON + XML file exist."""
         success = generate_template_repo()
         self.assertTrue(success)
 

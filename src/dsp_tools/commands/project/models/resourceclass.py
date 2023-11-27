@@ -5,7 +5,7 @@ This model implements the handling of resource classes. It contains two classes 
     * "ResourceClass" is the main class representing a DSP resource class.
 """
 
-# pylint: disable=missing-class-docstring
+# ruff: noqa: D101 (undocumented-public-class)
 # ruff: noqa: D102 (undocumented-public-method)
 
 from __future__ import annotations

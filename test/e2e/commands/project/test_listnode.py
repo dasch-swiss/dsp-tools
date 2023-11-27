@@ -9,7 +9,7 @@ from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
 
 
-class TestListNode(unittest.TestCase):  # pylint: disable=missing-class-docstring
+class TestListNode(unittest.TestCase):  # noqa: D101 (undocumented-public-class)
     con: Connection
     project = "http://rdfh.ch/projects/0001"
     otherTreeList = "http://rdfh.ch/lists/0001/otherTreeList"

@@ -1,6 +1,6 @@
 """unit tests for Excel to JSON list"""
 
-# pylint: disable=missing-class-docstring
+# ruff: noqa: D101 (undocumented-public-class)
 # ruff: noqa: D102 (undocumented-public-method)
 
 import json

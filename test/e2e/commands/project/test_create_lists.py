@@ -1,4 +1,4 @@
-# pylint: disable=missing-class-docstring
+# ruff: noqa: D101 (undocumented-public-class)
 
 import json
 import unittest

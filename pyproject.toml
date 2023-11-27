@@ -135,6 +135,7 @@ select = [
     "BLE",      # flake8-blind-except
     "I",        # isort
     "UP031",    # pyupgrade: printf-string-formatting
+    "D101",     # pydocstyle: undocumented-public-class
     "D102",     # pydocstyle: undocumented-public-method
     "RUF100",   # ruff: unused-noqa
 ]

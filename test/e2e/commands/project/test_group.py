@@ -10,7 +10,7 @@ from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
 
 
-class TestGroup(unittest.TestCase):  # pylint: disable=missing-class-docstring
+class TestGroup(unittest.TestCase):  # noqa: D101 (undocumented-public-class)
     test_project = "http://rdfh.ch/projects/0001"
     con: Connection
 

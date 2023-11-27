@@ -1,4 +1,5 @@
-# pylint: disable=f-string-without-interpolation,missing-class-docstring
+# pylint: disable=f-string-without-interpolation
+# ruff: noqa: D101 (undocumented-public-class)
 # ruff: noqa: D102 (undocumented-public-method)
 
 import unittest

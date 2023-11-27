@@ -146,7 +146,6 @@ select = [
 ignore = [
     "PLR0913",  # pylint: too-many-arguments                # TODO: activate this
     "PLW0603",  # pylint: global-statement                  # TODO: activate this
-    "PLR0911",  # pylint: too-many-return-statements        # TODO: activate this
     "PLR2004",  # pylint: magic-value-comparison            # TODO: activate this
     "PLR5501",  # pylint: collapsible-else-if               # TODO: activate this
 ]

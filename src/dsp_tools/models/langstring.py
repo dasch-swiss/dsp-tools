@@ -88,7 +88,10 @@ class LangString:
         else:
             raise BaseError("Not a valid language definition!")
 
-    def __getitem__(self, key: Optional[Union[Languages, str]] = None) -> Optional[str]:  # noqa: PLR0912 (too-many-branches)
+    def __getitem__(  # noqa: PLR0911, PLR0912 (too-many-return-statements, too-many-branches)
+        self,
+        key: Optional[Union[Languages, str]] = None,
+    ) -> Optional[str]:
         #
         # First deal with simple strings (no language given). We return, if existing, the simple string
         # or just the first language dependent string

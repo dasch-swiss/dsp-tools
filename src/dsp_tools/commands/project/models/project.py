@@ -1,4 +1,3 @@
-# pylint: disable=missing-class-docstring
 # ruff: noqa: D102 (undocumented-public-method)
 
 """

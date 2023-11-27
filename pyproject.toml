@@ -149,7 +149,6 @@ ignore = [
     "PLW0603",  # pylint: global-statement                  # TODO: activate this
     "PLR0911",  # pylint: too-many-return-statements        # TODO: activate this
     "PLR2004",  # pylint: magic-value-comparison            # TODO: activate this
-    "PLW2901",  # pylint: redefined-loop-name               # TODO: activate this
     "PLR5501",  # pylint: collapsible-else-if               # TODO: activate this
 ]
 
@@ -159,6 +158,9 @@ ignore = [
     "F401",     # unused-import
     "F403",     # undefined-local-with-import-star
     "PLC0414"   # useless-import-alias
+]
+"src/dsp_tools/import_scripts/import_script.py" = [
+    "PLW2901"   # pylint: redefined-loop-name 
 ]
 
 

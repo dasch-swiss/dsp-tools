@@ -122,7 +122,7 @@ class TestExcelToJSONList(unittest.TestCase):
             # index[-1] returns the number of the last non-empty column (in this test case: 3)
             # input_df[3].notna() returns a boolean Series with 'true' for every non-empty cell in column 3
             for index, row in input_df.loc[longest_rows_selector].iterrows():
-                index = int(str(index))  # index is a label/index/hashable, but we need an int
+                index_int = int(str(index))  # index is a label/index/hashable, but we need an int
                 jsonpath_elems = [cell.strip() for cell in row]
                 parser_string = "$"
                 for elem in jsonpath_elems:
@@ -130,7 +130,7 @@ class TestExcelToJSONList(unittest.TestCase):
                 node_match = jsonpath_ng.ext.parse(parser_string).find(output_from_file)
                 self.assertTrue(
                     len(node_match) == 1,
-                    f'The node "{jsonpath_elems[-1]}" from Excel row {index+1} was not correctly translated to the '
+                    f'The node "{jsonpath_elems[-1]}" from Excel row {index_int+1} was not correctly translated to the '
                     f"output JSON file.",
                 )
 

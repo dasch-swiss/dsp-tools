@@ -154,7 +154,7 @@ def _row2resource(
 
     cards = []
     for j, detail_row in details_df.iterrows():
-        j = int(str(j))  # j is a label/index/hashable, but we need an int
+        j = int(str(j))  # noqa: PLW2901 (redefined-loop-name) (j is a label/index/hashable, but we need an int)
         gui_order = detail_row.get("gui_order", "")
         gui_order = regex.sub(r"\.0+", "", str(gui_order))
         property_ = {
@@ -204,7 +204,7 @@ def excel2resources(
 
     # validation
     for index, row in all_classes_df.iterrows():
-        index = int(str(index))  # index is a label/index/hashable, but we need an int
+        index = int(str(index))  # noqa: PLW2901 (redefined-loop-name) (it is a label/index/hashable, but we need int)
         if not check_notna(row["super"]):
             raise UserError(f"Sheet 'classes' of '{excelfile}' has a missing value in row {index + 2}, column 'super'")
     if any(all_classes_df.get(lang) is not None for lang in languages):

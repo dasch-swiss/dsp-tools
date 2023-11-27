@@ -562,7 +562,7 @@ class ResourceClass(Model):
             for key in tmp.keys():
                 key_with_value = key
                 if key.endswith("Value"):
-                    key = key.removesuffix("Value")
+                    key = key.removesuffix("Value")  # noqa: PLW2901 (redefined-loop-name)
                     if key in has_properties:
                         del has_properties[key_with_value]
         else:

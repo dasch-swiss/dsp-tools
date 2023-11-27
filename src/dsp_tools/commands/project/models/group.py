@@ -1,4 +1,4 @@
-# pylint: disable=missing-function-docstring
+# ruff: noqa: D102 (undocumented-public-method)
 
 """
 This module implements the handling (CRUD) of DSP groups.

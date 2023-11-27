@@ -1,4 +1,5 @@
-# pylint: disable=f-string-without-interpolation,missing-class-docstring,missing-function-docstring
+# pylint: disable=f-string-without-interpolation,missing-class-docstring
+# ruff: noqa: D102 (undocumented-public-method)
 
 import unittest
 from typing import Union

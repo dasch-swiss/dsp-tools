@@ -1,3 +1,5 @@
+# ruff: noqa: D102 (undocumented-public-method)
+
 from dataclasses import dataclass, field
 from typing import Any
 from uuid import uuid4
@@ -13,8 +15,6 @@ from dsp_tools.commands.xmlupload.stash.stash_models import (
 )
 from dsp_tools.commands.xmlupload.xmlupload import _upload_stash
 from dsp_tools.utils.connection import Connection
-
-# pylint: disable=missing-function-docstring
 
 
 class ProjectClientStub:

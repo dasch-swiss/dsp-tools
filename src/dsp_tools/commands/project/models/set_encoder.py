@@ -8,6 +8,7 @@ class SetEncoder(json.JSONEncoder):
     """Encoder used to serialize objects to JSON that would by default not be serializable"""
 
     def default(self, o: Union[set[Any], Context, OntoIri]) -> Any:
+        """Return a serializable object for o"""
         if isinstance(o, set):
             return list(o)
         elif isinstance(o, Context):

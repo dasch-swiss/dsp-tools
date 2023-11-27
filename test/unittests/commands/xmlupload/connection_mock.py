@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 from typing import Any
 
-# pylint: disable=missing-function-docstring,unused-argument
+# pylint: disable=unused-argument
+# ruff: noqa: D102 (undocumented-public-method)
 
 
 @dataclass

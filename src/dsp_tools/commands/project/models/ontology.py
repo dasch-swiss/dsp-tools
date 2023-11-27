@@ -1,4 +1,5 @@
-# pylint: disable=missing-class-docstring,missing-function-docstring
+# pylint: disable=missing-class-docstring
+# ruff: noqa: D102 (undocumented-public-method)
 
 """
 This model implements the handling of ontologies. It is to note that ResourceClasses, PropertyClasses

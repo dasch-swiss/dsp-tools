@@ -1,6 +1,5 @@
 # ruff: noqa: E501 (line-too-long)
 
-
 import dataclasses
 import datetime
 import difflib

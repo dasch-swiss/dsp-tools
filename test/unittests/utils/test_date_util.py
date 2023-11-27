@@ -1,3 +1,5 @@
+# ruff: noqa: D102 (undocumented-public-method)
+
 import pytest
 
 from dsp_tools.models.exceptions import BaseError
@@ -10,8 +12,6 @@ from dsp_tools.utils.date_util import (
     _split_date_string,
     parse_date_string,
 )
-
-# pylint: disable=missing-function-docstring
 
 
 class TestParseDateStringWithDateOnly:

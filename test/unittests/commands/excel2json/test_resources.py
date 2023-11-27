@@ -1,6 +1,7 @@
 """unit tests for excel to resource"""
 
-# pylint: disable=missing-class-docstring,missing-function-docstring
+# pylint: disable=missing-class-docstring
+# ruff: noqa: D102 (undocumented-public-method)
 
 import json
 import os

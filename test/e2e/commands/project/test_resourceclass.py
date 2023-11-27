@@ -1,6 +1,7 @@
 """end to end tests for resourceClass class"""
 
-# pylint: disable=missing-class-docstring,missing-function-docstring
+# pylint: disable=missing-class-docstring
+# ruff: noqa: D102 (undocumented-public-method)
 
 import unittest
 

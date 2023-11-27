@@ -1,11 +1,12 @@
+# pylint: disable=too-many-public-methods
+# ruff: noqa: D102 (undocumented-public-method)
+
 from pytest import raises
 
 from dsp_tools.commands.xmlupload.models.permission import Permissions, PermissionValue
 from dsp_tools.commands.xmlupload.models.xmlresource import BitstreamInfo
 from dsp_tools.commands.xmlupload.resource_create_client import _make_bitstream_file_value, _to_boolean
 from dsp_tools.models.exceptions import BaseError
-
-# pylint: disable=missing-function-docstring,too-many-public-methods
 
 
 class TestMakeBitstreamFileValue:

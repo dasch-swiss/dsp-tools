@@ -135,6 +135,7 @@ select = [
     "BLE",      # flake8-blind-except
     "I",        # isort
     "UP031",    # pyupgrade: printf-string-formatting
+    "D102",     # pydocstyle: undocumented-public-method
 ]
 ignore = [
     "PLR0915",  # pylint: too-many-statements                                   # TODO: activate this

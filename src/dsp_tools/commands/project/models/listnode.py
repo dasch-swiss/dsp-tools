@@ -1,4 +1,4 @@
-# pylint: disable=missing-function-docstring
+# ruff: noqa: D102 (undocumented-public-method)
 
 """
 This module implements the handling (CRUD) of list nodes and adds some function to read whole lists.

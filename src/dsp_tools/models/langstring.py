@@ -1,4 +1,4 @@
-# pylint: disable=missing-function-docstring
+# ruff: noqa: D102 (undocumented-public-method)
 
 from enum import Enum, unique
 from typing import Any, Optional, Union

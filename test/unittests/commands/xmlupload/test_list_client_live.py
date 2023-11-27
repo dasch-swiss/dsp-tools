@@ -1,3 +1,6 @@
+# pylint: disable=missing-class-docstring
+# ruff: noqa: D102 (undocumented-public-method)
+
 from dataclasses import dataclass
 from test.unittests.commands.xmlupload.connection_mock import ConnectionMockBase
 from typing import Any
@@ -9,8 +12,6 @@ from dsp_tools.commands.xmlupload.list_client import (
     _get_list_from_server,
     _get_list_iris_from_server,
 )
-
-# pylint: disable=missing-class-docstring,missing-function-docstring
 
 
 @dataclass

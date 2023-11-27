@@ -1,4 +1,5 @@
-# pylint: disable=missing-class-docstring,missing-function-docstring
+# pylint: disable=missing-class-docstring
+# ruff: noqa: D102 (undocumented-public-method)
 
 """
 This module implements the handling (CRUD) of DSP projects.

@@ -1,4 +1,5 @@
-# pylint: disable=missing-class-docstring,missing-function-docstring,too-many-public-methods
+# pylint: disable=missing-class-docstring,too-many-public-methods
+# ruff: noqa: D102 (undocumented-public-method)
 
 import unittest
 from pathlib import Path

@@ -9,7 +9,8 @@ from dsp_tools.models.exceptions import UserError
 
 
 class TestGenerateTemplates(unittest.TestCase):  # pylint: disable=missing-class-docstring
-    def test_generate_template_repo(self) -> None:  # pylint: disable=missing-function-docstring
+    def test_generate_template_repo(self) -> None:
+        """Test the CLI command 'template'"""
         success = generate_template_repo()
         self.assertTrue(success)
 

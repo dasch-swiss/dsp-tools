@@ -133,7 +133,7 @@ select = [
     "F",        # pyflakes
     "A",        # flake8-builtins
     "BLE",      # flake8-blind-except
-#    "I",        # isort
+    "I",        # isort
 ]
 ignore = [
     "PLR0915",  # pylint: too-many-statements                                   # TODO: activate this
@@ -149,3 +149,7 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401", "F403", "PLC0414"]
+
+
+[tool.ruff.lint.isort]
+known-first-party = ["dsp_tools"]

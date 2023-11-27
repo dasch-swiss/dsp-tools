@@ -600,23 +600,23 @@ class TestExcel2xmlLib(unittest.TestCase):
         for method, tagname in method_2_tagname.items():
             test_cases: list[tuple[Callable[..., etree._Element], str]] = [
                 (
-                    lambda: method("label", "id"),  # pylint: disable=cell-var-from-loop
+                    lambda: method("label", "id"),  # noqa: B023 (function-uses-loop-variable)
                     f'<{tagname} label="label" id="id" permissions="res-default"/>',
                 ),
                 (
-                    lambda: method("label", "id", "res-restricted"),  # pylint: disable=cell-var-from-loop
+                    lambda: method("label", "id", "res-restricted"),  # noqa: B023 (function-uses-loop-variable)
                     f'<{tagname} label="label" id="id" permissions="res-restricted"/>',
                 ),
                 (
-                    lambda: method("label", "id", ark="ark"),  # pylint: disable=cell-var-from-loop
+                    lambda: method("label", "id", ark="ark"),  # noqa: B023 (function-uses-loop-variable)
                     f'<{tagname} label="label" id="id" permissions="res-default" ark="ark"/>',
                 ),
                 (
-                    lambda: method("label", "id", iri="iri"),  # pylint: disable=cell-var-from-loop
+                    lambda: method("label", "id", iri="iri"),  # noqa: B023 (function-uses-loop-variable)
                     f'<{tagname} label="label" id="id" permissions="res-default" iri="iri"/>',
                 ),
                 (
-                    lambda: method(  # pylint: disable=cell-var-from-loop
+                    lambda: method(  # noqa: B023 (function-uses-loop-variable)
                         "label", "id", creation_date="2019-10-23T13:45:12Z"
                     ),
                     (

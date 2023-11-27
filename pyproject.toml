@@ -136,6 +136,8 @@ select = [
     "I",        # isort
     "ARG",      # flake8-unused-arguments
     "RUF",      # ruff-specific rules
+    "YTT",      # flake8-2020 plugin which checks for misuse of `sys.version` or `sys.version_info`
+    "ASYNC",    # flake8-async plugin which checks for bad async / asyncio practices
     "ISC",      # flake8-implicit-str-concat plugin which checks for problematic string concatenation
     "UP031",    # pyupgrade: printf-string-formatting
     "D101",     # pydocstyle: undocumented-public-class

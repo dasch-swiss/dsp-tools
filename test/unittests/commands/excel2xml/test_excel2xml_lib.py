@@ -522,7 +522,7 @@ class TestExcel2xmlLib(unittest.TestCase):
                 "&lt;escaped tag&gt;",
             ],
         ]
-        all_inputs = " ".join([input for input, _ in testcases_xml])  # noqa: A001 (redefined-builtin)
+        all_inputs = " ".join([inp for inp, _ in testcases_xml])
         all_outputs = " ".join([output for _, output in testcases_xml])
         testcases_xml.append([all_inputs, all_outputs])
 

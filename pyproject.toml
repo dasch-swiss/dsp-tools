@@ -138,6 +138,7 @@ select = [
     "D101",     # pydocstyle: undocumented-public-class
     "D102",     # pydocstyle: undocumented-public-method
     "D103",     # pydocstyle: undocumented-public-function
+    "D417",     # pydocstyle: undocumented-param
     "RUF100",   # ruff: unused-noqa
     "B023",     # flake8-bugbear: function-uses-loop-variable
     "ARG",      # flake8-unused-arguments
@@ -162,6 +163,10 @@ ignore = [
 "src/dsp_tools/import_scripts/import_script.py" = [
     "PLW2901"   # pylint: redefined-loop-name 
 ]
+
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
 
 
 [tool.ruff.lint.isort]

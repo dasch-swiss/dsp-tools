@@ -343,7 +343,7 @@ def append_permissions(root_element: etree._Element) -> etree._Element:
     return root_element
 
 
-def make_resource(
+def make_resource(  # noqa: D417 (undocumented-param)
     label: str,
     restype: str,
     id: str,  # noqa: A002 (builtin-argument-shadowing)
@@ -1444,7 +1444,7 @@ def make_uri_prop(
     return prop_
 
 
-def make_region(
+def make_region(  # noqa: D417 (undocumented-param)
     label: str,
     id: str,  # noqa: A002 (builtin-argument-shadowing)
     permissions: str = "res-default",
@@ -1503,7 +1503,7 @@ def make_region(
     )
 
 
-def make_annotation(
+def make_annotation(  # noqa: D417 (undocumented-param)
     label: str,
     id: str,  # noqa: A002 (builtin-argument-shadowing)
     permissions: str = "res-default",
@@ -1560,7 +1560,7 @@ def make_annotation(
     )
 
 
-def make_link(
+def make_link(  # noqa: D417 (undocumented-param)
     label: str,
     id: str,  # noqa: A002 (builtin-argument-shadowing)
     permissions: str = "res-default",

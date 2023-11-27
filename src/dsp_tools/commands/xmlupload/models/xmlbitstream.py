@@ -3,7 +3,7 @@ from typing import Optional, cast
 from lxml import etree
 
 
-class XMLBitstream:  # pylint: disable=too-few-public-methods
+class XMLBitstream:
     """
     Represents a bitstream object (file) of a resource in the XML used for data import
 

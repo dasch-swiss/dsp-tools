@@ -155,7 +155,11 @@ ignore = [
 
 
 [tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["F401", "F403", "PLC0414"]
+"__init__.py" = [
+    "F401",     # unused-import
+    "F403",     # undefined-local-with-import-star
+    "PLC0414"   # useless-import-alias
+]
 
 
 [tool.ruff.lint.isort]

@@ -106,7 +106,7 @@ def make_graph(
         - A dictionary that maps the rustworkx index number of the nodes to the original resource ID from the XML file.
         - A list with all the edges in the graph.
     """
-    graph: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()  # pylint: disable=no-member
+    graph: rx.PyDiGraph[Any, Any] = rx.PyDiGraph()
     nodes = [(id_, None, None) for id_ in all_resource_ids]
     node_indices = list(graph.add_nodes_from(nodes))
     id_to_node = dict(zip(all_resource_ids, node_indices))
@@ -284,7 +284,7 @@ def generate_upload_order(
     upload_order.extend(leaf_nodes)
     stash_counter = 0
     while remaining_node_indices:
-        cycle = list(rx.digraph_find_cycle(graph))  # type: ignore[attr-defined]  # pylint: disable=no-member
+        cycle = list(rx.digraph_find_cycle(graph))  # type: ignore[attr-defined]
         links_to_remove = _find_cheapest_outgoing_links(graph, cycle, edges)
         stash_counter += len(links_to_remove)
         _remove_edges_to_stash(

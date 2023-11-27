@@ -144,7 +144,6 @@ select = [
     "B023",     # flake8-bugbear: function-uses-loop-variable
 ]
 ignore = [
-    "PLR0912",  # pylint: too-many-branches                 # TODO: activate this
     "PLR0913",  # pylint: too-many-arguments                # TODO: activate this
     "PLW0603",  # pylint: global-statement                  # TODO: activate this
     "PLR0911",  # pylint: too-many-return-statements        # TODO: activate this

@@ -1,5 +1,6 @@
 # ruff: noqa: D101 (undocumented-public-class)
 # ruff: noqa: D102 (undocumented-public-method)
+# ruff: noqa: PLR0912 (too-many-branches)
 
 import json
 from typing import Any, Optional, Sequence, Union

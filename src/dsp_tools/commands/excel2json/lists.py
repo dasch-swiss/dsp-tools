@@ -71,7 +71,7 @@ def expand_lists_from_excel(
     return new_lists
 
 
-def _get_values_from_excel(
+def _get_values_from_excel(  # noqa: PLR0912 (too-many-branches)
     excelfiles: dict[str, Worksheet],
     base_file: dict[str, Worksheet],
     parentnode: dict[str, Any],

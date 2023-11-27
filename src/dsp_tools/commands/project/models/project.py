@@ -362,7 +362,7 @@ class Project(Model):
             logo=logo,
         )
 
-    def toJsonObj(self, action: Actions) -> dict[str, str]:
+    def toJsonObj(self, action: Actions) -> dict[str, str]:  # noqa: PLR0912 (too-many-branches)
         """
         Internal method! Should not be used directly!
 

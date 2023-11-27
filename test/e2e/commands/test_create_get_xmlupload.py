@@ -392,7 +392,7 @@ class TestCreateGetXMLUpload(unittest.TestCase):
                     f"and returned name '{ret['name']}' failed.",
                 )
 
-    def _compare_resources(
+    def _compare_resources(  # noqa: PLR0912 (too-many-branches)
         self,
         resources_original: Optional[list[dict[str, Any]]],
         resources_returned: Optional[list[dict[str, Any]]],

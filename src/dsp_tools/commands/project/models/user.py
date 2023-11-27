@@ -22,6 +22,8 @@ DELETE
 In addition there is a static methods ``getAllProjects`` which returns a list of all projects
 """
 
+# ruff: noqa: PLR0912 (too-many-branches)
+
 from __future__ import annotations
 
 import json

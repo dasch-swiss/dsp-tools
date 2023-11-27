@@ -7,6 +7,7 @@ This model implements the handling of resource classes. It contains two classes 
 
 # ruff: noqa: D101 (undocumented-public-class)
 # ruff: noqa: D102 (undocumented-public-method)
+# ruff: noqa: PLR0912 (too-many-branches)
 
 from __future__ import annotations
 

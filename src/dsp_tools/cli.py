@@ -421,7 +421,7 @@ def _derive_sipi_url(
     return parsed_arguments
 
 
-def _call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0915 (too-many-statements)
+def _call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0912, PLR0915 (too-many-branches/statements)
     """
     Call the appropriate method of DSP-TOOLS.
 

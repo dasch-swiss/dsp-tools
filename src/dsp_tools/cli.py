@@ -449,7 +449,7 @@ def _call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0912, 
                     password=args.password,
                     dump=args.dump,
                 )
-        else:
+        else:  # noqa: PLR5501 (collapsible-else-if)
             if args.validate_only:
                 success = validate_project(args.project_definition)
                 print("JSON project file is syntactically correct and passed validation.")

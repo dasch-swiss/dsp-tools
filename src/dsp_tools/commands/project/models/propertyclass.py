@@ -153,7 +153,7 @@ class PropertyClass(Model):
     def label(self, value: Optional[Union[LangString, str]]) -> None:
         if value is None:
             self._label.empty()  # clear all labels
-        else:
+        else:  # noqa: PLR5501 (collapsible-else-if)
             if isinstance(value, LangString):
                 self._label = value
             elif isinstance(value, str):
@@ -178,7 +178,7 @@ class PropertyClass(Model):
     def comment(self, value: Optional[LangString]) -> None:
         if value is None:
             self._comment.empty()  # clear all comments!
-        else:
+        else:  # noqa: PLR5501 (collapsible-else-if)
             if isinstance(value, LangString):
                 self._comment = value
             elif isinstance(value, str):

@@ -202,7 +202,7 @@ class Context:
                 return
             if prefix in self.common_ontologies:
                 self._context[prefix] = self.common_ontologies[prefix]
-        else:
+        else:  # noqa: PLR5501 (collapsible-else-if)
             if iri.endswith("#"):
                 iri = iri[:-1]
                 self._context[prefix] = OntoIri(iri, True)
@@ -400,7 +400,7 @@ class DateTimeStamp:
             self._dateTimeStamp = val
         elif isinstance(val, DateTimeStamp):
             self._dateTimeStamp = str(val)
-        else:
+        else:  # noqa: PLR5501 (collapsible-else-if)
             if val.get("@type") == "xsd:dateTimeStamp" and regex.search(self._validation_regex, str(val.get("@value"))):
                 self._dateTimeStamp = val["@value"]
             else:

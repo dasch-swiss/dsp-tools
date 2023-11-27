@@ -221,7 +221,7 @@ class LangString:
                 lstrs[Languages.IT] = o.get("@value")
             elif lang == "rm":
                 lstrs[Languages.RM] = o.get("@value")
-            else:
+            else:  # noqa: PLR5501 (collapsible-else-if)
                 if o.get("@value") is not None:
                     return cls(o.get("@value"))
         return cls(lstrs)
@@ -249,7 +249,7 @@ class LangString:
                 lstrs[Languages.IT] = o.get("value")
             elif lang == "rm":
                 lstrs[Languages.RM] = o.get("value")
-            else:
+            else:  # noqa: PLR5501 (collapsible-else-if)
                 if o.get("value") is not None:
                     return cls(o.get("value"))
         return cls(lstrs)

@@ -37,7 +37,7 @@ class XmlAllow:
                 if project_context.project_name is None:
                     raise XmlError("Project shortcode has not been set in ProjectContext")
                 self._group = project_context.project_name + ":" + tmp[1]
-        else:
+        else:  # noqa: PLR5501 (collapsible-else-if)
             if tmp[0] in sysgroups:
                 self._group = "knora-admin:" + node.attrib["group"]
             else:

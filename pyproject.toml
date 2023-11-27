@@ -134,6 +134,7 @@ select = [
     "A",        # flake8-builtins
     "BLE",      # flake8-blind-except
     "I",        # isort
+    "UP031",    # pyupgrade: printf-string-formatting
 ]
 ignore = [
     "PLR0915",  # pylint: too-many-statements                                   # TODO: activate this

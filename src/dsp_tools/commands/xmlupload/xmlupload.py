@@ -370,7 +370,7 @@ def _create_resource(
         )
         logger.warning(log_msg, exc_info=True)
         return None
-    except Exception as err:  # pylint: disable=broad-except
+    except Exception as err:
         msg = f"Unable to create resource '{resource.label}' ({resource.id})"
         print(f"{datetime.now()}: WARNING: {msg}: {err}")
         log_msg = (

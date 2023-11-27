@@ -990,7 +990,7 @@ def _rectify_hlist_of_properties(
     return properties
 
 
-def create_project(
+def create_project(  # noqa: PLR0915 (too-many-statements)
     project_file_as_path_or_parsed: Union[str, Path, dict[str, Any]],
     server: str,
     user_mail: str,

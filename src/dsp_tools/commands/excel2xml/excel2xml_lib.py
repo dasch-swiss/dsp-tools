@@ -59,7 +59,7 @@ def make_xsd_id_compatible(string: str) -> str:
     return res
 
 
-def find_date_in_string(string: str) -> Optional[str]:
+def find_date_in_string(string: str) -> Optional[str]:  # noqa: PLR0915 (too-many-statements)
     """
     Checks if a string contains a date value (single date, or date range), and returns the first found date as
     DSP-formatted string. Returns None if no date was found.

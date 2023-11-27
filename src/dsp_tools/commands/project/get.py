@@ -13,7 +13,7 @@ from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.connection_live import ConnectionLive
 
 
-def get_project(
+def get_project(  # noqa: PLR0915 (too-many-statements)
     project_identifier: str,
     outfile_path: str,
     server: str,

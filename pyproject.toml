@@ -134,6 +134,7 @@ select = [
     "A",        # flake8-builtins
     "BLE",      # flake8-blind-except
     "I",        # isort
+    "ARG",      # flake8-unused-arguments
     "UP031",    # pyupgrade: printf-string-formatting
     "D101",     # pydocstyle: undocumented-public-class
     "D102",     # pydocstyle: undocumented-public-method
@@ -141,10 +142,8 @@ select = [
     "D417",     # pydocstyle: undocumented-param
     "RUF100",   # ruff: unused-noqa
     "B023",     # flake8-bugbear: function-uses-loop-variable
-    "ARG",      # flake8-unused-arguments
 ]
 ignore = [
-    "PLR0915",  # pylint: too-many-statements               # TODO: activate this
     "PLR0912",  # pylint: too-many-branches                 # TODO: activate this
     "PLR0913",  # pylint: too-many-arguments                # TODO: activate this
     "PLW0603",  # pylint: global-statement                  # TODO: activate this
@@ -158,10 +157,11 @@ ignore = [
 "__init__.py" = [
     "F401",     # unused-import
     "F403",     # undefined-local-with-import-star
-    "PLC0414"   # useless-import-alias
+    "PLC0414",  # useless-import-alias
 ]
 "src/dsp_tools/import_scripts/import_script.py" = [
-    "PLW2901"   # pylint: redefined-loop-name 
+    "PLW2901",  # pylint: redefined-loop-name 
+    "PLR0915",  # pylint: too-many-statements
 ]
 
 

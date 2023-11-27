@@ -81,7 +81,7 @@ def check_contains_required_columns_else_raise_error(df: pd.DataFrame, required_
     """
     if not required_columns.issubset(set(df.columns)):
         raise UserError(
-            f"The following columns are missing in the excel:\n" f"{required_columns.difference(set(df.columns))}"
+            f"The following columns are missing in the excel:\n{required_columns.difference(set(df.columns))}"
         )
 
 

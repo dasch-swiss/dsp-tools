@@ -663,8 +663,8 @@ def make_date_prop(
     # check value type
     validation_regex = (
         r"^(GREGORIAN:|JULIAN:)?(CE:|BCE:)?"
-        + r"(\d{4})(-\d{1,2})?(-\d{1,2})?"
-        + r"((:CE|:BCE)?(:\d{4})(-\d{1,2})?(-\d{1,2})?)?$"
+        r"(\d{4})(-\d{1,2})?(-\d{1,2})?"
+        r"((:CE|:BCE)?(:\d{4})(-\d{1,2})?(-\d{1,2})?)?$"
     )
     for val in values:
         if not regex.search(validation_regex, str(val.value).strip()):

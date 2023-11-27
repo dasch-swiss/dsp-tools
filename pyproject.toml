@@ -136,6 +136,7 @@ select = [
     "I",        # isort
     "ARG",      # flake8-unused-arguments
     "RUF",      # ruff-specific rules
+    "ISC",      # flake8-implicit-str-concat plugin which checks for problematic string concatenation
     "UP031",    # pyupgrade: printf-string-formatting
     "D101",     # pydocstyle: undocumented-public-class
     "D102",     # pydocstyle: undocumented-public-method

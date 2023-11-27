@@ -1,11 +1,11 @@
-from pytest import fixture
+import pytest
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 
 # ruff: noqa: D103 (undocumented-public-function)
 
 
-@fixture
+@pytest.fixture()
 def resolver() -> IriResolver:
     return IriResolver()
 

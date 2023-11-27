@@ -37,7 +37,7 @@ from dsp_tools.models.langstring import LangString
 from dsp_tools.utils.connection import Connection
 
 
-class Group(Model):  # pylint: disable=too-many-instance-attributes
+class Group(Model):
     """
     This class represents a DSP group
 

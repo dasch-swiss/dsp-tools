@@ -23,7 +23,7 @@ class BitstreamInfo:
     permissions: Permissions | None = None
 
 
-class XMLResource:  # pylint: disable=too-many-instance-attributes
+class XMLResource:
     """
     Represents a resource in the XML used for data import.
 

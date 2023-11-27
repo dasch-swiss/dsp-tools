@@ -16,7 +16,7 @@ from dsp_tools.models.langstring import LangString, Languages
 from dsp_tools.utils.connection import Connection
 
 
-class PropertyClass(Model):  # pylint: disable=too-many-instance-attributes,too-many-public-methods
+class PropertyClass(Model):  # pylint: disable=too-many-public-methods
     ROUTE: str = "/v2/ontologies/properties"
 
     _context: Context

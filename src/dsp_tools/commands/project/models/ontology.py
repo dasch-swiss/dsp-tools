@@ -46,7 +46,7 @@ from dsp_tools.models.helpers import Actions, Context, DateTimeStamp, WithId
 from dsp_tools.utils.connection import Connection
 
 
-class Ontology(Model):  # pylint: disable=too-many-instance-attributes
+class Ontology(Model):
     ROUTE: str = "/v2/ontologies"
     METADATA: str = "/metadata/"
     ALL_LANGUAGES: str = "?allLanguages=true"

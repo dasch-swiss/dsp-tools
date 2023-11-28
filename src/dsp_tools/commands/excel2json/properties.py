@@ -292,7 +292,7 @@ def _check_missing_values_in_row_raise_error(df: pd.DataFrame, excelfile: str) -
         # Get the row numbers from the boolean series
         missing_dict = utl.get_wrong_row_numbers(wrong_row_dict=missing_dict, true_remains=True)
         error_str = "\n".join([f"- Column '{k}' Row Number(s): {v}" for k, v in missing_dict.items()])
-        raise UserError(f"The file '{excelfile}' is missing values in the following rows:\n" f"{error_str}")
+        raise UserError(f"The file '{excelfile}' is missing values in the following rows:\n{error_str}")
 
 
 def _do_property_excel_compliance(df: pd.DataFrame, excelfile: str) -> None:

@@ -1,5 +1,3 @@
-# ruff: noqa: INP001 (implicit-namespace-package)
-
 from pathlib import Path
 from typing import Any
 

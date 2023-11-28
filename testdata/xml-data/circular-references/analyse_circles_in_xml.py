@@ -1,5 +1,3 @@
-# ruff: noqa: INP001 (implicit-namespace-package)
-
 from datetime import datetime
 from pathlib import Path
 

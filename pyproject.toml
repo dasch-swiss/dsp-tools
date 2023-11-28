@@ -128,25 +128,25 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = [
+    "RUF",      # ruff-specific rules
     "PL",       # pylint
+    "I",        # isort
     "E",        # pycodestyle errors
     "F",        # pyflakes
     "A",        # flake8-builtins
     "BLE",      # flake8-blind-except
-    "I",        # isort
     "ARG",      # flake8-unused-arguments
-    "RUF",      # ruff-specific rules
-    "YTT",      # flake8-2020 plugin which checks for misuse of `sys.version` or `sys.version_info`
-    "ASYNC",    # flake8-async plugin which checks for bad async / asyncio practices
-    "ISC",      # flake8-implicit-str-concat plugin which checks for problematic string concatenation
-    "INP",      # flake8-no-pep420 plugin which checks for missing __init__.py files
-    "PIE",      # flake8-pie plugin which does miscellaneous checks
+    "YTT",      # flake8-2020 plugin, which checks for misuse of `sys.version` or `sys.version_info`
+    "ASYNC",    # flake8-async plugin, which checks for bad async / asyncio practices
+    "ISC",      # flake8-implicit-str-concat plugin, which checks for problematic string concatenation
+    "INP",      # flake8-no-pep420 plugin, which checks for missing __init__.py files
+    "PIE",      # flake8-pie plugin, which does miscellaneous checks
     "PT",       # flake8-pytest-style plugin
     "TID",      # flake8-tidy-imports plugin
+    "ICN",      # flake8-import-conventions plugin, which checks for import conventions
     "ARG",      # flake8-unused-arguments
     "PGH",      # pygrep-hooks: A collection of fast, cheap, regex based pre-commit hooks
     "UP031",    # pyupgrade: printf-string-formatting
-    "ICN",      # flake8-import-conventions plugin which checks for import conventions
     "D101",     # pydocstyle: undocumented-public-class
     "D102",     # pydocstyle: undocumented-public-method
     "D103",     # pydocstyle: undocumented-public-function
@@ -171,6 +171,9 @@ ignore = [
 "src/dsp_tools/import_scripts/import_script.py" = [
     "PLW2901",  # pylint: redefined-loop-name 
     "PLR0915",  # pylint: too-many-statements
+]
+"testdata/**" = [
+    "INP001",   # implicit-namespace-package    # there are some python files, but no __init__.py
 ]
 
 

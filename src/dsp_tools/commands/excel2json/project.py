@@ -17,6 +17,7 @@ def excel2json(
     """
     Converts a folder containing Excel files into a JSON data model file. The folder must be structured like this:
 
+    ::
 
         data_model_files
         |-- lists
@@ -43,8 +44,6 @@ def excel2json(
 
     listfolder, onto_folders = _validate_folder_structure_get_filenames(data_model_files)
 
-    # create output
-    # -------------
     overall_success, project = _create_project_json(data_model_files, listfolder, onto_folders)
 
     with open(path_to_output_file, "w", encoding="utf-8") as f:

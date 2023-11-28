@@ -348,7 +348,6 @@ def _convert_file_with_sipi(
         return False
     result = sipi_container.exec_run(f"/sipi/sipi '{in_file_sipi_path}' {out_file_sipi_path}")
     if result.exit_code != 0:
-        print(f"{datetime.now()}: ERROR: Sipi conversion of {in_file_local_path} failed: {result}")
         logger.error(f"Sipi conversion of {in_file_local_path} failed: {result}")
         return False
     return True
@@ -675,12 +674,18 @@ def _process_image_file(
         If there was an error, the internal filename is None.
     """
     converted_file_full_path = out_dir / Path(internal_filename).with_suffix(".jp2")
-    sipi_result = _convert_file_with_sipi(
-        in_file_local_path=in_file,
-        input_dir=input_dir,
-        out_file_local_path=converted_file_full_path,
-        output_dir=out_dir,
-    )
+    sipi_result = False
+    counter = 0
+    while not sipi_result:
+        sipi_result = _convert_file_with_sipi(
+            in_file_local_path=in_file,
+            input_dir=input_dir,
+            out_file_local_path=converted_file_full_path,
+            output_dir=out_dir,
+        )
+        counter += 1
+        if counter > 4:
+            break
     if not sipi_result:
         print(f"{datetime.now()}: ERROR: Couldn't process file of category IMAGE: {in_file}")
         logger.error(f"Couldn't process file of category IMAGE: {in_file}")

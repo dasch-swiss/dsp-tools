@@ -110,10 +110,14 @@ def _process_files_in_parallel(
         - a list of all paths that could not be processed
           (this list will only have content if a Docker API error led to a restart of the SIPI container)
     """
+    batchsize = 1000
+    msg = f"Processing {len(files_to_process)} files, with {nthreads} threads, in batches of {batchsize} files each..."
+    print(msg)
     orig_filepath_2_uuid: list[tuple[Path, Optional[Path]]] = []
-    for batch in make_chunks(lst=files_to_process, length=1000):
+    for batch in make_chunks(lst=files_to_process, length=batchsize):
         if unprocessed_paths := _launch_thread_pool(nthreads, input_dir, output_dir, batch, orig_filepath_2_uuid):
             return orig_filepath_2_uuid, unprocessed_paths
+        print(f"Processed {len(orig_filepath_2_uuid)}/{len(files_to_process)} files")
     return orig_filepath_2_uuid, []
 
 
@@ -124,6 +128,7 @@ def _launch_thread_pool(
     files_to_process: list[Path],
     orig_filepath_2_uuid: list[tuple[Path, Optional[Path]]],
 ) -> list[Path]:
+    counter = 0
     total = len(files_to_process)
     with ThreadPoolExecutor(max_workers=nthreads) as pool:
         processing_jobs = [pool.submit(_process_file, f, input_dir, output_dir) for f in files_to_process]
@@ -131,8 +136,8 @@ def _launch_thread_pool(
             try:
                 orig_file, internal_file = processed.result()
                 orig_filepath_2_uuid.append((orig_file, internal_file))
-                msg = f"Successfully processed file {len(orig_filepath_2_uuid)}/{total} of this batch: {orig_file}"
-                print(f"{datetime.now()}: {msg}")
+                counter += 1
+                msg = f"Successfully processed file {counter}/{total} of this batch: {orig_file}"
                 logger.info(msg)
             except docker.errors.APIError:
                 print(f"{datetime.now()}: ERROR: A Docker exception occurred. Cancel jobs and restart SIPI...")

@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from typing import Any
 
 import regex
 
@@ -41,14 +42,51 @@ def excel2json(
         True if everything went well
     """
 
-    overall_success = True
+    listfolder, onto_folders = _validate_folder_structure_get_filenames(data_model_files)
 
-    # validate input
-    # --------------
+    overall_success, project = _create_project_json(data_model_files, listfolder, onto_folders)
+
+    with open(path_to_output_file, "w", encoding="utf-8") as f:
+        json.dump(project, f, indent=4, ensure_ascii=False)
+
+    print(f"JSON project file successfully saved at {path_to_output_file}")
+
+    return overall_success
+
+
+def _validate_folder_structure_get_filenames(data_model_files: str) -> tuple[list[Path], list[Path]]:
     if not Path(data_model_files).is_dir():
         raise UserError(f"ERROR: {data_model_files} is not a directory.")
     folder = [x for x in Path(data_model_files).glob("*") if not regex.search(r"^(\.|~\$).+", x.name)]
+    processed_files = []
+    onto_folders, processed_onto = _get_validate_onto_folder(data_model_files, folder)
+    processed_files.extend(processed_onto)
+    listfolder, processed_lists = _get_validate_list_folder(data_model_files, folder)
+    processed_files.extend(processed_lists)
+    if len(onto_folders) + len(listfolder) != len(folder):
+        raise UserError(
+            f"The only allowed subfolders in '{data_model_files}' are 'lists' "
+            "and folders that match the pattern 'onto_name (onto_label)'"
+        )
+    print("The following files will be processed:")
+    print(*(f" - {file}" for file in processed_files), sep="\n")
+    return listfolder, onto_folders
 
+
+def _get_validate_list_folder(data_model_files: str, folder: list[Path]) -> tuple[list[Path], list[str]]:
+    processed_files: list[str] = []
+    listfolder = [x for x in folder if x.is_dir() and x.name == "lists"]
+    if listfolder:
+        listfolder_contents = [x for x in Path(listfolder[0]).glob("*") if not regex.search(r"^(\.|~\$).+", x.name)]
+        if not all(regex.search(r"(de|en|fr|it|rm).xlsx", file.name) for file in listfolder_contents):
+            raise UserError(
+                f"The only files allowed in '{data_model_files}/lists' are en.xlsx, de.xlsx, fr.xlsx, it.xlsx, rm.xlsx"
+            )
+        processed_files = [f"{data_model_files}/lists/{file.name}" for file in listfolder_contents]
+    return listfolder, processed_files
+
+
+def _get_validate_onto_folder(data_model_files: str, folder: list[Path]) -> tuple[list[Path], list[str]]:
     processed_files = []
     onto_folders = [x for x in folder if x.is_dir() and regex.search(r"([\w.-]+) \(([\w.\- ]+)\)", x.name)]
     if not onto_folders:
@@ -63,47 +101,19 @@ def excel2json(
                 "and one file 'resources.xlsx', but nothing else."
             )
         processed_files.extend([f"{data_model_files}/{onto_folder.name}/{file}" for file in contents])
+    return onto_folders, processed_files
 
-    listfolder = [x for x in folder if x.is_dir() and x.name == "lists"]
-    if listfolder:
-        listfolder_contents = [x for x in Path(listfolder[0]).glob("*") if not regex.search(r"^(\.|~\$).+", x.name)]
-        if not all(regex.search(r"(de|en|fr|it|rm).xlsx", file.name) for file in listfolder_contents):
-            raise UserError(
-                f"The only files allowed in '{data_model_files}/lists' are en.xlsx, de.xlsx, fr.xlsx, it.xlsx, rm.xlsx"
-            )
-        processed_files = [f"{data_model_files}/lists/{file.name}" for file in listfolder_contents] + processed_files
 
-    if len(onto_folders) + len(listfolder) != len(folder):
-        raise UserError(
-            f"The only allowed subfolders in '{data_model_files}' are 'lists' "
-            "and folders that match the pattern 'onto_name (onto_label)'"
-        )
-
-    print("The following files will be processed:")
-    print(*(f" - {file}" for file in processed_files), sep="\n")
-
-    # create output
-    # -------------
+def _create_project_json(
+    data_model_files: str, listfolder: list[Path], onto_folders: list[Path]
+) -> tuple[bool, dict[str, Any]]:
+    overall_success = True
     lists, success = excel2lists(excelfolder=f"{data_model_files}/lists") if listfolder else (None, True)
     if not success:
         overall_success = False
-
-    ontologies = []
-    for onto_folder in onto_folders:
-        name, label = regex.search(r"([\w.-]+) \(([\w.\- ]+)\)", onto_folder.name).groups()  # type: ignore[union-attr]
-        resources, success1 = excel2resources(f"{data_model_files}/{onto_folder.name}/resources.xlsx")
-        properties, success2 = excel2properties(f"{data_model_files}/{onto_folder.name}/properties.xlsx")
-        if not success1 or not success2:
-            overall_success = False
-        ontologies.append(
-            {
-                "name": name,
-                "label": label,
-                "properties": properties,
-                "resources": resources,
-            }
-        )
-
+    ontologies, success = _get_ontologies(data_model_files, onto_folders)
+    if not success:
+        overall_success = False
     schema = "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json"
     project = {
         "prefixes": {"": ""},
@@ -119,10 +129,24 @@ def excel2json(
     if lists:
         project["project"]["lists"] = lists  # type: ignore[index]
     project["project"]["ontologies"] = ontologies  # type: ignore[index]
+    return overall_success, project
 
-    with open(path_to_output_file, "w", encoding="utf-8") as f:
-        json.dump(project, f, indent=4, ensure_ascii=False)
 
-    print(f"JSON project file successfully saved at {path_to_output_file}")
-
-    return overall_success
+def _get_ontologies(data_model_files: str, onto_folders: list[Path]) -> tuple[list[dict[str, Any]], bool]:
+    success = True
+    ontologies = []
+    for onto_folder in onto_folders:
+        name, label = regex.search(r"([\w.-]+) \(([\w.\- ]+)\)", onto_folder.name).groups()  # type: ignore[union-attr]
+        resources, success1 = excel2resources(f"{data_model_files}/{onto_folder.name}/resources.xlsx")
+        properties, success2 = excel2properties(f"{data_model_files}/{onto_folder.name}/properties.xlsx")
+        if not success1 or not success2:
+            success = False
+        ontologies.append(
+            {
+                "name": name,
+                "label": label,
+                "properties": properties,
+                "resources": resources,
+            }
+        )
+    return ontologies, success

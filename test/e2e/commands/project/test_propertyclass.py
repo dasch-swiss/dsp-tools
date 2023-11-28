@@ -25,7 +25,7 @@ class TestPropertyClass(unittest.TestCase):
     con: Connection
 
     name = "MyPropClassName"
-    object = "TextValue"  # noqa: A003 (builtin-attribute-shadowing)
+    rdf_object = "TextValue"
     label = LangString({Languages.DE: "MyPropClassLabel"})
     comment = LangString({Languages.DE: "This is a property class for testing"})
 
@@ -66,7 +66,7 @@ class TestPropertyClass(unittest.TestCase):
             context=self.onto.context,
             name=self.name,
             ontology_id=self.onto.iri,
-            rdf_object=self.object,
+            rdf_object=self.rdf_object,
             label=self.label,
             comment=self.comment,
         ).create(self.last_modification_date)
@@ -95,7 +95,7 @@ class TestPropertyClass(unittest.TestCase):
             context=self.onto.context,
             name=self.name,
             ontology_id=self.onto.iri,
-            rdf_object=self.object,
+            rdf_object=self.rdf_object,
             label=self.label,
             comment=self.comment,
         ).create(self.last_modification_date)

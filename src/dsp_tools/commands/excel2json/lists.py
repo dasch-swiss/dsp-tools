@@ -101,7 +101,6 @@ def excel2lists(
     finished_lists = _make_json_lists_from_excel(excel_file_paths, verbose=verbose)
     validate_lists_section_with_schema(lists_section=finished_lists)
 
-    # write final "lists" section
     if path_to_output_file:
         with open(path_to_output_file, "w", encoding="utf-8") as fp:
             json.dump(finished_lists, fp, indent=4, ensure_ascii=False)
@@ -215,11 +214,13 @@ def _make_new_node(
             f"ERROR: There is at least one duplicate node in the list. "
             f"Found duplicate in column {cell.column}, row {cell.row}:\n'{str(cell.value).strip()}'"
         )
+
     # create a simplified version of the cell value and use it as name of the node
     nodename = simplify_name(str(cell.value).strip())
     list_of_previous_node_names.append(nodename)
     # append a number (p.ex. node-name-2) if there are list nodes with identical names
     n = list_of_previous_node_names.count(nodename)
+
     if n > 1:
         nodename = f"{nodename}-{n}"
     # read label values from the other Excel files (other languages)
@@ -233,7 +234,8 @@ def _make_new_node(
             )
         else:
             labels_dict[other_lang] = cell_value.strip()
-    # create current node from extracted cell values and append it to the nodes list
+
+    # create the current node from extracted cell values and append it to the nodes list
     currentnode = {"name": nodename, "labels": labels_dict}
     if verbose:
         print(f"Added list node: {str(cell.value).strip()} ({nodename})")

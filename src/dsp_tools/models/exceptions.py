@@ -1,5 +1,6 @@
 import contextlib
 import json
+from pathlib import Path
 from typing import Optional
 
 import regex
@@ -64,7 +65,56 @@ class BaseError(Exception):
 
 class InternalError(BaseError):
     """
-    Class for errors that will be handled by a higher level function
+    Class for errors that are raised if the user cannot solve the problem themselves.
+    """
+
+    def __init__(self, custom_msg: str | None = None, keep_default_msg: bool = True) -> None:
+        if not keep_default_msg and custom_msg:
+            super().__init__(custom_msg)
+        else:
+            default_msg = (
+                "\n\nAn internal error occurred.\n"
+                "Please contact the dsp-tools development team with the following information:\n"
+                "\t- Which command was used.\n"
+                "\t- If applicable, any files that were used in conjunction with the command.\n"
+                "\t- A file with the terminal output copied into.\n"
+                f"\t- The log files called 'logging.log', if there are several, include all.\n"
+                f"\t  They can be found at: {Path.home() / Path('.dsp-tools')}\n"
+            )
+            if custom_msg:
+                default_msg = "\n\n" + custom_msg + "\n--------------------------" + default_msg
+            super().__init__(default_msg)
+
+
+class RetryError(BaseError):
+    """
+    A class for errors where the user should try again later.
+    """
+
+    def __init__(self, custom_msg: str | None = None, keep_default_msg: bool = True) -> None:
+        if not keep_default_msg and custom_msg:
+            super().__init__(custom_msg)
+        else:
+            default_msg = (
+                "\n\nAn error occurred.\n"
+                "The problem may lay with outside issues, such as network connection"
+                " and may be solved if you try again later.\n"
+                "If this error persists, "
+                "please contact the dsp-tools development team with the following information:\n"
+                "\t- Which command was used.\n"
+                "\t- If applicable, any files that were used in conjunction with the command.\n"
+                "\t- A file with the terminal output copied into.\n"
+                f"\t- The log files called 'logging.log', if there are several, include all.\n"
+                f"\t  They can be found at: {Path.home() / Path('.dsp-tools')}\n"
+            )
+            if custom_msg:
+                default_msg = "\n\n" + custom_msg + "\n--------------------------" + default_msg
+            super().__init__(default_msg)
+
+
+class InputError(BaseError):
+    """
+    Class for errors that is called when the user input is invalid.
     """
 
 
@@ -77,14 +127,10 @@ class UserError(BaseError):
     """
 
 
-class InputError(BaseError):
-    """
-    Class for errors that is called when the user input is invalid.
-    """
-
-
 class XmlError(Exception):
-    """Represents an error raised in the context of the XML import"""
+    """
+    Represents an error raised in the context of the XML import.
+    """
 
     _message: str
 

@@ -66,11 +66,19 @@ def _determine_exit_code(
     """
     processed_paths = [x[1] for x in processed_files if x and x[1]]
     if len(processed_paths) == len(files_to_process):
-        print(f"{datetime.now()}: All files ({len(files_to_process)}) of this batch were processed: Okay")
-        logger.info(f"All files ({len(files_to_process)}) of this batch were processed: Okay")
+        print(
+            f"{datetime.now()}: All files ({len(files_to_process)}) of this batch were processed: Okay"
+        )
+        logger.info(
+            f"All files ({len(files_to_process)}) of this batch were processed: Okay"
+        )
         if is_last_batch:
-            print(f"{datetime.now()}: All multimedia files referenced in the XML are processed. No more batches.")
-            logger.info("All multimedia files referenced in the XML are processed. No more batches.")
+            print(
+                f"{datetime.now()}: All multimedia files referenced in the XML are processed. No more batches."
+            )
+            logger.info(
+                "All multimedia files referenced in the XML are processed. No more batches."
+            )
             return 0
         else:
             return 2
@@ -112,7 +120,9 @@ def _process_files_in_parallel(
     """
     orig_filepath_2_uuid: list[tuple[Path, Optional[Path]]] = []
     for batch in make_chunks(lst=files_to_process, length=1000):
-        if unprocessed_paths := _launch_thread_pool(nthreads, input_dir, output_dir, batch, orig_filepath_2_uuid):
+        if unprocessed_paths := _launch_thread_pool(
+            nthreads, input_dir, output_dir, batch, orig_filepath_2_uuid
+        ):
             return orig_filepath_2_uuid, unprocessed_paths
     return orig_filepath_2_uuid, []
 
@@ -126,7 +136,10 @@ def _launch_thread_pool(
 ) -> list[Path]:
     total = len(files_to_process)
     with ThreadPoolExecutor(max_workers=nthreads) as pool:
-        processing_jobs = [pool.submit(_process_file, f, input_dir, output_dir) for f in files_to_process]
+        processing_jobs = [
+            pool.submit(_process_file, f, input_dir, output_dir)
+            for f in files_to_process
+        ]
         for processed in as_completed(processing_jobs):
             try:
                 orig_file, internal_file = processed.result()
@@ -135,18 +148,27 @@ def _launch_thread_pool(
                 print(f"{datetime.now()}: {msg}")
                 logger.info(msg)
             except docker.errors.APIError:
-                print(f"{datetime.now()}: ERROR: A Docker exception occurred. Cancel jobs and restart SIPI...")
-                logger.error("A Docker exception occurred. Cancel jobs and restart SIPI...", exc_info=True)
+                print(
+                    f"{datetime.now()}: ERROR: A Docker exception occurred. Cancel jobs and restart SIPI..."
+                )
+                logger.error(
+                    "A Docker exception occurred. Cancel jobs and restart SIPI...",
+                    exc_info=True,
+                )
                 for job in processing_jobs:
                     job.cancel()
                 _restart_sipi_container(input_dir, output_dir)
                 processed_paths = [x[0] for x in orig_filepath_2_uuid]
-                unprocessed_paths = [x for x in files_to_process if x not in processed_paths]
+                unprocessed_paths = [
+                    x for x in files_to_process if x not in processed_paths
+                ]
                 return unprocessed_paths
     return []
 
 
-def _write_result_to_pkl_file(processed_files: list[tuple[Path, Optional[Path]]]) -> None:
+def _write_result_to_pkl_file(
+    processed_files: list[tuple[Path, Optional[Path]]]
+) -> None:
     """
     Writes the processing result to a pickle file in the working directory.
 
@@ -156,7 +178,9 @@ def _write_result_to_pkl_file(processed_files: list[tuple[Path, Optional[Path]]]
     Raises:
         UserError: if the file could not be written
     """
-    filename = Path(f"processing_result_{datetime.now().strftime('%Y-%m-%d_%H.%M.%S.%f')}.pkl")
+    filename = Path(
+        f"processing_result_{datetime.now().strftime('%Y-%m-%d_%H.%M.%S.%f')}.pkl"
+    )
 
     try:
         with open(filename, "wb") as pkl_file:
@@ -222,16 +246,18 @@ def _get_file_paths_from_xml(xml_file: Path) -> list[Path]:
     """
     tree: etree._ElementTree[etree._Element] = etree.parse(xml_file)
     bitstream_paths: set[Path] = set()
+    errors = []
     for x in tree.iter():
         if x.text and etree.QName(x).localname.endswith("bitstream"):
             path = Path(x.text)
             if path.is_file():
                 bitstream_paths.add(path)
             else:
-                msg = f"{datetime.now()}: ERROR: '{path}' is referenced in the XML file, but it doesn't exist."
-                logger.error(msg)
-                raise UserError(msg)
-
+                errors.append(f"'{path}' is referenced in the XML file, but it doesn't exist.")
+    if errors:
+        msg = "\n".join(errors)
+        logger.error(msg)
+        raise UserError(msg)
     return list(bitstream_paths)
 
 
@@ -286,7 +312,9 @@ def _stop_and_remove_sipi_container() -> None:
         print(f"{datetime.now()}: Stopped and removed Sipi container.")
         logger.info("Stopped and removed Sipi container.")
     except docker.errors.APIError:
-        print(f"{datetime.now()}: WARNING: It was not possible to stop and remove the Sipi container.")
+        print(
+            f"{datetime.now()}: WARNING: It was not possible to stop and remove the Sipi container."
+        )
         logger.warning("It was not possible to stop and remove the Sipi container.")
 
 
@@ -301,8 +329,12 @@ def _compute_sha256(file: Path) -> Optional[str]:
         the calculated checksum
     """
     if not file.is_file():
-        print(f"{datetime.now()}: ERROR: Couldn't calculate checksum for {file}, because such a file doesn't exist.")
-        logger.error(f"Couldn't calculate checksum for {file}, because such a file doesn't exist.")
+        print(
+            f"{datetime.now()}: ERROR: Couldn't calculate checksum for {file}, because such a file doesn't exist."
+        )
+        logger.error(
+            f"Couldn't calculate checksum for {file}, because such a file doesn't exist."
+        )
         return None
     hash_sha256 = hashlib.sha256()
     with open(file, "rb") as f:
@@ -332,16 +364,28 @@ def _convert_file_with_sipi(
         success status
     """
     original_output_dir = output_dir.parent.parent
-    in_file_sipi_path = Path("processing-input") / in_file_local_path.relative_to(input_dir)
-    out_file_sipi_path = Path("processing-output") / out_file_local_path.relative_to(original_output_dir)
+    in_file_sipi_path = Path("processing-input") / in_file_local_path.relative_to(
+        input_dir
+    )
+    out_file_sipi_path = Path("processing-output") / out_file_local_path.relative_to(
+        original_output_dir
+    )
 
     if not sipi_container:
-        print(f"{datetime.now()}: ERROR: Cannot convert file {in_file_local_path} with Sipi: Sipi container not found.")
-        logger.error(f"Cannot convert file {in_file_local_path} with Sipi: Sipi container not found.")
+        print(
+            f"{datetime.now()}: ERROR: Cannot convert file {in_file_local_path} with Sipi: Sipi container not found."
+        )
+        logger.error(
+            f"Cannot convert file {in_file_local_path} with Sipi: Sipi container not found."
+        )
         return False
-    result = sipi_container.exec_run(f"/sipi/sipi '{in_file_sipi_path}' {out_file_sipi_path}")
+    result = sipi_container.exec_run(
+        f"/sipi/sipi '{in_file_sipi_path}' {out_file_sipi_path}"
+    )
     if result.exit_code != 0:
-        print(f"{datetime.now()}: ERROR: Sipi conversion of {in_file_local_path} failed: {result}")
+        print(
+            f"{datetime.now()}: ERROR: Sipi conversion of {in_file_local_path} failed: {result}"
+        )
         logger.error(f"Sipi conversion of {in_file_local_path} failed: {result}")
         return False
     return True
@@ -371,7 +415,9 @@ def _create_orig_file(
         logger.info(f"Created .orig file {orig_file_full_path}")
         return True
     except Exception:  # pylint: disable=broad-exception-caught
-        print(f"{datetime.now()}: ERROR: Couldn't create .orig file {orig_file_full_path}")
+        print(
+            f"{datetime.now()}: ERROR: Couldn't create .orig file {orig_file_full_path}"
+        )
         logger.error(f"Couldn't create .orig file {orig_file_full_path}", exc_info=True)
         return False
 
@@ -408,12 +454,18 @@ def _get_video_metadata_with_ffprobe(file_path: Path) -> Optional[dict[str, Any]
             check=False,
         )
     except Exception:  # pylint: disable=broad-exception-caught
-        print(f"{datetime.now()}: ERROR: Exception occurred while running ffprobe for {file_path}")
-        logger.error(f"Exception occurred while running ffprobe for {file_path}", exc_info=True)
+        print(
+            f"{datetime.now()}: ERROR: Exception occurred while running ffprobe for {file_path}"
+        )
+        logger.error(
+            f"Exception occurred while running ffprobe for {file_path}", exc_info=True
+        )
         return None
     if result.returncode == 0:
         logger.info(f"Successfully ran ffprobe for {file_path}")
-        video_metadata: dict[str, Any] = json.loads(result.stdout)["streams"][0]  # get first stream
+        video_metadata: dict[str, Any] = json.loads(result.stdout)["streams"][
+            0
+        ]  # get first stream
         return video_metadata
     else:
         print(f"{datetime.now()}: ERROR: Couldn't run ffprobe for {file_path}")
@@ -510,7 +562,10 @@ def _get_file_category_from_extension(file: Path) -> Optional[str]:
     elif file.suffix.lower() in extensions["image"]:
         category = "IMAGE"
     elif file.suffix.lower() in (
-        extensions["archive"] + extensions["text"] + extensions["document"] + extensions["audio"]
+        extensions["archive"]
+        + extensions["text"]
+        + extensions["document"]
+        + extensions["audio"]
     ):
         category = "OTHER"
     else:
@@ -531,7 +586,9 @@ def _extract_preview_from_video(file: Path) -> bool:
         true if successful, false otherwise
     """
 
-    result = subprocess.call(["/bin/bash", f"{export_moving_image_frames_script}", "-i", f"{file}"])
+    result = subprocess.call(
+        ["/bin/bash", f"{export_moving_image_frames_script}", "-i", f"{file}"]
+    )
     return result == 0
 
 
@@ -601,7 +658,9 @@ def _process_file(
             out_dir=out_dir_full,
         )
     else:
-        print(f"{datetime.now()}: ERROR: Unexpected file category for {in_file}: {file_category}")
+        print(
+            f"{datetime.now()}: ERROR: Unexpected file category for {in_file}: {file_category}"
+        )
         logger.error(f"Unexpected file category for {in_file}: {file_category}")
         return in_file, None
 
@@ -629,12 +688,18 @@ def _process_other_file(
         a tuple of the original file path and the path to the processed file.
         If there was an error, the internal filename is None.
     """
-    converted_file_full_path = out_dir / Path(internal_filename).with_suffix(in_file.suffix)
+    converted_file_full_path = out_dir / Path(internal_filename).with_suffix(
+        in_file.suffix
+    )
     try:
         shutil.copyfile(in_file, converted_file_full_path)
     except Exception:  # pylint: disable=broad-exception-caught
-        print(f"{datetime.now()}: ERROR: Couldn't process file of category OTHER: {in_file}")
-        logger.error(f"Couldn't process file of category OTHER: {in_file}", exc_info=True)
+        print(
+            f"{datetime.now()}: ERROR: Couldn't process file of category OTHER: {in_file}"
+        )
+        logger.error(
+            f"Couldn't process file of category OTHER: {in_file}", exc_info=True
+        )
         return in_file, None
     if not _create_sidecar_file(
         orig_file=in_file,
@@ -675,7 +740,9 @@ def _process_image_file(
         output_dir=out_dir,
     )
     if not sipi_result:
-        print(f"{datetime.now()}: ERROR: Couldn't process file of category IMAGE: {in_file}")
+        print(
+            f"{datetime.now()}: ERROR: Couldn't process file of category IMAGE: {in_file}"
+        )
         logger.error(f"Couldn't process file of category IMAGE: {in_file}")
         return in_file, None
     if not _create_sidecar_file(
@@ -707,19 +774,27 @@ def _process_video_file(
         a tuple of the original file path and the path to the processed file.
         If there was an error, the internal filename is None.
     """
-    converted_file_full_path = out_dir / Path(internal_filename).with_suffix(in_file.suffix)
+    converted_file_full_path = out_dir / Path(internal_filename).with_suffix(
+        in_file.suffix
+    )
     # create derivate file (identical to original file)
     try:
         shutil.copyfile(in_file, converted_file_full_path)
     except Exception:  # pylint: disable=broad-exception-caught
-        print(f"{datetime.now()}: ERROR: Couldn't create derivate file for video '{in_file}'")
-        logger.error(f"Couldn't create derivate file for video '{in_file}'", exc_info=True)
+        print(
+            f"{datetime.now()}: ERROR: Couldn't create derivate file for video '{in_file}'"
+        )
+        logger.error(
+            f"Couldn't create derivate file for video '{in_file}'", exc_info=True
+        )
         return in_file, None
 
     # create preview image
     preview_result = _extract_preview_from_video(converted_file_full_path)
     if not preview_result:
-        print(f"{datetime.now()}: ERROR: Couldn't create preview image for video '{in_file}'")
+        print(
+            f"{datetime.now()}: ERROR: Couldn't create preview image for video '{in_file}'"
+        )
         logger.error(f"Couldn't create preview image for video '{in_file}'")
         return in_file, None
 
@@ -729,7 +804,9 @@ def _process_video_file(
         converted_file=converted_file_full_path,
         file_category="VIDEO",
     ):
-        print(f"{datetime.now()}: ERROR: Couldn't create sidecar file for video '{in_file}'")
+        print(
+            f"{datetime.now()}: ERROR: Couldn't create sidecar file for video '{in_file}'"
+        )
         logger.error(f"Couldn't create sidecar file for video '{in_file}'")
         return in_file, None
 
@@ -757,7 +834,9 @@ def _write_processed_and_unprocessed_files_to_txt_files(
         f.write("\n".join([str(x) for x in processed_original_paths]))
     msg = "Wrote 'processed_files.txt'"
 
-    if unprocessed_original_paths := [x for x in all_files if x not in processed_original_paths]:
+    if unprocessed_original_paths := [
+        x for x in all_files if x not in processed_original_paths
+    ]:
         with open("unprocessed_files.txt", "x", encoding="utf-8") as f:
             f.write("\n".join([str(x) for x in unprocessed_original_paths]))
         msg += " and 'unprocessed_files.txt'"
@@ -816,19 +895,33 @@ def double_check_unprocessed_files(
     """
     unprocessed_files_txt_exists = sorted(unprocessed_files) != sorted(all_files)
     if unprocessed_files_txt_exists and not processed_files:
-        logger.error("There is a file 'unprocessed_files.txt', but no file 'processed_files.txt'")
-        raise UserError("There is a file 'unprocessed_files.txt', but no file 'processed_files.txt'")
+        logger.error(
+            "There is a file 'unprocessed_files.txt', but no file 'processed_files.txt'"
+        )
+        raise UserError(
+            "There is a file 'unprocessed_files.txt', but no file 'processed_files.txt'"
+        )
 
     if processed_files and sorted(unprocessed_files) == sorted(all_files):
-        logger.error("There is a file 'processed_files.txt', but no file 'unprocessed_files.txt'")
-        raise UserError("There is a file 'processed_files.txt', but no file 'unprocessed_files.txt'")
+        logger.error(
+            "There is a file 'processed_files.txt', but no file 'unprocessed_files.txt'"
+        )
+        raise UserError(
+            "There is a file 'processed_files.txt', but no file 'unprocessed_files.txt'"
+        )
 
     if unprocessed_files_txt_exists:
         # there is a 'unprocessed_files.txt' file. check it for consistency
-        unprocessed_files_from_processed_files = [x for x in all_files if x not in processed_files]
+        unprocessed_files_from_processed_files = [
+            x for x in all_files if x not in processed_files
+        ]
         if sorted(unprocessed_files_from_processed_files) != sorted(unprocessed_files):
-            logger.error("The files 'unprocessed_files.txt' and 'processed_files.txt' are inconsistent")
-            raise UserError("The files 'unprocessed_files.txt' and 'processed_files.txt' are inconsistent")
+            logger.error(
+                "The files 'unprocessed_files.txt' and 'processed_files.txt' are inconsistent"
+            )
+            raise UserError(
+                "The files 'unprocessed_files.txt' and 'processed_files.txt' are inconsistent"
+            )
 
 
 def process_files(
@@ -904,5 +997,7 @@ def process_files(
         _stop_and_remove_sipi_container()
         return True
     else:
-        print("Something went wrong. The SIPI container is still available to be analyzed. Don't forget to remove it.")
+        print(
+            "Something went wrong. The SIPI container is still available to be analyzed. Don't forget to remove it."
+        )
         return False

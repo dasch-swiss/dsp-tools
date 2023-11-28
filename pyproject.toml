@@ -158,6 +158,7 @@ ignore = [
     "PLR2004",  # pylint: magic-value-comparison                        # TODO: activate this
     "PT009",    # flake8-pytest-style: pytest-unittest-assertion        # TODO: activate when pytest is everywhere
     "PT027",    # flake8-pytest-style: pytest-unittest-raises-assertion # TODO: activate when pytest is everywhere
+    "ISC001",   # flake8-implicit-str-concat: single-line-implicit-string-concatenation  # incompatible with the formatter
 ]
 
 

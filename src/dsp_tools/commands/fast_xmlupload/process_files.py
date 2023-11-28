@@ -258,7 +258,7 @@ def _restart_sipi_container(
     global sipi_container
     docker_client = docker.from_env()
     sipi_container = docker_client.containers.run(
-        image="daschswiss/sipi:3.8.1",
+        image="daschswiss/sipi:3.8.6",
         name="sipi",
         volumes=[
             f"{input_dir.absolute()}:/sipi/processing-input",

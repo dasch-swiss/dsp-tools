@@ -111,7 +111,7 @@ def _process_files_in_parallel(
           (this list will only have content if a Docker API error led to a restart of the SIPI container)
     """
     batchsize = 1000
-    msg = f"Processing {len(files_to_process)} files, with {nthreads} threads, in batches of {batchsize} files each..."
+    msg = f"Processing {len(files_to_process)} files, in batches of {batchsize} files each..."
     print(msg)
     orig_filepath_2_uuid: list[tuple[Path, Optional[Path]]] = []
     for batch in make_chunks(lst=files_to_process, length=batchsize):

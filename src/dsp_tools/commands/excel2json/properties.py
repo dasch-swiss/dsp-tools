@@ -201,11 +201,10 @@ def _row2prop(df_row: pd.Series, row_num: int, excelfile: str) -> dict[str, Any]
     Raises:
         InputError if there are any formal mistakes in the "gui_attributes" column
     """
-    _property = {x: df_row[x] for x in mandatory_properties}
-    # These are also mandatory but require formatting
-    _property.update(
-        {"labels": utl.get_labels(df_row=df_row), "super": [s.strip() for s in df_row["super"].split(",")]}
-    )
+    _property = {x: df_row[x] for x in mandatory_properties} | {
+        "labels": utl.get_labels(df_row=df_row),
+        "super": [s.strip() for s in df_row["super"].split(",")],
+    }
     non_mandatory = {
         "comments": utl.get_comments(df_row=df_row),
         "gui_attributes": _get_gui_attribute(df_row=df_row, row_num=row_num, excelfile=excelfile),

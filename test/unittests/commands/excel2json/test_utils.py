@@ -9,7 +9,6 @@ from pandas.testing import assert_frame_equal, assert_series_equal
 from pytest_unordered import unordered
 
 import dsp_tools.commands.excel2json.utils as utl
-from dsp_tools.models.exceptions import BaseError
 
 
 class TestUtils(unittest.TestCase):

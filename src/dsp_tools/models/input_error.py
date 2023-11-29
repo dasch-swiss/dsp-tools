@@ -105,7 +105,6 @@ class JsonValidationProblem:
     message_path: str | None = None
     property: str | None = None
     resource_class: str | None = None
-    invalid_value: str | None = None
     excel_column: str | None = None
     excel_row: int | None = None
 
@@ -121,8 +120,6 @@ class JsonValidationProblem:
             msg.append(f"Problematic Property: '{self.property}'")
         if self.resource_class:
             msg.append(f"Problematic Class: '{self.resource_class}'")
-        if self.invalid_value:
-            msg.append(f"Problematic Value: '{self.invalid_value}'")
         if self.excel_row:
             msg.append(f"The problem is caused by the value in the Excel row {self.excel_row}")
         if self.excel_column:

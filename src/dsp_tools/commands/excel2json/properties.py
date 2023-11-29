@@ -10,7 +10,7 @@ import pandas as pd
 import regex
 
 import dsp_tools.commands.excel2json.utils as utl
-from dsp_tools.models.exceptions import InputError, InternalError
+from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.input_error import ExcelContentProblem, JsonValidationProblem
 
 languages = ["en", "de", "fr", "it", "rm"]
@@ -81,7 +81,7 @@ def _validate_properties(
         excelfile: path to the Excel file containing the properties
 
     Raises:
-        UserError: if the validation fails
+        InputError: if the validation fails
 
     Returns:
         True if the "properties" section passed validation
@@ -210,7 +210,7 @@ def _row2prop(df_row: pd.Series, row_num: int, excelfile: str) -> dict[str, Any]
         dict object of the property
 
     Raises:
-        InputError if there are any formal mistakes in the "gui_attributes" column
+        InputError: if there are any formal mistakes in the "gui_attributes" column
     """
     _property = {x: df_row[x] for x in mandatory_properties} | {
         "labels": utl.get_labels(df_row=df_row),
@@ -274,8 +274,6 @@ def _check_compliance_gui_attributes(df: pd.DataFrame) -> dict[str, pd.Series] |
             final_series = mandatory_check
         case None, pd.Series:
             final_series = no_attribute_check
-        case _, _:
-            raise InternalError
     # The boolean series is returned
     return {"gui_attributes": final_series}
 
@@ -329,7 +327,7 @@ def _do_property_excel_compliance(df: pd.DataFrame, excelfile: str) -> None:
         excelfile: The name of the original Excel file
 
     Raises:
-        InputError if any of the checks fail
+        InputError: if any of the checks fail
     """
     # If it does not pass any one of the tests, the function stops
     required_columns = {

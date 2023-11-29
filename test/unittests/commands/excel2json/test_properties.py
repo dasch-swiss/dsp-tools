@@ -15,7 +15,7 @@ import pytest
 from pandas.testing import assert_frame_equal
 
 from dsp_tools.commands.excel2json import properties as e2j
-from dsp_tools.models.exceptions import UserError
+from dsp_tools.models.exceptions import InputError, UserError
 
 
 class TestExcelToProperties(unittest.TestCase):
@@ -371,7 +371,7 @@ class TestExcelToProperties(unittest.TestCase):
         returned_df = e2j._rename_deprecated_lang_cols(df=expected_df, excelfile="Test")
         assert_frame_equal(expected_df, returned_df)
 
-    def test_do_property_excel_compliance(self) -> None:
+    def test_do_property_excel_compliance_all_good(self) -> None:
         original_df = pd.DataFrame(
             {
                 "name": ["name_1", "name_2", "name_3", "name_4", "name_5", "name_6"],
@@ -395,6 +395,7 @@ class TestExcelToProperties(unittest.TestCase):
 
         e2j._do_property_excel_compliance(df=original_df, excelfile="Test")
 
+    def test_do_property_excel_compliance_problems(self) -> None:
         original_df = pd.DataFrame(
             {
                 "name": ["name_1", "name_2", "name_3", "name_4", "name_5", "name_6", "name_7", pd.NA],
@@ -433,17 +434,42 @@ class TestExcelToProperties(unittest.TestCase):
                 "gui_attributes": ["size: 32, maxlength: 128", pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
             }
         )
-        with self.assertRaisesRegex(
-            UserError,
-            r"The file 'Test' is missing values in the following rows\:\n"
-            r"\- Column 'name' Row Number\(s\)\: \[9\]\n"
-            r"\- Column 'super' Row Number\(s\)\: \[2, 4, 9\]\n"
-            r"\- Column 'object' Row Number\(s\)\: \[5, 9\]\n"
-            r"\- Column 'gui_element' Row Number\(s\)\: \[6, 8, 9\]\n"
-            r"\- Column 'label' Row Number\(s\)\: \[3, 8\]\n"
-            r"\- Column 'gui_attributes' Row Number\(s\)\: \[7\]",
-        ):
-            e2j._do_property_excel_compliance(df=original_df, excelfile="Test")
+        expected_msg = (
+            "\n\nThe excel file 'Test' has some problems\:\n"
+            "There are missing values in a column that must not be empty\:\n"
+            "\tColumn\: name\n"
+            "\tRow\(s\)\:\n"
+            "\t- 9\n\t\n"
+            "There are missing values in a column that must not be empty\:\n"
+            "\tColumn\: super\n"
+            "\tRow\(s\)\:\n"
+            "\t- 2\n"
+            "\t- 4\n"
+            "\t- 9\n\t\n"
+            "There are missing values in a column that must not be empty\:\n"
+            "\tColumn\: object\n"
+            "\tRow\(s\)\:\n"
+            "\t- 5\n"
+            "\t- 9\n\t\n"
+            "There are missing values in a column that must not be empty\:\n"
+            "\tColumn\: gui_element\n"
+            "\tRow\(s\)\:\n"
+            "\t- 6\n"
+            "\t- 8\n"
+            "\t- 9\n\t\n"
+            "There are missing values in a column that must not be empty\:\n"
+            "\tColumn\: label\n"
+            "\tRow\(s\)\:\n"
+            "\t- 3\n"
+            "\t- 8\n\t\n"
+            "There are missing values in a column that must not be empty\:\n"
+            "\tColumn\: gui_attributes\n"
+            "\tRow\(s\):\n"
+            "\t- 7\n\t"
+        )
+
+        with pytest.raises(InputError, match=expected_msg):
+            e2j._do_property_excel_compliance(original_df, "Test")
 
     @pytest.mark.filterwarnings("ignore::UserWarning")
     def test_rename_deprecated_hlist(self) -> None:

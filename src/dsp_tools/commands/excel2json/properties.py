@@ -10,7 +10,8 @@ import pandas as pd
 import regex
 
 import dsp_tools.commands.excel2json.utils as utl
-from dsp_tools.models.exceptions import UserError
+from dsp_tools.models.exceptions import InputError, UserError
+from dsp_tools.models.input_error import ExcelContentProblem, ExcelStructureProblem
 
 languages = ["en", "de", "fr", "it", "rm"]
 language_label_col = ["label_en", "label_de", "label_fr", "label_it", "label_rm"]
@@ -198,7 +199,7 @@ def _row2prop(df_row: pd.Series, row_num: int, excelfile: str) -> dict[str, Any]
         dict object of the property
 
     Raises:
-        UserError if there are any formal mistakes in the "gui_attributes" column
+        InputError if there are any formal mistakes in the "gui_attributes" column
     """
     _property = {x: df_row[x] for x in mandatory_properties}
     # These are also mandatory but require formatting
@@ -229,7 +230,7 @@ def _check_compliance_gui_attributes(df: pd.DataFrame) -> dict[str, pd.Series] |
         checks passed.
 
     Raises:
-        UserError if any of the checks fail
+        InputError if any of the checks fail
     """
     mandatory_attributes = ["Spinbox", "List"]
     mandatory_check = utl.col_must_or_not_empty_based_on_other_col(
@@ -261,19 +262,17 @@ def _check_compliance_gui_attributes(df: pd.DataFrame) -> dict[str, pd.Series] |
     return {"gui_attributes": final_series}
 
 
-def _check_missing_values_in_row_raise_error(df: pd.DataFrame, excelfile: str) -> None:
+def _check_missing_values_in_row(df: pd.DataFrame) -> None | list[ExcelContentProblem]:
     """
     This function checks if all the required values are in the df.
     If all the checks are ok, the function ends without any effect.
-    If any of the checks fail, a UserError is raised which contains the information in which column and row there
-    are problems.
+    If any of the checks fail, an object that contains the information in which column and row is returned
 
     Args:
         df: pd.DataFrame that is to be checked
-        excelfile: Name of the original Excel file
 
-    Raises:
-        UserError: if any of the checks are failed
+    Returns:
+        If there are problems, it returns objects that store the information about it.
     """
     # Every row in these columns must have a value
     required_values = ["name", "super", "object", "gui_element"]
@@ -291,14 +290,20 @@ def _check_missing_values_in_row_raise_error(df: pd.DataFrame, excelfile: str) -
     if missing_dict:
         # Get the row numbers from the boolean series
         missing_dict = utl.get_wrong_row_numbers(wrong_row_dict=missing_dict, true_remains=True)
-        error_str = "\n".join([f"- Column '{k}' Row Number(s): {v}" for k, v in missing_dict.items()])
-        raise UserError(f"The file '{excelfile}' is missing values in the following rows:\n{error_str}")
+        return [
+            ExcelContentProblem(
+                user_msg="There are missing values in a column that must not be empty:", column=col, rows=row_nums
+            )
+            for col, row_nums in missing_dict.items()
+        ]
+    else:
+        return None
 
 
 def _do_property_excel_compliance(df: pd.DataFrame, excelfile: str) -> None:
     """
     This function calls three separate functions which each checks if the pd.DataFrame is as we expect it.
-    Each of these functions raises a UserError if there is a problem.
+    Each of these functions raises an InputError if there is a problem.
     If the checks do not fail, this function ends without an effect.
 
     Args:
@@ -306,7 +311,7 @@ def _do_property_excel_compliance(df: pd.DataFrame, excelfile: str) -> None:
         excelfile: The name of the original Excel file
 
     Raises:
-        UserError if any of the checks fail
+        InputError if any of the checks fail
     """
     # If it does not pass any one of the tests, the function stops
     required_columns = {
@@ -316,9 +321,17 @@ def _do_property_excel_compliance(df: pd.DataFrame, excelfile: str) -> None:
         "gui_element",
         "gui_attributes",
     }
-    utl.check_contains_required_columns_else_raise_error(df=df, required_columns=required_columns)
-    utl.check_column_for_duplicate_else_raise_error(df=df, to_check_column="name")
-    _check_missing_values_in_row_raise_error(df=df, excelfile=excelfile)
+    problems = [
+        utl.check_contains_required_columns_else_raise_error(df=df, required_columns=required_columns),
+        utl.check_column_for_duplicate(df=df, to_check_column="name"),
+    ]
+    if missing_vals_check := _check_missing_values_in_row(df=df):
+        problems.extend(missing_vals_check)
+    if any(problems):
+        extra = [problem.execute_error_protocol() for problem in problems if problem]
+
+        msg = [f"\n\nThe excel file '{excelfile}' has some problems:", *extra]
+        raise InputError("\n".join(msg))
 
 
 def _rename_deprecated_hlist(df: pd.DataFrame, excelfile: str) -> pd.DataFrame:
@@ -418,7 +431,7 @@ def excel2properties(
         path_to_output_file: if provided, the output is written into this JSON file
 
     Raises:
-        UserError: if something went wrong
+        InputError: if something went wrong
 
     Returns:
         a tuple consisting of the "properties" section as a Python list,

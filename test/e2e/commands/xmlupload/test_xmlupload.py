@@ -6,7 +6,7 @@ import pytest
 
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import BaseError, UserError
 
 
 class TestXMLUpload(unittest.TestCase):
@@ -29,7 +29,17 @@ class TestXMLUpload(unittest.TestCase):
             )
 
     def test_error_on_nonexistant_onto_name(self) -> None:
-        with self.assertRaisesRegex(BaseError, r"The default ontology 'notexistingfantasyonto' "):
+        expected = (
+            r"\nSome property and/or class type\(s\) used in the XML are unknown\:\n\n"
+            r"---------------------------------------\n\n"
+            r"The following resource\(s\) have an invalid resource type\:\n\n"
+            r"\tResource Type\: '\:minimalResource'\n"
+            r"\tProblem\: 'Unknown ontology prefix'\n"
+            r"\tResource ID\(s\)\:\n"
+            r"\t- the_only_resource\n\n"
+            r"---------------------------------------\n\n"
+        )
+        with self.assertRaisesRegex(UserError, expected):
             xmlupload(
                 input_file="testdata/invalid-testdata/xml-data/inexistent-ontoname.xml",
                 server=self.server,

@@ -4,6 +4,7 @@
 
 import json
 import os
+import re
 import shutil
 import unittest
 from typing import Any, cast
@@ -340,17 +341,29 @@ class TestExcelToProperties(unittest.TestCase):
                 r"The problem is that the column 'gui_attributes' has an invalid value: "
                 r"Additional properties are not allowed \('rows' was unexpected\)",
             ),
-            (
-                "testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute_format.xlsx",
-                r"Row 4 of Excel file testdata\/invalid\-testdata\/excel2json\/properties\-invalid\-gui_attribute_"
-                r"format\.xlsx contains invalid data in column 'gui_attributes'\.\n"
-                r"The expected format is '\[attribute\: value, attribute\: value\]'\.",
-            ),
         ]
 
         for file, message in testcases:
             with self.assertRaisesRegex(UserError, message):
                 e2j.excel2properties(file, self.outfile)
+
+    def test_excel2properties_gui_attrib_problem(self) -> None:
+        expected_msg = re.escape(
+            (
+                "The Excel file 'testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute_format.xlsx' "
+                "has invalid content.\n"
+                "The expected format is 'attribute: value, attribute: value'\n"
+                "\tColumn: gui_attributes\n"
+                "\tRow(s):\n"
+                "\t- 4\n"
+                "\tValue(s):\n"
+                "\t- max=10, min=5"
+            )
+        )
+        with pytest.raises(InputError, match=expected_msg):
+            e2j.excel2properties(
+                "testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute_format.xlsx", ""
+            )
 
     @pytest.mark.filterwarnings("ignore::UserWarning")
     def test_rename_deprecated_lang_cols(self) -> None:
@@ -434,38 +447,40 @@ class TestExcelToProperties(unittest.TestCase):
                 "gui_attributes": ["size: 32, maxlength: 128", pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
             }
         )
-        expected_msg = (
-            "\n\nThe excel file 'Test' has some problems\:\n"
-            "There are missing values in a column that must not be empty\:\n"
-            "\tColumn\: name\n"
-            "\tRow\(s\)\:\n"
-            "\t- 9\n\t\n"
-            "There are missing values in a column that must not be empty\:\n"
-            "\tColumn\: super\n"
-            "\tRow\(s\)\:\n"
-            "\t- 2\n"
-            "\t- 4\n"
-            "\t- 9\n\t\n"
-            "There are missing values in a column that must not be empty\:\n"
-            "\tColumn\: object\n"
-            "\tRow\(s\)\:\n"
-            "\t- 5\n"
-            "\t- 9\n\t\n"
-            "There are missing values in a column that must not be empty\:\n"
-            "\tColumn\: gui_element\n"
-            "\tRow\(s\)\:\n"
-            "\t- 6\n"
-            "\t- 8\n"
-            "\t- 9\n\t\n"
-            "There are missing values in a column that must not be empty\:\n"
-            "\tColumn\: label\n"
-            "\tRow\(s\)\:\n"
-            "\t- 3\n"
-            "\t- 8\n\t\n"
-            "There are missing values in a column that must not be empty\:\n"
-            "\tColumn\: gui_attributes\n"
-            "\tRow\(s\):\n"
-            "\t- 7\n\t"
+        expected_msg = re.escape(
+            (
+                "The excel file 'Test' has some problems:\n"
+                "There are missing values in a column that must not be empty:\n"
+                "\tColumn: name\n"
+                "\tRow(s):\n"
+                "\t- 9\n\t\n"
+                "There are missing values in a column that must not be empty:\n"
+                "\tColumn: super\n"
+                "\tRow(s):\n"
+                "\t- 2\n"
+                "\t- 4\n"
+                "\t- 9\n\t\n"
+                "There are missing values in a column that must not be empty:\n"
+                "\tColumn: object\n"
+                "\tRow(s):\n"
+                "\t- 5\n"
+                "\t- 9\n\t\n"
+                "There are missing values in a column that must not be empty:\n"
+                "\tColumn: gui_element\n"
+                "\tRow(s):\n"
+                "\t- 6\n"
+                "\t- 8\n"
+                "\t- 9\n\t\n"
+                "There are missing values in a column that must not be empty:\n"
+                "\tColumn: label\n"
+                "\tRow(s):\n"
+                "\t- 3\n"
+                "\t- 8\n\t\n"
+                "There are missing values in a column that must not be empty:\n"
+                "\tColumn: gui_attributes\n"
+                "\tRow(s):\n"
+                "\t- 7\n\t"
+            )
         )
 
         with pytest.raises(InputError, match=expected_msg):
@@ -504,26 +519,17 @@ class TestExcelToProperties(unittest.TestCase):
         )
         self.assertIsNone(e2j._get_gui_attribute(df_row=original_df.loc[0, :], row_num=2, excelfile="Test"))
 
-        with self.assertRaisesRegex(
-            UserError,
-            r"Row 3 of Excel file Test contains invalid data in column 'gui_attributes'\.\n"
-            r"The expected format is '\[attribute\: value, attribute\: value\]'\.",
-        ):
-            e2j._get_gui_attribute(df_row=original_df.loc[1, :], row_num=3, excelfile="Test")
+        res_problem_1 = e2j._get_gui_attribute(df_row=original_df.loc[1, :], row_num=3, excelfile="Test")
+        assert res_problem_1.rows == [3]
+        assert res_problem_1.values == ["max:1.4 / min:1.2"]
 
-        with self.assertRaisesRegex(
-            UserError,
-            r"Row 4 of Excel file Test contains invalid data in column 'gui_attributes'\.\n"
-            r"The expected format is '\[attribute\: value, attribute\: value\]'\.",
-        ):
-            e2j._get_gui_attribute(df_row=original_df.loc[2, :], row_num=4, excelfile="Test")
+        res_problem_2 = e2j._get_gui_attribute(df_row=original_df.loc[2, :], row_num=4, excelfile="Test")
+        assert res_problem_2.rows == [4]
+        assert res_problem_2.values == ["hlist:"]
 
-        with self.assertRaisesRegex(
-            UserError,
-            r"Row 5 of Excel file Test contains invalid data in column 'gui_attributes'\.\n"
-            r"The expected format is '\[attribute\: value, attribute\: value\]'\.",
-        ):
-            e2j._get_gui_attribute(df_row=original_df.loc[3, :], row_num=5, excelfile="Test")
+        res_problem_3 = e2j._get_gui_attribute(df_row=original_df.loc[3, :], row_num=5, excelfile="Test")
+        assert res_problem_3.rows == [5]
+        assert res_problem_3.values == ["234345"]
 
         expected_dict = {"hlist": "languages"}
         returned_dict = e2j._get_gui_attribute(df_row=original_df.loc[4, :], row_num=6, excelfile="Test")

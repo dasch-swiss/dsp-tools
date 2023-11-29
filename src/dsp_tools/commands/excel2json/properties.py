@@ -157,7 +157,9 @@ def _format_gui_attribute(attribute_str: str) -> dict[str, str | int | float]:
     return {attrib: _search_convert_numbers(value_str=val) for attrib, val in attribute_dict.items()}
 
 
-def _get_gui_attribute(df_row: pd.Series, row_num: int, excelfile: str) -> dict[str, int | str | float] | None:
+def _get_gui_attribute(
+    df_row: pd.Series, row_num: int, excelfile: str
+) -> dict[str, int | str | float] | ExcelContentProblem | None:
     """
     This function checks if the cell "gui_attributes" is empty.
     If it is, it returns None.
@@ -180,10 +182,13 @@ def _get_gui_attribute(df_row: pd.Series, row_num: int, excelfile: str) -> dict[
     try:
         return _format_gui_attribute(attribute_str=df_row["gui_attributes"])
     except IndexError:
-        raise UserError(
-            f"Row {row_num} of Excel file {excelfile} contains invalid data in column 'gui_attributes'.\n"
-            "The expected format is '[attribute: value, attribute: value]'."
-        ) from None
+        return ExcelContentProblem(
+            user_msg=f"The Excel file '{excelfile}' has invalid content.\nThe expected format is "
+            f"'attribute: value, attribute: value'",
+            column="gui_attributes",
+            rows=[row_num],
+            values=[df_row["gui_attributes"]],
+        )
 
 
 def _row2prop(df_row: pd.Series, row_num: int, excelfile: str) -> dict[str, Any]:
@@ -205,12 +210,18 @@ def _row2prop(df_row: pd.Series, row_num: int, excelfile: str) -> dict[str, Any]
         "labels": utl.get_labels(df_row=df_row),
         "super": [s.strip() for s in df_row["super"].split(",")],
     }
-    non_mandatory = {
-        "comments": utl.get_comments(df_row=df_row),
-        "gui_attributes": _get_gui_attribute(df_row=df_row, row_num=row_num, excelfile=excelfile),
-    }
-    # These functions may return None, this is checked before the update
-    _property = utl.update_dict_if_not_value_none(additional_dict=non_mandatory, to_update_dict=_property)
+
+    gui_attrib = _get_gui_attribute(df_row=df_row, row_num=row_num, excelfile=excelfile)
+    match gui_attrib:
+        case dict():
+            _property["gui_attributes"] = gui_attrib
+        case ExcelContentProblem():
+            msg = gui_attrib.execute_error_protocol()
+            raise InputError(msg) from None
+
+    if comment := utl.get_comments(df_row=df_row):
+        _property["comments"] = comment
+
     return _property
 
 
@@ -331,7 +342,7 @@ def _do_property_excel_compliance(df: pd.DataFrame, excelfile: str) -> None:
     if any(problems):
         extra = [problem.execute_error_protocol() for problem in problems if problem]
 
-        msg = [f"\n\nThe excel file '{excelfile}' has some problems:", *extra]
+        msg = [f"The excel file '{excelfile}' has some problems:", *extra]
         raise InputError("\n".join(msg))
 
 

@@ -37,8 +37,8 @@ class TestUtils(unittest.TestCase):
 
         required = {"col1", "col2", "col3", "col4"}
         res = utl.check_contains_required_columns_else_raise_error(df=original_df, required_columns=required)
-        assert res.column == ["col4"]
-        assert res.user_msg == "The following required columns are missing in the excel:"
+        assert res.column == ["col4"]  # type: ignore[union-attr]
+        assert res.user_msg == "The following required columns are missing in the excel:"  # type: ignore[union-attr]
 
     def test_check_column_for_duplicate_else_raise_error(self) -> None:
         original_df = pd.DataFrame(
@@ -50,10 +50,10 @@ class TestUtils(unittest.TestCase):
         assert not utl.check_column_for_duplicate(df=original_df, to_check_column="col_2")
 
         res = utl.check_column_for_duplicate(df=original_df, to_check_column="col_1")
-        assert res.user_msg == "Duplicate values are not allowed in the following:"
-        assert res.column == "col_1"
-        assert unordered(res.values) == ["1.54", "0-1"]
-        assert not res.rows
+        assert res.user_msg == "Duplicate values are not allowed in the following:"  # type: ignore[union-attr]
+        assert res.column == "col_1"  # type: ignore[union-attr]
+        assert unordered(res.values) == ["1.54", "0-1"]  # type: ignore[union-attr]
+        assert not res.rows  # type: ignore[union-attr]
 
     def test_check_required_values(self) -> None:
         original_df = pd.DataFrame(

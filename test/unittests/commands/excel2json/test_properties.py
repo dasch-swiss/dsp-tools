@@ -520,16 +520,16 @@ class TestExcelToProperties(unittest.TestCase):
         self.assertIsNone(e2j._get_gui_attribute(df_row=original_df.loc[0, :], row_num=2, excelfile="Test"))
 
         res_problem_1 = e2j._get_gui_attribute(df_row=original_df.loc[1, :], row_num=3, excelfile="Test")
-        assert res_problem_1.rows == [3]
-        assert res_problem_1.values == ["max:1.4 / min:1.2"]
+        assert res_problem_1.rows == [3]  # type: ignore[union-attr]
+        assert res_problem_1.values == ["max:1.4 / min:1.2"]  # type: ignore[union-attr]
 
         res_problem_2 = e2j._get_gui_attribute(df_row=original_df.loc[2, :], row_num=4, excelfile="Test")
-        assert res_problem_2.rows == [4]
-        assert res_problem_2.values == ["hlist:"]
+        assert res_problem_2.rows == [4]  # type: ignore[union-attr]
+        assert res_problem_2.values == ["hlist:"]  # type: ignore[union-attr]
 
         res_problem_3 = e2j._get_gui_attribute(df_row=original_df.loc[3, :], row_num=5, excelfile="Test")
-        assert res_problem_3.rows == [5]
-        assert res_problem_3.values == ["234345"]
+        assert res_problem_3.rows == [5]  # type: ignore[union-attr]
+        assert res_problem_3.values == ["234345"]  # type: ignore[union-attr]
 
         expected_dict = {"hlist": "languages"}
         returned_dict = e2j._get_gui_attribute(df_row=original_df.loc[4, :], row_num=6, excelfile="Test")

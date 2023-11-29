@@ -10,7 +10,7 @@ import pandas as pd
 import regex
 
 import dsp_tools.commands.excel2json.utils as utl
-from dsp_tools.models.exceptions import InputError, InternalError, UserError
+from dsp_tools.models.exceptions import InputError, InternalError
 from dsp_tools.models.input_error import ExcelContentProblem, JsonValidationProblem
 
 languages = ["en", "de", "fr", "it", "rm"]

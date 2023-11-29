@@ -307,64 +307,6 @@ class TestExcelToProperties(unittest.TestCase):
         self.assertDictEqual(excel_gui_attributes_hasDecimal, json_gui_attributes_hasDecimal)
         self.assertDictEqual(excel_gui_attributes_hasGender, json_gui_attributes_hasGender)
 
-    def test_validate_properties(self) -> None:
-        # it is not possible to call the method to be tested directly.
-        # So let's make a reference to it, so that it can be found by the usage search
-        lambda x: e2j._validate_properties([], "file")  # pylint: disable=expression-not-assigned,protected-access
-
-        testcases = [
-            (
-                "testdata/invalid-testdata/excel2json/properties-invalid-super.xlsx",
-                "did not pass validation.\n"
-                "The problematic property is 'hasGeoname' in Excel row 3.\n"
-                "The problem is that the column 'super' has an invalid value: "
-                "'GeonameValue' is not valid under any of the given schemas",
-            ),
-            (
-                "testdata/invalid-testdata/excel2json/properties-invalid-object.xlsx",
-                "did not pass validation.\n"
-                "The problematic property is 'hasBoolean' in Excel row 2.\n"
-                "The problem is that the column 'object' has an invalid value: "
-                "'hasValue' is not valid under any of the given schemas",
-            ),
-            (
-                "testdata/invalid-testdata/excel2json/properties-invalid-gui_element.xlsx",
-                "did not pass validation.\n"
-                "The problematic property is 'hasInterval' in Excel row 4.\n"
-                r"The problem is that the column 'gui_element' has an invalid value: "
-                r"'Interval' was expected",
-            ),
-            (
-                "testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute_values.xlsx",
-                "did not pass validation.\n"
-                "The problematic property is 'hasInteger' in Excel row 4.\n"
-                r"The problem is that the column 'gui_attributes' has an invalid value: "
-                r"Additional properties are not allowed \('rows' was unexpected\)",
-            ),
-        ]
-
-        for file, message in testcases:
-            with self.assertRaisesRegex(UserError, message):
-                e2j.excel2properties(file, self.outfile)
-
-    def test_excel2properties_gui_attrib_problem(self) -> None:
-        expected_msg = re.escape(
-            (
-                "The Excel file 'testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute_format.xlsx' "
-                "has invalid content.\n"
-                "The expected format is 'attribute: value, attribute: value'\n"
-                "\tColumn: gui_attributes\n"
-                "\tRow(s):\n"
-                "\t- 4\n"
-                "\tValue(s):\n"
-                "\t- max=10, min=5"
-            )
-        )
-        with pytest.raises(InputError, match=expected_msg):
-            e2j.excel2properties(
-                "testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute_format.xlsx", ""
-            )
-
     @pytest.mark.filterwarnings("ignore::UserWarning")
     def test_rename_deprecated_lang_cols(self) -> None:
         original_df = pd.DataFrame(
@@ -453,36 +395,35 @@ class TestExcelToProperties(unittest.TestCase):
                 "There are missing values in a column that must not be empty:\n"
                 "\tColumn: name\n"
                 "\tRow(s):\n"
-                "\t- 9\n\t\n"
+                "\t- 9\n"
                 "There are missing values in a column that must not be empty:\n"
                 "\tColumn: super\n"
                 "\tRow(s):\n"
                 "\t- 2\n"
                 "\t- 4\n"
-                "\t- 9\n\t\n"
+                "\t- 9\n"
                 "There are missing values in a column that must not be empty:\n"
                 "\tColumn: object\n"
                 "\tRow(s):\n"
                 "\t- 5\n"
-                "\t- 9\n\t\n"
+                "\t- 9\n"
                 "There are missing values in a column that must not be empty:\n"
                 "\tColumn: gui_element\n"
                 "\tRow(s):\n"
                 "\t- 6\n"
                 "\t- 8\n"
-                "\t- 9\n\t\n"
+                "\t- 9\n"
                 "There are missing values in a column that must not be empty:\n"
                 "\tColumn: label\n"
                 "\tRow(s):\n"
                 "\t- 3\n"
-                "\t- 8\n\t\n"
+                "\t- 8\n"
                 "There are missing values in a column that must not be empty:\n"
                 "\tColumn: gui_attributes\n"
                 "\tRow(s):\n"
-                "\t- 7\n\t"
+                "\t- 7"
             )
         )
-
         with pytest.raises(InputError, match=expected_msg):
             e2j._do_property_excel_compliance(original_df, "Test")
 
@@ -623,6 +564,89 @@ class TestExcelToProperties(unittest.TestCase):
             "super": ["super_3"],
         }
         self.assertDictEqual(expected_dict, returned_dict)
+
+    def test_excel2properties_invalid_gui_attrib_format(self) -> None:
+        expected_msg = re.escape(
+            (
+                "The Excel file 'testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute_format.xlsx' "
+                "has invalid content.\n"
+                "The expected format is 'attribute: value, attribute: value'\n"
+                "\tColumn: gui_attributes\n"
+                "\tRow(s):\n"
+                "\t- 4\n"
+                "\tValue(s):\n"
+                "\t- max=10, min=5"
+            )
+        )
+        with pytest.raises(InputError, match=expected_msg):
+            e2j.excel2properties(
+                "testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute_format.xlsx", ""
+            )
+
+
+class TestValidateProperties:
+    # it is not possible to call the method to be tested directly.
+    # So let's make a reference to it, so that it can be found by the usage search
+    lambda x: e2j._validate_properties([], "file")  # pylint: disable=expression-not-assigned,protected-access
+
+    def test_invalid_super(self) -> None:
+        expected_msg = re.escape(
+            "The 'properties' section defined in the Excel file "
+            "'testdata/invalid-testdata/excel2json/properties-invalid-super.xlsx' did not pass validation.\n"
+            "\tProblematic Property: 'hasGeoname'\n"
+            "\tThe problem is caused by the value in the Excel row 3\n"
+            "\tThe problem is caused by the value in the Excel column 'super'\n"
+            "\tOriginal Error Message:\n'GeonameValue' is not valid under any of the given schemas"
+        )
+        with pytest.raises(InputError, match=expected_msg):
+            e2j.excel2properties(
+                excelfile="testdata/invalid-testdata/excel2json/properties-invalid-super.xlsx", path_to_output_file=""
+            )
+
+    def test_invalid_object(self) -> None:
+        expected_msg = re.escape(
+            "The 'properties' section defined in the Excel file "
+            "'testdata/invalid-testdata/excel2json/properties-invalid-object.xlsx' did not pass validation.\n"
+            "\tProblematic Property: 'hasBoolean'\n"
+            "\tThe problem is caused by the value in the Excel row 2\n"
+            "\tThe problem is caused by the value in the Excel column 'object'\n"
+            "\tOriginal Error Message:\n'hasValue' is not valid under any of the given schemas"
+        )
+        with pytest.raises(InputError, match=expected_msg):
+            e2j.excel2properties(
+                excelfile="testdata/invalid-testdata/excel2json/properties-invalid-object.xlsx", path_to_output_file=""
+            )
+
+    def test_invalid_gui_element(self) -> None:
+        expected_msg = re.escape(
+            "The 'properties' section defined in the Excel file "
+            "'testdata/invalid-testdata/excel2json/properties-invalid-gui_element.xlsx' did not pass validation.\n"
+            "\tProblematic Property: 'hasInterval'\n"
+            "\tThe problem is caused by the value in the Excel row 4\n"
+            "\tThe problem is caused by the value in the Excel column 'gui_element'\n"
+            "\tOriginal Error Message:\n'Interval' was expected"
+        )
+        with pytest.raises(InputError, match=expected_msg):
+            e2j.excel2properties(
+                excelfile="testdata/invalid-testdata/excel2json/properties-invalid-gui_element.xlsx",
+                path_to_output_file="",
+            )
+
+    def test_invalid_gui_attrib_values(self) -> None:
+        expected_msg = re.escape(
+            "The 'properties' section defined in the Excel file "
+            "'testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute_values.xlsx' "
+            "did not pass validation.\n"
+            "\tProblematic Property: 'hasInteger'\n"
+            "\tThe problem is caused by the value in the Excel row 4\n"
+            "\tThe problem is caused by the value in the Excel column 'gui_attributes'\n"
+            "\tOriginal Error Message:\nAdditional properties are not allowed ('rows' was unexpected)"
+        )
+        with pytest.raises(InputError, match=expected_msg):
+            e2j.excel2properties(
+                excelfile="testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute_values.xlsx",
+                path_to_output_file="",
+            )
 
 
 if __name__ == "__main__":

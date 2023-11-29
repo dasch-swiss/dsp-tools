@@ -11,7 +11,7 @@ import regex
 
 import dsp_tools.commands.excel2json.utils as utl
 from dsp_tools.models.exceptions import InputError, InternalError, UserError
-from dsp_tools.models.input_error import ExcelContentProblem
+from dsp_tools.models.input_error import ExcelContentProblem, JsonValidationProblem
 
 languages = ["en", "de", "fr", "it", "rm"]
 language_label_col = ["label_en", "label_de", "label_fr", "label_it", "label_rm"]
@@ -22,7 +22,7 @@ def _search_json_validation_error_get_err_msg_str(
     properties_list: list[dict[str, Any]],
     excelfile: str,
     validation_error: jsonschema.ValidationError,
-) -> str:
+) -> JsonValidationProblem:
     """
     This function takes a list of properties, which were transformed from an Excel to a json.
     The validation raised an error.
@@ -37,7 +37,7 @@ def _search_json_validation_error_get_err_msg_str(
     Returns:
         A string which is used in the Error message that contains detailed information about the problem
     """
-    err_msg_list = [f"The 'properties' section defined in the Excel file '{excelfile}' did not pass validation."]
+    usr_msg = f"The 'properties' section defined in the Excel file '{excelfile}' did not pass validation."
     if json_path_to_property := regex.search(r"^\$\[(\d+)\]", validation_error.json_path):
         # fmt: off
         wrong_property_name = (
@@ -47,20 +47,26 @@ def _search_json_validation_error_get_err_msg_str(
         )
         # fmt: on
         excel_row = int(json_path_to_property.group(1)) + 2
-        err_msg_list.append(f"The problematic property is '{wrong_property_name}' in Excel row {excel_row}.")
+
+        column = None
+        val_msg = None
         if affected_field := regex.search(
             r"name|labels|comments|super|subject|object|gui_element|gui_attributes",
             validation_error.json_path,
         ):
-            err_msg_list.append(
-                f"The problem is that the column '{affected_field.group(0)}' has an invalid value: "
-                f"{validation_error.message}"
-            )
-    else:
-        err_msg_list.append(
-            f"The error message is: {validation_error.message}\nThe error occurred at {validation_error.json_path}"
+            column = affected_field.group(0)
+            val_msg = validation_error.message
+
+        return JsonValidationProblem(
+            user_msg=usr_msg,
+            property=wrong_property_name,
+            excel_row=excel_row,
+            excel_column=column,
+            original_msg=val_msg,
         )
-    return "\n".join(err_msg_list)
+    return JsonValidationProblem(
+        user_msg=usr_msg, original_msg=validation_error.message, message_path=validation_error.json_path
+    )
 
 
 def _validate_properties(
@@ -90,7 +96,7 @@ def _validate_properties(
         err_msg = _search_json_validation_error_get_err_msg_str(
             properties_list=properties_list, excelfile=excelfile, validation_error=err
         )
-        raise UserError(err_msg) from None
+        raise InputError(err_msg.execute_error_protocol()) from None
     return True
 
 

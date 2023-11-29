@@ -4,6 +4,10 @@ from typing import Protocol
 # pylint: disable=too-few-public-methods
 
 
+separator = "\n\t"
+list_separator = "\n\t- "
+
+
 class Problem(Protocol):
     """Information about input errors."""
 
@@ -55,8 +59,6 @@ class ExcelStructureProblem:
         return msg
 
     def _generate_error_msg(self) -> str:
-        separator = "\n\t"
-        list_separator = "\n\t- "
         msg = self.user_msg + separator
         if self.column:
             msg += "Column(s):" + list_separator.join(self.column)
@@ -83,17 +85,15 @@ class ExcelContentProblem:
         return msg
 
     def _generate_error_msg(self) -> str:
-        separator = "\n\t"
-        list_separator = "\n\t- "
-        msg = self.user_msg + separator
+        msg = [self.user_msg]
         if self.column:
-            msg += "Column: " + self.column + separator
+            msg.append("Column: " + self.column)
         if self.rows:
             rws = [str(x) for x in self.rows]
-            msg += "Row(s):" + list_separator + list_separator.join(rws) + separator
+            msg.append("Row(s):" + list_separator + list_separator.join(rws))
         if self.values:
-            msg += "Value(s):" + list_separator + list_separator.join(self.values)
-        return msg
+            msg.append("Value(s):" + list_separator + list_separator.join(self.values))
+        return separator.join(msg)
 
 
 @dataclass(frozen=True)
@@ -101,6 +101,34 @@ class JsonValidationProblem:
     """This class contains information about a JSON that fails its validation against the schema."""
 
     user_msg: str
-    properties: list[str] | None = None
-    classes: list[str] | None = None
-    invalid_values: list[str] | None = None
+    original_msg: str | None = None
+    message_path: str | None = None
+    property: str | None = None
+    resource_class: str | None = None
+    invalid_value: str | None = None
+    excel_column: str | None = None
+    excel_row: int | None = None
+
+    def execute_error_protocol(self) -> str:
+        """
+        This function initiates all the steps for successful problem communication with the user.
+
+        Returns:
+            message for the error
+        """
+        msg = [self.user_msg]
+        if self.property:
+            msg.append(f"Problematic Property: '{self.property}'")
+        if self.resource_class:
+            msg.append(f"Problematic Class: '{self.resource_class}'")
+        if self.invalid_value:
+            msg.append(f"Problematic Value: '{self.invalid_value}'")
+        if self.excel_row:
+            msg.append(f"The problem is caused by the value in the Excel row {self.excel_row}")
+        if self.excel_column:
+            msg.append(f"The problem is caused by the value in the Excel column '{self.excel_column}'")
+        if self.original_msg:
+            msg.append(f"Original Error Message:\n{self.original_msg}")
+        if self.message_path:
+            msg.append(f"The error occurred at {self.message_path}")
+        return separator.join(msg)

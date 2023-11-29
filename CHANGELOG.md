@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.4.0](https://github.com/dasch-swiss/dsp-tools/compare/v5.3.0...v5.4.0) (2023-11-29)
+
+
+### Enhancements
+
+* **xmlupload:** check consistency with ontology on server (DEV-2921) ([#630](https://github.com/dasch-swiss/dsp-tools/issues/630)) ([a563c07](https://github.com/dasch-swiss/dsp-tools/commit/a563c07a8350dba611f92ab22f894fca67c10a72))
+
 ## [5.3.0](https://github.com/dasch-swiss/dsp-tools/compare/v5.2.0...v5.3.0) (2023-11-29)
 
 

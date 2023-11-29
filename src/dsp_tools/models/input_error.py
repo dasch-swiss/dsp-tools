@@ -37,9 +37,11 @@ class ExcelStructureProblem:
     user_msg: str
     column: list[str] | None = None
 
-    # TODO: if longer than...
-
     def execute_error_protocol(self) -> str:
+        msg = self._generate_error_msg()
+        return msg
+
+    def _generate_error_msg(self) -> str:
         separator = "\n\t"
         list_separator = "\n\t- "
         msg = self.user_msg + separator
@@ -60,6 +62,10 @@ class ExcelContentProblem:
     # TODO: if longer than...
 
     def execute_error_protocol(self) -> str:
+        msg = self._generate_error_msg()
+        return msg
+
+    def _generate_error_msg(self) -> str:
         separator = "\n\t"
         list_separator = "\n\t- "
         msg = self.user_msg + separator

@@ -1,12 +1,19 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Protocol
+
+# pylint: disable=too-few-public-methods
 
 
 class Problem(Protocol):
     """Information about input errors."""
 
-    def execute_error_protocol(self) -> None:
-        """This function prints/saves the problems that occurred."""
+    def execute_error_protocol(self) -> str:
+        """
+        This function initiates all the steps for successful problem communication with the user.
+
+        Returns:
+            message for the error
+        """
 
 
 @dataclass(frozen=True)
@@ -38,6 +45,12 @@ class ExcelStructureProblem:
     column: list[str] | None = None
 
     def execute_error_protocol(self) -> str:
+        """
+        This function initiates all the steps for successful problem communication with the user.
+
+        Returns:
+            message for the error
+        """
         msg = self._generate_error_msg()
         return msg
 
@@ -59,9 +72,13 @@ class ExcelContentProblem:
     rows: list[int] | None = None
     values: list[str] | None = None
 
-    # TODO: if longer than...
-
     def execute_error_protocol(self) -> str:
+        """
+        This function initiates all the steps for successful problem communication with the user.
+
+        Returns:
+            message for the error
+        """
         msg = self._generate_error_msg()
         return msg
 

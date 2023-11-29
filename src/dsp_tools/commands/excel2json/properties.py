@@ -58,7 +58,7 @@ def _search_json_validation_error_get_err_msg_str(
             )
     else:
         err_msg_list.append(
-            f"The error message is: {validation_error.message}\n" f"The error occurred at {validation_error.json_path}"
+            f"The error message is: {validation_error.message}\nThe error occurred at {validation_error.json_path}"
         )
     return "\n".join(err_msg_list)
 

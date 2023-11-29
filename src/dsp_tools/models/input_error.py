@@ -35,9 +35,7 @@ class ExcelStructureProblem:
     """This class contains information if the structure (column names, etc.) is incorrect."""
 
     user_msg: str
-    column: str | None = None
-    rows: list[int] | None = None
-    values: list[str] | None = None
+    column: list[str] | None = None
 
     # TODO: if longer than...
 
@@ -46,12 +44,7 @@ class ExcelStructureProblem:
         list_separator = "\n\t- "
         msg = self.user_msg + separator
         if self.column:
-            msg += "Column: " + self.column + separator
-        if self.rows:
-            rws = [str(x) for x in self.rows]
-            msg += "Row(s):" + list_separator + list_separator.join(rws) + separator
-        if self.values:
-            msg += "Value(s):" + list_separator + list_separator.join(self.values)
+            msg += "Column(s):" + list_separator.join(self.column)
         return msg
 
 

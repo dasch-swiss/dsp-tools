@@ -81,7 +81,7 @@ def check_contains_required_columns_else_raise_error(
         An object if
     """
     if not required_columns.issubset(set(df.columns)):
-        required = ", ".join(list(required_columns.difference(set(df.columns))))
+        required = list(required_columns.difference(set(df.columns)))
         return ExcelStructureProblem(
             user_msg="The following required columns are missing in the excel:", column=required
         )

@@ -40,8 +40,6 @@ class TestUtils(unittest.TestCase):
         res = utl.check_contains_required_columns_else_raise_error(df=original_df, required_columns=required)
         assert res.column == ["col4"]
         assert res.user_msg == "The following required columns are missing in the excel:"
-        assert not res.rows
-        assert not res.values
 
     def test_check_column_for_duplicate_else_raise_error(self) -> None:
         original_df = pd.DataFrame(

@@ -6,6 +6,7 @@ from typing import cast
 import pandas as pd
 import pytest
 from pandas.testing import assert_frame_equal, assert_series_equal
+from pytest_unordered import unordered
 
 import dsp_tools.commands.excel2json.utils as utl
 from dsp_tools.models.exceptions import BaseError
@@ -33,15 +34,14 @@ class TestUtils(unittest.TestCase):
     def test_check_contains_required_columns_else_raise_error(self) -> None:
         original_df = pd.DataFrame(columns=["col1", "col2", "col3", "extra_col"])
         required = {"col1", "col2", "col3"}
-        utl.check_contains_required_columns_else_raise_error(df=original_df, required_columns=required)
+        assert not utl.check_contains_required_columns_else_raise_error(df=original_df, required_columns=required)
+
         required = {"col1", "col2", "col3", "col4"}
-        with self.assertRaises(BaseError) as context:
-            utl.check_contains_required_columns_else_raise_error(df=original_df, required_columns=required)
-            self.assertEqual(
-                context,
-                "The following columns are missing in the excel: "
-                "{required_columns.difference(set(check_df.columns))}",
-            )
+        res = utl.check_contains_required_columns_else_raise_error(df=original_df, required_columns=required)
+        assert res.column == ["col4"]
+        assert res.user_msg == "The following required columns are missing in the excel:"
+        assert not res.rows
+        assert not res.values
 
     def test_check_column_for_duplicate_else_raise_error(self) -> None:
         original_df = pd.DataFrame(
@@ -50,14 +50,13 @@ class TestUtils(unittest.TestCase):
                 "col_2": ["1.54", "0-1", "1-n", "text", "neu"],
             }
         )
-        utl.check_column_for_duplicate_else_raise_error(df=original_df, to_check_column="col_2")
-        with self.assertRaises(BaseError) as context:
-            utl.check_column_for_duplicate_else_raise_error(df=original_df, to_check_column="col_1")
-            self.assertEqual(
-                context,
-                "The column '{duplicate_column}' may not contain any duplicate values. "
-                "The following values appeared multiple times '{duplicate_values}'.",
-            )
+        assert not utl.check_column_for_duplicate(df=original_df, to_check_column="col_2")
+
+        res = utl.check_column_for_duplicate(df=original_df, to_check_column="col_1")
+        assert res.user_msg == "Duplicate values are not allowed in the following:"
+        assert res.column == "col_1"
+        assert unordered(res.values) == ["1.54", "0-1"]
+        assert not res.rows
 
     def test_check_required_values(self) -> None:
         original_df = pd.DataFrame(

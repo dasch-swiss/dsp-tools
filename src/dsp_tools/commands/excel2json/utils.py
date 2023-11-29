@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import regex
 
-from dsp_tools.models.exceptions import UserError
+from dsp_tools.models.input_error import ExcelContentProblem, ExcelStructureProblem
 
 languages = ["en", "de", "fr", "it", "rm"]
 
@@ -65,27 +65,30 @@ def clean_data_frame(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def check_contains_required_columns_else_raise_error(df: pd.DataFrame, required_columns: set[str]) -> None:
+def check_contains_required_columns_else_raise_error(
+    df: pd.DataFrame, required_columns: set[str]
+) -> None | ExcelStructureProblem:
     """
     This function takes a pd.DataFrame and a set of required column names.
     It checks if all the columns from the set are in the pd.DataFrame.
     Additional columns to the ones in the set are allowed.
-    It raises an error if any columns are missing.
 
     Args:
         df: pd.DataFrame that is checked
         required_columns: set of column names
 
-    Raises:
-        UserError: if there are required columns missing
+    Returns:
+        An object if
     """
     if not required_columns.issubset(set(df.columns)):
-        raise UserError(
-            f"The following columns are missing in the excel:\n" f"{required_columns.difference(set(df.columns))}"
+        required = ", ".join(list(required_columns.difference(set(df.columns))))
+        return ExcelStructureProblem(
+            user_msg="The following required columns are missing in the excel:", column=required
         )
+    return None
 
 
-def check_column_for_duplicate_else_raise_error(df: pd.DataFrame, to_check_column: str) -> None:
+def check_column_for_duplicate(df: pd.DataFrame, to_check_column: str) -> None | ExcelContentProblem:
     """
     This function checks if a specified column contains duplicate values.
     Empty cells (pd.NA) also count as duplicates.
@@ -95,16 +98,19 @@ def check_column_for_duplicate_else_raise_error(df: pd.DataFrame, to_check_colum
         df: pd.DataFrame that is checked for duplicates
         to_check_column: Name of the column that must not contain duplicates
 
-    Raises:
-        UserError: if there are duplicates in the column
+    Returns:
+        If there are problems it returns an object that stores the relevant user information.
+
     """
     if df[to_check_column].duplicated().any():
-        # If it does, it creates a string with all the duplicate values and raises an error.
-        duplicate_values = ",".join(df[to_check_column][df[to_check_column].duplicated()].tolist())
-        raise UserError(
-            f"The column '{to_check_column}' may not contain any duplicate values. "
-            f"The following values appeared multiple times '{duplicate_values}'."
+        duplicate_values = df[to_check_column][df[to_check_column].duplicated()].tolist()
+        return ExcelContentProblem(
+            user_msg="Duplicate values are not allowed in the following:",
+            column=to_check_column,
+            values=duplicate_values,
         )
+    else:
+        return None
 
 
 def check_required_values(df: pd.DataFrame, required_values_columns: list[str]) -> dict[str, pd.Series]:

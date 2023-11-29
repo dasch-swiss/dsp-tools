@@ -11,7 +11,7 @@ import regex
 
 import dsp_tools.commands.excel2json.utils as utl
 from dsp_tools.models.exceptions import InputError, UserError
-from dsp_tools.models.input_error import ExcelContentProblem, ExcelStructureProblem
+from dsp_tools.models.input_error import ExcelContentProblem
 
 languages = ["en", "de", "fr", "it", "rm"]
 language_label_col = ["label_en", "label_de", "label_fr", "label_it", "label_rm"]
@@ -248,15 +248,15 @@ def _check_compliance_gui_attributes(df: pd.DataFrame) -> dict[str, pd.Series] |
         must_have_value=False,
     )
     # If neither has a problem, we return None
-    if mandatory_check is None and no_attribute_check is None:
-        return None
-    # If both have problems, we combine the series
-    elif mandatory_check is not None and no_attribute_check is not None:
-        final_series = pd.Series(np.logical_or(mandatory_check, no_attribute_check))
-    elif mandatory_check is not None:
-        final_series = mandatory_check
-    else:
-        final_series = no_attribute_check
+    match mandatory_check, no_attribute_check:
+        case None, None:
+            return None
+        case pd.Series(), pd.Series():
+            final_series = pd.Series(np.logical_or(mandatory_check, no_attribute_check))
+        case pd.Series(), None:
+            final_series = mandatory_check
+        case None, pd.Series:
+            final_series = no_attribute_check
     # The boolean series is returned
     return {"gui_attributes": final_series}
 

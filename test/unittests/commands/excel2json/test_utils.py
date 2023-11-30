@@ -34,7 +34,7 @@ class TestUtils(unittest.TestCase):
     def test_check_contains_required_columns_else_raise_error(self) -> None:
         original_df = pd.DataFrame(columns=["col1", "col2", "col3", "extra_col"])
         required = {"col1", "col2", "col3"}
-        assert not utl.check_contains_required_columns_else_raise_error(df=original_df, required_columns=required)
+        utl.check_contains_required_columns_else_raise_error(df=original_df, required_columns=required)
 
         required = {"col1", "col2", "col3", "col4"}
         expected_msg = re.escape("The following columns are missing in the excel:\ncol4")
@@ -48,7 +48,7 @@ class TestUtils(unittest.TestCase):
                 "col_2": ["1.54", "0-1", "1-n", "text", "neu"],
             }
         )
-        assert not utl.check_column_for_duplicate_else_raise_error(df=original_df, to_check_column="col_2")
+        utl.check_column_for_duplicate_else_raise_error(df=original_df, to_check_column="col_2")
 
         expected_msg = re.escape(
             "The column 'col_1' may not contain any duplicate values. "

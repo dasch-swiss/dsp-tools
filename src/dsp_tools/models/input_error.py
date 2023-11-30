@@ -55,10 +55,6 @@ class ExcelStructureProblem:
         Returns:
             message for the error
         """
-        msg = self._generate_error_msg()
-        return msg
-
-    def _generate_error_msg(self) -> str:
         msg = self.user_msg + separator
         if self.column:
             msg += "Column(s):" + list_separator.join(self.column)
@@ -81,10 +77,6 @@ class ExcelContentProblem:
         Returns:
             message for the error
         """
-        msg = self._generate_error_msg()
-        return msg
-
-    def _generate_error_msg(self) -> str:
         msg = [self.user_msg]
         if self.column:
             msg.append("Column: " + self.column)

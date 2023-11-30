@@ -93,10 +93,10 @@ class JsonValidationProblem:
     """This class contains information about a JSON that fails its validation against the schema."""
 
     user_msg: str
+    json_section: str
+    problematic_value: str
     original_msg: str | None = None
     message_path: str | None = None
-    property: str | None = None
-    resource_class: str | None = None
     excel_column: str | None = None
     excel_row: int | None = None
 
@@ -107,11 +107,11 @@ class JsonValidationProblem:
         Returns:
             message for the error
         """
-        msg = [self.user_msg]
-        if self.property:
-            msg.append(f"Problematic Property: '{self.property}'")
-        if self.resource_class:
-            msg.append(f"Problematic Class: '{self.resource_class}'")
+        msg = [
+            self.user_msg,
+            f"Section of the problem: '{self.json_section}'",
+            f"Problematic value: '{self.problematic_value}'",
+        ]
         if self.excel_row:
             msg.append(f"The problem is caused by the value in the Excel row {self.excel_row}")
         if self.excel_column:

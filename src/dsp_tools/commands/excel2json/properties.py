@@ -57,7 +57,8 @@ def _search_json_validation_error_get_err_msg_str(
 
         return JsonValidationProblem(
             user_msg=usr_msg,
-            property=wrong_property_name,
+            problematic_value=wrong_property_name,
+            json_section="Properties",
             excel_row=excel_row,
             excel_column=column or None,
             original_msg=val_msg or None,

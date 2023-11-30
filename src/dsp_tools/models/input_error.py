@@ -4,8 +4,8 @@ from typing import Protocol
 # pylint: disable=too-few-public-methods
 
 
-separator = "\n\t"
-list_separator = "\n\t- "
+separator = "\n    "
+list_separator = "\n    - "
 
 
 class Problem(Protocol):

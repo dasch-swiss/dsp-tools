@@ -72,11 +72,11 @@ class InternalError(BaseError):
         default_msg = (
             "\n\nAn internal error occurred.\n"
             "Please contact the dsp-tools development team with the following information:\n"
-            "\t- Which command was used.\n"
-            "\t- If applicable, any files that were used in conjunction with the command.\n"
-            "\t- A file with the terminal output copied into.\n"
-            "\t- The log files called 'logging.log', if there are several, include all.\n"
-            f"\t  They can be found at: {Path.home() / Path('.dsp-tools')}\n"
+            "    - Which command was used.\n"
+            "    - If applicable, any files that were used in conjunction with the command.\n"
+            "    - A file with the terminal output copied into.\n"
+            "    - The log files called 'logging.log', if there are several, include all.\n"
+            f"      They can be found at: {Path.home() / Path('.dsp-tools')}\n"
         )
 
         match keep_default_msg, custom_msg:
@@ -98,11 +98,11 @@ class RetryError(BaseError):
         default_msg = (
             "\n\nAn internal error occurred.\n"
             "Please contact the dsp-tools development team with the following information:\n"
-            "\t- Which command was used.\n"
-            "\t- If applicable, any files that were used in conjunction with the command.\n"
-            "\t- A file with the terminal output copied into.\n"
-            "\t- The log files called 'logging.log', if there are several, include all.\n"
-            f"\t  They can be found at: {Path.home() / Path('.dsp-tools')}\n"
+            "    - Which command was used.\n"
+            "    - If applicable, any files that were used in conjunction with the command.\n"
+            "    - A file with the terminal output copied into.\n"
+            "    - The log files called 'logging.log', if there are several, include all.\n"
+            f"     They can be found at: {Path.home() / Path('.dsp-tools')}\n"
         )
 
         match keep_default_msg, custom_msg:

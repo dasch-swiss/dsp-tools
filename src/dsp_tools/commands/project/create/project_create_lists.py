@@ -118,7 +118,7 @@ def create_lists_on_server(
                 "id": existing_lst[0].iri,
                 "nodes": new_lst["nodes"],
             }
-            print(f"\tWARNING: List '{new_lst['name']}' already exists on the DSP server. Skipping...")
+            print(f"    WARNING: List '{new_lst['name']}' already exists on the DSP server. Skipping...")
             overall_success = False
             continue
 
@@ -126,7 +126,7 @@ def create_lists_on_server(
         current_project_lists.update(created_list)
         if not success:
             overall_success = False
-        print(f"\tCreated list '{new_lst['name']}'.")
+        print(f"    Created list '{new_lst['name']}'.")
 
     return current_project_lists, overall_success
 

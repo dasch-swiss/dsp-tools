@@ -70,7 +70,7 @@ def get_project(
         for group in groups:
             groups_obj.append(group.createDefinitionFileObj())
             if verbose:
-                print(f"\tGot group '{group.name}'")
+                print(f"    Got group '{group.name}'")
     project_obj["groups"] = groups_obj
 
     # get users
@@ -91,7 +91,7 @@ def get_project(
                 )
             )
             if verbose:
-                print(f"\tGot user '{usr.username}'")
+                print(f"    Got user '{usr.username}'")
         project_obj["users"] = users_obj
 
     # get the lists
@@ -103,7 +103,7 @@ def get_project(
             complete_list = list_root.getAllNodes()
             list_obj.append(complete_list.createDefinitionFileObj())
             if verbose:
-                print(f"\tGot list '{list_root.name}'")
+                print(f"    Got list '{list_root.name}'")
     project_obj["lists"] = list_obj
 
     # get the ontologies
@@ -121,7 +121,7 @@ def get_project(
         project_obj["ontologies"].append(ontology.createDefinitionFileObj())
         prefixes.update(ontology.context.get_externals_used())
         if verbose:
-            print(f"\tGot ontology '{name}'")
+            print(f"    Got ontology '{name}'")
 
     schema = "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json"
     outfile_content = {

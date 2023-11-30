@@ -86,8 +86,8 @@ class InvalidOntologyElements:
             separator = "\n----------------------------\n"
 
             def _format_cls(cls_tup: tuple[str, list[str], str]) -> str:
-                ids = "\n\t- " + "\n\t- ".join(cls_tup[1])
-                return f"\tResource Type: '{cls_tup[0]}'\n\tProblem: '{cls_tup[2]}'\n\tResource ID(s):{ids}"
+                ids = "\n    - " + "\n    - ".join(cls_tup[1])
+                return f"    Resource Type: '{cls_tup[0]}'\n    Problem: '{cls_tup[2]}'\n    Resource ID(s):{ids}"
 
             problems = [_format_cls(x) for x in self.classes]
 
@@ -100,8 +100,8 @@ class InvalidOntologyElements:
             separator = "\n----------------------------\n"
 
             def _format_prop(prop_tup: tuple[str, list[str], str]) -> str:
-                ids = "\n\t- " + "\n\t- ".join(prop_tup[1])
-                return f"\tProperty Name: '{prop_tup[0]}'\n\tProblem: '{prop_tup[2]}'\n\tResource ID(s):{ids}"
+                ids = "\n    - " + "\n    - ".join(prop_tup[1])
+                return f"    Property Name: '{prop_tup[0]}'\n    Problem: '{prop_tup[2]}'\n    Resource ID(s):{ids}"
 
             problems = [_format_prop(x) for x in self.properties]
             return "The following resource(s) have invalid property type(s):\n\n" + separator.join(problems)

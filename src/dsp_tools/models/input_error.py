@@ -21,27 +21,6 @@ class Problem(Protocol):
 
 
 @dataclass(frozen=True)
-class DockerNotStartedProblem:
-    """This class contains information if the docker program is not started."""
-
-    user_msg: str
-
-
-@dataclass(frozen=True)
-class DirectoryProblem:
-    """This class contains information if a path does not exist."""
-
-    user_msg: str
-
-
-@dataclass(frozen=True)
-class FileNotFoundProblem:
-    """This class contains information if a file is not found at the expected location."""
-
-    user_msg: str
-
-
-@dataclass(frozen=True)
 class ExcelStructureProblem:
     """This class contains information if the structure (column names, etc.) is incorrect."""
 

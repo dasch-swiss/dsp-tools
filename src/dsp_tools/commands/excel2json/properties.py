@@ -48,8 +48,6 @@ def _search_json_validation_error_get_err_msg_str(
         # fmt: on
         excel_row = int(json_path_to_property.group(1)) + 2
 
-        column = None
-        val_msg = None
         if affected_field := regex.search(
             r"name|labels|comments|super|subject|object|gui_element|gui_attributes",
             validation_error.json_path,
@@ -61,8 +59,8 @@ def _search_json_validation_error_get_err_msg_str(
             user_msg=usr_msg,
             property=wrong_property_name,
             excel_row=excel_row,
-            excel_column=column,
-            original_msg=val_msg,
+            excel_column=column or None,
+            original_msg=val_msg or None,
         )
     return JsonValidationProblem(
         user_msg=usr_msg, original_msg=validation_error.message, message_path=validation_error.json_path

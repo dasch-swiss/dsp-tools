@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import regex
 
-from dsp_tools.models.input_error import ExcelContentProblem, ExcelStructureProblem
+from dsp_tools.models.input_error import DuplicatesInColumnProblem, RequiredColumnMissingProblem
 
 languages = ["en", "de", "fr", "it", "rm"]
 
@@ -67,7 +67,7 @@ def clean_data_frame(df: pd.DataFrame) -> pd.DataFrame:
 
 def check_contains_required_columns_else_raise_error(
     df: pd.DataFrame, required_columns: set[str]
-) -> None | ExcelStructureProblem:
+) -> None | RequiredColumnMissingProblem:
     """
     This function takes a pd.DataFrame and a set of required column names.
     It checks if all the columns from the set are in the pd.DataFrame.
@@ -82,13 +82,11 @@ def check_contains_required_columns_else_raise_error(
     """
     if not required_columns.issubset(set(df.columns)):
         required = list(required_columns.difference(set(df.columns)))
-        return ExcelStructureProblem(
-            user_msg="The following required columns are missing in the excel:", column=required
-        )
+        return RequiredColumnMissingProblem(columns=required)
     return None
 
 
-def check_column_for_duplicate(df: pd.DataFrame, to_check_column: str) -> None | ExcelContentProblem:
+def check_column_for_duplicate(df: pd.DataFrame, to_check_column: str) -> None | DuplicatesInColumnProblem:
     """
     This function checks if a specified column contains duplicate values.
     Empty cells (pd.NA) also count as duplicates.
@@ -104,10 +102,9 @@ def check_column_for_duplicate(df: pd.DataFrame, to_check_column: str) -> None |
     """
     if df[to_check_column].duplicated().any():
         duplicate_values = df[to_check_column][df[to_check_column].duplicated()].tolist()
-        return ExcelContentProblem(
-            user_msg="Duplicate values are not allowed in the following:",
+        return DuplicatesInColumnProblem(
             column=to_check_column,
-            values=duplicate_values,
+            duplicate_values=duplicate_values,
         )
     else:
         return None

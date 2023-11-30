@@ -11,7 +11,7 @@ import regex
 
 import dsp_tools.commands.excel2json.utils as utl
 from dsp_tools.models.exceptions import InputError
-from dsp_tools.models.input_error import ExcelContentProblem, JsonValidationProblem
+from dsp_tools.models.input_error import InvalidExcelContentProblem, JsonValidationProblem, MissingValuesInRowProblem
 
 languages = ["en", "de", "fr", "it", "rm"]
 language_label_col = ["label_en", "label_de", "label_fr", "label_it", "label_rm"]
@@ -37,7 +37,7 @@ def _search_json_validation_error_get_err_msg_str(
     Returns:
         A string which is used in the Error message that contains detailed information about the problem
     """
-    usr_msg = f"The 'properties' section defined in the Excel file '{excelfile}' did not pass validation."
+    usr_msg = f"The Excel file '{excelfile}' did not pass validation."
     if json_path_to_property := regex.search(r"^\$\[(\d+)\]", validation_error.json_path):
         # fmt: off
         wrong_property_name = (
@@ -162,8 +162,9 @@ def _format_gui_attribute(attribute_str: str) -> dict[str, str | int | float]:
 
 
 def _get_gui_attribute(
-    df_row: pd.Series, row_num: int, excelfile: str
-) -> dict[str, int | str | float] | ExcelContentProblem | None:
+    df_row: pd.Series,
+    row_num: int,
+) -> dict[str, int | str | float] | InvalidExcelContentProblem | None:
     """
     This function checks if the cell "gui_attributes" is empty.
     If it is, it returns None.
@@ -172,7 +173,6 @@ def _get_gui_attribute(
     Args:
         df_row: Row of a pd.DataFrame
         row_num: The number of the row (index + 2)
-        excelfile: The name of the Excel file.
 
     Returns:
         A gui_attribute dictionary or None if there are no attributes
@@ -186,12 +186,11 @@ def _get_gui_attribute(
     try:
         return _format_gui_attribute(attribute_str=df_row["gui_attributes"])
     except IndexError:
-        return ExcelContentProblem(
-            user_msg=f"The Excel file '{excelfile}' has invalid content.\nThe expected format is "
-            f"'attribute: value, attribute: value'",
+        return InvalidExcelContentProblem(
+            expected_content="attribute: value, attribute: value",
+            actual_content=df_row["gui_attributes"],
             column="gui_attributes",
-            rows=[row_num],
-            values=[df_row["gui_attributes"]],
+            row=row_num,
         )
 
 
@@ -215,12 +214,12 @@ def _row2prop(df_row: pd.Series, row_num: int, excelfile: str) -> dict[str, Any]
         "super": [s.strip() for s in df_row["super"].split(",")],
     }
 
-    gui_attrib = _get_gui_attribute(df_row=df_row, row_num=row_num, excelfile=excelfile)
+    gui_attrib = _get_gui_attribute(df_row=df_row, row_num=row_num)
     match gui_attrib:
         case dict():
             _property["gui_attributes"] = gui_attrib
-        case ExcelContentProblem():
-            msg = gui_attrib.execute_error_protocol()
+        case InvalidExcelContentProblem():
+            msg = f"There is a problem with the excel file: '{excelfile}'\n" + gui_attrib.execute_error_protocol()
             raise InputError(msg) from None
 
     if comment := utl.get_comments(df_row=df_row):
@@ -276,7 +275,7 @@ def _check_compliance_gui_attributes(df: pd.DataFrame) -> dict[str, pd.Series] |
     return {"gui_attributes": final_series}
 
 
-def _check_missing_values_in_row(df: pd.DataFrame) -> None | list[ExcelContentProblem]:
+def _check_missing_values_in_row(df: pd.DataFrame) -> None | list[MissingValuesInRowProblem]:
     """
     This function checks if all the required values are in the df.
     If all the checks are ok, the function ends without any effect.
@@ -304,12 +303,7 @@ def _check_missing_values_in_row(df: pd.DataFrame) -> None | list[ExcelContentPr
     if missing_dict:
         # Get the row numbers from the boolean series
         missing_dict = utl.get_wrong_row_numbers(wrong_row_dict=missing_dict, true_remains=True)
-        return [
-            ExcelContentProblem(
-                user_msg="There are missing values in a column that must not be empty:", column=col, rows=row_nums
-            )
-            for col, row_nums in missing_dict.items()
-        ]
+        return [MissingValuesInRowProblem(column=col, row_numbers=row_nums) for col, row_nums in missing_dict.items()]
     else:
         return None
 
@@ -335,7 +329,7 @@ def _do_property_excel_compliance(df: pd.DataFrame, excelfile: str) -> None:
         "gui_element",
         "gui_attributes",
     }
-    problems = [
+    problems: list[Any] = [
         utl.check_contains_required_columns_else_raise_error(df=df, required_columns=required_columns),
         utl.check_column_for_duplicate(df=df, to_check_column="name"),
     ]
@@ -344,8 +338,8 @@ def _do_property_excel_compliance(df: pd.DataFrame, excelfile: str) -> None:
     if any(problems):
         extra = [problem.execute_error_protocol() for problem in problems if problem]
 
-        msg = [f"The excel file '{excelfile}' has some problems:", *extra]
-        raise InputError("\n".join(msg))
+        msg = [f"There is a problem with the excel file: '{excelfile}'", *extra]
+        raise InputError("\n\n".join(msg))
 
 
 def _rename_deprecated_hlist(df: pd.DataFrame, excelfile: str) -> pd.DataFrame:

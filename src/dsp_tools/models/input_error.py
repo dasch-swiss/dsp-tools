@@ -21,11 +21,10 @@ class Problem(Protocol):
 
 
 @dataclass(frozen=True)
-class ExcelStructureProblem:
-    """This class contains information if the structure (column names, etc.) is incorrect."""
+class RequiredColumnMissingProblem:
+    """This class contains information if a required column is missing."""
 
-    user_msg: str
-    column: list[str] | None = None
+    columns: list[str]
 
     def execute_error_protocol(self) -> str:
         """
@@ -34,20 +33,15 @@ class ExcelStructureProblem:
         Returns:
             message for the error
         """
-        msg = self.user_msg + separator
-        if self.column:
-            msg += "Column(s):" + list_separator.join(self.column)
-        return msg
+        return f"The following required column(s) are missing:{list_separator}{list_separator.join(self.columns)}"
 
 
 @dataclass(frozen=True)
-class ExcelContentProblem:
-    """This class contains information if the content of an Excel is not as expected."""
+class DuplicatesInColumnProblem:
+    """This class contains information if a required column is missing."""
 
-    user_msg: str
-    column: str | None = None
-    rows: list[int] | None = None
-    values: list[str] | None = None
+    column: str
+    duplicate_values: list[str]
 
     def execute_error_protocol(self) -> str:
         """
@@ -56,15 +50,52 @@ class ExcelContentProblem:
         Returns:
             message for the error
         """
-        msg = [self.user_msg]
-        if self.column:
-            msg.append("Column: " + self.column)
-        if self.rows:
-            rws = [str(x) for x in self.rows]
-            msg.append("Row(s):" + list_separator + list_separator.join(rws))
-        if self.values:
-            msg.append("Value(s):" + list_separator + list_separator.join(self.values))
-        return separator.join(msg)
+        return (
+            f"No duplicates are allowed in the column '{self.column}'\n"
+            f"The following values appear several times:{list_separator}"
+            f"{list_separator.join(self.duplicate_values)}"
+        )
+
+
+@dataclass(frozen=True)
+class MissingValuesInRowProblem:
+    """This class contains information if a required column is missing."""
+
+    column: str
+    row_numbers: list[int]
+
+    def execute_error_protocol(self) -> str:
+        """
+        This function initiates all the steps for successful problem communication with the user.
+
+        Returns:
+            message for the error
+        """
+        nums = [str(x) for x in self.row_numbers]
+        return f"The column '{self.column}' must have values in the row(s):{list_separator}{list_separator.join(nums)}"
+
+
+@dataclass(frozen=True)
+class InvalidExcelContentProblem:
+    """This class contains information if a required column is missing."""
+
+    expected_content: str
+    actual_content: str
+    column: str
+    row: int
+
+    def execute_error_protocol(self) -> str:
+        """
+        This function initiates all the steps for successful problem communication with the user.
+
+        Returns:
+            message for the error
+        """
+        return (
+            f"There is invalid content in the column: '{self.column}', row: {self.row}{separator}"
+            f"Expected Content: {self.expected_content}{separator}"
+            f"Actual Content: {self.actual_content}"
+        )
 
 
 @dataclass(frozen=True)

@@ -14,6 +14,7 @@ from pandas.testing import assert_frame_equal
 
 from dsp_tools.commands.excel2json import properties as e2j
 from dsp_tools.models.exceptions import InputError
+from dsp_tools.models.input_error import InvalidExcelContentProblem
 
 excelfile = "testdata/excel2json/excel2json_files/test-name (test_label)/properties.xlsx"
 output_from_method, _ = e2j.excel2properties(excelfile, None)
@@ -379,36 +380,24 @@ class TestFunctions(unittest.TestCase):
         )
         expected_msg = re.escape(
             (
-                "The excel file 'Test' has some problems:\n"
-                "There are missing values in a column that must not be empty:\n"
-                "    Column: name\n"
-                "    Row(s):\n"
-                "    - 9\n"
-                "There are missing values in a column that must not be empty:\n"
-                "    Column: super\n"
-                "    Row(s):\n"
+                "There is a problem with the excel file: 'Test'\n\n"
+                "The column 'name' must have values in the row(s):\n"
+                "    - 9\n\n"
+                "The column 'super' must have values in the row(s):\n"
                 "    - 2\n"
                 "    - 4\n"
-                "    - 9\n"
-                "There are missing values in a column that must not be empty:\n"
-                "    Column: object\n"
-                "    Row(s):\n"
+                "    - 9\n\n"
+                "The column 'object' must have values in the row(s):\n"
                 "    - 5\n"
-                "    - 9\n"
-                "There are missing values in a column that must not be empty:\n"
-                "    Column: gui_element\n"
-                "    Row(s):\n"
+                "    - 9\n\n"
+                "The column 'gui_element' must have values in the row(s):\n"
                 "    - 6\n"
                 "    - 8\n"
-                "    - 9\n"
-                "There are missing values in a column that must not be empty:\n"
-                "    Column: label\n"
-                "    Row(s):\n"
+                "    - 9\n\n"
+                "The column 'label' must have values in the row(s):\n"
                 "    - 3\n"
-                "    - 8\n"
-                "There are missing values in a column that must not be empty:\n"
-                "    Column: gui_attributes\n"
-                "    Row(s):\n"
+                "    - 8\n\n"
+                "The column 'gui_attributes' must have values in the row(s):\n"
                 "    - 7"
             )
         )
@@ -446,22 +435,25 @@ class TestFunctions(unittest.TestCase):
         original_df = pd.DataFrame(
             {"gui_attributes": [pd.NA, "max:1.4 / min:1.2", "hlist:", "234345", "hlist: languages,"]}
         )
-        self.assertIsNone(e2j._get_gui_attribute(df_row=original_df.loc[0, :], row_num=2, excelfile="Test"))
+        self.assertIsNone(e2j._get_gui_attribute(df_row=original_df.loc[0, :], row_num=2))
 
-        res_problem_1 = e2j._get_gui_attribute(df_row=original_df.loc[1, :], row_num=3, excelfile="Test")
-        assert res_problem_1.rows == [3]  # type: ignore[union-attr]
-        assert res_problem_1.values == ["max:1.4 / min:1.2"]  # type: ignore[union-attr]
+        res_1 = e2j._get_gui_attribute(df_row=original_df.loc[1, :], row_num=3)
+        res_problem_1 = cast(InvalidExcelContentProblem, res_1)
+        assert res_problem_1.row == 3
+        assert res_problem_1.actual_content == "max:1.4 / min:1.2"
 
-        res_problem_2 = e2j._get_gui_attribute(df_row=original_df.loc[2, :], row_num=4, excelfile="Test")
-        assert res_problem_2.rows == [4]  # type: ignore[union-attr]
-        assert res_problem_2.values == ["hlist:"]  # type: ignore[union-attr]
+        res_2 = e2j._get_gui_attribute(df_row=original_df.loc[2, :], row_num=4)
+        res_problem_2 = cast(InvalidExcelContentProblem, res_2)
+        assert res_problem_2.row == 4
+        assert res_problem_2.actual_content == "hlist:"
 
-        res_problem_3 = e2j._get_gui_attribute(df_row=original_df.loc[3, :], row_num=5, excelfile="Test")
-        assert res_problem_3.rows == [5]  # type: ignore[union-attr]
-        assert res_problem_3.values == ["234345"]  # type: ignore[union-attr]
+        res_3 = e2j._get_gui_attribute(df_row=original_df.loc[3, :], row_num=5)
+        res_problem_3 = cast(InvalidExcelContentProblem, res_3)
+        assert res_problem_3.row == 5
+        assert res_problem_3.actual_content == "234345"
 
         expected_dict = {"hlist": "languages"}
-        returned_dict = e2j._get_gui_attribute(df_row=original_df.loc[4, :], row_num=6, excelfile="Test")
+        returned_dict = e2j._get_gui_attribute(df_row=original_df.loc[4, :], row_num=6)
         self.assertDictEqual(expected_dict, cast(dict[str, str], returned_dict))
 
     def test_check_compliance_gui_attributes_all_good(self) -> None:
@@ -557,14 +549,11 @@ class TestFunctions(unittest.TestCase):
     def test_excel2properties_invalid_gui_attrib_format(self) -> None:
         expected_msg = re.escape(
             (
-                "The Excel file 'testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute_format.xlsx' "
-                "has invalid content.\n"
-                "The expected format is 'attribute: value, attribute: value'\n"
-                "    Column: gui_attributes\n"
-                "    Row(s):\n"
-                "    - 4\n"
-                "    Value(s):\n"
-                "    - max=10, min=5"
+                "There is a problem with the excel file: "
+                "'testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute_format.xlsx'\n"
+                "There is invalid content in the column: 'gui_attributes', row: 4\n"
+                "    Expected Content: attribute: value, attribute: value\n"
+                "    Actual Content: max=10, min=5"
             )
         )
         with pytest.raises(InputError, match=expected_msg):
@@ -580,7 +569,7 @@ class TestValidateProperties:
 
     def test_invalid_super(self) -> None:
         expected_msg = re.escape(
-            "The 'properties' section defined in the Excel file "
+            "The Excel file "
             "'testdata/invalid-testdata/excel2json/properties-invalid-super.xlsx' did not pass validation.\n"
             "    Section of the problem: 'Properties'\n"
             "    Problematic value: 'hasGeoname'\n"
@@ -595,7 +584,7 @@ class TestValidateProperties:
 
     def test_invalid_object(self) -> None:
         expected_msg = re.escape(
-            "The 'properties' section defined in the Excel file "
+            "The Excel file "
             "'testdata/invalid-testdata/excel2json/properties-invalid-object.xlsx' did not pass validation.\n"
             "    Section of the problem: 'Properties'\n"
             "    Problematic value: 'hasBoolean'\n"
@@ -610,7 +599,7 @@ class TestValidateProperties:
 
     def test_invalid_gui_element(self) -> None:
         expected_msg = re.escape(
-            "The 'properties' section defined in the Excel file "
+            "The Excel file "
             "'testdata/invalid-testdata/excel2json/properties-invalid-gui_element.xlsx' did not pass validation.\n"
             "    Section of the problem: 'Properties'\n"
             "    Problematic value: 'hasInterval'\n"
@@ -626,7 +615,7 @@ class TestValidateProperties:
 
     def test_invalid_gui_attrib_values(self) -> None:
         expected_msg = re.escape(
-            "The 'properties' section defined in the Excel file "
+            "The Excel file "
             "'testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute_values.xlsx' "
             "did not pass validation.\n"
             "    Section of the problem: 'Properties'\n"

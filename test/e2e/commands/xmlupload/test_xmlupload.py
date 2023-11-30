@@ -33,10 +33,10 @@ class TestXMLUpload(unittest.TestCase):
             r"\nSome property and/or class type\(s\) used in the XML are unknown\:\n\n"
             r"---------------------------------------\n\n"
             r"The following resource\(s\) have an invalid resource type\:\n\n"
-            r"\tResource Type\: '\:minimalResource'\n"
-            r"\tProblem\: 'Unknown ontology prefix'\n"
-            r"\tResource ID\(s\)\:\n"
-            r"\t- the_only_resource\n\n"
+            r"    Resource Type\: '\:minimalResource'\n"
+            r"    Problem\: 'Unknown ontology prefix'\n"
+            r"    Resource ID\(s\)\:\n"
+            r"    - the_only_resource\n\n"
             r"---------------------------------------\n\n"
         )
         with self.assertRaisesRegex(UserError, expected):

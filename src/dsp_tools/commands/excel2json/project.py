@@ -17,6 +17,7 @@ def excel2json(
     """
     Converts a folder containing Excel files into a JSON data model file. The folder must be structured like this:
 
+    ::
 
         data_model_files
         |-- lists

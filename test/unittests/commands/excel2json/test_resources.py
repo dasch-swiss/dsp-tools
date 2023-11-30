@@ -4,6 +4,7 @@
 
 import json
 import os
+import re
 import shutil
 import unittest
 from typing import Any
@@ -194,41 +195,58 @@ class TestExcelToResource(unittest.TestCase):
         self.assertListEqual(excel_first_class_properties, json_first_class_properties)
         self.assertListEqual(excel_first_class_cardinalities, json_first_class_cardinalities)
 
-    def test_validate_resources_with_schema(self) -> None:
-        # it is not possible to call the method to be tested directly.
-        # So let's make a reference to it, so that it can be found by the usage search
-        lambda x: e2j._validate_resources([], "file")  # pylint: disable=expression-not-assigned,protected-access
 
-        testcases = [
+class TestValidateWithSchema:
+    # it is not possible to call the method to be tested directly.
+    # So let's make a reference to it, so that it can be found by the usage search
+    lambda x: e2j._validate_resources([], "file")  # pylint: disable=expression-not-assigned,protected-access
+
+    def test_invalid_super(self) -> None:
+        expected_msg = re.escape(
             (
-                "testdata/invalid-testdata/excel2json/resources-invalid-super.xlsx",
                 "did not pass validation. The problem is that the Excel sheet 'classes' contains an invalid value "
-                "for resource 'Title', in row 3, column 'super': 'fantasy' is not valid under any of the given schemas",
-            ),
-            (
-                "testdata/invalid-testdata/excel2json/resources-invalid-missing-sheet.xlsx",
-                "Worksheet named 'GenericAnthroponym' not found",
-            ),
-            (
-                "testdata/invalid-testdata/excel2json/resources-invalid-cardinality.xlsx",
-                "did not pass validation. The problem is that the Excel sheet 'Owner' contains an invalid value "
-                "in row 3, column 'Cardinality': '0-2' is not one of",
-            ),
-            (
-                "testdata/invalid-testdata/excel2json/resources-invalid-property.xlsx",
-                "did not pass validation. The problem is that the Excel sheet 'FamilyMember' contains an invalid value "
-                "in row 7, column 'Property': ':fan:ta:sy' does not match ",
-            ),
-            (
-                "testdata/invalid-testdata/excel2json/resources-duplicate-name.xlsx",
-                "Resource names must be unique inside every ontology, but your Excel file '.+' contains duplicates:\n"
-                r" - Row 3: MentionedPerson\n - Row 4: MentionedPerson",
-            ),
-        ]
+                "for resource 'Title', in row 3, column 'super': 'fantasy' is not valid under any of the given schemas"
+            )
+        )
+        with pytest.raises(BaseError, match=expected_msg):
+            e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-invalid-super.xlsx", "")
 
-        for file, message in testcases:
-            with self.assertRaisesRegex(BaseError, message):
-                e2j.excel2resources(file, self.outfile)
+    def test_missing_sheet(self) -> None:
+        expected_msg = re.escape("Worksheet named 'GenericAnthroponym' not found")
+        with pytest.raises(BaseError, match=expected_msg):
+            e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-invalid-missing-sheet.xlsx", "")
+
+    def test_sheet_invalid_cardinality(self) -> None:
+        expected_msg = re.escape(
+            (
+                "did not pass validation. The problem is that the Excel sheet 'Owner' contains an invalid value "
+                "in row 3, column 'Cardinality': '0-2' is not one of"
+            )
+        )
+        with pytest.raises(BaseError, match=expected_msg):
+            e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-invalid-cardinality.xlsx", "")
+
+    def test_invalid_property(self) -> None:
+        expected_msg = re.escape(
+            (
+                "did not pass validation. The problem is that the Excel sheet 'FamilyMember' contains an invalid value "
+                "in row 7, column 'Property': ':fan:ta:sy' does not match "
+            )
+        )
+        with pytest.raises(BaseError, match=expected_msg):
+            e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-invalid-property.xlsx", "")
+
+    def test_duplicate_name(self) -> None:
+        expected_msg = re.escape(
+            (
+                "Resource names must be unique inside every ontology, but your Excel file "
+                "'testdata/invalid-testdata/excel2json/resources-duplicate-name.xlsx' contains duplicates:\n"
+                " - Row 3: MentionedPerson\n"
+                " - Row 4: MentionedPerson"
+            )
+        )
+        with pytest.raises(BaseError, match=expected_msg):
+            e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-duplicate-name.xlsx", "")
 
 
 if __name__ == "__main__":

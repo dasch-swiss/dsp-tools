@@ -81,9 +81,9 @@ class InternalError(BaseError):
 
         match keep_default_msg, custom_msg:
             case False, str():
-                super().__init__(custom_msg)
+                super().__init__(custom_msg)  # type: ignore[arg-type]
             case True, str():
-                default_msg = "\n\n" + custom_msg + "\n--------------------------" + default_msg
+                default_msg = f"\n\n{custom_msg}\n--------------------------{default_msg}"
                 super().__init__(default_msg)
             case _:
                 super().__init__(default_msg)
@@ -107,9 +107,9 @@ class RetryError(BaseError):
 
         match keep_default_msg, custom_msg:
             case False, str():
-                super().__init__(custom_msg)
+                super().__init__(custom_msg)  # type: ignore[arg-type]
             case True, str():
-                default_msg = "\n\n" + custom_msg + "\n--------------------------" + default_msg
+                default_msg = f"\n\n{custom_msg}\n--------------------------{default_msg}"
                 super().__init__(default_msg)
             case _:
                 super().__init__(default_msg)

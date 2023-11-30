@@ -74,15 +74,18 @@ class TestExcelToJSONList(unittest.TestCase):
         ):
             e2l.validate_lists_section_with_schema(lists_section=self.lists_section_valid)
 
-    def test_validate_lists_section_wrong_signature(self) -> None:
+    def test_validate_lists_section_wrong_signature_wrong_data(self) -> None:
+        """wrong usage of the function: should raise an error"""
+        with self.assertRaisesRegex(BaseError, "works only if exactly one of the two arguments is given"):
+            e2l.validate_lists_section_with_schema()
+
+    def test_validate_lists_section_wrong_signature_no_data(self) -> None:
         """wrong usage of the function: should raise an error"""
         with self.assertRaisesRegex(BaseError, "works only if exactly one of the two arguments is given"):
             e2l.validate_lists_section_with_schema(
                 path_to_json_project_file="testdata/json-project/test-project-systematic.json",
                 lists_section=self.lists_section_valid,
             )
-        with self.assertRaisesRegex(BaseError, "works only if exactly one of the two arguments is given"):
-            e2l.validate_lists_section_with_schema()
 
     def test_validate_lists_section_file_without_list(self) -> None:
         """pass a file that doesn't have a "lists" section"""

@@ -57,8 +57,8 @@ def _search_json_validation_error_get_err_msg_str(
 
         return JsonValidationProblem(
             user_msg=usr_msg,
-            problematic_value=wrong_property_name,
             json_section="Properties",
+            problematic_value=wrong_property_name,
             excel_row=excel_row,
             excel_column=column or None,
             original_msg=val_msg or None,
@@ -84,9 +84,6 @@ def _validate_properties(
 
     Raises:
         InputError: if the validation fails
-
-    Returns:
-        True if the "properties" section passed validation
     """
     with importlib.resources.files("dsp_tools").joinpath("resources/schema/properties-only.json").open(
         encoding="utf-8"

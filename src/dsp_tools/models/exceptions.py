@@ -130,7 +130,7 @@ class UserError(BaseError):
     """
 
 
-class XmlError(Exception):
+class XmlUploadError(Exception):
     """
     Represents an error raised in the context of the XML import.
     """

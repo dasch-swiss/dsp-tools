@@ -11,10 +11,10 @@ def test_print_problem_string_cls() -> None:
     msg = onto._compose_problem_string_cls()
     assert msg == (
         "The following resource(s) have an invalid resource type:\n\n"
-        "\tResource Type: 'clsA'\n"
-        "\tProblem: 'wrong'\n"
-        "\tResource ID(s):\n"
-        "\t- idA"
+        "    Resource Type: 'clsA'\n"
+        "    Problem: 'wrong'\n"
+        "    Resource ID(s):\n"
+        "    - idA"
     )
 
 
@@ -28,10 +28,10 @@ def test_print_problem_string_prop() -> None:
     msg = onto._compose_problem_string_props()
     assert msg == (
         "The following resource(s) have invalid property type(s):\n\n"
-        "\tProperty Name: 'propA'\n"
-        "\tProblem: 'wrong'\n"
-        "\tResource ID(s):\n"
-        "\t- idA"
+        "    Property Name: 'propA'\n"
+        "    Problem: 'wrong'\n"
+        "    Resource ID(s):\n"
+        "    - idA"
     )
 
 
@@ -48,22 +48,22 @@ def test_execute_problem_protocol() -> None:
         "\nSome property and/or class type(s) used in the XML are unknown:"
         "\n\n---------------------------------------\n\n"
         "The following resource(s) have an invalid resource type:\n\n"
-        "\tResource Type: 'clsA'\n"
-        "\tProblem: 'wrong'\n"
-        "\tResource ID(s):\n"
-        "\t- idA"
+        "    Resource Type: 'clsA'\n"
+        "    Problem: 'wrong'\n"
+        "    Resource ID(s):\n"
+        "    - idA"
         "\n\n---------------------------------------\n\n"
         "The following resource(s) have invalid property type(s):\n\n"
-        "\tProperty Name: 'propA'\n"
-        "\tProblem: 'wrong'\n"
-        "\tResource ID(s):\n"
-        "\t- idA"
+        "    Property Name: 'propA'\n"
+        "    Problem: 'wrong'\n"
+        "    Resource ID(s):\n"
+        "    - idA"
         "\n----------------------------\n"
-        "\tProperty Name: 'propB'\n"
-        "\tProblem: 'wrong'\n"
-        "\tResource ID(s):\n"
-        "\t- idB\n"
-        "\t- idC"
+        "    Property Name: 'propB'\n"
+        "    Problem: 'wrong'\n"
+        "    Resource ID(s):\n"
+        "    - idB\n"
+        "    - idC"
     )
     msg, df = onto.execute_problem_protocol()
     assert not df

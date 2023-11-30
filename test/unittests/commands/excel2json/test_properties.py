@@ -2,10 +2,7 @@
 
 # pylint: disable=missing-class-docstring,missing-function-docstring,protected-access
 
-import json
-import os
 import re
-import shutil
 import unittest
 from typing import Any, cast
 
@@ -18,25 +15,12 @@ from pandas.testing import assert_frame_equal
 from dsp_tools.commands.excel2json import properties as e2j
 from dsp_tools.models.exceptions import InputError
 
+excelfile = "testdata/excel2json/excel2json_files/test-name (test_label)/properties.xlsx"
+output_from_method, _ = e2j.excel2properties(excelfile, None)
+
 
 class TestExcelToProperties(unittest.TestCase):
-    outfile = "testdata/tmp/_out_properties.json"
-
-    @classmethod
-    def setUpClass(cls) -> None:
-        """Is executed once before the methods of this class are run"""
-        os.makedirs("testdata/tmp", exist_ok=True)
-
-    @classmethod
-    def tearDownClass(cls) -> None:
-        """Is executed after the methods of this class have all run through"""
-        shutil.rmtree("testdata/tmp", ignore_errors=True)
-
-    def test_excel2properties(self) -> None:
-        excelfile = "testdata/excel2json/excel2json_files/test-name (test_label)/properties.xlsx"
-        output_from_method, _ = e2j.excel2properties(excelfile, self.outfile)
-
-        # define the expected values from the excel file
+    def test_names(self) -> None:
         excel_names = [
             "correspondsToGenericAnthroponym",
             "hasAnthroponym",
@@ -64,6 +48,10 @@ class TestExcelToProperties(unittest.TestCase):
             "hasLinkToMovingImageRepesentation",
             "hasLinkToAudioRepesentation",
         ]
+        json_names = [match.value for match in jsonpath_ng.parse("$[*].name").find(output_from_method)]
+        self.assertListEqual(excel_names, json_names)
+
+    def test_supers(self) -> None:
         excel_supers = [
             ["hasLinkTo"],
             ["hasValue", "dcterms:creator"],
@@ -91,6 +79,10 @@ class TestExcelToProperties(unittest.TestCase):
             ["hasLinkTo"],
             ["hasLinkTo"],
         ]
+        json_supers = [match.value for match in jsonpath_ng.parse("$[*].super").find(output_from_method)]
+        self.assertListEqual(excel_supers, json_supers)
+
+    def test_objects(self) -> None:
         excel_objects = [
             ":GenericAnthroponym",
             "TextValue",
@@ -118,7 +110,10 @@ class TestExcelToProperties(unittest.TestCase):
             "MovingImageRepresentation",
             "AudioRepresentation",
         ]
+        json_objects = [match.value for match in jsonpath_ng.parse("$[*].object").find(output_from_method)]
+        self.assertListEqual(excel_objects, json_objects)
 
+    def test_labels(self) -> None:
         excel_labels = {
             "de": [
                 "",
@@ -175,6 +170,11 @@ class TestExcelToProperties(unittest.TestCase):
                 "",
             ],
         }  # there are also labels in other languages, but they are not tested
+        json_labels_all = [match.value for match in jsonpath_ng.parse("$[*].labels").find(output_from_method)]
+        json_labels = {lang: [label.get(lang, "").strip() for label in json_labels_all] for lang in ["de", "it"]}
+        self.assertDictEqual(excel_labels, json_labels)
+
+    def test_comments(self) -> None:
         excel_comments = {
             "comment_fr": [
                 "J'avais déjà examiné plusieurs propriétés quand, un jour, le notaire, qui me "
@@ -234,6 +234,13 @@ class TestExcelToProperties(unittest.TestCase):
                 "",
             ],
         }  # there are also comments in other languages, but they are not tested
+        json_comments = {
+            f"comment_{lang}": [resource.get("comments", {}).get(lang, "").strip() for resource in output_from_method]
+            for lang in ["fr", "it"]
+        }
+        self.assertDictEqual(excel_comments, json_comments)
+
+    def test_gui_elements(self) -> None:
         excel_gui_elements = [
             "Searchbox",
             "Richtext",
@@ -262,51 +269,32 @@ class TestExcelToProperties(unittest.TestCase):
             "Searchbox",
         ]
 
-        excel_gui_attributes_hasGender = {"hlist": "gender"}
-        excel_gui_attributes_hasGND = {"size": 100}
-        excel_gui_attributes_hasDecimal = {"min": 0.0, "max": 100.0}
-
-        # read json file
-        with open(self.outfile, encoding="utf-8") as f:
-            output_from_file: list[dict[str, Any]] = json.load(f)
-
-        # check that output from file and from method are equal
-        self.assertListEqual(output_from_file, output_from_method)
-
-        # extract infos from json file
-        json_names = [match.value for match in jsonpath_ng.parse("$[*].name").find(output_from_file)]
-        json_supers = [match.value for match in jsonpath_ng.parse("$[*].super").find(output_from_file)]
-        json_objects = [match.value for match in jsonpath_ng.parse("$[*].object").find(output_from_file)]
-
-        json_labels_all = [match.value for match in jsonpath_ng.parse("$[*].labels").find(output_from_file)]
-        json_labels = {lang: [label.get(lang, "").strip() for label in json_labels_all] for lang in ["de", "it"]}
-        json_comments = {
-            f"comment_{lang}": [resource.get("comments", {}).get(lang, "").strip() for resource in output_from_file]
-            for lang in ["fr", "it"]
-        }
-        json_gui_elements = [match.value for match in jsonpath_ng.parse("$[*].gui_element").find(output_from_file)]
-
-        json_gui_attributes_hasGender = (
-            jsonpath_ng.ext.parse("$[?name='hasGender'].gui_attributes").find(output_from_file)[0].value
-        )
-        json_gui_attributes_hasGND = (
-            jsonpath_ng.ext.parse("$[?name='hasGND'].gui_attributes").find(output_from_file)[0].value
-        )
-        json_gui_attributes_hasDecimal = (
-            jsonpath_ng.ext.parse("$[?name='hasDecimal'].gui_attributes").find(output_from_file)[0].value
-        )
-
-        # make checks
-        self.assertListEqual(excel_names, json_names)
-        self.assertListEqual(excel_supers, json_supers)
-        self.assertListEqual(excel_objects, json_objects)
-        self.assertDictEqual(excel_labels, json_labels)
-        self.assertDictEqual(excel_comments, json_comments)
+        json_gui_elements = [match.value for match in jsonpath_ng.parse("$[*].gui_element").find(output_from_method)]
         self.assertListEqual(excel_gui_elements, json_gui_elements)
-        self.assertDictEqual(excel_gui_attributes_hasGND, json_gui_attributes_hasGND)
-        self.assertDictEqual(excel_gui_attributes_hasDecimal, json_gui_attributes_hasDecimal)
+
+    def test_gui_attributes_hasGender(self) -> None:
+        excel_gui_attributes_hasGender = {"hlist": "gender"}
+        json_gui_attributes_hasGender = (
+            jsonpath_ng.ext.parse("$[?name='hasGender'].gui_attributes").find(output_from_method)[0].value
+        )
         self.assertDictEqual(excel_gui_attributes_hasGender, json_gui_attributes_hasGender)
 
+    def test_gui_attributes_hasGND(self) -> None:
+        excel_gui_attributes_hasGND = {"size": 100}
+        json_gui_attributes_hasGND = (
+            jsonpath_ng.ext.parse("$[?name='hasGND'].gui_attributes").find(output_from_method)[0].value
+        )
+        self.assertDictEqual(excel_gui_attributes_hasGND, json_gui_attributes_hasGND)
+
+    def test_gui_attributes_hasDecimal(self) -> None:
+        excel_gui_attributes_hasDecimal = {"min": 0.0, "max": 100.0}
+        json_gui_attributes_hasDecimal = (
+            jsonpath_ng.ext.parse("$[?name='hasDecimal'].gui_attributes").find(output_from_method)[0].value
+        )
+        self.assertDictEqual(excel_gui_attributes_hasDecimal, json_gui_attributes_hasDecimal)
+
+
+class TestFunctions(unittest.TestCase):
     @pytest.mark.filterwarnings("ignore::UserWarning")
     def test_rename_deprecated_lang_cols(self) -> None:
         original_df = pd.DataFrame(
@@ -476,15 +464,16 @@ class TestExcelToProperties(unittest.TestCase):
         returned_dict = e2j._get_gui_attribute(df_row=original_df.loc[4, :], row_num=6, excelfile="Test")
         self.assertDictEqual(expected_dict, cast(dict[str, str], returned_dict))
 
-    def test_check_compliance_gui_attributes(self) -> None:
+    def test_check_compliance_gui_attributes_all_good(self) -> None:
         original_df = pd.DataFrame(
             {
                 "gui_element": ["Spinbox", "List", "Searchbox", "Date", "Geonames", "Richtext", "TimeStamp"],
                 "gui_attributes": ["Spinbox_attr", "List_attr", pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
             }
         )
-        returned_value = e2j._check_compliance_gui_attributes(df=original_df)
-        self.assertIsNone(cast(None, returned_value))
+        assert not e2j._check_compliance_gui_attributes(df=original_df)
+
+    def test_check_compliance_gui_attributes(self) -> None:
         original_df = pd.DataFrame(
             {
                 "gui_element": ["Spinbox", "List", "Searchbox", "Date", "Geonames", "Richtext", "TimeStamp"],

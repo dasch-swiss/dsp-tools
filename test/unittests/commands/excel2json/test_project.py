@@ -3,6 +3,8 @@ import unittest
 
 from dsp_tools.commands.excel2json.project import _create_project_json, _validate_folder_structure_get_filenames
 
+# pylint: disable=missing-function-docstring
+
 
 class TestCreateProject(unittest.TestCase):
     """Test the create project command"""

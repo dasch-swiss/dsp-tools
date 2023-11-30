@@ -16,8 +16,8 @@ from pytest_unordered import unordered
 from dsp_tools.commands.excel2json import lists as e2l
 from dsp_tools.models.exceptions import BaseError
 
-with open("testdata/excel2json/lists-multilingual-output-expected.json", encoding="utf-8") as f:
-    lists_section_valid = json.load(f)
+with open("testdata/excel2json/lists-multilingual-output-expected.json", encoding="utf-8") as valf:
+    lists_section_valid = json.load(valf)
 
 
 def test_expand_lists_from_excel() -> None:

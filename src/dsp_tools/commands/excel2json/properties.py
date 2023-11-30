@@ -70,7 +70,7 @@ def _search_json_validation_error_get_err_msg_str(
 def _validate_properties(
     properties_list: list[dict[str, Any]],
     excelfile: str,
-) -> bool:
+) -> None:
     """
     This function checks if the "properties" section of a JSON project file is valid, according to the JSON schema.
 
@@ -95,7 +95,6 @@ def _validate_properties(
             properties_list=properties_list, excelfile=excelfile, validation_error=err
         )
         raise InputError(err_msg.execute_error_protocol()) from None
-    return True
 
 
 def _search_convert_numbers(value_str: str) -> str | int | float:

@@ -64,7 +64,10 @@ def _search_json_validation_error_get_err_msg_str(
             original_msg=val_msg or None,
         )
     return JsonValidationProblem(
-        user_msg=usr_msg, original_msg=validation_error.message, message_path=validation_error.json_path
+        user_msg=usr_msg,
+        json_section="Properties",
+        original_msg=validation_error.message,
+        message_path=validation_error.json_path,
     )
 
 

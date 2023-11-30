@@ -73,7 +73,7 @@ class JsonValidationProblem:
 
     user_msg: str
     json_section: str
-    problematic_value: str
+    problematic_value: str | None = None
     original_msg: str | None = None
     message_path: str | None = None
     excel_column: str | None = None
@@ -89,8 +89,9 @@ class JsonValidationProblem:
         msg = [
             self.user_msg,
             f"Section of the problem: '{self.json_section}'",
-            f"Problematic value: '{self.problematic_value}'",
         ]
+        if self.problematic_value:
+            msg.append(f"Problematic value: '{self.problematic_value}'")
         if self.excel_row:
             msg.append(f"The problem is caused by the value in the Excel row {self.excel_row}")
         if self.excel_column:

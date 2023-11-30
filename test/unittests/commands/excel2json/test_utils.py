@@ -1,5 +1,4 @@
 # pylint: disable=missing-class-docstring,missing-function-docstring
-import re
 import unittest
 from typing import cast
 

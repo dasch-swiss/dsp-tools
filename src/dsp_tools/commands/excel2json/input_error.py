@@ -129,13 +129,26 @@ class JsonValidationPropertyProblem:
 
 
 @dataclass(frozen=True)
+class PositionInExcel:
+    """This class contains the information about the position of a value in the excel."""
+
+    column: str
+    row: int
+    sheet: str | None = None
+
+    def __str__(self) -> str:
+        msg = "Location in the Excel: "
+        if self.sheet:
+            msg += f"Sheet '{self.sheet}' | "
+        return msg + f"Column '{self.column}' | Row {self.row}"
+
+
+@dataclass(frozen=True)
 class JsonValidationResourceProblem:
     """This class contains information about a JSON resource section that fails its validation against the schema."""
 
     problematic_resource: str | None = None
-    excel_sheet: str | None = None
-    excel_column: str | None = None
-    excel_row: int | None = None
+    excel_position: PositionInExcel | None = None
     original_msg: str | None = None
     message_path: str | None = None
 
@@ -151,12 +164,8 @@ class JsonValidationResourceProblem:
         ]
         if self.problematic_resource:
             msg.append(f"Problematic Resource '{self.problematic_resource}'")
-        if self.excel_sheet:
-            msg.append(f"The problem is caused by the value in the Excel sheet '{self.excel_sheet}'")
-        if self.excel_row:
-            msg.append(f"The problem is caused by the value in the Excel row {self.excel_row}")
-        if self.excel_column:
-            msg.append(f"The problem is caused by the value in the Excel column '{self.excel_column}'")
+        if self.excel_position:
+            msg.append(str(self.excel_position))
         if self.original_msg:
             msg.append(f"Original Error Message:{separator}{self.original_msg}")
         if self.message_path:

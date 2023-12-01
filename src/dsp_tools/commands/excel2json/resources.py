@@ -8,7 +8,7 @@ import jsonschema
 import pandas as pd
 import regex
 
-from dsp_tools.commands.excel2json.input_error import JsonValidationResourceProblem
+from dsp_tools.commands.excel2json.input_error import JsonValidationResourceProblem, PositionInExcel
 from dsp_tools.commands.excel2json.utils import read_and_clean_excel_file
 from dsp_tools.models.exceptions import InputError, UserError
 from dsp_tools.utils.shared import check_notna, prepare_dataframe
@@ -81,9 +81,7 @@ def _find_validation_problem(
 
             return JsonValidationResourceProblem(
                 problematic_resource=problematic_resource,
-                excel_sheet=excel_sheet,
-                excel_row=excel_row,
-                excel_column=excel_column,
+                excel_position=PositionInExcel(excel_column, excel_row, excel_sheet),
                 original_msg=validation_error.message,
             )
     return JsonValidationResourceProblem(

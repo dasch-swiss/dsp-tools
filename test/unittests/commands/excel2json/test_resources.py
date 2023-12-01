@@ -189,9 +189,7 @@ class TestValidateWithSchema:
             "did not pass validation.\n"
             "    Section of the problem: 'Resources'\n"
             "    Problematic Resource 'Title'\n"
-            "    The problem is caused by the value in the Excel sheet 'classes'\n"
-            "    The problem is caused by the value in the Excel row 3\n"
-            "    The problem is caused by the value in the Excel column 'super'\n"
+            "    Location in the Excel: Sheet 'classes' | Column 'super' | Row 3\n"
             "    Original Error Message:\n"
             "    'fantasy' is not valid under any of the given schemas"
         )
@@ -203,9 +201,7 @@ class TestValidateWithSchema:
             "\nThe Excel file 'testdata/invalid-testdata/excel2json/resources-invalid-cardinality.xlsx' "
             "did not pass validation.\n"
             "    Section of the problem: 'Resources'\n"
-            "    The problem is caused by the value in the Excel sheet 'Owner'\n"
-            "    The problem is caused by the value in the Excel row 3\n"
-            "    The problem is caused by the value in the Excel column 'Cardinality'\n"
+            "    Location in the Excel: Sheet 'Owner' | Column 'Cardinality' | Row 3\n"
             "    Original Error Message:\n"
             "    '0-2' is not one of ['1', '0-1', '1-n', '0-n']"
         )
@@ -217,9 +213,7 @@ class TestValidateWithSchema:
             "\nThe Excel file 'testdata/invalid-testdata/excel2json/resources-invalid-property.xlsx' "
             "did not pass validation.\n"
             "    Section of the problem: 'Resources'\n"
-            "    The problem is caused by the value in the Excel sheet 'FamilyMember'\n"
-            "    The problem is caused by the value in the Excel row 7\n"
-            "    The problem is caused by the value in the Excel column 'Property'\n"
+            "    Location in the Excel: Sheet 'FamilyMember' | Column 'Property' | Row 7\n"
             "    Original Error Message:\n"
             "    ':fan:ta:sy' does not match '^([a-zA-Z_][\\\\w.-]*)?:([\\\\w.-]+)$'"
         )

@@ -99,7 +99,7 @@ class InvalidExcelContentProblem:
 class JsonValidationPropertyProblem:
     """This class contains information about a JSON property section that fails its validation against the schema."""
 
-    problematic_value: str | None = None
+    problematic_property: str | None = None
     original_msg: str | None = None
     message_path: str | None = None
     excel_column: str | None = None
@@ -113,16 +113,52 @@ class JsonValidationPropertyProblem:
             message for the error
         """
         msg = [
-            f"{separator}Section of the problem: 'Properties'",
+            f"{separator}Section of the problem 'Properties'",
         ]
-        if self.problematic_value:
-            msg.append(f"Problematic value: '{self.problematic_value}'")
+        if self.problematic_property:
+            msg.append(f"Problematic property '{self.problematic_property}'")
         if self.excel_row:
             msg.append(f"The problem is caused by the value in the Excel row {self.excel_row}")
         if self.excel_column:
             msg.append(f"The problem is caused by the value in the Excel column '{self.excel_column}'")
         if self.original_msg:
-            msg.append(f"Original Error Message:\n{self.original_msg}")
+            msg.append(f"Original Error Message:{separator}{self.original_msg}")
+        if self.message_path:
+            msg.append(f"The error occurred at {self.message_path}")
+        return separator.join(msg)
+
+
+@dataclass(frozen=True)
+class JsonValidationResourceProblem:
+    """This class contains information about a JSON resource section that fails its validation against the schema."""
+
+    problematic_resource: str | None = None
+    excel_sheet: str | None = None
+    excel_column: str | None = None
+    excel_row: int | None = None
+    original_msg: str | None = None
+    message_path: str | None = None
+
+    def execute_error_protocol(self) -> str:
+        """
+        This function initiates all the steps for successful problem communication with the user.
+
+        Returns:
+            message for the error
+        """
+        msg = [
+            f"{separator}Section of the problem: 'Resources'",
+        ]
+        if self.problematic_resource:
+            msg.append(f"Problematic Resource '{self.problematic_resource}'")
+        if self.excel_sheet:
+            msg.append(f"The problem is caused by the value in the Excel sheet '{self.excel_sheet}'")
+        if self.excel_row:
+            msg.append(f"The problem is caused by the value in the Excel row {self.excel_row}")
+        if self.excel_column:
+            msg.append(f"The problem is caused by the value in the Excel column '{self.excel_column}'")
+        if self.original_msg:
+            msg.append(f"Original Error Message:{separator}{self.original_msg}")
         if self.message_path:
             msg.append(f"The error occurred at {self.message_path}")
         return separator.join(msg)

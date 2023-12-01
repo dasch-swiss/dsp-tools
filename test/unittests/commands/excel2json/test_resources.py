@@ -11,7 +11,7 @@ import pytest
 from pytest_unordered import unordered
 
 from dsp_tools.commands.excel2json import resources as e2j
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import BaseError, InputError
 
 excelfile = "testdata/excel2json/excel2json_files/test-name (test_label)/resources.xlsx"
 output_from_method, _ = e2j.excel2resources(excelfile, None)
@@ -185,12 +185,17 @@ class TestValidateWithSchema:
 
     def test_invalid_super(self) -> None:
         expected_msg = re.escape(
-            (
-                "did not pass validation. The problem is that the Excel sheet 'classes' contains an invalid value "
-                "for resource 'Title', in row 3, column 'super': 'fantasy' is not valid under any of the given schemas"
-            )
+            "\nThe Excel file 'testdata/invalid-testdata/excel2json/resources-invalid-super.xlsx' "
+            "did not pass validation.\n"
+            "    Section of the problem: 'Resources'\n"
+            "    Problematic Resource 'Title'\n"
+            "    The problem is caused by the value in the Excel sheet 'classes'\n"
+            "    The problem is caused by the value in the Excel row 3\n"
+            "    The problem is caused by the value in the Excel column 'super'\n"
+            "    Original Error Message:\n"
+            "    'fantasy' is not valid under any of the given schemas"
         )
-        with pytest.raises(BaseError, match=expected_msg):
+        with pytest.raises(InputError, match=expected_msg):
             e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-invalid-super.xlsx", "")
 
     def test_missing_sheet(self) -> None:
@@ -200,22 +205,30 @@ class TestValidateWithSchema:
 
     def test_sheet_invalid_cardinality(self) -> None:
         expected_msg = re.escape(
-            (
-                "did not pass validation. The problem is that the Excel sheet 'Owner' contains an invalid value "
-                "in row 3, column 'Cardinality': '0-2' is not one of"
-            )
+            "\nThe Excel file 'testdata/invalid-testdata/excel2json/resources-invalid-cardinality.xlsx' "
+            "did not pass validation.\n"
+            "    Section of the problem: 'Resources'\n"
+            "    The problem is caused by the value in the Excel sheet 'Owner'\n"
+            "    The problem is caused by the value in the Excel row 3\n"
+            "    The problem is caused by the value in the Excel column 'Cardinality'\n"
+            "    Original Error Message:\n"
+            "    '0-2' is not one of ['1', '0-1', '1-n', '0-n']"
         )
-        with pytest.raises(BaseError, match=expected_msg):
+        with pytest.raises(InputError, match=expected_msg):
             e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-invalid-cardinality.xlsx", "")
 
     def test_invalid_property(self) -> None:
         expected_msg = re.escape(
-            (
-                "did not pass validation. The problem is that the Excel sheet 'FamilyMember' contains an invalid value "
-                "in row 7, column 'Property': ':fan:ta:sy' does not match "
-            )
+            "\nThe Excel file 'testdata/invalid-testdata/excel2json/resources-invalid-property.xlsx' "
+            "did not pass validation.\n"
+            "    Section of the problem: 'Resources'\n"
+            "    The problem is caused by the value in the Excel sheet 'FamilyMember'\n"
+            "    The problem is caused by the value in the Excel row 7\n"
+            "    The problem is caused by the value in the Excel column 'Property'\n"
+            "    Original Error Message:\n"
+            "    ':fan:ta:sy' does not match '^([a-zA-Z_][\\\\w.-]*)?:([\\\\w.-]+)$'"
         )
-        with pytest.raises(BaseError, match=expected_msg):
+        with pytest.raises(InputError, match=expected_msg):
             e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-invalid-property.xlsx", "")
 
     def test_duplicate_name(self) -> None:

@@ -9,7 +9,8 @@ import pandas as pd
 import regex
 
 import dsp_tools.commands.excel2json.utils as utl
-from dsp_tools.models.exceptions import UserError
+from dsp_tools.commands.excel2json.input_error import JsonValidationResourceProblem
+from dsp_tools.models.exceptions import InputError, UserError
 from dsp_tools.utils.shared import check_notna, prepare_dataframe
 
 languages = ["en", "de", "fr", "it", "rm"]
@@ -40,37 +41,12 @@ def _validate_resources(
     try:
         jsonschema.validate(instance=resources_list, schema=resources_schema)
     except jsonschema.ValidationError as err:
-        err_msg = f"The 'resources' section defined in the Excel file '{excelfile}' did not pass validation. "
-        if json_path_to_resource := regex.search(r"^\$\[(\d+)\]", err.json_path):
-            # fmt: off
-            wrong_res_name = (
-                jsonpath_ng.ext.parse(json_path_to_resource.group(0))
-                .find(resources_list)[0]
-                .value["name"]
-            )
-            # fmt: on
-            if affected_field := regex.search(r"name|labels|comments|super|cardinalities\[(\d+)\]", err.json_path):
-                if affected_field.group(0) in ["name", "labels", "comments", "super"]:
-                    excel_row = int(json_path_to_resource.group(1)) + 2
-                    err_msg += (
-                        f"The problem is that the Excel sheet 'classes' contains an invalid value for resource "
-                        f"'{wrong_res_name}', in row {excel_row}, column '{affected_field.group(0)}': {err.message}"
-                    )
-                elif "cardinalities" in affected_field.group(0):
-                    excel_row = int(affected_field.group(1)) + 2
-                    if err.json_path.endswith("cardinality"):
-                        err_msg += (
-                            f"The problem is that the Excel sheet '{wrong_res_name}' contains an invalid value "
-                            f"in row {excel_row}, column 'Cardinality': {err.message}"
-                        )
-                    elif err.json_path.endswith("propname"):
-                        err_msg += (
-                            f"The problem is that the Excel sheet '{wrong_res_name}' contains an invalid value "
-                            f"in row {excel_row}, column 'Property': {err.message}"
-                        )
-        else:
-            err_msg += f"The error message is: {err.message}\nThe error occurred at {err.json_path}"
-        raise UserError(err_msg) from None
+        err_msg = _search_json_validation_error_get_err_msg_str(
+            validation_error=err,
+            resources_list=resources_list,
+        )
+        msg = f"\nThe Excel file '{excelfile}' did not pass validation." + err_msg.execute_error_protocol()
+        raise InputError(msg) from None
 
     # check if resource names are unique
     all_names = [r["name"] for r in resources_list]
@@ -86,6 +62,56 @@ def _validate_resources(
         raise UserError(err_msg)
 
     return True
+
+
+def _search_json_validation_error_get_err_msg_str(
+    validation_error: jsonschema.ValidationError, resources_list: list[dict[str, Any]]
+):
+    if json_path_to_resource := regex.search(r"^\$\[(\d+)\]", validation_error.json_path):
+        # fmt: off
+        wrong_res_name = (
+            jsonpath_ng.ext.parse(json_path_to_resource.group(0))
+            .find(resources_list)[0]
+            .value["name"]
+        )
+        # fmt: on
+        if affected_field := regex.search(
+            r"name|labels|comments|super|cardinalities\[(\d+)\]", validation_error.json_path
+        ):
+            affected_value = affected_field.group(0)
+            problematic_resource = None
+            excel_sheet = None
+            excel_row = None
+            excel_column = None
+
+            if affected_value in ["name", "labels", "comments", "super"]:
+                excel_sheet = "classes"
+                problematic_resource = wrong_res_name
+                excel_row = int(json_path_to_resource.group(1)) + 2
+                excel_column = affected_value
+
+            elif "cardinalities" in affected_value:
+                excel_row = int(affected_field.group(1)) + 2
+                excel_sheet = wrong_res_name
+
+                if validation_error.json_path.endswith("cardinality"):
+                    excel_column = "Cardinality"
+
+                elif validation_error.json_path.endswith("propname"):
+                    excel_column = "Property"
+
+            return JsonValidationResourceProblem(
+                problematic_resource=problematic_resource,
+                excel_sheet=excel_sheet,
+                excel_row=excel_row,
+                excel_column=excel_column,
+                original_msg=validation_error.message,
+            )
+    else:
+        return JsonValidationResourceProblem(
+            original_msg=validation_error.message,
+            message_path=validation_error.json_path,
+        )
 
 
 def _row2resource(

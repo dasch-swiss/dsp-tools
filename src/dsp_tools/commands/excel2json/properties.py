@@ -60,7 +60,7 @@ def _search_json_validation_error_get_err_msg_str(
             val_msg = validation_error.message
 
         return JsonValidationPropertyProblem(
-            problematic_value=wrong_property_name,
+            problematic_property=wrong_property_name,
             excel_row=excel_row,
             excel_column=column,
             original_msg=val_msg,

@@ -33,10 +33,10 @@ class TestUtils(unittest.TestCase):
     def test_check_contains_required_columns_else_raise_error(self) -> None:
         original_df = pd.DataFrame(columns=["col1", "col2", "col3", "extra_col"])
         required = {"col1", "col2", "col3"}
-        assert not utl.check_contains_required_columns_else_raise_error(df=original_df, required_columns=required)
+        assert not utl.check_contains_required_columns(df=original_df, required_columns=required)
 
         required = {"col1", "col2", "col3", "col4"}
-        res = utl.check_contains_required_columns_else_raise_error(df=original_df, required_columns=required)
+        res = utl.check_contains_required_columns(df=original_df, required_columns=required)
         assert res.columns == ["col4"]  # type: ignore[union-attr]
 
     def test_check_column_for_duplicate_else_raise_error(self) -> None:

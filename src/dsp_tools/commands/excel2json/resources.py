@@ -19,7 +19,7 @@ languages = ["en", "de", "fr", "it", "rm"]
 def _validate_resources(
     resources_list: list[dict[str, Any]],
     excelfile: str,
-) -> bool:
+) -> None:
     """
     This function checks if the "resources" section of a JSON project file is valid according to the JSON schema,
     and if the resource names are unique.
@@ -61,12 +61,10 @@ def _validate_resources(
             err_msg += f" - Row {row_no}: {resname}\n"
         raise UserError(err_msg)
 
-    return True
-
 
 def _search_json_validation_error_get_err_msg_str(
     validation_error: jsonschema.ValidationError, resources_list: list[dict[str, Any]]
-):
+) -> JsonValidationResourceProblem:
     if json_path_to_resource := regex.search(r"^\$\[(\d+)\]", validation_error.json_path):
         # fmt: off
         wrong_res_name = (

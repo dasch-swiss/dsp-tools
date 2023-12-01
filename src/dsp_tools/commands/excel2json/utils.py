@@ -65,7 +65,7 @@ def clean_data_frame(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def check_contains_required_columns_else_raise_error(
+def check_contains_required_columns(
     df: pd.DataFrame, required_columns: set[str]
 ) -> None | RequiredColumnMissingProblem:
     """

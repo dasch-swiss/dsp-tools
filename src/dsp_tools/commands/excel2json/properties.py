@@ -325,7 +325,7 @@ def _do_property_excel_compliance(df: pd.DataFrame, excelfile: str) -> None:
         "gui_attributes",
     }
     problems: list[Problem | None] = [
-        utl.check_contains_required_columns_else_raise_error(df=df, required_columns=required_columns),
+        utl.check_contains_required_columns(df=df, required_columns=required_columns),
         utl.check_column_for_duplicate(df=df, to_check_column="name"),
     ]
     if missing_vals_check := _check_missing_values_in_row(df=df):

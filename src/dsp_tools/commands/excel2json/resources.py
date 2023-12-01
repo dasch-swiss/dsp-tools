@@ -8,8 +8,17 @@ import jsonschema
 import pandas as pd
 import regex
 
-import dsp_tools.commands.excel2json.utils as utl
-from dsp_tools.commands.excel2json.input_error import JsonValidationResourceProblem
+from dsp_tools.commands.excel2json.input_error import (
+    JsonValidationResourceProblem,
+    MissingExcelResourceMissingColumns,
+    Problem,
+)
+from dsp_tools.commands.excel2json.utils import (
+    add_optional_columns,
+    check_contains_required_columns,
+    read_and_clean_all_sheets_excel_file,
+    read_and_clean_excel_file,
+)
 from dsp_tools.models.exceptions import InputError, UserError
 from dsp_tools.utils.shared import check_notna, prepare_dataframe
 
@@ -142,7 +151,7 @@ def _row2resource(
     # load the cardinalities of this resource
     # if the excel sheet does not exist, pandas raises a ValueError
     try:
-        details_df = utl.read_and_clean_excel_file(excelfile=excelfile, sheetname=name)
+        details_df = read_and_clean_excel_file(excelfile=excelfile, sheetname=name)
     except ValueError as err:
         raise UserError(str(err)) from None
     details_df = prepare_dataframe(
@@ -197,6 +206,42 @@ def _row2resource(
     return resource
 
 
+def _check_all_required_columns(
+    class_df: pd.DataFrame, df_dict: dict[str, pd.DataFrame]
+) -> MissingExcelResourceMissingColumns | None:
+    sheets = []
+    columns = []
+    req_cls = check_contains_required_columns(df=class_df, required_columns={"name", "super"})
+    if req_cls:
+        sheets.append("classes")
+        columns.append(req_cls)
+    req_resources = {
+        name: check
+        for name, df in df_dict.items()
+        if (check := check_contains_required_columns(df=df, required_columns={"Property", "Cardinality"}))
+    }
+    if req_resources:
+        sheets.extend(req_resources.keys())
+        sheets.extend(req_resources.values())
+    if sheets:
+        return MissingExcelResourceMissingColumns(sheet_names=sheets, column_names=columns)
+    return None
+
+
+def _validate_excel_structure(class_df: pd.DataFrame, df_dict: dict[str, pd.DataFrame]) -> None:
+    # if columns are missing, it would not be possible to do the other checks
+    if missing_cols := _check_all_required_columns(class_df, df_dict):
+        raise InputError(missing_cols.execute_error_protocol())
+
+    # from here we can aggregate the errors
+    problems = []
+    # check if all the classes have a sheet
+
+    # do 'classes' sheet tests
+
+    # do the individual resource sheet tests
+
+
 def excel2resources(
     excelfile: str,
     path_to_output_file: Optional[str] = None,
@@ -212,14 +257,37 @@ def excel2resources(
 
     Raises:
         UserError: if something went wrong
+        InputError: is something went wrong
 
     Returns:
         a tuple consisting of the "resources" section as Python list,
             and the success status (True if everything went well)
     """
 
-    # load file
-    all_classes_df = utl.read_and_clean_excel_file(excelfile=excelfile)
+    df_dict = read_and_clean_all_sheets_excel_file(excelfile)
+    if "classes" not in df_dict.keys():
+        raise InputError("The excel 'resources.xlsx' does not contain the required sheet called 'classes'.")
+
+    classes_df = df_dict["classes"]
+    df_dict.pop("classes")
+
+    classes_df = add_optional_columns(
+        df=classes_df,
+        optional_col_set={
+            "label_en",
+            "label_de",
+            "label_fr",
+            "label_it",
+            "label_rm",
+            "comment_en",
+            "comment_de",
+            "comment_fr",
+            "comment_it",
+            "comment_rm",
+        },
+    )
+
+    all_classes_df = read_and_clean_excel_file(excelfile=excelfile)
     all_classes_df = prepare_dataframe(
         df=all_classes_df,
         required_columns=["name"],

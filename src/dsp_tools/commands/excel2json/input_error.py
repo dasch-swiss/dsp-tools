@@ -96,6 +96,53 @@ class InvalidExcelContentProblem:
 
 
 @dataclass(frozen=True)
+class MissingExcelSheetProblem:
+    """This class contains information if excel sheet(s) are missing"""
+
+    missing_sheets: list[str]
+
+    def execute_error_protocol(self) -> str:
+        msg = "The excel does not contain all the required sheets.\n" "The following sheets are missing"
+        return msg + list_separator + list_separator.join(self.missing_sheets)
+
+
+@dataclass(frozen=True)
+class MissingExcelResourceMissingColumns:
+    """This class contains information if excel sheet(s) are missing"""
+
+    sheet_names: list[str]
+    column_names: list[RequiredColumnMissingProblem]
+
+    def execute_error_protocol(self) -> str:
+        msg = "There are problems in the excel: 'resources.xlsx'\n"
+        for sheet, columns in zip(self.sheet_names, self.column_names):
+            msg += separator + f"Sheet: '{sheet}'" + separator + columns.execute_error_protocol()
+        return msg
+
+
+@dataclass(frozen=True)
+class InvalidExcelResourceSheetClassProblem:
+    """
+    If the first sheet in the resource Excel called 'classes' is invalid,
+    this class contains the pertinent information for an error.
+    """
+
+    duplicate_values: DuplicatesInColumnProblem | None = None
+    missing_values: MissingValuesInRowProblem | None = None
+    missing_sheets: MissingExcelSheetProblem | None = None
+
+    def execute_error_protocol(self) -> str:
+        msg = ["The excel 'resources.xlsx' contains invalid values in the sheet 'classes'."]
+        if self.duplicate_values:
+            msg.append(self.duplicate_values.execute_error_protocol())
+        if self.missing_values:
+            msg.append(self.missing_values.execute_error_protocol())
+        if self.missing_sheets:
+            msg.append(self.missing_sheets.execute_error_protocol())
+        return separator.join(msg)
+
+
+@dataclass(frozen=True)
 class JsonValidationPropertyProblem:
     """This class contains information about a JSON property section that fails its validation against the schema."""
 

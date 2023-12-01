@@ -8,7 +8,7 @@ from pandas.testing import assert_frame_equal, assert_series_equal
 from pytest_unordered import unordered
 
 import dsp_tools.commands.excel2json.utils as utl
-from dsp_tools.models.input_error import DuplicatesInColumnProblem
+from dsp_tools.commands.excel2json.input_error import DuplicatesInColumnProblem
 
 
 class TestUtils(unittest.TestCase):

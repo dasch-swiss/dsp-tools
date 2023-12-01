@@ -13,8 +13,8 @@ import pytest
 from pandas.testing import assert_frame_equal
 
 from dsp_tools.commands.excel2json import properties as e2j
+from dsp_tools.commands.excel2json.input_error import InvalidExcelContentProblem
 from dsp_tools.models.exceptions import InputError
-from dsp_tools.models.input_error import InvalidExcelContentProblem
 
 excelfile = "testdata/excel2json/excel2json_files/test-name (test_label)/properties.xlsx"
 output_from_method, _ = e2j.excel2properties(excelfile, None)

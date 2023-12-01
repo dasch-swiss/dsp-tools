@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import regex
 
-from dsp_tools.models.input_error import DuplicatesInColumnProblem, RequiredColumnMissingProblem
+from dsp_tools.commands.excel2json.input_error import DuplicatesInColumnProblem, RequiredColumnMissingProblem
 
 languages = ["en", "de", "fr", "it", "rm"]
 

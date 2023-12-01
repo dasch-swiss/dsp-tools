@@ -10,13 +10,13 @@ import pandas as pd
 import regex
 
 import dsp_tools.commands.excel2json.utils as utl
-from dsp_tools.models.exceptions import InputError
-from dsp_tools.models.input_error import (
+from dsp_tools.commands.excel2json.input_error import (
     InvalidExcelContentProblem,
     JsonValidationProblem,
     MissingValuesInRowProblem,
     Problem,
 )
+from dsp_tools.models.exceptions import InputError
 
 languages = ["en", "de", "fr", "it", "rm"]
 language_label_col = ["label_en", "label_de", "label_fr", "label_it", "label_rm"]

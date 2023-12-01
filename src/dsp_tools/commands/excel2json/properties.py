@@ -10,7 +10,13 @@ import pandas as pd
 import regex
 
 import dsp_tools.commands.excel2json.utils as utl
-from dsp_tools.models.exceptions import UserError
+from dsp_tools.commands.excel2json.input_error import (
+    InvalidExcelContentProblem,
+    JsonValidationPropertyProblem,
+    MissingValuesInRowProblem,
+    Problem,
+)
+from dsp_tools.models.exceptions import InputError
 
 languages = ["en", "de", "fr", "it", "rm"]
 language_label_col = ["label_en", "label_de", "label_fr", "label_it", "label_rm"]
@@ -19,9 +25,8 @@ mandatory_properties = ["name", "object", "gui_element"]
 
 def _search_json_validation_error_get_err_msg_str(
     properties_list: list[dict[str, Any]],
-    excelfile: str,
     validation_error: jsonschema.ValidationError,
-) -> str:
+) -> JsonValidationPropertyProblem:
     """
     This function takes a list of properties, which were transformed from an Excel to a json.
     The validation raised an error.
@@ -30,13 +35,11 @@ def _search_json_validation_error_get_err_msg_str(
 
     Args:
         properties_list: List of properties
-        excelfile: Name of the Excel file
         validation_error: The error from the calling function
 
     Returns:
-        A string which is used in the Error message that contains detailed information about the problem
+        A class containing the information which is used in the Error message.
     """
-    err_msg_list = [f"The 'properties' section defined in the Excel file '{excelfile}' did not pass validation."]
     if json_path_to_property := regex.search(r"^\$\[(\d+)\]", validation_error.json_path):
         # fmt: off
         wrong_property_name = (
@@ -46,26 +49,32 @@ def _search_json_validation_error_get_err_msg_str(
         )
         # fmt: on
         excel_row = int(json_path_to_property.group(1)) + 2
-        err_msg_list.append(f"The problematic property is '{wrong_property_name}' in Excel row {excel_row}.")
+
+        column = None
+        val_msg = None
         if affected_field := regex.search(
             r"name|labels|comments|super|subject|object|gui_element|gui_attributes",
             validation_error.json_path,
         ):
-            err_msg_list.append(
-                f"The problem is that the column '{affected_field.group(0)}' has an invalid value: "
-                f"{validation_error.message}"
-            )
-    else:
-        err_msg_list.append(
-            f"The error message is: {validation_error.message}\n" f"The error occurred at {validation_error.json_path}"
+            column = affected_field.group(0)
+            val_msg = validation_error.message
+
+        return JsonValidationPropertyProblem(
+            problematic_value=wrong_property_name,
+            excel_row=excel_row,
+            excel_column=column,
+            original_msg=val_msg,
         )
-    return "\n".join(err_msg_list)
+    return JsonValidationPropertyProblem(
+        original_msg=validation_error.message,
+        message_path=validation_error.json_path,
+    )
 
 
 def _validate_properties(
     properties_list: list[dict[str, Any]],
     excelfile: str,
-) -> bool:
+) -> None:
     """
     This function checks if the "properties" section of a JSON project file is valid, according to the JSON schema.
 
@@ -74,10 +83,7 @@ def _validate_properties(
         excelfile: path to the Excel file containing the properties
 
     Raises:
-        UserError: if the validation fails
-
-    Returns:
-        True if the "properties" section passed validation
+        InputError: if the validation fails
     """
     with importlib.resources.files("dsp_tools").joinpath("resources/schema/properties-only.json").open(
         encoding="utf-8"
@@ -86,11 +92,9 @@ def _validate_properties(
     try:
         jsonschema.validate(instance=properties_list, schema=properties_schema)
     except jsonschema.ValidationError as err:
-        err_msg = _search_json_validation_error_get_err_msg_str(
-            properties_list=properties_list, excelfile=excelfile, validation_error=err
-        )
-        raise UserError(err_msg) from None
-    return True
+        err_msg = _search_json_validation_error_get_err_msg_str(properties_list=properties_list, validation_error=err)
+        msg = f"\nThe Excel file '{excelfile}' did not pass validation." + err_msg.execute_error_protocol()
+        raise InputError(msg) from None
 
 
 def _search_convert_numbers(value_str: str) -> str | int | float:
@@ -115,9 +119,8 @@ def _search_convert_numbers(value_str: str) -> str | int | float:
 
 def _unpack_gui_attributes(attribute_str: str) -> dict[str, str]:
     """
-    This function takes a string which contains the gui_attributes if the string is not formatted correctly,
-    this raises an IndexError.
-    Errors regarding the content will be diagnosed when the json is validated.
+    This function takes a string which contains the gui_attributes.
+    If the string is not formatted correctly, this raises an IndexError.
 
     Args:
         attribute_str: A string containing the gui_attributes
@@ -130,8 +133,8 @@ def _unpack_gui_attributes(attribute_str: str) -> dict[str, str]:
     """
     # Create a list with several attributes
     gui_list = [x.strip() for x in attribute_str.split(",") if x.strip() != ""]
-    # create a sub list with the kex value pair of the attribute if it is an empty string we exclude it.
-    # this error will be detected when checking for the length of the lists
+    # create a sub list with the key value pair of the attribute.
+    # If it is an empty string, we exclude it.
     sub_gui_list = [[sub.strip() for sub in x.split(":") if sub.strip() != ""] for x in gui_list]
     # if not all sublist contain two items, something is wrong with the attribute
     if any(len(sub) != 2 for sub in sub_gui_list):
@@ -156,7 +159,10 @@ def _format_gui_attribute(attribute_str: str) -> dict[str, str | int | float]:
     return {attrib: _search_convert_numbers(value_str=val) for attrib, val in attribute_dict.items()}
 
 
-def _get_gui_attribute(df_row: pd.Series, row_num: int, excelfile: str) -> dict[str, int | str | float] | None:
+def _get_gui_attribute(
+    df_row: pd.Series,
+    row_num: int,
+) -> dict[str, int | str | float] | InvalidExcelContentProblem | None:
     """
     This function checks if the cell "gui_attributes" is empty.
     If it is, it returns None.
@@ -165,13 +171,9 @@ def _get_gui_attribute(df_row: pd.Series, row_num: int, excelfile: str) -> dict[
     Args:
         df_row: Row of a pd.DataFrame
         row_num: The number of the row (index + 2)
-        excelfile: The name of the Excel file.
 
     Returns:
         A gui_attribute dictionary or None if there are no attributes
-
-    Raises:
-        UserError: if there is a formatting error of the string
     """
     if pd.isnull(df_row["gui_attributes"]):
         return None
@@ -179,10 +181,12 @@ def _get_gui_attribute(df_row: pd.Series, row_num: int, excelfile: str) -> dict[
     try:
         return _format_gui_attribute(attribute_str=df_row["gui_attributes"])
     except IndexError:
-        raise UserError(
-            f"Row {row_num} of Excel file {excelfile} contains invalid data in column 'gui_attributes'.\n"
-            "The expected format is '[attribute: value, attribute: value]'."
-        ) from None
+        return InvalidExcelContentProblem(
+            expected_content="attribute: value, attribute: value",
+            actual_content=df_row["gui_attributes"],
+            column="gui_attributes",
+            row=row_num,
+        )
 
 
 def _row2prop(df_row: pd.Series, row_num: int, excelfile: str) -> dict[str, Any]:
@@ -198,19 +202,24 @@ def _row2prop(df_row: pd.Series, row_num: int, excelfile: str) -> dict[str, Any]
         dict object of the property
 
     Raises:
-        UserError if there are any formal mistakes in the "gui_attributes" column
+        InputError: if there are any formal mistakes in the "gui_attributes" column
     """
-    _property = {x: df_row[x] for x in mandatory_properties}
-    # These are also mandatory but require formatting
-    _property.update(
-        {"labels": utl.get_labels(df_row=df_row), "super": [s.strip() for s in df_row["super"].split(",")]}
-    )
-    non_mandatory = {
-        "comments": utl.get_comments(df_row=df_row),
-        "gui_attributes": _get_gui_attribute(df_row=df_row, row_num=row_num, excelfile=excelfile),
+    _property = {x: df_row[x] for x in mandatory_properties} | {
+        "labels": utl.get_labels(df_row=df_row),
+        "super": [s.strip() for s in df_row["super"].split(",")],
     }
-    # These functions may return None, this is checked before the update
-    _property = utl.update_dict_if_not_value_none(additional_dict=non_mandatory, to_update_dict=_property)
+
+    gui_attrib = _get_gui_attribute(df_row=df_row, row_num=row_num)
+    match gui_attrib:
+        case dict():
+            _property["gui_attributes"] = gui_attrib
+        case InvalidExcelContentProblem():
+            msg = f"There is a problem with the excel file: '{excelfile}'\n" + gui_attrib.execute_error_protocol()
+            raise InputError(msg) from None
+
+    if comment := utl.get_comments(df_row=df_row):
+        _property["comments"] = comment
+
     return _property
 
 
@@ -229,7 +238,7 @@ def _check_compliance_gui_attributes(df: pd.DataFrame) -> dict[str, pd.Series] |
         checks passed.
 
     Raises:
-        UserError if any of the checks fail
+        InputError if any of the checks fail
     """
     mandatory_attributes = ["Spinbox", "List"]
     mandatory_check = utl.col_must_or_not_empty_based_on_other_col(
@@ -248,32 +257,30 @@ def _check_compliance_gui_attributes(df: pd.DataFrame) -> dict[str, pd.Series] |
         must_have_value=False,
     )
     # If neither has a problem, we return None
-    if mandatory_check is None and no_attribute_check is None:
-        return None
-    # If both have problems, we combine the series
-    elif mandatory_check is not None and no_attribute_check is not None:
-        final_series = pd.Series(np.logical_or(mandatory_check, no_attribute_check))
-    elif mandatory_check is not None:
-        final_series = mandatory_check
-    else:
-        final_series = no_attribute_check
+    match mandatory_check, no_attribute_check:
+        case None, None:
+            return None
+        case pd.Series(), pd.Series():
+            final_series = pd.Series(np.logical_or(mandatory_check, no_attribute_check))  # type: ignore[arg-type]
+        case pd.Series(), None:
+            final_series = mandatory_check
+        case None, pd.Series:
+            final_series = no_attribute_check
     # The boolean series is returned
     return {"gui_attributes": final_series}
 
 
-def _check_missing_values_in_row_raise_error(df: pd.DataFrame, excelfile: str) -> None:
+def _check_missing_values_in_row(df: pd.DataFrame) -> None | list[MissingValuesInRowProblem]:
     """
     This function checks if all the required values are in the df.
     If all the checks are ok, the function ends without any effect.
-    If any of the checks fail, a UserError is raised which contains the information in which column and row there
-    are problems.
+    If there are any missing values, the function returns the information where the problem is located at.
 
     Args:
         df: pd.DataFrame that is to be checked
-        excelfile: Name of the original Excel file
 
-    Raises:
-        UserError: if any of the checks are failed
+    Returns:
+        If there are problems, it returns objects that store the information about it.
     """
     # Every row in these columns must have a value
     required_values = ["name", "super", "object", "gui_element"]
@@ -291,14 +298,15 @@ def _check_missing_values_in_row_raise_error(df: pd.DataFrame, excelfile: str) -
     if missing_dict:
         # Get the row numbers from the boolean series
         missing_dict = utl.get_wrong_row_numbers(wrong_row_dict=missing_dict, true_remains=True)
-        error_str = "\n".join([f"- Column '{k}' Row Number(s): {v}" for k, v in missing_dict.items()])
-        raise UserError(f"The file '{excelfile}' is missing values in the following rows:\n" f"{error_str}")
+        return [MissingValuesInRowProblem(column=col, row_numbers=row_nums) for col, row_nums in missing_dict.items()]
+    else:
+        return None
 
 
 def _do_property_excel_compliance(df: pd.DataFrame, excelfile: str) -> None:
     """
     This function calls three separate functions which each checks if the pd.DataFrame is as we expect it.
-    Each of these functions raises a UserError if there is a problem.
+    Each of these functions raises an InputError if there is a problem.
     If the checks do not fail, this function ends without an effect.
 
     Args:
@@ -306,7 +314,7 @@ def _do_property_excel_compliance(df: pd.DataFrame, excelfile: str) -> None:
         excelfile: The name of the original Excel file
 
     Raises:
-        UserError if any of the checks fail
+        InputError: if any of the checks fail
     """
     # If it does not pass any one of the tests, the function stops
     required_columns = {
@@ -316,9 +324,16 @@ def _do_property_excel_compliance(df: pd.DataFrame, excelfile: str) -> None:
         "gui_element",
         "gui_attributes",
     }
-    utl.check_contains_required_columns_else_raise_error(df=df, required_columns=required_columns)
-    utl.check_column_for_duplicate_else_raise_error(df=df, to_check_column="name")
-    _check_missing_values_in_row_raise_error(df=df, excelfile=excelfile)
+    problems: list[Problem | None] = [
+        utl.check_contains_required_columns_else_raise_error(df=df, required_columns=required_columns),
+        utl.check_column_for_duplicate(df=df, to_check_column="name"),
+    ]
+    if missing_vals_check := _check_missing_values_in_row(df=df):
+        problems.extend(missing_vals_check)
+    if any(problems):
+        extra = [problem.execute_error_protocol() for problem in problems if problem]
+        msg = [f"There is a problem with the excel file: '{excelfile}'", *extra]
+        raise InputError("\n\n".join(msg))
 
 
 def _rename_deprecated_hlist(df: pd.DataFrame, excelfile: str) -> pd.DataFrame:
@@ -418,7 +433,7 @@ def excel2properties(
         path_to_output_file: if provided, the output is written into this JSON file
 
     Raises:
-        UserError: if something went wrong
+        InputError: if something went wrong
 
     Returns:
         a tuple consisting of the "properties" section as a Python list,

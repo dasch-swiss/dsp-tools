@@ -1,7 +1,7 @@
 from lxml import etree
 
 from dsp_tools.commands.xmlupload.models.xmlvalue import XMLValue
-from dsp_tools.models.exceptions import XmlError
+from dsp_tools.models.exceptions import XmlUploadError
 
 
 class XMLProperty:  # pylint: disable=too-few-public-methods
@@ -18,7 +18,7 @@ class XMLProperty:  # pylint: disable=too-few-public-methods
     valtype: str
     values: list[XMLValue]
 
-    def __init__(self, node: etree._Element, valtype: str, default_ontology: str):
+    def __init__(self, node: etree._Element, valtype: str, default_ontology: str) -> None:
         """
         The constructor for the DSP property
 
@@ -26,6 +26,9 @@ class XMLProperty:  # pylint: disable=too-few-public-methods
             node: the property node, p.ex. <decimal-prop></decimal-prop>
             valtype: the type of value given by the name of the property node, p.ex. decimal in <decimal-prop>
             default_ontology: the name of the ontology
+
+        Raises:
+            XmlUploadError: If an upload fails
         """
         # get the property name which is in format namespace:propertyname, p.ex. rosetta:hasName
         tmp_prop_name = node.attrib["name"].split(":")
@@ -46,4 +49,4 @@ class XMLProperty:  # pylint: disable=too-few-public-methods
             if subnode.tag == valtype:  # the subnode must correspond to the expected value type
                 self.values.append(XMLValue(subnode, valtype, listname))
             else:
-                raise XmlError(f"ERROR Unexpected tag: '{subnode.tag}'. Property may contain only value tags!")
+                raise XmlUploadError(f"ERROR Unexpected tag: '{subnode.tag}'. Property may contain only value tags!")

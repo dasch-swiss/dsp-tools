@@ -99,7 +99,7 @@ class InvalidExcelContentProblem:
 class JsonValidationPropertyProblem:
     """This class contains information about a JSON property section that fails its validation against the schema."""
 
-    problematic_value: str | None = None
+    problematic_property: str | None = None
     original_msg: str | None = None
     message_path: str | None = None
     excel_column: str | None = None
@@ -115,8 +115,8 @@ class JsonValidationPropertyProblem:
         msg = [
             f"{separator}Section of the problem: 'Properties'",
         ]
-        if self.problematic_value:
-            msg.append(f"Problematic value: '{self.problematic_value}'")
+        if self.problematic_property:
+            msg.append(f"Problematic property: '{self.problematic_property}'")
         if self.excel_row:
             msg.append(f"The problem is caused by the value in the Excel row {self.excel_row}")
         if self.excel_column:

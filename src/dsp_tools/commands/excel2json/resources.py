@@ -8,7 +8,7 @@ import jsonschema
 import pandas as pd
 import regex
 
-import dsp_tools.commands.excel2json.utils as utl
+from dsp_tools.commands.excel2json.utils import read_and_clean_excel_file
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.shared import check_notna, prepare_dataframe
 
@@ -18,7 +18,7 @@ languages = ["en", "de", "fr", "it", "rm"]
 def _validate_resources(
     resources_list: list[dict[str, Any]],
     excelfile: str,
-) -> bool:
+) -> None:
     """
     This function checks if the "resources" section of a JSON project file is valid according to the JSON schema,
     and if the resource names are unique.
@@ -29,9 +29,6 @@ def _validate_resources(
 
     Raises:
         UserError: if the validation fails
-
-    Returns:
-        True if the "resources" section passed validation
     """
     with importlib.resources.files("dsp_tools").joinpath("resources/schema/resources-only.json").open(
         encoding="utf-8"
@@ -85,8 +82,6 @@ def _validate_resources(
             err_msg += f" - Row {row_no}: {resname}\n"
         raise UserError(err_msg)
 
-    return True
-
 
 def _row2resource(
     df_row: pd.Series,
@@ -118,7 +113,7 @@ def _row2resource(
     # load the cardinalities of this resource
     # if the excel sheet does not exist, pandas raises a ValueError
     try:
-        details_df = utl.read_and_clean_excel_file(excelfile=excelfile, sheetname=name)
+        details_df = read_and_clean_excel_file(excelfile=excelfile, sheetname=name)
     except ValueError as err:
         raise UserError(str(err)) from None
     details_df = prepare_dataframe(
@@ -195,7 +190,7 @@ def excel2resources(
     """
 
     # load file
-    all_classes_df = utl.read_and_clean_excel_file(excelfile=excelfile)
+    all_classes_df = read_and_clean_excel_file(excelfile=excelfile)
     all_classes_df = prepare_dataframe(
         df=all_classes_df,
         required_columns=["name"],

@@ -18,6 +18,21 @@ class Problem(Protocol):
 
 
 @dataclass(frozen=True)
+class PositionInExcel:
+    """This class contains the information about the position of a value in the excel."""
+
+    column: str
+    row: int
+    sheet: str | None = None
+
+    def __str__(self) -> str:
+        msg = "Located at: "
+        if self.sheet:
+            msg += f"Sheet '{self.sheet}' | "
+        return msg + f"Column '{self.column}' | Row {self.row}"
+
+
+@dataclass(frozen=True)
 class RequiredColumnMissingProblem:
     """This class contains information if a required column is missing."""
 
@@ -78,8 +93,7 @@ class InvalidExcelContentProblem:
 
     expected_content: str
     actual_content: str
-    column: str
-    row: int
+    excel_position: PositionInExcel
 
     def execute_error_protocol(self) -> str:
         """
@@ -89,8 +103,9 @@ class InvalidExcelContentProblem:
             message for the error
         """
         return (
-            f"There is invalid content in the column: '{self.column}', row: {self.row}{separator}"
-            f"Expected Content: {self.expected_content}{separator}"
+            f"There is invalid content in the excel.\n"
+            f"{str(self.excel_position)}\n"
+            f"Expected Content: {self.expected_content}\n"
             f"Actual Content: {self.actual_content}"
         )
 
@@ -102,8 +117,7 @@ class JsonValidationPropertyProblem:
     problematic_property: str | None = None
     original_msg: str | None = None
     message_path: str | None = None
-    excel_column: str | None = None
-    excel_row: int | None = None
+    excel_position: PositionInExcel | None = None
 
     def execute_error_protocol(self) -> str:
         """
@@ -117,30 +131,13 @@ class JsonValidationPropertyProblem:
         ]
         if self.problematic_property:
             msg.append(f"Problematic property: '{self.problematic_property}'")
-        if self.excel_row:
-            msg.append(f"The problem is caused by the value in the Excel row {self.excel_row}")
-        if self.excel_column:
-            msg.append(f"The problem is caused by the value in the Excel column '{self.excel_column}'")
+        if self.excel_position:
+            msg.append(str(self.excel_position))
         if self.original_msg:
             msg.append(f"Original Error Message:\n{self.original_msg}")
         if self.message_path:
             msg.append(f"The error occurred at {self.message_path}")
         return separator.join(msg)
-
-
-@dataclass(frozen=True)
-class PositionInExcel:
-    """This class contains the information about the position of a value in the excel."""
-
-    column: str
-    row: int
-    sheet: str | None = None
-
-    def __str__(self) -> str:
-        msg = "Location in the Excel: "
-        if self.sheet:
-            msg += f"Sheet '{self.sheet}' | "
-        return msg + f"Column '{self.column}' | Row {self.row}"
 
 
 @dataclass(frozen=True)

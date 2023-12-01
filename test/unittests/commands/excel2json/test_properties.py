@@ -439,17 +439,17 @@ class TestFunctions(unittest.TestCase):
 
         res_1 = e2j._get_gui_attribute(df_row=original_df.loc[1, :], row_num=3)
         res_problem_1 = cast(InvalidExcelContentProblem, res_1)
-        assert res_problem_1.row == 3
+        assert res_problem_1.excel_position.row == 3
         assert res_problem_1.actual_content == "max:1.4 / min:1.2"
 
         res_2 = e2j._get_gui_attribute(df_row=original_df.loc[2, :], row_num=4)
         res_problem_2 = cast(InvalidExcelContentProblem, res_2)
-        assert res_problem_2.row == 4
+        assert res_problem_2.excel_position.row == 4
         assert res_problem_2.actual_content == "hlist:"
 
         res_3 = e2j._get_gui_attribute(df_row=original_df.loc[3, :], row_num=5)
         res_problem_3 = cast(InvalidExcelContentProblem, res_3)
-        assert res_problem_3.row == 5
+        assert res_problem_3.excel_position.row == 5
         assert res_problem_3.actual_content == "234345"
 
         expected_dict = {"hlist": "languages"}
@@ -548,13 +548,12 @@ class TestFunctions(unittest.TestCase):
 
     def test_excel2properties_invalid_gui_attrib_format(self) -> None:
         expected_msg = re.escape(
-            (
-                "There is a problem with the excel file: "
-                "'testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute_format.xlsx'\n"
-                "There is invalid content in the column: 'gui_attributes', row: 4\n"
-                "    Expected Content: attribute: value, attribute: value\n"
-                "    Actual Content: max=10, min=5"
-            )
+            "There is a problem with the excel file: "
+            "'testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute_format.xlsx'\n"
+            "There is invalid content in the excel.\n"
+            "Located at: Column 'gui_attributes' | Row 4\n"
+            "Expected Content: attribute: value, attribute: value\n"
+            "Actual Content: max=10, min=5"
         )
         with pytest.raises(InputError, match=expected_msg):
             e2j.excel2properties(
@@ -573,8 +572,7 @@ class TestValidateProperties:
             "'testdata/invalid-testdata/excel2json/properties-invalid-super.xlsx' did not pass validation.\n"
             "    Section of the problem: 'Properties'\n"
             "    Problematic property: 'hasGeoname'\n"
-            "    The problem is caused by the value in the Excel row 3\n"
-            "    The problem is caused by the value in the Excel column 'super'\n"
+            "    Located at: Column 'super' | Row 3\n"
             "    Original Error Message:\n'GeonameValue' is not valid under any of the given schemas"
         )
         with pytest.raises(InputError, match=expected_msg):
@@ -588,8 +586,7 @@ class TestValidateProperties:
             "'testdata/invalid-testdata/excel2json/properties-invalid-object.xlsx' did not pass validation.\n"
             "    Section of the problem: 'Properties'\n"
             "    Problematic property: 'hasBoolean'\n"
-            "    The problem is caused by the value in the Excel row 2\n"
-            "    The problem is caused by the value in the Excel column 'object'\n"
+            "    Located at: Column 'object' | Row 2\n"
             "    Original Error Message:\n'hasValue' is not valid under any of the given schemas"
         )
         with pytest.raises(InputError, match=expected_msg):
@@ -603,8 +600,7 @@ class TestValidateProperties:
             "'testdata/invalid-testdata/excel2json/properties-invalid-gui_element.xlsx' did not pass validation.\n"
             "    Section of the problem: 'Properties'\n"
             "    Problematic property: 'hasInterval'\n"
-            "    The problem is caused by the value in the Excel row 4\n"
-            "    The problem is caused by the value in the Excel column 'gui_element'\n"
+            "    Located at: Column 'gui_element' | Row 4\n"
             "    Original Error Message:\n'Interval' was expected"
         )
         with pytest.raises(InputError, match=expected_msg):
@@ -620,8 +616,7 @@ class TestValidateProperties:
             "did not pass validation.\n"
             "    Section of the problem: 'Properties'\n"
             "    Problematic property: 'hasInteger'\n"
-            "    The problem is caused by the value in the Excel row 4\n"
-            "    The problem is caused by the value in the Excel column 'gui_attributes'\n"
+            "    Located at: Column 'gui_attributes' | Row 4\n"
             "    Original Error Message:\nAdditional properties are not allowed ('rows' was unexpected)"
         )
         with pytest.raises(InputError, match=expected_msg):

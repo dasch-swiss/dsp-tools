@@ -189,7 +189,7 @@ class TestValidateWithSchema:
             "did not pass validation.\n"
             "    Section of the problem: 'Resources'\n"
             "    Problematic Resource 'Title'\n"
-            "    Location in the Excel: Sheet 'classes' | Column 'super' | Row 3\n"
+            "    Located at: Sheet 'classes' | Column 'super' | Row 3\n"
             "    Original Error Message:\n"
             "    'fantasy' is not valid under any of the given schemas"
         )
@@ -201,7 +201,7 @@ class TestValidateWithSchema:
             "\nThe Excel file 'testdata/invalid-testdata/excel2json/resources-invalid-cardinality.xlsx' "
             "did not pass validation.\n"
             "    Section of the problem: 'Resources'\n"
-            "    Location in the Excel: Sheet 'Owner' | Column 'Cardinality' | Row 3\n"
+            "    Located at: Sheet 'Owner' | Column 'Cardinality' | Row 3\n"
             "    Original Error Message:\n"
             "    '0-2' is not one of ['1', '0-1', '1-n', '0-n']"
         )
@@ -213,7 +213,7 @@ class TestValidateWithSchema:
             "\nThe Excel file 'testdata/invalid-testdata/excel2json/resources-invalid-property.xlsx' "
             "did not pass validation.\n"
             "    Section of the problem: 'Resources'\n"
-            "    Location in the Excel: Sheet 'FamilyMember' | Column 'Property' | Row 7\n"
+            "    Located at: Sheet 'FamilyMember' | Column 'Property' | Row 7\n"
             "    Original Error Message:\n"
             "    ':fan:ta:sy' does not match '^([a-zA-Z_][\\\\w.-]*)?:([\\\\w.-]+)$'"
         )

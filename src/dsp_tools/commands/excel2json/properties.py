@@ -13,6 +13,7 @@ from dsp_tools.commands.excel2json.input_error import (
     InvalidExcelContentProblem,
     JsonValidationPropertyProblem,
     MissingValuesInRowProblem,
+    PositionInExcel,
     Problem,
 )
 from dsp_tools.commands.excel2json.utils import (
@@ -72,8 +73,7 @@ def _find_validation_problem(
 
         return JsonValidationPropertyProblem(
             problematic_property=wrong_property_name,
-            excel_row=excel_row,
-            excel_column=column,
+            excel_position=PositionInExcel(column, excel_row),
             original_msg=val_msg,
         )
     return JsonValidationPropertyProblem(
@@ -195,8 +195,7 @@ def _get_gui_attribute(
         return InvalidExcelContentProblem(
             expected_content="attribute: value, attribute: value",
             actual_content=df_row["gui_attributes"],
-            column="gui_attributes",
-            row=row_num,
+            excel_position=PositionInExcel("gui_attributes", row_num),
         )
 
 

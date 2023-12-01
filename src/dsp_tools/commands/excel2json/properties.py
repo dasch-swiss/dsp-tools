@@ -25,7 +25,6 @@ mandatory_properties = ["name", "object", "gui_element"]
 
 def _search_json_validation_error_get_err_msg_str(
     properties_list: list[dict[str, Any]],
-    excelfile: str,
     validation_error: jsonschema.ValidationError,
 ) -> JsonValidationProblem:
     """
@@ -36,13 +35,11 @@ def _search_json_validation_error_get_err_msg_str(
 
     Args:
         properties_list: List of properties
-        excelfile: Name of the Excel file
         validation_error: The error from the calling function
 
     Returns:
         A class containing the information which is used in the Error message.
     """
-    usr_msg = f"The Excel file '{excelfile}' did not pass validation."
     if json_path_to_property := regex.search(r"^\$\[(\d+)\]", validation_error.json_path):
         # fmt: off
         wrong_property_name = (
@@ -63,7 +60,6 @@ def _search_json_validation_error_get_err_msg_str(
             val_msg = validation_error.message
 
         return JsonValidationProblem(
-            user_msg=usr_msg,
             json_section="Properties",
             problematic_value=wrong_property_name,
             excel_row=excel_row,
@@ -71,7 +67,6 @@ def _search_json_validation_error_get_err_msg_str(
             original_msg=val_msg,
         )
     return JsonValidationProblem(
-        user_msg=usr_msg,
         json_section="Properties",
         original_msg=validation_error.message,
         message_path=validation_error.json_path,
@@ -99,10 +94,9 @@ def _validate_properties(
     try:
         jsonschema.validate(instance=properties_list, schema=properties_schema)
     except jsonschema.ValidationError as err:
-        err_msg = _search_json_validation_error_get_err_msg_str(
-            properties_list=properties_list, excelfile=excelfile, validation_error=err
-        )
-        raise InputError(err_msg.execute_error_protocol()) from None
+        err_msg = _search_json_validation_error_get_err_msg_str(properties_list=properties_list, validation_error=err)
+        msg = f"\nThe Excel file '{excelfile}' did not pass validation." + err_msg.execute_error_protocol()
+        raise InputError(msg) from None
 
 
 def _search_convert_numbers(value_str: str) -> str | int | float:

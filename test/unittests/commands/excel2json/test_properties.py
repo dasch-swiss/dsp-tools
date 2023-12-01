@@ -569,7 +569,7 @@ class TestValidateProperties:
 
     def test_invalid_super(self) -> None:
         expected_msg = re.escape(
-            "The Excel file "
+            "\nThe Excel file "
             "'testdata/invalid-testdata/excel2json/properties-invalid-super.xlsx' did not pass validation.\n"
             "    Section of the problem: 'Properties'\n"
             "    Problematic value: 'hasGeoname'\n"
@@ -584,7 +584,7 @@ class TestValidateProperties:
 
     def test_invalid_object(self) -> None:
         expected_msg = re.escape(
-            "The Excel file "
+            "\nThe Excel file "
             "'testdata/invalid-testdata/excel2json/properties-invalid-object.xlsx' did not pass validation.\n"
             "    Section of the problem: 'Properties'\n"
             "    Problematic value: 'hasBoolean'\n"
@@ -599,7 +599,7 @@ class TestValidateProperties:
 
     def test_invalid_gui_element(self) -> None:
         expected_msg = re.escape(
-            "The Excel file "
+            "\nThe Excel file "
             "'testdata/invalid-testdata/excel2json/properties-invalid-gui_element.xlsx' did not pass validation.\n"
             "    Section of the problem: 'Properties'\n"
             "    Problematic value: 'hasInterval'\n"
@@ -615,7 +615,7 @@ class TestValidateProperties:
 
     def test_invalid_gui_attrib_values(self) -> None:
         expected_msg = re.escape(
-            "The Excel file "
+            "\nThe Excel file "
             "'testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute_values.xlsx' "
             "did not pass validation.\n"
             "    Section of the problem: 'Properties'\n"

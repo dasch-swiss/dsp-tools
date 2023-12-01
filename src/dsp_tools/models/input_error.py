@@ -102,7 +102,6 @@ class InvalidExcelContentProblem:
 class JsonValidationProblem:
     """This class contains information about a JSON that fails its validation against the schema."""
 
-    user_msg: str
     json_section: str
     problematic_value: str | None = None
     original_msg: str | None = None
@@ -118,8 +117,7 @@ class JsonValidationProblem:
             message for the error
         """
         msg = [
-            self.user_msg,
-            f"Section of the problem: '{self.json_section}'",
+            f"{separator}Section of the problem: '{self.json_section}'",
         ]
         if self.problematic_value:
             msg.append(f"Problematic value: '{self.problematic_value}'")

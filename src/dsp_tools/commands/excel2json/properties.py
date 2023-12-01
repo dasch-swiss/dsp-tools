@@ -34,7 +34,7 @@ language_label_col = ["label_en", "label_de", "label_fr", "label_it", "label_rm"
 mandatory_properties = ["name", "object", "gui_element"]
 
 
-def _search_json_validation_error_get_err_msg_str(
+def _find_validation_problem(
     properties_list: list[dict[str, Any]],
     validation_error: jsonschema.ValidationError,
 ) -> JsonValidationPropertyProblem:
@@ -103,7 +103,7 @@ def _validate_properties(
     try:
         jsonschema.validate(instance=properties_list, schema=properties_schema)
     except jsonschema.ValidationError as err:
-        err_msg = _search_json_validation_error_get_err_msg_str(properties_list=properties_list, validation_error=err)
+        err_msg = _find_validation_problem(properties_list=properties_list, validation_error=err)
         msg = f"\nThe Excel file '{excelfile}' did not pass validation." + err_msg.execute_error_protocol()
         raise InputError(msg) from None
 

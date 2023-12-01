@@ -38,7 +38,7 @@ def _validate_resources(
     try:
         jsonschema.validate(instance=resources_list, schema=resources_schema)
     except jsonschema.ValidationError as err:
-        err_msg = _search_json_validation_error_get_err_msg_str(
+        err_msg = _find_validation_problem(
             validation_error=err,
             resources_list=resources_list,
         )
@@ -46,7 +46,7 @@ def _validate_resources(
         raise InputError(msg) from None
 
 
-def _search_json_validation_error_get_err_msg_str(
+def _find_validation_problem(
     validation_error: jsonschema.ValidationError, resources_list: list[dict[str, Any]]
 ) -> JsonValidationResourceProblem:
     if json_path_to_resource := regex.search(r"^\$\[(\d+)\]", validation_error.json_path):

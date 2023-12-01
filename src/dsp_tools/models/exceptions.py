@@ -78,7 +78,6 @@ class InternalError(BaseError):
             "    - The log files called 'logging.log', if there are several, include all.\n"
             f"      They can be found at: {Path.home() / Path('.dsp-tools')}\n"
         )
-
         match keep_default_msg, custom_msg:
             case False, str():
                 super().__init__(custom_msg)  # type: ignore[arg-type]
@@ -104,7 +103,6 @@ class RetryError(BaseError):
             "    - The log files called 'logging.log', if there are several, include all.\n"
             f"     They can be found at: {Path.home() / Path('.dsp-tools')}\n"
         )
-
         match keep_default_msg, custom_msg:
             case False, str():
                 super().__init__(custom_msg)  # type: ignore[arg-type]

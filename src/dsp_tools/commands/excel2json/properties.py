@@ -12,7 +12,7 @@ import regex
 import dsp_tools.commands.excel2json.utils as utl
 from dsp_tools.commands.excel2json.input_error import (
     InvalidExcelContentProblem,
-    JsonValidationProblem,
+    JsonValidationPropertyProblem,
     MissingValuesInRowProblem,
     Problem,
 )
@@ -26,7 +26,7 @@ mandatory_properties = ["name", "object", "gui_element"]
 def _search_json_validation_error_get_err_msg_str(
     properties_list: list[dict[str, Any]],
     validation_error: jsonschema.ValidationError,
-) -> JsonValidationProblem:
+) -> JsonValidationPropertyProblem:
     """
     This function takes a list of properties, which were transformed from an Excel to a json.
     The validation raised an error.
@@ -59,15 +59,13 @@ def _search_json_validation_error_get_err_msg_str(
             column = affected_field.group(0)
             val_msg = validation_error.message
 
-        return JsonValidationProblem(
-            json_section="Properties",
+        return JsonValidationPropertyProblem(
             problematic_value=wrong_property_name,
             excel_row=excel_row,
             excel_column=column,
             original_msg=val_msg,
         )
-    return JsonValidationProblem(
-        json_section="Properties",
+    return JsonValidationPropertyProblem(
         original_msg=validation_error.message,
         message_path=validation_error.json_path,
     )

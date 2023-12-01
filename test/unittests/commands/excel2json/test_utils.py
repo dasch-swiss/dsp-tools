@@ -1,5 +1,4 @@
 # pylint: disable=missing-class-docstring,missing-function-docstring
-import re
 import unittest
 from typing import cast
 
@@ -9,7 +8,7 @@ from pandas.testing import assert_frame_equal, assert_series_equal
 from pytest_unordered import unordered
 
 import dsp_tools.commands.excel2json.utils as utl
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.commands.excel2json.input_error import DuplicatesInColumnProblem
 
 
 class TestUtils(unittest.TestCase):
@@ -34,12 +33,11 @@ class TestUtils(unittest.TestCase):
     def test_check_contains_required_columns_else_raise_error(self) -> None:
         original_df = pd.DataFrame(columns=["col1", "col2", "col3", "extra_col"])
         required = {"col1", "col2", "col3"}
-        utl.check_contains_required_columns_else_raise_error(df=original_df, required_columns=required)
+        assert not utl.check_contains_required_columns_else_raise_error(df=original_df, required_columns=required)
 
         required = {"col1", "col2", "col3", "col4"}
-        expected_msg = re.escape("The following columns are missing in the excel:\ncol4")
-        with pytest.raises(BaseError, match=expected_msg):
-            utl.check_contains_required_columns_else_raise_error(df=original_df, required_columns=required)
+        res = utl.check_contains_required_columns_else_raise_error(df=original_df, required_columns=required)
+        assert res.columns == ["col4"]  # type: ignore[union-attr]
 
     def test_check_column_for_duplicate_else_raise_error(self) -> None:
         original_df = pd.DataFrame(
@@ -48,14 +46,12 @@ class TestUtils(unittest.TestCase):
                 "col_2": ["1.54", "0-1", "1-n", "text", "neu"],
             }
         )
-        utl.check_column_for_duplicate_else_raise_error(df=original_df, to_check_column="col_2")
+        assert not utl.check_column_for_duplicate(df=original_df, to_check_column="col_2")
 
-        expected_msg = re.escape(
-            "The column 'col_1' may not contain any duplicate values. "
-            "The following values appeared multiple times '0-1,1.54'."
-        )
-        with pytest.raises(BaseError, match=expected_msg):
-            utl.check_column_for_duplicate_else_raise_error(df=original_df, to_check_column="col_1")
+        result = utl.check_column_for_duplicate(df=original_df, to_check_column="col_1")
+        res = cast(DuplicatesInColumnProblem, result)
+        assert res.column == "col_1"
+        assert unordered(res.duplicate_values) == ["1.54", "0-1"]
 
     def test_check_required_values(self) -> None:
         original_df = pd.DataFrame(

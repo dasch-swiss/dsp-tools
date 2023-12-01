@@ -61,10 +61,7 @@ def _search_json_validation_error_get_err_msg_str(
             r"name|labels|comments|super|cardinalities\[(\d+)\]", validation_error.json_path
         ):
             affected_value = affected_field.group(0)
-            problematic_resource = None
-            excel_sheet = None
-            excel_row = None
-            excel_column = None
+            problematic_resource, excel_sheet, excel_row, excel_column = None, None, None, None
 
             if affected_value in ["name", "labels", "comments", "super"]:
                 excel_sheet = "classes"

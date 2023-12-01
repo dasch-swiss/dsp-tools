@@ -65,12 +65,11 @@ def clean_data_frame(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def check_contains_required_columns_else_raise_error(
+def check_contains_required_columns(
     df: pd.DataFrame, required_columns: set[str]
 ) -> None | RequiredColumnMissingProblem:
     """
-    This function takes a pd.DataFrame and a set of required column names.
-    It checks if all the columns from the set are in the pd.DataFrame.
+    This function checks if all the columns from the set are in the pd.DataFrame.
     Additional columns to the ones in the set are allowed.
 
     Args:
@@ -78,7 +77,7 @@ def check_contains_required_columns_else_raise_error(
         required_columns: set of column names
 
     Returns:
-        An object if
+        An object if there is a problem else None.
     """
     if not required_columns.issubset(set(df.columns)):
         required = list(required_columns.difference(set(df.columns)))
@@ -90,7 +89,6 @@ def check_column_for_duplicate(df: pd.DataFrame, to_check_column: str) -> None |
     """
     This function checks if a specified column contains duplicate values.
     Empty cells (pd.NA) also count as duplicates.
-    If there are any duplicate values, it creates a string with the duplicates which are displayed in the error message.
 
     Args:
         df: pd.DataFrame that is checked for duplicates
@@ -153,7 +151,6 @@ def get_wrong_row_numbers(wrong_row_dict: dict[str, pd.Series], true_remains: bo
     From the boolean pd.Series the index numbers of the True values are extracted.
     The resulting list is the new value of the dictionary.
     This new dictionary is taken and to each index number 2 is added, so that it corresponds to the Excel row number.
-    The result is intended to be used to communicate the exact location of a problem in an error message.
 
     Args:
         wrong_row_dict: The dictionary which contains column names and a boolean pd.Series

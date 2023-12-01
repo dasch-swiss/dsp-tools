@@ -73,7 +73,7 @@ def _find_validation_problem(
 
         return JsonValidationPropertyProblem(
             problematic_property=wrong_property_name,
-            excel_position=PositionInExcel(column, excel_row),
+            excel_position=PositionInExcel(column=column, row=excel_row),
             original_msg=val_msg,
         )
     return JsonValidationPropertyProblem(
@@ -195,7 +195,7 @@ def _get_gui_attribute(
         return InvalidExcelContentProblem(
             expected_content="attribute: value, attribute: value",
             actual_content=df_row["gui_attributes"],
-            excel_position=PositionInExcel("gui_attributes", row_num),
+            excel_position=PositionInExcel(column="gui_attributes", row=row_num),
         )
 
 

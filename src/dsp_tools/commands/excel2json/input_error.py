@@ -21,15 +21,19 @@ class Problem(Protocol):
 class PositionInExcel:
     """This class contains the information about the position of a value in the excel."""
 
-    column: str
-    row: int
     sheet: str | None = None
+    column: str | None = None
+    row: int | None = None
 
     def __str__(self) -> str:
-        msg = "Located at: "
+        msg = []
         if self.sheet:
-            msg += f"Sheet '{self.sheet}' | "
-        return msg + f"Column '{self.column}' | Row {self.row}"
+            msg.append(f"Sheet '{self.sheet}'")
+        if self.column:
+            msg.append(f"Column '{self.column}'")
+        if self.row:
+            msg.append(f"Row {self.row}")
+        return "Located at: " + " | ".join(msg)
 
 
 @dataclass(frozen=True)

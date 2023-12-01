@@ -61,7 +61,7 @@ def _find_validation_problem(
             r"name|labels|comments|super|cardinalities\[(\d+)\]", validation_error.json_path
         ):
             affected_value = affected_field.group(0)
-            problematic_resource, excel_sheet, excel_row, excel_column = "", "", 0, ""
+            problematic_resource, excel_sheet, excel_row, excel_column = "", None, None, None
 
             if affected_value in ["name", "labels", "comments", "super"]:
                 excel_sheet = "classes"
@@ -81,7 +81,7 @@ def _find_validation_problem(
 
             return JsonValidationResourceProblem(
                 problematic_resource=problematic_resource,
-                excel_position=PositionInExcel(excel_column, excel_row, excel_sheet),
+                excel_position=PositionInExcel(sheet=excel_sheet, column=excel_column, row=excel_row),
                 original_msg=validation_error.message,
             )
     return JsonValidationResourceProblem(

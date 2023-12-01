@@ -14,9 +14,6 @@ class Problem(Protocol):
     def execute_error_protocol(self) -> str:
         """
         This function initiates all the steps for successful problem communication with the user.
-
-        Returns:
-            message for the error
         """
 
 

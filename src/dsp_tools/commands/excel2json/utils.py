@@ -52,7 +52,7 @@ def read_and_clean_all_sheets_excelfile(excelfile: str) -> dict[str, pd.DataFram
     It cleans the dataframes and then returns them in the form {sheet_name: dataframe}.
 
     Args:
-        excelfile: The name of the Excel file
+        excelfile: path to the Excel file
 
     Returns:
         A dictionary with all the sheets as dataframes

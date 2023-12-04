@@ -138,6 +138,37 @@ class InvalidExcelSheetNameProblem:
 
 
 @dataclass(frozen=True)
+class ResourcesExcelSheetsNotAsExpected:
+    """This class contains information if the excel sheet names are not a subset of the expected ones."""
+
+    names_classes: set[str]
+    names_sheets: set[str]
+
+    def execute_error_protocol(self) -> str:
+        """
+        This function initiates all the steps for successful problem communication with the user.
+
+        Returns:
+            message for the error
+        """
+        msg = (
+            "The excel 'resources.xlsx' has problems.\n"
+            "The names of the excel sheets must be 'classes' "
+            "plus all the entries in the column 'name' from that sheet.\n"
+        )
+        missing_sheets = self.names_classes - self.names_sheets
+        if missing_sheets:
+            msg += f"The following sheet(s) are missing:{list_separator}" + list_separator.join(missing_sheets)
+        missing_names = self.names_sheets - self.names_classes
+        if missing_names:
+            msg += (
+                f"The following sheet(s) do not have an entry in the 'name' column "
+                f"of the sheet 'classes':{list_separator}"
+            ) + list_separator.join(missing_names)
+        return msg
+
+
+@dataclass(frozen=True)
 class JsonValidationPropertyProblem:
     """This class contains information about a JSON property section that fails its validation against the schema."""
 

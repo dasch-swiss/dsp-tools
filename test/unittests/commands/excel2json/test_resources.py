@@ -181,10 +181,10 @@ class TestExcelToResource(unittest.TestCase):
 class TestValidateWithSchema:
     # it is not possible to call the method to be tested directly.
     # So let's make a reference to it, so that it can be found by the usage search
-    lambda x: e2j._validate_resources([], "file")  # pylint: disable=expression-not-assigned,protected-access
+    lambda x: e2j._validate_resources([])  # pylint: disable=expression-not-assigned,protected-access
 
     def test_invalid_super(self) -> None:
-        expected_msg = re.escape(
+        expected_msg = (
             "\nThe Excel file 'testdata/invalid-testdata/excel2json/resources-invalid-super.xlsx' "
             "did not pass validation.\n"
             "    Section of the problem: 'Resources'\n"
@@ -197,7 +197,7 @@ class TestValidateWithSchema:
             e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-invalid-super.xlsx", "")
 
     def test_sheet_invalid_cardinality(self) -> None:
-        expected_msg = re.escape(
+        expected_msg = (
             "\nThe Excel file 'testdata/invalid-testdata/excel2json/resources-invalid-cardinality.xlsx' "
             "did not pass validation.\n"
             "    Section of the problem: 'Resources'\n"
@@ -209,7 +209,7 @@ class TestValidateWithSchema:
             e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-invalid-cardinality.xlsx", "")
 
     def test_invalid_property(self) -> None:
-        expected_msg = re.escape(
+        expected_msg = (
             "\nThe Excel file 'testdata/invalid-testdata/excel2json/resources-invalid-property.xlsx' "
             "did not pass validation.\n"
             "    Section of the problem: 'Resources'\n"
@@ -221,20 +221,24 @@ class TestValidateWithSchema:
             e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-invalid-property.xlsx", "")
 
     def test_duplicate_name(self) -> None:
-        expected_msg = re.escape(
-            (
-                "Resource names must be unique inside every ontology, but your Excel file "
-                "'testdata/invalid-testdata/excel2json/resources-duplicate-name.xlsx' contains duplicates:\n"
-                " - Row 3: MentionedPerson\n"
-                " - Row 4: MentionedPerson"
-            )
+        expected_msg = (
+            "The excel file 'resources.xlsx', sheet 'classes' has a problem.\n"
+            "No duplicates are allowed in the column 'name'\n"
+            "The following values appear several times:\n"
+            "    - MentionedPerson"
         )
         with pytest.raises(BaseError, match=expected_msg):
             e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-duplicate-name.xlsx", "")
 
     def test_missing_sheet(self) -> None:
-        expected_msg = re.escape("Worksheet named 'GenericAnthroponym' not found")
-        with pytest.raises(BaseError, match=expected_msg):
+        expected_msg = re.escape(
+            "The excel file 'resources.xlsx' has problems.\n"
+            "The names of the excel sheets must be 'classes' "
+            "plus all the entries in the column 'name' from the sheet 'classes'.\n"
+            "The following sheet(s) are missing:\n"
+            "    - GenericAnthroponym"
+        )
+        with pytest.raises(InputError, match=expected_msg):
             e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-invalid-missing-sheet.xlsx", "")
 
 

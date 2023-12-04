@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Protocol
+from typing import Any, Protocol
 
 # pylint: disable=too-few-public-methods
 
@@ -112,6 +112,60 @@ class InvalidExcelContentProblem:
             f"Expected Content: {self.expected_content}\n"
             f"Actual Content: {self.actual_content}"
         )
+
+
+@dataclass(frozen=True)
+class InvalidSheetNameProblem:
+    """This class contains information if the excel sheet names are not strings."""
+
+    excelfile: str
+    excel_sheet_names: list[Any]
+
+    def execute_error_protocol(self) -> str:
+        """
+        This function initiates all the steps for successful problem communication with the user.
+
+        Returns:
+            message for the error
+        """
+        sheet_types = [f"Name: {x} | Type {type(x)}" for x in self.excel_sheet_names if not isinstance(x, str)]
+        return (
+            f"The names sheets in the excel '{self.excelfile}' are not all valid.\n"
+            f"They must be of type string. The following names are problematic:\n"
+            f"{list_separator}{list_separator.join(sheet_types)}\n"
+            f"Please rename them."
+        )
+
+
+@dataclass(frozen=True)
+class ResourcesSheetsNotAsExpected:
+    """This class contains information if the excel sheet names are not a subset of the expected ones."""
+
+    names_classes: set[str]
+    names_sheets: set[str]
+
+    def execute_error_protocol(self) -> str:
+        """
+        This function initiates all the steps for successful problem communication with the user.
+
+        Returns:
+            message for the error
+        """
+        msg = (
+            "The excel file 'resources.xlsx' has problems.\n"
+            "The names of the excel sheets must be 'classes' "
+            "plus all the entries in the column 'name' from the sheet 'classes'.\n"
+        )
+        missing_sheets = self.names_classes - self.names_sheets
+        if missing_sheets:
+            msg += f"The following sheet(s) are missing:{list_separator}" + list_separator.join(missing_sheets)
+        missing_names = self.names_sheets - self.names_classes
+        if missing_names:
+            msg += (
+                f"The following sheet(s) do not have an entry in the 'name' column "
+                f"of the sheet 'classes':{list_separator}"
+            ) + list_separator.join(missing_names)
+        return msg
 
 
 @dataclass(frozen=True)

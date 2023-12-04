@@ -46,10 +46,10 @@ def read_and_clean_excel_file(excelfile: str, sheetname: str | int = 0) -> pd.Da
 
 def read_and_clean_all_sheets_excelfile(excelfile: str) -> dict[str, pd.DataFrame]:
     """
-    This function reads an Excel file with all its sheets,
-    if there is a ValueError then it patches the openpyxl part that creates the
-    error and opens it with that patch.
-    It cleans and then returns a dictionary with the dataframes.
+    This function reads an Excel file with all its sheets.
+    If there is a ValueError, it patches the openpyxl part that causes the error
+    and opens it with that patch.
+    It cleans the dataframes and then returns them in the form {sheet_name: dataframe}.
 
     Args:
         excelfile: The name of the Excel file

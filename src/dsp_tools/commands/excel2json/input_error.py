@@ -115,7 +115,7 @@ class InvalidExcelContentProblem:
 
 
 @dataclass(frozen=True)
-class InvalidExcelSheetNameProblem:
+class InvalidSheetNameProblem:
     """This class contains information if the excel sheet names are not strings."""
 
     excelfile: str
@@ -138,7 +138,7 @@ class InvalidExcelSheetNameProblem:
 
 
 @dataclass(frozen=True)
-class ResourcesExcelSheetsNotAsExpected:
+class ResourcesSheetsNotAsExpected:
     """This class contains information if the excel sheet names are not a subset of the expected ones."""
 
     names_classes: set[str]

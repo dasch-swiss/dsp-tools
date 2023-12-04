@@ -9,7 +9,7 @@ import regex
 
 from dsp_tools.commands.excel2json.input_error import (
     DuplicatesInColumnProblem,
-    InvalidExcelSheetNameProblem,
+    InvalidSheetNameProblem,
     RequiredColumnMissingProblem,
 )
 from dsp_tools.models.exceptions import InputError
@@ -44,7 +44,7 @@ def read_and_clean_excel_file(excelfile: str, sheetname: str | int = 0) -> pd.Da
     return read_df
 
 
-def read_and_clean_all_sheets_excelfile(excelfile: str) -> dict[str, pd.DataFrame]:
+def read_and_clean_all_sheets(excelfile: str) -> dict[str, pd.DataFrame]:
     """
     This function reads an Excel file with all its sheets.
     If there is a ValueError, it patches the openpyxl part that causes the error
@@ -73,7 +73,7 @@ def read_and_clean_all_sheets_excelfile(excelfile: str) -> dict[str, pd.DataFram
     try:
         return {name.strip(""): clean_data_frame(df) for name, df in df_dict.items()}
     except AttributeError:
-        msg = InvalidExcelSheetNameProblem(excelfile, list(df_dict.keys())).execute_error_protocol()
+        msg = InvalidSheetNameProblem(excelfile, list(df_dict.keys())).execute_error_protocol()
         raise InputError(msg) from None
 
 

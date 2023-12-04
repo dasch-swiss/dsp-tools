@@ -11,9 +11,9 @@ import regex
 from dsp_tools.commands.excel2json.input_error import (
     JsonValidationResourceProblem,
     PositionInExcel,
-    ResourcesExcelSheetsNotAsExpected,
+    ResourcesSheetsNotAsExpected,
 )
-from dsp_tools.commands.excel2json.utils import check_column_for_duplicate, read_and_clean_all_sheets_excelfile
+from dsp_tools.commands.excel2json.utils import check_column_for_duplicate, read_and_clean_all_sheets
 from dsp_tools.models.exceptions import InputError, UserError
 from dsp_tools.utils.shared import check_notna, prepare_dataframe
 
@@ -38,11 +38,11 @@ def _validate_resources(resources_list: list[dict[str, Any]]) -> None:
     try:
         jsonschema.validate(instance=resources_list, schema=resources_schema)
     except jsonschema.ValidationError as err:
-        err_msg = _find_validation_problem(
+        validation_problem = _find_validation_problem(
             validation_error=err,
             resources_list=resources_list,
         )
-        msg = "\nThe Excel file 'resources.xlsx' did not pass validation." + err_msg.execute_error_protocol()
+        msg = "\nThe Excel file 'resources.xlsx' did not pass validation." + validation_problem.execute_error_protocol()
         raise InputError(msg) from None
 
 
@@ -191,20 +191,20 @@ def excel2resources(
             and the success status (True if everything went well)
     """
 
-    df_dict = read_and_clean_all_sheets_excelfile(excelfile)
-    classes_df = df_dict["classes"]
-    df_dict.pop("classes")
+    resource_dfs = read_and_clean_all_sheets(excelfile)
+    classes_df = resource_dfs.pop("classes")
     classes_df = prepare_dataframe(
         df=classes_df,
         required_columns=["name"],
         location_of_sheet=f"Sheet 'classes' in file '{excelfile}'",
     )
 
-    # validation
-    _validate_excel_file(classes_df, df_dict)
+    if validation_problem := _validate_excel_file(classes_df, resource_dfs):
+        err_msg = validation_problem.execute_error_protocol()
+        raise InputError(err_msg)
 
     # transform every row into a resource
-    resources = [_row2resource(row, df_dict[row["name"]]) for i, row in classes_df.iterrows()]
+    resources = [_row2resource(row, resource_dfs[row["name"]]) for i, row in classes_df.iterrows()]
 
     # write final "resources" section into a JSON file
     _validate_resources(resources_list=resources)
@@ -217,7 +217,9 @@ def excel2resources(
     return resources, True
 
 
-def _validate_excel_file(classes_df: pd.DataFrame, df_dict: dict[str, pd.DataFrame]) -> None:
+def _validate_excel_file(
+    classes_df: pd.DataFrame, df_dict: dict[str, pd.DataFrame]
+) -> ResourcesSheetsNotAsExpected | None:
     for index, row in classes_df.iterrows():
         index = int(str(index))  # index is a label/index/hashable, but we need an int
         if not check_notna(row["super"]):
@@ -236,5 +238,5 @@ def _validate_excel_file(classes_df: pd.DataFrame, df_dict: dict[str, pd.DataFra
         raise InputError(msg)
     # check that all the sheets have an entry in the names column and vice versa
     if (all_names := set(classes_df["name"].tolist())) != (all_sheets := set(df_dict.keys())):
-        msg = ResourcesExcelSheetsNotAsExpected(all_names, all_sheets).execute_error_protocol()
-        raise InputError(msg)
+        return ResourcesSheetsNotAsExpected(all_names, all_sheets)
+    return None

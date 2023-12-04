@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Protocol
+from typing import Any, Protocol
 
 # pylint: disable=too-few-public-methods
 
@@ -111,6 +111,29 @@ class InvalidExcelContentProblem:
             f"{str(self.excel_position)}\n"
             f"Expected Content: {self.expected_content}\n"
             f"Actual Content: {self.actual_content}"
+        )
+
+
+@dataclass(frozen=True)
+class InvalidExcelSheetNameProblem:
+    """This class contains information if the excel sheet names are not strings."""
+
+    excelfile: str
+    excel_sheet_names: list[Any]
+
+    def execute_error_protocol(self) -> str:
+        """
+        This function initiates all the steps for successful problem communication with the user.
+
+        Returns:
+            message for the error
+        """
+        sheet_types = [f"Name: {x} | Type {type(x)}" for x in self.excel_sheet_names if not isinstance(x, str)]
+        return (
+            f"The names sheets in the excel '{self.excelfile}' are not all valid.\n"
+            f"They must be of type string. The following names are problematic:\n"
+            f"{list_separator}{list_separator.join(sheet_types)}\n"
+            f"Please rename them."
         )
 
 

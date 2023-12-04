@@ -7,7 +7,12 @@ import numpy as np
 import pandas as pd
 import regex
 
-from dsp_tools.commands.excel2json.input_error import DuplicatesInColumnProblem, RequiredColumnMissingProblem
+from dsp_tools.commands.excel2json.input_error import (
+    DuplicatesInColumnProblem,
+    InvalidExcelSheetNameProblem,
+    RequiredColumnMissingProblem,
+)
+from dsp_tools.models.exceptions import InputError
 
 languages = ["en", "de", "fr", "it", "rm"]
 
@@ -37,6 +42,39 @@ def read_and_clean_excel_file(excelfile: str, sheetname: str | int = 0) -> pd.Da
             read_df = pd.read_excel(excelfile, sheet_name=sheetname)
     read_df = clean_data_frame(df=read_df)
     return read_df
+
+
+def read_and_clean_all_sheets_excelfile(excelfile: str) -> dict[str, pd.DataFrame]:
+    """
+    This function reads an Excel file with all its sheets,
+    if there is a ValueError then it patches the openpyxl part that creates the
+    error and opens it with that patch.
+    It cleans and then returns a dictionary with the dataframes.
+
+    Args:
+        excelfile: The name of the Excel file
+
+    Returns:
+        A dictionary with all the sheets as dataframes
+
+    Raises:
+        InputError: If the sheets are not correctly named
+    """
+    try:
+        df_dict = pd.read_excel(excelfile, sheet_name=None)
+    except ValueError:
+        # Pandas relies on openpyxl to parse XLSX files.
+        # A strange behavior of openpyxl prevents pandas from opening files with some formatting properties
+        # (unclear which formatting properties exactly).
+        # Apparently, the excel2json test files have one of the unsupported formatting properties.
+        # Credits: https://stackoverflow.com/a/70537454/14414188
+        with mock.patch("openpyxl.styles.fonts.Font.family.max", new=100):
+            df_dict = pd.read_excel(excelfile, sheet_name=None)
+    try:
+        return {name.strip(""): clean_data_frame(df) for name, df in df_dict.items()}
+    except AttributeError:
+        msg = InvalidExcelSheetNameProblem(excelfile, list(df_dict.keys())).execute_error_protocol()
+        raise InputError(msg) from None
 
 
 def clean_data_frame(df: pd.DataFrame) -> pd.DataFrame:

@@ -220,6 +220,20 @@ def excel2resources(
     resources = [_row2resource(row, excelfile) for i, row in all_classes_df.iterrows()]
 
     # check if resource names are unique
+    _check_for_duplicate_names(excelfile, resources)
+
+    # write final "resources" section into a JSON file
+    _validate_resources(resources_list=resources, excelfile=excelfile)
+
+    if path_to_output_file:
+        with open(file=path_to_output_file, mode="w", encoding="utf-8") as file:
+            json.dump(resources, file, indent=4, ensure_ascii=False)
+            print(f"resources section was created successfully and written to file '{path_to_output_file}'")
+
+    return resources, True
+
+
+def _check_for_duplicate_names(excelfile: str, resources: list[dict[str, Any]]) -> None:
     all_names = [r["name"] for r in resources]
     if duplicates := {
         index + 2: resdef["name"] for index, resdef in enumerate(resources) if all_names.count(resdef["name"]) > 1
@@ -231,13 +245,3 @@ def excel2resources(
         for row_no, resname in duplicates.items():
             err_msg += f" - Row {row_no}: {resname}\n"
         raise UserError(err_msg)
-
-    # write final "resources" section into a JSON file
-    _validate_resources(resources_list=resources, excelfile=excelfile)
-
-    if path_to_output_file:
-        with open(file=path_to_output_file, mode="w", encoding="utf-8") as file:
-            json.dump(resources, file, indent=4, ensure_ascii=False)
-            print(f"resources section was created successfully and written to file '{path_to_output_file}'")
-
-    return resources, True

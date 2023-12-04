@@ -232,9 +232,9 @@ class TestValidateWithSchema:
 
     def test_missing_sheet(self) -> None:
         expected_msg = re.escape(
-            "The excel 'resources.xlsx' has problems.\n"
+            "The excel file 'resources.xlsx' has problems.\n"
             "The names of the excel sheets must be 'classes' "
-            "plus all the entries in the column 'name' from that sheet.\n"
+            "plus all the entries in the column 'name' from the sheet 'classes'.\n"
             "The following sheet(s) are missing:\n"
             "    - GenericAnthroponym"
         )

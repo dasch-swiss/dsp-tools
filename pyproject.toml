@@ -1,4 +1,4 @@
-# See https://packaging.python.org/en/latest/specifications/declaring-project-metadata
+# See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#writing-pyproject-toml
 
 [tool.poetry]
 name = "dsp-tools"

@@ -336,7 +336,7 @@ def _upload_resources(
 
     for i, resource in enumerate(resources):
         bitstream_information = None
-        if bitstream := resource.bitstream and not config.preprocessing_done:
+        if bitstream := resource.bitstream:
             bitstream_information = handle_bitstream(
                 resource=resource,
                 bitstream=bitstream,

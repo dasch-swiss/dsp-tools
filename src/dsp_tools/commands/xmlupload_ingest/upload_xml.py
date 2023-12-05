@@ -1,47 +1,13 @@
-import pickle
 from datetime import datetime
-from pathlib import Path
-from typing import Optional
 
 from lxml import etree
 
-from dsp_tools.commands.fast_xmlupload.apply_ingest import get_mapping_dict_from_file, replace_bitstream_paths
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
-from dsp_tools.models.exceptions import UserError
+from dsp_tools.commands.xmlupload_ingest.apply_ingest import get_mapping_dict_from_file, replace_bitstream_paths
 from dsp_tools.utils.create_logger import get_logger
 
 logger = get_logger(__name__)
-
-
-def _get_paths_from_pkl_files(pkl_files: list[Path]) -> dict[str, str]:
-    """
-    Read the pickle file(s) returned by the processing step.
-
-    Args:
-        pkl_files: pickle file(s) returned by the processing step
-
-    Raises:
-        UserError: If for a file, no derivative was found
-
-    Returns:
-        dict of original paths to uuid filenames
-    """
-    orig_path_2_processed_path: list[tuple[Path, Optional[Path]]] = []
-    for pkl_file in pkl_files:
-        orig_path_2_processed_path.extend(pickle.loads(pkl_file.read_bytes()))
-
-    orig_path_2_uuid_filename: dict[str, str] = {}
-    for orig_path, processed_path in orig_path_2_processed_path:
-        if processed_path:
-            orig_path_2_uuid_filename[str(orig_path)] = str(processed_path.name)
-        else:
-            raise UserError(
-                f"There is no processed file for {orig_path}. The fast xmlupload cannot be started, "
-                "because the resource that uses this file would fail."
-            )
-
-    return orig_path_2_uuid_filename
 
 
 def fast_xmlupload(

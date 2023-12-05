@@ -142,7 +142,7 @@ def test_upload_files(upload_files: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.fast_xmlupload")
+@patch("dsp_tools.cli.xmlupload_ingest")
 def test_fast_xmlupload(fast_xmlupload: Mock) -> None:
     """Test the 'dsp-tools fast-xmlupload' command"""
     file = "filename.xml"

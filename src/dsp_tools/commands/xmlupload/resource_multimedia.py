@@ -68,18 +68,15 @@ def handle_bitstream(
         The information from sipi which is needed to establish a link from the resource
     """
     try:
-        if preprocessing_done:
-            resource_bitstream = resource.get_bitstream_information(bitstream.value, permissions_lookup)
-        else:
-            resource_bitstream = _upload_bitstream(
-                resource=resource,
-                sipi_server=sipi_server,
-                imgdir=imgdir,
-                permissions_lookup=permissions_lookup,
-            )
-            msg = f"Uploaded file '{bitstream.value}'"
-            print(f"{datetime.now()}: {msg}")
-            logger.info(msg)
+        resource_bitstream = _upload_bitstream(
+            resource=resource,
+            sipi_server=sipi_server,
+            imgdir=imgdir,
+            permissions_lookup=permissions_lookup,
+        )
+        msg = f"Uploaded file '{bitstream.value}'"
+        print(f"{datetime.now()}: {msg}")
+        logger.info(msg)
         return resource_bitstream
     except BaseError as err:
         err_msg = err.orig_err_msg_from_api or err.message

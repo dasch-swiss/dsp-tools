@@ -1,6 +1,6 @@
 from lxml import etree
 
-from dsp_tools.commands.fast_xmlupload.apply_ingest import replace_bitstream_paths
+from dsp_tools.commands.xmlupload_ingest.apply_ingest import replace_bitstream_paths
 
 # pylint: disable=missing-class-docstring,missing-function-docstring
 

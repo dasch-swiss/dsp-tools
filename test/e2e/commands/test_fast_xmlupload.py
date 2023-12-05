@@ -6,8 +6,8 @@ import pytest
 
 from dsp_tools.commands.fast_xmlupload.process_files import process_files
 from dsp_tools.commands.fast_xmlupload.upload_files import upload_files
-from dsp_tools.commands.fast_xmlupload.upload_xml import fast_xmlupload
 from dsp_tools.commands.project.create.project_create import create_project
+from dsp_tools.commands.xmlupload_ingest.upload_xml import fast_xmlupload
 
 
 class TestFastXmlUpload(unittest.TestCase):
@@ -95,7 +95,7 @@ class TestFastXmlUpload(unittest.TestCase):
         )
         self.assertTrue(success_upload)
 
-        print("test_fast_xmlupload: call fast_xmlupload()")
+        print("test_fast_xmlupload: call xmlupload_ingest()")
         success_fast_xmlupload = fast_xmlupload(
             xml_file=self.xml_file,
             user=self.user,

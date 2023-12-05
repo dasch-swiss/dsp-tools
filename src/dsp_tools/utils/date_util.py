@@ -119,6 +119,13 @@ def parse_date_string(s: str) -> Date:
     return Date(calendar_enum, start, end)
 
 
+def is_full_date(s: str) -> bool:
+    """
+    Check if a string is a full DSP date string of the scheme calendar:epoch:yyyy-mm-dd:epoch:yyyy-mm-dd.
+    """
+    return bool(regex.search(_full_date_pattern, s, flags=regex.VERBOSE))
+
+
 def _split_date_string(s: str) -> tuple[str | None, str | None, str, str | None, str | None]:
     date_match = regex.search(_full_date_pattern, s, flags=regex.VERBOSE)
     if not date_match:

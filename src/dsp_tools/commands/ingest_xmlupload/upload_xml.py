@@ -1,0 +1,63 @@
+from datetime import datetime
+
+from lxml import etree
+
+from dsp_tools.commands.ingest_xmlupload.apply_ingest import get_mapping_dict_from_file, replace_bitstream_paths
+from dsp_tools.commands.xmlupload.upload_config import UploadConfig
+from dsp_tools.commands.xmlupload.xmlupload import xmlupload
+from dsp_tools.utils.create_logger import get_logger
+
+logger = get_logger(__name__)
+
+
+def fast_xmlupload(
+    xml_file: str,
+    user: str,
+    password: str,
+    dsp_url: str,
+    sipi_url: str,
+) -> bool:
+    """
+    This function reads an XML file
+    and imports the data described in it onto the DSP server,
+    using the fast XML upload method.
+    Before using this method,
+    the original files must be processed by the processing step,
+    and uploaded by the upoad step.
+
+    Args:
+        xml_file: path to XML file containing the resources
+        e.g. Path('multimedia/nested/subfolder/test.tif'), Path('tmp/0b/22/0b22570d-515f-4c3d-a6af-e42b458e7b2b.jp2')
+        user: the user's e-mail for login into DSP
+        password: the user's password for login into DSP
+        dsp_url: URL to the DSP server
+        sipi_url: URL to the Sipi server
+
+    Returns:
+        success status
+    """
+    xml_tree_orig = etree.parse(xml_file)
+    orig_path_2_uuid_filename = get_mapping_dict_from_file()
+    xml_tree_replaced, ingest_message = replace_bitstream_paths(
+        xml_tree=xml_tree_orig,
+        orig_path_2_uuid_filename=orig_path_2_uuid_filename,
+    )
+    print(str(ingest_message))
+    logger.info(str(ingest_message))
+
+    start_time = datetime.now()
+    print(f"{start_time}: Start with fast XML upload...")
+
+    xmlupload(
+        input_file=xml_tree_replaced,
+        server=dsp_url,
+        user=user,
+        password=password,
+        imgdir=".",
+        sipi=sipi_url,
+        config=UploadConfig(preprocessing_done=True),
+    )
+
+    end_time = datetime.now()
+    print(f"{end_time}: Total time of fast xml upload: {end_time - start_time}")
+    return True

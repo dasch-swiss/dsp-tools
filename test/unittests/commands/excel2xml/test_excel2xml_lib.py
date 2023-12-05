@@ -398,7 +398,7 @@ class TestExcel2xmlLib(unittest.TestCase):
             "GREGORIAN:CE:2014-01-31",
             "JULIAN:BC:1:AD:200",
         ]
-        invalid_values = ["GREGORIAN:CE:0476-09-04:CE:09-04", "GREGORIAN:CE:0476-09-010:CE:0476-09-04"]
+        invalid_values = ["GREGORIAN:CE:0476-09-010:CE:0476-09-04"]
         run_test(self, prop, method, different_values, invalid_values)
 
     def test_make_decimal_prop(self) -> None:

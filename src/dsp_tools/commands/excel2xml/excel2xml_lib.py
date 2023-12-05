@@ -662,7 +662,7 @@ def make_date_prop(
 
     # check value type
     for val in values:
-        if not regex.search(_full_date_pattern, str(val.value).strip()):
+        if not regex.search(_full_date_pattern, str(val.value).strip(), flags=regex.VERBOSE):
             raise BaseError(
                 f"Failed validation in resource '{calling_resource}', property '{name}': "
                 f"'{val.value}' is not a valid DSP date."

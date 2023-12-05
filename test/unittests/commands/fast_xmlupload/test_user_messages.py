@@ -1,6 +1,6 @@
-import pytest
+# pylint: disable=missing-class-docstring,missing-function-docstring
 
-from dsp_tools.commands.fast_xmlupload.user_messaging import IngestMessage
+from dsp_tools.commands.fast_xmlupload.user_messages import IngestMessage
 
 
 class TestIngestMessage:

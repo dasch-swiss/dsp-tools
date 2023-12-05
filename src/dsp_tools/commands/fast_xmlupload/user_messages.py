@@ -9,7 +9,9 @@ list_separator = "\n    - "
 
 
 class UserMessage(Protocol):
-    """Information about user messages."""
+    """
+    Information about user messages.
+    """
 
     def __str__(self) -> str:
         """
@@ -19,8 +21,13 @@ class UserMessage(Protocol):
 
 @dataclass(frozen=True)
 class IngestMessage:
+    """
+    This class stores the information about the mapping of uuids provided by the dsp-ingest service
+    and the filepaths used in the XML file.
+    """
+
     unused_media_paths: list[str]
-    media_no_uuid: list[tuple[str, str]]
+    media_no_uuid: list[tuple[str, str] | Any]
 
     def __str__(self) -> str:
         msg_list = []

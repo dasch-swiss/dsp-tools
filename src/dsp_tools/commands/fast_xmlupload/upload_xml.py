@@ -1,11 +1,11 @@
 import pickle
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, cast
+from typing import Optional
 
 from lxml import etree
 
-from dsp_tools.commands.fast_xmlupload.upload_files import get_pkl_files
+from dsp_tools.commands.fast_xmlupload.apply_ingest import get_mapping_dict_from_file, replace_bitstream_paths
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from dsp_tools.models.exceptions import UserError
@@ -44,36 +44,6 @@ def _get_paths_from_pkl_files(pkl_files: list[Path]) -> dict[str, str]:
     return orig_path_2_uuid_filename
 
 
-def replace_bitstream_paths(
-    xml_tree: "etree._ElementTree[etree._Element]",
-    orig_path_2_uuid_filename: dict[str, str],
-) -> "etree._ElementTree[etree._Element]":
-    """
-    Replace the original filepaths in the <bitstream> gags by the uuid filenames of the processed files.
-
-    Args:
-        xml_tree: The parsed original XML tree
-        orig_path_2_uuid_filename: Mapping from original filenames to uuid filenames (from the pickle file)
-
-    Raises:
-        UserError: If for a file, no derivative was found
-
-    Returns:
-        The XML tree with the replaced filepaths (modified in place)
-    """
-    for elem in xml_tree.iter():
-        if etree.QName(elem).localname.endswith("bitstream"):
-            if elem.text in orig_path_2_uuid_filename:
-                elem.text = orig_path_2_uuid_filename[elem.text]
-            else:
-                res_id = cast("etree._Element", elem.getparent()).attrib.get("id")
-                raise UserError(
-                    f"Resource {res_id}: Cannot find processed derivatives for {elem.text}. "
-                    "The fast xmlupload cannot be started, because the resource that uses this file would fail."
-                )
-    return xml_tree
-
-
 def fast_xmlupload(
     xml_file: str,
     user: str,
@@ -101,12 +71,13 @@ def fast_xmlupload(
         success status
     """
     xml_tree_orig = etree.parse(xml_file)
-    pkl_files = get_pkl_files()
-    orig_path_2_uuid_filename = _get_paths_from_pkl_files(pkl_files)
-    xml_tree_replaced = replace_bitstream_paths(
+    orig_path_2_uuid_filename = get_mapping_dict_from_file()
+    xml_tree_replaced, ingest_message = replace_bitstream_paths(
         xml_tree=xml_tree_orig,
         orig_path_2_uuid_filename=orig_path_2_uuid_filename,
     )
+    print(str(ingest_message))
+    logger.info(str(ingest_message))
 
     start_time = datetime.now()
     print(f"{start_time}: Start with fast XML upload...")

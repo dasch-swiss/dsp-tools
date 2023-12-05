@@ -18,6 +18,7 @@ from lxml.builder import E  # pylint: disable=no-name-in-module
 from dsp_tools.commands.excel2xml.propertyelement import PropertyElement
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import DateTimeStamp
+from dsp_tools.utils.date_util import _full_date_pattern
 from dsp_tools.utils.shared import check_notna, simplify_name, validate_xml_against_schema
 from dsp_tools.utils.uri_util import is_uri
 
@@ -660,13 +661,8 @@ def make_date_prop(
     values = prepare_value(value)
 
     # check value type
-    validation_regex = (
-        r"^(GREGORIAN:|JULIAN:)?(CE:|BCE:)?"
-        + r"(\d{4})(-\d{1,2})?(-\d{1,2})?"
-        + r"((:CE|:BCE)?(:\d{4})(-\d{1,2})?(-\d{1,2})?)?$"
-    )
     for val in values:
-        if not regex.search(validation_regex, str(val.value).strip()):
+        if not regex.search(_full_date_pattern, str(val.value).strip()):
             raise BaseError(
                 f"Failed validation in resource '{calling_resource}', property '{name}': "
                 f"'{val.value}' is not a valid DSP date."

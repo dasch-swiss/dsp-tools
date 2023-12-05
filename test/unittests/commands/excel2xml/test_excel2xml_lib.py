@@ -396,6 +396,7 @@ class TestExcel2xmlLib(unittest.TestCase):
             "2022",
             "GREGORIAN:CE:0476-09-04:CE:0476-09-04",
             "GREGORIAN:CE:2014-01-31",
+            "JULIAN:BC:1:AD:200",
         ]
         invalid_values = ["GREGORIAN:CE:0476-09-04:CE:09-04", "GREGORIAN:CE:0476-09-010:CE:0476-09-04"]
         run_test(self, prop, method, different_values, invalid_values)

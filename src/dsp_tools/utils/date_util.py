@@ -8,16 +8,21 @@ import regex
 
 from dsp_tools.models.exceptions import BaseError
 
-_full_date_pattern = r"""
+_calendar = r"GREGORIAN|JULIAN|ISLAMIC"
+_era = r"CE|BCE|BC|AD"
+_year = r"\d{1,4}"
+_month = r"\d{1,2}"
+_day = r"\d{1,2}"
+_full_date_pattern = rf"""
 ^
-(?:(GREGORIAN|JULIAN|ISLAMIC):)?        # optional calendar
-(?:(CE|BCE|BC|AD):)?                    # optional era
-(\d{1,4}(?:-\d{1,2})?(?:-\d{1,2})?)       # date
-(?::(CE|BCE|BC|AD))?                    # optional era
-(?::(\d{4}(?:-\d{1,2})?(?:-\d{1,2})?))? # optional date
+(?:({_calendar}):)?                         # optional calendar
+(?:({_era}):)?                              # optional era
+({_year}(?:-{_month})?(?:-{_day})?)         # date
+(?::({_era}))?                              # optional era
+(?::({_year}(?:-{_month})?(?:-{_day})?))?   # optional date
 $
 """
-_single_date_pattern = r"^(\d{1,4})(?:-(\d{1,2}))?(?:-(\d{1,2}))?$"
+_single_date_pattern = rf"^({_year})(?:-({_month}))?(?:-({_day}))?$"
 
 
 class Calendar(Enum):

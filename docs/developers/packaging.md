@@ -71,7 +71,8 @@ of doing this.
 
 All project metadata, together with the dependencies and the configuration of the packaging tool poetry, is defined in 
 `pyproject.toml`. The authoritative resource on how to create this file is 
-[https://packaging.python.org/en/latest/specifications/declaring-project-metadata](https://packaging.python.org/en/latest/specifications/declaring-project-metadata).
+[https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#writing-pyproject-toml](
+  https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#writing-pyproject-toml).
 
 The table `[build-system]` of `pyproject.toml` tells frontend build tools what backend build tool to use. The backend 
 doesn't need to be installed. It will be installed by the frontend in a temporary, isolated environment for use during 

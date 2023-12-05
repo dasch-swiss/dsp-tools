@@ -110,12 +110,13 @@
             <boolean permissions="prop-default">true</boolean>
         </boolean-prop>
         <date-prop name=":hasDate">
-            <date permissions="prop-default">JULIAN:BCE:0700:BCE:0600</date>
+            <date permissions="prop-default">JULIAN:BCE:70:CE:1</date>
             <date permissions="prop-default">CE:1849:CE:1850</date>
             <date permissions="prop-default">GREGORIAN:1848-01:1849-02</date>
             <date permissions="prop-default">2022</date>
-            <date permissions="prop-default">GREGORIAN:CE:0476-09-04:CE:0476-09-04</date>
+            <date permissions="prop-default">GREGORIAN:AD:0476-09-04:AD:0476-09-04</date>
             <date permissions="prop-default">GREGORIAN:CE:2014-01-31</date>
+            <date permissions="prop-default">ISLAMIC:1:100</date>
         </date-prop>
         <integer-prop name=":hasInteger">
             <integer permissions="prop-default">4711</integer>

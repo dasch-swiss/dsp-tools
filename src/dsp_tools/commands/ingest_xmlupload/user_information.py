@@ -48,16 +48,16 @@ class IngestInformation:
         save_path = Path.home()
         msg = []
         if unused_media_df := self._unused_media_to_df():
-            _save_as_csv(unused_media_df, "MediaUploadedInSipi.csv", save_path)
+            _save_as_csv(unused_media_df, "UnusedMediaUploadedInSipi.csv", save_path)
             msg.append(
                 "Media was uploaded to Sipi which was not referenced in the XML file.\n"
-                f"The file 'MediaUploadedInSipi.csv' was saved in '{save_path}' with the filenames."
+                f"The file 'UnusedMediaUploadedInSipi.csv' was saved in '{save_path}' with the filenames."
             )
         if no_uuid_df := self._no_uuid_to_df():
-            _save_as_csv(no_uuid_df, "NotUploadedFiles.csv", save_path)
+            _save_as_csv(no_uuid_df, "NotUploadedFilesToSipi.csv", save_path)
             msg.append(
                 "Media referenced in the file was not previously uploaded to sipi.\n"
-                f"The file 'NotUploadedFiles.csv' was saved in '{save_path}' with the resource IDs and filenames."
+                f"The file 'NotUploadedFilesToSipi.csv' was saved in '{save_path}' with the resource IDs and filenames."
             )
         msg.append(str(self))
         return separator.join(msg)

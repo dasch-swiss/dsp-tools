@@ -31,7 +31,7 @@
     <xs:simpleType name="knoradate_type">
         <xs:restriction base="xs:token">
             <xs:pattern
-                value="(GREGORIAN:|JULIAN:)?(CE:|BCE:)?(\d{4})(-\d{1,2})?(-\d{1,2})?((:CE|:BCE)?(:\d{4})(-\d{1,2})?(-\d{1,2})?)?"/>
+                value="(GREGORIAN:|JULIAN:|ISLAMIC:)?(CE:|BCE:|AD:|BC:)?(\d{1,4})(-\d{1,2})?(-\d{1,2})?((:CE|:BCE|:AD|:BC)?(:\d{1,4})(-\d{1,2})?(-\d{1,2})?)?"/>
         </xs:restriction>
     </xs:simpleType>
 

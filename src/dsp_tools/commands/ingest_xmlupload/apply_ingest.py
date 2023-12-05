@@ -4,7 +4,7 @@ from typing import cast
 import pandas as pd
 from lxml import etree
 
-from dsp_tools.commands.ingest_xmlupload.user_messages import IngestMessage
+from dsp_tools.commands.ingest_xmlupload.user_information import IngestInformation
 
 
 def get_mapping_dict_from_file() -> dict[str, str]:
@@ -22,7 +22,7 @@ def get_mapping_dict_from_file() -> dict[str, str]:
 def replace_bitstream_paths(
     xml_tree: "etree._ElementTree[etree._Element]",
     orig_path_2_uuid_filename: dict[str, str],
-) -> tuple["etree._ElementTree[etree._Element]", IngestMessage]:
+) -> tuple["etree._ElementTree[etree._Element]", IngestInformation]:
     """
     Replace the original filepaths in the <bitstream> gags by the uuid filenames of the processed files.
 
@@ -44,4 +44,4 @@ def replace_bitstream_paths(
             else:
                 no_uuid_found.append((cast("etree._Element", elem.getparent()).attrib.get("id"), elem.text))
     unused_media_paths = [x for x in orig_path_2_uuid_filename.keys() if x not in used_media_paths]
-    return xml_tree, IngestMessage(unused_media_paths=unused_media_paths, media_no_uuid=no_uuid_found)
+    return xml_tree, IngestInformation(unused_media_paths=unused_media_paths, media_no_uuid=no_uuid_found)

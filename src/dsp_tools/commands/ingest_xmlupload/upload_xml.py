@@ -1,22 +1,24 @@
 from datetime import datetime
+from pathlib import Path
 
 from lxml import etree
 
 from dsp_tools.commands.ingest_xmlupload.apply_ingest import get_mapping_dict_from_file, replace_bitstream_paths
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
+from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.create_logger import get_logger
 
 logger = get_logger(__name__)
 
 
-def fast_xmlupload(
+def ingest_xmlupload(
     xml_file: str,
     user: str,
     password: str,
     dsp_url: str,
     sipi_url: str,
-) -> bool:
+) -> None:
     """
     This function reads an XML file
     and imports the data described in it onto the DSP server,
@@ -33,8 +35,8 @@ def fast_xmlupload(
         dsp_url: URL to the DSP server
         sipi_url: URL to the Sipi server
 
-    Returns:
-        success status
+    Raises:
+        InputError: if any media was not uploaded of uploaded media was not referenced.
     """
     xml_tree_orig = etree.parse(xml_file)
     orig_path_2_uuid_filename = get_mapping_dict_from_file()
@@ -42,11 +44,16 @@ def fast_xmlupload(
         xml_tree=xml_tree_orig,
         orig_path_2_uuid_filename=orig_path_2_uuid_filename,
     )
-    print(str(ingest_message))
-    logger.info(str(ingest_message))
+    if good := ingest_message.all_good_msg():
+        print(good)
+        logger.info(good)
+    else:
+        err_msg = ingest_message.execute_error_protocol(Path(xml_file).absolute())
+        logger.exception(err_msg)
+        raise InputError(err_msg)
 
     start_time = datetime.now()
-    print(f"{start_time}: Start with fast XML upload...")
+    print(f"{start_time}: Start with ingest xmlupload...")
 
     xmlupload(
         input_file=xml_tree_replaced,
@@ -55,9 +62,8 @@ def fast_xmlupload(
         password=password,
         imgdir=".",
         sipi=sipi_url,
-        config=UploadConfig(preprocessing_done=True),
+        config=UploadConfig(ingest_done=True),
     )
 
     end_time = datetime.now()
-    print(f"{end_time}: Total time of fast xml upload: {end_time - start_time}")
-    return True
+    print(f"{end_time}: Total time of ingest xmlupload: {end_time - start_time}")

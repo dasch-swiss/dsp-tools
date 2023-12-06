@@ -581,6 +581,12 @@ def run(args: list[str]) -> None:
     Args:
         args: a list of arguments passed by the user from the command line,
             excluding the leading "dsp-tools" command.
+
+    Raises:
+        UserError: if user input was wrong
+        InputError: if user input was wrong
+        InternalError: if the user cannot fix it
+        RetryError: if the problem may disappear when trying again later
     """
     default_dsp_api_url = "http://0.0.0.0:3333"
     default_sipi_url = "http://0.0.0.0:1024"

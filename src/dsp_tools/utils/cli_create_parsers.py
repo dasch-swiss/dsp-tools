@@ -177,7 +177,7 @@ def _for_excel2json(subparsers):
     subparsers.add_argument("project_definition", help="path to the output JSON file")
 
 
-def _fast_xmlupload(subparsers, default_dsp_api_url, root_user_email, root_user_pw):
+def _fast_xmlupload(subparsers, default_dsp_api_url: str, root_user_email: str, root_user_pw: str):
     subparsers = subparsers.add_parser(
         name="fast-xmlupload",
         help="For internal use only: create resources with already uploaded files",
@@ -189,7 +189,7 @@ def _fast_xmlupload(subparsers, default_dsp_api_url, root_user_email, root_user_
     subparsers.add_argument("xml_file", help="path to XML file containing the data")
 
 
-def _for_upload_files(subparsers, default_dsp_api_url, root_user_email, root_user_pw):
+def _for_upload_files(subparsers, default_dsp_api_url: str, root_user_email: str, root_user_pw: str):
     subparsers = subparsers.add_parser(
         name="upload-files",
         help="For internal use only: upload already processed files",
@@ -216,7 +216,7 @@ def _for_process_files(subparsers):
     subparsers.add_argument("xml_file", help="path to XML file containing the data")
 
 
-def _for_xmlupload(subparsers, default_dsp_api_url, root_user_email, root_user_pw):
+def _for_xmlupload(subparsers, default_dsp_api_url: str, root_user_email: str, root_user_pw: str):
     subparsers = subparsers.add_parser(name="xmlupload", help="Upload data defined in an XML file to a DSP server")
     subparsers.set_defaults(action="xmlupload")
     subparsers.add_argument(
@@ -235,7 +235,7 @@ def _for_xmlupload(subparsers, default_dsp_api_url, root_user_email, root_user_p
     subparsers.add_argument("xmlfile", help="path to the XML file containing the data")
 
 
-def _for_get(subparsers, default_dsp_api_url, root_user_email, root_user_pw):
+def _for_get(subparsers, default_dsp_api_url: str, root_user_email: str, root_user_pw: str):
     subparsers = subparsers.add_parser(
         name="get",
         help="Retrieve a project with its data model(s) from a DSP server and write it into a JSON file",
@@ -250,7 +250,7 @@ def _for_get(subparsers, default_dsp_api_url, root_user_email, root_user_pw):
     subparsers.add_argument("project_definition", help="path to the file the project should be written to")
 
 
-def _for_create(subparsers, default_dsp_api_url, root_user_email, root_user_pw):
+def _for_create(subparsers, default_dsp_api_url: str, root_user_email: str, root_user_pw: str):
     subparsers = subparsers.add_parser(
         name="create",
         help="Create a project defined in a JSON project file on a DSP server. "

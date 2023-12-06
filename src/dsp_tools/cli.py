@@ -8,28 +8,10 @@ from importlib.metadata import version
 
 import regex
 
-from dsp_tools.commands.excel2json.lists import excel2lists, validate_lists_section_with_schema
-from dsp_tools.commands.excel2json.project import excel2json
-from dsp_tools.commands.excel2json.properties import excel2properties
-from dsp_tools.commands.excel2json.resources import excel2resources
-from dsp_tools.commands.excel2xml.excel2xml_cli import excel2xml
-from dsp_tools.commands.fast_xmlupload.process_files import process_files
-from dsp_tools.commands.fast_xmlupload.upload_files import upload_files
-from dsp_tools.commands.fast_xmlupload.upload_xml import fast_xmlupload
-from dsp_tools.commands.id2iri import id2iri
-from dsp_tools.commands.project.create.project_create import create_project
-from dsp_tools.commands.project.create.project_create_lists import create_lists
-from dsp_tools.commands.project.create.project_validate import validate_project
-from dsp_tools.commands.project.get import get_project
-from dsp_tools.commands.rosetta import upload_rosetta
-from dsp_tools.commands.start_stack import StackConfiguration, StackHandler
-from dsp_tools.commands.template import generate_template_repo
-from dsp_tools.commands.xmlupload.upload_config import DiagnosticsConfig, UploadConfig
-from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from dsp_tools.models.exceptions import UserError
+from dsp_tools.utils.cli_call_action import call_requested_action
 from dsp_tools.utils.cli_create_parsers import make_parser
 from dsp_tools.utils.create_logger import get_logger
-from dsp_tools.utils.shared import validate_xml_against_schema
 
 logger = get_logger(__name__)
 
@@ -191,152 +173,6 @@ def _derive_sipi_url(
     return parsed_arguments
 
 
-def _call_requested_action(args: argparse.Namespace) -> bool:
-    """
-    Call the appropriate method of DSP-TOOLS.
-
-    Args:
-        args: parsed CLI arguments
-
-    Raises:
-        BaseError from the called methods
-        UserError from the called methods
-        unexpected errors from the called methods and underlying libraries
-
-    Returns:
-        success status
-    """
-    if args.action == "create":
-        if args.lists_only:
-            if args.validate_only:
-                success = validate_lists_section_with_schema(args.project_definition)
-                print("'Lists' section of the JSON project file is syntactically correct and passed validation.")
-            else:
-                _, success = create_lists(
-                    project_file_as_path_or_parsed=args.project_definition,
-                    server=args.server,
-                    user=args.user,
-                    password=args.password,
-                    dump=args.dump,
-                )
-        else:
-            if args.validate_only:
-                success = validate_project(args.project_definition)
-                print("JSON project file is syntactically correct and passed validation.")
-            else:
-                success = create_project(
-                    project_file_as_path_or_parsed=args.project_definition,
-                    server=args.server,
-                    user_mail=args.user,
-                    password=args.password,
-                    verbose=args.verbose,
-                    dump=args.dump,
-                )
-    elif args.action == "get":
-        success = get_project(
-            project_identifier=args.project,
-            outfile_path=args.project_definition,
-            server=args.server,
-            user=args.user,
-            password=args.password,
-            verbose=args.verbose,
-            dump=args.dump,
-        )
-    elif args.action == "xmlupload":
-        if args.validate_only:
-            success = validate_xml_against_schema(args.xmlfile)
-        else:
-            success = xmlupload(
-                input_file=args.xmlfile,
-                server=args.server,
-                user=args.user,
-                password=args.password,
-                imgdir=args.imgdir,
-                sipi=args.sipi_url,
-                config=UploadConfig(diagnostics=DiagnosticsConfig(verbose=args.verbose, dump=args.dump)),
-            )
-    elif args.action == "process-files":
-        success = process_files(
-            input_dir=args.input_dir,
-            output_dir=args.output_dir,
-            xml_file=args.xml_file,
-            nthreads=args.nthreads,
-        )
-    elif args.action == "upload-files":
-        success = upload_files(
-            dir_with_processed_files=args.processed_dir,
-            nthreads=args.nthreads,
-            user=args.user,
-            password=args.password,
-            dsp_url=args.server,
-            sipi_url=args.sipi_url,
-        )
-    elif args.action == "fast-xmlupload":
-        success = fast_xmlupload(
-            xml_file=args.xml_file,
-            user=args.user,
-            password=args.password,
-            dsp_url=args.server,
-            sipi_url=args.sipi_url,
-        )
-    elif args.action == "excel2json":
-        success = excel2json(
-            data_model_files=args.excelfolder,
-            path_to_output_file=args.project_definition,
-        )
-    elif args.action == "excel2lists":
-        _, success = excel2lists(
-            excelfolder=args.excelfolder,
-            path_to_output_file=args.lists_section,
-            verbose=args.verbose,
-        )
-    elif args.action == "excel2resources":
-        _, success = excel2resources(
-            excelfile=args.excelfile,
-            path_to_output_file=args.resources_section,
-        )
-    elif args.action == "excel2properties":
-        _, success = excel2properties(
-            excelfile=args.excelfile,
-            path_to_output_file=args.properties_section,
-        )
-    elif args.action == "id2iri":
-        success = id2iri(
-            xml_file=args.xmlfile,
-            json_file=args.mapping,
-            remove_resource_if_id_in_mapping=args.remove_resources,
-        )
-    elif args.action == "excel2xml":
-        success, _ = excel2xml(
-            datafile=args.data_source,
-            shortcode=args.project_shortcode,
-            default_ontology=args.ontology_name,
-        )
-    elif args.action == "start-stack":
-        stack_handler = StackHandler(
-            StackConfiguration(
-                max_file_size=args.max_file_size,
-                enforce_docker_system_prune=args.prune,
-                suppress_docker_system_prune=args.no_prune,
-                latest_dev_version=args.latest,
-            )
-        )
-        success = stack_handler.start_stack()
-    elif args.action == "stop-stack":
-        stack_handler = StackHandler(StackConfiguration())
-        success = stack_handler.stop_stack()
-    elif args.action == "template":
-        success = generate_template_repo()
-    elif args.action == "rosetta":
-        success = upload_rosetta()
-    else:
-        success = False
-        print(f"ERROR: Unknown action '{args.action}'")
-        logger.error(f"Unknown action '{args.action}'")
-
-    return success
-
-
 def main() -> None:
     """
     Main entry point of the program as referenced in pyproject.toml
@@ -374,7 +210,7 @@ def run(args: list[str]) -> None:
             default_dsp_api_url=default_dsp_api_url,
             default_sipi_url=default_sipi_url,
         )
-        success = _call_requested_action(parsed_arguments)
+        success = call_requested_action(parsed_arguments)
     except UserError as err:
         logger.error(f"Terminate because of this UserError: {err.message}")
         print(err.message)

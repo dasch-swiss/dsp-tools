@@ -306,7 +306,7 @@ def _check_cardinalities_of_circular_references(project_definition: dict[Any, An
         "Please make sure that the following properties have a cardinality of 0-1 or 0-n:"
     )
     for error in errors:
-        error_message = f"{error_message}\n\t- Resource {error[0]}, property {error[1]}"
+        error_message = f"{error_message}\n    - Resource {error[0]}, property {error[1]}"
     raise BaseError(error_message)
 
 

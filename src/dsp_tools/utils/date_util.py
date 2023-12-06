@@ -8,16 +8,21 @@ import regex
 
 from dsp_tools.models.exceptions import BaseError
 
-_full_date_pattern = r"""
+_calendar = r"GREGORIAN|JULIAN|ISLAMIC"
+_era = r"CE|BCE|BC|AD"
+_year = r"\d{1,4}"
+_month = r"\d{1,2}"
+_day = r"\d{1,2}"
+_full_date_pattern = rf"""
 ^
-(?:(GREGORIAN|JULIAN|ISLAMIC):)?        # optional calendar
-(?:(CE|BCE|BC|AD):)?                    # optional era
-(\d{1,4}(?:-\d{1,2})?(?:-\d{1,2})?)       # date
-(?::(CE|BCE|BC|AD))?                    # optional era
-(?::(\d{4}(?:-\d{1,2})?(?:-\d{1,2})?))? # optional date
+(?:({_calendar}):)?                         # optional calendar
+(?:({_era}):)?                              # optional era
+({_year}(?:-{_month})?(?:-{_day})?)         # date
+(?::({_era}))?                              # optional era
+(?::({_year}(?:-{_month})?(?:-{_day})?))?   # optional date
 $
 """
-_single_date_pattern = r"^(\d{1,4})(?:-(\d{1,2}))?(?:-(\d{1,2}))?$"
+_single_date_pattern = rf"^({_year})(?:-({_month}))?(?:-({_day}))?$"
 
 
 class Calendar(Enum):
@@ -112,6 +117,13 @@ def parse_date_string(s: str) -> Date:
     end = _parse_single_date(end_date, end_era_enum) if end_date else None
 
     return Date(calendar_enum, start, end)
+
+
+def is_full_date(s: str) -> bool:
+    """
+    Check if a string is a full DSP date string of the scheme calendar:epoch:yyyy-mm-dd:epoch:yyyy-mm-dd.
+    """
+    return bool(regex.search(_full_date_pattern, s, flags=regex.VERBOSE))
 
 
 def _split_date_string(s: str) -> tuple[str | None, str | None, str, str | None, str | None]:

@@ -1,5 +1,6 @@
 import contextlib
 import json
+from pathlib import Path
 from typing import Optional
 
 import regex
@@ -64,7 +65,57 @@ class BaseError(Exception):
 
 class InternalError(BaseError):
     """
-    Class for errors that will be handled by a higher level function
+    Class for errors that are raised if the user cannot solve the problem themselves.
+    """
+
+    def __init__(self, custom_msg: str | None = None, keep_default_msg: bool = True) -> None:
+        default_msg = (
+            "\n\nAn internal error occurred.\n"
+            "Please contact the dsp-tools development team with the following information:\n"
+            "    - Which command was used.\n"
+            "    - If applicable, any files that were used in conjunction with the command.\n"
+            "    - A file with the terminal output copied into.\n"
+            "    - The log files called 'logging.log', if there are several, include all.\n"
+            f"      They can be found at: {Path.home() / Path('.dsp-tools')}\n"
+        )
+        match keep_default_msg, custom_msg:
+            case False, str():
+                super().__init__(custom_msg)  # type: ignore[arg-type]
+            case True, str():
+                default_msg = f"\n\n{custom_msg}\n--------------------------{default_msg}"
+                super().__init__(default_msg)
+            case _:
+                super().__init__(default_msg)
+
+
+class RetryError(BaseError):
+    """
+    A class for errors where the user should try again later.
+    """
+
+    def __init__(self, custom_msg: str | None = None, keep_default_msg: bool = True) -> None:
+        default_msg = (
+            "\n\nAn internal error occurred.\n"
+            "Please contact the dsp-tools development team with the following information:\n"
+            "    - Which command was used.\n"
+            "    - If applicable, any files that were used in conjunction with the command.\n"
+            "    - A file with the terminal output copied into.\n"
+            "    - The log files called 'logging.log', if there are several, include all.\n"
+            f"     They can be found at: {Path.home() / Path('.dsp-tools')}\n"
+        )
+        match keep_default_msg, custom_msg:
+            case False, str():
+                super().__init__(custom_msg)  # type: ignore[arg-type]
+            case True, str():
+                default_msg = f"\n\n{custom_msg}\n--------------------------{default_msg}"
+                super().__init__(default_msg)
+            case _:
+                super().__init__(default_msg)
+
+
+class InputError(BaseError):
+    """
+    Class for errors that is called when the user input is invalid.
     """
 
 
@@ -77,8 +128,10 @@ class UserError(BaseError):
     """
 
 
-class XmlError(Exception):
-    """Represents an error raised in the context of the XML import"""
+class XmlUploadError(Exception):
+    """
+    Represents an error raised in the context of the XML import.
+    """
 
     _message: str
 

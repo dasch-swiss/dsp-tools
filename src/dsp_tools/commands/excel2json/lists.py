@@ -58,12 +58,12 @@ def expand_lists_from_excel(
             _list["nodes"] = returned_lists_section[0]["nodes"]
             new_lists.append(_list)
             print(
-                f"\tThe list '{_list['name']}' contains a reference to the folder '{foldername}'. The Excel "
+                f"    The list '{_list['name']}' contains a reference to the folder '{foldername}'. The Excel "
                 f"files therein have been temporarily expanded into the 'lists' section of your project."
             )
         except BaseError as err:
             raise UserError(
-                f"\tWARNING: The list '{_list['name']}' contains a reference to the folder '{foldername}', but a "
+                f"    WARNING: The list '{_list['name']}' contains a reference to the folder '{foldername}', but a "
                 f"problem occurred while trying to expand the Excel files therein into the 'lists' section of "
                 f"your project: {err.message}"
             ) from None

@@ -1,4 +1,5 @@
-# ruff: noqa: E501 (line-too-long)
+# pylint: disable=line-too-long
+
 
 import dataclasses
 import datetime
@@ -12,11 +13,12 @@ from typing import Any, Iterable, Optional, Union
 
 import regex
 from lxml import etree
-from lxml.builder import E
+from lxml.builder import E  # pylint: disable=no-name-in-module
 
 from dsp_tools.commands.excel2xml.propertyelement import PropertyElement
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import DateTimeStamp
+from dsp_tools.utils.date_util import is_full_date
 from dsp_tools.utils.shared import check_notna, simplify_name, validate_xml_against_schema
 from dsp_tools.utils.uri_util import is_uri
 
@@ -59,9 +61,7 @@ def make_xsd_id_compatible(string: str) -> str:
     return res
 
 
-def find_date_in_string(  # noqa: PLR0912, PLR0915, PLR0911 (too-many-branches/statements/return-statements)
-    string: str,
-) -> Optional[str]:
+def find_date_in_string(string: str) -> Optional[str]:
     """
     Checks if a string contains a date value (single date, or date range), and returns the first found date as
     DSP-formatted string. Returns None if no date was found.
@@ -345,10 +345,10 @@ def append_permissions(root_element: etree._Element) -> etree._Element:
     return root_element
 
 
-def make_resource(  # noqa: D417 (undocumented-param)
+def make_resource(
     label: str,
     restype: str,
-    id: str,  # noqa: A002 (builtin-argument-shadowing)
+    id: str,  # pylint: disable=redefined-builtin
     permissions: str = "res-default",
     ark: Optional[str] = None,
     iri: Optional[str] = None,
@@ -661,13 +661,8 @@ def make_date_prop(
     values = prepare_value(value)
 
     # check value type
-    validation_regex = (
-        r"^(GREGORIAN:|JULIAN:)?(CE:|BCE:)?"
-        r"(\d{4})(-\d{1,2})?(-\d{1,2})?"
-        r"((:CE|:BCE)?(:\d{4})(-\d{1,2})?(-\d{1,2})?)?$"
-    )
     for val in values:
-        if not regex.search(validation_regex, str(val.value).strip()):
+        if not is_full_date(str(val.value).strip()):
             raise BaseError(
                 f"Failed validation in resource '{calling_resource}', property '{name}': "
                 f"'{val.value}' is not a valid DSP date."
@@ -1446,9 +1441,9 @@ def make_uri_prop(
     return prop_
 
 
-def make_region(  # noqa: D417 (undocumented-param)
+def make_region(
     label: str,
-    id: str,  # noqa: A002 (builtin-argument-shadowing)
+    id: str,  # pylint: disable=redefined-builtin
     permissions: str = "res-default",
     ark: Optional[str] = None,
     iri: Optional[str] = None,
@@ -1505,9 +1500,9 @@ def make_region(  # noqa: D417 (undocumented-param)
     )
 
 
-def make_annotation(  # noqa: D417 (undocumented-param)
+def make_annotation(
     label: str,
-    id: str,  # noqa: A002 (builtin-argument-shadowing)
+    id: str,  # pylint: disable=redefined-builtin
     permissions: str = "res-default",
     ark: Optional[str] = None,
     iri: Optional[str] = None,
@@ -1562,9 +1557,9 @@ def make_annotation(  # noqa: D417 (undocumented-param)
     )
 
 
-def make_link(  # noqa: D417 (undocumented-param)
+def make_link(
     label: str,
-    id: str,  # noqa: A002 (builtin-argument-shadowing)
+    id: str,  # pylint: disable=redefined-builtin
     permissions: str = "res-default",
     ark: Optional[str] = None,
     iri: Optional[str] = None,

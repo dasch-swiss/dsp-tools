@@ -60,7 +60,7 @@ def _create_project_on_server(
         project_remote: Project = try_network_action(project_local.read)
         proj_designation = f"'{project_remote.shortname}' ({project_remote.shortcode})"
         msg = f"Project {proj_designation} already exists on the DSP server. Updating it..."
-        print(f"\tWARNING: {msg}")
+        print(f"    WARNING: {msg}")
         logger.warning(msg)
         # try to update the basic info
         project_remote, _ = _update_basic_info_of_project(
@@ -94,7 +94,7 @@ def _create_project_on_server(
         err_msg = f"Cannot create project '{shortname}' ({shortcode}) on DSP server."
         logger.error(err_msg, exc_info=True)
         raise UserError(err_msg) from None
-    print(f"\tCreated project '{project_remote.shortname}' ({project_remote.shortcode}).")
+    print(f"    Created project '{project_remote.shortname}' ({project_remote.shortcode}).")
     logger.info(f"Created project '{project_remote.shortname}' ({project_remote.shortcode}).")
     return project_remote, success
 
@@ -136,7 +136,7 @@ def _update_basic_info_of_project(
     try:
         project_remote: Project = try_network_action(project.update)
         if verbose:
-            print(f"\tUpdated project '{shortname}' ({shortcode}).")
+            print(f"    Updated project '{shortname}' ({shortcode}).")
         logger.info(f"Updated project '{shortname}' ({shortcode}).")
         return project_remote, True
     except BaseError:
@@ -190,7 +190,7 @@ def _create_groups(
         # if the group already exists, add it to "current_project_groups" (for later usage), then skip it
         if remotely_existing_group := [g for g in remote_groups if g.name == group_name]:
             current_project_groups[group_name] = remotely_existing_group[0]
-            print(f"\tWARNING: Group name '{group_name}' already exists on the DSP server. Skipping...")
+            print(f"    WARNING: Group name '{group_name}' already exists on the DSP server. Skipping...")
             logger.warning(f"Group name '{group_name}' already exists on the DSP server. Skipping...")
             overall_success = False
             continue
@@ -207,13 +207,13 @@ def _create_groups(
         try:
             group_remote: Group = try_network_action(group_local.create)
         except BaseError:
-            print(f"\tWARNING: Unable to create group '{group_name}'.")
+            print(f"    WARNING: Unable to create group '{group_name}'.")
             logger.warning(f"Unable to create group '{group_name}'.", exc_info=True)
             overall_success = False
             continue
 
         current_project_groups[str(group_remote.name)] = group_remote
-        print(f"\tCreated group '{group_name}'.")
+        print(f"    Created group '{group_name}'.")
         logger.info(f"Created group '{group_name}'.")
 
     return current_project_groups, overall_success
@@ -256,7 +256,7 @@ def _get_group_iris_for_user(
             f"User {username} cannot be added to group {full_group_name}, because such a group doesn't exist."
         )
         if ":" not in full_group_name and full_group_name != "SystemAdmin":
-            print(f"\tWARNING: {inexisting_group_msg}")
+            print(f"    WARNING: {inexisting_group_msg}")
             logger.warning(inexisting_group_msg)
             success = False
             continue
@@ -264,7 +264,7 @@ def _get_group_iris_for_user(
         if full_group_name == "SystemAdmin":
             sysadmin = True
             if verbose:
-                print(f"\tAdded user '{username}' to group 'SystemAdmin'.")
+                print(f"    Added user '{username}' to group 'SystemAdmin'.")
             logger.info(f"Added user '{username}' to group 'SystemAdmin'.")
             continue
 
@@ -273,7 +273,7 @@ def _get_group_iris_for_user(
         if not project_shortname:
             # full_group_name refers to a group inside the same project
             if group_name not in current_project_groups:
-                print(f"\tWARNING: {inexisting_group_msg}")
+                print(f"    WARNING: {inexisting_group_msg}")
                 logger.warning(inexisting_group_msg)
                 success = False
                 continue
@@ -288,13 +288,13 @@ def _get_group_iris_for_user(
                     f"User '{username}' is referring to the group {full_group_name} that "
                     f"exists on the DSP server, but no groups could be retrieved from the DSP server."
                 )
-                print(f"\tWARNING: {err_msg}")
+                print(f"    WARNING: {err_msg}")
                 logger.warning(err_msg, exc_info=True)
                 success = False
                 continue
             existing_group = [g for g in remote_groups if g.project == current_project.iri and g.name == group_name]
             if not existing_group:
-                print(f"\tWARNING: {inexisting_group_msg}")
+                print(f"    WARNING: {inexisting_group_msg}")
                 logger.warning(inexisting_group_msg)
                 success = False
                 continue
@@ -304,7 +304,7 @@ def _get_group_iris_for_user(
             raise BaseError(f"Group '{group}' has no IRI.")
         group_iris.add(group.iri)
         if verbose:
-            print(f"\tAdded user '{username}' to group '{full_group_name}'.")
+            print(f"    Added user '{username}' to group '{full_group_name}'.")
         logger.info(f"Added user '{username}' to group '{full_group_name}'.")
 
     return group_iris, sysadmin, success
@@ -335,7 +335,9 @@ def _get_projects_where_user_is_admin(
     for full_project_name in json_user_definition.get("projects", []):
         # full_project_name has the form '[project_name]:member' or '[project_name]:admin'
         if ":" not in full_project_name:
-            print(f"\tWARNING: Provided project '{full_project_name}' for user '{username}' is not valid. Skipping...")
+            print(
+                f"    WARNING: Provided project '{full_project_name}' for user '{username}' is not valid. Skipping..."
+            )
             logger.warning(f"Provided project '{full_project_name}' for user '{username}' is not valid. Skipping...")
             success = False
             continue
@@ -354,14 +356,14 @@ def _get_projects_where_user_is_admin(
                     f"User '{username}' cannot be added to the projects {json_user_definition['projects']} "
                     f"because the projects cannot be retrieved from the DSP server."
                 )
-                print(f"\tWARNING: {err_msg}")
+                print(f"    WARNING: {err_msg}")
                 logger.warning(err_msg, exc_info=True)
                 success = False
                 continue
             in_project_list = [p for p in remote_projects if p.shortname == project_name]
             if not in_project_list:
                 msg = f"Provided project '{full_project_name}' for user '{username}' is not valid. Skipping..."
-                print(f"\tWARNING: {msg}")
+                print(f"    WARNING: {msg}")
                 logger.warning(msg)
                 success = False
                 continue
@@ -370,7 +372,7 @@ def _get_projects_where_user_is_admin(
         is_admin = project_role == "admin"
         project_info[str(in_project.iri)] = is_admin
         if verbose:
-            print(f"\tAdded user '{username}' as {project_role} to project '{in_project.shortname}'.")
+            print(f"    Added user '{username}' as {project_role} to project '{in_project.shortname}'.")
         logger.info(f"Added user '{username}' as {project_role} to project '{in_project.shortname}'.")
 
     return project_info, success
@@ -406,7 +408,7 @@ def _create_users(
         with contextlib.suppress(BaseError):
             # the normal case is that this block fails
             try_network_action(User(con, email=json_user_definition["email"]).read)
-            print(f"\tWARNING: User '{username}' already exists on the DSP server. Skipping...")
+            print(f"    WARNING: User '{username}' already exists on the DSP server. Skipping...")
             logger.warning(f"User '{username}' already exists on the DSP server. Skipping...")
             overall_success = False
             continue
@@ -448,11 +450,11 @@ def _create_users(
         try:
             try_network_action(user_local.create)
         except BaseError:
-            print(f"\tWARNING: Unable to create user '{username}'.")
+            print(f"    WARNING: Unable to create user '{username}'.")
             logger.warning(f"Unable to create user '{username}'.", exc_info=True)
             overall_success = False
             continue
-        print(f"\tCreated user '{username}'.")
+        print(f"    Created user '{username}'.")
         logger.info(f"Created user '{username}'.")
 
     return overall_success
@@ -562,7 +564,7 @@ def _create_ontology(
     """
     # skip if it already exists on the DSP server
     if onto_name in [onto.name for onto in project_ontologies]:
-        print(f"\tWARNING: Ontology '{onto_name}' already exists on the DSP server. Skipping...")
+        print(f"    WARNING: Ontology '{onto_name}' already exists on the DSP server. Skipping...")
         logger.warning(f"Ontology '{onto_name}' already exists on the DSP server. Skipping...")
         return None
 
@@ -583,7 +585,7 @@ def _create_ontology(
         raise UserError(f"ERROR while trying to create ontology '{onto_name}'.") from None
 
     if verbose:
-        print(f"\tCreated ontology '{onto_name}'.")
+        print(f"    Created ontology '{onto_name}'.")
     logger.info(f"Created ontology '{onto_name}'.")
 
     context.add_context(
@@ -730,7 +732,7 @@ def _add_resource_classes_to_remote_ontology(
     """
 
     overall_success = True
-    print("\tCreate resource classes...")
+    print("    Create resource classes...")
     logger.info("Create resource classes...")
     new_res_classes: dict[str, ResourceClass] = {}
     sorted_resources = _sort_resources(resclass_definitions, onto_name)
@@ -755,7 +757,7 @@ def _add_resource_classes_to_remote_ontology(
             new_res_classes[str(res_class_remote.iri)] = res_class_remote
             ontology_remote.lastModificationDate = last_modification_date
             if verbose:
-                print(f"\tCreated resource class '{res_class['name']}'")
+                print(f"    Created resource class '{res_class['name']}'")
             logger.info(f"Created resource class '{res_class['name']}'")
         except BaseError:
             print(f"WARNING: Unable to create resource class '{res_class['name']}'.")
@@ -795,7 +797,7 @@ def _add_property_classes_to_remote_ontology(
         a tuple consisting of the last modification date of the ontology, and the success status
     """
     overall_success = True
-    print("\tCreate property classes...")
+    print("    Create property classes...")
     logger.info("Create property classes...")
     sorted_prop_classes = _sort_prop_classes(property_definitions, onto_name)
     for prop_class in sorted_prop_classes:
@@ -850,7 +852,7 @@ def _add_property_classes_to_remote_ontology(
             last_modification_date, _ = try_network_action(prop_class_local.create, last_modification_date)
             ontology_remote.lastModificationDate = last_modification_date
             if verbose:
-                print(f"\tCreated property class '{prop_class['name']}'")
+                print(f"    Created property class '{prop_class['name']}'")
             logger.info(f"Created property class '{prop_class['name']}'")
         except BaseError:
             print(f"WARNING: Unable to create property class '{prop_class['name']}'.")
@@ -886,7 +888,7 @@ def _add_cardinalities_to_resource_classes(
         success status
     """
     overall_success = True
-    print("\tAdd cardinalities to resource classes...")
+    print("    Add cardinalities to resource classes...")
     logger.info("Add cardinalities to resource classes...")
     switcher = {
         "1": Cardinality.C_1,
@@ -921,7 +923,7 @@ def _add_cardinalities_to_resource_classes(
                     last_modification_date=last_modification_date,
                 )
                 if verbose:
-                    print(f"\tAdded cardinality '{card_info['propname']}' to resource class '{res_class['name']}'")
+                    print(f"    Added cardinality '{card_info['propname']}' to resource class '{res_class['name']}'")
                 logger.info(f"Added cardinality '{card_info['propname']}' to resource class '{res_class['name']}'")
             except BaseError:
                 err_msg = f"Unable to add cardinality '{qualified_propname}' to resource class {res_class['name']}."
@@ -1042,7 +1044,7 @@ def create_project(  # noqa: PLR0912, PLR0915 (too-many-branches/statements)
 
     # validate against JSON schema
     validate_project(project_definition, expand_lists=False)
-    print("\tJSON project file is syntactically correct and passed validation.")
+    print("    JSON project file is syntactically correct and passed validation.")
     logger.info("JSON project file is syntactically correct and passed validation.")
 
     # rectify the "hlist" of the "gui_attributes" of the properties

@@ -81,6 +81,7 @@ def _check_if_salsah_targets_exist(root: etree._Element) -> list[str]:
     link_values = [x for x in root.iter() if x.tag == "a"]
     resource_ids = [x.attrib["id"] for x in root.iter() if x.tag == "resource"]
     invalid_link_values = [x for x in link_values if regex.sub(r"IRI:|:IRI", "", x.attrib["href"]) not in resource_ids]
+    invalid_link_values = [x for x in invalid_link_values if x.attrib.get("class") == "salsah-link"]
     invalid_link_values = [x for x in invalid_link_values if not is_resource_iri(x.attrib["href"])]
     errors = []
     for inv in invalid_link_values:

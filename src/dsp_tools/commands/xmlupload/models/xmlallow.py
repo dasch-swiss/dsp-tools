@@ -1,7 +1,7 @@
 from lxml import etree
 
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
-from dsp_tools.models.exceptions import XmlError
+from dsp_tools.models.exceptions import XmlUploadError
 from dsp_tools.models.projectContext import ProjectContext
 
 
@@ -21,6 +21,9 @@ class XmlAllow:
 
         Returns:
             None
+
+        Raises:
+            XmlUploadError: If an upload fails
         """
         tmp = node.attrib["group"].split(":")
         sysgroups = ["UnknownUser", "KnownUser", "ProjectMember", "Creator", "ProjectAdmin", "SystemAdmin"]
@@ -31,19 +34,19 @@ class XmlAllow:
                 else:
                     _group = project_context.group_map.get(node.attrib["group"])
                     if _group is None:
-                        raise XmlError(f'Group "{node.attrib["group"]}" is not known: Cannot find project!')
+                        raise XmlUploadError(f'Group "{node.attrib["group"]}" is not known: Cannot find project!')
                     self._group = _group
             else:
                 if project_context.project_name is None:
-                    raise XmlError("Project shortcode has not been set in ProjectContext")
+                    raise XmlUploadError("Project shortcode has not been set in ProjectContext")
                 self._group = project_context.project_name + ":" + tmp[1]
         else:  # noqa: PLR5501 (collapsible-else-if)
             if tmp[0] in sysgroups:
                 self._group = "knora-admin:" + node.attrib["group"]
             else:
-                raise XmlError(f'Group "{node.attrib["group"]}" is not known: ')
+                raise XmlUploadError(f'Group "{node.attrib["group"]}" is not known: ')
         if not node.text:
-            raise XmlError("No permission set specified")
+            raise XmlUploadError("No permission set specified")
         self._permission = PermissionValue[node.text]
 
     @property

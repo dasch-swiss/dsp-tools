@@ -101,6 +101,7 @@
                 <a class="salsah-link" href="IRI:test_thing_2:IRI">test_thing_2</a>
                 <a class="salsah-link" href="http://rdfh.ch/4123/DiAmYQzQSzC7cdTo6OJMYA">test_thing_with_iri_1</a>
             </text>
+            <text encoding="xml">Text with an external link: <a href="https://www.google.com/">Google</a></text>
         </text-prop>
         <uri-prop name=":hasUri">
             <uri permissions="prop-default">https://dasch.swiss</uri>
@@ -109,12 +110,13 @@
             <boolean permissions="prop-default">true</boolean>
         </boolean-prop>
         <date-prop name=":hasDate">
-            <date permissions="prop-default">JULIAN:BCE:0700:BCE:0600</date>
+            <date permissions="prop-default">JULIAN:BCE:70:CE:1</date>
             <date permissions="prop-default">CE:1849:CE:1850</date>
             <date permissions="prop-default">GREGORIAN:1848-01:1849-02</date>
             <date permissions="prop-default">2022</date>
-            <date permissions="prop-default">GREGORIAN:CE:0476-09-04:CE:0476-09-04</date>
+            <date permissions="prop-default">GREGORIAN:AD:0476-09-04:AD:0476-09-04</date>
             <date permissions="prop-default">GREGORIAN:CE:2014-01-31</date>
+            <date permissions="prop-default">ISLAMIC:1:100</date>
         </date-prop>
         <integer-prop name=":hasInteger">
             <integer permissions="prop-default">4711</integer>

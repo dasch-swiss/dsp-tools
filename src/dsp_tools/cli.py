@@ -27,7 +27,7 @@ from dsp_tools.commands.start_stack import StackConfiguration, StackHandler
 from dsp_tools.commands.template import generate_template_repo
 from dsp_tools.commands.xmlupload.upload_config import DiagnosticsConfig, UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
-from dsp_tools.models.exceptions import UserError
+from dsp_tools.models.exceptions import InputError, InternalError, RetryError, UserError
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import validate_xml_against_schema
 
@@ -606,10 +606,20 @@ def run(args: list[str]) -> None:
         )
         success = _call_requested_action(parsed_arguments)
     except UserError as err:
-        logger.error(f"Terminate because of this UserError: {err.message}")
-        print(err.message)
-        sys.exit(1)
-    # let BaseError and all unexpected errors escalate, so that a stack trace is printed
+        logger.error(err)
+        raise err from None
+    except InputError as err:
+        logger.error(err)
+        raise err from None
+    except InternalError as err:
+        logger.error(err)
+        raise err from None
+    except RetryError as err:
+        logger.error(err)
+        raise err from None
+    except Exception as err:
+        logger.error(err)
+        raise InternalError from None
 
     if not success:
         logger.error("Terminate without success")

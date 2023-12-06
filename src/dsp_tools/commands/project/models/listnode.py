@@ -1,6 +1,3 @@
-# ruff: noqa: D102 (undocumented-public-method)
-# ruff: noqa: D103 (undocumented-public-function)
-
 """
 This module implements the handling (CRUD) of list nodes and adds some function to read whole lists.
 
@@ -306,10 +303,6 @@ class ListNode(Model):
     @property
     def isRootNode(self) -> Optional[bool]:
         return self._isRootNode
-
-    @isRootNode.setter
-    def isRootNode(self, value: bool) -> None:  # noqa: ARG002 (unused-method-argument)
-        raise BaseError("Property isRootNode cannot be set!")
 
     @property
     def children(self) -> list["ListNode"]:

@@ -1,6 +1,3 @@
-# ruff: noqa: D101 (undocumented-public-class)
-# ruff: noqa: D102 (undocumented-public-method)
-
 from __future__ import annotations
 
 from enum import Enum, unique

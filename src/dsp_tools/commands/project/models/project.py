@@ -1,5 +1,3 @@
-# ruff: noqa: D102 (undocumented-public-method)
-
 """
 This module implements the handling (CRUD) of DSP projects.
 
@@ -168,17 +166,9 @@ class Project(Model):
     def iri(self) -> Optional[str]:
         return self._iri
 
-    @iri.setter
-    def iri(self, value: str) -> None:  # noqa: ARG002 (unused-method-argument)
-        raise BaseError("Project iri cannot be modified!")
-
     @property
     def shortcode(self) -> Optional[str]:
         return self._shortcode
-
-    @shortcode.setter
-    def shortcode(self, value: str) -> None:  # noqa: ARG002 (unused-method-argument)
-        raise BaseError("Shortcode id cannot be modified!")
 
     @property
     def shortname(self) -> Optional[str]:
@@ -277,10 +267,6 @@ class Project(Model):
     def ontologies(self) -> set[str]:
         return self._ontologies
 
-    @ontologies.setter
-    def ontologies(self, value: set[str]) -> None:  # noqa: ARG002 (unused-method-argument)
-        raise BaseError("Cannot add a ontology!")
-
     @property
     def selfjoin(self) -> Optional[bool]:
         return self._selfjoin
@@ -362,7 +348,7 @@ class Project(Model):
             logo=logo,
         )
 
-    def toJsonObj(self, action: Actions) -> dict[str, str]:  # noqa: PLR0912 (too-many-branches)
+    def toJsonObj(self, action: Actions) -> dict[str, str]:
         """
         Internal method! Should not be used directly!
 

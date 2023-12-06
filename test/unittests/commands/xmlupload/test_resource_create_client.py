@@ -1,6 +1,3 @@
-# ruff: noqa: D102 (undocumented-public-method)
-# ruff: noqa: D103 (undocumented-public-function)
-
 import pytest
 
 from dsp_tools.commands.xmlupload.models.permission import Permissions, PermissionValue

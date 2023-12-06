@@ -34,7 +34,7 @@ from dsp_tools.utils.shared import validate_xml_against_schema
 logger = get_logger(__name__)
 
 
-def _make_parser(  # noqa: PLR0915 (too-many-statements)
+def _make_parser(
     default_dsp_api_url: str,
     root_user_email: str,
     root_user_pw: str,
@@ -421,7 +421,7 @@ def _derive_sipi_url(
     return parsed_arguments
 
 
-def _call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0912, PLR0915 (too-many-branches/statements)
+def _call_requested_action(args: argparse.Namespace) -> bool:
     """
     Call the appropriate method of DSP-TOOLS.
 

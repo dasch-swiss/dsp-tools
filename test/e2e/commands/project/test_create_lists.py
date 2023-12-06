@@ -1,5 +1,3 @@
-# ruff: noqa: D101 (undocumented-public-class)
-
 import json
 import unittest
 from pathlib import Path

@@ -5,10 +5,6 @@ This model implements the handling of resource classes. It contains two classes 
     * "ResourceClass" is the main class representing a DSP resource class.
 """
 
-# ruff: noqa: D101 (undocumented-public-class)
-# ruff: noqa: D102 (undocumented-public-method)
-# ruff: noqa: PLR0912 (too-many-branches)
-
 from __future__ import annotations
 
 import json
@@ -451,13 +447,12 @@ class ResourceClass(Model):
     def label(self, value: Optional[Union[LangString, str]]) -> None:
         if value is None:
             self._label.empty()  # clear all labels
-        else:  # noqa: PLR5501 (collapsible-else-if)
-            if isinstance(value, LangString):
-                self._label = value
-            elif isinstance(value, str):
-                self._label = LangString(value)
-            else:
-                raise BaseError("Not a valid LangString")
+        elif isinstance(value, LangString):
+            self._label = value
+        elif isinstance(value, str):
+            self._label = LangString(value)
+        else:
+            raise BaseError("Not a valid LangString")
         self._changed.add("label")
 
     def addLabel(self, lang: Union[Languages, str], value: str) -> None:
@@ -476,13 +471,12 @@ class ResourceClass(Model):
     def comment(self, value: Optional[LangString]) -> None:
         if value is None:
             self._comment.empty()  # clear all comments!
-        else:  # noqa: PLR5501 (collapsible-else-if)
-            if isinstance(value, LangString):
-                self._comment = value
-            elif isinstance(value, str):
-                self._comment = LangString(value)
-            else:
-                raise BaseError("Not a valid LangString")
+        elif isinstance(value, LangString):
+            self._comment = value
+        elif isinstance(value, str):
+            self._comment = LangString(value)
+        else:
+            raise BaseError("Not a valid LangString")
         self._changed.add("comment")
 
     def addComment(self, lang: Union[Languages, str], value: str) -> None:
@@ -563,7 +557,7 @@ class ResourceClass(Model):
             for key in tmp.keys():
                 key_with_value = key
                 if key.endswith("Value"):
-                    key = key.removesuffix("Value")  # noqa: PLW2901 (redefined-loop-name)
+                    key = key.removesuffix("Value")
                     if key in has_properties:
                         del has_properties[key_with_value]
         else:

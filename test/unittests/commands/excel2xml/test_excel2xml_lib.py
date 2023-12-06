@@ -1,6 +1,3 @@
-# ruff: noqa: D101 (undocumented-public-class)
-# ruff: noqa: D102 (undocumented-public-method)
-
 import unittest
 from pathlib import Path
 from typing import Any, Callable, Optional, Sequence, Union

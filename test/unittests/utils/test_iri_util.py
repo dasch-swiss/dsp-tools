@@ -1,7 +1,5 @@
 from dsp_tools.utils.iri_util import is_resource_iri
 
-# ruff: noqa: D103 (undocumented-public-function)
-
 
 def test_is_resource_iri() -> None:
     assert is_resource_iri("https://rdfh.ch/0000/PKzNC8MFQT6NAwR3OaQEKw")

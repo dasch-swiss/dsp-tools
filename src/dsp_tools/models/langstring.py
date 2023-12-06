@@ -1,5 +1,3 @@
-# ruff: noqa: D102 (undocumented-public-method)
-
 from enum import Enum, unique
 from typing import Any, Optional, Union
 
@@ -88,7 +86,7 @@ class LangString:
         else:
             raise BaseError("Not a valid language definition!")
 
-    def __getitem__(  # noqa: PLR0911, PLR0912 (too-many-return-statements, too-many-branches)
+    def __getitem__(
         self,
         key: Optional[Union[Languages, str]] = None,
     ) -> Optional[str]:
@@ -221,9 +219,8 @@ class LangString:
                 lstrs[Languages.IT] = o.get("@value")
             elif lang == "rm":
                 lstrs[Languages.RM] = o.get("@value")
-            else:  # noqa: PLR5501 (collapsible-else-if)
-                if o.get("@value") is not None:
-                    return cls(o.get("@value"))
+            elif o.get("@value") is not None:
+                return cls(o.get("@value"))
         return cls(lstrs)
 
     @classmethod
@@ -249,9 +246,8 @@ class LangString:
                 lstrs[Languages.IT] = o.get("value")
             elif lang == "rm":
                 lstrs[Languages.RM] = o.get("value")
-            else:  # noqa: PLR5501 (collapsible-else-if)
-                if o.get("value") is not None:
-                    return cls(o.get("value"))
+            elif o.get("value") is not None:
+                return cls(o.get("value"))
         return cls(lstrs)
 
     def createDefinitionFileObj(self) -> Union[str, dict[str, str]]:

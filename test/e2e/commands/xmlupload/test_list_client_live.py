@@ -4,8 +4,6 @@ from dsp_tools.commands.xmlupload.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
 from dsp_tools.utils.connection_live import ConnectionLive
 
-# ruff: noqa: D103 (undocumented-public-function)
-
 
 def test_list_client_live() -> None:
     con = ConnectionLive("http://localhost:3333")

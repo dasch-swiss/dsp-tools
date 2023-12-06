@@ -56,7 +56,7 @@ def get_logger(
     Returns:
         the logger instance
     """
-    global _rotating_file_handler  # noqa: PLW0603 (global-statement)
+    global _rotating_file_handler
     if not _rotating_file_handler:
         _rotating_file_handler = _make_handler(
             Path.home() / Path(".dsp-tools"),

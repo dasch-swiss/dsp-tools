@@ -1,5 +1,3 @@
-# ruff: noqa: D102 (undocumented-public-method)
-
 """
 This module implements the handling (CRUD) of DSP groups.
 
@@ -105,10 +103,6 @@ class Group(Model):
     @property
     def iri(self) -> Optional[str]:
         return self._iri
-
-    @iri.setter
-    def iri(self, value: str) -> None:  # noqa: ARG002 (unused-method-argument)
-        raise BaseError("Group iri cannot be modified!")
 
     @property
     def name(self) -> Optional[str]:

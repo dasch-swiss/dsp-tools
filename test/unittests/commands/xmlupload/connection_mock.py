@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from typing import Any
 
 # ruff: noqa: ARG002 (unused-method-argument)
-# ruff: noqa: D102 (undocumented-public-method)
 
 
 @dataclass

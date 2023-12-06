@@ -13,7 +13,7 @@ from dsp_tools.commands.excel2json.lists import expand_lists_from_excel
 from dsp_tools.models.exceptions import BaseError
 
 
-def _check_for_duplicate_names(project_definition: dict[str, Any]) -> bool:  # noqa: PLR0912 (too-many-branches)
+def _check_for_duplicate_names(project_definition: dict[str, Any]) -> bool:
     """
     Check that the resource names and property names are unique.
 
@@ -358,7 +358,7 @@ def _collect_link_properties(project_definition: dict[Any, Any]) -> dict[str, li
     return link_properties
 
 
-def _identify_problematic_cardinalities(  # noqa: PLR0912 (too-many-branches)
+def _identify_problematic_cardinalities(
     project_definition: dict[Any, Any],
     link_properties: dict[str, list[str]],
 ) -> list[tuple[str, str]]:

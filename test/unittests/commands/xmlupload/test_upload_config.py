@@ -1,7 +1,3 @@
-# ruff: noqa: D101 (undocumented-public-class)
-# ruff: noqa: D102 (undocumented-public-method)
-# ruff: noqa: D103 (undocumented-public-function)
-
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig, _transform_server_url_to_foldername
 
 

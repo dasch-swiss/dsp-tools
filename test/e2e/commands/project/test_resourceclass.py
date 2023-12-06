@@ -1,8 +1,5 @@
 """end to end tests for resourceClass class"""
 
-# ruff: noqa: D101 (undocumented-public-class)
-# ruff: noqa: D102 (undocumented-public-method)
-
 import unittest
 
 import pytest

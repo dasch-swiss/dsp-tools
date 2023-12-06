@@ -1,6 +1,5 @@
-# ruff: noqa: D101 (undocumented-public-class)
-# ruff: noqa: D102 (undocumented-public-method)
 # ruff: noqa: ARG002 (unused-method-argument)
+# ruff: noqa: D102 (undocumented-public-method)
 
 from dataclasses import dataclass, field
 from typing import Any

@@ -1,5 +1,3 @@
-# ruff: noqa: D102 (undocumented-public-method)
-
 import pytest
 
 from dsp_tools.models.exceptions import BaseError

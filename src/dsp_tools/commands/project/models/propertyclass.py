@@ -1,7 +1,3 @@
-# ruff: noqa: D101 (undocumented-public-class)
-# ruff: noqa: D102 (undocumented-public-method)
-# ruff: noqa: PLR0912 (too-many-branches)
-
 import json
 from typing import Any, Optional, Sequence, Union
 from urllib.parse import quote_plus
@@ -101,33 +97,17 @@ class PropertyClass(Model):
     def name(self) -> Optional[str]:
         return self._name
 
-    @name.setter
-    def name(self, value: str) -> None:  # noqa: ARG002 (unused-method-argument)
-        raise BaseError('"name" cannot be modified!')
-
     @property
     def iri(self) -> Optional[str]:
         return self._iri
-
-    @iri.setter
-    def iri(self, value: str) -> None:  # noqa: ARG002 (unused-method-argument)
-        raise BaseError('"iri" cannot be modified!')
 
     @property
     def ontology_id(self) -> Optional[str]:
         return self._ontology_id
 
-    @ontology_id.setter
-    def ontology_id(self, value: str) -> None:  # noqa: ARG002 (unused-method-argument)
-        raise BaseError('"ontology_id" cannot be modified!')
-
     @property
     def superproperties(self) -> Optional[list[str]]:
         return self._superproperties
-
-    @superproperties.setter
-    def superproperties(self, value: str) -> None:  # noqa: ARG002 (unused-method-argument)
-        raise BaseError('"superproperties" cannot be modified!')
 
     @property
     def rdf_object(self) -> Optional[str]:
@@ -153,13 +133,12 @@ class PropertyClass(Model):
     def label(self, value: Optional[Union[LangString, str]]) -> None:
         if value is None:
             self._label.empty()  # clear all labels
-        else:  # noqa: PLR5501 (collapsible-else-if)
-            if isinstance(value, LangString):
-                self._label = value
-            elif isinstance(value, str):
-                self._label = LangString(value)
-            else:
-                raise BaseError("Not a valid LangString")
+        elif isinstance(value, LangString):
+            self._label = value
+        elif isinstance(value, str):
+            self._label = LangString(value)
+        else:
+            raise BaseError("Not a valid LangString")
         self._changed.add("label")
 
     def addLabel(self, lang: Union[Languages, str], value: str) -> None:
@@ -178,13 +157,12 @@ class PropertyClass(Model):
     def comment(self, value: Optional[LangString]) -> None:
         if value is None:
             self._comment.empty()  # clear all comments!
-        else:  # noqa: PLR5501 (collapsible-else-if)
-            if isinstance(value, LangString):
+        elif isinstance(value, LangString):
                 self._comment = value
-            elif isinstance(value, str):
-                self._comment = LangString(value)
-            else:
-                raise BaseError("Not a valid LangString")
+        elif isinstance(value, str):
+            self._comment = LangString(value)
+        else:
+            raise BaseError("Not a valid LangString")
         self._changed.add("comment")
 
     def addComment(self, lang: Union[Languages, str], value: str) -> None:
@@ -198,10 +176,6 @@ class PropertyClass(Model):
     @property
     def editable(self) -> bool:
         return self._editable
-
-    @editable.setter
-    def editable(self, value: bool) -> None:  # noqa: ARG002 (unused-method-argument)
-        raise BaseError('"editable" cannot be modified!')
 
     @property
     def linkvalue(self) -> bool:

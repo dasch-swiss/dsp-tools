@@ -1,6 +1,3 @@
-# ruff: noqa: D101 (undocumented-public-class)
-# ruff: noqa: D102 (undocumented-public-method)
-
 from dataclasses import dataclass, field
 from test.unittests.commands.xmlupload.connection_mock import ConnectionMockBase
 from typing import Any

@@ -40,7 +40,7 @@ class XmlAllow:
                 if project_context.project_name is None:
                     raise XmlUploadError("Project shortcode has not been set in ProjectContext")
                 self._group = project_context.project_name + ":" + tmp[1]
-        else:  # noqa: PLR5501 (collapsible-else-if)
+        else:
             if tmp[0] in sysgroups:
                 self._group = "knora-admin:" + node.attrib["group"]
             else:

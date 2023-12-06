@@ -992,7 +992,7 @@ def _rectify_hlist_of_properties(
     return properties
 
 
-def create_project(  # noqa: PLR0912, PLR0915 (too-many-branches/statements)
+def create_project(
     project_file_as_path_or_parsed: Union[str, Path, dict[str, Any]],
     server: str,
     user_mail: str,

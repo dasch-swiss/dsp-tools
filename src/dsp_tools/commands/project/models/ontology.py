@@ -1,6 +1,3 @@
-# ruff: noqa: D101 (undocumented-public-class)
-# ruff: noqa: D102 (undocumented-public-method)
-
 """
 This model implements the handling of ontologies. It is to note that ResourceClasses, PropertyClasses
 as well as the assignment of PropertyCLasses to the ResourceClasses (with a given cardinality)

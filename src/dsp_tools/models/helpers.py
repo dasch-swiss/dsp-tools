@@ -1,6 +1,3 @@
-# ruff: noqa: D101 (undocumented-public-class)
-# ruff: noqa: D102 (undocumented-public-method)
-
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -202,7 +199,7 @@ class Context:
                 return
             if prefix in self.common_ontologies:
                 self._context[prefix] = self.common_ontologies[prefix]
-        else:  # noqa: PLR5501 (collapsible-else-if)
+        else:
             if iri.endswith("#"):
                 iri = iri[:-1]
                 self._context[prefix] = OntoIri(iri, True)
@@ -400,7 +397,7 @@ class DateTimeStamp:
             self._dateTimeStamp = val
         elif isinstance(val, DateTimeStamp):
             self._dateTimeStamp = str(val)
-        else:  # noqa: PLR5501 (collapsible-else-if)
+        else:
             if val.get("@type") == "xsd:dateTimeStamp" and regex.search(self._validation_regex, str(val.get("@value"))):
                 self._dateTimeStamp = val["@value"]
             else:
@@ -455,5 +452,5 @@ class WithId:
             return
         self._tmp = obj.get("@id")
 
-    def str(self) -> Optional[str]:  # noqa: A003 (builtin-attribute-shadowing)
+    def str(self) -> Optional[str]:
         return self._tmp

@@ -1,5 +1,3 @@
-# ruff: noqa: D103 (undocumented-public-function)
-
 from typing import Any
 
 import pytest

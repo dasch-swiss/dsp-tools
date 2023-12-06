@@ -1,8 +1,5 @@
 """unit tests for ontology creation"""
 
-# ruff: noqa: D101 (undocumented-public-class)
-# ruff: noqa: D102 (undocumented-public-method)
-
 import json
 import unittest
 from pathlib import Path

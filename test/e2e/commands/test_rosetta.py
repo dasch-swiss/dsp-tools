@@ -1,5 +1,3 @@
-# ruff: noqa: D103 (undocumented-public-function)
-
 import tempfile
 from collections.abc import Iterator
 from pathlib import Path

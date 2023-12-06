@@ -1,5 +1,3 @@
-# ruff: noqa: D103 (undocumented-public-function)
-
 import pytest
 from termcolor import cprint
 

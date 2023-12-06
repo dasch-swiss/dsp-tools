@@ -2,8 +2,6 @@ import pytest
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 
-# ruff: noqa: D103 (undocumented-public-function)
-
 
 @pytest.fixture()
 def resolver() -> IriResolver:

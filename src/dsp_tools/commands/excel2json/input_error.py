@@ -108,7 +108,7 @@ class InvalidExcelContentProblem:
         """
         return (
             f"There is invalid content in the excel.\n"
-            f"{str(self.excel_position)}\n"
+            f"{self.excel_position!s}\n"
             f"Expected Content: {self.expected_content}\n"
             f"Actual Content: {self.actual_content}"
         )

@@ -181,7 +181,7 @@ class TestExcelToResource(unittest.TestCase):
 class TestValidateWithSchema:
     # it is not possible to call the method to be tested directly.
     # So let's make a reference to it, so that it can be found by the usage search
-    lambda x: e2j._validate_resources([])  # pylint: disable=expression-not-assigned,protected-access
+    lambda _: e2j._validate_resources([])
 
     def test_invalid_super(self) -> None:
         expected_msg = (

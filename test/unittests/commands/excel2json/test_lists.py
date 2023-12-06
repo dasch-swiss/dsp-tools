@@ -124,8 +124,8 @@ class TestExcelToJSONList(unittest.TestCase):
         # count() returns a Series that maps each column number to the number of entries it contains
         # index[-1] returns the number of the last non-empty column (in this test case: 3)
         # input_df[3].notna() returns a boolean Series with 'true' for every non-empty cell in column 3
-        for index, row in input_df.loc[longest_rows_selector].iterrows():
-            index = int(str(index))  # index is a label/index/hashable, but we need an int
+        for i, row in input_df.loc[longest_rows_selector].iterrows():
+            index = int(str(i))  # index is a label/index/hashable, but we need an int
             jsonpath_elems = [cell.strip() for cell in row]
             parser_string = "$"
             for elem in jsonpath_elems:
@@ -160,8 +160,8 @@ class TestExcelToJSONList(unittest.TestCase):
         # count() returns a Series that maps each column number to the number of entries it contains
         # index[-1] returns the number of the last non-empty column (in this test case: 3)
         # input_df[3].notna() returns a boolean Series with 'true' for every non-empty cell in column 3
-        for index, row in input_df.loc[longest_rows_selector].iterrows():
-            index = int(str(index))  # index is a label/index/hashable, but we need an int
+        for i, row in input_df.loc[longest_rows_selector].iterrows():
+            index = int(str(i))  # index is a label/index/hashable, but we need an int
             jsonpath_elems = [cell.strip() for cell in row]
             parser_string = "$"
             for elem in jsonpath_elems:

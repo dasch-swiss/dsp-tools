@@ -158,7 +158,7 @@ class PropertyClass(Model):
         if value is None:
             self._comment.empty()  # clear all comments!
         elif isinstance(value, LangString):
-                self._comment = value
+            self._comment = value
         elif isinstance(value, str):
             self._comment = LangString(value)
         else:

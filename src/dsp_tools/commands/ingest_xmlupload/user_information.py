@@ -104,18 +104,16 @@ class IngestInformation:
             _save_as_csv(no_uuid_df, no_uuid_filename, save_path)
 
     def _unused_media_to_df(self) -> pd.DataFrame | None:
-        unused_media = None
-        if len(self.unused_media_paths) > 10:
-            unused_media = pd.DataFrame({"Media Filenames": self.unused_media_paths})
-        return unused_media
+        return pd.DataFrame({"Media Filenames": self.unused_media_paths}) if len(self.unused_media_paths) > 10 else None
 
     def _no_uuid_to_df(self) -> pd.DataFrame | None:
-        no_uuid = None
-        if len(self.media_no_uuid) > 10:
-            no_uuid = pd.DataFrame(
+        return (
+            pd.DataFrame(
                 {"Resource ID": [x[0] for x in self.media_no_uuid], "Filepath": [x[1] for x in self.media_no_uuid]}
             )
-        return no_uuid
+            if len(self.media_no_uuid) > 10
+            else None
+        )
 
 
 def _save_as_csv(df: pd.DataFrame, filename: str, filepath: Path) -> None:

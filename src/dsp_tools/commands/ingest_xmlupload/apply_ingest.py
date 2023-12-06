@@ -43,5 +43,5 @@ def replace_bitstream_paths(
                 used_media_paths.append(img_path)
             else:
                 no_uuid_found.append((cast("etree._Element", elem.getparent()).attrib.get("id"), elem.text))
-    unused_media_paths = [x for x in orig_path_2_uuid_filename.keys() if x not in used_media_paths]
+    unused_media_paths = [x for x in orig_path_2_uuid_filename if x not in used_media_paths]
     return xml_tree, IngestInformation(unused_media_paths=unused_media_paths, media_no_uuid=no_uuid_found)

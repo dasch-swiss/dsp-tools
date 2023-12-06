@@ -611,16 +611,7 @@ def run(args: list[str]) -> None:
             default_sipi_url=default_sipi_url,
         )
         success = _call_requested_action(parsed_arguments)
-    except UserError as err:
-        logger.error(err)
-        raise err from None
-    except InputError as err:
-        logger.error(err)
-        raise err from None
-    except InternalError as err:
-        logger.error(err)
-        raise err from None
-    except RetryError as err:
+    except (UserError, InputError, InternalError, RetryError) as err:
         logger.error(err)
         raise err from None
     except Exception as err:

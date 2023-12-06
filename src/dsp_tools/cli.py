@@ -26,7 +26,7 @@ from dsp_tools.commands.start_stack import StackConfiguration, StackHandler
 from dsp_tools.commands.template import generate_template_repo
 from dsp_tools.commands.xmlupload.upload_config import DiagnosticsConfig, UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
-from dsp_tools.models.exceptions import UserError
+from dsp_tools.models.exceptions import BaseError, InternalError, UserError
 from dsp_tools.utils.cli_create_parsers import make_parser
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import validate_xml_against_schema
@@ -351,6 +351,12 @@ def run(args: list[str]) -> None:
     Args:
         args: a list of arguments passed by the user from the command line,
             excluding the leading "dsp-tools" command.
+
+    Raises:
+        UserError: if user input was wrong
+        InputError: if user input was wrong
+        InternalError: if the user cannot fix it
+        RetryError: if the problem may disappear when trying again later
     """
     default_dsp_api_url = "http://0.0.0.0:3333"
     default_sipi_url = "http://0.0.0.0:1024"
@@ -375,11 +381,14 @@ def run(args: list[str]) -> None:
             default_sipi_url=default_sipi_url,
         )
         success = _call_requested_action(parsed_arguments)
-    except UserError as err:
-        logger.error(f"Terminate because of this UserError: {err.message}")
+    except BaseError as err:
+        logger.error(err)
+        print("\nThe process was terminated because of an Error:")
         print(err.message)
         sys.exit(1)
-    # let BaseError and all unexpected errors escalate, so that a stack trace is printed
+    except Exception as err:
+        logger.error(err)
+        raise InternalError from None
 
     if not success:
         logger.error("Terminate without success")

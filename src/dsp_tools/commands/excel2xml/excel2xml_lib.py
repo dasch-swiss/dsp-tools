@@ -13,7 +13,7 @@ from typing import Any, Iterable, Optional, Union
 
 import regex
 from lxml import etree
-from lxml.builder import E  # pylint: disable=no-name-in-module
+from lxml.builder import E
 
 from dsp_tools.commands.excel2xml.propertyelement import PropertyElement
 from dsp_tools.models.exceptions import BaseError

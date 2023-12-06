@@ -18,8 +18,6 @@ from dsp_tools.commands.xmlupload.check_consistency_with_ontology import (
 from dsp_tools.commands.xmlupload.models.ontology_diagnose_models import OntoCheckInformation, OntoInfo
 from dsp_tools.models.exceptions import UserError
 
-# pylint: disable=missing-function-docstring,missing-class-docstring
-
 
 def test_get_all_classes_and_properties() -> None:
     test_ele = etree.fromstring(

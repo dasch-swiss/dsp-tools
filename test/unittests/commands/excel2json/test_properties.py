@@ -1,7 +1,5 @@
 """unit tests for excel to properties"""
 
-# pylint: disable=missing-class-docstring,missing-function-docstring,protected-access
-
 import re
 import unittest
 from typing import Any, cast

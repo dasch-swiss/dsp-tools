@@ -1,9 +1,6 @@
 from dataclasses import dataclass
 from typing import Any, Protocol
 
-# pylint: disable=too-few-public-methods
-
-
 separator = "\n    "
 list_separator = "\n    - "
 

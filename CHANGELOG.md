@@ -1,5 +1,38 @@
 # Changelog
 
+## [5.4.0](https://github.com/dasch-swiss/dsp-tools/compare/v5.3.0...v5.4.0) (2023-11-29)
+
+
+### Enhancements
+
+* **xmlupload:** check consistency with ontology on server (DEV-2921) ([#630](https://github.com/dasch-swiss/dsp-tools/issues/630)) ([a563c07](https://github.com/dasch-swiss/dsp-tools/commit/a563c07a8350dba611f92ab22f894fca67c10a72))
+
+## [5.3.0](https://github.com/dasch-swiss/dsp-tools/compare/v5.2.0...v5.3.0) (2023-11-29)
+
+
+### Enhancements
+
+* **excel2xml:** add support for 3-digit-years in find_date_in_string() (DEV-3005) ([#652](https://github.com/dasch-swiss/dsp-tools/issues/652)) ([1afee03](https://github.com/dasch-swiss/dsp-tools/commit/1afee03abc2a979eed26fb5adf2fa84387994d40))
+
+
+### Bug Fixes
+
+* **process-files:** fix resource leak, try omitting restart of python (DEV-2986) ([#651](https://github.com/dasch-swiss/dsp-tools/issues/651)) ([7347be7](https://github.com/dasch-swiss/dsp-tools/commit/7347be7a27f72d325424a57d6bfb8fdd8508eccc))
+* **upload-files:** use a new ThreadPoolExecutor for every batch (DEV-2973) ([#650](https://github.com/dasch-swiss/dsp-tools/issues/650)) ([431a755](https://github.com/dasch-swiss/dsp-tools/commit/431a755870bb4e347a30f234d4461ad0b319aed3))
+
+
+### Maintenance
+
+* add sourcery workflow to CI checks ([#646](https://github.com/dasch-swiss/dsp-tools/issues/646)) ([8b445f2](https://github.com/dasch-swiss/dsp-tools/commit/8b445f257870f3b406a13111fcb9bc920b5933e2))
+* apply sourcery suggestions ([#644](https://github.com/dasch-swiss/dsp-tools/issues/644)) ([96110a0](https://github.com/dasch-swiss/dsp-tools/commit/96110a0ad3c94c4bce30e261ac3b544492c43f87))
+* bump start-stack to 2023.11.02 ([#657](https://github.com/dasch-swiss/dsp-tools/issues/657)) ([c399dee](https://github.com/dasch-swiss/dsp-tools/commit/c399deef52ff00f344c6f67f93b59cf9f3b171da))
+* **excel2json:** modularise functions (DEV-3025) ([#655](https://github.com/dasch-swiss/dsp-tools/issues/655)) ([5486b15](https://github.com/dasch-swiss/dsp-tools/commit/5486b15f810a15d1bfd825f3c6798da7cec23466))
+* more sourcery refactorings ([#647](https://github.com/dasch-swiss/dsp-tools/issues/647)) ([300bfa0](https://github.com/dasch-swiss/dsp-tools/commit/300bfa04e6a969791c4b59d89c4398f459630adc))
+* refactor import-scripts ([#649](https://github.com/dasch-swiss/dsp-tools/issues/649)) ([9272898](https://github.com/dasch-swiss/dsp-tools/commit/9272898613b15665b4ebb7863fe64821de719618))
+* remove unnecessary pylint ignore comments ([#645](https://github.com/dasch-swiss/dsp-tools/issues/645)) ([d314121](https://github.com/dasch-swiss/dsp-tools/commit/d314121f708ce77b0f2d2e20a19b3bbd5d9e3111))
+* replace os.path and os.scandir with pathlib.Path ([#648](https://github.com/dasch-swiss/dsp-tools/issues/648)) ([e325237](https://github.com/dasch-swiss/dsp-tools/commit/e32523710269de13b591a0243cee811eee2523d3))
+* use iri util consistently (DEV-2951) ([#642](https://github.com/dasch-swiss/dsp-tools/issues/642)) ([911cfa5](https://github.com/dasch-swiss/dsp-tools/commit/911cfa5ef55b114c41809f3640190b5270961fa3))
+
 ## [5.2.0](https://github.com/dasch-swiss/dsp-tools/compare/v5.1.0...v5.2.0) (2023-11-15)
 
 

@@ -1,8 +1,8 @@
-# See https://packaging.python.org/en/latest/specifications/declaring-project-metadata
+# See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#writing-pyproject-toml
 
 [tool.poetry]
 name = "dsp-tools"
-version = "5.2.0"
+version = "5.4.0"
 description = "DSP-TOOLS is a Python package with a command line interface that helps you interact with a DaSCH service platform (DSP) server."
 authors = ["DaSCH - Swiss National Data and Service Center for the Humanities <info@dasch.swiss>"]
 readme = "docs/index.md"
@@ -162,6 +162,7 @@ disable = [
     "no-else-raise",                 # would be less readable
     "logging-fstring-interpolation", # would be less readable
     "duplicate-code",                # too many false positives
+    "inconsistent-return-statements",# mypy can handle this better than pylint
     "invalid-name",                  # TODO: activate this
     "too-many-arguments",            # TODO: activate this
     "too-many-branches",             # TODO: activate this

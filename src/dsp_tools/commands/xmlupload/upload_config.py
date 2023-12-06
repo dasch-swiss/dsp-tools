@@ -50,6 +50,7 @@ class UploadConfig:
     """Configuration for the upload process."""
 
     preprocessing_done: bool = False
+    ingest_done: bool = False
     server: str = "unknown"
     shortcode: str = "unknown"
     diagnostics: DiagnosticsConfig = field(default_factory=DiagnosticsConfig)

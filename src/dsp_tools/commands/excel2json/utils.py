@@ -332,6 +332,6 @@ def add_optional_columns(df: pd.DataFrame, optional_col_set: set[str]) -> pd.Dat
     in_df_cols = set(df.columns)
     if not optional_col_set.issubset(in_df_cols):
         additional_col = list(optional_col_set.difference(in_df_cols))
-        additional_df = pd.DataFrame(columns=additional_col, index=df.index)
+        additional_df = pd.DataFrame(columns=additional_col, index=df.index, data=pd.NA)
         df = pd.concat(objs=[df, additional_df], axis=1)
     return df

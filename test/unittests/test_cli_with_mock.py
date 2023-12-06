@@ -14,7 +14,7 @@ def test_invalid_arguments() -> None:
     assert ex.value.code == 2
 
 
-@patch("dsp_tools.cli.validate_lists_section_with_schema")
+@patch("dsp_tools.utils.cli_call_action.validate_lists_section_with_schema")
 def test_lists_validate(validate_lists: Mock) -> None:
     """Test the 'dsp-tools create --lists-only --validate-only' command"""
     file = "filename.json"
@@ -23,7 +23,7 @@ def test_lists_validate(validate_lists: Mock) -> None:
     validate_lists.assert_called_once_with(file)
 
 
-@patch("dsp_tools.cli.create_lists")
+@patch("dsp_tools.utils.cli_call_action.create_lists")
 def test_lists_create(create_lists: Mock) -> None:
     """Test the 'dsp-tools create --lists-only' command"""
     create_lists.return_value = ({}, True)
@@ -39,7 +39,7 @@ def test_lists_create(create_lists: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.validate_project")
+@patch("dsp_tools.utils.cli_call_action.validate_project")
 def test_project_validate(validate_project: Mock) -> None:
     """Test the 'dsp-tools create --validate-only' command"""
     file = "filename.json"
@@ -48,7 +48,7 @@ def test_project_validate(validate_project: Mock) -> None:
     validate_project.assert_called_once_with(file)
 
 
-@patch("dsp_tools.cli.create_project")
+@patch("dsp_tools.utils.cli_call_action.create_project")
 def test_project_create(create_project: Mock) -> None:
     """Test the 'dsp-tools create' command"""
     file = "filename.json"
@@ -64,7 +64,7 @@ def test_project_create(create_project: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.get_project")
+@patch("dsp_tools.utils.cli_call_action.get_project")
 def test_project_get(get_project: Mock) -> None:
     """Test the 'dsp-tools get --project' command"""
     file = "filename.json"
@@ -82,7 +82,7 @@ def test_project_get(get_project: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.validate_xml_against_schema")
+@patch("dsp_tools.utils.cli_call_action.validate_xml_against_schema")
 def test_xmlupload_validate(validate_xml: Mock) -> None:
     """Test the 'dsp-tools xmlupload --validate-only' command"""
     file = "filename.xml"
@@ -91,7 +91,7 @@ def test_xmlupload_validate(validate_xml: Mock) -> None:
     validate_xml.assert_called_once_with(file)
 
 
-@patch("dsp_tools.cli.xmlupload")
+@patch("dsp_tools.utils.cli_call_action.xmlupload")
 def test_xmlupload(xmlupload: Mock) -> None:
     """Test the 'dsp-tools xmlupload' command"""
     file = "filename.xml"
@@ -108,7 +108,7 @@ def test_xmlupload(xmlupload: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.process_files")
+@patch("dsp_tools.utils.cli_call_action.process_files")
 def test_process_files(process_files: Mock) -> None:
     """Test the 'dsp-tools process-files' command"""
     input_dir = "input"
@@ -125,7 +125,7 @@ def test_process_files(process_files: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.upload_files")
+@patch("dsp_tools.utils.cli_call_action.upload_files")
 def test_upload_files(upload_files: Mock) -> None:
     """Test the 'dsp-tools upload-files' command"""
     processed_dir = "processed"
@@ -142,7 +142,7 @@ def test_upload_files(upload_files: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.fast_xmlupload")
+@patch("dsp_tools.utils.cli_call_action.fast_xmlupload")
 def test_fast_xmlupload(fast_xmlupload: Mock) -> None:
     """Test the 'dsp-tools fast-xmlupload' command"""
     file = "filename.xml"
@@ -157,7 +157,7 @@ def test_fast_xmlupload(fast_xmlupload: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.excel2json")
+@patch("dsp_tools.utils.cli_call_action.excel2json")
 def test_excel2json(excel2json: Mock) -> None:
     """Test the 'dsp-tools excel2json' command"""
     folder = "folder"
@@ -170,7 +170,7 @@ def test_excel2json(excel2json: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.excel2lists")
+@patch("dsp_tools.utils.cli_call_action.excel2lists")
 def test_excel2lists(excel2lists: Mock) -> None:
     """Test the 'dsp-tools excel2lists' command"""
     excel2lists.return_value = ([], True)
@@ -185,7 +185,7 @@ def test_excel2lists(excel2lists: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.excel2resources")
+@patch("dsp_tools.utils.cli_call_action.excel2resources")
 def test_excel2resources(excel2resources: Mock) -> None:
     """Test the 'dsp-tools excel2resources' command"""
     excel2resources.return_value = ([], True)
@@ -199,7 +199,7 @@ def test_excel2resources(excel2resources: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.excel2properties")
+@patch("dsp_tools.utils.cli_call_action.excel2properties")
 def test_excel2properties(excel2properties: Mock) -> None:
     """Test the 'dsp-tools excel2properties' command"""
     excel2properties.return_value = ([], True)
@@ -213,7 +213,7 @@ def test_excel2properties(excel2properties: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.id2iri")
+@patch("dsp_tools.utils.cli_call_action.id2iri")
 def test_id2iri(id2iri: Mock) -> None:
     """Test the 'dsp-tools id2iri' command"""
     xml_file = "filename.xml"
@@ -227,7 +227,7 @@ def test_id2iri(id2iri: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.excel2xml", return_value=("foo", "bar"))
+@patch("dsp_tools.utils.cli_call_action.excel2xml", return_value=("foo", "bar"))
 def test_excel2xml(excel2xml: Mock) -> None:
     """Test the 'dsp-tools excel2xml' command"""
     excel_file = "filename.xlsx"
@@ -258,7 +258,7 @@ def test_stop_stack(stop_stack: Mock) -> None:
     stop_stack.assert_called_once_with()
 
 
-@patch("dsp_tools.cli.generate_template_repo")
+@patch("dsp_tools.utils.cli_call_action.generate_template_repo")
 def test_template(generate_template_repo: Mock) -> None:
     """Test the 'dsp-tools template' command"""
     args = "template".split()
@@ -266,7 +266,7 @@ def test_template(generate_template_repo: Mock) -> None:
     generate_template_repo.assert_called_once_with()
 
 
-@patch("dsp_tools.cli.upload_rosetta")
+@patch("dsp_tools.utils.cli_call_action.upload_rosetta")
 def test_rosetta(upload_rosetta: Mock) -> None:
     """Test the 'dsp-tools rosetta' command"""
     args = "rosetta".split()

@@ -64,7 +64,7 @@ jobs:
         run: poetry install
       # run tests
       - name: Linting with ruff
-        run: poetry run ruff check .
+        run: poetry run ruff check --output-format=github .
       - name: Formatting with ruff
         run: poetry run ruff format .
       - name: Linting with mypy

@@ -6,6 +6,19 @@ repos:
     rev: v0.1.6
     hooks:
       - id: ruff
+        args: [
+          --ignore=D101,
+          --ignore=D102,
+          --ignore=D103,
+          --ignore=PLR0912,
+          --ignore=PLR0915,
+          --ignore=PLW0603,
+          --ignore=PLR0911,
+          --ignore=PLW2901,
+          --ignore=PLR5501,
+          --ignore=A003,
+          --ignore=RUF100
+        ]
       - id: ruff-format
 
   - repo: https://github.com/pre-commit/pre-commit-hooks

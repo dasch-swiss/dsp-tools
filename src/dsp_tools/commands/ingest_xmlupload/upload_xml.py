@@ -3,7 +3,7 @@ from pathlib import Path
 
 from lxml import etree
 
-from dsp_tools.commands.ingest_xmlupload.apply_ingest import get_mapping_dict_from_file, replace_bitstream_paths
+from dsp_tools.commands.ingest_xmlupload.apply_ingest import get_mapping_dict_from_file, replace_filepath_with_sipi_uuid
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from dsp_tools.models.exceptions import InputError
@@ -25,7 +25,7 @@ def ingest_xmlupload(
     using the fast XML upload method.
     Before using this method,
     the original files must be processed by the processing step,
-    and uploaded by the upoad step.
+    and uploaded by the upload step.
 
     Args:
         xml_file: path to XML file containing the resources
@@ -40,7 +40,7 @@ def ingest_xmlupload(
     """
     xml_tree_orig = etree.parse(xml_file)
     orig_path_2_uuid_filename = get_mapping_dict_from_file()
-    xml_tree_replaced, ingest_message = replace_bitstream_paths(
+    xml_tree_replaced, ingest_message = replace_filepath_with_sipi_uuid(
         xml_tree=xml_tree_orig,
         orig_path_2_uuid_filename=orig_path_2_uuid_filename,
     )
@@ -53,7 +53,7 @@ def ingest_xmlupload(
         raise InputError(err_msg)
 
     start_time = datetime.now()
-    print(f"{start_time}: Start with ingest xmlupload...")
+    print(f"{start_time}: Start with ingest-xmlupload...")
 
     xmlupload(
         input_file=xml_tree_replaced,
@@ -66,4 +66,4 @@ def ingest_xmlupload(
     )
 
     end_time = datetime.now()
-    print(f"{end_time}: Total time of ingest xmlupload: {end_time - start_time}")
+    print(f"{end_time}: Total time of ingest-xmlupload: {end_time - start_time}")

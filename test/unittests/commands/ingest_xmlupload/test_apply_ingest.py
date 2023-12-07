@@ -1,6 +1,6 @@
 from lxml import etree
 
-from dsp_tools.commands.ingest_xmlupload.apply_ingest import replace_bitstream_paths
+from dsp_tools.commands.ingest_xmlupload.apply_ingest import replace_filepath_with_sipi_uuid
 
 # pylint: disable=missing-class-docstring,missing-function-docstring
 
@@ -14,7 +14,7 @@ class TestReplaceBitstreamPaths:
         )
         root = etree.fromstring(xml)
         reference_dict = {"images/Fluffy.jpg": "fluffy_uuid"}
-        res_tree, res_msg = replace_bitstream_paths(root, reference_dict)  # type: ignore[arg-type]
+        res_tree, res_msg = replace_filepath_with_sipi_uuid(root, reference_dict)  # type: ignore[arg-type]
         assert not res_msg.media_no_uuid
         assert not res_msg.unused_media_paths
         expected = (
@@ -32,7 +32,7 @@ class TestReplaceBitstreamPaths:
         )
         root = etree.fromstring(xml)
         reference_dict = {"images/Fluffy.jpg": "fluffy_uuid", "extra_media": "extra_uuid"}
-        res_tree, res_msg = replace_bitstream_paths(root, reference_dict)  # type: ignore[arg-type]
+        res_tree, res_msg = replace_filepath_with_sipi_uuid(root, reference_dict)  # type: ignore[arg-type]
         assert not res_msg.media_no_uuid
         assert res_msg.unused_media_paths == ["extra_media"]
         expected = (
@@ -50,7 +50,7 @@ class TestReplaceBitstreamPaths:
         )
         root = etree.fromstring(xml)
         reference_dict = {"extra_media": "extra_uuid"}
-        res_tree, res_msg = replace_bitstream_paths(root, reference_dict)  # type: ignore[arg-type]
+        res_tree, res_msg = replace_filepath_with_sipi_uuid(root, reference_dict)  # type: ignore[arg-type]
         assert res_msg.media_no_uuid == [("Fluffy1", "images/Fluffy.jpg")]
         assert res_msg.unused_media_paths == ["extra_media"]
         expected = (

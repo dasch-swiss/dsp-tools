@@ -19,16 +19,16 @@ def get_mapping_dict_from_file() -> dict[str, str]:
     return dict(zip(df["original"].tolist(), df["derivative"].tolist()))
 
 
-def replace_bitstream_paths(
+def replace_filepath_with_sipi_uuid(
     xml_tree: "etree._ElementTree[etree._Element]",
     orig_path_2_uuid_filename: dict[str, str],
 ) -> tuple["etree._ElementTree[etree._Element]", IngestInformation]:
     """
-    Replace the original filepaths in the <bitstream> gags by the uuid filenames of the processed files.
+    Replace the original filepaths in the <bitstream> gags by the uuid filenames of the uploaded files.
 
     Args:
         xml_tree: The parsed original XML tree
-        orig_path_2_uuid_filename: Mapping from original filenames to uuid filenames (from the pickle file)
+        orig_path_2_uuid_filename: Mapping from original filenames to uuid filenames from the mapping.csv
 
     Returns:
         The XML tree with the replaced filepaths (modified in place)

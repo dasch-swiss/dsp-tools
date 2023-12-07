@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import datetime
-from argparse import ArgumentParser
+
+# noinspection PyUnresolvedReferences
+from argparse import ArgumentParser, _SubParsersAction
 from importlib.metadata import version
 
 # help texts

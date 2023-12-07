@@ -57,7 +57,7 @@ class InvalidOntologyElements:
         prop_msg = self._compose_problem_string_props()
         if prop_msg:
             msg += prop_msg
-        if len(self.classes) + len(self.properties) > 10:
+        if len(self.classes) + len(self.properties) > 20:
             df = self._get_problems_as_df()
             return msg, df
         return msg, None
@@ -95,7 +95,7 @@ class InvalidOntologyElements:
 
     def _compose_problem_string_cls(self) -> str | None:
         if self.classes:
-            if self._calculate_num_resources(self.classes) > 10:
+            if self._calculate_num_resources(self.classes) > 20:
                 return "Many resources have an invalid resource type.\nPlease consult the file for details."
 
             def _format_cls(cls_tup: tuple[str, list[str], str]) -> str:
@@ -114,7 +114,7 @@ class InvalidOntologyElements:
 
     def _compose_problem_string_props(self) -> str | None:
         if self.properties:
-            if self._calculate_num_resources(self.properties) > 10:
+            if self._calculate_num_resources(self.properties) > 20:
                 return "Many properties have an invalid resource type.\nPlease consult the file for details."
 
             def _format_prop(prop_tup: tuple[str, list[str], str]) -> str:

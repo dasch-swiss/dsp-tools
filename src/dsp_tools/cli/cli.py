@@ -8,8 +8,8 @@ from importlib.metadata import version
 
 import regex
 
-from dsp_tools.cli.cli_call_action import call_requested_action
-from dsp_tools.cli.cli_create_parsers import make_parser
+from dsp_tools.cli.call_action import call_requested_action
+from dsp_tools.cli.create_parsers import make_parser
 from dsp_tools.models.exceptions import BaseError, InternalError, UserError
 from dsp_tools.utils.create_logger import get_logger
 

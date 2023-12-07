@@ -2,7 +2,6 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-
 from dsp_tools.cli import entry_point
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 
@@ -13,7 +12,6 @@ def test_invalid_arguments() -> None:
     with pytest.raises(SystemExit) as ex:
         entry_point.run(args)
     assert ex.value.code == 2
-
 
 
 @patch("dsp_tools.cli.call_action.validate_lists_section_with_schema")
@@ -109,7 +107,7 @@ def test_xmlupload(xmlupload: Mock) -> None:
         config=UploadConfig(),
     )
 
-    
+
 @patch("dsp_tools.cli.call_action.process_files")
 def test_process_files(process_files: Mock) -> None:
     """Test the 'dsp-tools process-files' command"""
@@ -200,6 +198,7 @@ def test_excel2resources(excel2resources: Mock) -> None:
         path_to_output_file=out_file,
     )
 
+
 @patch("dsp_tools.cli.call_action.excel2properties")
 def test_excel2properties(excel2properties: Mock) -> None:
     """Test the 'dsp-tools excel2properties' command"""
@@ -213,7 +212,7 @@ def test_excel2properties(excel2properties: Mock) -> None:
         path_to_output_file=out_file,
     )
 
-   
+
 @patch("dsp_tools.cli.call_action.id2iri")
 def test_id2iri(id2iri: Mock) -> None:
     """Test the 'dsp-tools id2iri' command"""

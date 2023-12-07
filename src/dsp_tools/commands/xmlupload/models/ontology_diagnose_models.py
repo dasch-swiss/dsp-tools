@@ -9,6 +9,7 @@ import pandas as pd
 separator = "\n    "
 list_separator = "\n    - "
 grand_separator = "\n----------------------------\n"
+maximum_prints = 50
 
 
 @dataclass(frozen=True)
@@ -51,13 +52,13 @@ class InvalidOntologyElements:
             f"The ontologies for your project on the server are:{list_separator}"
             f"{list_separator.join(self.ontos_on_server)}{extra_separator}"
         )
-        cls_msg = self._compose_problem_string_cls()
+        cls_msg = self._compose_problem_string_for_cls()
         if cls_msg:
             msg += cls_msg + extra_separator
-        prop_msg = self._compose_problem_string_props()
+        prop_msg = self._compose_problem_string_for_props()
         if prop_msg:
             msg += prop_msg
-        if len(self.classes) + len(self.properties) > 20:
+        if len(self.classes) + len(self.properties) > maximum_prints:
             df = self._get_problems_as_df()
             return msg, df
         return msg, None
@@ -93,9 +94,9 @@ class InvalidOntologyElements:
     def _calculate_num_resources(self, to_count: list[tuple[str, list[str], str]]) -> int:
         return sum((len(x[1]) for x in to_count))
 
-    def _compose_problem_string_cls(self) -> str | None:
+    def _compose_problem_string_for_cls(self) -> str | None:
         if self.classes:
-            if self._calculate_num_resources(self.classes) > 20:
+            if self._calculate_num_resources(self.classes) > maximum_prints:
                 return "Many resources have an invalid resource type.\nPlease consult the file for details."
 
             def _format_cls(cls_tup: tuple[str, list[str], str]) -> str:
@@ -112,9 +113,9 @@ class InvalidOntologyElements:
         else:
             return None
 
-    def _compose_problem_string_props(self) -> str | None:
+    def _compose_problem_string_for_props(self) -> str | None:
         if self.properties:
-            if self._calculate_num_resources(self.properties) > 20:
+            if self._calculate_num_resources(self.properties) > maximum_prints:
                 return "Many properties have an invalid resource type.\nPlease consult the file for details."
 
             def _format_prop(prop_tup: tuple[str, list[str], str]) -> str:

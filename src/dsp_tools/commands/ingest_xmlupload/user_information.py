@@ -10,6 +10,8 @@ import pandas as pd
 separator = "\n    "
 list_separator = "\n    - "
 
+maximum_prints = 20
+
 
 class UserInformation(Protocol):
     """
@@ -73,24 +75,24 @@ class IngestInformation:
 
     def _get_error_msg(self, save_path: Path, unused_media_filename: str, no_uuid_filename: str) -> str:
         msg_list = ["The upload cannot continue as there are problems with the media referenced in the XML."]
-        if 0 < len(self.unused_media_paths) <= 10:
+        if 0 < len(self.unused_media_paths) <= maximum_prints:
             msg_list.append(
                 "The following media were uploaded to sipi but not referenced in the data XML file:"
                 + list_separator
                 + list_separator.join(self.unused_media_paths)
             )
-        elif len(self.unused_media_paths) > 10:
+        elif len(self.unused_media_paths) > maximum_prints:
             msg_list.append(
                 "Media was uploaded to Sipi which was not referenced in the XML file.\n"
                 f"    The file '{unused_media_filename}' was saved in '{save_path}' with the filenames.\n"
             )
-        if 0 < len(self.media_no_uuid) <= 10:
+        if 0 < len(self.media_no_uuid) <= maximum_prints:
             msg_list.append(
                 "The following media were not uploaded to sipi but referenced in the data XML file:"
                 + list_separator
                 + list_separator.join([f"Resource ID: '{x[0]}' | Filepath: '{x[1]}'" for x in self.media_no_uuid])
             )
-        elif len(self.media_no_uuid) > 10:
+        elif len(self.media_no_uuid) > maximum_prints:
             msg_list.append(
                 "Media was referenced in the XML file but not previously uploaded to sipi:\n"
                 f"    The file '{no_uuid_filename}' was saved in '{save_path}' with the resource IDs and filenames."
@@ -104,14 +106,18 @@ class IngestInformation:
             _save_as_csv(no_uuid_df, no_uuid_filename, save_path)
 
     def _unused_media_to_df(self) -> pd.DataFrame | None:
-        return pd.DataFrame({"Media Filenames": self.unused_media_paths}) if len(self.unused_media_paths) > 10 else None
+        return (
+            pd.DataFrame({"Media Filenames": self.unused_media_paths})
+            if len(self.unused_media_paths) > maximum_prints
+            else None
+        )
 
     def _no_uuid_to_df(self) -> pd.DataFrame | None:
         return (
             pd.DataFrame(
                 {"Resource ID": [x[0] for x in self.media_no_uuid], "Filepath": [x[1] for x in self.media_no_uuid]}
             )
-            if len(self.media_no_uuid) > 10
+            if len(self.media_no_uuid) > maximum_prints
             else None
         )
 

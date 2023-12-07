@@ -17,7 +17,8 @@ repos:
           --ignore=PLW2901,
           --ignore=PLR5501,
           --ignore=A003,
-          --ignore=RUF100
+          --ignore=RUF100,
+          --ignore=B023,
         ]
       - id: ruff-format
 

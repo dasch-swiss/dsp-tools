@@ -598,25 +598,23 @@ class TestExcel2xmlLib(unittest.TestCase):
         for method, tagname in method_2_tagname.items():
             test_cases: list[tuple[Callable[..., etree._Element], str]] = [
                 (
-                    lambda: method("label", "id"),  # noqa: B023 (function-uses-loop-variable)
+                    lambda: method("label", "id"),
                     f'<{tagname} label="label" id="id" permissions="res-default"/>',
                 ),
                 (
-                    lambda: method("label", "id", "res-restricted"),  # noqa: B023 (function-uses-loop-variable)
+                    lambda: method("label", "id", "res-restricted"),
                     f'<{tagname} label="label" id="id" permissions="res-restricted"/>',
                 ),
                 (
-                    lambda: method("label", "id", ark="ark"),  # noqa: B023 (function-uses-loop-variable)
+                    lambda: method("label", "id", ark="ark"),
                     f'<{tagname} label="label" id="id" permissions="res-default" ark="ark"/>',
                 ),
                 (
-                    lambda: method("label", "id", iri="iri"),  # noqa: B023 (function-uses-loop-variable)
+                    lambda: method("label", "id", iri="iri"),
                     f'<{tagname} label="label" id="id" permissions="res-default" iri="iri"/>',
                 ),
                 (
-                    lambda: method(  # noqa: B023 (function-uses-loop-variable)
-                        "label", "id", creation_date="2019-10-23T13:45:12Z"
-                    ),
+                    lambda: method("label", "id", creation_date="2019-10-23T13:45:12Z"),
                     (
                         f'<{tagname} label="label" id="id" permissions="res-default" '
                         'creation_date="2019-10-23T13:45:12Z"/>'

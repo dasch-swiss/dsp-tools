@@ -16,6 +16,64 @@ from dsp_tools.utils.create_logger import get_logger
 logger = get_logger(__name__)
 
 
+def main() -> None:
+    """
+    Main entry point of the program as referenced in pyproject.toml
+    """
+    run(sys.argv[1:])
+
+
+def run(args: list[str]) -> None:
+    """
+    Main function of the CLI.
+
+    Args:
+        args: a list of arguments passed by the user from the command line,
+            excluding the leading "dsp-tools" command.
+
+    Raises:
+        UserError: if user input was wrong
+        InputError: if user input was wrong
+        InternalError: if the user cannot fix it
+        RetryError: if the problem may disappear when trying again later
+    """
+    default_dsp_api_url = "http://0.0.0.0:3333"
+    default_sipi_url = "http://0.0.0.0:1024"
+    root_user_email = "root@example.com"
+    root_user_pw = "test"
+
+    parser = make_parser(
+        default_dsp_api_url=default_dsp_api_url,
+        root_user_email=root_user_email,
+        root_user_pw=root_user_pw,
+    )
+    parsed_arguments = _parse_arguments(
+        user_args=args,
+        parser=parser,
+    )
+    _log_cli_arguments(parsed_arguments)
+
+    try:
+        parsed_arguments = _derive_sipi_url(
+            parsed_arguments=parsed_arguments,
+            default_dsp_api_url=default_dsp_api_url,
+            default_sipi_url=default_sipi_url,
+        )
+        success = call_requested_action(parsed_arguments)
+    except BaseError as err:
+        logger.error(err)
+        print("\nThe process was terminated because of an Error:")
+        print(err.message)
+        sys.exit(1)
+    except Exception as err:
+        logger.error(err)
+        raise InternalError from None
+
+    if not success:
+        logger.error("Terminate without success")
+        sys.exit(1)
+
+
 def _parse_arguments(
     user_args: list[str],
     parser: argparse.ArgumentParser,
@@ -171,64 +229,6 @@ def _derive_sipi_url(
     parsed_arguments.sipi_url = sipi_url
 
     return parsed_arguments
-
-
-def main() -> None:
-    """
-    Main entry point of the program as referenced in pyproject.toml
-    """
-    run(sys.argv[1:])
-
-
-def run(args: list[str]) -> None:
-    """
-    Main function of the CLI.
-
-    Args:
-        args: a list of arguments passed by the user from the command line,
-            excluding the leading "dsp-tools" command.
-
-    Raises:
-        UserError: if user input was wrong
-        InputError: if user input was wrong
-        InternalError: if the user cannot fix it
-        RetryError: if the problem may disappear when trying again later
-    """
-    default_dsp_api_url = "http://0.0.0.0:3333"
-    default_sipi_url = "http://0.0.0.0:1024"
-    root_user_email = "root@example.com"
-    root_user_pw = "test"
-
-    parser = make_parser(
-        default_dsp_api_url=default_dsp_api_url,
-        root_user_email=root_user_email,
-        root_user_pw=root_user_pw,
-    )
-    parsed_arguments = _parse_arguments(
-        user_args=args,
-        parser=parser,
-    )
-    _log_cli_arguments(parsed_arguments)
-
-    try:
-        parsed_arguments = _derive_sipi_url(
-            parsed_arguments=parsed_arguments,
-            default_dsp_api_url=default_dsp_api_url,
-            default_sipi_url=default_sipi_url,
-        )
-        success = call_requested_action(parsed_arguments)
-    except BaseError as err:
-        logger.error(err)
-        print("\nThe process was terminated because of an Error:")
-        print(err.message)
-        sys.exit(1)
-    except Exception as err:
-        logger.error(err)
-        raise InternalError from None
-
-    if not success:
-        logger.error("Terminate without success")
-        sys.exit(1)
 
 
 if __name__ == "__main__":

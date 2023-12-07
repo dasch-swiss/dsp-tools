@@ -34,17 +34,21 @@ def make_parser(
         title="Subcommands", description="Valid subcommands are", help="sub-command help"
     )
 
+    _for_start_stack(subparsers)
+
+    _for_stop_stack(subparsers)
+
     _for_create(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
 
     _for_get(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
 
     _for_xmlupload(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
 
+    _for_fast_xmlupload(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
+
     _for_process_files(subparsers)
 
     _for_upload_files(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
-
-    _fast_xmlupload(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
 
     _for_excel2json(subparsers)
 
@@ -57,10 +61,6 @@ def make_parser(
     _for_excel2xml(subparsers)
 
     _for_id2iri(subparsers)
-
-    _for_start_stack(subparsers)
-
-    _for_stop_stack(subparsers)
 
     _for_create_template(subparsers)
 
@@ -177,7 +177,7 @@ def _for_excel2json(subparsers):
     subparsers.add_argument("project_definition", help="path to the output JSON file")
 
 
-def _fast_xmlupload(subparsers, default_dsp_api_url: str, root_user_email: str, root_user_pw: str):
+def _for_fast_xmlupload(subparsers, default_dsp_api_url: str, root_user_email: str, root_user_pw: str):
     subparsers = subparsers.add_parser(
         name="fast-xmlupload",
         help="For internal use only: create resources with already uploaded files",

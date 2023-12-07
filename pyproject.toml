@@ -61,7 +61,7 @@ viztracer = "^0.16.0"
 
 
 [tool.poetry.scripts]
-dsp-tools = "dsp_tools.cli:main"  # definition of the CLI entry point
+dsp-tools = "dsp_tools.cli.cli:main"  # definition of the CLI entry point
 
 
 [tool.poetry-exec-plugin.commands]

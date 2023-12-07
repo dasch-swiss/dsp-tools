@@ -78,7 +78,7 @@ def call_requested_action(args: argparse.Namespace) -> bool:
             return False
 
 
-def _call_stop_stack():
+def _call_stop_stack() -> bool:
     stack_handler = StackHandler(StackConfiguration())
     return stack_handler.stop_stack()
 

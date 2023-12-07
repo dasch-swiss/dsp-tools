@@ -59,8 +59,7 @@ def call_requested_action(args: argparse.Namespace) -> bool:
         case "start-stack":
             return _call_start_stack(args)
         case "stop-stack":
-            stack_handler = StackHandler(StackConfiguration())
-            return stack_handler.stop_stack()
+            return _call_stop_stack()
         case "get":
             return _call_get(args)
         case "process-files":
@@ -77,6 +76,11 @@ def call_requested_action(args: argparse.Namespace) -> bool:
             print(f"ERROR: Unknown action '{args.action}'")
             logger.error(f"Unknown action '{args.action}'")
             return False
+
+
+def _call_stop_stack():
+    stack_handler = StackHandler(StackConfiguration())
+    return stack_handler.stop_stack()
 
 
 def _call_start_stack(args: argparse.Namespace) -> bool:
@@ -198,11 +202,12 @@ def _call_get(args: argparse.Namespace) -> bool:
 
 
 def _call_create(args: argparse.Namespace) -> bool:
-    if args.lists_only:
-        if args.validate_only:
+    success = False
+    match args.lists_only, args.validate_only:
+        case True, True:
             success = validate_lists_section_with_schema(args.project_definition)
             print("'Lists' section of the JSON project file is syntactically correct and passed validation.")
-        else:
+        case True, _:
             _, success = create_lists(
                 project_file_as_path_or_parsed=args.project_definition,
                 server=args.server,
@@ -210,11 +215,10 @@ def _call_create(args: argparse.Namespace) -> bool:
                 password=args.password,
                 dump=args.dump,
             )
-    else:
-        if args.validate_only:
+        case _, True:
             success = validate_project(args.project_definition)
             print("JSON project file is syntactically correct and passed validation.")
-        else:
+        case _, _:
             success = create_project(
                 project_file_as_path_or_parsed=args.project_definition,
                 server=args.server,

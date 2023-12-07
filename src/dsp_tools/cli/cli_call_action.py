@@ -207,7 +207,7 @@ def _call_create(args: argparse.Namespace) -> bool:
         case True, True:
             success = validate_lists_section_with_schema(args.project_definition)
             print("'Lists' section of the JSON project file is syntactically correct and passed validation.")
-        case True, _:
+        case True, False:
             _, success = create_lists(
                 project_file_as_path_or_parsed=args.project_definition,
                 server=args.server,
@@ -215,10 +215,10 @@ def _call_create(args: argparse.Namespace) -> bool:
                 password=args.password,
                 dump=args.dump,
             )
-        case _, True:
+        case False, True:
             success = validate_project(args.project_definition)
             print("JSON project file is syntactically correct and passed validation.")
-        case _, _:
+        case False, False:
             success = create_project(
                 project_file_as_path_or_parsed=args.project_definition,
                 server=args.server,

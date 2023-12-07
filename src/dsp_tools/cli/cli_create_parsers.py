@@ -28,7 +28,6 @@ def make_parser(
         parser
     """
 
-    # make a parser
     parser = ArgumentParser(
         description=f"DSP-TOOLS (version {version('dsp-tools')}, © {datetime.datetime.now().year} by DaSCH)"
     )
@@ -36,49 +35,49 @@ def make_parser(
         title="Subcommands", description="Valid subcommands are", help="sub-command help"
     )
 
-    _for_start_stack(subparsers)
+    _add_start_stack(subparsers)
 
-    _for_stop_stack(subparsers)
+    _add_stop_stack(subparsers)
 
-    _for_create(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
+    _add_create(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
 
-    _for_get(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
+    _add_get(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
 
-    _for_xmlupload(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
+    _add_xmlupload(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
 
-    _for_fast_xmlupload(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
+    _add_fast_xmlupload(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
 
-    _for_process_files(subparsers)
+    _add_process_files(subparsers)
 
-    _for_upload_files(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
+    _add_upload_files(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
 
-    _for_excel2json(subparsers)
+    _add_excel2json(subparsers)
 
-    _for_excel2lists(subparsers)
+    _add_excel2lists(subparsers)
 
-    _for_excel2resources(subparsers)
+    _add_excel2resources(subparsers)
 
-    _for_excel2properties(subparsers)
+    _add_excel2properties(subparsers)
 
-    _for_excel2xml(subparsers)
+    _add_excel2xml(subparsers)
 
-    _for_id2iri(subparsers)
+    _add_id2iri(subparsers)
 
-    _for_create_template(subparsers)
+    _add_create_template(subparsers)
 
-    _for_rosetta(subparsers)
+    _add_rosetta(subparsers)
 
     return parser
 
 
-def _for_rosetta(subparsers: _SubParsersAction[ArgumentParser]) -> None:
+def _add_rosetta(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     subparser = subparsers.add_parser(
         name="rosetta", help="Clone the most up to data rosetta repository, create the data model and upload the data"
     )
     subparser.set_defaults(action="rosetta")
 
 
-def _for_create_template(subparsers: _SubParsersAction[ArgumentParser]) -> None:
+def _add_create_template(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     # create template repo with minimal JSON and XML files
     subparser = subparsers.add_parser(
         name="template", help="Create a template repository with a minimal JSON and XML file"
@@ -86,14 +85,14 @@ def _for_create_template(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     subparser.set_defaults(action="template")
 
 
-def _for_stop_stack(subparsers: _SubParsersAction[ArgumentParser]) -> None:
+def _add_stop_stack(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     subparser = subparsers.add_parser(
         name="stop-stack", help="Shut down the local instance of DSP-API and DSP-APP, and delete all data in it"
     )
     subparser.set_defaults(action="stop-stack")
 
 
-def _for_start_stack(subparsers: _SubParsersAction[ArgumentParser]) -> None:
+def _add_start_stack(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     subparser = subparsers.add_parser(name="start-stack", help="Run a local instance of DSP-API and DSP-APP")
     subparser.set_defaults(action="start-stack")
     subparser.add_argument(
@@ -112,7 +111,7 @@ def _for_start_stack(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     )
 
 
-def _for_id2iri(subparsers: _SubParsersAction[ArgumentParser]) -> None:
+def _add_id2iri(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     subparser = subparsers.add_parser(
         name="id2iri",
         help="Replace internal IDs of an XML file (resptr tags or salsah-links) by IRIs provided in a mapping file.",
@@ -125,7 +124,7 @@ def _for_id2iri(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     subparser.add_argument("mapping", help="path to the JSON file containing the mapping of IDs to IRIs")
 
 
-def _for_excel2xml(subparsers: _SubParsersAction[ArgumentParser]) -> None:
+def _add_excel2xml(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     subparser = subparsers.add_parser(
         name="excel2xml",
         help="Create an XML file from an Excel/CSV file that is already structured according to the DSP specifications",
@@ -136,7 +135,7 @@ def _for_excel2xml(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     subparser.add_argument("ontology_name", help="name of the ontology that this data belongs to")
 
 
-def _for_excel2properties(subparsers: _SubParsersAction[ArgumentParser]) -> None:
+def _add_excel2properties(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     subparser = subparsers.add_parser(
         name="excel2properties",
         help="Create the 'properties' section of a JSON project file from one or multiple Excel files",
@@ -148,7 +147,7 @@ def _for_excel2properties(subparsers: _SubParsersAction[ArgumentParser]) -> None
     )
 
 
-def _for_excel2resources(subparsers: _SubParsersAction[ArgumentParser]) -> None:
+def _add_excel2resources(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     subparser = subparsers.add_parser(
         name="excel2resources",
         help="Create the 'resources' section of a JSON project file from one or multiple Excel files",
@@ -158,7 +157,7 @@ def _for_excel2resources(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     subparser.add_argument("resources_section", help="path to the output JSON file containing the 'resources' section")
 
 
-def _for_excel2lists(subparsers: _SubParsersAction[ArgumentParser]) -> None:
+def _add_excel2lists(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     subparser = subparsers.add_parser(
         name="excel2lists",
         help="Create the 'lists' section of a JSON project file from one or multiple Excel files",
@@ -169,7 +168,7 @@ def _for_excel2lists(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     subparser.add_argument("lists_section", help="path to the output JSON file containing the 'lists' section")
 
 
-def _for_excel2json(subparsers: _SubParsersAction[ArgumentParser]) -> None:
+def _add_excel2json(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     subparser = subparsers.add_parser(
         name="excel2json",
         help="Create an entire JSON project file from a folder containing the required Excel files",
@@ -179,7 +178,7 @@ def _for_excel2json(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     subparser.add_argument("project_definition", help="path to the output JSON file")
 
 
-def _for_fast_xmlupload(
+def _add_fast_xmlupload(
     subparsers: _SubParsersAction[ArgumentParser],
     default_dsp_api_url: str,
     root_user_email: str,
@@ -196,7 +195,7 @@ def _for_fast_xmlupload(
     subparser.add_argument("xml_file", help="path to XML file containing the data")
 
 
-def _for_upload_files(
+def _add_upload_files(
     subparsers: _SubParsersAction[ArgumentParser],
     default_dsp_api_url: str,
     root_user_email: str,
@@ -214,7 +213,7 @@ def _for_upload_files(
     subparser.add_argument("-p", "--password", default=root_user_pw, help=password_text)
 
 
-def _for_process_files(subparsers: _SubParsersAction[ArgumentParser]) -> None:
+def _add_process_files(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     subparser = subparsers.add_parser(
         name="process-files",
         help="For internal use only: process all files referenced in an XML file",
@@ -228,7 +227,7 @@ def _for_process_files(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     subparser.add_argument("xml_file", help="path to XML file containing the data")
 
 
-def _for_xmlupload(
+def _add_xmlupload(
     subparsers: _SubParsersAction[ArgumentParser],
     default_dsp_api_url: str,
     root_user_email: str,
@@ -252,7 +251,7 @@ def _for_xmlupload(
     subparser.add_argument("xmlfile", help="path to the XML file containing the data")
 
 
-def _for_get(
+def _add_get(
     subparsers: _SubParsersAction[ArgumentParser],
     default_dsp_api_url: str,
     root_user_email: str,
@@ -272,7 +271,7 @@ def _for_get(
     subparser.add_argument("project_definition", help="path to the file the project should be written to")
 
 
-def _for_create(
+def _add_create(
     subparsers: _SubParsersAction[ArgumentParser],
     default_dsp_api_url: str,
     root_user_email: str,

@@ -44,9 +44,11 @@ def _find_problems_in_classes_and_properties(
     property_problems = _diagnose_all_properties(properties, onto_check_info)
     if not class_problems and not property_problems:
         return None
-    problems = InvalidOntologyElements(classes=class_problems, properties=property_problems)
+    problems = InvalidOntologyElements(
+        classes=class_problems, properties=property_problems, ontos_on_server=list(onto_check_info.onto_lookup.keys())
+    )
     msg, df = problems.execute_problem_protocol()
-    if df:
+    if df is not None:
         ex_name = "XML_syntax_errors.xlsx"
         df.to_excel(excel_writer=Path(onto_check_info.save_location, ex_name), sheet_name=" ", index=False)
         msg += (

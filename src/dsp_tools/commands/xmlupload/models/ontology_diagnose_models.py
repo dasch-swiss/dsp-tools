@@ -91,16 +91,20 @@ class InvalidOntologyElements:
         return pd.DataFrame.from_records(unpacked)
 
     def _calculate_num_resources(self, to_count: list[tuple[str, list[str], str]]) -> int:
-        return sum([len(x[1]) for x in to_count])
+        return sum((len(x[1]) for x in to_count))
 
     def _compose_problem_string_cls(self) -> str | None:
         if self.classes:
             if self._calculate_num_resources(self.classes) > 10:
-                return "Many resources have an invalid resource type.\n" "Please consult the file for details."
+                return "Many resources have an invalid resource type.\nPlease consult the file for details."
 
             def _format_cls(cls_tup: tuple[str, list[str], str]) -> str:
                 ids = list_separator + list_separator.join(cls_tup[1])
-                return f"    Resource Type: '{cls_tup[0]}'{separator}Problem: '{cls_tup[2]}'{separator}Resource ID(s):{ids}"
+                return (
+                    f"    Resource Type: '{cls_tup[0]}'{separator}"
+                    f"Problem: '{cls_tup[2]}'{separator}"
+                    f"Resource ID(s):{ids}"
+                )
 
             problems = [_format_cls(x) for x in self.classes]
 
@@ -111,11 +115,15 @@ class InvalidOntologyElements:
     def _compose_problem_string_props(self) -> str | None:
         if self.properties:
             if self._calculate_num_resources(self.properties) > 10:
-                return "Many properties have an invalid resource type.\n" "Please consult the file for details."
+                return "Many properties have an invalid resource type.\nPlease consult the file for details."
 
             def _format_prop(prop_tup: tuple[str, list[str], str]) -> str:
                 ids = list_separator + list_separator.join(prop_tup[1])
-                return f"    Property Name: '{prop_tup[0]}'{separator}Problem: '{prop_tup[2]}'{separator}Resource ID(s):{ids}"
+                return (
+                    f"    Property Name: '{prop_tup[0]}'{separator}"
+                    f"Problem: '{prop_tup[2]}'{separator}"
+                    f"Resource ID(s):{ids}"
+                )
 
             problems = [_format_prop(x) for x in self.properties]
             return "The following resource(s) have invalid property type(s):\n\n" + grand_separator.join(problems)

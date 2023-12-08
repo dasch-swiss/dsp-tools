@@ -73,7 +73,7 @@ def xmlupload(
     default_ontology, root, shortcode = validate_and_parse_xml_file(
         input_file=input_file,
         imgdir=imgdir,
-        preprocessing_done=config.do_fast_xmlupload,
+        preprocessing_done=config.media_previously_uploaded,
     )
 
     config = config.with_server_info(
@@ -369,7 +369,7 @@ def _diagnose_handle_media(
         bitstream_information = handle_bitstream(
             resource=resource,
             bitstream=bitstream,
-            do_fast_xmlupload=config.do_fast_xmlupload,
+            do_fast_xmlupload=config.media_previously_uploaded,
             do_ingest_xmlupload=config.do_ingest_xmlupload,
             permissions_lookup=permissions_lookup,
             sipi_server=sipi_server,

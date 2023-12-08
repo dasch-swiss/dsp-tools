@@ -118,7 +118,7 @@ def fast_xmlupload(
         password=password,
         imgdir=".",
         sipi=sipi_url,
-        config=UploadConfig(do_fast_xmlupload=True),
+        config=UploadConfig(media_previously_uploaded=True),
     )
 
     end_time = datetime.now()

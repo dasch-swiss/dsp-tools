@@ -155,7 +155,7 @@ def _make_bitstream_file_value(bitstream_info: BitstreamInfo) -> dict[str, Any]:
         case "mp4":
             prop = "knora-api:hasMovingImageFileValue"
             value_type = "MovingImageFileValue"
-        case "jpg" | "jpeg" | "jp2" | "png" | "tif" | "tiff":
+        case "jpg" | "jpeg" | "jp2" | "png" | "tif" | "tiff" | "jpx":
             prop = "knora-api:hasStillImageFileValue"
             value_type = "StillImageFileValue"
         case "odd" | "rng" | "txt" | "xml" | "xsd" | "xsl" | "xslt" | "csv":

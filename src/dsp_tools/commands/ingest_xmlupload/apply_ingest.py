@@ -16,9 +16,13 @@ def get_mapping_dict_from_file() -> dict[str, str]:
 
     Returns:
         dictionary with original: identifier from dsp-ingest
+
+    Raises:
+        InputError: if no file was found
     """
     if filepath := glob.glob("mapping-*.csv"):
         df = pd.read_csv(filepath[0])
+        print(f"The file '{filepath[0]}' is used to map the internal SIPI image IDs to the original filepaths.")
         return dict(zip(df["original"].tolist(), df["derivative"].tolist()))
     else:
         raise InputError("No mapping csv file was found in the directory.")

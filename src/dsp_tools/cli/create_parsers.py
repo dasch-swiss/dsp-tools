@@ -45,6 +45,8 @@ def make_parser(
 
     _add_xmlupload(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
 
+    _add_ingest_xmlupload(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
+
     _add_fast_xmlupload(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
 
     _add_process_files(subparsers)

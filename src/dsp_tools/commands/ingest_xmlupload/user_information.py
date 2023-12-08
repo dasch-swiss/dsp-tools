@@ -12,6 +12,10 @@ list_separator = "\n    - "
 
 maximum_prints = 20
 
+csv_filepath = Path.home()
+unused_media_filename = "UnusedMediaUploadedInSipi.csv"
+no_uuid_filename = "NotUploadedFilesToSipi.csv"
+
 
 class UserInformation(Protocol):
     """
@@ -20,7 +24,7 @@ class UserInformation(Protocol):
 
     def all_good_msg(self) -> str:
         """
-        If everything went as it should this function returns a success message for the user.
+        If everything went as it should this function return a success message for the user.
         Returns:
 
         """
@@ -57,53 +61,60 @@ class IngestInformation:
             )
         return None
 
-    def execute_error_protocol(self, save_path: Path) -> str:
+    def execute_error_protocol(self) -> str:
         """
         This function generates the user message and saves a file with the information
         if a lot of resources affected.
 
-        Args:
-            save_path: Path where the file should be saved.
-
         Returns:
             User message
         """
-        unused_media_filename = "UnusedMediaUploadedInSipi.csv"
-        no_uuid_filename = "NotUploadedFilesToSipi.csv"
-        self._check_save_csv(save_path, no_uuid_filename, unused_media_filename)
-        return self._get_error_msg(save_path, unused_media_filename, no_uuid_filename)
+        self._check_save_csv()
+        return self._get_error_msg()
 
-    def _get_error_msg(self, save_path: Path, unused_media_filename: str, no_uuid_filename: str) -> str:
-        msg_list = ["The upload cannot continue as there are problems with the media referenced in the XML."]
-        if 0 < len(self.unused_media_paths) <= maximum_prints:
-            msg_list.append(
-                "The following media were uploaded to sipi but not referenced in the data XML file:"
-                + list_separator
-                + list_separator.join(self.unused_media_paths)
-            )
-        elif len(self.unused_media_paths) > maximum_prints:
-            msg_list.append(
-                "Media was uploaded to Sipi which was not referenced in the XML file.\n"
-                f"    The file '{unused_media_filename}' was saved in '{save_path}' with the filenames.\n"
-            )
+    def _get_error_msg(self) -> str:
+        msg_list = [
+            "The upload cannot continue as there are problems with the media referenced in the XML.",
+        ]
+        if has_msg := self._get_unused_path_msg():
+            msg_list.append(has_msg)
+        if has_msg := self._get_no_uuid_msg():
+            msg_list.append(has_msg)
+        return separator.join(msg_list)
+
+    def _get_no_uuid_msg(self) -> str | None:
         if 0 < len(self.media_no_uuid) <= maximum_prints:
-            msg_list.append(
+            return (
                 "The following media were not uploaded to sipi but referenced in the data XML file:"
                 + list_separator
                 + list_separator.join([f"Resource ID: '{x[0]}' | Filepath: '{x[1]}'" for x in self.media_no_uuid])
             )
         elif len(self.media_no_uuid) > maximum_prints:
-            msg_list.append(
+            return (
                 "Media was referenced in the XML file but not previously uploaded to sipi:\n"
-                f"    The file '{no_uuid_filename}' was saved in '{save_path}' with the resource IDs and filenames."
+                f"    The file '{no_uuid_filename}' was saved in '{csv_filepath}' with the resource IDs and filenames."
             )
-        return separator.join(msg_list)
+        return None
 
-    def _check_save_csv(self, save_path: Path, no_uuid_filename: str, unused_media_filename: str) -> None:
+    def _get_unused_path_msg(self) -> str | None:
+        if 0 < len(self.unused_media_paths) <= maximum_prints:
+            return (
+                "The following media were uploaded to sipi but not referenced in the data XML file:"
+                + list_separator
+                + list_separator.join(self.unused_media_paths)
+            )
+        elif len(self.unused_media_paths) > maximum_prints:
+            return (
+                "Media was uploaded to Sipi which was not referenced in the XML file.\n"
+                f"    The file '{unused_media_filename}' was saved in '{csv_filepath}' with the filenames.\n"
+            )
+        return None
+
+    def _check_save_csv(self) -> None:
         if unused_media_df := self._unused_media_to_df():
-            _save_as_csv(unused_media_df, unused_media_filename, save_path)
+            _save_as_csv(unused_media_df, unused_media_filename)
         if no_uuid_df := self._no_uuid_to_df():
-            _save_as_csv(no_uuid_df, no_uuid_filename, save_path)
+            _save_as_csv(no_uuid_df, no_uuid_filename)
 
     def _unused_media_to_df(self) -> pd.DataFrame | None:
         return (
@@ -122,5 +133,5 @@ class IngestInformation:
         )
 
 
-def _save_as_csv(df: pd.DataFrame, filename: str, filepath: Path) -> None:
-    df.to_csv(Path(filepath, filename), index=False)
+def _save_as_csv(df: pd.DataFrame, filename: str) -> None:
+    df.to_csv(Path(csv_filepath, filename), index=False)

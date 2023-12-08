@@ -1,5 +1,4 @@
 from datetime import datetime
-from pathlib import Path
 
 from lxml import etree
 
@@ -29,7 +28,6 @@ def ingest_xmlupload(
 
     Args:
         xml_file: path to XML file containing the resources
-        e.g. Path('multimedia/nested/subfolder/test.tif'), Path('tmp/0b/22/0b22570d-515f-4c3d-a6af-e42b458e7b2b.jp2')
         user: the user's e-mail for login into DSP
         password: the user's password for login into DSP
         dsp_url: URL to the DSP server
@@ -48,7 +46,7 @@ def ingest_xmlupload(
         print(good)
         logger.info(good)
     else:
-        err_msg = ingest_message.execute_error_protocol(Path(xml_file).absolute())
+        err_msg = ingest_message.execute_error_protocol()
         logger.exception(err_msg)
         raise InputError(err_msg)
 
@@ -62,7 +60,7 @@ def ingest_xmlupload(
         password=password,
         imgdir=".",
         sipi=sipi_url,
-        config=UploadConfig(ingest_done=True),
+        config=UploadConfig(do_ingest_xmlupload=True),
     )
 
     end_time = datetime.now()

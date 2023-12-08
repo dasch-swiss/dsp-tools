@@ -49,8 +49,8 @@ class DiagnosticsConfig:
 class UploadConfig:
     """Configuration for the upload process."""
 
-    preprocessing_done: bool = False
-    ingest_done: bool = False
+    do_fast_xmlupload: bool = False
+    do_ingest_xmlupload: bool = False
     server: str = "unknown"
     shortcode: str = "unknown"
     diagnostics: DiagnosticsConfig = field(default_factory=DiagnosticsConfig)

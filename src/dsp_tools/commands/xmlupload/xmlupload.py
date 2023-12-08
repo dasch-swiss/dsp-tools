@@ -73,7 +73,7 @@ def xmlupload(
     default_ontology, root, shortcode = validate_and_parse_xml_file(
         input_file=input_file,
         imgdir=imgdir,
-        preprocessing_done=config.preprocessing_done,
+        preprocessing_done=config.do_fast_xmlupload,
     )
 
     config = config.with_server_info(
@@ -335,24 +335,18 @@ def _upload_resources(
     )
 
     for i, resource in enumerate(resources):
-        bitstream_information = None
-        if bitstream := resource.bitstream:
-            bitstream_information = handle_bitstream(
-                resource=resource,
-                bitstream=bitstream,
-                preprocessing_done=config.preprocessing_done,
-                permissions_lookup=permissions_lookup,
-                sipi_server=sipi_server,
-                imgdir=imgdir,
-            )
-            if not bitstream_information:
-                failed_uploads.append(resource.id)
-                continue
+        success, bitstream_information = _diagnose_handle_media(
+            resource, config, imgdir, permissions_lookup, sipi_server
+        )
+        if not success:
+            failed_uploads.append(resource.id)
+            continue
 
         res = _create_resource(resource, bitstream_information, resource_create_client)
         if not res:
             failed_uploads.append(resource.id)
             continue
+
         iri, label = res
         id_to_iri_resolver.update(resource.id, iri)
 
@@ -361,6 +355,29 @@ def _upload_resources(
         logger.info(f"Created resource {i+1}/{len(resources)}: {resource_designation}")
 
     return id_to_iri_resolver, failed_uploads
+
+
+def _diagnose_handle_media(
+    resource: XMLResource,
+    config: UploadConfig,
+    imgdir: str,
+    permissions_lookup: dict[str, Permissions],
+    sipi_server: Sipi,
+) -> tuple[bool, None | BitstreamInfo]:
+    bitstream_information = None
+    if bitstream := resource.bitstream:
+        bitstream_information = handle_bitstream(
+            resource=resource,
+            bitstream=bitstream,
+            do_fast_xmlupload=config.do_fast_xmlupload,
+            do_ingest_xmlupload=config.do_ingest_xmlupload,
+            permissions_lookup=permissions_lookup,
+            sipi_server=sipi_server,
+            imgdir=imgdir,
+        )
+        if not bitstream_information:
+            return False, None
+    return True, bitstream_information
 
 
 def _create_resource(

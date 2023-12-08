@@ -7,6 +7,7 @@ import pandas as pd
 from lxml import etree
 
 from dsp_tools.commands.ingest_xmlupload.user_information import IngestInformation
+from dsp_tools.models.exceptions import InputError
 
 
 def get_mapping_dict_from_file() -> dict[str, str]:
@@ -16,9 +17,11 @@ def get_mapping_dict_from_file() -> dict[str, str]:
     Returns:
         dictionary with original: identifier from dsp-ingest
     """
-    filepath = glob.glob("mapping-*.csv")[0]
-    df = pd.read_csv(filepath)
-    return dict(zip(df["original"].tolist(), df["derivative"].tolist()))
+    if filepath := glob.glob("mapping-*.csv"):
+        df = pd.read_csv(filepath[0])
+        return dict(zip(df["original"].tolist(), df["derivative"].tolist()))
+    else:
+        raise InputError("No mapping csv file was found in the directory.")
 
 
 def replace_filepath_with_sipi_uuid(

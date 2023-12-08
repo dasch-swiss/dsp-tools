@@ -369,8 +369,7 @@ def _diagnose_handle_media(
         bitstream_information = handle_bitstream(
             resource=resource,
             bitstream=bitstream,
-            do_fast_xmlupload=config.media_previously_uploaded,
-            do_ingest_xmlupload=config.do_ingest_xmlupload,
+            media_previously_uploaded=config.media_previously_uploaded,
             permissions_lookup=permissions_lookup,
             sipi_server=sipi_server,
             imgdir=imgdir,

@@ -48,8 +48,7 @@ def _upload_bitstream(
 def handle_bitstream(
     resource: XMLResource,
     bitstream: XMLBitstream,
-    do_fast_xmlupload: bool,
-    do_ingest_xmlupload: bool,
+    media_previously_uploaded: bool,
     permissions_lookup: dict[str, Permissions],
     sipi_server: Sipi,
     imgdir: str,
@@ -60,8 +59,7 @@ def handle_bitstream(
     Args:
         resource: resource holding the bitstream
         bitstream: the bitstream object
-        do_fast_xmlupload: whether the preprocessing is done already
-        do_ingest_xmlupload: whether the upload was done through dsp-ingest
+        media_previously_uploaded: whether the files have already been uploaded
         permissions_lookup: dictionary that contains the permission name as string and the corresponding Python object
         sipi_server: server to upload
         imgdir: directory of the file
@@ -70,7 +68,7 @@ def handle_bitstream(
         The information from sipi which is needed to establish a link from the resource
     """
     try:
-        if do_fast_xmlupload | do_ingest_xmlupload:
+        if media_previously_uploaded:
             resource_bitstream = resource.get_bitstream_information(bitstream.value, permissions_lookup)
         else:
             resource_bitstream = _upload_bitstream(

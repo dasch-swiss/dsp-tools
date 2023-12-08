@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import glob
 from typing import cast
 
@@ -20,9 +22,9 @@ def get_mapping_dict_from_file() -> dict[str, str]:
 
 
 def replace_filepath_with_sipi_uuid(
-    xml_tree: "etree._ElementTree[etree._Element]",
+    xml_tree: etree._ElementTree[etree._Element],
     orig_path_2_uuid_filename: dict[str, str],
-) -> tuple["etree._ElementTree[etree._Element]", IngestInformation]:
+) -> tuple[etree._ElementTree[etree._Element], IngestInformation]:
     """
     Replace the original filepaths in the <bitstream> gags by the uuid filenames of the uploaded files.
 

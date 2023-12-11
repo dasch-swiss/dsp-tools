@@ -21,10 +21,10 @@ def ingest_xmlupload(
     """
     This function reads an XML file
     and imports the data described in it onto the DSP server,
-    using the fast XML upload method.
+    using the ingest XML upload method.
     Before using this method,
-    the original files must be processed by the processing step,
-    and uploaded by the upload step.
+    the original files must be uploaded to SIPI.
+    A mapping file with the new internal IDs provided by SIPI must also be provided.
 
     Args:
         xml_file: path to XML file containing the resources

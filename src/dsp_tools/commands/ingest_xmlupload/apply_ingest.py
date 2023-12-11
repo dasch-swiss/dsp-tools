@@ -33,7 +33,7 @@ def replace_filepath_with_sipi_uuid(
     orig_path_2_uuid_filename: dict[str, str],
 ) -> tuple[etree._ElementTree[etree._Element], IngestInformation]:
     """
-    Replace the original filepaths in the <bitstream> gags by the uuid filenames of the uploaded files.
+    Replace the original filepaths in the <bitstream> tags by the uuid filenames of the uploaded files.
 
     Args:
         xml_tree: The parsed original XML tree

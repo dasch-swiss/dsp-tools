@@ -36,26 +36,24 @@ def handle_media_info(
         If the handling of the bitstream object was successful,
         in case of a bitstream the object or None in case of unsuccessful try.
     """
-    bitstream = cast(XMLBitstream, resource.bitstream)
+    bitstream = resource.bitstream
     success = True
     bitstream_information: None | BitstreamInfo = None
 
-    match bitstream, media_previously_uploaded:
-        case None, _:
-            return success, bitstream_information
-        case XMLBitstream(), True:
-            bitstream_information = resource.get_bitstream_information(bitstream.value, permissions_lookup)
-        case XMLBitstream(), False:
-            bitstream_information = _handle_media_upload(
-                resource=resource,
-                bitstream=bitstream,
-                permissions_lookup=permissions_lookup,
-                sipi_server=sipi_server,
-                imgdir=imgdir,
-            )
-            if not bitstream_information:
-                success = False
-
+    if not bitstream:
+        return success, bitstream_information
+    if not media_previously_uploaded:
+        bitstream_information = _handle_media_upload(
+            resource=resource,
+            bitstream=bitstream,
+            permissions_lookup=permissions_lookup,
+            sipi_server=sipi_server,
+            imgdir=imgdir,
+        )
+        if not bitstream_information:
+            success = False
+    else:
+        bitstream_information = resource.get_bitstream_information(bitstream.value, permissions_lookup)
     return success, bitstream_information
 
 

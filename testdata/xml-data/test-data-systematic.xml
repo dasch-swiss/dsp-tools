@@ -30,6 +30,24 @@
         <allow group="ProjectAdmin">CR</allow>
     </permissions>
 
+
+    <resource label="TestthingWithArk1"
+              restype=":TestThing2"
+              id="test_thing_with_ark_1"
+              ark="ark:/72163/4123-43ec6evb134-a.2022828">
+        <text-prop name=":hasSimpleText"><text encoding="utf8">Hello</text></text-prop>
+    </resource>
+
+    <resource label="Imagething-uppercase-extension"
+              restype=":ImageThing"
+              id="image_thing_8"
+              permissions="res-default">
+        <bitstream>testdata/bitstreams/test with uppercase extension.JPG</bitstream>
+        <text-prop name=":hasSimpleText">
+            <text permissions="prop-default" encoding="utf8">This is a Imagething, with an uppercase extension</text>
+        </text-prop>
+    </resource>
+
     <resource label="TestthingOhnePermissions"
               restype=":TestThing2"
               id="test_thing_0"
@@ -317,6 +335,26 @@
         <bitstream>testdata/bitstreams/test.png</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="prop-default" encoding="utf8">This is a Imagething as PNG</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Imagething-multiple-dots"
+              restype=":ImageThing"
+              id="image_thing_6"
+              permissions="res-default">
+        <bitstream>testdata/bitstreams/test.with.multiple.dots.png</bitstream>
+        <text-prop name=":hasSimpleText">
+            <text permissions="prop-default" encoding="utf8">This is a Imagething, the name has multiple dots</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Imagething-white-space"
+              restype=":ImageThing"
+              id="image_thing_7"
+              permissions="res-default">
+        <bitstream>testdata/bitstreams/test with whitespaces.png</bitstream>
+        <text-prop name=":hasSimpleText">
+            <text permissions="prop-default" encoding="utf8">This is a Imagething, the name has whitespaces</text>
         </text-prop>
     </resource>
 
@@ -803,13 +841,6 @@
         <text-prop name="testontoPermissions:hasText">
             <text encoding="utf8">Hello!</text>
         </text-prop>
-    </resource>
-
-    <resource label="TestthingWithArk1"
-              restype=":TestThing2"
-              id="test_thing_with_ark_1"
-              ark="ark:/72163/4123-43ec6evb134-a.2022828">
-        <text-prop name=":hasSimpleText"><text encoding="utf8">Hello</text></text-prop>
     </resource>
 
     <resource label="TestthingWithArk2"

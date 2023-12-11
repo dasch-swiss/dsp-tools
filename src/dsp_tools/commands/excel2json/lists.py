@@ -10,7 +10,8 @@ from openpyxl import load_workbook
 from openpyxl.cell import Cell
 from openpyxl.worksheet.worksheet import Worksheet
 
-from dsp_tools.models.exceptions import BaseError, UserError
+from dsp_tools.commands.excel2json.input_error import MoreThanOneSheetProblem
+from dsp_tools.models.exceptions import BaseError, InputError, UserError
 from dsp_tools.utils.shared import simplify_name
 
 list_of_lists_of_previous_cell_values: list[list[str]] = []
@@ -271,7 +272,7 @@ def _make_json_lists_from_excel(
     startcol = 1
 
     # make a dict with the language labels and the worksheets
-    lang_to_worksheet = {x.stem: load_workbook(x, read_only=True).worksheets[0] for x in excel_file_paths}
+    lang_to_worksheet: dict[str, Worksheet] = {x.stem: _read_and_check_workbook(x) for x in excel_file_paths}
 
     # take English as base file. If English is not available, take a random one.
     base_lang = "en" if "en" in lang_to_worksheet else list(lang_to_worksheet.keys())[0]
@@ -302,6 +303,14 @@ def _make_json_lists_from_excel(
         }
 
     return finished_lists
+
+
+def _read_and_check_workbook(excelpath: Path) -> Worksheet:
+    all_worksheets = load_workbook(excelpath, read_only=True).worksheets
+    if len(all_worksheets) != 1:
+        msg = str(MoreThanOneSheetProblem(excelpath.name, [x.title for x in all_worksheets]))
+        raise InputError(msg)
+    return all_worksheets[0]
 
 
 def validate_lists_section_with_schema(

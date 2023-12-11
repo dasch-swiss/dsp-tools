@@ -142,7 +142,7 @@ class ResourceCreateClient:
 def _make_bitstream_file_value(bitstream_info: BitstreamInfo) -> dict[str, Any]:
     local_file = Path(bitstream_info.local_file)
     file_ending = local_file.suffix[1:]
-    match file_ending:
+    match file_ending.lower():
         case "zip" | "tar" | "gz" | "z" | "tgz" | "gzip" | "7z":
             prop = "knora-api:hasArchiveFileValue"
             value_type = "ArchiveFileValue"

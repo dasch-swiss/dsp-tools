@@ -7,11 +7,6 @@
         <allow group="ProjectAdmin">CR</allow>
         <allow group="Creator">CR</allow>
     </permissions>
-    <permissions id="res-restricted">
-        <allow group="ProjectMember">M</allow>
-        <allow group="ProjectAdmin">CR</allow>
-        <allow group="Creator">CR</allow>
-    </permissions>
     <permissions id="prop-default">
         <allow group="UnknownUser">V</allow>
         <allow group="KnownUser">V</allow>
@@ -19,17 +14,9 @@
         <allow group="ProjectAdmin">CR</allow>
         <allow group="Creator">CR</allow>
     </permissions>
-    <permissions id="prop-restricted">
-        <allow group="ProjectMember">M</allow>
-        <allow group="ProjectAdmin">CR</allow>
-        <allow group="Creator">CR</allow>
-    </permissions>
 
     <resource label="Fluffy Image" restype=":Image2D" id="Fluffy1" permissions="res-default">
         <bitstream permissions="prop-default">images/Fluffy.jpg</bitstream>
-        <text-prop name=":hasTitle">
-            <text permissions="prop-default" encoding="utf8">Fluffy looking at the photographer.</text>
-        </text-prop>
         <text-prop name=":hasAttribution">
             <text permissions="prop-default" encoding="utf8">Columbus Metropolitan Library, Public domain, via Wikimedia Commons</text>
         </text-prop>
@@ -40,9 +27,6 @@
 
     <resource label="Fluffy Image" restype=":Image2D" id="Fluffy2" permissions="res-default">
         <bitstream permissions="prop-default">images/subFolder/Fluffy.jpg</bitstream>
-        <text-prop name=":hasTitle">
-            <text permissions="prop-default" encoding="utf8">Fluffy looking at the ground.</text>
-        </text-prop>
         <text-prop name=":hasAttribution">
             <text permissions="prop-default" encoding="utf8">Columbus Metropolitan Library, Public domain, via Wikimedia Commons</text>
         </text-prop>
@@ -53,9 +37,6 @@
 
     <resource label="Shiba Inu Image" restype=":Image2D" id="Shiba" permissions="res-default">
         <bitstream permissions="prop-default">images/subFolder/ShibaInu.jpg</bitstream>
-        <text-prop name=":hasTitle">
-            <text permissions="prop-default" encoding="utf8">Shiba looking philosophically.</text>
-        </text-prop>
         <text-prop name=":hasAttribution">
             <text permissions="prop-default" encoding="utf8">Picography, CC0, via Wikimedia Commons</text>
         </text-prop>
@@ -66,9 +47,6 @@
 
     <resource label="Good Girl Image" restype=":Image2D" id="GoodGirlImage" permissions="res-default">
         <bitstream permissions="prop-default">images/GoodGirl.jpg</bitstream>
-        <text-prop name=":hasTitle">
-            <text permissions="prop-default" encoding="utf8">Good girl looking up.</text>
-        </text-prop>
         <text-prop name=":hasAttribution">
             <text permissions="prop-default" encoding="utf8">Oldsingerman20, CC0, via Wikimedia Commons</text>
         </text-prop>
@@ -82,27 +60,17 @@
             <resptr permissions="prop-default">Fluffy1</resptr>
             <resptr permissions="prop-default">Fluffy2</resptr>
         </resptr-prop>
-        <text-prop name=":hasName">
-            <text permissions="prop-default" encoding="utf8">Fluffy</text>
-        </text-prop>
     </resource>
     
     <resource label="Shiba" restype=":Dog" id="ShibaDog" permissions="res-default">
         <resptr-prop name=":hasImage">
             <resptr permissions="prop-default">Shiba</resptr>
         </resptr-prop>
-        <text-prop name=":hasName">
-            <text permissions="prop-default" encoding="utf8">Shiba</text>
-        </text-prop>
     </resource>
 
     <resource label="Good Girl" restype=":Dog" id="GoodGirl" permissions="res-default">
         <resptr-prop name=":hasImage">
             <resptr permissions="prop-default">GoodGirlImage</resptr>
         </resptr-prop>
-        <text-prop name=":hasName">
-            <text permissions="prop-default" encoding="utf8">Good Girl</text>
-        </text-prop>
     </resource>
-
 </knora>

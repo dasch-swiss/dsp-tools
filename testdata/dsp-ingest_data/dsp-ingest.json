@@ -22,20 +22,6 @@
             "gui_element": "Searchbox"
           },
           {
-            "name": "hasName",
-            "super": ["hasValue"],
-            "object": "TextValue",
-            "labels": {"en": "Name"},
-            "gui_element": "Richtext"
-          },
-          {
-            "name": "hasTitle",
-            "super": ["hasValue"],
-            "object": "TextValue",
-            "labels": {"en": "Title"},
-            "gui_element": "SimpleText"
-          },
-          {
             "name": "hasAttribution",
             "super": ["hasValue"],
             "object": "TextValue",
@@ -57,10 +43,6 @@
             "super": "StillImageRepresentation",
             "cardinalities": [
               {
-                "propname": ":hasTitle",
-                "cardinality": "1"
-              },
-              {
                 "propname": ":hasSourceLink",
                 "cardinality": "1"
               },
@@ -77,10 +59,6 @@
             "cardinalities": [
               {
                 "propname": ":hasImage",
-                "cardinality": "0-n"
-              },
-              {
-                "propname": ":hasName",
                 "cardinality": "0-n"
               }
             ]

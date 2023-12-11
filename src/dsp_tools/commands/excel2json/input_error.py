@@ -169,6 +169,22 @@ class ResourcesSheetsNotAsExpected:
 
 
 @dataclass(frozen=True)
+class MoreThanOneSheetProblem:
+    """This class contains information if the excel containing the property values has more than one sheet."""
+
+    excelname: str
+    sheet_names: list[str]
+
+    def __str__(self) -> str:
+        msg = [
+            f"\nIn the '{self.excelname}' file only one sheet is allowed.",
+            f"The excel used contains the following sheets:{list_separator}{list_separator.join(self.sheet_names)}",
+            "Please delete all but one sheet.",
+        ]
+        return separator.join(msg)
+
+
+@dataclass(frozen=True)
 class JsonValidationPropertyProblem:
     """This class contains information about a JSON property section that fails its validation against the schema."""
 

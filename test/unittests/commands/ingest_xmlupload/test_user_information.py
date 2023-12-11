@@ -9,7 +9,7 @@ from dsp_tools.commands.ingest_xmlupload import user_information
 from dsp_tools.commands.ingest_xmlupload.user_information import IngestInformation
 
 user_information.csv_filepath = Path()
-user_information.maximum_prints = 3
+user_information.maximum_prints = 1
 
 
 class TestIngestInformation:
@@ -41,7 +41,7 @@ class TestIngestInformation:
         res_msg = IngestInformation([], [("no upload id", "media path")])._get_error_msg()
         assert res_msg == expected
 
-    def test_all_problem_more_than_ten(self) -> None:
+    def test_all_problem_with_df_msg(self) -> None:
         expected = (
             "The upload cannot continue as there are problems with the media referenced in the XML.\n"
             "    Media was uploaded to Sipi which was not referenced in the XML file.\n"
@@ -53,14 +53,10 @@ class TestIngestInformation:
             [
                 "unused_media0",
                 "unused_media1",
-                "unused_media2",
-                "unused_media3",
             ],
             [
                 "no_up0",
                 "no_up1",
-                "no_up2",
-                "no_up3",
             ],
         )._get_error_msg()
         assert res_msg == expected
@@ -70,8 +66,6 @@ def test_unused_media_to_df() -> None:
     unused_media_list = [
         "unused_media0",
         "unused_media1",
-        "unused_media2",
-        "unused_media3",
     ]
     expected = pd.DataFrame({"Media Filenames": unused_media_list})
     res_df = IngestInformation(unused_media_list, [])._unused_media_to_df()
@@ -88,14 +82,10 @@ def test_no_uuid_to_df() -> None:
             "Resource ID": [
                 "ID_no_up0",
                 "ID_no_up1",
-                "ID_no_up2",
-                "ID_no_up3",
             ],
             "Filepath": [
                 "fileno_up0.jpg",
                 "fileno_up1.jpg",
-                "fileno_up2.jpg",
-                "fileno_up3.jpg",
             ],
         }
     )
@@ -104,8 +94,6 @@ def test_no_uuid_to_df() -> None:
         [
             ("ID_no_up0", "fileno_up0.jpg"),
             ("ID_no_up1", "fileno_up1.jpg"),
-            ("ID_no_up2", "fileno_up2.jpg"),
-            ("ID_no_up3", "fileno_up3.jpg"),
         ],
     )._no_uuid_to_df()
     assert_frame_equal(res_df, expected)

@@ -1,0 +1,70 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json",
+  "project": {
+    "shortcode": "00A2",
+    "shortname": "dog",
+    "longname": "Ontology for Dogs",
+    "descriptions": {
+      "en": "Ontology for Dongs"
+    },
+    "keywords": ["Dog"],
+    "lists": [],
+    "ontologies": [
+      {
+        "name": "dog",
+        "label": "Ontology for Dogs",
+        "properties": [
+          {
+            "name": "hasImage",
+            "super": ["hasLinkTo"],
+            "object": ":Image2D",
+            "labels": {"en": "Image"},
+            "gui_element": "Searchbox"
+          },
+          {
+            "name": "hasAttribution",
+            "super": ["hasValue"],
+            "object": "TextValue",
+            "labels": {"en": "Attribution"},
+            "gui_element": "SimpleText"
+          },
+          {
+            "name": "hasSourceLink",
+            "super": ["hasValue"],
+            "object": "UriValue",
+            "labels": {"en": "External link"},
+            "gui_element": "SimpleText"
+          }
+        ],
+        "resources": [
+          {
+            "name": "Image2D",
+            "labels": {"en": "2D image"},
+            "super": "StillImageRepresentation",
+            "cardinalities": [
+              {
+                "propname": ":hasSourceLink",
+                "cardinality": "1"
+              },
+              {
+                "propname": ":hasAttribution",
+                "cardinality": "1"
+              }
+            ]
+          },
+          {
+            "name": "Dog",
+            "labels": {"en": "Dog"},
+            "super": "Resource",
+            "cardinalities": [
+              {
+                "propname": ":hasImage",
+                "cardinality": "0-n"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

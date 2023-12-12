@@ -24,7 +24,7 @@ def ingest_xmlupload(
     using the ingest XML upload method.
     Before using this method,
     the multimedia files must be ingested on the DSP server.
-    A mapping file with the new internal IDs provided by SIPI must also be provided.
+    A mapping file with the internal IDs of the multimedia files must also be provided.
 
     Args:
         xml_file: path to XML file containing the resources

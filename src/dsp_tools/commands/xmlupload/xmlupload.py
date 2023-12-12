@@ -21,7 +21,7 @@ from dsp_tools.commands.xmlupload.ontology_client import OntologyClientLive
 from dsp_tools.commands.xmlupload.project_client import ProjectClient, ProjectClientLive
 from dsp_tools.commands.xmlupload.read_validate_xml_file import validate_and_parse_xml_file
 from dsp_tools.commands.xmlupload.resource_create_client import ResourceCreateClient
-from dsp_tools.commands.xmlupload.resource_multimedia import handle_bitstream
+from dsp_tools.commands.xmlupload.resource_multimedia import handle_media_info
 from dsp_tools.commands.xmlupload.stash.stash_circular_references import (
     identify_circular_references,
     stash_circular_references,
@@ -335,14 +335,14 @@ def _upload_resources(
     )
 
     for i, resource in enumerate(resources):
-        success, bitstream_information = _diagnose_handle_media(
-            resource, config, imgdir, permissions_lookup, sipi_server
+        success, media_info = handle_media_info(
+            resource, config.preprocessing_done, sipi_server, imgdir, permissions_lookup
         )
         if not success:
             failed_uploads.append(resource.id)
             continue
 
-        res = _create_resource(resource, bitstream_information, resource_create_client)
+        res = _create_resource(resource, media_info, resource_create_client)
         if not res:
             failed_uploads.append(resource.id)
             continue

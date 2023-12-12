@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import glob
+import os
+from copy import deepcopy
 from typing import cast
 
 import pandas as pd
@@ -8,6 +10,9 @@ from lxml import etree
 
 from dsp_tools.commands.ingest_xmlupload.user_information import IngestInformation
 from dsp_tools.models.exceptions import InputError
+from dsp_tools.utils.create_logger import get_logger
+
+logger = get_logger(__name__)
 
 
 def get_mapping_dict_from_file() -> dict[str, str]:
@@ -22,10 +27,12 @@ def get_mapping_dict_from_file() -> dict[str, str]:
     """
     if filepath := glob.glob("mapping-*.csv"):
         df = pd.read_csv(filepath[0])
-        print(f"The file '{filepath[0]}' is used to map the internal SIPI image IDs to the original filepaths.")
+        msg = f"The file '{filepath[0]}' is used to map the internal SIPI image IDs to the original filepaths."
+        print(msg)
+        logger.info(msg)
         return dict(zip(df["original"].tolist(), df["derivative"].tolist()))
     else:
-        raise InputError("No mapping csv file was found in the directory.")
+        raise InputError(f"No mapping CSV file was found in the current working directory {os.getcwd()}")
 
 
 def replace_filepath_with_sipi_uuid(
@@ -45,7 +52,8 @@ def replace_filepath_with_sipi_uuid(
     """
     no_uuid_found = []
     used_media_paths = []
-    for elem in xml_tree.iter():
+    new_tree = deepcopy(xml_tree)
+    for elem in new_tree.iter():
         if etree.QName(elem).localname.endswith("bitstream"):
             if (img_path := elem.text) in orig_path_2_uuid_filename:
                 elem.text = orig_path_2_uuid_filename[img_path]
@@ -53,4 +61,4 @@ def replace_filepath_with_sipi_uuid(
             else:
                 no_uuid_found.append((cast("etree._Element", elem.getparent()).attrib.get("id"), elem.text))
     unused_media_paths = [x for x in orig_path_2_uuid_filename if x not in used_media_paths]
-    return xml_tree, IngestInformation(unused_media_paths=unused_media_paths, media_no_uuid=no_uuid_found)
+    return new_tree, IngestInformation(unused_media_paths=unused_media_paths, media_no_uuid=no_uuid_found)

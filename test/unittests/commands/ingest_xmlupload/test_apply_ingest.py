@@ -1,6 +1,6 @@
 from lxml import etree
 
-from dsp_tools.commands.ingest_xmlupload.apply_ingest import replace_filepath_with_sipi_uuid
+from dsp_tools.commands.ingest_xmlupload.apply_ingest_uuid import replace_filepath_with_sipi_uuid
 
 # pylint: disable=missing-class-docstring,missing-function-docstring
 

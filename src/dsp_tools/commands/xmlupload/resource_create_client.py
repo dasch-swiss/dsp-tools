@@ -155,6 +155,7 @@ def _make_bitstream_file_value(bitstream_info: BitstreamInfo) -> dict[str, Any]:
         case "mp4":
             prop = "knora-api:hasMovingImageFileValue"
             value_type = "MovingImageFileValue"
+            # jpx is the extension of the files returned by dsp-ingest
         case "jpg" | "jpeg" | "jp2" | "png" | "tif" | "tiff" | "jpx":
             prop = "knora-api:hasStillImageFileValue"
             value_type = "StillImageFileValue"

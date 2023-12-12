@@ -56,7 +56,7 @@ class IngestInformation:
         """
         if not self.unused_media_paths and not self.media_no_uuid:
             return (
-                "All media referenced in the XML file were uploaded to sipi.\n"
+                "All multimedia files referenced in the XML file were uploaded to sipi.\n"
                 "No media was uploaded to sipi that was not referenced in the XML file."
             )
         return None

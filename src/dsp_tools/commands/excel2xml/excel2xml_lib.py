@@ -61,6 +61,26 @@ def make_xsd_id_compatible(string: str) -> str:
     return res
 
 
+def _find_french_bc_date(string: str) -> Optional[str]:
+    french_bc_regex = r"av\.? ?J\.?-?C\.?"
+    if not regex.search(french_bc_regex, string):
+        return None
+
+    year_regex = r"\d{1,5}"
+    sep_regex = r" ?- ?"
+
+    year_range = regex.search(rf"({year_regex}){sep_regex}({year_regex})", string)
+    if year_range:
+        start_year, end_year = year_range.groups()
+        return f"GREGORIAN:BC:{start_year}:BC:{end_year}"
+
+    single_year = regex.search(year_regex, string)
+    if single_year:
+        return f"GREGORIAN:BC:{single_year.group(0)}:BC:{single_year.group(0)}"
+
+    return None
+
+
 def find_date_in_string(string: str) -> Optional[str]:
     """
     Checks if a string contains a date value (single date, or date range), and returns the first found date as
@@ -88,6 +108,8 @@ def find_date_in_string(string: str) -> Optional[str]:
         - 1845-50 -> GREGORIAN:CE:1845:CE:1850
         - 840-50 -> GREGORIAN:CE:840:CE:850
         - 840-1 -> GREGORIAN:CE:840:CE:841
+        - 1000-900 av. J.-C. -> GREGORIAN:BC:1000:BC:900
+        - 45 av. J.-C. -> GREGORIAN:BC:45:BC:45
 
     Args:
         string: string to check
@@ -105,6 +127,9 @@ def find_date_in_string(string: str) -> Optional[str]:
     # sanitize input, just in case that the method was called on an empty or N/A cell
     if not check_notna(string):
         return None
+
+    if french_bc_date := _find_french_bc_date(string):
+        return french_bc_date
 
     months_dict = {
         "January": 1,

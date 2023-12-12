@@ -278,6 +278,37 @@ class TestExcel2xmlLib(unittest.TestCase):
         for testcase, expected in testcases.items():
             self.assertEqual(excel2xml.find_date_in_string(testcase), expected, msg=f"Failed with '{testcase}'")
 
+    def test_find_date_in_string_french_bc(self) -> None:
+        self.assertEqual(excel2xml.find_date_in_string("Text 12345 av. J.-C. text"), "GREGORIAN:BC:12345:BC:12345")
+        self.assertEqual(excel2xml.find_date_in_string("Text 2000 av. J.-C. text"), "GREGORIAN:BC:2000:BC:2000")
+        self.assertEqual(excel2xml.find_date_in_string("Text 250 av. J.-C. text"), "GREGORIAN:BC:250:BC:250")
+        self.assertEqual(excel2xml.find_date_in_string("Text 33 av. J.-C. text"), "GREGORIAN:BC:33:BC:33")
+        self.assertEqual(excel2xml.find_date_in_string("Text 1 av. J.-C. text"), "GREGORIAN:BC:1:BC:1")
+
+    def test_find_date_in_string_french_bc_ranges(self) -> None:
+        self.assertEqual(excel2xml.find_date_in_string("Text 99999-1000 av. J.-C. text"), "GREGORIAN:BC:99999:BC:1000")
+        self.assertEqual(excel2xml.find_date_in_string("Text 1125-1234 av. J.-C. text"), "GREGORIAN:BC:1125:BC:1234")
+        self.assertEqual(excel2xml.find_date_in_string("Text 1234-987 av. J.-C. text"), "GREGORIAN:BC:1234:BC:987")
+        self.assertEqual(excel2xml.find_date_in_string("Text 350-340 av. J.-C. text"), "GREGORIAN:BC:350:BC:340")
+        self.assertEqual(excel2xml.find_date_in_string("Text 842-98 av. J.-C. text"), "GREGORIAN:BC:842:BC:98")
+        self.assertEqual(excel2xml.find_date_in_string("Text 45-26 av. J.-C. text"), "GREGORIAN:BC:45:BC:26")
+        self.assertEqual(excel2xml.find_date_in_string("Text 53-7 av. J.-C. text"), "GREGORIAN:BC:53:BC:7")
+        self.assertEqual(excel2xml.find_date_in_string("Text 6-5 av. J.-C. text"), "GREGORIAN:BC:6:BC:5")
+
+    def test_find_date_in_string_french_bc_orthographical_variants(self) -> None:
+        self.assertEqual(excel2xml.find_date_in_string("Text 1 av. J.-C. text"), "GREGORIAN:BC:1:BC:1")
+        self.assertEqual(excel2xml.find_date_in_string("Text 1 av J.-C. text"), "GREGORIAN:BC:1:BC:1")
+        self.assertEqual(excel2xml.find_date_in_string("Text 1 av.J.-C. text"), "GREGORIAN:BC:1:BC:1")
+        self.assertEqual(excel2xml.find_date_in_string("Text 1 av. J.C. text"), "GREGORIAN:BC:1:BC:1")
+        self.assertEqual(excel2xml.find_date_in_string("Text 1 av. J-C text"), "GREGORIAN:BC:1:BC:1")
+        self.assertEqual(excel2xml.find_date_in_string("Text 1 av. JC text"), "GREGORIAN:BC:1:BC:1")
+
+    def test_find_date_in_string_french_bc_dash_variants(self) -> None:
+        self.assertEqual(excel2xml.find_date_in_string("Text 2000-1000 av. J.-C. text"), "GREGORIAN:BC:2000:BC:1000")
+        self.assertEqual(excel2xml.find_date_in_string("Text 2000- 1000 av. J.-C. text"), "GREGORIAN:BC:2000:BC:1000")
+        self.assertEqual(excel2xml.find_date_in_string("Text 2000 -1000 av. J.-C. text"), "GREGORIAN:BC:2000:BC:1000")
+        self.assertEqual(excel2xml.find_date_in_string("Text 2000 - 1000 av. J.-C. text"), "GREGORIAN:BC:2000:BC:1000")
+
     def test_prepare_value(self) -> None:
         identical_values = ["Test", "Test", "Test"]
         different_values: list[Union[str, int, float]] = [1, 1.0, "1", "1.0", " 1 "]

@@ -23,7 +23,7 @@ def ingest_xmlupload(
     and imports the data described in it onto the DSP server,
     using the ingest XML upload method.
     Before using this method,
-    the original files must be uploaded to SIPI.
+    the multimedia files must be ingested on the DSP server.
     A mapping file with the new internal IDs provided by SIPI must also be provided.
 
     Args:

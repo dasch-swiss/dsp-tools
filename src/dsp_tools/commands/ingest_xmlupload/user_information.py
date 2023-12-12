@@ -10,12 +10,6 @@ import pandas as pd
 separator = "\n    "
 list_separator = "\n    - "
 
-maximum_prints = 20
-
-csv_filepath = Path.home()
-unused_media_filename = "UnusedMediaUploadedInSipi.csv"
-no_uuid_filename = "NotUploadedFilesToSipi.csv"
-
 
 class UserInformation(Protocol):
     """
@@ -44,6 +38,10 @@ class IngestInformation:
 
     unused_media_paths: list[str]
     media_no_uuid: list[tuple[str, str] | Any]
+    maximum_prints = 20
+    csv_filepath = Path.home()
+    unused_media_filename = "UnusedMediaUploadedInSipi.csv"
+    no_uuid_filename = "NotUploadedFilesToSipi.csv"
 
     def all_good_msg(self) -> str | None:
         """
@@ -83,43 +81,44 @@ class IngestInformation:
         return separator.join(msg_list)
 
     def _get_no_uuid_msg(self) -> str | None:
-        if 0 < len(self.media_no_uuid) <= maximum_prints:
+        if 0 < len(self.media_no_uuid) <= self.maximum_prints:
             return (
                 "The following media were not uploaded to sipi but referenced in the data XML file:"
                 + list_separator
                 + list_separator.join([f"Resource ID: '{x[0]}' | Filepath: '{x[1]}'" for x in self.media_no_uuid])
             )
-        elif len(self.media_no_uuid) > maximum_prints:
+        elif len(self.media_no_uuid) > self.maximum_prints:
             return (
                 "Media was referenced in the XML file but not previously uploaded to sipi:\n"
-                f"    The file '{no_uuid_filename}' was saved in '{csv_filepath}' with the resource IDs and filenames."
+                f"    The file '{self.no_uuid_filename}' was saved in '{self.csv_filepath}' "
+                f"with the resource IDs and filenames."
             )
         return None
 
     def _get_unused_path_msg(self) -> str | None:
-        if 0 < len(self.unused_media_paths) <= maximum_prints:
+        if 0 < len(self.unused_media_paths) <= self.maximum_prints:
             return (
                 "The following media were uploaded to sipi but not referenced in the data XML file:"
                 + list_separator
                 + list_separator.join(self.unused_media_paths)
             )
-        elif len(self.unused_media_paths) > maximum_prints:
+        elif len(self.unused_media_paths) > self.maximum_prints:
             return (
                 "Media was uploaded to Sipi which was not referenced in the XML file.\n"
-                f"    The file '{unused_media_filename}' was saved in '{csv_filepath}' with the filenames.\n"
+                f"    The file '{self.unused_media_filename}' was saved in '{self.csv_filepath}' with the filenames.\n"
             )
         return None
 
     def _check_save_csv(self) -> None:
         if unused_media_df := self._unused_media_to_df():
-            _save_as_csv(unused_media_df, unused_media_filename)
+            _save_as_csv(unused_media_df, self.csv_filepath, self.unused_media_filename)
         if no_uuid_df := self._no_uuid_to_df():
-            _save_as_csv(no_uuid_df, no_uuid_filename)
+            _save_as_csv(no_uuid_df, self.csv_filepath, self.no_uuid_filename)
 
     def _unused_media_to_df(self) -> pd.DataFrame | None:
         return (
             pd.DataFrame({"Media Filenames": self.unused_media_paths})
-            if len(self.unused_media_paths) > maximum_prints
+            if len(self.unused_media_paths) > self.maximum_prints
             else None
         )
 
@@ -128,10 +127,10 @@ class IngestInformation:
             pd.DataFrame(
                 {"Resource ID": [x[0] for x in self.media_no_uuid], "Filepath": [x[1] for x in self.media_no_uuid]}
             )
-            if len(self.media_no_uuid) > maximum_prints
+            if len(self.media_no_uuid) > self.maximum_prints
             else None
         )
 
 
-def _save_as_csv(df: pd.DataFrame, filename: str) -> None:
-    df.to_csv(Path(csv_filepath, filename), index=False)
+def _save_as_csv(df: pd.DataFrame, filepath: Path, filename: str) -> None:
+    df.to_csv(Path(filepath, filename), index=False)

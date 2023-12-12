@@ -1,8 +1,9 @@
-from datetime import datetime
-
 from lxml import etree
 
-from dsp_tools.commands.ingest_xmlupload.apply_ingest import get_mapping_dict_from_file, replace_filepath_with_sipi_uuid
+from dsp_tools.commands.ingest_xmlupload.apply_ingest_uuid import (
+    get_mapping_dict_from_file,
+    replace_filepath_with_sipi_uuid,
+)
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from dsp_tools.models.exceptions import InputError
@@ -34,24 +35,21 @@ def ingest_xmlupload(
         sipi_url: URL to the Sipi server
 
     Raises:
-        InputError: if any media was not uploaded of uploaded media was not referenced.
+        InputError: if any media was not uploaded or uploaded media was not referenced.
     """
     xml_tree_orig = etree.parse(xml_file)
     orig_path_2_uuid_filename = get_mapping_dict_from_file()
-    xml_tree_replaced, ingest_message = replace_filepath_with_sipi_uuid(
+    xml_tree_replaced, ingest_info = replace_filepath_with_sipi_uuid(
         xml_tree=xml_tree_orig,
         orig_path_2_uuid_filename=orig_path_2_uuid_filename,
     )
-    if good := ingest_message.all_good_msg():
+    if good := ingest_info.all_good_msg():
         print(good)
         logger.info(good)
     else:
-        err_msg = ingest_message.execute_error_protocol()
+        err_msg = ingest_info.execute_error_protocol()
         logger.exception(err_msg)
         raise InputError(err_msg)
-
-    start_time = datetime.now()
-    print(f"{start_time}: Start with ingest-xmlupload...")
 
     xmlupload(
         input_file=xml_tree_replaced,
@@ -62,6 +60,3 @@ def ingest_xmlupload(
         sipi=sipi_url,
         config=UploadConfig(media_previously_uploaded=True),
     )
-
-    end_time = datetime.now()
-    print(f"{end_time}: Total time of ingest-xmlupload: {end_time - start_time}")

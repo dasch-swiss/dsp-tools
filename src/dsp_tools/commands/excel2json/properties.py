@@ -13,6 +13,7 @@ from dsp_tools.commands.excel2json.input_error import (
     InvalidExcelContentProblem,
     JsonValidationPropertyProblem,
     MissingValuesInRowProblem,
+    MoreThanOneSheetProblem,
     PositionInExcel,
     Problem,
 )
@@ -26,7 +27,7 @@ from dsp_tools.commands.excel2json.utils import (
     get_comments,
     get_labels,
     get_wrong_row_numbers,
-    read_and_clean_excel_file,
+    read_and_clean_all_sheets,
 )
 from dsp_tools.models.exceptions import InputError
 
@@ -449,7 +450,8 @@ def excel2properties(
         a tuple consisting of the "properties" section as a Python list,
             and the success status (True if everything went well)
     """
-    property_df = read_and_clean_excel_file(excelfile=excelfile)
+
+    property_df = _read_check_property_df(excelfile)
 
     property_df = _rename_deprecated_columnnames(df=property_df, excelfile=excelfile)
 
@@ -490,3 +492,11 @@ def excel2properties(
             print(f"properties section was created successfully and written to file '{path_to_output_file}'")
 
     return props, True
+
+
+def _read_check_property_df(excelfile: str) -> pd.DataFrame | None:
+    sheets_df_dict = read_and_clean_all_sheets(excelfile=excelfile)
+    if len(sheets_df_dict) != 1:
+        msg = str(MoreThanOneSheetProblem("properties.xlsx", list(sheets_df_dict.keys())))
+        raise InputError(msg)
+    return list(sheets_df_dict.values())[0]

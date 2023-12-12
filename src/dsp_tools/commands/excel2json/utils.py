@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
 from unittest import mock
 
@@ -44,7 +45,7 @@ def read_and_clean_excel_file(excelfile: str, sheetname: str | int = 0) -> pd.Da
     return read_df
 
 
-def read_and_clean_all_sheets(excelfile: str) -> dict[str, pd.DataFrame]:
+def read_and_clean_all_sheets(excelfile: str | Path) -> dict[str, pd.DataFrame]:
     """
     This function reads an Excel file with all its sheets.
     If there is a ValueError, it patches the openpyxl part that causes the error
@@ -73,7 +74,7 @@ def read_and_clean_all_sheets(excelfile: str) -> dict[str, pd.DataFrame]:
     try:
         return {name.strip(""): clean_data_frame(df) for name, df in df_dict.items()}
     except AttributeError:
-        msg = InvalidSheetNameProblem(excelfile, list(df_dict.keys())).execute_error_protocol()
+        msg = InvalidSheetNameProblem(str(excelfile), list(df_dict.keys())).execute_error_protocol()
         raise InputError(msg) from None
 
 

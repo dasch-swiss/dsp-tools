@@ -336,7 +336,7 @@ def _upload_resources(
 
     for i, resource in enumerate(resources):
         success, media_info = handle_media_info(
-            resource, config.preprocessing_done, sipi_server, imgdir, permissions_lookup
+            resource, config.media_previously_uploaded, sipi_server, imgdir, permissions_lookup
         )
         if not success:
             failed_uploads.append(resource.id)
@@ -355,28 +355,6 @@ def _upload_resources(
         logger.info(f"Created resource {i+1}/{len(resources)}: {resource_designation}")
 
     return id_to_iri_resolver, failed_uploads
-
-
-def _diagnose_handle_media(
-    resource: XMLResource,
-    config: UploadConfig,
-    imgdir: str,
-    permissions_lookup: dict[str, Permissions],
-    sipi_server: Sipi,
-) -> tuple[bool, None | BitstreamInfo]:
-    bitstream_information = None
-    if bitstream := resource.bitstream:
-        bitstream_information = handle_bitstream(
-            resource=resource,
-            bitstream=bitstream,
-            media_previously_uploaded=config.media_previously_uploaded,
-            permissions_lookup=permissions_lookup,
-            sipi_server=sipi_server,
-            imgdir=imgdir,
-        )
-        if not bitstream_information:
-            return False, None
-    return True, bitstream_information
 
 
 def _create_resource(

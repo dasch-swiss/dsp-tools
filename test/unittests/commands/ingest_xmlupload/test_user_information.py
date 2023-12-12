@@ -4,11 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from dsp_tools.commands.ingest_xmlupload import user_information
 from dsp_tools.commands.ingest_xmlupload.user_information import IngestInformation
-
-user_information.csv_filepath = Path()
-user_information.maximum_prints = 1
 
 
 class TestIngestInformation:
@@ -57,6 +53,8 @@ class TestIngestInformation:
                 "no_up0",
                 "no_up1",
             ],
+            csv_filepath=Path(),
+            maximum_prints=1,
         )._get_error_msg()
         assert res_msg == expected
 
@@ -67,12 +65,12 @@ def test_unused_media_to_df() -> None:
         "unused_media1",
     ]
     expected = pd.DataFrame({"Media Filenames": unused_media_list})
-    res_df = IngestInformation(unused_media_list, [])._unused_media_to_df()
+    res_df = IngestInformation(unused_media_list, [], maximum_prints=1)._unused_media_to_df()
     pd.testing.assert_frame_equal(res_df, expected)
 
 
 def test_unused_media_to_df_not_enough() -> None:
-    assert not IngestInformation(["unused_media"], [])._unused_media_to_df()
+    assert not IngestInformation(["unused_media"], [], maximum_prints=1)._unused_media_to_df()
 
 
 def test_no_uuid_to_df() -> None:
@@ -94,6 +92,7 @@ def test_no_uuid_to_df() -> None:
             ("ID_no_up0", "fileno_up0.jpg"),
             ("ID_no_up1", "fileno_up1.jpg"),
         ],
+        maximum_prints=1,
     )._no_uuid_to_df()
     pd.testing.assert_frame_equal(res_df, expected)
 

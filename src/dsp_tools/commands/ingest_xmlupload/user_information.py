@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Protocol
 
@@ -38,10 +38,10 @@ class IngestInformation:
 
     unused_media_paths: list[str]
     media_no_uuid: list[tuple[str, str] | Any]
-    maximum_prints = 20
-    csv_filepath = Path.home()
-    unused_media_filename = "UnusedMediaUploadedInSipi.csv"
-    no_uuid_filename = "NotUploadedFilesToSipi.csv"
+    maximum_prints: int = field(default=20)
+    csv_filepath: Path = field(default=Path.home())
+    unused_media_filename: str = "UnusedMediaUploadedInSipi.csv"
+    no_uuid_filename: str = "NotUploadedFilesToSipi.csv"
 
     def all_good_msg(self) -> str | None:
         """

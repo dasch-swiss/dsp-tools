@@ -23,18 +23,23 @@ def handle_media_info(
     permissions_lookup: dict[str, Permissions],
 ) -> tuple[bool, None | BitstreamInfo]:
     """
-    This function checks if a resource has a bitstream
+    This function checks if a resource has a bitstream.
+    If not, it reports success and returns None.
+    If the file has been uploaded it returns the internal ID.
+    Else it uploads it and returns the internal ID.
+
 
     Args:
         resource: resource holding the bitstream
         media_previously_uploaded: True if the image is already in SIPI
         sipi_server: server to upload
-        permissions_lookup: dictionary that contains the permission name as string and the corresponding Python object
         imgdir: directory of the file
+        permissions_lookup: dictionary that contains the permission name as string and the corresponding Python object
 
     Returns:
-        If the handling of the bitstream object was successful,
-        in case of a bitstream the object or None in case of unsuccessful try.
+        If the bitstream could be processed successfully, then the function returns True and the new internal ID.
+        If there was no bitstream, it returns True and None.
+        If the upload was not successful, it returns False and None.
     """
     bitstream = resource.bitstream
     success = True
@@ -114,10 +119,9 @@ def _upload_bitstream(
     Returns:
         The information from sipi which is needed to establish a link from the resource
     """
-    pth = resource.bitstream.value  # type: ignore[union-attr]
     img: Optional[dict[Any, Any]] = try_network_action(
         sipi_server.upload_bitstream,
-        filepath=str(Path(imgdir) / Path(pth)),
+        filepath=str(Path(imgdir) / Path(resource.bitstream.value)),  # type: ignore[union-attr]
     )
     internal_file_name_bitstream = img["uploadedFiles"][0]["internalFilename"]  # type: ignore[index]
     return resource.get_bitstream_information(

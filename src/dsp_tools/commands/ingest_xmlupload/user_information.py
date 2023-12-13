@@ -54,8 +54,8 @@ class IngestInformation:
         """
         if not self.unused_media_paths and not self.media_no_uuid:
             return (
-                "All multimedia files referenced in the XML file were uploaded to sipi.\n"
-                "No multimedia files was uploaded to sipi that was not referenced in the XML file."
+                "All multimedia files referenced in the XML file were uploaded through dsp-ingest.\n"
+                "No multimedia files were uploaded through dsp-ingest that were not referenced in the XML file."
             )
         return None
 
@@ -83,29 +83,32 @@ class IngestInformation:
     def _get_no_uuid_msg(self) -> str | None:
         if 0 < len(self.media_no_uuid) <= self.maximum_prints:
             return (
-                "The following multimedia files were not uploaded to sipi but referenced in the data XML file:"
+                "The data XML file contains references to the following multimedia files "
+                "which were not previously uploaded through dsp-ingest:"
                 + list_separator
                 + list_separator.join([f"Resource ID: '{x[0]}' | Filepath: '{x[1]}'" for x in self.media_no_uuid])
             )
         elif len(self.media_no_uuid) > self.maximum_prints:
             return (
-                "Multimedia files was referenced in the XML file but not previously uploaded to sipi:\n"
-                f"    The file '{self.no_uuid_filename}' was saved in '{self.csv_filepath}' "
-                f"with the resource IDs and filenames."
+                "The data XML file contains references to multimedia files "
+                "which were not previously uploaded through dsp-ingest:\n"
+                f"    The file with the resource IDs and filenames was saved at "
+                f"'{self.csv_filepath}/{self.no_uuid_filename}'."
             )
         return None
 
     def _get_unused_path_msg(self) -> str | None:
         if 0 < len(self.unused_media_paths) <= self.maximum_prints:
             return (
-                "The following multimedia files were uploaded to sipi but not referenced in the data XML file:"
-                + list_separator
-                + list_separator.join(self.unused_media_paths)
+                "The data XML file does not reference the following multimedia files which were previously "
+                "uploaded through dsp-ingest:" + list_separator + list_separator.join(self.unused_media_paths)
             )
         elif len(self.unused_media_paths) > self.maximum_prints:
             return (
-                "Multimedia files was uploaded to Sipi which was not referenced in the XML file.\n"
-                f"    The file '{self.unused_media_filename}' was saved in '{self.csv_filepath}' with the filenames.\n"
+                "The data XML file does not reference all the multimedia files which were previously "
+                "uploaded through dsp-ingest.\n"
+                f"    The file with the resource IDs and filenames was saved at "
+                f"'{self.csv_filepath}/{self.no_uuid_filename}'."
             )
         return None
 

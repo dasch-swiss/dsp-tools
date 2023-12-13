@@ -11,8 +11,8 @@ from dsp_tools.commands.ingest_xmlupload.user_information import IngestInformati
 class TestIngestInformation:
     def test_no_problems(self) -> None:
         expected = (
-            "All multimedia files referenced in the XML file were uploaded to sipi.\n"
-            "No multimedia files was uploaded to sipi that was not referenced in the XML file."
+            "All multimedia files referenced in the XML file were uploaded through dsp-ingest.\n"
+            "No multimedia files were uploaded through dsp-ingest that were not referenced in the XML file."
         )
         assert IngestInformation([], []).all_good_msg() == expected
 
@@ -22,7 +22,8 @@ class TestIngestInformation:
     def test_unused_media(self) -> None:
         expected = (
             "The upload cannot continue as there are problems with the multimedia files referenced in the XML.\n"
-            "    The following multimedia files were uploaded to sipi but not referenced in the data XML file:\n"
+            "    The data XML file does not reference the following multimedia files "
+            "which were previously uploaded through dsp-ingest:\n"
             "    - unused_media"
         )
         res_info = IngestInformation(["unused_media"], [])._get_error_msg()
@@ -31,7 +32,8 @@ class TestIngestInformation:
     def test_not_uploaded(self) -> None:
         expected = (
             "The upload cannot continue as there are problems with the multimedia files referenced in the XML.\n"
-            "    The following multimedia files were not uploaded to sipi but referenced in the data XML file:\n"
+            "    The data XML file contains references to the following multimedia files "
+            "which were not previously uploaded through dsp-ingest:\n"
             "    - Resource ID: 'no upload id' | Filepath: 'media path'"
         )
         res_info = IngestInformation([], [("no upload id", "media path")])._get_error_msg()
@@ -40,10 +42,12 @@ class TestIngestInformation:
     def test_all_problem_with_df_msg(self) -> None:
         expected = (
             "The upload cannot continue as there are problems with the multimedia files referenced in the XML.\n"
-            "    Multimedia files was uploaded to Sipi which was not referenced in the XML file.\n"
-            "    The file 'UnusedMediaUploadedInSipi.csv' was saved in '.' with the filenames.\n\n"
-            "    Multimedia files was referenced in the XML file but not previously uploaded to sipi:\n"
-            "    The file 'NotUploadedFilesToSipi.csv' was saved in '.' with the resource IDs and filenames."
+            "    The data XML file does not reference all the multimedia files "
+            "which were previously uploaded through dsp-ingest.\n"
+            "    The file with the resource IDs and filenames was saved at './NotUploadedFilesToSipi.csv'.\n"
+            "    The data XML file contains references to multimedia files "
+            "which were not previously uploaded through dsp-ingest:\n"
+            "    The file with the resource IDs and filenames was saved at './NotUploadedFilesToSipi.csv'."
         )
         res_info = IngestInformation(
             [

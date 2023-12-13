@@ -499,4 +499,4 @@ def _read_check_property_df(excelfile: str) -> pd.DataFrame | None:
     if len(sheets_df_dict) != 1:
         msg = str(MoreThanOneSheetProblem("properties.xlsx", list(sheets_df_dict.keys())))
         raise InputError(msg)
-    return list(sheets_df_dict.values())[0]
+    return next(iter(sheets_df_dict.values()))

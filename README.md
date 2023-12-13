@@ -193,7 +193,9 @@ Depending on your IDE the installation is as follows.
       which only lints each file separately, 
       leading to incomplete type checking.
 - **ruff** can be installed as an extension (`charliermarsh.ruff`), 
-  and be configured in the VSCode settings.
+  and be configured in the VSCode settings:
+    - `settings.json` > `[python]` > `"editor.defaultFormatter": "charliermarsh.ruff"`
+    - `settings.json` > `"ruff.format.args": ["--line-length=120"]`
 
 If configured correctly, the style violations will be listed in the "Problems" tab.
 

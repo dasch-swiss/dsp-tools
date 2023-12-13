@@ -62,7 +62,7 @@ class IngestInformation:
     def execute_error_protocol(self) -> str:
         """
         This function generates the user message and saves a file with the information
-        if a lot of resources affected.
+        if a lot of resources are affected.
 
         Returns:
             User message

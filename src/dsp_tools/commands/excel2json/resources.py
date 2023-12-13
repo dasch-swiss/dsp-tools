@@ -192,12 +192,7 @@ def excel2resources(
     """
 
     resource_dfs = read_and_clean_all_sheets(excelfile)
-    classes_df = resource_dfs.pop("classes")
-    classes_df = prepare_dataframe(
-        df=classes_df,
-        required_columns=["name"],
-        location_of_sheet=f"Sheet 'classes' in file '{excelfile}'",
-    )
+    classes_df, resource_dfs = _prepare_classes_df(resource_dfs)
 
     if validation_problem := _validate_excel_file(classes_df, resource_dfs):
         err_msg = validation_problem.execute_error_protocol()
@@ -215,6 +210,23 @@ def excel2resources(
             print(f"resources section was created successfully and written to file '{path_to_output_file}'")
 
     return resources, True
+
+
+def _prepare_classes_df(resource_dfs: dict[str, pd.DataFrame]) -> tuple[pd.DataFrame, dict[str, pd.DataFrame]]:
+    if "classes" not in resource_dfs.keys():
+        if "Classes" not in resource_dfs.keys():
+            msg = ResourcesSheetsNotAsExpected(set(), names_sheets={"classes"}).execute_error_protocol()
+            raise InputError(msg)
+        else:
+            classes_df = resource_dfs.pop("Classes")
+    else:
+        classes_df = resource_dfs.pop("classes")
+    classes_df = prepare_dataframe(
+        df=classes_df,
+        required_columns=["name"],
+        location_of_sheet="Sheet 'classes' in file 'resources.xlsx'",
+    )
+    return classes_df, resource_dfs
 
 
 def _validate_excel_file(

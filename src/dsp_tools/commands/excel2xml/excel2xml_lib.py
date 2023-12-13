@@ -270,7 +270,7 @@ def find_date_in_string(string: str) -> Optional[str]:
 
 
 def prepare_value(
-    value: Union[PropertyElement, str, int, float, bool, Iterable[Union[PropertyElement, str, int, float, bool]]]
+    value: Union[PropertyElement, str, int, float, bool, Iterable[Union[PropertyElement, str, int, float, bool]]],
 ) -> list[PropertyElement]:
     """
     This method transforms the parameter "value" from a make_*_prop() method into a list of PropertyElements. "value" is

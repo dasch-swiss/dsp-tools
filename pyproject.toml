@@ -164,10 +164,6 @@ ignore = [
     "F403",     # undefined-local-with-import-star
     "PLC0414",  # useless-import-alias
 ]
-"src/dsp_tools/import_scripts/import_script.py" = [
-    "PLW2901",  # pylint: redefined-loop-name 
-    "PLR0915",  # pylint: too-many-statements
-]
 "testdata/**" = [
     "INP001",   # implicit-namespace-package    # there are some python files, but no __init__.py
 ]

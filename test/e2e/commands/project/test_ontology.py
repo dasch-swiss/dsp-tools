@@ -1,7 +1,5 @@
 """end to end tests for ontology class"""
 
-# pylint: disable=missing-class-docstring,missing-function-docstring
-
 import unittest
 
 import pytest
@@ -10,6 +8,8 @@ from dsp_tools.commands.project.models.ontology import Ontology
 from dsp_tools.models.helpers import DateTimeStamp
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
+
+# ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
 
 
 class TestOntology(unittest.TestCase):
@@ -95,7 +95,7 @@ class TestOntology(unittest.TestCase):
 
     def test_ontology_getProjectOntologies(self) -> None:
         onto_list = Ontology.getProjectOntologies(self.con, self.test_project)
-        onto_list_ids = [l.iri for l in onto_list]
+        onto_list_ids = [lst.iri for lst in onto_list]
         self.assertIn("http://0.0.0.0:3333/ontology/0001/anything/v2", onto_list_ids)
         self.assertIn("http://0.0.0.0:3333/ontology/0001/test_onto_create/v2", onto_list_ids)
 

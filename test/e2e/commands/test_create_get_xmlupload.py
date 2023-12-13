@@ -12,6 +12,8 @@ from dsp_tools.commands.project.get import get_project
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from dsp_tools.utils.shared import get_most_recent_glob_match
 
+# ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
+
 
 class TestCreateGetXMLUpload(unittest.TestCase):
     """Test if the commands "create", "get", and "xmlupload" work together as expected."""
@@ -434,7 +436,7 @@ class TestCreateGetXMLUpload(unittest.TestCase):
                     if res.get("cardinalities"):
                         del res["cardinalities"]
                     # remove from returned file, too
-                    res_returned = [x for x in resources_returned if x["name"] == res["name"]][0]
+                    res_returned = next(x for x in resources_returned if x["name"] == res["name"])
                     if res_returned.get("cardinalities"):
                         del res_returned["cardinalities"]
 

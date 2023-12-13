@@ -1,7 +1,5 @@
 """unit tests for Excel to JSON list"""
 
-# pylint: disable=missing-class-docstring,missing-function-docstring
-
 import json
 import re
 import unittest
@@ -15,6 +13,9 @@ from pytest_unordered import unordered
 
 from dsp_tools.commands.excel2json import lists as e2l
 from dsp_tools.models.exceptions import BaseError
+
+# ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
+
 
 with open("testdata/excel2json/lists-multilingual-output-expected.json", encoding="utf-8") as valf:
     lists_section_valid = json.load(valf)
@@ -124,8 +125,8 @@ class TestExcelToJSONList(unittest.TestCase):
         # count() returns a Series that maps each column number to the number of entries it contains
         # index[-1] returns the number of the last non-empty column (in this test case: 3)
         # input_df[3].notna() returns a boolean Series with 'true' for every non-empty cell in column 3
-        for index, row in input_df.loc[longest_rows_selector].iterrows():
-            index = int(str(index))  # index is a label/index/hashable, but we need an int
+        for i, row in input_df.loc[longest_rows_selector].iterrows():
+            index = int(str(i))  # index is a label/index/hashable, but we need an int
             jsonpath_elems = [cell.strip() for cell in row]
             parser_string = "$"
             for elem in jsonpath_elems:
@@ -160,8 +161,8 @@ class TestExcelToJSONList(unittest.TestCase):
         # count() returns a Series that maps each column number to the number of entries it contains
         # index[-1] returns the number of the last non-empty column (in this test case: 3)
         # input_df[3].notna() returns a boolean Series with 'true' for every non-empty cell in column 3
-        for index, row in input_df.loc[longest_rows_selector].iterrows():
-            index = int(str(index))  # index is a label/index/hashable, but we need an int
+        for i, row in input_df.loc[longest_rows_selector].iterrows():
+            index = int(str(i))  # index is a label/index/hashable, but we need an int
             jsonpath_elems = [cell.strip() for cell in row]
             parser_string = "$"
             for elem in jsonpath_elems:

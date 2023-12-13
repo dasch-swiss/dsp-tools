@@ -1,12 +1,10 @@
-from pytest import fixture
+import pytest
 
 from dsp_tools.commands.xmlupload.project_client import ProjectClient, ProjectClientLive
 from dsp_tools.utils.connection_live import ConnectionLive
 
-# pylint: disable=missing-function-docstring,redefined-outer-name
 
-
-@fixture
+@pytest.fixture()
 def project_client() -> ProjectClient:
     con = ConnectionLive("http://localhost:3333")
     con.login("root@example.com", "test")

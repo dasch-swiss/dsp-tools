@@ -1,5 +1,3 @@
-# pylint: disable=missing-function-docstring
-
 """
 This module implements the handling (CRUD) of list nodes and adds some function to read whole lists.
 
@@ -58,7 +56,7 @@ def list_creator(con: Connection, project: Project, parent_node: "ListNode", nod
     return nodelist
 
 
-class ListNode(Model):  # pylint: disable=too-many-instance-attributes,too-many-public-methods
+class ListNode(Model):
     """
     This class represents a list node
 
@@ -305,10 +303,6 @@ class ListNode(Model):  # pylint: disable=too-many-instance-attributes,too-many-
     @property
     def isRootNode(self) -> Optional[bool]:
         return self._isRootNode
-
-    @isRootNode.setter
-    def isRootNode(self, value: bool) -> None:
-        raise BaseError("Property isRootNode cannot be set!")
 
     @property
     def children(self) -> list["ListNode"]:

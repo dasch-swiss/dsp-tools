@@ -1,7 +1,7 @@
 from dsp_tools.utils.connection import Connection
 
 
-class Model:  # pylint: disable=too-few-public-methods
+class Model:
     """Base class for other classes"""
 
     _con: Connection

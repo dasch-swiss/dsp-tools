@@ -39,12 +39,10 @@ rustworkx = "^0.13.2"
 
 
 [tool.poetry.group.dev.dependencies]
-black = "^23.10.0"
 mkdocs = "^1.5.3"
 mkdocs-material = "^9.4.6"
 mkdocs-include-markdown-plugin = "^6.0.3"
 mypy = "^1.6.1"
-pylint = "^3.0.1"
 pytest = "^7.4.2"
 pre-commit = "^3.5.0"
 darglint = "^1.8.1"
@@ -54,10 +52,10 @@ types-jsonschema = "^4.19.0.3"
 types-openpyxl = "^3.1.0.24"
 types-regex = "^2023.10.3.0"
 types-pyyaml = "^6.0.12.12"
-isort = "^5.12.0"
 termcolor = "^2.3.0"
 pytest-unordered = "^0.5.2"
 viztracer = "^0.16.0"
+ruff = "^0.1.6"
 
 
 [tool.poetry.scripts]
@@ -123,52 +121,57 @@ exclude = [
 ]
 
 
-[tool.black]
+[tool.ruff]
 line-length = 120
+target-version = "py311"
 
 
-[tool.isort]
-profile = "black"
-line_length = 120
-
-
-[tool.pylint.MASTER]
-ignore-paths = ["src/dsp_tools/models/resource.py"] # TODO: activate this
-suggestion-mode = true
-
-
-[tool.pylint.format]
-max-line-length = 120
-
-
-[tool.pylint."messages control"]
-disable = [
-    "raw-checker-failed",            # disabled by default
-    "bad-inline-option",             # disabled by default
-    "locally-disabled",              # disabled by default
-    "file-ignored",                  # disabled by default
-    "suppressed-message",            # disabled by default
-    "deprecated-pragma",             # disabled by default
-    "use-symbolic-message-instead",  # disabled by default
-    "c-extension-no-member",         # probably not necessary
-    "use-dict-literal",              # not worth the effort
-    "use-list-literal",              # not worth the effort
-    "missing-module-docstring",      # not worth the effort
-    "trailing-whitespace",           # not worth the effort
-    "use-maxsplit-arg",              # not worth the effort
-    "global-statement",              # not worth the effort
-    "no-else-continue",              # would be less readable
-    "no-else-return",                # would be less readable
-    "no-else-raise",                 # would be less readable
-    "logging-fstring-interpolation", # would be less readable
-    "duplicate-code",                # too many false positives
-    "inconsistent-return-statements",# mypy can handle this better than pylint
-    "invalid-name",                  # TODO: activate this
-    "too-many-arguments",            # TODO: activate this
-    "too-many-branches",             # TODO: activate this
-    "too-many-lines",                # TODO: activate this
-    "too-many-locals",               # TODO: activate this
-    "too-many-nested-blocks",        # TODO: activate this
-    "too-many-return-statements",    # TODO: activate this
-    "too-many-statements",           # TODO: activate this
+[tool.ruff.lint]
+select = [
+    "RUF",      # ruff-specific rules
+    "PL",       # pylint
+    "I",        # isort
+    "E",        # pycodestyle errors
+    "F",        # pyflakes
+    "A",        # flake8-builtins
+    "BLE",      # flake8-blind-except
+    "ARG",      # flake8-unused-arguments
+    "YTT",      # flake8-2020 plugin, which checks for misuse of `sys.version` or `sys.version_info`
+    "ASYNC",    # flake8-async plugin, which checks for bad async / asyncio practices
+    "ISC",      # flake8-implicit-str-concat plugin, which checks for problematic string concatenation
+    "INP",      # flake8-no-pep420 plugin, which checks for missing __init__.py files
+    "PIE",      # flake8-pie plugin, which does miscellaneous checks
+    "PT",       # flake8-pytest-style plugin
+    "TID",      # flake8-tidy-imports plugin
+    "ICN",      # flake8-import-conventions plugin, which checks for import conventions
+    "ARG",      # flake8-unused-arguments
+    "PGH",      # pygrep-hooks: A collection of fast, cheap, regex based pre-commit hooks
+    "UP031",    # pyupgrade: printf-string-formatting
+    "D101",     # pydocstyle: undocumented-public-class
+    "D102",     # pydocstyle: undocumented-public-method
+    "D103",     # pydocstyle: undocumented-public-function
+    "D417",     # pydocstyle: undocumented-param
+    "B023",     # flake8-bugbear: function-uses-loop-variable
 ]
+ignore = [
+    "ISC001",   # flake8-implicit-str-concat: single-line-implicit-string-concatenation  # incompatible with the formatter
+]
+
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = [
+    "F401",     # unused-import
+    "F403",     # undefined-local-with-import-star
+    "PLC0414",  # useless-import-alias
+]
+"testdata/**" = [
+    "INP001",   # implicit-namespace-package    # there are some python files, but no __init__.py
+]
+
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+
+[tool.ruff.lint.isort]
+known-first-party = ["dsp_tools"]

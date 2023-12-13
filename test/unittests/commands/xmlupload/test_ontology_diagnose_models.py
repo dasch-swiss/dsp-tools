@@ -3,8 +3,6 @@ from pandas.testing import assert_frame_equal
 
 from dsp_tools.commands.xmlupload.models.ontology_diagnose_models import InvalidOntologyElements
 
-# pylint: disable=missing-function-docstring,protected-access
-
 
 def test_print_problem_string_cls() -> None:
     onto = InvalidOntologyElements([("clsA", ["idA"], "wrong")], [], ontos_on_server=["test"])

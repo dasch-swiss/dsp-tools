@@ -1,7 +1,5 @@
 from dsp_tools.utils.json_ld_util import get_default_json_ld_context, get_json_ld_context_for_project
 
-# pylint: disable=missing-function-docstring
-
 
 def test_get_default_context() -> None:
     context = get_default_json_ld_context()

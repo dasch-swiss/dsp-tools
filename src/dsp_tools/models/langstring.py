@@ -1,5 +1,3 @@
-# pylint: disable=missing-function-docstring
-
 from enum import Enum, unique
 from typing import Any, Optional, Union
 
@@ -20,7 +18,7 @@ class Languages(Enum):
 LangStringParam = Optional[Union[dict[Union[Languages, str], str], str]]
 
 
-class LangStringIterator:  # pylint: disable=too-few-public-methods
+class LangStringIterator:
     """Iterator class for LangString class."""
 
     _langstring: "LangString"
@@ -97,7 +95,7 @@ class LangString:
             if self._simplestring:
                 return self._simplestring
             elif len(self._langstrs) != 0:
-                return list(self._langstrs)[0]
+                return next(iter(self._langstrs))
             else:
                 return None
         else:
@@ -105,9 +103,9 @@ class LangString:
             # self._simplestring = None  # Let's delete the string without language if there is one...
         if isinstance(key, Enum):
             if self._langstrs.get(key) is None:
-                for l in self._langstrs:
-                    if self._langstrs.get(l) is not None:
-                        return self._langstrs[l]
+                for lst in self._langstrs:
+                    if self._langstrs.get(lst) is not None:
+                        return self._langstrs[lst]
                 if self._simplestring is not None:
                     return self._simplestring
                 return None
@@ -118,9 +116,9 @@ class LangString:
             if lmap.get(key.lower()) is None:
                 raise BaseError('Invalid language string "' + key + '"!')
             if self._langstrs.get(lmap[key.lower()]) is None:
-                for l in self._langstrs:
-                    if self._langstrs.get(l) is not None:
-                        return self._langstrs[l]
+                for lst in self._langstrs:
+                    if self._langstrs.get(lst) is not None:
+                        return self._langstrs[lst]
                 if self._simplestring is not None:
                     return self._simplestring
                 return None
@@ -218,9 +216,8 @@ class LangString:
                 lstrs[Languages.IT] = o.get("@value")
             elif lang == "rm":
                 lstrs[Languages.RM] = o.get("@value")
-            else:
-                if o.get("@value") is not None:
-                    return cls(o.get("@value"))
+            elif o.get("@value") is not None:
+                return cls(o.get("@value"))
         return cls(lstrs)
 
     @classmethod
@@ -246,9 +243,8 @@ class LangString:
                 lstrs[Languages.IT] = o.get("value")
             elif lang == "rm":
                 lstrs[Languages.RM] = o.get("value")
-            else:
-                if o.get("value") is not None:
-                    return cls(o.get("value"))
+            elif o.get("value") is not None:
+                return cls(o.get("value"))
         return cls(lstrs)
 
     def createDefinitionFileObj(self) -> Union[str, dict[str, str]]:

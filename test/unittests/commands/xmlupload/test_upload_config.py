@@ -1,7 +1,5 @@
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig, _transform_server_url_to_foldername
 
-# pylint: disable=missing-class-docstring,missing-function-docstring
-
 
 class TestTransformServerUrlToFoldername:
     def test_prod_env(self) -> None:

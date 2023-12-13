@@ -1,5 +1,3 @@
-# pylint: disable=missing-class-docstring,missing-function-docstring,too-many-public-methods
-
 import unittest
 from pathlib import Path
 from typing import Any, Callable, Optional, Sequence, Union
@@ -12,6 +10,9 @@ from lxml import etree
 
 from dsp_tools import excel2xml
 from dsp_tools.models.exceptions import BaseError
+
+# ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
+# ruff: noqa: PT027 (pytest-unittest-raises-assertion) (remove this line when pytest is used instead of unittest)
 
 
 def run_test(
@@ -152,7 +153,7 @@ class TestExcel2xmlLib(unittest.TestCase):
         Path("excel2xml-invalid-data.xml").unlink(missing_ok=True)
 
     def test_make_xsd_id_compatible(self) -> None:
-        teststring = "0aüZ/_-äöü1234567890?`^':.;+*ç%&/()=±“#Ç[]|{}≠₂₃āṇśṣr̥ṁñἄ𝝺𝝲𝛆’الشعرُאדםПопрыгуньяşğ"
+        teststring = "0aüZ/_-äöü1234567890?`^':.;+*ç%&/()=±“#Ç[]|{}≠₂₃āṇśṣr̥ṁñἄ𝝺𝝲𝛆’الشعرُאדםПопрыгуньяşğ"  # noqa: RUF001
         expected_ = "_0a_Z__-___1234567890_____.__________________________r______________________________"
 
         # test that the results are distinct from each other
@@ -563,7 +564,7 @@ class TestExcel2xmlLib(unittest.TestCase):
                 "&lt;escaped tag&gt;",
             ],
         ]
-        all_inputs = " ".join([input for input, _ in testcases_xml])
+        all_inputs = " ".join([inp for inp, _ in testcases_xml])
         all_outputs = " ".join([output for _, output in testcases_xml])
         testcases_xml.append([all_inputs, all_outputs])
 
@@ -641,25 +642,23 @@ class TestExcel2xmlLib(unittest.TestCase):
         for method, tagname in method_2_tagname.items():
             test_cases: list[tuple[Callable[..., etree._Element], str]] = [
                 (
-                    lambda: method("label", "id"),  # pylint: disable=cell-var-from-loop
+                    lambda: method("label", "id"),
                     f'<{tagname} label="label" id="id" permissions="res-default"/>',
                 ),
                 (
-                    lambda: method("label", "id", "res-restricted"),  # pylint: disable=cell-var-from-loop
+                    lambda: method("label", "id", "res-restricted"),
                     f'<{tagname} label="label" id="id" permissions="res-restricted"/>',
                 ),
                 (
-                    lambda: method("label", "id", ark="ark"),  # pylint: disable=cell-var-from-loop
+                    lambda: method("label", "id", ark="ark"),
                     f'<{tagname} label="label" id="id" permissions="res-default" ark="ark"/>',
                 ),
                 (
-                    lambda: method("label", "id", iri="iri"),  # pylint: disable=cell-var-from-loop
+                    lambda: method("label", "id", iri="iri"),
                     f'<{tagname} label="label" id="id" permissions="res-default" iri="iri"/>',
                 ),
                 (
-                    lambda: method(  # pylint: disable=cell-var-from-loop
-                        "label", "id", creation_date="2019-10-23T13:45:12Z"
-                    ),
+                    lambda: method("label", "id", creation_date="2019-10-23T13:45:12Z"),
                     (
                         f'<{tagname} label="label" id="id" permissions="res-default" '
                         'creation_date="2019-10-23T13:45:12Z"/>'

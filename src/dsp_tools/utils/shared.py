@@ -263,7 +263,6 @@ def _validate_xml_tags_in_text_properties(doc: Union[etree._ElementTree[etree._E
     # first: remove namespaces
     doc_without_namespace = copy.deepcopy(doc)
     for elem in doc_without_namespace.iter():
-        # pylint: disable-next=protected-access
         if not isinstance(elem, (etree._Comment, etree._ProcessingInstruction)):
             elem.tag = etree.QName(elem).localname
 
@@ -421,7 +420,7 @@ def parse_json_input(project_file_as_path_or_parsed: Union[str, Path, dict[str, 
         with open(project_file_as_path_or_parsed, encoding="utf-8") as f:
             try:
                 project_definition = json.load(f)
-            except:
+            except json.JSONDecodeError:
                 msg = f"The input file '{project_file_as_path_or_parsed}' cannot be parsed to a JSON object."
                 logger.error(msg, exc_info=True)
                 raise BaseError(msg) from None

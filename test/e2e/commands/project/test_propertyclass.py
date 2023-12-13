@@ -1,7 +1,5 @@
 """end to end tests for property class"""
 
-# pylint: disable=missing-class-docstring,missing-function-docstring
-
 import unittest
 
 import pytest
@@ -12,6 +10,8 @@ from dsp_tools.models.helpers import DateTimeStamp
 from dsp_tools.models.langstring import LangString, Languages
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
+
+# ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
 
 
 class TestPropertyClass(unittest.TestCase):
@@ -24,7 +24,7 @@ class TestPropertyClass(unittest.TestCase):
     con: Connection
 
     name = "MyPropClassName"
-    object = "TextValue"
+    rdf_object = "TextValue"
     label = LangString({Languages.DE: "MyPropClassLabel"})
     comment = LangString({Languages.DE: "This is a property class for testing"})
 
@@ -65,7 +65,7 @@ class TestPropertyClass(unittest.TestCase):
             context=self.onto.context,
             name=self.name,
             ontology_id=self.onto.iri,
-            rdf_object=self.object,
+            rdf_object=self.rdf_object,
             label=self.label,
             comment=self.comment,
         ).create(self.last_modification_date)
@@ -94,7 +94,7 @@ class TestPropertyClass(unittest.TestCase):
             context=self.onto.context,
             name=self.name,
             ontology_id=self.onto.iri,
-            rdf_object=self.object,
+            rdf_object=self.rdf_object,
             label=self.label,
             comment=self.comment,
         ).create(self.last_modification_date)

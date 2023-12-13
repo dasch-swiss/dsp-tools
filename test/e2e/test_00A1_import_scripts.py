@@ -1,5 +1,3 @@
-# pylint: disable=redefined-outer-name
-
 import os
 import subprocess
 from collections.abc import Iterator
@@ -29,7 +27,7 @@ def test_script(generated_xml_file: Path) -> None:
     """Execute the import script in its directory"""
     # pull the latest state of the git submodule
     subprocess.run("git submodule update --init --recursive", check=True, shell=True)
-    from dsp_tools.import_scripts import import_script  # pylint: disable=import-outside-toplevel
+    from dsp_tools.import_scripts import import_script
 
     # execute the import script in its directory
     old_working_directory = os.getcwd()

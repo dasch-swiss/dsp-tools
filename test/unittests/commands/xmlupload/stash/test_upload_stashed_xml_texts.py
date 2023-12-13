@@ -1,11 +1,11 @@
-# pylint: disable=missing-class-docstring,missing-function-docstring
-
 from unittest import TestCase
 
 import pytest
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.value import FormattedTextValue
+
+# ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
 
 
 class TestXMLUploadStash(TestCase):

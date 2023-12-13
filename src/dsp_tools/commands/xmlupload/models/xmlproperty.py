@@ -4,7 +4,7 @@ from dsp_tools.commands.xmlupload.models.xmlvalue import XMLValue
 from dsp_tools.models.exceptions import XmlUploadError
 
 
-class XMLProperty:  # pylint: disable=too-few-public-methods
+class XMLProperty:
     """
     Represents a property of a resource in the XML used for data import.
 

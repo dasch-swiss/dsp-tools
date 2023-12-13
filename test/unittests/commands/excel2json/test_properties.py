@@ -1,7 +1,5 @@
 """unit tests for excel to properties"""
 
-# pylint: disable=missing-class-docstring,missing-function-docstring,protected-access
-
 import re
 import unittest
 from typing import Any, cast
@@ -15,6 +13,9 @@ from pandas.testing import assert_frame_equal
 from dsp_tools.commands.excel2json import properties as e2j
 from dsp_tools.commands.excel2json.input_error import InvalidExcelContentProblem
 from dsp_tools.models.exceptions import InputError
+
+# ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
+
 
 excelfile = "testdata/excel2json/excel2json_files/test-name (test_label)/properties.xlsx"
 output_from_method, _ = e2j.excel2properties(excelfile, None)
@@ -564,7 +565,7 @@ class TestFunctions(unittest.TestCase):
 class TestValidateProperties:
     # it is not possible to call the method to be tested directly.
     # So let's make a reference to it, so that it can be found by the usage search
-    lambda x: e2j._validate_properties([], "file")  # pylint: disable=expression-not-assigned,protected-access
+    lambda _: e2j._validate_properties([], "file")
 
     def test_invalid_super(self) -> None:
         expected_msg = re.escape(

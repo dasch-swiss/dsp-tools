@@ -1,5 +1,3 @@
-# pylint: disable=missing-class-docstring,missing-function-docstring
-
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -49,7 +47,7 @@ class Cardinality(Enum):
     C_0_n = "0-n"
 
 
-class ContextIterator:  # pylint: disable=too-few-public-methods
+class ContextIterator:
     _context: "Context"
     _prefixes: list[str]
     _index: int
@@ -125,7 +123,7 @@ class Context:
         # add ontologies from context, if any
         if context:
             for prefix, onto in context.items():
-                self._context[prefix] = OntoIri(onto.removesuffix("#"), onto.endswith("#") or onto.endswith("/v2"))
+                self._context[prefix] = OntoIri(onto.removesuffix("#"), onto.endswith(("#", "/v2")))
 
         # add standard ontologies (rdf, rdfs, owl, xsl)
         for k, v in self.base_ontologies.items():
@@ -442,7 +440,7 @@ class DateTimeStamp:
         return {"@type": "xsd:dateTimeStamp", "@value": self._dateTimeStamp}
 
 
-class WithId:  # pylint: disable=too-few-public-methods
+class WithId:
     """
     Class helper to get json-ld "@id" thingies
     """

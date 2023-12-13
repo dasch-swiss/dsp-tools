@@ -1,7 +1,5 @@
 """end to end tests for project class"""
 
-# pylint: disable=missing-class-docstring,missing-function-docstring
-
 import unittest
 
 import pytest
@@ -10,6 +8,8 @@ from dsp_tools.commands.project.models.project import Project
 from dsp_tools.models.langstring import LangString, Languages
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
+
+# ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
 
 
 class TestProject(unittest.TestCase):

@@ -4,14 +4,16 @@ from typing import Any
 
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
 
-# pylint: disable=missing-class-docstring,missing-function-docstring
-
 
 @dataclass
 class ConnectionMock(ConnectionMockBase):
     get_responses: list[dict[str, Any]] = field(default_factory=list)
 
-    def get(self, route: str, headers: dict[str, str] | None = None) -> dict[str, Any]:
+    def get(
+        self,
+        route: str,  # noqa: ARG002 (unused-method-argument)
+        headers: dict[str, str] | None = None,  # noqa: ARG002 (unused-method-argument)
+    ) -> dict[str, Any]:
         return self.get_responses.pop(0)
 
 

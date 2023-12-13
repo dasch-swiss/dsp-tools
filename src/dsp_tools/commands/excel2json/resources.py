@@ -149,14 +149,14 @@ def _row2resource(
         )
 
     cards = []
-    for j, detail_row in details_df.iterrows():
-        j = int(str(j))  # j is a label/index/hashable, but we need an int
+    for i, detail_row in details_df.iterrows():
+        index = int(str(i))  # j is a label/index/hashable, but we need an int
         gui_order = detail_row.get("gui_order", "")
         gui_order = regex.sub(r"\.0+", "", str(gui_order))
         property_ = {
             "propname": ":" + detail_row["property"],
             "cardinality": detail_row["cardinality"].lower(),
-            "gui_order": int(gui_order or j + 1),  # if gui_order not given: take sheet order
+            "gui_order": int(gui_order or index + 1),  # if gui_order not given: take sheet order
         }
         cards.append(property_)
 
@@ -220,8 +220,8 @@ def excel2resources(
 def _validate_excel_file(
     classes_df: pd.DataFrame, df_dict: dict[str, pd.DataFrame]
 ) -> ResourcesSheetsNotAsExpected | None:
-    for index, row in classes_df.iterrows():
-        index = int(str(index))  # index is a label/index/hashable, but we need an int
+    for i, row in classes_df.iterrows():
+        index = int(str(i))  # index is a label/index/hashable, but we need an int
         if not check_notna(row["super"]):
             raise UserError(
                 f"Sheet 'classes' of 'resources.xlsx' has a missing value in row {index + 2}, column 'super'"

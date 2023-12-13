@@ -13,14 +13,12 @@ from dsp_tools.commands.xmlupload.ontology_client import (
     deserialize_ontology,
 )
 
-# pylint: disable=missing-class-docstring,missing-function-docstring,unused-argument,protected-access
-
 
 @dataclass
 class ConnectionMock(ConnectionMockBase):
     get_response: dict[Any, Any]
 
-    def get(self, route: str, headers: dict[str, str] | None = None) -> dict[Any, Any]:
+    def get(self, route: str, headers: dict[str, str] | None = None) -> dict[Any, Any]:  # noqa: ARG002 (unused-method-argument)
         return self.get_response
 
 

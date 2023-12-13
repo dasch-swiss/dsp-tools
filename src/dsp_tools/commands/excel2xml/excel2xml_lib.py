@@ -1,6 +1,3 @@
-# pylint: disable=line-too-long
-
-
 import dataclasses
 import datetime
 import difflib
@@ -13,7 +10,7 @@ from typing import Any, Iterable, Optional, Union
 
 import regex
 from lxml import etree
-from lxml.builder import E  # pylint: disable=no-name-in-module
+from lxml.builder import E
 
 from dsp_tools.commands.excel2xml.propertyelement import PropertyElement
 from dsp_tools.models.exceptions import BaseError
@@ -21,6 +18,9 @@ from dsp_tools.models.helpers import DateTimeStamp
 from dsp_tools.utils.date_util import is_full_date
 from dsp_tools.utils.shared import check_notna, simplify_name, validate_xml_against_schema
 from dsp_tools.utils.uri_util import is_uri
+
+# ruff: noqa: E501 (line-too-long)
+
 
 xml_namespace_map = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 
@@ -379,10 +379,10 @@ def append_permissions(root_element: etree._Element) -> etree._Element:
     return root_element
 
 
-def make_resource(
+def make_resource(  # noqa: D417 (undocumented-param)
     label: str,
     restype: str,
-    id: str,  # pylint: disable=redefined-builtin
+    id: str,
     permissions: str = "res-default",
     ark: Optional[str] = None,
     iri: Optional[str] = None,
@@ -1475,9 +1475,9 @@ def make_uri_prop(
     return prop_
 
 
-def make_region(
+def make_region(  # noqa: D417 (undocumented-param)
     label: str,
-    id: str,  # pylint: disable=redefined-builtin
+    id: str,
     permissions: str = "res-default",
     ark: Optional[str] = None,
     iri: Optional[str] = None,
@@ -1534,9 +1534,9 @@ def make_region(
     )
 
 
-def make_annotation(
+def make_annotation(  # noqa: D417 (undocumented-param)
     label: str,
-    id: str,  # pylint: disable=redefined-builtin
+    id: str,
     permissions: str = "res-default",
     ark: Optional[str] = None,
     iri: Optional[str] = None,
@@ -1591,9 +1591,9 @@ def make_annotation(
     )
 
 
-def make_link(
+def make_link(  # noqa: D417 (undocumented-param)
     label: str,
-    id: str,  # pylint: disable=redefined-builtin
+    id: str,
     permissions: str = "res-default",
     ark: Optional[str] = None,
     iri: Optional[str] = None,

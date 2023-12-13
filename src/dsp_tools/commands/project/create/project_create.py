@@ -960,7 +960,7 @@ def _rectify_hlist_of_properties(
     if not lists or not properties:
         return properties
 
-    existing_list_names = [l["name"] for l in lists]
+    existing_list_names = [lst["name"] for lst in lists]
 
     for prop in properties:
         if not prop.get("gui_attributes"):

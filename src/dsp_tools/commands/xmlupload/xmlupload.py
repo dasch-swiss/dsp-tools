@@ -198,7 +198,7 @@ def _upload(
             msg = "Some stashed resptrs or XML texts could not be reapplied to their resources on the DSP server."
             logger.error(msg)
             raise BaseError(msg)
-    except BaseException as err:  # pylint: disable=broad-except
+    except BaseException as err:  # noqa: BLE001 (blind-except)
         # The forseeable errors are already handled by the variables
         # failed_uploads, nonapplied_xml_texts, and nonapplied_resptr_props.
         # Here we catch the unforseeable exceptions, hence BaseException (=the base class of all exceptions)
@@ -374,7 +374,7 @@ def _create_resource(
         )
         logger.warning(log_msg, exc_info=True)
         return None
-    except Exception as err:  # pylint: disable=broad-except
+    except Exception as err:
         msg = f"Unable to create resource '{resource.label}' ({resource.id})"
         print(f"{datetime.now()}: WARNING: {msg}: {err}")
         log_msg = (

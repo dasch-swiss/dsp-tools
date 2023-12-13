@@ -12,17 +12,13 @@ The decision to use this set of tools is based on the information in the followi
 | --------------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------ |
 | [General formatting](./general-formatting.md)                   | [EditorConfig](https://EditorConfig.org/)                          | `.editorconfig`                |
 |                                                                 | [MarkdownLint](https://github.com/igorshubovych/markdownlint-cli/) | `.markdownlint.yml`            |
-| [Python formatting](./python-formatting.md)                     | [Black](https://pypi.org/project/black/)                           | `pyproject.toml`               |
-| [Python docstring formatting](./python-docstring-formatting.md) | [pydocstyle](https://pypi.org/project/pydocstyle/) *               |                                |
-|                                                                 | [darglint](https://pypi.org/project/darglint/)                     | `.darglint`                    |
+| [Python formatting](./python-formatting.md)                     | [Ruff](https://pypi.org/project/ruff/)                             | `pyproject.toml`               |
+| [Python docstring formatting](./python-docstring-formatting.md) | [darglint](https://pypi.org/project/darglint/)                     | `.darglint`                    |
 | [Python type checking](./python-type-checking.md)               | [mypy](https://pypi.org/project/mypy/)                             | `pyproject.toml`               |
-| [Python linting](./python-linting.md)                           | [Ruff](https://pypi.org/project/ruff/) *                           |                                |
-|                                                                 | [pylint](https://pypi.org/project/pylint/) **                      | `pyproject.toml`               |
+| [Python linting](./python-linting.md)                           | [Ruff](https://pypi.org/project/ruff/)                             | `pyproject.toml`               |
 | [Security checks](./security.md)                                | [Dependabot](https://docs.github.com/en/code-security/dependabot/) | `.github/dependabot.yml`       |
 |                                                                 | [CodeQL](https://codeql.github.com/)                               | GitHub settings                |
 |                                                                 | [Gitleaks](https://gitleaks.io/) *                                 | `.gitleaks.toml`               |
 |                                                                 | [Bandit](https://pypi.org/project/bandit/)                         | `.github/workflows/bandit.yml` |
 
 (*) coming soon  
-
-(**) will perhaps become redundant, as Ruff matures

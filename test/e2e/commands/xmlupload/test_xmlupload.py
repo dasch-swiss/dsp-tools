@@ -1,5 +1,3 @@
-# pylint: disable=missing-function-docstring
-
 import re
 
 import pytest

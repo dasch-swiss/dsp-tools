@@ -5,8 +5,8 @@ from dsp_tools.commands.xmlupload.models.ontology_diagnose_models import Invalid
 
 
 def test_print_problem_string_cls() -> None:
-    onto = InvalidOntologyElements([("clsA", ["idA"], "wrong")], [])
-    msg = onto._compose_problem_string_cls()
+    onto = InvalidOntologyElements([("clsA", ["idA"], "wrong")], [], ontos_on_server=["test"])
+    msg = onto._compose_problem_string_for_cls()
     assert msg == (
         "The following resource(s) have an invalid resource type:\n\n"
         "    Resource Type: 'clsA'\n"
@@ -17,13 +17,13 @@ def test_print_problem_string_cls() -> None:
 
 
 def test_print_problem_string_no_cls() -> None:
-    onto = InvalidOntologyElements([], [])
-    assert not onto._compose_problem_string_cls()
+    onto = InvalidOntologyElements([], [], [])
+    assert not onto._compose_problem_string_for_cls()
 
 
 def test_print_problem_string_prop() -> None:
-    onto = InvalidOntologyElements([], [("propA", ["idA"], "wrong")])
-    msg = onto._compose_problem_string_props()
+    onto = InvalidOntologyElements([], [("propA", ["idA"], "wrong")], ["test"])
+    msg = onto._compose_problem_string_for_props()
     assert msg == (
         "The following resource(s) have invalid property type(s):\n\n"
         "    Property Name: 'propA'\n"
@@ -34,16 +34,21 @@ def test_print_problem_string_prop() -> None:
 
 
 def test_print_problem_string_no_prop() -> None:
-    onto = InvalidOntologyElements([], [])
-    assert not onto._compose_problem_string_props()
+    onto = InvalidOntologyElements([], [], [])
+    assert not onto._compose_problem_string_for_props()
 
 
 def test_execute_problem_protocol() -> None:
     onto = InvalidOntologyElements(
-        [("clsA", ["idA"], "wrong")], [("propA", ["idA"], "wrong"), ("propB", ["idB", "idC"], "wrong")]
+        [("clsA", ["idA"], "wrong")],
+        [("propA", ["idA"], "wrong"), ("propB", ["idB", "idC"], "wrong")],
+        ["test1", "test2"],
     )
     expected_msg = (
-        "\nSome property and/or class type(s) used in the XML are unknown:"
+        "\nSome property and/or class type(s) used in the XML are unknown.\n"
+        "The ontologies for your project on the server are:\n"
+        "    - test1\n"
+        "    - test2"
         "\n\n---------------------------------------\n\n"
         "The following resource(s) have an invalid resource type:\n\n"
         "    Resource Type: 'clsA'\n"
@@ -70,7 +75,7 @@ def test_execute_problem_protocol() -> None:
 
 def test_get_problems_as_df() -> None:
     onto = InvalidOntologyElements(
-        [("clsA", ["idA"], "wrongA")], [("propB", ["idB"], "wrongB"), ("propC", ["idC1", "idC2"], "wrongC")]
+        [("clsA", ["idA"], "wrongA")], [("propB", ["idB"], "wrongB"), ("propC", ["idC1", "idC2"], "wrongC")], ["test"]
     )
     expected_df = pd.DataFrame(
         {

@@ -154,7 +154,6 @@ select = [
     "B023",     # flake8-bugbear: function-uses-loop-variable
 ]
 ignore = [
-    "PT027",    # flake8-pytest-style: pytest-unittest-raises-assertion # TODO: activate when pytest is everywhere
     "ISC001",   # flake8-implicit-str-concat: single-line-implicit-string-concatenation  # incompatible with the formatter
 ]
 

@@ -11,6 +11,7 @@ from dsp_tools.commands.id2iri import _remove_resources_if_id_in_mapping, _repla
 from dsp_tools.models.exceptions import BaseError
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
+# ruff: noqa: PT027 (pytest-unittest-raises-assertion) (remove this line when pytest is used instead of unittest)
 
 
 class TestIdToIri(unittest.TestCase):

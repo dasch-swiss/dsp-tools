@@ -11,6 +11,7 @@ from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils import shared
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
+# ruff: noqa: PT027 (pytest-unittest-raises-assertion) (remove this line when pytest is used instead of unittest)
 
 
 class TestShared(unittest.TestCase):

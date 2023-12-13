@@ -6,10 +6,10 @@
 
 There are two kinds of Excel files that can be transformed into an XML file:
 
-| structure        | provenance  | tool                     | example screenshot                                       |
-|------------------|-------------|--------------------------|----------------------------------------------------------|
-| custom structure | customer    | module `excel2xml`       | ![](./assets/images/img-excel2xml-raw-data-category.png) |
-| DSP structure    | DSP server  | CLI command `excel2xml`  | ![](./assets/images/img-excel2xml-closeup.png)           |
+| structure        | provenance | tool                    | example screenshot                                       |
+| ---------------- | ---------- | ----------------------- | -------------------------------------------------------- |
+| custom structure | customer   | module `excel2xml`      | ![](./assets/images/img-excel2xml-raw-data-category.png) |
+| DSP structure    | DSP server | CLI command `excel2xml` | ![](./assets/images/img-excel2xml-closeup.png)           |
 
 The first use case is the most frequent: The DaSCH receives a data export from a research project. Every project uses 
 different software, so every project will deliver their data in a different structure. The screenshot is just a 
@@ -182,7 +182,7 @@ With the help of Pandas, you can then iterate through the rows of your Excel/CSV
 There are four kinds of resources that can be created: 
 
 | super        | tag            | method              |
-|--------------|----------------|---------------------|
+| ------------ | -------------- | ------------------- |
 | `Resource`   | `<resource>`   | `make_resource()`   |
 | `Annotation` | `<annotation>` | `make_annotation()` |
 | `Region`     | `<region>`     | `make_region()`     |
@@ -337,7 +337,7 @@ There are many problems that can occur with this simple approach! Often, a cell 
 might expect:
 
 | cell content | return value of `bool(cell)` | You might have expected...                                       |
-|--------------|------------------------------|------------------------------------------------------------------|
+| ------------ | ---------------------------- | ---------------------------------------------------------------- |
 | 0            | False                        | True, because 0 is a valid integer for your integer property     |
 | " "          | True                         | False, because an empty string is not usable for a text property |
 | `numpy.nan`  | True                         | False, because N/A is not a usable value                         |
@@ -364,18 +364,21 @@ Notes:
 
 Supported date formats:
 
-| Input             | Output                                |
-|-------------------|---------------------------------------|
-| 0476_09_04        | GREGORIAN:CE:0476-09-04:CE:0476-09-04 |
-| 0476-09-04        | GREGORIAN:CE:0476-09-04:CE:0476-09-04 |
-| 30.4.2021         | GREGORIAN:CE:2021-04-30:CE:2021-04-30 |
-| 5/11/2021         | GREGORIAN:CE:2021-11-05:CE:2021-11-05 |
-| Jan 26, 1993      | GREGORIAN:CE:1993-01-26:CE:1993-01-26 |
-| February26,2051   | GREGORIAN:CE:2051-02-26:CE:2051-02-26 |
-| 28.2.-1.12.1515   | GREGORIAN:CE:1515-02-28:CE:1515-12-01 |
-| 25.-26.2.0800     | GREGORIAN:CE:0800-02-25:CE:0800-02-26 |
-| 1.9.2022-3.1.2024 | GREGORIAN:CE:2022-09-01:CE:2024-01-03 |
-| 1848              | GREGORIAN:CE:1848:CE:1848             |
-| 1849/1850         | GREGORIAN:CE:1849:CE:1850             |
-| 1849/50           | GREGORIAN:CE:1849:CE:1850             |
-| 1845-50           | GREGORIAN:CE:1845:CE:1850             |
+| Input              | Output                                |
+| ------------------ | ------------------------------------- |
+| 0476_09_04         | GREGORIAN:CE:0476-09-04:CE:0476-09-04 |
+| 0476-09-04         | GREGORIAN:CE:0476-09-04:CE:0476-09-04 |
+| 30.4.2021          | GREGORIAN:CE:2021-04-30:CE:2021-04-30 |
+| 5/11/2021          | GREGORIAN:CE:2021-11-05:CE:2021-11-05 |
+| Jan 26, 1993       | GREGORIAN:CE:1993-01-26:CE:1993-01-26 |
+| 28.2.-1.12.1515    | GREGORIAN:CE:1515-02-28:CE:1515-12-01 |
+| 25.-26.2.0800      | GREGORIAN:CE:0800-02-25:CE:0800-02-26 |
+| 1.9.2022-3.1.2024  | GREGORIAN:CE:2022-09-01:CE:2024-01-03 |
+| 1848               | GREGORIAN:CE:1848:CE:1848             |
+| 1849/1850          | GREGORIAN:CE:1849:CE:1850             |
+| 1849/50            | GREGORIAN:CE:1849:CE:1850             |
+| 1845-50            | GREGORIAN:CE:1845:CE:1850             |
+| 840-850            | GREGORIAN:CE:840:CE:850               |
+| 840-1              | GREGORIAN:CE:840:CE:841               |
+| 1000-900 av. J.-C. | GREGORIAN:BC:1000:BC:900              |
+| 45 av. J.-C.       | GREGORIAN:BC:45:BC:45                 |

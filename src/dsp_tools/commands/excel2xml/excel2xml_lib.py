@@ -61,22 +61,32 @@ def make_xsd_id_compatible(string: str) -> str:
     return res
 
 
-def _find_french_bc_date(string: str) -> Optional[str]:
-    french_bc_regex = r"av\.? ?J\.?-?C\.?"
+def _find_french_bc_date(
+    string: str,
+    lookbehind: str,
+    lookahead: str,
+) -> Optional[str]:
+    french_bc_regex = r"av(?:\. |\.| )J\.?-?C\.?"
     if not regex.search(french_bc_regex, string):
         return None
 
     year_regex = r"\d{1,5}"
     sep_regex = r" ?- ?"
 
-    year_range = regex.search(rf"({year_regex}){sep_regex}({year_regex})", string)
+    year_range_regex = rf"{lookbehind}({year_regex}){sep_regex}({year_regex}) {french_bc_regex}{lookahead}"
+    year_range = regex.search(year_range_regex, string)
     if year_range:
-        start_year, end_year = year_range.groups()
+        start_year = int(year_range.group(1))
+        end_year = int(year_range.group(2))
+        if end_year > start_year:
+            return None
         return f"GREGORIAN:BC:{start_year}:BC:{end_year}"
 
-    single_year = regex.search(year_regex, string)
+    single_year_regex = rf"{lookbehind}({year_regex}) {french_bc_regex}{lookahead}"
+    single_year = regex.search(single_year_regex, string)
     if single_year:
-        return f"GREGORIAN:BC:{single_year.group(0)}:BC:{single_year.group(0)}"
+        start_year = int(single_year.group(1))
+        return f"GREGORIAN:BC:{start_year}:BC:{start_year}"
 
     return None
 
@@ -128,9 +138,6 @@ def find_date_in_string(string: str) -> Optional[str]:
     if not check_notna(string):
         return None
 
-    if french_bc_date := _find_french_bc_date(string):
-        return french_bc_date
-
     months_dict = {
         "January": 1,
         "Jan": 1,
@@ -168,6 +175,9 @@ def find_date_in_string(string: str) -> Optional[str]:
     sep_regex = r"[\./]"
     lookbehind = r"(?<![0-9A-Za-z])"
     lookahead = r"(?![0-9A-Za-z])"
+
+    if french_bc_date := _find_french_bc_date(string=string, lookbehind=lookbehind, lookahead=lookahead):
+        return french_bc_date
 
     # template: 2021-01-01 | 2015_01_02
     iso_date = regex.search(rf"{lookbehind}{year_regex}[_-]([0-1][0-9])[_-]([0-3][0-9]){lookahead}", string)

@@ -301,13 +301,23 @@ class TestExcel2xmlLib(unittest.TestCase):
         self.assertEqual(excel2xml.find_date_in_string("Text 1 av.J.-C. text"), "GREGORIAN:BC:1:BC:1")
         self.assertEqual(excel2xml.find_date_in_string("Text 1 av. J.C. text"), "GREGORIAN:BC:1:BC:1")
         self.assertEqual(excel2xml.find_date_in_string("Text 1 av. J-C text"), "GREGORIAN:BC:1:BC:1")
-        self.assertEqual(excel2xml.find_date_in_string("Text 1 av. JC text"), "GREGORIAN:BC:1:BC:1")
+        self.assertEqual(excel2xml.find_date_in_string("Text 1 av.JC text"), "GREGORIAN:BC:1:BC:1")
+        self.assertEqual(excel2xml.find_date_in_string("Text 1 av JC text"), "GREGORIAN:BC:1:BC:1")
+        self.assertEqual(excel2xml.find_date_in_string("Text 1 av. J.-C.text"), "GREGORIAN:BC:1:BC:1")
 
     def test_find_date_in_string_french_bc_dash_variants(self) -> None:
         self.assertEqual(excel2xml.find_date_in_string("Text 2000-1000 av. J.-C. text"), "GREGORIAN:BC:2000:BC:1000")
         self.assertEqual(excel2xml.find_date_in_string("Text 2000- 1000 av. J.-C. text"), "GREGORIAN:BC:2000:BC:1000")
         self.assertEqual(excel2xml.find_date_in_string("Text 2000 -1000 av. J.-C. text"), "GREGORIAN:BC:2000:BC:1000")
         self.assertEqual(excel2xml.find_date_in_string("Text 2000 - 1000 av. J.-C. text"), "GREGORIAN:BC:2000:BC:1000")
+
+    def test_find_date_in_string_french_bc_invalid_syntax(self) -> None:
+        self.assertEqual(excel2xml.find_date_in_string("Text12 av. J.-C. text"), None)
+        self.assertEqual(excel2xml.find_date_in_string("Text 12 av. J.-Ctext"), None)
+        self.assertEqual(excel2xml.find_date_in_string("Text 1 avJC text"), None)
+
+    def test_find_date_in_string_french_bc_invalid_range(self) -> None:
+        self.assertEqual(excel2xml.find_date_in_string("Text 12-20 av. J.-C. text"), None)
 
     def test_prepare_value(self) -> None:
         identical_values = ["Test", "Test", "Test"]

@@ -12,7 +12,7 @@ class TestIngestInformation:
     def test_no_problems(self) -> None:
         expected = (
             "All multimedia files referenced in the XML file were uploaded to sipi.\n"
-            "No media was uploaded to sipi that was not referenced in the XML file."
+            "No multimedia files was uploaded to sipi that was not referenced in the XML file."
         )
         assert IngestInformation([], []).all_good_msg() == expected
 
@@ -21,8 +21,8 @@ class TestIngestInformation:
 
     def test_unused_media(self) -> None:
         expected = (
-            "The upload cannot continue as there are problems with the media referenced in the XML.\n"
-            "    The following media were uploaded to sipi but not referenced in the data XML file:\n"
+            "The upload cannot continue as there are problems with the multimedia files referenced in the XML.\n"
+            "    The following multimedia files were uploaded to sipi but not referenced in the data XML file:\n"
             "    - unused_media"
         )
         res_info = IngestInformation(["unused_media"], [])._get_error_msg()
@@ -30,8 +30,8 @@ class TestIngestInformation:
 
     def test_not_uploaded(self) -> None:
         expected = (
-            "The upload cannot continue as there are problems with the media referenced in the XML.\n"
-            "    The following media were not uploaded to sipi but referenced in the data XML file:\n"
+            "The upload cannot continue as there are problems with the multimedia files referenced in the XML.\n"
+            "    The following multimedia files were not uploaded to sipi but referenced in the data XML file:\n"
             "    - Resource ID: 'no upload id' | Filepath: 'media path'"
         )
         res_info = IngestInformation([], [("no upload id", "media path")])._get_error_msg()
@@ -39,10 +39,10 @@ class TestIngestInformation:
 
     def test_all_problem_with_df_msg(self) -> None:
         expected = (
-            "The upload cannot continue as there are problems with the media referenced in the XML.\n"
-            "    Media was uploaded to Sipi which was not referenced in the XML file.\n"
+            "The upload cannot continue as there are problems with the multimedia files referenced in the XML.\n"
+            "    Multimedia files was uploaded to Sipi which was not referenced in the XML file.\n"
             "    The file 'UnusedMediaUploadedInSipi.csv' was saved in '.' with the filenames.\n\n"
-            "    Media was referenced in the XML file but not previously uploaded to sipi:\n"
+            "    Multimedia files was referenced in the XML file but not previously uploaded to sipi:\n"
             "    The file 'NotUploadedFilesToSipi.csv' was saved in '.' with the resource IDs and filenames."
         )
         res_info = IngestInformation(
@@ -65,7 +65,7 @@ def test_unused_media_to_df() -> None:
         "unused_media0",
         "unused_media1",
     ]
-    expected = pd.DataFrame({"Media Filenames": unused_media_list})
+    expected = pd.DataFrame({"Multimedia Filenames": unused_media_list})
     res_df = IngestInformation(unused_media_list, [], maximum_prints=1)._unused_media_to_df()
     assert_frame_equal(res_df, expected)
 

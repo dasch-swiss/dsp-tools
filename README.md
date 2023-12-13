@@ -1,12 +1,11 @@
-[![](https://badge.fury.io/py/dsp-tools.svg)](https://badge.fury.io/py/dsp-tools) 
-[![](https://img.shields.io/pypi/pyversions/dsp-tools.svg)](https://pypi.org/project/dsp-tools/) 
-[![](https://img.shields.io/badge/Python%20code%20style-black-000000.svg)](https://github.com/psf/black) 
-[![](https://img.shields.io/badge/Python%20linting-pylint-darkgreen)](https://github.com/pylint-dev/pylint) 
-[![](https://img.shields.io/badge/Python%20typing-mypy-darkgreen)](https://github.com/python/mypy) 
-[![](https://img.shields.io/badge/Markdown%20linting-markdownlint-darkgreen)](
-  https://github.com/igorshubovych/markdownlint-cli) 
-[![](https://img.shields.io/badge/Link%20validation-markdown%20link%20validator-darkgreen)](
-  https://www.npmjs.com/package/markdown-link-validator)
+[![](https://img.shields.io/pypi/v/dsp-tools.svg)](https://pypi.org/project/dsp-tools/) 
+[![](https://img.shields.io/pypi/l/dsp-tools.svg)](https://pypi.org/project/dsp-tools/) 
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)
+  ](https://github.com/astral-sh/ruff) 
+[![](https://img.shields.io/badge/mypy-blue)](https://github.com/python/mypy) 
+[![](https://img.shields.io/badge/markdownlint-darkgreen)](https://github.com/igorshubovych/markdownlint-cli) 
+[![](https://img.shields.io/badge/markdown%20link%20validator-darkgreen)
+  ](https://www.npmjs.com/package/markdown-link-validator) 
 
 
 # DSP-TOOLS - DaSCH Service Platform Tools
@@ -166,17 +165,15 @@ please make sure you use the same code style rules as we do.
 We use the following linters:
 
 - [MarkdownLint](https://github.com/igorshubovych/markdownlint-cli) (configured in `.markdownlint.yml`)
-- [Black](https://pypi.org/project/black/) (configured in `pyproject.toml`)
 - [mypy](https://pypi.org/project/mypy/) (configured in `pyproject.toml`)
-- [pylint](https://pypi.org/project/pylint/) (configured in `pyproject.toml`)
-- [isort](https://pypi.org/project/isort/) (configured in `pyproject.toml`)
+- [ruff](https://pypi.org/project/ruff/) (configured in `pyproject.toml`)
 - [darglint](https://pypi.org/project/darglint/) (configured in `.darglint`)
 
 These linters are integrated in the GitHub CI pipeline, 
 so that every pull request is checked for code style violations.
 
 In addition, there are [pre-commit hooks](#pre-commit-hooks) 
-that run Black and MarkdownLint locally before every commit.
+that run Ruff and MarkdownLint locally before every commit.
 This prevents you from committing code style violations.
 Pre-commit is contained in the dependencies, 
 but before the first use, the hooks must be installed with `pre-commit install`
@@ -189,17 +186,16 @@ Depending on your IDE the installation is as follows.
 
 - **MarkdownLint** can be installed as an extension (`davidanson.vscode-markdownlint`), 
   and be configured in the VSCode settings.
-- **Black** can be set as formatter in the `ms-python.python` extension.
-  To do so, set `"python.formatting.provider": "black"` in the VSCode `settings.json`.
-  Alternatively, `ms-python.black-formatter` can be installed as an extension.
 - **mypy** can be installed as an extension (`matangover.mypy`), 
   and be configured in the VSCode settings.
     - This extension is different from the mypy functionality 
       of Microsoft's Python extension `ms-python.python`,
       which only lints each file separately, 
       leading to incomplete type checking.
-- **pylint** can be installed as an extension (`ms-python.pylint`), 
-  and be configured in the VSCode settings.
+- **ruff** can be installed as an extension (`charliermarsh.ruff`), 
+  and be configured in the VSCode settings:
+    - `settings.json` > `[python]` > `"editor.defaultFormatter": "charliermarsh.ruff"`
+    - `settings.json` > `"ruff.format.args": ["--line-length=120"]`
 
 If configured correctly, the style violations will be listed in the "Problems" tab.
 

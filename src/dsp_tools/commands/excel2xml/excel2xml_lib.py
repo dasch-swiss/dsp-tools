@@ -1,6 +1,3 @@
-# pylint: disable=line-too-long
-
-
 import dataclasses
 import datetime
 import difflib
@@ -13,7 +10,7 @@ from typing import Any, Iterable, Optional, Union
 
 import regex
 from lxml import etree
-from lxml.builder import E  # pylint: disable=no-name-in-module
+from lxml.builder import E
 
 from dsp_tools.commands.excel2xml.propertyelement import PropertyElement
 from dsp_tools.models.exceptions import BaseError
@@ -21,6 +18,9 @@ from dsp_tools.models.helpers import DateTimeStamp
 from dsp_tools.utils.date_util import is_full_date
 from dsp_tools.utils.shared import check_notna, simplify_name, validate_xml_against_schema
 from dsp_tools.utils.uri_util import is_uri
+
+# ruff: noqa: E501 (line-too-long)
+
 
 xml_namespace_map = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 
@@ -61,14 +61,44 @@ def make_xsd_id_compatible(string: str) -> str:
     return res
 
 
+def _find_french_bc_date(
+    string: str,
+    lookbehind: str,
+    lookahead: str,
+) -> Optional[str]:
+    french_bc_regex = r"av(?:\. |\.| )J\.?-?C\.?"
+    if not regex.search(french_bc_regex, string):
+        return None
+
+    year_regex = r"\d{1,5}"
+    sep_regex = r" ?- ?"
+
+    year_range_regex = rf"{lookbehind}({year_regex}){sep_regex}({year_regex}) {french_bc_regex}{lookahead}"
+    year_range = regex.search(year_range_regex, string)
+    if year_range:
+        start_year = int(year_range.group(1))
+        end_year = int(year_range.group(2))
+        if end_year > start_year:
+            return None
+        return f"GREGORIAN:BC:{start_year}:BC:{end_year}"
+
+    single_year_regex = rf"{lookbehind}({year_regex}) {french_bc_regex}{lookahead}"
+    single_year = regex.search(single_year_regex, string)
+    if single_year:
+        start_year = int(single_year.group(1))
+        return f"GREGORIAN:BC:{start_year}:BC:{start_year}"
+
+    return None
+
+
 def find_date_in_string(string: str) -> Optional[str]:
     """
     Checks if a string contains a date value (single date, or date range), and returns the first found date as
     DSP-formatted string. Returns None if no date was found.
 
     Notes:
-        - All dates are interpreted in the Christian era and the Gregorian calendar. There is no support for BC dates or
-          non-Gregorian calendars.
+        - All dates are interpreted in the Christian era and the Gregorian calendar.
+        - BC dates are only supported in French notation (e.g. 1000-900 av. J.-C.).
         - The years 0000-2999 are supported, in 3/4-digit form.
         - Dates written with slashes are always interpreted in a European manner: 5/11/2021 is the 5th of November.
 
@@ -78,16 +108,17 @@ def find_date_in_string(string: str) -> Optional[str]:
         - 30.4.2021 -> GREGORIAN:CE:2021-04-30:CE:2021-04-30
         - 5/11/2021 -> GREGORIAN:CE:2021-11-05:CE:2021-11-05
         - Jan 26, 1993 -> GREGORIAN:CE:1993-01-26:CE:1993-01-26
-        - February26,2051 -> GREGORIAN:CE:2051-02-26:CE:2051-02-26
         - 28.2.-1.12.1515 -> GREGORIAN:CE:1515-02-28:CE:1515-12-01
         - 25.-26.2.0800 -> GREGORIAN:CE:0800-02-25:CE:0800-02-26
         - 1.9.2022-3.1.2024 -> GREGORIAN:CE:2022-09-01:CE:2024-01-03
-        - 800 -> GREGORIAN:CE:800:CE:800
+        - 1848 -> GREGORIAN:CE:1848:CE:1848
         - 1849/1850 -> GREGORIAN:CE:1849:CE:1850
         - 1849/50 -> GREGORIAN:CE:1849:CE:1850
         - 1845-50 -> GREGORIAN:CE:1845:CE:1850
         - 840-50 -> GREGORIAN:CE:840:CE:850
         - 840-1 -> GREGORIAN:CE:840:CE:841
+        - 1000-900 av. J.-C. -> GREGORIAN:BC:1000:BC:900
+        - 45 av. J.-C. -> GREGORIAN:BC:45:BC:45
 
     Args:
         string: string to check
@@ -143,6 +174,9 @@ def find_date_in_string(string: str) -> Optional[str]:
     sep_regex = r"[\./]"
     lookbehind = r"(?<![0-9A-Za-z])"
     lookahead = r"(?![0-9A-Za-z])"
+
+    if french_bc_date := _find_french_bc_date(string=string, lookbehind=lookbehind, lookahead=lookahead):
+        return french_bc_date
 
     # template: 2021-01-01 | 2015_01_02
     iso_date = regex.search(rf"{lookbehind}{year_regex}[_-]([0-1][0-9])[_-]([0-3][0-9]){lookahead}", string)
@@ -345,10 +379,10 @@ def append_permissions(root_element: etree._Element) -> etree._Element:
     return root_element
 
 
-def make_resource(
+def make_resource(  # noqa: D417 (undocumented-param)
     label: str,
     restype: str,
-    id: str,  # pylint: disable=redefined-builtin
+    id: str,
     permissions: str = "res-default",
     ark: Optional[str] = None,
     iri: Optional[str] = None,
@@ -1441,9 +1475,9 @@ def make_uri_prop(
     return prop_
 
 
-def make_region(
+def make_region(  # noqa: D417 (undocumented-param)
     label: str,
-    id: str,  # pylint: disable=redefined-builtin
+    id: str,
     permissions: str = "res-default",
     ark: Optional[str] = None,
     iri: Optional[str] = None,
@@ -1500,9 +1534,9 @@ def make_region(
     )
 
 
-def make_annotation(
+def make_annotation(  # noqa: D417 (undocumented-param)
     label: str,
-    id: str,  # pylint: disable=redefined-builtin
+    id: str,
     permissions: str = "res-default",
     ark: Optional[str] = None,
     iri: Optional[str] = None,
@@ -1557,9 +1591,9 @@ def make_annotation(
     )
 
 
-def make_link(
+def make_link(  # noqa: D417 (undocumented-param)
     label: str,
-    id: str,  # pylint: disable=redefined-builtin
+    id: str,
     permissions: str = "res-default",
     ark: Optional[str] = None,
     iri: Optional[str] = None,

@@ -1,5 +1,3 @@
-# pylint: disable=f-string-without-interpolation,missing-class-docstring,missing-function-docstring
-
 import unittest
 from typing import Union
 
@@ -11,6 +9,9 @@ from lxml import etree
 from dsp_tools.commands.excel2xml.propertyelement import PropertyElement
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils import shared
+
+# ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
+# ruff: noqa: PT027 (pytest-unittest-raises-assertion) (remove this line when pytest is used instead of unittest)
 
 
 class TestShared(unittest.TestCase):
@@ -93,9 +94,7 @@ class TestShared(unittest.TestCase):
             for txt in utf8_texts_with_allowed_html_escapes
         ]
         for xml in utf8_texts_with_allowed_html_escapes:
-            self.assertTrue(
-                shared._validate_xml_tags_in_text_properties(etree.fromstring(xml))  # pylint: disable=protected-access
-            )
+            self.assertTrue(shared._validate_xml_tags_in_text_properties(etree.fromstring(xml)))
 
         utf8_texts_with_forbidden_html_escapes = ['&lt;tag s="t"&gt;', "&lt;em&gt;text&lt;/em&gt;"]
         utf8_texts_with_forbidden_html_escapes = [
@@ -112,7 +111,7 @@ class TestShared(unittest.TestCase):
         ]
         for xml in utf8_texts_with_forbidden_html_escapes:
             with self.assertRaisesRegex(UserError, "XML-tags are not allowed in text properties with encoding=utf8"):
-                shared._validate_xml_tags_in_text_properties(etree.fromstring(xml))  # pylint: disable=protected-access
+                shared._validate_xml_tags_in_text_properties(etree.fromstring(xml))
 
     def test_prepare_dataframe(self) -> None:
         original_df = pd.DataFrame(
@@ -147,8 +146,8 @@ class TestShared(unittest.TestCase):
             ".",
             "*",
             " ⳰",
-            " ῀ ",
-            " ῾ ",
+            " ῀ ",  # noqa: RUF001 (ambiguous-unicode-character-string)
+            " ῾ ",  # noqa: RUF001 (ambiguous-unicode-character-string)
             " \n\t ",
             "N/A",
             "n/a",

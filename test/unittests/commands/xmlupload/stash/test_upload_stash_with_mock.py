@@ -14,7 +14,8 @@ from dsp_tools.commands.xmlupload.stash.stash_models import (
 from dsp_tools.commands.xmlupload.xmlupload import _upload_stash
 from dsp_tools.utils.connection import Connection
 
-# pylint: disable=missing-function-docstring
+# ruff: noqa: ARG002 (unused-method-argument)
+# ruff: noqa: D102 (undocumented-public-method)
 
 
 class ProjectClientStub:

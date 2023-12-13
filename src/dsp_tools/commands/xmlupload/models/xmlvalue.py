@@ -6,7 +6,7 @@ from lxml import etree
 from dsp_tools.commands.xmlupload.models.value import FormattedTextValue
 
 
-class XMLValue:  # pylint: disable=too-few-public-methods
+class XMLValue:
     """Represents a value of a resource property in the XML used for data import"""
 
     value: Union[str, FormattedTextValue]

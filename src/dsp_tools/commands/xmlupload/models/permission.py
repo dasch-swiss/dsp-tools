@@ -1,4 +1,3 @@
-# pylint: disable=missing-class-docstring,missing-function-docstring
 from __future__ import annotations
 
 from enum import Enum, unique

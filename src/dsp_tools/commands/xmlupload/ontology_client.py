@@ -8,8 +8,6 @@ from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import try_network_action
 
-# pylint: disable=too-few-public-methods
-
 logger = get_logger(__name__)
 
 

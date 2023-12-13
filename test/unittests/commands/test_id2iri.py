@@ -1,8 +1,7 @@
-# pylint: disable=missing-class-docstring,missing-function-docstring
-
 import shutil
 import unittest
 from pathlib import Path
+from typing import ClassVar
 
 import pytest
 import regex
@@ -11,10 +10,13 @@ from lxml import etree
 from dsp_tools.commands.id2iri import _remove_resources_if_id_in_mapping, _replace_ids_by_iris, id2iri
 from dsp_tools.models.exceptions import BaseError
 
+# ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
+# ruff: noqa: PT027 (pytest-unittest-raises-assertion) (remove this line when pytest is used instead of unittest)
+
 
 class TestIdToIri(unittest.TestCase):
     tmp_dir = Path("testdata/tmp")
-    mapping = {
+    mapping: ClassVar = {
         "test_thing_0": "http://rdfh.ch/082E/-lRvrg7tQI6aVpcTJbVrwg",
         "test_thing_1": "http://rdfh.ch/082E/JK63OpYWTDWNYVOYFN7FdQ",
         "test_thing_2": "http://rdfh.ch/082E/1l63Oasdfopiujlkmn78ak",

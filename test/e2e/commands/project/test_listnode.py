@@ -8,8 +8,10 @@ from dsp_tools.models.langstring import LangString, Languages
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
 
+# ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
 
-class TestListNode(unittest.TestCase):  # pylint: disable=missing-class-docstring
+
+class TestListNode(unittest.TestCase):
     con: Connection
     project = "http://rdfh.ch/projects/0001"
     otherTreeList = "http://rdfh.ch/lists/0001/otherTreeList"
@@ -111,7 +113,7 @@ class TestListNode(unittest.TestCase):  # pylint: disable=missing-class-docstrin
         :return: None
         """
         lists = ListNode.getAllLists(self.con, self.project)
-        list_ids = list(map(lambda l: l.iri, lists))
+        list_ids = list(map(lambda lst: lst.iri, lists))
         self.assertIn(self.otherTreeList, list_ids)
         self.assertIn("http://rdfh.ch/lists/0001/treeList", list_ids)
 

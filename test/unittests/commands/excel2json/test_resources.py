@@ -1,7 +1,5 @@
 """unit tests for excel to resource"""
 
-# pylint: disable=missing-class-docstring,missing-function-docstring
-
 import re
 import unittest
 
@@ -12,6 +10,9 @@ from pytest_unordered import unordered
 
 from dsp_tools.commands.excel2json import resources as e2j
 from dsp_tools.models.exceptions import BaseError, InputError
+
+# ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
+
 
 excelfile = "testdata/excel2json/excel2json_files/test-name (test_label)/resources.xlsx"
 output_from_method, _ = e2j.excel2resources(excelfile, None)
@@ -181,7 +182,7 @@ class TestExcelToResource(unittest.TestCase):
 class TestValidateWithSchema:
     # it is not possible to call the method to be tested directly.
     # So let's make a reference to it, so that it can be found by the usage search
-    lambda x: e2j._validate_resources([])  # pylint: disable=expression-not-assigned,protected-access
+    lambda _: e2j._validate_resources([])
 
     def test_invalid_super(self) -> None:
         expected_msg = (

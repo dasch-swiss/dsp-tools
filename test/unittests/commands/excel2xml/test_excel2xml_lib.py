@@ -1,5 +1,3 @@
-# pylint: disable=missing-class-docstring,missing-function-docstring,too-many-public-methods
-
 import unittest
 from pathlib import Path
 from typing import Any, Callable, Optional, Sequence, Union
@@ -12,6 +10,9 @@ from lxml import etree
 
 from dsp_tools import excel2xml
 from dsp_tools.models.exceptions import BaseError
+
+# ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
+# ruff: noqa: PT027 (pytest-unittest-raises-assertion) (remove this line when pytest is used instead of unittest)
 
 
 def run_test(
@@ -152,7 +153,7 @@ class TestExcel2xmlLib(unittest.TestCase):
         Path("excel2xml-invalid-data.xml").unlink(missing_ok=True)
 
     def test_make_xsd_id_compatible(self) -> None:
-        teststring = "0aüZ/_-äöü1234567890?`^':.;+*ç%&/()=±“#Ç[]|{}≠₂₃āṇśṣr̥ṁñἄ𝝺𝝲𝛆’الشعرُאדםПопрыгуньяşğ"
+        teststring = "0aüZ/_-äöü1234567890?`^':.;+*ç%&/()=±“#Ç[]|{}≠₂₃āṇśṣr̥ṁñἄ𝝺𝝲𝛆’الشعرُאדםПопрыгуньяşğ"  # noqa: RUF001
         expected_ = "_0a_Z__-___1234567890_____.__________________________r______________________________"
 
         # test that the results are distinct from each other
@@ -277,6 +278,47 @@ class TestExcel2xmlLib(unittest.TestCase):
         }
         for testcase, expected in testcases.items():
             self.assertEqual(excel2xml.find_date_in_string(testcase), expected, msg=f"Failed with '{testcase}'")
+
+    def test_find_date_in_string_french_bc(self) -> None:
+        self.assertEqual(excel2xml.find_date_in_string("Text 12345 av. J.-C. text"), "GREGORIAN:BC:12345:BC:12345")
+        self.assertEqual(excel2xml.find_date_in_string("Text 2000 av. J.-C. text"), "GREGORIAN:BC:2000:BC:2000")
+        self.assertEqual(excel2xml.find_date_in_string("Text 250 av. J.-C. text"), "GREGORIAN:BC:250:BC:250")
+        self.assertEqual(excel2xml.find_date_in_string("Text 33 av. J.-C. text"), "GREGORIAN:BC:33:BC:33")
+        self.assertEqual(excel2xml.find_date_in_string("Text 1 av. J.-C. text"), "GREGORIAN:BC:1:BC:1")
+
+    def test_find_date_in_string_french_bc_ranges(self) -> None:
+        self.assertEqual(excel2xml.find_date_in_string("Text 99999-1000 av. J.-C. text"), "GREGORIAN:BC:99999:BC:1000")
+        self.assertEqual(excel2xml.find_date_in_string("Text 1125-1050 av. J.-C. text"), "GREGORIAN:BC:1125:BC:1050")
+        self.assertEqual(excel2xml.find_date_in_string("Text 1234-987 av. J.-C. text"), "GREGORIAN:BC:1234:BC:987")
+        self.assertEqual(excel2xml.find_date_in_string("Text 350-340 av. J.-C. text"), "GREGORIAN:BC:350:BC:340")
+        self.assertEqual(excel2xml.find_date_in_string("Text 842-98 av. J.-C. text"), "GREGORIAN:BC:842:BC:98")
+        self.assertEqual(excel2xml.find_date_in_string("Text 45-26 av. J.-C. text"), "GREGORIAN:BC:45:BC:26")
+        self.assertEqual(excel2xml.find_date_in_string("Text 53-7 av. J.-C. text"), "GREGORIAN:BC:53:BC:7")
+        self.assertEqual(excel2xml.find_date_in_string("Text 6-5 av. J.-C. text"), "GREGORIAN:BC:6:BC:5")
+
+    def test_find_date_in_string_french_bc_orthographical_variants(self) -> None:
+        self.assertEqual(excel2xml.find_date_in_string("Text 1 av. J.-C. text"), "GREGORIAN:BC:1:BC:1")
+        self.assertEqual(excel2xml.find_date_in_string("Text 1 av J.-C. text"), "GREGORIAN:BC:1:BC:1")
+        self.assertEqual(excel2xml.find_date_in_string("Text 1 av.J.-C. text"), "GREGORIAN:BC:1:BC:1")
+        self.assertEqual(excel2xml.find_date_in_string("Text 1 av. J.C. text"), "GREGORIAN:BC:1:BC:1")
+        self.assertEqual(excel2xml.find_date_in_string("Text 1 av. J-C text"), "GREGORIAN:BC:1:BC:1")
+        self.assertEqual(excel2xml.find_date_in_string("Text 1 av.JC text"), "GREGORIAN:BC:1:BC:1")
+        self.assertEqual(excel2xml.find_date_in_string("Text 1 av JC text"), "GREGORIAN:BC:1:BC:1")
+        self.assertEqual(excel2xml.find_date_in_string("Text 1 av. J.-C.text"), "GREGORIAN:BC:1:BC:1")
+
+    def test_find_date_in_string_french_bc_dash_variants(self) -> None:
+        self.assertEqual(excel2xml.find_date_in_string("Text 2000-1000 av. J.-C. text"), "GREGORIAN:BC:2000:BC:1000")
+        self.assertEqual(excel2xml.find_date_in_string("Text 2000- 1000 av. J.-C. text"), "GREGORIAN:BC:2000:BC:1000")
+        self.assertEqual(excel2xml.find_date_in_string("Text 2000 -1000 av. J.-C. text"), "GREGORIAN:BC:2000:BC:1000")
+        self.assertEqual(excel2xml.find_date_in_string("Text 2000 - 1000 av. J.-C. text"), "GREGORIAN:BC:2000:BC:1000")
+
+    def test_find_date_in_string_french_bc_invalid_syntax(self) -> None:
+        self.assertEqual(excel2xml.find_date_in_string("Text12 av. J.-C. text"), None)
+        self.assertEqual(excel2xml.find_date_in_string("Text 12 av. J.-Ctext"), None)
+        self.assertEqual(excel2xml.find_date_in_string("Text 1 avJC text"), None)
+
+    def test_find_date_in_string_french_bc_invalid_range(self) -> None:
+        self.assertEqual(excel2xml.find_date_in_string("Text 12-20 av. J.-C. text"), None)
 
     def test_prepare_value(self) -> None:
         identical_values = ["Test", "Test", "Test"]
@@ -522,7 +564,7 @@ class TestExcel2xmlLib(unittest.TestCase):
                 "&lt;escaped tag&gt;",
             ],
         ]
-        all_inputs = " ".join([input for input, _ in testcases_xml])
+        all_inputs = " ".join([inp for inp, _ in testcases_xml])
         all_outputs = " ".join([output for _, output in testcases_xml])
         testcases_xml.append([all_inputs, all_outputs])
 
@@ -600,25 +642,23 @@ class TestExcel2xmlLib(unittest.TestCase):
         for method, tagname in method_2_tagname.items():
             test_cases: list[tuple[Callable[..., etree._Element], str]] = [
                 (
-                    lambda: method("label", "id"),  # pylint: disable=cell-var-from-loop
+                    lambda: method("label", "id"),
                     f'<{tagname} label="label" id="id" permissions="res-default"/>',
                 ),
                 (
-                    lambda: method("label", "id", "res-restricted"),  # pylint: disable=cell-var-from-loop
+                    lambda: method("label", "id", "res-restricted"),
                     f'<{tagname} label="label" id="id" permissions="res-restricted"/>',
                 ),
                 (
-                    lambda: method("label", "id", ark="ark"),  # pylint: disable=cell-var-from-loop
+                    lambda: method("label", "id", ark="ark"),
                     f'<{tagname} label="label" id="id" permissions="res-default" ark="ark"/>',
                 ),
                 (
-                    lambda: method("label", "id", iri="iri"),  # pylint: disable=cell-var-from-loop
+                    lambda: method("label", "id", iri="iri"),
                     f'<{tagname} label="label" id="id" permissions="res-default" iri="iri"/>',
                 ),
                 (
-                    lambda: method(  # pylint: disable=cell-var-from-loop
-                        "label", "id", creation_date="2019-10-23T13:45:12Z"
-                    ),
+                    lambda: method("label", "id", creation_date="2019-10-23T13:45:12Z"),
                     (
                         f'<{tagname} label="label" id="id" permissions="res-default" '
                         'creation_date="2019-10-23T13:45:12Z"/>'

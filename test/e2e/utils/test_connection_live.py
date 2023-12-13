@@ -1,13 +1,14 @@
 """end to end tests for connection class"""
 
-# pylint: disable=missing-class-docstring,missing-function-docstring
-
 import unittest
 
 import pytest
 
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.connection_live import ConnectionLive
+
+# ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
+# ruff: noqa: PT027 (pytest-unittest-raises-assertion) (remove this line when pytest is used instead of unittest)
 
 
 class TestConnectionLive(unittest.TestCase):

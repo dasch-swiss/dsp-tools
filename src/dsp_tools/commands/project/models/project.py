@@ -1,5 +1,3 @@
-# pylint: disable=missing-class-docstring,missing-function-docstring
-
 """
 This module implements the handling (CRUD) of DSP projects.
 
@@ -38,7 +36,7 @@ from dsp_tools.models.langstring import LangString, Languages
 from dsp_tools.utils.connection import Connection
 
 
-class Project(Model):  # pylint: disable=too-many-instance-attributes,too-many-public-methods
+class Project(Model):
     """
     This class represents a project in DSP.
 
@@ -168,17 +166,9 @@ class Project(Model):  # pylint: disable=too-many-instance-attributes,too-many-p
     def iri(self) -> Optional[str]:
         return self._iri
 
-    @iri.setter
-    def iri(self, value: str) -> None:
-        raise BaseError("Project iri cannot be modified!")
-
     @property
     def shortcode(self) -> Optional[str]:
         return self._shortcode
-
-    @shortcode.setter
-    def shortcode(self, value: str) -> None:
-        raise BaseError("Shortcode id cannot be modified!")
 
     @property
     def shortname(self) -> Optional[str]:
@@ -276,10 +266,6 @@ class Project(Model):  # pylint: disable=too-many-instance-attributes,too-many-p
     @property
     def ontologies(self) -> set[str]:
         return self._ontologies
-
-    @ontologies.setter
-    def ontologies(self, value: set[str]) -> None:
-        raise BaseError("Cannot add a ontology!")
 
     @property
     def selfjoin(self) -> Optional[bool]:

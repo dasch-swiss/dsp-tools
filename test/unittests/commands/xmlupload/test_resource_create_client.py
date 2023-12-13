@@ -1,11 +1,9 @@
-from pytest import raises
+import pytest
 
 from dsp_tools.commands.xmlupload.models.permission import Permissions, PermissionValue
 from dsp_tools.commands.xmlupload.models.xmlresource import BitstreamInfo
 from dsp_tools.commands.xmlupload.resource_create_client import _make_bitstream_file_value, _to_boolean
 from dsp_tools.models.exceptions import BaseError
-
-# pylint: disable=missing-function-docstring,too-many-public-methods
 
 
 class TestMakeBitstreamFileValue:
@@ -388,7 +386,7 @@ def test_to_boolean() -> None:
     assert not _to_boolean("0")
     assert not _to_boolean(0)
     assert not _to_boolean(False)
-    with raises(BaseError):
+    with pytest.raises(BaseError):
         _to_boolean("foo")
-    with raises(BaseError):
+    with pytest.raises(BaseError):
         _to_boolean(2)

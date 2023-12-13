@@ -1,5 +1,3 @@
-# pylint: disable=missing-function-docstring
-
 """
 This module implements the handling (CRUD) of DSP groups.
 
@@ -37,7 +35,7 @@ from dsp_tools.models.langstring import LangString
 from dsp_tools.utils.connection import Connection
 
 
-class Group(Model):  # pylint: disable=too-many-instance-attributes
+class Group(Model):
     """
     This class represents a DSP group
 
@@ -105,10 +103,6 @@ class Group(Model):  # pylint: disable=too-many-instance-attributes
     @property
     def iri(self) -> Optional[str]:
         return self._iri
-
-    @iri.setter
-    def iri(self, value: str) -> None:
-        raise BaseError("Group iri cannot be modified!")
 
     @property
     def name(self) -> Optional[str]:

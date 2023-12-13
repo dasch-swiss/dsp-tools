@@ -24,6 +24,11 @@ Black aims for readability and reducing git diffs.
 Black is an easy-to-use tool, with sensible and useful defaults.
 Its style is very elegant.
 
+### [Ruff](https://pypi.org/project/ruff/)
+
+Besides being a linter, Ruff is also an auto-formatter.
+It is designed as a drop-in replacement for Black.
+
 ### [yapf](https://pypi.org/project/yapf/)
 
 Auto-formatter that can be configured to support different styles.

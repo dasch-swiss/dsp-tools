@@ -1,6 +1,7 @@
 import shutil
 import unittest
 from pathlib import Path
+from typing import ClassVar
 
 import pytest
 
@@ -8,6 +9,8 @@ from dsp_tools.commands.fast_xmlupload.process_files import process_files
 from dsp_tools.commands.fast_xmlupload.upload_files import upload_files
 from dsp_tools.commands.fast_xmlupload.upload_xml import fast_xmlupload
 from dsp_tools.commands.project.create.project_create import create_project
+
+# ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
 
 
 class TestFastXmlUpload(unittest.TestCase):
@@ -24,7 +27,7 @@ class TestFastXmlUpload(unittest.TestCase):
     output_dir = "testdata/preprocessed_files"
     xml_file = "testdata/xml-data/test-data-fast-xmlupload.xml"
     json_file = "testdata/json-project/test-project-fast-xmlupload.json"
-    txt_files = ["processed_files.txt", "unprocessed_files.txt"]
+    txt_files: ClassVar = ["processed_files.txt", "unprocessed_files.txt"]
 
     @classmethod
     def setUpClass(cls) -> None:

@@ -8,6 +8,9 @@ import pytest
 from dsp_tools.cli.entry_point import _derive_sipi_url, _get_canonical_server_and_sipi_url
 from dsp_tools.models.exceptions import UserError
 
+# ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
+# ruff: noqa: PT027 (pytest-unittest-raises-assertion) (remove this line when pytest is used instead of unittest)
+
 
 class TestCLI(unittest.TestCase):
     """

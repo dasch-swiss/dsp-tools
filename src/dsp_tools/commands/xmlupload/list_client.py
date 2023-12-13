@@ -8,8 +8,6 @@ from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import try_network_action
 
-# pylint: disable=too-few-public-methods
-
 logger = get_logger(__name__)
 
 
@@ -67,9 +65,9 @@ class ListClientLive:
 
 
 def _get_node_tuples(lists: list[List]) -> Iterable[tuple[str, str]]:
-    for l in lists:
-        list_name = l.list_name
-        for node in l.nodes:
+    for lst in lists:
+        list_name = lst.list_name
+        for node in lst.nodes:
             node_name = node.node_name
             node_id = f"{list_name}:{node_name}"
             yield node_id, node.node_iri
@@ -87,7 +85,7 @@ def _get_list_iris_from_server(con: Connection, project_iri: str) -> list[str]:
     res: dict[str, Any] = try_network_action(con.get, f"/admin/lists?projectIri={iri}")
     lists: list[dict[str, Any]] = res["lists"]
     logger.info(f"Found {len(lists)} lists for project")
-    return [l["id"] for l in lists]
+    return [lst["id"] for lst in lists]
 
 
 def _get_list_from_server(con: Connection, list_iri: str) -> List:
@@ -101,7 +99,7 @@ def _get_list_from_server(con: Connection, list_iri: str) -> List:
     # if the root node does not have a name, use the label instead
     list_name: str = list_info.get("name") or list_info["labels"][0]["value"]
     root_node = ListNode(root_iri, list_name)
-    nodes = [root_node] + _children_to_nodes(children)
+    nodes = [root_node, *_children_to_nodes(children)]
     return List(root_iri, list_name, nodes)
 
 

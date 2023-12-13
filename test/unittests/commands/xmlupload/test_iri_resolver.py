@@ -1,11 +1,9 @@
-from pytest import fixture
+import pytest
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 
-# pylint: disable=missing-function-docstring,redefined-outer-name
 
-
-@fixture
+@pytest.fixture()
 def resolver() -> IriResolver:
     return IriResolver()
 

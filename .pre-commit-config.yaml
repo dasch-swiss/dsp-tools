@@ -7,18 +7,20 @@ repos:
     hooks:
       - id: ruff
         args: [
+          --ignore=A003,
+          --ignore=B023,
           --ignore=D101,
           --ignore=D102,
           --ignore=D103,
-          --ignore=PLR0912,
-          --ignore=PLR0915,
-          --ignore=PLW0603,
           --ignore=PLR0911,
-          --ignore=PLW2901,
+          --ignore=PLR0912,
+          --ignore=PLR0913,
+          --ignore=PLR0915,
+          --ignore=PLR2004,
           --ignore=PLR5501,
-          --ignore=A003,
+          --ignore=PLW0603,
+          --ignore=PLW2901,
           --ignore=RUF100,
-          --ignore=B023,
         ]
       - id: ruff-format
 

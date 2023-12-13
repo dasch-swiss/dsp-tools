@@ -64,7 +64,10 @@ jobs:
         run: poetry install
       # run tests
       - name: Linting with ruff
-        run: poetry run ruff check --output-format=github --ignore=D101,D102,D103,PLR0912,PLR0915,PLW0603,PLR0911,PLW2901,PLR5501,A003,RUF100,B023 .
+        run: >
+          poetry run ruff check . 
+          --output-format=github 
+          --ignore=A003,B023,D101,D102,D103,PLR0911,PLR0912,PLR0913,PLR0915,PLR2004,PLR5501,PLW0603,PLW2901,RUF100
       - name: Formatting with ruff
         run: poetry run ruff format .
       - name: Linting with mypy

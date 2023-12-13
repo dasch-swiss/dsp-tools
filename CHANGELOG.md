@@ -1,5 +1,39 @@
 # Changelog
 
+## [5.5.0](https://github.com/dasch-swiss/dsp-tools/compare/v5.4.0...v5.5.0) (2023-12-13)
+
+
+### Enhancements
+
+* **cli:** change user output when handling errors (DEV-3067) ([#672](https://github.com/dasch-swiss/dsp-tools/issues/672)) ([71a1737](https://github.com/dasch-swiss/dsp-tools/commit/71a1737a22d74aa5d856292afd992eaa4b110fd5))
+* **excel2json:** new error implementation for json validation (DEV-3047) ([#664](https://github.com/dasch-swiss/dsp-tools/issues/664)) ([fdbc545](https://github.com/dasch-swiss/dsp-tools/commit/fdbc5450dc08b99006c5add09bfde186d5f26de1))
+* **excel2json:** new user error (InputError) implementation in properties section (DEV-3037) ([#654](https://github.com/dasch-swiss/dsp-tools/issues/654)) ([b1703e1](https://github.com/dasch-swiss/dsp-tools/commit/b1703e12f4cf9919b9f8ce2efa53db86dae6c83f))
+* **xmlupload:** improve error message if ontology is unknown (DEV-3024) ([#674](https://github.com/dasch-swiss/dsp-tools/issues/674)) ([5319ff3](https://github.com/dasch-swiss/dsp-tools/commit/5319ff3217969e86ac78ce3924b31fdf119e9f23))
+
+
+### Bug Fixes
+
+* date validation forbids legal values (DEV-3059) ([#668](https://github.com/dasch-swiss/dsp-tools/issues/668)) ([13131ff](https://github.com/dasch-swiss/dsp-tools/commit/13131ffebf8a99d4d10d5e0aeb5526f0547afd5f))
+* **excel2json:** find hidden worksheets in excel (DEV-1483) ([#679](https://github.com/dasch-swiss/dsp-tools/issues/679)) ([ffbf0c0](https://github.com/dasch-swiss/dsp-tools/commit/ffbf0c079909b0c150f0e1a39efb256f6781a314))
+* **xmlupload:** allow dots in filenames (DEV-3058) ([#676](https://github.com/dasch-swiss/dsp-tools/issues/676)) ([ad0c37c](https://github.com/dasch-swiss/dsp-tools/commit/ad0c37cc5feb030f538db3787d0b532be2694577))
+* **xmlupload:** allow external link in text value (DEV-3054) ([#666](https://github.com/dasch-swiss/dsp-tools/issues/666)) ([08f7b93](https://github.com/dasch-swiss/dsp-tools/commit/08f7b9309c6b116d490ed18c81c0bbfc7f94aa5a))
+* **xmlupload:** support uppercase file extensions (DEV-3095) ([#678](https://github.com/dasch-swiss/dsp-tools/issues/678)) ([24cb320](https://github.com/dasch-swiss/dsp-tools/commit/24cb320125016ecaff85387a11f7ca0dd53c5a85))
+
+
+### Maintenance
+
+* bump start-stack to 2023.12.01 (DEV-3105) ([#681](https://github.com/dasch-swiss/dsp-tools/issues/681)) ([ddd0078](https://github.com/dasch-swiss/dsp-tools/commit/ddd00782656cf2edac70204d69938423b1c644bf))
+* **cli:** modularise cli.py (DEV-3068) ([#673](https://github.com/dasch-swiss/dsp-tools/issues/673)) ([f0da1ca](https://github.com/dasch-swiss/dsp-tools/commit/f0da1cad5d26ebf747e185542b4ada108f9bd54f))
+* **deps:** bump the all-dependencies group with 8 updates ([#662](https://github.com/dasch-swiss/dsp-tools/issues/662)) ([6e307c2](https://github.com/dasch-swiss/dsp-tools/commit/6e307c2465f7ff8a82febf737ea92f3bab0b2549))
+* **docs:** fix outdated link ([#669](https://github.com/dasch-swiss/dsp-tools/issues/669)) ([5b333c2](https://github.com/dasch-swiss/dsp-tools/commit/5b333c274267a9e1abbd6b11de5c20898e931024))
+* **excel2json:** modularise unittests (DEV-3040) ([#659](https://github.com/dasch-swiss/dsp-tools/issues/659)) ([107b1b0](https://github.com/dasch-swiss/dsp-tools/commit/107b1b0bcbbe94dfa61a74ff6c17ec3888f0b4d2))
+* **excel2json:** new excel reader (DEV-3049) ([#665](https://github.com/dasch-swiss/dsp-tools/issues/665)) ([a0d5776](https://github.com/dasch-swiss/dsp-tools/commit/a0d57769be9d8b0073536d5db29deb5cea05ce61))
+* pandas future warning in unittest (DEV-3060) ([#671](https://github.com/dasch-swiss/dsp-tools/issues/671)) ([b3f75f4](https://github.com/dasch-swiss/dsp-tools/commit/b3f75f410afe1c2df5dd868a112736cb2ee40213))
+* **process-files:** diverse improvements ([#656](https://github.com/dasch-swiss/dsp-tools/issues/656)) ([692ad40](https://github.com/dasch-swiss/dsp-tools/commit/692ad4092fe459d47ea015ad529de7e13f5a7066))
+* remove tabs (DEV-3043) ([#661](https://github.com/dasch-swiss/dsp-tools/issues/661)) ([286abf8](https://github.com/dasch-swiss/dsp-tools/commit/286abf8c21aca9901dde2ac858f00e3c45be881a))
+* update poetry.lock (DEV-3081) ([#675](https://github.com/dasch-swiss/dsp-tools/issues/675)) ([cd85836](https://github.com/dasch-swiss/dsp-tools/commit/cd85836d20479a5dc82d355434a076ec087e4010))
+* **xmlupload:** clean up handle media information (DEV-3086) ([#677](https://github.com/dasch-swiss/dsp-tools/issues/677)) ([93fb71f](https://github.com/dasch-swiss/dsp-tools/commit/93fb71f7e31fcfe930ddbc0b47a924015af4a719))
+
 ## [5.4.0](https://github.com/dasch-swiss/dsp-tools/compare/v5.3.0...v5.4.0) (2023-11-29)
 
 

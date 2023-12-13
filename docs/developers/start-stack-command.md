@@ -11,7 +11,7 @@ The version of the docker images and these files must be the same.
 The version is configured in the following files in `src/dsp_tools/resources/start-stack/`:
 
 - `docker-compose.yml`: 
-  The 4 variables `services/{app,db,sipi,api}/image` 
+  The 5 variables `services/{app,db,sipi,api,ingest}/image` 
   must point to the DockerHub image of the last deployed version.
   The versions can be found in the
   [ops-deploy repo](https://github.com/dasch-swiss/ops-deploy/blob/main/roles/dsp-deploy/files/RELEASE.json)

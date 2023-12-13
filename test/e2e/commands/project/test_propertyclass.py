@@ -11,6 +11,8 @@ from dsp_tools.models.langstring import LangString, Languages
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
 
+# ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
+
 
 class TestPropertyClass(unittest.TestCase):
     project = "http://rdfh.ch/projects/0001"

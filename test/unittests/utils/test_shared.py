@@ -10,6 +10,8 @@ from dsp_tools.commands.excel2xml.propertyelement import PropertyElement
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils import shared
 
+# ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
+
 
 class TestShared(unittest.TestCase):
     def test_make_chunks(self) -> None:

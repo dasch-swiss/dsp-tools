@@ -24,6 +24,8 @@ from dsp_tools.commands.project.create.project_validate import (
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.utils.shared import parse_json_input
 
+# ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
+
 
 class TestProjectCreation(unittest.TestCase):
     tp_systematic_file = "testdata/json-project/test-project-systematic.json"

@@ -7,6 +7,8 @@ import jsonpath_ng.ext
 from dsp_tools.commands.project.create.project_create import create_project
 from dsp_tools.commands.project.create.project_create_lists import create_lists
 
+# ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
+
 
 class TestCreateLists(unittest.TestCase):
     server = "http://0.0.0.0:3333"

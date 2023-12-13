@@ -9,6 +9,8 @@ from dsp_tools.models.helpers import DateTimeStamp
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
 
+# ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
+
 
 class TestOntology(unittest.TestCase):
     con: Connection

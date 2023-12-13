@@ -10,6 +10,8 @@ from lxml import etree
 from dsp_tools.commands.id2iri import _remove_resources_if_id_in_mapping, _replace_ids_by_iris, id2iri
 from dsp_tools.models.exceptions import BaseError
 
+# ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
+
 
 class TestIdToIri(unittest.TestCase):
     tmp_dir = Path("testdata/tmp")

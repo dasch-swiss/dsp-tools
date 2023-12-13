@@ -5,6 +5,8 @@ import pytest
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.value import FormattedTextValue
 
+# ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
+
 
 class TestXMLUploadStash(TestCase):
     def test_find_ids_referenced_in_salsah_links_one_link(self) -> None:

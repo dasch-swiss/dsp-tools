@@ -7,6 +7,8 @@ import pytest
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.connection_live import ConnectionLive
 
+# ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
+
 
 class TestConnectionLive(unittest.TestCase):
     con: ConnectionLive

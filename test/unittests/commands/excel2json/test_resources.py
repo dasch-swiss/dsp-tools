@@ -11,6 +11,9 @@ from pytest_unordered import unordered
 from dsp_tools.commands.excel2json import resources as e2j
 from dsp_tools.models.exceptions import BaseError, InputError
 
+# ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
+
+
 excelfile = "testdata/excel2json/excel2json_files/test-name (test_label)/resources.xlsx"
 output_from_method, _ = e2j.excel2resources(excelfile, None)
 

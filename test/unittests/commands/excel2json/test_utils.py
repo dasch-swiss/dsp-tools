@@ -9,6 +9,8 @@ from pytest_unordered import unordered
 import dsp_tools.commands.excel2json.utils as utl
 from dsp_tools.commands.excel2json.input_error import DuplicatesInColumnProblem
 
+# ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
+
 
 class TestUtils(unittest.TestCase):
     def test_clean_data_frame(self) -> None:

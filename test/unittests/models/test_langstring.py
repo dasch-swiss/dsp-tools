@@ -5,6 +5,8 @@ import pytest
 
 from dsp_tools.models.langstring import LangString, Languages
 
+# ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
+
 
 class TestLangString(unittest.TestCase):
     simple_string_de = "Ein simpler String"

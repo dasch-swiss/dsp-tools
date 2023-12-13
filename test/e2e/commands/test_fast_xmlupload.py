@@ -10,6 +10,8 @@ from dsp_tools.commands.fast_xmlupload.upload_files import upload_files
 from dsp_tools.commands.fast_xmlupload.upload_xml import fast_xmlupload
 from dsp_tools.commands.project.create.project_create import create_project
 
+# ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
+
 
 class TestFastXmlUpload(unittest.TestCase):
     """

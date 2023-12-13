@@ -14,6 +14,9 @@ from pytest_unordered import unordered
 from dsp_tools.commands.excel2json import lists as e2l
 from dsp_tools.models.exceptions import BaseError
 
+# ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
+
+
 with open("testdata/excel2json/lists-multilingual-output-expected.json", encoding="utf-8") as valf:
     lists_section_valid = json.load(valf)
 

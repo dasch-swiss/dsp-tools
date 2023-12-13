@@ -7,6 +7,7 @@ repos:
     hooks:
       - id: ruff
         args: [
+          --ignore=A002,
           --ignore=A003,
           --ignore=B023,
           --ignore=D101,

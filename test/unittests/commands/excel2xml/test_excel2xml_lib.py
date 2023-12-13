@@ -287,7 +287,7 @@ class TestExcel2xmlLib(unittest.TestCase):
 
     def test_find_date_in_string_french_bc_ranges(self) -> None:
         self.assertEqual(excel2xml.find_date_in_string("Text 99999-1000 av. J.-C. text"), "GREGORIAN:BC:99999:BC:1000")
-        self.assertEqual(excel2xml.find_date_in_string("Text 1125-1234 av. J.-C. text"), "GREGORIAN:BC:1125:BC:1234")
+        self.assertEqual(excel2xml.find_date_in_string("Text 1125-1050 av. J.-C. text"), "GREGORIAN:BC:1125:BC:1050")
         self.assertEqual(excel2xml.find_date_in_string("Text 1234-987 av. J.-C. text"), "GREGORIAN:BC:1234:BC:987")
         self.assertEqual(excel2xml.find_date_in_string("Text 350-340 av. J.-C. text"), "GREGORIAN:BC:350:BC:340")
         self.assertEqual(excel2xml.find_date_in_string("Text 842-98 av. J.-C. text"), "GREGORIAN:BC:842:BC:98")

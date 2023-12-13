@@ -3,6 +3,7 @@
 from pathlib import Path
 
 import pandas as pd
+from pandas.testing import assert_frame_equal
 
 from dsp_tools.commands.ingest_xmlupload.user_information import IngestInformation
 
@@ -66,7 +67,7 @@ def test_unused_media_to_df() -> None:
     ]
     expected = pd.DataFrame({"Media Filenames": unused_media_list})
     res_df = IngestInformation(unused_media_list, [], maximum_prints=1)._unused_media_to_df()
-    pd.testing.assert_frame_equal(res_df, expected)
+    assert_frame_equal(res_df, expected)
 
 
 def test_unused_media_to_df_not_enough() -> None:
@@ -94,7 +95,7 @@ def test_no_uuid_to_df() -> None:
         ],
         maximum_prints=1,
     )._no_uuid_to_df()
-    pd.testing.assert_frame_equal(res_df, expected)
+    assert_frame_equal(res_df, expected)
 
 
 def test_no_uuid_to_df_not_enough() -> None:

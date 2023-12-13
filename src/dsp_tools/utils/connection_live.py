@@ -166,7 +166,7 @@ class ConnectionLive:
         if not route.startswith("/"):
             route = f"/{route}"
         url = self.server + route
-        headers = {}
+        headers = {"X-Asset-Ingested": "true"}
         if jsondata:
             headers["Content-Type"] = f"{content_type}; charset=UTF-8"
         if self.token:

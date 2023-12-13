@@ -40,12 +40,7 @@ class Connection(Protocol):
             content_type: HTTP Content-Type [default: 'application/json']
         """
 
-    def post(
-        self,
-        route: str,
-        jsondata: str | None = None,
-        content_type: str = "application/json",
-    ) -> dict[str, Any]:
+    def post(self, route: str, jsondata: str | None = None, content_type: str = "application/json") -> dict[str, Any]:
         """
         Make a HTTP POST request to the server to which this connection has been established.
 

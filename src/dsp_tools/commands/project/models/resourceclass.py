@@ -555,11 +555,10 @@ class ResourceClass(Model):
             #
             tmp = dict(has_properties)
             for key in tmp.keys():
-                key_with_value = key
                 if key.endswith("Value"):
-                    key = key.removesuffix("Value")
-                    if key in has_properties:
-                        del has_properties[key_with_value]
+                    key_without_value = key.removesuffix("Value")
+                    if key_without_value in has_properties:
+                        del has_properties[key]
         else:
             superclasses = None
             has_properties = None

@@ -213,14 +213,13 @@ def excel2resources(
 
 
 def _prepare_classes_df(resource_dfs: dict[str, pd.DataFrame]) -> tuple[pd.DataFrame, dict[str, pd.DataFrame]]:
-    if "classes" not in resource_dfs.keys():
-        if "Classes" not in resource_dfs.keys():
-            msg = ResourcesSheetsNotAsExpected(set(), names_sheets={"classes"}).execute_error_protocol()
-            raise InputError(msg)
-        else:
-            classes_df = resource_dfs.pop("Classes")
-    else:
+    if "classes" not in resource_dfs:
         classes_df = resource_dfs.pop("classes")
+    elif "Classes" in resource_dfs:
+        classes_df = resource_dfs.pop("Classes")
+    else:
+        msg = ResourcesSheetsNotAsExpected(set(), names_sheets={"classes"}).execute_error_protocol()
+        raise InputError(msg)
     classes_df = prepare_dataframe(
         df=classes_df,
         required_columns=["name"],

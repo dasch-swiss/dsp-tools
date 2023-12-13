@@ -1,5 +1,3 @@
-# ruff: noqa: E501 (line-too-long)
-
 from __future__ import annotations
 
 import warnings
@@ -35,6 +33,8 @@ from dsp_tools.commands.excel2xml.excel2xml_lib import (
 from dsp_tools.commands.excel2xml.propertyelement import PropertyElement
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.shared import check_notna
+
+# ruff: noqa: E501 (line-too-long)
 
 
 def _read_cli_input_file(datafile: str) -> pd.DataFrame:

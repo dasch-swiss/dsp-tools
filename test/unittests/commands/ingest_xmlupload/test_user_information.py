@@ -25,8 +25,8 @@ class TestIngestInformation:
             "    The following media were uploaded to sipi but not referenced in the data XML file:\n"
             "    - unused_media"
         )
-        res_msg = IngestInformation(["unused_media"], [])._get_error_msg()
-        assert res_msg == expected
+        res_info = IngestInformation(["unused_media"], [])._get_error_msg()
+        assert res_info == expected
 
     def test_not_uploaded(self) -> None:
         expected = (
@@ -34,8 +34,8 @@ class TestIngestInformation:
             "    The following media were not uploaded to sipi but referenced in the data XML file:\n"
             "    - Resource ID: 'no upload id' | Filepath: 'media path'"
         )
-        res_msg = IngestInformation([], [("no upload id", "media path")])._get_error_msg()
-        assert res_msg == expected
+        res_info = IngestInformation([], [("no upload id", "media path")])._get_error_msg()
+        assert res_info == expected
 
     def test_all_problem_with_df_msg(self) -> None:
         expected = (
@@ -45,7 +45,7 @@ class TestIngestInformation:
             "    Media was referenced in the XML file but not previously uploaded to sipi:\n"
             "    The file 'NotUploadedFilesToSipi.csv' was saved in '.' with the resource IDs and filenames."
         )
-        res_msg = IngestInformation(
+        res_info = IngestInformation(
             [
                 "unused_media0",
                 "unused_media1",
@@ -57,7 +57,7 @@ class TestIngestInformation:
             csv_filepath=Path(),
             maximum_prints=1,
         )._get_error_msg()
-        assert res_msg == expected
+        assert res_info == expected
 
 
 def test_unused_media_to_df() -> None:

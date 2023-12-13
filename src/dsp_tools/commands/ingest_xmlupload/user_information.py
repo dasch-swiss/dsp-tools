@@ -18,9 +18,9 @@ class UserInformation(Protocol):
 
     def all_good_msg(self) -> str:
         """
-        If everything went as it should this function return a success message for the user.
+        If everything went as it should, this function returns a success message for the user.
         Returns:
-
+            Message for the user.
         """
 
     def execute_error_protocol(self) -> str:

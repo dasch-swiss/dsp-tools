@@ -24,8 +24,6 @@ class ConnectionMock(ConnectionMockBase):
 
 
 class TestGetListNodeLookup:
-    """Test the get_list_node_id_to_iri_lookup method of the ListClientLive class."""
-
     def test_list_root_only(self) -> None:
         list_iris = {"lists": [{"id": "http://www.example.org/lists#a"}]}
         list_a = {
@@ -121,8 +119,6 @@ class TestGetListNodeLookup:
 
 
 class TestGetListFromServer:
-    """Test the _get_list_info_from_server function."""
-
     def test_no_name_no_children(self) -> None:
         list_response = {
             "list": {

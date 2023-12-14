@@ -98,15 +98,15 @@ def stash_circular_references(
     stashed_link_values: list[LinkValueStashItem] = []
 
     for res in resources:
-        if res.id not in stash_lookup:
+        if res.res_id not in stash_lookup:
             continue
         for link_prop in res.get_props_with_links():
             assert link_prop.valtype in ["text", "resptr"]
             if link_prop.valtype == "text":
-                standoff_stash_item = _stash_standoff(res.id, res.restype, link_prop, stash_lookup)
+                standoff_stash_item = _stash_standoff(res.res_id, res.restype, link_prop, stash_lookup)
                 stashed_standoff_values.extend(standoff_stash_item)
             elif link_prop.valtype == "resptr":
-                link_stash_item = _stash_resptr(res.id, res.restype, link_prop, stash_lookup, permission_lookup)
+                link_stash_item = _stash_resptr(res.res_id, res.restype, link_prop, stash_lookup, permission_lookup)
                 stashed_link_values.extend(link_stash_item)
 
             if len(link_prop.values) == 0:

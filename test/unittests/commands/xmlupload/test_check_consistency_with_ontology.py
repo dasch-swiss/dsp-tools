@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import pytest
 from lxml import etree
 from pytest_unordered import unordered
@@ -90,7 +88,6 @@ def test_get_all_property_names_and_resource_ids_one_resouce() -> None:
 def test_find_problems_in_classes_and_properties_all_good() -> None:
     onto_check_info = OntoCheckInformation(
         default_ontology_prefix="test",
-        save_location=Path(""),
         onto_lookup={
             "test": OntoInfo(classes=["classA", "classB"], properties=["propA", "propB"]),
             "knora-api": OntoInfo(classes=["knoraClassA"], properties=["knoraPropA"]),
@@ -104,7 +101,6 @@ def test_find_problems_in_classes_and_properties_all_good() -> None:
 def test_find_problems_in_classes_and_properties_problem() -> None:
     onto_check_info = OntoCheckInformation(
         default_ontology_prefix="test",
-        save_location=Path(""),
         onto_lookup={
             "test": OntoInfo(classes=["classA", "classB"], properties=["propA", "propB"]),
             "knora-api": OntoInfo(classes=["knoraClassA"], properties=["knoraPropA"]),
@@ -120,7 +116,6 @@ class TestDiagnoseClass:
     def test_no_knora_prefix(self) -> None:
         onto_check_info = OntoCheckInformation(
             default_ontology_prefix="test",
-            save_location=Path(""),
             onto_lookup={
                 "test": OntoInfo(classes=["classA", "classB"], properties=[]),
                 "knora-api": OntoInfo(classes=["knoraClassA"], properties=[]),
@@ -131,7 +126,6 @@ class TestDiagnoseClass:
     def test_knora_prefix(self) -> None:
         onto_check_info = OntoCheckInformation(
             default_ontology_prefix="test",
-            save_location=Path(""),
             onto_lookup={
                 "test": OntoInfo(classes=["classA", "classB"], properties=[]),
                 "knora-api": OntoInfo(classes=["knoraClassA"], properties=[]),
@@ -142,7 +136,6 @@ class TestDiagnoseClass:
     def test_no_default_prefix(self) -> None:
         onto_check_info = OntoCheckInformation(
             default_ontology_prefix="test",
-            save_location=Path(""),
             onto_lookup={
                 "test": OntoInfo(classes=["classA", "classB"], properties=[]),
                 "knora-api": OntoInfo(classes=["knoraClassA"], properties=[]),
@@ -153,7 +146,6 @@ class TestDiagnoseClass:
     def test_default_prefix(self) -> None:
         onto_check_info = OntoCheckInformation(
             default_ontology_prefix="test",
-            save_location=Path(""),
             onto_lookup={
                 "test": OntoInfo(classes=["classA", "classB"], properties=[]),
                 "knora-api": OntoInfo(classes=["knoraClassA"], properties=[]),
@@ -164,7 +156,6 @@ class TestDiagnoseClass:
     def test_unknown_class(self) -> None:
         onto_check_info = OntoCheckInformation(
             default_ontology_prefix="test",
-            save_location=Path(""),
             onto_lookup={
                 "test": OntoInfo(classes=["classA", "classB"], properties=[]),
                 "knora-api": OntoInfo(classes=["knoraClassA"], properties=[]),
@@ -175,7 +166,6 @@ class TestDiagnoseClass:
     def test_unknown_prefix(self) -> None:
         onto_check_info = OntoCheckInformation(
             default_ontology_prefix="test",
-            save_location=Path(""),
             onto_lookup={
                 "test": OntoInfo(classes=["classA", "classB"], properties=[]),
                 "knora-api": OntoInfo(classes=["knoraClassA"], properties=[]),
@@ -186,7 +176,6 @@ class TestDiagnoseClass:
     def test_diagnose_all_classes_no_problems(self) -> None:
         onto_check_info = OntoCheckInformation(
             default_ontology_prefix="test",
-            save_location=Path(""),
             onto_lookup={
                 "test": OntoInfo(classes=["classA", "classB"], properties=[]),
                 "knora-api": OntoInfo(classes=["knoraClassA"], properties=[]),
@@ -198,7 +187,6 @@ class TestDiagnoseClass:
     def test_diagnose_all_classes_problems(self) -> None:
         onto_check_info = OntoCheckInformation(
             default_ontology_prefix="test",
-            save_location=Path(""),
             onto_lookup={
                 "test": OntoInfo(classes=["classA", "classB"], properties=[]),
                 "knora-api": OntoInfo(classes=["knoraClassA"], properties=[]),
@@ -212,7 +200,6 @@ class TestDiagnoseProperties:
     def test_no_knora_prefix(self) -> None:
         onto_check_info = OntoCheckInformation(
             default_ontology_prefix="test",
-            save_location=Path(""),
             onto_lookup={
                 "test": OntoInfo(classes=[], properties=["propA", "propB"]),
                 "knora-api": OntoInfo(classes=[], properties=["knoraPropA"]),
@@ -223,7 +210,6 @@ class TestDiagnoseProperties:
     def test_knora_prefix(self) -> None:
         onto_check_info = OntoCheckInformation(
             default_ontology_prefix="test",
-            save_location=Path(""),
             onto_lookup={
                 "test": OntoInfo(classes=[], properties=["propA", "propB"]),
                 "knora-api": OntoInfo(classes=[], properties=["knoraPropA"]),
@@ -234,7 +220,6 @@ class TestDiagnoseProperties:
     def test_no_default_prefix(self) -> None:
         onto_check_info = OntoCheckInformation(
             default_ontology_prefix="test",
-            save_location=Path(""),
             onto_lookup={
                 "test": OntoInfo(classes=[], properties=["propA", "propB"]),
                 "knora-api": OntoInfo(classes=[], properties=["knoraPropA"]),
@@ -245,7 +230,6 @@ class TestDiagnoseProperties:
     def test_default_prefix(self) -> None:
         onto_check_info = OntoCheckInformation(
             default_ontology_prefix="test",
-            save_location=Path(""),
             onto_lookup={
                 "test": OntoInfo(classes=[], properties=["propA", "propB"]),
                 "knora-api": OntoInfo(classes=[], properties=["knoraPropA"]),
@@ -256,7 +240,6 @@ class TestDiagnoseProperties:
     def test_unknown_prefix(self) -> None:
         onto_check_info = OntoCheckInformation(
             default_ontology_prefix="test",
-            save_location=Path(""),
             onto_lookup={
                 "test": OntoInfo(classes=[], properties=["propA", "propB"]),
                 "knora-api": OntoInfo(classes=[], properties=["knoraPropA"]),
@@ -267,7 +250,6 @@ class TestDiagnoseProperties:
     def test_unknown_property(self) -> None:
         onto_check_info = OntoCheckInformation(
             default_ontology_prefix="test",
-            save_location=Path(""),
             onto_lookup={
                 "test": OntoInfo(classes=[], properties=["propA", "propB"]),
                 "knora-api": OntoInfo(classes=[], properties=["knoraPropA"]),
@@ -278,7 +260,6 @@ class TestDiagnoseProperties:
     def test_diagnose_all_properties_problems(self) -> None:
         onto_check_info = OntoCheckInformation(
             default_ontology_prefix="test",
-            save_location=Path(""),
             onto_lookup={
                 "test": OntoInfo(classes=[], properties=["propA", "propB"]),
                 "knora-api": OntoInfo(classes=[], properties=["knoraPropA"]),
@@ -291,7 +272,6 @@ class TestDiagnoseProperties:
     def test_diagnose_all_properties_no_problems(self) -> None:
         onto_check_info = OntoCheckInformation(
             default_ontology_prefix="test",
-            save_location=Path(""),
             onto_lookup={
                 "test": OntoInfo(classes=[], properties=["propA", "propB"]),
                 "knora-api": OntoInfo(classes=[], properties=["knoraPropA"]),

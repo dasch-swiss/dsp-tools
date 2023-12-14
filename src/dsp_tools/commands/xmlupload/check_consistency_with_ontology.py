@@ -1,4 +1,5 @@
 # sourcery skip: use-fstring-for-concatenation
+from datetime import datetime
 from pathlib import Path
 
 import regex
@@ -29,9 +30,7 @@ def do_xml_consistency_check(onto_client: OntologyClient, root: etree._Element) 
          UserError: if there are any invalid properties or classes
     """
     onto_check_info = OntoCheckInformation(
-        default_ontology_prefix=onto_client.default_ontology,
-        onto_lookup=onto_client.get_all_ontologies_from_server(),
-        save_location=onto_client.save_location,
+        default_ontology_prefix=onto_client.default_ontology, onto_lookup=onto_client.get_all_ontologies_from_server()
     )
     classes, properties = _get_all_classes_and_properties(root)
     _find_problems_in_classes_and_properties(classes, properties, onto_check_info)
@@ -49,11 +48,11 @@ def _find_problems_in_classes_and_properties(
     )
     msg, df = problems.execute_problem_protocol()
     if df is not None:
-        ex_name = "XML_syntax_errors.xlsx"
-        df.to_excel(excel_writer=Path(onto_check_info.save_location, ex_name), sheet_name=" ", index=False)
+        csv_file = f"XML_syntax_errors_{datetime.now().strftime('%Y-%m-%d_%H%M%S')}.csv"
+        df.to_csv(path_or_buf=Path(Path.cwd(), csv_file), index=False)
         msg += (
             "\n\n---------------------------------------\n\n"
-            f"\nAn excel: '{ex_name}' was saved at '{onto_check_info.save_location}' listing the problems."
+            f"\nAll the problems are listed in the file: '{Path.cwd()}/{csv_file}'"
         )
     raise UserError(msg)
 

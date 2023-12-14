@@ -630,51 +630,104 @@ class TestExcel2xmlLib(unittest.TestCase):
         invalid_values = ["https:", 10.0, 5, "www.test.com"]
         run_test(self, prop, method, different_values, invalid_values)
 
-    def test_make_annotation_link_region(self) -> None:
-        """
-        This method tests 3 methods at the same time: make_annotation(), make_link(), and make_region().
-        """
-        method_2_tagname: dict[Callable[..., etree._Element], str] = {
-            excel2xml.make_annotation: "annotation",
-            excel2xml.make_link: "link",
-            excel2xml.make_region: "region",
-        }
-        for method, tagname in method_2_tagname.items():
-            test_cases: list[tuple[Callable[..., etree._Element], str]] = [
-                (
-                    lambda: method("label", "id"),
-                    f'<{tagname} label="label" id="id" permissions="res-default"/>',
-                ),
-                (
-                    lambda: method("label", "id", "res-restricted"),
-                    f'<{tagname} label="label" id="id" permissions="res-restricted"/>',
-                ),
-                (
-                    lambda: method("label", "id", ark="ark"),
-                    f'<{tagname} label="label" id="id" permissions="res-default" ark="ark"/>',
-                ),
-                (
-                    lambda: method("label", "id", iri="iri"),
-                    f'<{tagname} label="label" id="id" permissions="res-default" iri="iri"/>',
-                ),
-                (
-                    lambda: method("label", "id", creation_date="2019-10-23T13:45:12Z"),
-                    (
-                        f'<{tagname} label="label" id="id" permissions="res-default" '
-                        'creation_date="2019-10-23T13:45:12Z"/>'
-                    ),
-                ),
-            ]
-            for _method, result in test_cases:
-                xml_returned_as_element = _method()
-                xml_returned = etree.tostring(xml_returned_as_element, encoding="unicode")
-                xml_returned = regex.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_returned)
-                self.assertEqual(result, xml_returned)
+    def test_make_annotation(self) -> None:
+        expected = '<annotation label="label" id="id" permissions="res-default"/>'
+        result = _strip_namespace(excel2xml.make_annotation("label", "id"))
+        self.assertEqual(expected, result)
 
-            with self.assertWarns(UserWarning):
-                method("label", "id", ark="ark", iri="iri")
-            with self.assertRaisesRegex(BaseError, "invalid creation date"):
-                method("label", "restype", "id", creation_date="2019-10-23T13:45:12")
+    def test_make_annotation_with_permission(self) -> None:
+        expected = '<annotation label="label" id="id" permissions="res-restricted"/>'
+        result = _strip_namespace(excel2xml.make_annotation("label", "id", "res-restricted"))
+        self.assertEqual(expected, result)
+
+    def test_make_annotation_with_ark(self) -> None:
+        expected = '<annotation label="label" id="id" permissions="res-default" ark="ark"/>'
+        result = _strip_namespace(excel2xml.make_annotation("label", "id", ark="ark"))
+        self.assertEqual(expected, result)
+
+    def test_make_annotation_with_iri(self) -> None:
+        expected = '<annotation label="label" id="id" permissions="res-default" iri="iri"/>'
+        result = _strip_namespace(excel2xml.make_annotation("label", "id", iri="iri"))
+        self.assertEqual(expected, result)
+
+    def test_make_annotation_with_creation_date(self) -> None:
+        expected = '<annotation label="label" id="id" permissions="res-default" creation_date="2019-10-23T13:45:12Z"/>'
+        result = _strip_namespace(excel2xml.make_annotation("label", "id", creation_date="2019-10-23T13:45:12Z"))
+        self.assertEqual(expected, result)
+
+    def test_warn_make_annotation_with_iri_and_ark(self) -> None:
+        with self.assertWarns(UserWarning):
+            excel2xml.make_annotation("label", "id", ark="ark", iri="iri")
+
+    def test_fail_annotation_with_invalid_creation_date(self) -> None:
+        with self.assertRaisesRegex(BaseError, "invalid creation date"):
+            excel2xml.make_annotation("label", "id", creation_date="2019-10-23T13:45:12")
+
+    def test_make_link(self) -> None:
+        expected = '<link label="label" id="id" permissions="res-default"/>'
+        result = _strip_namespace(excel2xml.make_link("label", "id"))
+        self.assertEqual(expected, result)
+
+    def test_make_link_with_permission(self) -> None:
+        expected = '<link label="label" id="id" permissions="res-restricted"/>'
+        result = _strip_namespace(excel2xml.make_link("label", "id", "res-restricted"))
+        self.assertEqual(expected, result)
+
+    def test_make_link_with_ark(self) -> None:
+        expected = '<link label="label" id="id" permissions="res-default" ark="ark"/>'
+        result = _strip_namespace(excel2xml.make_link("label", "id", ark="ark"))
+        self.assertEqual(expected, result)
+
+    def test_make_link_with_iri(self) -> None:
+        expected = '<link label="label" id="id" permissions="res-default" iri="iri"/>'
+        result = _strip_namespace(excel2xml.make_link("label", "id", iri="iri"))
+        self.assertEqual(expected, result)
+
+    def test_make_link_with_creation_date(self) -> None:
+        expected = '<link label="label" id="id" permissions="res-default" creation_date="2019-10-23T13:45:12Z"/>'
+        result = _strip_namespace(excel2xml.make_link("label", "id", creation_date="2019-10-23T13:45:12Z"))
+        self.assertEqual(expected, result)
+
+    def test_warn_make_link_with_iri_and_ark(self) -> None:
+        with self.assertWarns(UserWarning):
+            excel2xml.make_link("label", "id", ark="ark", iri="iri")
+
+    def test_fail_link_with_invalid_creation_date(self) -> None:
+        with self.assertRaisesRegex(BaseError, "invalid creation date"):
+            excel2xml.make_link("label", "id", creation_date="2019-10-23T13:45:12")
+
+    def test_make_region(self) -> None:
+        expected = '<region label="label" id="id" permissions="res-default"/>'
+        result = _strip_namespace(excel2xml.make_region("label", "id"))
+        self.assertEqual(expected, result)
+
+    def test_make_region_with_permission(self) -> None:
+        expected = '<region label="label" id="id" permissions="res-restricted"/>'
+        result = _strip_namespace(excel2xml.make_region("label", "id", "res-restricted"))
+        self.assertEqual(expected, result)
+
+    def test_make_region_with_ark(self) -> None:
+        expected = '<region label="label" id="id" permissions="res-default" ark="ark"/>'
+        result = _strip_namespace(excel2xml.make_region("label", "id", ark="ark"))
+        self.assertEqual(expected, result)
+
+    def test_make_region_with_iri(self) -> None:
+        expected = '<region label="label" id="id" permissions="res-default" iri="iri"/>'
+        result = _strip_namespace(excel2xml.make_region("label", "id", iri="iri"))
+        self.assertEqual(expected, result)
+
+    def test_make_region_with_creation_date(self) -> None:
+        expected = '<region label="label" id="id" permissions="res-default" creation_date="2019-10-23T13:45:12Z"/>'
+        result = _strip_namespace(excel2xml.make_region("label", "id", creation_date="2019-10-23T13:45:12Z"))
+        self.assertEqual(expected, result)
+
+    def test_warn_make_region_with_iri_and_ark(self) -> None:
+        with self.assertWarns(UserWarning):
+            excel2xml.make_region("label", "id", ark="ark", iri="iri")
+
+    def test_fail_region_with_invalid_creation_date(self) -> None:
+        with self.assertRaisesRegex(BaseError, "invalid creation date"):
+            excel2xml.make_region("label", "id", creation_date="2019-10-23T13:45:12")
 
     def test_make_resource(self) -> None:
         test_cases: list[tuple[Callable[..., etree._Element], str]] = [
@@ -761,6 +814,13 @@ class TestExcel2xmlLib(unittest.TestCase):
             "third node of the test-list": "third node of testlist",
         }
         self.assertDictEqual(testlist_mapping_returned, testlist_mapping_expected)
+
+
+def _strip_namespace(element: etree._Element) -> str:
+    """Removes the namespace from the XML element."""
+    xml = etree.tostring(element, encoding="unicode")
+    xml = regex.sub(r" xmlns(:.+?)?=\".+?\"", "", xml)
+    return xml
 
 
 if __name__ == "__main__":

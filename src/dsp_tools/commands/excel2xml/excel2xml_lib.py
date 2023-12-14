@@ -172,7 +172,7 @@ _months_dict = {
 
 def _find_date_in_string_throwing(string: str) -> str | None:
     """
-    This method is the same as find_date_in_string(), but may raise a ValueError instead of returning None.
+    This function is the same as find_date_in_string(), but may raise a ValueError instead of returning None.
     """
     year_regex = r"([0-2]?[0-9][0-9][0-9])"
     month_regex = r"([0-1]?[0-9])"

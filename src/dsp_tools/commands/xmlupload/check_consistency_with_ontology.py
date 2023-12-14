@@ -1,4 +1,6 @@
 # sourcery skip: use-fstring-for-concatenation
+import os
+from datetime import datetime
 from pathlib import Path
 
 import regex
@@ -12,6 +14,8 @@ from dsp_tools.models.exceptions import UserError
 defaultOntologyColon: Pattern[str] = regex.compile(r"^:\w+$")
 knoraUndeclared: Pattern[str] = regex.compile(r"^\w+$")
 genericPrefixedOntology: Pattern[str] = regex.compile(r"^[\w\-]+:\w+$")
+
+cwd = os.getcwd()
 
 
 def do_xml_consistency_check(onto_client: OntologyClient, root: etree._Element) -> None:
@@ -29,9 +33,7 @@ def do_xml_consistency_check(onto_client: OntologyClient, root: etree._Element) 
          UserError: if there are any invalid properties or classes
     """
     onto_check_info = OntoCheckInformation(
-        default_ontology_prefix=onto_client.default_ontology,
-        onto_lookup=onto_client.get_all_ontologies_from_server(),
-        save_location=onto_client.save_location,
+        default_ontology_prefix=onto_client.default_ontology, onto_lookup=onto_client.get_all_ontologies_from_server()
     )
     classes, properties = _get_all_classes_and_properties(root)
     _find_problems_in_classes_and_properties(classes, properties, onto_check_info)
@@ -49,11 +51,11 @@ def _find_problems_in_classes_and_properties(
     )
     msg, df = problems.execute_problem_protocol()
     if df is not None:
-        ex_name = "XML_syntax_errors.xlsx"
-        df.to_excel(excel_writer=Path(onto_check_info.save_location, ex_name), sheet_name=" ", index=False)
+        csv_file = f"XML_syntax_errors_{datetime.now().strftime('%Y-%m-%d_%H%M%S')}.csv"
+        df.to_csv(path_or_buf=Path(cwd, csv_file), index=False)
         msg += (
             "\n\n---------------------------------------\n\n"
-            f"\nAn excel: '{ex_name}' was saved at '{onto_check_info.save_location}' listing the problems."
+            f"\nThe file: '{csv_file}' was saved at '{cwd}' listing the problems."
         )
     raise UserError(msg)
 

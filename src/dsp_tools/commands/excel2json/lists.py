@@ -308,7 +308,7 @@ def _make_json_lists_from_excel(
 def _read_and_check_workbook(excelpath: Path) -> Worksheet:
     all_worksheets = load_workbook(excelpath, read_only=True).worksheets
     if len(all_worksheets) != 1:
-        msg = str(MoreThanOneSheetProblem(excelpath.name, [x.title for x in all_worksheets]))
+        msg = MoreThanOneSheetProblem(excelpath.name, [x.title for x in all_worksheets]).execute_error_protocol()
         raise InputError(msg)
     return all_worksheets[0]
 

@@ -87,43 +87,37 @@ class LangString:
             raise BaseError("Not a valid language definition!")
 
     def __getitem__(self, key: Optional[Union[Languages, str]] = None) -> Optional[str]:
-        #
-        # First deal with simple strings (no language given). We return, if existing, the simple string
-        # or just the first language dependent string
-        #
-        if key is None:
-            if self._simplestring:
-                return self._simplestring
-            elif len(self._langstrs) != 0:
-                return next(iter(self._langstrs))
-            else:
-                return None
+        match key:
+            case None:
+                return self.__getitem_nokey__()
+            case Enum() if ls := self._langstrs.get(key):
+                return ls
+            case Enum():
+                return self.__getitem_fallback__()
+            case str():
+                lmap = {a.value: a for a in Languages}
+                lkey = lmap.get(key.lower())
+                if lkey is None:
+                    raise BaseError(f"Invalid language string '{key}'")
+                if ls := self._langstrs.get(lkey):
+                    return ls
+                return self.__getitem_fallback__()
+
+    def __getitem_nokey__(self) -> Optional[str]:
+        if self._simplestring:
+            return self._simplestring
+        elif self._langstrs:
+            return next(iter(self._langstrs)).value
         else:
-            pass
-            # self._simplestring = None  # Let's delete the string without language if there is one...
-        if isinstance(key, Enum):
-            if self._langstrs.get(key) is None:
-                for lst in self._langstrs:
-                    if self._langstrs.get(lst) is not None:
-                        return self._langstrs[lst]
-                if self._simplestring is not None:
-                    return self._simplestring
-                return None
-            else:
-                return self._langstrs[key]
-        else:
-            lmap = dict(map(lambda a: (a.value, a), Languages))
-            if lmap.get(key.lower()) is None:
-                raise BaseError('Invalid language string "' + key + '"!')
-            if self._langstrs.get(lmap[key.lower()]) is None:
-                for lst in self._langstrs:
-                    if self._langstrs.get(lst) is not None:
-                        return self._langstrs[lst]
-                if self._simplestring is not None:
-                    return self._simplestring
-                return None
-            else:
-                return self._langstrs[lmap[key.lower()]]
+            return None
+
+    def __getitem_fallback__(self) -> Optional[str]:
+        for lst in self._langstrs:
+            if self._langstrs.get(lst) is not None:
+                return self._langstrs[lst]
+        if self._simplestring is not None:
+            return self._simplestring
+        return None
 
     def __setitem__(self, key: Optional[Union[Languages, str]], value: str):
         if key is None:

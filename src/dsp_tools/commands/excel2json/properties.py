@@ -497,6 +497,6 @@ def excel2properties(
 def _read_check_property_df(excelfile: str) -> pd.DataFrame | None:
     sheets_df_dict = read_and_clean_all_sheets(excelfile=excelfile)
     if len(sheets_df_dict) != 1:
-        msg = str(MoreThanOneSheetProblem("properties.xlsx", list(sheets_df_dict.keys())))
+        msg = MoreThanOneSheetProblem("properties.xlsx", list(sheets_df_dict.keys())).execute_error_protocol()
         raise InputError(msg)
     return next(iter(sheets_df_dict.values()))

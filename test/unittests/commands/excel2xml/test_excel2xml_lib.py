@@ -631,122 +631,101 @@ class TestExcel2xmlLib(unittest.TestCase):
         run_test(self, prop, method, different_values, invalid_values)
 
     def test_make_annotation(self) -> None:
-        """Tests a regular annotation."""
         expected = '<annotation label="label" id="id" permissions="res-default"/>'
         result = _strip_namespace(excel2xml.make_annotation("label", "id"))
         self.assertEqual(expected, result)
 
     def test_make_annotation_with_permission(self) -> None:
-        """Tests an annotation with permission."""
         expected = '<annotation label="label" id="id" permissions="res-restricted"/>'
         result = _strip_namespace(excel2xml.make_annotation("label", "id", "res-restricted"))
         self.assertEqual(expected, result)
 
     def test_make_annotation_with_ark(self) -> None:
-        """Tests an annotation with ark."""
         expected = '<annotation label="label" id="id" permissions="res-default" ark="ark"/>'
         result = _strip_namespace(excel2xml.make_annotation("label", "id", ark="ark"))
         self.assertEqual(expected, result)
 
     def test_make_annotation_with_iri(self) -> None:
-        """Tests an annotation with iri."""
         expected = '<annotation label="label" id="id" permissions="res-default" iri="iri"/>'
         result = _strip_namespace(excel2xml.make_annotation("label", "id", iri="iri"))
         self.assertEqual(expected, result)
 
     def test_make_annotation_with_creation_date(self) -> None:
-        """Tests an annotation with creation_date."""
         expected = '<annotation label="label" id="id" permissions="res-default" creation_date="2019-10-23T13:45:12Z"/>'
         result = _strip_namespace(excel2xml.make_annotation("label", "id", creation_date="2019-10-23T13:45:12Z"))
         self.assertEqual(expected, result)
 
     def test_warn_make_annotation_with_iri_and_ark(self) -> None:
-        """Tests that an annotation with both iri and ark raises an warning."""
         with self.assertWarns(UserWarning):
             excel2xml.make_annotation("label", "id", ark="ark", iri="iri")
 
     def test_fail_annotation_with_invalid_creation_date(self) -> None:
-        """Tests that an annotation with an invalid creation_date raises an error."""
         with self.assertRaisesRegex(BaseError, "invalid creation date"):
             excel2xml.make_annotation("label", "id", creation_date="2019-10-23T13:45:12")
 
     def test_make_link(self) -> None:
-        """Tests a regular link."""
         expected = '<link label="label" id="id" permissions="res-default"/>'
         result = _strip_namespace(excel2xml.make_link("label", "id"))
         self.assertEqual(expected, result)
 
     def test_make_link_with_permission(self) -> None:
-        """Tests a link with permission."""
         expected = '<link label="label" id="id" permissions="res-restricted"/>'
         result = _strip_namespace(excel2xml.make_link("label", "id", "res-restricted"))
         self.assertEqual(expected, result)
 
     def test_make_link_with_ark(self) -> None:
-        """Tests a link with ark."""
         expected = '<link label="label" id="id" permissions="res-default" ark="ark"/>'
         result = _strip_namespace(excel2xml.make_link("label", "id", ark="ark"))
         self.assertEqual(expected, result)
 
     def test_make_link_with_iri(self) -> None:
-        """Tests a link with iri."""
         expected = '<link label="label" id="id" permissions="res-default" iri="iri"/>'
         result = _strip_namespace(excel2xml.make_link("label", "id", iri="iri"))
         self.assertEqual(expected, result)
 
     def test_make_link_with_creation_date(self) -> None:
-        """Tests a link with creation_date."""
         expected = '<link label="label" id="id" permissions="res-default" creation_date="2019-10-23T13:45:12Z"/>'
         result = _strip_namespace(excel2xml.make_link("label", "id", creation_date="2019-10-23T13:45:12Z"))
         self.assertEqual(expected, result)
 
     def test_warn_make_link_with_iri_and_ark(self) -> None:
-        """Tests that a link with both iri and ark raises an warning."""
         with self.assertWarns(UserWarning):
             excel2xml.make_link("label", "id", ark="ark", iri="iri")
 
     def test_fail_link_with_invalid_creation_date(self) -> None:
-        """Tests that a link with an invalid creation_date raises an error."""
         with self.assertRaisesRegex(BaseError, "invalid creation date"):
             excel2xml.make_link("label", "id", creation_date="2019-10-23T13:45:12")
 
     def test_make_region(self) -> None:
-        """Tests a regular region."""
         expected = '<region label="label" id="id" permissions="res-default"/>'
         result = _strip_namespace(excel2xml.make_region("label", "id"))
         self.assertEqual(expected, result)
 
     def test_make_region_with_permission(self) -> None:
-        """Tests a region with permission."""
         expected = '<region label="label" id="id" permissions="res-restricted"/>'
         result = _strip_namespace(excel2xml.make_region("label", "id", "res-restricted"))
         self.assertEqual(expected, result)
 
     def test_make_region_with_ark(self) -> None:
-        """Tests a region with ark."""
         expected = '<region label="label" id="id" permissions="res-default" ark="ark"/>'
         result = _strip_namespace(excel2xml.make_region("label", "id", ark="ark"))
         self.assertEqual(expected, result)
 
     def test_make_region_with_iri(self) -> None:
-        """Tests a region with iri."""
         expected = '<region label="label" id="id" permissions="res-default" iri="iri"/>'
         result = _strip_namespace(excel2xml.make_region("label", "id", iri="iri"))
         self.assertEqual(expected, result)
 
     def test_make_region_with_creation_date(self) -> None:
-        """Tests a region with creation_date."""
         expected = '<region label="label" id="id" permissions="res-default" creation_date="2019-10-23T13:45:12Z"/>'
         result = _strip_namespace(excel2xml.make_region("label", "id", creation_date="2019-10-23T13:45:12Z"))
         self.assertEqual(expected, result)
 
     def test_warn_make_region_with_iri_and_ark(self) -> None:
-        """Tests that a region with both iri and ark raises an warning."""
         with self.assertWarns(UserWarning):
             excel2xml.make_region("label", "id", ark="ark", iri="iri")
 
     def test_fail_region_with_invalid_creation_date(self) -> None:
-        """Tests that a region with an invalid creation_date raises an error."""
         with self.assertRaisesRegex(BaseError, "invalid creation date"):
             excel2xml.make_region("label", "id", creation_date="2019-10-23T13:45:12")
 

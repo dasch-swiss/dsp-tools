@@ -172,7 +172,7 @@ class MoreThanOneSheetProblem:
     excelname: str
     sheet_names: list[str]
 
-    def __str__(self) -> str:
+    def execute_error_protocol(self) -> str:
         msg = [
             f"\nIn the '{self.excelname}' file only one sheet is allowed.",
             f"The excel used contains the following sheets:{list_separator}{list_separator.join(self.sheet_names)}",

@@ -545,6 +545,7 @@ class User(Model):
 
         :return: JSON-object from DSP
         """
+        # XXX: add retry
 
         jsonobj = self.toJsonObj(Actions.Create)
         jsondata = json.dumps(jsonobj)
@@ -568,6 +569,7 @@ class User(Model):
 
         :return: JSON-object from DSP
         """
+        # XXX: add retry
         if self._iri is not None:
             result = self._con.get(User.IRI + quote_plus(self._iri))
         elif self._email is not None:

@@ -6,7 +6,6 @@ from urllib.parse import quote_plus
 
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.create_logger import get_logger
-from dsp_tools.utils.shared import try_network_action
 
 logger = get_logger(__name__)
 
@@ -82,7 +81,7 @@ def _get_list_info_from_server(con: Connection, project_iri: str) -> ProjectList
 
 def _get_list_iris_from_server(con: Connection, project_iri: str) -> list[str]:
     iri = quote_plus(project_iri)
-    res: dict[str, Any] = try_network_action(con.get, f"/admin/lists?projectIri={iri}")
+    res: dict[str, Any] = con.get(f"/admin/lists?projectIri={iri}")
     lists: list[dict[str, Any]] = res["lists"]
     logger.info(f"Found {len(lists)} lists for project")
     return [lst["id"] for lst in lists]
@@ -91,7 +90,7 @@ def _get_list_iris_from_server(con: Connection, project_iri: str) -> list[str]:
 def _get_list_from_server(con: Connection, list_iri: str) -> List:
     logger.info(f"Retrieving nodes of list {list_iri}")
     iri = quote_plus(list_iri)
-    res = try_network_action(con.get, f"/admin/lists/{iri}")
+    res = con.get(f"/admin/lists/{iri}")
     list_object: dict[str, Any] = res["list"]
     list_info = list_object["listinfo"]
     children: list[dict[str, Any]] = list_object["children"]

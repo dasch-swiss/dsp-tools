@@ -72,7 +72,7 @@ def login(
     """
     con = ConnectionLive(server=server, dump=dump)
     try:
-        try_network_action(lambda: con.login(email=user, password=password))
+        con.login(email=user, password=password)
     except BaseError:
         logger.error("Cannot login to DSP server", exc_info=True)
         raise UserError("Cannot login to DSP server") from None

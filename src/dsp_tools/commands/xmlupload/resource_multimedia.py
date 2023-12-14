@@ -10,7 +10,6 @@ from dsp_tools.commands.xmlupload.models.xmlbitstream import XMLBitstream
 from dsp_tools.commands.xmlupload.models.xmlresource import BitstreamInfo, XMLResource
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.create_logger import get_logger
-from dsp_tools.utils.shared import try_network_action
 
 logger = get_logger(__name__)
 
@@ -119,8 +118,7 @@ def _upload_bitstream(
     Returns:
         The information from sipi which is needed to establish a link from the resource
     """
-    img: Optional[dict[Any, Any]] = try_network_action(
-        sipi_server.upload_bitstream,
+    img: Optional[dict[Any, Any]] = sipi_server.upload_bitstream(
         filepath=str(Path(imgdir) / Path(resource.bitstream.value)),  # type: ignore[union-attr]
     )
     internal_file_name_bitstream = img["uploadedFiles"][0]["internalFilename"]  # type: ignore[index]

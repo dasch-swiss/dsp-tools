@@ -43,6 +43,8 @@ class Sipi:
         Returns:
             API response
         """
+
+        # XXX: add retry
         with open(filepath, "rb") as bitstream_file:
             files = {"file": (Path(filepath).name, bitstream_file)}
             url = self.sipi_server + "/upload"

@@ -508,6 +508,7 @@ class ResourceClass(Model):
         cardinality: Cardinality,
         gui_order: Optional[int] = None,
     ) -> DateTimeStamp:
+        # XXX: add retry
         if self._has_properties.get(property_id) is None:
             latest_modification_date, resclass = HasProperty(
                 con=self._con,
@@ -649,6 +650,7 @@ class ResourceClass(Model):
         return tmp
 
     def create(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, "ResourceClass"]:
+        # XXX: add retry
         jsonobj = self.toJsonObj(last_modification_date, Actions.Create)
         jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=4)
         result = self._con.post(ResourceClass.ROUTE, jsondata)

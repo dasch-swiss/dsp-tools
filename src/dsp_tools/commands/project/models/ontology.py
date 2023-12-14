@@ -300,6 +300,7 @@ class Ontology(Model):
         return tmp
 
     def create(self) -> "Ontology":
+        # XXX: add retry
         jsonobj = self.toJsonObj(Actions.Create)
         jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=4)
         result = self._con.post(Ontology.ROUTE, jsondata)
@@ -329,6 +330,7 @@ class Ontology(Model):
 
     @staticmethod
     def getProjectOntologies(con: Connection, project_id: str) -> list["Ontology"]:
+        # XXX: add retry
         if project_id is None:
             raise BaseError("Project ID must be defined!")
         result = con.get(Ontology.ROUTE + Ontology.METADATA + quote_plus(project_id) + Ontology.ALL_LANGUAGES)

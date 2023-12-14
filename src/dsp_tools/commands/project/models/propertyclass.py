@@ -332,6 +332,7 @@ class PropertyClass(Model):
         return tmp
 
     def create(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, "PropertyClass"]:
+        # XXX: add retry
         jsonobj = self.toJsonObj(last_modification_date, Actions.Create)
         jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=2)
         result = self._con.post(PropertyClass.ROUTE, jsondata)

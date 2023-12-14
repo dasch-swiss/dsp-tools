@@ -11,7 +11,6 @@ from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStash, Stand
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.create_logger import get_logger
-from dsp_tools.utils.shared import try_network_action
 
 logger = get_logger(__name__)
 
@@ -128,7 +127,7 @@ def upload_stashed_xml_texts(
             continue
         # xmlres: XMLResource = stashed_xml_texts.res_2_xmlres[res_id]
         try:
-            resource_in_triplestore = try_network_action(con.get, route=f"/v2/resources/{quote_plus(res_iri)}")
+            resource_in_triplestore = con.get(route=f"/v2/resources/{quote_plus(res_iri)}")
         except BaseError as err:
             _log_unable_to_retrieve_resource(resource=res_id, received_error=err)
             continue
@@ -210,7 +209,7 @@ def _upload_stash_item(
         context,
     )
     try:
-        try_network_action(con.put, route="/v2/values", jsondata=jsondata)
+        con.put(route="/v2/values", jsondata=jsondata)
     except BaseError as err:
         _log_unable_to_upload_xml_resource(err, res_id, stash_item.prop_name)
         return False

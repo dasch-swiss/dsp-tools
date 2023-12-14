@@ -202,6 +202,7 @@ class Group(Model):
         return tmp
 
     def create(self) -> Group:
+        # XXX: add retry
         jsonobj = self.toJsonObj(Actions.Create)
         jsondata = json.dumps(jsonobj)
         result = self._con.post(Group.ROUTE, jsondata)
@@ -230,11 +231,13 @@ class Group(Model):
 
     @staticmethod
     def getAllGroups(con: Connection) -> list[Group]:
+        # XXX: add retry
         result = con.get(Group.ROUTE)
         return [Group.fromJsonObj(con, group_item) for group_item in result["groups"]]
 
     @staticmethod
     def getAllGroupsForProject(con: Connection, proj_iri: str) -> Optional[list[Group]]:
+        # XXX: add retry
         return [g for g in Group.getAllGroups(con) if g.project == proj_iri]
 
     def createDefinitionFileObj(self) -> dict[str, Any]:

@@ -36,7 +36,7 @@ from dsp_tools.models.projectContext import ProjectContext
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.json_ld_util import get_json_ld_context_for_project
-from dsp_tools.utils.shared import login, try_network_action
+from dsp_tools.utils.shared import login
 
 logger = get_logger(__name__)
 
@@ -268,7 +268,7 @@ def _get_project_context_from_server(connection: Connection) -> ProjectContext:
         UserError: If the project was not previously uploaded on the server
     """
     try:
-        proj_context: ProjectContext = try_network_action(lambda: ProjectContext(con=connection))
+        proj_context: ProjectContext = ProjectContext(con=connection)
     except BaseError:
         logger.error(
             "Unable to retrieve project context from DSP server",

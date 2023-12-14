@@ -15,7 +15,6 @@ from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.date_util import parse_date_string
 from dsp_tools.utils.iri_util import is_resource_iri
-from dsp_tools.utils.shared import try_network_action
 
 logger = get_logger(__name__)
 
@@ -40,7 +39,7 @@ class ResourceCreateClient:
         logger.info(f"Attempting to create resource {resource.id} (label: {resource.label}, iri: {resource.iri})...")
         resource_dict = self._make_resource_with_values(resource, bitstream_information)
         resource_json_ld = json.dumps(resource_dict, ensure_ascii=False)
-        res = try_network_action(self.con.post, route="/v2/resources", jsondata=resource_json_ld)
+        res = self.con.post(route="/v2/resources", jsondata=resource_json_ld)
         iri = res["@id"]
         label = res["rdfs:label"]
         return iri, label

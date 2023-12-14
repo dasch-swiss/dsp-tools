@@ -79,7 +79,6 @@ def login(
     return con
 
 
-# XXX: should go away
 def http_call_with_retry(
     action: Callable[..., Any],
     *args: Any,

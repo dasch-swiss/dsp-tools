@@ -218,7 +218,7 @@ def excel2resources(
 
 def _prepare_classes_df(resource_dfs: dict[str, pd.DataFrame]) -> tuple[pd.DataFrame, dict[str, pd.DataFrame]]:
     resource_dfs = {k.strip(): v for k, v in resource_dfs.items()}
-    if "classes" not in resource_dfs:
+    if "classes" in resource_dfs:
         classes_df = resource_dfs.pop("classes")
     elif "Classes" in resource_dfs:
         classes_df = resource_dfs.pop("Classes")
@@ -240,17 +240,11 @@ def _validate_excel_file(classes_df: pd.DataFrame, df_dict: dict[str, pd.DataFra
             f"Please use {[f'label_{lang}' for lang in languages]}"
         )
     problems = []
-    missing_super_rows = []
-    for i, row in classes_df.iterrows():
-        index = int(str(i))  # index is a label/index/hashable, but we need an int
-        if not check_notna(row["super"]):
-            missing_super_rows.append(index + 2)
-    if missing_super_rows:
+    if missing_super_rows := [int(index) + 2 for index, row in classes_df.iterrows() if not check_notna(row["super"])]:
         problems.append(MissingValuesInRowProblem(column="super", row_numbers=missing_super_rows))
-    duplicate_check = check_column_for_duplicate(classes_df, "name")
-    if duplicate_check:
+    if duplicate_check := check_column_for_duplicate(classes_df, "name"):
         problems.append(duplicate_check)
     # check that all the sheets have an entry in the names column and vice versa
     if (all_names := set(classes_df["name"].tolist())) != (all_sheets := set(df_dict.keys())):
-        problems += ResourcesSheetsNotAsExpected(all_names, all_sheets)
+        problems.append(ResourcesSheetsNotAsExpected(all_names, all_sheets))
     return problems

@@ -439,9 +439,6 @@ class ListNode(Model):
 
         :return: JSON-object from DSP-API
         """
-
-        # XXX: add retry
-
         jsonobj = self.toJsonObj(Actions.Create)
         jsondata = json.dumps(jsonobj, cls=SetEncoder)
         if self._parent:
@@ -519,8 +516,6 @@ class ListNode(Model):
         :param project_iri: Iri/id of project
         :return: list of ListNodes
         """
-
-        # XXX: add retry
         if project_iri is None:
             result = con.get(ListNode.ROUTE)
         else:

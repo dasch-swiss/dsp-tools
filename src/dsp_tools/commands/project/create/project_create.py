@@ -171,7 +171,7 @@ def _create_groups(
     overall_success = True
     current_project_groups: dict[str, Group] = {}
     try:
-        remote_groups: list[Group] = Group.getAllGroupsForProject(con=con, proj_iri=str(project.iri))  # XXX: fix type
+        remote_groups: list[Group] = Group.getAllGroupsForProject(con=con, proj_iri=str(project.iri)) or []
     except BaseError:
         err_msg = (
             "Unable to check if group names are already existing on DSP server, because it is "

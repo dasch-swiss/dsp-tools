@@ -413,8 +413,6 @@ class Project(Model):
 
         :return: JSON-object from DSP
         """
-        # XXX: add retry
-
         jsonobj = self.toJsonObj(Actions.Create)
         jsondata = json.dumps(jsonobj, cls=SetEncoder)
         result = self._con.post(Project.ROUTE, jsondata)
@@ -426,7 +424,6 @@ class Project(Model):
 
         :return: JSON-object from DSP
         """
-        # XXX: add retry
         result = None
         if self._iri is not None:
             result = self._con.get(Project.IRI + quote_plus(self._iri))
@@ -448,8 +445,6 @@ class Project(Model):
 
         Returns: JSON object returned as response from DSP reflecting the update
         """
-        # XXX: add retry
-
         jsonobj = self.toJsonObj(Actions.Update)
         jsondata = json.dumps(jsonobj, cls=SetEncoder)
         result = self._con.put(Project.IRI + quote_plus(self.iri), jsondata)
@@ -467,7 +462,6 @@ class Project(Model):
 
     @staticmethod
     def getAllProjects(con: Connection) -> list[Project]:
-        # XXX: add retry
         """
         Get all existing projects in DSP
 

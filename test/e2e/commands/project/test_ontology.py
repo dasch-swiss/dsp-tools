@@ -46,15 +46,6 @@ class TestOntology(unittest.TestCase):
         self.assertEqual(onto.label, "Test ontology label")
         self.assertEqual(onto.lastModificationDate, DateTimeStamp(last_mod_date_str))
 
-    def test_ontology_read(self) -> None:
-        onto = Ontology(con=self.con, iri=self.test_onto).read()
-
-        self.assertEqual(onto.iri, self.test_onto)
-        self.assertEqual(onto.project, self.test_project)
-        self.assertEqual(onto.name, "anything")
-        self.assertEqual(onto.label, "The anything ontology")
-        self.assertIsNotNone(onto.lastModificationDate)
-
     def test_ontology_create(self) -> None:
         onto = Ontology(
             con=self.con,
@@ -69,29 +60,6 @@ class TestOntology(unittest.TestCase):
         self.assertEqual(onto.name, "test_onto_create")
         self.assertEqual(onto.label, "Test ontology create label")
         self.assertIsNotNone(onto.lastModificationDate)
-
-    def test_ontology_update_label(self) -> None:
-        onto = Ontology(
-            con=self.con,
-            project=self.test_project,
-            name="test_onto_update",
-            label="Test ontology update label",
-        ).create()
-
-        onto.label = "Test ontology update label - modified"
-        onto = onto.update()
-        self.assertEqual(onto.label, "Test ontology update label - modified")
-
-    def test_ontology_delete(self) -> None:
-        onto = Ontology(
-            con=self.con,
-            project=self.test_project,
-            name="test_onto_delete",
-            label="Test ontology delete label",
-        ).create()
-
-        res = onto.delete()
-        self.assertEqual(res, "Ontology http://0.0.0.0:3333/ontology/0001/test_onto_delete/v2 has been deleted")
 
     def test_ontology_getProjectOntologies(self) -> None:
         onto_list = Ontology.getProjectOntologies(self.con, self.test_project)

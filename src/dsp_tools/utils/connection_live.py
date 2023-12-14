@@ -67,8 +67,6 @@ class ConnectionLive:
         Raises:
             BaseError: if DSP-API returns no token with the provided user credentials
         """
-        # XXX: add retry
-
         response = self.post(
             route="/v2/authentication",
             jsondata=json.dumps({"email": email, "password": password}),

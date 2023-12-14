@@ -10,7 +10,9 @@ import regex
 
 from dsp_tools.commands.excel2json.input_error import (
     JsonValidationResourceProblem,
+    MissingValuesInRowProblem,
     PositionInExcel,
+    Problem,
     ResourcesSheetsNotAsExpected,
 )
 from dsp_tools.commands.excel2json.utils import check_column_for_duplicate, read_and_clean_all_sheets
@@ -195,8 +197,10 @@ def excel2resources(
     classes_df, resource_dfs = _prepare_classes_df(resource_dfs)
 
     if validation_problem := _validate_excel_file(classes_df, resource_dfs):
-        err_msg = validation_problem.execute_error_protocol()
-        raise InputError(err_msg)
+        msg = "The excel file 'resources.xlsx', sheet 'classes' has a problem.\n" + "\n\n".join(
+            (x.execute_error_protocol() for x in validation_problem)
+        )
+        raise InputError(msg)
 
     # transform every row into a resource
     resources = [_row2resource(row, resource_dfs[row["name"]]) for i, row in classes_df.iterrows()]
@@ -213,6 +217,7 @@ def excel2resources(
 
 
 def _prepare_classes_df(resource_dfs: dict[str, pd.DataFrame]) -> tuple[pd.DataFrame, dict[str, pd.DataFrame]]:
+    resource_dfs = {k.strip(): v for k, v in resource_dfs.items()}
     if "classes" not in resource_dfs:
         classes_df = resource_dfs.pop("classes")
     elif "Classes" in resource_dfs:
@@ -228,26 +233,24 @@ def _prepare_classes_df(resource_dfs: dict[str, pd.DataFrame]) -> tuple[pd.DataF
     return classes_df, resource_dfs
 
 
-def _validate_excel_file(
-    classes_df: pd.DataFrame, df_dict: dict[str, pd.DataFrame]
-) -> ResourcesSheetsNotAsExpected | None:
-    for i, row in classes_df.iterrows():
-        index = int(str(i))  # index is a label/index/hashable, but we need an int
-        if not check_notna(row["super"]):
-            raise UserError(
-                f"Sheet 'classes' of 'resources.xlsx' has a missing value in row {index + 2}, column 'super'"
-            )
+def _validate_excel_file(classes_df: pd.DataFrame, df_dict: dict[str, pd.DataFrame]) -> list[Problem]:
     if any(classes_df.get(lang) is not None for lang in languages):
         warnings.warn(
             f"The file 'resources.xlsx' uses {languages} as column titles, which is deprecated. "
             f"Please use {[f'label_{lang}' for lang in languages]}"
         )
+    problems = []
+    missing_super_rows = []
+    for i, row in classes_df.iterrows():
+        index = int(str(i))  # index is a label/index/hashable, but we need an int
+        if not check_notna(row["super"]):
+            missing_super_rows.append(index + 2)
+    if missing_super_rows:
+        problems.append(MissingValuesInRowProblem(column="super", row_numbers=missing_super_rows))
     duplicate_check = check_column_for_duplicate(classes_df, "name")
     if duplicate_check:
-        msg = "The excel file 'resources.xlsx', sheet 'classes' has a problem.\n"
-        msg += duplicate_check.execute_error_protocol()
-        raise InputError(msg)
+        problems.append(duplicate_check)
     # check that all the sheets have an entry in the names column and vice versa
     if (all_names := set(classes_df["name"].tolist())) != (all_sheets := set(df_dict.keys())):
-        return ResourcesSheetsNotAsExpected(all_names, all_sheets)
-    return None
+        problems += ResourcesSheetsNotAsExpected(all_names, all_sheets)
+    return problems

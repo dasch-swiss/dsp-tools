@@ -70,7 +70,7 @@ class TestConnectionLive(unittest.TestCase):
         }
         """
 
-        res = self.con.post(route="/v2/resources", jsondata=res_info)
+        res = self.con.post("/v2/resources", res_info)
 
         self.assertIsNotNone(res["@id"])
         self.assertEqual(res["@type"], "anything:Thing")
@@ -91,7 +91,7 @@ class TestConnectionLive(unittest.TestCase):
         }}
         """
 
-        res = self.con.post(route="/v2/resources/erase", jsondata=erase_info)
+        res = self.con.post("/v2/resources/erase", erase_info)
         self.assertIsNotNone(res["knora-api:result"])
         self.assertEqual(res["knora-api:result"], "Resource erased")
 

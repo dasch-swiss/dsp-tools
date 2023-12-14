@@ -452,5 +452,5 @@ class WithId:
             return
         self._tmp = obj.get("@id")
 
-    def str(self) -> Optional[str]:
+    def to_string(self) -> Optional[str]:
         return self._tmp

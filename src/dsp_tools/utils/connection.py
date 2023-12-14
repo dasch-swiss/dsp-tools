@@ -15,65 +15,65 @@ class Connection(Protocol):
     def get(
         self,
         route: str,
-        timeout: int,
         headers: dict[str, str] | None = None,
+        timeout: int = 20,
     ) -> dict[str, Any]:
         """
         Make a HTTP GET request to the server to which this connection has been established.
 
         Args:
             route: route that will be called on the server
-            timeout: timeout in seconds
             headers: headers for the HTTP request
+            timeout: timeout in seconds
         """
 
     def put(
         self,
         route: str,
-        timeout: int,
         jsondata: str | None = None,
         content_type: str = "application/json",
+        timeout: int = 20,
     ) -> dict[str, Any]:
         """
         Make a HTTP GET request to the server to which this connection has been established.
 
         Args:
             route: route that will be called on the server
-            timeout: timeout in seconds
             jsondata: Valid JSON as string
             content_type: HTTP Content-Type [default: 'application/json']
+            timeout: timeout in seconds
         """
 
     def post(
         self,
         route: str,
-        timeout: int,
         jsondata: str | None = None,
         content_type: str = "application/json",
+        timeout: int = 20,
     ) -> dict[str, Any]:
         """
         Make a HTTP POST request to the server to which this connection has been established.
 
         Args:
             route: route that will be called on the server
-            timeout: timeout in seconds
             jsondata: Valid JSON as string
             content_type: HTTP Content-Type [default: 'application/json']
+            timeout: timeout in seconds
         """
 
     def delete(
         self,
         route: str,
-        timeout: int,
         params: dict[str, Any] | None = None,
+        timeout: int = 20,
     ) -> dict[str, Any]:
         """
         Make a HTTP GET request to the server to which this connection has been established.
 
         Args:
             route: route that will be called on the server
-            timeout: timeout in seconds
             params: additional parameters for the HTTP request
+            timeout: timeout in seconds
         """
 
     def get_token(self) -> str:

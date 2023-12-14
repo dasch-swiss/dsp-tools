@@ -13,6 +13,7 @@ class ConnectionMock(ConnectionMockBase):
         self,
         route: str,  # noqa: ARG002 (unused-method-argument)
         headers: dict[str, str] | None = None,  # noqa: ARG002 (unused-method-argument)
+        timeout: int = 20,  # noqa: ARG002 (unused-method-argument)
     ) -> dict[str, Any]:
         return self.get_responses.pop(0)
 

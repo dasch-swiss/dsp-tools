@@ -18,7 +18,12 @@ from dsp_tools.commands.xmlupload.ontology_client import (
 class ConnectionMock(ConnectionMockBase):
     get_response: dict[Any, Any]
 
-    def get(self, route: str, headers: dict[str, str] | None = None) -> dict[Any, Any]:  # noqa: ARG002 (unused-method-argument)
+    def get(
+        self,
+        route: str,  # noqa: ARG002 (unused-method-argument)
+        headers: dict[str, str] | None = None,  # noqa: ARG002 (unused-method-argument)
+        timeout: int = 20,  # noqa: ARG002 (unused-method-argument)
+    ) -> dict[Any, Any]:
         return self.get_response
 
 

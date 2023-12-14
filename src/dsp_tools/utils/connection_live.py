@@ -144,18 +144,18 @@ class ConnectionLive:
     def post(
         self,
         route: str,
-        timeout: int = 20,
         jsondata: Optional[str] = None,
         content_type: str = "application/json",
+        timeout: int = 20,
     ) -> dict[str, Any]:
         """
         Make a HTTP POST request to the server to which this connection has been established.
 
         Args:
             route: route that will be called on the server
-            timeout: timeout in seconds
             jsondata: Valid JSON as string
             content_type: HTTP Content-Type [default: 'application/json']
+            timeout: timeout in seconds
 
         Returns:
             response from server
@@ -192,16 +192,16 @@ class ConnectionLive:
     def get(
         self,
         route: str,
-        timeout: int = 20,
         headers: Optional[dict[str, str]] = None,
+        timeout: int = 20,
     ) -> dict[str, Any]:
         """
         Make a HTTP GET request to the server to which this connection has been established.
 
         Args:
             route: route that will be called on the server
-            timeout: timeout in seconds
             headers: headers for the HTTP request
+            timeout: timeout in seconds
 
         Returns:
             response from server
@@ -234,18 +234,18 @@ class ConnectionLive:
     def put(
         self,
         route: str,
-        timeout: int = 20,
         jsondata: Optional[str] = None,
         content_type: str = "application/json",
+        timeout: int = 20,
     ) -> dict[str, Any]:
         """
         Make a HTTP GET request to the server to which this connection has been established.
 
         Args:
             route: route that will be called on the server
-            timeout: timeout in seconds
             jsondata: Valid JSON as string
             content_type: HTTP Content-Type [default: 'application/json']
+            timeout: timeout in seconds
 
         Returns:
             response from server
@@ -282,16 +282,16 @@ class ConnectionLive:
     def delete(
         self,
         route: str,
-        timeout: int = 20,
         params: Optional[dict[str, Any]] = None,
+        timeout: int = 20,
     ) -> dict[str, Any]:
         """
         Make a HTTP GET request to the server to which this connection has been established.
 
         Args:
             route: route that will be called on the server
-            timeout: timeout in seconds
             params: additional parameters for the HTTP request
+            timeout: timeout in seconds
 
         Returns:
             response from server

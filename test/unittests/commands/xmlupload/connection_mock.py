@@ -11,16 +11,20 @@ class ConnectionMockBase:
     Does not have any capabilities but subclasses can override methods.
     """
 
-    def get(self, route: str, headers: dict[str, str] | None = None) -> dict[str, Any]:
+    def get(self, route: str, headers: dict[str, str] | None = None, timeout: int = 20) -> dict[str, Any]:
         raise AssertionError("GET not implemented in mock")
 
-    def put(self, route: str, jsondata: str | None = None, content_type: str = "application/json") -> dict[str, Any]:
+    def put(
+        self, route: str, jsondata: str | None = None, content_type: str = "application/json", timeout: int = 20
+    ) -> dict[str, Any]:
         raise AssertionError("PUT not implemented in mock")
 
-    def post(self, route: str, jsondata: str | None = None, content_type: str = "application/json") -> dict[str, Any]:
+    def post(
+        self, route: str, jsondata: str | None = None, content_type: str = "application/json", timeout: int = 20
+    ) -> dict[str, Any]:
         raise AssertionError("POST not implemented in mock")
 
-    def delete(self, route: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
+    def delete(self, route: str, params: dict[str, Any] | None = None, timeout: int = 20) -> dict[str, Any]:
         raise AssertionError("DELETE not implemented in mock")
 
     def get_token(self) -> str:

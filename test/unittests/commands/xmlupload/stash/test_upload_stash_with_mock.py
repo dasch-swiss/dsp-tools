@@ -46,6 +46,7 @@ class ConnectionMock:
         self,
         route: str,
         headers: dict[str, str] | None = None,
+        timeout: int = 20,
     ) -> dict[str, Any]:
         return self.get_responses.pop(0)
 
@@ -54,6 +55,7 @@ class ConnectionMock:
         route: str,
         jsondata: str | None = None,
         content_type: str = "application/json",
+        timeout: int = 20,
     ) -> dict[str, Any]:
         return self.post_responses.pop(0)
 
@@ -62,6 +64,7 @@ class ConnectionMock:
         route: str,
         jsondata: str | None = None,
         content_type: str = "application/json",
+        timeout: int = 20,
     ) -> dict[str, Any]:
         return self.put_responses.pop(0)
 
@@ -69,6 +72,7 @@ class ConnectionMock:
         self,
         route: str,
         params: dict[str, Any] | None = None,
+        timeout: int = 20,
     ) -> dict[str, Any]:
         raise AssertionError("'delete' not implemented")
 

@@ -5,8 +5,10 @@ from pathlib import Path
 from typing import Any, Optional, cast
 
 import requests
+from requests import Response
 
 from dsp_tools.models.exceptions import BaseError
+from dsp_tools.utils.shared import try_network_action
 
 
 def check_for_api_error(response: requests.Response) -> None:
@@ -158,8 +160,6 @@ class ConnectionLive:
         Returns:
             response from server
         """
-        # XXX: add retry
-
         # timeout must be high enough,
         # otherwise the client can get a timeout error while the API is still processing the request
         # in that case, the client's retry will have undesired side effects (e.g. duplicated resources),
@@ -174,13 +174,15 @@ class ConnectionLive:
         if self.token:
             headers["Authorization"] = f"Bearer {self.token}"
 
-        response = requests.post(
-            url=url,
-            headers=headers,
-            # if data is not encoded as bytes, issues can occur with non-ASCII characters,
-            # where the content-length of the request will turn out to be different from the actual length
-            data=jsondata.encode("utf-8") if jsondata else None,
-            timeout=timeout,
+        response: Response = try_network_action(
+            lambda: requests.post(
+                url=url,
+                headers=headers,
+                # if data is not encoded as bytes, issues can occur with non-ASCII characters,
+                # where the content-length of the request will turn out to be different from the actual length
+                data=jsondata.encode("utf-8") if jsondata else None,
+                timeout=timeout,
+            )
         )
         if self.dump:
             self._write_request_to_file(
@@ -209,8 +211,6 @@ class ConnectionLive:
         Returns:
             response from server
         """
-        # XXX: add retry
-
         if not route.startswith("/"):
             route = f"/{route}"
         url = self.server + route
@@ -219,10 +219,12 @@ class ConnectionLive:
         if self.token:
             headers["Authorization"] = f"Bearer {self.token}"
 
-        response = requests.get(
-            url=url,
-            headers=headers,
-            timeout=20,
+        response: Response = try_network_action(
+            lambda: requests.get(
+                url=url,
+                headers=headers,
+                timeout=20,
+            )
         )
         if self.dump:
             self._write_request_to_file(
@@ -253,8 +255,6 @@ class ConnectionLive:
         Returns:
             response from server
         """
-        # XXX: add retry
-
         # timeout must be high enough,
         # otherwise the client can get a timeout error while the API is still processing the request
         # in that case, the client's retry will fail, and the response of the original API call will be lost
@@ -268,13 +268,15 @@ class ConnectionLive:
         if self.token:
             headers["Authorization"] = f"Bearer {self.token}"
 
-        response = requests.put(
-            url=url,
-            headers=headers,
-            # if data is not encoded as bytes, issues can occur with non-ASCII characters,
-            # where the content-length of the request will turn out to be different from the actual length
-            data=jsondata.encode("utf-8") if jsondata else None,
-            timeout=timeout,
+        response: Response = try_network_action(
+            lambda: requests.put(
+                url=url,
+                headers=headers,
+                # if data is not encoded as bytes, issues can occur with non-ASCII characters,
+                # where the content-length of the request will turn out to be different from the actual length
+                data=jsondata.encode("utf-8") if jsondata else None,
+                timeout=timeout,
+            )
         )
         if self.dump:
             self._write_request_to_file(

@@ -9,8 +9,6 @@ from dsp_tools.utils.connection import Connection
 class ProjectContext:
     """Represents the project context"""
 
-    # XXX: add retry
-
     _projects: list[Project]
     _inv_project_map: dict[str, str]  # dictionary of (project IRI:project name) pairs
     _groups: Optional[list[Group]]

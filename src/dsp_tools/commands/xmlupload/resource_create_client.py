@@ -37,7 +37,9 @@ class ResourceCreateClient:
         bitstream_information: BitstreamInfo | None,
     ) -> tuple[str, str]:
         """Creates a resource on the DSP server."""
-        logger.info(f"Attempting to create resource {resource.id} (label: {resource.label}, iri: {resource.iri})...")
+        logger.info(
+            f"Attempting to create resource {resource.res_id} (label: {resource.label}, iri: {resource.iri})..."
+        )
         resource_dict = self._make_resource_with_values(resource, bitstream_information)
         resource_json_ld = json.dumps(resource_dict, ensure_ascii=False)
         res = try_network_action(self.con.post, route="/v2/resources", jsondata=resource_json_ld)
@@ -79,7 +81,7 @@ class ResourceCreateClient:
                 res["knora-api:hasPermissions"] = str(perm)
             else:
                 raise BaseError(
-                    f"Could not find permissions for resource {resource.id} with permissions {resource.permissions}"
+                    f"Could not find permissions for resource {resource.res_id} with permissions {resource.permissions}"
                 )
         if resource.creation_date:
             res["knora-api:creationDate"] = {

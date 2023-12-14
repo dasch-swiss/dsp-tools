@@ -148,7 +148,7 @@ def _prepare_upload(
         root=root,
         default_ontology=default_ontology,
     )
-    sorting_lookup = {res.id: res for res in resources}
+    sorting_lookup = {res.res_id: res for res in resources}
     resources = [sorting_lookup[res_id] for res_id in upload_order]
     logger.info("Stashing circular references...")
     if verbose:
@@ -339,18 +339,18 @@ def _upload_resources(
             resource, config.preprocessing_done, sipi_server, imgdir, permissions_lookup
         )
         if not success:
-            failed_uploads.append(resource.id)
+            failed_uploads.append(resource.res_id)
             continue
 
         res = _create_resource(resource, media_info, resource_create_client)
         if not res:
-            failed_uploads.append(resource.id)
+            failed_uploads.append(resource.res_id)
             continue
 
         iri, label = res
-        id_to_iri_resolver.update(resource.id, iri)
+        id_to_iri_resolver.update(resource.res_id, iri)
 
-        resource_designation = f"'{label}' (ID: '{resource.id}', IRI: '{iri}')"
+        resource_designation = f"'{label}' (ID: '{resource.res_id}', IRI: '{iri}')"
         print(f"{datetime.now()}: Created resource {i+1}/{len(resources)}: {resource_designation}")
         logger.info(f"Created resource {i+1}/{len(resources)}: {resource_designation}")
 
@@ -366,19 +366,19 @@ def _create_resource(
         return resource_create_client.create_resource(resource, bitstream_information)
     except BaseError as err:
         err_msg = err.orig_err_msg_from_api or err.message
-        print(f"{datetime.now()}: WARNING: Unable to create resource '{resource.label}' ({resource.id}): {err_msg}")
+        print(f"{datetime.now()}: WARNING: Unable to create resource '{resource.label}' ({resource.res_id}): {err_msg}")
         log_msg = (
-            f"Unable to create resource '{resource.label}' ({resource.id})\n"
+            f"Unable to create resource '{resource.label}' ({resource.res_id})\n"
             f"Resource details:\n{vars(resource)}\n"
             f"Property details:\n" + "\n".join([str(vars(prop)) for prop in resource.properties])
         )
         logger.warning(log_msg, exc_info=True)
         return None
     except Exception as err:
-        msg = f"Unable to create resource '{resource.label}' ({resource.id})"
+        msg = f"Unable to create resource '{resource.label}' ({resource.res_id})"
         print(f"{datetime.now()}: WARNING: {msg}: {err}")
         log_msg = (
-            f"Unable to create resource '{resource.label}' ({resource.id})\n"
+            f"Unable to create resource '{resource.label}' ({resource.res_id})\n"
             f"Resource details:\n{vars(resource)}\n"
             f"Property details:\n" + "\n".join([str(vars(prop)) for prop in resource.properties])
         )

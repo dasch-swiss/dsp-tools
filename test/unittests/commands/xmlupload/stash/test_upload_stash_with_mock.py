@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from test.unittests.commands.xmlupload.connection_mock import ConnectionMockBase
 from typing import Any
 from uuid import uuid4
 
@@ -35,7 +36,7 @@ class ProjectClientStub:
 
 
 @dataclass
-class ConnectionMock:
+class ConnectionMock(ConnectionMockBase):
     """Mock class for Connection."""
 
     get_responses: list[dict[str, Any]] = field(default_factory=list)
@@ -53,7 +54,8 @@ class ConnectionMock:
         self,
         route: str,
         jsondata: str | None = None,
-        content_type: str = "application/json",
+        files: dict[str, tuple[str, Any]] | None = None,
+        timeout: int | None = None,
     ) -> dict[str, Any]:
         return self.post_responses.pop(0)
 
@@ -64,22 +66,6 @@ class ConnectionMock:
         content_type: str = "application/json",
     ) -> dict[str, Any]:
         return self.put_responses.pop(0)
-
-    def delete(
-        self,
-        route: str,
-        params: dict[str, Any] | None = None,
-    ) -> dict[str, Any]:
-        raise AssertionError("'delete' not implemented")
-
-    def get_token(self) -> str:
-        raise AssertionError("'get token' not implemented in this mock")
-
-    def login(self, email: str, password: str) -> None:
-        raise AssertionError("'login' not implemented in this mock")
-
-    def logout(self) -> None:
-        raise AssertionError("'logout' not implemented in this mock")
 
 
 class TestUploadLinkValueStashes:

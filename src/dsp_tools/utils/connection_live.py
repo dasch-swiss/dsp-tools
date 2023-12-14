@@ -217,7 +217,6 @@ class ConnectionLive:
         self,
         route: str,
         jsondata: Optional[str] = None,
-        content_type: str = "application/json",
         files: dict[str, tuple[str, Any]] | None = None,
         timeout: int | None = None,
     ) -> dict[str, Any]:
@@ -227,7 +226,6 @@ class ConnectionLive:
         Args:
             route: route that will be called on the server
             jsondata: Valid JSON as string
-            content_type: HTTP Content-Type [default: 'application/json']
             files: files to be uploaded, if any
             timeout: timeout of the HTTP request, or None if the default should be used
 
@@ -244,7 +242,7 @@ class ConnectionLive:
         url = self.server + route
         headers = {}
         if jsondata:
-            headers["Content-Type"] = f"{content_type}; charset=UTF-8"
+            headers["Content-Type"] = "application/json; charset=UTF-8"
         if self.token:
             headers["Authorization"] = f"Bearer {self.token}"
 

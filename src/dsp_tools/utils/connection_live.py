@@ -254,6 +254,7 @@ class ConnectionLive:
             request = partial(request, data=data)
         elif files:
             request = partial(request, files=files)
+            logger.warning(f"POST with file: {request}")
 
         response: Response = _try_network_action(request)
         if self.dump:

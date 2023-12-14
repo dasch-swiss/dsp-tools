@@ -1,14 +1,80 @@
 import json
+import time
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional, cast
+from typing import Any, Callable, Optional, cast
 
 import requests
-from requests import Response
+from requests import ReadTimeout, RequestException, Response
+from urllib3.exceptions import ReadTimeoutError
 
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.utils.shared import try_network_action
+from dsp_tools.utils.create_logger import get_logger
+
+logger = get_logger(__name__)
+
+
+def _try_network_action(
+    action: Callable[..., Any],
+    *args: Any,
+    **kwargs: Any,
+) -> Any:
+    """
+    Helper method that tries 7 times to execute an action.
+    If a timeout error, a ConnectionError, a requests.exceptions.RequestException, or a non-permanent BaseError occors,
+    it waits and retries.
+    The waiting times are 1, 2, 4, 8, 16, 32, 64 seconds.
+    If another exception occurs, it escalates.
+
+    Args:
+        action: a lambda with the code to be executed, or a function
+        args: positional arguments for the action
+        kwargs: keyword arguments for the action
+
+    Raises:
+        BaseError: if the action fails permanently
+        unexpected exceptions: if the action fails with an unexpected exception
+
+    Returns:
+        the return value of action
+    """
+    action_as_str = f"{action=}, {args=}, {kwargs=}"
+    for i in range(7):
+        try:
+            if args and not kwargs:
+                return action(*args)
+            elif not args and kwargs:
+                return action(**kwargs)
+            elif args and kwargs:
+                return action(*args, **kwargs)
+            else:
+                return action()
+        except (TimeoutError, ReadTimeout, ReadTimeoutError):
+            msg = f"Timeout Error: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
+            print(f"{datetime.now()}: {msg}")
+            logger.error(f"{msg} {action_as_str} (retry-counter {i=:})", exc_info=True)
+            time.sleep(2**i)
+        except (ConnectionError, RequestException):
+            msg = f"Network Error: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
+            print(f"{datetime.now()}: {msg}")
+            logger.error(f"{msg} {action_as_str} (retry-counter {i=:})", exc_info=True)
+            time.sleep(2**i)
+        except BaseError as err:
+            in_500_range = False
+            if err.status_code:
+                in_500_range = 500 <= err.status_code < 600
+            try_again_later = "try again later" in err.message
+            if try_again_later or in_500_range:
+                msg = f"Transient Error: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
+                print(f"{datetime.now()}: {msg}")
+                logger.error(f"{msg} {action_as_str} (retry-counter {i=:})", exc_info=True)
+                time.sleep(2**i)
+            else:
+                raise err
+
+    logger.error("Permanently unable to execute the network action. See logs for more details.")
+    raise BaseError("Permanently unable to execute the network action. See logs for more details.")
 
 
 def check_for_api_error(response: requests.Response) -> None:
@@ -174,7 +240,7 @@ class ConnectionLive:
         if self.token:
             headers["Authorization"] = f"Bearer {self.token}"
 
-        response: Response = try_network_action(
+        response: Response = _try_network_action(
             lambda: requests.post(
                 url=url,
                 headers=headers,
@@ -219,7 +285,7 @@ class ConnectionLive:
         if self.token:
             headers["Authorization"] = f"Bearer {self.token}"
 
-        response: Response = try_network_action(
+        response: Response = _try_network_action(
             lambda: requests.get(
                 url=url,
                 headers=headers,
@@ -268,7 +334,7 @@ class ConnectionLive:
         if self.token:
             headers["Authorization"] = f"Bearer {self.token}"
 
-        response: Response = try_network_action(
+        response: Response = _try_network_action(
             lambda: requests.put(
                 url=url,
                 headers=headers,

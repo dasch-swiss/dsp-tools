@@ -24,7 +24,6 @@ class Connection(Protocol):
             route: route that will be called on the server
             headers: headers for the HTTP request
         """
-        # XXX: add retry
 
     def put(
         self,
@@ -40,7 +39,6 @@ class Connection(Protocol):
             jsondata: Valid JSON as string
             content_type: HTTP Content-Type [default: 'application/json']
         """
-        # XXX: add retry
 
     def post(
         self,
@@ -56,7 +54,6 @@ class Connection(Protocol):
             jsondata: Valid JSON as string
             content_type: HTTP Content-Type [default: 'application/json']
         """
-        # XXX: add retry
 
     def delete(
         self,

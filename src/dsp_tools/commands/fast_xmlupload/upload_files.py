@@ -203,6 +203,7 @@ def _upload_without_processing(
     Returns:
         True if the file could be uploaded
     """
+    # XXX: add retry?
     try:
         with open(file, "rb") as bitstream:
             response_upload = requests.post(

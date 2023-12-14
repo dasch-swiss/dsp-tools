@@ -22,7 +22,7 @@ class Sipi:
     """
 
     sipi_server: str
-    token: str
+    token: str  # XXX: this should/could be a connection
     dump: bool = False
     dump_directory = Path("HTTP requests")
 

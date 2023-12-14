@@ -2,7 +2,6 @@
 
 import itertools
 from dataclasses import dataclass, field
-from pathlib import Path
 
 import pandas as pd
 
@@ -26,7 +25,6 @@ class OntoCheckInformation:
 
     default_ontology_prefix: str
     onto_lookup: dict[str, OntoInfo]
-    save_location: Path
 
 
 @dataclass(frozen=True)
@@ -58,7 +56,10 @@ class InvalidOntologyElements:
         prop_msg = self._compose_problem_string_for_props()
         if prop_msg:
             msg += prop_msg
-        if len(self.classes) + len(self.properties) > maximum_prints:
+        if (
+            self._calculate_num_resources(self.classes) + self._calculate_num_resources(self.properties)
+            > maximum_prints
+        ):
             df = self._get_problems_as_df()
             return msg, df
         return msg, None

@@ -168,8 +168,9 @@ ignore = [
     "INP001",   # implicit-namespace-package    # there are some python files, but no __init__.py
 ]
 "test/*" = [
+    "D103",     # pydocstyle: undocumented-public-function
     "D102",     # pydocstyle: undocumented-public-method
-    "D101",    # pydocstyle: undocumented-public-class
+    "D101",     # pydocstyle: undocumented-public-class
 ]
 
 

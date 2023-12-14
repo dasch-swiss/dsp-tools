@@ -15,6 +15,7 @@ class Connection(Protocol):
     def get(
         self,
         route: str,
+        timeout: int,
         headers: dict[str, str] | None = None,
     ) -> dict[str, Any]:
         """
@@ -22,12 +23,14 @@ class Connection(Protocol):
 
         Args:
             route: route that will be called on the server
+            timeout: timeout in seconds
             headers: headers for the HTTP request
         """
 
     def put(
         self,
         route: str,
+        timeout: int,
         jsondata: str | None = None,
         content_type: str = "application/json",
     ) -> dict[str, Any]:
@@ -36,6 +39,7 @@ class Connection(Protocol):
 
         Args:
             route: route that will be called on the server
+            timeout: timeout in seconds
             jsondata: Valid JSON as string
             content_type: HTTP Content-Type [default: 'application/json']
         """
@@ -43,6 +47,7 @@ class Connection(Protocol):
     def post(
         self,
         route: str,
+        timeout: int,
         jsondata: str | None = None,
         content_type: str = "application/json",
     ) -> dict[str, Any]:
@@ -51,6 +56,7 @@ class Connection(Protocol):
 
         Args:
             route: route that will be called on the server
+            timeout: timeout in seconds
             jsondata: Valid JSON as string
             content_type: HTTP Content-Type [default: 'application/json']
         """
@@ -58,6 +64,7 @@ class Connection(Protocol):
     def delete(
         self,
         route: str,
+        timeout: int,
         params: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """
@@ -65,6 +72,7 @@ class Connection(Protocol):
 
         Args:
             route: route that will be called on the server
+            timeout: timeout in seconds
             params: additional parameters for the HTTP request
         """
 

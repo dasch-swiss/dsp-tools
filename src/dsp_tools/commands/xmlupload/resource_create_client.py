@@ -40,7 +40,11 @@ class ResourceCreateClient:
         logger.info(f"Attempting to create resource {resource.id} (label: {resource.label}, iri: {resource.iri})...")
         resource_dict = self._make_resource_with_values(resource, bitstream_information)
         resource_json_ld = json.dumps(resource_dict, ensure_ascii=False)
-        res = try_network_action(self.con.post, route="/v2/resources", jsondata=resource_json_ld)
+        # timeout must be high enough,
+        # otherwise we get a timeout error while the API is still processing the request
+        # in that case, the retry will have undesired side effects (e.g. duplicated resources),
+        # and the response of the original API call will be lost
+        res = try_network_action(self.con.post, route="/v2/resources", jsondata=resource_json_ld, timeout=10 * 60)
         iri = res["@id"]
         label = res["rdfs:label"]
         return iri, label

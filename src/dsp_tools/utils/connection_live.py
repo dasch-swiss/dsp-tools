@@ -144,6 +144,7 @@ class ConnectionLive:
     def post(
         self,
         route: str,
+        timeout: int = 20,
         jsondata: Optional[str] = None,
         content_type: str = "application/json",
     ) -> dict[str, Any]:
@@ -152,17 +153,13 @@ class ConnectionLive:
 
         Args:
             route: route that will be called on the server
+            timeout: timeout in seconds
             jsondata: Valid JSON as string
             content_type: HTTP Content-Type [default: 'application/json']
 
         Returns:
             response from server
         """
-        # timeout must be high enough,
-        # otherwise the client can get a timeout error while the API is still processing the request
-        # in that case, the client's retry will have undesired side effects (e.g. duplicated resources),
-        # and the response of the original API call will be lost
-        timeout = 60
         if not route.startswith("/"):
             route = f"/{route}"
         url = self.server + route
@@ -195,6 +192,7 @@ class ConnectionLive:
     def get(
         self,
         route: str,
+        timeout: int = 20,
         headers: Optional[dict[str, str]] = None,
     ) -> dict[str, Any]:
         """
@@ -202,6 +200,7 @@ class ConnectionLive:
 
         Args:
             route: route that will be called on the server
+            timeout: timeout in seconds
             headers: headers for the HTTP request
 
         Returns:
@@ -218,7 +217,7 @@ class ConnectionLive:
         response = requests.get(
             url=url,
             headers=headers,
-            timeout=20,
+            timeout=timeout,
         )
         if self.dump:
             self._write_request_to_file(
@@ -235,6 +234,7 @@ class ConnectionLive:
     def put(
         self,
         route: str,
+        timeout: int = 20,
         jsondata: Optional[str] = None,
         content_type: str = "application/json",
     ) -> dict[str, Any]:
@@ -243,16 +243,13 @@ class ConnectionLive:
 
         Args:
             route: route that will be called on the server
+            timeout: timeout in seconds
             jsondata: Valid JSON as string
             content_type: HTTP Content-Type [default: 'application/json']
 
         Returns:
             response from server
         """
-        # timeout must be high enough,
-        # otherwise the client can get a timeout error while the API is still processing the request
-        # in that case, the client's retry will fail, and the response of the original API call will be lost
-        timeout = 60
         if not route.startswith("/"):
             route = f"/{route}"
         url = self.server + route
@@ -285,6 +282,7 @@ class ConnectionLive:
     def delete(
         self,
         route: str,
+        timeout: int = 20,
         params: Optional[dict[str, Any]] = None,
     ) -> dict[str, Any]:
         """
@@ -292,6 +290,7 @@ class ConnectionLive:
 
         Args:
             route: route that will be called on the server
+            timeout: timeout in seconds
             params: additional parameters for the HTTP request
 
         Returns:
@@ -307,7 +306,7 @@ class ConnectionLive:
             url=url,
             headers=headers,
             params=params,
-            timeout=20,
+            timeout=timeout,
         )
         if self.dump:
             self._write_request_to_file(

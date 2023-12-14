@@ -190,72 +190,54 @@ class TestExcel2xmlLib(unittest.TestCase):
 
     def test_find_date_in_string_iso(self) -> None:
         """template: 2021-01-01"""
-        testcases = {
-            "text 1492-10-12, text": "GREGORIAN:CE:1492-10-12:CE:1492-10-12",
-            "Text 0476-09-04. text": "GREGORIAN:CE:0476-09-04:CE:0476-09-04",
-            "Text (0476-09-04) text": "GREGORIAN:CE:0476-09-04:CE:0476-09-04",
-            "Text [1492-10-32?] text": None,
-        }
-        for testcase, expected in testcases.items():
-            self.assertEqual(excel2xml.find_date_in_string(testcase), expected, msg=f"Failed with '{testcase}'")
+        self.assertEqual(excel2xml.find_date_in_string("x 1492-10-12, x"), "GREGORIAN:CE:1492-10-12:CE:1492-10-12")
+        self.assertEqual(excel2xml.find_date_in_string("x 0476-09-04. x"), "GREGORIAN:CE:0476-09-04:CE:0476-09-04")
+        self.assertEqual(excel2xml.find_date_in_string("x (0476-09-04) x"), "GREGORIAN:CE:0476-09-04:CE:0476-09-04")
+        self.assertEqual(excel2xml.find_date_in_string("x [1492-10-32?] x"), None)
 
     def test_find_date_in_string_eur_date(self) -> None:
         """template: 31.4.2021 | 5/11/2021 | 2015_01_02"""
-        testcases = {
-            "Text (30.4.2021) text": "GREGORIAN:CE:2021-04-30:CE:2021-04-30",
-            "Text (5/11/2021) text": "GREGORIAN:CE:2021-11-05:CE:2021-11-05",
-            "Text ...2193_01_26... text": "GREGORIAN:CE:2193-01-26:CE:2193-01-26",
-            "Text -2193_01_26- text": "GREGORIAN:CE:2193-01-26:CE:2193-01-26",
-            "Text 2193_02_30 text": None,
-        }
-        for testcase, expected in testcases.items():
-            self.assertEqual(excel2xml.find_date_in_string(testcase), expected, msg=f"Failed with '{testcase}'")
+        self.assertEqual(excel2xml.find_date_in_string("x (30.4.2021) x"), "GREGORIAN:CE:2021-04-30:CE:2021-04-30")
+        self.assertEqual(excel2xml.find_date_in_string("x (5/11/2021) x"), "GREGORIAN:CE:2021-11-05:CE:2021-11-05")
+        self.assertEqual(excel2xml.find_date_in_string("x ...2193_01_26... x"), "GREGORIAN:CE:2193-01-26:CE:2193-01-26")
+        self.assertEqual(excel2xml.find_date_in_string("x -2193_01_26- x"), "GREGORIAN:CE:2193-01-26:CE:2193-01-26")
+        self.assertEqual(excel2xml.find_date_in_string("x 2193_02_30 x"), None)
 
     def test_find_date_in_string_eur_date_range(self) -> None:
         """template: 27.-28.1.1900"""
-        testcases = {
-            "Text 25.-26.2.0800 text": "GREGORIAN:CE:0800-02-25:CE:0800-02-26",
-            "Text 25. - 26.2.0800 text": "GREGORIAN:CE:0800-02-25:CE:0800-02-26",
-            "Text 25.-24.2.0800 text": None,
-        }
-        for testcase, expected in testcases.items():
-            self.assertEqual(excel2xml.find_date_in_string(testcase), expected, msg=f"Failed with '{testcase}'")
+        self.assertEqual(excel2xml.find_date_in_string("x 25.-26.2.0800 x"), "GREGORIAN:CE:0800-02-25:CE:0800-02-26")
+        self.assertEqual(excel2xml.find_date_in_string("x 25. - 26.2.0800 x"), "GREGORIAN:CE:0800-02-25:CE:0800-02-26")
+        self.assertEqual(excel2xml.find_date_in_string("x 25.-24.2.0800 x"), None)
 
     def test_find_date_in_string_eur_date_range_across_month(self) -> None:
         """template: 26.2.-24.3.1948"""
-        testcases = {
-            "Text _1.3. - 25.4.2022_ text": "GREGORIAN:CE:2022-03-01:CE:2022-04-25",
-            "Text (01.03. - 25.04.2022) text": "GREGORIAN:CE:2022-03-01:CE:2022-04-25",
-            "Text 28.2.-1.12.1515 text": "GREGORIAN:CE:1515-02-28:CE:1515-12-01",
-            "Text 28.2.-26.2.1515 text": None,
-        }
-        for testcase, expected in testcases.items():
-            self.assertEqual(excel2xml.find_date_in_string(testcase), expected, msg=f"Failed with '{testcase}'")
+        expected = "GREGORIAN:CE:2022-03-01:CE:2022-04-25"
+        self.assertEqual(excel2xml.find_date_in_string("x _1.3. - 25.4.2022_ x"), expected)
+        self.assertEqual(excel2xml.find_date_in_string("x (01.03. - 25.04.2022) x"), expected)
+
+        self.assertEqual(excel2xml.find_date_in_string("x 28.2.-1.12.1515 x"), "GREGORIAN:CE:1515-02-28:CE:1515-12-01")
+        self.assertEqual(excel2xml.find_date_in_string("x 28.2.-26.2.1515 x"), None)
 
     def test_find_date_in_string_eur_date_range_across_year(self) -> None:
         """template: 1.12.1973 - 6.1.1974"""
-        testcases = {
-            "Text 1.9.2022-3.1.2024 text": "GREGORIAN:CE:2022-09-01:CE:2024-01-03",
-            "Text 25.12.2022 - 3.1.2024 text": "GREGORIAN:CE:2022-12-25:CE:2024-01-03",
-            "Text 25.12.2022-03.01.2022 text": None,
-            "Text 25/12/2022-03/01/2024 text": "GREGORIAN:CE:2022-12-25:CE:2024-01-03",
-            "Text 25/12/2022 - 3/1/2024 text": "GREGORIAN:CE:2022-12-25:CE:2024-01-03",
-            "Text 25/12/2022-03/01/2022 text": None,
-        }
-        for testcase, expected in testcases.items():
-            self.assertEqual(excel2xml.find_date_in_string(testcase), expected, msg=f"Failed with '{testcase}'")
+        expected = "GREGORIAN:CE:2022-09-01:CE:2024-01-03"
+        self.assertEqual(excel2xml.find_date_in_string("x 1.9.2022-3.1.2024 x"), expected)
+
+        expected = "GREGORIAN:CE:2022-12-25:CE:2024-01-03"
+        self.assertEqual(excel2xml.find_date_in_string("x 25.12.2022 - 3.1.2024 x"), expected)
+        self.assertEqual(excel2xml.find_date_in_string("x 25/12/2022-03/01/2024 x"), expected)
+        self.assertEqual(excel2xml.find_date_in_string("x 25/12/2022 - 3/1/2024 x"), expected)
+
+        self.assertEqual(excel2xml.find_date_in_string("x 25.12.2022-03.01.2022 x"), None)
+        self.assertEqual(excel2xml.find_date_in_string("x 25/12/2022-03/01/2022 x"), None)
 
     def test_find_date_in_string_monthname(self) -> None:
         """template: February 9, 1908 | Dec 5,1908"""
-        testcases = {
-            "Text Jan 26, 1993 text": "GREGORIAN:CE:1993-01-26:CE:1993-01-26",
-            "Text February26,2051 text": "GREGORIAN:CE:2051-02-26:CE:2051-02-26",
-            "Text Sept 1, 1000 text": "GREGORIAN:CE:1000-09-01:CE:1000-09-01",
-            "Text October 01, 1000 text": "GREGORIAN:CE:1000-10-01:CE:1000-10-01",
-            "Text Nov 6,1000 text": "GREGORIAN:CE:1000-11-06:CE:1000-11-06",
-        }
-        for testcase, expected in testcases.items():
-            self.assertEqual(excel2xml.find_date_in_string(testcase), expected, msg=f"Failed with '{testcase}'")
+        self.assertEqual(excel2xml.find_date_in_string("x Jan 26, 1993 x"), "GREGORIAN:CE:1993-01-26:CE:1993-01-26")
+        self.assertEqual(excel2xml.find_date_in_string("x February26,2051 x"), "GREGORIAN:CE:2051-02-26:CE:2051-02-26")
+        self.assertEqual(excel2xml.find_date_in_string("x Sept 1, 1000 x"), "GREGORIAN:CE:1000-09-01:CE:1000-09-01")
+        self.assertEqual(excel2xml.find_date_in_string("x October 01, 1000 x"), "GREGORIAN:CE:1000-10-01:CE:1000-10-01")
+        self.assertEqual(excel2xml.find_date_in_string("x Nov 6,1000 x"), "GREGORIAN:CE:1000-11-06:CE:1000-11-06")
 
     def test_find_date_in_string_single_year(self) -> None:
         """template: 1907 | 476"""
@@ -265,20 +247,16 @@ class TestExcel2xmlLib(unittest.TestCase):
 
     def test_find_date_in_string_year_range(self) -> None:
         """template: 1849/50 | 1845-50 | 1849/1850"""
-        testcases = {
-            "Text 1849/1850? text": "GREGORIAN:CE:1849:CE:1850",
-            "Text 1845-1850, text": "GREGORIAN:CE:1845:CE:1850",
-            "Text 800-900, text": "GREGORIAN:CE:800:CE:900",
-            "Text 840-50, text": "GREGORIAN:CE:840:CE:850",
-            "Text 844-8, text": "GREGORIAN:CE:844:CE:848",
-            "Text 1840-1, text": "GREGORIAN:CE:1840:CE:1841",
-            "Text 0750-0760 text": "GREGORIAN:CE:750:CE:760",
-            "Text 1849/50. text": "GREGORIAN:CE:1849:CE:1850",
-            "Text (1845-50) text": "GREGORIAN:CE:1845:CE:1850",
-            "Text [1849/1850] text": "GREGORIAN:CE:1849:CE:1850",
-        }
-        for testcase, expected in testcases.items():
-            self.assertEqual(excel2xml.find_date_in_string(testcase), expected, msg=f"Failed with '{testcase}'")
+        self.assertEqual(excel2xml.find_date_in_string("x 1849/1850? x"), "GREGORIAN:CE:1849:CE:1850")
+        self.assertEqual(excel2xml.find_date_in_string("x 1845-1850, x"), "GREGORIAN:CE:1845:CE:1850")
+        self.assertEqual(excel2xml.find_date_in_string("x 800-900, x"), "GREGORIAN:CE:800:CE:900")
+        self.assertEqual(excel2xml.find_date_in_string("x 840-50, x"), "GREGORIAN:CE:840:CE:850")
+        self.assertEqual(excel2xml.find_date_in_string("x 844-8, x"), "GREGORIAN:CE:844:CE:848")
+        self.assertEqual(excel2xml.find_date_in_string("x 1840-1, x"), "GREGORIAN:CE:1840:CE:1841")
+        self.assertEqual(excel2xml.find_date_in_string("x 0750-0760 x"), "GREGORIAN:CE:750:CE:760")
+        self.assertEqual(excel2xml.find_date_in_string("x 1849/50. x"), "GREGORIAN:CE:1849:CE:1850")
+        self.assertEqual(excel2xml.find_date_in_string("x (1845-50) x"), "GREGORIAN:CE:1845:CE:1850")
+        self.assertEqual(excel2xml.find_date_in_string("x [1849/1850] x"), "GREGORIAN:CE:1849:CE:1850")
 
     def test_find_date_in_string_french_bc(self) -> None:
         self.assertEqual(excel2xml.find_date_in_string("Text 12345 av. J.-C. text"), "GREGORIAN:BC:12345:BC:12345")

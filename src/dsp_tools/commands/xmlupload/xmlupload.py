@@ -84,7 +84,7 @@ def xmlupload(
 
     # establish connection to DSP server
     con = login(server=server, user=user, password=password, dump=config.diagnostics.dump)
-    sipi_server = Sipi(sipi, con.get_token())
+    sipi_server = Sipi(sipi, con)
 
     ontology_client = OntologyClientLive(
         con=con,

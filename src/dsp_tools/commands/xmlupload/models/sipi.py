@@ -6,7 +6,7 @@ from typing import Any
 
 import requests
 
-from dsp_tools.utils.connection_live import check_for_api_error
+from dsp_tools.utils.connection import Connection
 
 
 @dataclass(frozen=True)
@@ -22,7 +22,7 @@ class Sipi:
     """
 
     sipi_server: str
-    token: str  # XXX: this should/could be a connection
+    con: Connection
     dump: bool = False
     dump_directory = Path("HTTP requests")
 
@@ -43,33 +43,13 @@ class Sipi:
         Returns:
             API response
         """
-
-        # XXX: add retry
         with open(filepath, "rb") as bitstream_file:
             files = {"file": (Path(filepath).name, bitstream_file)}
             url = self.sipi_server + "/upload"
-            headers = {"Authorization": "Bearer " + self.token}
             timeout = 5 * 60
-            response = requests.post(
-                url=url,
-                headers=headers,
-                files=files,
-                timeout=timeout,
-            )
-            if self.dump:
-                self.write_request_to_file(
-                    method="POST",
-                    url=url,
-                    headers=headers,
-                    filepath=filepath,
-                    timeout=timeout,
-                    response=response,
-                )
-        check_for_api_error(response)
-        res: dict[Any, Any] = response.json()
-        return res
+            return self.con.post(route=url, files=files, timeout=timeout)
 
-    def write_request_to_file(
+    def write_request_to_file(  # XXX: unused?
         self,
         method: str,
         url: str,

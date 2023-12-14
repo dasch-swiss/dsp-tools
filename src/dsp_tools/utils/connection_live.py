@@ -2,6 +2,7 @@ import json
 import time
 from dataclasses import dataclass
 from datetime import datetime
+from functools import partial
 from pathlib import Path
 from typing import Any, Callable, Optional, cast
 
@@ -178,6 +179,7 @@ class ConnectionLive:
         jsondata: Optional[str],
         params: Optional[dict[str, Any]],
         response: requests.Response,
+        filepath: Optional[str] = None,
     ) -> None:
         """
         Write the request and response to a file.
@@ -189,6 +191,7 @@ class ConnectionLive:
             jsondata: data sent to the server
             params: additional parameters for the HTTP request
             response: response of the server
+            filepath: path to the file that was uploaded, if any
         """
         if response.status_code == 200:
             _return = response.json()
@@ -201,6 +204,7 @@ class ConnectionLive:
             "headers": headers,
             "params": params,
             "body": json.loads(jsondata) if jsondata else None,
+            "filepath": filepath,
             "return-headers": dict(response.headers),
             "return": _return,
         }
@@ -214,6 +218,8 @@ class ConnectionLive:
         route: str,
         jsondata: Optional[str] = None,
         content_type: str = "application/json",
+        files: dict[str, tuple[str, Any]] | None = None,
+        timeout: int | None = None,
     ) -> dict[str, Any]:
         """
         Make a HTTP POST request to the server to which this connection has been established.
@@ -222,6 +228,8 @@ class ConnectionLive:
             route: route that will be called on the server
             jsondata: Valid JSON as string
             content_type: HTTP Content-Type [default: 'application/json']
+            files: files to be uploaded, if any
+            timeout: timeout of the HTTP request, or None if the default should be used
 
         Returns:
             response from server
@@ -230,7 +238,7 @@ class ConnectionLive:
         # otherwise the client can get a timeout error while the API is still processing the request
         # in that case, the client's retry will have undesired side effects (e.g. duplicated resources),
         # and the response of the original API call will be lost
-        timeout = 60
+        timeout = timeout or 60
         if not route.startswith("/"):
             route = f"/{route}"
         url = self.server + route
@@ -240,22 +248,23 @@ class ConnectionLive:
         if self.token:
             headers["Authorization"] = f"Bearer {self.token}"
 
-        response: Response = _try_network_action(
-            lambda: requests.post(
-                url=url,
-                headers=headers,
-                # if data is not encoded as bytes, issues can occur with non-ASCII characters,
-                # where the content-length of the request will turn out to be different from the actual length
-                data=jsondata.encode("utf-8") if jsondata else None,
-                timeout=timeout,
-            )
-        )
+        request = partial(requests.post, url=url, headers=headers, timeout=timeout)
+        if jsondata:
+            # if data is not encoded as bytes, issues can occur with non-ASCII characters,
+            # where the content-length of the request will turn out to be different from the actual length
+            data = jsondata.encode("utf-8") if jsondata else None
+            request = partial(request, data=data)
+        elif files:
+            request = partial(request, files=files)
+
+        response: Response = _try_network_action(request)
         if self.dump:
             self._write_request_to_file(
                 method="POST",
                 url=url,
                 headers=headers,
                 jsondata=jsondata,
+                filepath=files["file"][0] if files else None,
                 params=None,
                 response=response,
             )

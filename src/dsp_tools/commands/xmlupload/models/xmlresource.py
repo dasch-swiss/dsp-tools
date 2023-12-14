@@ -28,7 +28,7 @@ class XMLResource:
     Represents a resource in the XML used for data import.
 
     Attributes:
-        id: The unique id of the resource
+        res_id: The unique id of the resource
         iri: The custom IRI of the resource
         ark: The custom ARK of the resource
         label: The label of the resource
@@ -39,7 +39,7 @@ class XMLResource:
         properties: The list of properties of the resource
     """
 
-    id: str
+    res_id: str
     iri: Optional[str]
     ark: Optional[str]
     label: str
@@ -60,7 +60,7 @@ class XMLResource:
         Returns:
             None
         """
-        self.id = node.attrib["id"]
+        self.res_id = node.attrib["id"]
         self.iri = node.attrib.get("iri")
         self.ark = node.attrib.get("ark")
         self.creation_date = None

@@ -25,7 +25,7 @@ from dsp_tools.utils.shared import validate_xml_against_schema
 logger = get_logger(__name__)
 
 
-def call_requested_action(args: argparse.Namespace) -> bool:
+def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0911 (Too many return statements)
     """
     Call the appropriate method of DSP-TOOLS.
 

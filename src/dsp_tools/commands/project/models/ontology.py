@@ -199,7 +199,7 @@ class Ontology(Model):
             property_classes = [
                 PropertyClass.fromJsonObj(con=con, context=context, json_obj=a)
                 for a in properties_obj
-                if WithId(a.get(knora_api + ":objectType")).str() != "knora-api:LinkValue"
+                if WithId(a.get(knora_api + ":objectType")).to_string() != "knora-api:LinkValue"
             ]
         return cls(
             con=con,

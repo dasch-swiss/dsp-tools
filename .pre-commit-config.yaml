@@ -8,12 +8,8 @@ repos:
       - id: ruff
         args: [
           --ignore=A002,
-          --ignore=A003,
-          --ignore=B023,
           --ignore=D101,
           --ignore=D102,
-          --ignore=D103,
-          --ignore=PLR0911,
           --ignore=PLR0912,
           --ignore=PLR0913,
           --ignore=PLR0915,

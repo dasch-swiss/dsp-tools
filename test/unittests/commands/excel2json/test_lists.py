@@ -54,11 +54,9 @@ def test_excel2lists_invalid_excel2() -> None:
 
 class TestValidateListSection:
     def test_correct(self) -> None:
-        """validate the valid "lists" section: should not raise an error"""
         assert e2l.validate_lists_section_with_schema(lists_section=lists_section_valid) is True
 
     def test_without_comments(self) -> None:
-        """remove mandatory "comments" section from root node: should raise an error"""
         with open("testdata/excel2json/lists-multilingual-output-expected.json", encoding="utf-8") as f:
             lists_section_valid_invalid = json.load(f)
         del lists_section_valid_invalid[0]["comments"]
@@ -69,7 +67,6 @@ class TestValidateListSection:
             e2l.validate_lists_section_with_schema(lists_section=lists_section_valid_invalid)
 
     def test_invalid_lang(self) -> None:
-        """insert invalid language code in "comments" section: should raise an error"""
         lists_section_valid[0]["comments"]["eng"] = "wrong English label"
 
         expected_msg = re.escape(
@@ -79,13 +76,11 @@ class TestValidateListSection:
             e2l.validate_lists_section_with_schema(lists_section=lists_section_valid)
 
     def test_wrong_signature_wrong_data(self) -> None:
-        """wrong usage of the function: should raise an error"""
         expected_msg = re.escape("works only if exactly one of the two arguments is given")
         with pytest.raises(BaseError, match=expected_msg):
             e2l.validate_lists_section_with_schema()
 
     def test_wrong_signature_no_data(self) -> None:
-        """wrong usage of the function: should raise an error"""
         expected_msg = r"works only if exactly one of the two arguments is given"
         with pytest.raises(BaseError, match=expected_msg):
             e2l.validate_lists_section_with_schema(
@@ -94,7 +89,6 @@ class TestValidateListSection:
             )
 
     def test_file_without_list(self) -> None:
-        """pass a file that doesn't have a "lists" section"""
         tp_minimal = "testdata/json-project/test-project-minimal.json"
         expected_msg = r"there is no 'lists' section"
         with pytest.raises(BaseError, match=expected_msg):

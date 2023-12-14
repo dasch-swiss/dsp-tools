@@ -1,5 +1,4 @@
 # sourcery skip: use-fstring-for-concatenation
-import os
 from datetime import datetime
 from pathlib import Path
 
@@ -14,8 +13,6 @@ from dsp_tools.models.exceptions import UserError
 defaultOntologyColon: Pattern[str] = regex.compile(r"^:\w+$")
 knoraUndeclared: Pattern[str] = regex.compile(r"^\w+$")
 genericPrefixedOntology: Pattern[str] = regex.compile(r"^[\w\-]+:\w+$")
-
-cwd = os.getcwd()
 
 
 def do_xml_consistency_check(onto_client: OntologyClient, root: etree._Element) -> None:
@@ -52,10 +49,10 @@ def _find_problems_in_classes_and_properties(
     msg, df = problems.execute_problem_protocol()
     if df is not None:
         csv_file = f"XML_syntax_errors_{datetime.now().strftime('%Y-%m-%d_%H%M%S')}.csv"
-        df.to_csv(path_or_buf=Path(cwd, csv_file), index=False)
+        df.to_csv(path_or_buf=Path(Path.cwd(), csv_file), index=False)
         msg += (
             "\n\n---------------------------------------\n\n"
-            f"\nThe file: '{csv_file}' was saved at '{cwd}' listing the problems."
+            f"\nAll the problems are listed in the file: '{Path.cwd()}/{csv_file}'"
         )
     raise UserError(msg)
 

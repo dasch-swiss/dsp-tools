@@ -8,7 +8,6 @@ repos:
       - id: ruff
         args: [
           --ignore=A002,
-          --ignore=B023,
           --ignore=D101,
           --ignore=D102,
           --ignore=D103,

@@ -239,7 +239,7 @@ def _validate_excel_file(classes_df: pd.DataFrame, df_dict: dict[str, pd.DataFra
             f"The file 'resources.xlsx' uses {languages} as column titles, which is deprecated. "
             f"Please use {[f'label_{lang}' for lang in languages]}"
         )
-    problems = []
+    problems: list[Problem] = []
     if missing_super_rows := [int(index) + 2 for index, row in classes_df.iterrows() if not check_notna(row["super"])]:
         problems.append(MissingValuesInRowProblem(column="super", row_numbers=missing_super_rows))
     if duplicate_check := check_column_for_duplicate(classes_df, "name"):

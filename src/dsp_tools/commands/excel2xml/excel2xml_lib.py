@@ -272,6 +272,8 @@ def _from_year_range(year_range: Match[str]) -> str:
     elif endyear // 100 == 0:
         # endyear is only 2-digit: add the first 1-2 digits of startyear
         endyear = startyear // 100 * 100 + endyear
+    if endyear < startyear:
+        raise ValueError
     return f"GREGORIAN:CE:{startyear}:CE:{endyear}"
 
 

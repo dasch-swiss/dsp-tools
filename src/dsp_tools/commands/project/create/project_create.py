@@ -747,7 +747,6 @@ def _add_resource_classes_to_remote_ontology(
         )
         try:
             last_modification_date, res_class_remote = res_class_local.create(last_modification_date)
-            res_class_remote = cast(ResourceClass, res_class_remote)
             new_res_classes[str(res_class_remote.iri)] = res_class_remote
             ontology_remote.lastModificationDate = last_modification_date
             if verbose:

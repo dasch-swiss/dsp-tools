@@ -209,13 +209,13 @@ class PropertyClass(Model):
             superproperties = [x["@id"] for x in superproperties_obj if x and x.get("@id")]
         else:
             superproperties = None
-        rdf_object = WithId(json_obj.get(knora_api + ":objectType")).str()
-        rdf_subject = WithId(json_obj.get(knora_api + ":subjectType")).str()
+        rdf_object = WithId(json_obj.get(knora_api + ":objectType")).to_string()
+        rdf_subject = WithId(json_obj.get(knora_api + ":subjectType")).to_string()
         label = LangString.fromJsonLdObj(json_obj.get(rdfs + ":label"))
         comment = LangString.fromJsonLdObj(json_obj.get(rdfs + ":comment"))
         gui_element = None
         if json_obj.get(salsah_gui + ":guiElement") is not None:
-            gui_element = WithId(json_obj.get(salsah_gui + ":guiElement")).str()
+            gui_element = WithId(json_obj.get(salsah_gui + ":guiElement")).to_string()
             gui_element = gui_element.replace("Pulldown", "List")
             gui_element = gui_element.replace("Radio", "List")
         gui_attributes_list = json_obj.get(salsah_gui + ":guiAttribute")

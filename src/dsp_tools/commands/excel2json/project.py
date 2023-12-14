@@ -57,7 +57,7 @@ def excel2json(
 def _validate_folder_structure_get_filenames(data_model_files: str) -> tuple[list[Path], list[Path]]:
     if not Path(data_model_files).is_dir():
         raise UserError(f"ERROR: {data_model_files} is not a directory.")
-    folder = [x for x in Path(data_model_files).glob("*") if not regex.search(r"^(\.|~\$).+", x.name)]
+    folder = [x for x in Path(data_model_files).glob("*") if _non_hidden(x)]
     processed_files = []
     onto_folders, processed_onto = _get_validate_onto_folder(data_model_files, folder)
     processed_files.extend(processed_onto)
@@ -77,7 +77,7 @@ def _get_validate_list_folder(data_model_files: str, folder: list[Path]) -> tupl
     processed_files: list[str] = []
     listfolder = [x for x in folder if x.is_dir() and x.name == "lists"]
     if listfolder:
-        listfolder_contents = [x for x in Path(listfolder[0]).glob("*") if not regex.search(r"^(\.|~\$).+", x.name)]
+        listfolder_contents = [x for x in Path(listfolder[0]).glob("*") if _non_hidden(x)]
         if not all(regex.search(r"(de|en|fr|it|rm).xlsx", file.name) for file in listfolder_contents):
             raise UserError(
                 f"The only files allowed in '{data_model_files}/lists' are en.xlsx, de.xlsx, fr.xlsx, it.xlsx, rm.xlsx"
@@ -94,7 +94,7 @@ def _get_validate_onto_folder(data_model_files: str, folder: list[Path]) -> tupl
             f"'{data_model_files}' must contain at least one subfolder named after the pattern 'onto_name (onto_label)'"
         )
     for onto_folder in onto_folders:
-        contents = sorted([x.name for x in Path(onto_folder).glob("*") if not regex.search(r"^(\.|~\$).+", x.name)])
+        contents = sorted([x.name for x in Path(onto_folder).glob("*") if _non_hidden(x)])
         if contents != ["properties.xlsx", "resources.xlsx"]:
             raise UserError(
                 f"ERROR: '{data_model_files}/{onto_folder.name}' must contain one file 'properties.xlsx' "
@@ -102,6 +102,10 @@ def _get_validate_onto_folder(data_model_files: str, folder: list[Path]) -> tupl
             )
         processed_files.extend([f"{data_model_files}/{onto_folder.name}/{file}" for file in contents])
     return onto_folders, processed_files
+
+
+def _non_hidden(path: Path) -> bool:
+    return not regex.search(r"^(\.|~\$).+", path.name)
 
 
 def _create_project_json(

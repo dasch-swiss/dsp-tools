@@ -35,27 +35,6 @@ from dsp_tools.models.langstring import LangString, Languages
 from dsp_tools.utils.connection import Connection
 
 
-def list_creator(con: Connection, project: Project, parent_node: "ListNode", nodes: list[dict]) -> list["ListNode"]:
-    nodelist: list[ListNode] = []
-
-    for n in nodes:
-        new_node = ListNode(
-            con=con,
-            project=project,
-            label=n["labels"],
-            comments=n.get("comments"),
-            name=n["name"],
-            parent=parent_node,
-        )
-
-        if n.get("nodes"):
-            new_node.children = list_creator(con, project, new_node, n["nodes"])
-
-        nodelist.append(new_node)
-
-    return nodelist
-
-
 class ListNode(Model):
     """
     This class represents a list node

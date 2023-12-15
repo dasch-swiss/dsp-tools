@@ -8,7 +8,6 @@ from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash, Link
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.create_logger import get_logger
-from dsp_tools.utils.shared import try_network_action
 
 logger = get_logger(__name__)
 
@@ -79,7 +78,7 @@ def _upload_stash_item(
     """
     jsondata = _create_resptr_prop_json_object_to_update(stash, res_iri, target_iri, context)
     try:
-        try_network_action(con.post, route="/v2/values", jsondata=jsondata)
+        con.post(route="/v2/values", jsondata=jsondata)
     except BaseError as err:
         _log_unable_to_upload_link_value(err.orig_err_msg_from_api or err.message, stash.res_id, stash.prop_name)
         return False

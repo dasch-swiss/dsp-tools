@@ -418,7 +418,6 @@ class ListNode(Model):
 
         :return: JSON-object from DSP-API
         """
-
         jsonobj = self.toJsonObj(Actions.Create)
         jsondata = json.dumps(jsonobj, cls=SetEncoder)
         if self._parent:

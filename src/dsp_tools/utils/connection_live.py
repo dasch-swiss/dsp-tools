@@ -1,12 +1,81 @@
 import json
+import time
 from dataclasses import dataclass
 from datetime import datetime
+from functools import partial
 from pathlib import Path
-from typing import Any, Optional, cast
+from typing import Any, Callable, Optional, cast
 
 import requests
+from requests import ReadTimeout, RequestException, Response
+from urllib3.exceptions import ReadTimeoutError
 
 from dsp_tools.models.exceptions import BaseError
+from dsp_tools.utils.create_logger import get_logger
+
+logger = get_logger(__name__)
+
+
+def _try_network_action(
+    action: Callable[..., Any],
+    *args: Any,
+    **kwargs: Any,
+) -> Any:
+    """
+    Helper method that tries 7 times to execute an action.
+    If a timeout error, a ConnectionError, a requests.exceptions.RequestException, or a non-permanent BaseError occors,
+    it waits and retries.
+    The waiting times are 1, 2, 4, 8, 16, 32, 64 seconds.
+    If another exception occurs, it escalates.
+
+    Args:
+        action: a lambda with the code to be executed, or a function
+        args: positional arguments for the action
+        kwargs: keyword arguments for the action
+
+    Raises:
+        BaseError: if the action fails permanently
+        unexpected exceptions: if the action fails with an unexpected exception
+
+    Returns:
+        the return value of action
+    """
+    action_as_str = f"{action=}, {args=}, {kwargs=}"
+    for i in range(7):
+        try:
+            if args and not kwargs:
+                return action(*args)
+            elif not args and kwargs:
+                return action(**kwargs)
+            elif args and kwargs:
+                return action(*args, **kwargs)
+            else:
+                return action()
+        except (TimeoutError, ReadTimeout, ReadTimeoutError):
+            msg = f"Timeout Error: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
+            print(f"{datetime.now()}: {msg}")
+            logger.error(f"{msg} {action_as_str} (retry-counter {i=:})", exc_info=True)
+            time.sleep(2**i)
+        except (ConnectionError, RequestException):
+            msg = f"Network Error: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
+            print(f"{datetime.now()}: {msg}")
+            logger.error(f"{msg} {action_as_str} (retry-counter {i=:})", exc_info=True)
+            time.sleep(2**i)
+        except BaseError as err:
+            in_500_range = False
+            if err.status_code:
+                in_500_range = 500 <= err.status_code < 600
+            try_again_later = "try again later" in err.message
+            if try_again_later or in_500_range:
+                msg = f"Transient Error: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
+                print(f"{datetime.now()}: {msg}")
+                logger.error(f"{msg} {action_as_str} (retry-counter {i=:})", exc_info=True)
+                time.sleep(2**i)
+            else:
+                raise err
+
+    logger.error("Permanently unable to execute the network action. See logs for more details.")
+    raise BaseError("Permanently unable to execute the network action. See logs for more details.")
 
 
 def check_for_api_error(response: requests.Response) -> None:
@@ -110,6 +179,7 @@ class ConnectionLive:
         jsondata: Optional[str],
         params: Optional[dict[str, Any]],
         response: requests.Response,
+        uploaded_file: Optional[str] = None,
     ) -> None:
         """
         Write the request and response to a file.
@@ -121,6 +191,7 @@ class ConnectionLive:
             jsondata: data sent to the server
             params: additional parameters for the HTTP request
             response: response of the server
+            uploaded_file: path to the file that was uploaded, if any
         """
         if response.status_code == 200:
             _return = response.json()
@@ -133,6 +204,7 @@ class ConnectionLive:
             "headers": headers,
             "params": params,
             "body": json.loads(jsondata) if jsondata else None,
+            "uploaded file": uploaded_file,
             "return-headers": dict(response.headers),
             "return": _return,
         }
@@ -145,7 +217,8 @@ class ConnectionLive:
         self,
         route: str,
         jsondata: Optional[str] = None,
-        content_type: str = "application/json",
+        files: dict[str, tuple[str, Any]] | None = None,
+        timeout: int | None = None,
     ) -> dict[str, Any]:
         """
         Make a HTTP POST request to the server to which this connection has been established.
@@ -153,7 +226,8 @@ class ConnectionLive:
         Args:
             route: route that will be called on the server
             jsondata: Valid JSON as string
-            content_type: HTTP Content-Type [default: 'application/json']
+            files: files to be uploaded, if any
+            timeout: timeout of the HTTP request, or None if the default should be used
 
         Returns:
             response from server
@@ -162,30 +236,33 @@ class ConnectionLive:
         # otherwise the client can get a timeout error while the API is still processing the request
         # in that case, the client's retry will have undesired side effects (e.g. duplicated resources),
         # and the response of the original API call will be lost
-        timeout = 60
+        timeout = timeout or 60
         if not route.startswith("/"):
             route = f"/{route}"
         url = self.server + route
         headers = {}
         if jsondata:
-            headers["Content-Type"] = f"{content_type}; charset=UTF-8"
+            headers["Content-Type"] = "application/json; charset=UTF-8"
         if self.token:
             headers["Authorization"] = f"Bearer {self.token}"
 
-        response = requests.post(
-            url=url,
-            headers=headers,
+        request = partial(requests.post, url=url, headers=headers, timeout=timeout)
+        if jsondata:
             # if data is not encoded as bytes, issues can occur with non-ASCII characters,
             # where the content-length of the request will turn out to be different from the actual length
-            data=jsondata.encode("utf-8") if jsondata else None,
-            timeout=timeout,
-        )
+            data = jsondata.encode("utf-8") if jsondata else None
+            request = partial(request, data=data)
+        elif files:
+            request = partial(request, files=files)
+
+        response: Response = _try_network_action(request)
         if self.dump:
             self._write_request_to_file(
                 method="POST",
                 url=url,
                 headers=headers,
                 jsondata=jsondata,
+                uploaded_file=files["file"][0] if files else None,
                 params=None,
                 response=response,
             )
@@ -215,10 +292,12 @@ class ConnectionLive:
         if self.token:
             headers["Authorization"] = f"Bearer {self.token}"
 
-        response = requests.get(
-            url=url,
-            headers=headers,
-            timeout=20,
+        response: Response = _try_network_action(
+            lambda: requests.get(
+                url=url,
+                headers=headers,
+                timeout=20,
+            )
         )
         if self.dump:
             self._write_request_to_file(
@@ -262,13 +341,15 @@ class ConnectionLive:
         if self.token:
             headers["Authorization"] = f"Bearer {self.token}"
 
-        response = requests.put(
-            url=url,
-            headers=headers,
-            # if data is not encoded as bytes, issues can occur with non-ASCII characters,
-            # where the content-length of the request will turn out to be different from the actual length
-            data=jsondata.encode("utf-8") if jsondata else None,
-            timeout=timeout,
+        response: Response = _try_network_action(
+            lambda: requests.put(
+                url=url,
+                headers=headers,
+                # if data is not encoded as bytes, issues can occur with non-ASCII characters,
+                # where the content-length of the request will turn out to be different from the actual length
+                data=jsondata.encode("utf-8") if jsondata else None,
+                timeout=timeout,
+            )
         )
         if self.dump:
             self._write_request_to_file(

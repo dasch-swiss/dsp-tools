@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
 
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.sipi import Sipi
@@ -10,7 +9,6 @@ from dsp_tools.commands.xmlupload.models.xmlbitstream import XMLBitstream
 from dsp_tools.commands.xmlupload.models.xmlresource import BitstreamInfo, XMLResource
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.create_logger import get_logger
-from dsp_tools.utils.shared import try_network_action
 
 logger = get_logger(__name__)
 
@@ -119,11 +117,10 @@ def _upload_bitstream(
     Returns:
         The information from sipi which is needed to establish a link from the resource
     """
-    img: Optional[dict[Any, Any]] = try_network_action(
-        sipi_server.upload_bitstream,
-        filepath=str(Path(imgdir) / Path(resource.bitstream.value)),  # type: ignore[union-attr]
-    )
-    internal_file_name_bitstream = img["uploadedFiles"][0]["internalFilename"]  # type: ignore[index]
+    if not resource.bitstream:
+        return None
+    img = sipi_server.upload_bitstream(Path(imgdir) / Path(resource.bitstream.value))
+    internal_file_name_bitstream = img["uploadedFiles"][0]["internalFilename"]
     return resource.get_bitstream_information(
         internal_file_name_bitstream=internal_file_name_bitstream,
         permissions_lookup=permissions_lookup,

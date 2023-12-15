@@ -17,7 +17,13 @@ class ConnectionMockBase:
     def put(self, route: str, jsondata: str | None = None, content_type: str = "application/json") -> dict[str, Any]:
         raise AssertionError("PUT not implemented in mock")
 
-    def post(self, route: str, jsondata: str | None = None, content_type: str = "application/json") -> dict[str, Any]:
+    def post(
+        self,
+        route: str,
+        jsondata: str | None = None,
+        files: dict[str, tuple[str, Any]] | None = None,
+        timeout: int | None = None,
+    ) -> dict[str, Any]:
         raise AssertionError("POST not implemented in mock")
 
     def delete(self, route: str, params: dict[str, Any] | None = None) -> dict[str, Any]:

@@ -413,7 +413,6 @@ class Project(Model):
 
         :return: JSON-object from DSP
         """
-
         jsonobj = self.toJsonObj(Actions.Create)
         jsondata = json.dumps(jsonobj, cls=SetEncoder)
         result = self._con.post(Project.ROUTE, jsondata)
@@ -446,7 +445,6 @@ class Project(Model):
 
         Returns: JSON object returned as response from DSP reflecting the update
         """
-
         jsonobj = self.toJsonObj(Actions.Update)
         jsondata = json.dumps(jsonobj, cls=SetEncoder)
         result = self._con.put(Project.IRI + quote_plus(self.iri), jsondata)

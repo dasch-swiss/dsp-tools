@@ -127,7 +127,7 @@ def upload_stashed_xml_texts(
             continue
         # xmlres: XMLResource = stashed_xml_texts.res_2_xmlres[res_id]
         try:
-            resource_in_triplestore = con.get(route=f"/v2/resources/{quote_plus(res_iri)}")
+            resource_in_triplestore = con.get(f"/v2/resources/{quote_plus(res_iri)}")
         except BaseError as err:
             _log_unable_to_retrieve_resource(resource=res_id, received_error=err)
             continue

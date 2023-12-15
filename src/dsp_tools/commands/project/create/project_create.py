@@ -171,7 +171,7 @@ def _create_groups(
     overall_success = True
     current_project_groups: dict[str, Group] = {}
     try:
-        remote_groups: list[Group] = Group.getAllGroupsForProject(con=con, proj_iri=str(project.iri)) or []
+        remote_groups = Group.getAllGroupsForProject(con=con, proj_iri=str(project.iri))
     except BaseError:
         err_msg = (
             "Unable to check if group names are already existing on DSP server, because it is "
@@ -576,7 +576,7 @@ def _create_ontology(
         comment=onto_comment,
     )
     try:
-        ontology_remote: Ontology = ontology_local.create()
+        ontology_remote = ontology_local.create()
     except BaseError:
         # if ontology cannot be created, let the error escalate
         logger.error(f"ERROR while trying to create ontology '{onto_name}'.", exc_info=True)
@@ -636,7 +636,7 @@ def _create_ontologies(
     print("Create ontologies...")
     logger.info("Create ontologies...")
     try:
-        project_ontologies: list[Ontology] = Ontology.getProjectOntologies(con=con, project_id=str(project_remote.iri))
+        project_ontologies = Ontology.getProjectOntologies(con=con, project_id=str(project_remote.iri))
     except BaseError:
         err_msg = "Unable to retrieve remote ontologies. Cannot check if your ontology already exists."
         print("WARNING: {err_msg}")

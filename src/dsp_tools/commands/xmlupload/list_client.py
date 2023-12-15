@@ -81,7 +81,7 @@ def _get_list_info_from_server(con: Connection, project_iri: str) -> ProjectList
 
 def _get_list_iris_from_server(con: Connection, project_iri: str) -> list[str]:
     iri = quote_plus(project_iri)
-    res: dict[str, Any] = con.get(f"/admin/lists?projectIri={iri}")
+    res = con.get(f"/admin/lists?projectIri={iri}")
     lists: list[dict[str, Any]] = res["lists"]
     logger.info(f"Found {len(lists)} lists for project")
     return [lst["id"] for lst in lists]

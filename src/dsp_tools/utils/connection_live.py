@@ -179,7 +179,7 @@ class ConnectionLive:
         jsondata: Optional[str],
         params: Optional[dict[str, Any]],
         response: requests.Response,
-        filepath: Optional[str] = None,
+        uploaded_file: Optional[str] = None,
     ) -> None:
         """
         Write the request and response to a file.
@@ -191,7 +191,7 @@ class ConnectionLive:
             jsondata: data sent to the server
             params: additional parameters for the HTTP request
             response: response of the server
-            filepath: path to the file that was uploaded, if any
+            uploaded_file: path to the file that was uploaded, if any
         """
         if response.status_code == 200:
             _return = response.json()
@@ -204,7 +204,7 @@ class ConnectionLive:
             "headers": headers,
             "params": params,
             "body": json.loads(jsondata) if jsondata else None,
-            "filepath": filepath,
+            "uploaded file": uploaded_file,
             "return-headers": dict(response.headers),
             "return": _return,
         }
@@ -254,7 +254,6 @@ class ConnectionLive:
             request = partial(request, data=data)
         elif files:
             request = partial(request, files=files)
-            logger.warning(f"POST with file: {request}")
 
         response: Response = _try_network_action(request)
         if self.dump:
@@ -263,7 +262,7 @@ class ConnectionLive:
                 url=url,
                 headers=headers,
                 jsondata=jsondata,
-                filepath=files["file"][0] if files else None,
+                uploaded_file=files["file"][0] if files else None,
                 params=None,
                 response=response,
             )

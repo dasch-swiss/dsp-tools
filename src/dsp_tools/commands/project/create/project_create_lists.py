@@ -98,7 +98,7 @@ def create_lists_on_server(
 
     # retrieve existing lists
     try:
-        existing_lists: list[ListNode] = ListNode.getAllLists(con=con, project_iri=project_remote.iri)
+        existing_lists = ListNode.getAllLists(con=con, project_iri=project_remote.iri)
     except BaseError:
         err_msg = "Unable to retrieve existing lists on DSP server. Cannot check if your lists are already existing."
         print(f"WARNING: {err_msg}")

@@ -270,7 +270,7 @@ def _get_project_context_from_server(connection: Connection) -> ProjectContext:
         UserError: If the project was not previously uploaded on the server
     """
     try:
-        proj_context: ProjectContext = ProjectContext(con=connection)
+        proj_context = ProjectContext(con=connection)
     except BaseError:
         logger.error(
             "Unable to retrieve project context from DSP server",

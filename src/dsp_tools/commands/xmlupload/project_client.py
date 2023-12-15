@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Any, Protocol
+from typing import Protocol
 from urllib.parse import quote_plus
 
 from dsp_tools.models.exceptions import BaseError, UserError
@@ -75,7 +75,7 @@ def _get_project_info_from_server(con: Connection, shortcode: str) -> ProjectInf
 def _get_project_iri_from_server(con: Connection, shortcode: str) -> str:
     try:
         url = f"/admin/projects/shortcode/{shortcode}"
-        res: dict[str, Any] = con.get(route=url)
+        res = con.get(url)
         iri: str = res["project"]["id"]
     except BaseError as e:
         raise UserError(f"A project with shortcode {shortcode} could not be found on the DSP server") from e
@@ -88,7 +88,7 @@ def _get_ontologies_from_server(con: Connection, project_iri: str) -> list[str]:
     try:
         iri = quote_plus(project_iri)
         url = f"/v2/ontologies/metadata/{iri}"
-        res: dict[str, Any] = con.get(route=url)
+        res = con.get(url)
         body = res.get("@graph", res)
         match body:
             case list():

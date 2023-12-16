@@ -1,4 +1,6 @@
 import argparse
+from functools import partial
+from typing import Callable
 
 from dsp_tools.commands.excel2json.lists import excel2lists, validate_lists_section_with_schema
 from dsp_tools.commands.excel2json.project import excel2json
@@ -24,7 +26,7 @@ from dsp_tools.utils.shared import validate_xml_against_schema
 logger = get_logger(__name__)
 
 
-def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0911 (Too many return statements)
+def call_requested_action(args: argparse.Namespace) -> bool:
     """
     Call the appropriate method of DSP-TOOLS.
 
@@ -39,43 +41,27 @@ def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0911 (T
     Returns:
         success status
     """
-    match args.action:
-        case "create":
-            return _call_create(args)
-        case "xmlupload":
-            return _call_xmlupload(args)
-        case "excel2json":
-            return _call_excel2json(args)
-        case "excel2lists":
-            return _call_excel2lists(args)
-        case "excel2resources":
-            return _call_excel2resources(args)
-        case "excel2properties":
-            return _call_excel2properties(args)
-        case "id2iri":
-            return _call_id2iri(args)
-        case "excel2xml":
-            return _call_excel2xml(args)
-        case "start-stack":
-            return _call_start_stack(args)
-        case "stop-stack":
-            return _call_stop_stack()
-        case "get":
-            return _call_get(args)
-        case "process-files":
-            return _call_process_files(args)
-        case "upload-files":
-            return _call_upload_files(args)
-        case "fast-xmlupload":
-            return _call_fast_xmlupload(args)
-        case "template":
-            return generate_template_repo()
-        case "rosetta":
-            return upload_rosetta()
-        case _:
-            print(f"ERROR: Unknown action '{args.action}'")
-            logger.error(f"Unknown action '{args.action}'")
-            return False
+    function_map: dict[str, Callable[[], bool]] = {
+        "create": partial(_call_create, args),
+        "xmlupload": partial(_call_xmlupload, args),
+        "excel2json": partial(_call_excel2json, args),
+        "excel2lists": partial(_call_excel2lists, args),
+        "excel2resources": partial(_call_excel2resources, args),
+        "excel2properties": partial(_call_excel2properties, args),
+        "id2iri": partial(_call_id2iri, args),
+        "excel2xml": partial(_call_excel2xml, args),
+        "start-stack": partial(_call_start_stack, args),
+        "stop-stack": _call_stop_stack,
+        "get": partial(_call_get, args),
+        "process-files": partial(_call_process_files, args),
+        "upload-files": partial(_call_upload_files, args),
+        "fast-xmlupload": partial(_call_fast_xmlupload, args),
+        "template": generate_template_repo,
+        "rosetta": upload_rosetta,
+    }
+    error_function = partial(_unknown_command, args.action)
+    call_function = function_map.get(args.action, error_function)
+    return call_function()
 
 
 def _call_stop_stack() -> bool:
@@ -228,3 +214,10 @@ def _call_create(args: argparse.Namespace) -> bool:
                 dump=args.dump,
             )
     return success
+
+
+def _unknown_command(command: str) -> bool:
+    msg = f"ERROR: Unknown action '{command}'"
+    print(msg)
+    logger.error(msg)
+    return False

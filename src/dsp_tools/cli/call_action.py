@@ -217,7 +217,6 @@ def _call_create(args: argparse.Namespace) -> bool:
 
 
 def _unknown_command(command: str) -> bool:
-    msg = f"ERROR: Unknown action '{command}'"
-    print(msg)
-    logger.error(msg)
+    print(f"ERROR: Unknown action '{command}'")
+    logger.error(f"Unknown action '{command}'")
     return False

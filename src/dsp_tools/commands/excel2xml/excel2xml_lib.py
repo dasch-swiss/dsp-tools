@@ -1314,22 +1314,28 @@ def make_text_prop(
             nsmap=xml_namespace_map,
         )
         if val.encoding == "xml":
+            escaped_text = _escape_reserved_chars(str(val.value))
+            value_.text = escaped_text
+            # enforce that the text is well-formed XML: serialize tag ...
+            serialized = etree.tostring(value_, encoding="unicode")
+            # ... insert text at the very end of the string, and add ending tag to the previously single <text/> tag ...
+            serialized = regex.sub(r"/>$", f">{val.value}</text>", serialized)
+            # ... try to parse it again
             try:
-                sub_element = _escape_reserved_chars(str(val.value))
+                value_ = etree.fromstring(serialized)
             except etree.XMLSyntaxError:
                 raise BaseError(
                     "The XML tags contained in a richtext property (encoding=xml) must be well-formed. "
                     "The special characters <, > and & are only allowed to construct a tag."
                     f"The error occurred in resource {calling_resource}, property {name}"
                 ) from None
-            value_.append(sub_element)
         else:
             value_.text = str(val.value)
         prop_.append(value_)
     return prop_
 
 
-def _escape_reserved_chars(text: str) -> etree.Element:
+def _escape_reserved_chars(text: str) -> str:
     # https://docs.dasch.swiss/2023.12.01/DSP-API/03-endpoints/api-v2/text/standard-standoff/
     allowed_tags = [
         "p",
@@ -1363,9 +1369,7 @@ def _escape_reserved_chars(text: str) -> etree.Element:
     text = regex.sub(illegal_lt, "&lt;", text)
     text = regex.sub(illegal_gt, "&gt;", text)
     text = regex.sub(illegal_amp, "&amp;", text)
-
-    res = etree.fromstring(text)
-    return res
+    return text
 
 
 def make_time_prop(

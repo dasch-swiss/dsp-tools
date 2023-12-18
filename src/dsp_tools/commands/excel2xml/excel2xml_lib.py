@@ -1315,11 +1315,10 @@ def make_text_prop(
         )
         if val.encoding == "xml":
             escaped_text = _escape_reserved_chars(str(val.value))
-            value_.text = escaped_text
             # enforce that the text is well-formed XML: serialize tag ...
             serialized = etree.tostring(value_, encoding="unicode")
             # ... insert text at the very end of the string, and add ending tag to the previously single <text/> tag ...
-            serialized = regex.sub(r"/>$", f">{val.value}</text>", serialized)
+            serialized = regex.sub(r"/>$", f">{escaped_text}</text>", serialized)
             # ... try to parse it again
             try:
                 value_ = etree.fromstring(serialized)

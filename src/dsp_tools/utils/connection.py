@@ -40,7 +40,6 @@ class Connection(Protocol):
             content_type: HTTP Content-Type [default: 'application/json']
         """
 
-
     def post(
         self,
         route: str,

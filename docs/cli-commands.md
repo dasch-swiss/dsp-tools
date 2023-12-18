@@ -300,7 +300,7 @@ If you don't know what that means, just type `y` ("yes") and then `Enter`.
 
 The following options are available:
 
-- `--max_file_size=int` (optional, default: `250`): max. multimedia file size allowed by SIPI, in MB (max: 100'000)
+- `--max_file_size=int` (optional, default: `2000`): max. multimedia file size allowed by SIPI, in MB (max: 100'000)
 - `--latest` (optional): 
   instead of the latest deployed version,
   use the latest development version of DSP-API (from the `main` branch)

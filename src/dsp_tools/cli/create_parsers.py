@@ -98,7 +98,7 @@ def _add_start_stack(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     subparser.add_argument(
         "--max_file_size",
         type=int,
-        help="max. multimedia file size allowed by SIPI, in MB (default: 250, max: 100'000)",
+        help="max. multimedia file size allowed by SIPI, in MB (default: 2000, max: 100'000)",
     )
     subparser.add_argument("--prune", action="store_true", help="execute 'docker system prune' without asking")
     subparser.add_argument(

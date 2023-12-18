@@ -1360,11 +1360,11 @@ def _escape_reserved_chars(text: str) -> str:
         "code",
     ]
     allowed_tags_regex = "|".join(allowed_tags)
-    lookahead = rf"(?!/?({allowed_tags_regex})>)"
+    lookahead = rf"(?!/?({allowed_tags_regex}|a( [^>]+)?)>)"
     illegal_lt = rf"<{lookahead}"
-    lookbehind = rf"(?<!</?({allowed_tags_regex}))"
+    lookbehind = rf"(?<!</?({allowed_tags_regex}|a( [^>]+)?))"
     illegal_gt = rf"{lookbehind}>"
-    illegal_amp = r"&[#a-zA-Z0-9]+;"
+    illegal_amp = r"&(?![#a-zA-Z0-9]+;)"
     text = regex.sub(illegal_lt, "&lt;", text)
     text = regex.sub(illegal_gt, "&gt;", text)
     text = regex.sub(illegal_amp, "&amp;", text)

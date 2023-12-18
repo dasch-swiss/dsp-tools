@@ -545,7 +545,6 @@ class User(Model):
 
         :return: JSON-object from DSP
         """
-
         jsonobj = self.toJsonObj(Actions.Create)
         jsondata = json.dumps(jsonobj)
         result = self._con.post(User.ROUTE, jsondata)

@@ -34,9 +34,10 @@ from dsp_tools.commands.xmlupload.write_diagnostic_info import write_id2iri_mapp
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.models.projectContext import ProjectContext
 from dsp_tools.utils.connection import Connection
+from dsp_tools.utils.connection_live import ConnectionLive
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.json_ld_util import get_json_ld_context_for_project
-from dsp_tools.utils.shared import login, try_network_action
+from dsp_tools.utils.shared import login
 
 logger = get_logger(__name__)
 
@@ -84,7 +85,8 @@ def xmlupload(
 
     # establish connection to DSP server
     con = login(server=server, user=user, password=password, dump=config.diagnostics.dump)
-    sipi_server = Sipi(sipi, con.get_token())
+    sipi_con = ConnectionLive(sipi, dump=config.diagnostics.dump, token=con.get_token())
+    sipi_server = Sipi(sipi_con)
 
     ontology_client = OntologyClientLive(
         con=con,
@@ -268,7 +270,7 @@ def _get_project_context_from_server(connection: Connection) -> ProjectContext:
         UserError: If the project was not previously uploaded on the server
     """
     try:
-        proj_context: ProjectContext = try_network_action(lambda: ProjectContext(con=connection))
+        proj_context = ProjectContext(con=connection)
     except BaseError:
         logger.error(
             "Unable to retrieve project context from DSP server",

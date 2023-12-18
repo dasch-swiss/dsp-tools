@@ -6,7 +6,6 @@ from dsp_tools.commands.xmlupload.models.ontology_diagnose_models import OntoInf
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.create_logger import get_logger
-from dsp_tools.utils.shared import try_network_action
 
 logger = get_logger(__name__)
 
@@ -54,7 +53,7 @@ class OntologyClientLive:
     def _get_ontology_names_from_server(self) -> None:
         try:
             url = f"/admin/projects/shortcode/{self.shortcode}"
-            res: dict[str, Any] = try_network_action(self.con.get, route=url)
+            res = self.con.get(url)
         except BaseError as e:
             raise UserError(f"A project with shortcode {self.shortcode} could not be found on the DSP server") from e
         try:
@@ -67,7 +66,7 @@ class OntologyClientLive:
     def _get_ontology_from_server(self, ontology_name: str) -> list[dict[str, Any]]:
         try:
             url = f"/ontology/{self.shortcode}/{ontology_name}/v2"
-            res: dict[str, Any] = try_network_action(self.con.get, route=url)
+            res = self.con.get(url)
         except BaseError:
             raise BaseError(
                 f"Ontologies for project {self.shortcode} could not be retrieved from the DSP server"
@@ -81,7 +80,7 @@ class OntologyClientLive:
     def _get_knora_api_ontology_from_server(self) -> list[dict[str, Any]]:
         url = "/ontology/knora-api/v2#"
         try:
-            res: dict[str, Any] = try_network_action(self.con.get, route=url)
+            res = self.con.get(url)
         except BaseError:
             raise BaseError("Knora-api ontology could not be retrieved from the DSP server") from None
         try:

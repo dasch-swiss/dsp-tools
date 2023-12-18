@@ -305,12 +305,6 @@ class Ontology(Model):
         result = self._con.post(Ontology.ROUTE, jsondata)
         return Ontology.fromJsonObj(self._con, result)
 
-    def update(self) -> "Ontology":
-        jsonobj = self.toJsonObj(Actions.Update)
-        jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=4)
-        result = self._con.put(Ontology.ROUTE + "/metadata", jsondata, "application/ld+json")
-        return Ontology.fromJsonObj(self._con, result)
-
     def read(self) -> "Ontology":
         result = self._con.get(Ontology.ROUTE + "/allentities/" + quote_plus(self._iri) + Ontology.ALL_LANGUAGES)
         return Ontology.fromJsonObj(self._con, result)

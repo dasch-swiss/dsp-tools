@@ -501,7 +501,8 @@ class TestExcel2xmlLib(unittest.TestCase):
             lambda: excel2xml.make_text_prop(":test", excel2xml.PropertyElement(value="a", encoding="unicode")),
         )
 
-        # encoding="utf8"
+    def test_make_text_prop_utf8(self) -> None:
+        """test encoding=utf8"""
         testcases_utf8 = [
             [
                 "text < text/>",
@@ -536,7 +537,8 @@ class TestExcel2xmlLib(unittest.TestCase):
             )
             self.assertEqual(received, expected)
 
-        # test encoding="xml"
+    def test_make_text_prop_xml(self) -> None:
+        """test encoding="xml"""
         testcases_xml = [
             [
                 "text <strong>and</strong> text",
@@ -554,6 +556,22 @@ class TestExcel2xmlLib(unittest.TestCase):
                 "&lt;escaped tag&gt;",
                 "&lt;escaped tag&gt;",
             ],
+            [
+                "text < text",
+                "text &lt; text",
+            ],
+            [
+                "text & text",
+                "text &amp; text",
+            ],
+            [
+                "text <unclosed> tag",
+                "text &lt;unclosed&gt; tag",
+            ],
+            [
+                'text <unclosed tag="tag"> text',
+                'text &lt;unclosed tag="tag"&gt; text',
+            ],
         ]
         all_inputs = " ".join([inp for inp, _ in testcases_xml])
         all_outputs = " ".join([output for _, output in testcases_xml])
@@ -568,15 +586,6 @@ class TestExcel2xmlLib(unittest.TestCase):
                 '<text-prop name=":test"><text permissions="prop-default" encoding="xml">' + exp + "</text></text-prop>"
             )
             self.assertEqual(received, expected)
-
-        invalid_xml_texts = ["text < text", "text & text", "text <unclosed> tag", 'text <unclosed tag="tag"> text']
-        for inv in invalid_xml_texts:
-            with self.assertRaisesRegex(
-                BaseError,
-                r"The XML tags contained in a richtext property \(encoding=xml\) must be well-formed",
-                msg=f"Failed with '{inv}'",
-            ):
-                excel2xml.make_text_prop(":test", excel2xml.PropertyElement(inv, encoding="xml"))
 
     def test_make_time_prop(self) -> None:
         prop = "time"

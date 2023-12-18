@@ -48,7 +48,7 @@ def validate_and_parse_xml_file(
 def _check_if_link_targets_exist(root: etree._Element) -> None:
     """
     Make sure that all targets of links (resptr and salsah-links)
-    are either IRIsl or IDs that exist in the present XML file.
+    are either IRIs or IDs that exist in the present XML file.
 
     Args:
         root: parsed XML file

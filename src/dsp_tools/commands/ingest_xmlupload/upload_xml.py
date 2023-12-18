@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from lxml import etree
+
 from dsp_tools.commands.ingest_xmlupload.apply_ingest_uuid import (
     get_mapping_dict_from_file,
     replace_filepath_with_sipi_uuid,
@@ -6,7 +10,7 @@ from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.create_logger import get_logger
-from dsp_tools.utils.xml_utils import parse_and_clean_xml_file
+from dsp_tools.utils.xml_utils import remove_comments_from_element_tree
 
 logger = get_logger(__name__)
 
@@ -36,7 +40,9 @@ def ingest_xmlupload(
     Raises:
         InputError: if any media was not uploaded or uploaded media was not referenced.
     """
-    xml_tree_orig = parse_and_clean_xml_file(xml_file)
+    xml_tree_orig = etree.parse(xml_file)
+    xml_tree_orig = remove_comments_from_element_tree(xml_tree_orig)
+
     orig_path_2_uuid_filename = get_mapping_dict_from_file()
     xml_tree_replaced, ingest_info = replace_filepath_with_sipi_uuid(
         xml_tree=xml_tree_orig,

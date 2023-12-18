@@ -1302,32 +1302,18 @@ def make_text_prop(
         nsmap=xml_namespace_map,
     )
     for val in values:
-        kwargs = {"permissions": val.permissions}
+        kwargs = {
+            "permissions": val.permissions,
+            "encoding": val.encoding if check_notna(val.encoding) else "utf8",
+        }
         if check_notna(val.comment):
             kwargs["comment"] = val.comment
-        kwargs["encoding"] = val.encoding if check_notna(val.encoding) else "utf8"
         value_ = etree.Element(
             "{%s}text" % xml_namespace_map[None],
-            **kwargs,  # type: ignore[arg-type]
+            **kwargs,
             nsmap=xml_namespace_map,
         )
-        if kwargs["encoding"] == "utf8":
-            # write the text into the tag, without validation
-            value_.text = str(val.value)
-        else:
-            # enforce that the text is well-formed XML: serialize tag ...
-            content = etree.tostring(value_, encoding="unicode")
-            # ... insert text at the very end of the string, and add ending tag to the previously single <text/> tag ...
-            content = regex.sub(r"/>$", f">{val.value}</text>", content)
-            # ... try to parse it again
-            try:
-                value_ = etree.fromstring(content)
-            except etree.XMLSyntaxError:
-                raise BaseError(
-                    "The XML tags contained in a richtext property (encoding=xml) must be well-formed. "
-                    "The special characters <, > and & are only allowed to construct a tag."
-                    f"The error occurred in resource {calling_resource}, property {name}"
-                ) from None
+        value_.text = str(val.value)
         prop_.append(value_)
 
     return prop_

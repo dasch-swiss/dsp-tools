@@ -1313,10 +1313,59 @@ def make_text_prop(
             **kwargs,
             nsmap=xml_namespace_map,
         )
-        value_.text = str(val.value)
+        if val.encoding == "xml":
+            try:
+                sub_element = _escape_reserved_chars(str(val.value))
+            except etree.XMLSyntaxError:
+                raise BaseError(
+                    "The XML tags contained in a richtext property (encoding=xml) must be well-formed. "
+                    "The special characters <, > and & are only allowed to construct a tag."
+                    f"The error occurred in resource {calling_resource}, property {name}"
+                ) from None
+            value_.append(sub_element)
+        else:
+            value_.text = str(val.value)
         prop_.append(value_)
-
     return prop_
+
+
+def _escape_reserved_chars(text: str) -> etree.Element:
+    # https://docs.dasch.swiss/2023.12.01/DSP-API/03-endpoints/api-v2/text/standard-standoff/
+    allowed_tags = [
+        "p",
+        "em",
+        "strong",
+        "u",
+        "sub",
+        "sup",
+        "strike",
+        "h1",
+        "ol",
+        "ul",
+        "li",
+        "tbody",
+        "table",
+        "tr",
+        "td",
+        "br",
+        "hr",
+        "pre",
+        "cite",
+        "blockquote",
+        "code",
+    ]
+    allowed_tags_regex = "|".join(allowed_tags)
+    lookahead = rf"(?!/?({allowed_tags_regex})>)"
+    illegal_lt = rf"<{lookahead}"
+    lookbehind = rf"(?<!</?({allowed_tags_regex}))"
+    illegal_gt = rf"{lookbehind}>"
+    illegal_amp = r"&[#a-zA-Z0-9]+;"
+    text = regex.sub(illegal_lt, "&lt;", text)
+    text = regex.sub(illegal_gt, "&gt;", text)
+    text = regex.sub(illegal_amp, "&amp;", text)
+
+    res = etree.fromstring(text)
+    return res
 
 
 def make_time_prop(

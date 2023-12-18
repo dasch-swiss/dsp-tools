@@ -124,7 +124,7 @@ def run_test(
             # a <text> has the additional attribute encoding="utf8" (the other encoding, xml, is tested in the caller)
             xml_expected = regex.sub(
                 r"<text (permissions=\".+?\")( comment=\".+?\")?",
-                '<text \\1\\2 encoding="utf8"',
+                '<text \\1 encoding="utf8"\\2',
                 xml_expected,
             )
         xml_returned_as_element = method(**kwargs_to_generate_xml)

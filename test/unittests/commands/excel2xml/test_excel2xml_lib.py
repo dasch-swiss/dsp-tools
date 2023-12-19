@@ -523,6 +523,10 @@ class TestExcel2xmlLib(unittest.TestCase):
                 'text <text text="text" > text',
                 'text &lt;text text="text" &gt; text',
             ],
+            [
+                "text &amp; text",
+                "text &amp;amp; text",
+            ],
         ]
         for orig, exp in testcases_utf8:
             received = etree.tostring(
@@ -560,7 +564,15 @@ class TestExcel2xmlLib(unittest.TestCase):
                 "text &lt; text",
             ],
             [
+                "text > text",
+                "text &gt; text",
+            ],
+            [
                 "text & text",
+                "text &amp; text",
+            ],
+            [
+                "text &amp; text",
                 "text &amp; text",
             ],
             [

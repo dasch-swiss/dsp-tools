@@ -730,35 +730,35 @@ and the third column is how DSP-APP displays the second column.
 
 Behavior of simple text (`SimpleText`/`Textarea` + `utf8`):
 
-| input to `excel2xml` | XML file | DSP-APP | Remarks                                      |
-| -------------------- | -------- | ------- | -------------------------------------------- |
-| `<`                  | `&lt;`   | &lt;    |                                              |
-| `>`                  | `&gt;`   | &gt;    |                                              |
-|                      | `<`      | ⛔      | invalid XML                                  |
-|                      | `>`      | &gt;    | discouraged by XML standard, but possible    |
-| `&`                  | `&amp;`  | &amp;   |                                              |
-|                      | `&`      | ⛔      | invalid XML                                  |
-| `&gt;`               | ⛔       |         | discouraged: The leading `&` will be escaped |
-| `<tag>`              | ⛔       |         | discouraged: Simple text is not rich text    |
-|                      | `<tag>`  | ⛔      | forbidden: Simple text is not rich text      |
+| input to `excel2xml` | XML file      | DSP-APP | Remarks                                      |
+| -------------------- | ------------- | ------- | -------------------------------------------- |
+| `<`                  | `&lt;`        | &lt;    |                                              |
+| `>`                  | `&gt;`        | &gt;    |                                              |
+|                      | `<`           | ⛔      | invalid XML                                  |
+|                      | `>`           | &gt;    | discouraged by XML standard, but possible    |
+| `&`                  | `&amp;`       | &amp;   |                                              |
+|                      | `&`           | ⛔      | invalid XML                                  |
+| `&gt;`               | ⛔            |         | discouraged: The leading `&` will be escaped |
+| `<tag>`              | `&lt;tag&gt;` | `<tag>` | discouraged: Simple text is not rich text    |
+|                      | `<tag>`       | ⛔      | forbidden: Simple text is not rich text      |
 
 
 Behavior of text with markup (`Richtext` + `xml`):
 
-| input to `excel2xml`  | XML file            | DSP-APP       | Remarks                                   |
-| --------------------- | ------------------- | ------------- | ----------------------------------------- |
-| `<`                   | ⛔                  |               | invalid XML                               |
-| `>`                   | `&gt;`              | &gt;          | discouraged by XML standard, but possible |
-|                       | `<`                 | ⛔            | invalid XML                               |
-|                       | `>`                 | &gt;          | discouraged by XML standard, but possible |
-| `&lt;`                | `&lt;`              | &lt;          |                                           |
-| `&gt;`                | `&gt;`              | &gt;          |                                           |
-| `&`                   | ⛔                  |               | invalid XML                               |
-|                       | `&`                 | ⛔            | invalid XML                               |
-| `&amp;`               | `&amp;`             | &             |                                           |
-| `<em>text</em>`       | `<em>text</em>`     | _text_        |                                           |
-| `unclosed <tag> text` | ⛔                  |               | invalid XML                               |
-|                       | `&lt;not a tag&gt;` | `<not a tag>` |                                           |
+| input to `excel2xml` | XML file               | DSP-APP          | Remarks                                   |
+| -------------------- | ---------------------- | ---------------- | ----------------------------------------- |
+| `<`                  | `&lt;`                 | `&lt;`           |                                           |
+| `>`                  | `&gt;`                 | &gt;             |                                           |
+|                      | `<`                    | ⛔               | invalid XML                               |
+|                      | `>`                    | &gt;             | discouraged by XML standard, but possible |
+| `&lt;`               | `&lt;`                 | &lt;             |                                           |
+| `&gt;`               | `&gt;`                 | &gt;             |                                           |
+| `&`                  | `&amp;`                | &                |                                           |
+|                      | `&`                    | ⛔               | invalid XML                               |
+| `&amp;`              | `&amp;`                | &                |                                           |
+| `<em>text</em>`      | `<em>text</em>`        | _text_           |                                           |
+| `unclosed <tag>`     | `unclosed &lt;tag&gt;` | `unclosed <tag>` |                                           |
+|                      | `&lt;not a tag&gt;`    | `<not a tag>`    |                                           |
 
 
 #### Special Characters: Rules

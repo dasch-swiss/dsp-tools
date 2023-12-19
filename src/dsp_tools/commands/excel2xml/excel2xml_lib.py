@@ -1338,7 +1338,7 @@ def _escape_reserved_chars(text: str) -> str:
     """
     From richtext strings (encoding="xml"), escape the reserved characters <, > and &,
     but only if they are not part of a standard standoff tag or escape sequence.
-    The standard standoff tags allowed by DSP-API are published here:
+    The standard standoff tags allowed by DSP-API are documented here:
     https://docs.dasch.swiss/2023.12.01/DSP-API/03-endpoints/api-v2/text/standard-standoff/
     """
     allowed_tags = [
@@ -1367,8 +1367,8 @@ def _escape_reserved_chars(text: str) -> str:
     ]
     allowed_tags_regex = "|".join(allowed_tags)
     lookahead = rf"(?!/?({allowed_tags_regex})>)"
-    illegal_lt = rf"<{lookahead}"
     lookbehind = rf"(?<!</?({allowed_tags_regex}))"
+    illegal_lt = rf"<{lookahead}"
     illegal_gt = rf"{lookbehind}>"
     illegal_amp = r"&(?![#a-zA-Z0-9]+;)"
     text = regex.sub(illegal_lt, "&lt;", text)

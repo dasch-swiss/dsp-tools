@@ -67,8 +67,7 @@ dsp-tools = "dsp_tools.cli.entry_point:main"  # definition of the CLI entry poin
 # plugin (https://github.com/keattang/poetry-exec-plugin) to define commands available for the developers,
 # e.g. `poetry exec check-links`
 check-links = """
-    markdown-link-validator \
-    ./docs \
+    markdown-link-validator ./docs \
     -i \\.\\/assets\\/.+ \
     -i .+github\\.com\\/dasch\\-swiss\\/dsp-tools\\/settings \
     -i .+github\\.com\\/dasch\\-swiss\\/ops-deploy\\/.+\
@@ -88,6 +87,20 @@ clean = """
     rm -rf **/.mypy_cache
     rm -rf *id2iri_mapping*.json
 """
+markdownlint = """
+    docker run \
+    -v $PWD:/workdir ghcr.io/igorshubovych/markdownlint-cli:latest \
+    --config .markdownlint.yml \
+    --ignore CHANGELOG.md "**/*.md"
+"""
+ruff-check = "ruff check . --ignore=A002,D101,D102,PLR0912,PLR0913,PLR0915,PLR2004,PLR5501,PLW0603"
+ruff-check-github = """
+    ruff check . --output-format=github --ignore=A002,D101,D102,PLR0912,PLR0913,PLR0915,PLR2004,PLR5501,PLW0603
+"""
+ruff-format = "ruff format ."
+mypy = "mypy ."
+unittests = "pytest test/unittests/"
+e2e-tests = "pytest test/e2e/"
 
 
 [build-system]

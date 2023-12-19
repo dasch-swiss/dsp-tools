@@ -503,30 +503,30 @@ class TestExcel2xmlLib(unittest.TestCase):
     def test_make_text_prop_utf8(self) -> None:
         """test encoding=utf8"""
         testcases_utf8 = [
-            [
+            (
                 "text < text/>",
                 "text &lt; text/&gt;",
-            ],
-            [
+            ),
+            (
                 "text < text> & text",
                 "text &lt; text&gt; &amp; text",
-            ],
-            [
+            ),
+            (
                 "text <text text > text",
                 "text &lt;text text &gt; text",
-            ],
-            [
+            ),
+            (
                 'text < text text="text"> text',
                 'text &lt; text text="text"&gt; text',
-            ],
-            [
+            ),
+            (
                 'text <text text="text" > text',
                 'text &lt;text text="text" &gt; text',
-            ],
-            [
+            ),
+            (
                 "text &amp; text",
                 "text &amp;amp; text",
-            ],
+            ),
         ]
         for orig, exp in testcases_utf8:
             received = etree.tostring(
@@ -543,46 +543,46 @@ class TestExcel2xmlLib(unittest.TestCase):
     def test_make_text_prop_xml(self) -> None:
         """test encoding=xml"""
         testcases_xml = [
-            [
+            (
                 "text <strong>and</strong> text",
                 "text <strong>and</strong> text",
-            ],
-            [
+            ),
+            (
                 'a <a class="salsah-link" href="IRI:test_thing_0:IRI">link</a> text',
                 'a <a class="salsah-link" href="IRI:test_thing_0:IRI">link</a> text',
-            ],
-            [
+            ),
+            (
                 "1 &lt; 2",
                 "1 &lt; 2",
-            ],
-            [
+            ),
+            (
                 "&lt;escaped tag&gt;",
                 "&lt;escaped tag&gt;",
-            ],
-            [
+            ),
+            (
                 "text < text",
                 "text &lt; text",
-            ],
-            [
+            ),
+            (
                 "text > text",
                 "text &gt; text",
-            ],
-            [
+            ),
+            (
                 "text & text",
                 "text &amp; text",
-            ],
-            [
+            ),
+            (
                 "text &amp; text",
                 "text &amp; text",
-            ],
-            [
+            ),
+            (
                 "text <unclosed> tag",
                 "text &lt;unclosed&gt; tag",
-            ],
-            [
+            ),
+            (
                 'text <unclosed tag="tag"> text',
                 'text &lt;unclosed tag="tag"&gt; text',
-            ],
+            ),
         ]
         all_inputs = " ".join([inp for inp, _ in testcases_xml])
         all_outputs = " ".join([output for _, output in testcases_xml])

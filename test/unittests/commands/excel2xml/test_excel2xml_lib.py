@@ -502,7 +502,7 @@ class TestExcel2xmlLib(unittest.TestCase):
 
     def test_make_text_prop_utf8(self) -> None:
         """test encoding=utf8"""
-        testcases_utf8 = [
+        testcases_utf8: list[tuple[str, str]] = [
             (
                 "text < text/>",
                 "text &lt; text/&gt;",
@@ -542,7 +542,7 @@ class TestExcel2xmlLib(unittest.TestCase):
 
     def test_make_text_prop_xml(self) -> None:
         """test encoding=xml"""
-        testcases_xml = [
+        testcases_xml: list[tuple[str, str]] = [
             (
                 "text <strong>and</strong> text",
                 "text <strong>and</strong> text",
@@ -586,7 +586,7 @@ class TestExcel2xmlLib(unittest.TestCase):
         ]
         all_inputs = " ".join([inp for inp, _ in testcases_xml])
         all_outputs = " ".join([output for _, output in testcases_xml])
-        testcases_xml.append([all_inputs, all_outputs])
+        testcases_xml.append((all_inputs, all_outputs))
 
         for orig, exp in testcases_xml:
             received = etree.tostring(

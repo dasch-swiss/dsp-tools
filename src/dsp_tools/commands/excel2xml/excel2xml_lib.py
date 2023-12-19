@@ -1311,7 +1311,10 @@ def make_text_prop(
             **kwargs,  # type: ignore[arg-type]
             nsmap=xml_namespace_map,
         )
-        if val.encoding == "xml":
+        if kwargs["encoding"] == "utf8":
+            # write the text into the tag, without validation
+            value_.text = str(val.value)
+        else:
             escaped_text = _escape_reserved_chars(str(val.value))
             # enforce that the text is well-formed XML: serialize tag ...
             serialized = etree.tostring(value_, encoding="unicode")
@@ -1326,9 +1329,8 @@ def make_text_prop(
                     "The special characters <, > and & are only allowed to construct a tag."
                     f"The error occurred in resource {calling_resource}, property {name}"
                 ) from None
-        else:
-            value_.text = str(val.value)
         prop_.append(value_)
+
     return prop_
 
 

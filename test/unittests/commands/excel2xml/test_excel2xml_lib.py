@@ -537,7 +537,7 @@ class TestExcel2xmlLib(unittest.TestCase):
             self.assertEqual(received, expected)
 
     def test_make_text_prop_xml(self) -> None:
-        """test encoding="xml"""
+        """test encoding=xml"""
         testcases_xml = [
             [
                 "text <strong>and</strong> text",

@@ -12,7 +12,6 @@ import yaml
 
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.create_logger import get_logger
-from dsp_tools.utils.shared import http_call_with_retry
 
 logger = get_logger(__name__)
 
@@ -131,10 +130,7 @@ class StackHandler:
         Raises:
             UserError: if max_file_size is set but cannot be injected into sipi.docker-config.lua
         """
-        docker_config_lua_response = http_call_with_retry(
-            action=requests.get,
-            url=f"{self.__url_prefix}sipi/config/sipi.docker-config.lua",
-        )
+        docker_config_lua_response = requests.get(f"{self.__url_prefix}sipi/config/sipi.docker-config.lua", timeout=30)
         docker_config_lua_text = docker_config_lua_response.text
         if self.__stack_configuration.max_file_size:
             max_post_size_regex = r"max_post_size ?= ?[\'\"]?\d+[MG][\'\"]?"
@@ -173,11 +169,7 @@ class StackHandler:
         """
         for _ in range(6 * 60):
             try:
-                response = http_call_with_retry(
-                    action=requests.get,
-                    url="http://0.0.0.0:3030/$/server",
-                    auth=("admin", "test"),
-                )
+                response = requests.get("http://0.0.0.0:3030/$/server", auth=("admin", "test"), timeout=10)
                 if response.ok:
                     break
             except Exception:  # noqa: BLE001 (blind-except)
@@ -192,18 +184,17 @@ class StackHandler:
         Raises:
             UserError: in case of failure
         """
-        repo_template_response = http_call_with_retry(
-            action=requests.get,
-            url=f"{self.__url_prefix}webapi/scripts/fuseki-repository-config.ttl.template",
+        repo_template_response = requests.get(
+            f"{self.__url_prefix}webapi/scripts/fuseki-repository-config.ttl.template",
+            timeout=30,
         )
         repo_template = repo_template_response.text
         repo_template = repo_template.replace("@REPOSITORY@", "knora-test")
-        response = http_call_with_retry(
-            action=requests.post,
-            initial_timeout=10,
-            url="http://0.0.0.0:3030/$/datasets",
+        response = requests.post(
+            "http://0.0.0.0:3030/$/datasets",
             files={"file": ("file.ttl", repo_template, "text/turtle; charset=utf8")},
             auth=("admin", "test"),
+            timeout=30,
         )
         if not response.ok:
             msg = (
@@ -235,18 +226,17 @@ class StackHandler:
             ("test_data/project_data/anything-data.ttl", "http://www.knora.org/data/0001/anything"),
         ]
         for ttl_file, graph in ttl_files:
-            ttl_response = http_call_with_retry(action=requests.get, url=self.__url_prefix + ttl_file)
+            ttl_response = requests.get(self.__url_prefix + ttl_file, timeout=30)
             if not ttl_response.ok:
                 msg = f"Cannot start DSP-API: Error when retrieving '{self.__url_prefix + ttl_file}'"
                 logger.error(f"{msg}'. response = {vars(ttl_response)}")
                 raise UserError(msg)
             ttl_text = ttl_response.text
-            response = http_call_with_retry(
-                action=requests.post,
-                initial_timeout=10,
-                url=graph_prefix + graph,
+            response = requests.post(
+                graph_prefix + graph,
                 files={"file": ("file.ttl", ttl_text, "text/turtle; charset: utf-8")},
                 auth=("admin", "test"),
+                timeout=30,
             )
             if not response.ok:
                 logger.error(f"Cannot start DSP-API: Error when creating graph '{graph}'. response = {vars(response)}")

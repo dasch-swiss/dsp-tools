@@ -4,18 +4,14 @@ import copy
 import glob
 import importlib.resources
 import json
-import time
 import unicodedata
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Callable, Iterable, Optional, TypeGuard, TypeVar, Union, cast
+from typing import Any, Iterable, Optional, TypeGuard, TypeVar, Union
 
 import pandas as pd
 import regex
-import requests
 from lxml import etree
-from requests import ReadTimeout
-from urllib3.exceptions import ReadTimeoutError
 
 from dsp_tools.commands.excel2xml.propertyelement import PropertyElement
 from dsp_tools.models.exceptions import BaseError, UserError
@@ -77,61 +73,6 @@ def login(
         logger.error("Cannot login to DSP server", exc_info=True)
         raise UserError("Cannot login to DSP server") from None
     return con
-
-
-def http_call_with_retry(
-    action: Callable[..., Any],
-    *args: Any,
-    initial_timeout: int = 10,
-    **kwargs: Any,
-) -> requests.Response:
-    """
-    Function that tries 7 times to execute an HTTP request.
-    Timeouts (and only timeouts) are catched, and the request is retried after a waiting time.
-    The waiting times are 1, 2, 4, 8, 16, 32, 64 seconds.
-    Every time, the previous timeout is increased by 10 seconds.
-    Use this only for actions that can be retried without side effects.
-
-    Args:
-        action: one of requests.get(), requests.post(), requests.put(), requests.delete()
-        initial_timeout: Timeout to start with. Defaults to 10 seconds.
-        *args: positional arguments for the action
-        **kwargs: keyword arguments for the action
-
-    Raises:
-        BaseError: if the action is not one of one of requests.get(), requests.post(), requests.put(), requests.delete()
-        Other Errors: errors from the requests library that are not timeouts
-
-    Returns:
-        response of the HTTP request
-    """
-    if action not in (requests.get, requests.post, requests.put, requests.delete):
-        raise BaseError(
-            "This function can only be used with the methods get, post, put, and delete of the Python requests library."
-        )
-    action_as_str = f"{action=}, {args=}, {kwargs=}"
-    timeout = initial_timeout
-    for i in range(7):
-        try:
-            if args and not kwargs:
-                result = action(*args, timeout=timeout)
-            elif kwargs and not args:
-                result = action(**kwargs, timeout=timeout)
-            elif args and kwargs:
-                result = action(*args, **kwargs, timeout=timeout)
-            else:
-                result = action(timeout=timeout)
-            return cast(requests.Response, result)
-        except (TimeoutError, ReadTimeout, ReadTimeoutError):
-            timeout += 10
-            msg = f"Timeout Error: Retry request with timeout {timeout} in {2 ** i} seconds..."
-            print(f"{datetime.now()}: {msg}")
-            logger.error(f"{msg} {action_as_str} (retry-counter {i=:})", exc_info=True)
-            time.sleep(2**i)
-            continue
-
-    logger.error("Permanently unable to execute the API call. See logs for more details.")
-    raise BaseError("Permanently unable to execute the API call. See logs for more details.")
 
 
 def validate_xml_against_schema(input_file: Union[str, Path, etree._ElementTree[Any]]) -> bool:

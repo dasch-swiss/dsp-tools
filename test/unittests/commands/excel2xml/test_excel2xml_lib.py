@@ -124,7 +124,7 @@ def run_test(
             # a <text> has the additional attribute encoding="utf8" (the other encoding, xml, is tested in the caller)
             xml_expected = regex.sub(
                 r"<text (permissions=\".+?\")( comment=\".+?\")?",
-                '<text \\1 encoding="utf8"\\2',
+                '<text \\1\\2 encoding="utf8"',
                 xml_expected,
             )
         xml_returned_as_element = method(**kwargs_to_generate_xml)
@@ -490,7 +490,6 @@ class TestExcel2xmlLib(unittest.TestCase):
 
     @pytest.mark.filterwarnings("ignore::UserWarning")
     def test_make_text_prop(self) -> None:
-        # standard tests
         prop = "text"
         method = excel2xml.make_text_prop
         different_values = ["text_1", " ", "!", "?", "-", "_", "None"]

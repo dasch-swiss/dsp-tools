@@ -1302,15 +1302,13 @@ def make_text_prop(
         nsmap=xml_namespace_map,
     )
     for val in values:
-        kwargs = {
-            "permissions": val.permissions,
-            "encoding": val.encoding if check_notna(val.encoding) else "utf8",
-        }
+        kwargs = {"permissions": val.permissions}
         if check_notna(val.comment):
             kwargs["comment"] = val.comment
+        kwargs["encoding"] = val.encoding if check_notna(val.encoding) else "utf8"
         value_ = etree.Element(
             "{%s}text" % xml_namespace_map[None],
-            **kwargs,
+            **kwargs,  # type: ignore[arg-type]
             nsmap=xml_namespace_map,
         )
         if val.encoding == "xml":

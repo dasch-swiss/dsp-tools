@@ -1,3 +1,4 @@
+import shutil
 from pathlib import Path
 
 import pytest
@@ -7,13 +8,16 @@ from dsp_tools.models.exceptions import InputError
 
 
 @pytest.fixture()
-def base_path() -> Path:
-    """Get the root directory of the repository."""
-    return Path(__file__).parents[3]
+def _retrieve_mapping_file() -> None:  # type: ignore[misc]
+    """Put the mapping file into the cwd."""
+    mapping_file = Path("testdata/dsp-ingest-data/mapping-00A2.csv")
+    shutil.copy(mapping_file, ".")
+    yield
+    Path(mapping_file.name).unlink()
 
 
-def test_ingest_xmlupload(base_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.chdir(Path(base_path, "testdata/dsp-ingest-data"))
+@pytest.mark.usefixtures("_retrieve_mapping_file")
+def test_ingest_xmlupload() -> None:
     expected_msg = (
         "The upload cannot continue as there are problems with the multimedia files referenced in the XML.\n"
         "    The data XML file does not reference the following multimedia files "
@@ -25,7 +29,7 @@ def test_ingest_xmlupload(base_path: Path, monkeypatch: pytest.MonkeyPatch) -> N
     )
     with pytest.raises(InputError, match=expected_msg):
         ingest_xmlupload(
-            xml_file=Path("dsp-ingest.xml"),
+            xml_file=Path("testdata/dsp-ingest-data/dsp-ingest.xml"),
             user="root@example.com",
             password="test",
             dsp_url="http://0.0.0.0:3333",

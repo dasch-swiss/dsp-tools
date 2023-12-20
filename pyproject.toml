@@ -101,6 +101,13 @@ ruff-format = "ruff format ."
 mypy = "mypy ."
 unittests = "pytest test/unittests/"
 e2e-tests = "pytest test/e2e/"
+bump-version = """
+    commits_since_last_release=$(git rev-list --count HEAD ^$(git describe --tags --abbrev=0))
+    if [ $commits_since_last_release -eq 0 ]; then; exit 0; fi
+    new_version=$(poetry version -s).dev$commits_since_last_release
+    poetry version $new_version
+"""  # get current version, append ".devN" (N=no. of commits since last release), write back into pyproject.toml
+
 
 
 [build-system]

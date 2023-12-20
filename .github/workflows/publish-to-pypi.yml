@@ -31,9 +31,8 @@ jobs:
       - name: publish new version to PyPI
         run: |
           rm -rf dist/ build/
-          poetry version prerelease   # bump version, e.g. from 1.0.2 to 1.0.3a0, or 1.0.3a0 to 1.0.3a1
-          poetry build                # generate distribution package
-          poetry publish              # upload distribution package to PyPI
+          poetry exec bump-version
+          poetry publish --build    # generate distribution package and upload to PyPI
 
   notification:
     name: Google chat notification about release and published version

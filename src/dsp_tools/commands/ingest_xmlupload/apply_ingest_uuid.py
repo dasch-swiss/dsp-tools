@@ -18,6 +18,9 @@ def get_mapping_dict_from_file(shortcode: str) -> dict[str, str]:
     """
     This functions returns the information to replace the original filepaths with the identifier from dsp-ingest.
 
+    Args:
+        shortcode: Shortcode of the project
+
     Returns:
         dictionary with original: identifier from dsp-ingest
 

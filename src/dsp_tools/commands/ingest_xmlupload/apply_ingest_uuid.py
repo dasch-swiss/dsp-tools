@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import glob
-import os
 from copy import deepcopy
+from pathlib import Path
 from typing import cast
 
 import pandas as pd
@@ -32,7 +32,7 @@ def get_mapping_dict_from_file() -> dict[str, str]:
         logger.info(msg)
         return dict(zip(df["original"].tolist(), df["derivative"].tolist()))
     else:
-        raise InputError(f"No mapping CSV file was found in the current working directory {os.getcwd()}")
+        raise InputError(f"No mapping CSV file was found in the current working directory {Path.cwd()}")
 
 
 def replace_filepath_with_sipi_uuid(

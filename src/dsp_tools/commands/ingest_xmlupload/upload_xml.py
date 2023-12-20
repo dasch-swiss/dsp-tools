@@ -45,7 +45,8 @@ def ingest_xmlupload(
     xml_tree_orig = etree.parse(xml_file)
     xml_tree_orig = remove_comments_from_element_tree(xml_tree_orig)
 
-    orig_path_2_uuid_filename = get_mapping_dict_from_file()
+    shortcode = xml_tree_orig.getroot().attrib["shortcode"]
+    orig_path_2_uuid_filename = get_mapping_dict_from_file(shortcode)
     xml_tree_replaced, ingest_info = replace_filepath_with_sipi_uuid(
         xml_tree=xml_tree_orig,
         orig_path_2_uuid_filename=orig_path_2_uuid_filename,

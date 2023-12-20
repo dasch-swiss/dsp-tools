@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import glob
 from copy import deepcopy
 from pathlib import Path
 from typing import cast
@@ -15,7 +14,7 @@ from dsp_tools.utils.create_logger import get_logger
 logger = get_logger(__name__)
 
 
-def get_mapping_dict_from_file() -> dict[str, str]:
+def get_mapping_dict_from_file(shortcode: str) -> dict[str, str]:
     """
     This functions returns the information to replace the original filepaths with the identifier from dsp-ingest.
 
@@ -25,9 +24,10 @@ def get_mapping_dict_from_file() -> dict[str, str]:
     Raises:
         InputError: if no file was found
     """
-    if filepath := glob.glob("mapping-*.csv"):
-        df = pd.read_csv(filepath[0])
-        msg = f"The file '{filepath[0]}' is used to map the internal SIPI image IDs to the original filepaths."
+    filepath = Path(f"mapping-{shortcode}.csv")
+    if filepath.exists():
+        df = pd.read_csv(filepath)
+        msg = f"The file '{filepath}' is used to map the internal SIPI image IDs to the original filepaths."
         print(msg)
         logger.info(msg)
         return dict(zip(df["original"].tolist(), df["derivative"].tolist()))

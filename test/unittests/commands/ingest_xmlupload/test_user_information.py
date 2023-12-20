@@ -78,7 +78,7 @@ def test_unused_media_to_df_not_enough() -> None:
     assert not IngestInformation(["unused_media"], [], maximum_prints=1)._unused_media_to_df()
 
 
-def test_no_uuid_to_df() -> None:
+def test_no_id_to_df() -> None:
     expected = pd.DataFrame(
         {
             "Resource ID": [
@@ -98,9 +98,9 @@ def test_no_uuid_to_df() -> None:
             ("ID_no_up1", "fileno_up1.jpg"),
         ],
         maximum_prints=1,
-    )._no_uuid_to_df()
+    )._no_id_to_df()
     assert_frame_equal(res_df, expected)
 
 
-def test_no_uuid_to_df_not_enough() -> None:
+def test_no_id_to_df_not_enough() -> None:
     assert not IngestInformation([], [("ID_no_up0", "fileno_up0.jpg")])._unused_media_to_df()

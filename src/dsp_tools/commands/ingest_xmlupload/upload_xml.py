@@ -4,9 +4,9 @@ from pathlib import Path
 
 from lxml import etree
 
-from dsp_tools.commands.ingest_xmlupload.apply_ingest_uuid import (
+from dsp_tools.commands.ingest_xmlupload.apply_ingest_id import (
     get_mapping_dict_from_file,
-    replace_filepath_with_sipi_uuid,
+    replace_filepath_with_sipi_id,
 )
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
@@ -46,10 +46,10 @@ def ingest_xmlupload(
     xml_tree_orig = remove_comments_from_element_tree(xml_tree_orig)
 
     shortcode = xml_tree_orig.getroot().attrib["shortcode"]
-    orig_path_2_uuid_filename = get_mapping_dict_from_file(shortcode)
-    xml_tree_replaced, ingest_info = replace_filepath_with_sipi_uuid(
+    orig_path_2_id_filename = get_mapping_dict_from_file(shortcode)
+    xml_tree_replaced, ingest_info = replace_filepath_with_sipi_id(
         xml_tree=xml_tree_orig,
-        orig_path_2_uuid_filename=orig_path_2_uuid_filename,
+        orig_path_2_id_filename=orig_path_2_id_filename,
     )
     if good := ingest_info.all_good_msg():
         print(good)

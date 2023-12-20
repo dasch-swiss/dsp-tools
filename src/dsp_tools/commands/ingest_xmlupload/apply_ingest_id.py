@@ -38,30 +38,30 @@ def get_mapping_dict_from_file(shortcode: str) -> dict[str, str]:
         raise InputError(f"No mapping CSV file was found in the current working directory {Path.cwd()}")
 
 
-def replace_filepath_with_sipi_uuid(
+def replace_filepath_with_sipi_id(
     xml_tree: etree._ElementTree[etree._Element],
-    orig_path_2_uuid_filename: dict[str, str],
+    orig_path_2_id_filename: dict[str, str],
 ) -> tuple[etree._ElementTree[etree._Element], IngestInformation]:
     """
-    Replace the original filepaths in the <bitstream> tags by the uuid filenames of the uploaded files.
+    Replace the original filepaths in the <bitstream> tags by the id filenames of the uploaded files.
 
     Args:
         xml_tree: The parsed original XML tree
-        orig_path_2_uuid_filename: Mapping from original filenames to uuid filenames from the mapping.csv
+        orig_path_2_id_filename: Mapping from original filenames to id filenames from the mapping.csv
 
     Returns:
         The XML tree with the replaced filepaths (modified in place)
         Message informing if all referenced files were uploaded or not.
     """
-    no_uuid_found = []
+    no_id_found = []
     used_media_paths = []
     new_tree = deepcopy(xml_tree)
     for elem in new_tree.iter():
         if etree.QName(elem).localname.endswith("bitstream"):
-            if (img_path := elem.text) in orig_path_2_uuid_filename:
-                elem.text = orig_path_2_uuid_filename[img_path]
+            if (img_path := elem.text) in orig_path_2_id_filename:
+                elem.text = orig_path_2_id_filename[img_path]
                 used_media_paths.append(img_path)
             else:
-                no_uuid_found.append((cast("etree._Element", elem.getparent()).attrib.get("id"), elem.text))
-    unused_media_paths = [x for x in orig_path_2_uuid_filename if x not in used_media_paths]
-    return new_tree, IngestInformation(unused_media_paths=unused_media_paths, media_no_uuid=no_uuid_found)
+                no_id_found.append((cast("etree._Element", elem.getparent()).attrib.get("id"), elem.text))
+    unused_media_paths = [x for x in orig_path_2_id_filename if x not in used_media_paths]
+    return new_tree, IngestInformation(unused_media_paths=unused_media_paths, media_no_id=no_id_found)

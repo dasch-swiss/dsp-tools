@@ -218,7 +218,6 @@ class ConnectionLive:
         route: str,
         jsondata: Optional[str] = None,
         files: dict[str, tuple[str, Any]] | None = None,
-        timeout: int | None = None,
     ) -> dict[str, Any]:
         """
         Make a HTTP POST request to the server to which this connection has been established.
@@ -227,7 +226,6 @@ class ConnectionLive:
             route: route that will be called on the server
             jsondata: Valid JSON as string
             files: files to be uploaded, if any
-            timeout: timeout of the HTTP request, or None if the default should be used
 
         Returns:
             response from server
@@ -236,7 +234,7 @@ class ConnectionLive:
         # otherwise the client can get a timeout error while the API is still processing the request
         # in that case, the client's retry will have undesired side effects (e.g. duplicated resources),
         # and the response of the original API call will be lost
-        timeout = timeout or 60
+        timeout = 30 * 60
         if not route.startswith("/"):
             route = f"/{route}"
         url = self.server + route
@@ -331,7 +329,7 @@ class ConnectionLive:
         # timeout must be high enough,
         # otherwise the client can get a timeout error while the API is still processing the request
         # in that case, the client's retry will fail, and the response of the original API call will be lost
-        timeout = 60
+        timeout = 30 * 60
         if not route.startswith("/"):
             route = f"/{route}"
         url = self.server + route

@@ -45,7 +45,6 @@ class Connection(Protocol):
         route: str,
         jsondata: str | None = None,
         files: dict[str, tuple[str, Any]] | None = None,
-        timeout: int | None = None,
     ) -> dict[str, Any]:
         """
         Make a HTTP POST request to the server to which this connection has been established.
@@ -54,7 +53,6 @@ class Connection(Protocol):
             route: route that will be called on the server
             jsondata: Valid JSON as string
             files: files to be uploaded, if any
-            timeout: timeout of the HTTP request, or None if the default should be used
         """
 
     def delete(

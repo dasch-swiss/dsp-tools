@@ -36,7 +36,7 @@ def test_ingest_xmlupload(base_path: Path, monkeypatch: pytest.MonkeyPatch) -> N
 def test_ingest_xmlupload_no_mapping() -> None:
     with pytest.raises(InputError):
         ingest_xmlupload(
-            xml_file=Path("testdata/xml-data/test-data-minimal.xml"),
+            xml_file=Path("testdata/dsp-ingest-data/dsp_ingest_no_mapping.xml"),
             user="root@example.com",
             password="test",
             dsp_url="http://0.0.0.0:3333",

@@ -14,10 +14,10 @@ class TestIngestInformation:
             "All multimedia files referenced in the XML file were uploaded through dsp-ingest.\n"
             "No multimedia files were uploaded through dsp-ingest that were not referenced in the XML file."
         )
-        assert IngestInformation([], []).all_good_msg() == expected
+        assert IngestInformation([], []).ok_msg() == expected
 
     def test_not_all_good(self) -> None:
-        assert not IngestInformation(["unused_media"], []).all_good_msg()
+        assert not IngestInformation(["unused_media"], []).ok_msg()
 
     def test_unused_media(self) -> None:
         expected = (

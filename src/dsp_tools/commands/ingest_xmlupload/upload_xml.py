@@ -51,9 +51,9 @@ def ingest_xmlupload(
         xml_tree=xml_tree_orig,
         orig_path_2_id_filename=orig_path_2_id_filename,
     )
-    if good := ingest_info.all_good_msg():
-        print(good)
-        logger.info(good)
+    if ok := ingest_info.ok_msg():
+        print(ok)
+        logger.info(ok)
     else:
         err_msg = ingest_info.execute_error_protocol()
         logger.exception(err_msg)

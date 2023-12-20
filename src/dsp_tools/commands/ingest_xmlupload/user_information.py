@@ -25,7 +25,7 @@ class IngestInformation:
     unused_media_filename: str = "UnusedMediaUploadedInSipi.csv"
     no_id_filename: str = "NotUploadedFilesToSipi.csv"
 
-    def all_good_msg(self) -> str | None:
+    def ok_msg(self) -> str | None:
         """
         This function checks if no media was unused or not uploaded.
         If that is the case it returns the message,

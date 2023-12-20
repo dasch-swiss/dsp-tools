@@ -1,5 +1,29 @@
 # Changelog
 
+## [5.6.0](https://github.com/dasch-swiss/dsp-tools/compare/v5.5.0...v5.6.0) (2023-12-19)
+
+
+### Enhancements
+
+* **excel2xml:** support French BC dates in find_date_in_string() (DEV-3099) ([#680](https://github.com/dasch-swiss/dsp-tools/issues/680)) ([610f064](https://github.com/dasch-swiss/dsp-tools/commit/610f064392f54aa239b0881383547db0540c2e31))
+
+
+### Bug Fixes
+
+* **excel2json:** support uppercase classes sheet in resources.xlsx (DEV-3109) ([#683](https://github.com/dasch-swiss/dsp-tools/issues/683)) ([71205f8](https://github.com/dasch-swiss/dsp-tools/commit/71205f816539dd0e19f7375924e8488f1d6a9891))
+* **excel2xml:** find_date_in_string() must not return invalid date (DEV-3116) ([#688](https://github.com/dasch-swiss/dsp-tools/issues/688)) ([71b754d](https://github.com/dasch-swiss/dsp-tools/commit/71b754d506e2025544552497733a91fbde36129d))
+* **xmlupload:** saving the csv file if there are more than 50 problems with the ontology names (DEV-3112) ([#685](https://github.com/dasch-swiss/dsp-tools/issues/685)) ([a7d2e59](https://github.com/dasch-swiss/dsp-tools/commit/a7d2e594d25d6cf178afbc203ed5da65ba83e4ed))
+
+
+### Maintenance
+
+* add pytest-sugar ([#692](https://github.com/dasch-swiss/dsp-tools/issues/692)) ([1d22716](https://github.com/dasch-swiss/dsp-tools/commit/1d22716346d7f47cbf81bc7a565e755aa5d9201a))
+* downgrade start-stack to 2023.11.02 ([#693](https://github.com/dasch-swiss/dsp-tools/issues/693)) ([09f50ff](https://github.com/dasch-swiss/dsp-tools/commit/09f50ffa7e0f499a4ba22f8721e3df025e2748a2))
+* move retry logic into the connection implementation (DEV-3110) ([#686](https://github.com/dasch-swiss/dsp-tools/issues/686)) ([f1a7051](https://github.com/dasch-swiss/dsp-tools/commit/f1a7051070006a3fa9bf156748fb5a1e993af4ad))
+* replace pylint, isort, black with ruff (DEV-2972) ([#653](https://github.com/dasch-swiss/dsp-tools/issues/653)) ([2594d36](https://github.com/dasch-swiss/dsp-tools/commit/2594d369c1fee841adf44db5b71f41ea08a4a631))
+* resolve Ruff warnings A003, B023, D103 and PLR0911 ([#684](https://github.com/dasch-swiss/dsp-tools/issues/684)) ([b0f598c](https://github.com/dasch-swiss/dsp-tools/commit/b0f598c72aaf3734981e0708051b4ad9ebfa3965))
+* **start-stack:** adapt docs of --max_file_size flag (DEV_3093) ([#689](https://github.com/dasch-swiss/dsp-tools/issues/689)) ([af46da8](https://github.com/dasch-swiss/dsp-tools/commit/af46da8e83e6355b2e882722a4bac1d9f63deb1c))
+
 ## [5.5.0](https://github.com/dasch-swiss/dsp-tools/compare/v5.4.0...v5.5.0) (2023-12-13)
 
 

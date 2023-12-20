@@ -1,4 +1,5 @@
 import argparse
+from pathlib import Path
 
 from dsp_tools.commands.excel2json.lists import excel2lists, validate_lists_section_with_schema
 from dsp_tools.commands.excel2json.project import excel2json
@@ -149,7 +150,7 @@ def _call_excel2json(args: argparse.Namespace) -> bool:
 
 def _call_ingest_xmlupload(args: argparse.Namespace) -> bool:
     ingest_xmlupload(
-        xml_file=args.xml_file,
+        xml_file=Path(args.xml_file),
         user=args.user,
         password=args.password,
         dsp_url=args.server,

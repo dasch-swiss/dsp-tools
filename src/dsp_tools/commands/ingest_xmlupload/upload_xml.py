@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 from lxml import etree
 
 from dsp_tools.commands.ingest_xmlupload.apply_ingest_uuid import (
@@ -16,7 +18,7 @@ logger = get_logger(__name__)
 
 
 def ingest_xmlupload(
-    xml_file: str,
+    xml_file: Path,
     user: str,
     password: str,
     dsp_url: str,

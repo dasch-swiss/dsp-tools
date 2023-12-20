@@ -114,6 +114,10 @@ class ConnectionLive:
     dump: bool = False
     dump_directory = Path("HTTP requests")
     token: Optional[str] = None
+    # downtimes of server-side services -> API still processes request
+    # -> retry too early has side effects (e.g. duplicated resources)
+    timeout_put_post: int = 30 * 60
+    timeout_get_delete: int = 20
 
     def __post_init__(self) -> None:
         """
@@ -230,11 +234,6 @@ class ConnectionLive:
         Returns:
             response from server
         """
-        # timeout must be high enough,
-        # otherwise the client can get a timeout error while the API is still processing the request
-        # in that case, the client's retry will have undesired side effects (e.g. duplicated resources),
-        # and the response of the original API call will be lost
-        timeout = 30 * 60
         if not route.startswith("/"):
             route = f"/{route}"
         url = self.server + route
@@ -244,7 +243,7 @@ class ConnectionLive:
         if self.token:
             headers["Authorization"] = f"Bearer {self.token}"
 
-        request = partial(requests.post, url=url, headers=headers, timeout=timeout)
+        request = partial(requests.post, url=url, headers=headers, timeout=self.timeout_put_post)
         if jsondata:
             # if data is not encoded as bytes, issues can occur with non-ASCII characters,
             # where the content-length of the request will turn out to be different from the actual length
@@ -294,7 +293,7 @@ class ConnectionLive:
             lambda: requests.get(
                 url=url,
                 headers=headers,
-                timeout=20,
+                timeout=self.timeout_get_delete,
             )
         )
         if self.dump:
@@ -326,10 +325,6 @@ class ConnectionLive:
         Returns:
             response from server
         """
-        # timeout must be high enough,
-        # otherwise the client can get a timeout error while the API is still processing the request
-        # in that case, the client's retry will fail, and the response of the original API call will be lost
-        timeout = 30 * 60
         if not route.startswith("/"):
             route = f"/{route}"
         url = self.server + route
@@ -346,7 +341,7 @@ class ConnectionLive:
                 # if data is not encoded as bytes, issues can occur with non-ASCII characters,
                 # where the content-length of the request will turn out to be different from the actual length
                 data=jsondata.encode("utf-8") if jsondata else None,
-                timeout=timeout,
+                timeout=self.timeout_put_post,
             )
         )
         if self.dump:
@@ -386,7 +381,7 @@ class ConnectionLive:
             url=url,
             headers=headers,
             params=params,
-            timeout=20,
+            timeout=self.timeout_get_delete,
         )
         if self.dump:
             self._write_request_to_file(

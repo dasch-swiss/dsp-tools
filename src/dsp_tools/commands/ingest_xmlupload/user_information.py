@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Protocol
+from typing import Any
 
 import pandas as pd
 
@@ -9,24 +9,6 @@ import pandas as pd
 
 separator = "\n    "
 list_separator = "\n    - "
-
-
-class UserInformation(Protocol):
-    """
-    Information about user messages.
-    """
-
-    def all_good_msg(self) -> str:
-        """
-        If everything went as it should, this function returns a success message for the user.
-        Returns:
-            Message for the user.
-        """
-
-    def execute_error_protocol(self) -> str:
-        """
-        This function initiates all the steps to communicate the problems to the user.
-        """
 
 
 @dataclass(frozen=True)
@@ -39,7 +21,7 @@ class IngestInformation:
     unused_media_paths: list[str]
     media_no_uuid: list[tuple[str, str] | Any]
     maximum_prints: int = field(default=20)
-    csv_filepath: Path = field(default=Path.home())
+    csv_filepath: Path = field(default=Path.cwd())
     unused_media_filename: str = "UnusedMediaUploadedInSipi.csv"
     no_uuid_filename: str = "NotUploadedFilesToSipi.csv"
 

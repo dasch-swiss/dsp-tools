@@ -19,7 +19,7 @@ from lxml import etree
 
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.create_logger import get_logger
-from dsp_tools.utils.shared import http_call_with_retry, make_chunks
+from dsp_tools.utils.shared import make_chunks
 
 logger = get_logger(__name__)
 sipi_container: Optional[Container] = None
@@ -34,9 +34,9 @@ def _get_export_moving_image_frames_script() -> None:
     user_folder.mkdir(parents=True, exist_ok=True)
     global export_moving_image_frames_script
     export_moving_image_frames_script = user_folder / "export-moving-image-frames.sh"
-    script_text_response = http_call_with_retry(
-        action=requests.get,
-        url="https://github.com/dasch-swiss/dsp-api/raw/main/sipi/scripts/export-moving-image-frames.sh",
+    script_text_response = requests.get(
+        "https://github.com/dasch-swiss/dsp-api/raw/main/sipi/scripts/export-moving-image-frames.sh",
+        timeout=30,
     )
     script_text = script_text_response.text
     with open(export_moving_image_frames_script, "w", encoding="utf-8") as f:

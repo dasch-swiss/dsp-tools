@@ -25,15 +25,15 @@ More details can be found in the [developers' documentation](https://docs.dasch.
 
 ## Quick Start
 
-To get started quickly, without reading the details, just execute these commands 
-(a prior installation of [Homebrew](https://brew.sh/) is required):
+To get started quickly, without reading the details, just execute these commands.
 
 - `curl -sSL https://install.python-poetry.org | python3 -`
 - `poetry self add poetry-exec-plugin`
 - `poetry install`
 - `poetry shell`
 - `pre-commit install`
-- `brew install imagemagick ffmpeg`
+- `brew install imagemagick ffmpeg` (A prior installation of [Homebrew](https://brew.sh/) is required.)
+- `npm install -g markdown-link-validator`
 
 The remainder of this README explains these commands in more detail.
 
@@ -135,11 +135,11 @@ Please ensure you have only one pull request per feature.
 ## Testing
 
 The tests of this repository 
-are written in the [unittest](https://docs.python.org/3/library/unittest.html) framework 
-and executed with the [pytest](https://docs.pytest.org) framework.
+are partially written in the [unittest](https://docs.python.org/3/library/unittest.html) framework,
+and partially in the [pytest](https://docs.pytest.org) framework.
 There are two groups of tests: 
 
-- `test/unittests` they can be run directly, 
+- `test/unittests` can be run directly, 
 - `test/e2e` need a DSP stack running in the background.
   A DSP stack can be started with the command 
   [`dsp-tools start-stack`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#start-stack)
@@ -164,6 +164,7 @@ When contributing to the project,
 please make sure you use the same code style rules as we do. 
 We use the following linters:
 
+- [markdown-link-validator](https://www.npmjs.com/package/markdown-link-validator) (no configuration)
 - [MarkdownLint](https://github.com/igorshubovych/markdownlint-cli) (configured in `.markdownlint.yml`)
 - [mypy](https://pypi.org/project/mypy/) (configured in `pyproject.toml`)
 - [ruff](https://pypi.org/project/ruff/) (configured in `pyproject.toml`)
@@ -172,14 +173,22 @@ We use the following linters:
 These linters are integrated in the GitHub CI pipeline, 
 so that every pull request is checked for code style violations.
 
+Your code can be checked for style violations locally before they are committed:
+
+- `poetry exec check-links`
+- `poetry exec markdownlint`
+- `poetry exec mypy`
+- `poetry exec ruff-check`
+- `poetry exec ruff-format`
+- `poetry exec darglint`
+
 In addition, there are [pre-commit hooks](#pre-commit-hooks) 
 that run Ruff and MarkdownLint locally before every commit.
 This prevents you from committing code style violations.
 Pre-commit is contained in the dependencies, 
-but before the first use, the hooks must be installed with `pre-commit install`
+but before the first use, the hooks must be installed with `pre-commit install`.
 
-Your code can be checked for style violations locally before they are committed. 
-Depending on your IDE the installation is as follows.
+Depending on your IDE, there are extensions that emit warnings:
 
 
 ### VSCode

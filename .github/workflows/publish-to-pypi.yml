@@ -3,8 +3,9 @@
 name: Publish to PyPI
 
 on:
-  release:
-    types: [released]
+  push:
+    branches:
+      - main
 
 env:
   TOKEN: ${{ secrets.GH_TOKEN }}
@@ -30,8 +31,9 @@ jobs:
       - name: publish new version to PyPI
         run: |
           rm -rf dist/ build/
-          poetry build      # generate distribution package
-          poetry publish    # upload distribution package to PyPI
+          poetry version prerelease   # bump version, e.g. from 1.0.2 to 1.0.3a0, or 1.0.3a0 to 1.0.3a1
+          poetry build                # generate distribution package
+          poetry publish              # upload distribution package to PyPI
 
   notification:
     name: Google chat notification about release and published version

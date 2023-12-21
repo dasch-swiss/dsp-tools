@@ -31,12 +31,3 @@ jobs:
           poetry exec bump-version  # bump version in pyproject.toml
           poetry publish --build --repository="testpypi"    # generate distribution package and upload to PyPI
 
-  notification:
-    name: Google chat notification about release and published version
-    needs: [publish-to-pypi]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Send notification to google chat room "DSP releases"
-        uses: lakto/google-chat-action@main
-        with:
-          url: ${{ secrets.GOOGLE_CHAT_DSP_RELEASES_WEBHOOK_URL }}

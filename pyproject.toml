@@ -23,7 +23,7 @@ exclude = ["src/dsp_tools/import_scripts/*"]
 
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.12"
 jsonpath-ng = "^1.6.0"
 argparse = "^1.4.0"
 lxml = "^4.9.3"

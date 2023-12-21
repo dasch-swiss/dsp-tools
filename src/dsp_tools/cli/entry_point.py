@@ -7,6 +7,9 @@ import sys
 from importlib.metadata import version
 
 import regex
+import requests
+from packaging.version import parse
+from termcolor import colored
 
 from dsp_tools.cli.call_action import call_requested_action
 from dsp_tools.cli.create_parsers import make_parser
@@ -76,20 +79,19 @@ def run(args: list[str]) -> None:
 
 
 def _check_version() -> None:
-    """
-    Check if the installed version of dsp-tools is up-to-date.
-    If not, print a warning message.
-    """
-    # format: dsp-tools 5.0.0   5.6.0  wheel
-    pip_feedback = subprocess.run(
-        "pip list --outdated --pre", capture_output=True, shell=True, check=False
-    ).stdout.decode("utf-8")
-    _, latest, installed, *_ = pip_feedback.split()
-    if latest != installed:
-        print(
-            f"You are using dsp-tools version {installed}, but version {latest} is available."
-            "Consider upgrading via 'pip3 install --upgrade --pre dsp-tools'."
+    """Check if the installed version of dsp-tools is up-to-date. If not, print a warning message."""
+    response = requests.get("https://pypi.org/pypi/dsp-tools/json", timeout=15)
+    if not response.ok:
+        return
+    latest = parse(response.json()["info"]["version"])
+    installed = parse(version("dsp-tools"))
+    if latest > installed:
+        msg = colored(
+            f"You are using DSP-TOOLS version {installed}, but version {latest} is available. "
+            "Consider upgrading via 'pip3 install --upgrade --pre dsp-tools'.",
+            color="red",
         )
+        print(msg)
 
 
 def _parse_arguments(

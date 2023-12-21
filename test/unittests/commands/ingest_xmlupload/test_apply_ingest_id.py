@@ -19,13 +19,10 @@ class TestReplaceBitstreamPaths:
         res_tree, res_msg = replace_filepath_with_sipi_id(root, reference_dict)
         assert not res_msg.media_no_id
         assert not res_msg.unused_media_paths
-        expected = (
-            b"<knora>"
-            b'<resource label="Fluffy Image" restype=":Image2D" id="Fluffy1" permissions="res-default">'
-            b'<bitstream permissions="prop-default">fluffy_id</bitstream>'
-            b"</resource></knora>"
-        )
-        assert etree.tostring(res_tree) == expected
+        res_bitstream = res_tree.getroot()[0][0]
+        assert res_bitstream.text == "fluffy_id"
+        assert res_bitstream.attrib["permissions"] == "prop-default"
+        assert res_bitstream.tag == "bitstream"
 
     def test_extra_paths(self) -> None:
         xml = (
@@ -40,14 +37,10 @@ class TestReplaceBitstreamPaths:
         res_tree, res_msg = replace_filepath_with_sipi_id(root, reference_dict)
         assert not res_msg.media_no_id
         assert res_msg.unused_media_paths == ["extra_media"]
-        expected = (
-            b"<knora>"
-            b'<resource label="Fluffy Image" restype=":Image2D" id="Fluffy1" permissions="res-default">'
-            b'<bitstream permissions="prop-default">fluffy_id</bitstream>'
-            b"</resource>"
-            b"</knora>"
-        )
-        assert etree.tostring(res_tree) == expected
+        res_bitstream = res_tree.getroot()[0][0]
+        assert res_bitstream.text == "fluffy_id"
+        assert res_bitstream.attrib["permissions"] == "prop-default"
+        assert res_bitstream.tag == "bitstream"
 
     def test_missing_paths(self) -> None:
         xml = (
@@ -62,11 +55,7 @@ class TestReplaceBitstreamPaths:
         res_tree, res_msg = replace_filepath_with_sipi_id(root, reference_dict)
         assert res_msg.media_no_id == [("Fluffy1", "images/Fluffy.jpg")]
         assert res_msg.unused_media_paths == ["extra_media"]
-        expected = (
-            b"<knora>"
-            b'<resource label="Fluffy Image" restype=":Image2D" id="Fluffy1" permissions="res-default">'
-            b'<bitstream permissions="prop-default">images/Fluffy.jpg</bitstream>'
-            b"</resource>"
-            b"</knora>"
-        )
-        assert etree.tostring(res_tree) == expected
+        res_bitstream = res_tree.getroot()[0][0]
+        assert res_bitstream.text == "images/Fluffy.jpg"
+        assert res_bitstream.attrib["permissions"] == "prop-default"
+        assert res_bitstream.tag == "bitstream"

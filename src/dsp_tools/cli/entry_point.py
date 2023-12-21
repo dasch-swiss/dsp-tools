@@ -37,6 +37,7 @@ def run(args: list[str]) -> None:
         InternalError: if the user cannot fix it
         RetryError: if the problem may disappear when trying again later
     """
+    _check_version()
     default_dsp_api_url = "http://0.0.0.0:3333"
     default_sipi_url = "http://0.0.0.0:1024"
     root_user_email = "root@example.com"
@@ -72,6 +73,23 @@ def run(args: list[str]) -> None:
     if not success:
         logger.error("Terminate without success")
         sys.exit(1)
+
+
+def _check_version() -> None:
+    """
+    Check if the installed version of dsp-tools is up-to-date.
+    If not, print a warning message.
+    """
+    # format: dsp-tools 5.0.0   5.6.0  wheel
+    pip_feedback = subprocess.run(
+        "pip list --outdated --pre", capture_output=True, shell=True, check=False
+    ).stdout.decode("utf-8")
+    _, latest, installed, *_ = pip_feedback.split()
+    if latest != installed:
+        print(
+            f"You are using dsp-tools version {installed}, but version {latest} is available."
+            "Consider upgrading via 'pip3 install --upgrade --pre dsp-tools'."
+        )
 
 
 def _parse_arguments(

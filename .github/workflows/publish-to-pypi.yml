@@ -30,5 +30,5 @@ jobs:
         run: |
           rm -rf dist/ build/
           poetry exec bump-version  # bump version in pyproject.toml
-          poetry publish --build --repository="https://test.pypi.org/"    # generate distribution package and upload to PyPI
+            poetry publish --build --repository="https://test.pypi.org/legacy/"    # generate distribution package and upload to PyPI
 

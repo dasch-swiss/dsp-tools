@@ -45,6 +45,8 @@ def make_parser(
 
     _add_xmlupload(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
 
+    _add_ingest_xmlupload(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
+
     _add_fast_xmlupload(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
 
     _add_process_files(subparsers)
@@ -176,6 +178,23 @@ def _add_excel2json(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     subparser.set_defaults(action="excel2json")
     subparser.add_argument("excelfolder", help="path to the folder containing the Excel files")
     subparser.add_argument("project_definition", help="path to the output JSON file")
+
+
+def _add_ingest_xmlupload(
+    subparsers: _SubParsersAction[ArgumentParser],
+    default_dsp_api_url: str,
+    root_user_email: str,
+    root_user_pw: str,
+) -> None:
+    subparser = subparsers.add_parser(
+        name="ingest-xmlupload",
+        help="For internal use only: create resources with files already uploaded through dsp-ingest",
+    )
+    subparser.set_defaults(action="ingest-xmlupload")
+    subparser.add_argument("-s", "--server", default=default_dsp_api_url, help=dsp_server_text)
+    subparser.add_argument("-u", "--user", default=root_user_email, help=username_text)
+    subparser.add_argument("-p", "--password", default=root_user_pw, help=password_text)
+    subparser.add_argument("xml_file", help="path to XML file containing the data")
 
 
 def _add_fast_xmlupload(

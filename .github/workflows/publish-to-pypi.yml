@@ -26,9 +26,10 @@ jobs:
           curl -sSL https://install.python-poetry.org | python3 -
           poetry install
           poetry self add poetry-exec-plugin
+          poetry config repositories.testpypi https://test.pypi.org/legacy/
       - name: publish new version to PyPI
         run: |
           rm -rf dist/ build/
           poetry exec bump-version  # bump version in pyproject.toml
-            poetry publish --build --repository="https://test.pypi.org/simple/" -vvv    # generate distribution package and upload to PyPI
+          poetry publish --build --repository=testpypi -vvv    # generate distribution package and upload to PyPI
 

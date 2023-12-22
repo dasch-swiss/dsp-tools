@@ -85,7 +85,12 @@ def xmlupload(
 
     # establish connection to DSP server
     con = login(server=server, user=user, password=password, dump=config.diagnostics.dump)
-    sipi_con = ConnectionLive(sipi, dump=config.diagnostics.dump, token=con.get_token())
+    if config.media_previously_uploaded:
+        sipi_con = ConnectionLive(
+            sipi, dump=config.diagnostics.dump, token=con.get_token(), headers={"X-Asset-Ingested": "true"}
+        )
+    else:
+        sipi_con = ConnectionLive(sipi, dump=config.diagnostics.dump, token=con.get_token())
     sipi_server = Sipi(sipi_con)
 
     ontology_client = OntologyClientLive(

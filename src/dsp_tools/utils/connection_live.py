@@ -1,6 +1,6 @@
 import json
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from functools import partial
 from pathlib import Path
@@ -114,6 +114,7 @@ class ConnectionLive:
     dump: bool = False
     dump_directory = Path("HTTP requests")
     token: Optional[str] = None
+    headers: dict[str, str] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         """
@@ -175,7 +176,6 @@ class ConnectionLive:
         self,
         method: str,
         url: str,
-        headers: dict[str, str],
         jsondata: Optional[str],
         params: Optional[dict[str, Any]],
         response: requests.Response,
@@ -187,7 +187,6 @@ class ConnectionLive:
         Args:
             method: HTTP method (POST, GET, PUT, DELETE)
             url: complete URL (server + route of DSP-API) that was called
-            headers: headers of the HTTP request
             jsondata: data sent to the server
             params: additional parameters for the HTTP request
             response: response of the server
@@ -201,7 +200,7 @@ class ConnectionLive:
             "DSP server": self.server,
             "url": url,
             "method": method,
-            "headers": headers,
+            "headers": self.headers,
             "params": params,
             "body": json.loads(jsondata) if jsondata else None,
             "uploaded file": uploaded_file,
@@ -240,13 +239,12 @@ class ConnectionLive:
         if not route.startswith("/"):
             route = f"/{route}"
         url = self.server + route
-        headers = {"X-Asset-Ingested": "true"}
         if jsondata:
-            headers["Content-Type"] = "application/json; charset=UTF-8"
+            self.headers["Content-Type"] = "application/json; charset=UTF-8"
         if self.token:
-            headers["Authorization"] = f"Bearer {self.token}"
+            self.headers["Authorization"] = f"Bearer {self.token}"
 
-        request = partial(requests.post, url=url, headers=headers, timeout=timeout)
+        request = partial(requests.post, url=url, headers=self.headers, timeout=timeout)
         if jsondata:
             # if data is not encoded as bytes, issues can occur with non-ASCII characters,
             # where the content-length of the request will turn out to be different from the actual length
@@ -260,7 +258,6 @@ class ConnectionLive:
             self._write_request_to_file(
                 method="POST",
                 url=url,
-                headers=headers,
                 jsondata=jsondata,
                 uploaded_file=files["file"][0] if files else None,
                 params=None,
@@ -272,14 +269,12 @@ class ConnectionLive:
     def get(
         self,
         route: str,
-        headers: Optional[dict[str, str]] = None,
     ) -> dict[str, Any]:
         """
         Make a HTTP GET request to the server to which this connection has been established.
 
         Args:
             route: route that will be called on the server
-            headers: headers for the HTTP request
 
         Returns:
             response from server
@@ -287,15 +282,13 @@ class ConnectionLive:
         if not route.startswith("/"):
             route = f"/{route}"
         url = self.server + route
-        if not headers:
-            headers = {}
         if self.token:
-            headers["Authorization"] = f"Bearer {self.token}"
+            self.headers["Authorization"] = f"Bearer {self.token}"
 
         response: Response = _try_network_action(
             lambda: requests.get(
                 url=url,
-                headers=headers,
+                headers=self.headers,
                 timeout=20,
             )
         )
@@ -303,7 +296,6 @@ class ConnectionLive:
             self._write_request_to_file(
                 method="GET",
                 url=url,
-                headers=headers,
                 jsondata=None,
                 params=None,
                 response=response,
@@ -335,16 +327,15 @@ class ConnectionLive:
         if not route.startswith("/"):
             route = f"/{route}"
         url = self.server + route
-        headers = {}
         if jsondata:
-            headers["Content-Type"] = f"{content_type}; charset=UTF-8"
+            self.headers["Content-Type"] = f"{content_type}; charset=UTF-8"
         if self.token:
-            headers["Authorization"] = f"Bearer {self.token}"
+            self.headers["Authorization"] = f"Bearer {self.token}"
 
         response: Response = _try_network_action(
             lambda: requests.put(
                 url=url,
-                headers=headers,
+                headers=self.headers,
                 # if data is not encoded as bytes, issues can occur with non-ASCII characters,
                 # where the content-length of the request will turn out to be different from the actual length
                 data=jsondata.encode("utf-8") if jsondata else None,
@@ -355,7 +346,6 @@ class ConnectionLive:
             self._write_request_to_file(
                 method="PUT",
                 url=url,
-                headers=headers,
                 jsondata=jsondata,
                 params=None,
                 response=response,
@@ -381,12 +371,11 @@ class ConnectionLive:
         if not route.startswith("/"):
             route = f"/{route}"
         url = self.server + route
-        headers = {}
         if self.token:
-            headers["Authorization"] = f"Bearer {self.token}"
+            self.headers["Authorization"] = f"Bearer {self.token}"
         response = requests.delete(
             url=url,
-            headers=headers,
+            headers=self.headers,
             params=params,
             timeout=20,
         )
@@ -394,7 +383,6 @@ class ConnectionLive:
             self._write_request_to_file(
                 method="DELETE",
                 url=url,
-                headers=headers,
                 jsondata=None,
                 params=params,
                 response=response,

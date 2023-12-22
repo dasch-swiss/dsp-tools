@@ -15,8 +15,8 @@ class TestReplaceBitstreamPaths:
         root = etree.ElementTree(etree.fromstring(xml))
         reference_dict = {"images/Fluffy.jpg": "fluffy_id"}
         res_tree, ingest_info = replace_filepath_with_sipi_id(root, reference_dict)
-        assert not ingest_info.media_no_id
-        assert not ingest_info.unused_media_paths
+        assert not ingest_info.mediafiles_no_id
+        assert not ingest_info.unused_mediafiles
         res_bitstream = res_tree.getroot()[0][0]
         assert res_bitstream.text == "fluffy_id"
         assert res_bitstream.attrib["permissions"] == "prop-default"
@@ -33,8 +33,8 @@ class TestReplaceBitstreamPaths:
         root = etree.ElementTree(etree.fromstring(xml))
         reference_dict = {"images/Fluffy.jpg": "fluffy_id", "extra_media": "extra_id"}
         res_tree, ingest_info = replace_filepath_with_sipi_id(root, reference_dict)
-        assert not ingest_info.media_no_id
-        assert ingest_info.unused_media_paths == ["extra_media"]
+        assert not ingest_info.mediafiles_no_id
+        assert ingest_info.unused_mediafiles == ["extra_media"]
         res_bitstream = res_tree.getroot()[0][0]
         assert res_bitstream.text == "fluffy_id"
         assert res_bitstream.attrib["permissions"] == "prop-default"
@@ -51,8 +51,8 @@ class TestReplaceBitstreamPaths:
         root = etree.ElementTree(etree.fromstring(xml))
         reference_dict = {"extra_media": "extra_id"}
         res_tree, ingest_info = replace_filepath_with_sipi_id(root, reference_dict)
-        assert ingest_info.media_no_id == [("Fluffy1", "images/Fluffy.jpg")]
-        assert ingest_info.unused_media_paths == ["extra_media"]
+        assert ingest_info.mediafiles_no_id == [("Fluffy1", "images/Fluffy.jpg")]
+        assert ingest_info.unused_mediafiles == ["extra_media"]
         res_bitstream = res_tree.getroot()[0][0]
         assert res_bitstream.text == "images/Fluffy.jpg"
         assert res_bitstream.attrib["permissions"] == "prop-default"

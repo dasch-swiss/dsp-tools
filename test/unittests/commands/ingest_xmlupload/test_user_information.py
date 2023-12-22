@@ -42,7 +42,7 @@ class TestIngestInformation:
             "The upload cannot continue as there are problems with the multimedia files referenced in the XML.\n"
             "    The data XML file does not reference all the multimedia files "
             "which were previously uploaded through dsp-ingest.\n"
-            "    The file with the filenames was saved at './UnusedMediaUploadedInSipi.csv'.\n"
+            "    The file with the unused filenames was saved at './UnusedMediaUploadedInSipi.csv'.\n"
             "    The data XML file contains references to multimedia files "
             "which were not previously uploaded through dsp-ingest:\n"
             "    The file with the resource IDs and problematic filenames was saved at './FilesNotUploadedToSipi.csv'."
@@ -68,12 +68,12 @@ def test_unused_media_to_df() -> None:
         "unused_media1",
     ]
     expected = pd.DataFrame({"Multimedia Filenames": unused_media_list})
-    res_df = IngestInformation(unused_media_list, [], maximum_prints=1)._unused_media_to_df()
+    res_df = IngestInformation(unused_media_list, [], maximum_prints=1)._unused_mediafiles_to_df()
     assert_frame_equal(res_df, expected)
 
 
 def test_unused_media_to_df_not_enough() -> None:
-    assert not IngestInformation(["unused_media"], [], maximum_prints=1)._unused_media_to_df()
+    assert not IngestInformation(["unused_media"], [], maximum_prints=1)._unused_mediafiles_to_df()
 
 
 def test_no_id_to_df() -> None:
@@ -96,9 +96,9 @@ def test_no_id_to_df() -> None:
             ("ID_no_up1", "fileno_up1.jpg"),
         ],
         maximum_prints=1,
-    )._no_id_to_df()
+    )._mediafiles_no_id_to_df()
     assert_frame_equal(res_df, expected)
 
 
 def test_no_id_to_df_not_enough() -> None:
-    assert not IngestInformation([], [("ID_no_up0", "fileno_up0.jpg")])._unused_media_to_df()
+    assert not IngestInformation([], [("ID_no_up0", "fileno_up0.jpg")])._unused_mediafiles_to_df()

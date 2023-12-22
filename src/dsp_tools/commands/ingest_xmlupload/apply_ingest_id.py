@@ -53,14 +53,14 @@ def replace_filepath_with_sipi_id(
         Message informing if all referenced files were uploaded or not.
     """
     no_id_found = []
-    used_media_paths = []
+    used_media_file_paths = []
     new_tree = deepcopy(xml_tree)
     for elem in new_tree.iter():
         if etree.QName(elem).localname.endswith("bitstream"):
             if (img_path := elem.text) in orig_path_2_id_filename:
                 elem.text = orig_path_2_id_filename[img_path]
-                used_media_paths.append(img_path)
+                used_media_file_paths.append(img_path)
             else:
                 no_id_found.append((cast("etree._Element", elem.getparent()).attrib["id"], str(elem.text)))
-    unused_media_paths = [x for x in orig_path_2_id_filename if x not in used_media_paths]
-    return new_tree, IngestInformation(unused_media_paths=unused_media_paths, media_no_id=no_id_found)
+    unused_media_paths = [x for x in orig_path_2_id_filename if x not in used_media_file_paths]
+    return new_tree, IngestInformation(unused_mediafiles=unused_media_paths, mediafiles_no_id=no_id_found)

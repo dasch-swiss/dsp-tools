@@ -29,10 +29,11 @@ jobs:
           curl -sSL https://install.python-poetry.org | python3 -
           poetry install
           poetry self add poetry-exec-plugin
+      - name: bump version in pyproject.toml
+        run: poetry exec bump-version
       - name: publish new version to PyPI
         run: |
           rm -rf dist/ build/
-          poetry exec bump-version  # bump version in pyproject.toml
           poetry publish --build    # generate distribution package and upload to PyPI
 
   notification:

@@ -1,11 +1,7 @@
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
 
 import pandas as pd
-
-# pylint: disable=too-few-public-methods
-
 
 separator = "\n    "
 list_separator = "\n    - "
@@ -19,11 +15,11 @@ class IngestInformation:
     """
 
     unused_media_paths: list[str]
-    media_no_id: list[tuple[str, str] | Any]
+    media_no_id: list[tuple[str, str]]
     maximum_prints: int = field(default=20)
-    csv_filepath: Path = field(default=Path.cwd())
+    csv_directory_path: Path = field(default=Path.cwd())
     unused_media_filename: str = "UnusedMediaUploadedInSipi.csv"
-    no_id_filename: str = "NotUploadedFilesToSipi.csv"
+    no_id_filename: str = "FilesNotUploadedToSipi.csv"
 
     def ok_msg(self) -> str | None:
         """
@@ -49,7 +45,7 @@ class IngestInformation:
         Returns:
             User message
         """
-        self._check_csv_if_applicable()
+        self._save_csv_if_applicable()
         return self._get_error_msg()
 
     def _get_error_msg(self) -> str:
@@ -74,8 +70,8 @@ class IngestInformation:
             return (
                 "The data XML file contains references to multimedia files "
                 "which were not previously uploaded through dsp-ingest:\n"
-                f"    The file with the resource IDs and filenames was saved at "
-                f"'{self.csv_filepath}/{self.no_id_filename}'."
+                f"    The file with the resource IDs and problematic filenames was saved at "
+                f"'{self.csv_directory_path}/{self.no_id_filename}'."
             )
         return None
 
@@ -89,16 +85,16 @@ class IngestInformation:
             return (
                 "The data XML file does not reference all the multimedia files which were previously "
                 "uploaded through dsp-ingest.\n"
-                f"    The file with the resource IDs and filenames was saved at "
-                f"'{self.csv_filepath}/{self.no_id_filename}'."
+                f"    The file with the filenames was saved at "
+                f"'{self.csv_directory_path}/{self.unused_media_filename}'."
             )
         return None
 
-    def _check_csv_if_applicable(self) -> None:
+    def _save_csv_if_applicable(self) -> None:
         if unused_media_df := self._unused_media_to_df():
-            _save_as_csv(unused_media_df, self.csv_filepath, self.unused_media_filename)
+            _save_as_csv(unused_media_df, self.csv_directory_path, self.unused_media_filename)
         if no_id_df := self._no_id_to_df():
-            _save_as_csv(no_id_df, self.csv_filepath, self.no_id_filename)
+            _save_as_csv(no_id_df, self.csv_directory_path, self.no_id_filename)
 
     def _unused_media_to_df(self) -> pd.DataFrame | None:
         return (
@@ -117,5 +113,5 @@ class IngestInformation:
         )
 
 
-def _save_as_csv(df: pd.DataFrame, filepath: Path, filename: str) -> None:
-    df.to_csv(Path(filepath, filename), index=False)
+def _save_as_csv(df: pd.DataFrame, directory_path: Path, filename: str) -> None:
+    df.to_csv(Path(directory_path, filename), index=False)

@@ -1,5 +1,3 @@
-# pylint: disable=missing-class-docstring,missing-function-docstring,protected-access
-
 from pathlib import Path
 
 import pandas as pd
@@ -44,10 +42,10 @@ class TestIngestInformation:
             "The upload cannot continue as there are problems with the multimedia files referenced in the XML.\n"
             "    The data XML file does not reference all the multimedia files "
             "which were previously uploaded through dsp-ingest.\n"
-            "    The file with the resource IDs and filenames was saved at './NotUploadedFilesToSipi.csv'.\n"
+            "    The file with the filenames was saved at './UnusedMediaUploadedInSipi.csv'.\n"
             "    The data XML file contains references to multimedia files "
             "which were not previously uploaded through dsp-ingest:\n"
-            "    The file with the resource IDs and filenames was saved at './NotUploadedFilesToSipi.csv'."
+            "    The file with the resource IDs and problematic filenames was saved at './FilesNotUploadedToSipi.csv'."
         )
         res_info = IngestInformation(
             [
@@ -55,10 +53,10 @@ class TestIngestInformation:
                 "unused_media1",
             ],
             [
-                "no_up0",
-                "no_up1",
+                ("no_up0_id", "no_up0_file"),
+                ("no_up1_id", "no_up1_file"),
             ],
-            csv_filepath=Path(),
+            csv_directory_path=Path(),
             maximum_prints=1,
         )._get_error_msg()
         assert res_info == expected

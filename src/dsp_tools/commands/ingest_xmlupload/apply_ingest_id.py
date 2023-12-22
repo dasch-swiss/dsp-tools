@@ -28,14 +28,13 @@ def get_mapping_dict_from_file(shortcode: str) -> dict[str, str]:
         InputError: if no file was found
     """
     filepath = Path(f"mapping-{shortcode}.csv")
-    if filepath.exists():
-        df = pd.read_csv(filepath)
-        msg = f"The file '{filepath}' is used to map the internal SIPI image IDs to the original filepaths."
-        print(msg)
-        logger.info(msg)
-        return dict(zip(df["original"].tolist(), df["derivative"].tolist()))
-    else:
-        raise InputError(f"No mapping CSV file was found in the current working directory {Path.cwd()}")
+    if not filepath.is_file():
+        raise InputError(f"No mapping CSV file was found at {filepath}.")
+    df = pd.read_csv(filepath)
+    msg = f"The file '{filepath}' is used to map the internal SIPI image IDs to the original filepaths."
+    print(msg)
+    logger.info(msg)
+    return dict(zip(df["original"].tolist(), df["derivative"].tolist()))
 
 
 def replace_filepath_with_sipi_id(
@@ -50,7 +49,7 @@ def replace_filepath_with_sipi_id(
         orig_path_2_id_filename: Mapping from original filenames to id filenames from the mapping.csv
 
     Returns:
-        The XML tree with the replaced filepaths (modified in place)
+        A copy of the XMl tree, with the replaced filepaths.
         Message informing if all referenced files were uploaded or not.
     """
     no_id_found = []
@@ -62,6 +61,6 @@ def replace_filepath_with_sipi_id(
                 elem.text = orig_path_2_id_filename[img_path]
                 used_media_paths.append(img_path)
             else:
-                no_id_found.append((cast("etree._Element", elem.getparent()).attrib.get("id"), elem.text))
+                no_id_found.append((cast("etree._Element", elem.getparent()).attrib["id"], str(elem.text)))
     unused_media_paths = [x for x in orig_path_2_id_filename if x not in used_media_paths]
     return new_tree, IngestInformation(unused_media_paths=unused_media_paths, media_no_id=no_id_found)

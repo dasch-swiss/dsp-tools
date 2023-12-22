@@ -1,5 +1,6 @@
 import shutil
 from pathlib import Path
+from typing import Iterator
 
 import pytest
 
@@ -8,7 +9,7 @@ from dsp_tools.models.exceptions import InputError
 
 
 @pytest.fixture()
-def _retrieve_mapping_file() -> None:  # type: ignore[misc]
+def _retrieve_mapping_file() -> Iterator[None]:
     """Put the mapping file into the cwd."""
     mapping_file = Path("testdata/dsp-ingest-data/mapping-00A2.csv")
     shutil.copy(mapping_file, ".")

@@ -28,7 +28,7 @@ def ingest_xmlupload(
     This function reads an XML file
     and imports the data described in it onto the DSP server,
     using the ingest XML upload method.
-    Before using this method,
+    Before using this function,
     the multimedia files must be ingested on the DSP server.
     A mapping file with the internal IDs of the multimedia files must also be provided.
 
@@ -56,7 +56,7 @@ def ingest_xmlupload(
         logger.info(ok)
     else:
         err_msg = ingest_info.execute_error_protocol()
-        logger.exception(err_msg)
+        logger.error(err_msg)
         raise InputError(err_msg)
 
     xmlupload(

@@ -1,4 +1,4 @@
-from typing import Any, Protocol
+from typing import Any, Optional, Protocol
 
 
 class Connection(Protocol):
@@ -15,18 +15,21 @@ class Connection(Protocol):
     def get(
         self,
         route: str,
+        headers: Optional[dict[str, str]] | None = None,
     ) -> dict[str, Any]:
         """
         Make a HTTP GET request to the server to which this connection has been established.
 
         Args:
             route: route that will be called on the server
+            headers: headers for the HTTP request
         """
 
     def put(
         self,
         route: str,
         jsondata: str | None = None,
+        headers: Optional[dict[str, str]] | None = None,
         content_type: str = "application/json",
     ) -> dict[str, Any]:
         """
@@ -35,6 +38,7 @@ class Connection(Protocol):
         Args:
             route: route that will be called on the server
             jsondata: Valid JSON as string
+            headers: headers for the HTTP request
             content_type: HTTP Content-Type [default: 'application/json']
         """
 
@@ -43,6 +47,7 @@ class Connection(Protocol):
         route: str,
         jsondata: str | None = None,
         files: dict[str, tuple[str, Any]] | None = None,
+        headers: Optional[dict[str, str]] | None = None,
         timeout: int | None = None,
     ) -> dict[str, Any]:
         """
@@ -52,6 +57,7 @@ class Connection(Protocol):
             route: route that will be called on the server
             jsondata: Valid JSON as string
             files: files to be uploaded, if any
+            headers: headers for the HTTP request
             timeout: timeout of the HTTP request, or None if the default should be used
         """
 
@@ -59,6 +65,7 @@ class Connection(Protocol):
         self,
         route: str,
         params: dict[str, Any] | None = None,
+        headers: Optional[dict[str, str]] | None = None,
     ) -> dict[str, Any]:
         """
         Make a HTTP GET request to the server to which this connection has been established.
@@ -66,6 +73,7 @@ class Connection(Protocol):
         Args:
             route: route that will be called on the server
             params: additional parameters for the HTTP request
+            headers: headers for the HTTP request
         """
 
     def get_token(self) -> str:

@@ -179,6 +179,7 @@ class ConnectionLive:
         jsondata: Optional[str],
         params: Optional[dict[str, Any]],
         response: requests.Response,
+        headers: Optional[dict[str, str]] | None = None,
         uploaded_file: Optional[str] = None,
     ) -> None:
         """
@@ -190,6 +191,7 @@ class ConnectionLive:
             jsondata: data sent to the server
             params: additional parameters for the HTTP request
             response: response of the server
+            headers: headers of the HTTP request
             uploaded_file: path to the file that was uploaded, if any
         """
         if response.status_code == 200:
@@ -200,7 +202,7 @@ class ConnectionLive:
             "DSP server": self.server,
             "url": url,
             "method": method,
-            "headers": self.headers,
+            "headers": headers,
             "params": params,
             "body": json.loads(jsondata) if jsondata else None,
             "uploaded file": uploaded_file,
@@ -266,6 +268,7 @@ class ConnectionLive:
                 uploaded_file=files["file"][0] if files else None,
                 params=None,
                 response=response,
+                headers=self.headers,
             )
         check_for_api_error(response)
         return cast(dict[str, Any], response.json())
@@ -307,6 +310,7 @@ class ConnectionLive:
                 jsondata=None,
                 params=None,
                 response=response,
+                headers=self.headers,
             )
         check_for_api_error(response)
         return cast(dict[str, Any], response.json())
@@ -361,6 +365,7 @@ class ConnectionLive:
                 jsondata=jsondata,
                 params=None,
                 response=response,
+                headers=self.headers,
             )
         check_for_api_error(response)
         return cast(dict[str, Any], response.json())
@@ -402,6 +407,7 @@ class ConnectionLive:
                 jsondata=None,
                 params=params,
                 response=response,
+                headers=self.headers,
             )
         check_for_api_error(response)
         return cast(dict[str, Any], response.json())

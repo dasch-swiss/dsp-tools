@@ -7,6 +7,9 @@ import sys
 from importlib.metadata import version
 
 import regex
+import requests
+from packaging.version import parse
+from termcolor import colored
 
 from dsp_tools.cli.call_action import call_requested_action
 from dsp_tools.cli.create_parsers import make_parser
@@ -37,6 +40,7 @@ def run(args: list[str]) -> None:
         InternalError: if the user cannot fix it
         RetryError: if the problem may disappear when trying again later
     """
+    _check_version()
     default_dsp_api_url = "http://0.0.0.0:3333"
     default_sipi_url = "http://0.0.0.0:1024"
     root_user_email = "root@example.com"
@@ -72,6 +76,22 @@ def run(args: list[str]) -> None:
     if not success:
         logger.error("Terminate without success")
         sys.exit(1)
+
+
+def _check_version() -> None:
+    """Check if the installed version of dsp-tools is up-to-date. If not, print a warning message."""
+    response = requests.get("https://pypi.org/pypi/dsp-tools/json", timeout=15)
+    if not response.ok:
+        return
+    latest = parse(response.json()["info"]["version"])
+    installed = parse(version("dsp-tools"))
+    if latest > installed:
+        msg = colored(
+            f"You are using DSP-TOOLS version {installed}, but version {latest} is available. "
+            "Consider upgrading via 'pip3 install --upgrade --pre dsp-tools'.",
+            color="red",
+        )
+        print(msg)
 
 
 def _parse_arguments(

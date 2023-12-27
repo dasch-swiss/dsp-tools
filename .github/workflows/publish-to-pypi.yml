@@ -3,8 +3,9 @@
 name: Publish to PyPI
 
 on:
-  release:
-    types: [released]
+  push:
+    branches:
+      - main
 
 env:
   TOKEN: ${{ secrets.GH_TOKEN }}
@@ -18,7 +19,7 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@v3
         with:
-          fetch-depth: 1
+          fetch-depth: 0
       - name: Set up Python 3.12
         uses: actions/setup-python@v4
         with:
@@ -27,6 +28,9 @@ jobs:
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
           poetry install
+          poetry self add poetry-exec-plugin
+      - name: bump version in pyproject.toml
+        run: poetry exec bump-version
       - name: publish new version to PyPI
         run: |
           rm -rf dist/ build/

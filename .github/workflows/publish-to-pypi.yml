@@ -26,9 +26,10 @@ jobs:
           poetry install
           poetry self add poetry-exec-plugin
           poetry config repositories.testpypi https://test.pypi.org/legacy/
+          poetry config pypi-token.testpypi ${{ secrets.TEST_PYPI_TOKEN }}
       - name: bump version in pyproject.toml
         run: poetry exec bump-version
       - name: publish new version to PyPI
         run: |
           rm -rf dist/ build/
-          poetry publish --build -u="__token__" -p=${{ secrets.TEST_PYPI_TOKEN }} --repository=testpypi -vvv    # generate distribution package and upload to PyPI
+          poetry publish --build -u="__token__" --repository=testpypi -vvv    # generate distribution package and upload to PyPI

@@ -7,7 +7,6 @@ on:
 
 env:
   TOKEN: ${{ secrets.GH_TOKEN }}
-  POETRY_PYPI_TOKEN_PYPI: ${{ secrets.TEST_PYPI_TOKEN }}
 
 jobs:
   publish-to-pypi:
@@ -32,4 +31,4 @@ jobs:
       - name: publish new version to PyPI
         run: |
           rm -rf dist/ build/
-          poetry publish --build -u="__token__" --repository=testpypi -vvv    # generate distribution package and upload to PyPI
+          poetry publish --build -u="__token__" -p=${{ secrets.TEST_PYPI_TOKEN }} --repository=testpypi -vvv    # generate distribution package and upload to PyPI

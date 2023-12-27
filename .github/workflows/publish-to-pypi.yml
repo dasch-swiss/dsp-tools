@@ -32,4 +32,5 @@ jobs:
       - name: publish new version to PyPI
         run: |
           rm -rf dist/ build/
-          poetry publish --build -u="__token__" --repository=testpypi -vvv    # generate distribution package and upload to PyPI
+          poetry build      # generate distribution package
+          poetry publish -u="__token__" --repository=testpypi -vvv   # upload distribution package to PyPI

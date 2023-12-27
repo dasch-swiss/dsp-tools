@@ -9,8 +9,8 @@ on:
 
 env:
   TOKEN: ${{ secrets.GH_TOKEN }}
-  POETRY_HTTP_BASIC_PYPI_USERNAME: ${{ secrets.PYPI_USER }}
-  POETRY_HTTP_BASIC_PYPI_PASSWORD: ${{ secrets.PYPI_PW }}
+  POETRY_HTTP_BASIC_PYPI_USERNAME: __token__
+  POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_DASCHBOT_TOKEN }}
 
 jobs:
   publish-to-pypi:

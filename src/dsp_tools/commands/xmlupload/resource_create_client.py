@@ -29,6 +29,7 @@ class ResourceCreateClient:
     json_ld_context: dict[str, str]
     permissions_lookup: dict[str, Permissions]
     listnode_lookup: dict[str, str]
+    media_previously_ingested: bool = False
 
     def create_resource(
         self,
@@ -41,7 +42,8 @@ class ResourceCreateClient:
         )
         resource_dict = self._make_resource_with_values(resource, bitstream_information)
         resource_json_ld = json.dumps(resource_dict, ensure_ascii=False)
-        res = self.con.post(route="/v2/resources", jsondata=resource_json_ld)
+        headers = {"X-Asset-Ingested": "true"} if self.media_previously_ingested else None
+        res = self.con.post(route="/v2/resources", jsondata=resource_json_ld, headers=headers)
         iri = res["@id"]
         label = res["rdfs:label"]
         return iri, label

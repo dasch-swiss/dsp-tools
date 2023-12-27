@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Optional
 
 # ruff: noqa: ARG002 (unused-method-argument)
 
@@ -8,13 +8,19 @@ from typing import Any
 class ConnectionMockBase:
     """
     Base mock for the Connection class.
-    Does not have any capabilities but subclasses can override methods.
+    Does not have any capabilities, but subclasses can override methods.
     """
 
     def get(self, route: str, headers: dict[str, str] | None = None) -> dict[str, Any]:
         raise AssertionError("GET not implemented in mock")
 
-    def put(self, route: str, jsondata: str | None = None, content_type: str = "application/json") -> dict[str, Any]:
+    def put(
+        self,
+        route: str,
+        jsondata: str | None = None,
+        headers: Optional[dict[str, str]] | None = None,
+        content_type: str = "application/json",
+    ) -> dict[str, Any]:
         raise AssertionError("PUT not implemented in mock")
 
     def post(
@@ -22,11 +28,14 @@ class ConnectionMockBase:
         route: str,
         jsondata: str | None = None,
         files: dict[str, tuple[str, Any]] | None = None,
+        headers: Optional[dict[str, str]] | None = None,
         timeout: int | None = None,
     ) -> dict[str, Any]:
         raise AssertionError("POST not implemented in mock")
 
-    def delete(self, route: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
+    def delete(
+        self, route: str, params: dict[str, Any] | None = None, headers: Optional[dict[str, str]] | None = None
+    ) -> dict[str, Any]:
         raise AssertionError("DELETE not implemented in mock")
 
     def get_token(self) -> str:

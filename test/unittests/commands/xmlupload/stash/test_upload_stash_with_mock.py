@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from test.unittests.commands.xmlupload.connection_mock import ConnectionMockBase
-from typing import Any
+from typing import Any, Optional
 from uuid import uuid4
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
@@ -55,6 +55,7 @@ class ConnectionMock(ConnectionMockBase):
         route: str,
         jsondata: str | None = None,
         files: dict[str, tuple[str, Any]] | None = None,
+        headers: Optional[dict[str, str]] | None = None,
         timeout: int | None = None,
     ) -> dict[str, Any]:
         return self.post_responses.pop(0)
@@ -63,6 +64,7 @@ class ConnectionMock(ConnectionMockBase):
         self,
         route: str,
         jsondata: str | None = None,
+        headers: Optional[dict[str, str]] | None = None,
         content_type: str = "application/json",
     ) -> dict[str, Any]:
         return self.put_responses.pop(0)

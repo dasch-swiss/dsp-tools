@@ -1,6 +1,6 @@
 import json
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 from functools import partial
 from pathlib import Path
@@ -114,7 +114,6 @@ class ConnectionLive:
     dump: bool = False
     dump_directory = Path("HTTP requests")
     token: Optional[str] = None
-    headers: dict[str, str] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         """
@@ -246,11 +245,11 @@ class ConnectionLive:
         if not headers:
             headers = {}
         if jsondata:
-            self.headers["Content-Type"] = "application/json; charset=UTF-8"
+            headers["Content-Type"] = "application/json; charset=UTF-8"
         if self.token:
-            self.headers["Authorization"] = f"Bearer {self.token}"
+            headers["Authorization"] = f"Bearer {self.token}"
 
-        request = partial(requests.post, url=url, headers=self.headers, timeout=timeout)
+        request = partial(requests.post, url=url, headers=headers, timeout=timeout)
         if jsondata:
             # if data is not encoded as bytes, issues can occur with non-ASCII characters,
             # where the content-length of the request will turn out to be different from the actual length
@@ -268,7 +267,7 @@ class ConnectionLive:
                 uploaded_file=files["file"][0] if files else None,
                 params=None,
                 response=response,
-                headers=self.headers,
+                headers=headers,
             )
         check_for_api_error(response)
         return cast(dict[str, Any], response.json())
@@ -294,12 +293,12 @@ class ConnectionLive:
         if not headers:
             headers = {}
         if self.token:
-            self.headers["Authorization"] = f"Bearer {self.token}"
+            headers["Authorization"] = f"Bearer {self.token}"
 
         response: Response = _try_network_action(
             lambda: requests.get(
                 url=url,
-                headers=self.headers,
+                headers=headers,
                 timeout=20,
             )
         )
@@ -310,7 +309,7 @@ class ConnectionLive:
                 jsondata=None,
                 params=None,
                 response=response,
-                headers=self.headers,
+                headers=headers,
             )
         check_for_api_error(response)
         return cast(dict[str, Any], response.json())
@@ -344,14 +343,14 @@ class ConnectionLive:
         if not headers:
             headers = {}
         if jsondata:
-            self.headers["Content-Type"] = f"{content_type}; charset=UTF-8"
+            headers["Content-Type"] = f"{content_type}; charset=UTF-8"
         if self.token:
-            self.headers["Authorization"] = f"Bearer {self.token}"
+            headers["Authorization"] = f"Bearer {self.token}"
 
         response: Response = _try_network_action(
             lambda: requests.put(
                 url=url,
-                headers=self.headers,
+                headers=headers,
                 # if data is not encoded as bytes, issues can occur with non-ASCII characters,
                 # where the content-length of the request will turn out to be different from the actual length
                 data=jsondata.encode("utf-8") if jsondata else None,
@@ -365,7 +364,7 @@ class ConnectionLive:
                 jsondata=jsondata,
                 params=None,
                 response=response,
-                headers=self.headers,
+                headers=headers,
             )
         check_for_api_error(response)
         return cast(dict[str, Any], response.json())
@@ -393,10 +392,10 @@ class ConnectionLive:
         if not headers:
             headers = {}
         if self.token:
-            self.headers["Authorization"] = f"Bearer {self.token}"
+            headers["Authorization"] = f"Bearer {self.token}"
         response = requests.delete(
             url=url,
-            headers=self.headers,
+            headers=headers,
             params=params,
             timeout=20,
         )
@@ -407,7 +406,7 @@ class ConnectionLive:
                 jsondata=None,
                 params=params,
                 response=response,
-                headers=self.headers,
+                headers=headers,
             )
         check_for_api_error(response)
         return cast(dict[str, Any], response.json())

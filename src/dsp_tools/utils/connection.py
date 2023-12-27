@@ -15,14 +15,12 @@ class Connection(Protocol):
     def get(
         self,
         route: str,
-        headers: dict[str, str] | None = None,
     ) -> dict[str, Any]:
         """
         Make a HTTP GET request to the server to which this connection has been established.
 
         Args:
             route: route that will be called on the server
-            headers: headers for the HTTP request
         """
 
     def put(

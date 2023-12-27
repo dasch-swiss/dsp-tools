@@ -49,7 +49,7 @@ class DiagnosticsConfig:
 class UploadConfig:
     """Configuration for the upload process."""
 
-    preprocessing_done: bool = False
+    media_previously_uploaded: bool = False
     server: str = "unknown"
     shortcode: str = "unknown"
     diagnostics: DiagnosticsConfig = field(default_factory=DiagnosticsConfig)

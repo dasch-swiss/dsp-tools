@@ -1,4 +1,5 @@
 import argparse
+from pathlib import Path
 
 from dsp_tools.commands.excel2json.lists import excel2lists, validate_lists_section_with_schema
 from dsp_tools.commands.excel2json.project import excel2json
@@ -9,6 +10,7 @@ from dsp_tools.commands.fast_xmlupload.process_files import process_files
 from dsp_tools.commands.fast_xmlupload.upload_files import upload_files
 from dsp_tools.commands.fast_xmlupload.upload_xml import fast_xmlupload
 from dsp_tools.commands.id2iri import id2iri
+from dsp_tools.commands.ingest_xmlupload.upload_xml import ingest_xmlupload
 from dsp_tools.commands.project.create.project_create import create_project
 from dsp_tools.commands.project.create.project_create_lists import create_lists
 from dsp_tools.commands.project.create.project_validate import validate_project
@@ -68,6 +70,8 @@ def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0911 (T
             return _call_upload_files(args)
         case "fast-xmlupload":
             return _call_fast_xmlupload(args)
+        case "ingest-xmlupload":
+            return _call_ingest_xmlupload(args)
         case "template":
             return generate_template_repo()
         case "rosetta":
@@ -142,6 +146,17 @@ def _call_excel2json(args: argparse.Namespace) -> bool:
         data_model_files=args.excelfolder,
         path_to_output_file=args.project_definition,
     )
+
+
+def _call_ingest_xmlupload(args: argparse.Namespace) -> bool:
+    ingest_xmlupload(
+        xml_file=Path(args.xml_file),
+        user=args.user,
+        password=args.password,
+        dsp_url=args.server,
+        sipi_url=args.sipi_url,
+    )
+    return True
 
 
 def _call_fast_xmlupload(args: argparse.Namespace) -> bool:

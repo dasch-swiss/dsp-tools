@@ -74,7 +74,7 @@ def xmlupload(
     default_ontology, root, shortcode = validate_and_parse_xml_file(
         input_file=input_file,
         imgdir=imgdir,
-        preprocessing_done=config.preprocessing_done,
+        preprocessing_done=config.media_previously_uploaded,
     )
 
     config = config.with_server_info(
@@ -85,7 +85,12 @@ def xmlupload(
 
     # establish connection to DSP server
     con = login(server=server, user=user, password=password, dump=config.diagnostics.dump)
-    sipi_con = ConnectionLive(sipi, dump=config.diagnostics.dump, token=con.get_token())
+    if config.media_previously_uploaded:
+        sipi_con = ConnectionLive(
+            sipi, dump=config.diagnostics.dump, token=con.get_token(), headers={"X-Asset-Ingested": "true"}
+        )
+    else:
+        sipi_con = ConnectionLive(sipi, dump=config.diagnostics.dump, token=con.get_token())
     sipi_server = Sipi(sipi_con)
 
     ontology_client = OntologyClientLive(
@@ -338,7 +343,7 @@ def _upload_resources(
 
     for i, resource in enumerate(resources):
         success, media_info = handle_media_info(
-            resource, config.preprocessing_done, sipi_server, imgdir, permissions_lookup
+            resource, config.media_previously_uploaded, sipi_server, imgdir, permissions_lookup
         )
         if not success:
             failed_uploads.append(resource.res_id)

@@ -7,8 +7,8 @@ on:
 
 env:
   TOKEN: ${{ secrets.GH_TOKEN }}
-  POETRY_HTTP_BASIC_PYPI_USERNAME: __token__
-  POETRY_PYPI_TOKEN_PYPI: ${{ secrets.TEST_PYPI_TOKEN }}
+  POETRY_HTTP_BASIC_TESTPYPI_USERNAME: __token__
+  POETRY_PYPI_TOKEN_TESTPYPI: ${{ secrets.TEST_PYPI_TOKEN }}
 
 jobs:
   publish-to-pypi:

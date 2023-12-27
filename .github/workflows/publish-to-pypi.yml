@@ -3,14 +3,12 @@
 name: Publish to PyPI
 
 on:
-  push:
-    branches:
-      - main
+  push
 
 env:
   TOKEN: ${{ secrets.GH_TOKEN }}
-  POETRY_HTTP_BASIC_PYPI_USERNAME: ${{ secrets.PYPI_USER }}
-  POETRY_HTTP_BASIC_PYPI_PASSWORD: ${{ secrets.PYPI_PW }}
+  POETRY_HTTP_BASIC_PYPI_USERNAME: __token__
+  POETRY_PYPI_TOKEN_PYPI: ${{ secrets.TEST_PYPI_TOKEN }}
 
 jobs:
   publish-to-pypi:
@@ -34,15 +32,6 @@ jobs:
       - name: publish new version to PyPI
         run: |
           rm -rf dist/ build/
+          poetry config repositories.testpypi https://test.pypi.org/legacy/
           poetry build      # generate distribution package
-          poetry publish    # upload distribution package to PyPI
-
-  notification:
-    name: Google chat notification about release and published version
-    needs: [publish-to-pypi]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Send notification to google chat room "DSP releases"
-        uses: lakto/google-chat-action@main
-        with:
-          url: ${{ secrets.GOOGLE_CHAT_DSP_RELEASES_WEBHOOK_URL }}
+          poetry publish --repository=testpypi -vvv   # upload distribution package to PyPI

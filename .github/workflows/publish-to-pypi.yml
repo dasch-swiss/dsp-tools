@@ -34,7 +34,8 @@ jobs:
       - name: publish new version to PyPI
         run: |
           rm -rf dist/ build/
-          poetry publish --build    # generate distribution package and upload to PyPI
+          poetry build      # generate distribution package
+          poetry publish    # upload distribution package to PyPI
 
   notification:
     name: Google chat notification about release and published version

@@ -1,4 +1,4 @@
-from typing import Any, Optional, Protocol
+from typing import Any, Protocol
 
 
 class Connection(Protocol):
@@ -15,7 +15,7 @@ class Connection(Protocol):
     def get(
         self,
         route: str,
-        headers: Optional[dict[str, str]] | None = None,
+        headers: dict[str, str] | None = None,
     ) -> dict[str, Any]:
         """
         Make a HTTP GET request to the server to which this connection has been established.
@@ -29,7 +29,7 @@ class Connection(Protocol):
         self,
         route: str,
         jsondata: str | None = None,
-        headers: Optional[dict[str, str]] | None = None,
+        headers: dict[str, str] | None = None,
         content_type: str = "application/json",
     ) -> dict[str, Any]:
         """
@@ -47,7 +47,7 @@ class Connection(Protocol):
         route: str,
         jsondata: str | None = None,
         files: dict[str, tuple[str, Any]] | None = None,
-        headers: Optional[dict[str, str]] | None = None,
+        headers: dict[str, str] | None = None,
         timeout: int | None = None,
     ) -> dict[str, Any]:
         """
@@ -65,7 +65,7 @@ class Connection(Protocol):
         self,
         route: str,
         params: dict[str, Any] | None = None,
-        headers: Optional[dict[str, str]] | None = None,
+        headers: dict[str, str] | None = None,
     ) -> dict[str, Any]:
         """
         Make a HTTP GET request to the server to which this connection has been established.

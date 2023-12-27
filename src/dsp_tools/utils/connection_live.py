@@ -178,7 +178,7 @@ class ConnectionLive:
         jsondata: Optional[str],
         params: Optional[dict[str, Any]],
         response: requests.Response,
-        headers: Optional[dict[str, str]] | None = None,
+        headers: dict[str, str] | None = None,
         uploaded_file: Optional[str] = None,
     ) -> None:
         """
@@ -218,7 +218,7 @@ class ConnectionLive:
         route: str,
         jsondata: Optional[str] = None,
         files: dict[str, tuple[str, Any]] | None = None,
-        headers: Optional[dict[str, str]] | None = None,
+        headers: dict[str, str] | None = None,
         timeout: int | None = None,
     ) -> dict[str, Any]:
         """
@@ -275,7 +275,7 @@ class ConnectionLive:
     def get(
         self,
         route: str,
-        headers: Optional[dict[str, str]] | None = None,
+        headers: dict[str, str] | None = None,
     ) -> dict[str, Any]:
         """
         Make a HTTP GET request to the server to which this connection has been established.
@@ -318,7 +318,7 @@ class ConnectionLive:
         self,
         route: str,
         jsondata: Optional[str] = None,
-        headers: Optional[dict[str, str]] | None = None,
+        headers: dict[str, str] | None = None,
         content_type: str = "application/json",
     ) -> dict[str, Any]:
         """
@@ -373,7 +373,7 @@ class ConnectionLive:
         self,
         route: str,
         params: Optional[dict[str, Any]] = None,
-        headers: Optional[dict[str, str]] | None = None,
+        headers: dict[str, str] | None = None,
     ) -> dict[str, Any]:
         """
         Make a HTTP GET request to the server to which this connection has been established.

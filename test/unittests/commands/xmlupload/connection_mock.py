@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Any
 
 # ruff: noqa: ARG002 (unused-method-argument)
 
@@ -18,7 +18,7 @@ class ConnectionMockBase:
         self,
         route: str,
         jsondata: str | None = None,
-        headers: Optional[dict[str, str]] | None = None,
+        headers: dict[str, str] | None = None,
         content_type: str = "application/json",
     ) -> dict[str, Any]:
         raise AssertionError("PUT not implemented in mock")
@@ -28,13 +28,16 @@ class ConnectionMockBase:
         route: str,
         jsondata: str | None = None,
         files: dict[str, tuple[str, Any]] | None = None,
-        headers: Optional[dict[str, str]] | None = None,
+        headers: dict[str, str] | None = None,
         timeout: int | None = None,
     ) -> dict[str, Any]:
         raise AssertionError("POST not implemented in mock")
 
     def delete(
-        self, route: str, params: dict[str, Any] | None = None, headers: Optional[dict[str, str]] | None = None
+        self,
+        route: str,
+        params: dict[str, Any] | None = None,
+        headers: dict[str, str] | None = None,
     ) -> dict[str, Any]:
         raise AssertionError("DELETE not implemented in mock")
 

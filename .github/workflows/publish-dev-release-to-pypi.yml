@@ -1,0 +1,37 @@
+---
+
+name: Publish dev-release to PyPI
+
+on:
+  pull_request:
+    types:
+      - closed
+
+env:
+  TOKEN: ${{ secrets.GH_TOKEN }}
+
+jobs:
+  publish-dev-release-to-pypi:
+    if: github.event.pull_request.merged == true && (contains(github.event.pull_request.title, 'fix') || contains(github.event.pull_request.title, 'feat'))
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
+      - name: Install dependencies
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          poetry install
+          poetry self add poetry-exec-plugin
+      - name: bump version in pyproject.toml
+        run: poetry exec bump-version
+      - name: publish new version to PyPI
+        run: |
+          rm -rf dist/ build/
+          poetry build
+          poetry publish -u=__token__ -p=${{ secrets.PYPI_DASCHBOT_TOKEN }}

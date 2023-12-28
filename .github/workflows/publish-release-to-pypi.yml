@@ -1,19 +1,16 @@
 ---
 
-name: Publish to PyPI
+name: Publish release to PyPI
 
 on:
-  push:
-    branches:
-      - main
+  release:
+    types: [released]
 
 env:
   TOKEN: ${{ secrets.GH_TOKEN }}
-  POETRY_HTTP_BASIC_PYPI_USERNAME: __token__
-  POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_DASCHBOT_TOKEN }}
 
 jobs:
-  publish-to-pypi:
+  publish-release-to-pypi:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repo
@@ -28,18 +25,15 @@ jobs:
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
           poetry install
-          poetry self add poetry-exec-plugin
-      - name: bump version in pyproject.toml
-        run: poetry exec bump-version
       - name: publish new version to PyPI
         run: |
           rm -rf dist/ build/
-          poetry build      # generate distribution package
-          poetry publish    # upload distribution package to PyPI
+          poetry build
+          poetry publish -u=__token__ -p=${{ secrets.PYPI_DASCHBOT_TOKEN }}
 
   notification:
     name: Google chat notification about release and published version
-    needs: [publish-to-pypi]
+    needs: [publish-release-to-pypi]
     runs-on: ubuntu-latest
     steps:
       - name: Send notification to google chat room "DSP releases"

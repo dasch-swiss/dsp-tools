@@ -1,0 +1,42 @@
+---
+
+name: Publish release to PyPI
+
+on:
+  release:
+    types: [released]
+
+env:
+  TOKEN: ${{ secrets.GH_TOKEN }}
+
+jobs:
+  publish-release-to-pypi:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
+      - name: Install dependencies
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          poetry install
+      - name: publish new version to PyPI
+        run: |
+          rm -rf dist/ build/
+          poetry build
+          poetry publish -u=__token__ -p=${{ secrets.PYPI_DASCHBOT_TOKEN }}
+
+  notification:
+    name: Google chat notification about release and published version
+    needs: [publish-release-to-pypi]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send notification to google chat room "DSP releases"
+        uses: lakto/google-chat-action@main
+        with:
+          url: ${{ secrets.GOOGLE_CHAT_DSP_RELEASES_WEBHOOK_URL }}

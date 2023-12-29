@@ -55,6 +55,8 @@ class ConnectionMock(ConnectionMockBase):
         route: str,
         jsondata: str | None = None,
         files: dict[str, tuple[str, Any]] | None = None,
+        headers: dict[str, str] | None = None,
+        timeout: int | None = None,
     ) -> dict[str, Any]:
         return self.post_responses.pop(0)
 
@@ -62,6 +64,7 @@ class ConnectionMock(ConnectionMockBase):
         self,
         route: str,
         jsondata: str | None = None,
+        headers: dict[str, str] | None = None,
         content_type: str = "application/json",
     ) -> dict[str, Any]:
         return self.put_responses.pop(0)

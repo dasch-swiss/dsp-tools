@@ -36,6 +36,7 @@ regex = "^2023.10.3"
 docker = "^6.1.3"
 pyyaml = "^6.0.1"
 rustworkx = "^0.13.2"
+termcolor = "^2.4.0"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -52,7 +53,6 @@ types-jsonschema = "^4.19.0.3"
 types-openpyxl = "^3.1.0.24"
 types-regex = "^2023.10.3.0"
 types-pyyaml = "^6.0.12.12"
-termcolor = "^2.3.0"
 pytest-unordered = "^0.5.2"
 viztracer = "^0.16.0"
 ruff = "^0.1.6"
@@ -101,6 +101,16 @@ ruff-format = "ruff format ."
 mypy = "mypy ."
 unittests = "pytest test/unittests/"
 e2e-tests = "pytest test/e2e/"
+bump-version = """
+    # get current version, append ".postN" (N=no. of commits since last release), write back into pyproject.toml
+    version=$(git describe --tags --abbrev=0)
+    commit_cnt=$(git rev-list --count HEAD ^$version)
+    commit_cnt=$((commit_cnt - 1))                        # N in ".postN" is zero-based
+    if [ $commit_cnt -eq -1 ]; then exit 0; fi
+    new_version=$(poetry version -s).post$commit_cnt      # pyproject.toml contains clean numbers, .postN isn't commited
+    poetry version $new_version                           # write back into pyproject.toml
+"""
+
 
 
 [build-system]

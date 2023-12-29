@@ -175,10 +175,10 @@ class ConnectionLive:
         self,
         method: str,
         url: str,
-        headers: dict[str, str],
         jsondata: Optional[str],
         params: Optional[dict[str, Any]],
         response: requests.Response,
+        headers: dict[str, str] | None = None,
         uploaded_file: Optional[str] = None,
     ) -> None:
         """
@@ -187,10 +187,10 @@ class ConnectionLive:
         Args:
             method: HTTP method (POST, GET, PUT, DELETE)
             url: complete URL (server + route of DSP-API) that was called
-            headers: headers of the HTTP request
             jsondata: data sent to the server
             params: additional parameters for the HTTP request
             response: response of the server
+            headers: headers of the HTTP request
             uploaded_file: path to the file that was uploaded, if any
         """
         if response.status_code == 200:
@@ -218,6 +218,7 @@ class ConnectionLive:
         route: str,
         jsondata: Optional[str] = None,
         files: dict[str, tuple[str, Any]] | None = None,
+        headers: dict[str, str] | None = None,
         timeout: int | None = None,
     ) -> dict[str, Any]:
         """
@@ -227,6 +228,7 @@ class ConnectionLive:
             route: route that will be called on the server
             jsondata: Valid JSON as string
             files: files to be uploaded, if any
+            headers: headers for the HTTP request
             timeout: timeout of the HTTP request, or None if the default should be used
 
         Returns:
@@ -240,7 +242,8 @@ class ConnectionLive:
         if not route.startswith("/"):
             route = f"/{route}"
         url = self.server + route
-        headers = {}
+        if not headers:
+            headers = {}
         if jsondata:
             headers["Content-Type"] = "application/json; charset=UTF-8"
         if self.token:
@@ -260,11 +263,11 @@ class ConnectionLive:
             self._write_request_to_file(
                 method="POST",
                 url=url,
-                headers=headers,
                 jsondata=jsondata,
                 uploaded_file=files["file"][0] if files else None,
                 params=None,
                 response=response,
+                headers=headers,
             )
         check_for_api_error(response)
         return cast(dict[str, Any], response.json())
@@ -272,7 +275,7 @@ class ConnectionLive:
     def get(
         self,
         route: str,
-        headers: Optional[dict[str, str]] = None,
+        headers: dict[str, str] | None = None,
     ) -> dict[str, Any]:
         """
         Make a HTTP GET request to the server to which this connection has been established.
@@ -303,10 +306,10 @@ class ConnectionLive:
             self._write_request_to_file(
                 method="GET",
                 url=url,
-                headers=headers,
                 jsondata=None,
                 params=None,
                 response=response,
+                headers=headers,
             )
         check_for_api_error(response)
         return cast(dict[str, Any], response.json())
@@ -315,6 +318,7 @@ class ConnectionLive:
         self,
         route: str,
         jsondata: Optional[str] = None,
+        headers: dict[str, str] | None = None,
         content_type: str = "application/json",
     ) -> dict[str, Any]:
         """
@@ -323,6 +327,7 @@ class ConnectionLive:
         Args:
             route: route that will be called on the server
             jsondata: Valid JSON as string
+            headers: headers of the HTTP request
             content_type: HTTP Content-Type [default: 'application/json']
 
         Returns:
@@ -335,7 +340,8 @@ class ConnectionLive:
         if not route.startswith("/"):
             route = f"/{route}"
         url = self.server + route
-        headers = {}
+        if not headers:
+            headers = {}
         if jsondata:
             headers["Content-Type"] = f"{content_type}; charset=UTF-8"
         if self.token:
@@ -355,10 +361,10 @@ class ConnectionLive:
             self._write_request_to_file(
                 method="PUT",
                 url=url,
-                headers=headers,
                 jsondata=jsondata,
                 params=None,
                 response=response,
+                headers=headers,
             )
         check_for_api_error(response)
         return cast(dict[str, Any], response.json())
@@ -367,6 +373,7 @@ class ConnectionLive:
         self,
         route: str,
         params: Optional[dict[str, Any]] = None,
+        headers: dict[str, str] | None = None,
     ) -> dict[str, Any]:
         """
         Make a HTTP GET request to the server to which this connection has been established.
@@ -374,6 +381,7 @@ class ConnectionLive:
         Args:
             route: route that will be called on the server
             params: additional parameters for the HTTP request
+            headers: headers for the HTTP request
 
         Returns:
             response from server
@@ -381,7 +389,8 @@ class ConnectionLive:
         if not route.startswith("/"):
             route = f"/{route}"
         url = self.server + route
-        headers = {}
+        if not headers:
+            headers = {}
         if self.token:
             headers["Authorization"] = f"Bearer {self.token}"
         response = requests.delete(
@@ -394,10 +403,10 @@ class ConnectionLive:
             self._write_request_to_file(
                 method="DELETE",
                 url=url,
-                headers=headers,
                 jsondata=None,
                 params=params,
                 response=response,
+                headers=headers,
             )
         check_for_api_error(response)
         return cast(dict[str, Any], response.json())

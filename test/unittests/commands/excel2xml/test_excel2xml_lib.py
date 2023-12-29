@@ -490,7 +490,6 @@ class TestExcel2xmlLib(unittest.TestCase):
 
     @pytest.mark.filterwarnings("ignore::UserWarning")
     def test_make_text_prop(self) -> None:
-        # standard tests
         prop = "text"
         method = excel2xml.make_text_prop
         different_values = ["text_1", " ", "!", "?", "-", "_", "None"]
@@ -501,82 +500,80 @@ class TestExcel2xmlLib(unittest.TestCase):
             lambda: excel2xml.make_text_prop(":test", excel2xml.PropertyElement(value="a", encoding="unicode")),
         )
 
-        # encoding="utf8"
-        testcases_utf8 = [
-            [
-                "text < text/>",
-                "text &lt; text/&gt;",
-            ],
-            [
-                "text < text> & text",
-                "text &lt; text&gt; &amp; text",
-            ],
-            [
-                "text <text text > text",
-                "text &lt;text text &gt; text",
-            ],
-            [
-                'text < text text="text"> text',
-                'text &lt; text text="text"&gt; text',
-            ],
-            [
-                'text <text text="text" > text',
-                'text &lt;text text="text" &gt; text',
-            ],
-        ]
-        for orig, exp in testcases_utf8:
-            received = etree.tostring(
-                excel2xml.make_text_prop(":test", excel2xml.PropertyElement(orig, encoding="utf8")), encoding="unicode"
-            )
-            received = regex.sub(r" xmlns(:.+?)?=\".+?\"", "", received)
-            expected = (
-                '<text-prop name=":test"><text permissions="prop-default" encoding="utf8">'
-                + exp
-                + "</text></text-prop>"
-            )
-            self.assertEqual(received, expected)
+    def test_make_text_prop_utf8_lt_gt_amp(self) -> None:
+        original = "1 < 2 & 4 > 3"
+        expected = "1 &lt; 2 &amp; 4 &gt; 3"
+        returned = etree.tostring(excel2xml.make_text_prop(":test", original), encoding="unicode")
+        returned = regex.sub(r"</?text(-prop)?( [^>]+)?>", "", returned)
+        assert returned == expected
 
-        # test encoding="xml"
-        testcases_xml = [
-            [
-                "text <strong>and</strong> text",
-                "text <strong>and</strong> text",
-            ],
-            [
-                'a <a class="salsah-link" href="IRI:test_thing_0:IRI">link</a> text',
-                'a <a class="salsah-link" href="IRI:test_thing_0:IRI">link</a> text',
-            ],
-            [
-                "1 &lt; 2",
-                "1 &lt; 2",
-            ],
-            [
-                "&lt;escaped tag&gt;",
-                "&lt;escaped tag&gt;",
-            ],
-        ]
-        all_inputs = " ".join([inp for inp, _ in testcases_xml])
-        all_outputs = " ".join([output for _, output in testcases_xml])
-        testcases_xml.append([all_inputs, all_outputs])
+    def test_make_text_prop_utf8_pseudo_tag(self) -> None:
+        original = "txt <txt>txt</txt> txt"
+        expected = "txt &lt;txt&gt;txt&lt;/txt&gt; txt"
+        returned = etree.tostring(excel2xml.make_text_prop(":test", original), encoding="unicode")
+        returned = regex.sub(r"</?text(-prop)?( [^>]+)?>", "", returned)
+        assert returned == expected
 
-        for orig, exp in testcases_xml:
-            received = etree.tostring(
-                excel2xml.make_text_prop(":test", excel2xml.PropertyElement(orig, encoding="xml")), encoding="unicode"
-            )
-            received = regex.sub(r" xmlns(:.+?)?=\".+?\"", "", received)
-            expected = (
-                '<text-prop name=":test"><text permissions="prop-default" encoding="xml">' + exp + "</text></text-prop>"
-            )
-            self.assertEqual(received, expected)
+    def test_make_text_prop_utf8_escape(self) -> None:
+        original = "txt &amp; txt"
+        expected = "txt &amp;amp; txt"
+        returned = etree.tostring(excel2xml.make_text_prop(":test", original), encoding="unicode")
+        returned = regex.sub(r"</?text(-prop)?( [^>]+)?>", "", returned)
+        assert returned == expected
 
-        invalid_xml_texts = ["text < text", "text & text", "text <unclosed> tag", 'text <unclosed tag="tag"> text']
-        for inv in invalid_xml_texts:
-            with self.assertRaisesRegex(
-                BaseError,
-                r"The XML tags contained in a richtext property \(encoding=xml\) must be well-formed",
-                msg=f"Failed with '{inv}'",
-            ):
-                excel2xml.make_text_prop(":test", excel2xml.PropertyElement(inv, encoding="xml"))
+    def test_make_text_prop_xml_standard_standoff_tag(self) -> None:
+        original = "text <strong>and</strong> text"
+        expected = "text <strong>and</strong> text"
+        returned = etree.tostring(
+            excel2xml.make_text_prop(":test", excel2xml.PropertyElement(original, encoding="xml")), encoding="unicode"
+        )
+        returned = regex.sub(r"</?text(-prop)?( [^>]+)?>", "", returned)
+        assert returned == expected
+
+    def test_make_text_prop_xml_unsupported_tag(self) -> None:
+        original = "text <unsupported>tag</unsupported> text"
+        expected = "text &lt;unsupported&gt;tag&lt;/unsupported&gt; text"
+        returned = etree.tostring(
+            excel2xml.make_text_prop(":test", excel2xml.PropertyElement(original, encoding="xml")), encoding="unicode"
+        )
+        returned = regex.sub(r"</?text(-prop)?( [^>]+)?>", "", returned)
+        assert returned == expected
+
+    def test_make_text_prop_xml_salsah_link(self) -> None:
+        original = 'a <a class="salsah-link" href="IRI:test_thing_0:IRI">link</a> text'
+        expected = 'a <a class="salsah-link" href="IRI:test_thing_0:IRI">link</a> text'
+        returned = etree.tostring(
+            excel2xml.make_text_prop(":test", excel2xml.PropertyElement(original, encoding="xml")), encoding="unicode"
+        )
+        returned = regex.sub(r"</?text(-prop)?( [^>]+)?>", "", returned)
+        assert returned == expected
+
+    def test_make_text_prop_xml_escaped_tag(self) -> None:
+        original = "text <strong>and</strong> text"
+        expected = "text <strong>and</strong> text"
+        returned = etree.tostring(
+            excel2xml.make_text_prop(":test", excel2xml.PropertyElement(original, encoding="xml")), encoding="unicode"
+        )
+        returned = regex.sub(r"</?text(-prop)?( [^>]+)?>", "", returned)
+        assert returned == expected
+
+    def test_make_text_prop_xml_lt_gt_amp(self) -> None:
+        original = "1 < 2 & 4 > 3"
+        expected = "1 &lt; 2 &amp; 4 &gt; 3"
+        returned = etree.tostring(
+            excel2xml.make_text_prop(":test", excel2xml.PropertyElement(original, encoding="xml")), encoding="unicode"
+        )
+        returned = regex.sub(r"</?text(-prop)?( [^>]+)?>", "", returned)
+        assert returned == expected
+
+    def test_make_text_prop_xml_escape_sequence(self) -> None:
+        original = "text &amp; text"
+        expected = "text &amp; text"
+        returned = etree.tostring(
+            excel2xml.make_text_prop(":test", excel2xml.PropertyElement(original, encoding="xml")), encoding="unicode"
+        )
+        returned = regex.sub(r"</?text(-prop)?( [^>]+)?>", "", returned)
+        assert returned == expected
 
     def test_make_time_prop(self) -> None:
         prop = "time"

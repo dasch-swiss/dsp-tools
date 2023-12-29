@@ -1,4 +1,5 @@
 import argparse
+from pathlib import Path
 
 from dsp_tools.commands.excel2json.lists import excel2lists, validate_lists_section_with_schema
 from dsp_tools.commands.excel2json.project import excel2json
@@ -9,6 +10,7 @@ from dsp_tools.commands.fast_xmlupload.process_files import process_files
 from dsp_tools.commands.fast_xmlupload.upload_files import upload_files
 from dsp_tools.commands.fast_xmlupload.upload_xml import fast_xmlupload
 from dsp_tools.commands.id2iri import id2iri
+from dsp_tools.commands.ingest_xmlupload.upload_xml import ingest_xmlupload
 from dsp_tools.commands.project.create.project_create import create_project
 from dsp_tools.commands.project.create.project_create_lists import create_lists
 from dsp_tools.commands.project.create.project_validate import validate_project
@@ -24,7 +26,7 @@ from dsp_tools.utils.shared import validate_xml_against_schema
 logger = get_logger(__name__)
 
 
-def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0911 (Too many return statements)
+def call_requested_action(args: argparse.Namespace) -> bool:
     """
     Call the appropriate method of DSP-TOOLS.
 
@@ -41,41 +43,44 @@ def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0911 (T
     """
     match args.action:
         case "create":
-            return _call_create(args)
+            result = _call_create(args)
         case "xmlupload":
-            return _call_xmlupload(args)
+            result = _call_xmlupload(args)
         case "excel2json":
-            return _call_excel2json(args)
+            result = _call_excel2json(args)
         case "excel2lists":
-            return _call_excel2lists(args)
+            result = _call_excel2lists(args)
         case "excel2resources":
-            return _call_excel2resources(args)
+            result = _call_excel2resources(args)
         case "excel2properties":
-            return _call_excel2properties(args)
+            result = _call_excel2properties(args)
         case "id2iri":
-            return _call_id2iri(args)
+            result = _call_id2iri(args)
         case "excel2xml":
-            return _call_excel2xml(args)
+            result = _call_excel2xml(args)
         case "start-stack":
-            return _call_start_stack(args)
+            result = _call_start_stack(args)
         case "stop-stack":
-            return _call_stop_stack()
+            result = _call_stop_stack()
         case "get":
-            return _call_get(args)
+            result = _call_get(args)
         case "process-files":
-            return _call_process_files(args)
+            result = _call_process_files(args)
         case "upload-files":
-            return _call_upload_files(args)
+            result = _call_upload_files(args)
         case "fast-xmlupload":
-            return _call_fast_xmlupload(args)
+            result = _call_fast_xmlupload(args)
+        case "ingest-xmlupload":
+            result = _call_ingest_xmlupload(args)
         case "template":
-            return generate_template_repo()
+            result = generate_template_repo()
         case "rosetta":
-            return upload_rosetta()
+            result = upload_rosetta()
         case _:
             print(f"ERROR: Unknown action '{args.action}'")
             logger.error(f"Unknown action '{args.action}'")
-            return False
+            result = False
+    return result
 
 
 def _call_stop_stack() -> bool:
@@ -142,6 +147,17 @@ def _call_excel2json(args: argparse.Namespace) -> bool:
         data_model_files=args.excelfolder,
         path_to_output_file=args.project_definition,
     )
+
+
+def _call_ingest_xmlupload(args: argparse.Namespace) -> bool:
+    ingest_xmlupload(
+        xml_file=Path(args.xml_file),
+        user=args.user,
+        password=args.password,
+        dsp_url=args.server,
+        sipi_url=args.sipi_url,
+    )
+    return True
 
 
 def _call_fast_xmlupload(args: argparse.Namespace) -> bool:

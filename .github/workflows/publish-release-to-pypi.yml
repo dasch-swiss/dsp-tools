@@ -1,6 +1,6 @@
 ---
 
-name: Publish to PyPI
+name: Publish release to PyPI
 
 on:
   release:
@@ -8,34 +8,41 @@ on:
 
 env:
   TOKEN: ${{ secrets.GH_TOKEN }}
-  POETRY_HTTP_BASIC_PYPI_USERNAME: ${{ secrets.PYPI_USER }}
-  POETRY_HTTP_BASIC_PYPI_PASSWORD: ${{ secrets.PYPI_PW }}
+  # API tokens require username "__token__".
+  # Repo names other than pypi.org must be configured with:
+  #  % poetry config repositories.testpypi https://test.pypi.org/legacy/
+  # and the env vars must be named accordingly:
+  #  - POETRY_HTTP_BASIC_<REPO>_USERNAME
+  #  - POETRY_PYPI_TOKEN_<REPO>
+  POETRY_HTTP_BASIC_PYPI_USERNAME: __token__
+  POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_DASCHBOT_TOKEN }}
 
 jobs:
-  publish-to-pypi:
+  publish-release-to-pypi:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repo
         uses: actions/checkout@v3
         with:
           fetch-depth: 1
-      - name: Set up Python 3.11
+      - name: Set up Python 3.12
         uses: actions/setup-python@v4
         with:
-          python-version: 3.11
+          python-version: 3.12
       - name: Install dependencies
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
           poetry install
-      - name: publish new version to PyPI
+      - name: build wheel
         run: |
           rm -rf dist/ build/
-          poetry build      # generate distribution package
-          poetry publish    # upload distribution package to PyPI
+          poetry build
+      - name: publish new version to PyPI
+        run: poetry publish
 
   notification:
     name: Google chat notification about release and published version
-    needs: [publish-to-pypi]
+    needs: [publish-release-to-pypi]
     runs-on: ubuntu-latest
     steps:
       - name: Send notification to google chat room "DSP releases"

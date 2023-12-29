@@ -23,10 +23,10 @@ jobs:
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
           poetry self add poetry-exec-plugin
-      - name: Set up Python 3.11
+      - name: Set up Python 3.12
         uses: actions/setup-python@v4
         with:
-          python-version: 3.11
+          python-version: 3.12
           # attempt to restore dependencies from cache (if successful, the following `poetry install` will be a no-op)
           cache: poetry
       - name: Install Python dependencies
@@ -39,7 +39,7 @@ jobs:
           npm install -g markdown-link-validator
           poetry exec check-links
       - name: markdownlint
-        run: docker run -v $PWD:/workdir ghcr.io/igorshubovych/markdownlint-cli:latest --config .markdownlint.yml --ignore CHANGELOG.md "**/*.md"
+        run: poetry exec markdownlint
 
   lint:
     name: Lint code
@@ -54,24 +54,21 @@ jobs:
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
           poetry self add poetry-exec-plugin
-      - name: Set up Python 3.11
+      - name: Set up Python 3.12
         uses: actions/setup-python@v4
         with:
-          python-version: 3.11
+          python-version: 3.12
           # attempt to restore dependencies from cache (if successful, the following `poetry install` will be a no-op)
           cache: poetry
       - name: Install Python dependencies
         run: poetry install
       # run tests
       - name: Linting with ruff
-        run: >
-          poetry run ruff check . 
-          --output-format=github 
-          --ignore=A002,D101,D102,PLR0912,PLR0913,PLR0915,PLR2004,PLR5501,PLW0603
+        run: poetry exec ruff-check-github
       - name: Formatting with ruff
-        run: poetry run ruff format .
+        run: poetry exec ruff-format
       - name: Linting with mypy
-        run: poetry run mypy .
+        run: poetry exec mypy
       - name: Linting with darglint
         run: poetry exec darglint
 
@@ -88,17 +85,17 @@ jobs:
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
           poetry self add poetry-exec-plugin
-      - name: Set up Python 3.11
+      - name: Set up Python 3.12
         uses: actions/setup-python@v4
         with:
-          python-version: 3.11
+          python-version: 3.12
           # attempt to restore dependencies from cache (if successful, the following `poetry install` will be a no-op)
           cache: poetry
       - name: Install Python dependencies
         run: poetry install
       # run tests
       - name: unittests
-        run: poetry run pytest test/unittests/
+        run: poetry exec unittests
 
   benchmarking:
     name: Run Benchmarking
@@ -113,10 +110,10 @@ jobs:
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
           poetry self add poetry-exec-plugin
-      - name: Set up Python 3.11
+      - name: Set up Python 3.12
         uses: actions/setup-python@v4
         with:
-          python-version: 3.11
+          python-version: 3.12
           # attempt to restore dependencies from cache (if successful, the following `poetry install` will be a no-op)
           cache: poetry
       - name: Install Python dependencies
@@ -139,10 +136,10 @@ jobs:
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
           poetry self add poetry-exec-plugin
-      - name: Set up Python 3.11
+      - name: Set up Python 3.12
         uses: actions/setup-python@v4
         with:
-          python-version: 3.11
+          python-version: 3.12
           # attempt to restore dependencies from cache (if successful, the following `poetry install` will be a no-op)
           cache: poetry
       - name: Install Python dependencies
@@ -150,7 +147,6 @@ jobs:
       # Install programs for local processing (fast xmlupload)
       - name: Fast xmlupload - Install ffmpeg
         uses: FedericoCarboni/setup-ffmpeg@v2
-
       - name: Fast xmlupload - ImageMagick - look for cached AppImage
         # If a cache is found that matches "key", the cached files are restored to "path".
         # If no cache is found, this step is skipped, and when all jobs are done, the files in "path" are cached under "key".
@@ -166,6 +162,6 @@ jobs:
       - name: start stack
         run: poetry run dsp-tools start-stack --no-prune
       - name: e2e tests
-        run: poetry run pytest test/e2e/
+        run: poetry exec e2e-tests
       - name: stop stack  # see if this command can run (it isn't tested anywhere else)
         run: poetry run dsp-tools stop-stack

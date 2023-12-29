@@ -7,6 +7,9 @@ import sys
 from importlib.metadata import version
 
 import regex
+import requests
+from packaging.version import parse
+from termcolor import colored
 
 from dsp_tools.cli.call_action import call_requested_action
 from dsp_tools.cli.create_parsers import make_parser
@@ -37,6 +40,7 @@ def run(args: list[str]) -> None:
         InternalError: if the user cannot fix it
         RetryError: if the problem may disappear when trying again later
     """
+    _check_version()
     default_dsp_api_url = "http://0.0.0.0:3333"
     default_sipi_url = "http://0.0.0.0:1024"
     root_user_email = "root@example.com"
@@ -74,6 +78,22 @@ def run(args: list[str]) -> None:
         sys.exit(1)
 
 
+def _check_version() -> None:
+    """Check if the installed version of dsp-tools is up-to-date. If not, print a warning message."""
+    response = requests.get("https://pypi.org/pypi/dsp-tools/json", timeout=15)
+    if not response.ok:
+        return
+    latest = parse(response.json()["info"]["version"])
+    installed = parse(version("dsp-tools"))
+    if latest > installed:
+        msg = colored(
+            f"You are using DSP-TOOLS version {installed}, but version {latest} is available. "
+            "Consider upgrading via 'pip3 install --upgrade dsp-tools'.",
+            color="red",
+        )
+        print(msg)
+
+
 def _parse_arguments(
     user_args: list[str],
     parser: argparse.ArgumentParser,
@@ -102,10 +122,11 @@ def _get_version() -> str:
     _detail_version = result.stdout.decode("utf-8")
     # _detail_version has one of the following formats:
     # - 'dsp-tools==5.0.3\n'
+    # - 'dsp-tools==5.6.0.post9\n'
     # - 'dsp-tools @ git+https://github.com/dasch-swiss/dsp-tools.git@1f95f8d1b79bd5170a652c0d04e7ada417d76734\n'
     # - '-e git+ssh://git@github.com/dasch-swiss/dsp-tools.git@af9a35692b542676f2aa0a802ca7fc3b35f5713d#egg=dsp_tools\n'
     # - ''
-    if version_number := regex.search(r"\d+\.\d+\.\d+", _detail_version):
+    if version_number := regex.search(r"\d+\.\d+\.\d+(\.(post|dev|pre)\d+)?", _detail_version):
         return version_number.group(0)
     if regex.search(r"github.com", _detail_version):
         return _detail_version.replace("\n", "")

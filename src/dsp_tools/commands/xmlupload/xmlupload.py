@@ -74,7 +74,7 @@ def xmlupload(
     default_ontology, root, shortcode = validate_and_parse_xml_file(
         input_file=input_file,
         imgdir=imgdir,
-        preprocessing_done=config.preprocessing_done,
+        preprocessing_done=config.media_previously_uploaded,
     )
 
     config = config.with_server_info(
@@ -334,11 +334,12 @@ def _upload_resources(
         json_ld_context=json_ld_context,
         permissions_lookup=permissions_lookup,
         listnode_lookup=listnode_lookup,
+        media_previously_ingested=config.media_previously_uploaded,
     )
 
     for i, resource in enumerate(resources):
         success, media_info = handle_media_info(
-            resource, config.preprocessing_done, sipi_server, imgdir, permissions_lookup
+            resource, config.media_previously_uploaded, sipi_server, imgdir, permissions_lookup
         )
         if not success:
             failed_uploads.append(resource.res_id)

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<knora xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://dasch.swiss/schema https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/data.xsd" shortcode="00A2" default-ontology="dog">
+    <permissions id="res-default">
+        <allow group="UnknownUser">V</allow>
+        <allow group="KnownUser">V</allow>
+        <allow group="ProjectMember">D</allow>
+        <allow group="ProjectAdmin">CR</allow>
+        <allow group="Creator">CR</allow>
+    </permissions>
+    <permissions id="prop-default">
+        <allow group="UnknownUser">V</allow>
+        <allow group="KnownUser">V</allow>
+        <allow group="ProjectMember">D</allow>
+        <allow group="ProjectAdmin">CR</allow>
+        <allow group="Creator">CR</allow>
+    </permissions>
+
+    <resource label="Fluffy Image" restype=":Image2D" id="Fluffy1" permissions="res-default">
+        <bitstream permissions="prop-default">images/Fluffy.jpg</bitstream>
+        <text-prop name=":hasAttribution">
+            <text permissions="prop-default" encoding="utf8">Columbus Metropolitan Library, Public domain, via Wikimedia Commons</text>
+        </text-prop>
+        <uri-prop name=":hasSourceLink">
+            <uri permissions="prop-default">https://commons.wikimedia.org/wiki/File:Siberian_Husky_dog_-_DPLA_-_b729034a262a5abba8f565574bb84dae.jpg</uri>
+        </uri-prop>
+    </resource>
+
+    <resource label="Fluffy Image" restype=":Image2D" id="Fluffy2" permissions="res-default">
+        <bitstream permissions="prop-default">images/subFolder/Fluffy.jpg</bitstream>
+        <text-prop name=":hasAttribution">
+            <text permissions="prop-default" encoding="utf8">Columbus Metropolitan Library, Public domain, via Wikimedia Commons</text>
+        </text-prop>
+        <uri-prop name=":hasSourceLink">
+            <uri permissions="prop-default">https://commons.wikimedia.org/wiki/File:Siberian_Husky_dog_-_DPLA_-_5248117eea26fda68834d39ebc90f925.jpg</uri>
+        </uri-prop>
+    </resource>
+
+    <resource label="Shiba Inu Image" restype=":Image2D" id="Shiba" permissions="res-default">
+        <bitstream permissions="prop-default">images/subFolder/ShibaInu.jpg</bitstream>
+        <text-prop name=":hasAttribution">
+            <text permissions="prop-default" encoding="utf8">Picography, CC0, via Wikimedia Commons</text>
+        </text-prop>
+        <uri-prop name=":hasSourceLink">
+            <uri permissions="prop-default">https://commons.wikimedia.org/wiki/File:Picography-shiba-inu-dog-forest-walk-sm-1.jpg</uri>
+        </uri-prop>
+    </resource>
+
+    <resource label="Good Girl Image" restype=":Image2D" id="GoodGirlImage" permissions="res-default">
+        <bitstream permissions="prop-default">images/GoodGirl.jpg</bitstream>
+        <text-prop name=":hasAttribution">
+            <text permissions="prop-default" encoding="utf8">Oldsingerman20, CC0, via Wikimedia Commons</text>
+        </text-prop>
+        <uri-prop name=":hasSourceLink">
+            <uri permissions="prop-default">https://commons.wikimedia.org/wiki/File:New_Guinea_Singing_Dog_looking_up.jpg</uri>
+        </uri-prop>
+    </resource>
+
+    <resource label="Fluffy" restype=":Dog" id="Fluffy" permissions="res-default">
+        <resptr-prop name=":hasImage">
+            <resptr permissions="prop-default">Fluffy1</resptr>
+            <resptr permissions="prop-default">Fluffy2</resptr>
+        </resptr-prop>
+    </resource>
+    
+    <resource label="Shiba" restype=":Dog" id="ShibaDog" permissions="res-default">
+        <resptr-prop name=":hasImage">
+            <resptr permissions="prop-default">Shiba</resptr>
+        </resptr-prop>
+    </resource>
+
+    <resource label="Good Girl" restype=":Dog" id="GoodGirl" permissions="res-default">
+        <resptr-prop name=":hasImage">
+            <resptr permissions="prop-default">GoodGirlImage</resptr>
+        </resptr-prop>
+    </resource>
+</knora>

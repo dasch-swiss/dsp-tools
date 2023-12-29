@@ -34,7 +34,7 @@ def parse_and_clean_xml_file(input_file: Union[str, Path, etree._ElementTree[Any
     if isinstance(input_file, (str, Path)):
         tree = _parse_xml_file(input_file)
     else:
-        tree = _remove_comments_from_element_tree(input_file)
+        tree = remove_comments_from_element_tree(input_file)
 
     _remove_qnames_and_transform_special_tags(tree)
 
@@ -70,7 +70,7 @@ def _remove_qnames_and_transform_special_tags(
     return input_tree
 
 
-def _remove_comments_from_element_tree(
+def remove_comments_from_element_tree(
     input_tree: etree._ElementTree[etree._Element],
 ) -> etree._ElementTree[etree._Element]:
     """

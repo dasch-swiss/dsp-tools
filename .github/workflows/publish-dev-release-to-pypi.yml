@@ -9,10 +9,18 @@ on:
 
 env:
   TOKEN: ${{ secrets.GH_TOKEN }}
+  # API tokens require username "__token__".
+  # Repo names other than pypi.org must be configured with:
+  #  % poetry config repositories.testpypi https://test.pypi.org/legacy/
+  # and the env vars must be named accordingly:
+  #  - POETRY_HTTP_BASIC_<REPO>_USERNAME
+  #  - POETRY_PYPI_TOKEN_<REPO>
+  POETRY_HTTP_BASIC_PYPI_USERNAME: __token__
+  POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_DASCHBOT_TOKEN }}
 
 jobs:
   publish-dev-release-to-pypi:
-    if: github.event.pull_request.merged == true && (contains(github.event.pull_request.title, 'fix') || contains(github.event.pull_request.title, 'feat'))
+    if: github.event.pull_request.merged == true && (startsWith(github.event.pull_request.title, 'fix') || startsWith(github.event.pull_request.title, 'feat'))
     runs-on: ubuntu-latest
     steps:
       - name: Check out repo
@@ -30,8 +38,9 @@ jobs:
           poetry self add poetry-exec-plugin
       - name: bump version in pyproject.toml
         run: poetry exec bump-version
-      - name: publish new version to PyPI
+      - name: build wheel
         run: |
           rm -rf dist/ build/
           poetry build
-          poetry publish -u=__token__ -p=${{ secrets.PYPI_DASCHBOT_TOKEN }}
+      - name: publish new version to PyPI
+        run: poetry publish

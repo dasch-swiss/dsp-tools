@@ -8,6 +8,14 @@ on:
 
 env:
   TOKEN: ${{ secrets.GH_TOKEN }}
+  # API tokens require username "__token__".
+  # Repo names other than pypi.org must be configured with:
+  #  % poetry config repositories.testpypi https://test.pypi.org/legacy/
+  # and the env vars must be named accordingly:
+  #  - POETRY_HTTP_BASIC_<REPO>_USERNAME
+  #  - POETRY_PYPI_TOKEN_<REPO>
+  POETRY_HTTP_BASIC_PYPI_USERNAME: __token__
+  POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_DASCHBOT_TOKEN }}
 
 jobs:
   publish-release-to-pypi:
@@ -25,11 +33,12 @@ jobs:
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
           poetry install
-      - name: publish new version to PyPI
+      - name: build wheel
         run: |
           rm -rf dist/ build/
           poetry build
-          poetry publish -u=__token__ -p=${{ secrets.PYPI_DASCHBOT_TOKEN }}
+      - name: publish new version to PyPI
+        run: poetry publish
 
   notification:
     name: Google chat notification about release and published version

@@ -1315,13 +1315,14 @@ def make_text_prop(
             # write the text into the tag, without validation
             value_.text = str(val.value)
         else:
+            escaped_text = _escape_reserved_chars(str(val.value))
             # enforce that the text is well-formed XML: serialize tag ...
-            content = etree.tostring(value_, encoding="unicode")
+            serialized = etree.tostring(value_, encoding="unicode")
             # ... insert text at the very end of the string, and add ending tag to the previously single <text/> tag ...
-            content = regex.sub(r"/>$", f">{val.value}</text>", content)
+            serialized = regex.sub(r"/>$", f">{escaped_text}</text>", serialized)
             # ... try to parse it again
             try:
-                value_ = etree.fromstring(content)
+                value_ = etree.fromstring(serialized)
             except etree.XMLSyntaxError:
                 raise BaseError(
                     "The XML tags contained in a richtext property (encoding=xml) must be well-formed. "
@@ -1331,6 +1332,55 @@ def make_text_prop(
         prop_.append(value_)
 
     return prop_
+
+
+def _escape_reserved_chars(text: str) -> str:
+    """
+    From richtext strings (encoding="xml"), escape the reserved characters <, > and &,
+    but only if they are not part of a standard standoff tag or escape sequence.
+    The standard standoff tags allowed by DSP-API are documented here:
+    https://docs.dasch.swiss/2023.12.01/DSP-API/03-endpoints/api-v2/text/standard-standoff/
+
+    Args:
+        text: the richtext string to be escaped
+
+    Returns:
+        the escaped richtext string
+    """
+    allowed_tags = [
+        "a( [^>]+)?",  # <a> is the only tag that can have attributes
+        "p",
+        "em",
+        "strong",
+        "u",
+        "sub",
+        "sup",
+        "strike",
+        "h1",
+        "ol",
+        "ul",
+        "li",
+        "tbody",
+        "table",
+        "tr",
+        "td",
+        "br",
+        "hr",
+        "pre",
+        "cite",
+        "blockquote",
+        "code",
+    ]
+    allowed_tags_regex = "|".join(allowed_tags)
+    lookahead = rf"(?!/?({allowed_tags_regex})>)"
+    lookbehind = rf"(?<!</?({allowed_tags_regex}))"
+    illegal_lt = rf"<{lookahead}"
+    illegal_gt = rf"{lookbehind}>"
+    illegal_amp = r"&(?![#a-zA-Z0-9]+;)"
+    text = regex.sub(illegal_lt, "&lt;", text)
+    text = regex.sub(illegal_gt, "&gt;", text)
+    text = regex.sub(illegal_amp, "&amp;", text)
+    return text
 
 
 def make_time_prop(

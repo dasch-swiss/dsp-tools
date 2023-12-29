@@ -26,6 +26,5 @@ class Sipi:
         """
         with open(filepath, "rb") as bitstream_file:
             files = {"file": (filepath.name, bitstream_file)}
-            timeout = 5 * 60
-            res = self.con.post(route="/upload", files=files, timeout=timeout)
+            res = self.con.post(route="/upload", files=files)
             return res

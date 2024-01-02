@@ -246,7 +246,8 @@ def _from_iso_date(iso_date: Match[str]) -> str:
 
 
 def _expand_2_digit_year(year: int) -> int:
-    if year <= 24:
+    current_year = datetime.date.today().year - 2000
+    if year <= current_year:
         return year + 2000
     elif year <= 99:
         return year + 1900

@@ -1,3 +1,4 @@
+import datetime
 import unittest
 from pathlib import Path
 from typing import Any, Callable, Optional, Sequence, Union
@@ -204,9 +205,11 @@ class TestExcel2xmlLib(unittest.TestCase):
         self.assertEqual(excel2xml.find_date_in_string("x 2193_02_30 x"), None)
 
     def test_find_date_in_string_eur_date_2_digit(self) -> None:
-        assert excel2xml.find_date_in_string("x 30.4.24 x") == "GREGORIAN:CE:2024-04-30:CE:2024-04-30"
-        assert excel2xml.find_date_in_string("x 30.4.25 x") == "GREGORIAN:CE:1925-04-30:CE:1925-04-30"
-        assert excel2xml.find_date_in_string("x 31.4.25 x") is None
+        cur = str(datetime.date.today().year - 2000)  # in 2024, this will be "24"
+        nxt = str(datetime.date.today().year - 2000 + 1)  # in 2024, this will be "25"
+        assert excel2xml.find_date_in_string(f"x 30.4.{cur} x") == f"GREGORIAN:CE:20{cur}-04-30:CE:20{cur}-04-30"
+        assert excel2xml.find_date_in_string(f"x 30.4.{nxt} x") == f"GREGORIAN:CE:19{nxt}-04-30:CE:19{nxt}-04-30"
+        assert excel2xml.find_date_in_string(f"x 31.4.{nxt} x") is None
 
     def test_find_date_in_string_eur_date_range(self) -> None:
         """template: 27.-28.1.1900"""
@@ -216,8 +219,10 @@ class TestExcel2xmlLib(unittest.TestCase):
         self.assertEqual(excel2xml.find_date_in_string("x 25.-25.2.0800 x"), None)
 
     def test_find_date_in_string_eur_date_range_2_digit(self) -> None:
-        assert excel2xml.find_date_in_string("x 15.-16.4.24 x") == "GREGORIAN:CE:2024-04-15:CE:2024-04-16"
-        assert excel2xml.find_date_in_string("x 15.-16.4.25 x") == "GREGORIAN:CE:1925-04-15:CE:1925-04-16"
+        cur = str(datetime.date.today().year - 2000)  # in 2024, this will be "24"
+        nxt = str(datetime.date.today().year - 2000 + 1)  # in 2024, this will be "25"
+        assert excel2xml.find_date_in_string(f"x 15.-16.4.{cur} x") == f"GREGORIAN:CE:20{cur}-04-15:CE:20{cur}-04-16"
+        assert excel2xml.find_date_in_string(f"x 15.-16.4.{nxt} x") == f"GREGORIAN:CE:19{nxt}-04-15:CE:19{nxt}-04-16"
 
     def test_find_date_in_string_eur_date_range_across_month(self) -> None:
         """template: 26.2.-24.3.1948"""
@@ -230,8 +235,10 @@ class TestExcel2xmlLib(unittest.TestCase):
         self.assertEqual(excel2xml.find_date_in_string("x 28.2.-28.2.1515 x"), None)
 
     def test_find_date_in_string_eur_date_range_across_month_2_digit(self) -> None:
-        assert excel2xml.find_date_in_string("x 15.04.-1.5.24 x") == "GREGORIAN:CE:2024-04-15:CE:2024-05-01"
-        assert excel2xml.find_date_in_string("x 15.04.-1.5.25 x") == "GREGORIAN:CE:1925-04-15:CE:1925-05-01"
+        cur = str(datetime.date.today().year - 2000)  # in 2024, this will be "24"
+        nxt = str(datetime.date.today().year - 2000 + 1)  # in 2024, this will be "25"
+        assert excel2xml.find_date_in_string(f"x 15.04.-1.5.{cur} x") == f"GREGORIAN:CE:20{cur}-04-15:CE:20{cur}-05-01"
+        assert excel2xml.find_date_in_string(f"x 15.04.-1.5.{nxt} x") == f"GREGORIAN:CE:19{nxt}-04-15:CE:19{nxt}-05-01"
 
     def test_find_date_in_string_eur_date_range_across_year(self) -> None:
         """template: 1.12.1973 - 6.1.1974"""
@@ -249,8 +256,10 @@ class TestExcel2xmlLib(unittest.TestCase):
         self.assertEqual(excel2xml.find_date_in_string("x 25/12/2022-25/12/2022 x"), None)
 
     def test_find_date_in_string_eur_date_range_across_year_2_digit(self) -> None:
-        assert excel2xml.find_date_in_string("x 15.04.23-1.5.24 x") == "GREGORIAN:CE:2023-04-15:CE:2024-05-01"
-        assert excel2xml.find_date_in_string("x 15.04.25-1.5.26 x") == "GREGORIAN:CE:1925-04-15:CE:1926-05-01"
+        cur = str(datetime.date.today().year - 2000)  # in 2024, this will be "24"
+        nxt = str(datetime.date.today().year - 2000 + 1)  # in 2024, this will be "25"
+        assert excel2xml.find_date_in_string(f"x 15.04.23-1.5.{cur} x") == f"GREGORIAN:CE:2023-04-15:CE:20{cur}-05-01"
+        assert excel2xml.find_date_in_string(f"x 15.04.{nxt}-1.5.26 x") == f"GREGORIAN:CE:19{nxt}-04-15:CE:1926-05-01"
 
     def test_find_date_in_string_monthname(self) -> None:
         """template: February 9, 1908 | Dec 5,1908"""

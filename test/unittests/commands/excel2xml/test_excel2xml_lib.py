@@ -366,7 +366,7 @@ class TestExcel2xmlLib(unittest.TestCase):
             try:
                 res = excel2xml.make_bitstream_prop("testdata/bitstreams/test.jpg", check=True)
             except UserWarning as e:
-                raise AssertionError(str(e))
+                raise AssertionError from e
         assert res.tag.endswith("bitstream")
         assert res.attrib["permissions"] == "prop-default"
         assert res.text == "testdata/bitstreams/test.jpg"

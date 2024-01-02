@@ -94,19 +94,24 @@ def _find_french_bc_date(
 
 def find_date_in_string(string: str) -> Optional[str]:
     """
-    Checks if a string contains a date value (single date, or date range), and returns the first found date as
-    DSP-formatted string. Returns None if no date was found.
+    Checks if a string contains a date value (single date, or date range),
+    and returns the first found date as DSP-formatted string.
+    Returns None if no date was found.
 
     Notes:
         - All dates are interpreted in the Christian era and the Gregorian calendar.
         - BC dates are only supported in French notation (e.g. 1000-900 av. J.-C.).
         - The years 0000-2999 are supported, in 3/4-digit form.
         - Dates written with slashes are always interpreted in a European manner: 5/11/2021 is the 5th of November.
+        - In the European notation, 2-digit years are expanded to 4 digits, with the current year as watershed:
+            - 30.4.24 -> 30.04.2024
+            - 30.4.25 -> 30.04.1925
 
     Currently supported date formats:
         - 0476-09-04 -> GREGORIAN:CE:0476-09-04:CE:0476-09-04
         - 0476_09_04 -> GREGORIAN:CE:0476-09-04:CE:0476-09-04
         - 30.4.2021 -> GREGORIAN:CE:2021-04-30:CE:2021-04-30
+        - 30.4.21 -> GREGORIAN:CE:2021-04-30:CE:2021-04-30
         - 5/11/2021 -> GREGORIAN:CE:2021-11-05:CE:2021-11-05
         - Jan 26, 1993 -> GREGORIAN:CE:1993-01-26:CE:1993-01-26
         - 28.2.-1.12.1515 -> GREGORIAN:CE:1515-02-28:CE:1515-12-01

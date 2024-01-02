@@ -203,12 +203,21 @@ class TestExcel2xmlLib(unittest.TestCase):
         self.assertEqual(excel2xml.find_date_in_string("x -2193_01_26- x"), "GREGORIAN:CE:2193-01-26:CE:2193-01-26")
         self.assertEqual(excel2xml.find_date_in_string("x 2193_02_30 x"), None)
 
+    def test_find_date_in_string_eur_date_2_digit(self) -> None:
+        assert excel2xml.find_date_in_string("x 30.4.24 x") == "GREGORIAN:CE:2024-04-30:CE:2024-04-30"
+        assert excel2xml.find_date_in_string("x 30.4.25 x") == "GREGORIAN:CE:1925-04-30:CE:1925-04-30"
+        assert excel2xml.find_date_in_string("x 31.4.25 x") is None
+
     def test_find_date_in_string_eur_date_range(self) -> None:
         """template: 27.-28.1.1900"""
         self.assertEqual(excel2xml.find_date_in_string("x 25.-26.2.0800 x"), "GREGORIAN:CE:0800-02-25:CE:0800-02-26")
         self.assertEqual(excel2xml.find_date_in_string("x 25. - 26.2.0800 x"), "GREGORIAN:CE:0800-02-25:CE:0800-02-26")
         self.assertEqual(excel2xml.find_date_in_string("x 25.-24.2.0800 x"), None)
         self.assertEqual(excel2xml.find_date_in_string("x 25.-25.2.0800 x"), None)
+
+    def test_find_date_in_string_eur_date_range_2_digit(self) -> None:
+        assert excel2xml.find_date_in_string("x 15.-16.4.24 x") == "GREGORIAN:CE:2024-04-15:CE:2024-04-16"
+        assert excel2xml.find_date_in_string("x 15.-16.4.25 x") == "GREGORIAN:CE:1925-04-15:CE:1925-04-16"
 
     def test_find_date_in_string_eur_date_range_across_month(self) -> None:
         """template: 26.2.-24.3.1948"""
@@ -219,6 +228,10 @@ class TestExcel2xmlLib(unittest.TestCase):
         self.assertEqual(excel2xml.find_date_in_string("x 28.2.-1.12.1515 x"), "GREGORIAN:CE:1515-02-28:CE:1515-12-01")
         self.assertEqual(excel2xml.find_date_in_string("x 28.2.-26.2.1515 x"), None)
         self.assertEqual(excel2xml.find_date_in_string("x 28.2.-28.2.1515 x"), None)
+
+    def test_find_date_in_string_eur_date_range_across_month_2_digit(self) -> None:
+        assert excel2xml.find_date_in_string("x 15.04.-1.5.24 x") == "GREGORIAN:CE:2024-04-15:CE:2024-05-01"
+        assert excel2xml.find_date_in_string("x 15.04.-1.5.25 x") == "GREGORIAN:CE:1925-04-15:CE:1925-05-01"
 
     def test_find_date_in_string_eur_date_range_across_year(self) -> None:
         """template: 1.12.1973 - 6.1.1974"""
@@ -234,6 +247,10 @@ class TestExcel2xmlLib(unittest.TestCase):
         self.assertEqual(excel2xml.find_date_in_string("x 25.12.2022-25.12.2022 x"), None)
         self.assertEqual(excel2xml.find_date_in_string("x 25/12/2022-03/01/2022 x"), None)
         self.assertEqual(excel2xml.find_date_in_string("x 25/12/2022-25/12/2022 x"), None)
+
+    def test_find_date_in_string_eur_date_range_across_year_2_digit(self) -> None:
+        assert excel2xml.find_date_in_string("x 15.04.23-1.5.24 x") == "GREGORIAN:CE:2023-04-15:CE:2024-05-01"
+        assert excel2xml.find_date_in_string("x 15.04.25-1.5.26 x") == "GREGORIAN:CE:1925-04-15:CE:1926-05-01"
 
     def test_find_date_in_string_monthname(self) -> None:
         """template: February 9, 1908 | Dec 5,1908"""

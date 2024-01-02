@@ -174,7 +174,8 @@ def _find_date_in_string_throwing(string: str) -> str | None:
     """
     This function is the same as find_date_in_string(), but may raise a ValueError instead of returning None.
     """
-    year_regex = r"([0-2]?[0-9][0-9][0-9])"
+    year_regex_4_digits = r"([0-2]?[0-9][0-9][0-9])"
+    year_regex_2_digits = r"([0-9][0-9])"
     month_regex = r"([0-1]?[0-9])"
     day_regex = r"([0-3]?[0-9])"
     sep_regex = r"[\./]"
@@ -185,28 +186,38 @@ def _find_date_in_string_throwing(string: str) -> str | None:
         return french_bc_date
 
     # template: 2021-01-01 | 2015_01_02
-    iso_date = regex.search(rf"{lookbehind}{year_regex}[_-]([0-1][0-9])[_-]([0-3][0-9]){lookahead}", string)
+    iso_date = regex.search(rf"{lookbehind}{year_regex_4_digits}[_-]([0-1][0-9])[_-]([0-3][0-9]){lookahead}", string)
+
     # template: 6.-8.3.1948 | 6/2/1947 - 24.03.1948
     eur_date_range_regex = (
         rf"{lookbehind}"
-        rf"{day_regex}{sep_regex}(?:{month_regex}{sep_regex}{year_regex}?)? ?(?:-|:|to) ?"
-        rf"{day_regex}{sep_regex}{month_regex}{sep_regex}{year_regex}"
+        rf"{day_regex}{sep_regex}(?:{month_regex}{sep_regex}{year_regex_4_digits}|{year_regex_2_digits}?)? ?(?:-|:|to) ?"
+        rf"{day_regex}{sep_regex}{month_regex}{sep_regex}{year_regex_4_digits}|{year_regex_2_digits}"
         rf"{lookahead}"
     )
     eur_date_range = regex.search(eur_date_range_regex, string)
+
     # template: 1.4.2021 | 5/11/2021
+    eur_date_regex = (
+        rf"{lookbehind}"
+        rf"{day_regex}{sep_regex}{month_regex}{sep_regex}{year_regex_4_digits}|{year_regex_2_digits}"
+        rf"{lookahead}"
+    )
     eur_date = regex.search(
-        rf"{lookbehind}{day_regex}{sep_regex}{month_regex}{sep_regex}{year_regex}{lookahead}",
+        eur_date_regex,
         string,
     )
+
     # template: March 9, 1908 | March5,1908 | May 11, 1906
     all_months = "|".join(_months_dict)
-    monthname_date_regex = rf"{lookbehind}({all_months}) ?{day_regex}, ?{year_regex}{lookahead}"
+    monthname_date_regex = rf"{lookbehind}({all_months}) ?{day_regex}, ?{year_regex_4_digits}{lookahead}"
     monthname_date = regex.search(monthname_date_regex, string)
+
     # template: 1849/50 | 1849-50 | 1849/1850
-    year_range = regex.search(lookbehind + year_regex + r"[/-](\d{1,4})" + lookahead, string)
+    year_range = regex.search(lookbehind + year_regex_4_digits + r"[/-](\d{1,4})" + lookahead, string)
+
     # template: 1907
-    year_only = regex.search(rf"{lookbehind}{year_regex}{lookahead}", string)
+    year_only = regex.search(rf"{lookbehind}{year_regex_4_digits}{lookahead}", string)
 
     res: str | None = None
     if iso_date:
@@ -233,13 +244,24 @@ def _from_iso_date(iso_date: Match[str]) -> str:
     return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
 
 
+def _expand_2_digit_year(year: int) -> int:
+    if year <= 24:
+        return year + 2000
+    elif year <= 99:
+        return year + 1900
+    else:
+        return year
+
+
 def _from_eur_date_range(eur_date_range: Match[str]) -> str:
     startday = int(eur_date_range.group(1))
     startmonth = int(eur_date_range.group(2)) if eur_date_range.group(2) else int(eur_date_range.group(5))
     startyear = int(eur_date_range.group(3)) if eur_date_range.group(3) else int(eur_date_range.group(6))
+    startyear = _expand_2_digit_year(startyear)
     endday = int(eur_date_range.group(4))
     endmonth = int(eur_date_range.group(5))
     endyear = int(eur_date_range.group(6))
+    endyear = _expand_2_digit_year(endyear)
     startdate = datetime.date(startyear, startmonth, startday)
     enddate = datetime.date(endyear, endmonth, endday)
     if enddate <= startdate:
@@ -251,6 +273,7 @@ def _from_eur_date(eur_date: Match[str]) -> str:
     startday = int(eur_date.group(1))
     startmonth = int(eur_date.group(2))
     startyear = int(eur_date.group(3))
+    startyear = _expand_2_digit_year(startyear)
     date = datetime.date(startyear, startmonth, startday)
     return f"GREGORIAN:CE:{date.isoformat()}:CE:{date.isoformat()}"
 

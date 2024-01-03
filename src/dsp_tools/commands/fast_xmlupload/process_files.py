@@ -9,8 +9,9 @@ import sys
 import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
+from itertools import batched
 from pathlib import Path, PurePath
-from typing import Any, Literal, Optional, Union
+from typing import Any, Optional, Union
 
 import docker
 import requests
@@ -19,7 +20,6 @@ from lxml import etree
 
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.create_logger import get_logger
-from dsp_tools.utils.shared import make_chunks
 
 logger = get_logger(__name__)
 sipi_container: Optional[Container] = None
@@ -41,49 +41,6 @@ def _get_export_moving_image_frames_script() -> None:
     script_text = script_text_response.text
     with open(export_moving_image_frames_script, "w", encoding="utf-8") as f:
         f.write(script_text)
-
-
-def _determine_exit_code(
-    files_to_process: list[Path],
-    processed_files: list[tuple[Path, Optional[Path]]],
-    is_last_batch: bool,
-) -> Literal[0, 1, 2]:
-    """
-    Based on the result of the file processing,
-    this function determines the exit code.
-    If some files of the current batch could not be processed, the exit code is 1.
-    If all files of the current batch were processed,
-    the exit code is 0 if this is the last batch,
-    and 2 if there are more batches to process.
-
-    Args:
-        files_to_process: list of all paths that should have been processed (current batch)
-        processed_files: list of tuples of Paths. If the second Path is None, the file could not be processed.
-        is_last_batch: true if this is the last batch of files to process
-
-    Returns:
-        exit code
-    """
-    processed_paths = [x[1] for x in processed_files if x and x[1]]
-    if len(processed_paths) == len(files_to_process):
-        print(f"{datetime.now()}: All files ({len(files_to_process)}) of this batch were processed: Okay")
-        logger.info(f"All files ({len(files_to_process)}) of this batch were processed: Okay")
-        if is_last_batch:
-            print(f"{datetime.now()}: All multimedia files referenced in the XML are processed. No more batches.")
-            logger.info("All multimedia files referenced in the XML are processed. No more batches.")
-            return 0
-        else:
-            return 2
-    else:
-        ratio = f"{len(processed_paths)}/{len(files_to_process)}"
-        msg = f"Some files of this batch could not be processed: Only {ratio} were processed. The failed ones are:"
-        print(f"{datetime.now()}: ERROR: {msg}")
-        logger.error(msg)
-        for input_file, output_file in processed_files:
-            if not output_file:
-                print(f" - {input_file}")
-                logger.error(f" - {input_file}")
-        return 1
 
 
 def _process_files_in_parallel(
@@ -114,7 +71,7 @@ def _process_files_in_parallel(
     msg = f"Processing {len(files_to_process)} files, in batches of {batchsize} files each..."
     print(msg)
     orig_filepath_2_uuid: list[tuple[Path, Optional[Path]]] = []
-    for batch in make_chunks(lst=files_to_process, length=batchsize):
+    for batch in batched(files_to_process, batchsize):
         if unprocessed_paths := _launch_thread_pool(nthreads, input_dir, output_dir, batch, orig_filepath_2_uuid):
             return orig_filepath_2_uuid, unprocessed_paths
         print(f"Processed {len(orig_filepath_2_uuid)}/{len(files_to_process)} files")

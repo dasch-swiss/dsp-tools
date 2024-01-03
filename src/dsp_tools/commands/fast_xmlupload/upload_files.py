@@ -12,8 +12,9 @@ from requests import JSONDecodeError
 
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.connection import Connection
+from dsp_tools.utils.connection_live import ConnectionLive
 from dsp_tools.utils.create_logger import get_logger
-from dsp_tools.utils.shared import login, make_chunks
+from dsp_tools.utils.shared import make_chunks
 
 logger = get_logger(__name__)
 
@@ -411,11 +412,8 @@ def upload_files(
     logger.info(f"Found {len(internal_filenames_of_processed_files)} files to upload...")
 
     # create connection to DSP
-    con = login(
-        server=dsp_url,
-        user=user,
-        password=password,
-    )
+    con = ConnectionLive(dsp_url)
+    con.login(user, password)
 
     # upload files in parallel
     start_time = datetime.now()

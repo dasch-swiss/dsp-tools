@@ -82,7 +82,7 @@ def _launch_thread_pool(
     nthreads: int | None,
     input_dir: Path,
     output_dir: Path,
-    files_to_process: list[Path],
+    files_to_process: tuple[Path],
     orig_filepath_2_uuid: list[tuple[Path, Optional[Path]]],
 ) -> list[Path]:
     counter = 0

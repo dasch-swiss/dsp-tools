@@ -324,7 +324,7 @@ def _launch_thread_pool(
     dir_with_processed_files: Path,
     sipi_url: str,
     con: Connection,
-    batch: list[Path],
+    batch: tuple[Path],
     result: list[tuple[Path, bool]],
 ) -> None:
     with ThreadPoolExecutor(max_workers=nthreads) as pool:

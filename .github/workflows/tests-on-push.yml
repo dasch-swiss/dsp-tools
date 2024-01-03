@@ -34,42 +34,42 @@ jobs:
 
 
       # build docs
-      - if: ${{ matrix.task }} == build-docs
+      - if: matrix.task == 'build-docs'
         name: build docs
         run: poetry run mkdocs build --strict
-      - if: ${{ matrix.task }} == build-docs
+      - if: matrix.task == 'build-docs'
         name: check external links in docs
         run: |
           npm install -g markdown-link-validator
           poetry exec check-links
-      - if: ${{ matrix.task }} == build-docs
+      - if: matrix.task == 'build-docs'
         name: markdownlint
         run: poetry exec markdownlint
 
 
       # lint python code
-      - if: ${{ matrix.task }} == lint
+      - if: matrix.task == 'lint'
         name: Linting with ruff
         run: poetry exec ruff-check-github
-      - if: ${{ matrix.task }} == lint
+      - if: matrix.task == 'lint'
         name: Formatting with ruff
         run: poetry exec ruff-format
-      - if: ${{ matrix.task }} == lint
+      - if: matrix.task == 'lint'
         name: Linting with mypy
         run: poetry exec mypy
-      - if: ${{ matrix.task }} == lint
+      - if: matrix.task == 'lint'
         name: Linting with darglint
         run: poetry exec darglint
 
 
       # run unit tests
-      - if: ${{ matrix.task }} == unittests
+      - if: matrix.task == 'unittests'
         name: unittests
         run: poetry exec unittests
   
 
       # run benchmarking
-      - if: ${{ matrix.task }} == benchmarking
+      - if: matrix.task == 'benchmarking'
         name: benchmarking
         run: poetry run pytest -s test/benchmarking/
 
@@ -77,10 +77,10 @@ jobs:
       # run e2e tests
 
       # Install programs for local processing (fast xmlupload)
-      - if: ${{ matrix.task }} == e2e
+      - if: matrix.task == 'e2e'
         name: Fast xmlupload - Install ffmpeg
         uses: FedericoCarboni/setup-ffmpeg@v2
-      - if: ${{ matrix.task }} == e2e
+      - if: matrix.task == 'e2e'
         name: Fast xmlupload - ImageMagick - look for cached AppImage
         # If a cache is found that matches "key", the cached files are restored to "path".
         # If no cache is found, this step is skipped, and when all jobs are done, the files in "path" are cached under "key".
@@ -89,17 +89,17 @@ jobs:
         with:
           path: ~/bin/magick        # AppImage containing all binaries + dependencies
           key: imagemagick          # don't check for a new version, because version checking is fairly complex
-      - if: ${{ matrix.task }} == e2e && ${{ steps.search-cached-imagemagick.outputs.cache-hit != 'true' }}
+      - if: matrix.task == 'e2e' && steps.search-cached-imagemagick.outputs.cache-hit != 'true'
         name: Fast xmlupload - ImageMagick - Installation
         uses: mfinelli/setup-imagemagick@v2  # downloads the "magick" AppImage to ~/bin/magick
 
       # start stack, run tests, stop stack
-      - if: ${{ matrix.task }} == e2e
+      - if: matrix.task == 'e2e'
         name: start stack
         run: poetry run dsp-tools start-stack --no-prune
-      - if: ${{ matrix.task }} == e2e
+      - if: matrix.task == 'e2e'
         name: e2e tests
         run: poetry exec e2e-tests
-      - if: ${{ matrix.task }} == e2e
+      - if: matrix.task == 'e2e'
         name: stop stack  # see if this command can run (it isn't tested anywhere else)
         run: poetry run dsp-tools stop-stack

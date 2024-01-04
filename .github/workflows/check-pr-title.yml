@@ -3,6 +3,7 @@
 name: PR-Title
 
 on:
+  merge_group:
   pull_request:
     types: [opened, edited, synchronize, reopened]
 

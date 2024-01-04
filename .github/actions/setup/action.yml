@@ -1,13 +1,9 @@
 ---
 
-name: Checkout dsp-tools repo, install python, poetry, and dependencies
+name: Install python, poetry, and dependencies
 runs:
   using: "composite"
   steps:
-    - name: Checkout dsp-tools repo
-      uses: actions/checkout@v3
-      with:
-        submodules: recursive
     - name: Install poetry
       run: |
         curl -sSL https://install.python-poetry.org | python3 -

@@ -37,7 +37,6 @@ from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.json_ld_util import get_json_ld_context_for_project
-from dsp_tools.utils.shared import login
 
 logger = get_logger(__name__)
 
@@ -84,7 +83,8 @@ def xmlupload(
     )
 
     # establish connection to DSP server
-    con = login(server=server, user=user, password=password, dump=config.diagnostics.dump)
+    con = ConnectionLive(server, dump=config.diagnostics.dump)
+    con.login(user, password)
     sipi_con = ConnectionLive(sipi, dump=config.diagnostics.dump, token=con.get_token())
     sipi_server = Sipi(sipi_con)
 

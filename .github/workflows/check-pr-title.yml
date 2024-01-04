@@ -13,19 +13,10 @@ jobs:
     name: Check PR Title
     runs-on: ubuntu-latest
     steps:
-      - uses: deepakputhraya/action-pr-title@master
-        if: ${{ github.event_name == 'pull_request' }}
+      - uses: satvik-s/pr-title-check
         with:
-          regex: 
-            "^[a-z]+(\\([0-9a-z\\-_, ]+\\))?!?: .+\\(DEV-\\d+(, DEV-\\d+)*\\)$|\
+          pattern: 
+            "^(fix|refactor|feat|docs|chore|style|test)\
+            (\\([0-9a-z\\-_, ]+\\))?!?: .+\\(DEV-\\d+(, DEV-\\d+)*\\)$|\
             ^(chore|refactor|style|docs)(\\([0-9a-z\\-_, ]+\\))?!?: .+"
             # see here on how to cope with linebreaks in YAML: https://stackoverflow.com/a/21699210/14414188
-          allowed_prefixes: "fix,refactor,feat,docs,chore,style,test" 
-          disallowed_prefixes: "feature,hotfix" 
-          prefix_case_sensitive: true 
-          min_length: 7 
-          max_length: 120
-  
-      - run: echo "Fake test"
-        if: ${{ github.event_name == 'merge_group' }}
-

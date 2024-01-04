@@ -7,7 +7,7 @@ import json
 import unicodedata
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Iterable, Optional, TypeGuard, TypeVar, Union
+from typing import Any, Optional, TypeGuard, Union
 
 import pandas as pd
 import regex
@@ -15,64 +15,9 @@ from lxml import etree
 
 from dsp_tools.commands.excel2xml.propertyelement import PropertyElement
 from dsp_tools.models.exceptions import BaseError, UserError
-from dsp_tools.utils.connection import Connection
-from dsp_tools.utils.connection_live import ConnectionLive
 from dsp_tools.utils.create_logger import get_logger
 
 logger = get_logger(__name__)
-
-
-T = TypeVar("T")
-
-
-def make_chunks(lst: list[T], length: int) -> Iterable[list[T]]:
-    """
-    Split a list into length-sized chunks.
-    If length is greater than the length of the list,
-    the result will have only 1 chunk.
-
-    Args:
-        lst: list
-        length: length of the chunks
-
-    Yields:
-        chunks
-    """
-    length = min(length, len(lst))
-    for i in range(0, len(lst), length):
-        yield lst[i : i + length]
-
-
-def login(
-    server: str,
-    user: str,
-    password: str,
-    dump: bool = False,
-) -> Connection:
-    """
-    Creates a connection,
-    makes a login (handling temporary network interruptions),
-    and returns the active connection.
-
-    Args:
-        server: URL of the DSP server to connect to
-        user: Username (e-mail)
-        password: Password of the user
-        dump: if True, every request is written into a file
-
-    Raises:
-        UserError: if the login fails permanently
-
-    Returns:
-        Connection instance
-    """
-    con = ConnectionLive(server=server, dump=dump)
-    try:
-        con.login(email=user, password=password)
-    except BaseError:
-        logger.error("Cannot login to DSP server", exc_info=True)
-        raise UserError("Cannot login to DSP server") from None
-    return con
 
 
 def validate_xml_against_schema(input_file: Union[str, Path, etree._ElementTree[Any]]) -> bool:

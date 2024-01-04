@@ -2,6 +2,7 @@ import glob
 import pickle
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
+from itertools import batched
 from pathlib import Path
 from time import sleep
 from typing import Optional
@@ -12,8 +13,8 @@ from requests import JSONDecodeError
 
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.connection import Connection
+from dsp_tools.utils.connection_live import ConnectionLive
 from dsp_tools.utils.create_logger import get_logger
-from dsp_tools.utils.shared import login, make_chunks
 
 logger = get_logger(__name__)
 
@@ -313,7 +314,7 @@ def _upload_files_in_parallel(
         _description_
     """
     result: list[tuple[Path, bool]] = []
-    for batch in make_chunks(lst=internal_filenames_of_processed_files, length=1000):
+    for batch in batched(internal_filenames_of_processed_files, 1000):
         _launch_thread_pool(nthreads, dir_with_processed_files, sipi_url, con, batch, result)
     return result
 
@@ -323,7 +324,7 @@ def _launch_thread_pool(
     dir_with_processed_files: Path,
     sipi_url: str,
     con: Connection,
-    batch: list[Path],
+    batch: tuple[Path, ...],
     result: list[tuple[Path, bool]],
 ) -> None:
     with ThreadPoolExecutor(max_workers=nthreads) as pool:
@@ -411,11 +412,8 @@ def upload_files(
     logger.info(f"Found {len(internal_filenames_of_processed_files)} files to upload...")
 
     # create connection to DSP
-    con = login(
-        server=dsp_url,
-        user=user,
-        password=password,
-    )
+    con = ConnectionLive(dsp_url)
+    con.login(user, password)
 
     # upload files in parallel
     start_time = datetime.now()

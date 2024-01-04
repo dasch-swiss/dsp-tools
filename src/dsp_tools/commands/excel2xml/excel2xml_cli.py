@@ -200,14 +200,13 @@ def _append_bitstream_to_resource(
                 f"'{row['file']}' (Resource ID '{row['id']}', Excel row {row_number}). "
                 f"An attempt to deduce them from the resource permissions failed."
             )
-    with warnings.catch_warnings():  # ignore warnings about non-existing files
-        resource.append(
-            make_bitstream_prop(
-                path=str(row["file"]),
-                permissions=str(file_permissions),
-                calling_resource=row["id"],
-            )
+    resource.append(
+        make_bitstream_prop(
+            path=str(row["file"]),
+            permissions=str(file_permissions),
+            calling_resource=row["id"],
         )
+    )
     return resource
 
 

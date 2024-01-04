@@ -4,6 +4,7 @@ name: PR-Title
 
 on:
   merge_group:
+    types: [checks_requested]
   pull_request:
     types: [opened, edited, synchronize, reopened]
 
@@ -13,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: deepakputhraya/action-pr-title@master
+        if: ${{ github.event_name == 'pull_request' }}
         with:
           regex: 
             "^[a-z]+(\\([0-9a-z\\-_, ]+\\))?!?: .+\\(DEV-\\d+(, DEV-\\d+)*\\)$|\
@@ -23,3 +25,7 @@ jobs:
           prefix_case_sensitive: true 
           min_length: 7 
           max_length: 120
+  
+      - run: echo "Fake test"
+        if: ${{ github.event_name == 'merge_group' }}
+

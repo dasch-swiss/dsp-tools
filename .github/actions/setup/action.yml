@@ -1,6 +1,6 @@
 ---
 
-name: Install python, poetry, and dependencies
+name: Setup - Install python, poetry, and dependencies
 runs:
   using: "composite"
   steps:

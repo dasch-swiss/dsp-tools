@@ -29,7 +29,7 @@ jobs:
         run: poetry exec markdownlint
 
 
-  lint-python-code:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
@@ -74,7 +74,7 @@ jobs:
         run: poetry run pytest -s test/benchmarking/
 
 
-  e2e:
+  e2e-tests:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
@@ -95,11 +95,11 @@ jobs:
         with:
           path: ~/bin/magick        # AppImage containing all binaries + dependencies
           key: imagemagick          # don't check for a new version, because version checking is fairly complex
-      - if: steps.search-cached-imagemagick.outputs.cache-hit != 'true'
-        name: Fast xmlupload - ImageMagick - Installation
+      - name: Fast xmlupload - ImageMagick - Installation
+        if: ${{ steps.search-cached-imagemagick.outputs.cache-hit != 'true' }}
         uses: mfinelli/setup-imagemagick@v2  # downloads the "magick" AppImage to ~/bin/magick
 
-      # start stack, run tests, stop stack
+      # run tests
       - name: start stack
         run: poetry run dsp-tools start-stack --no-prune
       - name: e2e tests

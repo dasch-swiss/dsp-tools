@@ -4,7 +4,6 @@ name: Tests on Push
 
 
 on:
-  merge_group:
   push:
     branches-ignore:
       - main

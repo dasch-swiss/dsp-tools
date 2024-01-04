@@ -447,6 +447,7 @@ def make_resource(  # noqa: D417 (undocumented-param)
 def make_bitstream_prop(
     path: Union[str, os.PathLike[Any]],
     permissions: str = "prop-default",
+    check: bool = False,
     calling_resource: str = "",
 ) -> etree._Element:
     """
@@ -455,10 +456,11 @@ def make_bitstream_prop(
     Args:
         path: path to a valid file that will be uploaded
         permissions: permissions string
+        check: if True, issue a warning if the path doesn't point to an existing file
         calling_resource: the name of the parent resource (for better error messages)
 
     Raises:
-        Warning: if the path doesn't point to an existing file
+        Warning: if the path doesn't point to an existing file (only if check=True)
 
     Returns:
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
@@ -471,7 +473,7 @@ def make_bitstream_prop(
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#bitstream
     """
 
-    if not Path(path).is_file():
+    if check and not Path(path).is_file():
         warnings.warn(
             f"Failed validation in bitstream tag of resource '{calling_resource}': "
             f"The following path doesn't point to a file: {path}",

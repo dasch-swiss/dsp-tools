@@ -1,4 +1,5 @@
 import unittest
+import warnings
 from pathlib import Path
 from typing import Any, Callable, Optional, Sequence, Union
 
@@ -341,32 +342,41 @@ class TestExcel2xmlLib(unittest.TestCase):
         values_output = excel2xml.prepare_value([excel2xml.PropertyElement(x) for x in values_with_nas])
         self.assertEqual([x.value for x in values_output], values_with_nas)
 
-    def test_make_bitstream_prop(self) -> None:
-        path_string = "foo/bar/baz.txt"
-        path_path = Path(path_string)
-        test_cases: list[tuple[str, Callable[..., etree._Element]]] = [
-            (
-                '<bitstream permissions="prop-default">foo/bar/baz.txt</bitstream>',
-                lambda: excel2xml.make_bitstream_prop(path_string),
-            ),
-            (
-                '<bitstream permissions="prop-default">foo/bar/baz.txt</bitstream>',
-                lambda: excel2xml.make_bitstream_prop(path_path),
-            ),
-            (
-                '<bitstream permissions="prop-restricted">foo/bar/baz.txt</bitstream>',
-                lambda: excel2xml.make_bitstream_prop(path_string, "prop-restricted"),
-            ),
-            (
-                '<bitstream permissions="prop-restricted">foo/bar/baz.txt</bitstream>',
-                lambda: excel2xml.make_bitstream_prop(path_path, "prop-restricted"),
-            ),
-        ]
-        for expected, method_call in test_cases:
-            with self.assertWarnsRegex(UserWarning, ".*Failed validation in bitstream tag.*"):
-                result = etree.tostring(method_call(), encoding="unicode")
-                result = regex.sub(r" xmlns(:.+?)?=\".+?\"", "", result)
-                self.assertEqual(result, expected)
+    def test_make_bitstream_prop_from_string(self) -> None:
+        res = excel2xml.make_bitstream_prop("foo/bar/baz.txt")
+        assert res.tag.endswith("bitstream")
+        assert res.attrib["permissions"] == "prop-default"
+        assert res.text == "foo/bar/baz.txt"
+
+    def test_make_bitstream_prop_from_path(self) -> None:
+        res = excel2xml.make_bitstream_prop(Path("foo/bar/baz.txt"))
+        assert res.tag.endswith("bitstream")
+        assert res.attrib["permissions"] == "prop-default"
+        assert res.text == "foo/bar/baz.txt"
+
+    def test_make_bitstream_prop_custom_permissions(self) -> None:
+        res = excel2xml.make_bitstream_prop("foo/bar/baz.txt", "prop-restricted")
+        assert res.tag.endswith("bitstream")
+        assert res.attrib["permissions"] == "prop-restricted"
+        assert res.text == "foo/bar/baz.txt"
+
+    def test_make_bitstream_prop_valid_file(self) -> None:
+        with warnings.catch_warnings():
+            warnings.filterwarnings("error", category=UserWarning)
+            try:
+                res = excel2xml.make_bitstream_prop("testdata/bitstreams/test.jpg", check=True)
+            except UserWarning as e:
+                raise AssertionError from e
+        assert res.tag.endswith("bitstream")
+        assert res.attrib["permissions"] == "prop-default"
+        assert res.text == "testdata/bitstreams/test.jpg"
+
+    def test_make_bitstream_prop_invalid_file(self) -> None:
+        with pytest.warns(UserWarning, match=".*Failed validation in bitstream tag.*"):
+            res = excel2xml.make_bitstream_prop("foo/bar/baz.txt", check=True)
+        assert res.tag.endswith("bitstream")
+        assert res.attrib["permissions"] == "prop-default"
+        assert res.text == "foo/bar/baz.txt"
 
     def test_make_boolean_prop(self) -> None:
         # prepare true_values

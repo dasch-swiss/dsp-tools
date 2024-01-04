@@ -20,8 +20,9 @@ from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.models.helpers import Cardinality, Context, DateTimeStamp
 from dsp_tools.models.langstring import LangString
 from dsp_tools.utils.connection import Connection
+from dsp_tools.utils.connection_live import ConnectionLive
 from dsp_tools.utils.create_logger import get_logger
-from dsp_tools.utils.shared import login, parse_json_input
+from dsp_tools.utils.shared import parse_json_input
 
 logger = get_logger(__name__)
 
@@ -1048,7 +1049,8 @@ def create_project(
             )
 
     # establish connection to DSP server
-    con = login(server=server, user=user_mail, password=password, dump=dump)
+    con = ConnectionLive(server, dump=dump)
+    con.login(user_mail, password)
 
     # create project on DSP server
     print(f"Create project '{proj_shortname}' ({proj_shortcode})...")

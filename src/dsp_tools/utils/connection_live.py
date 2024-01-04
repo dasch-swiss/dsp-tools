@@ -1,6 +1,6 @@
 import json
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from functools import partial
 from pathlib import Path
@@ -106,18 +106,17 @@ class ConnectionLive:
     Attributes:
         server: address of the server, e.g https://api.dasch.swiss
         dump: if True, every request is written into a file
-        dump_directory: directory where the HTTP requests are written
         token: session token received by the server after login
     """
 
     server: str
     dump: bool = False
-    dump_directory = Path("HTTP requests")
+    dump_directory: Path = field(init=False, default=Path("HTTP requests"))
     token: Optional[str] = None
     # downtimes of server-side services -> API still processes request
     # -> retry too early has side effects (e.g. duplicated resources)
-    timeout_put_post: int = 30 * 60
-    timeout_get_delete: int = 20
+    timeout_put_post: int = field(init=False, default=30 * 60)
+    timeout_get_delete: int = field(init=False, default=20)
 
     def __post_init__(self) -> None:
         """

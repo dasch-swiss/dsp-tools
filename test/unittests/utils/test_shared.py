@@ -15,17 +15,6 @@ from dsp_tools.utils import shared
 
 
 class TestShared(unittest.TestCase):
-    def test_make_chunks(self) -> None:
-        testcases = {
-            (range(10), 5): [[0, 1, 2, 3, 4], [5, 6, 7, 8, 9]],
-            (range(10), 9): [[0, 1, 2, 3, 4, 5, 6, 7, 8], [9]],
-            (range(10), 10): [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]],
-            (range(10), 11): [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]],
-        }
-        for _input, _output in testcases.items():
-            _output_actual = list(shared.make_chunks(lst=list(_input[0]), length=_input[1]))
-            self.assertListEqual(_output, _output_actual)
-
     def test_validate_xml_against_schema(self) -> None:
         self.assertTrue(shared.validate_xml_against_schema(input_file="testdata/xml-data/test-data-systematic.xml"))
         self.assertTrue(

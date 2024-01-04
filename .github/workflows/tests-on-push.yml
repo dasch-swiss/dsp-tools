@@ -2,86 +2,69 @@
 
 name: Tests on Push
 
+
 on:
   push:
     branches-ignore:
       - main
 
+
 jobs:
-  all-tasks:
-    strategy:
-      matrix:
-        task: [build-docs, lint, unittests, benchmarking, e2e]
+  setup:
+    uses: ./.github/workflows/setup.yml
+  
+  build-docs:
+    needs: setup
     runs-on: ubuntu-latest
     steps:
-      # setup steps common to all tasks
-      - name: Checkout source
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
-      - name: Install poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          poetry self add poetry-exec-plugin
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.12
-          # attempt to restore dependencies from cache (if successful, the following `poetry install` will be a no-op)
-          cache: poetry
-      - name: Install Python dependencies
-        run: poetry install
-
-
-      # build docs
-      - if: matrix.task == 'build-docs'
-        name: build docs
+      - name: build docs
         run: poetry run mkdocs build --strict
-      - if: matrix.task == 'build-docs'
-        name: check external links in docs
+      - name: check external links in docs
         run: |
           npm install -g markdown-link-validator
           poetry exec check-links
-      - if: matrix.task == 'build-docs'
-        name: markdownlint
+      - name: markdownlint
         run: poetry exec markdownlint
 
 
-      # lint python code
-      - if: matrix.task == 'lint'
-        name: Linting with ruff
+  lint-python-code:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Linting with ruff
         run: poetry exec ruff-check-github
-      - if: matrix.task == 'lint'
-        name: Formatting with ruff
+      - name: Formatting with ruff
         run: poetry exec ruff-format
-      - if: matrix.task == 'lint'
-        name: Linting with mypy
+      - name: Linting with mypy
         run: poetry exec mypy
-      - if: matrix.task == 'lint'
-        name: Linting with darglint
+      - name: Linting with darglint
         run: poetry exec darglint
 
 
-      # run unit tests
-      - if: matrix.task == 'unittests'
-        name: unittests
+  unittests:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: unittests
         run: poetry exec unittests
   
 
-      # run benchmarking
-      - if: matrix.task == 'benchmarking'
-        name: benchmarking
+  benchmarking:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: benchmarking
         run: poetry run pytest -s test/benchmarking/
 
 
-      # run e2e tests
-
+  e2e:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
       # Install programs for local processing (fast xmlupload)
-      - if: matrix.task == 'e2e'
-        name: Fast xmlupload - Install ffmpeg
+      - name: Fast xmlupload - Install ffmpeg
         uses: FedericoCarboni/setup-ffmpeg@v2
-      - if: matrix.task == 'e2e'
-        name: Fast xmlupload - ImageMagick - look for cached AppImage
+      - name: Fast xmlupload - ImageMagick - look for cached AppImage
         # If a cache is found that matches "key", the cached files are restored to "path".
         # If no cache is found, this step is skipped, and when all jobs are done, the files in "path" are cached under "key".
         id: search-cached-imagemagick
@@ -89,17 +72,14 @@ jobs:
         with:
           path: ~/bin/magick        # AppImage containing all binaries + dependencies
           key: imagemagick          # don't check for a new version, because version checking is fairly complex
-      - if: matrix.task == 'e2e' && steps.search-cached-imagemagick.outputs.cache-hit != 'true'
+      - if: steps.search-cached-imagemagick.outputs.cache-hit != 'true'
         name: Fast xmlupload - ImageMagick - Installation
         uses: mfinelli/setup-imagemagick@v2  # downloads the "magick" AppImage to ~/bin/magick
 
       # start stack, run tests, stop stack
-      - if: matrix.task == 'e2e'
-        name: start stack
+      - name: start stack
         run: poetry run dsp-tools start-stack --no-prune
-      - if: matrix.task == 'e2e'
-        name: e2e tests
+      - name: e2e tests
         run: poetry exec e2e-tests
-      - if: matrix.task == 'e2e'
-        name: stop stack  # see if this command can run (it isn't tested anywhere else)
+      - name: stop stack  # see if this command can run (it isn't tested anywhere else)
         run: poetry run dsp-tools stop-stack

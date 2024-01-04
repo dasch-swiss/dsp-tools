@@ -18,15 +18,16 @@ def test_get_length_ok_resources() -> None:
     len_standoff = len(stash.standoff_stash.res_2_stash_items)  # type: ignore[union-attr]
     len_resptr = len(stash.link_value_stash.res_2_stash_items)  # type: ignore[union-attr]
     stashed_links = len_standoff + len_resptr
+    previous_stash_size = 14
     print_str = (
         f"\n\n---------------------\n"
         f"Total Resources: 63\n"
-        f"Previous Stash Size: 32\n"
+        f"Previous Stash Size: {previous_stash_size}\n"
         f"Current Stash Size: {stashed_links}"
         f"\n---------------------\n"
     )
     cprint(text=print_str, color="yellow", attrs=["bold"])
-    assert stashed_links <= 32
+    assert stashed_links <= previous_stash_size
 
 
 if __name__ == "__main__":

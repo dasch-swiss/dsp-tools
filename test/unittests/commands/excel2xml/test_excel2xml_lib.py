@@ -1,3 +1,4 @@
+import datetime
 import unittest
 import warnings
 from pathlib import Path
@@ -204,12 +205,25 @@ class TestExcel2xmlLib(unittest.TestCase):
         assert excel2xml.find_date_in_string("x -2193_01_26- x") == "GREGORIAN:CE:2193-01-26:CE:2193-01-26"
         assert excel2xml.find_date_in_string("x 2193_02_30 x") is None
 
+    def test_find_date_in_string_eur_date_2_digit(self) -> None:
+        cur = str(datetime.date.today().year - 2000)  # in 2024, this will be "24"
+        nxt = str(datetime.date.today().year - 2000 + 1)  # in 2024, this will be "25"
+        assert excel2xml.find_date_in_string(f"x 30.4.{cur} x") == f"GREGORIAN:CE:20{cur}-04-30:CE:20{cur}-04-30"
+        assert excel2xml.find_date_in_string(f"x 30.4.{nxt} x") == f"GREGORIAN:CE:19{nxt}-04-30:CE:19{nxt}-04-30"
+        assert excel2xml.find_date_in_string(f"x 31.4.{nxt} x") is None
+
     def test_find_date_in_string_eur_date_range(self) -> None:
         """template: 27.-28.1.1900"""
         assert excel2xml.find_date_in_string("x 25.-26.2.0800 x") == "GREGORIAN:CE:0800-02-25:CE:0800-02-26"
         assert excel2xml.find_date_in_string("x 25. - 26.2.0800 x") == "GREGORIAN:CE:0800-02-25:CE:0800-02-26"
         assert excel2xml.find_date_in_string("x 25.-24.2.0800 x") is None
         assert excel2xml.find_date_in_string("x 25.-25.2.0800 x") is None
+
+    def test_find_date_in_string_eur_date_range_2_digit(self) -> None:
+        cur = str(datetime.date.today().year - 2000)  # in 2024, this will be "24"
+        nxt = str(datetime.date.today().year - 2000 + 1)  # in 2024, this will be "25"
+        assert excel2xml.find_date_in_string(f"x 15.-16.4.{cur} x") == f"GREGORIAN:CE:20{cur}-04-15:CE:20{cur}-04-16"
+        assert excel2xml.find_date_in_string(f"x 15.-16.4.{nxt} x") == f"GREGORIAN:CE:19{nxt}-04-15:CE:19{nxt}-04-16"
 
     def test_find_date_in_string_eur_date_range_across_month(self) -> None:
         """template: 26.2.-24.3.1948"""
@@ -219,6 +233,12 @@ class TestExcel2xmlLib(unittest.TestCase):
         assert excel2xml.find_date_in_string("x 28.2.-1.12.1515 x") == "GREGORIAN:CE:1515-02-28:CE:1515-12-01"
         assert excel2xml.find_date_in_string("x 28.2.-26.2.1515 x") is None
         assert excel2xml.find_date_in_string("x 28.2.-28.2.1515 x") is None
+
+    def test_find_date_in_string_eur_date_range_across_month_2_digit(self) -> None:
+        cur = str(datetime.date.today().year - 2000)  # in 2024, this will be "24"
+        nxt = str(datetime.date.today().year - 2000 + 1)  # in 2024, this will be "25"
+        assert excel2xml.find_date_in_string(f"x 15.04.-1.5.{cur} x") == f"GREGORIAN:CE:20{cur}-04-15:CE:20{cur}-05-01"
+        assert excel2xml.find_date_in_string(f"x 15.04.-1.5.{nxt} x") == f"GREGORIAN:CE:19{nxt}-04-15:CE:19{nxt}-05-01"
 
     def test_find_date_in_string_eur_date_range_across_year(self) -> None:
         """template: 1.12.1973 - 6.1.1974"""
@@ -230,6 +250,12 @@ class TestExcel2xmlLib(unittest.TestCase):
         assert excel2xml.find_date_in_string("x 25.12.2022-25.12.2022 x") is None
         assert excel2xml.find_date_in_string("x 25/12/2022-03/01/2022 x") is None
         assert excel2xml.find_date_in_string("x 25/12/2022-25/12/2022 x") is None
+
+    def test_find_date_in_string_eur_date_range_across_year_2_digit(self) -> None:
+        cur = str(datetime.date.today().year - 2000)  # in 2024, this will be "24"
+        nxt = str(datetime.date.today().year - 2000 + 1)  # in 2024, this will be "25"
+        assert excel2xml.find_date_in_string(f"x 15.04.23-1.5.{cur} x") == f"GREGORIAN:CE:2023-04-15:CE:20{cur}-05-01"
+        assert excel2xml.find_date_in_string(f"x 15.04.{nxt}-1.5.26 x") == f"GREGORIAN:CE:19{nxt}-04-15:CE:1926-05-01"
 
     def test_find_date_in_string_monthname(self) -> None:
         """template: February 9, 1908 | Dec 5,1908"""

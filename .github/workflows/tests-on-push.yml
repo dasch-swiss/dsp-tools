@@ -10,13 +10,10 @@ on:
 
 
 jobs:
-  setup:
-    uses: ./.github/workflows/setup.yml
-  
   build-docs:
-    needs: setup
     runs-on: ubuntu-latest
     steps:
+      - uses: ./.github/actions/setup
       - name: build docs
         run: poetry run mkdocs build --strict
       - name: check external links in docs
@@ -28,9 +25,9 @@ jobs:
 
 
   lint-python-code:
-    needs: setup
     runs-on: ubuntu-latest
     steps:
+      - uses: ./.github/actions/setup
       - name: Linting with ruff
         run: poetry exec ruff-check-github
       - name: Formatting with ruff
@@ -42,25 +39,26 @@ jobs:
 
 
   unittests:
-    needs: setup
     runs-on: ubuntu-latest
     steps:
+      - uses: ./.github/actions/setup
       - name: unittests
         run: poetry exec unittests
   
 
   benchmarking:
-    needs: setup
     runs-on: ubuntu-latest
     steps:
+      - uses: ./.github/actions/setup
       - name: benchmarking
         run: poetry run pytest -s test/benchmarking/
 
 
   e2e:
-    needs: setup
     runs-on: ubuntu-latest
     steps:
+      - uses: ./.github/actions/setup
+      
       # Install programs for local processing (fast xmlupload)
       - name: Fast xmlupload - Install ffmpeg
         uses: FedericoCarboni/setup-ffmpeg@v2

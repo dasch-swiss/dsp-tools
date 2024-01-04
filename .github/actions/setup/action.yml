@@ -1,0 +1,22 @@
+---
+
+name: Checkout dsp-tools repo, install python, poetry, and dependencies
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout dsp-tools repo
+      uses: actions/checkout@v3
+      with:
+        submodules: recursive
+    - name: Install poetry
+      run: |
+        curl -sSL https://install.python-poetry.org | python3 -
+        poetry self add poetry-exec-plugin
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.12
+        # attempt to restore dependencies from cache (if successful, the following `poetry install` will be a no-op)
+        cache: poetry
+    - name: Install Python dependencies
+      run: poetry install

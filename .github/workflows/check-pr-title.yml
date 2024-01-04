@@ -13,7 +13,7 @@ jobs:
     name: Check PR Title
     runs-on: ubuntu-latest
     steps:
-      - uses: satvik-s/pr-title-check
+      - uses: satvik-s/pr-title-check@main
         with:
           pattern: 
             "^(fix|refactor|feat|docs|chore|style|test)\

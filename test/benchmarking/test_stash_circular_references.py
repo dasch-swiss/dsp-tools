@@ -21,12 +21,12 @@ def test_get_length_ok_resources() -> None:
     print_str = (
         f"\n\n---------------------\n"
         f"Total Resources: 63\n"
-        f"Previous Stash Size: 32\n"
+        f"Previous Stash Size: 14\n"
         f"Current Stash Size: {stashed_links}"
         f"\n---------------------\n"
     )
     cprint(text=print_str, color="yellow", attrs=["bold"])
-    assert stashed_links <= 32
+    assert stashed_links <= 14
 
 
 if __name__ == "__main__":

@@ -21,7 +21,7 @@ def _update_possibly_existing_repo(rosetta_folder: Path) -> bool:
     is_rosetta_up_to_date = True
     if rosetta_folder.is_dir():
         print(f"Execute 'git pull' in {rosetta_folder}...")
-        completed_process = subprocess.run("git pull", shell=True, cwd=rosetta_folder, check=False)
+        completed_process = subprocess.run("git pull".split(), cwd=rosetta_folder, check=False)
         if not completed_process or completed_process.returncode != 0:
             print(f"'git pull' failed. Remove '{rosetta_folder}'...")
             shutil.rmtree(rosetta_folder, ignore_errors=True)
@@ -48,8 +48,7 @@ def _clone_repo(
     """
     print(f"Clone into {rosetta_folder}...")
     completed_process = subprocess.run(
-        "git clone https://github.com/dasch-swiss/082E-rosetta-scripts.git",
-        shell=True,
+        "git clone https://github.com/dasch-swiss/082E-rosetta-scripts.git".split(),
         cwd=enclosing_folder,
         check=False,
     )

@@ -99,9 +99,8 @@ class TestCLI(unittest.TestCase):
         """
         try:
             subprocess.run(
-                f"poetry run {cli_call}",
+                f"poetry run {cli_call}".split(),
                 check=True,
-                shell=True,
                 capture_output=True,
                 cwd=working_directory,
             )

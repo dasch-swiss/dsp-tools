@@ -182,6 +182,7 @@ ignore = [
     "ISC001",   # flake8-implicit-str-concat: single-line-implicit-string-concatenation  # incompatible with the formatter
     "S105",     # flake8-bandit: hardcoded password
     "S106",     # flake8-bandit: hardcoded password
+    "S603",     # flake8-bandit: subprocess-without-shell-equals-true
 ]
 
 

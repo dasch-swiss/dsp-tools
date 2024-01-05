@@ -6,7 +6,7 @@ from importlib.metadata import version
 
 # help texts
 username_text = "username (e-mail) used for authentication with the DSP-API"
-password_text = "password used for authentication with the DSP-API"  # noqa: S105 (hardcoded password)
+password_text = "password used for authentication with the DSP-API"
 dsp_server_text = "URL of the DSP server"
 verbose_text = "print more information about the progress to the console"
 

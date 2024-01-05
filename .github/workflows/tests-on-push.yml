@@ -101,19 +101,20 @@ jobs:
   fast-xmlupload:
     runs-on: ubuntu-latest
     steps:
-      - name: Fast xmlupload - Install ffmpeg
-        uses: FedericoCarboni/setup-ffmpeg@v2
-      - name: Fast xmlupload - ImageMagick - look for cached AppImage
+      - name: Checkout dsp-tools repo
+        uses: actions/checkout@v3
+      - name: Install python, poetry, and dependencies
+        uses: ./.github/actions/setup
+      - uses: FedericoCarboni/setup-ffmpeg@v2
+      - id: search-cached-imagemagick
         # If a cache is found that matches "key", the cached files are restored to "path".
         # If no cache is found, this step is skipped, and when all jobs are done, the files in "path" are cached under "key".
-        id: search-cached-imagemagick
         uses: actions/cache@v3
         with:
           path: ~/bin/magick        # AppImage containing all binaries + dependencies
           key: imagemagick          # don't check for a new version, because version checking is fairly complex
-      - name: Fast xmlupload - ImageMagick - Installation
+      - uses: mfinelli/setup-imagemagick@v2  # downloads the "magick" AppImage to ~/bin/magick
         if: ${{ steps.search-cached-imagemagick.outputs.cache-hit != 'true' }}
-        uses: mfinelli/setup-imagemagick@v2  # downloads the "magick" AppImage to ~/bin/magick
       - name: start stack
         run: poetry run dsp-tools start-stack --no-prune
       - name: run fast-xmlupload

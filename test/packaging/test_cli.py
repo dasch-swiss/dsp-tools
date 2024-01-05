@@ -16,6 +16,7 @@ class TestCLI(unittest.TestCase):
     """
 
     test_project_systematic_file = Path("testdata/json-project/test-project-systematic.json")
+    test_project_minimal_file = Path("testdata/json-project/test-project-minimal.json")
     test_data_minimal_file = Path("testdata/xml-data/test-data-minimal.xml")
     cwd = Path("cwd")
     testdata_tmp = Path("testdata/tmp")
@@ -61,7 +62,7 @@ class TestCLI(unittest.TestCase):
 
     def test_validate_project(self) -> None:
         """Test if the resource file 'src/dsp_tools/resources/schema/project.json' can be accessed."""
-        self._make_cli_call(cli_call=f"dsp-tools create --validate-only {self.test_project_systematic_file.absolute()}")
+        self._make_cli_call(cli_call=f"dsp-tools create --validate-only {self.test_project_minimal_file.absolute()}")
 
     def test_xml_upload(self) -> None:
         """Test if the resource file 'src/dsp_tools/resources/schema/data.xsd' can be accessed."""

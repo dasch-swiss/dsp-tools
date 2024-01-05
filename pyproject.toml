@@ -57,7 +57,6 @@ pytest-unordered = "^0.5.2"
 viztracer = "^0.16.0"
 ruff = "^0.1.6"
 pytest-sugar = "^0.9.7"
-check-wheel-contents = "^0.6.0"
 
 
 [tool.poetry.scripts]

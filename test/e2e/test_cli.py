@@ -39,8 +39,8 @@ class TestCLI(unittest.TestCase):
 
     def test_validate_lists_section_with_schema(self) -> None:
         """Test if the resource file 'src/dsp_tools/resources/schema/lists-only.json' can be accessed."""
-        cmd = f"dsp-tools create --lists-only --validate-only {self.test_project_systematic_file.absolute()}"
-        self._make_cli_call(cmd)
+        args = ["create", "--lists-only", "--validate-only", str(self.test_project_systematic_file.absolute())]
+        self._make_cli_call(args)
 
     def test_excel_to_json_resources(self) -> None:
         """
@@ -49,7 +49,7 @@ class TestCLI(unittest.TestCase):
         """
         excel_file = Path("testdata/excel2json/excel2json_files/test-name (test_label)/resources.xlsx")
         out_file = self.testdata_tmp / "_out_resources.json"
-        self._make_cli_call(f"dsp-tools excel2resources '{excel_file.absolute()}' {out_file.absolute()}")
+        self._make_cli_call(["excel2resources", str(excel_file.absolute()), str(out_file.absolute())])
         out_file.unlink()
 
     def test_excel_to_json_properties(self) -> None:
@@ -59,12 +59,12 @@ class TestCLI(unittest.TestCase):
         """
         excel_file = Path("testdata/excel2json/excel2json_files/test-name (test_label)/properties.xlsx")
         out_file = self.testdata_tmp / "_out_properties.json"
-        self._make_cli_call(f"dsp-tools excel2properties '{excel_file.absolute()}' {out_file.absolute()}")
+        self._make_cli_call(["excel2properties", str(excel_file.absolute()), str(out_file.absolute())])
         out_file.unlink()
 
     def test_validate_project(self) -> None:
         """Test if the resource file 'src/dsp_tools/resources/schema/project.json' can be accessed."""
-        self._make_cli_call(cli_call=f"dsp-tools create --validate-only {self.test_project_minimal_file.absolute()}")
+        self._make_cli_call(["create", "--validate-only", str(self.test_project_minimal_file.absolute())])
 
     def test_xml_upload(self) -> None:
         """Test if the resource file 'src/dsp_tools/resources/schema/data.xsd' can be accessed."""
@@ -77,21 +77,19 @@ class TestCLI(unittest.TestCase):
             password=self.password,
             verbose=True,
         )
-        self._make_cli_call(f"dsp-tools xmlupload -v {self.test_data_minimal_file.absolute()}")
+        self._make_cli_call(["xmlupload", "-v", str(self.test_data_minimal_file.absolute())])
 
     def _make_cli_call(
         self,
-        cli_call: str,
+        args: list[str],
         working_directory: Path = cwd,
     ) -> None:
         """
-        Execute a CLI call, capture its stdout and stderr,
+        Execute a CLI call to dsp-tools, capture its stdout and stderr,
         and raise an AssertionError with stdout and stderr if it fails.
-        Before every call, preprend "poetry run",
-        so that the correct virtual environment is used.
 
         Args:
-            cli_call: a command that can be executed by the system shell
+            args: list of arguments for the dsp-tools CLI call
             working_directory: working directory where to execute the call. Defaults to the class' default_cwd.
 
         Raises:
@@ -99,14 +97,14 @@ class TestCLI(unittest.TestCase):
         """
         try:
             subprocess.run(
-                f"poetry run {cli_call}".split(),
+                ["poetry", "run", "dsp-tools", *args],  # noqa: S607 (Starting a process with a partial executable path)
                 check=True,
                 capture_output=True,
                 cwd=working_directory,
             )
         except subprocess.CalledProcessError as e:
             msg = (
-                f"Failed CLI call:\n'{cli_call}'\n\n"
+                f"Failed CLI call:\n'{args}'\n\n"
                 f"Stdout:\n{e.output.decode('utf-8')}\n\n"
                 f"Stderr:\n{e.stderr.decode('utf-8')}"
             )

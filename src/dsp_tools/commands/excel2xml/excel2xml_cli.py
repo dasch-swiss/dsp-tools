@@ -127,17 +127,26 @@ def _convert_rows_to_xml(
 
     for index, row in dataframe.iterrows():
         row_number = int(str(index)) + 2
+        # either the row is a resource-row or a property-row, but not both
+        if check_notna(row["id"]) == check_notna(row["prop name"]):
+            raise BaseError(
+                f"Exactly 1 of the 2 columns 'id' and 'prop name' must be filled. "
+                f"Excel row {row_number} has too many/too less entries:\n"
+                f"id:        '{row['id']}'\n"
+                f"prop name: '{row['prop name']}'"
+            )
 
-        if check_notna(row["id"]):
-            # this is a resource-row
+        # this is a resource-row
+        elif check_notna(row["id"]):
             # the previous resource is finished, a new resource begins: append the previous to the resulting list
             # in all cases (except for the very first iteration), a previous resource exists
             if resource is not None:
                 resources.append(resource)
             resource = _convert_resource_row_to_xml(row_number=row_number, row=row)
 
-        elif check_notna(row["prop name"]):
-            # this is a property-row
+        # this is a property-row
+        else:
+            assert check_notna(row["prop name"])  # noqa: S101 (use of assert in production code)
             if resource is None:
                 raise BaseError(
                     "The first row of your Excel/CSV is invalid. The first row must define a resource, not a property."
@@ -149,15 +158,6 @@ def _convert_rows_to_xml(
                 resource_id=resource.attrib["id"],
             )
             resource.append(prop)
-
-        else:
-            # either the row is a resource-row or a property-row, but not both
-            raise BaseError(
-                f"Exactly 1 of the 2 columns 'id' and 'prop name' must be filled. "
-                f"Excel row {row_number} has too many/too less entries:\n"
-                f"id:        '{row['id']}'\n"
-                f"prop name: '{row['prop name']}'"
-            )
 
     # append the resource of the very last iteration of the for loop
     if resource is not None:

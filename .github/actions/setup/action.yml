@@ -19,5 +19,5 @@ runs:
       run: poetry install
       shell: bash
     - name: check if "packaging" is really not installed
-      run: pip3 list
+      run: poetry show
       shell: bash

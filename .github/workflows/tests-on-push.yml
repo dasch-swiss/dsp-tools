@@ -90,7 +90,7 @@ jobs:
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v3
-      - name: Install python, poetry, and dependencies
+      - name: Setup - Install poetry & python, build & install wheel, install pytest
         uses: ./.github/actions/setup-from-wheel
       - name: start stack
         run: poetry run dsp-tools start-stack --no-prune

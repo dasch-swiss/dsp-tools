@@ -1,21 +1,20 @@
 ---
 
-name: Setup - Install poetry & python, build & install wheel, install pytest
+name: Setup - Install python & poetry, build & install wheel, install pytest
 runs:
   using: "composite"
   steps:
-    - name: Install poetry
-      run: curl -sSL https://install.python-poetry.org | python3 -
-      shell: bash
     - name: Install python
       uses: actions/setup-python@v4
       with:
         python-version: 3.12
+    - name: Install poetry
+      run: curl -sSL https://install.python-poetry.org | python3 -
+      shell: bash
     - name: Build & install wheel
       run: |
         poetry build
-        cd dist && ls                    # just for testing, remove that later
-        pip3 install dist/*.whl
+        find dist -type f -name "*.whl" -exec pip3 install {} \;
       shell: bash
     - name: Install pytest
       run: pip3 install pytest pytest-unordered

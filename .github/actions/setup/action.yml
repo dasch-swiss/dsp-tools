@@ -1,6 +1,6 @@
 ---
 
-name: Setup - Install python, poetry, and dependencies
+name: Setup - Install poetry, python, and dependencies
 runs:
   using: "composite"
   steps:
@@ -9,7 +9,7 @@ runs:
         curl -sSL https://install.python-poetry.org | python3 -
         poetry self add poetry-exec-plugin
       shell: bash
-    - name: Set up Python 3.12
+    - name: Install Python
       uses: actions/setup-python@v4
       with:
         python-version: 3.12

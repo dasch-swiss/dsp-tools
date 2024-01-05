@@ -101,13 +101,14 @@ def stash_circular_references(
         if res.res_id not in stash_lookup:
             continue
         for link_prop in res.get_props_with_links():
-            assert link_prop.valtype in ["text", "resptr"]
             if link_prop.valtype == "text":
                 standoff_stash_item = _stash_standoff(res.res_id, res.restype, link_prop, stash_lookup)
                 stashed_standoff_values.extend(standoff_stash_item)
             elif link_prop.valtype == "resptr":
                 link_stash_item = _stash_resptr(res.res_id, res.restype, link_prop, stash_lookup, permission_lookup)
                 stashed_link_values.extend(link_stash_item)
+            else:
+                raise ValueError(f"Unknown value type: '{link_prop.valtype}' (should be 'text' or 'resptr')")
 
             if len(link_prop.values) == 0:
                 # if all values of a link property have been stashed, the property needs to be removed

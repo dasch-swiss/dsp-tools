@@ -876,8 +876,16 @@ def make_geometry_prop(
     for val in values:
         try:
             value_as_dict = json.loads(str(val.value))
-            assert value_as_dict["type"] in ["rectangle", "circle", "polygon"]
-            assert isinstance(value_as_dict["points"], list)
+            if value_as_dict["type"] not in ["rectangle", "circle", "polygon"]:
+                raise BaseError(
+                    f"Failed validation in resource '{calling_resource}', property '{name}': "
+                    f"The 'type' of the JSON geometry object must be 'rectangle', 'circle', or 'polygon'."
+                )
+            if not isinstance(value_as_dict["points"], list):
+                raise BaseError(
+                    f"Failed validation in resource '{calling_resource}', property '{name}': "
+                    f"The 'points'of the JSON geometry object must be a list of points."
+                )
         except (json.JSONDecodeError, TypeError, IndexError, KeyError, AssertionError):
             raise BaseError(
                 f"Failed validation in resource '{calling_resource}', property '{name}': "

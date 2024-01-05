@@ -14,8 +14,8 @@ runs:
     - name: Build & install wheel
       run: |
         poetry build
-        find dist -type f -name "*.whl" -exec pip3 install {} \;
+        find dist -type f -name "*.whl" -exec poetry add {} \;
       shell: bash
     - name: Install pytest
-      run: pip3 install pytest pytest-unordered
+      run: poetry add --group dev pytest pytest-unordered
       shell: bash

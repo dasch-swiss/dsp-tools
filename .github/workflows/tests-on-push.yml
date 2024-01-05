@@ -85,15 +85,15 @@ jobs:
         run: poetry run dsp-tools stop-stack
 
 
-  packaging:
+  distribution:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v3
       - name: Install poetry & python, build & install wheel, install pytest
         uses: ./.github/actions/setup-from-wheel
-      - name: packaging tests
-        run: poetry run pytest test/packaging/
+      - name: distribution tests
+        run: poetry run pytest test/distribution/
 
 
   fast-xmlupload:

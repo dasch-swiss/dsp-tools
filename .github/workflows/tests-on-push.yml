@@ -117,4 +117,4 @@ jobs:
       - name: start stack
         run: poetry run dsp-tools start-stack --no-prune
       - name: run fast-xmlupload
-        run: poetry run pytest test/fast-xmlupload/
+        run: poetry run pytest test/fast_xmlupload/

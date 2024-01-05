@@ -266,7 +266,7 @@ def _from_eur_date_range(eur_date_range: Match[str]) -> str:
     endyear = _expand_2_digit_year(endyear)
     startdate = datetime.date(startyear, startmonth, startday)
     enddate = datetime.date(endyear, endmonth, endday)
-    if enddate <= startdate:
+    if enddate < startdate:
         raise ValueError
     return f"GREGORIAN:CE:{startdate.isoformat()}:CE:{enddate.isoformat()}"
 

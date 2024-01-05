@@ -93,6 +93,9 @@ def stash_circular_references(
 
     Returns:
         stash: an object that contains the stashed references
+
+    Raises:
+        ValueError: If a link property of one of the resources is not "text" or "resptr"
     """
     stashed_standoff_values: list[StandoffStashItem] = []
     stashed_link_values: list[LinkValueStashItem] = []

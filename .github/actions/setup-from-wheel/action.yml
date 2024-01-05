@@ -16,6 +16,11 @@ runs:
         poetry build
         find dist -type f -name "*.whl" -exec poetry add {} \;
       shell: bash
+    - name: check the wheel for correctness
+      run: |
+        poetry add --group dev check-wheel-contents
+        poetry run check-wheel-contents dist/
+      shell: bash
     - name: Install pytest
       run: poetry add --group dev pytest pytest-unordered
       shell: bash

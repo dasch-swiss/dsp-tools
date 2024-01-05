@@ -11,27 +11,14 @@ on:
 
 jobs:
   build-docs:
-    name: Build docs
     runs-on: ubuntu-latest
     steps:
-      # Setup
-      - name: Checkout source
+      - name: Checkout dsp-tools repo
         uses: actions/checkout@v3
         with:
           submodules: recursive
-      - name: Install poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          poetry self add poetry-exec-plugin
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.12
-          # attempt to restore dependencies from cache (if successful, the following `poetry install` will be a no-op)
-          cache: poetry
-      - name: Install Python dependencies
-        run: poetry install
-      # run tests
+      - name: Install python, poetry, and dependencies
+        uses: ./.github/actions/setup
       - name: build docs
         run: poetry run mkdocs build --strict
       - name: check external links in docs
@@ -41,28 +28,16 @@ jobs:
       - name: markdownlint
         run: poetry exec markdownlint
 
+
   lint:
-    name: Lint code
     runs-on: ubuntu-latest
     steps:
-      # Setup
-      - name: Checkout source
+      - name: Checkout dsp-tools repo
         uses: actions/checkout@v3
         with:
           submodules: recursive
-      - name: Install poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          poetry self add poetry-exec-plugin
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.12
-          # attempt to restore dependencies from cache (if successful, the following `poetry install` will be a no-op)
-          cache: poetry
-      - name: Install Python dependencies
-        run: poetry install
-      # run tests
+      - name: Install python, poetry, and dependencies
+        uses: ./.github/actions/setup
       - name: Linting with ruff
         run: poetry exec ruff-check-github
       - name: Formatting with ruff
@@ -72,78 +47,43 @@ jobs:
       - name: Linting with darglint
         run: poetry exec darglint
 
+
   unittests:
-    name: Run Unittests
     runs-on: ubuntu-latest
     steps:
-      # Setup
-      - name: Checkout source
+      - name: Checkout dsp-tools repo
         uses: actions/checkout@v3
         with:
           submodules: recursive
-      - name: Install poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          poetry self add poetry-exec-plugin
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.12
-          # attempt to restore dependencies from cache (if successful, the following `poetry install` will be a no-op)
-          cache: poetry
-      - name: Install Python dependencies
-        run: poetry install
-      # run tests
+      - name: Install python, poetry, and dependencies
+        uses: ./.github/actions/setup
       - name: unittests
         run: poetry exec unittests
+  
 
   benchmarking:
-    name: Run Benchmarking
     runs-on: ubuntu-latest
     steps:
-      # Setup
-      - name: Checkout source
+      - name: Checkout dsp-tools repo
         uses: actions/checkout@v3
         with:
           submodules: recursive
-      - name: Install poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          poetry self add poetry-exec-plugin
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.12
-          # attempt to restore dependencies from cache (if successful, the following `poetry install` will be a no-op)
-          cache: poetry
-      - name: Install Python dependencies
-        run: poetry install
-      # run tests
+      - name: Install python, poetry, and dependencies
+        uses: ./.github/actions/setup
       - name: benchmarking
         run: poetry run pytest -s test/benchmarking/
 
 
   e2e-tests:
-    name: Run E2E/Integration Tests
     runs-on: ubuntu-latest
     steps:
-      # Setup
-      - name: Checkout source
+      - name: Checkout dsp-tools repo
         uses: actions/checkout@v3
         with:
           submodules: recursive
-      - name: Install poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          poetry self add poetry-exec-plugin
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.12
-          # attempt to restore dependencies from cache (if successful, the following `poetry install` will be a no-op)
-          cache: poetry
-      - name: Install Python dependencies
-        run: poetry install
+      - name: Install python, poetry, and dependencies
+        uses: ./.github/actions/setup
+      
       # Install programs for local processing (fast xmlupload)
       - name: Fast xmlupload - Install ffmpeg
         uses: FedericoCarboni/setup-ffmpeg@v2
@@ -158,6 +98,7 @@ jobs:
       - name: Fast xmlupload - ImageMagick - Installation
         if: ${{ steps.search-cached-imagemagick.outputs.cache-hit != 'true' }}
         uses: mfinelli/setup-imagemagick@v2  # downloads the "magick" AppImage to ~/bin/magick
+
       # run tests
       - name: start stack
         run: poetry run dsp-tools start-stack --no-prune

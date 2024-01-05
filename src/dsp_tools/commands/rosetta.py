@@ -72,7 +72,7 @@ def _create_json(rosetta_folder: Path) -> bool:
         project_file_as_path_or_parsed=rosetta_folder / "rosetta.json",
         server="http://0.0.0.0:3333",
         user_mail="root@example.com",
-        password="test",
+        password="test",  # noqa: S106 (hardcoded password)
         verbose=False,
         dump=False,
     )
@@ -93,7 +93,7 @@ def _upload_xml(rosetta_folder: Path) -> bool:
         input_file=rosetta_folder / "rosetta.xml",
         server="http://0.0.0.0:3333",
         user="root@example.com",
-        password="test",
+        password="test",  # noqa: S106 (hardcoded password)
         imgdir=str(rosetta_folder),
         sipi="http://0.0.0.0:1024",
         config=UploadConfig(),

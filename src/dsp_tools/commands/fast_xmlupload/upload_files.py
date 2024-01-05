@@ -66,7 +66,7 @@ def _get_paths_from_pkl_files(pkl_files: list[Path]) -> list[Path]:
     """
     orig_paths_2_processed_paths: list[tuple[Path, Optional[Path]]] = []
     for pkl_file in pkl_files:
-        orig_paths_2_processed_paths.extend(pickle.loads(pkl_file.read_bytes()))
+        orig_paths_2_processed_paths.extend(pickle.loads(pkl_file.read_bytes()))  # noqa: S301 (deserialize untrusted data)
 
     processed_paths: list[Path] = []
     for orig_path, processed_path in orig_paths_2_processed_paths:

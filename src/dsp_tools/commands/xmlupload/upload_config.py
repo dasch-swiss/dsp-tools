@@ -27,7 +27,7 @@ def _transform_server_url_to_foldername(server: str) -> str:
         r"^api\.": "",
         r":\d{2,5}/?$": "",
         r"/$": "",
-        r"0.0.0.0": "localhost",
+        r"0.0.0.0": "localhost",  # noqa: S104 (hardcoded-bind-all-interfaces)
     }
     for pattern, repl in server_substitutions.items():
         server = regex.sub(pattern, repl, server)

@@ -85,7 +85,7 @@ jobs:
         run: poetry run dsp-tools stop-stack
 
 
-  integration:
+  integration-and-distribution:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo

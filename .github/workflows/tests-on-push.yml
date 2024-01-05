@@ -115,5 +115,5 @@ jobs:
         if: ${{ steps.search-cached-imagemagick.outputs.cache-hit != 'true' }}
       - name: start stack
         run: poetry run dsp-tools start-stack --no-prune
-      - name: run fast-xmlupload
+      - name: run fast-xmlupload test
         run: poetry run pytest test/fast_xmlupload/

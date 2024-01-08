@@ -5,18 +5,16 @@ from pathlib import Path
 
 import pytest
 
-from dsp_tools.commands.project.create.project_create import create_project
-
 
 class TestCLI(unittest.TestCase):
     """
     Test if the files in 'src/dsp_tools/resources/schema' are accessible
-    if the CLI is called from another working directory.
+    when DSP-TOOLS is installed from wheel instead of from source,
+    and when the call is made from another working directory.
+    In addition, making a CLI call also tests if all dependencies are shipped correctly,
+    (the entry point imports all modules, so a not-shipped dependency would cause an import error).
     """
 
-    server = "http://0.0.0.0:3333"
-    user = "root@example.com"
-    password = "test"
     test_project_systematic_file = Path("testdata/json-project/test-project-systematic.json")
     test_project_minimal_file = Path("testdata/json-project/test-project-minimal.json")
     test_data_minimal_file = Path("testdata/xml-data/test-data-minimal.xml")
@@ -68,43 +66,29 @@ class TestCLI(unittest.TestCase):
 
     def test_xml_upload(self) -> None:
         """Test if the resource file 'src/dsp_tools/resources/schema/data.xsd' can be accessed."""
-        # create the necessary project
-        # (if it was already created in a previous test, the function returns False, which doesn't matter)
-        create_project(
-            project_file_as_path_or_parsed=self.test_project_minimal_file.absolute(),
-            server=self.server,
-            user_mail=self.user,
-            password=self.password,
-            verbose=True,
-        )
-        self._make_cli_call(["xmlupload", "-v", str(self.test_data_minimal_file.absolute())])
+        self._make_cli_call(["xmlupload", "-v", "--validate-only", str(self.test_data_minimal_file.absolute())])
 
-    def _make_cli_call(
-        self,
-        args: list[str],
-        working_directory: Path = cwd,
-    ) -> None:
+    def _make_cli_call(self, args: list[str]) -> None:
         """
         Execute a CLI call to dsp-tools, capture its stdout and stderr,
         and raise an AssertionError with stdout and stderr if it fails.
 
         Args:
             args: list of arguments for the dsp-tools CLI call
-            working_directory: working directory where to execute the call. Defaults to the class' default_cwd.
 
         Raises:
             AssertionError: detailed diagnostic message with stdout and stderr if the call fails
         """
         try:
             subprocess.run(
-                ["poetry", "run", "dsp-tools", *args],  # noqa: S607 (Starting a process with a partial executable path)
+                ["dsp-tools", *args],  # noqa: S607 (Starting a process with a partial executable path)
                 check=True,
                 capture_output=True,
-                cwd=working_directory,
+                cwd=self.cwd,
             )
         except subprocess.CalledProcessError as e:
             msg = (
-                f"Failed CLI call:\n'{args}'\n\n"
+                f"Failed CLI call:\n'dsp-tools {' '.join(args)}'\n\n"
                 f"Stdout:\n{e.output.decode('utf-8')}\n\n"
                 f"Stderr:\n{e.stderr.decode('utf-8')}"
             )

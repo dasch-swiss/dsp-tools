@@ -5,18 +5,16 @@ from pathlib import Path
 
 import pytest
 
-from dsp_tools.commands.project.create.project_create import create_project
-
 
 class TestCLI(unittest.TestCase):
     """
     Test if the files in 'src/dsp_tools/resources/schema' are accessible
-    if the CLI is called from another working directory.
+    when DSP-TOOLS is installed from wheel instead of from source,
+    and when the call is made from another working directory.
+    In addition, making a CLI call also tests if all dependencies are shipped correctly,
+    (the entry point imports all modules, so a not-shipped dependency would cause an import error).
     """
 
-    server = "http://0.0.0.0:3333"
-    user = "root@example.com"
-    password = "test"
     test_project_systematic_file = Path("testdata/json-project/test-project-systematic.json")
     test_project_minimal_file = Path("testdata/json-project/test-project-minimal.json")
     test_data_minimal_file = Path("testdata/xml-data/test-data-minimal.xml")
@@ -68,42 +66,26 @@ class TestCLI(unittest.TestCase):
 
     def test_xml_upload(self) -> None:
         """Test if the resource file 'src/dsp_tools/resources/schema/data.xsd' can be accessed."""
-        # create the necessary project
-        # (if it was already created in a previous test, the function returns False, which doesn't matter)
-        create_project(
-            project_file_as_path_or_parsed=self.test_project_minimal_file.absolute(),
-            server=self.server,
-            user_mail=self.user,
-            password=self.password,
-            verbose=True,
-        )
-        self._make_cli_call(f"dsp-tools xmlupload -v {self.test_data_minimal_file.absolute()}")
+        self._make_cli_call(f"dsp-tools xmlupload -v --validate-only {self.test_data_minimal_file.absolute()}")
 
-    def _make_cli_call(
-        self,
-        cli_call: str,
-        working_directory: Path = cwd,
-    ) -> None:
+    def _make_cli_call(self, cli_call: str) -> None:
         """
         Execute a CLI call, capture its stdout and stderr,
         and raise an AssertionError with stdout and stderr if it fails.
-        Before every call, preprend "poetry run",
-        so that the correct virtual environment is used.
 
         Args:
             cli_call: a command that can be executed by the system shell
-            working_directory: working directory where to execute the call. Defaults to the class' default_cwd.
 
         Raises:
             AssertionError: detailed diagnostic message with stdout and stderr if the call fails
         """
         try:
             subprocess.run(
-                f"poetry run {cli_call}",
+                cli_call,
                 check=True,
                 shell=True,
                 capture_output=True,
-                cwd=working_directory,
+                cwd=self.cwd,
             )
         except subprocess.CalledProcessError as e:
             msg = (

@@ -14,10 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
-      - name: Install python, poetry, and dependencies
+        uses: actions/checkout@v3          
+      - name: Install poetry, python, and dependencies
         uses: ./.github/actions/setup
       - name: build docs
         run: poetry run mkdocs build --strict
@@ -36,7 +34,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           submodules: recursive
-      - name: Install python, poetry, and dependencies
+      - name: Install poetry, python, and dependencies
         uses: ./.github/actions/setup
       - name: Linting with ruff
         run: poetry exec ruff-check-github
@@ -53,9 +51,7 @@ jobs:
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v3
-        with:
-          submodules: recursive
-      - name: Install python, poetry, and dependencies
+      - name: Install poetry, python, and dependencies
         uses: ./.github/actions/setup
       - name: unittests
         run: poetry exec unittests
@@ -66,9 +62,7 @@ jobs:
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v3
-        with:
-          submodules: recursive
-      - name: Install python, poetry, and dependencies
+      - name: Install poetry, python, and dependencies
         uses: ./.github/actions/setup
       - name: benchmarking
         run: poetry run pytest -s test/benchmarking/
@@ -81,28 +75,45 @@ jobs:
         uses: actions/checkout@v3
         with:
           submodules: recursive
-      - name: Install python, poetry, and dependencies
+      - name: Install poetry, python, and dependencies
         uses: ./.github/actions/setup
-      
-      # Install programs for local processing (fast xmlupload)
-      - name: Fast xmlupload - Install ffmpeg
-        uses: FedericoCarboni/setup-ffmpeg@v2
-      - name: Fast xmlupload - ImageMagick - look for cached AppImage
-        # If a cache is found that matches "key", the cached files are restored to "path".
-        # If no cache is found, this step is skipped, and when all jobs are done, the files in "path" are cached under "key".
-        id: search-cached-imagemagick
-        uses: actions/cache@v3
-        with:
-          path: ~/bin/magick        # AppImage containing all binaries + dependencies
-          key: imagemagick          # don't check for a new version, because version checking is fairly complex
-      - name: Fast xmlupload - ImageMagick - Installation
-        if: ${{ steps.search-cached-imagemagick.outputs.cache-hit != 'true' }}
-        uses: mfinelli/setup-imagemagick@v2  # downloads the "magick" AppImage to ~/bin/magick
-
-      # run tests
       - name: start stack
         run: poetry run dsp-tools start-stack --no-prune
       - name: e2e tests
         run: poetry exec e2e-tests
       - name: stop stack  # see if this command can run (it isn't tested anywhere else)
         run: poetry run dsp-tools stop-stack
+
+
+  distribution:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout dsp-tools repo
+        uses: actions/checkout@v3
+      - name: Install poetry & python, build & install wheel, install pytest
+        uses: ./.github/actions/setup-from-wheel
+      - name: distribution tests
+        run: poetry run pytest test/distribution/
+
+
+  fast-xmlupload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout dsp-tools repo
+        uses: actions/checkout@v3
+      - name: Install poetry, python, and dependencies
+        uses: ./.github/actions/setup
+      - uses: FedericoCarboni/setup-ffmpeg@v2
+      - id: search-cached-imagemagick
+        # If a cache is found that matches "key", the cached files are restored to "path".
+        # If no cache is found, this step is skipped, and when all jobs are done, the files in "path" are cached under "key".
+        uses: actions/cache@v3
+        with:
+          path: ~/bin/magick        # AppImage containing all binaries + dependencies
+          key: imagemagick          # don't check for a new version, because version checking is fairly complex
+      - uses: mfinelli/setup-imagemagick@v2  # downloads the "magick" AppImage to ~/bin/magick
+        if: ${{ steps.search-cached-imagemagick.outputs.cache-hit != 'true' }}
+      - name: start stack
+        run: poetry run dsp-tools start-stack --no-prune
+      - name: run fast-xmlupload test
+        run: poetry run pytest test/fast_xmlupload/

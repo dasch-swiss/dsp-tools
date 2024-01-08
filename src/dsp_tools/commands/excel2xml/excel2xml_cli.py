@@ -146,7 +146,8 @@ def _convert_rows_to_xml(
 
         # this is a property-row
         else:
-            assert check_notna(row["prop name"])  # noqa: S101 (use of assert in production code)
+            if not check_notna(row["prop name"]):
+                raise AssertionError("Wrong logic")
             if resource is None:
                 raise BaseError(
                     "The first row of your Excel/CSV is invalid. The first row must define a resource, not a property."

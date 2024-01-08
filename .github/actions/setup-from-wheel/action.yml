@@ -17,6 +17,7 @@ runs:
       run: |
         echo ########### STEP: BUILD WHEEL ###########
         poetry build
+      shell: bash
     - name: Install wheel
       run: |
         echo ########### STEP: INSTALL WHEEL ###########

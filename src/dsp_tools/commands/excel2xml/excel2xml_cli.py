@@ -130,7 +130,7 @@ def _convert_rows_to_xml(
         is_resource = check_notna(row["id"])
         is_property = check_notna(row["prop name"])
         match is_resource, is_property:
-            case True, True | False, False:  # either the row is a resource-row or a property-row, but not both
+            case (True, True) | (False, False):  # either the row is a resource-row or a property-row, but not both
                 raise BaseError(
                     f"Exactly 1 of the 2 columns 'id' and 'prop name' must be filled. "
                     f"Excel row {row_number} has too many/too less entries:\n"

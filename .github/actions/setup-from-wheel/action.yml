@@ -16,17 +16,20 @@ runs:
     - name: Build wheel
       run: |
         echo ########### STEP: BUILD WHEEL ###########
-        poetry build -vvv
+        poetry build -vv
       shell: bash
     - name: Install wheel
       run: |
         echo ########### STEP: INSTALL WHEEL ###########
         find dist -type f -name "*.whl" -exec pip3 install {} \;
       shell: bash
+    - name: install check-wheel-contents
+      run: |
+        echo ########### STEP: INSTALL CHECK-WHEEL-CONTENTS ###########
+        pip3 install check-wheel-contents
     - name: check the wheel for correctness
       run: |
         echo ########### STEP: CHECK WHEEL ###########
-        pip3 install check-wheel-contents > /dev/null
         check-wheel-contents dist/
       shell: bash
     - name: Install pytest

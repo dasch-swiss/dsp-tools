@@ -151,12 +151,8 @@ class StackHandler:
         Raises:
             UserError: if the database cannot be started
         """
-        completed_process = subprocess.run(
-            "docker compose up db -d",
-            shell=True,
-            cwd=self.__docker_path_of_user,
-            check=False,
-        )
+        cmd = "docker compose up db -d".split()
+        completed_process = subprocess.run(cmd, cwd=self.__docker_path_of_user, check=False)
         if not completed_process or completed_process.returncode != 0:
             msg = "Cannot start the API: Error while executing 'docker compose up db -d'"
             logger.error(f"{msg}. completed_process = '{vars(completed_process)}'")
@@ -256,12 +252,11 @@ class StackHandler:
         """
         if self.__stack_configuration.latest_dev_version:
             subprocess.run(
-                "docker pull daschswiss/knora-api:latest",
-                shell=True,
+                "docker pull daschswiss/knora-api:latest".split(),
                 cwd=self.__docker_path_of_user,
                 check=True,
             )
-        subprocess.run("docker compose up -d", shell=True, cwd=self.__docker_path_of_user, check=True)
+        subprocess.run("docker compose up -d".split(), cwd=self.__docker_path_of_user, check=True)
         print("DSP-API is now running on http://0.0.0.0:3333/ and DSP-APP on http://0.0.0.0:4200/")
 
     def _execute_docker_system_prune(self) -> None:
@@ -281,7 +276,7 @@ class StackHandler:
                     "If you are unsure what that means, just type y and press Enter. [y/n]"
                 )
         if prune_docker == "y":
-            subprocess.run("docker system prune -f", shell=True, cwd=self.__docker_path_of_user, check=False)
+            subprocess.run("docker system prune -f".split(), cwd=self.__docker_path_of_user, check=False)
 
     def _start_docker_containers(self) -> None:
         """
@@ -320,5 +315,5 @@ class StackHandler:
         Returns:
             True if everything went well, False otherwise
         """
-        subprocess.run("docker compose down --volumes", shell=True, cwd=self.__docker_path_of_user, check=True)
+        subprocess.run("docker compose down --volumes".split(), cwd=self.__docker_path_of_user, check=True)
         return True

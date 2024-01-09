@@ -119,8 +119,8 @@ def _parse_arguments(
 
 
 def _get_version() -> str:
-    result = subprocess.run("pip freeze | grep dsp-tools", check=False, shell=True, capture_output=True)
-    _detail_version = result.stdout.decode("utf-8")
+    result = subprocess.run("pip freeze".split(), check=False, capture_output=True).stdout.decode("utf-8")
+    _detail_version = next(x for x in result.split("\n") if "dsp-tools" in x)
     # _detail_version has one of the following formats:
     # - 'dsp-tools==5.0.3\n'
     # - 'dsp-tools==5.6.0.post9\n'

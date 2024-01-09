@@ -57,7 +57,9 @@ def replace_filepath_with_sipi_id(
     new_tree = deepcopy(xml_tree)
     for elem in new_tree.iter():
         if etree.QName(elem).localname.endswith("bitstream"):
-            if (img_path := elem.text) in orig_path_2_id_filename:
+            img_path = Path(elem.text)
+            img_path = str(img_path.relative_to(Path.cwd())) if img_path.is_absolute() else str(img_path)
+            if img_path in orig_path_2_id_filename:
                 elem.text = orig_path_2_id_filename[img_path]
                 used_media_file_paths.append(img_path)
             else:

@@ -65,11 +65,11 @@ def run(args: list[str]) -> None:
         )
         success = call_requested_action(parsed_arguments)
     except BaseError as err:
-        logger.error(err)
+        logger.exception(err)
         print("\nThe process was terminated because of an Error:")
         print(err.message)
         sys.exit(1)
-    except Exception as err:  # noqa: BLE001 (blind-except)
+    except Exception as err:
         logger.error(err)
         print(InternalError())
         sys.exit(1)

@@ -71,7 +71,8 @@ def run(args: list[str]) -> None:
         sys.exit(1)
     except Exception as err:  # noqa: BLE001 (blind-except)
         logger.error(err)
-        raise InternalError from None
+        print(InternalError())
+        sys.exit(1)
 
     if not success:
         logger.error("Terminate without success")

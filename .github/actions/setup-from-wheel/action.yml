@@ -27,6 +27,7 @@ runs:
       run: |
         echo ########### STEP: INSTALL CHECK-WHEEL-CONTENTS ###########
         pip3 install check-wheel-contents
+      shell: bash
     - name: check the wheel for correctness
       run: |
         echo ########### STEP: CHECK WHEEL ###########

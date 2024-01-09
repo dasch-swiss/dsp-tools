@@ -91,9 +91,11 @@ class IngestInformation:
         return None
 
     def _save_csv_if_applicable(self) -> None:
-        if unused_mediafiles_df := self._unused_mediafiles_to_df():
+        unused_mediafiles_df = self._unused_mediafiles_to_df()
+        if unused_mediafiles_df is not None:
             _save_as_csv(unused_mediafiles_df, self.csv_directory_path, self.unused_mediafiles_csv)
-        if no_id_df := self._mediafiles_no_id_to_df():
+        no_id_df = self._mediafiles_no_id_to_df()
+        if no_id_df is not None:
             _save_as_csv(no_id_df, self.csv_directory_path, self.mediafiles_no_id_csv)
 
     def _unused_mediafiles_to_df(self) -> pd.DataFrame | None:

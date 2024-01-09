@@ -78,6 +78,7 @@ darglint = """
     -not -path "./src/dsp_tools/commands/xmlupload/models/*" \
     -not -path "./src/dsp_tools/commands/project/models/*" \
     -not -path "./.git/*" \
+    -not -path "./.venv/*" \
     | xargs poetry run darglint -v 2\
 """
 clean = """

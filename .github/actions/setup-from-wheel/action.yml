@@ -9,18 +9,28 @@ runs:
       with:
         python-version: 3.12
     - name: Install poetry
-      run: curl -sSL https://install.python-poetry.org | python3 -
+      run: | 
+        echo ########### STEP: INSTALL POETRY ###########
+        curl -sSL https://install.python-poetry.org | python3 -
       shell: bash
-    - name: Build & install wheel
+    - name: Build wheel
       run: |
+        echo ########### STEP: BUILD WHEEL ###########
         poetry build
+      shell: bash
+    - name: Install wheel
+      run: |
+        echo ########### STEP: INSTALL WHEEL ###########
         find dist -type f -name "*.whl" -exec pip3 install {} \;
       shell: bash
     - name: check the wheel for correctness
       run: |
-        poetry add --group dev check-wheel-contents
-        poetry run check-wheel-contents dist/
+        echo ########### STEP: CHECK WHEEL ###########
+        pip3 install check-wheel-contents
+        check-wheel-contents dist/
       shell: bash
     - name: Install pytest
-      run: pip3 install pytest pytest-unordered
+      run: |
+        echo ########### STEP: INSTALL PYTEST ###########
+        pip3 install pytest pytest-unordered
       shell: bash

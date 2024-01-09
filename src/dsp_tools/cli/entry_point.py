@@ -69,7 +69,7 @@ def run(args: list[str]) -> None:
         print("\nThe process was terminated because of an Error:")
         print(err.message)
         sys.exit(1)
-    except Exception as err:
+    except Exception as err:  # noqa: BLE001 (blind-except)
         logger.error(err)
         print(InternalError())
         sys.exit(1)

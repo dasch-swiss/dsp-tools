@@ -8,7 +8,7 @@ from dsp_tools.commands.ingest_xmlupload.apply_ingest_id import (
     get_mapping_dict_from_file,
     replace_filepath_with_sipi_id,
 )
-from dsp_tools.commands.xmlupload.upload_config import UploadConfig
+from dsp_tools.commands.xmlupload.upload_config import DiagnosticsConfig, UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.create_logger import get_logger
@@ -23,6 +23,7 @@ def ingest_xmlupload(
     password: str,
     dsp_url: str,
     sipi_url: str,
+    dump: bool,
 ) -> None:
     """
     This function reads an XML file
@@ -38,6 +39,7 @@ def ingest_xmlupload(
         password: the user's password for login into DSP
         dsp_url: URL to the DSP server
         sipi_url: URL to the Sipi server
+        dump: if True, write every request to DSP-API/SIPI into a file
 
     Raises:
         InputError: if any media was not uploaded or uploaded media was not referenced.
@@ -66,5 +68,5 @@ def ingest_xmlupload(
         password=password,
         imgdir=".",
         sipi=sipi_url,
-        config=UploadConfig(media_previously_uploaded=True),
+        config=UploadConfig(media_previously_uploaded=True, diagnostics=DiagnosticsConfig(dump=dump)),
     )

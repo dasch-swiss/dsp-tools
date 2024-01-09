@@ -16,7 +16,7 @@ runs:
     - name: Build wheel
       run: |
         echo ########### STEP: BUILD WHEEL ###########
-        poetry build
+        poetry build -vvv
       shell: bash
     - name: Install wheel
       run: |

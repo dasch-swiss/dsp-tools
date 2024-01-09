@@ -38,16 +38,6 @@
         <text-prop name=":hasSimpleText"><text encoding="utf8">Hello</text></text-prop>
     </resource>
 
-    <resource label="Imagething-uppercase-extension"
-              restype=":ImageThing"
-              id="image_thing_8"
-              permissions="res-default">
-        <bitstream>testdata/bitstreams/test with uppercase extension.JPG</bitstream>
-        <text-prop name=":hasSimpleText">
-            <text permissions="prop-default" encoding="utf8">This is a Imagething, with an uppercase extension</text>
-        </text-prop>
-    </resource>
-
     <resource label="TestthingOhnePermissions"
               restype=":TestThing2"
               id="test_thing_0"
@@ -358,9 +348,19 @@
         </text-prop>
     </resource>
 
-    <resource label="Imagething-multiple-commas"
+    <resource label="Imagething-uppercase-extension"
               restype=":ImageThing"
               id="image_thing_8"
+              permissions="res-default">
+        <bitstream>testdata/bitstreams/test with uppercase extension.JPG</bitstream>
+        <text-prop name=":hasSimpleText">
+            <text permissions="prop-default" encoding="utf8">This is a Imagething, with an uppercase extension</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Imagething-multiple-commas"
+              restype=":ImageThing"
+              id="image_thing_9"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test,with,multiple,commas.png</bitstream>
         <text-prop name=":hasSimpleText">
@@ -370,7 +370,7 @@
 
     <resource label="Imagething-multiple-semicola"
               restype=":ImageThing"
-              id="image_thing_9"
+              id="image_thing_10"
               permissions="res-default">
         <bitstream>testdata/bitstreams/test;with;multiple;semicola.png</bitstream>
         <text-prop name=":hasSimpleText">

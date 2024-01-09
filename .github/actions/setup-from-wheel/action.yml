@@ -26,7 +26,7 @@ runs:
     - name: check the wheel for correctness
       run: |
         echo ########### STEP: CHECK WHEEL ###########
-        pip3 install check-wheel-contents
+        pip3 install check-wheel-contents > /dev/null
         check-wheel-contents dist/
       shell: bash
     - name: Install pytest

@@ -78,6 +78,7 @@ darglint = """
     -not -path "./src/dsp_tools/commands/xmlupload/models/*" \
     -not -path "./src/dsp_tools/commands/project/models/*" \
     -not -path "./.git/*" \
+    -not -path "./.venv/*" \
     | xargs poetry run darglint -v 2\
 """
 clean = """
@@ -160,6 +161,7 @@ select = [
     "A",        # flake8-builtins
     "BLE",      # flake8-blind-except
     "ARG",      # flake8-unused-arguments
+    "S",        # flake8-bandit plugin which checks for security issues
     "YTT",      # flake8-2020 plugin, which checks for misuse of `sys.version` or `sys.version_info`
     "ASYNC",    # flake8-async plugin, which checks for bad async / asyncio practices
     "ISC",      # flake8-implicit-str-concat plugin, which checks for problematic string concatenation
@@ -179,6 +181,10 @@ select = [
 ]
 ignore = [
     "ISC001",   # flake8-implicit-str-concat: single-line-implicit-string-concatenation  # incompatible with the formatter
+    "S105",     # flake8-bandit: hardcoded password
+    "S106",     # flake8-bandit: hardcoded password
+    "S603",     # flake8-bandit: subprocess-without-shell-equals-true
+    "S320",     # flake8-bandit: xml parsing vulnerable to XML attacks
 ]
 
 
@@ -195,6 +201,7 @@ ignore = [
     "D103",     # pydocstyle: undocumented-public-function
     "D102",     # pydocstyle: undocumented-public-method
     "D101",     # pydocstyle: undocumented-public-class
+    "S101",     # flake8-bandit: use of assert
 ]
 
 

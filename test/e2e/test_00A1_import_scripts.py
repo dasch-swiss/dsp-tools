@@ -26,7 +26,7 @@ def generated_xml_file() -> Iterator[Path]:
 def test_script(generated_xml_file: Path) -> None:
     """Execute the import script in its directory"""
     # pull the latest state of the git submodule
-    subprocess.run("git submodule update --init --recursive", check=True, shell=True)
+    subprocess.run("git submodule update --init --recursive".split(), check=True)
     from dsp_tools.import_scripts import import_script
 
     # execute the import script in its directory

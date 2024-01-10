@@ -90,10 +90,10 @@ jobs:
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v3
-      - name: Install poetry & python, build & install wheel, install pytest
+      - name: Install python & poetry, build & install wheel, install pytest
         uses: ./.github/actions/setup-from-wheel
       - name: distribution tests
-        run: poetry run pytest test/distribution/
+        run: pytest test/distribution/
 
 
   fast-xmlupload:

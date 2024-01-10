@@ -29,7 +29,7 @@ def _get_paths_from_pkl_files(pkl_files: list[Path]) -> dict[str, str]:
     """
     orig_path_2_processed_path: list[tuple[Path, Optional[Path]]] = []
     for pkl_file in pkl_files:
-        orig_path_2_processed_path.extend(pickle.loads(pkl_file.read_bytes()))
+        orig_path_2_processed_path.extend(pickle.loads(pkl_file.read_bytes()))  # noqa: S301 (deserialize untrusted data)
 
     orig_path_2_uuid_filename: dict[str, str] = {}
     for orig_path, processed_path in orig_path_2_processed_path:

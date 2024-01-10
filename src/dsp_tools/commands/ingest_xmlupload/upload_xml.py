@@ -23,7 +23,7 @@ def ingest_xmlupload(
     password: str,
     dsp_url: str,
     sipi_url: str,
-    dump: bool,
+    dump: bool = False,
 ) -> None:
     """
     This function reads an XML file

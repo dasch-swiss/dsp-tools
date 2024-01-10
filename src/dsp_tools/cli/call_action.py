@@ -156,6 +156,7 @@ def _call_ingest_xmlupload(args: argparse.Namespace) -> bool:
         password=args.password,
         dsp_url=args.server,
         sipi_url=args.sipi_url,
+        dump=args.dump,
     )
     return True
 

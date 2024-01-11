@@ -183,7 +183,7 @@ class ConnectionLive:
         response: requests.Response,
         timeout: int,
         headers: dict[str, str] | None = None,
-        uploaded_file: Optional[str] = None,
+        uploaded_file: dict[str, tuple[str, Any]] | None = None,
     ) -> None:
         if response.status_code == 200:
             _return = str(response.content)

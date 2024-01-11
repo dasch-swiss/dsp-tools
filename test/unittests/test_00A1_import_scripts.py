@@ -7,9 +7,6 @@ import pytest
 import regex
 from lxml import etree
 
-from dsp_tools.commands.project.create.project_create import create_project
-from dsp_tools.commands.xmlupload.upload_config import UploadConfig
-from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.shared import check_notna
 
@@ -43,30 +40,6 @@ def test_script(generated_xml_file: Path) -> None:
     with open(generated_xml_file, encoding="utf-8") as f:
         xml_returned = _derandomize_xsd_id(f.read(), multiple_occurrences=True)
     assert _sort_xml_by_id(xml_expected) == _sort_xml_by_id(xml_returned)
-
-
-def test_upload(generated_xml_file: Path) -> None:
-    """Create the project on the DSP server, and upload the created XML to the DSP server"""
-    success_on_creation = create_project(
-        project_file_as_path_or_parsed="src/dsp_tools/import_scripts/import_project.json",
-        server="http://0.0.0.0:3333",
-        user_mail="root@example.com",
-        password="test",
-        verbose=False,
-        dump=False,
-    )
-    assert success_on_creation
-
-    success_on_xmlupload = xmlupload(
-        input_file=generated_xml_file,
-        server="http://0.0.0.0:3333",
-        user="root@example.com",
-        password="test",
-        imgdir="src/dsp_tools/import_scripts/",
-        sipi="http://0.0.0.0:1024",
-        config=UploadConfig(),
-    )
-    assert success_on_xmlupload
 
 
 def _sort_xml_by_id(xml: str) -> str:

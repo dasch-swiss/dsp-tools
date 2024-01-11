@@ -179,6 +179,8 @@ class ConnectionLive:
             _return = {"status": response.status_code, "message": response.text}
         if headers and "Authorization" in headers:
             headers["Authorization"] = regex.sub(r"Bearer .+", "Bearer <token>", headers["Authorization"])
+        if jsondata and "password" in jsondata:
+            jsondata["password"] = "<password>"
         dumpobj = {
             "HTTP request": method,
             "url": url,

@@ -170,7 +170,7 @@ class ConnectionLive:
         response: requests.Response,
         timeout: int,
         headers: dict[str, str] | None = None,
-        uploaded_file: dict[str, tuple[str, Any]] | None = None,
+        uploaded_file: str | None = None,
     ) -> None:
         if response.status_code == 200:
             _return = response.json()
@@ -237,7 +237,7 @@ class ConnectionLive:
             method="POST",
             url=url,
             jsondata=jsondata,
-            uploaded_file=files,
+            uploaded_file=files["file"][0] if files else None,
             params=None,
             response=response,
             headers=headers,

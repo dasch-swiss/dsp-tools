@@ -10,9 +10,9 @@ import requests
 from requests import ReadTimeout, RequestException, Response
 from urllib3.exceptions import ReadTimeoutError
 
-from dsp_tools.commands.project.models.set_encoder import SetEncoder
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.create_logger import get_logger
+from dsp_tools.utils.set_encoder import SetEncoder
 
 logger = get_logger(__name__)
 

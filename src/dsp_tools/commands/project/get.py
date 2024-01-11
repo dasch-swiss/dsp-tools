@@ -20,7 +20,6 @@ def get_project(
     user: str | None = None,
     password: str | None = None,
     verbose: bool = False,
-    dump: bool = False,
 ) -> bool:
     """
     This function writes a project from a DSP server into a JSON file.
@@ -32,7 +31,6 @@ def get_project(
         user: the user (e-mail) who sends the request
         password: the password of the user who sends the request
         verbose: verbose option for the command, if used more output is given to the user
-        dump: if True, write every request to DSP-API into a file
 
     Raises:
         BaseError: if something went wrong
@@ -40,7 +38,7 @@ def get_project(
     Returns:
         True if the process finishes without errors
     """
-    con = ConnectionLive(server=server, dump=dump)
+    con = ConnectionLive(server)
     if user and password:
         try:
             con.login(user, password)

@@ -3,7 +3,6 @@ import time
 from dataclasses import dataclass, field
 from datetime import datetime
 from functools import partial
-from pathlib import Path
 from typing import Any, Callable, Optional, cast
 
 import requests
@@ -105,28 +104,15 @@ class ConnectionLive:
 
     Attributes:
         server: address of the server, e.g https://api.dasch.swiss
-        dump: if True, every request is written into a file
         token: session token received by the server after login
     """
 
     server: str
-    dump: bool = False
-    dump_directory: Path = field(init=False, default=Path("HTTP requests"))
     token: Optional[str] = None
     # downtimes of server-side services -> API still processes request
     # -> retry too early has side effects (e.g. duplicated resources)
     timeout_put_post: int = field(init=False, default=30 * 60)
     timeout_get_delete: int = field(init=False, default=20)
-
-    def __post_init__(self) -> None:
-        """
-        Create dumping directory (if applicable).
-
-        Raises:
-            BaseError: if DSP-API returns no token with the provided user credentials
-        """
-        if self.dump:
-            self.dump_directory.mkdir(exist_ok=True)
 
     def login(self, email: str, password: str) -> None:
         """
@@ -245,17 +231,16 @@ class ConnectionLive:
             request = partial(request, files=files)
 
         response: Response = _try_network_action(request)
-        if self.dump:
-            self._log_request(
-                method="POST",
-                url=url,
-                jsondata=jsondata,
-                uploaded_file=files,
-                params=None,
-                response=response,
-                headers=headers,
-                timeout=timeout,
-            )
+        self._log_request(
+            method="POST",
+            url=url,
+            jsondata=jsondata,
+            uploaded_file=files,
+            params=None,
+            response=response,
+            headers=headers,
+            timeout=timeout,
+        )
         check_for_api_error(response)
         return cast(dict[str, Any], response.json())
 
@@ -290,16 +275,15 @@ class ConnectionLive:
                 timeout=timeout,
             )
         )
-        if self.dump:
-            self._log_request(
-                method="GET",
-                url=url,
-                jsondata=None,
-                params=None,
-                response=response,
-                headers=headers,
-                timeout=timeout,
-            )
+        self._log_request(
+            method="GET",
+            url=url,
+            jsondata=None,
+            params=None,
+            response=response,
+            headers=headers,
+            timeout=timeout,
+        )
         check_for_api_error(response)
         return cast(dict[str, Any], response.json())
 
@@ -343,16 +327,15 @@ class ConnectionLive:
                 timeout=timeout,
             )
         )
-        if self.dump:
-            self._log_request(
-                method="PUT",
-                url=url,
-                jsondata=jsondata,
-                params=None,
-                response=response,
-                headers=headers,
-                timeout=timeout,
-            )
+        self._log_request(
+            method="PUT",
+            url=url,
+            jsondata=jsondata,
+            params=None,
+            response=response,
+            headers=headers,
+            timeout=timeout,
+        )
         check_for_api_error(response)
         return cast(dict[str, Any], response.json())
 
@@ -388,15 +371,14 @@ class ConnectionLive:
             params=params,
             timeout=timeout,
         )
-        if self.dump:
-            self._log_request(
-                method="DELETE",
-                url=url,
-                jsondata=None,
-                params=params,
-                response=response,
-                headers=headers,
-                timeout=timeout,
-            )
+        self._log_request(
+            method="DELETE",
+            url=url,
+            jsondata=None,
+            params=params,
+            response=response,
+            headers=headers,
+            timeout=timeout,
+        )
         check_for_api_error(response)
         return cast(dict[str, Any], response.json())

@@ -991,7 +991,6 @@ def create_project(
     user_mail: str,
     password: str,
     verbose: bool = False,
-    dump: bool = False,
 ) -> bool:
     """
     Creates a project from a JSON project file on a DSP server.
@@ -1006,7 +1005,6 @@ def create_project(
         user_mail: a username (e-mail) who has the permission to create a project
         password: the user's password
         verbose: prints more information if set to True
-        dump: if True, write every request to DSP-API into a file
 
     Raises:
         UserError:
@@ -1049,7 +1047,7 @@ def create_project(
             )
 
     # establish connection to DSP server
-    con = ConnectionLive(server, dump=dump)
+    con = ConnectionLive(server)
     con.login(user_mail, password)
 
     # create project on DSP server

@@ -40,7 +40,6 @@ class TestFastXmlUpload(unittest.TestCase):
             user_mail=cls.user,
             password=cls.password,
             verbose=False,
-            dump=False,
         )
         Path(cls.input_dir / "nested").mkdir()
         Path(cls.input_dir / "nested/subfolder").mkdir()

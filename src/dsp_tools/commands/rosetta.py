@@ -70,7 +70,6 @@ def _create_json(rosetta_folder: Path) -> bool:
         user_mail="root@example.com",
         password="test",
         verbose=False,
-        dump=False,
     )
 
 

@@ -190,7 +190,7 @@ class ConnectionLive:
             "return-headers": dict(response.headers),
             "return": _return,
         }
-        logger.debug(json.dumps(dumpobj))
+        logger.debug(json.dumps(dumpobj, cls=SetEncoder))
 
     def post(
         self,
@@ -228,7 +228,7 @@ class ConnectionLive:
         if jsondata:
             # if data is not encoded as bytes, issues can occur with non-ASCII characters,
             # where the content-length of the request will turn out to be different from the actual length
-            data = json.dumps(jsondata).encode("utf-8")
+            data = json.dumps(jsondata, cls=SetEncoder).encode("utf-8")
             request = partial(request, data=data)
         elif files:
             request = partial(request, files=files)

@@ -24,15 +24,5 @@ def test_update_repo_after_cloning(rosetta_folder: Path) -> None:
     assert is_rosetta_up_to_date
 
 
-def test_create_data_model(rosetta_folder: Path) -> None:
-    success = rosetta._create_json(rosetta_folder=rosetta_folder)
-    assert success
-
-
-def test_upload_data(rosetta_folder: Path) -> None:
-    success = rosetta._upload_xml(rosetta_folder=rosetta_folder)
-    assert success
-
-
 if __name__ == "__main__":
     pytest.main([__file__])

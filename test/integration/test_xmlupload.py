@@ -10,7 +10,6 @@ from lxml import etree
 from dsp_tools.commands.xmlupload.check_consistency_with_ontology import do_xml_consistency_check
 from dsp_tools.commands.xmlupload.ontology_client import OntologyClientLive
 from dsp_tools.models.exceptions import BaseError, UserError
-from dsp_tools.utils.xml_utils import parse_and_clean_xml_file
 
 
 @dataclass
@@ -71,7 +70,11 @@ def test_error_on_nonexistent_shortcode() -> None:
 
 
 def test_error_on_nonexistent_onto_name() -> None:
-    root = parse_and_clean_xml_file("testdata/invalid-testdata/xml-data/inexistent-ontoname.xml")
+    root = etree.fromstring(
+        '<knora shortcode="4124" default-ontology="notexistingfantasyonto">'
+        '<resource label="The only resource" restype=":minimalResource" id="the_only_resource"/>'
+        "</knora>"
+    )
     con = ConnectionMockWithResponses()
     ontology_client = OntologyClientLive(
         con=con,

@@ -5,6 +5,7 @@ from datetime import datetime
 from functools import partial
 from typing import Any, Callable, Optional, cast
 
+import regex
 import requests
 from requests import ReadTimeout, RequestException, Response
 from urllib3.exceptions import ReadTimeoutError
@@ -172,13 +173,14 @@ class ConnectionLive:
         uploaded_file: dict[str, tuple[str, Any]] | None = None,
     ) -> None:
         if response.status_code == 200:
-            _return = str(response.content)
+            _return = response.json()
         else:
-            _return = json.dumps({"status": response.status_code, "message": response.text})
+            _return = {"status": response.status_code, "message": response.text}
+        if headers and "Authorization" in headers:
+            headers["Authorization"] = regex.sub(r"Bearer .+", "Bearer <token>", headers["Authorization"])
         dumpobj = {
-            "DSP server": self.server,
+            "HTTP request": method,
             "url": url,
-            "method": method,
             "headers": headers,
             "params": params,
             "timetout": timeout,

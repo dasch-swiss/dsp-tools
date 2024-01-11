@@ -175,21 +175,26 @@ class ConnectionLive:
     ) -> None:
         if response.status_code == 200:
             _return = response.json()
+            if "token" in _return:
+                _return["token"] = "<token>"
         else:
             _return = {"status": response.status_code, "message": response.text}
         if headers and "Authorization" in headers:
             headers["Authorization"] = regex.sub(r"Bearer .+", "Bearer <token>", headers["Authorization"])
         if jsondata and "password" in jsondata:
             jsondata["password"] = "<password>"
+        return_headers = dict(response.headers)
+        if "Set-Cookie" in return_headers:
+            return_headers["Set-Cookie"] = "<cookie>"
         dumpobj = {
             "HTTP request": method,
             "url": url,
             "headers": headers,
             "params": params,
             "timetout": timeout,
-            "body": jsondata,
+            "payload": jsondata,
             "uploaded file": uploaded_file,
-            "return-headers": dict(response.headers),
+            "return-headers": return_headers,
             "return": _return,
         }
         logger.debug(json.dumps(dumpobj, cls=SetEncoder))

@@ -2,26 +2,19 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 from test.unittests.commands.xmlupload.connection_mock import ConnectionMockBase
-from typing import Any
+from typing import Any, ClassVar
 
 import pytest
 from lxml import etree
 
 from dsp_tools.commands.xmlupload.check_consistency_with_ontology import do_xml_consistency_check
 from dsp_tools.commands.xmlupload.ontology_client import OntologyClientLive
-from dsp_tools.commands.xmlupload.upload_config import UploadConfig
-from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from dsp_tools.models.exceptions import BaseError, UserError
-
-server = "http://0.0.0.0:3333"
-user = "root@example.com"
-password = "test"
-imgdir = "."
-sipi = "http://0.0.0.0:1024"
+from dsp_tools.utils.xml_utils import parse_and_clean_xml_file
 
 
 @dataclass
-class ConnectionMock(ConnectionMockBase):
+class ConnectionMockRaising(ConnectionMockBase):
     def get(
         self,
         route: str,  # noqa: ARG002 (unused-method-argument)
@@ -30,9 +23,43 @@ class ConnectionMock(ConnectionMockBase):
         raise BaseError("foo")
 
 
+@dataclass
+class ConnectionMockWithResponses(ConnectionMockBase):
+    get_responses: ClassVar[list[dict[str, Any]]] = [
+        {
+            "project": {
+                "ontologies": ["/testonto"],
+            }
+        },
+        {
+            "@graph": [
+                {
+                    "@id": "testonto:ValidResourceClass",
+                    "knora-api:isResourceClass": True,
+                }
+            ]
+        },
+        {
+            "@graph": [
+                {
+                    "@id": "knora-api:ValidResourceClass",
+                    "knora-api:isResourceClass": True,
+                }
+            ]
+        },
+    ]
+
+    def get(
+        self,
+        route: str,  # noqa: ARG002 (unused-method-argument)
+        headers: dict[str, str] | None = None,  # noqa: ARG002 (unused-method-argument)
+    ) -> dict[str, Any]:
+        return self.get_responses.pop(0)
+
+
 def test_error_on_nonexistent_shortcode() -> None:
     root = etree.parse("testdata/xml-data/test-data-minimal.xml").getroot()
-    con = ConnectionMock()
+    con = ConnectionMockRaising()
     ontology_client = OntologyClientLive(
         con=con,
         shortcode="9999",
@@ -44,6 +71,14 @@ def test_error_on_nonexistent_shortcode() -> None:
 
 
 def test_error_on_nonexistent_onto_name() -> None:
+    root = parse_and_clean_xml_file("testdata/invalid-testdata/xml-data/inexistent-ontoname.xml")
+    con = ConnectionMockWithResponses()
+    ontology_client = OntologyClientLive(
+        con=con,
+        shortcode="4124",
+        default_ontology="notexistingfantasyonto",
+        save_location=Path("bar"),
+    )
     expected = re.escape(
         "\nSome property and/or class type(s) used in the XML are unknown.\n"
         "The ontologies for your project on the server are:\n"
@@ -58,15 +93,7 @@ def test_error_on_nonexistent_onto_name() -> None:
         "---------------------------------------\n\n"
     )
     with pytest.raises(UserError, match=expected):
-        xmlupload(
-            input_file="testdata/invalid-testdata/xml-data/inexistent-ontoname.xml",
-            server=server,
-            user=user,
-            password=password,
-            imgdir=imgdir,
-            sipi=sipi,
-            config=UploadConfig(),
-        )
+        do_xml_consistency_check(ontology_client, root)
 
 
 if __name__ == "__main__":

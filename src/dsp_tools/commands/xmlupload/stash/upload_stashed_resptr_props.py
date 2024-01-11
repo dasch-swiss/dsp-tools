@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import json
 from datetime import datetime
+from typing import Any
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash, LinkValueStashItem
@@ -97,7 +97,7 @@ def _create_resptr_prop_json_object_to_update(
     res_iri: str,
     target_iri: str,
     context: dict[str, str],
-) -> str:
+) -> dict[str, Any]:
     """This function creates a JSON object that can be sent as an update request to the DSP-API."""
     linkVal = {
         "@type": "knora-api:LinkValue",
@@ -111,4 +111,4 @@ def _create_resptr_prop_json_object_to_update(
         f"{stash.prop_name}Value": linkVal,
         "@context": context,
     }
-    return json.dumps(jsonobj)
+    return jsonobj

@@ -27,7 +27,6 @@ DELETE
 from __future__ import annotations
 
 import copy
-import json
 from typing import Any, Optional, Union
 from urllib.parse import quote_plus
 
@@ -37,7 +36,6 @@ from dsp_tools.commands.project.models.model import Model
 from dsp_tools.commands.project.models.project import Project
 from dsp_tools.commands.project.models.propertyclass import PropertyClass
 from dsp_tools.commands.project.models.resourceclass import ResourceClass
-from dsp_tools.commands.project.models.set_encoder import SetEncoder
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import Actions, Context, DateTimeStamp, WithId
 from dsp_tools.utils.connection import Connection
@@ -301,8 +299,7 @@ class Ontology(Model):
 
     def create(self) -> "Ontology":
         jsonobj = self.toJsonObj(Actions.Create)
-        jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=4)
-        result = self._con.post(Ontology.ROUTE, jsondata)
+        result = self._con.post(Ontology.ROUTE, jsonobj)
         return Ontology.fromJsonObj(self._con, result)
 
     def read(self) -> "Ontology":

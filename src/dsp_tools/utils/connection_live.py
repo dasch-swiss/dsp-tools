@@ -10,6 +10,7 @@ import requests
 from requests import ReadTimeout, RequestException, Response
 from urllib3.exceptions import ReadTimeoutError
 
+from dsp_tools.commands.project.models.set_encoder import SetEncoder
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.create_logger import get_logger
 
@@ -165,7 +166,7 @@ class ConnectionLive:
         self,
         method: str,
         url: str,
-        jsondata: Optional[str],
+        jsondata: dict[str, Any] | None,
         params: Optional[dict[str, Any]],
         response: requests.Response,
         timeout: int,
@@ -194,7 +195,7 @@ class ConnectionLive:
     def post(
         self,
         route: str,
-        jsondata: Optional[str] = None,
+        jsondata: dict[str, Any] | None = None,
         files: dict[str, tuple[str, Any]] | None = None,
         headers: dict[str, str] | None = None,
         timeout: int | None = None,
@@ -204,7 +205,7 @@ class ConnectionLive:
 
         Args:
             route: route that will be called on the server
-            jsondata: Valid JSON as string
+            jsondata: payload of the HTTP request
             files: files to be uploaded, if any
             headers: headers for the HTTP request
             timeout: timeout of the HTTP request, or None if the default should be used
@@ -227,7 +228,7 @@ class ConnectionLive:
         if jsondata:
             # if data is not encoded as bytes, issues can occur with non-ASCII characters,
             # where the content-length of the request will turn out to be different from the actual length
-            data = jsondata.encode("utf-8") if jsondata else None
+            data = json.dumps(jsondata).encode("utf-8")
             request = partial(request, data=data)
         elif files:
             request = partial(request, files=files)
@@ -292,7 +293,7 @@ class ConnectionLive:
     def put(
         self,
         route: str,
-        jsondata: Optional[str] = None,
+        jsondata: dict[str, Any] | None = None,
         headers: dict[str, str] | None = None,
         content_type: str = "application/json",
     ) -> dict[str, Any]:
@@ -301,7 +302,7 @@ class ConnectionLive:
 
         Args:
             route: route that will be called on the server
-            jsondata: Valid JSON as string
+            jsondata: payload of the HTTP request
             headers: headers of the HTTP request
             content_type: HTTP Content-Type [default: 'application/json']
 
@@ -325,7 +326,8 @@ class ConnectionLive:
                 headers=headers,
                 # if data is not encoded as bytes, issues can occur with non-ASCII characters,
                 # where the content-length of the request will turn out to be different from the actual length
-                data=jsondata.encode("utf-8") if jsondata else None,
+                data=json.dumps(jsondata, cls=SetEncoder).encode("utf-8") if jsondata else None,
+                # TODO: ensure_ascii=False?
                 timeout=timeout,
             )
         )

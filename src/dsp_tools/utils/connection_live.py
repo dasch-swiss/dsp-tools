@@ -129,7 +129,7 @@ class ConnectionLive:
         """
         response = self.post(
             route="/v2/authentication",
-            jsondata=json.dumps({"email": email, "password": password}),
+            jsondata={"email": email, "password": password},
         )
         if not response.get("token"):
             raise BaseError(

@@ -235,7 +235,7 @@ class ConnectionLive:
         if jsondata:
             # if data is not encoded as bytes, issues can occur with non-ASCII characters,
             # where the content-length of the request will turn out to be different from the actual length
-            data = json.dumps(jsondata, cls=SetEncoder).encode("utf-8")
+            data = json.dumps(jsondata, cls=SetEncoder, ensure_ascii=False).encode("utf-8")
             request = partial(request, data=data)
         elif files:
             request = partial(request, files=files)
@@ -333,8 +333,7 @@ class ConnectionLive:
                 headers=headers,
                 # if data is not encoded as bytes, issues can occur with non-ASCII characters,
                 # where the content-length of the request will turn out to be different from the actual length
-                data=json.dumps(jsondata, cls=SetEncoder).encode("utf-8") if jsondata else None,
-                # TODO: ensure_ascii=False?
+                data=json.dumps(jsondata, cls=SetEncoder, ensure_ascii=False).encode("utf-8") if jsondata else None,
                 timeout=timeout,
             )
         )

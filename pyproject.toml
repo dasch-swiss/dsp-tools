@@ -57,6 +57,7 @@ pytest-unordered = "^0.5.2"
 viztracer = "^0.16.1"
 ruff = "^0.1.12"
 pytest-sugar = "^0.9.7"
+toml = "^0.10.2"
 
 
 [tool.poetry.scripts]

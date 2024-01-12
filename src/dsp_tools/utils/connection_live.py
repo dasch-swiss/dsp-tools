@@ -3,6 +3,7 @@ import time
 from dataclasses import dataclass, field
 from datetime import datetime
 from functools import partial
+from importlib.metadata import version
 from typing import Any, Callable, Optional, cast
 
 import regex
@@ -225,6 +226,7 @@ class ConnectionLive:
         url = self.server + route
         if not headers:
             headers = {}
+        headers["User-Agent"] = f'DSP-TOOLS/{version("dsp-tools")}'
         if data:
             headers["Content-Type"] = "application/json; charset=UTF-8"
         if self.token:
@@ -274,6 +276,7 @@ class ConnectionLive:
         url = self.server + route
         if not headers:
             headers = {}
+        headers["User-Agent"] = f'DSP-TOOLS/{version("dsp-tools")}'
         if self.token:
             headers["Authorization"] = f"Bearer {self.token}"
         timeout = self.timeout_get_delete
@@ -321,6 +324,7 @@ class ConnectionLive:
         url = self.server + route
         if not headers:
             headers = {}
+        headers["User-Agent"] = f'DSP-TOOLS/{version("dsp-tools")}'
         if data:
             headers["Content-Type"] = f"{content_type}; charset=UTF-8"
         if self.token:
@@ -371,6 +375,7 @@ class ConnectionLive:
         url = self.server + route
         if not headers:
             headers = {}
+        headers["User-Agent"] = f'DSP-TOOLS/{version("dsp-tools")}'
         if self.token:
             headers["Authorization"] = f"Bearer {self.token}"
         timeout = self.timeout_get_delete

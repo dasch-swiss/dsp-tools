@@ -319,7 +319,6 @@ class ConnectionLive:
         Returns:
             the return value of action
         """
-        permanent_err_msg = "Permanently unable to execute the network action. See logs for more details."
         for i in range(7):
             try:
                 response: requests.Response = action()
@@ -348,14 +347,11 @@ class ConnectionLive:
                 continue
             elif response.status_code != 200:
                 raise BaseError(
-                    message=permanent_err_msg,
+                    message="Permanently unable to execute the network action. See logs for more details.",
                     status_code=response.status_code,
                     json_content_of_api_response=response.text,
                     reason_from_api=response.reason,
                     api_route=response.url,
                 )
-
-            return response
-
-        logger.error(permanent_err_msg)
-        raise BaseError(permanent_err_msg)
+            else:
+                return response

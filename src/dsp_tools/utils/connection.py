@@ -28,7 +28,7 @@ class Connection(Protocol):
     def put(
         self,
         route: str,
-        jsondata: dict[str, Any] | None = None,
+        data: dict[str, Any] | None = None,
         headers: dict[str, str] | None = None,
         content_type: str = "application/json",
     ) -> dict[str, Any]:
@@ -37,7 +37,7 @@ class Connection(Protocol):
 
         Args:
             route: route that will be called on the server
-            jsondata: payload of the HTTP request
+            data: payload of the HTTP request
             headers: headers for the HTTP request
             content_type: HTTP Content-Type [default: 'application/json']
         """
@@ -45,7 +45,7 @@ class Connection(Protocol):
     def post(
         self,
         route: str,
-        jsondata: dict[str, Any] | None = None,
+        data: dict[str, Any] | None = None,
         files: dict[str, tuple[str, Any]] | None = None,
         headers: dict[str, str] | None = None,
         timeout: int | None = None,
@@ -55,7 +55,7 @@ class Connection(Protocol):
 
         Args:
             route: route that will be called on the server
-            jsondata: payload of the HTTP request
+            data: payload of the HTTP request
             files: files to be uploaded, if any
             headers: headers for the HTTP request
             timeout: timeout of the HTTP request, or None if the default should be used

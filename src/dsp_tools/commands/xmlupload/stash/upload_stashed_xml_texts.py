@@ -199,7 +199,7 @@ def _upload_stash_item(
         True, if the upload was successful, False otherwise
     """
     adjusted_text_value = stash_item.value.with_iris(iri_resolver)
-    jsondata = _create_XMLResource_json_object_to_update(
+    payload = _create_XMLResource_json_object_to_update(
         res_iri,
         res_type,
         stash_item.prop_name,
@@ -208,7 +208,7 @@ def _upload_stash_item(
         context,
     )
     try:
-        con.put(route="/v2/values", jsondata=jsondata)
+        con.put(route="/v2/values", data=payload)
     except BaseError as err:
         _log_unable_to_upload_xml_resource(err, res_id, stash_item.prop_name)
         return False

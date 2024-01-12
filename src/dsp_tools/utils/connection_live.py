@@ -129,7 +129,7 @@ class ConnectionLive:
         """
         response = self.post(
             route="/v2/authentication",
-            jsondata={"email": email, "password": password},
+            data={"email": email, "password": password},
         )
         if not response.get("token"):
             raise BaseError(
@@ -166,7 +166,7 @@ class ConnectionLive:
         self,
         method: str,
         url: str,
-        jsondata: dict[str, Any] | None,
+        data: dict[str, Any] | None,
         params: Optional[dict[str, Any]],
         response: requests.Response,
         timeout: int,
@@ -181,8 +181,8 @@ class ConnectionLive:
             _return = {"status": response.status_code, "message": response.text}
         if headers and "Authorization" in headers:
             headers["Authorization"] = regex.sub(r"Bearer .+", "Bearer <token>", headers["Authorization"])
-        if jsondata and "password" in jsondata:
-            jsondata["password"] = "<password>"
+        if data and "password" in data:
+            data["password"] = "<password>"
         return_headers = dict(response.headers)
         if "Set-Cookie" in return_headers:
             return_headers["Set-Cookie"] = "<cookie>"
@@ -192,7 +192,7 @@ class ConnectionLive:
             "headers": headers,
             "params": params,
             "timetout": timeout,
-            "payload": jsondata,
+            "payload": data,
             "uploaded file": uploaded_file,
             "return-headers": return_headers,
             "return": _return,
@@ -202,7 +202,7 @@ class ConnectionLive:
     def post(
         self,
         route: str,
-        jsondata: dict[str, Any] | None = None,
+        data: dict[str, Any] | None = None,
         files: dict[str, tuple[str, Any]] | None = None,
         headers: dict[str, str] | None = None,
         timeout: int | None = None,
@@ -212,7 +212,7 @@ class ConnectionLive:
 
         Args:
             route: route that will be called on the server
-            jsondata: payload of the HTTP request
+            data: payload of the HTTP request
             files: files to be uploaded, if any
             headers: headers for the HTTP request
             timeout: timeout of the HTTP request, or None if the default should be used
@@ -225,18 +225,18 @@ class ConnectionLive:
         url = self.server + route
         if not headers:
             headers = {}
-        if jsondata:
+        if data:
             headers["Content-Type"] = "application/json; charset=UTF-8"
         if self.token:
             headers["Authorization"] = f"Bearer {self.token}"
         timeout = timeout or self.timeout_put_post
 
         request = partial(requests.post, url=url, headers=headers, timeout=timeout)
-        if jsondata:
+        if data:
             # if data is not encoded as bytes, issues can occur with non-ASCII characters,
             # where the content-length of the request will turn out to be different from the actual length
-            data = json.dumps(jsondata, cls=SetEncoder, ensure_ascii=False).encode("utf-8")
-            request = partial(request, data=data)
+            data_str = json.dumps(data, cls=SetEncoder, ensure_ascii=False).encode("utf-8")
+            request = partial(request, data=data_str)
         elif files:
             request = partial(request, files=files)
 
@@ -244,7 +244,7 @@ class ConnectionLive:
         self._log_request(
             method="POST",
             url=url,
-            jsondata=jsondata,
+            data=data,
             uploaded_file=files["file"][0] if files else None,
             params=None,
             response=response,
@@ -288,7 +288,7 @@ class ConnectionLive:
         self._log_request(
             method="GET",
             url=url,
-            jsondata=None,
+            data=None,
             params=None,
             response=response,
             headers=headers,
@@ -300,7 +300,7 @@ class ConnectionLive:
     def put(
         self,
         route: str,
-        jsondata: dict[str, Any] | None = None,
+        data: dict[str, Any] | None = None,
         headers: dict[str, str] | None = None,
         content_type: str = "application/json",
     ) -> dict[str, Any]:
@@ -309,7 +309,7 @@ class ConnectionLive:
 
         Args:
             route: route that will be called on the server
-            jsondata: payload of the HTTP request
+            data: payload of the HTTP request
             headers: headers of the HTTP request
             content_type: HTTP Content-Type [default: 'application/json']
 
@@ -321,7 +321,7 @@ class ConnectionLive:
         url = self.server + route
         if not headers:
             headers = {}
-        if jsondata:
+        if data:
             headers["Content-Type"] = f"{content_type}; charset=UTF-8"
         if self.token:
             headers["Authorization"] = f"Bearer {self.token}"
@@ -333,14 +333,14 @@ class ConnectionLive:
                 headers=headers,
                 # if data is not encoded as bytes, issues can occur with non-ASCII characters,
                 # where the content-length of the request will turn out to be different from the actual length
-                data=json.dumps(jsondata, cls=SetEncoder, ensure_ascii=False).encode("utf-8") if jsondata else None,
+                data=json.dumps(data, cls=SetEncoder, ensure_ascii=False).encode("utf-8") if data else None,
                 timeout=timeout,
             )
         )
         self._log_request(
             method="PUT",
             url=url,
-            jsondata=jsondata,
+            data=data,
             params=None,
             response=response,
             headers=headers,
@@ -384,7 +384,7 @@ class ConnectionLive:
         self._log_request(
             method="DELETE",
             url=url,
-            jsondata=None,
+            data=None,
             params=params,
             response=response,
             headers=headers,

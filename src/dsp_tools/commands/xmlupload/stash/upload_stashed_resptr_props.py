@@ -76,9 +76,9 @@ def _upload_stash_item(
     Returns:
         True, if the upload was successful, False otherwise
     """
-    jsondata = _create_resptr_prop_json_object_to_update(stash, res_iri, target_iri, context)
+    payload = _create_resptr_prop_json_object_to_update(stash, res_iri, target_iri, context)
     try:
-        con.post(route="/v2/values", jsondata=jsondata)
+        con.post(route="/v2/values", data=payload)
     except BaseError as err:
         _log_unable_to_upload_link_value(err.orig_err_msg_from_api or err.message, stash.res_id, stash.prop_name)
         return False

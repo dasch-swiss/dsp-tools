@@ -230,7 +230,7 @@ class ConnectionLive:
             route = f"/{route}"
         url = self.server + route
         if data:
-            headers = headers if headers else {}
+            headers = headers or {}
             headers["Content-Type"] = "application/json; charset=UTF-8"
         timeout = timeout or self.timeout_put_post
 
@@ -319,7 +319,7 @@ class ConnectionLive:
             route = f"/{route}"
         url = self.server + route
         if data:
-            headers = headers if headers else {}
+            headers = headers or {}
             headers["Content-Type"] = f"{content_type}; charset=UTF-8"
         timeout = self.timeout_put_post
 

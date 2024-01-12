@@ -19,7 +19,6 @@ include = [
     "src/dsp_tools/resources/*",
     "src/dsp_tools/py.typed"  # see https://mypy.readthedocs.io/en/stable/installed_packages.html#making-pep-561-compatible-packages
 ]
-exclude = ["src/dsp_tools/import_scripts/*"]
 
 
 [tool.poetry.dependencies]

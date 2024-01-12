@@ -108,14 +108,6 @@ the code of your local clone will be executed.
 
 
 
-## Using the Git Submodule
-
-This repository embeds a git submodule that needs to be initialized before you can start working with a fresh clone. 
-Find more information in the 
-[developers' documentation](https://docs.dasch.swiss/latest/DSP-TOOLS/developers/git-submodules/).
-
-
-
 ## Publishing and Distribution
 
 Publishing is automated with GitHub Actions and should _not_ be done manually. 

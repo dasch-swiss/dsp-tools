@@ -185,7 +185,9 @@ class ConnectionLive:
                 _return["token"] = "<token>"
         else:
             _return = {"status": response.status_code, "message": response.text}
-        if headers and "Authorization" in headers:
+        headers = headers or {}
+        headers.update({k: str(v) for k, v in self.session.headers.items()})
+        if "Authorization" in headers:
             headers["Authorization"] = regex.sub(r"Bearer .+", "Bearer <token>", headers["Authorization"])
         if data and "password" in data:
             data["password"] = "<password>"

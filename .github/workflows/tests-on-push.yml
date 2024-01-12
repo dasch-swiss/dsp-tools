@@ -32,8 +32,6 @@ jobs:
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v3
-        with:
-          submodules: recursive
       - name: Install poetry, python, and dependencies
         uses: ./.github/actions/setup
       - name: Linting with ruff
@@ -73,8 +71,6 @@ jobs:
     steps:
       - name: Checkout dsp-tools repo
         uses: actions/checkout@v3
-        with:
-          submodules: recursive
       - name: Install poetry, python, and dependencies
         uses: ./.github/actions/setup
       - name: start stack

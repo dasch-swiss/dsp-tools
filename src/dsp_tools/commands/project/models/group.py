@@ -23,7 +23,6 @@ DELETE
 
 from __future__ import annotations
 
-import json
 from typing import Any, Optional, Union
 from urllib.parse import quote_plus
 
@@ -203,8 +202,7 @@ class Group(Model):
 
     def create(self) -> Group:
         jsonobj = self.toJsonObj(Actions.Create)
-        jsondata = json.dumps(jsonobj)
-        result = self._con.post(Group.ROUTE, jsondata)
+        result = self._con.post(Group.ROUTE, jsonobj)
         return Group.fromJsonObj(self._con, result["group"])
 
     def read(self) -> Group:
@@ -215,12 +213,11 @@ class Group(Model):
         updated_group = None
         jsonobj = self.toJsonObj(Actions.Update)
         if jsonobj:
-            jsondata = json.dumps(jsonobj)
-            result = self._con.put(Group.ROUTE_SLASH + quote_plus(self._iri), jsondata)
+            result = self._con.put(Group.ROUTE_SLASH + quote_plus(self._iri), jsonobj)
             updated_group = Group.fromJsonObj(self._con, result["group"])
         if self._status is not None and "status" in self._changed:
-            jsondata = json.dumps({"status": self._status})
-            result = self._con.put(Group.ROUTE_SLASH + quote_plus(self._iri) + "/status", jsondata)
+            jsonobj = {"status": self._status}
+            result = self._con.put(Group.ROUTE_SLASH + quote_plus(self._iri) + "/status", jsonobj)
             updated_group = Group.fromJsonObj(self._con, result["group"])
         return updated_group
 

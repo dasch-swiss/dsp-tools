@@ -135,7 +135,6 @@ def create_lists(
     server: str,
     user: str,
     password: str,
-    dump: bool = False,
 ) -> tuple[dict[str, Any], bool]:
     """
     This method accepts a JSON project definition,
@@ -151,7 +150,6 @@ def create_lists(
         server: URL of the DSP server
         user: Username (e-mail) for the DSP server, must have the permissions to create a project
         password: Password of the user
-        dump: if True, write every request to DSP-API into a file
 
     Raises:
         UserError:
@@ -184,7 +182,7 @@ def create_lists(
     print("JSON project file is syntactically correct and passed validation.")
 
     # connect to the DSP server
-    con = ConnectionLive(server, dump=dump)
+    con = ConnectionLive(server)
     con.login(user, password)
 
     # retrieve the project

@@ -156,7 +156,6 @@ def _call_ingest_xmlupload(args: argparse.Namespace) -> bool:
         password=args.password,
         dsp_url=args.server,
         sipi_url=args.sipi_url,
-        dump=args.dump,
     )
     return True
 
@@ -202,7 +201,7 @@ def _call_xmlupload(args: argparse.Namespace) -> bool:
             password=args.password,
             imgdir=args.imgdir,
             sipi=args.sipi_url,
-            config=UploadConfig(diagnostics=DiagnosticsConfig(verbose=args.verbose, dump=args.dump)),
+            config=UploadConfig(diagnostics=DiagnosticsConfig(verbose=args.verbose)),
         )
 
 
@@ -214,7 +213,6 @@ def _call_get(args: argparse.Namespace) -> bool:
         user=args.user,
         password=args.password,
         verbose=args.verbose,
-        dump=args.dump,
     )
 
 
@@ -230,7 +228,6 @@ def _call_create(args: argparse.Namespace) -> bool:
                 server=args.server,
                 user=args.user,
                 password=args.password,
-                dump=args.dump,
             )
         case False, True:
             success = validate_project(args.project_definition)
@@ -242,6 +239,5 @@ def _call_create(args: argparse.Namespace) -> bool:
                 user_mail=args.user,
                 password=args.password,
                 verbose=args.verbose,
-                dump=args.dump,
             )
     return success

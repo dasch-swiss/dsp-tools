@@ -1,4 +1,3 @@
-import json
 from typing import Any, Optional, Sequence, Union
 from urllib.parse import quote_plus
 
@@ -6,7 +5,6 @@ import regex
 
 from dsp_tools.commands.project.models.listnode import ListNode
 from dsp_tools.commands.project.models.model import Model
-from dsp_tools.commands.project.models.set_encoder import SetEncoder
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import Actions, Context, DateTimeStamp, WithId
 from dsp_tools.models.langstring import LangString, Languages
@@ -333,8 +331,7 @@ class PropertyClass(Model):
 
     def create(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, "PropertyClass"]:
         jsonobj = self.toJsonObj(last_modification_date, Actions.Create)
-        jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=2)
-        result = self._con.post(PropertyClass.ROUTE, jsondata)
+        result = self._con.post(PropertyClass.ROUTE, jsonobj)
         last_modification_date = DateTimeStamp(result["knora-api:lastModificationDate"])
         return last_modification_date, PropertyClass.fromJsonObj(self._con, self._context, result["@graph"])
 
@@ -346,14 +343,12 @@ class PropertyClass(Model):
         something_changed = False
         if "label" in self._changed:
             jsonobj = self.toJsonObj(last_modification_date, Actions.Update, "label")
-            jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=4)
-            result = self._con.put(PropertyClass.ROUTE, jsondata)
+            result = self._con.put(PropertyClass.ROUTE, jsonobj)
             last_modification_date = DateTimeStamp(result["knora-api:lastModificationDate"])
             something_changed = True
         if "comment" in self._changed:
             jsonobj = self.toJsonObj(last_modification_date, Actions.Update, "comment")
-            jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=4)
-            result = self._con.put(PropertyClass.ROUTE, jsondata)
+            result = self._con.put(PropertyClass.ROUTE, jsonobj)
             last_modification_date = DateTimeStamp(result["knora-api:lastModificationDate"])
             something_changed = True
         if something_changed:

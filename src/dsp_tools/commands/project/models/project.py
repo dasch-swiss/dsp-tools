@@ -24,12 +24,10 @@ In addition there is a static methods ``getAllProjects`` which returns a list of
 
 from __future__ import annotations
 
-import json
 from typing import Any, Optional, Union
 from urllib.parse import quote_plus
 
 from dsp_tools.commands.project.models.model import Model
-from dsp_tools.commands.project.models.set_encoder import SetEncoder
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import Actions
 from dsp_tools.models.langstring import LangString, Languages
@@ -414,8 +412,7 @@ class Project(Model):
         :return: JSON-object from DSP
         """
         jsonobj = self.toJsonObj(Actions.Create)
-        jsondata = json.dumps(jsonobj, cls=SetEncoder)
-        result = self._con.post(Project.ROUTE, jsondata)
+        result = self._con.post(Project.ROUTE, jsonobj)
         return Project.fromJsonObj(self._con, result["project"])
 
     def read(self) -> Project:
@@ -446,8 +443,7 @@ class Project(Model):
         Returns: JSON object returned as response from DSP reflecting the update
         """
         jsonobj = self.toJsonObj(Actions.Update)
-        jsondata = json.dumps(jsonobj, cls=SetEncoder)
-        result = self._con.put(Project.IRI + quote_plus(self.iri), jsondata)
+        result = self._con.put(Project.IRI + quote_plus(self.iri), jsonobj)
         return Project.fromJsonObj(self._con, result["project"])
 
     def delete(self) -> Project:

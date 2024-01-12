@@ -39,7 +39,6 @@ class DiagnosticsConfig:
     """Configures all diagnostics for a given upload."""
 
     verbose: bool = False
-    dump: bool = False
     server_as_foldername: str = "unknown"
     save_location: Path = field(default=Path.home() / ".dsp-tools" / "xmluploads")
     timestamp_str: str = field(default=datetime.now().strftime("%Y-%m-%d_%H%M%S"))

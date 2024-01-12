@@ -35,7 +35,6 @@ def test_lists_create(create_lists: Mock) -> None:
         server="http://0.0.0.0:3333",
         user="root@example.com",
         password="test",
-        dump=False,
     )
 
 
@@ -60,7 +59,6 @@ def test_project_create(create_project: Mock) -> None:
         user_mail="root@example.com",
         password="test",
         verbose=False,
-        dump=False,
     )
 
 
@@ -78,7 +76,6 @@ def test_project_get(get_project: Mock) -> None:
         user="root@example.com",
         password="test",
         verbose=False,
-        dump=False,
     )
 
 

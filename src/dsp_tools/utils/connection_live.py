@@ -3,15 +3,16 @@ import time
 from dataclasses import dataclass, field
 from datetime import datetime
 from functools import partial
-from pathlib import Path
 from typing import Any, Callable, Optional, cast
 
+import regex
 import requests
 from requests import ReadTimeout, RequestException, Response
 from urllib3.exceptions import ReadTimeoutError
 
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.create_logger import get_logger
+from dsp_tools.utils.set_encoder import SetEncoder
 
 logger = get_logger(__name__)
 
@@ -105,28 +106,15 @@ class ConnectionLive:
 
     Attributes:
         server: address of the server, e.g https://api.dasch.swiss
-        dump: if True, every request is written into a file
         token: session token received by the server after login
     """
 
     server: str
-    dump: bool = False
-    dump_directory: Path = field(init=False, default=Path("HTTP requests"))
     token: Optional[str] = None
     # downtimes of server-side services -> API still processes request
     # -> retry too early has side effects (e.g. duplicated resources)
     timeout_put_post: int = field(init=False, default=30 * 60)
     timeout_get_delete: int = field(init=False, default=20)
-
-    def __post_init__(self) -> None:
-        """
-        Create dumping directory (if applicable).
-
-        Raises:
-            BaseError: if DSP-API returns no token with the provided user credentials
-        """
-        if self.dump:
-            self.dump_directory.mkdir(exist_ok=True)
 
     def login(self, email: str, password: str) -> None:
         """
@@ -141,7 +129,7 @@ class ConnectionLive:
         """
         response = self.post(
             route="/v2/authentication",
-            jsondata=json.dumps({"email": email, "password": password}),
+            data={"email": email, "password": password},
         )
         if not response.get("token"):
             raise BaseError(
@@ -174,52 +162,47 @@ class ConnectionLive:
             raise BaseError("No token available.")
         return self.token
 
-    def _write_request_to_file(
+    def _log_request(
         self,
         method: str,
         url: str,
-        jsondata: Optional[str],
+        data: dict[str, Any] | None,
         params: Optional[dict[str, Any]],
         response: requests.Response,
+        timeout: int,
         headers: dict[str, str] | None = None,
-        uploaded_file: Optional[str] = None,
+        uploaded_file: str | None = None,
     ) -> None:
-        """
-        Write the request and response to a file.
-
-        Args:
-            method: HTTP method (POST, GET, PUT, DELETE)
-            url: complete URL (server + route of DSP-API) that was called
-            jsondata: data sent to the server
-            params: additional parameters for the HTTP request
-            response: response of the server
-            headers: headers of the HTTP request
-            uploaded_file: path to the file that was uploaded, if any
-        """
         if response.status_code == 200:
             _return = response.json()
+            if "token" in _return:
+                _return["token"] = "<token>"
         else:
             _return = {"status": response.status_code, "message": response.text}
+        if headers and "Authorization" in headers:
+            headers["Authorization"] = regex.sub(r"Bearer .+", "Bearer <token>", headers["Authorization"])
+        if data and "password" in data:
+            data["password"] = "<password>"
+        return_headers = dict(response.headers)
+        if "Set-Cookie" in return_headers:
+            return_headers["Set-Cookie"] = "<cookie>"
         dumpobj = {
-            "DSP server": self.server,
+            "HTTP request": method,
             "url": url,
-            "method": method,
             "headers": headers,
             "params": params,
-            "body": json.loads(jsondata) if jsondata else None,
+            "timetout": timeout,
+            "payload": data,
             "uploaded file": uploaded_file,
-            "return-headers": dict(response.headers),
+            "return-headers": return_headers,
             "return": _return,
         }
-        route_for_filename = url.replace(self.server, "").replace("/", "_")
-        filename = f"{datetime.now().strftime('%Y-%m-%d %H.%M.%S.%f')} {method} {route_for_filename}.json"
-        with open(self.dump_directory / filename, "w", encoding="utf-8") as f:
-            json.dump(dumpobj, f, indent=4)
+        logger.debug(json.dumps(dumpobj, cls=SetEncoder))
 
     def post(
         self,
         route: str,
-        jsondata: Optional[str] = None,
+        data: dict[str, Any] | None = None,
         files: dict[str, tuple[str, Any]] | None = None,
         headers: dict[str, str] | None = None,
         timeout: int | None = None,
@@ -229,7 +212,7 @@ class ConnectionLive:
 
         Args:
             route: route that will be called on the server
-            jsondata: Valid JSON as string
+            data: payload of the HTTP request
             files: files to be uploaded, if any
             headers: headers for the HTTP request
             timeout: timeout of the HTTP request, or None if the default should be used
@@ -242,31 +225,32 @@ class ConnectionLive:
         url = self.server + route
         if not headers:
             headers = {}
-        if jsondata:
+        if data:
             headers["Content-Type"] = "application/json; charset=UTF-8"
         if self.token:
             headers["Authorization"] = f"Bearer {self.token}"
+        timeout = timeout or self.timeout_put_post
 
-        request = partial(requests.post, url=url, headers=headers, timeout=timeout or self.timeout_put_post)
-        if jsondata:
+        request = partial(requests.post, url=url, headers=headers, timeout=timeout)
+        if data:
             # if data is not encoded as bytes, issues can occur with non-ASCII characters,
             # where the content-length of the request will turn out to be different from the actual length
-            data = jsondata.encode("utf-8") if jsondata else None
-            request = partial(request, data=data)
+            data_str = json.dumps(data, cls=SetEncoder, ensure_ascii=False).encode("utf-8")
+            request = partial(request, data=data_str)
         elif files:
             request = partial(request, files=files)
 
         response: Response = _try_network_action(request)
-        if self.dump:
-            self._write_request_to_file(
-                method="POST",
-                url=url,
-                jsondata=jsondata,
-                uploaded_file=files["file"][0] if files else None,
-                params=None,
-                response=response,
-                headers=headers,
-            )
+        self._log_request(
+            method="POST",
+            url=url,
+            data=data,
+            uploaded_file=files["file"][0] if files else None,
+            params=None,
+            response=response,
+            headers=headers,
+            timeout=timeout,
+        )
         check_for_api_error(response)
         return cast(dict[str, Any], response.json())
 
@@ -292,30 +276,31 @@ class ConnectionLive:
             headers = {}
         if self.token:
             headers["Authorization"] = f"Bearer {self.token}"
+        timeout = self.timeout_get_delete
 
         response: Response = _try_network_action(
             lambda: requests.get(
                 url=url,
                 headers=headers,
-                timeout=self.timeout_get_delete,
+                timeout=timeout,
             )
         )
-        if self.dump:
-            self._write_request_to_file(
-                method="GET",
-                url=url,
-                jsondata=None,
-                params=None,
-                response=response,
-                headers=headers,
-            )
+        self._log_request(
+            method="GET",
+            url=url,
+            data=None,
+            params=None,
+            response=response,
+            headers=headers,
+            timeout=timeout,
+        )
         check_for_api_error(response)
         return cast(dict[str, Any], response.json())
 
     def put(
         self,
         route: str,
-        jsondata: Optional[str] = None,
+        data: dict[str, Any] | None = None,
         headers: dict[str, str] | None = None,
         content_type: str = "application/json",
     ) -> dict[str, Any]:
@@ -324,7 +309,7 @@ class ConnectionLive:
 
         Args:
             route: route that will be called on the server
-            jsondata: Valid JSON as string
+            data: payload of the HTTP request
             headers: headers of the HTTP request
             content_type: HTTP Content-Type [default: 'application/json']
 
@@ -336,10 +321,11 @@ class ConnectionLive:
         url = self.server + route
         if not headers:
             headers = {}
-        if jsondata:
+        if data:
             headers["Content-Type"] = f"{content_type}; charset=UTF-8"
         if self.token:
             headers["Authorization"] = f"Bearer {self.token}"
+        timeout = self.timeout_put_post
 
         response: Response = _try_network_action(
             lambda: requests.put(
@@ -347,19 +333,19 @@ class ConnectionLive:
                 headers=headers,
                 # if data is not encoded as bytes, issues can occur with non-ASCII characters,
                 # where the content-length of the request will turn out to be different from the actual length
-                data=jsondata.encode("utf-8") if jsondata else None,
-                timeout=self.timeout_put_post,
+                data=json.dumps(data, cls=SetEncoder, ensure_ascii=False).encode("utf-8") if data else None,
+                timeout=timeout,
             )
         )
-        if self.dump:
-            self._write_request_to_file(
-                method="PUT",
-                url=url,
-                jsondata=jsondata,
-                params=None,
-                response=response,
-                headers=headers,
-            )
+        self._log_request(
+            method="PUT",
+            url=url,
+            data=data,
+            params=None,
+            response=response,
+            headers=headers,
+            timeout=timeout,
+        )
         check_for_api_error(response)
         return cast(dict[str, Any], response.json())
 
@@ -387,20 +373,22 @@ class ConnectionLive:
             headers = {}
         if self.token:
             headers["Authorization"] = f"Bearer {self.token}"
+        timeout = self.timeout_get_delete
+
         response = requests.delete(
             url=url,
             headers=headers,
             params=params,
-            timeout=self.timeout_get_delete,
+            timeout=timeout,
         )
-        if self.dump:
-            self._write_request_to_file(
-                method="DELETE",
-                url=url,
-                jsondata=None,
-                params=params,
-                response=response,
-                headers=headers,
-            )
+        self._log_request(
+            method="DELETE",
+            url=url,
+            data=None,
+            params=params,
+            response=response,
+            headers=headers,
+            timeout=timeout,
+        )
         check_for_api_error(response)
         return cast(dict[str, Any], response.json())

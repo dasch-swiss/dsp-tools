@@ -194,7 +194,6 @@ def _add_ingest_xmlupload(
     subparser.add_argument("-s", "--server", default=default_dsp_api_url, help=dsp_server_text)
     subparser.add_argument("-u", "--user", default=root_user_email, help=username_text)
     subparser.add_argument("-p", "--password", default=root_user_pw, help=password_text)
-    subparser.add_argument("-d", "--dump", action="store_true", help="write every request to DSP-API/SIPI into a file")
     subparser.add_argument("xml_file", help="path to XML file containing the data")
 
 
@@ -267,7 +266,6 @@ def _add_xmlupload(
         "-V", "--validate-only", action="store_true", help="validate the XML file without uploading it"
     )
     subparser.add_argument("-v", "--verbose", action="store_true", help=verbose_text)
-    subparser.add_argument("-d", "--dump", action="store_true", help="write every request to DSP-API/SIPI into a file")
     subparser.add_argument("xmlfile", help="path to the XML file containing the data")
 
 
@@ -287,7 +285,6 @@ def _add_get(
     subparser.add_argument("-p", "--password", default=root_user_pw, help=password_text)
     subparser.add_argument("-P", "--project", help="shortcode, shortname or IRI of the project", required=True)
     subparser.add_argument("-v", "--verbose", action="store_true", help=verbose_text)
-    subparser.add_argument("-d", "--dump", action="store_true", help="write every request to DSP-API into a file")
     subparser.add_argument("project_definition", help="path to the file the project should be written to")
 
 
@@ -319,5 +316,4 @@ def _add_create(
         help="create only the lists (prerequisite: the project exists on the server)",
     )
     subparser.add_argument("-v", "--verbose", action="store_true", help=verbose_text)
-    subparser.add_argument("-d", "--dump", action="store_true", help="write every request to DSP-API into a file")
     subparser.add_argument("project_definition", help="path to the JSON project file")

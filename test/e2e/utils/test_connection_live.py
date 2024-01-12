@@ -49,26 +49,20 @@ class TestConnectionLive(unittest.TestCase):
         self.assertRaises(BaseError, self.con.get, "/doesNotExist")
 
     def test_post(self) -> None:
-        res_info = """{
-            "@type" : "anything:Thing",
-            "knora-api:attachedToProject" : {
-                "@id" : "http://rdfh.ch/projects/0001"
+        res_info = {
+            "@type": "anything:Thing",
+            "knora-api:attachedToProject": {"@id": "http://rdfh.ch/projects/0001"},
+            "anything:hasBoolean": {"@type": "knora-api:BooleanValue", "knora-api:booleanValueAsBoolean": True},
+            "rdfs:label": "knora-py thing",
+            "knora-api:hasPermissions": "CR knora-admin:Creator|V http://rdfh.ch/groups/0001/thing-searcher",
+            "@context": {
+                "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+                "knora-api": "http://api.knora.org/ontology/knora-api/v2#",
+                "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+                "xsd": "http://www.w3.org/2001/XMLSchema#",
+                "anything": "http://0.0.0.0:3333/ontology/0001/anything/v2#",
             },
-            "anything:hasBoolean" : {
-                "@type" : "knora-api:BooleanValue",
-                "knora-api:booleanValueAsBoolean" : true
-            },
-            "rdfs:label" : "knora-py thing",
-            "knora-api:hasPermissions" : "CR knora-admin:Creator|V http://rdfh.ch/groups/0001/thing-searcher",
-            "@context" : {
-                "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-                "knora-api" : "http://api.knora.org/ontology/knora-api/v2#",
-                "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
-                "xsd" : "http://www.w3.org/2001/XMLSchema#",
-                "anything" : "http://0.0.0.0:3333/ontology/0001/anything/v2#"
-            }
         }
-        """
 
         res = self.con.post("/v2/resources", res_info)
 
@@ -78,18 +72,17 @@ class TestConnectionLive(unittest.TestCase):
 
         res_id = res["@id"]
 
-        erase_info = f"""{{
-            "@id" : "{res_id}",
-            "@type" : "anything:Thing",
-            "@context" : {{
-                "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-                "knora-api" : "http://api.knora.org/ontology/knora-api/v2#",
-                "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
-                "xsd" : "http://www.w3.org/2001/XMLSchema#",
-                "anything" : "http://0.0.0.0:3333/ontology/0001/anything/v2#"
-            }}
-        }}
-        """
+        erase_info = {
+            "@id": f"{res_id}",
+            "@type": "anything:Thing",
+            "@context": {
+                "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+                "knora-api": "http://api.knora.org/ontology/knora-api/v2#",
+                "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+                "xsd": "http://www.w3.org/2001/XMLSchema#",
+                "anything": "http://0.0.0.0:3333/ontology/0001/anything/v2#",
+            },
+        }
 
         res = self.con.post("/v2/resources/erase", erase_info)
         self.assertIsNotNone(res["knora-api:result"])

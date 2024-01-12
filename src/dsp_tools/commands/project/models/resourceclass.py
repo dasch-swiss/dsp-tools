@@ -7,7 +7,6 @@ This model implements the handling of resource classes. It contains two classes 
 
 from __future__ import annotations
 
-import json
 from enum import Enum
 from typing import Any, Optional, Sequence, Union
 from urllib.parse import quote_plus
@@ -15,7 +14,6 @@ from urllib.parse import quote_plus
 import regex
 
 from dsp_tools.commands.project.models.model import Model
-from dsp_tools.commands.project.models.set_encoder import SetEncoder
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import Actions, Cardinality, Context, DateTimeStamp
 from dsp_tools.models.langstring import LangString, Languages
@@ -234,8 +232,7 @@ class HasProperty(Model):
             raise BaseError("Cardinality id required")
 
         jsonobj = self.toJsonObj(last_modification_date, Actions.Create)
-        jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=2)
-        result = self._con.post(HasProperty.ROUTE, jsondata)
+        result = self._con.post(HasProperty.ROUTE, jsonobj)
         last_modification_date = DateTimeStamp(result["knora-api:lastModificationDate"])
         return last_modification_date, ResourceClass.fromJsonObj(self._con, self._context, result["@graph"])
 
@@ -247,8 +244,7 @@ class HasProperty(Model):
         if self._cardinality is None:
             raise BaseError("Cardinality id required")
         jsonobj = self.toJsonObj(last_modification_date, Actions.Update)
-        jsondata = json.dumps(jsonobj, indent=4, cls=SetEncoder)
-        result = self._con.put(HasProperty.ROUTE, jsondata)
+        result = self._con.put(HasProperty.ROUTE, jsonobj)
         last_modification_date = DateTimeStamp(result["knora-api:lastModificationDate"])
         return last_modification_date, ResourceClass.fromJsonObj(self._con, self._context, result["@graph"])
 
@@ -650,8 +646,7 @@ class ResourceClass(Model):
 
     def create(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, "ResourceClass"]:
         jsonobj = self.toJsonObj(last_modification_date, Actions.Create)
-        jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=4)
-        result = self._con.post(ResourceClass.ROUTE, jsondata)
+        result = self._con.post(ResourceClass.ROUTE, jsonobj)
         last_modification_date = DateTimeStamp(result["knora-api:lastModificationDate"])
         return last_modification_date, ResourceClass.fromJsonObj(self._con, self._context, result["@graph"])
 
@@ -663,14 +658,12 @@ class ResourceClass(Model):
         something_changed = False
         if "label" in self._changed:
             jsonobj = self.toJsonObj(last_modification_date, Actions.Update, "label")
-            jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=4)
-            result = self._con.put(ResourceClass.ROUTE, jsondata)
+            result = self._con.put(ResourceClass.ROUTE, jsonobj)
             last_modification_date = DateTimeStamp(result["knora-api:lastModificationDate"])
             something_changed = True
         if "comment" in self._changed:
             jsonobj = self.toJsonObj(last_modification_date, Actions.Update, "comment")
-            jsondata = json.dumps(jsonobj, cls=SetEncoder, indent=4)
-            result = self._con.put(ResourceClass.ROUTE, jsondata)
+            result = self._con.put(ResourceClass.ROUTE, jsonobj)
             last_modification_date = DateTimeStamp(result["knora-api:lastModificationDate"])
             something_changed = True
         if something_changed:

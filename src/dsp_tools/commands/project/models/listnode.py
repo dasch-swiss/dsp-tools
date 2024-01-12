@@ -21,14 +21,12 @@ DELETE
 """
 from __future__ import annotations
 
-import json
 from pprint import pprint
 from typing import Any, Optional, Union
 from urllib.parse import quote_plus
 
 from dsp_tools.commands.project.models.model import Model
 from dsp_tools.commands.project.models.project import Project
-from dsp_tools.commands.project.models.set_encoder import SetEncoder
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.helpers import Actions
 from dsp_tools.models.langstring import LangString, Languages
@@ -419,12 +417,11 @@ class ListNode(Model):
         :return: JSON-object from DSP-API
         """
         jsonobj = self.toJsonObj(Actions.Create)
-        jsondata = json.dumps(jsonobj, cls=SetEncoder)
         if self._parent:
-            result = self._con.post(ListNode.ROUTE_SLASH + quote_plus(self._parent), jsondata)
+            result = self._con.post(ListNode.ROUTE_SLASH + quote_plus(self._parent), jsonobj)
             return ListNode.fromJsonObj(self._con, result["nodeinfo"])
         else:
-            result = self._con.post(ListNode.ROUTE, jsondata)
+            result = self._con.post(ListNode.ROUTE, jsonobj)
             return ListNode.fromJsonObj(self._con, result["list"]["listinfo"])
 
     def read(self) -> Any:
@@ -451,8 +448,7 @@ class ListNode(Model):
 
         jsonobj = self.toJsonObj(Actions.Update, self.iri)
         if jsonobj:
-            jsondata = json.dumps(jsonobj, cls=SetEncoder)
-            result = self._con.put(ListNode.ROUTE_SLASH + quote_plus(self.iri), jsondata)
+            result = self._con.put(ListNode.ROUTE_SLASH + quote_plus(self.iri), jsonobj)
             pprint(result)
             return ListNode.fromJsonObj(self._con, result["listinfo"])
         else:

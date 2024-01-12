@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from datetime import datetime
 from typing import Any
 from urllib.parse import quote_plus
@@ -67,7 +66,7 @@ def _create_XMLResource_json_object_to_update(
     value_iri: str,
     new_xmltext: FormattedTextValue,
     context: dict[str, str],
-) -> str:
+) -> dict[str, Any]:
     """
     This function creates a JSON object that can be sent as update request to DSP-API.
 
@@ -93,7 +92,7 @@ def _create_XMLResource_json_object_to_update(
         },
         "@context": context,
     }
-    return json.dumps(jsonobj, indent=4, separators=(",", ": "))
+    return jsonobj
 
 
 def upload_stashed_xml_texts(
@@ -200,7 +199,7 @@ def _upload_stash_item(
         True, if the upload was successful, False otherwise
     """
     adjusted_text_value = stash_item.value.with_iris(iri_resolver)
-    jsondata = _create_XMLResource_json_object_to_update(
+    payload = _create_XMLResource_json_object_to_update(
         res_iri,
         res_type,
         stash_item.prop_name,
@@ -209,7 +208,7 @@ def _upload_stash_item(
         context,
     )
     try:
-        con.put(route="/v2/values", jsondata=jsondata)
+        con.put(route="/v2/values", data=payload)
     except BaseError as err:
         _log_unable_to_upload_xml_resource(err, res_id, stash_item.prop_name)
         return False

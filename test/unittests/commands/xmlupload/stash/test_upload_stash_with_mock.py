@@ -53,7 +53,7 @@ class ConnectionMock(ConnectionMockBase):
     def post(
         self,
         route: str,
-        jsondata: str | None = None,
+        data: dict[str, Any] | None = None,
         files: dict[str, tuple[str, Any]] | None = None,
         headers: dict[str, str] | None = None,
         timeout: int | None = None,
@@ -63,7 +63,7 @@ class ConnectionMock(ConnectionMockBase):
     def put(
         self,
         route: str,
-        jsondata: str | None = None,
+        data: dict[str, Any] | None = None,
         headers: dict[str, str] | None = None,
         content_type: str = "application/json",
     ) -> dict[str, Any]:

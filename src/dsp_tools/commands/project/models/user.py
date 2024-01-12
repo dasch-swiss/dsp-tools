@@ -24,7 +24,6 @@ In addition there is a static methods ``getAllProjects`` which returns a list of
 
 from __future__ import annotations
 
-import json
 import urllib.parse
 from typing import Any, Optional, Union
 from urllib.parse import quote_plus
@@ -546,8 +545,7 @@ class User(Model):
         :return: JSON-object from DSP
         """
         jsonobj = self.toJsonObj(Actions.Create)
-        jsondata = json.dumps(jsonobj)
-        result = self._con.post(User.ROUTE, jsondata)
+        result = self._con.post(User.ROUTE, jsonobj)
         iri = result["user"]["id"]
         if self._in_projects is not None:
             for project in self._in_projects:
@@ -587,22 +585,18 @@ class User(Model):
 
         jsonobj = self.toJsonObj(Actions.Update)
         if jsonobj:
-            jsondata = json.dumps(jsonobj)
-            self._con.put(User.IRI + quote_plus(self._iri) + "/BasicUserInformation", jsondata)
+            self._con.put(User.IRI + quote_plus(self._iri) + "/BasicUserInformation", jsonobj)
         if "status" in self._changed:
             jsonobj = {"status": self._status}
-            jsondata = json.dumps(jsonobj)
-            self._con.put(User.IRI + quote_plus(self._iri) + "/Status", jsondata)
+            self._con.put(User.IRI + quote_plus(self._iri) + "/Status", jsonobj)
         if "password" in self._changed:
             if requesterPassword is None:
                 raise BaseError("Requester's password is missing!")
             jsonobj = {"requesterPassword": requesterPassword, "newPassword": self._password}
-            jsondata = json.dumps(jsonobj)
-            self._con.put(User.IRI + quote_plus(self._iri) + "/Password", jsondata)
+            self._con.put(User.IRI + quote_plus(self._iri) + "/Password", jsonobj)
         if "sysadmin" in self._changed:
             jsonobj = {"systemAdmin": self._sysadmin}
-            jsondata = json.dumps(jsonobj)
-            self._con.put(User.IRI + quote_plus(self._iri) + "/SystemAdmin", jsondata)
+            self._con.put(User.IRI + quote_plus(self._iri) + "/SystemAdmin", jsonobj)
         for p in self._add_to_project.items():
             self._con.post(User.IRI + quote_plus(self._iri) + User.PROJECT_MEMBERSHIPS + quote_plus(p[0]))
             if p[1]:

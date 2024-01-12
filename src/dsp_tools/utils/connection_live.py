@@ -112,10 +112,14 @@ class ConnectionLive:
 
     server: str
     token: Optional[str] = None
+    session: requests.Session = field(init=False, default=requests.Session())
     # downtimes of server-side services -> API still processes request
     # -> retry too early has side effects (e.g. duplicated resources)
     timeout_put_post: int = field(init=False, default=30 * 60)
     timeout_get_delete: int = field(init=False, default=20)
+
+    def __post_init__(self) -> None:
+        self.session.headers["User-Agent"] = f'DSP-TOOLS/{version("dsp-tools")}'
 
     def login(self, email: str, password: str) -> None:
         """
@@ -140,6 +144,7 @@ class ConnectionLive:
                 api_route="/v2/authentication",
             )
         self.token = response["token"]
+        self.session.headers["Authorization"] = f"Bearer {self.token}"
 
     def logout(self) -> None:
         """
@@ -224,16 +229,12 @@ class ConnectionLive:
         if not route.startswith("/"):
             route = f"/{route}"
         url = self.server + route
-        if not headers:
-            headers = {}
-        headers["User-Agent"] = f'DSP-TOOLS/{version("dsp-tools")}'
         if data:
+            headers = headers if headers else {}
             headers["Content-Type"] = "application/json; charset=UTF-8"
-        if self.token:
-            headers["Authorization"] = f"Bearer {self.token}"
         timeout = timeout or self.timeout_put_post
 
-        request = partial(requests.post, url=url, headers=headers, timeout=timeout)
+        request = partial(self.session.post, url=url, headers=headers, timeout=timeout)
         if data:
             # if data is not encoded as bytes, issues can occur with non-ASCII characters,
             # where the content-length of the request will turn out to be different from the actual length
@@ -274,15 +275,10 @@ class ConnectionLive:
         if not route.startswith("/"):
             route = f"/{route}"
         url = self.server + route
-        if not headers:
-            headers = {}
-        headers["User-Agent"] = f'DSP-TOOLS/{version("dsp-tools")}'
-        if self.token:
-            headers["Authorization"] = f"Bearer {self.token}"
         timeout = self.timeout_get_delete
 
         response: Response = _try_network_action(
-            lambda: requests.get(
+            lambda: self.session.get(
                 url=url,
                 headers=headers,
                 timeout=timeout,
@@ -322,17 +318,13 @@ class ConnectionLive:
         if not route.startswith("/"):
             route = f"/{route}"
         url = self.server + route
-        if not headers:
-            headers = {}
-        headers["User-Agent"] = f'DSP-TOOLS/{version("dsp-tools")}'
         if data:
+            headers = headers if headers else {}
             headers["Content-Type"] = f"{content_type}; charset=UTF-8"
-        if self.token:
-            headers["Authorization"] = f"Bearer {self.token}"
         timeout = self.timeout_put_post
 
         response: Response = _try_network_action(
-            lambda: requests.put(
+            lambda: self.session.put(
                 url=url,
                 headers=headers,
                 # if data is not encoded as bytes, issues can occur with non-ASCII characters,
@@ -373,14 +365,9 @@ class ConnectionLive:
         if not route.startswith("/"):
             route = f"/{route}"
         url = self.server + route
-        if not headers:
-            headers = {}
-        headers["User-Agent"] = f'DSP-TOOLS/{version("dsp-tools")}'
-        if self.token:
-            headers["Authorization"] = f"Bearer {self.token}"
         timeout = self.timeout_get_delete
 
-        response = requests.delete(
+        response = self.session.delete(
             url=url,
             headers=headers,
             params=params,

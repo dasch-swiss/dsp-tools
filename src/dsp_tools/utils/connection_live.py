@@ -98,7 +98,6 @@ class ConnectionLive:
                 _return["token"] = "<token>"
         else:
             _return = {"status": response.status_code, "message": response.text}
-        headers = headers or {}
         if headers and "Authorization" in headers:
             headers["Authorization"] = regex.sub(r"Bearer .+", "Bearer <token>", headers["Authorization"])
         if data and "password" in data:
@@ -192,6 +191,11 @@ class ConnectionLive:
         if not route.startswith("/"):
             route = f"/{route}"
         url = self.server + route
+        if not headers:
+            headers = {}
+        headers["User-Agent"] = f'DSP-TOOLS/{version("dsp-tools")}'
+        if self.token:
+            headers["Authorization"] = f"Bearer {self.token}"
         timeout = self.timeout_get_delete
 
         response: Response = self._try_network_action(

@@ -312,6 +312,11 @@ class ConnectionLive:
         )
         return cast(dict[str, Any], response.json())
 
+    def _should_retry(self, response: requests.Response) -> bool:
+        in_500_range = 500 <= response.status_code < 600
+        try_again_later = "try again later" in response.text
+        return try_again_later or in_500_range
+
     def _try_network_action(self, action: Callable[..., Any]) -> Any:
         """
         Try 7 times to execute a HTTP request.
@@ -346,9 +351,7 @@ class ConnectionLive:
                 time.sleep(2**i)
                 continue
 
-            in_500_range = 500 <= response.status_code < 600
-            try_again_later = "try again later" in response.text
-            if try_again_later or in_500_range:
+            if self._should_retry(response):
                 msg = f"Transient Error: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
                 print(f"{datetime.now()}: {msg}")
                 logger.error(f"{msg} (retry-counter {i=:})", exc_info=True)

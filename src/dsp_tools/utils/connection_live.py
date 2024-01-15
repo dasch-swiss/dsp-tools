@@ -15,6 +15,10 @@ from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.set_encoder import SetEncoder
 
+HTTP_OK = 200
+HTTP_SERVER_ERROR_LOWER = 500
+HTTP_SERVER_ERROR_UPPER = 599
+
 logger = get_logger(__name__)
 
 
@@ -92,7 +96,7 @@ class ConnectionLive:
         headers: dict[str, str] | None = None,
         uploaded_file: str | None = None,
     ) -> None:
-        if response.status_code == 200:
+        if response.status_code == HTTP_OK:
             _return = response.json()
             if "token" in _return:
                 _return["token"] = "<token>"
@@ -313,7 +317,7 @@ class ConnectionLive:
         return cast(dict[str, Any], response.json())
 
     def _should_retry(self, response: Response) -> bool:
-        in_500_range = 500 <= response.status_code < 600
+        in_500_range = HTTP_SERVER_ERROR_LOWER <= response.status_code <= HTTP_SERVER_ERROR_UPPER
         try_again_later = "try again later" in response.text
         return try_again_later or in_500_range
 
@@ -354,7 +358,7 @@ class ConnectionLive:
             if self._should_retry(response):
                 self._log_and_sleep(reason="Transient Error", retry_counter=i)
                 continue
-            elif response.status_code != 200:
+            elif response.status_code != HTTP_OK:
                 raise BaseError(
                     message="Permanently unable to execute the network action. See logs for more details.",
                     status_code=response.status_code,

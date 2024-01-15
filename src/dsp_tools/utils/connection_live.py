@@ -317,6 +317,12 @@ class ConnectionLive:
         try_again_later = "try again later" in response.text
         return try_again_later or in_500_range
 
+    def _log_and_sleep(self, reason: str, retry_counter: int) -> None:
+        msg = f"{reason}: Try reconnecting to DSP server, next attempt in {2 ** retry_counter} seconds..."
+        print(f"{datetime.now()}: {msg}")
+        logger.exception(f"{msg} ({retry_counter=:})")
+        time.sleep(2**retry_counter)
+
     def _try_network_action(self, action: Callable[..., Any]) -> Any:
         """
         Try 7 times to execute a HTTP request.
@@ -339,23 +345,14 @@ class ConnectionLive:
             try:
                 response: requests.Response = action()
             except (TimeoutError, ReadTimeout, ReadTimeoutError):
-                msg = f"Timeout Error: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
-                print(f"{datetime.now()}: {msg}")
-                logger.error(f"{msg} (retry-counter {i=:})", exc_info=True)
-                time.sleep(2**i)
+                self._log_and_sleep(reason="Timeout Error", retry_counter=i)
                 continue
             except (ConnectionError, RequestException):
-                msg = f"Network Error: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
-                print(f"{datetime.now()}: {msg}")
-                logger.error(f"{msg} (retry-counter {i=:})", exc_info=True)
-                time.sleep(2**i)
+                self._log_and_sleep(reason="Network Error", retry_counter=i)
                 continue
 
             if self._should_retry(response):
-                msg = f"Transient Error: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
-                print(f"{datetime.now()}: {msg}")
-                logger.error(f"{msg} (retry-counter {i=:})", exc_info=True)
-                time.sleep(2**i)
+                self._log_and_sleep(reason="Transient Error", retry_counter=i)
                 continue
             elif response.status_code != 200:
                 raise BaseError(

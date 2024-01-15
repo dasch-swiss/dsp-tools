@@ -339,8 +339,6 @@ class ConnectionLive:
                 msg = f"Network Error: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
                 print(f"{datetime.now()}: {msg}")
                 logger.error(f"{msg} (retry-counter {i=:})", exc_info=True)
-                self.session.close()
-                self.session = requests.Session()
                 time.sleep(2**i)
                 continue
 

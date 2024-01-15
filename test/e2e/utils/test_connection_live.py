@@ -38,7 +38,9 @@ class TestConnectionLive(unittest.TestCase):
         self.assertIsNotNone(con.token)
         con.logout()
         self.assertIsNone(con.token)
-        self.assertRaisesRegex(BaseError, "KNORA-ERROR: status code=400*", con.login, "invalid", "invalid")
+        self.assertRaisesRegex(
+            BaseError, "Permanently unable to execute the network action", con.login, "invalid", "invalid"
+        )
 
     def test_get(self) -> None:
         res = self.con.get("/ontology/0001/anything/simple/v2")

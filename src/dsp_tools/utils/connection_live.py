@@ -18,88 +18,6 @@ from dsp_tools.utils.set_encoder import SetEncoder
 logger = get_logger(__name__)
 
 
-def _try_network_action(
-    action: Callable[..., Any],
-    *args: Any,
-    **kwargs: Any,
-) -> Any:
-    """
-    Helper method that tries 7 times to execute an action.
-    If a timeout error, a ConnectionError, a requests.exceptions.RequestException, or a non-permanent BaseError occors,
-    it waits and retries.
-    The waiting times are 1, 2, 4, 8, 16, 32, 64 seconds.
-    If another exception occurs, it escalates.
-
-    Args:
-        action: a lambda with the code to be executed, or a function
-        args: positional arguments for the action
-        kwargs: keyword arguments for the action
-
-    Raises:
-        BaseError: if the action fails permanently
-        unexpected exceptions: if the action fails with an unexpected exception
-
-    Returns:
-        the return value of action
-    """
-    action_as_str = f"{action=}, {args=}, {kwargs=}"
-    for i in range(7):
-        try:
-            if args and not kwargs:
-                return action(*args)
-            elif not args and kwargs:
-                return action(**kwargs)
-            elif args and kwargs:
-                return action(*args, **kwargs)
-            else:
-                return action()
-        except (TimeoutError, ReadTimeout, ReadTimeoutError):
-            msg = f"Timeout Error: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
-            print(f"{datetime.now()}: {msg}")
-            logger.error(f"{msg} {action_as_str} (retry-counter {i=:})", exc_info=True)
-            time.sleep(2**i)
-        except (ConnectionError, RequestException):
-            msg = f"Network Error: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
-            print(f"{datetime.now()}: {msg}")
-            logger.error(f"{msg} {action_as_str} (retry-counter {i=:})", exc_info=True)
-            time.sleep(2**i)
-        except BaseError as err:
-            in_500_range = False
-            if err.status_code:
-                in_500_range = 500 <= err.status_code < 600
-            try_again_later = "try again later" in err.message
-            if try_again_later or in_500_range:
-                msg = f"Transient Error: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
-                print(f"{datetime.now()}: {msg}")
-                logger.error(f"{msg} {action_as_str} (retry-counter {i=:})", exc_info=True)
-                time.sleep(2**i)
-            else:
-                raise err
-
-    logger.error("Permanently unable to execute the network action. See logs for more details.")
-    raise BaseError("Permanently unable to execute the network action. See logs for more details.")
-
-
-def check_for_api_error(response: requests.Response) -> None:
-    """
-    Check the response of an API request if it contains an error raised by DSP-API.
-
-    Args:
-        response: The requests.Response object that is returned by the API request
-
-    Raises:
-        BaseError: If the status code of the response is not 200
-    """
-    if response.status_code != 200:
-        raise BaseError(
-            message=f"KNORA-ERROR: status code={response.status_code}\nMessage: {response.text}",
-            status_code=response.status_code,
-            json_content_of_api_response=response.text,
-            reason_from_api=response.reason,
-            api_route=response.url,
-        )
-
-
 @dataclass
 class ConnectionLive:
     """
@@ -180,6 +98,7 @@ class ConnectionLive:
                 _return["token"] = "<token>"
         else:
             _return = {"status": response.status_code, "message": response.text}
+        headers = headers or {}
         if headers and "Authorization" in headers:
             headers["Authorization"] = regex.sub(r"Bearer .+", "Bearer <token>", headers["Authorization"])
         if data and "password" in data:
@@ -242,7 +161,7 @@ class ConnectionLive:
         elif files:
             request = partial(request, files=files)
 
-        response: Response = _try_network_action(request)
+        response: Response = self._try_network_action(request)
         self._log_request(
             method="POST",
             url=url,
@@ -253,7 +172,6 @@ class ConnectionLive:
             headers=headers,
             timeout=timeout,
         )
-        check_for_api_error(response)
         return cast(dict[str, Any], response.json())
 
     def get(
@@ -274,14 +192,9 @@ class ConnectionLive:
         if not route.startswith("/"):
             route = f"/{route}"
         url = self.server + route
-        if not headers:
-            headers = {}
-        headers["User-Agent"] = f'DSP-TOOLS/{version("dsp-tools")}'
-        if self.token:
-            headers["Authorization"] = f"Bearer {self.token}"
         timeout = self.timeout_get_delete
 
-        response: Response = _try_network_action(
+        response: Response = self._try_network_action(
             lambda: requests.get(
                 url=url,
                 headers=headers,
@@ -297,7 +210,6 @@ class ConnectionLive:
             headers=headers,
             timeout=timeout,
         )
-        check_for_api_error(response)
         return cast(dict[str, Any], response.json())
 
     def put(
@@ -331,7 +243,7 @@ class ConnectionLive:
             headers["Authorization"] = f"Bearer {self.token}"
         timeout = self.timeout_put_post
 
-        response: Response = _try_network_action(
+        response: Response = self._try_network_action(
             lambda: requests.put(
                 url=url,
                 headers=headers,
@@ -350,7 +262,6 @@ class ConnectionLive:
             headers=headers,
             timeout=timeout,
         )
-        check_for_api_error(response)
         return cast(dict[str, Any], response.json())
 
     def delete(
@@ -395,5 +306,59 @@ class ConnectionLive:
             headers=headers,
             timeout=timeout,
         )
-        check_for_api_error(response)
         return cast(dict[str, Any], response.json())
+
+    def _try_network_action(self, action: Callable[..., Any]) -> Any:
+        """
+        Try 7 times to execute a HTTP request.
+        If a timeout error, a ConnectionError, or a requests.RequestException occur,
+        or if the response indicates that there is a non-permanent server-side problem,
+        this function waits and retries the HTTP request.
+        The waiting times are 1, 2, 4, 8, 16, 32, 64 seconds.
+
+        Args:
+            action: a lambda with the code to be executed, or a function
+
+        Raises:
+            BaseError: if the action fails permanently
+            unexpected exceptions: if the action fails with an unexpected exception
+
+        Returns:
+            the return value of action
+        """
+        for i in range(7):
+            try:
+                response: requests.Response = action()
+            except (TimeoutError, ReadTimeout, ReadTimeoutError):
+                msg = f"Timeout Error: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
+                print(f"{datetime.now()}: {msg}")
+                logger.error(f"{msg} (retry-counter {i=:})", exc_info=True)
+                time.sleep(2**i)
+                continue
+            except (ConnectionError, RequestException):
+                msg = f"Network Error: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
+                print(f"{datetime.now()}: {msg}")
+                logger.error(f"{msg} (retry-counter {i=:})", exc_info=True)
+                self.session.close()
+                self.session = requests.Session()
+                time.sleep(2**i)
+                continue
+
+            in_500_range = 500 <= response.status_code < 600
+            try_again_later = "try again later" in response.text
+            if try_again_later or in_500_range:
+                msg = f"Transient Error: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
+                print(f"{datetime.now()}: {msg}")
+                logger.error(f"{msg} (retry-counter {i=:})", exc_info=True)
+                time.sleep(2**i)
+                continue
+            elif response.status_code != 200:
+                raise BaseError(
+                    message="Permanently unable to execute the network action. See logs for more details.",
+                    status_code=response.status_code,
+                    json_content_of_api_response=response.text,
+                    reason_from_api=response.reason,
+                    api_route=response.url,
+                )
+            else:
+                return response

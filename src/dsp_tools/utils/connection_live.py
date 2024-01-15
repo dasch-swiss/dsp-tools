@@ -15,6 +15,10 @@ from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.set_encoder import SetEncoder
 
+HTTP_OK = 200
+HTTP_SERVER_ERROR_LOWER = 500
+HTTP_SERVER_ERROR_UPPER = 599
+
 logger = get_logger(__name__)
 
 
@@ -92,12 +96,12 @@ class ConnectionLive:
         url: str,
         data: dict[str, Any] | None,
         params: Optional[dict[str, Any]],
-        response: requests.Response,
+        response: Response,
         timeout: int,
         headers: dict[str, str] | None = None,
         uploaded_file: str | None = None,
     ) -> None:
-        if response.status_code == 200:
+        if response.status_code == HTTP_OK:
             _return = response.json()
             if "token" in _return:
                 _return["token"] = "<token>"
@@ -163,7 +167,7 @@ class ConnectionLive:
         elif files:
             request = partial(request, files=files)
 
-        response: Response = self._try_network_action(request)
+        response = self._try_network_action(request)
         self._log_request(
             method="POST",
             url=url,
@@ -196,7 +200,7 @@ class ConnectionLive:
         url = self.server + route
         timeout = self.timeout_get_delete
 
-        response: Response = self._try_network_action(
+        response = self._try_network_action(
             lambda: self.session.get(
                 url=url,
                 headers=headers,
@@ -241,7 +245,7 @@ class ConnectionLive:
             headers["Content-Type"] = f"{content_type}; charset=UTF-8"
         timeout = self.timeout_put_post
 
-        response: Response = self._try_network_action(
+        response = self._try_network_action(
             lambda: self.session.put(
                 url=url,
                 headers=headers,
@@ -301,7 +305,18 @@ class ConnectionLive:
         )
         return cast(dict[str, Any], response.json())
 
-    def _try_network_action(self, action: Callable[..., Any]) -> Any:
+    def _should_retry(self, response: Response) -> bool:
+        in_500_range = HTTP_SERVER_ERROR_LOWER <= response.status_code <= HTTP_SERVER_ERROR_UPPER
+        try_again_later = "try again later" in response.text
+        return try_again_later or in_500_range
+
+    def _log_and_sleep(self, reason: str, retry_counter: int) -> None:
+        msg = f"{reason}: Try reconnecting to DSP server, next attempt in {2 ** retry_counter} seconds..."
+        print(f"{datetime.now()}: {msg}")
+        logger.exception(f"{msg} ({retry_counter=:})")
+        time.sleep(2**retry_counter)
+
+    def _try_network_action(self, action: Callable[[], Response]) -> Response:
         """
         Try 7 times to execute a HTTP request.
         If a timeout error, a ConnectionError, or a requests.RequestException occur,
@@ -321,31 +336,20 @@ class ConnectionLive:
         """
         for i in range(7):
             try:
-                response: requests.Response = action()
+                response = action()
             except (TimeoutError, ReadTimeout, ReadTimeoutError):
-                msg = f"Timeout Error: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
-                print(f"{datetime.now()}: {msg}")
-                logger.error(f"{msg} (retry-counter {i=:})", exc_info=True)
-                time.sleep(2**i)
+                self._log_and_sleep(reason="Timeout Error", retry_counter=i)
                 continue
             except (ConnectionError, RequestException):
-                msg = f"Network Error: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
-                print(f"{datetime.now()}: {msg}")
-                logger.error(f"{msg} (retry-counter {i=:})", exc_info=True)
                 self.session.close()
                 self.session = requests.Session()
-                time.sleep(2**i)
+                self._log_and_sleep(reason="Network Error", retry_counter=i)
                 continue
 
-            in_500_range = 500 <= response.status_code < 600
-            try_again_later = "try again later" in response.text
-            if try_again_later or in_500_range:
-                msg = f"Transient Error: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
-                print(f"{datetime.now()}: {msg}")
-                logger.error(f"{msg} (retry-counter {i=:})", exc_info=True)
-                time.sleep(2**i)
+            if self._should_retry(response):
+                self._log_and_sleep(reason="Transient Error", retry_counter=i)
                 continue
-            elif response.status_code != 200:
+            elif response.status_code != HTTP_OK:
                 raise BaseError(
                     message="Permanently unable to execute the network action. See logs for more details.",
                     status_code=response.status_code,
@@ -355,3 +359,6 @@ class ConnectionLive:
                 )
             else:
                 return response
+
+        # after 7 vain attempts to create a response, try it a last time and let it escalate
+        return action()

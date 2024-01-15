@@ -323,7 +323,7 @@ class ConnectionLive:
         logger.exception(f"{msg} ({retry_counter=:})")
         time.sleep(2**retry_counter)
 
-    def _try_network_action(self, action: Callable[..., requests.Response]) -> requests.Response:
+    def _try_network_action(self, action: Callable[[], requests.Response]) -> requests.Response:
         """
         Try 7 times to execute a HTTP request.
         If a timeout error, a ConnectionError, or a requests.RequestException occur,

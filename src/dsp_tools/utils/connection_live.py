@@ -87,7 +87,7 @@ class ConnectionLive:
         url: str,
         data: dict[str, Any] | None,
         params: Optional[dict[str, Any]],
-        response: requests.Response,
+        response: Response,
         timeout: int,
         headers: dict[str, str] | None = None,
         uploaded_file: str | None = None,
@@ -160,7 +160,7 @@ class ConnectionLive:
         elif files:
             request = partial(request, files=files)
 
-        response: Response = self._try_network_action(request)
+        response = self._try_network_action(request)
         self._log_request(
             method="POST",
             url=url,
@@ -198,7 +198,7 @@ class ConnectionLive:
             headers["Authorization"] = f"Bearer {self.token}"
         timeout = self.timeout_get_delete
 
-        response: Response = self._try_network_action(
+        response = self._try_network_action(
             lambda: requests.get(
                 url=url,
                 headers=headers,
@@ -247,7 +247,7 @@ class ConnectionLive:
             headers["Authorization"] = f"Bearer {self.token}"
         timeout = self.timeout_put_post
 
-        response: Response = self._try_network_action(
+        response = self._try_network_action(
             lambda: requests.put(
                 url=url,
                 headers=headers,
@@ -312,7 +312,7 @@ class ConnectionLive:
         )
         return cast(dict[str, Any], response.json())
 
-    def _should_retry(self, response: requests.Response) -> bool:
+    def _should_retry(self, response: Response) -> bool:
         in_500_range = 500 <= response.status_code < 600
         try_again_later = "try again later" in response.text
         return try_again_later or in_500_range
@@ -323,7 +323,7 @@ class ConnectionLive:
         logger.exception(f"{msg} ({retry_counter=:})")
         time.sleep(2**retry_counter)
 
-    def _try_network_action(self, action: Callable[[], requests.Response]) -> requests.Response:
+    def _try_network_action(self, action: Callable[[], Response]) -> Response:
         """
         Try 7 times to execute a HTTP request.
         If a timeout error, a ConnectionError, or a requests.RequestException occur,
@@ -343,7 +343,7 @@ class ConnectionLive:
         """
         for i in range(7):
             try:
-                response: requests.Response = action()
+                response = action()
             except (TimeoutError, ReadTimeout, ReadTimeoutError):
                 self._log_and_sleep(reason="Timeout Error", retry_counter=i)
                 continue

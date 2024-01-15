@@ -364,3 +364,6 @@ class ConnectionLive:
                 )
             else:
                 return response
+
+        # after 7 vain attempts to create a response, try it a last time and let it escalate
+        return action()

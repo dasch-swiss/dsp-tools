@@ -7,8 +7,7 @@ from importlib.metadata import version
 from typing import Any, Callable, Optional, cast
 
 import regex
-import requests
-from requests import ReadTimeout, RequestException, Response
+from requests import ReadTimeout, RequestException, Response, Session
 from urllib3.exceptions import ReadTimeoutError
 
 from dsp_tools.models.exceptions import BaseError
@@ -34,7 +33,7 @@ class ConnectionLive:
 
     server: str
     token: Optional[str] = None
-    session: requests.Session = field(init=False, default=requests.Session())
+    session: Session = field(init=False, default=Session())
     # downtimes of server-side services -> API still processes request
     # -> retry too early has side effects (e.g. duplicated resources)
     timeout_put_post: int = field(init=False, default=30 * 60)
@@ -342,7 +341,7 @@ class ConnectionLive:
                 continue
             except (ConnectionError, RequestException):
                 self.session.close()
-                self.session = requests.Session()
+                self.session = Session()
                 self._log_and_sleep(reason="Network Error", retry_counter=i)
                 continue
 

@@ -1,11 +1,8 @@
-import contextlib
-import json
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
-
-import regex
 
 
+@dataclass
 class BaseError(Exception):
     """
     A basic error class for DSP-TOOLS.
@@ -15,34 +12,6 @@ class BaseError(Exception):
     """
 
     message: str
-
-    def __init__(
-        self,
-        message: str,
-        status_code: Optional[int] = None,
-        response_text: Optional[str] = None,
-        reason: Optional[str] = None,
-        api_route: Optional[str] = None,
-    ) -> None:
-        """
-        A basic error class for DSP-TOOLS.
-
-        Args:
-            message: A message that describes the error
-        """
-        super().__init__()
-        self.message = message
-        self.status_code = status_code
-        if response_text:
-            self.json_content_of_api_response = response_text
-            with contextlib.suppress(json.JSONDecodeError):
-                parsed_json = json.loads(response_text)
-                if "knora-api:error" in parsed_json:
-                    knora_api_error = parsed_json["knora-api:error"]
-                    knora_api_error = regex.sub(r"^dsp\.errors\.[A-Za-z]+?: ?", "", knora_api_error)
-                    self.orig_err_msg_from_api = knora_api_error
-        self.reason_from_api = reason
-        self.api_route = api_route
 
     def __str__(self) -> str:
         return self.message
@@ -120,17 +89,13 @@ class PermanentConnectionError(BaseError):
     Attributes:
         message:
         status_code: HTTP status code of the response from DSP-API
-        json_content_of_api_response: The message that DSP-API returns
-        orig_err_msg_from_api: Original error message that DSP-API returns
-        reason_from_api: Reason for the failure that DSP-API returns
-        api_route: The route that was called (onl
+        response_text: The message that DSP-API returns
+        api_route: The route that was called
     """
 
     message: str
     status_code: int
-    json_content_of_api_response: str
-    orig_err_msg_from_api: str
-    reason_from_api: str
+    response_text: str
     api_route: str
 
 

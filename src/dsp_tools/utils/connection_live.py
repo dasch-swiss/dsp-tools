@@ -56,10 +56,7 @@ class ConnectionLive:
         )
         if not response.get("token"):
             raise PermanentConnectionError(
-                f"Error when trying to login with user '{email}' and password '{password} "
-                f"on server '{self.server}'",
-                response_text=json.dumps(response),
-                api_route="/v2/authentication",
+                f"Error when trying to login with user '{email}' and password '{password} on server '{self.server}'"
             )
         self.token = response["token"]
 
@@ -91,24 +88,14 @@ class ConnectionLive:
         url: str,
         data: dict[str, Any] | None,
         params: Optional[dict[str, Any]],
-        response: Response,
         timeout: int,
         headers: dict[str, str] | None = None,
         uploaded_file: str | None = None,
     ) -> None:
-        if response.status_code == HTTP_OK:
-            _return = response.json()
-            if "token" in _return:
-                _return["token"] = "<token>"
-        else:
-            _return = {"status": response.status_code, "message": response.text}
         if headers and "Authorization" in headers:
             headers["Authorization"] = regex.sub(r"Bearer .+", "Bearer <token>", headers["Authorization"])
         if data and "password" in data:
             data["password"] = "<password>"
-        return_headers = dict(response.headers)
-        if "Set-Cookie" in return_headers:
-            return_headers["Set-Cookie"] = "<cookie>"
         dumpobj = {
             "HTTP request": method,
             "url": url,
@@ -117,8 +104,6 @@ class ConnectionLive:
             "timetout": timeout,
             "payload": data,
             "uploaded file": uploaded_file,
-            "return-headers": return_headers,
-            "return": _return,
         }
         logger.debug(json.dumps(dumpobj, cls=SetEncoder))
 
@@ -164,17 +149,16 @@ class ConnectionLive:
         elif files:
             request = partial(request, files=files)
 
-        response = self._try_network_action(request)
         self._log_request(
             method="POST",
             url=url,
             data=data,
             uploaded_file=files["file"][0] if files else None,
             params=None,
-            response=response,
             headers=headers,
             timeout=timeout,
         )
+        response = self._try_network_action(request)
         return cast(dict[str, Any], response.json())
 
     def get(
@@ -202,21 +186,20 @@ class ConnectionLive:
             headers["Authorization"] = f"Bearer {self.token}"
         timeout = self.timeout_get_delete
 
+        self._log_request(
+            method="GET",
+            url=url,
+            data=None,
+            params=None,
+            headers=headers,
+            timeout=timeout,
+        )
         response = self._try_network_action(
             lambda: requests.get(
                 url=url,
                 headers=headers,
                 timeout=timeout,
             )
-        )
-        self._log_request(
-            method="GET",
-            url=url,
-            data=None,
-            params=None,
-            response=response,
-            headers=headers,
-            timeout=timeout,
         )
         return cast(dict[str, Any], response.json())
 
@@ -251,6 +234,14 @@ class ConnectionLive:
             headers["Authorization"] = f"Bearer {self.token}"
         timeout = self.timeout_put_post
 
+        self._log_request(
+            method="PUT",
+            url=url,
+            data=data,
+            params=None,
+            headers=headers,
+            timeout=timeout,
+        )
         response = self._try_network_action(
             lambda: requests.put(
                 url=url,
@@ -260,15 +251,6 @@ class ConnectionLive:
                 data=json.dumps(data, cls=SetEncoder, ensure_ascii=False).encode("utf-8") if data else None,
                 timeout=timeout,
             )
-        )
-        self._log_request(
-            method="PUT",
-            url=url,
-            data=data,
-            params=None,
-            response=response,
-            headers=headers,
-            timeout=timeout,
         )
         return cast(dict[str, Any], response.json())
 
@@ -299,19 +281,18 @@ class ConnectionLive:
             headers["Authorization"] = f"Bearer {self.token}"
         timeout = self.timeout_get_delete
 
-        response = requests.delete(
-            url=url,
-            headers=headers,
-            params=params,
-            timeout=timeout,
-        )
         self._log_request(
             method="DELETE",
             url=url,
             data=None,
             params=params,
-            response=response,
             headers=headers,
+            timeout=timeout,
+        )
+        response = requests.delete(
+            url=url,
+            headers=headers,
+            params=params,
             timeout=timeout,
         )
         return cast(dict[str, Any], response.json())
@@ -324,15 +305,24 @@ class ConnectionLive:
     def _log_exception_and_sleep(self, reason: str, retry_counter: int) -> None:
         msg = f"{reason}: Try reconnecting to DSP server, next attempt in {2 ** retry_counter} seconds..."
         print(f"{datetime.now()}: {msg}")
-        logger.exception(f"{msg} ({retry_counter=:})")
+        logger.exception(msg)
         time.sleep(2**retry_counter)
 
-    def _log_response(self, reason: str, retry_counter: int, response: Response) -> None:
-        msg = f"{reason}: Try reconnecting to DSP server, next attempt in {2 ** retry_counter} seconds..."
-        status_code = (response.status_code,)
-        response_text = (response.text,)
-        reason = (response.reason,)
-        api_route = (response.url,)
+    def _log_response(self, response: Response) -> None:
+        if response.status_code == HTTP_OK:
+            _return = response.json()
+            if "token" in _return:
+                _return["token"] = "<token>"
+        else:
+            _return = {"status": response.status_code, "message": response.text}
+        return_headers = dict(response.headers)
+        if "Set-Cookie" in return_headers:
+            return_headers["Set-Cookie"] = "<cookie>"
+        dumpobj = {
+            "return-headers": return_headers,
+            "return": _return,
+        }
+        logger.debug("RESPONSE: " + json.dumps(dumpobj))
 
     def _try_network_action(self, action: Callable[[], Response]) -> Response:
         """
@@ -352,7 +342,6 @@ class ConnectionLive:
         Returns:
             the return value of action
         """
-        self._log_request()
         for i in range(7):
             try:
                 response = action()
@@ -363,19 +352,18 @@ class ConnectionLive:
                 self._log_exception_and_sleep(reason="Network Error", retry_counter=i)
                 continue
 
+            self._log_response(response)
             if self._should_retry(response):
-                self._log_response(reason="Transient Error", retry_counter=i, response=response)
+                msg = f"Transient Error: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
+                print(f"{datetime.now()}: {msg}")
+                logger.error(msg)
                 time.sleep(2**i)
                 continue
             elif response.status_code != HTTP_OK:
-                self._log_response(reason="Permanent Error", retry_counter=i, response=response)
-                raise PermanentConnectionError(
-                    message="Permanently unable to execute the network action. See logs for more details.",
-                    status_code=response.status_code,
-                    response_text=response.text,
-                    reason=response.reason,
-                    api_route=response.url,
-                )
+                msg = "Permanently unable to execute the network action. See logs for more details."
+                print(f"{datetime.now()}: {msg}")
+                logger.error(msg)
+                raise PermanentConnectionError(msg)
             else:
                 return response
 

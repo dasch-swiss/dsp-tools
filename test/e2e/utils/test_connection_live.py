@@ -4,7 +4,7 @@ import unittest
 
 import pytest
 
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import BaseError, PermanentConnectionError
 from dsp_tools.utils.connection_live import ConnectionLive
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
@@ -38,9 +38,8 @@ class TestConnectionLive(unittest.TestCase):
         self.assertIsNotNone(con.token)
         con.logout()
         self.assertIsNone(con.token)
-        self.assertRaisesRegex(
-            BaseError, "Permanently unable to execute the network action", con.login, "invalid", "invalid"
-        )
+        with self.assertRaisesRegex(PermanentConnectionError, "Permanently unable to execute the network action"):
+            con.login("invalid", "invalid")
 
     def test_get(self) -> None:
         res = self.con.get("/ontology/0001/anything/simple/v2")

@@ -368,7 +368,7 @@ def _create_resource(
     try:
         return resource_create_client.create_resource(resource, bitstream_information)
     except BaseError as err:
-        err_msg = err.orig_err_msg_from_api or err.message
+        err_msg = err.message
         print(f"{datetime.now()}: WARNING: Unable to create resource '{resource.label}' ({resource.res_id}): {err_msg}")
         log_msg = (
             f"Unable to create resource '{resource.label}' ({resource.res_id})\n"

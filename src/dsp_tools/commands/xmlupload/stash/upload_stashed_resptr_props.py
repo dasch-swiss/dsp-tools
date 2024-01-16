@@ -80,7 +80,7 @@ def _upload_stash_item(
     try:
         con.post(route="/v2/values", data=payload)
     except BaseError as err:
-        _log_unable_to_upload_link_value(err.orig_err_msg_from_api or err.message, stash.res_id, stash.prop_name)
+        _log_unable_to_upload_link_value(err.message, stash.res_id, stash.prop_name)
         return False
     logger.debug(f'  Successfully uploaded resptr links of "{stash.prop_name}"')
     return True

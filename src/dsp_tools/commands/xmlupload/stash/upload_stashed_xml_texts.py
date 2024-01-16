@@ -28,12 +28,11 @@ def _log_unable_to_retrieve_resource(
     # print the message to keep track of the cause for the failure
     # apart from that; no action is necessary:
     # this resource will remain in nonapplied_xml_texts, which will be handled by the caller
-    orig_err_msg = received_error.orig_err_msg_from_api or received_error.message
     err_msg = (
         f"Unable to upload XML texts of resource '{resource}', "
         "because the resource cannot be retrieved from the DSP server."
     )
-    print(f"{datetime.now()}:   WARNING: {err_msg} Original error message: {orig_err_msg}")
+    print(f"{datetime.now()}:   WARNING: {err_msg} Original error message: {received_error.message}")
     logger.warning(err_msg, exc_info=True)
 
 
@@ -53,9 +52,8 @@ def _log_unable_to_upload_xml_resource(
     # print the message to keep track of the cause for the failure
     # apart from that; no action is necessary:
     # this resource will remain in nonapplied_xml_texts, which will be handled by the caller
-    orig_err_msg = received_error.orig_err_msg_from_api or received_error.message
     err_msg = f"Unable to upload the xml text of '{prop_name}' of resource '{stashed_resource_id}'."
-    print(f"{datetime.now()}:     WARNING: {err_msg} Original error message: {orig_err_msg}")
+    print(f"{datetime.now()}:     WARNING: {err_msg} Original error message: {received_error.message}")
     logger.warning(err_msg, exc_info=True)
 
 

@@ -324,7 +324,7 @@ class ConnectionLive:
             action: a lambda with the code to be executed, or a function
 
         Raises:
-            BaseError: if the action fails permanently
+            PermanentConnectionError: if the action fails permanently
             unexpected exceptions: if the action fails with an unexpected exception
 
         Returns:

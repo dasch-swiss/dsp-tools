@@ -111,7 +111,7 @@ class ConnectionLive:
             "payload": data,
             "uploaded file": uploaded_file,
         }
-        logger.debug(json.dumps(dumpobj, cls=SetEncoder))
+        logger.debug("REQUEST: " + json.dumps(dumpobj, cls=SetEncoder))
 
     def post(
         self,

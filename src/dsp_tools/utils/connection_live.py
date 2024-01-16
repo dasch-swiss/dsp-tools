@@ -337,9 +337,9 @@ class ConnectionLive:
                 self._log_exception_and_sleep(reason="Timeout Error", retry_counter=i)
                 continue
             except (ConnectionError, RequestException):
-                self._log_exception_and_sleep(reason="Network Error", retry_counter=i)
                 self.session.close()
                 self.session = Session()
+                self._log_exception_and_sleep(reason="Network Error", retry_counter=i)
                 continue
 
             self._log_response(response)

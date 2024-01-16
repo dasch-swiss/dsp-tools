@@ -38,7 +38,7 @@
             <uri permissions="prop-default">https://reg-exr.com:3000/path/to/file_(%C3%89).htm</uri>
         </uri-prop>
         <uri-prop name=":hasExternalLink">
-            <uri permissions="prop-default">https://reg-exr.com:3000/path/to/file#fragment</uri>
+            <uri permissions="prop-default">https://reg-exr.com:3000/path/to/file#fragment,fragment</uri>
             <uri permissions="prop-default">https://reg-exr.com:3000/path/to/file?query=test</uri>
             <uri permissions="prop-default">https://reg-exr.com:3000/path/to/file?query=test#fragment</uri>
             <uri permissions="prop-default">https://reg-exr.com/path/to/file?query=test#fragment</uri>

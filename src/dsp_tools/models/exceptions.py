@@ -87,7 +87,7 @@ class PermanentConnectionError(BaseError):
     _summary_
 
     Attributes:
-        message:
+        message: A message that describes the error
         status_code: HTTP status code of the response from DSP-API
         response_text: The message that DSP-API returns
         api_route: The route that was called

@@ -636,7 +636,7 @@ class TestExcel2xmlLib(unittest.TestCase):
             "https://www.test-case.ch/",
             "https://reg-exr.com:3000",
             "https://reg-exr.com:3000/path/to/file",
-            "https://reg-exr.com:3000/path/to/file#fragment",
+            "https://reg-exr.com:3000/path/to/file#fragment,fragment",
             "https://reg-exr.com:3000/path/to/file?query=test",
             "https://reg-exr.com:3000/path/to/file?query=test#fragment",
             "https://reg-exr.com/path/to/file?query=test#fragment",

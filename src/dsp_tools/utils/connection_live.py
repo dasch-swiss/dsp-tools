@@ -11,7 +11,7 @@ import requests
 from requests import ReadTimeout, RequestException, Response
 from urllib3.exceptions import ReadTimeoutError
 
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import BaseError, PermanentConnectionError
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.set_encoder import SetEncoder
 
@@ -55,10 +55,10 @@ class ConnectionLive:
             data={"email": email, "password": password},
         )
         if not response.get("token"):
-            raise BaseError(
+            raise PermanentConnectionError(
                 f"Error when trying to login with user '{email}' and password '{password} "
                 f"on server '{self.server}'",
-                json_content_of_api_response=json.dumps(response),
+                response_text=json.dumps(response),
                 api_route="/v2/authentication",
             )
         self.token = response["token"]
@@ -321,11 +321,18 @@ class ConnectionLive:
         try_again_later = "try again later" in response.text
         return try_again_later or in_500_range
 
-    def _log_and_sleep(self, reason: str, retry_counter: int) -> None:
+    def _log_exception_and_sleep(self, reason: str, retry_counter: int) -> None:
         msg = f"{reason}: Try reconnecting to DSP server, next attempt in {2 ** retry_counter} seconds..."
         print(f"{datetime.now()}: {msg}")
         logger.exception(f"{msg} ({retry_counter=:})")
         time.sleep(2**retry_counter)
+
+    def _log_response(self, reason: str, retry_counter: int, response: Response) -> None:
+        msg = f"{reason}: Try reconnecting to DSP server, next attempt in {2 ** retry_counter} seconds..."
+        status_code = (response.status_code,)
+        response_text = (response.text,)
+        reason = (response.reason,)
+        api_route = (response.url,)
 
     def _try_network_action(self, action: Callable[[], Response]) -> Response:
         """
@@ -345,25 +352,28 @@ class ConnectionLive:
         Returns:
             the return value of action
         """
+        self._log_request()
         for i in range(7):
             try:
                 response = action()
             except (TimeoutError, ReadTimeout, ReadTimeoutError):
-                self._log_and_sleep(reason="Timeout Error", retry_counter=i)
+                self._log_exception_and_sleep(reason="Timeout Error", retry_counter=i)
                 continue
             except (ConnectionError, RequestException):
-                self._log_and_sleep(reason="Network Error", retry_counter=i)
+                self._log_exception_and_sleep(reason="Network Error", retry_counter=i)
                 continue
 
             if self._should_retry(response):
-                self._log_and_sleep(reason="Transient Error", retry_counter=i)
+                self._log_response(reason="Transient Error", retry_counter=i, response=response)
+                time.sleep(2**i)
                 continue
             elif response.status_code != HTTP_OK:
-                raise BaseError(
+                self._log_response(reason="Permanent Error", retry_counter=i, response=response)
+                raise PermanentConnectionError(
                     message="Permanently unable to execute the network action. See logs for more details.",
                     status_code=response.status_code,
-                    json_content_of_api_response=response.text,
-                    reason_from_api=response.reason,
+                    response_text=response.text,
+                    reason=response.reason,
                     api_route=response.url,
                 )
             else:

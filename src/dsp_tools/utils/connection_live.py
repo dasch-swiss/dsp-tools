@@ -329,7 +329,7 @@ class ConnectionLive:
             try:
                 response = action()
             except (TimeoutError, ReadTimeout, ReadTimeoutError):
-                msg = f"Timeout Error: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
+                msg = f"Timeout Error raised: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
                 print(f"{datetime.now()}: {msg}")
                 logger.error(msg, exc_info=True)
                 time.sleep(2**i)
@@ -337,7 +337,7 @@ class ConnectionLive:
             except (ConnectionError, RequestException):
                 self.session.close()
                 self.session = Session()
-                msg = f"Network Error: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
+                msg = f"Connection Error raised: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
                 print(f"{datetime.now()}: {msg}")
                 logger.error(msg, exc_info=True)
                 time.sleep(2**i)
@@ -345,7 +345,7 @@ class ConnectionLive:
 
             self._log_response(response)
             if self._should_retry(response):
-                msg = f"Transient Error: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
+                msg = f"Server unresponsive: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
                 print(f"{datetime.now()}: {msg}")
                 logger.error(msg)
                 time.sleep(2**i)

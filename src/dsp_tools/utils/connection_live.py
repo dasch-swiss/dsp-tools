@@ -7,7 +7,7 @@ from importlib.metadata import version
 from typing import Any, Callable, Optional, cast
 
 import regex
-from requests import ReadTimeout, RequestException, Response, Session
+from requests import JSONDecodeError, ReadTimeout, RequestException, Response, Session
 from urllib3.exceptions import ReadTimeoutError
 
 from dsp_tools.models.exceptions import BaseError, PermanentConnectionError
@@ -291,18 +291,19 @@ class ConnectionLive:
         return try_again_later or in_500_range
 
     def _log_response(self, response: Response) -> None:
-        if response.status_code == HTTP_OK:
-            _return = response.json()
-            if "token" in _return:
-                _return["token"] = "<token>"
-        else:
-            _return = {"status": response.status_code, "message": response.text}
-        return_headers = dict(response.headers)
-        if "Set-Cookie" in return_headers:
-            return_headers["Set-Cookie"] = "<cookie>"
+        try:
+            content = response.json()
+            if "token" in content:
+                content["token"] = "<token>"
+        except JSONDecodeError:
+            content = response.text
+        response_headers = dict(response.headers)
+        if "Set-Cookie" in response_headers:
+            response_headers["Set-Cookie"] = "<cookie>"
         dumpobj = {
-            "return-headers": return_headers,
-            "return": _return,
+            "status code": response.status_code,
+            "response headers": response_headers,
+            "content": content,
         }
         logger.debug("RESPONSE: " + json.dumps(dumpobj))
 

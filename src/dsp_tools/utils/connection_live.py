@@ -290,12 +290,6 @@ class ConnectionLive:
         try_again_later = "try again later" in response.text
         return try_again_later or in_500_range
 
-    def _log_exception_and_sleep(self, reason: str, retry_counter: int) -> None:
-        msg = f"{reason}: Try reconnecting to DSP server, next attempt in {2 ** retry_counter} seconds..."
-        print(f"{datetime.now()}: {msg}")
-        logger.exception(msg)
-        time.sleep(2**retry_counter)
-
     def _log_response(self, response: Response) -> None:
         if response.status_code == HTTP_OK:
             _return = response.json()
@@ -334,12 +328,18 @@ class ConnectionLive:
             try:
                 response = action()
             except (TimeoutError, ReadTimeout, ReadTimeoutError):
-                self._log_exception_and_sleep(reason="Timeout Error", retry_counter=i)
+                msg = f"Timeout Error: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
+                print(f"{datetime.now()}: {msg}")
+                logger.error(msg, exc_info=True)
+                time.sleep(2**i)
                 continue
             except (ConnectionError, RequestException):
                 self.session.close()
                 self.session = Session()
-                self._log_exception_and_sleep(reason="Network Error", retry_counter=i)
+                msg = f"Network Error: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
+                print(f"{datetime.now()}: {msg}")
+                logger.error(msg, exc_info=True)
+                time.sleep(2**i)
                 continue
 
             self._log_response(response)

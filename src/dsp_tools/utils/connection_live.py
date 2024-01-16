@@ -337,6 +337,7 @@ class ConnectionLive:
             except (ConnectionError, RequestException):
                 self.session.close()
                 self.session = Session()
+                self.session.headers["Authorization"] = f"Bearer {self.token}"
                 msg = f"Connection Error raised: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
                 print(f"{datetime.now()}: {msg}")
                 logger.error(msg, exc_info=True)

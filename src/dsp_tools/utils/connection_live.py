@@ -324,16 +324,12 @@ class ConnectionLive:
             except (ConnectionError, RequestException):
                 self.session.close()
                 self.session = Session()
-                self.session.headers["Authorization"] = f"Bearer {self.token}"
                 self._log_and_sleep(reason="Network Error", retry_counter=i)
                 continue
 
             self._log_response(response)
             if self._should_retry(response):
-                msg = f"Server unresponsive: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
-                print(f"{datetime.now()}: {msg}")
-                logger.error(msg)
-                time.sleep(2**i)
+                self._log_and_sleep(reason="Transient Error", retry_counter=i)
                 continue
             elif response.status_code != HTTP_OK:
                 raise BaseError(

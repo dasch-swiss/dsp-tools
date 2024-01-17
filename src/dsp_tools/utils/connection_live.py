@@ -113,7 +113,7 @@ class ConnectionLive:
             "payload": data,
             "uploaded file": uploaded_file,
         }
-        logger.debug("REQUEST: " + json.dumps(dumpobj, cls=SetEncoder))
+        logger.debug(f"REQUEST: {json.dumps(dumpobj, cls=SetEncoder)}")
 
     def post(
         self,
@@ -302,18 +302,17 @@ class ConnectionLive:
         data = data.copy()
         if "token" in data:
             tok = data["token"]
-            data["token"] = tok[:5] + f"[+{len(tok) - 5}]"
+            data["token"] = f"{tok[:5]}[+{len(tok) - 5}]"
         if "Set-Cookie" in data:
             tok = data["Set-Cookie"]
-            data["Set-Cookie"] = tok[:5] + f"[+{len(tok) - 5}]"
+            data["Set-Cookie"] = f"{tok[:5]}[+{len(tok) - 5}]"
         if "Authorization" in data:
-            match = regex.search(r"^Bearer (.+)", data["Authorization"])
-            if match:
+            if match := regex.search(r"^Bearer (.+)", data["Authorization"]):
                 tok = match.group(1)
                 data["Authorization"] = f"Bearer {tok[:5]}[+{len(tok) - 5}]"
         if "password" in data:
             tok = data["password"]
-            data["password"] = tok[:5] + f"[+{len(tok) - 5}]"
+            data["password"] = f"{tok[:5]}[+{len(tok) - 5}]"
         return data
 
     def _log_response(self, response: Response) -> None:
@@ -327,7 +326,7 @@ class ConnectionLive:
             "response headers": response_headers,
             "content": content,
         }
-        logger.debug("RESPONSE: " + json.dumps(dumpobj))
+        logger.debug(f"RESPONSE: {json.dumps(dumpobj)}")
 
     def _try_network_action(self, action: Callable[[], Response]) -> Response:
         """

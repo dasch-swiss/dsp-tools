@@ -298,36 +298,6 @@ class ConnectionLive:
         logger.exception(f"{msg} ({retry_counter=:})")
         time.sleep(2**retry_counter)
 
-    def _anonymize(self, data: dict[str, Any]) -> dict[str, Any]:
-        data = data.copy()
-        if "token" in data:
-            tok = data["token"]
-            data["token"] = f"{tok[:5]}[+{len(tok) - 5}]"
-        if "Set-Cookie" in data:
-            tok = data["Set-Cookie"]
-            data["Set-Cookie"] = f"{tok[:5]}[+{len(tok) - 5}]"
-        if "Authorization" in data:
-            if match := regex.search(r"^Bearer (.+)", data["Authorization"]):
-                tok = match.group(1)
-                data["Authorization"] = f"Bearer {tok[:5]}[+{len(tok) - 5}]"
-        if "password" in data:
-            tok = data["password"]
-            data["password"] = f"{tok[:5]}[+{len(tok) - 5}]"
-        return data
-
-    def _log_response(self, response: Response) -> None:
-        try:
-            content = self._anonymize(response.json())
-        except JSONDecodeError:
-            content = {"content": response.text}
-        response_headers = self._anonymize(dict(response.headers))
-        dumpobj = {
-            "status code": response.status_code,
-            "response headers": response_headers,
-            "content": content,
-        }
-        logger.debug(f"RESPONSE: {json.dumps(dumpobj)}")
-
     def _try_network_action(self, action: Callable[[], Response]) -> Response:
         """
         Try 7 times to execute a HTTP request.
@@ -379,3 +349,33 @@ class ConnectionLive:
 
         # after 7 vain attempts to create a response, try it a last time and let it escalate
         return action()
+
+    def _log_response(self, response: Response) -> None:
+        try:
+            content = self._anonymize(response.json())
+        except JSONDecodeError:
+            content = {"content": response.text}
+        response_headers = self._anonymize(dict(response.headers))
+        dumpobj = {
+            "status code": response.status_code,
+            "response headers": response_headers,
+            "content": content,
+        }
+        logger.debug(f"RESPONSE: {json.dumps(dumpobj)}")
+
+    def _anonymize(self, data: dict[str, Any]) -> dict[str, Any]:
+        data = data.copy()
+        if "token" in data:
+            tok = data["token"]
+            data["token"] = f"{tok[:5]}[+{len(tok) - 5}]"
+        if "Set-Cookie" in data:
+            tok = data["Set-Cookie"]
+            data["Set-Cookie"] = f"{tok[:5]}[+{len(tok) - 5}]"
+        if "Authorization" in data:
+            if match := regex.search(r"^Bearer (.+)", data["Authorization"]):
+                tok = match.group(1)
+                data["Authorization"] = f"Bearer {tok[:5]}[+{len(tok) - 5}]"
+        if "password" in data:
+            tok = data["password"]
+            data["password"] = f"{tok[:5]}[+{len(tok) - 5}]"
+        return data

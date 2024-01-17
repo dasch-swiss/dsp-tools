@@ -84,19 +84,13 @@ class UserError(BaseError):
 
 class PermanentConnectionError(BaseError):
     """
-    _summary_
+    This error is raised when all attempts to reconnect to DSP have failed.
 
     Attributes:
         message: A message that describes the error
-        status_code: HTTP status code of the response from DSP-API
-        response_text: The message that DSP-API returns
-        api_route: The route that was called
     """
 
     message: str
-    status_code: int
-    response_text: str
-    api_route: str
 
 
 class XmlUploadError(Exception):

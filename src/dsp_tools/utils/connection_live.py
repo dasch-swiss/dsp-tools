@@ -308,9 +308,9 @@ class ConnectionLive:
 
     def _log_response(self, response: Response) -> None:
         try:
-            content = json.dumps(self._anonymize(response.json()))
+            content = self._anonymize(response.json())
         except JSONDecodeError:
-            content = response.text
+            content = {"content": response.text}
         response_headers = self._anonymize(dict(response.headers))
         dumpobj = {
             "status code": response.status_code,

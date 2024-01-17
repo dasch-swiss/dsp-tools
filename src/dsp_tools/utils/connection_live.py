@@ -299,6 +299,7 @@ class ConnectionLive:
         time.sleep(2**retry_counter)
 
     def _anonymize(self, data: dict[str, Any]) -> dict[str, Any]:
+        data = data.copy()
         if "token" in data:
             tok = data["token"]
             data["token"] = tok[:5] + f"[+{len(tok) - 5}]"

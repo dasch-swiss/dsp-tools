@@ -102,8 +102,7 @@ class ConnectionLive:
         headers = headers or {}
         headers.update({k: str(v) for k, v in self.session.headers.items()})
         headers = self._anonymize(headers)
-        if data:
-            data = self._anonymize(data)
+        data = self._anonymize(data)
         dumpobj = {
             "HTTP request": method,
             "url": url,
@@ -363,7 +362,9 @@ class ConnectionLive:
         }
         logger.debug(f"RESPONSE: {json.dumps(dumpobj)}")
 
-    def _anonymize(self, data: dict[str, Any]) -> dict[str, Any]:
+    def _anonymize(self, data: dict[str, Any] | None) -> dict[str, Any] | None:
+        if not data:
+            return data
         data = data.copy()
         if "token" in data:
             tok = data["token"]

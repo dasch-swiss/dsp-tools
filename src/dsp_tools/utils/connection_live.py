@@ -316,19 +316,13 @@ class ConnectionLive:
             try:
                 response = action()
             except (TimeoutError, ReadTimeout, ReadTimeoutError):
-                msg = f"Timeout Error raised: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
-                print(f"{datetime.now()}: {msg}")
-                logger.error(msg, exc_info=True)
-                time.sleep(2**i)
+                self._log_and_sleep(reason="Timeout Error", retry_counter=i)
                 continue
             except (ConnectionError, RequestException):
                 self.session.close()
                 self.session = Session()
                 self.session.headers["Authorization"] = f"Bearer {self.token}"
-                msg = f"Connection Error raised: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
-                print(f"{datetime.now()}: {msg}")
-                logger.error(msg, exc_info=True)
-                time.sleep(2**i)
+                self._log_and_sleep(reason="Connection Error raised", retry_counter=i)
                 continue
 
             self._log_response(response)

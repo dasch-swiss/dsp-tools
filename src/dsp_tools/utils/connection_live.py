@@ -274,8 +274,6 @@ class ConnectionLive:
                 continue
             elif response.status_code != HTTP_OK:
                 msg = "Permanently unable to execute the network action. See logs for more details."
-                print(f"{datetime.now()}: {msg}")
-                logger.error(msg)
                 raise PermanentConnectionError(msg)
             else:
                 return response

@@ -7,7 +7,7 @@ from importlib.metadata import version
 from typing import Any, Callable, Optional, cast
 
 import regex
-from requests import ReadTimeout, RequestException, Response, Session
+from requests import JSONDecodeError, ReadTimeout, RequestException, Response, Session
 from urllib3.exceptions import ReadTimeoutError
 
 from dsp_tools.models.exceptions import BaseError
@@ -95,26 +95,14 @@ class ConnectionLive:
         url: str,
         data: dict[str, Any] | None,
         params: Optional[dict[str, Any]],
-        response: Response,
         timeout: int,
         headers: dict[str, str] | None = None,
         uploaded_file: str | None = None,
     ) -> None:
-        if response.status_code == HTTP_OK:
-            _return = response.json()
-            if "token" in _return:
-                _return["token"] = "<token>"
-        else:
-            _return = {"status": response.status_code, "message": response.text}
         headers = headers or {}
         headers.update({k: str(v) for k, v in self.session.headers.items()})
-        if "Authorization" in headers:
-            headers["Authorization"] = regex.sub(r"Bearer .+", "Bearer <token>", headers["Authorization"])
-        if data and "password" in data:
-            data["password"] = "<password>"
-        return_headers = dict(response.headers)
-        if "Set-Cookie" in return_headers:
-            return_headers["Set-Cookie"] = "<cookie>"
+        headers = self._anonymize(headers)
+        data = self._anonymize(data)
         dumpobj = {
             "HTTP request": method,
             "url": url,
@@ -123,10 +111,8 @@ class ConnectionLive:
             "timetout": timeout,
             "payload": data,
             "uploaded file": uploaded_file,
-            "return-headers": return_headers,
-            "return": _return,
         }
-        logger.debug(json.dumps(dumpobj, cls=SetEncoder))
+        logger.debug(f"REQUEST: {json.dumps(dumpobj, cls=SetEncoder)}")
 
     def post(
         self,
@@ -166,17 +152,16 @@ class ConnectionLive:
         elif files:
             request = partial(request, files=files)
 
-        response = self._try_network_action(request)
         self._log_request(
             method="POST",
             url=url,
             data=data,
             uploaded_file=files["file"][0] if files else None,
             params=None,
-            response=response,
             headers=headers,
             timeout=timeout,
         )
+        response = self._try_network_action(request)
         return cast(dict[str, Any], response.json())
 
     def get(
@@ -199,21 +184,20 @@ class ConnectionLive:
         url = self.server + route
         timeout = self.timeout_get_delete
 
+        self._log_request(
+            method="GET",
+            url=url,
+            data=None,
+            params=None,
+            headers=headers,
+            timeout=timeout,
+        )
         response = self._try_network_action(
             lambda: self.session.get(
                 url=url,
                 headers=headers,
                 timeout=timeout,
             )
-        )
-        self._log_request(
-            method="GET",
-            url=url,
-            data=None,
-            params=None,
-            response=response,
-            headers=headers,
-            timeout=timeout,
         )
         return cast(dict[str, Any], response.json())
 
@@ -244,6 +228,14 @@ class ConnectionLive:
             headers["Content-Type"] = f"{content_type}; charset=UTF-8"
         timeout = self.timeout_put_post
 
+        self._log_request(
+            method="PUT",
+            url=url,
+            data=data,
+            params=None,
+            headers=headers,
+            timeout=timeout,
+        )
         response = self._try_network_action(
             lambda: self.session.put(
                 url=url,
@@ -253,15 +245,6 @@ class ConnectionLive:
                 data=json.dumps(data, cls=SetEncoder, ensure_ascii=False).encode("utf-8") if data else None,
                 timeout=timeout,
             )
-        )
-        self._log_request(
-            method="PUT",
-            url=url,
-            data=data,
-            params=None,
-            response=response,
-            headers=headers,
-            timeout=timeout,
         )
         return cast(dict[str, Any], response.json())
 
@@ -287,19 +270,18 @@ class ConnectionLive:
         url = self.server + route
         timeout = self.timeout_get_delete
 
-        response = self.session.delete(
-            url=url,
-            headers=headers,
-            params=params,
-            timeout=timeout,
-        )
         self._log_request(
             method="DELETE",
             url=url,
             data=None,
             params=params,
-            response=response,
             headers=headers,
+            timeout=timeout,
+        )
+        response = self.session.delete(
+            url=url,
+            headers=headers,
+            params=params,
             timeout=timeout,
         )
         return cast(dict[str, Any], response.json())
@@ -346,6 +328,7 @@ class ConnectionLive:
                 self._log_and_sleep(reason="Network Error", retry_counter=i)
                 continue
 
+            self._log_response(response)
             if self._should_retry(response):
                 msg = f"Server unresponsive: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
                 print(f"{datetime.now()}: {msg}")
@@ -365,3 +348,35 @@ class ConnectionLive:
 
         # after 7 vain attempts to create a response, try it a last time and let it escalate
         return action()
+
+    def _log_response(self, response: Response) -> None:
+        try:
+            content = self._anonymize(response.json())
+        except JSONDecodeError:
+            content = {"content": response.text}
+        response_headers = self._anonymize(dict(response.headers))
+        dumpobj = {
+            "status code": response.status_code,
+            "response headers": response_headers,
+            "content": content,
+        }
+        logger.debug(f"RESPONSE: {json.dumps(dumpobj)}")
+
+    def _anonymize(self, data: dict[str, Any] | None) -> dict[str, Any] | None:
+        if not data:
+            return data
+        data = data.copy()
+        if "token" in data:
+            tok = data["token"]
+            data["token"] = f"{tok[:5]}[+{len(tok) - 5}]"
+        if "Set-Cookie" in data:
+            tok = data["Set-Cookie"]
+            data["Set-Cookie"] = f"{tok[:5]}[+{len(tok) - 5}]"
+        if "Authorization" in data:
+            if match := regex.search(r"^Bearer (.+)", data["Authorization"]):
+                tok = match.group(1)
+                data["Authorization"] = f"Bearer {tok[:5]}[+{len(tok) - 5}]"
+        if "password" in data:
+            tok = data["password"]
+            data["password"] = f"{tok[:5]}[+{len(tok) - 5}]"
+        return data

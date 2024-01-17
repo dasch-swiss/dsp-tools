@@ -98,10 +98,9 @@ class ConnectionLive:
     ) -> None:
         headers = headers or {}
         headers.update({k: str(v) for k, v in self.session.headers.items()})
-        if "Authorization" in headers:
-            headers["Authorization"] = regex.sub(r"Bearer .+", "Bearer <token>", headers["Authorization"])
-        if data and "password" in data:
-            data["password"] = "<password>"
+        headers = self._anonymize(headers)
+        if data:
+            data = self._anonymize(data)
         dumpobj = {
             "HTTP request": method,
             "url": url,
@@ -290,16 +289,29 @@ class ConnectionLive:
         try_again_later = "try again later" in response.text
         return try_again_later or in_500_range
 
+    def _anonymize(self, data: dict[str, Any]) -> dict[str, Any]:
+        if "token" in data:
+            tok = data["token"]
+            data["token"] = tok[:5] + f"[+{len(tok) - 5}]"
+        if "Set-Cookie" in data:
+            tok = data["Set-Cookie"]
+            data["Set-Cookie"] = tok[:5] + f"[+{len(tok) - 5}]"
+        if "Authorization" in data:
+            match = regex.search(r"^Bearer (.+)", data["Authorization"])
+            if match:
+                tok = match.group(1)
+                data["Authorization"] = f"Bearer {tok[:5]}[+{len(tok) - 5}]"
+        if "password" in data:
+            tok = data["password"]
+            data["password"] = tok[:5] + f"[+{len(tok) - 5}]"
+        return data
+
     def _log_response(self, response: Response) -> None:
         try:
-            content = response.json()
-            if "token" in content:
-                content["token"] = "<token>"
+            content = json.dumps(self._anonymize(response.json()))
         except JSONDecodeError:
             content = response.text
-        response_headers = dict(response.headers)
-        if "Set-Cookie" in response_headers:
-            response_headers["Set-Cookie"] = "<cookie>"
+        response_headers = self._anonymize(dict(response.headers))
         dumpobj = {
             "status code": response.status_code,
             "response headers": response_headers,

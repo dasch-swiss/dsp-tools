@@ -339,19 +339,22 @@ class ConnectionLive:
             return data
         data = data.copy()
         if "token" in data:
-            tok = data["token"]
-            data["token"] = f"{tok[:5]}[+{len(tok) - 5}]"
+            data["token"] = self._mask(data["token"])
         if "Set-Cookie" in data:
-            tok = data["Set-Cookie"]
-            data["Set-Cookie"] = f"{tok[:5]}[+{len(tok) - 5}]"
+            data["Set-Cookie"] = self._mask(data["Set-Cookie"])
         if "Authorization" in data:
             if match := regex.search(r"^Bearer (.+)", data["Authorization"]):
-                tok = match.group(1)
-                data["Authorization"] = f"Bearer {tok[:5]}[+{len(tok) - 5}]"
+                data["Authorization"] = f"Bearer {self._mask(match.group(1))}"
         if "password" in data:
-            tok = data["password"]
-            data["password"] = f"{tok[:5]}[+{len(tok) - 5}]"
+            data["password"] = self._mask(data["password"])
         return data
+
+    def _mask(self, sensitive_info: str) -> str:
+        unmasked_until = 5
+        if len(sensitive_info) <= unmasked_until:
+            return "*" * len(sensitive_info)
+        else:
+            return f"{sensitive_info[:unmasked_until]}[+{len(sensitive_info) - unmasked_until}]"
 
     def _should_retry(self, response: Response) -> bool:
         in_500_range = HTTP_SERVER_ERROR_LOWER <= response.status_code <= HTTP_SERVER_ERROR_UPPER

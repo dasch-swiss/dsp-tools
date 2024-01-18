@@ -51,7 +51,7 @@ class ConnectionLive:
             password: password of the user
 
         Raises:
-            PermanentConnectionError: if DSP-API returns no token with the provided user credentials
+            UserError: if DSP-API returns no token with the provided user credentials
         """
         err_msg = f"Username and/or password are not valid on server '{self.server}'"
         try:

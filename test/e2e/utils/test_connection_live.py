@@ -4,7 +4,7 @@ import unittest
 
 import pytest
 
-from dsp_tools.models.exceptions import BaseError, PermanentConnectionError
+from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.utils.connection_live import ConnectionLive
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
@@ -38,7 +38,7 @@ class TestConnectionLive(unittest.TestCase):
         self.assertIsNotNone(con.token)
         con.logout()
         self.assertIsNone(con.token)
-        with self.assertRaises(PermanentConnectionError):
+        with self.assertRaises(UserError):
             con.login("invalid", "invalid")
 
     def test_get(self) -> None:

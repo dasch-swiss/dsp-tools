@@ -59,8 +59,8 @@ class ConnectionLive:
                 route="/v2/authentication",
                 data={"email": email, "password": password},
             )
-        except PermanentConnectionError:
-            raise UserError(err_msg)
+        except PermanentConnectionError as e:
+            raise UserError(err_msg) from e
         if not response.get("token"):
             raise UserError(err_msg)
         self.token = response["token"]

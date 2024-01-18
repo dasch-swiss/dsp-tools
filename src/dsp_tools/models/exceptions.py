@@ -93,7 +93,7 @@ class PermanentConnectionError(BaseError):
     message: str
 
 
-class XmlUploadError(Exception):
+class XmlUploadError(BaseError):
     """
     Represents an error raised in the context of the XML import.
     """

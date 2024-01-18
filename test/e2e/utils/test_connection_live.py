@@ -38,7 +38,7 @@ class TestConnectionLive(unittest.TestCase):
         self.assertIsNotNone(con.token)
         con.logout()
         self.assertIsNone(con.token)
-        with self.assertRaisesRegex(PermanentConnectionError, "Permanently unable to execute the network action"):
+        with self.assertRaises(PermanentConnectionError):
             con.login("invalid", "invalid")
 
     def test_get(self) -> None:

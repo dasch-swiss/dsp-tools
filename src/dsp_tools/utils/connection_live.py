@@ -133,9 +133,7 @@ class ConnectionLive:
                 url=url,
                 headers=headers,
                 timeout=timeout,
-                # if data is not encoded as bytes, issues can occur with non-ASCII characters,
-                # where the content-length of the request will turn out to be different from the actual length
-                data=json.dumps(data, cls=SetEncoder, ensure_ascii=False).encode("utf-8") if data else None,
+                data=self._serialize_payload(data),
                 files=files,
             )
         )
@@ -223,9 +221,7 @@ class ConnectionLive:
             lambda: self.session.put(
                 url=url,
                 headers=headers,
-                # if data is not encoded as bytes, issues can occur with non-ASCII characters,
-                # where the content-length of the request will turn out to be different from the actual length
-                data=json.dumps(data, cls=SetEncoder, ensure_ascii=False).encode("utf-8") if data else None,
+                data=self._serialize_payload(data),
                 timeout=timeout,
             )
         )
@@ -386,3 +382,8 @@ class ConnectionLive:
             "uploaded file": uploaded_file,
         }
         logger.debug(f"REQUEST: {json.dumps(dumpobj, cls=SetEncoder)}")
+
+    def _serialize_payload(self, payload: dict[str, Any] | None) -> bytes | None:
+        # If data is not encoded as bytes, issues can occur with non-ASCII characters,
+        # where the content-length of the request will turn out to be different from the actual length.
+        return json.dumps(payload, cls=SetEncoder, ensure_ascii=False).encode("utf-8") if payload else None

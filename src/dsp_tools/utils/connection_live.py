@@ -2,7 +2,6 @@ import json
 import time
 from dataclasses import dataclass, field
 from datetime import datetime
-from functools import partial
 from importlib.metadata import version
 from typing import Any, Callable, Optional, cast
 
@@ -120,15 +119,6 @@ class ConnectionLive:
             headers["Content-Type"] = "application/json; charset=UTF-8"
         timeout = timeout or self.timeout_put_post
 
-        request = partial(self.session.post, url=url, headers=headers, timeout=timeout)
-        if data:
-            # if data is not encoded as bytes, issues can occur with non-ASCII characters,
-            # where the content-length of the request will turn out to be different from the actual length
-            data_str = json.dumps(data, cls=SetEncoder, ensure_ascii=False).encode("utf-8")
-            request = partial(request, data=data_str)
-        elif files:
-            request = partial(request, files=files)
-
         self._log_request(
             method="POST",
             url=url,
@@ -138,7 +128,15 @@ class ConnectionLive:
             headers=headers,
             timeout=timeout,
         )
-        response = self._try_network_action(request)
+        response = self._try_network_action(
+            lambda: self.session.post(
+                url=url,
+                headers=headers,
+                timeout=timeout,
+                data=self._serialize_payload(data),
+                files=files,
+            )
+        )
         return cast(dict[str, Any], response.json())
 
     def get(
@@ -223,9 +221,7 @@ class ConnectionLive:
             lambda: self.session.put(
                 url=url,
                 headers=headers,
-                # if data is not encoded as bytes, issues can occur with non-ASCII characters,
-                # where the content-length of the request will turn out to be different from the actual length
-                data=json.dumps(data, cls=SetEncoder, ensure_ascii=False).encode("utf-8") if data else None,
+                data=self._serialize_payload(data),
                 timeout=timeout,
             )
         )
@@ -343,19 +339,22 @@ class ConnectionLive:
             return data
         data = data.copy()
         if "token" in data:
-            tok = data["token"]
-            data["token"] = f"{tok[:5]}[+{len(tok) - 5}]"
+            data["token"] = self._mask(data["token"])
         if "Set-Cookie" in data:
-            tok = data["Set-Cookie"]
-            data["Set-Cookie"] = f"{tok[:5]}[+{len(tok) - 5}]"
+            data["Set-Cookie"] = self._mask(data["Set-Cookie"])
         if "Authorization" in data:
             if match := regex.search(r"^Bearer (.+)", data["Authorization"]):
-                tok = match.group(1)
-                data["Authorization"] = f"Bearer {tok[:5]}[+{len(tok) - 5}]"
+                data["Authorization"] = f"Bearer {self._mask(match.group(1))}"
         if "password" in data:
-            tok = data["password"]
-            data["password"] = f"{tok[:5]}[+{len(tok) - 5}]"
+            data["password"] = self._mask(data["password"])
         return data
+
+    def _mask(self, sensitive_info: str) -> str:
+        unmasked_until = 5
+        if len(sensitive_info) <= unmasked_until:
+            return "*" * len(sensitive_info)
+        else:
+            return f"{sensitive_info[:unmasked_until]}[+{len(sensitive_info) - unmasked_until}]"
 
     def _should_retry(self, response: Response) -> bool:
         in_500_range = HTTP_SERVER_ERROR_LOWER <= response.status_code <= HTTP_SERVER_ERROR_UPPER
@@ -386,3 +385,8 @@ class ConnectionLive:
             "uploaded file": uploaded_file,
         }
         logger.debug(f"REQUEST: {json.dumps(dumpobj, cls=SetEncoder)}")
+
+    def _serialize_payload(self, payload: dict[str, Any] | None) -> bytes | None:
+        # If data is not encoded as bytes, issues can occur with non-ASCII characters,
+        # where the content-length of the request will turn out to be different from the actual length.
+        return json.dumps(payload, cls=SetEncoder, ensure_ascii=False).encode("utf-8") if payload else None

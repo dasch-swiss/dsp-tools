@@ -10,7 +10,7 @@ import regex
 from requests import JSONDecodeError, ReadTimeout, RequestException, Response, Session
 from urllib3.exceptions import ReadTimeoutError
 
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import BaseError, PermanentConnectionError, UserError
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.set_encoder import SetEncoder
 
@@ -51,19 +51,18 @@ class ConnectionLive:
             password: password of the user
 
         Raises:
-            BaseError: if DSP-API returns no token with the provided user credentials
+            UserError: if DSP-API returns no token with the provided user credentials
         """
-        response = self.post(
-            route="/v2/authentication",
-            data={"email": email, "password": password},
-        )
-        if not response.get("token"):
-            raise BaseError(
-                f"Error when trying to login with user '{email}' and password '{password} "
-                f"on server '{self.server}'",
-                json_content_of_api_response=json.dumps(response),
-                api_route="/v2/authentication",
+        err_msg = f"Username and/or password are not valid on server '{self.server}'"
+        try:
+            response = self.post(
+                route="/v2/authentication",
+                data={"email": email, "password": password},
             )
+        except PermanentConnectionError as e:
+            raise UserError(err_msg) from e
+        if not response.get("token"):
+            raise UserError(err_msg)
         self.token = response["token"]
         self.session.headers["Authorization"] = f"Bearer {self.token}"
 
@@ -134,6 +133,9 @@ class ConnectionLive:
 
         Returns:
             response from server
+
+        Raises:
+            PermanentConnectionError: if the server returns a permanent error
         """
         if not route.startswith("/"):
             route = f"/{route}"
@@ -178,6 +180,9 @@ class ConnectionLive:
 
         Returns:
             response from server
+
+        Raises:
+            PermanentConnectionError: if the server returns a permanent error
         """
         if not route.startswith("/"):
             route = f"/{route}"
@@ -219,6 +224,9 @@ class ConnectionLive:
 
         Returns:
             response from server
+
+        Raises:
+            PermanentConnectionError: if the server returns a permanent error
         """
         if not route.startswith("/"):
             route = f"/{route}"
@@ -264,6 +272,9 @@ class ConnectionLive:
 
         Returns:
             response from server
+
+        Raises:
+            PermanentConnectionError: if the server returns a permanent error
         """
         if not route.startswith("/"):
             route = f"/{route}"
@@ -309,7 +320,7 @@ class ConnectionLive:
             action: a lambda with the code to be executed, or a function
 
         Raises:
-            BaseError: if the action fails permanently
+            PermanentConnectionError: if the server returns a permanent error
             unexpected exceptions: if the action fails with an unexpected exception
 
         Returns:
@@ -325,7 +336,7 @@ class ConnectionLive:
                 self.session.close()
                 self.session = Session()
                 self.session.headers["Authorization"] = f"Bearer {self.token}"
-                self._log_and_sleep(reason="Network Error", retry_counter=i)
+                self._log_and_sleep(reason="Connection Error raised", retry_counter=i)
                 continue
 
             self._log_response(response)
@@ -336,13 +347,8 @@ class ConnectionLive:
                 time.sleep(2**i)
                 continue
             elif response.status_code != HTTP_OK:
-                raise BaseError(
-                    message="Permanently unable to execute the network action. See logs for more details.",
-                    status_code=response.status_code,
-                    json_content_of_api_response=response.text,
-                    reason_from_api=response.reason,
-                    api_route=response.url,
-                )
+                msg = "Permanently unable to execute the network action. See logs for more details."
+                raise PermanentConnectionError(msg)
             else:
                 return response
 

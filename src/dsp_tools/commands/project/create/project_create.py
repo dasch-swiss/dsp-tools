@@ -16,7 +16,7 @@ from dsp_tools.commands.project.models.project import Project
 from dsp_tools.commands.project.models.propertyclass import PropertyClass
 from dsp_tools.commands.project.models.resourceclass import ResourceClass
 from dsp_tools.commands.project.models.user import User
-from dsp_tools.models.exceptions import BaseError, UserError
+from dsp_tools.models.exceptions import BaseError, PermanentConnectionError, UserError
 from dsp_tools.models.helpers import Cardinality, Context, DateTimeStamp
 from dsp_tools.models.langstring import LangString
 from dsp_tools.utils.connection import Connection
@@ -55,7 +55,7 @@ def _create_project_on_server(
     Returns:
         a tuple of the remote project and the success status (True if everything went smoothly, False otherwise)
     """
-    with contextlib.suppress(BaseError):
+    with contextlib.suppress(PermanentConnectionError):
         # the normal, expected case is that this block fails
         project_local = Project(con=con, shortcode=shortcode)
         project_remote: Project = project_local.read()

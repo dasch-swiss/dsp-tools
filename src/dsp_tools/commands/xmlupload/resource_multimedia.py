@@ -92,9 +92,8 @@ def _handle_media_upload(
         logger.info(msg)
         return resource_bitstream
     except BaseError as err:
-        err_msg = err.orig_err_msg_from_api or err.message
         msg = f"Unable to upload file '{bitstream.value}' of resource '{resource.label}' ({resource.res_id})"
-        print(f"{datetime.now()}: WARNING: {msg}: {err_msg}")
+        print(f"{datetime.now()}: WARNING: {msg}: {err.message}")
         logger.warning(msg, exc_info=True)
         return None
 

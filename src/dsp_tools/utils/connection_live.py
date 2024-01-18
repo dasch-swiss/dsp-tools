@@ -10,7 +10,7 @@ import regex
 from requests import JSONDecodeError, ReadTimeout, RequestException, Response, Session
 from urllib3.exceptions import ReadTimeoutError
 
-from dsp_tools.models.exceptions import BaseError, PermanentConnectionError
+from dsp_tools.models.exceptions import BaseError, PermanentConnectionError, UserError
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.set_encoder import SetEncoder
 
@@ -53,14 +53,16 @@ class ConnectionLive:
         Raises:
             PermanentConnectionError: if DSP-API returns no token with the provided user credentials
         """
-        response = self.post(
-            route="/v2/authentication",
-            data={"email": email, "password": password},
-        )
-        if not response.get("token"):
-            raise PermanentConnectionError(
-                f"Error when trying to login with user '{email}' and password '{password} on server '{self.server}'"
+        err_msg = f"Username and/or password are not valid on server '{self.server}'"
+        try:
+            response = self.post(
+                route="/v2/authentication",
+                data={"email": email, "password": password},
             )
+        except PermanentConnectionError:
+            raise UserError(err_msg)
+        if not response.get("token"):
+            raise UserError(err_msg)
         self.token = response["token"]
         self.session.headers["Authorization"] = f"Bearer {self.token}"
 

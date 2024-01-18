@@ -88,31 +88,6 @@ class ConnectionLive:
             raise BaseError("No token available.")
         return self.token
 
-    def _log_request(
-        self,
-        method: str,
-        url: str,
-        data: dict[str, Any] | None,
-        params: Optional[dict[str, Any]],
-        timeout: int,
-        headers: dict[str, str] | None = None,
-        uploaded_file: str | None = None,
-    ) -> None:
-        headers = headers or {}
-        headers.update({k: str(v) for k, v in self.session.headers.items()})
-        headers = self._anonymize(headers)
-        data = self._anonymize(data)
-        dumpobj = {
-            "HTTP request": method,
-            "url": url,
-            "headers": headers,
-            "params": params,
-            "timetout": timeout,
-            "payload": data,
-            "uploaded file": uploaded_file,
-        }
-        logger.debug(f"REQUEST: {json.dumps(dumpobj, cls=SetEncoder)}")
-
     def post(
         self,
         route: str,
@@ -297,17 +272,6 @@ class ConnectionLive:
         )
         return cast(dict[str, Any], response.json())
 
-    def _should_retry(self, response: Response) -> bool:
-        in_500_range = HTTP_SERVER_ERROR_LOWER <= response.status_code <= HTTP_SERVER_ERROR_UPPER
-        try_again_later = "try again later" in response.text
-        return try_again_later or in_500_range
-
-    def _log_and_sleep(self, reason: str, retry_counter: int) -> None:
-        msg = f"{reason}: Try reconnecting to DSP server, next attempt in {2 ** retry_counter} seconds..."
-        print(f"{datetime.now()}: {msg}")
-        logger.exception(f"{msg} ({retry_counter=:})")
-        time.sleep(2**retry_counter)
-
     def _try_network_action(self, action: Callable[[], Response]) -> Response:
         """
         Try 7 times to execute a HTTP request.
@@ -355,6 +319,12 @@ class ConnectionLive:
         # after 7 vain attempts to create a response, try it a last time and let it escalate
         return action()
 
+    def _log_and_sleep(self, reason: str, retry_counter: int) -> None:
+        msg = f"{reason}: Try reconnecting to DSP server, next attempt in {2 ** retry_counter} seconds..."
+        print(f"{datetime.now()}: {msg}")
+        logger.exception(f"{msg} ({retry_counter=:})")
+        time.sleep(2**retry_counter)
+
     def _log_response(self, response: Response) -> None:
         try:
             content = self._anonymize(response.json())
@@ -386,3 +356,33 @@ class ConnectionLive:
             tok = data["password"]
             data["password"] = f"{tok[:5]}[+{len(tok) - 5}]"
         return data
+
+    def _should_retry(self, response: Response) -> bool:
+        in_500_range = HTTP_SERVER_ERROR_LOWER <= response.status_code <= HTTP_SERVER_ERROR_UPPER
+        try_again_later = "try again later" in response.text
+        return try_again_later or in_500_range
+
+    def _log_request(
+        self,
+        method: str,
+        url: str,
+        data: dict[str, Any] | None,
+        params: Optional[dict[str, Any]],
+        timeout: int,
+        headers: dict[str, str] | None = None,
+        uploaded_file: str | None = None,
+    ) -> None:
+        headers = headers or {}
+        headers.update({k: str(v) for k, v in self.session.headers.items()})
+        headers = self._anonymize(headers)
+        data = self._anonymize(data)
+        dumpobj = {
+            "HTTP request": method,
+            "url": url,
+            "headers": headers,
+            "params": params,
+            "timetout": timeout,
+            "payload": data,
+            "uploaded file": uploaded_file,
+        }
+        logger.debug(f"REQUEST: {json.dumps(dumpobj, cls=SetEncoder)}")

@@ -2,7 +2,6 @@ import json
 import time
 from dataclasses import dataclass, field
 from datetime import datetime
-from functools import partial
 from importlib.metadata import version
 from typing import Any, Callable, Optional, cast
 
@@ -145,15 +144,6 @@ class ConnectionLive:
             headers["Content-Type"] = "application/json; charset=UTF-8"
         timeout = timeout or self.timeout_put_post
 
-        request = partial(self.session.post, url=url, headers=headers, timeout=timeout)
-        if data:
-            # if data is not encoded as bytes, issues can occur with non-ASCII characters,
-            # where the content-length of the request will turn out to be different from the actual length
-            data_str = json.dumps(data, cls=SetEncoder, ensure_ascii=False).encode("utf-8")
-            request = partial(request, data=data_str)
-        elif files:
-            request = partial(request, files=files)
-
         self._log_request(
             method="POST",
             url=url,
@@ -163,7 +153,17 @@ class ConnectionLive:
             headers=headers,
             timeout=timeout,
         )
-        response = self._try_network_action(request)
+        response = self._try_network_action(
+            lambda: self.session.post(
+                url=url,
+                headers=headers,
+                timeout=timeout,
+                # if data is not encoded as bytes, issues can occur with non-ASCII characters,
+                # where the content-length of the request will turn out to be different from the actual length
+                data=json.dumps(data, cls=SetEncoder, ensure_ascii=False).encode("utf-8") if data else None,
+                files=files,
+            )
+        )
         return cast(dict[str, Any], response.json())
 
     def get(

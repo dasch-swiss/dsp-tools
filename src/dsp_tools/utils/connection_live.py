@@ -131,6 +131,9 @@ class ConnectionLive:
 
         Returns:
             response from server
+
+        Raises:
+            PermanentConnectionError: if the server returns a permanent error
         """
         if not route.startswith("/"):
             route = f"/{route}"
@@ -175,6 +178,9 @@ class ConnectionLive:
 
         Returns:
             response from server
+
+        Raises:
+            PermanentConnectionError: if the server returns a permanent error
         """
         if not route.startswith("/"):
             route = f"/{route}"
@@ -216,6 +222,9 @@ class ConnectionLive:
 
         Returns:
             response from server
+
+        Raises:
+            PermanentConnectionError: if the server returns a permanent error
         """
         if not route.startswith("/"):
             route = f"/{route}"
@@ -261,6 +270,9 @@ class ConnectionLive:
 
         Returns:
             response from server
+
+        Raises:
+            PermanentConnectionError: if the server returns a permanent error
         """
         if not route.startswith("/"):
             route = f"/{route}"
@@ -306,7 +318,7 @@ class ConnectionLive:
             action: a lambda with the code to be executed, or a function
 
         Raises:
-            PermanentConnectionError: if the action fails permanently
+            PermanentConnectionError: if the server returns a permanent error
             unexpected exceptions: if the action fails with an unexpected exception
 
         Returns:

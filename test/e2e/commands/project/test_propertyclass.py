@@ -36,17 +36,6 @@ class TestPropertyClass(unittest.TestCase):
         self.con = ConnectionLive(server="http://0.0.0.0:3333")
         self.con.login(email="root@example.com", password="test")
 
-        # Create a test ontology
-        self.onto = Ontology(
-            con=self.con,
-            project=self.project,
-            name=self.onto_name,
-            label=self.onto_label,
-        ).create()
-
-        self.assertIsNotNone(self.onto.iri)
-        self.last_modification_date = self.onto.lastModificationDate
-
     def tearDown(self) -> None:
         """
         Logs out from DSP-API.
@@ -58,6 +47,17 @@ class TestPropertyClass(unittest.TestCase):
         """
         create new property class
         """
+        # Create a test ontology
+        self.onto = Ontology(
+            con=self.con,
+            project=self.project,
+            name=self.onto_name,
+            label=self.onto_label,
+        ).create()
+        self.assertIsNotNone(self.onto.iri)
+        self.last_modification_date = self.onto.lastModificationDate
+
+        # create new property class
         self.last_modification_date, property_class = PropertyClass(
             con=self.con,
             context=self.onto.context,

@@ -33,7 +33,7 @@ class IngestInformation:
         if not self.unused_mediafiles and not self.mediafiles_no_id:
             return (
                 "All multimedia files referenced in the XML file were uploaded through dsp-ingest.\n"
-                "No multimedia files were uploaded through dsp-ingest that were not referenced in the XML file."
+                "All multimedia files uploaded through dsp-ingest were referenced in the XML file."
             )
         return None
 

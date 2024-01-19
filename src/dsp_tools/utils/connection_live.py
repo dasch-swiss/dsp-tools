@@ -168,7 +168,6 @@ class ConnectionLive:
             method="GET",
             url=url,
             data=None,
-            params=None,
             headers=headers,
             timeout=timeout,
         )
@@ -215,7 +214,6 @@ class ConnectionLive:
             method="PUT",
             url=url,
             data=data,
-            params=None,
             headers=headers,
             timeout=timeout,
         )
@@ -368,8 +366,8 @@ class ConnectionLive:
         method: str,
         url: str,
         data: dict[str, Any] | None,
-        params: Optional[dict[str, Any]],
         timeout: int,
+        params: dict[str, Any] | None = None,
         headers: dict[str, str] | None = None,
         uploaded_file: str | None = None,
     ) -> None:

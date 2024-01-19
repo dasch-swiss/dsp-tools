@@ -10,7 +10,7 @@ class TestIngestInformation:
     def test_no_problems(self) -> None:
         expected = (
             "All multimedia files referenced in the XML file were uploaded through dsp-ingest.\n"
-            "No multimedia files were uploaded through dsp-ingest that were not referenced in the XML file."
+            "All multimedia files uploaded through dsp-ingest were referenced in the XML file."
         )
         assert IngestInformation([], []).ok_msg() == expected
 

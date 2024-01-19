@@ -126,7 +126,6 @@ class ConnectionLive:
             url=url,
             data=data,
             uploaded_file=files["file"][0] if files else None,
-            params=None,
             headers=headers,
             timeout=timeout,
         )

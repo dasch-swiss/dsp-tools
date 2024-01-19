@@ -184,7 +184,6 @@ class ConnectionLive:
         route: str,
         data: dict[str, Any] | None = None,
         headers: dict[str, str] | None = None,
-        content_type: str = "application/json",
     ) -> dict[str, Any]:
         """
         Make a HTTP GET request to the server to which this connection has been established.
@@ -193,7 +192,6 @@ class ConnectionLive:
             route: route that will be called on the server
             data: payload of the HTTP request
             headers: headers of the HTTP request
-            content_type: HTTP Content-Type [default: 'application/json']
 
         Returns:
             response from server
@@ -206,7 +204,7 @@ class ConnectionLive:
         url = self.server + route
         if data:
             headers = headers or {}
-            headers["Content-Type"] = f"{content_type}; charset=UTF-8"
+            headers["Content-Type"] = "application/json; charset=UTF-8"
         timeout = self.timeout_put_post
 
         self._log_request(

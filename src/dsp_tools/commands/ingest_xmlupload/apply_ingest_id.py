@@ -65,10 +65,12 @@ def replace_filepath_with_sipi_id(
             img_path_str = str(img_path.with_suffix(img_path.suffix.lower()))
         if img_path_str not in orig_path_2_id_filename:
             img_path_str = str(img_path.with_suffix(img_path.suffix.upper()))
-        if img_path_str not in orig_path_2_id_filename:
+
+        if img_path_str in orig_path_2_id_filename:
+            elem.text = orig_path_2_id_filename[img_path_str]
+            used_media_file_paths.append(img_path_str)
+        else:
             no_id_found.append((cast("etree._Element", elem.getparent()).attrib["id"], str(elem.text)))
-        elem.text = orig_path_2_id_filename[img_path_str]
-        used_media_file_paths.append(img_path_str)
 
     unused_media_paths = [x for x in orig_path_2_id_filename if x not in used_media_file_paths]
     return new_tree, IngestInformation(unused_mediafiles=unused_media_paths, mediafiles_no_id=no_id_found)

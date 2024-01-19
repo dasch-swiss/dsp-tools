@@ -17,6 +17,27 @@ def test_log_in_log_out() -> None:
     con.delete.assert_called_once_with(route="/v2/authentication")
 
 
+def test_post() -> None:
+    con = ConnectionLive("http://example.com/")
+    con._anonymize = Mock(side_effect=lambda x: x)  # type: ignore[method-assign]
+    con._log_response = Mock()  # type: ignore[method-assign]
+    con._should_retry = Mock(return_value=False)  # type: ignore[method-assign]
+    response_mock = Mock()
+    response_mock.status_code = 200
+    response_mock.json = Mock(return_value={"foo": "bar"})
+    post_mock = Mock(return_value=response_mock)
+    con.session.post = post_mock  # type: ignore[method-assign]
+    con.session.headers = {}
+    con.post(route="/v2/resources", data={"foo": "bar"})
+    post_mock.assert_called_once_with(
+        url="http://example.com/v2/resources",
+        headers={"Content-Type": "application/json; charset=UTF-8"},
+        timeout=1800,
+        data=b'{"foo": "bar"}',
+        files=None,
+    )
+
+
 def test_anonymize_different_keys() -> None:
     con = ConnectionLive("foo")
     assert con._anonymize(None) is None

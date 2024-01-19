@@ -24,7 +24,6 @@ def test_post() -> None:
     con._should_retry = Mock(return_value=False)  # type: ignore[method-assign]
     response_mock = Mock()
     response_mock.status_code = 200
-    response_mock.json = Mock(return_value={"foo": "bar"})
     post_mock = Mock(return_value=response_mock)
     con.session.post = post_mock  # type: ignore[method-assign]
     con.session.headers = {}
@@ -32,7 +31,7 @@ def test_post() -> None:
     post_mock.assert_called_once_with(
         url="http://example.com/v2/resources",
         headers={"Content-Type": "application/json; charset=UTF-8"},
-        timeout=1800,
+        timeout=con.timeout_put_post,
         data=b'{"foo": "bar"}',
         files=None,
     )

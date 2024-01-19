@@ -3,7 +3,7 @@ import time
 from dataclasses import dataclass, field
 from datetime import datetime
 from importlib.metadata import version
-from typing import Any, Literal, Optional, cast
+from typing import Any, Callable, Optional, cast
 
 import regex
 from requests import JSONDecodeError, ReadTimeout, RequestException, Response, Session
@@ -130,12 +130,13 @@ class ConnectionLive:
             timeout=timeout,
         )
         response = self._try_network_action(
-            method="POST",
-            url=url,
-            headers=headers,
-            timeout=timeout,
-            data=self._serialize_payload(data),
-            files=files,
+            lambda: self.session.post(
+                url=url,
+                headers=headers,
+                timeout=timeout,
+                data=self._serialize_payload(data),
+                files=files,
+            )
         )
         return cast(dict[str, Any], response.json())
 
@@ -170,10 +171,11 @@ class ConnectionLive:
             timeout=timeout,
         )
         response = self._try_network_action(
-            method="GET",
-            url=url,
-            headers=headers,
-            timeout=timeout,
+            lambda: self.session.get(
+                url=url,
+                headers=headers,
+                timeout=timeout,
+            )
         )
         return cast(dict[str, Any], response.json())
 
@@ -215,11 +217,12 @@ class ConnectionLive:
             timeout=timeout,
         )
         response = self._try_network_action(
-            method="PUT",
-            url=url,
-            headers=headers,
-            data=self._serialize_payload(data),
-            timeout=timeout,
+            lambda: self.session.put(
+                url=url,
+                headers=headers,
+                data=self._serialize_payload(data),
+                timeout=timeout,
+            )
         )
         return cast(dict[str, Any], response.json())
 
@@ -256,8 +259,7 @@ class ConnectionLive:
             headers=headers,
             timeout=timeout,
         )
-        response = self._try_network_action(
-            method="DELETE",
+        response = self.session.delete(
             url=url,
             headers=headers,
             params=params,
@@ -265,11 +267,7 @@ class ConnectionLive:
         )
         return cast(dict[str, Any], response.json())
 
-    def _try_network_action(
-        self,
-        method: Literal["POST", "GET", "PUT", "DELETE"],
-        **kwargs: Any,
-    ) -> Response:
+    def _try_network_action(self, action: Callable[[], Response]) -> Response:
         """
         Try 7 times to execute a HTTP request.
         If a timeout error, a ConnectionError, or a requests.RequestException occur,
@@ -278,8 +276,7 @@ class ConnectionLive:
         The waiting times are 1, 2, 4, 8, 16, 32, 64 seconds.
 
         Args:
-            method: one of the four HTTP request methods POST, GET, PUT, DELETE
-            kwargs: keyword arguments for the HTTP request
+            action: a lambda with the code to be executed, or a function
 
         Raises:
             PermanentConnectionError: if the server returns a permanent error
@@ -288,18 +285,9 @@ class ConnectionLive:
         Returns:
             the return value of action
         """
-        match method:
-            case "POST":
-                action = lambda: self.session.post(**kwargs)  # noqa: E731
-            case "GET":
-                action = lambda: self.session.get(**kwargs)  # noqa: E731
-            case "PUT":
-                action = lambda: self.session.put(**kwargs)  # noqa: E731
-            case "DELETE":
-                action = lambda: self.session.delete(**kwargs)  # noqa: E731
         for i in range(7):
             try:
-                response = action()  # type: ignore[no-untyped-call]
+                response = action()
             except (TimeoutError, ReadTimeout, ReadTimeoutError):
                 self._log_and_sleep(reason="Timeout Error", retry_counter=i)
                 continue
@@ -324,7 +312,7 @@ class ConnectionLive:
                 return response
 
         # after 7 vain attempts to create a response, try it a last time and let it escalate
-        return action()  # type: ignore[no-untyped-call]
+        return action()
 
     def _log_and_sleep(self, reason: str, retry_counter: int) -> None:
         msg = f"{reason}: Try reconnecting to DSP server, next attempt in {2 ** retry_counter} seconds..."

@@ -49,11 +49,9 @@ class TestPropertyClass(unittest.TestCase):
 
     def tearDown(self) -> None:
         """
-        Logs out from DSP-API and remove test ontology.
+        Logs out from DSP-API.
         For each test method, a new TestCase instance is created, so tearDown() is executed after each test method.
         """
-        result = self.onto.delete()
-        self.assertIsNotNone(result)
         self.con.logout()
 
     def test_PropertyClass_create(self) -> None:
@@ -92,7 +90,7 @@ class TestPropertyClass(unittest.TestCase):
         self.last_modification_date, property_class = PropertyClass(
             con=self.con,
             context=self.onto.context,
-            name=self.name,
+            name="foo",
             ontology_id=self.onto.iri,
             rdf_object=self.rdf_object,
             label=self.label,

@@ -64,7 +64,6 @@ class Connection(Protocol):
     def delete(
         self,
         route: str,
-        params: dict[str, Any] | None = None,
         headers: dict[str, str] | None = None,
     ) -> dict[str, Any]:
         """
@@ -72,7 +71,6 @@ class Connection(Protocol):
 
         Args:
             route: route that will be called on the server
-            params: additional parameters for the HTTP request
             headers: headers for the HTTP request
         """
 

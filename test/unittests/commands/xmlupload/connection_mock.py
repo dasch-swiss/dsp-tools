@@ -36,7 +36,6 @@ class ConnectionMockBase:
     def delete(
         self,
         route: str,
-        params: dict[str, Any] | None = None,
         headers: dict[str, str] | None = None,
     ) -> dict[str, Any]:
         raise AssertionError("DELETE not implemented in mock")

@@ -84,7 +84,15 @@ class TestPropertyClass(unittest.TestCase):
         self.onto = self.onto.read()
 
     def test_PropertyClass_update(self) -> None:
-        self.onto = self.onto.read()
+        # Create a test ontology
+        self.onto = Ontology(
+            con=self.con,
+            project=self.project,
+            name="bar",
+            label=self.onto_label,
+        ).create()
+        self.assertIsNotNone(self.onto.iri)
+        self.last_modification_date = self.onto.lastModificationDate
 
         # create test resource class
         self.last_modification_date, property_class = PropertyClass(

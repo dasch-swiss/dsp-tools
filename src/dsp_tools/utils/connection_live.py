@@ -40,6 +40,8 @@ class ConnectionLive:
 
     def __post_init__(self) -> None:
         self.session.headers["User-Agent"] = f'DSP-TOOLS/{version("dsp-tools")}'
+        if self.server.endswith("/"):
+            self.server = self.server[:-1]
 
     def login(self, email: str, password: str) -> None:
         """

@@ -68,20 +68,13 @@ class TestPropertyClass(unittest.TestCase):
             comment=self.comment,
         ).create(self.last_modification_date)
 
-        self.onto.lastModificationDate = self.last_modification_date
-
         self.assertIsNotNone(property_class.iri)
         self.assertEqual(property_class.name, self.name)
         self.assertEqual(property_class.label["de"], self.label["de"])
         self.assertEqual(property_class.comment["de"], self.comment["de"])
 
-        # get ontology data
-        self.onto = self.onto.read()
-        self.last_modification_date = self.onto.lastModificationDate
-        self.last_modification_date = property_class.delete(self.last_modification_date)
-
-        # get ontology data
-        self.onto = self.onto.read()
+        # delete the property class to clean up
+        _ = property_class.delete(self.last_modification_date)
 
     def test_PropertyClass_update(self) -> None:
         # Create a test ontology
@@ -104,7 +97,6 @@ class TestPropertyClass(unittest.TestCase):
             label=self.label,
             comment=self.comment,
         ).create(self.last_modification_date)
-        self.onto.lastModificationDate = self.last_modification_date
         self.assertIsNotNone(property_class.iri)
 
         # modify the property class
@@ -112,13 +104,11 @@ class TestPropertyClass(unittest.TestCase):
         property_class.rmLabel("de")
         property_class.addComment("it", "Commentario italiano")
         self.last_modification_date, property_class_updated = property_class.update(self.last_modification_date)
-        self.onto.lastModificationDate = self.last_modification_date
         self.assertEqual(property_class_updated.label["en"], "This is english comment")
         self.assertEqual(property_class_updated.comment["it"], "Commentario italiano")
 
-        # delete the resource class to clean up
-        self.last_modification_date = property_class_updated.delete(self.last_modification_date)
-        self.onto.lastModificationDate = self.last_modification_date
+        # delete the property class to clean up
+        _ = property_class_updated.delete(self.last_modification_date)
 
 
 if __name__ == "__main__":

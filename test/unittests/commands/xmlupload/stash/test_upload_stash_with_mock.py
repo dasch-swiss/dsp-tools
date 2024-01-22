@@ -65,7 +65,6 @@ class ConnectionMock(ConnectionMockBase):
         route: str,
         data: dict[str, Any] | None = None,
         headers: dict[str, str] | None = None,
-        content_type: str = "application/json",
     ) -> dict[str, Any]:
         return self.put_responses.pop(0)
 

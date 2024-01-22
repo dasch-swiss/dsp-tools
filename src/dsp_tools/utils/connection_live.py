@@ -295,7 +295,7 @@ class ConnectionLive:
             if HTTP_OK_LOWER <= response.status_code <= HTTP_OK_UPPER:
                 return response
             else:
-                msg = f"Server unresponsive: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
+                msg = f"Non-200 response code: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
                 print(f"{datetime.now()}: {msg}")
                 logger.error(msg)
                 time.sleep(2**i)

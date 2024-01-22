@@ -116,7 +116,8 @@ class ConnectionLive:
         url = self.server + route
         if data:
             headers = headers or {}
-            headers["Content-Type"] = "application/json; charset=UTF-8"
+            if "Content-Type" not in headers:
+                headers["Content-Type"] = "application/json; charset=UTF-8"
         timeout = timeout or self.timeout_put_post
 
         self._log_request(
@@ -204,7 +205,8 @@ class ConnectionLive:
         url = self.server + route
         if data:
             headers = headers or {}
-            headers["Content-Type"] = "application/json; charset=UTF-8"
+            if "Content-Type" not in headers:
+                headers["Content-Type"] = "application/json; charset=UTF-8"
         timeout = self.timeout_put_post
 
         self._log_request(

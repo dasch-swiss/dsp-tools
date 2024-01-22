@@ -118,7 +118,8 @@ class ConnectionLive:
         url = self.server + route
         if data:
             headers = headers or {}
-            headers["Content-Type"] = "application/json; charset=UTF-8"
+            if "Content-Type" not in headers:
+                headers["Content-Type"] = "application/json; charset=UTF-8"
         timeout = timeout or self.timeout_put_post
 
         self._log_request(
@@ -184,7 +185,6 @@ class ConnectionLive:
         route: str,
         data: dict[str, Any] | None = None,
         headers: dict[str, str] | None = None,
-        content_type: str = "application/json",
     ) -> dict[str, Any]:
         """
         Make a HTTP GET request to the server to which this connection has been established.
@@ -193,7 +193,6 @@ class ConnectionLive:
             route: route that will be called on the server
             data: payload of the HTTP request
             headers: headers of the HTTP request
-            content_type: HTTP Content-Type [default: 'application/json']
 
         Returns:
             response from server
@@ -206,7 +205,8 @@ class ConnectionLive:
         url = self.server + route
         if data:
             headers = headers or {}
-            headers["Content-Type"] = f"{content_type}; charset=UTF-8"
+            if "Content-Type" not in headers:
+                headers["Content-Type"] = "application/json; charset=UTF-8"
         timeout = self.timeout_put_post
 
         self._log_request(
@@ -229,7 +229,6 @@ class ConnectionLive:
     def delete(
         self,
         route: str,
-        params: Optional[dict[str, Any]] = None,
         headers: dict[str, str] | None = None,
     ) -> dict[str, Any]:
         """
@@ -237,7 +236,6 @@ class ConnectionLive:
 
         Args:
             route: route that will be called on the server
-            params: additional parameters for the HTTP request
             headers: headers for the HTTP request
 
         Returns:
@@ -255,14 +253,12 @@ class ConnectionLive:
             method="DELETE",
             url=url,
             data=None,
-            params=params,
             headers=headers,
             timeout=timeout,
         )
         response = self.session.delete(
             url=url,
             headers=headers,
-            params=params,
             timeout=timeout,
         )
         return cast(dict[str, Any], response.json())
@@ -378,7 +374,6 @@ class ConnectionLive:
             "HTTP request": method,
             "url": url,
             "headers": headers,
-            "params": params,
             "timetout": timeout,
             "payload": data,
             "uploaded file": uploaded_file,

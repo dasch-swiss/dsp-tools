@@ -19,7 +19,6 @@ class ConnectionMockBase:
         route: str,
         data: dict[str, Any] | None = None,
         headers: dict[str, str] | None = None,
-        content_type: str = "application/json",
     ) -> dict[str, Any]:
         raise AssertionError("PUT not implemented in mock")
 
@@ -36,7 +35,6 @@ class ConnectionMockBase:
     def delete(
         self,
         route: str,
-        params: dict[str, Any] | None = None,
         headers: dict[str, str] | None = None,
     ) -> dict[str, Any]:
         raise AssertionError("DELETE not implemented in mock")

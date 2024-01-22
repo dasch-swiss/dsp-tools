@@ -72,5 +72,5 @@ If you want to run a specific branch of DSP-API / DSP-APP, or to modify them you
 - keep the dependencies up to date (keep in mind that dependencies might be replaced over time)
 - clone the repositories from GitHub
 - keep them up to date with `git pull`
-- execute commands from within the repositories (`make` for DSP-API, `angular` for DSP-APP)
+- execute commands from within the repositories (`just` for DSP-API, `angular` for DSP-APP)
 - take care that the repositories don't get cluttered with old data over time

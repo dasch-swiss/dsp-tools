@@ -306,13 +306,6 @@ class Ontology(Model):
         result = self._con.get(Ontology.ROUTE + "/allentities/" + quote_plus(self._iri) + Ontology.ALL_LANGUAGES)
         return Ontology.fromJsonObj(self._con, result)
 
-    def delete(self) -> Optional[str]:
-        result = self._con.delete(
-            Ontology.ROUTE + "/" + quote_plus(self._iri),
-            params={"lastModificationDate": str(self._lastModificationDate)},
-        )
-        return result.get("knora-api:result")
-
     @staticmethod
     def getAllOntologies(con: Connection) -> list["Ontology"]:
         result = con.get(Ontology.ROUTE + Ontology.METADATA)

@@ -125,7 +125,6 @@ class ConnectionLive:
             url=url,
             data=data,
             uploaded_file=files["file"][0] if files else None,
-            params=None,
             headers=headers,
             timeout=timeout,
         )
@@ -167,7 +166,6 @@ class ConnectionLive:
             method="GET",
             url=url,
             data=None,
-            params=None,
             headers=headers,
             timeout=timeout,
         )
@@ -213,7 +211,6 @@ class ConnectionLive:
             method="PUT",
             url=url,
             data=data,
-            params=None,
             headers=headers,
             timeout=timeout,
         )
@@ -230,7 +227,6 @@ class ConnectionLive:
     def delete(
         self,
         route: str,
-        params: Optional[dict[str, Any]] = None,
         headers: dict[str, str] | None = None,
     ) -> dict[str, Any]:
         """
@@ -238,7 +234,6 @@ class ConnectionLive:
 
         Args:
             route: route that will be called on the server
-            params: additional parameters for the HTTP request
             headers: headers for the HTTP request
 
         Returns:
@@ -256,14 +251,12 @@ class ConnectionLive:
             method="DELETE",
             url=url,
             data=None,
-            params=params,
             headers=headers,
             timeout=timeout,
         )
         response = self.session.delete(
             url=url,
             headers=headers,
-            params=params,
             timeout=timeout,
         )
         return cast(dict[str, Any], response.json())
@@ -366,7 +359,6 @@ class ConnectionLive:
         method: str,
         url: str,
         data: dict[str, Any] | None,
-        params: Optional[dict[str, Any]],
         timeout: int,
         headers: dict[str, str] | None = None,
         uploaded_file: str | None = None,
@@ -379,7 +371,6 @@ class ConnectionLive:
             "HTTP request": method,
             "url": url,
             "headers": headers,
-            "params": params,
             "timetout": timeout,
             "payload": data,
             "uploaded file": uploaded_file,

@@ -362,7 +362,6 @@ class ConnectionLive:
         url: str,
         data: dict[str, Any] | None,
         timeout: int,
-        params: dict[str, Any] | None = None,
         headers: dict[str, str] | None = None,
         uploaded_file: str | None = None,
     ) -> None:

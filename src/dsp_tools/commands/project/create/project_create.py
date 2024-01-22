@@ -1,7 +1,6 @@
 """This module handles the ontology creation, update and upload to a DSP server. This includes the creation and update
 of the project, the creation of groups, users, lists, resource classes, properties and cardinalities."""
 
-import contextlib
 from pathlib import Path
 from typing import Any, Optional, Union, cast
 
@@ -403,9 +402,8 @@ def _create_users(
         username = json_user_definition["username"]
 
         # skip the user if he already exists
-        with contextlib.suppress(BaseError):
-            # the normal case is that this block fails
-            User(con, email=json_user_definition["email"]).read()
+        all_users = User.getAllUsers(con)
+        if json_user_definition["email"] in [user.email for user in all_users]:
             print(f"    WARNING: User '{username}' already exists on the DSP server. Skipping...")
             logger.warning(f"User '{username}' already exists on the DSP server. Skipping...")
             overall_success = False

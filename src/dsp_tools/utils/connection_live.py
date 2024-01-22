@@ -13,9 +13,8 @@ from dsp_tools.models.exceptions import BaseError, PermanentConnectionError, Use
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.set_encoder import SetEncoder
 
-HTTP_OK = 200
-HTTP_SERVER_ERROR_LOWER = 500
-HTTP_SERVER_ERROR_UPPER = 599
+HTTP_OK_LOWER = 200
+HTTP_OK_UPPER = 299
 
 logger = get_logger(__name__)
 
@@ -293,17 +292,14 @@ class ConnectionLive:
                 continue
 
             self._log_response(response)
-            if self._should_retry(response):
+            if HTTP_OK_LOWER <= response.status_code <= HTTP_OK_UPPER:
+                return response
+            else:
                 msg = f"Server unresponsive: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
                 print(f"{datetime.now()}: {msg}")
                 logger.error(msg)
                 time.sleep(2**i)
                 continue
-            elif response.status_code != HTTP_OK:
-                msg = "Permanently unable to execute the network action. See logs for more details."
-                raise PermanentConnectionError(msg)
-            else:
-                return response
 
         # after 7 vain attempts to create a response, try it a last time and let it escalate
         return action()
@@ -348,11 +344,6 @@ class ConnectionLive:
             return "*" * len(sensitive_info)
         else:
             return f"{sensitive_info[:unmasked_until]}[+{len(sensitive_info) - unmasked_until}]"
-
-    def _should_retry(self, response: Response) -> bool:
-        in_500_range = HTTP_SERVER_ERROR_LOWER <= response.status_code <= HTTP_SERVER_ERROR_UPPER
-        try_again_later = "try again later" in response.text
-        return try_again_later or in_500_range
 
     def _log_request(
         self,

@@ -13,8 +13,7 @@ from dsp_tools.models.exceptions import BaseError, PermanentConnectionError, Use
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.set_encoder import SetEncoder
 
-HTTP_OK_LOWER = 200
-HTTP_OK_UPPER = 299
+HTTP_OK = 200
 
 logger = get_logger(__name__)
 
@@ -292,7 +291,7 @@ class ConnectionLive:
                 continue
 
             self._log_response(response)
-            if HTTP_OK_LOWER <= response.status_code <= HTTP_OK_UPPER:
+            if response.status_code == HTTP_OK:
                 return response
             else:
                 msg = f"Non-200 response code: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."

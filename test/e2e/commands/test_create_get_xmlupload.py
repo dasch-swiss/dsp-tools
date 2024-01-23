@@ -44,20 +44,21 @@ class TestCreateGetXMLUpload(unittest.TestCase):
 
     def test_create_project(self) -> None:
         """Test if the systematic JSON project file can be uploaded without producing an error on its way"""
-        create_project(
+        success = create_project(
             project_file_as_path_or_parsed=self.test_project_systematic_file.absolute(),
             server=self.server,
             user_mail=self.user,
             password=self.password,
             verbose=True,
         )
+        self.assertTrue(success)
 
     def test_xml_upload_incremental(self) -> None:
         """
         Test if the systematic XML data file can be uploaded without producing an error on its way,
         and if the 'id2iri' replacement works, so that the 2nd upload works.
         """
-        xmlupload(
+        success = xmlupload(
             input_file=self.test_data_systematic_file,
             server=self.server,
             user=self.user,
@@ -65,17 +66,19 @@ class TestCreateGetXMLUpload(unittest.TestCase):
             imgdir=self.imgdir,
             sipi=self.sipi,
         )
+        self.assertTrue(success)
 
         mapping_file = get_most_recent_glob_match("test-data-systematic_id2iri_mapping_*.json")
         second_xml_file_orig = Path("testdata/id2iri/test-id2iri-data.xml")
-        id2iri(
+        success = id2iri(
             xml_file=str(second_xml_file_orig),
             json_file=str(mapping_file),
         )
         mapping_file.unlink()
+        self.assertTrue(success)
 
         second_xml_file_replaced = get_most_recent_glob_match(f"{second_xml_file_orig.stem}_replaced_*.xml")
-        xmlupload(
+        success = xmlupload(
             input_file=second_xml_file_replaced,
             server=self.server,
             user=self.user,
@@ -85,6 +88,7 @@ class TestCreateGetXMLUpload(unittest.TestCase):
         )
         second_xml_file_replaced.unlink()
         self.assertListEqual(list(Path(self.cwd).glob("stashed_*_properties_*.txt")), [])
+        self.assertTrue(success)
 
     def test_get_project(self) -> None:
         """
@@ -92,7 +96,7 @@ class TestCreateGetXMLUpload(unittest.TestCase):
         and check if the result is identical to the original file.
         """
         out_file = self.testdata_tmp / "_test-project-systematic.json"
-        get_project(
+        success = get_project(
             project_identifier="systematic-tp",
             outfile_path=str(out_file),
             server=self.server,
@@ -100,6 +104,7 @@ class TestCreateGetXMLUpload(unittest.TestCase):
             password=self.password,
             verbose=True,
         )
+        self.assertTrue(success)
 
         project_original = self._get_original_project()
         with open(out_file, encoding="utf-8") as f:

@@ -3,8 +3,9 @@ import os
 import time
 from dataclasses import dataclass, field
 from datetime import datetime
+from functools import partial
 from importlib.metadata import version
-from typing import Any, Callable, Literal, Optional, cast
+from typing import Any, Literal, Optional, cast
 
 import regex
 from requests import JSONDecodeError, ReadTimeout, RequestException, Response, Session
@@ -306,27 +307,16 @@ class ConnectionLive:
         # after 7 vain attempts to create a response, try it a last time and let it escalate
         return action()
 
-    def _determine_action(
-        self, method: Literal["POST", "GET", "PUT", "DELETE"], **kwargs: Any
-    ) -> Callable[[], Response]:
+    def _determine_action(self, method: Literal["POST", "GET", "PUT", "DELETE"], **kwargs: Any) -> partial[Response]:
         match method:
             case "POST":
-
-                def action() -> Response:
-                    return self.session.post(**kwargs)
+                action = partial(self.session.post, **kwargs)
             case "GET":
-
-                def action() -> Response:
-                    return self.session.get(**kwargs)
+                action = partial(self.session.get, **kwargs)
             case "PUT":
-
-                def action() -> Response:
-                    return self.session.put(**kwargs)
+                action = partial(self.session.put, **kwargs)
             case "DELETE":
-
-                def action() -> Response:
-                    return self.session.delete(**kwargs)
-
+                action = partial(self.session.delete, **kwargs)
         return action
 
     def _renew_session(self) -> None:

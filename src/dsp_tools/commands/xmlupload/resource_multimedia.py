@@ -108,7 +108,7 @@ def _upload_bitstream(
     This function uploads a specified bitstream file to SIPI and then returns the file information from SIPI.
 
     Args:
-        resource: resource with that has a bitstream
+        resource: resource that has a bitstream
         sipi_server: server to upload
         imgdir: directory of the file
         permissions_lookup: dictionary that contains the permission name as string and the corresponding Python object

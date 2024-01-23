@@ -338,6 +338,6 @@ class ConnectionLive:
             "headers": self._anonymize(dict(self.session.headers).update(params.headers or {})),
             "timetout": params.timeout,
             "payload": self._anonymize(params.data),
-            "uploaded file": params.files,
+            "uploaded file": params.files["file"][0] if params.files else None,
         }
         logger.debug(f"REQUEST: {json.dumps(dumpobj, cls=SetEncoder)}")

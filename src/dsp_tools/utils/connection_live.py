@@ -255,7 +255,7 @@ class ConnectionLive:
         Returns:
             the return value of action
         """
-        action = self._determine_action(params)
+        action = partial(self.session.request, params.as_dict())
         for i in range(7):
             try:
                 self._log_request(params)
@@ -280,18 +280,6 @@ class ConnectionLive:
 
         # after 7 vain attempts to create a response, try it a last time and let it escalate
         return action()
-
-    def _determine_action(self, params: RequestParameters) -> partial[Response]:
-        match params.method:
-            case "POST":
-                action = partial(self.session.post, params.as_dict())
-            case "GET":
-                action = partial(self.session.get, params.as_dict())
-            case "PUT":
-                action = partial(self.session.put, params.as_dict())
-            case "DELETE":
-                action = partial(self.session.delete, params.as_dict())
-        return action
 
     def _renew_session(self) -> None:
         self.session.close()

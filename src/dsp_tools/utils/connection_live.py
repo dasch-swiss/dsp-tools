@@ -246,7 +246,6 @@ class ConnectionLive:
         The waiting times are 1, 2, 4, 8, 16, 32, 64 seconds.
 
         Args:
-            method: one of the four HTTP request methods POST, GET, PUT, DELETE
             params: keyword arguments for the HTTP request
 
         Raises:

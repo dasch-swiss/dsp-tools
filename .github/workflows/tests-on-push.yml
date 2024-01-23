@@ -8,6 +8,8 @@ on:
     branches-ignore:
       - main
 
+env:
+  DSP_TOOLS_TESTING: true
 
 jobs:
   build-docs:

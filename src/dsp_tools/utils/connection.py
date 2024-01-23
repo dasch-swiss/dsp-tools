@@ -30,7 +30,6 @@ class Connection(Protocol):
         route: str,
         data: dict[str, Any] | None = None,
         headers: dict[str, str] | None = None,
-        content_type: str = "application/json",
     ) -> dict[str, Any]:
         """
         Make a HTTP GET request to the server to which this connection has been established.
@@ -39,7 +38,6 @@ class Connection(Protocol):
             route: route that will be called on the server
             data: payload of the HTTP request
             headers: headers for the HTTP request
-            content_type: HTTP Content-Type [default: 'application/json']
         """
 
     def post(
@@ -64,7 +62,6 @@ class Connection(Protocol):
     def delete(
         self,
         route: str,
-        params: dict[str, Any] | None = None,
         headers: dict[str, str] | None = None,
     ) -> dict[str, Any]:
         """
@@ -72,7 +69,6 @@ class Connection(Protocol):
 
         Args:
             route: route that will be called on the server
-            params: additional parameters for the HTTP request
             headers: headers for the HTTP request
         """
 

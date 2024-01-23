@@ -43,7 +43,7 @@ class RequestParameters:
             "method": self.method,
             "url": self.url,
             "timeout": self.timeout,
-            "data_serialized": self.data_serialized,
+            "data": self.data_serialized,
             "headers": self.headers,
             "files": self.files,
         }

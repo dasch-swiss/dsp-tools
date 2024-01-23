@@ -282,21 +282,18 @@ class ConnectionLive:
             try:
                 response = action()
             except (TimeoutError, ReadTimeout, ReadTimeoutError):
-                self._log_and_sleep(reason="Timeout Error", retry_counter=i)
+                self._log_and_sleep(reason="Timeout Error", retry_counter=i, exc_info=True)
                 continue
             except (ConnectionError, RequestException):
                 self._renew_session()
-                self._log_and_sleep(reason="Connection Error raised", retry_counter=i)
+                self._log_and_sleep(reason="Connection Error raised", retry_counter=i, exc_info=True)
                 continue
 
             self._log_response(response)
             if response.status_code == HTTP_OK:
                 return response
             elif not self._in_testing_environment():
-                msg = f"Non-200 response code: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
-                print(f"{datetime.now()}: {msg}")
-                logger.error(msg)
-                time.sleep(2**i)
+                self._log_and_sleep(reason="Non-200 response code", retry_counter=i, exc_info=False)
                 continue
             else:
                 msg = "Permanently unable to execute the network action. See logs for more details."
@@ -310,10 +307,10 @@ class ConnectionLive:
         self.session = Session()
         self.session.headers["Authorization"] = f"Bearer {self.token}"
 
-    def _log_and_sleep(self, reason: str, retry_counter: int) -> None:
+    def _log_and_sleep(self, reason: str, retry_counter: int, exc_info: bool) -> None:
         msg = f"{reason}: Try reconnecting to DSP server, next attempt in {2 ** retry_counter} seconds..."
         print(f"{datetime.now()}: {msg}")
-        logger.exception(f"{msg} ({retry_counter=:})")
+        logger.error(f"{msg} ({retry_counter=:})", exc_info=exc_info)
         time.sleep(2**retry_counter)
 
     def _log_response(self, response: Response) -> None:

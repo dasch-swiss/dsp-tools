@@ -21,6 +21,35 @@ logger = get_logger(__name__)
 
 
 @dataclass
+class RequestParameters:
+    method: Literal["POST", "GET", "PUT", "DELETE"]
+    url: str
+    timeout: int
+    data: dict[str, Any] | None = None
+    data_serialized: bytes | None = field(init=False, default=None)
+    headers: dict[str, str] | None = None
+    files: dict[str, tuple[str, Any]] | None = None
+
+    def __post_init__(self) -> None:
+        self.data_serialized = self._serialize_payload(self.data)
+
+    def _serialize_payload(self, payload: dict[str, Any] | None) -> bytes | None:
+        # If data is not encoded as bytes, issues can occur with non-ASCII characters,
+        # where the content-length of the request will turn out to be different from the actual length.
+        return json.dumps(payload, cls=SetEncoder, ensure_ascii=False).encode("utf-8") if payload else None
+
+    def as_dict(self) -> dict[str, Any]:
+        return {
+            "method": self.method,
+            "url": self.url,
+            "timeout": self.timeout,
+            "data_serialized": self.data_serialized,
+            "headers": self.headers,
+            "files": self.files,
+        }
+
+
+@dataclass
 class ConnectionLive:
     """
     A Connection instance represents a connection to a DSP server.
@@ -120,22 +149,8 @@ class ConnectionLive:
                 headers["Content-Type"] = "application/json; charset=UTF-8"
         timeout = timeout or self.timeout_put_post
 
-        self._log_request(
-            method="POST",
-            url=url,
-            data=data,
-            uploaded_file=files["file"][0] if files else None,
-            headers=headers,
-            timeout=timeout,
-        )
-        response = self._try_network_action(
-            method="POST",
-            url=url,
-            headers=headers,
-            timeout=timeout,
-            data=self._serialize_payload(data),
-            files=files,
-        )
+        params = RequestParameters("POST", url, timeout, data, headers, files)
+        response = self._try_network_action(params)
         return cast(dict[str, Any], response.json())
 
     def get(
@@ -160,20 +175,8 @@ class ConnectionLive:
             route = f"/{route}"
         url = self.server + route
         timeout = self.timeout_get_delete
-
-        self._log_request(
-            method="GET",
-            url=url,
-            data=None,
-            headers=headers,
-            timeout=timeout,
-        )
-        response = self._try_network_action(
-            method="GET",
-            url=url,
-            headers=headers,
-            timeout=timeout,
-        )
+        params = RequestParameters("GET", url, timeout, headers=headers)
+        response = self._try_network_action(params)
         return cast(dict[str, Any], response.json())
 
     def put(
@@ -204,21 +207,8 @@ class ConnectionLive:
             if "Content-Type" not in headers:
                 headers["Content-Type"] = "application/json; charset=UTF-8"
         timeout = self.timeout_put_post
-
-        self._log_request(
-            method="PUT",
-            url=url,
-            data=data,
-            headers=headers,
-            timeout=timeout,
-        )
-        response = self._try_network_action(
-            method="PUT",
-            url=url,
-            headers=headers,
-            data=self._serialize_payload(data),
-            timeout=timeout,
-        )
+        params = RequestParameters("PUT", url, timeout, data, headers)
+        response = self._try_network_action(params)
         return cast(dict[str, Any], response.json())
 
     def delete(
@@ -243,27 +233,11 @@ class ConnectionLive:
             route = f"/{route}"
         url = self.server + route
         timeout = self.timeout_get_delete
-
-        self._log_request(
-            method="DELETE",
-            url=url,
-            data=None,
-            headers=headers,
-            timeout=timeout,
-        )
-        response = self._try_network_action(
-            method="DELETE",
-            url=url,
-            headers=headers,
-            timeout=timeout,
-        )
+        params = RequestParameters("DELETE", url, timeout, headers=headers)
+        response = self._try_network_action(params)
         return cast(dict[str, Any], response.json())
 
-    def _try_network_action(
-        self,
-        method: Literal["POST", "GET", "PUT", "DELETE"],
-        **kwargs: Any,
-    ) -> Response:
+    def _try_network_action(self, params: RequestParameters) -> Response:
         """
         Try 7 times to execute a HTTP request.
         If a timeout error, a ConnectionError, or a requests.RequestException occur,
@@ -273,7 +247,7 @@ class ConnectionLive:
 
         Args:
             method: one of the four HTTP request methods POST, GET, PUT, DELETE
-            kwargs: keyword arguments for the HTTP request
+            params: keyword arguments for the HTTP request
 
         Raises:
             PermanentConnectionError: if the server returns a permanent error
@@ -282,9 +256,10 @@ class ConnectionLive:
         Returns:
             the return value of action
         """
-        action = self._determine_action(method, **kwargs)
+        action = self._determine_action(params)
         for i in range(7):
             try:
+                self._log_request(params)
                 response = action()
             except (TimeoutError, ReadTimeout, ReadTimeoutError):
                 self._log_and_sleep(reason="Timeout Error", retry_counter=i, exc_info=True)
@@ -307,16 +282,16 @@ class ConnectionLive:
         # after 7 vain attempts to create a response, try it a last time and let it escalate
         return action()
 
-    def _determine_action(self, method: Literal["POST", "GET", "PUT", "DELETE"], **kwargs: Any) -> partial[Response]:
-        match method:
+    def _determine_action(self, params: RequestParameters) -> partial[Response]:
+        match params.method:
             case "POST":
-                action = partial(self.session.post, **kwargs)
+                action = partial(self.session.post, params.as_dict())
             case "GET":
-                action = partial(self.session.get, **kwargs)
+                action = partial(self.session.get, params.as_dict())
             case "PUT":
-                action = partial(self.session.put, **kwargs)
+                action = partial(self.session.put, params.as_dict())
             case "DELETE":
-                action = partial(self.session.delete, **kwargs)
+                action = partial(self.session.delete, params.as_dict())
         return action
 
     def _renew_session(self) -> None:
@@ -369,30 +344,13 @@ class ConnectionLive:
         in_testing_env = os.getenv("DSP_TOOLS_TESTING")  # set in .github/workflows/tests-on-push.yml
         return in_testing_env == "true"
 
-    def _log_request(
-        self,
-        method: str,
-        url: str,
-        data: dict[str, Any] | None,
-        timeout: int,
-        headers: dict[str, str] | None = None,
-        uploaded_file: str | None = None,
-    ) -> None:
-        headers = headers or {}
-        headers.update({k: str(v) for k, v in self.session.headers.items()})
-        headers = self._anonymize(headers)
-        data = self._anonymize(data)
+    def _log_request(self, params: RequestParameters) -> None:
         dumpobj = {
-            "HTTP request": method,
-            "url": url,
-            "headers": headers,
-            "timetout": timeout,
-            "payload": data,
-            "uploaded file": uploaded_file,
+            "HTTP request": params.method,
+            "url": params.url,
+            "headers": self._anonymize(dict(self.session.headers).update(params.headers or {})),
+            "timetout": params.timeout,
+            "payload": self._anonymize(params.data),
+            "uploaded file": params.files,
         }
         logger.debug(f"REQUEST: {json.dumps(dumpobj, cls=SetEncoder)}")
-
-    def _serialize_payload(self, payload: dict[str, Any] | None) -> bytes | None:
-        # If data is not encoded as bytes, issues can occur with non-ASCII characters,
-        # where the content-length of the request will turn out to be different from the actual length.
-        return json.dumps(payload, cls=SetEncoder, ensure_ascii=False).encode("utf-8") if payload else None

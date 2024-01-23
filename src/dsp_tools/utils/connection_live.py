@@ -298,10 +298,9 @@ class ConnectionLive:
             content = self._anonymize(response.json())
         except JSONDecodeError:
             content = {"content": response.text}
-        response_headers = self._anonymize(dict(response.headers))
         dumpobj = {
-            "status code": response.status_code,
-            "response headers": response_headers,
+            "status_code": response.status_code,
+            "headers": self._anonymize(dict(response.headers)),
             "content": content,
         }
         logger.debug(f"RESPONSE: {json.dumps(dumpobj)}")
@@ -334,13 +333,13 @@ class ConnectionLive:
 
     def _log_request(self, params: RequestParameters) -> None:
         dumpobj = {
-            "HTTP request": params.method,
+            "method": params.method,
             "url": params.url,
             "headers": self._anonymize(dict(self.session.headers) | (params.headers or {})),
             "timeout": params.timeout,
         }
         if params.data:
-            dumpobj["payload"] = self._anonymize(params.data)
+            dumpobj["data"] = self._anonymize(params.data)
         if params.files:
             dumpobj["files"] = params.files["file"][0]
         logger.debug(f"REQUEST: {json.dumps(dumpobj, cls=SetEncoder)}")

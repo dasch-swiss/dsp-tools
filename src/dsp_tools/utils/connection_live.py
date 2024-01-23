@@ -1,4 +1,5 @@
 import json
+import os
 import time
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -291,12 +292,15 @@ class ConnectionLive:
             self._log_response(response)
             if response.status_code == HTTP_OK:
                 return response
-            else:
+            elif not self._in_ci():
                 msg = f"Non-200 response code: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
                 print(f"{datetime.now()}: {msg}")
                 logger.error(msg)
                 time.sleep(2**i)
                 continue
+            else:
+                msg = "Permanently unable to execute the network action. See logs for more details."
+                raise PermanentConnectionError(msg)
 
         # after 7 vain attempts to create a response, try it a last time and let it escalate
         return action()
@@ -346,6 +350,11 @@ class ConnectionLive:
             return "*" * len(sensitive_info)
         else:
             return f"{sensitive_info[:unmasked_until]}[+{len(sensitive_info) - unmasked_until}]"
+
+    def _in_ci(self) -> bool:
+        # https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables
+        ci = os.getenv("GITHUB_ACTIONS")
+        return ci == "true"
 
     def _log_request(
         self,

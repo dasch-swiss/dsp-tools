@@ -86,6 +86,7 @@ class ConnectionLive:
             response = self.post(
                 route="/v2/authentication",
                 data={"email": email, "password": password},
+                timeout=10,
             )
         except PermanentConnectionError as e:
             raise UserError(err_msg) from e
@@ -336,7 +337,7 @@ class ConnectionLive:
             "HTTP request": params.method,
             "url": params.url,
             "headers": self._anonymize(dict(self.session.headers).update(params.headers or {})),
-            "timetout": params.timeout,
+            "timeout": params.timeout,
             "payload": self._anonymize(params.data),
             "uploaded file": params.files["file"][0] if params.files else None,
         }

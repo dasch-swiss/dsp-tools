@@ -1,4 +1,5 @@
 import json
+import os
 import time
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -14,8 +15,6 @@ from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.set_encoder import SetEncoder
 
 HTTP_OK = 200
-HTTP_SERVER_ERROR_LOWER = 500
-HTTP_SERVER_ERROR_UPPER = 599
 
 logger = get_logger(__name__)
 
@@ -283,25 +282,22 @@ class ConnectionLive:
             try:
                 response = action()
             except (TimeoutError, ReadTimeout, ReadTimeoutError):
-                self._log_and_sleep(reason="Timeout Error", retry_counter=i)
+                self._log_and_sleep(reason="Timeout Error", retry_counter=i, exc_info=True)
                 continue
             except (ConnectionError, RequestException):
                 self._renew_session()
-                self._log_and_sleep(reason="Connection Error raised", retry_counter=i)
+                self._log_and_sleep(reason="Connection Error raised", retry_counter=i, exc_info=True)
                 continue
 
             self._log_response(response)
-            if self._should_retry(response):
-                msg = f"Server unresponsive: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
-                print(f"{datetime.now()}: {msg}")
-                logger.error(msg)
-                time.sleep(2**i)
+            if response.status_code == HTTP_OK:
+                return response
+            elif not self._in_testing_environment():
+                self._log_and_sleep(reason="Non-200 response code", retry_counter=i, exc_info=False)
                 continue
-            elif response.status_code != HTTP_OK:
+            else:
                 msg = "Permanently unable to execute the network action. See logs for more details."
                 raise PermanentConnectionError(msg)
-            else:
-                return response
 
         # after 7 vain attempts to create a response, try it a last time and let it escalate
         return action()
@@ -311,10 +307,10 @@ class ConnectionLive:
         self.session = Session()
         self.session.headers["Authorization"] = f"Bearer {self.token}"
 
-    def _log_and_sleep(self, reason: str, retry_counter: int) -> None:
+    def _log_and_sleep(self, reason: str, retry_counter: int, exc_info: bool) -> None:
         msg = f"{reason}: Try reconnecting to DSP server, next attempt in {2 ** retry_counter} seconds..."
         print(f"{datetime.now()}: {msg}")
-        logger.exception(f"{msg} ({retry_counter=:})")
+        logger.error(f"{msg} ({retry_counter=:})", exc_info=exc_info)
         time.sleep(2**retry_counter)
 
     def _log_response(self, response: Response) -> None:
@@ -352,10 +348,9 @@ class ConnectionLive:
         else:
             return f"{sensitive_info[:unmasked_until]}[+{len(sensitive_info) - unmasked_until}]"
 
-    def _should_retry(self, response: Response) -> bool:
-        in_500_range = HTTP_SERVER_ERROR_LOWER <= response.status_code <= HTTP_SERVER_ERROR_UPPER
-        try_again_later = "try again later" in response.text
-        return try_again_later or in_500_range
+    def _in_testing_environment(self) -> bool:
+        in_testing_env = os.getenv("DSP_TOOLS_TESTING")  # set in .github/workflows/tests-on-push.yml
+        return in_testing_env == "true"
 
     def _log_request(
         self,

@@ -255,7 +255,7 @@ class ConnectionLive:
         Returns:
             the return value of action
         """
-        action = partial(self.session.request, params.as_dict())
+        action = partial(self.session.request, **params.as_dict())
         for i in range(7):
             try:
                 self._log_request(params)

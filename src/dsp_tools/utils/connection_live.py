@@ -4,7 +4,7 @@ import time
 from dataclasses import dataclass, field
 from datetime import datetime
 from importlib.metadata import version
-from typing import Any, Literal, Optional, cast
+from typing import Any, Callable, Literal, Optional, cast
 
 import regex
 from requests import JSONDecodeError, ReadTimeout, RequestException, Response, Session
@@ -281,18 +281,10 @@ class ConnectionLive:
         Returns:
             the return value of action
         """
-        match method:
-            case "POST":
-                action = lambda: self.session.post(**kwargs)  # noqa: E731
-            case "GET":
-                action = lambda: self.session.get(**kwargs)  # noqa: E731
-            case "PUT":
-                action = lambda: self.session.put(**kwargs)  # noqa: E731
-            case "DELETE":
-                action = lambda: self.session.delete(**kwargs)  # noqa: E731
+        action = self._determine_action(method, **kwargs)
         for i in range(7):
             try:
-                response = action()  # type: ignore[no-untyped-call]
+                response = action()
             except (TimeoutError, ReadTimeout, ReadTimeoutError):
                 self._log_and_sleep(reason="Timeout Error", retry_counter=i, exc_info=True)
                 continue
@@ -312,7 +304,30 @@ class ConnectionLive:
                 raise PermanentConnectionError(msg)
 
         # after 7 vain attempts to create a response, try it a last time and let it escalate
-        return action()  # type: ignore[no-untyped-call]
+        return action()
+
+    def _determine_action(
+        self, method: Literal["POST", "GET", "PUT", "DELETE"], **kwargs: Any
+    ) -> Callable[[], Response]:
+        match method:
+            case "POST":
+
+                def action() -> Response:
+                    return self.session.post(**kwargs)
+            case "GET":
+
+                def action() -> Response:
+                    return self.session.get(**kwargs)
+            case "PUT":
+
+                def action() -> Response:
+                    return self.session.put(**kwargs)
+            case "DELETE":
+
+                def action() -> Response:
+                    return self.session.delete(**kwargs)
+
+        return action
 
     def _renew_session(self) -> None:
         self.session.close()

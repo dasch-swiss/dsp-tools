@@ -38,7 +38,7 @@ class RequestParameters:
         # where the content-length of the request will turn out to be different from the actual length.
         return json.dumps(payload, cls=SetEncoder, ensure_ascii=False).encode("utf-8") if payload else None
 
-    def as_dict(self) -> dict[str, Any]:
+    def as_kwargs(self) -> dict[str, Any]:
         return {
             "method": self.method,
             "url": self.url,
@@ -256,7 +256,7 @@ class ConnectionLive:
         Returns:
             the return value of action
         """
-        action = partial(self.session.request, **params.as_dict())
+        action = partial(self.session.request, **params.as_kwargs())
         for i in range(7):
             try:
                 self._log_request(params)

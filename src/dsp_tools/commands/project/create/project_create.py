@@ -1,7 +1,6 @@
 """This module handles the ontology creation, update and upload to a DSP server. This includes the creation and update
 of the project, the creation of groups, users, lists, resource classes, properties and cardinalities."""
 
-import contextlib
 from pathlib import Path
 from typing import Any, Optional, Union, cast
 
@@ -16,7 +15,7 @@ from dsp_tools.commands.project.models.project import Project
 from dsp_tools.commands.project.models.propertyclass import PropertyClass
 from dsp_tools.commands.project.models.resourceclass import ResourceClass
 from dsp_tools.commands.project.models.user import User
-from dsp_tools.models.exceptions import BaseError, PermanentConnectionError, UserError
+from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.models.helpers import Cardinality, Context, DateTimeStamp
 from dsp_tools.models.langstring import LangString
 from dsp_tools.utils.connection import Connection
@@ -55,12 +54,11 @@ def _create_project_on_server(
     Returns:
         a tuple of the remote project and the success status (True if everything went smoothly, False otherwise)
     """
-    with contextlib.suppress(PermanentConnectionError):
-        # the normal, expected case is that this block fails
+    all_projects = Project.getAllProjects(con=con)
+    if shortcode in [proj.shortcode for proj in all_projects]:
         project_local = Project(con=con, shortcode=shortcode)
         project_remote: Project = project_local.read()
-        proj_designation = f"'{project_remote.shortname}' ({project_remote.shortcode})"
-        msg = f"Project {proj_designation} already exists on the DSP server. Updating it..."
+        msg = f"A project with shortcode {shortcode} already exists on the DSP server. Updating it..."
         print(f"    WARNING: {msg}")
         logger.warning(msg)
         # try to update the basic info
@@ -404,9 +402,8 @@ def _create_users(
         username = json_user_definition["username"]
 
         # skip the user if he already exists
-        with contextlib.suppress(BaseError):
-            # the normal case is that this block fails
-            User(con, email=json_user_definition["email"]).read()
+        all_users = User.getAllUsers(con)
+        if json_user_definition["email"] in [user.email for user in all_users]:
             print(f"    WARNING: User '{username}' already exists on the DSP server. Skipping...")
             logger.warning(f"User '{username}' already exists on the DSP server. Skipping...")
             overall_success = False

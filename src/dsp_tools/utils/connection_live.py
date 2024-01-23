@@ -292,7 +292,7 @@ class ConnectionLive:
             self._log_response(response)
             if response.status_code == HTTP_OK:
                 return response
-            elif not self._in_ci():
+            elif not self._in_testing_environment():
                 msg = f"Non-200 response code: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
                 print(f"{datetime.now()}: {msg}")
                 logger.error(msg)
@@ -351,10 +351,9 @@ class ConnectionLive:
         else:
             return f"{sensitive_info[:unmasked_until]}[+{len(sensitive_info) - unmasked_until}]"
 
-    def _in_ci(self) -> bool:
-        # https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables
-        ci = os.getenv("GITHUB_ACTIONS")
-        return ci == "true"
+    def _in_testing_environment(self) -> bool:
+        in_testing_env = os.getenv("DSP_TOOLS_TESTING")  # set in .github/workflows/tests-on-push.yml
+        return in_testing_env == "true"
 
     def _log_request(
         self,

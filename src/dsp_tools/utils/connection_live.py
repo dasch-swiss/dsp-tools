@@ -338,7 +338,9 @@ class ConnectionLive:
             "url": params.url,
             "headers": self._anonymize(dict(self.session.headers).update(params.headers or {})),
             "timeout": params.timeout,
-            "payload": self._anonymize(params.data),
-            "uploaded file": params.files["file"][0] if params.files else None,
         }
+        if params.data:
+            dumpobj["payload"] = self._anonymize(params.data)
+        if params.files:
+            dumpobj["files"] = params.files["file"][0]
         logger.debug(f"REQUEST: {json.dumps(dumpobj, cls=SetEncoder)}")

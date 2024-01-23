@@ -336,7 +336,7 @@ class ConnectionLive:
         dumpobj = {
             "HTTP request": params.method,
             "url": params.url,
-            "headers": self._anonymize(dict(self.session.headers).update(params.headers or {})),
+            "headers": self._anonymize(dict(self.session.headers) | (params.headers or {})),
             "timeout": params.timeout,
         }
         if params.data:

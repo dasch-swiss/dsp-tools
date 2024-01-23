@@ -39,8 +39,6 @@ class ConnectionLive:
 
     def __post_init__(self) -> None:
         self.session.headers["User-Agent"] = f'DSP-TOOLS/{version("dsp-tools")}'
-        if self.server.endswith("/"):
-            self.server = self.server[:-1]
 
     def login(self, email: str, password: str) -> None:
         """
@@ -372,7 +370,6 @@ class ConnectionLive:
         url: str,
         data: dict[str, Any] | None,
         timeout: int,
-        params: dict[str, Any] | None = None,
         headers: dict[str, str] | None = None,
         uploaded_file: str | None = None,
     ) -> None:

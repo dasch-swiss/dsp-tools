@@ -19,9 +19,6 @@ class XmlAllow:
             node: The DOM node to be processed (represents a single right in a permission set)
             project_context: Context for DOM node traversal
 
-        Returns:
-            None
-
         Raises:
             XmlUploadError: If an upload fails
         """

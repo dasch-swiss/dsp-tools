@@ -6,7 +6,7 @@ from lxml import etree
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.xmlbitstream import XMLBitstream
 from dsp_tools.commands.xmlupload.models.xmlproperty import XMLProperty
-from dsp_tools.models.helpers import DateTimeStamp
+from dsp_tools.models.datetimestamp import DateTimeStamp
 
 
 @dataclass(frozen=True)
@@ -56,9 +56,6 @@ class XMLResource:
         Args:
             node: The DOM node to be processed representing a resource (which is a child of the <knora> element)
             default_ontology: The default ontology (given in the attribute default-ontology of the <knora> element)
-
-        Returns:
-            None
         """
         self.res_id = node.attrib["id"]
         self.iri = node.attrib.get("iri")
@@ -92,6 +89,9 @@ class XMLResource:
         """
         Get a list of all XMLProperties that have an outgoing link to another resource, be it a resptr-prop link
         or a standoff link in a text.
+
+        Returns:
+            list of all XMLProperties
         """
         link_properties: list[XMLProperty] = []
         for prop in self.properties:

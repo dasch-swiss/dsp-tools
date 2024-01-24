@@ -141,14 +141,13 @@ class ConnectionLive:
         Raises:
             PermanentConnectionError: if the server returns a permanent error
         """
-        if not route.startswith("/"):
-            route = f"/{route}"
-        url = self.server + route
         if data:
             headers = headers or {}
             if "Content-Type" not in headers:
                 headers["Content-Type"] = "application/json; charset=UTF-8"
-        params = RequestParameters("POST", url, timeout or self.timeout_put_post, data, headers, files)
+        params = RequestParameters(
+            "POST", self._make_url(route), timeout or self.timeout_put_post, data, headers, files
+        )
         response = self._try_network_action(params)
         return cast(dict[str, Any], response.json())
 
@@ -170,10 +169,7 @@ class ConnectionLive:
         Raises:
             PermanentConnectionError: if the server returns a permanent error
         """
-        if not route.startswith("/"):
-            route = f"/{route}"
-        url = self.server + route
-        params = RequestParameters("GET", url, self.timeout_get_delete, headers=headers)
+        params = RequestParameters("GET", self._make_url(route), self.timeout_get_delete, headers=headers)
         response = self._try_network_action(params)
         return cast(dict[str, Any], response.json())
 
@@ -197,14 +193,11 @@ class ConnectionLive:
         Raises:
             PermanentConnectionError: if the server returns a permanent error
         """
-        if not route.startswith("/"):
-            route = f"/{route}"
-        url = self.server + route
         if data:
             headers = headers or {}
             if "Content-Type" not in headers:
                 headers["Content-Type"] = "application/json; charset=UTF-8"
-        params = RequestParameters("PUT", url, self.timeout_put_post, data, headers)
+        params = RequestParameters("PUT", self._make_url(route), self.timeout_put_post, data, headers)
         response = self._try_network_action(params)
         return cast(dict[str, Any], response.json())
 
@@ -226,12 +219,14 @@ class ConnectionLive:
         Raises:
             PermanentConnectionError: if the server returns a permanent error
         """
-        if not route.startswith("/"):
-            route = f"/{route}"
-        url = self.server + route
-        params = RequestParameters("DELETE", url, self.timeout_get_delete, headers=headers)
+        params = RequestParameters("DELETE", self._make_url(route), self.timeout_get_delete, headers=headers)
         response = self._try_network_action(params)
         return cast(dict[str, Any], response.json())
+
+    def _make_url(self, route: str) -> str:
+        if not route.startswith("/"):
+            route = f"/{route}"
+        return self.server + route
 
     def _try_network_action(self, params: RequestParameters) -> Response:
         """

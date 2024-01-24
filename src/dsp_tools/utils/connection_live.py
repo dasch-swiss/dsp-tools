@@ -307,12 +307,12 @@ class ConnectionLive:
             if match := regex.search(r"^Bearer (.+)", data["Authorization"]):
                 data["Authorization"] = f"Bearer {self._mask(match.group(1))}"
         if "password" in data:
-            data["password"] = self._mask(data["password"])
+            data["password"] = "*" * len(data["password"])
         return data
 
     def _mask(self, sensitive_info: str) -> str:
         unmasked_until = 5
-        if len(sensitive_info) <= unmasked_until:
+        if len(sensitive_info) <= unmasked_until * 2:
             return "*" * len(sensitive_info)
         else:
             return f"{sensitive_info[:unmasked_until]}[+{len(sensitive_info) - unmasked_until}]"

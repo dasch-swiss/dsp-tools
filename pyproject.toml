@@ -73,7 +73,6 @@ check-links = """
 """
 darglint = """
     find . -name "*.py" \
-    -not -path "./src/dsp_tools/models/*" \
     -not -path "./src/dsp_tools/commands/project/models/*" \
     -not -path "./.git/*" \
     -not -path "./.venv/*" \

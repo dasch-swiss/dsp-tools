@@ -23,11 +23,14 @@ class DateTimeStamp:
 
     def __init__(self, val: Any):
         """
-        The constructor works for different inputs:
-        - a string
-        - an instance of "DateTimeStamp"
-        - json-ld construct of the form { "@type": "xsd:dateTimeStamp", "@value": "date-str" }
-        :param val: xsd:dateTimeStamp as string, instance of "DateTimeStamp" or json-ld construct
+        The constructor works for different inputs: a string, an instance of "DateTimeStamp",
+        or a JSON-LD construct of the form { "@type": "xsd:dateTimeStamp", "@value": "date-str" }
+
+        Args:
+            val: xsd:dateTimeStamp as string, instance of "DateTimeStamp" or json-ld construct
+
+        Raises:
+            BaseError: if the JSON-LD construct is not correct
         """
         if isinstance(val, str):
             if not regex.search(self._validation_regex, val):

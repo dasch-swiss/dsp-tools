@@ -6,7 +6,7 @@ from lxml import etree
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.xmlbitstream import XMLBitstream
 from dsp_tools.commands.xmlupload.models.xmlproperty import XMLProperty
-from dsp_tools.models.helpers import DateTimeStamp
+from dsp_tools.models.datetimestamp import DateTimeStamp
 
 
 @dataclass(frozen=True)

@@ -242,6 +242,7 @@ class ConnectionLive:
             params: keyword arguments for the HTTP request
 
         Raises:
+            BadCredentialsError: if the server returns a 401 status code on the route /v2/authentication
             PermanentConnectionError: if the server returns a permanent error
             unexpected exceptions: if the action fails with an unexpected exception
 

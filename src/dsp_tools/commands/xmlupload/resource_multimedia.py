@@ -7,7 +7,7 @@ from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.sipi import Sipi
 from dsp_tools.commands.xmlupload.models.xmlbitstream import XMLBitstream
 from dsp_tools.commands.xmlupload.models.xmlresource import BitstreamInfo, XMLResource
-from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import PermanentConnectionError
 from dsp_tools.utils.create_logger import get_logger
 
 logger = get_logger(__name__)
@@ -91,7 +91,7 @@ def _handle_media_upload(
         print(f"{datetime.now()}: {msg}")
         logger.info(msg)
         return resource_bitstream
-    except BaseError as err:
+    except PermanentConnectionError as err:
         msg = f"Unable to upload file '{bitstream.value}' of resource '{resource.label}' ({resource.res_id})"
         print(f"{datetime.now()}: WARNING: {msg}: {err.message}")
         logger.warning(msg, exc_info=True)
@@ -108,7 +108,7 @@ def _upload_bitstream(
     This function uploads a specified bitstream file to SIPI and then returns the file information from SIPI.
 
     Args:
-        resource: resource with that has a bitstream
+        resource: resource that has a bitstream
         sipi_server: server to upload
         imgdir: directory of the file
         permissions_lookup: dictionary that contains the permission name as string and the corresponding Python object

@@ -27,9 +27,9 @@ from __future__ import annotations
 from typing import Any, Optional, Union
 from urllib.parse import quote_plus
 
+from dsp_tools.commands.project.models.helpers import Actions
 from dsp_tools.commands.project.models.model import Model
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.helpers import Actions
 from dsp_tools.models.langstring import LangString, Languages
 from dsp_tools.utils.connection import Connection
 

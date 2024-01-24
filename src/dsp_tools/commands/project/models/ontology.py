@@ -32,12 +32,14 @@ from urllib.parse import quote_plus
 
 import regex
 
+from dsp_tools.commands.project.models.context import Context
+from dsp_tools.commands.project.models.helpers import Actions, WithId
 from dsp_tools.commands.project.models.model import Model
 from dsp_tools.commands.project.models.project import Project
 from dsp_tools.commands.project.models.propertyclass import PropertyClass
 from dsp_tools.commands.project.models.resourceclass import ResourceClass
+from dsp_tools.models.datetimestamp import DateTimeStamp
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.helpers import Actions, Context, DateTimeStamp, WithId
 from dsp_tools.utils.connection import Connection
 
 

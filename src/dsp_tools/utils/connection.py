@@ -4,12 +4,6 @@ from typing import Any, Protocol
 class Connection(Protocol):
     """
     Protocol class/interface for the connection object.
-
-    Exposes:
-        - get
-        - put
-        - post
-        - delete
     """
 
     def get(
@@ -17,13 +11,7 @@ class Connection(Protocol):
         route: str,
         headers: dict[str, str] | None = None,
     ) -> dict[str, Any]:
-        """
-        Make a HTTP GET request to the server to which this connection has been established.
-
-        Args:
-            route: route that will be called on the server
-            headers: headers for the HTTP request
-        """
+        pass
 
     def put(
         self,
@@ -31,14 +19,7 @@ class Connection(Protocol):
         data: dict[str, Any] | None = None,
         headers: dict[str, str] | None = None,
     ) -> dict[str, Any]:
-        """
-        Make a HTTP GET request to the server to which this connection has been established.
-
-        Args:
-            route: route that will be called on the server
-            data: payload of the HTTP request
-            headers: headers for the HTTP request
-        """
+        pass
 
     def post(
         self,
@@ -48,51 +29,20 @@ class Connection(Protocol):
         headers: dict[str, str] | None = None,
         timeout: int | None = None,
     ) -> dict[str, Any]:
-        """
-        Make a HTTP POST request to the server to which this connection has been established.
-
-        Args:
-            route: route that will be called on the server
-            data: payload of the HTTP request
-            files: files to be uploaded, if any
-            headers: headers for the HTTP request
-            timeout: timeout of the HTTP request, or None if the default should be used
-        """
+        pass
 
     def delete(
         self,
         route: str,
         headers: dict[str, str] | None = None,
     ) -> dict[str, Any]:
-        """
-        Make a HTTP GET request to the server to which this connection has been established.
-
-        Args:
-            route: route that will be called on the server
-            headers: headers for the HTTP request
-        """
+        pass
 
     def get_token(self) -> str:
-        """
-        Return the token of this connection.
-
-        Raises:
-            BaseError: if no token is available
-        """
+        pass
 
     def login(self, email: str, password: str) -> None:
-        """
-        Retrieve a session token and store it as class attribute.
-
-        Args:
-            email: email address of the user
-            password: password of the user
-
-        Raises:
-            BaseError: if DSP-API returns no token with the provided user credentials
-        """
+        pass
 
     def logout(self) -> None:
-        """
-        Delete the token on the server and in this class.
-        """
+        pass

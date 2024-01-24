@@ -1,9 +1,11 @@
 import json
+import os
 import time
 from dataclasses import dataclass, field
 from datetime import datetime
+from functools import partial
 from importlib.metadata import version
-from typing import Any, Callable, Optional, cast
+from typing import Any, Literal, Optional, cast
 
 import regex
 from requests import JSONDecodeError, ReadTimeout, RequestException, Response, Session
@@ -14,10 +16,37 @@ from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.set_encoder import SetEncoder
 
 HTTP_OK = 200
-HTTP_SERVER_ERROR_LOWER = 500
-HTTP_SERVER_ERROR_UPPER = 599
 
 logger = get_logger(__name__)
+
+
+@dataclass
+class RequestParameters:
+    method: Literal["POST", "GET", "PUT", "DELETE"]
+    url: str
+    timeout: int
+    data: dict[str, Any] | None = None
+    data_serialized: bytes | None = field(init=False, default=None)
+    headers: dict[str, str] | None = None
+    files: dict[str, tuple[str, Any]] | None = None
+
+    def __post_init__(self) -> None:
+        self.data_serialized = self._serialize_payload(self.data)
+
+    def _serialize_payload(self, payload: dict[str, Any] | None) -> bytes | None:
+        # If data is not encoded as bytes, issues can occur with non-ASCII characters,
+        # where the content-length of the request will turn out to be different from the actual length.
+        return json.dumps(payload, cls=SetEncoder, ensure_ascii=False).encode("utf-8") if payload else None
+
+    def as_kwargs(self) -> dict[str, Any]:
+        return {
+            "method": self.method,
+            "url": self.url,
+            "timeout": self.timeout,
+            "data": self.data_serialized,
+            "headers": self.headers,
+            "files": self.files,
+        }
 
 
 @dataclass
@@ -59,6 +88,7 @@ class ConnectionLive:
             response = self.post(
                 route="/v2/authentication",
                 data={"email": email, "password": password},
+                timeout=10,
             )
         except PermanentConnectionError as e:
             raise UserError(err_msg) from e
@@ -98,7 +128,7 @@ class ConnectionLive:
         timeout: int | None = None,
     ) -> dict[str, Any]:
         """
-        Make a HTTP POST request to the server to which this connection has been established.
+        Make an HTTP POST request to the server to which this connection has been established.
 
         Args:
             route: route that will be called on the server
@@ -113,32 +143,14 @@ class ConnectionLive:
         Raises:
             PermanentConnectionError: if the server returns a permanent error
         """
-        if not route.startswith("/"):
-            route = f"/{route}"
-        url = self.server + route
         if data:
             headers = headers or {}
             if "Content-Type" not in headers:
                 headers["Content-Type"] = "application/json; charset=UTF-8"
-        timeout = timeout or self.timeout_put_post
-
-        self._log_request(
-            method="POST",
-            url=url,
-            data=data,
-            uploaded_file=files["file"][0] if files else None,
-            headers=headers,
-            timeout=timeout,
+        params = RequestParameters(
+            "POST", self._make_url(route), timeout or self.timeout_put_post, data, headers, files
         )
-        response = self._try_network_action(
-            lambda: self.session.post(
-                url=url,
-                headers=headers,
-                timeout=timeout,
-                data=self._serialize_payload(data),
-                files=files,
-            )
-        )
+        response = self._try_network_action(params)
         return cast(dict[str, Any], response.json())
 
     def get(
@@ -147,7 +159,7 @@ class ConnectionLive:
         headers: dict[str, str] | None = None,
     ) -> dict[str, Any]:
         """
-        Make a HTTP GET request to the server to which this connection has been established.
+        Make an HTTP GET request to the server to which this connection has been established.
 
         Args:
             route: route that will be called on the server
@@ -159,25 +171,8 @@ class ConnectionLive:
         Raises:
             PermanentConnectionError: if the server returns a permanent error
         """
-        if not route.startswith("/"):
-            route = f"/{route}"
-        url = self.server + route
-        timeout = self.timeout_get_delete
-
-        self._log_request(
-            method="GET",
-            url=url,
-            data=None,
-            headers=headers,
-            timeout=timeout,
-        )
-        response = self._try_network_action(
-            lambda: self.session.get(
-                url=url,
-                headers=headers,
-                timeout=timeout,
-            )
-        )
+        params = RequestParameters("GET", self._make_url(route), self.timeout_get_delete, headers=headers)
+        response = self._try_network_action(params)
         return cast(dict[str, Any], response.json())
 
     def put(
@@ -187,7 +182,7 @@ class ConnectionLive:
         headers: dict[str, str] | None = None,
     ) -> dict[str, Any]:
         """
-        Make a HTTP GET request to the server to which this connection has been established.
+        Make an HTTP GET request to the server to which this connection has been established.
 
         Args:
             route: route that will be called on the server
@@ -200,30 +195,12 @@ class ConnectionLive:
         Raises:
             PermanentConnectionError: if the server returns a permanent error
         """
-        if not route.startswith("/"):
-            route = f"/{route}"
-        url = self.server + route
         if data:
             headers = headers or {}
             if "Content-Type" not in headers:
                 headers["Content-Type"] = "application/json; charset=UTF-8"
-        timeout = self.timeout_put_post
-
-        self._log_request(
-            method="PUT",
-            url=url,
-            data=data,
-            headers=headers,
-            timeout=timeout,
-        )
-        response = self._try_network_action(
-            lambda: self.session.put(
-                url=url,
-                headers=headers,
-                data=self._serialize_payload(data),
-                timeout=timeout,
-            )
-        )
+        params = RequestParameters("PUT", self._make_url(route), self.timeout_put_post, data, headers)
+        response = self._try_network_action(params)
         return cast(dict[str, Any], response.json())
 
     def delete(
@@ -232,7 +209,7 @@ class ConnectionLive:
         headers: dict[str, str] | None = None,
     ) -> dict[str, Any]:
         """
-        Make a HTTP GET request to the server to which this connection has been established.
+        Make an HTTP GET request to the server to which this connection has been established.
 
         Args:
             route: route that will be called on the server
@@ -244,35 +221,25 @@ class ConnectionLive:
         Raises:
             PermanentConnectionError: if the server returns a permanent error
         """
-        if not route.startswith("/"):
-            route = f"/{route}"
-        url = self.server + route
-        timeout = self.timeout_get_delete
-
-        self._log_request(
-            method="DELETE",
-            url=url,
-            data=None,
-            headers=headers,
-            timeout=timeout,
-        )
-        response = self.session.delete(
-            url=url,
-            headers=headers,
-            timeout=timeout,
-        )
+        params = RequestParameters("DELETE", self._make_url(route), self.timeout_get_delete, headers=headers)
+        response = self._try_network_action(params)
         return cast(dict[str, Any], response.json())
 
-    def _try_network_action(self, action: Callable[[], Response]) -> Response:
+    def _make_url(self, route: str) -> str:
+        if not route.startswith("/"):
+            route = f"/{route}"
+        return self.server + route
+
+    def _try_network_action(self, params: RequestParameters) -> Response:
         """
-        Try 7 times to execute a HTTP request.
+        Try 7 times to execute an HTTP request.
         If a timeout error, a ConnectionError, or a requests.RequestException occur,
         or if the response indicates that there is a non-permanent server-side problem,
         this function waits and retries the HTTP request.
         The waiting times are 1, 2, 4, 8, 16, 32, 64 seconds.
 
         Args:
-            action: a lambda with the code to be executed, or a function
+            params: keyword arguments for the HTTP request
 
         Raises:
             PermanentConnectionError: if the server returns a permanent error
@@ -281,39 +248,41 @@ class ConnectionLive:
         Returns:
             the return value of action
         """
+        action = partial(self.session.request, **params.as_kwargs())
         for i in range(7):
             try:
+                self._log_request(params)
                 response = action()
             except (TimeoutError, ReadTimeout, ReadTimeoutError):
-                self._log_and_sleep(reason="Timeout Error", retry_counter=i)
+                self._log_and_sleep(reason="Timeout Error", retry_counter=i, exc_info=True)
                 continue
             except (ConnectionError, RequestException):
-                self.session.close()
-                self.session = Session()
-                self.session.headers["Authorization"] = f"Bearer {self.token}"
-                self._log_and_sleep(reason="Connection Error raised", retry_counter=i)
+                self._renew_session()
+                self._log_and_sleep(reason="Connection Error raised", retry_counter=i, exc_info=True)
                 continue
 
             self._log_response(response)
-            if self._should_retry(response):
-                msg = f"Server unresponsive: Try reconnecting to DSP server, next attempt in {2 ** i} seconds..."
-                print(f"{datetime.now()}: {msg}")
-                logger.error(msg)
-                time.sleep(2**i)
+            if response.status_code == HTTP_OK:
+                return response
+            elif not self._in_testing_environment():
+                self._log_and_sleep(reason="Non-200 response code", retry_counter=i, exc_info=False)
                 continue
-            elif response.status_code != HTTP_OK:
+            else:
                 msg = "Permanently unable to execute the network action. See logs for more details."
                 raise PermanentConnectionError(msg)
-            else:
-                return response
 
         # after 7 vain attempts to create a response, try it a last time and let it escalate
         return action()
 
-    def _log_and_sleep(self, reason: str, retry_counter: int) -> None:
+    def _renew_session(self) -> None:
+        self.session.close()
+        self.session = Session()
+        self.session.headers["Authorization"] = f"Bearer {self.token}"
+
+    def _log_and_sleep(self, reason: str, retry_counter: int, exc_info: bool) -> None:
         msg = f"{reason}: Try reconnecting to DSP server, next attempt in {2 ** retry_counter} seconds..."
         print(f"{datetime.now()}: {msg}")
-        logger.exception(f"{msg} ({retry_counter=:})")
+        logger.error(f"{msg} ({retry_counter=:})", exc_info=exc_info)
         time.sleep(2**retry_counter)
 
     def _log_response(self, response: Response) -> None:
@@ -321,10 +290,9 @@ class ConnectionLive:
             content = self._anonymize(response.json())
         except JSONDecodeError:
             content = {"content": response.text}
-        response_headers = self._anonymize(dict(response.headers))
         dumpobj = {
-            "status code": response.status_code,
-            "response headers": response_headers,
+            "status_code": response.status_code,
+            "headers": self._anonymize(dict(response.headers)),
             "content": content,
         }
         logger.debug(f"RESPONSE: {json.dumps(dumpobj)}")
@@ -341,45 +309,29 @@ class ConnectionLive:
             if match := regex.search(r"^Bearer (.+)", data["Authorization"]):
                 data["Authorization"] = f"Bearer {self._mask(match.group(1))}"
         if "password" in data:
-            data["password"] = self._mask(data["password"])
+            data["password"] = "*" * len(data["password"])
         return data
 
     def _mask(self, sensitive_info: str) -> str:
         unmasked_until = 5
-        if len(sensitive_info) <= unmasked_until:
+        if len(sensitive_info) <= unmasked_until * 2:
             return "*" * len(sensitive_info)
         else:
             return f"{sensitive_info[:unmasked_until]}[+{len(sensitive_info) - unmasked_until}]"
 
-    def _should_retry(self, response: Response) -> bool:
-        in_500_range = HTTP_SERVER_ERROR_LOWER <= response.status_code <= HTTP_SERVER_ERROR_UPPER
-        try_again_later = "try again later" in response.text
-        return try_again_later or in_500_range
+    def _in_testing_environment(self) -> bool:
+        in_testing_env = os.getenv("DSP_TOOLS_TESTING")  # set in .github/workflows/tests-on-push.yml
+        return in_testing_env == "true"
 
-    def _log_request(
-        self,
-        method: str,
-        url: str,
-        data: dict[str, Any] | None,
-        timeout: int,
-        headers: dict[str, str] | None = None,
-        uploaded_file: str | None = None,
-    ) -> None:
-        headers = headers or {}
-        headers.update({k: str(v) for k, v in self.session.headers.items()})
-        headers = self._anonymize(headers)
-        data = self._anonymize(data)
+    def _log_request(self, params: RequestParameters) -> None:
         dumpobj = {
-            "HTTP request": method,
-            "url": url,
-            "headers": headers,
-            "timetout": timeout,
-            "payload": data,
-            "uploaded file": uploaded_file,
+            "method": params.method,
+            "url": params.url,
+            "headers": self._anonymize(dict(self.session.headers) | (params.headers or {})),
+            "timeout": params.timeout,
         }
+        if params.data:
+            dumpobj["data"] = self._anonymize(params.data)
+        if params.files:
+            dumpobj["files"] = params.files["file"][0]
         logger.debug(f"REQUEST: {json.dumps(dumpobj, cls=SetEncoder)}")
-
-    def _serialize_payload(self, payload: dict[str, Any] | None) -> bytes | None:
-        # If data is not encoded as bytes, issues can occur with non-ASCII characters,
-        # where the content-length of the request will turn out to be different from the actual length.
-        return json.dumps(payload, cls=SetEncoder, ensure_ascii=False).encode("utf-8") if payload else None

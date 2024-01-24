@@ -126,7 +126,7 @@ class ConnectionLive:
         timeout: int | None = None,
     ) -> dict[str, Any]:
         """
-        Make a HTTP POST request to the server to which this connection has been established.
+        Make an HTTP POST request to the server to which this connection has been established.
 
         Args:
             route: route that will be called on the server
@@ -157,7 +157,7 @@ class ConnectionLive:
         headers: dict[str, str] | None = None,
     ) -> dict[str, Any]:
         """
-        Make a HTTP GET request to the server to which this connection has been established.
+        Make an HTTP GET request to the server to which this connection has been established.
 
         Args:
             route: route that will be called on the server
@@ -180,7 +180,7 @@ class ConnectionLive:
         headers: dict[str, str] | None = None,
     ) -> dict[str, Any]:
         """
-        Make a HTTP GET request to the server to which this connection has been established.
+        Make an HTTP GET request to the server to which this connection has been established.
 
         Args:
             route: route that will be called on the server
@@ -207,7 +207,7 @@ class ConnectionLive:
         headers: dict[str, str] | None = None,
     ) -> dict[str, Any]:
         """
-        Make a HTTP GET request to the server to which this connection has been established.
+        Make an HTTP GET request to the server to which this connection has been established.
 
         Args:
             route: route that will be called on the server
@@ -230,7 +230,7 @@ class ConnectionLive:
 
     def _try_network_action(self, params: RequestParameters) -> Response:
         """
-        Try 7 times to execute a HTTP request.
+        Try 7 times to execute an HTTP request.
         If a timeout error, a ConnectionError, or a requests.RequestException occur,
         or if the response indicates that there is a non-permanent server-side problem,
         this function waits and retries the HTTP request.

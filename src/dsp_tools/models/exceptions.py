@@ -43,9 +43,7 @@ class InternalError(BaseError):
 
 
 class RetryError(BaseError):
-    """
-    A class for errors where the user should try again later.
-    """
+    """A class for errors where the user should try again later."""
 
     def __init__(self, custom_msg: str | None = None, keep_default_msg: bool = True) -> None:
         default_msg = (
@@ -68,9 +66,7 @@ class RetryError(BaseError):
 
 
 class InputError(BaseError):
-    """
-    Class for errors that is called when the user input is invalid.
-    """
+    """Class for errors that is called when the user input is invalid."""
 
 
 class UserError(BaseError):
@@ -83,14 +79,7 @@ class UserError(BaseError):
 
 
 class PermanentConnectionError(BaseError):
-    """
-    This error is raised when all attempts to reconnect to DSP have failed.
-
-    Attributes:
-        message: A message that describes the error
-    """
-
-    message: str
+    """This error is raised when all attempts to reconnect to DSP have failed."""
 
 
 class BadCredentialsError(PermanentConnectionError):
@@ -98,14 +87,4 @@ class BadCredentialsError(PermanentConnectionError):
 
 
 class XmlUploadError(BaseError):
-    """
-    Represents an error raised in the context of the XML import.
-    """
-
-    _message: str
-
-    def __init__(self, msg: str):
-        self._message = msg
-
-    def __str__(self) -> str:
-        return f"XML-ERROR: {self._message}"
+    """Represents an error raised in the context of the xmlupload."""

@@ -148,9 +148,7 @@ class ConnectionLive:
             headers = headers or {}
             if "Content-Type" not in headers:
                 headers["Content-Type"] = "application/json; charset=UTF-8"
-        timeout = timeout or self.timeout_put_post
-
-        params = RequestParameters("POST", url, timeout, data, headers, files)
+        params = RequestParameters("POST", url, timeout or self.timeout_put_post, data, headers, files)
         response = self._try_network_action(params)
         return cast(dict[str, Any], response.json())
 
@@ -175,8 +173,7 @@ class ConnectionLive:
         if not route.startswith("/"):
             route = f"/{route}"
         url = self.server + route
-        timeout = self.timeout_get_delete
-        params = RequestParameters("GET", url, timeout, headers=headers)
+        params = RequestParameters("GET", url, self.timeout_get_delete, headers=headers)
         response = self._try_network_action(params)
         return cast(dict[str, Any], response.json())
 
@@ -207,8 +204,7 @@ class ConnectionLive:
             headers = headers or {}
             if "Content-Type" not in headers:
                 headers["Content-Type"] = "application/json; charset=UTF-8"
-        timeout = self.timeout_put_post
-        params = RequestParameters("PUT", url, timeout, data, headers)
+        params = RequestParameters("PUT", url, self.timeout_put_post, data, headers)
         response = self._try_network_action(params)
         return cast(dict[str, Any], response.json())
 
@@ -233,8 +229,7 @@ class ConnectionLive:
         if not route.startswith("/"):
             route = f"/{route}"
         url = self.server + route
-        timeout = self.timeout_get_delete
-        params = RequestParameters("DELETE", url, timeout, headers=headers)
+        params = RequestParameters("DELETE", url, self.timeout_get_delete, headers=headers)
         response = self._try_network_action(params)
         return cast(dict[str, Any], response.json())
 

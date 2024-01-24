@@ -104,6 +104,7 @@ class ConnectionLive:
         if self.token:
             self.delete(route="/v2/authentication")
             self.token = None
+            del self.session.headers["Authorization"]
 
     def get_token(self) -> str:
         """

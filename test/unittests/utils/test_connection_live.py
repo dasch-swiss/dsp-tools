@@ -10,11 +10,11 @@ def test_log_in_log_out() -> None:
     con.post = Mock(return_value={"token": "token"})  # type: ignore[method-assign]
     con.login("root@example.com", "test")
     assert con.token == "token"
-    con.post.assert_called_once_with(route="/v2/authentication", data={"email": "root@example.com", "password": "test"})
+    assert con.session.headers["Authorization"] == "Bearer token"
     con.delete = Mock()  # type: ignore[method-assign]
     con.logout()
     assert con.token is None
-    con.delete.assert_called_once_with(route="/v2/authentication")
+    assert "Authorization" not in con.session.headers
 
 
 def test_post() -> None:

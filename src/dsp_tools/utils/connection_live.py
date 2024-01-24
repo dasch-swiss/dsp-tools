@@ -11,11 +11,12 @@ import regex
 from requests import JSONDecodeError, ReadTimeout, RequestException, Response, Session
 from urllib3.exceptions import ReadTimeoutError
 
-from dsp_tools.models.exceptions import BaseError, PermanentConnectionError, UserError
+from dsp_tools.models.exceptions import BadCredentialsError, BaseError, PermanentConnectionError, UserError
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.set_encoder import SetEncoder
 
 HTTP_OK = 200
+HTTP_UNAUTHORIZED = 401
 
 logger = get_logger(__name__)
 
@@ -83,17 +84,18 @@ class ConnectionLive:
         Raises:
             UserError: if DSP-API returns no token with the provided user credentials
         """
-        err_msg = f"Username and/or password are not valid on server '{self.server}'"
         try:
             response = self.post(
                 route="/v2/authentication",
                 data={"email": email, "password": password},
                 timeout=10,
             )
+        except BadCredentialsError:
+            raise UserError(f"Username and/or password are not valid on server '{self.server}'") from None
         except PermanentConnectionError as e:
-            raise UserError(err_msg) from e
+            raise UserError(e.message) from None
         if not response.get("token"):
-            raise UserError(err_msg)
+            raise UserError("Unable to retrieve a token from the server with the provided credentials.")
         self.token = response["token"]
         self.session.headers["Authorization"] = f"Bearer {self.token}"
 
@@ -243,6 +245,7 @@ class ConnectionLive:
             params: keyword arguments for the HTTP request
 
         Raises:
+            BadCredentialsError: if the server returns a 401 status code on the route /v2/authentication
             PermanentConnectionError: if the server returns a permanent error
             unexpected exceptions: if the action fails with an unexpected exception
 
@@ -265,6 +268,8 @@ class ConnectionLive:
             self._log_response(response)
             if response.status_code == HTTP_OK:
                 return response
+            elif "v2/authentication" in params.url and response.status_code == HTTP_UNAUTHORIZED:
+                raise BadCredentialsError("Bad credentials")
             elif not self._in_testing_environment():
                 self._log_and_sleep(reason="Non-200 response code", retry_counter=i, exc_info=False)
                 continue

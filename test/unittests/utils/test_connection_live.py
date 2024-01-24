@@ -8,7 +8,7 @@ def test_anonymize_different_keys() -> None:
     assert con._anonymize({"token": "uk7m20-8gqn8"}) == {"token": "uk7m2[+7]"}
     assert con._anonymize({"Set-Cookie": "uk7m20-8gqn8"}) == {"Set-Cookie": "uk7m2[+7]"}
     assert con._anonymize({"Authorization": "Bearer uk7m20-8gqn8"}) == {"Authorization": "Bearer uk7m2[+7]"}
-    assert con._anonymize({"password": "uk7m20-8gqn8"}) == {"password": "uk7m2[+7]"}
+    assert con._anonymize({"password": "uk7m20-8gqn8"}) == {"password": "************"}
 
 
 def test_anonymize_doesnt_mutate_original() -> None:

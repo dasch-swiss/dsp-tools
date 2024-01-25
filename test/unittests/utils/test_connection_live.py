@@ -2,7 +2,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from dsp_tools.utils.connection_live import ConnectionLive
+from dsp_tools.utils.connection_live import ConnectionLive, RequestParameters
 
 
 def test_log_in_log_out() -> None:
@@ -19,22 +19,77 @@ def test_log_in_log_out() -> None:
 
 def test_post() -> None:
     con = ConnectionLive("http://example.com/")
-    con._anonymize = Mock(side_effect=lambda x: x)  # type: ignore[method-assign]
-    con._log_response = Mock()  # type: ignore[method-assign]
-    con._should_retry = Mock(return_value=False)  # type: ignore[method-assign]
-    response_mock = Mock()
-    response_mock.status_code = 200
-    post_mock = Mock(return_value=response_mock)
-    con.session.post = post_mock  # type: ignore[method-assign]
-    con.session.headers = {}
+    con._try_network_action = Mock()  # type: ignore[method-assign]
+    con.post(route="/v2/resources")
+    expected_params: RequestParameters = con._try_network_action.call_args.args[0]
+    assert expected_params.method == "POST"
+    assert expected_params.url == "http://example.com/v2/resources"
+    assert expected_params.headers is None
+    assert expected_params.files is None
+
+
+def test_post_with_data() -> None:
+    con = ConnectionLive("http://example.com/")
+    con._try_network_action = Mock()  # type: ignore[method-assign]
     con.post(route="/v2/resources", data={"foo": "bar"})
-    post_mock.assert_called_once_with(
-        url="http://example.com/v2/resources",
-        headers={"Content-Type": "application/json; charset=UTF-8"},
-        timeout=con.timeout_put_post,
-        data=b'{"foo": "bar"}',
-        files=None,
-    )
+    expected_params: RequestParameters = con._try_network_action.call_args.args[0]
+    assert expected_params.method == "POST"
+    assert expected_params.url == "http://example.com/v2/resources"
+    assert expected_params.data == {"foo": "bar"}
+    assert expected_params.headers == {"Content-Type": "application/json; charset=UTF-8"}
+    assert expected_params.files is None
+
+
+def test_post_with_file() -> None:
+    con = ConnectionLive("http://example.com/")
+    con._try_network_action = Mock()  # type: ignore[method-assign]
+    file = {"file": ("path/to/file.jpg", b"some bytes")}
+    con.post(route="/v2/resources", files=file)
+    expected_params: RequestParameters = con._try_network_action.call_args.args[0]
+    assert expected_params.method == "POST"
+    assert expected_params.url == "http://example.com/v2/resources"
+    assert expected_params.headers is None
+    assert expected_params.files == file
+
+
+def test_default_timeout() -> None:
+    con = ConnectionLive("http://example.com/")
+    con._try_network_action = Mock()  # type: ignore[method-assign]
+    con.post(route="/v2/resources")
+    expected_params: RequestParameters = con._try_network_action.call_args.args[0]
+    assert expected_params.timeout == con.timeout_put_post
+
+
+def test_custom_timeout() -> None:
+    con = ConnectionLive("http://example.com/")
+    con._try_network_action = Mock()  # type: ignore[method-assign]
+    con.post(route="/v2/resources", timeout=1)
+    expected_params: RequestParameters = con._try_network_action.call_args.args[0]
+    assert expected_params.timeout == 1
+
+
+def test_server_without_trailing_slash() -> None:
+    con = ConnectionLive("http://example.com")
+    con._try_network_action = Mock()  # type: ignore[method-assign]
+    con.post(route="/v2/resources")
+    expected_params: RequestParameters = con._try_network_action.call_args.args[0]
+    assert expected_params.url == "http://example.com/v2/resources"
+
+
+def test_route_without_leading_slash() -> None:
+    con = ConnectionLive("http://example.com/")
+    con._try_network_action = Mock()  # type: ignore[method-assign]
+    con.post(route="v2/resources")
+    expected_params: RequestParameters = con._try_network_action.call_args.args[0]
+    assert expected_params.url == "http://example.com/v2/resources"
+
+
+def test_server_and_route_without_slash() -> None:
+    con = ConnectionLive("http://example.com")
+    con._try_network_action = Mock()  # type: ignore[method-assign]
+    con.post(route="v2/resources")
+    expected_params: RequestParameters = con._try_network_action.call_args.args[0]
+    assert expected_params.url == "http://example.com/v2/resources"
 
 
 def test_anonymize_different_keys() -> None:

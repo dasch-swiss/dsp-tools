@@ -283,7 +283,8 @@ class ConnectionLive:
     def _renew_session(self) -> None:
         self.session.close()
         self.session = Session()
-        self.session.headers["Authorization"] = f"Bearer {self.token}"
+        if self.token:
+            self.session.headers["Authorization"] = f"Bearer {self.token}"
 
     def _log_and_sleep(self, reason: str, retry_counter: int, exc_info: bool) -> None:
         msg = f"{reason}: Try reconnecting to DSP server, next attempt in {2 ** retry_counter} seconds..."

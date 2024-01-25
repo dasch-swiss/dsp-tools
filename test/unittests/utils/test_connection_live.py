@@ -26,6 +26,7 @@ def test_post() -> None:
     expected_params: RequestParameters = con._try_network_action.call_args.args[0]
     assert expected_params.method == "POST"
     assert expected_params.url == "http://example.com/v2/resources"
+    assert expected_params.data is None
     assert expected_params.headers is None
     assert expected_params.files is None
 
@@ -50,6 +51,7 @@ def test_post_with_file() -> None:
     expected_params: RequestParameters = con._try_network_action.call_args.args[0]
     assert expected_params.method == "POST"
     assert expected_params.url == "http://example.com/upload"
+    assert expected_params.data is None
     assert expected_params.headers is None
     assert expected_params.files == file
 
@@ -61,7 +63,45 @@ def test_get() -> None:
     expected_params: RequestParameters = con._try_network_action.call_args.args[0]
     assert expected_params.method == "GET"
     assert expected_params.url == "http://example.com/admin/groups"
+    assert expected_params.data is None
     assert expected_params.headers is None
+    assert expected_params.files is None
+
+
+def test_put() -> None:
+    con = ConnectionLive("http://example.com/")
+    con._try_network_action = Mock()  # type: ignore[method-assign]
+    con.put(route="/v2/values")
+    expected_params: RequestParameters = con._try_network_action.call_args.args[0]
+    assert expected_params.method == "PUT"
+    assert expected_params.url == "http://example.com/v2/values"
+    assert expected_params.data is None
+    assert expected_params.headers is None
+    assert expected_params.files is None
+
+
+def test_put_with_data() -> None:
+    con = ConnectionLive("http://example.com/")
+    con._try_network_action = Mock()  # type: ignore[method-assign]
+    con.put(route="/v2/values", data={"foo": "bar"})
+    expected_params: RequestParameters = con._try_network_action.call_args.args[0]
+    assert expected_params.method == "PUT"
+    assert expected_params.url == "http://example.com/v2/values"
+    assert expected_params.data == {"foo": "bar"}
+    assert expected_params.headers == {"Content-Type": "application/json; charset=UTF-8"}
+    assert expected_params.files is None
+
+
+def test_delete() -> None:
+    con = ConnectionLive("http://example.com/")
+    con._try_network_action = Mock()  # type: ignore[method-assign]
+    con.delete(route="/v2/values")
+    expected_params: RequestParameters = con._try_network_action.call_args.args[0]
+    assert expected_params.method == "DELETE"
+    assert expected_params.url == "http://example.com/v2/values"
+    assert expected_params.data is None
+    assert expected_params.headers is None
+    assert expected_params.files is None
 
 
 def test_default_timeout() -> None:

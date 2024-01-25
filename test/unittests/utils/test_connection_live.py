@@ -2,6 +2,8 @@ from typing import Any, Callable, cast
 from unittest.mock import Mock
 
 import pytest
+from requests import ReadTimeout
+from urllib3.exceptions import ReadTimeoutError
 
 from dsp_tools.utils.connection_live import ConnectionLive, RequestParameters
 
@@ -198,6 +200,45 @@ def test_anonymize_different_lengths() -> None:
     assert con._anonymize({"token": "uk7m20-8gqn8ir7e30"}) == {"token": "uk7m2[+13]"}
     assert con._anonymize({"token": "uk7m2"}) == {"token": "*****"}
     assert con._anonymize({"token": "u"}) == {"token": "*"}
+
+
+def test_try_network_action() -> None:
+    con = ConnectionLive("http://example.com/")
+    response_expected = Mock(status_code=200, text="foo")
+    con.session.request = Mock(return_value=response_expected)  # type: ignore[method-assign]
+    con._log_request = Mock()  # type: ignore[method-assign]
+    con._log_response = Mock()  # type: ignore[method-assign]
+    params = RequestParameters(method="GET", url="http://example.com/", timeout=1)
+    response = con._try_network_action(params)
+    assert response == response_expected
+    con._log_request.assert_called_once_with(params)
+    con.session.request.assert_called_once_with(**params.as_kwargs())
+    con._log_response.assert_called_once_with(response_expected)
+
+
+class SessionMock:
+    responses = (TimeoutError, ReadTimeout, ReadTimeoutError, Mock(status_code=200, text="foo"))
+    counter = 0
+
+    def request(self) -> Any:
+        response = self.responses[self.counter]
+        self.counter += 1
+        if isinstance(response, Exception):
+            raise response
+        return response
+
+
+def test_try_network_action_timeout_error() -> None:
+    con = ConnectionLive("http://example.com/")
+    con.put("foo")
+
+
+def test_log_request() -> None:
+    pass
+
+
+def test_log_response() -> None:
+    pass
 
 
 if __name__ == "__main__":

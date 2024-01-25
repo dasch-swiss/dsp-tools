@@ -2,7 +2,7 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 from test.unittests.commands.xmlupload.connection_mock import ConnectionMockBase
-from typing import Any, ClassVar
+from typing import Any
 
 import pytest
 from lxml import etree
@@ -24,7 +24,7 @@ class ConnectionMockRaising(ConnectionMockBase):
 
 @dataclass
 class ConnectionMockWithResponses(ConnectionMockBase):
-    get_responses: ClassVar[list[dict[str, Any]]] = [
+    get_responses: tuple[dict[str, Any]] = (  # type: ignore[assignment]
         {
             "project": {
                 "ontologies": ["/testonto"],
@@ -46,14 +46,17 @@ class ConnectionMockWithResponses(ConnectionMockBase):
                 }
             ]
         },
-    ]
+    )
+    counter = 0
 
     def get(
         self,
         route: str,  # noqa: ARG002 (unused-method-argument)
         headers: dict[str, str] | None = None,  # noqa: ARG002 (unused-method-argument)
     ) -> dict[str, Any]:
-        return self.get_responses.pop(0)
+        response = self.get_responses[self.counter]
+        self.counter += 1
+        return response
 
 
 def test_error_on_nonexistent_shortcode() -> None:

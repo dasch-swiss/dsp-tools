@@ -119,8 +119,11 @@ def _parse_arguments(
 
 
 def _get_version() -> str:
-    result = subprocess.run("pip freeze".split(), check=False, capture_output=True).stdout.decode("utf-8")
-    _detail_version = next(x for x in result.split("\n") if "dsp-tools" in x)
+    pip_freeze_output = subprocess.run("pip freeze".split(), check=False, capture_output=True).stdout.decode("utf-8")
+    dsp_tools_lines = [x for x in pip_freeze_output.split("\n") if "dsp-tools" in x]
+    if not dsp_tools_lines:
+        return version("dsp-tools")
+    _detail_version = dsp_tools_lines[0]
     # _detail_version has one of the following formats:
     # - 'dsp-tools==5.0.3\n'
     # - 'dsp-tools==5.6.0.post9\n'

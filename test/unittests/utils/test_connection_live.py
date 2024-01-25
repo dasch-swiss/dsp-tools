@@ -56,8 +56,17 @@ def test_default_timeout() -> None:
     con = ConnectionLive("http://example.com/")
     con._try_network_action = Mock()  # type: ignore[method-assign]
     con.post(route="/v2/resources")
-    expected_params: RequestParameters = con._try_network_action.call_args.args[0]
-    assert expected_params.timeout == con.timeout_put_post
+    expected_params_post: RequestParameters = con._try_network_action.call_args.args[0]
+    assert expected_params_post.timeout == con.timeout_put_post
+    con.put(route="/v2/resources")
+    expected_params_put: RequestParameters = con._try_network_action.call_args.args[0]
+    assert expected_params_put.timeout == con.timeout_put_post
+    con.get(route="/v2/resources")
+    expected_params_get: RequestParameters = con._try_network_action.call_args.args[0]
+    assert expected_params_get.timeout == con.timeout_get_delete
+    con.delete(route="/v2/resources")
+    expected_params_delete: RequestParameters = con._try_network_action.call_args.args[0]
+    assert expected_params_delete.timeout == con.timeout_get_delete
 
 
 def test_custom_timeout() -> None:
@@ -72,16 +81,34 @@ def test_server_without_trailing_slash() -> None:
     con = ConnectionLive("http://example.com")
     con._try_network_action = Mock()  # type: ignore[method-assign]
     con.post(route="/v2/resources")
-    expected_params: RequestParameters = con._try_network_action.call_args.args[0]
-    assert expected_params.url == "http://example.com/v2/resources"
+    expected_params_post: RequestParameters = con._try_network_action.call_args.args[0]
+    con.put(route="/v2/resources")
+    expected_params_put: RequestParameters = con._try_network_action.call_args.args[0]
+    con.get(route="/v2/resources")
+    expected_params_get: RequestParameters = con._try_network_action.call_args.args[0]
+    con.delete(route="/v2/resources")
+    expected_params_delete: RequestParameters = con._try_network_action.call_args.args[0]
+    assert expected_params_post.url == "http://example.com/v2/resources"
+    assert expected_params_put.url == "http://example.com/v2/resources"
+    assert expected_params_get.url == "http://example.com/v2/resources"
+    assert expected_params_delete.url == "http://example.com/v2/resources"
 
 
 def test_route_without_leading_slash() -> None:
     con = ConnectionLive("http://example.com/")
     con._try_network_action = Mock()  # type: ignore[method-assign]
     con.post(route="v2/resources")
-    expected_params: RequestParameters = con._try_network_action.call_args.args[0]
-    assert expected_params.url == "http://example.com/v2/resources"
+    expected_params_post: RequestParameters = con._try_network_action.call_args.args[0]
+    assert expected_params_post.url == "http://example.com/v2/resources"
+    con.put(route="v2/resources")
+    expected_params_put: RequestParameters = con._try_network_action.call_args.args[0]
+    assert expected_params_put.url == "http://example.com/v2/resources"
+    con.get(route="v2/resources")
+    expected_params_get: RequestParameters = con._try_network_action.call_args.args[0]
+    assert expected_params_get.url == "http://example.com/v2/resources"
+    con.delete(route="v2/resources")
+    expected_params_delete: RequestParameters = con._try_network_action.call_args.args[0]
+    assert expected_params_delete.url == "http://example.com/v2/resources"
 
 
 def test_server_and_route_without_slash() -> None:

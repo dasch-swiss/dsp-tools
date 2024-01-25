@@ -1,9 +1,8 @@
 from typing import Any, Callable, cast
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 import pytest
 from requests import ReadTimeout
-from urllib3.exceptions import ReadTimeoutError
 
 from dsp_tools.utils.connection_live import ConnectionLive, RequestParameters
 
@@ -217,20 +216,29 @@ def test_try_network_action() -> None:
 
 
 class SessionMock:
-    responses = (TimeoutError, ReadTimeout, ReadTimeoutError, Mock(status_code=200, text="foo"))
+    responses = (TimeoutError(), TimeoutError(), ReadTimeout(), ReadTimeout(), Mock(status_code=200, text="foo"))
     counter = 0
 
-    def request(self) -> Any:
+    def request(self, *args: Any, **kwargs: Any) -> Any:  # noqa: ARG002
         response = self.responses[self.counter]
         self.counter += 1
-        if isinstance(response, Exception):
+        if isinstance(response, BaseException):
             raise response
         return response
 
 
 def test_try_network_action_timeout_error() -> None:
     con = ConnectionLive("http://example.com/")
-    con.put("foo")
+    con.session = SessionMock()  # type: ignore[assignment]
+    con._log_request = Mock()  # type: ignore[method-assign]
+    con._log_response = Mock()  # type: ignore[method-assign]
+    params = RequestParameters(method="GET", url="http://example.com/", timeout=1)
+    with patch("dsp_tools.utils.connection_live.time.sleep") as sleep_mock:
+        response = con._try_network_action(params)
+        assert [x.args[0] for x in sleep_mock.call_args_list] == [1, 2, 4, 8]
+    assert [x.args[0] for x in con._log_request.call_args_list] == [params] * len(con.session.responses)  # type: ignore[attr-defined]
+    con._log_response.assert_called_once_with(con.session.responses[-1])  # type: ignore[attr-defined]
+    assert response == con.session.responses[-1]  # type: ignore[attr-defined]
 
 
 def test_log_request() -> None:

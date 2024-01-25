@@ -9,7 +9,6 @@ from typing import Any, Literal, Optional, cast
 
 import regex
 from requests import JSONDecodeError, ReadTimeout, RequestException, Response, Session
-from urllib3.exceptions import ReadTimeoutError
 
 from dsp_tools.models.exceptions import BadCredentialsError, BaseError, PermanentConnectionError, UserError
 from dsp_tools.utils.create_logger import get_logger
@@ -257,7 +256,7 @@ class ConnectionLive:
             try:
                 self._log_request(params)
                 response = action()
-            except (TimeoutError, ReadTimeout, ReadTimeoutError):
+            except (TimeoutError, ReadTimeout):
                 self._log_and_sleep(reason="Timeout Error", retry_counter=i, exc_info=True)
                 continue
             except (ConnectionError, RequestException):

@@ -10,6 +10,7 @@ def test_log_in_log_out() -> None:
     con = ConnectionLive("http://example.com/")
     con.post = Mock(return_value={"token": "token"})  # type: ignore[method-assign]
     con.login("root@example.com", "test")
+    assert con.post.call_args.kwargs["route"] == "/v2/authentication"
     assert con.token == "token"
     assert con.session.headers["Authorization"] == "Bearer token"
     con.delete = Mock()  # type: ignore[method-assign]

@@ -24,7 +24,7 @@ class ConnectionMockRaising(ConnectionMockBase):
 
 @dataclass
 class ConnectionMockWithResponses(ConnectionMockBase):
-    get_responses: tuple[dict[str, Any]] = (  # type: ignore[assignment]
+    get_responses: tuple[dict[str, Any], ...] = (
         {
             "project": {
                 "ontologies": ["/testonto"],

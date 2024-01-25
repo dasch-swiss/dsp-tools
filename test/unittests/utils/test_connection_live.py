@@ -46,12 +46,22 @@ def test_post_with_file() -> None:
     con = ConnectionLive("http://example.com/")
     con._try_network_action = Mock()  # type: ignore[method-assign]
     file = {"file": ("path/to/file.jpg", b"some bytes")}
-    con.post(route="/v2/resources", files=file)
+    con.post(route="/upload", files=file)
     expected_params: RequestParameters = con._try_network_action.call_args.args[0]
     assert expected_params.method == "POST"
-    assert expected_params.url == "http://example.com/v2/resources"
+    assert expected_params.url == "http://example.com/upload"
     assert expected_params.headers is None
     assert expected_params.files == file
+
+
+def test_get() -> None:
+    con = ConnectionLive("http://example.com/")
+    con._try_network_action = Mock()  # type: ignore[method-assign]
+    con.get(route="/admin/groups")
+    expected_params: RequestParameters = con._try_network_action.call_args.args[0]
+    assert expected_params.method == "GET"
+    assert expected_params.url == "http://example.com/admin/groups"
+    assert expected_params.headers is None
 
 
 def test_default_timeout() -> None:
@@ -75,6 +85,26 @@ def test_custom_timeout() -> None:
     con.post(route="/v2/resources", timeout=1)
     expected_params: RequestParameters = con._try_network_action.call_args.args[0]
     assert expected_params.timeout == 1
+
+
+def test_custom_header() -> None:
+    con = ConnectionLive("http://example.com/")
+    con._try_network_action = Mock()  # type: ignore[method-assign]
+    for method in (con.post, con.put, con.get, con.delete):
+        method = cast(Callable[..., Any], method)
+        method(route="/v2/resources", headers={"foo": "bar"})
+        expected_params: RequestParameters = con._try_network_action.call_args.args[0]
+        assert expected_params.headers == {"foo": "bar"}
+
+
+def test_custom_content_type() -> None:
+    con = ConnectionLive("http://example.com/")
+    con._try_network_action = Mock()  # type: ignore[method-assign]
+    for method in (con.post, con.put, con.get, con.delete):
+        method = cast(Callable[..., Any], method)
+        method(route="/v2/resources", headers={"Content-Type": "bar"})
+        expected_params: RequestParameters = con._try_network_action.call_args.args[0]
+        assert expected_params.headers == {"Content-Type": "bar"}
 
 
 def test_server_without_trailing_slash() -> None:

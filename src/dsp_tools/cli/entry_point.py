@@ -122,6 +122,8 @@ def _get_version() -> str:
     pip_freeze_output = subprocess.run("pip freeze".split(), check=False, capture_output=True).stdout.decode("utf-8")
     dsp_tools_lines = [x for x in pip_freeze_output.split("\n") if "dsp-tools" in x]
     if not dsp_tools_lines:
+        # if the virtual environment was activated with env variables instead of executing activation commands,
+        # dsp-tools will run correctly, but "pip freeze" won't show dsp-tools
         return version("dsp-tools")
     _detail_version = dsp_tools_lines[0]
     # _detail_version has one of the following formats:

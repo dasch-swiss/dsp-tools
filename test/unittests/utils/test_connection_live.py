@@ -279,7 +279,7 @@ def test_try_network_action_connection_error() -> None:
     assert response == session_mock.responses[-1]
 
 
-@patch.dict("os.environ", {})
+@patch.dict("os.environ", {"DSP_TOOLS_TESTING": "false"})
 def test_try_network_action_non_200() -> None:
     con = ConnectionLive("http://example.com/")
     responses = (Mock(status_code=500), Mock(status_code=404), Mock(status_code=200))

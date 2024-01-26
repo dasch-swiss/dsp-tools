@@ -25,6 +25,13 @@ class SessionMock:
         return response
 
 
+@dataclass
+class ResponseMock:
+    status_code: int
+    headers: dict[str, Any]
+    text: str
+
+
 def test_log_in_log_out() -> None:
     con = ConnectionLive("http://example.com/")
     con.post = Mock(return_value={"token": "token"})
@@ -320,20 +327,33 @@ def test_log_request() -> None:
         timeout=1,
         data={"password": "my-super-secret-password", "foo": "bar"},
     )
+    expected_output = {
+        "method": "GET",
+        "url": "http://example.com/",
+        "headers": {"Authorization": "Bearer my-ve[+13]", "request-header": "request-value"},
+        "timeout": 1,
+        "data": {"password": "************************", "foo": "bar"},
+    }
     with patch("dsp_tools.utils.connection_live.logger.debug") as debug_mock:
         con._log_request(params)
-        expected_output = {
-            "method": "GET",
-            "url": "http://example.com/",
-            "headers": {"Authorization": "Bearer my-ve[+13]", "request-header": "request-value"},
-            "timeout": 1,
-            "data": {"password": "************************", "foo": "bar"},
-        }
         debug_mock.assert_called_once_with(f"REQUEST: {json.dumps(expected_output)}")
 
 
 def test_log_response() -> None:
-    pass
+    con = ConnectionLive("http://example.com/")
+    response_mock = ResponseMock(
+        status_code=200,
+        headers={"Set-Cookie": "KnoraAuthenticationMFYGSLT", "Content-Type": "application/json"},
+        text=json.dumps({"token": "my-very-long-token", "foo": "bar"}),
+    )
+    expected_output = {
+        "status_code": 200,
+        "headers": {"Set-Cookie": "Knora[+21]", "Content-Type": "application/json"},
+        "content": {"token": "my-ve[+13]", "foo": "bar"},
+    }
+    with patch("dsp_tools.utils.connection_live.logger.debug") as debug_mock:
+        con._log_response(response_mock)  # type: ignore[arg-type]
+        debug_mock.assert_called_once_with(f"RESPONSE: {json.dumps(expected_output)}")
 
 
 def test_renew_session() -> None:

@@ -8,7 +8,7 @@ from importlib.metadata import version
 from typing import Any, Literal, Optional, cast
 
 import regex
-from requests import JSONDecodeError, ReadTimeout, RequestException, Response, Session
+from requests import ReadTimeout, RequestException, Response, Session
 
 from dsp_tools.models.exceptions import BadCredentialsError, BaseError, PermanentConnectionError, UserError
 from dsp_tools.utils.create_logger import get_logger
@@ -292,15 +292,14 @@ class ConnectionLive:
         time.sleep(2**retry_counter)
 
     def _log_response(self, response: Response) -> None:
-        try:
-            content = self._anonymize(response.json())
-        except JSONDecodeError:
-            content = {"content": response.text}
-        dumpobj = {
+        dumpobj: dict[str, Any] = {
             "status_code": response.status_code,
             "headers": self._anonymize(dict(response.headers)),
-            "content": content,
         }
+        try:
+            dumpobj["content"] = self._anonymize(json.loads(response.text))
+        except json.JSONDecodeError:
+            dumpobj["content"] = response.text if "token" not in response.text else "***"
         logger.debug(f"RESPONSE: {json.dumps(dumpobj)}")
 
     def _anonymize(self, data: dict[str, Any] | None) -> dict[str, Any] | None:

@@ -6,12 +6,12 @@ from unittest.mock import Mock, patch
 import pytest
 from requests import ReadTimeout, RequestException
 
-from dsp_tools.models.exceptions import UserError
+from dsp_tools.models.exceptions import PermanentConnectionError, UserError
 from dsp_tools.utils.connection_live import ConnectionLive, RequestParameters
 
 
 class SessionMockTimeout:
-    responses = (TimeoutError(), TimeoutError(), ReadTimeout(), ReadTimeout(), Mock(status_code=200, text="foo"))
+    responses = (TimeoutError(), TimeoutError(), ReadTimeout(), ReadTimeout(), Mock(status_code=200))
     counter = 0
 
     def request(self, **kwargs: Any) -> Any:  # noqa: ARG002
@@ -23,7 +23,7 @@ class SessionMockTimeout:
 
 
 class SessionMockConnectionError:
-    responses = (ConnectionError(), ConnectionError(), RequestException(), Mock(status_code=200, text="foo"))
+    responses = (ConnectionError(), ConnectionError(), RequestException(), Mock(status_code=200))
     counter = 0
 
     def request(self, **kwargs: Any) -> Any:  # noqa: ARG002
@@ -31,6 +31,16 @@ class SessionMockConnectionError:
         self.counter += 1
         if isinstance(response, BaseException):
             raise response
+        return response
+
+
+class SessionMockNon200:
+    responses = (Mock(status_code=500), Mock(status_code=404), Mock(status_code=200))
+    counter = 0
+
+    def request(self, **kwargs: Any) -> Any:  # noqa: ARG002
+        response = self.responses[self.counter]
+        self.counter += 1
         return response
 
 
@@ -240,7 +250,7 @@ def test_anonymize_different_lengths() -> None:
 
 def test_try_network_action() -> None:
     con = ConnectionLive("http://example.com/")
-    response_expected = Mock(status_code=200, text="foo")
+    response_expected = Mock(status_code=200)
     con.session.request = Mock(return_value=response_expected)
     con._log_request = Mock()
     con._log_response = Mock()
@@ -282,6 +292,34 @@ def test_try_network_action_connection_error() -> None:
     assert [x.args[0] for x in con._log_request.call_args_list] == [params] * len(session_mock.responses)
     con._log_response.assert_called_once_with(session_mock.responses[-1])
     assert response == session_mock.responses[-1]
+
+
+def test_try_network_action_non_200() -> None:
+    con = ConnectionLive("http://example.com/")
+    session_mock = SessionMockNon200()
+    con.session = session_mock  # type: ignore[assignment]
+    con._log_request = Mock()
+    con._log_response = Mock()
+    params = RequestParameters(method="POST", url="http://example.com/", timeout=1)
+    with patch("dsp_tools.utils.connection_live.time.sleep") as sleep_mock:
+        response = con._try_network_action(params)
+        assert [x.args[0] for x in sleep_mock.call_args_list] == [1, 2]
+    assert [x.args[0] for x in con._log_request.call_args_list] == [params] * len(session_mock.responses)
+    assert [x.args[0] for x in con._log_response.call_args_list] == list(session_mock.responses)
+    assert response == session_mock.responses[-1]
+
+
+@patch.dict("os.environ", {"DSP_TOOLS_TESTING": "true"})
+def test_try_network_action_testing_environment() -> None:
+    con = ConnectionLive("http://example.com/")
+    con.session = SessionMockNon200()  # type: ignore[assignment]
+    con._log_request = Mock()
+    con._log_response = Mock()
+    params = RequestParameters(method="PUT", url="http://example.com/", timeout=1)
+    with patch("dsp_tools.utils.connection_live.time.sleep") as sleep_mock:
+        with pytest.raises(PermanentConnectionError):
+            con._try_network_action(params)
+        sleep_mock.assert_not_called()
 
 
 def test_log_request() -> None:

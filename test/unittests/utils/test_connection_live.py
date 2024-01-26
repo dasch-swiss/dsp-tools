@@ -6,6 +6,7 @@ from unittest.mock import Mock, patch
 import pytest
 from requests import ReadTimeout, RequestException
 
+from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.connection_live import ConnectionLive, RequestParameters
 
 
@@ -44,6 +45,16 @@ def test_log_in_log_out() -> None:
     con.logout()
     assert con.token is None
     assert "Authorization" not in con.session.headers
+
+
+def test_log_in_bad_credentials() -> None:
+    con = ConnectionLive("http://example.com/")
+    con._log_response = Mock()
+    con.session.request = Mock(return_value=Mock(status_code=401))
+    with patch("dsp_tools.utils.connection_live.time.sleep") as sleep_mock:
+        with pytest.raises(UserError, match="Username and/or password are not valid"):
+            con.login("invalid@example.com", "wrong")
+        sleep_mock.assert_not_called()
 
 
 def test_post() -> None:

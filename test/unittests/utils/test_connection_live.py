@@ -243,6 +243,7 @@ def test_try_network_action() -> None:
     con._log_response.assert_called_once_with(response_expected)
 
 
+@patch.dict("os.environ", {})
 def test_try_network_action_timeout_error() -> None:
     con = ConnectionLive("http://example.com/")
     responses = (TimeoutError(), TimeoutError(), ReadTimeout(), ReadTimeout(), Mock(status_code=200))
@@ -259,6 +260,7 @@ def test_try_network_action_timeout_error() -> None:
     assert response == session_mock.responses[-1]
 
 
+@patch.dict("os.environ", {})
 def test_try_network_action_connection_error() -> None:
     con = ConnectionLive("http://example.com/")
     responses = (ConnectionError(), ConnectionError(), RequestException(), Mock(status_code=200))
@@ -277,6 +279,7 @@ def test_try_network_action_connection_error() -> None:
     assert response == session_mock.responses[-1]
 
 
+@patch.dict("os.environ", {})
 def test_try_network_action_non_200() -> None:
     con = ConnectionLive("http://example.com/")
     responses = (Mock(status_code=500), Mock(status_code=404), Mock(status_code=200))

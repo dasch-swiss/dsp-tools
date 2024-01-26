@@ -1,6 +1,7 @@
 # mypy: disable-error-code="method-assign"
 
 import json
+from dataclasses import dataclass
 from typing import Any, Callable, cast
 from unittest.mock import Mock, patch
 
@@ -11,8 +12,9 @@ from dsp_tools.models.exceptions import PermanentConnectionError, UserError
 from dsp_tools.utils.connection_live import ConnectionLive, RequestParameters
 
 
-class SessionMockTimeout:
-    responses = (TimeoutError(), TimeoutError(), ReadTimeout(), ReadTimeout(), Mock(status_code=200))
+@dataclass
+class SessionMock:
+    responses: tuple[Any, ...]
     counter = 0
 
     def request(self, **kwargs: Any) -> Any:  # noqa: ARG002
@@ -20,28 +22,6 @@ class SessionMockTimeout:
         self.counter += 1
         if isinstance(response, BaseException):
             raise response
-        return response
-
-
-class SessionMockConnectionError:
-    responses = (ConnectionError(), ConnectionError(), RequestException(), Mock(status_code=200))
-    counter = 0
-
-    def request(self, **kwargs: Any) -> Any:  # noqa: ARG002
-        response = self.responses[self.counter]
-        self.counter += 1
-        if isinstance(response, BaseException):
-            raise response
-        return response
-
-
-class SessionMockNon200:
-    responses = (Mock(status_code=500), Mock(status_code=404), Mock(status_code=200))
-    counter = 0
-
-    def request(self, **kwargs: Any) -> Any:  # noqa: ARG002
-        response = self.responses[self.counter]
-        self.counter += 1
         return response
 
 
@@ -265,7 +245,8 @@ def test_try_network_action() -> None:
 
 def test_try_network_action_timeout_error() -> None:
     con = ConnectionLive("http://example.com/")
-    session_mock = SessionMockTimeout()
+    responses = (TimeoutError(), TimeoutError(), ReadTimeout(), ReadTimeout(), Mock(status_code=200))
+    session_mock = SessionMock(responses)
     con.session = session_mock  # type: ignore[assignment]
     con._log_request = Mock()
     con._log_response = Mock()
@@ -280,7 +261,8 @@ def test_try_network_action_timeout_error() -> None:
 
 def test_try_network_action_connection_error() -> None:
     con = ConnectionLive("http://example.com/")
-    session_mock = SessionMockConnectionError()
+    responses = (ConnectionError(), ConnectionError(), RequestException(), Mock(status_code=200))
+    session_mock = SessionMock(responses)
     con.session = session_mock  # type: ignore[assignment]
     con._log_request = Mock()
     con._log_response = Mock()
@@ -297,7 +279,8 @@ def test_try_network_action_connection_error() -> None:
 
 def test_try_network_action_non_200() -> None:
     con = ConnectionLive("http://example.com/")
-    session_mock = SessionMockNon200()
+    responses = (Mock(status_code=500), Mock(status_code=404), Mock(status_code=200))
+    session_mock = SessionMock(responses)
     con.session = session_mock  # type: ignore[assignment]
     con._log_request = Mock()
     con._log_response = Mock()
@@ -313,7 +296,8 @@ def test_try_network_action_non_200() -> None:
 @patch.dict("os.environ", {"DSP_TOOLS_TESTING": "true"})
 def test_try_network_action_testing_environment() -> None:
     con = ConnectionLive("http://example.com/")
-    con.session = SessionMockNon200()  # type: ignore[assignment]
+    responses = (Mock(status_code=500), Mock(status_code=404), Mock(status_code=200))
+    con.session = SessionMock(responses)  # type: ignore[assignment]
     con._log_request = Mock()
     con._log_response = Mock()
     params = RequestParameters(method="PUT", url="http://example.com/", timeout=1)

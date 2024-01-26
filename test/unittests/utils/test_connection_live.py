@@ -4,9 +4,33 @@ from typing import Any, Callable, cast
 from unittest.mock import Mock, patch
 
 import pytest
-from requests import ReadTimeout
+from requests import ReadTimeout, RequestException
 
 from dsp_tools.utils.connection_live import ConnectionLive, RequestParameters
+
+
+class SessionMockTimeout:
+    responses = (TimeoutError(), TimeoutError(), ReadTimeout(), ReadTimeout(), Mock(status_code=200, text="foo"))
+    counter = 0
+
+    def request(self, **kwargs: Any) -> Any:  # noqa: ARG002
+        response = self.responses[self.counter]
+        self.counter += 1
+        if isinstance(response, BaseException):
+            raise response
+        return response
+
+
+class SessionMockConnectionError:
+    responses = (ConnectionError(), ConnectionError(), RequestException(), Mock(status_code=200, text="foo"))
+    counter = 0
+
+    def request(self, **kwargs: Any) -> Any:  # noqa: ARG002
+        response = self.responses[self.counter]
+        self.counter += 1
+        if isinstance(response, BaseException):
+            raise response
+        return response
 
 
 def test_log_in_log_out() -> None:
@@ -217,21 +241,9 @@ def test_try_network_action() -> None:
     con._log_response.assert_called_once_with(response_expected)
 
 
-class SessionMock:
-    responses = (TimeoutError(), TimeoutError(), ReadTimeout(), ReadTimeout(), Mock(status_code=200, text="foo"))
-    counter = 0
-
-    def request(self, **kwargs: Any) -> Any:  # noqa: ARG002
-        response = self.responses[self.counter]
-        self.counter += 1
-        if isinstance(response, BaseException):
-            raise response
-        return response
-
-
 def test_try_network_action_timeout_error() -> None:
     con = ConnectionLive("http://example.com/")
-    session_mock = SessionMock()
+    session_mock = SessionMockTimeout()
     con.session = session_mock  # type: ignore[assignment]
     con._log_request = Mock()
     con._log_response = Mock()
@@ -244,11 +256,32 @@ def test_try_network_action_timeout_error() -> None:
     assert response == session_mock.responses[-1]
 
 
+def test_try_network_action_connection_error() -> None:
+    con = ConnectionLive("http://example.com/")
+    session_mock = SessionMockConnectionError()
+    con.session = session_mock  # type: ignore[assignment]
+    con._log_request = Mock()
+    con._log_response = Mock()
+    con._renew_session = Mock()
+    params = RequestParameters(method="POST", url="http://example.com/", timeout=1)
+    with patch("dsp_tools.utils.connection_live.time.sleep") as sleep_mock:
+        response = con._try_network_action(params)
+        assert [x.args[0] for x in sleep_mock.call_args_list] == [1, 2, 4]
+    assert con._renew_session.call_count == len(session_mock.responses) - 1
+    assert [x.args[0] for x in con._log_request.call_args_list] == [params] * len(session_mock.responses)
+    con._log_response.assert_called_once_with(session_mock.responses[-1])
+    assert response == session_mock.responses[-1]
+
+
 def test_log_request() -> None:
     pass
 
 
 def test_log_response() -> None:
+    pass
+
+
+def test_renew_session() -> None:
     pass
 
 

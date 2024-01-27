@@ -282,6 +282,7 @@ class ConnectionLive:
     def _renew_session(self) -> None:
         self.session.close()
         self.session = Session()
+        self.session.headers["User-Agent"] = f'DSP-TOOLS/{version("dsp-tools")}'
         if self.token:
             self.session.headers["Authorization"] = f"Bearer {self.token}"
 

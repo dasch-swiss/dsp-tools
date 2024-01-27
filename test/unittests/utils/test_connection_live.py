@@ -2,6 +2,7 @@
 
 import json
 from dataclasses import dataclass
+from importlib.metadata import version
 from typing import Any, Callable, cast
 from unittest.mock import Mock, patch
 
@@ -357,7 +358,12 @@ def test_log_response() -> None:
 
 
 def test_renew_session() -> None:
-    pass
+    con = ConnectionLive("http://example.com/", "my-super-secret-token")
+    assert con.get_token() == "my-super-secret-token"
+    assert con.session.headers["User-Agent"] == f'DSP-TOOLS/{version("dsp-tools")}'
+    con._renew_session()
+    assert con.get_token() == "my-super-secret-token"
+    assert con.session.headers["User-Agent"] == f'DSP-TOOLS/{version("dsp-tools")}'
 
 
 if __name__ == "__main__":

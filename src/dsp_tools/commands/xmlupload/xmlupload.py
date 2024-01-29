@@ -198,14 +198,13 @@ def _upload(
         )
         if nonapplied_stash:
             msg = "Some stashed resptrs or XML texts could not be reapplied to their resources on the DSP server."
-            logger.error(msg)
             raise BaseError(msg)
     except BaseException as err:  # noqa: BLE001 (blind-except)
         # The forseeable errors are already handled by the variables
         # failed_uploads, nonapplied_xml_texts, and nonapplied_resptr_props.
         # Here we catch the unforseeable exceptions, hence BaseException (=the base class of all exceptions)
         _handle_upload_error(
-            err=err,
+            err_msg=str(err),
             iri_resolver=iri_resolver,
             failed_uploads=failed_uploads,
             stash=stash,
@@ -381,7 +380,7 @@ def _create_resource(
 
 
 def _handle_upload_error(
-    err: BaseException,
+    err_msg: str,
     iri_resolver: IriResolver,
     failed_uploads: list[str],
     stash: Stash | None,
@@ -398,7 +397,7 @@ def _handle_upload_error(
     It then quits the Python interpreter with exit code 1.
 
     Args:
-        err: error that was the cause of the abort
+        err_msg: string representation of the error that was the cause of the abort
         iri_resolver: a resolver for internal IDs to IRIs
         failed_uploads: resources that caused an error when uploading to DSP
         stash: an object that contains all stashed links that could not be reapplied to their resources
@@ -408,10 +407,10 @@ def _handle_upload_error(
     print(
         f"\n==========================================\n"
         f"{datetime.now()}: xmlupload must be aborted because of an error.\n"
-        f"Error message: '{err}'\n"
+        f"Error message: '{err_msg}'\n"
         f"For more information, see the log file: {logfiles}\n"
     )
-    logger.error("xmlupload must be aborted because of an error", exc_info=err)
+    logger.exception("xmlupload must be aborted because of an error")
 
     timestamp = diagnostics.timestamp_str
     servername = diagnostics.server_as_foldername

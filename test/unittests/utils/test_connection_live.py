@@ -251,8 +251,8 @@ def test_try_network_action() -> None:
     con._log_response.assert_called_once_with(response_expected)
 
 
-@patch.dict("os.environ", {}, clear=True)
-def test_try_network_action_timeout_error() -> None:
+def test_try_network_action_timeout_error(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("DSP_TOOLS_TESTING", raising=False)  # in CI, this variable suppresses the retrying mechanism
     con = ConnectionLive("http://example.com/")
     responses = (TimeoutError(), TimeoutError(), ReadTimeout(), ReadTimeout(), Mock(status_code=200))
     session_mock = SessionMock(responses)
@@ -268,8 +268,8 @@ def test_try_network_action_timeout_error() -> None:
     assert response == session_mock.responses[-1]
 
 
-@patch.dict("os.environ", {}, clear=True)
-def test_try_network_action_connection_error() -> None:
+def test_try_network_action_connection_error(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("DSP_TOOLS_TESTING", raising=False)  # in CI, this variable suppresses the retrying mechanism
     con = ConnectionLive("http://example.com/")
     responses = (ConnectionError(), ConnectionError(), RequestException(), Mock(status_code=200))
     session_mock = SessionMock(responses)
@@ -287,8 +287,8 @@ def test_try_network_action_connection_error() -> None:
     assert response == session_mock.responses[-1]
 
 
-@patch.dict("os.environ", {}, clear=True)
-def test_try_network_action_non_200() -> None:
+def test_try_network_action_non_200(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("DSP_TOOLS_TESTING", raising=False)  # in CI, this variable suppresses the retrying mechanism
     con = ConnectionLive("http://example.com/")
     responses = (Mock(status_code=500), Mock(status_code=404), Mock(status_code=200))
     session_mock = SessionMock(responses)
@@ -304,8 +304,8 @@ def test_try_network_action_non_200() -> None:
     assert response == session_mock.responses[-1]
 
 
-@patch.dict("os.environ", {"DSP_TOOLS_TESTING": "true"}, clear=True)
-def test_try_network_action_testing_environment() -> None:
+def test_try_network_action_in_testing_environment(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("DSP_TOOLS_TESTING", "true")  # automatically set in CI, but not locally
     con = ConnectionLive("http://example.com/")
     responses = (Mock(status_code=500), Mock(status_code=404), Mock(status_code=200))
     con.session = SessionMock(responses)  # type: ignore[assignment]

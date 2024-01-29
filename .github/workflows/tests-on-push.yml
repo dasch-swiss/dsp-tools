@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
-        uses: actions/checkout@v3          
+        uses: actions/checkout@v4          
       - name: Install poetry, python, and dependencies
         uses: ./.github/actions/setup
       - name: build docs
@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install poetry, python, and dependencies
         uses: ./.github/actions/setup
       - name: Linting with ruff
@@ -50,7 +50,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install poetry, python, and dependencies
         uses: ./.github/actions/setup
       - name: unittests
@@ -61,7 +61,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install poetry, python, and dependencies
         uses: ./.github/actions/setup
       - name: benchmarking
@@ -72,7 +72,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install poetry, python, and dependencies
         uses: ./.github/actions/setup
       - name: start stack
@@ -87,7 +87,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install python & poetry, build & install wheel, install pytest
         uses: ./.github/actions/setup-from-wheel
       - name: distribution tests
@@ -98,18 +98,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install poetry, python, and dependencies
         uses: ./.github/actions/setup
-      - uses: FedericoCarboni/setup-ffmpeg@v2
+      - uses: FedericoCarboni/setup-ffmpeg@v3
       - id: search-cached-imagemagick
         # If a cache is found that matches "key", the cached files are restored to "path".
         # If no cache is found, this step is skipped, and when all jobs are done, the files in "path" are cached under "key".
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/bin/magick        # AppImage containing all binaries + dependencies
           key: imagemagick          # don't check for a new version, because version checking is fairly complex
-      - uses: mfinelli/setup-imagemagick@v2  # downloads the "magick" AppImage to ~/bin/magick
+      - uses: mfinelli/setup-imagemagick@v5  # downloads the "magick" AppImage to ~/bin/magick
         if: ${{ steps.search-cached-imagemagick.outputs.cache-hit != 'true' }}
       - name: start stack
         run: poetry run dsp-tools start-stack --no-prune

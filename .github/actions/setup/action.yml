@@ -10,7 +10,7 @@ runs:
         poetry self add poetry-exec-plugin
       shell: bash
     - name: Install Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: 3.12
         # attempt to restore dependencies from cache (if successful, the following `poetry install` will be a no-op)

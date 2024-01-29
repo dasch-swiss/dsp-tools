@@ -368,7 +368,8 @@ def _create_resource(
         return resource_create_client.create_resource(resource, bitstream_information)
     except Exception as err:
         msg = f"{datetime.now()}: WARNING: Unable to create resource '{resource.label}' ({resource.res_id})"
-        msg = msg + f": {err.message}" if isinstance(err, BaseError) else msg
+        if isinstance(err, BaseError):
+            msg = f"{msg}: {err.message}"
         print(msg)
         log_msg = (
             f"Unable to create resource '{resource.label}' ({resource.res_id})\n"

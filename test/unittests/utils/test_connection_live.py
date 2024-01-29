@@ -148,12 +148,12 @@ def test_default_timeout() -> None:
         method = cast(Callable[..., Any], method)
         method(route="/v2/resources")
         expected_params: RequestParameters = con._try_network_action.call_args.args[0]
-        assert expected_params.timeout == con.timeout_put_post
+        assert expected_params.timeout == con.timeout_put_post, f"Method '{method.__name__}' failed"
     for method in (con.get, con.delete):
         method = cast(Callable[..., Any], method)
         method(route="/v2/resources")
         expected_params = con._try_network_action.call_args.args[0]
-        assert expected_params.timeout == con.timeout_get_delete
+        assert expected_params.timeout == con.timeout_get_delete, f"Method '{method.__name__}' failed"
 
 
 def test_custom_timeout() -> None:
@@ -171,7 +171,7 @@ def test_custom_header() -> None:
         method = cast(Callable[..., Any], method)
         method(route="/v2/resources", headers={"foo": "bar"})
         expected_params: RequestParameters = con._try_network_action.call_args.args[0]
-        assert expected_params.headers == {"foo": "bar"}
+        assert expected_params.headers == {"foo": "bar"}, f"Method '{method.__name__}' failed"
 
 
 def test_custom_content_type() -> None:
@@ -181,7 +181,7 @@ def test_custom_content_type() -> None:
         method = cast(Callable[..., Any], method)
         method(route="/v2/resources", headers={"Content-Type": "bar"})
         expected_params: RequestParameters = con._try_network_action.call_args.args[0]
-        assert expected_params.headers == {"Content-Type": "bar"}
+        assert expected_params.headers == {"Content-Type": "bar"}, f"Method '{method.__name__}' failed"
 
 
 def test_server_without_trailing_slash() -> None:
@@ -191,7 +191,7 @@ def test_server_without_trailing_slash() -> None:
         method = cast(Callable[..., Any], method)
         method(route="/v2/resources")
         expected_params: RequestParameters = con._try_network_action.call_args.args[0]
-        assert expected_params.url == "http://example.com/v2/resources"
+        assert expected_params.url == "http://example.com/v2/resources", f"Method '{method.__name__}' failed"
 
 
 def test_route_without_leading_slash() -> None:
@@ -201,7 +201,7 @@ def test_route_without_leading_slash() -> None:
         method = cast(Callable[..., Any], method)
         method(route="v2/resources")
         expected_params: RequestParameters = con._try_network_action.call_args.args[0]
-        assert expected_params.url == "http://example.com/v2/resources"
+        assert expected_params.url == "http://example.com/v2/resources", f"Method '{method.__name__}' failed"
 
 
 def test_server_and_route_without_slash() -> None:
@@ -211,7 +211,7 @@ def test_server_and_route_without_slash() -> None:
         method = cast(Callable[..., Any], method)
         method(route="v2/resources")
         expected_params: RequestParameters = con._try_network_action.call_args.args[0]
-        assert expected_params.url == "http://example.com/v2/resources"
+        assert expected_params.url == "http://example.com/v2/resources", f"Method '{method.__name__}' failed"
 
 
 def test_anonymize_different_keys() -> None:

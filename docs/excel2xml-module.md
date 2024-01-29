@@ -344,6 +344,8 @@ might expect:
 | `pandas.NA`  | TypeError (*)                | False, because N/A is not a usable value                         |
 | "&lt;NA&gt;" | True                         | False, because this is the string representation of N/A          |
 | "-"          | True                         | False, because this is a placeholder in an empty text field      |
+
+
 (*) TypeError: boolean value of NA is ambiguous
 
 In contrast, `check_notna(cell)` will return the expected value for all cases in the table!

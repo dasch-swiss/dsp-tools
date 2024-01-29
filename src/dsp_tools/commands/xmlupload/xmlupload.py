@@ -367,19 +367,10 @@ def _create_resource(
 ) -> tuple[str, str] | None:
     try:
         return resource_create_client.create_resource(resource, bitstream_information)
-    except BaseError as err:
-        err_msg = err.message
-        print(f"{datetime.now()}: WARNING: Unable to create resource '{resource.label}' ({resource.res_id}): {err_msg}")
-        log_msg = (
-            f"Unable to create resource '{resource.label}' ({resource.res_id})\n"
-            f"Resource details:\n{vars(resource)}\n"
-            f"Property details:\n" + "\n".join([str(vars(prop)) for prop in resource.properties])
-        )
-        logger.warning(log_msg, exc_info=True)
-        return None
     except Exception as err:
-        msg = f"Unable to create resource '{resource.label}' ({resource.res_id})"
-        print(f"{datetime.now()}: WARNING: {msg}: {err}")
+        msg = f"{datetime.now()}: WARNING: Unable to create resource '{resource.label}' ({resource.res_id})"
+        msg = msg + f": {err.message}" if isinstance(err, BaseError) else msg
+        print(msg)
         log_msg = (
             f"Unable to create resource '{resource.label}' ({resource.res_id})\n"
             f"Resource details:\n{vars(resource)}\n"

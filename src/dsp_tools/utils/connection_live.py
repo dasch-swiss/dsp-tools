@@ -8,8 +8,7 @@ from importlib.metadata import version
 from typing import Any, Literal, Optional, cast
 
 import regex
-from requests import JSONDecodeError, ReadTimeout, RequestException, Response, Session
-from urllib3.exceptions import ReadTimeoutError
+from requests import ReadTimeout, RequestException, Response, Session
 
 from dsp_tools.models.exceptions import BadCredentialsError, BaseError, PermanentConnectionError, UserError
 from dsp_tools.utils.create_logger import get_logger
@@ -70,6 +69,8 @@ class ConnectionLive:
 
     def __post_init__(self) -> None:
         self.session.headers["User-Agent"] = f'DSP-TOOLS/{version("dsp-tools")}'
+        if self.server.endswith("/"):
+            self.server = self.server[:-1]
 
     def login(self, email: str, password: str) -> None:
         """
@@ -104,6 +105,7 @@ class ConnectionLive:
         if self.token:
             self.delete(route="/v2/authentication")
             self.token = None
+            del self.session.headers["Authorization"]
 
     def get_token(self) -> str:
         """
@@ -254,7 +256,7 @@ class ConnectionLive:
             try:
                 self._log_request(params)
                 response = action()
-            except (TimeoutError, ReadTimeout, ReadTimeoutError):
+            except (TimeoutError, ReadTimeout):
                 self._log_and_sleep(reason="Timeout Error", retry_counter=i, exc_info=True)
                 continue
             except (ConnectionError, RequestException):
@@ -280,7 +282,9 @@ class ConnectionLive:
     def _renew_session(self) -> None:
         self.session.close()
         self.session = Session()
-        self.session.headers["Authorization"] = f"Bearer {self.token}"
+        self.session.headers["User-Agent"] = f'DSP-TOOLS/{version("dsp-tools")}'
+        if self.token:
+            self.session.headers["Authorization"] = f"Bearer {self.token}"
 
     def _log_and_sleep(self, reason: str, retry_counter: int, exc_info: bool) -> None:
         msg = f"{reason}: Try reconnecting to DSP server, next attempt in {2 ** retry_counter} seconds..."
@@ -289,15 +293,14 @@ class ConnectionLive:
         time.sleep(2**retry_counter)
 
     def _log_response(self, response: Response) -> None:
-        try:
-            content = self._anonymize(response.json())
-        except JSONDecodeError:
-            content = {"content": response.text}
-        dumpobj = {
+        dumpobj: dict[str, Any] = {
             "status_code": response.status_code,
             "headers": self._anonymize(dict(response.headers)),
-            "content": content,
         }
+        try:
+            dumpobj["content"] = self._anonymize(json.loads(response.text))
+        except json.JSONDecodeError:
+            dumpobj["content"] = response.text if "token" not in response.text else "***"
         logger.debug(f"RESPONSE: {json.dumps(dumpobj)}")
 
     def _anonymize(self, data: dict[str, Any] | None) -> dict[str, Any] | None:

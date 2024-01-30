@@ -61,11 +61,7 @@ def _create_project_on_server(
         # try to update the basic info
         project_remote, _ = _update_basic_info_of_project(
             project=project_remote,
-            shortcode=project_definition.shortcode,
-            shortname=project_definition.shortname,
-            longname=project_definition.longname,
-            descriptions=project_definition.descriptions,
-            keywords=project_definition.keywords,
+            project_definition=project_definition,
             verbose=verbose,
         )
         # It doesn't matter if the update is successful or not: continue anyway, because success is anyways false.
@@ -100,11 +96,7 @@ def _create_project_on_server(
 
 def _update_basic_info_of_project(
     project: Project,
-    shortcode: str,
-    shortname: str,
-    longname: str,
-    descriptions: Optional[dict[str, str]],
-    keywords: Optional[list[str]],
+    project_definition: ProjectDefinition,
     verbose: bool,
 ) -> tuple[Project, bool]:
     """
@@ -115,11 +107,7 @@ def _update_basic_info_of_project(
 
     Args:
         project: the project to be updated (must exist on the DSP server)
-        shortcode: shortcode of the project (must be the same as in the existing project)
-        shortname: shortname of the project (must be the same as in the existing project)
-        longname: longname of the project
-        descriptions: descriptions of the project in different languages
-        keywords: keywords of the project
+        project_definition: class with project info
         verbose: verbose switch
 
     Returns:
@@ -127,20 +115,22 @@ def _update_basic_info_of_project(
     """
 
     # update the local "project" object
-    project.longname = longname
-    project.description = LangString(descriptions)  # type: ignore[arg-type]
-    project.keywords = set(keywords) if keywords else set()
+    project.longname = project_definition.longname
+    project.description = LangString(project_definition.descriptions)  # type: ignore[arg-type]
+    project.keywords = set(project_definition.keywords) if project_definition.keywords else set()
 
     # make the call to DSP-API
     try:
         project_remote: Project = project.update()
+        info_str = f"    Updated project '{project_definition.shortname}' ({project_definition.shortcode})."
         if verbose:
-            print(f"    Updated project '{shortname}' ({shortcode}).")
-        logger.info(f"Updated project '{shortname}' ({shortcode}).")
+            print(info_str)
+        logger.info(info_str)
         return project_remote, True
     except BaseError:
-        print(f"WARNING: Could not update project '{shortname}' ({shortcode}).")
-        logger.warning(f"Could not update project '{shortname}' ({shortcode}).", exc_info=True)
+        msg = f"WARNING: Could not update project '{project_definition.shortname}' ({project_definition.shortcode})."
+        print(msg)
+        logger.warning(msg, exc_info=True)
         return project, False
 
 

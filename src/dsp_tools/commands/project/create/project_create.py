@@ -30,24 +30,16 @@ logger = get_logger(__name__)
 
 
 def _create_project_on_server(
-    shortcode: str,
-    shortname: str,
-    longname: str,
-    descriptions: Optional[dict[str, str]],
-    keywords: Optional[list[str]],
+    project_definition: ProjectDefinition,
     con: Connection,
     verbose: bool,
 ) -> tuple[Project, bool]:
     """
     Create the project on the DSP server.
-    If it already exists: update its longname, description and keywords.
+    If it already exists: update its longname, description, and keywords.
 
     Args:
-        shortcode: shortcode of the project
-        shortname: shortname of the project
-        longname: longname of the project
-        descriptions: descriptions of the project in different languages
-        keywords: keywords of the project
+        project_definition: class with information about the project
         con: connection to the DSP server
         verbose: verbose switch
 
@@ -58,20 +50,22 @@ def _create_project_on_server(
         a tuple of the remote project and the success status (True if everything went smoothly, False otherwise)
     """
     all_projects = Project.getAllProjects(con=con)
-    if shortcode in [proj.shortcode for proj in all_projects]:
-        project_local = Project(con=con, shortcode=shortcode)
+    if project_definition.shortcode in [proj.shortcode for proj in all_projects]:
+        project_local = Project(con=con, shortcode=project_definition.shortcode)
         project_remote: Project = project_local.read()
-        msg = f"A project with shortcode {shortcode} already exists on the DSP server. Updating it..."
+        msg = (
+            f"A project with shortcode {project_definition.shortcode} already exists on the DSP server. Updating it..."
+        )
         print(f"    WARNING: {msg}")
         logger.warning(msg)
         # try to update the basic info
         project_remote, _ = _update_basic_info_of_project(
             project=project_remote,
-            shortcode=shortcode,
-            shortname=shortname,
-            longname=longname,
-            descriptions=descriptions,
-            keywords=keywords,
+            shortcode=project_definition.shortcode,
+            shortname=project_definition.shortname,
+            longname=project_definition.longname,
+            descriptions=project_definition.descriptions,
+            keywords=project_definition.keywords,
             verbose=verbose,
         )
         # It doesn't matter if the update is successful or not: continue anyway, because success is anyways false.
@@ -82,18 +76,21 @@ def _create_project_on_server(
     success = True
     project_local = Project(
         con=con,
-        shortcode=shortcode,
-        shortname=shortname,
-        longname=longname,
-        description=LangString(descriptions),  # type: ignore[arg-type]
-        keywords=set(keywords) if keywords else None,
+        shortcode=project_definition.shortcode,
+        shortname=project_definition.shortname,
+        longname=project_definition.longname,
+        description=LangString(project_definition.descriptions),  # type: ignore[arg-type]
+        keywords=set(project_definition.keywords) if project_definition.keywords else None,
         selfjoin=False,
         status=True,
     )
     try:
         project_remote = project_local.create()
     except BaseError:
-        err_msg = f"Cannot create project '{shortname}' ({shortcode}) on DSP server."
+        err_msg = (
+            f"Cannot create project '{project_definition.shortname}' "
+            f"({project_definition.shortcode}) on DSP server."
+        )
         logger.error(err_msg, exc_info=True)
         raise UserError(err_msg) from None
     print(f"    Created project '{project_remote.shortname}' ({project_remote.shortcode}).")
@@ -1040,11 +1037,7 @@ def create_project(
     logger.info(info_str)
 
     project_remote, success = _create_project_on_server(
-        shortcode=project_json["project"]["shortcode"],
-        shortname=project_json["project"]["shortname"],
-        longname=project_json["project"]["longname"],
-        descriptions=project_json["project"].get("descriptions"),
-        keywords=project_json["project"].get("keywords"),
+        project_definition=project_definition,
         con=con,
         verbose=verbose,
     )

@@ -416,7 +416,6 @@ def _extract_cardinalities_from_project(
 
 
 def _make_cardinality_dependency_graph(dependencies: dict[str, dict[str, list[str]]]) -> nx.MultiDiGraph:
-    # transform the dependencies into a graph structure
     graph = nx.MultiDiGraph()
     for start, cards in dependencies.items():
         for edge, targets in cards.items():

@@ -1025,7 +1025,6 @@ def create_project(
     info_str = f"Create project '{project_definition.shortname}' ({project_definition.shortcode})..."
     print(info_str)
     logger.info(info_str)
-
     project_remote, success = _create_project_on_server(
         project_definition=project_definition,
         con=con,
@@ -1036,11 +1035,11 @@ def create_project(
 
     # create the lists
     names_and_iris_of_list_nodes: dict[str, Any] = {}
-    if project_json["project"].get("lists"):
+    if all_lists:
         print("Create lists...")
         logger.info("Create lists...")
         names_and_iris_of_list_nodes, success = create_lists_on_server(
-            lists_to_create=project_json["project"]["lists"],
+            lists_to_create=all_lists,
             con=con,
             project_remote=project_remote,
         )

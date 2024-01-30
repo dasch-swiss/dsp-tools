@@ -1136,7 +1136,7 @@ def _prepare_project_information_onto_lists(
     for onto in all_ontos:
         if onto.get("properties"):
             onto["properties"] = _rectify_hlist_of_properties(
-                lists=project_json["project"].get("lists", []),
+                lists=all_lists if all_lists else [],
                 properties=onto["properties"],
             )
 

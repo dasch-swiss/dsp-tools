@@ -57,22 +57,8 @@ def get_project(
 
     project_obj["lists"] = _get_lists(con, project, verbose)
 
-    # get the ontologies
-    if verbose:
-        print("Getting ontologies...")
-    project_obj["ontologies"] = []
-    prefixes: dict[str, str] = {}
-    ontologies = Ontology.getProjectOntologies(con, str(project.iri))
-    ontology_ids = [onto.iri for onto in ontologies]
-    for ontology_id in ontology_ids:
-        onto_url_parts = ontology_id.split("/")  # an id has the form http://0.0.0.0:3333/ontology/4123/testonto/v2
-        name = onto_url_parts[len(onto_url_parts) - 2]
-        shortcode = onto_url_parts[len(onto_url_parts) - 3]
-        ontology = Ontology.getOntologyFromServer(con=con, shortcode=shortcode, name=name)
-        project_obj["ontologies"].append(ontology.createDefinitionFileObj())
-        prefixes.update(ontology.context.get_externals_used())
-        if verbose:
-            print(f"    Got ontology '{name}'")
+    prefixes, ontos = _get_ontologies(con, project, verbose)
+    project_obj["ontologies"] = ontos
 
     schema = "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json"
     outfile_content = {
@@ -144,3 +130,22 @@ def _get_lists(con: Connection, project: Project, verbose: bool) -> list[dict[st
             if verbose:
                 print(f"    Got list '{list_root.name}'")
     return list_obj
+
+
+def _get_ontologies(con: Connection, project: Project, verbose: bool) -> tuple[dict[str, str], list[dict[str, Any]]]:
+    if verbose:
+        print("Getting ontologies...")
+    ontos = []
+    prefixes: dict[str, str] = {}
+    ontologies = Ontology.getProjectOntologies(con, str(project.iri))
+    ontology_ids = [onto.iri for onto in ontologies]
+    for ontology_id in ontology_ids:
+        onto_url_parts = ontology_id.split("/")  # an id has the form http://0.0.0.0:3333/ontology/4123/testonto/v2
+        name = onto_url_parts[len(onto_url_parts) - 2]
+        shortcode = onto_url_parts[len(onto_url_parts) - 3]
+        ontology = Ontology.getOntologyFromServer(con=con, shortcode=shortcode, name=name)
+        ontos.append(ontology.createDefinitionFileObj())
+        prefixes.update(ontology.context.get_externals_used())
+        if verbose:
+            print(f"    Got ontology '{name}'")
+    return prefixes, ontos

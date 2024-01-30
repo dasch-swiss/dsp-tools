@@ -1,7 +1,8 @@
 import json
 from typing import Any, Union
 
-from dsp_tools.models.helpers import Context, OntoIri
+from dsp_tools.commands.project.models.context import Context
+from dsp_tools.commands.project.models.helpers import OntoIri
 
 
 class SetEncoder(json.JSONEncoder):

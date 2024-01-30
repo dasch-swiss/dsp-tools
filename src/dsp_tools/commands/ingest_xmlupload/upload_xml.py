@@ -56,7 +56,6 @@ def ingest_xmlupload(
         logger.info(ok)
     else:
         err_msg = ingest_info.execute_error_protocol()
-        logger.error(err_msg)
         raise InputError(err_msg)
 
     xmlupload(

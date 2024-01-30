@@ -244,10 +244,9 @@ def parse_json_input(project_file_as_path_or_parsed: Union[str, Path, dict[str, 
         with open(project_file_as_path_or_parsed, encoding="utf-8") as f:
             try:
                 project_definition = json.load(f)
-            except json.JSONDecodeError:
+            except json.JSONDecodeError as e:
                 msg = f"The input file '{project_file_as_path_or_parsed}' cannot be parsed to a JSON object."
-                logger.error(msg, exc_info=True)
-                raise BaseError(msg) from None
+                raise BaseError(msg) from e
     else:
         raise BaseError("Invalid input: The input must be a path to a JSON file or a parsed JSON object.")
     return project_definition

@@ -1,5 +1,6 @@
 import copy
 import json
+from collections.abc import Mapping
 from datetime import datetime
 from pathlib import Path
 
@@ -61,7 +62,7 @@ def _parse_json_file(json_file: Path) -> dict[str, str]:
 
 def _replace_resptrs(
     tree: etree._Element,
-    mapping: dict[str, str],
+    mapping: Mapping[str, str],
     used_mapping_entries: set[str],
 ) -> tuple[etree._Element, set[str]]:
     """
@@ -94,7 +95,7 @@ def _replace_resptrs(
 
 def _replace_salsah_links(
     tree: etree._Element,
-    mapping: dict[str, str],
+    mapping: Mapping[str, str],
     used_mapping_entries: set[str],
 ) -> tuple[etree._Element, set[str]]:
     """
@@ -127,7 +128,7 @@ def _replace_salsah_links(
 
 def _replace_ids_by_iris(
     tree: etree._Element,
-    mapping: dict[str, str],
+    mapping: Mapping[str, str],
 ) -> etree._Element:
     """
     Iterate over the <resptr> tags and the salsah-links of the <text> tags,
@@ -163,7 +164,7 @@ def _replace_ids_by_iris(
 
 def _remove_resources_if_id_in_mapping(
     tree: etree._Element,
-    mapping: dict[str, str],
+    mapping: Mapping[str, str],
 ) -> etree._Element:
     """
     Remove all resources from the XML file if their ID is in the mapping.

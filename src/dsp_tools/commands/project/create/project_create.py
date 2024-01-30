@@ -14,6 +14,7 @@ from dsp_tools.commands.project.models.group import Group
 from dsp_tools.commands.project.models.helpers import Cardinality
 from dsp_tools.commands.project.models.ontology import Ontology
 from dsp_tools.commands.project.models.project import Project
+from dsp_tools.commands.project.models.project_definition import ProjectDefinition
 from dsp_tools.commands.project.models.propertyclass import PropertyClass
 from dsp_tools.commands.project.models.resourceclass import ResourceClass
 from dsp_tools.commands.project.models.user import User
@@ -1024,34 +1025,20 @@ def create_project(
     overall_success = True
 
     project_definition = parse_json_input(project_file_as_path_or_parsed=project_file_as_path_or_parsed)
-    proj_shortname = project_definition["project"]["shortname"]
-    proj_shortcode = project_definition["project"]["shortcode"]
+
     context = Context(project_definition.get("prefixes", {}))
 
-    # expand the Excel files referenced in the "lists" section of the project (if any), and add them to the project
-    if new_lists := expand_lists_from_excel(project_definition.get("project", {}).get("lists", [])):
-        project_definition["project"]["lists"] = new_lists
-
-    # validate against JSON schema
-    validate_project(project_definition, expand_lists=False)
-    print("    JSON project file is syntactically correct and passed validation.")
-    logger.info("JSON project file is syntactically correct and passed validation.")
-
-    # rectify the "hlist" of the "gui_attributes" of the properties
-    for onto in project_definition["project"]["ontologies"]:
-        if onto.get("properties"):
-            onto["properties"] = _rectify_hlist_of_properties(
-                lists=project_definition["project"].get("lists", []),
-                properties=onto["properties"],
-            )
+    project_def, all_lists, all_ontos = _prepare_project_information_onto_lists(project_definition)
 
     # establish connection to DSP server
     con = ConnectionLive(server)
     con.login(user_mail, password)
 
     # create project on DSP server
-    print(f"Create project '{proj_shortname}' ({proj_shortcode})...")
-    logger.info(f"Create project '{proj_shortname}' ({proj_shortcode})...")
+    info_str = f"Create project '{project_def.shortname}' ({project_def.shortcode})..."
+    print(info_str)
+    logger.info(info_str)
+
     project_remote, success = _create_project_on_server(
         shortcode=project_definition["project"]["shortcode"],
         shortname=project_definition["project"]["shortname"],
@@ -1120,17 +1107,53 @@ def create_project(
     # final steps
     if overall_success:
         msg = (
-            f"Successfully created project '{proj_shortname}' ({proj_shortcode}) with all its ontologies. "
+            f"Successfully created project '{project_def.shortname}' ({project_def.shortcode}) with all its ontologies."
             f"There were no problems during the creation process."
         )
         print(f"========================================================\n{msg}")
         logger.info(msg)
     else:
         msg = (
-            f"The project '{proj_shortname}' ({proj_shortcode}) with its ontologies could be created, "
+            f"The project '{project_def.shortname}' ({project_def.shortcode}) with its ontologies could be created, "
             f"but during the creation process, some problems occurred. Please carefully check the console output."
         )
         print(f"========================================================\nWARNING: {msg}")
         logger.warning(msg)
 
     return overall_success
+
+
+def _prepare_project_information_onto_lists(
+    project_definition: dict[str, Any],
+) -> tuple[ProjectDefinition, list[dict[str, Any]] | None, list[dict[str, Any]]]:
+    project_def = ProjectDefinition(
+        shortcode=project_definition["project"]["shortcode"],
+        shortname=project_definition["project"]["shortname"],
+        longname=project_definition["project"]["longname"],
+        keywords=project_definition["project"].get("keywords"),
+        descriptions=project_definition["project"].get("descriptions"),
+        groups=project_definition["project"].get("groups"),
+        users=project_definition["project"].get("users"),
+    )
+
+    # expand the Excel files referenced in the "lists" section of the project (if any), and add them to the project
+    if new_lists := expand_lists_from_excel(project_definition.get("project", {}).get("lists", [])):
+        all_lists = new_lists
+    else:
+        all_lists = project_definition["project"].get("lists")
+
+    # validate against JSON schema
+    validate_project(project_definition, expand_lists=False)
+    print("    JSON project file is syntactically correct and passed validation.")
+    logger.info("JSON project file is syntactically correct and passed validation.")
+
+    all_ontos = project_definition["project"]["ontologies"]
+    # rectify the "hlist" of the "gui_attributes" of the properties
+    for onto in all_ontos:
+        if onto.get("properties"):
+            onto["properties"] = _rectify_hlist_of_properties(
+                lists=project_definition["project"].get("lists", []),
+                properties=onto["properties"],
+            )
+
+    return project_def, all_lists, all_ontos

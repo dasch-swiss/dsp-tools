@@ -39,7 +39,7 @@ def _create_project_on_server(
     If it already exists: update its longname, description, and keywords.
 
     Args:
-        project_definition: class with information about the project
+        project_definition: object with information about the project
         con: connection to the DSP server
         verbose: verbose switch
 
@@ -107,7 +107,7 @@ def _update_basic_info_of_project(
 
     Args:
         project: the project to be updated (must exist on the DSP server)
-        project_definition: class with project info
+        project_definition: object with project info
         verbose: verbose switch
 
     Returns:
@@ -1015,7 +1015,11 @@ def create_project(
 
     context = Context(project_json.get("prefixes", {}))
 
-    project_definition, all_lists, all_ontos = _prepare_project_information_onto_lists(project_json)
+    project_definition = _prepare_and_validate_project(project_json)
+
+    all_lists = _get_all_lists(project_json)
+
+    all_ontos = _get_all_ontos(project_json, all_lists)
 
     # establish connection to DSP server
     con = ConnectionLive(server)
@@ -1107,9 +1111,9 @@ def create_project(
     return overall_success
 
 
-def _prepare_project_information_onto_lists(
+def _prepare_and_validate_project(
     project_json: dict[str, Any],
-) -> tuple[ProjectDefinition, list[dict[str, Any]] | None, list[dict[str, Any]]]:
+) -> ProjectDefinition:
     project_def = ProjectDefinition(
         shortcode=project_json["project"]["shortcode"],
         shortname=project_json["project"]["shortname"],
@@ -1120,24 +1124,32 @@ def _prepare_project_information_onto_lists(
         users=project_json["project"].get("users"),
     )
 
-    # expand the Excel files referenced in the "lists" section of the project (if any), and add them to the project
-    if new_lists := expand_lists_from_excel(project_json.get("project", {}).get("lists", [])):
-        all_lists = new_lists
-    else:
-        all_lists = project_json["project"].get("lists")
-
     # validate against JSON schema
     validate_project(project_json, expand_lists=False)
     print("    JSON project file is syntactically correct and passed validation.")
     logger.info("JSON project file is syntactically correct and passed validation.")
 
-    all_ontos = project_json["project"]["ontologies"]
+    return project_def
+
+
+def _get_all_lists(project_json: dict[str, Any]) -> list[dict[str, Any]] | None:
+    # expand the Excel files referenced in the "lists" section of the project (if any), and add them to the project
+    if new_lists := expand_lists_from_excel(project_json.get("project", {}).get("lists", [])):
+        all_lists = new_lists
+    else:
+        all_lists = project_json["project"].get("lists")
+    return all_lists
+
+
+def _get_all_ontos(project_json: dict[str, Any], all_lists: list[dict[str, Any]] | None) -> list[dict[str, Any]]:
+    all_ontos: list[dict[str, Any]] = project_json["project"]["ontologies"]
+    if all_lists is None:
+        return all_ontos
     # rectify the "hlist" of the "gui_attributes" of the properties
     for onto in all_ontos:
         if onto.get("properties"):
             onto["properties"] = _rectify_hlist_of_properties(
-                lists=all_lists or [],
+                lists=all_lists,
                 properties=onto["properties"],
             )
-
-    return project_def, all_lists, all_ontos
+    return all_ontos

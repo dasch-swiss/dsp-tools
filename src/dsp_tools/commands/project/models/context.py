@@ -99,24 +99,11 @@ class Context:
 
         self._rcontext = {v.iri: k for k, v in self._context.items()}
 
-    def __len__(self) -> int:
-        return len(self._context)
-
     def __getitem__(self, key: str) -> OntoIri:
         return self._context[key]
 
-    def __setitem__(self, key: str, value: OntoIri) -> None:
-        self._context[key] = value
-        self._rcontext[value.iri] = key
-
     def __iter__(self) -> ContextIterator:
         return ContextIterator(self)
-
-    def __str__(self) -> str:
-        output = "Context:\n"
-        for prefix, val in self._context.items():
-            output += "  " + prefix + ": " + val.iri + "\n"
-        return output
 
     #
     # now we have a lot of getters/setters

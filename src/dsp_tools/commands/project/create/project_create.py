@@ -1024,27 +1024,27 @@ def create_project(
     knora_api_prefix = "knora-api:"
     overall_success = True
 
-    project_definition = parse_json_input(project_file_as_path_or_parsed=project_file_as_path_or_parsed)
+    project_json = parse_json_input(project_file_as_path_or_parsed=project_file_as_path_or_parsed)
 
-    context = Context(project_definition.get("prefixes", {}))
+    context = Context(project_json.get("prefixes", {}))
 
-    project_def, all_lists, all_ontos = _prepare_project_information_onto_lists(project_definition)
+    project_definition, all_lists, all_ontos = _prepare_project_information_onto_lists(project_json)
 
     # establish connection to DSP server
     con = ConnectionLive(server)
     con.login(user_mail, password)
 
     # create project on DSP server
-    info_str = f"Create project '{project_def.shortname}' ({project_def.shortcode})..."
+    info_str = f"Create project '{project_definition.shortname}' ({project_definition.shortcode})..."
     print(info_str)
     logger.info(info_str)
 
     project_remote, success = _create_project_on_server(
-        shortcode=project_definition["project"]["shortcode"],
-        shortname=project_definition["project"]["shortname"],
-        longname=project_definition["project"]["longname"],
-        descriptions=project_definition["project"].get("descriptions"),
-        keywords=project_definition["project"].get("keywords"),
+        shortcode=project_json["project"]["shortcode"],
+        shortname=project_json["project"]["shortname"],
+        longname=project_json["project"]["longname"],
+        descriptions=project_json["project"].get("descriptions"),
+        keywords=project_json["project"].get("keywords"),
         con=con,
         verbose=verbose,
     )
@@ -1053,11 +1053,11 @@ def create_project(
 
     # create the lists
     names_and_iris_of_list_nodes: dict[str, Any] = {}
-    if project_definition["project"].get("lists"):
+    if project_json["project"].get("lists"):
         print("Create lists...")
         logger.info("Create lists...")
         names_and_iris_of_list_nodes, success = create_lists_on_server(
-            lists_to_create=project_definition["project"]["lists"],
+            lists_to_create=project_json["project"]["lists"],
             con=con,
             project_remote=project_remote,
         )
@@ -1066,24 +1066,24 @@ def create_project(
 
     # create the groups
     current_project_groups: dict[str, Group] = {}
-    if project_definition["project"].get("groups"):
+    if project_json["project"].get("groups"):
         print("Create groups...")
         logger.info("Create groups...")
         current_project_groups, success = _create_groups(
             con=con,
-            groups=project_definition["project"]["groups"],
+            groups=project_json["project"]["groups"],
             project=project_remote,
         )
         if not success:
             overall_success = False
 
     # create or update the users
-    if project_definition["project"].get("users"):
+    if project_json["project"].get("users"):
         print("Create users...")
         logger.info("Create users...")
         success = _create_users(
             con=con,
-            users_section=project_definition["project"]["users"],
+            users_section=project_json["project"]["users"],
             current_project_groups=current_project_groups,
             current_project=project_remote,
             verbose=verbose,
@@ -1097,7 +1097,7 @@ def create_project(
         context=context,
         knora_api_prefix=knora_api_prefix,
         names_and_iris_of_list_nodes=names_and_iris_of_list_nodes,
-        ontology_definitions=project_definition["project"]["ontologies"],
+        ontology_definitions=project_json["project"]["ontologies"],
         project_remote=project_remote,
         verbose=verbose,
     )
@@ -1107,14 +1107,16 @@ def create_project(
     # final steps
     if overall_success:
         msg = (
-            f"Successfully created project '{project_def.shortname}' ({project_def.shortcode}) with all its ontologies."
+            f"Successfully created project '{project_definition.shortname}' "
+            f"({project_definition.shortcode}) with all its ontologies."
             f"There were no problems during the creation process."
         )
         print(f"========================================================\n{msg}")
         logger.info(msg)
     else:
         msg = (
-            f"The project '{project_def.shortname}' ({project_def.shortcode}) with its ontologies could be created, "
+            f"The project '{project_definition.shortname}' ({project_definition.shortcode}) "
+            f"with its ontologies could be created, "
             f"but during the creation process, some problems occurred. Please carefully check the console output."
         )
         print(f"========================================================\nWARNING: {msg}")
@@ -1124,35 +1126,35 @@ def create_project(
 
 
 def _prepare_project_information_onto_lists(
-    project_definition: dict[str, Any],
+    project_json: dict[str, Any],
 ) -> tuple[ProjectDefinition, list[dict[str, Any]] | None, list[dict[str, Any]]]:
     project_def = ProjectDefinition(
-        shortcode=project_definition["project"]["shortcode"],
-        shortname=project_definition["project"]["shortname"],
-        longname=project_definition["project"]["longname"],
-        keywords=project_definition["project"].get("keywords"),
-        descriptions=project_definition["project"].get("descriptions"),
-        groups=project_definition["project"].get("groups"),
-        users=project_definition["project"].get("users"),
+        shortcode=project_json["project"]["shortcode"],
+        shortname=project_json["project"]["shortname"],
+        longname=project_json["project"]["longname"],
+        keywords=project_json["project"].get("keywords"),
+        descriptions=project_json["project"].get("descriptions"),
+        groups=project_json["project"].get("groups"),
+        users=project_json["project"].get("users"),
     )
 
     # expand the Excel files referenced in the "lists" section of the project (if any), and add them to the project
-    if new_lists := expand_lists_from_excel(project_definition.get("project", {}).get("lists", [])):
+    if new_lists := expand_lists_from_excel(project_json.get("project", {}).get("lists", [])):
         all_lists = new_lists
     else:
-        all_lists = project_definition["project"].get("lists")
+        all_lists = project_json["project"].get("lists")
 
     # validate against JSON schema
-    validate_project(project_definition, expand_lists=False)
+    validate_project(project_json, expand_lists=False)
     print("    JSON project file is syntactically correct and passed validation.")
     logger.info("JSON project file is syntactically correct and passed validation.")
 
-    all_ontos = project_definition["project"]["ontologies"]
+    all_ontos = project_json["project"]["ontologies"]
     # rectify the "hlist" of the "gui_attributes" of the properties
     for onto in all_ontos:
         if onto.get("properties"):
             onto["properties"] = _rectify_hlist_of_properties(
-                lists=project_definition["project"].get("lists", []),
+                lists=project_json["project"].get("lists", []),
                 properties=onto["properties"],
             )
 

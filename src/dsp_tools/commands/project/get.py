@@ -57,7 +57,7 @@ def get_project(
 
     project_obj["lists"] = _get_lists(con, project, verbose)
 
-    prefixes, ontos = _get_ontologies(con, project, verbose)
+    prefixes, ontos = _get_ontologies(con, str(project.iri), verbose)
     project_obj["ontologies"] = ontos
 
     schema = "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json"
@@ -135,12 +135,12 @@ def _get_lists(con: Connection, project: Project, verbose: bool) -> list[dict[st
     return list_obj
 
 
-def _get_ontologies(con: Connection, project: Project, verbose: bool) -> tuple[dict[str, str], list[dict[str, Any]]]:
+def _get_ontologies(con: Connection, project_iri: str, verbose: bool) -> tuple[dict[str, str], list[dict[str, Any]]]:
     if verbose:
         print("Getting ontologies...")
     ontos = []
     prefixes: dict[str, str] = {}
-    ontologies = Ontology.getProjectOntologies(con, str(project.iri))
+    ontologies = Ontology.getProjectOntologies(con, project_iri)
     ontology_ids = [onto.iri for onto in ontologies]
     for ontology_id in ontology_ids:
         onto_url_parts = ontology_id.split("/")  # an id has the form http://0.0.0.0:3333/ontology/4123/testonto/v2

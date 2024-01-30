@@ -27,7 +27,7 @@ class ConnectionMockWithResponses(ConnectionMockBase):
     get_responses: tuple[dict[str, Any], ...] = (
         {
             "project": {
-                "ontologies": ["/testonto"],
+                "ontologies": ["http://0.0.0.0:3333/ontology/4123/testonto/v2"],
             }
         },
         {

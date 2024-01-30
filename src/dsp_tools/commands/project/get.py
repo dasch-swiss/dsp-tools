@@ -55,17 +55,7 @@ def get_project(
 
     project_obj["users"] = _get_users(con, project, verbose)
 
-    # get the lists
-    if verbose:
-        print("Getting lists...")
-    list_obj: list[dict[str, Any]] = []
-    if list_roots := ListNode.getAllLists(con=con, project_iri=project.iri):
-        for list_root in list_roots:
-            complete_list = list_root.getAllNodes()
-            list_obj.append(complete_list.createDefinitionFileObj())
-            if verbose:
-                print(f"    Got list '{list_root.name}'")
-    project_obj["lists"] = list_obj
+    project_obj["lists"] = _get_lists(con, project, verbose)
 
     # get the ontologies
     if verbose:
@@ -141,3 +131,16 @@ def _get_users(con: Connection, project: Project, verbose: bool) -> list[dict[st
         if verbose:
             print(f"    Got user '{usr.username}'")
     return users_obj
+
+
+def _get_lists(con: Connection, project: Project, verbose: bool) -> list[dict[str, Any]]:
+    if verbose:
+        print("Getting lists...")
+    list_obj: list[dict[str, Any]] = []
+    if list_roots := ListNode.getAllLists(con=con, project_iri=project.iri):
+        for list_root in list_roots:
+            complete_list = list_root.getAllNodes()
+            list_obj.append(complete_list.createDefinitionFileObj())
+            if verbose:
+                print(f"    Got list '{list_root.name}'")
+    return list_obj

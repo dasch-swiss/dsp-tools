@@ -1136,9 +1136,8 @@ def _get_all_lists(project_json: dict[str, Any]) -> list[dict[str, Any]] | None:
     # expand the Excel files referenced in the "lists" section of the project (if any), and add them to the project
     if all_lists := expand_lists_from_excel(project_json.get("project", {}).get("lists", [])):
         return all_lists
-    else:
-        new_lists: list[dict[str, Any]] | None = project_json["project"].get("lists")
-        return new_lists
+    new_lists: list[dict[str, Any]] | None = project_json["project"].get("lists")
+    return new_lists
 
 
 def _get_all_ontos(project_json: dict[str, Any], all_lists: list[dict[str, Any]] | None) -> list[dict[str, Any]]:

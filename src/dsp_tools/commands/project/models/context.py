@@ -109,9 +109,6 @@ class Context:
         self._context[key] = value
         self._rcontext[value.iri] = key
 
-    def __contains__(self, key: str) -> bool:
-        return key in self._context
-
     def __iter__(self) -> ContextIterator:
         return ContextIterator(self)
 

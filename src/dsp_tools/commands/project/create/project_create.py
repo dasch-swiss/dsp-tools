@@ -1133,7 +1133,7 @@ def _prepare_and_validate_project(
 
 
 def _get_all_lists(project_json: dict[str, Any]) -> list[dict[str, Any]] | None:
-    # expand the Excel files referenced in the "lists" section of the project (if any), and add them to the project
+    # expand the Excel files referenced in the "lists" section of the project, if any
     if all_lists := expand_lists_from_excel(project_json.get("project", {}).get("lists", [])):
         return all_lists
     new_lists: list[dict[str, Any]] | None = project_json["project"].get("lists")

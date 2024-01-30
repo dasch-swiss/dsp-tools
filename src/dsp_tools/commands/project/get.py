@@ -51,29 +51,9 @@ def get_project(
     project = project.read()
     project_obj = project.createDefinitionFileObj()
 
-    groups_obj = _get_groups(con, str(project.iri), verbose)
-    project_obj["groups"] = groups_obj
+    project_obj["groups"] = _get_groups(con, str(project.iri), verbose)
 
-    # get users
-    if verbose:
-        print("Getting users...")
-    users_obj: list[dict[str, Any]] = []
-    try:
-        users = User.getAllUsersForProject(con=con, proj_shortcode=str(project.shortcode))
-    except BaseError:
-        users = None
-    if users:
-        for usr in users:
-            users_obj.append(
-                usr.createDefinitionFileObj(
-                    con=con,
-                    proj_shortname=str(project.shortname),
-                    proj_iri=str(project.iri),
-                )
-            )
-            if verbose:
-                print(f"    Got user '{usr.username}'")
-        project_obj["users"] = users_obj
+    project_obj["users"] = _get_users(con, project, verbose)
 
     # get the lists
     if verbose:
@@ -140,3 +120,24 @@ def _get_groups(con: Connection, project_iri: str, verbose: bool) -> list[dict[s
             if verbose:
                 print(f"    Got group '{group.name}'")
     return groups_obj
+
+
+def _get_users(con: Connection, project: Project, verbose: bool) -> list[dict[str, Any]] | None:
+    if verbose:
+        print("Getting users...")
+    try:
+        users = User.getAllUsersForProject(con=con, proj_shortcode=str(project.shortcode))
+    except BaseError:
+        return None
+    users_obj: list[dict[str, Any]] = []
+    for usr in users:
+        users_obj.append(
+            usr.createDefinitionFileObj(
+                con=con,
+                proj_shortname=str(project.shortname),
+                proj_iri=str(project.iri),
+            )
+        )
+        if verbose:
+            print(f"    Got user '{usr.username}'")
+    return users_obj

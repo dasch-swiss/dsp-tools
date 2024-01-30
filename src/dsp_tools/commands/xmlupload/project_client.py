@@ -96,10 +96,9 @@ def _get_ontologies_from_server(con: Connection, project_iri: str) -> list[str]:
             case dict():
                 return [body["@id"]]
             case _:
-                raise BaseError(f"Unexpected response from server: {body}")
+                raise BaseError("Unexpected response from server")
     except BaseError as e:
-        logger.exception(e)
-        raise BaseError(f"Ontologies for project {project_iri} could not be retrieved from the DSP server") from None
+        raise BaseError(f"Ontologies for project {project_iri} could not be retrieved from the DSP server") from e
 
 
 def _extract_name_from_onto_iri(iri: str) -> str:

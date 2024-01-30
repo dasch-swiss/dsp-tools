@@ -65,7 +65,7 @@ def run(args: list[str]) -> None:
         )
         success = call_requested_action(parsed_arguments)
     except BaseError as err:
-        logger.exception(err)
+        logger.exception("The process was terminated because of an Error:")
         print("\nThe process was terminated because of an Error:")
         print(err.message)
         sys.exit(1)

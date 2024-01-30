@@ -51,15 +51,7 @@ def get_project(
     project = project.read()
     project_obj = project.createDefinitionFileObj()
 
-    # get groups
-    if verbose:
-        print("Getting groups...")
-    groups_obj: list[dict[str, Any]] = []
-    if groups := Group.getAllGroupsForProject(con=con, proj_iri=str(project.iri)):
-        for group in groups:
-            groups_obj.append(group.createDefinitionFileObj())
-            if verbose:
-                print(f"    Got group '{group.name}'")
+    groups_obj = _get_groups(con, str(project.iri), verbose)
     project_obj["groups"] = groups_obj
 
     # get users
@@ -136,3 +128,15 @@ def _create_project(con: Connection, project_identifier: str) -> Project:
         raise BaseError(
             f"ERROR Invalid project identifier '{project_identifier}'. Use the project's shortcode, shortname or IRI."
         )
+
+
+def _get_groups(con: Connection, project_iri: str, verbose: bool) -> list[dict[str, Any]]:
+    if verbose:
+        print("Getting groups...")
+    groups_obj: list[dict[str, Any]] = []
+    if groups := Group.getAllGroupsForProject(con=con, proj_iri=project_iri):
+        for group in groups:
+            groups_obj.append(group.createDefinitionFileObj())
+            if verbose:
+                print(f"    Got group '{group.name}'")
+    return groups_obj

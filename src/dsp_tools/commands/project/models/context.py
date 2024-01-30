@@ -99,20 +99,8 @@ class Context:
 
         self._rcontext = {v.iri: k for k, v in self._context.items()}
 
-    def __len__(self) -> int:
-        return len(self._context)
-
     def __getitem__(self, key: str) -> OntoIri:
         return self._context[key]
-
-    def __setitem__(self, key: str, value: OntoIri) -> None:
-        self._context[key] = value
-        self._rcontext[value.iri] = key
-
-    def __delitem__(self, key: str) -> None:
-        iri = self._context[key].iri
-        del self._context[key].iri
-        del self._rcontext[iri]
 
     def __contains__(self, key: str) -> bool:
         return key in self._context

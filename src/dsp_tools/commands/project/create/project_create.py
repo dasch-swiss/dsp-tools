@@ -1059,24 +1059,24 @@ def create_project(
 
     # create the groups
     current_project_groups: dict[str, Group] = {}
-    if project_json["project"].get("groups"):
+    if project_definition.groups:
         print("Create groups...")
         logger.info("Create groups...")
         current_project_groups, success = _create_groups(
             con=con,
-            groups=project_json["project"]["groups"],
+            groups=project_definition.groups,
             project=project_remote,
         )
         if not success:
             overall_success = False
 
     # create or update the users
-    if project_json["project"].get("users"):
+    if project_definition.users:
         print("Create users...")
         logger.info("Create users...")
         success = _create_users(
             con=con,
-            users_section=project_json["project"]["users"],
+            users_section=project_definition.users,
             current_project_groups=current_project_groups,
             current_project=project_remote,
             verbose=verbose,
@@ -1090,7 +1090,7 @@ def create_project(
         context=context,
         knora_api_prefix=knora_api_prefix,
         names_and_iris_of_list_nodes=names_and_iris_of_list_nodes,
-        ontology_definitions=project_json["project"]["ontologies"],
+        ontology_definitions=all_ontos,
         project_remote=project_remote,
         verbose=verbose,
     )

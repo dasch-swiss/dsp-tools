@@ -109,11 +109,6 @@ class Context:
         self._context[key] = value
         self._rcontext[value.iri] = key
 
-    def __delitem__(self, key: str) -> None:
-        iri = self._context[key].iri
-        del self._context[key].iri
-        del self._rcontext[iri]
-
     def __contains__(self, key: str) -> bool:
         return key in self._context
 

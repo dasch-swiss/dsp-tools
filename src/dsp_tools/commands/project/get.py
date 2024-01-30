@@ -105,6 +105,9 @@ def _get_users(con: Connection, project: Project, verbose: bool) -> list[dict[st
         users = User.getAllUsersForProject(con=con, proj_shortcode=str(project.shortcode))
     except BaseError:
         return None
+    if users is None:
+        return None
+
     users_obj: list[dict[str, Any]] = []
     for usr in users:
         users_obj.append(

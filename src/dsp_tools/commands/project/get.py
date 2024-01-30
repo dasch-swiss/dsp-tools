@@ -10,6 +10,7 @@ from dsp_tools.commands.project.models.ontology import Ontology
 from dsp_tools.commands.project.models.project import Project
 from dsp_tools.commands.project.models.user import User
 from dsp_tools.models.exceptions import BaseError
+from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
 
 
@@ -45,17 +46,7 @@ def get_project(
         except BaseError:
             warnings.warn("WARNING: Missing or wrong credentials. You won't get data about the users of this project.")
 
-    project = None
-    if regex.match("[0-9A-F]{4}", project_identifier):  # shortcode
-        project = Project(con=con, shortcode=project_identifier)
-    elif regex.match("^[\\w-]+$", project_identifier):  # shortname
-        project = Project(con=con, shortname=project_identifier.lower())
-    elif regex.match("^(http)s?://([\\w\\.\\-~]+:?\\d{,4})(/[\\w\\-~]+)+$", project_identifier):  # iri
-        project = Project(con=con, shortname=project_identifier)
-    else:
-        raise BaseError(
-            f"ERROR Invalid project identifier '{project_identifier}'. Use the project's shortcode, shortname or IRI."
-        )
+    project = _create_project(con, project_identifier)
 
     project = project.read()
     project_obj = project.createDefinitionFileObj()
@@ -132,3 +123,16 @@ def get_project(
         json.dump(outfile_content, f, indent=4, ensure_ascii=False)
 
     return True
+
+
+def _create_project(con: Connection, project_identifier: str) -> Project:
+    if regex.match("[0-9A-F]{4}", project_identifier):  # shortcode
+        return Project(con=con, shortcode=project_identifier)
+    elif regex.match("^[\\w-]+$", project_identifier):  # shortname
+        return Project(con=con, shortname=project_identifier.lower())
+    elif regex.match("^(http)s?://([\\w\\.\\-~]+:?\\d{,4})(/[\\w\\-~]+)+$", project_identifier):  # iri
+        return Project(con=con, shortname=project_identifier)
+    else:
+        raise BaseError(
+            f"ERROR Invalid project identifier '{project_identifier}'. Use the project's shortcode, shortname or IRI."
+        )

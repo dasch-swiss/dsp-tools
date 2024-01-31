@@ -11,8 +11,8 @@ from openpyxl import load_workbook
 from openpyxl.cell import Cell
 from openpyxl.worksheet.worksheet import Worksheet
 
-from dsp_tools.commands.excel2json.input_error import MoreThanOneSheetProblem
-from dsp_tools.commands.excel2json.list_node_name_model import ListNodeNames
+from dsp_tools.commands.excel2json.models.input_error import MoreThanOneSheetProblem
+from dsp_tools.commands.excel2json.models.list_node_name import ListNodeNames
 from dsp_tools.models.exceptions import BaseError, InputError, UserError
 from dsp_tools.utils.shared import simplify_name
 

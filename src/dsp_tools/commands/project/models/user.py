@@ -426,38 +426,42 @@ class User(Model):
             raise BaseError("User is not member of project!")
 
     @classmethod
-    def _make_user_fromJsonObj(cls, con: Connection, json_obj: dict[str, Any]) -> User:
-        iri = json_obj.get("id")
-        if iri is None:
-            raise BaseError('User "iri" is missing in JSON from DSP')
-        email = json_obj.get("email")
-        if email is None:
-            raise BaseError('User "email" is missing in JSON from DSP')
-        username = json_obj.get("username")
-        if username is None:
-            raise BaseError('User "username" is missing in JSON from DSP')
-        familyName = json_obj.get("familyName")
-        givenName = json_obj.get("givenName")
-        lang = json_obj.get("lang")
-        status = json_obj.get("status")
-        if status is None:
-            raise BaseError("Status is missing in JSON from DSP")
+    def _make_fromJsonObj(cls, con: Connection, json_obj: dict[str, Any]) -> User:
+        User._check_if_jsonObj_has_required_info(json_obj)
 
         sysadmin, in_groups, in_projects = cls._update_permissions_and_groups(json_obj)
 
         return cls(
             con=con,
-            iri=iri,
-            username=username,
-            email=email,
-            givenName=givenName,
-            familyName=familyName,
-            lang=lang,
-            status=status,
+            iri=json_obj["iri"],
+            username=json_obj["username"],
+            email=json_obj["email"],
+            givenName=json_obj.get("givenName"),
+            familyName=json_obj.get("familyName"),
+            lang=json_obj.get("lang"),
+            status=json_obj["status"],
             sysadmin=sysadmin,
             in_projects=in_projects,
             in_groups=in_groups,
         )
+
+    @staticmethod
+    def _check_if_jsonObj_has_required_info(json_obj: dict[str, Any]) -> None:
+        problems = []
+        if json_obj.get("id") is None:
+            problems.append('User "iri" is missing in JSON from DSP')
+
+        if json_obj.get("email") is None:
+            problems.append('User "email" is missing in JSON from DSP')
+
+        if json_obj.get("username") is None:
+            problems.append('User "email" is missing in JSON from DSP')
+
+        if json_obj.get("status") is None:
+            problems.append('User "email" is missing in JSON from DSP')
+
+        if problems:
+            raise BaseError("\n".join(problems))
 
     @classmethod
     def _update_permissions_and_groups(cls, json_obj: dict[str, Any]) -> tuple[bool | None, set[str], dict[str, bool]]:
@@ -500,7 +504,7 @@ class User(Model):
         if self._in_groups is not None:
             for group in self._in_groups:
                 result = self._con.post(User.IRI + quote_plus(iri) + User.GROUP_MEMBERSHIPS + quote_plus(group))
-        return User._make_user_fromJsonObj(self._con, result["user"])
+        return User._make_fromJsonObj(self._con, result["user"])
 
     def _toJosonObj_action_create(self):
         tmp = {}
@@ -540,7 +544,7 @@ class User(Model):
             result = self._con.get(User.ROUTE + "/username/" + quote_plus(self._username))
         else:
             raise BaseError("Either user-iri or email is required!")
-        return User._make_user_fromJsonObj(self._con, result["user"])
+        return User._make_fromJsonObj(self._con, result["user"])
 
     def update(self, requesterPassword: Optional[str] = None) -> User:
         """
@@ -623,7 +627,7 @@ class User(Model):
         :return: None
         """
         result = self._con.delete(User.IRI + quote_plus(self._iri))
-        return User._make_user_fromJsonObj(self._con, result["user"])
+        return User._make_fromJsonObj(self._con, result["user"])
 
     @staticmethod
     def getAllUsers(con: Connection) -> list[Any]:
@@ -637,7 +641,7 @@ class User(Model):
         result = con.get(User.ROUTE)
         if "users" not in result:
             raise BaseError("Request got no users!")
-        return [User._make_user_fromJsonObj(con, a) for a in result["users"]]
+        return [User._make_fromJsonObj(con, a) for a in result["users"]]
 
     @staticmethod
     def getAllUsersForProject(con: Connection, proj_shortcode: str) -> Optional[list[User]]:
@@ -651,7 +655,7 @@ class User(Model):
         members = con.get(f"/admin/projects/shortcode/{proj_shortcode}/members")
         if members is None or len(members) < 1:
             return None
-        res: list[User] = [User._make_user_fromJsonObj(con, a) for a in members["members"]]
+        res: list[User] = [User._make_fromJsonObj(con, a) for a in members["members"]]
         res.reverse()
         return res
 

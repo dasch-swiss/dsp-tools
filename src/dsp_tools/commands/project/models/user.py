@@ -433,7 +433,7 @@ class User(Model):
 
         return cls(
             con=con,
-            iri=json_obj["iri"],
+            iri=json_obj["id"],
             username=json_obj["username"],
             email=json_obj["email"],
             givenName=json_obj.get("givenName"),

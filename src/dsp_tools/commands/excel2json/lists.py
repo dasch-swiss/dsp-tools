@@ -11,14 +11,9 @@ from openpyxl.cell import Cell
 from openpyxl.worksheet.worksheet import Worksheet
 
 from dsp_tools.commands.excel2json.input_error import MoreThanOneSheetProblem
+from dsp_tools.commands.excel2json.list_node_name_model import ListNodeNames
 from dsp_tools.models.exceptions import BaseError, InputError, UserError
 from dsp_tools.utils.shared import simplify_name
-
-list_of_lists_of_previous_cell_values: list[list[str]] = []
-"""Module level variable used to ensure that there are no duplicate node names"""
-
-list_of_previous_node_names: list[str] = []
-"""Module level variable used to ensure that there are no duplicate node names"""
 
 
 def expand_lists_from_excel(
@@ -117,6 +112,7 @@ def _get_values_from_excel(
     row: int,
     col: int,
     preval: list[str],
+    list_node_names: ListNodeNames,
     verbose: bool = False,
 ) -> tuple[int, dict[str, Any]]:
     """
@@ -130,6 +126,7 @@ def _get_values_from_excel(
         row: The index of the current row of the Excel sheet
         col: The index of the current column of the Excel sheet
         preval: List of previous values, needed to check the consistency of the list hierarchy
+        list_node_names: object containing the information which node names were used by previous lists
         verbose: verbose switch
 
     Raises:
@@ -177,12 +174,13 @@ def _get_values_from_excel(
                 col=col + 1,
                 row=row,
                 preval=preval,
+                list_node_names=list_node_names,
                 verbose=verbose,
             )
 
         # if value was last in row (no further values to the right), it's a node, continue here
         else:
-            currentnode = _make_new_node(cell, col, excelfiles, preval, row, verbose)
+            currentnode = _make_new_node(cell, col, excelfiles, preval, row, list_node_names, verbose)
             nodes.append(currentnode)
 
         # go one row down and repeat loop if there is a value
@@ -204,13 +202,17 @@ def _make_new_node(
     excelfiles: dict[str, Worksheet],
     preval: list[str],
     row: int,
+    list_node_names: ListNodeNames,
     verbose: bool = False,
 ) -> dict[str, Any]:
     # check if there are duplicate nodes (i.e. identical rows), raise a UserError if so
     new_check_list = preval.copy()
     new_check_list.append(str(cell.value).strip())
-    list_of_lists_of_previous_cell_values.append(new_check_list)
-    if any(list_of_lists_of_previous_cell_values.count(x) > 1 for x in list_of_lists_of_previous_cell_values):
+    list_node_names.lists_with_previous_cell_values.append(new_check_list)
+    if any(
+        list_node_names.lists_with_previous_cell_values.count(x) > 1
+        for x in list_node_names.lists_with_previous_cell_values
+    ):
         raise UserError(
             f"ERROR: There is at least one duplicate node in the list. "
             f"Found duplicate in column {cell.column}, row {cell.row}:\n'{str(cell.value).strip()}'"
@@ -218,9 +220,9 @@ def _make_new_node(
 
     # create a simplified version of the cell value and use it as name of the node
     nodename = simplify_name(str(cell.value).strip())
-    list_of_previous_node_names.append(nodename)
+    list_node_names.previous_node_names.append(nodename)
     # append a number (p.ex. node-name-2) if there are list nodes with identical names
-    n = list_of_previous_node_names.count(nodename)
+    n = list_node_names.previous_node_names.count(nodename)
 
     if n > 1:
         nodename = f"{nodename}-{n}"
@@ -261,11 +263,6 @@ def _make_json_lists_from_excel(
     Returns:
         The finished "lists" section
     """
-    # reset the global variables
-    global list_of_previous_node_names
-    global list_of_lists_of_previous_cell_values
-    list_of_previous_node_names = []
-    list_of_lists_of_previous_cell_values = []
 
     # Define starting point in Excel file
     startrow = 1
@@ -278,6 +275,8 @@ def _make_json_lists_from_excel(
     base_lang = "en" if "en" in lang_to_worksheet else next(iter(lang_to_worksheet.keys()))
     base_file = {base_lang: lang_to_worksheet[base_lang]}
 
+    list_node_names = ListNodeNames()
+
     # construct the entire "lists" section as children of a fictive dummy parent node
     _, _list = _get_values_from_excel(
         excelfiles=lang_to_worksheet,
@@ -286,6 +285,7 @@ def _make_json_lists_from_excel(
         row=startrow,
         col=startcol,
         preval=[],
+        list_node_names=list_node_names,
         verbose=verbose,
     )
 

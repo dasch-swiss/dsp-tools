@@ -554,7 +554,7 @@ class User(Model):
 
     def update(self, requesterPassword: Optional[str] = None) -> User:
         """
-        Udate the user info in DSP with the modified data in this user instance
+        Update the user info in DSP with the modified data in this user instance
 
         :param requesterPassword: Old password if a user wants to change it's own password
         :return: JSON-object from DSP
@@ -563,17 +563,9 @@ class User(Model):
         jsonobj = self._toJsonObj_actions_update()
         if jsonobj:
             self._con.put(User.IRI + quote_plus(self._iri) + "/BasicUserInformation", jsonobj)
-        if "status" in self._changed:
-            jsonobj = {"status": self._status}
-            self._con.put(User.IRI + quote_plus(self._iri) + "/Status", jsonobj)
-        if "password" in self._changed:
-            if requesterPassword is None:
-                raise BaseError("Requester's password is missing!")
-            jsonobj = {"requesterPassword": requesterPassword, "newPassword": self._password}
-            self._con.put(User.IRI + quote_plus(self._iri) + "/Password", jsonobj)
-        if "sysadmin" in self._changed:
-            jsonobj = {"systemAdmin": self._sysadmin}
-            self._con.put(User.IRI + quote_plus(self._iri) + "/SystemAdmin", jsonobj)
+
+        self._con_put_changed_info(requesterPassword)
+
         for p in self._add_to_project.items():
             self._con.post(User.IRI + quote_plus(self._iri) + User.PROJECT_MEMBERSHIPS + quote_plus(p[0]))
             if p[1]:
@@ -594,10 +586,24 @@ class User(Model):
 
         for p in self._add_to_group:
             self._con.post(User.IRI + quote_plus(self._iri) + User.GROUP_MEMBERSHIPS + quote_plus(p))
+
         for p in self._rm_from_group:
             self._con.delete(User.IRI + quote_plus(self._iri) + User.GROUP_MEMBERSHIPS + quote_plus(p))
         user = User(con=self._con, iri=self._iri).read()
         return user
+
+    def _con_put_changed_info(self, requesterPassword: Optional[str] = None) -> None:
+        if "status" in self._changed:
+            jsonobj = {"status": self._status}
+            self._con.put(User.IRI + quote_plus(self._iri) + "/Status", jsonobj)
+        if "password" in self._changed:
+            if requesterPassword is None:
+                raise BaseError("Requester's password is missing!")
+            jsonobj = {"requesterPassword": requesterPassword, "newPassword": self._password}
+            self._con.put(User.IRI + quote_plus(self._iri) + "/Password", jsonobj)
+        if "sysadmin" in self._changed:
+            jsonobj = {"systemAdmin": self._sysadmin}
+            self._con.put(User.IRI + quote_plus(self._iri) + "/SystemAdmin", jsonobj)
 
     def _toJsonObj_actions_update(self) -> dict[str, Any]:
         tmp = {}

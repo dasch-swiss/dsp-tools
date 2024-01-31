@@ -628,7 +628,7 @@ class TestValidateProperties:
                 path_to_output_file="",
             )
 
-    def test_add_optional_columns(self) -> None:
+    def test_add_optional_columns_with_missing_cols(self) -> None:
         original_df = pd.DataFrame(
             {
                 "comment_en": ["text_en", pd.NA],
@@ -657,6 +657,25 @@ class TestValidateProperties:
         returned_df = returned_df.sort_index(axis=1)
         assert_frame_equal(expected_df, returned_df)
         # if all columns exist, the df should be returned unchanged
+        unchanged_df = e2j._add_optional_columns(df=expected_df)
+        assert_frame_equal(expected_df, unchanged_df)
+
+    def test_add_optional_columns_no_missing_cols(self) -> None:
+        expected_df = pd.DataFrame(
+            {
+                "comment_de": [pd.NA, pd.NA],
+                "comment_en": ["text_en", pd.NA],
+                "comment_fr": [pd.NA, pd.NA],
+                "comment_it": ["text_it", pd.NA],
+                "comment_rm": [pd.NA, pd.NA],
+                "label_de": [pd.NA, pd.NA],
+                "label_en": [pd.NA, pd.NA],
+                "label_fr": [pd.NA, pd.NA],
+                "label_it": [pd.NA, pd.NA],
+                "label_rm": [pd.NA, pd.NA],
+                "subject": [pd.NA, pd.NA],
+            }
+        )
         unchanged_df = e2j._add_optional_columns(df=expected_df)
         assert_frame_equal(expected_df, unchanged_df)
 

@@ -12,9 +12,7 @@ repos:
           --ignore=D102,
           --ignore=PLR0912,
           --ignore=PLR0913,
-          --ignore=PLR0915,
           --ignore=PLR2004,
-          --ignore=PLR5501,
           --ignore=PLW0603,
         ]
       - id: ruff-format

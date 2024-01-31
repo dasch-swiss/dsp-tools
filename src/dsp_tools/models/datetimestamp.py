@@ -38,11 +38,10 @@ class DateTimeStamp:
             self._dateTimeStamp = val
         elif isinstance(val, DateTimeStamp):
             self._dateTimeStamp = str(val)
+        elif val.get("@type") == "xsd:dateTimeStamp" and regex.search(self._validation_regex, str(val.get("@value"))):
+            self._dateTimeStamp = val["@value"]
         else:
-            if val.get("@type") == "xsd:dateTimeStamp" and regex.search(self._validation_regex, str(val.get("@value"))):
-                self._dateTimeStamp = val["@value"]
-            else:
-                raise BaseError(f"Invalid xsd:dateTimeStamp: '{val}'")
+            raise BaseError(f"Invalid xsd:dateTimeStamp: '{val}'")
 
     def __eq__(self, other: Union[str, "DateTimeStamp"]) -> bool:
         if isinstance(other, str):

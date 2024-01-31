@@ -426,17 +426,7 @@ class User(Model):
             raise BaseError("User is not member of project!")
 
     @classmethod
-    def fromJsonObj(cls, con: Connection, json_obj: dict[str, Any]) -> User:
-        """
-        Internal method! Should not be used directly!
-
-        This method is used to create a User instance from the JSON data returned by DSP
-
-        :param con: Connection instance
-        :param json_obj: JSON data returned by DSP as python3 object
-        :return: User instance
-        """
-
+    def _make_user_fromJsonObj(cls, con: Connection, json_obj: dict[str, Any]) -> User:
         iri = json_obj.get("id")
         if iri is None:
             raise BaseError('User "iri" is missing in JSON from DSP')
@@ -510,7 +500,7 @@ class User(Model):
         if self._in_groups is not None:
             for group in self._in_groups:
                 result = self._con.post(User.IRI + quote_plus(iri) + User.GROUP_MEMBERSHIPS + quote_plus(group))
-        return User.fromJsonObj(self._con, result["user"])
+        return User._make_user_fromJsonObj(self._con, result["user"])
 
     def _toJosonObj_action_create(self):
         tmp = {}
@@ -550,7 +540,7 @@ class User(Model):
             result = self._con.get(User.ROUTE + "/username/" + quote_plus(self._username))
         else:
             raise BaseError("Either user-iri or email is required!")
-        return User.fromJsonObj(self._con, result["user"])
+        return User._make_user_fromJsonObj(self._con, result["user"])
 
     def update(self, requesterPassword: Optional[str] = None) -> User:
         """
@@ -633,7 +623,7 @@ class User(Model):
         :return: None
         """
         result = self._con.delete(User.IRI + quote_plus(self._iri))
-        return User.fromJsonObj(self._con, result["user"])
+        return User._make_user_fromJsonObj(self._con, result["user"])
 
     @staticmethod
     def getAllUsers(con: Connection) -> list[Any]:
@@ -647,7 +637,7 @@ class User(Model):
         result = con.get(User.ROUTE)
         if "users" not in result:
             raise BaseError("Request got no users!")
-        return [User.fromJsonObj(con, a) for a in result["users"]]
+        return [User._make_user_fromJsonObj(con, a) for a in result["users"]]
 
     @staticmethod
     def getAllUsersForProject(con: Connection, proj_shortcode: str) -> Optional[list[User]]:
@@ -661,7 +651,7 @@ class User(Model):
         members = con.get(f"/admin/projects/shortcode/{proj_shortcode}/members")
         if members is None or len(members) < 1:
             return None
-        res: list[User] = [User.fromJsonObj(con, a) for a in members["members"]]
+        res: list[User] = [User._make_user_fromJsonObj(con, a) for a in members["members"]]
         res.reverse()
         return res
 

@@ -27,7 +27,6 @@ from __future__ import annotations
 from typing import Any, Optional, Union
 from urllib.parse import quote_plus
 
-from dsp_tools.commands.project.models.helpers import Actions
 from dsp_tools.commands.project.models.model import Model
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.langstring import LangString, Languages
@@ -346,56 +345,6 @@ class Project(Model):
             logo=logo,
         )
 
-    def toJsonObj(self, action: Actions) -> dict[str, str]:
-        """
-        Internal method! Should not be used directly!
-
-        Creates a JSON-object from the Project instance that can be used to call DSP
-
-        :param action: Action the object is used for (Action.CREATE or Action.UPDATE)
-        :return: JSON-object
-        """
-
-        tmp = {}
-        if action == Actions.Create:
-            if self._shortcode is None:
-                raise BaseError("There must be a valid project shortcode!")
-            tmp["shortcode"] = self._shortcode
-            if self._shortname is None:
-                raise BaseError("There must be a valid project shortname!")
-            tmp["shortname"] = self._shortname
-            if self._longname is None:
-                raise BaseError("There must be a valid project longname!")
-            tmp["longname"] = self._longname
-            if self._description.isEmpty():
-                raise BaseError("There must be a valid project description!")
-            tmp["description"] = self._description.toJsonObj()
-            if self._keywords is not None and len(self._keywords) > 0:
-                tmp["keywords"] = self._keywords
-            if self._selfjoin is None:
-                raise BaseError("selfjoin must be defined (True or False!")
-            tmp["selfjoin"] = self._selfjoin
-            if self._status is None:
-                raise BaseError("status must be defined (True or False!")
-            tmp["status"] = self._status
-
-        elif action == Actions.Update:
-            if self._shortcode is not None and "shortcode" in self._changed:
-                tmp["shortcode"] = self._shortcode
-            if self._shortname is not None and "shortname" in self._changed:
-                tmp["shortname"] = self._shortname
-            if self._longname is not None and "longname" in self._changed:
-                tmp["longname"] = self._longname
-            if not self._description.isEmpty() and "description" in self._changed:
-                tmp["description"] = self._description.toJsonObj()
-            if len(self._keywords) > 0 and "keywords" in self._changed:
-                tmp["keywords"] = self._keywords
-            if self._selfjoin is not None and "selfjoin" in self._changed:
-                tmp["selfjoin"] = self._selfjoin
-            if self._status is not None and "status" in self._changed:
-                tmp["status"] = self._status
-        return tmp
-
     def createDefinitionFileObj(self) -> dict[str, Any]:
         return {
             "shortcode": self._shortcode,
@@ -411,9 +360,33 @@ class Project(Model):
 
         :return: JSON-object from DSP
         """
-        jsonobj = self.toJsonObj(Actions.Create)
+        jsonobj = self._toJsonObj_action_create()
         result = self._con.post(Project.ROUTE, jsonobj)
         return Project.fromJsonObj(self._con, result["project"])
+
+    def _toJsonObj_action_create(self) -> dict[str, str]:
+        tmp = {}
+        if self._shortcode is None:
+            raise BaseError("There must be a valid project shortcode!")
+        tmp["shortcode"] = self._shortcode
+        if self._shortname is None:
+            raise BaseError("There must be a valid project shortname!")
+        tmp["shortname"] = self._shortname
+        if self._longname is None:
+            raise BaseError("There must be a valid project longname!")
+        tmp["longname"] = self._longname
+        if self._description.isEmpty():
+            raise BaseError("There must be a valid project description!")
+        tmp["description"] = self._description.toJsonObj()
+        if self._keywords is not None and len(self._keywords) > 0:
+            tmp["keywords"] = self._keywords
+        if self._selfjoin is None:
+            raise BaseError("selfjoin must be defined (True or False!")
+        tmp["selfjoin"] = self._selfjoin
+        if self._status is None:
+            raise BaseError("status must be defined (True or False!")
+        tmp["status"] = self._status
+        return tmp
 
     def read(self) -> Project:
         """
@@ -442,9 +415,27 @@ class Project(Model):
 
         Returns: JSON object returned as response from DSP reflecting the update
         """
-        jsonobj = self.toJsonObj(Actions.Update)
+        jsonobj = self._toJsonObj_action_update()
         result = self._con.put(Project.IRI + quote_plus(self.iri), jsonobj)
         return Project.fromJsonObj(self._con, result["project"])
+
+    def _toJsonObj_action_update(self) -> dict[str, str]:
+        tmp = {}
+        if self._shortcode is not None and "shortcode" in self._changed:
+            tmp["shortcode"] = self._shortcode
+        if self._shortname is not None and "shortname" in self._changed:
+            tmp["shortname"] = self._shortname
+        if self._longname is not None and "longname" in self._changed:
+            tmp["longname"] = self._longname
+        if not self._description.isEmpty() and "description" in self._changed:
+            tmp["description"] = self._description.toJsonObj()
+        if len(self._keywords) > 0 and "keywords" in self._changed:
+            tmp["keywords"] = self._keywords
+        if self._selfjoin is not None and "selfjoin" in self._changed:
+            tmp["selfjoin"] = self._selfjoin
+        if self._status is not None and "status" in self._changed:
+            tmp["status"] = self._status
+        return tmp
 
     def delete(self) -> Project:
         """

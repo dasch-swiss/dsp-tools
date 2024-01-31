@@ -504,6 +504,7 @@ class TestFunctions(unittest.TestCase):
         expected_dict = {
             "name": "name_1",
             "object": "object_1",
+            "subject": "subject_1",
             "gui_element": "Simple",
             "labels": {
                 "en": "label_en_1",
@@ -531,6 +532,7 @@ class TestFunctions(unittest.TestCase):
             "labels": {"en": "label_en_2"},
             "name": "name_2",
             "object": "object_2",
+            "subject": "subject_2",
             "super": ["super_2.1", "super_2.2"],
         }
         self.assertDictEqual(expected_dict, returned_dict)

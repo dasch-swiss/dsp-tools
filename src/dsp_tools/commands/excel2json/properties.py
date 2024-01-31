@@ -153,19 +153,6 @@ def _do_property_excel_compliance(df: pd.DataFrame, excelfile: str) -> None:
 
 
 def _add_optional_columns(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    This function takes a df and a set of columns which may not be in the df,
-    but whose absence could cause errors in the code following.
-    The columns are added, without any values in the rows.
-
-    Args:
-        df: Original df
-        optional_col_set: set of columns that may not be in the df, if they are not, they will be added.
-
-    Returns:
-        The df with the added columns.
-        If all are already there, the df is returned unchanged.
-    """
     optional_col_set = {
         "label_en",
         "label_de",
@@ -180,6 +167,11 @@ def _add_optional_columns(df: pd.DataFrame) -> pd.DataFrame:
         "subject",
     }
     in_df_cols = set(df.columns)
+    if "subject" not in in_df_cols:
+        warnings.warn(
+            "It is possible to add a constraint to the subject of a property.\n"
+            'To do this you can enter a resource name in the column "subject".'
+        )
     if not optional_col_set.issubset(in_df_cols):
         additional_col = list(optional_col_set.difference(in_df_cols))
         additional_df = pd.DataFrame(columns=additional_col, index=df.index, data=pd.NA)
@@ -237,6 +229,8 @@ def _row2prop(df_row: pd.Series, row_num: int, excelfile: str) -> dict[str, Any]
         "labels": get_labels(df_row=df_row),
         "super": [s.strip() for s in df_row["super"].split(",")],
     }
+    if not pd.isna(df_row["subject"]):
+        _property["subject"] = df_row["subject"]
 
     gui_attrib = _get_gui_attribute(df_row=df_row, row_num=row_num)
     match gui_attrib:

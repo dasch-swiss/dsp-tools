@@ -491,7 +491,7 @@ class User(Model):
 
         :return: JSON-object from DSP
         """
-        jsonobj = self._toJosonObj_action_create()
+        jsonobj = self._toJosonObj_create()
         result = self._con.post(User.ROUTE, jsonobj)
         iri = result["user"]["id"]
         if self._in_projects is not None:
@@ -506,7 +506,7 @@ class User(Model):
                 result = self._con.post(User.IRI + quote_plus(iri) + User.GROUP_MEMBERSHIPS + quote_plus(group))
         return User._make_fromJsonObj(self._con, result["user"])
 
-    def _toJosonObj_action_create(self):
+    def _toJosonObj_create(self):
         tmp = {}
         if self._username is None:
             raise BaseError("There must be a valid username!")
@@ -554,22 +554,24 @@ class User(Model):
         :return: JSON-object from DSP
         """
 
-        jsonobj = self._toJsonObj_actions_update()
+        jsonobj = self._toJsonObj_update()
         if jsonobj:
             self._con.put(User.IRI + quote_plus(self._iri) + "/BasicUserInformation", jsonobj)
 
-        self._con_put_changed_info(requesterPassword)
+        self._update_changed_values(requesterPassword)
+        self._update_project_membership()
+        self._change_admin_rights()
+        self._update_group_membership()
+        user = User(con=self._con, iri=self._iri).read()
+        return user
 
-        for p in self._add_to_project.items():
-            self._con.post(User.IRI + quote_plus(self._iri) + User.PROJECT_MEMBERSHIPS + quote_plus(p[0]))
-            if p[1]:
-                self._con.post(User.IRI + quote_plus(self._iri) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p[0]))
+    def _update_group_membership(self):
+        for p in self._add_to_group:
+            self._con.post(User.IRI + quote_plus(self._iri) + User.GROUP_MEMBERSHIPS + quote_plus(p))
+        for p in self._rm_from_group:
+            self._con.delete(User.IRI + quote_plus(self._iri) + User.GROUP_MEMBERSHIPS + quote_plus(p))
 
-        for p in self._rm_from_project:
-            if self._in_projects.get(p) is not None and self._in_projects[p]:
-                self._con.delete(User.IRI + quote_plus(self._iri) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p))
-            self._con.delete(User.IRI + quote_plus(self._iri) + User.PROJECT_MEMBERSHIPS + quote_plus(p))
-
+    def _change_admin_rights(self):
         for p in self._change_admin.items():
             if p[0] not in self._in_projects:
                 raise BaseError("user must be member of project!")
@@ -578,15 +580,17 @@ class User(Model):
             else:
                 self._con.delete(User.IRI + quote_plus(self._iri) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p[0]))
 
-        for p in self._add_to_group:
-            self._con.post(User.IRI + quote_plus(self._iri) + User.GROUP_MEMBERSHIPS + quote_plus(p))
+    def _update_project_membership(self):
+        for p in self._add_to_project.items():
+            self._con.post(User.IRI + quote_plus(self._iri) + User.PROJECT_MEMBERSHIPS + quote_plus(p[0]))
+            if p[1]:
+                self._con.post(User.IRI + quote_plus(self._iri) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p[0]))
+        for p in self._rm_from_project:
+            if self._in_projects.get(p) is not None and self._in_projects[p]:
+                self._con.delete(User.IRI + quote_plus(self._iri) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p))
+            self._con.delete(User.IRI + quote_plus(self._iri) + User.PROJECT_MEMBERSHIPS + quote_plus(p))
 
-        for p in self._rm_from_group:
-            self._con.delete(User.IRI + quote_plus(self._iri) + User.GROUP_MEMBERSHIPS + quote_plus(p))
-        user = User(con=self._con, iri=self._iri).read()
-        return user
-
-    def _con_put_changed_info(self, requesterPassword: Optional[str] = None) -> None:
+    def _update_changed_values(self, requesterPassword: Optional[str] = None) -> None:
         if "status" in self._changed:
             jsonobj = {"status": self._status}
             self._con.put(User.IRI + quote_plus(self._iri) + "/Status", jsonobj)
@@ -599,7 +603,7 @@ class User(Model):
             jsonobj = {"systemAdmin": self._sysadmin}
             self._con.put(User.IRI + quote_plus(self._iri) + "/SystemAdmin", jsonobj)
 
-    def _toJsonObj_actions_update(self) -> dict[str, Any]:
+    def _toJsonObj_update(self) -> dict[str, Any]:
         tmp = {}
         tmp_changed = False
         if self._username is not None and "username" in self._changed:

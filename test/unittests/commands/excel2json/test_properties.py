@@ -504,6 +504,7 @@ class TestFunctions(unittest.TestCase):
         expected_dict = {
             "name": "name_1",
             "object": "object_1",
+            "subject": "subject_1",
             "gui_element": "Simple",
             "labels": {
                 "en": "label_en_1",
@@ -531,6 +532,7 @@ class TestFunctions(unittest.TestCase):
             "labels": {"en": "label_en_2"},
             "name": "name_2",
             "object": "object_2",
+            "subject": "subject_2",
             "super": ["super_2.1", "super_2.2"],
         }
         self.assertDictEqual(expected_dict, returned_dict)
@@ -625,6 +627,54 @@ class TestValidateProperties:
                 excelfile="testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute_values.xlsx",
                 path_to_output_file="",
             )
+
+    def test_add_optional_columns_with_missing_cols(self) -> None:
+        original_df = pd.DataFrame(
+            {
+                "comment_en": ["text_en", pd.NA],
+                "comment_it": ["text_it", pd.NA],
+                "comment_rm": [pd.NA, pd.NA],
+            }
+        )
+        expected_df = pd.DataFrame(
+            {
+                "comment_de": [pd.NA, pd.NA],
+                "comment_en": ["text_en", pd.NA],
+                "comment_fr": [pd.NA, pd.NA],
+                "comment_it": ["text_it", pd.NA],
+                "comment_rm": [pd.NA, pd.NA],
+                "label_de": [pd.NA, pd.NA],
+                "label_en": [pd.NA, pd.NA],
+                "label_fr": [pd.NA, pd.NA],
+                "label_it": [pd.NA, pd.NA],
+                "label_rm": [pd.NA, pd.NA],
+                "subject": [pd.NA, pd.NA],
+            }
+        )
+        returned_df = e2j._add_optional_columns(df=original_df)
+        # as the columns are extracted via a set, they are not sorted and may appear in any order,
+        # this would cause the validation to fail
+        returned_df = returned_df.sort_index(axis=1)
+        assert_frame_equal(expected_df, returned_df)
+
+    def test_add_optional_columns_no_missing_cols(self) -> None:
+        expected_df = pd.DataFrame(
+            {
+                "comment_de": [pd.NA, pd.NA],
+                "comment_en": ["text_en", pd.NA],
+                "comment_fr": [pd.NA, pd.NA],
+                "comment_it": ["text_it", pd.NA],
+                "comment_rm": [pd.NA, pd.NA],
+                "label_de": [pd.NA, pd.NA],
+                "label_en": [pd.NA, pd.NA],
+                "label_fr": [pd.NA, pd.NA],
+                "label_it": [pd.NA, pd.NA],
+                "label_rm": [pd.NA, pd.NA],
+                "subject": [pd.NA, pd.NA],
+            }
+        )
+        unchanged_df = e2j._add_optional_columns(df=expected_df)
+        assert_frame_equal(expected_df, unchanged_df)
 
 
 if __name__ == "__main__":

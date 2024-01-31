@@ -656,9 +656,6 @@ class TestValidateProperties:
         # this would cause the validation to fail
         returned_df = returned_df.sort_index(axis=1)
         assert_frame_equal(expected_df, returned_df)
-        # if all columns exist, the df should be returned unchanged
-        unchanged_df = e2j._add_optional_columns(df=expected_df)
-        assert_frame_equal(expected_df, unchanged_df)
 
     def test_add_optional_columns_no_missing_cols(self) -> None:
         expected_df = pd.DataFrame(

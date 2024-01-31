@@ -162,6 +162,7 @@
                         "super": [
                             "hasValue"
                         ],
+                        "subject": ":Person",
                         "object": "ListValue",
                         "labels": {
                             "fr": "only French"
@@ -241,6 +242,7 @@
                         "super": [
                             "hasValue"
                         ],
+                        "subject": ":Person",
                         "object": "IntValue",
                         "labels": {
                             "en": "age",
@@ -458,6 +460,7 @@
                         "super": [
                             "isPartOf"
                         ],
+                        "subject": ":Image",
                         "object": ":Documents",
                         "labels": {
                             "en": "is part of a document",

@@ -167,11 +167,6 @@ def _add_optional_columns(df: pd.DataFrame) -> pd.DataFrame:
         "subject",
     }
     in_df_cols = set(df.columns)
-    if "subject" not in in_df_cols:
-        warnings.warn(
-            "It is possible to add a constraint to the subject of a property.\n"
-            'To do this you can enter a resource name in the column "subject".'
-        )
     if not optional_col_set.issubset(in_df_cols):
         additional_col = list(optional_col_set.difference(in_df_cols))
         additional_df = pd.DataFrame(columns=additional_col, index=df.index, data=pd.NA)

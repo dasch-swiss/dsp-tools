@@ -1,6 +1,7 @@
 """This module handles all the operations which are used for the creation of JSON lists from Excel files."""
 import importlib.resources
 import json
+from copy import deepcopy
 from pathlib import Path
 from typing import Any, Optional, Union
 
@@ -44,33 +45,32 @@ def expand_lists_from_excel(
             continue
 
         # case 2: this is a reference to a folder with Excel files
-        new_lists.extend(_read_excel_make_lists(_list))
+        new_lists.append(_read_excel_make_lists(_list))
 
     return new_lists
 
 
-def _read_excel_make_lists(_list: dict[str, Union[str, dict[str, Any]]]) -> list[dict[str, Any]]:
-    one_list = []
+def _read_excel_make_lists(_list: dict[str, Union[str, dict[str, Any]]]) -> dict[str, Any]:
     foldername = _list["nodes"]["folder"]  # type: ignore[index]  # types are too complex to annotate them correctly
     excel_file_paths = _extract_excel_file_paths(foldername)
+    new_list = deepcopy(_list)
     try:
         returned_lists_section = _make_json_lists_from_excel(excel_file_paths, verbose=False)
         # we only need the "nodes" section of the first element of the returned "lists" section. This "nodes"
         # section needs to replace the Excel folder reference. But the rest of the user-defined list element
         # needs to stay intact, e.g. the labels and comments.
-        _list["nodes"] = returned_lists_section[0]["nodes"]
-        one_list.append(_list)
+        new_list["nodes"] = returned_lists_section[0]["nodes"]
         print(
             f"    The list '{_list['name']}' contains a reference to the folder '{foldername}'. The Excel "
             f"files therein have been temporarily expanded into the 'lists' section of your project."
         )
+        return new_list
     except BaseError as err:
         raise UserError(
             f"    WARNING: The list '{_list['name']}' contains a reference to the folder '{foldername}', but a "
             f"problem occurred while trying to expand the Excel files therein into the 'lists' section of "
             f"your project: {err.message}"
         ) from None
-    return one_list
 
 
 def excel2lists(

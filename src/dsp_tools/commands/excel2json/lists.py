@@ -1,6 +1,7 @@
 """This module handles all the operations which are used for the creation of JSON lists from Excel files."""
 import importlib.resources
 import json
+from copy import deepcopy
 from pathlib import Path
 from typing import Any, Optional, Union
 
@@ -10,15 +11,10 @@ from openpyxl import load_workbook
 from openpyxl.cell import Cell
 from openpyxl.worksheet.worksheet import Worksheet
 
-from dsp_tools.commands.excel2json.input_error import MoreThanOneSheetProblem
+from dsp_tools.commands.excel2json.models.input_error import MoreThanOneSheetProblem
+from dsp_tools.commands.excel2json.models.list_node_name import ListNodeNames
 from dsp_tools.models.exceptions import BaseError, InputError, UserError
 from dsp_tools.utils.shared import simplify_name
-
-list_of_lists_of_previous_cell_values: list[list[str]] = []
-"""Module level variable used to ensure that there are no duplicate node names"""
-
-list_of_previous_node_names: list[str] = []
-"""Module level variable used to ensure that there are no duplicate node names"""
 
 
 def expand_lists_from_excel(
@@ -41,7 +37,7 @@ def expand_lists_from_excel(
     Returns:
         the same "lists" section, but without references to Excel files
     """
-    new_lists = []
+    new_lists: list[dict[str, Any]] = []
     for _list in lists_section:
         # case 1: this list is a JSON list: return it as it is
         if "folder" not in _list["nodes"]:
@@ -49,27 +45,32 @@ def expand_lists_from_excel(
             continue
 
         # case 2: this is a reference to a folder with Excel files
-        foldername = _list["nodes"]["folder"]  # type: ignore[index]  # types are too complex to annotate them correctly
-        excel_file_paths = _extract_excel_file_paths(foldername)
-        try:
-            returned_lists_section = _make_json_lists_from_excel(excel_file_paths, verbose=False)
-            # we only need the "nodes" section of the first element of the returned "lists" section. This "nodes"
-            # section needs to replace the Excel folder reference. But the rest of the user-defined list element
-            # needs to stay intact, e.g. the labels and comments.
-            _list["nodes"] = returned_lists_section[0]["nodes"]
-            new_lists.append(_list)
-            print(
-                f"    The list '{_list['name']}' contains a reference to the folder '{foldername}'. The Excel "
-                f"files therein have been temporarily expanded into the 'lists' section of your project."
-            )
-        except BaseError as err:
-            raise UserError(
-                f"    WARNING: The list '{_list['name']}' contains a reference to the folder '{foldername}', but a "
-                f"problem occurred while trying to expand the Excel files therein into the 'lists' section of "
-                f"your project: {err.message}"
-            ) from None
+        new_lists.append(_read_excel_make_lists(_list))
 
     return new_lists
+
+
+def _read_excel_make_lists(_list: dict[str, Union[str, dict[str, Any]]]) -> dict[str, Any]:
+    foldername = _list["nodes"]["folder"]  # type: ignore[index]  # types are too complex to annotate them correctly
+    excel_file_paths = _extract_excel_file_paths(foldername)
+    new_list = deepcopy(_list)
+    try:
+        returned_lists_section = _make_json_lists_from_excel(excel_file_paths, verbose=False)
+        # we only need the "nodes" section of the first element of the returned "lists" section. This "nodes"
+        # section needs to replace the Excel folder reference. But the rest of the user-defined list element
+        # needs to stay intact, e.g. the labels and comments.
+        new_list["nodes"] = returned_lists_section[0]["nodes"]
+        print(
+            f"    The list '{_list['name']}' contains a reference to the folder '{foldername}'. The Excel "
+            f"files therein have been temporarily expanded into the 'lists' section of your project."
+        )
+        return new_list
+    except BaseError as err:
+        raise UserError(
+            f"    WARNING: The list '{_list['name']}' contains a reference to the folder '{foldername}', but a "
+            f"problem occurred while trying to expand the Excel files therein into the 'lists' section of "
+            f"your project: {err.message}"
+        ) from None
 
 
 def excel2lists(
@@ -92,13 +93,11 @@ def excel2lists(
     Returns:
         a tuple consisting of the "lists" section as Python list, and the success status (True if everything went well)
     """
-    # read the data
     excel_file_paths = _extract_excel_file_paths(excelfolder)
     if verbose:
         print("The following Excel files will be processed:")
         print(*(f" - {filename}" for filename in excel_file_paths), sep="\n")
 
-    # construct the "lists" section
     finished_lists = _make_json_lists_from_excel(excel_file_paths, verbose=verbose)
     validate_lists_section_with_schema(lists_section=finished_lists)
 
@@ -117,6 +116,7 @@ def _get_values_from_excel(
     row: int,
     col: int,
     preval: list[str],
+    list_node_names: ListNodeNames,
     verbose: bool = False,
 ) -> tuple[int, dict[str, Any]]:
     """
@@ -130,6 +130,7 @@ def _get_values_from_excel(
         row: The index of the current row of the Excel sheet
         col: The index of the current column of the Excel sheet
         preval: List of previous values, needed to check the consistency of the list hierarchy
+        list_node_names: object containing the information which node names were used by previous lists
         verbose: verbose switch
 
     Raises:
@@ -159,13 +160,7 @@ def _get_values_from_excel(
         preval.append(str(base_file_ws.cell(column=col - 1, row=row).value).strip())
 
     while cell.value and regex.search(r"\p{L}", str(cell.value), flags=regex.UNICODE):
-        # check if all predecessors in row (values to the left) are consistent with the values in preval list
-        for idx, val in enumerate(preval[:-1]):
-            if val != str(base_file_ws.cell(column=idx + 1, row=row).value).strip():
-                raise UserError(
-                    "ERROR: Inconsistency in Excel list: "
-                    f"{val} not equal to {str(base_file_ws.cell(column=idx+1, row=row).value).strip()}"
-                )
+        _check_if_predecessors_in_row_are_consistent_with_preval(base_file_ws, preval, row)
 
         # loop through the row until the last (furthest right) value is found
         next_value = base_file_ws.cell(column=col + 1, row=row).value
@@ -177,12 +172,13 @@ def _get_values_from_excel(
                 col=col + 1,
                 row=row,
                 preval=preval,
+                list_node_names=list_node_names,
                 verbose=verbose,
             )
 
         # if value was last in row (no further values to the right), it's a node, continue here
         else:
-            currentnode = _make_new_node(cell, col, excelfiles, preval, row, verbose)
+            currentnode = _make_new_node(cell, col, excelfiles, preval, row, list_node_names, verbose)
             nodes.append(currentnode)
 
         # go one row down and repeat loop if there is a value
@@ -198,33 +194,60 @@ def _get_values_from_excel(
     return row - 1, parentnode
 
 
+def _check_if_predecessors_in_row_are_consistent_with_preval(
+    base_file_ws: Worksheet, preval: list[str], row: int
+) -> None:
+    for idx, val in enumerate(preval[:-1]):
+        if val != str(base_file_ws.cell(column=idx + 1, row=row).value).strip():
+            raise UserError(
+                "ERROR: Inconsistency in Excel list: "
+                f"{val} not equal to {str(base_file_ws.cell(column=idx + 1, row=row).value).strip()}"
+            )
+
+
 def _make_new_node(
     cell: Cell,
     col: int,
     excelfiles: dict[str, Worksheet],
     preval: list[str],
     row: int,
+    list_node_names: ListNodeNames,
     verbose: bool = False,
 ) -> dict[str, Any]:
-    # check if there are duplicate nodes (i.e. identical rows), raise a UserError if so
+    _check_if_duplicate_nodes_exist(cell, list_node_names, preval)
+    # create a simplified version of the cell value and use it as name of the node
+    nodename = simplify_name(str(cell.value).strip())
+    list_node_names.previous_node_names.append(nodename)
+    # append a number (p.ex. node-name-2) if there are list nodes with identical names
+    n = list_node_names.previous_node_names.count(nodename)
+
+    if n > 1:
+        nodename = f"{nodename}-{n}"
+
+    labels_dict = _get_all_languages_of_node(excelfiles, col, row)
+
+    # create the current node from extracted cell values and append it to the nodes list
+    currentnode = {"name": nodename, "labels": labels_dict}
+    if verbose:
+        print(f"Added list node: {str(cell.value).strip()} ({nodename})")
+    return currentnode
+
+
+def _check_if_duplicate_nodes_exist(cell: Cell, list_node_names: ListNodeNames, preval: list[str]) -> None:
     new_check_list = preval.copy()
     new_check_list.append(str(cell.value).strip())
-    list_of_lists_of_previous_cell_values.append(new_check_list)
-    if any(list_of_lists_of_previous_cell_values.count(x) > 1 for x in list_of_lists_of_previous_cell_values):
+    list_node_names.lists_with_previous_cell_values.append(new_check_list)
+    if any(
+        list_node_names.lists_with_previous_cell_values.count(x) > 1
+        for x in list_node_names.lists_with_previous_cell_values
+    ):
         raise UserError(
             f"ERROR: There is at least one duplicate node in the list. "
             f"Found duplicate in column {cell.column}, row {cell.row}:\n'{str(cell.value).strip()}'"
         )
 
-    # create a simplified version of the cell value and use it as name of the node
-    nodename = simplify_name(str(cell.value).strip())
-    list_of_previous_node_names.append(nodename)
-    # append a number (p.ex. node-name-2) if there are list nodes with identical names
-    n = list_of_previous_node_names.count(nodename)
 
-    if n > 1:
-        nodename = f"{nodename}-{n}"
-    # read label values from the other Excel files (other languages)
+def _get_all_languages_of_node(excelfiles: dict[str, Worksheet], col: int, row: int) -> dict[str, str]:
     labels_dict: dict[str, str] = {}
     for other_lang, ws_other_lang in excelfiles.items():
         cell_value = ws_other_lang.cell(column=col, row=row).value
@@ -235,12 +258,7 @@ def _make_new_node(
             )
         else:
             labels_dict[other_lang] = cell_value.strip()
-
-    # create the current node from extracted cell values and append it to the nodes list
-    currentnode = {"name": nodename, "labels": labels_dict}
-    if verbose:
-        print(f"Added list node: {str(cell.value).strip()} ({nodename})")
-    return currentnode
+    return labels_dict
 
 
 def _make_json_lists_from_excel(
@@ -261,22 +279,17 @@ def _make_json_lists_from_excel(
     Returns:
         The finished "lists" section
     """
-    # reset the global variables
-    global list_of_previous_node_names
-    global list_of_lists_of_previous_cell_values
-    list_of_previous_node_names = []
-    list_of_lists_of_previous_cell_values = []
 
     # Define starting point in Excel file
     startrow = 1
     startcol = 1
 
-    # make a dict with the language labels and the worksheets
     lang_to_worksheet: dict[str, Worksheet] = {x.stem: _read_and_check_workbook(x) for x in excel_file_paths}
 
-    # take English as base file. If English is not available, take a random one.
     base_lang = "en" if "en" in lang_to_worksheet else next(iter(lang_to_worksheet.keys()))
     base_file = {base_lang: lang_to_worksheet[base_lang]}
+
+    list_node_names = ListNodeNames()
 
     # construct the entire "lists" section as children of a fictive dummy parent node
     _, _list = _get_values_from_excel(
@@ -286,6 +299,7 @@ def _make_json_lists_from_excel(
         row=startrow,
         col=startcol,
         preval=[],
+        list_node_names=list_node_names,
         verbose=verbose,
     )
 

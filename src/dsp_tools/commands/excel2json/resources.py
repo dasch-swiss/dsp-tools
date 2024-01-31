@@ -8,7 +8,7 @@ import jsonschema
 import pandas as pd
 import regex
 
-from dsp_tools.commands.excel2json.input_error import (
+from dsp_tools.commands.excel2json.models.input_error import (
     JsonValidationResourceProblem,
     MissingValuesInRowProblem,
     PositionInExcel,

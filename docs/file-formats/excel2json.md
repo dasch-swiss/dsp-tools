@@ -147,6 +147,9 @@ The expected columns are:
       e.g. `TextValue`, `ListValue`, or `IntValue`. 
     - If the property is derived from `hasLinkTo`, 
       the `object` specifies the resource class that this property refers to.
+- [`subject`](./json-project/ontologies.md#property-subject)
+  (optional): The subject defines the resource class the property can be used on. 
+  It has to be provided as prefixed name of the resource class.
 - [`gui_element`](./json-project/ontologies.md#property-object-gui_element-gui_attributes) 
   (mandatory): The graphic component, defines how this property should be displayed.
   Depends on the value of `object`: 

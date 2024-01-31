@@ -374,11 +374,8 @@ def _identify_problematic_cardinalities(
         a (possibly empty) list of (resource, problematic_cardinality) tuples
     """
     cardinalities, dependencies = _extract_cardinalities_from_project(project_definition, link_properties)
-
     graph = _make_cardinality_dependency_graph(dependencies)
-
     errors = _find_circles_with_min_one_cardinality(graph, cardinalities, dependencies)
-
     return sorted(errors, key=lambda x: x[0])
 
 

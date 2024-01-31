@@ -29,7 +29,6 @@ from typing import Any, Optional, Union
 from urllib.parse import quote_plus
 
 from dsp_tools.commands.project.models.group import Group
-from dsp_tools.commands.project.models.helpers import Actions
 from dsp_tools.commands.project.models.model import Model
 from dsp_tools.commands.project.models.project import Project
 from dsp_tools.models.exceptions import BaseError
@@ -492,66 +491,13 @@ class User(Model):
             return sysadmin, in_groups, in_projects
         return None, in_groups, in_projects
 
-    def toJsonObj(self, action: Actions) -> dict[str, Any]:
-        """
-        Internal method! Should not be used directly!
-
-        Creates a JSON-object from the Project instance that can be used to call DSP
-
-        :param action: Action the object is used for (Action.CREATE or Action.UPDATE)
-        :return: JSON-object
-        """
-
-        tmp = {}
-        if action == Actions.Create:
-            if self._username is None:
-                raise BaseError("There must be a valid username!")
-            tmp["username"] = self._username
-            if self._email is None:
-                raise BaseError("'email' is mandatory!")
-            tmp["email"] = self._email
-            if self._givenName is None:
-                raise BaseError("'givenName is mandatory!")
-            tmp["givenName"] = self._givenName
-            if self._familyName is None:
-                raise BaseError("'familyName' is mandatory!")
-            tmp["familyName"] = self._familyName
-            if self._password is None:
-                raise BaseError("'password' is mandatory!")
-            tmp["password"] = self._password
-            if self._lang is None:
-                raise BaseError("'language' is mandatory!")
-            tmp["lang"] = self._lang.value
-            tmp["status"] = True if self._status is None else self._status
-            tmp["systemAdmin"] = False if self._sysadmin is None else self._sysadmin
-        elif action == Actions.Update:
-            tmp_changed = False
-            if self._username is not None and "username" in self._changed:
-                tmp["username"] = self._username
-                tmp_changed = self._username
-            if self._email is not None and "email" in self._changed:
-                tmp["email"] = self._email
-                tmp_changed = True
-            if self._givenName is not None and "givenName" in self._changed:
-                tmp["givenName"] = self._givenName
-                tmp_changed = True
-            if self._familyName is not None and "familyName" in self._changed:
-                tmp["familyName"] = self._familyName
-                tmp_changed = True
-            if self._lang is not None and "lang" in self._changed:
-                tmp["lang"] = self._lang.value
-                tmp_changed = True
-            if not tmp_changed:
-                tmp = {}
-        return tmp
-
     def create(self) -> User:
         """
         Create new user in DSP
 
         :return: JSON-object from DSP
         """
-        jsonobj = self.toJsonObj(Actions.Create)
+        jsonobj = self._toJosonObj_action_create()
         result = self._con.post(User.ROUTE, jsonobj)
         iri = result["user"]["id"]
         if self._in_projects is not None:
@@ -565,6 +511,30 @@ class User(Model):
             for group in self._in_groups:
                 result = self._con.post(User.IRI + quote_plus(iri) + User.GROUP_MEMBERSHIPS + quote_plus(group))
         return User.fromJsonObj(self._con, result["user"])
+
+    def _toJosonObj_action_create(self):
+        tmp = {}
+        if self._username is None:
+            raise BaseError("There must be a valid username!")
+        tmp["username"] = self._username
+        if self._email is None:
+            raise BaseError("'email' is mandatory!")
+        tmp["email"] = self._email
+        if self._givenName is None:
+            raise BaseError("'givenName is mandatory!")
+        tmp["givenName"] = self._givenName
+        if self._familyName is None:
+            raise BaseError("'familyName' is mandatory!")
+        tmp["familyName"] = self._familyName
+        if self._password is None:
+            raise BaseError("'password' is mandatory!")
+        tmp["password"] = self._password
+        if self._lang is None:
+            raise BaseError("'language' is mandatory!")
+        tmp["lang"] = self._lang.value
+        tmp["status"] = True if self._status is None else self._status
+        tmp["systemAdmin"] = False if self._sysadmin is None else self._sysadmin
+        return tmp
 
     def read(self) -> User:
         """
@@ -590,7 +560,7 @@ class User(Model):
         :return: JSON-object from DSP
         """
 
-        jsonobj = self.toJsonObj(Actions.Update)
+        jsonobj = self._toJsonObj_actions_update()
         if jsonobj:
             self._con.put(User.IRI + quote_plus(self._iri) + "/BasicUserInformation", jsonobj)
         if "status" in self._changed:
@@ -628,6 +598,28 @@ class User(Model):
             self._con.delete(User.IRI + quote_plus(self._iri) + User.GROUP_MEMBERSHIPS + quote_plus(p))
         user = User(con=self._con, iri=self._iri).read()
         return user
+
+    def _toJsonObj_actions_update(self) -> dict[str, Any]:
+        tmp = {}
+        tmp_changed = False
+        if self._username is not None and "username" in self._changed:
+            tmp["username"] = self._username
+            tmp_changed = self._username
+        if self._email is not None and "email" in self._changed:
+            tmp["email"] = self._email
+            tmp_changed = True
+        if self._givenName is not None and "givenName" in self._changed:
+            tmp["givenName"] = self._givenName
+            tmp_changed = True
+        if self._familyName is not None and "familyName" in self._changed:
+            tmp["familyName"] = self._familyName
+            tmp_changed = True
+        if self._lang is not None and "lang" in self._changed:
+            tmp["lang"] = self._lang.value
+            tmp_changed = True
+        if not tmp_changed:
+            tmp = {}
+        return tmp
 
     def delete(self) -> User:
         """

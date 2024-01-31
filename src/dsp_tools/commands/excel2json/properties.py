@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import importlib.resources
 import json
 import warnings
@@ -18,7 +20,6 @@ from dsp_tools.commands.excel2json.input_error import (
     Problem,
 )
 from dsp_tools.commands.excel2json.utils import (
-    add_optional_columns,
     check_column_for_duplicate,
     check_contains_required_columns,
     check_required_values,
@@ -63,21 +64,7 @@ def excel2properties(
     _do_property_excel_compliance(df=property_df, excelfile=excelfile)
 
     # Not all columns have to be filled, users may delete some for ease of use, but it would generate an error later
-    property_df = add_optional_columns(
-        df=property_df,
-        optional_col_set={
-            "label_en",
-            "label_de",
-            "label_fr",
-            "label_it",
-            "label_rm",
-            "comment_en",
-            "comment_de",
-            "comment_fr",
-            "comment_it",
-            "comment_rm",
-        },
-    )
+    property_df = _add_optional_columns(df=property_df)
 
     # transform every row into a property
     props = [
@@ -165,6 +152,28 @@ def _do_property_excel_compliance(df: pd.DataFrame, excelfile: str) -> None:
         raise InputError("\n\n".join(msg))
 
 
+def _add_optional_columns(df: pd.DataFrame) -> pd.DataFrame:
+    optional_col_set = {
+        "label_en",
+        "label_de",
+        "label_fr",
+        "label_it",
+        "label_rm",
+        "comment_en",
+        "comment_de",
+        "comment_fr",
+        "comment_it",
+        "comment_rm",
+        "subject",
+    }
+    in_df_cols = set(df.columns)
+    if not optional_col_set.issubset(in_df_cols):
+        additional_col = list(optional_col_set.difference(in_df_cols))
+        additional_df = pd.DataFrame(columns=additional_col, index=df.index, data=pd.NA)
+        df = pd.concat(objs=[df, additional_df], axis=1)
+    return df
+
+
 def _check_missing_values_in_row(df: pd.DataFrame) -> None | list[MissingValuesInRowProblem]:
     required_values = ["name", "super", "object", "gui_element"]
     missing_dict = check_required_values(df=df, required_values_columns=required_values)
@@ -215,6 +224,8 @@ def _row2prop(df_row: pd.Series, row_num: int, excelfile: str) -> dict[str, Any]
         "labels": get_labels(df_row=df_row),
         "super": [s.strip() for s in df_row["super"].split(",")],
     }
+    if not pd.isna(df_row["subject"]):
+        _property["subject"] = df_row["subject"]
 
     gui_attrib = _get_gui_attribute(df_row=df_row, row_num=row_num)
     match gui_attrib:

@@ -430,7 +430,7 @@ class TestFunctions(unittest.TestCase):
     def test_search_convert_numbers(self) -> None:
         test_dict = {"1": 1, "string": "string", "1.453": 1.453, "sdf.asdf": "sdf.asdf"}
         for original, expected in test_dict.items():
-            self.assertEqual(e2j._search_convert_numbers(value_str=original), expected)
+            self.assertEqual(e2j._search_convert_numbers_in_str(value_str=original), expected)
 
     def test_get_gui_attribute(self) -> None:
         original_df = pd.DataFrame(
@@ -565,7 +565,7 @@ class TestFunctions(unittest.TestCase):
 class TestValidateProperties:
     # it is not possible to call the method to be tested directly.
     # So let's make a reference to it, so that it can be found by the usage search
-    lambda _: e2j._validate_properties([], "file")
+    lambda _: e2j._validate_properties_section_in_json([], "file")
 
     def test_invalid_super(self) -> None:
         expected_msg = re.escape(

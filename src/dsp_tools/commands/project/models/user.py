@@ -427,7 +427,7 @@ class User(Model):
             raise BaseError("User is not member of project!")
 
     @classmethod
-    def fromJsonObj(cls, con: Connection, json_obj: Any) -> User:
+    def fromJsonObj(cls, con: Connection, json_obj: dict[str, Any]) -> User:
         """
         Internal method! Should not be used directly!
 
@@ -454,6 +454,24 @@ class User(Model):
         if status is None:
             raise BaseError("Status is missing in JSON from DSP")
 
+        sysadmin, in_groups, in_projects = cls._update_permissions_and_groups(json_obj)
+
+        return cls(
+            con=con,
+            iri=iri,
+            username=username,
+            email=email,
+            givenName=givenName,
+            familyName=familyName,
+            lang=lang,
+            status=status,
+            sysadmin=sysadmin,
+            in_projects=in_projects,
+            in_groups=in_groups,
+        )
+
+    @classmethod
+    def _update_permissions_and_groups(cls, json_obj: dict[str, Any]) -> tuple[bool | None, set[str], dict[str, bool]]:
         in_projects: dict[str, bool] = {}
         in_groups: set[str] = set()
         if json_obj.get("permissions") is not None and json_obj["permissions"].get("groupsPerProject") is not None:
@@ -471,19 +489,8 @@ class User(Model):
                             in_projects[project_iri] = True
                         else:
                             in_groups.add(group)
-        return cls(
-            con=con,
-            iri=iri,
-            username=username,
-            email=email,
-            givenName=givenName,
-            familyName=familyName,
-            lang=lang,
-            status=status,
-            sysadmin=sysadmin,
-            in_projects=in_projects,
-            in_groups=in_groups,
-        )
+            return sysadmin, in_groups, in_projects
+        return None, in_groups, in_projects
 
     def toJsonObj(self, action: Actions) -> dict[str, Any]:
         """

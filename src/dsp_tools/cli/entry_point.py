@@ -119,8 +119,11 @@ def _parse_arguments(
 
 
 def _get_version() -> str:
-    pip_freeze_output = subprocess.run("pip freeze".split(), check=False, capture_output=True).stdout.decode("utf-8")
-    dsp_tools_lines = [x for x in pip_freeze_output.split("\n") if "dsp-tools" in x]
+    try:
+        pip_output = subprocess.run("pip freeze".split(), check=False, capture_output=True).stdout.decode("utf-8")
+        dsp_tools_lines = [x for x in pip_output.split("\n") if "dsp-tools" in x]
+    except FileNotFoundError:
+        dsp_tools_lines = []
     if not dsp_tools_lines:
         # if the virtual environment was activated with env variables instead of executing activation commands,
         # dsp-tools will run correctly, but "pip freeze" won't show dsp-tools

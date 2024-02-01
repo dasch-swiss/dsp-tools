@@ -360,11 +360,11 @@ class Project(Model):
 
         :return: JSON-object from DSP
         """
-        jsonobj = self._toJsonObj_action_create()
+        jsonobj = self._toJsonObj_create()
         result = self._con.post(Project.ROUTE, jsonobj)
         return Project.fromJsonObj(self._con, result["project"])
 
-    def _toJsonObj_action_create(self) -> dict[str, str]:
+    def _toJsonObj_create(self) -> dict[str, str]:
         tmp = {}
         if self._shortcode is None:
             raise BaseError("There must be a valid project shortcode!")
@@ -415,11 +415,11 @@ class Project(Model):
 
         Returns: JSON object returned as response from DSP reflecting the update
         """
-        jsonobj = self._toJsonObj_action_update()
+        jsonobj = self._toJsonObj_update()
         result = self._con.put(Project.IRI + quote_plus(self.iri), jsonobj)
         return Project.fromJsonObj(self._con, result["project"])
 
-    def _toJsonObj_action_update(self) -> dict[str, str]:
+    def _toJsonObj_update(self) -> dict[str, str]:
         tmp = {}
         if self._shortcode is not None and "shortcode" in self._changed:
             tmp["shortcode"] = self._shortcode

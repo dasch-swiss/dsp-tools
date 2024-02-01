@@ -766,40 +766,6 @@ def handle_interruption(
     sys.exit(1)
 
 
-def double_check_unprocessed_files(
-    all_files: list[Path],
-    processed_files: list[Path],
-    unprocessed_files: list[Path],
-) -> None:
-    """
-    Checks if the files in 'unprocessed_files.txt' are consistent with the files in 'processed_files.txt'.
-
-    Args:
-        all_files: list of all paths in the <bitstream> tags of the XML file
-        processed_files: the paths from 'processed_files.txt'
-        unprocessed_files: the paths from 'unprocessed_files.txt' (or all_files if there is no such file)
-
-    Raises:
-        UserError: if there is a file 'unprocessed_files.txt', but no file 'processed_files.txt'
-        UserError: if the files 'unprocessed_files.txt' and 'processed_files.txt' are inconsistent
-    """
-    unprocessed_files_txt_exists = sorted(unprocessed_files) != sorted(all_files)
-    if unprocessed_files_txt_exists and not processed_files:
-        logger.error("There is a file 'unprocessed_files.txt', but no file 'processed_files.txt'")
-        raise UserError("There is a file 'unprocessed_files.txt', but no file 'processed_files.txt'")
-
-    if processed_files and sorted(unprocessed_files) == sorted(all_files):
-        logger.error("There is a file 'processed_files.txt', but no file 'unprocessed_files.txt'")
-        raise UserError("There is a file 'processed_files.txt', but no file 'unprocessed_files.txt'")
-
-    if unprocessed_files_txt_exists:
-        # there is a 'unprocessed_files.txt' file. check it for consistency
-        unprocessed_files_from_processed_files = [x for x in all_files if x not in processed_files]
-        if sorted(unprocessed_files_from_processed_files) != sorted(unprocessed_files):
-            logger.error("The files 'unprocessed_files.txt' and 'processed_files.txt' are inconsistent")
-            raise UserError("The files 'unprocessed_files.txt' and 'processed_files.txt' are inconsistent")
-
-
 def process_files(
     input_dir: str,
     output_dir: str,

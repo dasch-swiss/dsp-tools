@@ -25,7 +25,6 @@ from pprint import pprint
 from typing import Any, Optional, Union
 from urllib.parse import quote_plus
 
-from dsp_tools.commands.project.models.helpers import Actions
 from dsp_tools.commands.project.models.model import Model
 from dsp_tools.commands.project.models.project import Project
 from dsp_tools.models.exceptions import BaseError
@@ -366,63 +365,35 @@ class ListNode(Model):
             rootNodeIri=rootNodeIri,
         )
 
-    def toJsonObj(self, action: Actions, listIri: str | None = None) -> dict[str, Any]:
-        """
-        Internal method! Should not be used directly!
-
-        Creates a JSON-object from the ListNode instance that can be used to call DSP-API
-
-        :param action: Action the object is used for (Action.CREATE or Action.UPDATE)
-        :param listIri: The IRI of the list node, only used for update action
-        :return: JSON-object
-
-        """
-
-        tmp = {}
-
-        if action == Actions.Create:
-            if self._project is None:
-                raise BaseError("There must be a project id given!")
-            tmp["projectIri"] = self._project
-            if self._label.isEmpty():
-                raise BaseError("There must be a valid ListNode label!")
-            tmp["labels"] = self._label.toJsonObj()
-            if self._comments:
-                tmp["comments"] = self._comments.toJsonObj()
-            if self._name:
-                tmp["name"] = self._name
-            if self._parent:
-                tmp["parentNodeIri"] = self._parent
-
-        elif action == Actions.Update:
-            if self.iri is None:
-                raise BaseError("There must be a node iri given!")
-            tmp["listIri"] = listIri
-            if self._project is None:
-                raise BaseError("There must be a project id given!")
-            tmp["projectIri"] = self._project
-            if not self._label.isEmpty() and "label" in self._changed:
-                tmp["labels"] = self._label.toJsonObj()
-            if not self._comments.isEmpty() and "comments" in self._changed:
-                tmp["comments"] = self._comments.toJsonObj()
-            if self._name and "name" in self._changed:
-                tmp["name"] = self._name
-
-        return tmp
-
     def create(self) -> ListNode:
         """
         Create a new List
 
         :return: JSON-object from DSP-API
         """
-        jsonobj = self.toJsonObj(Actions.Create)
+        jsonobj = self._toJsonObj_create()
         if self._parent:
             result = self._con.post(ListNode.ROUTE_SLASH + quote_plus(self._parent), jsonobj)
             return ListNode.fromJsonObj(self._con, result["nodeinfo"])
         else:
             result = self._con.post(ListNode.ROUTE, jsonobj)
             return ListNode.fromJsonObj(self._con, result["list"]["listinfo"])
+
+    def _toJsonObj_create(self):
+        tmp = {}
+        if self._project is None:
+            raise BaseError("There must be a project id given!")
+        tmp["projectIri"] = self._project
+        if self._label.isEmpty():
+            raise BaseError("There must be a valid ListNode label!")
+        tmp["labels"] = self._label.toJsonObj()
+        if self._comments:
+            tmp["comments"] = self._comments.toJsonObj()
+        if self._name:
+            tmp["name"] = self._name
+        if self._parent:
+            tmp["parentNodeIri"] = self._parent
+        return tmp
 
     def read(self) -> Any:
         """
@@ -446,13 +417,29 @@ class ListNode(Model):
         :return: JSON-object from DSP-API reflecting the update
         """
 
-        jsonobj = self.toJsonObj(Actions.Update, self.iri)
+        jsonobj = self._toJsonObj_update()
         if jsonobj:
             result = self._con.put(ListNode.ROUTE_SLASH + quote_plus(self.iri), jsonobj)
             pprint(result)
             return ListNode.fromJsonObj(self._con, result["listinfo"])
         else:
             return None
+
+    def _toJsonObj_update(self) -> dict[str, Any]:
+        tmp = {}
+        if self.iri is None:
+            raise BaseError("There must be a node iri given!")
+        tmp["listIri"] = self.iri
+        if self._project is None:
+            raise BaseError("There must be a project id given!")
+        tmp["projectIri"] = self._project
+        if not self._label.isEmpty() and "label" in self._changed:
+            tmp["labels"] = self._label.toJsonObj()
+        if not self._comments.isEmpty() and "comments" in self._changed:
+            tmp["comments"] = self._comments.toJsonObj()
+        if self._name and "name" in self._changed:
+            tmp["name"] = self._name
+        return tmp
 
     def delete(self) -> None:
         """

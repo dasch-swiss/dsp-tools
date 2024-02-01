@@ -29,7 +29,6 @@ from typing import Any, Optional, Union
 from urllib.parse import quote_plus
 
 from dsp_tools.commands.project.models.group import Group
-from dsp_tools.commands.project.models.helpers import Actions
 from dsp_tools.commands.project.models.model import Model
 from dsp_tools.commands.project.models.project import Project
 from dsp_tools.models.exceptions import BaseError
@@ -427,33 +426,45 @@ class User(Model):
             raise BaseError("User is not member of project!")
 
     @classmethod
-    def fromJsonObj(cls, con: Connection, json_obj: Any) -> User:
-        """
-        Internal method! Should not be used directly!
+    def _make_fromJsonObj(cls, con: Connection, json_obj: dict[str, Any]) -> User:
+        User._check_if_jsonObj_has_required_info(json_obj)
 
-        This method is used to create a User instance from the JSON data returned by DSP
+        sysadmin, in_groups, in_projects = cls._update_permissions_and_groups(json_obj)
 
-        :param con: Connection instance
-        :param json_obj: JSON data returned by DSP as python3 object
-        :return: User instance
-        """
+        return cls(
+            con=con,
+            iri=json_obj["id"],
+            username=json_obj["username"],
+            email=json_obj["email"],
+            givenName=json_obj.get("givenName"),
+            familyName=json_obj.get("familyName"),
+            lang=json_obj.get("lang"),
+            status=json_obj["status"],
+            sysadmin=sysadmin,
+            in_projects=in_projects,
+            in_groups=in_groups,
+        )
 
-        iri = json_obj.get("id")
-        if iri is None:
-            raise BaseError('User "iri" is missing in JSON from DSP')
-        email = json_obj.get("email")
-        if email is None:
-            raise BaseError('User "email" is missing in JSON from DSP')
-        username = json_obj.get("username")
-        if username is None:
-            raise BaseError('User "username" is missing in JSON from DSP')
-        familyName = json_obj.get("familyName")
-        givenName = json_obj.get("givenName")
-        lang = json_obj.get("lang")
-        status = json_obj.get("status")
-        if status is None:
-            raise BaseError("Status is missing in JSON from DSP")
+    @staticmethod
+    def _check_if_jsonObj_has_required_info(json_obj: dict[str, Any]) -> None:
+        problems = []
+        if json_obj.get("id") is None:
+            problems.append('User "iri" is missing in JSON from DSP')
 
+        if json_obj.get("email") is None:
+            problems.append('User "email" is missing in JSON from DSP')
+
+        if json_obj.get("username") is None:
+            problems.append('User "email" is missing in JSON from DSP')
+
+        if json_obj.get("status") is None:
+            problems.append('User "email" is missing in JSON from DSP')
+
+        if problems:
+            raise BaseError("\n".join(problems))
+
+    @classmethod
+    def _update_permissions_and_groups(cls, json_obj: dict[str, Any]) -> tuple[bool | None, set[str], dict[str, bool]]:
         in_projects: dict[str, bool] = {}
         in_groups: set[str] = set()
         if json_obj.get("permissions") is not None and json_obj["permissions"].get("groupsPerProject") is not None:
@@ -471,72 +482,8 @@ class User(Model):
                             in_projects[project_iri] = True
                         else:
                             in_groups.add(group)
-        return cls(
-            con=con,
-            iri=iri,
-            username=username,
-            email=email,
-            givenName=givenName,
-            familyName=familyName,
-            lang=lang,
-            status=status,
-            sysadmin=sysadmin,
-            in_projects=in_projects,
-            in_groups=in_groups,
-        )
-
-    def toJsonObj(self, action: Actions) -> dict[str, Any]:
-        """
-        Internal method! Should not be used directly!
-
-        Creates a JSON-object from the Project instance that can be used to call DSP
-
-        :param action: Action the object is used for (Action.CREATE or Action.UPDATE)
-        :return: JSON-object
-        """
-
-        tmp = {}
-        if action == Actions.Create:
-            if self._username is None:
-                raise BaseError("There must be a valid username!")
-            tmp["username"] = self._username
-            if self._email is None:
-                raise BaseError("'email' is mandatory!")
-            tmp["email"] = self._email
-            if self._givenName is None:
-                raise BaseError("'givenName is mandatory!")
-            tmp["givenName"] = self._givenName
-            if self._familyName is None:
-                raise BaseError("'familyName' is mandatory!")
-            tmp["familyName"] = self._familyName
-            if self._password is None:
-                raise BaseError("'password' is mandatory!")
-            tmp["password"] = self._password
-            if self._lang is None:
-                raise BaseError("'language' is mandatory!")
-            tmp["lang"] = self._lang.value
-            tmp["status"] = True if self._status is None else self._status
-            tmp["systemAdmin"] = False if self._sysadmin is None else self._sysadmin
-        elif action == Actions.Update:
-            tmp_changed = False
-            if self._username is not None and "username" in self._changed:
-                tmp["username"] = self._username
-                tmp_changed = self._username
-            if self._email is not None and "email" in self._changed:
-                tmp["email"] = self._email
-                tmp_changed = True
-            if self._givenName is not None and "givenName" in self._changed:
-                tmp["givenName"] = self._givenName
-                tmp_changed = True
-            if self._familyName is not None and "familyName" in self._changed:
-                tmp["familyName"] = self._familyName
-                tmp_changed = True
-            if self._lang is not None and "lang" in self._changed:
-                tmp["lang"] = self._lang.value
-                tmp_changed = True
-            if not tmp_changed:
-                tmp = {}
-        return tmp
+            return sysadmin, in_groups, in_projects
+        return None, in_groups, in_projects
 
     def create(self) -> User:
         """
@@ -544,7 +491,7 @@ class User(Model):
 
         :return: JSON-object from DSP
         """
-        jsonobj = self.toJsonObj(Actions.Create)
+        jsonobj = self._toJosonObj_create()
         result = self._con.post(User.ROUTE, jsonobj)
         iri = result["user"]["id"]
         if self._in_projects is not None:
@@ -557,7 +504,31 @@ class User(Model):
         if self._in_groups is not None:
             for group in self._in_groups:
                 result = self._con.post(User.IRI + quote_plus(iri) + User.GROUP_MEMBERSHIPS + quote_plus(group))
-        return User.fromJsonObj(self._con, result["user"])
+        return User._make_fromJsonObj(self._con, result["user"])
+
+    def _toJosonObj_create(self):
+        tmp = {}
+        if self._username is None:
+            raise BaseError("There must be a valid username!")
+        tmp["username"] = self._username
+        if self._email is None:
+            raise BaseError("'email' is mandatory!")
+        tmp["email"] = self._email
+        if self._givenName is None:
+            raise BaseError("'givenName is mandatory!")
+        tmp["givenName"] = self._givenName
+        if self._familyName is None:
+            raise BaseError("'familyName' is mandatory!")
+        tmp["familyName"] = self._familyName
+        if self._password is None:
+            raise BaseError("'password' is mandatory!")
+        tmp["password"] = self._password
+        if self._lang is None:
+            raise BaseError("'language' is mandatory!")
+        tmp["lang"] = self._lang.value
+        tmp["status"] = True if self._status is None else self._status
+        tmp["systemAdmin"] = False if self._sysadmin is None else self._sysadmin
+        return tmp
 
     def read(self) -> User:
         """
@@ -573,19 +544,53 @@ class User(Model):
             result = self._con.get(User.ROUTE + "/username/" + quote_plus(self._username))
         else:
             raise BaseError("Either user-iri or email is required!")
-        return User.fromJsonObj(self._con, result["user"])
+        return User._make_fromJsonObj(self._con, result["user"])
 
     def update(self, requesterPassword: Optional[str] = None) -> User:
         """
-        Udate the user info in DSP with the modified data in this user instance
+        Update the user info in DSP with the modified data in this user instance
 
         :param requesterPassword: Old password if a user wants to change it's own password
         :return: JSON-object from DSP
         """
 
-        jsonobj = self.toJsonObj(Actions.Update)
+        jsonobj = self._toJsonObj_update()
         if jsonobj:
             self._con.put(User.IRI + quote_plus(self._iri) + "/BasicUserInformation", jsonobj)
+
+        self._update_changed_values(requesterPassword)
+        self._update_project_membership()
+        self._change_admin_rights()
+        self._update_group_membership()
+        user = User(con=self._con, iri=self._iri).read()
+        return user
+
+    def _update_group_membership(self):
+        for p in self._add_to_group:
+            self._con.post(User.IRI + quote_plus(self._iri) + User.GROUP_MEMBERSHIPS + quote_plus(p))
+        for p in self._rm_from_group:
+            self._con.delete(User.IRI + quote_plus(self._iri) + User.GROUP_MEMBERSHIPS + quote_plus(p))
+
+    def _change_admin_rights(self):
+        for p in self._change_admin.items():
+            if p[0] not in self._in_projects:
+                raise BaseError("user must be member of project!")
+            if p[1]:
+                self._con.post(User.IRI + quote_plus(self._iri) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p[0]))
+            else:
+                self._con.delete(User.IRI + quote_plus(self._iri) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p[0]))
+
+    def _update_project_membership(self):
+        for p in self._add_to_project.items():
+            self._con.post(User.IRI + quote_plus(self._iri) + User.PROJECT_MEMBERSHIPS + quote_plus(p[0]))
+            if p[1]:
+                self._con.post(User.IRI + quote_plus(self._iri) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p[0]))
+        for p in self._rm_from_project:
+            if self._in_projects.get(p) is not None and self._in_projects[p]:
+                self._con.delete(User.IRI + quote_plus(self._iri) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p))
+            self._con.delete(User.IRI + quote_plus(self._iri) + User.PROJECT_MEMBERSHIPS + quote_plus(p))
+
+    def _update_changed_values(self, requesterPassword: Optional[str] = None) -> None:
         if "status" in self._changed:
             jsonobj = {"status": self._status}
             self._con.put(User.IRI + quote_plus(self._iri) + "/Status", jsonobj)
@@ -597,30 +602,28 @@ class User(Model):
         if "sysadmin" in self._changed:
             jsonobj = {"systemAdmin": self._sysadmin}
             self._con.put(User.IRI + quote_plus(self._iri) + "/SystemAdmin", jsonobj)
-        for p in self._add_to_project.items():
-            self._con.post(User.IRI + quote_plus(self._iri) + User.PROJECT_MEMBERSHIPS + quote_plus(p[0]))
-            if p[1]:
-                self._con.post(User.IRI + quote_plus(self._iri) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p[0]))
 
-        for p in self._rm_from_project:
-            if self._in_projects.get(p) is not None and self._in_projects[p]:
-                self._con.delete(User.IRI + quote_plus(self._iri) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p))
-            self._con.delete(User.IRI + quote_plus(self._iri) + User.PROJECT_MEMBERSHIPS + quote_plus(p))
-
-        for p in self._change_admin.items():
-            if p[0] not in self._in_projects:
-                raise BaseError("user must be member of project!")
-            if p[1]:
-                self._con.post(User.IRI + quote_plus(self._iri) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p[0]))
-            else:
-                self._con.delete(User.IRI + quote_plus(self._iri) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p[0]))
-
-        for p in self._add_to_group:
-            self._con.post(User.IRI + quote_plus(self._iri) + User.GROUP_MEMBERSHIPS + quote_plus(p))
-        for p in self._rm_from_group:
-            self._con.delete(User.IRI + quote_plus(self._iri) + User.GROUP_MEMBERSHIPS + quote_plus(p))
-        user = User(con=self._con, iri=self._iri).read()
-        return user
+    def _toJsonObj_update(self) -> dict[str, Any]:
+        tmp = {}
+        tmp_changed = False
+        if self._username is not None and "username" in self._changed:
+            tmp["username"] = self._username
+            tmp_changed = self._username
+        if self._email is not None and "email" in self._changed:
+            tmp["email"] = self._email
+            tmp_changed = True
+        if self._givenName is not None and "givenName" in self._changed:
+            tmp["givenName"] = self._givenName
+            tmp_changed = True
+        if self._familyName is not None and "familyName" in self._changed:
+            tmp["familyName"] = self._familyName
+            tmp_changed = True
+        if self._lang is not None and "lang" in self._changed:
+            tmp["lang"] = self._lang.value
+            tmp_changed = True
+        if not tmp_changed:
+            tmp = {}
+        return tmp
 
     def delete(self) -> User:
         """
@@ -628,7 +631,7 @@ class User(Model):
         :return: None
         """
         result = self._con.delete(User.IRI + quote_plus(self._iri))
-        return User.fromJsonObj(self._con, result["user"])
+        return User._make_fromJsonObj(self._con, result["user"])
 
     @staticmethod
     def getAllUsers(con: Connection) -> list[Any]:
@@ -642,7 +645,7 @@ class User(Model):
         result = con.get(User.ROUTE)
         if "users" not in result:
             raise BaseError("Request got no users!")
-        return [User.fromJsonObj(con, a) for a in result["users"]]
+        return [User._make_fromJsonObj(con, a) for a in result["users"]]
 
     @staticmethod
     def getAllUsersForProject(con: Connection, proj_shortcode: str) -> Optional[list[User]]:
@@ -656,7 +659,7 @@ class User(Model):
         members = con.get(f"/admin/projects/shortcode/{proj_shortcode}/members")
         if members is None or len(members) < 1:
             return None
-        res: list[User] = [User.fromJsonObj(con, a) for a in members["members"]]
+        res: list[User] = [User._make_fromJsonObj(con, a) for a in members["members"]]
         res.reverse()
         return res
 

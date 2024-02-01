@@ -151,7 +151,7 @@ class Ontology(Model):
         return self._context
 
     @classmethod
-    def fromJsonObj(cls, con: Connection, json_obj: Any) -> "Ontology":
+    def fromJsonObj(cls, con: Connection, json_obj: Any) -> Ontology:
         #
         # First let's get the ID (IRI) of the ontology
         #
@@ -253,9 +253,9 @@ class Ontology(Model):
         )
 
     @classmethod
-    def allOntologiesFromJsonObj(cls, con: Connection, json_obj: Any) -> list["Ontology"]:
+    def allOntologiesFromJsonObj(cls, con: Connection, json_obj: Any) -> list[Ontology]:
         context = Context(json_obj.get("@context"))
-        ontos: list["Ontology"] = []
+        ontos: list[Ontology] = []
         if json_obj.get("@graph") is not None:
             for o in json_obj["@graph"]:
                 ontos.append(Ontology.__oneOntologiesFromJsonObj(con, o, context))
@@ -299,29 +299,29 @@ class Ontology(Model):
                 tmp[rdfs + ":comment"] = self._comment
         return tmp
 
-    def create(self) -> "Ontology":
+    def create(self) -> Ontology:
         jsonobj = self.toJsonObj(Actions.Create)
         result = self._con.post(Ontology.ROUTE, jsonobj)
         return Ontology.fromJsonObj(self._con, result)
 
-    def read(self) -> "Ontology":
+    def read(self) -> Ontology:
         result = self._con.get(Ontology.ROUTE + "/allentities/" + quote_plus(self._iri) + Ontology.ALL_LANGUAGES)
         return Ontology.fromJsonObj(self._con, result)
 
     @staticmethod
-    def getAllOntologies(con: Connection) -> list["Ontology"]:
+    def getAllOntologies(con: Connection) -> list[Ontology]:
         result = con.get(Ontology.ROUTE + Ontology.METADATA)
         return Ontology.allOntologiesFromJsonObj(con, result)
 
     @staticmethod
-    def getProjectOntologies(con: Connection, project_id: str) -> list["Ontology"]:
+    def getProjectOntologies(con: Connection, project_id: str) -> list[Ontology]:
         if project_id is None:
             raise BaseError("Project ID must be defined!")
         result = con.get(Ontology.ROUTE + Ontology.METADATA + quote_plus(project_id) + Ontology.ALL_LANGUAGES)
         return Ontology.allOntologiesFromJsonObj(con, result)
 
     @staticmethod
-    def getOntologyFromServer(con: Connection, shortcode: str, name: str) -> "Ontology":
+    def getOntologyFromServer(con: Connection, shortcode: str, name: str) -> Ontology:
         if regex.search(r"[0-9A-F]{4}", shortcode):
             result = con.get("/ontology/" + shortcode + "/" + name + "/v2" + Ontology.ALL_LANGUAGES)
         else:

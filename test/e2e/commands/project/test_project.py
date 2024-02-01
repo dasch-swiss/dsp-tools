@@ -12,6 +12,11 @@ from dsp_tools.utils.connection_live import ConnectionLive
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
 
 
+# https://stackoverflow.com/questions/26405380/how-do-i-correctly-setup-and-teardown-for-my-pytest-class-with-tests
+# MockConnection
+# Move to unittests
+
+
 class TestProject(unittest.TestCase):
     logo_file = "logo.gif"
     con: Connection
@@ -90,31 +95,6 @@ class TestProject(unittest.TestCase):
         self.assertEqual(new_project.selfjoin, False)
         self.assertEqual(new_project.status, True)
         self.assertEqual(new_project.keywords, {"test", "project", "new"})
-
-    def test_project_update(self) -> None:
-        project = Project(
-            con=self.con,
-            shortcode="0FF1",
-            shortname="update_project",
-            longname="Update Project",
-            description=LangString({Languages.EN: "Project to be updated", Languages.DE: "Update-Projekt"}),
-            keywords={"test", "project"},
-            selfjoin=False,
-            status=True,
-            logo=self.logo_file,
-        ).create()
-
-        project.shortname = "update_project"
-        project.longname = "Update Project"
-        project.selfjoin = True
-        project.status = False
-        updated_project = project.update()
-
-        self.assertEqual(updated_project.shortcode, "0FF1")
-        self.assertEqual(updated_project.shortname, "update_project")
-        self.assertEqual(updated_project.longname, "Update Project")
-        self.assertEqual(updated_project.selfjoin, True)
-        self.assertEqual(updated_project.status, False)
 
     def test_project_delete(self) -> None:
         project = Project(

@@ -10,11 +10,6 @@ READ:
     * Call the ``read``-method on the instance
     * Access the information that has been provided to the instance
 
-UPDATE:
-    * You need an instance of an existing Project by reading an instance
-    * Change the attributes by assigning the new values
-    * Call the ``update```method on the instance
-
 DELETE
     * Instantiate a new objects with ``iri`` given, or use any instance that has the iri set
     * Call the ``delete``-method on the instance
@@ -76,9 +71,6 @@ class Project(Model):
 
     read : DSP project information object
         Read project data from an existing project
-
-    update : DSP project information object
-        Updates the changed attributes and returns the updated information from the project as it is in DSP
 
     delete : DSP result code
         Deletes a project and returns the result code
@@ -357,34 +349,6 @@ class Project(Model):
                 f"ERROR: Could not read project '{self.shortname}' ({self.shortcode}) with IRI {self._iri} "
                 f"from DSP server."
             )
-
-    def update(self) -> Project:
-        """
-        Update the project information on the DSP with the modified data in this project instance
-
-        Returns: JSON object returned as response from DSP reflecting the update
-        """
-        jsonobj = self._toJsonObj_update()
-        result = self._con.put(Project.IRI + quote_plus(self.iri), jsonobj)
-        return Project.fromJsonObj(self._con, result["project"])
-
-    def _toJsonObj_update(self) -> dict[str, str]:
-        tmp = {}
-        if self._shortcode is not None and "shortcode" in self._changed:
-            tmp["shortcode"] = self._shortcode
-        if self._shortname is not None and "shortname" in self._changed:
-            tmp["shortname"] = self._shortname
-        if self._longname is not None and "longname" in self._changed:
-            tmp["longname"] = self._longname
-        if not self._description.isEmpty() and "description" in self._changed:
-            tmp["description"] = self._description.toJsonObj()
-        if len(self._keywords) > 0 and "keywords" in self._changed:
-            tmp["keywords"] = self._keywords
-        if self._selfjoin is not None and "selfjoin" in self._changed:
-            tmp["selfjoin"] = self._selfjoin
-        if self._status is not None and "status" in self._changed:
-            tmp["status"] = self._status
-        return tmp
 
     def delete(self) -> Project:
         """

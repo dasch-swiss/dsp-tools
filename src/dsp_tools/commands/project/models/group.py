@@ -26,7 +26,6 @@ from __future__ import annotations
 from typing import Any, Optional, Union
 from urllib.parse import quote_plus
 
-from dsp_tools.commands.project.models.helpers import Actions
 from dsp_tools.commands.project.models.model import Model
 from dsp_tools.commands.project.models.project import Project
 from dsp_tools.models.exceptions import BaseError
@@ -174,36 +173,28 @@ class Group(Model):
             status=status,
         )
 
-    def toJsonObj(self, action: Actions) -> dict[str, Any]:
-        tmp = {}
-        if action == Actions.Create:
-            if self._name is None:
-                raise BaseError("There must be a valid name!")
-            tmp["name"] = self._name
-            if not self._descriptions.isEmpty():
-                tmp["descriptions"] = self._descriptions.toJsonObj()
-            if self._project is None:
-                raise BaseError("There must be a valid project!")
-            tmp["project"] = self._project
-            if self._selfjoin is None:
-                raise BaseError("There must be a valid value for selfjoin!")
-            tmp["selfjoin"] = self._selfjoin
-            if self._status is None:
-                raise BaseError("There must be a valid value for status!")
-            tmp["status"] = self._status
-        else:
-            if self._name is not None and "name" in self._changed:
-                tmp["name"] = self._name
-            if not self._descriptions.isEmpty() and "descriptions" in self._changed:
-                tmp["descriptions"] = self._descriptions.toJsonObj()
-            if self._selfjoin is not None and "selfjoin" in self._changed:
-                tmp["selfjoin"] = self._selfjoin
-        return tmp
-
     def create(self) -> Group:
-        jsonobj = self.toJsonObj(Actions.Create)
+        jsonobj = self._toJsonObj_create()
         result = self._con.post(Group.ROUTE, jsonobj)
         return Group.fromJsonObj(self._con, result["group"])
+
+    def _toJsonObj_create(self):
+        tmp = {}
+        if self._name is None:
+            raise BaseError("There must be a valid name!")
+        tmp["name"] = self._name
+        if not self._descriptions.isEmpty():
+            tmp["descriptions"] = self._descriptions.toJsonObj()
+        if self._project is None:
+            raise BaseError("There must be a valid project!")
+        tmp["project"] = self._project
+        if self._selfjoin is None:
+            raise BaseError("There must be a valid value for selfjoin!")
+        tmp["selfjoin"] = self._selfjoin
+        if self._status is None:
+            raise BaseError("There must be a valid value for status!")
+        tmp["status"] = self._status
+        return tmp
 
     def read(self) -> Group:
         result = self._con.get(Group.ROUTE_SLASH + quote_plus(self._iri))
@@ -211,7 +202,7 @@ class Group(Model):
 
     def update(self) -> Optional[Group]:
         updated_group = None
-        jsonobj = self.toJsonObj(Actions.Update)
+        jsonobj = self._toJsonObj_update()
         if jsonobj:
             result = self._con.put(Group.ROUTE_SLASH + quote_plus(self._iri), jsonobj)
             updated_group = Group.fromJsonObj(self._con, result["group"])
@@ -220,6 +211,16 @@ class Group(Model):
             result = self._con.put(Group.ROUTE_SLASH + quote_plus(self._iri) + "/status", jsonobj)
             updated_group = Group.fromJsonObj(self._con, result["group"])
         return updated_group
+
+    def _toJsonObj_update(self) -> dict[str, Any]:
+        tmp = {}
+        if self._name is not None and "name" in self._changed:
+            tmp["name"] = self._name
+        if not self._descriptions.isEmpty() and "descriptions" in self._changed:
+            tmp["descriptions"] = self._descriptions.toJsonObj()
+        if self._selfjoin is not None and "selfjoin" in self._changed:
+            tmp["selfjoin"] = self._selfjoin
+        return tmp
 
     def delete(self) -> Group:
         result = self._con.delete(Group.ROUTE_SLASH + quote_plus(self._iri))

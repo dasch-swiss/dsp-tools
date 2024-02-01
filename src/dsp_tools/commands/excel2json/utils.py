@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
 from unittest import mock
 
 import numpy as np
@@ -16,33 +15,6 @@ from dsp_tools.commands.excel2json.models.input_error import (
 from dsp_tools.models.exceptions import InputError
 
 languages = ["en", "de", "fr", "it", "rm"]
-
-
-def read_and_clean_excel_file(excelfile: str, sheetname: str | int = 0) -> pd.DataFrame:
-    """
-    This function reads an Excel file, if there is a ValueError then it patches the openpyxl part that creates the
-    error and opens it with that patch.
-    It cleans and then returns the pd.DataFrame.
-
-    Args:
-        excelfile: The name of the Excel file
-        sheetname: The name or index (zero-based) of the Excel sheet, by default it reads the first
-
-    Returns:
-        A pd.DataFrame
-    """
-    try:
-        read_df: pd.DataFrame = pd.read_excel(excelfile, sheet_name=sheetname)
-    except ValueError:
-        # Pandas relies on openpyxl to parse XLSX files.
-        # A strange behavior of openpyxl prevents pandas from opening files with some formatting properties
-        # (unclear which formatting properties exactly).
-        # Apparently, the excel2json test files have one of the unsupported formatting properties.
-        # Credits: https://stackoverflow.com/a/70537454/14414188
-        with mock.patch("openpyxl.styles.fonts.Font.family.max", new=100):
-            read_df = pd.read_excel(excelfile, sheet_name=sheetname)
-    read_df = clean_data_frame(df=read_df)
-    return read_df
 
 
 def read_and_clean_all_sheets(excelfile: str | Path) -> dict[str, pd.DataFrame]:
@@ -202,24 +174,6 @@ def get_wrong_row_numbers(wrong_row_dict: dict[str, pd.Series], true_remains: bo
         k: turn_bool_array_into_index_numbers(series=v, true_remains=true_remains) for k, v in wrong_row_dict.items()
     }
     return {k: [x + 2 for x in v] for k, v in wrong_row_dict.items()}
-
-
-def update_dict_if_not_value_none(additional_dict: dict[Any, Any], to_update_dict: dict[Any, Any]) -> dict[Any, Any]:
-    """
-    This function takes two dictionaries.
-    The "to_update_dict" should be updated with the information from the "additional_dict"
-    only if the value of a particular key is not None or pd.NA.
-
-    Args:
-        additional_dict: The dictionary which contains information that may be transferred
-        to_update_dict: The dictionary to which the new information should be transferred
-
-    Returns:
-        The "to_update_dict" which the additional information
-    """
-    additional_dict = {k: v for k, v in additional_dict.items() if v is not None and v is not pd.NA}
-    to_update_dict.update(additional_dict)
-    return to_update_dict
 
 
 def get_labels(df_row: pd.Series) -> dict[str, str]:

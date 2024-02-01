@@ -139,9 +139,9 @@ class HasProperty(Model):
             ptype=ptype,
         )
 
-    @classmethod
+    @staticmethod
     def _fromJsonObj_get_prop_type_iri(
-        cls, context: Context, jsonld_obj: dict[str, Any], knora_api_iri: str, owl_iri: str, rdf_iri: str, rdfs_iri: str
+        context: Context, jsonld_obj: dict[str, Any], knora_api_iri: str, owl_iri: str, rdf_iri: str, rdfs_iri: str
     ) -> tuple[str, str, HasProperty.Ptype]:
         property_id: str
         ptype: HasProperty.Ptype
@@ -162,8 +162,8 @@ class HasProperty(Model):
         property_id = p
         return ontology_id, property_id, ptype
 
-    @classmethod
-    def _fromJsonObj_get_cardinality(cls, jsonld_obj: dict[str, Any], owl_iri: str):
+    @staticmethod
+    def _fromJsonObj_get_cardinality(jsonld_obj: dict[str, Any], owl_iri: str):
         cardinality: Cardinality
         if jsonld_obj.get(owl_iri + ":cardinality") is not None:
             cardinality = Cardinality.C_1
@@ -562,9 +562,9 @@ class ResourceClass(Model):
             has_properties=has_properties,
         )
 
-    @classmethod
+    @staticmethod
     def _fromJsonObj_get_superclass(
-        cls, con: Connection, context: Context, json_obj: dict[str, Any], rdfs: str, owl: str
+        con: Connection, context: Context, json_obj: dict[str, Any], rdfs: str, owl: str
     ) -> tuple[None | dict[str, HasProperty], None | list[str]]:
         superclasses_obj = json_obj.get(rdfs + ":subClassOf")
         if superclasses_obj is not None:

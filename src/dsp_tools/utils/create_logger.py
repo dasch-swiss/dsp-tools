@@ -27,6 +27,8 @@ def _make_handler(
         handler instance
     """
     formatter = logging.Formatter(fmt="{asctime} {filename: <30} l. {lineno: >4} {levelname: <8} {message}", style="{")
+    formatter.default_time_format = "%Y-%m-%d %H:%M:%S"
+    formatter.default_msec_format = "%s.%03d"
 
     logfile_directory.mkdir(exist_ok=True)
     handler = logging.handlers.RotatingFileHandler(

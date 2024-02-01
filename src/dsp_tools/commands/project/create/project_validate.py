@@ -13,7 +13,7 @@ from dsp_tools.commands.excel2json.lists import expand_lists_from_excel
 from dsp_tools.models.exceptions import BaseError
 
 
-def _check_for_duplicate_names(project_definition: dict[str, Any]) -> bool | None:
+def _check_for_duplicate_names(project_definition: dict[str, Any]) -> bool:
     """
     Check that the resource names and property names are unique.
 

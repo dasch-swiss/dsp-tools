@@ -11,7 +11,7 @@ from dsp_tools.commands.project.models.listnode import ListNode
 from dsp_tools.commands.project.models.model import Model
 from dsp_tools.models.datetimestamp import DateTimeStamp
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.langstring import LangString, Languages
+from dsp_tools.models.langstring import LangString
 from dsp_tools.utils.connection import Connection
 
 
@@ -134,14 +134,6 @@ class PropertyClass(Model):
             raise BaseError("Not a valid LangString")
         self._changed.add("label")
 
-    def addLabel(self, lang: Union[Languages, str], value: str) -> None:
-        self._label[lang] = value
-        self._changed.add("label")
-
-    def rmLabel(self, lang: Union[Languages, str]) -> None:
-        del self._label[lang]
-        self._changed.add("label")
-
     @property
     def comment(self) -> LangString:
         return self._comment
@@ -156,14 +148,6 @@ class PropertyClass(Model):
             self._comment = LangString(value)
         else:
             raise BaseError("Not a valid LangString")
-        self._changed.add("comment")
-
-    def addComment(self, lang: Union[Languages, str], value: str) -> None:
-        self._comment[lang] = value
-        self._changed.add("comment")
-
-    def rmComment(self, lang: Union[Languages, str]) -> None:
-        del self._comment[lang]
         self._changed.add("comment")
 
     @property

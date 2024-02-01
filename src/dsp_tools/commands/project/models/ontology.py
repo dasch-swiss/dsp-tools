@@ -14,10 +14,6 @@ READ:
       associated PropertyClasses and ResourceClasses as well as the assignments.
     * Access the information that has been provided to the instance
 
-DELETE
-    * Instantiate a new objects with ``iri``(IRI of group) given, or use any instance that has the iri set,
-      that is, that You've read before
-    * Call the ``delete``-method on the instance
 """
 from __future__ import annotations
 

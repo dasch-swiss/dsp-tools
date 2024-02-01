@@ -26,6 +26,23 @@ def _check_for_duplicate_names(project_definition: dict[str, Any]) -> bool:
     Returns:
         True if the resource/property names are unique
     """
+    propnames_duplicates, resnames_duplicates = _find_duplicates(project_definition)
+
+    if not resnames_duplicates and not propnames_duplicates:
+        return True
+
+    err_msg = "Resource names and property names must be unique inside every ontology.\n"
+    for ontoname, res_duplicates in resnames_duplicates.items():
+        for res_duplicate in sorted(res_duplicates):
+            err_msg += f"Resource '{res_duplicate}' appears multiple times in the ontology '{ontoname}'.\n"
+    for ontoname, prop_duplicates in propnames_duplicates.items():
+        for prop_duplicate in sorted(prop_duplicates):
+            err_msg += f"Property '{prop_duplicate}' appears multiple times in the ontology '{ontoname}'.\n"
+
+    raise BaseError(err_msg)
+
+
+def _find_duplicates(project_definition: dict[str, Any]) -> tuple[dict[str, set[str]], dict[str, set[str]]]:
     resnames_duplicates: dict[str, set[str]] = {}
     propnames_duplicates: dict[str, set[str]] = {}
     for onto in project_definition["project"]["ontologies"]:
@@ -46,19 +63,7 @@ def _check_for_duplicate_names(project_definition: dict[str, Any]) -> bool:
                         propnames_duplicates[onto["name"]].add(elem)
                     else:
                         propnames_duplicates[onto["name"]] = {elem}
-
-    if not resnames_duplicates and not propnames_duplicates:
-        return True
-
-    err_msg = "Resource names and property names must be unique inside every ontology.\n"
-    for ontoname, res_duplicates in resnames_duplicates.items():
-        for res_duplicate in sorted(res_duplicates):
-            err_msg += f"Resource '{res_duplicate}' appears multiple times in the ontology '{ontoname}'.\n"
-    for ontoname, prop_duplicates in propnames_duplicates.items():
-        for prop_duplicate in sorted(prop_duplicates):
-            err_msg += f"Property '{prop_duplicate}' appears multiple times in the ontology '{ontoname}'.\n"
-
-    raise BaseError(err_msg)
+    return propnames_duplicates, resnames_duplicates
 
 
 def _check_for_undefined_super_resource(project_definition: dict[str, Any]) -> bool:

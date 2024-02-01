@@ -2,7 +2,7 @@
 
 [tool.poetry]
 name = "dsp-tools"
-version = "5.7.0"
+version = "5.8.0"
 description = "DSP-TOOLS is a Python package with a command line interface that helps you interact with a DaSCH service platform (DSP) server."
 authors = ["DaSCH - Swiss National Data and Service Center for the Humanities <info@dasch.swiss>"]
 readme = "docs/index.md"

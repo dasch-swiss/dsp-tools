@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any, Optional, Sequence, Union
 from urllib.parse import quote_plus
 
@@ -37,7 +39,7 @@ class PropertyClass(Model):
         iri: Optional[str] = None,
         name: Optional[str] = None,
         ontology_id: Optional[str] = None,
-        superproperties: Optional[Sequence[Union["PropertyClass", str]]] = None,
+        superproperties: Optional[Sequence[Union[PropertyClass, str]]] = None,
         rdf_object: Optional[str] = None,
         rdf_subject: Optional[str] = None,
         gui_element: Optional[str] = None,
@@ -177,7 +179,7 @@ class PropertyClass(Model):
         raise BaseError('"linkvalue" cannot be modified!')
 
     @classmethod
-    def fromJsonObj(cls, con: Connection, context: Context, json_obj: Any) -> "PropertyClass":
+    def fromJsonObj(cls, con: Connection, context: Context, json_obj: Any) -> PropertyClass:
         if isinstance(json_obj, list):
             json_obj = json_obj[0]
         rdfs_iri = context.prefix_from_iri("http://www.w3.org/2000/01/rdf-schema#")
@@ -277,7 +279,7 @@ class PropertyClass(Model):
         else:
             return {"@id": "knora-api:" + resref}  # no ":", must be from knora-api!
 
-    def create(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, "PropertyClass"]:
+    def create(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, PropertyClass]:
         jsonobj = self._toJsonObj_create(last_modification_date)
         result = self._con.post(PropertyClass.ROUTE, jsonobj)
         last_modification_date = DateTimeStamp(result["knora-api:lastModificationDate"])
@@ -320,7 +322,7 @@ class PropertyClass(Model):
             tmp["@graph"][0]["salsah-gui:guiAttribute"] = ga
         return tmp
 
-    def update(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, "PropertyClass"]:
+    def update(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, PropertyClass]:
         #
         # Note: DSP is able to change only one thing per call, either label or comment!
         #

@@ -14,7 +14,7 @@ from urllib.parse import quote_plus
 import regex
 
 from dsp_tools.commands.project.models.context import Context
-from dsp_tools.commands.project.models.helpers import Actions, Cardinality
+from dsp_tools.commands.project.models.helpers import Cardinality
 from dsp_tools.commands.project.models.model import Model
 from dsp_tools.models.datetimestamp import DateTimeStamp
 from dsp_tools.models.exceptions import BaseError
@@ -587,80 +587,8 @@ class ResourceClass(Model):
             has_properties = None
         return has_properties, superclasses
 
-    def toJsonObj(self, lastModificationDate: DateTimeStamp, action: Actions, what: Optional[str] = None) -> Any:
-        def resolve_resref(resref: str) -> dict[str, str]:
-            tmp = resref.split(":")
-            if len(tmp) > 1:
-                if tmp[0] and self._context.iri_from_prefix(tmp[0]) != self._ontology_id:
-                    self._context.add_context(tmp[0])
-                    return {"@id": resref}  # fully qualified name in the form "prefix:name"
-                else:
-                    return {
-                        "@id": self._context.prefix_from_iri(self._ontology_id) + ":" + tmp[1]
-                    }  # ":name" in current ontology
-            else:
-                return {"@id": "knora-api:" + resref}  # no ":", must be from knora-api!
-
-        tmp = {}
-        exp = regex.compile("^http.*")  # It is already a fully IRI
-        if exp.match(self._ontology_id):
-            resid = self._context.prefix_from_iri(self._ontology_id) + ":" + self._name
-            ontid = self._ontology_id
-        else:
-            resid = self._ontology_id + ":" + self._name
-            ontid = self._context.iri_from_prefix(self._ontology_id)
-
-        if action == Actions.Create:
-            if self._name is None:
-                raise BaseError("There must be a valid resource class name!")
-            if self._ontology_id is None:
-                raise BaseError("There must be a valid ontology_id given!")
-            if self._superclasses is None:
-                superclasses = [{"@id": "knora-api:Resource"}]
-            else:
-                superclasses = list(map(resolve_resref, self._superclasses))
-            if self._label is None or self._label.isEmpty():
-                self._label = LangString("no label available")
-            tmp = {
-                "@id": ontid,  # self._ontology_id,
-                "@type": "owl:Ontology",
-                "knora-api:lastModificationDate": lastModificationDate.toJsonObj(),
-                "@graph": [
-                    {
-                        "@id": resid,
-                        "@type": "owl:Class",
-                        "rdfs:label": self._label.toJsonLdObj(),
-                        "rdfs:subClassOf": superclasses,
-                    }
-                ],
-                "@context": self._context.toJsonObj(),
-            }
-            if self._comment:
-                tmp["@graph"][0]["rdfs:comment"] = self._comment.toJsonLdObj()
-
-        elif action == Actions.Update:
-            tmp = {
-                "@id": ontid,  # self._ontology_id,
-                "@type": "owl:Ontology",
-                "knora-api:lastModificationDate": lastModificationDate.toJsonObj(),
-                "@graph": [
-                    {
-                        "@id": resid,
-                        "@type": "owl:Class",
-                    }
-                ],
-                "@context": self._context.toJsonObj(),
-            }
-            if what == "label":
-                if not self._label.isEmpty() and "label" in self._changed:
-                    tmp["@graph"][0]["rdfs:label"] = self._label.toJsonLdObj()
-            if what == "comment":
-                if not self._comment.isEmpty() and "comment" in self._changed:
-                    tmp["@graph"][0]["rdfs:comment"] = self._comment.toJsonLdObj()
-        return tmp
-
     def create(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, "ResourceClass"]:
-        jsonobj = self.toJsonObj(last_modification_date, Actions.Create)
+        jsonobj = self._toJsonObj_create(last_modification_date)
         result = self._con.post(ResourceClass.ROUTE, jsonobj)
         last_modification_date = DateTimeStamp(result["knora-api:lastModificationDate"])
         return last_modification_date, ResourceClass.fromJsonObj(self._con, self._context, result["@graph"])
@@ -672,12 +600,12 @@ class ResourceClass(Model):
         result = None
         something_changed = False
         if "label" in self._changed:
-            jsonobj = self.toJsonObj(last_modification_date, Actions.Update, "label")
+            jsonobj = self._toJsonObj_update(last_modification_date, "label")
             result = self._con.put(ResourceClass.ROUTE, jsonobj)
             last_modification_date = DateTimeStamp(result["knora-api:lastModificationDate"])
             something_changed = True
         if "comment" in self._changed:
-            jsonobj = self.toJsonObj(last_modification_date, Actions.Update, "comment")
+            jsonobj = self._toJsonObj_update(last_modification_date, "comment")
             result = self._con.put(ResourceClass.ROUTE, jsonobj)
             last_modification_date = DateTimeStamp(result["knora-api:lastModificationDate"])
             something_changed = True
@@ -685,6 +613,81 @@ class ResourceClass(Model):
             return last_modification_date, ResourceClass.fromJsonObj(self._con, self._context, result["@graph"])
         else:
             return last_modification_date, self
+
+    def _toJsonObj_update(self, lastModificationDate: DateTimeStamp, what_changed: str) -> dict[str, Any]:
+        ontid, resid = self._get_onto_res_iri()
+        tmp = {
+            "@id": ontid,  # self._ontology_id,
+            "@type": "owl:Ontology",
+            "knora-api:lastModificationDate": lastModificationDate.toJsonObj(),
+            "@graph": [
+                {
+                    "@id": resid,
+                    "@type": "owl:Class",
+                }
+            ],
+            "@context": self._context.toJsonObj(),
+        }
+        if what_changed == "label":
+            if not self._label.isEmpty() and "label" in self._changed:
+                tmp["@graph"][0]["rdfs:label"] = self._label.toJsonLdObj()
+        if what_changed == "comment":
+            if not self._comment.isEmpty() and "comment" in self._changed:
+                tmp["@graph"][0]["rdfs:comment"] = self._comment.toJsonLdObj()
+        return tmp
+
+    def _toJsonObj_create(self, lastModificationDate: DateTimeStamp) -> dict[str, Any]:
+        ontid, resid = self._get_onto_res_iri()
+        if self._name is None:
+            raise BaseError("There must be a valid resource class name!")
+        if self._ontology_id is None:
+            raise BaseError("There must be a valid ontology_id given!")
+        if self._superclasses is None:
+            superclasses = [{"@id": "knora-api:Resource"}]
+        else:
+            superclasses = list(map(self._resolve_resref, self._superclasses))
+        if self._label is None or self._label.isEmpty():
+            self._label = LangString("no label available")
+        tmp = {
+            "@id": ontid,  # self._ontology_id,
+            "@type": "owl:Ontology",
+            "knora-api:lastModificationDate": lastModificationDate.toJsonObj(),
+            "@graph": [
+                {
+                    "@id": resid,
+                    "@type": "owl:Class",
+                    "rdfs:label": self._label.toJsonLdObj(),
+                    "rdfs:subClassOf": superclasses,
+                }
+            ],
+            "@context": self._context.toJsonObj(),
+        }
+        if self._comment:
+            tmp["@graph"][0]["rdfs:comment"] = self._comment.toJsonLdObj()
+        return tmp
+
+    def _get_onto_res_iri(self) -> tuple[str, str]:
+        exp = regex.compile("^http.*")  # It is already a fully IRI
+        if exp.match(self._ontology_id):
+            resid = self._context.prefix_from_iri(self._ontology_id) + ":" + self._name
+            ontid = self._ontology_id
+        else:
+            resid = self._ontology_id + ":" + self._name
+            ontid = self._context.iri_from_prefix(self._ontology_id)
+        return ontid, resid
+
+    def _resolve_resref(self, resref: str) -> dict[str, str]:
+        tmp = resref.split(":")
+        if len(tmp) > 1:
+            if tmp[0] and self._context.iri_from_prefix(tmp[0]) != self._ontology_id:
+                self._context.add_context(tmp[0])
+                return {"@id": resref}  # fully qualified name in the form "prefix:name"
+            else:
+                return {
+                    "@id": self._context.prefix_from_iri(self._ontology_id) + ":" + tmp[1]
+                }  # ":name" in current ontology
+        else:
+            return {"@id": "knora-api:" + resref}  # no ":", must be from knora-api!
 
     def delete(self, last_modification_date: DateTimeStamp) -> DateTimeStamp:
         result = self._con.delete(

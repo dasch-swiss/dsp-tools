@@ -97,8 +97,6 @@ class TestListNode(unittest.TestCase):
             comments=LangString({Languages.EN: "Third root node"}),
             name="test_node",
         ).create()
-        node.addLabel("de", "Neues Label")
-        node.rmLabel("en")
         node.addComment("fr", "un commentaire en français")
         node.rmComment("en")
         node.name = "test_node_update"

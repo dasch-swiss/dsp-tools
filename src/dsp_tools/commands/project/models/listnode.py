@@ -50,7 +50,7 @@ class ListNode(Model):
 
     label : LangString
         A LangString instance with language dependent labels. Setting this attribute overwrites all entries
-        with the new ones. In order to add/remove a specific entry, use "addLabel" or "rmLabel".
+        with the new ones.
         At least one label is required [read/write].
 
     comments : LangString
@@ -140,7 +140,6 @@ class ListNode(Model):
         DELETE:
             * Not yet implemented
 
-        Setting a label overwites all entries. To add/remove a specific entry, use "addLabel" or "rmLabel".
         Setting a comment overwites all entries. To add/remove a specific entry, use "addComment" or "rmComment".
 
         Args:
@@ -201,28 +200,6 @@ class ListNode(Model):
     @label.setter
     def label(self, value: Optional[Union[LangString, str]]) -> None:
         self._label = LangString(value)
-        self._changed.add("label")
-
-    def addLabel(self, lang: Union[Languages, str], value: str) -> None:
-        """
-        Add/replace a node label with the given language (executed at next update)
-
-        :param lang: The language the label, either a string "EN", "DE", "FR", "IT" or a Language instance
-        :param value: The text of the label
-        :return: None
-        """
-
-        self._label[lang] = value
-        self._changed.add("label")
-
-    def rmLabel(self, lang: Union[Languages, str]) -> None:
-        """
-        Remove a label from a list node (executed at next update)
-
-        Args:
-            lang: language of the label (string "EN", "DE", "FR", "IT", "RM", or a Language instance)
-        """
-        del self._label[lang]
         self._changed.add("label")
 
     @property

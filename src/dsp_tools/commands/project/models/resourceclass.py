@@ -402,33 +402,24 @@ class ResourceClass(Model):
             self._superclasses = list(map(lambda a: a.iri, superclasses))
         else:
             self._superclasses = superclasses
-        #
-        # process label
-        #
-        if label is not None:
-            if isinstance(label, str):
-                self._label = LangString(label)
-            elif isinstance(label, LangString):
-                self._label = label
-            else:
-                raise BaseError("Invalid LangString for label!")
-        else:
-            self._label = LangString({})
-        #
-        # process comment
-        #
-        if comment is not None:
-            if isinstance(comment, str):
-                self._comment = LangString(comment)
-            elif isinstance(comment, LangString):
-                self._comment = comment
-            else:
-                raise BaseError("Invalid LangString for comment!")
-        else:
-            self._comment = LangString({})
+
+        self._label = self._check_process_langstring(label, "label")
+        self._comment = self._check_process_langstring(comment, "comment")
         self._permissions = permissions
         self._has_properties = has_properties
         self._changed = set()
+
+    @staticmethod
+    def _check_process_langstring(langstring_to_check: None | str | LangString, what: str) -> LangString:
+        if langstring_to_check is not None:
+            if isinstance(langstring_to_check, str):
+                return LangString(langstring_to_check)
+            elif isinstance(langstring_to_check, LangString):
+                return langstring_to_check
+            else:
+                raise BaseError(f"Invalid LangString for {what}!")
+        else:
+            return LangString({})
 
     #
     # Here follows a list of getters/setters

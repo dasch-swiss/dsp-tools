@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from functools import partial
 from importlib.metadata import version
+from logging import FileHandler
 from typing import Any, Literal, Optional, cast
 
 import regex
@@ -251,6 +252,7 @@ class ConnectionLive:
         Returns:
             the return value of action
         """
+        logfiles = ", ".join([handler.baseFilename for handler in logger.handlers if isinstance(handler, FileHandler)])
         action = partial(self.session.request, **params.as_kwargs())
         for i in range(7):
             try:
@@ -269,11 +271,14 @@ class ConnectionLive:
                 return response
             elif "v2/authentication" in params.url and response.status_code == HTTP_UNAUTHORIZED:
                 raise BadCredentialsError("Bad credentials")
+            elif "OntologyConstraintException" in response.text:
+                msg = f"Permanently unable to execute the network action. See logs for more details: {logfiles}"
+                raise PermanentConnectionError(msg)
             elif not self._in_testing_environment():
                 self._log_and_sleep(reason="Non-200 response code", retry_counter=i, exc_info=False)
                 continue
             else:
-                msg = "Permanently unable to execute the network action. See logs for more details."
+                msg = f"Permanently unable to execute the network action. See logs for more details: {logfiles}"
                 raise PermanentConnectionError(msg)
 
         # after 7 vain attempts to create a response, try it a last time and let it escalate

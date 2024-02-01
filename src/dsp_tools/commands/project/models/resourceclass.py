@@ -372,7 +372,7 @@ class ResourceClass(Model):
         iri: Optional[str] = None,
         name: Optional[str] = None,
         ontology_id: Optional[str] = None,
-        superclasses: Optional[Sequence[Union["ResourceClass", str]]] = None,
+        superclasses: Optional[Sequence[Union[ResourceClass, str]]] = None,
         label: Optional[Union[LangString, str]] = None,
         comment: Optional[Union[LangString, str]] = None,
         permissions: Optional[str] = None,
@@ -587,13 +587,13 @@ class ResourceClass(Model):
             has_properties = None
         return has_properties, superclasses
 
-    def create(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, "ResourceClass"]:
+    def create(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, ResourceClass]:
         jsonobj = self._toJsonObj_create(last_modification_date)
         result = self._con.post(ResourceClass.ROUTE, jsonobj)
         last_modification_date = DateTimeStamp(result["knora-api:lastModificationDate"])
         return last_modification_date, ResourceClass.fromJsonObj(self._con, self._context, result["@graph"])
 
-    def update(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, "ResourceClass"]:
+    def update(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, ResourceClass]:
         #
         # Note: DSP is able to change only one thing per call, either label or comment!
         #

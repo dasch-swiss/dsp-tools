@@ -23,14 +23,6 @@ ContextType = dict[str, OntoIri]
 
 
 @unique
-class Actions(Enum):
-    Create = 1
-    Read = 2
-    Update = 3
-    Delete = 4
-
-
-@unique
 class Cardinality(Enum):
     C_1 = "1"
     C_0_1 = "0-1"

@@ -110,58 +110,25 @@ class HasProperty(Model):
         return self._ptype
 
     @classmethod
-    def fromJsonObj(cls, con: Connection, context: Context, jsonld_obj: Any) -> tuple[str, HasProperty]:
-        rdf = context.prefix_from_iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
-        rdfs = context.prefix_from_iri("http://www.w3.org/2000/01/rdf-schema#")
-        owl = context.prefix_from_iri("http://www.w3.org/2002/07/owl#")
-        knora_api = context.prefix_from_iri("http://api.knora.org/ontology/knora-api/v2#")
-        salsah_gui = context.prefix_from_iri("http://api.knora.org/ontology/salsah-gui/v2#")
+    def fromJsonObj(cls, con: Connection, context: Context, jsonld_obj: dict[str, Any]) -> tuple[str, HasProperty]:
+        rdf_iri = context.prefix_from_iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
+        rdfs_iri = context.prefix_from_iri("http://www.w3.org/2000/01/rdf-schema#")
+        owl_iri = context.prefix_from_iri("http://www.w3.org/2002/07/owl#")
+        knora_api_iri = context.prefix_from_iri("http://api.knora.org/ontology/knora-api/v2#")
+        salsah_gui_iri = context.prefix_from_iri("http://api.knora.org/ontology/salsah-gui/v2#")
 
-        if jsonld_obj.get("@type") is None or jsonld_obj.get("@type") != owl + ":Restriction":
+        if jsonld_obj.get("@type") is None or jsonld_obj.get("@type") != owl_iri + ":Restriction":
             raise BaseError("Expected restriction type")
 
-        #
-        # let's get the cardinality
-        #
-        cardinality: Cardinality
-        if jsonld_obj.get(owl + ":cardinality") is not None:
-            cardinality = Cardinality.C_1
-        elif jsonld_obj.get(owl + ":maxCardinality") is not None:
-            cardinality = Cardinality.C_0_1
-        elif jsonld_obj.get(owl + ":minCardinality") is not None:
-            if jsonld_obj.get(owl + ":minCardinality") == 0:
-                cardinality = Cardinality.C_0_n
-            elif jsonld_obj.get(owl + ":minCardinality") == 1:
-                cardinality = Cardinality.C_1_n
-            else:
-                raise BaseError("Problem with cardinality")
-        else:
-            raise BaseError("Problem with cardinality")
+        cardinality = cls._get_cardinality(jsonld_obj, owl_iri)
 
-        #
-        # Now let's get the property IRI
-        #
-        property_id: str
-        ptype: HasProperty.Ptype
-        ontology_id: Optional[str] = None
-        if jsonld_obj.get(owl + ":onProperty") is None:
-            raise BaseError("No property IRI given")
-        p = jsonld_obj[owl + ":onProperty"].get("@id")
-        if p is None:
-            raise BaseError("No property IRI given")
-        pp = p.split(":")
-        if pp[0] == rdf or pp[0] == rdfs or pp[0] == owl:
-            ptype = HasProperty.Ptype.system
-        elif pp[0] == knora_api:
-            ptype = HasProperty.Ptype.knora
-        else:
-            ptype = HasProperty.Ptype.other
-            ontology_id = context.iri_from_prefix(pp[0])
-        property_id = p
+        ontology_id, property_id, ptype = cls._fromJsonObj_get_prop_type_iri(
+            context, jsonld_obj, knora_api_iri, owl_iri, rdf_iri, rdfs_iri
+        )
 
         gui_order: int = None
-        if jsonld_obj.get(salsah_gui + ":guiOrder") is not None:
-            gui_order = jsonld_obj[salsah_gui + ":guiOrder"]
+        if jsonld_obj.get(salsah_gui_iri + ":guiOrder") is not None:
+            gui_order = jsonld_obj[salsah_gui_iri + ":guiOrder"]
         return property_id, cls(
             con=con,
             context=context,
@@ -171,6 +138,47 @@ class HasProperty(Model):
             gui_order=gui_order,
             ptype=ptype,
         )
+
+    @classmethod
+    def _fromJsonObj_get_prop_type_iri(
+        cls, context: Context, jsonld_obj: dict[str, Any], knora_api_iri: str, owl_iri: str, rdf_iri: str, rdfs_iri: str
+    ) -> tuple[str, str, HasProperty.Ptype]:
+        property_id: str
+        ptype: HasProperty.Ptype
+        ontology_id: Optional[str] = None
+        if jsonld_obj.get(owl_iri + ":onProperty") is None:
+            raise BaseError("No property IRI given")
+        p = jsonld_obj[owl_iri + ":onProperty"].get("@id")
+        if p is None:
+            raise BaseError("No property IRI given")
+        pp = p.split(":")
+        if pp[0] == rdf_iri or pp[0] == rdfs_iri or pp[0] == owl_iri:
+            ptype = HasProperty.Ptype.system
+        elif pp[0] == knora_api_iri:
+            ptype = HasProperty.Ptype.knora
+        else:
+            ptype = HasProperty.Ptype.other
+            ontology_id = context.iri_from_prefix(pp[0])
+        property_id = p
+        return ontology_id, property_id, ptype
+
+    @classmethod
+    def _get_cardinality(cls, jsonld_obj: dict[str, Any], owl_iri: str):
+        cardinality: Cardinality
+        if jsonld_obj.get(owl_iri + ":cardinality") is not None:
+            cardinality = Cardinality.C_1
+        elif jsonld_obj.get(owl_iri + ":maxCardinality") is not None:
+            cardinality = Cardinality.C_0_1
+        elif jsonld_obj.get(owl_iri + ":minCardinality") is not None:
+            if jsonld_obj.get(owl_iri + ":minCardinality") == 0:
+                cardinality = Cardinality.C_0_n
+            elif jsonld_obj.get(owl_iri + ":minCardinality") == 1:
+                cardinality = Cardinality.C_1_n
+            else:
+                raise BaseError("Problem with cardinality")
+        else:
+            raise BaseError("Problem with cardinality")
+        return cardinality
 
     def toJsonObj(self, lastModificationDate: DateTimeStamp, action: Actions) -> dict[str, Any]:
         if self._cardinality is None:
@@ -597,6 +605,7 @@ class ResourceClass(Model):
         else:
             resid = self._ontology_id + ":" + self._name
             ontid = self._context.iri_from_prefix(self._ontology_id)
+
         if action == Actions.Create:
             if self._name is None:
                 raise BaseError("There must be a valid resource class name!")

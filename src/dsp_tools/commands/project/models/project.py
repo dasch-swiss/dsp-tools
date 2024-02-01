@@ -57,7 +57,6 @@ class Project(Model):
 
     description : LangString
         DSP project description in a given language (Languages.EN, Languages.DE, Languages.FR, Languages.IT).
-        A desciption can be add/replaced or removed with the methods ``addDescription``and ``rmDescription``.
 
     keywords : set[str]
         Set of keywords describing the project. Keywords can be added/removed by the methods ``addKeyword``
@@ -206,17 +205,6 @@ class Project(Model):
         """
 
         self._description[lang] = value
-        self._changed.add("description")
-
-    def rmDescription(self, lang: Union[Languages, str]) -> None:
-        """
-        Remove a description from a project (executed at next update)
-
-        :param lang: language of the description, either "EN", "DE", "FR", "IT", "RM", or a Language instance
-        :return: None
-        """
-
-        del self._description[lang]
         self._changed.add("description")
 
     @property

@@ -120,7 +120,7 @@ class HasProperty(Model):
         if jsonld_obj.get("@type") is None or jsonld_obj.get("@type") != owl_iri + ":Restriction":
             raise BaseError("Expected restriction type")
 
-        cardinality = cls._get_cardinality(jsonld_obj, owl_iri)
+        cardinality = cls._fromJsonObj_get_cardinality(jsonld_obj, owl_iri)
 
         ontology_id, property_id, ptype = cls._fromJsonObj_get_prop_type_iri(
             context, jsonld_obj, knora_api_iri, owl_iri, rdf_iri, rdfs_iri
@@ -163,7 +163,7 @@ class HasProperty(Model):
         return ontology_id, property_id, ptype
 
     @classmethod
-    def _get_cardinality(cls, jsonld_obj: dict[str, Any], owl_iri: str):
+    def _fromJsonObj_get_cardinality(cls, jsonld_obj: dict[str, Any], owl_iri: str):
         cardinality: Cardinality
         if jsonld_obj.get(owl_iri + ":cardinality") is not None:
             cardinality = Cardinality.C_1
@@ -180,59 +180,6 @@ class HasProperty(Model):
             raise BaseError("Problem with cardinality")
         return cardinality
 
-    def toJsonObj(self, lastModificationDate: DateTimeStamp, action: Actions) -> dict[str, Any]:
-        if self._cardinality is None:
-            raise BaseError("There must be a cardinality given!")
-        tmp = {}
-        switcher = {
-            Cardinality.C_1: ("owl:cardinality", 1),
-            Cardinality.C_0_1: ("owl:maxCardinality", 1),
-            Cardinality.C_0_n: ("owl:minCardinality", 0),
-            Cardinality.C_1_n: ("owl:minCardinality", 1),
-        }
-        occurrence = switcher.get(self._cardinality)
-        if action == Actions.Create:
-            tmp = {
-                "@id": self._ontology_id,
-                "@type": "owl:Ontology",
-                "knora-api:lastModificationDate": lastModificationDate.toJsonObj(),
-                "@graph": [
-                    {
-                        "@id": self._resclass_id,
-                        "@type": "owl:Class",
-                        "rdfs:subClassOf": {
-                            "@type": "owl:Restriction",
-                            occurrence[0]: occurrence[1],
-                            "owl:onProperty": {"@id": self._property_id},
-                        },
-                    }
-                ],
-                "@context": self._context.toJsonObj(),
-            }
-            if self._gui_order is not None:
-                tmp["@graph"][0]["rdfs:subClassOf"]["salsah-gui:guiOrder"] = self._gui_order
-        elif action == Actions.Update:
-            tmp = {
-                "@id": self._ontology_id,
-                "@type": "owl:Ontology",
-                "knora-api:lastModificationDate": lastModificationDate.toJsonObj(),
-                "@graph": [
-                    {
-                        "@id": self._resclass_id,
-                        "@type": "owl:Class",
-                        "rdfs:subClassOf": {
-                            "@type": "owl:Restriction",
-                            occurrence[0]: occurrence[1],
-                            "owl:onProperty": {"@id": self._property_id},
-                        },
-                    }
-                ],
-                "@context": self._context.toJsonObj(),
-            }
-            if self._gui_order is not None and "gui_order" in self._changed:
-                tmp["@graph"][0]["rdfs:subClassOf"]["salsah-gui:guiOrder"] = self._gui_order
-        return tmp
-
     def create(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, ResourceClass]:
         if self._ontology_id is None:
             raise BaseError("Ontology id required")
@@ -241,7 +188,7 @@ class HasProperty(Model):
         if self._cardinality is None:
             raise BaseError("Cardinality id required")
 
-        jsonobj = self.toJsonObj(last_modification_date, Actions.Create)
+        jsonobj = self._toJsonObj_create(last_modification_date)
         result = self._con.post(HasProperty.ROUTE, jsonobj)
         last_modification_date = DateTimeStamp(result["knora-api:lastModificationDate"])
         return last_modification_date, ResourceClass.fromJsonObj(self._con, self._context, result["@graph"])
@@ -253,10 +200,67 @@ class HasProperty(Model):
             raise BaseError("Property id required")
         if self._cardinality is None:
             raise BaseError("Cardinality id required")
-        jsonobj = self.toJsonObj(last_modification_date, Actions.Update)
+        jsonobj = self._toJsonObj_update(last_modification_date)
         result = self._con.put(HasProperty.ROUTE, jsonobj)
         last_modification_date = DateTimeStamp(result["knora-api:lastModificationDate"])
         return last_modification_date, ResourceClass.fromJsonObj(self._con, self._context, result["@graph"])
+
+    def _toJsonObj_update(self, lastModificationDate: DateTimeStamp) -> dict[str, Any]:
+        occurrence = self._toJsonObj_get_owl_cardinality()
+        tmp = {
+            "@id": self._ontology_id,
+            "@type": "owl:Ontology",
+            "knora-api:lastModificationDate": lastModificationDate.toJsonObj(),
+            "@graph": [
+                {
+                    "@id": self._resclass_id,
+                    "@type": "owl:Class",
+                    "rdfs:subClassOf": {
+                        "@type": "owl:Restriction",
+                        occurrence[0]: occurrence[1],
+                        "owl:onProperty": {"@id": self._property_id},
+                    },
+                }
+            ],
+            "@context": self._context.toJsonObj(),
+        }
+        if self._gui_order is not None and "gui_order" in self._changed:
+            tmp["@graph"][0]["rdfs:subClassOf"]["salsah-gui:guiOrder"] = self._gui_order
+        return tmp
+
+    def _toJsonObj_create(self, lastModificationDate: DateTimeStamp) -> dict[str, Any]:
+        occurrence = self._toJsonObj_get_owl_cardinality()
+        tmp = {
+            "@id": self._ontology_id,
+            "@type": "owl:Ontology",
+            "knora-api:lastModificationDate": lastModificationDate.toJsonObj(),
+            "@graph": [
+                {
+                    "@id": self._resclass_id,
+                    "@type": "owl:Class",
+                    "rdfs:subClassOf": {
+                        "@type": "owl:Restriction",
+                        occurrence[0]: occurrence[1],
+                        "owl:onProperty": {"@id": self._property_id},
+                    },
+                }
+            ],
+            "@context": self._context.toJsonObj(),
+        }
+        if self._gui_order is not None:
+            tmp["@graph"][0]["rdfs:subClassOf"]["salsah-gui:guiOrder"] = self._gui_order
+        return tmp
+
+    def _toJsonObj_get_owl_cardinality(self) -> tuple[str, int]:
+        if self._cardinality is None:
+            raise BaseError("There must be a cardinality given!")
+        switcher = {
+            Cardinality.C_1: ("owl:cardinality", 1),
+            Cardinality.C_0_1: ("owl:maxCardinality", 1),
+            Cardinality.C_0_n: ("owl:minCardinality", 0),
+            Cardinality.C_1_n: ("owl:minCardinality", 1),
+        }
+        return switcher.get(self._cardinality)
 
     def createDefinitionFileObj(self, context: Context, shortname: str) -> dict[str, Any]:
         cardinality = {}

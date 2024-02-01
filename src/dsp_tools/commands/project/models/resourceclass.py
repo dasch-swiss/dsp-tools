@@ -540,29 +540,13 @@ class ResourceClass(Model):
 
         if json_obj.get("@id") is None:
             raise BaseError('Resource class has no "@id"!')
+
         tmp_id = json_obj.get("@id").split(":")
         iri = context.iri_from_prefix(tmp_id[0]) + "#" + tmp_id[1]
         ontology_id = tmp_id[0]
         name = tmp_id[1]
-        superclasses_obj = json_obj.get(rdfs + ":subClassOf")
-        if superclasses_obj is not None:
-            supercls: list[Any] = list(filter(lambda a: a.get("@id") is not None, superclasses_obj))
-            superclasses: list[str] = list(map(lambda a: a["@id"], supercls))
-            has_props: list[Any] = list(filter(lambda a: a.get("@type") == (owl + ":Restriction"), superclasses_obj))
-            has_properties: dict[HasProperty] = dict(map(lambda a: HasProperty.fromJsonObj(con, context, a), has_props))
-            #
-            # now remove the ...Value stuff from resource pointers: A resource pointer is returned as 2 properties:
-            # one a direct link, the other the pointer to a link value
-            #
-            tmp = dict(has_properties)
-            for key in tmp.keys():
-                if key.endswith("Value"):
-                    key_without_value = key.removesuffix("Value")
-                    if key_without_value in has_properties:
-                        del has_properties[key]
-        else:
-            superclasses = None
-            has_properties = None
+
+        has_properties, superclasses = cls._fromJsonObj_get_superclass(con, context, json_obj, rdfs, owl)
 
         label = LangString.fromJsonLdObj(json_obj.get(rdfs + ":label"))
         comment = LangString.fromJsonLdObj(json_obj.get(rdfs + ":comment"))
@@ -577,6 +561,31 @@ class ResourceClass(Model):
             comment=comment,
             has_properties=has_properties,
         )
+
+    @classmethod
+    def _fromJsonObj_get_superclass(
+        cls, con: Connection, context: Context, json_obj: dict[str, Any], rdfs: str, owl: str
+    ) -> tuple[None | dict[str, HasProperty], None | list[str]]:
+        superclasses_obj = json_obj.get(rdfs + ":subClassOf")
+        if superclasses_obj is not None:
+            supercls = list(filter(lambda a: a.get("@id") is not None, superclasses_obj))
+            superclasses = list(map(lambda a: a["@id"], supercls))
+            has_props = list(filter(lambda a: a.get("@type") == (owl + ":Restriction"), superclasses_obj))
+            has_properties = dict(map(lambda a: HasProperty.fromJsonObj(con, context, a), has_props))
+            #
+            # now remove the ...Value stuff from resource pointers: A resource pointer is returned as 2 properties:
+            # one a direct link, the other the pointer to a link value
+            #
+            tmp = dict(has_properties)
+            for key in tmp.keys():
+                if key.endswith("Value"):
+                    key_without_value = key.removesuffix("Value")
+                    if key_without_value in has_properties:
+                        del has_properties[key]
+        else:
+            superclasses = None
+            has_properties = None
+        return has_properties, superclasses
 
     def toJsonObj(self, lastModificationDate: DateTimeStamp, action: Actions, what: Optional[str] = None) -> Any:
         def resolve_resref(resref: str) -> dict[str, str]:

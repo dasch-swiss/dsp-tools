@@ -62,33 +62,24 @@ class PropertyClass(Model):
         self._rdf_subject = rdf_subject
         self._gui_element = gui_element
         self._gui_attributes = gui_attributes
-        #
-        # process label
-        #
-        if label is not None:
-            if isinstance(label, str):
-                self._label = LangString(label)
-            elif isinstance(label, LangString):
-                self._label = label
-            else:
-                raise BaseError("Invalid LangString for label!")
-        else:
-            self._label = LangString({})
-        #
-        # process comment
-        #
-        if comment is not None:
-            if isinstance(comment, str):
-                self._comment = LangString(comment)
-            elif isinstance(comment, LangString):
-                self._comment = comment
-            else:
-                raise BaseError("Invalid LangString for comment!")
-        else:
-            self._comment = LangString({})
+
+        self._label = PropertyClass._init_process_language_value(label, "label")
+        self._comment = PropertyClass._init_process_language_value(comment, "comment")
 
         self._editable = editable
         self._linkvalue = linkvalue
+
+    @staticmethod
+    def _init_process_language_value(prop_val: None | str | LangString, property: str) -> LangString:
+        if prop_val is not None:
+            if isinstance(prop_val, str):
+                return LangString(prop_val)
+            elif isinstance(prop_val, LangString):
+                return prop_val
+            else:
+                raise BaseError(f"Invalid LangString for {property}!")
+        else:
+            return LangString({})
 
     #
     # Here follows a list of getters/setters

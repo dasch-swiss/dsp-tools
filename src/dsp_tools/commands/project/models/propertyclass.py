@@ -252,27 +252,36 @@ class PropertyClass(Model):
                     gui_attributes[tmp[0]] = tmp[1]
         return gui_attributes, gui_element
 
-    def _toJsonObj_update(self, lastModificationDate: DateTimeStamp, what_changed: str) -> dict[str, Any]:
-        ontid, propid = self._make_full_onto_iri()
-        tmp = {
-            "@id": ontid,  # self._ontology_id,
-            "@type": "owl:Ontology",
-            "knora-api:lastModificationDate": lastModificationDate.toJsonObj(),
-            "@graph": [
-                {
-                    "@id": propid,
-                    "@type": "owl:ObjectProperty",
-                }
-            ],
-            "@context": self._context.toJsonObj(),
-        }
-        if what_changed == "label":
-            if not self._label.isEmpty() and "label" in self._changed:
-                tmp["@graph"][0]["rdfs:label"] = self._label.toJsonLdObj()
-        if what_changed == "comment":
-            if not self._comment.isEmpty() and "comment" in self._changed:
-                tmp["@graph"][0]["rdfs:comment"] = self._comment.toJsonLdObj()
-        return tmp
+    def _make_full_onto_iri(self) -> tuple[str, str]:
+        exp = regex.compile("^http.*")  # It is already a full IRI
+        if exp.match(self._ontology_id):
+            propid = self._context.prefix_from_iri(self._ontology_id) + ":" + self._name
+            ontid = self._ontology_id
+        else:
+            propid = self._ontology_id + ":" + self._name
+            ontid = self._context.iri_from_prefix(self._ontology_id)
+        return ontid, propid
+
+    def _resolve_propref(self, resref: str) -> dict[str, str]:
+        tmp = resref.split(":")
+        if len(tmp) > 1:
+            if tmp[0]:
+                # return {"@id": resref}  # fully qualified name in the form "prefix:name"
+                return {
+                    "@id": self._context.get_qualified_iri(resref)
+                }  # fully qualified name in the form "prefix:name"
+            else:
+                return {
+                    "@id": self._context.prefix_from_iri(self._ontology_id) + ":" + tmp[1]
+                }  # ":name" in current ontology
+        else:
+            return {"@id": "knora-api:" + resref}  # no ":", must be from knora-api!
+
+    def create(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, "PropertyClass"]:
+        jsonobj = self._toJsonObj_create(last_modification_date)
+        result = self._con.post(PropertyClass.ROUTE, jsonobj)
+        last_modification_date = DateTimeStamp(result["knora-api:lastModificationDate"])
+        return last_modification_date, PropertyClass.fromJsonObj(self._con, self._context, result["@graph"])
 
     def _toJsonObj_create(self, lastModificationDate: DateTimeStamp) -> dict[str, Any]:
         ontid, propid = self._make_full_onto_iri()
@@ -311,37 +320,6 @@ class PropertyClass(Model):
             tmp["@graph"][0]["salsah-gui:guiAttribute"] = ga
         return tmp
 
-    def _make_full_onto_iri(self) -> tuple[str, str]:
-        exp = regex.compile("^http.*")  # It is already a full IRI
-        if exp.match(self._ontology_id):
-            propid = self._context.prefix_from_iri(self._ontology_id) + ":" + self._name
-            ontid = self._ontology_id
-        else:
-            propid = self._ontology_id + ":" + self._name
-            ontid = self._context.iri_from_prefix(self._ontology_id)
-        return ontid, propid
-
-    def _resolve_propref(self, resref: str) -> dict[str, str]:
-        tmp = resref.split(":")
-        if len(tmp) > 1:
-            if tmp[0]:
-                # return {"@id": resref}  # fully qualified name in the form "prefix:name"
-                return {
-                    "@id": self._context.get_qualified_iri(resref)
-                }  # fully qualified name in the form "prefix:name"
-            else:
-                return {
-                    "@id": self._context.prefix_from_iri(self._ontology_id) + ":" + tmp[1]
-                }  # ":name" in current ontology
-        else:
-            return {"@id": "knora-api:" + resref}  # no ":", must be from knora-api!
-
-    def create(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, "PropertyClass"]:
-        jsonobj = self._toJsonObj_create(last_modification_date)
-        result = self._con.post(PropertyClass.ROUTE, jsonobj)
-        last_modification_date = DateTimeStamp(result["knora-api:lastModificationDate"])
-        return last_modification_date, PropertyClass.fromJsonObj(self._con, self._context, result["@graph"])
-
     def update(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, "PropertyClass"]:
         #
         # Note: DSP is able to change only one thing per call, either label or comment!
@@ -362,6 +340,28 @@ class PropertyClass(Model):
             return last_modification_date, PropertyClass.fromJsonObj(self._con, self._context, result["@graph"])
         else:
             return last_modification_date, self
+
+    def _toJsonObj_update(self, lastModificationDate: DateTimeStamp, what_changed: str) -> dict[str, Any]:
+        ontid, propid = self._make_full_onto_iri()
+        tmp = {
+            "@id": ontid,  # self._ontology_id,
+            "@type": "owl:Ontology",
+            "knora-api:lastModificationDate": lastModificationDate.toJsonObj(),
+            "@graph": [
+                {
+                    "@id": propid,
+                    "@type": "owl:ObjectProperty",
+                }
+            ],
+            "@context": self._context.toJsonObj(),
+        }
+        if what_changed == "label":
+            if not self._label.isEmpty() and "label" in self._changed:
+                tmp["@graph"][0]["rdfs:label"] = self._label.toJsonLdObj()
+        if what_changed == "comment":
+            if not self._comment.isEmpty() and "comment" in self._changed:
+                tmp["@graph"][0]["rdfs:comment"] = self._comment.toJsonLdObj()
+        return tmp
 
     def delete(self, last_modification_date: DateTimeStamp) -> DateTimeStamp:
         result = self._con.delete(

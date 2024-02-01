@@ -116,30 +116,6 @@ class TestProject(unittest.TestCase):
         self.assertEqual(updated_project.selfjoin, True)
         self.assertEqual(updated_project.status, False)
 
-    def test_project_delete(self) -> None:
-        project = Project(
-            con=self.con,
-            shortcode="0FF2",
-            shortname="delete_project",
-            longname="Delete Project",
-            description=LangString({Languages.EN: "Project to be deleted", Languages.DE: "Lösch-Projekt"}),
-            keywords={"test", "project", "delete"},
-            selfjoin=False,
-            status=True,
-            logo=self.logo_file,
-        ).create()
-
-        deleted_project = project.delete()
-
-        self.assertEqual(deleted_project.shortcode, "0FF2")
-        self.assertEqual(deleted_project.shortname, "delete_project")
-        self.assertEqual(deleted_project.longname, "Delete Project")
-        self.assertEqual(deleted_project.description["en"], "Project to be deleted")
-        self.assertEqual(deleted_project.description["de"], "Lösch-Projekt")
-        self.assertEqual(deleted_project.selfjoin, False)
-        self.assertEqual(deleted_project.status, False)
-        self.assertEqual(deleted_project.keywords, {"test", "project", "delete"})
-
 
 if __name__ == "__main__":
     pytest.main([__file__])

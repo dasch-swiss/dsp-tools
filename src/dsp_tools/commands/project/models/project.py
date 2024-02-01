@@ -13,11 +13,7 @@ READ:
 UPDATE:
     * You need an instance of an existing Project by reading an instance
     * Change the attributes by assigning the new values
-    * Call the ``update```method on the instance
-
-DELETE
-    * Instantiate a new objects with ``iri`` given, or use any instance that has the iri set
-    * Call the ``delete``-method on the instance
+    * Call the ``update`` method on the instance
 
 In addition there is a static methods ``getAllProjects`` which returns a list of all projects
 """
@@ -79,9 +75,6 @@ class Project(Model):
 
     update : DSP project information object
         Updates the changed attributes and returns the updated information from the project as it is in DSP
-
-    delete : DSP result code
-        Deletes a project and returns the result code
 
     getAllprojects [static]: List of all projects
         Returns a list of all projects available
@@ -385,16 +378,6 @@ class Project(Model):
         if self._status is not None and "status" in self._changed:
             tmp["status"] = self._status
         return tmp
-
-    def delete(self) -> Project:
-        """
-        Delete the given DSP project
-
-        :return: DSP response
-        """
-
-        result = self._con.delete(Project.IRI + quote_plus(self._iri))
-        return Project.fromJsonObj(self._con, result["project"])
 
     @staticmethod
     def getAllProjects(con: Connection) -> list[Project]:

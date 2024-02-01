@@ -253,21 +253,6 @@ class PropertyClass(Model):
         return gui_attributes, gui_element
 
     def toJsonObj(self, lastModificationDate: DateTimeStamp, action: Actions, what: Optional[str] = None) -> Any:
-        def resolve_propref(resref: str) -> dict[str, str]:
-            tmp = resref.split(":")
-            if len(tmp) > 1:
-                if tmp[0]:
-                    # return {"@id": resref}  # fully qualified name in the form "prefix:name"
-                    return {
-                        "@id": self._context.get_qualified_iri(resref)
-                    }  # fully qualified name in the form "prefix:name"
-                else:
-                    return {
-                        "@id": self._context.prefix_from_iri(self._ontology_id) + ":" + tmp[1]
-                    }  # ":name" in current ontology
-            else:
-                return {"@id": "knora-api:" + resref}  # no ":", must be from knora-api!
-
         tmp = {}
         exp = regex.compile("^http.*")  # It is already a fully IRI
         if exp.match(self._ontology_id):
@@ -284,7 +269,7 @@ class PropertyClass(Model):
             if self._superproperties is None:
                 superproperties = [{"@id": "knora-api:hasValue"}]
             else:
-                superproperties = list(map(resolve_propref, self._superproperties))
+                superproperties = list(map(self._resolve_propref, self._superproperties))
 
             tmp = {
                 "@id": ontid,  # self._ontology_id,
@@ -303,9 +288,9 @@ class PropertyClass(Model):
             if self._comment:
                 tmp["@graph"][0]["rdfs:comment"] = self._comment.toJsonLdObj()
             if self._rdf_subject:
-                tmp["@graph"][0]["knora-api:subjectType"] = resolve_propref(self._rdf_subject)
+                tmp["@graph"][0]["knora-api:subjectType"] = self._resolve_propref(self._rdf_subject)
             if self._rdf_object:
-                tmp["@graph"][0]["knora-api:objectType"] = resolve_propref(self._rdf_object)
+                tmp["@graph"][0]["knora-api:objectType"] = self._resolve_propref(self._rdf_object)
             if self._gui_element:
                 tmp["@graph"][0]["salsah-gui:guiElement"] = {"@id": self._gui_element}
             if self._gui_attributes:
@@ -332,6 +317,21 @@ class PropertyClass(Model):
                     tmp["@graph"][0]["rdfs:comment"] = self._comment.toJsonLdObj()
 
         return tmp
+
+    def _resolve_propref(self, resref: str) -> dict[str, str]:
+        tmp = resref.split(":")
+        if len(tmp) > 1:
+            if tmp[0]:
+                # return {"@id": resref}  # fully qualified name in the form "prefix:name"
+                return {
+                    "@id": self._context.get_qualified_iri(resref)
+                }  # fully qualified name in the form "prefix:name"
+            else:
+                return {
+                    "@id": self._context.prefix_from_iri(self._ontology_id) + ":" + tmp[1]
+                }  # ":name" in current ontology
+        else:
+            return {"@id": "knora-api:" + resref}  # no ":", must be from knora-api!
 
     def create(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, "PropertyClass"]:
         jsonobj = self.toJsonObj(last_modification_date, Actions.Create)

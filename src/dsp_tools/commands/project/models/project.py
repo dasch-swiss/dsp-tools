@@ -29,7 +29,7 @@ from urllib.parse import quote_plus
 
 from dsp_tools.commands.project.models.model import Model
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.langstring import LangString, Languages
+from dsp_tools.models.langstring import LangString
 from dsp_tools.utils.connection import Connection
 
 
@@ -57,11 +57,9 @@ class Project(Model):
 
     description : LangString
         DSP project description in a given language (Languages.EN, Languages.DE, Languages.FR, Languages.IT).
-        A desciption can be add/replaced or removed with the methods ``addDescription``and ``rmDescription``.
 
     keywords : set[str]
-        Set of keywords describing the project. Keywords can be added/removed by the methods ``addKeyword``
-        and ``rmKeyword``
+        Set of keywords describing the project.
 
     ontologies : set[str]
         Set if IRI's of the ontologies attached to the project [readonly]
@@ -196,29 +194,6 @@ class Project(Model):
         self._description = LangString(value)
         self._changed.add("description")
 
-    def addDescription(self, lang: Union[Languages, str], value: str) -> None:
-        """
-        Add/replace a project description with the given language (executed at next update)
-
-        :param lang: The language the description is in, either a string "EN", "DE", "FR", "IT" or a Language instance
-        :param value: The text of the description
-        :return: None
-        """
-
-        self._description[lang] = value
-        self._changed.add("description")
-
-    def rmDescription(self, lang: Union[Languages, str]) -> None:
-        """
-        Remove a description from a project (executed at next update)
-
-        :param lang: language of the description, either "EN", "DE", "FR", "IT", "RM", or a Language instance
-        :return: None
-        """
-
-        del self._description[lang]
-        self._changed.add("description")
-
     @property
     def keywords(self) -> set[str]:
         return self._keywords
@@ -233,32 +208,6 @@ class Project(Model):
             self._changed.add("keywords")
         else:
             raise BaseError("Must be a set of strings!")
-
-    def addKeyword(self, value: str) -> None:
-        """
-        Add a new keyword to the set of keywords. (executed at next update)
-        May raise a BaseError
-
-        :param value: keyword
-        :return: None
-        """
-
-        self._keywords.add(value)
-        self._changed.add("keywords")
-
-    def rmKeyword(self, value: str) -> None:
-        """
-        Remove a keyword from the list of keywords (executed at next update)
-        May raise a BaseError
-
-        :param value: keyword
-        :return: None
-        """
-        try:
-            self._keywords.remove(value)
-        except KeyError as ke:
-            raise BaseError('Keyword "' + value + '" is not in keyword set') from ke
-        self._changed.add("keywords")
 
     @property
     def ontologies(self) -> set[str]:

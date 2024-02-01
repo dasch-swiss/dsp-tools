@@ -4,7 +4,7 @@ from urllib.parse import quote_plus
 import regex
 
 from dsp_tools.commands.project.models.context import Context
-from dsp_tools.commands.project.models.helpers import Actions, WithId
+from dsp_tools.commands.project.models.helpers import WithId
 from dsp_tools.commands.project.models.listnode import ListNode
 from dsp_tools.commands.project.models.model import Model
 from dsp_tools.models.datetimestamp import DateTimeStamp
@@ -252,71 +252,74 @@ class PropertyClass(Model):
                     gui_attributes[tmp[0]] = tmp[1]
         return gui_attributes, gui_element
 
-    def toJsonObj(self, lastModificationDate: DateTimeStamp, action: Actions, what: Optional[str] = None) -> Any:
-        tmp = {}
-        exp = regex.compile("^http.*")  # It is already a fully IRI
+    def _toJsonObj_update(self, lastModificationDate: DateTimeStamp, what_changed: str) -> dict[str, Any]:
+        ontid, propid = self._make_full_onto_iri()
+        tmp = {
+            "@id": ontid,  # self._ontology_id,
+            "@type": "owl:Ontology",
+            "knora-api:lastModificationDate": lastModificationDate.toJsonObj(),
+            "@graph": [
+                {
+                    "@id": propid,
+                    "@type": "owl:ObjectProperty",
+                }
+            ],
+            "@context": self._context.toJsonObj(),
+        }
+        if what_changed == "label":
+            if not self._label.isEmpty() and "label" in self._changed:
+                tmp["@graph"][0]["rdfs:label"] = self._label.toJsonLdObj()
+        if what_changed == "comment":
+            if not self._comment.isEmpty() and "comment" in self._changed:
+                tmp["@graph"][0]["rdfs:comment"] = self._comment.toJsonLdObj()
+        return tmp
+
+    def _toJsonObj_create(self, lastModificationDate: DateTimeStamp) -> dict[str, Any]:
+        ontid, propid = self._make_full_onto_iri()
+        if self._name is None:
+            raise BaseError("There must be a valid property class name!")
+        if self._ontology_id is None:
+            raise BaseError("There must be a valid ontology_id given!")
+        if self._superproperties is None:
+            superproperties = [{"@id": "knora-api:hasValue"}]
+        else:
+            superproperties = list(map(self._resolve_propref, self._superproperties))
+        tmp = {
+            "@id": ontid,  # self._ontology_id,
+            "@type": "owl:Ontology",
+            "knora-api:lastModificationDate": lastModificationDate.toJsonObj(),
+            "@graph": [
+                {
+                    "@id": propid,
+                    "@type": "owl:ObjectProperty",
+                    "rdfs:label": self._label.toJsonLdObj(),
+                    "rdfs:subPropertyOf": superproperties,
+                }
+            ],
+            "@context": self._context.toJsonObj(),
+        }
+        if self._comment:
+            tmp["@graph"][0]["rdfs:comment"] = self._comment.toJsonLdObj()
+        if self._rdf_subject:
+            tmp["@graph"][0]["knora-api:subjectType"] = self._resolve_propref(self._rdf_subject)
+        if self._rdf_object:
+            tmp["@graph"][0]["knora-api:objectType"] = self._resolve_propref(self._rdf_object)
+        if self._gui_element:
+            tmp["@graph"][0]["salsah-gui:guiElement"] = {"@id": self._gui_element}
+        if self._gui_attributes:
+            ga = list(map(lambda x: x[0] + "=" + str(x[1]), self._gui_attributes.items()))
+            tmp["@graph"][0]["salsah-gui:guiAttribute"] = ga
+        return tmp
+
+    def _make_full_onto_iri(self) -> tuple[str, str]:
+        exp = regex.compile("^http.*")  # It is already a full IRI
         if exp.match(self._ontology_id):
             propid = self._context.prefix_from_iri(self._ontology_id) + ":" + self._name
             ontid = self._ontology_id
         else:
             propid = self._ontology_id + ":" + self._name
             ontid = self._context.iri_from_prefix(self._ontology_id)
-        if action == Actions.Create:
-            if self._name is None:
-                raise BaseError("There must be a valid property class name!")
-            if self._ontology_id is None:
-                raise BaseError("There must be a valid ontology_id given!")
-            if self._superproperties is None:
-                superproperties = [{"@id": "knora-api:hasValue"}]
-            else:
-                superproperties = list(map(self._resolve_propref, self._superproperties))
-
-            tmp = {
-                "@id": ontid,  # self._ontology_id,
-                "@type": "owl:Ontology",
-                "knora-api:lastModificationDate": lastModificationDate.toJsonObj(),
-                "@graph": [
-                    {
-                        "@id": propid,
-                        "@type": "owl:ObjectProperty",
-                        "rdfs:label": self._label.toJsonLdObj(),
-                        "rdfs:subPropertyOf": superproperties,
-                    }
-                ],
-                "@context": self._context.toJsonObj(),
-            }
-            if self._comment:
-                tmp["@graph"][0]["rdfs:comment"] = self._comment.toJsonLdObj()
-            if self._rdf_subject:
-                tmp["@graph"][0]["knora-api:subjectType"] = self._resolve_propref(self._rdf_subject)
-            if self._rdf_object:
-                tmp["@graph"][0]["knora-api:objectType"] = self._resolve_propref(self._rdf_object)
-            if self._gui_element:
-                tmp["@graph"][0]["salsah-gui:guiElement"] = {"@id": self._gui_element}
-            if self._gui_attributes:
-                ga = list(map(lambda x: x[0] + "=" + str(x[1]), self._gui_attributes.items()))
-                tmp["@graph"][0]["salsah-gui:guiAttribute"] = ga
-        elif action == Actions.Update:
-            tmp = {
-                "@id": ontid,  # self._ontology_id,
-                "@type": "owl:Ontology",
-                "knora-api:lastModificationDate": lastModificationDate.toJsonObj(),
-                "@graph": [
-                    {
-                        "@id": propid,
-                        "@type": "owl:ObjectProperty",
-                    }
-                ],
-                "@context": self._context.toJsonObj(),
-            }
-            if what == "label":
-                if not self._label.isEmpty() and "label" in self._changed:
-                    tmp["@graph"][0]["rdfs:label"] = self._label.toJsonLdObj()
-            if what == "comment":
-                if not self._comment.isEmpty() and "comment" in self._changed:
-                    tmp["@graph"][0]["rdfs:comment"] = self._comment.toJsonLdObj()
-
-        return tmp
+        return ontid, propid
 
     def _resolve_propref(self, resref: str) -> dict[str, str]:
         tmp = resref.split(":")
@@ -334,7 +337,7 @@ class PropertyClass(Model):
             return {"@id": "knora-api:" + resref}  # no ":", must be from knora-api!
 
     def create(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, "PropertyClass"]:
-        jsonobj = self.toJsonObj(last_modification_date, Actions.Create)
+        jsonobj = self._toJsonObj_create(last_modification_date)
         result = self._con.post(PropertyClass.ROUTE, jsonobj)
         last_modification_date = DateTimeStamp(result["knora-api:lastModificationDate"])
         return last_modification_date, PropertyClass.fromJsonObj(self._con, self._context, result["@graph"])
@@ -346,12 +349,12 @@ class PropertyClass(Model):
         result = None
         something_changed = False
         if "label" in self._changed:
-            jsonobj = self.toJsonObj(last_modification_date, Actions.Update, "label")
+            jsonobj = self._toJsonObj_update(last_modification_date, "label")
             result = self._con.put(PropertyClass.ROUTE, jsonobj)
             last_modification_date = DateTimeStamp(result["knora-api:lastModificationDate"])
             something_changed = True
         if "comment" in self._changed:
-            jsonobj = self.toJsonObj(last_modification_date, Actions.Update, "comment")
+            jsonobj = self._toJsonObj_update(last_modification_date, "comment")
             result = self._con.put(PropertyClass.ROUTE, jsonobj)
             last_modification_date = DateTimeStamp(result["knora-api:lastModificationDate"])
             something_changed = True

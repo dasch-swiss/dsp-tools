@@ -405,32 +405,33 @@ class PropertyClass(Model):
     def _createDefinitionFileObj_gui_attributes(self) -> dict[str, Any]:
         gui_elements = {}
         for attname, attvalue in self.gui_attributes.items():
-            if attname == "size":
-                gui_elements[attname] = int(attvalue)
-            elif attname == "maxlength":
-                gui_elements[attname] = int(attvalue)
-            elif attname == "maxsize":
-                gui_elements[attname] = int(attvalue)
-            elif attname == "hlist":
-                iri = attvalue[1:-1]
-                rootnode = ListNode(con=self._con, iri=iri).read()
-                gui_elements[attname] = rootnode.name
-            elif attname == "numprops":
-                gui_elements[attname] = int(attvalue)
-            elif attname == "ncolors":
-                gui_elements[attname] = int(attvalue)
-            elif attname == "cols":
-                gui_elements[attname] = int(attvalue)
-            elif attname == "rows":
-                gui_elements[attname] = int(attvalue)
-            elif attname == "width":
-                gui_elements[attname] = str(attvalue)
-            elif attname == "wrap":
-                gui_elements[attname] = str(attvalue)
-            elif attname == "max":
-                gui_elements[attname] = float(attvalue)
-            elif attname == "min":
-                gui_elements[attname] = float(attvalue)
-            else:
-                gui_elements[attname] = str(attvalue)
+            match attname:
+                case "size":
+                    gui_elements[attname] = int(attvalue)
+                case "maxlength":
+                    gui_elements[attname] = int(attvalue)
+                case "maxsize":
+                    gui_elements[attname] = int(attvalue)
+                case "hlist":
+                    iri = attvalue[1:-1]
+                    rootnode = ListNode(con=self._con, iri=iri).read()
+                    gui_elements[attname] = rootnode.name
+                case "numprops":
+                    gui_elements[attname] = int(attvalue)
+                case "ncolors":
+                    gui_elements[attname] = int(attvalue)
+                case "cols":
+                    gui_elements[attname] = int(attvalue)
+                case "rows":
+                    gui_elements[attname] = int(attvalue)
+                case "width":
+                    gui_elements[attname] = str(attvalue)
+                case "wrap":
+                    gui_elements[attname] = str(attvalue)
+                case "max":
+                    gui_elements[attname] = float(attvalue)
+                case "min":
+                    gui_elements[attname] = float(attvalue)
+                case _:
+                    gui_elements[attname] = str(attvalue)
         return gui_elements

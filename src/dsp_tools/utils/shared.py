@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import copy
-import glob
 import importlib.resources
 import json
 import unicodedata
@@ -250,17 +249,3 @@ def parse_json_input(project_file_as_path_or_parsed: Union[str, Path, dict[str, 
     else:
         raise BaseError("Invalid input: The input must be a path to a JSON file or a parsed JSON object.")
     return project_definition
-
-
-def get_most_recent_glob_match(glob_pattern: Union[str, Path]) -> Path:
-    """
-    Find the most recently created file that matches a glob pattern.
-
-    Args:
-        glob_pattern: glob pattern, either absolute or relative to the cwd of the caller
-
-    Returns:
-        the most recently created file that matches the glob pattern
-    """
-    candidates = [Path(x) for x in glob.glob(str(glob_pattern))]
-    return max(candidates, key=lambda item: item.stat().st_ctime)

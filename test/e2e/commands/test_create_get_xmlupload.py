@@ -1,8 +1,9 @@
+import glob
 import json
 import shutil
 import unittest
 from pathlib import Path
-from typing import Any, Optional, cast
+from typing import Any, Optional, Union, cast
 
 import regex
 
@@ -10,7 +11,6 @@ from dsp_tools.commands.id2iri import id2iri
 from dsp_tools.commands.project.create.project_create import create_project
 from dsp_tools.commands.project.get import get_project
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
-from dsp_tools.utils.shared import get_most_recent_glob_match
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
 
@@ -68,7 +68,7 @@ class TestCreateGetXMLUpload(unittest.TestCase):
         )
         self.assertTrue(success)
 
-        mapping_file = get_most_recent_glob_match("test-data-systematic_id2iri_mapping_*.json")
+        mapping_file = self._get_most_recent_glob_match("test-data-systematic_id2iri_mapping_*.json")
         second_xml_file_orig = Path("testdata/id2iri/test-id2iri-data.xml")
         success = id2iri(
             xml_file=str(second_xml_file_orig),
@@ -77,7 +77,7 @@ class TestCreateGetXMLUpload(unittest.TestCase):
         mapping_file.unlink()
         self.assertTrue(success)
 
-        second_xml_file_replaced = get_most_recent_glob_match(f"{second_xml_file_orig.stem}_replaced_*.xml")
+        second_xml_file_replaced = self._get_most_recent_glob_match(f"{second_xml_file_orig.stem}_replaced_*.xml")
         success = xmlupload(
             input_file=second_xml_file_replaced,
             server=self.server,
@@ -499,3 +499,17 @@ class TestCreateGetXMLUpload(unittest.TestCase):
             if any(sup.startswith(onto_name) for sup in supers_as_list):
                 res["super"] = [regex.sub(rf"^{onto_name}:", ":", sup) for sup in supers_as_list]
         return resources_original
+
+    @staticmethod
+    def _get_most_recent_glob_match(glob_pattern: Union[str, Path]) -> Path:
+        """
+        Find the most recently created file that matches a glob pattern.
+
+        Args:
+            glob_pattern: glob pattern, either absolute or relative to the cwd of the caller
+
+        Returns:
+            the most recently created file that matches the glob pattern
+        """
+        candidates = [Path(x) for x in glob.glob(str(glob_pattern))]
+        return max(candidates, key=lambda item: item.stat().st_ctime)

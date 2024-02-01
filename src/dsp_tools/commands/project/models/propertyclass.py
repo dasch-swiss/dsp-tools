@@ -398,35 +398,39 @@ class PropertyClass(Model):
         if self.gui_element:
             def_file_obj["gui_element"] = context.reduce_iri(self.gui_element, shortname)
         if self.gui_attributes:
-            gui_elements = {}
-            for attname, attvalue in self.gui_attributes.items():
-                if attname == "size":
-                    gui_elements[attname] = int(attvalue)
-                elif attname == "maxlength":
-                    gui_elements[attname] = int(attvalue)
-                elif attname == "maxsize":
-                    gui_elements[attname] = int(attvalue)
-                elif attname == "hlist":
-                    iri = attvalue[1:-1]
-                    rootnode = ListNode(con=self._con, iri=iri).read()
-                    gui_elements[attname] = rootnode.name
-                elif attname == "numprops":
-                    gui_elements[attname] = int(attvalue)
-                elif attname == "ncolors":
-                    gui_elements[attname] = int(attvalue)
-                elif attname == "cols":
-                    gui_elements[attname] = int(attvalue)
-                elif attname == "rows":
-                    gui_elements[attname] = int(attvalue)
-                elif attname == "width":
-                    gui_elements[attname] = str(attvalue)
-                elif attname == "wrap":
-                    gui_elements[attname] = str(attvalue)
-                elif attname == "max":
-                    gui_elements[attname] = float(attvalue)
-                elif attname == "min":
-                    gui_elements[attname] = float(attvalue)
-                else:
-                    gui_elements[attname] = str(attvalue)
+            gui_elements = self._createDefinitionFileObj_gui_attributes()
             def_file_obj["gui_attributes"] = gui_elements
         return def_file_obj
+
+    def _createDefinitionFileObj_gui_attributes(self) -> dict[str, Any]:
+        gui_elements = {}
+        for attname, attvalue in self.gui_attributes.items():
+            if attname == "size":
+                gui_elements[attname] = int(attvalue)
+            elif attname == "maxlength":
+                gui_elements[attname] = int(attvalue)
+            elif attname == "maxsize":
+                gui_elements[attname] = int(attvalue)
+            elif attname == "hlist":
+                iri = attvalue[1:-1]
+                rootnode = ListNode(con=self._con, iri=iri).read()
+                gui_elements[attname] = rootnode.name
+            elif attname == "numprops":
+                gui_elements[attname] = int(attvalue)
+            elif attname == "ncolors":
+                gui_elements[attname] = int(attvalue)
+            elif attname == "cols":
+                gui_elements[attname] = int(attvalue)
+            elif attname == "rows":
+                gui_elements[attname] = int(attvalue)
+            elif attname == "width":
+                gui_elements[attname] = str(attvalue)
+            elif attname == "wrap":
+                gui_elements[attname] = str(attvalue)
+            elif attname == "max":
+                gui_elements[attname] = float(attvalue)
+            elif attname == "min":
+                gui_elements[attname] = float(attvalue)
+            else:
+                gui_elements[attname] = str(attvalue)
+        return gui_elements

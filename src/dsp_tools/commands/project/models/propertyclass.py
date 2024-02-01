@@ -194,17 +194,15 @@ class PropertyClass(Model):
         ontology_id = tmp_id[0]
         name = tmp_id[1]
 
-        superproperties = cls._fromJson_get_superproperties(json_obj, rdfs_iri)
-
         rdf_object = WithId(json_obj.get(knora_api_iri + ":objectType")).to_string()
         rdf_subject = WithId(json_obj.get(knora_api_iri + ":subjectType")).to_string()
         label = LangString.fromJsonLdObj(json_obj.get(rdfs_iri + ":label"))
         comment = LangString.fromJsonLdObj(json_obj.get(rdfs_iri + ":comment"))
-
-        gui_attributes, gui_element = cls._fromJsonObj_get_gui_info(json_obj, salsah_gui_iri)
-
         editable = json_obj.get(knora_api_iri + ":isEditable")
         linkvalue = json_obj.get(knora_api_iri + ":isLinkProperty")
+
+        gui_attributes, gui_element = cls._fromJsonObj_get_gui_info(json_obj, salsah_gui_iri)
+        superproperties = cls._fromJson_get_superproperties(json_obj, rdfs_iri)
 
         return cls(
             con=con,
@@ -222,6 +220,16 @@ class PropertyClass(Model):
             editable=editable,
             linkvalue=linkvalue,
         )
+
+    @classmethod
+    def _fromJson_get_superproperties(cls, json_obj: dict[str, Any], rdfs: str) -> list[str] | None:
+        superproperties_obj = json_obj.get(rdfs + ":subPropertyOf")
+        if not isinstance(superproperties_obj, list):
+            superproperties_obj = [superproperties_obj]  # make a list out of it
+        if superproperties_obj:
+            return [x["@id"] for x in superproperties_obj if x and x.get("@id")]
+        else:
+            return None
 
     @classmethod
     def _fromJsonObj_get_gui_info(cls, json_obj: dict[str, Any], salsah_gui: str) -> tuple[dict[str, str], str]:
@@ -243,16 +251,6 @@ class PropertyClass(Model):
                 else:
                     gui_attributes[tmp[0]] = tmp[1]
         return gui_attributes, gui_element
-
-    @classmethod
-    def _fromJson_get_superproperties(cls, json_obj: dict[str, Any], rdfs: str) -> list[str] | None:
-        superproperties_obj = json_obj.get(rdfs + ":subPropertyOf")
-        if not isinstance(superproperties_obj, list):
-            superproperties_obj = [superproperties_obj]  # make a list out of it
-        if superproperties_obj:
-            return [x["@id"] for x in superproperties_obj if x and x.get("@id")]
-        else:
-            return None
 
     def toJsonObj(self, lastModificationDate: DateTimeStamp, action: Actions, what: Optional[str] = None) -> Any:
         def resolve_propref(resref: str) -> dict[str, str]:

@@ -23,9 +23,6 @@ class ProjectClient(Protocol):
     def get_project_iri(self) -> str:
         """Get the IRI of the project to which the data is being uploaded."""
 
-    def get_ontology_iris(self) -> list[str]:
-        """Get the ontology IRIs of the project to which the data is being uploaded."""
-
     def get_ontology_name_dict(self) -> dict[str, str]:
         """Returns a mapping of ontology names to ontology IRIs."""
 
@@ -43,12 +40,6 @@ class ProjectClientLive:
         if not self.project_info:
             self.project_info = _get_project_info_from_server(self.con, self.shortcode)
         return self.project_info.project_iri
-
-    def get_ontology_iris(self) -> list[str]:
-        """Get the ontology IRIs of the project to which the data is being uploaded."""
-        if not self.project_info:
-            self.project_info = _get_project_info_from_server(self.con, self.shortcode)
-        return self.project_info.ontology_iris
 
     def get_ontology_name_dict(self) -> dict[str, str]:
         """Returns a mapping of ontology names to ontology IRIs."""

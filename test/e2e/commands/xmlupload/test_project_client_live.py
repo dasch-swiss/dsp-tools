@@ -16,6 +16,12 @@ def test_get_project_iri(project_client: ProjectClient) -> None:
     assert project_iri == "http://rdfh.ch/projects/0001"
 
 
+def test_get_ontology_iris(project_client: ProjectClient) -> None:
+    ontology_iris = project_client.get_ontology_iris()
+    expected = "http://0.0.0.0:3333/ontology/0001/anything/v2"
+    assert expected in ontology_iris
+
+
 def test_get_ontology_name_dict(project_client: ProjectClient) -> None:
     ontology_name_dict = project_client.get_ontology_name_dict()
     expected_key = "anything"

@@ -18,33 +18,6 @@ from dsp_tools.models.exceptions import InputError
 languages = ["en", "de", "fr", "it", "rm"]
 
 
-def read_and_clean_excel_file(excelfile: str, sheetname: str | int = 0) -> pd.DataFrame:
-    """
-    This function reads an Excel file, if there is a ValueError then it patches the openpyxl part that creates the
-    error and opens it with that patch.
-    It cleans and then returns the pd.DataFrame.
-
-    Args:
-        excelfile: The name of the Excel file
-        sheetname: The name or index (zero-based) of the Excel sheet, by default it reads the first
-
-    Returns:
-        A pd.DataFrame
-    """
-    try:
-        read_df: pd.DataFrame = pd.read_excel(excelfile, sheet_name=sheetname)
-    except ValueError:
-        # Pandas relies on openpyxl to parse XLSX files.
-        # A strange behavior of openpyxl prevents pandas from opening files with some formatting properties
-        # (unclear which formatting properties exactly).
-        # Apparently, the excel2json test files have one of the unsupported formatting properties.
-        # Credits: https://stackoverflow.com/a/70537454/14414188
-        with mock.patch("openpyxl.styles.fonts.Font.family.max", new=100):
-            read_df = pd.read_excel(excelfile, sheet_name=sheetname)
-    read_df = clean_data_frame(df=read_df)
-    return read_df
-
-
 def read_and_clean_all_sheets(excelfile: str | Path) -> dict[str, pd.DataFrame]:
     """
     This function reads an Excel file with all its sheets.

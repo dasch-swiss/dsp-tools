@@ -1,8 +1,3 @@
-import shutil
-import unittest
-from pathlib import Path
-from types import MappingProxyType
-
 import pytest
 import regex
 from lxml import etree
@@ -10,32 +5,17 @@ from lxml import etree
 from dsp_tools.commands.id2iri import _remove_resources_if_id_in_mapping, _replace_ids_by_iris, id2iri
 from dsp_tools.models.exceptions import BaseError
 
-# ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
-# ruff: noqa: PT027 (pytest-unittest-raises-assertion) (remove this line when pytest is used instead of unittest)
 
+@pytest.fixture
+def mapping() -> dict[str, str]:
+    return {
+        "test_thing_0": "http://rdfh.ch/082E/-lRvrg7tQI6aVpcTJbVrwg",
+        "test_thing_1": "http://rdfh.ch/082E/JK63OpYWTDWNYVOYFN7FdQ",
+        "test_thing_2": "http://rdfh.ch/082E/1l63Oasdfopiujlkmn78ak",
+        "test_thing_with_ark_1": "http://rdfh.ch/082E/qwasddoiu8_6flkjh67dss",
+    }
 
-class TestIdToIri(unittest.TestCase):
-    tmp_dir = Path("testdata/tmp")
-    mapping = MappingProxyType(
-        {
-            "test_thing_0": "http://rdfh.ch/082E/-lRvrg7tQI6aVpcTJbVrwg",
-            "test_thing_1": "http://rdfh.ch/082E/JK63OpYWTDWNYVOYFN7FdQ",
-            "test_thing_2": "http://rdfh.ch/082E/1l63Oasdfopiujlkmn78ak",
-            "test_thing_with_ark_1": "http://rdfh.ch/082E/qwasddoiu8_6flkjh67dss",
-        }
-    )
-
-    @classmethod
-    def setUpClass(cls) -> None:
-        """Is executed once before the methods of this class are run"""
-        cls.tmp_dir.mkdir(parents=True, exist_ok=True)
-
-    @classmethod
-    def tearDownClass(cls) -> None:
-        """Is executed after the methods of this class have all run through"""
-        shutil.rmtree(cls.tmp_dir)
-
-    def test_invalid_xml_file_name(self) -> None:
+    def test_invalid_xml_file_name() -> None:
         with self.assertRaisesRegex(BaseError, r"File test\.xml could not be found"):
             id2iri(
                 xml_file="test.xml",

@@ -8,7 +8,7 @@ from dsp_tools.commands.ingest_xmlupload.upload_xml import ingest_xmlupload
 from dsp_tools.models.exceptions import InputError
 
 
-@pytest.fixture()
+@pytest.fixture(autouse=True)
 def _retrieve_mapping_file() -> Iterator[None]:
     """Put the mapping file into the cwd."""
     mapping_file = Path("testdata/dsp-ingest-data/mapping-00A2.csv")
@@ -17,7 +17,6 @@ def _retrieve_mapping_file() -> Iterator[None]:
     Path(mapping_file.name).unlink()
 
 
-@pytest.mark.usefixtures("_retrieve_mapping_file")
 def test_ingest_xmlupload() -> None:
     expected_msg = (
         "The upload cannot continue as there are problems with the multimedia files referenced in the XML.\n"

@@ -85,15 +85,6 @@ class TestUtils(unittest.TestCase):
         returned_dict = utl.get_wrong_row_numbers(wrong_row_dict=original_dict, true_remains=True)
         self.assertDictEqual(expected_dict, returned_dict)
 
-    def test_update_dict_if_not_value_none(self) -> None:
-        original_dict = {0: 0}
-        original_update_dict = {1: 1, 2: 2, 3: None, 4: pd.NA, 5: "5"}
-        expected_dict = {0: 0, 1: 1, 2: 2, 5: "5"}
-        returned_dict = utl.update_dict_if_not_value_none(
-            additional_dict=original_update_dict, to_update_dict=original_dict
-        )
-        self.assertDictEqual(expected_dict, returned_dict)
-
     def test_find_one_full_cell_in_cols(self) -> None:
         required_cols = ["label_en", "label_de", "label_fr", "label_it", "label_rm"]
         original_df = pd.DataFrame(

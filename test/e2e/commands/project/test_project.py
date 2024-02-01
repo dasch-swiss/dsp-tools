@@ -106,22 +106,15 @@ class TestProject(unittest.TestCase):
 
         project.shortname = "update_project"
         project.longname = "Update Project"
-        project.addDescription("fr", "Projet modifié")
-        project.rmDescription("de")
         project.selfjoin = True
         project.status = False
-        project.rmKeyword("project")
-        project.addKeyword("updated")
         updated_project = project.update()
 
         self.assertEqual(updated_project.shortcode, "0FF1")
         self.assertEqual(updated_project.shortname, "update_project")
         self.assertEqual(updated_project.longname, "Update Project")
-        self.assertEqual(updated_project.description["en"], "Project to be updated")
-        self.assertEqual(updated_project.description["fr"], "Projet modifié")
         self.assertEqual(updated_project.selfjoin, True)
         self.assertEqual(updated_project.status, False)
-        self.assertEqual(updated_project.keywords, {"test", "updated"})
 
     def test_project_delete(self) -> None:
         project = Project(

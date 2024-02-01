@@ -84,15 +84,6 @@ class TestResourceClass(unittest.TestCase):
 
         self.assertIsNotNone(res_class.iri)
 
-        # modify the resource class
-        res_class.addLabel("de", "Dies ist ein Kommentar")
-        res_class.rmLabel("en")
-        res_class.addComment("it", "Commentario italiano")
-
-        last_modification_date, res_class = res_class.update(last_modification_date)
-        self.assertEqual(res_class.label["de"], "Dies ist ein Kommentar")
-        self.assertEqual(res_class.comment["it"], "Commentario italiano")
-
 
 if __name__ == "__main__":
     pytest.main([__file__])

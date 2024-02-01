@@ -9,27 +9,16 @@ READ:
     * Instantiate a new object with ``iri`` (IRI of listnode)
     * Call the ``read`` method on the instance
     * Access information about the instance
-
-UPDATE:
-    * Only partially implemented. Only "label" and "comment" attributes may be changed.
-    * You need an instance of an existing ListNode by reading an instance
-    * Change the attributes by assigning the new values
-    * Call the ``update`` method on the instance
-
-DELETE
-    * NOT YET IMPLEMENTED!
 """
 from __future__ import annotations
 
-from pprint import pprint
 from typing import Any, Optional, Union
 from urllib.parse import quote_plus
 
-from dsp_tools.commands.project.models.helpers import Actions
 from dsp_tools.commands.project.models.model import Model
 from dsp_tools.commands.project.models.project import Project
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.langstring import LangString, Languages
+from dsp_tools.models.langstring import LangString
 from dsp_tools.utils.connection import Connection
 
 
@@ -51,12 +40,12 @@ class ListNode(Model):
 
     label : LangString
         A LangString instance with language dependent labels. Setting this attribute overwrites all entries
-        with the new ones. In order to add/remove a specific entry, use "addLabel" or "rmLabel".
+        with the new ones.
         At least one label is required [read/write].
 
     comments : LangString
         A LangString instance with language dependent comments. Setting this attributes overwrites all entries
-        with the new ones. In order to add/remove a specific entry, use "addComment" or "rmComment".
+        with the new ones.
 
     name : str
         A unique name for the ListNode (unique inside this list) [read/write].
@@ -86,12 +75,6 @@ class ListNode(Model):
     read : ListNode information object
         Returns information about a single list node
 
-    update : ListNode information object
-        Updates the changed attributes and returns the updated information from the ListNode
-
-    delete :
-        NOT YET IMPLEMENTED
-
     getAllNodes : ListNode
         Get all nodes of a list. The IRI of the root node has to be supplied.
 
@@ -113,7 +96,7 @@ class ListNode(Model):
     _name: Optional[str]
     _parent: Optional[str]
     _isRootNode: bool
-    _children: Optional[list["ListNode"]]
+    _children: Optional[list[ListNode]]
     _rootNodeIri: Optional[str]
 
     def __init__(
@@ -124,9 +107,9 @@ class ListNode(Model):
         label: Optional[LangString] = None,
         comments: Optional[LangString] = None,
         name: Optional[str] = None,
-        parent: Optional[Union["ListNode", str]] = None,
+        parent: Optional[Union[ListNode, str]] = None,
         isRootNode: bool = False,
-        children: Optional[list["ListNode"]] = None,
+        children: Optional[list[ListNode]] = None,
         rootNodeIri: Optional[str] = None,
     ) -> None:
         """
@@ -136,13 +119,6 @@ class ListNode(Model):
             * The "con" and at least one "label" are required
         READ:
             * The "con" and "iri" attributes are required
-        UPDATE:
-            * Only "label", "comments" and "name" may be changed
-        DELETE:
-            * Not yet implemented
-
-        Setting a label overwites all entries. To add/remove a specific entry, use "addLabel" or "rmLabel".
-        Setting a comment overwites all entries. To add/remove a specific entry, use "addComment" or "rmComment".
 
         Args:
             con: A valid Connection instance with a user logged in that has the appropriate permissions
@@ -204,28 +180,6 @@ class ListNode(Model):
         self._label = LangString(value)
         self._changed.add("label")
 
-    def addLabel(self, lang: Union[Languages, str], value: str) -> None:
-        """
-        Add/replace a node label with the given language (executed at next update)
-
-        :param lang: The language the label, either a string "EN", "DE", "FR", "IT" or a Language instance
-        :param value: The text of the label
-        :return: None
-        """
-
-        self._label[lang] = value
-        self._changed.add("label")
-
-    def rmLabel(self, lang: Union[Languages, str]) -> None:
-        """
-        Remove a label from a list node (executed at next update)
-
-        Args:
-            lang: language of the label (string "EN", "DE", "FR", "IT", "RM", or a Language instance)
-        """
-        del self._label[lang]
-        self._changed.add("label")
-
     @property
     def comments(self) -> LangString:
         return self._comments or LangString({})
@@ -233,28 +187,6 @@ class ListNode(Model):
     @comments.setter
     def comments(self, value: Optional[Union[LangString, str]]) -> None:
         self._comments = LangString(value)
-        self._changed.add("comments")
-
-    def addComment(self, lang: Union[Languages, str], value: str) -> None:
-        """
-        Add/replace a node comments with the given language (executed at next update)
-
-        :param lang: The language the comments, either a string "EN", "DE", "FR", "IT" or a Language instance
-        :param value: The text of the comments
-        :return: None
-        """
-
-        self._comments[lang] = value
-        self._changed.add("comments")
-
-    def rmComment(self, lang: Union[Languages, str]) -> None:
-        """
-        Remove a comments from a list node (executed at next update)
-
-        :param lang: language of the comment (string "EN", "DE", "FR", "IT", "RM", or a Language instance)
-        :return: None
-        """
-        del self._comments[lang]
         self._changed.add("comments")
 
     @property
@@ -271,7 +203,7 @@ class ListNode(Model):
         return self._parent if self._parent else None
 
     @parent.setter
-    def parent(self, value: Union[str, "ListNode"]) -> None:
+    def parent(self, value: Union[str, ListNode]) -> None:
         if isinstance(value, ListNode):
             self._parent = value.iri
         else:
@@ -282,11 +214,11 @@ class ListNode(Model):
         return self._isRootNode
 
     @property
-    def children(self) -> list["ListNode"]:
+    def children(self) -> list[ListNode]:
         return self._children or []
 
     @children.setter
-    def children(self, value: list["ListNode"]) -> None:
+    def children(self, value: list[ListNode]) -> None:
         self._children = value
 
     @staticmethod
@@ -295,7 +227,7 @@ class ListNode(Model):
         parent_iri: str,
         project_iri: str,
         children: list[Any],
-    ) -> Optional[list["ListNode"]]:
+    ) -> Optional[list[ListNode]]:
         """
         Internal method! Should not be used directly!
 
@@ -366,63 +298,35 @@ class ListNode(Model):
             rootNodeIri=rootNodeIri,
         )
 
-    def toJsonObj(self, action: Actions, listIri: str | None = None) -> dict[str, Any]:
-        """
-        Internal method! Should not be used directly!
-
-        Creates a JSON-object from the ListNode instance that can be used to call DSP-API
-
-        :param action: Action the object is used for (Action.CREATE or Action.UPDATE)
-        :param listIri: The IRI of the list node, only used for update action
-        :return: JSON-object
-
-        """
-
-        tmp = {}
-
-        if action == Actions.Create:
-            if self._project is None:
-                raise BaseError("There must be a project id given!")
-            tmp["projectIri"] = self._project
-            if self._label.isEmpty():
-                raise BaseError("There must be a valid ListNode label!")
-            tmp["labels"] = self._label.toJsonObj()
-            if self._comments:
-                tmp["comments"] = self._comments.toJsonObj()
-            if self._name:
-                tmp["name"] = self._name
-            if self._parent:
-                tmp["parentNodeIri"] = self._parent
-
-        elif action == Actions.Update:
-            if self.iri is None:
-                raise BaseError("There must be a node iri given!")
-            tmp["listIri"] = listIri
-            if self._project is None:
-                raise BaseError("There must be a project id given!")
-            tmp["projectIri"] = self._project
-            if not self._label.isEmpty() and "label" in self._changed:
-                tmp["labels"] = self._label.toJsonObj()
-            if not self._comments.isEmpty() and "comments" in self._changed:
-                tmp["comments"] = self._comments.toJsonObj()
-            if self._name and "name" in self._changed:
-                tmp["name"] = self._name
-
-        return tmp
-
     def create(self) -> ListNode:
         """
         Create a new List
 
         :return: JSON-object from DSP-API
         """
-        jsonobj = self.toJsonObj(Actions.Create)
+        jsonobj = self._toJsonObj_create()
         if self._parent:
             result = self._con.post(ListNode.ROUTE_SLASH + quote_plus(self._parent), jsonobj)
             return ListNode.fromJsonObj(self._con, result["nodeinfo"])
         else:
             result = self._con.post(ListNode.ROUTE, jsonobj)
             return ListNode.fromJsonObj(self._con, result["list"]["listinfo"])
+
+    def _toJsonObj_create(self):
+        tmp = {}
+        if self._project is None:
+            raise BaseError("There must be a project id given!")
+        tmp["projectIri"] = self._project
+        if self._label.isEmpty():
+            raise BaseError("There must be a valid ListNode label!")
+        tmp["labels"] = self._label.toJsonObj()
+        if self._comments:
+            tmp["comments"] = self._comments.toJsonObj()
+        if self._name:
+            tmp["name"] = self._name
+        if self._parent:
+            tmp["parentNodeIri"] = self._parent
+        return tmp
 
     def read(self) -> Any:
         """
@@ -439,30 +343,7 @@ class ListNode(Model):
         else:
             return None
 
-    def update(self) -> Union[Any, None]:
-        """
-        Update the ListNode info in DSP with the modified data in this ListNode instance
-
-        :return: JSON-object from DSP-API reflecting the update
-        """
-
-        jsonobj = self.toJsonObj(Actions.Update, self.iri)
-        if jsonobj:
-            result = self._con.put(ListNode.ROUTE_SLASH + quote_plus(self.iri), jsonobj)
-            pprint(result)
-            return ListNode.fromJsonObj(self._con, result["listinfo"])
-        else:
-            return None
-
-    def delete(self) -> None:
-        """
-        Delete the given ListNode
-
-        :return: DSP-API response
-        """
-        raise BaseError("NOT YET IMPLEMENTED")
-
-    def getAllNodes(self) -> "ListNode":
+    def getAllNodes(self) -> ListNode:
         """
         Get all nodes of the list. Must be called from a ListNode instance that has at least set the
         list iri!

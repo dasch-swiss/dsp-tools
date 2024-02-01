@@ -39,16 +39,8 @@ def test_PropertyClass_create() -> None:
     assert property_class.label["de"] == prop_label["de"]
     assert property_class.comment["de"] == prop_comment["de"]
 
-    # modify the property class
-    property_class.addLabel("en", "This is english comment")
-    property_class.rmLabel("de")
-    property_class.addComment("it", "Commentario italiano")
-    last_modification_date, property_class_updated = property_class.update(last_modification_date)
-    assert property_class_updated.label["en"] == "This is english comment"
-    property_class_updated.comment["it"] == "Commentario italiano"
-
     # delete the property class to clean up
-    _ = property_class_updated.delete(last_modification_date)
+    _ = property_class.delete(last_modification_date)
 
 
 if __name__ == "__main__":

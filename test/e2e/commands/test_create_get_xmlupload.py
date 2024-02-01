@@ -419,41 +419,13 @@ class TestCreateGetXMLUpload(unittest.TestCase):
         resources_original = resources_original or []
         resources_returned = resources_returned or []
 
-        # The original might have names in the form "currentonto:hasSimpleText".
-        # The returned file will have ":hasSimpleText" --> remove the onto name.
-        for res in resources_original:
-            for card in res.get("cardinalities", []):
-                if card["propname"].startswith(onto_name):
-                    card["propname"] = regex.sub(rf"^{onto_name}:", ":", card["propname"])
-            supers_as_list = [res["super"]] if isinstance(res["super"], str) else res["super"]
-            if any(sup.startswith(onto_name) for sup in supers_as_list):
-                res["super"] = [regex.sub(rf"^{onto_name}:", ":", sup) for sup in supers_as_list]
+        resources_original = self._remove_onto_names_in_original_resources(onto_name, resources_original)
 
-        # If a subclass doesn't explicitly define all cardinalities of its superclass
-        # (or a subproperty of a cardinality of its superclass),
-        # these cardinalities are implicitly added, so the "get" command will return them.
-        # It would be too complicated to test this behaviour,
-        # --> remove the cardinalities of all subclasses from both original file and returned file.
-        for res in resources_original:
-            supers_as_list = [res["super"]] if isinstance(res["super"], str) else res["super"]
-            for sup in supers_as_list:
-                if regex.search(rf"^({onto_name})?:\w+$", sup):
-                    if res.get("cardinalities"):
-                        del res["cardinalities"]
-                    # remove from returned file, too
-                    res_returned = next(x for x in resources_returned if x["name"] == res["name"])
-                    if res_returned.get("cardinalities"):
-                        del res_returned["cardinalities"]
+        resources_original, resources_returned = self._remove_cardinalities_in_original_resources(
+            onto_name, resources_original, resources_returned
+        )
 
-        # sort both lists
-        resources_original = sorted(resources_original, key=lambda x: cast(str, x.get("name", "")))
-        resources_returned = sorted(resources_returned, key=lambda x: cast(str, x.get("name", "")))
-        for reslist in [resources_original, resources_returned]:
-            for res in reslist:
-                if isinstance(res["super"], list):
-                    res["super"] = sorted(res["super"])
-                if res.get("cardinalities"):
-                    res["cardinalities"] = sorted(res["cardinalities"], key=lambda x: cast(str, x["propname"]))
+        resources_original, resources_returned = self._sort_resources(resources_original, resources_returned)
 
         if len(resources_original) != len(resources_returned):
             self.assertEqual(
@@ -477,3 +449,53 @@ class TestCreateGetXMLUpload(unittest.TestCase):
                         msg=f"Onto '{onto_name}': Resource with original name '{orig['name']}' and returned name "
                         "'{ret['name']}' failed. The reason of the error lies OUTSIDE of the 'cardinalities' section.",
                     )
+
+    @staticmethod
+    def _sort_resources(
+        resources_original: list[dict[str, Any]], resources_returned: list[dict[str, Any]]
+    ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+        resources_original = sorted(resources_original, key=lambda x: cast(str, x.get("name", "")))
+        resources_returned = sorted(resources_returned, key=lambda x: cast(str, x.get("name", "")))
+        for reslist in [resources_original, resources_returned]:
+            for res in reslist:
+                if isinstance(res["super"], list):
+                    res["super"] = sorted(res["super"])
+                if res.get("cardinalities"):
+                    res["cardinalities"] = sorted(res["cardinalities"], key=lambda x: cast(str, x["propname"]))
+        return resources_original, resources_returned
+
+    @staticmethod
+    def _remove_cardinalities_in_original_resources(
+        onto_name: str, resources_original: list[dict[str, Any]], resources_returned: list[dict[str, Any]]
+    ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+        # If a subclass doesn't explicitly define all cardinalities of its superclass
+        # (or a subproperty of a cardinality of its superclass),
+        # these cardinalities are implicitly added, so the "get" command will return them.
+        # It would be too complicated to test this behaviour,
+        # --> remove the cardinalities of all subclasses from both original file and returned file.
+        for res in resources_original:
+            supers_as_list = [res["super"]] if isinstance(res["super"], str) else res["super"]
+            for sup in supers_as_list:
+                if regex.search(rf"^({onto_name})?:\w+$", sup):
+                    if res.get("cardinalities"):
+                        del res["cardinalities"]
+                    # remove from returned file, too
+                    res_returned = next(x for x in resources_returned if x["name"] == res["name"])
+                    if res_returned.get("cardinalities"):
+                        del res_returned["cardinalities"]
+        return resources_original, resources_returned
+
+    @staticmethod
+    def _remove_onto_names_in_original_resources(
+        onto_name: str, resources_original: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
+        # The original might have names in the form "currentonto:hasSimpleText".
+        # The returned file will have ":hasSimpleText" --> remove the onto name.
+        for res in resources_original:
+            for card in res.get("cardinalities", []):
+                if card["propname"].startswith(onto_name):
+                    card["propname"] = regex.sub(rf"^{onto_name}:", ":", card["propname"])
+            supers_as_list = [res["super"]] if isinstance(res["super"], str) else res["super"]
+            if any(sup.startswith(onto_name) for sup in supers_as_list):
+                res["super"] = [regex.sub(rf"^{onto_name}:", ":", sup) for sup in supers_as_list]
+        return resources_original

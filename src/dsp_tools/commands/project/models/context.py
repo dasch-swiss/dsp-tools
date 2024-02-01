@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional, Pattern
+from typing import Optional
 
 import regex
 
@@ -37,7 +37,6 @@ class Context:
 
     _context: ContextType
     _rcontext: dict[str, str]
-    _exp: Pattern[str]
 
     common_ontologies = ContextType(
         {
@@ -78,8 +77,6 @@ class Context:
         ontology-iri *must* end with "#"!
         :param context: A dict of prefix - ontology-iri pairs
         """
-        # regexp to test for a complete IRI (including fragment identifier)
-        self._exp = regex.compile("^(http)s?://([\\w\\.\\-~]+)?(:\\d{,6})?(/[\\w\\-~]+)*(#[\\w\\-~]*)?")
         self._context = ContextType({})
 
         # add ontologies from context, if any

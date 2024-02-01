@@ -695,29 +695,37 @@ class ResourceClass(Model):
     def createDefinitionFileObj(self, context: Context, shortname: str, skiplist: list[str]) -> dict[str, Any]:
         resource = {"name": self._name}
         if self._superclasses:
-            if len(self._superclasses) > 1:
-                superclasses = []
-                for sc in self._superclasses:
-                    superclasses.append(context.reduce_iri(sc, shortname))
-            else:
-                superclasses = context.reduce_iri(self._superclasses[0], shortname)
-            resource["super"] = superclasses
+            resource["super"] = self._create_DefinitionFileObj_superclass(context, shortname)
         resource["labels"] = self._label.createDefinitionFileObj()
         if not self._comment.isEmpty():
             resource["comments"] = self._comment.createDefinitionFileObj()
         if self._has_properties:
-            cardinalities = []
-            for _, hp in self._has_properties.items():
-                if hp.property_id in skiplist:
-                    continue
-                if hp.ptype == HasProperty.Ptype.other or hp.property_id in [
-                    "knora-api:isSequenceOf",
-                    "knora-api:hasSequenceBounds",
-                    "knora-api:isPartOf",
-                    "knora-api:seqnum",
-                ]:
-                    cardinalities.append(hp.createDefinitionFileObj(context, shortname))
-            if cardinalities:
-                resource["cardinalities"] = cardinalities
-
+            self._create_DefinitionFileObj_cardinalities(context, resource, shortname, skiplist)
         return resource
+
+    def _create_DefinitionFileObj_cardinalities(
+        self, context: Context, resource: dict[str, str], shortname: str, skiplist: list[str]
+    ) -> dict[str, Any]:
+        cardinalities: list[dict[str, Any]] = []
+        for _, hp in self._has_properties.items():
+            if hp.property_id in skiplist:
+                continue
+            if hp.ptype == HasProperty.Ptype.other or hp.property_id in [
+                "knora-api:isSequenceOf",
+                "knora-api:hasSequenceBounds",
+                "knora-api:isPartOf",
+                "knora-api:seqnum",
+            ]:
+                cardinalities.append(hp.createDefinitionFileObj(context, shortname))
+        if cardinalities:
+            resource["cardinalities"] = cardinalities
+        return resource
+
+    def _create_DefinitionFileObj_superclass(self, context: Context, shortname: str) -> list[str] | str:
+        if len(self._superclasses) > 1:
+            superclasses = []
+            for sc in self._superclasses:
+                superclasses.append(context.reduce_iri(sc, shortname))
+        else:
+            superclasses = context.reduce_iri(self._superclasses[0], shortname)
+        return superclasses

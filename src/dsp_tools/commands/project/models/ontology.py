@@ -33,7 +33,7 @@ from urllib.parse import quote_plus
 import regex
 
 from dsp_tools.commands.project.models.context import Context
-from dsp_tools.commands.project.models.helpers import Actions, WithId
+from dsp_tools.commands.project.models.helpers import WithId
 from dsp_tools.commands.project.models.model import Model
 from dsp_tools.commands.project.models.project import Project
 from dsp_tools.commands.project.models.propertyclass import PropertyClass
@@ -265,44 +265,29 @@ class Ontology(Model):
                 ontos.append(onto)
         return ontos
 
-    def toJsonObj(self, action: Actions) -> Any:
-        rdfs = self._context.prefix_from_iri("http://www.w3.org/2000/01/rdf-schema#")
-        knora_api = self._context.prefix_from_iri("http://api.knora.org/ontology/knora-api/v2#")
-        tmp = {}
-        if action == Actions.Create:
-            if self._name is None:
-                raise BaseError("There must be a valid name given!")
-            if self._label is None:
-                raise BaseError("There must be a valid label given!")
-            if self._project is None:
-                raise BaseError("There must be a valid project given!")
-            tmp = {
-                knora_api + ":ontologyName": self._name,
-                knora_api + ":attachedToProject": {"@id": self._project},
-                rdfs + ":label": self._label,
-                "@context": self._context.toJsonObj(),
-            }
-            if self._comment is not None:
-                tmp[rdfs + ":comment"] = self._comment
-        elif action == Actions.Update:
-            if self._lastModificationDate is None:
-                raise BaseError("'last_modification_date' must be in ontology!")
-            tmp = {
-                "@id": self._iri,
-                rdfs + ":label": self._label,
-                knora_api + ":lastModificationDate": self._lastModificationDate.toJsonObj(),
-                "@context": self._context.toJsonObj(),
-            }
-            if self._label is not None and "label" in self._changed:
-                tmp[rdfs + ":label"] = self._label
-            if self._comment is not None and "comment" in self._changed:
-                tmp[rdfs + ":comment"] = self._comment
-        return tmp
-
     def create(self) -> Ontology:
-        jsonobj = self.toJsonObj(Actions.Create)
+        jsonobj = self._toJsonObj_create()
         result = self._con.post(Ontology.ROUTE, jsonobj)
         return Ontology.fromJsonObj(self._con, result)
+
+    def _toJsonObj_create(self):
+        rdfs = self._context.prefix_from_iri("http://www.w3.org/2000/01/rdf-schema#")
+        knora_api = self._context.prefix_from_iri("http://api.knora.org/ontology/knora-api/v2#")
+        if self._name is None:
+            raise BaseError("There must be a valid name given!")
+        if self._label is None:
+            raise BaseError("There must be a valid label given!")
+        if self._project is None:
+            raise BaseError("There must be a valid project given!")
+        tmp = {
+            knora_api + ":ontologyName": self._name,
+            knora_api + ":attachedToProject": {"@id": self._project},
+            rdfs + ":label": self._label,
+            "@context": self._context.toJsonObj(),
+        }
+        if self._comment is not None:
+            tmp[rdfs + ":comment"] = self._comment
+        return tmp
 
     def read(self) -> Ontology:
         result = self._con.get(Ontology.ROUTE + "/allentities/" + quote_plus(self._iri) + Ontology.ALL_LANGUAGES)

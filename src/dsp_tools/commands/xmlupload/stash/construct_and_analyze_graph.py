@@ -284,7 +284,7 @@ def generate_upload_order(
     upload_order.extend(leaf_nodes)
     stash_counter = 0
     while remaining_node_indices:
-        cycle = list(rx.digraph_find_cycle(graph))  # type: ignore[attr-defined]
+        cycle = list(rx.digraph_find_cycle(graph))
         links_to_remove = _find_cheapest_outgoing_links(graph, cycle, edges)
         stash_counter += len(links_to_remove)
         _remove_edges_to_stash(

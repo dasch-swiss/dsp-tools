@@ -14,11 +14,6 @@ READ:
       associated PropertyClasses and ResourceClasses as well as the assignments.
     * Access the information that has been provided to the instance
 
-UPDATE:
-    * You need an instance of an existing Ontology by reading an instance
-    * Change the attributes by assigning the new values
-    * Call the ``update```method on the instance
-
 DELETE
     * Instantiate a new objects with ``iri``(IRI of group) given, or use any instance that has the iri set,
       that is, that You've read before

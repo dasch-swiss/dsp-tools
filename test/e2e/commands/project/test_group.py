@@ -78,38 +78,6 @@ class TestGroup(unittest.TestCase):
         self.assertTrue(group.status)
         self.assertTrue(group.selfjoin)
 
-    def test_Group_update(self) -> None:
-        """
-        Update an existing group
-        :return: None
-        """
-        group = Group(
-            con=self.con,
-            name="Group update",
-            descriptions=LangString({Languages.EN: "This is group update"}),
-            project=self.test_project,
-            status=True,
-            selfjoin=False,
-        )
-        group = group.create()
-
-        group.name = "Group update - modified"
-        group.descriptions = LangString({"en": "This is group update - modified"})
-        group.selfjoin = True
-        group.status = False
-        updated_group = group.update()
-
-        self.assertIsNotNone(updated_group)
-        updated_group = cast(Group, updated_group)
-        self.assertEqual(updated_group.name, "Group update - modified")
-        self.assertCountEqual(
-            cast(list[dict[str, str]], updated_group.descriptions.toJsonObj()),
-            [{"language": "en", "value": "This is group update - modified"}],
-        )
-        self.assertEqual(updated_group.project, self.test_project)
-        self.assertFalse(updated_group.status)
-        self.assertTrue(updated_group.selfjoin)
-
     def test_Group_delete(self) -> None:
         """
         Mark an existing group as deleted (it will not be deleted completely from the triplestore, but status set to

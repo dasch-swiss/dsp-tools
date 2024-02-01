@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
 from unittest import mock
 
 import numpy as np
@@ -175,24 +174,6 @@ def get_wrong_row_numbers(wrong_row_dict: dict[str, pd.Series], true_remains: bo
         k: turn_bool_array_into_index_numbers(series=v, true_remains=true_remains) for k, v in wrong_row_dict.items()
     }
     return {k: [x + 2 for x in v] for k, v in wrong_row_dict.items()}
-
-
-def update_dict_if_not_value_none(additional_dict: dict[Any, Any], to_update_dict: dict[Any, Any]) -> dict[Any, Any]:
-    """
-    This function takes two dictionaries.
-    The "to_update_dict" should be updated with the information from the "additional_dict"
-    only if the value of a particular key is not None or pd.NA.
-
-    Args:
-        additional_dict: The dictionary which contains information that may be transferred
-        to_update_dict: The dictionary to which the new information should be transferred
-
-    Returns:
-        The "to_update_dict" which the additional information
-    """
-    additional_dict = {k: v for k, v in additional_dict.items() if v is not None and v is not pd.NA}
-    to_update_dict.update(additional_dict)
-    return to_update_dict
 
 
 def get_labels(df_row: pd.Series) -> dict[str, str]:

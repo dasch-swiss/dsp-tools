@@ -21,10 +21,3 @@ def test_get_ontology_name_dict(project_client: ProjectClient) -> None:
     expected_key = "anything"
     expected_val = "http://0.0.0.0:3333/ontology/0001/anything/v2"
     assert ontology_name_dict[expected_key] == expected_val
-
-
-def test_get_ontology_iri_dict(project_client: ProjectClient) -> None:
-    ontology_iri_dict = project_client.get_ontology_iri_dict()
-    expected_key = "http://0.0.0.0:3333/ontology/0001/anything/v2"
-    expected_val = "anything"
-    assert ontology_iri_dict[expected_key] == expected_val

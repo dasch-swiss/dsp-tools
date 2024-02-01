@@ -45,20 +45,3 @@ class TestProjectClientLive:
             "a.2": "http://www.example.org/ontologies/a.2/v2",
         }
         assert ontology_name_dict == expected
-
-    def test_get_ontology_iri_dict(self) -> None:
-        project_iri_response = {"project": {"id": "http://www.example.org/projects#a"}}
-        project_ontologies_response = {
-            "@graph": [
-                {"@id": "http://www.example.org/ontologies/a.1/v2"},
-                {"@id": "http://www.example.org/ontologies/a.2/v2"},
-            ]
-        }
-        con = ConnectionMock([project_iri_response, project_ontologies_response])
-        project_client = ProjectClientLive(con, "")
-        ontology_iri_dict = project_client.get_ontology_iri_dict()
-        expected = {
-            "http://www.example.org/ontologies/a.1/v2": "a.1",
-            "http://www.example.org/ontologies/a.2/v2": "a.2",
-        }
-        assert ontology_iri_dict == expected

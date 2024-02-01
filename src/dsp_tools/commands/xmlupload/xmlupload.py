@@ -130,6 +130,8 @@ def xmlupload(
         logger.info("All resources have successfully been uploaded.")
     else:
         print(f"\n{datetime.now()}: WARNING: Could not upload the following resources: {failed_uploads}\n")
+        logfiles = ", ".join([handler.baseFilename for handler in logger.handlers if isinstance(handler, FileHandler)])
+        print(f"For more information, see the log file: {logfiles}\n")
         logger.warning(f"Could not upload the following resources: {failed_uploads}")
     return success
 

@@ -290,7 +290,7 @@ def test_try_network_action_connection_error(monkeypatch: pytest.MonkeyPatch) ->
 def test_try_network_action_non_200(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("DSP_TOOLS_TESTING", raising=False)  # in CI, this variable suppresses the retrying mechanism
     con = ConnectionLive("http://example.com/")
-    responses = (Mock(status_code=500), Mock(status_code=404), Mock(status_code=200))
+    responses = (Mock(status_code=500, text=""), Mock(status_code=404, text=""), Mock(status_code=200, text=""))
     session_mock = SessionMock(responses)
     con.session = session_mock  # type: ignore[assignment]
     con._log_request = Mock()
@@ -307,7 +307,7 @@ def test_try_network_action_non_200(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_try_network_action_in_testing_environment(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("DSP_TOOLS_TESTING", "true")  # automatically set in CI, but not locally
     con = ConnectionLive("http://example.com/")
-    responses = (Mock(status_code=500), Mock(status_code=404), Mock(status_code=200))
+    responses = (Mock(status_code=500, text=""), Mock(status_code=404, text=""), Mock(status_code=200, text=""))
     con.session = SessionMock(responses)  # type: ignore[assignment]
     con._log_request = Mock()
     con._log_response = Mock()

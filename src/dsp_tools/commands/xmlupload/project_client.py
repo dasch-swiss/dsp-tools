@@ -29,9 +29,6 @@ class ProjectClient(Protocol):
     def get_ontology_name_dict(self) -> dict[str, str]:
         """Returns a mapping of ontology names to ontology IRIs."""
 
-    def get_ontology_iri_dict(self) -> dict[str, str]:
-        """Returns a mapping of ontology IRIs to ontology names."""
-
 
 @dataclass()
 class ProjectClientLive:
@@ -58,12 +55,6 @@ class ProjectClientLive:
         if not self.project_info:
             self.project_info = _get_project_info_from_server(self.con, self.shortcode)
         return {_extract_name_from_onto_iri(iri): iri for iri in self.project_info.ontology_iris}
-
-    def get_ontology_iri_dict(self) -> dict[str, str]:
-        """Returns a mapping of ontology IRIs to ontology names."""
-        if not self.project_info:
-            self.project_info = _get_project_info_from_server(self.con, self.shortcode)
-        return {iri: _extract_name_from_onto_iri(iri) for iri in self.project_info.ontology_iris}
 
 
 def _get_project_info_from_server(con: Connection, shortcode: str) -> ProjectInfo:

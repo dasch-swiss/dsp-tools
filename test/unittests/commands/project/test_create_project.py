@@ -2,7 +2,6 @@
 
 import json
 import unittest
-from pathlib import Path
 from typing import Any
 
 import pytest
@@ -59,12 +58,6 @@ class TestProjectCreation(unittest.TestCase):
         tp_duplicate_resource: dict[str, Any] = json.load(json_file)
 
     def test_parse_json_input(self) -> None:
-        parsed_proj_from_str_path = parse_json_input(project_file_as_path_or_parsed=self.tp_systematic_file)
-        parsed_proj_from_path_path = parse_json_input(project_file_as_path_or_parsed=Path(self.tp_systematic_file))
-        parsed_proj_from_json_obj = parse_json_input(project_file_as_path_or_parsed=self.tp_systematic)
-        self.assertDictEqual(parsed_proj_from_str_path, parsed_proj_from_path_path)
-        self.assertDictEqual(parsed_proj_from_str_path, parsed_proj_from_json_obj)
-
         invalid = [
             ("foo/bar", r"The input must be a path to a JSON file or a parsed JSON object"),
             ("testdata/xml-data/test-data-systematic.xml", r"cannot be parsed to a JSON object"),

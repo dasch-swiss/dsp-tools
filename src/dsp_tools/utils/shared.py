@@ -237,8 +237,9 @@ def parse_json_input(project_file_as_path_or_parsed: Union[str, Path, dict[str, 
     Returns:
         the parsed JSON object
     """
+    project_definition: dict[str, Any] = {}
     if isinstance(project_file_as_path_or_parsed, dict):
-        project_definition: dict[str, Any] = project_file_as_path_or_parsed
+        project_definition = project_file_as_path_or_parsed
     elif isinstance(project_file_as_path_or_parsed, (str, Path)) and Path(project_file_as_path_or_parsed).exists():
         with open(project_file_as_path_or_parsed, encoding="utf-8") as f:
             try:

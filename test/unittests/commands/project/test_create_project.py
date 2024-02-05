@@ -37,26 +37,6 @@ class TestProjectCreation(unittest.TestCase):
     with open(tp_circular_ontology_file, encoding="utf-8") as json_file:
         tp_circular_ontology: dict[str, Any] = json.load(json_file)
 
-    tp_nonexisting_cardinality_file = "testdata/invalid-testdata/json-project/nonexisting-cardinality.json"
-    with open(tp_nonexisting_cardinality_file, encoding="utf-8") as json_file:
-        tp_nonexisting_cardinality: dict[str, Any] = json.load(json_file)
-
-    tp_nonexisting_super_property_file = "testdata/invalid-testdata/json-project/nonexisting-super-property.json"
-    with open(tp_nonexisting_super_property_file, encoding="utf-8") as json_file:
-        tp_nonexisting_super_property: dict[str, Any] = json.load(json_file)
-
-    tp_nonexisting_super_resource_file = "testdata/invalid-testdata/json-project/nonexisting-super-resource.json"
-    with open(tp_nonexisting_super_resource_file, encoding="utf-8") as json_file:
-        tp_nonexisting_super_resource: dict[str, Any] = json.load(json_file)
-
-    tp_duplicate_property_file = "testdata/invalid-testdata/json-project/duplicate-property.json"
-    with open(tp_duplicate_property_file, encoding="utf-8") as json_file:
-        tp_duplicate_property: dict[str, Any] = json.load(json_file)
-
-    tp_duplicate_resource_file = "testdata/invalid-testdata/json-project/duplicate-resource.json"
-    with open(tp_duplicate_resource_file, encoding="utf-8") as json_file:
-        tp_duplicate_resource: dict[str, Any] = json.load(json_file)
-
     def test_parse_json_input(self) -> None:
         invalid = [
             ("foo/bar", r"The input must be a path to a JSON file or a parsed JSON object"),
@@ -106,21 +86,30 @@ class TestProjectCreation(unittest.TestCase):
         with self.assertRaisesRegex(BaseError, r"ERROR: Your ontology contains properties derived from 'hasLinkTo'"):
             validate_project(self.tp_circular_ontology)
 
-    def test_check_for_duplicate_names(self) -> None:
+    def test_check_for_duplicate_resources(self) -> None:
+        tp_duplicate_resource_file = "testdata/invalid-testdata/json-project/duplicate-resource.json"
+        with open(tp_duplicate_resource_file, encoding="utf-8") as json_file:
+            tp_duplicate_resource: dict[str, Any] = json.load(json_file)
+
         with self.assertRaisesRegex(
             BaseError,
             r"Resource names and property names must be unique inside every ontology\.\n"
             r"Resource 'anotherResource' appears multiple times in the ontology 'testonto'\.\n"
             r"Resource 'minimalResource' appears multiple times in the ontology 'testonto'\.\n",
         ):
-            _check_for_duplicate_names(self.tp_duplicate_resource)
+            _check_for_duplicate_names(tp_duplicate_resource)
+
+    def test_check_for_duplicate_properties(self) -> None:
+        tp_duplicate_property_file = "testdata/invalid-testdata/json-project/duplicate-property.json"
+        with open(tp_duplicate_property_file, encoding="utf-8") as json_file:
+            tp_duplicate_property: dict[str, Any] = json.load(json_file)
         with self.assertRaisesRegex(
             BaseError,
             r"Resource names and property names must be unique inside every ontology\.\n"
             r"Property 'hasInt' appears multiple times in the ontology 'testonto'\.\n"
             r"Property 'hasText' appears multiple times in the ontology 'testonto'\.\n",
         ):
-            _check_for_duplicate_names(self.tp_duplicate_property)
+            _check_for_duplicate_names(tp_duplicate_property)
 
     def test_circular_references_in_onto(self) -> None:
         link_properties = _collect_link_properties(self.tp_circular_ontology)
@@ -132,6 +121,9 @@ class TestProjectCreation(unittest.TestCase):
         self.assertListEqual(sorted(errors), sorted(expected_errors))
 
     def test_check_for_undefined_cardinalities(self) -> None:
+        tp_nonexisting_cardinality_file = "testdata/invalid-testdata/json-project/nonexisting-cardinality.json"
+        with open(tp_nonexisting_cardinality_file, encoding="utf-8") as json_file:
+            tp_nonexisting_cardinality: dict[str, Any] = json.load(json_file)
         self.assertTrue(_check_for_undefined_cardinalities(self.tp_systematic))
         with self.assertRaisesRegex(
             BaseError,
@@ -139,9 +131,12 @@ class TestProjectCreation(unittest.TestCase):
             r" - Ontology 'nonexisting-cardinality-onto', resource 'TestThing': "
             r"\[':CardinalityThatWasNotDefinedInPropertiesSection'\]",
         ):
-            _check_for_undefined_cardinalities(self.tp_nonexisting_cardinality)
+            _check_for_undefined_cardinalities(tp_nonexisting_cardinality)
 
     def test_check_for_undefined_super_property(self) -> None:
+        tp_nonexisting_super_property_file = "testdata/invalid-testdata/json-project/nonexisting-super-property.json"
+        with open(tp_nonexisting_super_property_file, encoding="utf-8") as json_file:
+            tp_nonexisting_super_property: dict[str, Any] = json.load(json_file)
         self.assertTrue(_check_for_undefined_super_property(self.tp_systematic))
         with self.assertRaisesRegex(
             BaseError,
@@ -149,9 +144,12 @@ class TestProjectCreation(unittest.TestCase):
             r" - Ontology 'nonexisting-super-property-onto', property 'hasSimpleText': "
             r"\[':SuperPropertyThatWasNotDefined'\]",
         ):
-            _check_for_undefined_super_property(self.tp_nonexisting_super_property)
+            _check_for_undefined_super_property(tp_nonexisting_super_property)
 
     def test_check_for_undefined_super_resource(self) -> None:
+        tp_nonexisting_super_resource_file = "testdata/invalid-testdata/json-project/nonexisting-super-resource.json"
+        with open(tp_nonexisting_super_resource_file, encoding="utf-8") as json_file:
+            tp_nonexisting_super_resource: dict[str, Any] = json.load(json_file)
         self.assertTrue(_check_for_undefined_super_resource(self.tp_systematic))
         with self.assertRaisesRegex(
             BaseError,
@@ -159,7 +157,7 @@ class TestProjectCreation(unittest.TestCase):
             r" - Ontology 'nonexisting-super-resource-onto', resource 'TestThing2': "
             r"\[':SuperResourceThatWasNotDefined'\]",
         ):
-            _check_for_undefined_super_resource(self.tp_nonexisting_super_resource)
+            _check_for_undefined_super_resource(tp_nonexisting_super_resource)
 
     def test_rectify_hlist_of_properties(self) -> None:
         lists = [

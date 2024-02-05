@@ -1,4 +1,3 @@
-# sourcery skip: use-fstring-for-concatenation
 from datetime import datetime
 from pathlib import Path
 

@@ -1,5 +1,3 @@
-"""unit tests for ontology creation"""
-
 import json
 from typing import Any
 
@@ -23,9 +21,6 @@ from dsp_tools.commands.project.create.project_validate import (
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.utils.shared import parse_json_input
 
-# ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
-# ruff: noqa: PT027 (pytest-unittest-raises-assertion) (remove this line when pytest is used instead of unittest)
-
 
 @pytest.fixture()
 def tp_systematic() -> dict[str, Any]:
@@ -36,8 +31,9 @@ def tp_systematic() -> dict[str, Any]:
 
 
 @pytest.fixture()
-def tp_systematic_ontology(tp_systematic) -> dict[str, Any]:
-    return tp_systematic["project"]["ontologies"][0]
+def tp_systematic_ontology(tp_systematic: dict[str, Any]) -> dict[str, Any]:
+    onto: dict[str, Any] = tp_systematic["project"]["ontologies"][0]
+    return onto
 
 
 @pytest.fixture()
@@ -48,12 +44,7 @@ def tp_circular_ontology() -> dict[str, Any]:
     return tp_circular_ontology
 
 
-def test_sort_resources(tp_systematic_ontology) -> None:
-    """
-    The "resources" section of an onto is a list of dictionaries. The safest way to test
-    that the sorted list contains the same dicts is to sort both lists according to the
-    same criteria, and then test for list equality.
-    """
+def test_sort_resources(tp_systematic_ontology: dict[str, Any]) -> None:
     onto_name: str = tp_systematic_ontology["name"]
     unsorted_resources: list[dict[str, Any]] = tp_systematic_ontology["resources"]
     sorted_resources = _sort_resources(unsorted_resources, onto_name)
@@ -64,12 +55,7 @@ def test_sort_resources(tp_systematic_ontology) -> None:
     assert unsorted_resources == sorted_resources
 
 
-def test_sort_prop_classes(tp_systematic_ontology) -> None:
-    """
-    The "properties" section of an onto is a list of dictionaries. The safest way to test
-    that the sorted list contains the same dicts is to sort both lists according to the
-    same criteria, and then test for list equality.
-    """
+def test_sort_prop_classes(tp_systematic_ontology: dict[str, Any]) -> None:
     onto_name: str = tp_systematic_ontology["name"]
     unsorted_props: list[dict[str, Any]] = tp_systematic_ontology["resources"]
     sorted_props = _sort_prop_classes(unsorted_props, onto_name)
@@ -80,7 +66,7 @@ def test_sort_prop_classes(tp_systematic_ontology) -> None:
     assert unsorted_props == sorted_props
 
 
-def test_validate_project(tp_systematic, tp_circular_ontology) -> None:
+def test_validate_project(tp_systematic: dict[str, Any], tp_circular_ontology: dict[str, Any]) -> None:
     assert validate_project(tp_systematic) is True
 
     with pytest.raises(BaseError, match=r"Input 'fantasy.xyz' is neither a file path nor a JSON object."):
@@ -93,7 +79,7 @@ def test_validate_project(tp_systematic, tp_circular_ontology) -> None:
         validate_project(tp_circular_ontology)
 
 
-def test_circular_references_in_onto(tp_circular_ontology) -> None:
+def test_circular_references_in_onto(tp_circular_ontology: dict[str, Any]) -> None:
     link_properties = _collect_link_properties(tp_circular_ontology)
     errors = _identify_problematic_cardinalities(tp_circular_ontology, link_properties)
     expected_errors = [
@@ -103,7 +89,7 @@ def test_circular_references_in_onto(tp_circular_ontology) -> None:
     assert sorted(errors) == sorted(expected_errors)
 
 
-def test_check_for_undefined_cardinalities(tp_systematic) -> None:
+def test_check_for_undefined_cardinalities(tp_systematic: dict[str, Any]) -> None:
     tp_nonexisting_cardinality_file = "testdata/invalid-testdata/json-project/nonexisting-cardinality.json"
     with open(tp_nonexisting_cardinality_file, encoding="utf-8") as json_file:
         tp_nonexisting_cardinality: dict[str, Any] = json.load(json_file)
@@ -119,7 +105,7 @@ def test_check_for_undefined_cardinalities(tp_systematic) -> None:
         _check_for_undefined_cardinalities(tp_nonexisting_cardinality)
 
 
-def test_check_for_undefined_super_property(tp_systematic) -> None:
+def test_check_for_undefined_super_property(tp_systematic: dict[str, Any]) -> None:
     tp_nonexisting_super_property_file = "testdata/invalid-testdata/json-project/nonexisting-super-property.json"
     with open(tp_nonexisting_super_property_file, encoding="utf-8") as json_file:
         tp_nonexisting_super_property: dict[str, Any] = json.load(json_file)
@@ -135,7 +121,7 @@ def test_check_for_undefined_super_property(tp_systematic) -> None:
         _check_for_undefined_super_property(tp_nonexisting_super_property)
 
 
-def test_check_for_undefined_super_resource(tp_systematic) -> None:
+def test_check_for_undefined_super_resource(tp_systematic: dict[str, Any]) -> None:
     tp_nonexisting_super_resource_file = "testdata/invalid-testdata/json-project/nonexisting-super-resource.json"
     with open(tp_nonexisting_super_resource_file, encoding="utf-8") as json_file:
         tp_nonexisting_super_resource: dict[str, Any] = json.load(json_file)

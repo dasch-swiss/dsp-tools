@@ -10,15 +10,6 @@ READ:
     * Call the ``read``-method on the instance
     * Access the information that has been ptovided to the instance
 
-UPDATE:
-    * You need an instance of an existing User by reading an instance
-    * Change the attributes by assigning the new values
-    * Call the ``update```method on the instance
-
-DELETE
-    * Instantiate a new objects with ``iri`` given, or use any instance that has the iri set
-    * Call the ``delete``-method on the instance
-
 In addition there is a static methods ``getAllProjects`` which returns a list of all projects
 """
 
@@ -72,7 +63,6 @@ class User(Model):
 
     in_groups : set[str]
         Set of group IRI's the user is member of [readonly].
-        Use ``addToGroup``and ``rmFromGroup`` to modify group membership
 
     in_projects : set[str]
         Set of project IRI's the user belongs to
@@ -87,30 +77,6 @@ class User(Model):
 
     read : DSP user information object
         Read user data
-
-    update : DSP user information object
-        Updates the changed attributes of a user and returns the updated information  as it is in DSP
-
-    delete : DSP result code
-        Deletes a user and returns the result code
-
-    addToGroup : None
-        Add the user to the given group (will be executed when calling ``update``)
-
-    rmFromGroup : None
-        Remove a user from a group (will be executed when calling ``update``)
-
-    addToProject : None
-        adds a user to a project, optional as project administrator (will be executed when calling ``update``)
-
-    rmFromProject : None
-        removes a user from a project (will be executed when calling ``update``)
-
-    makeProjectAdmin : None
-        Promote user to project admin of given project
-
-    unmakeProjectAdmin : None
-        Revoke project admin flog for user for given project
 
     getAllUsers : list of user
         Get a list of all users
@@ -207,11 +173,6 @@ class User(Model):
             raise BaseError("In_groups must be a set of strings or None!")
 
         self._sysadmin = None if sysadmin is None else bool(sysadmin)
-        self._add_to_project = {}
-        self._rm_from_project = {}
-        self._change_admin = {}
-        self._add_to_group = set()
-        self._rm_from_group = set()
 
     @property
     def iri(self) -> Optional[str]:
@@ -324,106 +285,10 @@ class User(Model):
         """Set of group IRI's the user is member of"""
         return self._in_groups
 
-    def addToGroup(self, value: str) -> None:
-        """
-        Add the user to the given group (executed at next update)
-
-        :param value: IRI of the group
-        :return: None
-        """
-
-        if value in self._rm_from_group:
-            self._rm_from_group.pop(value)
-        elif value not in self._in_groups:
-            self._add_to_group.add(value)
-            self._changed.add("in_groups")
-        else:
-            raise BaseError("Already member of this group!")
-
-    def rmFromGroup(self, value: str) -> None:
-        """
-        Remove the user from the given group (executed at next update)
-
-        :param value: Group IRI
-        :return: None
-        """
-
-        if value in self._add_to_group:
-            self._add_to_group.discard(value)
-        elif value in self._in_groups:
-            self._rm_from_group.add(value)
-            self._changed.add("in_groups")
-        else:
-            raise BaseError("User is not in groups!")
-
     @property
     def in_projects(self) -> dict[str, bool]:
         """dict with project-IRI as key, boolean(True=project admin) as value"""
         return self._in_projects
-
-    def addToProject(self, value: str, padmin: bool = False) -> None:
-        """
-        Add the user to the given project (executed at next update)
-
-        :param value: project IRI
-        :param padmin: True, if user should be project admin, False otherwise
-        :return: None
-        """
-
-        if value in self._rm_from_project:
-            self._rm_from_project.pop(value)
-        elif value not in self._in_projects:
-            self._add_to_project[value] = padmin
-            self._changed.add("in_projects")
-        else:
-            raise BaseError("Already member of this project!")
-
-    def rmFromProject(self, value: str) -> None:
-        """
-        Remove the user from the given project (executed at next update)
-
-        :param value: Project IRI
-        :return: None
-        """
-
-        if value in self._add_to_project:
-            self._add_to_project.pop(value)
-        elif value in self._in_projects:
-            self._rm_from_project[value] = self._in_projects[value]
-            self._changed.add("in_projects")
-        else:
-            raise BaseError("Project is not in list of member projects!")
-
-    def makeProjectAdmin(self, value: str) -> None:
-        """
-        Make the user project administrator in the given project  (executed at next update)
-
-        :param value: Project IRI
-        :return: None
-        """
-
-        if value in self._in_projects:
-            self._change_admin[value] = True
-            self._changed.add("in_projects")
-        elif value in self._add_to_project:
-            self._add_to_project[value] = True
-        else:
-            raise BaseError("User is not member of project!")
-
-    def unmakeProjectAdmin(self, value: str) -> None:
-        """
-        Revoke project administrator right for the user from the given project  (executed at next update)
-
-        :param value: Project IRI
-        :return: None
-        """
-        if value in self._in_projects:
-            self._change_admin[value] = False
-            self._changed.add("in_projects")
-        elif value in self._add_to_project:
-            self._add_to_project[value] = False
-        else:
-            raise BaseError("User is not member of project!")
 
     @classmethod
     def _make_fromJsonObj(cls, con: Connection, json_obj: dict[str, Any]) -> User:
@@ -544,93 +409,6 @@ class User(Model):
             result = self._con.get(User.ROUTE + "/username/" + quote_plus(self._username))
         else:
             raise BaseError("Either user-iri or email is required!")
-        return User._make_fromJsonObj(self._con, result["user"])
-
-    def update(self, requesterPassword: Optional[str] = None) -> User:
-        """
-        Update the user info in DSP with the modified data in this user instance
-
-        :param requesterPassword: Old password if a user wants to change it's own password
-        :return: JSON-object from DSP
-        """
-
-        jsonobj = self._toJsonObj_update()
-        if jsonobj:
-            self._con.put(User.IRI + quote_plus(self._iri) + "/BasicUserInformation", jsonobj)
-
-        self._update_changed_values(requesterPassword)
-        self._update_project_membership()
-        self._change_admin_rights()
-        self._update_group_membership()
-        user = User(con=self._con, iri=self._iri).read()
-        return user
-
-    def _update_group_membership(self):
-        for p in self._add_to_group:
-            self._con.post(User.IRI + quote_plus(self._iri) + User.GROUP_MEMBERSHIPS + quote_plus(p))
-        for p in self._rm_from_group:
-            self._con.delete(User.IRI + quote_plus(self._iri) + User.GROUP_MEMBERSHIPS + quote_plus(p))
-
-    def _change_admin_rights(self):
-        for p in self._change_admin.items():
-            if p[0] not in self._in_projects:
-                raise BaseError("user must be member of project!")
-            if p[1]:
-                self._con.post(User.IRI + quote_plus(self._iri) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p[0]))
-            else:
-                self._con.delete(User.IRI + quote_plus(self._iri) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p[0]))
-
-    def _update_project_membership(self):
-        for p in self._add_to_project.items():
-            self._con.post(User.IRI + quote_plus(self._iri) + User.PROJECT_MEMBERSHIPS + quote_plus(p[0]))
-            if p[1]:
-                self._con.post(User.IRI + quote_plus(self._iri) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p[0]))
-        for p in self._rm_from_project:
-            if self._in_projects.get(p) is not None and self._in_projects[p]:
-                self._con.delete(User.IRI + quote_plus(self._iri) + User.PROJECT_ADMIN_MEMBERSHIPS + quote_plus(p))
-            self._con.delete(User.IRI + quote_plus(self._iri) + User.PROJECT_MEMBERSHIPS + quote_plus(p))
-
-    def _update_changed_values(self, requesterPassword: Optional[str] = None) -> None:
-        if "status" in self._changed:
-            jsonobj = {"status": self._status}
-            self._con.put(User.IRI + quote_plus(self._iri) + "/Status", jsonobj)
-        if "password" in self._changed:
-            if requesterPassword is None:
-                raise BaseError("Requester's password is missing!")
-            jsonobj = {"requesterPassword": requesterPassword, "newPassword": self._password}
-            self._con.put(User.IRI + quote_plus(self._iri) + "/Password", jsonobj)
-        if "sysadmin" in self._changed:
-            jsonobj = {"systemAdmin": self._sysadmin}
-            self._con.put(User.IRI + quote_plus(self._iri) + "/SystemAdmin", jsonobj)
-
-    def _toJsonObj_update(self) -> dict[str, Any]:
-        tmp = {}
-        tmp_changed = False
-        if self._username is not None and "username" in self._changed:
-            tmp["username"] = self._username
-            tmp_changed = self._username
-        if self._email is not None and "email" in self._changed:
-            tmp["email"] = self._email
-            tmp_changed = True
-        if self._givenName is not None and "givenName" in self._changed:
-            tmp["givenName"] = self._givenName
-            tmp_changed = True
-        if self._familyName is not None and "familyName" in self._changed:
-            tmp["familyName"] = self._familyName
-            tmp_changed = True
-        if self._lang is not None and "lang" in self._changed:
-            tmp["lang"] = self._lang.value
-            tmp_changed = True
-        if not tmp_changed:
-            tmp = {}
-        return tmp
-
-    def delete(self) -> User:
-        """
-        Delete the user in nore (NOT YET IMPLEMENTED)
-        :return: None
-        """
-        result = self._con.delete(User.IRI + quote_plus(self._iri))
         return User._make_fromJsonObj(self._con, result["user"])
 
     @staticmethod

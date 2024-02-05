@@ -1,5 +1,3 @@
-# sourcery skip: use-fstring-for-concatenation
-
 import itertools
 from dataclasses import dataclass, field
 

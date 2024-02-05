@@ -4,18 +4,12 @@ import pytest
 
 from dsp_tools.commands.project.models.project import Project
 from dsp_tools.models.langstring import LangString, Languages
-from dsp_tools.utils.connection import Connection
 
 
 @pytest.fixture()
-def con() -> Connection:
-    return ConnectionMockBase()
-
-
-@pytest.fixture()
-def project(con: Connection) -> Project:
+def project() -> Project:
     return Project(
-        con=con,
+        con=ConnectionMockBase(),
         iri="http://rdfh.ch/test",
         shortcode="0FF0",
         shortname="test_project",

@@ -32,7 +32,6 @@ logger = get_logger(__name__)
 def _create_project_on_server(
     project_definition: ProjectDefinition,
     con: Connection,
-    verbose: bool,
 ) -> tuple[Project, bool]:
     """
     Create the project on the DSP server.
@@ -41,7 +40,6 @@ def _create_project_on_server(
     Args:
         project_definition: object with information about the project
         con: connection to the DSP server
-        verbose: verbose switch
 
     Raises:
         UserError: if the project cannot be created on the DSP server
@@ -51,23 +49,13 @@ def _create_project_on_server(
     """
     all_projects = Project.getAllProjects(con=con)
     if project_definition.shortcode in [proj.shortcode for proj in all_projects]:
-        project_local = Project(con=con, shortcode=project_definition.shortcode)
-        project_remote: Project = project_local.read()
         msg = (
-            f"A project with shortcode {project_definition.shortcode} already exists on the DSP server. Updating it..."
+            f"The project with the shortcode '{project_definition.shortcode}' already exists on the server.\n"
+            f"No changes were made to the project metadata.\n"
+            f"Continue with the upload of lists and ontologies ..."
         )
-        print(f"    WARNING: {msg}")
+        print(f"WARNING: {msg}")
         logger.warning(msg)
-        # try to update the basic info
-        project_remote, _ = _update_basic_info_of_project(
-            project=project_remote,
-            project_definition=project_definition,
-            verbose=verbose,
-        )
-        # It doesn't matter if the update is successful or not: continue anyway, because success is anyways false.
-        # There are other things from this file that can be created on the server,
-        # e.g. the groups and users, so the process must continue.
-        return project_remote, False
 
     success = True
     project_local = Project(
@@ -92,46 +80,6 @@ def _create_project_on_server(
     print(f"    Created project '{project_remote.shortname}' ({project_remote.shortcode}).")
     logger.info(f"Created project '{project_remote.shortname}' ({project_remote.shortcode}).")
     return project_remote, success
-
-
-def _update_basic_info_of_project(
-    project: Project,
-    project_definition: ProjectDefinition,
-    verbose: bool,
-) -> tuple[Project, bool]:
-    """
-    Updates the longname, description and keywords of a project on a DSP server.
-    Returns the updated project (or the unchanged project if not successful)
-    and a boolean saying if the update was successful or not.
-    If the update was not successful, an error message is printed to stdout.
-
-    Args:
-        project: the project to be updated (must exist on the DSP server)
-        project_definition: object with project info
-        verbose: verbose switch
-
-    Returns:
-        tuple of (updated project, success status)
-    """
-
-    # update the local "project" object
-    project.longname = project_definition.longname
-    project.description = LangString(project_definition.descriptions)  # type: ignore[arg-type]
-    project.keywords = set(project_definition.keywords) if project_definition.keywords else set()
-
-    # make the call to DSP-API
-    try:
-        project_remote: Project = project.update()
-        info_str = f"    Updated project '{project_definition.shortname}' ({project_definition.shortcode})."
-        if verbose:
-            print(info_str)
-        logger.info(info_str)
-        return project_remote, True
-    except BaseError:
-        msg = f"WARNING: Could not update project '{project_definition.shortname}' ({project_definition.shortcode})."
-        print(msg)
-        logger.warning(msg, exc_info=True)
-        return project, False
 
 
 def _create_groups(
@@ -167,7 +115,7 @@ def _create_groups(
             "not possible to retrieve the remote groups from the DSP server."
         )
         print(f"WARNING: {err_msg}")
-        logger.warning(err_msg, exc_info=True)
+        logger.warning(err_msg)
         remote_groups = []
         overall_success = False
 
@@ -195,7 +143,7 @@ def _create_groups(
             group_remote: Group = group_local.create()
         except BaseError:
             print(f"    WARNING: Unable to create group '{group_name}'.")
-            logger.warning(f"Unable to create group '{group_name}'.", exc_info=True)
+            logger.warning(f"Unable to create group '{group_name}'.")
             overall_success = False
             continue
 
@@ -276,7 +224,7 @@ def _get_group_iris_for_user(
                     f"exists on the DSP server, but no groups could be retrieved from the DSP server."
                 )
                 print(f"    WARNING: {err_msg}")
-                logger.warning(err_msg, exc_info=True)
+                logger.warning(err_msg)
                 success = False
                 continue
             existing_group = [g for g in remote_groups if g.project == current_project.iri and g.name == group_name]
@@ -344,7 +292,7 @@ def _get_projects_where_user_is_admin(
                     f"because the projects cannot be retrieved from the DSP server."
                 )
                 print(f"    WARNING: {err_msg}")
-                logger.warning(err_msg, exc_info=True)
+                logger.warning(err_msg)
                 success = False
                 continue
             in_project_list = [p for p in remote_projects if p.shortname == project_name]
@@ -437,7 +385,7 @@ def _create_users(
             user_local.create()
         except BaseError:
             print(f"    WARNING: Unable to create user '{username}'.")
-            logger.warning(f"Unable to create user '{username}'.", exc_info=True)
+            logger.warning(f"Unable to create user '{username}'.")
             overall_success = False
             continue
         print(f"    Created user '{username}'.")
@@ -628,7 +576,7 @@ def _create_ontologies(
     except BaseError:
         err_msg = "Unable to retrieve remote ontologies. Cannot check if your ontology already exists."
         print("WARNING: {err_msg}")
-        logger.warning(err_msg, exc_info=True)
+        logger.warning(err_msg)
         project_ontologies = []
 
     for ontology_definition in ontology_definitions:
@@ -742,7 +690,7 @@ def _add_resource_classes_to_remote_ontology(
             logger.info(f"Created resource class '{res_class['name']}'")
         except BaseError:
             print(f"WARNING: Unable to create resource class '{res_class['name']}'.")
-            logger.warning(f"Unable to create resource class '{res_class['name']}'.", exc_info=True)
+            logger.warning(f"Unable to create resource class '{res_class['name']}'.")
             overall_success = False
 
     return last_modification_date, new_res_classes, overall_success
@@ -837,7 +785,7 @@ def _add_property_classes_to_remote_ontology(
             logger.info(f"Created property class '{prop_class['name']}'")
         except BaseError:
             print(f"WARNING: Unable to create property class '{prop_class['name']}'.")
-            logger.warning(f"Unable to create property class '{prop_class['name']}'.", exc_info=True)
+            logger.warning(f"Unable to create property class '{prop_class['name']}'.")
             overall_success = False
 
     return last_modification_date, overall_success
@@ -908,7 +856,7 @@ def _add_cardinalities_to_resource_classes(
             except BaseError:
                 err_msg = f"Unable to add cardinality '{qualified_propname}' to resource class {res_class['name']}."
                 print(f"WARNING: {err_msg}")
-                logger.warning(err_msg, exc_info=True)
+                logger.warning(err_msg)
                 overall_success = False
 
             ontology_remote.lastModificationDate = last_modification_date
@@ -1032,7 +980,6 @@ def create_project(
     project_remote, success = _create_project_on_server(
         project_definition=project_definition,
         con=con,
-        verbose=verbose,
     )
     if not success:
         overall_success = False

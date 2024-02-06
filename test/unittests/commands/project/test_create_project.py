@@ -1,5 +1,3 @@
-"""unit tests for ontology creation"""
-
 import json
 from typing import Any
 

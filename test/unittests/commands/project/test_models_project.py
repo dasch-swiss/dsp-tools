@@ -34,7 +34,7 @@ def test_return_values(project: Project) -> None:
     assert project.keywords == set()
 
 
-def test_to_json_obj_create(project: Project) -> None:
+def test__toJsonObj_create(project: Project) -> None:
     res_json = project._toJsonObj_create()
     expected = {
         "shortcode": "0FF0",

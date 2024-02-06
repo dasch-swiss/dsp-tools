@@ -50,12 +50,12 @@ def _create_project_on_server(
     all_projects = Project.getAllProjects(con=con)
     if project_definition.shortcode in [proj.shortcode for proj in all_projects]:
         msg = (
-            f"The project with the shortcode'{project_definition.shortcode}' already exists on the server.\n"
+            f"The project with the shortcode '{project_definition.shortcode}' already exists on the server.\n"
             f"No changes were made to the project metadata.\n"
             f"Continue with the upload of lists and ontologies ..."
         )
         print(f"WARNING: {msg}")
-        logger.warning(msg, exc_info=True)
+        logger.warning(msg)
 
     success = True
     project_local = Project(
@@ -115,7 +115,7 @@ def _create_groups(
             "not possible to retrieve the remote groups from the DSP server."
         )
         print(f"WARNING: {err_msg}")
-        logger.warning(err_msg, exc_info=True)
+        logger.warning(err_msg)
         remote_groups = []
         overall_success = False
 
@@ -143,7 +143,7 @@ def _create_groups(
             group_remote: Group = group_local.create()
         except BaseError:
             print(f"    WARNING: Unable to create group '{group_name}'.")
-            logger.warning(f"Unable to create group '{group_name}'.", exc_info=True)
+            logger.warning(f"Unable to create group '{group_name}'.")
             overall_success = False
             continue
 
@@ -224,7 +224,7 @@ def _get_group_iris_for_user(
                     f"exists on the DSP server, but no groups could be retrieved from the DSP server."
                 )
                 print(f"    WARNING: {err_msg}")
-                logger.warning(err_msg, exc_info=True)
+                logger.warning(err_msg)
                 success = False
                 continue
             existing_group = [g for g in remote_groups if g.project == current_project.iri and g.name == group_name]
@@ -292,7 +292,7 @@ def _get_projects_where_user_is_admin(
                     f"because the projects cannot be retrieved from the DSP server."
                 )
                 print(f"    WARNING: {err_msg}")
-                logger.warning(err_msg, exc_info=True)
+                logger.warning(err_msg)
                 success = False
                 continue
             in_project_list = [p for p in remote_projects if p.shortname == project_name]
@@ -385,7 +385,7 @@ def _create_users(
             user_local.create()
         except BaseError:
             print(f"    WARNING: Unable to create user '{username}'.")
-            logger.warning(f"Unable to create user '{username}'.", exc_info=True)
+            logger.warning(f"Unable to create user '{username}'.")
             overall_success = False
             continue
         print(f"    Created user '{username}'.")
@@ -576,7 +576,7 @@ def _create_ontologies(
     except BaseError:
         err_msg = "Unable to retrieve remote ontologies. Cannot check if your ontology already exists."
         print("WARNING: {err_msg}")
-        logger.warning(err_msg, exc_info=True)
+        logger.warning(err_msg)
         project_ontologies = []
 
     for ontology_definition in ontology_definitions:
@@ -690,7 +690,7 @@ def _add_resource_classes_to_remote_ontology(
             logger.info(f"Created resource class '{res_class['name']}'")
         except BaseError:
             print(f"WARNING: Unable to create resource class '{res_class['name']}'.")
-            logger.warning(f"Unable to create resource class '{res_class['name']}'.", exc_info=True)
+            logger.warning(f"Unable to create resource class '{res_class['name']}'.")
             overall_success = False
 
     return last_modification_date, new_res_classes, overall_success
@@ -785,7 +785,7 @@ def _add_property_classes_to_remote_ontology(
             logger.info(f"Created property class '{prop_class['name']}'")
         except BaseError:
             print(f"WARNING: Unable to create property class '{prop_class['name']}'.")
-            logger.warning(f"Unable to create property class '{prop_class['name']}'.", exc_info=True)
+            logger.warning(f"Unable to create property class '{prop_class['name']}'.")
             overall_success = False
 
     return last_modification_date, overall_success
@@ -856,7 +856,7 @@ def _add_cardinalities_to_resource_classes(
             except BaseError:
                 err_msg = f"Unable to add cardinality '{qualified_propname}' to resource class {res_class['name']}."
                 print(f"WARNING: {err_msg}")
-                logger.warning(err_msg, exc_info=True)
+                logger.warning(err_msg)
                 overall_success = False
 
             ontology_remote.lastModificationDate = last_modification_date

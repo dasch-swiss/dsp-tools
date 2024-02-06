@@ -51,7 +51,7 @@ def _create_project_on_server(
     if project_definition.shortcode in [proj.shortcode for proj in all_projects]:
         msg = (
             f"The project with the shortcode'{project_definition.shortcode}' already exists on the server.\n"
-            f"No changes were made to the project meta-data.\n"
+            f"No changes were made to the project metadata.\n"
             f"Continue with the upload of lists and ontologies ..."
         )
         print(f"WARNING: {msg}")

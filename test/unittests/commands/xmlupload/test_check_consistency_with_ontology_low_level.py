@@ -13,13 +13,13 @@ from dsp_tools.commands.xmlupload.check_consistency_with_ontology import (
     _get_all_property_names_and_resource_ids_one_resource,
     _get_separate_prefix_and_iri_from_onto_prop_or_cls,
 )
-from dsp_tools.commands.xmlupload.models.ontology_lookup_models import OntoCheckInformation, OntoInfo
+from dsp_tools.commands.xmlupload.models.ontology_lookup_models import OntoInfo, ProjectOntosInformation
 from dsp_tools.models.exceptions import UserError
 
 
 class TestCheckClassType:
     def test_no_knora_prefix(self) -> None:
-        onto_check_info = OntoCheckInformation(
+        onto_check_info = ProjectOntosInformation(
             default_ontology_prefix="test",
             onto_lookup={
                 "test": OntoInfo(classes=["classA", "classB"], properties=[]),
@@ -29,7 +29,7 @@ class TestCheckClassType:
         assert not _check_if_one_class_type_exists("knoraClassA", onto_check_info)
 
     def test_knora_prefix(self) -> None:
-        onto_check_info = OntoCheckInformation(
+        onto_check_info = ProjectOntosInformation(
             default_ontology_prefix="test",
             onto_lookup={
                 "test": OntoInfo(classes=["classA", "classB"], properties=[]),
@@ -39,7 +39,7 @@ class TestCheckClassType:
         assert not _check_if_one_class_type_exists("knora-api:knoraClassA", onto_check_info)
 
     def test_no_default_prefix(self) -> None:
-        onto_check_info = OntoCheckInformation(
+        onto_check_info = ProjectOntosInformation(
             default_ontology_prefix="test",
             onto_lookup={
                 "test": OntoInfo(classes=["classA", "classB"], properties=[]),
@@ -49,7 +49,7 @@ class TestCheckClassType:
         assert not _check_if_one_class_type_exists(":classA", onto_check_info)
 
     def test_default_prefix(self) -> None:
-        onto_check_info = OntoCheckInformation(
+        onto_check_info = ProjectOntosInformation(
             default_ontology_prefix="test",
             onto_lookup={
                 "test": OntoInfo(classes=["classA", "classB"], properties=[]),
@@ -59,7 +59,7 @@ class TestCheckClassType:
         assert not _check_if_one_class_type_exists("test:classB", onto_check_info)
 
     def test_unknown_class(self) -> None:
-        onto_check_info = OntoCheckInformation(
+        onto_check_info = ProjectOntosInformation(
             default_ontology_prefix="test",
             onto_lookup={
                 "test": OntoInfo(classes=["classA", "classB"], properties=[]),
@@ -69,7 +69,7 @@ class TestCheckClassType:
         assert _check_if_one_class_type_exists("test:classC", onto_check_info) == "Invalid Class Type"
 
     def test_unknown_prefix(self) -> None:
-        onto_check_info = OntoCheckInformation(
+        onto_check_info = ProjectOntosInformation(
             default_ontology_prefix="test",
             onto_lookup={
                 "test": OntoInfo(classes=["classA", "classB"], properties=[]),
@@ -79,7 +79,7 @@ class TestCheckClassType:
         assert _check_if_one_class_type_exists("other:classC", onto_check_info) == "Unknown ontology prefix"
 
     def test_diagnose_all_classes_no_problems(self) -> None:
-        onto_check_info = OntoCheckInformation(
+        onto_check_info = ProjectOntosInformation(
             default_ontology_prefix="test",
             onto_lookup={
                 "test": OntoInfo(classes=["classA", "classB"], properties=[]),
@@ -90,7 +90,7 @@ class TestCheckClassType:
         assert not _check_if_all_class_types_exist(test_classes, onto_check_info)
 
     def test_diagnose_all_classes_problems(self) -> None:
-        onto_check_info = OntoCheckInformation(
+        onto_check_info = ProjectOntosInformation(
             default_ontology_prefix="test",
             onto_lookup={
                 "test": OntoInfo(classes=["classA", "classB"], properties=[]),
@@ -105,7 +105,7 @@ class TestCheckClassType:
 
 class TestCheckProperties:
     def test_no_knora_prefix(self) -> None:
-        onto_check_info = OntoCheckInformation(
+        onto_check_info = ProjectOntosInformation(
             default_ontology_prefix="test",
             onto_lookup={
                 "test": OntoInfo(classes=[], properties=["propA", "propB"]),
@@ -115,7 +115,7 @@ class TestCheckProperties:
         assert not _check_if_one_property_exists("knoraPropA", onto_check_info)
 
     def test_knora_prefix(self) -> None:
-        onto_check_info = OntoCheckInformation(
+        onto_check_info = ProjectOntosInformation(
             default_ontology_prefix="test",
             onto_lookup={
                 "test": OntoInfo(classes=[], properties=["propA", "propB"]),
@@ -125,7 +125,7 @@ class TestCheckProperties:
         assert not _check_if_one_property_exists("knora-api:knoraPropA", onto_check_info)
 
     def test_no_default_prefix(self) -> None:
-        onto_check_info = OntoCheckInformation(
+        onto_check_info = ProjectOntosInformation(
             default_ontology_prefix="test",
             onto_lookup={
                 "test": OntoInfo(classes=[], properties=["propA", "propB"]),
@@ -135,7 +135,7 @@ class TestCheckProperties:
         assert not _check_if_one_property_exists(":propA", onto_check_info)
 
     def test_default_prefix(self) -> None:
-        onto_check_info = OntoCheckInformation(
+        onto_check_info = ProjectOntosInformation(
             default_ontology_prefix="test",
             onto_lookup={
                 "test": OntoInfo(classes=[], properties=["propA", "propB"]),
@@ -145,7 +145,7 @@ class TestCheckProperties:
         assert not _check_if_one_property_exists("test:propB", onto_check_info)
 
     def test_unknown_prefix(self) -> None:
-        onto_check_info = OntoCheckInformation(
+        onto_check_info = ProjectOntosInformation(
             default_ontology_prefix="test",
             onto_lookup={
                 "test": OntoInfo(classes=[], properties=["propA", "propB"]),
@@ -155,7 +155,7 @@ class TestCheckProperties:
         assert _check_if_one_property_exists("other:propB", onto_check_info) == "Unknown ontology prefix"
 
     def test_unknown_property(self) -> None:
-        onto_check_info = OntoCheckInformation(
+        onto_check_info = ProjectOntosInformation(
             default_ontology_prefix="test",
             onto_lookup={
                 "test": OntoInfo(classes=[], properties=["propA", "propB"]),
@@ -165,7 +165,7 @@ class TestCheckProperties:
         assert _check_if_one_property_exists("test:propC", onto_check_info) == "Invalid Property"
 
     def test_diagnose_all_properties_problems(self) -> None:
-        onto_check_info = OntoCheckInformation(
+        onto_check_info = ProjectOntosInformation(
             default_ontology_prefix="test",
             onto_lookup={
                 "test": OntoInfo(classes=[], properties=["propA", "propB"]),
@@ -177,7 +177,7 @@ class TestCheckProperties:
         assert unordered(_check_if_all_properties_exist(test_properties, onto_check_info)) == expected
 
     def test_diagnose_all_properties_no_problems(self) -> None:
-        onto_check_info = OntoCheckInformation(
+        onto_check_info = ProjectOntosInformation(
             default_ontology_prefix="test",
             onto_lookup={
                 "test": OntoInfo(classes=[], properties=["propA", "propB"]),
@@ -189,7 +189,7 @@ class TestCheckProperties:
 
 
 def test_find_if_all_classes_and_properties_exist_in_onto() -> None:
-    onto_check_info = OntoCheckInformation(
+    onto_check_info = ProjectOntosInformation(
         default_ontology_prefix="test",
         onto_lookup={
             "test": OntoInfo(classes=["classA", "classB"], properties=["propA", "propB"]),
@@ -202,7 +202,7 @@ def test_find_if_all_classes_and_properties_exist_in_onto() -> None:
 
 
 def test_find_if_all_classes_and_properties_exist_in_onto_problem() -> None:
-    onto_check_info = OntoCheckInformation(
+    onto_check_info = ProjectOntosInformation(
         default_ontology_prefix="test",
         onto_lookup={
             "test": OntoInfo(classes=["classA", "classB"], properties=["propA", "propB"]),

@@ -11,7 +11,7 @@ class OntoInfo:
 
 
 @dataclass
-class OntoCheckInformation:
+class ProjectOntosInformation:
     """This class saves information needed to check the consistency with the ontology."""
 
     default_ontology_prefix: str

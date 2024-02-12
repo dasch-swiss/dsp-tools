@@ -1,7 +1,7 @@
 import pandas as pd
 from pandas.testing import assert_frame_equal
 
-from dsp_tools.commands.xmlupload.models.ontology_diagnose_models import InvalidOntologyElementsInData
+from dsp_tools.commands.xmlupload.models.ontology_problem_models import InvalidOntologyElementsInData
 
 
 def test_print_problem_string_cls() -> None:

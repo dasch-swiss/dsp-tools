@@ -5,9 +5,9 @@ import regex
 from lxml import etree
 from regex import Pattern
 
-from dsp_tools.commands.xmlupload.models.ontology_diagnose_models import (
+from dsp_tools.commands.xmlupload.models.ontology_lookup_models import OntoCheckInformation
+from dsp_tools.commands.xmlupload.models.ontology_problem_models import (
     InvalidOntologyElementsInData,
-    OntoCheckInformation,
 )
 from dsp_tools.commands.xmlupload.ontology_client import OntologyClient
 from dsp_tools.models.exceptions import UserError

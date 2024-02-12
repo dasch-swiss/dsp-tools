@@ -1,5 +1,5 @@
 import itertools
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 import pandas as pd
 
@@ -7,22 +7,6 @@ separator = "\n    "
 list_separator = "\n    - "
 grand_separator = "\n----------------------------\n"
 maximum_prints = 50
-
-
-@dataclass(frozen=True)
-class OntoInfo:
-    """This class saves the properties and the classes from an ontology."""
-
-    classes: list[str] = field(default_factory=list)
-    properties: list[str] = field(default_factory=list)
-
-
-@dataclass
-class OntoCheckInformation:
-    """This class saves information needed to check the consistency with the ontology."""
-
-    default_ontology_prefix: str
-    onto_lookup: dict[str, OntoInfo]
 
 
 @dataclass(frozen=True)

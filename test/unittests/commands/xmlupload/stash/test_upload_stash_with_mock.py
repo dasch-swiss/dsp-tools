@@ -4,7 +4,7 @@ from typing import Any
 from uuid import uuid4
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
-from dsp_tools.commands.xmlupload.models.value import FormattedTextValue
+from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.stash.stash_models import (
     LinkValueStash,
     LinkValueStashItem,

@@ -40,18 +40,6 @@ def _find_if_all_classes_and_properties_exist_in_onto(
     properties_in_data: dict[str, list[str]],
     onto_check_info: OntoCheckInformation,
 ) -> None:
-    """
-    This function checks if all properties and classes used in the data exist in the ontology.
-
-    Args:
-        classes_in_data: the class types used in the data
-        properties_in_data: the property types used in the data
-        onto_check_info: a lookup with the class and property types in the ontology
-
-    Raises:
-        UserError: if there are any invalid properties or classes
-
-    """
     class_problems = _diagnose_all_classes(classes_in_data, onto_check_info)
     property_problems = _diagnose_all_properties(properties_in_data, onto_check_info)
     if not class_problems and not property_problems:

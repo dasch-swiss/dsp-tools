@@ -7,9 +7,9 @@ from dsp_tools.commands.xmlupload.check_consistency_with_ontology import (
     _diagnose_all_properties,
     _diagnose_class,
     _diagnose_property,
-    _find_problems_in_classes_and_properties,
-    _get_all_class_types_and_ids,
-    _get_all_classes_and_properties,
+    _find_if_all_classes_and_properties_exist_in_onto,
+    _get_all_class_types_and_ids_from_data,
+    _get_all_classes_and_properties_from_data,
     _get_all_property_names_and_resource_ids_one_resource,
     _get_prefix_and_prop_or_cls_identifier,
 )
@@ -43,7 +43,7 @@ def test_get_all_classes_and_properties() -> None:
         ":hasResource2": ["resC"],
         ":hasResource3": ["resC"],
     }
-    res_classes, res_properties = _get_all_classes_and_properties(test_ele)
+    res_classes, res_properties = _get_all_classes_and_properties_from_data(test_ele)
     assert res_classes.keys() == expected_classes.keys()
     for k, v in res_classes.items():
         assert unordered(v) == expected_classes[k]
@@ -61,7 +61,7 @@ def test_get_all_class_types_and_ids() -> None:
         </knora>"""
     )
     expected_classes = {":TestThing1": ["resA"], ":TestThing2": ["resB", "resC"]}
-    res_classes = _get_all_class_types_and_ids(test_ele)
+    res_classes = _get_all_class_types_and_ids_from_data(test_ele)
     assert res_classes.keys() == expected_classes.keys()
     for k, v in res_classes.items():
         assert unordered(v) == expected_classes[k]
@@ -95,7 +95,7 @@ def test_find_problems_in_classes_and_properties_all_good() -> None:
     )
     classes = {"knoraClassA": ["idA"]}
     properties = {"knora-api:knoraPropA": ["idA"]}
-    _find_problems_in_classes_and_properties(classes, properties, onto_check_info)
+    _find_if_all_classes_and_properties_exist_in_onto(classes, properties, onto_check_info)
 
 
 def test_find_problems_in_classes_and_properties_problem() -> None:
@@ -109,7 +109,7 @@ def test_find_problems_in_classes_and_properties_problem() -> None:
     classes = {"knora": ["idA"]}
     properties = {"knora-api:knoraPropA": ["idA"]}
     with pytest.raises(UserError):
-        _find_problems_in_classes_and_properties(classes, properties, onto_check_info)
+        _find_if_all_classes_and_properties_exist_in_onto(classes, properties, onto_check_info)
 
 
 class TestDiagnoseClass:

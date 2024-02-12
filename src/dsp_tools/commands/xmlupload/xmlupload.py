@@ -10,7 +10,7 @@ from typing import Any, Union
 
 from lxml import etree
 
-from dsp_tools.commands.xmlupload.check_consistency_with_ontology import do_xml_consistency_check
+from dsp_tools.commands.xmlupload.check_consistency_with_ontology import do_xml_consistency_check_with_ontology
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.list_client import ListClient, ListClientLive
 from dsp_tools.commands.xmlupload.models.permission import Permissions
@@ -94,7 +94,7 @@ def xmlupload(
         default_ontology=default_ontology,
         save_location=config.diagnostics.save_location,
     )
-    do_xml_consistency_check(onto_client=ontology_client, root=root)
+    do_xml_consistency_check_with_ontology(onto_client=ontology_client, root=root)
 
     resources, permissions_lookup, stash = _prepare_upload(
         root=root,

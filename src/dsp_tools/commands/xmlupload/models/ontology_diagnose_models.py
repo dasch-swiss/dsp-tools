@@ -26,7 +26,7 @@ class OntoCheckInformation:
 
 
 @dataclass(frozen=True)
-class InvalidOntologyElements:
+class InvalidOntologyElementsInData:
     """This class saves and prints out the information regarding ontology classes and properties
     that are in the XML but not the ontology."""
 

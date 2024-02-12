@@ -21,7 +21,10 @@ class OntologyClient(Protocol):
     ontology_names: list[str] = field(default_factory=list)
 
     def get_all_ontologies_from_server(self) -> dict[str, OntoInfo]:
-        """Get all the ontologies for a project and the knora-api ontology from the server."""
+        """Get all the ontologies for a project from the server."""
+
+    def get_knora_api_ontology_from_server(self) -> list[dict[str, Any]]:
+        """Get the knora-api ontology from the server."""
 
 
 @dataclass
@@ -42,12 +45,14 @@ class OntologyClientLive:
             a dictionary with the ontology name as key and the ontology as value.
         """
         ontologies = self._get_all_ontology_jsons_from_server()
-        return {onto_name: deserialize_ontology(onto_graph) for onto_name, onto_graph in ontologies.items()}
+        return {
+            onto_name: extract_classes_properties_from_onto(onto_graph) for onto_name, onto_graph in ontologies.items()
+        }
 
     def _get_all_ontology_jsons_from_server(self) -> dict[str, list[dict[str, Any]]]:
         self._get_ontology_names_from_server()
         project_ontos = {onto: self._get_ontology_from_server(onto) for onto in self.ontology_names}
-        project_ontos["knora-api"] = self._get_knora_api_ontology_from_server()
+        project_ontos["knora-api"] = self.get_knora_api_ontology_from_server()
         return project_ontos
 
     def _get_ontology_names_from_server(self) -> None:
@@ -77,7 +82,7 @@ class OntologyClientLive:
             raise BaseError(f"Unexpected response from server: {res}") from e
         return onto_graph
 
-    def _get_knora_api_ontology_from_server(self) -> list[dict[str, Any]]:
+    def get_knora_api_ontology_from_server(self) -> list[dict[str, Any]]:
         url = "/ontology/knora-api/v2#"
         try:
             res = self.con.get(url)
@@ -90,7 +95,7 @@ class OntologyClientLive:
         return onto_graph
 
 
-def deserialize_ontology(onto_graph: list[dict[str, Any]]) -> OntoInfo:
+def extract_classes_properties_from_onto(onto_graph: list[dict[str, Any]]) -> OntoInfo:
     """
     This function takes an ontology graph from the DSP-API.
     It extracts the classes and properties.

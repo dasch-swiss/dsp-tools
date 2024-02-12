@@ -10,7 +10,7 @@ from dsp_tools.commands.xmlupload.ontology_client import (
     _get_all_classes_from_graph,
     _get_all_properties_from_graph,
     _remove_prefixes,
-    deserialize_ontology,
+    extract_classes_properties_from_onto,
 )
 
 
@@ -162,7 +162,7 @@ def test_deserialize_ontology() -> None:
             "rdfs:comment": "Represents a direct connection between two resources",
         },
     ]
-    res_onto = deserialize_ontology(test_graph)
+    res_onto = extract_classes_properties_from_onto(test_graph)
     assert res_onto.classes == ["Annotation"]
     assert res_onto.properties == ["hasLinkTo"]
 
@@ -227,7 +227,7 @@ def test_get_knora_api_from_server() -> None:
     }
     con = ConnectionMock(response)
     onto_client = OntologyClientLive(con, "", "", Path(""))
-    res_graph = onto_client._get_knora_api_ontology_from_server()
+    res_graph = onto_client.get_knora_api_ontology_from_server()
     assert unordered(res_graph) == [{"resource_class": ["Information"]}, {"property": ["Information"]}]
 
 

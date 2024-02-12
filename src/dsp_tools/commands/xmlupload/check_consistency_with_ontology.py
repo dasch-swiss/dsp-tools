@@ -5,7 +5,10 @@ import regex
 from lxml import etree
 from regex import Pattern
 
-from dsp_tools.commands.xmlupload.models.ontology_diagnose_models import InvalidOntologyElements, OntoCheckInformation
+from dsp_tools.commands.xmlupload.models.ontology_diagnose_models import (
+    InvalidOntologyElementsInData,
+    OntoCheckInformation,
+)
 from dsp_tools.commands.xmlupload.ontology_client import OntologyClient
 from dsp_tools.models.exceptions import UserError
 
@@ -29,7 +32,8 @@ def do_xml_consistency_check_with_ontology(onto_client: OntologyClient, root: et
          UserError: if there are any invalid properties or classes
     """
     onto_check_info = OntoCheckInformation(
-        default_ontology_prefix=onto_client.default_ontology, onto_lookup=onto_client.get_all_ontologies_from_server()
+        default_ontology_prefix=onto_client.default_ontology,
+        onto_lookup=onto_client.get_all_project_ontologies_from_server(),
     )
     classes_in_data, properties_in_data = _get_all_classes_and_properties_from_data(root)
     _find_if_all_classes_and_properties_exist_in_onto(classes_in_data, properties_in_data, onto_check_info)
@@ -40,11 +44,11 @@ def _find_if_all_classes_and_properties_exist_in_onto(
     properties_in_data: dict[str, list[str]],
     onto_check_info: OntoCheckInformation,
 ) -> None:
-    class_problems = _diagnose_all_classes(classes_in_data, onto_check_info)
-    property_problems = _diagnose_all_properties(properties_in_data, onto_check_info)
+    class_problems = _check_if_all_class_types_exist(classes_in_data, onto_check_info)
+    property_problems = _check_if_all_properties_exist(properties_in_data, onto_check_info)
     if not class_problems and not property_problems:
         return None
-    problems = InvalidOntologyElements(
+    problems = InvalidOntologyElementsInData(
         classes=class_problems, properties=property_problems, ontos_on_server=list(onto_check_info.onto_lookup.keys())
     )
     msg, df = problems.execute_problem_protocol()
@@ -92,18 +96,18 @@ def _get_all_property_names_and_resource_ids_one_resource(
     return prop_dict
 
 
-def _diagnose_all_classes(
+def _check_if_all_class_types_exist(
     classes: dict[str, list[str]], onto_check_info: OntoCheckInformation
 ) -> list[tuple[str, list[str], str]]:
     problem_list = []
     for cls_type, ids in classes.items():
-        if problem := _diagnose_class(cls_type, onto_check_info):
+        if problem := _check_if_one_class_type_exists(cls_type, onto_check_info):
             problem_list.append((cls_type, ids, problem))
     return problem_list
 
 
-def _diagnose_class(cls_type: str, onto_check_info: OntoCheckInformation) -> str | None:
-    prefix, cls_ = _get_prefix_and_prop_or_cls_identifier(cls_type, onto_check_info.default_ontology_prefix)
+def _check_if_one_class_type_exists(cls_type: str, onto_check_info: OntoCheckInformation) -> str | None:
+    prefix, cls_ = _get_separate_prefix_and_iri_from_onto_prop_or_cls(cls_type, onto_check_info.default_ontology_prefix)
     if not prefix:
         return "Property name does not follow a known ontology pattern"
     if onto := onto_check_info.onto_lookup.get(prefix):
@@ -112,18 +116,20 @@ def _diagnose_class(cls_type: str, onto_check_info: OntoCheckInformation) -> str
         return "Unknown ontology prefix"
 
 
-def _diagnose_all_properties(
+def _check_if_all_properties_exist(
     properties: dict[str, list[str]], onto_check_info: OntoCheckInformation
 ) -> list[tuple[str, list[str], str]]:
     problem_list = []
     for prop_name, ids in properties.items():
-        if problem := _diagnose_property(prop_name, onto_check_info):
+        if problem := _check_if_one_property_exists(prop_name, onto_check_info):
             problem_list.append((prop_name, ids, problem))
     return problem_list
 
 
-def _diagnose_property(prop_name: str, onto_check_info: OntoCheckInformation) -> str | None:
-    prefix, prop = _get_prefix_and_prop_or_cls_identifier(prop_name, onto_check_info.default_ontology_prefix)
+def _check_if_one_property_exists(prop_name: str, onto_check_info: OntoCheckInformation) -> str | None:
+    prefix, prop = _get_separate_prefix_and_iri_from_onto_prop_or_cls(
+        prop_name, onto_check_info.default_ontology_prefix
+    )
     if not prefix:
         return "Property name does not follow a known ontology pattern"
     if onto := onto_check_info.onto_lookup.get(prefix):
@@ -132,7 +138,7 @@ def _diagnose_property(prop_name: str, onto_check_info: OntoCheckInformation) ->
         return "Unknown ontology prefix"
 
 
-def _get_prefix_and_prop_or_cls_identifier(
+def _get_separate_prefix_and_iri_from_onto_prop_or_cls(
     prop_or_cls: str, default_ontology_prefix: str
 ) -> tuple[str, ...] | tuple[None, None]:
     if defaultOntologyColon.match(prop_or_cls):

@@ -5,7 +5,8 @@ import pandas as pd
 
 separator = "\n    "
 list_separator = "\n    - "
-grand_separator = "\n----------------------------\n"
+medium_separator = "\n----------------------------\n"
+grand_separator = "\n\n---------------------------------------\n\n"
 maximum_prints = 50
 
 
@@ -26,15 +27,14 @@ class InvalidOntologyElementsInData:
         Returns:
             the error message and a dataframe with the errors if they exceed 50 or None
         """
-        extra_separator = "\n\n---------------------------------------\n\n"
         msg = (
             f"\nSome property and/or class type(s) used in the XML are unknown.\n"
             f"The ontologies for your project on the server are:{list_separator}"
-            f"{list_separator.join(self.ontos_on_server)}{extra_separator}"
+            f"{list_separator.join(self.ontos_on_server)}{grand_separator}"
         )
         cls_msg = self._compose_problem_string_for_cls()
         if cls_msg:
-            msg += cls_msg + extra_separator
+            msg += cls_msg + grand_separator
         prop_msg = self._compose_problem_string_for_props()
         if prop_msg:
             msg += prop_msg
@@ -92,7 +92,7 @@ class InvalidOntologyElementsInData:
 
             problems = [_format_cls(x) for x in self.classes]
 
-            return "The following resource(s) have an invalid resource type:\n\n" + grand_separator.join(problems)
+            return "The following resource(s) have an invalid resource type:\n\n" + medium_separator.join(problems)
         else:
             return None
 
@@ -110,6 +110,6 @@ class InvalidOntologyElementsInData:
                 )
 
             problems = [_format_prop(x) for x in self.properties]
-            return "The following resource(s) have invalid property type(s):\n\n" + grand_separator.join(problems)
+            return "The following resource(s) have invalid property type(s):\n\n" + medium_separator.join(problems)
         else:
             return None

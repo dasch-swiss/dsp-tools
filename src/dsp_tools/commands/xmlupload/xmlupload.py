@@ -104,11 +104,7 @@ def xmlupload(
     )
 
     project_client: ProjectClient = ProjectClientLive(con, config.shortcode)
-    if default_ontology not in project_client.get_ontology_name_dict():
-        raise UserError(
-            f"The default ontology '{default_ontology}' "
-            "specified in the XML file is not part of the project on the DSP server."
-        )
+
     list_client: ListClient = ListClientLive(con, project_client.get_project_iri())
 
     iri_resolver, failed_uploads = _upload(

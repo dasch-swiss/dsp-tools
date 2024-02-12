@@ -3,7 +3,7 @@ from unittest import TestCase
 import pytest
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
-from dsp_tools.commands.xmlupload.models.value import FormattedTextValue
+from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
 

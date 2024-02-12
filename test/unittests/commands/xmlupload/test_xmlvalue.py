@@ -3,7 +3,7 @@ import unittest
 import pytest
 from lxml import etree
 
-from dsp_tools.commands.xmlupload.models.value import FormattedTextValue
+from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.xmlvalue import XMLValue
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)

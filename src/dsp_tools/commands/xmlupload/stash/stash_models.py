@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from itertools import groupby
 
-from dsp_tools.commands.xmlupload.models.value import FormattedTextValue
+from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 
 
 @dataclass(frozen=True)

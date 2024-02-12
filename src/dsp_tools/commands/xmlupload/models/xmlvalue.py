@@ -3,7 +3,7 @@ from typing import Optional, Union, cast
 import regex
 from lxml import etree
 
-from dsp_tools.commands.xmlupload.models.value import FormattedTextValue
+from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 
 
 class XMLValue:

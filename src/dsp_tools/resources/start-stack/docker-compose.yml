@@ -7,7 +7,7 @@ services:
   app:
     # on the verge of every deployment (fortnightly), update the "image" value from the "app" value of
     # https://github.com/dasch-swiss/ops-deploy/blob/main/roles/dsp-deploy/files/RELEASE.json
-    image: daschswiss/dsp-app:v11.4.0
+    image: daschswiss/dsp-app:v11.5.1
     ports:
       - "4200:4200"
     networks:
@@ -16,7 +16,7 @@ services:
   db:
     # on the verge of every deployment (fortnightly), update the "image" value from the "db" value of
     # https://github.com/dasch-swiss/ops-deploy/blob/main/roles/dsp-deploy/files/RELEASE.json
-    image: daschswiss/apache-jena-fuseki:2.1.4
+    image: daschswiss/apache-jena-fuseki:2.1.5
     ports:
       - "3030:3030"
     networks:

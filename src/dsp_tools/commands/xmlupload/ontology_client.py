@@ -83,6 +83,15 @@ class OntologyClientLive:
         return onto_graph
 
     def get_knora_api_ontology_from_server(self) -> list[dict[str, Any]]:
+        """
+        This function returns the knora-api ontology from the server.
+
+        Returns:
+            knora-api ontology in json format
+
+        Raises:
+            BaseError: if an unexpected response from the server occurred
+        """
         url = "/ontology/knora-api/v2#"
         try:
             res = self.con.get(url)

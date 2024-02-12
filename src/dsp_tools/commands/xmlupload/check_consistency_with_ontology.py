@@ -33,7 +33,7 @@ def do_xml_consistency_check_with_ontology(onto_client: OntologyClient, root: et
     """
     onto_check_info = OntoCheckInformation(
         default_ontology_prefix=onto_client.default_ontology,
-        onto_lookup=onto_client.get_all_project_ontologies_from_server(),
+        onto_lookup=onto_client.get_all_ontologies_from_server(),
     )
     classes_in_data, properties_in_data = _get_all_classes_and_properties_from_data(root)
     _find_if_all_classes_and_properties_exist_in_onto(classes_in_data, properties_in_data, onto_check_info)

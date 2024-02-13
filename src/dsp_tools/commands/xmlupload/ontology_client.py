@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Protocol
 
-from dsp_tools.commands.xmlupload.models.ontology_diagnose_models import OntoInfo
+from dsp_tools.commands.xmlupload.models.ontology_lookup_models import OntoInfo, extract_classes_properties_from_onto
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.create_logger import get_logger
@@ -21,7 +21,10 @@ class OntologyClient(Protocol):
     ontology_names: list[str] = field(default_factory=list)
 
     def get_all_ontologies_from_server(self) -> dict[str, OntoInfo]:
-        """Get all the ontologies for a project and the knora-api ontology from the server."""
+        """Get all the ontologies for a project from the server."""
+
+    def get_knora_api_ontology_from_server(self) -> list[dict[str, Any]]:
+        """Get the knora-api ontology from the server."""
 
 
 @dataclass
@@ -42,12 +45,14 @@ class OntologyClientLive:
             a dictionary with the ontology name as key and the ontology as value.
         """
         ontologies = self._get_all_ontology_jsons_from_server()
-        return {onto_name: deserialize_ontology(onto_graph) for onto_name, onto_graph in ontologies.items()}
+        return {
+            onto_name: extract_classes_properties_from_onto(onto_graph) for onto_name, onto_graph in ontologies.items()
+        }
 
     def _get_all_ontology_jsons_from_server(self) -> dict[str, list[dict[str, Any]]]:
         self._get_ontology_names_from_server()
         project_ontos = {onto: self._get_ontology_from_server(onto) for onto in self.ontology_names}
-        project_ontos["knora-api"] = self._get_knora_api_ontology_from_server()
+        project_ontos["knora-api"] = self.get_knora_api_ontology_from_server()
         return project_ontos
 
     def _get_ontology_names_from_server(self) -> None:
@@ -77,7 +82,16 @@ class OntologyClientLive:
             raise BaseError(f"Unexpected response from server: {res}") from e
         return onto_graph
 
-    def _get_knora_api_ontology_from_server(self) -> list[dict[str, Any]]:
+    def get_knora_api_ontology_from_server(self) -> list[dict[str, Any]]:
+        """
+        This function returns the knora-api ontology from the server.
+
+        Returns:
+            knora-api ontology in json format
+
+        Raises:
+            BaseError: if an unexpected response from the server occurred
+        """
         url = "/ontology/knora-api/v2#"
         try:
             res = self.con.get(url)
@@ -88,42 +102,3 @@ class OntologyClientLive:
         except KeyError as e:
             raise BaseError(f"Unexpected response from server when retrieving knora-api ontology: {res}") from e
         return onto_graph
-
-
-def deserialize_ontology(onto_graph: list[dict[str, Any]]) -> OntoInfo:
-    """
-    This function takes an ontology graph from the DSP-API.
-    It extracts the classes and properties.
-    And saves them in an instance of the class Ontology.
-
-    Args:
-        onto_graph: graph from DSP-API
-
-    Returns:
-        Ontology instance with the classes and properties
-    """
-    classes = _get_all_cleaned_classes_from_graph(onto_graph)
-    properties = _get_all_cleaned_properties_from_graph(onto_graph)
-    return OntoInfo(classes, properties)
-
-
-def _get_all_cleaned_classes_from_graph(onto_graph: list[dict[str, Any]]) -> list[str]:
-    classes = _get_all_classes_from_graph(onto_graph)
-    return _remove_prefixes(classes)
-
-
-def _get_all_classes_from_graph(onto_graph: list[dict[str, Any]]) -> list[str]:
-    return [elem["@id"] for elem in onto_graph if elem.get("knora-api:isResourceClass")]
-
-
-def _get_all_cleaned_properties_from_graph(onto_graph: list[dict[str, Any]]) -> list[str]:
-    props = _get_all_properties_from_graph(onto_graph)
-    return _remove_prefixes(props)
-
-
-def _get_all_properties_from_graph(onto_graph: list[dict[str, Any]]) -> list[str]:
-    return [elem["@id"] for elem in onto_graph if not elem.get("knora-api:isResourceClass")]
-
-
-def _remove_prefixes(ontology_elements: list[str]) -> list[str]:
-    return [x.split(":")[1] for x in ontology_elements]

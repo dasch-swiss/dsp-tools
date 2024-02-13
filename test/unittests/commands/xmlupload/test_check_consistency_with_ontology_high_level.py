@@ -1,6 +1,5 @@
 import re
 from dataclasses import dataclass
-from pathlib import Path
 from test.unittests.commands.xmlupload.connection_mock import ConnectionMockBase
 from typing import Any
 
@@ -66,7 +65,6 @@ def test_error_on_nonexistent_shortcode() -> None:
         con=con,
         shortcode="9999",
         default_ontology="foo",
-        save_location=Path("bar"),
     )
     with pytest.raises(UserError, match="A project with shortcode 9999 could not be found on the DSP server"):
         do_xml_consistency_check_with_ontology(ontology_client, root)
@@ -83,7 +81,6 @@ def test_error_on_nonexistent_onto_name() -> None:
         con=con,
         shortcode="4124",
         default_ontology="notexistingfantasyonto",
-        save_location=Path("bar"),
     )
     expected = re.escape(
         "\nSome property and/or class type(s) used in the XML are unknown.\n"

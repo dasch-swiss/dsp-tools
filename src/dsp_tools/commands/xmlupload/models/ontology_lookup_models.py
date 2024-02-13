@@ -89,6 +89,23 @@ class TextValuePropertyGUI:
     textfield_gui: set[str] = field(default_factory=set)
 
 
+def _get_all_text_value_properties_and_guis_from_graph(onto_graph: list[dict[str, Any]]) -> list[tuple[str, str]]:
+    def correct_val_type(property: dict[str, Any]) -> bool:
+        if not property.get("knora-api:isResourceProperty"):
+            return False
+        if not (object_type := property.get("knora-api:objectType")):
+            return False
+        match object_type["@id"]:
+            case "knora-api:TextValue":
+                return True
+            case _:
+                return False
+
+    p_id_list = [elem["@id"] for elem in onto_graph if correct_val_type(elem)]
+    gui_list = [elem["salsah-gui:guiElement"]["@id"] for elem in onto_graph if correct_val_type(elem)]
+    return [(p_id, gui) for p_id, gui in zip(p_id_list, gui_list)]
+
+
 @dataclass
 class TextValueData:
     resource_id: str

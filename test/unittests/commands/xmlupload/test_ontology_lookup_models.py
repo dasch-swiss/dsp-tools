@@ -4,6 +4,7 @@ from dsp_tools.commands.xmlupload.models.ontology_lookup_models import (
     _extract_classes_properties_from_onto,
     _get_all_classes_from_graph,
     _get_all_properties_from_graph,
+    _get_all_text_value_properties_and_guis_from_graph,
     _remove_prefixes,
 )
 
@@ -163,3 +164,57 @@ def test_remove_prefixes_knora_properties() -> None:
     test_elements = ["knora-api:attachedToUser", "knora-api:deletedBy"]
     res = _remove_prefixes(test_elements)
     assert unordered(res) == ["attachedToUser", "deletedBy"]
+
+
+def test_get_all_properties_and_guis_from_graph() -> None:
+    test_graph = [
+        {
+            "knora-api:isResourceClass": True,
+            "rdfs:label": "Annotation",
+            "knora-api:canBeInstantiated": True,
+            "rdfs:subClassOf": [],
+            "rdfs:comment": "A generic class for representing annotations",
+            "@type": "owl:Class",
+            "@id": "knora-api:Annotation",
+        },
+        {
+            "rdfs:label": "Simple Text",
+            "rdfs:subPropertyOf": {},
+            "knora-api:isResourceProperty": True,
+            "knora-api:objectType": {"@id": "knora-api:TextValue"},
+            "salsah-gui:guiElement": {"@id": "salsah-gui:SimpleText"},
+            "@id": "onto:hasSimpleText",
+        },
+        {
+            "rdfs:label": "Textarea",
+            "rdfs:subPropertyOf": {},
+            "knora-api:isResourceProperty": True,
+            "knora-api:objectType": {"@id": "knora-api:TextValue"},
+            "salsah-gui:guiElement": {"@id": "salsah-gui:Textarea"},
+            "@id": "onto:hasTextarea",
+        },
+        {
+            "rdfs:label": "Richtext",
+            "rdfs:subPropertyOf": {},
+            "knora-api:isResourceProperty": True,
+            "knora-api:objectType": {"@id": "knora-api:TextValue"},
+            "salsah-gui:guiElement": {"@id": "salsah-gui:Richtext"},
+            "@id": "onto:hasRichtext",
+        },
+        {
+            "rdfs:label": "Editor",
+            "rdfs:subPropertyOf": {},
+            "knora-api:isResourceProperty": True,
+            "knora-api:isLinkProperty": True,
+            "@type": "owl:ObjectProperty",
+            "knora-api:objectType": {"@id": "onto:Person"},
+            "salsah-gui:guiElement": {"@id": "salsah-gui:Searchbox"},
+            "@id": "onto:hasEditor",
+        },
+    ]
+    res = _get_all_text_value_properties_and_guis_from_graph(test_graph)
+    assert res == [
+        ("onto:hasSimpleText", "salsah-gui:SimpleText"),
+        ("onto:hasTextarea", "salsah-gui:Textarea"),
+        ("onto:hasRichtext", "salsah-gui:Richtext"),
+    ]

@@ -5,6 +5,7 @@ from dsp_tools.commands.xmlupload.models.ontology_lookup_models import (
     _get_all_classes_from_graph,
     _get_all_properties_from_graph,
     _get_all_text_value_properties_and_guis_from_graph,
+    _make_text_value_property_gui,
     _remove_prefixes,
 )
 
@@ -218,3 +219,14 @@ def test_get_all_properties_and_guis_from_graph() -> None:
         ("onto:hasTextarea", "salsah-gui:Textarea"),
         ("onto:hasRichtext", "salsah-gui:Richtext"),
     ]
+
+
+def test_make_text_value_property_gui() -> None:
+    test_li = [
+        ("onto:hasSimpleText", "salsah-gui:SimpleText"),
+        ("onto:hasTextarea", "salsah-gui:Textarea"),
+        ("onto:hasRichtext", "salsah-gui:Richtext"),
+    ]
+    res = _make_text_value_property_gui(test_li)
+    assert res.formatted_text == {"onto:hasRichtext"}
+    assert res.unformatted_text == {"onto:hasSimpleText", "onto:hasTextarea"}

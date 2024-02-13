@@ -84,16 +84,38 @@ class TextValuePropertyGUI:
     which properties have which type of gui-element for a TextValue property in the ontology.
     """
 
-    richtext_gui: set[str] = field(default_factory=set)
-    simpletext_gui: set[str] = field(default_factory=set)
-    textfield_gui: set[str] = field(default_factory=set)
+    formatted_text: set[str] = field(default_factory=set)
+    unformatted_text: set[str] = field(default_factory=set)
+
+
+def get_properties_and_formatting_from_graph(onto_graph_dict: dict[str, list[dict[str, Any]]]) -> TextValuePropertyGUI:
+    """
+    This function takes a dict with the names and ontology graphs of the project ontologies.
+    It filters out the property with TextValues and separates them into properties with formatted and un-formatted text
+
+    Args:
+        onto_graph_dict: dict with the ontologies
+
+    Returns:
+        Look-up containing the properties separated according to the formatting
+    """
+    all_props = []
+    for onto_graph in onto_graph_dict.values():
+        all_props.extend(_get_all_text_value_properties_and_guis_from_graph(onto_graph))
+    return _make_text_value_property_gui(all_props)
+
+
+def _make_text_value_property_gui(prop_list: list[tuple[str, str]]) -> TextValuePropertyGUI:
+    formatted_text = {p for p, gui in prop_list if gui == "salsah-gui:Richtext"}
+    unformatted_text = {p for p, gui in prop_list if gui != "salsah-gui:Richtext"}
+    return TextValuePropertyGUI(formatted_text, unformatted_text)
 
 
 def _get_all_text_value_properties_and_guis_from_graph(onto_graph: list[dict[str, Any]]) -> list[tuple[str, str]]:
-    def correct_val_type(property: dict[str, Any]) -> bool:
-        if not property.get("knora-api:isResourceProperty"):
+    def check_correct_val_type(onto_ele: dict[str, Any]) -> bool:
+        if not onto_ele.get("knora-api:isResourceProperty"):
             return False
-        if not (object_type := property.get("knora-api:objectType")):
+        if not (object_type := onto_ele.get("knora-api:objectType")):
             return False
         match object_type["@id"]:
             case "knora-api:TextValue":
@@ -101,8 +123,8 @@ def _get_all_text_value_properties_and_guis_from_graph(onto_graph: list[dict[str
             case _:
                 return False
 
-    p_id_list = [elem["@id"] for elem in onto_graph if correct_val_type(elem)]
-    gui_list = [elem["salsah-gui:guiElement"]["@id"] for elem in onto_graph if correct_val_type(elem)]
+    p_id_list = [elem["@id"] for elem in onto_graph if check_correct_val_type(elem)]
+    gui_list = [elem["salsah-gui:guiElement"]["@id"] for elem in onto_graph if check_correct_val_type(elem)]
     return [(p_id, gui) for p_id, gui in zip(p_id_list, gui_list)]
 
 

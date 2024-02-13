@@ -15,7 +15,7 @@ from dsp_tools.commands.xmlupload.check_consistency_with_ontology import (
     _get_prop_encoding_from_one_property,
     _get_separate_prefix_and_iri_from_onto_prop_or_cls,
 )
-from dsp_tools.commands.xmlupload.models.ontology_lookup_models import OntoInfo, ProjectOntosInformation
+from dsp_tools.commands.xmlupload.models.ontology_lookup_models import OntoInfo, ProjectOntosInformation, TextValueData
 from dsp_tools.models.exceptions import UserError
 
 
@@ -338,7 +338,7 @@ def test_get_prop_encoding_from_all_properties_mixed() -> None:
         </resource>
         """
     )
-    res = _get_id_prop_encoding_from_one_resource(test_props)[0]
+    res = _get_id_prop_encoding_from_one_resource(test_props)[0]  # type: ignore[index]
     assert res.resource_id == "test_thing_1"
     assert res.property_name == ":hasRichtext"
     assert res.encoding == {"utf-8"}
@@ -366,7 +366,7 @@ def test_get_prop_encoding_from_all_properties_two_text_prop() -> None:
         </resource>
         """
     )
-    res = _get_id_prop_encoding_from_one_resource(test_props)
+    res: list[TextValueData] = _get_id_prop_encoding_from_one_resource(test_props)  # type: ignore[assignment]
     assert res[0].resource_id == "test_thing_1"
     assert res[0].property_name == ":hasRichtext"
     assert res[0].encoding == {"xml"}

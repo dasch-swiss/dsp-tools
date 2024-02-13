@@ -1,13 +1,12 @@
 import re
 from dataclasses import dataclass
-from pathlib import Path
 from test.unittests.commands.xmlupload.connection_mock import ConnectionMockBase
 from typing import Any
 
 import pytest
 from lxml import etree
 
-from dsp_tools.commands.xmlupload.check_consistency_with_ontology import do_xml_consistency_check
+from dsp_tools.commands.xmlupload.check_consistency_with_ontology import do_xml_consistency_check_with_ontology
 from dsp_tools.commands.xmlupload.ontology_client import OntologyClientLive
 from dsp_tools.models.exceptions import BaseError, UserError
 
@@ -66,10 +65,9 @@ def test_error_on_nonexistent_shortcode() -> None:
         con=con,
         shortcode="9999",
         default_ontology="foo",
-        save_location=Path("bar"),
     )
     with pytest.raises(UserError, match="A project with shortcode 9999 could not be found on the DSP server"):
-        do_xml_consistency_check(ontology_client, root)
+        do_xml_consistency_check_with_ontology(ontology_client, root)
 
 
 def test_error_on_nonexistent_onto_name() -> None:
@@ -83,7 +81,6 @@ def test_error_on_nonexistent_onto_name() -> None:
         con=con,
         shortcode="4124",
         default_ontology="notexistingfantasyonto",
-        save_location=Path("bar"),
     )
     expected = re.escape(
         "\nSome property and/or class type(s) used in the XML are unknown.\n"
@@ -99,7 +96,7 @@ def test_error_on_nonexistent_onto_name() -> None:
         "---------------------------------------\n\n"
     )
     with pytest.raises(UserError, match=expected):
-        do_xml_consistency_check(ontology_client, root)
+        do_xml_consistency_check_with_ontology(ontology_client, root)
 
 
 if __name__ == "__main__":

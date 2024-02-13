@@ -319,6 +319,62 @@ def test_get_prop_encoding_from_all_properties_no_text() -> None:
     assert res is None
 
 
+def test_get_prop_encoding_from_all_properties_mixed() -> None:
+    test_props = etree.fromstring(
+        """
+        <resource label="First Testthing"
+              restype=":TestThing"
+              id="test_thing_1"
+              permissions="res-default">
+            <uri-prop name=":hasUri">
+                <uri permissions="prop-default">https://dasch.swiss</uri>
+            </uri-prop>
+            <boolean-prop name=":hasBoolean">
+                <boolean permissions="prop-default">true</boolean>
+            </boolean-prop>
+            <text-prop name=":hasRichtext">
+                <text encoding="utf-8">Text</text>
+            </text-prop>
+        </resource>
+        """
+    )
+    res = _get_id_prop_encoding_from_one_resource(test_props)[0]
+    assert res.resource_id == "test_thing_1"
+    assert res.property_name == ":hasRichtext"
+    assert res.encoding == {"utf-8"}
+
+
+def test_get_prop_encoding_from_all_properties_two_text_prop() -> None:
+    test_props = etree.fromstring(
+        """
+        <resource label="First Testthing"
+              restype=":TestThing"
+              id="test_thing_1"
+              permissions="res-default">
+            <uri-prop name=":hasUri">
+                <uri permissions="prop-default">https://dasch.swiss</uri>
+            </uri-prop>
+            <boolean-prop name=":hasBoolean">
+                <boolean permissions="prop-default">true</boolean>
+            </boolean-prop>
+            <text-prop name=":hasRichtext">
+                <text encoding="xml">Text</text>
+            </text-prop>
+            <text-prop name=":hasSimpleText">
+                <text>Text</text>
+            </text-prop>
+        </resource>
+        """
+    )
+    res = _get_id_prop_encoding_from_one_resource(test_props)
+    assert res[0].resource_id == "test_thing_1"
+    assert res[0].property_name == ":hasRichtext"
+    assert res[0].encoding == {"xml"}
+    assert res[1].resource_id == "test_thing_1"
+    assert res[1].property_name == ":hasSimpleText"
+    assert res[1].encoding == {None}
+
+
 class TestGetEncodingOneProperty:
     def test_richtext_several_text_ele(self) -> None:
         test_prop = etree.fromstring(

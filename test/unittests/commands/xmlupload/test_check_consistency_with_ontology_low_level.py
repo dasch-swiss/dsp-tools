@@ -11,6 +11,8 @@ from dsp_tools.commands.xmlupload.check_consistency_with_ontology import (
     _get_all_class_types_and_ids_from_data,
     _get_all_classes_and_properties_from_data,
     _get_all_property_names_and_resource_ids_one_resource,
+    _get_id_prop_encoding_from_one_resource,
+    _get_prop_encoding_from_one_property,
     _get_separate_prefix_and_iri_from_onto_prop_or_cls,
 )
 from dsp_tools.commands.xmlupload.models.ontology_lookup_models import OntoInfo, ProjectOntosInformation
@@ -295,3 +297,43 @@ def test_get_all_classes_and_properties_from_data() -> None:
     assert res_properties.keys() == expected_properties.keys()
     for k, v in res_properties.items():
         assert unordered(v) == expected_properties[k]
+
+
+def test_get_prop_encoding_from_all_properties_no_text() -> None:
+    test_props = etree.fromstring(
+        """
+        <resource label="First Testthing"
+              restype=":TestThing"
+              id="test_thing_1"
+              permissions="res-default">
+            <uri-prop name=":hasUri">
+                <uri permissions="prop-default">https://dasch.swiss</uri>
+            </uri-prop>
+            <boolean-prop name=":hasBoolean">
+                <boolean permissions="prop-default">true</boolean>
+            </boolean-prop>
+        </resource>
+        """
+    )
+    res = _get_id_prop_encoding_from_one_resource(test_props)
+    assert res is None
+
+
+class TestGetEncodingOneProperty:
+    def test_richtext_several_text_ele(self) -> None:
+        test_prop = etree.fromstring(
+            """
+            <text-prop name=":hasRichtext">
+                <text encoding="xml">&lt;</text>
+                <text encoding="xml" permissions="prop-default">
+                    This text contains links to all resources:
+                    <a class="salsah-link" href="IRI:test_thing_0:IRI">test_thing_0</a>
+                </text>
+                <text encoding="xml">Text with an external link: <a href="https://www.google.com/">Google</a></text>
+            </text-prop>
+            """
+        )
+        res_info = _get_prop_encoding_from_one_property("id", test_prop)
+        assert res_info.resource_id == "id"
+        assert res_info.property_name == ":hasRichtext"
+        assert res_info.encoding == {"xml"}

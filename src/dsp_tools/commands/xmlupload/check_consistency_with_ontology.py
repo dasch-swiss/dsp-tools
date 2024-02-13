@@ -7,6 +7,7 @@ from regex import Pattern
 
 from dsp_tools.commands.xmlupload.models.ontology_lookup_models import (
     ProjectOntosInformation,
+    TextValueData,
     TextValuePropertyGUI,
     get_text_value_properties_and_formatting_from_graph,
     make_project_onto_information,
@@ -161,3 +162,17 @@ def _get_separate_prefix_and_iri_from_onto_prop_or_cls(
         return tuple(prop_or_cls.split(":"))
     else:
         return None, None
+
+
+def _get_id_prop_encoding_from_one_resource(resource: etree._Element) -> list[TextValueData] | None:
+    if not (children := list(resource.iterchildren(tag="text-prop"))):
+        return None
+    res_id = resource.attrib["id"]
+    return [_get_prop_encoding_from_one_property(res_id, child) for child in children]
+
+
+def _get_prop_encoding_from_one_property(res_id: str, property: etree._Element) -> TextValueData:
+    prop_name = property.attrib["name"]
+    child_attrib = [x.attrib for x in property.iterchildren()]
+    encodings = {x.get("encoding") for x in child_attrib}
+    return TextValueData(res_id, prop_name, encodings)

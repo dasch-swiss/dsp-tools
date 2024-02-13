@@ -125,13 +125,13 @@ def _get_all_text_value_properties_and_guis_from_graph(onto_graph: list[dict[str
             case _:
                 return False
 
-    p_id_list = [elem["@id"] for elem in onto_graph if check_correct_val_type(elem)]
+    prop_id_list = [elem["@id"] for elem in onto_graph if check_correct_val_type(elem)]
     gui_list = [elem["salsah-gui:guiElement"]["@id"] for elem in onto_graph if check_correct_val_type(elem)]
-    return [(p_id, gui) for p_id, gui in zip(p_id_list, gui_list)]
+    return [(p_id, gui) for p_id, gui in zip(prop_id_list, gui_list)]
 
 
 @dataclass
 class TextValueData:
     resource_id: str
     property_name: str
-    encoding: str
+    encoding: set[str | None]

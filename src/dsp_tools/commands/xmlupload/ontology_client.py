@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import Any, Protocol
 
 from dsp_tools.commands.xmlupload.models.ontology_lookup_models import OntoInfo, extract_classes_properties_from_onto
@@ -17,7 +16,6 @@ class OntologyClient(Protocol):
     con: Connection
     shortcode: str
     default_ontology: str
-    save_location: Path
     ontology_names: list[str] = field(default_factory=list)
 
     def get_all_ontologies_from_server(self) -> dict[str, OntoInfo]:
@@ -34,7 +32,6 @@ class OntologyClientLive:
     con: Connection
     shortcode: str
     default_ontology: str
-    save_location: Path
     ontology_names: list[str] = field(default_factory=list)
 
     def get_all_ontologies_from_server(self) -> dict[str, OntoInfo]:

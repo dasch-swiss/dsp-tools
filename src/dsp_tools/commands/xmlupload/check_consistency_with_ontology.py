@@ -1,4 +1,3 @@
-from copy import deepcopy
 from datetime import datetime
 from pathlib import Path
 
@@ -8,6 +7,8 @@ from regex import Pattern
 
 from dsp_tools.commands.xmlupload.models.ontology_lookup_models import (
     ProjectOntosInformation,
+    TextValuePropertyGUI,
+    get_text_value_properties_and_formatting_from_graph,
     make_project_onto_information,
 )
 from dsp_tools.commands.xmlupload.models.ontology_problem_models import (
@@ -35,18 +36,19 @@ def do_xml_consistency_check_with_ontology(onto_client: OntologyClient, root: et
      Raises:
          UserError: if there are any invalid properties or classes
     """
-    onto_check_info = _get_all_onto_look_ups(onto_client)
+    text_prop_lookup, onto_check_info = _get_all_onto_look_ups(onto_client)
     classes_in_data, properties_in_data = _get_all_classes_and_properties_from_data(root)
     _find_if_all_classes_and_properties_exist_in_onto(classes_in_data, properties_in_data, onto_check_info)
 
 
-def _get_all_onto_look_ups(onto_client: OntologyClient) -> ProjectOntosInformation:
+def _get_all_onto_look_ups(onto_client: OntologyClient) -> tuple[TextValuePropertyGUI, ProjectOntosInformation]:
     project_ontos = onto_client.get_all_project_ontologies_from_server()
-    dict_onto_check_information = deepcopy(project_ontos)
-    dict_onto_check_information["knora-api"] = onto_client.get_knora_api_ontology_from_server()
-    onto_check_info = make_project_onto_information(onto_client.default_ontology, dict_onto_check_information)
+    text_prop_lookup = get_text_value_properties_and_formatting_from_graph(project_ontos)
 
-    return onto_check_info
+    project_ontos["knora-api"] = onto_client.get_knora_api_ontology_from_server()
+    onto_check_info = make_project_onto_information(onto_client.default_ontology, project_ontos)
+
+    return text_prop_lookup, onto_check_info
 
 
 def _find_if_all_classes_and_properties_exist_in_onto(

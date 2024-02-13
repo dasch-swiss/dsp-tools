@@ -88,7 +88,9 @@ class TextValuePropertyGUI:
     unformatted_text: set[str] = field(default_factory=set)
 
 
-def get_properties_and_formatting_from_graph(onto_graph_dict: dict[str, list[dict[str, Any]]]) -> TextValuePropertyGUI:
+def get_text_value_properties_and_formatting_from_graph(
+    onto_graph_dict: dict[str, list[dict[str, Any]]],
+) -> TextValuePropertyGUI:
     """
     This function takes a dict with the names and ontology graphs of the project ontologies.
     It filters out the property with TextValues and separates them into properties with formatted and un-formatted text

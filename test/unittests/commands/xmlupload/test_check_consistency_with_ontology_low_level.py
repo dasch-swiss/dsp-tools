@@ -337,3 +337,30 @@ class TestGetEncodingOneProperty:
         assert res_info.resource_id == "id"
         assert res_info.property_name == ":hasRichtext"
         assert res_info.encoding == {"xml"}
+
+    def test_simple_several_text_ele(self) -> None:
+        test_prop = etree.fromstring(
+            """
+            <text-prop name=":hasRichtext">
+                <text encoding="utf-8">Text</text>
+                <text>Text</text>
+            </text-prop>
+            """
+        )
+        res_info = _get_prop_encoding_from_one_property("id", test_prop)
+        assert res_info.resource_id == "id"
+        assert res_info.property_name == ":hasRichtext"
+        assert res_info.encoding == {"utf-8", None}
+
+    def test_simple_one_text_ele(self) -> None:
+        test_prop = etree.fromstring(
+            """
+            <text-prop name=":hasRichtext">
+                <text encoding="utf-8">Text</text>
+            </text-prop>
+            """
+        )
+        res_info = _get_prop_encoding_from_one_property("id", test_prop)
+        assert res_info.resource_id == "id"
+        assert res_info.property_name == ":hasRichtext"
+        assert res_info.encoding == {"utf-8"}

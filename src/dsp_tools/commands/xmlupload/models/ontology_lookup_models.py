@@ -18,7 +18,27 @@ class ProjectOntosInformation:
     onto_lookup: dict[str, OntoInfo]
 
 
-def extract_classes_properties_from_onto(onto_graph: list[dict[str, Any]]) -> OntoInfo:
+def make_project_onto_information(
+    default_onto_prefix: str,
+    ontologies: dict[str, list[dict[str, Any]]],
+) -> ProjectOntosInformation:
+    """
+    This function formats ontologies, that were returned by the dsp-api into a look-up model.
+
+    Args:
+        default_onto_prefix: prefix for the default ontology
+        ontologies: ontologies returned from the dsp-api
+
+    Returns:
+        A look-up that contains the property and class names from each ontology
+    """
+    onto_dict = {
+        onto_name: _extract_classes_properties_from_onto(onto_graph) for onto_name, onto_graph in ontologies.items()
+    }
+    return ProjectOntosInformation(default_onto_prefix, onto_dict)
+
+
+def _extract_classes_properties_from_onto(onto_graph: list[dict[str, Any]]) -> OntoInfo:
     """
     This function takes an ontology graph from the DSP-API.
     It extracts the classes and properties.
@@ -55,3 +75,22 @@ def _get_all_properties_from_graph(onto_graph: list[dict[str, Any]]) -> list[str
 
 def _remove_prefixes(ontology_elements: list[str]) -> list[str]:
     return [x.split(":")[1] for x in ontology_elements]
+
+
+@dataclass
+class TextValuePropertyGUI:
+    """
+    This class contains the information
+    which properties have which type of gui-element for a TextValue property in the ontology.
+    """
+
+    richtext_gui: set[str] = field(default_factory=set)
+    simpletext_gui: set[str] = field(default_factory=set)
+    textfield_gui: set[str] = field(default_factory=set)
+
+
+@dataclass
+class TextValueData:
+    resource_id: str
+    property_name: str
+    encoding: str

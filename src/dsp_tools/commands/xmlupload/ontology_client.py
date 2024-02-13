@@ -1,7 +1,6 @@
 from dataclasses import dataclass, field
 from typing import Any, Protocol
 
-from dsp_tools.commands.xmlupload.models.ontology_lookup_models import OntoInfo, extract_classes_properties_from_onto
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.create_logger import get_logger
@@ -18,8 +17,8 @@ class OntologyClient(Protocol):
     default_ontology: str
     ontology_names: list[str] = field(default_factory=list)
 
-    def get_all_ontologies_from_server(self) -> dict[str, OntoInfo]:
-        """Get all the ontologies for a project from the server."""
+    def get_all_project_ontologies_from_server(self) -> dict[str, list[dict[str, Any]]]:
+        """Get all the ontologes of a project from the server."""
 
     def get_knora_api_ontology_from_server(self) -> list[dict[str, Any]]:
         """Get the knora-api ontology from the server."""
@@ -34,22 +33,9 @@ class OntologyClientLive:
     default_ontology: str
     ontology_names: list[str] = field(default_factory=list)
 
-    def get_all_ontologies_from_server(self) -> dict[str, OntoInfo]:
-        """
-        This function returns all the project ontologies plus the knora-api ontology that are on the server.
-
-        Returns:
-            a dictionary with the ontology name as key and the ontology as value.
-        """
-        ontologies = self._get_all_ontology_jsons_from_server()
-        return {
-            onto_name: extract_classes_properties_from_onto(onto_graph) for onto_name, onto_graph in ontologies.items()
-        }
-
-    def _get_all_ontology_jsons_from_server(self) -> dict[str, list[dict[str, Any]]]:
+    def get_all_project_ontologies_from_server(self) -> dict[str, list[dict[str, Any]]]:
         self._get_ontology_names_from_server()
         project_ontos = {onto: self._get_ontology_from_server(onto) for onto in self.ontology_names}
-        project_ontos["knora-api"] = self.get_knora_api_ontology_from_server()
         return project_ontos
 
     def _get_ontology_names_from_server(self) -> None:

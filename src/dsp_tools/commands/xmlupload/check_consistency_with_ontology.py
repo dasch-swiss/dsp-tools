@@ -164,6 +164,14 @@ def _get_separate_prefix_and_iri_from_onto_prop_or_cls(
         return None, None
 
 
+def _get_all_ids_prop_encoding_from_root(root: etree._Element) -> list[TextValueData]:
+    res_list = []
+    for res_input in root.iterchildren(tag="resource"):
+        if (res_result := _get_id_prop_encoding_from_one_resource(res_input)) is not None:
+            res_list.extend(res_result)
+    return res_list
+
+
 def _get_id_prop_encoding_from_one_resource(resource: etree._Element) -> list[TextValueData] | None:
     if not (children := list(resource.iterchildren(tag="text-prop"))):
         return None

@@ -10,6 +10,7 @@ from dsp_tools.commands.xmlupload.check_consistency_with_ontology import (
     _find_if_all_classes_and_properties_exist_in_onto,
     _get_all_class_types_and_ids_from_data,
     _get_all_classes_and_properties_from_data,
+    _get_all_ids_prop_encoding_from_root,
     _get_all_property_names_and_resource_ids_one_resource,
     _get_id_prop_encoding_from_one_resource,
     _get_prop_encoding_from_one_property,
@@ -420,3 +421,73 @@ class TestGetEncodingOneProperty:
         assert res_info.resource_id == "id"
         assert res_info.property_name == ":hasRichtext"
         assert res_info.encoding == {"utf-8"}
+
+
+def test_get_all_ids_prop_encoding_from_root_no_text() -> None:
+    test_ele = etree.fromstring(
+        """<knora>
+                <resource label="resA" restype=":TestThing1" id="resA" permissions="res-default">
+                    <resptr-prop name=":hasResource1">
+                        <resptr permissions="prop-default">resB</resptr>
+                    </resptr-prop>
+                </resource>
+                <resource label="resB" restype=":TestThing2" id="resB" permissions="res-default">
+                </resource>
+                <resource label="resC" restype=":TestThing2" id="resC" permissions="res-default">
+                    <resptr-prop name=":hasResource2">
+                        <resptr permissions="prop-default">resB</resptr>
+                    </resptr-prop>
+                    <resptr-prop name=":hasResource3">
+                        <resptr permissions="prop-default">resA</resptr>
+                    </resptr-prop>
+                </resource>
+        </knora>"""
+    )
+    res = _get_all_ids_prop_encoding_from_root(test_ele)
+    assert res == []
+
+
+def test_get_all_ids_prop_encoding_from_root_with_text() -> None:
+    test_ele = etree.fromstring(
+        """<knora>
+                <resource label="First Testthing"
+                      restype=":TestThing"
+                      id="test_thing_1"
+                      permissions="res-default">
+                    <uri-prop name=":hasUri">
+                        <uri permissions="prop-default">https://dasch.swiss</uri>
+                    </uri-prop>
+                    <text-prop name=":hasRichtext">
+                        <text encoding="xml">Text</text>
+                    </text-prop>
+                </resource>
+                <resource label="resB" restype=":TestThing2" id="resB" permissions="res-default">
+                    <text-prop name=":hasSimpleText">
+                        <text>Text</text>
+                    </text-prop>
+                </resource>
+                <resource label="resC" restype=":TestThing2" id="resC" permissions="res-default">
+                    <resptr-prop name=":hasResource2">
+                        <resptr permissions="prop-default">resB</resptr>
+                    </resptr-prop>
+                    <text-prop name=":hasSimpleText">
+                        <text encoding="utf-8">Text</text>
+                    </text-prop>
+                </resource>
+                <resource label="resC" restype=":TestThing2" id="resD" permissions="res-default">
+                    <resptr-prop name=":hasResource2">
+                        <resptr permissions="prop-default">resB</resptr>
+                    </resptr-prop>
+                </resource>
+        </knora>"""
+    )
+    res = _get_all_ids_prop_encoding_from_root(test_ele)
+    assert res[0].resource_id == "test_thing_1"
+    assert res[0].property_name == ":hasRichtext"
+    assert res[0].encoding == {"xml"}
+    assert res[1].resource_id == "resB"
+    assert res[1].property_name == ":hasSimpleText"
+    assert res[1].encoding == {None}
+    assert res[2].resource_id == "resC"
+    assert res[2].property_name == ":hasSimpleText"
+    assert res[2].encoding == {"utf-8"}

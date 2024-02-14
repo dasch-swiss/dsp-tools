@@ -111,8 +111,9 @@ def get_text_value_properties_and_formatting_from_graph(
 
 
 def _make_text_value_property_gui(prop_list: list[tuple[str, str]], default_onto: str) -> TextValuePropertyGUI:
+    re_pat = r"^" + default_onto + r":" + r".+$"
+
     def remove_default_prefix(prop_str: str) -> str:
-        re_pat = r"^" + default_onto + r":" + r".+$"
         if regex.search(re_pat, prop_str) is not None:
             return prop_str.replace(default_onto, "", 1)
         return prop_str

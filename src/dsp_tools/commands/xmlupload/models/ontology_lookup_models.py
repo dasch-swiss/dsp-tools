@@ -119,6 +119,7 @@ def _make_text_value_property_gui(prop_list: list[tuple[str, str]], default_onto
         return prop_str
 
     formatted_text = {remove_default_prefix(p) for p, gui in prop_list if gui == "salsah-gui:Richtext"}
+    formatted_text.add("hasComment")  # this is a knora-api property that we can use directly
     unformatted_text = {remove_default_prefix(p) for p, gui in prop_list if gui != "salsah-gui:Richtext"}
     return TextValuePropertyGUI(formatted_text, unformatted_text)
 

@@ -230,5 +230,5 @@ def test_make_text_value_property_gui() -> None:
         ("onto:ontoHasSimpleText", "salsah-gui:SimpleText"),
     ]
     res = _make_text_value_property_gui(test_li, "onto")
-    assert res.formatted_text == {":hasRichtext", "other_onto:hasRichtext"}
+    assert res.formatted_text == {":hasRichtext", "other_onto:hasRichtext", "hasComment"}
     assert res.unformatted_text == {":hasSimpleText", "onto_other:hasTextarea", ":ontoHasSimpleText"}

@@ -208,11 +208,19 @@ def _get_prop_encoding_from_one_property(res_id: str, property: etree._Element) 
 
 def _check_correctness_one_prop(text_val: TextValueData, text_prop_look_up: TextValuePropertyGUI) -> bool:
     text_encoding = text_val.encoding
-    if text_encoding == {None} or text_encoding == {"utf-8"} or text_encoding == {None, "utf-8"}:  # noqa: PLR1714
-        return _check_if_correct(text_val.property_name, text_prop_look_up.unformatted_text)
+    if not text_encoding.issubset({None, "utf-8", "xml"}):
+        return False
     if text_encoding == {"xml"}:
         return _check_if_correct(text_val.property_name, text_prop_look_up.formatted_text)
+    if {None, "utf-8"}.issuperset(text_encoding):
+        return _check_if_correct(text_val.property_name, text_prop_look_up.unformatted_text)
     return False
+
+    # if text_encoding == {None} or text_encoding == {"utf-8"} or text_encoding == {None, "utf-8"}:
+    #     return _check_if_correct(text_val.property_name, text_prop_look_up.unformatted_text)
+    # if text_encoding == {"xml"}:
+    #     return _check_if_correct(text_val.property_name, text_prop_look_up.formatted_text)
+    # return False
 
 
 def _check_if_correct(text_prop_name: str, allowed_properties: set[str]) -> bool:

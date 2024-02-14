@@ -83,8 +83,19 @@
         <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
     </xs:complexType>
 
-    <!-- hasComment value type -->
-    <xs:complexType name="comment_type" mixed="true">
+    <!-- utf8 encoding text value type -->
+    <xs:complexType name="utf8_encoding_text_type" mixed="true">
+        <xs:sequence>
+            <xs:any processContents="skip" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="encoding" fixed="utf8" use="required"/>
+        <xs:attribute name="resrefs" type="resrefs_type"/>
+        <xs:attribute name="comment" type="xs:string"/>
+        <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+    </xs:complexType>
+
+    <!-- xml encoding value type -->
+    <xs:complexType name="xml_encoding_text_type" mixed="true">
         <xs:sequence>
             <xs:any processContents="skip" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
@@ -236,9 +247,14 @@
 
     <!-- textprop_type -->
     <xs:complexType name="textprop_type">
-        <xs:sequence>
-            <xs:element name="text" type="text_type" minOccurs="1" maxOccurs="unbounded"/>
-        </xs:sequence>
+        <xs:choice>
+            <xs:sequence>
+                <xs:element name="text" type="xml_encoding_text_type" minOccurs="1" maxOccurs="unbounded"/>
+            </xs:sequence>
+            <xs:sequence>
+                <xs:element name="text" type="utf8_encoding_text_type" minOccurs="1" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:choice>
         <xs:attribute name="name" type="xs:string" use="required"/>
     </xs:complexType>
 
@@ -350,7 +366,7 @@
     <!-- builtin_hasComment_prop_type -->
     <xs:complexType name="builtin_hasComment_prop_type">
         <xs:sequence>
-            <xs:element name="text" type="comment_type" minOccurs="1" maxOccurs="unbounded"/>
+            <xs:element name="text" type="xml_encoding_text_type" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute name="name" type="xs:string" use="required" fixed="hasComment"/>
     </xs:complexType>

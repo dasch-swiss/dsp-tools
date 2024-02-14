@@ -14,6 +14,7 @@ from dsp_tools.commands.xmlupload.models.ontology_lookup_models import (
 )
 from dsp_tools.commands.xmlupload.models.ontology_problem_models import (
     InvalidOntologyElementsInData,
+    InvalidTextValueEncodings,
 )
 from dsp_tools.commands.xmlupload.ontology_client import OntologyClient
 from dsp_tools.models.exceptions import UserError
@@ -40,11 +41,12 @@ def do_xml_consistency_check_with_ontology(onto_client: OntologyClient, root: et
     text_prop_lookup, onto_check_info = _get_all_onto_look_ups(onto_client)
     classes_in_data, properties_in_data = _get_all_classes_and_properties_from_data(root)
     _find_if_all_classes_and_properties_exist_in_onto(classes_in_data, properties_in_data, onto_check_info)
+    _analyse_if_all_text_value_encodings_are_correct(root, text_prop_lookup)
 
 
 def _get_all_onto_look_ups(onto_client: OntologyClient) -> tuple[TextValuePropertyGUI, ProjectOntosInformation]:
     project_ontos = onto_client.get_all_project_ontologies_from_server()
-    text_prop_lookup = get_text_value_properties_and_formatting_from_graph(project_ontos)
+    text_prop_lookup = get_text_value_properties_and_formatting_from_graph(project_ontos, onto_client.default_ontology)
 
     project_ontos["knora-api"] = onto_client.get_knora_api_ontology_from_server()
     onto_check_info = make_project_onto_information(onto_client.default_ontology, project_ontos)
@@ -164,6 +166,24 @@ def _get_separate_prefix_and_iri_from_onto_prop_or_cls(
         return None, None
 
 
+def _analyse_if_all_text_value_encodings_are_correct(
+    root: etree._Element, text_prop_look_up: TextValuePropertyGUI
+) -> None:
+    text_value_in_data = _get_all_ids_prop_encoding_from_root(root)
+    all_checked = [x for x in text_value_in_data if not _check_correctness_one_prop(x, text_prop_look_up)]
+    if len(all_checked) == 0:
+        return None
+    msg, df = InvalidTextValueEncodings(all_checked).execute_problem_protocol()
+    if df is not None:
+        csv_file = f"text_value_encoding_errors_{datetime.now().strftime('%Y-%m-%d_%H%M%S')}.csv"
+        df.to_csv(path_or_buf=Path(Path.cwd(), csv_file), index=False)
+        msg += (
+            "\n\n---------------------------------------\n\n"
+            f"\nAll the problems are listed in the file: '{Path.cwd()}/{csv_file}'"
+        )
+    raise UserError(msg)
+
+
 def _get_all_ids_prop_encoding_from_root(root: etree._Element) -> list[TextValueData]:
     res_list = []
     for res_input in root.iterchildren(tag="resource"):
@@ -184,3 +204,18 @@ def _get_prop_encoding_from_one_property(res_id: str, property: etree._Element) 
     child_attrib = [x.attrib for x in property.iterchildren()]
     encodings = {x.get("encoding") for x in child_attrib}
     return TextValueData(res_id, prop_name, encodings)
+
+
+def _check_correctness_one_prop(text_val: TextValueData, text_prop_look_up: TextValuePropertyGUI) -> bool:
+    text_encoding = text_val.encoding
+    if text_encoding == {None} or text_encoding == {"utf-8"} or text_encoding == {None, "utf-8"}:  # noqa: PLR1714
+        return _check_if_correct(text_val.property_name, text_prop_look_up.unformatted_text)
+    if text_encoding == {"xml"}:
+        return _check_if_correct(text_val.property_name, text_prop_look_up.formatted_text)
+    return False
+
+
+def _check_if_correct(text_prop_name: str, allowed_properties: set[str]) -> bool:
+    if text_prop_name in allowed_properties:
+        return True
+    return False

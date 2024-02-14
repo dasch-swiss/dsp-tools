@@ -3,8 +3,10 @@ from lxml import etree
 from pytest_unordered import unordered
 
 from dsp_tools.commands.xmlupload.check_consistency_with_ontology import (
+    _check_correctness_one_prop,
     _check_if_all_class_types_exist,
     _check_if_all_properties_exist,
+    _check_if_correct,
     _check_if_one_class_type_exists,
     _check_if_one_property_exists,
     _find_if_all_classes_and_properties_exist_in_onto,
@@ -16,7 +18,12 @@ from dsp_tools.commands.xmlupload.check_consistency_with_ontology import (
     _get_prop_encoding_from_one_property,
     _get_separate_prefix_and_iri_from_onto_prop_or_cls,
 )
-from dsp_tools.commands.xmlupload.models.ontology_lookup_models import OntoInfo, ProjectOntosInformation, TextValueData
+from dsp_tools.commands.xmlupload.models.ontology_lookup_models import (
+    OntoInfo,
+    ProjectOntosInformation,
+    TextValueData,
+    TextValuePropertyGUI,
+)
 from dsp_tools.models.exceptions import UserError
 
 
@@ -491,3 +498,136 @@ def test_get_all_ids_prop_encoding_from_root_with_text() -> None:
     assert res[2].resource_id == "resC"
     assert res[2].property_name == ":hasSimpleText"
     assert res[2].encoding == {"utf-8"}
+
+
+def test_check_if_correct_true() -> None:
+    res = _check_if_correct(":prop", {":prop", ":other"})
+    assert res is True
+
+
+def test_check_if_correct_false() -> None:
+    res = _check_if_correct(":nope", {":prop", ":other"})
+    assert res is False
+
+
+class TestCheckCorrectnessOneProp:
+    def test_utf_simple_correct(self) -> None:
+        test_val = TextValueData("id", ":prop", {"utf-8"})
+        test_lookup = TextValuePropertyGUI(set(), {":prop"})
+        assert _check_correctness_one_prop(test_val, test_lookup) is True
+
+    def test_none_simple_correct(self) -> None:
+        test_val = TextValueData("id", ":prop", {None})
+        test_lookup = TextValuePropertyGUI(set(), {":prop"})
+        assert _check_correctness_one_prop(test_val, test_lookup) is True
+
+    def test_both_simple_correct(self) -> None:
+        test_val = TextValueData("id", ":prop", {None, "utf-8"})
+        test_lookup = TextValuePropertyGUI(set(), {":prop"})
+        assert _check_correctness_one_prop(test_val, test_lookup) is True
+
+    def test_utf_simple_wrong(self) -> None:
+        test_val = TextValueData("id", ":prop", {"utf-8"})
+        test_lookup = TextValuePropertyGUI({":prop"}, set())
+        assert _check_correctness_one_prop(test_val, test_lookup) is False
+
+    def test_none_simple_wrong(self) -> None:
+        test_val = TextValueData("id", ":prop", {None})
+        test_lookup = TextValuePropertyGUI({":prop"}, set())
+        assert _check_correctness_one_prop(test_val, test_lookup) is False
+
+    def test_both_simple_wrong(self) -> None:
+        test_val = TextValueData("id", ":prop", {None, "utf-8"})
+        test_lookup = TextValuePropertyGUI({":prop"}, set())
+        assert _check_correctness_one_prop(test_val, test_lookup) is False
+
+    def test_xml_correct(self) -> None:
+        test_val = TextValueData("id", ":prop", {"xml"})
+        test_lookup = TextValuePropertyGUI({":prop"}, set())
+        assert _check_correctness_one_prop(test_val, test_lookup) is True
+
+    def test_xml_wrong(self) -> None:
+        test_val = TextValueData("id", ":prop", {"xml"})
+        test_lookup = TextValuePropertyGUI(set(), set())
+        assert _check_correctness_one_prop(test_val, test_lookup) is False
+
+    def test_mixed_wrong(self) -> None:
+        test_val = TextValueData("id", ":prop", {"xml", None})
+        test_lookup = TextValuePropertyGUI(set(), set())
+        assert _check_correctness_one_prop(test_val, test_lookup) is False
+
+
+# def test_check_if_all_text_value_encodings_are_correct_all_good() -> None:
+#     test_ele = etree.fromstring(
+#         """<knora>
+#                 <resource label="First Testthing"
+#                       restype=":TestThing"
+#                       id="test_thing_1"
+#                       permissions="res-default">
+#                     <uri-prop name=":hasUri">
+#                         <uri permissions="prop-default">https://dasch.swiss</uri>
+#                     </uri-prop>
+#                     <text-prop name=":hasRichtext">
+#                         <text encoding="xml">Text</text>
+#                     </text-prop>
+#                 </resource>
+#                 <resource label="resB" restype=":TestThing2" id="resB" permissions="res-default">
+#                     <text-prop name=":hasSimpleText">
+#                         <text>Text</text>
+#                     </text-prop>
+#                 </resource>
+#                 <resource label="resC" restype=":TestThing2" id="resC" permissions="res-default">
+#                     <resptr-prop name=":hasResource2">
+#                         <resptr permissions="prop-default">resB</resptr>
+#                     </resptr-prop>
+#                     <text-prop name=":hasSimpleText">
+#                         <text encoding="utf-8">Text</text>
+#                     </text-prop>
+#                 </resource>
+#                 <resource label="resC" restype=":TestThing2" id="resD" permissions="res-default">
+#                     <resptr-prop name=":hasResource2">
+#                         <resptr permissions="prop-default">resB</resptr>
+#                     </resptr-prop>
+#                 </resource>
+#         </knora>"""
+#     )
+#     test_lookup = TextValuePropertyGUI({})
+#     _check_if_all_text_value_encodings_are_correct(test_ele, test_lookup)
+#
+
+# def test_check_if_all_text_value_encodings_are_correct_problems() -> None:
+#     test_ele = etree.fromstring(
+#         """<knora>
+#                 <resource label="First Testthing"
+#                       restype=":TestThing"
+#                       id="test_thing_1"
+#                       permissions="res-default">
+#                     <uri-prop name=":hasUri">
+#                         <uri permissions="prop-default">https://dasch.swiss</uri>
+#                     </uri-prop>
+#                     <text-prop name=":hasRichtext">
+#                         <text encoding="xml">Text</text>
+#                     </text-prop>
+#                 </resource>
+#                 <resource label="resB" restype=":TestThing2" id="resB" permissions="res-default">
+#                     <text-prop name=":hasSimpleText">
+#                         <text>Text</text>
+#                     </text-prop>
+#                 </resource>
+#                 <resource label="resC" restype=":TestThing2" id="resC" permissions="res-default">
+#                     <resptr-prop name=":hasResource2">
+#                         <resptr permissions="prop-default">resB</resptr>
+#                     </resptr-prop>
+#                     <text-prop name=":hasSimpleText">
+#                         <text encoding="utf-8">Text</text>
+#                     </text-prop>
+#                 </resource>
+#                 <resource label="resC" restype=":TestThing2" id="resD" permissions="res-default">
+#                     <resptr-prop name=":hasResource2">
+#                         <resptr permissions="prop-default">resB</resptr>
+#                     </resptr-prop>
+#                 </resource>
+#         </knora>"""
+#     )
+#     test_lookup = TextValuePropertyGUI({})
+#     _check_if_all_text_value_encodings_are_correct(test_ele)

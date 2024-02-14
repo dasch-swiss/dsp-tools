@@ -132,7 +132,10 @@ class InvalidTextValueEncodings:
         Returns:
             the error message and a dataframe with the errors if they exceed 50
         """
-        msg = "\nSome text encodings used in the data is not conform with the gui-element specified in the ontology.\n"
+        msg = (
+            "\nSome text encodings used in the data is not conform with the gui-element specified in the ontology.\n"
+            "Please consult the ontology regarding the assigned gui-elements.\n"
+        )
         df = self._get_problems_as_df()
         if len(df) > maximum_prints:
             return msg, df

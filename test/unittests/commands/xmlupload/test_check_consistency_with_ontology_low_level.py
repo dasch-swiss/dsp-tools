@@ -1,5 +1,4 @@
 import pytest
-import regex
 from lxml import etree
 from pytest_unordered import unordered
 
@@ -634,18 +633,16 @@ def test_check_if_all_text_value_encodings_are_correct_problems() -> None:
         </knora>"""
     )
     test_lookup = TextValuePropertyGUI(formatted_text={":hasRichtext"}, unformatted_text={":hasSimpleText", ":hasText"})
-    expected = regex.escape(
-        """
-Some text encodings used in the data is not conform with the gui-element specified in the ontology.
+    expected = r"""
+Some text encodings used in the data is not conform with the gui-element specified in the ontology\.
 Please consult the ontology regarding the assigned gui-elements.
 
 ---------------------------------------
 
-Resource ID: 'resC'
-    - Property Name: ':hasRichtext' -> Encoding(s) Used: 'None, utf8'
+Resource ID\: 'resC'
+    - Property Name: '\:hasRichtext' -> Encoding\(s\) Used\: 'None, utf8'
 ----------------------------
-Resource ID: 'test_thing_1'
-    - Property Name: ':hasText' -> Encoding(s) Used: 'xml'"""
-    )
+Resource ID\: 'test_thing_1'
+    - Property Name\: '\:hasText' -> Encoding\(s\) Used\: 'xml'"""
     with pytest.raises(InputError, match=expected):
         _analyse_if_all_text_value_encodings_are_correct(test_ele, test_lookup)

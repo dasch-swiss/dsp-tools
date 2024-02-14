@@ -134,7 +134,7 @@ class InvalidTextValueEncodings:
         """
         msg = (
             "\nSome text encodings used in the data is not conform with the gui-element specified in the ontology.\n"
-            "Please consult the ontology regarding the assigned gui-elements.\n"
+            "Please consult the ontology regarding the assigned gui-elements."
         )
         df = self._get_problems_as_df()
         if len(df) > maximum_prints:

@@ -1,8 +1,10 @@
 import pytest
+import regex
 from lxml import etree
 from pytest_unordered import unordered
 
 from dsp_tools.commands.xmlupload.check_consistency_with_ontology import (
+    _analyse_if_all_text_value_encodings_are_correct,
     _check_correctness_one_prop,
     _check_if_all_class_types_exist,
     _check_if_all_properties_exist,
@@ -24,7 +26,7 @@ from dsp_tools.commands.xmlupload.models.ontology_lookup_models import (
     TextValueData,
     TextValuePropertyGUI,
 )
-from dsp_tools.models.exceptions import UserError
+from dsp_tools.models.exceptions import InputError
 
 
 class TestCheckClassType:
@@ -221,7 +223,7 @@ def test_find_if_all_classes_and_properties_exist_in_onto_problem() -> None:
     )
     classes = {"knora": ["idA"]}
     properties = {"knora-api:knoraPropA": ["idA"]}
-    with pytest.raises(UserError):
+    with pytest.raises(InputError):
         _find_if_all_classes_and_properties_exist_in_onto(classes, properties, onto_check_info)
 
 
@@ -557,77 +559,93 @@ class TestCheckCorrectnessOneProp:
         assert _check_correctness_one_prop(test_val, test_lookup) is False
 
 
-# def test_check_if_all_text_value_encodings_are_correct_all_good() -> None:
-#     test_ele = etree.fromstring(
-#         """<knora>
-#                 <resource label="First Testthing"
-#                       restype=":TestThing"
-#                       id="test_thing_1"
-#                       permissions="res-default">
-#                     <uri-prop name=":hasUri">
-#                         <uri permissions="prop-default">https://dasch.swiss</uri>
-#                     </uri-prop>
-#                     <text-prop name=":hasRichtext">
-#                         <text encoding="xml">Text</text>
-#                     </text-prop>
-#                 </resource>
-#                 <resource label="resB" restype=":TestThing2" id="resB" permissions="res-default">
-#                     <text-prop name=":hasSimpleText">
-#                         <text>Text</text>
-#                     </text-prop>
-#                 </resource>
-#                 <resource label="resC" restype=":TestThing2" id="resC" permissions="res-default">
-#                     <resptr-prop name=":hasResource2">
-#                         <resptr permissions="prop-default">resB</resptr>
-#                     </resptr-prop>
-#                     <text-prop name=":hasSimpleText">
-#                         <text encoding="utf-8">Text</text>
-#                     </text-prop>
-#                 </resource>
-#                 <resource label="resC" restype=":TestThing2" id="resD" permissions="res-default">
-#                     <resptr-prop name=":hasResource2">
-#                         <resptr permissions="prop-default">resB</resptr>
-#                     </resptr-prop>
-#                 </resource>
-#         </knora>"""
-#     )
-#     test_lookup = TextValuePropertyGUI({})
-#     _check_if_all_text_value_encodings_are_correct(test_ele, test_lookup)
-#
+def test_check_if_all_text_value_encodings_are_correct_all_good() -> None:
+    test_ele = etree.fromstring(
+        """<knora>
+                <resource label="First Testthing"
+                      restype=":TestThing"
+                      id="test_thing_1"
+                      permissions="res-default">
+                    <uri-prop name=":hasUri">
+                        <uri permissions="prop-default">https://dasch.swiss</uri>
+                    </uri-prop>
+                    <text-prop name=":hasRichtext">
+                        <text encoding="xml">Text</text>
+                    </text-prop>
+                </resource>
+                <resource label="resB" restype=":TestThing2" id="resB" permissions="res-default">
+                    <text-prop name=":hasSimpleText">
+                        <text>Text</text>
+                    </text-prop>
+                </resource>
+                <resource label="resC" restype=":TestThing2" id="resC" permissions="res-default">
+                    <resptr-prop name=":hasResource2">
+                        <resptr permissions="prop-default">resB</resptr>
+                    </resptr-prop>
+                    <text-prop name=":hasSimpleText">
+                        <text encoding="utf-8">Text</text>
+                        <text>Text</text>
+                    </text-prop>
+                </resource>
+                <resource label="resC" restype=":TestThing2" id="resD" permissions="res-default">
+                    <resptr-prop name=":hasResource2">
+                        <resptr permissions="prop-default">resB</resptr>
+                    </resptr-prop>
+                </resource>
+        </knora>"""
+    )
+    test_lookup = TextValuePropertyGUI(formatted_text={":hasRichtext"}, unformatted_text={":hasSimpleText", ":hasText"})
+    _analyse_if_all_text_value_encodings_are_correct(test_ele, test_lookup)
 
-# def test_check_if_all_text_value_encodings_are_correct_problems() -> None:
-#     test_ele = etree.fromstring(
-#         """<knora>
-#                 <resource label="First Testthing"
-#                       restype=":TestThing"
-#                       id="test_thing_1"
-#                       permissions="res-default">
-#                     <uri-prop name=":hasUri">
-#                         <uri permissions="prop-default">https://dasch.swiss</uri>
-#                     </uri-prop>
-#                     <text-prop name=":hasRichtext">
-#                         <text encoding="xml">Text</text>
-#                     </text-prop>
-#                 </resource>
-#                 <resource label="resB" restype=":TestThing2" id="resB" permissions="res-default">
-#                     <text-prop name=":hasSimpleText">
-#                         <text>Text</text>
-#                     </text-prop>
-#                 </resource>
-#                 <resource label="resC" restype=":TestThing2" id="resC" permissions="res-default">
-#                     <resptr-prop name=":hasResource2">
-#                         <resptr permissions="prop-default">resB</resptr>
-#                     </resptr-prop>
-#                     <text-prop name=":hasSimpleText">
-#                         <text encoding="utf-8">Text</text>
-#                     </text-prop>
-#                 </resource>
-#                 <resource label="resC" restype=":TestThing2" id="resD" permissions="res-default">
-#                     <resptr-prop name=":hasResource2">
-#                         <resptr permissions="prop-default">resB</resptr>
-#                     </resptr-prop>
-#                 </resource>
-#         </knora>"""
-#     )
-#     test_lookup = TextValuePropertyGUI({})
-#     _check_if_all_text_value_encodings_are_correct(test_ele)
+
+def test_check_if_all_text_value_encodings_are_correct_problems() -> None:
+    test_ele = etree.fromstring(
+        """<knora>
+                <resource label="First Testthing"
+                      restype=":TestThing"
+                      id="test_thing_1"
+                      permissions="res-default">
+                    <uri-prop name=":hasUri">
+                        <uri permissions="prop-default">https://dasch.swiss</uri>
+                    </uri-prop>
+                    <text-prop name=":hasText">
+                        <text encoding="xml">Text</text>
+                    </text-prop>
+                </resource>
+                <resource label="resB" restype=":TestThing2" id="resB" permissions="res-default">
+                    <text-prop name=":hasSimpleText">
+                        <text>Text</text>
+                    </text-prop>
+                </resource>
+                <resource label="resC" restype=":TestThing2" id="resC" permissions="res-default">
+                    <resptr-prop name=":hasResource2">
+                        <resptr permissions="prop-default">resB</resptr>
+                    </resptr-prop>
+                    <text-prop name=":hasRichtext">
+                        <text encoding="utf-8">Text</text>
+                        <text>Text</text>
+                    </text-prop>
+                </resource>
+                <resource label="resC" restype=":TestThing2" id="resD" permissions="res-default">
+                    <resptr-prop name=":hasResource2">
+                        <resptr permissions="prop-default">resB</resptr>
+                    </resptr-prop>
+                </resource>
+        </knora>"""
+    )
+    test_lookup = TextValuePropertyGUI(formatted_text={":hasRichtext"}, unformatted_text={":hasSimpleText", ":hasText"})
+    expected = regex.escape(
+        """
+Some text encodings used in the data is not conform with the gui-element specified in the ontology.
+Please consult the ontology regarding the assigned gui-elements.
+
+---------------------------------------
+
+Resource ID: 'resC'
+    - Property Name: ':hasRichtext' -> Encoding(s) Used: 'None, utf-8'
+----------------------------
+Resource ID: 'test_thing_1'
+    - Property Name: ':hasText' -> Encoding(s) Used: 'xml'"""
+    )
+    with pytest.raises(InputError, match=expected):
+        _analyse_if_all_text_value_encodings_are_correct(test_ele, test_lookup)

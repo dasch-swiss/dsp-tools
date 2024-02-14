@@ -224,9 +224,11 @@ def test_get_all_properties_and_guis_from_graph() -> None:
 def test_make_text_value_property_gui() -> None:
     test_li = [
         ("onto:hasSimpleText", "salsah-gui:SimpleText"),
-        ("onto:hasTextarea", "salsah-gui:Textarea"),
+        ("onto_other:hasTextarea", "salsah-gui:Textarea"),
         ("onto:hasRichtext", "salsah-gui:Richtext"),
+        ("other_onto:hasRichtext", "salsah-gui:Richtext"),
+        ("onto:ontoHasSimpleText", "salsah-gui:SimpleText"),
     ]
-    res = _make_text_value_property_gui(test_li)
-    assert res.formatted_text == {"onto:hasRichtext"}
-    assert res.unformatted_text == {"onto:hasSimpleText", "onto:hasTextarea"}
+    res = _make_text_value_property_gui(test_li, "onto")
+    assert res.formatted_text == {":hasRichtext", "other_onto:hasRichtext"}
+    assert res.unformatted_text == {":hasSimpleText", "onto_other:hasTextarea", ":ontoHasSimpleText"}

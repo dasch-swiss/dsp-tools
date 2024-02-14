@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field
 from typing import Any
 
+import regex.regex
+
 
 @dataclass(frozen=True)
 class OntoInfo:
@@ -89,7 +91,7 @@ class TextValuePropertyGUI:
 
 
 def get_text_value_properties_and_formatting_from_graph(
-    onto_graph_dict: dict[str, list[dict[str, Any]]],
+    onto_graph_dict: dict[str, list[dict[str, Any]]], default_onto: str
 ) -> TextValuePropertyGUI:
     """
     This function takes a dict with the names and ontology graphs of the project ontologies.
@@ -97,6 +99,7 @@ def get_text_value_properties_and_formatting_from_graph(
 
     Args:
         onto_graph_dict: dict with the ontologies
+        default_onto: name of the default ontology
 
     Returns:
         Look-up containing the properties separated according to the formatting
@@ -104,12 +107,18 @@ def get_text_value_properties_and_formatting_from_graph(
     all_props = []
     for onto_graph in onto_graph_dict.values():
         all_props.extend(_get_all_text_value_properties_and_guis_from_graph(onto_graph))
-    return _make_text_value_property_gui(all_props)
+    return _make_text_value_property_gui(all_props, default_onto)
 
 
-def _make_text_value_property_gui(prop_list: list[tuple[str, str]]) -> TextValuePropertyGUI:
-    formatted_text = {p for p, gui in prop_list if gui == "salsah-gui:Richtext"}
-    unformatted_text = {p for p, gui in prop_list if gui != "salsah-gui:Richtext"}
+def _make_text_value_property_gui(prop_list: list[tuple[str, str]], default_onto: str) -> TextValuePropertyGUI:
+    def remove_default_prefix(prop_str: str) -> str:
+        re_pat = r"^" + default_onto + r":" + r".+$"
+        if regex.search(re_pat, prop_str) is not None:
+            return prop_str.replace(default_onto, "", 1)
+        return prop_str
+
+    formatted_text = {remove_default_prefix(p) for p, gui in prop_list if gui == "salsah-gui:Richtext"}
+    unformatted_text = {remove_default_prefix(p) for p, gui in prop_list if gui != "salsah-gui:Richtext"}
     return TextValuePropertyGUI(formatted_text, unformatted_text)
 
 

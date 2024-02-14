@@ -17,7 +17,7 @@ from dsp_tools.commands.xmlupload.models.ontology_problem_models import (
     InvalidTextValueEncodings,
 )
 from dsp_tools.commands.xmlupload.ontology_client import OntologyClient
-from dsp_tools.models.exceptions import UserError
+from dsp_tools.models.exceptions import InputError
 
 defaultOntologyColon: Pattern[str] = regex.compile(r"^:\w+$")
 knoraUndeclared: Pattern[str] = regex.compile(r"^\w+$")
@@ -36,7 +36,7 @@ def do_xml_consistency_check_with_ontology(onto_client: OntologyClient, root: et
          root: root of the XML
 
      Raises:
-         UserError: if there are any invalid properties or classes
+         InputError: if there are any invalid properties or classes
     """
     text_prop_lookup, onto_check_info = _get_all_onto_look_ups(onto_client)
     classes_in_data, properties_in_data = _get_all_classes_and_properties_from_data(root)
@@ -74,7 +74,7 @@ def _find_if_all_classes_and_properties_exist_in_onto(
             "\n\n---------------------------------------\n\n"
             f"\nAll the problems are listed in the file: '{Path.cwd()}/{csv_file}'"
         )
-    raise UserError(msg)
+    raise InputError(msg)
 
 
 def _get_all_classes_and_properties_from_data(
@@ -181,7 +181,7 @@ def _analyse_if_all_text_value_encodings_are_correct(
             "\n\n---------------------------------------\n\n"
             f"\nAll the problems are listed in the file: '{Path.cwd()}/{csv_file}'"
         )
-    raise UserError(msg)
+    raise InputError(msg)
 
 
 def _get_all_ids_prop_encoding_from_root(root: etree._Element) -> list[TextValueData]:
@@ -208,7 +208,7 @@ def _get_prop_encoding_from_one_property(res_id: str, property: etree._Element) 
 
 def _check_correctness_one_prop(text_val: TextValueData, text_prop_look_up: TextValuePropertyGUI) -> bool:
     text_encoding = text_val.encoding
-    if not text_encoding.issubset({None, "utf-8", "xml"}):
+    if not {None, "utf-8", "xml"}.issuperset(text_encoding):
         return False
     if text_encoding == {"xml"}:
         return _check_if_correct(text_val.property_name, text_prop_look_up.formatted_text)

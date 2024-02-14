@@ -247,7 +247,7 @@
 
     <!-- textprop_type -->
     <xs:complexType name="textprop_type">
-        <xs:choice>
+        <xs:choice minOccurs="1" maxOccurs="1">
             <xs:sequence>
                 <xs:element name="text" type="xml_encoding_text_type" minOccurs="1" maxOccurs="unbounded"/>
             </xs:sequence>

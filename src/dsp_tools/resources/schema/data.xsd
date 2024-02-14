@@ -64,25 +64,6 @@
         </xs:restriction>
     </xs:simpleType>
 
-    <!-- encoding types -->
-    <xs:simpleType name="encoding_types">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="utf8"/>
-            <xs:enumeration value="xml"/>
-        </xs:restriction>
-    </xs:simpleType>
-
-    <!-- text value type -->
-    <xs:complexType name="text_type" mixed="true">
-        <xs:sequence>
-            <xs:any processContents="skip" minOccurs="0" maxOccurs="unbounded"/>
-        </xs:sequence>
-        <xs:attribute name="encoding" type="encoding_types" use="required"/>
-        <xs:attribute name="resrefs" type="resrefs_type"/>
-        <xs:attribute name="comment" type="xs:string"/>
-        <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
-    </xs:complexType>
-
     <!-- utf8 encoding text value type -->
     <xs:complexType name="utf8_encoding_text_type" mixed="true">
         <xs:sequence>

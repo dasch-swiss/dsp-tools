@@ -251,7 +251,7 @@ These three are related as follows:
 #### Overview
 
 | DSP base property (`super`) | `object`                                                           | `gui_element`                          |
-| --------------------------- | ------------------------------------------------------------------ | -------------------------------------- |
+| --------------------------- | ------------------------------------------------------------------ |----------------------------------------|
 | hasValue                    | BooleanValue                                                       | Checkbox                               |
 | hasColor                    | ColorValue                                                         | Colorpicker                            |
 | hasValue                    | DateValue                                                          | Date                                   |
@@ -260,7 +260,7 @@ These three are related as follows:
 | hasValue                    | IntValue                                                           | Spinbox, <br>SimpleText                |
 | hasValue                    | ListValue                                                          | List                                   |
 | hasValue                    | TextValue                                                          | SimpleText, <br>Textarea, <br>Richtext |
-| hasComment                  | TextValue                                                          | Richtext                             |
+| hasComment                  | TextValue                                                          | Richtext                               |
 | hasValue                    | TimeValue                                                          | TimeStamp                              |
 | hasValue                    | UriValue                                                           | SimpleText                             |
 | hasLinkTo                   | (resourceclass)                                                    | Searchbox                              |

@@ -370,7 +370,7 @@ def test_get_prop_encoding_from_all_properties_two_text_prop() -> None:
                 <text encoding="xml">Text</text>
             </text-prop>
             <text-prop name=":hasSimpleText">
-                <text>Text</text>
+                <text encoding="utf8">Text</text>
             </text-prop>
         </resource>
         """
@@ -381,7 +381,7 @@ def test_get_prop_encoding_from_all_properties_two_text_prop() -> None:
     assert res[0].encoding == {"xml"}
     assert res[1].resource_id == "test_thing_1"
     assert res[1].property_name == ":hasSimpleText"
-    assert res[1].encoding == {None}
+    assert res[1].encoding == {"utf8"}
 
 
 class TestGetEncodingOneProperty:
@@ -408,14 +408,14 @@ class TestGetEncodingOneProperty:
             """
             <text-prop name=":hasRichtext">
                 <text encoding="utf8">Text</text>
-                <text>Text</text>
+                <text encoding="utf8">Text</text>
             </text-prop>
             """
         )
         res_info = _get_prop_encoding_from_one_property("id", test_prop)
         assert res_info.resource_id == "id"
         assert res_info.property_name == ":hasRichtext"
-        assert res_info.encoding == {"utf8", None}
+        assert res_info.encoding == {"utf8"}
 
     def test_simple_one_text_ele(self) -> None:
         test_prop = etree.fromstring(
@@ -471,7 +471,7 @@ def test_get_all_ids_prop_encoding_from_root_with_text() -> None:
                 </resource>
                 <resource label="resB" restype=":TestThing2" id="resB" permissions="res-default">
                     <text-prop name=":hasSimpleText">
-                        <text>Text</text>
+                        <text encoding="utf8">Text</text>
                     </text-prop>
                 </resource>
                 <resource label="resC" restype=":TestThing2" id="resC" permissions="res-default">
@@ -495,7 +495,7 @@ def test_get_all_ids_prop_encoding_from_root_with_text() -> None:
     assert res[0].encoding == {"xml"}
     assert res[1].resource_id == "resB"
     assert res[1].property_name == ":hasSimpleText"
-    assert res[1].encoding == {None}
+    assert res[1].encoding == {"utf8"}
     assert res[2].resource_id == "resC"
     assert res[2].property_name == ":hasSimpleText"
     assert res[2].encoding == {"utf8"}
@@ -517,28 +517,8 @@ class TestCheckCorrectnessOneProp:
         test_lookup = TextValuePropertyGUI(set(), {":prop"})
         assert _check_correctness_one_prop(test_val, test_lookup) is True
 
-    def test_none_simple_correct(self) -> None:
-        test_val = TextValueData("id", ":prop", {None})
-        test_lookup = TextValuePropertyGUI(set(), {":prop"})
-        assert _check_correctness_one_prop(test_val, test_lookup) is True
-
-    def test_both_simple_correct(self) -> None:
-        test_val = TextValueData("id", ":prop", {None, "utf8"})
-        test_lookup = TextValuePropertyGUI(set(), {":prop"})
-        assert _check_correctness_one_prop(test_val, test_lookup) is True
-
     def test_utf_simple_wrong(self) -> None:
         test_val = TextValueData("id", ":prop", {"utf8"})
-        test_lookup = TextValuePropertyGUI({":prop"}, set())
-        assert _check_correctness_one_prop(test_val, test_lookup) is False
-
-    def test_none_simple_wrong(self) -> None:
-        test_val = TextValueData("id", ":prop", {None})
-        test_lookup = TextValuePropertyGUI({":prop"}, set())
-        assert _check_correctness_one_prop(test_val, test_lookup) is False
-
-    def test_both_simple_wrong(self) -> None:
-        test_val = TextValueData("id", ":prop", {None, "utf8"})
         test_lookup = TextValuePropertyGUI({":prop"}, set())
         assert _check_correctness_one_prop(test_val, test_lookup) is False
 
@@ -553,7 +533,7 @@ class TestCheckCorrectnessOneProp:
         assert _check_correctness_one_prop(test_val, test_lookup) is False
 
     def test_mixed_wrong(self) -> None:
-        test_val = TextValueData("id", ":prop", {"xml", None})
+        test_val = TextValueData("id", ":prop", {"xml", "utf8"})
         test_lookup = TextValuePropertyGUI(set(), set())
         assert _check_correctness_one_prop(test_val, test_lookup) is False
 
@@ -574,7 +554,7 @@ def test_check_if_all_text_value_encodings_are_correct_all_good() -> None:
                 </resource>
                 <resource label="resB" restype=":TestThing2" id="resB" permissions="res-default">
                     <text-prop name=":hasSimpleText">
-                        <text>Text</text>
+                        <text encoding="utf8">Text</text>
                     </text-prop>
                 </resource>
                 <resource label="resC" restype=":TestThing2" id="resC" permissions="res-default">
@@ -583,7 +563,7 @@ def test_check_if_all_text_value_encodings_are_correct_all_good() -> None:
                     </resptr-prop>
                     <text-prop name=":hasSimpleText">
                         <text encoding="utf8">Text</text>
-                        <text>Text</text>
+                        <text encoding="utf8">Text</text>
                     </text-prop>
                 </resource>
                 <resource label="resC" restype=":TestThing2" id="resD" permissions="res-default">
@@ -613,7 +593,7 @@ def test_check_if_all_text_value_encodings_are_correct_problems() -> None:
                 </resource>
                 <resource label="resB" restype=":TestThing2" id="resB" permissions="res-default">
                     <text-prop name=":hasSimpleText">
-                        <text>Text</text>
+                        <text encoding="utf8">Text</text>
                     </text-prop>
                 </resource>
                 <resource label="resC" restype=":TestThing2" id="resC" permissions="res-default">
@@ -622,7 +602,7 @@ def test_check_if_all_text_value_encodings_are_correct_problems() -> None:
                     </resptr-prop>
                     <text-prop name=":hasRichtext">
                         <text encoding="utf8">Text</text>
-                        <text>Text</text>
+                        <text encoding="utf8">Text</text>
                     </text-prop>
                 </resource>
                 <resource label="resC" restype=":TestThing2" id="resD" permissions="res-default">
@@ -640,7 +620,7 @@ Please consult the ontology regarding the assigned gui-elements.
 ---------------------------------------
 
 Resource ID\: 'resC'
-    - Property Name: '\:hasRichtext' -> Encoding\(s\) Used\: 'None, utf8'
+    - Property Name: '\:hasRichtext' -> Encoding\(s\) Used\: 'utf8'
 ----------------------------
 Resource ID\: 'test_thing_1'
     - Property Name\: '\:hasText' -> Encoding\(s\) Used\: 'xml'"""

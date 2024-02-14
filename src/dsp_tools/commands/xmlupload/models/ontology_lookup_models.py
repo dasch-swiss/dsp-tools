@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Literal
 
 import regex.regex
 
@@ -141,8 +141,11 @@ def _get_all_text_value_properties_and_guis_from_graph(onto_graph: list[dict[str
     return [(p_id, gui) for p_id, gui in zip(prop_id_list, gui_list)]
 
 
+AllowedEncodings = Literal["utf8", "xml"]
+
+
 @dataclass
 class TextValueData:
     resource_id: str
     property_name: str
-    encoding: set[str | None]
+    encoding: set[AllowedEncodings]

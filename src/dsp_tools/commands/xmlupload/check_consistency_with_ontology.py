@@ -202,25 +202,17 @@ def _get_id_prop_encoding_from_one_resource(resource: etree._Element) -> list[Te
 def _get_prop_encoding_from_one_property(res_id: str, property: etree._Element) -> TextValueData:
     prop_name = property.attrib["name"]
     child_attrib = [x.attrib for x in property.iterchildren()]
-    encodings = {x.get("encoding") for x in child_attrib}
+    encodings = {x["encoding"] for x in child_attrib}
     return TextValueData(res_id, prop_name, encodings)
 
 
 def _check_correctness_one_prop(text_val: TextValueData, text_prop_look_up: TextValuePropertyGUI) -> bool:
     text_encoding = text_val.encoding
-    if not {None, "utf8", "xml"}.issuperset(text_encoding):
-        return False
     if text_encoding == {"xml"}:
         return _check_if_correct(text_val.property_name, text_prop_look_up.formatted_text)
-    if {None, "utf8"}.issuperset(text_encoding):
+    if text_encoding == {"utf8"}:
         return _check_if_correct(text_val.property_name, text_prop_look_up.unformatted_text)
     return False
-
-    # if text_encoding == {None} or text_encoding == {"utf8"} or text_encoding == {None, "utf8"}:
-    #     return _check_if_correct(text_val.property_name, text_prop_look_up.unformatted_text)
-    # if text_encoding == {"xml"}:
-    #     return _check_if_correct(text_val.property_name, text_prop_look_up.formatted_text)
-    # return False
 
 
 def _check_if_correct(text_prop_name: str, allowed_properties: set[str]) -> bool:

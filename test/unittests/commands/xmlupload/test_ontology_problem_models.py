@@ -95,16 +95,16 @@ class TestInvalidTextValueEncodings:
         problems = InvalidTextValueEncodings(
             [
                 TextValueData("id1", ":simple", {"xml"}),
-                TextValueData("id1", ":rich", {None}),
-                TextValueData("id2", ":rich", {None, "utf8"}),
-                TextValueData("id3", ":mixed", {None, "xml"}),
+                TextValueData("id1", ":rich", {"utf8"}),
+                TextValueData("id2", ":rich", {"utf8"}),
+                TextValueData("id3", ":mixed", {"utf8", "xml"}),
             ]
         )
         expected_df = pd.DataFrame(
             {
                 "Resource ID": ["id1", "id1", "id2", "id3"],
                 "Property Name": [":rich", ":simple", ":rich", ":mixed"],
-                "Encoding(s) Used": ["None", "xml", "None, utf8", "None, xml"],
+                "Encoding(s) Used": ["utf8", "xml", "utf8", "utf8, xml"],
             }
         )
         res_df = problems._get_problems_as_df()
@@ -115,13 +115,13 @@ class TestInvalidTextValueEncodings:
             {
                 "Resource ID": ["id1", "id1"],
                 "Property Name": [":rich", ":simple"],
-                "Encoding(s) Used": ["None", "xml"],
+                "Encoding(s) Used": ["utf8", "xml"],
             }
         )
         res = InvalidTextValueEncodings._make_msg_for_one_resource("id1", test_df)
         expected = (
             "Resource ID: 'id1'\n"
-            "    - Property Name: ':rich' -> Encoding(s) Used: 'None'\n"
+            "    - Property Name: ':rich' -> Encoding(s) Used: 'utf8'\n"
             "    - Property Name: ':simple' -> Encoding(s) Used: 'xml'"
         )
         assert res == expected
@@ -131,19 +131,19 @@ class TestInvalidTextValueEncodings:
             {
                 "Resource ID": ["id1", "id1", "id2", "id3"],
                 "Property Name": [":rich", ":simple", ":rich", ":mixed"],
-                "Encoding(s) Used": ["None", "xml", "None, utf8", "None, xml"],
+                "Encoding(s) Used": ["utf8", "xml", "utf8", "utf8, xml"],
             }
         )
         res = InvalidTextValueEncodings._make_msg_from_df(test_df)
         expected = (
             "Resource ID: 'id1'\n"
-            "    - Property Name: ':rich' -> Encoding(s) Used: 'None'\n"
+            "    - Property Name: ':rich' -> Encoding(s) Used: 'utf8'\n"
             "    - Property Name: ':simple' -> Encoding(s) Used: 'xml'"
             "\n----------------------------\n"
             "Resource ID: 'id2'\n"
-            "    - Property Name: ':rich' -> Encoding(s) Used: 'None, utf8'"
+            "    - Property Name: ':rich' -> Encoding(s) Used: 'utf8'"
             "\n----------------------------\n"
             "Resource ID: 'id3'\n"
-            "    - Property Name: ':mixed' -> Encoding(s) Used: 'None, xml'"
+            "    - Property Name: ':mixed' -> Encoding(s) Used: 'utf8, xml'"
         )
         assert res == expected

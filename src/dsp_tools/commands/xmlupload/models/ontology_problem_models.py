@@ -143,14 +143,11 @@ class InvalidTextValueEncodings:
         return msg + grand_separator + additional_msg, None
 
     def _get_problems_as_df(self) -> pd.DataFrame:
-        def join_mixed_types(in_set: set[str | None]) -> str:
-            return ", ".join([str(x) for x in in_set])
-
         df = pd.DataFrame(
             {
                 "Resource ID": list(x.resource_id for x in self.problematic_resources),
                 "Property Name": list(x.property_name for x in self.problematic_resources),
-                "Encoding(s) Used": list(join_mixed_types(x.encoding) for x in self.problematic_resources),
+                "Encoding(s) Used": list(", ".join(x.encoding) for x in self.problematic_resources),
             }
         )
         return df.sort_values(by=["Resource ID", "Property Name"], ignore_index=True)

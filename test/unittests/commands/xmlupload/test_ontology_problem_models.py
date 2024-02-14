@@ -96,7 +96,7 @@ class TestInvalidTextValueEncodings:
             [
                 TextValueData("id1", ":simple", {"xml"}),
                 TextValueData("id1", ":rich", {None}),
-                TextValueData("id2", ":rich", {None, "utf-8"}),
+                TextValueData("id2", ":rich", {None, "utf8"}),
                 TextValueData("id3", ":mixed", {None, "xml"}),
             ]
         )
@@ -104,7 +104,7 @@ class TestInvalidTextValueEncodings:
             {
                 "Resource ID": ["id1", "id1", "id2", "id3"],
                 "Property Name": [":rich", ":simple", ":rich", ":mixed"],
-                "Encoding(s) Used": ["None", "xml", "None, utf-8", "None, xml"],
+                "Encoding(s) Used": ["None", "xml", "None, utf8", "None, xml"],
             }
         )
         res_df = problems._get_problems_as_df()
@@ -131,7 +131,7 @@ class TestInvalidTextValueEncodings:
             {
                 "Resource ID": ["id1", "id1", "id2", "id3"],
                 "Property Name": [":rich", ":simple", ":rich", ":mixed"],
-                "Encoding(s) Used": ["None", "xml", "None, utf-8", "None, xml"],
+                "Encoding(s) Used": ["None", "xml", "None, utf8", "None, xml"],
             }
         )
         res = InvalidTextValueEncodings._make_msg_from_df(test_df)
@@ -141,7 +141,7 @@ class TestInvalidTextValueEncodings:
             "    - Property Name: ':simple' -> Encoding(s) Used: 'xml'"
             "\n----------------------------\n"
             "Resource ID: 'id2'\n"
-            "    - Property Name: ':rich' -> Encoding(s) Used: 'None, utf-8'"
+            "    - Property Name: ':rich' -> Encoding(s) Used: 'None, utf8'"
             "\n----------------------------\n"
             "Resource ID: 'id3'\n"
             "    - Property Name: ':mixed' -> Encoding(s) Used: 'None, xml'"

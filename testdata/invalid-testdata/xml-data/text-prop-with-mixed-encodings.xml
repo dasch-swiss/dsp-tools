@@ -10,8 +10,8 @@
               restype=":minimalResource"
               id="the_only_resource">
         <text-prop name=":test">
-            <text encoding="utf8" permissions="prop-default">Sequence of an Audio Resource</text>
-            <text encoding="xml" permissions="prop-default">Sequence of an Audio Resource</text>
+            <text encoding="utf8" permissions="prop-default">Text utf8</text>
+            <text encoding="xml" permissions="prop-default">Text xml</text>
         </text-prop>
     </resource>
 

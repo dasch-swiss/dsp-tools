@@ -1,5 +1,19 @@
 # Changelog
 
+## [5.8.1](https://github.com/dasch-swiss/dsp-tools/compare/v5.8.0...v5.8.1) (2024-02-14)
+
+
+### Maintenance
+
+* bump start-stack to 2024.02.01 ([#806](https://github.com/dasch-swiss/dsp-tools/issues/806)) ([9080f47](https://github.com/dasch-swiss/dsp-tools/commit/9080f4734a387bd306c0bf78baa9dd6472210e81))
+* **models-project:** remove all project update code ([#802](https://github.com/dasch-swiss/dsp-tools/issues/802)) ([1aa39a1](https://github.com/dasch-swiss/dsp-tools/commit/1aa39a1b61b7893eee4e54e4020d9a683b29ebb2))
+* **models-user-project:** delete dead code ([#800](https://github.com/dasch-swiss/dsp-tools/issues/800)) ([12813bc](https://github.com/dasch-swiss/dsp-tools/commit/12813bc02c126c0caf49753506888f843598582f))
+* remove dead parameter in ontology client ([#809](https://github.com/dasch-swiss/dsp-tools/issues/809)) ([8095ba3](https://github.com/dasch-swiss/dsp-tools/commit/8095ba37f9df897018d6fcfd43d70a34239b37c9))
+* remove sourcery ([#805](https://github.com/dasch-swiss/dsp-tools/issues/805)) ([c3ccc36](https://github.com/dasch-swiss/dsp-tools/commit/c3ccc3646292a855682e1bdeb42f9dbab9f30e46))
+* rename value.py file into formatted_text_value.py ([#807](https://github.com/dasch-swiss/dsp-tools/issues/807)) ([90af390](https://github.com/dasch-swiss/dsp-tools/commit/90af3906527f87dd33555be2c7cc344da60dded9))
+* renaming functions in preparation for TextValue verification ([#808](https://github.com/dasch-swiss/dsp-tools/issues/808)) ([9f06f3f](https://github.com/dasch-swiss/dsp-tools/commit/9f06f3fe32ce49fa1241fda33bede08bff8e3a2b))
+* **test-create-project:** turn unittests into pytests ([#804](https://github.com/dasch-swiss/dsp-tools/issues/804)) ([8c667a6](https://github.com/dasch-swiss/dsp-tools/commit/8c667a69d981d4dff0ca2f1fc3f8534c95d93ca0))
+
 ## [5.8.0](https://github.com/dasch-swiss/dsp-tools/compare/v5.7.0...v5.8.0) (2024-02-01)
 
 

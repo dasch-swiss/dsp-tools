@@ -55,8 +55,8 @@
                 permissions="res-default"
                 creation_date="2005-10-23T13:45:12.01-14:00">
         <text-prop name="hasComment">
-            <text encoding="utf8" permissions="prop-default">This is an annotation to TestthingOhnePermissions.</text>
-            <text encoding="utf8" permissions="prop-default">Second comment</text>
+            <text encoding="xml" permissions="prop-default">This is an annotation to TestthingOhnePermissions.</text>
+            <text encoding="xml" permissions="prop-default">Second comment</text>
         </text-prop>
         <resptr-prop name="isAnnotationOf">
             <resptr permissions="prop-default">test_thing_0</resptr>
@@ -185,7 +185,6 @@
               permissions="res-default">
         <text-prop name=":hasSimpleText">
             <text permissions="prop-default" encoding="utf8">Dies ist ein einfacher Text ohne Markup</text>
-            <text permissions="prop-restricted" encoding="xml">Ein XML-formatierter Text <strong>mit Markup</strong></text>
             <text encoding="utf8">_</text>
             <text encoding="utf8">!</text>
             <text encoding="utf8">?</text>

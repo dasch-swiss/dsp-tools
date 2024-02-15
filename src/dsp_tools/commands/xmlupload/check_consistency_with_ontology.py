@@ -8,8 +8,8 @@ from regex import Pattern
 from dsp_tools.commands.xmlupload.models.ontology_lookup_models import (
     ProjectOntosInformation,
     TextValueData,
-    TextValuePropertyGUI,
-    get_text_value_properties_and_formatting_from_graph,
+    TextValueEncodingTypes,
+    get_text_value_properties_and_formatting_from_json,
     make_project_onto_information,
 )
 from dsp_tools.commands.xmlupload.models.ontology_problem_models import (
@@ -44,9 +44,9 @@ def do_xml_consistency_check_with_ontology(onto_client: OntologyClient, root: et
     _analyse_all_text_value_encodings_are_correct(root, text_prop_lookup)
 
 
-def _get_all_onto_look_ups(onto_client: OntologyClient) -> tuple[TextValuePropertyGUI, ProjectOntosInformation]:
+def _get_all_onto_look_ups(onto_client: OntologyClient) -> tuple[TextValueEncodingTypes, ProjectOntosInformation]:
     project_ontos = onto_client.get_all_project_ontologies_from_server()
-    text_prop_lookup = get_text_value_properties_and_formatting_from_graph(project_ontos, onto_client.default_ontology)
+    text_prop_lookup = get_text_value_properties_and_formatting_from_json(project_ontos, onto_client.default_ontology)
 
     project_ontos["knora-api"] = onto_client.get_knora_api_ontology_from_server()
     onto_check_info = make_project_onto_information(onto_client.default_ontology, project_ontos)
@@ -167,8 +167,38 @@ def _get_separate_prefix_and_iri_from_onto_prop_or_cls(
 
 
 def _analyse_all_text_value_encodings_are_correct(
-    root: etree._Element, text_prop_look_up: TextValuePropertyGUI
+    root: etree._Element, text_prop_look_up: TextValueEncodingTypes
 ) -> None:
+    """
+    This function analyses if all the encodings for the <text> elements are correct
+    with respect to the specification in the ontology.
+
+    For example, in the ontology, it says that `:hasSimpleText` is without mark-up.
+    The encoding has to be `utf8`
+
+    This is correct:
+    ```
+    <text-prop name=":hasSimpleText">
+        <text permissions="prop-default" encoding="utf8">Dies ist ein einfacher Text ohne Markup</text>
+    </text-prop>
+    ```
+
+    This is wrong:
+    ```
+    <text-prop name=":hasSimpleText">
+        <text permissions="prop-default" encoding="xml">Dies ist ein einfacher Text ohne Markup</text>
+    </text-prop>
+    ```
+
+    The accepted encodings are `xml` or `utf8`
+
+    Args:
+        root: root of the data xml document
+        text_prop_look_up: a lookup containing the property names and their specified types
+
+    Raises:
+        InputError: if any <text> elements have a wrong encoding.
+    """
     text_value_in_data = _get_all_ids_prop_encoding_from_root(root)
     all_checked = [x for x in text_value_in_data if not _check_correctness_one_prop(x, text_prop_look_up)]
     if len(all_checked) == 0:
@@ -176,10 +206,11 @@ def _analyse_all_text_value_encodings_are_correct(
     msg, df = InvalidTextValueEncodings(all_checked).execute_problem_protocol()
     if df is not None:
         csv_file = f"text_value_encoding_errors_{datetime.now().strftime('%Y-%m-%d_%H%M%S')}.csv"
-        df.to_csv(path_or_buf=Path(Path.cwd(), csv_file), index=False)
+        csv_path = Path(Path.cwd(), csv_file)
+        df.to_csv(path_or_buf=csv_path, index=False)
         msg += (
             "\n\n---------------------------------------\n\n"
-            f"\nAll the problems are listed in the file: '{Path.cwd()}/{csv_file}'"
+            f"\nAll the problems are listed in the file: '{csv_path.absolute()}'"
         )
     raise InputError(msg)
 
@@ -206,7 +237,7 @@ def _get_prop_encoding_from_one_property(res_id: str, property: etree._Element) 
     return TextValueData(res_id, prop_name, encodings)
 
 
-def _check_correctness_one_prop(text_val: TextValueData, text_prop_look_up: TextValuePropertyGUI) -> bool:
+def _check_correctness_one_prop(text_val: TextValueData, text_prop_look_up: TextValueEncodingTypes) -> bool:
     text_encoding = text_val.encoding
     if text_encoding == {"xml"}:
         return _check_correct(text_val.property_name, text_prop_look_up.formatted_text)

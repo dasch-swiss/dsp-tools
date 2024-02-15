@@ -2,18 +2,18 @@ from pytest_unordered import unordered
 
 from dsp_tools.commands.xmlupload.models.ontology_lookup_models import (
     _extract_classes_properties_from_onto,
-    _get_all_classes_from_graph,
-    _get_all_properties_from_graph,
-    _get_all_text_value_properties_and_guis_from_graph,
-    _make_text_value_property_gui,
+    _get_all_classes_from_json,
+    _get_all_properties_from_json,
+    _get_all_text_value_properties_and_types_from_json,
+    _make_text_value_property_type_lookup,
     _remove_prefixes,
 )
 
 
-class TestGetAllClassesFromGraph:
+class TestGetAllClassesFromJson:
     @staticmethod
     def test_single_class() -> None:
-        test_graph = [
+        test_json = [
             {
                 "knora-api:isResourceClass": True,
                 "rdfs:label": "Sequenz einer Audio-Ressource",
@@ -23,12 +23,12 @@ class TestGetAllClassesFromGraph:
                 "@id": "testonto:AudioSequence",
             },
         ]
-        res_cls = _get_all_classes_from_graph(test_graph)
+        res_cls = _get_all_classes_from_json(test_json)
         assert res_cls == ["testonto:AudioSequence"]
 
     @staticmethod
     def test_property() -> None:
-        test_graph = [
+        test_json = [
             {
                 "rdfs:label": "URI",
                 "rdfs:subPropertyOf": {},
@@ -41,12 +41,12 @@ class TestGetAllClassesFromGraph:
                 "@id": "testonto:hasUri",
             },
         ]
-        res_cls = _get_all_classes_from_graph(test_graph)
+        res_cls = _get_all_classes_from_json(test_json)
         assert not res_cls
 
     @staticmethod
-    def test_from_graph_resources_and_properties() -> None:
-        test_graph = [
+    def test_get_all_classes_from_json_props_and_csl() -> None:
+        test_json = [
             {
                 "knora-api:isResourceClass": True,
                 "rdfs:label": "Sequenz einer Audio-Ressource",
@@ -67,12 +67,12 @@ class TestGetAllClassesFromGraph:
                 "@id": "testonto:hasUri",
             },
         ]
-        res_cls = _get_all_classes_from_graph(test_graph)
+        res_cls = _get_all_classes_from_json(test_json)
         assert res_cls == ["testonto:AudioSequence"]
 
 
-def test_get_all_properties_from_graph_haslinkto() -> None:
-    test_graph = [
+def test_get_all_properties_from_json_haslinkto() -> None:
+    test_json = [
         {
             "rdfs:label": "hasResource",
             "rdfs:subPropertyOf": {},
@@ -96,12 +96,12 @@ def test_get_all_properties_from_graph_haslinkto() -> None:
             "@id": "testonto:hasResourceValue",
         },
     ]
-    res_prop = _get_all_properties_from_graph(test_graph)
+    res_prop = _get_all_properties_from_json(test_json)
     assert res_prop == ["testonto:hasResource", "testonto:hasResourceValue"]
 
 
-def test_get_all_properties_from_graph_resources_and_properties() -> None:
-    test_graph = [
+def test_get_all_properties_from_json_cls_and_properties() -> None:
+    test_json = [
         {
             "knora-api:isResourceClass": True,
             "rdfs:label": "Sequenz einer Audio-Ressource",
@@ -122,12 +122,12 @@ def test_get_all_properties_from_graph_resources_and_properties() -> None:
             "@id": "testonto:hasUri",
         },
     ]
-    res_prop = _get_all_properties_from_graph(test_graph)
+    res_prop = _get_all_properties_from_json(test_json)
     assert res_prop == ["testonto:hasUri"]
 
 
-def test_deserialize_ontology() -> None:
-    test_graph = [
+def test_extract_classes_properties_from_onto() -> None:
+    test_json = [
         {
             "knora-api:isResourceClass": True,
             "rdfs:label": "Annotation",
@@ -150,7 +150,7 @@ def test_deserialize_ontology() -> None:
             "rdfs:comment": "Represents a direct connection between two resources",
         },
     ]
-    res_onto = _extract_classes_properties_from_onto(test_graph)
+    res_onto = _extract_classes_properties_from_onto(test_json)
     assert res_onto.classes == ["Annotation"]
     assert res_onto.properties == ["hasLinkTo"]
 
@@ -167,8 +167,8 @@ def test_remove_prefixes_knora_properties() -> None:
     assert unordered(res) == ["attachedToUser", "deletedBy"]
 
 
-def test_get_all_properties_and_guis_from_graph() -> None:
-    test_graph = [
+def test_get_all_text_value_properties_and_types_from_json() -> None:
+    test_json = [
         {
             "knora-api:isResourceClass": True,
             "rdfs:label": "Annotation",
@@ -213,7 +213,7 @@ def test_get_all_properties_and_guis_from_graph() -> None:
             "@id": "onto:hasEditor",
         },
     ]
-    res = _get_all_text_value_properties_and_guis_from_graph(test_graph)
+    res = _get_all_text_value_properties_and_types_from_json(test_json)
     assert res == [
         ("onto:hasSimpleText", "salsah-gui:SimpleText"),
         ("onto:hasTextarea", "salsah-gui:Textarea"),
@@ -229,6 +229,6 @@ def test_make_text_value_property_gui() -> None:
         ("other_onto:hasRichtext", "salsah-gui:Richtext"),
         ("onto:ontoHasSimpleText", "salsah-gui:SimpleText"),
     ]
-    res = _make_text_value_property_gui(test_li, "onto")
+    res = _make_text_value_property_type_lookup(test_li, "onto")
     assert res.formatted_text == {":hasRichtext", "other_onto:hasRichtext", "hasComment"}
     assert res.unformatted_text == {":hasSimpleText", "onto_other:hasTextarea", ":ontoHasSimpleText"}

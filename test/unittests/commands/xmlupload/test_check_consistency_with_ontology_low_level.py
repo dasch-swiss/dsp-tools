@@ -23,7 +23,7 @@ from dsp_tools.commands.xmlupload.models.ontology_lookup_models import (
     OntoInfo,
     ProjectOntosInformation,
     TextValueData,
-    TextValuePropertyGUI,
+    TextValueEncodingTypes,
 )
 from dsp_tools.models.exceptions import InputError
 
@@ -514,27 +514,27 @@ def test_check_correct_false() -> None:
 class TestCheckCorrectnessOneProp:
     def test_utf_simple_correct(self) -> None:
         test_val = TextValueData("id", ":prop", {"utf8"})
-        test_lookup = TextValuePropertyGUI(set(), {":prop"})
+        test_lookup = TextValueEncodingTypes(set(), {":prop"})
         assert _check_correctness_one_prop(test_val, test_lookup) is True
 
     def test_utf_simple_wrong(self) -> None:
         test_val = TextValueData("id", ":prop", {"utf8"})
-        test_lookup = TextValuePropertyGUI({":prop"}, set())
+        test_lookup = TextValueEncodingTypes({":prop"}, set())
         assert _check_correctness_one_prop(test_val, test_lookup) is False
 
     def test_xml_correct(self) -> None:
         test_val = TextValueData("id", ":prop", {"xml"})
-        test_lookup = TextValuePropertyGUI({":prop"}, set())
+        test_lookup = TextValueEncodingTypes({":prop"}, set())
         assert _check_correctness_one_prop(test_val, test_lookup) is True
 
     def test_xml_wrong(self) -> None:
         test_val = TextValueData("id", ":prop", {"xml"})
-        test_lookup = TextValuePropertyGUI(set(), set())
+        test_lookup = TextValueEncodingTypes(set(), set())
         assert _check_correctness_one_prop(test_val, test_lookup) is False
 
     def test_mixed_wrong(self) -> None:
         test_val = TextValueData("id", ":prop", {"xml", "utf8"})
-        test_lookup = TextValuePropertyGUI(set(), set())
+        test_lookup = TextValueEncodingTypes(set(), set())
         assert _check_correctness_one_prop(test_val, test_lookup) is False
 
 
@@ -573,7 +573,9 @@ def test_analyse_all_text_value_encodings_are_correct_all_good() -> None:
                 </resource>
         </knora>"""
     )
-    test_lookup = TextValuePropertyGUI(formatted_text={":hasRichtext"}, unformatted_text={":hasSimpleText", ":hasText"})
+    test_lookup = TextValueEncodingTypes(
+        formatted_text={":hasRichtext"}, unformatted_text={":hasSimpleText", ":hasText"}
+    )
     _analyse_all_text_value_encodings_are_correct(test_ele, test_lookup)
 
 
@@ -612,7 +614,9 @@ def test_analyse_all_text_value_encodings_are_correct_problems() -> None:
                 </resource>
         </knora>"""
     )
-    test_lookup = TextValuePropertyGUI(formatted_text={":hasRichtext"}, unformatted_text={":hasSimpleText", ":hasText"})
+    test_lookup = TextValueEncodingTypes(
+        formatted_text={":hasRichtext"}, unformatted_text={":hasSimpleText", ":hasText"}
+    )
     expected = r"""
 Some text encodings used in the data is not conform with the gui-element specified in the ontology\.
 Please consult the ontology regarding the assigned gui-elements.

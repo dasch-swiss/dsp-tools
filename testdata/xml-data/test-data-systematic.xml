@@ -185,7 +185,6 @@
               permissions="res-default">
         <text-prop name=":hasSimpleText">
             <text permissions="prop-default" encoding="utf8">Dies ist ein einfacher Text ohne Markup</text>
-            <text permissions="prop-restricted" encoding="xml">Ein XML-formatierter Text <strong>mit Markup</strong></text>
             <text encoding="utf8">_</text>
             <text encoding="utf8">!</text>
             <text encoding="utf8">?</text>

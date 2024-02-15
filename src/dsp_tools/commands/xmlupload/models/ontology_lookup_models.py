@@ -95,7 +95,7 @@ def get_text_value_properties_and_formatting_from_json(
 ) -> TextValueEncodingTypes:
     """
     This function takes a dict with the names and ontology json of the project ontologies.
-    It filters out the property with TextValues and separates them into properties with formatted and un-formatted text
+    It filters out the property with TextValues and separates them into properties with formatted and unformatted text
 
     Args:
         onto_json_dict: dict with the ontologies

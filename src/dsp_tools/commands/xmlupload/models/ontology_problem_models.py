@@ -119,9 +119,15 @@ class InvalidOntologyElementsInData:
 
 @dataclass
 class InvalidTextValueEncodings:
-    """This class takes instances that contain the information about resources and the properties that contain
+    """
+    This class takes instances that contain the information about resources and the properties that contain
     invalid encodings.
-    It is responsible to communicate the problems to the user."""
+
+    An invalid encoding would be a property that specifies an xml encoding,
+    but in the elements specifies: <text encoding="utf8"> and vice versa.
+
+    It is responsible to communicate the problems to the user.
+    """
 
     problematic_resources: list[TextValueData]
 

@@ -3,14 +3,14 @@ from lxml import etree
 from pytest_unordered import unordered
 
 from dsp_tools.commands.xmlupload.check_consistency_with_ontology import (
-    _analyse_if_all_text_value_encodings_are_correct,
+    _analyse_all_text_value_encodings_are_correct,
+    _check_all_class_types_exist,
+    _check_all_properties_exist,
+    _check_correct,
     _check_correctness_one_prop,
-    _check_if_all_class_types_exist,
-    _check_if_all_properties_exist,
-    _check_if_correct,
-    _check_if_one_class_type_exists,
-    _check_if_one_property_exists,
-    _find_if_all_classes_and_properties_exist_in_onto,
+    _check_one_class_type_exists,
+    _check_one_property_exists,
+    _find_all_classes_and_properties_exist_in_onto,
     _get_all_class_types_and_ids_from_data,
     _get_all_classes_and_properties_from_data,
     _get_all_ids_prop_encoding_from_root,
@@ -37,7 +37,7 @@ class TestCheckClassType:
                 "knora-api": OntoInfo(classes=["knoraClassA"], properties=[]),
             },
         )
-        assert not _check_if_one_class_type_exists("knoraClassA", onto_check_info)
+        assert not _check_one_class_type_exists("knoraClassA", onto_check_info)
 
     def test_knora_prefix(self) -> None:
         onto_check_info = ProjectOntosInformation(
@@ -47,7 +47,7 @@ class TestCheckClassType:
                 "knora-api": OntoInfo(classes=["knoraClassA"], properties=[]),
             },
         )
-        assert not _check_if_one_class_type_exists("knora-api:knoraClassA", onto_check_info)
+        assert not _check_one_class_type_exists("knora-api:knoraClassA", onto_check_info)
 
     def test_no_default_prefix(self) -> None:
         onto_check_info = ProjectOntosInformation(
@@ -57,7 +57,7 @@ class TestCheckClassType:
                 "knora-api": OntoInfo(classes=["knoraClassA"], properties=[]),
             },
         )
-        assert not _check_if_one_class_type_exists(":classA", onto_check_info)
+        assert not _check_one_class_type_exists(":classA", onto_check_info)
 
     def test_default_prefix(self) -> None:
         onto_check_info = ProjectOntosInformation(
@@ -67,7 +67,7 @@ class TestCheckClassType:
                 "knora-api": OntoInfo(classes=["knoraClassA"], properties=[]),
             },
         )
-        assert not _check_if_one_class_type_exists("test:classB", onto_check_info)
+        assert not _check_one_class_type_exists("test:classB", onto_check_info)
 
     def test_unknown_class(self) -> None:
         onto_check_info = ProjectOntosInformation(
@@ -77,7 +77,7 @@ class TestCheckClassType:
                 "knora-api": OntoInfo(classes=["knoraClassA"], properties=[]),
             },
         )
-        assert _check_if_one_class_type_exists("test:classC", onto_check_info) == "Invalid Class Type"
+        assert _check_one_class_type_exists("test:classC", onto_check_info) == "Invalid Class Type"
 
     def test_unknown_prefix(self) -> None:
         onto_check_info = ProjectOntosInformation(
@@ -87,7 +87,7 @@ class TestCheckClassType:
                 "knora-api": OntoInfo(classes=["knoraClassA"], properties=[]),
             },
         )
-        assert _check_if_one_class_type_exists("other:classC", onto_check_info) == "Unknown ontology prefix"
+        assert _check_one_class_type_exists("other:classC", onto_check_info) == "Unknown ontology prefix"
 
     def test_diagnose_all_classes_no_problems(self) -> None:
         onto_check_info = ProjectOntosInformation(
@@ -98,7 +98,7 @@ class TestCheckClassType:
             },
         )
         test_classes = {"knora-api:knoraClassA": ["idA"], ":classB": ["idB"]}
-        assert not _check_if_all_class_types_exist(test_classes, onto_check_info)
+        assert not _check_all_class_types_exist(test_classes, onto_check_info)
 
     def test_diagnose_all_classes_problems(self) -> None:
         onto_check_info = ProjectOntosInformation(
@@ -109,7 +109,7 @@ class TestCheckClassType:
             },
         )
         test_classes = {"knoraClassA": ["idA"], ":classD": ["idD"]}
-        assert _check_if_all_class_types_exist(test_classes, onto_check_info) == [
+        assert _check_all_class_types_exist(test_classes, onto_check_info) == [
             (":classD", ["idD"], "Invalid Class Type")
         ]
 
@@ -123,7 +123,7 @@ class TestCheckProperties:
                 "knora-api": OntoInfo(classes=[], properties=["knoraPropA"]),
             },
         )
-        assert not _check_if_one_property_exists("knoraPropA", onto_check_info)
+        assert not _check_one_property_exists("knoraPropA", onto_check_info)
 
     def test_knora_prefix(self) -> None:
         onto_check_info = ProjectOntosInformation(
@@ -133,7 +133,7 @@ class TestCheckProperties:
                 "knora-api": OntoInfo(classes=[], properties=["knoraPropA"]),
             },
         )
-        assert not _check_if_one_property_exists("knora-api:knoraPropA", onto_check_info)
+        assert not _check_one_property_exists("knora-api:knoraPropA", onto_check_info)
 
     def test_no_default_prefix(self) -> None:
         onto_check_info = ProjectOntosInformation(
@@ -143,7 +143,7 @@ class TestCheckProperties:
                 "knora-api": OntoInfo(classes=[], properties=["knoraPropA"]),
             },
         )
-        assert not _check_if_one_property_exists(":propA", onto_check_info)
+        assert not _check_one_property_exists(":propA", onto_check_info)
 
     def test_default_prefix(self) -> None:
         onto_check_info = ProjectOntosInformation(
@@ -153,7 +153,7 @@ class TestCheckProperties:
                 "knora-api": OntoInfo(classes=[], properties=["knoraPropA"]),
             },
         )
-        assert not _check_if_one_property_exists("test:propB", onto_check_info)
+        assert not _check_one_property_exists("test:propB", onto_check_info)
 
     def test_unknown_prefix(self) -> None:
         onto_check_info = ProjectOntosInformation(
@@ -163,7 +163,7 @@ class TestCheckProperties:
                 "knora-api": OntoInfo(classes=[], properties=["knoraPropA"]),
             },
         )
-        assert _check_if_one_property_exists("other:propB", onto_check_info) == "Unknown ontology prefix"
+        assert _check_one_property_exists("other:propB", onto_check_info) == "Unknown ontology prefix"
 
     def test_unknown_property(self) -> None:
         onto_check_info = ProjectOntosInformation(
@@ -173,7 +173,7 @@ class TestCheckProperties:
                 "knora-api": OntoInfo(classes=[], properties=["knoraPropA"]),
             },
         )
-        assert _check_if_one_property_exists("test:propC", onto_check_info) == "Invalid Property"
+        assert _check_one_property_exists("test:propC", onto_check_info) == "Invalid Property"
 
     def test_diagnose_all_properties_problems(self) -> None:
         onto_check_info = ProjectOntosInformation(
@@ -185,7 +185,7 @@ class TestCheckProperties:
         )
         test_properties = {"test:propB": ["idB"], "other:propB": ["idB"], "test:propD": ["idD"]}
         expected = [("other:propB", ["idB"], "Unknown ontology prefix"), ("test:propD", ["idD"], "Invalid Property")]
-        assert unordered(_check_if_all_properties_exist(test_properties, onto_check_info)) == expected
+        assert unordered(_check_all_properties_exist(test_properties, onto_check_info)) == expected
 
     def test_diagnose_all_properties_no_problems(self) -> None:
         onto_check_info = ProjectOntosInformation(
@@ -196,10 +196,10 @@ class TestCheckProperties:
             },
         )
         test_properties = {"test:propB": ["idB"], "knoraPropA": ["idA"]}
-        assert not unordered(_check_if_all_properties_exist(test_properties, onto_check_info))
+        assert not unordered(_check_all_properties_exist(test_properties, onto_check_info))
 
 
-def test_find_if_all_classes_and_properties_exist_in_onto() -> None:
+def test_find_all_classes_and_properties_exist_in_onto_all_good() -> None:
     onto_check_info = ProjectOntosInformation(
         default_ontology_prefix="test",
         onto_lookup={
@@ -209,10 +209,10 @@ def test_find_if_all_classes_and_properties_exist_in_onto() -> None:
     )
     classes = {"knoraClassA": ["idA"]}
     properties = {"knora-api:knoraPropA": ["idA"]}
-    _find_if_all_classes_and_properties_exist_in_onto(classes, properties, onto_check_info)
+    _find_all_classes_and_properties_exist_in_onto(classes, properties, onto_check_info)
 
 
-def test_find_if_all_classes_and_properties_exist_in_onto_problem() -> None:
+def test_find_all_classes_and_properties_exist_in_onto_problem() -> None:
     onto_check_info = ProjectOntosInformation(
         default_ontology_prefix="test",
         onto_lookup={
@@ -223,7 +223,7 @@ def test_find_if_all_classes_and_properties_exist_in_onto_problem() -> None:
     classes = {"knora": ["idA"]}
     properties = {"knora-api:knoraPropA": ["idA"]}
     with pytest.raises(InputError):
-        _find_if_all_classes_and_properties_exist_in_onto(classes, properties, onto_check_info)
+        _find_all_classes_and_properties_exist_in_onto(classes, properties, onto_check_info)
 
 
 def test_get_prefix_and_prop_cls_identifier() -> None:
@@ -501,13 +501,13 @@ def test_get_all_ids_prop_encoding_from_root_with_text() -> None:
     assert res[2].encoding == {"utf8"}
 
 
-def test_check_if_correct_true() -> None:
-    res = _check_if_correct(":prop", {":prop", ":other"})
+def test_check_correct_true() -> None:
+    res = _check_correct(":prop", {":prop", ":other"})
     assert res is True
 
 
-def test_check_if_correct_false() -> None:
-    res = _check_if_correct(":nope", {":prop", ":other"})
+def test_check_correct_false() -> None:
+    res = _check_correct(":nope", {":prop", ":other"})
     assert res is False
 
 
@@ -538,7 +538,7 @@ class TestCheckCorrectnessOneProp:
         assert _check_correctness_one_prop(test_val, test_lookup) is False
 
 
-def test_check_if_all_text_value_encodings_are_correct_all_good() -> None:
+def test_analyse_all_text_value_encodings_are_correct_all_good() -> None:
     test_ele = etree.fromstring(
         """<knora>
                 <resource label="First Testthing"
@@ -574,10 +574,10 @@ def test_check_if_all_text_value_encodings_are_correct_all_good() -> None:
         </knora>"""
     )
     test_lookup = TextValuePropertyGUI(formatted_text={":hasRichtext"}, unformatted_text={":hasSimpleText", ":hasText"})
-    _analyse_if_all_text_value_encodings_are_correct(test_ele, test_lookup)
+    _analyse_all_text_value_encodings_are_correct(test_ele, test_lookup)
 
 
-def test_check_if_all_text_value_encodings_are_correct_problems() -> None:
+def test_analyse_all_text_value_encodings_are_correct_problems() -> None:
     test_ele = etree.fromstring(
         """<knora>
                 <resource label="First Testthing"
@@ -625,4 +625,4 @@ Resource ID\: 'resC'
 Resource ID\: 'test_thing_1'
     - Property Name\: '\:hasText' -> Encoding\(s\) Used\: 'xml'"""
     with pytest.raises(InputError, match=expected):
-        _analyse_if_all_text_value_encodings_are_correct(test_ele, test_lookup)
+        _analyse_all_text_value_encodings_are_correct(test_ele, test_lookup)

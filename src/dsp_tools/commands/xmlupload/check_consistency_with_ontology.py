@@ -40,8 +40,8 @@ def do_xml_consistency_check_with_ontology(onto_client: OntologyClient, root: et
     """
     text_prop_lookup, onto_check_info = _get_all_onto_look_ups(onto_client)
     classes_in_data, properties_in_data = _get_all_classes_and_properties_from_data(root)
-    _find_if_all_classes_and_properties_exist_in_onto(classes_in_data, properties_in_data, onto_check_info)
-    _analyse_if_all_text_value_encodings_are_correct(root, text_prop_lookup)
+    _find_all_classes_and_properties_exist_in_onto(classes_in_data, properties_in_data, onto_check_info)
+    _analyse_all_text_value_encodings_are_correct(root, text_prop_lookup)
 
 
 def _get_all_onto_look_ups(onto_client: OntologyClient) -> tuple[TextValuePropertyGUI, ProjectOntosInformation]:
@@ -54,13 +54,13 @@ def _get_all_onto_look_ups(onto_client: OntologyClient) -> tuple[TextValueProper
     return text_prop_lookup, onto_check_info
 
 
-def _find_if_all_classes_and_properties_exist_in_onto(
+def _find_all_classes_and_properties_exist_in_onto(
     classes_in_data: dict[str, list[str]],
     properties_in_data: dict[str, list[str]],
     onto_check_info: ProjectOntosInformation,
 ) -> None:
-    class_problems = _check_if_all_class_types_exist(classes_in_data, onto_check_info)
-    property_problems = _check_if_all_properties_exist(properties_in_data, onto_check_info)
+    class_problems = _check_all_class_types_exist(classes_in_data, onto_check_info)
+    property_problems = _check_all_properties_exist(properties_in_data, onto_check_info)
     if not class_problems and not property_problems:
         return None
     problems = InvalidOntologyElementsInData(
@@ -111,17 +111,17 @@ def _get_all_property_names_and_resource_ids_one_resource(
     return prop_dict
 
 
-def _check_if_all_class_types_exist(
+def _check_all_class_types_exist(
     classes: dict[str, list[str]], onto_check_info: ProjectOntosInformation
 ) -> list[tuple[str, list[str], str]]:
     problem_list = []
     for cls_type, ids in classes.items():
-        if problem := _check_if_one_class_type_exists(cls_type, onto_check_info):
+        if problem := _check_one_class_type_exists(cls_type, onto_check_info):
             problem_list.append((cls_type, ids, problem))
     return problem_list
 
 
-def _check_if_one_class_type_exists(cls_type: str, onto_check_info: ProjectOntosInformation) -> str | None:
+def _check_one_class_type_exists(cls_type: str, onto_check_info: ProjectOntosInformation) -> str | None:
     prefix, cls_ = _get_separate_prefix_and_iri_from_onto_prop_or_cls(cls_type, onto_check_info.default_ontology_prefix)
     if not prefix:
         return "Property name does not follow a known ontology pattern"
@@ -131,17 +131,17 @@ def _check_if_one_class_type_exists(cls_type: str, onto_check_info: ProjectOntos
         return "Unknown ontology prefix"
 
 
-def _check_if_all_properties_exist(
+def _check_all_properties_exist(
     properties: dict[str, list[str]], onto_check_info: ProjectOntosInformation
 ) -> list[tuple[str, list[str], str]]:
     problem_list = []
     for prop_name, ids in properties.items():
-        if problem := _check_if_one_property_exists(prop_name, onto_check_info):
+        if problem := _check_one_property_exists(prop_name, onto_check_info):
             problem_list.append((prop_name, ids, problem))
     return problem_list
 
 
-def _check_if_one_property_exists(prop_name: str, onto_check_info: ProjectOntosInformation) -> str | None:
+def _check_one_property_exists(prop_name: str, onto_check_info: ProjectOntosInformation) -> str | None:
     prefix, prop = _get_separate_prefix_and_iri_from_onto_prop_or_cls(
         prop_name, onto_check_info.default_ontology_prefix
     )
@@ -166,7 +166,7 @@ def _get_separate_prefix_and_iri_from_onto_prop_or_cls(
         return None, None
 
 
-def _analyse_if_all_text_value_encodings_are_correct(
+def _analyse_all_text_value_encodings_are_correct(
     root: etree._Element, text_prop_look_up: TextValuePropertyGUI
 ) -> None:
     text_value_in_data = _get_all_ids_prop_encoding_from_root(root)
@@ -209,13 +209,13 @@ def _get_prop_encoding_from_one_property(res_id: str, property: etree._Element) 
 def _check_correctness_one_prop(text_val: TextValueData, text_prop_look_up: TextValuePropertyGUI) -> bool:
     text_encoding = text_val.encoding
     if text_encoding == {"xml"}:
-        return _check_if_correct(text_val.property_name, text_prop_look_up.formatted_text)
+        return _check_correct(text_val.property_name, text_prop_look_up.formatted_text)
     if text_encoding == {"utf8"}:
-        return _check_if_correct(text_val.property_name, text_prop_look_up.unformatted_text)
+        return _check_correct(text_val.property_name, text_prop_look_up.unformatted_text)
     return False
 
 
-def _check_if_correct(text_prop_name: str, allowed_properties: set[str]) -> bool:
+def _check_correct(text_prop_name: str, allowed_properties: set[str]) -> bool:
     if text_prop_name in allowed_properties:
         return True
     return False

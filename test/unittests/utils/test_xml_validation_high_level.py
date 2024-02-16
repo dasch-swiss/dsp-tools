@@ -40,8 +40,9 @@ def test_validate_xml_invalid_resource_tag_problem() -> None:
 def test_validate_xml_data_duplicate_iri() -> None:
     with pytest.raises(
         InputError,
-        match="Line 19: Element 'resource': Duplicate key-sequence .+ "
-        "in unique identity-constraint 'IRI_attribute_of_resource_must_be_unique'",
+        match=r"The XML file cannot be uploaded due to the following validation error\(s\)\:\n"
+        r"    Line 19\: Element 'resource'\: Duplicate key-sequence \['http://rdfh.ch/4123/54SYvWF0QUW6a'\] "
+        r"in unique identity-constraint 'IRI_attribute_of_resource_must_be_unique'\.",
     ):
         validate_xml(input_file="testdata/invalid-testdata/xml-data/duplicate-iri.xml")
 
@@ -49,8 +50,9 @@ def test_validate_xml_data_duplicate_iri() -> None:
 def test_validate_xml_duplicate_ark() -> None:
     with pytest.raises(
         InputError,
-        match="Line 19: Element 'resource': Duplicate key-sequence .+ "
-        "in unique identity-constraint 'ARK_attribute_of_resource_must_be_unique'",
+        match=r"The XML file cannot be uploaded due to the following validation error\(s\)\:\n"
+        r"    Line 19\: Element 'resource'\: Duplicate key-sequence \['ark\:/72163/4123-31ec6eab334-a.2022829'\] "
+        r"in unique identity-constraint 'ARK_attribute_of_resource_must_be_unique'\.",
     ):
         validate_xml(input_file="testdata/invalid-testdata/xml-data/duplicate-ark.xml")
 
@@ -58,8 +60,9 @@ def test_validate_xml_duplicate_ark() -> None:
 def test_validate_xml_empty_label() -> None:
     with pytest.raises(
         InputError,
-        match="Line 11: Element 'resource', attribute 'label': .+ "
-        "The value '' has a length of '0'; this underruns the allowed minimum length of '1'",
+        match=r"The XML file cannot be uploaded due to the following validation error\(s\)\:\n"
+        r"    Line 11\: Element 'resource', attribute 'label'\: \[facet 'minLength'\] "
+        r"The value '' has a length of '0'; this underruns the allowed minimum length of '1'\.",
     ):
         validate_xml(input_file="testdata/invalid-testdata/xml-data/empty-label.xml")
 

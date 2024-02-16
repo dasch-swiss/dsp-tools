@@ -16,7 +16,10 @@ def test_validate_xml_data_minimal() -> None:
 def test_validate_xml_invalid_resource_tag_line_twelve() -> None:
     with pytest.raises(
         InputError,
-        match=r"Line 12: Element 'resource', attribute 'invalidtag': The attribute 'invalidtag' is not allowed",
+        match=(
+            r"""The XML file cannot be uploaded due to the following validation error\(s\)\:
+    Line 12\: Element 'resource', attribute 'invalidtag'\: The attribute 'invalidtag' is not allowed\."""
+        ),
     ):
         validate_xml(input_file="testdata/invalid-testdata/xml-data/invalid-resource-tag.xml")
 

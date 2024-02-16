@@ -108,25 +108,35 @@ class TestFindXMLTagsInUTF8(unittest.TestCase):
                 )
             )
 
-    def test_find_xml_tags_in_simple_text_elements_problems(self) -> None:
-        forbidden_html_escapes = ['&lt;tag s="t"&gt;', "&lt;em&gt;text&lt;/em&gt;"]
-        utf8_texts_with_forbidden_html_escapes = [
-            f"""
+    def test_find_xml_tags_in_simple_text_elements_forbidden_escapes(self) -> None:
+        test_ele = etree.fromstring(
+            """
             <knora shortcode="4123" default-ontology="testonto">
                 <resource label="label" restype=":restype" id="id">
                     <text-prop name=":name">
-                        <text encoding="utf8">{txt}</text>
+                        <text encoding="utf8">&lt;tag s="t"&gt;</text>
                     </text-prop>
                 </resource>
             </knora>
             """
-            for txt in forbidden_html_escapes
-        ]
-        for xml in utf8_texts_with_forbidden_html_escapes:
-            with self.assertRaisesRegex(InputError, "XML-tags are not allowed in text properties with encoding=utf8"):
-                dsp_tools.utils.validate_xml_against_schema._find_xml_tags_in_simple_text_elements(
-                    etree.fromstring(xml)
-                )
+        )
+        with self.assertRaisesRegex(InputError, "XML-tags are not allowed in text properties with encoding=utf8"):
+            dsp_tools.utils.validate_xml_against_schema._find_xml_tags_in_simple_text_elements(test_ele)
+
+    def test_find_xml_tags_in_simple_text_elements_forbidden_escapes_two(self) -> None:
+        test_ele = etree.fromstring(
+            """
+            <knora shortcode="4123" default-ontology="testonto">
+                <resource label="label" restype=":restype" id="id">
+                    <text-prop name=":name">
+                        <text encoding="utf8">&lt;em&gt;text&lt;/em&gt;</text>
+                    </text-prop>
+                </resource>
+            </knora>
+            """
+        )
+        with self.assertRaisesRegex(InputError, "XML-tags are not allowed in text properties with encoding=utf8"):
+            dsp_tools.utils.validate_xml_against_schema._find_xml_tags_in_simple_text_elements(test_ele)
 
 
 if __name__ == "__main__":

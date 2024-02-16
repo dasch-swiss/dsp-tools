@@ -81,7 +81,7 @@ class TestValidateXMLAgainstSchema(unittest.TestCase):
 
 class TestFindXMLTagsInUTF8(unittest.TestCase):
     def test_find_xml_tags_in_simple_text_elements_all_good(self) -> None:
-        utf8_texts_with_allowed_html_escapes = [
+        allowed_html_escapes = [
             "(&lt;2cm) (&gt;10cm)",
             "text &lt; text/&gt;",
             "text &lt; text&gt; &amp; text",
@@ -99,7 +99,7 @@ class TestFindXMLTagsInUTF8(unittest.TestCase):
                 </resource>
             </knora>
             """
-            for txt in utf8_texts_with_allowed_html_escapes
+            for txt in allowed_html_escapes
         ]
         for xml in utf8_texts_with_allowed_html_escapes:
             self.assertTrue(
@@ -108,8 +108,8 @@ class TestFindXMLTagsInUTF8(unittest.TestCase):
                 )
             )
 
-    def test_find_xml_tags_in_simple_text_elements_problems(self):
-        utf8_texts_with_forbidden_html_escapes = ['&lt;tag s="t"&gt;', "&lt;em&gt;text&lt;/em&gt;"]
+    def test_find_xml_tags_in_simple_text_elements_problems(self) -> None:
+        forbidden_html_escapes = ['&lt;tag s="t"&gt;', "&lt;em&gt;text&lt;/em&gt;"]
         utf8_texts_with_forbidden_html_escapes = [
             f"""
             <knora shortcode="4123" default-ontology="testonto">
@@ -120,7 +120,7 @@ class TestFindXMLTagsInUTF8(unittest.TestCase):
                 </resource>
             </knora>
             """
-            for txt in utf8_texts_with_forbidden_html_escapes
+            for txt in forbidden_html_escapes
         ]
         for xml in utf8_texts_with_forbidden_html_escapes:
             with self.assertRaisesRegex(InputError, "XML-tags are not allowed in text properties with encoding=utf8"):

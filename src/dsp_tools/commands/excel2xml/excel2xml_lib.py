@@ -19,7 +19,7 @@ from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.date_util import is_full_date
 from dsp_tools.utils.shared import check_notna, simplify_name
 from dsp_tools.utils.uri_util import is_uri
-from dsp_tools.utils.validate_data_xml import validate_xml
+from dsp_tools.utils.xml_validation import validate_xml
 
 # ruff: noqa: E501 (line-too-long)
 

@@ -109,7 +109,7 @@ def _check_if_all_class_types_exist(
 def _check_if_one_class_type_exists(cls_type: str, onto_check_info: ProjectOntosInformation) -> str | None:
     prefix, cls_ = _get_separate_prefix_and_iri_from_onto_prop_or_cls(cls_type, onto_check_info.default_ontology_prefix)
     if not prefix:
-        return "Property name does not follow a known ontology pattern"
+        return "Class name does not follow a known ontology pattern"
     if onto := onto_check_info.onto_lookup.get(prefix):
         return "Invalid Class Type" if cls_ not in onto.classes else None
     else:

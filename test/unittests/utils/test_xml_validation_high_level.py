@@ -4,7 +4,7 @@ import pytest
 from lxml import etree
 
 from dsp_tools.models.exceptions import InputError
-from dsp_tools.utils.validate_data_xml import _find_xml_tags_in_simple_text_elements, validate_xml
+from dsp_tools.utils.xml_validation import _find_xml_tags_in_simple_text_elements, validate_xml
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
 # ruff: noqa: PT027 (pytest-unittest-raises-assertion) (remove this line when pytest is used instead of unittest)

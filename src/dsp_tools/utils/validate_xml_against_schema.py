@@ -114,15 +114,15 @@ def _find_xml_tags_in_simple_text_elements(
         etree_finds_tags = bool(list(text.iterchildren()))
         has_tags = regex_finds_tags or etree_finds_tags
         if text.attrib["encoding"] == "utf8" and has_tags:
-            sourceline = f" line {text.sourceline}: " if text.sourceline else " "
+            sourceline = f"line {text.sourceline}: " if text.sourceline else " "
             propname = text.getparent().attrib["name"]  # type: ignore[union-attr]
             resname = text.getparent().getparent().attrib["id"]  # type: ignore[union-attr]
-            resources_with_illegal_xml_tags.append(f" -{sourceline}resource '{resname}', property '{propname}'")
+            resources_with_illegal_xml_tags.append(f"{sourceline}resource '{resname}', property '{propname}'")
     if resources_with_illegal_xml_tags:
         err_msg = (
-            "XML-tags are not allowed in text properties with encoding=utf8. "
-            "The following resources of your XML file violate this rule:\n"
+            "XML-tags are not allowed in text properties with encoding=utf8.\n"
+            "The following resources of your XML file violate this rule:"
         )
-        err_msg += separator.join(resources_with_illegal_xml_tags)
+        err_msg += list_separator + list_separator.join(resources_with_illegal_xml_tags)
         return False, err_msg
     return True, ""

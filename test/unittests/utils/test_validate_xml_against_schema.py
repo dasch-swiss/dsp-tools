@@ -37,12 +37,12 @@ class TestValidateXMLAgainstSchema(unittest.TestCase):
     def test_invalid_resource_tag_problem(self) -> None:
         with self.assertRaisesRegex(
             InputError,
-            r"XML-tags are not allowed in text properties with encoding=utf8\. "
-            r"The following resources of your XML file violate this rule:"
-            r"\n.+line 13.+"
-            r"\n.+line 14.+"
-            r"\n.+line 15.+"
-            r"\n.+line 16.+",
+            r"XML-tags are not allowed in text properties with encoding=utf8\.\n"
+            r"The following resources of your XML file violate this rule:\n"
+            r"    - line 13: resource 'the_only_resource', property ':test'\n"
+            r"    - line 14: resource 'the_only_resource', property ':test'\n"
+            r"    - line 15: resource 'the_only_resource', property ':test'\n"
+            r"    - line 16: resource 'the_only_resource', property ':test'",
         ):
             dsp_tools.utils.validate_xml_against_schema.validate_xml(
                 input_file="testdata/invalid-testdata/xml-data/utf8-text-with-xml-tags.xml"
@@ -120,23 +120,35 @@ class TestFindXMLTagsInUTF8(unittest.TestCase):
             </knora>
             """
         )
-        with self.assertRaisesRegex(InputError, "XML-tags are not allowed in text properties with encoding=utf8"):
-            dsp_tools.utils.validate_xml_against_schema._find_xml_tags_in_simple_text_elements(test_ele)
+        expected_msg = (
+            "XML-tags are not allowed in text properties with encoding=utf8.\n"
+            "The following resources of your XML file violate this rule:\n"
+            "    - line 5: resource 'id', property ':name'"
+        )
+        all_good, res_msg = dsp_tools.utils.validate_xml_against_schema._find_xml_tags_in_simple_text_elements(test_ele)
+        assert all_good is False
+        assert res_msg == expected_msg
 
     def test_find_xml_tags_in_simple_text_elements_forbidden_escapes_two(self) -> None:
         test_ele = etree.fromstring(
             """
             <knora shortcode="4123" default-ontology="testonto">
                 <resource label="label" restype=":restype" id="id">
-                    <text-prop name=":name">
+                    <text-prop name=":propName">
                         <text encoding="utf8">&lt;em&gt;text&lt;/em&gt;</text>
                     </text-prop>
                 </resource>
             </knora>
             """
         )
-        with self.assertRaisesRegex(InputError, "XML-tags are not allowed in text properties with encoding=utf8"):
-            dsp_tools.utils.validate_xml_against_schema._find_xml_tags_in_simple_text_elements(test_ele)
+        expected_msg = (
+            "XML-tags are not allowed in text properties with encoding=utf8.\n"
+            "The following resources of your XML file violate this rule:\n"
+            "    - line 5: resource 'id', property ':propName'"
+        )
+        all_good, res_msg = dsp_tools.utils.validate_xml_against_schema._find_xml_tags_in_simple_text_elements(test_ele)
+        assert all_good is False
+        assert res_msg == expected_msg
 
 
 if __name__ == "__main__":

@@ -6,6 +6,7 @@ import pandas as pd
 import pytest
 from lxml import etree
 
+import dsp_tools.utils.validate_xml_against_schema
 from dsp_tools.commands.excel2xml.propertyelement import PropertyElement
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils import shared
@@ -16,16 +17,24 @@ from dsp_tools.utils import shared
 
 class TestShared(unittest.TestCase):
     def test_validate_xml_against_schema(self) -> None:
-        self.assertTrue(shared.validate_xml_against_schema(input_file="testdata/xml-data/test-data-systematic.xml"))
         self.assertTrue(
-            shared.validate_xml_against_schema(input_file=etree.parse(source="testdata/xml-data/test-data-minimal.xml"))
+            dsp_tools.utils.validate_xml_against_schema.validate_xml(
+                input_file="testdata/xml-data/test-data-systematic.xml"
+            )
+        )
+        self.assertTrue(
+            dsp_tools.utils.validate_xml_against_schema.validate_xml(
+                input_file=etree.parse(source="testdata/xml-data/test-data-minimal.xml")
+            )
         )
 
         with self.assertRaisesRegex(
             UserError,
             "Line 12: Element 'resource', attribute 'invalidtag': The attribute 'invalidtag' is not allowed",
         ):
-            shared.validate_xml_against_schema(input_file="testdata/invalid-testdata/xml-data/invalid-resource-tag.xml")
+            dsp_tools.utils.validate_xml_against_schema.validate_xml(
+                input_file="testdata/invalid-testdata/xml-data/invalid-resource-tag.xml"
+            )
 
         with self.assertRaisesRegex(
             UserError,
@@ -36,7 +45,7 @@ class TestShared(unittest.TestCase):
             r"\n.+line 15.+"
             r"\n.+line 16.+",
         ):
-            shared.validate_xml_against_schema(
+            dsp_tools.utils.validate_xml_against_schema.validate_xml(
                 input_file="testdata/invalid-testdata/xml-data/utf8-text-with-xml-tags.xml"
             )
 
@@ -45,23 +54,29 @@ class TestShared(unittest.TestCase):
             "Line 19: Element 'resource': Duplicate key-sequence .+ "
             "in unique identity-constraint 'IRI_attribute_of_resource_must_be_unique'",
         ):
-            shared.validate_xml_against_schema(input_file="testdata/invalid-testdata/xml-data/duplicate-iri.xml")
+            dsp_tools.utils.validate_xml_against_schema.validate_xml(
+                input_file="testdata/invalid-testdata/xml-data/duplicate-iri.xml"
+            )
 
         with self.assertRaisesRegex(
             UserError,
             "Line 19: Element 'resource': Duplicate key-sequence .+ "
             "in unique identity-constraint 'ARK_attribute_of_resource_must_be_unique'",
         ):
-            shared.validate_xml_against_schema(input_file="testdata/invalid-testdata/xml-data/duplicate-ark.xml")
+            dsp_tools.utils.validate_xml_against_schema.validate_xml(
+                input_file="testdata/invalid-testdata/xml-data/duplicate-ark.xml"
+            )
 
         with self.assertRaisesRegex(
             UserError,
             "Line 11: Element 'resource', attribute 'label': .+ "
             "The value '' has a length of '0'; this underruns the allowed minimum length of '1'",
         ):
-            shared.validate_xml_against_schema(input_file="testdata/invalid-testdata/xml-data/empty-label.xml")
+            dsp_tools.utils.validate_xml_against_schema.validate_xml(
+                input_file="testdata/invalid-testdata/xml-data/empty-label.xml"
+            )
 
-    def test_validate_xml_tags_in_text_properties(self) -> None:
+    def test_find_xml_tags_in_simple_text_elements_all_good(self) -> None:
         utf8_texts_with_allowed_html_escapes = [
             "(&lt;2cm) (&gt;10cm)",
             "text &lt; text/&gt;",
@@ -83,8 +98,13 @@ class TestShared(unittest.TestCase):
             for txt in utf8_texts_with_allowed_html_escapes
         ]
         for xml in utf8_texts_with_allowed_html_escapes:
-            self.assertTrue(shared._validate_xml_tags_in_text_properties(etree.fromstring(xml)))
+            self.assertTrue(
+                dsp_tools.utils.validate_xml_against_schema._find_xml_tags_in_simple_text_elements(
+                    etree.fromstring(xml)
+                )
+            )
 
+    def test_find_xml_tags_in_simple_text_elements_error(self) -> None:
         utf8_texts_with_forbidden_html_escapes = ['&lt;tag s="t"&gt;', "&lt;em&gt;text&lt;/em&gt;"]
         utf8_texts_with_forbidden_html_escapes = [
             f"""
@@ -100,7 +120,9 @@ class TestShared(unittest.TestCase):
         ]
         for xml in utf8_texts_with_forbidden_html_escapes:
             with self.assertRaisesRegex(UserError, "XML-tags are not allowed in text properties with encoding=utf8"):
-                shared._validate_xml_tags_in_text_properties(etree.fromstring(xml))
+                dsp_tools.utils.validate_xml_against_schema._find_xml_tags_in_simple_text_elements(
+                    etree.fromstring(xml)
+                )
 
     def test_prepare_dataframe(self) -> None:
         original_df = pd.DataFrame(

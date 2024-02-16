@@ -17,8 +17,9 @@ from dsp_tools.commands.excel2xml.propertyelement import PropertyElement
 from dsp_tools.models.datetimestamp import DateTimeStamp
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.date_util import is_full_date
-from dsp_tools.utils.shared import check_notna, simplify_name, validate_xml_against_schema
+from dsp_tools.utils.shared import check_notna, simplify_name
 from dsp_tools.utils.uri_util import is_uri
+from dsp_tools.utils.validate_data_xml import validate_xml
 
 # ruff: noqa: E501 (line-too-long)
 
@@ -1939,7 +1940,7 @@ def write_xml(
     with open(filepath, "w", encoding="utf-8") as f:
         f.write(xml_string)
     try:
-        validate_xml_against_schema(input_file=filepath)
+        validate_xml(input_file=filepath)
         print(f"The XML file was successfully saved to {filepath}")
     except BaseError as err:
         warnings.warn(

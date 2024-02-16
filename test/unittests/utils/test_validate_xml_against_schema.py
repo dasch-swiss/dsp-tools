@@ -1,37 +1,42 @@
 import unittest
 
+import pytest
 from lxml import etree
 
 import dsp_tools.utils.validate_xml_against_schema
-from dsp_tools.models.exceptions import UserError
+from dsp_tools.models.exceptions import InputError
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
 # ruff: noqa: PT027 (pytest-unittest-raises-assertion) (remove this line when pytest is used instead of unittest)
 
 
-class TestShared(unittest.TestCase):
-    def test_validate_xml_against_schema(self) -> None:
+class TestValidateXMLAgainstSchema(unittest.TestCase):
+    def test_data_systematic(self) -> None:
         self.assertTrue(
             dsp_tools.utils.validate_xml_against_schema.validate_xml(
                 input_file="testdata/xml-data/test-data-systematic.xml"
             )
         )
+
+    def test_data_minimal(self) -> None:
         self.assertTrue(
             dsp_tools.utils.validate_xml_against_schema.validate_xml(
                 input_file=etree.parse(source="testdata/xml-data/test-data-minimal.xml")
             )
         )
 
+    def test_invalid_resource_tag_line_twelve(self) -> None:
         with self.assertRaisesRegex(
-            UserError,
+            InputError,
             "Line 12: Element 'resource', attribute 'invalidtag': The attribute 'invalidtag' is not allowed",
         ):
             dsp_tools.utils.validate_xml_against_schema.validate_xml(
                 input_file="testdata/invalid-testdata/xml-data/invalid-resource-tag.xml"
             )
 
+    def test_invalid_resource_tag_problem(self) -> None:
         with self.assertRaisesRegex(
-            UserError,
+            InputError,
             r"XML-tags are not allowed in text properties with encoding=utf8\. "
             r"The following resources of your XML file violate this rule:"
             r"\n.+line 13.+"
@@ -43,8 +48,9 @@ class TestShared(unittest.TestCase):
                 input_file="testdata/invalid-testdata/xml-data/utf8-text-with-xml-tags.xml"
             )
 
+    def test_data_duplicate_iri(self) -> None:
         with self.assertRaisesRegex(
-            UserError,
+            InputError,
             "Line 19: Element 'resource': Duplicate key-sequence .+ "
             "in unique identity-constraint 'IRI_attribute_of_resource_must_be_unique'",
         ):
@@ -52,8 +58,9 @@ class TestShared(unittest.TestCase):
                 input_file="testdata/invalid-testdata/xml-data/duplicate-iri.xml"
             )
 
+    def test_duplicate_ark(self) -> None:
         with self.assertRaisesRegex(
-            UserError,
+            InputError,
             "Line 19: Element 'resource': Duplicate key-sequence .+ "
             "in unique identity-constraint 'ARK_attribute_of_resource_must_be_unique'",
         ):
@@ -61,8 +68,9 @@ class TestShared(unittest.TestCase):
                 input_file="testdata/invalid-testdata/xml-data/duplicate-ark.xml"
             )
 
+    def test_empty_label(self) -> None:
         with self.assertRaisesRegex(
-            UserError,
+            InputError,
             "Line 11: Element 'resource', attribute 'label': .+ "
             "The value '' has a length of '0'; this underruns the allowed minimum length of '1'",
         ):
@@ -70,6 +78,8 @@ class TestShared(unittest.TestCase):
                 input_file="testdata/invalid-testdata/xml-data/empty-label.xml"
             )
 
+
+class TestFindXMLTagsInUTF8(unittest.TestCase):
     def test_find_xml_tags_in_simple_text_elements_all_good(self) -> None:
         utf8_texts_with_allowed_html_escapes = [
             "(&lt;2cm) (&gt;10cm)",
@@ -113,7 +123,11 @@ class TestShared(unittest.TestCase):
             for txt in utf8_texts_with_forbidden_html_escapes
         ]
         for xml in utf8_texts_with_forbidden_html_escapes:
-            with self.assertRaisesRegex(UserError, "XML-tags are not allowed in text properties with encoding=utf8"):
+            with self.assertRaisesRegex(InputError, "XML-tags are not allowed in text properties with encoding=utf8"):
                 dsp_tools.utils.validate_xml_against_schema._find_xml_tags_in_simple_text_elements(
                     etree.fromstring(xml)
                 )
+
+
+if __name__ == "__main__":
+    pytest.main([__file__])

@@ -14,6 +14,11 @@ from dsp_tools.utils.xml_utils import remove_namespaces_from_xml
 
 logger = get_logger(__name__)
 
+separator = "\n    "
+list_separator = "\n    - "
+medium_separator = "\n----------------------------\n"
+grand_separator = "\n\n---------------------------------------\n\n"
+
 
 def validate_xml(input_file: Union[str, Path, etree._ElementTree[Any]]) -> bool:
     """
@@ -41,6 +46,11 @@ def validate_xml(input_file: Union[str, Path, etree._ElementTree[Any]]) -> bool:
     all_good, msg = _find_xml_tags_in_simple_text_elements(xml_no_namespace)
     if not all_good:
         problems.append(msg)
+
+    if len(problems) > 0:
+        err_msg = grand_separator.join(problems)
+        logger.error(err_msg, exc_info=True)
+        raise InputError(err_msg)
 
     logger.info("The XML file is syntactically correct and passed validation.")
     print(f"{datetime.now()}: The XML file is syntactically correct and passed validation.")
@@ -71,7 +81,7 @@ def _validate_xml_against_schema(
     if not xmlschema.validate(data_xml):
         error_msg = "The XML file cannot be uploaded due to the following validation error(s):"
         for error in xmlschema.error_log:
-            error_msg = error_msg + f"\n  Line {error.line}: {error.message}"
+            error_msg = error_msg + f"{separator}Line {error.line}: {error.message}"
         error_msg = error_msg.replace("{https://dasch.swiss/schema}", "")
         return False, error_msg
     return True, ""
@@ -113,6 +123,6 @@ def _find_xml_tags_in_simple_text_elements(
             "XML-tags are not allowed in text properties with encoding=utf8. "
             "The following resources of your XML file violate this rule:\n"
         )
-        err_msg += "\n".join(resources_with_illegal_xml_tags)
+        err_msg += separator.join(resources_with_illegal_xml_tags)
         return False, err_msg
     return True, ""

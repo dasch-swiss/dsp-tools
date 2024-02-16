@@ -103,3 +103,22 @@ def _parse_xml_file(input_file: Union[str, Path]) -> etree._ElementTree[etree._E
     """
     parser = etree.XMLParser(remove_comments=True, remove_pis=True)
     return etree.parse(source=input_file, parser=parser)
+
+
+def remove_namespaces_from_xml(
+    data_xml: Union[etree._ElementTree[etree._Element], etree._Element],
+) -> Union[etree._ElementTree[etree._Element], etree._Element]:
+    """
+    This function removes all the namespaces from an XML file.
+
+    Args:
+        data_xml: file with namespaces
+
+    Returns:
+        the XMl file without the namespaces
+    """
+    xml_no_namespace = copy.deepcopy(data_xml)
+    for elem in xml_no_namespace.iter():
+        if not isinstance(elem, (etree._Comment, etree._ProcessingInstruction)):
+            elem.tag = etree.QName(elem).localname
+    return xml_no_namespace

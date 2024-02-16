@@ -21,7 +21,7 @@ from dsp_tools.commands.template import generate_template_repo
 from dsp_tools.commands.xmlupload.upload_config import DiagnosticsConfig, UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from dsp_tools.utils.create_logger import get_logger
-from dsp_tools.utils.shared import validate_xml_against_schema
+from dsp_tools.utils.validate_data_xml import validate_xml
 
 logger = get_logger(__name__)
 
@@ -192,7 +192,7 @@ def _call_process_files(args: argparse.Namespace) -> bool:
 
 def _call_xmlupload(args: argparse.Namespace) -> bool:
     if args.validate_only:
-        return validate_xml_against_schema(args.xmlfile)
+        return validate_xml(args.xmlfile)
     else:
         return xmlupload(
             input_file=args.xmlfile,

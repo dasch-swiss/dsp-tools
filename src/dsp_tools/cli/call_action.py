@@ -21,7 +21,7 @@ from dsp_tools.commands.template import generate_template_repo
 from dsp_tools.commands.xmlupload.upload_config import DiagnosticsConfig, UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from dsp_tools.utils.create_logger import get_logger
-from dsp_tools.utils.validate_xml_against_schema import validate_xml
+from dsp_tools.utils.validate_data_xml import validate_xml
 
 logger = get_logger(__name__)
 

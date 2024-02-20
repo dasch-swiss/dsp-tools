@@ -7,7 +7,7 @@ from pandas.testing import assert_frame_equal, assert_series_equal
 from pytest_unordered import unordered
 
 import dsp_tools.commands.excel2json.utils as utl
-from dsp_tools.commands.excel2json.input_error import DuplicatesInColumnProblem
+from dsp_tools.commands.excel2json.models.input_error import DuplicatesInColumnProblem
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
 
@@ -83,15 +83,6 @@ class TestUtils(unittest.TestCase):
         }
         expected_dict = {"col_1": [3, 5], "col_2": [4]}
         returned_dict = utl.get_wrong_row_numbers(wrong_row_dict=original_dict, true_remains=True)
-        self.assertDictEqual(expected_dict, returned_dict)
-
-    def test_update_dict_if_not_value_none(self) -> None:
-        original_dict = {0: 0}
-        original_update_dict = {1: 1, 2: 2, 3: None, 4: pd.NA, 5: "5"}
-        expected_dict = {0: 0, 1: 1, 2: 2, 5: "5"}
-        returned_dict = utl.update_dict_if_not_value_none(
-            additional_dict=original_update_dict, to_update_dict=original_dict
-        )
         self.assertDictEqual(expected_dict, returned_dict)
 
     def test_find_one_full_cell_in_cols(self) -> None:
@@ -175,33 +166,6 @@ class TestUtils(unittest.TestCase):
         self.assertDictEqual(expected_dict, cast(dict[str, str], returned_dict))
 
         assert not utl.get_comments(original_df.loc[1, :])
-
-    def test_add_optional_columns(self) -> None:
-        original_df = pd.DataFrame(
-            {
-                "comment_en": ["text_en", pd.NA],
-                "comment_it": ["text_it", pd.NA],
-                "comment_rm": [pd.NA, pd.NA],
-            }
-        )
-        optional_cols = {"comment_en", "comment_de", "comment_fr", "comment_it", "comment_rm"}
-        expected_df = pd.DataFrame(
-            {
-                "comment_de": [pd.NA, pd.NA],
-                "comment_en": ["text_en", pd.NA],
-                "comment_fr": [pd.NA, pd.NA],
-                "comment_it": ["text_it", pd.NA],
-                "comment_rm": [pd.NA, pd.NA],
-            }
-        )
-        returned_df = utl.add_optional_columns(df=original_df, optional_col_set=optional_cols)
-        # as the columns are extracted via a set, they are not sorted and may appear in any order,
-        # this would cause the validation to fail
-        returned_df = returned_df.sort_index(axis=1)
-        assert_frame_equal(expected_df, returned_df)
-        # if all columns exist, the df should be returned unchanged
-        unchanged_df = utl.add_optional_columns(df=expected_df, optional_col_set=optional_cols)
-        assert_frame_equal(expected_df, unchanged_df)
 
 
 if __name__ == "__main__":

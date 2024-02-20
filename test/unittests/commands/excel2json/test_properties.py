@@ -11,7 +11,7 @@ import pytest
 from pandas.testing import assert_frame_equal
 
 from dsp_tools.commands.excel2json import properties as e2j
-from dsp_tools.commands.excel2json.input_error import InvalidExcelContentProblem
+from dsp_tools.commands.excel2json.models.input_error import InvalidExcelContentProblem
 from dsp_tools.models.exceptions import InputError
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
@@ -430,7 +430,7 @@ class TestFunctions(unittest.TestCase):
     def test_search_convert_numbers(self) -> None:
         test_dict = {"1": 1, "string": "string", "1.453": 1.453, "sdf.asdf": "sdf.asdf"}
         for original, expected in test_dict.items():
-            self.assertEqual(e2j._search_convert_numbers(value_str=original), expected)
+            self.assertEqual(e2j._search_convert_numbers_in_str(value_str=original), expected)
 
     def test_get_gui_attribute(self) -> None:
         original_df = pd.DataFrame(
@@ -504,6 +504,7 @@ class TestFunctions(unittest.TestCase):
         expected_dict = {
             "name": "name_1",
             "object": "object_1",
+            "subject": "subject_1",
             "gui_element": "Simple",
             "labels": {
                 "en": "label_en_1",
@@ -531,6 +532,7 @@ class TestFunctions(unittest.TestCase):
             "labels": {"en": "label_en_2"},
             "name": "name_2",
             "object": "object_2",
+            "subject": "subject_2",
             "super": ["super_2.1", "super_2.2"],
         }
         self.assertDictEqual(expected_dict, returned_dict)
@@ -565,7 +567,7 @@ class TestFunctions(unittest.TestCase):
 class TestValidateProperties:
     # it is not possible to call the method to be tested directly.
     # So let's make a reference to it, so that it can be found by the usage search
-    lambda _: e2j._validate_properties([], "file")
+    lambda _: e2j._validate_properties_section_in_json([], "file")
 
     def test_invalid_super(self) -> None:
         expected_msg = re.escape(
@@ -625,6 +627,54 @@ class TestValidateProperties:
                 excelfile="testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute_values.xlsx",
                 path_to_output_file="",
             )
+
+    def test_add_optional_columns_with_missing_cols(self) -> None:
+        original_df = pd.DataFrame(
+            {
+                "comment_en": ["text_en", pd.NA],
+                "comment_it": ["text_it", pd.NA],
+                "comment_rm": [pd.NA, pd.NA],
+            }
+        )
+        expected_df = pd.DataFrame(
+            {
+                "comment_de": [pd.NA, pd.NA],
+                "comment_en": ["text_en", pd.NA],
+                "comment_fr": [pd.NA, pd.NA],
+                "comment_it": ["text_it", pd.NA],
+                "comment_rm": [pd.NA, pd.NA],
+                "label_de": [pd.NA, pd.NA],
+                "label_en": [pd.NA, pd.NA],
+                "label_fr": [pd.NA, pd.NA],
+                "label_it": [pd.NA, pd.NA],
+                "label_rm": [pd.NA, pd.NA],
+                "subject": [pd.NA, pd.NA],
+            }
+        )
+        returned_df = e2j._add_optional_columns(df=original_df)
+        # as the columns are extracted via a set, they are not sorted and may appear in any order,
+        # this would cause the validation to fail
+        returned_df = returned_df.sort_index(axis=1)
+        assert_frame_equal(expected_df, returned_df)
+
+    def test_add_optional_columns_no_missing_cols(self) -> None:
+        expected_df = pd.DataFrame(
+            {
+                "comment_de": [pd.NA, pd.NA],
+                "comment_en": ["text_en", pd.NA],
+                "comment_fr": [pd.NA, pd.NA],
+                "comment_it": ["text_it", pd.NA],
+                "comment_rm": [pd.NA, pd.NA],
+                "label_de": [pd.NA, pd.NA],
+                "label_en": [pd.NA, pd.NA],
+                "label_fr": [pd.NA, pd.NA],
+                "label_it": [pd.NA, pd.NA],
+                "label_rm": [pd.NA, pd.NA],
+                "subject": [pd.NA, pd.NA],
+            }
+        )
+        unchanged_df = e2j._add_optional_columns(df=expected_df)
+        assert_frame_equal(expected_df, unchanged_df)
 
 
 if __name__ == "__main__":

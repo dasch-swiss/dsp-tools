@@ -1,5 +1,3 @@
-import tempfile
-from collections.abc import Iterator
 from pathlib import Path
 
 import pytest
@@ -7,19 +5,15 @@ import pytest
 from dsp_tools.commands import rosetta
 
 
-@pytest.fixture(scope="module", autouse=True)
-def rosetta_folder() -> Iterator[Path]:
-    with tempfile.TemporaryDirectory() as tmpdirname:
-        yield Path(tmpdirname) / "082E-rosetta-scripts"
-
-
-def test_update_repo_before_cloning(rosetta_folder: Path) -> None:
+def test_update_repo_before_cloning(tmp_path: Path) -> None:
+    rosetta_folder = tmp_path / "082E-rosetta-scripts"
     is_rosetta_up_to_date = rosetta._update_possibly_existing_repo(rosetta_folder=rosetta_folder)
     assert not is_rosetta_up_to_date
 
 
-def test_update_repo_after_cloning(rosetta_folder: Path) -> None:
-    rosetta._clone_repo(rosetta_folder=rosetta_folder, enclosing_folder=rosetta_folder.parent)
+def test_update_repo_after_cloning(tmp_path: Path) -> None:
+    rosetta_folder = tmp_path / "082E-rosetta-scripts"
+    rosetta._clone_repo(rosetta_folder=rosetta_folder, enclosing_folder=tmp_path)
     is_rosetta_up_to_date = rosetta._update_possibly_existing_repo(rosetta_folder=rosetta_folder)
     assert is_rosetta_up_to_date
 

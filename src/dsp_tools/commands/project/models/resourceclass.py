@@ -14,11 +14,11 @@ from urllib.parse import quote_plus
 import regex
 
 from dsp_tools.commands.project.models.context import Context
-from dsp_tools.commands.project.models.helpers import Actions, Cardinality
+from dsp_tools.commands.project.models.helpers import Cardinality
 from dsp_tools.commands.project.models.model import Model
 from dsp_tools.models.datetimestamp import DateTimeStamp
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.langstring import LangString, Languages
+from dsp_tools.models.langstring import LangString
 from dsp_tools.utils.connection import Connection
 
 
@@ -110,58 +110,25 @@ class HasProperty(Model):
         return self._ptype
 
     @classmethod
-    def fromJsonObj(cls, con: Connection, context: Context, jsonld_obj: Any) -> tuple[str, HasProperty]:
-        rdf = context.prefix_from_iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
-        rdfs = context.prefix_from_iri("http://www.w3.org/2000/01/rdf-schema#")
-        owl = context.prefix_from_iri("http://www.w3.org/2002/07/owl#")
-        knora_api = context.prefix_from_iri("http://api.knora.org/ontology/knora-api/v2#")
-        salsah_gui = context.prefix_from_iri("http://api.knora.org/ontology/salsah-gui/v2#")
+    def fromJsonObj(cls, con: Connection, context: Context, jsonld_obj: dict[str, Any]) -> tuple[str, HasProperty]:
+        rdf_iri = context.prefix_from_iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
+        rdfs_iri = context.prefix_from_iri("http://www.w3.org/2000/01/rdf-schema#")
+        owl_iri = context.prefix_from_iri("http://www.w3.org/2002/07/owl#")
+        knora_api_iri = context.prefix_from_iri("http://api.knora.org/ontology/knora-api/v2#")
+        salsah_gui_iri = context.prefix_from_iri("http://api.knora.org/ontology/salsah-gui/v2#")
 
-        if jsonld_obj.get("@type") is None or jsonld_obj.get("@type") != owl + ":Restriction":
+        if jsonld_obj.get("@type") is None or jsonld_obj.get("@type") != owl_iri + ":Restriction":
             raise BaseError("Expected restriction type")
 
-        #
-        # let's get the cardinality
-        #
-        cardinality: Cardinality
-        if jsonld_obj.get(owl + ":cardinality") is not None:
-            cardinality = Cardinality.C_1
-        elif jsonld_obj.get(owl + ":maxCardinality") is not None:
-            cardinality = Cardinality.C_0_1
-        elif jsonld_obj.get(owl + ":minCardinality") is not None:
-            if jsonld_obj.get(owl + ":minCardinality") == 0:
-                cardinality = Cardinality.C_0_n
-            elif jsonld_obj.get(owl + ":minCardinality") == 1:
-                cardinality = Cardinality.C_1_n
-            else:
-                raise BaseError("Problem with cardinality")
-        else:
-            raise BaseError("Problem with cardinality")
+        cardinality = cls._fromJsonObj_get_cardinality(jsonld_obj, owl_iri)
 
-        #
-        # Now let's get the property IRI
-        #
-        property_id: str
-        ptype: HasProperty.Ptype
-        ontology_id: Optional[str] = None
-        if jsonld_obj.get(owl + ":onProperty") is None:
-            raise BaseError("No property IRI given")
-        p = jsonld_obj[owl + ":onProperty"].get("@id")
-        if p is None:
-            raise BaseError("No property IRI given")
-        pp = p.split(":")
-        if pp[0] == rdf or pp[0] == rdfs or pp[0] == owl:
-            ptype = HasProperty.Ptype.system
-        elif pp[0] == knora_api:
-            ptype = HasProperty.Ptype.knora
-        else:
-            ptype = HasProperty.Ptype.other
-            ontology_id = context.iri_from_prefix(pp[0])
-        property_id = p
+        ontology_id, property_id, ptype = cls._fromJsonObj_get_prop_type_iri(
+            context, jsonld_obj, knora_api_iri, owl_iri, rdf_iri, rdfs_iri
+        )
 
         gui_order: int = None
-        if jsonld_obj.get(salsah_gui + ":guiOrder") is not None:
-            gui_order = jsonld_obj[salsah_gui + ":guiOrder"]
+        if jsonld_obj.get(salsah_gui_iri + ":guiOrder") is not None:
+            gui_order = jsonld_obj[salsah_gui_iri + ":guiOrder"]
         return property_id, cls(
             con=con,
             context=context,
@@ -172,58 +139,46 @@ class HasProperty(Model):
             ptype=ptype,
         )
 
-    def toJsonObj(self, lastModificationDate: DateTimeStamp, action: Actions) -> dict[str, Any]:
-        if self._cardinality is None:
-            raise BaseError("There must be a cardinality given!")
-        tmp = {}
-        switcher = {
-            Cardinality.C_1: ("owl:cardinality", 1),
-            Cardinality.C_0_1: ("owl:maxCardinality", 1),
-            Cardinality.C_0_n: ("owl:minCardinality", 0),
-            Cardinality.C_1_n: ("owl:minCardinality", 1),
-        }
-        occurrence = switcher.get(self._cardinality)
-        if action == Actions.Create:
-            tmp = {
-                "@id": self._ontology_id,
-                "@type": "owl:Ontology",
-                "knora-api:lastModificationDate": lastModificationDate.toJsonObj(),
-                "@graph": [
-                    {
-                        "@id": self._resclass_id,
-                        "@type": "owl:Class",
-                        "rdfs:subClassOf": {
-                            "@type": "owl:Restriction",
-                            occurrence[0]: occurrence[1],
-                            "owl:onProperty": {"@id": self._property_id},
-                        },
-                    }
-                ],
-                "@context": self._context.toJsonObj(),
-            }
-            if self._gui_order is not None:
-                tmp["@graph"][0]["rdfs:subClassOf"]["salsah-gui:guiOrder"] = self._gui_order
-        elif action == Actions.Update:
-            tmp = {
-                "@id": self._ontology_id,
-                "@type": "owl:Ontology",
-                "knora-api:lastModificationDate": lastModificationDate.toJsonObj(),
-                "@graph": [
-                    {
-                        "@id": self._resclass_id,
-                        "@type": "owl:Class",
-                        "rdfs:subClassOf": {
-                            "@type": "owl:Restriction",
-                            occurrence[0]: occurrence[1],
-                            "owl:onProperty": {"@id": self._property_id},
-                        },
-                    }
-                ],
-                "@context": self._context.toJsonObj(),
-            }
-            if self._gui_order is not None and "gui_order" in self._changed:
-                tmp["@graph"][0]["rdfs:subClassOf"]["salsah-gui:guiOrder"] = self._gui_order
-        return tmp
+    @staticmethod
+    def _fromJsonObj_get_prop_type_iri(
+        context: Context, jsonld_obj: dict[str, Any], knora_api_iri: str, owl_iri: str, rdf_iri: str, rdfs_iri: str
+    ) -> tuple[str, str, HasProperty.Ptype]:
+        property_id: str
+        ptype: HasProperty.Ptype
+        ontology_id: Optional[str] = None
+        if jsonld_obj.get(owl_iri + ":onProperty") is None:
+            raise BaseError("No property IRI given")
+        p = jsonld_obj[owl_iri + ":onProperty"].get("@id")
+        if p is None:
+            raise BaseError("No property IRI given")
+        pp = p.split(":")
+        if pp[0] == rdf_iri or pp[0] == rdfs_iri or pp[0] == owl_iri:
+            ptype = HasProperty.Ptype.system
+        elif pp[0] == knora_api_iri:
+            ptype = HasProperty.Ptype.knora
+        else:
+            ptype = HasProperty.Ptype.other
+            ontology_id = context.iri_from_prefix(pp[0])
+        property_id = p
+        return ontology_id, property_id, ptype
+
+    @staticmethod
+    def _fromJsonObj_get_cardinality(jsonld_obj: dict[str, Any], owl_iri: str):
+        cardinality: Cardinality
+        if jsonld_obj.get(owl_iri + ":cardinality") is not None:
+            cardinality = Cardinality.C_1
+        elif jsonld_obj.get(owl_iri + ":maxCardinality") is not None:
+            cardinality = Cardinality.C_0_1
+        elif jsonld_obj.get(owl_iri + ":minCardinality") is not None:
+            if jsonld_obj.get(owl_iri + ":minCardinality") == 0:
+                cardinality = Cardinality.C_0_n
+            elif jsonld_obj.get(owl_iri + ":minCardinality") == 1:
+                cardinality = Cardinality.C_1_n
+            else:
+                raise BaseError("Problem with cardinality")
+        else:
+            raise BaseError("Problem with cardinality")
+        return cardinality
 
     def create(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, ResourceClass]:
         if self._ontology_id is None:
@@ -233,7 +188,7 @@ class HasProperty(Model):
         if self._cardinality is None:
             raise BaseError("Cardinality id required")
 
-        jsonobj = self.toJsonObj(last_modification_date, Actions.Create)
+        jsonobj = self._toJsonObj_create(last_modification_date)
         result = self._con.post(HasProperty.ROUTE, jsonobj)
         last_modification_date = DateTimeStamp(result["knora-api:lastModificationDate"])
         return last_modification_date, ResourceClass.fromJsonObj(self._con, self._context, result["@graph"])
@@ -245,10 +200,67 @@ class HasProperty(Model):
             raise BaseError("Property id required")
         if self._cardinality is None:
             raise BaseError("Cardinality id required")
-        jsonobj = self.toJsonObj(last_modification_date, Actions.Update)
+        jsonobj = self._toJsonObj_update(last_modification_date)
         result = self._con.put(HasProperty.ROUTE, jsonobj)
         last_modification_date = DateTimeStamp(result["knora-api:lastModificationDate"])
         return last_modification_date, ResourceClass.fromJsonObj(self._con, self._context, result["@graph"])
+
+    def _toJsonObj_update(self, lastModificationDate: DateTimeStamp) -> dict[str, Any]:
+        occurrence = self._toJsonObj_get_owl_cardinality()
+        tmp = {
+            "@id": self._ontology_id,
+            "@type": "owl:Ontology",
+            "knora-api:lastModificationDate": lastModificationDate.toJsonObj(),
+            "@graph": [
+                {
+                    "@id": self._resclass_id,
+                    "@type": "owl:Class",
+                    "rdfs:subClassOf": {
+                        "@type": "owl:Restriction",
+                        occurrence[0]: occurrence[1],
+                        "owl:onProperty": {"@id": self._property_id},
+                    },
+                }
+            ],
+            "@context": self._context.toJsonObj(),
+        }
+        if self._gui_order is not None and "gui_order" in self._changed:
+            tmp["@graph"][0]["rdfs:subClassOf"]["salsah-gui:guiOrder"] = self._gui_order
+        return tmp
+
+    def _toJsonObj_create(self, lastModificationDate: DateTimeStamp) -> dict[str, Any]:
+        occurrence = self._toJsonObj_get_owl_cardinality()
+        tmp = {
+            "@id": self._ontology_id,
+            "@type": "owl:Ontology",
+            "knora-api:lastModificationDate": lastModificationDate.toJsonObj(),
+            "@graph": [
+                {
+                    "@id": self._resclass_id,
+                    "@type": "owl:Class",
+                    "rdfs:subClassOf": {
+                        "@type": "owl:Restriction",
+                        occurrence[0]: occurrence[1],
+                        "owl:onProperty": {"@id": self._property_id},
+                    },
+                }
+            ],
+            "@context": self._context.toJsonObj(),
+        }
+        if self._gui_order is not None:
+            tmp["@graph"][0]["rdfs:subClassOf"]["salsah-gui:guiOrder"] = self._gui_order
+        return tmp
+
+    def _toJsonObj_get_owl_cardinality(self) -> tuple[str, int]:
+        if self._cardinality is None:
+            raise BaseError("There must be a cardinality given!")
+        switcher = {
+            Cardinality.C_1: ("owl:cardinality", 1),
+            Cardinality.C_0_1: ("owl:maxCardinality", 1),
+            Cardinality.C_0_n: ("owl:minCardinality", 0),
+            Cardinality.C_1_n: ("owl:minCardinality", 1),
+        }
+        return switcher.get(self._cardinality)
 
     def createDefinitionFileObj(self, context: Context, shortname: str) -> dict[str, Any]:
         cardinality = {}
@@ -318,9 +330,6 @@ class ResourceClass(Model):
     Methods
     -------
 
-    addLabel: Add a new label to the resource
-        addLabel(self, lang: Union[Languages, str], value: str) -> None
-
     getProperty: Get information about a property defined for this resource class
         getPropertery(prop_id: str) -> HasProperty
         returns a HasProperty-instance
@@ -360,7 +369,7 @@ class ResourceClass(Model):
         iri: Optional[str] = None,
         name: Optional[str] = None,
         ontology_id: Optional[str] = None,
-        superclasses: Optional[Sequence[Union["ResourceClass", str]]] = None,
+        superclasses: Optional[Sequence[Union[ResourceClass, str]]] = None,
         label: Optional[Union[LangString, str]] = None,
         comment: Optional[Union[LangString, str]] = None,
         permissions: Optional[str] = None,
@@ -390,33 +399,24 @@ class ResourceClass(Model):
             self._superclasses = list(map(lambda a: a.iri, superclasses))
         else:
             self._superclasses = superclasses
-        #
-        # process label
-        #
-        if label is not None:
-            if isinstance(label, str):
-                self._label = LangString(label)
-            elif isinstance(label, LangString):
-                self._label = label
-            else:
-                raise BaseError("Invalid LangString for label!")
-        else:
-            self._label = LangString({})
-        #
-        # process comment
-        #
-        if comment is not None:
-            if isinstance(comment, str):
-                self._comment = LangString(comment)
-            elif isinstance(comment, LangString):
-                self._comment = comment
-            else:
-                raise BaseError("Invalid LangString for comment!")
-        else:
-            self._comment = LangString({})
+
+        self._label = self._check_process_langstring(label, "label")
+        self._comment = self._check_process_langstring(comment, "comment")
         self._permissions = permissions
         self._has_properties = has_properties
         self._changed = set()
+
+    @staticmethod
+    def _check_process_langstring(langstring_to_check: None | str | LangString, what: str) -> LangString:
+        if langstring_to_check is not None:
+            if isinstance(langstring_to_check, str):
+                return LangString(langstring_to_check)
+            elif isinstance(langstring_to_check, LangString):
+                return langstring_to_check
+            else:
+                raise BaseError(f"Invalid LangString for {what}!")
+        else:
+            return LangString({})
 
     #
     # Here follows a list of getters/setters
@@ -453,14 +453,6 @@ class ResourceClass(Model):
             raise BaseError("Not a valid LangString")
         self._changed.add("label")
 
-    def addLabel(self, lang: Union[Languages, str], value: str) -> None:
-        self._label[lang] = value
-        self._changed.add("label")
-
-    def rmLabel(self, lang: Union[Languages, str]) -> None:
-        del self._label[lang]
-        self._changed.add("label")
-
     @property
     def comment(self) -> LangString:
         return self._comment
@@ -475,14 +467,6 @@ class ResourceClass(Model):
             self._comment = LangString(value)
         else:
             raise BaseError("Not a valid LangString")
-        self._changed.add("comment")
-
-    def addComment(self, lang: Union[Languages, str], value: str) -> None:
-        self._comment[lang] = value
-        self._changed.add("comment")
-
-    def rmComment(self, lang: Union[Languages, str]) -> None:
-        del self._comment[lang]
         self._changed.add("comment")
 
     @property
@@ -537,29 +521,13 @@ class ResourceClass(Model):
 
         if json_obj.get("@id") is None:
             raise BaseError('Resource class has no "@id"!')
+
         tmp_id = json_obj.get("@id").split(":")
         iri = context.iri_from_prefix(tmp_id[0]) + "#" + tmp_id[1]
         ontology_id = tmp_id[0]
         name = tmp_id[1]
-        superclasses_obj = json_obj.get(rdfs + ":subClassOf")
-        if superclasses_obj is not None:
-            supercls: list[Any] = list(filter(lambda a: a.get("@id") is not None, superclasses_obj))
-            superclasses: list[str] = list(map(lambda a: a["@id"], supercls))
-            has_props: list[Any] = list(filter(lambda a: a.get("@type") == (owl + ":Restriction"), superclasses_obj))
-            has_properties: dict[HasProperty] = dict(map(lambda a: HasProperty.fromJsonObj(con, context, a), has_props))
-            #
-            # now remove the ...Value stuff from resource pointers: A resource pointer is returned as 2 properties:
-            # one a direct link, the other the pointer to a link value
-            #
-            tmp = dict(has_properties)
-            for key in tmp.keys():
-                if key.endswith("Value"):
-                    key_without_value = key.removesuffix("Value")
-                    if key_without_value in has_properties:
-                        del has_properties[key]
-        else:
-            superclasses = None
-            has_properties = None
+
+        has_properties, superclasses = cls._fromJsonObj_get_superclass(con, context, json_obj, rdfs, owl)
 
         label = LangString.fromJsonLdObj(json_obj.get(rdfs + ":label"))
         comment = LangString.fromJsonLdObj(json_obj.get(rdfs + ":comment"))
@@ -575,96 +543,50 @@ class ResourceClass(Model):
             has_properties=has_properties,
         )
 
-    def toJsonObj(self, lastModificationDate: DateTimeStamp, action: Actions, what: Optional[str] = None) -> Any:
-        def resolve_resref(resref: str) -> dict[str, str]:
-            tmp = resref.split(":")
-            if len(tmp) > 1:
-                if tmp[0] and self._context.iri_from_prefix(tmp[0]) != self._ontology_id:
-                    self._context.add_context(tmp[0])
-                    return {"@id": resref}  # fully qualified name in the form "prefix:name"
-                else:
-                    return {
-                        "@id": self._context.prefix_from_iri(self._ontology_id) + ":" + tmp[1]
-                    }  # ":name" in current ontology
-            else:
-                return {"@id": "knora-api:" + resref}  # no ":", must be from knora-api!
-
-        tmp = {}
-        exp = regex.compile("^http.*")  # It is already a fully IRI
-        if exp.match(self._ontology_id):
-            resid = self._context.prefix_from_iri(self._ontology_id) + ":" + self._name
-            ontid = self._ontology_id
+    @staticmethod
+    def _fromJsonObj_get_superclass(
+        con: Connection, context: Context, json_obj: dict[str, Any], rdfs: str, owl: str
+    ) -> tuple[None | dict[str, HasProperty], None | list[str]]:
+        superclasses_obj = json_obj.get(rdfs + ":subClassOf")
+        if superclasses_obj is not None:
+            supercls = list(filter(lambda a: a.get("@id") is not None, superclasses_obj))
+            superclasses = list(map(lambda a: a["@id"], supercls))
+            has_props = list(filter(lambda a: a.get("@type") == (owl + ":Restriction"), superclasses_obj))
+            has_properties = dict(map(lambda a: HasProperty.fromJsonObj(con, context, a), has_props))
+            #
+            # now remove the ...Value stuff from resource pointers: A resource pointer is returned as 2 properties:
+            # one a direct link, the other the pointer to a link value
+            #
+            tmp = dict(has_properties)
+            for key in tmp.keys():
+                if key.endswith("Value"):
+                    key_without_value = key.removesuffix("Value")
+                    if key_without_value in has_properties:
+                        del has_properties[key]
         else:
-            resid = self._ontology_id + ":" + self._name
-            ontid = self._context.iri_from_prefix(self._ontology_id)
-        if action == Actions.Create:
-            if self._name is None:
-                raise BaseError("There must be a valid resource class name!")
-            if self._ontology_id is None:
-                raise BaseError("There must be a valid ontology_id given!")
-            if self._superclasses is None:
-                superclasses = [{"@id": "knora-api:Resource"}]
-            else:
-                superclasses = list(map(resolve_resref, self._superclasses))
-            if self._label is None or self._label.isEmpty():
-                self._label = LangString("no label available")
-            tmp = {
-                "@id": ontid,  # self._ontology_id,
-                "@type": "owl:Ontology",
-                "knora-api:lastModificationDate": lastModificationDate.toJsonObj(),
-                "@graph": [
-                    {
-                        "@id": resid,
-                        "@type": "owl:Class",
-                        "rdfs:label": self._label.toJsonLdObj(),
-                        "rdfs:subClassOf": superclasses,
-                    }
-                ],
-                "@context": self._context.toJsonObj(),
-            }
-            if self._comment:
-                tmp["@graph"][0]["rdfs:comment"] = self._comment.toJsonLdObj()
+            superclasses = None
+            has_properties = None
+        return has_properties, superclasses
 
-        elif action == Actions.Update:
-            tmp = {
-                "@id": ontid,  # self._ontology_id,
-                "@type": "owl:Ontology",
-                "knora-api:lastModificationDate": lastModificationDate.toJsonObj(),
-                "@graph": [
-                    {
-                        "@id": resid,
-                        "@type": "owl:Class",
-                    }
-                ],
-                "@context": self._context.toJsonObj(),
-            }
-            if what == "label":
-                if not self._label.isEmpty() and "label" in self._changed:
-                    tmp["@graph"][0]["rdfs:label"] = self._label.toJsonLdObj()
-            if what == "comment":
-                if not self._comment.isEmpty() and "comment" in self._changed:
-                    tmp["@graph"][0]["rdfs:comment"] = self._comment.toJsonLdObj()
-        return tmp
-
-    def create(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, "ResourceClass"]:
-        jsonobj = self.toJsonObj(last_modification_date, Actions.Create)
+    def create(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, ResourceClass]:
+        jsonobj = self._toJsonObj_create(last_modification_date)
         result = self._con.post(ResourceClass.ROUTE, jsonobj)
         last_modification_date = DateTimeStamp(result["knora-api:lastModificationDate"])
         return last_modification_date, ResourceClass.fromJsonObj(self._con, self._context, result["@graph"])
 
-    def update(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, "ResourceClass"]:
+    def update(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, ResourceClass]:
         #
         # Note: DSP is able to change only one thing per call, either label or comment!
         #
         result = None
         something_changed = False
         if "label" in self._changed:
-            jsonobj = self.toJsonObj(last_modification_date, Actions.Update, "label")
+            jsonobj = self._toJsonObj_update(last_modification_date, "label")
             result = self._con.put(ResourceClass.ROUTE, jsonobj)
             last_modification_date = DateTimeStamp(result["knora-api:lastModificationDate"])
             something_changed = True
         if "comment" in self._changed:
-            jsonobj = self.toJsonObj(last_modification_date, Actions.Update, "comment")
+            jsonobj = self._toJsonObj_update(last_modification_date, "comment")
             result = self._con.put(ResourceClass.ROUTE, jsonobj)
             last_modification_date = DateTimeStamp(result["knora-api:lastModificationDate"])
             something_changed = True
@@ -672,6 +594,81 @@ class ResourceClass(Model):
             return last_modification_date, ResourceClass.fromJsonObj(self._con, self._context, result["@graph"])
         else:
             return last_modification_date, self
+
+    def _toJsonObj_update(self, lastModificationDate: DateTimeStamp, what_changed: str) -> dict[str, Any]:
+        ontid, resid = self._get_onto_res_iri()
+        tmp = {
+            "@id": ontid,  # self._ontology_id,
+            "@type": "owl:Ontology",
+            "knora-api:lastModificationDate": lastModificationDate.toJsonObj(),
+            "@graph": [
+                {
+                    "@id": resid,
+                    "@type": "owl:Class",
+                }
+            ],
+            "@context": self._context.toJsonObj(),
+        }
+        if what_changed == "label":
+            if not self._label.isEmpty() and "label" in self._changed:
+                tmp["@graph"][0]["rdfs:label"] = self._label.toJsonLdObj()
+        if what_changed == "comment":
+            if not self._comment.isEmpty() and "comment" in self._changed:
+                tmp["@graph"][0]["rdfs:comment"] = self._comment.toJsonLdObj()
+        return tmp
+
+    def _toJsonObj_create(self, lastModificationDate: DateTimeStamp) -> dict[str, Any]:
+        ontid, resid = self._get_onto_res_iri()
+        if self._name is None:
+            raise BaseError("There must be a valid resource class name!")
+        if self._ontology_id is None:
+            raise BaseError("There must be a valid ontology_id given!")
+        if self._superclasses is None:
+            superclasses = [{"@id": "knora-api:Resource"}]
+        else:
+            superclasses = list(map(self._resolve_resref, self._superclasses))
+        if self._label is None or self._label.isEmpty():
+            self._label = LangString("no label available")
+        tmp = {
+            "@id": ontid,  # self._ontology_id,
+            "@type": "owl:Ontology",
+            "knora-api:lastModificationDate": lastModificationDate.toJsonObj(),
+            "@graph": [
+                {
+                    "@id": resid,
+                    "@type": "owl:Class",
+                    "rdfs:label": self._label.toJsonLdObj(),
+                    "rdfs:subClassOf": superclasses,
+                }
+            ],
+            "@context": self._context.toJsonObj(),
+        }
+        if self._comment:
+            tmp["@graph"][0]["rdfs:comment"] = self._comment.toJsonLdObj()
+        return tmp
+
+    def _get_onto_res_iri(self) -> tuple[str, str]:
+        exp = regex.compile("^http.*")  # It is already a fully IRI
+        if exp.match(self._ontology_id):
+            resid = self._context.prefix_from_iri(self._ontology_id) + ":" + self._name
+            ontid = self._ontology_id
+        else:
+            resid = self._ontology_id + ":" + self._name
+            ontid = self._context.iri_from_prefix(self._ontology_id)
+        return ontid, resid
+
+    def _resolve_resref(self, resref: str) -> dict[str, str]:
+        tmp = resref.split(":")
+        if len(tmp) > 1:
+            if tmp[0] and self._context.iri_from_prefix(tmp[0]) != self._ontology_id:
+                self._context.add_context(tmp[0])
+                return {"@id": resref}  # fully qualified name in the form "prefix:name"
+            else:
+                return {
+                    "@id": self._context.prefix_from_iri(self._ontology_id) + ":" + tmp[1]
+                }  # ":name" in current ontology
+        else:
+            return {"@id": "knora-api:" + resref}  # no ":", must be from knora-api!
 
     def delete(self, last_modification_date: DateTimeStamp) -> DateTimeStamp:
         result = self._con.delete(
@@ -682,29 +679,37 @@ class ResourceClass(Model):
     def createDefinitionFileObj(self, context: Context, shortname: str, skiplist: list[str]) -> dict[str, Any]:
         resource = {"name": self._name}
         if self._superclasses:
-            if len(self._superclasses) > 1:
-                superclasses = []
-                for sc in self._superclasses:
-                    superclasses.append(context.reduce_iri(sc, shortname))
-            else:
-                superclasses = context.reduce_iri(self._superclasses[0], shortname)
-            resource["super"] = superclasses
+            resource["super"] = self._create_DefinitionFileObj_superclass(context, shortname)
         resource["labels"] = self._label.createDefinitionFileObj()
         if not self._comment.isEmpty():
             resource["comments"] = self._comment.createDefinitionFileObj()
         if self._has_properties:
-            cardinalities = []
-            for _, hp in self._has_properties.items():
-                if hp.property_id in skiplist:
-                    continue
-                if hp.ptype == HasProperty.Ptype.other or hp.property_id in [
-                    "knora-api:isSequenceOf",
-                    "knora-api:hasSequenceBounds",
-                    "knora-api:isPartOf",
-                    "knora-api:seqnum",
-                ]:
-                    cardinalities.append(hp.createDefinitionFileObj(context, shortname))
-            if cardinalities:
-                resource["cardinalities"] = cardinalities
-
+            self._create_DefinitionFileObj_cardinalities(context, resource, shortname, skiplist)
         return resource
+
+    def _create_DefinitionFileObj_cardinalities(
+        self, context: Context, resource: dict[str, str], shortname: str, skiplist: list[str]
+    ) -> dict[str, Any]:
+        cardinalities: list[dict[str, Any]] = []
+        for _, hp in self._has_properties.items():
+            if hp.property_id in skiplist:
+                continue
+            if hp.ptype == HasProperty.Ptype.other or hp.property_id in [
+                "knora-api:isSequenceOf",
+                "knora-api:hasSequenceBounds",
+                "knora-api:isPartOf",
+                "knora-api:seqnum",
+            ]:
+                cardinalities.append(hp.createDefinitionFileObj(context, shortname))
+        if cardinalities:
+            resource["cardinalities"] = cardinalities
+        return resource
+
+    def _create_DefinitionFileObj_superclass(self, context: Context, shortname: str) -> list[str] | str:
+        if len(self._superclasses) > 1:
+            superclasses = []
+            for sc in self._superclasses:
+                superclasses.append(context.reduce_iri(sc, shortname))
+        else:
+            superclasses = context.reduce_iri(self._superclasses[0], shortname)
+        return superclasses

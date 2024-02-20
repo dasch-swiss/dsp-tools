@@ -1,15 +1,17 @@
+from __future__ import annotations
+
 from typing import Any, Optional, Sequence, Union
 from urllib.parse import quote_plus
 
 import regex
 
 from dsp_tools.commands.project.models.context import Context
-from dsp_tools.commands.project.models.helpers import Actions, WithId
+from dsp_tools.commands.project.models.helpers import WithId
 from dsp_tools.commands.project.models.listnode import ListNode
 from dsp_tools.commands.project.models.model import Model
 from dsp_tools.models.datetimestamp import DateTimeStamp
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.langstring import LangString, Languages
+from dsp_tools.models.langstring import LangString
 from dsp_tools.utils.connection import Connection
 
 
@@ -37,7 +39,7 @@ class PropertyClass(Model):
         iri: Optional[str] = None,
         name: Optional[str] = None,
         ontology_id: Optional[str] = None,
-        superproperties: Optional[Sequence[Union["PropertyClass", str]]] = None,
+        superproperties: Optional[Sequence[Union[PropertyClass, str]]] = None,
         rdf_object: Optional[str] = None,
         rdf_subject: Optional[str] = None,
         gui_element: Optional[str] = None,
@@ -62,33 +64,24 @@ class PropertyClass(Model):
         self._rdf_subject = rdf_subject
         self._gui_element = gui_element
         self._gui_attributes = gui_attributes
-        #
-        # process label
-        #
-        if label is not None:
-            if isinstance(label, str):
-                self._label = LangString(label)
-            elif isinstance(label, LangString):
-                self._label = label
-            else:
-                raise BaseError("Invalid LangString for label!")
-        else:
-            self._label = LangString({})
-        #
-        # process comment
-        #
-        if comment is not None:
-            if isinstance(comment, str):
-                self._comment = LangString(comment)
-            elif isinstance(comment, LangString):
-                self._comment = comment
-            else:
-                raise BaseError("Invalid LangString for comment!")
-        else:
-            self._comment = LangString({})
+
+        self._label = PropertyClass._init_process_language_value(label, "label")
+        self._comment = PropertyClass._init_process_language_value(comment, "comment")
 
         self._editable = editable
         self._linkvalue = linkvalue
+
+    @staticmethod
+    def _init_process_language_value(prop_val: None | str | LangString, property: str) -> LangString:
+        if prop_val is not None:
+            if isinstance(prop_val, str):
+                return LangString(prop_val)
+            elif isinstance(prop_val, LangString):
+                return prop_val
+            else:
+                raise BaseError(f"Invalid LangString for {property}!")
+        else:
+            return LangString({})
 
     #
     # Here follows a list of getters/setters
@@ -141,14 +134,6 @@ class PropertyClass(Model):
             raise BaseError("Not a valid LangString")
         self._changed.add("label")
 
-    def addLabel(self, lang: Union[Languages, str], value: str) -> None:
-        self._label[lang] = value
-        self._changed.add("label")
-
-    def rmLabel(self, lang: Union[Languages, str]) -> None:
-        del self._label[lang]
-        self._changed.add("label")
-
     @property
     def comment(self) -> LangString:
         return self._comment
@@ -165,14 +150,6 @@ class PropertyClass(Model):
             raise BaseError("Not a valid LangString")
         self._changed.add("comment")
 
-    def addComment(self, lang: Union[Languages, str], value: str) -> None:
-        self._comment[lang] = value
-        self._changed.add("comment")
-
-    def rmComment(self, lang: Union[Languages, str]) -> None:
-        del self._comment[lang]
-        self._changed.add("comment")
-
     @property
     def editable(self) -> bool:
         return self._editable
@@ -186,53 +163,33 @@ class PropertyClass(Model):
         raise BaseError('"linkvalue" cannot be modified!')
 
     @classmethod
-    def fromJsonObj(cls, con: Connection, context: Context, json_obj: Any) -> "PropertyClass":
+    def fromJsonObj(cls, con: Connection, context: Context, json_obj: Any) -> PropertyClass:
         if isinstance(json_obj, list):
             json_obj = json_obj[0]
-        rdfs = context.prefix_from_iri("http://www.w3.org/2000/01/rdf-schema#")
-        knora_api = context.prefix_from_iri("http://api.knora.org/ontology/knora-api/v2#")
-        salsah_gui = context.prefix_from_iri("http://api.knora.org/ontology/salsah-gui/v2#")
+        rdfs_iri = context.prefix_from_iri("http://www.w3.org/2000/01/rdf-schema#")
+        knora_api_iri = context.prefix_from_iri("http://api.knora.org/ontology/knora-api/v2#")
+        salsah_gui_iri = context.prefix_from_iri("http://api.knora.org/ontology/salsah-gui/v2#")
 
-        if not json_obj.get(knora_api + ":isResourceProperty"):
+        if not json_obj.get(knora_api_iri + ":isResourceProperty"):
             raise BaseError("This is not a property!")
         if json_obj.get("@id") is None:
             raise BaseError('Property class has no "@id"!')
+
         tmp_id = json_obj.get("@id").split(":")
         iri = context.iri_from_prefix(tmp_id[0]) + "#" + tmp_id[1]
         ontology_id = tmp_id[0]
         name = tmp_id[1]
-        superproperties_obj = json_obj.get(rdfs + ":subPropertyOf")
-        superproperties: list[Union[None, str]]
-        if not isinstance(superproperties_obj, list):
-            superproperties_obj = [superproperties_obj]  # make a list out of it
-        if superproperties_obj:
-            superproperties = [x["@id"] for x in superproperties_obj if x and x.get("@id")]
-        else:
-            superproperties = None
-        rdf_object = WithId(json_obj.get(knora_api + ":objectType")).to_string()
-        rdf_subject = WithId(json_obj.get(knora_api + ":subjectType")).to_string()
-        label = LangString.fromJsonLdObj(json_obj.get(rdfs + ":label"))
-        comment = LangString.fromJsonLdObj(json_obj.get(rdfs + ":comment"))
-        gui_element = None
-        if json_obj.get(salsah_gui + ":guiElement") is not None:
-            gui_element = WithId(json_obj.get(salsah_gui + ":guiElement")).to_string()
-            gui_element = gui_element.replace("Pulldown", "List")
-            gui_element = gui_element.replace("Radio", "List")
-        gui_attributes_list = json_obj.get(salsah_gui + ":guiAttribute")
-        gui_attributes: Union[None, dict[str, str]] = None
-        if gui_attributes_list is not None:
-            gui_attributes = {}
-            if not isinstance(gui_attributes_list, list):
-                gui_attributes_list = [gui_attributes_list]
-            for ga in gui_attributes_list:
-                tmp = ga.split("=")
-                if len(tmp) == 1:
-                    gui_attributes[tmp[0]] = ""
-                else:
-                    gui_attributes[tmp[0]] = tmp[1]
 
-        editable = json_obj.get(knora_api + ":isEditable")
-        linkvalue = json_obj.get(knora_api + ":isLinkProperty")
+        rdf_object = WithId(json_obj.get(knora_api_iri + ":objectType")).to_string()
+        rdf_subject = WithId(json_obj.get(knora_api_iri + ":subjectType")).to_string()
+        label = LangString.fromJsonLdObj(json_obj.get(rdfs_iri + ":label"))
+        comment = LangString.fromJsonLdObj(json_obj.get(rdfs_iri + ":comment"))
+        editable = json_obj.get(knora_api_iri + ":isEditable")
+        linkvalue = json_obj.get(knora_api_iri + ":isLinkProperty")
+
+        gui_attributes, gui_element = cls._fromJsonObj_get_gui_info(json_obj, salsah_gui_iri)
+        superproperties = cls._fromJson_get_superproperties(json_obj, rdfs_iri)
+
         return cls(
             con=con,
             context=context,
@@ -250,106 +207,118 @@ class PropertyClass(Model):
             linkvalue=linkvalue,
         )
 
-    def toJsonObj(self, lastModificationDate: DateTimeStamp, action: Actions, what: Optional[str] = None) -> Any:
-        def resolve_propref(resref: str) -> dict[str, str]:
-            tmp = resref.split(":")
-            if len(tmp) > 1:
-                if tmp[0]:
-                    # return {"@id": resref}  # fully qualified name in the form "prefix:name"
-                    return {
-                        "@id": self._context.get_qualified_iri(resref)
-                    }  # fully qualified name in the form "prefix:name"
-                else:
-                    return {
-                        "@id": self._context.prefix_from_iri(self._ontology_id) + ":" + tmp[1]
-                    }  # ":name" in current ontology
-            else:
-                return {"@id": "knora-api:" + resref}  # no ":", must be from knora-api!
+    @classmethod
+    def _fromJson_get_superproperties(cls, json_obj: dict[str, Any], rdfs: str) -> list[str] | None:
+        superproperties_obj = json_obj.get(rdfs + ":subPropertyOf")
+        if not isinstance(superproperties_obj, list):
+            superproperties_obj = [superproperties_obj]  # make a list out of it
+        if superproperties_obj:
+            return [x["@id"] for x in superproperties_obj if x and x.get("@id")]
+        else:
+            return None
 
-        tmp = {}
-        exp = regex.compile("^http.*")  # It is already a fully IRI
+    @classmethod
+    def _fromJsonObj_get_gui_info(cls, json_obj: dict[str, Any], salsah_gui: str) -> tuple[dict[str, str], str]:
+        gui_element = None
+        if json_obj.get(salsah_gui + ":guiElement") is not None:
+            gui_element = WithId(json_obj.get(salsah_gui + ":guiElement")).to_string()
+            gui_element = gui_element.replace("Pulldown", "List")
+            gui_element = gui_element.replace("Radio", "List")
+        gui_attributes_list = json_obj.get(salsah_gui + ":guiAttribute")
+        gui_attributes: Union[None, dict[str, str]] = None
+        if gui_attributes_list is not None:
+            gui_attributes = {}
+            if not isinstance(gui_attributes_list, list):
+                gui_attributes_list = [gui_attributes_list]
+            for ga in gui_attributes_list:
+                tmp = ga.split("=")
+                if len(tmp) == 1:
+                    gui_attributes[tmp[0]] = ""
+                else:
+                    gui_attributes[tmp[0]] = tmp[1]
+        return gui_attributes, gui_element
+
+    def _make_full_onto_iri(self) -> tuple[str, str]:
+        exp = regex.compile("^http.*")  # It is already a full IRI
         if exp.match(self._ontology_id):
             propid = self._context.prefix_from_iri(self._ontology_id) + ":" + self._name
             ontid = self._ontology_id
         else:
             propid = self._ontology_id + ":" + self._name
             ontid = self._context.iri_from_prefix(self._ontology_id)
-        if action == Actions.Create:
-            if self._name is None:
-                raise BaseError("There must be a valid property class name!")
-            if self._ontology_id is None:
-                raise BaseError("There must be a valid ontology_id given!")
-            if self._superproperties is None:
-                superproperties = [{"@id": "knora-api:hasValue"}]
+        return ontid, propid
+
+    def _resolve_propref(self, resref: str) -> dict[str, str]:
+        tmp = resref.split(":")
+        if len(tmp) > 1:
+            if tmp[0]:
+                # return {"@id": resref}  # fully qualified name in the form "prefix:name"
+                return {
+                    "@id": self._context.get_qualified_iri(resref)
+                }  # fully qualified name in the form "prefix:name"
             else:
-                superproperties = list(map(resolve_propref, self._superproperties))
+                return {
+                    "@id": self._context.prefix_from_iri(self._ontology_id) + ":" + tmp[1]
+                }  # ":name" in current ontology
+        else:
+            return {"@id": "knora-api:" + resref}  # no ":", must be from knora-api!
 
-            tmp = {
-                "@id": ontid,  # self._ontology_id,
-                "@type": "owl:Ontology",
-                "knora-api:lastModificationDate": lastModificationDate.toJsonObj(),
-                "@graph": [
-                    {
-                        "@id": propid,
-                        "@type": "owl:ObjectProperty",
-                        "rdfs:label": self._label.toJsonLdObj(),
-                        "rdfs:subPropertyOf": superproperties,
-                    }
-                ],
-                "@context": self._context.toJsonObj(),
-            }
-            if self._comment:
-                tmp["@graph"][0]["rdfs:comment"] = self._comment.toJsonLdObj()
-            if self._rdf_subject:
-                tmp["@graph"][0]["knora-api:subjectType"] = resolve_propref(self._rdf_subject)
-            if self._rdf_object:
-                tmp["@graph"][0]["knora-api:objectType"] = resolve_propref(self._rdf_object)
-            if self._gui_element:
-                tmp["@graph"][0]["salsah-gui:guiElement"] = {"@id": self._gui_element}
-            if self._gui_attributes:
-                ga = list(map(lambda x: x[0] + "=" + str(x[1]), self._gui_attributes.items()))
-                tmp["@graph"][0]["salsah-gui:guiAttribute"] = ga
-        elif action == Actions.Update:
-            tmp = {
-                "@id": ontid,  # self._ontology_id,
-                "@type": "owl:Ontology",
-                "knora-api:lastModificationDate": lastModificationDate.toJsonObj(),
-                "@graph": [
-                    {
-                        "@id": propid,
-                        "@type": "owl:ObjectProperty",
-                    }
-                ],
-                "@context": self._context.toJsonObj(),
-            }
-            if what == "label":
-                if not self._label.isEmpty() and "label" in self._changed:
-                    tmp["@graph"][0]["rdfs:label"] = self._label.toJsonLdObj()
-            if what == "comment":
-                if not self._comment.isEmpty() and "comment" in self._changed:
-                    tmp["@graph"][0]["rdfs:comment"] = self._comment.toJsonLdObj()
-
-        return tmp
-
-    def create(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, "PropertyClass"]:
-        jsonobj = self.toJsonObj(last_modification_date, Actions.Create)
+    def create(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, PropertyClass]:
+        jsonobj = self._toJsonObj_create(last_modification_date)
         result = self._con.post(PropertyClass.ROUTE, jsonobj)
         last_modification_date = DateTimeStamp(result["knora-api:lastModificationDate"])
         return last_modification_date, PropertyClass.fromJsonObj(self._con, self._context, result["@graph"])
 
-    def update(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, "PropertyClass"]:
+    def _toJsonObj_create(self, lastModificationDate: DateTimeStamp) -> dict[str, Any]:
+        ontid, propid = self._make_full_onto_iri()
+        if self._name is None:
+            raise BaseError("There must be a valid property class name!")
+        if self._ontology_id is None:
+            raise BaseError("There must be a valid ontology_id given!")
+        if self._superproperties is None:
+            superproperties = [{"@id": "knora-api:hasValue"}]
+        else:
+            superproperties = list(map(self._resolve_propref, self._superproperties))
+        tmp = {
+            "@id": ontid,  # self._ontology_id,
+            "@type": "owl:Ontology",
+            "knora-api:lastModificationDate": lastModificationDate.toJsonObj(),
+            "@graph": [
+                {
+                    "@id": propid,
+                    "@type": "owl:ObjectProperty",
+                    "rdfs:label": self._label.toJsonLdObj(),
+                    "rdfs:subPropertyOf": superproperties,
+                }
+            ],
+            "@context": self._context.toJsonObj(),
+        }
+        if self._comment:
+            tmp["@graph"][0]["rdfs:comment"] = self._comment.toJsonLdObj()
+        if self._rdf_subject:
+            tmp["@graph"][0]["knora-api:subjectType"] = self._resolve_propref(self._rdf_subject)
+        if self._rdf_object:
+            tmp["@graph"][0]["knora-api:objectType"] = self._resolve_propref(self._rdf_object)
+        if self._gui_element:
+            tmp["@graph"][0]["salsah-gui:guiElement"] = {"@id": self._gui_element}
+        if self._gui_attributes:
+            ga = list(map(lambda x: x[0] + "=" + str(x[1]), self._gui_attributes.items()))
+            tmp["@graph"][0]["salsah-gui:guiAttribute"] = ga
+        return tmp
+
+    def update(self, last_modification_date: DateTimeStamp) -> tuple[DateTimeStamp, PropertyClass]:
         #
         # Note: DSP is able to change only one thing per call, either label or comment!
         #
         result = None
         something_changed = False
         if "label" in self._changed:
-            jsonobj = self.toJsonObj(last_modification_date, Actions.Update, "label")
+            jsonobj = self._toJsonObj_update(last_modification_date, "label")
             result = self._con.put(PropertyClass.ROUTE, jsonobj)
             last_modification_date = DateTimeStamp(result["knora-api:lastModificationDate"])
             something_changed = True
         if "comment" in self._changed:
-            jsonobj = self.toJsonObj(last_modification_date, Actions.Update, "comment")
+            jsonobj = self._toJsonObj_update(last_modification_date, "comment")
             result = self._con.put(PropertyClass.ROUTE, jsonobj)
             last_modification_date = DateTimeStamp(result["knora-api:lastModificationDate"])
             something_changed = True
@@ -357,6 +326,28 @@ class PropertyClass(Model):
             return last_modification_date, PropertyClass.fromJsonObj(self._con, self._context, result["@graph"])
         else:
             return last_modification_date, self
+
+    def _toJsonObj_update(self, lastModificationDate: DateTimeStamp, what_changed: str) -> dict[str, Any]:
+        ontid, propid = self._make_full_onto_iri()
+        tmp = {
+            "@id": ontid,  # self._ontology_id,
+            "@type": "owl:Ontology",
+            "knora-api:lastModificationDate": lastModificationDate.toJsonObj(),
+            "@graph": [
+                {
+                    "@id": propid,
+                    "@type": "owl:ObjectProperty",
+                }
+            ],
+            "@context": self._context.toJsonObj(),
+        }
+        if what_changed == "label":
+            if not self._label.isEmpty() and "label" in self._changed:
+                tmp["@graph"][0]["rdfs:label"] = self._label.toJsonLdObj()
+        if what_changed == "comment":
+            if not self._comment.isEmpty() and "comment" in self._changed:
+                tmp["@graph"][0]["rdfs:comment"] = self._comment.toJsonLdObj()
+        return tmp
 
     def delete(self, last_modification_date: DateTimeStamp) -> DateTimeStamp:
         result = self._con.delete(
@@ -391,35 +382,40 @@ class PropertyClass(Model):
         if self.gui_element:
             def_file_obj["gui_element"] = context.reduce_iri(self.gui_element, shortname)
         if self.gui_attributes:
-            gui_elements = {}
-            for attname, attvalue in self.gui_attributes.items():
-                if attname == "size":
+            gui_elements = self._createDefinitionFileObj_gui_attributes()
+            def_file_obj["gui_attributes"] = gui_elements
+        return def_file_obj
+
+    def _createDefinitionFileObj_gui_attributes(self) -> dict[str, Any]:
+        gui_elements = {}
+        for attname, attvalue in self.gui_attributes.items():
+            match attname:
+                case "size":
                     gui_elements[attname] = int(attvalue)
-                elif attname == "maxlength":
+                case "maxlength":
                     gui_elements[attname] = int(attvalue)
-                elif attname == "maxsize":
+                case "maxsize":
                     gui_elements[attname] = int(attvalue)
-                elif attname == "hlist":
+                case "hlist":
                     iri = attvalue[1:-1]
                     rootnode = ListNode(con=self._con, iri=iri).read()
                     gui_elements[attname] = rootnode.name
-                elif attname == "numprops":
+                case "numprops":
                     gui_elements[attname] = int(attvalue)
-                elif attname == "ncolors":
+                case "ncolors":
                     gui_elements[attname] = int(attvalue)
-                elif attname == "cols":
+                case "cols":
                     gui_elements[attname] = int(attvalue)
-                elif attname == "rows":
+                case "rows":
                     gui_elements[attname] = int(attvalue)
-                elif attname == "width":
+                case "width":
                     gui_elements[attname] = str(attvalue)
-                elif attname == "wrap":
+                case "wrap":
                     gui_elements[attname] = str(attvalue)
-                elif attname == "max":
+                case "max":
                     gui_elements[attname] = float(attvalue)
-                elif attname == "min":
+                case "min":
                     gui_elements[attname] = float(attvalue)
-                else:
+                case _:
                     gui_elements[attname] = str(attvalue)
-            def_file_obj["gui_attributes"] = gui_elements
-        return def_file_obj
+        return gui_elements

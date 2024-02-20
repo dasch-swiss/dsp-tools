@@ -1,5 +1,137 @@
 # Changelog
 
+## [5.8.1](https://github.com/dasch-swiss/dsp-tools/compare/v5.8.0...v5.8.1) (2024-02-14)
+
+
+### Maintenance
+
+* bump start-stack to 2024.02.01 ([#806](https://github.com/dasch-swiss/dsp-tools/issues/806)) ([9080f47](https://github.com/dasch-swiss/dsp-tools/commit/9080f4734a387bd306c0bf78baa9dd6472210e81))
+* **models-project:** remove all project update code ([#802](https://github.com/dasch-swiss/dsp-tools/issues/802)) ([1aa39a1](https://github.com/dasch-swiss/dsp-tools/commit/1aa39a1b61b7893eee4e54e4020d9a683b29ebb2))
+* **models-user-project:** delete dead code ([#800](https://github.com/dasch-swiss/dsp-tools/issues/800)) ([12813bc](https://github.com/dasch-swiss/dsp-tools/commit/12813bc02c126c0caf49753506888f843598582f))
+* remove dead parameter in ontology client ([#809](https://github.com/dasch-swiss/dsp-tools/issues/809)) ([8095ba3](https://github.com/dasch-swiss/dsp-tools/commit/8095ba37f9df897018d6fcfd43d70a34239b37c9))
+* remove sourcery ([#805](https://github.com/dasch-swiss/dsp-tools/issues/805)) ([c3ccc36](https://github.com/dasch-swiss/dsp-tools/commit/c3ccc3646292a855682e1bdeb42f9dbab9f30e46))
+* rename value.py file into formatted_text_value.py ([#807](https://github.com/dasch-swiss/dsp-tools/issues/807)) ([90af390](https://github.com/dasch-swiss/dsp-tools/commit/90af3906527f87dd33555be2c7cc344da60dded9))
+* renaming functions in preparation for TextValue verification ([#808](https://github.com/dasch-swiss/dsp-tools/issues/808)) ([9f06f3f](https://github.com/dasch-swiss/dsp-tools/commit/9f06f3fe32ce49fa1241fda33bede08bff8e3a2b))
+* **test-create-project:** turn unittests into pytests ([#804](https://github.com/dasch-swiss/dsp-tools/issues/804)) ([8c667a6](https://github.com/dasch-swiss/dsp-tools/commit/8c667a69d981d4dff0ca2f1fc3f8534c95d93ca0))
+
+## [5.8.0](https://github.com/dasch-swiss/dsp-tools/compare/v5.7.0...v5.8.0) (2024-02-01)
+
+
+### Enhancements
+
+* **excel2json:** add optional column "subject" to properties.xlsx (DEV-3253) ([#777](https://github.com/dasch-swiss/dsp-tools/issues/777)) ([cf491e9](https://github.com/dasch-swiss/dsp-tools/commit/cf491e9499818f068bfbfb823a5652b63ddc7953))
+
+
+### Bug Fixes
+
+* don't crash if pip is not found (DEV-3256) ([#791](https://github.com/dasch-swiss/dsp-tools/issues/791)) ([15f6e31](https://github.com/dasch-swiss/dsp-tools/commit/15f6e310c20b2afe5a70c9c609aa86e362d3ff87))
+* **xmlupload:** don't retry on OntologyConstraintException (DEV-3255) ([#783](https://github.com/dasch-swiss/dsp-tools/issues/783)) ([ef577ac](https://github.com/dasch-swiss/dsp-tools/commit/ef577ac5eb1a8c4a54820646b02b26e3cd6dbf4b))
+
+
+### Maintenance
+
+* bump start-stack to hotfixed 2024.01.01 ([#801](https://github.com/dasch-swiss/dsp-tools/issues/801)) ([b721fdd](https://github.com/dasch-swiss/dsp-tools/commit/b721fdd3b5c6c72137b74542b8f08620d61b7b2f))
+* delete dead code fragments ([#792](https://github.com/dasch-swiss/dsp-tools/issues/792)) ([c5b9872](https://github.com/dasch-swiss/dsp-tools/commit/c5b987257fa41ba248fa43838edd03ee4ec3d3c6))
+* **deps:** bump the all-dependencies group with 8 updates ([#787](https://github.com/dasch-swiss/dsp-tools/issues/787)) ([0c1a5e2](https://github.com/dasch-swiss/dsp-tools/commit/0c1a5e28ec400848a1a3c5225d69350cccfdd4d8))
+* **excel2json-lists:** fix two ruff PLW0603 ([#778](https://github.com/dasch-swiss/dsp-tools/issues/778)) ([5f53c38](https://github.com/dasch-swiss/dsp-tools/commit/5f53c382741dfa7db270382ec3efa38e7258f6eb))
+* **model-project:** fix one ruff PLR0912 ([#782](https://github.com/dasch-swiss/dsp-tools/issues/782)) ([25ad02d](https://github.com/dasch-swiss/dsp-tools/commit/25ad02d7fc808204cb578f78fcf4fc201371516e))
+* **models-group:** delete unnecessary action object ([#794](https://github.com/dasch-swiss/dsp-tools/issues/794)) ([24fdc9f](https://github.com/dasch-swiss/dsp-tools/commit/24fdc9f287bda157fa66f8e4e89b995b0ed863e1))
+* **models-listnode:** delete actions object ([#795](https://github.com/dasch-swiss/dsp-tools/issues/795)) ([f7a2ec9](https://github.com/dasch-swiss/dsp-tools/commit/f7a2ec976558f59ba31faae560f0487ceb0f5387))
+* **models-listnode:** delete dead code ([#797](https://github.com/dasch-swiss/dsp-tools/issues/797)) ([fea23fd](https://github.com/dasch-swiss/dsp-tools/commit/fea23fdbd1e349b406df4f11fb819753f535e871))
+* **models-ontology:** delete actions object ([#796](https://github.com/dasch-swiss/dsp-tools/issues/796)) ([28299fa](https://github.com/dasch-swiss/dsp-tools/commit/28299faca4315173e45a09d21ed55f277b6751ad))
+* **models-project:** delete dead code ([#798](https://github.com/dasch-swiss/dsp-tools/issues/798)) ([dcdbaaf](https://github.com/dasch-swiss/dsp-tools/commit/dcdbaafcd473f925d68981e8714ff9b1bbb1b89a))
+* **models-propertyclass:** fix PLR0912 ([#784](https://github.com/dasch-swiss/dsp-tools/issues/784)) ([51d4265](https://github.com/dasch-swiss/dsp-tools/commit/51d426541ff618f7ccb80cb32457bb011463d34b))
+* **models-resourceclass:** fix ruff PLR0912 ([#788](https://github.com/dasch-swiss/dsp-tools/issues/788)) ([ed10c27](https://github.com/dasch-swiss/dsp-tools/commit/ed10c2718e440e7edc057c943488d7838ef3057e))
+* **models-user:** fix three ruff PLR0912 ([#780](https://github.com/dasch-swiss/dsp-tools/issues/780)) ([820fc25](https://github.com/dasch-swiss/dsp-tools/commit/820fc254fe80cd277fa623011fcc320e48485d7f))
+* **project_client:** delete dead code ([#793](https://github.com/dasch-swiss/dsp-tools/issues/793)) ([b5963de](https://github.com/dasch-swiss/dsp-tools/commit/b5963ded9a33756a03e096769a4725cdc61883a2))
+* **project_validate:** fix one ruff PLR0912 ([#781](https://github.com/dasch-swiss/dsp-tools/issues/781)) ([9ccd2a7](https://github.com/dasch-swiss/dsp-tools/commit/9ccd2a7a8cced10af818fcaacc8ad60494d4cf0b))
+* **propertyclass-resourceclass:** delete dead code ([#799](https://github.com/dasch-swiss/dsp-tools/issues/799)) ([d17b656](https://github.com/dasch-swiss/dsp-tools/commit/d17b656e5ab7181b2d6e266ab115117632be5f66))
+* remove dead code with vulture ([#790](https://github.com/dasch-swiss/dsp-tools/issues/790)) ([aba9aef](https://github.com/dasch-swiss/dsp-tools/commit/aba9aefa8af8bf9086a102118b2f69d5856a84f2))
+* remove ruff ignore PLR0912 (Too many branches) ([#789](https://github.com/dasch-swiss/dsp-tools/issues/789)) ([e93b049](https://github.com/dasch-swiss/dsp-tools/commit/e93b049b7937757842045ec38b9da1c14faa6b43))
+* **test_create_get_xmlupload:** fix one ruff PLR0912 ([#785](https://github.com/dasch-swiss/dsp-tools/issues/785)) ([c09c0c6](https://github.com/dasch-swiss/dsp-tools/commit/c09c0c6c2b7f5ceef1e35a65bb924ea1ded07911))
+* use pytest's tmp_path fixture ([#786](https://github.com/dasch-swiss/dsp-tools/issues/786)) ([c01a08f](https://github.com/dasch-swiss/dsp-tools/commit/c01a08f0925d3813366d6bfe32d0e89bdee80d94))
+
+## [5.7.0](https://github.com/dasch-swiss/dsp-tools/compare/v5.6.0...v5.7.0) (2024-01-31)
+
+
+### Enhancements
+
+* **excel2xml:** find_date_in_string(): allow time spans of 1 day (DEV-3154) ([#720](https://github.com/dasch-swiss/dsp-tools/issues/720)) ([59b5d16](https://github.com/dasch-swiss/dsp-tools/commit/59b5d16818fd599766b6c6eb2cd9d536d020d415))
+* **excel2xml:** make_bitstream_prop(): make file existence check opt-in (DEV-3113) ([#709](https://github.com/dasch-swiss/dsp-tools/issues/709)) ([1f68943](https://github.com/dasch-swiss/dsp-tools/commit/1f68943bfce58a1ebafc4d1172139e6ac6fe46f3))
+* **excel2xml:** support 2-digit-years in find_date_in_string() (DEV-2633) ([#711](https://github.com/dasch-swiss/dsp-tools/issues/711)) ([15d3493](https://github.com/dasch-swiss/dsp-tools/commit/15d3493c29a1ab9cf3a099bb471d4dde841a443f))
+* **ingest-upload:** create new ingest xmlupload cli command (DEV-3019) ([#670](https://github.com/dasch-swiss/dsp-tools/issues/670)) ([5745190](https://github.com/dasch-swiss/dsp-tools/commit/5745190f2950f7aacdf4754b5d258f44c391c7fd))
+* **ingest-xmlupload:** add support for dumping HTTP requests (DEV-3167) ([#729](https://github.com/dasch-swiss/dsp-tools/issues/729)) ([a02dda5](https://github.com/dasch-swiss/dsp-tools/commit/a02dda55d7259a921d3a6bef2edc6fc2acf03053))
+* option for custom headers in HTTP requests (DEV-3145) ([#702](https://github.com/dasch-swiss/dsp-tools/issues/702)) ([0cbc78a](https://github.com/dasch-swiss/dsp-tools/commit/0cbc78a57cdb1ee4bdb78204413452f02f17625a))
+
+
+### Bug Fixes
+
+* add termcolor as main dependency (DEV-3149) ([#706](https://github.com/dasch-swiss/dsp-tools/issues/706)) ([4f6cd6d](https://github.com/dasch-swiss/dsp-tools/commit/4f6cd6d8cec0c31d8486022b1f6b9eed7cee7165))
+* don't retry login when credentials are invalid (DEV-3224) ([#763](https://github.com/dasch-swiss/dsp-tools/issues/763)) ([41d8217](https://github.com/dasch-swiss/dsp-tools/commit/41d8217952d04221ab9f0b522a8910539dadc159))
+* **excel2xml, xmlupload:** allow commas in URLs (DEV-3183) ([#742](https://github.com/dasch-swiss/dsp-tools/issues/742)) ([1ee6e36](https://github.com/dasch-swiss/dsp-tools/commit/1ee6e3693c69b9ae2801a9398a33f283b163f528))
+* **excel2xml:** make_text_prop: allow &lt;, &gt;, & in rich texts (DEV-3131) ([#691](https://github.com/dasch-swiss/dsp-tools/issues/691)) ([228c79f](https://github.com/dasch-swiss/dsp-tools/commit/228c79f7113ea5719ed827f74b06a3f1e2264bf8))
+* fix wrong resolution of merge conflict (DEV-3161) ([#726](https://github.com/dasch-swiss/dsp-tools/issues/726)) ([c81c94d](https://github.com/dasch-swiss/dsp-tools/commit/c81c94d624a64649682c3708f48ce5fb23e33d7b))
+* fully mask passwords in logfile (DEV-3225) ([#761](https://github.com/dasch-swiss/dsp-tools/issues/761)) ([87c03d4](https://github.com/dasch-swiss/dsp-tools/commit/87c03d4ec3a090769f5494b8daf2d7361363128f))
+* include stack trace in log file (DEV-3157) ([#723](https://github.com/dasch-swiss/dsp-tools/issues/723)) ([9046792](https://github.com/dasch-swiss/dsp-tools/commit/904679281d5aa32e7930b127e8f470f47ce37895))
+* increase timeout to prevent doubled resources (DEV-3114) ([#698](https://github.com/dasch-swiss/dsp-tools/issues/698)) ([930df8f](https://github.com/dasch-swiss/dsp-tools/commit/930df8f2e6cdd66b6b8e01cf42c121207b20ba76))
+* **ingest-xmlupload:** apply mapping.csv even if extension has wrong casing (DEV-3197) ([#749](https://github.com/dasch-swiss/dsp-tools/issues/749)) ([bac7c79](https://github.com/dasch-swiss/dsp-tools/commit/bac7c796db99e40ae37e22e4e7546d4dd6816cdb))
+* **ingest-xmlupload:** file check: handle absolute vs. relative paths, save feedback file correctly (DEV-3162) ([#727](https://github.com/dasch-swiss/dsp-tools/issues/727)) ([c6d2169](https://github.com/dasch-swiss/dsp-tools/commit/c6d21697e030a1ae4346c32686f9b63ea02e1d50))
+* prevent crash when venv isn't activated correctly (DEV-3233) ([#765](https://github.com/dasch-swiss/dsp-tools/issues/765)) ([6d339ed](https://github.com/dasch-swiss/dsp-tools/commit/6d339ed724f823b645e05c2d7a6607938ffecf89))
+* properly log requests and their responses (DEV-3186) ([#745](https://github.com/dasch-swiss/dsp-tools/issues/745)) ([8296254](https://github.com/dasch-swiss/dsp-tools/commit/8296254cfeb54572da2e47788f389246176ecdba))
+* restore authorization header after ConnectionError (DEV-3190) ([#744](https://github.com/dasch-swiss/dsp-tools/issues/744)) ([d03be2a](https://github.com/dasch-swiss/dsp-tools/commit/d03be2a6e69fde47fb4ad7661be14ef1fbec5901))
+* retry mechanism again catches return codes in the 500 range (DEV-3177) ([#740](https://github.com/dasch-swiss/dsp-tools/issues/740)) ([c927c21](https://github.com/dasch-swiss/dsp-tools/commit/c927c21ebc6ea078417f4b7dc040779a1ba57ef1))
+* **xmlupload:** retry on all non-OK response statuses (DEV-3214) ([#754](https://github.com/dasch-swiss/dsp-tools/issues/754)) ([b85e806](https://github.com/dasch-swiss/dsp-tools/commit/b85e80601b915f8fcf25dcaf9bd3059f72ee9c79))
+
+
+### Maintenance
+
+* add PermanentConnectionError to make BaseError slimmer (DEV-3192) ([#741](https://github.com/dasch-swiss/dsp-tools/issues/741)) ([ed60319](https://github.com/dasch-swiss/dsp-tools/commit/ed603194857fa714773a6ba83db65940e95d7769))
+* add permission to test data ([#768](https://github.com/dasch-swiss/dsp-tools/issues/768)) ([a4d93fc](https://github.com/dasch-swiss/dsp-tools/commit/a4d93fcba57de55a801157f89ac248a4a6a42a95))
+* add ruff rule to prevent TODO comments ([#738](https://github.com/dasch-swiss/dsp-tools/issues/738)) ([e897496](https://github.com/dasch-swiss/dsp-tools/commit/e89749639a02f96b6b2030a94c62b8f059c5a52b))
+* add User-Agent header to HTTP requests ([#737](https://github.com/dasch-swiss/dsp-tools/issues/737)) ([85e363b](https://github.com/dasch-swiss/dsp-tools/commit/85e363ba2ec86cc11f7dce60dba092504e398baa))
+* avoid mutable default values in class attributes (DEV-3234) ([#764](https://github.com/dasch-swiss/dsp-tools/issues/764)) ([1d9e5de](https://github.com/dasch-swiss/dsp-tools/commit/1d9e5de73499b4c9cefa118876c326445869fdf4))
+* bump all dependencies ([#734](https://github.com/dasch-swiss/dsp-tools/issues/734)) ([d3e238b](https://github.com/dasch-swiss/dsp-tools/commit/d3e238beb2a115f025ce99b7a0cc4861b26feaaf))
+* bump GitHub actions that use a deprecated NodeJS version ([#766](https://github.com/dasch-swiss/dsp-tools/issues/766)) ([84e8ec0](https://github.com/dasch-swiss/dsp-tools/commit/84e8ec04557d1a28200b9f1cbb96a647e465b63f))
+* bump start-stack to 2024.01.01 ([#771](https://github.com/dasch-swiss/dsp-tools/issues/771)) ([2997c05](https://github.com/dasch-swiss/dsp-tools/commit/2997c05b2ae988f924970bac7b50c9a931fc6fcb))
+* **ci:** move setup into reusable workflow ([#715](https://github.com/dasch-swiss/dsp-tools/issues/715)) ([a3799ce](https://github.com/dasch-swiss/dsp-tools/commit/a3799ce88264806e4ef52ceef46714803bafe012))
+* **ci:** revert changes related to merge queue ([#719](https://github.com/dasch-swiss/dsp-tools/issues/719)) ([ff0e4fe](https://github.com/dasch-swiss/dsp-tools/commit/ff0e4fe2cf0171d08b0d513d5fc0df7feeca3d08))
+* **ci:** set up merge queue ([#717](https://github.com/dasch-swiss/dsp-tools/issues/717)) ([1c13f5f](https://github.com/dasch-swiss/dsp-tools/commit/1c13f5fd6af6b2b49721a4a1ee27e1d26e1c0787))
+* **connection:** content type doesn't have to be parametrized ([#752](https://github.com/dasch-swiss/dsp-tools/issues/752)) ([2c0febb](https://github.com/dasch-swiss/dsp-tools/commit/2c0febb8eb7ce1fadfe651842ee31c0fe7f4634f))
+* **create:** in normal workflow, don't rely on failing request (DEV-3220) ([#757](https://github.com/dasch-swiss/dsp-tools/issues/757)) ([f9b9677](https://github.com/dasch-swiss/dsp-tools/commit/f9b967742fe19c1993e9a88cd5fa5e40a13163a8))
+* define poetry exec targets for all tools ([#695](https://github.com/dasch-swiss/dsp-tools/issues/695)) ([c04356b](https://github.com/dasch-swiss/dsp-tools/commit/c04356bcc75866f3251ec9ad279108687426f065))
+* delete dead code in project context ([#770](https://github.com/dasch-swiss/dsp-tools/issues/770)) ([5159b8d](https://github.com/dasch-swiss/dsp-tools/commit/5159b8d6bad97da909078d198106ae360386b8da))
+* don't log errors multiple times (DEV-3195) ([#769](https://github.com/dasch-swiss/dsp-tools/issues/769)) ([0025784](https://github.com/dasch-swiss/dsp-tools/commit/002578404025dc7e791310df5f8281b28ddab919))
+* don't send chat notification on post releases / release only on "feat" or "fix" (DEV-3148) ([#707](https://github.com/dasch-swiss/dsp-tools/issues/707)) ([fd9b148](https://github.com/dasch-swiss/dsp-tools/commit/fd9b148b6df7f7ad29ab11e51c7ab7d8fab545be))
+* **excel2json-properties:** reorganise file ([#776](https://github.com/dasch-swiss/dsp-tools/issues/776)) ([4b8c060](https://github.com/dasch-swiss/dsp-tools/commit/4b8c060cec4c2bcac79475a51d5889ce430a895e))
+* fix pypi.org publishing ([#708](https://github.com/dasch-swiss/dsp-tools/issues/708)) ([ea56066](https://github.com/dasch-swiss/dsp-tools/commit/ea560669759a4e57c14b0888eb983ad25c2d6848))
+* fix ruff PLR5501 ([#774](https://github.com/dasch-swiss/dsp-tools/issues/774)) ([1f88112](https://github.com/dasch-swiss/dsp-tools/commit/1f881126a391569cf378aecab84bc84c29ffa54f))
+* get rid of dead code ([#751](https://github.com/dasch-swiss/dsp-tools/issues/751)) ([f67eac2](https://github.com/dasch-swiss/dsp-tools/commit/f67eac204791e9af18dcc4dcd22aa4428f5aa1b1))
+* get rid of http_call_with_retry ([#694](https://github.com/dasch-swiss/dsp-tools/issues/694)) ([70f6808](https://github.com/dasch-swiss/dsp-tools/commit/70f680843efd9c9398d869b83f46d0e0eea0fb83))
+* get rid of shared.login() function ([#714](https://github.com/dasch-swiss/dsp-tools/issues/714)) ([28806a0](https://github.com/dasch-swiss/dsp-tools/commit/28806a06ff9a370504e124c647531dd105fec6cc))
+* hide stack trace from user (DEV-3158) ([#724](https://github.com/dasch-swiss/dsp-tools/issues/724)) ([808c01c](https://github.com/dasch-swiss/dsp-tools/commit/808c01ca5cfd417a7228a2220140d4e560cdf1b6))
+* improve package structure of unittests/cli ([#713](https://github.com/dasch-swiss/dsp-tools/issues/713)) ([111c6df](https://github.com/dasch-swiss/dsp-tools/commit/111c6df426824781fd316e5a3dbd28fb48e570d1))
+* improve performance with requests.Session object (DEV-3174) ([#739](https://github.com/dasch-swiss/dsp-tools/issues/739)) ([43caaf9](https://github.com/dasch-swiss/dsp-tools/commit/43caaf9db3a8d445f1b0b741540d51e8dffb4b09))
+* log all HTTP requests, get rid of --dump flag (DEV-3171) ([#731](https://github.com/dasch-swiss/dsp-tools/issues/731)) ([e2b0598](https://github.com/dasch-swiss/dsp-tools/commit/e2b0598386868500c12bcb8a42a054494522e45b))
+* log all requests, also during retry (DEV-3213) ([#759](https://github.com/dasch-swiss/dsp-tools/issues/759)) ([fd05080](https://github.com/dasch-swiss/dsp-tools/commit/fd05080eb0010f6e6612a605f5e78d75a552f0c1))
+* make dev-release to pypi.org on every commit to main (DEV-3130) ([#699](https://github.com/dasch-swiss/dsp-tools/issues/699)) ([b05690b](https://github.com/dasch-swiss/dsp-tools/commit/b05690bce18e2b53edeef4e5170655065f876c27))
+* make post releases instead of dev releases (DEV-3130) ([#705](https://github.com/dasch-swiss/dsp-tools/issues/705)) ([94b289d](https://github.com/dasch-swiss/dsp-tools/commit/94b289d25e994755390675196d1193ca8c4fe3e1))
+* make XmlUploadError a subclass of BaseError ([#746](https://github.com/dasch-swiss/dsp-tools/issues/746)) ([12e406f](https://github.com/dasch-swiss/dsp-tools/commit/12e406f48af060df26525029f87d9952de6e231f))
+* move session renewal into own method ([#755](https://github.com/dasch-swiss/dsp-tools/issues/755)) ([7adc837](https://github.com/dasch-swiss/dsp-tools/commit/7adc837cb18aa44379bd510b2f48bc26984e3095))
+* move to Python 3.12 ([#696](https://github.com/dasch-swiss/dsp-tools/issues/696)) ([60f64a2](https://github.com/dasch-swiss/dsp-tools/commit/60f64a2c9c14fe9197bb083dc117234a07779f51))
+* **project_validate:** fix one ruff PLR0912 ([#775](https://github.com/dasch-swiss/dsp-tools/issues/775)) ([d7060d6](https://github.com/dasch-swiss/dsp-tools/commit/d7060d6314df2fc9bac11a74e60b607ae2fe02b1))
+* **project-create:** clean up one ruff PLR0912 and one PLR0913 ([#772](https://github.com/dasch-swiss/dsp-tools/issues/772)) ([7902840](https://github.com/dasch-swiss/dsp-tools/commit/790284053427dcb3b6689d0036c19a69fc4edcd5))
+* **project-get:** fix ruff PLR0915 ([#773](https://github.com/dasch-swiss/dsp-tools/issues/773)) ([71b9b2a](https://github.com/dasch-swiss/dsp-tools/commit/71b9b2acb1feb8e94aa80203627d3b8db6e0cf75))
+* PyPI authentication via API token (DEV-3143) ([#703](https://github.com/dasch-swiss/dsp-tools/issues/703)) ([dd16ef4](https://github.com/dasch-swiss/dsp-tools/commit/dd16ef4909849bd056f82bd39c14091927928040))
+* refactor test_find_date_in_string ([#710](https://github.com/dasch-swiss/dsp-tools/issues/710)) ([630df2c](https://github.com/dasch-swiss/dsp-tools/commit/630df2c36a7e482268c5d12e5cbb470a96d97a9b))
+* remove duplicated & outdated docstrings from Connection protocol ([#758](https://github.com/dasch-swiss/dsp-tools/issues/758)) ([2a04f5a](https://github.com/dasch-swiss/dsp-tools/commit/2a04f5a1b48d58c37d72777717a23c632e1e3d96))
+* remove unused code (DEV-3152) ([#712](https://github.com/dasch-swiss/dsp-tools/issues/712)) ([43cba62](https://github.com/dasch-swiss/dsp-tools/commit/43cba62cb42623aaea6a86d93c19d5264ce2770b))
+* replace bandit action by ruff's bandit ruleset (DEV-3026) ([#722](https://github.com/dasch-swiss/dsp-tools/issues/722)) ([76203cf](https://github.com/dasch-swiss/dsp-tools/commit/76203cf9d3da1fcd193c9203de5cec9bc13c6671))
+* resolve PLR0911 in call_requested_action() ([#701](https://github.com/dasch-swiss/dsp-tools/issues/701)) ([855231e](https://github.com/dasch-swiss/dsp-tools/commit/855231e43a5b091dd1c4e0785343e7ec2330f242))
+* split up models/helpers.py ([#760](https://github.com/dasch-swiss/dsp-tools/issues/760)) ([f97cce8](https://github.com/dasch-swiss/dsp-tools/commit/f97cce80be17f23df15fd9dca220b3c52f2d58cc))
+* tidy up connection class ([#747](https://github.com/dasch-swiss/dsp-tools/issues/747)) ([eaa1158](https://github.com/dasch-swiss/dsp-tools/commit/eaa115802355052c046b99547baeb627aa76c3b0))
+* tidy up Connection class (DEV-3191) ([#748](https://github.com/dasch-swiss/dsp-tools/issues/748)) ([bd915ef](https://github.com/dasch-swiss/dsp-tools/commit/bd915ef2691ff383e4255df580b5580da89729ac))
+* tidy up exceptions ([#762](https://github.com/dasch-swiss/dsp-tools/issues/762)) ([03213ed](https://github.com/dasch-swiss/dsp-tools/commit/03213ed11ce0aa9e3d5c8f4662407de1974cdf5d))
+
 ## [5.6.0](https://github.com/dasch-swiss/dsp-tools/compare/v5.5.0...v5.6.0) (2023-12-19)
 
 

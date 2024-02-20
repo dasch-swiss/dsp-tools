@@ -9,8 +9,8 @@ from lxml import etree
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.iri_util import is_resource_iri
-from dsp_tools.utils.shared import validate_xml_against_schema
 from dsp_tools.utils.xml_utils import parse_and_clean_xml_file
+from dsp_tools.utils.xml_validation import validate_xml
 
 logger = get_logger(__name__)
 
@@ -34,7 +34,7 @@ def validate_and_parse_xml_file(
     Returns:
         The ontology name, the parsed XML file and the shortcode of the project
     """
-    validate_xml_against_schema(input_file=input_file)
+    validate_xml(input_file=input_file)
     root = parse_and_clean_xml_file(input_file=input_file)
     _check_if_link_targets_exist(root)
     if not preprocessing_done:

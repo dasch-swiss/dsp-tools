@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional, Pattern
+from typing import Optional
 
 import regex
 
@@ -37,7 +37,6 @@ class Context:
 
     _context: ContextType
     _rcontext: dict[str, str]
-    _exp: Pattern[str]
 
     common_ontologies = ContextType(
         {
@@ -78,8 +77,6 @@ class Context:
         ontology-iri *must* end with "#"!
         :param context: A dict of prefix - ontology-iri pairs
         """
-        # regexp to test for a complete IRI (including fragment identifier)
-        self._exp = regex.compile("^(http)s?://([\\w\\.\\-~]+)?(:\\d{,6})?(/[\\w\\-~]+)*(#[\\w\\-~]*)?")
         self._context = ContextType({})
 
         # add ontologies from context, if any
@@ -142,19 +139,20 @@ class Context:
         :param iri: The IRI that belongs to this context prefix
         :return: None
         """
-        if iri is None:
-            if prefix in self.knora_ontologies:
-                return
-            if prefix in self.base_ontologies:
-                return
-            if prefix in self.common_ontologies:
-                self._context[prefix] = self.common_ontologies[prefix]
-        else:
-            if iri.endswith("#"):
-                iri = iri[:-1]
-                self._context[prefix] = OntoIri(iri, True)
-            else:
-                self._context[prefix] = OntoIri(iri, False)
+        match iri:
+            case None:
+                if prefix in self.knora_ontologies:
+                    return
+                elif prefix in self.base_ontologies:
+                    return
+                elif prefix in self.common_ontologies:
+                    self._context[prefix] = self.common_ontologies[prefix]
+            case str():
+                if iri.endswith("#"):
+                    iri = iri[:-1]
+                    self._context[prefix] = OntoIri(iri, True)
+                else:
+                    self._context[prefix] = OntoIri(iri, False)
         self._rcontext[iri] = prefix
 
     def iri_from_prefix(self, prefix: str) -> Optional[str]:

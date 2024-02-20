@@ -26,6 +26,23 @@ def _check_for_duplicate_names(project_definition: dict[str, Any]) -> bool:
     Returns:
         True if the resource/property names are unique
     """
+    propnames_duplicates, resnames_duplicates = _find_duplicates(project_definition)
+
+    if not resnames_duplicates and not propnames_duplicates:
+        return True
+
+    err_msg = "Resource names and property names must be unique inside every ontology.\n"
+    for ontoname, res_duplicates in resnames_duplicates.items():
+        for res_duplicate in sorted(res_duplicates):
+            err_msg += f"Resource '{res_duplicate}' appears multiple times in the ontology '{ontoname}'.\n"
+    for ontoname, prop_duplicates in propnames_duplicates.items():
+        for prop_duplicate in sorted(prop_duplicates):
+            err_msg += f"Property '{prop_duplicate}' appears multiple times in the ontology '{ontoname}'.\n"
+
+    raise BaseError(err_msg)
+
+
+def _find_duplicates(project_definition: dict[str, Any]) -> tuple[dict[str, set[str]], dict[str, set[str]]]:
     resnames_duplicates: dict[str, set[str]] = {}
     propnames_duplicates: dict[str, set[str]] = {}
     for onto in project_definition["project"]["ontologies"]:
@@ -46,19 +63,7 @@ def _check_for_duplicate_names(project_definition: dict[str, Any]) -> bool:
                         propnames_duplicates[onto["name"]].add(elem)
                     else:
                         propnames_duplicates[onto["name"]] = {elem}
-
-    if not resnames_duplicates and not propnames_duplicates:
-        return True
-
-    err_msg = "Resource names and property names must be unique inside every ontology.\n"
-    for ontoname, res_duplicates in resnames_duplicates.items():
-        for res_duplicate in sorted(res_duplicates):
-            err_msg += f"Resource '{res_duplicate}' appears multiple times in the ontology '{ontoname}'.\n"
-    for ontoname, prop_duplicates in propnames_duplicates.items():
-        for prop_duplicate in sorted(prop_duplicates):
-            err_msg += f"Property '{prop_duplicate}' appears multiple times in the ontology '{ontoname}'.\n"
-
-    raise BaseError(err_msg)
+    return propnames_duplicates, resnames_duplicates
 
 
 def _check_for_undefined_super_resource(project_definition: dict[str, Any]) -> bool:
@@ -373,11 +378,21 @@ def _identify_problematic_cardinalities(
     Returns:
         a (possibly empty) list of (resource, problematic_cardinality) tuples
     """
-    # make 2 dicts of the following form:
+    cardinalities, dependencies = _extract_cardinalities_from_project(project_definition, link_properties)
+    graph = _make_cardinality_dependency_graph(dependencies)
+    errors = _find_circles_with_min_one_cardinality(graph, cardinalities, dependencies)
+    return sorted(errors, key=lambda x: x[0])
+
+
+def _extract_cardinalities_from_project(
+    project_definition: dict[Any, Any],
+    link_properties: dict[str, list[str]],
+) -> tuple[dict[str, dict[str, str]], dict[str, dict[str, list[str]]]]:
     # dependencies = {"rosetta:Text": {"rosetta:hasImage2D": ["rosetta:Image2D"], ...}}
-    # cardinalities = {"rosetta:Text": {"rosetta:hasImage2D": "0-1", ...}}
     dependencies: dict[str, dict[str, list[str]]] = {}
+    # cardinalities = {"rosetta:Text": {"rosetta:hasImage2D": "0-1", ...}}
     cardinalities: dict[str, dict[str, str]] = {}
+
     for onto in project_definition["project"]["ontologies"]:
         for resource in onto["resources"]:
             resname: str = onto["name"] + ":" + resource["name"]
@@ -399,15 +414,21 @@ def _identify_problematic_cardinalities(
                         cardinalities[resname][cardname] = card["cardinality"]
                     else:
                         dependencies[resname][cardname].extend(targets)
+    return cardinalities, dependencies
 
-    # transform the dependencies into a graph structure
+
+def _make_cardinality_dependency_graph(dependencies: dict[str, dict[str, list[str]]]) -> nx.MultiDiGraph:
     graph = nx.MultiDiGraph()
     for start, cards in dependencies.items():
         for edge, targets in cards.items():
             for target in targets:
                 graph.add_edge(start, target, edge)
+    return graph
 
-    # find elements of circles that have a cardinality of "1" or "1-n"
+
+def _find_circles_with_min_one_cardinality(
+    graph: nx.MultiDiGraph, cardinalities: dict[str, dict[str, str]], dependencies: dict[str, dict[str, list[str]]]
+) -> set[tuple[str, str]]:
     errors: set[tuple[str, str]] = set()
     circles = list(nx.algorithms.cycles.simple_cycles(graph))
     for circle in circles:
@@ -419,5 +440,4 @@ def _identify_problematic_cardinalities(
                     prop = _property
             if cardinalities[resource].get(prop) not in ["0-1", "0-n"]:
                 errors.add((resource, prop))
-
-    return sorted(errors, key=lambda x: x[0])
+    return errors

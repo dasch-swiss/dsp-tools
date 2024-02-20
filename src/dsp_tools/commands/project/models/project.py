@@ -10,16 +10,6 @@ READ:
     * Call the ``read``-method on the instance
     * Access the information that has been provided to the instance
 
-UPDATE:
-    * You need an instance of an existing Project by reading an instance
-    * Change the attributes by assigning the new values
-    * Call the ``update```method on the instance
-
-DELETE
-    * Instantiate a new objects with ``iri`` given, or use any instance that has the iri set
-    * Call the ``delete``-method on the instance
-
-In addition there is a static methods ``getAllProjects`` which returns a list of all projects
 """
 
 from __future__ import annotations
@@ -27,10 +17,9 @@ from __future__ import annotations
 from typing import Any, Optional, Union
 from urllib.parse import quote_plus
 
-from dsp_tools.commands.project.models.helpers import Actions
 from dsp_tools.commands.project.models.model import Model
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.langstring import LangString, Languages
+from dsp_tools.models.langstring import LangString
 from dsp_tools.utils.connection import Connection
 
 
@@ -58,11 +47,9 @@ class Project(Model):
 
     description : LangString
         DSP project description in a given language (Languages.EN, Languages.DE, Languages.FR, Languages.IT).
-        A desciption can be add/replaced or removed with the methods ``addDescription``and ``rmDescription``.
 
     keywords : set[str]
-        Set of keywords describing the project. Keywords can be added/removed by the methods ``addKeyword``
-        and ``rmKeyword``
+        Set of keywords describing the project.
 
     ontologies : set[str]
         Set if IRI's of the ontologies attached to the project [readonly]
@@ -79,12 +66,6 @@ class Project(Model):
 
     read : DSP project information object
         Read project data from an existing project
-
-    update : DSP project information object
-        Updates the changed attributes and returns the updated information from the project as it is in DSP
-
-    delete : DSP result code
-        Deletes a project and returns the result code
 
     getAllprojects [static]: List of all projects
         Returns a list of all projects available
@@ -197,29 +178,6 @@ class Project(Model):
         self._description = LangString(value)
         self._changed.add("description")
 
-    def addDescription(self, lang: Union[Languages, str], value: str) -> None:
-        """
-        Add/replace a project description with the given language (executed at next update)
-
-        :param lang: The language the description is in, either a string "EN", "DE", "FR", "IT" or a Language instance
-        :param value: The text of the description
-        :return: None
-        """
-
-        self._description[lang] = value
-        self._changed.add("description")
-
-    def rmDescription(self, lang: Union[Languages, str]) -> None:
-        """
-        Remove a description from a project (executed at next update)
-
-        :param lang: language of the description, either "EN", "DE", "FR", "IT", "RM", or a Language instance
-        :return: None
-        """
-
-        del self._description[lang]
-        self._changed.add("description")
-
     @property
     def keywords(self) -> set[str]:
         return self._keywords
@@ -234,32 +192,6 @@ class Project(Model):
             self._changed.add("keywords")
         else:
             raise BaseError("Must be a set of strings!")
-
-    def addKeyword(self, value: str) -> None:
-        """
-        Add a new keyword to the set of keywords. (executed at next update)
-        May raise a BaseError
-
-        :param value: keyword
-        :return: None
-        """
-
-        self._keywords.add(value)
-        self._changed.add("keywords")
-
-    def rmKeyword(self, value: str) -> None:
-        """
-        Remove a keyword from the list of keywords (executed at next update)
-        May raise a BaseError
-
-        :param value: keyword
-        :return: None
-        """
-        try:
-            self._keywords.remove(value)
-        except KeyError as ke:
-            raise BaseError('Keyword "' + value + '" is not in keyword set') from ke
-        self._changed.add("keywords")
 
     @property
     def ontologies(self) -> set[str]:
@@ -346,56 +278,6 @@ class Project(Model):
             logo=logo,
         )
 
-    def toJsonObj(self, action: Actions) -> dict[str, str]:
-        """
-        Internal method! Should not be used directly!
-
-        Creates a JSON-object from the Project instance that can be used to call DSP
-
-        :param action: Action the object is used for (Action.CREATE or Action.UPDATE)
-        :return: JSON-object
-        """
-
-        tmp = {}
-        if action == Actions.Create:
-            if self._shortcode is None:
-                raise BaseError("There must be a valid project shortcode!")
-            tmp["shortcode"] = self._shortcode
-            if self._shortname is None:
-                raise BaseError("There must be a valid project shortname!")
-            tmp["shortname"] = self._shortname
-            if self._longname is None:
-                raise BaseError("There must be a valid project longname!")
-            tmp["longname"] = self._longname
-            if self._description.isEmpty():
-                raise BaseError("There must be a valid project description!")
-            tmp["description"] = self._description.toJsonObj()
-            if self._keywords is not None and len(self._keywords) > 0:
-                tmp["keywords"] = self._keywords
-            if self._selfjoin is None:
-                raise BaseError("selfjoin must be defined (True or False!")
-            tmp["selfjoin"] = self._selfjoin
-            if self._status is None:
-                raise BaseError("status must be defined (True or False!")
-            tmp["status"] = self._status
-
-        elif action == Actions.Update:
-            if self._shortcode is not None and "shortcode" in self._changed:
-                tmp["shortcode"] = self._shortcode
-            if self._shortname is not None and "shortname" in self._changed:
-                tmp["shortname"] = self._shortname
-            if self._longname is not None and "longname" in self._changed:
-                tmp["longname"] = self._longname
-            if not self._description.isEmpty() and "description" in self._changed:
-                tmp["description"] = self._description.toJsonObj()
-            if len(self._keywords) > 0 and "keywords" in self._changed:
-                tmp["keywords"] = self._keywords
-            if self._selfjoin is not None and "selfjoin" in self._changed:
-                tmp["selfjoin"] = self._selfjoin
-            if self._status is not None and "status" in self._changed:
-                tmp["status"] = self._status
-        return tmp
-
     def createDefinitionFileObj(self) -> dict[str, Any]:
         return {
             "shortcode": self._shortcode,
@@ -411,9 +293,33 @@ class Project(Model):
 
         :return: JSON-object from DSP
         """
-        jsonobj = self.toJsonObj(Actions.Create)
+        jsonobj = self._toJsonObj_create()
         result = self._con.post(Project.ROUTE, jsonobj)
         return Project.fromJsonObj(self._con, result["project"])
+
+    def _toJsonObj_create(self) -> dict[str, str]:
+        tmp = {}
+        if self._shortcode is None:
+            raise BaseError("There must be a valid project shortcode!")
+        tmp["shortcode"] = self._shortcode
+        if self._shortname is None:
+            raise BaseError("There must be a valid project shortname!")
+        tmp["shortname"] = self._shortname
+        if self._longname is None:
+            raise BaseError("There must be a valid project longname!")
+        tmp["longname"] = self._longname
+        if self._description.isEmpty():
+            raise BaseError("There must be a valid project description!")
+        tmp["description"] = self._description.toJsonObj()
+        if self._keywords is not None and len(self._keywords) > 0:
+            tmp["keywords"] = self._keywords
+        if self._selfjoin is None:
+            raise BaseError("selfjoin must be defined (True or False!")
+        tmp["selfjoin"] = self._selfjoin
+        if self._status is None:
+            raise BaseError("status must be defined (True or False!")
+        tmp["status"] = self._status
+        return tmp
 
     def read(self) -> Project:
         """
@@ -435,26 +341,6 @@ class Project(Model):
                 f"ERROR: Could not read project '{self.shortname}' ({self.shortcode}) with IRI {self._iri} "
                 f"from DSP server."
             )
-
-    def update(self) -> Project:
-        """
-        Update the project information on the DSP with the modified data in this project instance
-
-        Returns: JSON object returned as response from DSP reflecting the update
-        """
-        jsonobj = self.toJsonObj(Actions.Update)
-        result = self._con.put(Project.IRI + quote_plus(self.iri), jsonobj)
-        return Project.fromJsonObj(self._con, result["project"])
-
-    def delete(self) -> Project:
-        """
-        Delete the given DSP project
-
-        :return: DSP response
-        """
-
-        result = self._con.delete(Project.IRI + quote_plus(self._iri))
-        return Project.fromJsonObj(self._con, result["project"])
 
     @staticmethod
     def getAllProjects(con: Connection) -> list[Project]:

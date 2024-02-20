@@ -85,28 +85,6 @@ class TestListNode(unittest.TestCase):
         self.assertTrue(node.isRootNode)
         self.assertFalse(subnode.isRootNode)
 
-    def test_ListNode_update(self) -> None:
-        """
-        Update the data of a node
-        :return: None
-        """
-        node = ListNode(
-            con=self.con,
-            project=self.project,
-            label=LangString({Languages.EN: "root node 3"}),
-            comments=LangString({Languages.EN: "Third root node"}),
-            name="test_node",
-        ).create()
-        node.addLabel("de", "Neues Label")
-        node.rmLabel("en")
-        node.addComment("fr", "un commentaire en français")
-        node.rmComment("en")
-        node.name = "test_node_update"
-        node.update()
-        self.assertEqual(node.label["de"], "Neues Label")
-        self.assertEqual(node.comments["fr"], "un commentaire en français")
-        self.assertEqual(node.name, "test_node_update")
-
     def test_ListNode_getAllLists(self) -> None:
         """
         Get all lists

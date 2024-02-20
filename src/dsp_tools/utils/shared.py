@@ -1,116 +1,18 @@
 from __future__ import annotations
 
-import copy
-import glob
-import importlib.resources
 import json
 import unicodedata
-from datetime import datetime
 from pathlib import Path
 from typing import Any, Optional, TypeGuard, Union
 
 import pandas as pd
 import regex
-from lxml import etree
 
 from dsp_tools.commands.excel2xml.propertyelement import PropertyElement
-from dsp_tools.models.exceptions import BaseError, UserError
+from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.create_logger import get_logger
 
 logger = get_logger(__name__)
-
-
-def validate_xml_against_schema(input_file: Union[str, Path, etree._ElementTree[Any]]) -> bool:
-    """
-    Validates an XML file against the DSP XSD schema.
-
-    Args:
-        input_file: path to the XML file to be validated, or parsed ElementTree
-
-    Raises:
-        UserError: if the XML file is invalid
-
-    Returns:
-        True if the XML file is valid
-    """
-    with importlib.resources.files("dsp_tools").joinpath("resources/schema/data.xsd").open(
-        encoding="utf-8"
-    ) as schema_file:
-        xmlschema = etree.XMLSchema(etree.parse(schema_file))
-    if isinstance(input_file, (str, Path)):
-        try:
-            doc = etree.parse(source=input_file)
-        except etree.XMLSyntaxError as err:
-            logger.error(f"The XML file contains the following syntax error: {err.msg}", exc_info=True)
-            raise UserError(f"The XML file contains the following syntax error: {err.msg}") from None
-    else:
-        doc = input_file
-
-    if not xmlschema.validate(doc):
-        error_msg = "The XML file cannot be uploaded due to the following validation error(s):"
-        for error in xmlschema.error_log:
-            error_msg = error_msg + f"\n  Line {error.line}: {error.message}"
-        error_msg = error_msg.replace("{https://dasch.swiss/schema}", "")
-        logger.error(error_msg)
-        raise UserError(error_msg)
-
-    # make sure there are no XML tags in simple texts
-    _validate_xml_tags_in_text_properties(doc)
-
-    logger.info("The XML file is syntactically correct and passed validation.")
-    print(f"{datetime.now()}: The XML file is syntactically correct and passed validation.")
-    return True
-
-
-def _validate_xml_tags_in_text_properties(doc: Union[etree._ElementTree[etree._Element], etree._Element]) -> bool:
-    """
-    Makes sure that there are no XML tags in simple texts.
-    This can only be done with a regex,
-    because even if the simple text contains some XML tags,
-    the simple text itself is not valid XML that could be parsed.
-    The extra challenge is that lxml transforms
-    "pebble (&lt;2cm) and boulder (&gt;20cm)" into
-    "pebble (<2cm) and boulder (>20cm)"
-    (but only if &gt; follows &lt;).
-    This forces us to write a regex that carefully distinguishes
-    between a real tag (which is not allowed) and a false-positive-tag.
-
-    Args:
-        doc: parsed XML file
-
-    Raises:
-        UserError: if there is an XML tag in one of the simple texts
-
-    Returns:
-        True if there are no XML tags in the simple texts
-    """
-    # first: remove namespaces
-    doc_without_namespace = copy.deepcopy(doc)
-    for elem in doc_without_namespace.iter():
-        if not isinstance(elem, (etree._Comment, etree._ProcessingInstruction)):
-            elem.tag = etree.QName(elem).localname
-
-    # then: make the test
-    resources_with_illegal_xml_tags = []
-    for text in doc_without_namespace.findall(path="resource/text-prop/text"):
-        regex_finds_tags = bool(regex.search(r'<([a-zA-Z/"]+|[^\s0-9].*[^\s0-9])>', str(text.text)))
-        etree_finds_tags = bool(list(text.iterchildren()))
-        has_tags = regex_finds_tags or etree_finds_tags
-        if text.attrib["encoding"] == "utf8" and has_tags:
-            sourceline = f" line {text.sourceline}: " if text.sourceline else " "
-            propname = text.getparent().attrib["name"]  # type: ignore[union-attr]
-            resname = text.getparent().getparent().attrib["id"]  # type: ignore[union-attr]
-            resources_with_illegal_xml_tags.append(f" -{sourceline}resource '{resname}', property '{propname}'")
-    if resources_with_illegal_xml_tags:
-        err_msg = (
-            "XML-tags are not allowed in text properties with encoding=utf8. "
-            "The following resources of your XML file violate this rule:\n"
-        )
-        err_msg += "\n".join(resources_with_illegal_xml_tags)
-        logger.error(err_msg, exc_info=True)
-        raise UserError(err_msg)
-
-    return True
 
 
 def prepare_dataframe(
@@ -238,8 +140,9 @@ def parse_json_input(project_file_as_path_or_parsed: Union[str, Path, dict[str, 
     Returns:
         the parsed JSON object
     """
+    project_definition: dict[str, Any] = {}
     if isinstance(project_file_as_path_or_parsed, dict):
-        project_definition: dict[str, Any] = project_file_as_path_or_parsed
+        project_definition = project_file_as_path_or_parsed
     elif isinstance(project_file_as_path_or_parsed, (str, Path)) and Path(project_file_as_path_or_parsed).exists():
         with open(project_file_as_path_or_parsed, encoding="utf-8") as f:
             try:
@@ -250,17 +153,3 @@ def parse_json_input(project_file_as_path_or_parsed: Union[str, Path, dict[str, 
     else:
         raise BaseError("Invalid input: The input must be a path to a JSON file or a parsed JSON object.")
     return project_definition
-
-
-def get_most_recent_glob_match(glob_pattern: Union[str, Path]) -> Path:
-    """
-    Find the most recently created file that matches a glob pattern.
-
-    Args:
-        glob_pattern: glob pattern, either absolute or relative to the cwd of the caller
-
-    Returns:
-        the most recently created file that matches the glob pattern
-    """
-    candidates = [Path(x) for x in glob.glob(str(glob_pattern))]
-    return max(candidates, key=lambda item: item.stat().st_ctime)

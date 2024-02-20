@@ -32,7 +32,14 @@ def _get_prop_encoding_from_one_property(res_id: str, property: etree._Element) 
     return TextValueData(res_id, prop_name, encodings)
 
 
-def _check_only_one_valid_encoding_used(text_encodings: set[str]) -> bool:
+def _check_only_one_valid_encoding_used_all_props(text_props: list[TextValueData]) -> list[TextValueData] | None:
+    wrong_props = [x for x in text_props if not _check_only_one_valid_encoding_used_one_prop(x.encoding)]
+    if len(wrong_props) == 0:
+        return None
+    return wrong_props
+
+
+def _check_only_one_valid_encoding_used_one_prop(text_encodings: set[str]) -> bool:
     if text_encodings == {"xml"} or text_encodings == {"utf8"}:  # noqa: PLR1714
         return True
     return False

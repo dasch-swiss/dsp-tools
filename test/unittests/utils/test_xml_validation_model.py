@@ -3,7 +3,8 @@ from lxml import etree
 
 from dsp_tools.utils.xml_validation_model import (
     TextValueData,
-    _check_only_one_valid_encoding_used,
+    _check_only_one_valid_encoding_used_all_props,
+    _check_only_one_valid_encoding_used_one_prop,
     _get_all_ids_prop_encoding_from_root,
     _get_id_prop_encoding_from_one_resource,
     _get_prop_encoding_from_one_property,
@@ -205,16 +206,29 @@ def test_get_all_ids_prop_encoding_from_root_with_text() -> None:
 
 class TestCheckOnlyOneEncodingUsed:
     def test_utf8(self) -> None:
-        assert _check_only_one_valid_encoding_used({"utf8"}) is True
+        assert _check_only_one_valid_encoding_used_one_prop({"utf8"}) is True
 
     def test_xml(self) -> None:
-        assert _check_only_one_valid_encoding_used({"utf8"}) is True
+        assert _check_only_one_valid_encoding_used_one_prop({"utf8"}) is True
 
     def test_utf8_xml(self) -> None:
-        assert _check_only_one_valid_encoding_used({"utf8", "xml"}) is False
+        assert _check_only_one_valid_encoding_used_one_prop({"utf8", "xml"}) is False
 
     def test_other(self) -> None:
-        assert _check_only_one_valid_encoding_used({"asdfasdf"}) is False
+        assert _check_only_one_valid_encoding_used_one_prop({"asdfasdf"}) is False
+
+
+def test_check_only_one_valid_encoding_used_all_props_all_good() -> None:
+    test_props = [TextValueData("", "", {"xml"}), TextValueData("", "", {"utf8"})]
+    assert _check_only_one_valid_encoding_used_all_props(test_props) is None
+
+
+def test_check_only_one_valid_encoding_used_all_props_problems() -> None:
+    test_props = [TextValueData("problem_id", "problem_prop", {"xml", "utf8"}), TextValueData("", "", {"utf8"})]
+    problems = _check_only_one_valid_encoding_used_all_props(test_props)
+    assert problems[0].resource_id == "problem_id"
+    assert problems[0].property_name == "problem_prop"
+    assert problems[0].encoding == {"xml", "utf8"}
 
 
 if __name__ == "__main__":

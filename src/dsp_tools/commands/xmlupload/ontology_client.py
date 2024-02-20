@@ -1,7 +1,10 @@
 from dataclasses import dataclass, field
 from typing import Any, Protocol
 
-from dsp_tools.commands.xmlupload.models.ontology_lookup_models import OntoInfo, extract_classes_properties_from_onto
+from dsp_tools.commands.xmlupload.models.ontology_lookup_models import (
+    OntoInfo,
+    extract_classes_and_properties_from_onto,
+)
 from dsp_tools.models.exceptions import BaseError, UserError
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.create_logger import get_logger
@@ -43,7 +46,8 @@ class OntologyClientLive:
         """
         ontologies = self._get_all_ontology_jsons_from_server()
         return {
-            onto_name: extract_classes_properties_from_onto(onto_graph) for onto_name, onto_graph in ontologies.items()
+            onto_name: extract_classes_and_properties_from_onto(onto_graph)
+            for onto_name, onto_graph in ontologies.items()
         }
 
     def _get_all_ontology_jsons_from_server(self) -> dict[str, list[dict[str, Any]]]:

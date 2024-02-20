@@ -8,7 +8,7 @@ from lxml import etree
 
 from dsp_tools.commands.xmlupload.check_consistency_with_ontology import do_xml_consistency_check_with_ontology
 from dsp_tools.commands.xmlupload.ontology_client import OntologyClientLive
-from dsp_tools.models.exceptions import BaseError, UserError
+from dsp_tools.models.exceptions import BaseError, InputError, UserError
 
 
 @dataclass
@@ -95,7 +95,7 @@ def test_error_on_nonexistent_onto_name() -> None:
         "    - the_only_resource\n\n"
         "---------------------------------------\n\n"
     )
-    with pytest.raises(UserError, match=expected):
+    with pytest.raises(InputError, match=expected):
         do_xml_consistency_check_with_ontology(ontology_client, root)
 
 

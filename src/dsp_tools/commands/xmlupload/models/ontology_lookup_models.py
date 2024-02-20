@@ -18,39 +18,39 @@ class ProjectOntosInformation:
     onto_lookup: dict[str, OntoInfo]
 
 
-def extract_classes_properties_from_onto(onto_graph: list[dict[str, Any]]) -> OntoInfo:
+def extract_classes_and_properties_from_onto(onto_json: list[dict[str, Any]]) -> OntoInfo:
     """
     This function takes an ontology graph from the DSP-API.
     It extracts the classes and properties.
     And saves them in an instance of the class Ontology.
 
     Args:
-        onto_graph: graph from DSP-API
+        onto_json: graph from DSP-API
 
     Returns:
         Ontology instance with the classes and properties
     """
-    classes = _get_all_cleaned_classes_from_graph(onto_graph)
-    properties = _get_all_cleaned_properties_from_graph(onto_graph)
+    classes = _get_all_cleaned_classes_from_json(onto_json)
+    properties = _get_all_cleaned_properties_from_json(onto_json)
     return OntoInfo(classes, properties)
 
 
-def _get_all_cleaned_classes_from_graph(onto_graph: list[dict[str, Any]]) -> list[str]:
-    classes = _get_all_classes_from_graph(onto_graph)
+def _get_all_cleaned_classes_from_json(onto_json: list[dict[str, Any]]) -> list[str]:
+    classes = _get_all_classes_from_json(onto_json)
     return _remove_prefixes(classes)
 
 
-def _get_all_classes_from_graph(onto_graph: list[dict[str, Any]]) -> list[str]:
-    return [elem["@id"] for elem in onto_graph if elem.get("knora-api:isResourceClass")]
+def _get_all_classes_from_json(onto_json: list[dict[str, Any]]) -> list[str]:
+    return [elem["@id"] for elem in onto_json if elem.get("knora-api:isResourceClass")]
 
 
-def _get_all_cleaned_properties_from_graph(onto_graph: list[dict[str, Any]]) -> list[str]:
-    props = _get_all_properties_from_graph(onto_graph)
+def _get_all_cleaned_properties_from_json(onto_json: list[dict[str, Any]]) -> list[str]:
+    props = _get_all_properties_from_json(onto_json)
     return _remove_prefixes(props)
 
 
-def _get_all_properties_from_graph(onto_graph: list[dict[str, Any]]) -> list[str]:
-    return [elem["@id"] for elem in onto_graph if not elem.get("knora-api:isResourceClass")]
+def _get_all_properties_from_json(onto_json: list[dict[str, Any]]) -> list[str]:
+    return [elem["@id"] for elem in onto_json if not elem.get("knora-api:isResourceClass")]
 
 
 def _remove_prefixes(ontology_elements: list[str]) -> list[str]:

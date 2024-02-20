@@ -6,6 +6,7 @@ from typing import Any, Union
 
 from lxml import etree
 
+from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.create_logger import get_logger
 
 logger = get_logger(__name__)
@@ -26,7 +27,7 @@ def parse_and_clean_xml_file(input_file: Union[str, Path, etree._ElementTree[Any
         the root element of the parsed XML file
 
     Raises:
-        UserError: if the input is not of either the expected types
+        InputError: if the input is not of either the expected types
     """
 
     # remove comments and processing instructions (commented out properties break the XMLProperty constructor)
@@ -34,9 +35,37 @@ def parse_and_clean_xml_file(input_file: Union[str, Path, etree._ElementTree[Any
     if isinstance(input_file, (str, Path)):
         tree = _parse_xml_file(input_file)
     else:
-        tree = remove_comments_from_element_tree(input_file)
+        tree = input_file
+    tree = remove_comments_from_element_tree(tree)
 
-    _remove_qnames_and_transform_special_tags(tree)
+    tree = _remove_qnames_and_transform_special_tags(tree)
+
+    return tree.getroot()
+
+
+def parse_and_remove_comments_xml_file(
+    input_file: Union[str, Path, etree._ElementTree[Any]],
+) -> etree._Element:
+    """
+    Parse an XML file with DSP-conform data
+
+    Args:
+        input_file: path to the XML file, or parsed ElementTree
+
+    Returns:
+        the root element of the parsed XML file
+
+    Raises:
+        InputError: if the input is not of either the expected types
+    """
+
+    # remove comments and processing instructions (commented out properties break the XMLProperty constructor)
+
+    if isinstance(input_file, (str, Path)):
+        tree = _parse_xml_file(input_file)
+    else:
+        tree = input_file
+    tree = remove_comments_from_element_tree(tree)
 
     return tree.getroot()
 
@@ -100,14 +129,21 @@ def _parse_xml_file(input_file: Union[str, Path]) -> etree._ElementTree[etree._E
 
     Returns:
         element tree
+
+    Raises:
+        InputError: if the file contains a syntax error
     """
     parser = etree.XMLParser(remove_comments=True, remove_pis=True)
-    return etree.parse(source=input_file, parser=parser)
+    try:
+        return etree.parse(source=input_file, parser=parser)
+    except etree.XMLSyntaxError as err:
+        logger.error(f"The XML file contains the following syntax error: {err.msg}", exc_info=True)
+        raise InputError(f"The XML file contains the following syntax error: {err.msg}") from None
 
 
 def remove_namespaces_from_xml(
-    data_xml: Union[etree._ElementTree[etree._Element], etree._Element],
-) -> Union[etree._ElementTree[etree._Element], etree._Element]:
+    data_xml: etree._Element,
+) -> etree._Element:
     """
     This function removes all the namespaces from an XML file.
 

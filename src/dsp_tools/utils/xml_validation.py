@@ -10,7 +10,7 @@ from lxml import etree
 
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.create_logger import get_logger
-from dsp_tools.utils.xml_utils import remove_namespaces_from_xml
+from dsp_tools.utils.xml_utils import parse_and_remove_comments_xml_file, remove_namespaces_from_xml
 from dsp_tools.utils.xml_validation_models import (
     InconsistentTextValueEncodings,
     TextValueData,
@@ -25,7 +25,7 @@ medium_separator = "\n----------------------------\n"
 grand_separator = "\n\n---------------------------------------\n\n"
 
 
-def validate_xml(input_file: Union[str, Path, etree._Element]) -> bool:
+def validate_xml(input_file: Union[str, Path, etree._ElementTree[Any]]) -> bool:
     """
     Validates an XML file against the DSP XSD schema.
 
@@ -47,13 +47,12 @@ def validate_xml(input_file: Union[str, Path, etree._Element]) -> bool:
         problems.append(msg)
 
     xml_no_namespace = remove_namespaces_from_xml(data_xml)
-    xml = xml_no_namespace.getroot()
 
-    all_good, msg = _find_xml_tags_in_simple_text_elements(xml)
+    all_good, msg = _find_xml_tags_in_simple_text_elements(xml_no_namespace)
     if not all_good:
         problems.append(msg)
 
-    all_good, msg = _find_mixed_encodings_in_one_text_prop(xml)
+    all_good, msg = _find_mixed_encodings_in_one_text_prop(xml_no_namespace)
     if not all_good:
         problems.append(msg)
 
@@ -69,25 +68,16 @@ def validate_xml(input_file: Union[str, Path, etree._Element]) -> bool:
 
 def _parse_schema_and_data_files(
     input_file: Union[str, Path, etree._ElementTree[Any]],
-) -> tuple[Union[etree._ElementTree[etree._Element], etree._Element], etree.XMLSchema]:
+) -> tuple[etree._Element, etree.XMLSchema]:
     with importlib.resources.files("dsp_tools").joinpath("resources/schema/data.xsd").open(
         encoding="utf-8"
     ) as schema_file:
         xmlschema = etree.XMLSchema(etree.parse(schema_file))
-    if isinstance(input_file, (str, Path)):
-        try:
-            data_xml = etree.parse(source=input_file)
-        except etree.XMLSyntaxError as err:
-            logger.error(f"The XML file contains the following syntax error: {err.msg}", exc_info=True)
-            raise InputError(f"The XML file contains the following syntax error: {err.msg}") from None
-    else:
-        data_xml = input_file
+    data_xml = parse_and_remove_comments_xml_file(input_file)
     return data_xml, xmlschema
 
 
-def _validate_xml_against_schema(
-    xmlschema: etree.XMLSchema, data_xml: Union[etree._ElementTree[etree._Element], etree._Element]
-) -> tuple[bool, str]:
+def _validate_xml_against_schema(xmlschema: etree.XMLSchema, data_xml: etree._Element) -> tuple[bool, str]:
     if not xmlschema.validate(data_xml):
         error_msg = "The XML file cannot be uploaded due to the following validation error(s):"
         for error in xmlschema.error_log:

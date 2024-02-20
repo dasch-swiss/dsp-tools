@@ -72,13 +72,7 @@ def _get_id_prop_encoding_from_one_resource(resource: etree._Element) -> list[Te
 def _get_prop_encoding_from_one_property(res_id: str, property: etree._Element) -> TextValueData:
     prop_name = property.attrib["name"]
     child_attrib = [x.attrib for x in property.iterchildren()]
-    encodings = []
-    for child in child_attrib:
-        try:
-            encodings.append(child["encoding"])
-        except KeyError:
-            print()
-    # encodings = {x["encoding"] for x in child_attrib}
+    encodings = {x["encoding"] for x in child_attrib}
     return TextValueData(res_id, prop_name, encodings)
 
 

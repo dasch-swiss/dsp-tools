@@ -1,6 +1,13 @@
 from dataclasses import dataclass
 
+import pandas as pd
 from lxml import etree
+
+list_separator = "\n    - "
+medium_separator = "\n----------------------------\n"
+grand_separator = "\n\n---------------------------------------\n\n"
+
+maximum_prints = 50
 
 
 @dataclass
@@ -76,3 +83,56 @@ def _check_only_one_valid_encoding_used_one_prop(text_encodings: set[str]) -> bo
     if text_encodings == {"xml"} or text_encodings == {"utf8"}:  # noqa: PLR1714
         return True
     return False
+
+
+@dataclass
+class InconsistentTextValueEncodings:
+    """
+    This class takes instances that contain the information about resources and the properties that contain
+    invalid encodings.
+
+    An invalid encoding would be a <text-prop> element, that contains
+    <text encoding="utf8">
+    and
+    <text encoding="xml">
+    It is responsible to communicate the problems to the user.
+    """
+
+    problematic_resources: list[TextValueData]
+
+    def execute_problem_protocol(self) -> tuple[str, pd.DataFrame | None]:
+        """
+        This method composes an error message for the user.
+        Returns:
+            the error message and a dataframe with the errors if they exceed 50
+        """
+        msg = (
+            "\nSome <text-prop> elements contain <text> elements that use both 'xml' and 'utf8' encoding.\n"
+            "Only one encoding type can be used per <text-prop> element."
+        )
+        df = self._get_problems_as_df()
+        if len(df) > maximum_prints:
+            return msg, df
+        additional_msg = self._make_msg_from_df(df)
+        return msg + grand_separator + additional_msg, None
+
+    def _get_problems_as_df(self) -> pd.DataFrame:
+        df = pd.DataFrame(
+            {
+                "Resource ID": list(x.resource_id for x in self.problematic_resources),
+                "Property Name": list(x.property_name for x in self.problematic_resources),
+            }
+        )
+        return df.sort_values(by=["Resource ID", "Property Name"], ignore_index=True)
+
+    @staticmethod
+    def _make_msg_from_df(df: pd.DataFrame) -> str:
+        groups = df.groupby(by="Resource ID")
+        return medium_separator.join(
+            [InconsistentTextValueEncodings._make_msg_for_one_resource(str(_id), res_df) for _id, res_df in groups]
+        )
+
+    @staticmethod
+    def _make_msg_for_one_resource(res_id: str, res_df: pd.DataFrame) -> str:
+        problems = [f"Property Name: '{p}'" for p in res_df["Property Name"].tolist()]
+        return f"Resource ID: '{res_id}'{list_separator}{list_separator.join(problems)}"

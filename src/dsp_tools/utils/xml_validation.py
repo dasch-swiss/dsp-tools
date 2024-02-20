@@ -10,7 +10,7 @@ from lxml import etree
 
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.create_logger import get_logger
-from dsp_tools.utils.xml_utils import remove_namespaces_from_xml
+from dsp_tools.utils.xml_utils import parse_and_remove_comments_xml_file, remove_namespaces_from_xml
 
 logger = get_logger(__name__)
 
@@ -64,14 +64,7 @@ def _parse_schema_and_data_files(
         encoding="utf-8"
     ) as schema_file:
         xmlschema = etree.XMLSchema(etree.parse(schema_file))
-    if isinstance(input_file, (str, Path)):
-        try:
-            data_xml = etree.parse(source=input_file)
-        except etree.XMLSyntaxError as err:
-            logger.error(f"The XML file contains the following syntax error: {err.msg}", exc_info=True)
-            raise InputError(f"The XML file contains the following syntax error: {err.msg}") from None
-    else:
-        data_xml = input_file
+    data_xml = parse_and_remove_comments_xml_file(input_file)
     return data_xml, xmlschema
 
 

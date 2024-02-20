@@ -14,7 +14,7 @@ from dsp_tools.commands.xmlupload.check_consistency_with_ontology import (
     _get_separate_prefix_and_iri_from_onto_prop_or_cls,
 )
 from dsp_tools.commands.xmlupload.models.ontology_lookup_models import OntoInfo, ProjectOntosInformation
-from dsp_tools.models.exceptions import UserError
+from dsp_tools.models.exceptions import InputError
 
 
 class TestCheckClassType:
@@ -211,7 +211,7 @@ def test_find_all_classes_and_properties_exist_in_onto_problem() -> None:
     )
     classes = {"knora": ["idA"]}
     properties = {"knora-api:knoraPropA": ["idA"]}
-    with pytest.raises(UserError):
+    with pytest.raises(InputError):
         _find_all_classes_and_properties_exist_in_onto(classes, properties, onto_check_info)
 
 

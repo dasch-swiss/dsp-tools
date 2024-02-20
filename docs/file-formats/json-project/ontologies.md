@@ -260,7 +260,7 @@ These three are related as follows:
 | hasValue                    | IntValue                                                           | Spinbox, <br>SimpleText                |
 | hasValue                    | ListValue                                                          | List                                   |
 | hasValue                    | TextValue                                                          | SimpleText, <br>Textarea, <br>Richtext |
-| hasComment                  | TextValue                                                          | SimpleText                             |
+| hasComment                  | TextValue                                                          | Richtext                               |
 | hasValue                    | TimeValue                                                          | TimeStamp                              |
 | hasValue                    | UriValue                                                           | SimpleText                             |
 | hasLinkTo                   | (resourceclass)                                                    | Searchbox                              |
@@ -553,7 +553,7 @@ Example:
 
 `"object": "TextValue"`
 
-This property is actually very similar to a simple text field. 
+This property is a text field with formatted text. 
 
 Example:
 
@@ -569,7 +569,7 @@ Example:
       "en": "Comment",
       "fr": "Commentaire"
     },
-    "gui_element": "SimpleText"
+    "gui_element": "Richtext"
 }
 ```
 

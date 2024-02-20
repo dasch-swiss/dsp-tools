@@ -1,17 +1,17 @@
 from pytest_unordered import unordered
 
 from dsp_tools.commands.xmlupload.models.ontology_lookup_models import (
-    _get_all_classes_from_graph,
-    _get_all_properties_from_graph,
+    _get_all_classes_from_json,
+    _get_all_properties_from_json,
     _remove_prefixes,
     extract_classes_properties_from_onto,
 )
 
 
-class TestGetAllClassesFromGraph:
+class TestGetAllClassesFromJson:
     @staticmethod
     def test_single_class() -> None:
-        test_graph = [
+        test_json = [
             {
                 "knora-api:isResourceClass": True,
                 "rdfs:label": "Sequenz einer Audio-Ressource",
@@ -21,12 +21,12 @@ class TestGetAllClassesFromGraph:
                 "@id": "testonto:AudioSequence",
             },
         ]
-        res_cls = _get_all_classes_from_graph(test_graph)
+        res_cls = _get_all_classes_from_json(test_json)
         assert res_cls == ["testonto:AudioSequence"]
 
     @staticmethod
     def test_property() -> None:
-        test_graph = [
+        test_json = [
             {
                 "rdfs:label": "URI",
                 "rdfs:subPropertyOf": {},
@@ -39,12 +39,12 @@ class TestGetAllClassesFromGraph:
                 "@id": "testonto:hasUri",
             },
         ]
-        res_cls = _get_all_classes_from_graph(test_graph)
+        res_cls = _get_all_classes_from_json(test_json)
         assert not res_cls
 
     @staticmethod
-    def test_from_graph_resources_and_properties() -> None:
-        test_graph = [
+    def test_from_json_resources_and_properties() -> None:
+        test_json = [
             {
                 "knora-api:isResourceClass": True,
                 "rdfs:label": "Sequenz einer Audio-Ressource",
@@ -65,12 +65,12 @@ class TestGetAllClassesFromGraph:
                 "@id": "testonto:hasUri",
             },
         ]
-        res_cls = _get_all_classes_from_graph(test_graph)
+        res_cls = _get_all_classes_from_json(test_json)
         assert res_cls == ["testonto:AudioSequence"]
 
 
-def test_get_all_properties_from_graph_haslinkto() -> None:
-    test_graph = [
+def test_get_all_properties_from_json_haslinkto() -> None:
+    test_json = [
         {
             "rdfs:label": "hasResource",
             "rdfs:subPropertyOf": {},
@@ -94,12 +94,12 @@ def test_get_all_properties_from_graph_haslinkto() -> None:
             "@id": "testonto:hasResourceValue",
         },
     ]
-    res_prop = _get_all_properties_from_graph(test_graph)
+    res_prop = _get_all_properties_from_json(test_json)
     assert res_prop == ["testonto:hasResource", "testonto:hasResourceValue"]
 
 
-def test_get_all_properties_from_graph_resources_and_properties() -> None:
-    test_graph = [
+def test_get_all_properties_from_json_resources_and_properties() -> None:
+    test_json = [
         {
             "knora-api:isResourceClass": True,
             "rdfs:label": "Sequenz einer Audio-Ressource",
@@ -120,12 +120,12 @@ def test_get_all_properties_from_graph_resources_and_properties() -> None:
             "@id": "testonto:hasUri",
         },
     ]
-    res_prop = _get_all_properties_from_graph(test_graph)
+    res_prop = _get_all_properties_from_json(test_json)
     assert res_prop == ["testonto:hasUri"]
 
 
 def test_deserialize_ontology() -> None:
-    test_graph = [
+    test_json = [
         {
             "knora-api:isResourceClass": True,
             "rdfs:label": "Annotation",
@@ -148,7 +148,7 @@ def test_deserialize_ontology() -> None:
             "rdfs:comment": "Represents a direct connection between two resources",
         },
     ]
-    res_onto = extract_classes_properties_from_onto(test_graph)
+    res_onto = extract_classes_properties_from_onto(test_json)
     assert res_onto.classes == ["Annotation"]
     assert res_onto.properties == ["hasLinkTo"]
 

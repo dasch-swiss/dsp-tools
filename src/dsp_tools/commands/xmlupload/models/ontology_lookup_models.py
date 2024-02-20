@@ -18,7 +18,7 @@ class ProjectOntosInformation:
     onto_lookup: dict[str, OntoInfo]
 
 
-def extract_classes_properties_from_onto(onto_json: list[dict[str, Any]]) -> OntoInfo:
+def extract_classes_and_properties_from_onto(onto_json: list[dict[str, Any]]) -> OntoInfo:
     """
     This function takes an ontology graph from the DSP-API.
     It extracts the classes and properties.

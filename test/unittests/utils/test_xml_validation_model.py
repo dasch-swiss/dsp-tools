@@ -8,6 +8,7 @@ from dsp_tools.utils.xml_validation_model import (
     _get_all_ids_prop_encoding_from_root,
     _get_id_prop_encoding_from_one_resource,
     _get_prop_encoding_from_one_property,
+    check_if_only_one_encoding_is_used_in_xml,
 )
 
 
@@ -73,6 +74,7 @@ def test_get_prop_encoding_from_all_properties_two_text_prop() -> None:
                 <text encoding="xml">Text</text>
             </text-prop>
             <text-prop name=":hasSimpleText">
+                <text encoding="utf8">Text</text>
                 <text encoding="utf8">Text</text>
             </text-prop>
         </resource>
@@ -229,6 +231,88 @@ def test_check_only_one_valid_encoding_used_all_props_problems() -> None:
     assert problems[0].resource_id == "problem_id"
     assert problems[0].property_name == "problem_prop"
     assert problems[0].encoding == {"xml", "utf8"}
+
+
+def test_check_if_only_one_encoding_is_used_in_xml_good() -> None:
+    test_ele = etree.fromstring(
+        """<knora>
+                <resource label="First Testthing"
+                      restype=":TestThing"
+                      id="test_thing_1"
+                      permissions="res-default">
+                    <uri-prop name=":hasUri">
+                        <uri permissions="prop-default">https://dasch.swiss</uri>
+                    </uri-prop>
+                    <text-prop name=":hasRichtext">
+                        <text encoding="xml">Text</text>
+                    </text-prop>
+                </resource>
+                <resource label="resB" restype=":TestThing2" id="resB" permissions="res-default">
+                    <text-prop name=":hasSimpleText">
+                        <text encoding="utf8">Text</text>
+                    </text-prop>
+                </resource>
+                <resource label="resC" restype=":TestThing2" id="resC" permissions="res-default">
+                    <resptr-prop name=":hasResource2">
+                        <resptr permissions="prop-default">resB</resptr>
+                    </resptr-prop>
+                    <text-prop name=":hasSimpleText">
+                        <text encoding="utf8">Text 1</text>
+                        <text encoding="utf8">Text 2</text>
+                    </text-prop>
+                </resource>
+                <resource label="resC" restype=":TestThing2" id="resD" permissions="res-default">
+                    <resptr-prop name=":hasResource2">
+                        <resptr permissions="prop-default">resB</resptr>
+                    </resptr-prop>
+                </resource>
+        </knora>"""
+    )
+    all_good, res = check_if_only_one_encoding_is_used_in_xml(test_ele)
+    assert all_good is True
+    assert res is None
+
+
+def test_check_if_only_one_encoding_is_used_in_xml_problem() -> None:
+    test_ele = etree.fromstring(
+        """<knora>
+                <resource label="First Testthing"
+                      restype=":TestThing"
+                      id="test_thing_1"
+                      permissions="res-default">
+                    <uri-prop name=":hasUri">
+                        <uri permissions="prop-default">https://dasch.swiss</uri>
+                    </uri-prop>
+                    <text-prop name=":hasRichtext">
+                        <text encoding="xml">Text</text>
+                    </text-prop>
+                </resource>
+                <resource label="resB" restype=":TestThing2" id="resB" permissions="res-default">
+                    <text-prop name=":hasSimpleText">
+                        <text encoding="utf8">Text</text>
+                    </text-prop>
+                </resource>
+                <resource label="resC" restype=":TestThing2" id="resC" permissions="res-default">
+                    <resptr-prop name=":hasResource2">
+                        <resptr permissions="prop-default">resB</resptr>
+                    </resptr-prop>
+                    <text-prop name=":hasSimpleText">
+                        <text encoding="utf8">Text 1</text>
+                        <text encoding="xml">Text 2</text>
+                    </text-prop>
+                </resource>
+                <resource label="resC" restype=":TestThing2" id="resD" permissions="res-default">
+                    <resptr-prop name=":hasResource2">
+                        <resptr permissions="prop-default">resB</resptr>
+                    </resptr-prop>
+                </resource>
+        </knora>"""
+    )
+    all_good, res = check_if_only_one_encoding_is_used_in_xml(test_ele)
+    assert all_good is False
+    assert res[0].resource_id == "resC"
+    assert res[0].property_name == ":hasSimpleText"
+    assert res[0].encoding == {"xml", "utf8"}
 
 
 if __name__ == "__main__":

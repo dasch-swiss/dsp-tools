@@ -10,6 +10,38 @@ class TextValueData:
     encoding: set[str]
 
 
+def check_if_only_one_encoding_is_used_in_xml(root: etree._Element) -> tuple[bool, list[TextValueData] | None]:
+    """
+    This function analyses if all the encodings in the <text> elements are consistent within one <text-prop>
+
+    This is correct:
+    ```
+    <text-prop name=":hasSimpleText">
+        <text permissions="prop-default" encoding="utf8">Text 1</text>
+        <text permissions="prop-default" encoding="utf8">Text 2</text>
+    </text-prop>
+    ```
+    This is wrong:
+    ```
+    <text-prop name=":hasSimpleText">
+        <text permissions="prop-default" encoding="utf8">Text 1</text>
+        <text permissions="prop-default" encoding="xml">Text 2</text>
+    </text-prop>
+    ```
+
+    Args:
+        root: root of the data xml document
+
+    Returns:
+          True and None if all the elements are consistent
+          False and a list of all the inconsistent <text-props>
+    """
+    text_props = _get_all_ids_prop_encoding_from_root(root)
+    if (checked_props := _check_only_one_valid_encoding_used_all_props(text_props)) is not None:
+        return False, checked_props
+    return True, None
+
+
 def _get_all_ids_prop_encoding_from_root(root: etree._Element) -> list[TextValueData]:
     res_list = []
     for res_input in root.iterchildren(tag="resource"):

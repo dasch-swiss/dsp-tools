@@ -36,16 +36,16 @@ def do_xml_consistency_check_with_ontology(onto_client: OntologyClient, root: et
         onto_lookup=onto_client.get_all_ontologies_from_server(),
     )
     classes_in_data, properties_in_data = _get_all_classes_and_properties_from_data(root)
-    _find_all_classes_and_properties_exist_in_onto(classes_in_data, properties_in_data, onto_check_info)
+    _find_all_classes_and_properties_in_onto(classes_in_data, properties_in_data, onto_check_info)
 
 
-def _find_all_classes_and_properties_exist_in_onto(
+def _find_all_classes_and_properties_in_onto(
     classes_in_data: dict[str, list[str]],
     properties_in_data: dict[str, list[str]],
     onto_check_info: ProjectOntosInformation,
 ) -> None:
-    class_problems = _check_all_class_types_exist(classes_in_data, onto_check_info)
-    property_problems = _check_all_properties_exist(properties_in_data, onto_check_info)
+    class_problems = _find_all_class_types_in_onto(classes_in_data, onto_check_info)
+    property_problems = _find_all_properties_in_onto(properties_in_data, onto_check_info)
     if not class_problems and not property_problems:
         return None
     problems = InvalidOntologyElementsInData(
@@ -96,17 +96,17 @@ def _get_all_property_names_and_resource_ids_one_resource(
     return prop_dict
 
 
-def _check_all_class_types_exist(
+def _find_all_class_types_in_onto(
     classes: dict[str, list[str]], onto_check_info: ProjectOntosInformation
 ) -> list[tuple[str, list[str], str]]:
     problem_list = []
     for cls_type, ids in classes.items():
-        if problem := _check_one_class_type_exists(cls_type, onto_check_info):
+        if problem := _find_one_class_type_in_onto(cls_type, onto_check_info):
             problem_list.append((cls_type, ids, problem))
     return problem_list
 
 
-def _check_one_class_type_exists(cls_type: str, onto_check_info: ProjectOntosInformation) -> str | None:
+def _find_one_class_type_in_onto(cls_type: str, onto_check_info: ProjectOntosInformation) -> str | None:
     prefix, cls_ = _get_separate_prefix_and_iri_from_onto_prop_or_cls(cls_type, onto_check_info.default_ontology_prefix)
     if not prefix:
         return "Class name does not follow a known ontology pattern"
@@ -116,17 +116,17 @@ def _check_one_class_type_exists(cls_type: str, onto_check_info: ProjectOntosInf
         return "Unknown ontology prefix"
 
 
-def _check_all_properties_exist(
+def _find_all_properties_in_onto(
     properties: dict[str, list[str]], onto_check_info: ProjectOntosInformation
 ) -> list[tuple[str, list[str], str]]:
     problem_list = []
     for prop_name, ids in properties.items():
-        if problem := _check_one_property_exists(prop_name, onto_check_info):
+        if problem := _find_one_property_in_onto(prop_name, onto_check_info):
             problem_list.append((prop_name, ids, problem))
     return problem_list
 
 
-def _check_one_property_exists(prop_name: str, onto_check_info: ProjectOntosInformation) -> str | None:
+def _find_one_property_in_onto(prop_name: str, onto_check_info: ProjectOntosInformation) -> str | None:
     prefix, prop = _get_separate_prefix_and_iri_from_onto_prop_or_cls(
         prop_name, onto_check_info.default_ontology_prefix
     )

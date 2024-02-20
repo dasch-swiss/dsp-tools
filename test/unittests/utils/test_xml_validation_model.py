@@ -227,7 +227,7 @@ def test_check_only_one_valid_encoding_used_all_props_all_good() -> None:
 
 def test_check_only_one_valid_encoding_used_all_props_problems() -> None:
     test_props = [TextValueData("problem_id", "problem_prop", {"xml", "utf8"}), TextValueData("", "", {"utf8"})]
-    problems = _check_only_one_valid_encoding_used_all_props(test_props)
+    problems: list[TextValueData] = _check_only_one_valid_encoding_used_all_props(test_props)  # type: ignore[assignment]
     assert problems[0].resource_id == "problem_id"
     assert problems[0].property_name == "problem_prop"
     assert problems[0].encoding == {"xml", "utf8"}
@@ -309,10 +309,11 @@ def test_check_if_only_one_encoding_is_used_in_xml_problem() -> None:
         </knora>"""
     )
     all_good, res = check_if_only_one_encoding_is_used_in_xml(test_ele)
+    result: list[TextValueData] = res  # type: ignore[assignment]
     assert all_good is False
-    assert res[0].resource_id == "resC"
-    assert res[0].property_name == ":hasSimpleText"
-    assert res[0].encoding == {"xml", "utf8"}
+    assert result[0].resource_id == "resC"
+    assert result[0].property_name == ":hasSimpleText"
+    assert result[0].encoding == {"xml", "utf8"}
 
 
 if __name__ == "__main__":

@@ -21,6 +21,7 @@ def check_if_only_one_encoding_is_used_in_xml(root: etree._Element) -> tuple[boo
         <text permissions="prop-default" encoding="utf8">Text 2</text>
     </text-prop>
     ```
+
     This is wrong:
     ```
     <text-prop name=":hasSimpleText">

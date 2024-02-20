@@ -3,6 +3,7 @@ from lxml import etree
 
 from dsp_tools.utils.xml_validation_model import (
     TextValueData,
+    _check_only_one_valid_encoding_used,
     _get_all_ids_prop_encoding_from_root,
     _get_id_prop_encoding_from_one_resource,
     _get_prop_encoding_from_one_property,
@@ -200,6 +201,20 @@ def test_get_all_ids_prop_encoding_from_root_with_text() -> None:
     assert res[2].resource_id == "resC"
     assert res[2].property_name == ":hasSimpleText"
     assert res[2].encoding == {"utf8"}
+
+
+class TestCheckOnlyOneEncodingUsed:
+    def test_utf8(self) -> None:
+        assert _check_only_one_valid_encoding_used({"utf8"}) is True
+
+    def test_xml(self) -> None:
+        assert _check_only_one_valid_encoding_used({"utf8"}) is True
+
+    def test_utf8_xml(self) -> None:
+        assert _check_only_one_valid_encoding_used({"utf8", "xml"}) is False
+
+    def test_other(self) -> None:
+        assert _check_only_one_valid_encoding_used({"asdfasdf"}) is False
 
 
 if __name__ == "__main__":

@@ -3,7 +3,7 @@ from __future__ import annotations
 import importlib.resources
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Union
+from typing import Any, Union, cast
 
 import regex
 from lxml import etree
@@ -11,6 +11,11 @@ from lxml import etree
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.xml_utils import remove_namespaces_from_xml
+from dsp_tools.utils.xml_validation_models import (
+    InconsistentTextValueEncodings,
+    TextValueData,
+    check_if_only_one_encoding_is_used_in_xml,
+)
 
 logger = get_logger(__name__)
 
@@ -20,7 +25,7 @@ medium_separator = "\n----------------------------\n"
 grand_separator = "\n\n---------------------------------------\n\n"
 
 
-def validate_xml(input_file: Union[str, Path, etree._ElementTree[Any]]) -> bool:
+def validate_xml(input_file: Union[str, Path, etree._Element]) -> bool:
     """
     Validates an XML file against the DSP XSD schema.
 
@@ -42,8 +47,13 @@ def validate_xml(input_file: Union[str, Path, etree._ElementTree[Any]]) -> bool:
         problems.append(msg)
 
     xml_no_namespace = remove_namespaces_from_xml(data_xml)
+    xml = xml_no_namespace.getroot()
 
-    all_good, msg = _find_xml_tags_in_simple_text_elements(xml_no_namespace)
+    all_good, msg = _find_xml_tags_in_simple_text_elements(xml)
+    if not all_good:
+        problems.append(msg)
+
+    all_good, msg = _find_mixed_encodings_in_one_text_prop(xml)
     if not all_good:
         problems.append(msg)
 
@@ -88,7 +98,7 @@ def _validate_xml_against_schema(
 
 
 def _find_xml_tags_in_simple_text_elements(
-    xml_no_namespace: Union[etree._ElementTree[etree._Element], etree._Element],
+    xml_no_namespace: etree._Element,
 ) -> tuple[bool, str]:
     """
     Makes sure that there are no XML tags in simple texts.
@@ -126,3 +136,19 @@ def _find_xml_tags_in_simple_text_elements(
         err_msg += list_separator + list_separator.join(resources_with_illegal_xml_tags)
         return False, err_msg
     return True, ""
+
+
+def _find_mixed_encodings_in_one_text_prop(
+    xml_no_namespace: etree._Element,
+) -> tuple[bool, str]:
+    all_good, problems = check_if_only_one_encoding_is_used_in_xml(xml_no_namespace)
+    if all_good:
+        return True, ""
+    all_problems = cast(list[TextValueData], problems)
+    msg, df = InconsistentTextValueEncodings(all_problems).execute_problem_protocol()
+    if df is not None:
+        csv_name = f"XML_syntax_errors_{datetime.now().strftime('%Y-%m-%d_%H%M%S')}.csv"
+        csv_file = Path(Path.cwd() / csv_name)
+        msg = f"\nAll the problems are listed in the file: '{Path.cwd()}/{csv_file}'" + msg
+        df.to_csv(csv_file)
+    return False, msg

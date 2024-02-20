@@ -17,7 +17,9 @@ class TextValueData:
     encoding: set[str]
 
 
-def check_if_only_one_encoding_is_used_in_xml(root: etree._Element) -> tuple[bool, list[TextValueData] | None]:
+def check_if_only_one_encoding_is_used_in_xml(
+    root: etree._Element,
+) -> tuple[bool, list[TextValueData] | None]:
     """
     This function analyses if all the encodings in the <text> elements are consistent within one <text-prop>
 
@@ -50,7 +52,9 @@ def check_if_only_one_encoding_is_used_in_xml(root: etree._Element) -> tuple[boo
     return True, None
 
 
-def _get_all_ids_prop_encoding_from_root(root: etree._Element) -> list[TextValueData]:
+def _get_all_ids_prop_encoding_from_root(
+    root: etree._Element,
+) -> list[TextValueData]:
     res_list = []
     for res_input in root.iterchildren(tag="resource"):
         if (res_result := _get_id_prop_encoding_from_one_resource(res_input)) is not None:
@@ -68,7 +72,13 @@ def _get_id_prop_encoding_from_one_resource(resource: etree._Element) -> list[Te
 def _get_prop_encoding_from_one_property(res_id: str, property: etree._Element) -> TextValueData:
     prop_name = property.attrib["name"]
     child_attrib = [x.attrib for x in property.iterchildren()]
-    encodings = {x["encoding"] for x in child_attrib}
+    encodings = []
+    for child in child_attrib:
+        try:
+            encodings.append(child["encoding"])
+        except KeyError:
+            print()
+    # encodings = {x["encoding"] for x in child_attrib}
     return TextValueData(res_id, prop_name, encodings)
 
 
@@ -103,6 +113,7 @@ class InconsistentTextValueEncodings:
     def execute_problem_protocol(self) -> tuple[str, pd.DataFrame | None]:
         """
         This method composes an error message for the user.
+
         Returns:
             the error message and a dataframe with the errors if they exceed 50
         """

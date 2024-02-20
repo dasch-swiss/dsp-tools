@@ -1,7 +1,7 @@
 import pytest
 from lxml import etree
 
-from dsp_tools.utils.xml_validation_model import (
+from dsp_tools.utils.xml_validation_models import (
     TextValueData,
     _check_only_one_valid_encoding_used_all_props,
     _check_only_one_valid_encoding_used_one_prop,

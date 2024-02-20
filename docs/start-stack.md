@@ -68,7 +68,7 @@ If you want to run a specific branch of DSP-API / DSP-APP, or to modify them you
 
 - install the dependencies: 
   follow the instructions on [https://github.com/dasch-swiss/dsp-api](https://github.com/dasch-swiss/dsp-api)
-  and [https://github.com/dasch-swiss/dsp-app](https://github.com/dasch-swiss/dsp-app)
+  and [https://github.com/dasch-swiss/dsp-das](https://github.com/dasch-swiss/dsp-das)
 - keep the dependencies up to date (keep in mind that dependencies might be replaced over time)
 - clone the repositories from GitHub
 - keep them up to date with `git pull`

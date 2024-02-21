@@ -30,15 +30,8 @@ def parse_and_clean_xml_file(input_file: Union[str, Path, etree._ElementTree[Any
         InputError: if the input is not of either the expected types
     """
 
-    if isinstance(input_file, (str, Path)):
-        tree = _parse_xml_file(input_file)
-    else:
-        tree = input_file
-    tree = remove_comments_from_element_tree(tree)
-
-    tree = _remove_qnames_and_transform_special_tags(tree)
-
-    return tree.getroot()
+    tree = parse_and_remove_comments_from_xml_file(input_file)
+    return _remove_qnames_and_transform_special_tags(tree)
 
 
 def parse_and_remove_comments_from_xml_file(
@@ -69,8 +62,8 @@ def parse_and_remove_comments_from_xml_file(
 
 
 def _remove_qnames_and_transform_special_tags(
-    input_tree: etree._ElementTree[etree._Element],
-) -> etree._ElementTree[etree._Element]:
+    input_tree: etree._Element,
+) -> etree._Element:
     """
     This function removes the namespace URIs from the elements' names
     and transforms the special tags <annotation>, <region>, and <link>
@@ -84,7 +77,7 @@ def _remove_qnames_and_transform_special_tags(
         cleaned tree
     """
     for elem in input_tree.iter():
-        elem.tag = etree.QName(elem).localname  # remove namespace URI in the element's name
+        elem.tag = etree.QName(elem).localname
         if elem.tag == "annotation":
             elem.attrib["restype"] = "Annotation"
             elem.tag = "resource"

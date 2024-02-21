@@ -1,7 +1,7 @@
 from pytest_unordered import unordered
 
 from dsp_tools.commands.xmlupload.models.ontology_lookup_models import (
-    _extract_classes_properties_from_onto,
+    _extract_classes_and_properties_from_onto,
     _get_all_classes_from_json,
     _get_all_properties_from_json,
     _remove_prefixes,
@@ -148,7 +148,7 @@ def test_deserialize_ontology() -> None:
             "rdfs:comment": "Represents a direct connection between two resources",
         },
     ]
-    res_onto = _extract_classes_properties_from_onto(test_json)
+    res_onto = _extract_classes_and_properties_from_onto(test_json)
     assert res_onto.classes == ["Annotation"]
     assert res_onto.properties == ["hasLinkTo"]
 

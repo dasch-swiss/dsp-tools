@@ -23,7 +23,7 @@ def make_project_onto_information(
     ontologies: dict[str, list[dict[str, Any]]],
 ) -> ProjectOntosInformation:
     """
-    This function formats ontologies, that were returned by the dsp-api into a look-up model.
+    This function formats ontologies returned by the dsp-api into a look-up model.
 
     Args:
         default_onto_prefix: prefix for the default ontology
@@ -33,12 +33,12 @@ def make_project_onto_information(
         A look-up that contains the property and class names from each ontology
     """
     onto_dict = {
-        onto_name: _extract_classes_properties_from_onto(onto_json) for onto_name, onto_json in ontologies.items()
+        onto_name: _extract_classes_and_properties_from_onto(onto_json) for onto_name, onto_json in ontologies.items()
     }
     return ProjectOntosInformation(default_onto_prefix, onto_dict)
 
 
-def _extract_classes_properties_from_onto(onto_json: list[dict[str, Any]]) -> OntoInfo:
+def _extract_classes_and_properties_from_onto(onto_json: list[dict[str, Any]]) -> OntoInfo:
     """
     This function takes an ontology response from the DSP-API.
     It extracts the classes and properties.

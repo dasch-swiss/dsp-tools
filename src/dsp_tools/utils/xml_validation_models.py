@@ -19,23 +19,23 @@ class TextValueData:
 
 def check_if_only_one_encoding_is_used_in_xml(
     root: etree._Element,
-) -> tuple[bool, list[TextValueData] | None]:
+) -> list[TextValueData]:
     """
     This function analyses if all the encodings in the <text> elements are consistent within one <text-prop>
 
     This is correct:
     ```
     <text-prop name=":hasSimpleText">
-        <text permissions="prop-default" encoding="utf8">Text 1</text>
-        <text permissions="prop-default" encoding="utf8">Text 2</text>
+        <text encoding="utf8">Text 1</text>
+        <text encoding="utf8">Text 2</text>
     </text-prop>
     ```
 
     This is wrong:
     ```
     <text-prop name=":hasSimpleText">
-        <text permissions="prop-default" encoding="utf8">Text 1</text>
-        <text permissions="prop-default" encoding="xml">Text 2</text>
+        <text encoding="utf8">Text 1</text>
+        <text encoding="xml">Text 2</text>
     </text-prop>
     ```
 
@@ -47,9 +47,7 @@ def check_if_only_one_encoding_is_used_in_xml(
           False and a list of all the inconsistent <text-props>
     """
     text_props = _get_all_ids_prop_encoding_from_root(root)
-    if (checked_props := _check_only_one_valid_encoding_used_all_props(text_props)) is not None:
-        return False, checked_props
-    return True, None
+    return _check_only_one_valid_encoding_used_all_props(text_props)
 
 
 def _get_all_ids_prop_encoding_from_root(
@@ -57,36 +55,25 @@ def _get_all_ids_prop_encoding_from_root(
 ) -> list[TextValueData]:
     res_list = []
     for res_input in root.iterchildren(tag="resource"):
-        if (res_result := _get_id_prop_encoding_from_one_resource(res_input)) is not None:
-            res_list.extend(res_result)
+        res_list.extend(_get_id_prop_encoding_from_one_resource(res_input))
     return res_list
 
 
-def _get_id_prop_encoding_from_one_resource(resource: etree._Element) -> list[TextValueData] | None:
-    if not (children := list(resource.iterchildren(tag="text-prop"))):
-        return None
+def _get_id_prop_encoding_from_one_resource(resource: etree._Element) -> list[TextValueData]:
     res_id = resource.attrib["id"]
-    return [_get_prop_encoding_from_one_property(res_id, child) for child in children]
+    return [
+        _get_prop_encoding_from_one_property(res_id, child) for child in list(resource.iterchildren(tag="text-prop"))
+    ]
 
 
 def _get_prop_encoding_from_one_property(res_id: str, property: etree._Element) -> TextValueData:
     prop_name = property.attrib["name"]
-    child_attrib = [x.attrib for x in property.iterchildren()]
-    encodings = {x["encoding"] for x in child_attrib}
+    encodings = {x.attrib["encoding"] for x in property.iterchildren()}
     return TextValueData(res_id, prop_name, encodings)
 
 
-def _check_only_one_valid_encoding_used_all_props(text_props: list[TextValueData]) -> list[TextValueData] | None:
-    wrong_props = [x for x in text_props if not _check_only_one_valid_encoding_used_one_prop(x.encoding)]
-    if len(wrong_props) == 0:
-        return None
-    return wrong_props
-
-
-def _check_only_one_valid_encoding_used_one_prop(text_encodings: set[str]) -> bool:
-    if text_encodings == {"xml"} or text_encodings == {"utf8"}:  # noqa: PLR1714
-        return True
-    return False
+def _check_only_one_valid_encoding_used_all_props(text_props: list[TextValueData]) -> list[TextValueData]:
+    return [x for x in text_props if not len(x.encoding) == 1]
 
 
 @dataclass

@@ -3,7 +3,7 @@ from __future__ import annotations
 import importlib.resources
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Union, cast
+from typing import Any, Union
 
 import regex
 from lxml import etree
@@ -13,7 +13,6 @@ from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.xml_utils import parse_and_remove_comments_xml_file, remove_namespaces_from_xml
 from dsp_tools.utils.xml_validation_models import (
     InconsistentTextValueEncodings,
-    TextValueData,
     check_if_only_one_encoding_is_used_in_xml,
 )
 
@@ -131,11 +130,10 @@ def _find_xml_tags_in_simple_text_elements(
 def _find_mixed_encodings_in_one_text_prop(
     xml_no_namespace: etree._Element,
 ) -> tuple[bool, str]:
-    all_good, problems = check_if_only_one_encoding_is_used_in_xml(xml_no_namespace)
-    if all_good:
+    problems = check_if_only_one_encoding_is_used_in_xml(xml_no_namespace)
+    if not problems:
         return True, ""
-    all_problems = cast(list[TextValueData], problems)
-    msg, df = InconsistentTextValueEncodings(all_problems).execute_problem_protocol()
+    msg, df = InconsistentTextValueEncodings(problems).execute_problem_protocol()
     if df is not None:
         csv_path = Path(f"XML_syntax_errors_{datetime.now().strftime('%Y-%m-%d_%H%M%S')}.csv")
         msg = f"\nAll the problems are listed in the file: '{csv_path.absolute()}'" + msg

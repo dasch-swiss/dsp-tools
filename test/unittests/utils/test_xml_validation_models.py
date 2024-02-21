@@ -7,7 +7,6 @@ from dsp_tools.utils.xml_validation_models import (
     InconsistentTextValueEncodings,
     TextValueData,
     _check_only_one_valid_encoding_used_all_props,
-    _check_only_one_valid_encoding_used_one_prop,
     _get_all_ids_prop_encoding_from_root,
     _get_id_prop_encoding_from_one_resource,
     _get_prop_encoding_from_one_property,
@@ -32,7 +31,7 @@ def test_get_prop_encoding_from_all_properties_no_text() -> None:
         """
     )
     res = _get_id_prop_encoding_from_one_resource(test_props)
-    assert res is None
+    assert not res
 
 
 def test_get_prop_encoding_from_all_properties_mixed() -> None:
@@ -54,7 +53,7 @@ def test_get_prop_encoding_from_all_properties_mixed() -> None:
         </resource>
         """
     )
-    res = _get_id_prop_encoding_from_one_resource(test_props)[0]  # type: ignore[index]
+    res = _get_id_prop_encoding_from_one_resource(test_props)[0]
     assert res.resource_id == "test_thing_1"
     assert res.property_name == ":hasRichtext"
     assert res.encoding == {"utf8"}
@@ -83,7 +82,7 @@ def test_get_prop_encoding_from_all_properties_two_text_prop() -> None:
         </resource>
         """
     )
-    res: list[TextValueData] = _get_id_prop_encoding_from_one_resource(test_props)  # type: ignore[assignment]
+    res = _get_id_prop_encoding_from_one_resource(test_props)
     assert res[0].resource_id == "test_thing_1"
     assert res[0].property_name == ":hasRichtext"
     assert res[0].encoding == {"xml"}
@@ -160,7 +159,7 @@ def test_get_all_ids_prop_encoding_from_root_no_text() -> None:
         </knora>"""
     )
     res = _get_all_ids_prop_encoding_from_root(test_ele)
-    assert res == []
+    assert not res
 
 
 def test_get_all_ids_prop_encoding_from_root_with_text() -> None:
@@ -209,31 +208,12 @@ def test_get_all_ids_prop_encoding_from_root_with_text() -> None:
     assert res[2].encoding == {"utf8"}
 
 
-class TestCheckOnlyOneEncodingUsed:
-    def test_utf8(self) -> None:
-        assert _check_only_one_valid_encoding_used_one_prop({"utf8"}) is True
-
-    def test_xml(self) -> None:
-        assert _check_only_one_valid_encoding_used_one_prop({"utf8"}) is True
-
-    def test_utf8_xml(self) -> None:
-        assert _check_only_one_valid_encoding_used_one_prop({"utf8", "xml"}) is False
-
-    def test_other(self) -> None:
-        assert _check_only_one_valid_encoding_used_one_prop({"asdfasdf"}) is False
-
-
-def test_check_only_one_valid_encoding_used_all_props_all_good() -> None:
-    test_props = [TextValueData("", "", {"xml"}), TextValueData("", "", {"utf8"})]
-    assert _check_only_one_valid_encoding_used_all_props(test_props) is None
-
-
 def test_check_only_one_valid_encoding_used_all_props_problems() -> None:
     test_props = [TextValueData("problem_id", "problem_prop", {"xml", "utf8"}), TextValueData("", "", {"utf8"})]
-    problems: list[TextValueData] = _check_only_one_valid_encoding_used_all_props(test_props)  # type: ignore[assignment]
-    assert problems[0].resource_id == "problem_id"
-    assert problems[0].property_name == "problem_prop"
-    assert problems[0].encoding == {"xml", "utf8"}
+    problem = _check_only_one_valid_encoding_used_all_props(test_props)[0]
+    assert problem.resource_id == "problem_id"
+    assert problem.property_name == "problem_prop"
+    assert problem.encoding == {"xml", "utf8"}
 
 
 def test_check_if_only_one_encoding_is_used_in_xml_good() -> None:
@@ -271,9 +251,8 @@ def test_check_if_only_one_encoding_is_used_in_xml_good() -> None:
                 </resource>
         </knora>"""
     )
-    all_good, res = check_if_only_one_encoding_is_used_in_xml(test_ele)
-    assert all_good is True
-    assert res is None
+    res = check_if_only_one_encoding_is_used_in_xml(test_ele)
+    assert not res
 
 
 def test_check_if_only_one_encoding_is_used_in_xml_problem() -> None:
@@ -311,12 +290,10 @@ def test_check_if_only_one_encoding_is_used_in_xml_problem() -> None:
                 </resource>
         </knora>"""
     )
-    all_good, res = check_if_only_one_encoding_is_used_in_xml(test_ele)
-    result: list[TextValueData] = res  # type: ignore[assignment]
-    assert all_good is False
-    assert result[0].resource_id == "resC"
-    assert result[0].property_name == ":hasSimpleText"
-    assert result[0].encoding == {"xml", "utf8"}
+    res = check_if_only_one_encoding_is_used_in_xml(test_ele)[0]
+    assert res.resource_id == "resC"
+    assert res.property_name == ":hasSimpleText"
+    assert res.encoding == {"xml", "utf8"}
 
 
 class TestInvalidTextValueEncodings:

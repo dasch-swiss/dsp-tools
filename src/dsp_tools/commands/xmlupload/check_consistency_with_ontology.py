@@ -5,7 +5,10 @@ import regex
 from lxml import etree
 from regex import Pattern
 
-from dsp_tools.commands.xmlupload.models.ontology_lookup_models import ProjectOntosInformation
+from dsp_tools.commands.xmlupload.models.ontology_lookup_models import (
+    ProjectOntosInformation,
+    make_project_onto_information,
+)
 from dsp_tools.commands.xmlupload.models.ontology_problem_models import (
     InvalidOntologyElementsInData,
 )
@@ -31,12 +34,15 @@ def do_xml_consistency_check_with_ontology(onto_client: OntologyClient, root: et
      Raises:
          InputError: if there are any invalid properties or classes
     """
-    onto_check_info = ProjectOntosInformation(
-        default_ontology_prefix=onto_client.default_ontology,
-        onto_lookup=onto_client.get_all_ontologies_from_server(),
-    )
+    onto_check_info = _get_onto_lookup(onto_client)
     classes_in_data, properties_in_data = _get_all_classes_and_properties_from_data(root)
     _find_all_classes_and_properties_in_onto(classes_in_data, properties_in_data, onto_check_info)
+
+
+def _get_onto_lookup(onto_client: OntologyClient) -> ProjectOntosInformation:
+    ontos = onto_client.get_all_project_ontologies_from_server()
+    ontos["knora-api"] = onto_client.get_knora_api_ontology_from_server()
+    return make_project_onto_information(onto_client.default_ontology, ontos)
 
 
 def _find_all_classes_and_properties_in_onto(

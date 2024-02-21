@@ -7,88 +7,87 @@ from dsp_tools.utils.xml_validation_models import (
     InconsistentTextValueEncodings,
     TextValueData,
     _check_only_one_valid_encoding_used_all_props,
-    _get_all_ids_prop_encoding_from_root,
-    _get_id_prop_encoding_from_one_resource,
-    _get_prop_encoding_from_one_property,
-    check_if_only_one_encoding_is_used_in_xml,
+    _get_all_ids_and_encodings_from_root,
+    _get_encodings_from_one_property,
+    _get_encodings_from_one_resource,
+    check_if_only_one_encoding_is_used_per_prop_in_root,
 )
 
 
-def test_get_prop_encoding_from_all_properties_no_text() -> None:
-    test_props = etree.fromstring(
-        """
-        <resource label="First Testthing"
-              restype=":TestThing"
-              id="test_thing_1"
-              permissions="res-default">
-            <uri-prop name=":hasUri">
-                <uri permissions="prop-default">https://dasch.swiss</uri>
-            </uri-prop>
-            <boolean-prop name=":hasBoolean">
-                <boolean permissions="prop-default">true</boolean>
-            </boolean-prop>
-        </resource>
-        """
-    )
-    res = _get_id_prop_encoding_from_one_resource(test_props)
-    assert not res
+class TestGetEncodingsOneResource:
+    def test_no_text(self) -> None:
+        test_props = etree.fromstring(
+            """
+            <resource label="First Testthing"
+                  restype=":TestThing"
+                  id="test_thing_1"
+                  permissions="res-default">
+                <uri-prop name=":hasUri">
+                    <uri permissions="prop-default">https://dasch.swiss</uri>
+                </uri-prop>
+                <boolean-prop name=":hasBoolean">
+                    <boolean permissions="prop-default">true</boolean>
+                </boolean-prop>
+            </resource>
+            """
+        )
+        res = _get_encodings_from_one_resource(test_props)
+        assert not res
 
+    def test_one_text_prop(self) -> None:
+        test_props = etree.fromstring(
+            """
+            <resource label="First Testthing"
+                  restype=":TestThing"
+                  id="test_thing_1"
+                  permissions="res-default">
+                <uri-prop name=":hasUri">
+                    <uri permissions="prop-default">https://dasch.swiss</uri>
+                </uri-prop>
+                <boolean-prop name=":hasBoolean">
+                    <boolean permissions="prop-default">true</boolean>
+                </boolean-prop>
+                <text-prop name=":hasRichtext">
+                    <text encoding="utf8">Text</text>
+                </text-prop>
+            </resource>
+            """
+        )
+        res = _get_encodings_from_one_resource(test_props)[0]
+        assert res.resource_id == "test_thing_1"
+        assert res.property_name == ":hasRichtext"
+        assert res.encoding == {"utf8"}
 
-def test_get_prop_encoding_from_all_properties_mixed() -> None:
-    test_props = etree.fromstring(
-        """
-        <resource label="First Testthing"
-              restype=":TestThing"
-              id="test_thing_1"
-              permissions="res-default">
-            <uri-prop name=":hasUri">
-                <uri permissions="prop-default">https://dasch.swiss</uri>
-            </uri-prop>
-            <boolean-prop name=":hasBoolean">
-                <boolean permissions="prop-default">true</boolean>
-            </boolean-prop>
-            <text-prop name=":hasRichtext">
-                <text encoding="utf8">Text</text>
-            </text-prop>
-        </resource>
-        """
-    )
-    res = _get_id_prop_encoding_from_one_resource(test_props)[0]
-    assert res.resource_id == "test_thing_1"
-    assert res.property_name == ":hasRichtext"
-    assert res.encoding == {"utf8"}
-
-
-def test_get_prop_encoding_from_all_properties_two_text_prop() -> None:
-    test_props = etree.fromstring(
-        """
-        <resource label="First Testthing"
-              restype=":TestThing"
-              id="test_thing_1"
-              permissions="res-default">
-            <uri-prop name=":hasUri">
-                <uri permissions="prop-default">https://dasch.swiss</uri>
-            </uri-prop>
-            <boolean-prop name=":hasBoolean">
-                <boolean permissions="prop-default">true</boolean>
-            </boolean-prop>
-            <text-prop name=":hasRichtext">
-                <text encoding="xml">Text</text>
-            </text-prop>
-            <text-prop name=":hasSimpleText">
-                <text encoding="utf8">Text</text>
-                <text encoding="utf8">Text</text>
-            </text-prop>
-        </resource>
-        """
-    )
-    res = _get_id_prop_encoding_from_one_resource(test_props)
-    assert res[0].resource_id == "test_thing_1"
-    assert res[0].property_name == ":hasRichtext"
-    assert res[0].encoding == {"xml"}
-    assert res[1].resource_id == "test_thing_1"
-    assert res[1].property_name == ":hasSimpleText"
-    assert res[1].encoding == {"utf8"}
+    def test_two_text_prop(self) -> None:
+        test_props = etree.fromstring(
+            """
+            <resource label="First Testthing"
+                  restype=":TestThing"
+                  id="test_thing_1"
+                  permissions="res-default">
+                <uri-prop name=":hasUri">
+                    <uri permissions="prop-default">https://dasch.swiss</uri>
+                </uri-prop>
+                <boolean-prop name=":hasBoolean">
+                    <boolean permissions="prop-default">true</boolean>
+                </boolean-prop>
+                <text-prop name=":hasRichtext">
+                    <text encoding="xml">Text</text>
+                </text-prop>
+                <text-prop name=":hasSimpleText">
+                    <text encoding="utf8">Text</text>
+                    <text encoding="utf8">Text</text>
+                </text-prop>
+            </resource>
+            """
+        )
+        res = _get_encodings_from_one_resource(test_props)
+        assert res[0].resource_id == "test_thing_1"
+        assert res[0].property_name == ":hasRichtext"
+        assert res[0].encoding == {"xml"}
+        assert res[1].resource_id == "test_thing_1"
+        assert res[1].property_name == ":hasSimpleText"
+        assert res[1].encoding == {"utf8"}
 
 
 class TestGetEncodingOneProperty:
@@ -105,7 +104,7 @@ class TestGetEncodingOneProperty:
             </text-prop>
             """
         )
-        res_info = _get_prop_encoding_from_one_property("id", test_prop)
+        res_info = _get_encodings_from_one_property("id", test_prop)
         assert res_info.resource_id == "id"
         assert res_info.property_name == ":hasRichtext"
         assert res_info.encoding == {"xml"}
@@ -119,7 +118,7 @@ class TestGetEncodingOneProperty:
             </text-prop>
             """
         )
-        res_info = _get_prop_encoding_from_one_property("id", test_prop)
+        res_info = _get_encodings_from_one_property("id", test_prop)
         assert res_info.resource_id == "id"
         assert res_info.property_name == ":hasRichtext"
         assert res_info.encoding == {"utf8"}
@@ -132,7 +131,7 @@ class TestGetEncodingOneProperty:
             </text-prop>
             """
         )
-        res_info = _get_prop_encoding_from_one_property("id", test_prop)
+        res_info = _get_encodings_from_one_property("id", test_prop)
         assert res_info.resource_id == "id"
         assert res_info.property_name == ":hasRichtext"
         assert res_info.encoding == {"utf8"}
@@ -158,7 +157,7 @@ def test_get_all_ids_prop_encoding_from_root_no_text() -> None:
                 </resource>
         </knora>"""
     )
-    res = _get_all_ids_prop_encoding_from_root(test_ele)
+    res = _get_all_ids_and_encodings_from_root(test_ele)
     assert not res
 
 
@@ -189,14 +188,14 @@ def test_get_all_ids_prop_encoding_from_root_with_text() -> None:
                         <text encoding="utf8">Text</text>
                     </text-prop>
                 </resource>
-                <resource label="resC" restype=":TestThing2" id="resD" permissions="res-default">
+                <resource label="resD" restype=":TestThing2" id="resD" permissions="res-default">
                     <resptr-prop name=":hasResource2">
                         <resptr permissions="prop-default">resB</resptr>
                     </resptr-prop>
                 </resource>
         </knora>"""
     )
-    res = _get_all_ids_prop_encoding_from_root(test_ele)
+    res = _get_all_ids_and_encodings_from_root(test_ele)
     assert res[0].resource_id == "test_thing_1"
     assert res[0].property_name == ":hasRichtext"
     assert res[0].encoding == {"xml"}
@@ -244,14 +243,14 @@ def test_check_if_only_one_encoding_is_used_in_xml_good() -> None:
                         <text encoding="utf8">Text 2</text>
                     </text-prop>
                 </resource>
-                <resource label="resC" restype=":TestThing2" id="resD" permissions="res-default">
+                <resource label="resD" restype=":TestThing2" id="resD" permissions="res-default">
                     <resptr-prop name=":hasResource2">
                         <resptr permissions="prop-default">resB</resptr>
                     </resptr-prop>
                 </resource>
         </knora>"""
     )
-    res = check_if_only_one_encoding_is_used_in_xml(test_ele)
+    res = check_if_only_one_encoding_is_used_per_prop_in_root(test_ele)
     assert not res
 
 
@@ -283,14 +282,14 @@ def test_check_if_only_one_encoding_is_used_in_xml_problem() -> None:
                         <text encoding="xml">Text 2</text>
                     </text-prop>
                 </resource>
-                <resource label="resC" restype=":TestThing2" id="resD" permissions="res-default">
+                <resource label="resD" restype=":TestThing2" id="resD" permissions="res-default">
                     <resptr-prop name=":hasResource2">
                         <resptr permissions="prop-default">resB</resptr>
                     </resptr-prop>
                 </resource>
         </knora>"""
     )
-    res = check_if_only_one_encoding_is_used_in_xml(test_ele)[0]
+    res = check_if_only_one_encoding_is_used_per_prop_in_root(test_ele)[0]
     assert res.resource_id == "resC"
     assert res.property_name == ":hasSimpleText"
     assert res.encoding == {"xml", "utf8"}

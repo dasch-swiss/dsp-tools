@@ -17,11 +17,11 @@ class TextValueData:
     encoding: set[str]
 
 
-def check_if_only_one_encoding_is_used_in_xml(
+def check_if_only_one_encoding_is_used_per_prop_in_root(
     root: etree._Element,
 ) -> list[TextValueData]:
     """
-    This function analyses if all the encodings in the <text> elements are consistent within one <text-prop>
+    Check if all the encodings in the <text> elements are consistent within one <text-prop>
 
     This is correct:
     ```
@@ -46,27 +46,25 @@ def check_if_only_one_encoding_is_used_in_xml(
           True and None if all the elements are consistent
           False and a list of all the inconsistent <text-props>
     """
-    text_props = _get_all_ids_prop_encoding_from_root(root)
+    text_props = _get_all_ids_and_encodings_from_root(root)
     return _check_only_one_valid_encoding_used_all_props(text_props)
 
 
-def _get_all_ids_prop_encoding_from_root(
+def _get_all_ids_and_encodings_from_root(
     root: etree._Element,
 ) -> list[TextValueData]:
     res_list = []
     for res_input in root.iterchildren(tag="resource"):
-        res_list.extend(_get_id_prop_encoding_from_one_resource(res_input))
+        res_list.extend(_get_encodings_from_one_resource(res_input))
     return res_list
 
 
-def _get_id_prop_encoding_from_one_resource(resource: etree._Element) -> list[TextValueData]:
+def _get_encodings_from_one_resource(resource: etree._Element) -> list[TextValueData]:
     res_id = resource.attrib["id"]
-    return [
-        _get_prop_encoding_from_one_property(res_id, child) for child in list(resource.iterchildren(tag="text-prop"))
-    ]
+    return [_get_encodings_from_one_property(res_id, child) for child in list(resource.iterchildren(tag="text-prop"))]
 
 
-def _get_prop_encoding_from_one_property(res_id: str, property: etree._Element) -> TextValueData:
+def _get_encodings_from_one_property(res_id: str, property: etree._Element) -> TextValueData:
     prop_name = property.attrib["name"]
     encodings = {x.attrib["encoding"] for x in property.iterchildren()}
     return TextValueData(res_id, prop_name, encodings)
@@ -79,14 +77,13 @@ def _check_only_one_valid_encoding_used_all_props(text_props: list[TextValueData
 @dataclass
 class InconsistentTextValueEncodings:
     """
-    This class takes instances that contain the information about resources and the properties that contain
-    invalid encodings.
+    This class implements the `Problem` protocol
+    for resources and properties that contain invalid encodings.
 
     An invalid encoding would be a <text-prop> element, that contains
     <text encoding="utf8">
     and
     <text encoding="xml">
-    It is responsible to communicate the problems to the user.
     """
 
     problematic_resources: list[TextValueData]
@@ -94,25 +91,26 @@ class InconsistentTextValueEncodings:
     def execute_problem_protocol(self) -> tuple[str, pd.DataFrame | None]:
         """
         This method composes an error message for the user.
+        If the number of errors exceeds `maximum_prints`,
+        the errors are additionally returned as a dataframe that can be saved as a CSV file.
 
         Returns:
-            the error message and a dataframe with the errors if they exceed 50
+            the error message, and optionally a dataframe with the errors
         """
-        msg = (
+        base_msg = (
             "\nSome <text-prop> elements contain <text> elements that use both 'xml' and 'utf8' encoding.\n"
-            "Only one encoding type can be used per <text-prop> element."
+            "Only one encoding type can be used within one <text-prop> element."
         )
         df = self._get_problems_as_df()
         if len(df) > maximum_prints:
-            return msg, df
-        additional_msg = self._make_msg_from_df(df)
-        return msg + grand_separator + additional_msg, None
+            return base_msg, df
+        return base_msg + grand_separator + self._make_msg_from_df(df), None
 
     def _get_problems_as_df(self) -> pd.DataFrame:
         df = pd.DataFrame(
             {
-                "Resource ID": list(x.resource_id for x in self.problematic_resources),
-                "Property Name": list(x.property_name for x in self.problematic_resources),
+                "Resource ID": [x.resource_id for x in self.problematic_resources],
+                "Property Name": [x.property_name for x in self.problematic_resources],
             }
         )
         return df.sort_values(by=["Resource ID", "Property Name"], ignore_index=True)

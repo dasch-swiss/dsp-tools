@@ -13,7 +13,7 @@ from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.xml_utils import parse_and_remove_comments_xml_file, remove_namespaces_from_xml
 from dsp_tools.utils.xml_validation_models import (
     InconsistentTextValueEncodings,
-    check_if_only_one_encoding_is_used_in_xml,
+    check_if_only_one_encoding_is_used_per_prop_in_root,
 )
 
 logger = get_logger(__name__)
@@ -130,7 +130,7 @@ def _find_xml_tags_in_simple_text_elements(
 def _find_mixed_encodings_in_one_text_prop(
     xml_no_namespace: etree._Element,
 ) -> tuple[bool, str]:
-    problems = check_if_only_one_encoding_is_used_in_xml(xml_no_namespace)
+    problems = check_if_only_one_encoding_is_used_per_prop_in_root(xml_no_namespace)
     if not problems:
         return True, ""
     msg, df = InconsistentTextValueEncodings(problems).execute_problem_protocol()

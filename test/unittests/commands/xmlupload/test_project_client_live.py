@@ -2,6 +2,8 @@ from dataclasses import dataclass, field
 from test.unittests.commands.xmlupload.connection_mock import ConnectionMockBase
 from typing import Any
 
+import pytest
+
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
 
 
@@ -45,3 +47,7 @@ class TestProjectClientLive:
             "a.2": "http://www.example.org/ontologies/a.2/v2",
         }
         assert ontology_name_dict == expected
+
+
+if __name__ == "__main__":
+    pytest.main([__file__])

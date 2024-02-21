@@ -1,3 +1,4 @@
+import pytest
 from pytest_unordered import unordered
 
 from dsp_tools.commands.xmlupload.models.ontology_lookup_models import (
@@ -162,4 +163,8 @@ def test_remove_prefixes_knora_classes() -> None:
 def test_remove_prefixes_knora_properties() -> None:
     test_elements = ["knora-api:attachedToUser", "knora-api:deletedBy"]
     res = _remove_prefixes(test_elements)
-    assert unordered(res) == ["attachedToUser", "deletedBy"]
+    assert unordered(res) == ["attachedToUser", "deleedBy"]
+
+
+if __name__ == "__main__":
+    pytest.main([__file__])

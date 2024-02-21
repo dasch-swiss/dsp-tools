@@ -97,7 +97,3 @@ def test_error_on_nonexistent_onto_name() -> None:
     )
     with pytest.raises(InputError, match=expected):
         do_xml_consistency_check_with_ontology(ontology_client, root)
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

@@ -3,8 +3,6 @@
 import argparse
 import unittest
 
-import pytest
-
 from dsp_tools.cli.entry_point import _derive_sipi_url, _get_canonical_server_and_sipi_url
 from dsp_tools.models.exceptions import UserError
 
@@ -186,7 +184,3 @@ class TestCLI(unittest.TestCase):
                     default_dsp_api_url=self.default_dsp_api_url,
                     default_sipi_url=self.default_sipi_url,
                 )
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

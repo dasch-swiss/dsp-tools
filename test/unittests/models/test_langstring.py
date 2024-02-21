@@ -1,8 +1,6 @@
 """unit tests for langstrings"""
 import unittest
 
-import pytest
-
 from dsp_tools.models.langstring import LangString, Languages
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
@@ -93,7 +91,3 @@ class TestLangString(unittest.TestCase):
                 self.assertEqual(tmp[1], self.simple_string_de)
             elif tmp[0] == Languages.FR:
                 self.assertEqual(tmp[1], self.simple_string_fr)
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

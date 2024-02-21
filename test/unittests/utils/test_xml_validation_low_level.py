@@ -1,4 +1,3 @@
-import pytest
 from lxml import etree
 
 from dsp_tools.utils.xml_validation import _find_xml_tags_in_simple_text_elements
@@ -72,7 +71,3 @@ class TestFindXMLTagsInUTF8:
         all_good, res_msg = _find_xml_tags_in_simple_text_elements(test_ele)
         assert all_good is False
         assert res_msg == expected_msg
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

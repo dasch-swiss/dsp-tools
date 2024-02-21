@@ -32,7 +32,3 @@ def test_update_previous_value(resolver: IriResolver) -> None:
     assert resolver.get("a") == "http://example.com/iri#a"
     resolver.update("a", "http://example.com/iri#aaa")
     assert resolver.get("a") == "http://example.com/iri#aaa"
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

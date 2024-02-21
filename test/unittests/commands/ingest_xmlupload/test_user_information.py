@@ -1,7 +1,6 @@
 from pathlib import Path
 
 import pandas as pd
-import pytest
 from pandas.testing import assert_frame_equal
 
 from dsp_tools.commands.ingest_xmlupload.user_information import IngestInformation
@@ -103,7 +102,3 @@ def test_no_id_to_df() -> None:
 
 def test_no_id_to_df_not_enough() -> None:
     assert not IngestInformation([], [("ID_no_up0", "fileno_up0.jpg")])._unused_mediafiles_to_df()
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

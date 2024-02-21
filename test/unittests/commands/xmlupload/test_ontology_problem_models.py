@@ -1,5 +1,4 @@
 import pandas as pd
-import pytest
 from pandas.testing import assert_frame_equal
 
 from dsp_tools.commands.xmlupload.models.ontology_problem_models import InvalidOntologyElementsInData
@@ -87,7 +86,3 @@ def test_get_problems_as_df() -> None:
     )
     res_df = onto._get_problems_as_df()
     assert_frame_equal(res_df, expected_df)
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

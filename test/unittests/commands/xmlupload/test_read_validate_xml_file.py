@@ -1,4 +1,3 @@
-import pytest
 from lxml import etree
 
 from dsp_tools.commands.xmlupload.read_validate_xml_file import (
@@ -97,7 +96,3 @@ def test_check_if_salsah_targets_exist_invalid() -> None:
         "Resource 'resource2', property 'text2' has an invalid link target 'IRI:resource4:IRI'",
     ]
     assert errors_returned == errors_expected
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

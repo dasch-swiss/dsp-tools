@@ -1,4 +1,3 @@
-import pytest
 from termcolor import cprint
 
 from dsp_tools.commands.xmlupload.models.permission import Permissions
@@ -28,7 +27,3 @@ def test_get_length_ok_resources() -> None:
     )
     cprint(text=print_str, color="yellow", attrs=["bold"])
     assert stashed_links <= previous_stash_size
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

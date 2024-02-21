@@ -3,8 +3,6 @@ import subprocess
 import unittest
 from pathlib import Path
 
-import pytest
-
 
 class TestCLI(unittest.TestCase):
     """
@@ -93,7 +91,3 @@ class TestCLI(unittest.TestCase):
                 f"Stderr:\n{e.stderr.decode('utf-8')}"
             )
             raise AssertionError(msg) from None
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

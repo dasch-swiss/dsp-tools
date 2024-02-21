@@ -65,7 +65,3 @@ def test_validate_xml_empty_label() -> None:
         r"The value '' has a length of '0'; this underruns the allowed minimum length of '1'\.",
     ):
         validate_xml(input_file="testdata/invalid-testdata/xml-data/empty-label.xml")
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

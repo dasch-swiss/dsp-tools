@@ -1,6 +1,5 @@
 import unittest
 
-import pytest
 from lxml import etree
 
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
@@ -74,7 +73,3 @@ class TestXmlValue(unittest.TestCase):
         self.assertIsInstance(xml_value, FormattedTextValue)
         assert isinstance(xml_value, FormattedTextValue)
         self.assertEqual(xml_value.xmlstr, formatted_text_expected)
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

@@ -364,7 +364,3 @@ def test_renew_session() -> None:
     con._renew_session()
     assert con.get_token() == "my-super-secret-token"
     assert con.session.headers["User-Agent"] == f'DSP-TOOLS/{version("dsp-tools")}'
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

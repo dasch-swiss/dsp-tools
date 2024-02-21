@@ -675,7 +675,3 @@ class TestValidateProperties:
         )
         unchanged_df = e2j._add_optional_columns(df=expected_df)
         assert_frame_equal(expected_df, unchanged_df)
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

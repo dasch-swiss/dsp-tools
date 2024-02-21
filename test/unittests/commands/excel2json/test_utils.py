@@ -2,7 +2,6 @@ import unittest
 from typing import cast
 
 import pandas as pd
-import pytest
 from pandas.testing import assert_frame_equal, assert_series_equal
 from pytest_unordered import unordered
 
@@ -166,7 +165,3 @@ class TestUtils(unittest.TestCase):
         self.assertDictEqual(expected_dict, cast(dict[str, str], returned_dict))
 
         assert not utl.get_comments(original_df.loc[1, :])
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

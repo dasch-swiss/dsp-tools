@@ -3,7 +3,6 @@ from typing import Union
 
 import numpy as np
 import pandas as pd
-import pytest
 
 from dsp_tools.commands.excel2xml.propertyelement import PropertyElement
 from dsp_tools.utils import shared
@@ -77,7 +76,3 @@ class TestShared(unittest.TestCase):
         notna_values_as_propelem = [PropertyElement(x) for x in notna_values_orig]
         for notna_value in notna_values_orig + notna_values_as_propelem:
             self.assertTrue(shared.check_notna(notna_value), msg=f"Failed notna_value: {notna_value}")
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

@@ -1,6 +1,5 @@
 import unittest
 
-import pytest
 import regex
 from lxml import etree
 
@@ -69,7 +68,3 @@ class TestXMLUpload(unittest.TestCase):
             BaseError, r"converting ARK 'ark:/72163/080c-779b99\+90a0c3f-6e'\. Invalid Salsah ID '779b99\+90a0c3f'"
         ):
             convert_ark_v0_to_resource_iri("ark:/72163/080c-779b99+90a0c3f-6e")
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

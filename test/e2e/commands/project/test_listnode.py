@@ -1,8 +1,6 @@
 """end to end tests for listnode class"""
 import unittest
 
-import pytest
-
 from dsp_tools.commands.project.models.listnode import ListNode
 from dsp_tools.models.langstring import LangString, Languages
 from dsp_tools.utils.connection import Connection
@@ -127,7 +125,3 @@ class TestListNode(unittest.TestCase):
         self.assertEqual(root_node.children[2].children[1].iri, "http://rdfh.ch/lists/0001/otherTreeList11")
         self.assertEqual(root_node.children[2].children[1].name, "Other Tree list node 11")
         self.assertEqual(root_node.children[2].children[1].label["en"], "Other Tree list node 11")
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

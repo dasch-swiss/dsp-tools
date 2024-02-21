@@ -1,6 +1,5 @@
 from typing import Any
 
-import pytest
 import rustworkx as rx
 from lxml import etree
 from pytest_unordered import unordered
@@ -583,7 +582,3 @@ def test_generate_upload_order_two_circles() -> None:
     assert unordered(stash_lookup["5"]) == expected_stash["5"]
     assert not list(graph.edges())
     assert not list(graph.nodes())
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

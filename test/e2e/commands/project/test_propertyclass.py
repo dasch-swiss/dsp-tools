@@ -1,5 +1,3 @@
-import pytest
-
 from dsp_tools.commands.project.models.ontology import Ontology
 from dsp_tools.commands.project.models.propertyclass import PropertyClass
 from dsp_tools.models.langstring import LangString, Languages
@@ -41,7 +39,3 @@ def test_PropertyClass_create() -> None:
 
     # delete the property class to clean up
     _ = property_class.delete(last_modification_date)
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

@@ -241,7 +241,3 @@ class TestValidateWithSchema:
         )
         with pytest.raises(InputError, match=expected_msg):
             e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-invalid-missing-sheet.xlsx", "")
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

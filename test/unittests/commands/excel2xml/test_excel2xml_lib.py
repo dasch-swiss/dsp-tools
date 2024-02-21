@@ -839,7 +839,3 @@ def _strip_namespace(element: etree._Element) -> str:
     xml = etree.tostring(element, encoding="unicode")
     xml = regex.sub(r" xmlns(:.+?)?=\".+?\"", "", xml)
     return xml
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

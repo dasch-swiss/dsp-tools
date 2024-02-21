@@ -194,7 +194,3 @@ def test_id2iri_remove_resources(mapping: dict[str, Any]) -> None:
     xml_returned = etree.tostring(tree_returned, pretty_print=False).decode("utf-8")
     xml_returned = xml_returned.replace("\n", "").replace(" ", "")
     assert xml_returned == xml_expected
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

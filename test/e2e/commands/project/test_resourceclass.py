@@ -2,8 +2,6 @@
 
 import unittest
 
-import pytest
-
 from dsp_tools.commands.project.models.ontology import Ontology
 from dsp_tools.commands.project.models.resourceclass import ResourceClass
 from dsp_tools.models.langstring import LangString, Languages
@@ -83,7 +81,3 @@ class TestResourceClass(unittest.TestCase):
         onto.lastModificationDate = last_modification_date
 
         self.assertIsNotNone(res_class.iri)
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

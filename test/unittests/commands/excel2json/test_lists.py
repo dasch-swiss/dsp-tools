@@ -167,7 +167,3 @@ class TestExcelToJSONList(unittest.TestCase):
                 f'The node "{jsonpath_elems[-1]}" from Excel row {index+1} was not correctly translated to the '
                 f"output JSON file.",
             )
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

@@ -266,7 +266,3 @@ class TestParseSingleDate:
         date_string = "01.01.2020"
         with pytest.raises(BaseError):
             _parse_single_date(date_string, Era.CE)
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

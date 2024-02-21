@@ -46,7 +46,3 @@ def test_ingest_xmlupload_no_mapping() -> None:
             dsp_url="http://0.0.0.0:3333",
             sipi_url="http://0.0.0.0:1024",
         )
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

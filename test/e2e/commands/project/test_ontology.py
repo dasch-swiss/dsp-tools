@@ -2,8 +2,6 @@
 
 import unittest
 
-import pytest
-
 from dsp_tools.commands.project.models.ontology import Ontology
 from dsp_tools.models.datetimestamp import DateTimeStamp
 from dsp_tools.utils.connection import Connection
@@ -66,7 +64,3 @@ class TestOntology(unittest.TestCase):
         onto_list_ids = [lst.iri for lst in onto_list]
         self.assertIn("http://0.0.0.0:3333/ontology/0001/anything/v2", onto_list_ids)
         self.assertIn("http://0.0.0.0:3333/ontology/0001/test_onto_create/v2", onto_list_ids)
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

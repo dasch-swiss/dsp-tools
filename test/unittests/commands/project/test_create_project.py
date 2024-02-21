@@ -240,7 +240,3 @@ def test_rectify_hlist_of_properties_nonexisting_list() -> None:
             lists=lists,
             properties=properties,
         )
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

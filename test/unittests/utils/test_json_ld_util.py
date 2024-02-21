@@ -1,5 +1,3 @@
-import pytest
-
 from dsp_tools.utils.json_ld_util import get_default_json_ld_context, get_json_ld_context_for_project
 
 
@@ -48,7 +46,3 @@ def test_get_json_ld_context_for_project_with_multiple_ontologies() -> None:
         "testonto2": "http://www.knora.org/ontology/testonto2#",
     }
     assert context == expected
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

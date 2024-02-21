@@ -1,7 +1,5 @@
 from unittest import TestCase
 
-import pytest
-
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 
@@ -76,7 +74,3 @@ class TestXMLUploadStash(TestCase):
             "</text></text-prop></resource>"
         )
         self.assertEqual(expected_str, returned_instance.xmlstr)
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

@@ -293,7 +293,3 @@ def test_get_all_classes_and_properties_from_data() -> None:
     assert res_properties.keys() == expected_properties.keys()
     for k, v in res_properties.items():
         assert unordered(v) == expected_properties[k]
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

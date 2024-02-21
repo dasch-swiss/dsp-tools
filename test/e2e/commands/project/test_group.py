@@ -2,8 +2,6 @@
 import unittest
 from typing import cast
 
-import pytest
-
 from dsp_tools.commands.project.models.group import Group
 from dsp_tools.models.langstring import LangString, Languages
 from dsp_tools.utils.connection import Connection
@@ -103,7 +101,3 @@ class TestGroup(unittest.TestCase):
         self.assertEqual(deleted_group.project, self.test_project)
         self.assertFalse(deleted_group.status)
         self.assertFalse(deleted_group.selfjoin)
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

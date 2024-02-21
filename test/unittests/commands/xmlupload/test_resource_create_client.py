@@ -390,7 +390,3 @@ def test_to_boolean() -> None:
         _to_boolean("foo")
     with pytest.raises(BaseError):
         _to_boolean(2)
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

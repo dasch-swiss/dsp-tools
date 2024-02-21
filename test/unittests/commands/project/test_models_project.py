@@ -48,7 +48,3 @@ def test__toJsonObj_create(project: Project) -> None:
         "status": True,
     }
     assert res_json == expected
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

@@ -2,8 +2,6 @@ import shutil
 import unittest
 from pathlib import Path
 
-import pytest
-
 from dsp_tools.commands.fast_xmlupload.process_files import process_files
 from dsp_tools.commands.fast_xmlupload.upload_files import upload_files
 from dsp_tools.commands.fast_xmlupload.upload_xml import fast_xmlupload
@@ -105,7 +103,3 @@ class TestFastXmlUpload(unittest.TestCase):
             sipi_url=self.sipi_url,
         )
         self.assertTrue(success_fast_xmlupload)
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

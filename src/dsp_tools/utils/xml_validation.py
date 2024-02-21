@@ -137,8 +137,7 @@ def _find_mixed_encodings_in_one_text_prop(
     all_problems = cast(list[TextValueData], problems)
     msg, df = InconsistentTextValueEncodings(all_problems).execute_problem_protocol()
     if df is not None:
-        csv_name = f"XML_syntax_errors_{datetime.now().strftime('%Y-%m-%d_%H%M%S')}.csv"
-        csv_file = Path(Path.cwd() / csv_name)
-        msg = f"\nAll the problems are listed in the file: '{Path.cwd()}/{csv_file}'" + msg
-        df.to_csv(csv_file)
+        csv_path = Path(f"XML_syntax_errors_{datetime.now().strftime('%Y-%m-%d_%H%M%S')}.csv")
+        msg = f"\nAll the problems are listed in the file: '{csv_path.absolute()}'" + msg
+        df.to_csv(csv_path)
     return False, msg

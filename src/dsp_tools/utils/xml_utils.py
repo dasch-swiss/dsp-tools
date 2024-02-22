@@ -133,8 +133,8 @@ def _parse_xml_file(input_file: Union[str, Path]) -> etree._ElementTree[etree._E
 
 
 def remove_namespaces_from_xml(
-    data_xml: Union[etree._ElementTree[etree._Element], etree._Element],
-) -> Union[etree._ElementTree[etree._Element], etree._Element]:
+    data_xml: etree._Element,
+) -> etree._Element:
     """
     This function removes all the namespaces from an XML file.
 

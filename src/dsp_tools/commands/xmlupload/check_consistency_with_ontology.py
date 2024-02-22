@@ -202,7 +202,7 @@ def _analyse_all_text_value_encodings_are_correct(
     if len(all_checked) == 0:
         return None
     msg, df = InvalidTextValueEncodings(all_checked).execute_problem_protocol()
-    if df is not None:
+    if df:
         csv_file = f"text_value_encoding_errors_{datetime.now().strftime('%Y-%m-%d_%H%M%S')}.csv"
         csv_path = Path(Path.cwd(), csv_file)
         df.to_csv(path_or_buf=csv_path, index=False)
@@ -216,16 +216,13 @@ def _analyse_all_text_value_encodings_are_correct(
 def _get_all_ids_prop_encoding_from_root(root: etree._Element) -> list[TextValueData]:
     res_list = []
     for res_input in root.iterchildren(tag="resource"):
-        if (res_result := _get_id_prop_encoding_from_one_resource(res_input)) is not None:
-            res_list.extend(res_result)
+        res_list.extend(_get_id_prop_encoding_from_one_resource(res_input))
     return res_list
 
 
-def _get_id_prop_encoding_from_one_resource(resource: etree._Element) -> list[TextValueData] | None:
-    if not (children := list(resource.iterchildren(tag="text-prop"))):
-        return None
+def _get_id_prop_encoding_from_one_resource(resource: etree._Element) -> list[TextValueData]:
     res_id = resource.attrib["id"]
-    return [_get_prop_encoding_from_one_property(res_id, child) for child in children]
+    return [_get_prop_encoding_from_one_property(res_id, child) for child in resource.iterchildren(tag="text-prop")]
 
 
 def _get_prop_encoding_from_one_property(res_id: str, property: etree._Element) -> TextValueData:

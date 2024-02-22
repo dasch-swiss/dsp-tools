@@ -306,7 +306,7 @@ def test_get_all_classes_and_properties_from_data() -> None:
         assert unordered(v) == expected_properties[k]
 
 
-def test_get_prop_encoding_from_all_properties_no_text() -> None:
+def test_get_id_prop_encoding_from_one_resource_no_text() -> None:
     test_props = etree.fromstring(
         """
         <resource label="First Testthing"
@@ -326,7 +326,7 @@ def test_get_prop_encoding_from_all_properties_no_text() -> None:
     assert not res
 
 
-def test_get_prop_encoding_from_all_properties_mixed() -> None:
+def test_get_id_prop_encoding_from_one_resource_richtext() -> None:
     test_props = etree.fromstring(
         """
         <resource label="First Testthing"
@@ -351,7 +351,7 @@ def test_get_prop_encoding_from_all_properties_mixed() -> None:
     assert res.encoding == "utf8"
 
 
-def test_get_prop_encoding_from_all_properties_two_text_prop() -> None:
+def test_get_id_prop_encoding_from_one_resource_two_text_props() -> None:
     test_props = etree.fromstring(
         """
         <resource label="First Testthing"
@@ -611,13 +611,15 @@ def test_analyse_all_text_value_encodings_are_correct_problems() -> None:
         formatted_text={":hasRichtext"}, unformatted_text={":hasSimpleText", ":hasText"}
     )
     expected = r"""
-Some text encodings used in the data is not conform with the gui-element specified in the ontology\.
+Some text encodings used in the data is not conform with the gui-element specified in the ontology.
 Please consult the ontology regarding the assigned gui-elements.
+
 ---------------------------------------
-Resource ID\: 'resC'
-    - Property Name: '\:hasRichtext' -> Encoding\(s\) Used\: 'utf8'
+
+Resource ID: 'resC'
+    - Property Name: ':hasRichtext' -> Encoding Used: 'utf8'
 ----------------------------
-Resource ID\: 'test_thing_1'
-    - Property Name\: '\:hasText' -> Encoding\(s\) Used\: 'xml'"""
+Resource ID: 'test_thing_1'
+    - Property Name: ':hasText' -> Encoding Used: 'xml'"""
     with pytest.raises(InputError, match=expected):
         _analyse_all_text_value_encodings_are_correct(test_ele, test_lookup)

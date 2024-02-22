@@ -208,7 +208,7 @@ def _analyse_all_text_value_encodings_are_correct(
         df.to_csv(path_or_buf=csv_path, index=False)
         msg += (
             "\n\n---------------------------------------\n\n"
-            f"\nAll the problems are listed in the file: '{csv_path.absolute()}'"
+            f"All the problems are listed in the file: '{csv_path.absolute()}'"
         )
     raise InputError(msg)
 

@@ -170,7 +170,7 @@ def check_if_only_one_encoding_is_used_per_prop_in_root(
           A list of all the inconsistent <text-props>
     """
     text_props = _get_all_ids_and_encodings_from_root(root)
-    return _check_only_one_valid_encoding_used_all_props(text_props)
+    return _find_all_text_props_with_multiple_encodings(text_props)
 
 
 def _get_all_ids_and_encodings_from_root(
@@ -193,5 +193,5 @@ def _get_encodings_from_one_property(res_id: str, prop: etree._Element) -> TextV
     return TextValueData(res_id, prop_name, encodings)
 
 
-def _check_only_one_valid_encoding_used_all_props(text_props: list[TextValueData]) -> list[TextValueData]:
+def _find_all_text_props_with_multiple_encodings(text_props: list[TextValueData]) -> list[TextValueData]:
     return [x for x in text_props if not len(x.encoding) == 1]

@@ -2,7 +2,7 @@ import pytest
 from lxml import etree
 
 from dsp_tools.utils.xml_validation import (
-    _check_only_one_valid_encoding_used_all_props,
+    _find_all_text_props_with_multiple_encodings,
     _find_xml_tags_in_simple_text_elements,
     _get_all_ids_and_encodings_from_root,
     _get_encodings_from_one_property,
@@ -86,12 +86,18 @@ if __name__ == "__main__":
     pytest.main([__file__])
 
 
-def test_check_only_one_valid_encoding_used_all_props_problems() -> None:
+def test_find_all_text_props_with_multiple_encodings_problems() -> None:
     test_props = [TextValueData("problem_id", "problem_prop", {"xml", "utf8"}), TextValueData("", "", {"utf8"})]
-    problem = _check_only_one_valid_encoding_used_all_props(test_props)[0]
+    problem = _find_all_text_props_with_multiple_encodings(test_props)[0]
     assert problem.resource_id == "problem_id"
     assert problem.property_name == "problem_prop"
     assert problem.encoding == {"xml", "utf8"}
+
+
+def test_find_all_text_props_with_multiple_encodings_good() -> None:
+    test_props = [TextValueData("", "", {"xml"}), TextValueData("", "", {"utf8"})]
+    problem = _find_all_text_props_with_multiple_encodings(test_props)
+    assert not problem
 
 
 def test_get_all_ids_prop_encoding_from_root_no_text() -> None:

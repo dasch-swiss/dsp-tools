@@ -1,5 +1,6 @@
 from datetime import datetime
 from pathlib import Path
+from typing import cast
 
 import regex
 from lxml import etree
@@ -227,7 +228,7 @@ def _get_id_prop_encoding_from_one_resource(resource: etree._Element) -> list[Te
 
 def _get_prop_encoding_from_one_property(res_id: str, property: etree._Element) -> TextValueData:
     prop_name = property.attrib["name"]
-    encoding: AllowedEncodings = next(x.attrib["encoding"] for x in property.iterchildren())
+    encoding = cast(AllowedEncodings, next(x.attrib["encoding"] for x in property.iterchildren()))
     return TextValueData(res_id, prop_name, encoding)
 
 

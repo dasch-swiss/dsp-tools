@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Literal
 
 import regex
 
@@ -77,6 +77,16 @@ def _get_all_properties_from_json(onto_json: list[dict[str, Any]]) -> list[str]:
 
 def _remove_prefixes(ontology_elements: list[str]) -> list[str]:
     return [x.split(":")[1] for x in ontology_elements]
+
+
+AllowedEncodings = Literal["utf8", "xml"]
+
+
+@dataclass
+class TextValueData:
+    resource_id: str
+    property_name: str
+    encoding: AllowedEncodings
 
 
 @dataclass

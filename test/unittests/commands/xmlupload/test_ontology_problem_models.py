@@ -5,6 +5,8 @@ from dsp_tools.commands.xmlupload.models.ontology_lookup_models import TextValue
 from dsp_tools.commands.xmlupload.models.ontology_problem_models import (
     InvalidOntologyElementsInData,
     InvalidTextValueEncodings,
+    _make_msg_for_one_resource,
+    _make_msg_from_df,
 )
 
 
@@ -103,7 +105,7 @@ class TestInvalidTextValueEncodings:
             {
                 "Resource ID": ["id1", "id1", "id2"],
                 "Property Name": [":rich", ":simple", ":rich"],
-                "Encoding(s) Used": ["utf8", "xml", "utf8"],
+                "Encoding Used": ["utf8", "xml", "utf8"],
             }
         )
         res_df = problems._get_problems_as_df()
@@ -114,14 +116,14 @@ class TestInvalidTextValueEncodings:
             {
                 "Resource ID": ["id1", "id1"],
                 "Property Name": [":rich", ":simple"],
-                "Encoding(s) Used": ["utf8", "xml"],
+                "Encoding Used": ["utf8", "xml"],
             }
         )
-        res = InvalidTextValueEncodings._make_msg_for_one_resource("id1", test_df)
+        res = _make_msg_for_one_resource("id1", test_df)
         expected = (
             "Resource ID: 'id1'\n"
-            "    - Property Name: ':rich' -> Encoding(s) Used: 'utf8'\n"
-            "    - Property Name: ':simple' -> Encoding(s) Used: 'xml'"
+            "    - Property Name: ':rich' -> Encoding Used: 'utf8'\n"
+            "    - Property Name: ':simple' -> Encoding Used: 'xml'"
         )
         assert res == expected
 
@@ -130,16 +132,16 @@ class TestInvalidTextValueEncodings:
             {
                 "Resource ID": ["id1", "id1", "id2"],
                 "Property Name": [":rich", ":simple", ":rich"],
-                "Encoding(s) Used": ["utf8", "xml", "utf8"],
+                "Encoding Used": ["utf8", "xml", "utf8"],
             }
         )
-        res = InvalidTextValueEncodings._make_msg_from_df(test_df)
+        res = _make_msg_from_df(test_df)
         expected = (
             "Resource ID: 'id1'\n"
-            "    - Property Name: ':rich' -> Encoding(s) Used: 'utf8'\n"
-            "    - Property Name: ':simple' -> Encoding(s) Used: 'xml'"
+            "    - Property Name: ':rich' -> Encoding Used: 'utf8'\n"
+            "    - Property Name: ':simple' -> Encoding Used: 'xml'"
             "\n----------------------------\n"
             "Resource ID: 'id2'\n"
-            "    - Property Name: ':rich' -> Encoding(s) Used: 'utf8'"
+            "    - Property Name: ':rich' -> Encoding Used: 'utf8'"
         )
         assert res == expected

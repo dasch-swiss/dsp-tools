@@ -120,13 +120,10 @@ class InvalidOntologyElementsInData:
 @dataclass
 class InvalidTextValueEncodings:
     """
-    This class takes instances that contain the information about resources and the properties that contain
-    invalid encodings.
+    This class contains information about resources and the respective properties that have invalid text encodings.
 
-    An invalid encoding would be a property that specifies an xml encoding,
-    but in the elements specifies: <text encoding="utf8"> and vice versa.
-
-    It is responsible to communicate the problems to the user.
+    An invalid encoding would be a property that specifies an xml encoding in the ontology,
+    but the <text> elements specify the other encoding: <text encoding="utf8"> and vice versa.
     """
 
     problematic_resources: list[TextValueData]
@@ -136,7 +133,7 @@ class InvalidTextValueEncodings:
         This method composes an error message for the user.
 
         Returns:
-            the error message and a dataframe with the errors if they exceed 50
+            the error message and a dataframe with the errors if they exceed the maximum allowed print statements
         """
         msg = (
             "\nSome text encodings used in the data is not conform with the gui-element specified in the ontology.\n"
@@ -145,7 +142,7 @@ class InvalidTextValueEncodings:
         df = self._get_problems_as_df()
         if len(df) > maximum_prints:
             return msg, df
-        additional_msg = self._make_msg_from_df(df)
+        additional_msg = _make_msg_from_df(df)
         return msg + grand_separator + additional_msg, None
 
     def _get_problems_as_df(self) -> pd.DataFrame:
@@ -153,21 +150,19 @@ class InvalidTextValueEncodings:
             {
                 "Resource ID": list(x.resource_id for x in self.problematic_resources),
                 "Property Name": list(x.property_name for x in self.problematic_resources),
-                "Encoding(s) Used": list(x.encoding for x in self.problematic_resources),
+                "Encoding Used": list(x.encoding for x in self.problematic_resources),
             }
         )
         return df.sort_values(by=["Resource ID", "Property Name"], ignore_index=True)
 
-    @staticmethod
-    def _make_msg_from_df(df: pd.DataFrame) -> str:
-        groups = df.groupby(by="Resource ID")
-        return medium_separator.join(
-            [InvalidTextValueEncodings._make_msg_for_one_resource(str(_id), res_df) for _id, res_df in groups]
-        )
 
-    @staticmethod
-    def _make_msg_for_one_resource(res_id: str, res_df: pd.DataFrame) -> str:
-        props = res_df["Property Name"].tolist()
-        encding = res_df["Encoding(s) Used"].tolist()
-        problems = [f"Property Name: '{p}' -> Encoding(s) Used: '{e}'" for p, e in zip(props, encding)]
-        return f"Resource ID: '{res_id}'{list_separator}{list_separator.join(problems)}"
+def _make_msg_from_df(df: pd.DataFrame) -> str:
+    groups = df.groupby(by="Resource ID")
+    return medium_separator.join([_make_msg_for_one_resource(str(_id), res_df) for _id, res_df in groups])
+
+
+def _make_msg_for_one_resource(res_id: str, res_df: pd.DataFrame) -> str:
+    props = res_df["Property Name"].tolist()
+    encding = res_df["Encoding Used"].tolist()
+    problems = [f"Property Name: '{p}' -> Encoding Used: '{e}'" for p, e in zip(props, encding)]
+    return f"Resource ID: '{res_id}'{list_separator}{list_separator.join(problems)}"

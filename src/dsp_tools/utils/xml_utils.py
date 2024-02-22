@@ -30,24 +30,17 @@ def parse_and_clean_xml_file(input_file: Union[str, Path, etree._ElementTree[Any
         InputError: if the input is not of either the expected types
     """
 
-    # remove comments and processing instructions (commented out properties break the XMLProperty constructor)
-
-    if isinstance(input_file, (str, Path)):
-        tree = _parse_xml_file(input_file)
-    else:
-        tree = input_file
-    tree = remove_comments_from_element_tree(tree)
-
-    tree = _remove_qnames_and_transform_special_tags(tree)
-
-    return tree.getroot()
+    tree = parse_and_remove_comments_from_xml_file(input_file)
+    return _remove_qnames_and_transform_special_tags(tree)
 
 
-def parse_and_remove_comments_xml_file(
+def parse_and_remove_comments_from_xml_file(
     input_file: Union[str, Path, etree._ElementTree[Any]],
 ) -> etree._Element:
     """
-    Parse an XML file with DSP-conform data
+    Parse an XML file with DSP-conform data,
+    and remove the comments and processing instructions
+    (commented out properties break the XMLProperty constructor)
 
     Args:
         input_file: path to the XML file, or parsed ElementTree
@@ -59,8 +52,6 @@ def parse_and_remove_comments_xml_file(
         InputError: if the input is not of either the expected types
     """
 
-    # remove comments and processing instructions (commented out properties break the XMLProperty constructor)
-
     if isinstance(input_file, (str, Path)):
         tree = _parse_xml_file(input_file)
     else:
@@ -71,8 +62,8 @@ def parse_and_remove_comments_xml_file(
 
 
 def _remove_qnames_and_transform_special_tags(
-    input_tree: etree._ElementTree[etree._Element],
-) -> etree._ElementTree[etree._Element]:
+    input_tree: etree._Element,
+) -> etree._Element:
     """
     This function removes the namespace URIs from the elements' names
     and transforms the special tags <annotation>, <region>, and <link>
@@ -86,7 +77,7 @@ def _remove_qnames_and_transform_special_tags(
         cleaned tree
     """
     for elem in input_tree.iter():
-        elem.tag = etree.QName(elem).localname  # remove namespace URI in the element's name
+        elem.tag = etree.QName(elem).localname
         if elem.tag == "annotation":
             elem.attrib["restype"] = "Annotation"
             elem.tag = "resource"
@@ -142,8 +133,8 @@ def _parse_xml_file(input_file: Union[str, Path]) -> etree._ElementTree[etree._E
 
 
 def remove_namespaces_from_xml(
-    data_xml: etree._Element,
-) -> etree._Element:
+    data_xml: Union[etree._ElementTree[etree._Element], etree._Element],
+) -> Union[etree._ElementTree[etree._Element], etree._Element]:
     """
     This function removes all the namespaces from an XML file.
 

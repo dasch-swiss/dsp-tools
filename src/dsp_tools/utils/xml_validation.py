@@ -167,8 +167,7 @@ def check_if_only_one_encoding_is_used_per_prop_in_root(
         root: root of the data xml document
 
     Returns:
-          True and None if all the elements are consistent
-          False and a list of all the inconsistent <text-props>
+          A list of all the inconsistent <text-props>
     """
     text_props = _get_all_ids_and_encodings_from_root(root)
     return _check_only_one_valid_encoding_used_all_props(text_props)

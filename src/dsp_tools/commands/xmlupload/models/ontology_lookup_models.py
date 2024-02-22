@@ -96,9 +96,11 @@ def get_text_value_properties_and_formatting_from_json(
     """
     This function takes a dict with the names and ontology json of the project ontologies.
     It filters out the property with TextValues and separates them into properties with formatted and unformatted text
+
     Args:
         onto_json_dict: dict with the ontologies
         default_onto: name of the default ontology
+
     Returns:
         Look-up containing the properties separated according to the formatting
     """

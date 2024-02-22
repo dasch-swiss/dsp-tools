@@ -11,6 +11,10 @@ from lxml import etree
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.xml_utils import parse_and_remove_comments_from_xml_file, remove_namespaces_from_xml
+from dsp_tools.utils.xml_validation_models import (
+    InconsistentTextValueEncodings,
+    TextValueData,
+)
 
 logger = get_logger(__name__)
 
@@ -47,6 +51,10 @@ def validate_xml(input_file: Union[str, Path, etree._ElementTree[Any]]) -> bool:
     if not all_good:
         problems.append(msg)
 
+    all_good, msg = _find_mixed_encodings_in_one_text_prop(xml_no_namespace)
+    if not all_good:
+        problems.append(msg)
+
     if len(problems) > 0:
         err_msg = grand_separator.join(problems)
         logger.error(err_msg, exc_info=True)
@@ -59,7 +67,7 @@ def validate_xml(input_file: Union[str, Path, etree._ElementTree[Any]]) -> bool:
 
 def _parse_schema_and_data_files(
     input_file: Union[str, Path, etree._ElementTree[Any]],
-) -> tuple[Union[etree._ElementTree[etree._Element], etree._Element], etree.XMLSchema]:
+) -> tuple[etree._Element, etree.XMLSchema]:
     with importlib.resources.files("dsp_tools").joinpath("resources/schema/data.xsd").open(
         encoding="utf-8"
     ) as schema_file:
@@ -68,9 +76,7 @@ def _parse_schema_and_data_files(
     return data_xml, xmlschema
 
 
-def _validate_xml_against_schema(
-    xmlschema: etree.XMLSchema, data_xml: Union[etree._ElementTree[etree._Element], etree._Element]
-) -> tuple[bool, str]:
+def _validate_xml_against_schema(xmlschema: etree.XMLSchema, data_xml: etree._Element) -> tuple[bool, str]:
     if not xmlschema.validate(data_xml):
         error_msg = "The XML file cannot be uploaded due to the following validation error(s):"
         for error in xmlschema.error_log:
@@ -81,7 +87,7 @@ def _validate_xml_against_schema(
 
 
 def _find_xml_tags_in_simple_text_elements(
-    xml_no_namespace: Union[etree._ElementTree[etree._Element], etree._Element],
+    xml_no_namespace: etree._Element,
 ) -> tuple[bool, str]:
     """
     Makes sure that there are no XML tags in simple texts.
@@ -119,3 +125,73 @@ def _find_xml_tags_in_simple_text_elements(
         err_msg += list_separator + list_separator.join(resources_with_illegal_xml_tags)
         return False, err_msg
     return True, ""
+
+
+def _find_mixed_encodings_in_one_text_prop(
+    xml_no_namespace: etree._Element,
+) -> tuple[bool, str]:
+    problems = check_if_only_one_encoding_is_used_per_prop_in_root(xml_no_namespace)
+    if not problems:
+        return True, ""
+    msg, df = InconsistentTextValueEncodings(problems).execute_problem_protocol()
+    if df is not None:
+        csv_path = Path(f"XML_syntax_errors_{datetime.now().strftime('%Y-%m-%d_%H%M%S')}.csv")
+        msg = f"\nAll the problems are listed in the file: '{csv_path.absolute()}'" + msg
+        df.to_csv(csv_path)
+    return False, msg
+
+
+def check_if_only_one_encoding_is_used_per_prop_in_root(
+    root: etree._Element,
+) -> list[TextValueData]:
+    """
+    Check if all the encodings in the <text> elements are consistent within one <text-prop>
+
+    This is correct:
+    ```
+    <text-prop name=":hasSimpleText">
+        <text encoding="utf8">Text 1</text>
+        <text encoding="utf8">Text 2</text>
+    </text-prop>
+    ```
+
+    This is wrong:
+    ```
+    <text-prop name=":hasSimpleText">
+        <text encoding="utf8">Text 1</text>
+        <text encoding="xml">Text 2</text>
+    </text-prop>
+    ```
+
+    Args:
+        root: root of the data xml document
+
+    Returns:
+          A list of all the inconsistent <text-props>
+    """
+    text_props = _get_all_ids_and_encodings_from_root(root)
+    return _find_all_text_props_with_multiple_encodings(text_props)
+
+
+def _get_all_ids_and_encodings_from_root(
+    root: etree._Element,
+) -> list[TextValueData]:
+    res_list = []
+    for res_input in root.iterchildren(tag="resource"):
+        res_list.extend(_get_encodings_from_one_resource(res_input))
+    return res_list
+
+
+def _get_encodings_from_one_resource(resource: etree._Element) -> list[TextValueData]:
+    res_id = resource.attrib["id"]
+    return [_get_encodings_from_one_property(res_id, child) for child in list(resource.iterchildren(tag="text-prop"))]
+
+
+def _get_encodings_from_one_property(res_id: str, prop: etree._Element) -> TextValueData:
+    prop_name = prop.attrib["name"]
+    encodings = {x.attrib["encoding"] for x in prop.iterchildren()}
+    return TextValueData(res_id, prop_name, encodings)
+
+
+def _find_all_text_props_with_multiple_encodings(text_props: list[TextValueData]) -> list[TextValueData]:
+    return [x for x in text_props if not len(x.encoding) == 1]

@@ -200,18 +200,17 @@ def _analyse_all_text_value_encodings_are_correct(
     """
     text_value_in_data = _get_all_ids_prop_encoding_from_root(root)
     all_checked = [x for x in text_value_in_data if not _check_correctness_one_prop(x, text_prop_look_up)]
-    if len(all_checked) == 0:
-        return None
-    msg, df = InvalidTextValueEncodings(all_checked).execute_problem_protocol()
-    if df:
-        csv_file = f"text_value_encoding_errors_{datetime.now().strftime('%Y-%m-%d_%H%M%S')}.csv"
-        csv_path = Path(Path.cwd(), csv_file)
-        df.to_csv(path_or_buf=csv_path, index=False)
-        msg += (
-            "\n\n---------------------------------------\n\n"
-            f"All the problems are listed in the file: '{csv_path.absolute()}'"
-        )
-    raise InputError(msg)
+    if len(all_checked) != 0:
+        msg, df = InvalidTextValueEncodings(all_checked).execute_problem_protocol()
+        if df:
+            csv_file = f"text_value_encoding_errors_{datetime.now().strftime('%Y-%m-%d_%H%M%S')}.csv"
+            csv_path = Path(Path.cwd(), csv_file)
+            df.to_csv(path_or_buf=csv_path, index=False)
+            msg += (
+                "\n\n---------------------------------------\n\n"
+                f"All the problems are listed in the file: '{csv_path.absolute()}'"
+            )
+        raise InputError(msg)
 
 
 def _get_all_ids_prop_encoding_from_root(root: etree._Element) -> list[TextValueData]:

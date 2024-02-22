@@ -13,7 +13,7 @@ from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.xml_utils import parse_and_remove_comments_from_xml_file, remove_namespaces_from_xml
 from dsp_tools.utils.xml_validation_models import (
     InconsistentTextValueEncodings,
-    check_if_only_one_encoding_is_used_per_prop_in_root,
+    TextValueData,
 )
 
 logger = get_logger(__name__)
@@ -139,3 +139,60 @@ def _find_mixed_encodings_in_one_text_prop(
         msg = f"\nAll the problems are listed in the file: '{csv_path.absolute()}'" + msg
         df.to_csv(csv_path)
     return False, msg
+
+
+def check_if_only_one_encoding_is_used_per_prop_in_root(
+    root: etree._Element,
+) -> list[TextValueData]:
+    """
+    Check if all the encodings in the <text> elements are consistent within one <text-prop>
+
+    This is correct:
+    ```
+    <text-prop name=":hasSimpleText">
+        <text encoding="utf8">Text 1</text>
+        <text encoding="utf8">Text 2</text>
+    </text-prop>
+    ```
+
+    This is wrong:
+    ```
+    <text-prop name=":hasSimpleText">
+        <text encoding="utf8">Text 1</text>
+        <text encoding="xml">Text 2</text>
+    </text-prop>
+    ```
+
+    Args:
+        root: root of the data xml document
+
+    Returns:
+          True and None if all the elements are consistent
+          False and a list of all the inconsistent <text-props>
+    """
+    text_props = _get_all_ids_and_encodings_from_root(root)
+    return _check_only_one_valid_encoding_used_all_props(text_props)
+
+
+def _get_all_ids_and_encodings_from_root(
+    root: etree._Element,
+) -> list[TextValueData]:
+    res_list = []
+    for res_input in root.iterchildren(tag="resource"):
+        res_list.extend(_get_encodings_from_one_resource(res_input))
+    return res_list
+
+
+def _get_encodings_from_one_resource(resource: etree._Element) -> list[TextValueData]:
+    res_id = resource.attrib["id"]
+    return [_get_encodings_from_one_property(res_id, child) for child in list(resource.iterchildren(tag="text-prop"))]
+
+
+def _get_encodings_from_one_property(res_id: str, prop: etree._Element) -> TextValueData:
+    prop_name = prop.attrib["name"]
+    encodings = {x.attrib["encoding"] for x in prop.iterchildren()}
+    return TextValueData(res_id, prop_name, encodings)
+
+
+def _check_only_one_valid_encoding_used_all_props(text_props: list[TextValueData]) -> list[TextValueData]:
+    return [x for x in text_props if not len(x.encoding) == 1]

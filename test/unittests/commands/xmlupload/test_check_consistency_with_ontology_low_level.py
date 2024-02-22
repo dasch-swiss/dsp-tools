@@ -345,7 +345,7 @@ def test_get_id_prop_encoding_from_one_resource_richtext() -> None:
         </resource>
         """
     )
-    res = _get_id_prop_encoding_from_one_resource(test_props)[0]  # type: ignore[index]
+    res = _get_id_prop_encoding_from_one_resource(test_props)[0]
     assert res.resource_id == "test_thing_1"
     assert res.property_name == ":hasRichtext"
     assert res.encoding == "utf8"
@@ -373,7 +373,7 @@ def test_get_id_prop_encoding_from_one_resource_two_text_props() -> None:
         </resource>
         """
     )
-    res: list[TextValueData] = _get_id_prop_encoding_from_one_resource(test_props)  # type: ignore[assignment]
+    res: list[TextValueData] = _get_id_prop_encoding_from_one_resource(test_props)
     assert res[0].resource_id == "test_thing_1"
     assert res[0].property_name == ":hasRichtext"
     assert res[0].encoding == "xml"

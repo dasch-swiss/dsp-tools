@@ -104,11 +104,12 @@ def get_text_value_properties_and_formatting_from_json(
     onto_json_dict: dict[str, list[dict[str, Any]]], default_onto: str
 ) -> PropertyTextValueEncodingTypes:
     """
-    This function takes a dict with the names and ontology json of the project ontologies.
-    It filters out the property with TextValues and separates them into properties with formatted and unformatted text
+    This function takes a dict with the names and ontology json of the project.
+    It filters out the property with TextValues as object
+    and separates them into properties with formatted and unformatted text
 
     Args:
-        onto_json_dict: dict with the ontologies
+        onto_json_dict: dict with the project ontologies
         default_onto: name of the default ontology
 
     Returns:
@@ -131,7 +132,7 @@ def _make_text_value_property_type_lookup(
         return prop_str
 
     formatted_text = {remove_default_prefix(p) for p, _type in prop_list if _type == "salsah-gui:Richtext"}
-    formatted_text.add("hasComment")  # this is a knora-api property that we can use directly
+    formatted_text.add("hasComment")  # this is a knora-api property that can be used directly
     unformatted_text = {remove_default_prefix(p) for p, _type in prop_list if _type != "salsah-gui:Richtext"}
     return PropertyTextValueEncodingTypes(formatted_text, unformatted_text)
 

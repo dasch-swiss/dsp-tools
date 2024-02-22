@@ -10,6 +10,8 @@ from dsp_tools.utils.xml_validation_models import (
     _get_all_ids_and_encodings_from_root,
     _get_encodings_from_one_property,
     _get_encodings_from_one_resource,
+    _make_msg_for_one_resource,
+    _make_msg_from_df,
     check_if_only_one_encoding_is_used_per_prop_in_root,
 )
 
@@ -320,7 +322,7 @@ class TestInvalidTextValueEncodings:
                 "Property Name": [":rich", ":simple"],
             }
         )
-        res = InconsistentTextValueEncodings._make_msg_for_one_resource("id1", test_df)
+        res = _make_msg_for_one_resource("id1", test_df)
         expected = "Resource ID: 'id1'\n" "    - Property Name: ':rich'\n" "    - Property Name: ':simple'"
         assert res == expected
 
@@ -331,7 +333,7 @@ class TestInvalidTextValueEncodings:
                 "Property Name": [":rich", ":simple", ":rich", ":mixed"],
             }
         )
-        res = InconsistentTextValueEncodings._make_msg_from_df(test_df)
+        res = _make_msg_from_df(test_df)
         expected = (
             "Resource ID: 'id1'\n"
             "    - Property Name: ':rich'\n"

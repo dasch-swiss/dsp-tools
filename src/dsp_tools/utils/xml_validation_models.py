@@ -64,9 +64,9 @@ def _get_encodings_from_one_resource(resource: etree._Element) -> list[TextValue
     return [_get_encodings_from_one_property(res_id, child) for child in list(resource.iterchildren(tag="text-prop"))]
 
 
-def _get_encodings_from_one_property(res_id: str, property: etree._Element) -> TextValueData:
-    prop_name = property.attrib["name"]
-    encodings = {x.attrib["encoding"] for x in property.iterchildren()}
+def _get_encodings_from_one_property(res_id: str, prop: etree._Element) -> TextValueData:
+    prop_name = prop.attrib["name"]
+    encodings = {x.attrib["encoding"] for x in prop.iterchildren()}
     return TextValueData(res_id, prop_name, encodings)
 
 
@@ -104,7 +104,7 @@ class InconsistentTextValueEncodings:
         df = self._get_problems_as_df()
         if len(df) > maximum_prints:
             return base_msg, df
-        return base_msg + grand_separator + self._make_msg_from_df(df), None
+        return base_msg + grand_separator + _make_msg_from_df(df), None
 
     def _get_problems_as_df(self) -> pd.DataFrame:
         df = pd.DataFrame(
@@ -115,14 +115,12 @@ class InconsistentTextValueEncodings:
         )
         return df.sort_values(by=["Resource ID", "Property Name"], ignore_index=True)
 
-    @staticmethod
-    def _make_msg_from_df(df: pd.DataFrame) -> str:
-        groups = df.groupby(by="Resource ID")
-        return medium_separator.join(
-            [InconsistentTextValueEncodings._make_msg_for_one_resource(str(_id), res_df) for _id, res_df in groups]
-        )
 
-    @staticmethod
-    def _make_msg_for_one_resource(res_id: str, res_df: pd.DataFrame) -> str:
-        problems = [f"Property Name: '{p}'" for p in res_df["Property Name"].tolist()]
-        return f"Resource ID: '{res_id}'{list_separator}{list_separator.join(problems)}"
+def _make_msg_from_df(df: pd.DataFrame) -> str:
+    groups = df.groupby(by="Resource ID")
+    return medium_separator.join([_make_msg_for_one_resource(str(_id), res_df) for _id, res_df in groups])
+
+
+def _make_msg_for_one_resource(res_id: str, res_df: pd.DataFrame) -> str:
+    problems = [f"Property Name: '{p}'" for p in res_df["Property Name"].tolist()]
+    return f"Resource ID: '{res_id}'{list_separator}{list_separator.join(problems)}"

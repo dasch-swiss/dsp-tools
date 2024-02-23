@@ -202,8 +202,8 @@ def _check_correctness_all_text_value_encodings(
     Returns:
         A string communicating the problem, if there are none the string is empty.
     """
-    text_values_in_data = _get_all_ids_prop_encoding_from_root(root)
-    invalid_text_values = [x for x in text_values_in_data if not _check_correctness_one_prop(x, text_prop_look_up)]
+    text_values_in_data = _get_all_ids_and_props_and_encodings_from_root(root)
+    invalid_text_values = [x for x in text_values_in_data if not _check_correctness_of_one_prop(x, text_prop_look_up)]
     if len(invalid_text_values) == 0:
         return ""
     msg, df = InvalidTextValueEncodings(invalid_text_values).execute_problem_protocol()
@@ -218,25 +218,25 @@ def _check_correctness_all_text_value_encodings(
     return msg
 
 
-def _get_all_ids_prop_encoding_from_root(root: etree._Element) -> list[TextValueData]:
+def _get_all_ids_and_props_and_encodings_from_root(root: etree._Element) -> list[TextValueData]:
     res_list = []
     for res_input in root.iterchildren(tag="resource"):
-        res_list.extend(_get_id_prop_encoding_from_one_resource(res_input))
+        res_list.extend(_get_id_and_props_and_encodings_from_one_resource(res_input))
     return res_list
 
 
-def _get_id_prop_encoding_from_one_resource(resource: etree._Element) -> list[TextValueData]:
+def _get_id_and_props_and_encodings_from_one_resource(resource: etree._Element) -> list[TextValueData]:
     res_id = resource.attrib["id"]
-    return [_get_prop_encoding_from_one_property(res_id, child) for child in resource.iterchildren(tag="text-prop")]
+    return [_get_prop_and_encoding_from_one_property(res_id, child) for child in resource.iterchildren(tag="text-prop")]
 
 
-def _get_prop_encoding_from_one_property(res_id: str, property: etree._Element) -> TextValueData:
+def _get_prop_and_encoding_from_one_property(res_id: str, property: etree._Element) -> TextValueData:
     prop_name = property.attrib["name"]
     encoding = cast(AllowedEncodings, property[0].attrib["encoding"])
     return TextValueData(res_id, prop_name, encoding)
 
 
-def _check_correctness_one_prop(text_val: TextValueData, text_prop_look_up: PropertyTextValueEncodingTypes) -> bool:
+def _check_correctness_of_one_prop(text_val: TextValueData, text_prop_look_up: PropertyTextValueEncodingTypes) -> bool:
     def _check_correct(text_prop_name: str, allowed_properties: set[str]) -> bool:
         return text_prop_name in allowed_properties
 

@@ -5,17 +5,17 @@ from pytest_unordered import unordered
 from dsp_tools.commands.xmlupload.check_consistency_with_ontology import (
     _check_all_classes_and_properties_in_onto,
     _check_correctness_all_text_value_encodings,
-    _check_correctness_one_prop,
+    _check_correctness_of_one_prop,
     _find_all_class_types_in_onto,
     _find_all_properties_in_onto,
     _find_one_class_type_in_onto,
     _find_one_property_in_onto,
     _get_all_class_types_and_ids_from_data,
     _get_all_classes_and_properties_from_data,
-    _get_all_ids_prop_encoding_from_root,
+    _get_all_ids_and_props_and_encodings_from_root,
     _get_all_property_names_and_resource_ids_one_resource,
-    _get_id_prop_encoding_from_one_resource,
-    _get_prop_encoding_from_one_property,
+    _get_id_and_props_and_encodings_from_one_resource,
+    _get_prop_and_encoding_from_one_property,
     _get_separate_prefix_and_iri_from_onto_prop_or_cls,
 )
 from dsp_tools.commands.xmlupload.models.ontology_lookup_models import (
@@ -318,7 +318,7 @@ def test_get_all_classes_and_properties_from_data() -> None:
         assert unordered(v) == expected_properties[k]
 
 
-def test_get_id_prop_encoding_from_one_resource_no_text() -> None:
+def test_get_id_and_props_and_encodings_from_one_resource_no_text() -> None:
     test_props = etree.fromstring(
         """
         <resource label="First Testthing"
@@ -334,11 +334,11 @@ def test_get_id_prop_encoding_from_one_resource_no_text() -> None:
         </resource>
         """
     )
-    res = _get_id_prop_encoding_from_one_resource(test_props)
+    res = _get_id_and_props_and_encodings_from_one_resource(test_props)
     assert not res
 
 
-def test_get_id_prop_encoding_from_one_resource_richtext() -> None:
+def test_get_id_and_props_and_encodings_from_one_resource_richtext() -> None:
     test_props = etree.fromstring(
         """
         <resource label="First Testthing"
@@ -357,13 +357,13 @@ def test_get_id_prop_encoding_from_one_resource_richtext() -> None:
         </resource>
         """
     )
-    res = _get_id_prop_encoding_from_one_resource(test_props)[0]
+    res = _get_id_and_props_and_encodings_from_one_resource(test_props)[0]
     assert res.resource_id == "test_thing_1"
     assert res.property_name == ":hasRichtext"
     assert res.encoding == "utf8"
 
 
-def test_get_id_prop_encoding_from_one_resource_two_text_props() -> None:
+def test_get_id_and_props_and_encodings_from_one_resource_two_text_props() -> None:
     test_props = etree.fromstring(
         """
         <resource label="First Testthing"
@@ -385,7 +385,7 @@ def test_get_id_prop_encoding_from_one_resource_two_text_props() -> None:
         </resource>
         """
     )
-    res: list[TextValueData] = _get_id_prop_encoding_from_one_resource(test_props)
+    res: list[TextValueData] = _get_id_and_props_and_encodings_from_one_resource(test_props)
     assert res[0].resource_id == "test_thing_1"
     assert res[0].property_name == ":hasRichtext"
     assert res[0].encoding == "xml"
@@ -408,7 +408,7 @@ class TestGetEncodingOneProperty:
             </text-prop>
             """
         )
-        res_info = _get_prop_encoding_from_one_property("id", test_prop)
+        res_info = _get_prop_and_encoding_from_one_property("id", test_prop)
         assert res_info.resource_id == "id"
         assert res_info.property_name == ":hasRichtext"
         assert res_info.encoding == "xml"
@@ -422,7 +422,7 @@ class TestGetEncodingOneProperty:
             </text-prop>
             """
         )
-        res_info = _get_prop_encoding_from_one_property("id", test_prop)
+        res_info = _get_prop_and_encoding_from_one_property("id", test_prop)
         assert res_info.resource_id == "id"
         assert res_info.property_name == ":hasRichtext"
         assert res_info.encoding == "utf8"
@@ -435,13 +435,13 @@ class TestGetEncodingOneProperty:
             </text-prop>
             """
         )
-        res_info = _get_prop_encoding_from_one_property("id", test_prop)
+        res_info = _get_prop_and_encoding_from_one_property("id", test_prop)
         assert res_info.resource_id == "id"
         assert res_info.property_name == ":hasRichtext"
         assert res_info.encoding == "utf8"
 
 
-def test_get_all_ids_prop_encoding_from_root_no_text() -> None:
+def test_get_all_ids_and_props_and_encodings_from_root_no_text() -> None:
     test_ele = etree.fromstring(
         """<knora>
                 <resource label="resA" restype=":TestThing1" id="resA" permissions="res-default">
@@ -461,11 +461,11 @@ def test_get_all_ids_prop_encoding_from_root_no_text() -> None:
                 </resource>
         </knora>"""
     )
-    res = _get_all_ids_prop_encoding_from_root(test_ele)
+    res = _get_all_ids_and_props_and_encodings_from_root(test_ele)
     assert res == []
 
 
-def test_get_all_ids_prop_encoding_from_root_with_text() -> None:
+def test_get_all_ids_and_props_and_encodings_from_root_with_text() -> None:
     test_ele = etree.fromstring(
         """<knora>
                 <resource label="First Testthing"
@@ -499,7 +499,7 @@ def test_get_all_ids_prop_encoding_from_root_with_text() -> None:
                 </resource>
         </knora>"""
     )
-    res = _get_all_ids_prop_encoding_from_root(test_ele)
+    res = _get_all_ids_and_props_and_encodings_from_root(test_ele)
     assert res[0].resource_id == "test_thing_1"
     assert res[0].property_name == ":hasRichtext"
     assert res[0].encoding == "xml"
@@ -515,22 +515,22 @@ class TestCheckCorrectnessOneProp:
     def test_utf_simple_correct(self) -> None:
         test_val = TextValueData("id", ":prop", "utf8")
         test_lookup = PropertyTextValueEncodingTypes(set(), {":prop"})
-        assert _check_correctness_one_prop(test_val, test_lookup) is True
+        assert _check_correctness_of_one_prop(test_val, test_lookup) is True
 
     def test_utf_simple_wrong(self) -> None:
         test_val = TextValueData("id", ":prop", "utf8")
         test_lookup = PropertyTextValueEncodingTypes({":prop"}, set())
-        assert _check_correctness_one_prop(test_val, test_lookup) is False
+        assert _check_correctness_of_one_prop(test_val, test_lookup) is False
 
     def test_xml_correct(self) -> None:
         test_val = TextValueData("id", ":prop", "xml")
         test_lookup = PropertyTextValueEncodingTypes({":prop"}, set())
-        assert _check_correctness_one_prop(test_val, test_lookup) is True
+        assert _check_correctness_of_one_prop(test_val, test_lookup) is True
 
     def test_xml_wrong(self) -> None:
         test_val = TextValueData("id", ":prop", "xml")
         test_lookup = PropertyTextValueEncodingTypes(set(), set())
-        assert _check_correctness_one_prop(test_val, test_lookup) is False
+        assert _check_correctness_of_one_prop(test_val, test_lookup) is False
 
 
 def test_analyse_all_text_value_encodings_are_correct_all_good() -> None:

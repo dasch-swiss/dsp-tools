@@ -2,11 +2,11 @@ import pytest
 from pytest_unordered import unordered
 
 from dsp_tools.commands.xmlupload.models.ontology_lookup_models import (
-    _check_correct_val_type,
+    _check_if_text_value_property,
     _extract_classes_and_properties_from_onto,
     _get_all_classes_from_onto,
     _get_all_properties_from_onto,
-    _get_all_text_value_properties_and_types_from_onto,
+    _get_all_text_value_types_properties_and_from_onto,
     _make_text_value_property_type_lookup,
     _remove_default_prefix,
     _remove_prefixes,
@@ -170,7 +170,7 @@ def test_remove_prefixes_knora_properties() -> None:
     assert unordered(res) == ["attachedToUser", "deletedBy"]
 
 
-def test_get_all_text_value_properties_and_types_from_json() -> None:
+def test_get_all_text_value_types_properties_and_from_onto() -> None:
     test_json = [
         {
             "knora-api:isResourceClass": True,
@@ -216,7 +216,7 @@ def test_get_all_text_value_properties_and_types_from_json() -> None:
             "@id": "onto:hasEditor",
         },
     ]
-    res = _get_all_text_value_properties_and_types_from_onto(test_json)
+    res = _get_all_text_value_types_properties_and_from_onto(test_json)
     assert res == [
         ("onto:hasSimpleText", "salsah-gui:SimpleText"),
         ("onto:hasTextarea", "salsah-gui:Textarea"),
@@ -224,7 +224,7 @@ def test_get_all_text_value_properties_and_types_from_json() -> None:
     ]
 
 
-def test_check_correct_val_type_cls() -> None:
+def test_check_if_text_value_property_cls() -> None:
     test_dict = {
         "knora-api:isResourceClass": True,
         "rdfs:label": "Annotation",
@@ -234,11 +234,11 @@ def test_check_correct_val_type_cls() -> None:
         "@type": "owl:Class",
         "@id": "knora-api:Annotation",
     }
-    res = _check_correct_val_type(test_dict)
+    res = _check_if_text_value_property(test_dict)
     assert not res
 
 
-def test_check_correct_val_type_link_prop() -> None:
+def test_check_if_text_value_property_link_prop() -> None:
     test_dict = {
         "rdfs:label": "Editor",
         "rdfs:subPropertyOf": {},
@@ -249,11 +249,11 @@ def test_check_correct_val_type_link_prop() -> None:
         "salsah-gui:guiElement": {"@id": "salsah-gui:Searchbox"},
         "@id": "onto:hasEditor",
     }
-    res = _check_correct_val_type(test_dict)
+    res = _check_if_text_value_property(test_dict)
     assert not res
 
 
-def test_check_correct_val_type_text_prop() -> None:
+def test_check_if_text_value_property_text_prop() -> None:
     test_dict = {
         "rdfs:label": "Textarea",
         "rdfs:subPropertyOf": {},
@@ -262,7 +262,7 @@ def test_check_correct_val_type_text_prop() -> None:
         "salsah-gui:guiElement": {"@id": "salsah-gui:Textarea"},
         "@id": "onto:hasTextarea",
     }
-    res = _check_correct_val_type(test_dict)
+    res = _check_if_text_value_property(test_dict)
     assert res
 
 

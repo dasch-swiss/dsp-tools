@@ -9,9 +9,9 @@ from regex import Pattern
 from dsp_tools.commands.xmlupload.models.ontology_lookup_models import (
     AllowedEncodings,
     ProjectOntosInformation,
-    PropertyTextValueEncodingTypes,
+    PropertyTextValueTypes,
     TextValueData,
-    get_text_value_properties_and_formatting_from_onto,
+    get_text_value_types_of_properties_from_onto,
     make_project_onto_information,
 )
 from dsp_tools.commands.xmlupload.models.ontology_problem_models import (
@@ -49,9 +49,9 @@ def do_xml_consistency_check_with_ontology(onto_client: OntologyClient, root: et
         raise InputError(problem_str)
 
 
-def _get_onto_lookups(onto_client: OntologyClient) -> tuple[ProjectOntosInformation, PropertyTextValueEncodingTypes]:
+def _get_onto_lookups(onto_client: OntologyClient) -> tuple[ProjectOntosInformation, PropertyTextValueTypes]:
     ontos = onto_client.get_all_project_ontologies_from_server()
-    text_value_encoding_lookup = get_text_value_properties_and_formatting_from_onto(ontos, onto_client.default_ontology)
+    text_value_encoding_lookup = get_text_value_types_of_properties_from_onto(ontos, onto_client.default_ontology)
     ontos["knora-api"] = onto_client.get_knora_api_ontology_from_server()
     return make_project_onto_information(onto_client.default_ontology, ontos), text_value_encoding_lookup
 
@@ -168,9 +168,7 @@ def _get_separate_prefix_and_iri_from_onto_prop_or_cls(
         return None, None
 
 
-def _check_correctness_all_text_value_encodings(
-    root: etree._Element, text_prop_look_up: PropertyTextValueEncodingTypes
-) -> str:
+def _check_correctness_all_text_value_encodings(root: etree._Element, text_prop_look_up: PropertyTextValueTypes) -> str:
     """
     This function analyses if all the encodings for the <text> elements are correct
     with respect to the specification in the ontology.
@@ -236,7 +234,7 @@ def _get_prop_and_encoding_from_one_property(res_id: str, property: etree._Eleme
     return TextValueData(res_id, prop_name, encoding)
 
 
-def _check_correctness_of_one_prop(text_val: TextValueData, text_prop_look_up: PropertyTextValueEncodingTypes) -> bool:
+def _check_correctness_of_one_prop(text_val: TextValueData, text_prop_look_up: PropertyTextValueTypes) -> bool:
     def _check_correct(text_prop_name: str, allowed_properties: set[str]) -> bool:
         return text_prop_name in allowed_properties
 

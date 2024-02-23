@@ -90,7 +90,7 @@ class TextValueData:
 
 
 @dataclass
-class PropertyTextValueEncodingTypes:
+class PropertyTextValueTypes:
     """
     This class contains the information
     which properties have which type of encoding for a TextValue property in the ontology.
@@ -100,13 +100,13 @@ class PropertyTextValueEncodingTypes:
     unformatted_text_props: set[str] = field(default_factory=set)
 
 
-def get_text_value_properties_and_formatting_from_onto(
+def get_text_value_types_of_properties_from_onto(
     onto_json_dict: dict[str, list[dict[str, Any]]], default_onto: str
-) -> PropertyTextValueEncodingTypes:
+) -> PropertyTextValueTypes:
     """
     This function takes a dict with the project ontologies in the format:
         { ontology_name: ontology_json_from_api }
-    It retrieves the properties that are used with `knora-api:TextValue`
+    It retrieves the properties that are used with `knora-api:TextValue`.
     They are separated into two categories: xml encoded ones, and utf8 encoded ones.
 
     Args:
@@ -118,13 +118,13 @@ def get_text_value_properties_and_formatting_from_onto(
     """
     all_props = []
     for onto_json in onto_json_dict.values():
-        all_props.extend(_get_all_text_value_properties_and_types_from_onto(onto_json))
+        all_props.extend(_get_all_text_value_types_properties_and_from_onto(onto_json))
     return _make_text_value_property_type_lookup(all_props, default_onto)
 
 
 def _make_text_value_property_type_lookup(
     prop_list: list[tuple[str, str]], default_onto: str
-) -> PropertyTextValueEncodingTypes:
+) -> PropertyTextValueTypes:
     formatted_text = {
         _remove_default_prefix(p, default_onto) for p, _type in prop_list if _type == "salsah-gui:Richtext"
     }
@@ -132,7 +132,7 @@ def _make_text_value_property_type_lookup(
     unformatted_text = {
         _remove_default_prefix(p, default_onto) for p, _type in prop_list if _type != "salsah-gui:Richtext"
     }
-    return PropertyTextValueEncodingTypes(formatted_text, unformatted_text)
+    return PropertyTextValueTypes(formatted_text, unformatted_text)
 
 
 def _remove_default_prefix(prop_str: str, default_onto: str) -> str:
@@ -142,13 +142,13 @@ def _remove_default_prefix(prop_str: str, default_onto: str) -> str:
     return prop_str
 
 
-def _get_all_text_value_properties_and_types_from_onto(onto_json: list[dict[str, Any]]) -> list[tuple[str, str]]:
-    prop_id_list = [elem["@id"] for elem in onto_json if _check_correct_val_type(elem)]
-    type_list = [elem["salsah-gui:guiElement"]["@id"] for elem in onto_json if _check_correct_val_type(elem)]
+def _get_all_text_value_types_properties_and_from_onto(onto_json: list[dict[str, Any]]) -> list[tuple[str, str]]:
+    prop_id_list = [elem["@id"] for elem in onto_json if _check_if_text_value_property(elem)]
+    type_list = [elem["salsah-gui:guiElement"]["@id"] for elem in onto_json if _check_if_text_value_property(elem)]
     return list(zip(prop_id_list, type_list))
 
 
-def _check_correct_val_type(onto_ele: dict[str, Any]) -> bool:
+def _check_if_text_value_property(onto_ele: dict[str, Any]) -> bool:
     if not onto_ele.get("knora-api:isResourceProperty"):
         return False
     if not (object_type := onto_ele.get("knora-api:objectType")):

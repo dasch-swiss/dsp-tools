@@ -21,7 +21,7 @@ from dsp_tools.commands.xmlupload.check_consistency_with_ontology import (
 from dsp_tools.commands.xmlupload.models.ontology_lookup_models import (
     OntoInfo,
     ProjectOntosInformation,
-    PropertyTextValueEncodingTypes,
+    PropertyTextValueTypes,
     TextValueData,
 )
 
@@ -514,22 +514,22 @@ def test_get_all_ids_and_props_and_encodings_from_root_with_text() -> None:
 class TestCheckCorrectnessOneProp:
     def test_utf_simple_correct(self) -> None:
         test_val = TextValueData("id", ":prop", "utf8")
-        test_lookup = PropertyTextValueEncodingTypes(set(), {":prop"})
+        test_lookup = PropertyTextValueTypes(set(), {":prop"})
         assert _check_correctness_of_one_prop(test_val, test_lookup) is True
 
     def test_utf_simple_wrong(self) -> None:
         test_val = TextValueData("id", ":prop", "utf8")
-        test_lookup = PropertyTextValueEncodingTypes({":prop"}, set())
+        test_lookup = PropertyTextValueTypes({":prop"}, set())
         assert _check_correctness_of_one_prop(test_val, test_lookup) is False
 
     def test_xml_correct(self) -> None:
         test_val = TextValueData("id", ":prop", "xml")
-        test_lookup = PropertyTextValueEncodingTypes({":prop"}, set())
+        test_lookup = PropertyTextValueTypes({":prop"}, set())
         assert _check_correctness_of_one_prop(test_val, test_lookup) is True
 
     def test_xml_wrong(self) -> None:
         test_val = TextValueData("id", ":prop", "xml")
-        test_lookup = PropertyTextValueEncodingTypes(set(), set())
+        test_lookup = PropertyTextValueTypes(set(), set())
         assert _check_correctness_of_one_prop(test_val, test_lookup) is False
 
 
@@ -568,7 +568,7 @@ def test_analyse_all_text_value_encodings_are_correct_all_good() -> None:
                 </resource>
         </knora>"""
     )
-    test_lookup = PropertyTextValueEncodingTypes(
+    test_lookup = PropertyTextValueTypes(
         formatted_text_props={":hasRichtext"}, unformatted_text_props={":hasSimpleText", ":hasText"}
     )
     _check_correctness_all_text_value_encodings(test_ele, test_lookup)
@@ -609,7 +609,7 @@ def test_analyse_all_text_value_encodings_are_correct_problems() -> None:
                 </resource>
         </knora>"""
     )
-    test_lookup = PropertyTextValueEncodingTypes(
+    test_lookup = PropertyTextValueTypes(
         formatted_text_props={":hasRichtext"}, unformatted_text_props={":hasSimpleText", ":hasText"}
     )
     expected_msg = (

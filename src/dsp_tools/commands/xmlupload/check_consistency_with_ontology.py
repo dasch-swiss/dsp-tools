@@ -206,12 +206,11 @@ def _check_correctness_all_text_value_encodings(root: etree._Element, text_prop_
         return ""
     msg, df = InvalidTextValueEncodings(invalid_text_values).execute_problem_protocol()
     if df:
-        csv_file = f"text_value_encoding_errors_{datetime.now().strftime('%Y-%m-%d_%H%M%S')}.csv"
-        csv_path = Path(Path.cwd(), csv_file)
-        df.to_csv(path_or_buf=csv_path, index=False)
+        csv_file = Path(f"text_value_encoding_errors_{datetime.now().strftime('%Y-%m-%d_%H%M%S')}.csv")
+        df.to_csv(path_or_buf=csv_file, index=False)
         msg += (
             "\n\n---------------------------------------\n\n"
-            f"All the problems are listed in the file: '{csv_path.absolute()}'"
+            f"All the problems are listed in the file: '{csv_file.absolute()}'"
         )
     return msg
 

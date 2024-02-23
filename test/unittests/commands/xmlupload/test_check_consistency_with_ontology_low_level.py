@@ -385,7 +385,7 @@ def test_get_id_and_props_and_encodings_from_one_resource_two_text_props() -> No
         </resource>
         """
     )
-    res: list[TextValueData] = _get_id_and_props_and_encodings_from_one_resource(test_props)
+    res = _get_id_and_props_and_encodings_from_one_resource(test_props)
     assert res[0].resource_id == "test_thing_1"
     assert res[0].property_name == ":hasRichtext"
     assert res[0].encoding == "xml"
@@ -571,7 +571,8 @@ def test_analyse_all_text_value_encodings_are_correct_all_good() -> None:
     test_lookup = PropertyTextValueTypes(
         formatted_text_props={":hasRichtext"}, unformatted_text_props={":hasSimpleText", ":hasText"}
     )
-    _check_correctness_all_text_value_encodings(test_ele, test_lookup)
+    res_msg = _check_correctness_all_text_value_encodings(test_ele, test_lookup)
+    assert not res_msg
 
 
 def test_analyse_all_text_value_encodings_are_correct_problems() -> None:

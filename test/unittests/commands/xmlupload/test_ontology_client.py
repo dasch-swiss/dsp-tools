@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from test.unittests.commands.xmlupload.connection_mock import ConnectionMockBase
 from typing import Any
 
+import pytest
 from pytest_unordered import unordered
 
 from dsp_tools.commands.xmlupload.ontology_client import (
@@ -79,3 +80,7 @@ def test_get_knora_api_from_server() -> None:
     onto_client = OntologyClientLive(con, "", "")
     res_graph = onto_client.get_knora_api_ontology_from_server()
     assert unordered(res_graph) == [{"resource_class": ["Information"]}, {"property": ["Information"]}]
+
+
+if __name__ == "__main__":
+    pytest.main([__file__])

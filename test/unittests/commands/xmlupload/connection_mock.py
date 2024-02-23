@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import Any
 
+import pytest
+
 # ruff: noqa: ARG002 (unused-method-argument)
 
 
@@ -47,3 +49,7 @@ class ConnectionMockBase:
 
     def logout(self) -> None:
         raise AssertionError("logout not implemented in mock")
+
+
+if __name__ == "__main__":
+    pytest.main([__file__])

@@ -58,7 +58,7 @@ def parse_and_remove_comments_from_xml_file(
         tree = input_file
     tree = remove_comments_from_element_tree(tree)
 
-    return tree.getroot()
+    return tree
 
 
 def _remove_qnames_and_transform_special_tags(
@@ -126,7 +126,8 @@ def _parse_xml_file(input_file: Union[str, Path]) -> etree._ElementTree[etree._E
     """
     parser = etree.XMLParser(remove_comments=True, remove_pis=True)
     try:
-        return etree.parse(source=input_file, parser=parser)
+        parsed = etree.parse(source=input_file, parser=parser)
+        return parsed.getroot()
     except etree.XMLSyntaxError as err:
         logger.error(f"The XML file contains the following syntax error: {err.msg}", exc_info=True)
         raise InputError(f"The XML file contains the following syntax error: {err.msg}") from None

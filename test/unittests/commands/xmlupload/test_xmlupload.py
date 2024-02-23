@@ -12,6 +12,31 @@ from dsp_tools.utils.xml_utils import parse_and_clean_xml_file
 # ruff: noqa: PT027 (pytest-unittest-raises-assertion) (remove this line when pytest is used instead of unittest)
 
 
+@pytest.fixture()
+def data_systematic_from_file() -> etree._Element:
+    return parse_and_clean_xml_file("testdata/xml-data/test-data-systematic.xml")
+
+
+@pytest.fixture()
+def data_systematic_from_tree(data_systematic_from_file) -> etree._Element:
+    return parse_and_clean_xml_file(data_systematic_from_file)
+
+
+def clean_resulting_tree(tree: etree._Element) -> etree._Element:
+    cleaned = regex.sub("\n", "", etree.tostring(tree, encoding=str))
+    return regex.sub(" +", " ", cleaned)
+
+
+def test_parse_and_clean_xml_file_same_regardless_of_input(
+    data_systematic_from_file: etree._Element, data_systematic_from_tree: etree._Element
+) -> None:
+    cleaned_from_tree = clean_resulting_tree(data_systematic_from_tree)
+    cleaned_from_file = clean_resulting_tree(data_systematic_from_file)
+    assert (
+        cleaned_from_tree == cleaned_from_file
+    ), "The output must be equal, regardless if the input is a file path or a lxml tree."
+
+
 class TestXMLUpload(unittest.TestCase):
     def test_parse_xml_file(self) -> None:
         test_data_systematic_tree = etree.parse("testdata/xml-data/test-data-systematic.xml")

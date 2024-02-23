@@ -269,3 +269,7 @@ def test_rosetta(upload_rosetta: Mock) -> None:
     args = "rosetta".split()
     entry_point.run(args)
     upload_rosetta.assert_called_once_with()
+
+
+if __name__ == "__main__":
+    pytest.main([__file__])

@@ -1,3 +1,4 @@
+import pytest
 from lxml import etree
 from pytest_unordered import unordered
 
@@ -624,3 +625,7 @@ def test_analyse_all_text_value_encodings_are_correct_problems() -> None:
     )
     res_msg = _check_correctness_all_text_value_encodings(test_ele, test_lookup)
     assert res_msg == expected_msg
+
+
+if __name__ == "__main__":
+    pytest.main([__file__])

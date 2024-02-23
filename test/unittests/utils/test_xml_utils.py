@@ -1,4 +1,4 @@
-from typing import Any
+from __future__ import annotations
 
 import pytest
 import regex
@@ -8,7 +8,7 @@ from dsp_tools.utils.xml_utils import parse_and_clean_xml_file
 
 
 @pytest.fixture()
-def data_systematic_unclean() -> Any:
+def data_systematic_unclean() -> etree._ElementTree[etree._Element]:
     return etree.parse("testdata/xml-data/test-data-systematic.xml")
 
 
@@ -23,17 +23,18 @@ def clean_resulting_tree(tree: etree._Element) -> str:
 
 
 def test_parse_and_clean_xml_file_same_regardless_of_input(
-    data_systematic_unclean: Any, data_systematic_cleaned: etree._Element
+    data_systematic_unclean: etree._ElementTree[etree._Element],
 ) -> None:
     from_tree = parse_and_clean_xml_file(data_systematic_unclean)
-    cleaned_from_file = clean_resulting_tree(data_systematic_cleaned)
+    from_file = parse_and_clean_xml_file("testdata/xml-data/test-data-systematic.xml")
+    cleaned_from_file = clean_resulting_tree(from_file)
     cleaned_from_tree = clean_resulting_tree(from_tree)
     assert (
         cleaned_from_file == cleaned_from_tree
     ), "The output must be equal, regardless if the input is a path or parsed."
 
 
-def test_annotations_regions_links_before(data_systematic_unclean: Any) -> None:
+def test_annotations_regions_links_before(data_systematic_unclean: etree._ElementTree[etree._Element]) -> None:
     annotations_regions_links_before = [
         e for e in data_systematic_unclean.iter() if regex.search("annotation|region|link", str(e.tag))
     ]
@@ -50,7 +51,7 @@ def test_annotations_regions_links_after(data_systematic_cleaned: etree._Element
     )
 
 
-def test_comment_removal_before(data_systematic_unclean: Any) -> None:
+def test_comment_removal_before(data_systematic_unclean: etree._ElementTree[etree._Element]) -> None:
     comments = [e for e in data_systematic_unclean.iter() if isinstance(e, etree._Comment)]
     assert len(comments) == 7
 

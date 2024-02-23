@@ -1,5 +1,4 @@
 import unittest
-from copy import deepcopy
 
 import pytest
 import regex
@@ -13,10 +12,9 @@ from dsp_tools.utils.xml_utils import parse_and_clean_xml_file
 # ruff: noqa: PT027 (pytest-unittest-raises-assertion) (remove this line when pytest is used instead of unittest)
 
 
-def clean_resulting_tree(tree: etree._Element) -> etree._Element:
-    cleaned = deepcopy(tree)
-    cleaned = regex.sub("\n", "", etree.tostring(cleaned, encoding=str))
-    return regex.sub(" +", " ", cleaned)
+def clean_resulting_tree(tree: etree._Element) -> str:
+    cleaned_str = regex.sub("\n", "", etree.tostring(tree, encoding=str))
+    return regex.sub(" +", " ", cleaned_str)
 
 
 class TestParseAndCleanXML(unittest.TestCase):

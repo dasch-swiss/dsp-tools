@@ -2,11 +2,13 @@ import pytest
 from pytest_unordered import unordered
 
 from dsp_tools.commands.xmlupload.models.ontology_lookup_models import (
+    _check_correct_val_type,
     _extract_classes_and_properties_from_onto,
-    _get_all_classes_from_json,
-    _get_all_properties_from_json,
-    _get_all_text_value_properties_and_types_from_json,
+    _get_all_classes_from_onto,
+    _get_all_properties_from_onto,
+    _get_all_text_value_properties_and_types_from_onto,
     _make_text_value_property_type_lookup,
+    _remove_default_prefix,
     _remove_prefixes,
 )
 
@@ -24,7 +26,7 @@ class TestGetAllClassesFromJson:
                 "@id": "testonto:AudioSequence",
             },
         ]
-        res_cls = _get_all_classes_from_json(test_json)
+        res_cls = _get_all_classes_from_onto(test_json)
         assert res_cls == ["testonto:AudioSequence"]
 
     @staticmethod
@@ -42,7 +44,7 @@ class TestGetAllClassesFromJson:
                 "@id": "testonto:hasUri",
             },
         ]
-        res_cls = _get_all_classes_from_json(test_json)
+        res_cls = _get_all_classes_from_onto(test_json)
         assert not res_cls
 
     @staticmethod
@@ -68,7 +70,7 @@ class TestGetAllClassesFromJson:
                 "@id": "testonto:hasUri",
             },
         ]
-        res_cls = _get_all_classes_from_json(test_json)
+        res_cls = _get_all_classes_from_onto(test_json)
         assert res_cls == ["testonto:AudioSequence"]
 
 
@@ -97,7 +99,7 @@ def test_get_all_properties_from_json_haslinkto() -> None:
             "@id": "testonto:hasResourceValue",
         },
     ]
-    res_prop = _get_all_properties_from_json(test_json)
+    res_prop = _get_all_properties_from_onto(test_json)
     assert res_prop == ["testonto:hasResource", "testonto:hasResourceValue"]
 
 
@@ -123,7 +125,7 @@ def test_get_all_properties_from_json_resources_and_properties() -> None:
             "@id": "testonto:hasUri",
         },
     ]
-    res_prop = _get_all_properties_from_json(test_json)
+    res_prop = _get_all_properties_from_onto(test_json)
     assert res_prop == ["testonto:hasUri"]
 
 
@@ -214,12 +216,54 @@ def test_get_all_text_value_properties_and_types_from_json() -> None:
             "@id": "onto:hasEditor",
         },
     ]
-    res = _get_all_text_value_properties_and_types_from_json(test_json)
+    res = _get_all_text_value_properties_and_types_from_onto(test_json)
     assert res == [
         ("onto:hasSimpleText", "salsah-gui:SimpleText"),
         ("onto:hasTextarea", "salsah-gui:Textarea"),
         ("onto:hasRichtext", "salsah-gui:Richtext"),
     ]
+
+
+def test_check_correct_val_type_cls() -> None:
+    test_dict = {
+        "knora-api:isResourceClass": True,
+        "rdfs:label": "Annotation",
+        "knora-api:canBeInstantiated": True,
+        "rdfs:subClassOf": [],
+        "rdfs:comment": "A generic class for representing annotations",
+        "@type": "owl:Class",
+        "@id": "knora-api:Annotation",
+    }
+    res = _check_correct_val_type(test_dict)
+    assert not res
+
+
+def test_check_correct_val_type_link_prop() -> None:
+    test_dict = {
+        "rdfs:label": "Editor",
+        "rdfs:subPropertyOf": {},
+        "knora-api:isResourceProperty": True,
+        "knora-api:isLinkProperty": True,
+        "@type": "owl:ObjectProperty",
+        "knora-api:objectType": {"@id": "onto:Person"},
+        "salsah-gui:guiElement": {"@id": "salsah-gui:Searchbox"},
+        "@id": "onto:hasEditor",
+    }
+    res = _check_correct_val_type(test_dict)
+    assert not res
+
+
+def test_check_correct_val_type_text_prop() -> None:
+    test_dict = {
+        "rdfs:label": "Textarea",
+        "rdfs:subPropertyOf": {},
+        "knora-api:isResourceProperty": True,
+        "knora-api:objectType": {"@id": "knora-api:TextValue"},
+        "salsah-gui:guiElement": {"@id": "salsah-gui:Textarea"},
+        "@id": "onto:hasTextarea",
+    }
+    res = _check_correct_val_type(test_dict)
+    assert res
 
 
 def test_make_text_value_property_gui() -> None:
@@ -231,8 +275,18 @@ def test_make_text_value_property_gui() -> None:
         ("onto:ontoHasSimpleText", "salsah-gui:SimpleText"),
     ]
     res = _make_text_value_property_type_lookup(test_li, "onto")
-    assert res.formatted_text == {":hasRichtext", "other_onto:hasRichtext", "hasComment"}
-    assert res.unformatted_text == {":hasSimpleText", "onto_other:hasTextarea", ":ontoHasSimpleText"}
+    assert res.formatted_text_props == {":hasRichtext", "other_onto:hasRichtext", "hasComment"}
+    assert res.unformatted_text_props == {":hasSimpleText", "onto_other:hasTextarea", ":ontoHasSimpleText"}
+
+
+def test_remove_default_prefix_not_default() -> None:
+    res = _remove_default_prefix("onto:property", "default")
+    assert res == "onto:property"
+
+
+def test_remove_default_prefix_default() -> None:
+    res = _remove_default_prefix("default:property", "default")
+    assert res == ":property"
 
 
 if __name__ == "__main__":

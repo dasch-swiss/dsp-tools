@@ -52,26 +52,26 @@ def _extract_classes_and_properties_from_onto(onto_json: list[dict[str, Any]]) -
     Returns:
         Ontology instance with the classes and properties
     """
-    classes = _get_all_cleaned_classes_from_json(onto_json)
-    properties = _get_all_cleaned_properties_from_json(onto_json)
+    classes = _get_all_cleaned_classes_from_onto(onto_json)
+    properties = _get_all_cleaned_properties_from_onto(onto_json)
     return OntoInfo(classes, properties)
 
 
-def _get_all_cleaned_classes_from_json(onto_json: list[dict[str, Any]]) -> list[str]:
-    classes = _get_all_classes_from_json(onto_json)
+def _get_all_cleaned_classes_from_onto(onto_json: list[dict[str, Any]]) -> list[str]:
+    classes = _get_all_classes_from_onto(onto_json)
     return _remove_prefixes(classes)
 
 
-def _get_all_classes_from_json(onto_json: list[dict[str, Any]]) -> list[str]:
+def _get_all_classes_from_onto(onto_json: list[dict[str, Any]]) -> list[str]:
     return [elem["@id"] for elem in onto_json if elem.get("knora-api:isResourceClass")]
 
 
-def _get_all_cleaned_properties_from_json(onto_json: list[dict[str, Any]]) -> list[str]:
-    props = _get_all_properties_from_json(onto_json)
+def _get_all_cleaned_properties_from_onto(onto_json: list[dict[str, Any]]) -> list[str]:
+    props = _get_all_properties_from_onto(onto_json)
     return _remove_prefixes(props)
 
 
-def _get_all_properties_from_json(onto_json: list[dict[str, Any]]) -> list[str]:
+def _get_all_properties_from_onto(onto_json: list[dict[str, Any]]) -> list[str]:
     return [elem["@id"] for elem in onto_json if not elem.get("knora-api:isResourceClass")]
 
 
@@ -96,17 +96,18 @@ class PropertyTextValueEncodingTypes:
     which properties have which type of encoding for a TextValue property in the ontology.
     """
 
-    formatted_text: set[str] = field(default_factory=set)
-    unformatted_text: set[str] = field(default_factory=set)
+    formatted_text_props: set[str] = field(default_factory=set)
+    unformatted_text_props: set[str] = field(default_factory=set)
 
 
-def get_text_value_properties_and_formatting_from_json(
+def get_text_value_properties_and_formatting_from_onto(
     onto_json_dict: dict[str, list[dict[str, Any]]], default_onto: str
 ) -> PropertyTextValueEncodingTypes:
     """
-    This function takes a dict with the names and ontology json of the project.
-    It filters out the property with TextValues as object
-    and separates them into properties with formatted and unformatted text
+    This function takes a dict with the project ontologies in the format:
+        { ontology_name: ontology_json_from_api }
+    It retrieves the properties that are used with `knora-api:TextValue`
+    They are separated into two categories: xml encoded ones, and utf8 encoded ones.
 
     Args:
         onto_json_dict: dict with the project ontologies
@@ -117,38 +118,43 @@ def get_text_value_properties_and_formatting_from_json(
     """
     all_props = []
     for onto_json in onto_json_dict.values():
-        all_props.extend(_get_all_text_value_properties_and_types_from_json(onto_json))
+        all_props.extend(_get_all_text_value_properties_and_types_from_onto(onto_json))
     return _make_text_value_property_type_lookup(all_props, default_onto)
 
 
 def _make_text_value_property_type_lookup(
     prop_list: list[tuple[str, str]], default_onto: str
 ) -> PropertyTextValueEncodingTypes:
-    re_pat = r"^" + default_onto + r":" + r".+$"
-
-    def remove_default_prefix(prop_str: str) -> str:
-        if regex.search(re_pat, prop_str) is not None:
-            return prop_str.replace(default_onto, "", 1)
-        return prop_str
-
-    formatted_text = {remove_default_prefix(p) for p, _type in prop_list if _type == "salsah-gui:Richtext"}
+    formatted_text = {
+        _remove_default_prefix(p, default_onto) for p, _type in prop_list if _type == "salsah-gui:Richtext"
+    }
     formatted_text.add("hasComment")  # this is a knora-api property that can be used directly
-    unformatted_text = {remove_default_prefix(p) for p, _type in prop_list if _type != "salsah-gui:Richtext"}
+    unformatted_text = {
+        _remove_default_prefix(p, default_onto) for p, _type in prop_list if _type != "salsah-gui:Richtext"
+    }
     return PropertyTextValueEncodingTypes(formatted_text, unformatted_text)
 
 
-def _get_all_text_value_properties_and_types_from_json(onto_json: list[dict[str, Any]]) -> list[tuple[str, str]]:
-    def check_correct_val_type(onto_ele: dict[str, Any]) -> bool:
-        if not onto_ele.get("knora-api:isResourceProperty"):
-            return False
-        if not (object_type := onto_ele.get("knora-api:objectType")):
-            return False
-        match object_type["@id"]:
-            case "knora-api:TextValue":
-                return True
-            case _:
-                return False
+def _remove_default_prefix(prop_str: str, default_onto: str) -> str:
+    re_pat = r"^" + default_onto + r":.+$"
+    if regex.search(re_pat, prop_str):
+        return prop_str.replace(default_onto, "", 1)
+    return prop_str
 
-    prop_id_list = [elem["@id"] for elem in onto_json if check_correct_val_type(elem)]
-    type_list = [elem["salsah-gui:guiElement"]["@id"] for elem in onto_json if check_correct_val_type(elem)]
-    return [(p_id, _type) for p_id, _type in zip(prop_id_list, type_list)]
+
+def _get_all_text_value_properties_and_types_from_onto(onto_json: list[dict[str, Any]]) -> list[tuple[str, str]]:
+    prop_id_list = [elem["@id"] for elem in onto_json if _check_correct_val_type(elem)]
+    type_list = [elem["salsah-gui:guiElement"]["@id"] for elem in onto_json if _check_correct_val_type(elem)]
+    return list(zip(prop_id_list, type_list))
+
+
+def _check_correct_val_type(onto_ele: dict[str, Any]) -> bool:
+    if not onto_ele.get("knora-api:isResourceProperty"):
+        return False
+    if not (object_type := onto_ele.get("knora-api:objectType")):
+        return False
+    match object_type["@id"]:
+        case "knora-api:TextValue":
+            return True
+        case _:
+            return False

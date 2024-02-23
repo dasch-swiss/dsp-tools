@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from test.unittests.commands.xmlupload.connection_mock import ConnectionMockBase
 from typing import Any
 
+import pytest
+
 from dsp_tools.commands.xmlupload.list_client import (
     List,
     ListClientLive,
@@ -240,3 +242,7 @@ def test_get_list_iris_from_server() -> None:
     result = _get_list_iris_from_server(con, "")
     expected = ["http://www.example.org/lists#a", "http://www.example.org/lists#b"]
     assert result == expected
+
+
+if __name__ == "__main__":
+    pytest.main([__file__])

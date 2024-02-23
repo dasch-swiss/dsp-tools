@@ -1,3 +1,5 @@
+import pytest
+
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig, _transform_server_url_to_foldername
 
 
@@ -54,3 +56,7 @@ def test_save_location() -> None:
     except OSError:
         # there was already stuff in the folder before this test: do nothing
         pass
+
+
+if __name__ == "__main__":
+    pytest.main([__file__])

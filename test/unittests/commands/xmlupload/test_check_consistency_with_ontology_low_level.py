@@ -612,8 +612,9 @@ def test_analyse_all_text_value_encodings_are_correct_problems() -> None:
         formatted_text_props={":hasRichtext"}, unformatted_text_props={":hasSimpleText", ":hasText"}
     )
     expected_msg = (
-        "\nSome text encodings used in the data is not conform with the gui-element specified in the ontology.\n"
-        "Please consult the ontology regarding the assigned gui-elements."
+        "\nSome text encodings used in the XML data file is not conform with the gui_element "
+        "specified in the JSON ontology.\n"
+        "Please consult the ontology regarding the assigned gui_elements."
         "\n\n---------------------------------------\n\n"
         "Resource ID: 'resC'\n"
         "    - Property Name: ':hasRichtext' -> Encoding Used: 'utf8'"

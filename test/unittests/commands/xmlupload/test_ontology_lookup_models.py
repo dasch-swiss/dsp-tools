@@ -279,14 +279,22 @@ def test_make_text_value_property_gui() -> None:
     assert res.unformatted_text_props == {":hasSimpleText", "onto_other:hasTextarea", ":ontoHasSimpleText"}
 
 
-def test_remove_default_prefix_not_default() -> None:
-    res = _remove_default_prefix("onto:property", "default")
-    assert res == "onto:property"
+class TestRemoveDefaultPrefix:
+    def test_not_default(self) -> None:
+        res = _remove_default_prefix("onto:property", "default")
+        assert res == "onto:property"
 
+    def test_default(self) -> None:
+        res = _remove_default_prefix("default:property", "default")
+        assert res == ":property"
 
-def test_remove_default_prefix_default() -> None:
-    res = _remove_default_prefix("default:property", "default")
-    assert res == ":property"
+    def test_not_default_two(self) -> None:
+        res = _remove_default_prefix("onto:property_onto", "default")
+        assert res == "onto:property_onto"
+
+    def test_default_two(self) -> None:
+        res = _remove_default_prefix("default:property_default", "default")
+        assert res == ":property_default"
 
 
 if __name__ == "__main__":

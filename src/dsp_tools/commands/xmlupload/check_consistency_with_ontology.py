@@ -43,8 +43,8 @@ def do_xml_consistency_check_with_ontology(onto_client: OntologyClient, root: et
     cls_prop_lookup, text_value_encoding_lookup = _get_onto_lookups(onto_client)
     classes_in_data, properties_in_data = _get_all_classes_and_properties_from_data(root)
     problem_str = ""
-    problem_str += _find_all_classes_and_properties_exist_in_onto(classes_in_data, properties_in_data, cls_prop_lookup)
-    problem_str += _analyse_all_text_value_encodings_are_correct(root, text_value_encoding_lookup)
+    problem_str += _check_all_classes_and_properties_in_onto(classes_in_data, properties_in_data, cls_prop_lookup)
+    problem_str += _check_correctness_all_text_value_encodings(root, text_value_encoding_lookup)
     if problem_str:
         raise InputError(problem_str)
 
@@ -56,7 +56,7 @@ def _get_onto_lookups(onto_client: OntologyClient) -> tuple[ProjectOntosInformat
     return make_project_onto_information(onto_client.default_ontology, ontos), text_value_encoding_lookup
 
 
-def _find_all_classes_and_properties_exist_in_onto(
+def _check_all_classes_and_properties_in_onto(
     classes_in_data: dict[str, list[str]],
     properties_in_data: dict[str, list[str]],
     onto_check_info: ProjectOntosInformation,
@@ -168,28 +168,28 @@ def _get_separate_prefix_and_iri_from_onto_prop_or_cls(
         return None, None
 
 
-def _analyse_all_text_value_encodings_are_correct(
+def _check_correctness_all_text_value_encodings(
     root: etree._Element, text_prop_look_up: PropertyTextValueEncodingTypes
 ) -> str:
     """
     This function analyses if all the encodings for the <text> elements are correct
     with respect to the specification in the ontology.
 
-    For example, in the ontology, it says that `:hasSimpleText` is without mark-up.
-    The encoding has to be `utf8`
+    For example, if the ontology specifies that `:hasSimpleText` is without mark-up,
+    the encoding has to be `utf8`.
 
 
     This is correct:
     ```
     <text-prop name=":hasSimpleText">
-        <text permissions="prop-default" encoding="utf8">Dies ist ein einfacher Text ohne Markup</text>
+        <text encoding="utf8">Dies ist ein einfacher Text ohne Markup</text>
     </text-prop>
     ```
 
     This is wrong:
     ```
     <text-prop name=":hasSimpleText">
-        <text permissions="prop-default" encoding="xml">Dies ist ein einfacher Text ohne Markup</text>
+        <text encoding="xml">Dies ist ein einfacher Text ohne Markup</text>
     </text-prop>
     ```
 
@@ -202,11 +202,11 @@ def _analyse_all_text_value_encodings_are_correct(
     Returns:
         A string communicating the problem, if there are none the string is empty.
     """
-    text_value_in_data = _get_all_ids_prop_encoding_from_root(root)
-    all_checked = [x for x in text_value_in_data if not _check_correctness_one_prop(x, text_prop_look_up)]
-    if len(all_checked) == 0:
+    text_values_in_data = _get_all_ids_prop_encoding_from_root(root)
+    invalid_text_values = [x for x in text_values_in_data if not _check_correctness_one_prop(x, text_prop_look_up)]
+    if len(invalid_text_values) == 0:
         return ""
-    msg, df = InvalidTextValueEncodings(all_checked).execute_problem_protocol()
+    msg, df = InvalidTextValueEncodings(invalid_text_values).execute_problem_protocol()
     if df:
         csv_file = f"text_value_encoding_errors_{datetime.now().strftime('%Y-%m-%d_%H%M%S')}.csv"
         csv_path = Path(Path.cwd(), csv_file)
@@ -232,11 +232,14 @@ def _get_id_prop_encoding_from_one_resource(resource: etree._Element) -> list[Te
 
 def _get_prop_encoding_from_one_property(res_id: str, property: etree._Element) -> TextValueData:
     prop_name = property.attrib["name"]
-    encoding = cast(AllowedEncodings, next(x.attrib["encoding"] for x in property.iterchildren()))
+    encoding = cast(AllowedEncodings, property[0].attrib["encoding"])
     return TextValueData(res_id, prop_name, encoding)
 
 
 def _check_correctness_one_prop(text_val: TextValueData, text_prop_look_up: PropertyTextValueEncodingTypes) -> bool:
+    def _check_correct(text_prop_name: str, allowed_properties: set[str]) -> bool:
+        return text_prop_name in allowed_properties
+
     match text_val.encoding:
         case "xml":
             return _check_correct(text_val.property_name, text_prop_look_up.formatted_text)
@@ -244,9 +247,3 @@ def _check_correctness_one_prop(text_val: TextValueData, text_prop_look_up: Prop
             return _check_correct(text_val.property_name, text_prop_look_up.unformatted_text)
         case _:
             return False
-
-
-def _check_correct(text_prop_name: str, allowed_properties: set[str]) -> bool:
-    if text_prop_name in allowed_properties:
-        return True
-    return False

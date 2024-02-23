@@ -2,11 +2,10 @@ from lxml import etree
 from pytest_unordered import unordered
 
 from dsp_tools.commands.xmlupload.check_consistency_with_ontology import (
-    _analyse_all_text_value_encodings_are_correct,
-    _check_correct,
+    _check_all_classes_and_properties_in_onto,
+    _check_correctness_all_text_value_encodings,
     _check_correctness_one_prop,
     _find_all_class_types_in_onto,
-    _find_all_classes_and_properties_exist_in_onto,
     _find_all_properties_in_onto,
     _find_one_class_type_in_onto,
     _find_one_property_in_onto,
@@ -195,7 +194,7 @@ class TestFindProperties:
         assert not unordered(_find_all_properties_in_onto(test_properties, onto_lookup))
 
 
-def test_find_all_classes_and_properties_exist_in_onto() -> None:
+def test_check_all_classes_and_properties_in_onto() -> None:
     onto_lookup = ProjectOntosInformation(
         default_ontology_prefix="test",
         onto_lookup={
@@ -205,11 +204,11 @@ def test_find_all_classes_and_properties_exist_in_onto() -> None:
     )
     classes = {"knoraClassA": ["idA"]}
     properties = {"knora-api:knoraPropA": ["idA"]}
-    res_msg = _find_all_classes_and_properties_exist_in_onto(classes, properties, onto_lookup)
+    res_msg = _check_all_classes_and_properties_in_onto(classes, properties, onto_lookup)
     assert not res_msg
 
 
-def test_find_all_classes_and_properties_exist_in_onto_problem() -> None:
+def test_check_all_classes_and_properties_in_onto_problem() -> None:
     onto_lookup = ProjectOntosInformation(
         default_ontology_prefix="test",
         onto_lookup={
@@ -232,7 +231,7 @@ def test_find_all_classes_and_properties_exist_in_onto_problem() -> None:
         "    - idA"
         "\n\n---------------------------------------\n\n"
     )
-    res_msg = _find_all_classes_and_properties_exist_in_onto(classes, properties, onto_lookup)
+    res_msg = _check_all_classes_and_properties_in_onto(classes, properties, onto_lookup)
     assert res_msg == expected_msg
 
 
@@ -511,16 +510,6 @@ def test_get_all_ids_prop_encoding_from_root_with_text() -> None:
     assert res[2].encoding == "utf8"
 
 
-def test_check_correct_true() -> None:
-    res = _check_correct(":prop", {":prop", ":other"})
-    assert res is True
-
-
-def test_check_correct_false() -> None:
-    res = _check_correct(":nope", {":prop", ":other"})
-    assert res is False
-
-
 class TestCheckCorrectnessOneProp:
     def test_utf_simple_correct(self) -> None:
         test_val = TextValueData("id", ":prop", "utf8")
@@ -581,7 +570,7 @@ def test_analyse_all_text_value_encodings_are_correct_all_good() -> None:
     test_lookup = PropertyTextValueEncodingTypes(
         formatted_text={":hasRichtext"}, unformatted_text={":hasSimpleText", ":hasText"}
     )
-    _analyse_all_text_value_encodings_are_correct(test_ele, test_lookup)
+    _check_correctness_all_text_value_encodings(test_ele, test_lookup)
 
 
 def test_analyse_all_text_value_encodings_are_correct_problems() -> None:
@@ -632,5 +621,5 @@ def test_analyse_all_text_value_encodings_are_correct_problems() -> None:
         "Resource ID: 'test_thing_1'\n"
         "    - Property Name: ':hasText' -> Encoding Used: 'xml'"
     )
-    res_msg = _analyse_all_text_value_encodings_are_correct(test_ele, test_lookup)
+    res_msg = _check_correctness_all_text_value_encodings(test_ele, test_lookup)
     assert res_msg == expected_msg

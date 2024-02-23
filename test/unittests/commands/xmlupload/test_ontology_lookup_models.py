@@ -267,14 +267,14 @@ def test_check_if_text_value_property_text_prop() -> None:
 
 
 def test_make_text_value_property_gui() -> None:
-    test_li = [
+    test_list = [
         ("onto:hasSimpleText", "salsah-gui:SimpleText"),
         ("onto_other:hasTextarea", "salsah-gui:Textarea"),
         ("onto:hasRichtext", "salsah-gui:Richtext"),
         ("other_onto:hasRichtext", "salsah-gui:Richtext"),
         ("onto:ontoHasSimpleText", "salsah-gui:SimpleText"),
     ]
-    res = _make_text_value_property_type_lookup(test_li, "onto")
+    res = _make_text_value_property_type_lookup(test_list, "onto")
     assert res.formatted_text_props == {":hasRichtext", "other_onto:hasRichtext", "hasComment"}
     assert res.unformatted_text_props == {":hasSimpleText", "onto_other:hasTextarea", ":ontoHasSimpleText"}
 

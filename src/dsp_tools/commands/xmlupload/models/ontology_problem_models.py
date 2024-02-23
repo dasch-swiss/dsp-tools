@@ -29,24 +29,24 @@ class InvalidOntologyElementsInData:
         Returns:
             the error message and a dataframe with the errors if they exceed 50 or None
         """
-        msg = (
+        base_msg = (
             f"\nSome property and/or class type(s) used in the XML are unknown.\n"
             f"The ontologies for your project on the server are:{list_separator}"
             f"{list_separator.join(self.ontos_on_server)}{grand_separator}"
         )
         cls_msg = self._compose_problem_string_for_cls()
         if cls_msg:
-            msg += cls_msg + grand_separator
+            base_msg += cls_msg + grand_separator
         prop_msg = self._compose_problem_string_for_props()
         if prop_msg:
-            msg += prop_msg
+            base_msg += prop_msg
         if (
             self._calculate_num_resources(self.classes) + self._calculate_num_resources(self.properties)
             > maximum_prints
         ):
             df = self._get_problems_as_df()
-            return msg, df
-        return msg, None
+            return base_msg, df
+        return base_msg, None
 
     def _get_problems_as_df(self) -> pd.DataFrame:
         problems = [
@@ -122,8 +122,11 @@ class InvalidTextValueEncodings:
     """
     This class contains information about resources and the respective properties that have invalid text encodings.
 
-    An invalid encoding would be a property that specifies an xml encoding in the ontology,
-    but the <text> elements specify the other encoding: <text encoding="utf8"> and vice versa.
+    An invalid encoding would be a property that specifies `knora-api:Richtext` in the ontology,
+        but the <text> elements use: <text encoding="utf8">.
+    OR
+    A property that specifies `knora-api:Textarea` or `knora-api:SimpleText`
+        but the <text> elements use: <text encoding="xml">.
     """
 
     problematic_resources: list[TextValueData]
@@ -135,15 +138,15 @@ class InvalidTextValueEncodings:
         Returns:
             the error message and a dataframe with the errors if they exceed the maximum allowed print statements
         """
-        msg = (
-            "\nSome text encodings used in the data is not conform with the gui-element specified in the ontology.\n"
-            "Please consult the ontology regarding the assigned gui-elements."
+        base_msg = (
+            "\nSome text encodings used in the XML data file is not conform with the gui_element "
+            "specified in the JSON ontology.\n"
+            "Please consult the ontology regarding the assigned gui_elements."
         )
         df = self._get_problems_as_df()
         if len(df) > maximum_prints:
-            return msg, df
-        additional_msg = _make_msg_from_df(df)
-        return msg + grand_separator + additional_msg, None
+            return base_msg, df
+        return base_msg + grand_separator + _make_msg_from_df(df), None
 
     def _get_problems_as_df(self) -> pd.DataFrame:
         df = pd.DataFrame(

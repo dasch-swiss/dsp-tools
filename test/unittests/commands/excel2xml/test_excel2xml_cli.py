@@ -1,6 +1,7 @@
 import unittest
 from pathlib import Path
 
+import pytest
 import regex
 
 from dsp_tools.commands.excel2xml import excel2xml_cli
@@ -85,3 +86,7 @@ class TestExcel2xmlCli(unittest.TestCase):
         for file, _regex in error_cases:
             with self.assertRaisesRegex(BaseError, _regex, msg=f"Failed with file '{file}'"):
                 excel2xml_cli.excel2xml(file, "1234", "excel2xml-invalid")
+
+
+if __name__ == "__main__":
+    pytest.main([__file__])

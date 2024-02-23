@@ -1,3 +1,4 @@
+import pytest
 from lxml import etree
 
 from dsp_tools.commands.ingest_xmlupload.apply_ingest_id import replace_filepath_with_sipi_id
@@ -57,3 +58,7 @@ class TestReplaceBitstreamPaths:
         assert res_bitstream.text == "images/Fluffy.jpg"
         assert res_bitstream.attrib["permissions"] == "prop-default"
         assert res_bitstream.tag == "bitstream"
+
+
+if __name__ == "__main__":
+    pytest.main([__file__])

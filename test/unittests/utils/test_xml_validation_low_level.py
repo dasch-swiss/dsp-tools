@@ -371,3 +371,7 @@ def test_check_if_only_one_encoding_is_used_in_xml_problem() -> None:
     assert res.resource_id == "resC"
     assert res.property_name == ":hasSimpleText"
     assert res.encoding == {"xml", "utf8"}
+
+
+if __name__ == "__main__":
+    pytest.main([__file__])

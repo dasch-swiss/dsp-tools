@@ -11,7 +11,7 @@ from dsp_tools.commands.xmlupload.models.ontology_lookup_models import (
     ProjectOntosInformation,
     PropertyTextValueEncodingTypes,
     TextValueData,
-    get_text_value_properties_and_formatting_from_json,
+    get_text_value_properties_and_formatting_from_onto,
     make_project_onto_information,
 )
 from dsp_tools.commands.xmlupload.models.ontology_problem_models import (
@@ -51,7 +51,7 @@ def do_xml_consistency_check_with_ontology(onto_client: OntologyClient, root: et
 
 def _get_onto_lookups(onto_client: OntologyClient) -> tuple[ProjectOntosInformation, PropertyTextValueEncodingTypes]:
     ontos = onto_client.get_all_project_ontologies_from_server()
-    text_value_encoding_lookup = get_text_value_properties_and_formatting_from_json(ontos, onto_client.default_ontology)
+    text_value_encoding_lookup = get_text_value_properties_and_formatting_from_onto(ontos, onto_client.default_ontology)
     ontos["knora-api"] = onto_client.get_knora_api_ontology_from_server()
     return make_project_onto_information(onto_client.default_ontology, ontos), text_value_encoding_lookup
 
@@ -242,8 +242,8 @@ def _check_correctness_one_prop(text_val: TextValueData, text_prop_look_up: Prop
 
     match text_val.encoding:
         case "xml":
-            return _check_correct(text_val.property_name, text_prop_look_up.formatted_text)
+            return _check_correct(text_val.property_name, text_prop_look_up.formatted_text_props)
         case "utf8":
-            return _check_correct(text_val.property_name, text_prop_look_up.unformatted_text)
+            return _check_correct(text_val.property_name, text_prop_look_up.unformatted_text_props)
         case _:
             return False

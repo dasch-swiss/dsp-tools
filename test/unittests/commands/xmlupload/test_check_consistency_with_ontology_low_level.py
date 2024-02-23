@@ -568,7 +568,7 @@ def test_analyse_all_text_value_encodings_are_correct_all_good() -> None:
         </knora>"""
     )
     test_lookup = PropertyTextValueEncodingTypes(
-        formatted_text={":hasRichtext"}, unformatted_text={":hasSimpleText", ":hasText"}
+        formatted_text_props={":hasRichtext"}, unformatted_text_props={":hasSimpleText", ":hasText"}
     )
     _check_correctness_all_text_value_encodings(test_ele, test_lookup)
 
@@ -609,7 +609,7 @@ def test_analyse_all_text_value_encodings_are_correct_problems() -> None:
         </knora>"""
     )
     test_lookup = PropertyTextValueEncodingTypes(
-        formatted_text={":hasRichtext"}, unformatted_text={":hasSimpleText", ":hasText"}
+        formatted_text_props={":hasRichtext"}, unformatted_text_props={":hasSimpleText", ":hasText"}
     )
     expected_msg = (
         "\nSome text encodings used in the data is not conform with the gui-element specified in the ontology.\n"

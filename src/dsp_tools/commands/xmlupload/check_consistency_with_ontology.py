@@ -235,13 +235,10 @@ def _get_prop_and_encoding_from_one_property(res_id: str, property: etree._Eleme
 
 
 def _check_correctness_of_one_prop(text_val: TextValueData, text_prop_look_up: PropertyTextValueTypes) -> bool:
-    def _check_correct(text_prop_name: str, allowed_properties: set[str]) -> bool:
-        return text_prop_name in allowed_properties
-
     match text_val.encoding:
         case "xml":
-            return _check_correct(text_val.property_name, text_prop_look_up.formatted_text_props)
+            return text_val.property_name in text_prop_look_up.formatted_text_props
         case "utf8":
-            return _check_correct(text_val.property_name, text_prop_look_up.unformatted_text_props)
+            return text_val.property_name in text_prop_look_up.unformatted_text_props
         case _:
             return False

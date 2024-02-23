@@ -136,8 +136,7 @@ def _make_text_value_property_type_lookup(
 
 
 def _remove_default_prefix(prop_str: str, default_onto: str) -> str:
-    re_pat = r"^" + default_onto + r":.+$"
-    if regex.search(re_pat, prop_str):
+    if regex.search(rf"^{default_onto}:.+$", prop_str):
         return prop_str.replace(default_onto, "", 1)
     return prop_str
 

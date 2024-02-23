@@ -1,4 +1,3 @@
-import pytest
 from lxml import etree
 from pytest_unordered import unordered
 
@@ -25,7 +24,6 @@ from dsp_tools.commands.xmlupload.models.ontology_lookup_models import (
     PropertyTextValueEncodingTypes,
     TextValueData,
 )
-from dsp_tools.models.exceptions import InputError
 
 
 class TestFindClassType:
@@ -207,7 +205,8 @@ def test_find_all_classes_and_properties_exist_in_onto() -> None:
     )
     classes = {"knoraClassA": ["idA"]}
     properties = {"knora-api:knoraPropA": ["idA"]}
-    _find_all_classes_and_properties_exist_in_onto(classes, properties, onto_lookup)
+    res_msg = _find_all_classes_and_properties_exist_in_onto(classes, properties, onto_lookup)
+    assert not res_msg
 
 
 def test_find_all_classes_and_properties_exist_in_onto_problem() -> None:
@@ -220,8 +219,21 @@ def test_find_all_classes_and_properties_exist_in_onto_problem() -> None:
     )
     classes = {"knora": ["idA"]}
     properties = {"knora-api:knoraPropA": ["idA"]}
-    with pytest.raises(InputError):
-        _find_all_classes_and_properties_exist_in_onto(classes, properties, onto_lookup)
+    expected_msg = (
+        "\nSome property and/or class type(s) used in the XML are unknown.\n"
+        "The ontologies for your project on the server are:\n"
+        "    - test\n"
+        "    - knora-api"
+        "\n\n---------------------------------------\n\n"
+        "The following resource(s) have an invalid resource type:\n\n"
+        "    Resource Type: 'knora'\n"
+        "    Problem: 'Invalid Class Type'\n"
+        "    Resource ID(s):\n"
+        "    - idA"
+        "\n\n---------------------------------------\n\n"
+    )
+    res_msg = _find_all_classes_and_properties_exist_in_onto(classes, properties, onto_lookup)
+    assert res_msg == expected_msg
 
 
 def test_get_prefix_and_prop_cls_identifier() -> None:
@@ -610,16 +622,15 @@ def test_analyse_all_text_value_encodings_are_correct_problems() -> None:
     test_lookup = PropertyTextValueEncodingTypes(
         formatted_text={":hasRichtext"}, unformatted_text={":hasSimpleText", ":hasText"}
     )
-    expected = r"""
-Some text encodings used in the data is not conform with the gui-element specified in the ontology.
-Please consult the ontology regarding the assigned gui-elements.
-
----------------------------------------
-
-Resource ID: 'resC'
-    - Property Name: ':hasRichtext' -> Encoding Used: 'utf8'
-----------------------------
-Resource ID: 'test_thing_1'
-    - Property Name: ':hasText' -> Encoding Used: 'xml'"""
-    with pytest.raises(InputError, match=expected):
-        _analyse_all_text_value_encodings_are_correct(test_ele, test_lookup)
+    expected_msg = (
+        "\nSome text encodings used in the data is not conform with the gui-element specified in the ontology.\n"
+        "Please consult the ontology regarding the assigned gui-elements."
+        "\n\n---------------------------------------\n\n"
+        "Resource ID: 'resC'\n"
+        "    - Property Name: ':hasRichtext' -> Encoding Used: 'utf8'"
+        "\n----------------------------\n"
+        "Resource ID: 'test_thing_1'\n"
+        "    - Property Name: ':hasText' -> Encoding Used: 'xml'"
+    )
+    res_msg = _analyse_all_text_value_encodings_are_correct(test_ele, test_lookup)
+    assert res_msg == expected_msg

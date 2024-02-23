@@ -30,19 +30,23 @@ def do_xml_consistency_check_with_ontology(onto_client: OntologyClient, root: et
     """
     This function takes an OntologyClient and the root of an XML.
     It retrieves the ontologies from the server.
-    It iterates over the root.
-    If it finds any invalid properties or classes, they are printed out and a InputError is raised.
+    It analyses if any classes or properties are used that are not in the ontology.
+    It analyses if any properties have encodings that are not consistent with those specified in the ontology.
 
      Args:
          onto_client: client for the ontology retrieval
          root: root of the XML
 
      Raises:
-         InputError: if there are any invalid properties or classes
+         InputError: if there are any invalid properties or classes and/or text values with wrong encodings.
     """
     cls_prop_lookup, text_value_encoding_lookup = _get_onto_lookups(onto_client)
     classes_in_data, properties_in_data = _get_all_classes_and_properties_from_data(root)
-    _find_all_classes_and_properties_exist_in_onto(classes_in_data, properties_in_data, cls_prop_lookup)
+    problem_str = ""
+    problem_str += _find_all_classes_and_properties_exist_in_onto(classes_in_data, properties_in_data, cls_prop_lookup)
+    problem_str += _analyse_all_text_value_encodings_are_correct(root, text_value_encoding_lookup)
+    if problem_str:
+        raise InputError(problem_str)
 
 
 def _get_onto_lookups(onto_client: OntologyClient) -> tuple[ProjectOntosInformation, PropertyTextValueEncodingTypes]:
@@ -56,11 +60,11 @@ def _find_all_classes_and_properties_exist_in_onto(
     classes_in_data: dict[str, list[str]],
     properties_in_data: dict[str, list[str]],
     onto_check_info: ProjectOntosInformation,
-) -> None:
+) -> str:
     class_problems = _find_all_class_types_in_onto(classes_in_data, onto_check_info)
     property_problems = _find_all_properties_in_onto(properties_in_data, onto_check_info)
     if not class_problems and not property_problems:
-        return None
+        return ""
     problems = InvalidOntologyElementsInData(
         classes=class_problems, properties=property_problems, ontos_on_server=list(onto_check_info.onto_lookup.keys())
     )
@@ -70,9 +74,9 @@ def _find_all_classes_and_properties_exist_in_onto(
         df.to_csv(path_or_buf=Path(Path.cwd(), csv_file), index=False)
         msg += (
             "\n\n---------------------------------------\n\n"
-            f"\nAll the problems are listed in the file: '{Path.cwd()}/{csv_file}'"
+            f"\nAll the problems are listed in the file: '{Path.cwd()}/{csv_file}'\n"
         )
-    raise InputError(msg)
+    return msg
 
 
 def _get_all_classes_and_properties_from_data(
@@ -166,7 +170,7 @@ def _get_separate_prefix_and_iri_from_onto_prop_or_cls(
 
 def _analyse_all_text_value_encodings_are_correct(
     root: etree._Element, text_prop_look_up: PropertyTextValueEncodingTypes
-) -> None:
+) -> str:
     """
     This function analyses if all the encodings for the <text> elements are correct
     with respect to the specification in the ontology.
@@ -195,22 +199,23 @@ def _analyse_all_text_value_encodings_are_correct(
         root: root of the data xml document
         text_prop_look_up: a lookup containing the property names and their specified types
 
-    Raises:
-        InputError: if any <text> elements have a wrong encoding.
+    Returns:
+        A string communicating the problem, if there are none the string is empty.
     """
     text_value_in_data = _get_all_ids_prop_encoding_from_root(root)
     all_checked = [x for x in text_value_in_data if not _check_correctness_one_prop(x, text_prop_look_up)]
-    if len(all_checked) != 0:
-        msg, df = InvalidTextValueEncodings(all_checked).execute_problem_protocol()
-        if df:
-            csv_file = f"text_value_encoding_errors_{datetime.now().strftime('%Y-%m-%d_%H%M%S')}.csv"
-            csv_path = Path(Path.cwd(), csv_file)
-            df.to_csv(path_or_buf=csv_path, index=False)
-            msg += (
-                "\n\n---------------------------------------\n\n"
-                f"All the problems are listed in the file: '{csv_path.absolute()}'"
-            )
-        raise InputError(msg)
+    if len(all_checked) == 0:
+        return ""
+    msg, df = InvalidTextValueEncodings(all_checked).execute_problem_protocol()
+    if df:
+        csv_file = f"text_value_encoding_errors_{datetime.now().strftime('%Y-%m-%d_%H%M%S')}.csv"
+        csv_path = Path(Path.cwd(), csv_file)
+        df.to_csv(path_or_buf=csv_path, index=False)
+        msg += (
+            "\n\n---------------------------------------\n\n"
+            f"All the problems are listed in the file: '{csv_path.absolute()}'"
+        )
+    return msg
 
 
 def _get_all_ids_prop_encoding_from_root(root: etree._Element) -> list[TextValueData]:
@@ -237,7 +242,8 @@ def _check_correctness_one_prop(text_val: TextValueData, text_prop_look_up: Prop
             return _check_correct(text_val.property_name, text_prop_look_up.formatted_text)
         case "utf8":
             return _check_correct(text_val.property_name, text_prop_look_up.unformatted_text)
-    return False
+        case _:
+            return False
 
 
 def _check_correct(text_prop_name: str, allowed_properties: set[str]) -> bool:

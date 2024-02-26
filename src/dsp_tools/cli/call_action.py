@@ -6,9 +6,6 @@ from dsp_tools.commands.excel2json.project import excel2json
 from dsp_tools.commands.excel2json.properties import excel2properties
 from dsp_tools.commands.excel2json.resources import excel2resources
 from dsp_tools.commands.excel2xml.excel2xml_cli import excel2xml
-from dsp_tools.commands.fast_xmlupload.process_files import process_files
-from dsp_tools.commands.fast_xmlupload.upload_files import upload_files
-from dsp_tools.commands.fast_xmlupload.upload_xml import fast_xmlupload
 from dsp_tools.commands.id2iri import id2iri
 from dsp_tools.commands.ingest_xmlupload.upload_xml import ingest_xmlupload
 from dsp_tools.commands.project.create.project_create import create_project
@@ -64,12 +61,6 @@ def call_requested_action(args: argparse.Namespace) -> bool:
             result = _call_stop_stack()
         case "get":
             result = _call_get(args)
-        case "process-files":
-            result = _call_process_files(args)
-        case "upload-files":
-            result = _call_upload_files(args)
-        case "fast-xmlupload":
-            result = _call_fast_xmlupload(args)
         case "ingest-xmlupload":
             result = _call_ingest_xmlupload(args)
         case "template":
@@ -158,36 +149,6 @@ def _call_ingest_xmlupload(args: argparse.Namespace) -> bool:
         sipi_url=args.sipi_url,
     )
     return True
-
-
-def _call_fast_xmlupload(args: argparse.Namespace) -> bool:
-    return fast_xmlupload(
-        xml_file=args.xml_file,
-        user=args.user,
-        password=args.password,
-        dsp_url=args.server,
-        sipi_url=args.sipi_url,
-    )
-
-
-def _call_upload_files(args: argparse.Namespace) -> bool:
-    return upload_files(
-        dir_with_processed_files=args.processed_dir,
-        nthreads=args.nthreads,
-        user=args.user,
-        password=args.password,
-        dsp_url=args.server,
-        sipi_url=args.sipi_url,
-    )
-
-
-def _call_process_files(args: argparse.Namespace) -> bool:
-    return process_files(
-        input_dir=args.input_dir,
-        output_dir=args.output_dir,
-        xml_file=args.xml_file,
-        nthreads=args.nthreads,
-    )
 
 
 def _call_xmlupload(args: argparse.Namespace) -> bool:

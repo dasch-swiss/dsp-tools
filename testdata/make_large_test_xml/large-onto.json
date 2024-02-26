@@ -1,0 +1,79 @@
+{
+    "$schema": "../../src/dsp_tools/resources/schema/project.json",
+    "project": {
+        "shortcode": "0001",
+        "shortname": "large_1",
+        "longname": "large test project",
+        "descriptions": {
+            "en": "A minimal test project"
+        },
+        "keywords": [
+            "large"
+        ],
+        "ontologies": [
+            {
+                "name": "large",
+                "label": "Test ontology",
+                "properties": [
+                    {
+                        "name": "hasText",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "Text"
+                        },
+                        "gui_element": "SimpleText"
+                    },
+                    {
+                        "name": "hasImage",
+                        "super": [
+                            "hasLinkTo"
+                        ],
+                        "object": ":ImageFile",
+                        "labels": {
+                            "de": "Abbildung",
+                            "en": "Figure"
+                        },
+                        "gui_element": "Searchbox"
+                    }
+                ],
+                "resources": [
+                    {
+                        "name": "ImageFile",
+                        "super": [
+                            "StillImageRepresentation"
+                        ],
+                        "labels": {
+                            "de": "Bilddatei",
+                            "en": "Image file"
+                        }
+                    },
+                    {
+                        "name": "Image",
+                        "super": [
+                            "Resource"
+                        ],
+                        "labels": {
+                            "de": "Bild",
+                            "en": "Image"
+                        },
+                        "cardinalities": [
+                            {
+                                "propname": ":hasImage",
+                                "cardinality": "1",
+                                "gui_order": 0
+                            },
+                            {
+                                "propname": ":hasText",
+                                "cardinality": "0-n",
+                                "gui_order": 1
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

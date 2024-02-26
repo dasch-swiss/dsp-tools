@@ -3,6 +3,8 @@ from dataclasses import dataclass
 
 import pandas as pd
 
+from dsp_tools.commands.xmlupload.models.ontology_lookup_models import TextValueData
+
 separator = "\n    "
 list_separator = "\n    - "
 medium_separator = "\n----------------------------\n"
@@ -27,24 +29,24 @@ class InvalidOntologyElementsInData:
         Returns:
             the error message and a dataframe with the errors if they exceed 50 or None
         """
-        msg = (
+        base_msg = (
             f"\nSome property and/or class type(s) used in the XML are unknown.\n"
             f"The ontologies for your project on the server are:{list_separator}"
             f"{list_separator.join(self.ontos_on_server)}{grand_separator}"
         )
         cls_msg = self._compose_problem_string_for_cls()
         if cls_msg:
-            msg += cls_msg + grand_separator
+            base_msg += cls_msg + grand_separator
         prop_msg = self._compose_problem_string_for_props()
         if prop_msg:
-            msg += prop_msg
+            base_msg += prop_msg
         if (
             self._calculate_num_resources(self.classes) + self._calculate_num_resources(self.properties)
             > maximum_prints
         ):
             df = self._get_problems_as_df()
-            return msg, df
-        return msg, None
+            return base_msg, df
+        return base_msg, None
 
     def _get_problems_as_df(self) -> pd.DataFrame:
         problems = [
@@ -113,3 +115,57 @@ class InvalidOntologyElementsInData:
             return "The following resource(s) have invalid property type(s):\n\n" + medium_separator.join(problems)
         else:
             return None
+
+
+@dataclass
+class InvalidTextValueEncodings:
+    """
+    This class contains information about resources and the respective properties that have invalid text encodings.
+
+    An invalid encoding would be a property that specifies `knora-api:Richtext` in the ontology,
+        but the <text> elements use: <text encoding="utf8">.
+    OR
+    A property that specifies `knora-api:Textarea` or `knora-api:SimpleText`
+        but the <text> elements use: <text encoding="xml">.
+    """
+
+    problematic_resources: list[TextValueData]
+
+    def execute_problem_protocol(self) -> tuple[str, pd.DataFrame | None]:
+        """
+        This method composes an error message for the user.
+
+        Returns:
+            the error message and a dataframe with the errors if they exceed the maximum allowed print statements
+        """
+        base_msg = (
+            "\nSome text encodings used in the XML data file is not conform with the gui_element "
+            "specified in the JSON ontology.\n"
+            "Please consult the ontology regarding the assigned gui_elements."
+        )
+        df = self._get_problems_as_df()
+        if len(df) > maximum_prints:
+            return base_msg, df
+        return base_msg + grand_separator + _make_msg_from_df(df), None
+
+    def _get_problems_as_df(self) -> pd.DataFrame:
+        df = pd.DataFrame(
+            {
+                "Resource ID": list(x.resource_id for x in self.problematic_resources),
+                "Property Name": list(x.property_name for x in self.problematic_resources),
+                "Encoding Used": list(x.encoding for x in self.problematic_resources),
+            }
+        )
+        return df.sort_values(by=["Resource ID", "Property Name"], ignore_index=True)
+
+
+def _make_msg_from_df(df: pd.DataFrame) -> str:
+    groups = df.groupby(by="Resource ID")
+    return medium_separator.join([_make_msg_for_one_resource(str(_id), res_df) for _id, res_df in groups])
+
+
+def _make_msg_for_one_resource(res_id: str, res_df: pd.DataFrame) -> str:
+    props = res_df["Property Name"].tolist()
+    encding = res_df["Encoding Used"].tolist()
+    problems = [f"Property Name: '{p}' -> Encoding Used: '{e}'" for p, e in zip(props, encding)]
+    return f"Resource ID: '{res_id}'{list_separator}{list_separator.join(problems)}"

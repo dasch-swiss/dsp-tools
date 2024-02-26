@@ -271,7 +271,7 @@ class ConnectionLive:
                 return response
             elif "v2/authentication" in params.url and response.status_code == HTTP_UNAUTHORIZED:
                 raise BadCredentialsError("Bad credentials")
-            elif "OntologyConstraintException" in response.text:
+            elif any(x in response.text for x in ["OntologyConstraintException", "DuplicateValueException"]):
                 msg = f"Permanently unable to execute the network action. See logs for more details: {logfiles}"
                 raise PermanentConnectionError(msg)
             elif not self._in_testing_environment():

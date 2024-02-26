@@ -10,6 +10,7 @@ from typing import Any, Union
 
 from lxml import etree
 
+from dsp_tools.commands.id2iri import id2iri
 from dsp_tools.commands.xmlupload.check_consistency_with_ontology import do_xml_consistency_check_with_ontology
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.list_client import ListClient, ListClientLive
@@ -22,6 +23,7 @@ from dsp_tools.commands.xmlupload.project_client import ProjectClient, ProjectCl
 from dsp_tools.commands.xmlupload.read_validate_xml_file import validate_and_parse_xml_file
 from dsp_tools.commands.xmlupload.resource_create_client import ResourceCreateClient
 from dsp_tools.commands.xmlupload.resource_multimedia import handle_media_info
+from dsp_tools.commands.xmlupload.resume_upload import get_stash_from_file
 from dsp_tools.commands.xmlupload.stash.stash_circular_references import (
     identify_circular_references,
     stash_circular_references,
@@ -49,6 +51,7 @@ def xmlupload(
     imgdir: str,
     sipi: str,
     config: UploadConfig = UploadConfig(),
+    resume: bool = False,
 ) -> bool:
     """
     This function reads an XML file and imports the data described in it onto the DSP server.
@@ -61,6 +64,7 @@ def xmlupload(
         imgdir: the image directory
         sipi: the sipi instance to be used
         config: the upload configuration
+        resume: if true, resume a previous xmlupload with the id2iri mapping and/or stashed links from ~/.dsp-tools
 
     Raises:
         BaseError: in case of permanent network or software failure
@@ -101,6 +105,7 @@ def xmlupload(
         con=con,
         default_ontology=default_ontology,
         verbose=config.diagnostics.verbose,
+        resume=resume,
     )
 
     project_client: ProjectClient = ProjectClientLive(con, config.shortcode)
@@ -137,23 +142,31 @@ def _prepare_upload(
     con: Connection,
     default_ontology: str,
     verbose: bool,
+    resume: bool,
 ) -> tuple[list[XMLResource], dict[str, Permissions], Stash | None]:
-    logger.info("Checking resources for circular references...")
-    if verbose:
-        print(f"{datetime.now()}: Checking resources for circular references...")
-    stash_lookup, upload_order = identify_circular_references(root)
     logger.info("Get data from XML...")
     resources, permissions_lookup = _get_data_from_xml(
         con=con,
         root=root,
         default_ontology=default_ontology,
     )
+
+    logger.info("Checking resources for circular references...")
+    if verbose:
+        print(f"{datetime.now()}: Checking resources for circular references...")
+    stash_lookup, upload_order = identify_circular_references(root)
+
     sorting_lookup = {res.res_id: res for res in resources}
     resources = [sorting_lookup[res_id] for res_id in upload_order]
-    logger.info("Stashing circular references...")
-    if verbose:
-        print(f"{datetime.now()}: Stashing circular references...")
-    stash = stash_circular_references(resources, stash_lookup, permissions_lookup)
+
+    if resume:
+        logger.info("Stashing circular references...")
+        if verbose:
+            print(f"{datetime.now()}: Stashing circular references...")
+        stash = stash_circular_references(resources, stash_lookup, permissions_lookup)
+    else:
+        stash = get_stash_from_file()
+        id2iri("xml_file", "json_file", remove_resource_if_id_in_mapping=True)
     return resources, permissions_lookup, stash
 
 

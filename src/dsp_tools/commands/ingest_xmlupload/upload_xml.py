@@ -23,6 +23,7 @@ def ingest_xmlupload(
     password: str,
     dsp_url: str,
     sipi_url: str,
+    resume: bool = False,
 ) -> None:
     """
     This function reads an XML file
@@ -38,6 +39,7 @@ def ingest_xmlupload(
         password: the user's password for login into DSP
         dsp_url: URL to the DSP server
         sipi_url: URL to the Sipi server
+        resume: if true, resume a previous xmlupload with the id2iri mapping and/or stashed links from ~/.dsp-tools
 
     Raises:
         InputError: if any media was not uploaded or uploaded media was not referenced.
@@ -66,4 +68,5 @@ def ingest_xmlupload(
         imgdir=".",
         sipi=sipi_url,
         config=UploadConfig(media_previously_uploaded=True),
+        resume=resume,
     )

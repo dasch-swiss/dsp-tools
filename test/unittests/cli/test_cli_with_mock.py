@@ -105,55 +105,6 @@ def test_xmlupload(xmlupload: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.call_action.process_files")
-def test_process_files(process_files: Mock) -> None:
-    """Test the 'dsp-tools process-files' command"""
-    input_dir = "input"
-    output_dir = "output"
-    nthreads = 12
-    file = "filename.xml"
-    args = f"process-files --input-dir {input_dir} --output-dir {output_dir} --nthreads {nthreads} {file}".split()
-    entry_point.run(args)
-    process_files.assert_called_once_with(
-        input_dir=input_dir,
-        output_dir=output_dir,
-        xml_file=file,
-        nthreads=nthreads,
-    )
-
-
-@patch("dsp_tools.cli.call_action.upload_files")
-def test_upload_files(upload_files: Mock) -> None:
-    """Test the 'dsp-tools upload-files' command"""
-    processed_dir = "processed"
-    nthreads = 12
-    args = f"upload-files --processed-dir {processed_dir} --nthreads {nthreads}".split()
-    entry_point.run(args)
-    upload_files.assert_called_once_with(
-        dir_with_processed_files=processed_dir,
-        nthreads=nthreads,
-        user="root@example.com",
-        password="test",
-        dsp_url="http://0.0.0.0:3333",
-        sipi_url="http://0.0.0.0:1024",
-    )
-
-
-@patch("dsp_tools.cli.call_action.fast_xmlupload")
-def test_fast_xmlupload(fast_xmlupload: Mock) -> None:
-    """Test the 'dsp-tools fast-xmlupload' command"""
-    file = "filename.xml"
-    args = f"fast-xmlupload {file}".split()
-    entry_point.run(args)
-    fast_xmlupload.assert_called_once_with(
-        xml_file=file,
-        user="root@example.com",
-        password="test",
-        dsp_url="http://0.0.0.0:3333",
-        sipi_url="http://0.0.0.0:1024",
-    )
-
-
 @patch("dsp_tools.cli.call_action.excel2json")
 def test_excel2json(excel2json: Mock) -> None:
     """Test the 'dsp-tools excel2json' command"""

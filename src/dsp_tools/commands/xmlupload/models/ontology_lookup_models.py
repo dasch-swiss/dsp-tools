@@ -136,9 +136,7 @@ def _make_text_value_property_type_lookup(
 
 
 def _remove_default_prefix(prop_str: str, default_onto: str) -> str:
-    if regex.search(rf"^{default_onto}:.+$", prop_str):
-        return prop_str.replace(default_onto, "", 1)
-    return prop_str
+    return regex.sub(rf"^{default_onto}:", ":", prop_str)
 
 
 def _get_all_text_value_types_properties_and_from_onto(onto_json: list[dict[str, Any]]) -> list[tuple[str, str]]:

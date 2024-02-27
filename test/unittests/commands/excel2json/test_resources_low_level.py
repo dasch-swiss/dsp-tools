@@ -9,8 +9,8 @@ class TestCheckCompleteGuiOrder:
     def test_column_does_not_exist(self) -> None:
         df = pd.DataFrame({"prop": [1, 2, 3]})
         expected_msg = (
-            "In the sheet 'class_name' of the file 'resources.xlsx'\n"
-            "The column 'gui_order' does not exist.\n"
+            "In the sheet 'class_name' of the file 'resources.xlsx', "
+            "the column 'gui_order' does not exist.\n"
             "Values have been filled in automatically, "
             "so that the gui-order reflects the order of the properties in the file."
         )
@@ -22,8 +22,8 @@ class TestCheckCompleteGuiOrder:
     def test_na_in_row(self) -> None:
         df = pd.DataFrame({"prop": [1, 2, 3], "gui_order": [1, 2, pd.NA]})
         expected_msg = (
-            "In the sheet 'class_name' of the file 'resources.xlsx'\n"
-            "Some rows in the column 'gui_order' are empty.\n"
+            "In the sheet 'class_name' of the file 'resources.xlsx', "
+            "some rows in the column 'gui_order' are empty.\n"
             "Values have been filled in automatically, "
             "so that the gui-order reflects the order of the properties in the file."
         )
@@ -35,8 +35,8 @@ class TestCheckCompleteGuiOrder:
     def test_error(self) -> None:
         df = pd.DataFrame({"prop": [1, 2, 3], "gui_order": [1, 2, "a"]})
         expected_msg = (
-            "In the sheet 'class_name' of the file 'resources.xlsx'\n"
-            "Some rows in the column 'gui_order' contain invalid characters "
+            "In the sheet 'class_name' of the file 'resources.xlsx', "
+            "some rows in the column 'gui_order' contain invalid characters "
             "that could not be converted to an integer.\n"
             "Values have been filled in automatically, "
             "so that the gui-order reflects the order of the properties in the file."

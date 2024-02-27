@@ -163,9 +163,9 @@ def _create_all_cardinalities(class_name: str, class_df_with_cardinalities: pd.D
 def _check_complete_gui_order(class_name: str, class_df_with_cardinalities: pd.DataFrame) -> pd.DataFrame:
     detail_problem_msg = ""
     if "gui_order" not in class_df_with_cardinalities:
-        detail_problem_msg = "The column 'gui_order' does not exist."
+        detail_problem_msg = "the column 'gui_order' does not exist."
     elif class_df_with_cardinalities["gui_order"].isna().any():
-        detail_problem_msg = "Some rows in the column 'gui_order' are empty."
+        detail_problem_msg = "some rows in the column 'gui_order' are empty."
 
     if not detail_problem_msg:
         try:
@@ -173,14 +173,14 @@ def _check_complete_gui_order(class_name: str, class_df_with_cardinalities: pd.D
             return class_df_with_cardinalities
         except ValueError:
             detail_problem_msg = (
-                "Some rows in the column 'gui_order' contain invalid characters "
+                "some rows in the column 'gui_order' contain invalid characters "
                 "that could not be converted to an integer."
             )
 
     class_df_with_cardinalities["gui_order"] = list(range(1, len(class_df_with_cardinalities) + 1))
 
     complete_msg = (
-        f"In the sheet '{class_name}' of the file 'resources.xlsx'\n"
+        f"In the sheet '{class_name}' of the file 'resources.xlsx', "
         f"{detail_problem_msg}\n"
         f"Values have been filled in automatically, "
         f"so that the gui-order reflects the order of the properties in the file."

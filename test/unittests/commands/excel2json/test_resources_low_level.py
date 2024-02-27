@@ -1,3 +1,5 @@
+import warnings
+
 import pandas as pd
 import pytest
 from pandas.testing import assert_frame_equal
@@ -49,7 +51,9 @@ class TestCheckCompleteGuiOrder:
     def test_good(self) -> None:
         df = pd.DataFrame({"prop": [1, 2, 3], "gui_order": ["1", "2", "3"]})
         expected_df = pd.DataFrame({"prop": [1, 2, 3], "gui_order": [1, 2, 3]})
-        res = _check_complete_gui_order("class_name", df)
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            res = _check_complete_gui_order("class_name", df)
         assert_frame_equal(res, expected_df)
 
 

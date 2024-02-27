@@ -1,5 +1,3 @@
-"""unit tests for excel to resource"""
-
 import re
 import unittest
 

@@ -16,7 +16,7 @@ from dsp_tools.commands.excel2json.models.input_error import (
     ResourcesSheetsNotAsExpected,
 )
 from dsp_tools.commands.excel2json.utils import check_column_for_duplicate, read_and_clean_all_sheets
-from dsp_tools.models.exceptions import InputError, UserError
+from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.shared import check_notna, prepare_dataframe
 
 languages = ["en", "de", "fr", "it", "rm"]
@@ -93,8 +93,8 @@ def _find_validation_problem(
 
 
 def _row2resource(
-    df_row: pd.Series,
-    details_df: pd.DataFrame,
+    class_info_row: pd.Series,
+    class_df_with_cardinalities: pd.DataFrame,
 ) -> dict[str, Any]:
     """
     Method that reads one row from the "classes" DataFrame,
@@ -102,8 +102,8 @@ def _row2resource(
     and builds a dict object of the resource.
 
     Args:
-        df_row: row from the "classes" DataFrame
-        details_df: Excel sheet of the individual class
+        class_info_row: row from the "classes" DataFrame
+        class_df_with_cardinalities: Excel sheet of the individual class
 
     Raises:
         UserError: if the row or the details sheet contains invalid data
@@ -112,63 +112,81 @@ def _row2resource(
         dict object of the resource
     """
 
-    name = df_row["name"]
-    labels = {lang: df_row[f"label_{lang}"] for lang in languages if df_row.get(f"label_{lang}")}
+    class_name = class_info_row["name"]
+    labels = {lang: class_info_row[f"label_{lang}"] for lang in languages if class_info_row.get(f"label_{lang}")}
     if not labels:
-        labels = {lang: df_row[lang] for lang in languages if df_row.get(lang)}
-    comments = {lang: df_row[f"comment_{lang}"] for lang in languages if df_row.get(f"comment_{lang}")}
-    supers = [s.strip() for s in df_row["super"].split(",")]
+        labels = {lang: class_info_row[lang] for lang in languages if class_info_row.get(lang)}
+    supers = [s.strip() for s in class_info_row["super"].split(",")]
 
-    details_df = prepare_dataframe(
-        df=details_df,
+    resource = {"name": class_name, "super": supers, "labels": labels}
+
+    comments = {lang: class_info_row[f"comment_{lang}"] for lang in languages if class_info_row.get(f"comment_{lang}")}
+    if comments:
+        resource["comments"] = comments
+
+    cards = _make_cardinality_section(class_name, class_df_with_cardinalities)
+    if cards:
+        resource["cardinalities"] = cards
+
+    return resource
+
+
+def _make_cardinality_section(class_name: str, class_df_with_cardinalities: pd.DataFrame) -> list[dict[str, str | int]]:
+    class_df_with_cardinalities = prepare_dataframe(
+        df=class_df_with_cardinalities,
         required_columns=["Property", "Cardinality"],
-        location_of_sheet=f"Sheet '{name}' in file 'resources.xlsx'",
+        location_of_sheet=f"Sheet '{class_name}' in file 'resources.xlsx'",
     )
-
-    # validation
-    # 4 cases:
-    #  - column gui_order absent
-    #  - column gui_order empty
-    #  - column gui_order present but not properly filled in (missing values / not integers)
-    #  - column gui_order present and properly filled in
-    all_gui_order_cells = []
-    if "gui_order" in details_df:
-        all_gui_order_cells = [x for x in details_df["gui_order"] if x]
-    validation_passed = True
-    if not all_gui_order_cells:  # column gui_order absent or empty
-        pass
-    elif len(all_gui_order_cells) == len(details_df["property"]):  # column gui_order filled in. try casting to int
-        try:
-            [int(float(x)) for x in details_df["gui_order"]]
-        except ValueError:
-            validation_passed = False
-    else:  # column gui_order present but not properly filled in (missing values)
-        validation_passed = False
-    if not validation_passed:
-        raise UserError(
-            f"Sheet '{name}' in file 'resources.xlsx' has invalid content in column 'gui_order': "
-            f"only positive integers allowed (or leave column empty altogether)"
+    if len(class_df_with_cardinalities) == 0:
+        warnings.warn(
+            f"Sheet '{class_name}' in file 'resources.xlsx' does not have any properties listed.\n"
+            f"Creation of the resource class continues without 'cardinalities' section."
         )
+        return []
+    cards = _create_all_cardinalities(class_name, class_df_with_cardinalities)
+    return cards
 
+
+def _create_all_cardinalities(class_name: str, class_df_with_cardinalities: pd.DataFrame) -> list[dict[str, str | int]]:
+    class_df_with_cardinalities = _check_complete_gui_order(class_name, class_df_with_cardinalities)
     cards = []
-    for i, detail_row in details_df.iterrows():
-        index = int(str(i))  # j is a label/index/hashable, but we need an int
-        gui_order = detail_row.get("gui_order", "")
-        gui_order = regex.sub(r"\.0+", "", str(gui_order))
+    for i, detail_row in class_df_with_cardinalities.iterrows():
         property_ = {
             "propname": ":" + detail_row["property"],
             "cardinality": detail_row["cardinality"].lower(),
-            "gui_order": int(gui_order or index + 1),  # if gui_order not given: take sheet order
+            "gui_order": detail_row["gui_order"],
         }
         cards.append(property_)
+    return cards
 
-    # build the dict structure of this resource and append it to the list of resources
-    resource = {"name": name, "super": supers, "labels": labels}
-    if comments:
-        resource["comments"] = comments
-    resource["cardinalities"] = cards
 
-    return resource
+def _check_complete_gui_order(class_name: str, class_df_with_cardinalities: pd.DataFrame) -> pd.DataFrame:
+    detail_problem_msg = ""
+    if "gui_order" not in class_df_with_cardinalities:
+        detail_problem_msg = "the column 'gui_order' does not exist."
+    elif class_df_with_cardinalities["gui_order"].isna().any():
+        detail_problem_msg = "some rows in the column 'gui_order' are empty."
+
+    if not detail_problem_msg:
+        try:
+            class_df_with_cardinalities["gui_order"] = [int(float(x)) for x in class_df_with_cardinalities["gui_order"]]
+            return class_df_with_cardinalities
+        except ValueError:
+            detail_problem_msg = (
+                "some rows in the column 'gui_order' contain invalid characters "
+                "that could not be converted to an integer."
+            )
+
+    class_df_with_cardinalities["gui_order"] = list(range(1, len(class_df_with_cardinalities) + 1))
+
+    complete_msg = (
+        f"In the sheet '{class_name}' of the file 'resources.xlsx', "
+        f"{detail_problem_msg}\n"
+        f"Values have been filled in automatically, "
+        f"so that the gui-order reflects the order of the properties in the file."
+    )
+    warnings.warn(complete_msg)
+    return class_df_with_cardinalities
 
 
 def excel2resources(

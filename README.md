@@ -32,7 +32,6 @@ To get started quickly, without reading the details, just execute these commands
 - `poetry install`
 - `poetry shell`
 - `pre-commit install`
-- `brew install imagemagick ffmpeg` (A prior installation of [Homebrew](https://brew.sh/) is required.)
 - `npm install -g markdown-link-validator`
 
 The remainder of this README explains these commands in more detail.
@@ -145,8 +144,6 @@ Tests can be run in three different ways:
 
 This is useful in combination with the debugging mode of your IDE 
 if you want to examine why a single line of code in a test method fails.
-
-Some e2e tests require ImageMagick and ffmpeg to be installed: `brew install imagemagick ffmpeg`
 
 
 

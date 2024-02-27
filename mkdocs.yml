@@ -20,8 +20,6 @@ nav:
   - Incremental xmlupload: incremental-xmlupload.md
   - excel2xml module: excel2xml-module.md
   - Running DSP locally: start-stack.md
-  - DaSCH-internal commands:
-      - Fast XML Upload: internal/fast-xmlupload.md
   - Information for developers:
       - Developers documentation: developers/index.md
       - Dependencies, packaging & distribution: developers/packaging.md

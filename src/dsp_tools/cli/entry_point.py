@@ -80,7 +80,10 @@ def run(args: list[str]) -> None:
 
 def _check_version() -> None:
     """Check if the installed version of dsp-tools is up-to-date. If not, print a warning message."""
-    response = requests.get("https://pypi.org/pypi/dsp-tools/json", timeout=15)
+    try:
+        response = requests.get("https://pypi.org/pypi/dsp-tools/json", timeout=15)
+    except requests.ConnectionError:
+        return
     if not response.ok:
         return
     latest = parse(response.json()["info"]["version"])

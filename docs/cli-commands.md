@@ -347,26 +347,3 @@ dsp-tools rosetta
 ```
 
 A DSP stack must be running before executing this command.
-
-
-
-## `process-files`
-
-DaSCH internal command to process multimedia files locally,
-before uploading them to a DSP server.
-See [here](./internal/fast-xmlupload.md) for more information.
-
-
-
-## `upload-files`
-
-DaSCH internal command to upload processed multimedia files to a DSP server.
-See [here](./internal/fast-xmlupload.md) for more information.
-
-
-
-## `fast-xmlupload`
-
-DaSCH internal command to create the resources of an XML file
-after the processed multimedia files have been uploaded already.
-See [here](./internal/fast-xmlupload.md) for more information.

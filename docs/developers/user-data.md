@@ -12,7 +12,6 @@ Here is an overview of its structure:
 | docker                     | `start-stack`    | files necessary to startup Docker containers                                               |
 | rosetta                    | `rosetta`        | a clone of [the rosetta test project](https://github.com/dasch-swiss/082e-rosetta-scripts) |
 | logging.log, logging.log.1 | several ones     | These two grow up to 3 MB, then the oldest entries are deleted                             |
-| fast-xmlupload             | several ones     | shell script for local processing                                                          |
 
 
 Remark: Docker is normally not able to access files 

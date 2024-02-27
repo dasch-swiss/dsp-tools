@@ -47,12 +47,6 @@ def make_parser(
 
     _add_ingest_xmlupload(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
 
-    _add_fast_xmlupload(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
-
-    _add_process_files(subparsers)
-
-    _add_upload_files(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
-
     _add_excel2json(subparsers)
 
     _add_excel2lists(subparsers)
@@ -194,55 +188,6 @@ def _add_ingest_xmlupload(
     subparser.add_argument("-s", "--server", default=default_dsp_api_url, help=dsp_server_text)
     subparser.add_argument("-u", "--user", default=root_user_email, help=username_text)
     subparser.add_argument("-p", "--password", default=root_user_pw, help=password_text)
-    subparser.add_argument("xml_file", help="path to XML file containing the data")
-
-
-def _add_fast_xmlupload(
-    subparsers: _SubParsersAction[ArgumentParser],
-    default_dsp_api_url: str,
-    root_user_email: str,
-    root_user_pw: str,
-) -> None:
-    subparser = subparsers.add_parser(
-        name="fast-xmlupload",
-        help="For internal use only: create resources with already uploaded files",
-    )
-    subparser.set_defaults(action="fast-xmlupload")
-    subparser.add_argument("-s", "--server", default=default_dsp_api_url, help=dsp_server_text)
-    subparser.add_argument("-u", "--user", default=root_user_email, help=username_text)
-    subparser.add_argument("-p", "--password", default=root_user_pw, help=password_text)
-    subparser.add_argument("xml_file", help="path to XML file containing the data")
-
-
-def _add_upload_files(
-    subparsers: _SubParsersAction[ArgumentParser],
-    default_dsp_api_url: str,
-    root_user_email: str,
-    root_user_pw: str,
-) -> None:
-    subparser = subparsers.add_parser(
-        name="upload-files",
-        help="For internal use only: upload already processed files",
-    )
-    subparser.set_defaults(action="upload-files")
-    subparser.add_argument("-d", "--processed-dir", help="path to the directory with the processed files")
-    subparser.add_argument("-n", "--nthreads", type=int, default=4, help="number of threads to use")
-    subparser.add_argument("-s", "--server", default=default_dsp_api_url, help=dsp_server_text)
-    subparser.add_argument("-u", "--user", default=root_user_email, help=username_text)
-    subparser.add_argument("-p", "--password", default=root_user_pw, help=password_text)
-
-
-def _add_process_files(subparsers: _SubParsersAction[ArgumentParser]) -> None:
-    subparser = subparsers.add_parser(
-        name="process-files",
-        help="For internal use only: process all files referenced in an XML file",
-    )
-    subparser.set_defaults(action="process-files")
-    subparser.add_argument("--input-dir", help="path to the input directory where the files should be read from")
-    subparser.add_argument(
-        "--output-dir", help="path to the output directory where the processed/transformed files should be written to"
-    )
-    subparser.add_argument("--nthreads", type=int, default=None, help="number of threads to use")
     subparser.add_argument("xml_file", help="path to XML file containing the data")
 
 

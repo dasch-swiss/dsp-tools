@@ -32,7 +32,6 @@ openpyxl = "^3.1.2"
 networkx = "^3.2.1"
 pandas = {version = "^2.1.4", extras = ["excel"]}  # extra package that contains xlrd that is necessary for reading old .xls Excel files
 regex = "^2023.12.25"
-docker = "^7.0.0"
 pyyaml = "^6.0.1"
 rustworkx = "^0.14.0"
 termcolor = "^2.4.0"

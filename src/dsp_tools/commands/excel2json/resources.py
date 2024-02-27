@@ -94,7 +94,7 @@ def _find_validation_problem(
 
 def _row2resource(
     class_info_row: pd.Series,
-    class_property_df: pd.DataFrame,
+    class_df_with_cardinalities: pd.DataFrame,
 ) -> dict[str, Any]:
     """
     Method that reads one row from the "classes" DataFrame,
@@ -103,7 +103,7 @@ def _row2resource(
 
     Args:
         class_info_row: row from the "classes" DataFrame
-        class_property_df: Excel sheet of the individual class
+        class_df_with_cardinalities: Excel sheet of the individual class
 
     Raises:
         UserError: if the row or the details sheet contains invalid data
@@ -124,33 +124,33 @@ def _row2resource(
     if comments:
         resource["comments"] = comments
 
-    cards = _make_cardinality_section(class_name, class_property_df)
+    cards = _make_cardinality_section(class_name, class_df_with_cardinalities)
     if cards:
         resource["cardinalities"] = cards
 
     return resource
 
 
-def _make_cardinality_section(class_name: str, class_property_df: pd.DataFrame) -> list[dict[str, str | int]]:
-    class_property_df = prepare_dataframe(
-        df=class_property_df,
+def _make_cardinality_section(class_name: str, class_df_with_cardinalities: pd.DataFrame) -> list[dict[str, str | int]]:
+    class_df_with_cardinalities = prepare_dataframe(
+        df=class_df_with_cardinalities,
         required_columns=["Property", "Cardinality"],
         location_of_sheet=f"Sheet '{class_name}' in file 'resources.xlsx'",
     )
-    if len(class_property_df) == 0:
+    if len(class_df_with_cardinalities) == 0:
         warnings.warn(
             f"Sheet '{class_name}' in file 'resources.xlsx' does not have any properties listed.\n"
             f"Creation of the resource class continues without 'cardinalities' section."
         )
         return []
-    cards = _create_all_property_restrictions(class_name, class_property_df)
+    cards = _create_all_cardinalities(class_name, class_df_with_cardinalities)
     return cards
 
 
-def _create_all_property_restrictions(class_name: str, class_property_df: pd.DataFrame) -> list[dict[str, str | int]]:
-    class_property_df = _check_complete_gui_order(class_name, class_property_df)
+def _create_all_cardinalities(class_name: str, class_df_with_cardinalities: pd.DataFrame) -> list[dict[str, str | int]]:
+    class_df_with_cardinalities = _check_complete_gui_order(class_name, class_df_with_cardinalities)
     cards = []
-    for i, detail_row in class_property_df.iterrows():
+    for i, detail_row in class_df_with_cardinalities.iterrows():
         property_ = {
             "propname": ":" + detail_row["property"],
             "cardinality": detail_row["cardinality"].lower(),
@@ -160,29 +160,33 @@ def _create_all_property_restrictions(class_name: str, class_property_df: pd.Dat
     return cards
 
 
-def _check_complete_gui_order(class_name: str, class_property_df: pd.DataFrame) -> pd.DataFrame:
+def _check_complete_gui_order(class_name: str, class_df_with_cardinalities: pd.DataFrame) -> pd.DataFrame:
     detail_problem_msg = ""
-    if "gui_order" not in class_property_df:
+    if "gui_order" not in class_df_with_cardinalities:
         detail_problem_msg = "The column 'gui_order' does not exist."
-    elif class_property_df["gui_order"].isna().any():
-        detail_problem_msg = "Some rows are empty.\n"
+    elif class_df_with_cardinalities["gui_order"].isna().any():
+        detail_problem_msg = "Some rows in the column 'gui_order' are empty."
 
     if not detail_problem_msg:
         try:
-            class_property_df["gui_order"] = [int(float(x)) for x in class_property_df["gui_order"]]
-            return class_property_df
+            class_df_with_cardinalities["gui_order"] = [int(float(x)) for x in class_df_with_cardinalities["gui_order"]]
+            return class_df_with_cardinalities
         except ValueError:
-            detail_problem_msg = "Some rows contain invalid characters that could not be converted to an integer."
+            detail_problem_msg = (
+                "Some rows in the column 'gui_order' contain invalid characters "
+                "that could not be converted to an integer."
+            )
 
-    class_property_df["gui_order"] = [x for x in range(1, len(class_property_df) + 1)]
+    class_df_with_cardinalities["gui_order"] = list(range(1, len(class_df_with_cardinalities) + 1))
 
     complete_msg = (
-        f"Sheet '{class_name}' in file 'resources.xlsx' has invalid content in column 'gui_order'\n"
+        f"In the sheet '{class_name}' of the file 'resources.xlsx'\n"
         f"{detail_problem_msg}\n"
-        f"Values were entered so that the gui order reflects the order in the file."
+        f"Values have been filled in automatically, "
+        f"so that the gui-order reflects the order of the properties in the file."
     )
     warnings.warn(complete_msg)
-    return class_property_df
+    return class_df_with_cardinalities
 
 
 def excel2resources(

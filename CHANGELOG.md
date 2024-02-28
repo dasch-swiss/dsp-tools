@@ -1,5 +1,49 @@
 # Changelog
 
+## [6.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v5.8.1...v6.0.0) (2024-02-28)
+
+
+### ⚠ BREAKING CHANGES
+
+* Remove fast-xmlupload command (DEV-3324) ([#830](https://github.com/dasch-swiss/dsp-tools/issues/830))
+
+### Enhancements
+
+* Remove fast-xmlupload command (DEV-3324) ([#830](https://github.com/dasch-swiss/dsp-tools/issues/830)) ([0c9d077](https://github.com/dasch-swiss/dsp-tools/commit/0c9d07775f9a48412a3ad7bf1cc8a0563ef180ce))
+* **xmlupload:** check if text encoding in data conforms to type specified in ontology (DEV-3279) ([#821](https://github.com/dasch-swiss/dsp-tools/issues/821)) ([449f780](https://github.com/dasch-swiss/dsp-tools/commit/449f780e60ad3a0639d7600809be0b34e3a7e766))
+* **xmlupload:** check if the encoding in the text-prop is consistent (DEV-3296) ([#818](https://github.com/dasch-swiss/dsp-tools/issues/818)) ([4ae8469](https://github.com/dasch-swiss/dsp-tools/commit/4ae8469262805d5983cf370a8842a65c7ae265ae))
+
+
+### Bug Fixes
+
+* don't crash when dsp-tools is run offline (DEV-3338) ([#833](https://github.com/dasch-swiss/dsp-tools/issues/833)) ([901b86d](https://github.com/dasch-swiss/dsp-tools/commit/901b86de4928d6995f77e996993ba6689aa5b5a0))
+* **excel2json:** allow resources to have no cardinalities (DEV-3333) ([#834](https://github.com/dasch-swiss/dsp-tools/issues/834)) ([b55224a](https://github.com/dasch-swiss/dsp-tools/commit/b55224a5f98beee0bdbe1bea1a4e1741e6e7f0a7))
+
+
+### Maintenance
+
+* bump start-stack to 2024.02.02 ([#836](https://github.com/dasch-swiss/dsp-tools/issues/836)) ([f83ce78](https://github.com/dasch-swiss/dsp-tools/commit/f83ce78dc3188d5ebf8a3451de998c2433f4004f))
+* correct docs in regard to gui-element of hasComment ([#816](https://github.com/dasch-swiss/dsp-tools/issues/816)) ([3f869d9](https://github.com/dasch-swiss/dsp-tools/commit/3f869d999fd3fce6bb1d2eafa770e946292ba115))
+* fix typo in check_consistency_with_ontology.py ([#813](https://github.com/dasch-swiss/dsp-tools/issues/813)) ([bc01027](https://github.com/dasch-swiss/dsp-tools/commit/bc010274f221abae9d0544104bd7c9fb01cc067a))
+* **ontology_client:** make retrieval of ontologies more flexible (DEV-3308) ([#820](https://github.com/dasch-swiss/dsp-tools/issues/820)) ([327f61e](https://github.com/dasch-swiss/dsp-tools/commit/327f61ee31ba82ad0839ac67e1828508cea5f7ac))
+* refactor validate xml in preparation for extension ([#814](https://github.com/dasch-swiss/dsp-tools/issues/814)) ([652aa9f](https://github.com/dasch-swiss/dsp-tools/commit/652aa9f62991fe2b83dd0dea1944bb4878502ba0))
+* remove docker as dependency ([#835](https://github.com/dasch-swiss/dsp-tools/issues/835)) ([7f98945](https://github.com/dasch-swiss/dsp-tools/commit/7f989453cacd84f5488e6dc8f63927c4c8ee6d7e))
+* renaming functions of ontology checks in xmlupload ([#817](https://github.com/dasch-swiss/dsp-tools/issues/817)) ([e6b0e7d](https://github.com/dasch-swiss/dsp-tools/commit/e6b0e7d041b690136808dba4df12e0e01a4fb619))
+* **test_xmlupload:** separate tests ([#824](https://github.com/dasch-swiss/dsp-tools/issues/824)) ([7333136](https://github.com/dasch-swiss/dsp-tools/commit/733313688f2c3b0b50d81b98c010ff15442cbd2f))
+* **test:** add pytest entrypoint ([#823](https://github.com/dasch-swiss/dsp-tools/issues/823)) ([e31da78](https://github.com/dasch-swiss/dsp-tools/commit/e31da78a53e0e43bef2e1404ca2966505827581c))
+* **test:** test_shared.py turn into pytest ([#826](https://github.com/dasch-swiss/dsp-tools/issues/826)) ([46e7743](https://github.com/dasch-swiss/dsp-tools/commit/46e774374be8c8d63dcc1b5ae40e04230d0a1ff3))
+* **test:** test_upload_stashed_xml_texts.py turn into pytest ([#825](https://github.com/dasch-swiss/dsp-tools/issues/825)) ([755323f](https://github.com/dasch-swiss/dsp-tools/commit/755323fdab9c5cba218f0829f9b9cacabb4c717d))
+* **test:** turn into pytest test_xmlupload.py ([#827](https://github.com/dasch-swiss/dsp-tools/issues/827)) ([c0d1c97](https://github.com/dasch-swiss/dsp-tools/commit/c0d1c977a1eed11c815c72cb62d56851ed935d19))
+* **test:** turn xml_utils.py into pytest ([#828](https://github.com/dasch-swiss/dsp-tools/issues/828)) ([e97084f](https://github.com/dasch-swiss/dsp-tools/commit/e97084f28a1020d1bf37bfb6b768c55c450cd8a5))
+* update data.xsd regarding TextValue encoding for hasComment ([#811](https://github.com/dasch-swiss/dsp-tools/issues/811)) ([af86b94](https://github.com/dasch-swiss/dsp-tools/commit/af86b94b1d6c357b270c9e3f7fa425c29d786f35))
+* **xml_validation:** turn into pytest ([#815](https://github.com/dasch-swiss/dsp-tools/issues/815)) ([516a2de](https://github.com/dasch-swiss/dsp-tools/commit/516a2def27dc9fbba65faac13e13787a71a2dde6))
+* **xmlupload:** improve parse xml function ([#819](https://github.com/dasch-swiss/dsp-tools/issues/819)) ([9947607](https://github.com/dasch-swiss/dsp-tools/commit/9947607039127a185d373b0b48537904110bd5e9))
+
+
+### Documentation
+
+* DSP-API uses "just" instead of "make" (DEV-3212) ([#753](https://github.com/dasch-swiss/dsp-tools/issues/753)) ([d5c8f97](https://github.com/dasch-swiss/dsp-tools/commit/d5c8f9722a6becbde46cad9ad5adf210206fb97c))
+
 ## [5.8.1](https://github.com/dasch-swiss/dsp-tools/compare/v5.8.0...v5.8.1) (2024-02-14)
 
 

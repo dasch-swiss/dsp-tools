@@ -82,10 +82,6 @@ class TestFindXMLTagsInUTF8:
         assert res_msg == expected_msg
 
 
-if __name__ == "__main__":
-    pytest.main([__file__])
-
-
 def test_find_all_text_props_with_multiple_encodings_problems() -> None:
     test_props = [TextValueData("problem_id", "problem_prop", {"xml", "utf8"}), TextValueData("", "", {"utf8"})]
     problem = _find_all_text_props_with_multiple_encodings(test_props)[0]

@@ -19,6 +19,7 @@ HTTP_OK = 200
 HTTP_UNAUTHORIZED = 401
 
 logger = get_logger(__name__)
+LOGFILES = ", ".join([handler.baseFilename for handler in logger.handlers if isinstance(handler, FileHandler)])
 
 
 @dataclass
@@ -275,13 +276,11 @@ class ConnectionLive:
         return action()
 
     def _handle_non_ok_responses(self, response: Response, request_url: str, retry_counter: int) -> None:
-        logfiles = ", ".join([handler.baseFilename for handler in logger.handlers if isinstance(handler, FileHandler)])
-
         if "v2/authentication" in request_url and response.status_code == HTTP_UNAUTHORIZED:
             raise BadCredentialsError("Bad credentials")
 
         elif any(x in response.text for x in ["OntologyConstraintException", "DuplicateValueException"]):
-            msg = f"Permanently unable to execute the network action. See logs for more details: {logfiles}"
+            msg = f"Permanently unable to execute the network action. See logs for more details: {LOGFILES}"
             raise PermanentConnectionError(msg)
 
         elif not self._in_testing_environment():
@@ -289,7 +288,7 @@ class ConnectionLive:
             return None
 
         else:
-            msg = f"Permanently unable to execute the network action. See logs for more details: {logfiles}"
+            msg = f"Permanently unable to execute the network action. See logs for more details: {LOGFILES}"
             raise PermanentConnectionError(msg)
 
     def _renew_session(self) -> None:

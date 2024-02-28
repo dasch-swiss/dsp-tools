@@ -11,7 +11,7 @@ from typing import Any, Literal, Optional, cast
 import regex
 from requests import ReadTimeout, RequestException, Response, Session
 
-from dsp_tools.models.exceptions import BadCredentialsError, BaseError, PermanentConnectionError, UserError
+from dsp_tools.models.exceptions import BadCredentialsError, BaseError, InputError, PermanentConnectionError, UserError
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.set_encoder import SetEncoder
 
@@ -280,8 +280,8 @@ class ConnectionLive:
             raise BadCredentialsError("Bad credentials")
 
         elif any(x in response.text for x in ["OntologyConstraintException", "DuplicateValueException"]):
-            msg = f"Permanently unable to execute the network action. See logs for more details: {LOGFILES}"
-            raise PermanentConnectionError(msg)
+            msg = f"Error occurred due to user input, original message:\n{response.text}"
+            raise InputError(msg)
 
         elif not self._in_testing_environment():
             self._log_and_sleep(reason="Non-200 response code", retry_counter=retry_counter, exc_info=False)

@@ -12,7 +12,7 @@ from dsp_tools.models.exceptions import InputError
 def _retrieve_mapping_file() -> Iterator[None]:
     """Put the mapping file into the cwd."""
     mapping_file = Path("testdata/dsp-ingest-data/mapping-00A2.csv")
-    shutil.copy(mapping_file, "../../../integration/commands/ingest_xmlupload")
+    shutil.copy(mapping_file, ".")
     yield
     Path(mapping_file.name).unlink()
 

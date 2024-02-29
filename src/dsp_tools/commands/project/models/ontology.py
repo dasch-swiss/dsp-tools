@@ -18,7 +18,9 @@ READ:
 from __future__ import annotations
 
 import copy
-from typing import Any, Optional, Union
+from typing import Any
+from typing import Optional
+from typing import Union
 from urllib.parse import quote_plus
 
 import regex

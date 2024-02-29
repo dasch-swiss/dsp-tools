@@ -1,7 +1,8 @@
 import importlib.resources
 import json
 from pathlib import Path
-from typing import Any, Union
+from typing import Any
+from typing import Union
 
 import jsonpath_ng
 import jsonpath_ng.ext

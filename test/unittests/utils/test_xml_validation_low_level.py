@@ -1,14 +1,12 @@
 import pytest
 from lxml import etree
 
-from dsp_tools.utils.xml_validation import (
-    _find_all_text_props_with_multiple_encodings,
-    _find_xml_tags_in_simple_text_elements,
-    _get_all_ids_and_encodings_from_root,
-    _get_encodings_from_one_property,
-    _get_encodings_from_one_resource,
-    check_if_only_one_encoding_is_used_per_prop_in_root,
-)
+from dsp_tools.utils.xml_validation import _find_all_text_props_with_multiple_encodings
+from dsp_tools.utils.xml_validation import _find_xml_tags_in_simple_text_elements
+from dsp_tools.utils.xml_validation import _get_all_ids_and_encodings_from_root
+from dsp_tools.utils.xml_validation import _get_encodings_from_one_property
+from dsp_tools.utils.xml_validation import _get_encodings_from_one_resource
+from dsp_tools.utils.xml_validation import check_if_only_one_encoding_is_used_per_prop_in_root
 from dsp_tools.utils.xml_validation_models import TextValueData
 
 

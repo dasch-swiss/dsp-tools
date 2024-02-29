@@ -1,23 +1,24 @@
 import importlib.resources
 import json
 import warnings
-from typing import Any, Optional
+from typing import Any
+from typing import Optional
 
 import jsonpath_ng.ext
 import jsonschema
 import pandas as pd
 import regex
 
-from dsp_tools.commands.excel2json.models.input_error import (
-    JsonValidationResourceProblem,
-    MissingValuesInRowProblem,
-    PositionInExcel,
-    Problem,
-    ResourcesSheetsNotAsExpected,
-)
-from dsp_tools.commands.excel2json.utils import check_column_for_duplicate, read_and_clean_all_sheets
+from dsp_tools.commands.excel2json.models.input_error import JsonValidationResourceProblem
+from dsp_tools.commands.excel2json.models.input_error import MissingValuesInRowProblem
+from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
+from dsp_tools.commands.excel2json.models.input_error import Problem
+from dsp_tools.commands.excel2json.models.input_error import ResourcesSheetsNotAsExpected
+from dsp_tools.commands.excel2json.utils import check_column_for_duplicate
+from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
 from dsp_tools.models.exceptions import InputError
-from dsp_tools.utils.shared import check_notna, prepare_dataframe
+from dsp_tools.utils.shared import check_notna
+from dsp_tools.utils.shared import prepare_dataframe
 
 languages = ["en", "de", "fr", "it", "rm"]
 

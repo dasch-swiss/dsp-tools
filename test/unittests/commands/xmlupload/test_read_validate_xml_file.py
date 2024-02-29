@@ -1,10 +1,8 @@
 import pytest
 from lxml import etree
 
-from dsp_tools.commands.xmlupload.read_validate_xml_file import (
-    _check_if_resptr_targets_exist,
-    _check_if_salsah_targets_exist,
-)
+from dsp_tools.commands.xmlupload.read_validate_xml_file import _check_if_resptr_targets_exist
+from dsp_tools.commands.xmlupload.read_validate_xml_file import _check_if_salsah_targets_exist
 
 
 def test_check_if_resptr_targets_exist() -> None:

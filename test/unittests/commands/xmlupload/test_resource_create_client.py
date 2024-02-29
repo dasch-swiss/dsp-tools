@@ -1,8 +1,10 @@
 import pytest
 
-from dsp_tools.commands.xmlupload.models.permission import Permissions, PermissionValue
+from dsp_tools.commands.xmlupload.models.permission import Permissions
+from dsp_tools.commands.xmlupload.models.permission import PermissionValue
 from dsp_tools.commands.xmlupload.models.xmlresource import BitstreamInfo
-from dsp_tools.commands.xmlupload.resource_create_client import _make_bitstream_file_value, _to_boolean
+from dsp_tools.commands.xmlupload.resource_create_client import _make_bitstream_file_value
+from dsp_tools.commands.xmlupload.resource_create_client import _to_boolean
 from dsp_tools.models.exceptions import BaseError
 
 

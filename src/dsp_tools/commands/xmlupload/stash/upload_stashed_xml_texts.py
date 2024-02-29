@@ -6,7 +6,8 @@ from urllib.parse import quote_plus
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
-from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStash, StandoffStashItem
+from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStash
+from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStashItem
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.create_logger import get_logger

@@ -3,7 +3,8 @@ from typing import cast
 
 import pandas as pd
 import pytest
-from pandas.testing import assert_frame_equal, assert_series_equal
+from pandas.testing import assert_frame_equal
+from pandas.testing import assert_series_equal
 from pytest_unordered import unordered
 
 import dsp_tools.commands.excel2json.utils as utl

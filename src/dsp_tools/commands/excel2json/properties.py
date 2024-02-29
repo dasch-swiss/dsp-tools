@@ -3,7 +3,8 @@ from __future__ import annotations
 import importlib.resources
 import json
 import warnings
-from typing import Any, Optional
+from typing import Any
+from typing import Optional
 
 import jsonpath_ng.ext
 import jsonschema
@@ -11,25 +12,21 @@ import numpy as np
 import pandas as pd
 import regex
 
-from dsp_tools.commands.excel2json.models.input_error import (
-    InvalidExcelContentProblem,
-    JsonValidationPropertyProblem,
-    MissingValuesInRowProblem,
-    MoreThanOneSheetProblem,
-    PositionInExcel,
-    Problem,
-)
-from dsp_tools.commands.excel2json.utils import (
-    check_column_for_duplicate,
-    check_contains_required_columns,
-    check_required_values,
-    col_must_or_not_empty_based_on_other_col,
-    find_one_full_cell_in_cols,
-    get_comments,
-    get_labels,
-    get_wrong_row_numbers,
-    read_and_clean_all_sheets,
-)
+from dsp_tools.commands.excel2json.models.input_error import InvalidExcelContentProblem
+from dsp_tools.commands.excel2json.models.input_error import JsonValidationPropertyProblem
+from dsp_tools.commands.excel2json.models.input_error import MissingValuesInRowProblem
+from dsp_tools.commands.excel2json.models.input_error import MoreThanOneSheetProblem
+from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
+from dsp_tools.commands.excel2json.models.input_error import Problem
+from dsp_tools.commands.excel2json.utils import check_column_for_duplicate
+from dsp_tools.commands.excel2json.utils import check_contains_required_columns
+from dsp_tools.commands.excel2json.utils import check_required_values
+from dsp_tools.commands.excel2json.utils import col_must_or_not_empty_based_on_other_col
+from dsp_tools.commands.excel2json.utils import find_one_full_cell_in_cols
+from dsp_tools.commands.excel2json.utils import get_comments
+from dsp_tools.commands.excel2json.utils import get_labels
+from dsp_tools.commands.excel2json.utils import get_wrong_row_numbers
+from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
 from dsp_tools.models.exceptions import InputError
 
 languages = ["en", "de", "fr", "it", "rm"]

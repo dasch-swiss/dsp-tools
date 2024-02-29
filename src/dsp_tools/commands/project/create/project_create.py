@@ -2,7 +2,10 @@
 of the project, the creation of groups, users, lists, resource classes, properties and cardinalities."""
 
 from pathlib import Path
-from typing import Any, Optional, Union, cast
+from typing import Any
+from typing import Optional
+from typing import Union
+from typing import cast
 
 import regex
 
@@ -19,7 +22,8 @@ from dsp_tools.commands.project.models.propertyclass import PropertyClass
 from dsp_tools.commands.project.models.resourceclass import ResourceClass
 from dsp_tools.commands.project.models.user import User
 from dsp_tools.models.datetimestamp import DateTimeStamp
-from dsp_tools.models.exceptions import BaseError, UserError
+from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import UserError
 from dsp_tools.models.langstring import LangString
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive

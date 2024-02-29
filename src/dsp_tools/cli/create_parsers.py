@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import datetime
-from argparse import ArgumentParser, _SubParsersAction
+from argparse import ArgumentParser
+from argparse import _SubParsersAction
 from importlib.metadata import version
 
 # help texts

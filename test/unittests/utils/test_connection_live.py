@@ -3,14 +3,20 @@
 import json
 from dataclasses import dataclass
 from importlib.metadata import version
-from typing import Any, Callable, cast
-from unittest.mock import Mock, patch
+from typing import Any
+from typing import Callable
+from typing import cast
+from unittest.mock import Mock
+from unittest.mock import patch
 
 import pytest
-from requests import ReadTimeout, RequestException
+from requests import ReadTimeout
+from requests import RequestException
 
-from dsp_tools.models.exceptions import PermanentConnectionError, UserError
-from dsp_tools.utils.connection_live import ConnectionLive, RequestParameters
+from dsp_tools.models.exceptions import PermanentConnectionError
+from dsp_tools.models.exceptions import UserError
+from dsp_tools.utils.connection_live import ConnectionLive
+from dsp_tools.utils.connection_live import RequestParameters
 
 
 @dataclass

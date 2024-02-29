@@ -3,7 +3,10 @@ import json
 import shutil
 import unittest
 from pathlib import Path
-from typing import Any, Optional, Union, cast
+from typing import Any
+from typing import Optional
+from typing import Union
+from typing import cast
 
 import regex
 

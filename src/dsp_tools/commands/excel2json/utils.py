@@ -7,11 +7,9 @@ import numpy as np
 import pandas as pd
 import regex
 
-from dsp_tools.commands.excel2json.models.input_error import (
-    DuplicatesInColumnProblem,
-    InvalidSheetNameProblem,
-    RequiredColumnMissingProblem,
-)
+from dsp_tools.commands.excel2json.models.input_error import DuplicatesInColumnProblem
+from dsp_tools.commands.excel2json.models.input_error import InvalidSheetNameProblem
+from dsp_tools.commands.excel2json.models.input_error import RequiredColumnMissingProblem
 from dsp_tools.models.exceptions import InputError
 
 languages = ["en", "de", "fr", "it", "rm"]

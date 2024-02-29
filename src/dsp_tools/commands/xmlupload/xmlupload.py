@@ -6,32 +6,36 @@ from dataclasses import asdict
 from datetime import datetime
 from logging import FileHandler
 from pathlib import Path
-from typing import Any, Union
+from typing import Any
+from typing import Union
 
 from lxml import etree
 
 from dsp_tools.commands.xmlupload.check_consistency_with_ontology import do_xml_consistency_check_with_ontology
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
-from dsp_tools.commands.xmlupload.list_client import ListClient, ListClientLive
+from dsp_tools.commands.xmlupload.list_client import ListClient
+from dsp_tools.commands.xmlupload.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.sipi import Sipi
 from dsp_tools.commands.xmlupload.models.xmlpermission import XmlPermission
-from dsp_tools.commands.xmlupload.models.xmlresource import BitstreamInfo, XMLResource
+from dsp_tools.commands.xmlupload.models.xmlresource import BitstreamInfo
+from dsp_tools.commands.xmlupload.models.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.ontology_client import OntologyClientLive
-from dsp_tools.commands.xmlupload.project_client import ProjectClient, ProjectClientLive
+from dsp_tools.commands.xmlupload.project_client import ProjectClient
+from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
 from dsp_tools.commands.xmlupload.read_validate_xml_file import validate_and_parse_xml_file
 from dsp_tools.commands.xmlupload.resource_create_client import ResourceCreateClient
 from dsp_tools.commands.xmlupload.resource_multimedia import handle_media_info
-from dsp_tools.commands.xmlupload.stash.stash_circular_references import (
-    identify_circular_references,
-    stash_circular_references,
-)
+from dsp_tools.commands.xmlupload.stash.stash_circular_references import identify_circular_references
+from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_circular_references
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.commands.xmlupload.stash.upload_stashed_resptr_props import upload_stashed_resptr_props
 from dsp_tools.commands.xmlupload.stash.upload_stashed_xml_texts import upload_stashed_xml_texts
-from dsp_tools.commands.xmlupload.upload_config import DiagnosticsConfig, UploadConfig
+from dsp_tools.commands.xmlupload.upload_config import DiagnosticsConfig
+from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.write_diagnostic_info import write_id2iri_mapping
-from dsp_tools.models.exceptions import BaseError, UserError
+from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import UserError
 from dsp_tools.models.projectContext import ProjectContext
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive

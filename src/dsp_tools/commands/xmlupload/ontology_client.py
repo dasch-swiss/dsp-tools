@@ -1,7 +1,10 @@
-from dataclasses import dataclass, field
-from typing import Any, Protocol
+from dataclasses import dataclass
+from dataclasses import field
+from typing import Any
+from typing import Protocol
 
-from dsp_tools.models.exceptions import BaseError, UserError
+from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.create_logger import get_logger
 

@@ -9,18 +9,14 @@ from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTe
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.xmlproperty import XMLProperty
 from dsp_tools.commands.xmlupload.models.xmlresource import XMLResource
-from dsp_tools.commands.xmlupload.stash.construct_and_analyze_graph import (
-    create_info_from_xml_for_graph,
-    generate_upload_order,
-    make_graph,
-)
-from dsp_tools.commands.xmlupload.stash.stash_models import (
-    LinkValueStash,
-    LinkValueStashItem,
-    StandoffStash,
-    StandoffStashItem,
-    Stash,
-)
+from dsp_tools.commands.xmlupload.stash.construct_and_analyze_graph import create_info_from_xml_for_graph
+from dsp_tools.commands.xmlupload.stash.construct_and_analyze_graph import generate_upload_order
+from dsp_tools.commands.xmlupload.stash.construct_and_analyze_graph import make_graph
+from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
+from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItem
+from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStash
+from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStashItem
+from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.utils.create_logger import get_logger
 
 logger = get_logger(__name__)

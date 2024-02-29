@@ -6,7 +6,10 @@ import os
 import uuid
 import warnings
 from pathlib import Path
-from typing import Any, Iterable, Optional, Union
+from typing import Any
+from typing import Iterable
+from typing import Optional
+from typing import Union
 
 import regex
 from lxml import etree
@@ -17,7 +20,8 @@ from dsp_tools.commands.excel2xml.propertyelement import PropertyElement
 from dsp_tools.models.datetimestamp import DateTimeStamp
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.date_util import is_full_date
-from dsp_tools.utils.shared import check_notna, simplify_name
+from dsp_tools.utils.shared import check_notna
+from dsp_tools.utils.shared import simplify_name
 from dsp_tools.utils.uri_util import is_uri
 from dsp_tools.utils.xml_validation import validate_xml
 

@@ -2,12 +2,10 @@ import pandas as pd
 from pandas.testing import assert_frame_equal
 
 from dsp_tools.commands.xmlupload.models.ontology_lookup_models import TextValueData
-from dsp_tools.commands.xmlupload.models.ontology_problem_models import (
-    InvalidOntologyElementsInData,
-    InvalidTextValueEncodings,
-    _make_msg_for_one_resource,
-    _make_msg_from_df,
-)
+from dsp_tools.commands.xmlupload.models.ontology_problem_models import InvalidOntologyElementsInData
+from dsp_tools.commands.xmlupload.models.ontology_problem_models import InvalidTextValueEncodings
+from dsp_tools.commands.xmlupload.models.ontology_problem_models import _make_msg_for_one_resource
+from dsp_tools.commands.xmlupload.models.ontology_problem_models import _make_msg_from_df
 
 
 class TestInvalidOntologyElementsInData:

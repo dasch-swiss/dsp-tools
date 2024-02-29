@@ -4,7 +4,8 @@ from typing import Optional
 
 import regex
 
-from dsp_tools.commands.project.models.helpers import ContextType, OntoIri
+from dsp_tools.commands.project.models.helpers import ContextType
+from dsp_tools.commands.project.models.helpers import OntoIri
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.iri_util import is_iri
 

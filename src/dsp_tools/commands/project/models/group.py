@@ -23,7 +23,9 @@ DELETE
 
 from __future__ import annotations
 
-from typing import Any, Optional, Union
+from typing import Any
+from typing import Optional
+from typing import Union
 from urllib.parse import quote_plus
 
 from dsp_tools.commands.project.models.model import Model

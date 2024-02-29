@@ -7,7 +7,8 @@ import pytest
 from pytest_unordered import unordered
 
 from dsp_tools.commands.excel2json import resources as e2j
-from dsp_tools.models.exceptions import BaseError, InputError
+from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import InputError
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
 

@@ -6,7 +6,8 @@ from pathlib import Path
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.sipi import Sipi
 from dsp_tools.commands.xmlupload.models.xmlbitstream import XMLBitstream
-from dsp_tools.commands.xmlupload.models.xmlresource import BitstreamInfo, XMLResource
+from dsp_tools.commands.xmlupload.models.xmlresource import BitstreamInfo
+from dsp_tools.commands.xmlupload.models.xmlresource import XMLResource
 from dsp_tools.models.exceptions import PermanentConnectionError
 from dsp_tools.utils.create_logger import get_logger
 

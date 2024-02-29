@@ -8,7 +8,9 @@ from lxml import etree
 
 from dsp_tools.commands.xmlupload.check_consistency_with_ontology import do_xml_consistency_check_with_ontology
 from dsp_tools.commands.xmlupload.ontology_client import OntologyClientLive
-from dsp_tools.models.exceptions import BaseError, InputError, UserError
+from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import InputError
+from dsp_tools.models.exceptions import UserError
 
 
 @dataclass

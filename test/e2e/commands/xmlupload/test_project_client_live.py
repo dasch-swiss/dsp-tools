@@ -1,6 +1,7 @@
 import pytest
 
-from dsp_tools.commands.xmlupload.project_client import ProjectClient, ProjectClientLive
+from dsp_tools.commands.xmlupload.project_client import ProjectClient
+from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
 from dsp_tools.utils.connection_live import ConnectionLive
 
 

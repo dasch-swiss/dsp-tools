@@ -55,6 +55,16 @@ jobs:
         uses: ./.github/actions/setup
       - name: unittests
         run: poetry exec unittests
+
+  integration-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout dsp-tools repo
+        uses: actions/checkout@v4
+      - name: Install poetry, python, and dependencies
+        uses: ./.github/actions/setup
+      - name: integration-tests
+        run: poetry exec integration-tests
   
 
   benchmarking:

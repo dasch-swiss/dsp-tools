@@ -227,7 +227,6 @@ class TestMakeProps(unittest.TestCase):
         This method executes the tests in a parametrized way.
 
         Args:
-            testcase: the object of the unittest class
             prop: the name of the property
             method: the make_*_prop() method
             different_values: some valid values

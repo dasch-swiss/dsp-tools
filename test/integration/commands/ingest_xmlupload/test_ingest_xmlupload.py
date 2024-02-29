@@ -7,6 +7,8 @@ import pytest
 from dsp_tools.commands.ingest_xmlupload.upload_xml import ingest_xmlupload
 from dsp_tools.models.exceptions import InputError
 
+# ruff: noqa: E501 (line-too-long)
+
 
 @pytest.fixture(autouse=True)
 def _retrieve_mapping_file() -> Iterator[None]:
@@ -18,15 +20,12 @@ def _retrieve_mapping_file() -> Iterator[None]:
 
 
 def test_ingest_xmlupload() -> None:
-    expected_msg = (
-        "The upload cannot continue as there are problems with the multimedia files referenced in the XML.\n"
-        "    The data XML file does not reference the following multimedia files "
-        "which were previously uploaded through dsp-ingest:\n"
-        "    - extra.jpg\n"
-        "    The data XML file contains references to the following multimedia files "
-        "which were not previously uploaded through dsp-ingest:\n"
-        "    - Resource ID: 'GoodGirlImage' | Filepath: 'images/GoodGirl.jpg'"
-    )
+    expected_msg = """The upload cannot continue as there are problems with the multimedia files referenced in the XML.
+    The data XML file does not reference the following multimedia files which were previously uploaded through dsp-ingest:
+    - extra.jpg
+    The data XML file contains references to the following multimedia files which were not previously uploaded through dsp-ingest:
+    - Resource ID: 'GoodGirlImage' | Filepath: 'images/GoodGirl.jpg'
+    """
     with pytest.raises(InputError, match=expected_msg):
         ingest_xmlupload(
             xml_file=Path("testdata/dsp-ingest-data/dsp-ingest.xml"),
@@ -38,7 +37,8 @@ def test_ingest_xmlupload() -> None:
 
 
 def test_ingest_xmlupload_no_mapping() -> None:
-    with pytest.raises(InputError):
+    expected_msg = "No mapping CSV file was found at mapping-00A5.csv."
+    with pytest.raises(InputError, match=expected_msg):
         ingest_xmlupload(
             xml_file=Path("testdata/dsp-ingest-data/dsp_ingest_no_mapping.xml"),
             user="root@example.com",

@@ -1,5 +1,6 @@
 import logging
 import logging.handlers
+from logging import FileHandler
 from pathlib import Path
 
 # the handler must live on module level, so that it is created only once
@@ -67,3 +68,16 @@ def get_logger(
     logger.setLevel(level)
     logger.addHandler(_rotating_file_handler)
     return logger
+
+
+def get_log_filename_str(logger: logging.Logger) -> str:
+    """
+    This function returns a string, that lists the filenames of the loggers.
+
+    Args:
+        logger: logger
+
+    Returns:
+        Name(s) of the logger files
+    """
+    return ", ".join([handler.baseFilename for handler in logger.handlers if isinstance(handler, FileHandler)])

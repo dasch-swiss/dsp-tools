@@ -5,21 +5,20 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from functools import partial
 from importlib.metadata import version
-from logging import FileHandler
 from typing import Any, Literal, Optional, cast
 
 import regex
 from requests import ReadTimeout, RequestException, Response, Session
 
 from dsp_tools.models.exceptions import BadCredentialsError, BaseError, InputError, PermanentConnectionError, UserError
-from dsp_tools.utils.create_logger import get_logger
+from dsp_tools.utils.create_logger import get_log_filename_str, get_logger
 from dsp_tools.utils.set_encoder import SetEncoder
 
 HTTP_OK = 200
 HTTP_UNAUTHORIZED = 401
 
 logger = get_logger(__name__)
-LOGFILES = ", ".join([handler.baseFilename for handler in logger.handlers if isinstance(handler, FileHandler)])
+LOGFILES = get_log_filename_str(logger)
 
 
 @dataclass

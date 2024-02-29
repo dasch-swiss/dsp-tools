@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from test.unittests.commands.xmlupload.connection_mock import ConnectionMockBase
+from test.integration.commands.xmlupload.connection_mock import ConnectionMockBase
 from typing import Any
 
 import pytest

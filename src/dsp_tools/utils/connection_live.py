@@ -5,20 +5,20 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from functools import partial
 from importlib.metadata import version
-from logging import FileHandler
 from typing import Any, Literal, Optional, cast
 
 import regex
 from requests import ReadTimeout, RequestException, Response, Session
 
-from dsp_tools.models.exceptions import BadCredentialsError, BaseError, PermanentConnectionError, UserError
-from dsp_tools.utils.create_logger import get_logger
+from dsp_tools.models.exceptions import BadCredentialsError, BaseError, InputError, PermanentConnectionError, UserError
+from dsp_tools.utils.create_logger import get_log_filename_str, get_logger
 from dsp_tools.utils.set_encoder import SetEncoder
 
 HTTP_OK = 200
 HTTP_UNAUTHORIZED = 401
 
 logger = get_logger(__name__)
+LOGFILES = get_log_filename_str(logger)
 
 
 @dataclass
@@ -252,7 +252,6 @@ class ConnectionLive:
         Returns:
             the return value of action
         """
-        logfiles = ", ".join([handler.baseFilename for handler in logger.handlers if isinstance(handler, FileHandler)])
         action = partial(self.session.request, **params.as_kwargs())
         for i in range(7):
             try:
@@ -269,20 +268,27 @@ class ConnectionLive:
             self._log_response(response)
             if response.status_code == HTTP_OK:
                 return response
-            elif "v2/authentication" in params.url and response.status_code == HTTP_UNAUTHORIZED:
-                raise BadCredentialsError("Bad credentials")
-            elif "OntologyConstraintException" in response.text:
-                msg = f"Permanently unable to execute the network action. See logs for more details: {logfiles}"
-                raise PermanentConnectionError(msg)
-            elif not self._in_testing_environment():
-                self._log_and_sleep(reason="Non-200 response code", retry_counter=i, exc_info=False)
-                continue
-            else:
-                msg = f"Permanently unable to execute the network action. See logs for more details: {logfiles}"
-                raise PermanentConnectionError(msg)
+
+            self._handle_non_ok_responses(response, params.url, i)
 
         # after 7 vain attempts to create a response, try it a last time and let it escalate
         return action()
+
+    def _handle_non_ok_responses(self, response: Response, request_url: str, retry_counter: int) -> None:
+        if "v2/authentication" in request_url and response.status_code == HTTP_UNAUTHORIZED:
+            raise BadCredentialsError("Bad credentials")
+
+        elif any(x in response.text for x in ["OntologyConstraintException", "DuplicateValueException"]):
+            msg = f"Error occurred due to user input, original message:\n{response.text}"
+            raise InputError(msg)
+
+        elif not self._in_testing_environment():
+            self._log_and_sleep(reason="Non-200 response code", retry_counter=retry_counter, exc_info=False)
+            return None
+
+        else:
+            msg = f"Permanently unable to execute the network action. See logs for more details: {LOGFILES}"
+            raise PermanentConnectionError(msg)
 
     def _renew_session(self) -> None:
         self.session.close()

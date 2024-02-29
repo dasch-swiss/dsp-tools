@@ -90,7 +90,6 @@ def test_excel2properties_invalid_gui_attrib_format() -> None:
         e2j.excel2properties("testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute_format.xlsx", "")
 
 
-excelfile = "testdata/excel2json/excel2json_files/test-name (test_label)/properties.xlsx"
 
 
 class TestExcelToProperties(unittest.TestCase):

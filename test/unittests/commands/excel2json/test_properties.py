@@ -2,7 +2,8 @@
 
 import re
 import unittest
-from typing import Any, cast
+from typing import Any
+from typing import cast
 
 import jsonpath_ng
 import jsonpath_ng.ext

@@ -3,7 +3,9 @@ import importlib.resources
 import json
 from copy import deepcopy
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any
+from typing import Optional
+from typing import Union
 
 import jsonschema
 import regex
@@ -13,7 +15,9 @@ from openpyxl.worksheet.worksheet import Worksheet
 
 from dsp_tools.commands.excel2json.models.input_error import MoreThanOneSheetProblem
 from dsp_tools.commands.excel2json.models.list_node_name import ListNodeNames
-from dsp_tools.models.exceptions import BaseError, InputError, UserError
+from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import InputError
+from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.shared import simplify_name
 
 

@@ -1,7 +1,8 @@
 import argparse
 from pathlib import Path
 
-from dsp_tools.commands.excel2json.lists import excel2lists, validate_lists_section_with_schema
+from dsp_tools.commands.excel2json.lists import excel2lists
+from dsp_tools.commands.excel2json.lists import validate_lists_section_with_schema
 from dsp_tools.commands.excel2json.project import excel2json
 from dsp_tools.commands.excel2json.properties import excel2properties
 from dsp_tools.commands.excel2json.resources import excel2resources
@@ -13,9 +14,11 @@ from dsp_tools.commands.project.create.project_create_lists import create_lists
 from dsp_tools.commands.project.create.project_validate import validate_project
 from dsp_tools.commands.project.get import get_project
 from dsp_tools.commands.rosetta import upload_rosetta
-from dsp_tools.commands.start_stack import StackConfiguration, StackHandler
+from dsp_tools.commands.start_stack import StackConfiguration
+from dsp_tools.commands.start_stack import StackHandler
 from dsp_tools.commands.template import generate_template_repo
-from dsp_tools.commands.xmlupload.upload_config import DiagnosticsConfig, UploadConfig
+from dsp_tools.commands.xmlupload.upload_config import DiagnosticsConfig
+from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.xml_validation import validate_xml

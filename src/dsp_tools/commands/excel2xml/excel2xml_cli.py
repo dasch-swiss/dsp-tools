@@ -2,34 +2,34 @@ from __future__ import annotations
 
 import warnings
 from pathlib import Path
-from typing import Callable, Optional, Union
+from typing import Callable
+from typing import Optional
+from typing import Union
 
 import pandas as pd
 import regex
 from lxml import etree
 
-from dsp_tools.commands.excel2xml.excel2xml_lib import (
-    append_permissions,
-    make_annotation,
-    make_bitstream_prop,
-    make_boolean_prop,
-    make_color_prop,
-    make_date_prop,
-    make_decimal_prop,
-    make_geometry_prop,
-    make_geoname_prop,
-    make_integer_prop,
-    make_interval_prop,
-    make_link,
-    make_list_prop,
-    make_region,
-    make_resource,
-    make_resptr_prop,
-    make_root,
-    make_text_prop,
-    make_uri_prop,
-    write_xml,
-)
+from dsp_tools.commands.excel2xml.excel2xml_lib import append_permissions
+from dsp_tools.commands.excel2xml.excel2xml_lib import make_annotation
+from dsp_tools.commands.excel2xml.excel2xml_lib import make_bitstream_prop
+from dsp_tools.commands.excel2xml.excel2xml_lib import make_boolean_prop
+from dsp_tools.commands.excel2xml.excel2xml_lib import make_color_prop
+from dsp_tools.commands.excel2xml.excel2xml_lib import make_date_prop
+from dsp_tools.commands.excel2xml.excel2xml_lib import make_decimal_prop
+from dsp_tools.commands.excel2xml.excel2xml_lib import make_geometry_prop
+from dsp_tools.commands.excel2xml.excel2xml_lib import make_geoname_prop
+from dsp_tools.commands.excel2xml.excel2xml_lib import make_integer_prop
+from dsp_tools.commands.excel2xml.excel2xml_lib import make_interval_prop
+from dsp_tools.commands.excel2xml.excel2xml_lib import make_link
+from dsp_tools.commands.excel2xml.excel2xml_lib import make_list_prop
+from dsp_tools.commands.excel2xml.excel2xml_lib import make_region
+from dsp_tools.commands.excel2xml.excel2xml_lib import make_resource
+from dsp_tools.commands.excel2xml.excel2xml_lib import make_resptr_prop
+from dsp_tools.commands.excel2xml.excel2xml_lib import make_root
+from dsp_tools.commands.excel2xml.excel2xml_lib import make_text_prop
+from dsp_tools.commands.excel2xml.excel2xml_lib import make_uri_prop
+from dsp_tools.commands.excel2xml.excel2xml_lib import write_xml
 from dsp_tools.commands.excel2xml.propertyelement import PropertyElement
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.shared import check_notna

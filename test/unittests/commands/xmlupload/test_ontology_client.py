@@ -5,9 +5,7 @@ from typing import Any
 import pytest
 from pytest_unordered import unordered
 
-from dsp_tools.commands.xmlupload.ontology_client import (
-    OntologyClientLive,
-)
+from dsp_tools.commands.xmlupload.ontology_client import OntologyClientLive
 
 
 @dataclass

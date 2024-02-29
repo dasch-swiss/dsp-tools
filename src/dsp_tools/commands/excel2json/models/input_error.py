@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from typing import Any, Protocol
+from typing import Any
+from typing import Protocol
 
 separator = "\n    "
 list_separator = "\n    - "

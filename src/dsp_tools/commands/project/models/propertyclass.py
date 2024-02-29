@@ -1,6 +1,9 @@
 from __future__ import annotations
 
-from typing import Any, Optional, Sequence, Union
+from typing import Any
+from typing import Optional
+from typing import Sequence
+from typing import Union
 from urllib.parse import quote_plus
 
 import regex

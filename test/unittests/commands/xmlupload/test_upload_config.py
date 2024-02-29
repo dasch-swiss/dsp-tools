@@ -1,6 +1,7 @@
 import pytest
 
-from dsp_tools.commands.xmlupload.upload_config import UploadConfig, _transform_server_url_to_foldername
+from dsp_tools.commands.xmlupload.upload_config import UploadConfig
+from dsp_tools.commands.xmlupload.upload_config import _transform_server_url_to_foldername
 
 
 class TestTransformServerUrlToFoldername:

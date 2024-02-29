@@ -3,7 +3,8 @@ import unittest
 
 import pytest
 
-from dsp_tools.commands.excel2json.project import _create_project_json, _validate_folder_structure_get_filenames
+from dsp_tools.commands.excel2json.project import _create_project_json
+from dsp_tools.commands.excel2json.project import _validate_folder_structure_get_filenames
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
 

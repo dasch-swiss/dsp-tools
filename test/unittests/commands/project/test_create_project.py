@@ -4,21 +4,18 @@ from typing import Any
 import pytest
 from pytest_unordered import unordered
 
-from dsp_tools.commands.project.create.project_create import (
-    _rectify_hlist_of_properties,
-    _sort_prop_classes,
-    _sort_resources,
-)
-from dsp_tools.commands.project.create.project_validate import (
-    _check_for_duplicate_names,
-    _check_for_undefined_cardinalities,
-    _check_for_undefined_super_property,
-    _check_for_undefined_super_resource,
-    _collect_link_properties,
-    _identify_problematic_cardinalities,
-    validate_project,
-)
-from dsp_tools.models.exceptions import BaseError, UserError
+from dsp_tools.commands.project.create.project_create import _rectify_hlist_of_properties
+from dsp_tools.commands.project.create.project_create import _sort_prop_classes
+from dsp_tools.commands.project.create.project_create import _sort_resources
+from dsp_tools.commands.project.create.project_validate import _check_for_duplicate_names
+from dsp_tools.commands.project.create.project_validate import _check_for_undefined_cardinalities
+from dsp_tools.commands.project.create.project_validate import _check_for_undefined_super_property
+from dsp_tools.commands.project.create.project_validate import _check_for_undefined_super_resource
+from dsp_tools.commands.project.create.project_validate import _collect_link_properties
+from dsp_tools.commands.project.create.project_validate import _identify_problematic_cardinalities
+from dsp_tools.commands.project.create.project_validate import validate_project
+from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.shared import parse_json_input
 
 

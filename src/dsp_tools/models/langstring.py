@@ -1,5 +1,8 @@
-from enum import Enum, unique
-from typing import Any, Optional, Union
+from enum import Enum
+from enum import unique
+from typing import Any
+from typing import Optional
+from typing import Union
 
 from dsp_tools.models.exceptions import BaseError
 

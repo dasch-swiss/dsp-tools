@@ -1,12 +1,16 @@
 from __future__ import annotations
 
-from typing import Any, cast
+from typing import Any
+from typing import cast
 
 import regex
 import rustworkx as rx
 from lxml import etree
 
-from dsp_tools.commands.xmlupload.stash.graph_models import Cost, Edge, ResptrLink, XMLLink
+from dsp_tools.commands.xmlupload.stash.graph_models import Cost
+from dsp_tools.commands.xmlupload.stash.graph_models import Edge
+from dsp_tools.commands.xmlupload.stash.graph_models import ResptrLink
+from dsp_tools.commands.xmlupload.stash.graph_models import XMLLink
 from dsp_tools.utils.iri_util import is_resource_iri
 
 

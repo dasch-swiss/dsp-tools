@@ -1,4 +1,6 @@
-from typing import Optional, Union, cast
+from typing import Optional
+from typing import Union
+from typing import cast
 
 import regex
 from lxml import etree

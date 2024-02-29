@@ -4,10 +4,8 @@ from pathlib import Path
 
 from lxml import etree
 
-from dsp_tools.commands.ingest_xmlupload.apply_ingest_id import (
-    get_mapping_dict_from_file,
-    replace_filepath_with_sipi_id,
-)
+from dsp_tools.commands.ingest_xmlupload.apply_ingest_id import get_mapping_dict_from_file
+from dsp_tools.commands.ingest_xmlupload.apply_ingest_id import replace_filepath_with_sipi_id
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from dsp_tools.models.exceptions import InputError

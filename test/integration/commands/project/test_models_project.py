@@ -1,4 +1,4 @@
-from test.unittests.commands.xmlupload.connection_mock import ConnectionMockBase
+from test.integration.commands.xmlupload.connection_mock import ConnectionMockBase
 
 import pytest
 

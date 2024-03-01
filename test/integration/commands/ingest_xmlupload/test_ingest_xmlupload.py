@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Iterator
 
 import pytest
+import regex
 
 from dsp_tools.commands.ingest_xmlupload.upload_xml import ingest_xmlupload
 from dsp_tools.models.exceptions import InputError
@@ -18,7 +19,7 @@ def _retrieve_mapping_file() -> Iterator[None]:
 
 
 def test_ingest_xmlupload() -> None:
-    expected_msg = (
+    expected_msg = regex.escape(
         "The upload cannot continue as there are problems with the multimedia files referenced in the XML.\n"
         "    The data XML file does not reference the following multimedia files "
         "which were previously uploaded through dsp-ingest:\n"
@@ -38,7 +39,8 @@ def test_ingest_xmlupload() -> None:
 
 
 def test_ingest_xmlupload_no_mapping() -> None:
-    with pytest.raises(InputError):
+    expected_msg = regex.escape("No mapping CSV file was found at mapping-00A5.csv.")
+    with pytest.raises(InputError, match=expected_msg):
         ingest_xmlupload(
             xml_file=Path("testdata/dsp-ingest-data/dsp_ingest_no_mapping.xml"),
             user="root@example.com",

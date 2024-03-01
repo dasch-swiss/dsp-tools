@@ -8,8 +8,6 @@ import regex
 from dsp_tools.commands.ingest_xmlupload.upload_xml import ingest_xmlupload
 from dsp_tools.models.exceptions import InputError
 
-# ruff: noqa: E501 (line-too-long)
-
 
 @pytest.fixture(autouse=True)
 def _retrieve_mapping_file() -> Iterator[None]:

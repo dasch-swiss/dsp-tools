@@ -150,7 +150,6 @@ class ResourcesSheetsNotAsExpected:
             message for the error
         """
         msg = (
-            "The excel file 'resources.xlsx' has problems.\n"
             "The names of the excel sheets must be 'classes' "
             "plus all the entries in the column 'name' from the sheet 'classes'.\n"
         )

@@ -1,4 +1,3 @@
-import re
 import unittest
 
 import jsonpath_ng
@@ -185,58 +184,57 @@ class TestValidateWithSchema:
 
     def test_invalid_super(self) -> None:
         expected_msg = (
-            "\nThe Excel file 'testdata/invalid-testdata/excel2json/resources-invalid-super.xlsx' "
-            "did not pass validation.\n"
-            "    Section of the problem: 'Resources'\n"
-            "    Problematic Resource 'Title'\n"
-            "    Located at: Sheet 'classes' | Column 'super' | Row 3\n"
-            "    Original Error Message:\n"
-            "    'fantasy' is not valid under any of the given schemas"
+            r"\nThe Excel file 'resources\.xlsx' "
+            r"did not pass validation\.\n"
+            r"    Section of the problem: 'Resources'\n"
+            r"    Problematic Resource 'Title'\n"
+            r"    Located at: Sheet 'classes' \| Column 'super' \| Row 3\n"
+            r"    Original Error Message:\n"
+            r"    'fantasy' is not valid under any of the given schemas"
         )
         with pytest.raises(InputError, match=expected_msg):
             e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-invalid-super.xlsx", "")
 
     def test_sheet_invalid_cardinality(self) -> None:
         expected_msg = (
-            "\nThe Excel file 'testdata/invalid-testdata/excel2json/resources-invalid-cardinality.xlsx' "
-            "did not pass validation.\n"
-            "    Section of the problem: 'Resources'\n"
-            "    Located at: Sheet 'Owner' | Column 'Cardinality' | Row 3\n"
-            "    Original Error Message:\n"
-            "    '0-2' is not one of ['1', '0-1', '1-n', '0-n']"
+            r"\nThe Excel file 'resources\.xlsx' "
+            r"did not pass validation\.\n"
+            r"    Section of the problem: 'Resources'\n"
+            r"    Located at: Sheet 'Owner' \| Column 'Cardinality' \| Row 3\n"
+            r"    Original Error Message:\n"
+            r"    '0-2' is not one of \['1', '0-1', '1-n', '0-n'\]"
         )
         with pytest.raises(InputError, match=expected_msg):
             e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-invalid-cardinality.xlsx", "")
 
     def test_invalid_property(self) -> None:
         expected_msg = (
-            "\nThe Excel file 'testdata/invalid-testdata/excel2json/resources-invalid-property.xlsx' "
-            "did not pass validation.\n"
-            "    Section of the problem: 'Resources'\n"
-            "    Located at: Sheet 'FamilyMember' | Column 'Property' | Row 7\n"
-            "    Original Error Message:\n"
-            "    ':fan:ta:sy' does not match '^([a-zA-Z_][\\\\w.-]*)?:([\\\\w.-]+)$'"
+            r"\nThe Excel file 'resources\.xlsx' did not pass validation\.\n"
+            r"    Section of the problem: 'Resources'\n"
+            r"    Located at: Sheet 'FamilyMember' \| Column 'Property' \| Row 7\n"
+            r"    Original Error Message:\n"
+            r"    ':fan:ta:sy' does not match '\^\(\[a-zA-Z_\]\[\\\\w\.-\]\*\)\?:\(\[\\\\w\.-\]\+\)\$'"
         )
         with pytest.raises(InputError, match=expected_msg):
             e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-invalid-property.xlsx", "")
 
     def test_duplicate_name(self) -> None:
         expected_msg = (
-            "The excel file 'resources.xlsx', sheet 'classes' has a problem.\n"
-            "No duplicates are allowed in the column 'name'\n"
-            "The following values appear several times:\n"
-            "    - MentionedPerson"
+            r"The excel file 'resources\.xlsx', sheet 'classes' has a problem\.\n"
+            r"No duplicates are allowed in the column 'name'\n"
+            r"The following values appear several times:\n"
+            r"    - MentionedPerson"
         )
         with pytest.raises(BaseError, match=expected_msg):
             e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-duplicate-name.xlsx", "")
 
     def test_missing_sheet(self) -> None:
-        expected_msg = re.escape(
-            "The excel file 'resources.xlsx' has problems.\n"
-            "The names of the excel sheets must be 'classes' "
-            "plus all the entries in the column 'name' from the sheet 'classes'.\n"
-            "The following sheet(s) are missing:\n"
-            "    - GenericAnthroponym"
+        expected_msg = (
+            r"The excel file 'resources\.xlsx', sheet 'classes' has a problem\.\n"
+            r"The names of the excel sheets must be 'classes' "
+            r"plus all the entries in the column 'name' from the sheet 'classes'\.\n"
+            r"The following sheet\(s\) are missing:\n"
+            r"    - GenericAnthroponym"
         )
         with pytest.raises(InputError, match=expected_msg):
             e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-invalid-missing-sheet.xlsx", "")

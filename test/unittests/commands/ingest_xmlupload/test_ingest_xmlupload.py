@@ -19,13 +19,13 @@ def _retrieve_mapping_file() -> Iterator[None]:
 
 def test_ingest_xmlupload() -> None:
     expected_msg = (
-        "The upload cannot continue as there are problems with the multimedia files referenced in the XML.\n"
-        "    The data XML file does not reference the following multimedia files "
-        "which were previously uploaded through dsp-ingest:\n"
-        "    - extra.jpg\n"
-        "    The data XML file contains references to the following multimedia files "
-        "which were not previously uploaded through dsp-ingest:\n"
-        "    - Resource ID: 'GoodGirlImage' | Filepath: 'images/GoodGirl.jpg'"
+        r"The upload cannot continue as there are problems with the multimedia files referenced in the XML\.\n"
+        r"    The data XML file does not reference the following multimedia files "
+        r"which were previously uploaded through dsp-ingest:\n"
+        r"    - extra\.jpg\n"
+        r"    The data XML file contains references to the following multimedia files "
+        r"which were not previously uploaded through dsp-ingest:\n"
+        r"    - Resource ID: 'GoodGirlImage' \| Filepath: 'images/GoodGirl\.jpg'"
     )
     with pytest.raises(InputError, match=expected_msg):
         ingest_xmlupload(

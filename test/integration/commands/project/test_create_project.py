@@ -63,7 +63,7 @@ def test_sort_prop_classes(tp_systematic_ontology: dict[str, Any]) -> None:
 def test_validate_project(tp_systematic: dict[str, Any], tp_circular_ontology: dict[str, Any]) -> None:
     assert validate_project(tp_systematic) is True
 
-    with pytest.raises(BaseError, match=r"Input 'fantasy.xyz' is neither a file path nor a JSON object."):
+    with pytest.raises(BaseError, match=r"Input 'fantasy\.xyz' is neither a file path nor a JSON object\."):
         validate_project("fantasy.xyz")
 
     with pytest.raises(BaseError, match=r"validation error: 'hasColor' does not match"):

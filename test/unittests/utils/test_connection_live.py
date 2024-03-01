@@ -57,7 +57,7 @@ def test_log_in_bad_credentials() -> None:
     con._log_response = Mock()
     con.session.request = Mock(return_value=Mock(status_code=401))
     with patch("dsp_tools.utils.connection_live.time.sleep") as sleep_mock:
-        with pytest.raises(UserError, match="Username and/or password are not valid"):
+        with pytest.raises(UserError, match=r"Username and/or password are not valid"):
             con.login("invalid@example.com", "wrong")
         sleep_mock.assert_not_called()
 

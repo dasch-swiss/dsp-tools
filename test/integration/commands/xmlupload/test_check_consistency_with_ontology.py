@@ -1,4 +1,3 @@
-import re
 from dataclasses import dataclass
 from test.integration.commands.xmlupload.connection_mock import ConnectionMockBase
 from typing import Any
@@ -68,7 +67,7 @@ def test_error_on_nonexistent_shortcode() -> None:
         shortcode="9999",
         default_ontology="foo",
     )
-    with pytest.raises(UserError, match="A project with shortcode 9999 could not be found on the DSP server"):
+    with pytest.raises(UserError, match=r"A project with shortcode 9999 could not be found on the DSP server"):
         do_xml_consistency_check_with_ontology(ontology_client, root)
 
 
@@ -84,18 +83,18 @@ def test_error_on_nonexistent_onto_name() -> None:
         shortcode="4124",
         default_ontology="notexistingfantasyonto",
     )
-    expected = re.escape(
-        "\nSome property and/or class type(s) used in the XML are unknown.\n"
-        "The ontologies for your project on the server are:\n"
-        "    - testonto\n"
-        "    - knora-api\n\n"
-        "---------------------------------------\n\n"
-        "The following resource(s) have an invalid resource type:\n\n"
-        "    Resource Type: ':minimalResource'\n"
-        "    Problem: 'Unknown ontology prefix'\n"
-        "    Resource ID(s):\n"
-        "    - the_only_resource\n\n"
-        "---------------------------------------\n\n"
+    expected = (
+        r"\nSome property and/or class type\(s\) used in the XML are unknown\.\n"
+        r"The ontologies for your project on the server are:\n"
+        r"    - testonto\n"
+        r"    - knora-api\n\n"
+        r"---------------------------------------\n\n"
+        r"The following resource\(s\) have an invalid resource type:\n\n"
+        r"    Resource Type: ':minimalResource'\n"
+        r"    Problem: 'Unknown ontology prefix'\n"
+        r"    Resource ID\(s\):\n"
+        r"    - the_only_resource\n\n"
+        r"---------------------------------------\n\n"
     )
     with pytest.raises(InputError, match=expected):
         do_xml_consistency_check_with_ontology(ontology_client, root)

@@ -1,4 +1,3 @@
-import re
 import unittest
 from typing import Any
 from typing import cast
@@ -97,28 +96,26 @@ class TestFunctions(unittest.TestCase):
                 "gui_attributes": ["size: 32, maxlength: 128", pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
             }
         )
-        expected_msg = re.escape(
-            (
-                "There is a problem with the excel file: 'Test'\n\n"
-                "The column 'name' must have values in the row(s):\n"
-                "    - 9\n\n"
-                "The column 'super' must have values in the row(s):\n"
-                "    - 2\n"
-                "    - 4\n"
-                "    - 9\n\n"
-                "The column 'object' must have values in the row(s):\n"
-                "    - 5\n"
-                "    - 9\n\n"
-                "The column 'gui_element' must have values in the row(s):\n"
-                "    - 6\n"
-                "    - 8\n"
-                "    - 9\n\n"
-                "The column 'label' must have values in the row(s):\n"
-                "    - 3\n"
-                "    - 8\n\n"
-                "The column 'gui_attributes' must have values in the row(s):\n"
-                "    - 7"
-            )
+        expected_msg = (
+            r"There is a problem with the excel file: 'Test'\n\n"
+            r"The column 'name' must have values in the row\(s\):\n"
+            r"    - 9\n\n"
+            r"The column 'super' must have values in the row\(s\):\n"
+            r"    - 2\n"
+            r"    - 4\n"
+            r"    - 9\n\n"
+            r"The column 'object' must have values in the row\(s\):\n"
+            r"    - 5\n"
+            r"    - 9\n\n"
+            r"The column 'gui_element' must have values in the row\(s\):\n"
+            r"    - 6\n"
+            r"    - 8\n"
+            r"    - 9\n\n"
+            r"The column 'label' must have values in the row\(s\):\n"
+            r"    - 3\n"
+            r"    - 8\n\n"
+            r"The column 'gui_attributes' must have values in the row\(s\):\n"
+            r"    - 7"
         )
         with pytest.raises(InputError, match=expected_msg):
             e2j._do_property_excel_compliance(original_df, "Test")

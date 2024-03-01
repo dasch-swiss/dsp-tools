@@ -511,7 +511,7 @@ class TestMakeProps(unittest.TestCase):
         assert res.text == "testdata/bitstreams/test.jpg"
 
     def test_make_bitstream_prop_invalid_file(self) -> None:
-        with pytest.warns(UserWarning, match=".*Failed validation in bitstream tag.*"):
+        with pytest.warns(UserWarning, match=r".*Failed validation in bitstream tag.*"):
             res = excel2xml.make_bitstream_prop("foo/bar/baz.txt", check=True)
         assert res.tag.endswith("bitstream")
         assert res.attrib["permissions"] == "prop-default"

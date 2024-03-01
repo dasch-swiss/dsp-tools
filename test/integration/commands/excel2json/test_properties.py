@@ -1,4 +1,3 @@
-import re
 import unittest
 
 import jsonpath_ng
@@ -18,13 +17,13 @@ class TestValidateProperties:
     lambda _: e2j._validate_properties_section_in_json([], "file")
 
     def test_invalid_super(self) -> None:
-        expected_msg = re.escape(
-            "\nThe Excel file "
-            "'testdata/invalid-testdata/excel2json/properties-invalid-super.xlsx' did not pass validation.\n"
-            "    Section of the problem: 'Properties'\n"
-            "    Problematic property: 'hasGeoname'\n"
-            "    Located at: Column 'super' | Row 3\n"
-            "    Original Error Message:\n'GeonameValue' is not valid under any of the given schemas"
+        expected_msg = (
+            r"\nThe Excel file "
+            r"'testdata/invalid-testdata/excel2json/properties-invalid-super\.xlsx' did not pass validation\.\n"
+            r"    Section of the problem: 'Properties'\n"
+            r"    Problematic property: 'hasGeoname'\n"
+            r"    Located at: Column 'super' \| Row 3\n"
+            r"    Original Error Message:\n'GeonameValue' is not valid under any of the given schemas"
         )
         with pytest.raises(InputError, match=expected_msg):
             e2j.excel2properties(
@@ -32,13 +31,13 @@ class TestValidateProperties:
             )
 
     def test_invalid_object(self) -> None:
-        expected_msg = re.escape(
-            "\nThe Excel file "
-            "'testdata/invalid-testdata/excel2json/properties-invalid-object.xlsx' did not pass validation.\n"
-            "    Section of the problem: 'Properties'\n"
-            "    Problematic property: 'hasBoolean'\n"
-            "    Located at: Column 'object' | Row 2\n"
-            "    Original Error Message:\n'hasValue' is not valid under any of the given schemas"
+        expected_msg = (
+            r"\nThe Excel file "
+            r"'testdata/invalid-testdata/excel2json/properties-invalid-object\.xlsx' did not pass validation\.\n"
+            r"    Section of the problem: 'Properties'\n"
+            r"    Problematic property: 'hasBoolean'\n"
+            r"    Located at: Column 'object' \| Row 2\n"
+            r"    Original Error Message:\n'hasValue' is not valid under any of the given schemas"
         )
         with pytest.raises(InputError, match=expected_msg):
             e2j.excel2properties(
@@ -46,13 +45,13 @@ class TestValidateProperties:
             )
 
     def test_invalid_gui_element(self) -> None:
-        expected_msg = re.escape(
-            "\nThe Excel file "
-            "'testdata/invalid-testdata/excel2json/properties-invalid-gui_element.xlsx' did not pass validation.\n"
-            "    Section of the problem: 'Properties'\n"
-            "    Problematic property: 'hasInterval'\n"
-            "    Located at: Column 'gui_element' | Row 4\n"
-            "    Original Error Message:\n'Interval' was expected"
+        expected_msg = (
+            r"\nThe Excel file "
+            r"'testdata/invalid-testdata/excel2json/properties-invalid-gui_element\.xlsx' did not pass validation\.\n"
+            r"    Section of the problem: 'Properties'\n"
+            r"    Problematic property: 'hasInterval'\n"
+            r"    Located at: Column 'gui_element' \| Row 4\n"
+            r"    Original Error Message:\n'Interval' was expected"
         )
         with pytest.raises(InputError, match=expected_msg):
             e2j.excel2properties(
@@ -61,14 +60,14 @@ class TestValidateProperties:
             )
 
     def test_invalid_gui_attrib_values(self) -> None:
-        expected_msg = re.escape(
-            "\nThe Excel file "
-            "'testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute_values.xlsx' "
-            "did not pass validation.\n"
-            "    Section of the problem: 'Properties'\n"
-            "    Problematic property: 'hasInteger'\n"
-            "    Located at: Column 'gui_attributes' | Row 4\n"
-            "    Original Error Message:\nAdditional properties are not allowed ('rows' was unexpected)"
+        expected_msg = (
+            r"\nThe Excel file "
+            r"'testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute_values\.xlsx' "
+            r"did not pass validation.\n"
+            r"    Section of the problem: 'Properties'\n"
+            r"    Problematic property: 'hasInteger'\n"
+            r"    Located at: Column 'gui_attributes' \| Row 4\n"
+            r"    Original Error Message:\nAdditional properties are not allowed \('rows' was unexpected\)"
         )
         with pytest.raises(InputError, match=expected_msg):
             e2j.excel2properties(
@@ -78,13 +77,13 @@ class TestValidateProperties:
 
 
 def test_excel2properties_invalid_gui_attrib_format() -> None:
-    expected_msg = re.escape(
-        "There is a problem with the excel file: "
-        "'testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute_format.xlsx'\n"
-        "There is invalid content in the excel.\n"
-        "Located at: Column 'gui_attributes' | Row 4\n"
-        "Expected Content: attribute: value, attribute: value\n"
-        "Actual Content: max=10, min=5"
+    expected_msg = (
+        r"There is a problem with the excel file: "
+        r"'testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute_format\.xlsx'\n"
+        r"There is invalid content in the excel\.\n"
+        r"Located at: Column 'gui_attributes' \| Row 4\n"
+        r"Expected Content: attribute: value, attribute: value\n"
+        r"Actual Content: max=10, min=5"
     )
     with pytest.raises(InputError, match=expected_msg):
         e2j.excel2properties("testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute_format.xlsx", "")

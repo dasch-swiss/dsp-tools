@@ -60,8 +60,8 @@ class TestValidateListSection:
         with open("testdata/excel2json/lists-multilingual-output-expected.json", encoding="utf-8") as f:
             lists_section_valid_invalid = json.load(f)
         del lists_section_valid_invalid[0]["comments"]
-        expected_msg = re.escape(
-            "'lists' section did not pass validation. The error message is: 'comments' is a required property"
+        expected_msg = (
+            r"'lists' section did not pass validation\. " r"The error message is: 'comments' is a required property"
         )
         with pytest.raises(BaseError, match=expected_msg):
             e2l.validate_lists_section_with_schema(lists_section=lists_section_valid_invalid)
@@ -69,8 +69,8 @@ class TestValidateListSection:
     def test_invalid_lang(self) -> None:
         lists_section_valid[0]["comments"]["eng"] = "wrong English label"
 
-        expected_msg = re.escape(
-            "'lists' section did not pass validation. The error message is: 'eng' does not match any of the regexes"
+        expected_msg = (
+            r"'lists' section did not pass validation\. The error message is: 'eng' does not match any of the regexes"
         )
         with pytest.raises(BaseError, match=expected_msg):
             e2l.validate_lists_section_with_schema(lists_section=lists_section_valid)

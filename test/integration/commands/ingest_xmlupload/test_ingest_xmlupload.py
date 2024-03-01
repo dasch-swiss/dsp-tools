@@ -39,7 +39,7 @@ def test_ingest_xmlupload() -> None:
 
 
 def test_ingest_xmlupload_no_mapping() -> None:
-    expected_msg = "No mapping CSV file was found at mapping-00A5.csv."
+    expected_msg = regex.escape("No mapping CSV file was found at mapping-00A5.csv.")
     with pytest.raises(InputError, match=expected_msg):
         ingest_xmlupload(
             xml_file=Path("testdata/dsp-ingest-data/dsp_ingest_no_mapping.xml"),

@@ -187,6 +187,19 @@ def _upload(
             list_client=list_client,
             id_to_iri_resolver=iri_resolver,
         )
+    except BaseException as err:  # noqa: BLE001 (blind-except)
+        # The forseeable errors are already handled by failed_uploads
+        # Here we catch the unforseeable exceptions, incl. Ctrl+C.
+        _handle_upload_error(
+            err_msg=str(err),
+            iri_resolver=iri_resolver,
+            pending_resources=resources,
+            failed_uploads=failed_uploads,
+            stash=stash,
+            diagnostics=config.diagnostics,
+        )
+
+    try:
         nonapplied_stash = (
             _upload_stash(
                 stash=stash,
@@ -208,6 +221,7 @@ def _upload(
         _handle_upload_error(
             err_msg=str(err),
             iri_resolver=iri_resolver,
+            pending_resources=resources,
             failed_uploads=failed_uploads,
             stash=stash,
             diagnostics=config.diagnostics,
@@ -346,17 +360,25 @@ def _upload_resources(
             failed_uploads.append(resource.res_id)
             continue
 
-        res = _create_resource(resource, media_info, resource_create_client)
-        if not res:
-            failed_uploads.append(resource.res_id)
-            continue
-
-        iri, label = res
-        id_to_iri_resolver.update(resource.res_id, iri)
-
-        resource_designation = f"'{label}' (ID: '{resource.res_id}', IRI: '{iri}')"
-        print(f"{datetime.now()}: Created resource {i+1}/{len(resources)}: {resource_designation}")
-        logger.info(f"Created resource {i+1}/{len(resources)}: {resource_designation}")
+        res = None
+        try:
+            res = _create_resource(resource, media_info, resource_create_client)
+        finally:
+            match res:
+                case (None, None):
+                    # resource creation failed gracefully: register it as failed, then continue
+                    failed_uploads.append(resource.res_id)
+                    continue
+                case (iri, label) if isinstance(iri, str) and isinstance(label, str):
+                    # resource creation succeeded: update the iri_resolver and remove the resource from the list
+                    iri_resolver.update(resource.res_id, iri)
+                    resources.remove(resource)
+                    resource_designation = f"'{label}' (ID: '{resource.res_id}', IRI: '{iri}')"
+                    print(f"{datetime.now()}: Created resource {i+1}/{len(resources)}: {resource_designation}")
+                    logger.info(f"Created resource {i+1}/{len(resources)}: {resource_designation}")
+                case _:
+                    # unhandled exception during resource creation: escalate
+                    pass
 
     return id_to_iri_resolver, failed_uploads
 
@@ -365,7 +387,7 @@ def _create_resource(
     resource: XMLResource,
     bitstream_information: BitstreamInfo | None,
     resource_create_client: ResourceCreateClient,
-) -> tuple[str, str] | None:
+) -> tuple[str, str] | tuple[None, None]:
     try:
         return resource_create_client.create_resource(resource, bitstream_information)
     except Exception as err:
@@ -379,7 +401,7 @@ def _create_resource(
             f"Property details:\n" + "\n".join([str(vars(prop)) for prop in resource.properties])
         )
         logger.exception(log_msg)
-        return None
+        return None, None
 
 
 def _handle_upload_error(

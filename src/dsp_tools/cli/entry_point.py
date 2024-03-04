@@ -101,7 +101,7 @@ def _check_version() -> None:
 
     msg = (
         f"You are using DSP-TOOLS version {installed}, but version {latest} is available. "
-        "Consider upgrading via 'pip3 install --upgrade dsp-tools'. "
+        "Consider upgrading via 'pip3 install --upgrade dsp-tools'.\n"
     )
     if latest.base_version == installed.base_version:
         print(colored(msg, color="red"))

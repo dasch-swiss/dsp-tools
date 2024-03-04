@@ -172,7 +172,6 @@ def _upload(
     project_client: ProjectClient,
     list_client: ListClient,
 ) -> tuple[IriResolver, list[str]]:
-    # upload all resources, then update the resources with the stashed XML texts and resptrs
     failed_uploads: list[str] = []
     iri_resolver = IriResolver()
     try:
@@ -202,9 +201,8 @@ def _upload(
             msg = "Some stashed resptrs or XML texts could not be reapplied to their resources on the DSP server."
             raise BaseError(msg)
     except BaseException as err:  # noqa: BLE001 (blind-except)
-        # The forseeable errors are already handled by the variables
-        # failed_uploads, nonapplied_xml_texts, and nonapplied_resptr_props.
-        # Here we catch the unforseeable exceptions, hence BaseException (=the base class of all exceptions)
+        # The forseeable errors are already handled by failed_uploads and nonapplied_stash.
+        # Here we catch the unforseeable exceptions, incl. Ctrl+C.
         _handle_upload_error(
             err_msg=str(err),
             iri_resolver=iri_resolver,

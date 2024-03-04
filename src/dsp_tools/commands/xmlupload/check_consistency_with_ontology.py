@@ -201,7 +201,7 @@ def _check_correctness_all_text_value_encodings(root: etree._Element, text_prop_
     if len(invalid_text_values) == 0:
         return ""
     msg, df = InvalidTextValueEncodings(invalid_text_values).execute_problem_protocol()
-    if df:
+    if df is not None:
         csv_file = Path(f"text_value_encoding_errors_{datetime.now().strftime('%Y-%m-%d_%H%M%S')}.csv")
         df.to_csv(path_or_buf=csv_file, index=False)
         msg += (

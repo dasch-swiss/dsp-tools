@@ -41,7 +41,6 @@ def run(args: list[str]) -> None:
         InputError: if user input was wrong
         InternalError: if the user cannot fix it
     """
-    _check_version()
     default_dsp_api_url = "http://0.0.0.0:3333"
     default_sipi_url = "http://0.0.0.0:1024"
     root_user_email = "root@example.com"
@@ -56,6 +55,7 @@ def run(args: list[str]) -> None:
         user_args=args,
         parser=parser,
     )
+    _check_version()
     _log_cli_arguments(parsed_arguments)
 
     try:
@@ -81,7 +81,13 @@ def run(args: list[str]) -> None:
 
 
 def _check_version() -> None:
-    """Check if the installed version of dsp-tools is up-to-date. If not, print a warning message."""
+    """
+    Check if the installed version of dsp-tools is up-to-date.
+    If pypi.org cannot be reached, or if the latest version cannot be determined, do nothing.
+    If a new post-release version is available, print a message to the user, and return None.
+    If the base version (i.e. the major.minor.micro part of the version) is outdated,
+    ask the user if they want to exit or continue anyway.
+    """
     try:
         response = requests.get("https://pypi.org/pypi/dsp-tools/json", timeout=15)
     except requests.ConnectionError:
@@ -90,13 +96,24 @@ def _check_version() -> None:
         return
     latest = parse(response.json()["info"]["version"])
     installed = parse(version("dsp-tools"))
-    if latest > installed:
-        msg = colored(
-            f"You are using DSP-TOOLS version {installed}, but version {latest} is available. "
-            "Consider upgrading via 'pip3 install --upgrade dsp-tools'.",
-            color="red",
-        )
-        print(msg)
+    if latest == installed:
+        return
+
+    msg = (
+        f"You are using DSP-TOOLS version {installed}, but version {latest} is available. "
+        "Consider upgrading via 'pip3 install --upgrade dsp-tools'.\n"
+    )
+    if latest.base_version == installed.base_version:
+        print(colored(msg, color="red"))
+        return
+
+    msg += "Continue anyway? [y/n]"
+    resp = None
+    while resp not in ["y", "n"]:
+        resp = input(colored(msg, color="red"))
+    if resp == "y":
+        return
+    sys.exit(1)
 
 
 def _parse_arguments(

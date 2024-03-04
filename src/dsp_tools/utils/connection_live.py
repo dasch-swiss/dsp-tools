@@ -287,11 +287,16 @@ class ConnectionLive:
         return action()
 
     def _handle_non_ok_responses(self, response: Response, request_url: str, retry_counter: int) -> None:
+        permanent_error_regexes = [
+            r"OntologyConstraintException",
+            r"DuplicateValueException",
+            r"Project '[0-9A-F]{4}' not found",
+        ]
         if "v2/authentication" in request_url and response.status_code == HTTP_UNAUTHORIZED:
             raise BadCredentialsError("Bad credentials")
 
-        elif any(x in response.text for x in ["OntologyConstraintException", "DuplicateValueException"]):
-            msg = f"Error occurred due to user input, original message:\n{response.text}"
+        elif any(regex.search(x, response.text) for x in permanent_error_regexes):
+            msg = f"Error occurred due to user input. Original message:\n{response.text}"
             raise InputError(msg)
 
         elif not self._in_testing_environment():

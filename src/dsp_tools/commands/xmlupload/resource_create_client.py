@@ -28,7 +28,7 @@ class ResourceCreateClient:
 
     con: Connection
     project_iri: str
-    id_to_iri_resolver: IriResolver
+    iri_resolver: IriResolver
     json_ld_context: dict[str, str]
     permissions_lookup: dict[str, Permissions]
     listnode_lookup: dict[str, str]
@@ -123,11 +123,11 @@ class ResourceCreateClient:
             case "interval":
                 res = _make_interval_value(value)
             case "resptr":
-                res = _make_link_value(value, self.id_to_iri_resolver)
+                res = _make_link_value(value, self.iri_resolver)
             case "list":
                 res = _make_list_value(value, self.listnode_lookup)
             case "text":
-                res = _make_text_value(value, self.id_to_iri_resolver)
+                res = _make_text_value(value, self.iri_resolver)
             case "time":
                 res = _make_time_value(value)
             case "uri":

@@ -172,7 +172,6 @@ def _upload(
     project_client: ProjectClient,
     list_client: ListClient,
 ) -> tuple[IriResolver, list[str]]:
-    # upload all resources, then update the resources with the stashed XML texts and resptrs
     failed_uploads: list[str] = []
     iri_resolver = IriResolver()
     try:
@@ -185,7 +184,7 @@ def _upload(
             config=config,
             project_client=project_client,
             list_client=list_client,
-            id_to_iri_resolver=iri_resolver,
+            iri_resolver=iri_resolver,
         )
         nonapplied_stash = (
             _upload_stash(
@@ -202,9 +201,8 @@ def _upload(
             msg = "Some stashed resptrs or XML texts could not be reapplied to their resources on the DSP server."
             raise BaseError(msg)
     except BaseException as err:  # noqa: BLE001 (blind-except)
-        # The forseeable errors are already handled by the variables
-        # failed_uploads, nonapplied_xml_texts, and nonapplied_resptr_props.
-        # Here we catch the unforseeable exceptions, hence BaseException (=the base class of all exceptions)
+        # The forseeable errors are already handled by failed_uploads and nonapplied_stash.
+        # Here we catch the unforseeable exceptions, incl. Ctrl+C.
         _handle_upload_error(
             err_msg=str(err),
             iri_resolver=iri_resolver,
@@ -301,7 +299,7 @@ def _upload_resources(
     config: UploadConfig,
     project_client: ProjectClient,
     list_client: ListClient,
-    id_to_iri_resolver: IriResolver,
+    iri_resolver: IriResolver,
 ) -> tuple[IriResolver, list[str]]:
     """
     Iterates through all resources and tries to upload them to DSP.
@@ -317,7 +315,7 @@ def _upload_resources(
         config: the upload configuration
         project_client: a client for HTTP communication with the DSP-API
         list_client: a client for HTTP communication with the DSP-API
-        id_to_iri_resolver: a resolver for internal IDs to IRIs
+        iri_resolver: mapping from internal IDs to IRIs
 
     Returns:
         id2iri_mapping, failed_uploads
@@ -331,7 +329,7 @@ def _upload_resources(
     resource_create_client = ResourceCreateClient(
         con=con,
         project_iri=project_iri,
-        id_to_iri_resolver=id_to_iri_resolver,
+        iri_resolver=iri_resolver,
         json_ld_context=json_ld_context,
         permissions_lookup=permissions_lookup,
         listnode_lookup=listnode_lookup,
@@ -352,13 +350,13 @@ def _upload_resources(
             continue
 
         iri, label = res
-        id_to_iri_resolver.update(resource.res_id, iri)
+        iri_resolver.update(resource.res_id, iri)
 
         resource_designation = f"'{label}' (ID: '{resource.res_id}', IRI: '{iri}')"
         print(f"{datetime.now()}: Created resource {i+1}/{len(resources)}: {resource_designation}")
         logger.info(f"Created resource {i+1}/{len(resources)}: {resource_designation}")
 
-    return id_to_iri_resolver, failed_uploads
+    return iri_resolver, failed_uploads
 
 
 def _create_resource(

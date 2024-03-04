@@ -86,7 +86,7 @@ def _create_XMLResource_json_object_to_update(
         link_prop_name: {
             "@id": value_iri,
             "@type": "knora-api:TextValue",
-            "knora-api:textValueAsXml": '<?xml version="1.0" encoding="UTF-8"?>\n<text>' + str(new_xmltext) + "</text>",
+            "knora-api:textValueAsXml": new_xmltext.as_xml(),
             "knora-api:textValueHasMapping": {"@id": "http://rdfh.ch/standoff/mappings/StandardMapping"},
         },
         "@context": context,

@@ -85,6 +85,8 @@ services:
     volumes:
       - ./sipi/images:/opt/images
       - ./sipi/tmp-dsp-ingest:/opt/temp
+    networks:
+      - knora-net
     environment:
       - SERVICE_HOST=0.0.0.0
       - SERVICE_PORT=3340

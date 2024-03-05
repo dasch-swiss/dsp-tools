@@ -35,6 +35,7 @@ regex = "^2023.12.25"
 pyyaml = "^6.0.1"
 rustworkx = "^0.14.0"
 termcolor = "^2.4.0"
+packaging = "^23.2"
 
 
 [tool.poetry.group.dev.dependencies]

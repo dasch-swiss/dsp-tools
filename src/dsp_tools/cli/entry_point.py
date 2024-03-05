@@ -96,7 +96,7 @@ def _check_version() -> None:
         return
     latest = parse(response.json()["info"]["version"])
     installed = parse(version("dsp-tools"))
-    if latest == installed:
+    if latest <= installed:  # in the release-please PR, the installed version is always greater than the latest
         return
 
     msg = (

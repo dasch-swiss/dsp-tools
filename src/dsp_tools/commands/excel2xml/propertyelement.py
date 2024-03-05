@@ -23,13 +23,13 @@ class PropertyElement:
     Examples:
         See the difference between the first and the second example:
 
-        >>> make_text_prop(":testproperty", "first text")
+        >>> excel2xml.make_text_prop(":testproperty", "first text")
                 <text-prop name=":testproperty">
                     <text encoding="utf8" permissions="prop-default">
                         first text
                     </text>
                 </text-prop>
-        >>> make_text_prop(":testproperty", PropertyElement("first text", permissions="prop-restricted", encoding="xml"))
+        >>> excel2xml.make_text_prop(":testproperty", excel2xml.PropertyElement("first text", permissions="prop-restricted", encoding="xml"))
                 <text-prop name=":testproperty">
                     <text encoding="xml" permissions="prop-restricted">
                         first text

@@ -343,8 +343,8 @@ def make_root(
         The root element <knora>.
 
     Examples:
-        >>> root = make_root(shortcode=shortcode, default_ontology=default_ontology)
-        >>> root = append_permissions(root)
+        >>> root = excel2xml.make_root(shortcode=shortcode, default_ontology=default_ontology)
+        >>> root = excel2xml.append_permissions(root)
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#the-root-element-knora
     """
@@ -375,8 +375,8 @@ def append_permissions(root_element: etree._Element) -> etree._Element:
         The root element with the four permission blocks appended
 
     Examples:
-        >>> root = make_root(shortcode=shortcode, default_ontology=default_ontology)
-        >>> root = append_permissions(root)
+        >>> root = excel2xml.make_root(shortcode=shortcode, default_ontology=default_ontology)
+        >>> root = excel2xml.append_permissions(root)
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#describing-permissions-with-permissions-elements
     """
@@ -441,8 +441,8 @@ def make_resource(  # noqa: D417 (undocumented-param)
         BaseError: if the creation date is invalid
 
     Examples:
-        >>> resource = make_resource(...)
-        >>> resource.append(make_text_prop(...))
+        >>> resource = excel2xml.make_resource(...)
+        >>> resource.append(excel2xml.make_text_prop(...))
         >>> root.append(resource)
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#describing-resources-with-the-resource-element
@@ -496,8 +496,8 @@ def make_bitstream_prop(
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
 
     Examples:
-        >>> resource = make_resource(...)
-        >>> resource.append(make_bitstream_prop("data/images/tree.jpg"))
+        >>> resource = excel2xml.make_resource(...)
+        >>> resource.append(excel2xml.make_bitstream_prop("data/images/tree.jpg"))
         >>> root.append(resource)
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#bitstream
@@ -575,11 +575,11 @@ def make_boolean_prop(
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
 
     Examples:
-        >>> make_boolean_prop(":testproperty", "no")
+        >>> excel2xml.make_boolean_prop(":testproperty", "no")
                 <boolean-prop name=":testproperty">
                     <boolean permissions="prop-default">false</boolean>
                 </boolean-prop>
-        >>> make_boolean_prop(":testproperty", PropertyElement("1", permissions="prop-restricted", comment="example"))
+        >>> excel2xml.make_boolean_prop(":testproperty", excel2xml.PropertyElement("1", permissions="prop-restricted", comment="example"))
                 <boolean-prop name=":testproperty">
                     <boolean permissions="prop-restricted" comment="example">true</boolean>
                 </boolean-prop>
@@ -638,15 +638,15 @@ def make_color_prop(
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
 
     Examples:
-        >>> make_color_prop(":testproperty", "#00ff66")
+        >>> excel2xml.make_color_prop(":testproperty", "#00ff66")
                 <color-prop name=":testproperty">
                     <color permissions="prop-default">#00ff66</color>
                 </color-prop>
-        >>> make_color_prop(":testproperty", PropertyElement("#00ff66", permissions="prop-restricted", comment="example"))
+        >>> excel2xml.make_color_prop(":testproperty", excel2xml.PropertyElement("#00ff66", permissions="prop-restricted", comment="example"))
                 <color-prop name=":testproperty">
                     <color permissions="prop-restricted" comment="example">#00ff66</color>
                 </color-prop>
-        >>> make_color_prop(":testproperty", ["#00ff66", "#000000"])
+        >>> excel2xml.make_color_prop(":testproperty", ["#00ff66", "#000000"])
                 <color-prop name=":testproperty">
                     <color permissions="prop-default">#00ff66</color>
                     <color permissions="prop-default">#000000</color>
@@ -708,17 +708,17 @@ def make_date_prop(
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
 
     Examples:
-        >>> make_date_prop(":testproperty", "GREGORIAN:CE:2014-01-31")
+        >>> excel2xml.make_date_prop(":testproperty", "GREGORIAN:CE:2014-01-31")
                 <date-prop name=":testproperty">
                     <date permissions="prop-default">GREGORIAN:CE:2014-01-31</date>
                 </date-prop>
-        >>> make_date_prop(":testproperty", PropertyElement("GREGORIAN:CE:2014-01-31", permissions="prop-restricted", comment="example"))
+        >>> excel2xml.make_date_prop(":testproperty", excel2xml.PropertyElement("GREGORIAN:CE:2014-01-31", permissions="prop-restricted", comment="example"))
                 <date-prop name=":testproperty">
                     <date permissions="prop-restricted" comment="example">
                         GREGORIAN:CE:2014-01-31
                     </date>
                 </date-prop>
-        >>> make_date_prop(":testproperty", ["GREGORIAN:CE:1930-09-02:CE:1930-09-03", "GREGORIAN:CE:1930-09-02:CE:1930-09-03"])
+        >>> excel2xml.make_date_prop(":testproperty", ["GREGORIAN:CE:1930-09-02:CE:1930-09-03", "GREGORIAN:CE:1930-09-02:CE:1930-09-03"])
                 <date-prop name=":testproperty">
                     <date permissions="prop-default">
                         GREGORIAN:CE:1930-09-02:CE:1930-09-03
@@ -785,15 +785,15 @@ def make_decimal_prop(
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
 
     Examples:
-        >>> make_decimal_prop(":testproperty", "3.14159")
+        >>> excel2xml.make_decimal_prop(":testproperty", "3.14159")
                 <decimal-prop name=":testproperty">
                     <decimal permissions="prop-default">3.14159</decimal>
                 </decimal-prop>
-        >>> make_decimal_prop(":testproperty", PropertyElement("3.14159", permissions="prop-restricted", comment="example"))
+        >>> excel2xml.make_decimal_prop(":testproperty", excel2xml.PropertyElement("3.14159", permissions="prop-restricted", comment="example"))
                 <decimal-prop name=":testproperty">
                     <decimal permissions="prop-restricted" comment="example">3.14159</decimal>
                 </decimal-prop>
-        >>> make_decimal_prop(":testproperty", ["3.14159", "2.718"])
+        >>> excel2xml.make_decimal_prop(":testproperty", ["3.14159", "2.718"])
                 <decimal-prop name=":testproperty">
                     <decimal permissions="prop-default">3.14159</decimal>
                     <decimal permissions="prop-default">2.718</decimal>
@@ -857,15 +857,15 @@ def make_geometry_prop(
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
 
     Examples:
-        >>> make_geometry_prop(":testproperty", json_string)
+        >>> excel2xml.make_geometry_prop(":testproperty", json_string)
                 <geometry-prop name=":testproperty">
                     <geometry permissions="prop-default">{JSON}</geometry>
                 </geometry-prop>
-        >>> make_geometry_prop(":testproperty", PropertyElement(json_string, permissions="prop-restricted", comment="example"))
+        >>> excel2xml.make_geometry_prop(":testproperty", excel2xml.PropertyElement(json_string, permissions="prop-restricted", comment="example"))
                 <geometry-prop name=":testproperty">
                     <geometry permissions="prop-restricted" comment="example">{JSON}</geometry>
                 </geometry-prop>
-        >>> make_geometry_prop(":testproperty", [json_string1, json_string2])
+        >>> excel2xml.make_geometry_prop(":testproperty", [json_string1, json_string2])
                 <geometry-prop name=":testproperty">
                     <geometry permissions="prop-default">{JSON}</geometry>
                     <geometry permissions="prop-default">{JSON}</geometry>
@@ -939,15 +939,15 @@ def make_geoname_prop(
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
 
     Examples:
-        >>> make_geoname_prop(":testproperty", "2761369")
+        >>> excel2xml.make_geoname_prop(":testproperty", "2761369")
                 <geoname-prop name=":testproperty">
                     <geoname permissions="prop-default">2761369</geoname>
                 </geoname-prop>
-        >>> make_geoname_prop(":testproperty", PropertyElement("2761369", permissions="prop-restricted", comment="example"))
+        >>> excel2xml.make_geoname_prop(":testproperty", excel2xml.PropertyElement("2761369", permissions="prop-restricted", comment="example"))
                 <geoname-prop name=":testproperty">
                     <geoname permissions="prop-restricted" comment="example">2761369</geoname>
                 </geoname-prop>
-        >>> make_geoname_prop(":testproperty", ["2761369", "1010101"])
+        >>> excel2xml.make_geoname_prop(":testproperty", ["2761369", "1010101"])
                 <geoname-prop name=":testproperty">
                     <geoname permissions="prop-default">2761369</geoname>
                     <geoname permissions="prop-default">1010101</geoname>
@@ -1010,15 +1010,15 @@ def make_integer_prop(
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
 
     Examples:
-        >>> make_integer_prop(":testproperty", "2761369")
+        >>> excel2xml.make_integer_prop(":testproperty", "2761369")
                 <integer-prop name=":testproperty">
                     <integer permissions="prop-default">2761369</integer>
                 </integer-prop>
-        >>> make_integer_prop(":testproperty", PropertyElement("2761369", permissions="prop-restricted", comment="example"))
+        >>> excel2xml.make_integer_prop(":testproperty", excel2xml.PropertyElement("2761369", permissions="prop-restricted", comment="example"))
                 <integer-prop name=":testproperty">
                     <integer permissions="prop-restricted" comment="example">2761369</integer>
                 </integer-prop>
-        >>> make_integer_prop(":testproperty", ["2761369", "1010101"])
+        >>> excel2xml.make_integer_prop(":testproperty", ["2761369", "1010101"])
                 <integer-prop name=":testproperty">
                     <integer permissions="prop-default">2761369</integer>
                     <integer permissions="prop-default">1010101</integer>
@@ -1082,15 +1082,15 @@ def make_interval_prop(
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
 
     Examples:
-        >>> make_interval_prop(":testproperty", "61:3600")
+        >>> excel2xml.make_interval_prop(":testproperty", "61:3600")
                 <interval-prop name=":testproperty">
                     <interval permissions="prop-default">61:3600</interval>
                 </interval-prop>
-        >>> make_interval_prop(":testproperty", PropertyElement("61:3600", permissions="prop-restricted", comment="example"))
+        >>> excel2xml.make_interval_prop(":testproperty", excel2xml.PropertyElement("61:3600", permissions="prop-restricted", comment="example"))
                 <interval-prop name=":testproperty">
                     <interval permissions="prop-restricted" comment="example">61:3600</interval>
                 </interval-prop>
-        >>> make_interval_prop(":testproperty", ["61:3600", "60.5:120.5"])
+        >>> excel2xml.make_interval_prop(":testproperty", ["61:3600", "60.5:120.5"])
                 <interval-prop name=":testproperty">
                     <interval permissions="prop-default">61:3600</interval>
                     <interval permissions="prop-default">60.5:120.5</interval>
@@ -1157,15 +1157,15 @@ def make_list_prop(
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
 
     Examples:
-        >>> make_list_prop("mylist", ":testproperty", "first_node")
+        >>> excel2xml.make_list_prop("mylist", ":testproperty", "first_node")
                 <list-prop list="mylist" name=":testproperty">
                     <list permissions="prop-default">first_node</list>
                 </list-prop>
-        >>> make_list_prop("mylist", ":testproperty", PropertyElement("first_node", permissions="prop-restricted", comment="example"))
+        >>> excel2xml.make_list_prop("mylist", ":testproperty", excel2xml.PropertyElement("first_node", permissions="prop-restricted", comment="example"))
                 <list-prop list="mylist" name=":testproperty">
                     <list permissions="prop-restricted" comment="example">first_node</list>
                 </list-prop>
-        >>> make_list_prop("mylist", ":testproperty", ["first_node", "second_node"])
+        >>> excel2xml.make_list_prop("mylist", ":testproperty", ["first_node", "second_node"])
                 <list-prop list="mylist" name=":testproperty">
                     <list permissions="prop-default">first_node</list>
                     <list permissions="prop-default">second_node</list>
@@ -1228,15 +1228,15 @@ def make_resptr_prop(
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
 
     Examples:
-        >>> make_resptr_prop(":testproperty", "resource_1")
+        >>> excel2xml.make_resptr_prop(":testproperty", "resource_1")
                 <resptr-prop name=":testproperty">
                     <resptr permissions="prop-default">resource_1</resptr>
                 </resptr-prop>
-        >>> make_resptr_prop(":testproperty", PropertyElement("resource_1", permissions="prop-restricted", comment="example"))
+        >>> excel2xml.make_resptr_prop(":testproperty", excel2xml.PropertyElement("resource_1", permissions="prop-restricted", comment="example"))
                 <resptr-prop name=":testproperty">
                     <resptr permissions="prop-restricted" comment="example">resource_1</resptr>
                 </resptr-prop>
-        >>> make_resptr_prop(":testproperty", ["resource_1", "resource_2"])
+        >>> excel2xml.make_resptr_prop(":testproperty", ["resource_1", "resource_2"])
                 <resptr-prop name=":testproperty">
                     <resptr permissions="prop-default">resource_1</resptr>
                     <resptr permissions="prop-default">resource_2</resptr>
@@ -1301,15 +1301,15 @@ def make_text_prop(
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
 
     Examples:
-        >>> make_text_prop(":testproperty", "first text")
+        >>> excel2xml.make_text_prop(":testproperty", "first text")
                 <text-prop name=":testproperty">
                     <text encoding="utf8" permissions="prop-default">first text</text>
                 </text-prop>
-        >>> make_text_prop(":testproperty", PropertyElement("first text", permissions="prop-restricted", encoding="xml"))
+        >>> excel2xml.make_text_prop(":testproperty", excel2xml.PropertyElement("first text", permissions="prop-restricted", encoding="xml"))
                 <text-prop name=":testproperty">
                     <text encoding="xml" permissions="prop-restricted">first text</text>
                 </text-prop>
-        >>> make_text_prop(":testproperty", ["first text", "second text"])
+        >>> excel2xml.make_text_prop(":testproperty", ["first text", "second text"])
                 <text-prop name=":testproperty">
                     <text encoding="utf8" permissions="prop-default">first text</text>
                     <text encoding="utf8" permissions="prop-default">second text</text>
@@ -1445,19 +1445,19 @@ def make_time_prop(
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
 
     Examples:
-        >>> make_time_prop(":testproperty", "2009-10-10T12:00:00-05:00")
+        >>> excel2xml.make_time_prop(":testproperty", "2009-10-10T12:00:00-05:00")
                 <time-prop name=":testproperty">
                     <time permissions="prop-default">
                         2009-10-10T12:00:00-05:00
                     </time>
                 </time-prop>
-        >>> make_time_prop(":testproperty", PropertyElement("2009-10-10T12:00:00-05:00", permissions="prop-restricted", comment="example"))
+        >>> excel2xml.make_time_prop(":testproperty", excel2xml.PropertyElement("2009-10-10T12:00:00-05:00", permissions="prop-restricted", comment="example"))
                 <time-prop name=":testproperty">
                     <time permissions="prop-restricted" comment="example">
                         2009-10-10T12:00:00-05:00
                     </time>
                 </time-prop>
-        >>> make_time_prop(":testproperty", ["2009-10-10T12:00:00-05:00", "1901-01-01T01:00:00-00:00"])
+        >>> excel2xml.make_time_prop(":testproperty", ["2009-10-10T12:00:00-05:00", "1901-01-01T01:00:00-00:00"])
                 <time-prop name=":testproperty">
                     <time permissions="prop-default">
                         2009-10-10T12:00:00-05:00
@@ -1524,15 +1524,15 @@ def make_uri_prop(
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
 
     Examples:
-        >>> make_uri_prop(":testproperty", "www.test.com")
+        >>> excel2xml.make_uri_prop(":testproperty", "www.test.com")
                 <uri-prop name=":testproperty">
                     <uri permissions="prop-default">www.test.com</uri>
                 </uri-prop>
-        >>> make_uri_prop(":testproperty", PropertyElement("www.test.com", permissions="prop-restricted", comment="example"))
+        >>> excel2xml.make_uri_prop(":testproperty", excel2xml.PropertyElement("www.test.com", permissions="prop-restricted", comment="example"))
                 <uri-prop name=":testproperty">
                     <uri permissions="prop-restricted" comment="example">www.test.com</uri>
                 </uri-prop>
-        >>> make_uri_prop(":testproperty", ["www.1.com", "www.2.com"])
+        >>> excel2xml.make_uri_prop(":testproperty", ["www.1.com", "www.2.com"])
                 <uri-prop name=":testproperty">
                     <uri permissions="prop-default">www.1.com</uri>
                     <uri permissions="prop-default">www.2.com</uri>
@@ -1596,11 +1596,11 @@ def make_region(  # noqa: D417 (undocumented-param)
         <region label=label id=id permissions=permissions ark=ark iri=iri></region>
 
     Examples:
-        >>> region = make_region("label", "id")
-        >>> region.append(make_text_prop("hasComment", "This is a comment"))
-        >>> region.append(make_color_prop("hasColor", "#5d1f1e"))
-        >>> region.append(make_resptr_prop("isRegionOf", "image_0"))
-        >>> region.append(make_geometry_prop("hasGeometry", "{...}"))
+        >>> region = excel2xml.make_region("label", "id")
+        >>> region.append(excel2xml.make_text_prop("hasComment", "This is a comment"))
+        >>> region.append(excel2xml.make_color_prop("hasColor", "#5d1f1e"))
+        >>> region.append(excel2xml.make_resptr_prop("isRegionOf", "image_0"))
+        >>> region.append(excel2xml.make_geometry_prop("hasGeometry", "{...}"))
         >>> root.append(region)
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#region
@@ -1655,9 +1655,9 @@ def make_annotation(  # noqa: D417 (undocumented-param)
         <annotation label=label id=id permissions=permissions ark=ark iri=iri></annotation>
 
     Examples:
-        >>> annotation = make_annotation("label", "id")
-        >>> annotation.append(make_text_prop("hasComment", "This is a comment"))
-        >>> annotation.append(make_resptr_prop("isAnnotationOf", "resource_0"))
+        >>> annotation = excel2xml.make_annotation("label", "id")
+        >>> annotation.append(excel2xml.make_text_prop("hasComment", "This is a comment"))
+        >>> annotation.append(excel2xml.make_resptr_prop("isAnnotationOf", "resource_0"))
         >>> root.append(annotation)
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#annotation
@@ -1712,9 +1712,9 @@ def make_link(  # noqa: D417 (undocumented-param)
         <link label=label id=id permissions=permissions ark=ark iri=iri></link>
 
     Examples:
-        >>> link = make_link("label", "id")
-        >>> link.append(make_text_prop("hasComment", "This is a comment"))
-        >>> link.append(make_resptr_prop("hasLinkTo", ["resource_0", "resource_1"]))
+        >>> link = excel2xml.make_link("label", "id")
+        >>> link.append(excel2xml.make_text_prop("hasComment", "This is a comment"))
+        >>> link.append(excel2xml.make_resptr_prop("hasLinkTo", ["resource_0", "resource_1"]))
         >>> root.append(link)
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#link

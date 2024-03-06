@@ -13,6 +13,7 @@ from dsp_tools.commands.project.create.project_create import create_project
 from dsp_tools.commands.project.create.project_create_lists import create_lists
 from dsp_tools.commands.project.create.project_validate import validate_project
 from dsp_tools.commands.project.get import get_project
+from dsp_tools.commands.resume_xmlupload.resume_xmlupload import resume_xmlupload
 from dsp_tools.commands.rosetta import upload_rosetta
 from dsp_tools.commands.start_stack import StackConfiguration
 from dsp_tools.commands.start_stack import StackHandler
@@ -46,6 +47,8 @@ def call_requested_action(args: argparse.Namespace) -> bool:
             result = _call_create(args)
         case "xmlupload":
             result = _call_xmlupload(args)
+        case "resume-xmlupload":
+            result = _call_resume_xmlupload(args)
         case "excel2json":
             result = _call_excel2json(args)
         case "excel2lists":
@@ -159,14 +162,22 @@ def _call_xmlupload(args: argparse.Namespace) -> bool:
         return validate_xml(args.xmlfile)
     else:
         return xmlupload(
-            input_file=args.xmlfile,
             server=args.server,
             user=args.user,
             password=args.password,
             imgdir=args.imgdir,
             sipi=args.sipi_url,
-            config=UploadConfig(diagnostics=DiagnosticsConfig(verbose=args.verbose)),
+            config=UploadConfig(input_file=args.xmlfile, diagnostics=DiagnosticsConfig(verbose=args.verbose)),
         )
+
+
+def _call_resume_xmlupload(args: argparse.Namespace) -> bool:
+    return resume_xmlupload(
+        server=args.server,
+        user=args.user,
+        password=args.password,
+        sipi=args.sipi_url,
+    )
 
 
 def _call_get(args: argparse.Namespace) -> bool:

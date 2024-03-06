@@ -104,7 +104,7 @@ def xmlupload(
 
     list_client: ListClient = ListClientLive(con, project_client.get_project_iri())
 
-    iri_resolver, failed_uploads = _upload(
+    iri_resolver, failed_uploads = upload_resources(
         resources=resources,
         imgdir=imgdir,
         sipi_server=sipi_server,
@@ -116,14 +116,25 @@ def xmlupload(
         list_client=list_client,
     )
 
-    return _cleanup_upload(iri_resolver, config, failed_uploads)
+    return cleanup_upload(iri_resolver, config, failed_uploads)
 
 
-def _cleanup_upload(
+def cleanup_upload(
     iri_resolver: IriResolver,
     config: UploadConfig,
     failed_uploads: list[str],
 ) -> bool:
+    """
+    Write the id2iri mapping to a file and print a message to the console.
+
+    Args:
+        iri_resolver: mapping from internal IDs to IRIs
+        config: the upload configuration
+        failed_uploads: resources that caused an error when uploading to DSP
+
+    Returns:
+        success status (deduced from failed_uploads)
+    """
     write_id2iri_mapping(iri_resolver.lookup, config.input_file, config.diagnostics)
     success = not failed_uploads
     if success:
@@ -162,7 +173,7 @@ def _prepare_upload(
     return resources, permissions_lookup, stash
 
 
-def _upload(
+def upload_resources(
     resources: list[XMLResource],
     imgdir: str,
     sipi_server: Sipi,

@@ -5,8 +5,10 @@ from dataclasses import dataclass
 from dataclasses import field
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 import regex
+from lxml import etree
 
 from dsp_tools.utils.create_logger import get_logger
 
@@ -52,6 +54,7 @@ class UploadConfig:
     media_previously_uploaded: bool = False
     server: str = "unknown"
     shortcode: str = "unknown"
+    input_file: str | Path | etree._ElementTree[Any] = "unknown"
     diagnostics: DiagnosticsConfig = field(default_factory=DiagnosticsConfig)
 
     def with_server_info(

@@ -13,6 +13,7 @@ import regex
 from dsp_tools.commands.id2iri import id2iri
 from dsp_tools.commands.project.create.project_create import create_project
 from dsp_tools.commands.project.get import get_project
+from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
@@ -62,12 +63,12 @@ class TestCreateGetXMLUpload(unittest.TestCase):
         and if the 'id2iri' replacement works, so that the 2nd upload works.
         """
         success = xmlupload(
-            input_file=self.test_data_systematic_file,
             server=self.server,
             user=self.user,
             password=self.password,
             imgdir=self.imgdir,
             sipi=self.sipi,
+            config=UploadConfig(input_file=self.test_data_systematic_file),
         )
         self.assertTrue(success)
 
@@ -82,12 +83,12 @@ class TestCreateGetXMLUpload(unittest.TestCase):
 
         second_xml_file_replaced = self._get_most_recent_glob_match(f"{second_xml_file_orig.stem}_replaced_*.xml")
         success = xmlupload(
-            input_file=second_xml_file_replaced,
             server=self.server,
             user=self.user,
             password=self.password,
             imgdir=self.imgdir,
             sipi=self.sipi,
+            config=UploadConfig(input_file=second_xml_file_replaced),
         )
         second_xml_file_replaced.unlink()
         self.assertListEqual(list(Path(self.cwd).glob("stashed_*_properties_*.txt")), [])

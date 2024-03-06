@@ -4,9 +4,6 @@ import pickle
 import sys
 from datetime import datetime
 from logging import FileHandler
-from pathlib import Path
-from typing import Any
-from typing import Union
 
 from lxml import etree
 
@@ -45,7 +42,6 @@ logger = get_logger(__name__)
 
 
 def xmlupload(
-    input_file: Union[str, Path, etree._ElementTree[Any]],
     server: str,
     user: str,
     password: str,
@@ -57,7 +53,6 @@ def xmlupload(
     This function reads an XML file and imports the data described in it onto the DSP server.
 
     Args:
-        input_file: path to the XML file or parsed ElementTree
         server: the DSP server where the data should be imported
         user: the user (e-mail) with which the data should be imported
         password: the password of the user with which the data should be imported
@@ -75,7 +70,7 @@ def xmlupload(
         uploaded because there is an error in it
     """
     default_ontology, root, shortcode = validate_and_parse_xml_file(
-        input_file=input_file,
+        input_file=config.input_file,
         imgdir=imgdir,
         preprocessing_done=config.media_previously_uploaded,
     )
@@ -121,16 +116,15 @@ def xmlupload(
         list_client=list_client,
     )
 
-    return _cleanup_upload(iri_resolver, input_file, config, failed_uploads)
+    return _cleanup_upload(iri_resolver, config, failed_uploads)
 
 
 def _cleanup_upload(
     iri_resolver: IriResolver,
-    input_file: str | Path | etree._ElementTree[Any],
     config: UploadConfig,
     failed_uploads: list[str],
 ) -> bool:
-    write_id2iri_mapping(iri_resolver.lookup, input_file, config.diagnostics)
+    write_id2iri_mapping(iri_resolver.lookup, config.input_file, config.diagnostics)
     success = not failed_uploads
     if success:
         print(f"{datetime.now()}: All resources have successfully been uploaded.")

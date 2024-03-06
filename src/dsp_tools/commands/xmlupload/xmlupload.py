@@ -194,6 +194,7 @@ def _upload(
             failed_uploads=failed_uploads,
             stash=stash,
             config=config,
+            permissions_lookup=permissions_lookup,
         )
 
     try:
@@ -221,6 +222,7 @@ def _upload(
             failed_uploads=failed_uploads,
             stash=stash,
             config=config,
+            permissions_lookup=permissions_lookup,
         )
     return iri_resolver, failed_uploads
 
@@ -412,6 +414,7 @@ def _handle_upload_error(
     failed_uploads: list[str],
     stash: Stash | None,
     config: UploadConfig,
+    permissions_lookup: dict[str, Permissions],
 ) -> None:
     """
     In case the xmlupload must be interrupted,
@@ -430,6 +433,7 @@ def _handle_upload_error(
         failed_uploads: resources that caused an error when uploading to DSP
         stash: an object that contains all stashed links that could not be reapplied to their resources
         config: the upload configuration
+        permissions_lookup: dictionary that contains the permission name as string and the corresponding Python object
     """
     logfiles = ", ".join([handler.baseFilename for handler in logger.handlers if isinstance(handler, FileHandler)])
     msg = (
@@ -439,7 +443,7 @@ def _handle_upload_error(
         f"For more information, see the log file: {logfiles}\n"
     )
 
-    upload_state = UploadState(pending_resources, iri_resolver.lookup, stash, config)
+    upload_state = UploadState(pending_resources, iri_resolver.lookup, stash, config, permissions_lookup)
     msg += _save_upload_state(upload_state)
 
     if failed_uploads:

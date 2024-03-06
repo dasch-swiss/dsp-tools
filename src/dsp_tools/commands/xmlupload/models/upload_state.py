@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
@@ -15,3 +16,4 @@ class UploadState:
     iri_resolver_lookup: dict[str, str]
     stash: Stash | None
     config: UploadConfig
+    permissions_lookup: dict[str, Permissions]

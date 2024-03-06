@@ -432,32 +432,30 @@ def _handle_upload_error(
         config: the upload configuration
     """
     logfiles = ", ".join([handler.baseFilename for handler in logger.handlers if isinstance(handler, FileHandler)])
-    print(
+    msg = (
         f"\n==========================================\n"
         f"{datetime.now()}: xmlupload must be aborted because of an error.\n"
         f"Error message: '{err_msg}'\n"
         f"For more information, see the log file: {logfiles}\n"
     )
-    logger.exception("xmlupload must be aborted because of an error")
 
     upload_state = UploadState(pending_resources, iri_resolver.lookup, stash, config)
-    _save_upload_state(upload_state)
+    msg += _save_upload_state(upload_state)
 
     if failed_uploads:
-        msg = f"Independently of this error, there were some resources that could not be uploaded: {failed_uploads}"
-        print(msg)
-        logger.info(msg)
+        msg += f"Independently of this error, there were some resources that could not be uploaded: {failed_uploads}\n"
+
+    logger.exception(msg)
+    print(msg)
 
     sys.exit(1)
 
 
-def _save_upload_state(upload_state: UploadState) -> None:
+def _save_upload_state(upload_state: UploadState) -> str:
     save_location = upload_state.config.diagnostics.save_location
     if save_location.exists():
         save_location.unlink()
     save_location.touch(exist_ok=True)
     with open(save_location, "wb") as file:
         pickle.dump(upload_state, file)
-    msg = f"Saved the current upload state to {save_location}."
-    print(msg)
-    logger.info(msg)
+    return f"Saved the current upload state to {save_location}.\n"

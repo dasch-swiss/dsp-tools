@@ -26,9 +26,10 @@ def test_save_upload_state(tmp_path: Path) -> None:
         stash=None,
         config=config,
     )
-    _save_upload_state(upload_state)
+    msg = _save_upload_state(upload_state)
     with open(save_location, "rb") as f:
         saved_state = pickle.load(f)  # noqa: S301 (deserialization of untrusted data)
+    assert msg == f"Saved the current upload state to {save_location}.\n"
     assert upload_state.iri_resolver_lookup == saved_state.iri_resolver_lookup
     assert upload_state.config == saved_state.config
     assert upload_state.stash == saved_state.stash

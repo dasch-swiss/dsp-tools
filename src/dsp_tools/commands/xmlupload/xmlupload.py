@@ -452,8 +452,7 @@ def _handle_upload_error(
 
 
 def _save_upload_state(upload_state: UploadState) -> None:
-    save_location = upload_state.config.diagnostics.save_location / "resumable/latest.pkl"
-    save_location.parent.mkdir(parents=True, exist_ok=True)
+    save_location = upload_state.config.diagnostics.save_location
     if save_location.exists():
         save_location.unlink()
     save_location.touch(exist_ok=True)

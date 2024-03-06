@@ -1363,12 +1363,16 @@ def make_text_prop(
             # ... try to parse it again
             try:
                 value_ = etree.fromstring(serialized)
-            except etree.XMLSyntaxError:
-                raise BaseError(
+            except etree.XMLSyntaxError as err:
+                msg = (
                     "The XML tags contained in a richtext property (encoding=xml) must be well-formed. "
-                    "The special characters <, > and & are only allowed to construct a tag."
-                    f"The error occurred in resource {calling_resource}, property {name}"
-                ) from None
+                    "The special characters <, > and & are only allowed to construct a tag. "
+                )
+                if calling_resource:
+                    msg += f"The error occurred in resource {calling_resource}, property {name}"
+                msg += f"\nOriginal error message: {err.msg}"
+                msg += f"\nEventual line/column numbers are relative to this serialized text: {serialized}"
+                raise BaseError(msg) from None
         prop_.append(value_)
 
     return prop_

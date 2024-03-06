@@ -121,6 +121,15 @@ def xmlupload(
         list_client=list_client,
     )
 
+    return _cleanup_upload(iri_resolver, input_file, config, failed_uploads)
+
+
+def _cleanup_upload(
+    iri_resolver: IriResolver,
+    input_file: str | Path | etree._ElementTree[Any],
+    config: UploadConfig,
+    failed_uploads: list[str],
+) -> bool:
     write_id2iri_mapping(iri_resolver.lookup, input_file, config.diagnostics)
     success = not failed_uploads
     if success:

@@ -104,7 +104,7 @@ def xmlupload(
 
     list_client: ListClient = ListClientLive(con, project_client.get_project_iri())
 
-    iri_resolver, failed_uploads = upload_resources(
+    iri_resolver, failed_uploads, nonapplied_stash = upload_resources(
         resources=resources,
         imgdir=imgdir,
         sipi_server=sipi_server,
@@ -116,13 +116,14 @@ def xmlupload(
         list_client=list_client,
     )
 
-    return cleanup_upload(iri_resolver, config, failed_uploads)
+    return cleanup_upload(iri_resolver, config, failed_uploads, nonapplied_stash)
 
 
 def cleanup_upload(
     iri_resolver: IriResolver,
     config: UploadConfig,
     failed_uploads: list[str],
+    nonapplied_stash: Stash | None,
 ) -> bool:
     """
     Write the id2iri mapping to a file and print a message to the console.
@@ -131,21 +132,26 @@ def cleanup_upload(
         iri_resolver: mapping from internal IDs to IRIs
         config: the upload configuration
         failed_uploads: resources that caused an error when uploading to DSP
+        nonapplied_stash: the stash items that could not be reapplied
 
     Returns:
         success status (deduced from failed_uploads)
     """
+    logfiles = ", ".join([handler.baseFilename for handler in logger.handlers if isinstance(handler, FileHandler)])
     write_id2iri_mapping(iri_resolver.lookup, config.input_file, config.diagnostics)
-    success = not failed_uploads
-    if success:
+    if not failed_uploads and not nonapplied_stash:
         print(f"{datetime.now()}: All resources have successfully been uploaded.")
         logger.info("All resources have successfully been uploaded.")
-    else:
+        return True
+    if failed_uploads:
         print(f"\n{datetime.now()}: WARNING: Could not upload the following resources: {failed_uploads}\n")
-        logfiles = ", ".join([handler.baseFilename for handler in logger.handlers if isinstance(handler, FileHandler)])
         print(f"For more information, see the log file: {logfiles}\n")
         logger.warning(f"Could not upload the following resources: {failed_uploads}")
-    return success
+    if nonapplied_stash:
+        print(f"\n{datetime.now()}: WARNING: Could not reapply the following stash items: {nonapplied_stash}\n")
+        print(f"For more information, see the log file: {logfiles}\n")
+        logger.warning(f"Could not reapply the following stash items: {nonapplied_stash}")
+    return False
 
 
 def _prepare_upload(
@@ -183,7 +189,7 @@ def upload_resources(
     config: UploadConfig,
     project_client: ProjectClient,
     list_client: ListClient,
-) -> tuple[IriResolver, list[str]]:
+) -> tuple[IriResolver, list[str], Stash | None]:
     """
     Actual upload of all resources to DSP.
 
@@ -199,7 +205,9 @@ def upload_resources(
         list_client: a client for HTTP communication with the DSP-API
 
     Returns:
-        the id2iri mapping of the uploaded resources, and a list of resources that could not be uploaded
+        the id2iri mapping of the uploaded resources,
+        a list of resources that could not be uploaded,
+        and the stash items that could not be reapplied.
     """
     failed_uploads: list[str] = []
     iri_resolver = IriResolver()
@@ -217,7 +225,7 @@ def upload_resources(
         )
     except BaseException as err:  # noqa: BLE001 (blind-except)
         # The forseeable errors are already handled by failed_uploads
-        # Here we catch the unforseeable exceptions, incl. Ctrl+C.
+        # Here we catch the unforseeable exceptions, incl. keyboard interrupt.
         _handle_upload_error(
             err_msg=str(err),
             iri_resolver=iri_resolver,
@@ -228,6 +236,7 @@ def upload_resources(
             permissions_lookup=permissions_lookup,
         )
 
+    nonapplied_stash = None
     try:
         nonapplied_stash = (
             _upload_stash(
@@ -240,12 +249,9 @@ def upload_resources(
             if stash
             else None
         )
-        if nonapplied_stash:
-            msg = "Some stashed resptrs or XML texts could not be reapplied to their resources on the DSP server."
-            raise BaseError(msg)
     except BaseException as err:  # noqa: BLE001 (blind-except)
         # The forseeable errors are already handled by failed_uploads and nonapplied_stash.
-        # Here we catch the unforseeable exceptions, incl. Ctrl+C.
+        # Here we catch the unforseeable exceptions, incl. keyboard interrupt.
         _handle_upload_error(
             err_msg=str(err),
             iri_resolver=iri_resolver,
@@ -255,7 +261,7 @@ def upload_resources(
             config=config,
             permissions_lookup=permissions_lookup,
         )
-    return iri_resolver, failed_uploads
+    return iri_resolver, failed_uploads, nonapplied_stash
 
 
 def _get_data_from_xml(
@@ -362,6 +368,9 @@ def _upload_resources(
         list_client: a client for HTTP communication with the DSP-API
         iri_resolver: mapping from internal IDs to IRIs
 
+    Raises:
+        BaseException: in case of an unhandled exception during resource creation
+
     Returns:
         id2iri_mapping, failed_uploads
     """
@@ -404,7 +413,7 @@ def _upload_resources(
                 print(f"{datetime.now()}: Created resource {i+1}/{len(resources)}: {resource_designation}")
                 logger.info(f"Created resource {i+1}/{len(resources)}: {resource_designation}")
         except BaseException as err:
-            # unhandled exception during resource creation:
+            # unhandled exception during resource creation
             if res and res[0]:
                 iri, label = res
                 iri_resolver.update(resource.res_id, iri)

@@ -110,20 +110,19 @@ def upload_stashed_xml_texts(
         stashed_xml_texts: all xml texts that have been stashed
 
     Returns:
-        nonapplied_xml_texts: the xml texts that could not be uploaded
+        the xml texts that could not be uploaded
     """
 
     print(f"{datetime.now()}: Upload the stashed XML texts...")
     logger.info("Upload the stashed XML texts...")
     not_uploaded: list[StandoffStashItem] = []
-    for res_id, stash_items in stashed_xml_texts.res_2_stash_items.items():
+    for res_id, stash_items in stashed_xml_texts.res_2_stash_items.copy().items():
         res_iri = iri_resolver.get(res_id)
         if not res_iri:
             # resource could not be uploaded to DSP, so the stash cannot be uploaded either
-            # no action necessary: this resource will remain in nonapplied_xml_texts,
+            # no action necessary: this resource will remain in the list of not uploaded stash items,
             # which will be handled by the caller
             continue
-        # xmlres: XMLResource = stashed_xml_texts.res_2_xmlres[res_id]
         try:
             resource_in_triplestore = con.get(f"/v2/resources/{quote_plus(res_iri)}")
         except BaseError as err:
@@ -148,8 +147,12 @@ def upload_stashed_xml_texts(
                 con=con,
                 context=context,
             )
-            if not success:
+            if success:
+                stashed_xml_texts.res_2_stash_items[res_id].remove(stash_item)
+            else:
                 not_uploaded.append(stash_item)
+        if not stashed_xml_texts.res_2_stash_items[res_id]:
+            stashed_xml_texts.res_2_stash_items.pop(res_id)
     return StandoffStash.make(not_uploaded)
 
 

@@ -41,7 +41,7 @@ def resume_xmlupload(
     project_client: ProjectClient = ProjectClientLive(con, upload_state.config.shortcode)
     list_client: ListClient = ListClientLive(con, project_client.get_project_iri())
 
-    iri_resolver, failed_uploads = upload_resources(
+    iri_resolver, failed_uploads, nonapplied_stash = upload_resources(
         resources=upload_state.pending_resources,
         imgdir=".",
         sipi_server=sipi_server,
@@ -53,7 +53,7 @@ def resume_xmlupload(
         list_client=list_client,
     )
 
-    return cleanup_upload(iri_resolver, upload_state.config, failed_uploads)
+    return cleanup_upload(iri_resolver, upload_state.config, failed_uploads, nonapplied_stash)
 
 
 def _read_upload_state_from_disk(server: str) -> UploadState:

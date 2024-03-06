@@ -19,7 +19,7 @@ def resume_xmlupload(
     sipi: str,
 ) -> bool:
     """
-    Resume an interrupted XML upload.
+    Resume an interrupted xmlupload.
 
     Args:
         server: the DSP server where the data should be imported

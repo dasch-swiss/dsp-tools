@@ -14,6 +14,6 @@ class UploadState:
 
     pending_resources: list[XMLResource]
     iri_resolver_lookup: dict[str, str]
-    stash: Stash | None
+    pending_stash: Stash | None
     config: UploadConfig
     permissions_lookup: dict[str, Permissions]

@@ -47,7 +47,7 @@ def resume_xmlupload(
         sipi_server=sipi_server,
         permissions_lookup=upload_state.permissions_lookup,
         con=con,
-        stash=upload_state.stash,
+        stash=upload_state.pending_stash,
         config=upload_state.config,
         project_client=project_client,
         list_client=list_client,

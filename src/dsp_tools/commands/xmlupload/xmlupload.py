@@ -231,7 +231,7 @@ def upload_resources(
             iri_resolver=iri_resolver,
             pending_resources=resources,
             failed_uploads=failed_uploads,
-            stash=stash,
+            pending_stash=stash,
             config=config,
             permissions_lookup=permissions_lookup,
         )
@@ -257,7 +257,7 @@ def upload_resources(
             iri_resolver=iri_resolver,
             pending_resources=resources,
             failed_uploads=failed_uploads,
-            stash=stash,
+            pending_stash=stash,
             config=config,
             permissions_lookup=permissions_lookup,
         )
@@ -452,7 +452,7 @@ def _handle_upload_error(
     iri_resolver: IriResolver,
     pending_resources: list[XMLResource],
     failed_uploads: list[str],
-    stash: Stash | None,
+    pending_stash: Stash | None,
     config: UploadConfig,
     permissions_lookup: dict[str, Permissions],
 ) -> None:
@@ -471,7 +471,7 @@ def _handle_upload_error(
         iri_resolver: a resolver for internal IDs to IRIs
         pending_resources: resources that were not uploaded to DSP
         failed_uploads: resources that caused an error when uploading to DSP
-        stash: an object that contains all stashed links that could not be reapplied to their resources
+        pending_stash: an object that contains all stashed links that could not yet be reapplied to their resources
         config: the upload configuration
         permissions_lookup: dictionary that contains the permission name as string and the corresponding Python object
     """
@@ -483,7 +483,7 @@ def _handle_upload_error(
         f"For more information, see the log file: {logfiles}\n"
     )
 
-    upload_state = UploadState(pending_resources, iri_resolver.lookup, stash, config, permissions_lookup)
+    upload_state = UploadState(pending_resources, iri_resolver.lookup, pending_stash, config, permissions_lookup)
     msg += _save_upload_state(upload_state)
 
     if failed_uploads:

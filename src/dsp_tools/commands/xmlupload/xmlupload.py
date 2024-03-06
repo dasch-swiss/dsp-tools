@@ -184,6 +184,23 @@ def upload_resources(
     project_client: ProjectClient,
     list_client: ListClient,
 ) -> tuple[IriResolver, list[str]]:
+    """
+    Actual upload of all resources to DSP.
+
+    Args:
+        resources: list of XMLResources to upload to DSP
+        imgdir: folder containing the multimedia files
+        sipi_server: Sipi instance
+        permissions_lookup: dictionary that contains the permission name as string and the corresponding Python object
+        con: connection to the DSP server
+        stash: an object that contains all stashed links that could not be reapplied to their resources
+        config: the upload configuration
+        project_client: a client for HTTP communication with the DSP-API
+        list_client: a client for HTTP communication with the DSP-API
+
+    Returns:
+        the id2iri mapping of the uploaded resources, and a list of resources that could not be uploaded
+    """
     failed_uploads: list[str] = []
     iri_resolver = IriResolver()
     try:

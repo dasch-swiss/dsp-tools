@@ -101,4 +101,4 @@ jobs:
       - name: Install python & poetry, build & install wheel, install pytest
         uses: ./.github/actions/setup-from-wheel
       - name: distribution tests
-        run: pytest test/distribution/
+        run: .dist-test-venv/bin/pytest test/distribution/

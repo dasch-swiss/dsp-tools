@@ -26,15 +26,16 @@ runs:
     - name: install check-wheel-contents
       run: |
         echo ########### STEP: INSTALL CHECK-WHEEL-CONTENTS ###########
-        pip3 install check-wheel-contents
+        python3 -m venv .dist-test-venv
+        .dist-test-venv/bin/pip install check-wheel-contents
       shell: bash
     - name: check the wheel for correctness
       run: |
         echo ########### STEP: CHECK WHEEL ###########
-        check-wheel-contents dist/
+        .dist-test-venv/bin/check-wheel-contents dist/
       shell: bash
     - name: Install pytest
       run: |
         echo ########### STEP: INSTALL PYTEST ###########
-        pip3 install pytest pytest-unordered
+        .dist-test-venv/bin/pip install pytest pytest-unordered
       shell: bash

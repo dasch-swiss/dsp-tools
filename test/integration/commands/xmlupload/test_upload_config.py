@@ -12,7 +12,6 @@ def test_save_location() -> None:
     config_with_save_location = config.with_server_info(
         server=server,
         shortcode=shortcode,
-        onto_name=onto_name,
     )
     diagnostics = config_with_save_location.diagnostics
     result = str(diagnostics.save_location)

@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-import json
+import pickle
 import sys
-from dataclasses import asdict
 from datetime import datetime
 from logging import FileHandler
 from pathlib import Path
@@ -17,6 +16,7 @@ from dsp_tools.commands.xmlupload.list_client import ListClient
 from dsp_tools.commands.xmlupload.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.sipi import Sipi
+from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.models.xmlpermission import XmlPermission
 from dsp_tools.commands.xmlupload.models.xmlresource import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.xmlresource import XMLResource
@@ -31,7 +31,6 @@ from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_c
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.commands.xmlupload.stash.upload_stashed_resptr_props import upload_stashed_resptr_props
 from dsp_tools.commands.xmlupload.stash.upload_stashed_xml_texts import upload_stashed_xml_texts
-from dsp_tools.commands.xmlupload.upload_config import DiagnosticsConfig
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.write_diagnostic_info import write_id2iri_mapping
 from dsp_tools.models.exceptions import BaseError
@@ -84,7 +83,6 @@ def xmlupload(
     config = config.with_server_info(
         server=server,
         shortcode=shortcode,
-        onto_name=default_ontology,
     )
 
     # establish connection to DSP server
@@ -195,7 +193,7 @@ def _upload(
             pending_resources=resources,
             failed_uploads=failed_uploads,
             stash=stash,
-            diagnostics=config.diagnostics,
+            config=config,
         )
 
     try:
@@ -222,7 +220,7 @@ def _upload(
             pending_resources=resources,
             failed_uploads=failed_uploads,
             stash=stash,
-            diagnostics=config.diagnostics,
+            config=config,
         )
     return iri_resolver, failed_uploads
 
@@ -361,22 +359,27 @@ def _upload_resources(
         res = None
         try:
             res = _create_resource(resource, media_info, resource_create_client)
-        finally:
-            match res:
-                case (None, None):
-                    # resource creation failed gracefully: register it as failed, then continue
-                    failed_uploads.append(resource.res_id)
-                    continue
-                case (iri, label) if isinstance(iri, str) and isinstance(label, str):
-                    # resource creation succeeded: update the iri_resolver and remove the resource from the list
-                    iri_resolver.update(resource.res_id, iri)
-                    resources.remove(resource)
-                    resource_designation = f"'{label}' (ID: '{resource.res_id}', IRI: '{iri}')"
-                    print(f"{datetime.now()}: Created resource {i+1}/{len(resources)}: {resource_designation}")
-                    logger.info(f"Created resource {i+1}/{len(resources)}: {resource_designation}")
-                case _:
-                    # unhandled exception during resource creation: escalate
-                    pass
+            if res == (None, None):
+                # resource creation failed gracefully: register it as failed, then continue
+                continue
+            else:
+                # resource creation succeeded: update the iri_resolver and remove the resource from the list
+                iri, label = res
+                iri_resolver.update(resource.res_id, iri)  # type: ignore[arg-type]
+                resources.remove(resource)
+                resource_designation = f"'{label}' (ID: '{resource.res_id}', IRI: '{iri}')"
+                print(f"{datetime.now()}: Created resource {i+1}/{len(resources)}: {resource_designation}")
+                logger.info(f"Created resource {i+1}/{len(resources)}: {resource_designation}")
+        except BaseException as err:
+            # unhandled exception during resource creation:
+            if res and res[0]:
+                iri, label = res
+                iri_resolver.update(resource.res_id, iri)
+                resources.remove(resource)
+                resource_designation = f"'{label}' (ID: '{resource.res_id}', IRI: '{iri}')"
+                print(f"{datetime.now()}: Created resource {i+1}/{len(resources)}: {resource_designation}")
+                logger.info(f"Created resource {i+1}/{len(resources)}: {resource_designation}")
+            raise err from None
 
     return iri_resolver, failed_uploads
 
@@ -405,9 +408,10 @@ def _create_resource(
 def _handle_upload_error(
     err_msg: str,
     iri_resolver: IriResolver,
+    pending_resources: list[XMLResource],
     failed_uploads: list[str],
     stash: Stash | None,
-    diagnostics: DiagnosticsConfig,
+    config: UploadConfig,
 ) -> None:
     """
     In case the xmlupload must be interrupted,
@@ -422,9 +426,10 @@ def _handle_upload_error(
     Args:
         err_msg: string representation of the error that was the cause of the abort
         iri_resolver: a resolver for internal IDs to IRIs
+        pending_resources: resources that were not uploaded to DSP
         failed_uploads: resources that caused an error when uploading to DSP
         stash: an object that contains all stashed links that could not be reapplied to their resources
-        diagnostics: the diagnostics configuration
+        config: the upload configuration
     """
     logfiles = ", ".join([handler.baseFilename for handler in logger.handlers if isinstance(handler, FileHandler)])
     print(
@@ -435,31 +440,9 @@ def _handle_upload_error(
     )
     logger.exception("xmlupload must be aborted because of an error")
 
-    timestamp = diagnostics.timestamp_str
-    servername = diagnostics.server_as_foldername
+    upload_state = UploadState(pending_resources, iri_resolver.lookup, stash, config)
+    _save_upload_state(upload_state)
 
-    if iri_resolver.non_empty():
-        id2iri_mapping_file = f"{diagnostics.save_location}/{timestamp}_id2iri_mapping_{servername}.json"
-        with open(id2iri_mapping_file, "x", encoding="utf-8") as f:
-            json.dump(iri_resolver.lookup, f, ensure_ascii=False, indent=4)
-        print(f"The mapping of internal IDs to IRIs was written to {id2iri_mapping_file}")
-        logger.info(f"The mapping of internal IDs to IRIs was written to {id2iri_mapping_file}")
-
-    if stash:
-        filename = _save_stash_as_json(
-            stash=stash,
-            save_location=diagnostics.save_location,
-            timestamp_str=timestamp,
-            servername=servername,
-        )
-        msg = (
-            f"There are stashed links that could not be reapplied to the resources they were stripped from. "
-            f"They were saved to {filename}\n"
-        )
-        print(msg)
-        logger.info(msg)
-
-    # print the resources that threw an error when they were tried to be uploaded
     if failed_uploads:
         msg = f"Independently of this error, there were some resources that could not be uploaded: {failed_uploads}"
         print(msg)
@@ -468,18 +451,14 @@ def _handle_upload_error(
     sys.exit(1)
 
 
-def _save_stash_as_json(
-    stash: Stash,
-    save_location: Path,
-    timestamp_str: str,
-    servername: str,
-) -> str:
-    filename = f"{save_location}/{timestamp_str}_stashed_links_{servername}.json"
-    with open(filename, "x", encoding="utf-8") as file:
-        json.dump(
-            obj=asdict(stash),
-            fp=file,
-            ensure_ascii=False,
-            indent=4,
-        )
-    return filename
+def _save_upload_state(upload_state: UploadState) -> None:
+    save_location = upload_state.config.diagnostics.save_location / "resumable/latest.pkl"
+    save_location.parent.mkdir(parents=True, exist_ok=True)
+    if save_location.exists():
+        save_location.unlink()
+    save_location.touch(exist_ok=True)
+    with open(save_location, "wb") as file:
+        pickle.dump(upload_state, file)
+    msg = f"Saved the current upload state to {save_location}."
+    print(msg)
+    logger.info(msg)

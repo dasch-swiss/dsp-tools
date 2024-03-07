@@ -416,18 +416,23 @@ def _upload_resources(
             res = _create_resource(resource, media_info, resource_create_client)
             if res == (None, None):
                 # resource creation failed gracefully: register it as failed, then continue
+                failed_uploads.append(resource.res_id)
                 continue
             else:
                 # resource creation succeeded: update the iri_resolver and remove the resource from the list
                 iri, label = res
-                _tidy_up_resource_creation(iri, label, iri_resolver, resources, resource, i + 1, total_res)  # type: ignore[arg-type]
+                _tidy_up_resource_creation(iri, label, iri_resolver, resource, i + 1, total_res)  # type: ignore[arg-type]
         except BaseException as err:
             if res and res[0]:
                 # creation succeeded, but during tidy up, a Keyboard Interrupt occurred. tidy up again before escalating
                 iri, label = res
-                _tidy_up_resource_creation(iri, label, iri_resolver, resources, resource, i + 1, total_res)
-            # unhandled exception during resource creation
+                _tidy_up_resource_creation(iri, label, iri_resolver, resource, i + 1, total_res)
+            else:
+                # unhandled exception during resource creation
+                failed_uploads.append(resource.res_id)
             raise err from None
+        finally:
+            resources.remove(resource)
 
     return iri_resolver, failed_uploads
 
@@ -436,13 +441,11 @@ def _tidy_up_resource_creation(
     iri: str,
     label: str,
     iri_resolver: IriResolver,
-    resources: list[XMLResource],
     resource: XMLResource,
     current_res: int,
     total_res: int,
 ) -> None:
     iri_resolver.update(resource.res_id, iri)
-    resources.remove(resource)
     resource_designation = f"'{label}' (ID: '{resource.res_id}', IRI: '{iri}')"
     print(f"{datetime.now()}: Created resource {current_res}/{total_res}: {resource_designation}")
     logger.info(f"Created resource {current_res}/{total_res}: {resource_designation}")

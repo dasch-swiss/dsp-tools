@@ -390,7 +390,7 @@ def _upload_resources(
         media_previously_ingested=config.media_previously_uploaded,
     )
 
-    for i, resource in enumerate(resources):
+    for i, resource in enumerate(resources.copy()):
         success, media_info = handle_media_info(
             resource, config.media_previously_uploaded, sipi_server, imgdir, permissions_lookup
         )

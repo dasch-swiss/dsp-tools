@@ -420,23 +420,32 @@ def _upload_resources(
             else:
                 # resource creation succeeded: update the iri_resolver and remove the resource from the list
                 iri, label = res
-                iri_resolver.update(resource.res_id, iri)  # type: ignore[arg-type]
-                resources.remove(resource)
-                resource_designation = f"'{label}' (ID: '{resource.res_id}', IRI: '{iri}')"
-                print(f"{datetime.now()}: Created resource {i+1}/{total_res}: {resource_designation}")
-                logger.info(f"Created resource {i+1}/{total_res}: {resource_designation}")
+                _tidy_up_resource_creation(iri, label, iri_resolver, resources, resource, i + 1, total_res)  # type: ignore[arg-type]
         except BaseException as err:
-            # unhandled exception during resource creation
             if res and res[0]:
+                # creation succeeded, but during tidy up, a Keyboard Interrupt occurred. tidy up again before escalating
                 iri, label = res
-                iri_resolver.update(resource.res_id, iri)
-                resources.remove(resource)
-                resource_designation = f"'{label}' (ID: '{resource.res_id}', IRI: '{iri}')"
-                print(f"{datetime.now()}: Created resource {i+1}/{total_res}: {resource_designation}")
-                logger.info(f"Created resource {i+1}/{total_res}: {resource_designation}")
+                _tidy_up_resource_creation(iri, label, iri_resolver, resources, resource, i + 1, total_res)
+            # unhandled exception during resource creation
             raise err from None
 
     return iri_resolver, failed_uploads
+
+
+def _tidy_up_resource_creation(
+    iri: str,
+    label: str,
+    iri_resolver: IriResolver,
+    resources: list[XMLResource],
+    resource: XMLResource,
+    current_res: int,
+    total_res: int,
+) -> None:
+    iri_resolver.update(resource.res_id, iri)
+    resources.remove(resource)
+    resource_designation = f"'{label}' (ID: '{resource.res_id}', IRI: '{iri}')"
+    print(f"{datetime.now()}: Created resource {current_res}/{total_res}: {resource_designation}")
+    logger.info(f"Created resource {current_res}/{total_res}: {resource_designation}")
 
 
 def _create_resource(

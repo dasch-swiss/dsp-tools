@@ -147,12 +147,14 @@ def _call_excel2json(args: argparse.Namespace) -> bool:
 
 
 def _call_ingest_xmlupload(args: argparse.Namespace) -> bool:
+    interrupt_after = args.interrupt_after if args.interrupt_after > 0 else None
     ingest_xmlupload(
         xml_file=Path(args.xml_file),
         user=args.user,
         password=args.password,
         dsp_url=args.server,
         sipi_url=args.sipi_url,
+        interrupt_after=interrupt_after,
     )
     return True
 

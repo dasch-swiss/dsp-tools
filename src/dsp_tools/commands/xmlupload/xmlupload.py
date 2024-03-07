@@ -390,6 +390,7 @@ def _upload_resources(
         media_previously_ingested=config.media_previously_uploaded,
     )
 
+    total_res = len(resources)
     for i, resource in enumerate(resources.copy()):
         success, media_info = handle_media_info(
             resource, config.media_previously_uploaded, sipi_server, imgdir, permissions_lookup
@@ -410,8 +411,8 @@ def _upload_resources(
                 iri_resolver.update(resource.res_id, iri)  # type: ignore[arg-type]
                 resources.remove(resource)
                 resource_designation = f"'{label}' (ID: '{resource.res_id}', IRI: '{iri}')"
-                print(f"{datetime.now()}: Created resource {i+1}/{len(resources)}: {resource_designation}")
-                logger.info(f"Created resource {i+1}/{len(resources)}: {resource_designation}")
+                print(f"{datetime.now()}: Created resource {i+1}/{total_res}: {resource_designation}")
+                logger.info(f"Created resource {i+1}/{total_res}: {resource_designation}")
         except BaseException as err:
             # unhandled exception during resource creation
             if res and res[0]:
@@ -419,8 +420,8 @@ def _upload_resources(
                 iri_resolver.update(resource.res_id, iri)
                 resources.remove(resource)
                 resource_designation = f"'{label}' (ID: '{resource.res_id}', IRI: '{iri}')"
-                print(f"{datetime.now()}: Created resource {i+1}/{len(resources)}: {resource_designation}")
-                logger.info(f"Created resource {i+1}/{len(resources)}: {resource_designation}")
+                print(f"{datetime.now()}: Created resource {i+1}/{total_res}: {resource_designation}")
+                logger.info(f"Created resource {i+1}/{total_res}: {resource_designation}")
             raise err from None
 
     return iri_resolver, failed_uploads

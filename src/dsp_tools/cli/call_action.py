@@ -162,12 +162,13 @@ def _call_xmlupload(args: argparse.Namespace) -> bool:
         return validate_xml(args.xmlfile)
     else:
         return xmlupload(
+            input_file=args.xmlfile,
             server=args.server,
             user=args.user,
             password=args.password,
             imgdir=args.imgdir,
             sipi=args.sipi_url,
-            config=UploadConfig(input_file=args.xmlfile, diagnostics=DiagnosticsConfig(verbose=args.verbose)),
+            config=UploadConfig(diagnostics=DiagnosticsConfig(verbose=args.verbose)),
         )
 
 

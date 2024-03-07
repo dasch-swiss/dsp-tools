@@ -63,12 +63,13 @@ class TestCreateGetXMLUpload(unittest.TestCase):
         and if the 'id2iri' replacement works, so that the 2nd upload works.
         """
         success = xmlupload(
+            input_file=self.test_data_systematic_file,
             server=self.server,
             user=self.user,
             password=self.password,
             imgdir=self.imgdir,
             sipi=self.sipi,
-            config=UploadConfig(input_file=self.test_data_systematic_file),
+            config=UploadConfig(),
         )
         self.assertTrue(success)
 
@@ -83,12 +84,13 @@ class TestCreateGetXMLUpload(unittest.TestCase):
 
         second_xml_file_replaced = self._get_most_recent_glob_match(f"{second_xml_file_orig.stem}_replaced_*.xml")
         success = xmlupload(
+            input_file=second_xml_file_replaced,
             server=self.server,
             user=self.user,
             password=self.password,
             imgdir=self.imgdir,
             sipi=self.sipi,
-            config=UploadConfig(input_file=second_xml_file_replaced),
+            config=UploadConfig(),
         )
         second_xml_file_replaced.unlink()
         self.assertListEqual(list(Path(self.cwd).glob("stashed_*_properties_*.txt")), [])

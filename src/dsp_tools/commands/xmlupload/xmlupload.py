@@ -4,6 +4,8 @@ import pickle
 import sys
 from datetime import datetime
 from logging import FileHandler
+from pathlib import Path
+from typing import Any
 
 from lxml import etree
 
@@ -42,6 +44,7 @@ logger = get_logger(__name__)
 
 
 def xmlupload(
+    input_file: str | Path | etree._ElementTree[Any],
     server: str,
     user: str,
     password: str,
@@ -53,6 +56,7 @@ def xmlupload(
     This function reads an XML file and imports the data described in it onto the DSP server.
 
     Args:
+        input_file: path to XML file containing the resources, or the XML tree itself
         server: the DSP server where the data should be imported
         user: the user (e-mail) with which the data should be imported
         password: the password of the user with which the data should be imported
@@ -70,7 +74,7 @@ def xmlupload(
         uploaded because there is an error in it
     """
     default_ontology, root, shortcode = validate_and_parse_xml_file(
-        input_file=config.input_file,
+        input_file=input_file,
         imgdir=imgdir,
         preprocessing_done=config.media_previously_uploaded,
     )
@@ -139,7 +143,7 @@ def cleanup_upload(
         success status (deduced from failed_uploads)
     """
     logfiles = ", ".join([handler.baseFilename for handler in logger.handlers if isinstance(handler, FileHandler)])
-    write_id2iri_mapping(iri_resolver.lookup, config.input_file, config.diagnostics)
+    write_id2iri_mapping(iri_resolver.lookup, config.diagnostics)
     if not failed_uploads and not nonapplied_stash:
         print(f"{datetime.now()}: All resources have successfully been uploaded.")
         logger.info("All resources have successfully been uploaded.")

@@ -63,8 +63,6 @@ def xmlupload(
         imgdir: the image directory
         sipi: the sipi instance to be used
         config: the upload configuration
-        interrupt_after: the number of resources to upload before interrupting the upload.
-                         If None, the upload will not be interrupted.
 
     Raises:
         BaseError: in case of permanent network or software failure
@@ -212,8 +210,6 @@ def upload_resources(
         project_client: a client for HTTP communication with the DSP-API
         list_client: a client for HTTP communication with the DSP-API
         iri_resolver: mapping from internal IDs to IRIs
-        interrupt_after: the number of resources to upload before interrupting the upload.
-                         If None, the upload will not be interrupted.
 
 
     Returns:
@@ -378,8 +374,6 @@ def _upload_resources(
         project_client: a client for HTTP communication with the DSP-API
         list_client: a client for HTTP communication with the DSP-API
         iri_resolver: mapping from internal IDs to IRIs
-        interrupt_after: the number of resources to upload before interrupting the upload.
-                         If None, the upload will not be interrupted.
 
     Raises:
         BaseException: in case of an unhandled exception during resource creation

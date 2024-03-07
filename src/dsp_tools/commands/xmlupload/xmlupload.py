@@ -157,6 +157,8 @@ def cleanup_upload(
         print(f"\n{datetime.now()}: WARNING: Could not reapply the following stash items: {nonapplied_stash}\n")
         print(f"For more information, see the log file: {logfiles}\n")
         logger.warning(f"Could not reapply the following stash items: {nonapplied_stash}")
+
+    config.diagnostics.save_location.unlink(missing_ok=True)
     return False
 
 
@@ -527,8 +529,7 @@ def _handle_upload_error(
 
 def _save_upload_state(upload_state: UploadState) -> str:
     save_location = upload_state.config.diagnostics.save_location
-    if save_location.exists():
-        save_location.unlink()
+    save_location.unlink(missing_ok=True)
     save_location.touch(exist_ok=True)
     with open(save_location, "wb") as file:
         pickle.dump(upload_state, file)

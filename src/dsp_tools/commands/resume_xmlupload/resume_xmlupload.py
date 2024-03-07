@@ -1,5 +1,6 @@
 import pickle
 
+from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.list_client import ListClient
 from dsp_tools.commands.xmlupload.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.models.sipi import Sipi
@@ -51,6 +52,7 @@ def resume_xmlupload(
         config=upload_state.config,
         project_client=project_client,
         list_client=list_client,
+        iri_resolver=IriResolver(upload_state.iri_resolver_lookup),
     )
 
     return cleanup_upload(iri_resolver, upload_state.config, failed_uploads, nonapplied_stash)

@@ -101,8 +101,8 @@ def xmlupload(
     )
 
     project_client: ProjectClient = ProjectClientLive(con, config.shortcode)
-
     list_client: ListClient = ListClientLive(con, project_client.get_project_iri())
+    iri_resolver = IriResolver()
 
     iri_resolver, failed_uploads, nonapplied_stash = upload_resources(
         resources=resources,
@@ -114,6 +114,7 @@ def xmlupload(
         config=config,
         project_client=project_client,
         list_client=list_client,
+        iri_resolver=iri_resolver,
     )
 
     return cleanup_upload(iri_resolver, config, failed_uploads, nonapplied_stash)
@@ -189,6 +190,7 @@ def upload_resources(
     config: UploadConfig,
     project_client: ProjectClient,
     list_client: ListClient,
+    iri_resolver: IriResolver,
 ) -> tuple[IriResolver, list[str], Stash | None]:
     """
     Actual upload of all resources to DSP.
@@ -203,6 +205,7 @@ def upload_resources(
         config: the upload configuration
         project_client: a client for HTTP communication with the DSP-API
         list_client: a client for HTTP communication with the DSP-API
+        iri_resolver: mapping from internal IDs to IRIs
 
     Returns:
         the id2iri mapping of the uploaded resources,
@@ -210,7 +213,6 @@ def upload_resources(
         and the stash items that could not be reapplied.
     """
     failed_uploads: list[str] = []
-    iri_resolver = IriResolver()
     try:
         iri_resolver, failed_uploads = _upload_resources(
             resources=resources,

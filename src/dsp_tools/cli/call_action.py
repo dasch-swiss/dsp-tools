@@ -161,14 +161,18 @@ def _call_xmlupload(args: argparse.Namespace) -> bool:
     if args.validate_only:
         return validate_xml(args.xmlfile)
     else:
+        interrupt_after = args.interrupt_after if args.interrupt_after > 0 else None
         return xmlupload(
             server=args.server,
             user=args.user,
             password=args.password,
             imgdir=args.imgdir,
             sipi=args.sipi_url,
-            config=UploadConfig(input_file=args.xmlfile, diagnostics=DiagnosticsConfig(verbose=args.verbose)),
-            interrupt_after=args.interrupt_after if args.interrupt_after > 0 else None,
+            config=UploadConfig(
+                input_file=args.xmlfile,
+                diagnostics=DiagnosticsConfig(verbose=args.verbose),
+                interrupt_after=interrupt_after,
+            ),
         )
 
 
@@ -178,7 +182,6 @@ def _call_resume_xmlupload(args: argparse.Namespace) -> bool:
         user=args.user,
         password=args.password,
         sipi=args.sipi_url,
-        interrupt_after=args.interrupt_after if args.interrupt_after > 0 else None,
     )
 
 

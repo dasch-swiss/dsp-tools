@@ -54,6 +54,7 @@ class UploadConfig:
     shortcode: str = "unknown"
     input_file: str | Path | etree._ElementTree[Any] = "unknown"
     diagnostics: DiagnosticsConfig = field(default_factory=DiagnosticsConfig)
+    interrupt_after: int | None = None
 
     def with_server_info(
         self,

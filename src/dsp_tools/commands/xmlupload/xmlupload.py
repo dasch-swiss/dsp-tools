@@ -48,7 +48,6 @@ def xmlupload(
     imgdir: str,
     sipi: str,
     config: UploadConfig = UploadConfig(),
-    interrupt_after: int | None = None,
 ) -> bool:
     """
     This function reads an XML file and imports the data described in it onto the DSP server.
@@ -118,7 +117,6 @@ def xmlupload(
         project_client=project_client,
         list_client=list_client,
         iri_resolver=iri_resolver,
-        interrupt_after=interrupt_after,
     )
 
     return cleanup_upload(iri_resolver, config, failed_uploads, nonapplied_stash)
@@ -195,7 +193,6 @@ def upload_resources(
     project_client: ProjectClient,
     list_client: ListClient,
     iri_resolver: IriResolver,
-    interrupt_after: int | None,
 ) -> tuple[IriResolver, list[str], Stash | None]:
     """
     Actual upload of all resources to DSP.
@@ -232,7 +229,6 @@ def upload_resources(
             project_client=project_client,
             list_client=list_client,
             iri_resolver=iri_resolver,
-            interrupt_after=interrupt_after,
         )
     except BaseException as err:  # noqa: BLE001 (blind-except)
         # The forseeable errors are already handled by failed_uploads
@@ -362,7 +358,6 @@ def _upload_resources(
     project_client: ProjectClient,
     list_client: ListClient,
     iri_resolver: IriResolver,
-    interrupt_after: int | None,
 ) -> tuple[IriResolver, list[str]]:
     """
     Iterates through all resources and tries to upload them to DSP.
@@ -384,6 +379,7 @@ def _upload_resources(
 
     Raises:
         BaseException: in case of an unhandled exception during resource creation
+        KeyboardInterrupt: if the number of resources created is equal to the interrupt_after value
 
     Returns:
         id2iri_mapping, failed_uploads
@@ -405,9 +401,8 @@ def _upload_resources(
     )
 
     total_res = len(resources)
-    if interrupt_after and interrupt_after >= total_res:
-        # if the number of resources to upload is less than the interrupt_after value, no interruption is necessary
-        interrupt_after = None
+    # if the interrupt_after value is not set, the upload will not be interrupted
+    interrupt_after = config.interrupt_after or total_res + 1
 
     for i, resource in enumerate(resources.copy()):
         success, media_info = handle_media_info(
@@ -419,7 +414,7 @@ def _upload_resources(
 
         res = None
         try:
-            if interrupt_after and i >= interrupt_after:
+            if i >= interrupt_after:
                 raise KeyboardInterrupt(f"Interrupted: Maximum number of resources was reached ({interrupt_after})")
             res = _create_resource(resource, media_info, resource_create_client)
             if res == (None, None):

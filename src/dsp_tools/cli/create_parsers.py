@@ -231,7 +231,6 @@ def _add_resume_xmlupload(
     )
     subparser.add_argument("-u", "--user", default=root_user_email, help=username_text)
     subparser.add_argument("-p", "--password", default=root_user_pw, help=password_text)
-    subparser.add_argument("--interrupt-after", type=int, default=-1, help="interrupt after this number of resources")
 
 
 def _add_get(

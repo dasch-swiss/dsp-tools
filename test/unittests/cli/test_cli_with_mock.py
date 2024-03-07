@@ -96,13 +96,12 @@ def test_xmlupload(xmlupload: Mock) -> None:
     args = f"xmlupload {file}".split()
     entry_point.run(args)
     xmlupload.assert_called_once_with(
-        input_file=file,
         server="http://0.0.0.0:3333",
         user="root@example.com",
         password="test",
         imgdir=".",
         sipi="http://0.0.0.0:1024",
-        config=UploadConfig(),
+        config=UploadConfig(input_file=file),
     )
 
 

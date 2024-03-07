@@ -1,3 +1,6 @@
+import contextlib
+from pathlib import Path
+
 import pytest
 
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
@@ -5,24 +8,17 @@ from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 
 def test_save_location() -> None:
     server = "dasch.swiss"
-    shortcode = "9999"
-    onto_name = "testonto"
-    expected_path = f"/.dsp-tools/xmluploads/{server}/{shortcode}/{onto_name}"
-    config = UploadConfig()
-    config_with_save_location = config.with_server_info(
+    expected_path = Path(Path.home() / f".dsp-tools/xmluploads/{server}/resumable/latest.pkl")
+    config_with_save_location = UploadConfig().with_server_info(
         server=server,
-        shortcode=shortcode,
+        shortcode="1234",
     )
     diagnostics = config_with_save_location.diagnostics
-    result = str(diagnostics.save_location)
-    assert result.endswith(expected_path)
-    try:
-        diagnostics.save_location.rmdir()
-        diagnostics.save_location.parent.rmdir()
+    assert expected_path == diagnostics.save_location
+    # in case these folders didn't exist before: tidy up
+    with contextlib.suppress(OSError):
+        diagnostics.save_location.parent.rmdir()  # raises OSError if the folder is not empty
         diagnostics.save_location.parent.parent.rmdir()
-    except OSError:
-        # there was already stuff in the folder before this test: do nothing
-        pass
 
 
 if __name__ == "__main__":

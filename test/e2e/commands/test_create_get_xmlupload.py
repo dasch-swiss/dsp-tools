@@ -73,7 +73,7 @@ class TestCreateGetXMLUpload(unittest.TestCase):
         )
         self.assertTrue(success)
 
-        mapping_file = self._get_most_recent_glob_match("test-data-systematic_id2iri_mapping_*.json")
+        mapping_file = self._get_most_recent_glob_match("*_id2iri_mapping_*.json")
         second_xml_file_orig = Path("testdata/id2iri/test-id2iri-data.xml")
         success = id2iri(
             xml_file=str(second_xml_file_orig),

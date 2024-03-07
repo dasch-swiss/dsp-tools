@@ -63,7 +63,7 @@ class UploadConfig:
         """Create a new UploadConfig with the given server."""
         server_as_foldername = _transform_server_url_to_foldername(server)
         save_location = Path.home() / Path(".dsp-tools") / "xmluploads" / server_as_foldername / "resumable/latest.pkl"
-        save_location.mkdir(parents=True, exist_ok=True)
+        save_location.parent.mkdir(parents=True, exist_ok=True)
         logger.info(f"{save_location=:}")
         diagnostics: DiagnosticsConfig = dataclasses.replace(
             self.diagnostics,

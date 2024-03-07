@@ -211,7 +211,6 @@ def upload_resources(
         list_client: a client for HTTP communication with the DSP-API
         iri_resolver: mapping from internal IDs to IRIs
 
-
     Returns:
         the id2iri mapping of the uploaded resources,
         a list of resources that could not be uploaded,

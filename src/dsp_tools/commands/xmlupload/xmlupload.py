@@ -402,6 +402,8 @@ def _upload_resources(
     interrupt_after = config.interrupt_after or total_res + 1
 
     for i, resource in enumerate(resources.copy()):
+        if i >= interrupt_after:
+            raise KeyboardInterrupt(f"Interrupted: Maximum number of resources was reached ({interrupt_after})")
         success, media_info = handle_media_info(
             resource, config.media_previously_uploaded, sipi_server, imgdir, permissions_lookup
         )
@@ -411,8 +413,6 @@ def _upload_resources(
 
         res = None
         try:
-            if i >= interrupt_after:
-                raise KeyboardInterrupt(f"Interrupted: Maximum number of resources was reached ({interrupt_after})")
             res = _create_resource(resource, media_info, resource_create_client)
             if res == (None, None):
                 # resource creation failed gracefully: register it as failed, then continue

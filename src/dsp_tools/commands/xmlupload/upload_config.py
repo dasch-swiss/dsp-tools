@@ -3,7 +3,6 @@ from __future__ import annotations
 import dataclasses
 from dataclasses import dataclass
 from dataclasses import field
-from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -44,7 +43,6 @@ class DiagnosticsConfig:
     verbose: bool = False
     server_as_foldername: str = "unknown"
     save_location: Path = field(default=Path.home() / ".dsp-tools" / "xmluploads")
-    timestamp_str: str = field(default=datetime.now().strftime("%Y-%m-%d_%H%M%S"))
 
 
 @dataclass(frozen=True)

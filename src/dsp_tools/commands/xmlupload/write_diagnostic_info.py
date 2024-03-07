@@ -19,7 +19,7 @@ def write_id2iri_mapping(
     diagnostics: DiagnosticsConfig,
 ) -> None:
     """Writes the mapping of internal IDs to IRIs to a file."""
-    timestamp = diagnostics.timestamp_str
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
     servername = diagnostics.server_as_foldername
     match input_file:
         case str() | Path():

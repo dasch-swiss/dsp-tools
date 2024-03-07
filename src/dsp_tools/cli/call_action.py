@@ -168,6 +168,7 @@ def _call_xmlupload(args: argparse.Namespace) -> bool:
             imgdir=args.imgdir,
             sipi=args.sipi_url,
             config=UploadConfig(input_file=args.xmlfile, diagnostics=DiagnosticsConfig(verbose=args.verbose)),
+            interrupt_after=args.interrupt_after if args.interrupt_after > 0 else None,
         )
 
 
@@ -177,6 +178,7 @@ def _call_resume_xmlupload(args: argparse.Namespace) -> bool:
         user=args.user,
         password=args.password,
         sipi=args.sipi_url,
+        interrupt_after=args.interrupt_after if args.interrupt_after > 0 else None,
     )
 
 

@@ -18,6 +18,7 @@ def resume_xmlupload(
     user: str,
     password: str,
     sipi: str,
+    interrupt_after: int | None = None,
 ) -> bool:
     """
     Resume an interrupted xmlupload.
@@ -27,6 +28,8 @@ def resume_xmlupload(
         user: the user (e-mail) with which the data should be imported
         password: the password of the user with which the data should be imported
         sipi: the sipi instance to be used
+        interrupt_after: the number of resources to upload before interrupting the upload.
+                         If None, the upload will not be interrupted.
 
     Returns:
         True if all resources could be uploaded without errors; False if one of the resources could not be
@@ -53,6 +56,7 @@ def resume_xmlupload(
         project_client=project_client,
         list_client=list_client,
         iri_resolver=IriResolver(upload_state.iri_resolver_lookup),
+        interrupt_after=interrupt_after,
     )
 
     return cleanup_upload(iri_resolver, upload_state.config, failed_uploads, nonapplied_stash)

@@ -164,6 +164,33 @@ dsp-tools xmlupload -s https://api.dasch.swiss -u 'your@email.com' -p 'password'
 
 The expected XML format is [documented here](./file-formats/xml-data-file.md).
 
+If an XML upload is interrupted before it finished (e.g. by hitting `Ctrl + C`), 
+it can be resumed with the `resume-xmlupload` command. 
+When an upload is interrupted, 
+the current state of the upload is saved in a pickle file, 
+which is stored in `~/.dsp-tools/xmluploads/[server]/resumable/latest.pkl`. 
+If the upload should be resumed later,
+this file must remain in place.
+
+
+
+## `resume-xmlupload`
+
+This command resumes a previously interrupted XML upload.
+
+```bash
+dsp-tools resume-xmlupload [options]
+```
+
+The following options are available:
+
+- `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server where DSP-TOOLS sends the data to
+- `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API 
+- `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
+
+For this command to work,
+the pickle file `~/.dsp-tools/xmluploads/[server]/resumable/latest.pkl` must exist. 
+Currently, only one interrupted upload can be resumed at a time.
 
 
 ## `excel2json`

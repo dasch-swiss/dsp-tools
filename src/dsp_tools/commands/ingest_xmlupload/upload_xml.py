@@ -57,10 +57,11 @@ def ingest_xmlupload(
         raise InputError(err_msg)
 
     xmlupload(
+        input_file=xml_tree_replaced,
         server=dsp_url,
         user=user,
         password=password,
         imgdir=".",
         sipi=sipi_url,
-        config=UploadConfig(input_file=xml_tree_replaced, media_previously_uploaded=True),
+        config=UploadConfig(media_previously_uploaded=True),
     )

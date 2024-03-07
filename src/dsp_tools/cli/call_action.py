@@ -163,13 +163,13 @@ def _call_xmlupload(args: argparse.Namespace) -> bool:
     else:
         interrupt_after = args.interrupt_after if args.interrupt_after > 0 else None
         return xmlupload(
+            input_file=args.xmlfile,
             server=args.server,
             user=args.user,
             password=args.password,
             imgdir=args.imgdir,
             sipi=args.sipi_url,
             config=UploadConfig(
-                input_file=args.xmlfile,
                 diagnostics=DiagnosticsConfig(verbose=args.verbose),
                 interrupt_after=interrupt_after,
             ),

@@ -85,12 +85,13 @@ def _upload_xml(rosetta_folder: Path) -> bool:
     """
     print("Execute 'dsp-tools xmlupload rosetta.xml'...")
     return xmlupload(
+        input_file=rosetta_folder / "rosetta.xml",
         server="http://0.0.0.0:3333",
         user="root@example.com",
         password="test",
         imgdir=str(rosetta_folder),
         sipi="http://0.0.0.0:1024",
-        config=UploadConfig(input_file=rosetta_folder / "rosetta.xml"),
+        config=UploadConfig(),
     )
 
 

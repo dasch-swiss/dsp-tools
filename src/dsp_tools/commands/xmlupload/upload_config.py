@@ -51,6 +51,7 @@ class UploadConfig:
     server: str = "unknown"
     shortcode: str = "unknown"
     diagnostics: DiagnosticsConfig = field(default_factory=DiagnosticsConfig)
+    interrupt_after: int | None = None
 
     def with_server_info(
         self,

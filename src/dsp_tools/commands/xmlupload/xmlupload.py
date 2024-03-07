@@ -376,6 +376,7 @@ def _upload_resources(
 
     Raises:
         BaseException: in case of an unhandled exception during resource creation
+        KeyboardInterrupt: if the number of resources created is equal to the interrupt_after value
 
     Returns:
         id2iri_mapping, failed_uploads
@@ -397,7 +398,12 @@ def _upload_resources(
     )
 
     total_res = len(resources)
+    # if the interrupt_after value is not set, the upload will not be interrupted
+    interrupt_after = config.interrupt_after or total_res + 1
+
     for i, resource in enumerate(resources.copy()):
+        if i >= interrupt_after:
+            raise KeyboardInterrupt(f"Interrupted: Maximum number of resources was reached ({interrupt_after})")
         success, media_info = handle_media_info(
             resource, config.media_previously_uploaded, sipi_server, imgdir, permissions_lookup
         )

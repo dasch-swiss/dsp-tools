@@ -37,7 +37,7 @@ def upload_stashed_resptr_props(
     print(f"{datetime.now()}: Upload the stashed resptrs...")
     logger.info("Upload the stashed resptrs...")
     not_uploaded: list[LinkValueStashItem] = []
-    for res_id, stash_items in stashed_resptr_props.res_2_stash_items.items():
+    for res_id, stash_items in stashed_resptr_props.res_2_stash_items.copy().items():
         res_iri = iri_resolver.get(res_id)
         if not res_iri:
             # resource could not be uploaded to DSP, so the stash cannot be uploaded either
@@ -51,9 +51,12 @@ def upload_stashed_resptr_props(
             target_iri = iri_resolver.get(stash_item.target_id)
             if not target_iri:
                 continue
-            success = _upload_stash_item(stash_item, res_iri, target_iri, con, context)
-            if not success:
+            if _upload_stash_item(stash_item, res_iri, target_iri, con, context):
+                stashed_resptr_props.res_2_stash_items[res_id].remove(stash_item)
+            else:
                 not_uploaded.append(stash_item)
+        if not stashed_resptr_props.res_2_stash_items[res_id]:
+            del stashed_resptr_props.res_2_stash_items[res_id]
     return LinkValueStash.make(not_uploaded)
 
 

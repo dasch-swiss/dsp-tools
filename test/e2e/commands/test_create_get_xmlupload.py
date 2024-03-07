@@ -13,6 +13,7 @@ import regex
 from dsp_tools.commands.id2iri import id2iri
 from dsp_tools.commands.project.create.project_create import create_project
 from dsp_tools.commands.project.get import get_project
+from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
@@ -68,10 +69,11 @@ class TestCreateGetXMLUpload(unittest.TestCase):
             password=self.password,
             imgdir=self.imgdir,
             sipi=self.sipi,
+            config=UploadConfig(),
         )
         self.assertTrue(success)
 
-        mapping_file = self._get_most_recent_glob_match("test-data-systematic_id2iri_mapping_*.json")
+        mapping_file = self._get_most_recent_glob_match("*_id2iri_mapping_*.json")
         second_xml_file_orig = Path("testdata/id2iri/test-id2iri-data.xml")
         success = id2iri(
             xml_file=str(second_xml_file_orig),
@@ -88,6 +90,7 @@ class TestCreateGetXMLUpload(unittest.TestCase):
             password=self.password,
             imgdir=self.imgdir,
             sipi=self.sipi,
+            config=UploadConfig(),
         )
         second_xml_file_replaced.unlink()
         self.assertListEqual(list(Path(self.cwd).glob("stashed_*_properties_*.txt")), [])

@@ -46,6 +46,8 @@ def make_parser(
 
     _add_xmlupload(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
 
+    _add_resume_xmlupload(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
+
     _add_ingest_xmlupload(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
 
     _add_excel2json(subparsers)
@@ -189,6 +191,7 @@ def _add_ingest_xmlupload(
     subparser.add_argument("-s", "--server", default=default_dsp_api_url, help=dsp_server_text)
     subparser.add_argument("-u", "--user", default=root_user_email, help=username_text)
     subparser.add_argument("-p", "--password", default=root_user_pw, help=password_text)
+    subparser.add_argument("--interrupt-after", type=int, default=-1, help="interrupt after this number of resources")
     subparser.add_argument("xml_file", help="path to XML file containing the data")
 
 
@@ -212,7 +215,23 @@ def _add_xmlupload(
         "-V", "--validate-only", action="store_true", help="validate the XML file without uploading it"
     )
     subparser.add_argument("-v", "--verbose", action="store_true", help=verbose_text)
+    subparser.add_argument("--interrupt-after", type=int, default=-1, help="interrupt after this number of resources")
     subparser.add_argument("xmlfile", help="path to the XML file containing the data")
+
+
+def _add_resume_xmlupload(
+    subparsers: _SubParsersAction[ArgumentParser],
+    default_dsp_api_url: str,
+    root_user_email: str,
+    root_user_pw: str,
+) -> None:
+    subparser = subparsers.add_parser(name="resume-xmlupload", help="Resume an interrupted xmlupload")
+    subparser.set_defaults(action="resume-xmlupload")
+    subparser.add_argument(
+        "-s", "--server", default=default_dsp_api_url, help="URL of the DSP server where DSP-TOOLS sends the data to"
+    )
+    subparser.add_argument("-u", "--user", default=root_user_email, help=username_text)
+    subparser.add_argument("-p", "--password", default=root_user_pw, help=password_text)
 
 
 def _add_get(

@@ -3,7 +3,6 @@ from __future__ import annotations
 import dataclasses
 from dataclasses import dataclass
 from dataclasses import field
-from datetime import datetime
 from pathlib import Path
 
 import regex
@@ -42,7 +41,6 @@ class DiagnosticsConfig:
     verbose: bool = False
     server_as_foldername: str = "unknown"
     save_location: Path = field(default=Path.home() / ".dsp-tools" / "xmluploads")
-    timestamp_str: str = field(default=datetime.now().strftime("%Y-%m-%d_%H%M%S"))
 
 
 @dataclass(frozen=True)
@@ -53,17 +51,17 @@ class UploadConfig:
     server: str = "unknown"
     shortcode: str = "unknown"
     diagnostics: DiagnosticsConfig = field(default_factory=DiagnosticsConfig)
+    interrupt_after: int | None = None
 
     def with_server_info(
         self,
         server: str,
         shortcode: str,
-        onto_name: str,
     ) -> UploadConfig:
         """Create a new UploadConfig with the given server."""
         server_as_foldername = _transform_server_url_to_foldername(server)
-        save_location = Path.home() / Path(".dsp-tools") / "xmluploads" / server_as_foldername / shortcode / onto_name
-        save_location.mkdir(parents=True, exist_ok=True)
+        save_location = Path.home() / Path(".dsp-tools") / "xmluploads" / server_as_foldername / "resumable/latest.pkl"
+        save_location.parent.mkdir(parents=True, exist_ok=True)
         logger.info(f"{save_location=:}")
         diagnostics: DiagnosticsConfig = dataclasses.replace(
             self.diagnostics,

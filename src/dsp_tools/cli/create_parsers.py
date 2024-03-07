@@ -224,7 +224,7 @@ def _add_resume_xmlupload(
     root_user_pw: str,
 ) -> None:
     subparser = subparsers.add_parser(name="resume-xmlupload", help="Resume an interrupted xmlupload")
-    subparser.set_defaults(action="xmlupload")
+    subparser.set_defaults(action="resume-xmlupload")
     subparser.add_argument(
         "-s", "--server", default=default_dsp_api_url, help="URL of the DSP server where DSP-TOOLS sends the data to"
     )

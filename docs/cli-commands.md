@@ -191,7 +191,7 @@ The following options are available:
 
 For this command to work,
 the pickle file `~/.dsp-tools/xmluploads/[server]/resumable/latest.pkl` must exist. 
-Currently, only one interrupted upload can be resumed at a time.
+Currently, only one interrupted upload can be resumed at a time per server.
 
 
 ## `excel2json`

@@ -1045,7 +1045,7 @@ def create_project(
     if overall_success:
         msg = (
             f"Successfully created project '{project_definition.shortname}' "
-            f"({project_definition.shortcode}) with all its ontologies."
+            f"({project_definition.shortcode}) with all its ontologies. "
             f"There were no problems during the creation process."
         )
         print(f"========================================================\n{msg}")

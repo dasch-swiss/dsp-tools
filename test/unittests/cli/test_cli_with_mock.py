@@ -102,7 +102,6 @@ def test_xmlupload(xmlupload: Mock) -> None:
         imgdir=".",
         sipi="http://0.0.0.0:1024",
         config=UploadConfig(input_file=file),
-        interrupt_after=None,
     )
 
 

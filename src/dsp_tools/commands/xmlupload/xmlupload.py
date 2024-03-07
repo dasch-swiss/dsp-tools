@@ -73,6 +73,12 @@ def xmlupload(
         True if all resources could be uploaded without errors; False if one of the resources could not be
         uploaded because there is an error in it
     """
+
+    con = ConnectionLive(server)
+    con.login(user, password)
+    sipi_con = ConnectionLive(sipi, token=con.get_token())
+    sipi_server = Sipi(sipi_con)
+
     default_ontology, root, shortcode = validate_and_parse_xml_file(
         input_file=input_file,
         imgdir=imgdir,
@@ -83,12 +89,6 @@ def xmlupload(
         server=server,
         shortcode=shortcode,
     )
-
-    # establish connection to DSP server
-    con = ConnectionLive(server)
-    con.login(user, password)
-    sipi_con = ConnectionLive(sipi, token=con.get_token())
-    sipi_server = Sipi(sipi_con)
 
     ontology_client = OntologyClientLive(
         con=con,

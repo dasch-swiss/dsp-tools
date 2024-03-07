@@ -13,6 +13,7 @@ class UploadState:
     """
 
     pending_resources: list[XMLResource]
+    failed_uploads: list[str]
     iri_resolver_lookup: dict[str, str]
     pending_stash: Stash | None
     config: UploadConfig

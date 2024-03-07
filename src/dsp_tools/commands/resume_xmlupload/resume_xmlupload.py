@@ -44,6 +44,7 @@ def resume_xmlupload(
 
     iri_resolver, failed_uploads, nonapplied_stash = upload_resources(
         resources=upload_state.pending_resources,
+        failed_uploads=upload_state.failed_uploads,
         imgdir=".",
         sipi_server=sipi_server,
         permissions_lookup=upload_state.permissions_lookup,

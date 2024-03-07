@@ -22,6 +22,7 @@ def test_save_upload_state(tmp_path: Path) -> None:
     config = UploadConfig(diagnostics=DiagnosticsConfig(save_location=save_location))
     upload_state = UploadState(
         pending_resources=[XMLResource(etree.fromstring(resource_str), default_ontology="test")],
+        failed_uploads=[],
         iri_resolver_lookup={"foo": "bar"},
         pending_stash=None,
         config=config,

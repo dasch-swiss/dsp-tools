@@ -110,6 +110,7 @@ def xmlupload(
 
     iri_resolver, failed_uploads, nonapplied_stash = upload_resources(
         resources=resources,
+        failed_uploads=[],
         imgdir=imgdir,
         sipi_server=sipi_server,
         permissions_lookup=permissions_lookup,
@@ -186,6 +187,7 @@ def _prepare_upload(
 
 def upload_resources(
     resources: list[XMLResource],
+    failed_uploads: list[str],
     imgdir: str,
     sipi_server: Sipi,
     permissions_lookup: dict[str, Permissions],
@@ -201,6 +203,7 @@ def upload_resources(
 
     Args:
         resources: list of XMLResources to upload to DSP
+        failed_uploads: resources that caused an error in a previous upload
         imgdir: folder containing the multimedia files
         sipi_server: Sipi instance
         permissions_lookup: dictionary that contains the permission name as string and the corresponding Python object
@@ -216,10 +219,10 @@ def upload_resources(
         a list of resources that could not be uploaded,
         and the stash items that could not be reapplied.
     """
-    failed_uploads: list[str] = []
     try:
         iri_resolver, failed_uploads = _upload_resources(
             resources=resources,
+            failed_uploads=failed_uploads,
             imgdir=imgdir,
             sipi_server=sipi_server,
             permissions_lookup=permissions_lookup,
@@ -349,6 +352,7 @@ def _extract_resources_from_xml(root: etree._Element, default_ontology: str) -> 
 
 def _upload_resources(
     resources: list[XMLResource],
+    failed_uploads: list[str],
     imgdir: str,
     sipi_server: Sipi,
     permissions_lookup: dict[str, Permissions],
@@ -365,6 +369,7 @@ def _upload_resources(
 
     Args:
         resources: list of XMLResources to upload to DSP
+        failed_uploads: resources that caused an error in a previous upload
         imgdir: folder containing the multimedia files
         sipi_server: Sipi instance
         permissions_lookup: maps permission strings to Permission objects
@@ -381,8 +386,6 @@ def _upload_resources(
     Returns:
         id2iri_mapping, failed_uploads
     """
-    failed_uploads: list[str] = []
-
     project_iri = project_client.get_project_iri()
     json_ld_context = get_json_ld_context_for_project(project_client.get_ontology_name_dict())
     listnode_lookup = list_client.get_list_node_id_to_iri_lookup()
@@ -508,7 +511,9 @@ def _handle_upload_error(
         f"For more information, see the log file: {logfiles}\n"
     )
 
-    upload_state = UploadState(pending_resources, iri_resolver.lookup, pending_stash, config, permissions_lookup)
+    upload_state = UploadState(
+        pending_resources, failed_uploads, iri_resolver.lookup, pending_stash, config, permissions_lookup
+    )
     msg += _save_upload_state(upload_state)
 
     if failed_uploads:

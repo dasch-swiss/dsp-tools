@@ -11,6 +11,9 @@ from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import cleanup_upload
 from dsp_tools.commands.xmlupload.xmlupload import upload_resources
 from dsp_tools.utils.connection_live import ConnectionLive
+from dsp_tools.utils.create_logger import get_logger
+
+logger = get_logger(__name__)
 
 
 def resume_xmlupload(
@@ -33,6 +36,17 @@ def resume_xmlupload(
         uploaded because there is an error in it
     """
     upload_state = _read_upload_state_from_disk(server)
+    previous_successful = len(upload_state.iri_resolver_lookup)
+    previous_failed = len(upload_state.failed_uploads)
+    previous_total = previous_successful + previous_failed
+    msg = (
+        f"Resuming upload for project {upload_state.config.shortcode} on server {server}. "
+        f"Number of resources uploaded until now: {previous_total}"
+    )
+    if previous_failed:
+        msg += f" ({previous_failed} of them failed)"
+    logger.info(msg)
+    print("\n==========================\n" + msg + "\n==========================\n")
 
     con = ConnectionLive(server)
     con.login(user, password)

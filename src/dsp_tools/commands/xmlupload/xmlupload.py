@@ -403,11 +403,15 @@ def _upload_resources(
         media_previously_ingested=config.media_previously_uploaded,
     )
 
-    total_res = len(resources)
+    total_res = len(resources) + len(iri_resolver.lookup)
+    previous_successful = len(iri_resolver.lookup)
+    previous_failed = len(failed_uploads)
+    previous_total = previous_successful + previous_failed
     # if the interrupt_after value is not set, the upload will not be interrupted
     interrupt_after = config.interrupt_after or total_res + 1
 
     for i, resource in enumerate(resources.copy()):
+        current_res = i + 1 + previous_total
         if i >= interrupt_after:
             raise XmlUploadInterruptedError(f"Interrupted: Maximum number of resources was reached ({interrupt_after})")
         success, media_info = handle_media_info(
@@ -427,12 +431,12 @@ def _upload_resources(
             else:
                 # resource creation succeeded: update the iri_resolver and remove the resource from the list
                 iri, label = res
-                _tidy_up_resource_creation(iri, label, iri_resolver, resource, i + 1, total_res)  # type: ignore[arg-type]
+                _tidy_up_resource_creation(iri, label, iri_resolver, resource, current_res, total_res)  # type: ignore[arg-type]
         except BaseException as err:
             if res and res[0]:
                 # creation succeeded, but during tidy up, a Keyboard Interrupt occurred. tidy up again before escalating
                 iri, label = res
-                _tidy_up_resource_creation(iri, label, iri_resolver, resource, i + 1, total_res)
+                _tidy_up_resource_creation(iri, label, iri_resolver, resource, current_res, total_res)
             else:
                 # unhandled exception during resource creation
                 failed_uploads.append(resource.res_id)
@@ -527,7 +531,10 @@ def _handle_upload_error(
     if failed_uploads:
         msg += f"Independently from this, there were some resources that could not be uploaded: {failed_uploads}\n"
 
-    logger.exception(msg)
+    if exit_code == 1:
+        logger.exception(msg)
+    else:
+        logger.info(msg)
     print(msg)
 
     sys.exit(exit_code)

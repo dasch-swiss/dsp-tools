@@ -149,18 +149,20 @@ def cleanup_upload(
     if not failed_uploads and not nonapplied_stash:
         print(f"{datetime.now()}: All resources have successfully been uploaded.")
         logger.info("All resources have successfully been uploaded.")
-        return True
-    if failed_uploads:
-        print(f"\n{datetime.now()}: WARNING: Could not upload the following resources: {failed_uploads}\n")
-        print(f"For more information, see the log file: {logfiles}\n")
-        logger.warning(f"Could not upload the following resources: {failed_uploads}")
-    if nonapplied_stash:
-        print(f"\n{datetime.now()}: WARNING: Could not reapply the following stash items: {nonapplied_stash}\n")
-        print(f"For more information, see the log file: {logfiles}\n")
-        logger.warning(f"Could not reapply the following stash items: {nonapplied_stash}")
+        success = True
+    else:
+        success = False
+        if failed_uploads:
+            print(f"\n{datetime.now()}: WARNING: Could not upload the following resources: {failed_uploads}\n")
+            print(f"For more information, see the log file: {logfiles}\n")
+            logger.warning(f"Could not upload the following resources: {failed_uploads}")
+        if nonapplied_stash:
+            print(f"\n{datetime.now()}: WARNING: Could not reapply the following stash items: {nonapplied_stash}\n")
+            print(f"For more information, see the log file: {logfiles}\n")
+            logger.warning(f"Could not reapply the following stash items: {nonapplied_stash}")
 
     config.diagnostics.save_location.unlink(missing_ok=True)
-    return False
+    return success
 
 
 def _prepare_upload(

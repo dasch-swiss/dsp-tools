@@ -34,6 +34,7 @@ from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.write_diagnostic_info import write_id2iri_mapping
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import UserError
+from dsp_tools.models.exceptions import XmlUploadInterruptedError
 from dsp_tools.models.projectContext import ProjectContext
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
@@ -238,7 +239,7 @@ def upload_resources(
         # The forseeable errors are already handled by failed_uploads
         # Here we catch the unforseeable exceptions, incl. keyboard interrupt.
         _handle_upload_error(
-            err_msg=str(err),
+            err=err,
             iri_resolver=iri_resolver,
             pending_resources=resources,
             failed_uploads=failed_uploads,
@@ -264,7 +265,7 @@ def upload_resources(
         # The forseeable errors are already handled by failed_uploads and nonapplied_stash.
         # Here we catch the unforseeable exceptions, incl. keyboard interrupt.
         _handle_upload_error(
-            err_msg=str(err),
+            err=err,
             iri_resolver=iri_resolver,
             pending_resources=resources,
             failed_uploads=failed_uploads,
@@ -383,7 +384,7 @@ def _upload_resources(
 
     Raises:
         BaseException: in case of an unhandled exception during resource creation
-        KeyboardInterrupt: if the number of resources created is equal to the interrupt_after value
+        XmlUploadInterruptedError: if the number of resources created is equal to the interrupt_after value
 
     Returns:
         id2iri_mapping, failed_uploads
@@ -408,7 +409,7 @@ def _upload_resources(
 
     for i, resource in enumerate(resources.copy()):
         if i >= interrupt_after:
-            raise KeyboardInterrupt(f"Interrupted: Maximum number of resources was reached ({interrupt_after})")
+            raise XmlUploadInterruptedError(f"Interrupted: Maximum number of resources was reached ({interrupt_after})")
         success, media_info = handle_media_info(
             resource, config.media_previously_uploaded, sipi_server, imgdir, permissions_lookup
         )
@@ -478,7 +479,7 @@ def _create_resource(
 
 
 def _handle_upload_error(
-    err_msg: str,
+    err: BaseException,
     iri_resolver: IriResolver,
     pending_resources: list[XMLResource],
     failed_uploads: list[str],
@@ -497,7 +498,7 @@ def _handle_upload_error(
     It then quits the Python interpreter with exit code 1.
 
     Args:
-        err_msg: string representation of the error that was the cause of the abort
+        err: the error that was the cause of the abort
         iri_resolver: a resolver for internal IDs to IRIs
         pending_resources: resources that were not uploaded to DSP
         failed_uploads: resources that caused an error when uploading to DSP
@@ -505,13 +506,18 @@ def _handle_upload_error(
         config: the upload configuration
         permissions_lookup: dictionary that contains the permission name as string and the corresponding Python object
     """
-    logfiles = ", ".join([handler.baseFilename for handler in logger.handlers if isinstance(handler, FileHandler)])
-    msg = (
-        f"\n==========================================\n"
-        f"{datetime.now()}: xmlupload must be aborted because of an error.\n"
-        f"Error message: '{err_msg}'\n"
-        f"For more information, see the log file: {logfiles}\n"
-    )
+    if isinstance(err, XmlUploadInterruptedError):
+        msg = "\n==========================================\n" + err.message + "\n"
+        exit_code = 0
+    else:
+        logfiles = ", ".join([handler.baseFilename for handler in logger.handlers if isinstance(handler, FileHandler)])
+        msg = (
+            f"\n==========================================\n"
+            f"{datetime.now()}: xmlupload must be aborted because of an error.\n"
+            f"Error message: '{err}'\n"
+            f"For more information, see the log file: {logfiles}\n"
+        )
+        exit_code = 1
 
     upload_state = UploadState(
         pending_resources, failed_uploads, iri_resolver.lookup, pending_stash, config, permissions_lookup
@@ -519,12 +525,12 @@ def _handle_upload_error(
     msg += _save_upload_state(upload_state)
 
     if failed_uploads:
-        msg += f"Independently of this error, there were some resources that could not be uploaded: {failed_uploads}\n"
+        msg += f"Independently from this, there were some resources that could not be uploaded: {failed_uploads}\n"
 
     logger.exception(msg)
     print(msg)
 
-    sys.exit(1)
+    sys.exit(exit_code)
 
 
 def _save_upload_state(upload_state: UploadState) -> str:

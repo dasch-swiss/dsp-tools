@@ -65,3 +65,7 @@ class BadCredentialsError(PermanentConnectionError):
 
 class XmlUploadError(BaseError):
     """Represents an error raised in the context of the xmlupload."""
+
+
+class XmlUploadInterruptedError(XmlUploadError):
+    """Represents an error raised when the xmlupload was interrupted."""

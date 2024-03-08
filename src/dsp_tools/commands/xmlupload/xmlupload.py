@@ -144,14 +144,14 @@ def cleanup_upload(
     Returns:
         success status (deduced from failed_uploads)
     """
-    logfiles = ", ".join([handler.baseFilename for handler in logger.handlers if isinstance(handler, FileHandler)])
     write_id2iri_mapping(iri_resolver.lookup, config.diagnostics)
     if not failed_uploads and not nonapplied_stash:
+        success = True
         print(f"{datetime.now()}: All resources have successfully been uploaded.")
         logger.info("All resources have successfully been uploaded.")
-        success = True
     else:
         success = False
+        logfiles = ", ".join([handler.baseFilename for handler in logger.handlers if isinstance(handler, FileHandler)])
         if failed_uploads:
             print(f"\n{datetime.now()}: WARNING: Could not upload the following resources: {failed_uploads}\n")
             print(f"For more information, see the log file: {logfiles}\n")

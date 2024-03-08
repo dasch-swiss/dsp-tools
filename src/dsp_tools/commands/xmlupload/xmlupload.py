@@ -404,12 +404,14 @@ def _upload_resources(
     )
 
     total_res = len(resources) + len(iri_resolver.lookup)
-    previous_res = len(iri_resolver.lookup)
+    previous_successful = len(iri_resolver.lookup)
+    previous_failed = len(failed_uploads)
+    previous_total = previous_successful + previous_failed
     # if the interrupt_after value is not set, the upload will not be interrupted
     interrupt_after = config.interrupt_after or total_res + 1
 
     for i, resource in enumerate(resources.copy()):
-        current_res = i + 1 + previous_res
+        current_res = i + 1 + previous_total
         if i >= interrupt_after:
             raise XmlUploadInterruptedError(f"Interrupted: Maximum number of resources was reached ({interrupt_after})")
         success, media_info = handle_media_info(

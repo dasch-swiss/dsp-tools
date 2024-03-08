@@ -36,10 +36,15 @@ def resume_xmlupload(
         uploaded because there is an error in it
     """
     upload_state = _read_upload_state_from_disk(server)
+    previous_successful = len(upload_state.iri_resolver_lookup)
+    previous_failed = len(upload_state.failed_uploads)
+    previous_total = previous_successful + previous_failed
     msg = (
         f"Resuming upload for project {upload_state.config.shortcode} on server {server}. "
-        f"Number of resources uploaded until now: {len(upload_state.iri_resolver_lookup)}."
+        f"Number of resources uploaded until now: {previous_total}"
     )
+    if previous_failed:
+        msg += f" ({previous_failed} of them failed)"
     logger.info(msg)
     print("\n==========================\n" + msg + "\n==========================\n")
 

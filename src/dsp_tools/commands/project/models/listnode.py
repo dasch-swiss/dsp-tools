@@ -10,6 +10,7 @@ READ:
     * Call the ``read`` method on the instance
     * Access information about the instance
 """
+
 from __future__ import annotations
 
 from typing import Any

@@ -15,6 +15,7 @@ READ:
     * Access the information that has been provided to the instance
 
 """
+
 from __future__ import annotations
 
 import copy

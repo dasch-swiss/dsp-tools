@@ -1,4 +1,5 @@
 """This module handles all the operations which are used for the creation of JSON lists from Excel files."""
+
 import importlib.resources
 import json
 from copy import deepcopy

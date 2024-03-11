@@ -259,9 +259,11 @@ def validate_project(
             project_definition["project"]["lists"] = new_lists
 
     # validate the project definition against the schema
-    with importlib.resources.files("dsp_tools").joinpath("resources/schema/project.json").open(
-        encoding="utf-8"
-    ) as schema_file:
+    with (
+        importlib.resources.files("dsp_tools")
+        .joinpath("resources/schema/project.json")
+        .open(encoding="utf-8") as schema_file
+    ):
         project_schema = json.load(schema_file)
     try:
         jsonschema.validate(instance=project_definition, schema=project_schema)

@@ -281,9 +281,11 @@ def _validate_properties_section_in_json(
     properties_list: list[dict[str, Any]],
     excelfile: str,
 ) -> None:
-    with importlib.resources.files("dsp_tools").joinpath("resources/schema/properties-only.json").open(
-        encoding="utf-8"
-    ) as schema_file:
+    with (
+        importlib.resources.files("dsp_tools")
+        .joinpath("resources/schema/properties-only.json")
+        .open(encoding="utf-8") as schema_file
+    ):
         properties_schema = json.load(schema_file)
     try:
         jsonschema.validate(instance=properties_list, schema=properties_schema)

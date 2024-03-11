@@ -68,9 +68,11 @@ def validate_xml(input_file: Union[str, Path, etree._ElementTree[Any]]) -> bool:
 def _parse_schema_and_data_files(
     input_file: Union[str, Path, etree._ElementTree[Any]],
 ) -> tuple[etree._Element, etree.XMLSchema]:
-    with importlib.resources.files("dsp_tools").joinpath("resources/schema/data.xsd").open(
-        encoding="utf-8"
-    ) as schema_file:
+    with (
+        importlib.resources.files("dsp_tools")
+        .joinpath("resources/schema/data.xsd")
+        .open(encoding="utf-8") as schema_file
+    ):
         xmlschema = etree.XMLSchema(etree.parse(schema_file))
     data_xml = parse_and_remove_comments_from_xml_file(input_file)
     return data_xml, xmlschema

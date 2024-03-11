@@ -34,9 +34,11 @@ def _validate_resources(resources_list: list[dict[str, Any]]) -> None:
     Raises:
         InputError: if the validation fails
     """
-    with importlib.resources.files("dsp_tools").joinpath("resources/schema/resources-only.json").open(
-        encoding="utf-8"
-    ) as schema_file:
+    with (
+        importlib.resources.files("dsp_tools")
+        .joinpath("resources/schema/resources-only.json")
+        .open(encoding="utf-8") as schema_file
+    ):
         resources_schema = json.load(schema_file)
     try:
         jsonschema.validate(instance=resources_list, schema=resources_schema)

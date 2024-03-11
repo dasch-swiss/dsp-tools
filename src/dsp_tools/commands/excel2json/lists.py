@@ -1,4 +1,5 @@
 """This module handles all the operations which are used for the creation of JSON lists from Excel files."""
+
 import importlib.resources
 import json
 from copy import deepcopy
@@ -353,9 +354,11 @@ def validate_lists_section_with_schema(
     if bool(path_to_json_project_file) == bool(lists_section):
         raise BaseError("Validation of the 'lists' section works only if exactly one of the two arguments is given.")
 
-    with importlib.resources.files("dsp_tools").joinpath("resources/schema/lists-only.json").open(
-        encoding="utf-8"
-    ) as schema_file:
+    with (
+        importlib.resources.files("dsp_tools")
+        .joinpath("resources/schema/lists-only.json")
+        .open(encoding="utf-8") as schema_file
+    ):
         lists_schema = json.load(schema_file)
 
     if path_to_json_project_file:

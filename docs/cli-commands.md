@@ -138,7 +138,6 @@ The following options are available:
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
 - `-i` | `--imgdir` (optional, default: `.`): folder from where the paths in the `<bitstream>` tags are evaluated
 - `-V` | `--validate` (optional): validate the XML file without uploading it
-- `-v` | `--verbose` (optional): print more information about the progress to the console
 - `--interrupt-after=int` (optional): interrupt the upload after `int` resources have been uploaded
 
 Output:

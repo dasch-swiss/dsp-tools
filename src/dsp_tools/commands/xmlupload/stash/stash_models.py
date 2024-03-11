@@ -34,9 +34,14 @@ class StandoffStash:
         Returns:
             StandoffStash | None: A StandoffStash object or None, if an empty list was passed.
         """
+
+        def _get_res_id(x: StandoffStashItem) -> str:
+            return x.res_id
+
         if not items:
             return None
-        grouped_objects = {k: list(vals) for k, vals in groupby(items, key=lambda x: x.res_id)}
+        items = sorted(items, key=_get_res_id)
+        grouped_objects = {k: list(vals) for k, vals in groupby(items, key=_get_res_id)}
         return StandoffStash(grouped_objects)
 
 
@@ -68,9 +73,14 @@ class LinkValueStash:
         Returns:
             LinkValueStash | None: A LinkValueStash object or None, if an empty list was passed.
         """
+
+        def _get_res_id(x: LinkValueStashItem) -> str:
+            return x.res_id
+
         if not items:
             return None
-        grouped_objects = {k: list(vals) for k, vals in groupby(items, key=lambda x: x.res_id)}
+        items = sorted(items, key=_get_res_id)
+        grouped_objects = {k: list(vals) for k, vals in groupby(items, key=_get_res_id)}
         return LinkValueStash(grouped_objects)
 
 

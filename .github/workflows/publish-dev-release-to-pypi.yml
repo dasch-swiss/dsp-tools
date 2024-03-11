@@ -5,7 +5,7 @@ name: Publish dev-release to PyPI
 on:
   push:
     branches:
-      - main
+      - wip/DEV-3394-dont-publish-pr-onto-pr-to-pypi
 
 env:
   TOKEN: ${{ secrets.GH_TOKEN }}
@@ -15,8 +15,8 @@ env:
   # and the env vars must be named accordingly:
   #  - POETRY_HTTP_BASIC_<REPO>_USERNAME
   #  - POETRY_PYPI_TOKEN_<REPO>
-  POETRY_HTTP_BASIC_PYPI_USERNAME: __token__
-  POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_DASCHBOT_TOKEN }}
+  POETRY_HTTP_BASIC_TESTPYPI_USERNAME: __token__
+  POETRY_PYPI_TOKEN_TESTPYPI: ${{ secrets.TEST_PYPI_TOKEN }}
 
 jobs:
   publish-dev-release-to-pypi:

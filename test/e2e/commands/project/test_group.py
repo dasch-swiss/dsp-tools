@@ -1,4 +1,5 @@
 """end to end tests for group class"""
+
 import unittest
 from typing import cast
 

@@ -1,4 +1,5 @@
 """unit tests for langstrings"""
+
 import unittest
 
 import pytest

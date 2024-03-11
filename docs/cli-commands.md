@@ -177,6 +177,10 @@ this file must remain in place.
 
 ## `resume-xmlupload`
 
+| <center>Warning</center>                                                    |
+|--------------------------------------------------------------------------|
+| We do not guarantee that the state of an xmlupload is cleanly saved after `Ctrl + C`. We only guarantee this for `dsp-tools xmlupload --interrupt-after`. |
+
 This command resumes a previously interrupted XML upload.
 
 ```bash
@@ -192,6 +196,7 @@ The following options are available:
 For this command to work,
 the pickle file `~/.dsp-tools/xmluploads/[server]/resumable/latest.pkl` must exist. 
 Currently, only one interrupted upload can be resumed at a time per server.
+
 
 
 ## `excel2json`

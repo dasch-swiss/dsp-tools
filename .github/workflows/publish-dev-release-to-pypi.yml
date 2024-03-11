@@ -3,9 +3,9 @@
 name: Publish dev-release to PyPI
 
 on:
-  pull_request:
-    types:
-      - closed
+  push:
+    branches:
+      - main
 
 env:
   TOKEN: ${{ secrets.GH_TOKEN }}
@@ -20,7 +20,7 @@ env:
 
 jobs:
   publish-dev-release-to-pypi:
-    if: github.event.pull_request.merged == true && (startsWith(github.event.pull_request.title, 'fix') || startsWith(github.event.pull_request.title, 'feat'))
+    if: startsWith(github.event.head_commit.message, 'fix') || startsWith(github.event.head_commit.message, 'feat')
     runs-on: ubuntu-latest
     steps:
       - name: Check out repo

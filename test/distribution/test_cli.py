@@ -66,7 +66,7 @@ class TestCLI(unittest.TestCase):
 
     def test_xml_upload(self) -> None:
         """Test if the resource file 'src/dsp_tools/resources/schema/data.xsd' can be accessed."""
-        self._make_cli_call(["xmlupload", "-v", "--validate-only", str(self.test_data_minimal_file.absolute())])
+        self._make_cli_call(["xmlupload", "--validate-only", str(self.test_data_minimal_file.absolute())])
 
     def _make_cli_call(self, args: list[str]) -> None:
         """

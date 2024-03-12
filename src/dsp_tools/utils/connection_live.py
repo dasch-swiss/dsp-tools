@@ -281,10 +281,11 @@ class ConnectionLive:
         return action()
 
     def _handle_non_ok_responses(self, response: Response, retry_counter: int) -> None:
-        if 400 <= response.status_code < 500:
-            raise PermanentConnectionError(f"Client error: {response.status_code} {response.reason}")
-        if not self._in_testing_environment():
-            self._log_and_sleep(reason="Non-200 response code", retry_counter=retry_counter, exc_info=False)
+        in_500_range = 500 <= response.status_code < 600
+        try_again_later = "try again later" in response.text.lower()
+        should_retry = (try_again_later or in_500_range) and not self._in_testing_environment()
+        if should_retry:
+            self._log_and_sleep("Transient Error", retry_counter, exc_info=False)
             return None
         else:
             msg = f"Permanently unable to execute the network action. See logs for more details: {LOGFILES}"

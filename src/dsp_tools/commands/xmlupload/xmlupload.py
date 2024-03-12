@@ -3,7 +3,6 @@ from __future__ import annotations
 import pickle
 import sys
 from datetime import datetime
-from logging import FileHandler
 from pathlib import Path
 from typing import Any
 
@@ -38,6 +37,7 @@ from dsp_tools.models.exceptions import XmlUploadInterruptedError
 from dsp_tools.models.projectContext import ProjectContext
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
+from dsp_tools.utils.create_logger import get_log_filename_str
 from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.json_ld_util import get_json_ld_context_for_project
 
@@ -150,7 +150,7 @@ def cleanup_upload(
         logger.info("All resources have successfully been uploaded.")
     else:
         success = False
-        logfiles = ", ".join([handler.baseFilename for handler in logger.handlers if isinstance(handler, FileHandler)])
+        logfiles = get_log_filename_str(logger)
         if failed_uploads:
             print(f"\n{datetime.now()}: WARNING: Could not upload the following resources: {failed_uploads}\n")
             print(f"For more information, see the log file: {logfiles}\n")
@@ -508,7 +508,7 @@ def _handle_upload_error(
         msg = "\n==========================================\n" + err.message + "\n"
         exit_code = 0
     else:
-        logfiles = ", ".join([handler.baseFilename for handler in logger.handlers if isinstance(handler, FileHandler)])
+        logfiles = get_log_filename_str(logger)
         msg = (
             f"\n==========================================\n"
             f"{datetime.now()}: xmlupload must be aborted because of an error.\n"

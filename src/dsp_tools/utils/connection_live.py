@@ -19,7 +19,6 @@ from requests import Session
 
 from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.exceptions import PermanentConnectionError
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.create_logger import get_log_filename_str
@@ -287,23 +286,14 @@ class ConnectionLive:
         return action()
 
     def _handle_non_ok_responses(self, response: Response, request_url: str, retry_counter: int) -> None:
-        permanent_error_regexes = [
-            r"OntologyConstraintException",
-            r"DuplicateValueException",
-            r"Project '[0-9A-F]{4}' not found",
-            r"No projects found",
-        ]
         if "v2/authentication" in request_url and response.status_code == HTTP_UNAUTHORIZED:
             raise BadCredentialsError("Bad credentials")
-
-        elif any(regex.search(x, response.text) for x in permanent_error_regexes):
-            msg = f"Error occurred due to user input. Original message:\n{response.text}"
-            raise InputError(msg)
-
-        elif not self._in_testing_environment():
-            self._log_and_sleep(reason="Non-200 response code", retry_counter=retry_counter, exc_info=False)
+        in_500_range = 500 <= response.status_code < 600
+        try_again_later = "try again later" in response.text.lower()
+        should_retry = (try_again_later or in_500_range) and not self._in_testing_environment()
+        if should_retry:
+            self._log_and_sleep("Transient Error", retry_counter, exc_info=False)
             return None
-
         else:
             msg = f"Permanently unable to execute the network action. See logs for more details: {LOGFILES}"
             raise PermanentConnectionError(msg)

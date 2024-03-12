@@ -24,9 +24,6 @@ from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.langstring import LangString
 from dsp_tools.utils.connection import Connection
-from dsp_tools.utils.create_logger import get_logger
-
-logger = get_logger(__name__)
 
 
 class Project(Model):

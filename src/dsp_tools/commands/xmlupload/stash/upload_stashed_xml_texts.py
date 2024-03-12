@@ -95,7 +95,6 @@ def _create_XMLResource_json_object_to_update(
 
 
 def upload_stashed_xml_texts(
-    verbose: bool,
     iri_resolver: IriResolver,
     con: Connection,
     stashed_xml_texts: StandoffStash,
@@ -104,7 +103,6 @@ def upload_stashed_xml_texts(
     After all resources are uploaded, the stashed xml texts must be applied to their resources in DSP.
 
     Args:
-        verbose: bool
         iri_resolver: resolver to map ids from the XML file to IRIs in DSP
         con: connection to DSP
         stashed_xml_texts: all xml texts that have been stashed
@@ -128,8 +126,7 @@ def upload_stashed_xml_texts(
         except BaseError as err:
             _log_unable_to_retrieve_resource(resource=res_id, received_error=err)
             continue
-        if verbose:
-            print(f"{datetime.now()}:   Upload XML text(s) of resource '{res_id}'...")
+        print(f"{datetime.now()}:   Upload XML text(s) of resource '{res_id}'...")
         logger.info(f"  Upload XML text(s) of resource '{res_id}'...")
         context = resource_in_triplestore["@context"]
         for stash_item in stash_items:

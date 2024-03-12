@@ -14,7 +14,6 @@ logger = get_logger(__name__)
 
 
 def upload_stashed_resptr_props(
-    verbose: bool,
     iri_resolver: IriResolver,
     con: Connection,
     stashed_resptr_props: LinkValueStash,
@@ -24,7 +23,6 @@ def upload_stashed_resptr_props(
     After all resources are uploaded, the stashed resptr props must be applied to their resources in DSP.
 
     Args:
-        verbose: bool
         iri_resolver: resolver with a mapping of ids from the XML file to IRIs in DSP
         con: connection to DSP
         stashed_resptr_props: all resptr props that have been stashed
@@ -44,8 +42,7 @@ def upload_stashed_resptr_props(
             # no action necessary: this resource will remain in nonapplied_resptr_props,
             # which will be handled by the caller
             continue
-        if verbose:
-            print(f"{datetime.now()}:   Upload resptrs of resource '{res_id}''...")
+        print(f"{datetime.now()}:   Upload resptrs of resource '{res_id}''...")
         logger.info(f"  Upload resptrs of resource '{res_id}'...")
         for stash_item in stash_items:
             target_iri = iri_resolver.get(stash_item.target_id)

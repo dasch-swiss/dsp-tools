@@ -102,7 +102,6 @@ def xmlupload(
         root=root,
         con=con,
         default_ontology=default_ontology,
-        verbose=config.diagnostics.verbose,
     )
 
     project_client: ProjectClient = ProjectClientLive(con, config.shortcode)
@@ -169,11 +168,9 @@ def _prepare_upload(
     root: etree._Element,
     con: Connection,
     default_ontology: str,
-    verbose: bool,
 ) -> tuple[list[XMLResource], dict[str, Permissions], Stash | None]:
     logger.info("Checking resources for circular references...")
-    if verbose:
-        print(f"{datetime.now()}: Checking resources for circular references...")
+    print(f"{datetime.now()}: Checking resources for circular references...")
     stash_lookup, upload_order = identify_circular_references(root)
     logger.info("Get data from XML...")
     resources, permissions_lookup = _get_data_from_xml(
@@ -184,8 +181,7 @@ def _prepare_upload(
     sorting_lookup = {res.res_id: res for res in resources}
     resources = [sorting_lookup[res_id] for res_id in upload_order]
     logger.info("Stashing circular references...")
-    if verbose:
-        print(f"{datetime.now()}: Stashing circular references...")
+    print(f"{datetime.now()}: Stashing circular references...")
     stash = stash_circular_references(resources, stash_lookup, permissions_lookup)
     return resources, permissions_lookup, stash
 
@@ -257,7 +253,6 @@ def upload_resources(
                 stash=stash,
                 iri_resolver=iri_resolver,
                 con=con,
-                verbose=config.diagnostics.verbose,
                 project_client=project_client,
             )
             if stash
@@ -294,12 +289,10 @@ def _upload_stash(
     stash: Stash,
     iri_resolver: IriResolver,
     con: Connection,
-    verbose: bool,
     project_client: ProjectClient,
 ) -> Stash | None:
     if stash.standoff_stash:
         nonapplied_standoff = upload_stashed_xml_texts(
-            verbose=verbose,
             iri_resolver=iri_resolver,
             con=con,
             stashed_xml_texts=stash.standoff_stash,
@@ -309,7 +302,6 @@ def _upload_stash(
     context = get_json_ld_context_for_project(project_client.get_ontology_name_dict())
     if stash.link_value_stash:
         nonapplied_resptr_props = upload_stashed_resptr_props(
-            verbose=verbose,
             iri_resolver=iri_resolver,
             con=con,
             stashed_resptr_props=stash.link_value_stash,

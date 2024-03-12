@@ -18,7 +18,6 @@ from dsp_tools.commands.rosetta import upload_rosetta
 from dsp_tools.commands.start_stack import StackConfiguration
 from dsp_tools.commands.start_stack import StackHandler
 from dsp_tools.commands.template import generate_template_repo
-from dsp_tools.commands.xmlupload.upload_config import DiagnosticsConfig
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from dsp_tools.utils.create_logger import get_logger
@@ -171,10 +170,7 @@ def _call_xmlupload(args: argparse.Namespace) -> bool:
             password=args.password,
             imgdir=args.imgdir,
             sipi=args.sipi_url,
-            config=UploadConfig(
-                diagnostics=DiagnosticsConfig(verbose=args.verbose),
-                interrupt_after=interrupt_after,
-            ),
+            config=UploadConfig(interrupt_after=interrupt_after),
         )
 
 

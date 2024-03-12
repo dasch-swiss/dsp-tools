@@ -91,7 +91,6 @@ class TestUploadLinkValueStashes:
             stash=stash,
             iri_resolver=iri_resolver,
             con=con,
-            verbose=False,
             project_client=ProjectClientStub(),
         )
         assert nonapplied is None
@@ -141,7 +140,6 @@ class TestUploadTextValueStashes:
             stash=stash,
             iri_resolver=iri_resolver,
             con=con,
-            verbose=False,
             project_client=ProjectClientStub(),
         )
         assert nonapplied is None
@@ -188,7 +186,6 @@ class TestUploadTextValueStashes:
             stash=stash,
             iri_resolver=iri_resolver,
             con=con,
-            verbose=False,
             project_client=ProjectClientStub(),
         )
         assert nonapplied == stash

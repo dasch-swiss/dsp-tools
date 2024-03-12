@@ -38,7 +38,6 @@ def _transform_server_url_to_foldername(server: str) -> str:
 class DiagnosticsConfig:
     """Configures all diagnostics for a given upload."""
 
-    verbose: bool = False
     server_as_foldername: str = "unknown"
     save_location: Path = field(default=Path.home() / ".dsp-tools" / "xmluploads")
 

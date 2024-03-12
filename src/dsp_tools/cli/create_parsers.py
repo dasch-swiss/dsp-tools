@@ -231,6 +231,13 @@ def _add_resume_xmlupload(
     )
     subparser.add_argument("-u", "--user", default=root_user_email, help=username_text)
     subparser.add_argument("-p", "--password", default=root_user_pw, help=password_text)
+    skip_text = (
+        "In case the last resource was successfully uploaded to the DB, "
+        "but DSP-TOOLS did not get a confirmation from the API, "
+        "the resource will remain in the pending upload list.\n"
+        "If this flag is set, the first resource in the list is skipped."
+    )
+    subparser.add_argument("-skip", "--skip-first-resource", default=root_user_pw, help=skip_text)
 
 
 def _add_get(

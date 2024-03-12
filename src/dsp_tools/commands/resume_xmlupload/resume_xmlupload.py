@@ -16,12 +16,7 @@ from dsp_tools.utils.create_logger import get_logger
 logger = get_logger(__name__)
 
 
-def resume_xmlupload(
-    server: str,
-    user: str,
-    password: str,
-    sipi: str,
-) -> bool:
+def resume_xmlupload(server: str, user: str, password: str, sipi: str, skip_first_resource: bool = False) -> bool:
     """
     Resume an interrupted xmlupload.
 
@@ -30,12 +25,17 @@ def resume_xmlupload(
         user: the user (e-mail) with which the data should be imported
         password: the password of the user with which the data should be imported
         sipi: the sipi instance to be used
+        skip_first_resource: if this flag is set, the first resource of the pending resources is removed
 
     Returns:
         True if all resources could be uploaded without errors; False if one of the resources could not be
         uploaded because there is an error in it
     """
     upload_state = _read_upload_state_from_disk(server)
+    if skip_first_resource:
+        if len(upload_state.pending_resources) > 0:
+            upload_state.pending_resources.pop(0)
+        # what if the resource was a stashed item? can't just pop it
     previous_successful = len(upload_state.iri_resolver_lookup)
     previous_failed = len(upload_state.failed_uploads)
     previous_total = previous_successful + previous_failed

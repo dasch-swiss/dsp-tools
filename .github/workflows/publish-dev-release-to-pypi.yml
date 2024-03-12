@@ -1,6 +1,6 @@
 ---
 
-name: Publish dev-release to PyPI
+name: Publish dev-release to PyPI REVERTME
 
 on:
   push:

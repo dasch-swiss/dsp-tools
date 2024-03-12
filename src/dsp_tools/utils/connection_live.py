@@ -268,9 +268,8 @@ class ConnectionLive:
             try:
                 self._log_request(params)
                 response = action()
-            except (TimeoutError, ReadTimeout):
-                self._log_and_sleep(reason="Timeout Error", retry_counter=i, exc_info=True)
-                continue
+            except (TimeoutError, ReadTimeout) as err:
+                self._log_and_raise_timeouts(err)
             except (ConnectionError, RequestException):
                 self._renew_session()
                 self._log_and_sleep(reason="Connection Error raised", retry_counter=i, exc_info=True)
@@ -310,6 +309,12 @@ class ConnectionLive:
         print(f"{datetime.now()}: {msg}")
         logger.error(f"{msg} ({retry_counter=:})", exc_info=exc_info)
         time.sleep(2**retry_counter)
+
+    def _log_and_raise_timeouts(self, error: TimeoutError | ReadTimeout) -> None:
+        msg = f"The error '{error}' during during the connection to the DSP server occurred."
+        print(f"{datetime.now()}: {msg}")
+        logger.error(msg)
+        raise PermanentConnectionError from None
 
     def _log_response(self, response: Response) -> None:
         dumpobj: dict[str, Any] = {

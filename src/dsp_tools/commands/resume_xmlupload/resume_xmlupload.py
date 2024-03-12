@@ -42,7 +42,7 @@ def resume_xmlupload(server: str, user: str, password: str, sipi: str, skip_firs
             msg = (
                 "The list of pending resources is empty.\n"
                 "It is not yet possible to skip the first item of the stashed properties.\n"
-                "Do you want to continue with the upload anyway? [y/n]"
+                "Do you want to continue with the upload of the stashed properties anyway? [y/n]"
             )
             resp = None
             while resp not in ["y", "n"]:

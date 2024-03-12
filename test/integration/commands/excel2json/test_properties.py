@@ -1,8 +1,8 @@
-import re
 import unittest
 
 import jsonpath_ng
 import pytest
+import regex
 
 from dsp_tools.commands.excel2json import properties as e2j
 from dsp_tools.models.exceptions import InputError
@@ -18,7 +18,7 @@ class TestValidateProperties:
     lambda _: e2j._validate_properties_section_in_json([], "file")
 
     def test_invalid_super(self) -> None:
-        expected_msg = re.escape(
+        expected_msg = regex.escape(
             "\nThe Excel file "
             "'testdata/invalid-testdata/excel2json/properties-invalid-super.xlsx' did not pass validation.\n"
             "    Section of the problem: 'Properties'\n"
@@ -32,7 +32,7 @@ class TestValidateProperties:
             )
 
     def test_invalid_object(self) -> None:
-        expected_msg = re.escape(
+        expected_msg = regex.escape(
             "\nThe Excel file "
             "'testdata/invalid-testdata/excel2json/properties-invalid-object.xlsx' did not pass validation.\n"
             "    Section of the problem: 'Properties'\n"
@@ -46,7 +46,7 @@ class TestValidateProperties:
             )
 
     def test_invalid_gui_element(self) -> None:
-        expected_msg = re.escape(
+        expected_msg = regex.escape(
             "\nThe Excel file "
             "'testdata/invalid-testdata/excel2json/properties-invalid-gui_element.xlsx' did not pass validation.\n"
             "    Section of the problem: 'Properties'\n"
@@ -61,7 +61,7 @@ class TestValidateProperties:
             )
 
     def test_invalid_gui_attrib_values(self) -> None:
-        expected_msg = re.escape(
+        expected_msg = regex.escape(
             "\nThe Excel file "
             "'testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute_values.xlsx' "
             "did not pass validation.\n"
@@ -78,7 +78,7 @@ class TestValidateProperties:
 
 
 def test_excel2properties_invalid_gui_attrib_format() -> None:
-    expected_msg = re.escape(
+    expected_msg = regex.escape(
         "There is a problem with the excel file: "
         "'testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute_format.xlsx'\n"
         "There is invalid content in the excel.\n"

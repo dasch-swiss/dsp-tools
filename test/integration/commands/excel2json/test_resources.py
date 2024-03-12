@@ -1,9 +1,9 @@
-import re
 import unittest
 
 import jsonpath_ng
 import jsonpath_ng.ext
 import pytest
+import regex
 from pytest_unordered import unordered
 
 from dsp_tools.commands.excel2json import resources as e2j
@@ -19,7 +19,6 @@ output_from_method, _ = e2j.excel2resources(excelfile, None)
 
 class TestExcelToResource(unittest.TestCase):
     def test_names(self) -> None:
-        # make checks
         expected_names = [
             "Owner",
             "Title",
@@ -231,7 +230,7 @@ class TestValidateWithSchema:
             e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-duplicate-name.xlsx", "")
 
     def test_missing_sheet(self) -> None:
-        expected_msg = re.escape(
+        expected_msg = regex.escape(
             "The excel file 'resources.xlsx' has problems.\n"
             "The names of the excel sheets must be 'classes' "
             "plus all the entries in the column 'name' from the sheet 'classes'.\n"

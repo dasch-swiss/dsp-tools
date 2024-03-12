@@ -23,6 +23,9 @@ from dsp_tools.commands.project.models.model import Model
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.langstring import LangString
 from dsp_tools.utils.connection import Connection
+from dsp_tools.utils.create_logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class Project(Model):
@@ -354,5 +357,8 @@ class Project(Model):
         """
         result = con.get(Project.ROUTE)
         if "projects" not in result:
-            raise BaseError("Request got no projects!")
+            msg = "No projects are on the server."
+            logger.info(msg)
+            print(msg)
+            return []
         return [Project.fromJsonObj(con, a) for a in result["projects"]]

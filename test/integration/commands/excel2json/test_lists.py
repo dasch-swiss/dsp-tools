@@ -1,7 +1,6 @@
 """unit tests for Excel to JSON list"""
 
 import json
-import re
 import unittest
 
 import jsonpath_ng
@@ -60,7 +59,7 @@ class TestValidateListSection:
         with open("testdata/excel2json/lists-multilingual-output-expected.json", encoding="utf-8") as f:
             lists_section_valid_invalid = json.load(f)
         del lists_section_valid_invalid[0]["comments"]
-        expected_msg = re.escape(
+        expected_msg = regex.escape(
             "'lists' section did not pass validation. The error message is: 'comments' is a required property"
         )
         with pytest.raises(BaseError, match=expected_msg):
@@ -69,14 +68,14 @@ class TestValidateListSection:
     def test_invalid_lang(self) -> None:
         lists_section_valid[0]["comments"]["eng"] = "wrong English label"
 
-        expected_msg = re.escape(
+        expected_msg = regex.escape(
             "'lists' section did not pass validation. The error message is: 'eng' does not match any of the regexes"
         )
         with pytest.raises(BaseError, match=expected_msg):
             e2l.validate_lists_section_with_schema(lists_section=lists_section_valid)
 
     def test_wrong_signature_wrong_data(self) -> None:
-        expected_msg = re.escape("works only if exactly one of the two arguments is given")
+        expected_msg = regex.escape("works only if exactly one of the two arguments is given")
         with pytest.raises(BaseError, match=expected_msg):
             e2l.validate_lists_section_with_schema()
 

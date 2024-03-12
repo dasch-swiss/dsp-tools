@@ -1,10 +1,10 @@
-import re
 import unittest
 from typing import Any
 from typing import cast
 
 import pandas as pd
 import pytest
+import regex
 from pandas.testing import assert_frame_equal
 
 from dsp_tools.commands.excel2json import properties as e2j
@@ -97,7 +97,7 @@ class TestFunctions(unittest.TestCase):
                 "gui_attributes": ["size: 32, maxlength: 128", pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
             }
         )
-        expected_msg = re.escape(
+        expected_msg = regex.escape(
             (
                 "There is a problem with the excel file: 'Test'\n\n"
                 "The column 'name' must have values in the row(s):\n"

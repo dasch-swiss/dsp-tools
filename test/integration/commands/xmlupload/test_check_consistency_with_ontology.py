@@ -1,9 +1,9 @@
-import re
 from dataclasses import dataclass
 from test.integration.commands.xmlupload.connection_mock import ConnectionMockBase
 from typing import Any
 
 import pytest
+import regex
 from lxml import etree
 
 from dsp_tools.commands.xmlupload.check_consistency_with_ontology import do_xml_consistency_check_with_ontology
@@ -84,7 +84,7 @@ def test_error_on_nonexistent_onto_name() -> None:
         shortcode="4124",
         default_ontology="notexistingfantasyonto",
     )
-    expected = re.escape(
+    expected = regex.escape(
         "\nSome property and/or class type(s) used in the XML are unknown.\n"
         "The ontologies for your project on the server are:\n"
         "    - testonto\n"

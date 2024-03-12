@@ -17,9 +17,7 @@ from requests import RequestException
 from requests import Response
 from requests import Session
 
-from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.exceptions import PermanentConnectionError
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.create_logger import get_log_filename_str
@@ -27,7 +25,6 @@ from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.set_encoder import SetEncoder
 
 HTTP_OK = 200
-HTTP_UNAUTHORIZED = 401
 
 logger = get_logger(__name__)
 LOGFILES = get_log_filename_str(logger)
@@ -102,8 +99,6 @@ class ConnectionLive:
                 data={"email": email, "password": password},
                 timeout=10,
             )
-        except BadCredentialsError:
-            raise UserError(f"Username and/or password are not valid on server '{self.server}'") from None
         except PermanentConnectionError as e:
             raise UserError(e.message) from None
         if not response.get("token"):
@@ -257,7 +252,6 @@ class ConnectionLive:
             params: keyword arguments for the HTTP request
 
         Raises:
-            BadCredentialsError: if the server returns a 401 status code on the route /v2/authentication
             PermanentConnectionError: if the server returns a permanent error
             unexpected exceptions: if the action fails with an unexpected exception
 
@@ -281,29 +275,17 @@ class ConnectionLive:
             if response.status_code == HTTP_OK:
                 return response
 
-            self._handle_non_ok_responses(response, params.url, i)
+            self._handle_non_ok_responses(response, i)
 
         # after 7 vain attempts to create a response, try it a last time and let it escalate
         return action()
 
-    def _handle_non_ok_responses(self, response: Response, request_url: str, retry_counter: int) -> None:
-        permanent_error_regexes = [
-            r"OntologyConstraintException",
-            r"DuplicateValueException",
-            r"Project '[0-9A-F]{4}' not found",
-            r"No projects found",
-        ]
-        if "v2/authentication" in request_url and response.status_code == HTTP_UNAUTHORIZED:
-            raise BadCredentialsError("Bad credentials")
-
-        elif any(regex.search(x, response.text) for x in permanent_error_regexes):
-            msg = f"Error occurred due to user input. Original message:\n{response.text}"
-            raise InputError(msg)
-
-        elif not self._in_testing_environment():
+    def _handle_non_ok_responses(self, response: Response, retry_counter: int) -> None:
+        if 400 <= response.status_code < 500:
+            raise PermanentConnectionError(f"Client error: {response.status_code} {response.reason}")
+        if not self._in_testing_environment():
             self._log_and_sleep(reason="Non-200 response code", retry_counter=retry_counter, exc_info=False)
             return None
-
         else:
             msg = f"Permanently unable to execute the network action. See logs for more details: {LOGFILES}"
             raise PermanentConnectionError(msg)

@@ -21,6 +21,7 @@ from urllib.parse import quote_plus
 
 from dsp_tools.commands.project.models.model import Model
 from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.langstring import LangString
 from dsp_tools.utils.connection import Connection
 
@@ -352,7 +353,8 @@ class Project(Model):
         :param con: Connection instance
         :return:
         """
-        result = con.get(Project.ROUTE)
-        if "projects" not in result:
-            raise BaseError("Request got no projects!")
-        return [Project.fromJsonObj(con, a) for a in result["projects"]]
+        try:
+            result = con.get(Project.ROUTE)
+            return [Project.fromJsonObj(con, a) for a in result["projects"]]
+        except InputError:
+            return []

@@ -7,7 +7,7 @@ services:
   app:
     # on the verge of every deployment (fortnightly), update the "image" value from the "app" value of
     # https://github.com/dasch-swiss/ops-deploy/blob/main/roles/dsp-deploy/files/RELEASE.json
-    image: daschswiss/dsp-app:v11.7.2
+    image: daschswiss/dsp-app:v11.7.3
     ports:
       - "4200:4200"
     networks:

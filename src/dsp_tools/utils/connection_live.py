@@ -17,6 +17,7 @@ from requests import RequestException
 from requests import Response
 from requests import Session
 
+from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import PermanentConnectionError
 from dsp_tools.models.exceptions import UserError
@@ -25,6 +26,7 @@ from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.set_encoder import SetEncoder
 
 HTTP_OK = 200
+HTTP_UNAUTHORIZED = 401
 
 logger = get_logger(__name__)
 LOGFILES = get_log_filename_str(logger)
@@ -99,6 +101,8 @@ class ConnectionLive:
                 data={"email": email, "password": password},
                 timeout=10,
             )
+        except BadCredentialsError:
+            raise UserError(f"Username and/or password are not valid on server '{self.server}'") from None
         except PermanentConnectionError as e:
             raise UserError(e.message) from None
         if not response.get("token"):
@@ -275,12 +279,14 @@ class ConnectionLive:
             if response.status_code == HTTP_OK:
                 return response
 
-            self._handle_non_ok_responses(response, i)
+            self._handle_non_ok_responses(response, params.url, i)
 
         # after 7 vain attempts to create a response, try it a last time and let it escalate
         return action()
 
-    def _handle_non_ok_responses(self, response: Response, retry_counter: int) -> None:
+    def _handle_non_ok_responses(self, response: Response, request_url: str, retry_counter: int) -> None:
+        if "v2/authentication" in request_url and response.status_code == HTTP_UNAUTHORIZED:
+            raise BadCredentialsError("Bad credentials")
         in_500_range = 500 <= response.status_code < 600
         try_again_later = "try again later" in response.text.lower()
         should_retry = (try_again_later or in_500_range) and not self._in_testing_environment()

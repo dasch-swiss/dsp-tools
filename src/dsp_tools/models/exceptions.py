@@ -59,6 +59,10 @@ class PermanentConnectionError(BaseError):
     """This error is raised when all attempts to reconnect to DSP have failed."""
 
 
+class BadCredentialsError(PermanentConnectionError):
+    """This error is raised when DSP-API doesn't accept the prodived credentials."""
+
+
 class XmlUploadError(BaseError):
     """Represents an error raised in the context of the xmlupload."""
 

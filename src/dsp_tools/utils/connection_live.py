@@ -314,7 +314,7 @@ class ConnectionLive:
         msg = f"The error '{error}' during during the connection to the DSP server occurred."
         print(f"{datetime.now()}: {msg}")
         logger.error(msg)
-        raise PermanentConnectionError from None
+        raise PermanentConnectionError(msg) from None
 
     def _log_response(self, response: Response) -> None:
         dumpobj: dict[str, Any] = {

@@ -291,6 +291,7 @@ class ConnectionLive:
             r"OntologyConstraintException",
             r"DuplicateValueException",
             r"Project '[0-9A-F]{4}' not found",
+            r"No projects found",
         ]
         if "v2/authentication" in request_url and response.status_code == HTTP_UNAUTHORIZED:
             raise BadCredentialsError("Bad credentials")

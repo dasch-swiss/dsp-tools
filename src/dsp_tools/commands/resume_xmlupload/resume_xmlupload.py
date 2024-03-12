@@ -1,4 +1,7 @@
 import pickle
+import sys
+
+from termcolor import colored
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.list_client import ListClient
@@ -35,7 +38,18 @@ def resume_xmlupload(server: str, user: str, password: str, sipi: str, skip_firs
     if skip_first_resource:
         if len(upload_state.pending_resources) > 0:
             upload_state.pending_resources.pop(0)
-        # what if the resource was a stashed item? can't just pop it
+        else:
+            msg = (
+                "The list of pending resources is empty.\n"
+                "It is not yet possible to skip the first item of the stashed properties.\n"
+                "Do you want to continue with the upload anyway? [y/n]"
+            )
+            resp = None
+            while resp not in ["y", "n"]:
+                resp = input(colored(msg, color="red"))
+            if resp == "n":
+                sys.exit(1)
+
     previous_successful = len(upload_state.iri_resolver_lookup)
     previous_failed = len(upload_state.failed_uploads)
     previous_total = previous_successful + previous_failed

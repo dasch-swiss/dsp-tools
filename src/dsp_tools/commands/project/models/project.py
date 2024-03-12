@@ -360,7 +360,4 @@ class Project(Model):
             result = con.get(Project.ROUTE)
             return [Project.fromJsonObj(con, a) for a in result["projects"]]
         except InputError:
-            msg = "No projects are on the server."
-            logger.info(msg)
-            print(msg)
             return []

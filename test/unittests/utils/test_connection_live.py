@@ -10,6 +10,7 @@ from unittest.mock import Mock
 from unittest.mock import patch
 
 import pytest
+import regex
 from requests import ReadTimeout
 from requests import RequestException
 
@@ -260,18 +261,15 @@ def test_try_network_action() -> None:
 def test_try_network_action_timeout_error(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("DSP_TOOLS_TESTING", raising=False)  # in CI, this variable suppresses the retrying mechanism
     con = ConnectionLive("http://example.com/")
-    responses = (TimeoutError(), TimeoutError(), ReadTimeout(), ReadTimeout(), Mock(status_code=200))
+    responses = (TimeoutError(), ReadTimeout(), Mock(status_code=200))
     session_mock = SessionMock(responses)
     con.session = session_mock  # type: ignore[assignment]
     con._log_request = Mock()
     con._log_response = Mock()
     params = RequestParameters(method="GET", url="http://example.com/", timeout=1)
-    with patch("dsp_tools.utils.connection_live.time.sleep") as sleep_mock:
-        response = con._try_network_action(params)
-        assert [x.args[0] for x in sleep_mock.call_args_list] == [1, 2, 4, 8]
-    assert [x.args[0] for x in con._log_request.call_args_list] == [params] * len(session_mock.responses)
-    con._log_response.assert_called_once_with(session_mock.responses[-1])
-    assert response == session_mock.responses[-1]
+    expected_msg = regex.escape("A 'TimeoutError' occurred during the connection to the DSP server.")
+    with pytest.raises(PermanentConnectionError, match=expected_msg):
+        con._try_network_action(params)
 
 
 def test_try_network_action_connection_error(monkeypatch: pytest.MonkeyPatch) -> None:

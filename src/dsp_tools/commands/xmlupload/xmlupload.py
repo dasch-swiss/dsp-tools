@@ -32,6 +32,7 @@ from dsp_tools.commands.xmlupload.stash.upload_stashed_xml_texts import upload_s
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.write_diagnostic_info import write_id2iri_mapping
 from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import PermanentConnectionError
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.models.exceptions import XmlUploadInterruptedError
 from dsp_tools.models.projectContext import ProjectContext
@@ -426,6 +427,17 @@ def _upload_resources(
                 # resource creation succeeded: update the iri_resolver and remove the resource from the list
                 iri, label = res
                 _tidy_up_resource_creation(iri, label, iri_resolver, resource, current_res, total_res)  # type: ignore[arg-type]
+        except PermanentConnectionError:
+            msg = (
+                f"There was a timeout while trying to create resource '{resource.res_id}'.\n"
+                f"It is unclear if the resource '{resource.res_id}' was created successfully or not.\n"
+                f"Please check manually in the DSP-APP or DB.\n"
+                f"In case of successful creation, call 'resume-xmlupload' with the flag "
+                f"'--skip-first-resource' to prevent duplication.\n"
+                f"If not, a normal 'resume-xmlupload' can be started."
+            )
+            logger.error(msg)
+            raise XmlUploadInterruptedError(msg)
         except BaseException as err:
             if res and res[0]:
                 # creation succeeded, but during tidy up, a Keyboard Interrupt occurred. tidy up again before escalating
@@ -462,6 +474,11 @@ def _create_resource(
 ) -> tuple[str, str] | tuple[None, None]:
     try:
         return resource_create_client.create_resource(resource, bitstream_information)
+    except PermanentConnectionError as err:
+        # The following block catches all exceptions and handles them in a generic way.
+        # Because the calling function needs to know that this was a PermanentConnectionError, we need to catch and
+        # raise it here.
+        raise err
     except Exception as err:
         msg = f"{datetime.now()}: WARNING: Unable to create resource '{resource.label}' ({resource.res_id})"
         if isinstance(err, BaseError):

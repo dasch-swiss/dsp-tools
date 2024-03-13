@@ -1,4 +1,9 @@
 import pickle
+import sys
+from copy import deepcopy
+from dataclasses import replace
+
+from termcolor import colored
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.list_client import ListClient
@@ -16,12 +21,7 @@ from dsp_tools.utils.create_logger import get_logger
 logger = get_logger(__name__)
 
 
-def resume_xmlupload(
-    server: str,
-    user: str,
-    password: str,
-    sipi: str,
-) -> bool:
+def resume_xmlupload(server: str, user: str, password: str, sipi: str, skip_first_resource: bool = False) -> bool:
     """
     Resume an interrupted xmlupload.
 
@@ -30,12 +30,30 @@ def resume_xmlupload(
         user: the user (e-mail) with which the data should be imported
         password: the password of the user with which the data should be imported
         sipi: the sipi instance to be used
+        skip_first_resource: if this flag is set, the first resource of the pending resources is removed
 
     Returns:
         True if all resources could be uploaded without errors; False if one of the resources could not be
         uploaded because there is an error in it
     """
     upload_state = _read_upload_state_from_disk(server)
+    if skip_first_resource:
+        if len(upload_state.pending_resources) > 0:
+            new_pending = deepcopy(upload_state.pending_resources)
+            new_pending.pop(0)
+            upload_state = replace(upload_state, pending_resources=new_pending)
+        else:
+            msg = (
+                "The list of pending resources is empty.\n"
+                "It is not yet possible to skip the first item of the stashed properties.\n"
+                "Do you want to continue with the upload of the stashed properties anyway? [y/n]"
+            )
+            resp = None
+            while resp not in ["y", "n"]:
+                resp = input(colored(msg, color="red"))
+            if resp == "n":
+                sys.exit(1)
+
     previous_successful = len(upload_state.iri_resolver_lookup)
     previous_failed = len(upload_state.failed_uploads)
     previous_total = previous_successful + previous_failed

@@ -20,6 +20,7 @@ from requests import Session
 from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import PermanentConnectionError
+from dsp_tools.models.exceptions import PermanentTimeOutError
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.create_logger import get_log_filename_str
 from dsp_tools.utils.create_logger import get_logger
@@ -294,7 +295,10 @@ class ConnectionLive:
             self._log_and_sleep("Transient Error", retry_counter, exc_info=False)
             return None
         else:
-            msg = f"Permanently unable to execute the network action. See logs for more details: {LOGFILES}"
+            msg = "Permanently unable to execute the network action. "
+            if original_str := regex.search(r'{"knora-api:error":"dsp\.errors\.(.*)","@context', str(response.content)):
+                msg += f"\n{' '*37}Original Message: {original_str.group(1)}\n"
+            msg += f"See logs for more details: {LOGFILES}"
             raise PermanentConnectionError(msg)
 
     def _renew_session(self) -> None:
@@ -314,7 +318,7 @@ class ConnectionLive:
         msg = f"A '{error.__class__.__name__}' occurred during the connection to the DSP server."
         print(f"{datetime.now()}: {msg}")
         logger.exception(msg)
-        raise PermanentConnectionError(msg) from None
+        raise PermanentTimeOutError(msg) from None
 
     def _log_response(self, response: Response) -> None:
         dumpobj: dict[str, Any] = {

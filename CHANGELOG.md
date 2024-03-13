@@ -1,5 +1,62 @@
 # Changelog
 
+## [7.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v6.0.0...v7.0.0) (2024-03-13)
+
+
+### ⚠ BREAKING CHANGES
+
+* remove --verbose flag from xmlupload (DEV-3389) ([#869](https://github.com/dasch-swiss/dsp-tools/issues/869))
+
+### Enhancements
+
+* prompt before continuing when using an outdated version (DEV-3350) ([#850](https://github.com/dasch-swiss/dsp-tools/issues/850)) ([38907fa](https://github.com/dasch-swiss/dsp-tools/commit/38907faf4e2fc90832cd0c673076b12111e39dfb))
+* remove --verbose flag from xmlupload (DEV-3389) ([#869](https://github.com/dasch-swiss/dsp-tools/issues/869)) ([1e2e170](https://github.com/dasch-swiss/dsp-tools/commit/1e2e170441d15dc7b3054aa50d6f9a93536e1fc0))
+* resume an interrupted xmlupload (DEV-3323) ([#853](https://github.com/dasch-swiss/dsp-tools/issues/853)) ([4acf841](https://github.com/dasch-swiss/dsp-tools/commit/4acf8415674e33f5fb1a115f06208a89fb8bc3b1))
+* **resume-xmlupload:** add option to skip the first resource (DEV-3412) ([#878](https://github.com/dasch-swiss/dsp-tools/issues/878)) ([a53785f](https://github.com/dasch-swiss/dsp-tools/commit/a53785ffe7926f9a8d7ca52549025260e6d92e70))
+
+
+### Bug Fixes
+
+* add "packaging" as dependency (DEV-3368) ([#856](https://github.com/dasch-swiss/dsp-tools/issues/856)) ([81508b0](https://github.com/dasch-swiss/dsp-tools/commit/81508b0c48599719c0bec84d19b680264592782d))
+* **create:** fix crash when no project is on the server (DEV-3405) ([#875](https://github.com/dasch-swiss/dsp-tools/issues/875)) ([9607799](https://github.com/dasch-swiss/dsp-tools/commit/96077993fd5b5af5858960289b06a497d4f6f51b))
+* don't retry on 404 project not found (DEV-3362) ([#857](https://github.com/dasch-swiss/dsp-tools/issues/857)) ([5c19f60](https://github.com/dasch-swiss/dsp-tools/commit/5c19f60375e7d0e073e895446714748ca3345255))
+* don't retry on errors in the 400 range (DEV-3349) ([#877](https://github.com/dasch-swiss/dsp-tools/issues/877)) ([c543274](https://github.com/dasch-swiss/dsp-tools/commit/c5432740fa580547e7b935fbca32478b1d8f4602))
+* **ingest:** ingest container must be part of knora-net (DEV-3370) ([#858](https://github.com/dasch-swiss/dsp-tools/issues/858)) ([cd018ee](https://github.com/dasch-swiss/dsp-tools/commit/cd018eed0a808ece566f39853a1f0a8d949e5687))
+* **pypi:** prevent that PR merged into PR is published to pypi (DEV-3394) ([#871](https://github.com/dasch-swiss/dsp-tools/issues/871)) ([3d5e071](https://github.com/dasch-swiss/dsp-tools/commit/3d5e07195e84f8d5b79a85572d74d94a875a06e9))
+* **release-please:** adapt version check (DEV-3363) ([#854](https://github.com/dasch-swiss/dsp-tools/issues/854)) ([d04b731](https://github.com/dasch-swiss/dsp-tools/commit/d04b73199a0d4728927e0766948a8c6771e80745))
+* **resume-xmlupload:** make it impossible to resume after all resources have been created (DEV-3398) ([#865](https://github.com/dasch-swiss/dsp-tools/issues/865)) ([8aa5d30](https://github.com/dasch-swiss/dsp-tools/commit/8aa5d30831ff3a015ffef96c8bc8c1cd4e56ecb2))
+* **resume-xmlupload:** make resource counting more user friendly (DEV-3397) ([#864](https://github.com/dasch-swiss/dsp-tools/issues/864)) ([2b5295d](https://github.com/dasch-swiss/dsp-tools/commit/2b5295d12f9650a8a480eb60f7344c3738681889))
+* **xmlupload:** don't crash if the project has more than 50 errors (DEV-3364) ([#855](https://github.com/dasch-swiss/dsp-tools/issues/855)) ([a0be38e](https://github.com/dasch-swiss/dsp-tools/commit/a0be38efc1f94c9221e1338154c1edf7b73e350e))
+* **xmlupload:** don't loose elements when stashing standoff properties (DEV-3151) ([#870](https://github.com/dasch-swiss/dsp-tools/issues/870)) ([c8e8966](https://github.com/dasch-swiss/dsp-tools/commit/c8e8966068f8f6d80b4d92137b9ba1fb15ae134d))
+* **xmlupload:** exit with code 0 if xmlupload finishes with batch (DEV-3396) ([#863](https://github.com/dasch-swiss/dsp-tools/issues/863)) ([8a15973](https://github.com/dasch-swiss/dsp-tools/commit/8a159738ce0c920ad97e28a6a8d6d87a1f813c17))
+* **xmlupload:** fix xmlupload text as xml when uploading stash (DEV-3361) ([#851](https://github.com/dasch-swiss/dsp-tools/issues/851)) ([79a643a](https://github.com/dasch-swiss/dsp-tools/commit/79a643a4916175e7404b920864147c8963f9608c))
+
+
+### Maintenance
+
+* bump start-stack to 2024.03.01 ([#879](https://github.com/dasch-swiss/dsp-tools/issues/879)) ([b1c8262](https://github.com/dasch-swiss/dsp-tools/commit/b1c8262134a5661a2563460e53ab1fcc37a7c9f9))
+* **connection:** call specific error response codes (DEV-3339) ([#832](https://github.com/dasch-swiss/dsp-tools/issues/832)) ([d8531bd](https://github.com/dasch-swiss/dsp-tools/commit/d8531bdfc74704226717039d0466b3577c167105))
+* **deps-dev:** bump the all-dependencies group with 5 updates ([#849](https://github.com/dasch-swiss/dsp-tools/issues/849)) ([4c8b942](https://github.com/dasch-swiss/dsp-tools/commit/4c8b9425114863d40a0eaa147693cf3b403626e3))
+* **excel2xml:** better error message for invalid text values ([#861](https://github.com/dasch-swiss/dsp-tools/issues/861)) ([914acd8](https://github.com/dasch-swiss/dsp-tools/commit/914acd82877bc66461aa98a755f7a08b4bbf0f91))
+* fix test_xml_validation_low_level.py ([#837](https://github.com/dasch-swiss/dsp-tools/issues/837)) ([3e758c7](https://github.com/dasch-swiss/dsp-tools/commit/3e758c7c64d832412448f701221cbf5ef69228b6))
+* **project create:** add erroneously removed exc_info in logging (DEV-3294) ([#866](https://github.com/dasch-swiss/dsp-tools/issues/866)) ([19d1f25](https://github.com/dasch-swiss/dsp-tools/commit/19d1f2502d42b390b3ccbb208d17458803386bbf))
+* ruff reformatting ([#867](https://github.com/dasch-swiss/dsp-tools/issues/867)) ([5ed62fc](https://github.com/dasch-swiss/dsp-tools/commit/5ed62fc3b132007bba5805066e2fbf4c6d7f3aca))
+* ruff.lint.isort: force-single-line ([#840](https://github.com/dasch-swiss/dsp-tools/issues/840)) ([fb3c1d9](https://github.com/dasch-swiss/dsp-tools/commit/fb3c1d940b6aa6e91d5e224f64a1981f401a7b21))
+* **test:** make integration test excel2json ([#841](https://github.com/dasch-swiss/dsp-tools/issues/841)) ([e5b0206](https://github.com/dasch-swiss/dsp-tools/commit/e5b0206326d06188ce8edca3886638a175678535))
+* **test:** make integration test excel2xml ([#842](https://github.com/dasch-swiss/dsp-tools/issues/842)) ([8b12f8b](https://github.com/dasch-swiss/dsp-tools/commit/8b12f8b6d4b0f63aabbcdfea225cbfb5469d4c8e))
+* **test:** make integration test general commands ([#846](https://github.com/dasch-swiss/dsp-tools/issues/846)) ([0e61eef](https://github.com/dasch-swiss/dsp-tools/commit/0e61eef6b37a16f53019c072559d50c7c75e6052))
+* **test:** make integration test ingest-xmlupload ([#843](https://github.com/dasch-swiss/dsp-tools/issues/843)) ([fb58779](https://github.com/dasch-swiss/dsp-tools/commit/fb5877972fa6e76fc7b5f120b3b84b80caec88a5))
+* **test:** make integration test project ([#844](https://github.com/dasch-swiss/dsp-tools/issues/844)) ([a7e0fc6](https://github.com/dasch-swiss/dsp-tools/commit/a7e0fc62fd67a0b4f227284d68e9cb7d5df2fed0))
+* **test:** make integration test utils ([#847](https://github.com/dasch-swiss/dsp-tools/issues/847)) ([089c41d](https://github.com/dasch-swiss/dsp-tools/commit/089c41dc4899b3212f2227b0f887bd5f3a951da7))
+* **test:** make integration test xmlupload ([#845](https://github.com/dasch-swiss/dsp-tools/issues/845)) ([f80cc90](https://github.com/dasch-swiss/dsp-tools/commit/f80cc9076ae4cca30e1bd87f190550fafbb9d218))
+* xmlupload ([#852](https://github.com/dasch-swiss/dsp-tools/issues/852)) ([c8e6284](https://github.com/dasch-swiss/dsp-tools/commit/c8e6284739914babc9d1b73dcab92c9de7220140))
+
+
+### Documentation
+
+* add guarantee note for resume-xmlupload ([#868](https://github.com/dasch-swiss/dsp-tools/issues/868)) ([8747edd](https://github.com/dasch-swiss/dsp-tools/commit/8747edd671507203dd69598aa3e7cd688aa517b8))
+* **excel2xml:** code examples in docstrings: prepend function names with their namespace ([#859](https://github.com/dasch-swiss/dsp-tools/issues/859)) ([7923a8c](https://github.com/dasch-swiss/dsp-tools/commit/7923a8cf912a437f990336d36fd8b0d671fa47cd))
+
 ## [6.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v5.8.1...v6.0.0) (2024-02-28)
 
 

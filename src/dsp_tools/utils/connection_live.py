@@ -20,6 +20,7 @@ from requests import Session
 from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import PermanentConnectionError
+from dsp_tools.models.exceptions import PermanentTimeOutError
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.create_logger import get_log_filename_str
 from dsp_tools.utils.create_logger import get_logger
@@ -314,7 +315,7 @@ class ConnectionLive:
         msg = f"A '{error.__class__.__name__}' occurred during the connection to the DSP server."
         print(f"{datetime.now()}: {msg}")
         logger.exception(msg)
-        raise PermanentConnectionError(msg) from None
+        raise PermanentTimeOutError(msg) from None
 
     def _log_response(self, response: Response) -> None:
         dumpobj: dict[str, Any] = {

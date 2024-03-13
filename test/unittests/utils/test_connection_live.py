@@ -15,6 +15,7 @@ from requests import ReadTimeout
 from requests import RequestException
 
 from dsp_tools.models.exceptions import PermanentConnectionError
+from dsp_tools.models.exceptions import PermanentTimeOutError
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.connection_live import ConnectionLive
 from dsp_tools.utils.connection_live import RequestParameters
@@ -268,7 +269,7 @@ def test_try_network_action_timeout_error(monkeypatch: pytest.MonkeyPatch) -> No
     con._log_response = Mock()
     params = RequestParameters(method="GET", url="http://example.com/", timeout=1)
     expected_msg = regex.escape("A 'TimeoutError' occurred during the connection to the DSP server.")
-    with pytest.raises(PermanentConnectionError, match=expected_msg):
+    with pytest.raises(PermanentTimeOutError, match=expected_msg):
         con._try_network_action(params)
 
 

@@ -311,9 +311,9 @@ class ConnectionLive:
         time.sleep(2**retry_counter)
 
     def _log_and_raise_timeouts(self, error: TimeoutError | ReadTimeout) -> None:
-        msg = f"A '{error.__class__.__name__}' occurred during during the connection to the DSP server."
+        msg = f"A '{error.__class__.__name__}' occurred during the connection to the DSP server."
         print(f"{datetime.now()}: {msg}")
-        logger.error(msg)
+        logger.exception(msg)
         raise PermanentConnectionError(msg) from None
 
     def _log_response(self, response: Response) -> None:

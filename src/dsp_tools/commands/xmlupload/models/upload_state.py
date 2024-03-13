@@ -6,7 +6,7 @@ from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 
 
-@dataclass
+@dataclass(frozen=True)
 class UploadState:
     """
     Save the state of an xmlupload, so that after an interruption, it can be resumed.

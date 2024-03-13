@@ -429,14 +429,14 @@ def _upload_resources(
                 _tidy_up_resource_creation(iri, label, iri_resolver, resource, current_res, total_res)  # type: ignore[arg-type]
         except PermanentConnectionError:
             msg = (
-                "The DSP server could not be reached on a permanent basis.\n"
-                f"It is unclear if the resource: '{resource.res_id}' was created successfully or not.\n"
-                f"Please check manually in the APP or DB.\n"
-                f"In case of successful creation resume the upload with the flag "
+                f"There was a timeout while trying to create resource '{resource.res_id}'.\n"
+                f"It is unclear if the resource '{resource.res_id}' was created successfully or not.\n"
+                f"Please check manually in the DSP-APP or DB.\n"
+                f"In case of successful creation, call 'resume-xmlupload' with the flag "
                 f"'--skip-first-resource' to prevent duplication.\n"
-                f"If not a normal 'resume-xmlupload' can be started."
+                f"If not, a normal 'resume-xmlupload' can be started."
             )
-            logger.exception(msg)
+            logger.error(msg)
             raise XmlUploadInterruptedError(msg)
         except BaseException as err:
             if res and res[0]:
@@ -475,6 +475,9 @@ def _create_resource(
     try:
         return resource_create_client.create_resource(resource, bitstream_information)
     except PermanentConnectionError as err:
+        # The following block catches all exceptions and handles them in a generic way.
+        # Because the calling function needs to know that this was a PermanentConnectionError, we need to catch and
+        # raise it here.
         raise err
     except Exception as err:
         msg = f"{datetime.now()}: WARNING: Unable to create resource '{resource.label}' ({resource.res_id})"

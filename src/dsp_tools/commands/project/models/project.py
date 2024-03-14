@@ -21,7 +21,7 @@ from urllib.parse import quote_plus
 
 from dsp_tools.commands.project.models.model import Model
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.exceptions import InputError
+from dsp_tools.models.exceptions import PermanentConnectionError
 from dsp_tools.models.langstring import LangString
 from dsp_tools.utils.connection import Connection
 
@@ -356,5 +356,5 @@ class Project(Model):
         try:
             result = con.get(Project.ROUTE)
             return [Project.fromJsonObj(con, a) for a in result["projects"]]
-        except InputError:
+        except PermanentConnectionError:
             return []

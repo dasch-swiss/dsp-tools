@@ -9,6 +9,8 @@ from importlib.metadata import version
 
 import regex
 import requests
+from loguru import logger
+from loguru_config import LoguruConfig
 from packaging.version import parse
 from termcolor import colored
 
@@ -17,9 +19,10 @@ from dsp_tools.cli.create_parsers import make_parser
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import InternalError
 from dsp_tools.models.exceptions import UserError
-from dsp_tools.utils.create_logger import get_logger
 
-logger = get_logger(__name__)
+conf = LoguruConfig()
+conf.load("src/dsp_tools/resources/logger_config.yml")
+handler_ids = conf.configure()
 
 
 def main() -> None:
@@ -71,7 +74,7 @@ def run(args: list[str]) -> None:
         print("\nThe process was terminated because of an Error:")
         print(err.message)
         sys.exit(1)
-    except Exception as err:
+    except Exception as err:  # noqa: BLE001 (blind-except)
         logger.exception(err)
         print(InternalError())
         sys.exit(1)

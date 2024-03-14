@@ -1,0 +1,15 @@
+handlers:
+  - sink: ext://sys.stdout
+    format: "{time:YYYY-MM:DD HH:mm:ss.SSSS} | <level>{level} | {message}</level>"
+    level: "INFO"
+  - sink: Path.home() / Path(.dsp-tools) / loguru.log
+    format: "{time:YYYY-MM:DD HH:mm:ss.SSSS} | <level>{level} | {message}</level>"
+    serialize: true
+    diagnose: true
+    rotation: "104857600 MB"
+    retention: 30
+  - sink: "warnings.log"
+    level: "WARNING"
+    format: "{time:YYYY-MM:DD HH:mm:ss.SSSS} | <level>{level} | {message}</level>"
+    rotation: "104857600 MB"
+    retention: 10

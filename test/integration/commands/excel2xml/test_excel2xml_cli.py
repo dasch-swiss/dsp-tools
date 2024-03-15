@@ -15,9 +15,23 @@ def test_xml() -> str:
         return f.read()
 
 
-def test_wrong_extensions(test_xml: str) -> None:
-    for ext in ["xlsx", "xls", "csv"]:
-        excel2xml_cli.excel2xml(f"testdata/excel2xml/excel2xml-testdata.{ext}", "1234", "excel2xml-output")
+class TestDifferentExtensions:
+    def test_xlsx(self, test_xml: str) -> None:
+        excel2xml_cli.excel2xml("testdata/excel2xml/excel2xml-testdata.xlsx", "1234", "excel2xml-output")
+        with open("excel2xml-output-data.xml", encoding="utf-8") as f:
+            returned = f.read()
+            assert returned == test_xml
+        Path("excel2xml-output-data.xml").unlink(missing_ok=True)
+
+    def test_xls(self, test_xml: str) -> None:
+        excel2xml_cli.excel2xml("testdata/excel2xml/excel2xml-testdata.xls", "1234", "excel2xml-output")
+        with open("excel2xml-output-data.xml", encoding="utf-8") as f:
+            returned = f.read()
+            assert returned == test_xml
+        Path("excel2xml-output-data.xml").unlink(missing_ok=True)
+
+    def test_csv(self, test_xml: str) -> None:
+        excel2xml_cli.excel2xml("testdata/excel2xml/excel2xml-testdata.csv", "1234", "excel2xml-output")
         with open("excel2xml-output-data.xml", encoding="utf-8") as f:
             returned = f.read()
             assert returned == test_xml

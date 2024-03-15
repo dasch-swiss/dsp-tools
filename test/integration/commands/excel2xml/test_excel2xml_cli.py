@@ -1,4 +1,3 @@
-import unittest
 from pathlib import Path
 
 import pytest
@@ -7,85 +6,173 @@ import regex
 from dsp_tools.commands.excel2xml import excel2xml_cli
 from dsp_tools.models.exceptions import BaseError
 
-# ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
-# ruff: noqa: PT027 (pytest-unittest-raises-assertion) (remove this line when pytest is used instead of unittest)
+INVALID_EXCEL_DIRECTORY = "testdata/invalid-testdata/excel2xml"
 
 
-class TestExcel2xmlCli(unittest.TestCase):
-    def test_excel2xml_cli(self) -> None:
-        # test the valid files, 3 times identical, but in the three formats XLSX, XLS, and CSV
-        with open("testdata/excel2xml/excel2xml-expected-output.xml", encoding="utf-8") as f:
-            expected = f.read()
-        for ext in ["xlsx", "xls", "csv"]:
-            excel2xml_cli.excel2xml(f"testdata/excel2xml/excel2xml-testdata.{ext}", "1234", "excel2xml-output")
-            with open("excel2xml-output-data.xml", encoding="utf-8") as f:
-                returned = f.read()
-                self.assertEqual(returned, expected, msg=f"Failed with extension {ext}")
-            Path("excel2xml-output-data.xml").unlink(missing_ok=True)
+@pytest.fixture()
+def expected_output() -> str:
+    with open("testdata/excel2xml/excel2xml-expected-output.xml", encoding="utf-8") as f:
+        return f.read()
 
-        # test the invalid files
-        invalid_prefix = "testdata/invalid-testdata/excel2xml"
-        warning_cases = [
-            (
-                f"{invalid_prefix}/boolean-prop-two-values.xlsx",
-                "A <boolean-prop> can only have a single value",
-            ),
-            (
-                f"{invalid_prefix}/empty-property.xlsx",
-                "At least one value per property is required",
-            ),
-            (
-                f"{invalid_prefix}/missing-prop-permissions.xlsx",
-                "Missing permissions in column '2_permissions' of property ':hasName'",
-            ),
-            (
-                f"{invalid_prefix}/missing-resource-label.xlsx",
-                "Missing label for resource",
-            ),
-            (
-                f"{invalid_prefix}/missing-resource-permissions.xlsx",
-                "Missing permissions for resource",
-            ),
-            (
-                f"{invalid_prefix}/missing-restype.xlsx",
-                "Missing restype",
-            ),
-            (
-                f"{invalid_prefix}/no-bitstream-permissions.xlsx",
-                "Missing file permissions",
-            ),
-            (
-                f"{invalid_prefix}/single-invalid-value-for-property.xlsx",
-                "row 3 has an entry in column.+ '1_encoding', '1_permissions', but not",
-            ),
-        ]
-        for file, _regex in warning_cases:
-            _, catched_warnings = excel2xml_cli.excel2xml(file, "1234", "excel2xml-invalid")
-            self.assertTrue(len(catched_warnings) > 0)
-            messages = [str(w.message) for w in catched_warnings]
-            self.assertTrue(any(regex.search(_regex, msg) for msg in messages), msg=f"Failed with file '{file}'")
 
-        error_cases = [
-            (
-                f"{invalid_prefix}/id-propname-both.xlsx",
-                "Exactly 1 of the 2 columns 'id' and 'prop name' must be filled",
-            ),
-            (
-                f"{invalid_prefix}/id-propname-none.xlsx",
-                "Exactly 1 of the 2 columns 'id' and 'prop name' must be filled",
-            ),
-            (
-                f"{invalid_prefix}/nonexisting-proptype.xlsx",
-                "Invalid prop type",
-            ),
-            (
-                f"{invalid_prefix}/start-with-property-row.xlsx",
-                "The first row must define a resource, not a property",
-            ),
-        ]
-        for file, _regex in error_cases:
-            with self.assertRaisesRegex(BaseError, _regex, msg=f"Failed with file '{file}'"):
-                excel2xml_cli.excel2xml(file, "1234", "excel2xml-invalid")
+class TestDifferentExtensions:
+    def test_xlsx(self, expected_output: str) -> None:
+        excel2xml_cli.excel2xml("testdata/excel2xml/excel2xml-testdata.xlsx", "1234", "excel2xml-output")
+        returned = Path("excel2xml-output-data.xml")
+        assert returned.read_text() == expected_output
+        returned.unlink(missing_ok=True)
+
+    def test_xls(self, expected_output: str) -> None:
+        excel2xml_cli.excel2xml("testdata/excel2xml/excel2xml-testdata.xls", "1234", "excel2xml-output")
+        returned = Path("excel2xml-output-data.xml")
+        assert returned.read_text() == expected_output
+        returned.unlink(missing_ok=True)
+
+    def test_csv(self, expected_output: str) -> None:
+        excel2xml_cli.excel2xml("testdata/excel2xml/excel2xml-testdata.csv", "1234", "excel2xml-output")
+        returned = Path("excel2xml-output-data.xml")
+        assert returned.read_text() == expected_output
+        returned.unlink(missing_ok=True)
+
+
+class TestWarnings:
+    def test_double_bool(self) -> None:
+        file = f"{INVALID_EXCEL_DIRECTORY}/boolean-prop-two-values.xlsx"
+        expected_msg = (
+            "A <boolean-prop> can only have a single value, but resource "
+            "'test_thing_1', property ':hasBoolean' (Excel row 6) contains more than one value."
+        )
+        _, catched_warnings = excel2xml_cli.excel2xml(file, "1234", "excel2xml-invalid")
+        assert len(catched_warnings) == 1
+        catched = catched_warnings[0].message.args[0]  # type:ignore[union-attr]
+        assert catched == expected_msg
+
+    def test_missing_child(self) -> None:
+        file = f"{INVALID_EXCEL_DIRECTORY}/empty-property.xlsx"
+        expected_missing_prop = regex.escape(
+            "At least one value per property is required, but resource 'person_0', property ':hasName' "
+            "(Excel row 3) doesn't contain any values."
+        )
+        expected_validation = regex.escape(
+            "Line 28: Element 'text-prop': Missing child element(s). Expected is ( text )."
+        )
+        _, catched_warnings = excel2xml_cli.excel2xml(file, "1234", "excel2xml-invalid")
+        assert len(catched_warnings) == 2
+        message_missing_prop = catched_warnings[0].message.args[0]  # type:ignore[union-attr]
+        assert regex.search(expected_missing_prop, message_missing_prop)
+        message_xml_validation = catched_warnings[1].message.args[0]  # type:ignore[union-attr]
+        assert regex.search(expected_validation, message_xml_validation)
+
+    def test_missing_prop_permission(self) -> None:
+        file = f"{INVALID_EXCEL_DIRECTORY}/missing-prop-permissions.xlsx"
+        expected_msg = "Resource 'person_0': Missing permissions in column '2_permissions' of property ':hasName'"
+        _, catched_warnings = excel2xml_cli.excel2xml(file, "1234", "excel2xml-invalid")
+        assert len(catched_warnings) == 1
+        message = catched_warnings[0].message.args[0]  # type:ignore[union-attr]
+        assert message == expected_msg
+
+    def test_missing_label(self) -> None:
+        file = f"{INVALID_EXCEL_DIRECTORY}/missing-resource-label.xlsx"
+        expected_msg_missing = "Missing label for resource 'person_0' (Excel row 2)"
+        expected_xml_validation = regex.escape(
+            "Line 27: Element 'resource', attribute 'label': [facet 'minLength'] The value '' has a length of '0'"
+        )
+        _, catched_warnings = excel2xml_cli.excel2xml(file, "1234", "excel2xml-invalid")
+        assert len(catched_warnings) == 2
+        msg_missing_label = catched_warnings[0].message.args[0]  # type:ignore[union-attr]
+        assert msg_missing_label == expected_msg_missing
+        msg_validation = catched_warnings[1].message.args[0]  # type:ignore[union-attr]
+        assert regex.search(expected_xml_validation, msg_validation)
+
+    def test_missing_resource_permission(self) -> None:
+        file = f"{INVALID_EXCEL_DIRECTORY}/missing-resource-permissions.xlsx"
+        expected_msg = "Missing permissions for resource 'person_0' (Excel row 2)"
+        expected_xml_validation = regex.escape(
+            "Line 27: Element 'resource', attribute 'permissions': "
+            "'' is not a valid value of the atomic type 'xs:NCName'."
+        )
+        _, catched_warnings = excel2xml_cli.excel2xml(file, "1234", "excel2xml-invalid")
+        assert len(catched_warnings) == 2
+        message = catched_warnings[0].message.args[0]  # type:ignore[union-attr]
+        assert message == expected_msg
+        msg_validation = catched_warnings[1].message.args[0]  # type:ignore[union-attr]
+        assert regex.search(expected_xml_validation, msg_validation)
+
+    def test_missing_restype(self) -> None:
+        file = f"{INVALID_EXCEL_DIRECTORY}/missing-restype.xlsx"
+        expected_msg = "Missing restype for resource 'person_0' (Excel row 2)"
+        _, catched_warnings = excel2xml_cli.excel2xml(file, "1234", "excel2xml-invalid")
+        assert len(catched_warnings) == 1
+        message = catched_warnings[0].message.args[0]  # type:ignore[union-attr]
+        assert message == expected_msg
+
+    def test_missing_bitstream_permission(self) -> None:
+        file = f"{INVALID_EXCEL_DIRECTORY}/no-bitstream-permissions.xlsx"
+        expected_msg_missing = (
+            "Missing file permissions for file 'testdata/bitstreams/test.jpg' "
+            "(Resource ID 'test_thing_1', Excel row 2)."
+            " An attempt to deduce them from the resource permissions failed."
+        )
+        expected_xml_validation = regex.escape(
+            "Line 28: Element 'bitstream', attribute 'permissions': "
+            "'' is not a valid value of the atomic type 'xs:NCName'."
+        )
+        _, catched_warnings = excel2xml_cli.excel2xml(file, "1234", "excel2xml-invalid")
+        assert len(catched_warnings) == 2
+        msg_missing_label = catched_warnings[0].message.args[0]  # type:ignore[union-attr]
+        assert msg_missing_label == expected_msg_missing
+        msg_validation = catched_warnings[1].message.args[0]  # type:ignore[union-attr]
+        assert regex.search(expected_xml_validation, msg_validation)
+
+    def test_invalid_prop_val(self) -> None:
+        file = f"{INVALID_EXCEL_DIRECTORY}/single-invalid-value-for-property.xlsx"
+        expected_msg_missing = regex.escape(
+            "Error in resource 'person_0': Excel row 3 has an entry in column(s) '1_encoding', '1_permissions', "
+            "but not in '1_value'. Please note that cell contents that don't meet the requirements"
+        )
+        expected_msg_excel = (
+            "At least one value per property is required, "
+            "but resource 'person_0', property ':hasName' (Excel row 3) doesn't contain any values."
+        )
+        expected_xml_validation = regex.escape(
+            "Line 28: Element 'text-prop': Missing child element(s). Expected is ( text )."
+        )
+        _, catched_warnings = excel2xml_cli.excel2xml(file, "1234", "excel2xml-invalid")
+        assert len(catched_warnings) == 3
+        msg_missing_label = catched_warnings[0].message.args[0]  # type:ignore[union-attr]
+        assert regex.search(expected_msg_missing, msg_missing_label)
+        msg_excel = catched_warnings[1].message.args[0]  # type:ignore[union-attr]
+        assert msg_excel == expected_msg_excel
+        msg_validation = catched_warnings[2].message.args[0]  # type:ignore[union-attr]
+        assert regex.search(expected_xml_validation, msg_validation)
+
+
+class TestRaisesException:
+    def test_id_prop_name(self) -> None:
+        file = f"{INVALID_EXCEL_DIRECTORY}/id-propname-both.xlsx"
+        expected_msg = regex.escape("Exactly 1 of the 2 columns 'id' and 'prop name' must be filled.")
+        with pytest.raises(BaseError, match=expected_msg):
+            excel2xml_cli.excel2xml(file, "1234", "excel2xml-invalid")
+
+    def test_id_prop_none(self) -> None:
+        file = f"{INVALID_EXCEL_DIRECTORY}/id-propname-none.xlsx"
+        expected_msg = regex.escape("Exactly 1 of the 2 columns 'id' and 'prop name' must be filled.")
+        with pytest.raises(BaseError, match=expected_msg):
+            excel2xml_cli.excel2xml(file, "1234", "excel2xml-invalid")
+
+    def test_nonexisting_proptype(self) -> None:
+        file = f"{INVALID_EXCEL_DIRECTORY}/nonexisting-proptype.xlsx"
+        expected_msg = regex.escape("Invalid prop type for property :hasName in resource person_0")
+        with pytest.raises(BaseError, match=expected_msg):
+            excel2xml_cli.excel2xml(file, "1234", "excel2xml-invalid")
+
+    def test_start_with_prop_row(self) -> None:
+        file = f"{INVALID_EXCEL_DIRECTORY}/start-with-property-row.xlsx"
+        expected_msg = regex.escape(
+            "The first row of your Excel/CSV is invalid. The first row must define a resource, not a property."
+        )
+        with pytest.raises(BaseError, match=expected_msg):
+            excel2xml_cli.excel2xml(file, "1234", "excel2xml-invalid")
 
 
 if __name__ == "__main__":

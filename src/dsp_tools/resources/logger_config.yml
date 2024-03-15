@@ -1,7 +1,9 @@
 handlers:
-  - sink: ext://sys.stderr
+  - sink: ext://sys.stdout
     format: "{time:YYYY-MM:DD HH:mm:ss.SSSS} | <level>{level} | {message}</level>"
     level: "INFO"
+    diagnose: false
+    backtrace: false
   - sink: ~/.dsp-tools/loguru.log
     format: "{time:YYYY-MM:DD HH:mm:ss.SSSS} | <level>{level} | {message}</level>"
     serialize: true

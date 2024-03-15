@@ -13,12 +13,12 @@ from typing import cast
 
 import regex
 from loguru import logger
+from loguru_config import LoguruConfig
 from requests import ReadTimeout
 from requests import RequestException
 from requests import Response
 from requests import Session
 
-from dsp_tools.cli.entry_point import LOGFILES
 from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import PermanentConnectionError
@@ -28,6 +28,9 @@ from dsp_tools.utils.set_encoder import SetEncoder
 
 HTTP_OK = 200
 HTTP_UNAUTHORIZED = 401
+conf = LoguruConfig()
+conf.load("src/dsp_tools/resources/logger_config.yml")
+LOGFILES = conf.configure()
 
 
 @dataclass

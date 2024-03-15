@@ -7,16 +7,14 @@ from typing import Any
 from typing import Union
 
 import regex
+from loguru import logger
 from lxml import etree
 
 from dsp_tools.models.exceptions import InputError
-from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.xml_utils import parse_and_remove_comments_from_xml_file
 from dsp_tools.utils.xml_utils import remove_namespaces_from_xml
 from dsp_tools.utils.xml_validation_models import InconsistentTextValueEncodings
 from dsp_tools.utils.xml_validation_models import TextValueData
-
-logger = get_logger(__name__)
 
 separator = "\n    "
 list_separator = "\n    - "

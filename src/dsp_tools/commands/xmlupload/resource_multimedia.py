@@ -3,15 +3,14 @@ from __future__ import annotations
 from datetime import datetime
 from pathlib import Path
 
+from loguru import logger
+
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.sipi import Sipi
 from dsp_tools.commands.xmlupload.models.xmlbitstream import XMLBitstream
 from dsp_tools.commands.xmlupload.models.xmlresource import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.xmlresource import XMLResource
 from dsp_tools.models.exceptions import PermanentConnectionError
-from dsp_tools.utils.create_logger import get_logger
-
-logger = get_logger(__name__)
 
 
 def handle_media_info(

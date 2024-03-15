@@ -3,10 +3,9 @@ from __future__ import annotations
 import json
 from datetime import datetime
 
-from dsp_tools.commands.xmlupload.upload_config import DiagnosticsConfig
-from dsp_tools.utils.create_logger import get_logger
+from loguru import logger
 
-logger = get_logger(__name__)
+from dsp_tools.commands.xmlupload.upload_config import DiagnosticsConfig
 
 
 def write_id2iri_mapping(

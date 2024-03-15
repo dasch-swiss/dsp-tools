@@ -7,10 +7,9 @@ from typing import Iterable
 from typing import Protocol
 from urllib.parse import quote_plus
 
-from dsp_tools.utils.connection import Connection
-from dsp_tools.utils.create_logger import get_logger
+from loguru import logger
 
-logger = get_logger(__name__)
+from dsp_tools.utils.connection import Connection
 
 
 @dataclass(frozen=True)

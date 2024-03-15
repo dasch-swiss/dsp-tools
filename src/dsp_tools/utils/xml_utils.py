@@ -5,12 +5,10 @@ from pathlib import Path
 from typing import Any
 from typing import Union
 
+from loguru import logger
 from lxml import etree
 
 from dsp_tools.models.exceptions import InputError
-from dsp_tools.utils.create_logger import get_logger
-
-logger = get_logger(__name__)
 
 
 def parse_and_clean_xml_file(input_file: Union[str, Path, etree._ElementTree[Any]]) -> etree._Element:

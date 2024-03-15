@@ -8,6 +8,7 @@ from typing import Union
 from typing import cast
 
 import regex
+from loguru import logger
 
 from dsp_tools.commands.excel2json.lists import expand_lists_from_excel
 from dsp_tools.commands.project.create.project_create_lists import create_lists_on_server
@@ -27,10 +28,7 @@ from dsp_tools.models.exceptions import UserError
 from dsp_tools.models.langstring import LangString
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
-from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import parse_json_input
-
-logger = get_logger(__name__)
 
 
 def _create_project_on_server(

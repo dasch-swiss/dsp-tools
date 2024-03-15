@@ -12,25 +12,22 @@ from typing import Optional
 from typing import cast
 
 import regex
+from loguru import logger
 from requests import ReadTimeout
 from requests import RequestException
 from requests import Response
 from requests import Session
 
+from dsp_tools.cli.entry_point import LOGFILES
 from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import PermanentConnectionError
 from dsp_tools.models.exceptions import PermanentTimeOutError
 from dsp_tools.models.exceptions import UserError
-from dsp_tools.utils.create_logger import get_log_filename_str
-from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.set_encoder import SetEncoder
 
 HTTP_OK = 200
 HTTP_UNAUTHORIZED = 401
-
-logger = get_logger(__name__)
-LOGFILES = get_log_filename_str(logger)
 
 
 @dataclass

@@ -22,7 +22,7 @@ from dsp_tools.models.exceptions import UserError
 
 conf = LoguruConfig()
 conf.load("src/dsp_tools/resources/logger_config.yml")
-handler_ids = conf.configure()
+LOGFILES = conf.configure()
 
 
 def main() -> None:

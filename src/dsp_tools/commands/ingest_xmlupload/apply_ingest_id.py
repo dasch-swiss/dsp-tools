@@ -5,13 +5,11 @@ from pathlib import Path
 from typing import cast
 
 import pandas as pd
+from loguru import logger
 from lxml import etree
 
 from dsp_tools.commands.ingest_xmlupload.user_information import IngestInformation
 from dsp_tools.models.exceptions import InputError
-from dsp_tools.utils.create_logger import get_logger
-
-logger = get_logger(__name__)
 
 
 def get_mapping_dict_from_file(shortcode: str) -> dict[str, str]:

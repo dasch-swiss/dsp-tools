@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from loguru import logger
 from lxml import etree
 
 from dsp_tools.commands.ingest_xmlupload.apply_ingest_id import get_mapping_dict_from_file
@@ -9,10 +10,7 @@ from dsp_tools.commands.ingest_xmlupload.apply_ingest_id import replace_filepath
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from dsp_tools.models.exceptions import InputError
-from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.xml_utils import remove_comments_from_element_tree
-
-logger = get_logger(__name__)
 
 
 def ingest_xmlupload(

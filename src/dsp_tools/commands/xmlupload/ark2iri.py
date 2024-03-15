@@ -6,9 +6,6 @@ import uuid
 import regex
 
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.utils.create_logger import get_logger
-
-logger = get_logger(__name__)
 
 
 def convert_ark_v0_to_resource_iri(ark: str) -> str:

@@ -17,6 +17,7 @@ homepage = "https://www.dasch.swiss/"
 repository = "https://github.com/dasch-swiss/dsp-tools"
 include = [
     "src/dsp_tools/resources/*",
+    "src/dsp_tools/resources/logger_config.yml",
     "src/dsp_tools/py.typed"  # see https://mypy.readthedocs.io/en/stable/installed_packages.html#making-pep-561-compatible-packages
 ]
 

@@ -10,35 +10,32 @@ INVALID_EXCEL_DIRECTORY = "testdata/invalid-testdata/excel2xml"
 
 
 @pytest.fixture()
-def test_xml() -> str:
+def expected_output() -> str:
     with open("testdata/excel2xml/excel2xml-expected-output.xml", encoding="utf-8") as f:
         return f.read()
 
 
 class TestDifferentExtensions:
-    def test_xlsx(self, test_xml: str) -> None:
+    def test_xlsx(self, expected_output: str) -> None:
         excel2xml_cli.excel2xml("testdata/excel2xml/excel2xml-testdata.xlsx", "1234", "excel2xml-output")
-        with open("excel2xml-output-data.xml", encoding="utf-8") as f:
-            returned = f.read()
-            assert returned == test_xml
-        Path("excel2xml-output-data.xml").unlink(missing_ok=True)
+        returned = Path("excel2xml-output-data.xml")
+        assert returned.read_text() == expected_output
+        returned.unlink(missing_ok=True)
 
-    def test_xls(self, test_xml: str) -> None:
+    def test_xls(self, expected_output: str) -> None:
         excel2xml_cli.excel2xml("testdata/excel2xml/excel2xml-testdata.xls", "1234", "excel2xml-output")
-        with open("excel2xml-output-data.xml", encoding="utf-8") as f:
-            returned = f.read()
-            assert returned == test_xml
-        Path("excel2xml-output-data.xml").unlink(missing_ok=True)
+        returned = Path("excel2xml-output-data.xml")
+        assert returned.read_text() == expected_output
+        returned.unlink(missing_ok=True)
 
-    def test_csv(self, test_xml: str) -> None:
+    def test_csv(self, expected_output: str) -> None:
         excel2xml_cli.excel2xml("testdata/excel2xml/excel2xml-testdata.csv", "1234", "excel2xml-output")
-        with open("excel2xml-output-data.xml", encoding="utf-8") as f:
-            returned = f.read()
-            assert returned == test_xml
-        Path("excel2xml-output-data.xml").unlink(missing_ok=True)
+        returned = Path("excel2xml-output-data.xml")
+        assert returned.read_text() == expected_output
+        returned.unlink(missing_ok=True)
 
 
-class TestInvalidFiles:
+class TestWarnings:
     def test_double_bool(self) -> None:
         file = f"{INVALID_EXCEL_DIRECTORY}/boolean-prop-two-values.xlsx"
         expected_msg = (
@@ -172,7 +169,7 @@ class TestRaisesException:
     def test_start_with_prop_row(self) -> None:
         file = f"{INVALID_EXCEL_DIRECTORY}/start-with-property-row.xlsx"
         expected_msg = regex.escape(
-            "The first row of your Excel/CSV is invalid. " "The first row must define a resource, not a property."
+            "The first row of your Excel/CSV is invalid. The first row must define a resource, not a property."
         )
         with pytest.raises(BaseError, match=expected_msg):
             excel2xml_cli.excel2xml(file, "1234", "excel2xml-invalid")

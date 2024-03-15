@@ -497,7 +497,8 @@ def excel2xml(
         BaseError if something went wrong
 
     Returns:
-        True if everything went well, False otherwise
+        True, empty list if everything went well,
+        False and a list with caught warnings if there were any problems
     """
     success = True
     dataframe = _read_cli_input_file(datafile)

@@ -1,8 +1,8 @@
 handlers:
-  - sink: ext://sys.stdout
+  - sink: ext://sys.stderr
     format: "{time:YYYY-MM:DD HH:mm:ss.SSSS} | <level>{level} | {message}</level>"
     level: "INFO"
-  - sink: Path.home() / Path(.dsp-tools) / loguru.log
+  - sink: ~/.dsp-tools/loguru.log
     format: "{time:YYYY-MM:DD HH:mm:ss.SSSS} | <level>{level} | {message}</level>"
     serialize: true
     diagnose: true

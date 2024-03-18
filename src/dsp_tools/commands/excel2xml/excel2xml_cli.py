@@ -515,8 +515,7 @@ def excel2xml(
             dataframe=dataframe,
             max_num_of_props=max_num_of_props,
         )
-        for resource in resources:
-            root.append(resource)
+        root.extend(resources)
         write_xml(root, output_file)
         if len(catched_warnings) > 0:
             success = False

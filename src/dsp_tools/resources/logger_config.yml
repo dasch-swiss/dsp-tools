@@ -1,19 +1,19 @@
 handlers:
   - sink: ext://sys.stdout
-    format: "{time:YYYY-MM:DD HH:mm:ss.SSSS} | <level>{level} | {message}</level>"
+    format: "{time:YYYY-MM:DD HH:mm:ss.SSS} | <level>{level} | {message}</level>"
     level: "INFO"
     diagnose: false
     backtrace: false
 
   - sink: ~/.dsp-tools/loguru.log
-    format: "{time:YYYY-MM:DD HH:mm:ss.SSSS} | <level>{level} | {message}</level>"
+    format: "{time:YYYY-MM:DD HH:mm:ss.SSS} | <level>{level} | {message}</level>"
     serialize: true
     diagnose: true
-    rotation: "104857600 MB"
+    rotation: "500 MB"
     retention: 30
 
   - sink: "warnings.log"
     level: "WARNING"
-    format: "{time:YYYY-MM:DD HH:mm:ss.SSSS} | <level>{level} | {message}</level>"
-    rotation: "104857600 MB"
+    format: "{time:YYYY-MM:DD HH:mm:ss.SSS} | <level>{level} | {message}</level>"
+    rotation: "500 MB"
     retention: 10

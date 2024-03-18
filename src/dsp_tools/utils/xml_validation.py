@@ -55,7 +55,7 @@ def validate_xml(input_file: Union[str, Path, etree._ElementTree[Any]]) -> bool:
 
     if len(problems) > 0:
         err_msg = grand_separator.join(problems)
-        logger.error(err_msg, exc_info=True)
+        logger.error(err_msg)
         raise InputError(err_msg)
 
     logger.info("The XML file is syntactically correct and passed validation.")

@@ -127,7 +127,7 @@ def _parse_xml_file(input_file: Union[str, Path]) -> etree._ElementTree[etree._E
     try:
         return etree.parse(source=input_file, parser=parser)
     except etree.XMLSyntaxError as err:
-        logger.error(f"The XML file contains the following syntax error: {err.msg}", exc_info=True)
+        logger.error(f"The XML file contains the following syntax error: {err.msg}")
         raise InputError(f"The XML file contains the following syntax error: {err.msg}") from None
 
 

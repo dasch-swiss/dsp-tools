@@ -328,10 +328,7 @@ def _get_project_context_from_server(connection: Connection) -> ProjectContext:
     try:
         proj_context = ProjectContext(con=connection)
     except BaseError:
-        logger.error(
-            "Unable to retrieve project context from DSP server",
-            exc_info=True,
-        )
+        logger.error("Unable to retrieve project context from DSP server")
         raise UserError("Unable to retrieve project context from DSP server") from None
     return proj_context
 

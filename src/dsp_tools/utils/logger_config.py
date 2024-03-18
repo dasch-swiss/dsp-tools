@@ -1,7 +1,10 @@
 import sys
+from datetime import datetime
 from pathlib import Path
 
 from loguru import logger
+
+logger_savepath = (Path.home() / ".dsp-tools" / "logger.log").absolute()
 
 
 def logger_config() -> None:
@@ -15,14 +18,15 @@ def logger_config() -> None:
     # If this is not removed, the default formatting is also printed out on the terminal
     logger.remove()
 
-    text_format = "{time:YYYY-MM:DD HH:mm:ss.SSS} | <level>{level} | {message}</level>"
+    text_format = "<level>{time:YYYY-MM:DD HH:mm:ss.SSS} | {level: <8} | {message}</level>"
     rotation_size = "500 MB"
     retention_number = 30
+    timestamp_str = datetime.now().strftime("%Y%m%d-%H%M%S")
 
     logger.add(sink=sys.stdout, format=text_format, level="INFO", backtrace=False, diagnose=False)
 
     logger.add(
-        sink=Path.home() / Path(".dsp-tools") / Path("loguru.log"),
+        sink=logger_savepath,
         format=text_format,
         backtrace=True,
         diagnose=True,
@@ -31,7 +35,7 @@ def logger_config() -> None:
     )
 
     logger.add(
-        sink=Path("warnings.log"),
+        sink=Path(f"warnings-{timestamp_str}.log"),
         level="WARNING",
         format=text_format,
         backtrace=False,

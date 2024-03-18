@@ -25,6 +25,7 @@ def main() -> None:
     """
     Main entry point of the program as referenced in pyproject.toml
     """
+    logger_config()
     run(sys.argv[1:])
 
 
@@ -283,5 +284,4 @@ def _derive_sipi_url(
 
 
 if __name__ == "__main__":
-    logger_config()
     main()

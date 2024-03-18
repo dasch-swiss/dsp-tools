@@ -10,7 +10,6 @@ from importlib.metadata import version
 import regex
 import requests
 from loguru import logger
-from loguru_config import LoguruConfig
 from packaging.version import parse
 from termcolor import colored
 
@@ -19,10 +18,11 @@ from dsp_tools.cli.create_parsers import make_parser
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import InternalError
 from dsp_tools.models.exceptions import UserError
+from dsp_tools.utils.logger_config import logger_config
 
-conf = LoguruConfig()
-conf.load("src/dsp_tools/resources/logger_config.yml")
-LOGFILES = conf.configure()
+# conf = LoguruConfig()
+# conf.load("src/dsp_tools/resources/logger_config.yml")
+# LOGFILES = conf.configure()
 
 
 def main() -> None:
@@ -287,4 +287,5 @@ def _derive_sipi_url(
 
 
 if __name__ == "__main__":
+    logger_config()
     main()

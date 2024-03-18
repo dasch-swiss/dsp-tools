@@ -20,10 +20,6 @@ from dsp_tools.models.exceptions import InternalError
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.logger_config import logger_config
 
-# conf = LoguruConfig()
-# conf.load("src/dsp_tools/resources/logger_config.yml")
-# LOGFILES = conf.configure()
-
 
 def main() -> None:
     """
@@ -70,12 +66,12 @@ def run(args: list[str]) -> None:
         )
         success = call_requested_action(parsed_arguments)
     except BaseError as err:
-        logger.exception("The process was terminated because of an Error:")
+        logger.error("The process was terminated because of an Error:")
         print("\nThe process was terminated because of an Error:")
         print(err.message)
         sys.exit(1)
     except Exception as err:  # noqa: BLE001 (blind-except)
-        logger.exception(err)
+        logger.error(err)
         print(InternalError())
         sys.exit(1)
 

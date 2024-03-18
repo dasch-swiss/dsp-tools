@@ -7,7 +7,6 @@ from pathlib import Path
 from typing import Any
 
 from loguru import logger
-from loguru_config import LoguruConfig
 from lxml import etree
 
 from dsp_tools.commands.xmlupload.check_consistency_with_ontology import do_xml_consistency_check_with_ontology
@@ -41,10 +40,9 @@ from dsp_tools.models.projectContext import ProjectContext
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
 from dsp_tools.utils.json_ld_util import get_json_ld_context_for_project
+from dsp_tools.utils.logger_config import logger_savepath
 
-conf = LoguruConfig()
-conf.load("src/dsp_tools/resources/logger_config.yml")
-LOGFILES = conf.configure()
+LOGFILES = str(logger_savepath)
 
 
 def xmlupload(

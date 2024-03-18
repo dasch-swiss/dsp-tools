@@ -13,7 +13,6 @@ from typing import cast
 
 import regex
 from loguru import logger
-from loguru_config import LoguruConfig
 from requests import ReadTimeout
 from requests import RequestException
 from requests import Response
@@ -24,13 +23,12 @@ from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import PermanentConnectionError
 from dsp_tools.models.exceptions import PermanentTimeOutError
 from dsp_tools.models.exceptions import UserError
+from dsp_tools.utils.logger_config import logger_savepath
 from dsp_tools.utils.set_encoder import SetEncoder
 
 HTTP_OK = 200
 HTTP_UNAUTHORIZED = 401
-conf = LoguruConfig()
-conf.load("src/dsp_tools/resources/logger_config.yml")
-LOGFILES = conf.configure()
+LOGFILES = str(logger_savepath)
 
 
 @dataclass

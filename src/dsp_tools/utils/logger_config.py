@@ -21,7 +21,7 @@ def logger_config() -> None:
     text_format = "<level>{time:YYYY-MM:DD HH:mm:ss.SSS} | {level: <8} | {message}</level>"
     rotation_size = "500 MB"
     retention_number = 30
-    timestamp_str = datetime.now().strftime("%Y%m%d-%H%M%S")
+    timestamp_str = datetime.now().strftime("%Y%m%d-%H:%M")
 
     logger.add(sink=sys.stdout, format=text_format, level="INFO", backtrace=False, diagnose=False)
 

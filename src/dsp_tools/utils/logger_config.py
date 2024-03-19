@@ -1,4 +1,3 @@
-import sys
 from datetime import datetime
 from pathlib import Path
 
@@ -22,8 +21,6 @@ def logger_config() -> None:
     rotation_size = "100 MB"
     retention_number = 30
     timestamp_str = datetime.now().strftime("%Y%m%d-%H%M")
-
-    logger.add(sink=sys.stdout, format=text_format, level="INFO", backtrace=False, diagnose=False)
 
     logger.add(
         sink=logger_savepath,

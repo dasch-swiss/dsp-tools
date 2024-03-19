@@ -12,6 +12,7 @@ from typing import Optional
 from typing import cast
 
 import regex
+from loguru import logger
 from requests import ReadTimeout
 from requests import RequestException
 from requests import Response
@@ -22,15 +23,11 @@ from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import PermanentConnectionError
 from dsp_tools.models.exceptions import PermanentTimeOutError
 from dsp_tools.models.exceptions import UserError
-from dsp_tools.utils.create_logger import get_log_filename_str
-from dsp_tools.utils.create_logger import get_logger
+from dsp_tools.utils.logger_config import logger_savepath
 from dsp_tools.utils.set_encoder import SetEncoder
 
 HTTP_OK = 200
 HTTP_UNAUTHORIZED = 401
-
-logger = get_logger(__name__)
-LOGFILES = get_log_filename_str(logger)
 
 
 @dataclass
@@ -298,7 +295,7 @@ class ConnectionLive:
             msg = "Permanently unable to execute the network action. "
             if original_str := regex.search(r'{"knora-api:error":"dsp\.errors\.(.*)","@context', str(response.content)):
                 msg += f"\n{' '*37}Original Message: {original_str.group(1)}\n"
-            msg += f"See logs for more details: {LOGFILES}"
+            msg += f"See logs for more details: {logger_savepath}"
             raise PermanentConnectionError(msg)
 
     def _renew_session(self) -> None:
@@ -311,7 +308,10 @@ class ConnectionLive:
     def _log_and_sleep(self, reason: str, retry_counter: int, exc_info: bool) -> None:
         msg = f"{reason}: Try reconnecting to DSP server, next attempt in {2 ** retry_counter} seconds..."
         print(f"{datetime.now()}: {msg}")
-        logger.error(f"{msg} ({retry_counter=:})", exc_info=exc_info)
+        if exc_info:
+            logger.opt(exception=True).error(f"{msg} ({retry_counter=:})")
+        else:
+            logger.error(f"{msg} ({retry_counter=:})")
         time.sleep(2**retry_counter)
 
     def _log_and_raise_timeouts(self, error: TimeoutError | ReadTimeout) -> None:

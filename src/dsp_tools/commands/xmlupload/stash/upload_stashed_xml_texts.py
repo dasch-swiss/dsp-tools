@@ -4,15 +4,14 @@ from datetime import datetime
 from typing import Any
 from urllib.parse import quote_plus
 
+from loguru import logger
+
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStash
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStashItem
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.connection import Connection
-from dsp_tools.utils.create_logger import get_logger
-
-logger = get_logger(__name__)
 
 
 def _log_unable_to_retrieve_resource(
@@ -34,7 +33,7 @@ def _log_unable_to_retrieve_resource(
         "because the resource cannot be retrieved from the DSP server."
     )
     print(f"{datetime.now()}:   WARNING: {err_msg} Original error message: {received_error.message}")
-    logger.warning(err_msg, exc_info=True)
+    logger.opt(exception=True).warning(err_msg)
 
 
 def _log_unable_to_upload_xml_resource(
@@ -55,7 +54,7 @@ def _log_unable_to_upload_xml_resource(
     # this resource will remain in nonapplied_xml_texts, which will be handled by the caller
     err_msg = f"Unable to upload the xml text of '{prop_name}' of resource '{stashed_resource_id}'."
     print(f"{datetime.now()}:     WARNING: {err_msg} Original error message: {received_error.message}")
-    logger.warning(err_msg, exc_info=True)
+    logger.opt(exception=True).warning(err_msg)
 
 
 def _create_XMLResource_json_object_to_update(

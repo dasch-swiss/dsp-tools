@@ -6,10 +6,7 @@ from dataclasses import field
 from pathlib import Path
 
 import regex
-
-from dsp_tools.utils.create_logger import get_logger
-
-logger = get_logger(__name__)
+from loguru import logger
 
 
 def _transform_server_url_to_foldername(server: str) -> str:

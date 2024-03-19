@@ -8,6 +8,7 @@ from typing import Union
 from typing import cast
 
 import regex
+from loguru import logger
 
 from dsp_tools.commands.excel2json.lists import expand_lists_from_excel
 from dsp_tools.commands.project.create.project_create_lists import create_lists_on_server
@@ -27,10 +28,7 @@ from dsp_tools.models.exceptions import UserError
 from dsp_tools.models.langstring import LangString
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
-from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import parse_json_input
-
-logger = get_logger(__name__)
 
 
 def _create_project_on_server(
@@ -79,7 +77,7 @@ def _create_project_on_server(
             f"Cannot create project '{project_definition.shortname}' "
             f"({project_definition.shortcode}) on DSP server."
         )
-        logger.error(err_msg, exc_info=True)
+        logger.opt(exception=True).error(err_msg)
         raise UserError(err_msg) from None
     print(f"    Created project '{project_remote.shortname}' ({project_remote.shortcode}).")
     logger.info(f"Created project '{project_remote.shortname}' ({project_remote.shortcode}).")
@@ -119,7 +117,7 @@ def _create_groups(
             "not possible to retrieve the remote groups from the DSP server."
         )
         print(f"WARNING: {err_msg}")
-        logger.warning(err_msg, exc_info=True)
+        logger.opt(exception=True).warning(err_msg)
         remote_groups = []
         overall_success = False
 
@@ -131,7 +129,7 @@ def _create_groups(
             current_project_groups[group_name] = remotely_existing_group[0]
             err_msg = f"Group name '{group_name}' already exists on the DSP server. Skipping..."
             print(f"    WARNING: {err_msg}")
-            logger.warning(err_msg, exc_info=True)
+            logger.opt(exception=True).warning(err_msg)
             overall_success = False
             continue
 
@@ -149,7 +147,7 @@ def _create_groups(
         except BaseError:
             err_msg = "Unable to create group '{group_name}'."
             print(f"    WARNING: {err_msg}")
-            logger.warning(err_msg, exc_info=True)
+            logger.opt(exception=True).warning(err_msg)
             overall_success = False
             continue
 
@@ -198,7 +196,7 @@ def _get_group_iris_for_user(
         )
         if ":" not in full_group_name and full_group_name != "SystemAdmin":
             print(f"    WARNING: {inexisting_group_msg}")
-            logger.warning(inexisting_group_msg, exc_info=True)
+            logger.opt(exception=True).warning(inexisting_group_msg)
             success = False
             continue
 
@@ -215,7 +213,7 @@ def _get_group_iris_for_user(
             # full_group_name refers to a group inside the same project
             if group_name not in current_project_groups:
                 print(f"    WARNING: {inexisting_group_msg}")
-                logger.warning(inexisting_group_msg, exc_info=True)
+                logger.opt(exception=True).warning(inexisting_group_msg)
                 success = False
                 continue
             group = current_project_groups[group_name]
@@ -230,13 +228,13 @@ def _get_group_iris_for_user(
                     f"exists on the DSP server, but no groups could be retrieved from the DSP server."
                 )
                 print(f"    WARNING: {err_msg}")
-                logger.warning(err_msg, exc_info=True)
+                logger.opt(exception=True).warning(err_msg)
                 success = False
                 continue
             existing_group = [g for g in remote_groups if g.project == current_project.iri and g.name == group_name]
             if not existing_group:
                 print(f"    WARNING: {inexisting_group_msg}")
-                logger.warning(inexisting_group_msg, exc_info=True)
+                logger.opt(exception=True).warning(inexisting_group_msg)
                 success = False
                 continue
             group = existing_group[0]
@@ -278,7 +276,7 @@ def _get_projects_where_user_is_admin(
         if ":" not in full_project_name:
             err_msg = "Provided project '{full_project_name}' for user '{username}' is not valid. Skipping..."
             print(f"    WARNING: {err_msg}")
-            logger.warning(err_msg, exc_info=True)
+            logger.opt(exception=True).warning(err_msg)
             success = False
             continue
 
@@ -297,14 +295,14 @@ def _get_projects_where_user_is_admin(
                     f"because the projects cannot be retrieved from the DSP server."
                 )
                 print(f"    WARNING: {err_msg}")
-                logger.warning(err_msg, exc_info=True)
+                logger.opt(exception=True).warning(err_msg)
                 success = False
                 continue
             in_project_list = [p for p in remote_projects if p.shortname == project_name]
             if not in_project_list:
                 msg = f"Provided project '{full_project_name}' for user '{username}' is not valid. Skipping..."
                 print(f"    WARNING: {msg}")
-                logger.warning(msg, exc_info=True)
+                logger.opt(exception=True).warning(msg)
                 success = False
                 continue
             in_project = in_project_list[0]
@@ -349,7 +347,7 @@ def _create_users(
         if json_user_definition["email"] in [user.email for user in all_users]:
             err_msg = f"User '{username}' already exists on the DSP server. Skipping..."
             print(f"    WARNING: {err_msg}")
-            logger.warning(err_msg, exc_info=True)
+            logger.opt(exception=True).warning(err_msg)
             overall_success = False
             continue
         # add user to the group(s)
@@ -391,7 +389,7 @@ def _create_users(
             user_local.create()
         except BaseError:
             print(f"    WARNING: Unable to create user '{username}'.")
-            logger.warning(f"Unable to create user '{username}'.", exc_info=True)
+            logger.opt(exception=True).warning(f"Unable to create user '{username}'.")
             overall_success = False
             continue
         print(f"    Created user '{username}'.")
@@ -506,7 +504,7 @@ def _create_ontology(
     if onto_name in [onto.name for onto in project_ontologies]:
         err_msg = f"Ontology '{onto_name}' already exists on the DSP server. Skipping..."
         print(f"    WARNING: {err_msg}")
-        logger.warning(err_msg, exc_info=True)
+        logger.opt(exception=True).warning(err_msg)
         return None
 
     print(f"Create ontology '{onto_name}'...")
@@ -522,7 +520,7 @@ def _create_ontology(
         ontology_remote = ontology_local.create()
     except BaseError:
         # if ontology cannot be created, let the error escalate
-        logger.error(f"ERROR while trying to create ontology '{onto_name}'.", exc_info=True)
+        logger.opt(exception=True).error(f"ERROR while trying to create ontology '{onto_name}'.")
         raise UserError(f"ERROR while trying to create ontology '{onto_name}'.") from None
 
     if verbose:
@@ -583,7 +581,7 @@ def _create_ontologies(
     except BaseError:
         err_msg = "Unable to retrieve remote ontologies. Cannot check if your ontology already exists."
         print("WARNING: {err_msg}")
-        logger.warning(err_msg, exc_info=True)
+        logger.opt(exception=True).warning(err_msg)
         project_ontologies = []
 
     for ontology_definition in ontology_definitions:
@@ -698,7 +696,7 @@ def _add_resource_classes_to_remote_ontology(
         except BaseError:
             err_msg = f"Unable to create resource class '{res_class['name']}'."
             print(f"WARNING: {err_msg}")
-            logger.warning(err_msg, exc_info=True)
+            logger.opt(exception=True).warning(err_msg)
             overall_success = False
 
     return last_modification_date, new_res_classes, overall_success
@@ -794,7 +792,7 @@ def _add_property_classes_to_remote_ontology(
         except BaseError:
             err_msg = f"Unable to create property class '{prop_class['name']}'."
             print(f"WARNING: {err_msg}")
-            logger.warning(f"Unable to create property class '{prop_class['name']}'.", exc_info=True)
+            logger.opt(exception=True).warning(f"Unable to create property class '{prop_class['name']}'.")
             overall_success = False
 
     return last_modification_date, overall_success
@@ -842,7 +840,7 @@ def _add_cardinalities_to_resource_classes(
                 f"This class doesn't exist on the DSP server."
             )
             print(f"WARNINIG: {msg}")
-            logger.warning(msg, exc_info=True)
+            logger.opt(exception=True).warning(msg)
             overall_success = False
             continue
         for card_info in res_class.get("cardinalities", []):
@@ -865,7 +863,7 @@ def _add_cardinalities_to_resource_classes(
             except BaseError:
                 err_msg = f"Unable to add cardinality '{qualified_propname}' to resource class {res_class['name']}."
                 print(f"WARNING: {err_msg}")
-                logger.warning(err_msg, exc_info=True)
+                logger.opt(exception=True).warning(err_msg)
                 overall_success = False
 
             ontology_remote.lastModificationDate = last_modification_date
@@ -918,7 +916,7 @@ def _rectify_hlist_of_properties(
                 f"which is not a valid list name. "
                 f"Assuming that you meant '{deduced_list_name}' instead."
             )
-            logger.warning(msg, exc_info=True)
+            logger.opt(exception=True).warning(msg)
             print(msg)
         else:
             msg = f"Property '{prop['name']}' references an unknown list: '{prop['gui_attributes']['hlist']}'"
@@ -1062,7 +1060,7 @@ def create_project(
             f"but during the creation process, some problems occurred. Please carefully check the console output."
         )
         print(f"========================================================\nWARNING: {msg}")
-        logger.warning(msg, exc_info=True)
+        logger.opt(exception=True).warning(msg)
 
     return overall_success
 

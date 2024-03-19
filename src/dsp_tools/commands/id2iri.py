@@ -5,13 +5,11 @@ from datetime import datetime
 from pathlib import Path
 
 import regex
+from loguru import logger
 from lxml import etree
 
 from dsp_tools.models.exceptions import UserError
-from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.xml_utils import parse_and_clean_xml_file
-
-logger = get_logger(__name__)
 
 
 def _check_input_parameters(

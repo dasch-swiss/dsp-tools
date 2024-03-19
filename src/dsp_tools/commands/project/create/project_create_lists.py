@@ -2,6 +2,8 @@ from typing import Any
 from typing import Optional
 from typing import Union
 
+from loguru import logger
+
 from dsp_tools.commands.excel2json.lists import expand_lists_from_excel
 from dsp_tools.commands.project.create.project_validate import validate_project
 from dsp_tools.commands.project.models.listnode import ListNode
@@ -10,10 +12,7 @@ from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
-from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.shared import parse_json_input
-
-logger = get_logger(__name__)
 
 
 def _create_list_node(
@@ -55,7 +54,7 @@ def _create_list_node(
         new_node = new_node.create()
     except BaseError:
         print(f"WARNING: Cannot create list node '{node['name']}'.")
-        logger.warning("Cannot create list node '{node['name']}'.", exc_info=True)
+        logger.opt(exception=True).warning("Cannot create list node '{node['name']}'.")
         return {}, False
 
     # if node has child nodes, call the method recursively
@@ -106,7 +105,7 @@ def create_lists_on_server(
     except BaseError:
         err_msg = "Unable to retrieve existing lists on DSP server. Cannot check if your lists are already existing."
         print(f"WARNING: {err_msg}")
-        logger.warning(err_msg, exc_info=True)
+        logger.opt(exception=True).warning(err_msg)
         existing_lists = []
         overall_success = False
 
@@ -195,7 +194,7 @@ def create_lists(
         project_remote = project_local.read()
     except BaseError:
         err_msg = f"Unable to create the lists: The project {shortcode} cannot be found on the DSP server."
-        logger.error(err_msg, exc_info=True)
+        logger.opt(exception=True).error(err_msg)
         raise UserError(err_msg) from None
 
     # create new lists

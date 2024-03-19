@@ -6,6 +6,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from loguru import logger
 from lxml import etree
 
 from dsp_tools.commands.xmlupload.check_consistency_with_ontology import do_xml_consistency_check_with_ontology
@@ -38,11 +39,8 @@ from dsp_tools.models.exceptions import XmlUploadInterruptedError
 from dsp_tools.models.projectContext import ProjectContext
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
-from dsp_tools.utils.create_logger import get_log_filename_str
-from dsp_tools.utils.create_logger import get_logger
 from dsp_tools.utils.json_ld_util import get_json_ld_context_for_project
-
-logger = get_logger(__name__)
+from dsp_tools.utils.logger_config import logger_savepath
 
 
 def xmlupload(
@@ -151,14 +149,13 @@ def cleanup_upload(
         logger.info("All resources have successfully been uploaded.")
     else:
         success = False
-        logfiles = get_log_filename_str(logger)
         if failed_uploads:
             print(f"\n{datetime.now()}: WARNING: Could not upload the following resources: {failed_uploads}\n")
-            print(f"For more information, see the log file: {logfiles}\n")
+            print(f"For more information, see the log file: {logger_savepath}\n")
             logger.warning(f"Could not upload the following resources: {failed_uploads}")
         if nonapplied_stash:
             print(f"\n{datetime.now()}: WARNING: Could not reapply the following stash items: {nonapplied_stash}\n")
-            print(f"For more information, see the log file: {logfiles}\n")
+            print(f"For more information, see the log file: {logger_savepath}\n")
             logger.warning(f"Could not reapply the following stash items: {nonapplied_stash}")
 
     config.diagnostics.save_location.unlink(missing_ok=True)
@@ -329,10 +326,7 @@ def _get_project_context_from_server(connection: Connection) -> ProjectContext:
     try:
         proj_context = ProjectContext(con=connection)
     except BaseError:
-        logger.error(
-            "Unable to retrieve project context from DSP server",
-            exc_info=True,
-        )
+        logger.opt(exception=True).error("Unable to retrieve project context from DSP server")
         raise UserError("Unable to retrieve project context from DSP server") from None
     return proj_context
 
@@ -479,7 +473,7 @@ def _create_resource(
         # Because the calling function needs to know that this was a PermanentTimeOutError, we need to catch and
         # raise it here.
         raise err
-    except Exception as err:
+    except Exception as err:  # noqa: BLE001 (blind-except)
         msg = f"{datetime.now()}: WARNING: Unable to create resource '{resource.label}' ({resource.res_id})"
         if isinstance(err, BaseError):
             msg = f"{msg}: {err.message}"
@@ -525,12 +519,11 @@ def _handle_upload_error(
         msg = "\n==========================================\n" + err.message + "\n"
         exit_code = 0
     else:
-        logfiles = get_log_filename_str(logger)
         msg = (
             f"\n==========================================\n"
             f"{datetime.now()}: xmlupload must be aborted because of an error.\n"
             f"Error message: '{err}'\n"
-            f"For more information, see the log file: {logfiles}\n"
+            f"For more information, see the log file: {logger_savepath}\n"
         )
         exit_code = 1
 

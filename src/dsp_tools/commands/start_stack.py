@@ -9,11 +9,9 @@ from typing import Optional
 import regex
 import requests
 import yaml
+from loguru import logger
 
 from dsp_tools.models.exceptions import UserError
-from dsp_tools.utils.create_logger import get_logger
-
-logger = get_logger(__name__)
 
 
 @dataclass(frozen=True)

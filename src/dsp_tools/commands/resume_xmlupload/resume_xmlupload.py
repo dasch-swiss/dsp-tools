@@ -3,6 +3,7 @@ import sys
 from copy import deepcopy
 from dataclasses import replace
 
+from loguru import logger
 from termcolor import colored
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
@@ -16,9 +17,6 @@ from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import cleanup_upload
 from dsp_tools.commands.xmlupload.xmlupload import upload_resources
 from dsp_tools.utils.connection_live import ConnectionLive
-from dsp_tools.utils.create_logger import get_logger
-
-logger = get_logger(__name__)
 
 
 def resume_xmlupload(server: str, user: str, password: str, sipi: str, skip_first_resource: bool = False) -> bool:

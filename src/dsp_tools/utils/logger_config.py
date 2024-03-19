@@ -4,7 +4,7 @@ from pathlib import Path
 
 from loguru import logger
 
-logger_savepath = (Path.home() / ".dsp-tools" / "logger.log").absolute()
+logger_savepath = (Path.home() / ".dsp-tools" / "logging.log").absolute()
 
 
 def logger_config() -> None:

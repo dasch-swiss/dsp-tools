@@ -94,7 +94,7 @@ def _handle_media_upload(
     except PermanentConnectionError as err:
         msg = f"Unable to upload file '{bitstream.value}' of resource '{resource.label}' ({resource.res_id})"
         print(f"{datetime.now()}: WARNING: {msg}: {err.message}")
-        logger.warning(msg)
+        logger.opt(exception=True).warning(msg)
         return None
 
 

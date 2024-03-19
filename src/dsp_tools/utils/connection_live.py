@@ -271,7 +271,7 @@ class ConnectionLive:
                 self._log_and_raise_timeouts(err)
             except (ConnectionError, RequestException):
                 self._renew_session()
-                self._log_and_sleep(reason="Connection Error raised", retry_counter=i)
+                self._log_and_sleep(reason="Connection Error raised", retry_counter=i, exc_info=True)
                 continue
 
             self._log_response(response)
@@ -290,7 +290,7 @@ class ConnectionLive:
         try_again_later = "try again later" in response.text.lower()
         should_retry = (try_again_later or in_500_range) and not self._in_testing_environment()
         if should_retry:
-            self._log_and_sleep("Transient Error", retry_counter)
+            self._log_and_sleep("Transient Error", retry_counter, exc_info=False)
             return None
         else:
             msg = "Permanently unable to execute the network action. "
@@ -306,10 +306,13 @@ class ConnectionLive:
         if self.token:
             self.session.headers["Authorization"] = f"Bearer {self.token}"
 
-    def _log_and_sleep(self, reason: str, retry_counter: int) -> None:
+    def _log_and_sleep(self, reason: str, retry_counter: int, exc_info: bool) -> None:
         msg = f"{reason}: Try reconnecting to DSP server, next attempt in {2 ** retry_counter} seconds..."
         print(f"{datetime.now()}: {msg}")
-        logger.error(f"{msg} ({retry_counter=:})")
+        if exc_info:
+            logger.opt(exception=True).error(f"{msg} ({retry_counter=:})")
+        else:
+            logger.error(f"{msg} ({retry_counter=:})")
         time.sleep(2**retry_counter)
 
     def _log_and_raise_timeouts(self, error: TimeoutError | ReadTimeout) -> None:

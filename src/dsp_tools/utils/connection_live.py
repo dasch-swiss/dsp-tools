@@ -28,7 +28,6 @@ from dsp_tools.utils.set_encoder import SetEncoder
 
 HTTP_OK = 200
 HTTP_UNAUTHORIZED = 401
-LOGFILES = logger_savepath
 
 
 @dataclass
@@ -296,7 +295,7 @@ class ConnectionLive:
             msg = "Permanently unable to execute the network action. "
             if original_str := regex.search(r'{"knora-api:error":"dsp\.errors\.(.*)","@context', str(response.content)):
                 msg += f"\n{' '*37}Original Message: {original_str.group(1)}\n"
-            msg += f"See logs for more details: {LOGFILES}"
+            msg += f"See logs for more details: {logger_savepath}"
             raise PermanentConnectionError(msg)
 
     def _renew_session(self) -> None:

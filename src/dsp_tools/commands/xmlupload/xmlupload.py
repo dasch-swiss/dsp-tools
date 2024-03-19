@@ -42,8 +42,6 @@ from dsp_tools.utils.connection_live import ConnectionLive
 from dsp_tools.utils.json_ld_util import get_json_ld_context_for_project
 from dsp_tools.utils.logger_config import logger_savepath
 
-LOGFILES = logger_savepath
-
 
 def xmlupload(
     input_file: str | Path | etree._ElementTree[Any],
@@ -153,11 +151,11 @@ def cleanup_upload(
         success = False
         if failed_uploads:
             print(f"\n{datetime.now()}: WARNING: Could not upload the following resources: {failed_uploads}\n")
-            print(f"For more information, see the log file: {LOGFILES}\n")
+            print(f"For more information, see the log file: {logger_savepath}\n")
             logger.warning(f"Could not upload the following resources: {failed_uploads}")
         if nonapplied_stash:
             print(f"\n{datetime.now()}: WARNING: Could not reapply the following stash items: {nonapplied_stash}\n")
-            print(f"For more information, see the log file: {LOGFILES}\n")
+            print(f"For more information, see the log file: {logger_savepath}\n")
             logger.warning(f"Could not reapply the following stash items: {nonapplied_stash}")
 
     config.diagnostics.save_location.unlink(missing_ok=True)
@@ -525,7 +523,7 @@ def _handle_upload_error(
             f"\n==========================================\n"
             f"{datetime.now()}: xmlupload must be aborted because of an error.\n"
             f"Error message: '{err}'\n"
-            f"For more information, see the log file: {LOGFILES}\n"
+            f"For more information, see the log file: {logger_savepath}\n"
         )
         exit_code = 1
 

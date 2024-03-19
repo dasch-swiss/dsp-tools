@@ -28,7 +28,7 @@ from dsp_tools.utils.set_encoder import SetEncoder
 
 HTTP_OK = 200
 HTTP_UNAUTHORIZED = 401
-LOGFILES = str(logger_savepath)
+LOGFILES = logger_savepath
 
 
 @dataclass

@@ -42,7 +42,7 @@ from dsp_tools.utils.connection_live import ConnectionLive
 from dsp_tools.utils.json_ld_util import get_json_ld_context_for_project
 from dsp_tools.utils.logger_config import logger_savepath
 
-LOGFILES = str(logger_savepath)
+LOGFILES = logger_savepath
 
 
 def xmlupload(

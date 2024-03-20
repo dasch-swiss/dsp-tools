@@ -14,6 +14,7 @@ import regex
 from lxml import etree
 
 from dsp_tools import excel2xml
+from dsp_tools.commands.excel2xml.excel2xml_lib import _escape_reserved_chars
 from dsp_tools.models.exceptions import BaseError
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
@@ -821,6 +822,42 @@ class TestMakeProps(unittest.TestCase):
             "third node of the test-list": "third node of testlist",
         }
         self.assertDictEqual(testlist_mapping_returned, testlist_mapping_expected)
+
+
+class TestEscapedChars:
+    def test_single_br(self) -> None:
+        test_text = "Text <br/> text after"
+        res = _escape_reserved_chars(test_text)
+        assert res == test_text
+
+    def test_single_br_with_other(self) -> None:
+        test_text = "Text <br/>> text after"
+        expected = "Text <br/>&gt; text after"
+        res = _escape_reserved_chars(test_text)
+        assert res == expected
+
+    def test_wrong_single_br(self) -> None:
+        test_text = "Text <br//> text after"
+        expected = "Text &lt;br//&gt; text after"
+        res = _escape_reserved_chars(test_text)
+        assert res == expected
+
+    def test_emphasis(self) -> None:
+        test_text = "Text before [<em>emphasis</em>] Text after illegal amp: &"
+        expected = "Text before [<em>emphasis</em>] Text after illegal amp: &amp;"
+        res = _escape_reserved_chars(test_text)
+        assert res == expected
+
+    def test_link(self) -> None:
+        test_text = 'Before <a class="salsah-link" href="IRI:link:IRI">link</a> after'
+        res = _escape_reserved_chars(test_text)
+        assert res == test_text
+
+    def test_illegal_angular(self) -> None:
+        test_text = "Before <TagNotKnown>in tags</TagNotKnown> After."
+        expected = "Before &lt;TagNotKnown&gt;in tags&lt;/TagNotKnown&gt; After."
+        res = _escape_reserved_chars(test_text)
+        assert res == expected
 
 
 def _strip_namespace(element: etree._Element) -> str:

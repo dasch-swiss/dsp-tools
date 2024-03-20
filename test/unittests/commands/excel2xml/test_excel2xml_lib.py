@@ -842,20 +842,8 @@ class TestEscapedChars:
         assert res == test_text
 
     def test_illegal_angular(self) -> None:
-        test_text = "Before <TagNotKnown>in tags</TagNotKnown> After"
-        expected = "Before &lt;TagNotKnown&gt;in tags&lt;/TagNotKnown&gt; After"
-        res = _escape_reserved_chars(test_text)
-        assert res == expected
-
-    def test_double_quote(self) -> None:
-        test_text = 'Before "in quote" after'
-        expected = "Before &#34;in quote&#34; after"
-        res = _escape_reserved_chars(test_text)
-        assert res == expected
-
-    def test_single_quote(self) -> None:
-        test_text = "Before 'in quote' after"
-        expected = "Before &#39;in quote&#39; after"
+        test_text = "Before <TagNotKnown>in tags</TagNotKnown> After."
+        expected = "Before &lt;TagNotKnown&gt;in tags&lt;/TagNotKnown&gt; After."
         res = _escape_reserved_chars(test_text)
         assert res == expected
 

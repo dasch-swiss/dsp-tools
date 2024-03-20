@@ -830,6 +830,12 @@ class TestEscapedChars:
         res = _escape_reserved_chars(test_text)
         assert res == test_text
 
+    def test_single_br_with_other(self) -> None:
+        test_text = "Text <br/>> text after"
+        expected = "Text <br/>&gt; text after"
+        res = _escape_reserved_chars(test_text)
+        assert res == expected
+
     def test_wrong_single_br(self) -> None:
         test_text = "Text <br//> text after"
         expected = "Text &lt;br//&gt; text after"

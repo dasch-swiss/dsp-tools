@@ -20,7 +20,7 @@ def logger_config() -> None:
     text_format = "<level>{time:YYYY-MM-DD HH:mm:ss.SSS} | {level: <8} | {message}</level>"
     rotation_size = "100 MB"
     retention_number = 30
-    timestamp_str = datetime.now().strftime("%Y%m%d-%H%M")
+    timestamp_str = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
     logger.add(
         sink=logger_savepath,

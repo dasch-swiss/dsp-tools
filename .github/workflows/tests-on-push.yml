@@ -91,11 +91,14 @@ jobs:
         run: poetry exec e2e-tests
       - name: stop stack  # see if this command can run (it isn't tested anywhere else)
         run: poetry run dsp-tools stop-stack
+      - name: Prepare timestamp
+        id: prepare-timestamp
+        run: echo "TIMESTAMP=$(echo ${{ github.event.head_commit.timestamp }} |  sed 's/[^0-9,a-z,A-Z]/\-/g'))"
       - name: make logging file available
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: logging_${{ github.event.head_commit.timestamp }}.log
+          name: logging_${{ steps.prepare-timestamp.outputs.TIMESTAMP }}.log
           path: /home/runner/.dsp-tools/logging.log
           compression-level: 0
 

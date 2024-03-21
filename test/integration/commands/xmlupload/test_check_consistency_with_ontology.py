@@ -68,7 +68,9 @@ def test_error_on_nonexistent_shortcode() -> None:
         shortcode="9999",
         default_ontology="foo",
     )
-    with pytest.raises(UserError, match="A project with shortcode 9999 could not be found on the DSP server"):
+    with pytest.raises(
+        UserError, match=regex.escape("A project with shortcode 9999 could not be found on the DSP server")
+    ):
         do_xml_consistency_check_with_ontology(ontology_client, root)
 
 

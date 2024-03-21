@@ -2,6 +2,7 @@ import json
 from typing import Any
 
 import pytest
+import regex
 
 from dsp_tools.commands.project.create.project_create import _sort_prop_classes
 from dsp_tools.commands.project.create.project_create import _sort_resources
@@ -63,13 +64,13 @@ def test_sort_prop_classes(tp_systematic_ontology: dict[str, Any]) -> None:
 def test_validate_project(tp_systematic: dict[str, Any], tp_circular_ontology: dict[str, Any]) -> None:
     assert validate_project(tp_systematic) is True
 
-    with pytest.raises(BaseError, match=r"Input 'fantasy.xyz' is neither a file path nor a JSON object."):
+    with pytest.raises(BaseError, match=regex.escape("Input 'fantasy.xyz' is neither a file path nor a JSON object.")):
         validate_project("fantasy.xyz")
 
-    with pytest.raises(BaseError, match=r"validation error: 'hasColor' does not match"):
+    with pytest.raises(BaseError, match=regex.escape("validation error: 'hasColor' does not match")):
         validate_project("testdata/invalid-testdata/json-project/invalid-super-property.json")
 
-    with pytest.raises(BaseError, match=r"ERROR: Your ontology contains properties derived from 'hasLinkTo'"):
+    with pytest.raises(BaseError, match=regex.escape("Your ontology contains properties derived from 'hasLinkTo'")):
         validate_project(tp_circular_ontology)
 
 

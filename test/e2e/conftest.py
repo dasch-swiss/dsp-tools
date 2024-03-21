@@ -1,13 +1,7 @@
-import pytest
-
 from dsp_tools.utils.logger_config import logger_config
 
-# @pytest.fixture(scope="session", autouse=True)
-# def _initialize_logging() -> None:
-#     logger_config()
 
-
-def pytest_sessionstart(session: pytest.Session) -> None:  # noqa: ARG001 (unused function argument)
+def pytest_sessionstart() -> None:
     """
     Called after the Session object has been created
     and before performing collection and entering the run test loop.

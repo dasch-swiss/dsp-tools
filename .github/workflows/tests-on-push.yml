@@ -93,7 +93,7 @@ jobs:
         run: poetry run dsp-tools stop-stack
       - name: Prepare timestamp
         id: prepare-timestamp
-        run: echo "TIMESTAMP=$(echo ${{ github.event.head_commit.timestamp }} |  sed 's/[^0-9,a-z,A-Z]/\-/g'))"
+        run: echo "TIMESTAMP=$(echo ${{ github.event.head_commit.timestamp }} | sed 's/\+01:00//g' |  sed 's/[^0-9,a-z,A-Z]/\-/g')"
       - name: make logging file available
         uses: actions/upload-artifact@v4
         if: always()

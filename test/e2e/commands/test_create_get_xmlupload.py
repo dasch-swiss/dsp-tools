@@ -67,7 +67,7 @@ class TestCreateGetXMLUpload(unittest.TestCase):
             server=self.server,
             user=self.user,
             password=self.password,
-            imgdir=self.imgdir,
+            imgdir="path/to/nowhere",
             sipi=self.sipi,
             config=UploadConfig(),
         )

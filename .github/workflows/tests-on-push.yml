@@ -96,7 +96,7 @@ jobs:
         run: |
           TIMESTAMP=$(echo ${{ github.event.head_commit.timestamp }} | sed 's/\+01:00//g')
           TIMESTAMP=$(echo $TIMESTAMP | sed 's/[^0-9,a-z,A-Z]/\-/g')
-          echo "TIMESTAMP=$TIMESTAMP" >> $GITHUB_ENV
+          echo "TIMESTAMP=$TIMESTAMP" >> $GITHUB_OUTPUT
       - name: make logging file available
         uses: actions/upload-artifact@v4
         if: always()

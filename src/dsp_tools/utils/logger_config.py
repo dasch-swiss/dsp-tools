@@ -1,4 +1,3 @@
-from datetime import datetime
 from pathlib import Path
 
 from loguru import logger
@@ -20,7 +19,6 @@ def logger_config() -> None:
     text_format = "<level>{time:YYYY-MM-DD HH:mm:ss.SSS} | {level: <8} | {message}</level>"
     rotation_size = "100 MB"
     retention_number = 30
-    timestamp_str = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
     logger.add(
         sink=logger_savepath,
@@ -32,7 +30,7 @@ def logger_config() -> None:
     )
 
     logger.add(
-        sink=Path(f"warnings-{timestamp_str}.log"),
+        sink=Path("warnings.log"),
         level="WARNING",
         format=text_format,
         backtrace=False,

@@ -41,7 +41,7 @@ def upload_stashed_resptr_props(
             # no action necessary: this resource will remain in nonapplied_resptr_props,
             # which will be handled by the caller
             continue
-        print(f"{datetime.now()}:   Upload resptrs of resource '{res_id}''...")
+        print(f"{datetime.now()}:   Upload resptrs of resource '{res_id}'...")
         logger.info(f"  Upload resptrs of resource '{res_id}'...")
         for stash_item in stash_items:
             target_iri = iri_resolver.get(stash_item.target_id)

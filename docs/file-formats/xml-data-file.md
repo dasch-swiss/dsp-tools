@@ -691,7 +691,7 @@ contains a link to the resource `http://rdfh.ch/4123/nyOODvYySV2nJ5RWRdmOdQ`, wh
 
 #### `encoding` and `gui_element`
 
-`encoding` can be combined with
+`encoding` must be combined with
 `gui_element` ([defined in the ontology](./json-project/ontologies.md#textvalue))
 as follows:
 

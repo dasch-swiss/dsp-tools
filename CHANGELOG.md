@@ -1,5 +1,12 @@
 # Changelog
 
+## [7.1.1](https://github.com/dasch-swiss/dsp-tools/compare/v7.1.0...v7.1.1) (2024-03-27)
+
+
+### Maintenance
+
+* bump start-stack to 2024.03.02-hotfix ([#892](https://github.com/dasch-swiss/dsp-tools/issues/892)) ([d4733c6](https://github.com/dasch-swiss/dsp-tools/commit/d4733c63aaa215b88af0ea6354968342e0818766))
+
 ## [7.1.0](https://github.com/dasch-swiss/dsp-tools/compare/v7.0.0...v7.1.0) (2024-03-27)
 
 

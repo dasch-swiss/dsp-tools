@@ -4,54 +4,10 @@ version: "3.7"
 
 services:
 
-  app:
-    # on the verge of every deployment (fortnightly), update the "image" value from the "app" value of
-    # https://github.com/dasch-swiss/ops-deploy/blob/main/roles/dsp-deploy/files/RELEASE.json
-    image: daschswiss/dsp-app:v11.7.3
-    ports:
-      - "4200:4200"
-    networks:
-      - knora-net
-
-  db:
-    # on the verge of every deployment (fortnightly), update the "image" value from the "db" value of
-    # https://github.com/dasch-swiss/ops-deploy/blob/main/roles/dsp-deploy/files/RELEASE.json
-    image: daschswiss/apache-jena-fuseki:2.1.5
-    ports:
-      - "3030:3030"
-    networks:
-      - knora-net
-    environment:
-      - TZ=Europe/Zurich
-      - ADMIN_PASSWORD=test
-      - JVM_ARGS=-Xmx3G
-
-  sipi:
-    # on the verge of every deployment (fortnightly), take the same tag as DSP-API
-    image: daschswiss/knora-sipi:v30.9.0
-    ports:
-      - "1024:1024"
-    volumes:
-      - ./tmp:/tmp
-      - .:/sipi/config
-      - ./sipi/images:/sipi/images
-    networks:
-      - knora-net
-    environment:
-      - TZ=Europe/Zurich
-      - SIPI_EXTERNAL_PROTOCOL=http
-      - SIPI_EXTERNAL_HOSTNAME=0.0.0.0
-      - SIPI_EXTERNAL_PORT=1024
-      - SIPI_WEBAPI_HOSTNAME=api
-      - SIPI_WEBAPI_PORT=3333
-      - KNORA_WEBAPI_KNORA_API_EXTERNAL_HOST=0.0.0.0
-      - KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT=3333
-    command: --config=/sipi/config/sipi.docker-config.lua
-
   api:
     # on the verge of every deployment (fortnightly), update the "image" value from the "api" value of
     # https://github.com/dasch-swiss/ops-deploy/blob/main/roles/dsp-deploy/files/RELEASE.json
-    image: daschswiss/knora-api:v30.9.0
+    image: daschswiss/knora-api:v30.10.0
     depends_on:
       - sipi
       - db
@@ -76,10 +32,54 @@ services:
       - KNORA_WEBAPI_KNORA_API_EXTERNAL_HOST=0.0.0.0
       - KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT=3333
 
+  sipi:
+    # on the verge of every deployment (fortnightly), take the same tag as DSP-API
+    image: daschswiss/knora-sipi:v30.10.0
+    ports:
+      - "1024:1024"
+    volumes:
+      - ./tmp:/tmp
+      - .:/sipi/config
+      - ./sipi/images:/sipi/images
+    networks:
+      - knora-net
+    environment:
+      - TZ=Europe/Zurich
+      - SIPI_EXTERNAL_PROTOCOL=http
+      - SIPI_EXTERNAL_HOSTNAME=0.0.0.0
+      - SIPI_EXTERNAL_PORT=1024
+      - SIPI_WEBAPI_HOSTNAME=api
+      - SIPI_WEBAPI_PORT=3333
+      - KNORA_WEBAPI_KNORA_API_EXTERNAL_HOST=0.0.0.0
+      - KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT=3333
+    command: --config=/sipi/config/sipi.docker-config.lua
+
+  app:
+    # on the verge of every deployment (fortnightly), update the "image" value from the "app" value of
+    # https://github.com/dasch-swiss/ops-deploy/blob/main/roles/dsp-deploy/files/RELEASE.json
+    image: daschswiss/dsp-app:v11.7.4
+    ports:
+      - "4200:4200"
+    networks:
+      - knora-net
+
+  db:
+    # on the verge of every deployment (fortnightly), update the "image" value from the "db" value of
+    # https://github.com/dasch-swiss/ops-deploy/blob/main/roles/dsp-deploy/files/RELEASE.json
+    image: daschswiss/apache-jena-fuseki:2.1.5
+    ports:
+      - "3030:3030"
+    networks:
+      - knora-net
+    environment:
+      - TZ=Europe/Zurich
+      - ADMIN_PASSWORD=test
+      - JVM_ARGS=-Xmx3G
+
   ingest:
     # on the verge of every deployment (fortnightly), update the "image" value from the "ingest" value of
     # https://github.com/dasch-swiss/ops-deploy/blob/main/roles/dsp-deploy/files/RELEASE.json
-    image: daschswiss/dsp-ingest:v0.8.0
+    image: daschswiss/dsp-ingest:v0.8.1
     ports:
       - "3340:3340"
     volumes:

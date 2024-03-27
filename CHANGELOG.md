@@ -1,5 +1,34 @@
 # Changelog
 
+## [7.1.0](https://github.com/dasch-swiss/dsp-tools/compare/v7.0.0...v7.1.0) (2024-03-27)
+
+
+### Enhancements
+
+* **excel2xml:** allow for single tags in XML text (DEV-3427) ([#885](https://github.com/dasch-swiss/dsp-tools/issues/885)) ([c73b126](https://github.com/dasch-swiss/dsp-tools/commit/c73b126f040ce4432ca7a6bad952a3249c208133))
+* save warnings and errors in second file with loguru (DEV-3406) ([#883](https://github.com/dasch-swiss/dsp-tools/issues/883)) ([7818325](https://github.com/dasch-swiss/dsp-tools/commit/781832568110c8d52e5ca8cfb0b81d4b53016554))
+
+
+### Bug Fixes
+
+* **create:** fix crash when no project is on the server new error (DEV-3420) ([#882](https://github.com/dasch-swiss/dsp-tools/issues/882)) ([ca9a674](https://github.com/dasch-swiss/dsp-tools/commit/ca9a6745477ec55f534ead020deb2eea3219c659))
+* **xmlupload:** don't stop xmlupload when resource is wrong (DEV-3419) ([#880](https://github.com/dasch-swiss/dsp-tools/issues/880)) ([86795ec](https://github.com/dasch-swiss/dsp-tools/commit/86795ec5a12d84666a1707a571bb75a3e098396a))
+
+
+### Maintenance
+
+* bump start-stack to 2024.03.02 ([#891](https://github.com/dasch-swiss/dsp-tools/issues/891)) ([ce8d6be](https://github.com/dasch-swiss/dsp-tools/commit/ce8d6be663b2f68a0b7d2b9add2ef55567851863))
+* **ci:** make logging file available after e2e test (DEV-3436) ([#887](https://github.com/dasch-swiss/dsp-tools/issues/887)) ([5825b3c](https://github.com/dasch-swiss/dsp-tools/commit/5825b3c191b4c905ee6ec671fa71e8fe5127f834))
+* fix typo ([#889](https://github.com/dasch-swiss/dsp-tools/issues/889)) ([be0ae62](https://github.com/dasch-swiss/dsp-tools/commit/be0ae622654e9f042a6b90a17a68250030471ea1))
+* remove timestamp from warnings.log ([#888](https://github.com/dasch-swiss/dsp-tools/issues/888)) ([8fb0842](https://github.com/dasch-swiss/dsp-tools/commit/8fb08429212feca3dbe62a2e3bdeaf7442abd902))
+* **test:** make tests smaller in test_excel2xml_cli.py ([#884](https://github.com/dasch-swiss/dsp-tools/issues/884)) ([7418870](https://github.com/dasch-swiss/dsp-tools/commit/7418870f43011e721741e2bc41d9fe8c6bf95934))
+* **test:** use regex.escape everywhere ([#886](https://github.com/dasch-swiss/dsp-tools/issues/886)) ([d0061db](https://github.com/dasch-swiss/dsp-tools/commit/d0061db9213bb1a206d965c416b412c5ea4f78b3))
+
+
+### Documentation
+
+* reformulate text-property and gui element ([#890](https://github.com/dasch-swiss/dsp-tools/issues/890)) ([8d7bb79](https://github.com/dasch-swiss/dsp-tools/commit/8d7bb79c291f219a2ed2530f5379ebe3851c5dc2))
+
 ## [7.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v6.0.0...v7.0.0) (2024-03-13)
 
 

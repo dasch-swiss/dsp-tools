@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from typing import Any
 from typing import cast
 
 import pandas as pd
@@ -149,11 +150,11 @@ class TestUtils(unittest.TestCase):
             }
         )
         expected_dict = {"de": "text_de", "en": "text_en", "fr": "text_fr", "it": "text_it", "rm": "text_rm"}
-        returned_dict = utl.get_labels(original_df.loc[0, :])  # type: ignore[arg-type]
+        returned_dict = utl.get_labels(cast("pd.Series[Any]", original_df.loc[0, :]))
         self.assertDictEqual(expected_dict, returned_dict)
 
         expected_dict = {"en": "text_en"}
-        returned_dict = utl.get_labels(original_df.loc[1, :])  # type: ignore[arg-type]
+        returned_dict = utl.get_labels(cast("pd.Series[Any]", original_df.loc[1, :]))
         self.assertDictEqual(expected_dict, returned_dict)
 
     def test_get_comments(self) -> None:
@@ -167,10 +168,11 @@ class TestUtils(unittest.TestCase):
             }
         )
         expected_dict = {"de": "text_de", "en": "text_en", "fr": "text_fr", "it": "text_it", "rm": "text_rm"}
-        returned_dict = utl.get_comments(original_df.loc[0, :])  # type: ignore[arg-type]
-        self.assertDictEqual(expected_dict, returned_dict)  # type: ignore[arg-type]
+        returned_dict = utl.get_comments(cast("pd.Series[Any]", original_df.loc[0, :]))
+        assert returned_dict
+        self.assertDictEqual(expected_dict, returned_dict)
 
-        assert not utl.get_comments(original_df.loc[1, :])  # type: ignore[arg-type]
+        assert not utl.get_comments(cast("pd.Series[Any]", original_df.loc[1, :]))
 
 
 if __name__ == "__main__":

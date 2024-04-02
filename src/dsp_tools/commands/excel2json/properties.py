@@ -211,11 +211,11 @@ def _check_compliance_gui_attributes(df: pd.DataFrame) -> dict[str, pd.Series[An
         case None, None:
             return None
         case pd.Series(), pd.Series():
-            mandatory_check = cast(pd.Series[Any], mandatory_check)
-            no_attribute_check = cast(pd.Series[Any], no_attribute_check)
+            mandatory_check = cast("pd.Series[Any]", mandatory_check)
+            no_attribute_check = cast("pd.Series[Any]", no_attribute_check)
             final_series = pd.Series(np.logical_or(mandatory_check, no_attribute_check))
         case pd.Series(), None:
-            final_series = cast(pd.Series[Any], mandatory_check)
+            final_series = cast("pd.Series[Any]", mandatory_check)
         case None, pd.Series:
             final_series = no_attribute_check
     return {"gui_attributes": final_series}

@@ -210,7 +210,7 @@ def get_comments(df_row: pd.Series[Any]) -> dict[str, str] | None:
     return comments or None
 
 
-def find_one_full_cell_in_cols(df: pd.DataFrame, required_columns: list[str]) -> pd.Series[Any] | None:
+def find_one_full_cell_in_cols(df: pd.DataFrame, required_columns: list[str]) -> pd.Series[bool] | None:
     """
     This function takes a pd.DataFrame and a list of column names where at least one cell must have a value per row.
     A pd.Series with boolean values is returned, True if any rows do not have a value in at least one column

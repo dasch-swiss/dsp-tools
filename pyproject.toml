@@ -131,7 +131,6 @@ pythonpath = [".", "src", "test"]
 
 
 [tool.mypy]
-ignore_missing_imports = true                                 # TODO: deactivate this
 show_column_numbers = true
 strict = true
 exclude = [
@@ -148,6 +147,11 @@ exclude = [
     "src/dsp_tools/commands/project/models/resourceclass.py", # TODO: activate this
     "src/dsp_tools/commands/project/models/user.py",          # TODO: activate this
 ]
+
+
+[[tool.mypy.overrides]]
+module = ["jsonpath_ng.*", "viztracer.*"]  # For these packages, no type stubs are available yet
+ignore_missing_imports = true
 
 
 [tool.ruff]

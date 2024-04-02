@@ -182,9 +182,9 @@ def _check_missing_values_in_row(df: pd.DataFrame) -> None | list[MissingValuesI
     if missing_gui_attributes is not None:
         missing_dict.update(missing_gui_attributes)
     if missing_dict:
-        missing_dict = get_wrong_row_numbers(wrong_row_dict=missing_dict, true_remains=True)
+        missing_dict_int = get_wrong_row_numbers(wrong_row_dict=missing_dict, true_remains=True)
         return [
-            MissingValuesInRowProblem(column=col, row_numbers=list(row_nums)) for col, row_nums in missing_dict.items()
+            MissingValuesInRowProblem(column=col, row_numbers=row_nums) for col, row_nums in missing_dict_int.items()
         ]
     else:
         return None

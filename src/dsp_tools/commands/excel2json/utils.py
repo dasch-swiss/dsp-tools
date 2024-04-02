@@ -137,7 +137,7 @@ def check_required_values(df: pd.DataFrame, required_values_columns: list[str]) 
     return {col: df[col].isnull() for col in required_values_columns if df[col].isnull().any()}
 
 
-def turn_bool_array_into_index_numbers(series: pd.Series[bool], true_remains: bool = True) -> pd.Series[bool]:
+def turn_bool_array_into_index_numbers(series: pd.Series[bool], true_remains: bool = True) -> list[int]:
     """
     This function takes a pd.Series containing boolean values.
     By default, this method extracts the index numbers of the True values.
@@ -153,12 +153,12 @@ def turn_bool_array_into_index_numbers(series: pd.Series[bool], true_remains: bo
     # If the False are required, we need to invert the array.
     if not true_remains:
         series = ~series
-    return pd.Series(series[series].index)
+    return list(series[series].index)
 
 
 def get_wrong_row_numbers(
     wrong_row_dict: dict[str, pd.Series[bool]], true_remains: bool = True
-) -> dict[str, pd.Series[bool]]:
+) -> dict[str, list[int]]:
     """
     From the boolean pd.Series the index numbers of the True values are extracted.
     The resulting list is the new value of the dictionary.
@@ -171,10 +171,10 @@ def get_wrong_row_numbers(
     Returns:
         Dictionary with the column name as key and the row number as a list.
     """
-    wrong_row_dict = {
+    wrong_row_dict_int = {
         k: turn_bool_array_into_index_numbers(series=v, true_remains=true_remains) for k, v in wrong_row_dict.items()
     }
-    return {k: pd.Series([x + 2 for x in v]) for k, v in wrong_row_dict.items()}
+    return {k: [x + 2 for x in v] for k, v in wrong_row_dict_int.items()}
 
 
 def get_labels(df_row: pd.Series[Any]) -> dict[str, str]:

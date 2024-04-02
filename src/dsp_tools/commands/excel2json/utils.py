@@ -237,7 +237,7 @@ def col_must_or_not_empty_based_on_other_col(
     substring_colname: str,
     check_empty_colname: str,
     must_have_value: bool,
-) -> pd.Series[Any] | None:
+) -> pd.Series[bool] | None:
     """
     It is presumed that the column "substring_colname" has no empty cells.
     Based on the string content of the individual rows, which is specified in the "substring_list",

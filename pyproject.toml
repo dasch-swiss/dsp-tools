@@ -133,6 +133,7 @@ pythonpath = [".", "src", "test"]
 ignore_missing_imports = true                                 # TODO: deactivate this
 show_column_numbers = true
 strict = true
+disallow_untyped_defs = true
 exclude = [
     "src/dsp_tools/models/datetimestamp.py",                  # TODO: activate this
     "src/dsp_tools/models/langstring.py",                     # TODO: activate this

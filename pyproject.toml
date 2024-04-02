@@ -58,6 +58,7 @@ viztracer = "^0.16.1"
 ruff = ">=0.1.12,<0.4.0"
 pytest-sugar = ">=0.9.7,<1.1.0"
 pandas-stubs = "^2.2.1.240316"
+types-networkx = "^3.2.1.20240331"
 
 
 [tool.poetry.scripts]

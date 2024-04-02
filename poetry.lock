@@ -1757,6 +1757,20 @@ typing-extensions = ">=4.5,<5.0"
 dev = ["tox (>=4.0,<5.0)"]
 
 [[package]]
+name = "types-networkx"
+version = "3.2.1.20240331"
+description = "Typing stubs for networkx"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "types-networkx-3.2.1.20240331.tar.gz", hash = "sha256:24c9b55d071a39620015816b4558ae86420dc4fe14a13074ec266fbf9a9651bf"},
+    {file = "types_networkx-3.2.1.20240331-py3-none-any.whl", hash = "sha256:9e84b437d316e05e9fa85a4fabb1f08136da857581fae00971d60ef2b31426bb"},
+]
+
+[package.dependencies]
+numpy = "*"
+
+[[package]]
 name = "types-openpyxl"
 version = "3.1.0.20240311"
 description = "Typing stubs for openpyxl"
@@ -2021,4 +2035,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "a9502f850c4b014488b508467f3fb7e67495f90159f7d676de5b046484154edf"
+content-hash = "131f7fa9920053b6bffd0e6f9d962ce1c259c1a8500262bd90e0335609695fad"

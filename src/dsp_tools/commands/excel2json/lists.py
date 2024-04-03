@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 from typing import Optional
 from typing import Union
+from typing import cast
 
 import jsonschema
 import regex
@@ -325,7 +326,7 @@ def _make_json_lists_from_excel(
 
 
 def _read_and_check_workbook(excelpath: Path) -> Worksheet:
-    all_worksheets = load_workbook(excelpath, read_only=True).worksheets
+    all_worksheets = cast(list[Worksheet], load_workbook(excelpath, read_only=True).worksheets)
     if len(all_worksheets) != 1:
         msg = MoreThanOneSheetProblem(excelpath.name, [x.title for x in all_worksheets]).execute_error_protocol()
         raise InputError(msg)

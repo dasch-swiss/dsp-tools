@@ -83,7 +83,7 @@ def excel2properties(
     return props, True
 
 
-def _read_check_property_df(excelfile: str) -> pd.DataFrame | None:
+def _read_check_property_df(excelfile: str) -> pd.DataFrame:
     sheets_df_dict = read_and_clean_all_sheets(excelfile=excelfile)
     if len(sheets_df_dict) != 1:
         msg = MoreThanOneSheetProblem("properties.xlsx", list(sheets_df_dict.keys())).execute_error_protocol()
@@ -166,7 +166,7 @@ def _add_optional_columns(df: pd.DataFrame) -> pd.DataFrame:
     in_df_cols = set(df.columns)
     if not optional_col_set.issubset(in_df_cols):
         additional_col = list(optional_col_set.difference(in_df_cols))
-        additional_df = pd.DataFrame(columns=additional_col, index=df.index, data=pd.NA)
+        additional_df = pd.DataFrame(columns=additional_col, index=df.index, data=None)
         df = pd.concat(objs=[df, additional_df], axis=1)
     return df
 
@@ -181,13 +181,13 @@ def _check_missing_values_in_row(df: pd.DataFrame) -> None | list[MissingValuesI
     if missing_gui_attributes is not None:
         missing_dict.update(missing_gui_attributes)
     if missing_dict:
-        missing_dict = get_wrong_row_numbers(wrong_row_dict=missing_dict, true_remains=True)
-        return [MissingValuesInRowProblem(column=col, row_numbers=row_nums) for col, row_nums in missing_dict.items()]
+        missing_int_dict = get_wrong_row_numbers(wrong_row_dict=missing_dict, true_remains=True)
+        return [MissingValuesInRowProblem(col, row_nums) for col, row_nums in missing_int_dict.items()]
     else:
         return None
 
 
-def _check_compliance_gui_attributes(df: pd.DataFrame) -> dict[str, pd.Series] | None:
+def _check_compliance_gui_attributes(df: pd.DataFrame) -> dict[str, pd.Series[bool]] | None:
     mandatory_attributes = ["Spinbox", "List"]
     mandatory_check = col_must_or_not_empty_based_on_other_col(
         df=df,
@@ -208,15 +208,15 @@ def _check_compliance_gui_attributes(df: pd.DataFrame) -> dict[str, pd.Series] |
         case None, None:
             return None
         case pd.Series(), pd.Series():
-            final_series = pd.Series(np.logical_or(mandatory_check, no_attribute_check))  # type: ignore[arg-type]
+            final_series: pd.Series[bool] = pd.Series(np.logical_or(mandatory_check, no_attribute_check))  # type: ignore[arg-type]
         case pd.Series(), None:
-            final_series = mandatory_check
+            final_series = mandatory_check  # type: ignore[assignment]
         case None, pd.Series:
             final_series = no_attribute_check
     return {"gui_attributes": final_series}
 
 
-def _row2prop(df_row: pd.Series, row_num: int, excelfile: str) -> dict[str, Any]:
+def _row2prop(df_row: pd.Series[Any], row_num: int, excelfile: str) -> dict[str, Any]:
     _property = {x: df_row[x] for x in mandatory_properties} | {
         "labels": get_labels(df_row=df_row),
         "super": [s.strip() for s in df_row["super"].split(",")],
@@ -239,7 +239,7 @@ def _row2prop(df_row: pd.Series, row_num: int, excelfile: str) -> dict[str, Any]
 
 
 def _get_gui_attribute(
-    df_row: pd.Series,
+    df_row: pd.Series[Any],
     row_num: int,
 ) -> dict[str, int | str | float] | InvalidExcelContentProblem | None:
     if pd.isnull(df_row["gui_attributes"]):

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import warnings
 from pathlib import Path
+from typing import Any
 from typing import Callable
 from typing import Optional
 from typing import Union
@@ -166,7 +167,7 @@ def _convert_rows_to_xml(
 
 def _append_bitstream_to_resource(
     resource: etree._Element,
-    row: pd.Series,
+    row: pd.Series[Any],
     row_number: int,
 ) -> etree._Element:
     """
@@ -210,7 +211,7 @@ def _append_bitstream_to_resource(
 
 def _convert_resource_row_to_xml(
     row_number: int,
-    row: pd.Series,
+    row: pd.Series[Any],
 ) -> etree._Element:
     """
     Convert a resource-row to an XML resource element.
@@ -291,7 +292,7 @@ def _convert_resource_row_to_xml(
 
 
 def _get_prop_function(
-    row: pd.Series,
+    row: pd.Series[Any],
     resource_id: str,
 ) -> Callable[..., etree._Element]:
     """
@@ -328,7 +329,7 @@ def _get_prop_function(
 
 
 def _convert_row_to_property_elements(
-    row: pd.Series,
+    row: pd.Series[Any],
     max_num_of_props: int,
     row_number: int,
     resource_id: str,
@@ -399,7 +400,7 @@ def _convert_row_to_property_elements(
 
 def _convert_property_row_to_xml(
     row_number: int,
-    row: pd.Series,
+    row: pd.Series[Any],
     max_num_of_props: int,
     resource_id: str,
 ) -> etree._Element:
@@ -443,7 +444,7 @@ def _convert_property_row_to_xml(
 
 def _create_property(
     make_prop_function: Callable[..., etree._Element],
-    row: pd.Series,
+    row: pd.Series[Any],
     property_elements: list[PropertyElement],
     resource_id: str,
 ) -> etree._Element:

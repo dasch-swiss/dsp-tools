@@ -1031,6 +1031,21 @@ test = ["hypothesis (>=6.46.1)", "pytest (>=7.3.2)", "pytest-xdist (>=2.2.0)"]
 xml = ["lxml (>=4.9.2)"]
 
 [[package]]
+name = "pandas-stubs"
+version = "2.2.1.240316"
+description = "Type annotations for pandas"
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "pandas_stubs-2.2.1.240316-py3-none-any.whl", hash = "sha256:0126a26451a37cb893ea62357ca87ba3d181bd999ec8ba2ca5602e20207d6682"},
+    {file = "pandas_stubs-2.2.1.240316.tar.gz", hash = "sha256:236a4f812fb6b1922e9607ff09e427f6d8540c421c9e5a40e3e4ddf7adac7f05"},
+]
+
+[package.dependencies]
+numpy = {version = ">=1.26.0", markers = "python_version < \"3.13\""}
+types-pytz = ">=2022.1.1"
+
+[[package]]
 name = "pathspec"
 version = "0.12.1"
 description = "Utility library for gitignore style pattern matching of file paths."
@@ -1831,6 +1846,20 @@ typing-extensions = ">=4.5,<5.0"
 test = ["html5lib (==1.1)", "lxml (==5.1.*)", "mypy (==1.5.1)", "pyright (>=1.1.289)", "pytest (>=7.0,<9)", "pytest-mypy-plugins (>1.10.0,<2.0)", "tox (>=4.0,<5.0)", "typeguard (>=3.0,<5)"]
 
 [[package]]
+name = "types-networkx"
+version = "3.2.1.20240331"
+description = "Typing stubs for networkx"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "types-networkx-3.2.1.20240331.tar.gz", hash = "sha256:24c9b55d071a39620015816b4558ae86420dc4fe14a13074ec266fbf9a9651bf"},
+    {file = "types_networkx-3.2.1.20240331-py3-none-any.whl", hash = "sha256:9e84b437d316e05e9fa85a4fabb1f08136da857581fae00971d60ef2b31426bb"},
+]
+
+[package.dependencies]
+numpy = "*"
+
+[[package]]
 name = "types-openpyxl"
 version = "3.1.0.20240402"
 description = "Typing stubs for openpyxl"
@@ -1839,6 +1868,17 @@ python-versions = ">=3.8"
 files = [
     {file = "types-openpyxl-3.1.0.20240402.tar.gz", hash = "sha256:da3efda6c2d9a18616473de49a506cd10fbc0197136d6cd11084c63aff3b4adb"},
     {file = "types_openpyxl-3.1.0.20240402-py3-none-any.whl", hash = "sha256:84f3d988ed535f3547db62c0bf2f46a1cee63b3b4436b6fbacf4d035b05efe09"},
+]
+
+[[package]]
+name = "types-pytz"
+version = "2024.1.0.20240203"
+description = "Typing stubs for pytz"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "types-pytz-2024.1.0.20240203.tar.gz", hash = "sha256:c93751ee20dfc6e054a0148f8f5227b9a00b79c90a4d3c9f464711a73179c89e"},
+    {file = "types_pytz-2024.1.0.20240203-py3-none-any.whl", hash = "sha256:9679eef0365db3af91ef7722c199dbb75ee5c1b67e3c4dd7bfbeb1b8a71c21a3"},
 ]
 
 [[package]]
@@ -2084,4 +2124,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "958df6ac1ce7cd4bbfb347f8e1a73ceaac45ade63a11b44d66cf9908ca66cb2d"
+content-hash = "e08c5334b68f170eea21c00d607c9e6d2a07a4d2f473c680ab4f8cbf2ab3295d"

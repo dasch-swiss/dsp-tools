@@ -70,6 +70,7 @@ def test_unused_media_to_df() -> None:
     ]
     expected = pd.DataFrame({"Multimedia Filenames": unused_media_list})
     res_df = IngestInformation(unused_media_list, [], maximum_prints=1)._unused_mediafiles_to_df()
+    assert res_df is not None
     assert_frame_equal(res_df, expected)
 
 
@@ -98,6 +99,7 @@ def test_no_id_to_df() -> None:
         ],
         maximum_prints=1,
     )._mediafiles_no_id_to_df()
+    assert res_df is not None
     assert_frame_equal(res_df, expected)
 
 

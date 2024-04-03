@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import importlib.resources
 import json
 from pathlib import Path
@@ -420,8 +422,8 @@ def _extract_cardinalities_from_project(
     return cardinalities, dependencies
 
 
-def _make_cardinality_dependency_graph(dependencies: dict[str, dict[str, list[str]]]) -> nx.MultiDiGraph:
-    graph = nx.MultiDiGraph()
+def _make_cardinality_dependency_graph(dependencies: dict[str, dict[str, list[str]]]) -> nx.MultiDiGraph[Any]:
+    graph: nx.MultiDiGraph[Any] = nx.MultiDiGraph()
     for start, cards in dependencies.items():
         for edge, targets in cards.items():
             for target in targets:
@@ -430,7 +432,7 @@ def _make_cardinality_dependency_graph(dependencies: dict[str, dict[str, list[st
 
 
 def _find_circles_with_min_one_cardinality(
-    graph: nx.MultiDiGraph, cardinalities: dict[str, dict[str, str]], dependencies: dict[str, dict[str, list[str]]]
+    graph: nx.MultiDiGraph[Any], cardinalities: dict[str, dict[str, str]], dependencies: dict[str, dict[str, list[str]]]
 ) -> set[tuple[str, str]]:
     errors: set[tuple[str, str]] = set()
     circles = list(nx.algorithms.cycles.simple_cycles(graph))

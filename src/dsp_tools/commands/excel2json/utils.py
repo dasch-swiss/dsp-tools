@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 from unittest import mock
 
 import numpy as np
@@ -117,7 +118,7 @@ def check_column_for_duplicate(df: pd.DataFrame, to_check_column: str) -> None |
         return None
 
 
-def check_required_values(df: pd.DataFrame, required_values_columns: list[str]) -> dict[str, pd.Series]:
+def check_required_values(df: pd.DataFrame, required_values_columns: list[str]) -> dict[str, pd.Series[bool]]:
     """
     If there are any empty cells in the column, it adds the column name and a boolean pd.Series to the dictionary.
     If there are no empty cells, then it is not included in the dictionary.
@@ -155,7 +156,9 @@ def turn_bool_array_into_index_numbers(series: pd.Series[bool], true_remains: bo
     return list(series[series].index)
 
 
-def get_wrong_row_numbers(wrong_row_dict: dict[str, pd.Series], true_remains: bool = True) -> dict[str, list[int]]:
+def get_wrong_row_numbers(
+    wrong_row_dict: dict[str, pd.Series[bool]], true_remains: bool = True
+) -> dict[str, list[int]]:
     """
     From the boolean pd.Series the index numbers of the True values are extracted.
     The resulting list is the new value of the dictionary.
@@ -168,13 +171,13 @@ def get_wrong_row_numbers(wrong_row_dict: dict[str, pd.Series], true_remains: bo
     Returns:
         Dictionary with the column name as key and the row number as a list.
     """
-    wrong_row_dict = {
+    wrong_row_int_dict = {
         k: turn_bool_array_into_index_numbers(series=v, true_remains=true_remains) for k, v in wrong_row_dict.items()
     }
-    return {k: [x + 2 for x in v] for k, v in wrong_row_dict.items()}
+    return {k: [x + 2 for x in v] for k, v in wrong_row_int_dict.items()}
 
 
-def get_labels(df_row: pd.Series) -> dict[str, str]:
+def get_labels(df_row: pd.Series[Any]) -> dict[str, str]:
     """
     This function takes a pd.Series which has "label_[language tag]" in the index.
     If the value of the index is not pd.NA, the language tag and the value are added to a dictionary.
@@ -190,7 +193,7 @@ def get_labels(df_row: pd.Series) -> dict[str, str]:
     return {lang: df_row[f"label_{lang}"] for lang in languages if df_row[f"label_{lang}"] is not pd.NA}
 
 
-def get_comments(df_row: pd.Series) -> dict[str, str] | None:
+def get_comments(df_row: pd.Series[Any]) -> dict[str, str] | None:
     """
     This function takes a pd.Series which has "comment_[language tag]" in the index.
     If the value of the index is not pd.NA, the language tag and the value are added to a dictionary.
@@ -207,7 +210,7 @@ def get_comments(df_row: pd.Series) -> dict[str, str] | None:
     return comments or None
 
 
-def find_one_full_cell_in_cols(df: pd.DataFrame, required_columns: list[str]) -> pd.Series | None:
+def find_one_full_cell_in_cols(df: pd.DataFrame, required_columns: list[str]) -> pd.Series[bool] | None:
     """
     This function takes a pd.DataFrame and a list of column names where at least one cell must have a value per row.
     A pd.Series with boolean values is returned, True if any rows do not have a value in at least one column
@@ -234,7 +237,7 @@ def col_must_or_not_empty_based_on_other_col(
     substring_colname: str,
     check_empty_colname: str,
     must_have_value: bool,
-) -> pd.Series | None:
+) -> pd.Series[bool] | None:
     """
     It is presumed that the column "substring_colname" has no empty cells.
     Based on the string content of the individual rows, which is specified in the "substring_list",

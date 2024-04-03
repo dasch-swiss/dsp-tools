@@ -30,7 +30,7 @@ requests = "^2.31.0"
 jsonschema = "^4.21.1"
 openpyxl = "^3.1.2"
 networkx = "^3.2.1"
-pandas = {version = "^2.1.4", extras = ["excel"]}  # extra package that contains xlrd that is necessary for reading old .xls Excel files
+pandas = {version = "^2.2.1", extras = ["excel"]}  # extra package that contains xlrd that is necessary for reading old .xls Excel files
 regex = "^2023.12.25"
 pyyaml = "^6.0.1"
 rustworkx = "^0.14.2"

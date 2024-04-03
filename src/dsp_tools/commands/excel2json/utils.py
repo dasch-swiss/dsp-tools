@@ -171,10 +171,10 @@ def get_wrong_row_numbers(
     Returns:
         Dictionary with the column name as key and the row number as a list.
     """
-    wrong_row_dict_int = {
+    wrong_row_int_dict = {
         k: turn_bool_array_into_index_numbers(series=v, true_remains=true_remains) for k, v in wrong_row_dict.items()
     }
-    return {k: [x + 2 for x in v] for k, v in wrong_row_dict_int.items()}
+    return {k: [x + 2 for x in v] for k, v in wrong_row_int_dict.items()}
 
 
 def get_labels(df_row: pd.Series[Any]) -> dict[str, str]:

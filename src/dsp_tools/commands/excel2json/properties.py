@@ -5,7 +5,6 @@ import json
 import warnings
 from typing import Any
 from typing import Optional
-from typing import cast
 
 import jsonpath_ng.ext
 import jsonschema
@@ -182,8 +181,8 @@ def _check_missing_values_in_row(df: pd.DataFrame) -> None | list[MissingValuesI
     if missing_gui_attributes is not None:
         missing_dict.update(missing_gui_attributes)
     if missing_dict:
-        missing_dict_int = get_wrong_row_numbers(wrong_row_dict=missing_dict, true_remains=True)
-        return [MissingValuesInRowProblem(col, row_nums) for col, row_nums in missing_dict_int.items()]
+        missing_int_dict = get_wrong_row_numbers(wrong_row_dict=missing_dict, true_remains=True)
+        return [MissingValuesInRowProblem(col, row_nums) for col, row_nums in missing_int_dict.items()]
     else:
         return None
 
@@ -209,13 +208,11 @@ def _check_compliance_gui_attributes(df: pd.DataFrame) -> dict[str, pd.Series[bo
         case None, None:
             return None
         case pd.Series(), pd.Series():
-            mandatory_check = cast("pd.Series[bool]", mandatory_check)
-            no_attribute_check = cast("pd.Series[bool]", no_attribute_check)
-            final_series: pd.Series[bool] = pd.Series(np.logical_or(mandatory_check, no_attribute_check))
+            final_series: pd.Series[bool] = pd.Series(np.logical_or(mandatory_check, no_attribute_check))  # type: ignore[arg-type]
         case pd.Series(), None:
-            final_series = cast("pd.Series[bool]", mandatory_check)
+            final_series = mandatory_check  # type: ignore[assignment]
         case None, pd.Series:
-            final_series = cast("pd.Series[bool]", no_attribute_check)
+            final_series = no_attribute_check
     return {"gui_attributes": final_series}
 
 

@@ -33,6 +33,7 @@ from dsp_tools.commands.xmlupload.stash.upload_stashed_xml_texts import upload_s
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.write_diagnostic_info import write_id2iri_mapping
 from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import PermanentConnectionError
 from dsp_tools.models.exceptions import PermanentTimeOutError
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.models.exceptions import XmlUploadInterruptedError
@@ -414,13 +415,13 @@ def _upload_resources(
         try:
             res = _create_resource(resource, media_info, resource_create_client)
             if res == (None, None):
-                # resource creation failed gracefully: register it as failed, then continue
+                # resource creation failed gracefully: register it as failed
                 failed_uploads.append(resource.res_id)
-                continue
             else:
-                # resource creation succeeded: update the iri_resolver and remove the resource from the list
+                # resource creation succeeded: update the iri_resolver
                 iri, label = res
                 _tidy_up_resource_creation(iri, label, iri_resolver, resource, current_res, total_res)  # type: ignore[arg-type]
+            resources.remove(resource)
         except PermanentTimeOutError:
             msg = (
                 f"There was a timeout while trying to create resource '{resource.res_id}'.\n"
@@ -429,6 +430,13 @@ def _upload_resources(
                 f"In case of successful creation, call 'resume-xmlupload' with the flag "
                 f"'--skip-first-resource' to prevent duplication.\n"
                 f"If not, a normal 'resume-xmlupload' can be started."
+            )
+            logger.error(msg)
+            raise XmlUploadInterruptedError(msg)
+        except PermanentConnectionError:
+            msg = (
+                "DSP-API is unresponsive, so this xmlupload must be aborted. "
+                "Please resume it later with the `resume-xmlupload` command."
             )
             logger.error(msg)
             raise XmlUploadInterruptedError(msg)
@@ -441,8 +449,6 @@ def _upload_resources(
                 # unhandled exception during resource creation
                 failed_uploads.append(resource.res_id)
             raise err from None
-        finally:
-            resources.remove(resource)
 
     return iri_resolver, failed_uploads
 
@@ -468,10 +474,10 @@ def _create_resource(
 ) -> tuple[str, str] | tuple[None, None]:
     try:
         return resource_create_client.create_resource(resource, bitstream_information)
-    except PermanentTimeOutError as err:
+    except (PermanentTimeOutError, PermanentConnectionError) as err:
         # The following block catches all exceptions and handles them in a generic way.
-        # Because the calling function needs to know that this was a PermanentTimeOutError, we need to catch and
-        # raise it here.
+        # Because the calling function needs to know that this was a PermanentTimeOutError/PermanentConnectionError,
+        # we need to catch and raise it here.
         raise err
     except Exception as err:  # noqa: BLE001 (blind-except)
         msg = f"{datetime.now()}: WARNING: Unable to create resource '{resource.label}' (ID: '{resource.res_id}')"

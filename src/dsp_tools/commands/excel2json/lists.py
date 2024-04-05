@@ -43,6 +43,7 @@ def expand_lists_from_excel(
     Returns:
         the same "lists" section, but without references to Excel files
     """
+    # removethis
     new_lists: list[dict[str, Any]] = []
     for _list in lists_section:
         # case 1: this list is a JSON list: return it as it is

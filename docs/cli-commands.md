@@ -180,7 +180,7 @@ this file must remain in place.
 |--------------------------------------------------------------------------|
 | We do not guarantee that the state of an xmlupload is cleanly saved after `Ctrl + C`. We only guarantee this for `dsp-tools xmlupload --interrupt-after`. |
 
-This command resumes a previously interrupted XML upload.
+This command resumes a previously interrupted `xmlupload` or `ingest-xmlupload`.
 
 ```bash
 dsp-tools resume-xmlupload [options]

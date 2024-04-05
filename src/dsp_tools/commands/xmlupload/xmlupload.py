@@ -474,7 +474,7 @@ def _create_resource(
         # raise it here.
         raise err
     except Exception as err:  # noqa: BLE001 (blind-except)
-        msg = f"{datetime.now()}: WARNING: Unable to create resource '{resource.label}' ({resource.res_id})"
+        msg = f"{datetime.now()}: WARNING: Unable to create resource '{resource.label}' (ID: '{resource.res_id}')"
         if isinstance(err, BaseError):
             msg = f"{msg}: {err.message}"
         print(msg)

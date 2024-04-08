@@ -78,10 +78,10 @@ dsp-tools xmlupload additional_data_replaced_[timestamp].xml
 
 If a xmlupload didn't finish successfully, 
 some resources have already been created, while others have not.
-If one of the remaining resources references a newly created resource by its internal ID,
-this internal ID must be replaced by the IRI of the newly created resource.
+If one of the remaining resources references an already created resource by its internal ID,
+this internal ID must be replaced by the IRI of the already created resource.
 
-Additionally, the newly created resources must be removed from the XML file.
+Additionally, the already created resources must be removed from the XML file.
 Otherwise, they would be created a second time.
 
 In such a case, proceed as follows:

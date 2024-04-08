@@ -15,13 +15,13 @@ class ListRoot:
     nodes: list[ListNode]
     comments: dict[LanguageTag, str] | None = None
 
-    def make(self) -> dict[str, Any]:
+    def to_json(self) -> dict[str, Any]:
         lst_root = self._make_myself()
         lst_root["nodes"] = self._make_nodes()
         return lst_root
 
     def _make_nodes(self) -> list[dict[str, Any]]:
-        return [nd.make() for nd in self.nodes]
+        return [nd.to_json() for nd in self.nodes]
 
     def _make_myself(self) -> dict[str, Any]:
         lst = {"name": self._id, "labels": self.labels}
@@ -30,20 +30,20 @@ class ListRoot:
         return lst
 
 
-@dataclass(frozen=True)
+@dataclass
 class ListNode:
     _id: str
     labels: dict[LanguageTag, str]
     sub_nodes: list[ListNode] = field(default_factory=list)
 
-    def make(self) -> dict[str, Any]:
+    def to_json(self) -> dict[str, Any]:
         node = self._make_myself()
         if self.sub_nodes:
             node["nodes"] = self._make_subnodes()
         return node
 
     def _make_subnodes(self) -> list[dict[str, Any]]:
-        return [nd.make() for nd in self.sub_nodes]
+        return [nd.to_json() for nd in self.sub_nodes]
 
     def _make_myself(self) -> dict[str, Any]:
         return {"name": self._id, "labels": self.labels}

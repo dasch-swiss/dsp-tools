@@ -30,7 +30,7 @@ class TestListRoot:
         res = root._make_myself()
         assert expected == res
 
-    def test_make(self) -> None:
+    def test_to_json(self) -> None:
         sub_1 = ListNode("Node_1", {"en": "Node_1_label_en"})
         sub_21 = ListNode("SubNode_21", {"en": "SubNode_21_label_en"})
         sub_2 = ListNode("Node_2", {"en": "Node_2_label_en"}, [sub_21])
@@ -51,7 +51,7 @@ class TestListRoot:
                 },
             ],
         }
-        res = root.make()
+        res = root.to_json()
         assert res == expected
 
 
@@ -62,7 +62,7 @@ class TestListNode:
         res = nd._make_myself()
         assert res == expected
 
-    def test_make(self) -> None:
+    def test_to_json(self) -> None:
         sub_1 = ListNode("SubNode_1", {"en": "SubNode_1_label_en"})
         sub_21 = ListNode("SubNode_21", {"en": "SubNode_21_label_en"})
         sub_2 = ListNode("SubNode_2", {"en": "SubNode_2_label_en"}, [sub_21])
@@ -80,7 +80,7 @@ class TestListNode:
                 },
             ],
         }
-        res = test_nd.make()
+        res = test_nd.to_json()
         assert res == expected
 
 

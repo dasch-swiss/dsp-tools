@@ -21,7 +21,7 @@ def test_prepare_dataframe() -> None:
         {
             "title of column 1": ["0-1", "1-n", "0-n"],
             "title of column 2": ["1", "1", "text"],
-            "title of column 3": ["", "", ""],
+            "title of column 3": [pd.NA, pd.NA, pd.NA],
         },
         index=[1, 2, 7],
     )

@@ -190,7 +190,7 @@ def get_labels(df_row: pd.Series[Any]) -> dict[str, str]:
     Returns:
         A dictionary with the language tag and the content of the cell
     """
-    return {lang: df_row[f"label_{lang}"] for lang in languages if df_row[f"label_{lang}"] is not pd.NA}
+    return {lang: df_row[f"label_{lang}"] for lang in languages if not pd.isna(df_row[f"label_{lang}"])}
 
 
 def get_comments(df_row: pd.Series[Any]) -> dict[str, str] | None:

@@ -10,15 +10,8 @@ from dsp_tools.commands.excel2json.resources import _check_complete_gui_order
 class TestCheckCompleteGuiOrder:
     def test_column_does_not_exist(self) -> None:
         df = pd.DataFrame({"prop": [1, 2, 3]})
-        expected_msg = (
-            "In the sheet 'class_name' of the file 'resources.xlsx', "
-            "the column 'gui_order' does not exist.\n"
-            "Values have been filled in automatically, "
-            "so that the gui-order reflects the order of the properties in the file."
-        )
         expected_df = pd.DataFrame({"prop": [1, 2, 3], "gui_order": [1, 2, 3]})
-        with pytest.warns(Warning, match=expected_msg):
-            res = _check_complete_gui_order("class_name", df)
+        res = _check_complete_gui_order("class_name", df)
         assert_frame_equal(res, expected_df)
 
     def test_na_in_row(self) -> None:

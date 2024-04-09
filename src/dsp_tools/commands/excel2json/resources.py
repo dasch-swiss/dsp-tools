@@ -172,13 +172,14 @@ def _create_all_cardinalities(class_name: str, class_df_with_cardinalities: pd.D
 def _check_complete_gui_order(class_name: str, class_df_with_cardinalities: pd.DataFrame) -> pd.DataFrame:
     detail_problem_msg = ""
     attempt_conversion = False
-    gui_order_empty_series = class_df_with_cardinalities["gui_order"].isna()
-    if "gui_order" not in class_df_with_cardinalities or gui_order_empty_series.all():
+    if "gui_order" not in class_df_with_cardinalities:
         pass
-    elif not gui_order_empty_series.all():
-        attempt_conversion = True
-    elif gui_order_empty_series.any():
+    elif class_df_with_cardinalities["gui_order"].isna().all():
+        pass
+    elif class_df_with_cardinalities["gui_order"].isna().any():
         detail_problem_msg = "some rows in the column 'gui_order' are empty."
+    elif not class_df_with_cardinalities["gui_order"].isna().all():
+        attempt_conversion = True
 
     if attempt_conversion:
         try:

@@ -58,10 +58,10 @@ def excel2properties(
 
     property_df = _rename_deprecated_columnnames(df=property_df, excelfile=excelfile)
 
-    _do_property_excel_compliance(df=property_df, excelfile=excelfile)
-
     # Not all columns have to be filled, users may delete some for ease of use, but it would generate an error later
     property_df = _add_optional_columns(df=property_df)
+
+    _do_property_excel_compliance(df=property_df, excelfile=excelfile)
 
     # transform every row into a property
     props = [

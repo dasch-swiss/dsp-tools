@@ -58,10 +58,10 @@ def excel2properties(
 
     property_df = _rename_deprecated_columnnames(df=property_df, excelfile=excelfile)
 
-    _do_property_excel_compliance(df=property_df, excelfile=excelfile)
-
     # Not all columns have to be filled, users may delete some for ease of use, but it would generate an error later
     property_df = _add_optional_columns(df=property_df)
+
+    _do_property_excel_compliance(df=property_df, excelfile=excelfile)
 
     # transform every row into a property
     props = [
@@ -166,7 +166,7 @@ def _add_optional_columns(df: pd.DataFrame) -> pd.DataFrame:
     in_df_cols = set(df.columns)
     if not optional_col_set.issubset(in_df_cols):
         additional_col = list(optional_col_set.difference(in_df_cols))
-        additional_df = pd.DataFrame(columns=additional_col, index=df.index, data=None)
+        additional_df = pd.DataFrame(columns=additional_col, index=df.index)
         df = pd.concat(objs=[df, additional_df], axis=1)
     return df
 

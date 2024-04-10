@@ -163,14 +163,14 @@ class TestUtils(unittest.TestCase):
                 "comment_en": ["text_en", pd.NA],
                 "comment_de": ["text_de", pd.NA],
                 "comment_fr": ["text_fr", pd.NA],
-                "comment_it": ["text_it", pd.NA],
+                "comment_it": [pd.NA, pd.NA],
                 "comment_rm": ["text_rm", pd.NA],
             }
         )
-        expected_dict = {"de": "text_de", "en": "text_en", "fr": "text_fr", "it": "text_it", "rm": "text_rm"}
+        expected_dict = {"de": "text_de", "en": "text_en", "fr": "text_fr", "rm": "text_rm"}
         returned_dict = utl.get_comments(cast("pd.Series[Any]", original_df.loc[0, :]))
         assert returned_dict
-        self.assertDictEqual(expected_dict, returned_dict)
+        assert expected_dict == returned_dict
 
         assert not utl.get_comments(cast("pd.Series[Any]", original_df.loc[1, :]))
 

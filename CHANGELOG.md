@@ -1,5 +1,28 @@
 # Changelog
 
+## [7.1.2](https://github.com/dasch-swiss/dsp-tools/compare/v7.1.1...v7.1.2) (2024-04-10)
+
+
+### Bug Fixes
+
+* **excel2json:** if gui_order is empty no warning is longer displayed (DEV-3469) ([#908](https://github.com/dasch-swiss/dsp-tools/issues/908)) ([a278e3e](https://github.com/dasch-swiss/dsp-tools/commit/a278e3e0f9b623978dc46772b3fd1b0ea4e98c73))
+* excel2properties no longer crashes if optional columns are missing (DEV-3468) ([#907](https://github.com/dasch-swiss/dsp-tools/issues/907)) ([523d55b](https://github.com/dasch-swiss/dsp-tools/commit/523d55b410ad3e1ae1e7c80c8c47d600000c960d))
+
+
+### Maintenance
+
+* add type annotations for pandas and networkx ([#896](https://github.com/dasch-swiss/dsp-tools/issues/896)) ([bb0b3c6](https://github.com/dasch-swiss/dsp-tools/commit/bb0b3c6eb027eeba4f4b4024646362ae5b4bb51b))
+* bump start-stack to 2024.04.01 ([#905](https://github.com/dasch-swiss/dsp-tools/issues/905)) ([04faeec](https://github.com/dasch-swiss/dsp-tools/commit/04faeec660fdf26d1935881794dfedfd3953a08a))
+* **deps:** bump the all-dependencies group with 10 updates ([#894](https://github.com/dasch-swiss/dsp-tools/issues/894)) ([0e66199](https://github.com/dasch-swiss/dsp-tools/commit/0e661991df1cf2bbf91a253c0149e50dd77c849d))
+* remove .gitmodules file  ([#897](https://github.com/dasch-swiss/dsp-tools/issues/897)) ([64e4fe3](https://github.com/dasch-swiss/dsp-tools/commit/64e4fe3d0ed7b0adceb14b32cbd24afa403b38ed))
+* set api log level in docker-compose.yml ([#899](https://github.com/dasch-swiss/dsp-tools/issues/899)) ([2a8d574](https://github.com/dasch-swiss/dsp-tools/commit/2a8d5744c03c1829b3527d4bc385f7678d5ed6de))
+
+
+### Documentation
+
+* precise resume-xmlupload ([#900](https://github.com/dasch-swiss/dsp-tools/issues/900)) ([9611115](https://github.com/dasch-swiss/dsp-tools/commit/9611115c4d4a80fbca7b18feed2bbca389d8ff5a))
+* reformulate incremental xmlupload ([#902](https://github.com/dasch-swiss/dsp-tools/issues/902)) ([e7063d0](https://github.com/dasch-swiss/dsp-tools/commit/e7063d0f697c87f9f2e6dac7f1effde29e8c372f))
+
 ## [7.1.1](https://github.com/dasch-swiss/dsp-tools/compare/v7.1.0...v7.1.1) (2024-03-27)
 
 

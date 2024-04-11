@@ -8,7 +8,7 @@ def is_uri(s: str) -> bool:
     host = r"(?<host>[\w_.\-~:\[\]]+)"
     port = r"(?<port>:\d{0,6})"
     path = r"(?<path>/[\w_.\-~:%()]*)"
-    query = r"(?<query>\?[\w_.,/\-:%=*&]+)"
+    query = r"(?<query>\?[\w_.,;/\-:%=*&]+)"
     fragment = r"(?<fragment>#[\w_.\-~:/]*)"
     m = regex.match(rf"{scheme}:(//{host}{port}?){path}*{query}*{fragment}?", s, flags=regex.UNICODE)
     return m is not None

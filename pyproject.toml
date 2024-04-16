@@ -94,11 +94,9 @@ markdownlint = """
     --config .markdownlint.yml \
     --ignore CHANGELOG.md "**/*.md"
 """
-
 ruff-check = "ruff check . --ignore=A002,D101,D102,PLR0913,PLR2004,PLW0603"
 ruff-check-github = """
     ruff check . --output-format=github --ignore=A002,D101,D102,PLR0913,PLR2004,PLW0603
-
 """
 ruff-format = "ruff format ."
 mypy = "mypy ."
@@ -157,7 +155,7 @@ ignore_missing_imports = true
 
 [tool.ruff]
 line-length = 120
-target-version = "py311"
+target-version = "py312"
 
 
 [tool.ruff.lint]

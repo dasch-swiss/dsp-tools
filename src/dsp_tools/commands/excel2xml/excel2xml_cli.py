@@ -524,12 +524,10 @@ def excel2xml(
                 print(f"WARNING: {warning.message}")
 
     if success:
-        print(f"XML file successfully written to '{output_file!s}'")
+        print(f"XML file successfully written to '{output_file}'")
     else:
         red = "\033[31m"
         end = "\033[0m"
-        print(
-            f"{red}Some problems occurred. The XML file was written to '{output_file!s}', but it might be corrupt{end}"
-        )
+        print(f"{red}Some problems occurred. The XML file was written to '{output_file}', but it might be corrupt{end}")
 
     return success, catched_warnings

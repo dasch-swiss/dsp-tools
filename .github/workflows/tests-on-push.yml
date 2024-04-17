@@ -38,8 +38,8 @@ jobs:
         uses: ./.github/actions/setup
       - name: Linting with ruff
         run: poetry exec ruff-check-github
-      - name: Formatting with ruff
-        run: poetry exec ruff-format
+      - name: Check formatting with ruff
+        run: poetry exec ruff-format-check
       - name: Linting with mypy
         run: poetry exec mypy
       - name: Linting with darglint

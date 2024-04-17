@@ -235,6 +235,7 @@
             <uri permissions="prop-restricted">https://www.ancestry.com/discoveryui-content/view/47577828:60525?ssrc=pt&amp;tid=109007397&amp;pid=410070328478</uri>
             <uri permissions="prop-restricted">https://geohack.toolforge.org/geohack.php?pagename=Adige&amp;params=45_8_59_N_12_19_13_E_type:river</uri>
             <uri permissions="prop-restricted">https://www.digitale-sammlungen.de/de/view/bsb00055375?page=,1</uri>
+            <uri permissions="prop-restricted">https://digiliblt.uniupo.it/xtf/view?docId=dlt000521/dlt000521.xml;query=De%20taxone;brand=default</uri>
         </uri-prop>
         <date-prop name=":hasDate">
             <date>JULIAN:BCE:0700:BCE:0600</date>

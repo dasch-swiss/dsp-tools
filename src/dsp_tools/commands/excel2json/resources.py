@@ -118,14 +118,18 @@ def _row2resource(
     """
 
     class_name = class_info_row["name"]
-    labels = {lang: class_info_row[f"label_{lang}"] for lang in languages if class_info_row.get(f"label_{lang}")}
+    labels = {
+        lang: class_info_row[f"label_{lang}"] for lang in languages if not pd.isna(class_info_row[f"label_{lang}"])
+    }
     if not labels:
-        labels = {lang: class_info_row[lang] for lang in languages if class_info_row.get(lang)}
+        labels = {lang: class_info_row[lang] for lang in languages if not pd.isna(class_info_row[lang])}
     supers = [s.strip() for s in class_info_row["super"].split(",")]
 
     resource = {"name": class_name, "super": supers, "labels": labels}
 
-    comments = {lang: class_info_row[f"comment_{lang}"] for lang in languages if class_info_row.get(f"comment_{lang}")}
+    comments = {
+        lang: class_info_row[f"comment_{lang}"] for lang in languages if not pd.isna(class_info_row[f"comment_{lang}"])
+    }
     if comments:
         resource["comments"] = comments
 
@@ -167,12 +171,17 @@ def _create_all_cardinalities(class_name: str, class_df_with_cardinalities: pd.D
 
 def _check_complete_gui_order(class_name: str, class_df_with_cardinalities: pd.DataFrame) -> pd.DataFrame:
     detail_problem_msg = ""
+    attempt_conversion = False
     if "gui_order" not in class_df_with_cardinalities:
-        detail_problem_msg = "the column 'gui_order' does not exist."
+        pass
+    elif class_df_with_cardinalities["gui_order"].isna().all():
+        pass
     elif class_df_with_cardinalities["gui_order"].isna().any():
         detail_problem_msg = "some rows in the column 'gui_order' are empty."
+    elif not class_df_with_cardinalities["gui_order"].isna().all():
+        attempt_conversion = True
 
-    if not detail_problem_msg:
+    if attempt_conversion:
         try:
             class_df_with_cardinalities["gui_order"] = [int(float(x)) for x in class_df_with_cardinalities["gui_order"]]
             return class_df_with_cardinalities
@@ -184,13 +193,14 @@ def _check_complete_gui_order(class_name: str, class_df_with_cardinalities: pd.D
 
     class_df_with_cardinalities["gui_order"] = list(range(1, len(class_df_with_cardinalities) + 1))
 
-    complete_msg = (
-        f"In the sheet '{class_name}' of the file 'resources.xlsx', "
-        f"{detail_problem_msg}\n"
-        f"Values have been filled in automatically, "
-        f"so that the gui-order reflects the order of the properties in the file."
-    )
-    warnings.warn(complete_msg)
+    if detail_problem_msg:
+        complete_msg = (
+            f"In the sheet '{class_name}' of the file 'resources.xlsx', "
+            f"{detail_problem_msg}\n"
+            f"Values have been filled in automatically, "
+            f"so that the gui-order reflects the order of the properties in the file."
+        )
+        warnings.warn(complete_msg)
     return class_df_with_cardinalities
 
 

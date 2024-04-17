@@ -33,7 +33,7 @@
         </text-prop>
         <uri-prop name=":hasIdentifier">
             <uri permissions="prop-default">https://en.wiktionary.org/wiki/Ῥόδος</uri>
-            <uri permissions="prop-default">https://www.test-case.ch/</uri>
+            <uri permissions="prop-default">https://digiliblt.uniupo.it/xtf/view?docId=dlt000521/dlt000521.xml;query=De%20taxone;brand=default</uri>
             <uri permissions="prop-default">https://reg-exr.com:3000</uri>
             <uri permissions="prop-default">https://reg-exr.com:3000/path/to/file_(%C3%89).htm</uri>
         </uri-prop>

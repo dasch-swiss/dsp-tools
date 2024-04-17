@@ -98,7 +98,7 @@ ruff-check = "ruff check . --ignore=A002,D101,D102,PLR0913,PLR2004,PLW0603"
 ruff-check-github = """
     ruff check . --output-format=github --ignore=A002,D101,D102,PLR0913,PLR2004,PLW0603
 """
-ruff-format = "ruff format --check ."
+ruff-format-check = "ruff format --check ."
 mypy = "mypy ."
 unittests = "pytest test/unittests/"
 integration-tests = "pytest test/integration/"

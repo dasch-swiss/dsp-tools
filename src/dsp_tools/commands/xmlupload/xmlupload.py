@@ -399,41 +399,71 @@ def _upload_resources(
     # if the interrupt_after value is not set, the upload will not be interrupted
     interrupt_after = config.interrupt_after or total_res + 1
 
-    for i, resource in enumerate(resources.copy()):
-        current_res = i + 1 + previous_total
-        if i >= interrupt_after:
-            raise XmlUploadInterruptedError(f"Interrupted: Maximum number of resources was reached ({interrupt_after})")
-        success, media_info = handle_media_info(
-            resource, config.media_previously_uploaded, sipi_server, imgdir, permissions_lookup
+    for resource in resources.copy():
+        _upload_one_resource(
+            resources=resources,
+            resource=resource,
+            failed_uploads=failed_uploads,
+            imgdir=imgdir,
+            sipi_server=sipi_server,
+            permissions_lookup=permissions_lookup,
+            resource_create_client=resource_create_client,
+            iri_resolver=iri_resolver,
+            previous_total=previous_total,
+            total_res=total_res,
+            interrupt_after=interrupt_after,
+            config=config,
         )
-        if not success:
-            failed_uploads.append(resource.res_id)
-            continue
-
-        try:
-            res = _create_resource(resource, media_info, resource_create_client)
-        except (PermanentTimeOutError, KeyboardInterrupt) as err:
-            msg = (
-                f"There was a {type(err).__name__} while trying to create resource '{resource.res_id}'.\n"
-                f"It is unclear if the resource '{resource.res_id}' was created successfully or not.\n"
-                f"Please check manually in the DSP-APP or DB.\n"
-                f"In case of successful creation, call 'resume-xmlupload' with the flag "
-                f"'--skip-first-resource' to prevent duplication.\n"
-                f"If not, a normal 'resume-xmlupload' can be started."
-            )
-            logger.error(msg)
-            raise XmlUploadInterruptedError(msg)
-
-        try:
-            _tidy_up_resource_creation_idempotent(
-                res, resources, resource, failed_uploads, iri_resolver, current_res, total_res
-            )
-        except KeyboardInterrupt:
-            _tidy_up_resource_creation_idempotent(
-                res, resources, resource, failed_uploads, iri_resolver, current_res, total_res
-            )
-
     return iri_resolver, failed_uploads
+
+
+def _upload_one_resource(
+    resources: list[XMLResource],
+    resource: XMLResource,
+    failed_uploads: list[str],
+    imgdir: str,
+    sipi_server: Sipi,
+    permissions_lookup: dict[str, Permissions],
+    resource_create_client: ResourceCreateClient,
+    iri_resolver: IriResolver,
+    previous_total: int,
+    total_res: int,
+    interrupt_after: int,
+    config: UploadConfig,
+) -> None:
+    counter = resources.index(resource)
+    current_res = counter + 1 + previous_total
+    if counter >= interrupt_after:
+        raise XmlUploadInterruptedError(f"Interrupted: Maximum number of resources was reached ({interrupt_after})")
+    success, media_info = handle_media_info(
+        resource, config.media_previously_uploaded, sipi_server, imgdir, permissions_lookup
+    )
+    if not success:
+        failed_uploads.append(resource.res_id)
+        return
+
+    try:
+        res = _create_resource(resource, media_info, resource_create_client)
+    except (PermanentTimeOutError, KeyboardInterrupt) as err:
+        msg = (
+            f"There was a {type(err).__name__} while trying to create resource '{resource.res_id}'.\n"
+            f"It is unclear if the resource '{resource.res_id}' was created successfully or not.\n"
+            f"Please check manually in the DSP-APP or DB.\n"
+            f"In case of successful creation, call 'resume-xmlupload' with the flag "
+            f"'--skip-first-resource' to prevent duplication.\n"
+            f"If not, a normal 'resume-xmlupload' can be started."
+        )
+        logger.error(msg)
+        raise XmlUploadInterruptedError(msg) from None
+
+    try:
+        _tidy_up_resource_creation_idempotent(
+            res, resources, resource, failed_uploads, iri_resolver, current_res, total_res
+        )
+    except KeyboardInterrupt:
+        _tidy_up_resource_creation_idempotent(
+            res, resources, resource, failed_uploads, iri_resolver, current_res, total_res
+        )
 
 
 def _tidy_up_resource_creation_idempotent(

@@ -222,9 +222,9 @@ The following DSP base properties are available:
   A resource that has a property derived from `seqnum` must also have a property derived from `isPartOf`.
 - `hasColor`: Defines a color value.  
 - `hasComment`: Defines a standard comment.
-- `isSequenceOf` (⚠ deprecated): A special variant of `hasLinkTo`. 
+- `isSequenceOf` **(⚠ deprecated)**: A special variant of `hasLinkTo`. 
   It says that an instance of the given resource class is a section of an audio/video resource.
-- `hasSequenceBounds` (⚠ deprecated): This base property is used together with `isSequenceOf`. 
+- `hasSequenceBounds` **(⚠ deprecated)**: This base property is used together with `isSequenceOf`. 
   It denotes a time interval of an audio/video resource.
 
 
@@ -250,25 +250,25 @@ These three are related as follows:
 
 #### Overview
 
-| DSP base property (`super`)       | `object`                                                           | `gui_element`                          |
-| --------------------------------- | ------------------------------------------------------------------ | -------------------------------------- |
-| hasValue                          | BooleanValue                                                       | Checkbox                               |
-| hasColor                          | ColorValue                                                         | Colorpicker                            |
-| hasValue                          | DateValue                                                          | Date                                   |
-| hasValue                          | DecimalValue                                                       | Spinbox, <br>SimpleText                |
-| hasValue                          | GeonameValue                                                       | Geonames                               |
-| hasValue                          | IntValue                                                           | Spinbox, <br>SimpleText                |
-| hasValue                          | ListValue                                                          | List                                   |
-| hasValue                          | TextValue                                                          | SimpleText, <br>Textarea, <br>Richtext |
-| hasComment                        | TextValue                                                          | Richtext                               |
-| hasValue                          | TimeValue                                                          | TimeStamp                              |
-| hasValue                          | UriValue                                                           | SimpleText                             |
-| hasLinkTo                         | (resourceclass)                                                    | Searchbox                              |
-| hasRepresentation                 | Representation                                                     | Searchbox                              |
-| isPartOf                          | (resourceclass)                                                    | Searchbox                              |
-| seqnum                            | IntValue                                                           | Spinbox, <br>SimpleText                |
-| isSequenceOf (⚠ deprecated)      | (AudioRepresentation, <br>MovingImageRepresentation, <br>subclass) | Searchbox                              |
-| hasSequenceBounds (⚠ deprecated) | IntervalValue                                                      | Interval                               |
+| DSP base property (`super`)           | `object`                                                           | `gui_element`                          |
+| ------------------------------------- | ------------------------------------------------------------------ | -------------------------------------- |
+| hasValue                              | BooleanValue                                                       | Checkbox                               |
+| hasColor                              | ColorValue                                                         | Colorpicker                            |
+| hasValue                              | DateValue                                                          | Date                                   |
+| hasValue                              | DecimalValue                                                       | Spinbox, <br>SimpleText                |
+| hasValue                              | GeonameValue                                                       | Geonames                               |
+| hasValue                              | IntValue                                                           | Spinbox, <br>SimpleText                |
+| hasValue                              | ListValue                                                          | List                                   |
+| hasValue                              | TextValue                                                          | SimpleText, <br>Textarea, <br>Richtext |
+| hasComment                            | TextValue                                                          | Richtext                               |
+| hasValue                              | TimeValue                                                          | TimeStamp                              |
+| hasValue                              | UriValue                                                           | SimpleText                             |
+| hasLinkTo                             | (resourceclass)                                                    | Searchbox                              |
+| hasRepresentation                     | Representation                                                     | Searchbox                              |
+| isPartOf                              | (resourceclass)                                                    | Searchbox                              |
+| seqnum                                | IntValue                                                           | Spinbox, <br>SimpleText                |
+| isSequenceOf **(⚠ deprecated)**      | (AudioRepresentation, <br>MovingImageRepresentation, <br>subclass) | Searchbox                              |
+| hasSequenceBounds **(⚠ deprecated)** | IntervalValue                                                      | Interval                               |
 
 
 #### `BooleanValue`

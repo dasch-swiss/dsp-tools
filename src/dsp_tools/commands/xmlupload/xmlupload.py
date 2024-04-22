@@ -414,17 +414,9 @@ def _upload_resources(
         res = None
         try:
             res = _create_resource(resource, media_info, resource_create_client)
-            if res == (None, None):
-                # resource creation failed gracefully: register it as failed
-                failed_uploads.append(resource.res_id)
-            else:
-                # resource creation succeeded: update the iri_resolver
-                iri, label = res
-                _tidy_up_resource_creation(iri, label, iri_resolver, resource, current_res, total_res)  # type: ignore[arg-type]
-            resources.remove(resource)
-        except PermanentTimeOutError:
+        except (PermanentTimeOutError, KeyboardInterrupt) as err:
             msg = (
-                f"There was a timeout while trying to create resource '{resource.res_id}'.\n"
+                f"There was a {type(err).__name__} while trying to create resource '{resource.res_id}'.\n"
                 f"It is unclear if the resource '{resource.res_id}' was created successfully or not.\n"
                 f"Please check manually in the DSP-APP or DB.\n"
                 f"In case of successful creation, call 'resume-xmlupload' with the flag "
@@ -440,31 +432,42 @@ def _upload_resources(
             )
             logger.error(msg)
             raise XmlUploadInterruptedError(msg)
-        except BaseException as err:
-            if res and res[0]:
-                # creation succeeded, but during tidy up, a Keyboard Interrupt occurred. tidy up again before escalating
-                iri, label = res
-                _tidy_up_resource_creation(iri, label, iri_resolver, resource, current_res, total_res)
-            else:
-                # unhandled exception during resource creation
-                failed_uploads.append(resource.res_id)
-            raise err from None
+
+        try:
+            _tidy_up_resource_creation_idempotent(
+                res, resources, resource, failed_uploads, iri_resolver, current_res, total_res
+            )
+        except KeyboardInterrupt:
+            _tidy_up_resource_creation_idempotent(
+                res, resources, resource, failed_uploads, iri_resolver, current_res, total_res
+            )
 
     return iri_resolver, failed_uploads
 
 
-def _tidy_up_resource_creation(
-    iri: str,
-    label: str,
-    iri_resolver: IriResolver,
+def _tidy_up_resource_creation_idempotent(
+    result: tuple[str, str] | tuple[None, None],
+    resources: list[XMLResource],
     resource: XMLResource,
+    failed_uploads: list[str],
+    iri_resolver: IriResolver,
     current_res: int,
     total_res: int,
 ) -> None:
-    iri_resolver.update(resource.res_id, iri)
-    resource_designation = f"'{label}' (ID: '{resource.res_id}', IRI: '{iri}')"
-    print(f"{datetime.now()}: Created resource {current_res}/{total_res}: {resource_designation}")
-    logger.info(f"Created resource {current_res}/{total_res}: {resource_designation}")
+    iri, label = result
+    if iri and label:
+        # resource creation succeeded: update the iri_resolver
+        iri_resolver.update(resource.res_id, iri)
+        msg = f"Created resource {current_res}/{total_res}: '{label}' (ID: '{resource.res_id}', IRI: '{iri}')"
+        print(f"{datetime.now()}: {msg}")
+        logger.info(msg)
+    else:  # noqa: PLR5501
+        # resource creation failed gracefully: register it as failed
+        if resource.res_id not in failed_uploads:
+            failed_uploads.append(resource.res_id)
+
+    if resource in resources:
+        resources.remove(resource)
 
 
 def _create_resource(

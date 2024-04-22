@@ -411,7 +411,6 @@ def _upload_resources(
             failed_uploads.append(resource.res_id)
             continue
 
-        res = None
         try:
             res = _create_resource(resource, media_info, resource_create_client)
         except (PermanentTimeOutError, KeyboardInterrupt) as err:

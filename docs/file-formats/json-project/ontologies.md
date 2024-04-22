@@ -817,7 +817,11 @@ number of the image inside the compound object. Apart from this, `seqnum` is lik
 Example: See the [`isPartOf` Property](#ispartof-property) above.
 
 
-#### `isSequenceOf` Property (⚠ deprecated)
+#### `isSequenceOf` Property
+
+| <center>Deprecated</center>                           |
+| ----------------------------------------------------- |
+| This property is deprecated and will be removed soon. |
 
 `"object": <AudioRepresentation/MovingImageRepresentation or a subclass of one of them>`
 
@@ -890,7 +894,11 @@ Example:
 ```
 
 
-#### `hasSequenceBounds` Property (⚠ deprecated)
+#### `hasSequenceBounds` Property
+
+| <center>Deprecated</center>                           |
+| ----------------------------------------------------- |
+| This property is deprecated and will be removed soon. |
 
 `"object": "IntervalValue"`
 
@@ -898,7 +906,7 @@ This property represents a time interval of an audio or video. It can be used to
 on a resource that represents the sequence. The `isSequenceOf` would then point to the audio/video resource, and the 
 `hasSequenceBounds` would be the time interval of the sequence, represented as two decimal numbers.
 
-See the [`isSequenceOf` property](./#issequenceof-property-⚠-deprecated) or the 
+See the [`isSequenceOf` property](#issequenceof-property) or the 
 [xmlupload documentation](../xml-data-file.md#interval-prop) for more information.
 
 *gui_elements / gui_attributes*:

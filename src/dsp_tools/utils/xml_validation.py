@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.resources
+import warnings
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -52,6 +53,8 @@ def validate_xml(input_file: Union[str, Path, etree._ElementTree[Any]]) -> bool:
     all_good, msg = _find_mixed_encodings_in_one_text_prop(xml_no_namespace)
     if not all_good:
         problems.append(msg)
+
+    _check_for_deprecated_syntax(data_xml)
 
     if len(problems) > 0:
         err_msg = grand_separator.join(problems)
@@ -139,6 +142,22 @@ def _find_mixed_encodings_in_one_text_prop(
         msg = f"\nAll the problems are listed in the file: '{csv_path.absolute()}'" + msg
         df.to_csv(csv_path)
     return False, msg
+
+
+def _check_for_deprecated_syntax(data_xml: etree._Element) -> None:
+    _check_for_deprecated_isSequenceOf(data_xml)
+
+
+def _check_for_deprecated_isSequenceOf(data_xml: etree._Element) -> None:
+    isSequenceOf_matches = data_xml.findall("resource/resptr-prop") or []
+    isSequenceOf_matches = [x for x in isSequenceOf_matches if x.attrib.get("name") == "isSequenceOf"]
+    hasSequenceBounds_matches = data_xml.findall("resource/interval-prop") or []
+    hasSequenceBounds_matches = [x for x in hasSequenceBounds_matches if x.attrib.get("name") == "hasSequenceBounds"]
+    if any([isSequenceOf_matches, hasSequenceBounds_matches]):
+        warnings.warn(
+            "Your XML data file contains deprecated properties. "
+            "Support for the following properties will be removed soon: isSequenceOf, hasSequenceBounds"
+        )
 
 
 def check_if_only_one_encoding_is_used_per_prop_in_root(

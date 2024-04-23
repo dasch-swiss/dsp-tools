@@ -1099,6 +1099,9 @@ def make_interval_prop(
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#interval-prop
     """
 
+    if name == "hasSequenceBounds":
+        warnings.warn("Deprecation Warning: Support for the hasSequenceBounds property will be removed soon")
+
     # check the input: prepare a list with valid values
     values = prepare_value(value)
 
@@ -1244,6 +1247,9 @@ def make_resptr_prop(
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#resptr-prop
     """
+
+    if name == "isSequenceOf":
+        warnings.warn("Deprecation Warning: Support for the isSequenceOf property will be removed soon")
 
     # check the input: prepare a list with valid values
     values = prepare_value(value)

@@ -245,7 +245,7 @@ def _check_for_deprecated_isSequenceOf(project_definition: dict[str, Any]) -> bo
 
     if any([isSequenceOf_props, hasSequenceBounds_props, sequence_resource_names]):
         warnings.warn(
-            "Your JSON project definition contains deprecated properties. "
+            "Deprecation Warning: Your JSON project definition contains deprecated properties. "
             "Support for the following properties will be removed soon: isSequenceOf, hasSequenceBounds"
         )
 

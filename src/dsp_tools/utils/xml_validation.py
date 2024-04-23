@@ -155,7 +155,7 @@ def _check_for_deprecated_isSequenceOf(data_xml: etree._Element) -> None:
     hasSequenceBounds_matches = [x for x in hasSequenceBounds_matches if x.attrib.get("name") == "hasSequenceBounds"]
     if any([isSequenceOf_matches, hasSequenceBounds_matches]):
         warnings.warn(
-            "Your XML data file contains deprecated properties. "
+            "Deprecation Warning: Your XML data file contains deprecated properties. "
             "Support for the following properties will be removed soon: isSequenceOf, hasSequenceBounds"
         )
 

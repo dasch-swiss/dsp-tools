@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.resources
+import warnings
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -9,7 +10,7 @@ from typing import Union
 import regex
 from loguru import logger
 from lxml import etree
-from termcolor import cprint
+from termcolor import colored
 
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.xml_utils import parse_and_remove_comments_from_xml_file
@@ -158,7 +159,7 @@ def _check_for_deprecated_isSequenceOf(data_xml: etree._Element) -> None:
             "Deprecation Warning: Your XML data file contains deprecated properties. "
             "Support for the following properties will be removed soon: isSequenceOf, hasSequenceBounds"
         )
-        cprint(text=msg, color="red", attrs=["bold"])
+        warnings.warn(colored(msg, color="red", attrs=["bold"]), stacklevel=100)
 
 
 def check_if_only_one_encoding_is_used_per_prop_in_root(

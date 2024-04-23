@@ -252,7 +252,7 @@ class ListNodeProblem:
         msg = [
             f"The node '{self.node_id}' has the following problem(s):",
         ]
-        msg.extend([f"Field: '{key}' Problem: {value}" for key, value in self.problems.items()])
+        msg.extend([f"Field: '{key}', Problem: {value}" for key, value in self.problems.items()])
         return list_separator.join(msg)
 
 
@@ -266,7 +266,7 @@ class ListProblem:
         msg = [
             f"The list '{self.root_id}' has the following problem(s):",
         ]
-        msg.extend([f"Field: '{key}' Problem: {value}" for key, value in self.root_problems.items()])
+        msg.extend([f"Field: '{key}', Problem: {value}" for key, value in self.root_problems.items()])
         msg.extend([problem.execute_error_protocol() for problem in self.node_problems])
         return separator.join(msg)
 

@@ -54,7 +54,7 @@ def validate_xml(input_file: Union[str, Path, etree._ElementTree[Any]]) -> bool:
     if not all_good:
         problems.append(msg)
 
-    _check_for_deprecated_syntax(data_xml)
+    _check_for_deprecated_syntax(xml_no_namespace)
 
     if len(problems) > 0:
         err_msg = grand_separator.join(problems)
@@ -149,9 +149,9 @@ def _check_for_deprecated_syntax(data_xml: etree._Element) -> None:
 
 
 def _check_for_deprecated_isSequenceOf(data_xml: etree._Element) -> None:
-    isSequenceOf_matches = data_xml.findall("resource/resptr-prop") or []
+    isSequenceOf_matches = data_xml.findall("resource/resptr-prop")
     isSequenceOf_matches = [x for x in isSequenceOf_matches if x.attrib.get("name") == "isSequenceOf"]
-    hasSequenceBounds_matches = data_xml.findall("resource/interval-prop") or []
+    hasSequenceBounds_matches = data_xml.findall("resource/interval-prop")
     hasSequenceBounds_matches = [x for x in hasSequenceBounds_matches if x.attrib.get("name") == "hasSequenceBounds"]
     if any([isSequenceOf_matches, hasSequenceBounds_matches]):
         msg = (

@@ -19,7 +19,7 @@ class ListNode:
 
     @classmethod
     def create(
-        cls, id_: str, labels: dict[str, str], row_number: int, sub_nodes: list[ListNode] | None = None
+        cls, id_: str | int | float, labels: dict[str, str], row_number: int, sub_nodes: list[ListNode] | None = None
     ) -> ListNode | ListNodeProblem:
         user_problem = {}
         if pd.isna(id_):
@@ -61,7 +61,7 @@ class ListRoot:
     @classmethod
     def create(
         cls,
-        id_: str,
+        id_: str | int | float,
         labels: dict[str, str],
         nodes: list[ListNode],
         comments: dict[str, str] | None = None,

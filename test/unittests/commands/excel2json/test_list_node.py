@@ -92,7 +92,7 @@ class TestListRootCreate:
 
     def test_float(self) -> None:
         nd = ListNode(id_="NodeID", labels={"en": "node_label_en"}, row_number=1)
-        root = ListRoot.create(id_=1.123, labels={"en": "node_label_en"}, comments={}, nodes=[nd])  # type: ignore[arg-type]
+        root = ListRoot.create(id_=1.123, labels={"en": "node_label_en"}, comments={}, nodes=[nd])
         assert isinstance(root, ListRoot)
         assert root.id_ == "1.123"
         assert root.labels == {"en": "node_label_en"}
@@ -127,7 +127,7 @@ class TestListNodeCreate:
 
     def test_float(self) -> None:
         nd = ListNode(id_="NodeID", labels={"en": "node_label_en"}, row_number=1)
-        nd_2 = ListNode.create(id_=1.123, labels={"en": "node_label_en"}, row_number=2, sub_nodes=[nd])  # type: ignore[arg-type]
+        nd_2 = ListNode.create(id_=1.123, labels={"en": "node_label_en"}, row_number=2, sub_nodes=[nd])
         assert isinstance(nd_2, ListNode)
         assert nd_2.id_ == "1.123"
         assert nd_2.labels == {"en": "node_label_en"}

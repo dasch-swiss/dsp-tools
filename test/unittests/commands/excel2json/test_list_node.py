@@ -71,6 +71,15 @@ class TestListRootCreate:
             "list nodes": "At least one node per list is required.",
         }
 
+    def test_wrong_language(self) -> None:
+        root = ListRoot.create(id_="str", labels={"ur": "label"}, comments={}, nodes=[])
+        assert isinstance(root, ListProblem)
+        assert root.root_id == "str"
+        assert root.root_problems == {
+            "labels": "Only the following languages are supported: 'en', 'de', 'fr', 'it', 'rm'.",
+            "list nodes": "At least one node per list is required.",
+        }
+
     def test_id_na(self) -> None:
         root = ListRoot.create(id_=pd.NA, labels={}, comments={}, nodes=[])  # type: ignore[arg-type]
         assert isinstance(root, ListProblem)
@@ -97,6 +106,14 @@ class TestListNodeCreate:
         assert nd.problems == {
             "name": "The name of the node does not contain any characters.",
             "labels": "At least one label per list is required.",
+        }
+
+    def test_wrong_language(self) -> None:
+        root = ListNode.create(id_="str", labels={"ur": "label"}, row_number=1)
+        assert isinstance(root, ListNodeProblem)
+        assert root.node_id == "str"
+        assert root.problems == {
+            "labels": "Only the following languages are supported: 'en', 'de', 'fr', 'it', 'rm'.",
         }
 
     def test_id_na(self) -> None:

@@ -31,7 +31,7 @@ class ListNode:
         if not labels:
             user_problem["labels"] = "At least one label per list is required."
         elif not set(labels).issubset({"en", "de", "fr", "it", "rm"}):
-            user_problem["labels"] = "Only the following languages are supported: 'en', 'de', 'fr', 'it', 'rm'"
+            user_problem["labels"] = "Only the following languages are supported: 'en', 'de', 'fr', 'it', 'rm'."
         if user_problem:
             return ListNodeProblem(id_, user_problem)
         if not sub_nodes:
@@ -78,10 +78,10 @@ class ListRoot:
         if not labels:
             user_problem["labels"] = "At least one label per list is required."
         elif not set(labels).issubset({"en", "de", "fr", "it", "rm"}):
-            user_problem["labels"] = "Only the following languages are supported: 'en', 'de', 'fr', 'it', 'rm'"
+            user_problem["labels"] = "Only the following languages are supported: 'en', 'de', 'fr', 'it', 'rm'."
         if comments:
             if not set(comments).issubset({"en", "de", "fr", "it", "rm"}):
-                user_problem["comments"] = "Only the following languages are supported: 'en', 'de', 'fr', 'it', 'rm'"
+                user_problem["comments"] = "Only the following languages are supported: 'en', 'de', 'fr', 'it', 'rm'."
         if len(nodes) == 0:
             user_problem["list nodes"] = "At least one node per list is required."
         if user_problem:

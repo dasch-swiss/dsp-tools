@@ -266,8 +266,10 @@ class ListProblem:
         msg = [
             f"The list '{self.root_id}' has the following problem(s):",
         ]
-        msg.extend([f"Field: '{key}', Problem: {value}" for key, value in self.root_problems.items()])
-        msg.extend([problem.execute_error_protocol() for problem in self.node_problems])
+        if self.root_problems:
+            msg.extend([f"Field: '{key}', Problem: {value}" for key, value in self.root_problems.items()])
+        if self.node_problems:
+            msg.extend([problem.execute_error_protocol() for problem in self.node_problems])
         return separator.join(msg)
 
 

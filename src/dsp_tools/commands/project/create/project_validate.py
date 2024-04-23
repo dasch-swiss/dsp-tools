@@ -12,9 +12,9 @@ import jsonpath_ng.ext
 import jsonschema
 import networkx as nx
 import regex
-from termcolor import colored
 
 from dsp_tools.commands.excel2json.lists import expand_lists_from_excel
+from dsp_tools.models.custom_warnings import DspToolsFutureWarning
 from dsp_tools.models.exceptions import BaseError
 
 
@@ -237,7 +237,7 @@ def _check_for_deprecated_isSequenceOf(project_definition: dict[str, Any]) -> bo
             "Deprecation Warning: Your JSON project definition contains deprecated properties. "
             "Support for the following properties will be removed soon: isSequenceOf, hasSequenceBounds"
         )
-        warnings.warn(colored(msg, color="red", attrs=["bold"]), stacklevel=100)
+        warnings.warn(DspToolsFutureWarning(msg))
 
     return True
 

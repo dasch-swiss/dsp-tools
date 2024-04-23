@@ -17,7 +17,7 @@ jobs:
             "^[a-z]+(\\([0-9a-z\\-_, ]+\\))?!?: .+\\(DEV-\\d+(, DEV-\\d+)*\\)$|\
             ^(chore|refactor|style|docs)(\\([0-9a-z\\-_, ]+\\))?!?: .+"
             # see here on how to cope with linebreaks in YAML: https://stackoverflow.com/a/21699210/14414188
-          allowed_prefixes: "fix,refactor,feat,docs,chore,style,test" 
+          allowed_prefixes: "fix,refactor,feat,docs,chore,style,test,deprecated" 
           disallowed_prefixes: "feature,hotfix" 
           prefix_case_sensitive: true 
           min_length: 7 

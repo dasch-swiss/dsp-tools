@@ -218,32 +218,20 @@ def _check_for_deprecated_isSequenceOf(project_definition: dict[str, Any]) -> bo
     ontos = project_definition["project"]["ontologies"]
     isSequenceOf_matches = []
     for index in range(len(ontos)):
-        isSequenceOf_matches.extend(
-            jsonpath_ng.ext.parse(f"$.project.ontologies[{index}].properties[?super[*] == isSequenceOf]").find(
-                project_definition
-            )
-        )
-    isSequenceOf_props = {x.value["name"] for x in isSequenceOf_matches}
+        pth = f"$.project.ontologies[{index}].properties[?super[*] == isSequenceOf]"
+        isSequenceOf_matches.extend(jsonpath_ng.ext.parse(pth).find(project_definition))
 
     hasSequenceBounds_matches = []
     for index in range(len(ontos)):
-        hasSequenceBounds_matches.extend(
-            jsonpath_ng.ext.parse(f"$.project.ontologies[{index}].properties[?super[*] == hasSequenceBounds]").find(
-                project_definition
-            )
-        )
-    hasSequenceBounds_props = {x.value["name"] for x in hasSequenceBounds_matches}
+        pth = f"$.project.ontologies[{index}].properties[?super[*] == hasSequenceBounds]"
+        hasSequenceBounds_matches.extend(jsonpath_ng.ext.parse(pth).find(project_definition))
 
     sequence_resource_matches = []
     for index in range(len(ontos)):
-        sequence_resource_matches.extend(
-            jsonpath_ng.ext.parse(
-                f"$.project.ontologies[{index}].resources[?cardinalities.propname == isSequenceOf]"
-            ).find(project_definition)
-        )
-    sequence_resource_names = {x.value["name"] for x in sequence_resource_matches}
+        pth = f"$.project.ontologies[{index}].resources[?cardinalities.propname == isSequenceOf]"
+        sequence_resource_matches.extend(jsonpath_ng.ext.parse(pth).find(project_definition))
 
-    if any([isSequenceOf_props, hasSequenceBounds_props, sequence_resource_names]):
+    if any([isSequenceOf_matches, hasSequenceBounds_matches, sequence_resource_matches]):
         msg = (
             "Deprecation Warning: Your JSON project definition contains deprecated properties. "
             "Support for the following properties will be removed soon: isSequenceOf, hasSequenceBounds"

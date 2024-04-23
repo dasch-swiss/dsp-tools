@@ -29,7 +29,6 @@
             <text permissions="prop-default" encoding="utf8">Homer</text>
             <text permissions="prop-default" encoding="utf8">Ὅμηρος</text>
             <text permissions="prop-default" encoding="utf8">??</text>
-            <text permissions="prop-default" encoding="utf8">-</text>
         </text-prop>
         <uri-prop name=":hasIdentifier">
             <uri permissions="prop-default">https://en.wiktionary.org/wiki/Ῥόδος</uri>

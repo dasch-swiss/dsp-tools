@@ -17,7 +17,7 @@ from termcolor import colored
 
 from dsp_tools.cli.call_action import call_requested_action
 from dsp_tools.cli.create_parsers import make_parser
-from dsp_tools.models.custom_warnings import DspToolsFutureWarning
+from dsp_tools.models.custom_warnings import DspToolsWarning
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import InternalError
 from dsp_tools.models.exceptions import UserError
@@ -296,8 +296,8 @@ def _initialize_warnings() -> None:
         file: TextIO | None = None,
         line: str | None = None,
     ) -> None:
-        if category == DspToolsFutureWarning:
-            print(message)
+        if issubclass(category, DspToolsWarning):
+            category.showwarning(str(message))
         else:
             warnings.showwarning(message, category, filename, lineno, file, line)
 

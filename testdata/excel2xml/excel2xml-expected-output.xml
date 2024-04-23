@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<knora xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://dasch.swiss/schema https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/data.xsd" shortcode="1234" default-ontology="excel2xml-output">
+<knora xmlns="https://dasch.swiss/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://dasch.swiss/schema ../../src/dsp_tools/resources/schema/data.xsd" shortcode="1234" default-ontology="excel2xml-output">
     <permissions id="res-default">
         <allow group="UnknownUser">V</allow>
         <allow group="KnownUser">V</allow>
@@ -61,7 +61,7 @@
     </resource>
     <annotation label="Annotation to Homer" id="annotation_0" permissions="res-default">
         <text-prop name="hasComment">
-            <text permissions="prop-default" encoding="utf8">This is an annotation to the resource Homer</text>
+            <text permissions="prop-default" encoding="xml">This is an annotation to the resource Homer</text>
         </text-prop>
         <resptr-prop name="isAnnotationOf">
             <resptr permissions="prop-default">person_0</resptr>
@@ -92,8 +92,8 @@
     </resource>
     <region label="Region of img_obj_6" id="region_0" permissions="res-restricted" iri="http://rdfh.ch/4123/54SYvWF0QUW6a">
         <text-prop name="hasComment">
-            <text permissions="prop-restricted" encoding="utf8">This is an annotation to Testthing.</text>
-            <text permissions="prop-restricted" encoding="utf8">Second comment</text>
+            <text permissions="prop-restricted" encoding="xml">This is an annotation to Testthing.</text>
+            <text permissions="prop-restricted" encoding="xml">Second comment</text>
         </text-prop>
         <color-prop name="hasColor">
             <color permissions="prop-restricted">#5d1f1e</color>
@@ -147,7 +147,7 @@
     </resource>
     <link label="Link between person_0 and img_obj_6" id="link_thing_0" permissions="res-default" ark="ark:/72163/4123-31ec6eab334-a.202280">
         <text-prop name="hasComment">
-            <text permissions="prop-default" encoding="utf8">This is a link between Homer and Iliad Prooem</text>
+            <text permissions="prop-default" encoding="xml">This is a link between Homer and Iliad Prooem</text>
         </text-prop>
         <resptr-prop name="hasLinkTo">
             <resptr permissions="prop-default">person_0</resptr>

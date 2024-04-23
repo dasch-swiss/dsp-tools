@@ -72,11 +72,12 @@ class TestListRootCreate:
         }
 
     def test_wrong_language(self) -> None:
-        root = ListRoot.create(id_="str", labels={"ur": "label"}, comments={}, nodes=[])
+        root = ListRoot.create(id_="str", labels={"ur": "label"}, comments={"ur": "comment"}, nodes=[])
         assert isinstance(root, ListProblem)
         assert root.root_id == "str"
         assert root.root_problems == {
             "labels": "Only the following languages are supported: 'en', 'de', 'fr', 'it', 'rm'.",
+            "comments": "Only the following languages are supported: 'en', 'de', 'fr', 'it', 'rm'.",
             "list nodes": "At least one node per list is required.",
         }
 

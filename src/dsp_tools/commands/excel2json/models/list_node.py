@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from dataclasses import field
 from typing import Any
 
 import pandas as pd
@@ -14,7 +15,7 @@ class ListNode:
     id_: str
     labels: dict[str, str]
     row_number: int
-    sub_nodes: list[ListNode]
+    sub_nodes: list[ListNode] = field(default_factory=list)
 
     @classmethod
     def create(
@@ -54,7 +55,7 @@ class ListNode:
 class ListRoot:
     id_: str
     labels: dict[str, str]
-    nodes: list[ListNode]
+    nodes: list[ListNode] = field(default_factory=list)
     comments: dict[str, str] | None = None
 
     @classmethod

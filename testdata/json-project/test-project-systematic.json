@@ -167,12 +167,6 @@
                         "labels": {
                             "en": "Third node of the Test-List"
                         }
-                    },
-                    {
-                        "name": "Special Characters: äè=1 &",
-                        "labels": {
-                            "en": "Special Characters"
-                        }
                     }
                 ]
             },

@@ -38,14 +38,14 @@ class ListNode:
             sub_nodes = []
         return cls(id_=id_, labels=labels, row_number=row_number, sub_nodes=sub_nodes)
 
-    def to_json(self) -> dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         node = self._make_myself()
         if self.sub_nodes:
             node["nodes"] = self._make_subnodes()
         return node
 
     def _make_subnodes(self) -> list[dict[str, Any]]:
-        return [nd.to_json() for nd in self.sub_nodes]
+        return [nd.to_dict() for nd in self.sub_nodes]
 
     def _make_myself(self) -> dict[str, Any]:
         return {"name": self.id_, "labels": self.labels}
@@ -88,13 +88,13 @@ class ListRoot:
             return ListProblem(id_, user_problem)
         return cls(id_=id_, labels=labels, comments=comments, nodes=nodes)
 
-    def to_json(self) -> dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         lst_root = self._make_myself()
         lst_root["nodes"] = self._make_nodes()
         return lst_root
 
     def _make_nodes(self) -> list[dict[str, Any]]:
-        return [nd.to_json() for nd in self.nodes]
+        return [nd.to_dict() for nd in self.nodes]
 
     def _make_myself(self) -> dict[str, Any]:
         lst = {"name": self.id_, "labels": self.labels}

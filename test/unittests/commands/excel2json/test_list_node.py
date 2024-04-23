@@ -56,7 +56,7 @@ class TestListRoot:
                 },
             ],
         }
-        res = root.to_json()
+        res = root.to_dict()
         assert res == expected
 
 
@@ -166,7 +166,7 @@ class TestListNode:
                 },
             ],
         }
-        res = test_nd.to_json()
+        res = test_nd.to_dict()
         assert res == expected
 
 

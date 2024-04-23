@@ -63,6 +63,8 @@ def excel2properties(
 
     _do_property_excel_compliance(df=property_df, excelfile=excelfile)
 
+    _check_for_deprecated_syntax(property_df)
+
     # transform every row into a property
     props = [
         _row2prop(
@@ -81,6 +83,14 @@ def excel2properties(
             print(f"properties section was created successfully and written to file '{path_to_output_file}'")
 
     return props, True
+
+
+def _check_for_deprecated_syntax(df: pd.DataFrame) -> None:
+    if any(x in df["super"] for x in ["isSequenceOf", "hasSequenceBounds"]):
+        warnings.warn(
+            "Deprecation Warning: Your Excel file contains deprecated super-properties. "
+            "Support for the following super-properties will be removed soon: isSequenceOf, hasSequenceBounds"
+        )
 
 
 def _read_check_property_df(excelfile: str) -> pd.DataFrame:
@@ -129,7 +139,6 @@ def _rename_deprecated_hlist(df: pd.DataFrame, excelfile: str) -> pd.DataFrame:
 
 
 def _do_property_excel_compliance(df: pd.DataFrame, excelfile: str) -> None:
-    # If it does not pass any one of the tests, the function stops
     required_columns = {
         "name",
         "super",

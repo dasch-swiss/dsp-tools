@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from dataclasses import field
 from typing import Any
+
+import pandas as pd
 
 from dsp_tools.commands.excel2json.models.input_error import ListNodeProblem
 from dsp_tools.commands.excel2json.models.input_error import ListProblem
@@ -13,21 +14,27 @@ class ListNode:
     id_: str
     labels: dict[str, str]
     row_number: int
-    sub_nodes: list[ListNode] = field(default_factory=list)
+    sub_nodes: list[ListNode]
 
     @classmethod
     def create(
-        cls, id_: str, labels: dict[str, str], row_number: int, sub_nodes: list[ListNode]
+        cls, id_: str, labels: dict[str, str], row_number: int, sub_nodes: list[ListNode] | None = None
     ) -> ListNode | ListNodeProblem:
         user_problem = {}
-        if len(id_) == 0:
-            user_problem["name"] = "The name of the list node does not contain any characters."
+        if pd.isna(id_):
+            user_problem["name"] = "The name of the node may not be empty."
+        elif isinstance(id_, int | float):
+            id_ = str(id_)
+        elif len(id_) == 0:
+            user_problem["name"] = "The name of the node does not contain any characters."
         if not labels:
             user_problem["labels"] = "At least one label per list is required."
         elif not set(labels).issubset({"en", "de", "fr", "it", "rm"}):
             user_problem["labels"] = "Only the following languages are supported: 'en', 'de', 'fr', 'it', 'rm'"
         if user_problem:
             return ListNodeProblem(id_, user_problem)
+        if not sub_nodes:
+            sub_nodes = []
         return cls(id_=id_, labels=labels, row_number=row_number, sub_nodes=sub_nodes)
 
     def to_json(self) -> dict[str, Any]:
@@ -55,11 +62,17 @@ class ListRoot:
         cls,
         id_: str,
         labels: dict[str, str],
-        comments: dict[str, str],
         nodes: list[ListNode],
+        comments: dict[str, str] | None = None,
     ) -> ListRoot | ListProblem:
         user_problem = {}
-        if len(id_) == 0:
+        if pd.isna(id_):
+            user_problem["name"] = "The name of the list may not be empty."
+        elif isinstance(id_, int | float):
+            id_ = str(id_)
+        elif not isinstance(id_, str):
+            user_problem["name"] = "The name of the list is not a string."
+        elif len(id_) == 0:
             user_problem["name"] = "The name of the list does not contain any characters."
         if not labels:
             user_problem["labels"] = "At least one label per list is required."

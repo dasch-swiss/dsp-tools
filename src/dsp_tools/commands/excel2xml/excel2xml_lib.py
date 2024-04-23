@@ -15,6 +15,7 @@ import regex
 from lxml import etree
 from lxml.builder import E
 from regex import Match
+from termcolor import cprint
 
 from dsp_tools.commands.excel2xml.propertyelement import PropertyElement
 from dsp_tools.models.datetimestamp import DateTimeStamp
@@ -1100,7 +1101,8 @@ def make_interval_prop(
     """
 
     if name == "hasSequenceBounds":
-        warnings.warn("Deprecation Warning: Support for the hasSequenceBounds property will be removed soon")
+        msg = "Deprecation Warning: Support for the hasSequenceBounds property will be removed soon"
+        cprint(text=msg, color="red", attrs=["bold"])
 
     # check the input: prepare a list with valid values
     values = prepare_value(value)
@@ -1249,7 +1251,8 @@ def make_resptr_prop(
     """
 
     if name == "isSequenceOf":
-        warnings.warn("Deprecation Warning: Support for the isSequenceOf property will be removed soon")
+        msg = "Deprecation Warning: Support for the isSequenceOf property will be removed soon"
+        cprint(text=msg, color="red", attrs=["bold"])
 
     # check the input: prepare a list with valid values
     values = prepare_value(value)

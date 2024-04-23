@@ -11,6 +11,7 @@ import jsonschema
 import numpy as np
 import pandas as pd
 import regex
+from termcolor import cprint
 
 from dsp_tools.commands.excel2json.models.input_error import InvalidExcelContentProblem
 from dsp_tools.commands.excel2json.models.input_error import JsonValidationPropertyProblem
@@ -86,11 +87,16 @@ def excel2properties(
 
 
 def _check_for_deprecated_syntax(df: pd.DataFrame) -> None:
-    if any(x in df["super"] for x in ["isSequenceOf", "hasSequenceBounds"]):
-        warnings.warn(
+    _check_for_deprecated_isSequenceOf(df)
+
+
+def _check_for_deprecated_isSequenceOf(df: pd.DataFrame) -> None:
+    if any(x in y for y in list(df["super"]) for x in ["isSequenceOf", "hasSequenceBounds"]):
+        msg = (
             "Deprecation Warning: Your Excel file contains deprecated super-properties. "
             "Support for the following super-properties will be removed soon: isSequenceOf, hasSequenceBounds"
         )
+        cprint(text=msg, color="red", attrs=["bold"])
 
 
 def _read_check_property_df(excelfile: str) -> pd.DataFrame:

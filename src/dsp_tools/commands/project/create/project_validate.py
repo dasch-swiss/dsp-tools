@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import importlib.resources
 import json
-import warnings
 from pathlib import Path
 from typing import Any
 from typing import Union
@@ -12,6 +11,7 @@ import jsonpath_ng.ext
 import jsonschema
 import networkx as nx
 import regex
+from termcolor import cprint
 
 from dsp_tools.commands.excel2json.lists import expand_lists_from_excel
 from dsp_tools.models.exceptions import BaseError
@@ -244,10 +244,11 @@ def _check_for_deprecated_isSequenceOf(project_definition: dict[str, Any]) -> bo
     sequence_resource_names = {x.value["name"] for x in sequence_resource_matches}
 
     if any([isSequenceOf_props, hasSequenceBounds_props, sequence_resource_names]):
-        warnings.warn(
+        msg = (
             "Deprecation Warning: Your JSON project definition contains deprecated properties. "
             "Support for the following properties will be removed soon: isSequenceOf, hasSequenceBounds"
         )
+        cprint(text=msg, color="red", attrs=["bold"])
 
     return True
 

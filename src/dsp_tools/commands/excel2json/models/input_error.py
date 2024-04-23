@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from dataclasses import field
 from typing import Any
 from typing import Protocol
 
@@ -239,4 +240,45 @@ class JsonValidationResourceProblem:
             msg.append(f"Original Error Message:{separator}{self.original_msg}")
         if self.message_path:
             msg.append(f"The error occurred at {self.message_path}")
+        return separator.join(msg)
+
+
+@dataclass(frozen=True)
+class ListNodeProblem:
+    node_id: str
+    problems: dict[str, str]
+
+    def execute_error_protocol(self) -> str:
+        msg = [
+            f"The node '{self.node_id}' has the following problem(s):",
+        ]
+        msg.extend([f"Field: '{key}' Problem: {value}" for key, value in self.problems.items()])
+        return list_separator.join(msg)
+
+
+@dataclass
+class ListProblem:
+    root_id: str
+    root_problems: dict[str, str]
+    node_problems: list[ListNodeProblem] = field(default_factory=list)
+
+    def execute_error_protocol(self) -> str:
+        msg = [
+            f"The list '{self.root_id}' has the following problem(s):",
+        ]
+        msg.extend([f"Field: '{key}' Problem: {value}" for key, value in self.root_problems.items()])
+        msg.extend([problem.execute_error_protocol() for problem in self.node_problems])
+        return separator.join(msg)
+
+
+@dataclass(frozen=True)
+class ListExcelProblem:
+    excel_name: str
+    problems: list[ListProblem]
+
+    def execute_error_protocol(self) -> str:
+        msg = [
+            f"The excel '{self.excel_name}' has the following problem(s):",
+        ]
+        msg.extend([problem.execute_error_protocol() for problem in self.problems])
         return separator.join(msg)

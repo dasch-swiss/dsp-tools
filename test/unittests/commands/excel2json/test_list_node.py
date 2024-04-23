@@ -6,10 +6,11 @@ from dsp_tools.commands.excel2json.models.list_node import ListRoot
 
 class TestListRoot:
     def test_make_myself_comments(self) -> None:
+        sub_1 = ListNode(id_="Node_1", labels={"en": "Node_1_label_en"}, row_number=1)
         root = ListRoot(
             id_="RootID",
             labels={"en": "root_label_en", "de": "root_label_de"},
-            nodes=[],
+            nodes=[sub_1],
             comments={"en": "root_comment_en", "de": "root_comment_de"},
         )
         expected = {
@@ -21,10 +22,11 @@ class TestListRoot:
         assert expected == res
 
     def test_make_myself_no_comments(self) -> None:
+        sub_1 = ListNode(id_="Node_1", labels={"en": "Node_1_label_en"}, row_number=1)
         root = ListRoot(
             id_="RootID",
             labels={"en": "root_label_en", "de": "root_label_de"},
-            nodes=[],
+            nodes=[sub_1],
         )
         expected = {"name": "RootID", "labels": {"en": "root_label_en", "de": "root_label_de"}}
         res = root._make_myself()

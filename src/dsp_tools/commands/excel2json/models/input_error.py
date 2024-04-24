@@ -257,14 +257,14 @@ class ListNodeProblem:
 
 
 @dataclass
-class ListProblem:
-    root_id: str
+class ListSheetProblem:
+    sheet_name: str
     root_problems: dict[str, str]
     node_problems: list[ListNodeProblem] = field(default_factory=list)
 
     def execute_error_protocol(self) -> str:
         msg = [
-            f"The list '{self.root_id}' has the following problem(s):",
+            f"The excel sheet '{self.sheet_name}' has the following problem(s):",
         ]
         if self.root_problems:
             msg.extend([f"Field: '{key}', Problem: {value}" for key, value in self.root_problems.items()])
@@ -276,7 +276,7 @@ class ListProblem:
 @dataclass(frozen=True)
 class ListExcelProblem:
     excel_name: str
-    problems: list[ListProblem]
+    problems: list[ListSheetProblem]
 
     def execute_error_protocol(self) -> str:
         msg = [

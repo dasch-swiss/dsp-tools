@@ -2,7 +2,7 @@ import pandas as pd
 import pytest
 
 from dsp_tools.commands.excel2json.models.input_error import ListNodeProblem
-from dsp_tools.commands.excel2json.models.input_error import ListProblem
+from dsp_tools.commands.excel2json.models.input_error import ListSheetProblem
 from dsp_tools.commands.excel2json.models.list_node import ListNode
 from dsp_tools.commands.excel2json.models.list_node import ListRoot
 
@@ -62,9 +62,9 @@ class TestListRoot:
 
 class TestListRootCreate:
     def test_problem(self) -> None:
-        root = ListRoot.create(id_="", labels={}, comments={}, nodes=[])
-        assert isinstance(root, ListProblem)
-        assert root.root_id == ""
+        root = ListRoot.create(id_="", sheet_name="sheet", labels={}, comments={}, nodes=[])
+        assert isinstance(root, ListSheetProblem)
+        assert root.sheet_name == "sheet"
         assert root.root_problems == {
             "name": "The name of the list does not contain any characters.",
             "labels": "At least one label per list is required.",
@@ -72,9 +72,11 @@ class TestListRootCreate:
         }
 
     def test_wrong_language(self) -> None:
-        root = ListRoot.create(id_="str", labels={"ur": "label"}, comments={"ur": "comment"}, nodes=[])
-        assert isinstance(root, ListProblem)
-        assert root.root_id == "str"
+        root = ListRoot.create(
+            id_="str", sheet_name="sheet", labels={"ur": "label"}, comments={"ur": "comment"}, nodes=[]
+        )
+        assert isinstance(root, ListSheetProblem)
+        assert root.sheet_name == "sheet"
         assert root.root_problems == {
             "labels": "Only the following languages are supported: 'en', 'de', 'fr', 'it', 'rm'.",
             "comments": "Only the following languages are supported: 'en', 'de', 'fr', 'it', 'rm'.",
@@ -82,8 +84,8 @@ class TestListRootCreate:
         }
 
     def test_id_na(self) -> None:
-        root = ListRoot.create(id_=pd.NA, labels={}, comments={}, nodes=[])  # type: ignore[arg-type]
-        assert isinstance(root, ListProblem)
+        root = ListRoot.create(id_=pd.NA, sheet_name="sheet", labels={}, comments={}, nodes=[])  # type: ignore[arg-type]
+        assert isinstance(root, ListSheetProblem)
         assert root.root_problems == {
             "name": "The name of the list may not be empty.",
             "labels": "At least one label per list is required.",
@@ -92,7 +94,7 @@ class TestListRootCreate:
 
     def test_float(self) -> None:
         nd = ListNode(id_="NodeID", labels={"en": "node_label_en"}, row_number=1)
-        root = ListRoot.create(id_=1.123, labels={"en": "node_label_en"}, comments={}, nodes=[nd])
+        root = ListRoot.create(id_=1.123, sheet_name="sheet", labels={"en": "node_label_en"}, comments={}, nodes=[nd])
         assert isinstance(root, ListRoot)
         assert root.id_ == "1.123"
         assert root.labels == {"en": "node_label_en"}

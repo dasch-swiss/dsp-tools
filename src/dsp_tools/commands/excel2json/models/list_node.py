@@ -7,7 +7,7 @@ from typing import Any
 import pandas as pd
 
 from dsp_tools.commands.excel2json.models.input_error import ListNodeProblem
-from dsp_tools.commands.excel2json.models.input_error import ListProblem
+from dsp_tools.commands.excel2json.models.input_error import ListSheetProblem
 
 
 @dataclass
@@ -64,8 +64,9 @@ class ListRoot:
         id_: str | int | float,
         labels: dict[str, str],
         nodes: list[ListNode],
+        sheet_name: str,
         comments: dict[str, str] | None = None,
-    ) -> ListRoot | ListProblem:
+    ) -> ListRoot | ListSheetProblem:
         user_problem = {}
         if pd.isna(id_):
             user_problem["name"] = "The name of the list may not be empty."
@@ -85,7 +86,7 @@ class ListRoot:
         if len(nodes) == 0:
             user_problem["list nodes"] = "At least one node per list is required."
         if user_problem:
-            return ListProblem(id_, user_problem)
+            return ListSheetProblem(sheet_name, user_problem)
         return cls(id_=id_, labels=labels, comments=comments, nodes=nodes)
 
     def to_dict(self) -> dict[str, Any]:

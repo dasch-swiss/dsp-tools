@@ -3,7 +3,52 @@ import warnings
 import regex
 from lxml import etree
 
+from dsp_tools.commands.project.create.project_validate import validate_project
 from dsp_tools.commands.xmlupload.read_validate_xml_file import validate_and_parse_xml_file
+
+
+def test_create() -> None:
+    data_model = {
+        "$schema": "../../src/dsp_tools/resources/schema/project.json",
+        "project": {
+            "shortcode": "4123",
+            "shortname": "systematic-tp",
+            "longname": "systematic test project",
+            "descriptions": {
+                "en": "A systematic test project",
+            },
+            "keywords": ["testing"],
+            "ontologies": [
+                {
+                    "name": "testonto",
+                    "label": "Test ontology",
+                    "comment": "This is the main ontology of this project. Further down, another one is defined.",
+                    "properties": [
+                        {
+                            "name": "hasBounds",
+                            "super": ["hasSequenceBounds"],
+                            "object": "IntervalValue",
+                            "labels": {"en": "Interval defining the start and end point of the sequence"},
+                            "gui_element": "Interval",
+                        },
+                    ],
+                    "resources": [
+                        {
+                            "name": "resource1",
+                            "super": "Resource",
+                            "labels": {"en": "resource1"},
+                            "cardinalities": [{"propname": ":hasBounds", "cardinality": "1"}],
+                        }
+                    ],
+                },
+            ],
+        },
+    }
+
+    with warnings.catch_warnings(record=True) as captured_warnings:
+        validate_project(data_model, False)
+    expected_warning = "Support for the following properties will be removed soon: isSequenceOf, hasSequenceBounds"
+    assert any(regex.search(expected_warning, x) for x in [str(x.message) for x in captured_warnings])
 
 
 def test_xmlupload() -> None:

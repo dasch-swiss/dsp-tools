@@ -105,10 +105,9 @@ def xmlupload(
 
     project_client: ProjectClient = ProjectClientLive(con, config.shortcode)
     list_client: ListClient = ListClientLive(con, project_client.get_project_iri())
-    iri_resolver = IriResolver()
-    upload_state = UploadState(resources, [], iri_resolver.lookup, stash, config, permissions_lookup)
+    upload_state = UploadState(resources, [], IriResolver(), stash, config, permissions_lookup)
 
-    iri_resolver, failed_uploads, nonapplied_stash = upload_resources(
+    nonapplied_stash = upload_resources(
         upload_state=upload_state,
         imgdir=imgdir,
         sipi_server=sipi_server,
@@ -116,7 +115,7 @@ def xmlupload(
         list_client=list_client,
     )
 
-    return cleanup_upload(iri_resolver, config, failed_uploads, nonapplied_stash)
+    return cleanup_upload(upload_state.iri_resolver, config, upload_state.failed_uploads, nonapplied_stash)
 
 
 def cleanup_upload(
@@ -185,7 +184,7 @@ def upload_resources(
     sipi_server: Sipi,
     project_client: ProjectClient,
     list_client: ListClient,
-) -> tuple[IriResolver, list[str], Stash | None]:
+) -> Stash | None:
     """
     Actual upload of all resources to DSP.
 
@@ -202,7 +201,7 @@ def upload_resources(
         and the stash items that could not be reapplied.
     """
     try:
-        iri_resolver, failed_uploads = _upload_resources(
+        _upload_resources(
             upload_state=upload_state,
             imgdir=imgdir,
             sipi_server=sipi_server,
@@ -219,7 +218,7 @@ def upload_resources(
         nonapplied_stash = (
             _upload_stash(
                 stash=upload_state.pending_stash,
-                iri_resolver=iri_resolver,
+                iri_resolver=upload_state.iri_resolver,
                 project_client=project_client,
             )
             if upload_state.pending_stash
@@ -229,7 +228,7 @@ def upload_resources(
         # The forseeable errors are already handled by failed_uploads and nonapplied_stash.
         # Here we catch the unforseeable exceptions, incl. keyboard interrupt.
         _handle_upload_error(err, upload_state)
-    return iri_resolver, failed_uploads, nonapplied_stash
+    return nonapplied_stash
 
 
 def _get_data_from_xml(
@@ -308,7 +307,7 @@ def _upload_resources(
     sipi_server: Sipi,
     project_client: ProjectClient,
     list_client: ListClient,
-) -> tuple[IriResolver, list[str]]:
+) -> None:
     """
     Iterates through all resources and tries to upload them to DSP.
     If a temporary exception occurs, the action is repeated until success,
@@ -324,9 +323,6 @@ def _upload_resources(
     Raises:
         BaseException: in case of an unhandled exception during resource creation
         XmlUploadInterruptedError: if the number of resources created is equal to the interrupt_after value
-
-    Returns:
-        id2iri_mapping, failed_uploads
     """
     project_iri = project_client.get_project_iri()
     json_ld_context = get_json_ld_context_for_project(project_client.get_ontology_name_dict())
@@ -335,14 +331,14 @@ def _upload_resources(
     resource_create_client = ResourceCreateClient(
         con=project_client.con,
         project_iri=project_iri,
-        iri_resolver=IriResolver(upload_state.iri_resolver_lookup),
+        iri_resolver=upload_state.iri_resolver,
         json_ld_context=json_ld_context,
         permissions_lookup=upload_state.permissions_lookup,
         listnode_lookup=listnode_lookup,
         media_previously_ingested=upload_state.config.media_previously_uploaded,
     )
 
-    previous_successful = len(upload_state.iri_resolver_lookup)
+    previous_successful = len(upload_state.iri_resolver.lookup)
     previous_failed = len(upload_state.failed_uploads)
     previous_total = previous_successful + previous_failed
 
@@ -353,10 +349,8 @@ def _upload_resources(
             imgdir=imgdir,
             sipi_server=sipi_server,
             resource_create_client=resource_create_client,
-            iri_resolver=IriResolver(upload_state.iri_resolver_lookup),
             previous_total=previous_total,
         )
-    return IriResolver(upload_state.iri_resolver_lookup), upload_state.failed_uploads
 
 
 def _upload_one_resource(
@@ -365,7 +359,6 @@ def _upload_one_resource(
     imgdir: str,
     sipi_server: Sipi,
     resource_create_client: ResourceCreateClient,
-    iri_resolver: IriResolver,
     previous_total: int,
 ) -> None:
     current_res, total_res = _compute_counter_info_and_interrupt(upload_state, previous_total, resource)
@@ -391,15 +384,15 @@ def _upload_one_resource(
         raise XmlUploadInterruptedError(msg) from None
 
     try:
-        _tidy_up_resource_creation_idempotent(upload_state, result, resource, iri_resolver, current_res, total_res)
+        _tidy_up_resource_creation_idempotent(upload_state, result, resource, current_res, total_res)
     except KeyboardInterrupt:
-        _tidy_up_resource_creation_idempotent(upload_state, result, resource, iri_resolver, current_res, total_res)
+        _tidy_up_resource_creation_idempotent(upload_state, result, resource, current_res, total_res)
 
 
 def _compute_counter_info_and_interrupt(
     upload_state: UploadState, previous_total: int, resource: XMLResource
 ) -> tuple[int, int]:
-    total_res = len(upload_state.pending_resources) + len(upload_state.iri_resolver_lookup)
+    total_res = len(upload_state.pending_resources) + len(upload_state.iri_resolver.lookup)
     counter = upload_state.pending_resources.index(resource)
     current_res = counter + 1 + previous_total
     # if the interrupt_after value is not set, the upload will not be interrupted
@@ -415,14 +408,13 @@ def _tidy_up_resource_creation_idempotent(
     upload_state: UploadState,
     result: tuple[str, str] | tuple[None, None],
     resource: XMLResource,
-    iri_resolver: IriResolver,
     current_res: int,
     total_res: int,
 ) -> None:
     iri, label = result
     if iri and label:
         # resource creation succeeded: update the iri_resolver
-        iri_resolver.update(resource.res_id, iri)
+        upload_state.iri_resolver.lookup[resource.res_id] = iri
         msg = f"Created resource {current_res}/{total_res}: '{label}' (ID: '{resource.res_id}', IRI: '{iri}')"
         print(f"{datetime.now()}: {msg}")
         logger.info(msg)

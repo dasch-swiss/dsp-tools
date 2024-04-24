@@ -139,7 +139,7 @@ class InvalidTextValueEncodings:
             the error message and a dataframe with the errors if they exceed the maximum allowed print statements
         """
         base_msg = (
-            "\nSome text encodings used in the XML data file is not conform with the gui_element "
+            "\nSome text encodings used in the XML data file are not conform with the gui_element "
             "specified in the JSON ontology.\n"
             "Please consult the ontology regarding the assigned gui_elements."
         )

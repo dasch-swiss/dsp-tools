@@ -17,7 +17,7 @@ class TestListRoot:
             "labels": {"en": "root_label_en", "de": "root_label_de"},
             "comments": {"en": "root_comment_en", "de": "root_comment_de"},
         }
-        res = root._make_myself()
+        res = root._make_list_root()
         assert expected == res
 
     def test_make_myself_no_comments(self) -> None:
@@ -27,13 +27,13 @@ class TestListRoot:
             [],
         )
         expected = {"name": "RootID", "labels": {"en": "root_label_en", "de": "root_label_de"}}
-        res = root._make_myself()
+        res = root._make_list_root()
         assert expected == res
 
     def test_to_json(self) -> None:
-        sub_1 = ListNode("Node_1", {"en": "Node_1_label_en"})
-        sub_21 = ListNode("SubNode_21", {"en": "SubNode_21_label_en"})
-        sub_2 = ListNode("Node_2", {"en": "Node_2_label_en"}, [sub_21])
+        sub_1 = ListNode("Node_1", {"en": "Node_1_label_en"}, 1)
+        sub_21 = ListNode("SubNode_21", {"en": "SubNode_21_label_en"}, 21)
+        sub_2 = ListNode("Node_2", {"en": "Node_2_label_en"}, 2, [sub_21])
         root = ListRoot(
             "RootID",
             {"en": "root_label_en", "de": "root_label_de"},
@@ -51,22 +51,22 @@ class TestListRoot:
                 },
             ],
         }
-        res = root.to_json()
+        res = root.to_dict()
         assert res == expected
 
 
 class TestListNode:
     def test_make_myself(self) -> None:
-        nd = ListNode("NodeID", {"en": "node_label_en"})
+        nd = ListNode("NodeID", {"en": "node_label_en"}, 1)
         expected = {"name": "NodeID", "labels": {"en": "node_label_en"}}
-        res = nd._make_myself()
+        res = nd._make_own_node()
         assert res == expected
 
     def test_to_json(self) -> None:
-        sub_1 = ListNode("SubNode_1", {"en": "SubNode_1_label_en"})
-        sub_21 = ListNode("SubNode_21", {"en": "SubNode_21_label_en"})
-        sub_2 = ListNode("SubNode_2", {"en": "SubNode_2_label_en"}, [sub_21])
-        test_nd = ListNode("NodeID", {"en": "node_label_en"}, [sub_1, sub_2])
+        sub_1 = ListNode("SubNode_1", {"en": "SubNode_1_label_en"}, 1)
+        sub_21 = ListNode("SubNode_21", {"en": "SubNode_21_label_en"}, 21)
+        sub_2 = ListNode("SubNode_2", {"en": "SubNode_2_label_en"}, 2, [sub_21])
+        test_nd = ListNode("NodeID", {"en": "node_label_en"}, 0, [sub_1, sub_2])
 
         expected = {
             "name": "NodeID",
@@ -80,7 +80,7 @@ class TestListNode:
                 },
             ],
         }
-        res = test_nd.to_json()
+        res = test_nd.to_dict()
         assert res == expected
 
 

@@ -37,7 +37,6 @@ rustworkx = "^0.14.2"
 termcolor = "^2.4.0"
 packaging = "^24.0"
 loguru = "^0.7.2"
-pydantic = "^2.7.0"
 
 
 [tool.poetry.group.dev.dependencies]

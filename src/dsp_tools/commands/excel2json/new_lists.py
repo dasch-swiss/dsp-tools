@@ -4,7 +4,7 @@ import regex
 from dsp_tools.models.exceptions import InputError
 
 
-def _get_preferred_language_for_id(columns: pd.Series) -> str:
+def _get_preferred_language_for_id(columns: pd.Series[str]) -> str:
     match = [res.group(1) for x in columns if (res := regex.search(r"^(en|de|fr|it|rm)_\d+$", x))]
     if "en" in match:
         return "en"

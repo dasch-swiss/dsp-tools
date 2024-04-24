@@ -213,16 +213,13 @@ def upload_resources(
         # Here we catch the unforseeable exceptions, incl. keyboard interrupt.
         _handle_upload_error(err, upload_state)
 
-    nonapplied_stash = None
+    if not upload_state.pending_stash:
+        return None
     try:
-        nonapplied_stash = (
-            _upload_stash(
-                stash=upload_state.pending_stash,
-                iri_resolver=upload_state.iri_resolver,
-                project_client=project_client,
-            )
-            if upload_state.pending_stash
-            else None
+        nonapplied_stash = _upload_stash(
+            stash=upload_state.pending_stash,
+            iri_resolver=upload_state.iri_resolver,
+            project_client=project_client,
         )
     except BaseException as err:  # noqa: BLE001 (blind-except)
         # The forseeable errors are already handled by failed_uploads and nonapplied_stash.

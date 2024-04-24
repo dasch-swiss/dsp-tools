@@ -6,7 +6,6 @@ from dataclasses import replace
 from loguru import logger
 from termcolor import colored
 
-from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.list_client import ListClient
 from dsp_tools.commands.xmlupload.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.models.sipi import Sipi
@@ -73,17 +72,11 @@ def resume_xmlupload(server: str, user: str, password: str, sipi: str, skip_firs
     list_client: ListClient = ListClientLive(con, project_client.get_project_iri())
 
     iri_resolver, failed_uploads, nonapplied_stash = upload_resources(
-        resources=upload_state.pending_resources,
-        failed_uploads=upload_state.failed_uploads,
+        upload_state=upload_state,
         imgdir=".",
         sipi_server=sipi_server,
-        permissions_lookup=upload_state.permissions_lookup,
-        con=con,
-        stash=upload_state.pending_stash,
-        config=upload_state.config,
         project_client=project_client,
         list_client=list_client,
-        iri_resolver=IriResolver(upload_state.iri_resolver_lookup),
     )
 
     return cleanup_upload(iri_resolver, upload_state.config, failed_uploads, nonapplied_stash)

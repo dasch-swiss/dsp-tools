@@ -112,11 +112,8 @@ def xmlupload(
         upload_state=upload_state,
         imgdir=imgdir,
         sipi_server=sipi_server,
-        con=con,
-        stash=stash,
         project_client=project_client,
         list_client=list_client,
-        iri_resolver=iri_resolver,
     )
 
     return cleanup_upload(iri_resolver, config, failed_uploads, nonapplied_stash)
@@ -186,11 +183,8 @@ def upload_resources(
     upload_state: UploadState,
     imgdir: str,
     sipi_server: Sipi,
-    con: Connection,
-    stash: Stash | None,
     project_client: ProjectClient,
     list_client: ListClient,
-    iri_resolver: IriResolver,
 ) -> tuple[IriResolver, list[str], Stash | None]:
     """
     Actual upload of all resources to DSP.
@@ -199,11 +193,8 @@ def upload_resources(
         upload_state: the current state of the upload
         imgdir: folder containing the multimedia files
         sipi_server: Sipi instance
-        con: connection to the DSP server
-        stash: an object that contains all stashed links that could not be reapplied to their resources
         project_client: a client for HTTP communication with the DSP-API
         list_client: a client for HTTP communication with the DSP-API
-        iri_resolver: mapping from internal IDs to IRIs
 
     Returns:
         the id2iri mapping of the uploaded resources,
@@ -217,7 +208,6 @@ def upload_resources(
             sipi_server=sipi_server,
             project_client=project_client,
             list_client=list_client,
-            iri_resolver=iri_resolver,
         )
     except BaseException as err:  # noqa: BLE001 (blind-except)
         # The forseeable errors are already handled by failed_uploads
@@ -228,12 +218,11 @@ def upload_resources(
     try:
         nonapplied_stash = (
             _upload_stash(
-                stash=stash,
+                stash=upload_state.pending_stash,
                 iri_resolver=iri_resolver,
-                con=con,
                 project_client=project_client,
             )
-            if stash
+            if upload_state.pending_stash
             else None
         )
     except BaseException as err:  # noqa: BLE001 (blind-except)
@@ -258,13 +247,12 @@ def _get_data_from_xml(
 def _upload_stash(
     stash: Stash,
     iri_resolver: IriResolver,
-    con: Connection,
     project_client: ProjectClient,
 ) -> Stash | None:
     if stash.standoff_stash:
         nonapplied_standoff = upload_stashed_xml_texts(
             iri_resolver=iri_resolver,
-            con=con,
+            con=project_client.con,
             stashed_xml_texts=stash.standoff_stash,
         )
     else:
@@ -273,7 +261,7 @@ def _upload_stash(
     if stash.link_value_stash:
         nonapplied_resptr_props = upload_stashed_resptr_props(
             iri_resolver=iri_resolver,
-            con=con,
+            con=project_client.con,
             stashed_resptr_props=stash.link_value_stash,
             context=context,
         )
@@ -320,7 +308,6 @@ def _upload_resources(
     sipi_server: Sipi,
     project_client: ProjectClient,
     list_client: ListClient,
-    iri_resolver: IriResolver,
 ) -> tuple[IriResolver, list[str]]:
     """
     Iterates through all resources and tries to upload them to DSP.
@@ -333,7 +320,6 @@ def _upload_resources(
         sipi_server: Sipi instance
         project_client: a client for HTTP communication with the DSP-API
         list_client: a client for HTTP communication with the DSP-API
-        iri_resolver: mapping from internal IDs to IRIs
 
     Raises:
         BaseException: in case of an unhandled exception during resource creation
@@ -349,14 +335,14 @@ def _upload_resources(
     resource_create_client = ResourceCreateClient(
         con=project_client.con,
         project_iri=project_iri,
-        iri_resolver=iri_resolver,
+        iri_resolver=IriResolver(upload_state.iri_resolver_lookup),
         json_ld_context=json_ld_context,
         permissions_lookup=upload_state.permissions_lookup,
         listnode_lookup=listnode_lookup,
         media_previously_ingested=upload_state.config.media_previously_uploaded,
     )
 
-    previous_successful = len(iri_resolver.lookup)
+    previous_successful = len(upload_state.iri_resolver_lookup)
     previous_failed = len(upload_state.failed_uploads)
     previous_total = previous_successful + previous_failed
 
@@ -367,10 +353,10 @@ def _upload_resources(
             imgdir=imgdir,
             sipi_server=sipi_server,
             resource_create_client=resource_create_client,
-            iri_resolver=iri_resolver,
+            iri_resolver=IriResolver(upload_state.iri_resolver_lookup),
             previous_total=previous_total,
         )
-    return iri_resolver, upload_state.failed_uploads
+    return IriResolver(upload_state.iri_resolver_lookup), upload_state.failed_uploads
 
 
 def _upload_one_resource(

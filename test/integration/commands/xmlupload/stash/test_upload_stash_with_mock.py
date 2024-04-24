@@ -53,12 +53,13 @@ class ConnectionMock(ConnectionMockBase):
         return self.put_responses.pop(0)
 
 
+@dataclass
 class ProjectClientStub:
     """Stub class for ProjectClient."""
 
-    con: Connection = ConnectionMock(post_responses=[{}])
-    shortcode: str = "1234"
-    project_info: ProjectInfo | None = None
+    con: Connection
+    shortcode: str
+    project_info: ProjectInfo | None
 
     def get_project_iri(self) -> str:
         raise NotImplementedError("get_project_iri not implemented")
@@ -91,12 +92,10 @@ class TestUploadLinkValueStashes:
                 "002": "http://www.rdfh.ch/0001/002",
             }
         )
-        con: Connection = ConnectionMock(post_responses=[{}])
         nonapplied = _upload_stash(
             stash=stash,
             iri_resolver=iri_resolver,
-            con=con,
-            project_client=ProjectClientStub(),
+            project_client=ProjectClientStub(ConnectionMock(post_responses=[{}]), "1234", None),
         )
         assert nonapplied is None
 
@@ -144,8 +143,7 @@ class TestUploadTextValueStashes:
         nonapplied = _upload_stash(
             stash=stash,
             iri_resolver=iri_resolver,
-            con=con,
-            project_client=ProjectClientStub(),
+            project_client=ProjectClientStub(con, "1234", None),
         )
         assert nonapplied is None
 
@@ -190,7 +188,6 @@ class TestUploadTextValueStashes:
         nonapplied = _upload_stash(
             stash=stash,
             iri_resolver=iri_resolver,
-            con=con,
-            project_client=ProjectClientStub(),
+            project_client=ProjectClientStub(con, "1234", None),
         )
         assert nonapplied == stash

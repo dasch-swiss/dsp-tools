@@ -1,15 +1,23 @@
 import pandas as pd
+import regex
 
-from dsp_tools.commands.excel2json.models.list_node import ListNode
-from dsp_tools.utils.shared import simplify_name
-
-
-def _make_single_node(node_series: pd.Series[str], depth_number: int) -> ListNode:
-    cols = [x for x in node_series.index if x.endswith(f"_{depth_number}")]
-    labels = {x.rstrip(f"_{depth_number}"): node_series[x] for x in cols}
-    return ListNode(node_series["ID (optional)"], labels)
+from dsp_tools.models.exceptions import InputError
 
 
-def _fill_ids(df: pd.DataFrame) -> pd.DataFrame:
-    df["ID (optional)"] = df["ID (optional)"].fillna(df["en"].apply(simplify_name))
-    return df
+def _get_preferred_language_for_id(columns: pd.Series) -> str:
+    match = [res.group(1) for x in columns if (res := regex.search(r"^(en|de|fr|it|rm)_\d+$", x))]
+    if "en" in match:
+        return "en"
+    elif "de" in match:
+        return "de"
+    elif "fr" in match:
+        return "fr"
+    elif "it" in match:
+        return "it"
+    elif "rm" in match:
+        return "rm"
+    msg = (
+        f"The columns may only contain the languages: 'en', 'de', 'fr', 'it', 'rm'.\n"
+        f"The columns are: {" ".join(columns)}"
+    )
+    raise InputError(msg)

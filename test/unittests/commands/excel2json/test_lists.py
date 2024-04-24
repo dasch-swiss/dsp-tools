@@ -1,41 +1,39 @@
 import pandas as pd
 import pytest
-from pandas.testing import assert_frame_equal
+import regex
 
-from dsp_tools.commands.excel2json.new_lists import _fill_ids
-from dsp_tools.commands.excel2json.new_lists import _make_single_node
-
-
-def test_make_single_node() -> None:
-    test_series = pd.Series(
-        {
-            "ID (optional)": "id",
-            "en_1": "en_1_lbl",
-            "de_1": "de_1_lbl",
-            "en_2": "en_2_lbl",
-            "de_2": "de_2_lbl",
-        }
-    )
-    res = _make_single_node(test_series, 1)
-    assert res._id == "id"
-    assert res.labels == {"en": "en_1_lbl", "de": "de_1_lbl"}
+from dsp_tools.commands.excel2json.new_lists import _get_preferred_language_for_id
+from dsp_tools.models.exceptions import InputError
 
 
-def test_fill_ids() -> None:
-    test_df = pd.DataFrame(
-        {
-            "ID (optional)": ["id1", pd.NA, "id3"],
-            "en": ["en1", "en2", "en3"],
-        }
-    )
-    expected = pd.DataFrame(
-        {
-            "ID (optional)": ["id1", "en2", "id3"],
-            "en": ["en1", "en2", "en3"],
-        }
-    )
-    res = _fill_ids(test_df)
-    assert_frame_equal(res, expected)
+class TestGetPreferredLanguageForId:
+    def test_get_preferred_language_for_id_en(self) -> None:
+        columns = pd.Series(["en_1", "de_2", "fr_3", "it_4", "rm_5"])
+        assert _get_preferred_language_for_id(columns) == "en"
+
+    def test_get_preferred_language_for_id_de(self) -> None:
+        columns = pd.Series(["de_1", "fr_2", "it_3", "rm_4"])
+        assert _get_preferred_language_for_id(columns) == "de"
+
+    def test_get_preferred_language_for_id_fr(self) -> None:
+        columns = pd.Series(["fr_1", "it_2", "rm_3"])
+        assert _get_preferred_language_for_id(columns) == "fr"
+
+    def test_get_preferred_language_for_id_it(self) -> None:
+        columns = pd.Series(["it_1", "rm_2"])
+        assert _get_preferred_language_for_id(columns) == "it"
+
+    def test_get_preferred_language_for_id_rm(self) -> None:
+        columns = pd.Series(["rm_1"])
+        assert _get_preferred_language_for_id(columns) == "rm"
+
+    def test_get_preferred_language_for_id_raises(self) -> None:
+        columns = pd.Series(["es_6"])
+        msg = regex.escape(
+            "The columns may only contain the languages: 'en', 'de', 'fr', 'it', 'rm'.\n" "The columns are: es_6"
+        )
+        with pytest.raises(InputError, match=msg):
+            _get_preferred_language_for_id(columns)
 
 
 if __name__ == "__main__":

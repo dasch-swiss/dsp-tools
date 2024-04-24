@@ -8,9 +8,26 @@ from dsp_tools.commands.excel2json.models.list_node import ListNode
 from dsp_tools.models.exceptions import InputError
 
 
+def _handle_ids(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
+    df = _fill_id_column(df, preferred_language)
+    df = _fill_parent_id(df, preferred_language)
+    return df
+
+
 def _fill_id_column(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
+    df["auto_id"] = pd.NA
+    if not df["ID (optional)"].isna().any():
+        return df
     if pd.isna(df.at[0, "ID (optional)"]):
-        df.loc[0, "ID (optional)"] = df.at[0, f"{preferred_language}_list"]
+        df.at[0, "auto_id"] = df.at[0, f"{preferred_language}_list"]
+    columns = sorted(_get_columns_preferred_lang(df.columns, preferred_language), reverse=True)
+    for i, row in df.iterrows():
+        if pd.isna(row["ID (optional)"]):
+            for col in columns:
+                if pd.notna(row[col]):
+                    df.at[i, "auto_id"] = row[col]
+                    break
+    return df
 
 
 def _fill_parent_id(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:

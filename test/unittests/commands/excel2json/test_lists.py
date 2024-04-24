@@ -1,7 +1,9 @@
 import pandas as pd
 import pytest
 import regex
+from pandas.testing import assert_frame_equal
 
+from dsp_tools.commands.excel2json.new_lists import _fill_id_column
 from dsp_tools.commands.excel2json.new_lists import _fill_parent_id
 from dsp_tools.commands.excel2json.new_lists import _get_all_languages_for_columns
 from dsp_tools.commands.excel2json.new_lists import _get_columns_preferred_lang
@@ -11,6 +13,46 @@ from dsp_tools.commands.excel2json.new_lists import _get_preferred_language
 from dsp_tools.commands.excel2json.new_lists import _get_remaining_column_nums
 from dsp_tools.commands.excel2json.new_lists import _make_one_node
 from dsp_tools.models.exceptions import InputError
+
+
+class TestFillIdColumn:
+    def test_to_fill(self) -> None:
+        test_df = pd.DataFrame(
+            {
+                "ID (optional)": [pd.NA, "1", pd.NA, "3", pd.NA, pd.NA, pd.NA, pd.NA],
+                "en_list": ["list_en", "list_en", "list_en", "list_en", "list_en", "list_en", "list_en", "list_en"],
+                "en_1": [pd.NA, "nd_en_1", "nd_en_2", "nd_en_3", "nd_en_3", "nd_en_3", "nd_en_3", "nd_en_3"],
+                "en_2": [pd.NA, pd.NA, pd.NA, pd.NA, "nd_en_3.1", "nd_en_3.2", "nd_en_3.2", "nd_en_3.2"],
+                "en_3": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, "nd_en_3.2.1", "nd_en_3.2.2"],
+            }
+        )
+        expected = [
+            "list_en",
+            pd.NA,
+            "nd_en_2",
+            pd.NA,
+            "nd_en_3.1",
+            "nd_en_3.2",
+            "nd_en_3.2.1",
+            "nd_en_3.2.2",
+        ]
+        res = _fill_id_column(test_df, "en")
+        assert res["auto_id"].to_list() == expected
+
+    def test_nothing_to_fill(self) -> None:
+        test_df = pd.DataFrame(
+            {
+                "ID (optional)": ["list_en", "1", "2", "3", "3.1", "3.2", "3.2.1", "3.2.2"],
+            }
+        )
+        expected = pd.DataFrame(
+            {
+                "ID (optional)": ["list_en", "1", "2", "3", "3.1", "3.2", "3.2.1", "3.2.2"],
+                "auto_id": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
+            }
+        )
+        res = _fill_id_column(test_df, "en")
+        assert_frame_equal(res, expected)
 
 
 def test_fill_parent_id() -> None:

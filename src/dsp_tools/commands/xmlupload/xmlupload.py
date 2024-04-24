@@ -196,9 +196,7 @@ def upload_resources(
         list_client: a client for HTTP communication with the DSP-API
 
     Returns:
-        the id2iri mapping of the uploaded resources,
-        a list of resources that could not be uploaded,
-        and the stash items that could not be reapplied.
+        the stash items that could not be reapplied.
     """
     try:
         _upload_resources(

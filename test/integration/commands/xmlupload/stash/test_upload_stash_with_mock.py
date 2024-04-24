@@ -20,6 +20,27 @@ from dsp_tools.utils.connection import Connection
 
 
 @dataclass
+class ProjectClientStub:
+    """Stub class for ProjectClient."""
+
+    con: Connection
+    shortcode: str
+    project_info: ProjectInfo | None
+
+    def get_project_iri(self) -> str:
+        raise NotImplementedError("get_project_iri not implemented")
+
+    def get_ontology_iris(self) -> list[str]:
+        raise NotImplementedError("get_project_iri not implemented")
+
+    def get_ontology_name_dict(self) -> dict[str, str]:
+        return {}
+
+    def get_ontology_iri_dict(self) -> dict[str, str]:
+        raise NotImplementedError("get_project_iri not implemented")
+
+
+@dataclass
 class ConnectionMock(ConnectionMockBase):
     """Mock class for Connection."""
 
@@ -51,27 +72,6 @@ class ConnectionMock(ConnectionMockBase):
         headers: dict[str, str] | None = None,
     ) -> dict[str, Any]:
         return self.put_responses.pop(0)
-
-
-@dataclass
-class ProjectClientStub:
-    """Stub class for ProjectClient."""
-
-    con: Connection
-    shortcode: str
-    project_info: ProjectInfo | None
-
-    def get_project_iri(self) -> str:
-        raise NotImplementedError("get_project_iri not implemented")
-
-    def get_ontology_iris(self) -> list[str]:
-        raise NotImplementedError("get_project_iri not implemented")
-
-    def get_ontology_name_dict(self) -> dict[str, str]:
-        return {}
-
-    def get_ontology_iri_dict(self) -> dict[str, str]:
-        raise NotImplementedError("get_project_iri not implemented")
 
 
 class TestUploadLinkValueStashes:

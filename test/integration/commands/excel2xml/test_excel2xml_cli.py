@@ -17,19 +17,31 @@ def expected_output() -> str:
 
 class TestDifferentExtensions:
     def test_xlsx(self, expected_output: str) -> None:
-        excel2xml_cli.excel2xml("testdata/excel2xml/excel2xml-testdata.xlsx", "1234", "excel2xml-output")
+        success, problems = excel2xml_cli.excel2xml(
+            "testdata/excel2xml/excel2xml-testdata.xlsx", "1234", "excel2xml-output"
+        )
+        assert success
+        assert not problems
         returned = Path("excel2xml-output-data.xml")
         assert returned.read_text() == expected_output
         returned.unlink(missing_ok=True)
 
     def test_xls(self, expected_output: str) -> None:
-        excel2xml_cli.excel2xml("testdata/excel2xml/excel2xml-testdata.xls", "1234", "excel2xml-output")
+        success, problems = excel2xml_cli.excel2xml(
+            "testdata/excel2xml/excel2xml-testdata.xls", "1234", "excel2xml-output"
+        )
+        assert success
+        assert not problems
         returned = Path("excel2xml-output-data.xml")
         assert returned.read_text() == expected_output
         returned.unlink(missing_ok=True)
 
     def test_csv(self, expected_output: str) -> None:
-        excel2xml_cli.excel2xml("testdata/excel2xml/excel2xml-testdata.csv", "1234", "excel2xml-output")
+        success, problems = excel2xml_cli.excel2xml(
+            "testdata/excel2xml/excel2xml-testdata.csv", "1234", "excel2xml-output"
+        )
+        assert success
+        assert not problems
         returned = Path("excel2xml-output-data.xml")
         assert returned.read_text() == expected_output
         returned.unlink(missing_ok=True)

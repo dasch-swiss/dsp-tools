@@ -208,24 +208,18 @@ def upload_resources(
             project_client=project_client,
             list_client=list_client,
         )
-    except BaseException as err:  # noqa: BLE001 (blind-except)
-        # The forseeable errors are already handled by failed_uploads
-        # Here we catch the unforseeable exceptions, incl. keyboard interrupt.
-        _handle_upload_error(err, upload_state)
-
-    if not upload_state.pending_stash:
-        return None
-    try:
-        nonapplied_stash = _upload_stash(
+        if not upload_state.pending_stash:
+            return None
+        return _upload_stash(
             stash=upload_state.pending_stash,
             iri_resolver=upload_state.iri_resolver,
             project_client=project_client,
         )
     except BaseException as err:  # noqa: BLE001 (blind-except)
-        # The forseeable errors are already handled by failed_uploads and nonapplied_stash.
+        # The forseeable errors are already handled by failed_uploads
         # Here we catch the unforseeable exceptions, incl. keyboard interrupt.
         _handle_upload_error(err, upload_state)
-    return nonapplied_stash
+        return None
 
 
 def _get_data_from_xml(

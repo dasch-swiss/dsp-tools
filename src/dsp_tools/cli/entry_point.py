@@ -19,6 +19,7 @@ from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import InternalError
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.logger_config import logger_config
+from dsp_tools.utils.warnings_config import initialize_warnings
 
 
 def main() -> None:
@@ -58,6 +59,7 @@ def run(args: list[str]) -> None:
     )
     _check_version()
     _log_cli_arguments(parsed_arguments)
+    initialize_warnings()
 
     try:
         parsed_arguments = _derive_sipi_url(

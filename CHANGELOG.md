@@ -1,5 +1,28 @@
 # Changelog
 
+## [7.1.3](https://github.com/dasch-swiss/dsp-tools/compare/v7.1.2...v7.1.3) (2024-04-24)
+
+
+### Bug Fixes
+
+* allow slashes and semicola in query part of URL (DEV-3480) ([#910](https://github.com/dasch-swiss/dsp-tools/issues/910)) ([af02895](https://github.com/dasch-swiss/dsp-tools/commit/af02895d444340aad8370f4fa3d66882dabbfe77))
+
+
+### Maintenance
+
+* add "Deprecated" section in release notes ([#918](https://github.com/dasch-swiss/dsp-tools/issues/918)) ([8b24372](https://github.com/dasch-swiss/dsp-tools/commit/8b24372bf8ff9559e32350864e2afb7f19ef1ae5))
+* bump start-stack to 2024.04.02 ([#923](https://github.com/dasch-swiss/dsp-tools/issues/923)) ([daacd16](https://github.com/dasch-swiss/dsp-tools/commit/daacd16b5568365e627452e077a9dfb8293f9605))
+* bump versions of pre-commit hooks ([#914](https://github.com/dasch-swiss/dsp-tools/issues/914)) ([7102e94](https://github.com/dasch-swiss/dsp-tools/commit/7102e9463d86020bfc33308f8271b65526e8dacc))
+* **ci:** fix ruff format checking ([#915](https://github.com/dasch-swiss/dsp-tools/issues/915)) ([270dc6f](https://github.com/dasch-swiss/dsp-tools/commit/270dc6f71d7334270364766c3cb1a07b62b68293))
+* **deps:** bump idna from 3.6 to 3.7 ([#912](https://github.com/dasch-swiss/dsp-tools/issues/912)) ([4c7bc29](https://github.com/dasch-swiss/dsp-tools/commit/4c7bc29759cf15aaa1113510fd9cbfbbc836c064))
+* fix excel2xml testdata ([#921](https://github.com/dasch-swiss/dsp-tools/issues/921)) ([1771f5f](https://github.com/dasch-swiss/dsp-tools/commit/1771f5fe3a4a11fde32f174fd90a07162012d062))
+* small fixes in pyproject.toml ([#913](https://github.com/dasch-swiss/dsp-tools/issues/913)) ([ffa6cf3](https://github.com/dasch-swiss/dsp-tools/commit/ffa6cf36b3e437b5785c9cefe81fe9e1b28aa729))
+
+
+### Deprecated
+
+* deprecate isSequenceOf (DEV-3525) ([#920](https://github.com/dasch-swiss/dsp-tools/issues/920)) ([b742ef8](https://github.com/dasch-swiss/dsp-tools/commit/b742ef89441c7591149717dbcb66f6b04b856787))
+
 ## [7.1.2](https://github.com/dasch-swiss/dsp-tools/compare/v7.1.1...v7.1.2) (2024-04-10)
 
 

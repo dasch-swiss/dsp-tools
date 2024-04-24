@@ -21,7 +21,7 @@ class TestListRoot:
             "labels": {"en": "root_label_en", "de": "root_label_de"},
             "comments": {"en": "root_comment_en", "de": "root_comment_de"},
         }
-        res = root._make_myself()
+        res = root._make_list_root()
         assert expected == res
 
     def test_make_myself_no_comments(self) -> None:
@@ -32,7 +32,7 @@ class TestListRoot:
             nodes=[sub_1],
         )
         expected = {"name": "RootID", "labels": {"en": "root_label_en", "de": "root_label_de"}}
-        res = root._make_myself()
+        res = root._make_list_root()
         assert expected == res
 
     def test_to_json(self) -> None:
@@ -145,7 +145,7 @@ class TestListNode:
     def test_make_myself(self) -> None:
         nd = ListNode(id_="NodeID", labels={"en": "node_label_en"}, row_number=1)
         expected = {"name": "NodeID", "labels": {"en": "node_label_en"}}
-        res = nd._make_myself()
+        res = nd._make_own_node()
         assert res == expected
 
     def test_to_json(self) -> None:

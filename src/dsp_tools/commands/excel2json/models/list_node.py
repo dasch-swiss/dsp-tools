@@ -39,7 +39,7 @@ class ListNode:
         return cls(id_=id_, labels=labels, row_number=row_number, sub_nodes=sub_nodes)
 
     def to_dict(self) -> dict[str, Any]:
-        node = self._make_myself()
+        node = self._make_own_node()
         if self.sub_nodes:
             node["nodes"] = self._make_subnodes()
         return node
@@ -47,7 +47,7 @@ class ListNode:
     def _make_subnodes(self) -> list[dict[str, Any]]:
         return [nd.to_dict() for nd in self.sub_nodes]
 
-    def _make_myself(self) -> dict[str, Any]:
+    def _make_own_node(self) -> dict[str, Any]:
         return {"name": self.id_, "labels": self.labels}
 
 
@@ -89,14 +89,14 @@ class ListRoot:
         return cls(id_=id_, labels=labels, comments=comments, nodes=nodes)
 
     def to_dict(self) -> dict[str, Any]:
-        lst_root = self._make_myself()
+        lst_root = self._make_list_root()
         lst_root["nodes"] = self._make_nodes()
         return lst_root
 
     def _make_nodes(self) -> list[dict[str, Any]]:
         return [nd.to_dict() for nd in self.nodes]
 
-    def _make_myself(self) -> dict[str, Any]:
+    def _make_list_root(self) -> dict[str, Any]:
         lst = {"name": self.id_, "labels": self.labels}
         if self.comments:
             lst.update({"comments": self.comments})

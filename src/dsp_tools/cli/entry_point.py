@@ -5,9 +5,7 @@ The code in this file handles the arguments passed by the user from the command 
 import argparse
 import subprocess
 import sys
-import warnings
 from importlib.metadata import version
-from typing import TextIO
 
 import regex
 import requests
@@ -17,11 +15,11 @@ from termcolor import colored
 
 from dsp_tools.cli.call_action import call_requested_action
 from dsp_tools.cli.create_parsers import make_parser
-from dsp_tools.models.custom_warnings import DspToolsWarning
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import InternalError
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.logger_config import logger_config
+from dsp_tools.utils.warnings_config import initialize_warnings
 
 
 def main() -> None:
@@ -61,7 +59,7 @@ def run(args: list[str]) -> None:
     )
     _check_version()
     _log_cli_arguments(parsed_arguments)
-    _initialize_warnings()
+    initialize_warnings()
 
     try:
         parsed_arguments = _derive_sipi_url(
@@ -285,29 +283,6 @@ def _derive_sipi_url(
     parsed_arguments.sipi_url = sipi_url
 
     return parsed_arguments
-
-
-def _initialize_warnings() -> None:
-    """
-    This function makes sure that DSP-TOOLS internal warnings are displayed in their custom way how they specify it.
-    This is done by monkeypatching the behavior of the warnings module, as officially recommended by the Python docs:
-    https://docs.python.org/3/library/warnings.html#warnings.showwarning
-    """
-
-    def _custom_showwarning(
-        message: Warning | str,
-        category: type[Warning],
-        filename: str,
-        lineno: int,
-        file: TextIO | None = None,
-        line: str | None = None,
-    ) -> None:
-        if issubclass(category, DspToolsWarning):
-            category.showwarning(str(message))
-        else:
-            warnings.showwarning(message, category, filename, lineno, file, line)
-
-    warnings.showwarning = _custom_showwarning
 
 
 if __name__ == "__main__":

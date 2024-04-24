@@ -365,7 +365,6 @@ def _upload_resources(
         media_previously_ingested=upload_state.config.media_previously_uploaded,
     )
 
-    total_res = len(upload_state.pending_resources) + len(iri_resolver.lookup)
     previous_successful = len(iri_resolver.lookup)
     previous_failed = len(upload_state.failed_uploads)
     previous_total = previous_successful + previous_failed
@@ -379,7 +378,6 @@ def _upload_resources(
             resource_create_client=resource_create_client,
             iri_resolver=iri_resolver,
             previous_total=previous_total,
-            total_res=total_res,
         )
     return iri_resolver, upload_state.failed_uploads
 
@@ -392,8 +390,8 @@ def _upload_one_resource(
     resource_create_client: ResourceCreateClient,
     iri_resolver: IriResolver,
     previous_total: int,
-    total_res: int,
 ) -> None:
+    total_res = len(upload_state.pending_resources) + len(iri_resolver.lookup)
     counter = upload_state.pending_resources.index(resource)
     current_res = counter + 1 + previous_total
     # if the interrupt_after value is not set, the upload will not be interrupted
@@ -402,6 +400,7 @@ def _upload_one_resource(
         raise XmlUploadInterruptedError(
             f"Interrupted: Maximum number of resources was reached ({upload_state.config.interrupt_after})"
         )
+
     success, media_info = handle_media_info(
         resource, upload_state.config.media_previously_uploaded, sipi_server, imgdir, upload_state.permissions_lookup
     )
@@ -410,7 +409,7 @@ def _upload_one_resource(
         return
 
     try:
-        res = _create_resource(resource, media_info, resource_create_client)
+        result = _create_resource(resource, media_info, resource_create_client)
     except (PermanentTimeOutError, KeyboardInterrupt) as err:
         msg = (
             f"There was a {type(err).__name__} while trying to create resource '{resource.res_id}'.\n"
@@ -425,7 +424,7 @@ def _upload_one_resource(
 
     try:
         _tidy_up_resource_creation_idempotent(
-            res,
+            result,
             upload_state.pending_resources,
             resource,
             upload_state.failed_uploads,
@@ -435,7 +434,7 @@ def _upload_one_resource(
         )
     except KeyboardInterrupt:
         _tidy_up_resource_creation_idempotent(
-            res,
+            result,
             upload_state.pending_resources,
             resource,
             upload_state.failed_uploads,
@@ -496,10 +495,7 @@ def _create_resource(
         return None, None
 
 
-def _handle_upload_error(
-    err: BaseException,
-    upload_state: UploadState,
-) -> None:
+def _handle_upload_error(err: BaseException, upload_state: UploadState) -> None:
     """
     In case the xmlupload must be interrupted,
     e.g. because of an error that could not be handled,

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.resources
 import json
+import warnings
 from pathlib import Path
 from typing import Any
 from typing import Union
@@ -13,6 +14,7 @@ import networkx as nx
 import regex
 
 from dsp_tools.commands.excel2json.lists import expand_lists_from_excel
+from dsp_tools.models.custom_warnings import DspToolsFutureWarning
 from dsp_tools.models.exceptions import BaseError
 
 
@@ -209,6 +211,37 @@ def _check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> bo
     return True
 
 
+def _check_for_deprecated_syntax(project_definition: dict[str, Any]) -> bool:
+    return _check_for_deprecated_isSequenceOf(project_definition)
+
+
+def _check_for_deprecated_isSequenceOf(project_definition: dict[str, Any]) -> bool:
+    ontos = project_definition["project"]["ontologies"]
+    isSequenceOf_matches = []
+    for index in range(len(ontos)):
+        pth = f"$.project.ontologies[{index}].properties[?super[*] == isSequenceOf]"
+        isSequenceOf_matches.extend(jsonpath_ng.ext.parse(pth).find(project_definition))
+
+    hasSequenceBounds_matches = []
+    for index in range(len(ontos)):
+        pth = f"$.project.ontologies[{index}].properties[?super[*] == hasSequenceBounds]"
+        hasSequenceBounds_matches.extend(jsonpath_ng.ext.parse(pth).find(project_definition))
+
+    sequence_resource_matches = []
+    for index in range(len(ontos)):
+        pth = f"$.project.ontologies[{index}].resources[?cardinalities.propname == isSequenceOf]"
+        sequence_resource_matches.extend(jsonpath_ng.ext.parse(pth).find(project_definition))
+
+    if any([isSequenceOf_matches, hasSequenceBounds_matches, sequence_resource_matches]):
+        msg = (
+            "Deprecation Warning: Your JSON project definition contains deprecated properties. "
+            "Support for the following properties will be removed soon: isSequenceOf, hasSequenceBounds"
+        )
+        warnings.warn(DspToolsFutureWarning(msg))
+
+    return True
+
+
 def validate_project(
     input_file_or_json: Union[dict[str, Any], str],
     expand_lists: bool = True,
@@ -280,6 +313,7 @@ def validate_project(
     _check_for_undefined_super_resource(project_definition)
     _check_for_undefined_cardinalities(project_definition)
     _check_for_duplicate_names(project_definition)
+    _check_for_deprecated_syntax(project_definition)
 
     # cardinalities check for circular references
     return _check_cardinalities_of_circular_references(project_definition)

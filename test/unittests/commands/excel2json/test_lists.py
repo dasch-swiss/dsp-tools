@@ -6,12 +6,11 @@ from pandas.testing import assert_frame_equal
 from dsp_tools.commands.excel2json.new_lists import _fill_id_column
 from dsp_tools.commands.excel2json.new_lists import _fill_parent_id
 from dsp_tools.commands.excel2json.new_lists import _get_all_languages_for_columns
+from dsp_tools.commands.excel2json.new_lists import _get_column_nums
 from dsp_tools.commands.excel2json.new_lists import _get_columns_preferred_lang
-from dsp_tools.commands.excel2json.new_lists import _get_id
 from dsp_tools.commands.excel2json.new_lists import _get_labels
 from dsp_tools.commands.excel2json.new_lists import _get_preferred_language
-from dsp_tools.commands.excel2json.new_lists import _get_remaining_column_nums
-from dsp_tools.commands.excel2json.new_lists import _make_one_node
+from dsp_tools.commands.excel2json.new_lists import _get_sorted_columns_list
 from dsp_tools.models.exceptions import InputError
 
 # class TestMakeLists:
@@ -227,43 +226,10 @@ def test_get_columns_preferred_lang_returns_empty_list_for_no_match() -> None:
     assert not _get_columns_preferred_lang(columns, "en")
 
 
-class TestMakeOneNode:
-    def test_creates_node_with_correct_id_and_labels(self):
-        row = pd.DataFrame({"ID (optional)": ["1.1"], "en_1": ["Hello"], "de_1": ["Hallo"]}, index=[1])
-        node = _make_one_node(row.loc[1], "1")
-        assert node.id_ == "1.1"
-        assert node.labels == {"en": "Hello", "de": "Hallo"}
-        assert node.row_number == 1
-
-    def test_generates_id_when_not_provided(self):
-        row = pd.DataFrame({"ID (optional)": [pd.NA], "en_1": ["Hello"], "de_1": ["Hallo"]}, index=[2])
-        node = _make_one_node(row.loc[2], "1")
-        assert node.id_ == "Hello"
-        assert node.labels == {"en": "Hello", "de": "Hallo"}
-        assert node.row_number == 2
-
-
-class TestGetId:
-    def test_returns_id_when_provided(self) -> None:
-        df = pd.DataFrame({"ID (optional)": ["1.1"], "en_1": ["Hello"], "de_1": ["Hallo"]}, index=[5])
-        row = df.loc[5]
-        assert _get_id(row, "1") == "1.1"
-
-    def test_generates_id_when_not_provided(self) -> None:
-        df = pd.DataFrame({"ID (optional)": [pd.NA], "en_1": ["Hello"], "de_1": ["Hallo"]}, index=[7])
-        row = df.loc[7]
-        assert _get_id(row, "1") == "Hello"
-
-    def test_generates_id_list(self) -> None:
-        df = pd.DataFrame({"ID (optional)": [pd.NA], "en_list": ["Hello"], "de_1": ["Hallo"]}, index=[9])
-        row = df.loc[9]
-        assert _get_id(row, "list") == "Hello"
-
-    def test_raises_error_when_no_language_column(self) -> None:
-        df = pd.DataFrame({"ID (optional)": [pd.NA], "es_1": ["Hola"]}, index=[11])
-        row = df.loc[11]
-        with pytest.raises(InputError):
-            _get_id(row, "1")
+def test_sorted_columns_returns_expected_result():
+    df = pd.DataFrame(columns=["en_1", "de_2", "de_1", "en_2"])
+    expected_result = [["en_1", "de_1"], ["en_2", "de_2"]]
+    assert _get_sorted_columns_list(df) == expected_result
 
 
 class TestGetLabels:
@@ -318,20 +284,16 @@ class TestGetLabels:
 
 class TestGetRemainingColumns:
     def test_with_matching_columns(self) -> None:
-        columns = pd.Index(["en_1", "de_2", "fr_3", "it_4", "rm_5", "de_11"])
-        assert _get_remaining_column_nums(columns, 2) == [2, 3, 4, 5, 11]
+        columns = pd.Index(["en_1", "de_2", "fr_3"])
+        assert _get_column_nums(columns) == [1, 2, 3]
 
-    def test_with_no_matching_columns(self) -> None:
-        columns = pd.Index(["en_1", "de_2", "fr_3", "it_4", "rm_5"])
-        assert _get_remaining_column_nums(columns, 6) == []
-
-    def test_with_non_language_columns(self) -> None:
-        columns = pd.Index(["en_1", "de_2", "fr_3", "it_4", "rm_5", "other_6"])
-        assert _get_remaining_column_nums(columns, 2) == [2, 3, 4, 5]
+    def test_with_list_language_columns(self) -> None:
+        columns = pd.Index(["en_1", "de_2", "fr_3", "de_list"])
+        assert _get_column_nums(columns) == [1, 2, 3]
 
     def test_with_non_numeric_columns(self) -> None:
         columns = pd.Index(["en_1", "de_2", "fr_3", "it_4", "rm_5", "en_other"])
-        assert _get_remaining_column_nums(columns, 2) == [2, 3, 4, 5]
+        assert _get_column_nums(columns) == [1, 2, 3, 4, 5]
 
 
 class TestGetAllLanguagesForColumns:

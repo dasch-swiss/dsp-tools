@@ -63,8 +63,8 @@ class ListRoot:
         cls,
         id_: str | int | float,
         labels: dict[str, str],
-        nodes: list[ListNode],
         sheet_name: str,
+        nodes: list[ListNode] | None = None,
         comments: dict[str, str] | None = None,
     ) -> ListRoot | ListSheetProblem:
         user_problem = {}
@@ -83,10 +83,10 @@ class ListRoot:
         if comments:
             if not set(comments).issubset({"en", "de", "fr", "it", "rm"}):
                 user_problem["comments"] = "Only the following languages are supported: 'en', 'de', 'fr', 'it', 'rm'."
-        if len(nodes) == 0:
-            user_problem["list nodes"] = "At least one node per list is required."
         if user_problem:
             return ListSheetProblem(sheet_name, user_problem)
+        if not nodes:
+            nodes = []
         return cls(id_=id_, labels=labels, comments=comments, nodes=nodes)
 
     def to_dict(self) -> dict[str, Any]:

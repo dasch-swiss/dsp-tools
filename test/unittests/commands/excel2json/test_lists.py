@@ -3,9 +3,50 @@ import pytest
 import regex
 
 from dsp_tools.commands.excel2json.new_lists import _get_all_languages_for_columns
+from dsp_tools.commands.excel2json.new_lists import _get_id
 from dsp_tools.commands.excel2json.new_lists import _get_labels
 from dsp_tools.commands.excel2json.new_lists import _get_preferred_language_for_id
+from dsp_tools.commands.excel2json.new_lists import _make_one_node
 from dsp_tools.models.exceptions import InputError
+
+
+class TestMakeOneNode:
+    def test_creates_node_with_correct_id_and_labels(self):
+        row = pd.DataFrame({"ID (optional)": ["1.1"], "en_1": ["Hello"], "de_1": ["Hallo"]}, index=[1])
+        node = _make_one_node(row.loc[1], "1")
+        assert node.id_ == "1.1"
+        assert node.labels == {"en": "Hello", "de": "Hallo"}
+        assert node.row_number == 1
+
+    def test_generates_id_when_not_provided(self):
+        row = pd.DataFrame({"ID (optional)": [pd.NA], "en_1": ["Hello"], "de_1": ["Hallo"]}, index=[2])
+        node = _make_one_node(row.loc[2], "1")
+        assert node.id_ == "Hello"
+        assert node.labels == {"en": "Hello", "de": "Hallo"}
+        assert node.row_number == 2
+
+
+class TestGetId:
+    def test_returns_id_when_provided(self) -> None:
+        df = pd.DataFrame({"ID (optional)": ["1.1"], "en_1": ["Hello"], "de_1": ["Hallo"]}, index=[5])
+        row = df.loc[5]
+        assert _get_id(row, "1") == "1.1"
+
+    def test_generates_id_when_not_provided(self) -> None:
+        df = pd.DataFrame({"ID (optional)": [pd.NA], "en_1": ["Hello"], "de_1": ["Hallo"]}, index=[7])
+        row = df.loc[7]
+        assert _get_id(row, "1") == "Hello"
+
+    def test_generates_id_list(self) -> None:
+        df = pd.DataFrame({"ID (optional)": [pd.NA], "en_list": ["Hello"], "de_1": ["Hallo"]}, index=[9])
+        row = df.loc[9]
+        assert _get_id(row, "list") == "Hello"
+
+    def test_raises_error_when_no_language_column(self) -> None:
+        df = pd.DataFrame({"ID (optional)": [pd.NA], "es_1": ["Hola"]}, index=[11])
+        row = df.loc[11]
+        with pytest.raises(InputError):
+            _get_id(row, "1")
 
 
 class TestGetLabels:

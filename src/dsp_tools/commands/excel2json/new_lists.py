@@ -20,7 +20,7 @@ def _make_one_list(df: pd.DataFrame, sheet_name: str, excel_name: str) -> ListRo
     nodes = []
     for col in sorted(node_cols):
         nodes.extend(_create_nodes(df, col))
-    root = ListRoot(
+    root = ListRoot.create(
         id_=_get_id(df.iloc[0], "list"),
         labels=_get_labels(df.iloc[0], "list"),
         nodes=nodes,
@@ -38,13 +38,13 @@ def _create_nodes(df: pd.DataFrame, col_number: str) -> list[ListNode]:
     return nodes
 
 
-def _make_one_node(row: pd.Series, col_number: str) -> ListNode:
+def _make_one_node(row: pd.Series[str], col_number: str) -> ListNode:
     node_id = _get_id(row, col_number)
     labels = _get_labels(row, col_number)
-    return ListNode(node_id, labels, int(row.index))
+    return ListNode.create(node_id, labels, int(str(row.name)))
 
 
-def _get_id(row: pd.Series, col_number: str) -> str:
+def _get_id(row: pd.Series[str], col_number: str) -> str:
     return (
         row.get("ID (optional)")
         if pd.notna(row["ID (optional)"])
@@ -52,7 +52,7 @@ def _get_id(row: pd.Series, col_number: str) -> str:
     )
 
 
-def _get_labels(row: pd.Series, col_ending: str) -> dict[str, str]:
+def _get_labels(row: pd.Series[str], col_ending: str) -> dict[str, str]:
     languages = _get_all_languages_for_columns(row.index, col_ending)
     return {lang: row.get(f"{lang}_{col_ending}") for lang in languages if pd.notna(row[f"{lang}_{col_ending}"])}
 

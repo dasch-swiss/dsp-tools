@@ -6,6 +6,7 @@ from uuid import uuid4
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
+from dsp_tools.commands.xmlupload.project_client import ProjectInfo
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItem
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStash
@@ -16,22 +17,6 @@ from dsp_tools.utils.connection import Connection
 
 # ruff: noqa: ARG002 (unused-method-argument)
 # ruff: noqa: D102 (undocumented-public-method)
-
-
-class ProjectClientStub:
-    """Stub class for ProjectClient."""
-
-    def get_project_iri(self) -> str:
-        raise NotImplementedError("get_project_iri not implemented")
-
-    def get_ontology_iris(self) -> list[str]:
-        raise NotImplementedError("get_project_iri not implemented")
-
-    def get_ontology_name_dict(self) -> dict[str, str]:
-        return {}
-
-    def get_ontology_iri_dict(self) -> dict[str, str]:
-        raise NotImplementedError("get_project_iri not implemented")
 
 
 @dataclass
@@ -66,6 +51,26 @@ class ConnectionMock(ConnectionMockBase):
         headers: dict[str, str] | None = None,
     ) -> dict[str, Any]:
         return self.put_responses.pop(0)
+
+
+class ProjectClientStub:
+    """Stub class for ProjectClient."""
+
+    con: Connection = ConnectionMock(post_responses=[{}])
+    shortcode: str = "1234"
+    project_info: ProjectInfo | None = None
+
+    def get_project_iri(self) -> str:
+        raise NotImplementedError("get_project_iri not implemented")
+
+    def get_ontology_iris(self) -> list[str]:
+        raise NotImplementedError("get_project_iri not implemented")
+
+    def get_ontology_name_dict(self) -> dict[str, str]:
+        return {}
+
+    def get_ontology_iri_dict(self) -> dict[str, str]:
+        raise NotImplementedError("get_project_iri not implemented")
 
 
 class TestUploadLinkValueStashes:

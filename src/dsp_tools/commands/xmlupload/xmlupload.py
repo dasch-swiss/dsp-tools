@@ -218,15 +218,12 @@ def upload_resources(
         a list of resources that could not be uploaded,
         and the stash items that could not be reapplied.
     """
+    upload_state = UploadState(resources, failed_uploads, iri_resolver.lookup, stash, config, permissions_lookup)
     try:
         iri_resolver, failed_uploads = _upload_resources(
-            resources=resources,
-            failed_uploads=failed_uploads,
+            upload_state=upload_state,
             imgdir=imgdir,
             sipi_server=sipi_server,
-            permissions_lookup=permissions_lookup,
-            con=con,
-            config=config,
             project_client=project_client,
             list_client=list_client,
             iri_resolver=iri_resolver,
@@ -234,15 +231,7 @@ def upload_resources(
     except BaseException as err:  # noqa: BLE001 (blind-except)
         # The forseeable errors are already handled by failed_uploads
         # Here we catch the unforseeable exceptions, incl. keyboard interrupt.
-        _handle_upload_error(
-            err=err,
-            iri_resolver=iri_resolver,
-            pending_resources=resources,
-            failed_uploads=failed_uploads,
-            pending_stash=stash,
-            config=config,
-            permissions_lookup=permissions_lookup,
-        )
+        _handle_upload_error(err, upload_state)
 
     nonapplied_stash = None
     try:
@@ -259,15 +248,7 @@ def upload_resources(
     except BaseException as err:  # noqa: BLE001 (blind-except)
         # The forseeable errors are already handled by failed_uploads and nonapplied_stash.
         # Here we catch the unforseeable exceptions, incl. keyboard interrupt.
-        _handle_upload_error(
-            err=err,
-            iri_resolver=iri_resolver,
-            pending_resources=resources,
-            failed_uploads=failed_uploads,
-            pending_stash=stash,
-            config=config,
-            permissions_lookup=permissions_lookup,
-        )
+        _handle_upload_error(err, upload_state)
     return iri_resolver, failed_uploads, nonapplied_stash
 
 
@@ -343,13 +324,9 @@ def _extract_resources_from_xml(root: etree._Element, default_ontology: str) -> 
 
 
 def _upload_resources(
-    resources: list[XMLResource],
-    failed_uploads: list[str],
+    upload_state: UploadState,
     imgdir: str,
     sipi_server: Sipi,
-    permissions_lookup: dict[str, Permissions],
-    con: Connection,
-    config: UploadConfig,
     project_client: ProjectClient,
     list_client: ListClient,
     iri_resolver: IriResolver,
@@ -360,13 +337,9 @@ def _upload_resources(
     and if a permanent exception occurs, the resource is skipped.
 
     Args:
-        resources: list of XMLResources to upload to DSP
-        failed_uploads: resources that caused an error in a previous upload
+        upload_state: the current state of the upload
         imgdir: folder containing the multimedia files
         sipi_server: Sipi instance
-        permissions_lookup: maps permission strings to Permission objects
-        con: connection to DSP
-        config: the upload configuration
         project_client: a client for HTTP communication with the DSP-API
         list_client: a client for HTTP communication with the DSP-API
         iri_resolver: mapping from internal IDs to IRIs
@@ -383,63 +356,57 @@ def _upload_resources(
     listnode_lookup = list_client.get_list_node_id_to_iri_lookup()
 
     resource_create_client = ResourceCreateClient(
-        con=con,
+        con=project_client.con,
         project_iri=project_iri,
         iri_resolver=iri_resolver,
         json_ld_context=json_ld_context,
-        permissions_lookup=permissions_lookup,
+        permissions_lookup=upload_state.permissions_lookup,
         listnode_lookup=listnode_lookup,
-        media_previously_ingested=config.media_previously_uploaded,
+        media_previously_ingested=upload_state.config.media_previously_uploaded,
     )
 
-    total_res = len(resources) + len(iri_resolver.lookup)
+    total_res = len(upload_state.pending_resources) + len(iri_resolver.lookup)
     previous_successful = len(iri_resolver.lookup)
-    previous_failed = len(failed_uploads)
+    previous_failed = len(upload_state.failed_uploads)
     previous_total = previous_successful + previous_failed
-    # if the interrupt_after value is not set, the upload will not be interrupted
-    interrupt_after = config.interrupt_after or total_res + 1
 
-    for resource in resources.copy():
+    for resource in upload_state.pending_resources.copy():
         _upload_one_resource(
-            resources=resources,
+            upload_state=upload_state,
             resource=resource,
-            failed_uploads=failed_uploads,
             imgdir=imgdir,
             sipi_server=sipi_server,
-            permissions_lookup=permissions_lookup,
             resource_create_client=resource_create_client,
             iri_resolver=iri_resolver,
             previous_total=previous_total,
             total_res=total_res,
-            interrupt_after=interrupt_after,
-            config=config,
         )
-    return iri_resolver, failed_uploads
+    return iri_resolver, upload_state.failed_uploads
 
 
 def _upload_one_resource(
-    resources: list[XMLResource],
+    upload_state: UploadState,
     resource: XMLResource,
-    failed_uploads: list[str],
     imgdir: str,
     sipi_server: Sipi,
-    permissions_lookup: dict[str, Permissions],
     resource_create_client: ResourceCreateClient,
     iri_resolver: IriResolver,
     previous_total: int,
     total_res: int,
-    interrupt_after: int,
-    config: UploadConfig,
 ) -> None:
-    counter = resources.index(resource)
+    counter = upload_state.pending_resources.index(resource)
     current_res = counter + 1 + previous_total
+    # if the interrupt_after value is not set, the upload will not be interrupted
+    interrupt_after = upload_state.config.interrupt_after or total_res + 1
     if counter >= interrupt_after:
-        raise XmlUploadInterruptedError(f"Interrupted: Maximum number of resources was reached ({interrupt_after})")
+        raise XmlUploadInterruptedError(
+            f"Interrupted: Maximum number of resources was reached ({upload_state.config.interrupt_after})"
+        )
     success, media_info = handle_media_info(
-        resource, config.media_previously_uploaded, sipi_server, imgdir, permissions_lookup
+        resource, upload_state.config.media_previously_uploaded, sipi_server, imgdir, upload_state.permissions_lookup
     )
     if not success:
-        failed_uploads.append(resource.res_id)
+        upload_state.failed_uploads.append(resource.res_id)
         return
 
     try:
@@ -458,11 +425,23 @@ def _upload_one_resource(
 
     try:
         _tidy_up_resource_creation_idempotent(
-            res, resources, resource, failed_uploads, iri_resolver, current_res, total_res
+            res,
+            upload_state.pending_resources,
+            resource,
+            upload_state.failed_uploads,
+            iri_resolver,
+            current_res,
+            total_res,
         )
     except KeyboardInterrupt:
         _tidy_up_resource_creation_idempotent(
-            res, resources, resource, failed_uploads, iri_resolver, current_res, total_res
+            res,
+            upload_state.pending_resources,
+            resource,
+            upload_state.failed_uploads,
+            iri_resolver,
+            current_res,
+            total_res,
         )
 
 
@@ -519,12 +498,7 @@ def _create_resource(
 
 def _handle_upload_error(
     err: BaseException,
-    iri_resolver: IriResolver,
-    pending_resources: list[XMLResource],
-    failed_uploads: list[str],
-    pending_stash: Stash | None,
-    config: UploadConfig,
-    permissions_lookup: dict[str, Permissions],
+    upload_state: UploadState,
 ) -> None:
     """
     In case the xmlupload must be interrupted,
@@ -538,12 +512,7 @@ def _handle_upload_error(
 
     Args:
         err: the error that was the cause of the abort
-        iri_resolver: a resolver for internal IDs to IRIs
-        pending_resources: resources that were not uploaded to DSP
-        failed_uploads: resources that caused an error when uploading to DSP
-        pending_stash: an object that contains all stashed links that could not yet be reapplied to their resources
-        config: the upload configuration
-        permissions_lookup: dictionary that contains the permission name as string and the corresponding Python object
+        upload_state: the current state of the upload
     """
     if isinstance(err, XmlUploadInterruptedError):
         msg = "\n==========================================\n" + err.message + "\n"
@@ -557,13 +526,10 @@ def _handle_upload_error(
         )
         exit_code = 1
 
-    upload_state = UploadState(
-        pending_resources, failed_uploads, iri_resolver.lookup, pending_stash, config, permissions_lookup
-    )
     msg += _save_upload_state(upload_state)
 
-    if failed_uploads:
-        msg += f"Independently from this, there were some resources that could not be uploaded: {failed_uploads}\n"
+    if failed := upload_state.failed_uploads:
+        msg += f"Independently from this, there were some resources that could not be uploaded: {failed}\n"
 
     if exit_code == 1:
         logger.exception(msg)

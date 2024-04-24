@@ -1,7 +1,7 @@
 from typing import Protocol
 from typing import runtime_checkable
 
-from termcolor import colored
+from termcolor import cprint
 
 
 @runtime_checkable
@@ -17,10 +17,7 @@ class DspToolsWarning(Protocol):
 class DspToolsFutureWarning(FutureWarning):
     """Class for user-facing deprecation warnings"""
 
-    def __str__(self) -> str:
-        return colored(self.args[0], color="red", attrs=["bold"])
-
     @classmethod
     def showwarning(cls, message: str) -> None:
-        """"""
-        print(message)
+        """Print the warning, without context"""
+        cprint(message, color="red", attrs=["bold"])

@@ -288,6 +288,12 @@ def _derive_sipi_url(
 
 
 def _initialize_warnings() -> None:
+    """
+    This function makes sure that DSP-TOOLS internal warnings are displayed in their custom way how they specify it.
+    This is done by monkeypatching the behavior of the warnings module, as officially recommended by the Python docs:
+    https://docs.python.org/3/library/warnings.html#warnings.showwarning
+    """
+
     def _custom_showwarning(
         message: Warning | str,
         category: type[Warning],

@@ -27,5 +27,6 @@ jobs:
               {"type": "chore", "section": "Maintenance", "hidden": false }, 
               {"type": "refactor", "section": "Maintenance", "hidden": false }, 
               {"type": "docs", "section": "Documentation", "hidden": false }
+              {"type": "deprecated", "section": "Deprecated", "hidden": false }
             ]
           pull-request-title-pattern: 'chore: release ${version}'

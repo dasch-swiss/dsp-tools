@@ -11,7 +11,6 @@ class DspToolsWarning(Protocol):
     @classmethod
     def showwarning(cls, message: str) -> None:
         """Functionality that should be executed when a warning of this class is emitted"""
-        ...
 
 
 class DspToolsFutureWarning(FutureWarning):

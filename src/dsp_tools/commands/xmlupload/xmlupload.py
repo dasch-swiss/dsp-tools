@@ -106,16 +106,14 @@ def xmlupload(
     project_client: ProjectClient = ProjectClientLive(con, config.shortcode)
     list_client: ListClient = ListClientLive(con, project_client.get_project_iri())
     iri_resolver = IriResolver()
+    upload_state = UploadState(resources, [], iri_resolver.lookup, stash, config, permissions_lookup)
 
     iri_resolver, failed_uploads, nonapplied_stash = upload_resources(
-        resources=resources,
-        failed_uploads=[],
+        upload_state=upload_state,
         imgdir=imgdir,
         sipi_server=sipi_server,
-        permissions_lookup=permissions_lookup,
         con=con,
         stash=stash,
-        config=config,
         project_client=project_client,
         list_client=list_client,
         iri_resolver=iri_resolver,
@@ -185,14 +183,11 @@ def _prepare_upload(
 
 
 def upload_resources(
-    resources: list[XMLResource],
-    failed_uploads: list[str],
+    upload_state: UploadState,
     imgdir: str,
     sipi_server: Sipi,
-    permissions_lookup: dict[str, Permissions],
     con: Connection,
     stash: Stash | None,
-    config: UploadConfig,
     project_client: ProjectClient,
     list_client: ListClient,
     iri_resolver: IriResolver,
@@ -201,14 +196,11 @@ def upload_resources(
     Actual upload of all resources to DSP.
 
     Args:
-        resources: list of XMLResources to upload to DSP
-        failed_uploads: resources that caused an error in a previous upload
+        upload_state: the current state of the upload
         imgdir: folder containing the multimedia files
         sipi_server: Sipi instance
-        permissions_lookup: dictionary that contains the permission name as string and the corresponding Python object
         con: connection to the DSP server
         stash: an object that contains all stashed links that could not be reapplied to their resources
-        config: the upload configuration
         project_client: a client for HTTP communication with the DSP-API
         list_client: a client for HTTP communication with the DSP-API
         iri_resolver: mapping from internal IDs to IRIs
@@ -218,7 +210,6 @@ def upload_resources(
         a list of resources that could not be uploaded,
         and the stash items that could not be reapplied.
     """
-    upload_state = UploadState(resources, failed_uploads, iri_resolver.lookup, stash, config, permissions_lookup)
     try:
         iri_resolver, failed_uploads = _upload_resources(
             upload_state=upload_state,
@@ -391,16 +382,7 @@ def _upload_one_resource(
     iri_resolver: IriResolver,
     previous_total: int,
 ) -> None:
-    total_res = len(upload_state.pending_resources) + len(iri_resolver.lookup)
-    counter = upload_state.pending_resources.index(resource)
-    current_res = counter + 1 + previous_total
-    # if the interrupt_after value is not set, the upload will not be interrupted
-    interrupt_after = upload_state.config.interrupt_after or total_res + 1
-    if counter >= interrupt_after:
-        raise XmlUploadInterruptedError(
-            f"Interrupted: Maximum number of resources was reached ({upload_state.config.interrupt_after})"
-        )
-
+    current_res, total_res = _compute_counter_info_and_interrupt(upload_state, previous_total, resource)
     success, media_info = handle_media_info(
         resource, upload_state.config.media_previously_uploaded, sipi_server, imgdir, upload_state.permissions_lookup
     )
@@ -423,32 +405,30 @@ def _upload_one_resource(
         raise XmlUploadInterruptedError(msg) from None
 
     try:
-        _tidy_up_resource_creation_idempotent(
-            result,
-            upload_state.pending_resources,
-            resource,
-            upload_state.failed_uploads,
-            iri_resolver,
-            current_res,
-            total_res,
-        )
+        _tidy_up_resource_creation_idempotent(upload_state, result, resource, iri_resolver, current_res, total_res)
     except KeyboardInterrupt:
-        _tidy_up_resource_creation_idempotent(
-            result,
-            upload_state.pending_resources,
-            resource,
-            upload_state.failed_uploads,
-            iri_resolver,
-            current_res,
-            total_res,
+        _tidy_up_resource_creation_idempotent(upload_state, result, resource, iri_resolver, current_res, total_res)
+
+
+def _compute_counter_info_and_interrupt(
+    upload_state: UploadState, previous_total: int, resource: XMLResource
+) -> tuple[int, int]:
+    total_res = len(upload_state.pending_resources) + len(upload_state.iri_resolver_lookup)
+    counter = upload_state.pending_resources.index(resource)
+    current_res = counter + 1 + previous_total
+    # if the interrupt_after value is not set, the upload will not be interrupted
+    interrupt_after = upload_state.config.interrupt_after or total_res + 1
+    if counter >= interrupt_after:
+        raise XmlUploadInterruptedError(
+            f"Interrupted: Maximum number of resources was reached ({upload_state.config.interrupt_after})"
         )
+    return current_res, total_res
 
 
 def _tidy_up_resource_creation_idempotent(
+    upload_state: UploadState,
     result: tuple[str, str] | tuple[None, None],
-    resources: list[XMLResource],
     resource: XMLResource,
-    failed_uploads: list[str],
     iri_resolver: IriResolver,
     current_res: int,
     total_res: int,
@@ -462,11 +442,11 @@ def _tidy_up_resource_creation_idempotent(
         logger.info(msg)
     else:  # noqa: PLR5501
         # resource creation failed gracefully: register it as failed
-        if resource.res_id not in failed_uploads:
-            failed_uploads.append(resource.res_id)
+        if resource.res_id not in upload_state.failed_uploads:
+            upload_state.failed_uploads.append(resource.res_id)
 
-    if resource in resources:
-        resources.remove(resource)
+    if resource in upload_state.pending_resources:
+        upload_state.pending_resources.remove(resource)
 
 
 def _create_resource(

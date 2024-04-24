@@ -2,12 +2,49 @@ import pandas as pd
 import pytest
 import regex
 
+from dsp_tools.commands.excel2json.new_lists import _fill_parent_id
 from dsp_tools.commands.excel2json.new_lists import _get_all_languages_for_columns
+from dsp_tools.commands.excel2json.new_lists import _get_columns_preferred_lang
 from dsp_tools.commands.excel2json.new_lists import _get_id
 from dsp_tools.commands.excel2json.new_lists import _get_labels
-from dsp_tools.commands.excel2json.new_lists import _get_preferred_language_for_id
+from dsp_tools.commands.excel2json.new_lists import _get_preferred_language
+from dsp_tools.commands.excel2json.new_lists import _get_remaining_column_nums
 from dsp_tools.commands.excel2json.new_lists import _make_one_node
 from dsp_tools.models.exceptions import InputError
+
+
+def test_fill_parent_id() -> None:
+    test_df = pd.DataFrame(
+        {
+            "ID (optional)": [
+                "list_en",
+                "1",
+                "2",
+                "3",
+                "3.1",
+                "3.2",
+                "3.2.1",
+                "3.2.2",
+            ],
+            "en_list": ["list_en", "list_en", "list_en", "list_en", "list_en", "list_en", "list_en", "list_en"],
+            "en_1": [pd.NA, "nd_en_1", "nd_en_2", "nd_en_3", "nd_en_3", "nd_en_3", "nd_en_3", "nd_en_3"],
+            "en_2": [pd.NA, pd.NA, pd.NA, pd.NA, "nd_en_3.1", "nd_en_3.2", "nd_en_3.2", "nd_en_3.2"],
+            "en_3": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, "nd_en_3.2.1", "nd_en_3.2.2"],
+        }
+    )
+    expected = ["list_en", "list_en", "list_en", "list_en", "3", "3", "3.2", "3.2"]
+    res = _fill_parent_id(test_df, "en")
+    assert res["parent_id"].to_list() == expected
+
+
+def test_get_columns_preferred_lang_returns_expected_columns() -> None:
+    columns = pd.Index(["en_2", "de_1", "en_1", "it_1"])
+    assert _get_columns_preferred_lang(columns, "en") == ["en_1", "en_2"]
+
+
+def test_get_columns_preferred_lang_returns_empty_list_for_no_match() -> None:
+    columns = pd.Index(["de_1", "de_2", "it_1"])
+    assert not _get_columns_preferred_lang(columns, "en")
 
 
 class TestMakeOneNode:
@@ -99,6 +136,24 @@ class TestGetLabels:
         assert not _get_labels(row, col_ending)
 
 
+class TestGetRemainingColumns:
+    def test_with_matching_columns(self) -> None:
+        columns = pd.Index(["en_1", "de_2", "fr_3", "it_4", "rm_5", "de_11"])
+        assert _get_remaining_column_nums(columns, 2) == [2, 3, 4, 5, 11]
+
+    def test_with_no_matching_columns(self) -> None:
+        columns = pd.Index(["en_1", "de_2", "fr_3", "it_4", "rm_5"])
+        assert _get_remaining_column_nums(columns, 6) == []
+
+    def test_with_non_language_columns(self) -> None:
+        columns = pd.Index(["en_1", "de_2", "fr_3", "it_4", "rm_5", "other_6"])
+        assert _get_remaining_column_nums(columns, 2) == [2, 3, 4, 5]
+
+    def test_with_non_numeric_columns(self) -> None:
+        columns = pd.Index(["en_1", "de_2", "fr_3", "it_4", "rm_5", "en_other"])
+        assert _get_remaining_column_nums(columns, 2) == [2, 3, 4, 5]
+
+
 class TestGetAllLanguagesForColumns:
     def test_get_all_languages_for_columns_returns_correct_languages(self) -> None:
         columns = pd.Index(["en_1", "de_1", "fr_1", "it_1", "rm_1", "en_2"])
@@ -114,23 +169,23 @@ class TestGetAllLanguagesForColumns:
 class TestGetPreferredLanguageForId:
     def test_get_preferred_language_for_id_en(self) -> None:
         columns = pd.Index(["en_1", "de_1", "fr_1", "it_1", "rm_1"])
-        assert _get_preferred_language_for_id(columns, "1") == "en"
+        assert _get_preferred_language(columns, "1") == "en"
 
     def test_get_preferred_language_for_id_de(self) -> None:
         columns = pd.Index(["de_1", "fr_1", "it_1", "rm_1"])
-        assert _get_preferred_language_for_id(columns, "1") == "de"
+        assert _get_preferred_language(columns, "1") == "de"
 
     def test_get_preferred_language_for_id_fr(self) -> None:
         columns = pd.Index(["fr_1", "it_1", "rm_1"])
-        assert _get_preferred_language_for_id(columns, "1") == "fr"
+        assert _get_preferred_language(columns, "1") == "fr"
 
     def test_get_preferred_language_for_id_it(self) -> None:
         columns = pd.Index(["it_1", "rm_1"])
-        assert _get_preferred_language_for_id(columns, "1") == "it"
+        assert _get_preferred_language(columns, "1") == "it"
 
     def test_get_preferred_language_for_id_rm(self) -> None:
         columns = pd.Index(["rm_1"])
-        assert _get_preferred_language_for_id(columns, "1") == "rm"
+        assert _get_preferred_language(columns, "1") == "rm"
 
     def test_get_preferred_language_for_id_raises(self) -> None:
         columns = pd.Index(["es_1"])
@@ -138,7 +193,7 @@ class TestGetPreferredLanguageForId:
             "The columns may only contain the languages: 'en', 'de', 'fr', 'it', 'rm'.\n" "The columns are: es_1"
         )
         with pytest.raises(InputError, match=msg):
-            _get_preferred_language_for_id(columns, "1")
+            _get_preferred_language(columns, "1")
 
 
 if __name__ == "__main__":

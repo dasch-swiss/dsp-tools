@@ -41,15 +41,17 @@ class ProjectClientStub:
 
 
 def test_one_resource_without_links() -> None:
-    xml_str = """
+    xml_strings = [
+        """
     <resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id">
         <text-prop name=":hasSimpleText">
             <text encoding="utf8">foo_1 text</text>
         </text-prop>
     </resource>
     """
-    xml_res = XMLResource(etree.fromstring(xml_str), "my_onto")
-    upload_state = UploadState([xml_res], [], IriResolver(), None, UploadConfig(), {})
+    ]
+    xml_resources = [XMLResource(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
+    upload_state = UploadState(xml_resources, [], IriResolver(), None, UploadConfig(), {})
     con = Mock()
     con.post = Mock(return_value={"@id": "foo_1_iri", "rdfs:label": "foo_1_label"})
     project_client = ProjectClientStub(con, "1234", None)
@@ -76,15 +78,17 @@ def test_one_resource_without_links() -> None:
 
 
 def test_one_resource_with_link_to_existing_resource() -> None:
-    xml_str = """
+    xml_strings = [
+        """
     <resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id">
         <resptr-prop name=":hasCustomLink">
             <resptr>foo_2_id</resptr>
         </resptr-prop>
     </resource>
     """
-    xml_res = XMLResource(etree.fromstring(xml_str), "my_onto")
-    upload_state = UploadState([xml_res], [], IriResolver({"foo_2_id": "foo_2_iri"}), None, UploadConfig(), {})
+    ]
+    xml_resources = [XMLResource(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
+    upload_state = UploadState(xml_resources, [], IriResolver({"foo_2_id": "foo_2_iri"}), None, UploadConfig(), {})
     con = Mock()
     con.post = Mock(return_value={"@id": "foo_1_iri", "rdfs:label": "foo_1_label"})
     project_client = ProjectClientStub(con, "1234", None)

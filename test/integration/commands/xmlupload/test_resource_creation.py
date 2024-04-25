@@ -9,9 +9,14 @@ from dsp_tools.commands.xmlupload.models.sipi import Sipi
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.models.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.project_client import ProjectInfo
+from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
+from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItem
+from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import upload_resources
+from dsp_tools.models.exceptions import PermanentTimeOutError
 from dsp_tools.utils.connection import Connection
+from dsp_tools.utils.connection_live import ConnectionLive
 
 
 class ListClientMock:
@@ -48,11 +53,11 @@ def test_one_resource_without_links() -> None:
                 <text encoding="utf8">foo_1 text</text>
             </text-prop>
         </resource>
-        """
+        """,
     ]
     xml_resources = [XMLResource(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
     upload_state = UploadState(xml_resources, [], IriResolver(), None, UploadConfig(), {})
-    con = Mock()
+    con = Mock(spec=ConnectionLive)
     con.post = Mock(return_value={"@id": "foo_1_iri", "rdfs:label": "foo_1_label"})
     project_client = ProjectClientStub(con, "1234", None)
     upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
@@ -85,11 +90,11 @@ def test_one_resource_with_link_to_existing_resource() -> None:
                 <resptr>foo_2_id</resptr>
             </resptr-prop>
         </resource>
-        """
+        """,
     ]
     xml_resources = [XMLResource(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
     upload_state = UploadState(xml_resources, [], IriResolver({"foo_2_id": "foo_2_iri"}), None, UploadConfig(), {})
-    con = Mock()
+    con = Mock(spec=ConnectionLive)
     con.post = Mock(return_value={"@id": "foo_1_iri", "rdfs:label": "foo_1_label"})
     project_client = ProjectClientStub(con, "1234", None)
     upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
@@ -114,3 +119,56 @@ def test_one_resource_with_link_to_existing_resource() -> None:
     assert not upload_state.failed_uploads
     assert upload_state.iri_resolver.lookup == {"foo_1_id": "foo_1_iri", "foo_2_id": "foo_2_iri"}
     assert not upload_state.pending_stash
+
+
+def test_one_resource_with_stashed_link() -> None:
+    xml_strings = [
+        '<resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id"></resource>',
+        '<resource label="foo_2_label" restype=":foo_2_type" id="foo_2_id"></resource>',
+    ]
+    xml_resources = [XMLResource(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
+    link_val_stash_dict = {
+        "foo_1_id": [LinkValueStashItem("foo_1_id", "my_onto:foo_1_type", "my_onto:hasCustomLink", "foo_2_id")],
+        "foo_2_id": [LinkValueStashItem("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")],
+    }
+    stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
+    upload_state = UploadState(xml_resources, [], IriResolver(), stash, UploadConfig(), {})
+    con = Mock(spec=ConnectionLive)
+    con.post = Mock(
+        side_effect=[
+            {"@id": "foo_1_iri", "rdfs:label": "foo_1_label"},
+            {"@id": "foo_2_iri", "rdfs:label": "foo_2_label"},
+        ]
+    )
+    project_client = ProjectClientStub(con, "1234", None)
+    upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
+    assert len(con.post.call_args_list) == 4
+    match con.post.call_args_list[2].kwargs:
+        case {
+            "route": "/v2/values",
+            "data": {
+                "@type": "my_onto:foo_1_type",
+                "@id": "foo_1_iri",
+                "@context": dict(),
+                "my_onto:hasCustomLinkValue": [
+                    {"@type": "knora-api:LinkValue", "knora-api:linkValueHasTargetIri": {"@id": "foo_2_iri"}}
+                ],
+            },
+        }:
+            assert True
+        case _:
+            pytest.fail("POST request was not sent correctly")
+    assert not upload_state.pending_resources
+    assert not upload_state.failed_uploads
+    assert upload_state.iri_resolver.lookup == {"foo_1_id": "foo_1_iri", "foo_2_id": "foo_2_iri"}
+    assert not upload_state.pending_stash
+
+
+def test_two_resources_with_stash_interrupted_by_timeout() -> None:
+    con = Mock(spec=ConnectionLive)
+    con.post = Mock(side_effect=PermanentTimeOutError(""))
+
+
+# (PermanentTimeOutError, KeyboardInterrupt)
+
+# interrupt_after

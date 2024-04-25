@@ -350,7 +350,7 @@ def _upload_one_resource(
     resource_create_client: ResourceCreateClient,
     previous_total: int,
 ) -> None:
-    current_res, total_res = _compute_counter_info_and_interrupt(upload_state, previous_total, resource)
+    current_res, total_res = _compute_counter_info_and_interrupt(upload_state, previous_total)
     success, media_info = handle_media_info(
         resource, upload_state.config.media_previously_uploaded, sipi_server, imgdir, upload_state.permissions_lookup
     )
@@ -378,19 +378,17 @@ def _upload_one_resource(
         _tidy_up_resource_creation_idempotent(upload_state, iri, label, resource, current_res, total_res)
 
 
-def _compute_counter_info_and_interrupt(
-    upload_state: UploadState, previous_total: int, resource: XMLResource
-) -> tuple[int, int]:
-    total_res = len(upload_state.pending_resources) + len(upload_state.iri_resolver.lookup)
-    counter = upload_state.pending_resources.index(resource)
-    current_res = counter + 1 + previous_total
+def _compute_counter_info_and_interrupt(upload_state: UploadState, previous_total: int) -> tuple[int, int]:
+    creation_attempts_in_current_run = len(upload_state.iri_resolver.lookup) + len(upload_state.failed_uploads)
+    total_res_in_current_run = creation_attempts_in_current_run + len(upload_state.pending_resources)
+    current_res = creation_attempts_in_current_run + 1 + previous_total
     # if the interrupt_after value is not set, the upload will not be interrupted
-    interrupt_after = upload_state.config.interrupt_after or total_res + 1
-    if counter >= interrupt_after:
+    interrupt_after = upload_state.config.interrupt_after or total_res_in_current_run + 1
+    if creation_attempts_in_current_run >= interrupt_after:
         raise XmlUploadInterruptedError(
             f"Interrupted: Maximum number of resources was reached ({upload_state.config.interrupt_after})"
         )
-    return current_res, total_res
+    return current_res, total_res_in_current_run
 
 
 def _tidy_up_resource_creation_idempotent(

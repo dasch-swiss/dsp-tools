@@ -158,15 +158,16 @@ def _make_cardinality_section(class_name: str, class_df_with_cardinalities: pd.D
 
 def _create_all_cardinalities(class_name: str, class_df_with_cardinalities: pd.DataFrame) -> list[dict[str, str | int]]:
     class_df_with_cardinalities = _check_complete_gui_order(class_name, class_df_with_cardinalities)
-    cards = []
-    for i, detail_row in class_df_with_cardinalities.iterrows():
-        property_ = {
-            "propname": ":" + detail_row["property"],
-            "cardinality": detail_row["cardinality"].lower(),
-            "gui_order": detail_row["gui_order"],
-        }
-        cards.append(property_)
+    cards = [_make_one_property(detail_row) for _, detail_row in class_df_with_cardinalities.iterrows()]
     return cards
+
+
+def _make_one_property(detail_row: pd.Series[str | int]) -> dict[str, str | int]:
+    return {
+        "propname": f':{detail_row["property"]}',
+        "cardinality": str(detail_row["cardinality"]).lower(),
+        "gui_order": detail_row["gui_order"],
+    }
 
 
 def _check_complete_gui_order(class_name: str, class_df_with_cardinalities: pd.DataFrame) -> pd.DataFrame:

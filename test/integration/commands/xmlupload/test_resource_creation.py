@@ -40,7 +40,7 @@ class ProjectClientStub:
         raise NotImplementedError("get_project_iri not implemented")
 
 
-def test_happy_path() -> None:
+def test_one_resource_without_links() -> None:
     xml_str = """
     <resource label="foo_label" restype=":my_type" id="foo_1_id">
         <text-prop name=":hasSimpleText">
@@ -71,4 +71,42 @@ def test_happy_path() -> None:
             pytest.fail("POST request was not sent correctly")
     assert not upload_state.pending_resources
     assert not upload_state.failed_uploads
-    assert upload_state.iri_resolver.lookup["foo_1_id"] == "foo_1_iri"
+    assert upload_state.iri_resolver.lookup == {"foo_1_id": "foo_1_iri"}
+    assert not upload_state.pending_stash
+
+
+def test_one_resource_with_link_to_existing_resource() -> None:
+    xml_str = """
+    <resource label="foo_label" restype=":my_type" id="foo_1_id">
+        <resptr-prop name=":hasCustomLink">
+            <resptr>foo_2_id</resptr>
+        </resptr-prop>
+    </resource>
+    """
+    xml_res = XMLResource(etree.fromstring(xml_str), "my_onto")
+    upload_state = UploadState([xml_res], [], IriResolver({"foo_2_id": "foo_2_iri"}), None, UploadConfig(), {})
+    con = Mock()
+    con.post = Mock(return_value={"@id": "foo_1_iri", "rdfs:label": "foo_label"})
+    project_client = ProjectClientStub(con, "1234", None)
+    _upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
+    assert len(con.post.call_args_list) == 1
+    match con.post.call_args_list[0].kwargs:
+        case {
+            "route": "/v2/resources",
+            "data": {
+                "@type": "my_onto:my_type",
+                "rdfs:label": "foo_label",
+                "knora-api:attachedToProject": {"@id": "https://admin.test.dasch.swiss/project/MsOaiQkcQ7-QPxsYBKckfQ"},
+                "@context": dict(),
+                "my_onto:hasCustomLinkValue": [
+                    {"@type": "knora-api:LinkValue", "knora-api:linkValueHasTargetIri": {"@id": "foo_2_iri"}}
+                ],
+            },
+        }:
+            assert True
+        case _:
+            pytest.fail("POST request was not sent correctly")
+    assert not upload_state.pending_resources
+    assert not upload_state.failed_uploads
+    assert upload_state.iri_resolver.lookup == {"foo_1_id": "foo_1_iri", "foo_2_id": "foo_2_iri"}
+    assert not upload_state.pending_stash

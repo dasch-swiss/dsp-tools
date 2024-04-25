@@ -10,7 +10,7 @@ from dsp_tools.commands.excel2json.new_lists import _get_column_nums
 from dsp_tools.commands.excel2json.new_lists import _get_columns_preferred_lang
 from dsp_tools.commands.excel2json.new_lists import _get_labels
 from dsp_tools.commands.excel2json.new_lists import _get_preferred_language
-from dsp_tools.commands.excel2json.new_lists import _get_sorted_columns_list
+from dsp_tools.commands.excel2json.new_lists import _get_reverse_sorted_columns_list
 from dsp_tools.models.exceptions import InputError
 
 # class TestMakeLists:
@@ -228,8 +228,8 @@ def test_get_columns_preferred_lang_returns_empty_list_for_no_match() -> None:
 
 def test_sorted_columns_returns_expected_result():
     df = pd.DataFrame(columns=["en_1", "de_2", "de_1", "en_2"])
-    expected_result = [["en_1", "de_1"], ["en_2", "de_2"]]
-    assert _get_sorted_columns_list(df) == expected_result
+    expected_result = [["de_2", "en_2"], ["de_1", "en_1"]]
+    assert _get_reverse_sorted_columns_list(df) == expected_result
 
 
 class TestGetLabels:
@@ -300,7 +300,7 @@ class TestGetAllLanguagesForColumns:
     def test_get_all_languages_for_columns_returns_correct_languages(self) -> None:
         columns = pd.Index(["en_1", "de_1", "fr_1", "it_1", "rm_1", "en_2"])
         ending = "1"
-        assert _get_all_languages_for_columns(columns, ending) == ["en", "de", "fr", "it", "rm"]
+        assert _get_all_languages_for_columns(columns, ending) == {"en", "de", "fr", "it", "rm"}
 
     def test_get_all_languages_for_columns_returns_empty_list_for_no_match(self) -> None:
         columns = pd.Index(["en_1", "de_1", "fr_1", "it_1", "rm_1", "en_2", "de_2", "fr_2", "it_2", "rm_2"])

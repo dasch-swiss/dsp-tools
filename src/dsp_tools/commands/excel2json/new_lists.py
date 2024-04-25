@@ -82,7 +82,7 @@ def _add_nodes_to_parent(node_dict: dict[str, list[ListNode]], list_id: str) -> 
 
 
 def _make_list_nodes(df: pd.DataFrame) -> tuple[dict[str, list[ListNode]], list[ListNodeProblem]]:
-    list_of_columns = _get_sorted_columns_list(df)
+    list_of_columns = _get_reverse_sorted_columns_list(df)
     problems = []
     node_dict = defaultdict(list)
     iter_df = df.iterrows()
@@ -104,7 +104,7 @@ def _make_one_node(row: pd.Series[str], list_of_columns: list[list[str]]) -> Lis
             return ListNode.create(id_=row.get("id"), labels=labels, row_number=row.get("index"))
 
 
-def _get_sorted_columns_list(df: pd.DataFrame) -> list[list[str]]:
+def _get_reverse_sorted_columns_list(df: pd.DataFrame) -> list[list[str]]:
     numbers = sorted(_get_column_nums(df.columns), reverse=True)
     languages = _get_all_languages_for_columns(df.columns, r"\d+")
     return [[f"{lang}_{num}" for lang in languages] for num in numbers]
@@ -125,8 +125,8 @@ def _get_column_nums(columns: pd.Index[str]) -> list[int]:
     )
 
 
-def _get_all_languages_for_columns(columns: pd.Index[str], ending: str) -> list[str]:
-    return [res.group(1) for x in columns if (res := regex.search(rf"^(en|de|fr|it|rm)_{ending}$", x))]
+def _get_all_languages_for_columns(columns: pd.Index[str], ending: str) -> set[str]:
+    return set(res.group(1) for x in columns if (res := regex.search(rf"^(en|de|fr|it|rm)_{ending}$", x)))
 
 
 def _get_preferred_language(columns: pd.Index[str], ending: str) -> str:

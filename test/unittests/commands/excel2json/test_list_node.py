@@ -66,9 +66,8 @@ class TestListRootCreate:
         assert isinstance(root, ListSheetProblem)
         assert root.sheet_name == "sheet"
         assert root.root_problems == {
-            "name": "The name of the list does not contain any characters.",
             "labels": "At least one label per list is required.",
-            "list nodes": "At least one node per list is required.",
+            "name": "The name of the list does not contain any characters.",
         }
 
     def test_wrong_language(self) -> None:
@@ -80,7 +79,6 @@ class TestListRootCreate:
         assert root.root_problems == {
             "labels": "Only the following languages are supported: 'en', 'de', 'fr', 'it', 'rm'.",
             "comments": "Only the following languages are supported: 'en', 'de', 'fr', 'it', 'rm'.",
-            "list nodes": "At least one node per list is required.",
         }
 
     def test_id_na(self) -> None:
@@ -89,7 +87,6 @@ class TestListRootCreate:
         assert root.root_problems == {
             "name": "The name of the list may not be empty.",
             "labels": "At least one label per list is required.",
-            "list nodes": "At least one node per list is required.",
         }
 
     def test_float(self) -> None:

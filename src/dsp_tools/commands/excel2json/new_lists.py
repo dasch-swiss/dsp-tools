@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from copy import deepcopy
 from typing import Any
 
 import pandas as pd
@@ -72,11 +71,13 @@ def _make_one_list(df: pd.DataFrame, sheet_name: str) -> ListRoot | ListSheetPro
 
 
 def _add_nodes_to_parent(node_dict: dict[str, ListNode], list_id: str) -> list[ListNode]:
-    new_dict = deepcopy(node_dict)
+    root_list = []
     for node_id, node in node_dict.items():
-        if node.parent_id != list_id:
-            new_dict[node.parent_id].sub_nodes.append(node)
-    return list(new_dict.values())
+        if node.parent_id == list_id:
+            root_list.append(node)
+        else:
+            node_dict[node.parent_id].sub_nodes.append(node)
+    return root_list
 
 
 def _make_list_nodes(df: pd.DataFrame) -> tuple[dict[str, ListNode], list[ListNodeProblem]]:

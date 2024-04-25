@@ -4,6 +4,7 @@ import regex
 from pandas.testing import assert_frame_equal
 
 from dsp_tools.commands.excel2json.models.list_node import ListNode
+from dsp_tools.commands.excel2json.new_lists import _add_nodes_to_parent
 from dsp_tools.commands.excel2json.new_lists import _fill_id_column
 from dsp_tools.commands.excel2json.new_lists import _fill_parent_id
 from dsp_tools.commands.excel2json.new_lists import _get_all_languages_for_columns
@@ -218,6 +219,21 @@ def test_fill_parent_id() -> None:
     expected = ["list_en", "list_en", "list_en", "list_en", "3", "3", "3.2", "3.2"]
     res = _fill_parent_id(test_df, "en")
     assert res["parent_id"].to_list() == expected
+
+
+def test_add_nodes_to_parent() -> None:
+    nd_1 = ListNode("1", {"en": "Node_en_1", "de": "Node_de_1"}, 1, parent_id="list_id")
+    nd_2 = ListNode("2", {"en": "Node_en_2", "de": "Node_de_2"}, 2, parent_id="list_id")
+    nd_11 = ListNode("1.1", {"en": "Node_en_1.1", "de": "Node_de_1.1"}, 3, parent_id="1")
+    nd_12 = ListNode("1.2", {"en": "Node_en_2.1", "de": "Node_de_1.2"}, 4, parent_id="1")
+    test_dict = {"1": nd_1, "2": nd_2, "1.1": nd_11, "1.2": nd_12}
+    expected = [nd_1, nd_2]
+    res = _add_nodes_to_parent(test_dict, "list_id")
+    assert res == expected
+    assert nd_1.sub_nodes == [nd_11, nd_12]
+    assert not nd_2.sub_nodes
+    assert not nd_11.sub_nodes
+    assert not nd_12.sub_nodes
 
 
 def test_make_list_nodes_with_valid_data() -> None:

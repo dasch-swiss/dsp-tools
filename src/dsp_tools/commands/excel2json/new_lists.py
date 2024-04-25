@@ -1,9 +1,6 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import Any
-from typing import Hashable
-from typing import Iterable
 from typing import cast
 
 import pandas as pd
@@ -90,9 +87,7 @@ def _make_list_nodes(df: pd.DataFrame) -> tuple[dict[str, list[ListNode]], list[
     list_of_columns = _get_reverse_sorted_columns_list(df)
     problems = []
     node_dict = defaultdict(list)
-    iter_df: Iterable[tuple[Hashable, pd.Series[Any]]] = df.iterrows()
-    next(iter_df)
-    for i, row in iter_df:
+    for i, row in df[1:].iterrows():
         node = _make_one_node(row, list_of_columns)
         match node:
             case ListNode():

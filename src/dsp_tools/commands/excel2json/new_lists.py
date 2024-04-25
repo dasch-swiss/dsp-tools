@@ -103,9 +103,9 @@ def _make_one_node(row: pd.Series[Any], list_of_columns: list[list[str]]) -> Lis
     for col_group in list_of_columns:
         labels = _get_labels(row, col_group)
         if labels:
-            return ListNode.create(id_=row.get("id"), labels=labels, row_number=row.get("index"))
+            return ListNode.create(id_=row["id"], labels=labels, row_number=row["index"])
     return ListNodeProblem(
-        node_id=row.get("id"), problems={"Unknown": f"Unknown problem occurred in row number: {row.get("index")}"}
+        node_id=row["id"], problems={"Unknown": f"Unknown problem occurred in row number: {row["index"]}"}
     )
 
 
@@ -116,7 +116,7 @@ def _get_reverse_sorted_columns_list(df: pd.DataFrame) -> list[list[str]]:
 
 
 def _get_labels(row: pd.Series[Any], columns: list[str]) -> dict[str, str]:
-    return {lang: row.get(col) for col in columns if not (pd.isna(row[col])) and (lang := _get_lang_string(col))}
+    return {lang: row[col] for col in columns if not (pd.isna(row[col])) and (lang := _get_lang_string(col))}
 
 
 def _get_lang_string(col_str: str, ending: str = r"\d+") -> str | None:

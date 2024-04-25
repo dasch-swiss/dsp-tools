@@ -359,7 +359,7 @@ def _upload_one_resource(
         return
 
     try:
-        result = _create_resource(resource, media_info, resource_create_client)
+        iri, label = _create_resource(resource, media_info, resource_create_client)
     except (PermanentTimeOutError, KeyboardInterrupt) as err:
         msg = (
             f"There was a {type(err).__name__} while trying to create resource '{resource.res_id}'.\n"
@@ -373,9 +373,9 @@ def _upload_one_resource(
         raise XmlUploadInterruptedError(msg) from None
 
     try:
-        _tidy_up_resource_creation_idempotent(upload_state, result, resource, current_res, total_res)
+        _tidy_up_resource_creation_idempotent(upload_state, iri, label, resource, current_res, total_res)
     except KeyboardInterrupt:
-        _tidy_up_resource_creation_idempotent(upload_state, result, resource, current_res, total_res)
+        _tidy_up_resource_creation_idempotent(upload_state, iri, label, resource, current_res, total_res)
 
 
 def _compute_counter_info_and_interrupt(
@@ -395,12 +395,12 @@ def _compute_counter_info_and_interrupt(
 
 def _tidy_up_resource_creation_idempotent(
     upload_state: UploadState,
-    result: tuple[str, str] | tuple[None, None],
+    iri: str | None,
+    label: str | None,
     resource: XMLResource,
     current_res: int,
     total_res: int,
 ) -> None:
-    iri, label = result
     if iri and label:
         # resource creation succeeded: update the iri_resolver
         upload_state.iri_resolver.lookup[resource.res_id] = iri

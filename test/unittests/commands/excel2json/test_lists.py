@@ -4,6 +4,7 @@ import regex
 from pandas.testing import assert_frame_equal
 
 from dsp_tools.commands.excel2json.models.list_node import ListNode
+from dsp_tools.commands.excel2json.models.list_node import ListRoot
 from dsp_tools.commands.excel2json.new_lists import _add_nodes_to_parent
 from dsp_tools.commands.excel2json.new_lists import _fill_id_column
 from dsp_tools.commands.excel2json.new_lists import _fill_parent_id
@@ -14,147 +15,102 @@ from dsp_tools.commands.excel2json.new_lists import _get_labels
 from dsp_tools.commands.excel2json.new_lists import _get_lang_string
 from dsp_tools.commands.excel2json.new_lists import _get_preferred_language
 from dsp_tools.commands.excel2json.new_lists import _get_reverse_sorted_columns_list
+from dsp_tools.commands.excel2json.new_lists import _handle_ids
 from dsp_tools.commands.excel2json.new_lists import _make_list_nodes
+from dsp_tools.commands.excel2json.new_lists import _make_one_list
 from dsp_tools.commands.excel2json.new_lists import _make_one_node
 from dsp_tools.models.exceptions import InputError
 
-# class TestMakeLists:
-#     def test_make_lists_all_good(self) -> None:
-#         test_df = pd.DataFrame(
-#             {
-#                 "ID (optional)": ["list_id", "1", "1.1", "2", "3", pd.NA, "3.2", "3.2.1", "3.2.2"],
-#                 "en_list": [
-#                     "Listname_en",
-#                     "Listname_en",
-#                     "Listname_en",
-#                     "Listname_en",
-#                     "Listname_en",
-#                     "Listname_en",
-#                     "Listname_en",
-#                     "Listname_en",
-#                     "Listname_en",
-#                 ],
-#                 "de_list": [
-#                     "Listname_de",
-#                     "de_list",
-#                     "de_list",
-#                     "de_list",
-#                     "de_list",
-#                     "de_list",
-#                     "de_list",
-#                     "de_list",
-#                     "de_list",
-#                 ],
-#                 "en_1": [
-#                     pd.NA,
-#                     "Node_en_1",
-#                     "Node_en_1",
-#                     "Node_en_2",
-#                     "Node_en_3",
-#                     "Node_en_3",
-#                     "Node_en_3",
-#                     "Node_en_3",
-#                     "Node_en_3",
-#                 ],
-#                 "de_1": [
-#                     pd.NA,
-#                     "Node_de_1",
-#                     "Node_de_1",
-#                     "Node_de_2",
-#                     "Node_de_3",
-#                     "Node_de_3",
-#                     "Node_de_3",
-#                     "Node_de_3",
-#                     "Node_de_3",
-#                 ],
-#                 "en_2": [
-#                     pd.NA,
-#                     pd.NA,
-#                     "Node_en_1.1",
-#                     pd.NA,
-#                     pd.NA,
-#                     "Node_en_3.1",
-#                     "Node_en_3.2",
-#                     "Node_en_3.2",
-#                     "Node_en_3.2",
-#                 ],
-#                 "de_2": [
-#                     pd.NA,
-#                     pd.NA,
-#                     "Node_de_1.1",
-#                     pd.NA,
-#                     pd.NA,
-#                     "Node_de_3.1",
-#                     "Node_de_3.2",
-#                     "Node_de_3.2",
-#                     "Node_de_3.2",
-#                 ],
-#                 "en_3": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, "Node_en_3.2.1", "Node_en_3.2.2"],
-#                 "de_3": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, "Node_de_3.2.1", "Node_de_3.2.2"],
-#             }
-#         )
-# node322 = ListNode("3.2.2", {"en": "Node_en_3.2.2", "de": "Node_de_3.2.2"}, 8)
-# node321 = ListNode("3.2.1", {"en": "Node_en_3.2.1", "de": "Node_de_3.2.1"}, 7)
-# node32 = ListNode("3.2", {"en": "Node_en_3.2", "de": "Node_de_3.2"}, 6, [node321, node322])
-# node31 = ListNode("Node_en_3.1", {"en": "Node_en_3.1", "de": "Node_de_3.1"}, 5)
-# node3 = ListNode("3", {"en": "Node_en_3", "de": "Node_de_3"}, 4, [node31, node32])
-# node2 = ListNode("2", {"en": "Node_en_2", "de": "Node_de_2"}, 3)
-# node11 = ListNode("1.1", {"en": "Node_en_1.1", "de": "Node_de_1.1"}, 2)
-# node1 = ListNode("1", {"en": "Node_en_1", "de": "Node_de_1"}, 1, [node11])
-# root = ListRoot("list_id", {"en": "Listname_en", "de": "Listname_de"}, [node1, node2, node3])
-# expected = {
-#     "id_": "list_id",
-#     "labels": {"en": "Listname_en", "de": "Listname_de"},
-#     "nodes": [
-#         ListNode(
-#             id_="1",
-#             labels={"en": "Node_en_1", "de": "Node_de_1"},
-#             row_number=1,
-#             sub_nodes=[
-#                 ListNode(
-#                     id_="1.1", labels={"en": "Node_en_1.1", "de": "Node_de_1.1"}, row_number=2, sub_nodes=[]
-#                 )
-#             ],
-#         ),
-#         ListNode(id_="2", labels={"en": "Node_en_2", "de": "Node_de_2"}, row_number=3, sub_nodes=[]),
-#         ListNode(
-#             id_="3",
-#             labels={"en": "Node_en_3", "de": "Node_de_3"},
-#             row_number=4,
-#             sub_nodes=[
-#                 ListNode(
-#                     id_="Node_en_3.1",
-#                     labels={"en": "Node_en_3.1", "de": "Node_de_3.1"},
-#                     row_number=5,
-#                     sub_nodes=[],
-#                 ),
-#                 ListNode(
-#                     id_="3.2",
-#                     labels={"en": "Node_en_3.2", "de": "Node_de_3.2"},
-#                     row_number=6,
-#                     sub_nodes=[
-#                         ListNode(
-#                             id_="3.2.1",
-#                             labels={"en": "Node_en_3.2.1", "de": "Node_de_3.2.1"},
-#                             row_number=7,
-#                             sub_nodes=[],
-#                         ),
-#                         ListNode(
-#                             id_="3.2.2",
-#                             labels={"en": "Node_en_3.2.2", "de": "Node_de_3.2.2"},
-#                             row_number=8,
-#                             sub_nodes=[],
-#                         ),
-#                     ],
-#                 ),
-#             ],
-#         ),
-#     ],
-#     "comments": pd.NA,
-# }
 
-# res = _make_one_list(test_df, "Sheet1", "Test.xlsx")
-# assert res.__dict__ == expected
+class TestMakeOneList:
+    def test_make_lists_all_good(self) -> None:
+        test_df = pd.DataFrame(
+            {
+                "id": ["list_id", "1", "1.1", "2", "3", "3.1", "3.2", "3.2.1", "3.2.2"],
+                "parent_id": ["list_id", "list_id", "1", "list_id", "list_id", "3", "3", "3.2", "3.2"],
+                "index": [0, 1, 2, 3, 4, 5, 6, 7, 8],
+                "en_list": [
+                    "Listname_en",
+                    "Listname_en",
+                    "Listname_en",
+                    "Listname_en",
+                    "Listname_en",
+                    "Listname_en",
+                    "Listname_en",
+                    "Listname_en",
+                    "Listname_en",
+                ],
+                "de_list": [
+                    "Listname_de",
+                    "Listname_de",
+                    "Listname_de",
+                    "Listname_de",
+                    "Listname_de",
+                    "Listname_de",
+                    "Listname_de",
+                    "Listname_de",
+                    "Listname_de",
+                ],
+                "en_1": [
+                    pd.NA,
+                    "Node_en_1",
+                    "Node_en_1",
+                    "Node_en_2",
+                    "Node_en_3",
+                    "Node_en_3",
+                    "Node_en_3",
+                    "Node_en_3",
+                    "Node_en_3",
+                ],
+                "de_1": [
+                    pd.NA,
+                    "Node_de_1",
+                    "Node_de_1",
+                    "Node_de_2",
+                    "Node_de_3",
+                    "Node_de_3",
+                    "Node_de_3",
+                    "Node_de_3",
+                    "Node_de_3",
+                ],
+                "en_2": [
+                    pd.NA,
+                    pd.NA,
+                    "Node_en_1.1",
+                    pd.NA,
+                    pd.NA,
+                    "Node_en_3.1",
+                    "Node_en_3.2",
+                    "Node_en_3.2",
+                    "Node_en_3.2",
+                ],
+                "de_2": [
+                    pd.NA,
+                    pd.NA,
+                    "Node_de_1.1",
+                    pd.NA,
+                    pd.NA,
+                    "Node_de_3.1",
+                    "Node_de_3.2",
+                    "Node_de_3.2",
+                    "Node_de_3.2",
+                ],
+                "en_3": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, "Node_en_3.2.1", "Node_en_3.2.2"],
+                "de_3": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, "Node_de_3.2.1", "Node_de_3.2.2"],
+            }
+        )
+        res = _make_one_list(test_df, "Sheet1")
+        assert isinstance(res, ListRoot)
+        assert res.id_ == "list_id"
+        assert res.labels == {"en": "Listname_en", "de": "Listname_de"}
+        assert len(res.nodes) == 3
+        assert res.nodes[0].id_ == "1"
+        assert res.nodes[1].id_ == "2"
+        assert res.nodes[2].id_ == "3"
+        assert res.nodes[2].sub_nodes[0].id_ == "3.1"
+        assert res.nodes[2].sub_nodes[1].id_ == "3.2"
+        assert res.nodes[2].sub_nodes[1].sub_nodes[0].id_ == "3.2.1"
+        assert res.nodes[2].sub_nodes[1].sub_nodes[1].id_ == "3.2.2"
 
 
 class TestFillIdColumn:
@@ -195,6 +151,18 @@ class TestFillIdColumn:
         )
         res = _fill_id_column(test_df, "en")
         assert_frame_equal(res, expected)
+
+
+def test_handle_ids() -> None:
+    test_df = pd.DataFrame(
+        {
+            "ID (optional)": [pd.NA, pd.NA, "2", "3", pd.NA, "5", "6", pd.NA],
+            "en_list": ["list_en", "list_en", "list_en", "list_en", "list_en", "list_en", "list_en", "list_en"],
+            "en_1": ["list_en", "nd_en_1", "nd_en_2", "nd_en_3", "nd_en_4", "nd_en_5", "nd_en_6", "nd_en_7"],
+        }
+    )
+    res = _handle_ids(test_df, "en")
+    assert res["id"].tolist() == ["list_en", "nd_en_1", "2", "3", "nd_en_4", "5", "6", "nd_en_7"]
 
 
 def test_fill_parent_id() -> None:
@@ -365,6 +333,20 @@ class TestGetLabels:
         )
         cols = ["en_1", "de_1", "fr_1"]
         assert not _get_labels(row, cols)
+
+    def test_parent(self) -> None:
+        row = pd.Series(
+            {
+                "en_list": "english",
+                "de_list": "german",
+                "fr_1": pd.NA,
+                "fr_2": pd.NA,
+                "it_2": pd.NA,
+                "rm_2": pd.NA,
+            }
+        )
+        cols = ["en_list", "de_list"]
+        assert _get_labels(row, cols) == {"en": "english", "de": "german"}
 
 
 def test_get_lang_string_good() -> None:

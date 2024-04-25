@@ -15,9 +15,6 @@ from dsp_tools.models.exceptions import InputError
 def _handle_ids(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
     df = _fill_id_column(df, preferred_language)
     df = _fill_parent_id(df, preferred_language)
-
-    # Do compliance
-
     df["id"] = df["ID (optional)"].fillna(df["auto_id"])
     return df
 
@@ -114,7 +111,7 @@ def _get_labels(row: pd.Series[Any], columns: list[str]) -> dict[str, str]:
     return {lang: row[col] for col in columns if not (pd.isna(row[col])) and (lang := _get_lang_string(col))}
 
 
-def _get_lang_string(col_str: str, ending: str = r"\d+") -> str | None:
+def _get_lang_string(col_str: str, ending: str = r"(\d+|list)") -> str | None:
     if res := regex.search(rf"^(en|de|fr|it|rm)_{ending}$", col_str):
         return res.group(1)
     return None

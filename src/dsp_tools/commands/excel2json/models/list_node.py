@@ -15,11 +15,17 @@ class ListNode:
     id_: str
     labels: dict[str, str]
     row_number: int
+    parent_id: str
     sub_nodes: list[ListNode] = field(default_factory=list)
 
     @classmethod
     def create(
-        cls, id_: str | int | float, labels: dict[str, str], row_number: int, sub_nodes: list[ListNode] | None = None
+        cls,
+        id_: str | int | float,
+        labels: dict[str, str],
+        row_number: int,
+        parent_id: str,
+        sub_nodes: list[ListNode] | None = None,
     ) -> ListNode | ListNodeProblem:
         user_problem = {}
         if pd.isna(id_):
@@ -32,11 +38,13 @@ class ListNode:
             user_problem["labels"] = "At least one label per list is required."
         elif not set(labels).issubset({"en", "de", "fr", "it", "rm"}):
             user_problem["labels"] = "Only the following languages are supported: 'en', 'de', 'fr', 'it', 'rm'."
+        if not parent_id:
+            user_problem["parent_id"] = "The node does not have a parent node specified."
         if user_problem:
             return ListNodeProblem(id_, user_problem)
         if not sub_nodes:
             sub_nodes = []
-        return cls(id_=id_, labels=labels, row_number=row_number, sub_nodes=sub_nodes)
+        return cls(id_=id_, labels=labels, row_number=row_number, parent_id=parent_id, sub_nodes=sub_nodes)
 
     def to_dict(self) -> dict[str, Any]:
         node = self._make_own_node()

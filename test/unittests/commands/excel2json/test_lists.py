@@ -13,6 +13,7 @@ from dsp_tools.commands.excel2json.new_lists import _get_labels
 from dsp_tools.commands.excel2json.new_lists import _get_lang_string
 from dsp_tools.commands.excel2json.new_lists import _get_preferred_language
 from dsp_tools.commands.excel2json.new_lists import _get_reverse_sorted_columns_list
+from dsp_tools.commands.excel2json.new_lists import _make_list_nodes
 from dsp_tools.commands.excel2json.new_lists import _make_one_node
 from dsp_tools.models.exceptions import InputError
 
@@ -217,6 +218,45 @@ def test_fill_parent_id() -> None:
     expected = ["list_en", "list_en", "list_en", "list_en", "3", "3", "3.2", "3.2"]
     res = _fill_parent_id(test_df, "en")
     assert res["parent_id"].to_list() == expected
+
+
+def test_make_list_nodes_with_valid_data() -> None:
+    data = {
+        "id": ["list_id", "id_1", "id_1.1", "id_2"],
+        "parent_id": ["list_id", "list_id", "id_1", "list_id"],
+        "en_list": ["Listname_en", "Listname_en", "Listname_en", "Listname_en"],
+        "de_list": ["Listname_de", "Listname_de", "Listname_de", "Listname_de"],
+        "en_1": [pd.NA, "Node1", "Node1", "Node2"],
+        "de_1": [pd.NA, "Knoten1", "Knoten1", "Knoten2"],
+        "en_2": [pd.NA, pd.NA, "Node1.1", pd.NA],
+        "de_2": [pd.NA, pd.NA, "Knoten1.1", pd.NA],
+        "index": [3, 0, 2, 1],
+    }
+    df = pd.DataFrame(data)
+    node_dict, problems = _make_list_nodes(df)
+    assert len(node_dict) == 3
+    assert len(problems) == 0
+    one = node_dict["id_1"]
+    assert isinstance(one, ListNode)
+    assert one.id_ == "id_1"
+    assert one.labels == {"en": "Node1", "de": "Knoten1"}
+    assert one.row_number == 0
+    assert one.parent_id == "list_id"
+    assert not one.sub_nodes
+    one_one = node_dict["id_1.1"]
+    assert isinstance(one_one, ListNode)
+    assert one_one.id_ == "id_1.1"
+    assert one_one.labels == {"en": "Node1.1", "de": "Knoten1.1"}
+    assert one_one.row_number == 2
+    assert one_one.parent_id == "id_1"
+    assert not one_one.sub_nodes
+    two = node_dict["id_2"]
+    assert isinstance(two, ListNode)
+    assert two.id_ == "id_2"
+    assert two.labels == {"en": "Node2", "de": "Knoten2"}
+    assert two.row_number == 1
+    assert two.parent_id == "list_id"
+    assert not two.sub_nodes
 
 
 class TestMakeOneNode:

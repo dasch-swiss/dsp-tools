@@ -31,9 +31,9 @@ class TestListRoot:
         assert expected == res
 
     def test_to_json(self) -> None:
-        sub_1 = ListNode("Node_1", {"en": "Node_1_label_en"}, 1)
-        sub_21 = ListNode("SubNode_21", {"en": "SubNode_21_label_en"}, 21)
-        sub_2 = ListNode("Node_2", {"en": "Node_2_label_en"}, 2, [sub_21])
+        sub_1 = ListNode("Node_1", {"en": "Node_1_label_en"}, 1, parent_id="root")
+        sub_21 = ListNode("SubNode_21", {"en": "SubNode_21_label_en"}, 21, parent_id="Node_2")
+        sub_2 = ListNode("Node_2", {"en": "Node_2_label_en"}, 2, sub_nodes=[sub_21], parent_id="root")
         root = ListRoot(
             "RootID",
             {"en": "root_label_en", "de": "root_label_de"},
@@ -57,16 +57,16 @@ class TestListRoot:
 
 class TestListNode:
     def test_make_myself(self) -> None:
-        nd = ListNode("NodeID", {"en": "node_label_en"}, 1)
+        nd = ListNode("NodeID", {"en": "node_label_en"}, 1, parent_id="Node_2")
         expected = {"name": "NodeID", "labels": {"en": "node_label_en"}}
         res = nd._make_own_node()
         assert res == expected
 
     def test_to_json(self) -> None:
-        sub_1 = ListNode("SubNode_1", {"en": "SubNode_1_label_en"}, 1)
-        sub_21 = ListNode("SubNode_21", {"en": "SubNode_21_label_en"}, 21)
-        sub_2 = ListNode("SubNode_2", {"en": "SubNode_2_label_en"}, 2, [sub_21])
-        test_nd = ListNode("NodeID", {"en": "node_label_en"}, 0, [sub_1, sub_2])
+        sub_1 = ListNode("SubNode_1", {"en": "SubNode_1_label_en"}, 1, parent_id="root")
+        sub_21 = ListNode("SubNode_21", {"en": "SubNode_21_label_en"}, 21, parent_id="Node_2")
+        sub_2 = ListNode("SubNode_2", {"en": "SubNode_2_label_en"}, 2, "root", [sub_21])
+        test_nd = ListNode("NodeID", {"en": "node_label_en"}, 0, "root", [sub_1, sub_2])
 
         expected = {
             "name": "NodeID",

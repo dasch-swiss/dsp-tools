@@ -9,7 +9,7 @@ from dsp_tools.commands.excel2json.models.list_node import ListRoot
 
 class TestListRoot:
     def test_make_myself_comments(self) -> None:
-        sub_1 = ListNode(id_="Node_1", labels={"en": "Node_1_label_en"}, row_number=1)
+        sub_1 = ListNode(id_="Node_1", labels={"en": "Node_1_label_en"}, row_number=1, parent_id="RootID")
         root = ListRoot(
             id_="RootID",
             labels={"en": "root_label_en", "de": "root_label_de"},
@@ -25,7 +25,7 @@ class TestListRoot:
         assert expected == res
 
     def test_make_myself_no_comments(self) -> None:
-        sub_1 = ListNode(id_="Node_1", labels={"en": "Node_1_label_en"}, row_number=1)
+        sub_1 = ListNode(id_="Node_1", labels={"en": "Node_1_label_en"}, row_number=1, parent_id="RootID")
         root = ListRoot(
             id_="RootID",
             labels={"en": "root_label_en", "de": "root_label_de"},
@@ -36,9 +36,11 @@ class TestListRoot:
         assert expected == res
 
     def test_to_json(self) -> None:
-        sub_1 = ListNode(id_="Node_1", labels={"en": "Node_1_label_en"}, row_number=1)
-        sub_21 = ListNode(id_="SubNode_21", labels={"en": "SubNode_21_label_en"}, row_number=3)
-        sub_2 = ListNode(id_="Node_2", labels={"en": "Node_2_label_en"}, row_number=2, sub_nodes=[sub_21])
+        sub_1 = ListNode(id_="Node_1", labels={"en": "Node_1_label_en"}, row_number=1, parent_id="RootID")
+        sub_21 = ListNode(id_="SubNode_21", labels={"en": "SubNode_21_label_en"}, row_number=3, parent_id="RootID")
+        sub_2 = ListNode(
+            id_="Node_2", labels={"en": "Node_2_label_en"}, row_number=2, sub_nodes=[sub_21], parent_id="RootID"
+        )
         root = ListRoot(
             id_="RootID",
             labels={"en": "root_label_en", "de": "root_label_de"},
@@ -90,7 +92,7 @@ class TestListRootCreate:
         }
 
     def test_float(self) -> None:
-        nd = ListNode(id_="NodeID", labels={"en": "node_label_en"}, row_number=1)
+        nd = ListNode(id_="NodeID", labels={"en": "node_label_en"}, row_number=1, parent_id="RootID")
         root = ListRoot.create(id_=1.123, sheet_name="sheet", labels={"en": "node_label_en"}, comments={}, nodes=[nd])
         assert isinstance(root, ListRoot)
         assert root.id_ == "1.123"
@@ -100,7 +102,7 @@ class TestListRootCreate:
 
 class TestListNodeCreate:
     def test_problem(self) -> None:
-        nd = ListNode.create(id_="", labels={}, row_number=1)
+        nd = ListNode.create(id_="", labels={}, row_number=1, parent_id="RootID")
         assert isinstance(nd, ListNodeProblem)
         assert nd.node_id == ""
         assert nd.problems == {
@@ -109,7 +111,7 @@ class TestListNodeCreate:
         }
 
     def test_wrong_language(self) -> None:
-        root = ListNode.create(id_="str", labels={"ur": "label"}, row_number=1)
+        root = ListNode.create(id_="str", labels={"ur": "label"}, row_number=1, parent_id="RootID")
         assert isinstance(root, ListNodeProblem)
         assert root.node_id == "str"
         assert root.problems == {
@@ -117,23 +119,28 @@ class TestListNodeCreate:
         }
 
     def test_id_na(self) -> None:
-        root = ListNode.create(id_=pd.NA, labels={}, row_number=1)  # type: ignore[arg-type]
+        root = ListNode.create(id_=pd.NA, labels={}, row_number=1, parent_id="")  # type: ignore[arg-type]
         assert isinstance(root, ListNodeProblem)
         assert root.problems == {
             "name": "The name of the node may not be empty.",
             "labels": "At least one label per list is required.",
+            "parent_id": "The node does not have a parent node specified.",
         }
 
     def test_float(self) -> None:
-        nd = ListNode(id_="NodeID", labels={"en": "node_label_en"}, row_number=1)
-        nd_2 = ListNode.create(id_=1.123, labels={"en": "node_label_en"}, row_number=2, sub_nodes=[nd])
+        nd = ListNode(id_="NodeID", labels={"en": "node_label_en"}, row_number=1, parent_id="RootID")
+        nd_2 = ListNode.create(
+            id_=1.123, labels={"en": "node_label_en"}, row_number=2, sub_nodes=[nd], parent_id="RootID"
+        )
         assert isinstance(nd_2, ListNode)
         assert nd_2.id_ == "1.123"
         assert nd_2.labels == {"en": "node_label_en"}
         assert nd_2.sub_nodes == [nd]
 
     def test_none(self) -> None:
-        root = ListNode.create(id_="str", labels={"en": "node_label_en"}, row_number=2, sub_nodes=None)
+        root = ListNode.create(
+            id_="str", labels={"en": "node_label_en"}, row_number=2, sub_nodes=None, parent_id="RootID"
+        )
         assert isinstance(root, ListNode)
         assert root.id_ == "str"
         assert root.labels == {"en": "node_label_en"}
@@ -142,16 +149,20 @@ class TestListNodeCreate:
 
 class TestListNode:
     def test_make_myself(self) -> None:
-        nd = ListNode(id_="NodeID", labels={"en": "node_label_en"}, row_number=1)
+        nd = ListNode(id_="NodeID", labels={"en": "node_label_en"}, row_number=1, parent_id="RootID")
         expected = {"name": "NodeID", "labels": {"en": "node_label_en"}}
         res = nd._make_own_node()
         assert res == expected
 
     def test_to_json(self) -> None:
-        sub_1 = ListNode(id_="SubNode_1", labels={"en": "SubNode_1_label_en"}, row_number=1)
-        sub_21 = ListNode(id_="SubNode_21", labels={"en": "SubNode_21_label_en"}, row_number=3)
-        sub_2 = ListNode(id_="SubNode_2", labels={"en": "SubNode_2_label_en"}, row_number=2, sub_nodes=[sub_21])
-        test_nd = ListNode(id_="NodeID", labels={"en": "node_label_en"}, row_number=0, sub_nodes=[sub_1, sub_2])
+        sub_1 = ListNode(id_="SubNode_1", labels={"en": "SubNode_1_label_en"}, row_number=1, parent_id="RootID")
+        sub_21 = ListNode(id_="SubNode_21", labels={"en": "SubNode_21_label_en"}, row_number=3, parent_id="RootID")
+        sub_2 = ListNode(
+            id_="SubNode_2", labels={"en": "SubNode_2_label_en"}, row_number=2, sub_nodes=[sub_21], parent_id="RootID"
+        )
+        test_nd = ListNode(
+            id_="NodeID", labels={"en": "node_label_en"}, row_number=0, sub_nodes=[sub_1, sub_2], parent_id="RootID"
+        )
 
         expected = {
             "name": "NodeID",

@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from collections import defaultdict
+from copy import deepcopy
 from typing import Any
-from typing import cast
 
 import pandas as pd
 import regex
@@ -72,38 +71,33 @@ def _make_one_list(df: pd.DataFrame, sheet_name: str) -> ListRoot | ListSheetPro
     return root
 
 
-def _add_nodes_to_parent(node_dict: dict[str, list[ListNode]], list_id: str) -> list[ListNode]:
-    root_nodes = []
-    for parent_id, nodes in node_dict.items():
-        if parent_id == list_id:
-            root_nodes.extend(nodes)
-        else:
-            for root_node in root_nodes:
-                if root_node.id_ == parent_id:
-                    root_node.sub_nodes.extend(nodes)
-    return root_nodes
+def _add_nodes_to_parent(node_dict: dict[str, ListNode], list_id: str) -> list[ListNode]:
+    new_dict = deepcopy(node_dict)
+    for node_id, node in node_dict.items():
+        if node.parent_id != list_id:
+            new_dict[node.parent_id].sub_nodes.append(node)
+    return list(new_dict.values())
 
 
-def _make_list_nodes(df: pd.DataFrame) -> tuple[dict[str, list[ListNode]], list[ListNodeProblem]]:
+def _make_list_nodes(df: pd.DataFrame) -> tuple[dict[str, ListNode], list[ListNodeProblem]]:
     list_of_columns = _get_reverse_sorted_columns_list(df)
     problems = []
-    node_dict = defaultdict(list)
+    node_dict = {}
     for i, row in df[1:].iterrows():
         node = _make_one_node(row, list_of_columns)
         match node:
             case ListNode():
-                node_dict[row.get("parent_id")].append(node)
+                node_dict[node.id_] = node
             case ListNodeProblem():
                 problems.append(node)
-    return_dict = cast(dict[str, list[ListNode]], node_dict)
-    return return_dict, problems
+    return node_dict, problems
 
 
 def _make_one_node(row: pd.Series[Any], list_of_columns: list[list[str]]) -> ListNode | ListNodeProblem:
     for col_group in list_of_columns:
         labels = _get_labels(row, col_group)
         if labels:
-            return ListNode.create(id_=row["id"], labels=labels, row_number=row["index"])
+            return ListNode.create(id_=row["id"], labels=labels, row_number=row["index"], parent_id=row["parent_id"])
     return ListNodeProblem(
         node_id=row["id"], problems={"Unknown": f"Unknown problem occurred in row number: {row["index"]}"}
     )

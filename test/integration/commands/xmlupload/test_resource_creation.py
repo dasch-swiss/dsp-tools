@@ -42,7 +42,7 @@ class ProjectClientStub:
 
 def test_one_resource_without_links() -> None:
     xml_str = """
-    <resource label="foo_label" restype=":my_type" id="foo_1_id">
+    <resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id">
         <text-prop name=":hasSimpleText">
             <text encoding="utf8">foo_1 text</text>
         </text-prop>
@@ -51,7 +51,7 @@ def test_one_resource_without_links() -> None:
     xml_res = XMLResource(etree.fromstring(xml_str), "my_onto")
     upload_state = UploadState([xml_res], [], IriResolver(), None, UploadConfig(), {})
     con = Mock()
-    con.post = Mock(return_value={"@id": "foo_1_iri", "rdfs:label": "foo_label"})
+    con.post = Mock(return_value={"@id": "foo_1_iri", "rdfs:label": "foo_1_label"})
     project_client = ProjectClientStub(con, "1234", None)
     _upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
     assert len(con.post.call_args_list) == 1
@@ -59,8 +59,8 @@ def test_one_resource_without_links() -> None:
         case {
             "route": "/v2/resources",
             "data": {
-                "@type": "my_onto:my_type",
-                "rdfs:label": "foo_label",
+                "@type": "my_onto:foo_1_type",
+                "rdfs:label": "foo_1_label",
                 "knora-api:attachedToProject": {"@id": "https://admin.test.dasch.swiss/project/MsOaiQkcQ7-QPxsYBKckfQ"},
                 "@context": dict(),
                 "my_onto:hasSimpleText": [{"@type": "knora-api:TextValue", "knora-api:valueAsString": "foo_1 text"}],
@@ -77,7 +77,7 @@ def test_one_resource_without_links() -> None:
 
 def test_one_resource_with_link_to_existing_resource() -> None:
     xml_str = """
-    <resource label="foo_label" restype=":my_type" id="foo_1_id">
+    <resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id">
         <resptr-prop name=":hasCustomLink">
             <resptr>foo_2_id</resptr>
         </resptr-prop>
@@ -86,7 +86,7 @@ def test_one_resource_with_link_to_existing_resource() -> None:
     xml_res = XMLResource(etree.fromstring(xml_str), "my_onto")
     upload_state = UploadState([xml_res], [], IriResolver({"foo_2_id": "foo_2_iri"}), None, UploadConfig(), {})
     con = Mock()
-    con.post = Mock(return_value={"@id": "foo_1_iri", "rdfs:label": "foo_label"})
+    con.post = Mock(return_value={"@id": "foo_1_iri", "rdfs:label": "foo_1_label"})
     project_client = ProjectClientStub(con, "1234", None)
     _upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
     assert len(con.post.call_args_list) == 1
@@ -94,8 +94,8 @@ def test_one_resource_with_link_to_existing_resource() -> None:
         case {
             "route": "/v2/resources",
             "data": {
-                "@type": "my_onto:my_type",
-                "rdfs:label": "foo_label",
+                "@type": "my_onto:foo_1_type",
+                "rdfs:label": "foo_1_label",
                 "knora-api:attachedToProject": {"@id": "https://admin.test.dasch.swiss/project/MsOaiQkcQ7-QPxsYBKckfQ"},
                 "@context": dict(),
                 "my_onto:hasCustomLinkValue": [

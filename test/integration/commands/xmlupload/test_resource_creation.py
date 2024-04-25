@@ -10,7 +10,7 @@ from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.models.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.project_client import ProjectInfo
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
-from dsp_tools.commands.xmlupload.xmlupload import _upload_resources
+from dsp_tools.commands.xmlupload.xmlupload import upload_resources
 from dsp_tools.utils.connection import Connection
 
 
@@ -53,7 +53,7 @@ def test_one_resource_without_links() -> None:
     con = Mock()
     con.post = Mock(return_value={"@id": "foo_1_iri", "rdfs:label": "foo_1_label"})
     project_client = ProjectClientStub(con, "1234", None)
-    _upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
+    upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
     assert len(con.post.call_args_list) == 1
     match con.post.call_args_list[0].kwargs:
         case {
@@ -88,7 +88,7 @@ def test_one_resource_with_link_to_existing_resource() -> None:
     con = Mock()
     con.post = Mock(return_value={"@id": "foo_1_iri", "rdfs:label": "foo_1_label"})
     project_client = ProjectClientStub(con, "1234", None)
-    _upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
+    upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
     assert len(con.post.call_args_list) == 1
     match con.post.call_args_list[0].kwargs:
         case {

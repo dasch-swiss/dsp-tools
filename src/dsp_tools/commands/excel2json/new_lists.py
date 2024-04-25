@@ -1,6 +1,10 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from typing import Any
+from typing import Hashable
+from typing import Iterable
+from typing import cast
 
 import pandas as pd
 import regex
@@ -54,16 +58,17 @@ def _fill_parent_id(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
 
 def _make_one_list(df: pd.DataFrame, sheet_name: str) -> ListRoot | ListSheetProblem:
     node_dict, problems = _make_list_nodes(df)
+    cols = [x for x in df.columns if regex.search(r"^(en|de|fr|it|rm)_list$", x)]
     root = ListRoot.create(
         id_=df.at[0, "id"],
-        labels=_get_labels(df.iloc[0], "list"),
+        labels=_get_labels(df.iloc[0:], cols),
         sheet_name=sheet_name,
     )
     match (root, problems):
         case (ListRoot(), list(ListNodeProblem())):
-            return ListSheetProblem(sheet_name, root_problems={}, node_problems=problems)
+            return ListSheetProblem(sheet_name, root_problems={}, nodes=problems)
         case (ListSheetProblem(), _):
-            root.node_problems = problems
+            root.nodes = problems
             return root
     root.nodes = _add_nodes_to_parent(node_dict, df.at[0, "id"])
     return root
@@ -85,7 +90,7 @@ def _make_list_nodes(df: pd.DataFrame) -> tuple[dict[str, list[ListNode]], list[
     list_of_columns = _get_reverse_sorted_columns_list(df)
     problems = []
     node_dict = defaultdict(list)
-    iter_df = df.iterrows()
+    iter_df: Iterable[tuple[Hashable, pd.Series[Any]]] = df.iterrows()
     next(iter_df)
     for i, row in iter_df:
         node = _make_one_node(row, list_of_columns)
@@ -94,14 +99,18 @@ def _make_list_nodes(df: pd.DataFrame) -> tuple[dict[str, list[ListNode]], list[
                 node_dict[row.get("parent_id")].append(node)
             case ListNodeProblem():
                 problems.append(node)
-    return node_dict, problems
+    return_dict = cast(dict[str, list[ListNode]], node_dict)
+    return return_dict, problems
 
 
-def _make_one_node(row: pd.Series[str], list_of_columns: list[list[str]]) -> ListNode | ListNodeProblem:
+def _make_one_node(row: pd.DataFrame, list_of_columns: list[list[str]]) -> ListNode | ListNodeProblem:
     for col_group in list_of_columns:
-        labels = _get_labels(row, col_group[0].split("_")[1])
+        labels = _get_labels(row, col_group)
         if labels:
-            return ListNode.create(id_=row.get("id"), labels=labels, row_number=row.get("index"))
+            return ListNode.create(id_=row["id"].item(), labels=labels, row_number=row["index"].item())
+    return ListNodeProblem(
+        node_id=row["id"].item(), problems={"Unknown": f"Unknown problem occurred in row number: {row["index"].item()}"}
+    )
 
 
 def _get_reverse_sorted_columns_list(df: pd.DataFrame) -> list[list[str]]:
@@ -110,9 +119,16 @@ def _get_reverse_sorted_columns_list(df: pd.DataFrame) -> list[list[str]]:
     return [[f"{lang}_{num}" for lang in languages] for num in numbers]
 
 
-def _get_labels(row: pd.Series[str], col_ending: str) -> dict[str, str]:
-    languages = _get_all_languages_for_columns(row.index, col_ending)
-    return {lang: row.get(f"{lang}_{col_ending}") for lang in languages if pd.notna(row[f"{lang}_{col_ending}"])}
+def _get_labels(row: pd.DataFrame, columns: list[str]) -> dict[str, str]:
+    return {
+        lang: row[col].values[0] for col in columns if not (pd.isna(row[col]).any()) and (lang := _get_lang_string(col))
+    }
+
+
+def _get_lang_string(col_str: str, ending: str = r"\d+") -> str | None:
+    if res := regex.search(rf"^(en|de|fr|it|rm)_{ending}$", col_str):
+        return res.group(1)
+    return None
 
 
 def _get_columns_preferred_lang(columns: pd.Index[str], preferred_language: str) -> list[str]:
@@ -126,7 +142,7 @@ def _get_column_nums(columns: pd.Index[str]) -> list[int]:
 
 
 def _get_all_languages_for_columns(columns: pd.Index[str], ending: str) -> set[str]:
-    return set(res.group(1) for x in columns if (res := regex.search(rf"^(en|de|fr|it|rm)_{ending}$", x)))
+    return set(res for x in columns if (res := _get_lang_string(x, ending)))
 
 
 def _get_preferred_language(columns: pd.Index[str], ending: str) -> str:

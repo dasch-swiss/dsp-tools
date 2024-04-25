@@ -51,9 +51,7 @@ def test_one_resource_without_links() -> None:
     xml_strings = [
         """
         <resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id">
-            <text-prop name=":hasSimpleText">
-                <text encoding="utf8">foo_1 text</text>
-            </text-prop>
+            <text-prop name=":hasSimpleText"><text encoding="utf8">foo_1 text</text></text-prop>
         </resource>
         """,
     ]
@@ -88,9 +86,7 @@ def test_one_resource_with_link_to_existing_resource() -> None:
     xml_strings = [
         """
         <resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id">
-            <resptr-prop name=":hasCustomLink">
-                <resptr>foo_2_id</resptr>
-            </resptr-prop>
+            <resptr-prop name=":hasCustomLink"><resptr>foo_2_id</resptr></resptr-prop>
         </resource>
         """,
     ]
@@ -183,8 +179,7 @@ def test_two_resources_with_stash_interrupted_by_timeout() -> None:
     upload_state = UploadState(xml_resources.copy(), [], IriResolver(), copy(stash), UploadConfig(), {})
     con = Mock(spec=ConnectionLive)
     con.post = Mock(side_effect=[{"@id": "foo_1_iri", "rdfs:label": "foo_1_label"}, PermanentTimeOutError("")])
-    handle_upload_error_mock = Mock()
-    xmlupload._handle_upload_error = handle_upload_error_mock
+    xmlupload._handle_upload_error = Mock()
     project_client = ProjectClientStub(con, "1234", None)
     xmlupload.upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
     err_msg = (
@@ -198,7 +193,7 @@ def test_two_resources_with_stash_interrupted_by_timeout() -> None:
     upload_state_expected = UploadState(
         xml_resources[1:], [], IriResolver({"foo_1_id": "foo_1_iri"}), stash, UploadConfig(), {}
     )
-    handle_upload_error_mock.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
+    xmlupload._handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
 
 def test_two_resources_with_stash_interrupted_by_keyboard() -> None:
@@ -215,8 +210,7 @@ def test_two_resources_with_stash_interrupted_by_keyboard() -> None:
     upload_state = UploadState(xml_resources.copy(), [], IriResolver(), copy(stash), UploadConfig(), {})
     con = Mock(spec=ConnectionLive)
     con.post = Mock(side_effect=[{"@id": "foo_1_iri", "rdfs:label": "foo_1_label"}, KeyboardInterrupt()])
-    handle_upload_error_mock = Mock()
-    xmlupload._handle_upload_error = handle_upload_error_mock
+    xmlupload._handle_upload_error = Mock()
     project_client = ProjectClientStub(con, "1234", None)
     xmlupload.upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
     err_msg = (
@@ -230,7 +224,52 @@ def test_two_resources_with_stash_interrupted_by_keyboard() -> None:
     upload_state_expected = UploadState(
         xml_resources[1:], [], IriResolver({"foo_1_id": "foo_1_iri"}), stash, UploadConfig(), {}
     )
-    handle_upload_error_mock.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
+    xmlupload._handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
 
-# interrupt_after
+def test_two_resources_with_stash_interrupt_after() -> None:
+    xml_strings = [
+        '<resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id"></resource>',
+        '<resource label="foo_2_label" restype=":foo_2_type" id="foo_2_id"></resource>',
+        '<resource label="foo_3_label" restype=":foo_3_type" id="foo_3_id"></resource>',
+        '<resource label="foo_4_label" restype=":foo_4_type" id="foo_4_id"></resource>',
+        '<resource label="foo_5_label" restype=":foo_5_type" id="foo_5_id"></resource>',
+        '<resource label="foo_6_label" restype=":foo_6_type" id="foo_6_id"></resource>',
+    ]
+    xml_resources = [XMLResource(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
+    link_val_stash_dict = {
+        "foo_1_id": [LinkValueStashItem("foo_1_id", "my_onto:foo_1_type", "my_onto:hasCustomLink", "foo_2_id")],
+        "foo_2_id": [LinkValueStashItem("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")],
+    }
+    stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
+    upload_config = UploadConfig(interrupt_after=2)
+    upload_state = UploadState(xml_resources.copy(), [], IriResolver(), copy(stash), upload_config, {})
+    con = Mock(spec=ConnectionLive)
+    con.post = Mock(
+        side_effect=[
+            {"@id": "foo_1_iri", "rdfs:label": "foo_1_label"},
+            {"@id": "foo_2_iri", "rdfs:label": "foo_2_label"},
+            {"@id": "foo_3_iri", "rdfs:label": "foo_3_label"},
+            {"@id": "foo_4_iri", "rdfs:label": "foo_4_label"},
+            {"@id": "foo_5_iri", "rdfs:label": "foo_5_label"},
+            {"@id": "foo_6_iri", "rdfs:label": "foo_6_label"},
+        ]
+    )
+    xmlupload._handle_upload_error = Mock()
+    project_client = ProjectClientStub(con, "1234", None)
+    err_msg = "Interrupted: Maximum number of resources was reached (2)"
+
+    xmlupload.upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
+    iri_resolver_dict = {"foo_1_id": "foo_1_iri", "foo_2_id": "foo_2_iri"}
+    upload_state_expected = UploadState(xml_resources[2:], [], IriResolver(iri_resolver_dict), stash, upload_config, {})
+    xmlupload._handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
+
+    xmlupload.upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
+    iri_resolver_dict.update({"foo_3_id": "foo_3_iri", "foo_4_id": "foo_4_iri"})
+    upload_state_expected = UploadState(xml_resources[4:], [], IriResolver(iri_resolver_dict), stash, upload_config, {})
+    xmlupload._handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
+
+    xmlupload.upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
+    iri_resolver_dict.update({"foo_5_id": "foo_5_iri", "foo_6_id": "foo_6_iri"})
+    upload_state_expected = UploadState(xml_resources[4:], [], IriResolver(iri_resolver_dict), stash, upload_config, {})
+    xmlupload._handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)

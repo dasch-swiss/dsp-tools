@@ -13,19 +13,19 @@ from dsp_tools.models.exceptions import InputError
 
 
 def _handle_ids(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
-    df = _fill_id_column(df, preferred_language)
-    df = _fill_parent_id(df, preferred_language)
+    df = _fill_auto_id_column(df, preferred_language)
     df["id"] = df["ID (optional)"].fillna(df["auto_id"])
+    df = _fill_parent_id(df, preferred_language)
     return df
 
 
-def _fill_id_column(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
+def _fill_auto_id_column(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
     df["auto_id"] = pd.NA
     if not df["ID (optional)"].isna().any():
         return df
     if pd.isna(df.at[0, "ID (optional)"]):
         df.at[0, "auto_id"] = df.at[0, f"{preferred_language}_list"]
-    columns = sorted(_get_columns_preferred_lang(df.columns, preferred_language), reverse=True)
+    columns = sorted(_get_columns_of_preferred_lang(df.columns, preferred_language), reverse=True)
     for i, row in df.iterrows():
         if pd.isna(row["ID (optional)"]):
             for col in columns:
@@ -36,8 +36,8 @@ def _fill_id_column(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
 
 
 def _fill_parent_id(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
-    df["parent_id"] = df.at[0, "ID (optional)"]
-    columns = _get_columns_preferred_lang(df.columns, preferred_language)
+    df["parent_id"] = df.at[0, "id"]
+    columns = _get_columns_of_preferred_lang(df.columns, preferred_language)
     for col in columns:
         grouped = df.groupby(col)
         for name, group in grouped:
@@ -45,7 +45,7 @@ def _fill_parent_id(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
                 pass
             elif group.shape[0] > 1:
                 rest_index = list(group.index)[1:]
-                df.loc[rest_index, "parent_id"] = group.at[group.index[0], "ID (optional)"]
+                df.loc[rest_index, "parent_id"] = group.at[group.index[0], "id"]
     return df
 
 
@@ -117,7 +117,7 @@ def _get_lang_string(col_str: str, ending: str = r"(\d+|list)") -> str | None:
     return None
 
 
-def _get_columns_preferred_lang(columns: pd.Index[str], preferred_language: str) -> list[str]:
+def _get_columns_of_preferred_lang(columns: pd.Index[str], preferred_language: str) -> list[str]:
     return sorted(col for col in columns if regex.search(rf"^{preferred_language}_\d+$", col))
 
 

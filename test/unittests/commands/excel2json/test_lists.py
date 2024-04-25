@@ -6,11 +6,11 @@ from pandas.testing import assert_frame_equal
 from dsp_tools.commands.excel2json.models.list_node import ListNode
 from dsp_tools.commands.excel2json.models.list_node import ListRoot
 from dsp_tools.commands.excel2json.new_lists import _add_nodes_to_parent
-from dsp_tools.commands.excel2json.new_lists import _fill_id_column
+from dsp_tools.commands.excel2json.new_lists import _fill_auto_id_column
 from dsp_tools.commands.excel2json.new_lists import _fill_parent_id
 from dsp_tools.commands.excel2json.new_lists import _get_all_languages_for_columns
 from dsp_tools.commands.excel2json.new_lists import _get_column_nums
-from dsp_tools.commands.excel2json.new_lists import _get_columns_preferred_lang
+from dsp_tools.commands.excel2json.new_lists import _get_columns_of_preferred_lang
 from dsp_tools.commands.excel2json.new_lists import _get_labels
 from dsp_tools.commands.excel2json.new_lists import _get_lang_string
 from dsp_tools.commands.excel2json.new_lists import _get_preferred_language
@@ -134,7 +134,7 @@ class TestFillIdColumn:
             "nd_en_3.2.1",
             "nd_en_3.2.2",
         ]
-        res = _fill_id_column(test_df, "en")
+        res = _fill_auto_id_column(test_df, "en")
         assert res["auto_id"].to_list() == expected
 
     def test_nothing_to_fill(self) -> None:
@@ -149,7 +149,7 @@ class TestFillIdColumn:
                 "auto_id": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
             }
         )
-        res = _fill_id_column(test_df, "en")
+        res = _fill_auto_id_column(test_df, "en")
         assert_frame_equal(res, expected)
 
 
@@ -168,7 +168,7 @@ def test_handle_ids() -> None:
 def test_fill_parent_id() -> None:
     test_df = pd.DataFrame(
         {
-            "ID (optional)": [
+            "id": [
                 "list_en",
                 "1",
                 "2",
@@ -287,12 +287,12 @@ class TestMakeOneNode:
 
 def test_get_columns_preferred_lang_returns_expected_columns() -> None:
     columns = pd.Index(["en_2", "de_1", "en_1", "it_1"])
-    assert _get_columns_preferred_lang(columns, "en") == ["en_1", "en_2"]
+    assert _get_columns_of_preferred_lang(columns, "en") == ["en_1", "en_2"]
 
 
 def test_get_columns_preferred_lang_returns_empty_list_for_no_match() -> None:
     columns = pd.Index(["de_1", "de_2", "it_1"])
-    assert not _get_columns_preferred_lang(columns, "en")
+    assert not _get_columns_of_preferred_lang(columns, "en")
 
 
 def test_sorted_columns_returns_expected_result() -> None:

@@ -138,6 +138,8 @@ def test_one_resource_with_stashed_link() -> None:
         side_effect=[
             {"@id": "foo_1_iri", "rdfs:label": "foo_1_label"},
             {"@id": "foo_2_iri", "rdfs:label": "foo_2_label"},
+            {},
+            {},
         ]
     )
     project_client = ProjectClientStub(con, "1234", None)
@@ -150,9 +152,10 @@ def test_one_resource_with_stashed_link() -> None:
                 "@type": "my_onto:foo_1_type",
                 "@id": "foo_1_iri",
                 "@context": dict(),
-                "my_onto:hasCustomLinkValue": [
-                    {"@type": "knora-api:LinkValue", "knora-api:linkValueHasTargetIri": {"@id": "foo_2_iri"}}
-                ],
+                "my_onto:hasCustomLinkValue": {
+                    "@type": "knora-api:LinkValue",
+                    "knora-api:linkValueHasTargetIri": {"@id": "foo_2_iri"},
+                },
             },
         }:
             assert True
@@ -161,7 +164,7 @@ def test_one_resource_with_stashed_link() -> None:
     assert not upload_state.pending_resources
     assert not upload_state.failed_uploads
     assert upload_state.iri_resolver.lookup == {"foo_1_id": "foo_1_iri", "foo_2_id": "foo_2_iri"}
-    assert not upload_state.pending_stash
+    assert not upload_state.pending_stash or upload_state.pending_stash.is_empty()
 
 
 def test_two_resources_with_stash_interrupted_by_timeout() -> None:

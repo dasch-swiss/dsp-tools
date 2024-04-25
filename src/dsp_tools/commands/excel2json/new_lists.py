@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from typing import Any
 from typing import cast
 
 import pandas as pd
@@ -58,7 +59,7 @@ def _make_one_list(df: pd.DataFrame, sheet_name: str) -> ListRoot | ListSheetPro
     cols = [x for x in df.columns if regex.search(r"^(en|de|fr|it|rm)_list$", x)]
     root = ListRoot.create(
         id_=df.at[0, "id"],
-        labels=_get_labels(df.iloc[0:], cols),
+        labels=_get_labels(df.iloc[0], cols),
         sheet_name=sheet_name,
     )
     match (root, problems):
@@ -98,13 +99,13 @@ def _make_list_nodes(df: pd.DataFrame) -> tuple[dict[str, list[ListNode]], list[
     return return_dict, problems
 
 
-def _make_one_node(row: pd.DataFrame, list_of_columns: list[list[str]]) -> ListNode | ListNodeProblem:
+def _make_one_node(row: pd.Series[Any], list_of_columns: list[list[str]]) -> ListNode | ListNodeProblem:
     for col_group in list_of_columns:
         labels = _get_labels(row, col_group)
         if labels:
-            return ListNode.create(id_=row["id"].item(), labels=labels, row_number=row["index"].item())
+            return ListNode.create(id_=row.get("id"), labels=labels, row_number=row.get("index"))
     return ListNodeProblem(
-        node_id=row["id"].item(), problems={"Unknown": f"Unknown problem occurred in row number: {row["index"].item()}"}
+        node_id=row.get("id"), problems={"Unknown": f"Unknown problem occurred in row number: {row.get("index")}"}
     )
 
 
@@ -114,10 +115,8 @@ def _get_reverse_sorted_columns_list(df: pd.DataFrame) -> list[list[str]]:
     return [[f"{lang}_{num}" for lang in languages] for num in numbers]
 
 
-def _get_labels(row: pd.DataFrame, columns: list[str]) -> dict[str, str]:
-    return {
-        lang: row[col].values[0] for col in columns if not (pd.isna(row[col]).any()) and (lang := _get_lang_string(col))
-    }
+def _get_labels(row: pd.Series[Any], columns: list[str]) -> dict[str, str]:
+    return {lang: row.get(col) for col in columns if not (pd.isna(row[col])) and (lang := _get_lang_string(col))}
 
 
 def _get_lang_string(col_str: str, ending: str = r"\d+") -> str | None:

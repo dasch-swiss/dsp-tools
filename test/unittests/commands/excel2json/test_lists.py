@@ -221,19 +221,19 @@ def test_fill_parent_id() -> None:
 
 class TestMakeOneNode:
     def test_all_good_first(self) -> None:
-        test_df = pd.DataFrame(
+        test_series = pd.Series(
             {
-                "id": ["node_id"],
-                "parent_id": ["list_id"],
-                "index": [1],
-                "en_list": ["Listname_en"],
-                "en_1": ["Node_en_1"],
-                "de_1": ["Node_de_1"],
-                "en_2": [pd.NA],
-                "de_2": [pd.NA],
+                "id": "node_id",
+                "parent_id": "list_id",
+                "index": 1,
+                "en_list": "Listname_en",
+                "en_1": "Node_en_1",
+                "de_1": "Node_de_1",
+                "en_2": pd.NA,
+                "de_2": pd.NA,
             }
         )
-        nd = _make_one_node(test_df.loc[0:], [["en_2", "de_2"], ["en_1", "de_1"]])
+        nd = _make_one_node(test_series, [["en_2", "de_2"], ["en_1", "de_1"]])
         assert isinstance(nd, ListNode)
         assert nd.id_ == "node_id"
         assert nd.labels == {"en": "Node_en_1", "de": "Node_de_1"}
@@ -241,19 +241,19 @@ class TestMakeOneNode:
         assert not nd.sub_nodes
 
     def test_all_good_second(self) -> None:
-        test_df = pd.DataFrame(
+        test_series = pd.Series(
             {
-                "id": ["node_id"],
-                "parent_id": ["list_id"],
-                "index": [2],
-                "en_list": ["Listname_en"],
-                "en_1": ["Node_en_1"],
-                "de_1": ["Node_de_1"],
-                "en_2": ["Node_en_2"],
-                "de_2": ["Node_de_2"],
+                "id": "node_id",
+                "parent_id": "list_id",
+                "index": 2,
+                "en_list": "Listname_en",
+                "en_1": "Node_en_1",
+                "de_1": "Node_de_1",
+                "en_2": "Node_en_2",
+                "de_2": "Node_de_2",
             }
         )
-        nd = _make_one_node(test_df.loc[0:], [["en_2", "de_2"], ["en_1", "de_1"]])
+        nd = _make_one_node(test_series, [["en_2", "de_2"], ["en_1", "de_1"]])
         assert isinstance(nd, ListNode)
         assert nd.id_ == "node_id"
         assert nd.labels == {"en": "Node_en_2", "de": "Node_de_2"}
@@ -281,34 +281,34 @@ def test_sorted_columns_returns_expected_result() -> None:
 
 class TestGetLabels:
     def test_correct_labels_for_all_languages(self) -> None:
-        row = pd.DataFrame(
+        row = pd.Series(
             {
-                "en_1": ["Hello"],
-                "de_1": ["Hallo"],
-                "fr_1": ["Bonjour"],
-                "it_1": ["Ciao"],
-                "rm_1": [pd.NA],
-                "en_2": ["other"],
-                "de_2": [pd.NA],
+                "en_1": "Hello",
+                "de_1": "Hallo",
+                "fr_1": "Bonjour",
+                "it_1": "Ciao",
+                "rm_1": pd.NA,
+                "en_2": "other",
+                "de_2": pd.NA,
             }
         )
         cols = ["en_1", "de_1", "fr_1", "it_1", "rm_1"]
         expected = {"en": "Hello", "de": "Hallo", "fr": "Bonjour", "it": "Ciao"}
-        assert _get_labels(row.loc[0:], cols) == expected
+        assert _get_labels(row, cols) == expected
 
     def test_returns_empty_dict_for_no_languages(self) -> None:
-        row = pd.DataFrame(
+        row = pd.Series(
             {
-                "en_1": [pd.NA],
-                "de_1": [pd.NA],
-                "fr_1": [pd.NA],
-                "fr_2": [pd.NA],
-                "it_2": [pd.NA],
-                "rm_2": [pd.NA],
+                "en_1": pd.NA,
+                "de_1": pd.NA,
+                "fr_1": pd.NA,
+                "fr_2": pd.NA,
+                "it_2": pd.NA,
+                "rm_2": pd.NA,
             }
         )
         cols = ["en_1", "de_1", "fr_1"]
-        assert not _get_labels(row.loc[0:], cols)
+        assert not _get_labels(row, cols)
 
 
 def test_get_lang_string_good() -> None:

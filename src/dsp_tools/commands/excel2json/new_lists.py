@@ -12,7 +12,7 @@ from dsp_tools.commands.excel2json.models.list_node import ListRoot
 from dsp_tools.models.exceptions import InputError
 
 
-def _handle_ids(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
+def _fill_id_and_parent_id_columns(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
     df = _fill_auto_id_column(df, preferred_language)
     df["id"] = df["ID (optional)"].fillna(df["auto_id"])
     df = _fill_parent_id(df, preferred_language)
@@ -20,6 +20,7 @@ def _handle_ids(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
 
 
 def _fill_auto_id_column(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
+    """For every node without manual ID, take the label of the preferred language as ID."""
     df["auto_id"] = pd.NA
     if not df["ID (optional)"].isna().any():
         return df
@@ -36,14 +37,18 @@ def _fill_auto_id_column(df: pd.DataFrame, preferred_language: str) -> pd.DataFr
 
 
 def _fill_parent_id(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
+    """Create an extra column with the ID of the parent node."""
+    # To start, all rows get the ID of the list. These will be overwritten if the row has another parent.
     df["parent_id"] = df.at[0, "id"]
     columns = _get_columns_of_preferred_lang(df.columns, preferred_language)
     for col in columns:
         grouped = df.groupby(col)
         for name, group in grouped:
             if name == "nan":
+                # Leaf node: ID already assigned
                 pass
             elif group.shape[0] > 1:
+                # The first row already has the correct ID assigned
                 rest_index = list(group.index)[1:]
                 df.loc[rest_index, "parent_id"] = group.at[group.index[0], "id"]
     return df

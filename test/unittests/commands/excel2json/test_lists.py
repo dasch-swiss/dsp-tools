@@ -7,6 +7,7 @@ from dsp_tools.commands.excel2json.models.list_node import ListNode
 from dsp_tools.commands.excel2json.models.list_node import ListRoot
 from dsp_tools.commands.excel2json.new_lists import _add_nodes_to_parent
 from dsp_tools.commands.excel2json.new_lists import _fill_auto_id_column
+from dsp_tools.commands.excel2json.new_lists import _fill_id_and_parent_id_columns
 from dsp_tools.commands.excel2json.new_lists import _fill_parent_id
 from dsp_tools.commands.excel2json.new_lists import _get_all_languages_for_columns
 from dsp_tools.commands.excel2json.new_lists import _get_column_nums
@@ -15,7 +16,6 @@ from dsp_tools.commands.excel2json.new_lists import _get_labels
 from dsp_tools.commands.excel2json.new_lists import _get_lang_string
 from dsp_tools.commands.excel2json.new_lists import _get_preferred_language
 from dsp_tools.commands.excel2json.new_lists import _get_reverse_sorted_columns_list
-from dsp_tools.commands.excel2json.new_lists import _handle_ids
 from dsp_tools.commands.excel2json.new_lists import _make_list_nodes
 from dsp_tools.commands.excel2json.new_lists import _make_one_list
 from dsp_tools.commands.excel2json.new_lists import _make_one_node
@@ -161,7 +161,7 @@ def test_handle_ids() -> None:
             "en_1": ["list_en", "nd_en_1", "nd_en_2", "nd_en_3", "nd_en_4", "nd_en_5", "nd_en_6", "nd_en_7"],
         }
     )
-    res = _handle_ids(test_df, "en")
+    res = _fill_id_and_parent_id_columns(test_df, "en")
     assert res["id"].tolist() == ["list_en", "nd_en_1", "2", "3", "nd_en_4", "5", "6", "nd_en_7"]
 
 

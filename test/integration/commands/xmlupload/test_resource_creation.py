@@ -1,6 +1,7 @@
 from dataclasses import dataclass
-from test.integration.commands.xmlupload.connection_mock import ConnectionMockBase
+from unittest.mock import Mock
 
+import pytest
 from lxml import etree
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
@@ -39,21 +40,35 @@ class ProjectClientStub:
         raise NotImplementedError("get_project_iri not implemented")
 
 
-class ConnectionMock(ConnectionMockBase): ...
-
-
 def test_happy_path() -> None:
     xml_str = """
-    <resource label="foo_1" restype=":foo" id="foo_1">
+    <resource label="foo_label" restype=":my_type" id="foo_1_id">
         <text-prop name=":hasSimpleText">
             <text encoding="utf8">foo_1 text</text>
         </text-prop>
     </resource>
     """
-    xml_res = XMLResource(etree.fromstring(xml_str), "default_onto")
+    xml_res = XMLResource(etree.fromstring(xml_str), "my_onto")
     upload_state = UploadState([xml_res], [], IriResolver(), None, UploadConfig(), {})
-    project_client = ProjectClientStub(ConnectionMock(), "1234", None)
-    _upload_resources(upload_state, ".", Sipi(ConnectionMock()), project_client, ListClientMock())
+    con = Mock()
+    con.post = Mock(return_value={"@id": "foo_1_iri", "rdfs:label": "foo_label"})
+    project_client = ProjectClientStub(con, "1234", None)
+    _upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
+    assert len(con.post.call_args_list) == 1
+    match con.post.call_args_list[0].kwargs:
+        case {
+            "route": "/v2/resources",
+            "data": {
+                "@type": "my_onto:my_type",
+                "rdfs:label": "foo_label",
+                "knora-api:attachedToProject": {"@id": "https://admin.test.dasch.swiss/project/MsOaiQkcQ7-QPxsYBKckfQ"},
+                "@context": dict(),
+                "my_onto:hasSimpleText": [{"@type": "knora-api:TextValue", "knora-api:valueAsString": "foo_1 text"}],
+            },
+        }:
+            assert True
+        case _:
+            pytest.fail("POST request was not sent correctly")
     assert not upload_state.pending_resources
     assert not upload_state.failed_uploads
-    assert upload_state.iri_resolver.lookup
+    assert upload_state.iri_resolver.lookup["foo_1_id"] == "foo_1_iri"

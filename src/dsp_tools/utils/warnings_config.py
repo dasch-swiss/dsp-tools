@@ -11,6 +11,8 @@ def initialize_warnings() -> None:
     https://docs.python.org/3/library/warnings.html#warnings.showwarning
     """
 
+    built_in_showwarning = warnings.showwarning
+
     def _custom_showwarning(
         message: Warning | str,
         category: type[Warning],
@@ -22,6 +24,6 @@ def initialize_warnings() -> None:
         if issubclass(category, DspToolsWarning):
             category.showwarning(str(message))
         else:
-            warnings.showwarning(message, category, filename, lineno, file, line)
+            built_in_showwarning(message, category, filename, lineno, file, line)
 
     warnings.showwarning = _custom_showwarning

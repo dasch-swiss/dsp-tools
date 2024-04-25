@@ -47,9 +47,9 @@ class TestCheckCompleteGuiOrder:
     def test_good(self) -> None:
         df = pd.DataFrame({"property": [1, 2, 3], "gui_order": ["1", "2", "3"]})
         expected_df = pd.DataFrame({"property": [1, 2, 3], "gui_order": [1, 2, 3]})
-        with warnings.catch_warnings():
-            warnings.simplefilter("error")
+        with warnings.catch_warnings(record=True) as catched_warnings:
             res = _check_complete_gui_order("class_name", df)
+            assert len(catched_warnings) == 0
         assert_frame_equal(res, expected_df)
 
 
@@ -96,10 +96,10 @@ class TestCreateAllCardinalities:
             {"propname": ":2", "gui_order": 2, "cardinality": "1"},
             {"propname": ":3", "gui_order": 3, "cardinality": "0-n"},
         ]
-        with warnings.catch_warnings():
-            warnings.simplefilter("error")
+        with warnings.catch_warnings(record=True) as catched_warnings:
             res = _create_all_cardinalities("class_name", df)
             assert res == expected
+            assert len(catched_warnings) == 0
 
 
 def test_make_one_property() -> None:

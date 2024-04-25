@@ -1,9 +1,11 @@
+from copy import copy
 from dataclasses import dataclass
 from unittest.mock import Mock
 
 import pytest
 from lxml import etree
 
+from dsp_tools.commands.xmlupload import xmlupload
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.sipi import Sipi
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
@@ -13,8 +15,8 @@ from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItem
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
-from dsp_tools.commands.xmlupload.xmlupload import upload_resources
 from dsp_tools.models.exceptions import PermanentTimeOutError
+from dsp_tools.models.exceptions import XmlUploadInterruptedError
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
 
@@ -60,7 +62,7 @@ def test_one_resource_without_links() -> None:
     con = Mock(spec=ConnectionLive)
     con.post = Mock(return_value={"@id": "foo_1_iri", "rdfs:label": "foo_1_label"})
     project_client = ProjectClientStub(con, "1234", None)
-    upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
+    xmlupload.upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
     assert len(con.post.call_args_list) == 1
     match con.post.call_args_list[0].kwargs:
         case {
@@ -97,7 +99,7 @@ def test_one_resource_with_link_to_existing_resource() -> None:
     con = Mock(spec=ConnectionLive)
     con.post = Mock(return_value={"@id": "foo_1_iri", "rdfs:label": "foo_1_label"})
     project_client = ProjectClientStub(con, "1234", None)
-    upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
+    xmlupload.upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
     assert len(con.post.call_args_list) == 1
     match con.post.call_args_list[0].kwargs:
         case {
@@ -121,7 +123,7 @@ def test_one_resource_with_link_to_existing_resource() -> None:
     assert not upload_state.pending_stash
 
 
-def test_one_resource_with_stashed_link() -> None:
+def test_twos_resource_with_stashed_link() -> None:
     xml_strings = [
         '<resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id"></resource>',
         '<resource label="foo_2_label" restype=":foo_2_type" id="foo_2_id"></resource>',
@@ -143,7 +145,7 @@ def test_one_resource_with_stashed_link() -> None:
         ]
     )
     project_client = ProjectClientStub(con, "1234", None)
-    upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
+    xmlupload.upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
     assert len(con.post.call_args_list) == 4
     match con.post.call_args_list[2].kwargs:
         case {
@@ -168,8 +170,35 @@ def test_one_resource_with_stashed_link() -> None:
 
 
 def test_two_resources_with_stash_interrupted_by_timeout() -> None:
+    xml_strings = [
+        '<resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id"></resource>',
+        '<resource label="foo_2_label" restype=":foo_2_type" id="foo_2_id"></resource>',
+    ]
+    xml_resources = [XMLResource(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
+    link_val_stash_dict = {
+        "foo_1_id": [LinkValueStashItem("foo_1_id", "my_onto:foo_1_type", "my_onto:hasCustomLink", "foo_2_id")],
+        "foo_2_id": [LinkValueStashItem("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")],
+    }
+    stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
+    upload_state = UploadState(xml_resources.copy(), [], IriResolver(), copy(stash), UploadConfig(), {})
     con = Mock(spec=ConnectionLive)
-    con.post = Mock(side_effect=PermanentTimeOutError(""))
+    con.post = Mock(side_effect=[{"@id": "foo_1_iri", "rdfs:label": "foo_1_label"}, PermanentTimeOutError("")])
+    handle_upload_error_mock = Mock()
+    xmlupload._handle_upload_error = handle_upload_error_mock
+    project_client = ProjectClientStub(con, "1234", None)
+    xmlupload.upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
+    err_msg = (
+        "There was a PermanentTimeOutError while trying to create resource 'foo_2_id'.\n"
+        "It is unclear if the resource 'foo_2_id' was created successfully or not.\n"
+        "Please check manually in the DSP-APP or DB.\n"
+        "In case of successful creation, call 'resume-xmlupload' with the flag "
+        "'--skip-first-resource' to prevent duplication.\n"
+        "If not, a normal 'resume-xmlupload' can be started."
+    )
+    upload_state_expected = UploadState(
+        xml_resources[1:], [], IriResolver({"foo_1_id": "foo_1_iri"}), stash, UploadConfig(), {}
+    )
+    handle_upload_error_mock.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
 
 # (PermanentTimeOutError, KeyboardInterrupt)

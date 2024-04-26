@@ -13,6 +13,15 @@ class DspToolsWarning(Protocol):
         """Functionality that should be executed when a warning of this class is emitted"""
 
 
+class GeneralDspToolsWarning(Warning):
+    """Class for user-facing deprecation warnings"""
+
+    @classmethod
+    def showwarning(cls, message: str) -> None:
+        """Print the warning, without context"""
+        cprint(message, color="red", attrs=["bold"])
+
+
 class DspToolsFutureWarning(FutureWarning):
     """Class for user-facing deprecation warnings"""
 

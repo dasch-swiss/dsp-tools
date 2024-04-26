@@ -13,6 +13,7 @@ repos:
           --ignore=PLR0913,
           --ignore=PLR2004,
           --ignore=PLW0603,
+          --ignore=FIX002,
         ]
       - id: ruff-format
 

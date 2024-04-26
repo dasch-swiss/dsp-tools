@@ -273,3 +273,5 @@ def test_two_resources_with_stash_interrupt_after() -> None:
     iri_resolver_dict.update({"foo_5_id": "foo_5_iri", "foo_6_id": "foo_6_iri"})
     upload_state_expected = UploadState(xml_resources[4:], [], IriResolver(iri_resolver_dict), stash, upload_config, {})
     xmlupload._handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
+
+    # TODO: check if logs have been emitted with the correct numbering/counting

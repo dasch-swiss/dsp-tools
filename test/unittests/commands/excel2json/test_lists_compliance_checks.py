@@ -7,6 +7,7 @@ from dsp_tools.commands.excel2json.lists_compliance_checks import _check_min_num
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_minimum_rows
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_warn_unusual_columns
 from dsp_tools.commands.excel2json.lists_compliance_checks import _df_shape_compliance
+from dsp_tools.models.custom_warnings import DspToolsUserWarning
 
 
 class TestShapeCompliance:
@@ -88,6 +89,6 @@ class TestCheckWarnUnusualColumns:
             "additional columns": "The following columns do not conform to the expected format "
             "and will not be included in the output: 'additional_1', 'additional_2'"
         }
-        with pytest.warns(UserWarning) as record:
+        with pytest.warns(DspToolsUserWarning) as record:
             _check_warn_unusual_columns(test_cols)
         assert record[0].message.args[0] == expected

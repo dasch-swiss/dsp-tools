@@ -275,3 +275,5 @@ def test_two_resources_with_stash_interrupt_after() -> None:
     xmlupload._handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
     # TODO: check if logs have been emitted with the correct numbering/counting
+
+    # TODO: check that warnings have been emitted

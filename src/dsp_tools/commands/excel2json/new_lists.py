@@ -55,26 +55,27 @@ def _fill_parent_id(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
 
 
 def _make_one_list(df: pd.DataFrame, sheet_name: str) -> ListRoot | ListSheetProblem:
-    node_dict, problems = _make_list_nodes(df)
-    cols = [x for x in df.columns if regex.search(r"^(en|de|fr|it|rm)_list$", x)]
+    node_dict, node_problems = _make_list_nodes_from_df(df)
+    nodes_for_root = _add_nodes_to_parent(node_dict, df.at[0, "id"]) if node_dict else []
+    col_titles_of_root_cols = [x for x in df.columns if regex.search(r"^(en|de|fr|it|rm)_list$", x)]
     root = ListRoot.create(
         id_=df.at[0, "id"],
-        labels=_get_labels(df.iloc[0], cols),
+        labels=_get_labels(df.iloc[0], col_titles_of_root_cols),
         sheet_name=sheet_name,
+        nodes=nodes_for_root,
+        comments={},
     )
-    match (root, problems):
+    match (root, node_problems):
         case (ListRoot(), list(ListNodeProblem())):
-            return ListSheetProblem(sheet_name, root_problems={}, nodes=problems)
+            return ListSheetProblem(sheet_name, root_problems={}, nodes=node_problems)
         case (ListSheetProblem(), _):
-            root.nodes = problems
-            return root
-    root.nodes = _add_nodes_to_parent(node_dict, df.at[0, "id"])
+            root.nodes = node_problems
     return root
 
 
 def _add_nodes_to_parent(node_dict: dict[str, ListNode], list_id: str) -> list[ListNode]:
     root_list = []
-    for node_id, node in node_dict.items():
+    for _, node in node_dict.items():
         if node.parent_id == list_id:
             root_list.append(node)
         else:
@@ -82,12 +83,12 @@ def _add_nodes_to_parent(node_dict: dict[str, ListNode], list_id: str) -> list[L
     return root_list
 
 
-def _make_list_nodes(df: pd.DataFrame) -> tuple[dict[str, ListNode], list[ListNodeProblem]]:
-    list_of_columns = _get_reverse_sorted_columns_list(df)
+def _make_list_nodes_from_df(df: pd.DataFrame) -> tuple[dict[str, ListNode], list[ListNodeProblem]]:
+    columns_for_nodes = _get_reverse_sorted_columns_list(df)
     problems = []
     node_dict = {}
-    for i, row in df[1:].iterrows():
-        node = _make_one_node(row, list_of_columns)
+    for _, row in df[1:].iterrows():
+        node = _make_one_node(row, columns_for_nodes)
         match node:
             case ListNode():
                 node_dict[node.id_] = node
@@ -98,9 +99,10 @@ def _make_list_nodes(df: pd.DataFrame) -> tuple[dict[str, ListNode], list[ListNo
 
 def _make_one_node(row: pd.Series[Any], list_of_columns: list[list[str]]) -> ListNode | ListNodeProblem:
     for col_group in list_of_columns:
-        labels = _get_labels(row, col_group)
-        if labels:
-            return ListNode.create(id_=row["id"], labels=labels, row_number=row["index"], parent_id=row["parent_id"])
+        if labels := _get_labels(row, col_group):
+            return ListNode.create(
+                id_=row["id"], labels=labels, row_number=row["index"], parent_id=row["parent_id"], sub_nodes=[]
+            )
     return ListNodeProblem(
         node_id=row["id"], problems={"Unknown": f"Unknown problem occurred in row number: {row["index"]}"}
     )
@@ -113,10 +115,19 @@ def _get_reverse_sorted_columns_list(df: pd.DataFrame) -> list[list[str]]:
 
 
 def _get_labels(row: pd.Series[Any], columns: list[str]) -> dict[str, str]:
-    return {lang: row[col] for col in columns if not (pd.isna(row[col])) and (lang := _get_lang_string(col))}
+    """
+    Provided a df row and a list of column titles,
+    create a mapping from language codes to the label of that language.
+    (The label comes from the Excel cell at the intersection of the row with the column.)
+    """
+    return {
+        lang: row[col]
+        for col in columns
+        if not (pd.isna(row[col])) and (lang := _get_lang_string_from_column_names(col))
+    }
 
 
-def _get_lang_string(col_str: str, ending: str = r"(\d+|list)") -> str | None:
+def _get_lang_string_from_column_names(col_str: str, ending: str = r"(\d+|list)") -> str | None:
     if res := regex.search(rf"^(en|de|fr|it|rm)_{ending}$", col_str):
         return res.group(1)
     return None
@@ -133,7 +144,7 @@ def _get_column_nums(columns: pd.Index[str]) -> list[int]:
 
 
 def _get_all_languages_for_columns(columns: pd.Index[str], ending: str) -> set[str]:
-    return set(res for x in columns if (res := _get_lang_string(x, ending)))
+    return set(res for x in columns if (res := _get_lang_string_from_column_names(x, ending)))
 
 
 def _get_preferred_language(columns: pd.Index[str], ending: str) -> str:

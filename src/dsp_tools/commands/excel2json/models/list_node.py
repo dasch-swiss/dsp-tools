@@ -25,7 +25,7 @@ class ListNode:
         labels: dict[str, str],
         row_number: int,
         parent_id: str,
-        sub_nodes: list[ListNode] | None = None,
+        sub_nodes: list[ListNode],
     ) -> ListNode | ListNodeProblem:
         user_problem = {}
         if pd.isna(id_):
@@ -42,8 +42,6 @@ class ListNode:
             user_problem["parent_id"] = "The node does not have a parent node specified."
         if user_problem:
             return ListNodeProblem(id_, user_problem)
-        if not sub_nodes:
-            sub_nodes = []
         return cls(id_=id_, labels=labels, row_number=row_number, parent_id=parent_id, sub_nodes=sub_nodes)
 
     def to_dict(self) -> dict[str, Any]:
@@ -63,8 +61,8 @@ class ListNode:
 class ListRoot:
     id_: str
     labels: dict[str, str]
-    nodes: list[ListNode] = field(default_factory=list)
-    comments: dict[str, str] | None = None
+    nodes: list[ListNode]
+    comments: dict[str, str] = field(default_factory=dict)
 
     @classmethod
     def create(
@@ -72,8 +70,8 @@ class ListRoot:
         id_: str | int | float,
         labels: dict[str, str],
         sheet_name: str,
-        nodes: list[ListNode] | None = None,
-        comments: dict[str, str] | None = None,
+        nodes: list[ListNode],
+        comments: dict[str, str],
     ) -> ListRoot | ListSheetProblem:
         user_problem = {}
         if pd.isna(id_):
@@ -91,10 +89,10 @@ class ListRoot:
         if comments:
             if not set(comments).issubset({"en", "de", "fr", "it", "rm"}):
                 user_problem["comments"] = "Only the following languages are supported: 'en', 'de', 'fr', 'it', 'rm'."
+        if not nodes:
+            user_problem["list nodes"] = "At least one node per list is required."
         if user_problem:
             return ListSheetProblem(sheet_name, user_problem)
-        if not nodes:
-            nodes = []
         return cls(id_=id_, labels=labels, comments=comments, nodes=nodes)
 
     def to_dict(self) -> dict[str, Any]:

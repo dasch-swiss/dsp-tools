@@ -70,6 +70,7 @@ class TestListRootCreate:
         assert root.root_problems == {
             "labels": "At least one label per list is required.",
             "name": "The name of the list does not contain any characters.",
+            "list nodes": "At least one node per list is required.",
         }
 
     def test_wrong_language(self) -> None:
@@ -81,6 +82,7 @@ class TestListRootCreate:
         assert root.root_problems == {
             "labels": "Only the following languages are supported: 'en', 'de', 'fr', 'it', 'rm'.",
             "comments": "Only the following languages are supported: 'en', 'de', 'fr', 'it', 'rm'.",
+            "list nodes": "At least one node per list is required.",
         }
 
     def test_id_na(self) -> None:
@@ -89,6 +91,7 @@ class TestListRootCreate:
         assert root.root_problems == {
             "name": "The name of the list may not be empty.",
             "labels": "At least one label per list is required.",
+            "list nodes": "At least one node per list is required.",
         }
 
     def test_float(self) -> None:
@@ -102,7 +105,7 @@ class TestListRootCreate:
 
 class TestListNodeCreate:
     def test_problem(self) -> None:
-        nd = ListNode.create(id_="", labels={}, row_number=1, parent_id="RootID")
+        nd = ListNode.create(id_="", labels={}, row_number=1, parent_id="RootID", sub_nodes=[])
         assert isinstance(nd, ListNodeProblem)
         assert nd.node_id == ""
         assert nd.problems == {
@@ -111,7 +114,7 @@ class TestListNodeCreate:
         }
 
     def test_wrong_language(self) -> None:
-        root = ListNode.create(id_="str", labels={"ur": "label"}, row_number=1, parent_id="RootID")
+        root = ListNode.create(id_="str", labels={"ur": "label"}, row_number=1, parent_id="RootID", sub_nodes=[])
         assert isinstance(root, ListNodeProblem)
         assert root.node_id == "str"
         assert root.problems == {
@@ -119,7 +122,7 @@ class TestListNodeCreate:
         }
 
     def test_id_na(self) -> None:
-        root = ListNode.create(id_=pd.NA, labels={}, row_number=1, parent_id="")  # type: ignore[arg-type]
+        root = ListNode.create(id_=pd.NA, labels={}, row_number=1, parent_id="", sub_nodes=[])  # type: ignore[arg-type]
         assert isinstance(root, ListNodeProblem)
         assert root.problems == {
             "name": "The name of the node may not be empty.",
@@ -139,7 +142,7 @@ class TestListNodeCreate:
 
     def test_none(self) -> None:
         root = ListNode.create(
-            id_="str", labels={"en": "node_label_en"}, row_number=2, sub_nodes=None, parent_id="RootID"
+            id_="str", labels={"en": "node_label_en"}, row_number=2, sub_nodes=[], parent_id="RootID"
         )
         assert isinstance(root, ListNode)
         assert root.id_ == "str"

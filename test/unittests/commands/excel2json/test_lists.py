@@ -13,10 +13,10 @@ from dsp_tools.commands.excel2json.new_lists import _get_all_languages_for_colum
 from dsp_tools.commands.excel2json.new_lists import _get_column_nums
 from dsp_tools.commands.excel2json.new_lists import _get_columns_of_preferred_lang
 from dsp_tools.commands.excel2json.new_lists import _get_labels
-from dsp_tools.commands.excel2json.new_lists import _get_lang_string
+from dsp_tools.commands.excel2json.new_lists import _get_lang_string_from_column_names
 from dsp_tools.commands.excel2json.new_lists import _get_preferred_language
 from dsp_tools.commands.excel2json.new_lists import _get_reverse_sorted_columns_list
-from dsp_tools.commands.excel2json.new_lists import _make_list_nodes
+from dsp_tools.commands.excel2json.new_lists import _make_list_nodes_from_df
 from dsp_tools.commands.excel2json.new_lists import _make_one_list
 from dsp_tools.commands.excel2json.new_lists import _make_one_node
 from dsp_tools.models.exceptions import InputError
@@ -124,16 +124,7 @@ class TestFillIdColumn:
                 "en_3": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, "nd_en_3.2.1", "nd_en_3.2.2"],
             }
         )
-        expected = [
-            "list_en",
-            pd.NA,
-            "nd_en_2",
-            pd.NA,
-            "nd_en_3.1",
-            "nd_en_3.2",
-            "nd_en_3.2.1",
-            "nd_en_3.2.2",
-        ]
+        expected = ["list_en", pd.NA, "nd_en_2", pd.NA, "nd_en_3.1", "nd_en_3.2", "nd_en_3.2.1", "nd_en_3.2.2"]
         res = _fill_auto_id_column(test_df, "en")
         assert res["auto_id"].to_list() == expected
 
@@ -168,16 +159,7 @@ def test_handle_ids() -> None:
 def test_fill_parent_id() -> None:
     test_df = pd.DataFrame(
         {
-            "id": [
-                "list_en",
-                "1",
-                "2",
-                "3",
-                "3.1",
-                "3.2",
-                "3.2.1",
-                "3.2.2",
-            ],
+            "id": ["list_en", "1", "2", "3", "3.1", "3.2", "3.2.1", "3.2.2"],
             "en_list": ["list_en", "list_en", "list_en", "list_en", "list_en", "list_en", "list_en", "list_en"],
             "en_1": [pd.NA, "nd_en_1", "nd_en_2", "nd_en_3", "nd_en_3", "nd_en_3", "nd_en_3", "nd_en_3"],
             "en_2": [pd.NA, pd.NA, pd.NA, pd.NA, "nd_en_3.1", "nd_en_3.2", "nd_en_3.2", "nd_en_3.2"],
@@ -217,7 +199,7 @@ def test_make_list_nodes_with_valid_data() -> None:
         "index": [3, 0, 2, 1],
     }
     df = pd.DataFrame(data)
-    node_dict, problems = _make_list_nodes(df)
+    node_dict, problems = _make_list_nodes_from_df(df)
     assert len(node_dict) == 3
     assert len(problems) == 0
     one = node_dict["id_1"]
@@ -350,11 +332,11 @@ class TestGetLabels:
 
 
 def test_get_lang_string_good() -> None:
-    assert _get_lang_string("en_1") == "en"
+    assert _get_lang_string_from_column_names("en_1") == "en"
 
 
 def test_get_lang_string_raises() -> None:
-    assert not _get_lang_string("ru_1")
+    assert not _get_lang_string_from_column_names("ru_1")
 
 
 class TestGetRemainingColumns:

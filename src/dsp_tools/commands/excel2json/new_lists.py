@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Any
+from typing import cast
 
 import pandas as pd
 import regex
@@ -67,9 +68,10 @@ def _make_one_list(df: pd.DataFrame, sheet_name: str) -> ListRoot | ListSheetPro
     )
     match (root, node_problems):
         case (ListRoot(), list(ListNodeProblem())):
-            return ListSheetProblem(sheet_name, root_problems={}, nodes=node_problems)
+            return ListSheetProblem(sheet_name, root_problems={}, node_problems=node_problems)
         case (ListSheetProblem(), _):
-            root.nodes = node_problems
+            root = cast(ListSheetProblem, root)
+            root.node_problems = node_problems
     return root
 
 
@@ -154,7 +156,7 @@ def _get_all_languages_for_columns(columns: pd.Index[str], ending: str) -> set[s
     return set(res for x in columns if (res := _get_lang_string_from_column_names(x, ending)))
 
 
-def _get_preferred_language(columns: pd.Index[str], ending: str) -> str:
+def _get_preferred_language(columns: pd.Index[str], ending: str = r"(\d+|list)") -> str:
     match = [res.group(1) for x in columns if (res := regex.search(rf"^(en|de|fr|it|rm)_{ending}+$", x))]
     if "en" in match:
         return "en"

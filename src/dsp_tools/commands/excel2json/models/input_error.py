@@ -260,7 +260,7 @@ class ListNodeProblem:
 class ListSheetProblem:
     sheet_name: str
     root_problems: dict[str, str]
-    nodes: list[ListNodeProblem] = field(default_factory=list)
+    node_problems: list[ListNodeProblem] = field(default_factory=list)
 
     def execute_error_protocol(self) -> str:
         msg = [
@@ -268,8 +268,8 @@ class ListSheetProblem:
         ]
         if self.root_problems:
             msg.extend([f"Field: '{key}', Problem: {value}" for key, value in self.root_problems.items()])
-        if self.nodes:
-            msg.extend([problem.execute_error_protocol() for problem in self.nodes])
+        if self.node_problems:
+            msg.extend([problem.execute_error_protocol() for problem in self.node_problems])
         return separator.join(msg)
 
 

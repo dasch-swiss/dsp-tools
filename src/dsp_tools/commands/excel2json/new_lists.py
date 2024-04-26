@@ -154,7 +154,7 @@ def _get_all_languages_for_columns(columns: pd.Index[str], ending: str) -> set[s
     return set(res for x in columns if (res := _get_lang_string_from_column_names(x, ending)))
 
 
-def _get_preferred_language(columns: pd.Index[str], ending: str) -> str:
+def _get_preferred_language(columns: pd.Index[str], ending: str = r"(\d+|list)") -> str:
     match = [res.group(1) for x in columns if (res := regex.search(rf"^(en|de|fr|it|rm)_{ending}+$", x))]
     if "en" in match:
         return "en"

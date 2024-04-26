@@ -318,6 +318,7 @@ def _upload_resources(
     project_iri = project_client.get_project_iri()
     json_ld_context = get_json_ld_context_for_project(project_client.get_ontology_name_dict())
     listnode_lookup = list_client.get_list_node_id_to_iri_lookup()
+
     resource_create_client = ResourceCreateClient(
         con=project_client.con,
         project_iri=project_iri,
@@ -327,13 +328,20 @@ def _upload_resources(
         listnode_lookup=listnode_lookup,
         media_previously_ingested=upload_state.config.media_previously_uploaded,
     )
-    for resource in upload_state.pending_resources.copy():
+    previous_successful = len(upload_state.iri_resolver.lookup)
+    previous_failed = len(upload_state.failed_uploads)
+    upcoming = len(upload_state.pending_resources)
+    total_num_of_resources = previous_successful + previous_failed + upcoming
+
+    for creation_attempts_of_this_round, resource in enumerate(upload_state.pending_resources.copy()):
         _upload_one_resource(
             upload_state=upload_state,
             resource=resource,
             imgdir=imgdir,
             sipi_server=sipi_server,
             resource_create_client=resource_create_client,
+            total_num_of_resources=total_num_of_resources,
+            creation_attempts_of_this_round=creation_attempts_of_this_round,
         )
 
 
@@ -343,8 +351,10 @@ def _upload_one_resource(
     imgdir: str,
     sipi_server: Sipi,
     resource_create_client: ResourceCreateClient,
+    total_num_of_resources: int,
+    creation_attempts_of_this_round: int,
 ) -> None:
-    current_res, total_res = _compute_counter_info_and_interrupt(upload_state)
+    _compute_counter_info_and_interrupt(upload_state, total_num_of_resources, creation_attempts_of_this_round)
     success, media_info = handle_media_info(
         resource, upload_state.config.media_previously_uploaded, sipi_server, imgdir, upload_state.permissions_lookup
     )
@@ -368,24 +378,25 @@ def _upload_one_resource(
         raise XmlUploadInterruptedError(msg) from None
 
     try:
-        _tidy_up_resource_creation_idempotent(upload_state, iri, label, resource, current_res, total_res)
+        _tidy_up_resource_creation_idempotent(
+            upload_state, iri, label, resource, creation_attempts_of_this_round + 1, total_num_of_resources
+        )
     except KeyboardInterrupt:
         warnings.warn(GeneralDspToolsWarning("KeyboardInterrupt: Tidying up, then exit..."))
-        _tidy_up_resource_creation_idempotent(upload_state, iri, label, resource, current_res, total_res)
+        _tidy_up_resource_creation_idempotent(
+            upload_state, iri, label, resource, creation_attempts_of_this_round + 1, total_num_of_resources
+        )
 
 
-def _compute_counter_info_and_interrupt(upload_state: UploadState) -> tuple[int, int]:
-    previous_creation_attempts = len(upload_state.iri_resolver.lookup) + len(upload_state.failed_uploads)
-    total_num_of_resources = previous_creation_attempts + len(upload_state.pending_resources)
-    num_of_current_res = previous_creation_attempts + 1
-    num_of_current_res_in_this_round = num_of_current_res - previous_creation_attempts
+def _compute_counter_info_and_interrupt(
+    upload_state: UploadState, total_num_of_resources: int, creation_attempts_of_this_round: int
+) -> None:
     # if the interrupt_after value is not set, the upload will not be interrupted
     interrupt_after = upload_state.config.interrupt_after or total_num_of_resources + 1
-    if num_of_current_res_in_this_round >= interrupt_after:
+    if creation_attempts_of_this_round >= interrupt_after:
         raise XmlUploadInterruptedError(
             f"Interrupted: Maximum number of resources was reached ({upload_state.config.interrupt_after})"
         )
-    return num_of_current_res, total_num_of_resources
 
 
 def _tidy_up_resource_creation_idempotent(

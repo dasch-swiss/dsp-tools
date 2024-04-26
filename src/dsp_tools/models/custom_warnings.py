@@ -20,3 +20,12 @@ class DspToolsFutureWarning(FutureWarning):
     def showwarning(cls, message: str) -> None:
         """Print the warning, without context"""
         cprint(message, color="red", attrs=["bold"])
+
+
+class DspToolsUserWarning(Warning):
+    """Class for user-facing deprecation warnings"""
+
+    @classmethod
+    def showwarning(cls, message: str) -> None:
+        """Print the warning, without context"""
+        cprint(message, color="red", attrs=["bold"])

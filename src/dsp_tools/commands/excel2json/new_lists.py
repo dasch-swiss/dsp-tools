@@ -119,6 +119,13 @@ def _get_labels(row: pd.Series[Any], columns: list[str]) -> dict[str, str]:
     Provided a df row and a list of column titles,
     create a mapping from language codes to the label of that language.
     (The label comes from the Excel cell at the intersection of the row with the column.)
+
+    Parameters:
+        row: A pandas Series representing a row of a DataFrame.
+        columns: A list of column names.
+
+    Returns:
+        A dictionary with language codes as keys and the corresponding labels as values.
     """
     return {
         lang: row[col]

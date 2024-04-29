@@ -85,6 +85,56 @@ def test_one_resource_without_links() -> None:
     assert not upload_state.pending_stash
 
 
+def test_logging(caplog: pytest.LogCaptureFixture) -> None:
+    caplog.set_level("INFO")
+    xml_strings = [
+        '<resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id"></resource>',
+        '<resource label="foo_2_label" restype=":foo_2_type" id="foo_2_id"></resource>',
+        '<resource label="foo_3_label" restype=":foo_3_type" id="foo_3_id"></resource>',
+        '<resource label="foo_4_label" restype=":foo_4_type" id="foo_4_id"></resource>',
+        '<resource label="foo_5_label" restype=":foo_5_type" id="foo_5_id"></resource>',
+    ]
+    xml_resources = [XMLResource(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
+    link_val_stash_dict = {
+        "foo_1_id": [LinkValueStashItem("foo_1_id", "my_onto:foo_1_type", "my_onto:hasCustomLink", "foo_2_id")],
+        "foo_2_id": [LinkValueStashItem("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")],
+    }
+    stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
+    upload_config = UploadConfig(interrupt_after=2)
+    upload_state = UploadState(xml_resources.copy(), [], IriResolver(), deepcopy(stash), upload_config, {})
+    con = Mock(spec_set=ConnectionLive)
+    post_responses = [
+        {"@id": "foo_1_iri", "rdfs:label": "foo_1_label"},
+        {"@id": "foo_2_iri", "rdfs:label": "foo_2_label"},
+        {"@id": "foo_3_iri", "rdfs:label": "foo_3_label"},
+        {"@id": "foo_4_iri", "rdfs:label": "foo_4_label"},
+        {"@id": "foo_5_iri", "rdfs:label": "foo_5_label"},
+        {},  # uploading a stash doesn't rely on a certain response
+        {},  # uploading a stash doesn't rely on a certain response
+    ]
+    con.post = Mock(side_effect=post_responses)
+    project_client = ProjectClientStub(con, "1234", None)
+    xmlupload._handle_upload_error = Mock()
+
+    xmlupload.upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
+    assert caplog.records[1].message == "Created resource 1/5: 'foo_1_label' (ID: 'foo_1_id', IRI: 'foo_1_iri')"
+    assert caplog.records[3].message == "Created resource 2/5: 'foo_2_label' (ID: 'foo_2_id', IRI: 'foo_2_iri')"
+    caplog.clear()
+
+    xmlupload.upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
+    assert caplog.records[1].message == "Created resource 3/5: 'foo_3_label' (ID: 'foo_3_id', IRI: 'foo_3_iri')"
+    assert caplog.records[3].message == "Created resource 4/5: 'foo_4_label' (ID: 'foo_4_id', IRI: 'foo_4_iri')"
+    caplog.clear()
+
+    xmlupload.upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
+    assert caplog.records[1].message == "Created resource 5/5: 'foo_5_label' (ID: 'foo_5_id', IRI: 'foo_5_iri')"
+    assert caplog.records[3].message == "Upload resptrs of resource 'foo_1_id'..."
+    assert caplog.records[4].message == 'Successfully uploaded resptr links of "my_onto:hasCustomLink"'
+    assert caplog.records[5].message == "Upload resptrs of resource 'foo_2_id'..."
+    assert caplog.records[6].message == 'Successfully uploaded resptr links of "my_onto:hasCustomLink"'
+    caplog.clear()
+
+
 def test_one_resource_with_link_to_existing_resource() -> None:
     xml_strings = [
         """
@@ -327,7 +377,7 @@ def test_6_resources_with_stash_and_interrupt_after_2() -> None:
     assert upload_state == upload_state_expected
 
 
-def test_post_calls() -> None:
+def test_post_requests() -> None:
     xml_strings = [
         '<resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id"></resource>',
         '<resource label="foo_2_label" restype=":foo_2_type" id="foo_2_id"></resource>',

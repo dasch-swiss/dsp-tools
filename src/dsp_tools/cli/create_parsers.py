@@ -108,6 +108,11 @@ def _add_start_stack(subparsers: _SubParsersAction[ArgumentParser]) -> None:
         action="store_true",
         help="use the latest dev version of DSP-API, from the main branch of the GitHub repository",
     )
+    subparser.add_argument(
+        "--with-test-data",
+        action="store_true",
+        help="True if it should initialise the database with built-in test data.",
+    )
 
 
 def _add_id2iri(subparsers: _SubParsersAction[ArgumentParser]) -> None:

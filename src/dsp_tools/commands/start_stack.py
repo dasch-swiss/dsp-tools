@@ -30,6 +30,7 @@ class StackConfiguration:
     enforce_docker_system_prune: bool = False
     suppress_docker_system_prune: bool = False
     latest_dev_version: bool = False
+    upload_test_data: bool = False
 
     def __post_init__(self) -> None:
         """
@@ -198,6 +199,39 @@ class StackHandler:
             logger.error(f"{msg}. response = {vars(response)}")
             raise UserError(msg)
 
+    def _load_data_into_repo(self) -> None:
+        """
+        Load some basic ontologies and data into the repository.
+        This function imitates the behaviour of the script
+        dsp-api/webapi/target/docker/stage/opt/docker/scripts/fuseki-init-knora-test.sh.
+
+        Raises:
+            UserError: if one of the graphs cannot be created
+        """
+        graph_prefix = "http://0.0.0.0:3030/knora-test/data?graph="
+        ttl_files = [
+            ("test_data/project_data/admin-data.ttl", "http://www.knora.org/data/admin"),
+            ("test_data/project_data/permissions-data.ttl", "http://www.knora.org/data/permissions"),
+            ("test_data/project_ontologies/anything-onto.ttl", "http://www.knora.org/ontology/0001/anything"),
+            ("test_data/project_data/anything-data.ttl", "http://www.knora.org/data/0001/anything"),
+        ]
+        for ttl_file, graph in ttl_files:
+            ttl_response = requests.get(self.__url_prefix + ttl_file, timeout=30)
+            if not ttl_response.ok:
+                msg = f"Cannot start DSP-API: Error when retrieving '{self.__url_prefix + ttl_file}'"
+                logger.error(f"{msg}'. response = {vars(ttl_response)}")
+                raise UserError(msg)
+            ttl_text = ttl_response.text
+            response = requests.post(
+                graph_prefix + graph,
+                files={"file": ("file.ttl", ttl_text, "text/turtle; charset: utf-8")},
+                auth=("admin", "test"),
+                timeout=30,
+            )
+            if not response.ok:
+                logger.error(f"Cannot start DSP-API: Error when creating graph '{graph}'. response = {vars(response)}")
+                raise UserError(f"Cannot start DSP-API: Error when creating graph '{graph}'")
+
     def _create_admin_user(self) -> None:
         """
         Load some basic ontologies and data into the repository.
@@ -241,7 +275,10 @@ class StackHandler:
         Create the "knora-test" repository and load some basic ontologies and data into it.
         """
         self._create_knora_test_repo()
-        self._create_admin_user()
+        if self.__stack_configuration.upload_test_data:
+            self._load_data_into_repo()
+        else:
+            self._create_admin_user()
 
     def _start_remaining_docker_containers(self) -> None:
         """

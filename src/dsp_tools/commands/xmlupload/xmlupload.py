@@ -354,7 +354,6 @@ def _upload_one_resource(
     total_num_of_resources: int,
     creation_attempts_of_this_round: int,
 ) -> None:
-    _compute_counter_info_and_interrupt(upload_state, total_num_of_resources, creation_attempts_of_this_round)
     success, media_info = handle_media_info(
         resource, upload_state.config.media_previously_uploaded, sipi_server, imgdir, upload_state.permissions_lookup
     )
@@ -387,13 +386,15 @@ def _upload_one_resource(
             upload_state, iri, label, resource, creation_attempts_of_this_round + 1, total_num_of_resources
         )
 
+    _interrupt_if_indicated(upload_state, total_num_of_resources, creation_attempts_of_this_round)
 
-def _compute_counter_info_and_interrupt(
+
+def _interrupt_if_indicated(
     upload_state: UploadState, total_num_of_resources: int, creation_attempts_of_this_round: int
 ) -> None:
     # if the interrupt_after value is not set, the upload will not be interrupted
     interrupt_after = upload_state.config.interrupt_after or total_num_of_resources + 1
-    if creation_attempts_of_this_round >= interrupt_after:
+    if creation_attempts_of_this_round + 1 >= interrupt_after:
         raise XmlUploadInterruptedError(
             f"Interrupted: Maximum number of resources was reached ({upload_state.config.interrupt_after})"
         )

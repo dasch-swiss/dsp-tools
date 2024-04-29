@@ -123,7 +123,7 @@ def test_one_resource_with_link_to_existing_resource() -> None:
     assert not upload_state.pending_stash
 
 
-def test_two_resources_with_stash() -> None:
+def test_2_resources_with_stash() -> None:
     xml_strings = [
         '<resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id"></resource>',
         '<resource label="foo_2_label" restype=":foo_2_type" id="foo_2_id"></resource>',
@@ -172,15 +172,15 @@ def test_two_resources_with_stash() -> None:
     assert not upload_state.pending_stash or upload_state.pending_stash.is_empty()
 
 
-def test_two_resources_with_stash_interrupted_by_timeout() -> None:
-    _two_resources_with_stash_interrupted_by_error(PermanentTimeOutError(""), "PermanentTimeOutError")
+def test_2_resources_with_stash_interrupted_by_timeout() -> None:
+    _2_resources_with_stash_interrupted_by_error(PermanentTimeOutError(""), "PermanentTimeOutError")
 
 
-def test_two_resources_with_stash_interrupted_by_keyboard() -> None:
-    _two_resources_with_stash_interrupted_by_error(KeyboardInterrupt(), "KeyboardInterrupt")
+def test_2_resources_with_stash_interrupted_by_keyboard() -> None:
+    _2_resources_with_stash_interrupted_by_error(KeyboardInterrupt(), "KeyboardInterrupt")
 
 
-def _two_resources_with_stash_interrupted_by_error(err_to_interrupt_with: BaseException, err_as_str: str) -> None:
+def _2_resources_with_stash_interrupted_by_error(err_to_interrupt_with: BaseException, err_as_str: str) -> None:
     xml_strings = [
         '<resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id"></resource>',
         '<resource label="foo_2_label" restype=":foo_2_type" id="foo_2_id"></resource>',
@@ -218,7 +218,7 @@ def _two_resources_with_stash_interrupted_by_error(err_to_interrupt_with: BaseEx
     xmlupload._handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
 
-def test_two_resources_with_stash_interrupt_after() -> None:
+def test_6_resources_with_stash_and_interrupt_after_2() -> None:
     xml_strings = [
         '<resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id"></resource>',
         '<resource label="foo_2_label" restype=":foo_2_type" id="foo_2_id"></resource>',

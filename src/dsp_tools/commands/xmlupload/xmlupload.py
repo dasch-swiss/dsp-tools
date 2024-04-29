@@ -380,11 +380,12 @@ def _upload_one_resource(
         _tidy_up_resource_creation_idempotent(
             upload_state, iri, label, resource, creation_attempts_of_this_round + 1, total_num_of_resources
         )
-    except KeyboardInterrupt:
+    except KeyboardInterrupt as err:
         warnings.warn(GeneralDspToolsWarning("KeyboardInterrupt: Tidying up, then exit..."))
         _tidy_up_resource_creation_idempotent(
             upload_state, iri, label, resource, creation_attempts_of_this_round + 1, total_num_of_resources
         )
+        raise err from None
 
     _interrupt_if_indicated(upload_state, total_num_of_resources, creation_attempts_of_this_round)
 

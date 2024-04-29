@@ -297,3 +297,16 @@ class ListSheetComplianceProblem:
         ]
         msg.extend([f"Field: '{key}', Problem: {value}" for key, value in self.problems.items()])
         return separator.join(msg)
+
+
+@dataclass
+class ListExcelComplianceProblem:
+    excel_name: str
+    problems: list[ListSheetComplianceProblem]
+
+    def execute_error_protocol(self) -> str:
+        msg = [
+            f"The excel '{self.excel_name}' has the following problem(s):",
+        ]
+        msg.extend([problem.execute_error_protocol() for problem in self.problems])
+        return separator.join(msg)

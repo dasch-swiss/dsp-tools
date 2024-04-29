@@ -5,9 +5,19 @@ import warnings
 import pandas as pd
 import regex
 
+from dsp_tools.commands.excel2json.models.input_error import ListExcelComplianceProblem
 from dsp_tools.commands.excel2json.models.input_error import ListSheetComplianceProblem
 from dsp_tools.commands.excel2json.new_lists import _get_lang_string_from_column_names
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
+
+
+def _make_formal_excel_compliance_check(
+    excel_dfs: dict[str, pd.DataFrame], excel_name: str
+) -> ListExcelComplianceProblem | None:
+    problems = [p for sheet_name, df in excel_dfs.items() if (p := _df_shape_compliance(df, sheet_name)) is not None]
+    if problems:
+        return ListExcelComplianceProblem(excel_name, problems)
+    return None
 
 
 def _df_shape_compliance(df: pd.DataFrame, sheet_name: str) -> ListSheetComplianceProblem | None:

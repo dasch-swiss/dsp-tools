@@ -1,4 +1,5 @@
 import warnings
+from typing import cast
 
 import pandas as pd
 import pytest
@@ -8,6 +9,7 @@ from dsp_tools.commands.excel2json.lists_compliance_checks import _check_min_num
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_minimum_rows
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_warn_unusual_columns
 from dsp_tools.commands.excel2json.lists_compliance_checks import _df_shape_compliance
+from dsp_tools.commands.excel2json.models.input_error import ListSheetComplianceProblem
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 
 
@@ -33,7 +35,9 @@ class TestShapeCompliance:
             "and will not be included in the output: additional_1"
         )
         with pytest.warns(DspToolsUserWarning, match=warning_msg):
-            assert _df_shape_compliance(test_df, "sheet").problems == expected
+            res = _df_shape_compliance(test_df, "sheet")
+            res = cast(ListSheetComplianceProblem, res)
+            assert res.problems == expected
 
 
 class TestCheckMinNumColPresent:

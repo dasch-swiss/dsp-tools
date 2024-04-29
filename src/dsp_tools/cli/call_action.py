@@ -90,7 +90,7 @@ def _call_start_stack(args: argparse.Namespace) -> bool:
             enforce_docker_system_prune=args.prune,
             suppress_docker_system_prune=args.no_prune,
             latest_dev_version=args.latest,
-            upload_test_data=args.upload_test_data,
+            upload_test_data=args.with_test_data,
         )
     )
     return stack_handler.start_stack()

@@ -244,6 +244,17 @@ class JsonValidationResourceProblem:
 
 
 @dataclass(frozen=True)
+class ListExcelProblem:
+    excel_name: str
+    problems: list[Problem]
+
+    def execute_error_protocol(self) -> str:
+        msg = [f"The excel '{self.excel_name}' has the following problem(s):"]
+        msg.extend([problem.execute_error_protocol() for problem in self.problems])
+        return separator.join(msg)
+
+
+@dataclass(frozen=True)
 class ListNodeProblem:
     node_id: str
     problems: dict[str, str]
@@ -270,17 +281,6 @@ class ListSheetProblem:
 
 
 @dataclass(frozen=True)
-class ListExcelProblem:
-    excel_name: str
-    problems: list[ListSheetProblem]
-
-    def execute_error_protocol(self) -> str:
-        msg = [f"The excel '{self.excel_name}' has the following problem(s):"]
-        msg.extend([problem.execute_error_protocol() for problem in self.problems])
-        return separator.join(msg)
-
-
-@dataclass(frozen=True)
 class ListSheetComplianceProblem:
     sheet_name: str
     problems: dict[str, str]
@@ -291,13 +291,13 @@ class ListSheetComplianceProblem:
         return separator.join(msg)
 
 
-@dataclass
-class ListExcelComplianceProblem:
-    excel_name: str
-    problems: list[ListSheetComplianceProblem]
+@dataclass(frozen=True)
+class ListSheetContentProblem:
+    sheet_name: str
+    problems: list[Problem]
 
     def execute_error_protocol(self) -> str:
-        msg = [f"The excel '{self.excel_name}' has the following problem(s):"]
+        msg = [f"The Excel sheet '{self.sheet_name}' has the following problem(s):"]
         msg.extend([problem.execute_error_protocol() for problem in self.problems])
         return separator.join(msg)
 

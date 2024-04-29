@@ -166,37 +166,14 @@ def test_two_resources_with_stash() -> None:
 
 
 def test_two_resources_with_stash_interrupted_by_timeout() -> None:
-    xml_strings = [
-        '<resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id"></resource>',
-        '<resource label="foo_2_label" restype=":foo_2_type" id="foo_2_id"></resource>',
-    ]
-    xml_resources = [XMLResource(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
-    link_val_stash_dict = {
-        "foo_1_id": [LinkValueStashItem("foo_1_id", "my_onto:foo_1_type", "my_onto:hasCustomLink", "foo_2_id")],
-        "foo_2_id": [LinkValueStashItem("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")],
-    }
-    stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
-    upload_state = UploadState(xml_resources.copy(), [], IriResolver(), copy(stash), UploadConfig(), {})
-    con = Mock(spec=ConnectionLive)
-    con.post = Mock(side_effect=[{"@id": "foo_1_iri", "rdfs:label": "foo_1_label"}, PermanentTimeOutError("")])
-    xmlupload._handle_upload_error = Mock()
-    project_client = ProjectClientStub(con, "1234", None)
-    xmlupload.upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
-    err_msg = (
-        "There was a PermanentTimeOutError while trying to create resource 'foo_2_id'.\n"
-        "It is unclear if the resource 'foo_2_id' was created successfully or not.\n"
-        "Please check manually in the DSP-APP or DB.\n"
-        "In case of successful creation, call 'resume-xmlupload' with the flag "
-        "'--skip-first-resource' to prevent duplication.\n"
-        "If not, a normal 'resume-xmlupload' can be started."
-    )
-    upload_state_expected = UploadState(
-        xml_resources[1:], [], IriResolver({"foo_1_id": "foo_1_iri"}), stash, UploadConfig(), {}
-    )
-    xmlupload._handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
+    _two_resources_with_stash_interrupted_by_error(PermanentTimeOutError(""), "PermanentTimeOutError")
 
 
 def test_two_resources_with_stash_interrupted_by_keyboard() -> None:
+    _two_resources_with_stash_interrupted_by_error(KeyboardInterrupt(), "KeyboardInterrupt")
+
+
+def _two_resources_with_stash_interrupted_by_error(err_to_interrupt_with: BaseException, err_as_str: str) -> None:
     xml_strings = [
         '<resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id"></resource>',
         '<resource label="foo_2_label" restype=":foo_2_type" id="foo_2_id"></resource>',
@@ -209,12 +186,12 @@ def test_two_resources_with_stash_interrupted_by_keyboard() -> None:
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
     upload_state = UploadState(xml_resources.copy(), [], IriResolver(), copy(stash), UploadConfig(), {})
     con = Mock(spec=ConnectionLive)
-    con.post = Mock(side_effect=[{"@id": "foo_1_iri", "rdfs:label": "foo_1_label"}, KeyboardInterrupt()])
+    con.post = Mock(side_effect=[{"@id": "foo_1_iri", "rdfs:label": "foo_1_label"}, err_to_interrupt_with])
     xmlupload._handle_upload_error = Mock()
     project_client = ProjectClientStub(con, "1234", None)
     xmlupload.upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
     err_msg = (
-        "There was a KeyboardInterrupt while trying to create resource 'foo_2_id'.\n"
+        f"There was a {err_as_str} while trying to create resource 'foo_2_id'.\n"
         "It is unclear if the resource 'foo_2_id' was created successfully or not.\n"
         "Please check manually in the DSP-APP or DB.\n"
         "In case of successful creation, call 'resume-xmlupload' with the flag "

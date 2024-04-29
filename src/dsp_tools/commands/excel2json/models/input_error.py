@@ -287,7 +287,7 @@ class ListSheetComplianceProblem:
 
     def execute_error_protocol(self) -> str:
         msg = [f"The excel sheet '{self.sheet_name}' has the following problem(s):"]
-        msg.extend([f"Field: '{key}', Problem: {value}" for key, value in self.problems.items()])
+        msg.extend([f"{key}': {value}" for key, value in self.problems.items()])
         return separator.join(msg)
 
 

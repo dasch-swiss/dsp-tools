@@ -14,11 +14,11 @@ from dsp_tools.models.custom_warnings import DspToolsUserWarning
 class TestShapeCompliance:
     def test_good(self) -> None:
         test_df = pd.DataFrame({"ID (optional)": [1, 2, 3], "en_list": ["a", "b", "c"], "en_2": ["d", "e", "f"]})
-        assert not _df_shape_compliance(test_df)
+        assert not _df_shape_compliance(test_df, "")
 
     def test_good_no_id(self) -> None:
         test_df = pd.DataFrame({"en_list": ["a", "b", "c"], "en_2": ["d", "e", "f"]})
-        assert not _df_shape_compliance(test_df)
+        assert not _df_shape_compliance(test_df, "")
 
     def test_problems(self) -> None:
         test_df = pd.DataFrame({"ID (optional)": [1], "en_list": ["a"], "additional_1": ["b"]})
@@ -33,7 +33,7 @@ class TestShapeCompliance:
             "and will not be included in the output: additional_1"
         )
         with pytest.warns(DspToolsUserWarning, match=warning_msg):
-            assert _df_shape_compliance(test_df) == expected
+            assert _df_shape_compliance(test_df, "sheet").problems == expected
 
 
 class TestCheckMinNumColPresent:

@@ -5,16 +5,19 @@ import warnings
 import pandas as pd
 import regex
 
+from dsp_tools.commands.excel2json.models.input_error import ListSheetComplianceProblem
 from dsp_tools.commands.excel2json.new_lists import _get_lang_string_from_column_names
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 
 
-def _df_shape_compliance(df: pd.DataFrame) -> dict[str, str]:
+def _df_shape_compliance(df: pd.DataFrame, sheet_name: str) -> ListSheetComplianceProblem | None:
     problems = {}
     problems.update(_check_minimum_rows(df))
     problems.update(_check_min_num_col_present(df.columns))
     _check_warn_unusual_columns(df.columns)
-    return problems
+    if problems:
+        return ListSheetComplianceProblem(sheet_name, problems)
+    return None
 
 
 def _check_minimum_rows(df: pd.DataFrame) -> dict[str, str]:

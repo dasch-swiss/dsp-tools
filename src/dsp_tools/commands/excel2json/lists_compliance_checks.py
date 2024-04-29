@@ -11,6 +11,23 @@ from dsp_tools.commands.excel2json.new_lists import _get_lang_string_from_column
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 
 
+def make_all_formal_excel_compliance_checks(
+    excel_dfs: dict[str, dict[str, pd.DataFrame]],
+) -> list[ListExcelComplianceProblem]:
+    """
+    This function checks if the excel files are compliant with the expected format.
+
+    Args:
+        excel_dfs: dictionary with the excel name as key and a dictionary with the sheet name as key and the dataframe.
+
+    Returns:
+        A list with the problems, if there are any, the list is empty.
+    """
+    return [
+        res for excel in excel_dfs if (res := _make_formal_excel_compliance_check(excel_dfs[excel], excel)) is not None
+    ]
+
+
 def _make_formal_excel_compliance_check(
     excel_dfs: dict[str, pd.DataFrame], excel_name: str
 ) -> ListExcelComplianceProblem | None:

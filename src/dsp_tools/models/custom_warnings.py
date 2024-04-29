@@ -23,7 +23,7 @@ class DspToolsFutureWarning(FutureWarning):
 
 
 class DspToolsUserWarning(Warning):
-    """Class for user-facing deprecation warnings"""
+    """Class for general user-facing warnings"""
 
     @classmethod
     def showwarning(cls, message: str) -> None:

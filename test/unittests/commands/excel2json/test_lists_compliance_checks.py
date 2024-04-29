@@ -19,7 +19,7 @@ class TestShapeCompliance:
         test_df = pd.DataFrame({"ID (optional)": [1], "en_list": ["a"], "additional_1": ["b"]})
         expected = {
             "minimum rows": "The excel must contain at least two rows, "
-            "one for the list name one row for a minimum of one node.",
+            "one for the list name and one row for a minimum of one node.",
             "missing columns": "The following columns are required: "
             "'ID (optional)', at least one in the format of "
             "'[lang]_list', and '[lang]_[column_number]'",

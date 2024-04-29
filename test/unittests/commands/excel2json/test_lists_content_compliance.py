@@ -4,6 +4,7 @@ import pandas as pd
 
 from dsp_tools.commands.excel2json.lists_content_compliance import _check_one_hierarchy
 from dsp_tools.commands.excel2json.lists_content_compliance import _check_one_node_for_translations
+from dsp_tools.commands.excel2json.lists_content_compliance import _make_columns
 from dsp_tools.commands.excel2json.lists_content_compliance import _test_all_nodes_translated_into_all_languages
 from dsp_tools.commands.excel2json.models.input_error import MissingNodeTranslationProblem
 from dsp_tools.commands.excel2json.models.input_error import MissingTranslationsSheetProblem
@@ -15,7 +16,7 @@ class TestAllNodesTranslatedIntoAllLanguages:
             {
                 "id": ["list_id", "1", "1.1", "2", "3", "3.1", "3.2", "3.2.1", "3.2.2"],
                 "parent_id": ["list_id", "list_id", "1", "list_id", "list_id", "3", "3", "3.2", "3.2"],
-                "index": [0, 1, 2, 3, 4, 5, 6, 7, 8],
+                "row_number": [0, 1, 2, 3, 4, 5, 6, 7, 8],
                 "en_list": [
                     "Listname_en",
                     "Listname_en",
@@ -163,13 +164,14 @@ class TestAllNodesTranslatedIntoAllLanguages:
             }
         )
         expected = [
+            MissingNodeTranslationProblem(["de_2"], 4),
             MissingNodeTranslationProblem(["en_list"], 7),
             MissingNodeTranslationProblem(["en_1"], 10),
-            MissingNodeTranslationProblem(["en_2"], 4),
         ]
         result = _test_all_nodes_translated_into_all_languages(test_df, "sheet")
         result = cast(MissingTranslationsSheetProblem, result)
-        for res, expct in zip(result.node_problems, expected):
+        res_node_problems = sorted(result.node_problems, key=lambda x: x.row_num)
+        for res, expct in zip(res_node_problems, expected):
             assert res.empty_columns == expct.empty_columns
             assert res.row_num == expct.row_num
 
@@ -181,10 +183,10 @@ class TestCheckOneHierarchy:
                 "en_1": ["exist1_en", "exist2_en", "exist3_en"],
                 "de_1": ["exist1_de", "exist2_de", "exist3_de"],
                 "fr_1": ["exist1_fr", "exist2_fr", "exist3_fr"],
-                "index": [1, 2, 3],
+                "row_number": [1, 2, 3],
             }
         )
-        assert not _check_one_hierarchy(["en_1", "de_1", "fr_1", "index"], test_df)
+        assert not _check_one_hierarchy(["en_1", "de_1", "fr_1", "row_number"], test_df)
 
     def test_missing_translation(self) -> None:
         test_df = pd.DataFrame(
@@ -192,10 +194,10 @@ class TestCheckOneHierarchy:
                 "en_1": ["exist1_en", pd.NA, "exist3_en"],
                 "de_1": ["exist1_de", pd.NA, "exist3_de"],
                 "fr_1": ["exist1_fr", "exist2_fr", "exist3_fr"],
-                "index": [1, 2, 3],
+                "row_number": [1, 2, 3],
             }
         )
-        res = _check_one_hierarchy(["en_1", "de_1", "fr_1", "index"], test_df)
+        res = _check_one_hierarchy(["en_1", "de_1", "fr_1", "row_number"], test_df)
         assert len(res) == 1
         prbl = res[0]
         assert prbl.empty_columns == ["en_1", "de_1"]
@@ -205,11 +207,22 @@ class TestCheckOneHierarchy:
 class TestCheckOneNodeForTranslation:
     def test_good(self) -> None:
         test_series = pd.Series(["exist_en", "exist_de"], index=["en_1", "de_1"])
-        assert not _check_one_node_for_translations(test_series)
+        assert not _check_one_node_for_translations(test_series, ["en_1", "de_1"])
+
+    def test_good_empty(self) -> None:
+        test_series = pd.Series([pd.NA, pd.NA], index=["en_1", "de_1"])
+        assert not _check_one_node_for_translations(test_series, ["en_1", "de_1"])
 
     def test_missing_translation(self) -> None:
-        test_series = pd.Series(["exist_en", pd.NA, 3], index=["en_1", "de_1", "index"])
-        result = _check_one_node_for_translations(test_series)
+        test_series = pd.Series(["exist_en", pd.NA, 3], index=["en_1", "de_1", "row_number"])
+        result = _check_one_node_for_translations(test_series, ["en_1", "de_1"])
         result = cast(MissingNodeTranslationProblem, result)
         assert result.empty_columns == ["de_1"]
         assert result.row_num == 3
+
+
+def test_make_columns() -> None:
+    res = _make_columns(["1", "2"], {"en", "de", "fr"})
+    assert len(res) == 2
+    assert set(res[0]) == {"en_1", "de_1", "fr_1"}
+    assert set(res[1]) == {"en_2", "de_2", "fr_2"}

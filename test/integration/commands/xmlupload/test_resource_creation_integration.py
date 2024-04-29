@@ -316,19 +316,15 @@ def test_6_resources_with_stash_and_interrupt_after_2() -> None:
     xmlupload._handle_upload_error = Mock()
     xmlupload.upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
     iri_resolver_expected.lookup.update({"foo_5_id": "foo_5_iri", "foo_6_id": "foo_6_iri"})
-    upload_state_expected_before_stash_upload = UploadState([], [], iri_resolver_expected, stash, upload_config, {})
-    xmlupload._handle_upload_error.assert_called_once_with(
-        XmlUploadInterruptedError(err_msg), upload_state_expected_before_stash_upload
-    )
+    upload_state_expected = UploadState([], [], iri_resolver_expected, stash, upload_config, {})
+    xmlupload._handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
     xmlupload._handle_upload_error = Mock()
     xmlupload.upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
     empty_stash = Stash(standoff_stash=None, link_value_stash=LinkValueStash({}))
-    upload_state_expected_after_stash_upload = UploadState(
-        [], [], iri_resolver_expected, empty_stash, upload_config, {}
-    )
+    upload_state_expected = UploadState([], [], iri_resolver_expected, empty_stash, upload_config, {})
     xmlupload._handle_upload_error.assert_not_called()
-    assert upload_state == upload_state_expected_after_stash_upload
+    assert upload_state == upload_state_expected
 
 
 def test_post_calls() -> None:

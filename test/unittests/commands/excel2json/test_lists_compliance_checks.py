@@ -23,12 +23,12 @@ class TestShapeCompliance:
         test_df = pd.DataFrame({"en_list": ["a", "b", "c"], "en_2": ["d", "e", "f"]})
         assert not _df_shape_compliance(test_df, "")
 
-    def test_problems(self) -> None:
+    def test_problems_one(self) -> None:
         test_df = pd.DataFrame({"ID (optional)": [1], "en_list": ["a"], "additional_1": ["b"]})
         expected = {
-            "minimum rows": "The excel must contain at least two rows, "
+            "minimum rows": "The Excel sheet must contain at least two rows, "
             "one for the list name and one row for a minimum of one node.",
-            "missing columns for nodes": "There is not column with the expected format for the list nodes: "
+            "missing columns for nodes": "There is no column with the expected format for the list nodes: "
             "'[lang]_[column_number]'",
         }
         warning_msg = regex.escape(
@@ -40,20 +40,31 @@ class TestShapeCompliance:
             res = cast(ListSheetComplianceProblem, res)
             assert res.problems == expected
 
+    def test_problems_two(self) -> None:
+        test_df = pd.DataFrame({"ID (optional)": [1, 2], "en_list": ["a", "b"], "en_1": ["b", "c"], "de_1": ["b", "c"]})
+        expected = {
+            "missing translations": "All nodes must be translated into the same languages. "
+            "One or more translations for the following column(s) are missing: "
+            "de_list"
+        }
+        res = _df_shape_compliance(test_df, "sheet")
+        res = cast(ListSheetComplianceProblem, res)
+        assert res.problems == expected
 
-class TestCheckMinNumColPresent:
+
+class TestCheckMinNumColNamesPresent:
     def test_good(self) -> None:
-        cols = pd.Index(["ID (optional)", "en_list", "en_2"])
-        assert not _check_min_num_col_present(cols)
+        col_names = pd.Index(["ID (optional)", "en_list", "en_2"])
+        assert not _check_min_num_col_present(col_names)
 
     def test_good_no_id(self) -> None:
-        cols = pd.Index(["ID (optional)", "en_list", "en_2"])
-        assert not _check_min_num_col_present(cols)
+        col_names = pd.Index(["en_list", "en_2"])
+        assert not _check_min_num_col_present(col_names)
 
     def test_missing_columns_list(self) -> None:
         test_cols = pd.Index(["ID (optional)", "en_2"])
         expected = {
-            "missing columns for list name": "There is not column with the expected format for the list names: "
+            "missing columns for list name": "There is no column with the expected format for the list names: "
             "'[lang]_list'"
         }
         assert _check_min_num_col_present(test_cols) == expected
@@ -61,7 +72,7 @@ class TestCheckMinNumColPresent:
     def test_missing_columns_node(self) -> None:
         test_cols = pd.Index(["ID (optional)", "en_list"])
         expected = {
-            "missing columns for nodes": "There is not column with the expected format for the list nodes: "
+            "missing columns for nodes": "There is no column with the expected format for the list nodes: "
             "'[lang]_[column_number]'"
         }
         assert _check_min_num_col_present(test_cols) == expected
@@ -75,7 +86,7 @@ class TestCheckMinimumRows:
     def test_missing_rows(self) -> None:
         test_df = pd.DataFrame({"one": [1]})
         expected = {
-            "minimum rows": "The excel must contain at least two rows, "
+            "minimum rows": "The Excel sheet must contain at least two rows, "
             "one for the list name and one row for a minimum of one node."
         }
         assert _check_minimum_rows(test_df) == expected
@@ -106,8 +117,8 @@ class TestCheckAllTranslationsPresent:
     def test_missing_translations_node_columns(self) -> None:
         test_cols = pd.Index(["ID (optional)", "en_list", "de_list", "de_1", "en_1", "de_2"])
         expected = {
-            "missing translations": "All the nodes must be translated into the same languages, "
-            "the translations for the following column(s): "
+            "missing translations": "All nodes must be translated into the same languages. "
+            "One or more translations for the following column(s) are missing: "
             "en_2"
         }
         assert _check_all_expected_translations_present(test_cols) == expected
@@ -115,8 +126,8 @@ class TestCheckAllTranslationsPresent:
     def test_missing_translations_list_columns(self) -> None:
         test_cols = pd.Index(["ID (optional)", "en_list", "de_1", "en_1", "de_2", "en_2"])
         expected = {
-            "missing translations": "All the nodes must be translated into the same languages, "
-            "the translations for the following column(s): "
+            "missing translations": "All nodes must be translated into the same languages. "
+            "One or more translations for the following column(s) are missing: "
             "de_list"
         }
         assert _check_all_expected_translations_present(test_cols) == expected

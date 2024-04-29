@@ -249,9 +249,7 @@ class ListNodeProblem:
     problems: dict[str, str]
 
     def execute_error_protocol(self) -> str:
-        msg = [
-            f"The node '{self.node_id}' has the following problem(s):",
-        ]
+        msg = [f"The node '{self.node_id}' has the following problem(s):"]
         msg.extend([f"Field: '{key}', Problem: {value}" for key, value in self.problems.items()])
         return list_separator.join(msg)
 
@@ -263,9 +261,7 @@ class ListSheetProblem:
     node_problems: list[ListNodeProblem] = field(default_factory=list)
 
     def execute_error_protocol(self) -> str:
-        msg = [
-            f"The excel sheet '{self.sheet_name}' has the following problem(s):",
-        ]
+        msg = [f"The excel sheet '{self.sheet_name}' has the following problem(s):"]
         if self.root_problems:
             msg.extend([f"Field: '{key}', Problem: {value}" for key, value in self.root_problems.items()])
         if self.node_problems:
@@ -279,9 +275,7 @@ class ListExcelProblem:
     problems: list[ListSheetProblem]
 
     def execute_error_protocol(self) -> str:
-        msg = [
-            f"The excel '{self.excel_name}' has the following problem(s):",
-        ]
+        msg = [f"The excel '{self.excel_name}' has the following problem(s):"]
         msg.extend([problem.execute_error_protocol() for problem in self.problems])
         return separator.join(msg)
 
@@ -292,9 +286,7 @@ class ListSheetComplianceProblem:
     problems: dict[str, str]
 
     def execute_error_protocol(self) -> str:
-        msg = [
-            f"The excel sheet '{self.sheet_name}' has the following problem(s):",
-        ]
+        msg = [f"The excel sheet '{self.sheet_name}' has the following problem(s):"]
         msg.extend([f"Field: '{key}', Problem: {value}" for key, value in self.problems.items()])
         return separator.join(msg)
 
@@ -305,8 +297,6 @@ class ListExcelComplianceProblem:
     problems: list[ListSheetComplianceProblem]
 
     def execute_error_protocol(self) -> str:
-        msg = [
-            f"The excel '{self.excel_name}' has the following problem(s):",
-        ]
+        msg = [f"The excel '{self.excel_name}' has the following problem(s):"]
         msg.extend([problem.execute_error_protocol() for problem in self.problems])
         return separator.join(msg)

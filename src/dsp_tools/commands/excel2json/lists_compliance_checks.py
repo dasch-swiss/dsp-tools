@@ -7,8 +7,8 @@ import regex
 
 from dsp_tools.commands.excel2json.models.input_error import ListExcelComplianceProblem
 from dsp_tools.commands.excel2json.models.input_error import ListSheetComplianceProblem
-from dsp_tools.commands.excel2json.new_lists import _get_column_nums
-from dsp_tools.commands.excel2json.new_lists import _get_lang_string_from_column_names
+from dsp_tools.commands.excel2json.new_lists import _get_hierarchy_nums
+from dsp_tools.commands.excel2json.new_lists import _get_lang_string_from_column_name
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 
 
@@ -19,13 +19,16 @@ def make_all_formal_excel_compliance_checks(
     This function checks if the excel files are compliant with the expected format.
 
     Args:
-        excel_dfs: dictionary with the excel name as key and a dictionary with the sheet name as key and the dataframe.
+        excel_dfs: dictionary with the excel file name as key
+                    and a dictionary with the sheet name as key and the dataframe.
 
     Returns:
-        A list with the problems, if there are any, the list is empty.
+        A list with the problems, or an empty list if there are no problems
     """
     return [
-        res for excel in excel_dfs if (res := _make_formal_excel_compliance_check(excel_dfs[excel], excel)) is not None
+        res
+        for filename in excel_dfs
+        if (res := _make_formal_excel_compliance_check(excel_dfs[filename], filename)) is not None
     ]
 
 
@@ -42,6 +45,7 @@ def _df_shape_compliance(df: pd.DataFrame, sheet_name: str) -> ListSheetComplian
     problems = {}
     problems.update(_check_minimum_rows(df))
     problems.update(_check_min_num_col_present(df.columns))
+    problems.update(_check_all_expected_translations_present(df.columns))
     _check_warn_unusual_columns(df.columns)
     if problems:
         return ListSheetComplianceProblem(sheet_name, problems)
@@ -51,7 +55,7 @@ def _df_shape_compliance(df: pd.DataFrame, sheet_name: str) -> ListSheetComplian
 def _check_minimum_rows(df: pd.DataFrame) -> dict[str, str]:
     if len(df) < 2:
         return {
-            "minimum rows": "The excel must contain at least two rows, "
+            "minimum rows": "The Excel sheet must contain at least two rows, "
             "one for the list name and one row for a minimum of one node."
         }
     return {}
@@ -59,15 +63,15 @@ def _check_minimum_rows(df: pd.DataFrame) -> dict[str, str]:
 
 def _check_min_num_col_present(cols: pd.Index[str]) -> dict[str, str]:
     problem = {}
-    nodes = [_get_lang_string_from_column_names(c, r"\d+") for c in cols]
-    if not any(nodes):
+    node_langs = [_get_lang_string_from_column_name(c, r"\d+") for c in cols]
+    if not any(node_langs):
         problem["missing columns for nodes"] = (
-            "There is not column with the expected format for the list nodes: '[lang]_[column_number]'"
+            "There is no column with the expected format for the list nodes: '[lang]_[column_number]'"
         )
-    list_name = [_get_lang_string_from_column_names(c, r"list") for c in cols]
-    if not any(list_name):
+    list_langs = [_get_lang_string_from_column_name(c, r"list") for c in cols]
+    if not any(list_langs):
         problem["missing columns for list name"] = (
-            "There is not column with the expected format for the list names: '[lang]_list'"
+            "There is no column with the expected format for the list names: '[lang]_list'"
         )
     return problem
 
@@ -83,21 +87,20 @@ def _check_warn_unusual_columns(cols: pd.Index[str]) -> None:
 
 
 def _check_all_expected_translations_present(cols: pd.Index[str]) -> dict[str, str]:
-    languages = {r for c in cols if (r := _get_lang_string_from_column_names(c)) is not None}
-    numbers = _get_column_nums(cols)
-    all_nums = [str(n) for n in numbers]
+    languages = {r for c in cols if (r := _get_lang_string_from_column_name(c)) is not None}
+    all_nums = [str(n) for n in _get_hierarchy_nums(cols)]
     all_nums.append("list")
 
-    def make_cols(lang: str) -> set[str]:
+    def make_col_names(lang: str) -> set[str]:
         return {f"{lang}_{num}" for num in all_nums}
 
     expected_cols = set()
     for lang in languages:
-        expected_cols.update({col for col in make_cols(lang)})
+        expected_cols.update(make_col_names(lang))
     if missing_cols := expected_cols - set(cols):
         return {
-            "missing translations": f"All the nodes must be translated into the same languages, "
-            f"the translations for the following column(s): "
+            "missing translations": f"All nodes must be translated into the same languages. "
+            f"One or more translations for the following column(s) are missing: "
             f"{', '.join(missing_cols)}"
         }
     return {}

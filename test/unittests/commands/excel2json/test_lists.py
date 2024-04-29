@@ -10,10 +10,10 @@ from dsp_tools.commands.excel2json.new_lists import _fill_auto_id_column
 from dsp_tools.commands.excel2json.new_lists import _fill_id_and_parent_id_columns
 from dsp_tools.commands.excel2json.new_lists import _fill_parent_id
 from dsp_tools.commands.excel2json.new_lists import _get_all_languages_for_columns
-from dsp_tools.commands.excel2json.new_lists import _get_column_nums
 from dsp_tools.commands.excel2json.new_lists import _get_columns_of_preferred_lang
+from dsp_tools.commands.excel2json.new_lists import _get_hierarchy_nums
 from dsp_tools.commands.excel2json.new_lists import _get_labels
-from dsp_tools.commands.excel2json.new_lists import _get_lang_string_from_column_names
+from dsp_tools.commands.excel2json.new_lists import _get_lang_string_from_column_name
 from dsp_tools.commands.excel2json.new_lists import _get_preferred_language
 from dsp_tools.commands.excel2json.new_lists import _get_reverse_sorted_columns_list
 from dsp_tools.commands.excel2json.new_lists import _make_list_nodes_from_df
@@ -332,25 +332,25 @@ class TestGetLabels:
 
 
 def test_get_lang_string_good() -> None:
-    assert _get_lang_string_from_column_names("en_1") == "en"
+    assert _get_lang_string_from_column_name("en_1") == "en"
 
 
 def test_get_lang_string_raises() -> None:
-    assert not _get_lang_string_from_column_names("ru_1")
+    assert not _get_lang_string_from_column_name("ru_1")
 
 
 class TestGetRemainingColumns:
     def test_with_matching_columns(self) -> None:
         columns = pd.Index(["en_1", "de_2", "fr_3"])
-        assert _get_column_nums(columns) == [1, 2, 3]
+        assert _get_hierarchy_nums(columns) == [1, 2, 3]
 
     def test_with_list_language_columns(self) -> None:
         columns = pd.Index(["en_1", "de_2", "fr_3", "de_list"])
-        assert _get_column_nums(columns) == [1, 2, 3]
+        assert _get_hierarchy_nums(columns) == [1, 2, 3]
 
     def test_with_non_numeric_columns(self) -> None:
         columns = pd.Index(["en_1", "de_2", "fr_3", "it_4", "rm_5", "en_other"])
-        assert _get_column_nums(columns) == [1, 2, 3, 4, 5]
+        assert _get_hierarchy_nums(columns) == [1, 2, 3, 4, 5]
 
 
 class TestGetAllLanguagesForColumns:

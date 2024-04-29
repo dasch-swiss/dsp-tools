@@ -1,4 +1,4 @@
-from copy import copy
+from copy import deepcopy
 from dataclasses import dataclass
 from unittest.mock import Mock
 
@@ -133,8 +133,8 @@ def test_2_resources_with_stash() -> None:
         "foo_1_id": [LinkValueStashItem("foo_1_id", "my_onto:foo_1_type", "my_onto:hasCustomLink", "foo_2_id")],
         "foo_2_id": [LinkValueStashItem("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")],
     }
-    stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict.copy()), standoff_stash=None)
-    upload_state = UploadState(xml_resources, [], IriResolver(), stash, UploadConfig(), {})
+    stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
+    upload_state = UploadState(xml_resources, [], IriResolver(), deepcopy(stash), UploadConfig(), {})
     con = Mock(spec_set=ConnectionLive)
     con.post = Mock(
         side_effect=[
@@ -191,7 +191,7 @@ def _2_resources_with_stash_interrupted_by_error(err_to_interrupt_with: BaseExce
         "foo_2_id": [LinkValueStashItem("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")],
     }
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
-    upload_state = UploadState(xml_resources.copy(), [], IriResolver(), copy(stash), UploadConfig(), {})
+    upload_state = UploadState(xml_resources.copy(), [], IriResolver(), deepcopy(stash), UploadConfig(), {})
     con = Mock(spec_set=ConnectionLive)
     con.post = Mock(
         side_effect=[
@@ -233,7 +233,7 @@ def test_5_resources_with_stash_and_interrupt_after_2() -> None:
     }
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
     upload_config = UploadConfig(interrupt_after=2)
-    upload_state = UploadState(xml_resources.copy(), [], IriResolver(), copy(stash), upload_config, {})
+    upload_state = UploadState(xml_resources.copy(), [], IriResolver(), deepcopy(stash), upload_config, {})
     con = Mock(spec_set=ConnectionLive)
     con.post = Mock(
         side_effect=[
@@ -286,7 +286,7 @@ def test_6_resources_with_stash_and_interrupt_after_2() -> None:
     }
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
     upload_config = UploadConfig(interrupt_after=2)
-    upload_state = UploadState(xml_resources.copy(), [], IriResolver(), copy(stash), upload_config, {})
+    upload_state = UploadState(xml_resources.copy(), [], IriResolver(), deepcopy(stash), upload_config, {})
     con = Mock(spec_set=ConnectionLive)
     con.post = Mock(
         side_effect=[

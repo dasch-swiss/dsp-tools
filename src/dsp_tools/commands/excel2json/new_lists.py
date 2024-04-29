@@ -14,6 +14,8 @@ from dsp_tools.models.exceptions import InputError
 
 
 def _fill_id_and_parent_id_columns(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
+    if "ID (optional)" not in df.columns:
+        df["ID (optional)"] = pd.NA
     df = _fill_auto_id_column(df, preferred_language)
     df["id"] = df["ID (optional)"].fillna(df["auto_id"])
     df = _fill_parent_id(df, preferred_language)
@@ -111,7 +113,7 @@ def _make_one_node(row: pd.Series[Any], list_of_columns: list[list[str]]) -> Lis
 
 
 def _get_reverse_sorted_columns_list(df: pd.DataFrame) -> list[list[str]]:
-    numbers = sorted(_get_column_nums(df.columns), reverse=True)
+    numbers = sorted(_get_hierarchy_nums(df.columns), reverse=True)
     languages = _get_all_languages_for_columns(df.columns, r"\d+")
     return [[f"{lang}_{num}" for lang in languages] for num in numbers]
 
@@ -132,11 +134,11 @@ def _get_labels(row: pd.Series[Any], columns: list[str]) -> dict[str, str]:
     return {
         lang: row[col]
         for col in columns
-        if not (pd.isna(row[col])) and (lang := _get_lang_string_from_column_names(col))
+        if not (pd.isna(row[col])) and (lang := _get_lang_string_from_column_name(col))
     }
 
 
-def _get_lang_string_from_column_names(col_str: str, ending: str = r"(\d+|list)") -> str | None:
+def _get_lang_string_from_column_name(col_str: str, ending: str = r"(\d+|list)") -> str | None:
     if res := regex.search(rf"^(en|de|fr|it|rm)_{ending}$", col_str):
         return res.group(1)
     return None
@@ -146,14 +148,14 @@ def _get_columns_of_preferred_lang(columns: pd.Index[str], preferred_language: s
     return sorted(col for col in columns if regex.search(rf"^{preferred_language}_\d+$", col))
 
 
-def _get_column_nums(columns: pd.Index[str]) -> list[int]:
+def _get_hierarchy_nums(columns: pd.Index[str]) -> list[int]:
     return sorted(
         list(set(int(res.group(2)) for x in columns if (res := regex.search(r"^(en|de|fr|it|rm)_(\d+)$", x))))
     )
 
 
-def _get_all_languages_for_columns(columns: pd.Index[str], ending: str = r"(\d+|list)") -> set[str]:
-    return set(res for x in columns if (res := _get_lang_string_from_column_names(x, ending)))
+def _get_all_languages_for_columns(columns: pd.Index[str], ending: str) -> set[str]:
+    return set(res for x in columns if (res := _get_lang_string_from_column_name(x, ending)))
 
 
 def _get_preferred_language(columns: pd.Index[str], ending: str = r"(\d+|list)") -> str:

@@ -60,7 +60,9 @@ def test_one_resource_without_links() -> None:
     con = Mock(spec_set=ConnectionLive)
     con.post = Mock(return_value={"@id": "foo_1_iri", "rdfs:label": "foo_1_label"})
     project_client = ProjectClientStub(con, "1234", None)
+
     xmlupload.upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
+
     assert len(con.post.call_args_list) == 1
     match con.post.call_args_list[0].kwargs:
         case {
@@ -95,7 +97,9 @@ def test_one_resource_with_link_to_existing_resource() -> None:
     con = Mock(spec_set=ConnectionLive)
     con.post = Mock(return_value={"@id": "foo_1_iri", "rdfs:label": "foo_1_label"})
     project_client = ProjectClientStub(con, "1234", None)
+
     xmlupload.upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
+
     assert len(con.post.call_args_list) == 1
     match con.post.call_args_list[0].kwargs:
         case {
@@ -129,20 +133,23 @@ def test_two_resources_with_stash() -> None:
         "foo_1_id": [LinkValueStashItem("foo_1_id", "my_onto:foo_1_type", "my_onto:hasCustomLink", "foo_2_id")],
         "foo_2_id": [LinkValueStashItem("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")],
     }
-    stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
+    stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict.copy()), standoff_stash=None)
     upload_state = UploadState(xml_resources, [], IriResolver(), stash, UploadConfig(), {})
     con = Mock(spec_set=ConnectionLive)
     con.post = Mock(
         side_effect=[
             {"@id": "foo_1_iri", "rdfs:label": "foo_1_label"},
             {"@id": "foo_2_iri", "rdfs:label": "foo_2_label"},
-            {},
-            {},
+            {},  # uploading a stash doesn't rely on a certain response
+            {},  # uploading a stash doesn't rely on a certain response
         ]
     )
     project_client = ProjectClientStub(con, "1234", None)
+
     xmlupload.upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
-    assert len(con.post.call_args_list) == 4
+
+    num_of_post_requests = len(xml_strings) + len(link_val_stash_dict)  # num of resources + num of stashed links
+    assert len(con.post.call_args_list) == num_of_post_requests
     match con.post.call_args_list[2].kwargs:
         case {
             "route": "/v2/values",
@@ -186,10 +193,17 @@ def _two_resources_with_stash_interrupted_by_error(err_to_interrupt_with: BaseEx
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
     upload_state = UploadState(xml_resources.copy(), [], IriResolver(), copy(stash), UploadConfig(), {})
     con = Mock(spec_set=ConnectionLive)
-    con.post = Mock(side_effect=[{"@id": "foo_1_iri", "rdfs:label": "foo_1_label"}, err_to_interrupt_with])
-    xmlupload._handle_upload_error = Mock()
+    con.post = Mock(
+        side_effect=[
+            {"@id": "foo_1_iri", "rdfs:label": "foo_1_label"},
+            err_to_interrupt_with,
+        ]
+    )
     project_client = ProjectClientStub(con, "1234", None)
+    xmlupload._handle_upload_error = Mock()
+
     xmlupload.upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
+
     err_msg = (
         f"There was a {err_as_str} while trying to create resource 'foo_2_id'.\n"
         "It is unclear if the resource 'foo_2_id' was created successfully or not.\n"
@@ -232,8 +246,8 @@ def test_two_resources_with_stash_interrupt_after() -> None:
             {"@id": "foo_6_iri", "rdfs:label": "foo_6_label"},
         ]
     )
-    xmlupload._handle_upload_error = Mock()
     project_client = ProjectClientStub(con, "1234", None)
+    xmlupload._handle_upload_error = Mock()
     err_msg = "Interrupted: Maximum number of resources was reached (2)"
 
     xmlupload.upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())

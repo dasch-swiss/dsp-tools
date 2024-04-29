@@ -2,6 +2,7 @@ import warnings
 
 import pandas as pd
 import pytest
+import regex
 
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_min_num_col_present
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_minimum_rows
@@ -11,22 +12,28 @@ from dsp_tools.models.custom_warnings import DspToolsUserWarning
 
 
 class TestShapeCompliance:
-    def test_good(self):
+    def test_good(self) -> None:
         test_df = pd.DataFrame({"ID (optional)": [1, 2, 3], "en_list": ["a", "b", "c"], "en_2": ["d", "e", "f"]})
         assert not _df_shape_compliance(test_df)
 
-    def test_problems(self):
+    def test_good_no_id(self) -> None:
+        test_df = pd.DataFrame({"en_list": ["a", "b", "c"], "en_2": ["d", "e", "f"]})
+        assert not _df_shape_compliance(test_df)
+
+    def test_problems(self) -> None:
         test_df = pd.DataFrame({"ID (optional)": [1], "en_list": ["a"], "additional_1": ["b"]})
         expected = {
             "minimum rows": "The excel must contain at least two rows, "
             "one for the list name and one row for a minimum of one node.",
-            "missing columns": "The following columns are required: "
-            "'ID (optional)', at least one in the format of "
-            "'[lang]_list', and '[lang]_[column_number]'",
-            "additional columns": "The following columns do not conform to the expected format "
-            "and will not be included in the output: 'additional_1'",
+            "missing columns for nodes": "There is not column with the expected format for the list nodes: "
+            "'[lang]_[column_number]'",
         }
-        assert _df_shape_compliance(test_df) == expected
+        warning_msg = regex.escape(
+            "The following columns do not conform to the expected format "
+            "and will not be included in the output: additional_1"
+        )
+        with pytest.warns(DspToolsUserWarning, match=warning_msg):
+            assert _df_shape_compliance(test_df) == expected
 
 
 class TestCheckMinNumColPresent:
@@ -34,32 +41,25 @@ class TestCheckMinNumColPresent:
         cols = pd.Index(["ID (optional)", "en_list", "en_2"])
         assert not _check_min_num_col_present(cols)
 
-    def test_missing_columns_id(self) -> None:
-        test_cols = pd.Index(["en_list", "en_2"])
-        expected = {
-            "missing columns": "The following columns are required: "
-            "'ID (optional)', at least one in the format of "
-            "'[lang]_list', and '[lang]_[column_number]'"
-        }
-        assert _check_min_num_col_present(test_cols) == expected
+    def test_good_no_id(self) -> None:
+        cols = pd.Index(["ID (optional)", "en_list", "en_2"])
+        assert not _check_min_num_col_present(cols)
 
     def test_missing_columns_list(self) -> None:
         test_cols = pd.Index(["ID (optional)", "en_2"])
         expected = {
-            "missing columns": "The following columns are required: "
-            "'ID (optional)', at least one in the format of "
-            "'[lang]_list', and '[lang]_[column_number]'"
+            "missing columns for list name": "There is not column with the expected format for the list names: "
+            "'[lang]_list'"
         }
         assert _check_min_num_col_present(test_cols) == expected
 
     def test_missing_columns_node(self) -> None:
         test_cols = pd.Index(["ID (optional)", "en_list"])
         expected = {
-            "missing columns": "The following columns are required: "
-            "'ID (optional)', at least one in the format of "
-            "'[lang]_list', and '[lang]_[column_number]'"
+            "missing columns for nodes": "There is not column with the expected format for the list nodes: "
+            "'[lang]_[column_number]'"
         }
-        assert _check_warn_unusual_columns(test_cols) == expected
+        assert _check_min_num_col_present(test_cols) == expected
 
 
 class TestCheckMinimumRows:
@@ -71,7 +71,7 @@ class TestCheckMinimumRows:
         test_df = pd.DataFrame({"one": [1]})
         expected = {
             "minimum rows": "The excel must contain at least two rows, "
-            "one for the list name one row for a minimum of one node."
+            "one for the list name and one row for a minimum of one node."
         }
         assert _check_minimum_rows(test_df) == expected
 
@@ -79,16 +79,15 @@ class TestCheckMinimumRows:
 class TestCheckWarnUnusualColumns:
     def test_good(self) -> None:
         test_cols = pd.Index(["ID (optional)", "en_list", "en_2", "de_2"])
-        with warnings.catch_warnings(record=True) as catched_warnings:
+        with warnings.catch_warnings(record=True) as caught_warnings:
             _check_warn_unusual_columns(test_cols)
-            assert len(catched_warnings) == 0
+        assert len(caught_warnings) == 0
 
     def test_additional_columns(self) -> None:
-        test_cols = pd.Index(["ID (optional)", "en_list", "en_2", "de_2", "additiona_1", "additional_2"])
-        expected = {
-            "additional columns": "The following columns do not conform to the expected format "
-            "and will not be included in the output: 'additional_1', 'additional_2'"
-        }
-        with pytest.warns(DspToolsUserWarning) as record:
+        test_cols = pd.Index(["ID (optional)", "en_list", "en_2", "de_2", "additional_1", "additional_2"])
+        expected = regex.escape(
+            "The following columns do not conform to the expected format "
+            "and will not be included in the output: additional_1, additional_2"
+        )
+        with pytest.warns(DspToolsUserWarning, match=expected):
             _check_warn_unusual_columns(test_cols)
-        assert record[0].message.args[0] == expected

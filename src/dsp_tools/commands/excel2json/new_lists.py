@@ -14,6 +14,8 @@ from dsp_tools.models.exceptions import InputError
 
 
 def _fill_id_and_parent_id_columns(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
+    if "ID (optional)" not in df.columns:
+        df["ID (optional)"] = pd.NA
     df = _fill_auto_id_column(df, preferred_language)
     df["id"] = df["ID (optional)"].fillna(df["auto_id"])
     df = _fill_parent_id(df, preferred_language)

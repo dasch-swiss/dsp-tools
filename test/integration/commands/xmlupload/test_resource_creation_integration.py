@@ -260,18 +260,20 @@ def test_two_resources_with_stash_interrupt_after() -> None:
     err_msg = "Interrupted: Maximum number of resources was reached (2)"
 
     xmlupload.upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
-    iri_resolver_dict = {"foo_1_id": "foo_1_iri", "foo_2_id": "foo_2_iri"}
-    upload_state_expected = UploadState(xml_resources[2:], [], IriResolver(iri_resolver_dict), stash, upload_config, {})
+    iri_resolver_expected = IriResolver({"foo_1_id": "foo_1_iri", "foo_2_id": "foo_2_iri"})
+    upload_state_expected = UploadState(xml_resources[2:], [], iri_resolver_expected, stash, upload_config, {})
     xmlupload._handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
+    xmlupload._handle_upload_error = Mock()
     xmlupload.upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
-    iri_resolver_dict.update({"foo_3_id": "foo_3_iri", "foo_4_id": "foo_4_iri"})
-    upload_state_expected = UploadState(xml_resources[4:], [], IriResolver(iri_resolver_dict), stash, upload_config, {})
+    iri_resolver_expected.lookup.update({"foo_3_id": "foo_3_iri", "foo_4_id": "foo_4_iri"})
+    upload_state_expected = UploadState(xml_resources[4:], [], iri_resolver_expected, stash, upload_config, {})
     xmlupload._handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
+    xmlupload._handle_upload_error = Mock()
     xmlupload.upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
-    iri_resolver_dict.update({"foo_5_id": "foo_5_iri", "foo_6_id": "foo_6_iri"})
-    upload_state_expected = UploadState(xml_resources[4:], [], IriResolver(iri_resolver_dict), stash, upload_config, {})
+    iri_resolver_expected.lookup.update({"foo_5_id": "foo_5_iri", "foo_6_id": "foo_6_iri"})
+    upload_state_expected = UploadState(xml_resources[4:], [], iri_resolver_expected, stash, upload_config, {})
     xmlupload._handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
     # TODO: check if logs have been emitted with the correct numbering/counting

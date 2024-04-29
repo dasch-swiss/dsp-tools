@@ -7,13 +7,13 @@ import pandas as pd
 from dsp_tools.commands.excel2json.models.input_error import MissingNodeTranslationProblem
 from dsp_tools.commands.excel2json.models.input_error import MissingTranslationsSheetProblem
 from dsp_tools.commands.excel2json.new_lists import _get_all_languages_for_columns
-from dsp_tools.commands.excel2json.new_lists import _get_column_nums
+from dsp_tools.commands.excel2json.new_lists import _get_hierarchy_nums
 
 
 def _test_all_nodes_translated_into_all_languages(
     df: pd.DataFrame, sheet_name: str
 ) -> MissingTranslationsSheetProblem | None:
-    col_endings = [str(num) for num in _get_column_nums(df.columns)]
+    col_endings = [str(num) for num in _get_hierarchy_nums(df.columns)]
     col_endings.append("list")
     languages = _get_all_languages_for_columns(df.columns)
     all_cols = _make_columns(col_endings, languages)

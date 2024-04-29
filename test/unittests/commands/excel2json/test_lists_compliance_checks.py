@@ -5,6 +5,7 @@ import pandas as pd
 import pytest
 import regex
 
+from dsp_tools.commands.excel2json.lists_compliance_checks import _check_all_expected_translations_present
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_min_num_col_present
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_minimum_rows
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_warn_unusual_columns
@@ -95,3 +96,27 @@ class TestCheckWarnUnusualColumns:
         )
         with pytest.warns(DspToolsUserWarning, match=expected):
             _check_warn_unusual_columns(test_cols)
+
+
+class TestCheckAllTranslationsPresent:
+    def test_good(self) -> None:
+        test_cols = pd.Index(["ID (optional)", "en_list", "de_list", "de_1", "en_1", "de_2", "en_2"])
+        assert not _check_all_expected_translations_present(test_cols)
+
+    def test_missing_translations_node_columns(self) -> None:
+        test_cols = pd.Index(["ID (optional)", "en_list", "de_list", "de_1", "en_1", "de_2"])
+        expected = {
+            "missing translations": "All the nodes must be translated into the same languages, "
+            "the translations for the following column(s): "
+            "en_2"
+        }
+        assert _check_all_expected_translations_present(test_cols) == expected
+
+    def test_missing_translations_list_columns(self) -> None:
+        test_cols = pd.Index(["ID (optional)", "en_list", "de_1", "en_1", "de_2", "en_2"])
+        expected = {
+            "missing translations": "All the nodes must be translated into the same languages, "
+            "the translations for the following column(s): "
+            "de_list"
+        }
+        assert _check_all_expected_translations_present(test_cols) == expected

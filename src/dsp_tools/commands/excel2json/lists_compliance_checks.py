@@ -7,6 +7,7 @@ import regex
 
 from dsp_tools.commands.excel2json.models.input_error import ListExcelComplianceProblem
 from dsp_tools.commands.excel2json.models.input_error import ListSheetComplianceProblem
+from dsp_tools.commands.excel2json.new_lists import _get_column_nums
 from dsp_tools.commands.excel2json.new_lists import _get_lang_string_from_column_names
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 
@@ -79,3 +80,24 @@ def _check_warn_unusual_columns(cols: pd.Index[str]) -> None:
             f"and will not be included in the output: {', '.join(not_matched)}"
         )
         warnings.warn(DspToolsUserWarning(msg))
+
+
+def _check_all_expected_translations_present(cols: pd.Index[str]) -> dict[str, str]:
+    languages = {r for c in cols if (r := _get_lang_string_from_column_names(c)) is not None}
+    numbers = _get_column_nums(cols)
+    all_nums = [str(n) for n in numbers]
+    all_nums.append("list")
+
+    def make_cols(lang: str) -> set[str]:
+        return {f"{lang}_{num}" for num in all_nums}
+
+    expected_cols = set()
+    for lang in languages:
+        expected_cols.update({col for col in make_cols(lang)})
+    if missing_cols := expected_cols - set(cols):
+        return {
+            "missing translations": f"All the nodes must be translated into the same languages, "
+            f"the translations for the following column(s): "
+            f"{', '.join(missing_cols)}"
+        }
+    return {}

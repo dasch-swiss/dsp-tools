@@ -284,3 +284,26 @@ class ListExcelProblem:
         ]
         msg.extend([problem.execute_error_protocol() for problem in self.problems])
         return separator.join(msg)
+
+
+@dataclass(frozen=True)
+class MissingNodeTranslationProblem:
+    empty_columns: list[str]
+    row_num: int
+
+    def execute_error_protocol(self) -> str:
+        return f"Row Number: '{self.row_num}' Column(s): {', '.join(self.empty_columns)}"
+
+
+@dataclass(frozen=True)
+class MissingTranslationsSheetProblem:
+    sheet: str
+    node_problems: list[MissingNodeTranslationProblem]
+
+    def execute_error_protocol(self) -> str:
+        msg = (
+            f"In one list, all the nodes must be translated into all the languages used. "
+            f"The following nodes are missing translations:{separator}"
+        )
+        nods = list_separator.join([x.execute_error_protocol() for x in self.node_problems])
+        return msg + nods

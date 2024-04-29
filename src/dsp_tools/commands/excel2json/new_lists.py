@@ -152,7 +152,7 @@ def _get_column_nums(columns: pd.Index[str]) -> list[int]:
     )
 
 
-def _get_all_languages_for_columns(columns: pd.Index[str], ending: str) -> set[str]:
+def _get_all_languages_for_columns(columns: pd.Index[str], ending: str = r"(\d+|list)") -> set[str]:
     return set(res for x in columns if (res := _get_lang_string_from_column_names(x, ending)))
 
 

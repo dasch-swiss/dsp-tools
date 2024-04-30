@@ -328,10 +328,6 @@ def _upload_resources(
         listnode_lookup=listnode_lookup,
         media_previously_ingested=upload_state.config.media_previously_uploaded,
     )
-    previous_successful = len(upload_state.iri_resolver.lookup)
-    previous_failed = len(upload_state.failed_uploads)
-    upcoming = len(upload_state.pending_resources)
-    total_num_of_resources = previous_successful + previous_failed + upcoming
 
     for creation_attempts_of_this_round, resource in enumerate(upload_state.pending_resources.copy()):
         _upload_one_resource(
@@ -340,7 +336,6 @@ def _upload_resources(
             imgdir=imgdir,
             sipi_server=sipi_server,
             resource_create_client=resource_create_client,
-            total_num_of_resources=total_num_of_resources,
             creation_attempts_of_this_round=creation_attempts_of_this_round,
         )
 
@@ -351,7 +346,6 @@ def _upload_one_resource(
     imgdir: str,
     sipi_server: Sipi,
     resource_create_client: ResourceCreateClient,
-    total_num_of_resources: int,
     creation_attempts_of_this_round: int,
 ) -> None:
     success, media_info = handle_media_info(
@@ -377,24 +371,18 @@ def _upload_one_resource(
         raise XmlUploadInterruptedError(msg) from None
 
     try:
-        _tidy_up_resource_creation_idempotent(
-            upload_state, iri, resource, creation_attempts_of_this_round + 1, total_num_of_resources
-        )
+        _tidy_up_resource_creation_idempotent(upload_state, iri, resource)
     except KeyboardInterrupt as err:
         warnings.warn(GeneralDspToolsWarning("KeyboardInterrupt: Tidying up, then exit..."))
-        _tidy_up_resource_creation_idempotent(
-            upload_state, iri, resource, creation_attempts_of_this_round + 1, total_num_of_resources
-        )
+        _tidy_up_resource_creation_idempotent(upload_state, iri, resource)
         raise err from None
 
-    _interrupt_if_indicated(upload_state, total_num_of_resources, creation_attempts_of_this_round)
+    _interrupt_if_indicated(upload_state, creation_attempts_of_this_round)
 
 
-def _interrupt_if_indicated(
-    upload_state: UploadState, total_num_of_resources: int, creation_attempts_of_this_round: int
-) -> None:
+def _interrupt_if_indicated(upload_state: UploadState, creation_attempts_of_this_round: int) -> None:
     # if the interrupt_after value is not set, the upload will not be interrupted
-    interrupt_after = upload_state.config.interrupt_after or total_num_of_resources + 1
+    interrupt_after = upload_state.config.interrupt_after or 999_999_999
     if creation_attempts_of_this_round + 1 >= interrupt_after:
         raise XmlUploadInterruptedError(
             f"Interrupted: Maximum number of resources was reached ({upload_state.config.interrupt_after})"
@@ -405,9 +393,12 @@ def _tidy_up_resource_creation_idempotent(
     upload_state: UploadState,
     iri: str | None,
     resource: XMLResource,
-    current_res: int,
-    total_res: int,
 ) -> None:
+    previous_successful = len(upload_state.iri_resolver.lookup)
+    previous_failed = len(upload_state.failed_uploads)
+    upcoming = len(upload_state.pending_resources)
+    current_res = previous_successful + previous_failed + 1
+    total_res = previous_successful + previous_failed + upcoming
     if iri:
         # resource creation succeeded: update the iri_resolver
         upload_state.iri_resolver.lookup[resource.res_id] = iri

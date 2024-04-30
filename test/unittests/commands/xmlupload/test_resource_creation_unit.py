@@ -23,7 +23,7 @@ def test_idempotency_on_success() -> None:
     xml_resources = [XMLResource(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
     upload_state = UploadState(xml_resources.copy(), [], IriResolver(), None, UploadConfig(), {})
     for _ in range(3):
-        _tidy_up_resource_creation_idempotent(upload_state, "foo_1_iri", xml_resources[0], 1, 2)
+        _tidy_up_resource_creation_idempotent(upload_state, "foo_1_iri", xml_resources[0])
         assert upload_state.pending_resources == xml_resources[1:]
         assert upload_state.failed_uploads == []
         assert upload_state.iri_resolver.lookup == {"foo_1_id": "foo_1_iri"}
@@ -46,7 +46,7 @@ def test_idempotency_on_failure() -> None:
     xml_resources = [XMLResource(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
     upload_state = UploadState(xml_resources.copy(), [], IriResolver(), None, UploadConfig(), {})
     for _ in range(3):
-        _tidy_up_resource_creation_idempotent(upload_state, None, xml_resources[0], 1, 2)
+        _tidy_up_resource_creation_idempotent(upload_state, None, xml_resources[0])
         assert upload_state.pending_resources == xml_resources[1:]
         assert upload_state.failed_uploads == ["foo_1_id"]
         assert upload_state.iri_resolver.lookup == {}

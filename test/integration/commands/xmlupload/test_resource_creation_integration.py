@@ -86,7 +86,7 @@ def test_one_resource_without_links() -> None:
 
 
 def test_logging(caplog: pytest.LogCaptureFixture) -> None:
-    caplog.set_level("INFO")
+    caplog.set_level("DEBUG")
     xml_strings = [
         '<resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id"></resource>',
         '<resource label="foo_2_label" restype=":foo_2_type" id="foo_2_id"></resource>',
@@ -128,10 +128,10 @@ def test_logging(caplog: pytest.LogCaptureFixture) -> None:
 
     xmlupload.upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
     assert caplog.records[1].message == "Created resource 5/5: 'foo_5_label' (ID: 'foo_5_id', IRI: 'foo_5_iri')"
-    assert caplog.records[3].message == "Upload resptrs of resource 'foo_1_id'..."
-    assert caplog.records[4].message == 'Successfully uploaded resptr links of "my_onto:hasCustomLink"'
-    assert caplog.records[5].message == "Upload resptrs of resource 'foo_2_id'..."
-    assert caplog.records[6].message == 'Successfully uploaded resptr links of "my_onto:hasCustomLink"'
+    assert caplog.records[3].message == "  Upload resptrs of resource 'foo_1_id'..."
+    assert caplog.records[4].message == '  Successfully uploaded resptr links of "my_onto:hasCustomLink"'
+    assert caplog.records[5].message == "  Upload resptrs of resource 'foo_2_id'..."
+    assert caplog.records[6].message == '  Successfully uploaded resptr links of "my_onto:hasCustomLink"'
     caplog.clear()
 
 

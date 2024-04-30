@@ -79,9 +79,7 @@ def resume_xmlupload(server: str, user: str, password: str, sipi: str, skip_firs
         list_client=list_client,
     )
 
-    return cleanup_upload(
-        upload_state.iri_resolver, upload_state.config, upload_state.failed_uploads, upload_state.pending_stash
-    )
+    return cleanup_upload(upload_state)
 
 
 def _read_upload_state_from_disk(server: str) -> UploadState:

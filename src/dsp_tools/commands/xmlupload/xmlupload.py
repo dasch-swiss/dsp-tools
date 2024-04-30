@@ -117,44 +117,41 @@ def xmlupload(
         list_client=list_client,
     )
 
-    return cleanup_upload(upload_state.iri_resolver, config, upload_state.failed_uploads, upload_state.pending_stash)
+    return cleanup_upload(upload_state)
 
 
-def cleanup_upload(
-    iri_resolver: IriResolver,
-    config: UploadConfig,
-    failed_uploads: list[str],
-    nonapplied_stash: Stash | None,
-) -> bool:
+def cleanup_upload(upload_state: UploadState) -> bool:
     """
     Write the id2iri mapping to a file and print a message to the console.
 
     Args:
-        iri_resolver: mapping from internal IDs to IRIs
-        config: the upload configuration
-        failed_uploads: resources that caused an error when uploading to DSP
-        nonapplied_stash: the stash items that could not be reapplied
+        upload_state: the current state of the upload
 
     Returns:
-        success status (deduced from failed_uploads)
+        success status (deduced from failed_uploads and non-applied stash)
     """
-    write_id2iri_mapping(iri_resolver.lookup, config.diagnostics)
-    if not failed_uploads and not nonapplied_stash:
+    write_id2iri_mapping(upload_state.iri_resolver.lookup, upload_state.config.diagnostics)
+    has_stash_failed = upload_state.pending_stash and not upload_state.pending_stash.is_empty()
+    if not upload_state.failed_uploads and not has_stash_failed:
         success = True
         print(f"{datetime.now()}: All resources have successfully been uploaded.")
         logger.info("All resources have successfully been uploaded.")
     else:
         success = False
-        if failed_uploads:
-            print(f"\n{datetime.now()}: WARNING: Could not upload the following resources: {failed_uploads}\n")
+        if upload_state.failed_uploads:
+            res_msg = f"Could not upload the following resources: {upload_state.failed_uploads}"
+            print(f"\n{datetime.now()}: WARNING: {res_msg}\n")
             print(f"For more information, see the log file: {logger_savepath}\n")
-            logger.warning(f"Could not upload the following resources: {failed_uploads}")
-        if nonapplied_stash:
-            print(f"\n{datetime.now()}: WARNING: Could not reapply the following stash items: {nonapplied_stash}\n")
+            logger.warning(res_msg)
+        if has_stash_failed:
+            stash_msg = f"Could not reapply the following stash items: {upload_state.pending_stash}"
+            print(f"\n{datetime.now()}: WARNING: {stash_msg}\n")
             print(f"For more information, see the log file: {logger_savepath}\n")
-            logger.warning(f"Could not reapply the following stash items: {nonapplied_stash}")
+            logger.warning(stash_msg)
+        msg = _save_upload_state(upload_state)
+        print(msg)
 
-    config.diagnostics.save_location.unlink(missing_ok=True)
+    upload_state.config.diagnostics.save_location.unlink(missing_ok=True)
     return success
 
 
@@ -466,4 +463,5 @@ def _save_upload_state(upload_state: UploadState) -> str:
     save_location.touch(exist_ok=True)
     with open(save_location, "wb") as file:
         pickle.dump(upload_state, file)
+    logger.info(f"Saved the current upload state to {save_location}")
     return f"Saved the current upload state to {save_location}.\n"

@@ -16,8 +16,8 @@ from dsp_tools.commands.excel2json.lists_compliance_checks import _df_shape_comp
 from dsp_tools.commands.excel2json.lists_compliance_checks import _make_columns
 from dsp_tools.commands.excel2json.models.input_error import ListSheetComplianceProblem
 from dsp_tools.commands.excel2json.models.input_error import MissingNodeTranslationProblem
+from dsp_tools.commands.excel2json.models.input_error import MissingTranslationsSheetProblem
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
-from dsp_tools.models.exceptions import InputError
 
 
 class TestShapeCompliance:
@@ -292,15 +292,17 @@ class TestAllNodesTranslatedIntoAllLanguages:
                 ],
             }
         )
-        expected = regex.escape(
-            "In one list, all the nodes must be translated into all the languages used. "
-            "The following nodes are missing translations:\n"
-            "    - Row Number: '4' Column(s): de_2\n"
-            "    - Row Number: '7' Column(s): en_list\n"
-            "    - Row Number: '10' Column(s): en_1"
-        )
-        with pytest.raises(InputError, match=expected):
-            _check_all_nodes_translated_into_all_languages(test_df, "sheet")
+        expected = [
+            MissingNodeTranslationProblem(["de_2"], 4),
+            MissingNodeTranslationProblem(["en_list"], 7),
+            MissingNodeTranslationProblem(["en_1"], 10),
+        ]
+        result = _check_all_nodes_translated_into_all_languages(test_df, "sheet")
+        result = cast(MissingTranslationsSheetProblem, result)
+        res_node_problems = sorted(result.node_problems, key=lambda x: x.row_num)
+        for res, expct in zip(res_node_problems, expected):
+            assert res.empty_columns == expct.empty_columns
+            assert res.row_num == expct.row_num
 
 
 class TestCheckOneHierarchy:

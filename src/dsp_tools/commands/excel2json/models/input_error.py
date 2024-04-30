@@ -5,6 +5,7 @@ from typing import Protocol
 
 separator = "\n    "
 list_separator = "\n    - "
+medium_separator = "\n----------------------------\n"
 
 
 class Problem(Protocol):
@@ -249,9 +250,9 @@ class ListExcelProblem:
     problems: list[Problem]
 
     def execute_error_protocol(self) -> str:
-        msg = [f"The excel '{self.excel_name}' has the following problem(s):"]
+        msg = [f"The excel '{self.excel_name}' has the following problem(s):{medium_separator}"]
         msg.extend([problem.execute_error_protocol() for problem in self.problems])
-        return separator.join(msg)
+        return medium_separator.join(msg)
 
 
 @dataclass(frozen=True)

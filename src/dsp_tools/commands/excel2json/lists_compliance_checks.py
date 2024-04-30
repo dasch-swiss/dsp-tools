@@ -124,7 +124,11 @@ def make_all_list_content_compliance_checks(
 
     Returns:
         A list with the problems, or an empty list if there are no problems
+
+    Raises:
+        InputError: If any node is missing translations
     """
+    _check_if_any_nodes_miss_translations(excel_dfs)
     return [
         res
         for filename in excel_dfs
@@ -144,14 +148,32 @@ def _make_content_excel_compliance_check(
 
 
 def _df_content_compliance(df: pd.DataFrame, sheet_name: str) -> ListSheetContentProblem | None:
-    problems: list[Problem] = []
-    _check_all_nodes_translated_into_all_languages(df, sheet_name)
+    problems: list[Problem] = [df]
     if problems:
         return ListSheetContentProblem(sheet_name, problems)
     return None
 
 
-def _check_all_nodes_translated_into_all_languages(df: pd.DataFrame, sheet_name: str) -> None:
+def _check_if_any_nodes_miss_translations(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> None:
+    problems = []
+    for filename, excel_sheets in excel_dfs.items():
+        missing_translations = [
+            p
+            for sheet_name, df in excel_dfs.items()
+            if (p := _check_all_nodes_translated_into_all_languages(df[filename], sheet_name)) is not None
+        ]
+        if missing_translations:
+            problems.append(ListExcelProblem(filename, missing_translations))
+    if problems:
+        msg = [x.execute_error_protocol() for x in problems]
+        msg = "\n\n---------------------------------------\n\n".join(msg)
+        logger.error(msg)
+        raise InputError(msg)
+
+
+def _check_all_nodes_translated_into_all_languages(
+    df: pd.DataFrame, sheet_name: str
+) -> MissingTranslationsSheetProblem | None:
     col_endings = [str(num) for num in _get_hierarchy_nums(df.columns)]
     col_endings.append("list")
     languages = _get_all_languages_for_columns(df.columns)
@@ -160,9 +182,8 @@ def _check_all_nodes_translated_into_all_languages(df: pd.DataFrame, sheet_name:
     for column_group in all_cols:
         problems.extend(_check_one_hierarchy(column_group, df))
     if problems:
-        msg = MissingTranslationsSheetProblem(sheet_name, problems).execute_error_protocol()
-        logger.error(msg)
-        raise InputError(msg)
+        return MissingTranslationsSheetProblem(sheet_name, problems)
+    return None
 
 
 def _check_one_hierarchy(columns: list[str], df: pd.DataFrame) -> list[MissingNodeTranslationProblem]:

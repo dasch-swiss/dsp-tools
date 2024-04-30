@@ -210,6 +210,11 @@ class StackHandler:
         """
         graph_prefix = "http://0.0.0.0:3030/knora-test/data?graph="
         ttl_files = [
+            ("webapi/src/main/resources/knora-ontologies/knora-admin.ttl", "http://www.knora.org/ontology/knora-admin"),
+            ("webapi/src/main/resources/knora-ontologies/knora-base.ttl", "http://www.knora.org/ontology/knora-base"),
+            ("webapi/src/main/resources/knora-ontologies/standoff-onto.ttl", "http://www.knora.org/ontology/standoff"),
+            ("webapi/src/main/resources/knora-ontologies/standoff-data.ttl", "http://www.knora.org/data/standoff"),
+            ("webapi/src/main/resources/knora-ontologies/salsah-gui.ttl", "http://www.knora.org/ontology/salsah-gui"),
             ("test_data/project_data/admin-data.ttl", "http://www.knora.org/data/admin"),
             ("test_data/project_data/permissions-data.ttl", "http://www.knora.org/data/permissions"),
             ("test_data/project_ontologies/anything-onto.ttl", "http://www.knora.org/ontology/0001/anything"),

@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 from typing import assert_never
+from typing import cast
 
 from loguru import logger
 
@@ -37,7 +38,7 @@ class ResourceCreateClient:
         self,
         resource: XMLResource,
         bitstream_information: BitstreamInfo | None,
-    ) -> tuple[str, str]:
+    ) -> str:
         """Creates a resource on the DSP server."""
         logger.info(
             f"Attempting to create resource {resource.res_id} (label: {resource.label}, iri: {resource.iri})..."
@@ -45,9 +46,7 @@ class ResourceCreateClient:
         resource_dict = self._make_resource_with_values(resource, bitstream_information)
         headers = {"X-Asset-Ingested": "true"} if self.media_previously_ingested else None
         res = self.con.post(route="/v2/resources", data=resource_dict, headers=headers)
-        iri = res["@id"]
-        label = res["rdfs:label"]
-        return iri, label
+        return cast(str, res["@id"])
 
     def _make_resource_with_values(
         self,

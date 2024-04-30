@@ -362,7 +362,7 @@ def _upload_one_resource(
         return
 
     try:
-        iri, label = _create_resource(resource, media_info, resource_create_client)
+        iri = _create_resource(resource, media_info, resource_create_client)
     except (PermanentTimeOutError, KeyboardInterrupt) as err:
         warnings.warn(GeneralDspToolsWarning(f"{type(err).__name__}: Tidying up, then exit..."))
         msg = (
@@ -378,12 +378,12 @@ def _upload_one_resource(
 
     try:
         _tidy_up_resource_creation_idempotent(
-            upload_state, iri, label, resource, creation_attempts_of_this_round + 1, total_num_of_resources
+            upload_state, iri, resource, creation_attempts_of_this_round + 1, total_num_of_resources
         )
     except KeyboardInterrupt as err:
         warnings.warn(GeneralDspToolsWarning("KeyboardInterrupt: Tidying up, then exit..."))
         _tidy_up_resource_creation_idempotent(
-            upload_state, iri, label, resource, creation_attempts_of_this_round + 1, total_num_of_resources
+            upload_state, iri, resource, creation_attempts_of_this_round + 1, total_num_of_resources
         )
         raise err from None
 
@@ -404,15 +404,14 @@ def _interrupt_if_indicated(
 def _tidy_up_resource_creation_idempotent(
     upload_state: UploadState,
     iri: str | None,
-    label: str | None,
     resource: XMLResource,
     current_res: int,
     total_res: int,
 ) -> None:
-    if iri and label:
+    if iri:
         # resource creation succeeded: update the iri_resolver
         upload_state.iri_resolver.lookup[resource.res_id] = iri
-        msg = f"Created resource {current_res}/{total_res}: '{label}' (ID: '{resource.res_id}', IRI: '{iri}')"
+        msg = f"Created resource {current_res}/{total_res}: '{resource.label}' (ID: '{resource.res_id}', IRI: '{iri}')"
         print(f"{datetime.now()}: {msg}")
         logger.info(msg)
     else:  # noqa: PLR5501
@@ -428,7 +427,7 @@ def _create_resource(
     resource: XMLResource,
     bitstream_information: BitstreamInfo | None,
     resource_create_client: ResourceCreateClient,
-) -> tuple[str, str] | tuple[None, None]:
+) -> str | None:
     try:
         return resource_create_client.create_resource(resource, bitstream_information)
     except PermanentTimeOutError as err:
@@ -447,7 +446,7 @@ def _create_resource(
             f"Property details:\n" + "\n".join([str(vars(prop)) for prop in resource.properties])
         )
         logger.exception(log_msg)
-        return None, None
+        return None
 
 
 def _handle_upload_error(err: BaseException, upload_state: UploadState) -> None:

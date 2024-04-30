@@ -157,7 +157,7 @@ def _df_content_compliance(df: pd.DataFrame, sheet_name: str) -> ListSheetConten
 def _check_if_any_nodes_miss_translations(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> None:
     problems = []
     for filename, excel_sheets in excel_dfs.items():
-        missing_translations = [
+        missing_translations: list[Problem] = [
             p
             for sheet_name, df in excel_dfs.items()
             if (p := _check_all_nodes_translated_into_all_languages(df[filename], sheet_name)) is not None
@@ -165,8 +165,8 @@ def _check_if_any_nodes_miss_translations(excel_dfs: dict[str, dict[str, pd.Data
         if missing_translations:
             problems.append(ListExcelProblem(filename, missing_translations))
     if problems:
-        msg = [x.execute_error_protocol() for x in problems]
-        msg = "\n\n---------------------------------------\n\n".join(msg)
+        msg_expanded = [x.execute_error_protocol() for x in problems]
+        msg = "\n\n---------------------------------------\n\n".join(msg_expanded)
         logger.error(msg)
         raise InputError(msg)
 

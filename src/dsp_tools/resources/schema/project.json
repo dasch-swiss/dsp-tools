@@ -73,8 +73,6 @@
                 "hasColor",
                 "hasComment",
                 "isPartOf",
-                "isSequenceOf",
-                "hasSequenceBounds",
                 "hasRepresentation",
                 "seqnum"
             ]
@@ -776,16 +774,7 @@
                                 "type": "array",
                                 "items": {
                                     "type": "string",
-                                    "oneOf": [
-                                        {
-                                            "enum": [
-                                                "hasSequenceBounds"
-                                            ]
-                                        },
-                                        {
-                                            "$ref": "#/definitions/prefixedname_or_uri"
-                                        }
-                                    ]
+                                    "$ref": "#/definitions/prefixedname_or_uri"
                                 }
                             },
                             "gui_element": {
@@ -1087,9 +1076,7 @@
                         {
                             "enum": [
                                 "isPartOf",
-                                "seqnum",
-                                "isSequenceOf",
-                                "hasSequenceBounds"
+                                "seqnum"
                             ]
                         },
                         {

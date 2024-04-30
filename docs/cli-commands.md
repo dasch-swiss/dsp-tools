@@ -337,6 +337,7 @@ The following options are available:
   use the latest development version of DSP-API (from the `main` branch)
 - `--prune` (optional): execute `docker system prune` without asking
 - `--no-prune` (optional): don't execute `docker system prune` (and don't ask)
+- `--with-test-data` (optional): start the stack with some test data
 
 Example: If you start the stack with `dsp-tools start-stack --max_file_size=1000`, 
 it will be possible to upload files that are up to 1 GB big. 

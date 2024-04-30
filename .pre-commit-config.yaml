@@ -14,7 +14,6 @@ repos:
           --ignore=PLR2004,
           --ignore=PLW0603,
         ]
-        always_run: true
       - id: ruff-format
 
   - repo: https://github.com/pre-commit/pre-commit-hooks

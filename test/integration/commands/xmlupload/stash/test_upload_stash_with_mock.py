@@ -6,12 +6,14 @@ from uuid import uuid4
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
+from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.project_client import ProjectInfo
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItem
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStash
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStashItem
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
+from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import _upload_stash
 from dsp_tools.utils.connection import Connection
 
@@ -93,12 +95,9 @@ class TestUploadLinkValueStashes:
             }
         )
         con: Connection = ConnectionMock(post_responses=[{}])
-        nonapplied = _upload_stash(
-            stash=stash,
-            iri_resolver=iri_resolver,
-            project_client=ProjectClientStub(con, "1234", None),
-        )
-        assert nonapplied is None
+        upload_state = UploadState([], [], iri_resolver, stash, UploadConfig(), {})
+        _upload_stash(upload_state, ProjectClientStub(con, "1234", None))
+        assert not upload_state.pending_stash or upload_state.pending_stash.is_empty()
 
 
 class TestUploadTextValueStashes:
@@ -141,12 +140,9 @@ class TestUploadTextValueStashes:
             ],
             put_responses=[{}],
         )
-        nonapplied = _upload_stash(
-            stash=stash,
-            iri_resolver=iri_resolver,
-            project_client=ProjectClientStub(con, "1234", None),
-        )
-        assert nonapplied is None
+        upload_state = UploadState([], [], iri_resolver, stash, UploadConfig(), {})
+        _upload_stash(upload_state, ProjectClientStub(con, "1234", None))
+        assert not upload_state.pending_stash or upload_state.pending_stash.is_empty()
 
     def test_not_upload_text_value_stash_if_uuid_not_on_value(self) -> None:
         """
@@ -186,9 +182,6 @@ class TestUploadTextValueStashes:
             ],
             put_responses=[{}],
         )
-        nonapplied = _upload_stash(
-            stash=stash,
-            iri_resolver=iri_resolver,
-            project_client=ProjectClientStub(con, "1234", None),
-        )
-        assert nonapplied == stash
+        upload_state = UploadState([], [], iri_resolver, stash, UploadConfig(), {})
+        _upload_stash(upload_state, ProjectClientStub(con, "1234", None))
+        assert upload_state.pending_stash == stash

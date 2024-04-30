@@ -109,7 +109,7 @@ def xmlupload(
     list_client: ListClient = ListClientLive(con, project_client.get_project_iri())
     upload_state = UploadState(resources, [], IriResolver(), stash, config, permissions_lookup)
 
-    nonapplied_stash = upload_resources(
+    upload_resources(
         upload_state=upload_state,
         imgdir=imgdir,
         sipi_server=sipi_server,
@@ -117,7 +117,7 @@ def xmlupload(
         list_client=list_client,
     )
 
-    return cleanup_upload(upload_state.iri_resolver, config, upload_state.failed_uploads, nonapplied_stash)
+    return cleanup_upload(upload_state.iri_resolver, config, upload_state.failed_uploads, upload_state.pending_stash)
 
 
 def cleanup_upload(
@@ -186,7 +186,7 @@ def upload_resources(
     sipi_server: Sipi,
     project_client: ProjectClient,
     list_client: ListClient,
-) -> Stash | None:
+) -> None:
     """
     Actual upload of all resources to DSP.
 
@@ -196,9 +196,6 @@ def upload_resources(
         sipi_server: Sipi instance
         project_client: a client for HTTP communication with the DSP-API
         list_client: a client for HTTP communication with the DSP-API
-
-    Returns:
-        the stash items that could not be reapplied.
     """
     try:
         _upload_resources(
@@ -208,16 +205,10 @@ def upload_resources(
             project_client=project_client,
             list_client=list_client,
         )
-        if not upload_state.pending_stash:
-            return None
-        return _upload_stash(
-            stash=upload_state.pending_stash,
-            iri_resolver=upload_state.iri_resolver,
-            project_client=project_client,
-        )
+        if upload_state.pending_stash:
+            _upload_stash(upload_state, project_client)
     except XmlUploadInterruptedError as err:
         _handle_upload_error(err, upload_state)
-        return None
 
 
 def _get_data_from_xml(
@@ -233,29 +224,14 @@ def _get_data_from_xml(
 
 
 def _upload_stash(
-    stash: Stash,
-    iri_resolver: IriResolver,
+    upload_state: UploadState,
     project_client: ProjectClient,
-) -> Stash | None:
-    if stash.standoff_stash:
-        nonapplied_standoff = upload_stashed_xml_texts(
-            iri_resolver=iri_resolver,
-            con=project_client.con,
-            stashed_xml_texts=stash.standoff_stash,
-        )
-    else:
-        nonapplied_standoff = None
+) -> None:
+    if upload_state.pending_stash and upload_state.pending_stash.standoff_stash:
+        upload_stashed_xml_texts(upload_state, project_client.con)
     context = get_json_ld_context_for_project(project_client.get_ontology_name_dict())
-    if stash.link_value_stash:
-        nonapplied_resptr_props = upload_stashed_resptr_props(
-            iri_resolver=iri_resolver,
-            con=project_client.con,
-            stashed_resptr_props=stash.link_value_stash,
-            context=context,
-        )
-    else:
-        nonapplied_resptr_props = None
-    return Stash.make(nonapplied_standoff, nonapplied_resptr_props)
+    if upload_state.pending_stash and upload_state.pending_stash.link_value_stash:
+        upload_stashed_resptr_props(upload_state, project_client.con, context)
 
 
 def _get_project_context_from_server(connection: Connection) -> ProjectContext:

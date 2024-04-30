@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import importlib.resources
 import json
-import warnings
 from pathlib import Path
 from typing import Any
 from typing import Union
@@ -14,7 +13,6 @@ import networkx as nx
 import regex
 
 from dsp_tools.commands.excel2json.lists import expand_lists_from_excel
-from dsp_tools.models.custom_warnings import DspToolsFutureWarning
 from dsp_tools.models.exceptions import BaseError
 
 
@@ -140,7 +138,7 @@ def _check_for_undefined_super_property(project_definition: dict[str, Any]) -> b
         for prop in onto["properties"]:
             supers = prop["super"]
             # form of supers:
-            #  - isSequenceOf  # DSP base property
+            #  - isSegmentOf   # DSP base property
             #  - other:prop    # other onto
             #  - same:prop     # same onto
             #  - :prop         # same onto (short form)
@@ -186,7 +184,7 @@ def _check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> bo
         for res in onto["resources"]:
             cardnames = [card["propname"] for card in res.get("cardinalities", [])]
             # form of the cardnames:
-            #  - isSequenceOf  # DSP base property
+            #  - isSegmentOf   # DSP base property
             #  - other:prop    # other onto
             #  - same:prop     # same onto
             #  - :prop         # same onto (short form)
@@ -211,34 +209,7 @@ def _check_for_undefined_cardinalities(project_definition: dict[str, Any]) -> bo
     return True
 
 
-def _check_for_deprecated_syntax(project_definition: dict[str, Any]) -> bool:
-    return _check_for_deprecated_isSequenceOf(project_definition)
-
-
-def _check_for_deprecated_isSequenceOf(project_definition: dict[str, Any]) -> bool:
-    ontos = project_definition["project"]["ontologies"]
-    isSequenceOf_matches = []
-    for index in range(len(ontos)):
-        pth = f"$.project.ontologies[{index}].properties[?super[*] == isSequenceOf]"
-        isSequenceOf_matches.extend(jsonpath_ng.ext.parse(pth).find(project_definition))
-
-    hasSequenceBounds_matches = []
-    for index in range(len(ontos)):
-        pth = f"$.project.ontologies[{index}].properties[?super[*] == hasSequenceBounds]"
-        hasSequenceBounds_matches.extend(jsonpath_ng.ext.parse(pth).find(project_definition))
-
-    sequence_resource_matches = []
-    for index in range(len(ontos)):
-        pth = f"$.project.ontologies[{index}].resources[?cardinalities.propname == isSequenceOf]"
-        sequence_resource_matches.extend(jsonpath_ng.ext.parse(pth).find(project_definition))
-
-    if any([isSequenceOf_matches, hasSequenceBounds_matches, sequence_resource_matches]):
-        msg = (
-            "Deprecation Warning: Your JSON project definition contains deprecated properties. "
-            "Support for the following properties will be removed soon: isSequenceOf, hasSequenceBounds"
-        )
-        warnings.warn(DspToolsFutureWarning(msg))
-
+def _check_for_deprecated_syntax(project_definition: dict[str, Any]) -> bool:  # noqa: ARG001 (unused argument)
     return True
 
 

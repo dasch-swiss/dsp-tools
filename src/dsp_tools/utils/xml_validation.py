@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import importlib.resources
-import warnings
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -11,7 +10,6 @@ import regex
 from loguru import logger
 from lxml import etree
 
-from dsp_tools.models.custom_warnings import DspToolsFutureWarning
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.xml_utils import parse_and_remove_comments_from_xml_file
 from dsp_tools.utils.xml_utils import remove_namespaces_from_xml
@@ -145,21 +143,8 @@ def _find_mixed_encodings_in_one_text_prop(
     return False, msg
 
 
-def _check_for_deprecated_syntax(data_xml: etree._Element) -> None:
-    _check_for_deprecated_isSequenceOf(data_xml)
-
-
-def _check_for_deprecated_isSequenceOf(data_xml: etree._Element) -> None:
-    isSequenceOf_matches = data_xml.findall("resource/resptr-prop")
-    isSequenceOf_matches = [x for x in isSequenceOf_matches if x.attrib.get("name") == "isSequenceOf"]
-    hasSequenceBounds_matches = data_xml.findall("resource/interval-prop")
-    hasSequenceBounds_matches = [x for x in hasSequenceBounds_matches if x.attrib.get("name") == "hasSequenceBounds"]
-    if any([isSequenceOf_matches, hasSequenceBounds_matches]):
-        msg = (
-            "Deprecation Warning: Your XML data file contains deprecated properties. "
-            "Support for the following properties will be removed soon: isSequenceOf, hasSequenceBounds"
-        )
-        warnings.warn(DspToolsFutureWarning(msg))
+def _check_for_deprecated_syntax(data_xml: etree._Element) -> None:  # noqa: ARG001 (unused argument)
+    pass
 
 
 def check_if_only_one_encoding_is_used_per_prop_in_root(

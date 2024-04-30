@@ -243,7 +243,7 @@ class StackHandler:
         The password is the hash for "test".
 
         Raises:
-            UserError: if one of the graphs cannot be created
+            UserError: If the user cannot be created.
         """
         graph_prefix = "http://0.0.0.0:3030/knora-test/data?graph="
         admin_graph = "http://www.knora.org/data/admin"

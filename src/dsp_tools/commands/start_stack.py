@@ -30,6 +30,7 @@ class StackConfiguration:
     enforce_docker_system_prune: bool = False
     suppress_docker_system_prune: bool = False
     latest_dev_version: bool = False
+    upload_test_data: bool = False
 
     def __post_init__(self) -> None:
         """
@@ -236,12 +237,52 @@ class StackHandler:
                 logger.error(f"Cannot start DSP-API: Error when creating graph '{graph}'. response = {vars(response)}")
                 raise UserError(f"Cannot start DSP-API: Error when creating graph '{graph}'")
 
+    def _create_admin_user(self) -> None:
+        """
+        This function adds the default system admin user to the database.
+        The password is the hash for "test".
+
+        Raises:
+            UserError: If the user cannot be created.
+        """
+        graph_prefix = "http://0.0.0.0:3030/knora-test/data?graph="
+        admin_graph = "http://www.knora.org/data/admin"
+        admin_user = """
+        @prefix xsd:         <http://www.w3.org/2001/XMLSchema#> .
+        @prefix rdf:         <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+        @prefix knora-admin: <http://www.knora.org/ontology/knora-admin#> .
+        
+        <http://rdfh.ch/users/root>
+        rdf:type                         knora-admin:User ;
+        knora-admin:username             "root"^^xsd:string ;
+        knora-admin:email                "root@example.com"^^xsd:string ;
+        knora-admin:givenName            "System"^^xsd:string ;
+        knora-admin:familyName           "Administrator"^^xsd:string ;
+        knora-admin:password             "$2a$12$7XEBehimXN1rbhmVgQsyve08.vtDmKK7VMin4AdgCEtE4DWgfQbTK"^^xsd:string ;
+        knora-admin:phone                "123456"^^xsd:string ;
+        knora-admin:preferredLanguage    "en"^^xsd:string ;
+        knora-admin:status               "true"^^xsd:boolean ;
+        knora-admin:isInSystemAdminGroup "true"^^xsd:boolean .
+        """
+        response = requests.post(
+            graph_prefix + admin_graph,
+            files={"file": ("file.ttl", admin_user, "text/turtle; charset: utf-8")},
+            auth=("admin", "test"),
+            timeout=30,
+        )
+        if not response.ok:
+            logger.error(f"Cannot start DSP-API: Error when creating the admin user. response = {vars(response)}")
+            raise UserError("Cannot start DSP-API: Error when creating the admin user.")
+
     def _initialize_fuseki(self) -> None:
         """
         Create the "knora-test" repository and load some basic ontologies and data into it.
         """
         self._create_knora_test_repo()
-        self._load_data_into_repo()
+        if self.__stack_configuration.upload_test_data:
+            self._load_data_into_repo()
+        else:
+            self._create_admin_user()
 
     def _start_remaining_docker_containers(self) -> None:
         """

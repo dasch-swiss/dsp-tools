@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 from dataclasses import field
 from typing import Any
@@ -6,6 +8,8 @@ from typing import Protocol
 separator = "\n    "
 list_separator = "\n    - "
 medium_separator = "\n----------------------------\n"
+
+grand_separator = "\n\n---------------------------------------\n\n"
 
 
 class Problem(Protocol):
@@ -242,6 +246,16 @@ class JsonValidationResourceProblem:
         if self.message_path:
             msg.append(f"The error occurred at {self.message_path}")
         return separator.join(msg)
+
+
+@dataclass(frozen=True)
+class ListCreationProblem:
+    excel_problems: list[ListExcelProblem]
+
+    def execute_error_protocol(self) -> str:
+        msg = ["The excel file(s) used to create the list sections have the following problem(s):{grand_separator}"]
+        msg.extend([problem.execute_error_protocol() for problem in self.excel_problems])
+        return grand_separator.join(msg)
 
 
 @dataclass(frozen=True)

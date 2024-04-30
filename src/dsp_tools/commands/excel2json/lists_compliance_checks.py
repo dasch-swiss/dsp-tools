@@ -7,6 +7,7 @@ import pandas as pd
 import regex
 from loguru import logger
 
+from dsp_tools.commands.excel2json.models.input_error import ListCreationProblem
 from dsp_tools.commands.excel2json.models.input_error import ListExcelProblem
 from dsp_tools.commands.excel2json.models.input_error import ListSheetComplianceProblem
 from dsp_tools.commands.excel2json.models.input_error import ListSheetContentProblem
@@ -114,7 +115,7 @@ def _check_all_expected_translations_present(cols: pd.Index[str]) -> dict[str, s
 
 def make_all_list_content_compliance_checks(
     excel_dfs: dict[str, dict[str, pd.DataFrame]],
-) -> list[ListExcelProblem]:
+) -> None:
     """
     This function checks if the content of the excel files is compliant with the expected format.
 
@@ -122,39 +123,14 @@ def make_all_list_content_compliance_checks(
         excel_dfs: dictionary with the excel file name as key
                     and a dictionary with the sheet name as key and the dataframe.
 
-    Returns:
-        A list with the problems, or an empty list if there are no problems
-
     Raises:
         InputError: If any node is missing translations
     """
-    _check_excel_if_any_nodes_miss_translations(excel_dfs)
-    return [
-        res
-        for filename in excel_dfs
-        if (res := _make_excel_content_compliance_check(excel_dfs[filename], filename)) is not None
-    ]
+    _check_all_excels_if_any_nodes_miss_translations(excel_dfs)
+    _check_all_excel_for_missing_node_rows(excel_dfs)
 
 
-def _make_excel_content_compliance_check(
-    excel_dfs: dict[str, pd.DataFrame], excel_name: str
-) -> ListExcelProblem | None:
-    problems: list[Problem] = [
-        p for sheet_name, df in excel_dfs.items() if (p := _make_sheet_content_compliance(df, sheet_name)) is not None
-    ]
-    if problems:
-        return ListExcelProblem(excel_name, problems)
-    return None
-
-
-def _make_sheet_content_compliance(df: pd.DataFrame, sheet_name: str) -> ListSheetContentProblem | None:
-    problems: list[Problem] = [df]
-    if problems:
-        return ListSheetContentProblem(sheet_name, problems)
-    return None
-
-
-def _check_excel_if_any_nodes_miss_translations(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> None:
+def _check_all_excels_if_any_nodes_miss_translations(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> None:
     problems = []
     for filename, excel_sheets in excel_dfs.items():
         missing_translations: list[Problem] = [
@@ -165,8 +141,7 @@ def _check_excel_if_any_nodes_miss_translations(excel_dfs: dict[str, dict[str, p
         if missing_translations:
             problems.append(ListExcelProblem(filename, missing_translations))
     if problems:
-        msg_expanded = [x.execute_error_protocol() for x in problems]
-        msg = "\n\n---------------------------------------\n\n".join(msg_expanded)
+        msg = ListCreationProblem(problems).execute_error_protocol()
         logger.error(msg)
         raise InputError(msg)
 
@@ -203,4 +178,27 @@ def _check_one_node_for_translations(row: pd.Series[Any], columns: list[str]) ->
     if missing.any() and not missing.all():
         missing_cols = [str(index) for index, is_missing in missing.items() if is_missing]
         return MissingNodeTranslationProblem(missing_cols, row["row_number"])
+    return None
+
+
+def _check_all_excel_for_missing_node_rows(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> None:
+    problems = []
+    for filename, excel_sheets in excel_dfs.items():
+        missing_rows: list[Problem] = [
+            p
+            for sheet_name, df in excel_dfs.items()
+            if (p := _check_sheet_for_missing_node_rows(df[filename], sheet_name)) is not None
+        ]
+        if missing_rows:
+            problems.append(ListExcelProblem(filename, missing_rows))
+    if problems:
+        msg = ListCreationProblem(problems).execute_error_protocol()
+        logger.error(msg)
+        raise InputError(msg)
+
+
+def _check_sheet_for_missing_node_rows(df: pd.DataFrame, sheet_name: str) -> ListSheetContentProblem | None:
+    problems: list[Problem] = [df]
+    if problems:
+        return ListSheetContentProblem(sheet_name, problems)
     return None

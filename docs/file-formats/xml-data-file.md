@@ -980,6 +980,40 @@ Technical note: A `<link>` is in fact a `<resource restype="LinkObj">`. But it i
 shortcut, so that the XML file can be validated more precisely.
 
 
+### `<video-segment>` / `<audio-segment>`
+
+`<video-segment>` and `<audio-segment>` represent sections of an audio/video file. 
+They must have the following predefined properties:
+
+- `isSegmentOf` (1)
+- `hasSegmentBounds` (1)
+- `hasTitle` (0-1)
+- `hasDescription` (0-1)
+- `hasComment` (0-1)
+- `hasKeyword` (0-n)
+- `relatesTo` (0-n)
+
+Example:
+
+```xml
+<video-segment label="Segment of video_thing_1" id="video_segment_0" permissions="res-default">
+    <resptr-prop name="isSegmentOf">
+        <resptr permissions="prop-default">video_thing_1</resptr>
+    </resptr-prop>
+    <interval-prop name="hasSegmentBounds">
+        <interval permissions="prop-default">10:20</interval>  # from 0:00:10 to 0:00:20
+    </interval-prop>
+    <text-prop name="hasComment">
+        <text encoding="xml" permissions="prop-default">Optional comment</text>
+    </text-prop>
+</video-segment>
+```
+
+Technical note: `<video-segment>` / `<audio-segment>` are in fact a 
+`<resource restype="VideoSegment">` / `<resource restype="AudioSegment">`. 
+But it is mandatory to use the shortcut, so that the XML file can be validated more precisely.
+
+
 
 ## Complete Example
 

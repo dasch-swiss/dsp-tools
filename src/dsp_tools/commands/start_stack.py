@@ -239,9 +239,8 @@ class StackHandler:
 
     def _create_admin_user(self) -> None:
         """
-        Load some basic ontologies and data into the repository.
-        This function imitates the behaviour of the script
-        dsp-api/webapi/target/docker/stage/opt/docker/scripts/fuseki-init-knora-test.sh.
+        This function adds the default system admin user to the database.
+        The password is the hash for "test".
 
         Raises:
             UserError: if one of the graphs cannot be created
@@ -261,7 +260,7 @@ class StackHandler:
         knora-admin:familyName           "Administrator"^^xsd:string ;
         knora-admin:password             "$2a$12$7XEBehimXN1rbhmVgQsyve08.vtDmKK7VMin4AdgCEtE4DWgfQbTK"^^xsd:string ;
         knora-admin:phone                "123456"^^xsd:string ;
-        knora-admin:preferredLanguage    "de"^^xsd:string ;
+        knora-admin:preferredLanguage    "en"^^xsd:string ;
         knora-admin:status               "true"^^xsd:boolean ;
         knora-admin:isInSystemAdminGroup "true"^^xsd:boolean .
         """

@@ -128,39 +128,39 @@ def make_all_list_content_compliance_checks(
     Raises:
         InputError: If any node is missing translations
     """
-    _check_if_any_nodes_miss_translations(excel_dfs)
+    _check_excel_if_any_nodes_miss_translations(excel_dfs)
     return [
         res
         for filename in excel_dfs
-        if (res := _make_content_excel_compliance_check(excel_dfs[filename], filename)) is not None
+        if (res := _make_excel_content_compliance_check(excel_dfs[filename], filename)) is not None
     ]
 
 
-def _make_content_excel_compliance_check(
+def _make_excel_content_compliance_check(
     excel_dfs: dict[str, pd.DataFrame], excel_name: str
 ) -> ListExcelProblem | None:
     problems: list[Problem] = [
-        p for sheet_name, df in excel_dfs.items() if (p := _df_content_compliance(df, sheet_name)) is not None
+        p for sheet_name, df in excel_dfs.items() if (p := _make_sheet_content_compliance(df, sheet_name)) is not None
     ]
     if problems:
         return ListExcelProblem(excel_name, problems)
     return None
 
 
-def _df_content_compliance(df: pd.DataFrame, sheet_name: str) -> ListSheetContentProblem | None:
+def _make_sheet_content_compliance(df: pd.DataFrame, sheet_name: str) -> ListSheetContentProblem | None:
     problems: list[Problem] = [df]
     if problems:
         return ListSheetContentProblem(sheet_name, problems)
     return None
 
 
-def _check_if_any_nodes_miss_translations(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> None:
+def _check_excel_if_any_nodes_miss_translations(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> None:
     problems = []
     for filename, excel_sheets in excel_dfs.items():
         missing_translations: list[Problem] = [
             p
             for sheet_name, df in excel_dfs.items()
-            if (p := _check_all_nodes_translated_into_all_languages(df[filename], sheet_name)) is not None
+            if (p := _check_sheet_if_any_nodes_miss_translations(df[filename], sheet_name)) is not None
         ]
         if missing_translations:
             problems.append(ListExcelProblem(filename, missing_translations))
@@ -171,7 +171,7 @@ def _check_if_any_nodes_miss_translations(excel_dfs: dict[str, dict[str, pd.Data
         raise InputError(msg)
 
 
-def _check_all_nodes_translated_into_all_languages(
+def _check_sheet_if_any_nodes_miss_translations(
     df: pd.DataFrame, sheet_name: str
 ) -> MissingTranslationsSheetProblem | None:
     col_endings = [str(num) for num in _get_hierarchy_nums(df.columns)]

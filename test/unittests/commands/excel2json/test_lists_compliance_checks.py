@@ -6,11 +6,11 @@ import pytest
 import regex
 
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_all_expected_translations_present
-from dsp_tools.commands.excel2json.lists_compliance_checks import _check_all_nodes_translated_into_all_languages
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_min_num_col_present
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_minimum_rows
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_one_hierarchy
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_one_node_for_translations
+from dsp_tools.commands.excel2json.lists_compliance_checks import _check_sheet_if_any_nodes_miss_translations
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_warn_unusual_columns
 from dsp_tools.commands.excel2json.lists_compliance_checks import _df_shape_compliance
 from dsp_tools.commands.excel2json.lists_compliance_checks import _make_columns
@@ -216,7 +216,7 @@ class TestAllNodesTranslatedIntoAllLanguages:
                 "de_3": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, "Node_de_3.2.1", "Node_de_3.2.2"],
             }
         )
-        _check_all_nodes_translated_into_all_languages(test_df, "sheet")
+        _check_sheet_if_any_nodes_miss_translations(test_df, "sheet")
 
     def test_missing_translation(self) -> None:
         test_df = pd.DataFrame(
@@ -297,7 +297,7 @@ class TestAllNodesTranslatedIntoAllLanguages:
             MissingNodeTranslationProblem(["en_list"], 7),
             MissingNodeTranslationProblem(["en_1"], 10),
         ]
-        result = _check_all_nodes_translated_into_all_languages(test_df, "sheet")
+        result = _check_sheet_if_any_nodes_miss_translations(test_df, "sheet")
         result = cast(MissingTranslationsSheetProblem, result)
         res_node_problems = sorted(result.node_problems, key=lambda x: x.row_num)
         for res, expct in zip(res_node_problems, expected):

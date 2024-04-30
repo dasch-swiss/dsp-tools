@@ -111,7 +111,7 @@ def _add_start_stack(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     subparser.add_argument(
         "--with-test-data",
         action="store_true",
-        help="True if it should initialise the database with built-in test data.",
+        help="initialise the database with built-in test data",
     )
 
 

@@ -260,7 +260,7 @@ class ListNodeProblem:
     problems: dict[str, str]
 
     def execute_error_protocol(self) -> str:
-        msg = [f"The node '{self.node_id}' has the following problem(s):"]
+        msg = [f"The node '{self.node_id}' has the following problem(s):{list_separator}"]
         msg.extend([f"Field: '{key}', Problem: {value}" for key, value in self.problems.items()])
         return list_separator.join(msg)
 
@@ -272,12 +272,12 @@ class ListSheetProblem:
     node_problems: list[ListNodeProblem] = field(default_factory=list)
 
     def execute_error_protocol(self) -> str:
-        msg = [f"The excel sheet '{self.sheet_name}' has the following problem(s):"]
+        msg = [f"The excel sheet '{self.sheet_name}' has the following problem(s):{list_separator}"]
         if self.root_problems:
             msg.extend([f"Field: '{key}', Problem: {value}" for key, value in self.root_problems.items()])
         if self.node_problems:
             msg.extend([problem.execute_error_protocol() for problem in self.node_problems])
-        return separator.join(msg)
+        return list_separator.join(msg)
 
 
 @dataclass(frozen=True)
@@ -286,9 +286,9 @@ class ListSheetComplianceProblem:
     problems: dict[str, str]
 
     def execute_error_protocol(self) -> str:
-        msg = [f"The excel sheet '{self.sheet_name}' has the following problem(s):"]
+        msg = [f"The excel sheet '{self.sheet_name}' has the following problem(s):{list_separator}"]
         msg.extend([f"{key}': {value}" for key, value in self.problems.items()])
-        return separator.join(msg)
+        return list_separator.join(msg)
 
 
 @dataclass(frozen=True)
@@ -297,9 +297,9 @@ class ListSheetContentProblem:
     problems: list[Problem]
 
     def execute_error_protocol(self) -> str:
-        msg = [f"The Excel sheet '{self.sheet_name}' has the following problem(s):"]
+        msg = [f"The Excel sheet '{self.sheet_name}' has the following problem(s):{list_separator}"]
         msg.extend([problem.execute_error_protocol() for problem in self.problems])
-        return separator.join(msg)
+        return list_separator.join(msg)
 
 
 @dataclass(frozen=True)
@@ -319,7 +319,8 @@ class MissingTranslationsSheetProblem:
     def execute_error_protocol(self) -> str:
         msg = (
             f"In one list, all the nodes must be translated into all the languages used. "
-            f"The following nodes are missing translations:{separator}"
+            f"The following nodes are missing translations:{list_separator}"
         )
-        nods = list_separator.join([x.execute_error_protocol() for x in self.node_problems])
-        return msg + nods
+        nodes_sorted = sorted(self.node_problems, key=lambda x: x.row_num)
+        nodes = list_separator.join([x.execute_error_protocol() for x in nodes_sorted])
+        return msg + nodes

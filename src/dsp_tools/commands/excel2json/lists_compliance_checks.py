@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import warnings
 from typing import Any
-from typing import cast
 
 import pandas as pd
 import regex
+from loguru import logger
 
 from dsp_tools.commands.excel2json.models.input_error import ListExcelProblem
 from dsp_tools.commands.excel2json.models.input_error import ListSheetComplianceProblem
@@ -17,6 +17,7 @@ from dsp_tools.commands.excel2json.new_lists import _get_all_languages_for_colum
 from dsp_tools.commands.excel2json.new_lists import _get_hierarchy_nums
 from dsp_tools.commands.excel2json.new_lists import _get_lang_string_from_column_name
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
+from dsp_tools.models.exceptions import InputError
 
 
 def make_all_formal_excel_compliance_checks(
@@ -134,26 +135,23 @@ def make_all_list_content_compliance_checks(
 def _make_content_excel_compliance_check(
     excel_dfs: dict[str, pd.DataFrame], excel_name: str
 ) -> ListExcelProblem | None:
-    problems = [p for sheet_name, df in excel_dfs.items() if (p := _df_content_compliance(df, sheet_name)) is not None]
+    problems: list[Problem] = [
+        p for sheet_name, df in excel_dfs.items() if (p := _df_content_compliance(df, sheet_name)) is not None
+    ]
     if problems:
-        all_problems = [cast(Problem, p) for p in problems]
-        return ListExcelProblem(excel_name, all_problems)
+        return ListExcelProblem(excel_name, problems)
     return None
 
 
 def _df_content_compliance(df: pd.DataFrame, sheet_name: str) -> ListSheetContentProblem | None:
-    problems = []
-    if missing_translations := _check_all_nodes_translated_into_all_languages(df, sheet_name):
-        problems.append(missing_translations)
+    problems: list[Problem] = []
+    _check_all_nodes_translated_into_all_languages(df, sheet_name)
     if problems:
-        all_problems = [cast(Problem, p) for p in problems]
-        return ListSheetContentProblem(sheet_name, all_problems)
+        return ListSheetContentProblem(sheet_name, problems)
     return None
 
 
-def _check_all_nodes_translated_into_all_languages(
-    df: pd.DataFrame, sheet_name: str
-) -> MissingTranslationsSheetProblem | None:
+def _check_all_nodes_translated_into_all_languages(df: pd.DataFrame, sheet_name: str) -> None:
     col_endings = [str(num) for num in _get_hierarchy_nums(df.columns)]
     col_endings.append("list")
     languages = _get_all_languages_for_columns(df.columns)
@@ -162,8 +160,9 @@ def _check_all_nodes_translated_into_all_languages(
     for column_group in all_cols:
         problems.extend(_check_one_hierarchy(column_group, df))
     if problems:
-        return MissingTranslationsSheetProblem(sheet_name, problems)
-    return None
+        msg = MissingTranslationsSheetProblem(sheet_name, problems).execute_error_protocol()
+        logger.error(msg)
+        raise InputError(msg)
 
 
 def _check_one_hierarchy(columns: list[str], df: pd.DataFrame) -> list[MissingNodeTranslationProblem]:

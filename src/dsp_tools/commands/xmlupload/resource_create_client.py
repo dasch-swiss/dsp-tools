@@ -39,7 +39,7 @@ class ResourceCreateClient:
         resource: XMLResource,
         bitstream_information: BitstreamInfo | None,
     ) -> str:
-        """Creates a resource on the DSP server."""
+        """Creates a resource on the DSP server, and returns its IRI"""
         logger.info(
             f"Attempting to create resource {resource.res_id} (label: {resource.label}, iri: {resource.iri})..."
         )

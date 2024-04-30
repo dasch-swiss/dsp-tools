@@ -10,11 +10,18 @@ from dsp_tools.utils.logger_config import logger_config
 
 @pytest.fixture()
 def caplog(_caplog: pytest.LogCaptureFixture) -> Iterator[pytest.LogCaptureFixture]:  # noqa: F811 (redefinition)
+    """
+    The caplog fixture that comes shipped with pytest does not support loguru.
+    This modified version can be used exactly like the builtin caplog fixture,
+    which is documented at https://docs.pytest.org/en/latest/how-to/logging.html#caplog-fixture.
+    Credits: https://www.youtube.com/watch?v=eFdVlyAGeZU
+    """
+
     class PropagateHandler(logging.Handler):
         def emit(self, record: logging.LogRecord) -> None:
             logging.getLogger(record.name).handle(record)
 
-    handler_id = logger.add(PropagateHandler(), format="{message}")
+    handler_id = logger.add(sink=PropagateHandler(), format="{message}", level="DEBUG")
     yield _caplog
     logger.remove(handler_id)
 

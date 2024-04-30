@@ -33,7 +33,7 @@ from dsp_tools.commands.xmlupload.stash.upload_stashed_resptr_props import uploa
 from dsp_tools.commands.xmlupload.stash.upload_stashed_xml_texts import upload_stashed_xml_texts
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.write_diagnostic_info import write_id2iri_mapping
-from dsp_tools.models.custom_warnings import GeneralDspToolsWarning
+from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import PermanentTimeOutError
 from dsp_tools.models.exceptions import UserError
@@ -358,7 +358,7 @@ def _upload_one_resource(
     try:
         iri = _create_resource(resource, media_info, resource_create_client)
     except (PermanentTimeOutError, KeyboardInterrupt) as err:
-        warnings.warn(GeneralDspToolsWarning(f"{type(err).__name__}: Tidying up, then exit..."))
+        warnings.warn(DspToolsUserWarning(f"{type(err).__name__}: Tidying up, then exit..."))
         msg = (
             f"There was a {type(err).__name__} while trying to create resource '{resource.res_id}'.\n"
             f"It is unclear if the resource '{resource.res_id}' was created successfully or not.\n"
@@ -373,7 +373,7 @@ def _upload_one_resource(
     try:
         _tidy_up_resource_creation_idempotent(upload_state, iri, resource)
     except KeyboardInterrupt as err:
-        warnings.warn(GeneralDspToolsWarning("KeyboardInterrupt: Tidying up, then exit..."))
+        warnings.warn(DspToolsUserWarning("KeyboardInterrupt: Tidying up, then exit..."))
         _tidy_up_resource_creation_idempotent(upload_state, iri, resource)
         raise err from None
 

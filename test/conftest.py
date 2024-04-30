@@ -15,6 +15,9 @@ def caplog(_caplog: pytest.LogCaptureFixture) -> Iterator[pytest.LogCaptureFixtu
     This modified version can be used exactly like the builtin caplog fixture,
     which is documented at https://docs.pytest.org/en/latest/how-to/logging.html#caplog-fixture.
     Credits: https://www.youtube.com/watch?v=eFdVlyAGeZU
+
+    Yields:
+        pytest.LogCaptureFixture: The modified caplog fixture.
     """
 
     class PropagateHandler(logging.Handler):

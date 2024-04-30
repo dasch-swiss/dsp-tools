@@ -388,9 +388,8 @@ def _interrupt_if_indicated(upload_state: UploadState, creation_attempts_of_this
     # if the interrupt_after value is not set, the upload will not be interrupted
     interrupt_after = upload_state.config.interrupt_after or 999_999_999
     if creation_attempts_of_this_round + 1 >= interrupt_after:
-        raise XmlUploadInterruptedError(
-            f"Interrupted: Maximum number of resources was reached ({upload_state.config.interrupt_after})"
-        )
+        msg = f"Interrupted: Maximum number of resources was reached ({upload_state.config.interrupt_after})"
+        raise XmlUploadInterruptedError(msg)
 
 
 def _tidy_up_resource_creation_idempotent(

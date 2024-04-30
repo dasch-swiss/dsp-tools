@@ -215,9 +215,7 @@ def upload_resources(
             iri_resolver=upload_state.iri_resolver,
             project_client=project_client,
         )
-    except BaseException as err:  # noqa: BLE001 (blind-except)
-        # The forseeable errors are already handled by failed_uploads
-        # Here we catch the unforseeable exceptions, incl. keyboard interrupt.
+    except XmlUploadInterruptedError as err:
         _handle_upload_error(err, upload_state)
         return None
 
@@ -348,12 +346,19 @@ def _upload_one_resource(
     resource_create_client: ResourceCreateClient,
     creation_attempts_of_this_round: int,
 ) -> None:
-    success, media_info = handle_media_info(
-        resource, upload_state.config.media_previously_uploaded, sipi_server, imgdir, upload_state.permissions_lookup
-    )
-    if not success:
-        upload_state.failed_uploads.append(resource.res_id)
-        return
+    try:
+        success, media_info = handle_media_info(
+            resource,
+            upload_state.config.media_previously_uploaded,
+            sipi_server,
+            imgdir,
+            upload_state.permissions_lookup,
+        )
+        if not success:
+            upload_state.failed_uploads.append(resource.res_id)
+            return
+    except KeyboardInterrupt:
+        raise XmlUploadInterruptedError("KeyboardInterrupt during media file upload") from None
 
     try:
         iri = _create_resource(resource, media_info, resource_create_client)
@@ -372,12 +377,11 @@ def _upload_one_resource(
 
     try:
         _tidy_up_resource_creation_idempotent(upload_state, iri, resource)
-    except KeyboardInterrupt as err:
+        _interrupt_if_indicated(upload_state, creation_attempts_of_this_round)
+    except KeyboardInterrupt:
         warnings.warn(DspToolsUserWarning("KeyboardInterrupt: Tidying up, then exit..."))
         _tidy_up_resource_creation_idempotent(upload_state, iri, resource)
-        raise err from None
-
-    _interrupt_if_indicated(upload_state, creation_attempts_of_this_round)
+        raise XmlUploadInterruptedError("KeyboardInterrupt during tidy up") from None
 
 
 def _interrupt_if_indicated(upload_state: UploadState, creation_attempts_of_this_round: int) -> None:

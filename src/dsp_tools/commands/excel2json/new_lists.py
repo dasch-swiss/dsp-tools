@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from typing import Any
-from typing import cast
 
 import pandas as pd
 import regex
@@ -29,7 +28,7 @@ def _fill_auto_id_column(df: pd.DataFrame, preferred_language: str) -> pd.DataFr
         return df
     if pd.isna(df.at[0, "ID (optional)"]):
         df.at[0, "auto_id"] = df.at[0, f"{preferred_language}_list"]
-    columns = sorted(_get_columns_of_preferred_lang(df.columns, preferred_language), reverse=True)
+    columns = sorted(_get_columns_of_preferred_lang(df.columns, preferred_language, r"\d+"), reverse=True)
     for i, row in df.iterrows():
         if pd.isna(row["ID (optional)"]):
             for col in columns:
@@ -43,14 +42,11 @@ def _fill_parent_id(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
     """Create an extra column with the ID of the parent node."""
     # To start, all rows get the ID of the list. These will be overwritten if the row has another parent.
     df["parent_id"] = df.at[0, "id"]
-    columns = _get_columns_of_preferred_lang(df.columns, preferred_language)
+    columns = _get_columns_of_preferred_lang(df.columns, preferred_language, r"\d+")
     for col in columns:
         grouped = df.groupby(col)
         for name, group in grouped:
-            if name == "nan":
-                # Leaf node: ID already assigned
-                pass
-            elif group.shape[0] > 1:
+            if group.shape[0] > 1:
                 # The first row already has the correct ID assigned
                 rest_index = list(group.index)[1:]
                 df.loc[rest_index, "parent_id"] = group.at[group.index[0], "id"]
@@ -72,7 +68,6 @@ def _make_one_list(df: pd.DataFrame, sheet_name: str) -> ListRoot | ListSheetPro
         case (ListRoot(), list(ListNodeProblem())):
             return ListSheetProblem(sheet_name, root_problems={}, node_problems=node_problems)
         case (ListSheetProblem(), _):
-            root = cast(ListSheetProblem, root)
             root.node_problems = node_problems
     return root
 
@@ -91,8 +86,8 @@ def _make_list_nodes_from_df(df: pd.DataFrame) -> tuple[dict[str, ListNode], lis
     columns_for_nodes = _get_reverse_sorted_columns_list(df)
     problems = []
     node_dict = {}
-    for _, row in df[1:].iterrows():
-        node = _make_one_node(row, columns_for_nodes)
+    for i, row in df[1:].iterrows():
+        node = _make_one_node(row, columns_for_nodes, str(i))
         match node:
             case ListNode():
                 node_dict[node.id_] = node
@@ -101,15 +96,11 @@ def _make_list_nodes_from_df(df: pd.DataFrame) -> tuple[dict[str, ListNode], lis
     return node_dict, problems
 
 
-def _make_one_node(row: pd.Series[Any], list_of_columns: list[list[str]]) -> ListNode | ListNodeProblem:
+def _make_one_node(row: pd.Series[Any], list_of_columns: list[list[str]], index: str) -> ListNode | ListNodeProblem:
     for col_group in list_of_columns:
         if labels := _get_labels(row, col_group):
-            return ListNode.create(
-                id_=row["id"], labels=labels, row_number=row["index"], parent_id=row["parent_id"], sub_nodes=[]
-            )
-    return ListNodeProblem(
-        node_id=row["id"], problems={"Unknown": f"Unknown problem occurred in row number: {row["index"]}"}
-    )
+            return ListNode.create(id_=row["id"], labels=labels, parent_id=row["parent_id"], sub_nodes=[])
+    return ListNodeProblem(node_id=row["id"], problems={"Unknown": f"Unknown problem occurred in row number: {index}"})
 
 
 def _get_reverse_sorted_columns_list(df: pd.DataFrame) -> list[list[str]]:
@@ -144,8 +135,10 @@ def _get_lang_string_from_column_name(col_str: str, ending: str = r"(\d+|list)")
     return None
 
 
-def _get_columns_of_preferred_lang(columns: pd.Index[str], preferred_language: str) -> list[str]:
-    return sorted(col for col in columns if regex.search(rf"^{preferred_language}_\d+$", col))
+def _get_columns_of_preferred_lang(
+    columns: pd.Index[str], preferred_language: str, ending: str = r"(\d+|list)"
+) -> list[str]:
+    return sorted(col for col in columns if regex.search(rf"^{preferred_language}_{ending}$", col))
 
 
 def _get_hierarchy_nums(columns: pd.Index[str]) -> list[int]:
@@ -154,7 +147,7 @@ def _get_hierarchy_nums(columns: pd.Index[str]) -> list[int]:
     )
 
 
-def _get_all_languages_for_columns(columns: pd.Index[str], ending: str) -> set[str]:
+def _get_all_languages_for_columns(columns: pd.Index[str], ending: str = r"(\d+|list)") -> set[str]:
     return set(res for x in columns if (res := _get_lang_string_from_column_name(x, ending)))
 
 

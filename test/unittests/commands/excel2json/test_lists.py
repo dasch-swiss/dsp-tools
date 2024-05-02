@@ -28,7 +28,6 @@ class TestMakeOneList:
             {
                 "id": ["list_id", "1", "1.1", "2", "3", "3.1", "3.2", "3.2.1", "3.2.2"],
                 "parent_id": ["list_id", "list_id", "1", "list_id", "list_id", "3", "3", "3.2", "3.2"],
-                "index": [0, 1, 2, 3, 4, 5, 6, 7, 8],
                 "en_list": [
                     "Listname_en",
                     "Listname_en",
@@ -172,10 +171,10 @@ def test_fill_parent_id() -> None:
 
 
 def test_add_nodes_to_parent() -> None:
-    nd_1 = ListNode("1", {"en": "Node_en_1", "de": "Node_de_1"}, 1, parent_id="list_id")
-    nd_2 = ListNode("2", {"en": "Node_en_2", "de": "Node_de_2"}, 2, parent_id="list_id")
-    nd_11 = ListNode("1.1", {"en": "Node_en_1.1", "de": "Node_de_1.1"}, 3, parent_id="1")
-    nd_12 = ListNode("1.2", {"en": "Node_en_2.1", "de": "Node_de_1.2"}, 4, parent_id="1")
+    nd_1 = ListNode("1", {"en": "Node_en_1", "de": "Node_de_1"}, parent_id="list_id")
+    nd_2 = ListNode("2", {"en": "Node_en_2", "de": "Node_de_2"}, parent_id="list_id")
+    nd_11 = ListNode("1.1", {"en": "Node_en_1.1", "de": "Node_de_1.1"}, parent_id="1")
+    nd_12 = ListNode("1.2", {"en": "Node_en_2.1", "de": "Node_de_1.2"}, parent_id="1")
     test_dict = {"1": nd_1, "2": nd_2, "1.1": nd_11, "1.2": nd_12}
     expected = [nd_1, nd_2]
     res = _add_nodes_to_parent(test_dict, "list_id")
@@ -196,7 +195,6 @@ def test_make_list_nodes_with_valid_data() -> None:
         "de_1": [pd.NA, "Knoten1", "Knoten1", "Knoten2"],
         "en_2": [pd.NA, pd.NA, "Node1.1", pd.NA],
         "de_2": [pd.NA, pd.NA, "Knoten1.1", pd.NA],
-        "index": [3, 0, 2, 1],
     }
     df = pd.DataFrame(data)
     node_dict, problems = _make_list_nodes_from_df(df)
@@ -206,21 +204,18 @@ def test_make_list_nodes_with_valid_data() -> None:
     assert isinstance(one, ListNode)
     assert one.id_ == "id_1"
     assert one.labels == {"en": "Node1", "de": "Knoten1"}
-    assert one.row_number == 0
     assert one.parent_id == "list_id"
     assert not one.sub_nodes
     one_one = node_dict["id_1.1"]
     assert isinstance(one_one, ListNode)
     assert one_one.id_ == "id_1.1"
     assert one_one.labels == {"en": "Node1.1", "de": "Knoten1.1"}
-    assert one_one.row_number == 2
     assert one_one.parent_id == "id_1"
     assert not one_one.sub_nodes
     two = node_dict["id_2"]
     assert isinstance(two, ListNode)
     assert two.id_ == "id_2"
     assert two.labels == {"en": "Node2", "de": "Knoten2"}
-    assert two.row_number == 1
     assert two.parent_id == "list_id"
     assert not two.sub_nodes
 
@@ -231,7 +226,6 @@ class TestMakeOneNode:
             {
                 "id": "node_id",
                 "parent_id": "list_id",
-                "index": 1,
                 "en_list": "Listname_en",
                 "en_1": "Node_en_1",
                 "de_1": "Node_de_1",
@@ -239,11 +233,10 @@ class TestMakeOneNode:
                 "de_2": pd.NA,
             }
         )
-        nd = _make_one_node(test_series, [["en_2", "de_2"], ["en_1", "de_1"]])
+        nd = _make_one_node(test_series, [["en_2", "de_2"], ["en_1", "de_1"]], "1")
         assert isinstance(nd, ListNode)
         assert nd.id_ == "node_id"
         assert nd.labels == {"en": "Node_en_1", "de": "Node_de_1"}
-        assert nd.row_number == 1
         assert not nd.sub_nodes
 
     def test_all_good_second(self) -> None:
@@ -251,7 +244,6 @@ class TestMakeOneNode:
             {
                 "id": "node_id",
                 "parent_id": "list_id",
-                "index": 2,
                 "en_list": "Listname_en",
                 "en_1": "Node_en_1",
                 "de_1": "Node_de_1",
@@ -259,11 +251,10 @@ class TestMakeOneNode:
                 "de_2": "Node_de_2",
             }
         )
-        nd = _make_one_node(test_series, [["en_2", "de_2"], ["en_1", "de_1"]])
+        nd = _make_one_node(test_series, [["en_2", "de_2"], ["en_1", "de_1"]], "2")
         assert isinstance(nd, ListNode)
         assert nd.id_ == "node_id"
         assert nd.labels == {"en": "Node_en_2", "de": "Node_de_2"}
-        assert nd.row_number == 2
         assert not nd.sub_nodes
 
 

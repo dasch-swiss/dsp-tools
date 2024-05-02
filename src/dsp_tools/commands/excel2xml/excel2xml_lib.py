@@ -1101,7 +1101,7 @@ def make_interval_prop(
     """
 
     if name == "hasSequenceBounds":
-        msg = "Deprecation Warning: Support for the hasSequenceBounds property will be removed soon"
+        msg = "Support for the hasSequenceBounds property will be removed soon"
         warnings.warn(DspToolsFutureWarning(msg))
 
     # check the input: prepare a list with valid values
@@ -1251,7 +1251,7 @@ def make_resptr_prop(
     """
 
     if name == "isSequenceOf":
-        msg = "Deprecation Warning: Support for the isSequenceOf property will be removed soon"
+        msg = "Support for the isSequenceOf property will be removed soon"
         warnings.warn(DspToolsFutureWarning(msg))
 
     # check the input: prepare a list with valid values

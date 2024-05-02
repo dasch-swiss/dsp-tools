@@ -332,13 +332,13 @@ class MissingTranslationsSheetProblem:
     node_problems: list[MissingNodeTranslationProblem]
 
     def execute_error_protocol(self) -> str:
-        msg = (
+        msg = [
             "In one list, all the nodes must be translated into all the languages used. "
             "The following nodes are missing translations:"
-        )
+        ]
         nodes_sorted = sorted(self.node_problems, key=lambda x: x.index_num)
-        nodes = list_separator.join([x.execute_error_protocol() for x in nodes_sorted])
-        return msg + nodes
+        msg.extend([x.execute_error_protocol() for x in nodes_sorted])
+        return list_separator.join(msg)
 
 
 @dataclass(frozen=True)

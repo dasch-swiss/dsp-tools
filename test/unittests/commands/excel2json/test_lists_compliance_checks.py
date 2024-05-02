@@ -6,6 +6,7 @@ import pytest
 import regex
 
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_all_excel_for_erroneous_entries
+from dsp_tools.commands.excel2json.lists_compliance_checks import _check_all_excels_if_any_nodes_miss_translations
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_all_expected_translations_present
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_for_erroneous_entries
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_min_num_col_present
@@ -145,6 +146,55 @@ class TestCheckAllTranslationsPresent:
             "de_list"
         }
         assert _check_all_expected_translations_present(test_cols) == expected
+
+
+class TestCheckAllExcelsMissingTranslations:
+    def test_good(self) -> None:
+        df_1 = pd.DataFrame(
+            {"en_list": ["list1", "list1", "list1", "list1"], "en_1": [pd.NA, "node1", "node2", "node3"]}
+        )
+        df_2 = pd.DataFrame(
+            {
+                "en_list": ["list1", "list1", "list1", "list1", "list1", "list1", "list1", "list1"],
+                "de_list": ["list1", "list1", "list1", "list1", "list1", "list1", "list1", "list1"],
+                "en_1": [pd.NA, "node1", "node1", "node1", "node1", "node2", "node2", "node3"],
+                "de_1": [pd.NA, "node1", "node1", "node1", "node1", "node2", "node2", "node3"],
+                "en_2": [pd.NA, pd.NA, "node1.1", "node1.1", "node1.2", pd.NA, "node2.1", pd.NA],
+                "de_2": [pd.NA, pd.NA, "node1.1", "node1.1", "node1.2", pd.NA, "node2.1", pd.NA],
+                "en_3": [pd.NA, pd.NA, pd.NA, "node1.1.1", pd.NA, pd.NA, pd.NA, pd.NA],
+                "de_3": [pd.NA, pd.NA, pd.NA, "node1.1.1", pd.NA, pd.NA, pd.NA, pd.NA],
+            }
+        )
+        df_dict = {"file1": {"sheet1": df_1}, "file2": {"sheet2": df_2}}
+        _check_all_excels_if_any_nodes_miss_translations(df_dict)
+
+    def test_problem(self) -> None:
+        df_1 = pd.DataFrame({"en_list": ["list1", "list1", "list1", "list1"], "en_1": [pd.NA, "node1", pd.NA, "node3"]})
+        df_2 = pd.DataFrame(
+            {
+                "en_list": ["list1", "list1", "list1", "list1", "list1", "list1", "list1"],
+                "de_list": ["list1", "list1", "list1", "list1", "list1", "list1", "list1"],
+                "en_1": [pd.NA, pd.NA, "node1", "node1", "node1", "node2", "node3"],
+                "de_1": [pd.NA, "node1", "node1", "node1", "node1", "node2", pd.NA],
+                "en_2": [pd.NA, pd.NA, "node1.1", "node1.1", "node1.2", pd.NA, pd.NA],
+                "de_2": [pd.NA, pd.NA, "node1.1", "node1.1", "node1.2", pd.NA, pd.NA],
+                "en_3": [pd.NA, pd.NA, pd.NA, "node1.1.1", pd.NA, pd.NA, pd.NA],
+                "de_3": [pd.NA, pd.NA, pd.NA, "node1.1.1", pd.NA, pd.NA, pd.NA],
+            }
+        )
+        df_dict = {"file1": {"sheet1": df_1}, "file2": {"sheet2": df_2}}
+        expected = regex.escape(
+            "\nThe excel file(s) used to create the list sections have the following problem(s):\n\n"
+            "---------------------------------------\n\n"
+            "The excel 'file2' has the following problem(s):\n"
+            "----------------------------\n"
+            "In one list, all the nodes must be translated into all the languages used. "
+            "The following nodes are missing translations:\n"
+            "    - Row Number: '3' Column(s): en_1\n"
+            "    - Row Number: '8' Column(s): de_1"
+        )
+        with pytest.raises(InputError, match=expected):
+            _check_all_excels_if_any_nodes_miss_translations(df_dict)
 
 
 class TestAllNodesTranslatedIntoAllLanguages:

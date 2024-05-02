@@ -56,9 +56,7 @@ def _make_formal_excel_compliance_check(excel_dfs: dict[str, dict[str, pd.DataFr
     problems = []
     for filename, excel_sheets in excel_dfs.items():
         shape_problems: list[Problem] = [
-            p
-            for sheet_name, df in excel_dfs.items()
-            if (p := _df_shape_compliance(df[filename], sheet_name)) is not None
+            p for sheet_name, df in excel_sheets.items() if (p := _df_shape_compliance(df, sheet_name)) is not None
         ]
         if shape_problems:
             problems.append(ListExcelProblem(filename, shape_problems))
@@ -155,8 +153,8 @@ def _check_all_excels_if_any_nodes_miss_translations(excel_dfs: dict[str, dict[s
     for filename, excel_sheets in excel_dfs.items():
         missing_translations: list[Problem] = [
             p
-            for sheet_name, df in excel_dfs.items()
-            if (p := _check_sheet_if_any_nodes_miss_translations(df[filename], sheet_name)) is not None
+            for sheet_name, df in excel_sheets.items()
+            if (p := _check_sheet_if_any_nodes_miss_translations(df, sheet_name)) is not None
         ]
         if missing_translations:
             problems.append(ListExcelProblem(filename, missing_translations))

@@ -93,7 +93,7 @@ def _check_for_deprecated_syntax(df: pd.DataFrame) -> None:
 def _check_for_deprecated_isSequenceOf(df: pd.DataFrame) -> None:
     if any(x in y for y in list(df["super"]) for x in ["isSequenceOf", "hasSequenceBounds"]):
         msg = (
-            "Deprecation Warning: Your Excel file contains deprecated super-properties. "
+            "Your Excel file contains deprecated super-properties. "
             "Support for the following super-properties will be removed soon: isSequenceOf, hasSequenceBounds"
         )
         warnings.warn(DspToolsFutureWarning(msg))

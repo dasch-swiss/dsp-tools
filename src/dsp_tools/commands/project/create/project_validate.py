@@ -234,7 +234,7 @@ def _check_for_deprecated_isSequenceOf(project_definition: dict[str, Any]) -> bo
 
     if any([isSequenceOf_matches, hasSequenceBounds_matches, sequence_resource_matches]):
         msg = (
-            "Deprecation Warning: Your JSON project definition contains deprecated properties. "
+            "Your JSON project definition contains deprecated properties. "
             "Support for the following properties will be removed soon: isSequenceOf, hasSequenceBounds"
         )
         warnings.warn(DspToolsFutureWarning(msg))

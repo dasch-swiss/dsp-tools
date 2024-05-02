@@ -333,6 +333,7 @@ class MissingTranslationsSheetProblem:
 
     def execute_error_protocol(self) -> str:
         msg = [
+            f"The excel sheet '{self.sheet}' has the following problem(s):\n"
             "In one list, all the nodes must be translated into all the languages used. "
             "The following nodes are missing translations:"
         ]

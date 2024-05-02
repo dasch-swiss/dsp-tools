@@ -20,6 +20,7 @@ from dsp_tools.commands.excel2json.lists_compliance_checks import _check_sheet_i
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_warn_unusual_columns
 from dsp_tools.commands.excel2json.lists_compliance_checks import _df_shape_compliance
 from dsp_tools.commands.excel2json.lists_compliance_checks import _make_columns
+from dsp_tools.commands.excel2json.lists_compliance_checks import _make_formal_excel_compliance_check
 from dsp_tools.commands.excel2json.models.input_error import ListSheetComplianceProblem
 from dsp_tools.commands.excel2json.models.input_error import ListSheetContentProblem
 from dsp_tools.commands.excel2json.models.input_error import MissingNodeTranslationProblem
@@ -27,6 +28,69 @@ from dsp_tools.commands.excel2json.models.input_error import MissingTranslations
 from dsp_tools.commands.excel2json.models.input_error import NodesPerRowProblem
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
+
+
+class TestFormalExcelCompliance:
+    def test_good(self) -> None:
+        df_1 = pd.DataFrame(
+            {"en_list": ["list1", "list1", "list1", "list1"], "en_1": [pd.NA, "node1", "node2", "node3"]}
+        )
+        df_2 = pd.DataFrame(
+            {
+                "en_list": ["list1", "list1", "list1", "list1", "list1", "list1", "list1", "list1"],
+                "de_list": ["list1", "list1", "list1", "list1", "list1", "list1", "list1", "list1"],
+                "en_1": [pd.NA, "node1", "node1", "node1", "node1", "node2", "node2", "node3"],
+                "de_1": [pd.NA, "node1", "node1", "node1", "node1", "node2", "node2", "node3"],
+                "en_2": [pd.NA, pd.NA, "node1.1", "node1.1", "node1.2", pd.NA, "node2.1", pd.NA],
+                "de_2": [pd.NA, pd.NA, "node1.1", "node1.1", "node1.2", pd.NA, "node2.1", pd.NA],
+                "en_3": [pd.NA, pd.NA, pd.NA, "node1.1.1", pd.NA, pd.NA, pd.NA, pd.NA],
+                "de_3": [pd.NA, pd.NA, pd.NA, "node1.1.1", pd.NA, pd.NA, pd.NA, pd.NA],
+            }
+        )
+        df_dict = {"file1": {"sheet1": df_1}, "file2": {"sheet2": df_2}}
+        _make_formal_excel_compliance_check(df_dict)
+
+    def test_problem(self) -> None:
+        df_1 = pd.DataFrame({"en_list": ["list1", "list1", "list1", "list1"]})
+        df_2 = pd.DataFrame(
+            {
+                "en_list": ["list1", "list1", "list1", "list1", "list1", "list1", "list1", "list1"],
+                "de_list": ["list1", "list1", "list1", "list1", "list1", "list1", "list1", "list1"],
+                "en_1": [pd.NA, "node1", "node1", "node1", "node1", "node2", "node2", "node3"],
+                "de_1": [pd.NA, "node1", "node1", "node1", "node1", "node2", "node2", "node3"],
+                "en_2": [pd.NA, pd.NA, "node1.1", "node1.1", "node1.2", pd.NA, "node2.1", pd.NA],
+                "de_2": [pd.NA, pd.NA, "node1.1", "node1.1", "node1.2", pd.NA, "node2.1", pd.NA],
+                "en_3": [pd.NA, pd.NA, pd.NA, "node1.1.1", pd.NA, pd.NA, pd.NA, pd.NA],
+            }
+        )
+        df_3 = pd.DataFrame(
+            {
+                "en_list": ["list1"],
+                "en_1": ["node1"],
+            }
+        )
+        df_dict = {"file1": {"sheet1": df_1}, "file2": {"sheet2": df_2, "sheet3": df_3}}
+        expected = regex.escape(
+            "\nThe excel file(s) used to create the list sections have the following problem(s):\n\n"
+            "---------------------------------------\n\n"
+            "The excel 'file1' has the following problem(s):\n"
+            "----------------------------\n"
+            "The excel sheet 'sheet1' has the following problem(s):\n"
+            "    - missing columns for nodes': There is no column with the expected format for the list nodes: "
+            "'[lang]_[column_number]'\n\n"
+            "---------------------------------------\n\n"
+            "The excel 'file2' has the following problem(s):\n"
+            "----------------------------\n"
+            "The excel sheet 'sheet2' has the following problem(s):\n"
+            "    - missing translations': All nodes must be translated into the same languages. "
+            "One or more translations for the following column(s) are missing: de_3\n"
+            "----------------------------\n"
+            "The excel sheet 'sheet3' has the following problem(s):\n"
+            "    - minimum rows': The Excel sheet must contain at least two rows, "
+            "one for the list name and one row for a minimum of one node."
+        )
+        with pytest.raises(InputError, match=expected):
+            _make_formal_excel_compliance_check(df_dict)
 
 
 class TestShapeCompliance:
@@ -188,6 +252,7 @@ class TestCheckAllExcelsMissingTranslations:
             "---------------------------------------\n\n"
             "The excel 'file2' has the following problem(s):\n"
             "----------------------------\n"
+            "The excel sheet 'sheet2' has the following problem(s):\n"
             "In one list, all the nodes must be translated into all the languages used. "
             "The following nodes are missing translations:\n"
             "    - Row Number: '3' Column(s): en_1\n"

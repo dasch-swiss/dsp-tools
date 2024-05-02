@@ -25,7 +25,7 @@ from dsp_tools.utils.shared import simplify_name
 from dsp_tools.utils.uri_util import is_uri
 from dsp_tools.utils.xml_validation import validate_xml
 
-# ruff: noqa: E501 (line-too-long)
+# ruff: noqa: E501, UP031 (line-too-long, use f-string over percent formatting)
 
 
 xml_namespace_map = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}

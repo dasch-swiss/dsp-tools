@@ -34,7 +34,7 @@ class InternalError(BaseError):
         )
         match keep_default_msg, custom_msg:
             case False, str():
-                super().__init__(custom_msg)  # type: ignore[arg-type]
+                super().__init__(custom_msg)
             case True, str():
                 default_msg = f"\n\n{custom_msg}\n--------------------------{default_msg}"
                 super().__init__(default_msg)

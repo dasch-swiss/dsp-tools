@@ -432,7 +432,7 @@ def _upload_resources(
             )
             logger.error(msg)
             raise XmlUploadInterruptedError(msg)
-        except BaseException as err:
+        except BaseException as err:  # noqa: BLE001 (blind-except)
             if res and res[0]:
                 # creation succeeded, but during tidy up, a Keyboard Interrupt occurred. tidy up again before escalating
                 iri, label = res

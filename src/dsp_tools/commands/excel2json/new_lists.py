@@ -17,7 +17,16 @@ def _fill_id_and_parent_id_columns(df: pd.DataFrame, preferred_language: str) ->
         df["ID (optional)"] = pd.NA
     df = _fill_auto_id_column(df, preferred_language)
     df["id"] = df["ID (optional)"].fillna(df["auto_id"])
+    df = _resolve_duplicate_when_combined(df, preferred_language)
     df = _fill_parent_id(df, preferred_language)
+    return df
+
+
+def _resolve_duplicate_when_combined(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
+    if (duplicate_filter := df["id"].duplicated(keep=False)).any():
+        for i in duplicate_filter.index[duplicate_filter]:
+            if pd.isna(df.at[i, "ID (optional)"]):
+                df.loc[i, "id"] = _construct_non_duplicate_id(df.iloc[i], preferred_language)
     return df
 
 
@@ -27,15 +36,30 @@ def _fill_auto_id_column(df: pd.DataFrame, preferred_language: str) -> pd.DataFr
     if not df["ID (optional)"].isna().any():
         return df
     if pd.isna(df.at[0, "ID (optional)"]):
-        df.at[0, "auto_id"] = df.at[0, f"{preferred_language}_list"]
+        df.loc[0, "auto_id"] = df.at[0, f"{preferred_language}_list"]
     columns = sorted(_get_columns_of_preferred_lang(df.columns, preferred_language, r"\d+"), reverse=True)
     for i, row in df.iterrows():
         if pd.isna(row["ID (optional)"]):
             for col in columns:
                 if pd.notna(row[col]):
-                    df.at[i, "auto_id"] = row[col]
+                    df.loc[i, "auto_id"] = row[col]
                     break
+    df = _resolve_duplicate_id_in_auto_column(df, preferred_language)
     return df
+
+
+def _resolve_duplicate_id_in_auto_column(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
+    if (duplicate_filter := df["auto_id"].dropna().duplicated(keep=False)).any():
+        for i in duplicate_filter.index[duplicate_filter]:
+            df.loc[i, "auto_id"] = _construct_non_duplicate_id(df.iloc[i], preferred_language)
+    return df
+
+
+def _construct_non_duplicate_id(row: pd.Series, preferred_language: str) -> str:
+    columns = _get_columns_of_preferred_lang(row.index, preferred_language, r"\d+")
+    columns.insert(0, f"{preferred_language}_list")
+    id_cols = [row[col] for col in columns if pd.notna(row[col])]
+    return ":".join(id_cols)
 
 
 def _fill_parent_id(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:

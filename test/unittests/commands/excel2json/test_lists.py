@@ -6,6 +6,7 @@ from pandas.testing import assert_frame_equal
 from dsp_tools.commands.excel2json.models.list_node import ListNode
 from dsp_tools.commands.excel2json.models.list_node import ListRoot
 from dsp_tools.commands.excel2json.new_lists import _add_nodes_to_parent
+from dsp_tools.commands.excel2json.new_lists import _construct_non_duplicate_id
 from dsp_tools.commands.excel2json.new_lists import _fill_auto_id_column
 from dsp_tools.commands.excel2json.new_lists import _fill_id_and_parent_id_columns
 from dsp_tools.commands.excel2json.new_lists import _fill_parent_id
@@ -19,6 +20,7 @@ from dsp_tools.commands.excel2json.new_lists import _get_reverse_sorted_columns_
 from dsp_tools.commands.excel2json.new_lists import _make_list_nodes_from_df
 from dsp_tools.commands.excel2json.new_lists import _make_one_list
 from dsp_tools.commands.excel2json.new_lists import _make_one_node
+from dsp_tools.commands.excel2json.new_lists import _resolve_duplicate_id_in_auto_column
 from dsp_tools.models.exceptions import InputError
 
 
@@ -142,17 +144,84 @@ class TestFillIdColumn:
         res = _fill_auto_id_column(test_df, "en")
         assert_frame_equal(res, expected)
 
+    def test_handle_duplicates(self) -> None:
+        test_df = pd.DataFrame(
+            {
+                "ID (optional)": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, "accusative"],
+                "en_list": [
+                    "list_en",
+                    "list_en",
+                    "list_en",
+                    "list_en",
+                    "list_en",
+                    "list_en",
+                    "list_en",
+                    "list_en",
+                    "list_en",
+                ],
+                "en_1": [pd.NA, "singular", "singular", "singular", "singular", "plural", "plural", "plural", "plural"],
+                "en_2": [pd.NA, pd.NA, "dative", "genitive", "accusative", pd.NA, "dative", "genitive", "accusative"],
+            }
+        )
+        res = _fill_auto_id_column(test_df, "en")
+        expected = [
+            "list_en",
+            "singular",
+            "list_en:singular:dative",
+            "list_en:singular:genitive",
+            "accusative",
+            "plural",
+            "list_en:plural:dative",
+            "list_en:plural:genitive",
+            pd.NA,
+        ]
+        assert res["auto_id"].to_list() == expected
 
-def test_handle_ids() -> None:
-    test_df = pd.DataFrame(
-        {
-            "ID (optional)": [pd.NA, pd.NA, "2", "3", pd.NA, "5", "6", pd.NA],
-            "en_list": ["list_en", "list_en", "list_en", "list_en", "list_en", "list_en", "list_en", "list_en"],
-            "en_1": ["list_en", "nd_en_1", "nd_en_2", "nd_en_3", "nd_en_4", "nd_en_5", "nd_en_6", "nd_en_7"],
-        }
-    )
-    res = _fill_id_and_parent_id_columns(test_df, "en")
-    assert res["id"].tolist() == ["list_en", "nd_en_1", "2", "3", "nd_en_4", "5", "6", "nd_en_7"]
+
+class TestFillIDAndParentIDColumns:
+    def test_handle_no_duplicates(self) -> None:
+        test_df = pd.DataFrame(
+            {
+                "ID (optional)": [pd.NA, pd.NA, "2", "3", pd.NA, "5", "6", pd.NA],
+                "en_list": ["list_en", "list_en", "list_en", "list_en", "list_en", "list_en", "list_en", "list_en"],
+                "en_1": ["list_en", "nd_en_1", "nd_en_2", "nd_en_3", "nd_en_4", "nd_en_5", "nd_en_6", "nd_en_7"],
+            }
+        )
+        res = _fill_id_and_parent_id_columns(test_df, "en")
+        assert res["id"].tolist() == ["list_en", "nd_en_1", "2", "3", "nd_en_4", "5", "6", "nd_en_7"]
+
+    def test_handle_duplicates(self) -> None:
+        test_df = pd.DataFrame(
+            {
+                "ID (optional)": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, "accusative"],
+                "en_list": [
+                    "list_en",
+                    "list_en",
+                    "list_en",
+                    "list_en",
+                    "list_en",
+                    "list_en",
+                    "list_en",
+                    "list_en",
+                    "list_en",
+                ],
+                "en_1": [pd.NA, "singular", "singular", "singular", "singular", "plural", "plural", "plural", "plural"],
+                "en_2": [pd.NA, pd.NA, "dative", "genitive", "accusative", pd.NA, "dative", "genitive", "accusative"],
+            }
+        )
+        res = _fill_id_and_parent_id_columns(test_df, "en")
+        expected = [
+            "list_en",
+            "singular",
+            "list_en:singular:dative",
+            "list_en:singular:genitive",
+            "list_en:singular:accusative",
+            "plural",
+            "list_en:plural:dative",
+            "list_en:plural:genitive",
+            "accusative",
+        ]
+        assert res["id"].tolist() == expected
 
 
 def test_fill_parent_id() -> None:
@@ -274,6 +343,19 @@ def test_sorted_columns_returns_expected_result() -> None:
     assert len(res) == 2
     assert set(res[0]) == {"de_2", "en_2"}
     assert set(res[1]) == {"de_1", "en_1"}
+
+
+def test_resolve_duplicates_in_one_df() -> None:
+    df = pd.DataFrame(
+        {"auto_id": ["id_1", "id_1", "id_2"], "en_list": ["list", "list", "list"], "en_1": ["Node1", "Node2", "Node3"]}
+    )
+    res = _resolve_duplicate_id_in_auto_column(df, "en")
+    assert res["auto_id"].to_list() == ["list:Node1", "list:Node2", "id_2"]
+
+
+def test_construct_non_duplicate_id() -> None:
+    row = pd.Series(["en_list", "en_1", "en_2", pd.NA], index=["en_list", "en_1", "en_2", "en_3"])
+    assert _construct_non_duplicate_id(row, "en") == "en_list:en_1:en_2"
 
 
 class TestGetLabels:

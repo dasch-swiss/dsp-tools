@@ -236,8 +236,9 @@ def _check_first_of_group_is_empty(group: pd.DataFrame, target_cols: list[str]) 
     first_col = min(group.index)
     if not group.loc[first_col, target_cols[1:]].isna().all():
         problems.append(NodesPerRowProblem(target_cols[1:], int(first_col), should_be_empty=True))
-    if (missing := group[target_cols[1]].isna()).any():
-        for i, row in group[missing].iterrows():
+    remaining_rows_of_next_column = group.loc[group.index[1:], target_cols[1]]
+    if (missing := remaining_rows_of_next_column.isna()).any():
+        for i, row in group[1:][missing].iterrows():
             problems.append(NodesPerRowProblem([target_cols[1]], int(str(i)), should_be_empty=False))
     return problems
 

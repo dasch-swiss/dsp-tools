@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import warnings
 from typing import Any
+from typing import cast
 
 import pandas as pd
 import regex
@@ -166,8 +167,8 @@ def _check_sheet_if_any_nodes_miss_translations(
 
 def _check_one_hierarchy(columns: list[str], df: pd.DataFrame) -> list[MissingNodeTranslationProblem]:
     problems = []
-    for _, row in df.iterrows():
-        if problem := _check_one_node_for_translations(row, columns):
+    for i, row in df.iterrows():
+        if problem := _check_one_node_for_translations(row, columns, int(str(i))):
             problems.append(problem)
     return problems
 
@@ -176,11 +177,13 @@ def _make_columns(nums: list[str], languages: set[str]) -> list[list[str]]:
     return [[f"{lang}_{num}" for lang in languages] for num in nums]
 
 
-def _check_one_node_for_translations(row: pd.Series[Any], columns: list[str]) -> MissingNodeTranslationProblem | None:
+def _check_one_node_for_translations(
+    row: pd.Series[Any], columns: list[str], row_index: int
+) -> MissingNodeTranslationProblem | None:
     missing = row[columns].isna()
     if missing.any() and not missing.all():
         missing_cols = [str(index) for index, is_missing in missing.items() if is_missing]
-        return MissingNodeTranslationProblem(missing_cols, row["row_number"])
+        return MissingNodeTranslationProblem(missing_cols, row_index)
     return None
 
 
@@ -208,9 +211,10 @@ def _check_sheet_for_erroneous_entries(df: pd.DataFrame, sheet_name: str) -> Lis
         0,
         f"{preferred_lang}_list",
     )
-    problems: list[Problem] = _check_for_erroneous_entries(df, preferred_cols)
+    problems = _check_for_erroneous_entries(df, preferred_cols)
     if problems:
-        return ListSheetContentProblem(sheet_name, problems)
+        list_problems = cast(list[Problem], problems)
+        return ListSheetContentProblem(sheet_name, list_problems)
     return None
 
 

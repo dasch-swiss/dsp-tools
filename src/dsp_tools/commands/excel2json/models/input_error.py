@@ -320,10 +320,10 @@ class ListSheetContentProblem:
 @dataclass(frozen=True)
 class MissingNodeTranslationProblem:
     empty_columns: list[str]
-    row_num: int
+    index_num: int
 
     def execute_error_protocol(self) -> str:
-        return f"Row Number: '{self.row_num}' Column(s): {', '.join(self.empty_columns)}"
+        return f"Row Number: '{self.index_num + 2}' Column(s): {', '.join(self.empty_columns)}"
 
 
 @dataclass(frozen=True)
@@ -336,7 +336,7 @@ class MissingTranslationsSheetProblem:
             "In one list, all the nodes must be translated into all the languages used. "
             "The following nodes are missing translations:"
         )
-        nodes_sorted = sorted(self.node_problems, key=lambda x: x.row_num)
+        nodes_sorted = sorted(self.node_problems, key=lambda x: x.index_num)
         nodes = list_separator.join([x.execute_error_protocol() for x in nodes_sorted])
         return msg + nodes
 
@@ -348,7 +348,7 @@ class MissingNodeSheetProblem:
 
     def execute_error_protocol(self) -> str:
         msg = "Each list node and list, must have its own row in the excel. " "The following rows are incorrect:"
-        nodes_sorted = sorted(self.node_problems, key=lambda x: x.row_num)
+        nodes_sorted = sorted(self.node_problems, key=lambda x: x.index_num)
         nodes = list_separator.join([x.execute_error_protocol() for x in nodes_sorted])
         return msg + nodes
 
@@ -356,7 +356,7 @@ class MissingNodeSheetProblem:
 @dataclass(frozen=True)
 class NodesPerRowProblem:
     column_names: list[str]
-    row_num: int
+    index_num: int
     should_be_empty: bool
 
     def execute_error_protocol(self) -> str:
@@ -364,4 +364,4 @@ class NodesPerRowProblem:
             description = "Columns must be empty"
         else:
             description = "Column must be filled"
-        return f"Row Number: '{self.row_num + 2}' {description}: {', '.join(self.column_names)}"
+        return f"Row Number: '{self.index_num + 2}' {description}: {', '.join(self.column_names)}"

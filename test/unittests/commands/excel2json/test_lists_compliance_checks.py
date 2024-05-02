@@ -153,7 +153,6 @@ class TestAllNodesTranslatedIntoAllLanguages:
             {
                 "id": ["list_id", "1", "1.1", "2", "3", "3.1", "3.2", "3.2.1", "3.2.2"],
                 "parent_id": ["list_id", "list_id", "1", "list_id", "list_id", "3", "3", "3.2", "3.2"],
-                "row_number": [0, 1, 2, 3, 4, 5, 6, 7, 8],
                 "en_list": [
                     "Listname_en",
                     "Listname_en",
@@ -231,7 +230,6 @@ class TestAllNodesTranslatedIntoAllLanguages:
             {
                 "id": ["list_id", "1", "1.1", "2", "3", "3.1", "3.2", "3.2.1", "3.2.2"],
                 "parent_id": ["list_id", "list_id", "1", "list_id", "list_id", "3", "3", "3.2", "3.2"],
-                "row_number": [2, 3, 4, 5, 6, 7, 8, 9, 10],
                 "en_list": [
                     "Listname_en",
                     "Listname_en",
@@ -301,16 +299,16 @@ class TestAllNodesTranslatedIntoAllLanguages:
             }
         )
         expected = [
-            MissingNodeTranslationProblem(["de_2"], 4),
-            MissingNodeTranslationProblem(["en_list"], 7),
-            MissingNodeTranslationProblem(["en_1"], 10),
+            MissingNodeTranslationProblem(["de_2"], 2),
+            MissingNodeTranslationProblem(["en_list"], 5),
+            MissingNodeTranslationProblem(["en_1"], 8),
         ]
         result = _check_sheet_if_any_nodes_miss_translations(test_df, "sheet")
         result = cast(MissingTranslationsSheetProblem, result)
-        res_node_problems = sorted(result.node_problems, key=lambda x: x.row_num)
+        res_node_problems = sorted(result.node_problems, key=lambda x: x.index_num)
         for res, expct in zip(res_node_problems, expected):
             assert res.empty_columns == expct.empty_columns
-            assert res.row_num == expct.row_num
+            assert res.index_num == expct.index_num
 
 
 class TestCheckOneHierarchy:
@@ -320,10 +318,9 @@ class TestCheckOneHierarchy:
                 "en_1": ["exist1_en", "exist2_en", "exist3_en"],
                 "de_1": ["exist1_de", "exist2_de", "exist3_de"],
                 "fr_1": ["exist1_fr", "exist2_fr", "exist3_fr"],
-                "row_number": [1, 2, 3],
             }
         )
-        assert not _check_one_hierarchy(["en_1", "de_1", "fr_1", "row_number"], test_df)
+        assert not _check_one_hierarchy(["en_1", "de_1", "fr_1"], test_df)
 
     def test_missing_translation(self) -> None:
         test_df = pd.DataFrame(
@@ -331,31 +328,30 @@ class TestCheckOneHierarchy:
                 "en_1": ["exist1_en", pd.NA, "exist3_en"],
                 "de_1": ["exist1_de", pd.NA, "exist3_de"],
                 "fr_1": ["exist1_fr", "exist2_fr", "exist3_fr"],
-                "row_number": [1, 2, 3],
             }
         )
-        res = _check_one_hierarchy(["en_1", "de_1", "fr_1", "row_number"], test_df)
+        res = _check_one_hierarchy(["en_1", "de_1", "fr_1"], test_df)
         assert len(res) == 1
         prbl = res[0]
         assert prbl.empty_columns == ["en_1", "de_1"]
-        assert prbl.row_num == 2
+        assert prbl.index_num == 1
 
 
 class TestCheckOneNodeForTranslation:
     def test_good(self) -> None:
         test_series = pd.Series(["exist_en", "exist_de"], index=["en_1", "de_1"])
-        assert not _check_one_node_for_translations(test_series, ["en_1", "de_1"])
+        assert not _check_one_node_for_translations(test_series, ["en_1", "de_1"], 1)
 
     def test_good_empty(self) -> None:
         test_series = pd.Series([pd.NA, pd.NA], index=["en_1", "de_1"])
-        assert not _check_one_node_for_translations(test_series, ["en_1", "de_1"])
+        assert not _check_one_node_for_translations(test_series, ["en_1", "de_1"], 1)
 
     def test_missing_translation(self) -> None:
-        test_series = pd.Series(["exist_en", pd.NA, 3], index=["en_1", "de_1", "row_number"])
-        result = _check_one_node_for_translations(test_series, ["en_1", "de_1"])
+        test_series = pd.Series(["exist_en", pd.NA], index=["en_1", "de_1"])
+        result = _check_one_node_for_translations(test_series, ["en_1", "de_1"], 1)
         result = cast(MissingNodeTranslationProblem, result)
         assert result.empty_columns == ["de_1"]
-        assert result.row_num == 3
+        assert result.index_num == 1
 
 
 def test_make_columns() -> None:
@@ -379,7 +375,7 @@ class TestCheckAllExcelForRowProblems:
             }
         )
         df_dict = {"file1": {"sheet1": df_1}, "file2": {"sheet2": df_2}}
-        assert not _check_all_excel_for_erroneous_entries(df_dict)
+        _check_all_excel_for_erroneous_entries(df_dict)
 
     def test_all_problem(self) -> None:
         df_1 = pd.DataFrame({"en_list": ["list1", "list1", "list1", "list1"], "en_1": [pd.NA, "node1", pd.NA, "node3"]})
@@ -454,15 +450,15 @@ class TestCheckForErroneousEntries:
         )
         # "node1.1" & "node2" is missing
         res = _check_for_erroneous_entries(df, ["en_list", "en_1", "en_2", "en_3"])
-        res = sorted(res, key=lambda x: x.row_num)
+        res = sorted(res, key=lambda x: x.index_num)
         assert len(res) == 2
         assert isinstance(res[0], NodesPerRowProblem)
         assert res[0].column_names == ["en_3"]
-        assert res[0].row_num == 2
+        assert res[0].index_num == 2
         assert res[0].should_be_empty
         assert isinstance(res[1], NodesPerRowProblem)
         assert res[1].column_names == ["en_2", "en_3"]
-        assert res[1].row_num == 4
+        assert res[1].index_num == 4
         assert res[1].should_be_empty
 
 
@@ -483,11 +479,11 @@ class TestCheckOneColumnGroupsForErroneousEntries:
         assert len(res) == 2
         assert isinstance(res[0], NodesPerRowProblem)
         assert res[0].column_names == ["two"]
-        assert res[0].row_num == 3
+        assert res[0].index_num == 3
         assert res[0].should_be_empty
         assert isinstance(res[1], NodesPerRowProblem)
         assert res[1].column_names == ["two"]
-        assert res[1].row_num == 4
+        assert res[1].index_num == 4
         assert not res[1].should_be_empty
 
 
@@ -512,7 +508,7 @@ class TestCheckOneGroupForErroneousEntries:
         assert len(res) == 1
         assert isinstance(res[0], NodesPerRowProblem)
         assert res[0].column_names == ["two"]
-        assert res[0].row_num == 2
+        assert res[0].index_num == 2
         assert res[0].should_be_empty
 
     def test_missing_nex_rows(self) -> None:
@@ -524,9 +520,9 @@ class TestCheckOneGroupForErroneousEntries:
         assert len(res) == 2
         assert isinstance(res[0], NodesPerRowProblem)
         assert res[0].column_names == ["two"]
-        assert res[0].row_num == 3
+        assert res[0].index_num == 3
         assert not res[0].should_be_empty
         assert isinstance(res[1], NodesPerRowProblem)
         assert res[1].column_names == ["two"]
-        assert res[1].row_num == 5
+        assert res[1].index_num == 5
         assert not res[1].should_be_empty

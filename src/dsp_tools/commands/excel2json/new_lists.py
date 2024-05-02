@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from typing import Any
-from typing import cast
 
 import pandas as pd
 import regex
@@ -69,7 +68,6 @@ def _make_one_list(df: pd.DataFrame, sheet_name: str) -> ListRoot | ListSheetPro
         case (ListRoot(), list(ListNodeProblem())):
             return ListSheetProblem(sheet_name, root_problems={}, node_problems=node_problems)
         case (ListSheetProblem(), _):
-            root = cast(ListSheetProblem, root)
             root.node_problems = node_problems
     return root
 

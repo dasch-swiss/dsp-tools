@@ -21,6 +21,7 @@ from dsp_tools.commands.excel2json.new_lists import _make_list_nodes_from_df
 from dsp_tools.commands.excel2json.new_lists import _make_one_list
 from dsp_tools.commands.excel2json.new_lists import _make_one_node
 from dsp_tools.commands.excel2json.new_lists import _resolve_duplicate_id_in_auto_column
+from dsp_tools.commands.excel2json.new_lists import _resolve_duplicate_when_combined
 from dsp_tools.models.exceptions import InputError
 
 
@@ -176,6 +177,34 @@ class TestFillIdColumn:
             pd.NA,
         ]
         assert res["auto_id"].to_list() == expected
+
+
+def test_resolve_duplicate_when_combined_with_duplicates() -> None:
+    test_df = pd.DataFrame(
+        {
+            "ID (optional)": ["1", "2", pd.NA, pd.NA],
+            "auto_id": [pd.NA, pd.NA, "1", "5"],
+            "id": ["1", "2", "1", "5"],
+            "en_list": ["list_en", "list_en", "list_en", "list_en"],
+            "en_1": [pd.NA, "Node1", "Node2", "Node3"],
+        }
+    )
+    res = _resolve_duplicate_when_combined(test_df, "en")
+    assert res["id"].to_list() == ["1", "2", "list_en:Node2", "5"]
+
+
+def test_resolve_duplicate_when_combined_no_duplicates() -> None:
+    test_df = pd.DataFrame(
+        {
+            "ID (optional)": ["1", "2", pd.NA, pd.NA],
+            "auto_id": [pd.NA, pd.NA, "4", "5"],
+            "id": ["1", "2", "4", "5"],
+            "en_list": ["list_en", "list_en", "list_en", "list_en"],
+            "en_1": [pd.NA, "Node1", "Node2", "Node3"],
+        }
+    )
+    res = _resolve_duplicate_when_combined(test_df, "en")
+    assert res["id"].to_list() == ["1", "2", "4", "5"]
 
 
 class TestFillIDAndParentIDColumns:

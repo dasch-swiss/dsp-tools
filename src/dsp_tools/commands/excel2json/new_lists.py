@@ -42,7 +42,7 @@ def _fill_auto_id_column(df: pd.DataFrame, preferred_language: str) -> pd.DataFr
         if pd.isna(row["ID (optional)"]):
             for col in columns:
                 if pd.notna(row[col]):
-                    df.loc[i, "auto_id"] = row[col]
+                    df.at[i, "auto_id"] = row[col]
                     break
     df = _resolve_duplicate_id_in_auto_column(df, preferred_language)
     return df
@@ -51,11 +51,11 @@ def _fill_auto_id_column(df: pd.DataFrame, preferred_language: str) -> pd.DataFr
 def _resolve_duplicate_id_in_auto_column(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
     if (duplicate_filter := df["auto_id"].dropna().duplicated(keep=False)).any():
         for i in duplicate_filter.index[duplicate_filter]:
-            df.loc[i, "auto_id"] = _construct_non_duplicate_id(df.iloc[i], preferred_language)
+            df.at[i, "auto_id"] = _construct_non_duplicate_id(df.iloc[i], preferred_language)
     return df
 
 
-def _construct_non_duplicate_id(row: pd.Series, preferred_language: str) -> str:
+def _construct_non_duplicate_id(row: pd.Series[Any], preferred_language: str) -> str:
     columns = _get_columns_of_preferred_lang(row.index, preferred_language, r"\d+")
     columns.insert(0, f"{preferred_language}_list")
     id_cols = [row[col] for col in columns if pd.notna(row[col])]

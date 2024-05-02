@@ -253,7 +253,7 @@ class ListCreationProblem:
     excel_problems: list[ListExcelProblem]
 
     def execute_error_protocol(self) -> str:
-        msg = ["The excel file(s) used to create the list sections have the following problem(s):{grand_separator}"]
+        msg = ["\nThe excel file(s) used to create the list sections have the following problem(s):"]
         msg.extend([problem.execute_error_protocol() for problem in self.excel_problems])
         return grand_separator.join(msg)
 
@@ -264,7 +264,7 @@ class ListExcelProblem:
     problems: list[Problem]
 
     def execute_error_protocol(self) -> str:
-        msg = [f"The excel '{self.excel_name}' has the following problem(s):{medium_separator}"]
+        msg = [f"The excel '{self.excel_name}' has the following problem(s):"]
         msg.extend([problem.execute_error_protocol() for problem in self.problems])
         return medium_separator.join(msg)
 
@@ -275,7 +275,7 @@ class ListNodeProblem:
     problems: dict[str, str]
 
     def execute_error_protocol(self) -> str:
-        msg = [f"The node '{self.node_id}' has the following problem(s):{list_separator}"]
+        msg = [f"The node '{self.node_id}' has the following problem(s):"]
         msg.extend([f"Field: '{key}', Problem: {value}" for key, value in self.problems.items()])
         return list_separator.join(msg)
 
@@ -287,7 +287,7 @@ class ListSheetProblem:
     node_problems: list[ListNodeProblem] = field(default_factory=list)
 
     def execute_error_protocol(self) -> str:
-        msg = [f"The excel sheet '{self.sheet_name}' has the following problem(s):{list_separator}"]
+        msg = [f"The excel sheet '{self.sheet_name}' has the following problem(s):"]
         if self.root_problems:
             msg.extend([f"Field: '{key}', Problem: {value}" for key, value in self.root_problems.items()])
         if self.node_problems:
@@ -301,7 +301,7 @@ class ListSheetComplianceProblem:
     problems: dict[str, str]
 
     def execute_error_protocol(self) -> str:
-        msg = [f"The excel sheet '{self.sheet_name}' has the following problem(s):{list_separator}"]
+        msg = [f"The excel sheet '{self.sheet_name}' has the following problem(s):"]
         msg.extend([f"{key}': {value}" for key, value in self.problems.items()])
         return list_separator.join(msg)
 
@@ -312,7 +312,7 @@ class ListSheetContentProblem:
     problems: list[Problem]
 
     def execute_error_protocol(self) -> str:
-        msg = [f"The Excel sheet '{self.sheet_name}' has the following problem(s):{list_separator}"]
+        msg = [f"The Excel sheet '{self.sheet_name}' has the following problem(s):"]
         msg.extend([problem.execute_error_protocol() for problem in self.problems])
         return list_separator.join(msg)
 
@@ -333,8 +333,8 @@ class MissingTranslationsSheetProblem:
 
     def execute_error_protocol(self) -> str:
         msg = (
-            f"In one list, all the nodes must be translated into all the languages used. "
-            f"The following nodes are missing translations:{list_separator}"
+            "In one list, all the nodes must be translated into all the languages used. "
+            "The following nodes are missing translations:"
         )
         nodes_sorted = sorted(self.node_problems, key=lambda x: x.row_num)
         nodes = list_separator.join([x.execute_error_protocol() for x in nodes_sorted])
@@ -347,10 +347,7 @@ class MissingNodeSheetProblem:
     node_problems: list[NodesPerRowProblem]
 
     def execute_error_protocol(self) -> str:
-        msg = (
-            f"Each list node and list, must have its own row in the excel. "
-            f"The following rows are incorrect:{list_separator}"
-        )
+        msg = "Each list node and list, must have its own row in the excel. " "The following rows are incorrect:"
         nodes_sorted = sorted(self.node_problems, key=lambda x: x.row_num)
         nodes = list_separator.join([x.execute_error_protocol() for x in nodes_sorted])
         return msg + nodes
@@ -367,4 +364,4 @@ class NodesPerRowProblem:
             description = "Columns must be empty"
         else:
             description = "Column must be filled"
-        return f"Row Number: '{self.row_num}' {description}: {', '.join(self.column_names)}"
+        return f"Row Number: '{self.row_num + 2}' {description}: {', '.join(self.column_names)}"

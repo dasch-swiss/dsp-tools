@@ -29,7 +29,7 @@ def _fill_auto_id_column(df: pd.DataFrame, preferred_language: str) -> pd.DataFr
         return df
     if pd.isna(df.at[0, "ID (optional)"]):
         df.at[0, "auto_id"] = df.at[0, f"{preferred_language}_list"]
-    columns = sorted(_get_columns_of_preferred_lang(df.columns, preferred_language), reverse=True)
+    columns = sorted(_get_columns_of_preferred_lang(df.columns, preferred_language, r"\d+"), reverse=True)
     for i, row in df.iterrows():
         if pd.isna(row["ID (optional)"]):
             for col in columns:
@@ -43,14 +43,11 @@ def _fill_parent_id(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
     """Create an extra column with the ID of the parent node."""
     # To start, all rows get the ID of the list. These will be overwritten if the row has another parent.
     df["parent_id"] = df.at[0, "id"]
-    columns = _get_columns_of_preferred_lang(df.columns, preferred_language)
+    columns = _get_columns_of_preferred_lang(df.columns, preferred_language, r"\d+")
     for col in columns:
         grouped = df.groupby(col)
         for name, group in grouped:
-            if name == "nan":
-                # Leaf node: ID already assigned
-                pass
-            elif group.shape[0] > 1:
+            if group.shape[0] > 1:
                 # The first row already has the correct ID assigned
                 rest_index = list(group.index)[1:]
                 df.loc[rest_index, "parent_id"] = group.at[group.index[0], "id"]
@@ -144,8 +141,10 @@ def _get_lang_string_from_column_name(col_str: str, ending: str = r"(\d+|list)")
     return None
 
 
-def _get_columns_of_preferred_lang(columns: pd.Index[str], preferred_language: str) -> list[str]:
-    return sorted(col for col in columns if regex.search(rf"^{preferred_language}_\d+$", col))
+def _get_columns_of_preferred_lang(
+    columns: pd.Index[str], preferred_language: str, ending: str = r"(\d+|list)"
+) -> list[str]:
+    return sorted(col for col in columns if regex.search(rf"^{preferred_language}_{ending}$", col))
 
 
 def _get_hierarchy_nums(columns: pd.Index[str]) -> list[int]:

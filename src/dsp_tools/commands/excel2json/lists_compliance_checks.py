@@ -130,7 +130,7 @@ def make_all_list_content_compliance_checks(
         InputError: If any node is missing translations
     """
     _check_all_excels_if_any_nodes_miss_translations(excel_dfs)
-    _check_all_excel_for_missing_node_rows(excel_dfs)
+    _check_all_excel_for_erroneous_entries(excel_dfs)
 
 
 def _check_all_excels_if_any_nodes_miss_translations(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> None:
@@ -184,13 +184,13 @@ def _check_one_node_for_translations(row: pd.Series[Any], columns: list[str]) ->
     return None
 
 
-def _check_all_excel_for_missing_node_rows(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> None:
+def _check_all_excel_for_erroneous_entries(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> None:
     problems = []
     for filename, excel_sheets in excel_dfs.items():
         missing_rows: list[Problem] = [
             p
-            for sheet_name, df in excel_dfs.items()
-            if (p := _check_sheet_for_erroneous_entries(df[filename], sheet_name)) is not None
+            for sheet_name, df in excel_sheets.items()
+            if (p := _check_sheet_for_erroneous_entries(df, sheet_name)) is not None
         ]
         if missing_rows:
             problems.append(ListExcelProblem(filename, missing_rows))
@@ -202,11 +202,13 @@ def _check_all_excel_for_missing_node_rows(excel_dfs: dict[str, dict[str, pd.Dat
 
 def _check_sheet_for_erroneous_entries(df: pd.DataFrame, sheet_name: str) -> ListSheetContentProblem | None:
     preferred_lang = _get_preferred_language(df.columns)
-    preferred_cols = _get_columns_of_preferred_lang(df.columns, preferred_lang)
-    preferred_cols.append(f"{preferred_lang}_list")
+    preferred_cols = _get_columns_of_preferred_lang(df.columns, preferred_lang, r"\d+")
     preferred_cols = sorted(preferred_cols)
-
-    problems: list[Problem] = []
+    preferred_cols.insert(
+        0,
+        f"{preferred_lang}_list",
+    )
+    problems: list[Problem] = _check_for_erroneous_entries(df, preferred_cols)
     if problems:
         return ListSheetContentProblem(sheet_name, problems)
     return None

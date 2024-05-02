@@ -5,6 +5,7 @@ import pandas as pd
 import pytest
 import regex
 
+from dsp_tools.commands.excel2json.lists_compliance_checks import _check_all_excel_for_erroneous_entries
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_all_expected_translations_present
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_for_erroneous_entries
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_min_num_col_present
@@ -13,15 +14,18 @@ from dsp_tools.commands.excel2json.lists_compliance_checks import _check_one_col
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_one_group_for_erroneous_entries
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_one_hierarchy
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_one_node_for_translations
+from dsp_tools.commands.excel2json.lists_compliance_checks import _check_sheet_for_erroneous_entries
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_sheet_if_any_nodes_miss_translations
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_warn_unusual_columns
 from dsp_tools.commands.excel2json.lists_compliance_checks import _df_shape_compliance
 from dsp_tools.commands.excel2json.lists_compliance_checks import _make_columns
 from dsp_tools.commands.excel2json.models.input_error import ListSheetComplianceProblem
+from dsp_tools.commands.excel2json.models.input_error import ListSheetContentProblem
 from dsp_tools.commands.excel2json.models.input_error import MissingNodeTranslationProblem
 from dsp_tools.commands.excel2json.models.input_error import MissingTranslationsSheetProblem
 from dsp_tools.commands.excel2json.models.input_error import NodesPerRowProblem
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
+from dsp_tools.models.exceptions import InputError
 
 
 class TestShapeCompliance:
@@ -359,6 +363,68 @@ def test_make_columns() -> None:
     assert len(res) == 2
     assert set(res[0]) == {"en_1", "de_1", "fr_1"}
     assert set(res[1]) == {"en_2", "de_2", "fr_2"}
+
+
+class TestCheckAllExcelForRowProblems:
+    def test_all_good(self) -> None:
+        df_1 = pd.DataFrame(
+            {"en_list": ["list1", "list1", "list1", "list1"], "en_1": [pd.NA, "node1", "node2", "node3"]}
+        )
+        df_2 = pd.DataFrame(
+            {
+                "en_list": ["list1", "list1", "list1", "list1", "list1", "list1", "list1", "list1"],
+                "en_1": [pd.NA, "node1", "node1", "node1", "node1", "node2", "node2", "node3"],
+                "en_2": [pd.NA, pd.NA, "node1.1", "node1.1", "node1.2", pd.NA, "node2.1", pd.NA],
+                "en_3": [pd.NA, pd.NA, pd.NA, "node1.1.1", pd.NA, pd.NA, pd.NA, pd.NA],
+            }
+        )
+        df_dict = {"file1": {"sheet1": df_1}, "file2": {"sheet2": df_2}}
+        assert not _check_all_excel_for_erroneous_entries(df_dict)
+
+    def test_all_problem(self) -> None:
+        df_1 = pd.DataFrame({"en_list": ["list1", "list1", "list1", "list1"], "en_1": [pd.NA, "node1", pd.NA, "node3"]})
+        df_2 = pd.DataFrame(
+            {
+                "en_list": ["list1", "list1", "list1", "list1", "list1", "list1"],
+                "en_1": [pd.NA, "node1", "node1", "node1", "node2", "node3"],
+                "en_2": [pd.NA, pd.NA, "node1.1", "node1.2", "node2.1", pd.NA],
+            }
+        )
+        df_dict = {"file1": {"sheet1": df_1}, "file2": {"sheet2": df_2}}
+        expected = regex.escape(
+            "\nThe excel file(s) used to create the list sections have the following problem(s):\n\n"
+            "---------------------------------------\n\n"
+            "The excel 'file1' has the following problem(s):\n"
+            "----------------------------\n"
+            "The Excel sheet 'sheet1' has the following problem(s):\n"
+            "    - Row Number: '4' Column must be filled: en_1\n\n"
+            "---------------------------------------\n\n"
+            "The excel 'file2' has the following problem(s):\n"
+            "----------------------------\n"
+            "The Excel sheet 'sheet2' has the following problem(s):\n"
+            "    - Row Number: '6' Columns must be empty: en_2"
+        )
+        with pytest.raises(InputError, match=expected):
+            _check_all_excel_for_erroneous_entries(df_dict)
+
+
+class TestOneSheetErrors:
+    def test_all_good_flat(self) -> None:
+        df = pd.DataFrame({"en_list": ["list1", "list1", "list1", "list1"], "en_1": [pd.NA, "node1", "node2", "node3"]})
+        assert not _check_sheet_for_erroneous_entries(df, "name")
+
+    def test_problem(self) -> None:
+        df = pd.DataFrame(
+            {
+                "en_list": ["list1", "list1", "list1", "list1", "list1", "list1"],
+                "en_1": [pd.NA, "node1", "node1", "node1", "node2", "node3"],
+                "en_2": [pd.NA, pd.NA, "node1.1", "node1.2", "node2.1", pd.NA],
+            }
+        )
+        res = _check_sheet_for_erroneous_entries(df, "name")
+        assert isinstance(res, ListSheetContentProblem)
+        assert res.sheet_name == "name"
+        assert len(res.problems) == 1
 
 
 class TestCheckForErroneousEntries:

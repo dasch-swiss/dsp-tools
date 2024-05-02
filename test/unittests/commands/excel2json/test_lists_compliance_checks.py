@@ -8,6 +8,7 @@ import regex
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_all_excel_for_erroneous_entries
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_all_excels_if_any_nodes_miss_translations
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_all_expected_translations_present
+from dsp_tools.commands.excel2json.lists_compliance_checks import _check_all_for_complete_duplicates
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_for_erroneous_entries
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_min_num_col_present
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_minimum_rows
@@ -15,12 +16,14 @@ from dsp_tools.commands.excel2json.lists_compliance_checks import _check_one_col
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_one_group_for_erroneous_entries
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_one_hierarchy
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_one_node_for_translations
+from dsp_tools.commands.excel2json.lists_compliance_checks import _check_sheet_for_complete_duplicates
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_sheet_for_erroneous_entries
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_sheet_if_any_nodes_miss_translations
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_warn_unusual_columns
 from dsp_tools.commands.excel2json.lists_compliance_checks import _df_shape_compliance
 from dsp_tools.commands.excel2json.lists_compliance_checks import _make_columns
 from dsp_tools.commands.excel2json.lists_compliance_checks import _make_formal_excel_compliance_check
+from dsp_tools.commands.excel2json.models.input_error import DuplicatesInSheetProblem
 from dsp_tools.commands.excel2json.models.input_error import ListSheetComplianceProblem
 from dsp_tools.commands.excel2json.models.input_error import ListSheetContentProblem
 from dsp_tools.commands.excel2json.models.input_error import MissingNodeTranslationProblem
@@ -91,6 +94,57 @@ class TestFormalExcelCompliance:
         )
         with pytest.raises(InputError, match=expected):
             _make_formal_excel_compliance_check(df_dict)
+
+
+class TestCheckExcelsForDuplicates:
+    def test_good(self) -> None:
+        df_1 = pd.DataFrame(
+            {"en_list": ["list1", "list1", "list1", "list1"], "en_1": [pd.NA, "node1", "node2", "node3"]}
+        )
+        df_2 = pd.DataFrame(
+            {
+                "en_list": ["list1", "list1", "list1", "list1", "list1", "list1", "list1", "list1"],
+                "de_list": ["list1", "list1", "list1", "list1", "list1", "list1", "list1", "list1"],
+                "en_1": [pd.NA, "node1", "node1", "node1", "node1", "node2", "node2", "node3"],
+                "de_1": [pd.NA, "node1", "node1", "node1", "node1", "node2", "node2", "node3"],
+                "en_2": [pd.NA, pd.NA, "node1.1", "node1.1", "node1.2", pd.NA, "node2.1", pd.NA],
+                "de_2": [pd.NA, pd.NA, "node1.1", "node1.1", "node1.2", pd.NA, "node2.1", pd.NA],
+                "en_3": [pd.NA, pd.NA, pd.NA, "node1.1.1", pd.NA, pd.NA, pd.NA, pd.NA],
+                "de_3": [pd.NA, pd.NA, pd.NA, "node1.1.1", pd.NA, pd.NA, pd.NA, pd.NA],
+            }
+        )
+        df_dict = {"file1": {"sheet1": df_1}, "file2": {"sheet2": df_2}}
+        _check_all_for_complete_duplicates(df_dict)
+
+    def test_problem(self) -> None:
+        df_1 = pd.DataFrame(
+            {"en_list": ["list1", "list1", "list1", "list1"], "en_1": [pd.NA, "node1", "node1", "node3"]}
+        )
+        df_dict = {"file1": {"sheet1": df_1}}
+        expected = regex.escape(
+            "\nThe excel file(s) used to create the list sections have the following problem(s):\n\n"
+            "---------------------------------------\n\n"
+            "The excel 'file1' has the following problem(s):\n"
+            "----------------------------\n"
+            "The excel sheet 'sheet1' contains duplicates ('ID (optional)' is excluded) in the following rows:\n"
+            "    - 3\n"
+            "    - 4"
+        )
+        with pytest.raises(InputError, match=expected):
+            _check_all_for_complete_duplicates(df_dict)
+
+
+class TestCheckForDuplicates:
+    def test_good(self) -> None:
+        test_df = pd.DataFrame({"en_list": ["a", "b", "c"], "en_1": ["d", "e", "f"]})
+        assert not _check_sheet_for_complete_duplicates(test_df, "sheet")
+
+    def test_problem(self) -> None:
+        test_df = pd.DataFrame({"en_list": ["a", "a", "a"], "en_1": ["b", "b", "b"], "en_2": ["d", "c", "d"]})
+        res = _check_sheet_for_complete_duplicates(test_df, "sheet")
+        res = cast(DuplicatesInSheetProblem, res)
+        assert res.rows == [0, 2]
+        assert res.sheet_name == "sheet"
 
 
 class TestShapeCompliance:

@@ -318,6 +318,20 @@ class ListSheetContentProblem:
 
 
 @dataclass(frozen=True)
+class DuplicatesInSheetProblem:
+    sheet_name: str
+    rows: list[int]
+
+    def execute_error_protocol(self) -> str:
+        msg = [
+            f"The excel sheet '{self.sheet_name}' contains duplicates "
+            f"('ID (optional)' is excluded) in the following rows:",
+        ]
+        msg.extend([f"{x + 2}" for x in self.rows])
+        return list_separator.join(msg)
+
+
+@dataclass(frozen=True)
 class MissingNodeTranslationProblem:
     empty_columns: list[str]
     index_num: int

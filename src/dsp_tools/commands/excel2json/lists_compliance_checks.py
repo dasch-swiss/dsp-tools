@@ -8,6 +8,7 @@ import pandas as pd
 import regex
 from loguru import logger
 
+from dsp_tools.commands.excel2json.models.input_error import DuplicatesInSheetProblem
 from dsp_tools.commands.excel2json.models.input_error import ListCreationProblem
 from dsp_tools.commands.excel2json.models.input_error import ListExcelProblem
 from dsp_tools.commands.excel2json.models.input_error import ListSheetComplianceProblem
@@ -38,8 +39,44 @@ def make_all_formal_excel_compliance_checks(
     Raises:
         InputError: If any unexpected input is found in the excel files.
     """
+    _check_all_for_complete_duplicates(excel_dfs)
     _make_formal_excel_compliance_check(excel_dfs)
     _make_all_list_content_compliance_checks(excel_dfs)
+
+
+def _check_all_for_complete_duplicates(
+    excel_dfs: dict[str, dict[str, pd.DataFrame]],
+) -> None:
+    """
+    This function checks if the excel files contain complete duplicates.
+
+    Args:
+        excel_dfs: dictionary with the excel file name as key
+                    and a dictionary with the sheet name as key and the dataframe.
+
+    Raises:
+        InputError: If any complete duplicates are found in the excel files.
+    """
+    problems = []
+    for filename, excel_sheets in excel_dfs.items():
+        complete_duplicates: list[Problem] = [
+            p
+            for sheet_name, df in excel_sheets.items()
+            if (p := _check_sheet_for_complete_duplicates(df, sheet_name)) is not None
+        ]
+        if complete_duplicates:
+            problems.append(ListExcelProblem(filename, complete_duplicates))
+    if problems:
+        msg = ListCreationProblem(problems).execute_error_protocol()
+        logger.error(msg)
+        raise InputError(msg)
+
+
+def _check_sheet_for_complete_duplicates(df: pd.DataFrame, sheet_name: str) -> DuplicatesInSheetProblem | None:
+    lang_columns = [col for col in df.columns if regex.search(r"^(en|de|fr|it|rm)_(\d+|list)$", col)]
+    if (duplicate_filter := df.duplicated(lang_columns, keep=False)).any():
+        return DuplicatesInSheetProblem(sheet_name, duplicate_filter.index[duplicate_filter].tolist())
+    return None
 
 
 def _make_formal_excel_compliance_check(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> None:

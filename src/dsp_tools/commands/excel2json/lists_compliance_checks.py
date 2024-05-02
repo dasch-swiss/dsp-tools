@@ -13,10 +13,13 @@ from dsp_tools.commands.excel2json.models.input_error import ListSheetCompliance
 from dsp_tools.commands.excel2json.models.input_error import ListSheetContentProblem
 from dsp_tools.commands.excel2json.models.input_error import MissingNodeTranslationProblem
 from dsp_tools.commands.excel2json.models.input_error import MissingTranslationsSheetProblem
+from dsp_tools.commands.excel2json.models.input_error import NodesPerRowProblem
 from dsp_tools.commands.excel2json.models.input_error import Problem
 from dsp_tools.commands.excel2json.new_lists import _get_all_languages_for_columns
+from dsp_tools.commands.excel2json.new_lists import _get_columns_of_preferred_lang
 from dsp_tools.commands.excel2json.new_lists import _get_hierarchy_nums
 from dsp_tools.commands.excel2json.new_lists import _get_lang_string_from_column_name
+from dsp_tools.commands.excel2json.new_lists import _get_preferred_language
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
 
@@ -198,7 +201,50 @@ def _check_all_excel_for_missing_node_rows(excel_dfs: dict[str, dict[str, pd.Dat
 
 
 def _check_sheet_for_missing_node_rows(df: pd.DataFrame, sheet_name: str) -> ListSheetContentProblem | None:
-    problems: list[Problem] = [df]
+    preferred_lang = _get_preferred_language(df.columns)
+    preferred_cols = _get_columns_of_preferred_lang(df.columns, preferred_lang)
+    preferred_cols.append(f"{preferred_lang}_list")
+    preferred_cols = sorted(preferred_cols)
+
+    problems: list[Problem] = []
     if problems:
         return ListSheetContentProblem(sheet_name, problems)
     return None
+
+
+def _find_missing_rows(df: pd.DataFrame, columns: list[str]) -> list[NodesPerRowProblem]:
+    problems = []
+    for i, col in enumerate(columns):
+        to_check_cols = columns[i:]
+        problems.extend(_check_one_column_group_for_missing_rows(df, to_check_cols))
+    return problems
+
+
+def _check_one_column_group_for_missing_rows(df: pd.DataFrame, columns: list[str]) -> list[NodesPerRowProblem]:
+    grouped = df.groupby(columns[0])
+    problems = []
+    for name, group in grouped:
+        if name == "nan":
+            problems.extend(_check_all_target_cols_empty(group, columns))
+        else:
+            problems.extend(_check_first_of_group_is_empty(group, columns))
+    return problems
+
+
+def _check_first_of_group_is_empty(group: pd.DataFrame, target_cols: list[str]) -> list[NodesPerRowProblem]:
+    problems = []
+    first_col = min(group.index)
+    if not group.loc[first_col, target_cols[1:]].isna().all():
+        problems.append(NodesPerRowProblem(target_cols[1:], int(first_col), should_be_empty=True))
+    if (missing := group[target_cols[1]].isna()).any():
+        for i, row in group[missing].iterrows():
+            problems.append(NodesPerRowProblem([target_cols[1]], int(str(i)), should_be_empty=False))
+    return problems
+
+
+def _check_all_target_cols_empty(df: pd.DataFrame, target_cols: list[str]) -> list[NodesPerRowProblem]:
+    all_checks = []
+    for i, row in df.iterrows():
+        if not row[target_cols].isna().all():
+            all_checks.append(NodesPerRowProblem(target_cols, int(str(i)), should_be_empty=True))
+    return all_checks

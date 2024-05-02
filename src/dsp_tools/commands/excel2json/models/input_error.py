@@ -339,3 +339,32 @@ class MissingTranslationsSheetProblem:
         nodes_sorted = sorted(self.node_problems, key=lambda x: x.row_num)
         nodes = list_separator.join([x.execute_error_protocol() for x in nodes_sorted])
         return msg + nodes
+
+
+@dataclass(frozen=True)
+class MissingNodeSheetProblem:
+    sheet: str
+    node_problems: list[NodesPerRowProblem]
+
+    def execute_error_protocol(self) -> str:
+        msg = (
+            f"Each list node and list, must have its own row in the excel. "
+            f"The following rows are incorrect:{list_separator}"
+        )
+        nodes_sorted = sorted(self.node_problems, key=lambda x: x.row_num)
+        nodes = list_separator.join([x.execute_error_protocol() for x in nodes_sorted])
+        return msg + nodes
+
+
+@dataclass(frozen=True)
+class NodesPerRowProblem:
+    column_names: list[str]
+    row_num: int
+    should_be_empty: bool
+
+    def execute_error_protocol(self) -> str:
+        if self.should_be_empty:
+            description = "Columns must be empty"
+        else:
+            description = "Column must be filled"
+        return f"Row Number: '{self.row_num}' {description}: {', '.join(self.column_names)}"

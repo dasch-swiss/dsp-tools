@@ -570,8 +570,8 @@ def make_boolean_prop(
         value: a boolean value as str/bool/int, or as str/bool/int inside a PropertyElement
         calling_resource: the name of the parent resource (for better error messages)
 
-    Warns:
-        if the value is not a valid boolean
+    Raises:
+        BaseError: if the value is not a valid boolean
 
     Returns:
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
@@ -595,10 +595,9 @@ def make_boolean_prop(
     elif isinstance(value, (str, bool, int)):
         value_new = PropertyElement(_format_bool(value, name, calling_resource))
     else:
-        msg = (
+        raise BaseError(
             f"Failed validation in resource '{calling_resource}', property '{name}': '{value}' is not a valid boolean."
         )
-        warnings.warn(DspToolsUserWarning(msg))
 
     # make xml structure of the value
     prop_ = etree.Element(
@@ -836,7 +835,7 @@ def make_decimal_prop(
             **kwargs,  # type: ignore[arg-type]
             nsmap=xml_namespace_map,
         )
-        value_.text = str(float(val.value))
+        value_.text = str(val.value)
         prop_.append(value_)
 
     return prop_
@@ -1066,7 +1065,7 @@ def make_integer_prop(
             **kwargs,  # type: ignore[arg-type]
             nsmap=xml_namespace_map,
         )
-        value_.text = str(int(val.value))
+        value_.text = str(val.value)
         prop_.append(value_)
 
     return prop_

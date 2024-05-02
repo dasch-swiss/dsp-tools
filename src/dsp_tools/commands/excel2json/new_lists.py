@@ -86,8 +86,8 @@ def _make_list_nodes_from_df(df: pd.DataFrame) -> tuple[dict[str, ListNode], lis
     columns_for_nodes = _get_reverse_sorted_columns_list(df)
     problems = []
     node_dict = {}
-    for _, row in df[1:].iterrows():
-        node = _make_one_node(row, columns_for_nodes)
+    for i, row in df[1:].iterrows():
+        node = _make_one_node(row, columns_for_nodes, str(i))
         match node:
             case ListNode():
                 node_dict[node.id_] = node
@@ -96,15 +96,11 @@ def _make_list_nodes_from_df(df: pd.DataFrame) -> tuple[dict[str, ListNode], lis
     return node_dict, problems
 
 
-def _make_one_node(row: pd.Series[Any], list_of_columns: list[list[str]]) -> ListNode | ListNodeProblem:
+def _make_one_node(row: pd.Series[Any], list_of_columns: list[list[str]], index: str) -> ListNode | ListNodeProblem:
     for col_group in list_of_columns:
         if labels := _get_labels(row, col_group):
-            return ListNode.create(
-                id_=row["id"], labels=labels, row_number=row["index"], parent_id=row["parent_id"], sub_nodes=[]
-            )
-    return ListNodeProblem(
-        node_id=row["id"], problems={"Unknown": f"Unknown problem occurred in row number: {row["index"]}"}
-    )
+            return ListNode.create(id_=row["id"], labels=labels, parent_id=row["parent_id"], sub_nodes=[])
+    return ListNodeProblem(node_id=row["id"], problems={"Unknown": f"Unknown problem occurred in row number: {index}"})
 
 
 def _get_reverse_sorted_columns_list(df: pd.DataFrame) -> list[list[str]]:

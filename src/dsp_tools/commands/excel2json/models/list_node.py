@@ -14,7 +14,6 @@ from dsp_tools.commands.excel2json.models.input_error import ListSheetProblem
 class ListNode:
     id_: str
     labels: dict[str, str]
-    row_number: int
     parent_id: str
     sub_nodes: list[ListNode] = field(default_factory=list)
 
@@ -23,7 +22,6 @@ class ListNode:
         cls,
         id_: str | int | float,
         labels: dict[str, str],
-        row_number: int,
         parent_id: str,
         sub_nodes: list[ListNode],
     ) -> ListNode | ListNodeProblem:
@@ -42,7 +40,7 @@ class ListNode:
             user_problem["parent_id"] = "The node does not have a parent node specified."
         if user_problem:
             return ListNodeProblem(id_, user_problem)
-        return cls(id_=id_, labels=labels, row_number=row_number, parent_id=parent_id, sub_nodes=sub_nodes)
+        return cls(id_=id_, labels=labels, parent_id=parent_id, sub_nodes=sub_nodes)
 
     def to_dict(self) -> dict[str, Any]:
         node = self._make_own_node()

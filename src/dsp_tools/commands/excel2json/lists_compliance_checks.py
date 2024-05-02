@@ -125,7 +125,7 @@ def _check_all_expected_translations_present(cols: pd.Index[str]) -> dict[str, s
     if missing_cols := expected_cols - set(cols):
         return {
             "missing translations": f"All nodes must be translated into the same languages. "
-            f"One or more translations for the following column(s) are missing: "
+            f"Based on the languages used, the following column(s) are missing: "
             f"{', '.join(missing_cols)}"
         }
     return {}

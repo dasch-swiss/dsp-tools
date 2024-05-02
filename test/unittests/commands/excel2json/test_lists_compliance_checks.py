@@ -83,7 +83,7 @@ class TestFormalExcelCompliance:
             "----------------------------\n"
             "The excel sheet 'sheet2' has the following problem(s):\n"
             "    - missing translations': All nodes must be translated into the same languages. "
-            "One or more translations for the following column(s) are missing: de_3\n"
+            "Based on the languages used, the following column(s) are missing: de_3\n"
             "----------------------------\n"
             "The excel sheet 'sheet3' has the following problem(s):\n"
             "    - minimum rows': The Excel sheet must contain at least two rows, "
@@ -123,7 +123,7 @@ class TestShapeCompliance:
         test_df = pd.DataFrame({"ID (optional)": [1, 2], "en_list": ["a", "b"], "en_1": ["b", "c"], "de_1": ["b", "c"]})
         expected = {
             "missing translations": "All nodes must be translated into the same languages. "
-            "One or more translations for the following column(s) are missing: "
+            "Based on the languages used, the following column(s) are missing: "
             "de_list"
         }
         res = _df_shape_compliance(test_df, "sheet")
@@ -197,7 +197,7 @@ class TestCheckAllTranslationsPresent:
         test_cols = pd.Index(["ID (optional)", "en_list", "de_list", "de_1", "en_1", "de_2"])
         expected = {
             "missing translations": "All nodes must be translated into the same languages. "
-            "One or more translations for the following column(s) are missing: "
+            "Based on the languages used, the following column(s) are missing: "
             "en_2"
         }
         assert _check_all_expected_translations_present(test_cols) == expected
@@ -206,7 +206,7 @@ class TestCheckAllTranslationsPresent:
         test_cols = pd.Index(["ID (optional)", "en_list", "de_1", "en_1", "de_2", "en_2"])
         expected = {
             "missing translations": "All nodes must be translated into the same languages. "
-            "One or more translations for the following column(s) are missing: "
+            "Based on the languages used, the following column(s) are missing: "
             "de_list"
         }
         assert _check_all_expected_translations_present(test_cols) == expected

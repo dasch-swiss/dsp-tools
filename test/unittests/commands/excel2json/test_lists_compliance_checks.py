@@ -6,16 +6,16 @@ import pytest
 import regex
 
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_all_expected_translations_present
-from dsp_tools.commands.excel2json.lists_compliance_checks import _check_all_target_cols_empty
-from dsp_tools.commands.excel2json.lists_compliance_checks import _check_first_of_group_is_empty
+from dsp_tools.commands.excel2json.lists_compliance_checks import _check_for_erroneous_entries
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_min_num_col_present
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_minimum_rows
+from dsp_tools.commands.excel2json.lists_compliance_checks import _check_one_column_groups_for_erroneous_entries
+from dsp_tools.commands.excel2json.lists_compliance_checks import _check_one_group_for_erroneous_entries
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_one_hierarchy
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_one_node_for_translations
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_sheet_if_any_nodes_miss_translations
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_warn_unusual_columns
 from dsp_tools.commands.excel2json.lists_compliance_checks import _df_shape_compliance
-from dsp_tools.commands.excel2json.lists_compliance_checks import _find_missing_rows
 from dsp_tools.commands.excel2json.lists_compliance_checks import _make_columns
 from dsp_tools.commands.excel2json.models.input_error import ListSheetComplianceProblem
 from dsp_tools.commands.excel2json.models.input_error import MissingNodeTranslationProblem
@@ -361,7 +361,7 @@ def test_make_columns() -> None:
     assert set(res[1]) == {"en_2", "de_2", "fr_2"}
 
 
-class TestFindMissingRows:
+class TestCheckForErroneousEntries:
     def test_all_good_subnodes(self) -> None:
         df = pd.DataFrame(
             {
@@ -371,11 +371,11 @@ class TestFindMissingRows:
                 "en_3": [pd.NA, pd.NA, pd.NA, "node1.1.1", pd.NA, pd.NA, pd.NA, pd.NA],
             }
         )
-        assert not _find_missing_rows(df, ["en_list", "en_1", "en_2", "en_3"])
+        assert not _check_for_erroneous_entries(df, ["en_list", "en_1", "en_2", "en_3"])
 
     def test_all_good_flat(self) -> None:
         df = pd.DataFrame({"en_list": ["list1", "list1", "list1", "list1"], "en_1": [pd.NA, "node1", "node2", "node3"]})
-        assert not _find_missing_rows(df, ["en_list", "en_1"])
+        assert not _check_for_erroneous_entries(df, ["en_list", "en_1"])
 
     def test_missing_row(self) -> None:
         df = pd.DataFrame(
@@ -387,22 +387,62 @@ class TestFindMissingRows:
             }
         )
         # "node1.1" & "node2" is missing
-        res = _find_missing_rows(df, ["en_list", "en_1", "en_2", "en_3"])
-        assert not res
+        res = _check_for_erroneous_entries(df, ["en_list", "en_1", "en_2", "en_3"])
+        res = sorted(res, key=lambda x: x.row_num)
+        assert len(res) == 2
+        assert isinstance(res[0], NodesPerRowProblem)
+        assert res[0].column_names == ["en_3"]
+        assert res[0].row_num == 2
+        assert res[0].should_be_empty
+        assert isinstance(res[1], NodesPerRowProblem)
+        assert res[1].column_names == ["en_2", "en_3"]
+        assert res[1].row_num == 4
+        assert res[1].should_be_empty
 
 
-class TestCheckFirstOfGroupEmpty:
+class TestCheckOneColumnGroupsForErroneousEntries:
+    def test_good(self) -> None:
+        df = pd.DataFrame(
+            {"one": ["a", "b", "b", "c"], "two": [pd.NA, "bb", "bb", "cc"], "other": ["a", "b", pd.NA, pd.NA]},
+            index=[2, 3, 4, 5],
+        )
+        assert not _check_one_column_groups_for_erroneous_entries(df, ["two"])
+
+    def test_missing(self) -> None:
+        df = pd.DataFrame(
+            {"one": ["a", "b", "b", "c"], "two": [pd.NA, "bb", pd.NA, pd.NA], "other": ["a", "b", pd.NA, pd.NA]},
+            index=[2, 3, 4, 5],
+        )
+        res = _check_one_column_groups_for_erroneous_entries(df, ["one", "two"])
+        assert len(res) == 2
+        assert isinstance(res[0], NodesPerRowProblem)
+        assert res[0].column_names == ["two"]
+        assert res[0].row_num == 3
+        assert res[0].should_be_empty
+        assert isinstance(res[1], NodesPerRowProblem)
+        assert res[1].column_names == ["two"]
+        assert res[1].row_num == 4
+        assert not res[1].should_be_empty
+
+
+class TestCheckOneGroupForErroneousEntries:
     def test_good(self) -> None:
         df = pd.DataFrame(
             {"one": ["a", "b", "c"], "two": [pd.NA, "bb", "cc"], "other": ["a", "b", pd.NA]}, index=[2, 3, 4]
         )
-        assert not _check_first_of_group_is_empty(df, ["one", "two"])
+        assert not _check_one_group_for_erroneous_entries(df, ["one", "two"])
+
+    def test_good_one_col(self) -> None:
+        df = pd.DataFrame(
+            {"one": ["a", "b", "c"], "two": [pd.NA, "bb", "cc"], "other": ["a", "b", pd.NA]}, index=[2, 3, 4]
+        )
+        assert not _check_one_group_for_erroneous_entries(df, ["two"])
 
     def test_filled_first_row(self) -> None:
         df = pd.DataFrame(
             {"one": ["a", "b", "c"], "two": ["filled", "bb", "cc"], "other": ["a", "b", pd.NA]}, index=[2, 3, 4]
         )
-        res = _check_first_of_group_is_empty(df, ["one", "two"])
+        res = _check_one_group_for_erroneous_entries(df, ["one", "two"])
         assert len(res) == 1
         assert isinstance(res[0], NodesPerRowProblem)
         assert res[0].column_names == ["two"]
@@ -414,7 +454,7 @@ class TestCheckFirstOfGroupEmpty:
             {"one": ["a", "b", "c", "d"], "two": [pd.NA, pd.NA, "cc", pd.NA], "other": ["a", "b", pd.NA, "d"]},
             index=[2, 3, 4, 5],
         )
-        res = _check_first_of_group_is_empty(df, ["one", "two"])
+        res = _check_one_group_for_erroneous_entries(df, ["one", "two"])
         assert len(res) == 2
         assert isinstance(res[0], NodesPerRowProblem)
         assert res[0].column_names == ["two"]
@@ -424,17 +464,3 @@ class TestCheckFirstOfGroupEmpty:
         assert res[1].column_names == ["two"]
         assert res[1].row_num == 5
         assert not res[1].should_be_empty
-
-
-class TestCheckAllTargetColsEmpty:
-    def test_check_all_target_cols_empty_good(self) -> None:
-        df = pd.DataFrame({"one": [pd.NA, pd.NA, pd.NA], "two": [pd.NA, pd.NA, pd.NA], "other": ["a", "b", pd.NA]})
-        assert not _check_all_target_cols_empty(df, ["one", "two"])
-
-    def test_check_all_target_cols_empty_bad(self) -> None:
-        df = pd.DataFrame({"one": [pd.NA, pd.NA, pd.NA], "two": ["a", pd.NA, pd.NA], "other": ["a", "b", pd.NA]})
-        res = _check_all_target_cols_empty(df, ["one", "two"])
-        assert len(res) == 1
-        assert res[0].column_names == ["one", "two"]
-        assert res[0].row_num == 0
-        assert res[0].should_be_empty

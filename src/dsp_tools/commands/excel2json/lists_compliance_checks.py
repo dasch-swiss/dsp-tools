@@ -190,7 +190,7 @@ def _check_all_excel_for_missing_node_rows(excel_dfs: dict[str, dict[str, pd.Dat
         missing_rows: list[Problem] = [
             p
             for sheet_name, df in excel_dfs.items()
-            if (p := _check_sheet_for_missing_node_rows(df[filename], sheet_name)) is not None
+            if (p := _check_sheet_for_erroneous_entries(df[filename], sheet_name)) is not None
         ]
         if missing_rows:
             problems.append(ListExcelProblem(filename, missing_rows))
@@ -200,7 +200,7 @@ def _check_all_excel_for_missing_node_rows(excel_dfs: dict[str, dict[str, pd.Dat
         raise InputError(msg)
 
 
-def _check_sheet_for_missing_node_rows(df: pd.DataFrame, sheet_name: str) -> ListSheetContentProblem | None:
+def _check_sheet_for_erroneous_entries(df: pd.DataFrame, sheet_name: str) -> ListSheetContentProblem | None:
     preferred_lang = _get_preferred_language(df.columns)
     preferred_cols = _get_columns_of_preferred_lang(df.columns, preferred_lang)
     preferred_cols.append(f"{preferred_lang}_list")
@@ -212,40 +212,31 @@ def _check_sheet_for_missing_node_rows(df: pd.DataFrame, sheet_name: str) -> Lis
     return None
 
 
-def _find_missing_rows(df: pd.DataFrame, columns: list[str]) -> list[NodesPerRowProblem]:
+def _check_for_erroneous_entries(df: pd.DataFrame, columns: list[str]) -> list[NodesPerRowProblem]:
     problems = []
     for i, col in enumerate(columns):
         to_check_cols = columns[i:]
-        problems.extend(_check_one_column_group_for_missing_rows(df, to_check_cols))
+        problems.extend(_check_one_column_groups_for_erroneous_entries(df, to_check_cols))
     return problems
 
 
-def _check_one_column_group_for_missing_rows(df: pd.DataFrame, columns: list[str]) -> list[NodesPerRowProblem]:
+def _check_one_column_groups_for_erroneous_entries(df: pd.DataFrame, columns: list[str]) -> list[NodesPerRowProblem]:
     grouped = df.groupby(columns[0])
     problems = []
     for name, group in grouped:
-        if name == "nan":
-            problems.extend(_check_all_target_cols_empty(group, columns))
-        else:
-            problems.extend(_check_first_of_group_is_empty(group, columns))
+        problems.extend(_check_one_group_for_erroneous_entries(group, columns))
     return problems
 
 
-def _check_first_of_group_is_empty(group: pd.DataFrame, target_cols: list[str]) -> list[NodesPerRowProblem]:
+def _check_one_group_for_erroneous_entries(group: pd.DataFrame, target_cols: list[str]) -> list[NodesPerRowProblem]:
     problems = []
     first_col = min(group.index)
     if not group.loc[first_col, target_cols[1:]].isna().all():
         problems.append(NodesPerRowProblem(target_cols[1:], int(first_col), should_be_empty=True))
+    if not len(target_cols) > 1:
+        return problems
     remaining_rows_of_next_column = group.loc[group.index[1:], target_cols[1]]
     if (missing := remaining_rows_of_next_column.isna()).any():
         for i, row in group[1:][missing].iterrows():
             problems.append(NodesPerRowProblem([target_cols[1]], int(str(i)), should_be_empty=False))
     return problems
-
-
-def _check_all_target_cols_empty(df: pd.DataFrame, target_cols: list[str]) -> list[NodesPerRowProblem]:
-    all_checks = []
-    for i, row in df.iterrows():
-        if not row[target_cols].isna().all():
-            all_checks.append(NodesPerRowProblem(target_cols, int(str(i)), should_be_empty=True))
-    return all_checks

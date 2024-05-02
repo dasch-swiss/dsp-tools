@@ -798,12 +798,9 @@
 
     <!-- video segment -->
     <video-segment label="Segment of video_thing_1" id="video_segment_0" permissions="res-default">
-        <resptr-prop name="isSegmentOf">
-            <resptr permissions="prop-default">video_thing_1</resptr>
-        </resptr-prop>
-        <interval-prop name="hasSegmentBounds">
-            <interval permissions="prop-default">+.1:+.9</interval>
-        </interval-prop>
+        <isSegmentOf>video_thing_1</isSegmentOf>
+        <hasSegmentStart>10.5</hasSegmentStart>
+        <hasSegmentEnd>20</hasSegmentEnd>
         <text-prop name="hasComment">
             <text encoding="xml" permissions="prop-default">Comment of video segment</text>
         </text-prop>
@@ -824,12 +821,9 @@
 
     <!-- audio segment -->
     <audio-segment label="Segment of audio_thing_1" id="audio_segment_0" permissions="res-default">
-        <resptr-prop name="isSegmentOf">
-            <resptr permissions="prop-default">audio_thing_1</resptr>
-        </resptr-prop>
-        <interval-prop name="hasSegmentBounds">
-            <interval permissions="prop-default">+.1:+.9</interval>
-        </interval-prop>
+        <isSegmentOf>audio_thing_1</isSegmentOf>
+        <hasSegmentStart>10.5</hasSegmentStart>
+        <hasSegmentEnd>20</hasSegmentEnd>
         <text-prop name="hasComment">
             <text encoding="xml" permissions="prop-default">Comment of audio segment</text>
         </text-prop>

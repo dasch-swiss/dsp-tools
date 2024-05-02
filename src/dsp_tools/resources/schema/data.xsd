@@ -365,20 +365,34 @@
         <xs:attribute name="name" type="xs:string" use="required" fixed="hasComment"/>
     </xs:complexType>
 
-    <!-- builtin_hasSegmentBounds_prop_type -->
-    <xs:complexType name="builtin_hasSegmentBounds_prop_type">
-        <xs:sequence>
-            <xs:element name="interval" type="interval_type" minOccurs="1" maxOccurs="1"/>
-        </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required" fixed="hasSegmentBounds"/>
+    <!-- builtin_hasSegmentStart_prop_type -->
+    <xs:complexType name="builtin_hasSegmentStart_prop_type">
+        <xs:simpleContent>
+            <xs:extension base="xs:float">
+                <xs:attribute name="comment" type="xs:string"/>
+                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <!-- builtin_hasSegmentEnd_prop_type -->
+    <xs:complexType name="builtin_hasSegmentEnd_prop_type">
+        <xs:simpleContent>
+            <xs:extension base="xs:float">
+                <xs:attribute name="comment" type="xs:string"/>
+                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+            </xs:extension>
+        </xs:simpleContent>
     </xs:complexType>
 
     <!-- builtin_isSegmentOf_prop_type -->
     <xs:complexType name="builtin_isSegmentOf_prop_type">
-        <xs:sequence>
-            <xs:element name="resptr" type="resptr_type" minOccurs="1" maxOccurs="1"/>
-        </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required" fixed="isSegmentOf"/>
+        <xs:simpleContent>
+            <xs:extension base="nonEmptyString">
+                <xs:attribute name="comment" type="xs:string"/>
+                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+            </xs:extension>
+        </xs:simpleContent>
     </xs:complexType>
 
     <!-- builtin_hasTitle_prop_type -->
@@ -546,8 +560,9 @@
     <!-- video-segment tag -->
     <xs:complexType name="video_segment_type">
         <xs:all>
-            <xs:element name="resptr-prop" type="builtin_isSegmentOf_prop_type" minOccurs="1" maxOccurs="1"/>
-            <xs:element name="interval-prop" type="builtin_hasSegmentBounds_prop_type" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="isSegmentOf" type="builtin_isSegmentOf_prop_type" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="hasSegmentStart" type="builtin_hasSegmentStart_prop_type" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="hasSegmentEnd" type="builtin_hasSegmentEnd_prop_type" minOccurs="1" maxOccurs="1"/>
             <xs:element name="text-prop" type="builtin_hasComment_prop_type" minOccurs="0" maxOccurs="1"/>
             <xs:element name="text-prop" type="builtin_hasTitle_prop_type" minOccurs="0" maxOccurs="1"/>
             <xs:element name="text-prop" type="builtin_hasDescription_prop_type" minOccurs="0" maxOccurs="1"/>
@@ -565,8 +580,9 @@
     <!-- audio-segment tag -->
     <xs:complexType name="audio_segment_type">
         <xs:all>
-            <xs:element name="resptr-prop" type="builtin_isSegmentOf_prop_type" minOccurs="1" maxOccurs="1"/>
-            <xs:element name="interval-prop" type="builtin_hasSegmentBounds_prop_type" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="isSegmentOf" type="builtin_isSegmentOf_prop_type" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="hasSegmentStart" type="builtin_hasSegmentStart_prop_type" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="hasSegmentEnd" type="builtin_hasSegmentEnd_prop_type" minOccurs="1" maxOccurs="1"/>
             <xs:element name="text-prop" type="builtin_hasComment_prop_type" minOccurs="0" maxOccurs="1"/>
             <xs:element name="text-prop" type="builtin_hasTitle_prop_type" minOccurs="0" maxOccurs="1"/>
             <xs:element name="text-prop" type="builtin_hasDescription_prop_type" minOccurs="0" maxOccurs="1"/>

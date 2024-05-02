@@ -130,10 +130,11 @@ def _make_text_value_property_type_lookup(
     formatted_text = {
         _remove_default_prefix(p, default_onto) for p, _type in prop_list if _type == "salsah-gui:Richtext"
     }
-    formatted_text.add("hasComment")  # this is a knora-api property that can be used directly
+    formatted_text.update(["hasComment", "hasDescription"])  # knora-api properties that can be used directly
     unformatted_text = {
         _remove_default_prefix(p, default_onto) for p, _type in prop_list if _type != "salsah-gui:Richtext"
     }
+    unformatted_text.update(["hasTitle", "hasKeyword"])  # knora-api properties that can be used directly
     return PropertyTextValueTypes(formatted_text, unformatted_text)
 
 

@@ -27,7 +27,7 @@ from dsp_tools.models.exceptions import InputError
 
 def make_all_formal_excel_compliance_checks(
     excel_dfs: dict[str, dict[str, pd.DataFrame]],
-) -> list[ListExcelProblem]:
+) -> None:
     """
     This function checks if the excel files are compliant with the expected format.
 
@@ -35,24 +35,40 @@ def make_all_formal_excel_compliance_checks(
         excel_dfs: dictionary with the excel file name as key
                     and a dictionary with the sheet name as key and the dataframe.
 
-    Returns:
-        A list with the problems, or an empty list if there are no problems
+    Raises:
+        InputError: If any unexpected input is found in the excel files.
     """
-    return [
-        res
-        for filename in excel_dfs
-        if (res := _make_formal_excel_compliance_check(excel_dfs[filename], filename)) is not None
-    ]
+    _make_formal_excel_compliance_check(excel_dfs)
+    _make_all_list_content_compliance_checks(excel_dfs)
 
 
-def _make_formal_excel_compliance_check(excel_dfs: dict[str, pd.DataFrame], excel_name: str) -> ListExcelProblem | None:
-    problems = [p for sheet_name, df in excel_dfs.items() if (p := _df_shape_compliance(df, sheet_name)) is not None]
+def _make_formal_excel_compliance_check(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> None:
+    """
+    This function checks if the excel files are compliant with the expected format.
+
+    Args:
+        excel_dfs: dictionary with the excel file name as key
+                    and a dictionary with the sheet name as key and the dataframe.
+
+    Raises:
+        InputError: If any unexpected input is found in the excel files.
+    """
+    problems = []
+    for filename, excel_sheets in excel_dfs.items():
+        shape_problems: list[Problem] = [
+            p
+            for sheet_name, df in excel_dfs.items()
+            if (p := _df_shape_compliance(df[filename], sheet_name)) is not None
+        ]
+        if shape_problems:
+            problems.append(ListExcelProblem(filename, shape_problems))
     if problems:
-        return ListExcelProblem(excel_name, problems)
-    return None
+        msg = ListCreationProblem(problems).execute_error_protocol()
+        logger.error(msg)
+        raise InputError(msg)
 
 
-def _df_shape_compliance(df: pd.DataFrame, sheet_name: str) -> Problem | None:
+def _df_shape_compliance(df: pd.DataFrame, sheet_name: str) -> ListSheetComplianceProblem | None:
     problems = {}
     problems.update(_check_minimum_rows(df))
     problems.update(_check_min_num_col_present(df.columns))
@@ -117,7 +133,7 @@ def _check_all_expected_translations_present(cols: pd.Index[str]) -> dict[str, s
     return {}
 
 
-def make_all_list_content_compliance_checks(
+def _make_all_list_content_compliance_checks(
     excel_dfs: dict[str, dict[str, pd.DataFrame]],
 ) -> None:
     """

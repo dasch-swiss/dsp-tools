@@ -96,7 +96,14 @@ class ResourceCreateClient:
 
     def _make_values(self, resource: XMLResource) -> dict[str, Any]:
         def prop_name(p: XMLProperty) -> str:
-            return f"{p.name}Value" if p.valtype == "resptr" else p.name
+            if p.valtype != "resptr":
+                return p.name
+            elif p.name == "isSegmentOf" and resource.restype == "VideoSegment":
+                return "isVideoSegmentOf"
+            elif p.name == "isSegmentOf" and resource.restype == "AudioSegment":
+                return "isAudioSegmentOf"
+            else:
+                return f"{p.name}Value"
 
         def make_values(p: XMLProperty) -> list[dict[str, Any]]:
             return [self._make_value(v, p.valtype) for v in p.values]

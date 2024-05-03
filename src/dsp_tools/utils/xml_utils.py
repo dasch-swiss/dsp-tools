@@ -88,17 +88,7 @@ def _remove_qnames_and_transform_special_tags(
         elif elem.tag == "region":
             elem.attrib["restype"] = "Region"
             elem.tag = "resource"
-        elif elem.tag == "video-segment":
-            elem.attrib["restype"] = "VideoSegment"
-            elem.tag = "resource"
-            _transform_segment_tags(elem)
-        elif elem.tag == "audio-segment":
-            elem.attrib["restype"] = "AudioSegment"
-            elem.tag = "resource"
     return input_tree
-
-
-def _transform_segment_tags(resource_elem: etree._Element) -> None: ...  # noqa: ARG001
 
 
 def remove_comments_from_element_tree(

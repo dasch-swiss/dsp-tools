@@ -21,20 +21,20 @@ def _construct_ids(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> dict[str, d
             single_file_dict[sheet_name] = _complete_id_one_df(df, _get_preferred_language(df.columns))
         all_file_dict[filename] = single_file_dict
     all_file_dict = _resolve_duplicate_ids_all_excels(all_file_dict)
-    return _fill_parent_id_all_excels(all_file_dict)
+    return _fill_parent_id_col_all_excels(all_file_dict)
 
 
-def _fill_parent_id_all_excels(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> dict[str, dict[str, pd.DataFrame]]:
+def _fill_parent_id_col_all_excels(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> dict[str, dict[str, pd.DataFrame]]:
     all_file_dict = {}
     for filename, sheets in excel_dfs.items():
         single_file_dict = {}
         for sheet_name, df in sheets.items():
-            single_file_dict[sheet_name] = _fill_parent_id_one_df(df, _get_preferred_language(df.columns))
+            single_file_dict[sheet_name] = _fill_parent_id_col_one_df(df, _get_preferred_language(df.columns))
         all_file_dict[filename] = single_file_dict
     return all_file_dict
 
 
-def _fill_parent_id_one_df(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
+def _fill_parent_id_col_one_df(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
     """Create an extra column with the ID of the parent node."""
     # To start, all rows get the ID of the list. These will be overwritten if the row has another parent.
     df["parent_id"] = df.at[0, "id"]
@@ -79,11 +79,11 @@ def _complete_id_one_df(df: pd.DataFrame, preferred_language: str) -> pd.DataFra
         df["ID (optional)"] = pd.NA
     df = _create_auto_id_one_df(df, preferred_language)
     df["id"] = df["ID (optional)"].fillna(df["auto_id"])
-    df = _resolve_duplicate_for_custom_and_auto_id_one_df(df, preferred_language)
+    df = _resolve_duplicate_ids_keep_custom_change_auto_id_one_df(df, preferred_language)
     return df
 
 
-def _resolve_duplicate_for_custom_and_auto_id_one_df(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
+def _resolve_duplicate_ids_keep_custom_change_auto_id_one_df(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
     if (duplicate_filter := df["id"].duplicated(keep=False)).any():
         for i in duplicate_filter.index[duplicate_filter]:
             if pd.isna(df.at[i, "ID (optional)"]):

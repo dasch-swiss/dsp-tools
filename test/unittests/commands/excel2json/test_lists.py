@@ -9,7 +9,7 @@ from dsp_tools.commands.excel2json.new_lists import _add_nodes_to_parent
 from dsp_tools.commands.excel2json.new_lists import _complete_id_one_df
 from dsp_tools.commands.excel2json.new_lists import _construct_non_duplicate_id_string
 from dsp_tools.commands.excel2json.new_lists import _create_auto_id_one_df
-from dsp_tools.commands.excel2json.new_lists import _fill_one_df_parent_id
+from dsp_tools.commands.excel2json.new_lists import _fill_parent_id_col_one_df
 from dsp_tools.commands.excel2json.new_lists import _get_all_languages_for_columns
 from dsp_tools.commands.excel2json.new_lists import _get_columns_of_preferred_lang
 from dsp_tools.commands.excel2json.new_lists import _get_hierarchy_nums
@@ -21,9 +21,9 @@ from dsp_tools.commands.excel2json.new_lists import _make_list_nodes_from_df
 from dsp_tools.commands.excel2json.new_lists import _make_one_list
 from dsp_tools.commands.excel2json.new_lists import _make_one_node
 from dsp_tools.commands.excel2json.new_lists import _remove_duplicate_ids_in_all_excel
-from dsp_tools.commands.excel2json.new_lists import _resolve_duplicate_for_custom_and_auto_id_one_df
 from dsp_tools.commands.excel2json.new_lists import _resolve_duplicate_ids_all_excels
 from dsp_tools.commands.excel2json.new_lists import _resolve_duplicate_ids_for_auto_id_one_df
+from dsp_tools.commands.excel2json.new_lists import _resolve_duplicate_ids_keep_custom_change_auto_id_one_df
 from dsp_tools.models.exceptions import InputError
 
 
@@ -226,7 +226,7 @@ def test_resolve_duplicate_when_combined_with_duplicates() -> None:
             "en_1": [pd.NA, "Node1", "Node2", "Node3"],
         }
     )
-    res = _resolve_duplicate_for_custom_and_auto_id_one_df(test_df, "en")
+    res = _resolve_duplicate_ids_keep_custom_change_auto_id_one_df(test_df, "en")
     assert res["id"].to_list() == ["1", "2", "list_en:Node2", "5"]
 
 
@@ -240,7 +240,7 @@ def test_resolve_duplicate_when_combined_no_duplicates() -> None:
             "en_1": [pd.NA, "Node1", "Node2", "Node3"],
         }
     )
-    res = _resolve_duplicate_for_custom_and_auto_id_one_df(test_df, "en")
+    res = _resolve_duplicate_ids_keep_custom_change_auto_id_one_df(test_df, "en")
     assert res["id"].to_list() == ["1", "2", "4", "5"]
 
 
@@ -301,7 +301,7 @@ def test_fill_parent_id() -> None:
         }
     )
     expected = ["list_en", "list_en", "list_en", "list_en", "3", "3", "3.2", "3.2"]
-    res = _fill_one_df_parent_id(test_df, "en")
+    res = _fill_parent_id_col_one_df(test_df, "en")
     assert res["parent_id"].to_list() == expected
 
 

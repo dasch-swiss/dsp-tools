@@ -15,6 +15,7 @@ from lxml import etree
 
 from dsp_tools import excel2xml
 from dsp_tools.commands.excel2xml.excel2xml_lib import _escape_reserved_chars
+from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import BaseError
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
@@ -347,9 +348,7 @@ class TestMakeProps(unittest.TestCase):
                 if not listname:
                     raise BaseError("listname must be set to test make_list_prop()")
                 kwargs_invalid_value["list_name"] = listname
-            with self.assertRaises(
-                BaseError, msg=f"Method {method.__name__} failed with kwargs {kwargs_invalid_value}"
-            ):
+            with self.assertWarns(Warning, msg=f"Method {method.__name__} failed with kwargs {kwargs_invalid_value}"):
                 method(**kwargs_invalid_value)
 
     def test_make_color_prop(self) -> None:
@@ -512,7 +511,7 @@ class TestMakeProps(unittest.TestCase):
         assert res.text == "testdata/bitstreams/test.jpg"
 
     def test_make_bitstream_prop_invalid_file(self) -> None:
-        with pytest.warns(UserWarning, match=".*Failed validation in bitstream tag.*"):
+        with pytest.warns(DspToolsUserWarning, match=".*Failed validation in bitstream tag.*"):
             res = excel2xml.make_bitstream_prop("foo/bar/baz.txt", check=True)
         assert res.tag.endswith("bitstream")
         assert res.attrib["permissions"] == "prop-default"
@@ -664,7 +663,7 @@ class TestMakeProps(unittest.TestCase):
         self.assertEqual(expected, result)
 
     def test_warn_make_annotation_with_iri_and_ark(self) -> None:
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(DspToolsUserWarning):
             excel2xml.make_annotation("label", "id", ark="ark", iri="iri")
 
     def test_fail_annotation_with_invalid_creation_date(self) -> None:
@@ -697,7 +696,7 @@ class TestMakeProps(unittest.TestCase):
         self.assertEqual(expected, result)
 
     def test_warn_make_link_with_iri_and_ark(self) -> None:
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(DspToolsUserWarning):
             excel2xml.make_link("label", "id", ark="ark", iri="iri")
 
     def test_fail_link_with_invalid_creation_date(self) -> None:
@@ -730,7 +729,7 @@ class TestMakeProps(unittest.TestCase):
         self.assertEqual(expected, result)
 
     def test_warn_make_region_with_iri_and_ark(self) -> None:
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(DspToolsUserWarning):
             excel2xml.make_region("label", "id", ark="ark", iri="iri")
 
     def test_fail_region_with_invalid_creation_date(self) -> None:
@@ -770,7 +769,9 @@ class TestMakeProps(unittest.TestCase):
             xml_returned = regex.sub(r" xmlns(:.+?)?=\".+?\"", "", xml_returned)
             self.assertEqual(result, xml_returned)
 
-        self.assertWarns(UserWarning, lambda: excel2xml.make_resource("label", "restype", "id", ark="ark", iri="iri"))
+        self.assertWarns(
+            DspToolsUserWarning, lambda: excel2xml.make_resource("label", "restype", "id", ark="ark", iri="iri")
+        )
         with self.assertRaisesRegex(BaseError, "invalid creation date"):
             excel2xml.make_resource("label", "restype", "id", creation_date="2019-10-23T13:45:12")
 

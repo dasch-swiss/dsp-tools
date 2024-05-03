@@ -6,10 +6,9 @@ from pandas.testing import assert_frame_equal
 from dsp_tools.commands.excel2json.models.list_node import ListNode
 from dsp_tools.commands.excel2json.models.list_node import ListRoot
 from dsp_tools.commands.excel2json.new_lists import _add_nodes_to_parent
-from dsp_tools.commands.excel2json.new_lists import _analyse_resolve_all_excel_duplicates
+from dsp_tools.commands.excel2json.new_lists import _complete_id_one_df
 from dsp_tools.commands.excel2json.new_lists import _construct_non_duplicate_id_string
-from dsp_tools.commands.excel2json.new_lists import _fill_one_df_auto_id
-from dsp_tools.commands.excel2json.new_lists import _fill_one_df_auto_id_resolve_duplicates
+from dsp_tools.commands.excel2json.new_lists import _create_auto_id_one_df
 from dsp_tools.commands.excel2json.new_lists import _fill_one_df_parent_id
 from dsp_tools.commands.excel2json.new_lists import _get_all_languages_for_columns
 from dsp_tools.commands.excel2json.new_lists import _get_columns_of_preferred_lang
@@ -21,9 +20,10 @@ from dsp_tools.commands.excel2json.new_lists import _get_reverse_sorted_columns_
 from dsp_tools.commands.excel2json.new_lists import _make_list_nodes_from_df
 from dsp_tools.commands.excel2json.new_lists import _make_one_list
 from dsp_tools.commands.excel2json.new_lists import _make_one_node
-from dsp_tools.commands.excel2json.new_lists import _resolve_duplicate_custom_and_auto_id
-from dsp_tools.commands.excel2json.new_lists import _resolve_duplicates_in_all_excel
-from dsp_tools.commands.excel2json.new_lists import _resolve_one_df_auto_duplicate_ids
+from dsp_tools.commands.excel2json.new_lists import _remove_duplicate_ids_in_all_excel
+from dsp_tools.commands.excel2json.new_lists import _resolve_duplicate_for_custom_and_auto_id_one_df
+from dsp_tools.commands.excel2json.new_lists import _resolve_duplicate_ids_all_excels
+from dsp_tools.commands.excel2json.new_lists import _resolve_duplicate_ids_for_auto_id_one_df
 from dsp_tools.models.exceptions import InputError
 
 
@@ -35,7 +35,7 @@ class TestDuplicateID:
         f2_s2 = pd.DataFrame({"id": ["00", "1"], "en_list": ["List2", "List2"], "en_1": [pd.NA, "Node1"]})
 
         all_excel = {"file1": {"sheet1": f1_s1}, "file2": {"sheet2": f2_s2}}
-        res = _resolve_duplicates_in_all_excel(["1"], all_excel)
+        res = _remove_duplicate_ids_in_all_excel(["1"], all_excel)
         assert res["file1"]["sheet1"]["id"].to_list() == ["0", "List1:Node1", "2"]
         assert res["file2"]["sheet2"]["id"].to_list() == ["00", "List2:Node1"]
 
@@ -46,7 +46,7 @@ class TestDuplicateID:
         f2_s2 = pd.DataFrame({"id": ["00", "1"], "en_list": ["List2", "List2"], "en_1": [pd.NA, "Node1"]})
 
         all_excel = {"file1": {"sheet1": f1_s1}, "file2": {"sheet2": f2_s2}}
-        res = _analyse_resolve_all_excel_duplicates(all_excel)
+        res = _resolve_duplicate_ids_all_excels(all_excel)
         assert res["file1"]["sheet1"]["id"].to_list() == ["0", "List1:Node1", "2"]
         assert res["file2"]["sheet2"]["id"].to_list() == ["00", "List2:Node1"]
 
@@ -57,7 +57,7 @@ class TestDuplicateID:
         f2_s2 = pd.DataFrame({"id": ["00", "1"], "en_list": ["List2", "List2"], "en_1": [pd.NA, "Node1"]})
 
         all_excel = {"file1": {"sheet1": f1_s1}, "file2": {"sheet2": f2_s2}}
-        res = _analyse_resolve_all_excel_duplicates(all_excel)
+        res = _resolve_duplicate_ids_all_excels(all_excel)
         assert res["file1"]["sheet1"]["id"].to_list() == ["0", "11", "2"]
         assert res["file2"]["sheet2"]["id"].to_list() == ["00", "1"]
 
@@ -164,7 +164,7 @@ class TestFillIdColumn:
             }
         )
         expected = ["list_en", pd.NA, "nd_en_2", pd.NA, "nd_en_3.1", "nd_en_3.2", "nd_en_3.2.1", "nd_en_3.2.2"]
-        res = _fill_one_df_auto_id(test_df, "en")
+        res = _create_auto_id_one_df(test_df, "en")
         assert res["auto_id"].to_list() == expected
 
     def test_nothing_to_fill(self) -> None:
@@ -179,7 +179,7 @@ class TestFillIdColumn:
                 "auto_id": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
             }
         )
-        res = _fill_one_df_auto_id(test_df, "en")
+        res = _create_auto_id_one_df(test_df, "en")
         assert_frame_equal(res, expected)
 
     def test_handle_duplicates(self) -> None:
@@ -201,7 +201,7 @@ class TestFillIdColumn:
                 "en_2": [pd.NA, pd.NA, "dative", "genitive", "accusative", pd.NA, "dative", "genitive", "accusative"],
             }
         )
-        res = _fill_one_df_auto_id(test_df, "en")
+        res = _create_auto_id_one_df(test_df, "en")
         expected = [
             "list_en",
             "singular",
@@ -226,7 +226,7 @@ def test_resolve_duplicate_when_combined_with_duplicates() -> None:
             "en_1": [pd.NA, "Node1", "Node2", "Node3"],
         }
     )
-    res = _resolve_duplicate_custom_and_auto_id(test_df, "en")
+    res = _resolve_duplicate_for_custom_and_auto_id_one_df(test_df, "en")
     assert res["id"].to_list() == ["1", "2", "list_en:Node2", "5"]
 
 
@@ -240,7 +240,7 @@ def test_resolve_duplicate_when_combined_no_duplicates() -> None:
             "en_1": [pd.NA, "Node1", "Node2", "Node3"],
         }
     )
-    res = _resolve_duplicate_custom_and_auto_id(test_df, "en")
+    res = _resolve_duplicate_for_custom_and_auto_id_one_df(test_df, "en")
     assert res["id"].to_list() == ["1", "2", "4", "5"]
 
 
@@ -253,7 +253,7 @@ class TestFillIDAndParentIDColumns:
                 "en_1": ["list_en", "nd_en_1", "nd_en_2", "nd_en_3", "nd_en_4", "nd_en_5", "nd_en_6", "nd_en_7"],
             }
         )
-        res = _fill_one_df_auto_id_resolve_duplicates(test_df, "en")
+        res = _complete_id_one_df(test_df, "en")
         assert res["id"].tolist() == ["list_en", "nd_en_1", "2", "3", "nd_en_4", "5", "6", "nd_en_7"]
 
     def test_handle_duplicates(self) -> None:
@@ -275,7 +275,7 @@ class TestFillIDAndParentIDColumns:
                 "en_2": [pd.NA, pd.NA, "dative", "genitive", "accusative", pd.NA, "dative", "genitive", "accusative"],
             }
         )
-        res = _fill_one_df_auto_id_resolve_duplicates(test_df, "en")
+        res = _complete_id_one_df(test_df, "en")
         expected = [
             "list_en",
             "singular",
@@ -415,7 +415,7 @@ def test_resolve_duplicates_in_one_df() -> None:
     df = pd.DataFrame(
         {"auto_id": ["id_1", "id_1", "id_2"], "en_list": ["list", "list", "list"], "en_1": ["Node1", "Node2", "Node3"]}
     )
-    res = _resolve_one_df_auto_duplicate_ids(df, "en")
+    res = _resolve_duplicate_ids_for_auto_id_one_df(df, "en")
     assert res["auto_id"].to_list() == ["list:Node1", "list:Node2", "id_2"]
 
 

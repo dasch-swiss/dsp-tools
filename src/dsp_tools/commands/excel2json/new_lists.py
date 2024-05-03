@@ -18,25 +18,38 @@ def _construct_ids(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> dict[str, d
     for filename, sheets in excel_dfs.items():
         single_file_dict = {}
         for sheet_name, df in sheets.items():
-            single_file_dict[sheet_name] = _fill_one_df_auto_id_resolve_duplicates(
-                df, _get_preferred_language(df.columns)
-            )
+            single_file_dict[sheet_name] = _complete_id_one_df(df, _get_preferred_language(df.columns))
         all_file_dict[filename] = single_file_dict
-    all_file_dict = _analyse_resolve_all_excel_duplicates(all_file_dict)
-    return _fill_all_excel_parent_id(all_file_dict)
+    all_file_dict = _resolve_duplicate_ids_all_excels(all_file_dict)
+    return _fill_parent_id_all_excels(all_file_dict)
 
 
-def _fill_all_excel_parent_id(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> dict[str, dict[str, pd.DataFrame]]:
+def _fill_parent_id_all_excels(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> dict[str, dict[str, pd.DataFrame]]:
     all_file_dict = {}
     for filename, sheets in excel_dfs.items():
         single_file_dict = {}
         for sheet_name, df in sheets.items():
-            single_file_dict[sheet_name] = _fill_one_df_parent_id(df, _get_preferred_language(df.columns))
+            single_file_dict[sheet_name] = _fill_parent_id_one_df(df, _get_preferred_language(df.columns))
         all_file_dict[filename] = single_file_dict
     return all_file_dict
 
 
-def _analyse_resolve_all_excel_duplicates(
+def _fill_parent_id_one_df(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
+    """Create an extra column with the ID of the parent node."""
+    # To start, all rows get the ID of the list. These will be overwritten if the row has another parent.
+    df["parent_id"] = df.at[0, "id"]
+    columns = _get_columns_of_preferred_lang(df.columns, preferred_language, r"\d+")
+    for col in columns:
+        grouped = df.groupby(col)
+        for name, group in grouped:
+            if group.shape[0] > 1:
+                # The first row already has the correct ID assigned
+                rest_index = list(group.index)[1:]
+                df.loc[rest_index, "parent_id"] = group.at[group.index[0], "id"]
+    return df
+
+
+def _resolve_duplicate_ids_all_excels(
     excel_dfs: dict[str, dict[str, pd.DataFrame]],
 ) -> dict[str, dict[str, pd.DataFrame]]:
     ids = []
@@ -45,11 +58,11 @@ def _analyse_resolve_all_excel_duplicates(
             ids.extend(df["id"].tolist())
     counter = Counter(ids)
     if duplicate_ids := [item for item, count in counter.items() if count > 1]:
-        return _resolve_duplicates_in_all_excel(duplicate_ids, excel_dfs)
+        return _remove_duplicate_ids_in_all_excel(duplicate_ids, excel_dfs)
     return excel_dfs
 
 
-def _resolve_duplicates_in_all_excel(
+def _remove_duplicate_ids_in_all_excel(
     duplicate_ids: list[str], excel_dfs: dict[str, dict[str, pd.DataFrame]]
 ) -> dict[str, dict[str, pd.DataFrame]]:
     for sheets in excel_dfs.values():
@@ -61,16 +74,16 @@ def _resolve_duplicates_in_all_excel(
     return excel_dfs
 
 
-def _fill_one_df_auto_id_resolve_duplicates(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
+def _complete_id_one_df(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
     if "ID (optional)" not in df.columns:
         df["ID (optional)"] = pd.NA
-    df = _fill_one_df_auto_id(df, preferred_language)
+    df = _create_auto_id_one_df(df, preferred_language)
     df["id"] = df["ID (optional)"].fillna(df["auto_id"])
-    df = _resolve_duplicate_custom_and_auto_id(df, preferred_language)
+    df = _resolve_duplicate_for_custom_and_auto_id_one_df(df, preferred_language)
     return df
 
 
-def _resolve_duplicate_custom_and_auto_id(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
+def _resolve_duplicate_for_custom_and_auto_id_one_df(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
     if (duplicate_filter := df["id"].duplicated(keep=False)).any():
         for i in duplicate_filter.index[duplicate_filter]:
             if pd.isna(df.at[i, "ID (optional)"]):
@@ -78,7 +91,7 @@ def _resolve_duplicate_custom_and_auto_id(df: pd.DataFrame, preferred_language: 
     return df
 
 
-def _fill_one_df_auto_id(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
+def _create_auto_id_one_df(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
     """For every node without manual ID, take the label of the preferred language as ID."""
     df["auto_id"] = pd.NA
     if not df["ID (optional)"].isna().any():
@@ -92,11 +105,11 @@ def _fill_one_df_auto_id(df: pd.DataFrame, preferred_language: str) -> pd.DataFr
                 if pd.notna(row[col]):
                     df.at[i, "auto_id"] = row[col]
                     break
-    df = _resolve_one_df_auto_duplicate_ids(df, preferred_language)
+    df = _resolve_duplicate_ids_for_auto_id_one_df(df, preferred_language)
     return df
 
 
-def _resolve_one_df_auto_duplicate_ids(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
+def _resolve_duplicate_ids_for_auto_id_one_df(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
     if (duplicate_filter := df["auto_id"].dropna().duplicated(keep=False)).any():
         for i in duplicate_filter.index[duplicate_filter]:
             df.at[i, "auto_id"] = _construct_non_duplicate_id_string(df.iloc[i], preferred_language)
@@ -108,21 +121,6 @@ def _construct_non_duplicate_id_string(row: pd.Series[Any], preferred_language: 
     columns.insert(0, f"{preferred_language}_list")
     id_cols = [row[col] for col in columns if pd.notna(row[col])]
     return ":".join(id_cols)
-
-
-def _fill_one_df_parent_id(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
-    """Create an extra column with the ID of the parent node."""
-    # To start, all rows get the ID of the list. These will be overwritten if the row has another parent.
-    df["parent_id"] = df.at[0, "id"]
-    columns = _get_columns_of_preferred_lang(df.columns, preferred_language, r"\d+")
-    for col in columns:
-        grouped = df.groupby(col)
-        for name, group in grouped:
-            if group.shape[0] > 1:
-                # The first row already has the correct ID assigned
-                rest_index = list(group.index)[1:]
-                df.loc[rest_index, "parent_id"] = group.at[group.index[0], "id"]
-    return df
 
 
 def _make_one_list(df: pd.DataFrame, sheet_name: str) -> ListRoot | ListSheetProblem:

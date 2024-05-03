@@ -28,14 +28,6 @@ from dsp_tools.models.exceptions import InputError
 
 class TestDuplicateID:
     def test_resolve_duplicates_in_all_excel(self) -> None:
-        id_df = pd.DataFrame(
-            {
-                "id": ["0", "1", "2", "00", "1"],
-                "sheet": ["sheet1", "sheet1", "sheet1", "sheet2", "sheet2"],
-                "filename": ["file1", "file1", "file1", "file2", "file2"],
-            }
-        )
-        duplicated = pd.Series([False, True, False, False, True])
         f1_s1 = pd.DataFrame(
             {
                 "id": ["0", "1", "2"],
@@ -57,7 +49,7 @@ class TestDuplicateID:
             "file3": {"sheet3": pd.DataFrame({"id": [], "en_list": [], "en_1": []})},
             "file4": {"sheet4": pd.DataFrame({"id": [], "en_list": [], "en_1": []})},
         }
-        res = _resolve_duplicates_in_all_excel(id_df, duplicated, all_excel)
+        res = _resolve_duplicates_in_all_excel({"1"}, all_excel)
         assert res["file1"]["sheet1"]["id"].to_list() == ["0", "List1:Node1", "2"]
         assert res["file2"]["sheet2"]["id"].to_list() == ["00", "List2:Node1"]
 

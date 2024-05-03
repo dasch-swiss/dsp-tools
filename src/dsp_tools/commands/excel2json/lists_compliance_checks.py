@@ -75,6 +75,7 @@ def _check_duplicates_all_excels(
 
 
 def _check_for_duplicate_nodes_one_df(df: pd.DataFrame, sheet_name: str) -> DuplicatesInSheetProblem | None:
+    """This function checks if any rows have duplicates when taking into account the columns with the node names."""
     lang_columns = [col for col in df.columns if regex.search(r"^(en|de|fr|it|rm)_(\d+|list)$", col)]
     if (duplicate_filter := df.duplicated(lang_columns, keep=False)).any():
         return DuplicatesInSheetProblem(sheet_name, duplicate_filter.index[duplicate_filter].tolist())
@@ -153,6 +154,7 @@ def _check_warn_unusual_columns_one_sheet(cols: pd.Index[str]) -> None:
 
 
 def _check_if_all_translations_in_all_column_levels_present_one_sheet(cols: pd.Index[str]) -> dict[str, str]:
+    # All levels, eg. 1, 2, 3 must have the same languages
     languages = {r for c in cols if (r := _get_lang_string_from_column_name(c)) is not None}
     all_nums = [str(n) for n in _get_hierarchy_nums(cols)]
     all_nums.append("list")
@@ -223,6 +225,7 @@ def _check_for_missing_translations_one_sheet(
 def _check_for_missing_translations_one_column_level(
     columns: list[str], df: pd.DataFrame
 ) -> list[MissingNodeTranslationProblem]:
+    # column level refers to the hierarchical level of the nodes. eg. ["en_1", "de_1", "fr_1", "it_1", "rm_1"]
     problems = []
     for i, row in df.iterrows():
         if problem := _check_for_missing_translations_one_node(row, columns, int(str(i))):
@@ -281,6 +284,7 @@ def _check_for_erroneous_node_info_one_df(df: pd.DataFrame, columns: list[str]) 
 
 
 def _check_for_erroneous_entries_one_column_level(df: pd.DataFrame, columns: list[str]) -> list[NodesPerRowProblem]:
+    # column level refers to the hierarchical level of the nodes. eg. "en_1"
     grouped = df.groupby(columns[0])
     problems = []
     for name, group in grouped:
@@ -293,10 +297,12 @@ def _check_for_erroneous_entries_one_grouped_df(
 ) -> list[NodesPerRowProblem]:
     problems = []
     first_col = min(group.index)
+    # The first row is the current parent node. The remaining columns in that row must be empty.
     if not group.loc[first_col, target_cols[1:]].isna().all():
         problems.append(NodesPerRowProblem(target_cols[1:], int(first_col), should_be_empty=True))
     if not len(target_cols) > 1:
         return problems
+    # The second column of the remaining rows must not be empty, as these are the child nodes of the first row.
     remaining_rows_of_next_column = group.loc[group.index[1:], target_cols[1]]
     if (missing := remaining_rows_of_next_column.isna()).any():
         for i, row in group[1:][missing].iterrows():

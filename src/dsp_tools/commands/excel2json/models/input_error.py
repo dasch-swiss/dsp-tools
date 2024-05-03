@@ -28,9 +28,12 @@ class PositionInExcel:
     sheet: str | None = None
     column: str | None = None
     row: int | None = None
+    excel_filename: str | None = None
 
     def __str__(self) -> str:
         msg = []
+        if self.excel_filename:
+            msg.append(f"Excel '{self.excel_filename}'")
         if self.sheet:
             msg.append(f"Sheet '{self.sheet}'")
         if self.column:
@@ -250,7 +253,7 @@ class JsonValidationResourceProblem:
 
 @dataclass(frozen=True)
 class ListCreationProblem:
-    excel_problems: list[ListExcelProblem]
+    excel_problems: list[Problem]
 
     def execute_error_protocol(self) -> str:
         msg = ["\nThe excel file(s) used to create the list sections have the following problem(s):"]
@@ -328,6 +331,27 @@ class DuplicatesInSheetProblem:
             f"('ID (optional)' is excluded) in the following rows:",
         ]
         msg.extend([f"{x + 2}" for x in self.rows])
+        return list_separator.join(msg)
+
+
+@dataclass(frozen=True)
+class DuplicatesCustomIDInProblem:
+    duplicate_ids: list[DuplicateIDProblem]
+
+    def execute_error_protocol(self) -> str:
+        msg = ["No duplicates are allowed in the column 'ID (optional)'.\nThe following IDs appear several times:"]
+        msg.extend([x.execute_error_protocol() for x in self.duplicate_ids])
+        return medium_separator.join(msg)
+
+
+@dataclass
+class DuplicateIDProblem:
+    custom_id: str = field(default="")
+    excel_locations: list[PositionInExcel] = field(default_factory=list)
+
+    def execute_error_protocol(self) -> str:
+        msg = [f"ID: '{self.custom_id}'"]
+        msg.extend([str(x) for x in self.excel_locations])
         return list_separator.join(msg)
 
 

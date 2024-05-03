@@ -101,10 +101,15 @@ class TestFormalExcelCompliance:
 class TestCheckExcelsForDuplicates:
     def test_good(self) -> None:
         df_1 = pd.DataFrame(
-            {"en_list": ["list1", "list1", "list1", "list1"], "en_1": [pd.NA, "node1", "node2", "node3"]}
+            {
+                "en_list": ["list1", "list1", "list1", "list1"],
+                "en_1": [pd.NA, "node1", "node2", "node3"],
+                "id": [11, 22, 33, 44],
+            }
         )
         df_2 = pd.DataFrame(
             {
+                "id": [1, 2, 3, 4, 5, 6, 7, 8],
                 "en_list": ["list1", "list1", "list1", "list1", "list1", "list1", "list1", "list1"],
                 "de_list": ["list1", "list1", "list1", "list1", "list1", "list1", "list1", "list1"],
                 "en_1": [pd.NA, "node1", "node1", "node1", "node1", "node2", "node2", "node3"],
@@ -120,7 +125,11 @@ class TestCheckExcelsForDuplicates:
 
     def test_problem(self) -> None:
         df_1 = pd.DataFrame(
-            {"en_list": ["list1", "list1", "list1", "list1"], "en_1": [pd.NA, "node1", "node1", "node3"]}
+            {
+                "en_list": ["list1", "list1", "list1", "list1"],
+                "en_1": [pd.NA, "node1", "node1", "node3"],
+                "id": [1, 2, 3, 4],
+            }
         )
         df_dict = {"file1": {"sheet1": df_1}}
         expected = regex.escape(

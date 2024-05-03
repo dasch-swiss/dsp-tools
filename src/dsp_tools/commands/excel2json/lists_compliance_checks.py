@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import warnings
+from collections import defaultdict
 from typing import Any
 from typing import cast
 
@@ -8,6 +9,8 @@ import pandas as pd
 import regex
 from loguru import logger
 
+from dsp_tools.commands.excel2json.models.input_error import DuplicateIDProblem
+from dsp_tools.commands.excel2json.models.input_error import DuplicatesCustomIDInProblem
 from dsp_tools.commands.excel2json.models.input_error import DuplicatesInSheetProblem
 from dsp_tools.commands.excel2json.models.input_error import ListCreationProblem
 from dsp_tools.commands.excel2json.models.input_error import ListExcelProblem
@@ -16,6 +19,7 @@ from dsp_tools.commands.excel2json.models.input_error import ListSheetContentPro
 from dsp_tools.commands.excel2json.models.input_error import MissingNodeTranslationProblem
 from dsp_tools.commands.excel2json.models.input_error import MissingTranslationsSheetProblem
 from dsp_tools.commands.excel2json.models.input_error import NodesPerRowProblem
+from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import Problem
 from dsp_tools.commands.excel2json.new_lists import _get_all_languages_for_columns
 from dsp_tools.commands.excel2json.new_lists import _get_columns_of_preferred_lang
@@ -48,7 +52,9 @@ def _check_duplicates_all_excels(
     excel_dfs: dict[str, dict[str, pd.DataFrame]],
 ) -> None:
     """
-    This function checks if the excel files contain complete duplicates.
+    This function checks if the excel files contain duplicates with regard to the node names,
+    and if the custom IDs are unique across all excel files.
+    A duplicate in the node names is defined as several row with the same entries in the columns with the node names.
 
     Args:
         excel_dfs: dictionary with the excel file name as key
@@ -57,9 +63,7 @@ def _check_duplicates_all_excels(
     Raises:
         InputError: If any complete duplicates are found in the excel files.
     """
-    # TODO: rename and describe
-    # TODO: check for id duplicates in all lists
-    problems = []
+    problems: list[Problem] = []
     for filename, excel_sheets in excel_dfs.items():
         complete_duplicates: list[Problem] = [
             p
@@ -68,6 +72,8 @@ def _check_duplicates_all_excels(
         ]
         if complete_duplicates:
             problems.append(ListExcelProblem(filename, complete_duplicates))
+    if id_problem := _check_for_duplicate_custom_id_all_excels(excel_dfs):
+        problems.append(id_problem)
     if problems:
         msg = ListCreationProblem(problems).execute_error_protocol()
         logger.error(msg)
@@ -82,6 +88,27 @@ def _check_for_duplicate_nodes_one_df(df: pd.DataFrame, sheet_name: str) -> Dupl
     return None
 
 
+def _check_for_duplicate_custom_id_all_excels(
+    excel_dfs: dict[str, dict[str, pd.DataFrame]],
+) -> DuplicatesCustomIDInProblem | None:
+    id_list = []
+    for filename, excel_sheets in excel_dfs.items():
+        for sheet_name, df in excel_sheets.items():
+            for _, row in df.iterrows():
+                id_list.append({"filename": filename, "sheet_name": sheet_name, "id": row["id"]})
+    id_df = pd.DataFrame.from_records(id_list)
+    if (duplicate_ids := id_df.duplicated("id", keep=False)).any():
+        problems: dict[str, DuplicateIDProblem] = defaultdict(lambda: DuplicateIDProblem())
+        for i, row in id_df[duplicate_ids].iterrows():
+            problems[row["id"]].custom_id = row["id"]
+            problems[row["id"]].excel_locations.append(
+                PositionInExcel(sheet=row["sheet_name"], excel_filename=row["filename"], row=2 + int(str(i)))
+            )
+        final_problems = list(problems.values())
+        return DuplicatesCustomIDInProblem(final_problems)
+    return None
+
+
 def _make_shape_compliance_all_excels(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> None:
     """
     This function checks if the excel files are compliant with the expected format.
@@ -93,7 +120,7 @@ def _make_shape_compliance_all_excels(excel_dfs: dict[str, dict[str, pd.DataFram
     Raises:
         InputError: If any unexpected input is found in the excel files.
     """
-    problems = []
+    problems: list[Problem] = []
     for filename, excel_sheets in excel_dfs.items():
         shape_problems: list[Problem] = [
             p
@@ -192,7 +219,7 @@ def _make_all_content_compliance_checks_all_excels(
 
 
 def _check_for_missing_translations_all_excels(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> None:
-    problems = []
+    problems: list[Problem] = []
     for filename, excel_sheets in excel_dfs.items():
         missing_translations: list[Problem] = [
             p
@@ -248,7 +275,7 @@ def _check_for_missing_translations_one_node(
 
 
 def _check_for_erroneous_entries_all_excels(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> None:
-    problems = []
+    problems: list[Problem] = []
     for filename, excel_sheets in excel_dfs.items():
         missing_rows: list[Problem] = [
             p

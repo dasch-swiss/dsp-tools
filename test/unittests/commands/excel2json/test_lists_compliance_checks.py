@@ -144,6 +144,38 @@ class TestCheckExcelsForDuplicates:
         with pytest.raises(InputError, match=expected):
             _check_duplicates_all_excels(df_dict)
 
+    def test_problem_duplicate_id(self) -> None:
+        df_1 = pd.DataFrame(
+            {
+                "en_list": ["list1", "list1", "list1", "list1"],
+                "en_1": [pd.NA, "node1", "node2", "node3"],
+                "id": [2, 1, 3, 4],
+            }
+        )
+        df_2 = pd.DataFrame(
+            {
+                "en_list": ["list2", "list2", "list2"],
+                "en_1": [pd.NA, "node1", "node3"],
+                "id": [1, 22, 4],
+            }
+        )
+        df_dict = {"file1": {"sheet1": df_1}, "file2": {"sheet2": df_2}}
+        expected = regex.escape(
+            "\nThe excel file(s) used to create the list sections have the following problem(s):"
+            "\n\n---------------------------------------\n\n"
+            "No duplicates are allowed in the 'ID (optional)' column. The following IDs are duplicated:\n"
+            "----------------------------\n"
+            "ID: '1'\n"
+            "    - Located at: Excel 'file1' | Sheet 'sheet1' | Row 3\n"
+            "    - Located at: Excel 'file2' | Sheet 'sheet2' | Row 2\n"
+            "----------------------------\n"
+            "ID: '4'\n"
+            "    - Located at: Excel 'file1' | Sheet 'sheet1' | Row 5\n"
+            "    - Located at: Excel 'file2' | Sheet 'sheet2' | Row 4"
+        )
+        with pytest.raises(InputError, match=expected):
+            _check_duplicates_all_excels(df_dict)
+
 
 class TestCheckForDuplicates:
     def test_good(self) -> None:

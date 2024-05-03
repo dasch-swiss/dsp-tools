@@ -94,15 +94,17 @@ def _check_for_duplicate_custom_id_all_excels(
     id_list = []
     for filename, excel_sheets in excel_dfs.items():
         for sheet_name, df in excel_sheets.items():
-            for _, row in df.iterrows():
-                id_list.append({"filename": filename, "sheet_name": sheet_name, "id": row["id"]})
+            for i, row in df.iterrows():
+                id_list.append(
+                    {"filename": filename, "sheet_name": sheet_name, "id": row["id"], "row_number": int(str(i)) + 2}
+                )
     id_df = pd.DataFrame.from_records(id_list)
     if (duplicate_ids := id_df.duplicated("id", keep=False)).any():
         problems: dict[str, DuplicateIDProblem] = defaultdict(lambda: DuplicateIDProblem())
         for i, row in id_df[duplicate_ids].iterrows():
             problems[row["id"]].custom_id = row["id"]
             problems[row["id"]].excel_locations.append(
-                PositionInExcel(sheet=row["sheet_name"], excel_filename=row["filename"], row=2 + int(str(i)))
+                PositionInExcel(sheet=row["sheet_name"], excel_filename=row["filename"], row=row["row_number"])
             )
         final_problems = list(problems.values())
         return DuplicatesCustomIDInProblem(final_problems)

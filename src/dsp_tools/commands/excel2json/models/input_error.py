@@ -339,8 +339,9 @@ class DuplicatesCustomIDInProblem:
     duplicate_ids: list[DuplicateIDProblem]
 
     def execute_error_protocol(self) -> str:
-        msg = ["No duplicates are allowed in the column 'ID (optional)'.\nThe following IDs appear several times:"]
-        msg.extend([x.execute_error_protocol() for x in self.duplicate_ids])
+        msg = ["No duplicates are allowed in the 'ID (optional)' column. The following IDs are duplicated:"]
+        sorted_ids = sorted(self.duplicate_ids, key=lambda x: x.custom_id)
+        msg.extend([x.execute_error_protocol() for x in sorted_ids])
         return medium_separator.join(msg)
 
 

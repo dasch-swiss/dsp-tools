@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 from dataclasses import field
 from typing import Any
@@ -5,6 +7,9 @@ from typing import Protocol
 
 separator = "\n    "
 list_separator = "\n    - "
+medium_separator = "\n----------------------------\n"
+
+grand_separator = "\n\n---------------------------------------\n\n"
 
 
 class Problem(Protocol):
@@ -23,9 +28,12 @@ class PositionInExcel:
     sheet: str | None = None
     column: str | None = None
     row: int | None = None
+    excel_filename: str | None = None
 
     def __str__(self) -> str:
         msg = []
+        if self.excel_filename:
+            msg.append(f"Excel '{self.excel_filename}'")
         if self.sheet:
             msg.append(f"Sheet '{self.sheet}'")
         if self.column:
@@ -244,6 +252,27 @@ class JsonValidationResourceProblem:
 
 
 @dataclass(frozen=True)
+class ListCreationProblem:
+    excel_problems: list[Problem]
+
+    def execute_error_protocol(self) -> str:
+        msg = ["\nThe excel file(s) used to create the list section have the following problem(s):"]
+        msg.extend([problem.execute_error_protocol() for problem in self.excel_problems])
+        return grand_separator.join(msg)
+
+
+@dataclass(frozen=True)
+class ListExcelProblem:
+    excel_name: str
+    problems: list[Problem]
+
+    def execute_error_protocol(self) -> str:
+        msg = [f"The excel '{self.excel_name}' has the following problem(s):"]
+        msg.extend([problem.execute_error_protocol() for problem in self.problems])
+        return medium_separator.join(msg)
+
+
+@dataclass(frozen=True)
 class ListNodeProblem:
     node_id: str
     problems: dict[str, str]
@@ -266,18 +295,7 @@ class ListSheetProblem:
             msg.extend([f"Field: '{key}', Problem: {value}" for key, value in self.root_problems.items()])
         if self.node_problems:
             msg.extend([problem.execute_error_protocol() for problem in self.node_problems])
-        return separator.join(msg)
-
-
-@dataclass(frozen=True)
-class ListExcelProblem:
-    excel_name: str
-    problems: list[ListSheetProblem]
-
-    def execute_error_protocol(self) -> str:
-        msg = [f"The excel '{self.excel_name}' has the following problem(s):"]
-        msg.extend([problem.execute_error_protocol() for problem in self.problems])
-        return separator.join(msg)
+        return list_separator.join(msg)
 
 
 @dataclass(frozen=True)
@@ -287,16 +305,103 @@ class ListSheetComplianceProblem:
 
     def execute_error_protocol(self) -> str:
         msg = [f"The excel sheet '{self.sheet_name}' has the following problem(s):"]
-        msg.extend([f"{key}': {value}" for key, value in self.problems.items()])
-        return separator.join(msg)
+        msg.extend([f"{key}: {value}" for key, value in self.problems.items()])
+        return list_separator.join(msg)
+
+
+@dataclass(frozen=True)
+class ListSheetContentProblem:
+    sheet_name: str
+    problems: list[Problem]
+
+    def execute_error_protocol(self) -> str:
+        msg = [f"The Excel sheet '{self.sheet_name}' has the following problem(s):"]
+        msg.extend([problem.execute_error_protocol() for problem in self.problems])
+        return list_separator.join(msg)
+
+
+@dataclass(frozen=True)
+class DuplicatesInSheetProblem:
+    sheet_name: str
+    rows: list[int]
+
+    def execute_error_protocol(self) -> str:
+        msg = [
+            f"The excel sheet '{self.sheet_name}' contains rows that are completely identical "
+            f"(excluding the column 'ID (optional)'). The following rows are duplicates:"
+        ]
+        msg.extend([f"{x + 2}" for x in self.rows])
+        return list_separator.join(msg)
+
+
+@dataclass(frozen=True)
+class DuplicatesCustomIDInProblem:
+    duplicate_ids: list[DuplicateIDProblem]
+
+    def execute_error_protocol(self) -> str:
+        msg = ["No duplicates are allowed in the 'ID (optional)' column. The following IDs are duplicated:"]
+        sorted_ids = sorted(self.duplicate_ids, key=lambda x: x.custom_id)
+        msg.extend([x.execute_error_protocol() for x in sorted_ids])
+        return medium_separator.join(msg)
 
 
 @dataclass
-class ListExcelComplianceProblem:
-    excel_name: str
-    problems: list[ListSheetComplianceProblem]
+class DuplicateIDProblem:
+    custom_id: str = field(default="")
+    excel_locations: list[PositionInExcel] = field(default_factory=list)
 
     def execute_error_protocol(self) -> str:
-        msg = [f"The excel '{self.excel_name}' has the following problem(s):"]
-        msg.extend([problem.execute_error_protocol() for problem in self.problems])
-        return separator.join(msg)
+        msg = [f"ID: '{self.custom_id}'"]
+        msg.extend([str(x) for x in self.excel_locations])
+        return list_separator.join(msg)
+
+
+@dataclass(frozen=True)
+class MissingNodeTranslationProblem:
+    empty_columns: list[str]
+    index_num: int
+
+    def execute_error_protocol(self) -> str:
+        return f"Row Number: {self.index_num + 2} Column(s): {', '.join(self.empty_columns)}"
+
+
+@dataclass(frozen=True)
+class MissingTranslationsSheetProblem:
+    sheet: str
+    node_problems: list[MissingNodeTranslationProblem]
+
+    def execute_error_protocol(self) -> str:
+        msg = [
+            f"The excel sheet '{self.sheet}' has the following problem(s):\n"
+            "In one list, all the nodes must be translated into all the languages used. "
+            "The following nodes are missing translations:"
+        ]
+        nodes_sorted = sorted(self.node_problems, key=lambda x: x.index_num)
+        msg.extend([x.execute_error_protocol() for x in nodes_sorted])
+        return list_separator.join(msg)
+
+
+@dataclass(frozen=True)
+class MissingNodeSheetProblem:
+    sheet: str
+    node_problems: list[NodesPerRowProblem]
+
+    def execute_error_protocol(self) -> str:
+        msg = "Each list node and each list must have its own row in the excel. " "The following rows are incorrect:"
+        nodes_sorted = sorted(self.node_problems, key=lambda x: x.index_num)
+        nodes = list_separator.join([x.execute_error_protocol() for x in nodes_sorted])
+        return msg + nodes
+
+
+@dataclass(frozen=True)
+class NodesPerRowProblem:
+    column_names: list[str]
+    index_num: int
+    should_be_empty: bool
+
+    def execute_error_protocol(self) -> str:
+        if self.should_be_empty:
+            description = "Column(s) that must be empty"
+        else:
+            description = "Column(s) that must be filled"
+        return f"Row Number: {self.index_num + 2}, {description}: {', '.join(self.column_names)}"

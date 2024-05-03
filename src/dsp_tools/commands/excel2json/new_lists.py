@@ -98,10 +98,10 @@ def _create_auto_id_one_df(df: pd.DataFrame, preferred_language: str) -> pd.Data
         return df
     if pd.isna(df.at[0, "ID (optional)"]):
         df.loc[0, "auto_id"] = df.at[0, f"{preferred_language}_list"]
-    columns = sorted(_get_columns_of_preferred_lang(df.columns, preferred_language, r"\d+"), reverse=True)
+    column_names = sorted(_get_columns_of_preferred_lang(df.columns, preferred_language, r"\d+"), reverse=True)
     for i, row in df.iterrows():
         if pd.isna(row["ID (optional)"]):
-            for col in columns:
+            for col in column_names:
                 if pd.notna(row[col]):
                     df.at[i, "auto_id"] = row[col]
                     break
@@ -117,9 +117,9 @@ def _resolve_duplicate_ids_for_auto_id_one_df(df: pd.DataFrame, preferred_langua
 
 
 def _construct_non_duplicate_id_string(row: pd.Series[Any], preferred_language: str) -> str:
-    columns = _get_columns_of_preferred_lang(row.index, preferred_language, r"\d+")
-    columns.insert(0, f"{preferred_language}_list")
-    id_cols = [row[col] for col in columns if pd.notna(row[col])]
+    column_names = _get_columns_of_preferred_lang(row.index, preferred_language, r"\d+")
+    column_names.insert(0, f"{preferred_language}_list")
+    id_cols = [row[col] for col in column_names if pd.notna(row[col])]
     return ":".join(id_cols)
 
 

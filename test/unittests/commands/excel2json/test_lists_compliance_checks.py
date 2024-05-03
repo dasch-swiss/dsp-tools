@@ -5,24 +5,26 @@ import pandas as pd
 import pytest
 import regex
 
-from dsp_tools.commands.excel2json.lists_compliance_checks import _check_all_excel_for_erroneous_entries
-from dsp_tools.commands.excel2json.lists_compliance_checks import _check_all_excels_if_any_nodes_miss_translations
-from dsp_tools.commands.excel2json.lists_compliance_checks import _check_all_expected_translations_present
-from dsp_tools.commands.excel2json.lists_compliance_checks import _check_all_for_complete_duplicates
-from dsp_tools.commands.excel2json.lists_compliance_checks import _check_for_erroneous_entries
-from dsp_tools.commands.excel2json.lists_compliance_checks import _check_min_num_col_present
+from dsp_tools.commands.excel2json.lists_compliance_checks import _check_duplicates_all_excels
+from dsp_tools.commands.excel2json.lists_compliance_checks import _check_for_duplicate_nodes_one_df
+from dsp_tools.commands.excel2json.lists_compliance_checks import _check_for_erroneous_entries_all_excels
+from dsp_tools.commands.excel2json.lists_compliance_checks import _check_for_erroneous_entries_one_column_level
+from dsp_tools.commands.excel2json.lists_compliance_checks import _check_for_erroneous_entries_one_grouped_df
+from dsp_tools.commands.excel2json.lists_compliance_checks import _check_for_erroneous_entries_one_list
+from dsp_tools.commands.excel2json.lists_compliance_checks import _check_for_erroneous_node_info_one_df
+from dsp_tools.commands.excel2json.lists_compliance_checks import _check_for_missing_translations_all_excels
+from dsp_tools.commands.excel2json.lists_compliance_checks import _check_for_missing_translations_one_column_level
+from dsp_tools.commands.excel2json.lists_compliance_checks import _check_for_missing_translations_one_node
+from dsp_tools.commands.excel2json.lists_compliance_checks import _check_for_missing_translations_one_sheet
+from dsp_tools.commands.excel2json.lists_compliance_checks import (
+    _check_if_all_translations_in_all_column_levels_present_one_sheet,
+)
+from dsp_tools.commands.excel2json.lists_compliance_checks import _check_if_minimum_number_of_cols_present_one_sheet
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_minimum_rows
-from dsp_tools.commands.excel2json.lists_compliance_checks import _check_one_column_groups_for_erroneous_entries
-from dsp_tools.commands.excel2json.lists_compliance_checks import _check_one_group_for_erroneous_entries
-from dsp_tools.commands.excel2json.lists_compliance_checks import _check_one_hierarchy
-from dsp_tools.commands.excel2json.lists_compliance_checks import _check_one_node_for_translations
-from dsp_tools.commands.excel2json.lists_compliance_checks import _check_sheet_for_complete_duplicates
-from dsp_tools.commands.excel2json.lists_compliance_checks import _check_sheet_for_erroneous_entries
-from dsp_tools.commands.excel2json.lists_compliance_checks import _check_sheet_if_any_nodes_miss_translations
-from dsp_tools.commands.excel2json.lists_compliance_checks import _check_warn_unusual_columns
-from dsp_tools.commands.excel2json.lists_compliance_checks import _df_shape_compliance
+from dsp_tools.commands.excel2json.lists_compliance_checks import _check_warn_unusual_columns_one_sheet
 from dsp_tools.commands.excel2json.lists_compliance_checks import _make_columns
-from dsp_tools.commands.excel2json.lists_compliance_checks import _make_formal_excel_compliance_check
+from dsp_tools.commands.excel2json.lists_compliance_checks import _make_shape_compliance_all_excels
+from dsp_tools.commands.excel2json.lists_compliance_checks import _make_shape_compliance_one_sheet
 from dsp_tools.commands.excel2json.models.input_error import DuplicatesInSheetProblem
 from dsp_tools.commands.excel2json.models.input_error import ListSheetComplianceProblem
 from dsp_tools.commands.excel2json.models.input_error import ListSheetContentProblem
@@ -51,7 +53,7 @@ class TestFormalExcelCompliance:
             }
         )
         df_dict = {"file1": {"sheet1": df_1}, "file2": {"sheet2": df_2}}
-        _make_formal_excel_compliance_check(df_dict)
+        _make_shape_compliance_all_excels(df_dict)
 
     def test_problem(self) -> None:
         df_1 = pd.DataFrame({"en_list": ["list1", "list1", "list1", "list1"]})
@@ -93,7 +95,7 @@ class TestFormalExcelCompliance:
             "one for the list name and one row for a minimum of one node."
         )
         with pytest.raises(InputError, match=expected):
-            _make_formal_excel_compliance_check(df_dict)
+            _make_shape_compliance_all_excels(df_dict)
 
 
 class TestCheckExcelsForDuplicates:
@@ -114,7 +116,7 @@ class TestCheckExcelsForDuplicates:
             }
         )
         df_dict = {"file1": {"sheet1": df_1}, "file2": {"sheet2": df_2}}
-        _check_all_for_complete_duplicates(df_dict)
+        _check_duplicates_all_excels(df_dict)
 
     def test_problem(self) -> None:
         df_1 = pd.DataFrame(
@@ -131,17 +133,17 @@ class TestCheckExcelsForDuplicates:
             "    - 4"
         )
         with pytest.raises(InputError, match=expected):
-            _check_all_for_complete_duplicates(df_dict)
+            _check_duplicates_all_excels(df_dict)
 
 
 class TestCheckForDuplicates:
     def test_good(self) -> None:
         test_df = pd.DataFrame({"en_list": ["a", "b", "c"], "en_1": ["d", "e", "f"]})
-        assert not _check_sheet_for_complete_duplicates(test_df, "sheet")
+        assert not _check_for_duplicate_nodes_one_df(test_df, "sheet")
 
     def test_problem(self) -> None:
         test_df = pd.DataFrame({"en_list": ["a", "a", "a"], "en_1": ["b", "b", "b"], "en_2": ["d", "c", "d"]})
-        res = _check_sheet_for_complete_duplicates(test_df, "sheet")
+        res = _check_for_duplicate_nodes_one_df(test_df, "sheet")
         res = cast(DuplicatesInSheetProblem, res)
         assert res.rows == [0, 2]
         assert res.sheet_name == "sheet"
@@ -150,11 +152,11 @@ class TestCheckForDuplicates:
 class TestShapeCompliance:
     def test_good(self) -> None:
         test_df = pd.DataFrame({"ID (optional)": [1, 2, 3], "en_list": ["a", "b", "c"], "en_2": ["d", "e", "f"]})
-        assert not _df_shape_compliance(test_df, "")
+        assert not _make_shape_compliance_one_sheet(test_df, "")
 
     def test_good_no_id(self) -> None:
         test_df = pd.DataFrame({"en_list": ["a", "b", "c"], "en_2": ["d", "e", "f"]})
-        assert not _df_shape_compliance(test_df, "")
+        assert not _make_shape_compliance_one_sheet(test_df, "")
 
     def test_problems_one(self) -> None:
         test_df = pd.DataFrame({"ID (optional)": [1], "en_list": ["a"], "additional_1": ["b"]})
@@ -169,7 +171,7 @@ class TestShapeCompliance:
             "and will not be included in the output: additional_1"
         )
         with pytest.warns(DspToolsUserWarning, match=warning_msg):
-            res = _df_shape_compliance(test_df, "sheet")
+            res = _make_shape_compliance_one_sheet(test_df, "sheet")
             res = cast(ListSheetComplianceProblem, res)
             assert res.problems == expected
 
@@ -180,7 +182,7 @@ class TestShapeCompliance:
             "Based on the languages used, the following column(s) are missing: "
             "de_list"
         }
-        res = _df_shape_compliance(test_df, "sheet")
+        res = _make_shape_compliance_one_sheet(test_df, "sheet")
         res = cast(ListSheetComplianceProblem, res)
         assert res.problems == expected
 
@@ -188,11 +190,11 @@ class TestShapeCompliance:
 class TestCheckMinNumColNamesPresent:
     def test_good(self) -> None:
         col_names = pd.Index(["ID (optional)", "en_list", "en_2"])
-        assert not _check_min_num_col_present(col_names)
+        assert not _check_if_minimum_number_of_cols_present_one_sheet(col_names)
 
     def test_good_no_id(self) -> None:
         col_names = pd.Index(["en_list", "en_2"])
-        assert not _check_min_num_col_present(col_names)
+        assert not _check_if_minimum_number_of_cols_present_one_sheet(col_names)
 
     def test_missing_columns_list(self) -> None:
         test_cols = pd.Index(["ID (optional)", "en_2"])
@@ -200,7 +202,7 @@ class TestCheckMinNumColNamesPresent:
             "missing columns for list name": "There is no column with the expected format for the list names: "
             "'[lang]_list'"
         }
-        assert _check_min_num_col_present(test_cols) == expected
+        assert _check_if_minimum_number_of_cols_present_one_sheet(test_cols) == expected
 
     def test_missing_columns_node(self) -> None:
         test_cols = pd.Index(["ID (optional)", "en_list"])
@@ -208,7 +210,7 @@ class TestCheckMinNumColNamesPresent:
             "missing columns for nodes": "There is no column with the expected format for the list nodes: "
             "'[lang]_[column_number]'"
         }
-        assert _check_min_num_col_present(test_cols) == expected
+        assert _check_if_minimum_number_of_cols_present_one_sheet(test_cols) == expected
 
 
 class TestCheckMinimumRows:
@@ -229,7 +231,7 @@ class TestCheckWarnUnusualColumns:
     def test_good(self) -> None:
         test_cols = pd.Index(["ID (optional)", "en_list", "en_2", "de_2"])
         with warnings.catch_warnings(record=True) as caught_warnings:
-            _check_warn_unusual_columns(test_cols)
+            _check_warn_unusual_columns_one_sheet(test_cols)
         assert len(caught_warnings) == 0
 
     def test_additional_columns(self) -> None:
@@ -239,13 +241,13 @@ class TestCheckWarnUnusualColumns:
             "and will not be included in the output: additional_1, additional_2"
         )
         with pytest.warns(DspToolsUserWarning, match=expected):
-            _check_warn_unusual_columns(test_cols)
+            _check_warn_unusual_columns_one_sheet(test_cols)
 
 
 class TestCheckAllTranslationsPresent:
     def test_good(self) -> None:
         test_cols = pd.Index(["ID (optional)", "en_list", "de_list", "de_1", "en_1", "de_2", "en_2"])
-        assert not _check_all_expected_translations_present(test_cols)
+        assert not _check_if_all_translations_in_all_column_levels_present_one_sheet(test_cols)
 
     def test_missing_translations_node_columns(self) -> None:
         test_cols = pd.Index(["ID (optional)", "en_list", "de_list", "de_1", "en_1", "de_2"])
@@ -254,7 +256,7 @@ class TestCheckAllTranslationsPresent:
             "Based on the languages used, the following column(s) are missing: "
             "en_2"
         }
-        assert _check_all_expected_translations_present(test_cols) == expected
+        assert _check_if_all_translations_in_all_column_levels_present_one_sheet(test_cols) == expected
 
     def test_missing_translations_list_columns(self) -> None:
         test_cols = pd.Index(["ID (optional)", "en_list", "de_1", "en_1", "de_2", "en_2"])
@@ -263,7 +265,7 @@ class TestCheckAllTranslationsPresent:
             "Based on the languages used, the following column(s) are missing: "
             "de_list"
         }
-        assert _check_all_expected_translations_present(test_cols) == expected
+        assert _check_if_all_translations_in_all_column_levels_present_one_sheet(test_cols) == expected
 
 
 class TestCheckAllExcelsMissingTranslations:
@@ -284,7 +286,7 @@ class TestCheckAllExcelsMissingTranslations:
             }
         )
         df_dict = {"file1": {"sheet1": df_1}, "file2": {"sheet2": df_2}}
-        _check_all_excels_if_any_nodes_miss_translations(df_dict)
+        _check_for_missing_translations_all_excels(df_dict)
 
     def test_problem(self) -> None:
         df_1 = pd.DataFrame({"en_list": ["list1", "list1", "list1", "list1"], "en_1": [pd.NA, "node1", pd.NA, "node3"]})
@@ -313,7 +315,7 @@ class TestCheckAllExcelsMissingTranslations:
             "    - Row Number: '8' Column(s): de_1"
         )
         with pytest.raises(InputError, match=expected):
-            _check_all_excels_if_any_nodes_miss_translations(df_dict)
+            _check_for_missing_translations_all_excels(df_dict)
 
 
 class TestAllNodesTranslatedIntoAllLanguages:
@@ -392,7 +394,7 @@ class TestAllNodesTranslatedIntoAllLanguages:
                 "de_3": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, "Node_de_3.2.1", "Node_de_3.2.2"],
             }
         )
-        _check_sheet_if_any_nodes_miss_translations(test_df, "sheet")
+        _check_for_missing_translations_one_sheet(test_df, "sheet")
 
     def test_missing_translation(self) -> None:
         test_df = pd.DataFrame(
@@ -472,7 +474,7 @@ class TestAllNodesTranslatedIntoAllLanguages:
             MissingNodeTranslationProblem(["en_list"], 5),
             MissingNodeTranslationProblem(["en_1"], 8),
         ]
-        result = _check_sheet_if_any_nodes_miss_translations(test_df, "sheet")
+        result = _check_for_missing_translations_one_sheet(test_df, "sheet")
         result = cast(MissingTranslationsSheetProblem, result)
         res_node_problems = sorted(result.node_problems, key=lambda x: x.index_num)
         for res, expct in zip(res_node_problems, expected):
@@ -489,7 +491,7 @@ class TestCheckOneHierarchy:
                 "fr_1": ["exist1_fr", "exist2_fr", "exist3_fr"],
             }
         )
-        assert not _check_one_hierarchy(["en_1", "de_1", "fr_1"], test_df)
+        assert not _check_for_missing_translations_one_column_level(["en_1", "de_1", "fr_1"], test_df)
 
     def test_missing_translation(self) -> None:
         test_df = pd.DataFrame(
@@ -499,7 +501,7 @@ class TestCheckOneHierarchy:
                 "fr_1": ["exist1_fr", "exist2_fr", "exist3_fr"],
             }
         )
-        res = _check_one_hierarchy(["en_1", "de_1", "fr_1"], test_df)
+        res = _check_for_missing_translations_one_column_level(["en_1", "de_1", "fr_1"], test_df)
         assert len(res) == 1
         prbl = res[0]
         assert prbl.empty_columns == ["en_1", "de_1"]
@@ -509,15 +511,15 @@ class TestCheckOneHierarchy:
 class TestCheckOneNodeForTranslation:
     def test_good(self) -> None:
         test_series = pd.Series(["exist_en", "exist_de"], index=["en_1", "de_1"])
-        assert not _check_one_node_for_translations(test_series, ["en_1", "de_1"], 1)
+        assert not _check_for_missing_translations_one_node(test_series, ["en_1", "de_1"], 1)
 
     def test_good_empty(self) -> None:
         test_series = pd.Series([pd.NA, pd.NA], index=["en_1", "de_1"])
-        assert not _check_one_node_for_translations(test_series, ["en_1", "de_1"], 1)
+        assert not _check_for_missing_translations_one_node(test_series, ["en_1", "de_1"], 1)
 
     def test_missing_translation(self) -> None:
         test_series = pd.Series(["exist_en", pd.NA], index=["en_1", "de_1"])
-        result = _check_one_node_for_translations(test_series, ["en_1", "de_1"], 1)
+        result = _check_for_missing_translations_one_node(test_series, ["en_1", "de_1"], 1)
         result = cast(MissingNodeTranslationProblem, result)
         assert result.empty_columns == ["de_1"]
         assert result.index_num == 1
@@ -544,7 +546,7 @@ class TestCheckAllExcelForRowProblems:
             }
         )
         df_dict = {"file1": {"sheet1": df_1}, "file2": {"sheet2": df_2}}
-        _check_all_excel_for_erroneous_entries(df_dict)
+        _check_for_erroneous_entries_all_excels(df_dict)
 
     def test_all_problem(self) -> None:
         df_1 = pd.DataFrame({"en_list": ["list1", "list1", "list1", "list1"], "en_1": [pd.NA, "node1", pd.NA, "node3"]})
@@ -570,13 +572,13 @@ class TestCheckAllExcelForRowProblems:
             "    - Row Number: '6' Columns must be empty: en_2"
         )
         with pytest.raises(InputError, match=expected):
-            _check_all_excel_for_erroneous_entries(df_dict)
+            _check_for_erroneous_entries_all_excels(df_dict)
 
 
 class TestOneSheetErrors:
     def test_all_good_flat(self) -> None:
         df = pd.DataFrame({"en_list": ["list1", "list1", "list1", "list1"], "en_1": [pd.NA, "node1", "node2", "node3"]})
-        assert not _check_sheet_for_erroneous_entries(df, "name")
+        assert not _check_for_erroneous_entries_one_list(df, "name")
 
     def test_problem(self) -> None:
         df = pd.DataFrame(
@@ -586,7 +588,7 @@ class TestOneSheetErrors:
                 "en_2": [pd.NA, pd.NA, "node1.1", "node1.2", "node2.1", pd.NA],
             }
         )
-        res = _check_sheet_for_erroneous_entries(df, "name")
+        res = _check_for_erroneous_entries_one_list(df, "name")
         assert isinstance(res, ListSheetContentProblem)
         assert res.sheet_name == "name"
         assert len(res.problems) == 1
@@ -602,11 +604,11 @@ class TestCheckForErroneousEntries:
                 "en_3": [pd.NA, pd.NA, pd.NA, "node1.1.1", pd.NA, pd.NA, pd.NA, pd.NA],
             }
         )
-        assert not _check_for_erroneous_entries(df, ["en_list", "en_1", "en_2", "en_3"])
+        assert not _check_for_erroneous_node_info_one_df(df, ["en_list", "en_1", "en_2", "en_3"])
 
     def test_all_good_flat(self) -> None:
         df = pd.DataFrame({"en_list": ["list1", "list1", "list1", "list1"], "en_1": [pd.NA, "node1", "node2", "node3"]})
-        assert not _check_for_erroneous_entries(df, ["en_list", "en_1"])
+        assert not _check_for_erroneous_node_info_one_df(df, ["en_list", "en_1"])
 
     def test_missing_row(self) -> None:
         df = pd.DataFrame(
@@ -618,7 +620,7 @@ class TestCheckForErroneousEntries:
             }
         )
         # "node1.1" & "node2" is missing
-        res = _check_for_erroneous_entries(df, ["en_list", "en_1", "en_2", "en_3"])
+        res = _check_for_erroneous_node_info_one_df(df, ["en_list", "en_1", "en_2", "en_3"])
         res = sorted(res, key=lambda x: x.index_num)
         assert len(res) == 2
         assert isinstance(res[0], NodesPerRowProblem)
@@ -637,14 +639,14 @@ class TestCheckOneColumnGroupsForErroneousEntries:
             {"one": ["a", "b", "b", "c"], "two": [pd.NA, "bb", "bb", "cc"], "other": ["a", "b", pd.NA, pd.NA]},
             index=[2, 3, 4, 5],
         )
-        assert not _check_one_column_groups_for_erroneous_entries(df, ["two"])
+        assert not _check_for_erroneous_entries_one_column_level(df, ["two"])
 
     def test_missing(self) -> None:
         df = pd.DataFrame(
             {"one": ["a", "b", "b", "c"], "two": [pd.NA, "bb", pd.NA, pd.NA], "other": ["a", "b", pd.NA, pd.NA]},
             index=[2, 3, 4, 5],
         )
-        res = _check_one_column_groups_for_erroneous_entries(df, ["one", "two"])
+        res = _check_for_erroneous_entries_one_column_level(df, ["one", "two"])
         assert len(res) == 2
         assert isinstance(res[0], NodesPerRowProblem)
         assert res[0].column_names == ["two"]
@@ -661,19 +663,19 @@ class TestCheckOneGroupForErroneousEntries:
         df = pd.DataFrame(
             {"one": ["a", "b", "c"], "two": [pd.NA, "bb", "cc"], "other": ["a", "b", pd.NA]}, index=[2, 3, 4]
         )
-        assert not _check_one_group_for_erroneous_entries(df, ["one", "two"])
+        assert not _check_for_erroneous_entries_one_grouped_df(df, ["one", "two"])
 
     def test_good_one_col(self) -> None:
         df = pd.DataFrame(
             {"one": ["a", "b", "c"], "two": [pd.NA, "bb", "cc"], "other": ["a", "b", pd.NA]}, index=[2, 3, 4]
         )
-        assert not _check_one_group_for_erroneous_entries(df, ["two"])
+        assert not _check_for_erroneous_entries_one_grouped_df(df, ["two"])
 
     def test_filled_first_row(self) -> None:
         df = pd.DataFrame(
             {"one": ["a", "b", "c"], "two": ["filled", "bb", "cc"], "other": ["a", "b", pd.NA]}, index=[2, 3, 4]
         )
-        res = _check_one_group_for_erroneous_entries(df, ["one", "two"])
+        res = _check_for_erroneous_entries_one_grouped_df(df, ["one", "two"])
         assert len(res) == 1
         assert isinstance(res[0], NodesPerRowProblem)
         assert res[0].column_names == ["two"]
@@ -685,7 +687,7 @@ class TestCheckOneGroupForErroneousEntries:
             {"one": ["a", "b", "c", "d"], "two": [pd.NA, pd.NA, "cc", pd.NA], "other": ["a", "b", pd.NA, "d"]},
             index=[2, 3, 4, 5],
         )
-        res = _check_one_group_for_erroneous_entries(df, ["one", "two"])
+        res = _check_for_erroneous_entries_one_grouped_df(df, ["one", "two"])
         assert len(res) == 2
         assert isinstance(res[0], NodesPerRowProblem)
         assert res[0].column_names == ["two"]

@@ -39,12 +39,12 @@ def make_all_formal_excel_compliance_checks(
     Raises:
         InputError: If any unexpected input is found in the excel files.
     """
-    _check_all_for_complete_duplicates(excel_dfs)
-    _make_formal_excel_compliance_check(excel_dfs)
-    _make_all_list_content_compliance_checks(excel_dfs)
+    _check_duplicates_all_excels(excel_dfs)
+    _make_shape_compliance_all_excels(excel_dfs)
+    _make_all_content_compliance_checks_all_excels(excel_dfs)
 
 
-def _check_all_for_complete_duplicates(
+def _check_duplicates_all_excels(
     excel_dfs: dict[str, dict[str, pd.DataFrame]],
 ) -> None:
     """
@@ -57,12 +57,14 @@ def _check_all_for_complete_duplicates(
     Raises:
         InputError: If any complete duplicates are found in the excel files.
     """
+    # TODO: rename and describe
+    # TODO: check for id duplicates in all lists
     problems = []
     for filename, excel_sheets in excel_dfs.items():
         complete_duplicates: list[Problem] = [
             p
             for sheet_name, df in excel_sheets.items()
-            if (p := _check_sheet_for_complete_duplicates(df, sheet_name)) is not None
+            if (p := _check_for_duplicate_nodes_one_df(df, sheet_name)) is not None
         ]
         if complete_duplicates:
             problems.append(ListExcelProblem(filename, complete_duplicates))
@@ -72,14 +74,14 @@ def _check_all_for_complete_duplicates(
         raise InputError(msg)
 
 
-def _check_sheet_for_complete_duplicates(df: pd.DataFrame, sheet_name: str) -> DuplicatesInSheetProblem | None:
+def _check_for_duplicate_nodes_one_df(df: pd.DataFrame, sheet_name: str) -> DuplicatesInSheetProblem | None:
     lang_columns = [col for col in df.columns if regex.search(r"^(en|de|fr|it|rm)_(\d+|list)$", col)]
     if (duplicate_filter := df.duplicated(lang_columns, keep=False)).any():
         return DuplicatesInSheetProblem(sheet_name, duplicate_filter.index[duplicate_filter].tolist())
     return None
 
 
-def _make_formal_excel_compliance_check(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> None:
+def _make_shape_compliance_all_excels(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> None:
     """
     This function checks if the excel files are compliant with the expected format.
 
@@ -93,7 +95,9 @@ def _make_formal_excel_compliance_check(excel_dfs: dict[str, dict[str, pd.DataFr
     problems = []
     for filename, excel_sheets in excel_dfs.items():
         shape_problems: list[Problem] = [
-            p for sheet_name, df in excel_sheets.items() if (p := _df_shape_compliance(df, sheet_name)) is not None
+            p
+            for sheet_name, df in excel_sheets.items()
+            if (p := _make_shape_compliance_one_sheet(df, sheet_name)) is not None
         ]
         if shape_problems:
             problems.append(ListExcelProblem(filename, shape_problems))
@@ -103,12 +107,12 @@ def _make_formal_excel_compliance_check(excel_dfs: dict[str, dict[str, pd.DataFr
         raise InputError(msg)
 
 
-def _df_shape_compliance(df: pd.DataFrame, sheet_name: str) -> ListSheetComplianceProblem | None:
+def _make_shape_compliance_one_sheet(df: pd.DataFrame, sheet_name: str) -> ListSheetComplianceProblem | None:
     problems = {}
     problems.update(_check_minimum_rows(df))
-    problems.update(_check_min_num_col_present(df.columns))
-    problems.update(_check_all_expected_translations_present(df.columns))
-    _check_warn_unusual_columns(df.columns)
+    problems.update(_check_if_minimum_number_of_cols_present_one_sheet(df.columns))
+    problems.update(_check_if_all_translations_in_all_column_levels_present_one_sheet(df.columns))
+    _check_warn_unusual_columns_one_sheet(df.columns)
     if problems:
         return ListSheetComplianceProblem(sheet_name, problems)
     return None
@@ -123,7 +127,7 @@ def _check_minimum_rows(df: pd.DataFrame) -> dict[str, str]:
     return {}
 
 
-def _check_min_num_col_present(cols: pd.Index[str]) -> dict[str, str]:
+def _check_if_minimum_number_of_cols_present_one_sheet(cols: pd.Index[str]) -> dict[str, str]:
     problem = {}
     node_langs = [_get_lang_string_from_column_name(c, r"\d+") for c in cols]
     if not any(node_langs):
@@ -138,7 +142,7 @@ def _check_min_num_col_present(cols: pd.Index[str]) -> dict[str, str]:
     return problem
 
 
-def _check_warn_unusual_columns(cols: pd.Index[str]) -> None:
+def _check_warn_unusual_columns_one_sheet(cols: pd.Index[str]) -> None:
     not_matched = [x for x in cols if not regex.search(r"^(en|de|fr|it|rm)_(\d+|list)|(ID \(optional\))$", x)]
     if not_matched:
         msg = (
@@ -148,7 +152,7 @@ def _check_warn_unusual_columns(cols: pd.Index[str]) -> None:
         warnings.warn(DspToolsUserWarning(msg))
 
 
-def _check_all_expected_translations_present(cols: pd.Index[str]) -> dict[str, str]:
+def _check_if_all_translations_in_all_column_levels_present_one_sheet(cols: pd.Index[str]) -> dict[str, str]:
     languages = {r for c in cols if (r := _get_lang_string_from_column_name(c)) is not None}
     all_nums = [str(n) for n in _get_hierarchy_nums(cols)]
     all_nums.append("list")
@@ -168,7 +172,7 @@ def _check_all_expected_translations_present(cols: pd.Index[str]) -> dict[str, s
     return {}
 
 
-def _make_all_list_content_compliance_checks(
+def _make_all_content_compliance_checks_all_excels(
     excel_dfs: dict[str, dict[str, pd.DataFrame]],
 ) -> None:
     """
@@ -181,17 +185,17 @@ def _make_all_list_content_compliance_checks(
     Raises:
         InputError: If any node is missing translations
     """
-    _check_all_excels_if_any_nodes_miss_translations(excel_dfs)
-    _check_all_excel_for_erroneous_entries(excel_dfs)
+    _check_for_missing_translations_all_excels(excel_dfs)
+    _check_for_erroneous_entries_all_excels(excel_dfs)
 
 
-def _check_all_excels_if_any_nodes_miss_translations(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> None:
+def _check_for_missing_translations_all_excels(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> None:
     problems = []
     for filename, excel_sheets in excel_dfs.items():
         missing_translations: list[Problem] = [
             p
             for sheet_name, df in excel_sheets.items()
-            if (p := _check_sheet_if_any_nodes_miss_translations(df, sheet_name)) is not None
+            if (p := _check_for_missing_translations_one_sheet(df, sheet_name)) is not None
         ]
         if missing_translations:
             problems.append(ListExcelProblem(filename, missing_translations))
@@ -201,7 +205,7 @@ def _check_all_excels_if_any_nodes_miss_translations(excel_dfs: dict[str, dict[s
         raise InputError(msg)
 
 
-def _check_sheet_if_any_nodes_miss_translations(
+def _check_for_missing_translations_one_sheet(
     df: pd.DataFrame, sheet_name: str
 ) -> MissingTranslationsSheetProblem | None:
     col_endings = [str(num) for num in _get_hierarchy_nums(df.columns)]
@@ -210,16 +214,18 @@ def _check_sheet_if_any_nodes_miss_translations(
     all_cols = _make_columns(col_endings, languages)
     problems = []
     for column_group in all_cols:
-        problems.extend(_check_one_hierarchy(column_group, df))
+        problems.extend(_check_for_missing_translations_one_column_level(column_group, df))
     if problems:
         return MissingTranslationsSheetProblem(sheet_name, problems)
     return None
 
 
-def _check_one_hierarchy(columns: list[str], df: pd.DataFrame) -> list[MissingNodeTranslationProblem]:
+def _check_for_missing_translations_one_column_level(
+    columns: list[str], df: pd.DataFrame
+) -> list[MissingNodeTranslationProblem]:
     problems = []
     for i, row in df.iterrows():
-        if problem := _check_one_node_for_translations(row, columns, int(str(i))):
+        if problem := _check_for_missing_translations_one_node(row, columns, int(str(i))):
             problems.append(problem)
     return problems
 
@@ -228,7 +234,7 @@ def _make_columns(nums: list[str], languages: set[str]) -> list[list[str]]:
     return [[f"{lang}_{num}" for lang in languages] for num in nums]
 
 
-def _check_one_node_for_translations(
+def _check_for_missing_translations_one_node(
     row: pd.Series[Any], columns: list[str], row_index: int
 ) -> MissingNodeTranslationProblem | None:
     missing = row[columns].isna()
@@ -238,13 +244,13 @@ def _check_one_node_for_translations(
     return None
 
 
-def _check_all_excel_for_erroneous_entries(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> None:
+def _check_for_erroneous_entries_all_excels(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> None:
     problems = []
     for filename, excel_sheets in excel_dfs.items():
         missing_rows: list[Problem] = [
             p
             for sheet_name, df in excel_sheets.items()
-            if (p := _check_sheet_for_erroneous_entries(df, sheet_name)) is not None
+            if (p := _check_for_erroneous_entries_one_list(df, sheet_name)) is not None
         ]
         if missing_rows:
             problems.append(ListExcelProblem(filename, missing_rows))
@@ -254,38 +260,37 @@ def _check_all_excel_for_erroneous_entries(excel_dfs: dict[str, dict[str, pd.Dat
         raise InputError(msg)
 
 
-def _check_sheet_for_erroneous_entries(df: pd.DataFrame, sheet_name: str) -> ListSheetContentProblem | None:
+def _check_for_erroneous_entries_one_list(df: pd.DataFrame, sheet_name: str) -> ListSheetContentProblem | None:
     preferred_lang = _get_preferred_language(df.columns)
     preferred_cols = _get_columns_of_preferred_lang(df.columns, preferred_lang, r"\d+")
     preferred_cols = sorted(preferred_cols)
-    preferred_cols.insert(
-        0,
-        f"{preferred_lang}_list",
-    )
-    problems = _check_for_erroneous_entries(df, preferred_cols)
+    preferred_cols.insert(0, f"{preferred_lang}_list")
+    problems = _check_for_erroneous_node_info_one_df(df, preferred_cols)
     if problems:
         list_problems = cast(list[Problem], problems)
         return ListSheetContentProblem(sheet_name, list_problems)
     return None
 
 
-def _check_for_erroneous_entries(df: pd.DataFrame, columns: list[str]) -> list[NodesPerRowProblem]:
+def _check_for_erroneous_node_info_one_df(df: pd.DataFrame, columns: list[str]) -> list[NodesPerRowProblem]:
     problems = []
     for i, col in enumerate(columns):
         to_check_cols = columns[i:]
-        problems.extend(_check_one_column_groups_for_erroneous_entries(df, to_check_cols))
+        problems.extend(_check_for_erroneous_entries_one_column_level(df, to_check_cols))
     return problems
 
 
-def _check_one_column_groups_for_erroneous_entries(df: pd.DataFrame, columns: list[str]) -> list[NodesPerRowProblem]:
+def _check_for_erroneous_entries_one_column_level(df: pd.DataFrame, columns: list[str]) -> list[NodesPerRowProblem]:
     grouped = df.groupby(columns[0])
     problems = []
     for name, group in grouped:
-        problems.extend(_check_one_group_for_erroneous_entries(group, columns))
+        problems.extend(_check_for_erroneous_entries_one_grouped_df(group, columns))
     return problems
 
 
-def _check_one_group_for_erroneous_entries(group: pd.DataFrame, target_cols: list[str]) -> list[NodesPerRowProblem]:
+def _check_for_erroneous_entries_one_grouped_df(
+    group: pd.DataFrame, target_cols: list[str]
+) -> list[NodesPerRowProblem]:
     problems = []
     first_col = min(group.index)
     if not group.loc[first_col, target_cols[1:]].isna().all():

@@ -45,7 +45,6 @@ class TestDuplicateID:
                 "ID (optional)": [pd.NA, pd.NA],
             }
         )
-
         all_excels = {"file1": {"sheet1": f1_s1}, "file2": {"sheet2": f2_s2}}
         res = _remove_duplicate_ids_in_all_excels(["1"], all_excels)
         assert res["file1"]["sheet1"]["id"].to_list() == ["0", "List1:Node1", "2"]
@@ -68,7 +67,6 @@ class TestDuplicateID:
                 "ID (optional)": [pd.NA, pd.NA],
             }
         )
-
         all_excels = {"file1": {"sheet1": f1_s1}, "file2": {"sheet2": f2_s2}}
         res = _remove_duplicate_ids_in_all_excels(["1"], all_excels)
         assert res["file1"]["sheet1"]["id"].to_list() == ["0", "1", "2"]
@@ -91,7 +89,6 @@ class TestDuplicateID:
                 "ID (optional)": [pd.NA, pd.NA],
             }
         )
-
         all_excels = {"file1": {"sheet1": f1_s1}, "file2": {"sheet2": f2_s2}}
         res = _resolve_duplicate_ids_all_excels(all_excels)
         assert res["file1"]["sheet1"]["id"].to_list() == ["0", "List1:Node1", "2"]
@@ -114,7 +111,6 @@ class TestDuplicateID:
                 "ID (optional)": [pd.NA, pd.NA],
             }
         )
-
         all_excels = {"file1": {"sheet1": f1_s1}, "file2": {"sheet2": f2_s2}}
         res = _resolve_duplicate_ids_all_excels(all_excels)
         assert res["file1"]["sheet1"]["id"].to_list() == ["0", "11", "2"]

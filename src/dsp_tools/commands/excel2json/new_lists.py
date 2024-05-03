@@ -58,11 +58,11 @@ def _resolve_duplicate_ids_all_excels(
             ids.extend(df["id"].tolist())
     counter = Counter(ids)
     if duplicate_ids := [item for item, count in counter.items() if count > 1]:
-        return _remove_duplicate_ids_in_all_excel(duplicate_ids, excel_dfs)
+        return _remove_duplicate_ids_in_all_excels(duplicate_ids, excel_dfs)
     return excel_dfs
 
 
-def _remove_duplicate_ids_in_all_excel(
+def _remove_duplicate_ids_in_all_excels(
     duplicate_ids: list[str], excel_dfs: dict[str, dict[str, pd.DataFrame]]
 ) -> dict[str, dict[str, pd.DataFrame]]:
     for sheets in excel_dfs.values():
@@ -84,6 +84,7 @@ def _complete_id_one_df(df: pd.DataFrame, preferred_language: str) -> pd.DataFra
 
 
 def _resolve_duplicate_ids_keep_custom_change_auto_id_one_df(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
+    """If there are duplicates in the id column, the auto_id is changed, the custom ID remains the same."""
     if (duplicate_filter := df["id"].duplicated(keep=False)).any():
         for i in duplicate_filter.index[duplicate_filter]:
             if pd.isna(df.at[i, "ID (optional)"]):
@@ -110,6 +111,7 @@ def _create_auto_id_one_df(df: pd.DataFrame, preferred_language: str) -> pd.Data
 
 
 def _resolve_duplicate_ids_for_auto_id_one_df(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
+    """In case the auto_id is not unique; both auto_ids get a new ID by joining the node names of all the ancestors."""
     if (duplicate_filter := df["auto_id"].dropna().duplicated(keep=False)).any():
         for i in duplicate_filter.index[duplicate_filter]:
             df.at[i, "auto_id"] = _construct_non_duplicate_id_string(df.iloc[i], preferred_language)
@@ -117,6 +119,7 @@ def _resolve_duplicate_ids_for_auto_id_one_df(df: pd.DataFrame, preferred_langua
 
 
 def _construct_non_duplicate_id_string(row: pd.Series[Any], preferred_language: str) -> str:
+    """In case the node name is not unique; an ID is created by joining the node names of all the ancestors."""
     column_names = _get_columns_of_preferred_lang(row.index, preferred_language, r"\d+")
     column_names.insert(0, f"{preferred_language}_list")
     id_cols = [row[col] for col in column_names if pd.notna(row[col])]

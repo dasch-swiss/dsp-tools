@@ -21,8 +21,45 @@ from dsp_tools.commands.excel2json.new_lists import _make_list_nodes_from_df
 from dsp_tools.commands.excel2json.new_lists import _make_one_list
 from dsp_tools.commands.excel2json.new_lists import _make_one_node
 from dsp_tools.commands.excel2json.new_lists import _resolve_duplicate_custom_and_auto_id
+from dsp_tools.commands.excel2json.new_lists import _resolve_duplicates_in_all_excel
 from dsp_tools.commands.excel2json.new_lists import _resolve_one_df_auto_duplicate_ids
 from dsp_tools.models.exceptions import InputError
+
+
+class TestDuplicateID:
+    def test_resolve_duplicates_in_all_excel(self) -> None:
+        id_df = pd.DataFrame(
+            {
+                "id": ["0", "1", "2", "00", "1"],
+                "sheet": ["sheet1", "sheet1", "sheet1", "sheet2", "sheet2"],
+                "filename": ["file1", "file1", "file1", "file2", "file2"],
+            }
+        )
+        duplicated = pd.Series([False, True, False, False, True])
+        f1_s1 = pd.DataFrame(
+            {
+                "id": ["0", "1", "2"],
+                "en_list": ["List1", "List1", "List1"],
+                "en_1": [pd.NA, "Node1", "Node2"],
+            }
+        )
+        f2_s2 = pd.DataFrame(
+            {
+                "id": ["00", "1"],
+                "en_list": ["List2", "List2"],
+                "en_1": [pd.NA, "Node1"],
+            }
+        )
+
+        all_excel = {
+            "file1": {"sheet1": f1_s1},
+            "file2": {"sheet2": f2_s2},
+            "file3": {"sheet3": pd.DataFrame({"id": [], "en_list": [], "en_1": []})},
+            "file4": {"sheet4": pd.DataFrame({"id": [], "en_list": [], "en_1": []})},
+        }
+        res = _resolve_duplicates_in_all_excel(id_df, duplicated, all_excel)
+        assert res["file1"]["sheet1"]["id"].to_list() == ["0", "List1:Node1", "2"]
+        assert res["file2"]["sheet2"]["id"].to_list() == ["00", "List2:Node1"]
 
 
 class TestMakeOneList:

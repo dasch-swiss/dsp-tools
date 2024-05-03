@@ -51,22 +51,13 @@ def _analyse_resolve_all_excel_duplicates(
 def _resolve_duplicates_in_all_excel(
     id_df: pd.DataFrame, duplicates: pd.Series[bool], excel_dfs: dict[str, dict[str, pd.DataFrame]]
 ) -> dict[str, dict[str, pd.DataFrame]]:
-    id_df["non_duplicates"] = pd.NA
-    preferred_lang = _get_preferred_language(id_df.columns)
-    for i in duplicates.index[duplicates]:
-        id_df.at[i, "non_duplicates"] = _construct_non_duplicate_id_string(id_df.iloc[i], preferred_lang)
-    lookup = {
-        file: {
-            sheet: {row["id"]: row["non_duplicates"] for i, row in id_df.iterrows() if pd.notna(row["non_duplicates"])}
-            for sheet in id_df["sheet"].unique()
-        }
-        for file in id_df["filename"].unique()
-    }
+    id_set = set(id_df["id"][duplicates].to_list())
     for filename, sheets in excel_dfs.items():
-        for sheet, id_df in sheets.items():
-            for i, row in id_df.iterrows():
-                if lookup.get(filename, {}).get(sheet, {}).get(row["id"]):
-                    id_df.at[i, "id"] = id_df.at[i, "non_duplicates"]
+        for sheet, df in sheets.items():
+            preferred_lang = _get_preferred_language(df.columns)
+            for i, row in df.iterrows():
+                if row["id"] in id_set:
+                    df.at[i, "id"] = _construct_non_duplicate_id_string(df.iloc[int(str(i))], preferred_lang)
     return excel_dfs
 
 

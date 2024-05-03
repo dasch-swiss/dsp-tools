@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import Counter
 from typing import Any
 
 import pandas as pd
@@ -13,25 +14,26 @@ from dsp_tools.models.exceptions import InputError
 
 
 def _construct_ids(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> dict[str, dict[str, pd.DataFrame]]:
-    filled = {
-        filename: {
-            sheet_name: _fill_one_df_auto_id_resolve_duplicates(df, _get_preferred_language(df.columns))
-            for sheet_name, df in sheets.items()
-        }
-        for filename, sheets in excel_dfs.items()
-    }
-    filled = _analyse_resolve_all_excel_duplicates(filled)
-    return _fill_all_excel_parent_id(filled)
+    all_file_dict = {}
+    for filename, sheets in excel_dfs.items():
+        single_file_dict = {}
+        for sheet_name, df in sheets.items():
+            single_file_dict[sheet_name] = _fill_one_df_auto_id_resolve_duplicates(
+                df, _get_preferred_language(df.columns)
+            )
+        all_file_dict[filename] = single_file_dict
+    all_file_dict = _analyse_resolve_all_excel_duplicates(all_file_dict)
+    return _fill_all_excel_parent_id(all_file_dict)
 
 
 def _fill_all_excel_parent_id(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> dict[str, dict[str, pd.DataFrame]]:
-    return {
-        filename: {
-            sheet_name: _fill_one_df_parent_id(df, _get_preferred_language(df.columns))
-            for sheet_name, df in sheets.items()
-        }
-        for filename, sheets in excel_dfs.items()
-    }
+    all_file_dict = {}
+    for filename, sheets in excel_dfs.items():
+        single_file_dict = {}
+        for sheet_name, df in sheets.items():
+            single_file_dict[sheet_name] = _fill_one_df_parent_id(df, _get_preferred_language(df.columns))
+        all_file_dict[filename] = single_file_dict
+    return all_file_dict
 
 
 def _analyse_resolve_all_excel_duplicates(
@@ -41,19 +43,17 @@ def _analyse_resolve_all_excel_duplicates(
     for sheets in excel_dfs.values():
         for df in sheets.values():
             ids.extend(df["id"].tolist())
-
-    id_df = pd.DataFrame({"id": ids})
-    if (duplicates := id_df["id"].duplicated(keep=False)).any():
-        id_set = set(id_df["id"][duplicates].to_list())
-        return _resolve_duplicates_in_all_excel(id_set, excel_dfs)
+    counter = Counter(ids)
+    if duplicates := [item for item, count in counter.items() if count > 1]:
+        return _resolve_duplicates_in_all_excel(duplicates, excel_dfs)
     return excel_dfs
 
 
 def _resolve_duplicates_in_all_excel(
-    id_set: set[str], excel_dfs: dict[str, dict[str, pd.DataFrame]]
+    id_set: list[str], excel_dfs: dict[str, dict[str, pd.DataFrame]]
 ) -> dict[str, dict[str, pd.DataFrame]]:
-    for filename, sheets in excel_dfs.items():
-        for sheet, df in sheets.items():
+    for sheets in excel_dfs.values():
+        for df in sheets.values():
             preferred_lang = _get_preferred_language(df.columns)
             for i, row in df.iterrows():
                 if row["id"] in id_set:

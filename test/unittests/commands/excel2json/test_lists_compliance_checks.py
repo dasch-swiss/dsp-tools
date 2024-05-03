@@ -104,12 +104,12 @@ class TestCheckExcelsForDuplicates:
             {
                 "en_list": ["list1", "list1", "list1", "list1"],
                 "en_1": [pd.NA, "node1", "node2", "node3"],
-                "id": [11, 22, 33, 44],
+                "ID (optional)": [11, 22, pd.NA, 44],
             }
         )
         df_2 = pd.DataFrame(
             {
-                "id": [1, 2, 3, 4, 5, 6, 7, 8],
+                "ID (optional)": [1, 2, pd.NA, 4, 5, 6, 7, pd.NA],
                 "en_list": ["list1", "list1", "list1", "list1", "list1", "list1", "list1", "list1"],
                 "de_list": ["list1", "list1", "list1", "list1", "list1", "list1", "list1", "list1"],
                 "en_1": [pd.NA, "node1", "node1", "node1", "node1", "node2", "node2", "node3"],
@@ -128,7 +128,7 @@ class TestCheckExcelsForDuplicates:
             {
                 "en_list": ["list1", "list1", "list1", "list1"],
                 "en_1": [pd.NA, "node1", "node1", "node3"],
-                "id": [1, 2, 3, 4],
+                "ID (optional)": [1, 2, 3, 4],
             }
         )
         df_dict = {"file1": {"sheet1": df_1}}
@@ -149,14 +149,14 @@ class TestCheckExcelsForDuplicates:
             {
                 "en_list": ["list1", "list1", "list1", "list1"],
                 "en_1": [pd.NA, "node1", "node2", "node3"],
-                "id": [2, 1, 3, 4],
+                "ID (optional)": [2, 1, 3, 4],
             }
         )
         df_2 = pd.DataFrame(
             {
                 "en_list": ["list2", "list2", "list2"],
                 "en_1": [pd.NA, "node1", "node3"],
-                "id": [1, 22, 4],
+                "ID (optional)": [1, 22, 4],
             }
         )
         df_dict = {"file1": {"sheet1": df_1}, "file2": {"sheet2": df_2}}

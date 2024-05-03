@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import Counter
 from typing import Any
 
 import pandas as pd
@@ -12,33 +13,28 @@ from dsp_tools.commands.excel2json.models.list_node import ListRoot
 from dsp_tools.models.exceptions import InputError
 
 
-def _fill_id_and_parent_id_columns(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
-    if "ID (optional)" not in df.columns:
-        df["ID (optional)"] = pd.NA
-    df = _fill_auto_id_column(df, preferred_language)
-    df["id"] = df["ID (optional)"].fillna(df["auto_id"])
-    df = _fill_parent_id(df, preferred_language)
-    return df
+def _construct_ids(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> dict[str, dict[str, pd.DataFrame]]:
+    all_file_dict = {}
+    for filename, sheets in excel_dfs.items():
+        single_file_dict = {}
+        for sheet_name, df in sheets.items():
+            single_file_dict[sheet_name] = _complete_id_one_df(df, _get_preferred_language(df.columns))
+        all_file_dict[filename] = single_file_dict
+    all_file_dict = _resolve_duplicate_ids_all_excels(all_file_dict)
+    return _fill_parent_id_col_all_excels(all_file_dict)
 
 
-def _fill_auto_id_column(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
-    """For every node without manual ID, take the label of the preferred language as ID."""
-    df["auto_id"] = pd.NA
-    if not df["ID (optional)"].isna().any():
-        return df
-    if pd.isna(df.at[0, "ID (optional)"]):
-        df.at[0, "auto_id"] = df.at[0, f"{preferred_language}_list"]
-    columns = sorted(_get_columns_of_preferred_lang(df.columns, preferred_language, r"\d+"), reverse=True)
-    for i, row in df.iterrows():
-        if pd.isna(row["ID (optional)"]):
-            for col in columns:
-                if pd.notna(row[col]):
-                    df.at[i, "auto_id"] = row[col]
-                    break
-    return df
+def _fill_parent_id_col_all_excels(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> dict[str, dict[str, pd.DataFrame]]:
+    all_file_dict = {}
+    for filename, sheets in excel_dfs.items():
+        single_file_dict = {}
+        for sheet_name, df in sheets.items():
+            single_file_dict[sheet_name] = _fill_parent_id_col_one_df(df, _get_preferred_language(df.columns))
+        all_file_dict[filename] = single_file_dict
+    return all_file_dict
 
 
-def _fill_parent_id(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
+def _fill_parent_id_col_one_df(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
     """Create an extra column with the ID of the parent node."""
     # To start, all rows get the ID of the list. These will be overwritten if the row has another parent.
     df["parent_id"] = df.at[0, "id"]
@@ -51,6 +47,83 @@ def _fill_parent_id(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
                 rest_index = list(group.index)[1:]
                 df.loc[rest_index, "parent_id"] = group.at[group.index[0], "id"]
     return df
+
+
+def _resolve_duplicate_ids_all_excels(
+    excel_dfs: dict[str, dict[str, pd.DataFrame]],
+) -> dict[str, dict[str, pd.DataFrame]]:
+    ids = []
+    for sheets in excel_dfs.values():
+        for df in sheets.values():
+            ids.extend(df["id"].tolist())
+    counter = Counter(ids)
+    if duplicate_ids := [item for item, count in counter.items() if count > 1]:
+        return _remove_duplicate_ids_in_all_excels(duplicate_ids, excel_dfs)
+    return excel_dfs
+
+
+def _remove_duplicate_ids_in_all_excels(
+    duplicate_ids: list[str], excel_dfs: dict[str, dict[str, pd.DataFrame]]
+) -> dict[str, dict[str, pd.DataFrame]]:
+    for sheets in excel_dfs.values():
+        for df in sheets.values():
+            preferred_lang = _get_preferred_language(df.columns)
+            for i, row in df.iterrows():
+                if row["id"] in duplicate_ids and pd.isna(row["ID (optional)"]):
+                    df.at[i, "id"] = _construct_non_duplicate_id_string(df.iloc[int(str(i))], preferred_lang)
+    return excel_dfs
+
+
+def _complete_id_one_df(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
+    if "ID (optional)" not in df.columns:
+        df["ID (optional)"] = pd.NA
+    df = _create_auto_id_one_df(df, preferred_language)
+    df["id"] = df["ID (optional)"].fillna(df["auto_id"])
+    df = _resolve_duplicate_ids_keep_custom_change_auto_id_one_df(df, preferred_language)
+    return df
+
+
+def _resolve_duplicate_ids_keep_custom_change_auto_id_one_df(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
+    """If there are duplicates in the id column, the auto_id is changed, the custom ID remains the same."""
+    if (duplicate_filter := df["id"].duplicated(keep=False)).any():
+        for i in duplicate_filter.index[duplicate_filter]:
+            if pd.isna(df.at[i, "ID (optional)"]):
+                df.loc[i, "id"] = _construct_non_duplicate_id_string(df.iloc[i], preferred_language)
+    return df
+
+
+def _create_auto_id_one_df(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
+    """For every node without manual ID, take the label of the preferred language as ID."""
+    df["auto_id"] = pd.NA
+    if not df["ID (optional)"].isna().any():
+        return df
+    if pd.isna(df.at[0, "ID (optional)"]):
+        df.loc[0, "auto_id"] = df.at[0, f"{preferred_language}_list"]
+    column_names = sorted(_get_columns_of_preferred_lang(df.columns, preferred_language, r"\d+"), reverse=True)
+    for i, row in df.iterrows():
+        if pd.isna(row["ID (optional)"]):
+            for col in column_names:
+                if pd.notna(row[col]):
+                    df.at[i, "auto_id"] = row[col]
+                    break
+    df = _resolve_duplicate_ids_for_auto_id_one_df(df, preferred_language)
+    return df
+
+
+def _resolve_duplicate_ids_for_auto_id_one_df(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
+    """In case the auto_id is not unique; both auto_ids get a new ID by joining the node names of all the ancestors."""
+    if (duplicate_filter := df["auto_id"].dropna().duplicated(keep=False)).any():
+        for i in duplicate_filter.index[duplicate_filter]:
+            df.at[i, "auto_id"] = _construct_non_duplicate_id_string(df.iloc[i], preferred_language)
+    return df
+
+
+def _construct_non_duplicate_id_string(row: pd.Series[Any], preferred_language: str) -> str:
+    """In case the node name is not unique; an ID is created by joining the node names of all the ancestors."""
+    column_names = _get_columns_of_preferred_lang(row.index, preferred_language, r"\d+")
+    column_names.insert(0, f"{preferred_language}_list")
+    id_cols = [row[col] for col in column_names if pd.notna(row[col])]
+    return ":".join(id_cols)
 
 
 def _make_one_list(df: pd.DataFrame, sheet_name: str) -> ListRoot | ListSheetProblem:

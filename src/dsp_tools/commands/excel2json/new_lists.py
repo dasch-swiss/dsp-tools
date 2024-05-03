@@ -12,25 +12,82 @@ from dsp_tools.commands.excel2json.models.list_node import ListRoot
 from dsp_tools.models.exceptions import InputError
 
 
-def _fill_id_and_parent_id_columns(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
+def _construct_ids(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> dict[str, dict[str, pd.DataFrame]]:
+    filled = {
+        filename: {
+            sheet_name: _fill_one_df_auto_id_resolve_duplicates(df, _get_preferred_language(df.columns))
+            for sheet_name, df in sheets.items()
+        }
+        for filename, sheets in excel_dfs.items()
+    }
+    return _fill_all_excel_parent_id(filled)
+
+
+def _fill_all_excel_parent_id(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> dict[str, dict[str, pd.DataFrame]]:
+    return {
+        filename: {
+            sheet_name: _fill_one_df_parent_id(df, _get_preferred_language(df.columns))
+            for sheet_name, df in sheets.items()
+        }
+        for filename, sheets in excel_dfs.items()
+    }
+
+
+def _analyse_resolve_all_excel_duplicates(
+    excel_dfs: dict[str, dict[str, pd.DataFrame]],
+) -> dict[str, dict[str, pd.DataFrame]]:
+    ids = [
+        {"filename": filename, "sheet": sheet, "id": single_id}
+        for filename, sheets in excel_dfs.items()
+        for sheet, df in sheets.items()
+        for single_id in df["id"].tolist()
+    ]
+    id_df = pd.DataFrame.from_records(ids)
+    if (duplicates := id_df["id"].duplicated(keep=False)).any():
+        return _resolve_duplicates_in_all_excel(id_df, duplicates, excel_dfs)
+    return excel_dfs
+
+
+def _resolve_duplicates_in_all_excel(
+    id_df: pd.DataFrame, duplicates: pd.Series[bool], excel_dfs: dict[str, dict[str, pd.DataFrame]]
+) -> dict[str, dict[str, pd.DataFrame]]:
+    id_df["non_duplicates"] = pd.NA
+    preferred_lang = _get_preferred_language(id_df.columns)
+    for i in duplicates.index[duplicates]:
+        id_df.at[i, "non_duplicates"] = _construct_non_duplicate_id_string(id_df.iloc[i], preferred_lang)
+    lookup = {
+        file: {
+            sheet: {row["id"]: row["non_duplicates"] for i, row in id_df.iterrows() if pd.notna(row["non_duplicates"])}
+            for sheet in id_df["sheet"].unique()
+        }
+        for file in id_df["filename"].unique()
+    }
+    for filename, sheets in excel_dfs.items():
+        for sheet, id_df in sheets.items():
+            for i, row in id_df.iterrows():
+                if lookup.get(filename, {}).get(sheet, {}).get(row["id"]):
+                    id_df.at[i, "id"] = id_df.at[i, "non_duplicates"]
+    return excel_dfs
+
+
+def _fill_one_df_auto_id_resolve_duplicates(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
     if "ID (optional)" not in df.columns:
         df["ID (optional)"] = pd.NA
-    df = _fill_auto_id_column(df, preferred_language)
+    df = _fill_one_df_auto_id(df, preferred_language)
     df["id"] = df["ID (optional)"].fillna(df["auto_id"])
-    df = _resolve_duplicate_when_combined(df, preferred_language)
-    df = _fill_parent_id(df, preferred_language)
+    df = _resolve_duplicate_custom_and_auto_id(df, preferred_language)
     return df
 
 
-def _resolve_duplicate_when_combined(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
+def _resolve_duplicate_custom_and_auto_id(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
     if (duplicate_filter := df["id"].duplicated(keep=False)).any():
         for i in duplicate_filter.index[duplicate_filter]:
             if pd.isna(df.at[i, "ID (optional)"]):
-                df.loc[i, "id"] = _construct_non_duplicate_id(df.iloc[i], preferred_language)
+                df.loc[i, "id"] = _construct_non_duplicate_id_string(df.iloc[i], preferred_language)
     return df
 
 
-def _fill_auto_id_column(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
+def _fill_one_df_auto_id(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
     """For every node without manual ID, take the label of the preferred language as ID."""
     df["auto_id"] = pd.NA
     if not df["ID (optional)"].isna().any():
@@ -44,25 +101,25 @@ def _fill_auto_id_column(df: pd.DataFrame, preferred_language: str) -> pd.DataFr
                 if pd.notna(row[col]):
                     df.at[i, "auto_id"] = row[col]
                     break
-    df = _resolve_duplicate_id_in_auto_column(df, preferred_language)
+    df = _resolve_one_df_auto_duplicate_ids(df, preferred_language)
     return df
 
 
-def _resolve_duplicate_id_in_auto_column(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
+def _resolve_one_df_auto_duplicate_ids(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
     if (duplicate_filter := df["auto_id"].dropna().duplicated(keep=False)).any():
         for i in duplicate_filter.index[duplicate_filter]:
-            df.at[i, "auto_id"] = _construct_non_duplicate_id(df.iloc[i], preferred_language)
+            df.at[i, "auto_id"] = _construct_non_duplicate_id_string(df.iloc[i], preferred_language)
     return df
 
 
-def _construct_non_duplicate_id(row: pd.Series[Any], preferred_language: str) -> str:
+def _construct_non_duplicate_id_string(row: pd.Series[Any], preferred_language: str) -> str:
     columns = _get_columns_of_preferred_lang(row.index, preferred_language, r"\d+")
     columns.insert(0, f"{preferred_language}_list")
     id_cols = [row[col] for col in columns if pd.notna(row[col])]
     return ":".join(id_cols)
 
 
-def _fill_parent_id(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
+def _fill_one_df_parent_id(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
     """Create an extra column with the ID of the parent node."""
     # To start, all rows get the ID of the list. These will be overwritten if the row has another parent.
     df["parent_id"] = df.at[0, "id"]

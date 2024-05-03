@@ -35,7 +35,7 @@ class TestDuplicateID:
         f2_s2 = pd.DataFrame({"id": ["00", "1"], "en_list": ["List2", "List2"], "en_1": [pd.NA, "Node1"]})
 
         all_excel = {"file1": {"sheet1": f1_s1}, "file2": {"sheet2": f2_s2}}
-        res = _resolve_duplicates_in_all_excel({"1"}, all_excel)
+        res = _resolve_duplicates_in_all_excel(["1"], all_excel)
         assert res["file1"]["sheet1"]["id"].to_list() == ["0", "List1:Node1", "2"]
         assert res["file2"]["sheet2"]["id"].to_list() == ["00", "List2:Node1"]
 

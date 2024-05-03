@@ -44,19 +44,19 @@ def _analyse_resolve_all_excel_duplicates(
         for df in sheets.values():
             ids.extend(df["id"].tolist())
     counter = Counter(ids)
-    if duplicates := [item for item, count in counter.items() if count > 1]:
-        return _resolve_duplicates_in_all_excel(duplicates, excel_dfs)
+    if duplicate_ids := [item for item, count in counter.items() if count > 1]:
+        return _resolve_duplicates_in_all_excel(duplicate_ids, excel_dfs)
     return excel_dfs
 
 
 def _resolve_duplicates_in_all_excel(
-    id_set: list[str], excel_dfs: dict[str, dict[str, pd.DataFrame]]
+    duplicate_ids: list[str], excel_dfs: dict[str, dict[str, pd.DataFrame]]
 ) -> dict[str, dict[str, pd.DataFrame]]:
     for sheets in excel_dfs.values():
         for df in sheets.values():
             preferred_lang = _get_preferred_language(df.columns)
             for i, row in df.iterrows():
-                if row["id"] in id_set:
+                if row["id"] in duplicate_ids:
                     df.at[i, "id"] = _construct_non_duplicate_id_string(df.iloc[int(str(i))], preferred_lang)
     return excel_dfs
 

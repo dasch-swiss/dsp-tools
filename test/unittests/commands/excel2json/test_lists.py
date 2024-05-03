@@ -30,20 +30,67 @@ from dsp_tools.models.exceptions import InputError
 class TestDuplicateID:
     def test_resolve_duplicates_in_all_excels(self) -> None:
         f1_s1 = pd.DataFrame(
-            {"id": ["0", "1", "2"], "en_list": ["List1", "List1", "List1"], "en_1": [pd.NA, "Node1", "Node2"]}
+            {
+                "id": ["0", "1", "2"],
+                "en_list": ["List1", "List1", "List1"],
+                "en_1": [pd.NA, "Node1", "Node2"],
+                "ID (optional)": [pd.NA, pd.NA, pd.NA],
+            }
         )
-        f2_s2 = pd.DataFrame({"id": ["00", "1"], "en_list": ["List2", "List2"], "en_1": [pd.NA, "Node1"]})
+        f2_s2 = pd.DataFrame(
+            {
+                "id": ["00", "1"],
+                "en_list": ["List2", "List2"],
+                "en_1": [pd.NA, "Node1"],
+                "ID (optional)": [pd.NA, pd.NA],
+            }
+        )
 
         all_excels = {"file1": {"sheet1": f1_s1}, "file2": {"sheet2": f2_s2}}
         res = _remove_duplicate_ids_in_all_excels(["1"], all_excels)
         assert res["file1"]["sheet1"]["id"].to_list() == ["0", "List1:Node1", "2"]
         assert res["file2"]["sheet2"]["id"].to_list() == ["00", "List2:Node1"]
 
+    def test_resolve_duplicates_in_all_excels_custom_id(self) -> None:
+        f1_s1 = pd.DataFrame(
+            {
+                "id": ["0", "1", "2"],
+                "en_list": ["List1", "List1", "List1"],
+                "en_1": [pd.NA, "Node1", "Node2"],
+                "ID (optional)": [pd.NA, "1", pd.NA],
+            }
+        )
+        f2_s2 = pd.DataFrame(
+            {
+                "id": ["00", "1"],
+                "en_list": ["List2", "List2"],
+                "en_1": [pd.NA, "Node1"],
+                "ID (optional)": [pd.NA, pd.NA],
+            }
+        )
+
+        all_excels = {"file1": {"sheet1": f1_s1}, "file2": {"sheet2": f2_s2}}
+        res = _remove_duplicate_ids_in_all_excels(["1"], all_excels)
+        assert res["file1"]["sheet1"]["id"].to_list() == ["0", "1", "2"]
+        assert res["file2"]["sheet2"]["id"].to_list() == ["00", "List2:Node1"]
+
     def test_analyse_resolve_all_excel_duplicates_with_duplicates(self) -> None:
         f1_s1 = pd.DataFrame(
-            {"id": ["0", "1", "2"], "en_list": ["List1", "List1", "List1"], "en_1": [pd.NA, "Node1", "Node2"]}
+            {
+                "id": ["0", "1", "2"],
+                "en_list": ["List1", "List1", "List1"],
+                "en_1": [pd.NA, "Node1", "Node2"],
+                "ID (optional)": [pd.NA, pd.NA, pd.NA],
+            }
         )
-        f2_s2 = pd.DataFrame({"id": ["00", "1"], "en_list": ["List2", "List2"], "en_1": [pd.NA, "Node1"]})
+        f2_s2 = pd.DataFrame(
+            {
+                "id": ["00", "1"],
+                "en_list": ["List2", "List2"],
+                "en_1": [pd.NA, "Node1"],
+                "ID (optional)": [pd.NA, pd.NA],
+            }
+        )
 
         all_excels = {"file1": {"sheet1": f1_s1}, "file2": {"sheet2": f2_s2}}
         res = _resolve_duplicate_ids_all_excels(all_excels)
@@ -52,9 +99,21 @@ class TestDuplicateID:
 
     def test_analyse_resolve_all_excel_duplicates_no_duplicates(self) -> None:
         f1_s1 = pd.DataFrame(
-            {"id": ["0", "11", "2"], "en_list": ["List1", "List1", "List1"], "en_1": [pd.NA, "Node1", "Node2"]}
+            {
+                "id": ["0", "11", "2"],
+                "en_list": ["List1", "List1", "List1"],
+                "en_1": [pd.NA, "Node1", "Node2"],
+                "ID (optional)": [pd.NA, pd.NA, pd.NA],
+            }
         )
-        f2_s2 = pd.DataFrame({"id": ["00", "1"], "en_list": ["List2", "List2"], "en_1": [pd.NA, "Node1"]})
+        f2_s2 = pd.DataFrame(
+            {
+                "id": ["00", "1"],
+                "en_list": ["List2", "List2"],
+                "en_1": [pd.NA, "Node1"],
+                "ID (optional)": [pd.NA, pd.NA],
+            }
+        )
 
         all_excels = {"file1": {"sheet1": f1_s1}, "file2": {"sheet2": f2_s2}}
         res = _resolve_duplicate_ids_all_excels(all_excels)

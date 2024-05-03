@@ -69,7 +69,7 @@ def _remove_duplicate_ids_in_all_excels(
         for df in sheets.values():
             preferred_lang = _get_preferred_language(df.columns)
             for i, row in df.iterrows():
-                if row["id"] in duplicate_ids:
+                if row["id"] in duplicate_ids and pd.isna(row["ID (optional)"]):
                     df.at[i, "id"] = _construct_non_duplicate_id_string(df.iloc[int(str(i))], preferred_lang)
     return excel_dfs
 

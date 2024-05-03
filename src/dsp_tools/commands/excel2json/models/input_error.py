@@ -256,7 +256,7 @@ class ListCreationProblem:
     excel_problems: list[Problem]
 
     def execute_error_protocol(self) -> str:
-        msg = ["\nThe excel file(s) used to create the list sections have the following problem(s):"]
+        msg = ["\nThe excel file(s) used to create the list section have the following problem(s):"]
         msg.extend([problem.execute_error_protocol() for problem in self.excel_problems])
         return grand_separator.join(msg)
 
@@ -305,7 +305,7 @@ class ListSheetComplianceProblem:
 
     def execute_error_protocol(self) -> str:
         msg = [f"The excel sheet '{self.sheet_name}' has the following problem(s):"]
-        msg.extend([f"{key}': {value}" for key, value in self.problems.items()])
+        msg.extend([f"{key}: {value}" for key, value in self.problems.items()])
         return list_separator.join(msg)
 
 
@@ -327,8 +327,8 @@ class DuplicatesInSheetProblem:
 
     def execute_error_protocol(self) -> str:
         msg = [
-            f"The excel sheet '{self.sheet_name}' contains duplicates "
-            f"('ID (optional)' is excluded) in the following rows:",
+            f"The excel sheet '{self.sheet_name}' contains rows that are completely identical "
+            f"(excluding the column 'ID (optional)'). The following rows are duplicates:"
         ]
         msg.extend([f"{x + 2}" for x in self.rows])
         return list_separator.join(msg)
@@ -362,7 +362,7 @@ class MissingNodeTranslationProblem:
     index_num: int
 
     def execute_error_protocol(self) -> str:
-        return f"Row Number: '{self.index_num + 2}' Column(s): {', '.join(self.empty_columns)}"
+        return f"Row Number: {self.index_num + 2} Column(s): {', '.join(self.empty_columns)}"
 
 
 @dataclass(frozen=True)
@@ -387,7 +387,7 @@ class MissingNodeSheetProblem:
     node_problems: list[NodesPerRowProblem]
 
     def execute_error_protocol(self) -> str:
-        msg = "Each list node and list, must have its own row in the excel. " "The following rows are incorrect:"
+        msg = "Each list node and each list must have its own row in the excel. " "The following rows are incorrect:"
         nodes_sorted = sorted(self.node_problems, key=lambda x: x.index_num)
         nodes = list_separator.join([x.execute_error_protocol() for x in nodes_sorted])
         return msg + nodes
@@ -401,7 +401,7 @@ class NodesPerRowProblem:
 
     def execute_error_protocol(self) -> str:
         if self.should_be_empty:
-            description = "Columns must be empty"
+            description = "Column(s) that must be empty"
         else:
-            description = "Column must be filled"
-        return f"Row Number: '{self.index_num + 2}' {description}: {', '.join(self.column_names)}"
+            description = "Column(s) that must be filled"
+        return f"Row Number: {self.index_num + 2}, {description}: {', '.join(self.column_names)}"

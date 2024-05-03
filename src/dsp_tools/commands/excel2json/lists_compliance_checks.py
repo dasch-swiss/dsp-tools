@@ -248,7 +248,7 @@ def _check_for_missing_translations_one_sheet(
     col_endings = [str(num) for num in _get_hierarchy_nums(df.columns)]
     col_endings.append("list")
     languages = _get_all_languages_for_columns(df.columns)
-    all_cols = _make_columns(col_endings, languages)
+    all_cols = _compose_all_combinatoric_column_titles(col_endings, languages)
     problems = []
     for column_group in all_cols:
         problems.extend(_check_for_missing_translations_one_column_level(column_group, df))
@@ -268,7 +268,7 @@ def _check_for_missing_translations_one_column_level(
     return problems
 
 
-def _make_columns(nums: list[str], languages: set[str]) -> list[list[str]]:
+def _compose_all_combinatoric_column_titles(nums: list[str], languages: set[str]) -> list[list[str]]:
     return [[f"{lang}_{num}" for lang in languages] for num in nums]
 
 

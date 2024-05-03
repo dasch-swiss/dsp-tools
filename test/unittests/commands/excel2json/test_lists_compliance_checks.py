@@ -22,7 +22,7 @@ from dsp_tools.commands.excel2json.lists_compliance_checks import (
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_if_minimum_number_of_cols_present_one_sheet
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_minimum_rows
 from dsp_tools.commands.excel2json.lists_compliance_checks import _check_warn_unusual_columns_one_sheet
-from dsp_tools.commands.excel2json.lists_compliance_checks import _make_columns
+from dsp_tools.commands.excel2json.lists_compliance_checks import _compose_all_combinatoric_column_titles
 from dsp_tools.commands.excel2json.lists_compliance_checks import _make_shape_compliance_all_excels
 from dsp_tools.commands.excel2json.lists_compliance_checks import _make_shape_compliance_one_sheet
 from dsp_tools.commands.excel2json.models.input_error import DuplicatesInSheetProblem
@@ -76,22 +76,22 @@ class TestFormalExcelCompliance:
         )
         df_dict = {"file1": {"sheet1": df_1}, "file2": {"sheet2": df_2, "sheet3": df_3}}
         expected = regex.escape(
-            "\nThe excel file(s) used to create the list sections have the following problem(s):\n\n"
+            "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"
             "---------------------------------------\n\n"
             "The excel 'file1' has the following problem(s):\n"
             "----------------------------\n"
             "The excel sheet 'sheet1' has the following problem(s):\n"
-            "    - missing columns for nodes': There is no column with the expected format for the list nodes: "
+            "    - missing columns for nodes: There is no column with the expected format for the list nodes: "
             "'[lang]_[column_number]'\n\n"
             "---------------------------------------\n\n"
             "The excel 'file2' has the following problem(s):\n"
             "----------------------------\n"
             "The excel sheet 'sheet2' has the following problem(s):\n"
-            "    - missing translations': All nodes must be translated into the same languages. "
+            "    - missing translations: All nodes must be translated into the same languages. "
             "Based on the languages used, the following column(s) are missing: de_3\n"
             "----------------------------\n"
             "The excel sheet 'sheet3' has the following problem(s):\n"
-            "    - minimum rows': The Excel sheet must contain at least two rows, "
+            "    - minimum rows: The Excel sheet must contain at least two rows, "
             "one for the list name and one row for a minimum of one node."
         )
         with pytest.raises(InputError, match=expected):
@@ -133,11 +133,12 @@ class TestCheckExcelsForDuplicates:
         )
         df_dict = {"file1": {"sheet1": df_1}}
         expected = regex.escape(
-            "\nThe excel file(s) used to create the list sections have the following problem(s):\n\n"
+            "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"
             "---------------------------------------\n\n"
             "The excel 'file1' has the following problem(s):\n"
             "----------------------------\n"
-            "The excel sheet 'sheet1' contains duplicates ('ID (optional)' is excluded) in the following rows:\n"
+            "The excel sheet 'sheet1' contains rows that are completely identical "
+            "(excluding the column 'ID (optional)'). The following rows are duplicates:\n"
             "    - 3\n"
             "    - 4"
         )
@@ -161,7 +162,7 @@ class TestCheckExcelsForDuplicates:
         )
         df_dict = {"file1": {"sheet1": df_1}, "file2": {"sheet2": df_2}}
         expected = regex.escape(
-            "\nThe excel file(s) used to create the list sections have the following problem(s):"
+            "\nThe excel file(s) used to create the list section have the following problem(s):"
             "\n\n---------------------------------------\n\n"
             "No duplicates are allowed in the 'ID (optional)' column. The following IDs are duplicated:\n"
             "----------------------------\n"
@@ -345,15 +346,15 @@ class TestCheckAllExcelsMissingTranslations:
         )
         df_dict = {"file1": {"sheet1": df_1}, "file2": {"sheet2": df_2}}
         expected = regex.escape(
-            "\nThe excel file(s) used to create the list sections have the following problem(s):\n\n"
+            "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"
             "---------------------------------------\n\n"
             "The excel 'file2' has the following problem(s):\n"
             "----------------------------\n"
             "The excel sheet 'sheet2' has the following problem(s):\n"
             "In one list, all the nodes must be translated into all the languages used. "
             "The following nodes are missing translations:\n"
-            "    - Row Number: '3' Column(s): en_1\n"
-            "    - Row Number: '8' Column(s): de_1"
+            "    - Row Number: 3 Column(s): en_1\n"
+            "    - Row Number: 8 Column(s): de_1"
         )
         with pytest.raises(InputError, match=expected):
             _check_for_missing_translations_all_excels(df_dict)
@@ -567,10 +568,10 @@ class TestCheckOneNodeForTranslation:
 
 
 def test_make_columns() -> None:
-    res = _make_columns(["1", "2"], {"en", "de", "fr"})
+    res = _compose_all_combinatoric_column_titles(["1", "3"], {"en", "de", "fr"})
     assert len(res) == 2
     assert set(res[0]) == {"en_1", "de_1", "fr_1"}
-    assert set(res[1]) == {"en_2", "de_2", "fr_2"}
+    assert set(res[1]) == {"en_3", "de_3", "fr_3"}
 
 
 class TestCheckAllExcelForRowProblems:
@@ -600,17 +601,17 @@ class TestCheckAllExcelForRowProblems:
         )
         df_dict = {"file1": {"sheet1": df_1}, "file2": {"sheet2": df_2}}
         expected = regex.escape(
-            "\nThe excel file(s) used to create the list sections have the following problem(s):\n\n"
+            "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"
             "---------------------------------------\n\n"
             "The excel 'file1' has the following problem(s):\n"
             "----------------------------\n"
             "The Excel sheet 'sheet1' has the following problem(s):\n"
-            "    - Row Number: '4' Column must be filled: en_1\n\n"
+            "    - Row Number: 4, Column(s) that must be filled: en_1\n\n"
             "---------------------------------------\n\n"
             "The excel 'file2' has the following problem(s):\n"
             "----------------------------\n"
             "The Excel sheet 'sheet2' has the following problem(s):\n"
-            "    - Row Number: '6' Columns must be empty: en_2"
+            "    - Row Number: 6, Column(s) that must be empty: en_2"
         )
         with pytest.raises(InputError, match=expected):
             _check_for_erroneous_entries_all_excels(df_dict)

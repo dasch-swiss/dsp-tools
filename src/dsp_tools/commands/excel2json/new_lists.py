@@ -52,7 +52,7 @@ def excel2lists(
     Returns:
         a tuple consisting of the "lists" section as Python list, and the success status (True if everything went well)
     """
-    file_names = [file for file in excelfolder.glob("*list*.xlsx") if not file.name.startswith("~")]
+    file_names = [file for file in excelfolder.glob("*list*.xlsx") if _non_hidden(file)]
 
     excel_dfs = {file.stem: read_and_clean_all_sheets(file) for file in file_names}
 
@@ -65,6 +65,10 @@ def excel2lists(
             print(f"lists section was created successfully and written to file '{path_to_output_file}'")
 
     return finished_lists, True
+
+
+def _non_hidden(path: Path) -> bool:
+    return not regex.search(r"^(\.|~\$).+", path.name)
 
 
 def _make_serialised_lists(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> list[dict[str, Any]]:

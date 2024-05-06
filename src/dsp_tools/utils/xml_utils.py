@@ -88,6 +88,12 @@ def _remove_qnames_and_transform_special_tags(
         elif elem.tag == "region":
             elem.attrib["restype"] = "Region"
             elem.tag = "resource"
+        elif elem.tag == "video-segment":
+            elem.attrib["restype"] = "VideoSegment"
+            elem.tag = "resource"
+        elif elem.tag == "audio-segment":
+            elem.attrib["restype"] = "AudioSegment"
+            elem.tag = "resource"
     return input_tree
 
 

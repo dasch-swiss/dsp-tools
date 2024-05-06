@@ -98,10 +98,10 @@ class ResourceCreateClient:
         def prop_name(p: XMLProperty) -> str:
             if p.valtype != "resptr":
                 return p.name
-            elif p.name == "isSegmentOf" and resource.restype == "VideoSegment":
-                return "isVideoSegmentOf"
-            elif p.name == "isSegmentOf" and resource.restype == "AudioSegment":
-                return "isAudioSegmentOf"
+            elif p.name == "knora-api:isSegmentOf" and resource.restype == "knora-api:VideoSegment":
+                return "knora-api:isVideoSegmentOfValue"
+            elif p.name == "knora-api:isSegmentOf" and resource.restype == "knora-api:AudioSegment":
+                return "knora-api:isAudioSegmentOfValue"
             else:
                 return f"{p.name}Value"
 

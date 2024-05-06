@@ -988,8 +988,8 @@ They must have the following predefined properties:
 - `isSegmentOf` (1)
 - `hasSegmentBounds` (1)
 - `hasTitle` (0-1)
-- `hasDescription` (0-1)
-- `hasComment` (0-1)
+- `hasDescription` (0-n)
+- `hasComment` (0-n)
 - `hasKeyword` (0-n)
 - `relatesTo` (0-n)
 

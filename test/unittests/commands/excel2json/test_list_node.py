@@ -35,7 +35,7 @@ class TestListRoot:
         res = root._make_list_root()
         assert expected == res
 
-    def test_to_json(self) -> None:
+    def test_to_dict(self) -> None:
         sub_1 = ListNode(id_="Node_1", labels={"en": "Node_1_label_en"}, parent_id="RootID")
         sub_21 = ListNode(id_="SubNode_21", labels={"en": "SubNode_21_label_en"}, parent_id="RootID")
         sub_2 = ListNode(id_="Node_2", labels={"en": "Node_2_label_en"}, sub_nodes=[sub_21], parent_id="RootID")
@@ -151,7 +151,7 @@ class TestListNode:
         res = nd._make_own_node()
         assert res == expected
 
-    def test_to_json(self) -> None:
+    def test_to_dict(self) -> None:
         sub_1 = ListNode(id_="SubNode_1", labels={"en": "SubNode_1_label_en"}, parent_id="RootID")
         sub_21 = ListNode(id_="SubNode_21", labels={"en": "SubNode_21_label_en"}, parent_id="RootID")
         sub_2 = ListNode(id_="SubNode_2", labels={"en": "SubNode_2_label_en"}, sub_nodes=[sub_21], parent_id="RootID")

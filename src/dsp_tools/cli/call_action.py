@@ -3,9 +3,11 @@ from pathlib import Path
 
 from loguru import logger
 
-from dsp_tools.commands.excel2json.lists import excel2lists
+from dsp_tools.commands.excel2json.lists import old_excel2lists
 from dsp_tools.commands.excel2json.lists import validate_lists_section_with_schema
+from dsp_tools.commands.excel2json.new_lists import excel2lists
 from dsp_tools.commands.excel2json.project import excel2json
+from dsp_tools.commands.excel2json.project import old_excel2json
 from dsp_tools.commands.excel2json.properties import excel2properties
 from dsp_tools.commands.excel2json.resources import excel2resources
 from dsp_tools.commands.excel2xml.excel2xml_cli import excel2xml
@@ -47,10 +49,16 @@ def call_requested_action(args: argparse.Namespace) -> bool:
             result = _call_xmlupload(args)
         case "resume-xmlupload":
             result = _call_resume_xmlupload(args)
-        case "excel2json":
+        case "old-excel2json":
             result = _call_excel2json(args)
+        case "excel2json":
+            # TODO: new call
+            result = _call_excel2json(args)
+        case "old-excel2lists":
+            result = _call_old_excel2lists(args)
         case "excel2lists":
-            result = _call_excel2lists(args)
+            # TODO: new call
+            result = _call_old_excel2lists(args)
         case "excel2resources":
             result = _call_excel2resources(args)
         case "excel2properties":
@@ -133,9 +141,24 @@ def _call_excel2lists(args: argparse.Namespace) -> bool:
     _, success = excel2lists(
         excelfolder=args.excelfolder,
         path_to_output_file=args.lists_section,
+    )
+    return success
+
+
+def _call_old_excel2lists(args: argparse.Namespace) -> bool:
+    _, success = old_excel2lists(
+        excelfolder=args.excelfolder,
+        path_to_output_file=args.lists_section,
         verbose=args.verbose,
     )
     return success
+
+
+def _call_old_excel2json(args: argparse.Namespace) -> bool:
+    return old_excel2json(
+        data_model_files=args.excelfolder,
+        path_to_output_file=args.project_definition,
+    )
 
 
 def _call_excel2json(args: argparse.Namespace) -> bool:

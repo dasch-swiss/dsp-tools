@@ -1,16 +1,19 @@
 from __future__ import annotations
 
+import json
 import warnings
 from collections import Counter
 from collections import defaultdict
 from pathlib import Path
 from typing import Any
+from typing import Optional
 from typing import cast
 
 import pandas as pd
 import regex
 from loguru import logger
 
+from dsp_tools.commands.excel2json.lists import validate_lists_section_with_schema
 from dsp_tools.commands.excel2json.models.input_error import DuplicateIDProblem
 from dsp_tools.commands.excel2json.models.input_error import DuplicatesCustomIDInProblem
 from dsp_tools.commands.excel2json.models.input_error import DuplicatesInSheetProblem
@@ -32,21 +35,39 @@ from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
 
 
-def make_lists_from_excels(folder_path: Path) -> list[dict[str, Any]]:
+def excel2lists(
+    excelfolder: Path,
+    path_to_output_file: Optional[Path] = None,
+) -> tuple[list[dict[str, Any]], bool]:
     """
-    This function creates the "lists" section in the project json.
+    Converts lists described in Excel files into a "lists" section that can be inserted into a JSON project file.
 
     Args:
-        folder_path:
-            The path to the folder containing the excel files.
-
-    Returns:
-        a list with the individual lists
+        excelfolder: path to the folder containing the Excel file(s)
+        path_to_output_file: path to the file where the output JSON file will be saved
 
     Raises:
-        InputError: If there is a problem with the input data.
+        InputError: if there is a problem with the input data
+
+    Returns:
+        a tuple consisting of the "lists" section as Python list, and the success status (True if everything went well)
     """
-    excel_dfs = _read_excels(folder_path)
+    file_names = list(excelfolder.glob("*list*.xlsx"))
+
+    excel_dfs = {file.stem: read_and_clean_all_sheets(file) for file in file_names}
+
+    finished_lists = _make_serialised_lists(excel_dfs)
+    validate_lists_section_with_schema(lists_section=finished_lists)
+
+    if path_to_output_file:
+        with open(path_to_output_file, "w", encoding="utf-8") as fp:
+            json.dump(finished_lists, fp, indent=4, ensure_ascii=False)
+            print(f"lists section was created successfully and written to file '{path_to_output_file}'")
+
+    return finished_lists, True
+
+
+def _make_serialised_lists(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> list[dict[str, Any]]:
     excel_dfs = _prepare_dfs(excel_dfs)
     all_lists = _make_all_lists(excel_dfs)
     if isinstance(all_lists, ListCreationProblem):
@@ -68,11 +89,6 @@ def _make_all_lists(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> list[ListR
     if problem_lists:
         return ListCreationProblem(problem_lists)
     return good_lists
-
-
-def _read_excels(folder_path: Path) -> dict[str, dict[str, pd.DataFrame]]:
-    file_names = list(folder_path.glob("*list*.xlsx"))
-    return {file.stem: read_and_clean_all_sheets(file) for file in file_names}
 
 
 def _prepare_dfs(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> dict[str, dict[str, pd.DataFrame]]:

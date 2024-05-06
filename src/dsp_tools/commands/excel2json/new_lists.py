@@ -96,8 +96,21 @@ def _make_all_lists(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> list[ListR
 
 
 def _prepare_dfs(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> dict[str, dict[str, pd.DataFrame]]:
+    excel_dfs = _add_id_optional_column(excel_dfs)
     _make_all_formal_excel_compliance_checks(excel_dfs)
     return _construct_ids(excel_dfs)
+
+
+def _add_id_optional_column(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> dict[str, dict[str, pd.DataFrame]]:
+    all_file_dict = {}
+    for filename, sheets in excel_dfs.items():
+        single_file_dict = {}
+        for sheet_name, df in sheets.items():
+            if "id (optional)" not in df.columns:
+                df["id (optional)"] = pd.NA
+            single_file_dict[sheet_name] = df
+        all_file_dict[filename] = single_file_dict
+    return all_file_dict
 
 
 def _construct_ids(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> dict[str, dict[str, pd.DataFrame]]:

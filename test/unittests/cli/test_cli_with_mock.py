@@ -111,7 +111,7 @@ def test_excel2json(excel2json: Mock) -> None:
     """Test the 'dsp-tools excel2json' command"""
     folder = "folder"
     out_file = "filename.json"
-    args = f"excel2json {folder} {out_file}".split()
+    args = f"old-excel2json {folder} {out_file}".split()
     entry_point.run(args)
     excel2json.assert_called_once_with(
         data_model_files=folder,
@@ -125,7 +125,7 @@ def test_excel2lists(excel2lists: Mock) -> None:
     excel2lists.return_value = ([], True)
     file = "filename.xlsx"
     out_file = "filename.json"
-    args = f"excel2lists {file} {out_file}".split()
+    args = f"old-excel2lists {file} {out_file}".split()
     entry_point.run(args)
     excel2lists.assert_called_once_with(
         excelfolder=file,

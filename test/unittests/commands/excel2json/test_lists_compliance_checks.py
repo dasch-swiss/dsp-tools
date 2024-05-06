@@ -102,12 +102,12 @@ class TestCheckExcelsForDuplicates:
             {
                 "en_list": ["list1", "list1", "list1", "list1"],
                 "en_1": [pd.NA, "node1", "node2", "node3"],
-                "ID (optional)": [11, 22, pd.NA, 44],
+                "id (optional)": [11, 22, pd.NA, 44],
             }
         )
         df_2 = pd.DataFrame(
             {
-                "ID (optional)": [1, 2, pd.NA, 4, 5, 6, 7, pd.NA],
+                "id (optional)": [1, 2, pd.NA, 4, 5, 6, 7, pd.NA],
                 "en_list": ["list1", "list1", "list1", "list1", "list1", "list1", "list1", "list1"],
                 "de_list": ["list1", "list1", "list1", "list1", "list1", "list1", "list1", "list1"],
                 "en_1": [pd.NA, "node1", "node1", "node1", "node1", "node2", "node2", "node3"],
@@ -126,7 +126,7 @@ class TestCheckExcelsForDuplicates:
             {
                 "en_list": ["list1", "list1", "list1", "list1"],
                 "en_1": [pd.NA, "node1", "node1", "node3"],
-                "ID (optional)": [1, 2, 3, 4],
+                "id (optional)": [1, 2, 3, 4],
             }
         )
         df_dict = {"file1": {"sheet1": df_1}}
@@ -148,14 +148,14 @@ class TestCheckExcelsForDuplicates:
             {
                 "en_list": ["list1", "list1", "list1", "list1"],
                 "en_1": [pd.NA, "node1", "node2", "node3"],
-                "ID (optional)": [2, 1, 3, 4],
+                "id (optional)": [2, 1, 3, 4],
             }
         )
         df_2 = pd.DataFrame(
             {
                 "en_list": ["list2", "list2", "list2"],
                 "en_1": [pd.NA, "node1", "node3"],
-                "ID (optional)": [1, 22, 4],
+                "id (optional)": [1, 22, 4],
             }
         )
         df_dict = {"file1": {"sheet1": df_1}, "file2": {"sheet2": df_2}}
@@ -191,7 +191,7 @@ class TestCheckForDuplicates:
 
 class TestShapeCompliance:
     def test_good(self) -> None:
-        test_df = pd.DataFrame({"ID (optional)": [1, 2, 3], "en_list": ["a", "b", "c"], "en_2": ["d", "e", "f"]})
+        test_df = pd.DataFrame({"id (optional)": [1, 2, 3], "en_list": ["a", "b", "c"], "en_2": ["d", "e", "f"]})
         assert not _make_shape_compliance_one_sheet(test_df, "")
 
     def test_good_no_id(self) -> None:
@@ -199,7 +199,7 @@ class TestShapeCompliance:
         assert not _make_shape_compliance_one_sheet(test_df, "")
 
     def test_problems_one(self) -> None:
-        test_df = pd.DataFrame({"ID (optional)": [1], "en_list": ["a"], "additional_1": ["b"]})
+        test_df = pd.DataFrame({"id (optional)": [1], "en_list": ["a"], "additional_1": ["b"]})
         expected = {
             "minimum rows": "The Excel sheet must contain at least two rows, "
             "one for the list name and one row for a minimum of one node.",
@@ -216,7 +216,7 @@ class TestShapeCompliance:
             assert res.problems == expected
 
     def test_problems_two(self) -> None:
-        test_df = pd.DataFrame({"ID (optional)": [1, 2], "en_list": ["a", "b"], "en_1": ["b", "c"], "de_1": ["b", "c"]})
+        test_df = pd.DataFrame({"id (optional)": [1, 2], "en_list": ["a", "b"], "en_1": ["b", "c"], "de_1": ["b", "c"]})
         expected = {
             "missing translations": "All nodes must be translated into the same languages. "
             "Based on the languages used, the following column(s) are missing: "
@@ -229,7 +229,7 @@ class TestShapeCompliance:
 
 class TestCheckMinNumColNamesPresent:
     def test_good(self) -> None:
-        col_names = pd.Index(["ID (optional)", "en_list", "en_2"])
+        col_names = pd.Index(["id (optional)", "en_list", "en_2"])
         assert not _check_if_minimum_number_of_cols_present_one_sheet(col_names)
 
     def test_good_no_id(self) -> None:
@@ -237,7 +237,7 @@ class TestCheckMinNumColNamesPresent:
         assert not _check_if_minimum_number_of_cols_present_one_sheet(col_names)
 
     def test_missing_columns_list(self) -> None:
-        test_cols = pd.Index(["ID (optional)", "en_2"])
+        test_cols = pd.Index(["id (optional)", "en_2"])
         expected = {
             "missing columns for list name": "There is no column with the expected format for the list names: "
             "'[lang]_list'"
@@ -245,7 +245,7 @@ class TestCheckMinNumColNamesPresent:
         assert _check_if_minimum_number_of_cols_present_one_sheet(test_cols) == expected
 
     def test_missing_columns_node(self) -> None:
-        test_cols = pd.Index(["ID (optional)", "en_list"])
+        test_cols = pd.Index(["id (optional)", "en_list"])
         expected = {
             "missing columns for nodes": "There is no column with the expected format for the list nodes: "
             "'[lang]_[column_number]'"
@@ -269,13 +269,13 @@ class TestCheckMinimumRows:
 
 class TestCheckWarnUnusualColumns:
     def test_good(self) -> None:
-        test_cols = pd.Index(["ID (optional)", "en_list", "en_2", "de_2"])
+        test_cols = pd.Index(["id (optional)", "en_list", "en_2", "de_2"])
         with warnings.catch_warnings(record=True) as caught_warnings:
             _check_warn_unusual_columns_one_sheet(test_cols)
         assert len(caught_warnings) == 0
 
     def test_additional_columns(self) -> None:
-        test_cols = pd.Index(["ID (optional)", "en_list", "en_2", "de_2", "additional_1", "additional_2"])
+        test_cols = pd.Index(["id (optional)", "en_list", "en_2", "de_2", "additional_1", "additional_2"])
         expected = regex.escape(
             "The following columns do not conform to the expected format "
             "and will not be included in the output: additional_1, additional_2"
@@ -286,11 +286,11 @@ class TestCheckWarnUnusualColumns:
 
 class TestCheckAllTranslationsPresent:
     def test_good(self) -> None:
-        test_cols = pd.Index(["ID (optional)", "en_list", "de_list", "de_1", "en_1", "de_2", "en_2"])
+        test_cols = pd.Index(["id (optional)", "en_list", "de_list", "de_1", "en_1", "de_2", "en_2"])
         assert not _check_if_all_translations_in_all_column_levels_present_one_sheet(test_cols)
 
     def test_missing_translations_node_columns(self) -> None:
-        test_cols = pd.Index(["ID (optional)", "en_list", "de_list", "de_1", "en_1", "de_2"])
+        test_cols = pd.Index(["id (optional)", "en_list", "de_list", "de_1", "en_1", "de_2"])
         expected = {
             "missing translations": "All nodes must be translated into the same languages. "
             "Based on the languages used, the following column(s) are missing: "
@@ -299,7 +299,7 @@ class TestCheckAllTranslationsPresent:
         assert _check_if_all_translations_in_all_column_levels_present_one_sheet(test_cols) == expected
 
     def test_missing_translations_list_columns(self) -> None:
-        test_cols = pd.Index(["ID (optional)", "en_list", "de_1", "en_1", "de_2", "en_2"])
+        test_cols = pd.Index(["id (optional)", "en_list", "de_1", "en_1", "de_2", "en_2"])
         expected = {
             "missing translations": "All nodes must be translated into the same languages. "
             "Based on the languages used, the following column(s) are missing: "

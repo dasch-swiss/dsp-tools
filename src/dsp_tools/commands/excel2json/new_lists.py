@@ -52,7 +52,7 @@ def excel2lists(
     Returns:
         a tuple consisting of the "lists" section as Python list, and the success status (True if everything went well)
     """
-    file_names = list(excelfolder.glob("*list*.xlsx"))
+    file_names = [file for file in excelfolder.glob("*list*.xlsx") if not file.name.startswith("~")]
 
     excel_dfs = {file.stem: read_and_clean_all_sheets(file) for file in file_names}
 
@@ -152,16 +152,16 @@ def _remove_duplicate_ids_in_all_excels(
         for df in sheets.values():
             preferred_lang = _get_preferred_language(df.columns)
             for i, row in df.iterrows():
-                if row["id"] in duplicate_ids and pd.isna(row["ID (optional)"]):
+                if row["id"] in duplicate_ids and pd.isna(row["id (optional)"]):
                     df.at[i, "id"] = _construct_non_duplicate_id_string(df.iloc[int(str(i))], preferred_lang)
     return excel_dfs
 
 
 def _complete_id_one_df(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
-    if "ID (optional)" not in df.columns:
-        df["ID (optional)"] = pd.NA
+    if "id (optional)" not in df.columns:
+        df["id (optional)"] = pd.NA
     df = _create_auto_id_one_df(df, preferred_language)
-    df["id"] = df["ID (optional)"].fillna(df["auto_id"])
+    df["id"] = df["id (optional)"].fillna(df["auto_id"])
     df = _resolve_duplicate_ids_keep_custom_change_auto_id_one_df(df, preferred_language)
     return df
 
@@ -170,7 +170,7 @@ def _resolve_duplicate_ids_keep_custom_change_auto_id_one_df(df: pd.DataFrame, p
     """If there are duplicates in the id column, the auto_id is changed, the custom ID remains the same."""
     if (duplicate_filter := df["id"].duplicated(keep=False)).any():
         for i in duplicate_filter.index[duplicate_filter]:
-            if pd.isna(df.at[i, "ID (optional)"]):
+            if pd.isna(df.at[i, "id (optional)"]):
                 df.loc[i, "id"] = _construct_non_duplicate_id_string(df.iloc[i], preferred_language)
     return df
 
@@ -178,13 +178,13 @@ def _resolve_duplicate_ids_keep_custom_change_auto_id_one_df(df: pd.DataFrame, p
 def _create_auto_id_one_df(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
     """For every node without manual ID, take the label of the preferred language as ID."""
     df["auto_id"] = pd.NA
-    if not df["ID (optional)"].isna().any():
+    if not df["id (optional)"].isna().any():
         return df
-    if pd.isna(df.at[0, "ID (optional)"]):
+    if pd.isna(df.at[0, "id (optional)"]):
         df.loc[0, "auto_id"] = df.at[0, f"{preferred_language}_list"]
     column_names = sorted(_get_columns_of_preferred_lang(df.columns, preferred_language, r"\d+"), reverse=True)
     for i, row in df.iterrows():
-        if pd.isna(row["ID (optional)"]):
+        if pd.isna(row["id (optional)"]):
             for col in column_names:
                 if pd.notna(row[col]):
                     df.at[i, "auto_id"] = row[col]
@@ -391,12 +391,12 @@ def _check_for_duplicate_custom_id_all_excels(
     for filename, excel_sheets in excel_dfs.items():
         for sheet_name, df in excel_sheets.items():
             for i, row in df.iterrows():
-                if not pd.isna(row["ID (optional)"]):
+                if not pd.isna(row["id (optional)"]):
                     id_list.append(
                         {
                             "filename": filename,
                             "sheet_name": sheet_name,
-                            "id": row["ID (optional)"],
+                            "id": row["id (optional)"],
                             "row_number": int(str(i)) + 2,
                         }
                     )
@@ -475,7 +475,7 @@ def _check_if_minimum_number_of_cols_present_one_sheet(cols: pd.Index[str]) -> d
 
 
 def _check_warn_unusual_columns_one_sheet(cols: pd.Index[str]) -> None:
-    not_matched = [x for x in cols if not regex.search(r"^(en|de|fr|it|rm)_(\d+|list)|(ID \(optional\))$", x)]
+    not_matched = [x for x in cols if not regex.search(r"^(en|de|fr|it|rm)_(\d+|list)|(id \(optional\))$", x)]
     if not_matched:
         msg = (
             f"The following columns do not conform to the expected format "

@@ -52,7 +52,7 @@ class ListNode:
         return [nd.to_dict() for nd in self.sub_nodes]
 
     def _make_own_node(self) -> dict[str, Any]:
-        return {"name": self.id_, "labels": self.labels}
+        return {"name": self.id_, "labels": self.labels, "comments": self.labels}
 
 
 @dataclass
@@ -104,4 +104,6 @@ class ListRoot:
         lst = {"name": self.id_, "labels": self.labels}
         if self.comments:
             lst.update({"comments": self.comments})
+        else:
+            lst.update({"comments": self.labels})
         return lst

@@ -167,8 +167,8 @@ def _get_validate_list_folder(
 ) -> tuple[Path | None, list[str]]:
     if not (list_dir := (data_model_files / "lists")).is_dir():
         return None, []
-    processed_files = list(list_dir.glob("*list*.xlsx"))
-    return list_dir, [x.stem for x in processed_files]
+    processed_files = [str(file) for file in list_dir.glob("*list*.xlsx") if _non_hidden(file)]
+    return list_dir, processed_files
 
 
 def _non_hidden(path: Path) -> bool:

@@ -1,16 +1,70 @@
 from __future__ import annotations
 
 from collections import Counter
+from pathlib import Path
 from typing import Any
 
 import pandas as pd
 import regex
+from loguru import logger
 
+from dsp_tools.commands.excel2json.lists_compliance_checks import make_all_formal_excel_compliance_checks
+from dsp_tools.commands.excel2json.models.input_error import ListCreationProblem
 from dsp_tools.commands.excel2json.models.input_error import ListNodeProblem
 from dsp_tools.commands.excel2json.models.input_error import ListSheetProblem
+from dsp_tools.commands.excel2json.models.input_error import Problem
 from dsp_tools.commands.excel2json.models.list_node import ListNode
 from dsp_tools.commands.excel2json.models.list_node import ListRoot
+from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
 from dsp_tools.models.exceptions import InputError
+
+
+def make_lists_from_excels(folder_path: Path) -> list[dict[str, Any]]:
+    """
+    This function creates the "lists" section in the project json.
+
+    Args:
+        folder_path:
+            The path to the folder containing the excel files.
+
+    Returns:
+        a list with the individual lists
+
+    Raises:
+        InputError: If there is a problem with the input data.
+    """
+    excel_dfs = _read_excels(folder_path)
+    excel_dfs = _prepare_dfs(excel_dfs)
+    all_lists = _make_all_lists(excel_dfs)
+    if isinstance(all_lists, ListCreationProblem):
+        msg = all_lists.execute_error_protocol()
+        logger.error(msg)
+        raise InputError(msg)
+    return [list_.to_dict() for list_ in all_lists]
+
+
+def _make_all_lists(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> list[ListRoot] | ListCreationProblem:
+    good_lists = []
+    problem_lists: list[Problem] = []
+    for filename, sheets in excel_dfs.items():
+        for sheet_name, df in sheets.items():
+            if isinstance(new_list := _make_one_list(df, sheet_name), ListRoot):
+                good_lists.append(new_list)
+            else:
+                problem_lists.append(new_list)
+    if problem_lists:
+        return ListCreationProblem(problem_lists)
+    return good_lists
+
+
+def _read_excels(folder_path: Path) -> dict[str, dict[str, pd.DataFrame]]:
+    file_names = list(folder_path.glob("*list*.xlsx"))
+    return {file.stem: read_and_clean_all_sheets(file) for file in file_names}
+
+
+def _prepare_dfs(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> dict[str, dict[str, pd.DataFrame]]:
+    make_all_formal_excel_compliance_checks(excel_dfs)
+    return _construct_ids(excel_dfs)
 
 
 def _construct_ids(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> dict[str, dict[str, pd.DataFrame]]:

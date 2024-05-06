@@ -50,15 +50,13 @@ def call_requested_action(args: argparse.Namespace) -> bool:
         case "resume-xmlupload":
             result = _call_resume_xmlupload(args)
         case "old-excel2json":
-            result = _call_excel2json(args)
+            result = _call_old_excel2json(args)
         case "excel2json":
-            # TODO: new call
             result = _call_excel2json(args)
         case "old-excel2lists":
             result = _call_old_excel2lists(args)
         case "excel2lists":
-            # TODO: new call
-            result = _call_old_excel2lists(args)
+            result = _call_excel2lists(args)
         case "excel2resources":
             result = _call_excel2resources(args)
         case "excel2properties":

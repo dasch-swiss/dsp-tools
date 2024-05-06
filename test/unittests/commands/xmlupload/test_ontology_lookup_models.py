@@ -275,8 +275,14 @@ def test_make_text_value_property_gui() -> None:
         ("onto:ontoHasSimpleText", "salsah-gui:SimpleText"),
     ]
     res = _make_text_value_property_type_lookup(test_list, "onto")
-    assert res.formatted_text_props == {":hasRichtext", "other_onto:hasRichtext", "hasComment"}
-    assert res.unformatted_text_props == {":hasSimpleText", "onto_other:hasTextarea", ":ontoHasSimpleText"}
+    assert res.formatted_text_props == {":hasRichtext", "other_onto:hasRichtext", "hasComment", "hasDescription"}
+    assert res.unformatted_text_props == {
+        ":hasSimpleText",
+        "onto_other:hasTextarea",
+        ":ontoHasSimpleText",
+        "hasTitle",
+        "hasKeyword",
+    }
 
 
 class TestRemoveDefaultPrefix:

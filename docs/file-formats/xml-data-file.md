@@ -1009,9 +1009,13 @@ Example:
 </video-segment>
 ```
 
-Technical note: `<video-segment>` / `<audio-segment>` are in fact a 
-`<resource restype="VideoSegment">` / `<resource restype="AudioSegment">`. 
-But it is mandatory to use the shortcut, so that the XML file can be validated more precisely.
+Technical notes: 
+
+- `<video-segment>` / `<audio-segment>` are in fact a 
+  `<resource restype="VideoSegment">` / `<resource restype="AudioSegment">`. 
+  But it is mandatory to use the shortcut, so that the XML file can be validated more precisely.
+- `isSegmentOf` is a knora-base super-property that cannot be used directly. 
+  In the background, DSP-TOOLS converts it to `isVideoSegmentOf` / `isAudioSegmentOf`.
 
 
 

@@ -306,7 +306,7 @@
         <xs:sequence>
             <xs:element name="interval" type="interval_type" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="name" type="xs:string" use="required" fixed="hasSegmentBounds"/>
     </xs:complexType>
 
     <!-- periodprop_type -->
@@ -475,7 +475,6 @@
                 <xs:element name="geoname-prop" type="geonameprop_type" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="list-prop" type="listprop_type" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="integer-prop" type="integerprop_type" minOccurs="0" maxOccurs="unbounded"/>
-                <xs:element name="interval-prop" type="intervalprop_type" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="period-prop" type="periodprop_type" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="resptr-prop" type="resptrprop_type" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="time-prop" type="timeprop_type" minOccurs="0" maxOccurs="unbounded"/>

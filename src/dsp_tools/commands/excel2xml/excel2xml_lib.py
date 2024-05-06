@@ -1070,18 +1070,14 @@ def make_integer_prop(
     return prop_
 
 
-def make_interval_prop(
-    name: str,
-    value: Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]],
-    calling_resource: str = "",
-) -> etree._Element:
+def make_interval_prop(value: Union[PropertyElement, str], calling_resource: str = "") -> etree._Element:
     """
-    Make a <interval-prop> from one or more DSP intervals. The interval(s) can be provided as string or as
-    PropertyElement with a string inside. If provided as string, the permissions default to "prop-default".
+    Make a <interval-prop name="hasSegmentBounds"> for a <video-segment> or <audio-segment>.
+    The interval can be provided as string or as PropertyElement with a string inside.
+    If provided as string, the permissions default to "prop-default".
 
     Args:
-        name: the name of this property as defined in the onto
-        value: one or more DSP intervals, as string/PropertyElement, or as iterable of strings/PropertyElements
+        value: a DSP interval, as string or PropertyElement
         calling_resource: the name of the parent resource (for better error messages)
 
     Warns:
@@ -1091,55 +1087,48 @@ def make_interval_prop(
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
 
     Examples:
-        >>> excel2xml.make_interval_prop(":testproperty", "61:3600")
-                <interval-prop name=":testproperty">
+        >>> excel2xml.make_interval_prop("61:3600")
+                <interval-prop name="hasSegmentBounds">
                     <interval permissions="prop-default">61:3600</interval>
                 </interval-prop>
-        >>> excel2xml.make_interval_prop(":testproperty", excel2xml.PropertyElement("61:3600", permissions="prop-restricted", comment="example"))
-                <interval-prop name=":testproperty">
+        >>> excel2xml.make_interval_prop(excel2xml.PropertyElement("61:3600", permissions="prop-restricted", comment="example"))
+                <interval-prop name="hasSegmentBounds>
                     <interval permissions="prop-restricted" comment="example">61:3600</interval>
                 </interval-prop>
-        >>> excel2xml.make_interval_prop(":testproperty", ["61:3600", "60.5:120.5"])
-                <interval-prop name=":testproperty">
-                    <interval permissions="prop-default">61:3600</interval>
-                    <interval permissions="prop-default">60.5:120.5</interval>
-                </interval-prop>
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#interval-prop
+    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#video-segment-audio-segment
     """
 
     # check the input: prepare a list with valid values
-    values = prepare_value(value)
+    value = value if isinstance(value, PropertyElement) else PropertyElement(value)
 
     # check value type
-    for val in values:
-        if not regex.match(
-            r"([+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)):([+-]?([0-9]+([.][0-9]*)?|[.][0-9]+))",
-            str(val.value),
-        ):
-            msg = (
-                f"Failed validation in resource '{calling_resource}', property '{name}': "
-                f"'{val.value}' is not a valid DSP interval."
-            )
-            warnings.warn(DspToolsUserWarning(msg))
+    if not regex.match(
+        r"([+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)):([+-]?([0-9]+([.][0-9]*)?|[.][0-9]+))",
+        str(value.value),
+    ):
+        msg = (
+            f"Failed validation in resource '{calling_resource}', property 'hasSegmentBounds': "
+            f"'{value.value}' is not a valid DSP interval."
+        )
+        warnings.warn(DspToolsUserWarning(msg))
 
     # make xml structure of the valid values
     prop_ = etree.Element(
         "{%s}interval-prop" % xml_namespace_map[None],
-        name=name,
+        name="hasSegmentBounds",
         nsmap=xml_namespace_map,
     )
-    for val in values:
-        kwargs = {"permissions": val.permissions}
-        if val.comment and check_notna(val.comment):
-            kwargs["comment"] = val.comment
-        value_ = etree.Element(
-            "{%s}interval" % xml_namespace_map[None],
-            **kwargs,  # type: ignore[arg-type]
-            nsmap=xml_namespace_map,
-        )
-        value_.text = str(val.value)
-        prop_.append(value_)
+    kwargs = {"permissions": value.permissions}
+    if value.comment and check_notna(value.comment):
+        kwargs["comment"] = value.comment
+    value_ = etree.Element(
+        "{%s}interval" % xml_namespace_map[None],
+        **kwargs,  # type: ignore[arg-type]
+        nsmap=xml_namespace_map,
+    )
+    value_.text = str(value.value)
+    prop_.append(value_)
 
     return prop_
 

@@ -206,7 +206,6 @@ The following property elements exist:
 - `<geoname-prop>`: contains [geonames.org](https://www.geonames.org/) location codes
 - `<list-prop>`: contains list element labels
 - `<integer-prop>`: contains integer values
-- `<interval-prop>`: contains interval values
 - `<period-prop>`: contains time period values (not yet implemented)
 - `<resptr-prop>`: contains links to other resources
 - `<text-prop>`: contains text values
@@ -553,40 +552,6 @@ Example of a property with a public and a hidden integer value:
     <integer permissions="prop-default">4711</integer>
     <integer>1</integer>
 </integer-prop>
-```
-
-
-### `<interval-prop>`
-
-The `<interval-prop>` element is used for intervals with a start and an end point on a timeline, 
-e.g. relative to the beginning of an audio or video file. 
-An `<interval-prop>` must contain at least one `<interval>` element.
-
-Attributes:
-
-- `name`: name of the property as defined in the ontology (required)
-
-
-#### `<interval>`
-
-A time interval is represented by plain decimal numbers in seconds, without a special notation for minutes and hours. 
-The `<interval>` element contains two decimals (written with a decimal point `.`) 
-separated by a colon (`:`). The values before the decimal point are seconds, 
-and the values after the decimal points are fractions of a second.
-
-Attributes:
-
-- `permissions`: Permission ID 
-  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
-- `comment`: a comment for this specific value (optional)
-
-Example of a property with a public and a hidden interval value:
-
-```xml
-<interval-prop name=":hasInterval">
-    <interval permissions="prop-default">60.5:120.5</interval>   <!-- 0:01:00.5 - 0:02:00.5 -->
-    <interval>61:3600</interval>                                 <!-- 0:01:01 - 1:00:00 -->
-</interval-prop>
 ```
 
 
@@ -1105,9 +1070,6 @@ In addition, there is another complete example of an XML data file here:
         <uri-prop name=":hasUri">
             <uri permissions="prop-default">http://dasch.swiss/gaga</uri>
         </uri-prop>
-        <interval-prop name=":hasInterval">
-            <interval permissions="prop-default">12.5:14.2</interval>
-        </interval-prop>
         <color-prop name=":hasColor">
             <color permissions="prop-default">#00ff00</color>
         </color-prop>
@@ -1150,9 +1112,6 @@ In addition, there is another complete example of an XML data file here:
         <uri-prop name=":hasUri">
             <uri permissions="prop-default">http://unibas.ch/gugus</uri>
         </uri-prop>
-        <interval-prop name=":hasInterval">
-            <interval permissions="prop-default">24:100.075</interval>
-        </interval-prop>
         <color-prop name=":hasColor">
             <color permissions="prop-default">#33ff77</color>
         </color-prop>
@@ -1195,9 +1154,6 @@ In addition, there is another complete example of an XML data file here:
         <uri-prop name=":hasUri">
             <uri permissions="prop-default">http://unibas.ch/gugus</uri>
         </uri-prop>
-        <interval-prop name=":hasInterval">
-            <interval permissions="prop-default">24:100.075</interval>
-        </interval-prop>
         <color-prop name=":hasColor">
             <color permissions="prop-default">#33ff77</color>
         </color-prop>

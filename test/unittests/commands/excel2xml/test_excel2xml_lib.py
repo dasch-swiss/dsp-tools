@@ -406,11 +406,14 @@ class TestMakeProps(unittest.TestCase):
         self.run_test(prop, method, [int(x) for x in different_values], invalid_values)
 
     def test_make_interval_prop(self) -> None:
-        prop = "interval"
-        method = excel2xml.make_interval_prop
         different_values = ["+.1:+.9", "10:20", "1.5:2.5", "-.1:5", "-10.0:-5.1"]
+        for val in different_values:
+            output = excel2xml.make_interval_prop(val)
+            self.assertEqual(output[0].text, val)
         invalid_values = ["text", 10.0, ["text"], "10:", ":1"]
-        self.run_test(prop, method, different_values, invalid_values)
+        for inv in invalid_values:
+            with self.assertWarns(Warning):
+                excel2xml.make_interval_prop(inv)  # type: ignore[arg-type]
 
     def test_make_list_prop(self) -> None:
         prop = "list"

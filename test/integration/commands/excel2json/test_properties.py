@@ -50,9 +50,9 @@ class TestValidateProperties:
             "\nThe Excel file "
             "'testdata/invalid-testdata/excel2json/properties-invalid-gui_element.xlsx' did not pass validation.\n"
             "    Section of the problem: 'Properties'\n"
-            "    Problematic property: 'hasInterval'\n"
-            "    Located at: Column 'gui_element' | Row 4\n"
-            "    Original Error Message:\n'Interval' was expected"
+            "    Problematic property: 'hasGeoname'\n"
+            "    Located at: Column 'gui_element' | Row 3\n"
+            "    Original Error Message:\n'Geonames' was expected"
         )
         with pytest.raises(InputError, match=expected_msg):
             e2j.excel2properties(

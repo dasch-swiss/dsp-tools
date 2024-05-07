@@ -360,7 +360,7 @@ The Excel sheets must have the following structure:
 
     - Incorrect, because `de_list` is specified, but `de_1` is missing:
 
-      ![img-excel2json-list-columns-incorrect.png](../assets/images/img-excel2json-list-columns-incorrect.png)
+        ![img-excel2json-list-columns-incorrect.png](../assets/images/img-excel2json-list-columns-incorrect.png)
 
 - Within one list, i.e. Excel sheet, all nodes must be translated into the same languages.
   This example is incorrect, because there is no English translation for `Knoten 1`:
@@ -387,7 +387,7 @@ The Excel sheets must have the following structure:
       Each node must have its own row.
     - In this example, `Node 1` does not have its own row, which is incorrect. `Node 2` is correctly done.
 
-      ![img-excel2json-list-node-missing-node.png](../assets/images/img-excel2json-list-node-missing-node.png)
+        ![img-excel2json-list-node-missing-node.png](../assets/images/img-excel2json-list-node-missing-node.png)
 
 
 

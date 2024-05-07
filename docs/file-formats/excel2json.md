@@ -321,39 +321,82 @@ The Excel sheets must have the following structure:
 ![img-excel2json-new-lists.png](../docs/assets/images/img-excel2json-new-lists.png)
 
 
-**Formal requirements of the Excel format:**
+### Formal requirements of the Excel format
+
 
 - One Excel file may contain several lists.
 - Per Excel sheet only one list is allowed. 
   The name of the sheet is not relevant, but must be unique within one Excel file.
-- Columns
-    - "ID (Optional)": Column where a custom ID for the node or list can be entered. 
-      This ID will be the `name` in the JSON file. 
-      If no ID is entered the `name` will be the list node name. 
-      In case of duplicate list node names, the ID will include the names of the ancestors of the node. 
-      For example:
-        - `list1:node1:node1.1` for the node `node1.1` in `list1`
-        - `list2:node1:node1.1` for the node `node1.1` in `list2`
-    - "language_tag_list": This filed is for the name of the list
-      At least one language 
-    - "language_tag_number": These fields are for the names of the list nodes.
-- Languages
-    - The allowed language tags are: `de`, `en`, `fr`, `it`, `rm`
-    - At least one language must be used.
-    - Within one list, i.e. Excel sheet, all nodes must be translated into all languages.
-      For example:
-        - `list_en`, `list_de`, `1_en`, `1_de` -> Correct
-        - `list_en`, `list_de`, `1_en` -> Incorrect because `1_de` is missing.
-      There is no limit to the number of node columns.
-    - Within one list, i.e. Excel sheet, all nodes must be translated into the same languages.
-      For example:
-        - `listNameEnglish`, `listNameGerman`, `nodeNameEnglish`, `nodeNameGerman` -> Correct
-        - `listNameEnglish`, `listNameGerman`, `nodeNameEnglish` -> Incorrect because `nodeNameGerman` is missing.
-    - The use of language does not have to be consistent across all lists. 
-      For example, it is correct if "list1" is translated into English and German, 
-      but "list2" is only translated into English.
+- The list name must be unique across in one project.
+
+
+#### Columns
+
+- "ID (Optional)": Column where a custom ID for the node or list can be entered. 
+  This ID will be the `name` in the JSON file, this is possible for list names and node names.
+  If no ID is entered the `name` will be the list node name. 
+  In case of duplicate list node names, the ID will include the names of the ancestors of the node. 
+  For example:
+    - `list1:node1:node1.1` for the node `node1.1` in `list1`
+    - `list2:node1:node1.1` for the node `node1.1` in `list2`
+- "language_tag_list": These fields are for the name of the list
+  At least one language 
+- "language_tag_number": These fields are for the names of the list nodes.
+
+
+#### Languages
+
+
+- The allowed language tags are: `de`, `en`, `fr`, `it`, `rm`
+- At least one language must be used.
+- Within one list, i.e. Excel sheet, all nodes must be translated into all languages.
+  
+  Correct: 
+
+  ![img-excel2json-list-columns-correct.png](../docs/assets/images/img-excel2json-list-columns-correct.png)
+
+  Incorrect:
+
+  ![img-excel2json-list-columns-incorrect.png](../docs/assets/images/img-excel2json-list-columns-incorrect.png)
+
+
+  
+  There is no limit to the number of node columns.
+- Within one list, i.e. Excel sheet, all nodes must be translated into the same languages.
+
+  Incorrect, node 1 is missing the English translation.
+
+  ![img-excel2json-list-translation-incorrect.png](../docs/assets/images/img-excel2json-list-translation-incorrect.png)
+  
+
+  
+- The use of language does not have to be consistent across all lists. 
+  For example, it is correct if "list1" is translated into English and German, 
+  but "list2" is only translated into English.
+
+
+#### Rows
+
+- Each sheet must contain at least two rows.
+- The sheet must be ordered correctly as shown in the example above, 
+  the order in the Excel corresponds to the order in the JSON file and the DSP-APP.
+
+  For example this is not correct:
+
+  ![img-excel2json-list-sorting-incorrect.png](../docs/assets/images/img-excel2json-list-sorting-incorrect.png)
+
+
+- The first line of the sheet must only contain the information for the list itself. 
+  All the other columns for node names must remain empty.
+- Each successive row corresponds to one list node. Each node must have its own row.
+
+  In this example `Node 1` does not have its own row. `Node 2` is correctly done.
+
+  ![img-excel2json-list-node-missing-node.png](../docs/assets/images/img-excel2json-list-node-missing-node.png)
+
+
 
 **It is recommended to work from the following templates:**  
 
-- [lists.xlsx](../docs/assets/data_model_templates/lists/new_lists.xlsx): 
+- [new_lists.xlsx](../docs/assets/data_model_templates/lists/new_lists.xlsx): 
   File with one example and on sheet two an empty template.

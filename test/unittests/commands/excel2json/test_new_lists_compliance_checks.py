@@ -22,6 +22,7 @@ from dsp_tools.commands.excel2json.new_lists import _check_for_missing_translati
 from dsp_tools.commands.excel2json.new_lists import _check_for_missing_translations_one_column_level
 from dsp_tools.commands.excel2json.new_lists import _check_for_missing_translations_one_node
 from dsp_tools.commands.excel2json.new_lists import _check_for_missing_translations_one_sheet
+from dsp_tools.commands.excel2json.new_lists import _check_for_unique_list_names
 from dsp_tools.commands.excel2json.new_lists import _check_if_all_translations_in_all_column_levels_present_one_sheet
 from dsp_tools.commands.excel2json.new_lists import _check_if_minimum_number_of_cols_present_one_sheet
 from dsp_tools.commands.excel2json.new_lists import _check_minimum_rows
@@ -174,6 +175,56 @@ class TestCheckExcelsForDuplicates:
         )
         with pytest.raises(InputError, match=expected):
             _check_duplicates_all_excels(df_dict)
+
+
+class TestCheckForDuplicateListNames:
+    def test_good(self) -> None:
+        df_1 = pd.DataFrame(
+            {
+                "en_list": ["list1", "list1"],
+            }
+        )
+        df_2 = pd.DataFrame(
+            {
+                "en_list": ["list2", "list2"],
+            }
+        )
+        df_dict = {"file1": {"sheet1": df_1}, "file2": {"sheet2": df_2}}
+        _check_for_unique_list_names(df_dict)
+
+    def test_problem(self) -> None:
+        df_1 = pd.DataFrame(
+            {
+                "en_list": ["list1", "list2"],
+            }
+        )
+        df_2 = pd.DataFrame(
+            {
+                "en_list": ["list2", "list2"],
+            }
+        )
+        df_3 = pd.DataFrame(
+            {
+                "en_list": ["list2", "list2"],
+            }
+        )
+        df_dict = {"file1": {"sheet1": df_1, "sheet2": df_2}, "file2": {"sheet2": df_3}}
+        expected = regex.escape(
+            "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"
+            "---------------------------------------\n\n"
+            "The excel 'file1' has the following problem(s):\n"
+            "----------------------------\n"
+            "Per Excel sheet only one list is allowed.\n"
+            "The following sheet: 'sheet1' has more than one list: list1, list2\n\n"
+            "---------------------------------------\n\n"
+            "The name of the list must be unique across all the excel sheets.\n"
+            "The following sheets have lists with the same name:\n"
+            "    - Excel file: 'file1', Sheet: 'sheet1', List: 'list2'\n"
+            "    - Excel file: 'file1', Sheet: 'sheet2', List: 'list2'\n"
+            "    - Excel file: 'file2', Sheet: 'sheet2', List: 'list2'"
+        )
+        with pytest.raises(InputError, match=expected):
+            _check_for_unique_list_names(df_dict)
 
 
 class TestCheckForDuplicates:

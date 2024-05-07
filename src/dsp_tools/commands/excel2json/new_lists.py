@@ -17,14 +17,17 @@ from dsp_tools.commands.excel2json.lists import validate_lists_section_with_sche
 from dsp_tools.commands.excel2json.models.input_error import DuplicateIDProblem
 from dsp_tools.commands.excel2json.models.input_error import DuplicatesCustomIDInProblem
 from dsp_tools.commands.excel2json.models.input_error import DuplicatesInSheetProblem
+from dsp_tools.commands.excel2json.models.input_error import DuplicatesListNameProblem
 from dsp_tools.commands.excel2json.models.input_error import ListCreationProblem
 from dsp_tools.commands.excel2json.models.input_error import ListExcelProblem
+from dsp_tools.commands.excel2json.models.input_error import ListInformation
 from dsp_tools.commands.excel2json.models.input_error import ListNodeProblem
 from dsp_tools.commands.excel2json.models.input_error import ListSheetComplianceProblem
 from dsp_tools.commands.excel2json.models.input_error import ListSheetContentProblem
 from dsp_tools.commands.excel2json.models.input_error import ListSheetProblem
 from dsp_tools.commands.excel2json.models.input_error import MissingNodeTranslationProblem
 from dsp_tools.commands.excel2json.models.input_error import MissingTranslationsSheetProblem
+from dsp_tools.commands.excel2json.models.input_error import MultipleListPerSheetProblem
 from dsp_tools.commands.excel2json.models.input_error import NodesPerRowProblem
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import Problem
@@ -36,7 +39,7 @@ from dsp_tools.models.exceptions import InputError
 
 
 def new_excel2lists(
-    excelfolder: str,
+    excelfolder: str | Path,
     path_to_output_file: Optional[Path] = None,
 ) -> tuple[list[dict[str, Any]], bool]:
     """
@@ -361,6 +364,7 @@ def _make_all_formal_excel_compliance_checks(
     # These functions must be called in this order,
     # as some of the following checks only work if the previous were passed.
     _check_duplicates_all_excels(excel_dfs)
+    _check_for_unique_list_names(excel_dfs)
     _make_shape_compliance_all_excels(excel_dfs)
     _make_all_content_compliance_checks_all_excels(excel_dfs)
 
@@ -393,6 +397,35 @@ def _check_duplicates_all_excels(
         problems.append(id_problem)
     if problems:
         msg = ListCreationProblem(problems).execute_error_protocol()
+        logger.error(msg)
+        raise InputError(msg)
+
+
+def _check_for_unique_list_names(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> None:
+    """This functon checks that one sheet only has one list and that all lists have unique names."""
+    list_names: list[ListInformation] = []
+    all_problems: list[Problem] = []
+    for excel_file, sheets in excel_dfs.items():
+        one_excel_problems: list[Problem] = []
+        for sheet_name, df in sheets.items():
+            preferred_language = _get_preferred_language(df.columns, r"list")
+            unique_list_names = list(df[f"{preferred_language}_list"].unique())
+            if len(unique_list_names) != 1:
+                one_excel_problems.append(MultipleListPerSheetProblem(sheet_name, unique_list_names))
+            list_names.extend([ListInformation(excel_file, sheet_name, name) for name in unique_list_names])
+        if one_excel_problems:
+            all_problems.append(ListExcelProblem(excel_file, one_excel_problems))
+    list_info_dict = defaultdict(list)
+    for item in list_names:
+        list_info_dict[item.list_name].append(item)
+    duplicate_list_names = []
+    for info in list_info_dict.values():
+        if len(info) > 1:
+            duplicate_list_names.extend(info)
+    if duplicate_list_names:
+        all_problems.append(DuplicatesListNameProblem(duplicate_list_names))
+    if all_problems:
+        msg = ListCreationProblem(all_problems).execute_error_protocol()
         logger.error(msg)
         raise InputError(msg)
 

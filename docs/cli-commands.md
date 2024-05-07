@@ -209,12 +209,25 @@ dsp-tools excel2json excelfolder project_definition.json
 ```
 
 The expected Excel file format and the folder structure are documented [here](./file-formats/excel2json.md).
+It will be deprecated in favour of `new-excel2json` in the future.
 
+## `new-excel2json`
+
+This command creates a JSON project definition file from a nested folder structure with Excel files.
+The Excel format for the `lists` section is changed from the previous `excel2json` command.
+This feature is still in development.
+
+```bash
+dsp-tools new-excel2json excelfolder project_definition.json
+```
+
+The expected Excel file format and the folder structure are documented [here](./file-formats/excel2json.md).
 
 
 ### `excel2lists`
 
 This command creates the "lists" section of a JSON project file from Excel files.
+It will be deprecated in favour of `new-excel2lists` in the future.
 
 ```bash
 dsp-tools excel2lists [options] excelfolder lists_section.json
@@ -232,6 +245,18 @@ The expected Excel file format and the folder structure are documented
 | The command [`excel2json`](#excel2json) might be more convenient to use. |
 
 
+### `new-excel2lists`
+
+This command creates the "lists" section of a JSON project file from Excel files.
+The Excel format for the `lists` section is changed from the previous `excel2json` command.
+This feature is still in development.
+
+```bash
+dsp-tools new-excel2lists excelfolder lists_section.json
+```
+
+The expected Excel file format and the folder structure are documented 
+[here](./file-formats/excel2json.md#the-lists-section).
 
 ### `excel2resources`
 

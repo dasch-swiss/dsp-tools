@@ -2,7 +2,7 @@
 
 # Excel File Format to Generate a JSON Project
 
-## The Folder Structure
+## The Folder Structure for `excel2json`
 
 With the [`excel2json`](../cli-commands.md#excel2json) command, 
 a JSON project file can be created from Excel files.
@@ -51,8 +51,31 @@ no users in the resulting JSON file.**
 
 Continue reading the following paragraphs to learn more about the expected structure of the Excel files.
 
+## The Folder Structure for `new-excel2json`
 
 
+The convention for the folder structure and naming remains the same as for the standard `excel2json`.
+The Excel files containing the lists must have the word "list" in the name. 
+All the files that contain the word will be read and processed, other files in the folder will not be included.
+
+
+```text
+data_model_files
+|-- lists
+|   |-- lists.xlsx
+|   `-- other_list.xlsx
+|   `-- list3.xlsx
+`-- onto_name (onto_label)
+    |-- properties.xlsx
+    `-- resources.xlsx
+```
+
+
+Then, use the following command:
+
+```bash
+dsp-tools new-excel2json data_model_files project.json
+```
 
 ## The `resources` Section
 

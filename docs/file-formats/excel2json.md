@@ -189,7 +189,7 @@ files with column titles `hlist`, `en`, `de`, `fr`, `it`, or `rm` are valid, but
 
 
 
-## The `lists` Section for `excel2json` and `excel2lists`
+## The `lists` Section
 
 With the [`excel2lists`](../cli-commands.md#excel2lists) command, 
 the `lists` section of a JSON project file can be created from one or several Excel files. 
@@ -397,7 +397,7 @@ The Excel sheets must have the following structure:
 
 
 
-**It is recommended to work from the following templates:**  
+**It is recommended to work from the following templates:**
 
-[new_lists.xlsx](../docs/assets/data_model_templates/lists/new_lists.xlsx): 
-  File with one example and on sheet two an empty template.
+[new_lists.xlsx](../docs/assets/data_model_templates/lists/new_lists.xlsx)
+

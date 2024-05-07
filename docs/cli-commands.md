@@ -176,8 +176,8 @@ this file must remain in place.
 
 ## `resume-xmlupload`
 
-| <center>Warning</center>                                                    |
-|--------------------------------------------------------------------------|
+| <center>Warning</center>                                                                                                                                  |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | We do not guarantee that the state of an xmlupload is cleanly saved after `Ctrl + C`. We only guarantee this for `dsp-tools xmlupload --interrupt-after`. |
 
 This command resumes a previously interrupted `xmlupload` or `ingest-xmlupload`.
@@ -203,19 +203,21 @@ Currently, only one interrupted upload can be resumed at a time per server.
 ## `excel2json`
 
 This command creates a JSON project definition file from a nested folder structure with Excel files.
+It will be deprecated in favor of `new-excel2json` in the future.
 
 ```bash
 dsp-tools excel2json excelfolder project_definition.json
 ```
 
 The expected Excel file format and the folder structure are documented [here](./file-formats/excel2json.md).
-It will be deprecated in favour of `new-excel2json` in the future.
+
+
 
 ## `new-excel2json`
 
 This command creates a JSON project definition file from a nested folder structure with Excel files.
-The Excel format for the `lists` section is changed from the previous `excel2json` command.
-This feature is still in development.
+The Excel format for the `lists` section has been adapted compared to the previous `excel2json` command.
+This command is still under development, and might be less stable than `excel2json`.
 
 ```bash
 dsp-tools new-excel2json excelfolder project_definition.json
@@ -227,7 +229,7 @@ The expected Excel file format and the folder structure are documented [here](./
 ### `excel2lists`
 
 This command creates the "lists" section of a JSON project file from Excel files.
-It will be deprecated in favour of `new-excel2lists` in the future.
+It will be deprecated in favor of `new-excel2lists` in the future.
 
 ```bash
 dsp-tools excel2lists [options] excelfolder lists_section.json
@@ -241,14 +243,14 @@ The expected Excel file format and the folder structure are documented
 [here](./file-formats/excel2json.md#the-lists-section).
 
 | <center>Hint</center>                                                    |
-|--------------------------------------------------------------------------|
+| ------------------------------------------------------------------------ |
 | The command [`excel2json`](#excel2json) might be more convenient to use. |
 
 
 ### `new-excel2lists`
 
 This command creates the "lists" section of a JSON project file from Excel files.
-The Excel format for the `lists` section is changed from the previous `excel2json` command.
+The Excel format for the `lists` section has been adapted compared to the previous `excel2lists` command.
 This feature is still in development.
 
 ```bash
@@ -269,7 +271,7 @@ dsp-tools excel2resources resources.xlsx resources_section.json
 The expected Excel format is [documented here](./file-formats/excel2json.md#the-resources-section).
 
 | <center>Hint</center>                                                    |
-|--------------------------------------------------------------------------|
+| ------------------------------------------------------------------------ |
 | The command [`excel2json`](#excel2json) might be more convenient to use. |
 
 
@@ -285,7 +287,7 @@ dsp-tools excel2properties properties.xlsx properties_section.json
 The expected Excel format is [documented here](./file-formats/excel2json.md#the-properties-section).
 
 | <center>Hint</center>                                                    |
-|--------------------------------------------------------------------------|
+| ------------------------------------------------------------------------ |
 | The command [`excel2json`](#excel2json) might be more convenient to use. |
 
 

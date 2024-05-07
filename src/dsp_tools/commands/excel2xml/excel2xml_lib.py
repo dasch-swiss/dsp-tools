@@ -1082,7 +1082,8 @@ def make_interval_prop(name: str, value: Union[PropertyElement, str], calling_re
         calling_resource: the name of the parent resource (for better error messages)
 
     Warns:
-        If the value is not a valid DSP interval
+        - If the value is not a valid DSP interval
+        - If the name is not "hasSegmentBounds"
 
     Returns:
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
@@ -1771,6 +1772,45 @@ def make_audio_segment(  # noqa: D417 (undocumented-param)
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#link
     """
+    return etree.Element(
+        "{%s}audio-segment" % xml_namespace_map[None],
+        label=label,
+        id=id,
+        permissions=permissions,
+        nsmap=xml_namespace_map,
+    )
+
+
+def make_video_segment(  # noqa: D417 (undocumented-param)
+    label: str,
+    id: str,
+    permissions: str = "res-default",
+) -> etree._Element:
+    """
+    Creates an empty <video-segment> element, with the attributes as specified by the arguments
+
+    Args:
+        The arguments correspond 1:1 to the attributes of the <video-segment> element.
+
+    Returns:
+        The video-segment element, without any children, but with the attributes:
+        <video-segment label=label id=id permissions=permissions></video-segment>
+
+    Examples:
+        >>> video_segment = excel2xml.make_video_segment("label", "id")
+        >>> video_segment.append(excel2xml.make_resptr_prop("isSegmentOf", "video_resource_id"))
+        >>> video_segment.append(excel2xml.make_interval_prop("hasSegmentBounds", "60:120")
+        >>> root.append(video_segment)
+
+    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#link
+    """
+    return etree.Element(
+        "{%s}video-segment" % xml_namespace_map[None],
+        label=label,
+        id=id,
+        permissions=permissions,
+        nsmap=xml_namespace_map,
+    )
 
 
 def create_json_excel_list_mapping(

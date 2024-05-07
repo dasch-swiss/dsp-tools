@@ -408,12 +408,12 @@ class TestMakeProps(unittest.TestCase):
     def test_make_interval_prop(self) -> None:
         different_values = ["+.1:+.9", "10:20", "1.5:2.5", "-.1:5", "-10.0:-5.1"]
         for val in different_values:
-            output = excel2xml.make_interval_prop(val)
+            output = excel2xml.make_interval_prop("hasSegmentBounds", val)
             self.assertEqual(output[0].text, val)
         invalid_values = ["text", 10.0, ["text"], "10:", ":1"]
         for inv in invalid_values:
             with self.assertWarns(Warning):
-                excel2xml.make_interval_prop(inv)  # type: ignore[arg-type]
+                excel2xml.make_interval_prop("hasSegmentBounds", inv)  # type: ignore[arg-type]
 
     def test_make_list_prop(self) -> None:
         prop = "list"
@@ -738,6 +738,26 @@ class TestMakeProps(unittest.TestCase):
     def test_fail_region_with_invalid_creation_date(self) -> None:
         with self.assertRaisesRegex(BaseError, "invalid creation date"):
             excel2xml.make_region("label", "id", creation_date="2019-10-23T13:45:12")
+
+    def test_make_audio_segment(self) -> None:
+        expected = '<audio-segment label="label" id="id" permissions="res-default"/>'
+        result = _strip_namespace(excel2xml.make_audio_segment("label", "id"))
+        self.assertEqual(expected, result)
+
+    def test_make_audio_segment_with_custom_permissions(self) -> None:
+        expected = '<audio-segment label="label" id="id" permissions="res-restricted"/>'
+        result = _strip_namespace(excel2xml.make_audio_segment("label", "id", "res-restricted"))
+        self.assertEqual(expected, result)
+
+    def test_make_video_segment(self) -> None:
+        expected = '<video-segment label="label" id="id" permissions="res-default"/>'
+        result = _strip_namespace(excel2xml.make_video_segment("label", "id"))
+        self.assertEqual(expected, result)
+
+    def test_make_video_segment_with_custom_permissions(self) -> None:
+        expected = '<video-segment label="label" id="id" permissions="res-restricted"/>'
+        result = _strip_namespace(excel2xml.make_video_segment("label", "id", "res-restricted"))
+        self.assertEqual(expected, result)
 
     def test_make_resource(self) -> None:
         test_cases: list[tuple[Callable[..., etree._Element], str]] = [

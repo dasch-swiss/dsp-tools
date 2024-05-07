@@ -104,4 +104,6 @@ class ListRoot:
         lst = {"name": self.id_, "labels": self.labels}
         if self.comments:
             lst.update({"comments": self.comments})
+        else:
+            lst.update({"comments": self.labels})
         return lst

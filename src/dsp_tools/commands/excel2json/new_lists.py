@@ -358,6 +358,8 @@ def _make_all_formal_excel_compliance_checks(
     Raises:
         InputError: If any unexpected input is found in the excel files.
     """
+    # These functions must be called in this order,
+    # as some of the following checks only work if the previous were passed.
     _check_duplicates_all_excels(excel_dfs)
     _make_shape_compliance_all_excels(excel_dfs)
     _make_all_content_compliance_checks_all_excels(excel_dfs)

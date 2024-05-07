@@ -318,7 +318,9 @@ Files that do not contain that word will not be considered.
 dsp-tools new-excel2lists listfolder lists.json
 ```
 
-The Excel sheets must have the following structure:  
+The Excel sheets must have the following structure:
+
+
 ![img-excel2json-new-lists.png](../assets/images/img-excel2json-new-lists.png)
 
 
@@ -353,12 +355,18 @@ The Excel sheets must have the following structure:
 - There is no limit to the number of columns (i.e. node hierarchies).
 - Within one list, i.e. Excel sheet, all nodes must be consistently translated into the same languages.
     - Correct:
-      ![img-excel2json-list-columns-correct.png](../assets/images/img-excel2json-list-columns-correct.png)
+
+        ![img-excel2json-list-columns-correct.png](../assets/images/img-excel2json-list-columns-correct.png)
+
     - Incorrect, because `de_list` is specified, but `de_1` is missing:
+
       ![img-excel2json-list-columns-incorrect.png](../assets/images/img-excel2json-list-columns-incorrect.png)
+
 - Within one list, i.e. Excel sheet, all nodes must be translated into the same languages.
-    - Incorrect, because there is no English translation for `Knoten 1`:
-      ![img-excel2json-list-translation-incorrect.png](../assets/images/img-excel2json-list-translation-incorrect.png)
+  This example is incorrect, because there is no English translation for `Knoten 1`:
+  
+    ![img-excel2json-list-translation-incorrect.png](../assets/images/img-excel2json-list-translation-incorrect.png)
+
 - The use of language does not have to be consistent across all lists. 
   For example, it is correct if "list1" is translated into English and German, 
   but "list2" is only translated into English.
@@ -369,17 +377,19 @@ The Excel sheets must have the following structure:
 - Each sheet must contain at least two rows.
 - The sheet must be ordered correctly as shown in the example above. 
 - The order in the Excel corresponds to the order in the JSON file and the DSP-APP.
-    - Incorrect, because the second column is unordered:
-      ![img-excel2json-list-sorting-incorrect.png](../assets/images/img-excel2json-list-sorting-incorrect.png)
+  This example is incorrect, because the second column is unordered:
+
+    ![img-excel2json-list-sorting-incorrect.png](../assets/images/img-excel2json-list-sorting-incorrect.png)
+
 - The first row of the sheet, directly under the title, must only contain the information for the list itself. 
   It must not contain anything in the other cells.
-- Each successive row corresponds to one list node. Each node must have its own row.
+    - Each successive row corresponds to one list node. 
+      Each node must have its own row.
     - In this example, `Node 1` does not have its own row, which is incorrect. `Node 2` is correctly done.
+
       ![img-excel2json-list-node-missing-node.png](../assets/images/img-excel2json-list-node-missing-node.png)
 
 
 
-**It is recommended to work from the following templates:**
-
-[new_lists.xlsx](../assets/data_model_templates/lists/new_lists.xlsx)
+**It is recommended to work from the following template:** [new_lists.xlsx](../assets/data_model_templates/lists/new_lists.xlsx)
 

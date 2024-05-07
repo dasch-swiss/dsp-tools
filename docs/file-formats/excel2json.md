@@ -56,7 +56,7 @@ Continue reading the following paragraphs to learn more about the expected struc
 
 The convention for the folder structure and naming remains the same as for the standard `excel2json`.
 The Excel files containing the lists must have the word "list" in the name. 
-All the files that contain the word will be read and processed, other files in the folder will not be included.
+All the files containing "list" in their name will be read and processed, other files in the folder will not be included.
 
 
 ```text
@@ -308,9 +308,10 @@ With the [`new-excel2lists`](../cli-commands.md#new-excel2lists) command,
 the `lists` section of a JSON project file can be created from one or several Excel files. 
 The lists can then be inserted into a JSON project file and uploaded to a DSP server.
 
-The following example shows how to create the "lists" section which are located in a directory called `listfolder`.
+The following example shows how to create the "lists" section 
+with Excel files that are located in a directory called `listfolder`.
 The Excel files must contain the word "list" in the name. All the files containing that word will be included.
-Files that do not contain the word will not be considered.
+Files that do not contain that word will not be considered.
 
 
 ```bash
@@ -323,54 +324,41 @@ The Excel sheets must have the following structure:
 
 ### Formal requirements of the Excel format
 
-
 - One Excel file may contain several lists.
 - Per Excel sheet only one list is allowed. 
   The name of the sheet is not relevant, but must be unique within one Excel file.
-- The list name must be unique in one project.
+- The list name (i.e. the content of the columns `en_list`/`de_list`/...) must be unique in one project.
 
 
 #### Columns
 
-- "ID (Optional)"
+- `ID (Optional)`
     - Column where a custom ID for the node or list can be entered. 
-      This ID will be the `name` in the JSON file, this is possible for list names and node names.
-      If no ID is entered the `name` will be the list node name. The ID must be unique in the entire project.
-    - If this field is left empty an ID will be created from the node name. 
-      In case of duplicate list node names, the ID will include the names of the ancestors of the node. 
+      This ID will become the `name` of the list/node in the JSON file.
+    - The ID must be unique in the entire project.
+    - If this field is left empty, an auto-ID will be generated. 
+    - In case of duplicate IDs, an auto-ID will be generated, which includes the names of the ancestors of the node. 
       For example:
           - `list1:node1:node1.1` for the node `node1.1` in `list1`
           - `list2:node1:node1.1` for the node `node1.1` in `list2`
-- "language_tag_list": These fields are for the name of the list
-  At least one language 
-- "language_tag_number": These fields are for the names of the list nodes.
+- `<language>_list`: At least one column with the name of the list in that language.
+- `<language>_number`: At least one column which specifies a node level. 
+  It starts with 1 for the highest node hierarchy, and can go on infinitely.
 
 
 #### Languages
 
-
 - The allowed language tags are: `de`, `en`, `fr`, `it`, `rm`
 - At least one language must be used.
-- There is no limit to the number of node columns.
-- Within one list, i.e. Excel sheet, all nodes must be consistently translated into all languages.
-  
-  Correct:
-
-![img-excel2json-list-columns-correct.png](../assets/images/img-excel2json-list-columns-correct.png)
-
-  Incorrect because `de_1` is missing:
-
-![img-excel2json-list-columns-incorrect.png](../assets/images/img-excel2json-list-columns-incorrect.png)
-
-
-  
+- There is no limit to the number of columns (i.e. node hierarchies).
+- Within one list, i.e. Excel sheet, all nodes must be consistently translated into the same languages.
+    - Correct:
+      ![img-excel2json-list-columns-correct.png](../assets/images/img-excel2json-list-columns-correct.png)
+    - Incorrect, because `de_list` is specified, but `de_1` is missing:
+      ![img-excel2json-list-columns-incorrect.png](../assets/images/img-excel2json-list-columns-incorrect.png)
 - Within one list, i.e. Excel sheet, all nodes must be translated into the same languages.
-
-  Incorrect, `Node 1` is missing the English translation.
-
-![img-excel2json-list-translation-incorrect.png](../assets/images/img-excel2json-list-translation-incorrect.png)
-  
-
+    - Incorrect, because there is no English translation for `Knoten 1`:
+      ![img-excel2json-list-translation-incorrect.png](../assets/images/img-excel2json-list-translation-incorrect.png)
 - The use of language does not have to be consistent across all lists. 
   For example, it is correct if "list1" is translated into English and German, 
   but "list2" is only translated into English.
@@ -379,21 +367,15 @@ The Excel sheets must have the following structure:
 #### Rows
 
 - Each sheet must contain at least two rows.
-- The sheet must be ordered correctly as shown in the example above, 
-  the order in the Excel corresponds to the order in the JSON file and the DSP-APP.
-
-  For example this is not correct:
-
-![img-excel2json-list-sorting-incorrect.png](../assets/images/img-excel2json-list-sorting-incorrect.png)
-
-
-- The first line of the sheet must only contain the information for the list itself. 
-  All the other columns for node names must remain empty.
+- The sheet must be ordered correctly as shown in the example above. 
+- The order in the Excel corresponds to the order in the JSON file and the DSP-APP.
+    - Incorrect, because the second column is unordered:
+      ![img-excel2json-list-sorting-incorrect.png](../assets/images/img-excel2json-list-sorting-incorrect.png)
+- The first row of the sheet, directly under the title, must only contain the information for the list itself. 
+  It must not contain anything in the other cells.
 - Each successive row corresponds to one list node. Each node must have its own row.
-
-  In this example `Node 1` does not have its own row. `Node 2` is correctly done.
-
-![img-excel2json-list-node-missing-node.png](../assets/images/img-excel2json-list-node-missing-node.png)
+    - In this example, `Node 1` does not have its own row, which is incorrect. `Node 2` is correctly done.
+      ![img-excel2json-list-node-missing-node.png](../assets/images/img-excel2json-list-node-missing-node.png)
 
 
 

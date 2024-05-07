@@ -44,7 +44,8 @@ def new_excel2lists(
 ) -> tuple[list[dict[str, Any]], bool]:
     """
     Convert lists described in Excel files into a "lists" section that can be inserted into a JSON project file.
-    If path_to_output_file is not None, write the result into the output file. 
+    If path_to_output_file is not None, write the result into the output file.
+
     Args:
         excelfolder: path to the folder containing the Excel file(s)
         path_to_output_file: path to the file where the output JSON file will be saved

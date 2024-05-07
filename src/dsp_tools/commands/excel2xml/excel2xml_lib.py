@@ -1075,6 +1075,8 @@ def make_interval_prop(name: str, value: Union[PropertyElement, str], calling_re
     Make a <interval-prop name="hasSegmentBounds"> for a <video-segment> or <audio-segment>.
     The interval can be provided as string or as PropertyElement with a string inside.
     If provided as string, the permissions default to "prop-default".
+    DSP interval values are formatted as "start_seconds:end_seconds".
+    Both numbers can have a decimal point, for fractions of seconds.
 
     Args:
         name: the name of this property. The only accepted value is "hasSegmentBounds"
@@ -1089,13 +1091,15 @@ def make_interval_prop(name: str, value: Union[PropertyElement, str], calling_re
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
 
     Examples:
-        >>> excel2xml.make_interval_prop("hasSegmentBounds", "61:3600")
+        >>> interval = excel3xml.create_interval_value(start="0:01:00", end="0:02:00")  # result: "60:120"
+        >>> excel2xml.make_interval_prop("hasSegmentBounds", inverval)
                 <interval-prop name="hasSegmentBounds">
-                    <interval permissions="prop-default">61:3600</interval>
+                    <interval permissions="prop-default">60:120</interval>
                 </interval-prop>
-        >>> excel2xml.make_interval_prop("hasSegmentBounds", excel2xml.PropertyElement("61:3600", permissions="prop-restricted", comment="example"))
+        >>> interval = excel3xml.create_interval_value(start="0:30:00", end="1:00:00")  # result: "1800:3600"
+        >>> excel2xml.make_interval_prop("hasSegmentBounds", excel2xml.PropertyElement(interval, permissions="prop-restricted", comment="example"))
                 <interval-prop name="hasSegmentBounds>
-                    <interval permissions="prop-restricted" comment="example">61:3600</interval>
+                    <interval permissions="prop-restricted" comment="example">1800:3600</interval>
                 </interval-prop>
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#video-segment-audio-segment
@@ -1112,7 +1116,7 @@ def make_interval_prop(name: str, value: Union[PropertyElement, str], calling_re
 
     # check value type
     if not regex.match(
-        r"([+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)):([+-]?([0-9]+([.][0-9]*)?|[.][0-9]+))",
+        r"(\+?([0-9]+([.][0-9]*)?|[.][0-9]+)):(\+?([0-9]+([.][0-9]*)?|[.][0-9]+))",
         str(value.value),
     ):
         msg = (
@@ -1814,14 +1818,37 @@ def make_video_segment(  # noqa: D417 (undocumented-param)
 
 
 def create_interval_value(start: str, end: str) -> str:
-    start_match = regex.match(r"(\d+):([0-5][0-9]):([0-5][0-9])", start)
-    end_match = regex.match(r"(\d+):([0-5][0-9]):([0-5][0-9])", end)
+    """
+    Transform a start and end time into a valid DSP interval value,
+    which then can be used in an <interval name="hasSegmentBounds"> tag,
+    which is used in <audio-segment> and <video-segment> elements.
+
+    Args:
+        start: start time of the video/audio segment, in the format 'H(H):MM:SS(.s)'
+        end: end time of the video/audio segment, in the format 'H(H):MM:SS(.s)'
+
+    Raises:
+        ValueError: if the provided arguments are not in the correct format, or if the start time is greater than the end time
+
+    Returns:
+        a DSP interval value in the format 'start_seconds:end_seconds'
+
+    Examples:
+        >>> excel2xml.create_interval_value("0:01:00", "0:02:00")
+        "60:120"
+        >>> excel2xml.create_interval_value("0:01:00.5", "0:01:00.6")
+        "60.5:60.6"
+    """
+    start_match = regex.search(r"^(\d+):([0-5][0-9]):([0-5][0-9](?:\.[0-9])?)$", start)
+    end_match = regex.match(r"^(\d+):([0-5][0-9]):([0-5][0-9](?:\.[0-9])?)$", end)
     if not start_match or not end_match:
         raise ValueError("The start and end values must be in the format 'HH:MM:SS'")
     start_h, start_m, start_s = start_match.groups()
     end_h, end_m, end_s = end_match.groups()
-    start_seconds = int(start_h) * 3600 + int(start_m) * 60 + int(start_s)
-    end_seconds = int(end_h) * 3600 + int(end_m) * 60 + int(end_s)
+    start_seconds = int(start_h) * 3600 + int(start_m) * 60 + float(start_s)
+    end_seconds = int(end_h) * 3600 + int(end_m) * 60 + float(end_s)
+    start_seconds = int(start_seconds) if start_seconds.is_integer() else start_seconds
+    end_seconds = int(end_seconds) if end_seconds.is_integer() else end_seconds
     if start_seconds >= end_seconds:
         raise ValueError("The start value must be smaller than the end value")
     return f"{start_seconds}:{end_seconds}"

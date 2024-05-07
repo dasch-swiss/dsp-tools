@@ -802,7 +802,7 @@
             <resptr permissions="prop-default">video_thing_1</resptr>
         </resptr-prop>
         <interval-prop name="hasSegmentBounds">
-            <interval permissions="prop-default">+.1:+.9</interval>
+            <interval permissions="prop-default">+.1:0.9</interval>
         </interval-prop>
         <text-prop name="hasComment">
             <text encoding="xml" permissions="prop-default">Comment of video segment</text>
@@ -828,7 +828,7 @@
             <resptr permissions="prop-default">audio_thing_1</resptr>
         </resptr-prop>
         <interval-prop name="hasSegmentBounds">
-            <interval permissions="prop-default">+.1:+.9</interval>
+            <interval permissions="prop-default">60:120</interval>
         </interval-prop>
         <text-prop name="hasComment">
             <text encoding="xml" permissions="prop-default">Comment of audio segment</text>

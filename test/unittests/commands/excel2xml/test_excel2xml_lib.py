@@ -15,6 +15,7 @@ from lxml import etree
 
 from dsp_tools import excel2xml
 from dsp_tools.commands.excel2xml.excel2xml_lib import _escape_reserved_chars
+from dsp_tools.commands.excel2xml.excel2xml_lib import create_interval_value
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import BaseError
 
@@ -846,6 +847,38 @@ class TestMakeProps(unittest.TestCase):
             "third node of the test-list": "third node of testlist",
         }
         self.assertDictEqual(testlist_mapping_returned, testlist_mapping_expected)
+
+
+@pytest.mark.parametrize(
+    ("start", "end", "expected"),
+    [
+        ("0:00:00.1", "0:00:02.3", "0.1:2.3"),
+        ("00:00:00", "00:00:01", "0:1"),
+        ("00:00:00", "01:00:00", "0:3600"),
+        ("01:30:00", "02:45:00", "5400:9900"),
+        ("23:59:58", "23:59:59", "86398:86399"),
+    ],
+)
+def test_create_interval_value_happy_path(start: str, end: str, expected: str) -> None:
+    result = create_interval_value(start, end)
+    assert result == expected, f"Expected {expected}, got {result}"
+
+
+@pytest.mark.parametrize(
+    ("start", "end"),
+    [
+        ("24:00:00", "23:59:59"),
+        ("00:60:00", "02:00:00"),
+        ("01:00:00", "02:60:00"),
+        ("00:00:60", "01:00:00"),
+        ("01:00:00", "02:00:60"),
+        ("not:time", "01:00:00"),
+        ("01:00:00", "not:time"),
+    ],
+)
+def test_create_interval_value_error_cases(start: str, end: str) -> None:
+    with pytest.raises(ValueError):  # noqa: PT011
+        create_interval_value(start, end)
 
 
 class TestEscapedChars:

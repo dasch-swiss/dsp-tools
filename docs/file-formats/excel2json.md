@@ -351,24 +351,24 @@ The Excel sheets must have the following structure:
 
 - The allowed language tags are: `de`, `en`, `fr`, `it`, `rm`
 - At least one language must be used.
+- There is no limit to the number of node columns.
 - Within one list, i.e. Excel sheet, all nodes must be consistently translated into all languages.
   
   Correct:
 
-  ![img-excel2json-list-columns-correct.png](../docs/assets/images/img-excel2json-list-columns-correct.png)
+![img-excel2json-list-columns-correct.png](../docs/assets/images/img-excel2json-list-columns-correct.png)
 
   Incorrect because `de_1` is missing:
 
-  ![img-excel2json-list-columns-incorrect.png](../docs/assets/images/img-excel2json-list-columns-incorrect.png)
+![img-excel2json-list-columns-incorrect.png](../docs/assets/images/img-excel2json-list-columns-incorrect.png)
 
 
   
-  There is no limit to the number of node columns.
 - Within one list, i.e. Excel sheet, all nodes must be translated into the same languages.
 
   Incorrect, `Node 1` is missing the English translation.
 
-  ![img-excel2json-list-translation-incorrect.png](../docs/assets/images/img-excel2json-list-translation-incorrect.png)
+![img-excel2json-list-translation-incorrect.png](../docs/assets/images/img-excel2json-list-translation-incorrect.png)
   
 
 - The use of language does not have to be consistent across all lists. 
@@ -384,7 +384,7 @@ The Excel sheets must have the following structure:
 
   For example this is not correct:
 
-  ![img-excel2json-list-sorting-incorrect.png](../docs/assets/images/img-excel2json-list-sorting-incorrect.png)
+![img-excel2json-list-sorting-incorrect.png](../docs/assets/images/img-excel2json-list-sorting-incorrect.png)
 
 
 - The first line of the sheet must only contain the information for the list itself. 
@@ -393,11 +393,11 @@ The Excel sheets must have the following structure:
 
   In this example `Node 1` does not have its own row. `Node 2` is correctly done.
 
-  ![img-excel2json-list-node-missing-node.png](../docs/assets/images/img-excel2json-list-node-missing-node.png)
+![img-excel2json-list-node-missing-node.png](../docs/assets/images/img-excel2json-list-node-missing-node.png)
 
 
 
 **It is recommended to work from the following templates:**  
 
-- [new_lists.xlsx](../docs/assets/data_model_templates/lists/new_lists.xlsx): 
+[new_lists.xlsx](../docs/assets/data_model_templates/lists/new_lists.xlsx): 
   File with one example and on sheet two an empty template.

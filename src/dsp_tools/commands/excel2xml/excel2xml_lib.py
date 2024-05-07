@@ -1813,6 +1813,20 @@ def make_video_segment(  # noqa: D417 (undocumented-param)
     )
 
 
+def create_interval_value(start: str, end: str) -> str:
+    start_match = regex.match(r"(\d+):([0-5][0-9]):([0-5][0-9])", start)
+    end_match = regex.match(r"(\d+):([0-5][0-9]):([0-5][0-9])", end)
+    if not start_match or not end_match:
+        raise ValueError("The start and end values must be in the format 'HH:MM:SS'")
+    start_h, start_m, start_s = start_match.groups()
+    end_h, end_m, end_s = end_match.groups()
+    start_seconds = int(start_h) * 3600 + int(start_m) * 60 + int(start_s)
+    end_seconds = int(end_h) * 3600 + int(end_m) * 60 + int(end_s)
+    if start_seconds >= end_seconds:
+        raise ValueError("The start value must be smaller than the end value")
+    return f"{start_seconds}:{end_seconds}"
+
+
 def create_json_excel_list_mapping(
     path_to_json: str,
     list_name: str,

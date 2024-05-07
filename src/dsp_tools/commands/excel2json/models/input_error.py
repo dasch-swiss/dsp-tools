@@ -335,6 +335,42 @@ class DuplicatesInSheetProblem:
 
 
 @dataclass(frozen=True)
+class DuplicatesListNameProblem:
+    all_duplicate_names: list[ListInformation]
+
+    def execute_error_protocol(self) -> str:
+        msg = [
+            "The name of the list must be unique across all the excel sheets.\n"
+            "The following sheets have lists with the same name:"
+        ]
+        sorted_list = sorted(self.all_duplicate_names, key=lambda x: x.list_name)
+        msg.extend([x.execute_error_protocol() for x in sorted_list])
+        return list_separator.join(msg)
+
+
+@dataclass(frozen=True)
+class ListInformation:
+    excel_file: str
+    excel_sheet: str
+    list_name: str
+
+    def execute_error_protocol(self) -> str:
+        return f"Excel file: '{self.excel_file}', Sheet: '{self.excel_sheet}', List: '{self.list_name}'"
+
+
+@dataclass(frozen=True)
+class MultipleListPerSheetProblem:
+    sheet_name: str
+    list_names: list[str]
+
+    def execute_error_protocol(self) -> str:
+        return (
+            f"Per Excel sheet only one list is allowed.\n"
+            f"The following sheet: '{self.sheet_name}' has more than one list: {', '.join(self.list_names)}"
+        )
+
+
+@dataclass(frozen=True)
 class DuplicatesCustomIDInProblem:
     duplicate_ids: list[DuplicateIDProblem]
 

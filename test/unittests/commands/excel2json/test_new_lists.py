@@ -34,7 +34,7 @@ class TestDuplicateID:
                 "id": ["0", "1", "2"],
                 "en_list": ["List1", "List1", "List1"],
                 "en_1": [pd.NA, "Node1", "Node2"],
-                "ID (optional)": [pd.NA, pd.NA, pd.NA],
+                "id (optional)": [pd.NA, pd.NA, pd.NA],
             }
         )
         f2_s2 = pd.DataFrame(
@@ -42,7 +42,7 @@ class TestDuplicateID:
                 "id": ["00", "1"],
                 "en_list": ["List2", "List2"],
                 "en_1": [pd.NA, "Node1"],
-                "ID (optional)": [pd.NA, pd.NA],
+                "id (optional)": [pd.NA, pd.NA],
             }
         )
         all_excels = {"file1": {"sheet1": f1_s1}, "file2": {"sheet2": f2_s2}}
@@ -56,7 +56,7 @@ class TestDuplicateID:
                 "id": ["0", "1", "2"],
                 "en_list": ["List1", "List1", "List1"],
                 "en_1": [pd.NA, "Node1", "Node2"],
-                "ID (optional)": [pd.NA, "1", pd.NA],
+                "id (optional)": [pd.NA, "1", pd.NA],
             }
         )
         f2_s2 = pd.DataFrame(
@@ -64,7 +64,7 @@ class TestDuplicateID:
                 "id": ["00", "1"],
                 "en_list": ["List2", "List2"],
                 "en_1": [pd.NA, "Node1"],
-                "ID (optional)": [pd.NA, pd.NA],
+                "id (optional)": [pd.NA, pd.NA],
             }
         )
         all_excels = {"file1": {"sheet1": f1_s1}, "file2": {"sheet2": f2_s2}}
@@ -78,7 +78,7 @@ class TestDuplicateID:
                 "id": ["0", "1", "2"],
                 "en_list": ["List1", "List1", "List1"],
                 "en_1": [pd.NA, "Node1", "Node2"],
-                "ID (optional)": [pd.NA, pd.NA, pd.NA],
+                "id (optional)": [pd.NA, pd.NA, pd.NA],
             }
         )
         f2_s2 = pd.DataFrame(
@@ -86,7 +86,7 @@ class TestDuplicateID:
                 "id": ["00", "1"],
                 "en_list": ["List2", "List2"],
                 "en_1": [pd.NA, "Node1"],
-                "ID (optional)": [pd.NA, pd.NA],
+                "id (optional)": [pd.NA, pd.NA],
             }
         )
         all_excels = {"file1": {"sheet1": f1_s1}, "file2": {"sheet2": f2_s2}}
@@ -100,7 +100,7 @@ class TestDuplicateID:
                 "id": ["0", "11", "2"],
                 "en_list": ["List1", "List1", "List1"],
                 "en_1": [pd.NA, "Node1", "Node2"],
-                "ID (optional)": [pd.NA, pd.NA, pd.NA],
+                "id (optional)": [pd.NA, pd.NA, pd.NA],
             }
         )
         f2_s2 = pd.DataFrame(
@@ -108,7 +108,7 @@ class TestDuplicateID:
                 "id": ["00", "1"],
                 "en_list": ["List2", "List2"],
                 "en_1": [pd.NA, "Node1"],
-                "ID (optional)": [pd.NA, pd.NA],
+                "id (optional)": [pd.NA, pd.NA],
             }
         )
         all_excels = {"file1": {"sheet1": f1_s1}, "file2": {"sheet2": f2_s2}}
@@ -211,7 +211,7 @@ class TestFillIdColumn:
     def test_to_fill(self) -> None:
         test_df = pd.DataFrame(
             {
-                "ID (optional)": [pd.NA, "1", pd.NA, "3", pd.NA, pd.NA, pd.NA, pd.NA],
+                "id (optional)": [pd.NA, "1", pd.NA, "3", pd.NA, pd.NA, pd.NA, pd.NA],
                 "en_list": ["list_en", "list_en", "list_en", "list_en", "list_en", "list_en", "list_en", "list_en"],
                 "en_1": [pd.NA, "nd_en_1", "nd_en_2", "nd_en_3", "nd_en_3", "nd_en_3", "nd_en_3", "nd_en_3"],
                 "en_2": [pd.NA, pd.NA, pd.NA, pd.NA, "nd_en_3.1", "nd_en_3.2", "nd_en_3.2", "nd_en_3.2"],
@@ -225,12 +225,12 @@ class TestFillIdColumn:
     def test_nothing_to_fill(self) -> None:
         test_df = pd.DataFrame(
             {
-                "ID (optional)": ["list_en", "1", "2", "3", "3.1", "3.2", "3.2.1", "3.2.2"],
+                "id (optional)": ["list_en", "1", "2", "3", "3.1", "3.2", "3.2.1", "3.2.2"],
             }
         )
         expected = pd.DataFrame(
             {
-                "ID (optional)": ["list_en", "1", "2", "3", "3.1", "3.2", "3.2.1", "3.2.2"],
+                "id (optional)": ["list_en", "1", "2", "3", "3.1", "3.2", "3.2.1", "3.2.2"],
                 "auto_id": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
             }
         )
@@ -240,7 +240,7 @@ class TestFillIdColumn:
     def test_handle_duplicates(self) -> None:
         test_df = pd.DataFrame(
             {
-                "ID (optional)": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, "accusative"],
+                "id (optional)": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, "accusative"],
                 "en_list": [
                     "list_en",
                     "list_en",
@@ -274,7 +274,7 @@ class TestFillIdColumn:
 def test_resolve_duplicate_when_combined_with_duplicates() -> None:
     test_df = pd.DataFrame(
         {
-            "ID (optional)": ["1", "2", pd.NA, pd.NA],
+            "id (optional)": ["1", "2", pd.NA, pd.NA],
             "auto_id": [pd.NA, pd.NA, "1", "5"],
             "id": ["1", "2", "1", "5"],
             "en_list": ["list_en", "list_en", "list_en", "list_en"],
@@ -288,7 +288,7 @@ def test_resolve_duplicate_when_combined_with_duplicates() -> None:
 def test_resolve_duplicate_when_combined_no_duplicates() -> None:
     test_df = pd.DataFrame(
         {
-            "ID (optional)": ["1", "2", pd.NA, pd.NA],
+            "id (optional)": ["1", "2", pd.NA, pd.NA],
             "auto_id": [pd.NA, pd.NA, "4", "5"],
             "id": ["1", "2", "4", "5"],
             "en_list": ["list_en", "list_en", "list_en", "list_en"],
@@ -303,7 +303,7 @@ class TestFillIDAndParentIDColumns:
     def test_handle_no_duplicates(self) -> None:
         test_df = pd.DataFrame(
             {
-                "ID (optional)": [pd.NA, pd.NA, "2", "3", pd.NA, "5", "6", pd.NA],
+                "id (optional)": [pd.NA, pd.NA, "2", "3", pd.NA, "5", "6", pd.NA],
                 "en_list": ["list_en", "list_en", "list_en", "list_en", "list_en", "list_en", "list_en", "list_en"],
                 "en_1": ["list_en", "nd_en_1", "nd_en_2", "nd_en_3", "nd_en_4", "nd_en_5", "nd_en_6", "nd_en_7"],
             }
@@ -314,7 +314,7 @@ class TestFillIDAndParentIDColumns:
     def test_handle_duplicates(self) -> None:
         test_df = pd.DataFrame(
             {
-                "ID (optional)": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, "accusative"],
+                "id (optional)": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, "accusative"],
                 "en_list": [
                     "list_en",
                     "list_en",

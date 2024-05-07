@@ -189,7 +189,7 @@ files with column titles `hlist`, `en`, `de`, `fr`, `it`, or `rm` are valid, but
 
 
 
-## The `lists` Section
+## The `lists` Section for `excel2json` and `excel2lists`
 
 With the [`excel2lists`](../cli-commands.md#excel2lists) command, 
 the `lists` section of a JSON project file can be created from one or several Excel files. 
@@ -299,3 +299,61 @@ The output of the above command, with the template files, is:
     ]
 }
 ```
+
+
+
+## The `lists` Section for `new-excel2json` and `new-excel2lists`
+
+With the [`new-excel2lists`](../cli-commands.md#new-excel2lists) command, 
+the `lists` section of a JSON project file can be created from one or several Excel files. 
+The lists can then be inserted into a JSON project file and uploaded to a DSP server.
+
+The following example shows how to create the "lists" section which are located in a directory called `listfolder`.
+The Excel files must contain the word "list" in the name. All the files containing that word will be included.
+Files that do not contain the word will not be considered.
+
+
+```bash
+dsp-tools new-excel2lists listfolder lists.json
+```
+
+The Excel sheets must have the following structure:  
+![img-excel2json-new-lists.png](../docs/assets/images/img-excel2json-new-lists.png)
+
+
+**Formal requirements of the Excel format:**
+
+- One Excel file may contain several lists.
+- Per Excel sheet only one list is allowed. 
+  The name of the sheet is not relevant, but must be unique within one Excel file.
+- Columns
+    - "ID (Optional)": Column where a custom ID for the node or list can be entered. 
+      This ID will be the `name` in the JSON file. 
+      If no ID is entered the `name` will be the list node name. 
+      In case of duplicate list node names, the ID will include the names of the ancestors of the node. 
+      For example:
+        - `list1:node1:node1.1` for the node `node1.1` in `list1`
+        - `list2:node1:node1.1` for the node `node1.1` in `list2`
+    - "language_tag_list": This filed is for the name of the list
+      At least one language 
+    - "language_tag_number": These fields are for the names of the list nodes.
+- Languages
+    - The allowed language tags are: `de`, `en`, `fr`, `it`, `rm`
+    - At least one language must be used.
+    - Within one list, i.e. Excel sheet, all nodes must be translated into all languages.
+      For example:
+        - `list_en`, `list_de`, `1_en`, `1_de` -> Correct
+        - `list_en`, `list_de`, `1_en` -> Incorrect because `1_de` is missing.
+      There is no limit to the number of node columns.
+    - Within one list, i.e. Excel sheet, all nodes must be translated into the same languages.
+      For example:
+        - `listNameEnglish`, `listNameGerman`, `nodeNameEnglish`, `nodeNameGerman` -> Correct
+        - `listNameEnglish`, `listNameGerman`, `nodeNameEnglish` -> Incorrect because `nodeNameGerman` is missing.
+    - The use of language does not have to be consistent across all lists. 
+      For example, it is correct if "list1" is translated into English and German, 
+      but "list2" is only translated into English.
+
+**It is recommended to work from the following templates:**  
+
+- [lists.xlsx](../docs/assets/data_model_templates/lists/new_lists.xlsx): 
+  File with one example and on sheet two an empty template.

@@ -327,18 +327,20 @@ The Excel sheets must have the following structure:
 - One Excel file may contain several lists.
 - Per Excel sheet only one list is allowed. 
   The name of the sheet is not relevant, but must be unique within one Excel file.
-- The list name must be unique across in one project.
+- The list name must be unique in one project.
 
 
 #### Columns
 
-- "ID (Optional)": Column where a custom ID for the node or list can be entered. 
-  This ID will be the `name` in the JSON file, this is possible for list names and node names.
-  If no ID is entered the `name` will be the list node name. 
-  In case of duplicate list node names, the ID will include the names of the ancestors of the node. 
-  For example:
-    - `list1:node1:node1.1` for the node `node1.1` in `list1`
-    - `list2:node1:node1.1` for the node `node1.1` in `list2`
+- "ID (Optional)"
+    - Column where a custom ID for the node or list can be entered. 
+      This ID will be the `name` in the JSON file, this is possible for list names and node names.
+      If no ID is entered the `name` will be the list node name. The ID must be unique in the entire project.
+    - If this field is left empty an ID will be created from the node name. 
+      In case of duplicate list node names, the ID will include the names of the ancestors of the node. 
+      For example:
+          - `list1:node1:node1.1` for the node `node1.1` in `list1`
+          - `list2:node1:node1.1` for the node `node1.1` in `list2`
 - "language_tag_list": These fields are for the name of the list
   At least one language 
 - "language_tag_number": These fields are for the names of the list nodes.
@@ -349,13 +351,13 @@ The Excel sheets must have the following structure:
 
 - The allowed language tags are: `de`, `en`, `fr`, `it`, `rm`
 - At least one language must be used.
-- Within one list, i.e. Excel sheet, all nodes must be translated into all languages.
+- Within one list, i.e. Excel sheet, all nodes must be consistently translated into all languages.
   
-  Correct: 
+  Correct:
 
   ![img-excel2json-list-columns-correct.png](../docs/assets/images/img-excel2json-list-columns-correct.png)
 
-  Incorrect:
+  Incorrect because `de_1` is missing:
 
   ![img-excel2json-list-columns-incorrect.png](../docs/assets/images/img-excel2json-list-columns-incorrect.png)
 
@@ -364,12 +366,11 @@ The Excel sheets must have the following structure:
   There is no limit to the number of node columns.
 - Within one list, i.e. Excel sheet, all nodes must be translated into the same languages.
 
-  Incorrect, node 1 is missing the English translation.
+  Incorrect, `Node 1` is missing the English translation.
 
   ![img-excel2json-list-translation-incorrect.png](../docs/assets/images/img-excel2json-list-translation-incorrect.png)
   
 
-  
 - The use of language does not have to be consistent across all lists. 
   For example, it is correct if "list1" is translated into English and German, 
   but "list2" is only translated into English.

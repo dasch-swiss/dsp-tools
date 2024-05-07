@@ -1770,7 +1770,7 @@ def make_audio_segment(  # noqa: D417 (undocumented-param)
         >>> audio_segment.append(excel2xml.make_interval_prop("hasSegmentBounds", "60:120")
         >>> root.append(audio_segment)
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#link
+    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#video-segment-audio-segment
     """
     return etree.Element(
         "{%s}audio-segment" % xml_namespace_map[None],
@@ -1802,7 +1802,7 @@ def make_video_segment(  # noqa: D417 (undocumented-param)
         >>> video_segment.append(excel2xml.make_interval_prop("hasSegmentBounds", "60:120")
         >>> root.append(video_segment)
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#link
+    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#video-segment-audio-segment
     """
     return etree.Element(
         "{%s}video-segment" % xml_namespace_map[None],

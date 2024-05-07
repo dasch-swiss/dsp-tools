@@ -99,7 +99,7 @@ def new_excel2json(
         data_model_files
         |-- lists (files must contain the word "list" in their name)
         |   |-- list.xlsx
-        |   `-- list_2.xlsx (optional)
+        |   `-- list_2.xlsx
         `-- onto_name (onto_label)
             |-- properties.xlsx
             `-- resources.xlsx

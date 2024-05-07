@@ -867,6 +867,7 @@ def test_create_interval_value_happy_path(start: str, end: str, expected: str) -
 @pytest.mark.parametrize(
     ("start", "end"),
     [
+        ("01:00", "02:00"),
         ("24:00:00", "23:59:59"),
         ("00:60:00", "02:00:00"),
         ("01:00:00", "02:60:00"),

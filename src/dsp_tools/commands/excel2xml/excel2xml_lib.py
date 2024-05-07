@@ -1070,13 +1070,14 @@ def make_integer_prop(
     return prop_
 
 
-def make_interval_prop(value: Union[PropertyElement, str], calling_resource: str = "") -> etree._Element:
+def make_interval_prop(name: str, value: Union[PropertyElement, str], calling_resource: str = "") -> etree._Element:
     """
     Make a <interval-prop name="hasSegmentBounds"> for a <video-segment> or <audio-segment>.
     The interval can be provided as string or as PropertyElement with a string inside.
     If provided as string, the permissions default to "prop-default".
 
     Args:
+        name: the name of this property. The only accepted value is "hasSegmentBounds"
         value: a DSP interval, as string or PropertyElement
         calling_resource: the name of the parent resource (for better error messages)
 
@@ -1087,11 +1088,11 @@ def make_interval_prop(value: Union[PropertyElement, str], calling_resource: str
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
 
     Examples:
-        >>> excel2xml.make_interval_prop("61:3600")
+        >>> excel2xml.make_interval_prop("hasSegmentBounds", "61:3600")
                 <interval-prop name="hasSegmentBounds">
                     <interval permissions="prop-default">61:3600</interval>
                 </interval-prop>
-        >>> excel2xml.make_interval_prop(excel2xml.PropertyElement("61:3600", permissions="prop-restricted", comment="example"))
+        >>> excel2xml.make_interval_prop("hasSegmentBounds", excel2xml.PropertyElement("61:3600", permissions="prop-restricted", comment="example"))
                 <interval-prop name="hasSegmentBounds>
                     <interval permissions="prop-restricted" comment="example">61:3600</interval>
                 </interval-prop>
@@ -1099,7 +1100,13 @@ def make_interval_prop(value: Union[PropertyElement, str], calling_resource: str
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#video-segment-audio-segment
     """
 
-    # check the input: prepare a list with valid values
+    if name != "hasSegmentBounds":
+        msg = (
+            f"Failed validation in resource '{calling_resource}', property '{name}': "
+            f"The only accepted value for 'name' is 'hasSegmentBounds'."
+        )
+        warnings.warn(DspToolsUserWarning(msg))
+
     value = value if isinstance(value, PropertyElement) else PropertyElement(value)
 
     # check value type
@@ -1108,7 +1115,7 @@ def make_interval_prop(value: Union[PropertyElement, str], calling_resource: str
         str(value.value),
     ):
         msg = (
-            f"Failed validation in resource '{calling_resource}', property 'hasSegmentBounds': "
+            f"Failed validation in resource '{calling_resource}', property '{name}': "
             f"'{value.value}' is not a valid DSP interval."
         )
         warnings.warn(DspToolsUserWarning(msg))
@@ -1116,7 +1123,7 @@ def make_interval_prop(value: Union[PropertyElement, str], calling_resource: str
     # make xml structure of the valid values
     prop_ = etree.Element(
         "{%s}interval-prop" % xml_namespace_map[None],
-        name="hasSegmentBounds",
+        name=name,
         nsmap=xml_namespace_map,
     )
     kwargs = {"permissions": value.permissions}
@@ -1739,6 +1746,31 @@ def make_link(  # noqa: D417 (undocumented-param)
         "{%s}link" % xml_namespace_map[None],
         **kwargs,  # type: ignore[arg-type]
     )
+
+
+def make_audio_segment(  # noqa: D417 (undocumented-param)
+    label: str,
+    id: str,
+    permissions: str = "res-default",
+) -> etree._Element:
+    """
+    Creates an empty <audio-segment> element, with the attributes as specified by the arguments
+
+    Args:
+        The arguments correspond 1:1 to the attributes of the <audio-segment> element.
+
+    Returns:
+        The audio-segment element, without any children, but with the attributes:
+        <audio-segment label=label id=id permissions=permissions></audio-segment>
+
+    Examples:
+        >>> audio_segment = excel2xml.make_audio_segment("label", "id")
+        >>> audio_segment.append(excel2xml.make_resptr_prop("isSegmentOf", "audio_resource_id"))
+        >>> audio_segment.append(excel2xml.make_interval_prop("hasSegmentBounds", "60:120")
+        >>> root.append(audio_segment)
+
+    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#link
+    """
 
 
 def create_json_excel_list_mapping(

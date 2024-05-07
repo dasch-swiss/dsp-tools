@@ -223,7 +223,8 @@ This command is still under development, and might be less stable than `excel2js
 dsp-tools new-excel2json excelfolder project_definition.json
 ```
 
-The expected Excel file format and the folder structure are documented [here](./file-formats/excel2json.md).
+The expected Excel file format and the folder structure are documented 
+[here](./file-formats/excel2json.md#the-folder-structure-for-new-excel2json).
 
 
 ### `excel2lists`
@@ -251,14 +252,14 @@ The expected Excel file format and the folder structure are documented
 
 This command creates the "lists" section of a JSON project file from Excel files.
 The Excel format for the `lists` section has been adapted compared to the previous `excel2lists` command.
-This feature is still in development.
+This command is still under development, and might be less stable than `excel2lists`.
 
 ```bash
 dsp-tools new-excel2lists excelfolder lists_section.json
 ```
 
 The expected Excel file format and the folder structure are documented 
-[here](./file-formats/excel2json.md#the-lists-section).
+[here](./file-formats/excel2json.md#the-lists-section-for-new-excel2json-and-new-excel2lists).
 
 ### `excel2resources`
 

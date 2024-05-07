@@ -36,7 +36,7 @@ from dsp_tools.models.exceptions import InputError
 
 
 def new_excel2lists(
-    excelfolder: Path,
+    excelfolder: str,
     path_to_output_file: Optional[Path] = None,
 ) -> tuple[list[dict[str, Any]], bool]:
     """
@@ -52,7 +52,7 @@ def new_excel2lists(
     Returns:
         a tuple consisting of the "lists" section as Python list, and the success status (True if everything went well)
     """
-    file_names = [file for file in excelfolder.glob("*list*.xlsx") if _non_hidden(file)]
+    file_names = [file for file in Path(excelfolder).glob("*list*.xlsx") if _non_hidden(file)]
 
     excel_dfs = {file.stem: read_and_clean_all_sheets(file) for file in file_names}
 

@@ -53,16 +53,14 @@ class TestListRoot:
             "labels": {"en": "root_label_en", "de": "root_label_de"},
             "comments": {"en": "root_label_en", "de": "root_label_de"},
             "nodes": [
-                {"name": "Node_1", "labels": {"en": "Node_1_label_en"}, "comments": {"en": "Node_1_label_en"}},
+                {"name": "Node_1", "labels": {"en": "Node_1_label_en"}},
                 {
                     "name": "Node_2",
                     "labels": {"en": "Node_2_label_en"},
-                    "comments": {"en": "Node_2_label_en"},
                     "nodes": [
                         {
                             "name": "SubNode_21",
                             "labels": {"en": "SubNode_21_label_en"},
-                            "comments": {"en": "SubNode_21_label_en"},
                         }
                     ],
                 },
@@ -159,7 +157,7 @@ class TestListNodeCreate:
 class TestListNode:
     def test_make_myself(self) -> None:
         nd = ListNode(id_="NodeID", labels={"en": "node_label_en"}, parent_id="RootID")
-        expected = {"name": "NodeID", "labels": {"en": "node_label_en"}, "comments": {"en": "node_label_en"}}
+        expected = {"name": "NodeID", "labels": {"en": "node_label_en"}}
         res = nd._make_own_node()
         assert res == expected
 
@@ -172,18 +170,15 @@ class TestListNode:
         expected = {
             "name": "NodeID",
             "labels": {"en": "node_label_en"},
-            "comments": {"en": "node_label_en"},
             "nodes": [
-                {"name": "SubNode_1", "labels": {"en": "SubNode_1_label_en"}, "comments": {"en": "SubNode_1_label_en"}},
+                {"name": "SubNode_1", "labels": {"en": "SubNode_1_label_en"}},
                 {
                     "name": "SubNode_2",
                     "labels": {"en": "SubNode_2_label_en"},
-                    "comments": {"en": "SubNode_2_label_en"},
                     "nodes": [
                         {
                             "name": "SubNode_21",
                             "labels": {"en": "SubNode_21_label_en"},
-                            "comments": {"en": "SubNode_21_label_en"},
                         }
                     ],
                 },

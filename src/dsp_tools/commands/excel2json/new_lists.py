@@ -35,7 +35,7 @@ from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
 
 
-def excel2lists(
+def new_excel2lists(
     excelfolder: Path,
     path_to_output_file: Optional[Path] = None,
 ) -> tuple[list[dict[str, Any]], bool]:

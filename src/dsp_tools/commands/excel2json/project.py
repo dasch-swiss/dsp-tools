@@ -4,14 +4,14 @@ from typing import Any
 
 import regex
 
-from dsp_tools.commands.excel2json.lists import old_excel2lists
-from dsp_tools.commands.excel2json.new_lists import excel2lists
+from dsp_tools.commands.excel2json.lists import excel2lists
+from dsp_tools.commands.excel2json.new_lists import new_excel2lists
 from dsp_tools.commands.excel2json.properties import excel2properties
 from dsp_tools.commands.excel2json.resources import excel2resources
 from dsp_tools.models.exceptions import UserError
 
 
-def old_excel2json(
+def excel2json(
     data_model_files: str,
     path_to_output_file: str,
 ) -> bool:
@@ -43,9 +43,9 @@ def old_excel2json(
         True if everything went well
     """
 
-    listfolder, onto_folders = _old_validate_folder_structure_get_filenames(data_model_files)
+    listfolder, onto_folders = _validate_folder_structure_get_filenames(data_model_files)
 
-    overall_success, project = _old_create_project_json(data_model_files, listfolder, onto_folders)
+    overall_success, project = _create_project_json(data_model_files, listfolder, onto_folders)
 
     with open(path_to_output_file, "w", encoding="utf-8") as f:
         json.dump(project, f, indent=4, ensure_ascii=False)
@@ -55,14 +55,14 @@ def old_excel2json(
     return overall_success
 
 
-def _old_validate_folder_structure_get_filenames(data_model_files: str) -> tuple[list[Path], list[Path]]:
+def _validate_folder_structure_get_filenames(data_model_files: str) -> tuple[list[Path], list[Path]]:
     if not Path(data_model_files).is_dir():
         raise UserError(f"ERROR: {data_model_files} is not a directory.")
     folder = [x for x in Path(data_model_files).glob("*") if _non_hidden(x)]
     processed_files = []
     onto_folders, processed_onto = _get_validate_onto_folder(Path(data_model_files), folder)
     processed_files.extend(processed_onto)
-    listfolder, processed_lists = _old_get_validate_list_folder(data_model_files, folder)
+    listfolder, processed_lists = _get_validate_list_folder(data_model_files, folder)
     processed_files.extend(processed_lists)
     if len(onto_folders) + len(listfolder) != len(folder):
         raise UserError(
@@ -74,7 +74,7 @@ def _old_validate_folder_structure_get_filenames(data_model_files: str) -> tuple
     return listfolder, onto_folders
 
 
-def _old_get_validate_list_folder(data_model_files: str, folder: list[Path]) -> tuple[list[Path], list[str]]:
+def _get_validate_list_folder(data_model_files: str, folder: list[Path]) -> tuple[list[Path], list[str]]:
     processed_files: list[str] = []
     listfolder = [x for x in folder if x.is_dir() and x.name == "lists"]
     if listfolder:
@@ -87,7 +87,7 @@ def _old_get_validate_list_folder(data_model_files: str, folder: list[Path]) -> 
     return listfolder, processed_files
 
 
-def excel2json(
+def new_excel2json(
     data_model_files: str,
     path_to_output_file: str,
 ) -> bool:
@@ -118,9 +118,9 @@ def excel2json(
         True if everything went well
     """
 
-    listfolder, onto_folders = _validate_folder_structure_get_filenames(Path(data_model_files))
+    listfolder, onto_folders = _new_validate_folder_structure_get_filenames(Path(data_model_files))
 
-    overall_success, project = _create_project_json(data_model_files, onto_folders, listfolder)
+    overall_success, project = _new_create_project_json(data_model_files, onto_folders, listfolder)
 
     with open(path_to_output_file, "w", encoding="utf-8") as f:
         json.dump(project, f, indent=4, ensure_ascii=False)
@@ -130,14 +130,14 @@ def excel2json(
     return overall_success
 
 
-def _validate_folder_structure_get_filenames(data_model_files: Path) -> tuple[Path | None, list[Path]]:
+def _new_validate_folder_structure_get_filenames(data_model_files: Path) -> tuple[Path | None, list[Path]]:
     if not data_model_files.is_dir():
         raise UserError(f"ERROR: {data_model_files} is not a directory.")
     folder = [x for x in data_model_files.glob("*") if _non_hidden(x)]
     processed_files = []
     onto_folders, processed_onto = _get_validate_onto_folder(data_model_files, folder)
     processed_files.extend(processed_onto)
-    listfolder, processed_lists = _get_validate_list_folder(data_model_files)
+    listfolder, processed_lists = _new_get_validate_list_folder(data_model_files)
     processed_files.extend(processed_lists)
     print("The following files will be processed:")
     print(*(f" - {file}" for file in processed_files), sep="\n")
@@ -162,7 +162,7 @@ def _get_validate_onto_folder(data_model_files: Path, folder: list[Path]) -> tup
     return onto_folders, processed_files
 
 
-def _get_validate_list_folder(
+def _new_get_validate_list_folder(
     data_model_files: Path,
 ) -> tuple[Path | None, list[str]]:
     if not (list_dir := (data_model_files / "lists")).is_dir():
@@ -175,11 +175,11 @@ def _non_hidden(path: Path) -> bool:
     return not regex.search(r"^(\.|~\$).+", path.name)
 
 
-def _old_create_project_json(
+def _create_project_json(
     data_model_files: str, listfolder: list[Path], onto_folders: list[Path]
 ) -> tuple[bool, dict[str, Any]]:
     overall_success = True
-    lists, success = old_excel2lists(excelfolder=f"{data_model_files}/lists") if listfolder else (None, True)
+    lists, success = excel2lists(excelfolder=f"{data_model_files}/lists") if listfolder else (None, True)
     if not success:
         overall_success = False
     ontologies, success = _get_ontologies(data_model_files, onto_folders)
@@ -203,13 +203,13 @@ def _old_create_project_json(
     return overall_success, project
 
 
-def _create_project_json(
+def _new_create_project_json(
     data_model_files: str, onto_folders: list[Path], list_folder: Path | None
 ) -> tuple[bool, dict[str, Any]]:
     overall_success = True
     lists = None
     if list_folder:
-        lists, success = excel2lists(list_folder)
+        lists, success = new_excel2lists(list_folder)
         if not success:
             overall_success = False
     ontologies, success = _get_ontologies(data_model_files, onto_folders)

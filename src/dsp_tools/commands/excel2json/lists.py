@@ -79,7 +79,7 @@ def _read_excel_make_lists(_list: dict[str, Union[str, dict[str, Any]]]) -> dict
         ) from None
 
 
-def old_excel2lists(
+def excel2lists(
     excelfolder: str,
     path_to_output_file: Optional[str] = None,
     verbose: bool = False,

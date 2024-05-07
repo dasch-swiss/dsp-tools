@@ -88,11 +88,14 @@ def _make_all_lists(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> list[ListR
     good_lists = []
     problem_lists: list[Problem] = []
     for filename, sheets in excel_dfs.items():
+        file_problems: list[Problem] = []
         for sheet_name, df in sheets.items():
             if isinstance(new_list := _make_one_list(df, sheet_name), ListRoot):
                 good_lists.append(new_list)
             else:
-                problem_lists.append(new_list)
+                file_problems.append(new_list)
+        if file_problems:
+            problem_lists.append(ListExcelProblem(filename, file_problems))
     if problem_lists:
         return ListCreationProblem(problem_lists)
     return good_lists
@@ -352,7 +355,7 @@ def _make_all_formal_excel_compliance_checks(
     excel_dfs: dict[str, dict[str, pd.DataFrame]],
 ) -> None:
     """
-    This function checks if the excel files are compliant with the expected format.
+    Check if the excel files are compliant with the expected format.
 
     Args:
         excel_dfs: dictionary with the excel file name as key
@@ -362,7 +365,7 @@ def _make_all_formal_excel_compliance_checks(
         InputError: If any unexpected input is found in the excel files.
     """
     # These functions must be called in this order,
-    # as some of the following checks only work if the previous were passed.
+    # as some of the following checks only work if the previous have passed.
     _check_duplicates_all_excels(excel_dfs)
     _check_for_unique_list_names(excel_dfs)
     _make_shape_compliance_all_excels(excel_dfs)
@@ -373,9 +376,9 @@ def _check_duplicates_all_excels(
     excel_dfs: dict[str, dict[str, pd.DataFrame]],
 ) -> None:
     """
-    This function checks if the excel files contain duplicates with regard to the node names,
+    Check if the excel files contain duplicates with regard to the node names,
     and if the custom IDs are unique across all excel files.
-    A duplicate in the node names is defined as several row with the same entries in the columns with the node names.
+    A duplicate in the node names is defined as several rows with the same entries in the columns with the node names.
 
     Args:
         excel_dfs: dictionary with the excel file name as key
@@ -431,7 +434,7 @@ def _check_for_unique_list_names(excel_dfs: dict[str, dict[str, pd.DataFrame]]) 
 
 
 def _check_for_duplicate_nodes_one_df(df: pd.DataFrame, sheet_name: str) -> DuplicatesInSheetProblem | None:
-    """This function checks if any rows have duplicates when taking into account the columns with the node names."""
+    """Check if any rows have duplicates when taking into account the columns with the node names."""
     lang_columns = [col for col in df.columns if regex.search(r"^(en|de|fr|it|rm)_(\d+|list)$", col)]
     if (duplicate_filter := df.duplicated(lang_columns, keep=False)).any():
         return DuplicatesInSheetProblem(sheet_name, duplicate_filter.index[duplicate_filter].tolist())
@@ -469,7 +472,7 @@ def _check_for_duplicate_custom_id_all_excels(
 
 def _make_shape_compliance_all_excels(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> None:
     """
-    This function checks if the excel files are compliant with the expected format.
+    Check if the excel files are compliant with the expected format.
 
     Args:
         excel_dfs: dictionary with the excel file name as key
@@ -563,7 +566,7 @@ def _make_all_content_compliance_checks_all_excels(
     excel_dfs: dict[str, dict[str, pd.DataFrame]],
 ) -> None:
     """
-    This function checks if the content of the excel files is compliant with the expected format.
+    Check if the content of the excel files is compliant with the expected format.
 
     Args:
         excel_dfs: dictionary with the excel file name as key

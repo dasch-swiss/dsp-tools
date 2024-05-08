@@ -2,14 +2,17 @@ from __future__ import annotations
 
 from datetime import datetime
 from typing import Any
+from typing import cast
 from urllib.parse import quote_plus
 
 from loguru import logger
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
+from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStash
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStashItem
+from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.connection import Connection
 
@@ -93,28 +96,22 @@ def _create_XMLResource_json_object_to_update(
     return jsonobj
 
 
-def upload_stashed_xml_texts(
-    iri_resolver: IriResolver,
-    con: Connection,
-    stashed_xml_texts: StandoffStash,
-) -> StandoffStash | None:
+def upload_stashed_xml_texts(upload_state: UploadState, con: Connection) -> None:
     """
     After all resources are uploaded, the stashed xml texts must be applied to their resources in DSP.
+    The upload state is updated accordingly, as a side effect.
 
     Args:
-        iri_resolver: resolver to map ids from the XML file to IRIs in DSP
+        upload_state: the current state of the upload
         con: connection to DSP
-        stashed_xml_texts: all xml texts that have been stashed
-
-    Returns:
-        the xml texts that could not be uploaded
     """
 
     print(f"{datetime.now()}: Upload the stashed XML texts...")
     logger.info("Upload the stashed XML texts...")
-    not_uploaded: list[StandoffStashItem] = []
-    for res_id, stash_items in stashed_xml_texts.res_2_stash_items.copy().items():
-        res_iri = iri_resolver.get(res_id)
+    upload_state.pending_stash = cast(Stash, upload_state.pending_stash)
+    standoff_stash = cast(StandoffStash, upload_state.pending_stash.standoff_stash)
+    for res_id, stash_items in standoff_stash.res_2_stash_items.copy().items():
+        res_iri = upload_state.iri_resolver.get(res_id)
         if not res_iri:
             # resource could not be uploaded to DSP, so the stash cannot be uploaded either
             # no action necessary: this resource will remain in the list of not uploaded stash items,
@@ -131,25 +128,20 @@ def upload_stashed_xml_texts(
         for stash_item in stash_items:
             value_iri = _get_value_iri(stash_item.prop_name, resource_in_triplestore, stash_item.uuid)
             if not value_iri:
-                not_uploaded.append(stash_item)
                 continue
-            success = _upload_stash_item(
+            if _upload_stash_item(
                 stash_item=stash_item,
                 res_iri=res_iri,
                 res_type=stash_item.res_type,
                 res_id=res_id,
                 value_iri=value_iri,
-                iri_resolver=iri_resolver,
+                iri_resolver=upload_state.iri_resolver,
                 con=con,
                 context=context,
-            )
-            if success:
-                stashed_xml_texts.res_2_stash_items[res_id].remove(stash_item)
-            else:
-                not_uploaded.append(stash_item)
-        if not stashed_xml_texts.res_2_stash_items[res_id]:
-            stashed_xml_texts.res_2_stash_items.pop(res_id)
-    return StandoffStash.make(not_uploaded)
+            ):
+                standoff_stash.res_2_stash_items[res_id].remove(stash_item)
+        if not standoff_stash.res_2_stash_items[res_id]:
+            standoff_stash.res_2_stash_items.pop(res_id)
 
 
 def _get_value_iri(

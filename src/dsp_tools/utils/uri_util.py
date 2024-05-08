@@ -12,9 +12,3 @@ def is_uri(s: str) -> bool:
     fragment = r"(?<fragment>#[\w_.\-~:/]*)"
     m = regex.match(rf"{scheme}:(//{host}{port}?){path}*{query}*{fragment}?", s, flags=regex.UNICODE)
     return m is not None
-
-
-def is_iiif_url(url) -> bool:
-    # TODO: Implement this function
-    """Checks if the given URL is a valid IIIF URL."""
-    raise NotImplementedError

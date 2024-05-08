@@ -4,8 +4,8 @@ from typing import Optional
 from lxml import etree
 
 from dsp_tools.commands.xmlupload.models.permission import Permissions
-from dsp_tools.commands.xmlupload.models.xmlbitstream import XMLBitstream
-from dsp_tools.commands.xmlupload.models.xmlproperty import XMLProperty
+from dsp_tools.commands.xmlupload.models.Values_deserialise import XMLBitstream
+from dsp_tools.commands.xmlupload.models.Values_deserialise import XMLProperty
 from dsp_tools.models.datetimestamp import DateTimeStamp
 
 
@@ -46,7 +46,7 @@ class XMLResource:
     restype: str
     permissions: Optional[str]
     creation_date: Optional[DateTimeStamp]
-    bitstream: Optional[XMLBitstream]
+    file_value: Optional[XMLBitstream]
     properties: list[XMLProperty]
 
     def __init__(self, node: etree._Element, default_ontology: str) -> None:
@@ -75,15 +75,16 @@ class XMLResource:
         else:
             self.restype = "knora-api:" + tmp_res_type[0]
         self.permissions = node.attrib.get("permissions")
-        self.bitstream = None
+        self.file_value = None
         self.properties = []
         for subnode in node:
-            if subnode.tag == "bitstream":
-                self.bitstream = XMLBitstream(subnode)
-            else:
-                # get the property type which is in format type-prop, p.ex. <decimal-prop>
-                prop_type, _ = subnode.tag.split("-")
-                self.properties.append(XMLProperty(subnode, prop_type, default_ontology))
+            match subnode.tag:
+                case "bitstream":
+                    self.file_value = XMLBitstream(subnode)
+                case _:
+                    # get the property type which is in format type-prop, p.ex. <decimal-prop>
+                    prop_type, _ = subnode.tag.split("-")
+                    self.properties.append(XMLProperty(subnode, prop_type, default_ontology))
 
     def get_props_with_links(self) -> list[XMLProperty]:
         """
@@ -123,11 +124,11 @@ class XMLResource:
         Returns:
             A BitstreamInfo object
         """
-        if not self.bitstream:
+        if not self.file_value:
             return None
-        permissions = permissions_lookup.get(self.bitstream.permissions) if self.bitstream.permissions else None
+        permissions = permissions_lookup.get(self.file_value.permissions) if self.file_value.permissions else None
         return BitstreamInfo(
-            local_file=self.bitstream.value,
+            local_file=self.file_value.value,
             internal_file_name=internal_file_name_bitstream,
             permissions=permissions,
         )

@@ -7,7 +7,7 @@ from loguru import logger
 
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.sipi import Sipi
-from dsp_tools.commands.xmlupload.models.xmlbitstream import XMLBitstream
+from dsp_tools.commands.xmlupload.models.Values_deserialise import XMLBitstream
 from dsp_tools.commands.xmlupload.models.xmlresource import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.xmlresource import XMLResource
 from dsp_tools.models.exceptions import PermanentConnectionError
@@ -39,7 +39,7 @@ def handle_media_info(
         If there was no bitstream, it returns True and None.
         If the upload was not successful, it returns False and None.
     """
-    bitstream = resource.bitstream
+    bitstream = resource.file_value
     success = True
     bitstream_information: None | BitstreamInfo = None
 
@@ -116,9 +116,9 @@ def _upload_bitstream(
     Returns:
         The information from sipi which is needed to establish a link from the resource
     """
-    if not resource.bitstream:
+    if not resource.file_value:
         return None
-    img = sipi_server.upload_bitstream(Path(imgdir) / Path(resource.bitstream.value))
+    img = sipi_server.upload_bitstream(Path(imgdir) / Path(resource.file_value.value))
     internal_file_name_bitstream = img["uploadedFiles"][0]["internalFilename"]
     return resource.get_bitstream_information(
         internal_file_name_bitstream=internal_file_name_bitstream,

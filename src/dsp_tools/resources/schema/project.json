@@ -73,8 +73,6 @@
                 "hasColor",
                 "hasComment",
                 "isPartOf",
-                "isSequenceOf",
-                "hasSequenceBounds",
                 "hasRepresentation",
                 "seqnum"
             ]
@@ -88,7 +86,6 @@
                 "DecimalValue",
                 "GeonameValue",
                 "IntValue",
-                "IntervalValue",
                 "ListValue",
                 "TextValue",
                 "TimeValue",
@@ -102,7 +99,6 @@
                 "Colorpicker",
                 "Date",
                 "Geonames",
-                "Interval",
                 "List",
                 "Radio",
                 "Pulldown",
@@ -763,41 +759,6 @@
                     "if": {
                         "properties": {
                             "object": {
-                                "const": "IntervalValue"
-                            }
-                        },
-                        "required": [
-                            "object"
-                        ]
-                    },
-                    "then": {
-                        "properties": {
-                            "super": {
-                                "type": "array",
-                                "items": {
-                                    "type": "string",
-                                    "oneOf": [
-                                        {
-                                            "enum": [
-                                                "hasSequenceBounds"
-                                            ]
-                                        },
-                                        {
-                                            "$ref": "#/definitions/prefixedname_or_uri"
-                                        }
-                                    ]
-                                }
-                            },
-                            "gui_element": {
-                                "const": "Interval"
-                            }
-                        }
-                    }
-                },
-                {
-                    "if": {
-                        "properties": {
-                            "object": {
                                 "const": "ListValue"
                             }
                         },
@@ -1059,8 +1020,7 @@
                                     "Date",
                                     "TimeStamp",
                                     "Geonames",
-                                    "Checkbox",
-                                    "Interval"
+                                    "Checkbox"
                                 ]
                             }
                         },
@@ -1087,9 +1047,7 @@
                         {
                             "enum": [
                                 "isPartOf",
-                                "seqnum",
-                                "isSequenceOf",
-                                "hasSequenceBounds"
+                                "seqnum"
                             ]
                         },
                         {

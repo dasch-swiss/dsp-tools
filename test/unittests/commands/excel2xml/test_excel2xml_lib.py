@@ -15,6 +15,7 @@ from lxml import etree
 
 from dsp_tools import excel2xml
 from dsp_tools.commands.excel2xml.excel2xml_lib import _escape_reserved_chars
+from dsp_tools.commands.excel2xml.excel2xml_lib import create_interval_value
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import BaseError
 
@@ -406,11 +407,14 @@ class TestMakeProps(unittest.TestCase):
         self.run_test(prop, method, [int(x) for x in different_values], invalid_values)
 
     def test_make_interval_prop(self) -> None:
-        prop = "interval"
-        method = excel2xml.make_interval_prop
-        different_values = ["+.1:+.9", "10:20", "1.5:2.5", "-.1:5", "-10.0:-5.1"]
-        invalid_values = ["text", 10.0, ["text"], "10:", ":1"]
-        self.run_test(prop, method, different_values, invalid_values)
+        different_values = ["+.1:+.9", "10:20", "1.5:2.5"]
+        for val in different_values:
+            output = excel2xml.make_interval_prop("hasSegmentBounds", val)
+            self.assertEqual(output[0].text, val)
+        invalid_values = ["text", 10.0, ["text"], "10:", ":1", "-.1:5", "-10.0:-5.1"]
+        for inv in invalid_values:
+            with self.assertWarns(Warning):
+                excel2xml.make_interval_prop("hasSegmentBounds", inv)  # type: ignore[arg-type]
 
     def test_make_list_prop(self) -> None:
         prop = "list"
@@ -736,6 +740,26 @@ class TestMakeProps(unittest.TestCase):
         with self.assertRaisesRegex(BaseError, "invalid creation date"):
             excel2xml.make_region("label", "id", creation_date="2019-10-23T13:45:12")
 
+    def test_make_audio_segment(self) -> None:
+        expected = '<audio-segment label="label" id="id" permissions="res-default"/>'
+        result = _strip_namespace(excel2xml.make_audio_segment("label", "id"))
+        self.assertEqual(expected, result)
+
+    def test_make_audio_segment_with_custom_permissions(self) -> None:
+        expected = '<audio-segment label="label" id="id" permissions="res-restricted"/>'
+        result = _strip_namespace(excel2xml.make_audio_segment("label", "id", "res-restricted"))
+        self.assertEqual(expected, result)
+
+    def test_make_video_segment(self) -> None:
+        expected = '<video-segment label="label" id="id" permissions="res-default"/>'
+        result = _strip_namespace(excel2xml.make_video_segment("label", "id"))
+        self.assertEqual(expected, result)
+
+    def test_make_video_segment_with_custom_permissions(self) -> None:
+        expected = '<video-segment label="label" id="id" permissions="res-restricted"/>'
+        result = _strip_namespace(excel2xml.make_video_segment("label", "id", "res-restricted"))
+        self.assertEqual(expected, result)
+
     def test_make_resource(self) -> None:
         test_cases: list[tuple[Callable[..., etree._Element], str]] = [
             (
@@ -823,6 +847,40 @@ class TestMakeProps(unittest.TestCase):
             "third node of the test-list": "third node of testlist",
         }
         self.assertDictEqual(testlist_mapping_returned, testlist_mapping_expected)
+
+
+@pytest.mark.parametrize(
+    ("start", "end", "expected"),
+    [
+        ("0:00:00.1", "0:00:02.345", "0.1:2.345"),
+        ("00:00:00", "00:00:01", "0:1"),
+        ("00:00:00", "01:00:00", "0:3600"),
+        ("01:00:00", "01:00:00", "3600:3600"),
+        ("01:30:00", "02:45:00", "5400:9900"),
+        ("23:59:58", "23:59:59", "86398:86399"),
+    ],
+)
+def test_create_interval_value_happy_path(start: str, end: str, expected: str) -> None:
+    result = create_interval_value(start, end)
+    assert result == expected, f"Expected {expected}, got {result}"
+
+
+@pytest.mark.parametrize(
+    ("start", "end"),
+    [
+        ("01:00", "02:00"),
+        ("24:00:00", "23:59:59"),
+        ("00:60:00", "02:00:00"),
+        ("01:00:00", "02:60:00"),
+        ("00:00:60", "01:00:00"),
+        ("01:00:00", "02:00:60"),
+        ("not:time", "01:00:00"),
+        ("01:00:00", "not:time"),
+    ],
+)
+def test_create_interval_value_error_cases(start: str, end: str) -> None:
+    with pytest.raises(ValueError):  # noqa: PT011
+        create_interval_value(start, end)
 
 
 class TestEscapedChars:

@@ -106,9 +106,7 @@
                         {
                             "enum": [
                                 "isPartOf",
-                                "seqnum",
-                                "isSequenceOf",
-                                "hasSequenceBounds"
+                                "seqnum"
                             ]
                         },
                         {

@@ -27,7 +27,6 @@ from dsp_tools.commands.excel2json.utils import get_comments
 from dsp_tools.commands.excel2json.utils import get_labels
 from dsp_tools.commands.excel2json.utils import get_wrong_row_numbers
 from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
-from dsp_tools.models.custom_warnings import DspToolsFutureWarning
 from dsp_tools.models.exceptions import InputError
 
 languages = ["en", "de", "fr", "it", "rm"]
@@ -86,17 +85,8 @@ def excel2properties(
     return props, True
 
 
-def _check_for_deprecated_syntax(df: pd.DataFrame) -> None:
-    _check_for_deprecated_isSequenceOf(df)
-
-
-def _check_for_deprecated_isSequenceOf(df: pd.DataFrame) -> None:
-    if any(x in y for y in list(df["super"]) for x in ["isSequenceOf", "hasSequenceBounds"]):
-        msg = (
-            "Your Excel file contains deprecated super-properties. "
-            "Support for the following super-properties will be removed soon: isSequenceOf, hasSequenceBounds"
-        )
-        warnings.warn(DspToolsFutureWarning(msg))
+def _check_for_deprecated_syntax(df: pd.DataFrame) -> None:  # noqa: ARG001 (unused argument)
+    pass
 
 
 def _read_check_property_df(excelfile: str) -> pd.DataFrame:

@@ -408,22 +408,6 @@
                         "gui_element": "TimeStamp"
                     },
                     {
-                        "name": "hasInterval",
-                        "super": [
-                            "hasSequenceBounds"
-                        ],
-                        "object": "IntervalValue",
-                        "labels": {
-                            "en": "Time interval",
-                            "de": "Zeitintervall"
-                        },
-                        "comments": {
-                            "en": "Time interval",
-                            "de": "Zeitintervall"
-                        },
-                        "gui_element": "Interval"
-                    },
-                    {
                         "name": "hasBoolean",
                         "super": [
                             "hasValue"

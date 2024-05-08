@@ -53,7 +53,7 @@ def test_annotations_regions_links_after(data_systematic_cleaned: etree._Element
 
 def test_comment_removal_before(data_systematic_unclean: etree._ElementTree[etree._Element]) -> None:
     comments = [e for e in data_systematic_unclean.iter() if isinstance(e, etree._Comment)]
-    assert len(comments) == 7
+    assert len(comments) == 6
 
 
 def test_comment_removal_after(data_systematic_cleaned: etree._Element) -> None:

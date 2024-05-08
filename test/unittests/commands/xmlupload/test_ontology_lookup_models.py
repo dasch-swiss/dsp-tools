@@ -19,15 +19,15 @@ class TestGetAllClassesFromJson:
         test_json = [
             {
                 "knora-api:isResourceClass": True,
-                "rdfs:label": "Sequenz einer Audio-Ressource",
+                "rdfs:label": "Segment einer Audio-Ressource",
                 "knora-api:canBeInstantiated": True,
                 "rdfs:subClassOf": [],
                 "@type": "owl:Class",
-                "@id": "testonto:AudioSequence",
+                "@id": "testonto:AudioSegment",
             },
         ]
         res_cls = _get_all_classes_from_onto(test_json)
-        assert res_cls == ["testonto:AudioSequence"]
+        assert res_cls == ["testonto:AudioSegment"]
 
     @staticmethod
     def test_property() -> None:
@@ -56,7 +56,7 @@ class TestGetAllClassesFromJson:
                 "knora-api:canBeInstantiated": True,
                 "rdfs:subClassOf": [],
                 "@type": "owl:Class",
-                "@id": "testonto:AudioSequence",
+                "@id": "testonto:AudioSegment",
             },
             {
                 "rdfs:label": "URI",
@@ -71,7 +71,7 @@ class TestGetAllClassesFromJson:
             },
         ]
         res_cls = _get_all_classes_from_onto(test_json)
-        assert res_cls == ["testonto:AudioSequence"]
+        assert res_cls == ["testonto:AudioSegment"]
 
 
 def test_get_all_properties_from_json_haslinkto() -> None:
@@ -111,7 +111,7 @@ def test_get_all_properties_from_json_resources_and_properties() -> None:
             "knora-api:canBeInstantiated": True,
             "rdfs:subClassOf": [],
             "@type": "owl:Class",
-            "@id": "testonto:AudioSequence",
+            "@id": "testonto:AudioSegment",
         },
         {
             "rdfs:label": "URI",
@@ -275,8 +275,14 @@ def test_make_text_value_property_gui() -> None:
         ("onto:ontoHasSimpleText", "salsah-gui:SimpleText"),
     ]
     res = _make_text_value_property_type_lookup(test_list, "onto")
-    assert res.formatted_text_props == {":hasRichtext", "other_onto:hasRichtext", "hasComment"}
-    assert res.unformatted_text_props == {":hasSimpleText", "onto_other:hasTextarea", ":ontoHasSimpleText"}
+    assert res.formatted_text_props == {":hasRichtext", "other_onto:hasRichtext", "hasComment", "hasDescription"}
+    assert res.unformatted_text_props == {
+        ":hasSimpleText",
+        "onto_other:hasTextarea",
+        ":ontoHasSimpleText",
+        "hasTitle",
+        "hasKeyword",
+    }
 
 
 class TestRemoveDefaultPrefix:

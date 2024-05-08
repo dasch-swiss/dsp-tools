@@ -1,5 +1,30 @@
 # Changelog
 
+## [7.2.0](https://github.com/dasch-swiss/dsp-tools/compare/v7.1.3...v7.2.0) (2024-05-08)
+
+
+### Enhancements
+
+* **excel2xml:** if value is not valid, print warning instead of raising an error (only where it is possible) (DEV-3571) ([#938](https://github.com/dasch-swiss/dsp-tools/issues/938)) ([3ae536d](https://github.com/dasch-swiss/dsp-tools/commit/3ae536df478bc4fa1c871d151c199de03f608239))
+* **new-excel2json:** new lists section and excel (DEV-3462) ([#916](https://github.com/dasch-swiss/dsp-tools/issues/916)) ([92cf58d](https://github.com/dasch-swiss/dsp-tools/commit/92cf58dee25edcd1e078720b6eba950ce2fd1a10))
+* **start-stack:** make pre-loaded projects on localhost optional (DEV-3560) ([#932](https://github.com/dasch-swiss/dsp-tools/issues/932)) ([d8ab847](https://github.com/dasch-swiss/dsp-tools/commit/d8ab84769fc6c7c7a451c41dc30fccc4184f9468))
+
+
+### Bug Fixes
+
+* warning_config recursive calls (DEV-3542) ([#929](https://github.com/dasch-swiss/dsp-tools/issues/929)) ([20b8517](https://github.com/dasch-swiss/dsp-tools/commit/20b8517b3cd686c927ac181830ed306713a7b822))
+
+
+### Maintenance
+
+* add DspToolsUserWarning class  ([#936](https://github.com/dasch-swiss/dsp-tools/issues/936)) ([fd0871d](https://github.com/dasch-swiss/dsp-tools/commit/fd0871daf6ad19cc3548b1baab1d1ffd666f37df))
+* add ruff ignore to pre-commit hook ([#940](https://github.com/dasch-swiss/dsp-tools/issues/940)) ([9b14121](https://github.com/dasch-swiss/dsp-tools/commit/9b14121e1de28c2e05ba383925d566c9a6bf81b5))
+* bump start-stack to 2024.05.01 (DEV-3612) ([#944](https://github.com/dasch-swiss/dsp-tools/issues/944)) ([b1e5a46](https://github.com/dasch-swiss/dsp-tools/commit/b1e5a46718f4ce7f3c4a0344749921bff58c5136))
+* **deps-dev:** bump jinja2 from 3.1.3 to 3.1.4 ([#942](https://github.com/dasch-swiss/dsp-tools/issues/942)) ([5499e3b](https://github.com/dasch-swiss/dsp-tools/commit/5499e3bd015e44801897c1575d166cf2614bbe4f))
+* **deps:** bump the all-dependencies group with 15 updates ([#934](https://github.com/dasch-swiss/dsp-tools/issues/934)) ([548b6b4](https://github.com/dasch-swiss/dsp-tools/commit/548b6b44bdb352bde3c95dbef919f32ebbb43d1d))
+* fix typo ([#927](https://github.com/dasch-swiss/dsp-tools/issues/927)) ([e52a8ce](https://github.com/dasch-swiss/dsp-tools/commit/e52a8ce03d53205e42e1a9235afa62967a1fac07))
+* prepend warning message with category ([#937](https://github.com/dasch-swiss/dsp-tools/issues/937)) ([e5bbb83](https://github.com/dasch-swiss/dsp-tools/commit/e5bbb83e79fb254ea8e96251845e2be332812d67))
+
 ## [7.1.3](https://github.com/dasch-swiss/dsp-tools/compare/v7.1.2...v7.1.3) (2024-04-24)
 
 

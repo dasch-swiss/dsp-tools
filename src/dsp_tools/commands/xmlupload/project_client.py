@@ -19,6 +19,10 @@ class ProjectInfo:
 class ProjectClient(Protocol):
     """Interface (protocol) for project-related requests to the DSP-API."""
 
+    con: Connection
+    shortcode: str
+    project_info: ProjectInfo | None
+
     def get_project_iri(self) -> str:
         """Get the IRI of the project to which the data is being uploaded."""
 

@@ -14,7 +14,7 @@ def is_uri(s: str) -> bool:
     return m is not None
 
 
-def is_iiif_url(url) -> bool:
+def is_iiif_uri(uri: str) -> bool:
     # TODO: Implement this function
     """Checks if the given URL is a valid IIIF URL."""
     raise NotImplementedError

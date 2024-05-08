@@ -15,9 +15,10 @@ def parse_and_clean_xml_file(input_file: Union[str, Path, etree._ElementTree[Any
     """
     Parse an XML file with DSP-conform data,
     remove namespace URI from the elements' names,
-    and transform the special tags <annotation>, <region>, and <link>
+    and transform the special tags <annotation>, <region>, <link>, <video-segment>, <audio-segment>
     to their technically correct form
-    <resource restype="Annotation">, <resource restype="Region">, and <resource restype="LinkObj">.
+    <resource restype="Annotation">, <resource restype="Region">, <resource restype="LinkObj">,
+    <resource restype="VideoSegment">, <resource restype="AudioSegment">.
 
     Args:
         input_file: path to the XML file, or parsed ElementTree
@@ -65,9 +66,10 @@ def _remove_qnames_and_transform_special_tags(
 ) -> etree._Element:
     """
     This function removes the namespace URIs from the elements' names
-    and transforms the special tags <annotation>, <region>, and <link>
+    and transforms the special tags <annotation>, <region>, <link>, <video-segment>, <audio-segment>
     to their technically correct form
-    <resource restype="Annotation">, <resource restype="Region">, and <resource restype="LinkObj">.
+    <resource restype="Annotation">, <resource restype="Region">, <resource restype="LinkObj">,
+    <resource restype="VideoSegment">, <resource restype="AudioSegment">.
 
     Args:
         input_tree: unclean tree
@@ -85,6 +87,12 @@ def _remove_qnames_and_transform_special_tags(
             elem.tag = "resource"
         elif elem.tag == "region":
             elem.attrib["restype"] = "Region"
+            elem.tag = "resource"
+        elif elem.tag == "video-segment":
+            elem.attrib["restype"] = "VideoSegment"
+            elem.tag = "resource"
+        elif elem.tag == "audio-segment":
+            elem.attrib["restype"] = "AudioSegment"
             elem.tag = "resource"
     return input_tree
 

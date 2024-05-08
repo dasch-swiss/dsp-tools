@@ -222,10 +222,6 @@ The following DSP base properties are available:
   A resource that has a property derived from `seqnum` must also have a property derived from `isPartOf`.
 - `hasColor`: Defines a color value.  
 - `hasComment`: Defines a standard comment.
-- `isSequenceOf` **(⚠ deprecated)**: A special variant of `hasLinkTo`. 
-  It says that an instance of the given resource class is a section of an audio/video resource.
-- `hasSequenceBounds` **(⚠ deprecated)**: This base property is used together with `isSequenceOf`. 
-  It denotes a time interval of an audio/video resource.
 
 
 
@@ -267,8 +263,6 @@ These three are related as follows:
 | hasRepresentation                     | Representation                                                     | Searchbox                              |
 | isPartOf                              | (resourceclass)                                                    | Searchbox                              |
 | seqnum                                | IntValue                                                           | Spinbox, <br>SimpleText                |
-| isSequenceOf **(⚠ deprecated)**      | (AudioRepresentation, <br>MovingImageRepresentation, <br>subclass) | Searchbox                              |
-| hasSequenceBounds **(⚠ deprecated)** | IntervalValue                                                      | Interval                               |
 
 
 #### `BooleanValue`
@@ -815,121 +809,6 @@ number of the image inside the compound object. Apart from this, `seqnum` is lik
         - `size: integer` (optional): The size of the input field
 
 Example: See the [`isPartOf` Property](#ispartof-property) above.
-
-
-#### `isSequenceOf` Property
-
-| <center>Deprecated</center>                           |
-| ----------------------------------------------------- |
-| This property is deprecated and will be removed soon. |
-
-`"object": <AudioRepresentation/MovingImageRepresentation or a subclass of one of them>`
-
-This property can be used, together with a `hasSequenceBounds` property, on a resource representing a sequence of an
-audio/video resource. The `isSequenceOf` would then point to the audio/video resource, and the `hasSequenceBounds` 
-would be the time interval of the sequence.
-
-The DSP base properties `isSequenceOf` and `hasSequenceBounds` can be used to derive a custom property from them, or 
-they can be used directly as cardinalities in a resource. The example below shows both possibilities.
-
-*gui_elements / gui_attributes*:
-
-- `Searchbox`: The only GUI element for *isSequenceOf*. Allows searching resources by entering the target resource name.
-    - *gui_attributes*:
-        - `numprops: integer` (optional): Number of search results to be displayed
-
-Example:
-
-```json
-"properties": [
-    {
-        "name": "sequenceOfAudio",
-        "super": ["isSequenceOf"],
-        "subject": ":AudioSequence",
-        "object": ":Audio",
-        "labels": {"en": "is sequence of"},
-        "gui_element": "Searchbox"
-    },
-    {
-        "name": "hasBounds",
-        "super": ["hasSequenceBounds"],
-        "subject": ":AudioSequence",
-        "object": "IntervalValue",
-        "labels": {"en": "Start and end point of a sequence of an audio/video"},
-        "gui_element": "Interval"
-    }
-],
-"resources": [
-    {
-        "name": "AudioSequence",
-        "labels": {"en": "Sequence of audio using properties derived from 'isSequenceOf' and 'hasSequenceBounds'"},
-        "super": "Resource",
-        "cardinalities": [
-            {
-                "propname": ":sequenceOfAudio",
-                "cardinality": "1"
-            },
-            {
-                "propname": ":hasBounds",
-                "cardinality": "1"
-            }
-        ]
-    },
-    {
-        "name": "MinimalisticAudioSequence",
-        "labels": {"en": "Sequence of audio using 'isSequenceOf' and 'hasSequenceBounds' directly"},
-        "super": "Resource",
-        "cardinalities": [
-            {
-                "propname": "isSequenceOf",
-                "cardinality": "1"
-            },
-            {
-                "propname": "hasSequenceBounds",
-                "cardinality": "1"
-            }
-        ]
-    }
-]
-```
-
-
-#### `hasSequenceBounds` Property
-
-| <center>Deprecated</center>                           |
-| ----------------------------------------------------- |
-| This property is deprecated and will be removed soon. |
-
-`"object": "IntervalValue"`
-
-This property represents a time interval of an audio or video. It can be used together with an `isSequenceOf` property 
-on a resource that represents the sequence. The `isSequenceOf` would then point to the audio/video resource, and the 
-`hasSequenceBounds` would be the time interval of the sequence, represented as two decimal numbers.
-
-See the [`isSequenceOf` property](#issequenceof-property) or the 
-[xmlupload documentation](../xml-data-file.md#interval-prop) for more information.
-
-*gui_elements / gui_attributes*:
-
-- `Interval`: Two spinboxes, one for each decimal
-    - *gui_attributes*: No attributes
-
-Example:
-
-```json
-{
-  "name": "hasBounds",
-  "super": [
-    "hasSequenceBounds"
-  ],
-  "subject": ":AudioSequence",
-  "object": "IntervalValue",
-  "labels": {
-    "en": "Interval defining the start and end point of a sequence of an audio or video file"
-  },
-  "gui_element": "Interval"
-}
-```
 
 
 

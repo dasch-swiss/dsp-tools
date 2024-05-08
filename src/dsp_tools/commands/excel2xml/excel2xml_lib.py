@@ -17,7 +17,7 @@ from lxml.builder import E
 from regex import Match
 
 from dsp_tools.commands.excel2xml.propertyelement import PropertyElement
-from dsp_tools.models.custom_warnings import DspToolsFutureWarning
+from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.datetimestamp import DateTimeStamp
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.date_util import is_full_date
@@ -449,19 +449,19 @@ def make_resource(  # noqa: D417 (undocumented-param)
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#describing-resources-with-the-resource-element
     """
     if not check_notna(label):
-        warnings.warn(f"WARNING: Your resource's label looks suspicious (resource with id '{id}' and label '{label}')")
+        msg = f"Your resource's label looks suspicious (resource with id '{id}' and label '{label}')"
+        warnings.warn(DspToolsUserWarning(msg))
     if not check_notna(id):
-        warnings.warn(f"WARNING: Your resource's id looks suspicious (resource with id '{id}' and label '{label}'")
+        msg = f"Your resource's id looks suspicious (resource with id '{id}' and label '{label}'"
+        warnings.warn(DspToolsUserWarning(msg))
     kwargs = {"label": label, "restype": restype, "id": id, "permissions": permissions, "nsmap": xml_namespace_map}
     if ark:
         kwargs["ark"] = ark
     if iri:
         kwargs["iri"] = iri
     if ark and iri:
-        warnings.warn(
-            f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI.",
-            stacklevel=2,
-        )
+        msg = f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI."
+        warnings.warn(DspToolsUserWarning(msg))
     if creation_date:
         try:
             DateTimeStamp(creation_date)
@@ -490,8 +490,8 @@ def make_bitstream_prop(
         check: if True, issue a warning if the path doesn't point to an existing file
         calling_resource: the name of the parent resource (for better error messages)
 
-    Raises:
-        Warning: if the path doesn't point to an existing file (only if check=True)
+    Warns:
+        if the path doesn't point to an existing file (only if check=True)
 
     Returns:
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
@@ -505,11 +505,11 @@ def make_bitstream_prop(
     """
 
     if check and not Path(path).is_file():
-        warnings.warn(
+        msg = (
             f"Failed validation in bitstream tag of resource '{calling_resource}': "
-            f"The following path doesn't point to a file: {path}",
-            stacklevel=2,
+            f"The following path doesn't point to a file: {path}"
         )
+        warnings.warn(DspToolsUserWarning(msg))
     prop_ = etree.Element(
         "{%s}bitstream" % xml_namespace_map[None],
         permissions=permissions,
@@ -632,8 +632,8 @@ def make_color_prop(
         value: one or more DSP color(s), as string/PropertyElement, or as iterable of strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
-    Raises:
-        BaseError: If the value is not a valid color
+    Warns:
+        If the value is not a valid color
 
     Returns:
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
@@ -662,10 +662,11 @@ def make_color_prop(
     # check value type
     for val in values:
         if not regex.search(r"^#[0-9a-f]{6}$", str(val.value).strip(), flags=regex.IGNORECASE):
-            raise BaseError(
+            msg = (
                 f"Failed validation in resource '{calling_resource}', property '{name}': "
                 f"'{val.value}' is not a valid color."
             )
+            warnings.warn(DspToolsUserWarning(msg))
 
     # make xml structure of the valid values
     prop_ = etree.Element(
@@ -702,8 +703,8 @@ def make_date_prop(
         value: one or more DSP dates, as string/PropertyElement, or as iterable of strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
-    Raises:
-        BaseError: If the value is not a valid DSP date
+    Warns:
+        If the value is not a valid DSP date
 
     Returns:
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
@@ -738,10 +739,11 @@ def make_date_prop(
     # check value type
     for val in values:
         if not is_full_date(str(val.value).strip()):
-            raise BaseError(
+            msg = (
                 f"Failed validation in resource '{calling_resource}', property '{name}': "
                 f"'{val.value}' is not a valid DSP date."
             )
+            warnings.warn(DspToolsUserWarning(msg))
 
     # make xml structure of the valid values
     prop_ = etree.Element(
@@ -779,8 +781,8 @@ def make_decimal_prop(
         value: one or more decimal numbers, as string/float/PropertyElement, or as iterable of strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
-    Raises:
-        BaseError: If the value is not a valid decimal number
+    Warns:
+        If the value is not a valid decimal number
 
     Returns:
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
@@ -811,10 +813,11 @@ def make_decimal_prop(
         try:
             float(val.value)
         except ValueError:
-            raise BaseError(
+            msg = (
                 f"Failed validation in resource '{calling_resource}', property '{name}': "
                 f"'{val.value}' is not a valid decimal number."
-            ) from None
+            )
+            warnings.warn(DspToolsUserWarning(msg))
 
     # make xml structure of the valid values
     prop_ = etree.Element(
@@ -831,7 +834,7 @@ def make_decimal_prop(
             **kwargs,  # type: ignore[arg-type]
             nsmap=xml_namespace_map,
         )
-        value_.text = str(float(val.value))
+        value_.text = str(val.value)
         prop_.append(value_)
 
     return prop_
@@ -851,8 +854,8 @@ def make_geometry_prop(
         value: one or more JSON geometry objects, as string/PropertyElement, or as iterable of strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
-    Raises:
-        BaseError: If the value is not a valid JSON geometry object
+    Warns:
+        If the value is not a valid JSON geometry object
 
     Returns:
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
@@ -883,20 +886,23 @@ def make_geometry_prop(
         try:
             value_as_dict = json.loads(str(val.value))
             if value_as_dict["type"] not in ["rectangle", "circle", "polygon"]:
-                raise BaseError(
+                msg = (
                     f"Failed validation in resource '{calling_resource}', property '{name}': "
                     f"The 'type' of the JSON geometry object must be 'rectangle', 'circle', or 'polygon'."
                 )
+                warnings.warn(DspToolsUserWarning(msg))
             if not isinstance(value_as_dict["points"], list):
-                raise BaseError(
+                msg = (
                     f"Failed validation in resource '{calling_resource}', property '{name}': "
                     f"The 'points'of the JSON geometry object must be a list of points."
                 )
+                warnings.warn(DspToolsUserWarning(msg))
         except (json.JSONDecodeError, TypeError, IndexError, KeyError, AssertionError):
-            raise BaseError(
+            msg = (
                 f"Failed validation in resource '{calling_resource}', property '{name}': "
                 f"'{val.value}' is not a valid JSON geometry object."
-            ) from None
+            )
+            warnings.warn(DspToolsUserWarning(msg))
 
     # make xml structure of the valid values
     prop_ = etree.Element(
@@ -933,8 +939,8 @@ def make_geoname_prop(
         value: one or more geonames.org IDs, as str/int/PropertyElement, or as iterable of str/int/PropertyElement
         calling_resource: the name of the parent resource (for better error messages)
 
-    Raises:
-        BaseError: If the value is not a valid geonames.org identifier
+    Warns:
+        If the value is not a valid geonames.org identifier
 
     Returns:
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
@@ -963,10 +969,11 @@ def make_geoname_prop(
     # check value type
     for val in values:
         if not regex.search(r"^[0-9]+$", str(val.value)):
-            raise BaseError(
+            msg = (
                 f"Failed validation in resource '{calling_resource}', property '{name}': "
                 f"'{val.value}' is not a geonames.org identifier."
             )
+            warnings.warn(DspToolsUserWarning(msg))
 
     # make xml structure of the valid values
     prop_ = etree.Element(
@@ -1004,8 +1011,8 @@ def make_integer_prop(
         value: one or more integers, as string/int/PropertyElement, or as iterable of strings/ints/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
-    Raises:
-        BaseError: If the value is not a valid integer
+    Warns:
+        If the value is not a valid integer
 
     Returns:
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
@@ -1036,10 +1043,11 @@ def make_integer_prop(
         try:
             int(val.value)
         except ValueError:
-            raise BaseError(
+            msg = (
                 f"Failed validation in resource '{calling_resource}', property '{name}': "
                 f"'{val.value}' is not a valid integer."
-            ) from None
+            )
+            warnings.warn(DspToolsUserWarning(msg))
 
     # make xml structure of the valid values
     prop_ = etree.Element(
@@ -1056,67 +1064,66 @@ def make_integer_prop(
             **kwargs,  # type: ignore[arg-type]
             nsmap=xml_namespace_map,
         )
-        value_.text = str(int(val.value))
+        value_.text = str(val.value)
         prop_.append(value_)
 
     return prop_
 
 
-def make_interval_prop(
-    name: str,
-    value: Union[PropertyElement, str, Iterable[Union[PropertyElement, str]]],
-    calling_resource: str = "",
-) -> etree._Element:
+def make_interval_prop(name: str, value: Union[PropertyElement, str], calling_resource: str = "") -> etree._Element:
     """
-    Make a <interval-prop> from one or more DSP intervals. The interval(s) can be provided as string or as
-    PropertyElement with a string inside. If provided as string, the permissions default to "prop-default".
+    Make a <interval-prop name="hasSegmentBounds"> for a <video-segment> or <audio-segment>.
+    The interval can be provided as string or as PropertyElement with a string inside.
+    If provided as string, the permissions default to "prop-default".
+    DSP interval values are formatted as "start_seconds:end_seconds".
+    Both numbers can have a decimal point, for fractions of seconds.
 
     Args:
-        name: the name of this property as defined in the onto
-        value: one or more DSP intervals, as string/PropertyElement, or as iterable of strings/PropertyElements
+        name: the name of this property. The only accepted value is "hasSegmentBounds"
+        value: a DSP interval, as string or PropertyElement
         calling_resource: the name of the parent resource (for better error messages)
 
-    Raises:
-        BaseError: If the value is not a valid DSP interval
+    Warns:
+        - If the value is not a valid DSP interval
+        - If the name is not "hasSegmentBounds"
 
     Returns:
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
 
     Examples:
-        >>> excel2xml.make_interval_prop(":testproperty", "61:3600")
-                <interval-prop name=":testproperty">
-                    <interval permissions="prop-default">61:3600</interval>
+        >>> interval = excel2xml.create_interval_value(start="0:01:00", end="0:02:00")  # result: "60:120"
+        >>> excel2xml.make_interval_prop("hasSegmentBounds", inverval)
+                <interval-prop name="hasSegmentBounds">
+                    <interval permissions="prop-default">60:120</interval>
                 </interval-prop>
-        >>> excel2xml.make_interval_prop(":testproperty", excel2xml.PropertyElement("61:3600", permissions="prop-restricted", comment="example"))
-                <interval-prop name=":testproperty">
-                    <interval permissions="prop-restricted" comment="example">61:3600</interval>
-                </interval-prop>
-        >>> excel2xml.make_interval_prop(":testproperty", ["61:3600", "60.5:120.5"])
-                <interval-prop name=":testproperty">
-                    <interval permissions="prop-default">61:3600</interval>
-                    <interval permissions="prop-default">60.5:120.5</interval>
+        >>> interval = excel2xml.create_interval_value(start="0:30:00", end="1:00:00")  # result: "1800:3600"
+        >>> excel2xml.make_interval_prop("hasSegmentBounds", excel2xml.PropertyElement(interval, permissions="prop-restricted", comment="example"))
+                <interval-prop name="hasSegmentBounds>
+                    <interval permissions="prop-restricted" comment="example">1800:3600</interval>
                 </interval-prop>
 
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#interval-prop
+    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#video-segment-audio-segment
     """
 
-    if name == "hasSequenceBounds":
-        msg = "Deprecation Warning: Support for the hasSequenceBounds property will be removed soon"
-        warnings.warn(DspToolsFutureWarning(msg))
+    if name != "hasSegmentBounds":
+        msg = (
+            f"Failed validation in resource '{calling_resource}', property '{name}': "
+            f"The only accepted value for 'name' is 'hasSegmentBounds'."
+        )
+        warnings.warn(DspToolsUserWarning(msg))
 
-    # check the input: prepare a list with valid values
-    values = prepare_value(value)
+    value = value if isinstance(value, PropertyElement) else PropertyElement(value)
 
     # check value type
-    for val in values:
-        if not regex.match(
-            r"([+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)):([+-]?([0-9]+([.][0-9]*)?|[.][0-9]+))",
-            str(val.value),
-        ):
-            raise BaseError(
-                f"Failed validation in resource '{calling_resource}', property '{name}': "
-                f"'{val.value}' is not a valid DSP interval."
-            )
+    if not regex.match(
+        r"(\+?([0-9]+([.][0-9]*)?|[.][0-9]+)):(\+?([0-9]+([.][0-9]*)?|[.][0-9]+))",
+        str(value.value),
+    ):
+        msg = (
+            f"Failed validation in resource '{calling_resource}', property '{name}': "
+            f"'{value.value}' is not a valid DSP interval."
+        )
+        warnings.warn(DspToolsUserWarning(msg))
 
     # make xml structure of the valid values
     prop_ = etree.Element(
@@ -1124,17 +1131,16 @@ def make_interval_prop(
         name=name,
         nsmap=xml_namespace_map,
     )
-    for val in values:
-        kwargs = {"permissions": val.permissions}
-        if val.comment and check_notna(val.comment):
-            kwargs["comment"] = val.comment
-        value_ = etree.Element(
-            "{%s}interval" % xml_namespace_map[None],
-            **kwargs,  # type: ignore[arg-type]
-            nsmap=xml_namespace_map,
-        )
-        value_.text = str(val.value)
-        prop_.append(value_)
+    kwargs = {"permissions": value.permissions}
+    if value.comment and check_notna(value.comment):
+        kwargs["comment"] = value.comment
+    value_ = etree.Element(
+        "{%s}interval" % xml_namespace_map[None],
+        **kwargs,  # type: ignore[arg-type]
+        nsmap=xml_namespace_map,
+    )
+    value_.text = str(value.value)
+    prop_.append(value_)
 
     return prop_
 
@@ -1155,8 +1161,8 @@ def make_list_prop(
         value: one or more node names, as string/PropertyElement, or as iterable of strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
-    Raises:
-        BaseError: If the name of one of the list nodes is not a valid string
+    Warns:
+        If the name of one of the list nodes is not a valid string
 
     Returns:
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
@@ -1185,10 +1191,11 @@ def make_list_prop(
     # check value type
     for val in values:
         if not isinstance(val.value, str) or not check_notna(val.value):
-            raise BaseError(
+            msg = (
                 f"Failed validation in resource '{calling_resource}', property '{name}': "
                 f"'{val.value}' is not a valid name of a list node."
             )
+            warnings.warn(DspToolsUserWarning(msg))
 
     # make xml structure of the valid values
     prop_ = etree.Element(
@@ -1226,8 +1233,8 @@ def make_resptr_prop(
         value: one or more resource identifiers, as string/PropertyElement, or as iterable of strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
-    Raises:
-        BaseError: If the ID of one of the target resources is not a valid string
+    Warns:
+        If the ID of one of the target resources is not a valid string
 
     Returns:
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
@@ -1250,20 +1257,17 @@ def make_resptr_prop(
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#resptr-prop
     """
 
-    if name == "isSequenceOf":
-        msg = "Deprecation Warning: Support for the isSequenceOf property will be removed soon"
-        warnings.warn(DspToolsFutureWarning(msg))
-
     # check the input: prepare a list with valid values
     values = prepare_value(value)
 
     # check value type
     for val in values:
         if not isinstance(val.value, str) or not check_notna(val.value):
-            raise BaseError(
+            msg = (
                 f"Validation Error in resource '{calling_resource}', property '{name}': "
                 f"The following doesn't seem to be a valid ID of a target resource: '{val.value}'"
             )
+            warnings.warn(DspToolsUserWarning(msg))
 
     # make xml structure of the valid values
     prop_ = etree.Element(
@@ -1301,8 +1305,7 @@ def make_text_prop(
         calling_resource: the name of the parent resource (for better error messages)
 
     Raises:
-        BaseError: if one of the values is not a valid string,
-            or if the XML tags in a richtext property (encoding=xml) are not well-formed
+        BaseError: if the XML tags in a richtext property (encoding=xml) are not well-formed
         Warning: if one of the values doesn't look like a reasonable string
             (e.g. "<NA>" is a valid string, but probably not intended)
 
@@ -1332,17 +1335,12 @@ def make_text_prop(
 
     # check value type
     for val in values:
-        if not isinstance(val.value, str) or len(val.value) < 1:
-            raise BaseError(
+        if not isinstance(val.value, str) or not check_notna(val.value):
+            msg = (
                 f"Failed validation in resource '{calling_resource}', property '{name}': "
-                f"'{val.value}' is not a valid string."
+                f"'{val.value}' is probably not a usable string."
             )
-        if not check_notna(val.value):
-            warnings.warn(
-                f"Warning for resource '{calling_resource}', property '{name}': "
-                f"'{val.value}' is probably not a usable string.",
-                stacklevel=2,
-            )
+            warnings.warn(DspToolsUserWarning(msg))
 
     # make xml structure of the valid values
     prop_ = etree.Element(
@@ -1451,8 +1449,8 @@ def make_time_prop(
         value: one or more DSP times, as string/PropertyElement, or as iterable of strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
-    Raises:
-        BaseError: If one of the values is not a valid DSP time string
+    Warns:
+        If one of the values is not a valid DSP time string
 
     Returns:
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
@@ -1490,10 +1488,11 @@ def make_time_prop(
     validation_regex = r"^\d{4}-[0-1]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(.\d{1,12})?(Z|[+-][0-1]\d:[0-5]\d)$"
     for val in values:
         if not regex.search(validation_regex, str(val.value)):
-            raise BaseError(
+            msg = (
                 f"Failed validation in resource '{calling_resource}', property '{name}': "
                 f"'{val.value}' is not a valid DSP time."
             )
+            warnings.warn(DspToolsUserWarning(msg))
 
     # make xml structure of the valid values
     prop_ = etree.Element(
@@ -1530,8 +1529,8 @@ def make_uri_prop(
         value: one or more URIs, as string/PropertyElement, or as iterable of strings/PropertyElements
         calling_resource: the name of the parent resource (for better error messages)
 
-    Raises:
-        BaseError: If one of the values is not a valid URI
+    Warns:
+        If one of the values is not a valid URI
 
     Returns:
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
@@ -1560,10 +1559,11 @@ def make_uri_prop(
     # check value type
     for val in values:
         if not is_uri(str(val.value)):
-            raise BaseError(
+            msg = (
                 f"Failed validation in resource '{calling_resource}', property '{name}': "
                 f"'{val.value}' is not a valid URI."
             )
+            warnings.warn(DspToolsUserWarning(msg))
 
     # make xml structure of the valid values
     prop_ = etree.Element(
@@ -1625,10 +1625,8 @@ def make_region(  # noqa: D417 (undocumented-param)
     if iri:
         kwargs["iri"] = iri
     if ark and iri:
-        warnings.warn(
-            f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI.",
-            stacklevel=2,
-        )
+        msg = f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI."
+        warnings.warn(DspToolsUserWarning(msg))
     if creation_date:
         try:
             DateTimeStamp(creation_date)
@@ -1682,10 +1680,8 @@ def make_annotation(  # noqa: D417 (undocumented-param)
     if iri:
         kwargs["iri"] = iri
     if ark and iri:
-        warnings.warn(
-            f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI.",
-            stacklevel=2,
-        )
+        warning = f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI."
+        warnings.warn(DspToolsUserWarning(warning))
     if creation_date:
         try:
             DateTimeStamp(creation_date)
@@ -1739,10 +1735,8 @@ def make_link(  # noqa: D417 (undocumented-param)
     if iri:
         kwargs["iri"] = iri
     if ark and iri:
-        warnings.warn(
-            f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI.",
-            stacklevel=2,
-        )
+        msg = f"Both ARK and IRI were provided for resource '{label}' ({id}). The ARK will override the IRI."
+        warnings.warn(DspToolsUserWarning(msg))
     if creation_date:
         try:
             DateTimeStamp(creation_date)
@@ -1757,6 +1751,107 @@ def make_link(  # noqa: D417 (undocumented-param)
         "{%s}link" % xml_namespace_map[None],
         **kwargs,  # type: ignore[arg-type]
     )
+
+
+def make_audio_segment(  # noqa: D417 (undocumented-param)
+    label: str,
+    id: str,
+    permissions: str = "res-default",
+) -> etree._Element:
+    """
+    Creates an empty <audio-segment> element, with the attributes as specified by the arguments
+
+    Args:
+        The arguments correspond 1:1 to the attributes of the <audio-segment> element.
+
+    Returns:
+        The audio-segment element, without any children, but with the attributes:
+        <audio-segment label=label id=id permissions=permissions></audio-segment>
+
+    Examples:
+        >>> audio_segment = excel2xml.make_audio_segment("label", "id")
+        >>> audio_segment.append(excel2xml.make_resptr_prop("isSegmentOf", "audio_resource_id"))
+        >>> audio_segment.append(excel2xml.make_interval_prop("hasSegmentBounds", "60:120")
+        >>> root.append(audio_segment)
+
+    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#video-segment-audio-segment
+    """
+    return etree.Element(
+        "{%s}audio-segment" % xml_namespace_map[None],
+        label=label,
+        id=id,
+        permissions=permissions,
+        nsmap=xml_namespace_map,
+    )
+
+
+def make_video_segment(  # noqa: D417 (undocumented-param)
+    label: str,
+    id: str,
+    permissions: str = "res-default",
+) -> etree._Element:
+    """
+    Creates an empty <video-segment> element, with the attributes as specified by the arguments
+
+    Args:
+        The arguments correspond 1:1 to the attributes of the <video-segment> element.
+
+    Returns:
+        The video-segment element, without any children, but with the attributes:
+        <video-segment label=label id=id permissions=permissions></video-segment>
+
+    Examples:
+        >>> video_segment = excel2xml.make_video_segment("label", "id")
+        >>> video_segment.append(excel2xml.make_resptr_prop("isSegmentOf", "video_resource_id"))
+        >>> video_segment.append(excel2xml.make_interval_prop("hasSegmentBounds", "60:120")
+        >>> root.append(video_segment)
+
+    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#video-segment-audio-segment
+    """
+    return etree.Element(
+        "{%s}video-segment" % xml_namespace_map[None],
+        label=label,
+        id=id,
+        permissions=permissions,
+        nsmap=xml_namespace_map,
+    )
+
+
+def create_interval_value(start: str, end: str) -> str:
+    """
+    Transform a start and end time into a valid DSP interval value,
+    which then can be used in an <interval name="hasSegmentBounds"> tag,
+    which is used in <audio-segment> and <video-segment> elements.
+
+    Args:
+        start: start time of the video/audio segment, in the format 'H(H):MM:SS(.s)'
+        end: end time of the video/audio segment, in the format 'H(H):MM:SS(.s)'
+
+    Raises:
+        ValueError: if the provided arguments are not in the correct format, or if the start time is greater than the end time
+
+    Returns:
+        a DSP interval value in the format 'start_seconds:end_seconds'
+
+    Examples:
+        >>> excel2xml.create_interval_value("0:01:00", "0:02:00")
+        "60:120"
+        >>> excel2xml.create_interval_value("0:01:00.5", "0:01:00.6")
+        "60.5:60.6"
+    """
+    start_match = regex.search(r"^(\d+):([0-5][0-9]):([0-5][0-9](?:\.[0-9]+)?)$", start)
+    end_match = regex.match(r"^(\d+):([0-5][0-9]):([0-5][0-9](?:\.[0-9]+)?)$", end)
+    if not start_match or not end_match:
+        raise ValueError("The start and end values must be in the format 'H(H):MM:SS(.s)'")
+    start_h, start_m, start_s = start_match.groups()
+    end_h, end_m, end_s = end_match.groups()
+    start_seconds = int(start_h) * 3600 + int(start_m) * 60 + float(start_s)
+    end_seconds = int(end_h) * 3600 + int(end_m) * 60 + float(end_s)
+    start_seconds = int(start_seconds) if start_seconds.is_integer() else start_seconds
+    end_seconds = int(end_seconds) if end_seconds.is_integer() else end_seconds
+    if start_seconds > end_seconds:
+        raise ValueError("The start value must be smaller than the end value")
+    return f"{start_seconds}:{end_seconds}"
 
 
 def create_json_excel_list_mapping(
@@ -1845,11 +1940,11 @@ def create_json_excel_list_mapping(
             res[excel_value] = matches[0]
             res[excel_value.lower()] = matches[0]
         else:
-            warnings.warn(
+            msg = (
                 f"Did not find a close match to the excel list entry '{excel_value}' "
-                f"among the values in the JSON project list '{list_name}'",
-                stacklevel=2,
+                f"among the values in the JSON project list '{list_name}'"
             )
+            warnings.warn(DspToolsUserWarning(msg))
 
     return res
 
@@ -1960,7 +2055,8 @@ def write_xml(
         validate_xml(input_file=filepath)
         print(f"The XML file was successfully saved to {filepath}")
     except BaseError as err:
-        warnings.warn(
+        msg = (
             f"The XML file was successfully saved to {filepath}, "
             f"but the following Schema validation error(s) occurred: {err.message}"
         )
+        warnings.warn(DspToolsUserWarning(msg))

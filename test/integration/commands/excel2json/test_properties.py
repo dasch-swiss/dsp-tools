@@ -50,9 +50,9 @@ class TestValidateProperties:
             "\nThe Excel file "
             "'testdata/invalid-testdata/excel2json/properties-invalid-gui_element.xlsx' did not pass validation.\n"
             "    Section of the problem: 'Properties'\n"
-            "    Problematic property: 'hasInterval'\n"
-            "    Located at: Column 'gui_element' | Row 4\n"
-            "    Original Error Message:\n'Interval' was expected"
+            "    Problematic property: 'hasGeoname'\n"
+            "    Located at: Column 'gui_element' | Row 3\n"
+            "    Original Error Message:\n'Geonames' was expected"
         )
         with pytest.raises(InputError, match=expected_msg):
             e2j.excel2properties(
@@ -108,7 +108,6 @@ class TestExcelToProperties(unittest.TestCase):
             "hasColor",
             "hasDecimal",
             "hasTime",
-            "hasInterval",
             "hasBoolean",
             "hasGeoname",
             "partOfDocument",
@@ -139,7 +138,6 @@ class TestExcelToProperties(unittest.TestCase):
             ["hasColor"],
             ["hasValue"],
             ["hasValue"],
-            ["hasSequenceBounds"],
             ["hasValue"],
             ["hasValue"],
             ["isPartOf"],
@@ -170,7 +168,6 @@ class TestExcelToProperties(unittest.TestCase):
             "ColorValue",
             "DecimalValue",
             "TimeValue",
-            "IntervalValue",
             "BooleanValue",
             "GeonameValue",
             ":Documents",
@@ -202,7 +199,6 @@ class TestExcelToProperties(unittest.TestCase):
                 "Farbe",
                 "Dezimalzahl",
                 "Zeit",
-                "Zeitintervall",
                 "Bool'sche Variable",
                 "Link zu Geonames",
                 "ist Teil eines Dokuments",
@@ -226,7 +222,6 @@ class TestExcelToProperties(unittest.TestCase):
                 "",
                 "",
                 "GND",
-                "",
                 "",
                 "",
                 "",
@@ -275,7 +270,6 @@ class TestExcelToProperties(unittest.TestCase):
                 "",
                 "",
                 "",
-                "",
             ],
             "comment_it": [
                 "Avevo già visto diverse proprietà quando un giorno il notaio,",
@@ -290,7 +284,6 @@ class TestExcelToProperties(unittest.TestCase):
                 "",
                 "Avevo già visto diverse proprietà quando un giorno il notaio,",
                 "Gemeinsame Normdatei",
-                "",
                 "",
                 "",
                 "",
@@ -328,7 +321,6 @@ class TestExcelToProperties(unittest.TestCase):
             "Colorpicker",
             "Spinbox",
             "TimeStamp",
-            "Interval",
             "Checkbox",
             "Geonames",
             "Searchbox",

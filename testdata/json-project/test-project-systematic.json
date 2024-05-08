@@ -370,18 +370,6 @@
                         "gui_element": "Geonames"
                     },
                     {
-                        "name": "hasBounds",
-                        "super": [
-                            "hasSequenceBounds"
-                        ],
-                        "object": "IntervalValue",
-                        "labels": {
-                            "de": "Intervall, das den Start- und Endpunkt der Sequenz definiert",
-                            "en": "Interval defining the start and end point of the sequence"
-                        },
-                        "gui_element": "Interval"
-                    },
-                    {
                         "name": "hasColor",
                         "super": [
                             "hasColor"
@@ -469,32 +457,6 @@
                         "object": "MovingImageRepresentation",
                         "labels": {
                             "en": "hasMovingImageRepresentation"
-                        },
-                        "gui_element": "Searchbox"
-                    },
-                    {
-                        "name": "sequenceOfVideo",
-                        "super": [
-                            "isSequenceOf"
-                        ],
-                        "subject": ":VideoSequence",
-                        "object": ":MovieThing",
-                        "labels": {
-                            "de": "ist Sequenz von",
-                            "en": "is sequence of"
-                        },
-                        "gui_element": "Searchbox"
-                    },
-                    {
-                        "name": "sequenceOfAudio",
-                        "super": [
-                            "isSequenceOf"
-                        ],
-                        "subject": ":AudioSequence",
-                        "object": ":AudioThing",
-                        "labels": {
-                            "de": "ist Sequenz von",
-                            "en": "is sequence of"
                         },
                         "gui_element": "Searchbox"
                     },
@@ -828,81 +790,6 @@
                             {
                                 "propname": ":hasPagenum",
                                 "gui_order": 2,
-                                "cardinality": "1"
-                            }
-                        ]
-                    },
-                    {
-                        "name": "VideoSequence",
-                        "super": "Resource",
-                        "labels": {
-                            "de": "Sequenz einer Video-Ressource",
-                            "en": "Sequence of a video resource"
-                        },
-                        "cardinalities": [
-                            {
-                                "propname": ":hasSimpleText",
-                                "cardinality": "0-1",
-                                "gui_order": 10
-                            },
-                            {
-                                "propname": ":sequenceOfVideo",
-                                "cardinality": "1",
-                                "gui_order": 20
-                            },
-                            {
-                                "propname": ":hasBounds",
-                                "cardinality": "1",
-                                "gui_order": 30
-                            }
-                        ]
-                    },
-                    {
-                        "name": "AudioSequence",
-                        "super": "Resource",
-                        "labels": {
-                            "de": "Sequenz einer Audio-Ressource",
-                            "en": "Sequence of an audio resource"
-                        },
-                        "cardinalities": [
-                            {
-                                "propname": ":hasSimpleText",
-                                "cardinality": "0-1",
-                                "gui_order": 1
-                            },
-                            {
-                                "propname": ":sequenceOfAudio",
-                                "cardinality": "1"
-                            },
-                            {
-                                "propname": ":hasBounds",
-                                "cardinality": "1"
-                            }
-                        ]
-                    },
-                    {
-                        "name": "MinimalisticSequence",
-                        "super": "Resource",
-                        "labels": {
-                            "de": "Minimalistische Sequenz einer Audio-/Video-Ressource",
-                            "en": "Minimalistic sequence of an audio/video resource"
-                        },
-                        "comments": {
-                            "de": "Sequenz einer Audio-/Video-Ressource, welche die base properties 'isSequenceOf' und 'hasSequenceBounds' direkt verwendet",
-                            "en": "Sequence of an audio/video resource that uses the base properties 'isSequenceOf' and 'hasSequenceBounds' directly"
-                        },
-                        "cardinalities": [
-                            {
-                                "propname": ":hasSimpleText",
-                                "cardinality": "0-1",
-                                "gui_order": 1
-                            },
-                            {
-                                "propname": "isSequenceOf",
-                                "cardinality": "1"
-                            },
-                            {
-                                "propname": "hasSequenceBounds",
                                 "cardinality": "1"
                             }
                         ]

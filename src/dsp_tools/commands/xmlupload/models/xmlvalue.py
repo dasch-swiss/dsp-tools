@@ -5,7 +5,7 @@ from typing import cast
 import regex
 from lxml import etree
 
-from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
+from dsp_tools.commands.xmlupload.models.Values import FormattedTextValue
 
 
 class XMLValue:

@@ -5,8 +5,8 @@ from typing import Any
 from uuid import uuid4
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
-from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
+from dsp_tools.commands.xmlupload.models.Values import FormattedTextValue
 from dsp_tools.commands.xmlupload.project_client import ProjectInfo
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItem

@@ -1,7 +1,7 @@
 import pytest
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
-from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
+from dsp_tools.commands.xmlupload.models.Values import FormattedTextValue
 
 
 def test_find_ids_referenced_in_salsah_links_one_link() -> None:

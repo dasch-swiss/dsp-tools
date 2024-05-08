@@ -8,8 +8,8 @@ from urllib.parse import quote_plus
 from loguru import logger
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
-from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
+from dsp_tools.commands.xmlupload.models.Values import FormattedTextValue
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStash
 from dsp_tools.commands.xmlupload.stash.stash_models import StandoffStashItem
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash

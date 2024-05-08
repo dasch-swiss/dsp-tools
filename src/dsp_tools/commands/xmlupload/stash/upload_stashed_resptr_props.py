@@ -2,40 +2,39 @@ from __future__ import annotations
 
 from datetime import datetime
 from typing import Any
+from typing import cast
 
 from loguru import logger
 
-from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
+from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItem
+from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.connection import Connection
 
 
 def upload_stashed_resptr_props(
-    iri_resolver: IriResolver,
+    upload_state: UploadState,
     con: Connection,
-    stashed_resptr_props: LinkValueStash,
     context: dict[str, str],
-) -> LinkValueStash | None:
+) -> None:
     """
     After all resources are uploaded, the stashed resptr props must be applied to their resources in DSP.
+    The upload state is updated accordingly, as a side effect.
 
     Args:
-        iri_resolver: resolver with a mapping of ids from the XML file to IRIs in DSP
+        upload_state: the current state of the upload
         con: connection to DSP
-        stashed_resptr_props: all resptr props that have been stashed
         context: the JSON-LD context of the resource
-
-    Returns:
-        nonapplied_resptr_props: the resptr props that could not be uploaded
     """
 
     print(f"{datetime.now()}: Upload the stashed resptrs...")
     logger.info("Upload the stashed resptrs...")
-    not_uploaded: list[LinkValueStashItem] = []
-    for res_id, stash_items in stashed_resptr_props.res_2_stash_items.copy().items():
-        res_iri = iri_resolver.get(res_id)
+    upload_state.pending_stash = cast(Stash, upload_state.pending_stash)
+    link_value_stash = cast(LinkValueStash, upload_state.pending_stash.link_value_stash)
+    for res_id, stash_items in link_value_stash.res_2_stash_items.copy().items():
+        res_iri = upload_state.iri_resolver.get(res_id)
         if not res_iri:
             # resource could not be uploaded to DSP, so the stash cannot be uploaded either
             # no action necessary: this resource will remain in nonapplied_resptr_props,
@@ -44,16 +43,13 @@ def upload_stashed_resptr_props(
         print(f"{datetime.now()}:   Upload resptrs of resource '{res_id}'...")
         logger.info(f"  Upload resptrs of resource '{res_id}'...")
         for stash_item in stash_items:
-            target_iri = iri_resolver.get(stash_item.target_id)
+            target_iri = upload_state.iri_resolver.get(stash_item.target_id)
             if not target_iri:
                 continue
             if _upload_stash_item(stash_item, res_iri, target_iri, con, context):
-                stashed_resptr_props.res_2_stash_items[res_id].remove(stash_item)
-            else:
-                not_uploaded.append(stash_item)
-        if not stashed_resptr_props.res_2_stash_items[res_id]:
-            del stashed_resptr_props.res_2_stash_items[res_id]
-    return LinkValueStash.make(not_uploaded)
+                link_value_stash.res_2_stash_items[res_id].remove(stash_item)
+        if not link_value_stash.res_2_stash_items[res_id]:
+            del link_value_stash.res_2_stash_items[res_id]
 
 
 def _upload_stash_item(

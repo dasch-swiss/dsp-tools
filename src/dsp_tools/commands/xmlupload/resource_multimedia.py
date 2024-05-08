@@ -7,7 +7,7 @@ from loguru import logger
 
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.sipi import Sipi
-from dsp_tools.commands.xmlupload.models.xmlbitstream import XMLBitstream
+from dsp_tools.commands.xmlupload.models.Value_deserialise import XMLBitstream
 from dsp_tools.commands.xmlupload.models.xmlresource import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.xmlresource import XMLResource
 from dsp_tools.models.exceptions import PermanentConnectionError

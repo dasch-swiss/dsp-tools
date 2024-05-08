@@ -4,8 +4,8 @@ from typing import Optional
 from lxml import etree
 
 from dsp_tools.commands.xmlupload.models.permission import Permissions
-from dsp_tools.commands.xmlupload.models.Value_deserialise import XMLBitstream
-from dsp_tools.commands.xmlupload.models.Value_deserialise import XMLProperty
+from dsp_tools.commands.xmlupload.models.value_deserialise import XMLBitstream
+from dsp_tools.commands.xmlupload.models.value_deserialise import XMLProperty
 from dsp_tools.models.datetimestamp import DateTimeStamp
 
 

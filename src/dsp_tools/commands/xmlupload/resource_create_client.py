@@ -11,8 +11,8 @@ from dsp_tools.commands.xmlupload.ark2iri import convert_ark_v0_to_resource_iri
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.permission import Permissions
-from dsp_tools.commands.xmlupload.models.Value_deserialise import XMLProperty
-from dsp_tools.commands.xmlupload.models.Value_deserialise import XMLValue
+from dsp_tools.commands.xmlupload.models.value_deserialise import XMLProperty
+from dsp_tools.commands.xmlupload.models.value_deserialise import XMLValue
 from dsp_tools.commands.xmlupload.models.xmlresource import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.xmlresource import XMLResource
 from dsp_tools.models.exceptions import BaseError

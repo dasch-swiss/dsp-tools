@@ -407,11 +407,11 @@ class TestMakeProps(unittest.TestCase):
         self.run_test(prop, method, [int(x) for x in different_values], invalid_values)
 
     def test_make_interval_prop(self) -> None:
-        different_values = ["+.1:+.9", "10:20", "1.5:2.5", "-.1:5", "-10.0:-5.1"]
+        different_values = ["+.1:+.9", "10:20", "1.5:2.5"]
         for val in different_values:
             output = excel2xml.make_interval_prop("hasSegmentBounds", val)
             self.assertEqual(output[0].text, val)
-        invalid_values = ["text", 10.0, ["text"], "10:", ":1"]
+        invalid_values = ["text", 10.0, ["text"], "10:", ":1", "-.1:5", "-10.0:-5.1"]
         for inv in invalid_values:
             with self.assertWarns(Warning):
                 excel2xml.make_interval_prop("hasSegmentBounds", inv)  # type: ignore[arg-type]

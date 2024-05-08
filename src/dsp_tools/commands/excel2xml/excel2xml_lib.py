@@ -1091,12 +1091,12 @@ def make_interval_prop(name: str, value: Union[PropertyElement, str], calling_re
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
 
     Examples:
-        >>> interval = excel3xml.create_interval_value(start="0:01:00", end="0:02:00")  # result: "60:120"
+        >>> interval = excel2xml.create_interval_value(start="0:01:00", end="0:02:00")  # result: "60:120"
         >>> excel2xml.make_interval_prop("hasSegmentBounds", inverval)
                 <interval-prop name="hasSegmentBounds">
                     <interval permissions="prop-default">60:120</interval>
                 </interval-prop>
-        >>> interval = excel3xml.create_interval_value(start="0:30:00", end="1:00:00")  # result: "1800:3600"
+        >>> interval = excel2xml.create_interval_value(start="0:30:00", end="1:00:00")  # result: "1800:3600"
         >>> excel2xml.make_interval_prop("hasSegmentBounds", excel2xml.PropertyElement(interval, permissions="prop-restricted", comment="example"))
                 <interval-prop name="hasSegmentBounds>
                     <interval permissions="prop-restricted" comment="example">1800:3600</interval>

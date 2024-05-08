@@ -17,8 +17,8 @@ from dsp_tools.commands.xmlupload.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.sipi import Sipi
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
+from dsp_tools.commands.xmlupload.models.Values_serialise import UploadedFileValue
 from dsp_tools.commands.xmlupload.models.xmlpermission import XmlPermission
-from dsp_tools.commands.xmlupload.models.xmlresource import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.ontology_client import OntologyClientLive
 from dsp_tools.commands.xmlupload.project_client import ProjectClient
@@ -392,7 +392,7 @@ def _tidy_up_resource_creation_idempotent(
 
 def _create_resource(
     resource: XMLResource,
-    bitstream_information: BitstreamInfo | None,
+    bitstream_information: UploadedFileValue | None,
     resource_create_client: ResourceCreateClient,
 ) -> str | None:
     try:

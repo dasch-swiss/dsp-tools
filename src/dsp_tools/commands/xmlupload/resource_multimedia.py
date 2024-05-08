@@ -8,7 +8,7 @@ from loguru import logger
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.sipi import Sipi
 from dsp_tools.commands.xmlupload.models.Values_deserialise import XMLBitstream
-from dsp_tools.commands.xmlupload.models.xmlresource import BitstreamInfo
+from dsp_tools.commands.xmlupload.models.Values_serialise import UploadedFileValue
 from dsp_tools.commands.xmlupload.models.xmlresource import XMLResource
 from dsp_tools.models.exceptions import PermanentConnectionError
 
@@ -19,7 +19,7 @@ def handle_media_info(
     sipi_server: Sipi,
     imgdir: str,
     permissions_lookup: dict[str, Permissions],
-) -> tuple[bool, None | BitstreamInfo]:
+) -> tuple[bool, None | UploadedFileValue]:
     """
     This function checks if a resource has a bitstream.
     If not, it reports success and returns None.
@@ -41,7 +41,7 @@ def handle_media_info(
     """
     bitstream = resource.file_value
     success = True
-    bitstream_information: None | BitstreamInfo = None
+    bitstream_information: None | UploadedFileValue = None
 
     if not bitstream:
         return success, bitstream_information
@@ -66,7 +66,7 @@ def _handle_media_upload(
     permissions_lookup: dict[str, Permissions],
     sipi_server: Sipi,
     imgdir: str,
-) -> BitstreamInfo | None:
+) -> UploadedFileValue | None:
     """
     Upload a bitstream file to SIPI
 
@@ -103,7 +103,7 @@ def _upload_bitstream(
     sipi_server: Sipi,
     imgdir: str,
     permissions_lookup: dict[str, Permissions],
-) -> BitstreamInfo | None:
+) -> UploadedFileValue | None:
     """
     This function uploads a specified bitstream file to SIPI and then returns the file information from SIPI.
 

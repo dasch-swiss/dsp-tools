@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from typing import Optional
 
 from lxml import etree
@@ -6,21 +5,8 @@ from lxml import etree
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.Values_deserialise import XMLBitstream
 from dsp_tools.commands.xmlupload.models.Values_deserialise import XMLProperty
+from dsp_tools.commands.xmlupload.models.Values_serialise import UploadedFileValue
 from dsp_tools.models.datetimestamp import DateTimeStamp
-
-
-@dataclass(frozen=True)
-class BitstreamInfo:
-    """
-    Represents a bitstream object,
-    consisting of its file name on the local file system,
-    the internal file name assigned by SIPI
-    and optionally its permissions.
-    """
-
-    local_file: str
-    internal_file_name: str
-    permissions: Permissions | None = None
 
 
 class XMLResource:
@@ -109,7 +95,7 @@ class XMLResource:
         self,
         internal_file_name_bitstream: str,
         permissions_lookup: dict[str, Permissions],
-    ) -> BitstreamInfo | None:
+    ) -> UploadedFileValue | None:
         """
         This method constructs a `BitstreamInfo` object from the current resource,
         or None, if the resource does not have a bitstream representation.
@@ -126,8 +112,8 @@ class XMLResource:
         """
         if not self.file_value:
             return None
-        permissions = permissions_lookup.get(self.file_value.permissions) if self.file_value.permissions else None
-        return BitstreamInfo(
+        permissions = str(permissions_lookup.get(self.file_value.permissions)) if self.file_value.permissions else None
+        return UploadedFileValue(
             local_file=self.file_value.value,
             internal_file_name=internal_file_name_bitstream,
             permissions=permissions,

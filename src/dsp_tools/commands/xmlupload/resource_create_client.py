@@ -1,6 +1,5 @@
 import json
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Any
 from typing import assert_never
 from typing import cast
@@ -13,7 +12,7 @@ from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTe
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.Values_deserialise import XMLProperty
 from dsp_tools.commands.xmlupload.models.Values_deserialise import XMLValue
-from dsp_tools.commands.xmlupload.models.xmlresource import BitstreamInfo
+from dsp_tools.commands.xmlupload.models.Values_serialise import UploadedFileValue
 from dsp_tools.commands.xmlupload.models.xmlresource import XMLResource
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import UserError
@@ -37,7 +36,7 @@ class ResourceCreateClient:
     def create_resource(
         self,
         resource: XMLResource,
-        bitstream_information: BitstreamInfo | None,
+        bitstream_information: UploadedFileValue | None,
     ) -> str:
         """Creates a resource on the DSP server, and returns its IRI"""
         logger.info(
@@ -51,7 +50,7 @@ class ResourceCreateClient:
     def _make_resource_with_values(
         self,
         resource: XMLResource,
-        bitstream_information: BitstreamInfo | None,
+        bitstream_information: UploadedFileValue | None,
     ) -> dict[str, Any]:
         res = self._make_resource(
             resource=resource,
@@ -64,7 +63,7 @@ class ResourceCreateClient:
     def _make_resource(
         self,
         resource: XMLResource,
-        bitstream_information: BitstreamInfo | None,
+        bitstream_information: UploadedFileValue | None,
     ) -> dict[str, Any]:
         resource_iri = resource.iri
         if resource.ark:
@@ -90,8 +89,8 @@ class ResourceCreateClient:
                 "@value": str(resource.creation_date),
             }
         match bitstream_information:
-            case BitstreamInfo():
-                res.update(_make_bitstream_file_value(bitstream_information))
+            case UploadedFileValue():
+                res.update(bitstream_information.serialise())
             case _:
                 pass
         return res
@@ -150,40 +149,6 @@ class ResourceCreateClient:
             else:
                 raise BaseError(f"Could not find permissions for value: {value.permissions}")
         return res
-
-
-def _make_bitstream_file_value(bitstream_info: BitstreamInfo) -> dict[str, Any]:
-    local_file = Path(bitstream_info.local_file)
-    file_ending = local_file.suffix[1:]
-    match file_ending.lower():
-        case "zip" | "tar" | "gz" | "z" | "tgz" | "gzip" | "7z":
-            prop = "knora-api:hasArchiveFileValue"
-            value_type = "ArchiveFileValue"
-        case "mp3" | "wav":
-            prop = "knora-api:hasAudioFileValue"
-            value_type = "AudioFileValue"
-        case "pdf" | "doc" | "docx" | "xls" | "xlsx" | "ppt" | "pptx":
-            prop = "knora-api:hasDocumentFileValue"
-            value_type = "DocumentFileValue"
-        case "mp4":
-            prop = "knora-api:hasMovingImageFileValue"
-            value_type = "MovingImageFileValue"
-        # jpx is the extension of the files returned by dsp-ingest
-        case "jpg" | "jpeg" | "jp2" | "png" | "tif" | "tiff" | "jpx":
-            prop = "knora-api:hasStillImageFileValue"
-            value_type = "StillImageFileValue"
-        case "odd" | "rng" | "txt" | "xml" | "xsd" | "xsl" | "xslt" | "csv":
-            prop = "knora-api:hasTextFileValue"
-            value_type = "TextFileValue"
-        case _:
-            raise BaseError(f"Unknown file ending '{file_ending}' for file '{local_file}'")
-    file_value = {
-        "@type": f"knora-api:{value_type}",
-        "knora-api:fileValueHasFilename": bitstream_info.internal_file_name,
-    }
-    if bitstream_info.permissions:
-        file_value["knora-api:hasPermissions"] = str(bitstream_info.permissions)
-    return {prop: file_value}
 
 
 def _make_boolean_value(value: XMLValue) -> dict[str, Any]:

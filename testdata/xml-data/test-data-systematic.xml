@@ -796,56 +796,57 @@
         </color-prop>
     </region>
 
-    <!-- :VideoSequence -->
-    <resource label="Section of a Video" restype=":VideoSequence" id="video_sequence_0" permissions="res-default">
-        <text-prop name=":hasSimpleText">
-            <text encoding="utf8" permissions="prop-default">Sequence of a video</text>
-        </text-prop>
-        <resptr-prop name=":sequenceOfVideo">
+    <!-- video segment -->
+    <video-segment label="Segment of video_thing_1" id="video_segment_0" permissions="res-default">
+        <resptr-prop name="isSegmentOf">
             <resptr permissions="prop-default">video_thing_1</resptr>
         </resptr-prop>
-        <interval-prop name=":hasBounds">
-            <interval permissions="prop-default">+.1:+.9</interval>
+        <interval-prop name="hasSegmentBounds">
+            <interval permissions="prop-default">+.1:0.234</interval>
         </interval-prop>
-    </resource>
-
-    <!-- :AudioSequence -->
-    <resource label="Section of a Video" restype=":AudioSequence" id="audio_sequence_0" permissions="res-default">
-        <text-prop name=":hasSimpleText">
-            <text encoding="utf8" permissions="prop-default">Sequence of an Audio Resource</text>
+        <text-prop name="hasComment">
+            <text encoding="xml" permissions="prop-default">Comment of video segment</text>
         </text-prop>
-        <resptr-prop name=":sequenceOfAudio">
+        <text-prop name="hasTitle">
+            <text encoding="utf8" permissions="prop-default">Title of video segment</text>
+        </text-prop>
+        <text-prop name="hasDescription">
+            <text encoding="xml" permissions="prop-default">Description of video segment</text>
+        </text-prop>
+        <text-prop name="hasKeyword">
+            <text encoding="utf8" permissions="prop-default">keyword1</text>
+            <text encoding="utf8" permissions="prop-default">keyword2</text>
+        </text-prop>
+        <resptr-prop name="relatesTo">
+            <resptr permissions="prop-default">audio_segment_0</resptr>
+        </resptr-prop>
+    </video-segment>
+
+    <!-- audio segment -->
+    <audio-segment label="Segment of audio_thing_1" id="audio_segment_0" permissions="res-default">
+        <resptr-prop name="isSegmentOf">
             <resptr permissions="prop-default">audio_thing_1</resptr>
         </resptr-prop>
-        <interval-prop name=":hasBounds">
-            <interval permissions="prop-default">-.1:5</interval>
+        <interval-prop name="hasSegmentBounds">
+            <interval permissions="prop-default">60:120</interval>
         </interval-prop>
-    </resource>
-
-    <!-- :MinimalisticSequence -->
-    <resource label="Minimalistic section of a Video" restype=":MinimalisticSequence" id="minimalistic_sequence_0" permissions="res-default">
-        <text-prop name=":hasSimpleText">
-            <text encoding="utf8" permissions="prop-default">Sequence of a Video Resource</text>
+        <text-prop name="hasComment">
+            <text encoding="xml" permissions="prop-default">Comment of audio segment</text>
         </text-prop>
-        <resptr-prop name="isSequenceOf">
-            <resptr permissions="prop-default">video_thing_1</resptr>
-        </resptr-prop>
-        <interval-prop name="hasSequenceBounds">
-            <interval permissions="prop-default">-10.0:-5.1</interval>
-        </interval-prop>
-    </resource>
-
-    <resource label="Minimalistic section of an Audio" restype=":MinimalisticSequence" id="minimalistic_sequence_1" permissions="res-default">
-        <text-prop name=":hasSimpleText">
-            <text encoding="utf8" permissions="prop-default">Sequence of an Audio Resource</text>
+        <text-prop name="hasTitle">
+            <text encoding="utf8" permissions="prop-default">Title of audio segment</text>
         </text-prop>
-        <resptr-prop name="isSequenceOf">
-            <resptr permissions="prop-default">audio_thing_1</resptr>
+        <text-prop name="hasDescription">
+            <text encoding="xml" permissions="prop-default">Description of audio segment</text>
+        </text-prop>
+        <text-prop name="hasKeyword">
+            <text encoding="utf8" permissions="prop-default">keyword1</text>
+            <text encoding="utf8" permissions="prop-default">keyword2</text>
+        </text-prop>
+        <resptr-prop name="relatesTo">
+            <resptr permissions="prop-default">video_segment_0</resptr>
         </resptr-prop>
-        <interval-prop name="hasSequenceBounds">
-            <interval permissions="prop-default">8.0:12.0</interval>
-        </interval-prop>
-    </resource>
+    </audio-segment>
 
     <!-- reference a resource class from another ontology defined in the same JSON project file than default-ontology-->
     <resource label="TestThingPermissions 1" restype="testontoPermissions:TestThingPermissions" id="testthingpermissions_1">

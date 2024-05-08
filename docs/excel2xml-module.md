@@ -179,16 +179,18 @@ With the help of Pandas, you can then iterate through the rows of your Excel/CSV
 
 ### 6. Create the `<resource>` Tag
 
-There are four kinds of resources that can be created: 
+There are several kinds of resources that can be created: 
 
-| super        | tag            | method              |
-| ------------ | -------------- | ------------------- |
-| `Resource`   | `<resource>`   | `make_resource()`   |
-| `Annotation` | `<annotation>` | `make_annotation()` |
-| `Region`     | `<region>`     | `make_region()`     |
-| `LinkObj`    | `<link>`       | `make_link()`       |
+| restype        | tag               | method                 |
+| -------------- | ----------------- | ---------------------- |
+| `Resource`     | `<resource>`      | `make_resource()`      |
+| `Annotation`   | `<annotation>`    | `make_annotation()`    |
+| `Region`       | `<region>`        | `make_region()`        |
+| `LinkObj`      | `<link>`          | `make_link()`          |
+| `AudioSegment` | `<audio-segment>` | `make_audio_segment()` |
+| `VideoSegment` | `<video-segment>` | `make_video_segment()` |
 
-`<resource>` is the most frequent of them. The other three are [explained 
+`<resource>` is the most frequent of them. The others are [explained 
 here](./file-formats/xml-data-file.md#dsp-base-resources-and-base-properties-to-be-used-directly-in-the-xml-file). 
 
 #### Resource ID

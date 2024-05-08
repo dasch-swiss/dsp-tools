@@ -1839,17 +1839,17 @@ def create_interval_value(start: str, end: str) -> str:
         >>> excel2xml.create_interval_value("0:01:00.5", "0:01:00.6")
         "60.5:60.6"
     """
-    start_match = regex.search(r"^(\d+):([0-5][0-9]):([0-5][0-9](?:\.[0-9])?)$", start)
-    end_match = regex.match(r"^(\d+):([0-5][0-9]):([0-5][0-9](?:\.[0-9])?)$", end)
+    start_match = regex.search(r"^(\d+):([0-5][0-9]):([0-5][0-9](?:\.[0-9]+)?)$", start)
+    end_match = regex.match(r"^(\d+):([0-5][0-9]):([0-5][0-9](?:\.[0-9]+)?)$", end)
     if not start_match or not end_match:
-        raise ValueError("The start and end values must be in the format 'HH:MM:SS'")
+        raise ValueError("The start and end values must be in the format 'H(H):MM:SS(.s)'")
     start_h, start_m, start_s = start_match.groups()
     end_h, end_m, end_s = end_match.groups()
     start_seconds = int(start_h) * 3600 + int(start_m) * 60 + float(start_s)
     end_seconds = int(end_h) * 3600 + int(end_m) * 60 + float(end_s)
     start_seconds = int(start_seconds) if start_seconds.is_integer() else start_seconds
     end_seconds = int(end_seconds) if end_seconds.is_integer() else end_seconds
-    if start_seconds >= end_seconds:
+    if start_seconds > end_seconds:
         raise ValueError("The start value must be smaller than the end value")
     return f"{start_seconds}:{end_seconds}"
 

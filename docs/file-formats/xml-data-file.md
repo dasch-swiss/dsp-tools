@@ -958,7 +958,8 @@ They can have the following predefined properties:
 - `hasKeyword` (0-n)
 - `relatesTo` (0-n)
 
-The bounds of the segment are defined by two floating point numbers, which represent the seconds.
+The segment bounds must be entered in seconds. 
+Decimal values for fractions of a second are allowed, e.g. `1.4:2`.
 The segment from 0h 10min 00s to 0h 20min 00s would thus be represented by the interval `600:1200`.
 
 Example:
@@ -969,7 +970,7 @@ Example:
         <resptr permissions="prop-default">video_thing_1</resptr>
     </resptr-prop>
     <interval-prop name="hasSegmentBounds">
-        <interval permissions="prop-default">10:20</interval>  # from 0h 00min 10s to 0h 00min 20s
+        <interval permissions="prop-default">10:20</interval>
     </interval-prop>
     <text-prop name="hasComment">
         <text encoding="xml" permissions="prop-default">Optional comment</text>

@@ -106,3 +106,9 @@ class Stash:
         if standoff_stash or link_value_stash:
             return Stash(standoff_stash, link_value_stash)
         return None
+
+    def is_empty(self) -> bool:
+        """Check if there are any stashed items in this stash"""
+        standoff = not self.standoff_stash or not self.standoff_stash.res_2_stash_items
+        link = not self.link_value_stash or not self.link_value_stash.res_2_stash_items
+        return standoff and link

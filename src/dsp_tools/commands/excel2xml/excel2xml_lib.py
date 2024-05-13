@@ -1160,10 +1160,7 @@ def make_interval_prop(name: str, value: Union[PropertyElement, str], calling_re
     value = value if isinstance(value, PropertyElement) else PropertyElement(value)
 
     # check value type
-    if not regex.match(
-        r"(\+?([0-9]+([.][0-9]*)?|[.][0-9]+)):(\+?([0-9]+([.][0-9]*)?|[.][0-9]+))",
-        str(value.value),
-    ):
+    if not regex.match(r"\d+(\.\d+)?:\d+(\.\d+)?", str(value.value)):
         msg = (
             f"Failed validation in resource '{calling_resource}', property '{name}': "
             f"'{value.value}' is not a valid DSP interval."

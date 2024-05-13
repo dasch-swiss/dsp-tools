@@ -5,11 +5,11 @@ from pathlib import Path
 
 from loguru import logger
 
+from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLBitstream
+from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
+from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.sipi import Sipi
-from dsp_tools.commands.xmlupload.models.value_deserialise import XMLBitstream
-from dsp_tools.commands.xmlupload.models.xmlresource import BitstreamInfo
-from dsp_tools.commands.xmlupload.models.xmlresource import XMLResource
 from dsp_tools.models.exceptions import PermanentConnectionError
 
 

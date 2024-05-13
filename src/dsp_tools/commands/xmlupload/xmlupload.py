@@ -35,6 +35,7 @@ from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.write_diagnostic_info import write_id2iri_mapping
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import PermanentConnectionError
 from dsp_tools.models.exceptions import PermanentTimeOutError
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.models.exceptions import XmlUploadInterruptedError
@@ -330,8 +331,15 @@ def _upload_one_resource(
         if not success:
             upload_state.failed_uploads.append(resource.res_id)
             return
+    except PermanentConnectionError as err:
+        msg = (
+            f"Lost connection to DSP server, probably because the server is down. "
+            f"Please continue later with 'resume-xmlupload'. Reason for this failure: {err.message}"
+        )
+        logger.error(msg)
+        raise XmlUploadInterruptedError(msg) from None
     except KeyboardInterrupt:
-        raise XmlUploadInterruptedError("KeyboardInterrupt during media file upload") from None
+        raise XmlUploadInterruptedError("xmlupload interrupted. Please continue later with 'resume-xmlupload'") from None
 
     try:
         iri = _create_resource(resource, media_info, resource_create_client)
@@ -347,6 +355,13 @@ def _upload_one_resource(
         )
         logger.error(msg)
         raise XmlUploadInterruptedError(msg) from None
+    except PermanentConnectionError as err:
+        msg = (
+            f"Lost connection to DSP server, probably because the server is down. "
+            f"Please continue later with 'resume-xmlupload'. Reason for this failure: {err.message}"
+        )        
+        logger.error(msg)
+        raise XmlUploadInterruptedError(msg) from None
 
     try:
         _tidy_up_resource_creation_idempotent(upload_state, iri, resource)
@@ -354,7 +369,7 @@ def _upload_one_resource(
     except KeyboardInterrupt:
         warnings.warn(DspToolsUserWarning("KeyboardInterrupt: Tidying up, then exit..."))
         _tidy_up_resource_creation_idempotent(upload_state, iri, resource)
-        raise XmlUploadInterruptedError("KeyboardInterrupt during tidy up") from None
+        raise XmlUploadInterruptedError("xmlupload interrupted. Please continue later with 'resume-xmlupload'") from None
 
 
 def _interrupt_if_indicated(upload_state: UploadState, creation_attempts_of_this_round: int) -> None:
@@ -401,6 +416,7 @@ def _create_resource(
         # The following block catches all exceptions and handles them in a generic way.
         # Because the calling function needs to know that this was a PermanentTimeOutError, we need to catch and
         # raise it here.
+        # TODO: That's bad architecture. Instead, catch only specific errors
         raise err
     except Exception as err:  # noqa: BLE001 (blind-except)
         msg = f"{datetime.now()}: WARNING: Unable to create resource '{resource.label}' (ID: '{resource.res_id}')"

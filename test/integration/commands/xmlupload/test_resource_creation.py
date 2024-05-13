@@ -411,3 +411,7 @@ def test_post_requests() -> None:
     xmlupload.upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
     xmlupload.upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
     assert len(con.post.call_args_list) == len(post_responses)
+
+
+def test_interruption_if_resource_cannot_be_created() -> None:
+    pass

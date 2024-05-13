@@ -279,8 +279,9 @@ class ConnectionLive:
 
             self._handle_non_ok_responses(response, params.url, i)
 
-        # after 7 vain attempts to create a response, try it a last time and let it escalate
-        return action()
+        # if all attempts have failed, raise error
+        msg = f"Permanently unable to execute the network action. See logs for more details: {logger_savepath}"
+        raise PermanentConnectionError(msg)
 
     def _handle_non_ok_responses(self, response: Response, request_url: str, retry_counter: int) -> None:
         if "v2/authentication" in request_url and response.status_code == HTTP_UNAUTHORIZED:

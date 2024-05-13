@@ -6,6 +6,7 @@ from typing import assert_never
 from typing import cast
 
 from loguru import logger
+from rdflib import BNode
 
 from dsp_tools.commands.xmlupload.ark2iri import convert_ark_v0_to_resource_iri
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
@@ -14,7 +15,9 @@ from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XM
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
+from dsp_tools.commands.xmlupload.models.namespace_context import NamespaceContext
 from dsp_tools.commands.xmlupload.models.namespace_context import get_json_ld_context_for_project
+from dsp_tools.commands.xmlupload.models.namespace_context import make_namespace_dict_from_onto_names
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import UserError
@@ -54,6 +57,8 @@ class ResourceCreateClient:
         resource: XMLResource,
         bitstream_information: BitstreamInfo | None,
     ) -> dict[str, Any]:
+        res_bnode = BNode()
+        namespaces = NamespaceContext(make_namespace_dict_from_onto_names(self.project_onto_dict))
         res = self._make_resource(
             resource=resource,
             bitstream_information=bitstream_information,

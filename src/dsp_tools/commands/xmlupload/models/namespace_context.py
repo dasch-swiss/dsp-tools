@@ -28,6 +28,12 @@ def get_default_json_ld_context() -> dict[str, str]:
     }
 
 
+def make_namespace_dict_from_onto_names(ontos: dict[str, str]) -> dict[str, Namespace]:
+    """Provided a dictionary of ontology names and IRIs, returns a dictionary of Namespace objects."""
+    ontos = correct_project_context_namespaces(ontos)
+    return {k: Namespace(v) for k, v in ontos.items()}
+
+
 def correct_project_context_namespaces(ontos: dict[str, str]) -> dict[str, str]:
     """Add the hashtag to make it a valid namespace."""
     return {k: f"{v}#" for k, v in ontos.items()}

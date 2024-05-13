@@ -5,7 +5,7 @@
        xsi:schemaLocation="https://dasch.swiss/schema ../../src/dsp_tools/resources/schema/data.xsd"
        shortcode="4123"
        default-ontology="testonto">
-    <resource label="Documentthing-xls"
+    <resource label="from dsp-ingest"
               restype=":DocumentThing"
               id="document_thing_2" >
         <bitstream>testdata/bitstreams/test.xls</bitstream>

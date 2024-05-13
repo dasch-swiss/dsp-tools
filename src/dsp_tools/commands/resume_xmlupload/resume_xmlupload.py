@@ -40,7 +40,7 @@ def resume_xmlupload(server: str, user: str, password: str, sipi: str, skip_firs
     con = ConnectionLive(server)
     con.login(user, password)
     sipi_con = ConnectionLive(sipi, token=con.get_token())
-    sipi_server = Sipi(sipi_con)
+    ingest_client = Sipi(sipi_con)
 
     project_client: ProjectClient = ProjectClientLive(con, upload_state.config.shortcode)
     list_client: ListClient = ListClientLive(con, project_client.get_project_iri())
@@ -48,7 +48,7 @@ def resume_xmlupload(server: str, user: str, password: str, sipi: str, skip_firs
     upload_resources(
         upload_state=upload_state,
         imgdir=".",
-        sipi_server=sipi_server,
+        ingest_client=ingest_client,
         project_client=project_client,
         list_client=list_client,
     )

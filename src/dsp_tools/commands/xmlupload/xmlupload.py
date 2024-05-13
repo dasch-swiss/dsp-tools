@@ -14,12 +14,12 @@ from dsp_tools.commands.xmlupload.check_consistency_with_ontology import do_xml_
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.list_client import ListClient
 from dsp_tools.commands.xmlupload.list_client import ListClientLive
+from dsp_tools.commands.xmlupload.models.deserialise.xmlpermission import XmlPermission
+from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
+from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.sipi import Sipi
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
-from dsp_tools.commands.xmlupload.models.xmlpermission import XmlPermission
-from dsp_tools.commands.xmlupload.models.xmlresource import BitstreamInfo
-from dsp_tools.commands.xmlupload.models.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.ontology_client import OntologyClientLive
 from dsp_tools.commands.xmlupload.project_client import ProjectClient
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive

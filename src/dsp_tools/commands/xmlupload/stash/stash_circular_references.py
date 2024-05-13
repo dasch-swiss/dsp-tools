@@ -5,10 +5,10 @@ from uuid import uuid4
 
 from lxml import etree
 
+from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
+from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.permission import Permissions
-from dsp_tools.commands.xmlupload.models.xmlproperty import XMLProperty
-from dsp_tools.commands.xmlupload.models.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.stash.construct_and_analyze_graph import create_info_from_xml_for_graph
 from dsp_tools.commands.xmlupload.stash.construct_and_analyze_graph import generate_upload_order
 from dsp_tools.commands.xmlupload.stash.construct_and_analyze_graph import make_graph

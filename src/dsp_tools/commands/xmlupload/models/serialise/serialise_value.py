@@ -2,11 +2,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Any
-from typing import Optional
 from typing import Protocol
 
 
-@dataclass
+@dataclass(frozen=True)
 class SerialiseProperty:
     property_name: str
     values: list[SerialiseValue]
@@ -16,25 +15,25 @@ class SerialiseProperty:
         return {self.property_name: [value.serialise() for value in self.values]}
 
 
-@dataclass
+@dataclass(frozen=True)
 class SerialiseValue(Protocol):
     """A value to be serialised."""
 
     value: str
     permissions: str
-    comment: Optional[str]
+    comment: str | None
 
     def serialise(self) -> dict[str, Any]:
         """Serialise the value."""
 
 
-@dataclass
+@dataclass(frozen=True)
 class SerialiseURI:
     """A URI to be serialised."""
 
     value: str
     permissions: str
-    comment: Optional[str]
+    comment: str | None
 
     def serialise(self) -> dict[str, Any]:
         """Serialise the URI value."""

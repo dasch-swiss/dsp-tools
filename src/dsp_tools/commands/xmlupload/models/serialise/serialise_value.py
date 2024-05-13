@@ -7,7 +7,7 @@ from typing import Protocol
 
 
 @dataclass
-class PropertySerialise:
+class SerialiseProperty:
     property_name: str
     values: list[SerialiseValue]
 

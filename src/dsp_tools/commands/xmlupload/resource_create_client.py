@@ -16,7 +16,7 @@ from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResou
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.namespace_context import get_json_ld_context_for_project
 from dsp_tools.commands.xmlupload.models.permission import Permissions
-from dsp_tools.commands.xmlupload.models.serialise.serialise_value import PropertySerialise
+from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseProperty
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseURI
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseValue
 from dsp_tools.models.exceptions import BaseError
@@ -377,7 +377,7 @@ def _serialise_uri_prop(prop: XMLProperty, permissions_lookup: dict[str, Permiss
                 comment=v.comment,
             )
         )
-    prop_serialise = PropertySerialise(
+    prop_serialise = SerialiseProperty(
         property_name=prop.name,
         values=uri_values,
     )

@@ -209,7 +209,7 @@ def _append_bitstream_to_resource(
     return resource
 
 
-def _convert_resource_row_to_xml(
+def _convert_resource_row_to_xml(  # noqa: PLR0912
     row_number: int,
     row: pd.Series[Any],
 ) -> etree._Element:

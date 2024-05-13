@@ -220,6 +220,3 @@ convention = "google"
 [tool.ruff.lint.isort]
 force-single-line = true
 known-first-party = ["dsp_tools"]
-
-[tool.ruff.lint.pylint]
-max-branches = 13

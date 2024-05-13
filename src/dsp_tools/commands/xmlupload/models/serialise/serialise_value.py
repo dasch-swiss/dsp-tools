@@ -9,7 +9,7 @@ from typing import Protocol
 @dataclass
 class PropertySerialise:
     property_name: str
-    values: list[Value]
+    values: list[SerialiseValue]
 
     def serialise(self) -> dict[str, Any]:
         """Serialise the property and all its values."""
@@ -17,18 +17,22 @@ class PropertySerialise:
 
 
 @dataclass
-class Value(Protocol):
+class SerialiseValue(Protocol):
     """A value to be serialised."""
+
+    value: str
+    permissions: str
+    comment: Optional[str]
 
     def serialise(self) -> dict[str, Any]:
         """Serialise the value."""
 
 
 @dataclass
-class URIValue:
+class SerialiseURI:
     """A URI to be serialised."""
 
-    value: list[str]
+    value: str
     permissions: str
     comment: Optional[str]
 

@@ -14,6 +14,7 @@ class NamespaceContext:
 def get_default_json_ld_context() -> dict[str, str]:
     """
     Returns the JSON-LD context as a dictionary.
+
     Returns:
         JSON-LD context as a dictionary.
     """

@@ -15,7 +15,6 @@ class SerialiseProperty:
         return {self.property_name: [value.serialise() for value in self.values]}
 
 
-@dataclass(frozen=True)
 class SerialiseValue(Protocol):
     """A value to be serialised."""
 
@@ -28,7 +27,7 @@ class SerialiseValue(Protocol):
 
 
 @dataclass(frozen=True)
-class SerialiseURI:
+class SerialiseURI(SerialiseValue):
     """A URI to be serialised."""
 
     value: str

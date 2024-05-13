@@ -30,7 +30,7 @@ class ResourceCreateClient:
     con: Connection
     project_iri: str
     iri_resolver: IriResolver
-    project_onto_context: dict[str, str]
+    project_onto_dict: dict[str, str]
     permissions_lookup: dict[str, Permissions]
     listnode_lookup: dict[str, str]
     media_previously_ingested: bool = False
@@ -70,7 +70,7 @@ class ResourceCreateClient:
         resource_iri = resource.iri
         if resource.ark:
             resource_iri = convert_ark_v0_to_resource_iri(resource.ark)
-        context = get_json_ld_context_for_project(self.project_onto_context)
+        context = get_json_ld_context_for_project(self.project_onto_dict)
         res = {
             "@type": resource.restype,
             "rdfs:label": resource.label,

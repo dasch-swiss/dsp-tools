@@ -287,14 +287,14 @@ def _upload_resources(
         XmlUploadInterruptedError: if the number of resources created is equal to the interrupt_after value
     """
     project_iri = project_client.get_project_iri()
-    project_json_ld_context = project_client.get_ontology_name_dict()
+    project_onto_dict = project_client.get_ontology_name_dict()
     listnode_lookup = list_client.get_list_node_id_to_iri_lookup()
 
     resource_create_client = ResourceCreateClient(
         con=project_client.con,
         project_iri=project_iri,
         iri_resolver=upload_state.iri_resolver,
-        project_onto_context=project_json_ld_context,
+        project_onto_dict=project_onto_dict,
         permissions_lookup=upload_state.permissions_lookup,
         listnode_lookup=listnode_lookup,
         media_previously_ingested=upload_state.config.media_previously_uploaded,

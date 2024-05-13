@@ -31,6 +31,5 @@ def get_default_json_ld_context() -> dict[str, str]:
 def get_json_ld_context_for_project(ontos: dict[str, str]) -> dict[str, str]:
     """Provided a dictionary of ontology names and IRIs, returns a JSON-LD context for the project."""
     context = get_default_json_ld_context()
-    project_context = {k: f"{v}#" for k, v in ontos.items()}
-    context.update(project_context)
+    context.update(ontos)
     return context

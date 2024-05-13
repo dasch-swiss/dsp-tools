@@ -18,7 +18,7 @@ def test_get_default_context() -> None:
 
 
 def test_get_json_ld_context_for_project() -> None:
-    context = get_json_ld_context_for_project({"testonto": "http://www.knora.org/ontology/testonto"})
+    context = get_json_ld_context_for_project({"testonto": "http://www.knora.org/ontology/testonto#"})
     expected = {
         "knora-api": "http://api.knora.org/ontology/knora-api/v2#",
         "salsah-gui": "http://api.knora.org/ontology/salsah-gui/v2#",
@@ -34,8 +34,8 @@ def test_get_json_ld_context_for_project() -> None:
 def test_get_json_ld_context_for_project_with_multiple_ontologies() -> None:
     context = get_json_ld_context_for_project(
         {
-            "testonto": "http://www.knora.org/ontology/testonto",
-            "testonto2": "http://www.knora.org/ontology/testonto2",
+            "testonto": "http://www.knora.org/ontology/testonto#",
+            "testonto2": "http://www.knora.org/ontology/testonto2#",
         }
     )
     expected = {

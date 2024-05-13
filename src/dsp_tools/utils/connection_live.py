@@ -23,6 +23,7 @@ from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import PermanentConnectionError
 from dsp_tools.models.exceptions import PermanentTimeOutError
 from dsp_tools.models.exceptions import UserError
+from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.logger_config import logger_savepath
 from dsp_tools.utils.set_encoder import SetEncoder
 
@@ -60,7 +61,7 @@ class RequestParameters:
 
 
 @dataclass
-class ConnectionLive:
+class ConnectionLive(Connection):
     """
     A Connection instance represents a connection to a DSP server.
 

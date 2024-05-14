@@ -309,10 +309,10 @@ def _make_integer_prop(
     prop: XMLProperty, res_bn: BNode, prop_name: URIRef, permissions_lookup: dict[str, Permissions]
 ) -> Graph:
     g = Graph()
-    prop_bn = BNode()
-    g.add((res_bn, prop_name, prop_bn))
     for value in prop.values:
-        g += _make_integer_value(value, prop_bn, permissions_lookup)
+        single_val_bn = BNode()
+        g.add((res_bn, prop_name, single_val_bn))
+        g += _make_integer_value(value, single_val_bn, permissions_lookup)
     return g
 
 
@@ -322,9 +322,10 @@ def _make_integer_value(value: XMLValue, val_bn: BNode, permissions_lookup: dict
     g.add((val_bn, RDF.type, KNORA_API.IntValue))
     g.add((val_bn, KNORA_API.intValueAsInt, Literal(int(s))))
     value_permission = cast(str, value.permissions)
-    if not (per := permissions_lookup.get(value_permission)):
-        raise PermissionNotExistsError(f"Could not find permissions for value: {value.permissions}")
-    g.add((val_bn, KNORA_API.hasPermissions, Literal(str(per))))
+    if value.permissions:
+        if not (per := permissions_lookup.get(value_permission)):
+            raise PermissionNotExistsError(f"Could not find permissions for value: {value.permissions}")
+        g.add((val_bn, KNORA_API.hasPermissions, Literal(str(per))))
     if value.comment:
         g.add((val_bn, KNORA_API.valueHasComment, Literal(value.comment)))
     return g

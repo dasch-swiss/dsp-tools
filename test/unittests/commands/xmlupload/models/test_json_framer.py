@@ -23,7 +23,7 @@ def int_value() -> Graph:
     return g
 
 
-def test_frame_json_value_only(int_value: Graph) -> None:
+def test_frame_one_json_value(int_value: Graph) -> None:
     expected = {
         "http://0.0.0.0:3333/ontology/0009/myonto/v2#hasInteger": {
             "@type": "http://api.knora.org/ontology/knora-api/v2#IntValue",
@@ -32,6 +32,23 @@ def test_frame_json_value_only(int_value: Graph) -> None:
     }
     result = frame_value(int_value, MY_ONTO.Thing)
     assert result == expected
+
+
+def test_frame_several_values() -> None:
+    expected = {
+        "http://0.0.0.0:3333/ontology/0009/myonto/v2#hasInteger": [
+            {
+                "@type": "http://api.knora.org/ontology/knora-api/v2#IntValuee",
+                "http://api.knora.org/ontology/knora-api/v2#hasPermissions": "CR knora-admin:Creator|V http://rdfh.ch/groups/0001/thing-searcher",
+                "http://api.knora.org/ontology/knora-api/v2#intValueAsInt": 5,
+                "http://api.knora.org/ontology/knora-api/v2#valueHasComment": "this is the number five",
+            },
+            {
+                "@type": "http://api.knora.org/ontology/knora-api/v2#IntValue",
+                "http://api.knora.org/ontology/knora-api/v2#intValueAsInt": 6,
+            },
+        ],
+    }
 
 
 if __name__ == "__main__":

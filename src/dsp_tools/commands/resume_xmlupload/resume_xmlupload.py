@@ -6,7 +6,7 @@ from termcolor import colored
 
 from dsp_tools.commands.xmlupload.list_client import ListClient
 from dsp_tools.commands.xmlupload.list_client import ListClientLive
-from dsp_tools.commands.xmlupload.models.sipi import DspIngestClient
+from dsp_tools.commands.xmlupload.models.ingest import DspIngestClient
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.project_client import ProjectClient
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive

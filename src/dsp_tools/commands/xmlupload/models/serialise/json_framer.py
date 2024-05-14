@@ -20,11 +20,9 @@ def frame_value(rdf_graph: Graph, type_: URIRef) -> dict[str, Any]:
     """
     json_graph = _make_json(rdf_graph)
     json_frame = {
-        "@type": str(type_),
-        "contains": {"@type": ""},
+        str(type_): {},
     }
     framed: dict[str, Any] = jsonld.frame(json_graph, json_frame)
-    framed.pop("@type")
     return framed
 
 

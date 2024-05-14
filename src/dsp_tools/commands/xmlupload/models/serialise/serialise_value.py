@@ -19,7 +19,7 @@ class SerialiseValue(Protocol):
     """A value to be serialised."""
 
     value: str
-    permissions: str
+    permissions: str | None
     comment: str | None
 
     def serialise(self) -> dict[str, Any]:

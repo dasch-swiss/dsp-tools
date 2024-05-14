@@ -49,6 +49,10 @@ class InternalError(BaseError):
                 super().__init__(default_msg)
 
 
+class PermissionNotExistsError(BaseError):
+    """Class for errors that are raised when a permission does not exist."""
+
+
 class InputError(BaseError):
     """Class for errors that is called when the user input is invalid."""
 

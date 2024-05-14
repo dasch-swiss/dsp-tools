@@ -14,15 +14,14 @@ class IngestResponse:
 
 class IngestClient(Protocol):
     def ingest(self, shortcode: str, filepath: Path) -> IngestResponse:
-        """
-        Ingests a file to the asset repository
+        """Ingests a file to the asset repository
 
         Args:
-          shortcode: the shortcode of the project
-          filepath: path to the file, could be either absolute or relative
+          shortcode: The shortcode of the project to ingest to.
+          filepath: Path to the file to ingest, could be either absolute or relative.
 
         Returns:
-          API response
+          IngestResponse: The API response with the internal filename.
         """
         ...
 

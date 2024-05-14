@@ -1,9 +1,14 @@
 import pytest
+from lxml import etree
+from rdflib import BNode
+from rdflib import URIRef
 
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
+from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
 from dsp_tools.commands.xmlupload.resource_create_client import _make_bitstream_file_value
+from dsp_tools.commands.xmlupload.resource_create_client import _serialise_integer_prop
 from dsp_tools.commands.xmlupload.resource_create_client import _to_boolean
 from dsp_tools.models.exceptions import BaseError
 
@@ -392,6 +397,35 @@ def test_to_boolean() -> None:
         _to_boolean("foo")
     with pytest.raises(BaseError):
         _to_boolean(2)
+
+
+def test_serialise_integer_prop() -> None:
+    xml_str = etree.fromstring("""
+    <resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id">
+        <integer-prop name=":hasInteger">
+            <integer>4711</integer>
+            <integer permissions="prop-default">1</integer>
+        </integer-prop>
+    </resource>
+    """)
+    prop_name = URIRef("http://0.0.0.0:3333/ontology/0001/test#hasInteger")
+    permission = {"prop-default": Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]})}
+    res = XMLResource(xml_str, "test")
+    result = _serialise_integer_prop(res.properties[0], BNode(), prop_name, permission)
+    expected = {
+        "http://0.0.0.0:3333/ontology/0001/test#hasInteger": [
+            {
+                "@type": "http://api.knora.org/ontology/knora-api/v2#IntValue",
+                "http://api.knora.org/ontology/knora-api/v2#intValueAsInt": 4711,
+            },
+            {
+                "@type": "http://api.knora.org/ontology/knora-api/v2#IntValue",
+                "http://api.knora.org/ontology/knora-api/v2#hasPermissions": "CR knora-admin:ProjectAdmin",
+                "http://api.knora.org/ontology/knora-api/v2#intValueAsInt": 1,
+            },
+        ]
+    }
+    assert result == expected
 
 
 if __name__ == "__main__":

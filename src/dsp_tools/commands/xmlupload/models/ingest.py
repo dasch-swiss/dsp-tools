@@ -14,7 +14,8 @@ class IngestResponse:
 
 class IngestClient(Protocol):
     def ingest(self, shortcode: str, filepath: Path) -> IngestResponse:
-        """Ingests a file to the asset repository
+        """
+        Uploads a file to the ingest server.
 
         Args:
           shortcode: The shortcode of the project to ingest to.

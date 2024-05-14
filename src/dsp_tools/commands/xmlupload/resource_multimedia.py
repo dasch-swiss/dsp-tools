@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Tuple
+from typing import Optional
 
 from loguru import logger
 
@@ -13,31 +12,6 @@ from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResou
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.sipi import IngestClient
 from dsp_tools.models.exceptions import PermanentConnectionError
-
-
-@dataclass
-class IngestContext:
-    ingest_client: IngestClient
-    resource: XMLResource
-    imgdir: str
-    shortcode: str
-    permissions_lookup: dict[str, Permissions]
-
-    def stream_permissions(self) -> Permissions | None:
-        if self.resource.bitstream is None:
-            return None
-        if self.resource.bitstream.permissions is None:
-            return None
-        else:
-            return self.permissions_lookup.get(self.resource.bitstream.permissions)
-
-    def bitstream_and_path(self) -> Tuple[XMLBitstream, Path] | None:
-        if self.resource.bitstream is None:
-            return None
-        else:
-            bitstream = self.resource.bitstream
-            path = Path(self.imgdir) / Path(bitstream.value)
-            return bitstream, path
 
 
 def handle_media_info(
@@ -68,43 +42,33 @@ def handle_media_info(
         If there was no bitstream, it returns True and None.
         If the upload was not successful, it returns False and None.
     """
-    ctx = IngestContext(ingest_client, resource, imgdir, shortcode, permissions_lookup)
-    bitstream = ctx.resource.bitstream
+    bitstream = resource.bitstream
     if bitstream is None:
         return True, None
-    if not media_previously_uploaded:
-        info = _do_ingest(ctx)
-        return info is not None, info
-    else:
-        return True, BitstreamInfo(bitstream.value, bitstream.value, ctx.stream_permissions())
-
-
-def _do_ingest(ctx: IngestContext) -> BitstreamInfo | None:
-    """
-    This function ingests the specified bitstream file and then returns the BitstreamInfo.
-
-    Args:
-        ctx: The context object which contains all necessary information for the upload
-
-    Returns:
-        The BitstreamInfo which is needed to establish a link from the resource
-    """
-    stream_and_path = ctx.bitstream_and_path()
-    if stream_and_path is None:
-        return None
-    else:
+    elif not media_previously_uploaded:
         try:
-            stream, path = stream_and_path
-            res = ctx.ingest_client.ingest(ctx.shortcode, path)
-            msg = f"Uploaded file '{ctx.bitstream_and_path()}'"
+            res = ingest_client.ingest(shortcode, Path(imgdir) / Path(bitstream.value))
+            msg = f"Uploaded file '{bitstream.value}'"
             print(f"{datetime.now()}: {msg}")
             logger.info(msg)
-            return BitstreamInfo(stream.value, res.internal_filename, ctx.stream_permissions())
-        except PermanentConnectionError as err:
-            msg = (
-                f"Unable to upload file '{ctx.bitstream_and_path()}' "
-                f"of resource '{ctx.resource.label}' ({ctx.resource.res_id})"
+            return True, BitstreamInfo(
+                bitstream.value, res.internal_filename, _permissions(bitstream, permissions_lookup)
             )
+        except PermanentConnectionError as err:
+            msg = f"Unable to upload file '{bitstream.value}' " f"of resource '{resource.label}' ({resource.res_id})"
             print(f"{datetime.now()}: WARNING: {msg}: {err.message}")
             logger.opt(exception=True).warning(msg)
-            return None
+            return False, None
+    else:
+        return True, BitstreamInfo(bitstream.value, bitstream.value, _permissions(bitstream, permissions_lookup))
+
+
+def _permissions(
+    bitstream: Optional[XMLBitstream], permissions_lookup: dict[str, Permissions]
+) -> Optional[Permissions]:
+    if bitstream is None:
+        return None
+    if bitstream.permissions is None:
+        return None
+    else:
+        return permissions_lookup.get(bitstream.permissions)

@@ -18,11 +18,11 @@ class IngestClient(Protocol):
         Uploads a file to the ingest server.
 
         Args:
-          shortcode: The shortcode of the project to ingest to.
-          filepath: Path to the file to ingest, could be either absolute or relative.
+            shortcode: The shortcode of the project to ingest to.
+            filepath: Path to the file to ingest, could be either absolute or relative.
 
         Returns:
-          The API response with the internal filename.
+            The API response with the internal filename.
         """
         ...
 

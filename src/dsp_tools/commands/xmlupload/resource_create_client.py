@@ -141,7 +141,9 @@ class ResourceCreateClient:
                     properties_serialised.update(_serialise_uri_prop(prop, self.permissions_lookup))
                 case "integer":
                     properties_serialised.update(
-                        _serialise_integer_prop(prop, res_bnode, get_absolute_prop_iri(prop_name(prop)))
+                        _serialise_integer_prop(
+                            prop, res_bnode, get_absolute_prop_iri(prop_name(prop)), self.permissions_lookup
+                        )
                     )
                 case _:
                     properties_serialised.update({prop_name(prop): make_values(prop)})
@@ -298,26 +300,35 @@ def _make_geoname_value(value: XMLValue) -> dict[str, Any]:
     }
 
 
-def _serialise_integer_prop(prop: XMLProperty, res_bn: BNode, prop_name: URIRef) -> dict[str, Any]:
-    g = _make_integer_prop(prop, res_bn, prop_name)
+def _serialise_integer_prop(
+    prop: XMLProperty, res_bn: BNode, prop_name: URIRef, permissions_lookup: dict[str, Permissions]
+) -> dict[str, Any]:
+    g = _make_integer_prop(prop, res_bn, prop_name, permissions_lookup)
     return frame_json(g, KNORA_API.IntegerValue)
 
 
-def _make_integer_prop(prop: XMLProperty, res_bn: BNode, prop_name: URIRef) -> Graph:
+def _make_integer_prop(
+    prop: XMLProperty, res_bn: BNode, prop_name: URIRef, permissions_lookup: dict[str, Permissions]
+) -> Graph:
     g = Graph()
     prop_bn = BNode()
     g.add((res_bn, prop_name, prop_bn))
     for value in prop.values:
-        g += _make_integer_value(value, prop_bn)
+        g += _make_integer_value(value, prop_bn, permissions_lookup)
     return g
 
 
-def _make_integer_value(value: XMLValue, val_bn: BNode) -> Graph:
+def _make_integer_value(value: XMLValue, val_bn: BNode, permissions_lookup: dict[str, Permissions]) -> Graph:
     s = _assert_is_string(value.value)
     g = Graph()
     g.add((val_bn, RDF.type, KNORA_API.IntValue))
     g.add((val_bn, KNORA_API.intValueAsInt, Literal(int(s))))
-    # TODO: add comments and permissions
+    value_permission = cast(str, value.permissions)
+    if not (per := permissions_lookup.get(value_permission)):
+        raise PermissionNotExistsError(f"Could not find permissions for value: {value.permissions}")
+    g.add((val_bn, KNORA_API.hasPermissions, Literal(str(per))))
+    if value.comment:
+        g.add((val_bn, KNORA_API.valueHasComment, Literal(value.comment)))
     return g
 
 

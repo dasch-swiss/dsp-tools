@@ -5,7 +5,7 @@ from rdflib import Graph
 from rdflib import Literal
 from rdflib import Namespace
 
-from dsp_tools.commands.xmlupload.models.serialise.json_framer import frame_value
+from dsp_tools.commands.xmlupload.models.serialise.json_framer import frame_property
 
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
 MY_ONTO = Namespace("http://0.0.0.0:3333/ontology/0009/myonto/v2#")
@@ -57,7 +57,7 @@ def test_frame_one_json_value(int_value: Graph) -> None:
             "http://api.knora.org/ontology/knora-api/v2#intValueAsInt": 1,
         }
     }
-    result = frame_value(int_value, MY_ONTO.hasInteger)
+    result = frame_property(int_value, MY_ONTO.hasInteger)
     assert result == expected
 
 
@@ -70,7 +70,7 @@ def test_frame_one_json_value_with_comments(int_value_with_comment: Graph) -> No
             "http://api.knora.org/ontology/knora-api/v2#intValueAsInt": 2,
         }
     }
-    result = frame_value(int_value_with_comment, MY_ONTO.hasInteger)
+    result = frame_property(int_value_with_comment, MY_ONTO.hasInteger)
     assert result == expected
 
 
@@ -88,7 +88,7 @@ def test_frame_several_values(two_int_values: Graph) -> None:
         ],
     }
 
-    result = frame_value(two_int_values, MY_ONTO.hasInteger)
+    result = frame_property(two_int_values, MY_ONTO.hasInteger)
     assert result == expected
 
 

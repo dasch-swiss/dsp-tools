@@ -6,7 +6,7 @@ from rdflib import Graph
 from rdflib import URIRef
 
 
-def frame_value(rdf_graph: Graph, prop_name: URIRef) -> dict[str, Any]:
+def frame_property(rdf_graph: Graph, prop_name: URIRef) -> dict[str, Any]:
     """
     This function makes the serialised json-ld conform to the format expected by the DSP-API.
     It returns the information about the property and its value(s).

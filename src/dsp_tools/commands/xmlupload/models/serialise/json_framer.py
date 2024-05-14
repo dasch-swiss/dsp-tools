@@ -12,8 +12,8 @@ def frame_value(rdf_graph: Graph, prop_name: URIRef) -> dict[str, Any]:
     It returns the information about the property and its value(s).
 
     Args:
-        rdf_graph: rdf graph, the resource type must be part of the graph
-        prop_name: property name from the project ontology
+        rdf_graph: rdf graph
+        prop_name: property name
 
     Returns:
         A json-ld

@@ -18,11 +18,11 @@ class IngestClient(Protocol):
         Ingests a file to the asset repository
 
         Args:
-            shortcode: the shortcode of the project
-            filepath: path to the file, could be either absolute or relative
+          shortcode: the shortcode of the project
+          filepath: path to the file, could be either absolute or relative
 
         Returns:
-            API response
+          API response
         """
         ...
 

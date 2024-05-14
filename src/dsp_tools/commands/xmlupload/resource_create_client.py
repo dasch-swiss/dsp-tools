@@ -302,8 +302,7 @@ def _serialise_integer_prop(
     prop: XMLProperty, res_bn: BNode, prop_name: URIRef, permissions_lookup: dict[str, Permissions]
 ) -> dict[str, Any]:
     g = _make_integer_prop(prop, res_bn, prop_name, permissions_lookup)
-    int_val: URIRef = KNORA_API.IntegerValue
-    return frame_value(g, int_val)
+    return frame_value(g, prop_name)
 
 
 def _make_integer_prop(

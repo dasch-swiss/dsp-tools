@@ -6,21 +6,21 @@ from rdflib import Graph
 from rdflib import URIRef
 
 
-def frame_value(rdf_graph: Graph, type_: URIRef) -> dict[str, Any]:
+def frame_value(rdf_graph: Graph, prop_name: URIRef) -> dict[str, Any]:
     """
     This function makes the serialised json-ld conform to the format expected by the DSP-API.
     It returns the information about the property and its value(s).
 
     Args:
         rdf_graph: rdf graph, the resource type must be part of the graph
-        type_: type of the resource
+        prop_name: property name from the project ontology
 
     Returns:
         A json-ld
     """
     json_graph = _make_json(rdf_graph)
     json_frame = {
-        str(type_): {},
+        str(prop_name): {},
     }
     framed: dict[str, Any] = jsonld.frame(json_graph, json_frame)
     return framed

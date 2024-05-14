@@ -1,7 +1,7 @@
 import pytest
 
-from dsp_tools.utils.json_ld_util import get_default_json_ld_context
-from dsp_tools.utils.json_ld_util import get_json_ld_context_for_project
+from dsp_tools.commands.xmlupload.models.namespace_context import get_default_json_ld_context
+from dsp_tools.commands.xmlupload.models.namespace_context import get_json_ld_context_for_project
 
 
 def test_get_default_context() -> None:

@@ -399,7 +399,7 @@ def test_to_boolean() -> None:
         _to_boolean(2)
 
 
-def test_serialise_integer_prop() -> None:
+def test_serialise_integer_prop_normal() -> None:
     xml_str = etree.fromstring("""
     <resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id">
         <integer-prop name=":hasInteger">
@@ -424,6 +424,28 @@ def test_serialise_integer_prop() -> None:
                 "http://api.knora.org/ontology/knora-api/v2#intValueAsInt": 1,
             },
         ]
+    }
+    assert result == expected
+
+
+def test_serialise_integer_prop_seqnum() -> None:
+    xml_str = etree.fromstring("""
+    <resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id">
+        <integer-prop name="knora-api:seqnum">
+            <integer permissions="prop-default">1</integer>
+        </integer-prop>
+    </resource>
+    """)
+    prop_name = URIRef("http://api.knora.org/ontology/knora-api/v2#seqnum")
+    permission = {"prop-default": Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]})}
+    res = XMLResource(xml_str, "test")
+    result = _serialise_integer_prop(res.properties[0], BNode(), prop_name, permission)
+    expected = {
+        "http://api.knora.org/ontology/knora-api/v2#seqnum": {
+            "@type": "http://api.knora.org/ontology/knora-api/v2#IntValue",
+            "http://api.knora.org/ontology/knora-api/v2#hasPermissions": "CR knora-admin:ProjectAdmin",
+            "http://api.knora.org/ontology/knora-api/v2#intValueAsInt": 1,
+        }
     }
     assert result == expected
 

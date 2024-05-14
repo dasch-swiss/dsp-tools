@@ -16,7 +16,11 @@ from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResou
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.namespace_context import get_json_ld_context_for_project
 from dsp_tools.commands.xmlupload.models.permission import Permissions
+from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseProperty
+from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseURI
+from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseValue
 from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import PermissionNotExistsError
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.date_util import parse_date_string
@@ -82,7 +86,7 @@ class ResourceCreateClient:
             if perm := self.permissions_lookup.get(resource.permissions):
                 res["knora-api:hasPermissions"] = str(perm)
             else:
-                raise BaseError(
+                raise PermissionNotExistsError(
                     f"Could not find permissions for resource {resource.res_id} with permissions {resource.permissions}"
                 )
         if resource.creation_date:
@@ -108,7 +112,16 @@ class ResourceCreateClient:
         def make_values(p: XMLProperty) -> list[dict[str, Any]]:
             return [self._make_value(v, p.valtype) for v in p.values]
 
-        return {prop_name(prop): make_values(prop) for prop in resource.properties}
+        properties_serialised = {}
+
+        for prop in resource.properties:
+            match prop.valtype:
+                case "uri":
+                    properties_serialised.update(_serialise_uri_prop(prop, self.permissions_lookup))
+                case _:
+                    properties_serialised.update({prop_name(prop): make_values(prop)})
+
+        return properties_serialised
 
     def _make_value(self, value: XMLValue, value_type: str) -> dict[str, Any]:
         match value_type:
@@ -136,8 +149,6 @@ class ResourceCreateClient:
                 res = _make_text_value(value, self.iri_resolver)
             case "time":
                 res = _make_time_value(value)
-            case "uri":
-                res = _make_uri_value(value)
             case _:
                 raise UserError(f"Unknown value type: {value_type}")
         if value.comment:
@@ -146,7 +157,7 @@ class ResourceCreateClient:
             if perm := self.permissions_lookup.get(value.permissions):
                 res["knora-api:hasPermissions"] = str(perm)
             else:
-                raise BaseError(f"Could not find permissions for value: {value.permissions}")
+                raise PermissionNotExistsError(f"Could not find permissions for value: {value.permissions}")
         return res
 
 
@@ -350,14 +361,28 @@ def _make_time_value(value: XMLValue) -> dict[str, Any]:
     }
 
 
-def _make_uri_value(value: XMLValue) -> dict[str, Any]:
-    return {
-        "@type": "knora-api:UriValue",
-        "knora-api:uriValueAsUri": {
-            "@type": "xsd:anyURI",
-            "@value": value.value,
-        },
-    }
+def _serialise_uri_prop(prop: XMLProperty, permissions_lookup: dict[str, Permissions]) -> dict[str, Any]:
+    uri_values: list[SerialiseValue] = []
+    for v in prop.values:
+        if v.permissions:
+            if not (per := permissions_lookup.get(v.permissions)):
+                raise PermissionNotExistsError(f"Could not find permissions for value: {v.permissions}")
+            permission = str(per)
+        else:
+            permission = None
+        uri = cast(str, v.value)
+        uri_values.append(
+            SerialiseURI(
+                value=uri,
+                permissions=permission,
+                comment=v.comment,
+            )
+        )
+    prop_serialise = SerialiseProperty(
+        property_name=prop.name,
+        values=uri_values,
+    )
+    return prop_serialise.serialise()
 
 
 def _assert_is_string(value: str | FormattedTextValue) -> str:

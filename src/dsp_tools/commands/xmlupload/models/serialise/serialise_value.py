@@ -31,7 +31,7 @@ class SerialiseURI(SerialiseValue):
     """A URI to be serialised."""
 
     value: str
-    permissions: str
+    permissions: str | None
     comment: str | None
 
     def serialise(self) -> dict[str, Any]:
@@ -39,7 +39,6 @@ class SerialiseURI(SerialiseValue):
 
         serialised = {
             "@type": "knora-api:UriValue",
-            "knora-api:hasPermissions": self.permissions,
             "knora-api:uriValueAsUri": {
                 "@type": "xsd:anyURI",
                 "@value": self.value,
@@ -47,4 +46,6 @@ class SerialiseURI(SerialiseValue):
         }
         if self.comment:
             serialised["knora-api:valueHasComment"] = self.comment
+        if self.permissions:
+            serialised["knora-api:hasPermissions"] = self.permissions
         return serialised

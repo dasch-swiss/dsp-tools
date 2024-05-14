@@ -147,7 +147,7 @@ def test_2_resources_with_stash() -> None:
     con.post = Mock(side_effect=post_responses)
     project_client = ProjectClientStub(con, "1234", None)
 
-    xmlupload.upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock()), "1234"
+    xmlupload.upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock(), "1234")
 
     assert len(con.post.call_args_list) == len(post_responses)
     match con.post.call_args_list[2].kwargs:

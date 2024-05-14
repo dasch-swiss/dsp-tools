@@ -1,14 +1,4 @@
-from dataclasses import dataclass
-from dataclasses import field
-
 from rdflib.namespace import Namespace
-
-
-@dataclass
-class NamespaceContext:
-    onto_dict: dict[str, Namespace]
-    knora_api: Namespace = field(default=Namespace("http://api.knora.org/ontology/knora-api/v2#"))
-    salsah_gui: Namespace = field(default=Namespace("http://api.knora.org/ontology/salsah-gui/v2#"))
 
 
 def get_default_json_ld_context() -> dict[str, str]:

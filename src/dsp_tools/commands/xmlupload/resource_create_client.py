@@ -10,6 +10,7 @@ from rdflib import RDF
 from rdflib import BNode
 from rdflib import Graph
 from rdflib import Literal
+from rdflib import Namespace
 from rdflib import URIRef
 
 from dsp_tools.commands.xmlupload.ark2iri import convert_ark_v0_to_resource_iri
@@ -19,16 +20,17 @@ from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XM
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
-from dsp_tools.commands.xmlupload.models.namespace_context import NamespaceContext
 from dsp_tools.commands.xmlupload.models.namespace_context import get_json_ld_context_for_project
 from dsp_tools.commands.xmlupload.models.namespace_context import make_namespace_dict_from_onto_names
 from dsp_tools.commands.xmlupload.models.permission import Permissions
-from dsp_tools.commands.xmlupload.models.serialise.json_framer import JSONFramer
+from dsp_tools.commands.xmlupload.models.serialise.json_framer import frame_json
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.date_util import parse_date_string
 from dsp_tools.utils.iri_util import is_resource_iri
+
+KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
 
 
 @dataclass(frozen=True)
@@ -63,7 +65,7 @@ class ResourceCreateClient:
         bitstream_information: BitstreamInfo | None,
     ) -> dict[str, Any]:
         res_bnode = BNode()
-        namespaces = NamespaceContext(make_namespace_dict_from_onto_names(self.project_onto_dict))
+        namespaces = make_namespace_dict_from_onto_names(self.project_onto_dict)
         res = self._make_resource(
             resource=resource,
             bitstream_information=bitstream_information,
@@ -105,7 +107,7 @@ class ResourceCreateClient:
             res.update(_make_bitstream_file_value(bitstream_information))
         return res
 
-    def _make_values(self, resource: XMLResource, res_bnode: BNode, namespaces: NamespaceContext) -> dict[str, Any]:
+    def _make_values(self, resource: XMLResource, res_bnode: BNode, namespaces: dict[str, Namespace]) -> dict[str, Any]:
         def prop_name(p: XMLProperty) -> str:
             if p.valtype != "resptr":
                 return p.name
@@ -122,7 +124,7 @@ class ResourceCreateClient:
                 prefix = ":"
             else:
                 prefix = prop_split[0]
-            return namespaces.onto_dict[prefix].prop(prop_split[1])
+            return namespaces[prefix].prop(prop_split[1])
 
         def make_values(p: XMLProperty) -> list[dict[str, Any]]:
             return [self._make_value(v, p.valtype) for v in p.values]
@@ -133,7 +135,7 @@ class ResourceCreateClient:
             match prop.valtype:
                 case "integer":
                     properties_serialised.update(
-                        _serialise_integer_prop(prop, res_bnode, get_absolute_prop_iri(prop_name(prop)), namespaces)
+                        _serialise_integer_prop(prop, res_bnode, get_absolute_prop_iri(prop_name(prop)))
                     )
                 case _:
                     properties_serialised.update({prop_name(prop): make_values(prop)})
@@ -292,27 +294,25 @@ def _make_geoname_value(value: XMLValue) -> dict[str, Any]:
     }
 
 
-def _serialise_integer_prop(
-    prop: XMLProperty, res_bn: BNode, prop_name: URIRef, namespaces: NamespaceContext
-) -> dict[str, Any]:
-    g = _make_integer_prop(prop, res_bn, prop_name, namespaces)
-    return JSONFramer(g, namespaces.knora_api.IntegerValue).frame()
+def _serialise_integer_prop(prop: XMLProperty, res_bn: BNode, prop_name: URIRef) -> dict[str, Any]:
+    g = _make_integer_prop(prop, res_bn, prop_name)
+    return frame_json(g, KNORA_API.IntegerValue)
 
 
-def _make_integer_prop(prop: XMLProperty, res_bn: BNode, prop_name: URIRef, namespaces: NamespaceContext) -> Graph:
+def _make_integer_prop(prop: XMLProperty, res_bn: BNode, prop_name: URIRef) -> Graph:
     g = Graph()
     prop_bn = BNode()
     g.add((res_bn, prop_name, prop_bn))
     for value in prop.values:
-        g += _make_integer_value(value, prop_bn, namespaces)
+        g += _make_integer_value(value, prop_bn)
     return g
 
 
-def _make_integer_value(value: XMLValue, val_bn: BNode, namespaces: NamespaceContext) -> Graph:
+def _make_integer_value(value: XMLValue, val_bn: BNode) -> Graph:
     s = _assert_is_string(value.value)
     g = Graph()
-    g.add((val_bn, RDF.type, namespaces.knora_api.IntValue))
-    g.add((val_bn, namespaces.knora_api.intValueAsInt, Literal(int(s))))
+    g.add((val_bn, RDF.type, KNORA_API.IntValue))
+    g.add((val_bn, KNORA_API.intValueAsInt, Literal(int(s))))
     # TODO: add comments and permissions
     return g
 

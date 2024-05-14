@@ -29,7 +29,7 @@ def tmp_file(tmp_path) -> Path:
     return tmp_path / "filename.xml"
 
 
-def test_ingest(dsp_ingest_url, ingest_client, requests_mock, shortcode, tmp_file):
+def test_ingest_success(dsp_ingest_url, ingest_client, requests_mock, shortcode, tmp_file):
     tmp_file.write_text("<xml></xml>")
     requests_mock.post(
         f"{dsp_ingest_url}/projects/{shortcode}/assets/ingest/{tmp_file.name}", json={"internalFilename": tmp_file.name}

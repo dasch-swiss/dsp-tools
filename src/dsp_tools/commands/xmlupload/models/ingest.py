@@ -12,7 +12,6 @@ from requests.adapters import Retry
 from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import PermanentConnectionError
 from dsp_tools.models.exceptions import UserError
-from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.logger_config import logger_savepath
 
 
@@ -86,19 +85,3 @@ class DspIngestClient(IngestClient):
             raise UserError(f"{err}. File {filepath} not found.")
         except requests.exceptions.RequestException as e:
             raise PermanentConnectionError(f"{err}. {e}")
-
-
-@dataclass(frozen=True)
-class Sipi(IngestClient):
-    """
-    A wrapper type around a connection to a SIPI server.
-    Provides functionality to upload bitstreams files to the SIPI server.
-    """
-
-    con: Connection
-
-    def ingest(self, shortcode: str, filepath: Path) -> IngestResponse:  # noqa: ARG002 (Unused method argument)
-        with open(filepath, "rb") as binary_io:
-            files = {"file": (filepath.name, binary_io)}
-            res = self.con.post(route="/upload", files=files)
-            return IngestResponse(internal_filename=res["uploadedFiles"][0]["internalFilename"])

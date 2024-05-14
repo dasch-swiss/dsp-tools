@@ -323,9 +323,8 @@ def _make_integer_value(value: XMLValue, val_bn: BNode, permissions_lookup: dict
     g = Graph()
     g.add((val_bn, RDF.type, KNORA_API.IntValue))
     g.add((val_bn, KNORA_API.intValueAsInt, Literal(int(s))))
-    value_permission = cast(str, value.permissions)
     if value.permissions:
-        if not (per := permissions_lookup.get(value_permission)):
+        if not (per := permissions_lookup.get(value.permissions)):
             raise PermissionNotExistsError(f"Could not find permissions for value: {value.permissions}")
         g.add((val_bn, KNORA_API.hasPermissions, Literal(str(per))))
     if value.comment:

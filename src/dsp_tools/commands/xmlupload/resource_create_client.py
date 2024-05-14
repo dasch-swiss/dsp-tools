@@ -125,8 +125,10 @@ class ResourceCreateClient:
         def get_absolute_prop_iri(prefixed_prop: str) -> URIRef:
             prop_split = prefixed_prop.split(":")
             prefix = prop_split[0]
-            uri: URIRef = namespaces[prefix][prop_split[1]]
-            return uri
+            if prefix == "knora-api":
+                return KNORA_API[prop_split[1]]
+            else:
+                return namespaces[prefix][prop_split[1]]
 
         def make_values(p: XMLProperty) -> list[dict[str, Any]]:
             return [self._make_value(v, p.valtype) for v in p.values]

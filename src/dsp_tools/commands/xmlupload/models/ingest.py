@@ -24,7 +24,6 @@ class IngestClient(Protocol):
         Returns:
             The API response with the internal filename.
         """
-        ...
 
 
 @dataclass(frozen=True)

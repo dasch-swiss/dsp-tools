@@ -35,7 +35,7 @@ def get_mapping_dict_from_file(shortcode: str) -> dict[str, str]:
     return dict(zip(df["original"].tolist(), df["derivative"].tolist()))
 
 
-def replace_filepath_with_sipi_id(
+def replace_filepath_with_internal_filename(
     xml_tree: etree._ElementTree[etree._Element],
     orig_path_2_id_filename: dict[str, str],
 ) -> tuple[etree._ElementTree[etree._Element], IngestInformation]:

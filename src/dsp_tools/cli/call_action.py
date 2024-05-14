@@ -173,7 +173,7 @@ def _call_ingest_xmlupload(args: argparse.Namespace) -> bool:
         user=args.user,
         password=args.password,
         dsp_url=args.server,
-        sipi_url=args.sipi_url,
+        dsp_ingest_url=args.dsp_ingest_url,
         interrupt_after=interrupt_after,
     )
     return True
@@ -190,7 +190,7 @@ def _call_xmlupload(args: argparse.Namespace) -> bool:
             user=args.user,
             password=args.password,
             imgdir=args.imgdir,
-            sipi=args.sipi_url,
+            dsp_ingest_url=args.dsp_ingest_url,
             config=UploadConfig(interrupt_after=interrupt_after),
         )
 
@@ -200,7 +200,7 @@ def _call_resume_xmlupload(args: argparse.Namespace) -> bool:
         server=args.server,
         user=args.user,
         password=args.password,
-        sipi_url=args.sipi_url,
+        dsp_ingest_url=args.dsp_ingest_url,
         skip_first_resource=args.skip_first_resource,
     )
 

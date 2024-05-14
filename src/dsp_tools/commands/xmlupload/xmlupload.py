@@ -52,7 +52,7 @@ def xmlupload(
     user: str,
     password: str,
     imgdir: str,
-    sipi: str,
+    dsp_ingest_url: str,
     config: UploadConfig = UploadConfig(),
 ) -> bool:
     """
@@ -64,7 +64,7 @@ def xmlupload(
         user: the user (e-mail) with which the data should be imported
         password: the password of the user with which the data should be imported
         imgdir: the image directory
-        sipi: the sipi instance to be used
+        dsp_ingest_url: the url to the ingest server to be used
         config: the upload configuration
 
     Raises:
@@ -79,7 +79,7 @@ def xmlupload(
 
     con = ConnectionLive(server)
     con.login(user, password)
-    ingest_client = DspIngestClient(dsp_ingest_url="http://localhost:3340", token=con.get_token())
+    ingest_client = DspIngestClient(dsp_ingest_url=dsp_ingest_url, token=con.get_token())
 
     default_ontology, root, shortcode = validate_and_parse_xml_file(
         input_file=input_file,

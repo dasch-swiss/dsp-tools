@@ -1,54 +1,57 @@
+from pathlib import Path
+
 import pytest
 
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClient
+from dsp_tools.commands.xmlupload.models.ingest import IngestClient
 from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import PermanentConnectionError
 from dsp_tools.models.exceptions import UserError
 
 
-def test_ingest(tmp_path, requests_mock):
-    dsp_ingest_url = "http://example.com"
-    shortcode = "0001"
-    filename = "filename.xml"
-    p = tmp_path / filename
-    p.write_text("<xml></xml>")
-    client = DspIngestClient(dsp_ingest_url, "token")
+@pytest.fixture()
+def dsp_ingest_url() -> str:
+    return "https://example.com"
+
+
+@pytest.fixture()
+def ingest_client(dsp_ingest_url) -> IngestClient:
+    return DspIngestClient(dsp_ingest_url, "token")
+
+
+@pytest.fixture()
+def shortcode() -> str:
+    return "0001"
+
+
+@pytest.fixture()
+def tmp_file(tmp_path) -> Path:
+    return tmp_path / "filename.xml"
+
+
+def test_ingest(dsp_ingest_url, ingest_client, requests_mock, shortcode, tmp_file):
+    tmp_file.write_text("<xml></xml>")
     requests_mock.post(
-        f"{dsp_ingest_url}/projects/{shortcode}/assets/ingest/{filename}", json={"internalFilename": filename}
+        f"{dsp_ingest_url}/projects/{shortcode}/assets/ingest/{tmp_file.name}", json={"internalFilename": tmp_file.name}
     )
-    res = client.ingest(shortcode, p)
-    assert res.internal_filename == filename
+    res = ingest_client.ingest(shortcode, tmp_file)
+    assert res.internal_filename == tmp_file.name
 
 
-def test_ingest_failure_when_file_not_found(tmp_path):
-    dsp_ingest_url = "http://example.com"
-    shortcode = "0001"
-    filename = "filename.xml"
-    p = tmp_path / filename
-    client = DspIngestClient(dsp_ingest_url, "token")
+def test_ingest_failure_when_file_not_found(ingest_client, shortcode, tmp_file):
     with pytest.raises(UserError):
-        client.ingest(shortcode, p)
+        ingest_client.ingest(shortcode, tmp_file)
 
 
-def test_ingest_failure_when_authentication_error(tmp_path, requests_mock):
-    dsp_ingest_url = "http://example.com"
-    shortcode = "0001"
-    filename = "filename.xml"
-    p = tmp_path / filename
-    p.write_text("<xml></xml>")
-    client = DspIngestClient(dsp_ingest_url, "token")
-    requests_mock.post(f"{dsp_ingest_url}/projects/{shortcode}/assets/ingest/{filename}", status_code=401)
+def test_ingest_failure_when_authentication_error(dsp_ingest_url, ingest_client, requests_mock, shortcode, tmp_file):
+    tmp_file.write_text("<xml></xml>")
+    requests_mock.post(f"{dsp_ingest_url}/projects/{shortcode}/assets/ingest/{tmp_file.name}", status_code=401)
     with pytest.raises(BadCredentialsError):
-        client.ingest(shortcode, p)
+        ingest_client.ingest(shortcode, tmp_file)
 
 
-def test_ingest_failure_when_other_error(tmp_path, requests_mock):
-    dsp_ingest_url = "http://example.com"
-    shortcode = "0001"
-    filename = "filename.xml"
-    p = tmp_path / filename
-    p.write_text("<xml></xml>")
-    client = DspIngestClient(dsp_ingest_url, "token")
-    requests_mock.post(f"{dsp_ingest_url}/projects/{shortcode}/assets/ingest/{filename}", status_code=500)
+def test_ingest_failure_when_other_error(dsp_ingest_url, ingest_client, requests_mock, shortcode, tmp_file):
+    tmp_file.write_text("<xml></xml>")
+    requests_mock.post(f"{dsp_ingest_url}/projects/{shortcode}/assets/ingest/{tmp_file.name}", status_code=500)
     with pytest.raises(PermanentConnectionError):
-        client.ingest(shortcode, p)
+        ingest_client.ingest(shortcode, tmp_file)

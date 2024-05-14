@@ -21,7 +21,7 @@ class IngestClient(Protocol):
           filepath: Path to the file to ingest, could be either absolute or relative.
 
         Returns:
-          IngestResponse: The API response with the internal filename.
+          The API response with the internal filename.
         """
         ...
 

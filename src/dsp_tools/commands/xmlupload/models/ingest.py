@@ -1,10 +1,19 @@
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Optional
 from typing import Protocol
 
 import requests
+from loguru import logger
+from requests import Session
+from requests.adapters import HTTPAdapter
+from requests.adapters import Retry
 
+from dsp_tools.models.exceptions import BadCredentialsError
+from dsp_tools.models.exceptions import PermanentConnectionError
+from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.connection import Connection
+from dsp_tools.utils.logger_config import logger_savepath
 
 
 @dataclass(frozen=True)
@@ -23,6 +32,10 @@ class IngestClient(Protocol):
 
         Returns:
             The API response with the internal filename.
+
+        Raises:
+            BadCredentialsError: If the credentials are invalid.
+            PermanentConnectionError: If the connection fails.
         """
 
 
@@ -31,16 +44,48 @@ class DspIngestClient(IngestClient):
     dsp_ingest_url: str
     token: str
 
+    @staticmethod
+    def _retry_session(retries: int, session: Optional[Session] = None, backoff_factor: float = 0.3) -> Session:
+        session = session or requests.Session()
+        retry = Retry(
+            total=retries,
+            read=retries,
+            connect=retries,
+            backoff_factor=backoff_factor,
+            allowed_methods=None,  # means all methods
+            status_forcelist=[500],
+        )
+        adapter = HTTPAdapter(max_retries=retry)
+        session.mount("http://", adapter)
+        session.mount("https://", adapter)
+        return session
+
     def ingest(self, shortcode: str, filepath: Path) -> IngestResponse:
-        with open(filepath, "rb") as binary_io:
-            url = f"{self.dsp_ingest_url}/projects/{shortcode}/assets/ingest/{filepath.name}"
-            res = requests.post(
-                url=url,
-                headers={"Authorization": f"Bearer {self.token}", "Content-Type": "application/octet-stream"},
-                data=binary_io,
-                timeout=60,
-            )
-            return IngestResponse(internal_filename=res.json()["internalFilename"])
+        s = DspIngestClient._retry_session(retries=6)
+        url = f"{self.dsp_ingest_url}/projects/{shortcode}/assets/ingest/{filepath.name}"
+        err = f"Failed to ingest {filepath} to '{url}'."
+        try:
+            with open(filepath, "rb") as binary_io:
+                res = s.post(
+                    url=url,
+                    headers={"Authorization": f"Bearer {self.token}", "Content-Type": "application/octet-stream"},
+                    data=binary_io,
+                    timeout=60,
+                )
+                if res.status_code == 200:
+                    return IngestResponse(internal_filename=res.json()["internalFilename"])
+                elif res.status_code == 401:
+                    raise BadCredentialsError("Bad credentials")
+                else:
+                    user_msg = f"{err} See logs for more details: {logger_savepath}"
+                    print(user_msg)
+                    log_msg = f"{err}. Response status code {res.status_code} '{res.json()}'"
+                    logger.error(log_msg)
+                    raise PermanentConnectionError(log_msg)
+        except FileNotFoundError:
+            raise UserError(f"{err}. File {filepath} not found.")
+        except requests.exceptions.RequestException as e:
+            raise PermanentConnectionError(f"{err}. {e}")
 
 
 @dataclass(frozen=True)

@@ -19,7 +19,7 @@ def frame_value(rdf_graph: Graph, prop_name: URIRef) -> dict[str, Any]:
         A json-ld
     """
     json_graph = _make_json(rdf_graph)
-    json_frame = {
+    json_frame: dict[str, Any] = {
         str(prop_name): {},
     }
     framed: dict[str, Any] = jsonld.frame(json_graph, json_frame)

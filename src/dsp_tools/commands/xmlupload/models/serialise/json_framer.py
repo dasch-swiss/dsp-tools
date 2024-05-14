@@ -1,19 +1,19 @@
 import json
 from typing import Any
-from typing import cast
 
 from pyld import jsonld
 from rdflib import Graph
 from rdflib import URIRef
 
 
-def frame_json(rdf_graph: Graph, type_: URIRef) -> dict[str, Any]:
+def frame_value(rdf_graph: Graph, type_: URIRef) -> dict[str, Any]:
     """
     This function makes the serialised json-ld conform to the format expected by the DSP-API.
+    It returns the information about the property and its value(s).
 
     Args:
-        rdf_graph: graph, this can consist of RESOURCES OR ONLY PROPS??? # TODO:
-        type_: type of the resource / property # TODO
+        rdf_graph: rdf graph, the resource type must be part of the graph
+        type_: type of the resource
 
     Returns:
         A json-ld
@@ -23,11 +23,12 @@ def frame_json(rdf_graph: Graph, type_: URIRef) -> dict[str, Any]:
         "@type": str(type_),
         "contains": {"@type": ""},
     }
-    framed = jsonld.frame(json_graph, json_frame)
-    return json.loads(framed)
+    framed: dict[str, Any] = jsonld.frame(json_graph, json_frame)
+    framed.pop("@type")
+    return framed
 
 
 def _make_json(rdf_graph: Graph) -> list[dict[str, Any]]:
-    graph_str = rdf_graph.serialize(format="json-ld", encoding="utf-8")
-    serialised = cast(list[dict[str, Any]], graph_str)
-    return serialised
+    graph_bytes = rdf_graph.serialize(format="json-ld", encoding="utf-8")
+    json_graph: list[dict[str, Any]] = json.loads(graph_bytes)
+    return json_graph

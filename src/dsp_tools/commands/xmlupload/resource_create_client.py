@@ -23,7 +23,7 @@ from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTe
 from dsp_tools.commands.xmlupload.models.namespace_context import get_json_ld_context_for_project
 from dsp_tools.commands.xmlupload.models.namespace_context import make_namespace_dict_from_onto_names
 from dsp_tools.commands.xmlupload.models.permission import Permissions
-from dsp_tools.commands.xmlupload.models.serialise.json_framer import frame_json
+from dsp_tools.commands.xmlupload.models.serialise.json_framer import frame_value
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseProperty
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseURI
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseValue
@@ -303,7 +303,7 @@ def _serialise_integer_prop(
 ) -> dict[str, Any]:
     g = _make_integer_prop(prop, res_bn, prop_name, permissions_lookup)
     int_val: URIRef = KNORA_API.IntegerValue
-    return frame_json(g, int_val)
+    return frame_value(g, int_val)
 
 
 def _make_integer_prop(

@@ -130,7 +130,7 @@ are partially written in the [unittest](https://docs.python.org/3/library/unitte
 and partially in the [pytest](https://docs.pytest.org) framework.
 There are two groups of tests: 
 
-- `test/unittests` can be run directly, 
+- all `test/unittests` can be run directly with `poetry exec unittests` 
 - `test/e2e` need a DSP stack running in the background.
   A DSP stack can be started with the command 
   [`dsp-tools start-stack`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#start-stack)

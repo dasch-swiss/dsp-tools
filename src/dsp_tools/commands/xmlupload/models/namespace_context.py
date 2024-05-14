@@ -1,3 +1,16 @@
+from dataclasses import dataclass
+from dataclasses import field
+
+from rdflib.namespace import Namespace
+
+
+@dataclass
+class NamespaceContext:
+    onto_dict: dict[str, Namespace]
+    knora_api: Namespace = field(default=Namespace("http://api.knora.org/ontology/knora-api/v2#"))
+    salsah_gui: Namespace = field(default=Namespace("http://api.knora.org/ontology/salsah-gui/v2#"))
+
+
 def get_default_json_ld_context() -> dict[str, str]:
     """
     Returns the JSON-LD context as a dictionary.
@@ -15,9 +28,14 @@ def get_default_json_ld_context() -> dict[str, str]:
     }
 
 
+def correct_project_context_namespaces(ontos: dict[str, str]) -> dict[str, str]:
+    """Add the hashtag to make it a valid namespace."""
+    return {k: f"{v}#" for k, v in ontos.items()}
+
+
 def get_json_ld_context_for_project(ontos: dict[str, str]) -> dict[str, str]:
     """Provided a dictionary of ontology names and IRIs, returns a JSON-LD context for the project."""
     context = get_default_json_ld_context()
-    project_context = {k: f"{v}#" for k, v in ontos.items()}
+    project_context = correct_project_context_namespaces(ontos)
     context.update(project_context)
     return context

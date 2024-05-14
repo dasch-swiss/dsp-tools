@@ -116,6 +116,7 @@ def xmlupload(
         ingest_client=ingest_client,
         project_client=project_client,
         list_client=list_client,
+        shortcode=shortcode,
     )
 
     return cleanup_upload(upload_state)
@@ -184,6 +185,7 @@ def upload_resources(
     ingest_client: IngestClient,
     project_client: ProjectClient,
     list_client: ListClient,
+    shortcode: str,
 ) -> None:
     """
     Actual upload of all resources to DSP.
@@ -194,6 +196,7 @@ def upload_resources(
         ingest_client: Sipi instance
         project_client: a client for HTTP communication with the DSP-API
         list_client: a client for HTTP communication with the DSP-API
+        shortcode: the shortcode of the project
     """
     try:
         _upload_resources(
@@ -202,6 +205,7 @@ def upload_resources(
             ingest_client=ingest_client,
             project_client=project_client,
             list_client=list_client,
+            shortcode=shortcode,
         )
         if upload_state.pending_stash:
             _upload_stash(upload_state, project_client)
@@ -270,6 +274,7 @@ def _upload_resources(
     ingest_client: IngestClient,
     project_client: ProjectClient,
     list_client: ListClient,
+    shortcode: str,
 ) -> None:
     """
     Iterates through all resources and tries to upload them to DSP.
@@ -282,6 +287,7 @@ def _upload_resources(
         ingest_client: Sipi instance
         project_client: a client for HTTP communication with the DSP-API
         list_client: a client for HTTP communication with the DSP-API
+        shortcode: the shortcode of the project
 
     Raises:
         BaseException: in case of an unhandled exception during resource creation
@@ -309,6 +315,7 @@ def _upload_resources(
             ingest_client=ingest_client,
             resource_create_client=resource_create_client,
             creation_attempts_of_this_round=creation_attempts_of_this_round,
+            shortcode=shortcode,
         )
 
 
@@ -319,6 +326,7 @@ def _upload_one_resource(
     ingest_client: IngestClient,
     resource_create_client: ResourceCreateClient,
     creation_attempts_of_this_round: int,
+    shortcode: str,
 ) -> None:
     try:
         success, media_info = handle_media_info(
@@ -327,6 +335,7 @@ def _upload_one_resource(
             ingest_client,
             imgdir,
             upload_state.permissions_lookup,
+            shortcode,
         )
         if not success:
             upload_state.failed_uploads.append(resource.res_id)

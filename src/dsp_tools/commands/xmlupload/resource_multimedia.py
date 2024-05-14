@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
+from typing import Tuple
 
 from loguru import logger
 
@@ -13,12 +15,38 @@ from dsp_tools.commands.xmlupload.models.sipi import IngestClient
 from dsp_tools.models.exceptions import PermanentConnectionError
 
 
+@dataclass
+class IngestContext:
+    ingest_client: IngestClient
+    resource: XMLResource
+    imgdir: str
+    shortcode: str
+    permissions_lookup: dict[str, Permissions]
+
+    def stream_permissions(self) -> Permissions | None:
+        if self.resource.bitstream is None:
+            return None
+        if self.resource.bitstream.permissions is None:
+            return None
+        else:
+            return self.permissions_lookup.get(self.resource.bitstream.permissions)
+
+    def bitstream_and_path(self) -> Tuple[XMLBitstream, Path] | None:
+        if self.resource.bitstream is None:
+            return None
+        else:
+            bitstream = self.resource.bitstream
+            path = Path(self.imgdir) / Path(bitstream.value)
+            return bitstream, path
+
+
 def handle_media_info(
     resource: XMLResource,
     media_previously_uploaded: bool,
     ingest_client: IngestClient,
     imgdir: str,
     permissions_lookup: dict[str, Permissions],
+    shortcode: str,
 ) -> tuple[bool, None | BitstreamInfo]:
     """
     This function checks if a resource has a bitstream.
@@ -29,97 +57,54 @@ def handle_media_info(
 
     Args:
         resource: resource holding the bitstream
-        media_previously_uploaded: True if the image is already in SIPI
+        media_previously_uploaded: True if the image was already ingested
         ingest_client: server to upload
         imgdir: directory of the file
         permissions_lookup: dictionary that contains the permission name as string and the corresponding Python object
+        shortcode: shortcode of the project
 
     Returns:
         If the bitstream could be processed successfully, then the function returns True and the new internal ID.
         If there was no bitstream, it returns True and None.
         If the upload was not successful, it returns False and None.
     """
-    bitstream = resource.bitstream
-    success = True
-    bitstream_information: None | BitstreamInfo = None
-
-    if not bitstream:
-        return success, bitstream_information
+    ctx = IngestContext(ingest_client, resource, imgdir, shortcode, permissions_lookup)
+    bitstream = ctx.resource.bitstream
+    if bitstream is None:
+        return True, None
     if not media_previously_uploaded:
-        bitstream_information = _handle_media_upload(
-            resource=resource,
-            bitstream=bitstream,
-            permissions_lookup=permissions_lookup,
-            ingest_client=ingest_client,
-            imgdir=imgdir,
-        )
-        if not bitstream_information:
-            success = False
+        info = _do_ingest(ctx)
+        return info is not None, info
     else:
-        bitstream_information = resource.get_bitstream_information(bitstream.value, permissions_lookup)
-    return success, bitstream_information
+        return True, BitstreamInfo(bitstream.value, bitstream.value, ctx.stream_permissions())
 
 
-def _handle_media_upload(
-    resource: XMLResource,
-    bitstream: XMLBitstream,
-    permissions_lookup: dict[str, Permissions],
-    ingest_client: IngestClient,
-    imgdir: str,
-) -> BitstreamInfo | None:
+def _do_ingest(ctx: IngestContext) -> BitstreamInfo | None:
     """
-    Upload a bitstream file to SIPI
+    This function ingests the specified bitstream file and then returns the BitstreamInfo.
 
     Args:
-        resource: resource holding the bitstream
-        bitstream: the bitstream object
-        permissions_lookup: dictionary that contains the permission name as string and the corresponding Python object
-        ingest_client: server to upload
-        imgdir: directory of the file
+        ctx: The context object which contains all necessary information for the upload
 
     Returns:
-        The information from sipi which is needed to establish a link from the resource
+        The BitstreamInfo which is needed to establish a link from the resource
     """
-    try:
-        resource_bitstream = _upload_bitstream(
-            resource=resource,
-            ingest_client=ingest_client,
-            imgdir=imgdir,
-            permissions_lookup=permissions_lookup,
-        )
-        msg = f"Uploaded file '{bitstream.value}'"
-        print(f"{datetime.now()}: {msg}")
-        logger.info(msg)
-        return resource_bitstream
-    except PermanentConnectionError as err:
-        msg = f"Unable to upload file '{bitstream.value}' of resource '{resource.label}' ({resource.res_id})"
-        print(f"{datetime.now()}: WARNING: {msg}: {err.message}")
-        logger.opt(exception=True).warning(msg)
+    stream_and_path = ctx.bitstream_and_path()
+    if stream_and_path is None:
         return None
-
-
-def _upload_bitstream(
-    resource: XMLResource,
-    ingest_client: IngestClient,
-    imgdir: str,
-    permissions_lookup: dict[str, Permissions],
-) -> BitstreamInfo | None:
-    """
-    This function uploads a specified bitstream file to SIPI and then returns the file information from SIPI.
-
-    Args:
-        resource: resource that has a bitstream
-        ingest_client: server to upload
-        imgdir: directory of the file
-        permissions_lookup: dictionary that contains the permission name as string and the corresponding Python object
-
-    Returns:
-        The information from sipi which is needed to establish a link from the resource
-    """
-    if not resource.bitstream:
-        return None
-    res = ingest_client.ingest("", Path(imgdir) / Path(resource.bitstream.value))
-    return resource.get_bitstream_information(
-        internal_file_name_bitstream=res.internal_filename,
-        permissions_lookup=permissions_lookup,
-    )
+    else:
+        try:
+            stream, path = stream_and_path
+            res = ctx.ingest_client.ingest(ctx.shortcode, path)
+            msg = f"Uploaded file '{ctx.bitstream_and_path()}'"
+            print(f"{datetime.now()}: {msg}")
+            logger.info(msg)
+            return BitstreamInfo(stream.value, res.internal_filename, ctx.stream_permissions())
+        except PermanentConnectionError as err:
+            msg = (
+                f"Unable to upload file '{ctx.bitstream_and_path()}' "
+                f"of resource '{ctx.resource.label}' ({ctx.resource.res_id})"
+            )
+            print(f"{datetime.now()}: WARNING: {msg}: {err.message}")
+            logger.opt(exception=True).warning(msg)
+            return None

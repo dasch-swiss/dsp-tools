@@ -16,7 +16,7 @@ from dsp_tools.commands.xmlupload.xmlupload import upload_resources
 from dsp_tools.utils.connection_live import ConnectionLive
 
 
-def resume_xmlupload(server: str, user: str, password: str, sipi: str, skip_first_resource: bool = False) -> bool:
+def resume_xmlupload(server: str, user: str, password: str, sipi_url: str, skip_first_resource: bool = False) -> bool:
     """
     Resume an interrupted xmlupload.
 
@@ -24,7 +24,7 @@ def resume_xmlupload(server: str, user: str, password: str, sipi: str, skip_firs
         server: the DSP server where the data should be imported
         user: the user (e-mail) with which the data should be imported
         password: the password of the user with which the data should be imported
-        sipi: the sipi instance to be used
+        sipi_url: the sipi instance to be used
         skip_first_resource: if this flag is set, the first resource of the pending resources is removed
 
     Returns:
@@ -39,7 +39,7 @@ def resume_xmlupload(server: str, user: str, password: str, sipi: str, skip_firs
 
     con = ConnectionLive(server)
     con.login(user, password)
-    sipi_con = ConnectionLive(sipi, token=con.get_token())
+    sipi_con = ConnectionLive(sipi_url, token=con.get_token())
     ingest_client = Sipi(sipi_con)
 
     project_client: ProjectClient = ProjectClientLive(con, upload_state.config.shortcode)
@@ -51,6 +51,7 @@ def resume_xmlupload(server: str, user: str, password: str, sipi: str, skip_firs
         ingest_client=ingest_client,
         project_client=project_client,
         list_client=list_client,
+        shortcode=upload_state.config.shortcode,
     )
 
     return cleanup_upload(upload_state)

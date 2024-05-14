@@ -200,7 +200,7 @@ def _call_resume_xmlupload(args: argparse.Namespace) -> bool:
         server=args.server,
         user=args.user,
         password=args.password,
-        sipi=args.sipi_url,
+        sipi_url=args.sipi_url,
         skip_first_resource=args.skip_first_resource,
     )
 

@@ -5,8 +5,8 @@ from rdflib import Graph
 from rdflib import Literal
 from rdflib import Namespace
 
-from dsp_tools.commands.xmlupload.models.serialise.json_framer import _frame_property
-from dsp_tools.commands.xmlupload.models.serialise.json_framer import serialise_property
+from dsp_tools.commands.xmlupload.models.serialise.jsonld_serialiser import _frame_property
+from dsp_tools.commands.xmlupload.models.serialise.jsonld_serialiser import serialise_property
 
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
 MY_ONTO = Namespace("http://0.0.0.0:3333/ontology/0009/myonto/v2#")

@@ -124,11 +124,9 @@ class ResourceCreateClient:
 
         def get_absolute_prop_iri(prefixed_prop: str) -> URIRef:
             prop_split = prefixed_prop.split(":")
-            if prop_split[0] == "":
-                prefix = ":"
-            else:
-                prefix = prop_split[0]
-            return namespaces[prefix].prop(prop_split[1])
+            prefix = prop_split[0]
+            uri: URIRef = namespaces[prefix][prop_split[1]]
+            return uri
 
         def make_values(p: XMLProperty) -> list[dict[str, Any]]:
             return [self._make_value(v, p.valtype) for v in p.values]
@@ -304,7 +302,8 @@ def _serialise_integer_prop(
     prop: XMLProperty, res_bn: BNode, prop_name: URIRef, permissions_lookup: dict[str, Permissions]
 ) -> dict[str, Any]:
     g = _make_integer_prop(prop, res_bn, prop_name, permissions_lookup)
-    return frame_json(g, KNORA_API.IntegerValue)
+    int_val: URIRef = KNORA_API.IntegerValue
+    return frame_json(g, int_val)
 
 
 def _make_integer_prop(

@@ -5,12 +5,12 @@
        xsi:schemaLocation="https://dasch.swiss/schema ../../src/dsp_tools/resources/schema/data.xsd"
        shortcode="4123"
        default-ontology="testonto">
-    <resource label="from dsp-ingest"
+    <resource label="ingested in dsp-ingest"
               restype=":DocumentThing"
               id="document_thing_2" >
         <bitstream>testdata/bitstreams/test.xls</bitstream>
         <text-prop name=":hasSimpleText">
-            <text encoding="utf8">This is a Documentthing as XLS</text>
+            <text encoding="utf8">This is an XLS</text>
         </text-prop>
     </resource>
 </knora>

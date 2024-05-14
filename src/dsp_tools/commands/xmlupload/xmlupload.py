@@ -19,8 +19,8 @@ from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import Bitstrea
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.namespace_context import get_json_ld_context_for_project
 from dsp_tools.commands.xmlupload.models.permission import Permissions
+from dsp_tools.commands.xmlupload.models.sipi import DspIngestClient
 from dsp_tools.commands.xmlupload.models.sipi import IngestClient
-from dsp_tools.commands.xmlupload.models.sipi import Sipi
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.ontology_client import OntologyClientLive
 from dsp_tools.commands.xmlupload.project_client import ProjectClient
@@ -79,8 +79,7 @@ def xmlupload(
 
     con = ConnectionLive(server)
     con.login(user, password)
-    sipi_con = ConnectionLive(sipi, token=con.get_token())
-    ingest_client = Sipi(sipi_con)
+    ingest_client = DspIngestClient(dsp_ingest_url="http://localhost:3340", token=con.get_token())
 
     default_ontology, root, shortcode = validate_and_parse_xml_file(
         input_file=input_file,

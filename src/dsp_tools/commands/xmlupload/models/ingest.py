@@ -81,7 +81,8 @@ class DspIngestClient(IngestClient):
                     log_msg = f"{err}. Response status code {res.status_code} '{res.json()}'"
                     logger.error(log_msg)
                     raise PermanentConnectionError(log_msg)
-        except FileNotFoundError:
+        except FileNotFoundError as e:
+            logger.error(e)
             raise UserError(f"{err}. File {filepath} not found.")
         except requests.exceptions.RequestException as e:
             raise PermanentConnectionError(f"{err}. {e}")

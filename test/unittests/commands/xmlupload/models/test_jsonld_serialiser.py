@@ -4,6 +4,7 @@ from rdflib import BNode
 from rdflib import Graph
 from rdflib import Literal
 from rdflib import Namespace
+from rdflib import URIRef
 
 from dsp_tools.commands.xmlupload.models.serialise.jsonld_serialiser import _frame_property
 from dsp_tools.commands.xmlupload.models.serialise.jsonld_serialiser import serialise_property_graph
@@ -131,7 +132,7 @@ def test_frame_property() -> None:
             },
         ],
     }
-    res = _frame_property(json_graph, Namespace("http://0.0.0.0:3333/ontology/0009/myonto2/v2#hasInteger"))
+    res = _frame_property(json_graph, URIRef("http://0.0.0.0:3333/ontology/0009/myonto2/v2#hasInteger"))
     assert res == expected
 
 

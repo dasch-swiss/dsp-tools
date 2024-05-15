@@ -416,7 +416,6 @@ def _create_resource(
         # The following block catches all exceptions and handles them in a generic way.
         # Because the calling function needs to know that this was a PermanentTimeOutError, we need to catch and
         # raise it here.
-        # TODO: That's bad architecture. Instead, catch only specific errors
         raise err
     except Exception as err:  # noqa: BLE001 (blind-except)
         msg = f"{datetime.now()}: WARNING: Unable to create resource '{resource.label}' (ID: '{resource.res_id}')"

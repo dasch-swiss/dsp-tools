@@ -151,7 +151,7 @@ exclude = [
 
 
 [[tool.mypy.overrides]]
-module = ["jsonpath_ng.*", "viztracer.*"]  # For these packages, no type stubs are available yet
+module = ["jsonpath_ng.*", "viztracer.*", "pyld.*"]  # For these packages, no type stubs are available yet
 ignore_missing_imports = true
 
 

@@ -1,14 +1,4 @@
-from dataclasses import dataclass
-from dataclasses import field
-
 from rdflib.namespace import Namespace
-
-
-@dataclass
-class NamespaceContext:
-    onto_dict: dict[str, Namespace]
-    knora_api: Namespace = field(default=Namespace("http://api.knora.org/ontology/knora-api/v2#"))
-    salsah_gui: Namespace = field(default=Namespace("http://api.knora.org/ontology/salsah-gui/v2#"))
 
 
 def get_default_json_ld_context() -> dict[str, str]:
@@ -26,6 +16,14 @@ def get_default_json_ld_context() -> dict[str, str]:
         "owl": "http://www.w3.org/2002/07/owl#",
         "xsd": "http://www.w3.org/2001/XMLSchema#",
     }
+
+
+def make_namespace_dict_from_onto_names(ontos: dict[str, str]) -> dict[str, Namespace]:
+    """Provided a dictionary of ontology names and IRIs, returns a dictionary of Namespace objects."""
+    ontos = correct_project_context_namespaces(ontos)
+    namespaces = {k: Namespace(v) for k, v in ontos.items()}
+    namespaces.update({"knora-api": Namespace("http://api.knora.org/ontology/knora-api/v2#")})
+    return namespaces
 
 
 def correct_project_context_namespaces(ontos: dict[str, str]) -> dict[str, str]:

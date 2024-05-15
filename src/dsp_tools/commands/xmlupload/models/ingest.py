@@ -22,19 +22,22 @@ class IngestResponse:
 
 class IngestClient(Protocol):
     def ingest(self, shortcode: str, filepath: Path) -> IngestResponse:
-        """
-        Uploads a file to the ingest server.
+        """Uploads a file to the ingest server and returns the IngestResponse.
+
+        This function sends a POST request to the ingest server with the file to upload.
+        It will retry the request 6 times in case of a connection, timeout or internal server error.
+
+        After all retry attempts are exhausted it will raise exceptions if the upload failed.
+        The http status code is also checked and if it is not 200, a PermanentConnectionError is raised.
 
         Args:
             shortcode: The shortcode of the project to ingest to.
             filepath: Path to the file to ingest, could be either absolute or relative.
 
-        Returns:
-            The API response with the internal filename.
-
         Raises:
             BadCredentialsError: If the credentials are invalid.
             PermanentConnectionError: If the connection fails.
+
         """
 
 

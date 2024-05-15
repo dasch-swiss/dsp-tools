@@ -45,7 +45,7 @@ def is_iiif_uri(uri: str) -> bool:
     rotation_ex = r"^[-+]?[0-9]*\.?[0-9]+$|^![-+]?[0-9]*\.?[0-9]+$"
     if not regex.search(rotation_ex, split_uri[-2]):
         return False
-    quality_format_ex = r"^(color|gray|bitonal|default)\.(jpg|tif|png|jp2|gif|pdf|webp)$"
+    quality_format_ex = r"^(color|gray|bitonal|default)\.(jpg|tif|png|jp2|gif|pdf|webp)?$"
     if not regex.search(quality_format_ex, split_uri[-1]):
         return False
     return True

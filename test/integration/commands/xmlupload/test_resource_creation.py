@@ -8,6 +8,7 @@ from lxml import etree
 from dsp_tools.commands.xmlupload import xmlupload
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
+from dsp_tools.commands.xmlupload.models.ingest import IngestClient
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.project_client import ProjectInfo
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
@@ -17,7 +18,6 @@ from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.models.exceptions import XmlUploadInterruptedError
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
-from src.dsp_tools.commands.xmlupload.models.ingest import IngestClient
 
 
 @pytest.fixture()

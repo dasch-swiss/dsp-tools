@@ -3,15 +3,17 @@ from typing import Any
 
 from pyld import jsonld
 from rdflib import Graph
+from rdflib import URIRef
 
 
-def serialise_property(rdf_graph: Graph, prop_name: str) -> dict[str, Any]:
+def serialise_property(rdf_graph: Graph, prop_name: URIRef) -> dict[str, Any]:
     """
-    This function makes the serialised json-ld conform to the format expected by the DSP-API.
+    It serialises an RDF-graph into json-ld,
+    which is conform to the format expected by the DSP-API.
     It returns the information about the property and its value(s).
 
     Args:
-        rdf_graph: rdf graph
+        rdf_graph: RDF graph
         prop_name: property name
 
     Returns:
@@ -21,9 +23,9 @@ def serialise_property(rdf_graph: Graph, prop_name: str) -> dict[str, Any]:
     return _frame_property(json_graph, prop_name)
 
 
-def _frame_property(serialised_json: list[dict[str, Any]], prop_name: str) -> dict[str, Any]:
+def _frame_property(serialised_json: list[dict[str, Any]], prop_name: URIRef) -> dict[str, Any]:
     json_frame: dict[str, Any] = {
-        prop_name: {},
+        str(prop_name): {},
     }
     framed: dict[str, Any] = jsonld.frame(serialised_json, json_frame)
     return framed

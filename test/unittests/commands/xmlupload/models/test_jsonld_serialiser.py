@@ -59,7 +59,7 @@ class TestSerialiseProperty:
                 "http://api.knora.org/ontology/knora-api/v2#intValueAsInt": 1,
             }
         }
-        result = serialise_property(int_value, str(MY_ONTO.hasInteger))
+        result = serialise_property(int_value, MY_ONTO.hasInteger)
         assert result == expected
 
     def test_value_with_comments(self, int_value_with_comment: Graph) -> None:
@@ -71,7 +71,7 @@ class TestSerialiseProperty:
                 "http://api.knora.org/ontology/knora-api/v2#intValueAsInt": 2,
             }
         }
-        result = serialise_property(int_value_with_comment, str(MY_ONTO.hasInteger))
+        result = serialise_property(int_value_with_comment, MY_ONTO.hasInteger)
         assert result == expected
 
     def test_several_values(self, two_int_values: Graph) -> None:
@@ -88,29 +88,39 @@ class TestSerialiseProperty:
             ],
         }
 
-        result = serialise_property(two_int_values, str(MY_ONTO.hasInteger))
+        result = serialise_property(two_int_values, MY_ONTO.hasInteger)
         assert result == expected
 
 
 def test_frame_property() -> None:
     json_graph = [
         {
-            "@id": "_:Nc4ababd236d441e094f2928089079629",
-            "http://0.0.0.0:3333/ontology/0009/myonto/v2#hasInteger": [{"@id": "_:N998e9fea98344bcca702bd5385bf7c9a"}],
+            "@id": "_:res_id",
+            "http://0.0.0.0:3333/ontology/0009/myonto/v2#hasInteger": [{"@id": "_:1"}],
+            "http://0.0.0.0:3333/ontology/0009/myonto/v2#hasGeoname": [{"@id": "_:2"}],
         },
         {
-            "@id": "_:N998e9fea98344bcca702bd5385bf7c9a",
+            "@id": "_:1",
             "@type": ["http://api.knora.org/ontology/knora-api/v2#IntValue"],
             "http://api.knora.org/ontology/knora-api/v2#intValueAsInt": [{"@value": 1}],
+        },
+        {
+            "@id": "_:2",
+            "@type": ["http://api.knora.org/ontology/knora-api/v2#GeonameValue"],
+            "http://api.knora.org/ontology/knora-api/v2#geonameValueAsGeonameCode": [{"@value": "2661604"}],
         },
     ]
     expected = {
         "http://0.0.0.0:3333/ontology/0009/myonto/v2#hasInteger": {
             "@type": "http://api.knora.org/ontology/knora-api/v2#IntValue",
             "http://api.knora.org/ontology/knora-api/v2#intValueAsInt": 1,
-        }
+        },
+        "http://0.0.0.0:3333/ontology/0009/myonto/v2#hasGeoname": {
+            "@type": "http://api.knora.org/ontology/knora-api/v2#GeonameValue",
+            "http://api.knora.org/ontology/knora-api/v2#geonameValueAsGeonameCode": "2661604",
+        },
     }
-    res = _frame_property(json_graph, str(MY_ONTO.hasInteger))
+    res = _frame_property(json_graph, MY_ONTO.hasInteger)
     assert res == expected
 
 

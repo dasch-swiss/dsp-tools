@@ -28,6 +28,7 @@ from dsp_tools.commands.xmlupload.models.serialise.serialise_value import Serial
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseURI
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseValue
 from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.exceptions import PermissionNotExistsError
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.connection import Connection
@@ -122,14 +123,6 @@ class ResourceCreateClient:
             else:
                 return f"{p.name}Value"
 
-        def get_absolute_prop_iri(prefixed_prop: str) -> URIRef:
-            prop_split = prefixed_prop.split(":")
-            prefix = prop_split[0]
-            if prefix == "knora-api":
-                return KNORA_API[prop_split[1]]
-            else:
-                return namespaces[prefix][prop_split[1]]
-
         def make_values(p: XMLProperty) -> list[dict[str, Any]]:
             return [self._make_value(v, p.valtype) for v in p.values]
 
@@ -140,15 +133,23 @@ class ResourceCreateClient:
                 case "uri":
                     properties_serialised.update(_serialise_uri_prop(prop, self.permissions_lookup))
                 case "integer":
-                    properties_serialised.update(
-                        _serialise_integer_prop(
-                            prop, res_bnode, get_absolute_prop_iri(prop_name(prop)), self.permissions_lookup
-                        )
+                    serialised = _serialise_integer_prop(
+                        prop,
+                        res_bnode,
+                        self._get_absolute_prop_iri(prop_name(prop), namespaces),
+                        self.permissions_lookup,
                     )
+                    properties_serialised.update(serialised)
                 case _:
                     properties_serialised.update({prop_name(prop): make_values(prop)})
 
         return properties_serialised
+
+    def _get_absolute_prop_iri(self, prefixed_prop: str, namespaces: dict[str, Namespace]) -> URIRef:
+        prefix, prop = prefixed_prop.split(":", maxsplit=1)
+        if not (namespace := namespaces.get(prefix)):
+            raise InputError(f"Could not find namespace for prefix: {prefix}")
+        return namespace[prop]
 
     def _make_value(self, value: XMLValue, value_type: str) -> dict[str, Any]:
         match value_type:
@@ -304,7 +305,7 @@ def _serialise_integer_prop(
     prop: XMLProperty, res_bn: BNode, prop_name: URIRef, permissions_lookup: dict[str, Permissions]
 ) -> dict[str, Any]:
     g = _make_integer_prop(prop, res_bn, prop_name, permissions_lookup)
-    return serialise_property(g, str(prop_name))
+    return serialise_property(g, prop_name)
 
 
 def _make_integer_prop(

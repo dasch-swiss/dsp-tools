@@ -127,22 +127,23 @@ class ResourceCreateClient:
             return [self._make_value(v, p.valtype) for v in p.values]
 
         properties_serialised = {}
+        properties_graph = Graph()
+        last_prop_name = None
 
         for prop in resource.properties:
             match prop.valtype:
                 case "uri":
                     properties_serialised.update(_serialise_uri_prop(prop, self.permissions_lookup))
                 case "integer":
-                    serialised = _serialise_integer_prop(
-                        prop,
-                        res_bnode,
-                        self._get_absolute_prop_iri(prop_name(prop), namespaces),
-                        self.permissions_lookup,
-                    )
-                    properties_serialised.update(serialised)
+                    int_prop_name = self._get_absolute_prop_iri(prop.name, namespaces)
+                    int_graph = _make_integer_prop(prop, res_bnode, int_prop_name, self.permissions_lookup)
+                    properties_graph += int_graph
+                    last_prop_name = int_prop_name
                 case _:
                     properties_serialised.update({prop_name(prop): make_values(prop)})
-
+        if last_prop_name:
+            serialised_graph_props = serialise_property(properties_graph, last_prop_name)
+            properties_serialised.update(serialised_graph_props)
         return properties_serialised
 
     def _get_absolute_prop_iri(self, prefixed_prop: str, namespaces: dict[str, Namespace]) -> URIRef:
@@ -299,13 +300,6 @@ def _make_geoname_value(value: XMLValue) -> dict[str, Any]:
         "@type": "knora-api:GeonameValue",
         "knora-api:geonameValueAsGeonameCode": value.value,
     }
-
-
-def _serialise_integer_prop(
-    prop: XMLProperty, res_bn: BNode, prop_name: URIRef, permissions_lookup: dict[str, Permissions]
-) -> dict[str, Any]:
-    g = _make_integer_prop(prop, res_bn, prop_name, permissions_lookup)
-    return serialise_property(g, prop_name)
 
 
 def _make_integer_prop(

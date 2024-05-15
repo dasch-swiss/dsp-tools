@@ -97,7 +97,7 @@ def test_frame_property() -> None:
         {
             "@id": "_:res_id",
             "http://0.0.0.0:3333/ontology/0009/myonto/v2#hasInteger": [{"@id": "_:1"}],
-            "http://0.0.0.0:3333/ontology/0009/myonto/v2#hasGeoname": [{"@id": "_:2"}],
+            "http://0.0.0.0:3333/ontology/0009/myonto/v2#hasGeoname": [{"@id": "_:2"}, {"@id": "_:3"}],
         },
         {
             "@id": "_:1",
@@ -107,7 +107,12 @@ def test_frame_property() -> None:
         {
             "@id": "_:2",
             "@type": ["http://api.knora.org/ontology/knora-api/v2#GeonameValue"],
-            "http://api.knora.org/ontology/knora-api/v2#geonameValueAsGeonameCode": [{"@value": "2661604"}],
+            "http://api.knora.org/ontology/knora-api/v2#geonameValueAsGeonameCode": [{"@value": "geo2"}],
+        },
+        {
+            "@id": "_:3",
+            "@type": ["http://api.knora.org/ontology/knora-api/v2#GeonameValue"],
+            "http://api.knora.org/ontology/knora-api/v2#geonameValueAsGeonameCode": [{"@value": "geo3"}],
         },
     ]
     expected = {
@@ -115,10 +120,16 @@ def test_frame_property() -> None:
             "@type": "http://api.knora.org/ontology/knora-api/v2#IntValue",
             "http://api.knora.org/ontology/knora-api/v2#intValueAsInt": 1,
         },
-        "http://0.0.0.0:3333/ontology/0009/myonto/v2#hasGeoname": {
-            "@type": "http://api.knora.org/ontology/knora-api/v2#GeonameValue",
-            "http://api.knora.org/ontology/knora-api/v2#geonameValueAsGeonameCode": "2661604",
-        },
+        "http://0.0.0.0:3333/ontology/0009/myonto/v2#hasGeoname": [
+            {
+                "@type": "http://api.knora.org/ontology/knora-api/v2#GeonameValue",
+                "http://api.knora.org/ontology/knora-api/v2#geonameValueAsGeonameCode": "geo2",
+            },
+            {
+                "@type": "http://api.knora.org/ontology/knora-api/v2#GeonameValue",
+                "http://api.knora.org/ontology/knora-api/v2#geonameValueAsGeonameCode": "geo3",
+            },
+        ],
     }
     res = _frame_property(json_graph, MY_ONTO.hasInteger)
     assert res == expected

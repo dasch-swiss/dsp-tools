@@ -544,8 +544,6 @@ def make_iiif_uri_prop(
         >>> resource.append(excel2xml.make_iiif_uri_prop("https://example.org/image-service/abcd1234/full/max/0/default.jpg"))
         >>> root.append(resource)
 
-
-    # TODO make link to documentation
     """
 
     if not is_iiif_uri(iiif_uri):
@@ -560,7 +558,6 @@ def make_iiif_uri_prop(
         nsmap=xml_namespace_map,
     )
     prop_.text = iiif_uri
-    # TODO testing
     return prop_
 
 

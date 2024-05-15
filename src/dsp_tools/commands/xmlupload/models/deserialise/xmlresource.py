@@ -14,7 +14,7 @@ class BitstreamInfo:
     """
     Represents a bitstream object,
     consisting of its file name on the local file system,
-    the internal file name assigned by SIPI
+    the internal file name assigned by the ingest service
     and optionally its permissions.
     """
 

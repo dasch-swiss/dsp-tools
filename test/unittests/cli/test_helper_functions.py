@@ -138,7 +138,7 @@ class TestCLI(unittest.TestCase):
         """
         If the argparse.Namespace contains a server,
         the function should return a modified argparse.Namespace,
-        with the correct DSP URL and SIPI URL.
+        with the correct DSP URL and Ingest URL.
         """
         args_with_server = argparse.Namespace(
             action="xmlupload",

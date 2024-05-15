@@ -192,7 +192,7 @@ def upload_resources(
     Args:
         upload_state: the current state of the upload
         imgdir: folder containing the multimedia files
-        ingest_client: Sipi instance
+        ingest_client: ingest server client
         project_client: a client for HTTP communication with the DSP-API
         list_client: a client for HTTP communication with the DSP-API
         shortcode: the shortcode of the project
@@ -283,7 +283,7 @@ def _upload_resources(
     Args:
         upload_state: the current state of the upload
         imgdir: folder containing the multimedia files
-        ingest_client: Sipi instance
+        ingest_client: ingest server client
         project_client: a client for HTTP communication with the DSP-API
         list_client: a client for HTTP communication with the DSP-API
         shortcode: the shortcode of the project

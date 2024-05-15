@@ -12,7 +12,6 @@ There are three relevant URLs you should know about:
 - Subdomains `admin`/`app` stand for the DSP-APP frontend that you look at in your browser
 - Subdomain `api` stands for the DSP-API (where DSP-TOOLS sends its data to) 
 - Subdomain `ingest` stands for the ingest server interface (where DSP-TOOLS uploads multimedia files to)
-- Subdomain `iiif` stands for the SIPI server interface (the dsp iiif and other media server)
 
 This means that for uploading data to the DSP server 
 on the domain `dasch.swiss`, 

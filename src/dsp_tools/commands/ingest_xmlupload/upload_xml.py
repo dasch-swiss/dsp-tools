@@ -34,7 +34,7 @@ def ingest_xmlupload(
         user: the user's e-mail for login into DSP
         password: the user's password for login into DSP
         dsp_url: URL to the DSP server
-        dsp_ingest_url: URL to the Sipi server
+        dsp_ingest_url: URL to the ingest server
         interrupt_after: if set, the upload will be interrupted after this number of resources
 
     Raises:

@@ -14,12 +14,13 @@ from dsp_tools.commands.xmlupload.check_consistency_with_ontology import do_xml_
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.list_client import ListClient
 from dsp_tools.commands.xmlupload.list_client import ListClientLive
+from dsp_tools.commands.xmlupload.models.deserialise.xmlpermission import XmlPermission
+from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
+from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
+from dsp_tools.commands.xmlupload.models.namespace_context import get_json_ld_context_for_project
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.sipi import Sipi
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
-from dsp_tools.commands.xmlupload.models.xmlpermission import XmlPermission
-from dsp_tools.commands.xmlupload.models.xmlresource import BitstreamInfo
-from dsp_tools.commands.xmlupload.models.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.ontology_client import OntologyClientLive
 from dsp_tools.commands.xmlupload.project_client import ProjectClient
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
@@ -42,7 +43,6 @@ from dsp_tools.models.exceptions import XmlUploadInterruptedError
 from dsp_tools.models.projectContext import ProjectContext
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
-from dsp_tools.utils.json_ld_util import get_json_ld_context_for_project
 from dsp_tools.utils.logger_config import logger_savepath
 
 
@@ -288,14 +288,14 @@ def _upload_resources(
         XmlUploadInterruptedError: if the number of resources created is equal to the interrupt_after value
     """
     project_iri = project_client.get_project_iri()
-    json_ld_context = get_json_ld_context_for_project(project_client.get_ontology_name_dict())
+    project_onto_dict = project_client.get_ontology_name_dict()
     listnode_lookup = list_client.get_list_node_id_to_iri_lookup()
 
     resource_create_client = ResourceCreateClient(
         con=project_client.con,
         project_iri=project_iri,
         iri_resolver=upload_state.iri_resolver,
-        json_ld_context=json_ld_context,
+        project_onto_dict=project_onto_dict,
         permissions_lookup=upload_state.permissions_lookup,
         listnode_lookup=listnode_lookup,
         media_previously_ingested=upload_state.config.media_previously_uploaded,

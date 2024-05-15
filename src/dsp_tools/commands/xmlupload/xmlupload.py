@@ -360,7 +360,7 @@ def _upload_one_resource(
         msg = (
             f"Lost connection to DSP server, probably because the server is down. "
             f"Please continue later with 'resume-xmlupload'. Reason for this failure: {err.message}"
-        )        
+        )
         logger.error(msg)
         raise XmlUploadInterruptedError(msg) from None
     except Exception as err:  # noqa: BLE001 (blind-except)

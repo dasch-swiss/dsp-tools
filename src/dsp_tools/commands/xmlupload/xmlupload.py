@@ -15,7 +15,6 @@ from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.list_client import ListClient
 from dsp_tools.commands.xmlupload.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.models.deserialise.xmlpermission import XmlPermission
-from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClient
 from dsp_tools.commands.xmlupload.models.ingest import IngestClient
@@ -343,7 +342,7 @@ def _upload_one_resource(
         raise XmlUploadInterruptedError("KeyboardInterrupt during media file upload") from None
 
     try:
-        iri = _create_resource(resource, media_info, resource_create_client)
+        iri = resource_create_client.create_resource(resource, media_info)
     except (PermanentTimeOutError, KeyboardInterrupt) as err:
         warnings.warn(DspToolsUserWarning(f"{type(err).__name__}: Tidying up, then exit..."))
         msg = (
@@ -356,6 +355,9 @@ def _upload_one_resource(
         )
         logger.error(msg)
         raise XmlUploadInterruptedError(msg) from None
+    except Exception as err:  # noqa: BLE001 (blind-except)
+        err_msg = err.message if isinstance(err, BaseError) else None
+        _handle_resource_creation_failure(resource, err_msg)
 
     try:
         _tidy_up_resource_creation_idempotent(upload_state, iri, resource)
@@ -399,30 +401,17 @@ def _tidy_up_resource_creation_idempotent(
         upload_state.pending_resources.remove(resource)
 
 
-def _create_resource(
-    resource: XMLResource,
-    bitstream_information: BitstreamInfo | None,
-    resource_create_client: ResourceCreateClient,
-) -> str | None:
-    try:
-        return resource_create_client.create_resource(resource, bitstream_information)
-    except PermanentTimeOutError as err:
-        # The following block catches all exceptions and handles them in a generic way.
-        # Because the calling function needs to know that this was a PermanentTimeOutError, we need to catch and
-        # raise it here.
-        raise err
-    except Exception as err:  # noqa: BLE001 (blind-except)
-        msg = f"{datetime.now()}: WARNING: Unable to create resource '{resource.label}' (ID: '{resource.res_id}')"
-        if isinstance(err, BaseError):
-            msg = f"{msg}: {err.message}"
-        print(msg)
-        log_msg = (
-            f"Unable to create resource '{resource.label}' ({resource.res_id})\n"
-            f"Resource details:\n{vars(resource)}\n"
-            f"Property details:\n" + "\n".join([str(vars(prop)) for prop in resource.properties])
-        )
-        logger.exception(log_msg)
-        return None
+def _handle_resource_creation_failure(resource: XMLResource, err_msg: str | None) -> None:
+    msg = f"{datetime.now()}: WARNING: Unable to create resource '{resource.label}' (ID: '{resource.res_id}')"
+    if err_msg:
+        msg = f"{msg}: {err_msg}"
+    print(msg)
+    log_msg = (
+        f"Unable to create resource '{resource.label}' ({resource.res_id})\n"
+        f"Resource details:\n{vars(resource)}\n"
+        f"Property details:\n" + "\n".join([str(vars(prop)) for prop in resource.properties])
+    )
+    logger.exception(log_msg)
 
 
 def _handle_upload_error(err: BaseException, upload_state: UploadState) -> None:

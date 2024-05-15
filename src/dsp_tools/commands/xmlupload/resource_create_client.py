@@ -6,6 +6,12 @@ from typing import assert_never
 from typing import cast
 
 from loguru import logger
+from rdflib import RDF
+from rdflib import BNode
+from rdflib import Graph
+from rdflib import Literal
+from rdflib import Namespace
+from rdflib import URIRef
 
 from dsp_tools.commands.xmlupload.ark2iri import convert_ark_v0_to_resource_iri
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
@@ -15,16 +21,21 @@ from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import Bitstrea
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.namespace_context import get_json_ld_context_for_project
+from dsp_tools.commands.xmlupload.models.namespace_context import make_namespace_dict_from_onto_names
 from dsp_tools.commands.xmlupload.models.permission import Permissions
+from dsp_tools.commands.xmlupload.models.serialise.jsonld_serialiser import serialise_property_graph
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseProperty
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseURI
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseValue
 from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.exceptions import PermissionNotExistsError
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.date_util import parse_date_string
 from dsp_tools.utils.iri_util import is_resource_iri
+
+KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
 
 
 @dataclass(frozen=True)
@@ -57,11 +68,13 @@ class ResourceCreateClient:
         resource: XMLResource,
         bitstream_information: BitstreamInfo | None,
     ) -> dict[str, Any]:
+        res_bnode = BNode()
+        namespaces = make_namespace_dict_from_onto_names(self.project_onto_dict)
         res = self._make_resource(
             resource=resource,
             bitstream_information=bitstream_information,
         )
-        vals = self._make_values(resource)
+        vals = self._make_values(resource, res_bnode, namespaces)
         res.update(vals)
         return res
 
@@ -98,7 +111,7 @@ class ResourceCreateClient:
             res.update(_make_bitstream_file_value(bitstream_information))
         return res
 
-    def _make_values(self, resource: XMLResource) -> dict[str, Any]:
+    def _make_values(self, resource: XMLResource, res_bnode: BNode, namespaces: dict[str, Namespace]) -> dict[str, Any]:
         def prop_name(p: XMLProperty) -> str:
             if p.valtype != "resptr":
                 return p.name
@@ -113,15 +126,30 @@ class ResourceCreateClient:
             return [self._make_value(v, p.valtype) for v in p.values]
 
         properties_serialised = {}
+        properties_graph = Graph()
+        last_prop_name = None
 
         for prop in resource.properties:
             match prop.valtype:
                 case "uri":
                     properties_serialised.update(_serialise_uri_prop(prop, self.permissions_lookup))
+                case "integer":
+                    int_prop_name = self._get_absolute_prop_iri(prop.name, namespaces)
+                    int_graph = _make_integer_prop(prop, res_bnode, int_prop_name, self.permissions_lookup)
+                    properties_graph += int_graph
+                    last_prop_name = int_prop_name
                 case _:
                     properties_serialised.update({prop_name(prop): make_values(prop)})
-
+        if last_prop_name:
+            serialised_graph_props = serialise_property_graph(properties_graph, last_prop_name)
+            properties_serialised.update(serialised_graph_props)
         return properties_serialised
+
+    def _get_absolute_prop_iri(self, prefixed_prop: str, namespaces: dict[str, Namespace]) -> URIRef:
+        prefix, prop = prefixed_prop.split(":", maxsplit=1)
+        if not (namespace := namespaces.get(prefix)):
+            raise InputError(f"Could not find namespace for prefix: {prefix}")
+        return namespace[prop]
 
     def _make_value(self, value: XMLValue, value_type: str) -> dict[str, Any]:
         match value_type:
@@ -137,8 +165,6 @@ class ResourceCreateClient:
                 res = _make_geometry_value(value)
             case "geoname":
                 res = _make_geoname_value(value)
-            case "integer":
-                res = _make_integer_value(value)
             case "interval":
                 res = _make_interval_value(value)
             case "resptr":
@@ -275,12 +301,29 @@ def _make_geoname_value(value: XMLValue) -> dict[str, Any]:
     }
 
 
-def _make_integer_value(value: XMLValue) -> dict[str, Any]:
+def _make_integer_prop(
+    prop: XMLProperty, res_bn: BNode, prop_name: URIRef, permissions_lookup: dict[str, Permissions]
+) -> Graph:
+    g = Graph()
+    for value in prop.values:
+        single_val_bn = BNode()
+        g.add((res_bn, prop_name, single_val_bn))
+        g += _make_integer_value(value, single_val_bn, permissions_lookup)
+    return g
+
+
+def _make_integer_value(value: XMLValue, val_bn: BNode, permissions_lookup: dict[str, Permissions]) -> Graph:
     s = _assert_is_string(value.value)
-    return {
-        "@type": "knora-api:IntValue",
-        "knora-api:intValueAsInt": int(s),
-    }
+    g = Graph()
+    g.add((val_bn, RDF.type, KNORA_API.IntValue))
+    g.add((val_bn, KNORA_API.intValueAsInt, Literal(int(s))))
+    if value.permissions:
+        if not (per := permissions_lookup.get(value.permissions)):
+            raise PermissionNotExistsError(f"Could not find permissions for value: {value.permissions}")
+        g.add((val_bn, KNORA_API.hasPermissions, Literal(str(per))))
+    if value.comment:
+        g.add((val_bn, KNORA_API.valueHasComment, Literal(value.comment)))
+    return g
 
 
 def _make_interval_value(value: XMLValue) -> dict[str, Any]:

@@ -15,7 +15,7 @@ def dsp_ingest_url() -> str:
 
 
 @pytest.fixture()
-def ingest_client(dsp_ingest_url) -> IngestClient:
+def ingest_client(dsp_ingest_url: str) -> IngestClient:
     return DspIngestClient(dsp_ingest_url, "token")
 
 
@@ -25,11 +25,11 @@ def shortcode() -> str:
 
 
 @pytest.fixture()
-def tmp_file(tmp_path) -> Path:
+def tmp_file(tmp_path: Path) -> Path:
     return tmp_path / "filename.xml"
 
 
-def test_ingest_success(dsp_ingest_url, ingest_client, requests_mock, shortcode, tmp_file):
+def test_ingest_success(dsp_ingest_url, ingest_client, requests_mock, shortcode, tmp_file):  # type: ignore[no-untyped-def]
     tmp_file.write_text("<xml></xml>")
     requests_mock.post(
         f"{dsp_ingest_url}/projects/{shortcode}/assets/ingest/{tmp_file.name}", json={"internalFilename": tmp_file.name}
@@ -38,19 +38,19 @@ def test_ingest_success(dsp_ingest_url, ingest_client, requests_mock, shortcode,
     assert res.internal_filename == tmp_file.name
 
 
-def test_ingest_failure_when_file_not_found(ingest_client, shortcode, tmp_file):
+def test_ingest_failure_when_file_not_found(ingest_client, shortcode, tmp_file):  # type: ignore[no-untyped-def]
     with pytest.raises(UserError):
         ingest_client.ingest(shortcode, tmp_file)
 
 
-def test_ingest_failure_when_authentication_error(dsp_ingest_url, ingest_client, requests_mock, shortcode, tmp_file):
+def test_ingest_failure_when_authentication_error(dsp_ingest_url, ingest_client, requests_mock, shortcode, tmp_file):  # type: ignore[no-untyped-def]
     tmp_file.write_text("<xml></xml>")
     requests_mock.post(f"{dsp_ingest_url}/projects/{shortcode}/assets/ingest/{tmp_file.name}", status_code=401)
     with pytest.raises(BadCredentialsError):
         ingest_client.ingest(shortcode, tmp_file)
 
 
-def test_ingest_failure_when_other_error(dsp_ingest_url, ingest_client, requests_mock, shortcode, tmp_file):
+def test_ingest_failure_when_other_error(dsp_ingest_url, ingest_client, requests_mock, shortcode, tmp_file):  # type: ignore[no-untyped-def]
     tmp_file.write_text("<xml></xml>")
     requests_mock.post(f"{dsp_ingest_url}/projects/{shortcode}/assets/ingest/{tmp_file.name}", status_code=500)
     with pytest.raises(PermanentConnectionError):

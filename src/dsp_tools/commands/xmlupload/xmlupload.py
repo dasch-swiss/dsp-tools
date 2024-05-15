@@ -338,7 +338,9 @@ def _upload_one_resource(
         logger.error(msg)
         raise XmlUploadInterruptedError(msg) from None
     except KeyboardInterrupt:
-        raise XmlUploadInterruptedError("xmlupload interrupted. Please continue later with 'resume-xmlupload'") from None
+        warnings.warn(DspToolsUserWarning("xmlupload manually interrupted. Tidying up, then exit..."))
+        msg = "xmlupload manually interrupted. Please continue later with 'resume-xmlupload'"
+        raise XmlUploadInterruptedError(msg) from None
 
     try:
         iri = resource_create_client.create_resource(resource, media_info)
@@ -369,9 +371,10 @@ def _upload_one_resource(
         _tidy_up_resource_creation_idempotent(upload_state, iri, resource)
         _interrupt_if_indicated(upload_state, creation_attempts_of_this_round)
     except KeyboardInterrupt:
-        warnings.warn(DspToolsUserWarning("KeyboardInterrupt: Tidying up, then exit..."))
+        warnings.warn(DspToolsUserWarning("xmlupload manually interrupted. Tidying up, then exit..."))
         _tidy_up_resource_creation_idempotent(upload_state, iri, resource)
-        raise XmlUploadInterruptedError("xmlupload interrupted. Please continue later with 'resume-xmlupload'") from None
+        msg = "xmlupload manually interrupted. Please continue later with 'resume-xmlupload'"
+        raise XmlUploadInterruptedError(msg) from None
 
 
 def _interrupt_if_indicated(upload_state: UploadState, creation_attempts_of_this_round: int) -> None:

@@ -6,15 +6,18 @@ from rdflib import Graph
 from rdflib import URIRef
 
 
-def serialise_property(rdf_graph: Graph, prop_name: URIRef) -> dict[str, Any]:
+def serialise_property_graph(rdf_graph: Graph, prop_name: URIRef) -> dict[str, Any]:
     """
     It serialises an RDF-graph into json-ld,
     which is conform to the format expected by the DSP-API.
     It returns the information about the property and its value(s).
+    It is possible that the graph contains different properties.
+    The properties do not have to be from the same ontology.
 
     Args:
         rdf_graph: RDF graph
-        prop_name: property name
+        prop_name: One property name used in the graph.
+                    If there are several it does not matter which.
 
     Returns:
         A json-ld

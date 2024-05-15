@@ -6,7 +6,7 @@ from rdflib import Literal
 from rdflib import Namespace
 
 from dsp_tools.commands.xmlupload.models.serialise.jsonld_serialiser import _frame_property
-from dsp_tools.commands.xmlupload.models.serialise.jsonld_serialiser import serialise_property
+from dsp_tools.commands.xmlupload.models.serialise.jsonld_serialiser import serialise_property_graph
 
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
 MY_ONTO = Namespace("http://0.0.0.0:3333/ontology/0009/myonto/v2#")
@@ -59,7 +59,7 @@ class TestSerialiseProperty:
                 "http://api.knora.org/ontology/knora-api/v2#intValueAsInt": 1,
             }
         }
-        result = serialise_property(int_value, MY_ONTO.hasInteger)
+        result = serialise_property_graph(int_value, MY_ONTO.hasInteger)
         assert result == expected
 
     def test_value_with_comments(self, int_value_with_comment: Graph) -> None:
@@ -71,7 +71,7 @@ class TestSerialiseProperty:
                 "http://api.knora.org/ontology/knora-api/v2#intValueAsInt": 2,
             }
         }
-        result = serialise_property(int_value_with_comment, MY_ONTO.hasInteger)
+        result = serialise_property_graph(int_value_with_comment, MY_ONTO.hasInteger)
         assert result == expected
 
     def test_several_values(self, two_int_values: Graph) -> None:
@@ -88,7 +88,7 @@ class TestSerialiseProperty:
             ],
         }
 
-        result = serialise_property(two_int_values, MY_ONTO.hasInteger)
+        result = serialise_property_graph(two_int_values, MY_ONTO.hasInteger)
         assert result == expected
 
 
@@ -96,7 +96,7 @@ def test_frame_property() -> None:
     json_graph = [
         {
             "@id": "_:res_id",
-            "http://0.0.0.0:3333/ontology/0009/myonto/v2#hasInteger": [{"@id": "_:1"}],
+            "http://0.0.0.0:3333/ontology/0009/myonto2/v2#hasInteger": [{"@id": "_:1"}],
             "http://0.0.0.0:3333/ontology/0009/myonto/v2#hasGeoname": [{"@id": "_:2"}, {"@id": "_:3"}],
         },
         {
@@ -116,7 +116,7 @@ def test_frame_property() -> None:
         },
     ]
     expected = {
-        "http://0.0.0.0:3333/ontology/0009/myonto/v2#hasInteger": {
+        "http://0.0.0.0:3333/ontology/0009/myonto2/v2#hasInteger": {
             "@type": "http://api.knora.org/ontology/knora-api/v2#IntValue",
             "http://api.knora.org/ontology/knora-api/v2#intValueAsInt": 1,
         },
@@ -131,7 +131,7 @@ def test_frame_property() -> None:
             },
         ],
     }
-    res = _frame_property(json_graph, MY_ONTO.hasInteger)
+    res = _frame_property(json_graph, Namespace("http://0.0.0.0:3333/ontology/0009/myonto2/v2#hasInteger"))
     assert res == expected
 
 

@@ -23,7 +23,7 @@ from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTe
 from dsp_tools.commands.xmlupload.models.namespace_context import get_json_ld_context_for_project
 from dsp_tools.commands.xmlupload.models.namespace_context import make_namespace_dict_from_onto_names
 from dsp_tools.commands.xmlupload.models.permission import Permissions
-from dsp_tools.commands.xmlupload.models.serialise.jsonld_serialiser import serialise_property
+from dsp_tools.commands.xmlupload.models.serialise.jsonld_serialiser import serialise_property_graph
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseProperty
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseURI
 from dsp_tools.commands.xmlupload.models.serialise.serialise_value import SerialiseValue
@@ -142,7 +142,7 @@ class ResourceCreateClient:
                 case _:
                     properties_serialised.update({prop_name(prop): make_values(prop)})
         if last_prop_name:
-            serialised_graph_props = serialise_property(properties_graph, last_prop_name)
+            serialised_graph_props = serialise_property_graph(properties_graph, last_prop_name)
             properties_serialised.update(serialised_graph_props)
         return properties_serialised
 

@@ -36,6 +36,8 @@ def is_iiif_uri(uri: str) -> bool:
     # %5E is the URL encoded version of ^ ->
     # because we do change the uri to lower case we need to change that in the regex
     # (\d+(\.\d+)?) -> number, can be integer or float
+    # everything needs to encapsulated in a group
+    # otherwise the ^ and $ only apply respectively to the first and last listed in the alternative options
     region_ex = (
         r"^((full)|(square)|"  # full | square
         r"((pct:)?(\d+(\.\d+)?),(\d+(\.\d+)?),(\d+(\.\d+)?),(\d+(\.\d+)?)))$"  # x,y,w,h | pct:x,y,w,h

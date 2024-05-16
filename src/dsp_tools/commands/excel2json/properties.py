@@ -209,16 +209,24 @@ def _check_compliance_gui_attributes(df: pd.DataFrame) -> dict[str, pd.Series[bo
         check_empty_colname="gui_attributes",
         must_have_value=False,
     )
+    final_series = _get_final_series(mandatory_check, no_attribute_check)
+    return {"gui_attributes": final_series} if final_series else None
+
+
+def _get_final_series(
+    mandatory_check: pd.Series[bool] | None, no_attribute_check: pd.Series[bool] | None
+) -> pd.Series[bool] | None:
+    final_series: pd.Series[bool] = pd.Series()
     match mandatory_check, no_attribute_check:
         case None, None:
             return None
         case pd.Series(), pd.Series():
-            final_series: pd.Series[bool] = pd.Series(np.logical_or(mandatory_check, no_attribute_check))  # type: ignore[arg-type]
+            final_series = pd.Series(np.logical_or(mandatory_check, no_attribute_check))  # type: ignore[arg-type]
         case pd.Series(), None:
             final_series = mandatory_check  # type: ignore[assignment]
-        case None, pd.Series:
-            final_series = no_attribute_check
-    return {"gui_attributes": final_series}  # type: ignore[possibly-undefined]
+        case None, pd.Series():
+            final_series = no_attribute_check  # type: ignore[assignment]
+    return final_series
 
 
 def _row2prop(df_row: pd.Series[Any], row_num: int, excelfile: str) -> dict[str, Any]:

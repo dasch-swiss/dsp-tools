@@ -33,32 +33,32 @@ def is_iiif_uri(uri: str) -> bool:
     split_uri = uri.lower().split("/")
     if len(split_uri) < 8:
         return False
-    # %5E is the URL encoded version of ^
+    # %5E is the URL encoded version of ^ ->
+    # because we do change the uri to lower case we need to change that in the regex
     # (\d+(\.\d+)?) -> number, can be integer or float
-    # TODO: maybe needs brakets everywhere because the start should be in all or
     region_ex = (
-        r"^(full)|(square)|"  # full | square
-        r"((pct:)?(\d+(\.\d+)?),(\d+(\.\d+)?),(\d+(\.\d+)?),(\d+(\.\d+)?))$"  # x,y,w,h | pct:x,y,w,h
+        r"^((full)|(square)|"  # full | square
+        r"((pct:)?(\d+(\.\d+)?),(\d+(\.\d+)?),(\d+(\.\d+)?),(\d+(\.\d+)?)))$"  # x,y,w,h | pct:x,y,w,h
     )
     if not regex.search(region_ex, split_uri[-4]):
         return False
     size_ex = (
-        r"^((\^|%5E)?max)|"  # max | ^max
-        r"((\^|%5E)?full)|"  # full | ^full
-        r"(\^|%5E)?(pct:)(\d+(\.\d+)?)|"  # pct:n | ^pct:n
-        r"(\^|%5E)?(\d+(\.\d+)?)+,|"  # w, | ^w,
-        r"(\^|%5E)?,(\d+(\.\d+)?)|"  # ,h | ^,h
-        r"(\^|%5E)?!?(\d+(\.\d+)?),(\d+(\.\d+)?)$"  # w,h | ^w,h | !w,h | ^!w,h
+        r"^(((\^|%5e)?max)|"  # max | ^max
+        r"((\^|%5e)?full)|"  # full | ^full
+        r"(\^|%5e)?(pct:)(\d+(\.\d+)?)|"  # pct:n | ^pct:n
+        r"(\^|%5e)?(\d+(\.\d+)?)+,|"  # w, | ^w,
+        r"(\^|%5e)?,(\d+(\.\d+)?)|"  # ,h | ^,h
+        r"(\^|%5e)?!?(\d+(\.\d+)?),(\d+(\.\d+)?))$"  # w,h | ^w,h | !w,h | ^!w,h
     )
     if not regex.search(size_ex, split_uri[-3]):
         return False
     # rotation -> floating point number 0-360 -> n | !n  (positive and negative are allowed)
-    rotation_ex = r"^!?[+-]?(\d+(\.\d+)?)$"
+    rotation_ex = r"^(!?[+-]?(\d+(\.\d+)?))$"
     if not regex.search(rotation_ex, split_uri[-2]):
         return False
-    # quality -> color | gray | bitonal | default | native
+    # quality -> color | colour | gray |grey | bitonal | default | native
     # format -> jpg | tif | png | gif | jp2 | pdf | webp
-    quality_format_ex = r"^(color|gray|bitonal|default|native)(\.(jpg|tif|png|jp2|gif|pdf|webp))?$"
+    quality_format_ex = r"^((colou?r|gr[ae]y|bitonal|default|native)(\.(jpg|tif|png|jp2|gif|pdf|webp))?)$"
     if not regex.search(quality_format_ex, split_uri[-1]):
         return False
     return True

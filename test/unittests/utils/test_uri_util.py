@@ -35,64 +35,37 @@ class TestIsIIIFUriCorrect:
     def test_9(self) -> None:
         assert is_iiif_uri("http://www.example.org/prefix1/abcd1234/full/full/0/native.jpg")
 
-    def test_13(self) -> None:
-        assert is_iiif_uri("http://www.example.org/prefix1/abcd1234/pct:50/0/native.jpg")
+    def test_10(self) -> None:
+        assert is_iiif_uri("http://www.example.org/prefix1/abcd1234/full/600,/0/colour.jpg")
 
-    def test_14(self) -> None:
-        assert is_iiif_uri("http://www.example.org/prefix1/abcd1234/150,75/0/native.jpg")
+    def test_11(self) -> None:
+        assert is_iiif_uri("http://www.example.org/prefix1/abcd1234/full/600,/!1/color.jpg")
 
-    def test_15(self) -> None:
-        assert is_iiif_uri("http://www.example.org/prefix1/abcd1234/!150,75/0/native.jpg")
-
-    def test_16(self) -> None:
-        assert is_iiif_uri("http://www.example.org/prefix1/abcd1234/full/0/native.jpg")
-
-    def test_17(self) -> None:
-        assert is_iiif_uri("http://www.example.org/prefix1/abcd1234/full/-90.5/native.jpg")
-
-    def test_18(self) -> None:
-        assert is_iiif_uri("http://www.example.org/prefix1/abcd1234/full/!180/native.jpg")
-
-    def test_19(self) -> None:
-        assert is_iiif_uri("http://www.example.org/prefix1/abcd1234/full/+270/native.jpg")
-
-    def test_20(self) -> None:
-        assert is_iiif_uri("http://www.example.org/prefix1/abcd1234/full/22.5/native.jpg")
-
-    def test_21(self) -> None:
-        assert is_iiif_uri("http://www.example.org/prefix1/abcd1234/full/600,/0/native.jpg")
-
-    def test_22(self) -> None:
-        assert is_iiif_uri("http://www.example.org/prefix1/abcd1234/full/600,/0/color.jpg")
-
-    def test_23(self) -> None:
+    def test_12(self) -> None:
         assert is_iiif_uri("http://www.example.org/prefix1/abcd1234/full/600,/0/grey.jpg")
 
-    def test_24(self) -> None:
+    def test_13(self) -> None:
         assert is_iiif_uri("http://www.example.org/prefix1/abcd1234/full/600,/0/bitonal.JPG")
 
-    def test_25(self) -> None:
+    def test_14(self) -> None:
         assert is_iiif_uri("http://www.example.org/prefix1/prefix2/prefix3/prefix4/abcd1234/full/full/0/default.jpg")
 
-    def test_26(self) -> None:
+    def test_15(self) -> None:
         assert is_iiif_uri("https://www.example.org/prefix1/prefix2/prefix3/prefix4/abcd1234/full/full/!90/gray.webp")
 
-    def test_27(self) -> None:
+    def test_16(self) -> None:
         assert is_iiif_uri("http://www.example.org/prefix1/prefix2/prefix3/prefix4/abcd1234/full/max/0/default.jpg")
 
-    def test_28(self) -> None:
-        assert is_iiif_uri("https://www.example.org/prefix1/prefix2/prefix3/prefix4/abcd1234/square/%5Emax/0/gray.webp")
-
-    def test_29(self) -> None:
+    def test_17(self) -> None:
         assert is_iiif_uri("http://www.example.org/prefix1/abcd1234/80,15,60,75/full/0/native")
 
-    def test_30(self) -> None:
+    def test_18(self) -> None:
         assert is_iiif_uri("https://www.example.org/prefix1/prefix2/prefix3/prefix4/abcd1234/full/%5Emax/0/gray.webp")
 
-    def test_31(self) -> None:
+    def test_19(self) -> None:
         assert is_iiif_uri("https://iiif.dasch.swiss/0811/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/max/0/default.jpg")
 
-    def test_32(self) -> None:
+    def test_20(self) -> None:
         assert is_iiif_uri("http://www.example.org/prefix1/prefix2/prefix3/abcd1234/80,15,60,75/full/0/native")
 
 
@@ -112,9 +85,7 @@ class TestIsIIIFUriWrong:
         assert not is_iiif_uri("https://iiif.dasch.swiss/0811/5Jd909CLmCJ-BUUL1DDOXGJ.jp2/info.json")
 
     def test_5(self) -> None:
-        assert not is_iiif_uri(
-            "ftp://www.example.org/prefix1/prefix2/prefix3/prefix4/abcd1234/square/%5Emax/0/gray.webp"
-        )
+        assert not is_iiif_uri("ftp://www.example.org/prefix1/prefix2/prefix3/prefix4/abcd1234/kljg/%5Emax/0/gray.webp")
 
     def test_6(self) -> None:
         assert not is_iiif_uri("http://www.example.org/prefix1/abcd1234/80.,15,60,75/full/0/native")

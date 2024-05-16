@@ -701,6 +701,17 @@ class TestCheckForErroneousEntries:
         df = pd.DataFrame({"en_list": ["list1", "list1", "list1", "list1"], "en_1": [pd.NA, "node1", "node2", "node3"]})
         assert not _check_for_erroneous_node_info_one_df(df, ["en_list", "en_1"])
 
+    def test_all_good_duplicate_names(self) -> None:
+        df = pd.DataFrame(
+            {
+                "en_list": ["list1", "list1", "list1", "list1", "list1", "list1", "list1"],
+                "en_1": [pd.NA, "node1", "node1", "node2", "node2", "node2", "node2"],
+                "en_2": [pd.NA, pd.NA, "same", pd.NA, "same", "2.1", "2.1"],
+                "en_3": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, "2.1.1"],
+            }
+        )
+        assert not _check_for_erroneous_node_info_one_df(df, ["en_list", "en_1", "en_2", "en_3"])
+
     def test_missing_row(self) -> None:
         df = pd.DataFrame(
             {
@@ -730,14 +741,14 @@ class TestCheckOneColumnGroupsForErroneousEntries:
             {"one": ["a", "b", "b", "c"], "two": [pd.NA, "bb", "bb", "cc"], "other": ["a", "b", pd.NA, pd.NA]},
             index=[2, 3, 4, 5],
         )
-        assert not _check_for_erroneous_entries_one_column_level(df, ["two"])
+        assert not _check_for_erroneous_entries_one_column_level(df, ["two"], 0)
 
     def test_missing(self) -> None:
         df = pd.DataFrame(
             {"one": ["a", "b", "b", "c"], "two": [pd.NA, "bb", pd.NA, pd.NA], "other": ["a", "b", pd.NA, pd.NA]},
             index=[2, 3, 4, 5],
         )
-        res = _check_for_erroneous_entries_one_column_level(df, ["one", "two"])
+        res = _check_for_erroneous_entries_one_column_level(df, ["one", "two"], 0)
         assert len(res) == 2
         assert isinstance(res[0], NodesPerRowProblem)
         assert res[0].column_names == ["two"]

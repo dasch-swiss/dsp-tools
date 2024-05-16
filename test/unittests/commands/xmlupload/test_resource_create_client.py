@@ -438,14 +438,13 @@ def test_make_iiif_uri_value_raises() -> None:
 
 
 def test_make_iiif_uri_value_serialised() -> None:
-    permission = {"prop-default": Permissions()}
     xml_str = """
         <resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id">
             <iiif-uri>http://example.org/prefix1/abcd1234/full/full/0/native.jpg</iiif-uri>
         </resource>
         """
     xmlresource = XMLResource(etree.fromstring(xml_str), "foo")
-    result = _make_iiif_uri_value(xmlresource.iiif_uri, BNode(), permission)
+    result = _make_iiif_uri_value(xmlresource.iiif_uri, BNode(), {})
     serialised = serialise_property_graph(
         result, URIRef("http://api.knora.org/ontology/knora-api/v2#hasStillImageFileValue")
     )

@@ -666,18 +666,22 @@ def _check_for_erroneous_entries_one_list(df: pd.DataFrame, sheet_name: str) -> 
 
 def _check_for_erroneous_node_info_one_df(df: pd.DataFrame, columns: list[str]) -> list[NodesPerRowProblem]:
     problems = []
-    for i, col in enumerate(columns):
-        to_check_cols = columns[i:]
-        problems.extend(_check_for_erroneous_entries_one_column_level(df, to_check_cols))
+    for focus_col_index, col in enumerate(columns):
+        problems.extend(_check_for_erroneous_entries_one_column_level(df, columns, focus_col_index))
     return problems
 
 
-def _check_for_erroneous_entries_one_column_level(df: pd.DataFrame, columns: list[str]) -> list[NodesPerRowProblem]:
+def _check_for_erroneous_entries_one_column_level(
+    df: pd.DataFrame, columns: list[str], focus_col_index: int
+) -> list[NodesPerRowProblem]:
     # column level refers to the hierarchical level of the nodes. eg. "en_1"
-    grouped = df.groupby(columns[0])
+    # we need to group by from the current column all the way back to its ancestors,
+    # otherwise identical values in that column may be interpreted as belonging to the same group
+    grouped = df.groupby(columns[: focus_col_index + 1])
     problems = []
     for name, group in grouped:
-        problems.extend(_check_for_erroneous_entries_one_grouped_df(group, columns))
+        remaining_to_check_columns = columns[focus_col_index:]
+        problems.extend(_check_for_erroneous_entries_one_grouped_df(group, remaining_to_check_columns))
     return problems
 
 

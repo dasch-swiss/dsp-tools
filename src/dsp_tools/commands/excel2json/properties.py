@@ -210,7 +210,7 @@ def _check_compliance_gui_attributes(df: pd.DataFrame) -> dict[str, pd.Series[bo
         must_have_value=False,
     )
     final_series = _get_final_series(mandatory_check, no_attribute_check)
-    return {"gui_attributes": final_series} if final_series else None
+    return {"gui_attributes": final_series} if final_series is not None else None
 
 
 def _get_final_series(

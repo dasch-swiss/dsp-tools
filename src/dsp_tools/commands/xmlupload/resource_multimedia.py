@@ -43,7 +43,7 @@ def handle_media_info(
         If the upload was not successful, it returns False and None.
     """
     bitstream = resource.bitstream
-    if bitstream is None:
+    if not bitstream:
         return True, None
     elif not media_previously_uploaded:
         try:

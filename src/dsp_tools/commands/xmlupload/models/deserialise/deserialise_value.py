@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Optional
+from typing import Protocol
 from typing import Union
 from typing import cast
 
@@ -156,7 +158,14 @@ class XMLValue:
         return string
 
 
-class XMLBitstream:
+class AbstractFileValue(Protocol):
+    """Represents an abstract file value of a resource. It is analogous to the knora-base counterpart."""
+
+    value: str
+    permissions: Optional[str]
+
+
+class XMLBitstream(AbstractFileValue):
     """
     Represents a bitstream object (file) of a resource in the XML used for data import
 
@@ -171,3 +180,17 @@ class XMLBitstream:
     def __init__(self, node: etree._Element) -> None:
         self.value = cast(str, node.text)
         self.permissions = node.get("permissions")
+
+
+@dataclass(frozen=True)
+class IIIFUriInfo(AbstractFileValue):
+    """
+    Represents a IIIF URI of a resource in the XML used for data import
+
+    Attributes:
+        value: The IIIF URI of the object
+        permissions: Reference to the set of permissions for the IIIF URI
+    """
+
+    value: str
+    permissions: str | None

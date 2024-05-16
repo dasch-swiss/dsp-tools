@@ -58,14 +58,15 @@ def _get_project_info_from_server(con: Connection, shortcode: str) -> ProjectInf
 
 
 def _get_project_iri_from_server(con: Connection, shortcode: str) -> str:
+    url = f"/admin/projects/shortcode/{shortcode}"
     try:
-        url = f"/admin/projects/shortcode/{shortcode}"
         res = con.get(url)
-        iri: str = res["project"]["id"]
     except BaseError as e:
         raise UserError(f"A project with shortcode {shortcode} could not be found on the DSP server") from e
-    except KeyError as e:
-        raise BaseError(f"Unexpected response from server: {res}") from e
+
+    iri: str | None = res.get("project", {}).get("id")
+    if not iri:
+        raise BaseError(f"Unexpected response from server: {res}")
     return iri
 
 

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from typing import Optional
-from typing import Protocol
 from typing import Union
 from typing import cast
 
@@ -157,14 +156,7 @@ class XMLValue:
         return string
 
 
-class AbstractFileValue(Protocol):
-    """Represents an abstract file value of a resource. It is analogous to the knora-base counterpart."""
-
-    value: str
-    permissions: Optional[str]
-
-
-class XMLBitstream(AbstractFileValue):
+class XMLBitstream:
     """
     Represents a bitstream object (file) of a resource in the XML used for data import
 
@@ -181,7 +173,7 @@ class XMLBitstream(AbstractFileValue):
         self.permissions = node.get("permissions")
 
 
-class IIIFUriInfo(AbstractFileValue):
+class IIIFUriInfo:
     """
     Represents a IIIF URI of a resource in the XML used for data import
 

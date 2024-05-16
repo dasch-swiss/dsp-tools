@@ -1,8 +1,11 @@
+from typing import cast
+
 import pytest
 from lxml import etree
 from rdflib import BNode
 from rdflib import URIRef
 
+from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import IIIFUriInfo
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.permission import Permissions
@@ -409,7 +412,8 @@ def test_make_iiif_uri_value_with_permissions() -> None:
         </resource>
         """
     xmlresource = XMLResource(etree.fromstring(xml_str), "foo")
-    result = _make_iiif_uri_value(xmlresource.iiif_uri, BNode(), permission)
+    test_val = cast(IIIFUriInfo, xmlresource.iiif_uri)
+    result = _make_iiif_uri_value(test_val, BNode(), permission)
     assert len(result) == 4
 
 
@@ -421,20 +425,22 @@ def test_make_iiif_uri_value_no_permissions() -> None:
         </resource>
         """
     xmlresource = XMLResource(etree.fromstring(xml_str), "foo")
-    result = _make_iiif_uri_value(xmlresource.iiif_uri, BNode(), permission)
+    test_val = cast(IIIFUriInfo, xmlresource.iiif_uri)
+    result = _make_iiif_uri_value(test_val, BNode(), permission)
     assert len(result) == 3
 
 
 def test_make_iiif_uri_value_raises() -> None:
-    permission = {}
+    permission = {"": Permissions()}
     xml_str = """
         <resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id">
             <iiif-uri permissions="prop-default">http://example.org/prefix1/abcd1234/full/full/0/native.jpg</iiif-uri>
         </resource>
         """
     xmlresource = XMLResource(etree.fromstring(xml_str), "foo")
+    test_val = cast(IIIFUriInfo, xmlresource.iiif_uri)
     with pytest.raises(PermissionNotExistsError):
-        _make_iiif_uri_value(xmlresource.iiif_uri, BNode(), permission)
+        _make_iiif_uri_value(test_val, BNode(), permission)
 
 
 def test_make_iiif_uri_value_serialised() -> None:
@@ -444,7 +450,8 @@ def test_make_iiif_uri_value_serialised() -> None:
         </resource>
         """
     xmlresource = XMLResource(etree.fromstring(xml_str), "foo")
-    result = _make_iiif_uri_value(xmlresource.iiif_uri, BNode(), {})
+    test_val = cast(IIIFUriInfo, xmlresource.iiif_uri)
+    result = _make_iiif_uri_value(test_val, BNode(), {})
     serialised = serialise_property_graph(
         result, URIRef("http://api.knora.org/ontology/knora-api/v2#hasStillImageFileValue")
     )

@@ -29,23 +29,36 @@ def is_iiif_uri(uri: str) -> bool:
     Returns:
         True if the URI is a valid IIIF URI, False otherwise.
     """
-    split_uri = uri.split("/")
-    if len(split_uri) < 5:
-        return False
     # {scheme}://{server}{/prefix}/{identifier}/{region}/{size}/{rotation}/{quality}.{format}
+    split_uri = uri.lower().split("/")
+    if len(split_uri) < 8:
+        return False
+    # %5E is the URL encoded version of ^
+    # (\d+(\.\d+)?) -> number, can be integer or float
+    # TODO: maybe needs brakets everywhere because the start should be in all or
     region_ex = (
-        r"^(full)|(square)|([0-9]+,[0-9]+,[0-9]+,[0-9]+)|"
-        r"(pct:[0-9]*\.?[0-9]*,[0-9]*\.?[0-9]*,[0-9]*\.?[0-9]*,[0-9]*\.?[0-9]*)$"
+        r"^(full)|(square)|"  # full | square
+        r"((pct:)?(\d+(\.\d+)?),(\d+(\.\d+)?),(\d+(\.\d+)?),(\d+(\.\d+)?))$"  # x,y,w,h | pct:x,y,w,h
     )
     if not regex.search(region_ex, split_uri[-4]):
         return False
-    size_ex = r"^(\^?max)|(\^?pct:[0-9]*\.?[0-9]*)|(\^?[0-9]*,)|(\^?,[0-9]*)|(\^?!?[0-9]*,[0-9]*)$"
+    size_ex = (
+        r"^((\^|%5E)?max)|"  # max | ^max
+        r"((\^|%5E)?full)|"  # full | ^full
+        r"(\^|%5E)?(pct:)(\d+(\.\d+)?)|"  # pct:n | ^pct:n
+        r"(\^|%5E)?(\d+(\.\d+)?)+,|"  # w, | ^w,
+        r"(\^|%5E)?,(\d+(\.\d+)?)|"  # ,h | ^,h
+        r"(\^|%5E)?!?(\d+(\.\d+)?),(\d+(\.\d+)?)$"  # w,h | ^w,h | !w,h | ^!w,h
+    )
     if not regex.search(size_ex, split_uri[-3]):
         return False
-    rotation_ex = r"^[-+]?[0-9]*\.?[0-9]+$|^![-+]?[0-9]*\.?[0-9]+$"
+    # rotation -> floating point number 0-360 -> n | !n  (positive and negative are allowed)
+    rotation_ex = r"^!?[+-]?(\d+(\.\d+)?)$"
     if not regex.search(rotation_ex, split_uri[-2]):
         return False
-    quality_format_ex = r"^(color|gray|bitonal|default)\.(jpg|tif|png|jp2|gif|pdf|webp)?$"
+    # quality -> color | gray | bitonal | default | native
+    # format -> jpg | tif | png | gif | jp2 | pdf | webp
+    quality_format_ex = r"^(color|gray|bitonal|default|native)(\.(jpg|tif|png|jp2|gif|pdf|webp))?$"
     if not regex.search(quality_format_ex, split_uri[-1]):
         return False
     return True

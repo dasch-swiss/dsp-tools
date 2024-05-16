@@ -342,6 +342,7 @@ def _upload_one_resource(
         msg = "xmlupload manually interrupted. Please continue later with 'resume-xmlupload'"
         raise XmlUploadInterruptedError(msg) from None
 
+    iri = None
     try:
         iri = resource_create_client.create_resource(resource, media_info)
     except (PermanentTimeOutError, KeyboardInterrupt) as err:

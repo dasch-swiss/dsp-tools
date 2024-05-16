@@ -118,7 +118,7 @@ class TestCLI(unittest.TestCase):
             "https://api.unkown-host.ch",
         ]
 
-    def test_derive_dps_ingest_url_without_server(self) -> None:
+    def test_derive_dsp_ingest_url_without_server(self) -> None:
         """
         If the argparse.Namespace does not contain a server,
         the function should return the same object.

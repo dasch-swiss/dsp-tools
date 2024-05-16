@@ -23,6 +23,7 @@ def analyse_circles_in_data(xml_filepath: Path, tracer_output_file: str, save_tr
     """
     root = parse_and_clean_xml_file(xml_filepath)
     resptr_links, xml_links, all_resource_ids = create_info_from_xml_for_graph(root)
+    tracer: VizTracer | None = None
     if save_tracer:
         tracer = VizTracer(
             minimize_memory=True,
@@ -38,7 +39,7 @@ def analyse_circles_in_data(xml_filepath: Path, tracer_output_file: str, save_tr
     graph, node_to_id, edges = make_graph(resptr_links, xml_links, all_resource_ids)
     _, _, stash_counter = generate_upload_order(graph, node_to_id, edges)
     end = datetime.now()
-    if save_tracer:
+    if save_tracer and tracer:
         tracer.stop()
         tracer.save(output_file=tracer_output_file)
     print("Number of Links Stashed:", stash_counter)

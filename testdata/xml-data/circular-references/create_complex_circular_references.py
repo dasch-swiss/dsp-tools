@@ -71,7 +71,7 @@ def _make_xml_text_prop(target_res: etree._Element | list[etree._Element]) -> et
             # one resource with many targets
         case list():
             salsah_link = "blabla".join([_make_salsah_link(x.attrib["id"]) for x in target_res])
-    text_value = f"Start text{salsah_link}end text."
+    text_value = f"Start text{salsah_link}end text."  # type: ignore[possibly-undefined]
     return excel2xml.make_text_prop(name=":hasRichtext", value=excel2xml.PropertyElement(text_value, encoding="xml"))
 
 
@@ -82,7 +82,7 @@ def _make_resptr_prop(target_id: list[str] | str, property_name: str = ":hasReso
         # one resource with many targets
         case list():
             link = excel2xml.make_resptr_prop(name=property_name, value=target_id)
-    return link
+    return link  # type: ignore[possibly-undefined]
 
 
 def _make_simple_text(resource: etree._Element) -> etree._Element:

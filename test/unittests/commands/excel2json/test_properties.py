@@ -197,6 +197,34 @@ class TestFunctions(unittest.TestCase):
         casted_dict = {"gui_attributes": list(returned_dict["gui_attributes"])}
         self.assertDictEqual(expected_dict, casted_dict)
 
+    def test_get_final_series_two_series(self) -> None:
+        mandatory_check = pd.Series([True, True, False])
+        no_attribute_check = pd.Series([True, False, False])
+        expected = pd.Series([True, True, False])
+        result = e2j._get_final_series(mandatory_check, no_attribute_check)
+        self.assertEqual(list(result), list(expected))  # type: ignore[arg-type]
+
+    def test_get_final_series_one_series_one_None(self) -> None:
+        mandatory_check = pd.Series([True, True, False])
+        no_attribute_check = None
+        expected = pd.Series([True, True, False])
+        result = e2j._get_final_series(mandatory_check, no_attribute_check)
+        self.assertEqual(list(result), list(expected))  # type: ignore[arg-type]
+
+    def test_get_final_series_one_None_one_series(self) -> None:
+        mandatory_check = None
+        no_attribute_check = pd.Series([True, False, False])
+        expected = pd.Series([True, False, False])
+        result = e2j._get_final_series(mandatory_check, no_attribute_check)
+        self.assertEqual(list(result), list(expected))  # type: ignore[arg-type]
+
+    def test_get_final_series_two_None(self) -> None:
+        mandatory_check = None
+        no_attribute_check = None
+        expected = None
+        result = e2j._get_final_series(mandatory_check, no_attribute_check)
+        self.assertEqual(result, expected)
+
     def test_row2prop(self) -> None:
         original_df = pd.DataFrame(
             {

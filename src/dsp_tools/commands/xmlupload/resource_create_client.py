@@ -18,6 +18,7 @@ from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLValue
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
+from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import IIIFUriInfo
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.commands.xmlupload.models.namespace_context import get_json_ld_context_for_project
@@ -141,6 +142,9 @@ class ResourceCreateClient:
                     last_prop_name = int_prop_name
                 case _:
                     properties_serialised.update({prop_name(prop): make_values(prop)})
+        if resource.iiif_uri:
+            properties_graph += _make_iiif_uri_value(resource.iiif_uri, res_bnode, self.permissions_lookup)
+            last_prop_name = KNORA_API.hasStillImageFileValue
         if last_prop_name:
             serialised_graph_props = serialise_property_graph(properties_graph, last_prop_name)
             properties_serialised.update(serialised_graph_props)
@@ -186,6 +190,19 @@ class ResourceCreateClient:
             else:
                 raise PermissionNotExistsError(f"Could not find permissions for value: {value.permissions}")
         return res
+
+
+def _make_iiif_uri_value(iiif_uri: IIIFUriInfo, res_bnode: BNode, permissions_lookup: dict[str, Permissions]) -> Graph:
+    g = Graph()
+    iiif_bn = BNode()
+    g.add((res_bnode, KNORA_API.hasStillImageFileValue, iiif_bn))
+    g.add((iiif_bn, RDF.type, KNORA_API.StillImageExternalFileValue))
+    g.add((iiif_bn, KNORA_API.externalUrl, Literal(iiif_uri.value)))
+    if iiif_uri.permissions:
+        if not (per := permissions_lookup.get(iiif_uri.permissions)):
+            raise PermissionNotExistsError(f"Could not find permissions for value: {iiif_uri.permissions}")
+        g.add((iiif_bn, KNORA_API.hasPermissions, Literal(str(per))))
+    return g
 
 
 def _make_bitstream_file_value(bitstream_info: BitstreamInfo) -> dict[str, Any]:

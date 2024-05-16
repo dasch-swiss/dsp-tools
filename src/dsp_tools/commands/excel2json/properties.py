@@ -218,7 +218,7 @@ def _check_compliance_gui_attributes(df: pd.DataFrame) -> dict[str, pd.Series[bo
             final_series = mandatory_check  # type: ignore[assignment]
         case None, pd.Series:
             final_series = no_attribute_check
-    return {"gui_attributes": final_series}
+    return {"gui_attributes": final_series}  # type: ignore[possibly-undefined]
 
 
 def _row2prop(df_row: pd.Series[Any], row_num: int, excelfile: str) -> dict[str, Any]:

@@ -273,7 +273,7 @@ class ConnectionLive:
                 self._log_and_sleep(reason="Connection Error raised", retry_counter=i, exc_info=True)
                 continue
 
-            self._log_response(response)
+            self._log_response(response)  # type: ignore[possibly-undefined]
             if response.status_code == HTTP_OK:
                 return response
 

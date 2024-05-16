@@ -54,7 +54,7 @@ def is_iiif_uri(uri: str) -> bool:
     )
     if not regex.search(size_ex, split_uri[-3]):
         return False
-    # rotation -> floating point number 0-360 -> n | !n  (positive and negative are allowed)
+    # rotation -> floating point number 0-360 -> n | !n (positive and negative are allowed)
     rotation_ex = r"^(!?[+-]?(\d+(\.\d+)?))$"
     if not regex.search(rotation_ex, split_uri[-2]):
         return False

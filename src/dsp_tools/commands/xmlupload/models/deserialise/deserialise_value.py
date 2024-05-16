@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import Optional
 from typing import Protocol
 from typing import Union
@@ -182,7 +181,6 @@ class XMLBitstream(AbstractFileValue):
         self.permissions = node.get("permissions")
 
 
-@dataclass(frozen=True)
 class IIIFUriInfo(AbstractFileValue):
     """
     Represents a IIIF URI of a resource in the XML used for data import
@@ -194,3 +192,7 @@ class IIIFUriInfo(AbstractFileValue):
 
     value: str
     permissions: str | None
+
+    def __init__(self, node: etree._Element) -> None:
+        self.value = cast(str, node.text)
+        self.permissions = node.get("permissions")

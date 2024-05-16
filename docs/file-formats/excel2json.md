@@ -346,7 +346,6 @@ The Excel sheets must have the following structure:
 - `<language>_list`: At least one column with the name of the list in that language.
 - `<language>_number`: At least one column which specifies a node level. 
   It starts with 1 for the highest node hierarchy, and can go on infinitely.
-- The id will be identical to the content of the cell in the excel no transformations will be made to the string.
 
 
 #### Languages

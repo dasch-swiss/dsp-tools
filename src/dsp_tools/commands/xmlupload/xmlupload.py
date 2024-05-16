@@ -332,6 +332,7 @@ def _upload_one_resource(
     except KeyboardInterrupt:
         raise XmlUploadInterruptedError("KeyboardInterrupt during media file upload") from None
 
+    iri = None
     try:
         iri = resource_create_client.create_resource(resource, media_info)
     except (PermanentTimeOutError, KeyboardInterrupt) as err:

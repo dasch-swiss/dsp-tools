@@ -8,6 +8,7 @@ from functools import partial
 from importlib.metadata import version
 from typing import Any
 from typing import Literal
+from typing import Never
 from typing import Optional
 from typing import cast
 
@@ -314,7 +315,7 @@ class ConnectionLive:
             logger.error(f"{msg} ({retry_counter=:})")
         time.sleep(2**retry_counter)
 
-    def _log_and_raise_timeouts(self, error: TimeoutError | ReadTimeout) -> None:
+    def _log_and_raise_timeouts(self, error: TimeoutError | ReadTimeout) -> Never:
         msg = f"A '{error.__class__.__name__}' occurred during the connection to the DSP server."
         print(f"{datetime.now()}: {msg}")
         logger.exception(msg)

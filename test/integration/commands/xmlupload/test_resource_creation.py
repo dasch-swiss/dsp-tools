@@ -16,7 +16,6 @@ from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItem
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
-from dsp_tools.models.exceptions import PermanentConnectionError
 from dsp_tools.models.exceptions import PermanentTimeOutError
 from dsp_tools.models.exceptions import XmlUploadInterruptedError
 from dsp_tools.utils.connection import Connection
@@ -423,18 +422,22 @@ def test_interruption_if_resource_cannot_be_created() -> None:
     xml_resources = [XMLResource(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
     upload_state = UploadState(xml_resources.copy(), [], IriResolver(), Stash(None, None), UploadConfig(), {})
     upload_state_expected = deepcopy(upload_state)
-    con = Mock(spec_set=ConnectionLive)
+    con = ConnectionLive("foo")
+    con._log_request = Mock()  # type: ignore[method-assign]
+    con._log_response = Mock()  # type: ignore[method-assign]
     resp_404 = Response()
     resp_404.status_code = 404
     post_responses = [resp_404] * 7
-    con.post = Mock(side_effect=post_responses)
+    con.session.request = Mock(side_effect=post_responses)  # type: ignore[method-assign]
     project_client = ProjectClientStub(con, "1234", None)
     xmlupload._handle_upload_error = Mock()
 
     xmlupload.upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
     msg = (
-        f"Lost connection to DSP server, probably because the server is down. "
-        f"Please continue later with 'resume-xmlupload'. Reason for this failure: {err.message}"
+        "Lost connection to DSP server, probably because the server is down. "
+        "Please continue later with 'resume-xmlupload'. Reason for this failure: "
+        "Permanently unable to execute the network action. "
+        "See logs for more details: /Users/nussbaum/.dsp-tools/logging.log"
     )
-    expected_calls = [(PermanentConnectionError(msg), upload_state_expected)]
-    assert xmlupload._handle_upload_error.call_args_list == expected_calls
+    assert len(xmlupload._handle_upload_error.call_args_list) == 1
+    xmlupload._handle_upload_error.call_args_list[0].args == (XmlUploadInterruptedError(msg), upload_state_expected)

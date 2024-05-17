@@ -3,6 +3,7 @@ from pathlib import Path
 
 from loguru import logger
 
+from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.excel2json.lists import excel2lists
 from dsp_tools.commands.excel2json.lists import validate_lists_section_with_schema
 from dsp_tools.commands.excel2json.new_lists import new_excel2lists
@@ -235,9 +236,16 @@ def _call_create(args: argparse.Namespace) -> bool:
         case False, False:
             success = create_project(
                 project_file_as_path_or_parsed=args.project_definition,
-                server=args.server,
-                user_mail=args.user,
-                password=args.password,
+                creds=_get_creds(args),
                 verbose=args.verbose,
             )
     return success
+
+
+def _get_creds(args: argparse.Namespace) -> ServerCredentials:
+    return ServerCredentials(
+        server=args.server,
+        user=args.user,
+        password=args.password,
+        dsp_ingest_url=args.dsp_ingest_url,
+    )

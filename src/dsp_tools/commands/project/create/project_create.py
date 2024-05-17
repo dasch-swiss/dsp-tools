@@ -10,6 +10,7 @@ from typing import cast
 import regex
 from loguru import logger
 
+from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.excel2json.lists import expand_lists_from_excel
 from dsp_tools.commands.project.create.project_create_lists import create_lists_on_server
 from dsp_tools.commands.project.create.project_validate import validate_project
@@ -929,9 +930,7 @@ def _rectify_hlist_of_properties(
 
 def create_project(
     project_file_as_path_or_parsed: Union[str, Path, dict[str, Any]],
-    server: str,
-    user_mail: str,
-    password: str,
+    creds=ServerCredentials,
     verbose: bool = False,
 ) -> bool:
     """
@@ -943,9 +942,7 @@ def create_project(
 
     Args:
         project_file_as_path_or_parsed: path to the JSON project definition, or parsed JSON object
-        server: the URL of the DSP server on which the project should be created
-        user_mail: a username (e-mail) who has the permission to create a project
-        password: the user's password
+        creds: credentials to connect to the DSP server
         verbose: prints more information if set to True
 
     Raises:
@@ -977,8 +974,8 @@ def create_project(
     all_ontos = _get_all_ontos(project_json, all_lists)
 
     # establish connection to DSP server
-    con = ConnectionLive(server)
-    con.login(user_mail, password)
+    con = ConnectionLive(creds.server)
+    con.login(creds.user, creds.password)
 
     # create project on DSP server
     info_str = f"Create project '{project_definition.shortname}' ({project_definition.shortcode})..."

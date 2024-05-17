@@ -4,6 +4,7 @@ from pathlib import Path
 
 import jsonpath_ng.ext
 
+from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create import create_project
 from dsp_tools.commands.project.create.project_create_lists import create_lists
 
@@ -11,9 +12,7 @@ from dsp_tools.commands.project.create.project_create_lists import create_lists
 
 
 class TestCreateLists(unittest.TestCase):
-    server = "http://0.0.0.0:3333"
-    user = "root@example.com"
-    password = "test"
+    creds = ServerCredentials(server="http://0.0.0.0:3333", user="root@example.com", password="test", dsp_ingest_url="")
     test_project_minimal_file = Path("testdata/json-project/test-project-minimal.json")
 
     def test_create_lists(self) -> None:
@@ -25,9 +24,7 @@ class TestCreateLists(unittest.TestCase):
         # (if it was already created in a previous test, the function returns False, which doesn't matter)
         create_project(
             project_file_as_path_or_parsed=self.test_project_minimal_file.absolute(),
-            server=self.server,
-            user_mail=self.user,
-            password=self.password,
+            creds=self.creds,
             verbose=True,
         )
 
@@ -40,9 +37,9 @@ class TestCreateLists(unittest.TestCase):
 
         # The method to be tested can now be called with the project with the added list
         name2iri_mapping, success = create_lists(
-            server=self.server,
-            user=self.user,
-            password=self.password,
+            server=self.creds.server,
+            user=self.creds.user,
+            password=self.creds.password,
             project_file_as_path_or_parsed=test_project_minimal,
         )
 

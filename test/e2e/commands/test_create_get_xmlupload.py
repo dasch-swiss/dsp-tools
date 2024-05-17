@@ -10,6 +10,7 @@ from typing import cast
 
 import regex
 
+from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.id2iri import id2iri
 from dsp_tools.commands.project.create.project_create import create_project
 from dsp_tools.commands.project.get import get_project
@@ -22,11 +23,13 @@ from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 class TestCreateGetXMLUpload(unittest.TestCase):
     """Test if the commands "create", "get", and "xmlupload" work together as expected."""
 
-    server = "http://0.0.0.0:3333"
-    user = "root@example.com"
-    password = "test"
+    creds = ServerCredentials(
+        dsp_ingest_url="http://0.0.0.0:3340",
+        server="http://0.0.0.0:3333",
+        user="root@example.com",
+        password="test",
+    )
     imgdir = "."
-    dsp_ingest_url = "http://0.0.0.0:3340"
     test_project_systematic_file = Path("testdata/json-project/test-project-systematic.json")
     test_data_systematic_file = Path("testdata/xml-data/test-data-systematic.xml")
     cwd = Path("cwd")
@@ -50,9 +53,7 @@ class TestCreateGetXMLUpload(unittest.TestCase):
         """Test if the systematic JSON project file can be uploaded without producing an error on its way"""
         success = create_project(
             project_file_as_path_or_parsed=self.test_project_systematic_file.absolute(),
-            server=self.server,
-            user_mail=self.user,
-            password=self.password,
+            creds=self.creds,
             verbose=True,
         )
         self.assertTrue(success)
@@ -64,11 +65,11 @@ class TestCreateGetXMLUpload(unittest.TestCase):
         """
         success = xmlupload(
             input_file=self.test_data_systematic_file,
-            server=self.server,
-            user=self.user,
-            password=self.password,
+            server=self.creds.server,
+            user=self.creds.user,
+            password=self.creds.password,
             imgdir=self.imgdir,
-            dsp_ingest_url=self.dsp_ingest_url,
+            dsp_ingest_url=self.creds.dsp_ingest_url,
             config=UploadConfig(),
         )
         self.assertTrue(success)
@@ -85,11 +86,11 @@ class TestCreateGetXMLUpload(unittest.TestCase):
         second_xml_file_replaced = self._get_most_recent_glob_match(f"{second_xml_file_orig.stem}_replaced_*.xml")
         success = xmlupload(
             input_file=second_xml_file_replaced,
-            server=self.server,
-            user=self.user,
-            password=self.password,
+            server=self.creds.server,
+            user=self.creds.user,
+            password=self.creds.password,
             imgdir=self.imgdir,
-            dsp_ingest_url=self.dsp_ingest_url,
+            dsp_ingest_url=self.creds.dsp_ingest_url,
             config=UploadConfig(),
         )
         second_xml_file_replaced.unlink()
@@ -105,9 +106,9 @@ class TestCreateGetXMLUpload(unittest.TestCase):
         success = get_project(
             project_identifier="systematic-tp",
             outfile_path=str(out_file),
-            server=self.server,
-            user=self.user,
-            password=self.password,
+            server=self.creds.server,
+            user=self.creds.user,
+            password=self.creds.password,
             verbose=True,
         )
         self.assertTrue(success)

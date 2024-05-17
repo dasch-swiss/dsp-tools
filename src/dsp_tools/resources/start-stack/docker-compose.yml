@@ -1,7 +1,5 @@
 ---
-
 services:
-
   api:
     # on the verge of every deployment (fortnightly), update the "image" value from the "api" value of
     # https://github.com/dasch-swiss/ops-deploy/blob/main/roles/dsp-deploy/files/RELEASE.json
@@ -17,6 +15,7 @@ services:
       - TZ=Europe/Zurich
       - KNORA_AKKA_LOGLEVEL=DEBUG
       - KNORA_AKKA_STDOUT_LOGLEVEL=DEBUG
+      - KNORA_WEBAPI_DSP_INGEST_BASE_URL=http://ingest:3340
       - KNORA_WEBAPI_TRIPLESTORE_HOST=db
       - KNORA_WEBAPI_TRIPLESTORE_DBTYPE=fuseki
       - KNORA_WEBAPI_SIPI_INTERNAL_HOST=sipi
@@ -78,7 +77,7 @@ services:
   ingest:
     # on the verge of every deployment (fortnightly), update the "image" value from the "ingest" value of
     # https://github.com/dasch-swiss/ops-deploy/blob/main/roles/dsp-deploy/files/RELEASE.json
-    image: daschswiss/dsp-ingest:v0.9.0
+    image: daschswiss/dsp-ingest:v0.9.1
     ports:
       - "3340:3340"
     volumes:

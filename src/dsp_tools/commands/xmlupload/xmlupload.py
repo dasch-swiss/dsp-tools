@@ -16,9 +16,10 @@ from dsp_tools.commands.xmlupload.list_client import ListClient
 from dsp_tools.commands.xmlupload.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.models.deserialise.xmlpermission import XmlPermission
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
+from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
+from dsp_tools.commands.xmlupload.models.ingest import IngestClient
 from dsp_tools.commands.xmlupload.models.namespace_context import get_json_ld_context_for_project
 from dsp_tools.commands.xmlupload.models.permission import Permissions
-from dsp_tools.commands.xmlupload.models.sipi import Sipi
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.ontology_client import OntologyClientLive
 from dsp_tools.commands.xmlupload.project_client import ProjectClient
@@ -51,7 +52,7 @@ def xmlupload(
     user: str,
     password: str,
     imgdir: str,
-    sipi: str,
+    dsp_ingest_url: str,
     config: UploadConfig = UploadConfig(),
 ) -> bool:
     """
@@ -63,7 +64,7 @@ def xmlupload(
         user: the user (e-mail) with which the data should be imported
         password: the password of the user with which the data should be imported
         imgdir: the image directory
-        sipi: the sipi instance to be used
+        dsp_ingest_url: the url to the ingest server to be used
         config: the upload configuration
 
     Raises:
@@ -78,8 +79,7 @@ def xmlupload(
 
     con = ConnectionLive(server)
     con.login(user, password)
-    sipi_con = ConnectionLive(sipi, token=con.get_token())
-    sipi_server = Sipi(sipi_con)
+    ingest_client = DspIngestClientLive(dsp_ingest_url=dsp_ingest_url, token=con.get_token())
 
     default_ontology, root, shortcode = validate_and_parse_xml_file(
         input_file=input_file,
@@ -112,7 +112,7 @@ def xmlupload(
     upload_resources(
         upload_state=upload_state,
         imgdir=imgdir,
-        sipi_server=sipi_server,
+        ingest_client=ingest_client,
         project_client=project_client,
         list_client=list_client,
     )
@@ -180,7 +180,7 @@ def _prepare_upload(
 def upload_resources(
     upload_state: UploadState,
     imgdir: str,
-    sipi_server: Sipi,
+    ingest_client: IngestClient,
     project_client: ProjectClient,
     list_client: ListClient,
 ) -> None:
@@ -190,7 +190,7 @@ def upload_resources(
     Args:
         upload_state: the current state of the upload
         imgdir: folder containing the multimedia files
-        sipi_server: Sipi instance
+        ingest_client: ingest server client
         project_client: a client for HTTP communication with the DSP-API
         list_client: a client for HTTP communication with the DSP-API
     """
@@ -198,7 +198,7 @@ def upload_resources(
         _upload_resources(
             upload_state=upload_state,
             imgdir=imgdir,
-            sipi_server=sipi_server,
+            ingest_client=ingest_client,
             project_client=project_client,
             list_client=list_client,
         )
@@ -266,7 +266,7 @@ def _extract_resources_from_xml(root: etree._Element, default_ontology: str) -> 
 def _upload_resources(
     upload_state: UploadState,
     imgdir: str,
-    sipi_server: Sipi,
+    ingest_client: IngestClient,
     project_client: ProjectClient,
     list_client: ListClient,
 ) -> None:
@@ -278,7 +278,7 @@ def _upload_resources(
     Args:
         upload_state: the current state of the upload
         imgdir: folder containing the multimedia files
-        sipi_server: Sipi instance
+        ingest_client: ingest server client
         project_client: a client for HTTP communication with the DSP-API
         list_client: a client for HTTP communication with the DSP-API
 
@@ -305,7 +305,7 @@ def _upload_resources(
             upload_state=upload_state,
             resource=resource,
             imgdir=imgdir,
-            sipi_server=sipi_server,
+            ingest_client=ingest_client,
             resource_create_client=resource_create_client,
             creation_attempts_of_this_round=creation_attempts_of_this_round,
         )
@@ -315,7 +315,7 @@ def _upload_one_resource(
     upload_state: UploadState,
     resource: XMLResource,
     imgdir: str,
-    sipi_server: Sipi,
+    ingest_client: IngestClient,
     resource_create_client: ResourceCreateClient,
     creation_attempts_of_this_round: int,
 ) -> None:
@@ -323,9 +323,10 @@ def _upload_one_resource(
         success, media_info = handle_media_info(
             resource,
             upload_state.config.media_previously_uploaded,
-            sipi_server,
+            ingest_client,
             imgdir,
             upload_state.permissions_lookup,
+            upload_state.config.shortcode,
         )
         if not success:
             upload_state.failed_uploads.append(resource.res_id)

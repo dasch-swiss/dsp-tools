@@ -44,7 +44,7 @@ def run(args: list[str]) -> None:
         InternalError: if the user cannot fix it
     """
     default_dsp_api_url = "http://0.0.0.0:3333"
-    default_sipi_url = "http://0.0.0.0:1024"
+    default_dsp_ingest_url = "http://0.0.0.0:3340"
     root_user_email = "root@example.com"
     root_user_pw = "test"
 
@@ -62,10 +62,10 @@ def run(args: list[str]) -> None:
     initialize_warnings()
 
     try:
-        parsed_arguments = _derive_sipi_url(
+        parsed_arguments = _derive_dsp_ingest_url(
             parsed_arguments=parsed_arguments,
             default_dsp_api_url=default_dsp_api_url,
-            default_sipi_url=default_sipi_url,
+            default_dsp_ingest_url=default_dsp_ingest_url,
         )
         success = call_requested_action(parsed_arguments)
     except BaseError as err:
@@ -201,68 +201,70 @@ def _log_cli_arguments(parsed_args: argparse.Namespace) -> None:
     logger.info("*" * asterisk_count)
 
 
-def _get_canonical_server_and_sipi_url(
+def _get_canonical_server_and_dsp_ingest_url(
     server: str,
     default_dsp_api_url: str,
-    default_sipi_url: str,
+    default_dsp_ingest_url: str,
 ) -> tuple[str, str]:
     """
     Based on the DSP server URL passed by the user,
     transform it to its canonical form,
-    and derive the SIPI URL from it.
+    and derive the ingest server URL from it.
 
     If the DSP server URL points to port 3333 on localhost,
-    the SIPI URL will point to port 1024 on localhost.
+    the ingest server will point to port 3340 on localhost.
 
     If the DSP server URL points to a remote server ending in "dasch.swiss",
     modify it (if necessary) to point to the "api" subdomain of that server,
-    and add a new "sipi_url" argument pointing to the "iiif" subdomain of that server.
+    and add a new "dsp_ingest_url" argument pointing to the "ingest" subdomain of that server.
 
     Args:
         server: DSP server URL passed by the user
         default_dsp_api_url: default DSP server on localhost
-        default_sipi_url: default SIPI server on localhost
+        default_dsp_ingest_url: default ingest server on localhost
 
     Raises:
         UserError: if the DSP server URL passed by the user is invalid
 
     Returns:
-        canonical DSP URL and SIPI URL
+        canonical DSP URL and ingest server URL
     """
     localhost_match = regex.search(r"(0\.0\.0\.0|localhost):3333", server)
-    remote_url_match = regex.search(r"^(?:https?:\/\/)?(?:admin\.|api\.|iiif\.|app\.)?((?:.+\.)?dasch)\.swiss", server)
+    remote_url_match = regex.search(
+        r"^(?:https?:\/\/)?(?:admin\.|api\.|ingest\.|app\.)?((?:.+\.)?dasch)\.swiss", server
+    )
 
     if localhost_match:
         server = default_dsp_api_url
-        sipi_url = default_sipi_url
+        dsp_ingest_url = default_dsp_ingest_url
     elif remote_url_match:
         server = f"https://api.{remote_url_match.group(1)}.swiss"
-        sipi_url = f"https://iiif.{remote_url_match.group(1)}.swiss"
+        dsp_ingest_url = f"https://ingest.{remote_url_match.group(1)}.swiss"
     else:
         logger.error(f"Invalid DSP server URL '{server}'")
         raise UserError(f"ERROR: Invalid DSP server URL '{server}'")
 
-    logger.info(f"Using DSP server '{server}' and SIPI server '{sipi_url}'")
-    print(f"Using DSP server '{server}' and SIPI server '{sipi_url}'")
+    logger.info(f"Using DSP server '{server}' and ingest server '{dsp_ingest_url}'")
+    print(f"Using DSP server '{server}' and ingest server '{dsp_ingest_url}'")
 
-    return server, sipi_url
+    return server, dsp_ingest_url
 
 
-def _derive_sipi_url(
+def _derive_dsp_ingest_url(
     parsed_arguments: argparse.Namespace,
     default_dsp_api_url: str,
-    default_sipi_url: str,
+    default_dsp_ingest_url: str,
 ) -> argparse.Namespace:
     """
-    Modify the parsed arguments so that the DSP and SIPI URLs are correct.
+    Modify the parsed arguments so that the DSP and ingest server URLs are correct.
     Based on the DSP server URL passed by the user,
     transform it to its canonical form,
-    and derive the SIPI URL from it.
+    and derive the ingest server URL from it.
 
     Args:
         parsed_arguments: CLI arguments passed by the user, parsed by argparse
         default_dsp_api_url: default DSP server on localhost
-        default_sipi_url: default SIPI server on localhost
+        default_dsp_ingest_url: default ingest server on localhost
 
     Raises:
         UserError: if the DSP server URL passed by the user is invalid
@@ -274,13 +276,13 @@ def _derive_sipi_url(
         # some CLI actions (like excel2json, excel2xml, start-stack, ...) don't have a server at all
         return parsed_arguments
 
-    server, sipi_url = _get_canonical_server_and_sipi_url(
+    server, dsp_ingest_url = _get_canonical_server_and_dsp_ingest_url(
         server=parsed_arguments.server,
         default_dsp_api_url=default_dsp_api_url,
-        default_sipi_url=default_sipi_url,
+        default_dsp_ingest_url=default_dsp_ingest_url,
     )
     parsed_arguments.server = server
-    parsed_arguments.sipi_url = sipi_url
+    parsed_arguments.dsp_ingest_url = dsp_ingest_url
 
     return parsed_arguments
 

@@ -3,11 +3,13 @@ from typing import Any
 
 import pytest
 
+from dsp_tools.utils.connection import Connection
+
 # ruff: noqa: ARG002 (unused-method-argument)
 
 
 @dataclass
-class ConnectionMockBase:
+class ConnectionMockBase(Connection):
     """
     Base mock for the Connection class.
     Does not have any capabilities, but subclasses can override methods.

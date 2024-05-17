@@ -149,6 +149,6 @@ class BulkIngestedAssetClient(AssetClient):
         res_label: str,  # noqa: ARG002
         res_id: str,  # noqa: ARG002
     ) -> tuple[bool, BitstreamInfo | None]:
-        """Uploads a file to the ingest server and returns the BitstreamInfo."""
+        """Returns the BitstreamInfo of the already ingested file based on the `XMLBitstream.value`."""
         permissions = permissions_lookup.get(bitstream.permissions) if bitstream.permissions else None
         return True, BitstreamInfo(bitstream.value, bitstream.value, permissions)

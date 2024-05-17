@@ -526,7 +526,7 @@ def make_iiif_uri_prop(
     calling_resource: str = "",
 ) -> etree._Element:
     """
-    Creates a bitstream element that points to "path".
+    Creates a iiif-uri element that points to "path".
 
     Args:
         iiif_uri: URI to a IIIF image

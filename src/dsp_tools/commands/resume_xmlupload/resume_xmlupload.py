@@ -6,7 +6,7 @@ from termcolor import colored
 
 from dsp_tools.commands.xmlupload.list_client import ListClient
 from dsp_tools.commands.xmlupload.list_client import ListClientLive
-from dsp_tools.commands.xmlupload.models.ingest import DspIngestClient
+from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.project_client import ProjectClient
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
@@ -41,7 +41,7 @@ def resume_xmlupload(
 
     con = ConnectionLive(server)
     con.login(user, password)
-    ingest_client = DspIngestClient(dsp_ingest_url=dsp_ingest_url, token=con.get_token())
+    ingest_client = DspIngestClientLive(dsp_ingest_url=dsp_ingest_url, token=con.get_token())
 
     project_client: ProjectClient = ProjectClientLive(con, upload_state.config.shortcode)
     list_client: ListClient = ListClientLive(con, project_client.get_project_iri())

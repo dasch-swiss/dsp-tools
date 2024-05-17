@@ -41,7 +41,7 @@ class IngestClient(Protocol):
 
 
 @dataclass(frozen=True)
-class DspIngestClient(IngestClient):
+class DspIngestClientLive(IngestClient):
     dsp_ingest_url: str
     token: str
 
@@ -62,7 +62,7 @@ class DspIngestClient(IngestClient):
         return session
 
     def ingest(self, shortcode: str, filepath: Path) -> IngestResponse:
-        s = DspIngestClient._retry_session(retries=6)
+        s = DspIngestClientLive._retry_session(retries=6)
         url = f"{self.dsp_ingest_url}/projects/{shortcode}/assets/ingest/{filepath.name}"
         err = f"Failed to ingest {filepath} to '{url}'."
         try:

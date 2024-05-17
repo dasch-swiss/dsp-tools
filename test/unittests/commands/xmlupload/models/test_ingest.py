@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from dsp_tools.commands.xmlupload.models.ingest import DspIngestClient
+from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
 from dsp_tools.commands.xmlupload.models.ingest import IngestClient
 from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import PermanentConnectionError
@@ -16,7 +16,7 @@ def dsp_ingest_url() -> str:
 
 @pytest.fixture()
 def ingest_client(dsp_ingest_url: str) -> IngestClient:
-    return DspIngestClient(dsp_ingest_url, "token")
+    return DspIngestClientLive(dsp_ingest_url, "token")
 
 
 @pytest.fixture()

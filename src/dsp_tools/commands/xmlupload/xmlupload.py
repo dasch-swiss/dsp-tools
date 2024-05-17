@@ -16,7 +16,7 @@ from dsp_tools.commands.xmlupload.list_client import ListClient
 from dsp_tools.commands.xmlupload.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.models.deserialise.xmlpermission import XmlPermission
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
-from dsp_tools.commands.xmlupload.models.ingest import DspIngestClient
+from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
 from dsp_tools.commands.xmlupload.models.ingest import IngestClient
 from dsp_tools.commands.xmlupload.models.namespace_context import get_json_ld_context_for_project
 from dsp_tools.commands.xmlupload.models.permission import Permissions
@@ -78,7 +78,7 @@ def xmlupload(
 
     con = ConnectionLive(server)
     con.login(user, password)
-    ingest_client = DspIngestClient(dsp_ingest_url=dsp_ingest_url, token=con.get_token())
+    ingest_client = DspIngestClientLive(dsp_ingest_url=dsp_ingest_url, token=con.get_token())
 
     default_ontology, root, shortcode = validate_and_parse_xml_file(
         input_file=input_file,

@@ -48,15 +48,15 @@ def is_iiif_uri(uri: str) -> bool:
     size_re = (
         r"^((\^|%5e)?max|"  # max | ^max
         r"(\^|%5e)?full|"  # full | ^full
-        r"(\^|%5e)?pct:(\d+(\.\d+)?)|"  # pct:n | ^pct:n
+        r"(\^|%5e)?pct:\d+(\.\d+)?|"  # pct:n | ^pct:n
         r"(\^|%5e)?(\d+(\.\d+)?)+,|"  # w, | ^w,
-        r"(\^|%5e)?,(\d+(\.\d+)?)|"  # ,h | ^,h
-        r"(\^|%5e)?!?(\d+(\.\d+)?),(\d+(\.\d+)?))$"  # w,h | ^w,h | !w,h | ^!w,h
+        r"(\^|%5e)?,\d+(\.\d+)?|"  # ,h | ^,h
+        r"(\^|%5e)?!?\d+(\.\d+)?,\d+(\.\d+)?)$"  # w,h | ^w,h | !w,h | ^!w,h
     )
     if not regex.search(size_re, size_seg):
         return False
     # rotation -> floating point number 0-360 -> n | !n (positive and negative are allowed)
-    rotation_re = r"^(!?[+-]?(\d+(\.\d+)?))$"
+    rotation_re = r"^!?[+-]?\d+(\.\d+)?$"
     if not regex.search(rotation_re, rotation_seg):
         return False
     # quality -> color | colour | gray | grey | bitonal | default | native

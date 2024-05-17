@@ -108,6 +108,9 @@ class TestIsIIIFUriWrong:
     def test_12(self) -> None:
         assert not is_iiif_uri("http://www.example.org/prefix1/abcd1234/square/full/!90/---gray.webp")
 
+    def test_13(self) -> None:
+        assert not is_iiif_uri("http://www.example.org/prefix1/abcd1234/-----square/full/!90/gray.webp")
+
 
 if __name__ == "__main__":
     pytest.main([__file__])

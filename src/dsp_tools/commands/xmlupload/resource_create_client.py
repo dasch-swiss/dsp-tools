@@ -61,8 +61,7 @@ class ResourceCreateClient:
             f"Attempting to create resource {resource.res_id} (label: {resource.label}, iri: {resource.iri})..."
         )
         resource_dict = self._make_resource_with_values(resource, bitstream_information)
-        headers = {"X-Asset-Ingested": "true"} if self.media_previously_ingested else None
-        res = self.con.post(route="/v2/resources", data=resource_dict, headers=headers)
+        res = self.con.post(route="/v2/resources", data=resource_dict, headers={"X-Asset-Ingested": "true"})
         return cast(str, res["@id"])
 
     def _make_resource_with_values(

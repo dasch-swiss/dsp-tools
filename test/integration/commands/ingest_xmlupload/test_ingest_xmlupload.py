@@ -34,7 +34,7 @@ def test_ingest_xmlupload() -> None:
             user="root@example.com",
             password="test",
             dsp_url="http://0.0.0.0:3333",
-            sipi_url="http://0.0.0.0:1024",
+            dsp_ingest_url="http://0.0.0.0:3340",
         )
 
 
@@ -46,7 +46,7 @@ def test_ingest_xmlupload_no_mapping() -> None:
             user="root@example.com",
             password="test",
             dsp_url="http://0.0.0.0:3333",
-            sipi_url="http://0.0.0.0:1024",
+            dsp_ingest_url="http://0.0.0.0:3340",
         )
 
 

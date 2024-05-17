@@ -11,7 +11,7 @@ There are three relevant URLs you should know about:
 
 - Subdomains `admin`/`app` stand for the DSP-APP frontend that you look at in your browser
 - Subdomain `api` stands for the DSP-API (where DSP-TOOLS sends its data to) 
-- Subdomain `iiif` stands for the SIPI server interface (where DSP-TOOLS sends the multimedia files to)
+- Subdomain `ingest` stands for the ingest server interface (where DSP-TOOLS uploads multimedia files to)
 
 This means that for uploading data to the DSP server 
 on the domain `dasch.swiss`, 
@@ -29,13 +29,13 @@ If the provided server is any one of the following:
 http(s)://admin.dasch.swiss
 http(s)://app.dasch.swiss
 http(s)://api.dasch.swiss
-http(s)://iiif.dasch.swiss
+http(s)://ingest.dasch.swiss
 http(s)://dasch.swiss
 dasch.swiss
 ```
 
 then DSP-TOOLS will treat it as `https://api.dasch.swiss`,
-and derive the SIPI server URL `https://iiif.dasch.swiss` from it.
+and derive the ingest server URL `https://ingest.dasch.swiss` from it.
 
 This guessing feature comes with a price, though:
 
@@ -359,7 +359,7 @@ If you don't know what that means, just type `y` ("yes") and then `Enter`.
 
 The following options are available:
 
-- `--max_file_size=int` (optional, default: `2000`): max. multimedia file size allowed by SIPI, in MB (max: 100'000)
+- `--max_file_size=int` (optional, default: `2000`): max. multimedia file size allowed, in MB (max: 100'000)
 - `--latest` (optional): 
   instead of the latest deployed version,
   use the latest development version of DSP-API (from the `main` branch)
@@ -370,7 +370,7 @@ The following options are available:
 Example: If you start the stack with `dsp-tools start-stack --max_file_size=1000`, 
 it will be possible to upload files that are up to 1 GB big. 
 If a file bigger than `max_file_size` is uploaded, 
-SIPI will reject it.
+the upload will be rejected.
 
 More help for this command can be found [here](./start-stack.md).
 

@@ -19,8 +19,8 @@ class IngestInformation:
     mediafiles_no_id: list[tuple[str, str]]
     maximum_prints: int = 20
     csv_directory_path: Path = field(default=Path.cwd())
-    unused_mediafiles_csv: str = "UnusedMediaUploadedInSipi.csv"
-    mediafiles_no_id_csv: str = "FilesNotUploadedToSipi.csv"
+    unused_mediafiles_csv: str = "UnusedMediaUploaded.csv"
+    mediafiles_no_id_csv: str = "FilesNotUploaded.csv"
 
     def ok_msg(self) -> str | None:
         """

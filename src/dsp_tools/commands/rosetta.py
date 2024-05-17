@@ -90,7 +90,7 @@ def _upload_xml(rosetta_folder: Path) -> bool:
         user="root@example.com",
         password="test",
         imgdir=str(rosetta_folder),
-        sipi="http://0.0.0.0:1024",
+        dsp_ingest_url="http://0.0.0.0:3340",
         config=UploadConfig(),
     )
 

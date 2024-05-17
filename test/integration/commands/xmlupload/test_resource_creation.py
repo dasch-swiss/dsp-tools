@@ -67,7 +67,7 @@ def test_one_resource_without_links(ingest_client_mock: AssetClient) -> None:
     con.post = Mock(side_effect=post_responses)
     project_client = ProjectClientStub(con, "1234", None)
 
-    xmlupload.upload_resources(upload_state, ".", ingest_client_mock, project_client, ListClientMock())
+    xmlupload.upload_resources(upload_state, ingest_client_mock, project_client, ListClientMock())
 
     assert len(con.post.call_args_list) == len(post_responses)
     match con.post.call_args_list[0].kwargs:
@@ -105,7 +105,7 @@ def test_one_resource_with_link_to_existing_resource(ingest_client_mock: AssetCl
     con.post = Mock(side_effect=post_responses)
     project_client = ProjectClientStub(con, "1234", None)
 
-    xmlupload.upload_resources(upload_state, ".", ingest_client_mock, project_client, ListClientMock())
+    xmlupload.upload_resources(upload_state, ingest_client_mock, project_client, ListClientMock())
 
     assert len(con.post.call_args_list) == len(post_responses)
     match con.post.call_args_list[0].kwargs:
@@ -161,7 +161,7 @@ def _2_resources_with_stash_interrupted_by_error(
     project_client = ProjectClientStub(con, "1234", None)
     xmlupload._handle_upload_error = Mock()
 
-    xmlupload.upload_resources(upload_state, ".", ingest_client_mock, project_client, ListClientMock())
+    xmlupload.upload_resources(upload_state, ingest_client_mock, project_client, ListClientMock())
 
     assert len(con.post.call_args_list) == len(post_responses)
     err_msg = (
@@ -200,7 +200,7 @@ def test_2_resources_with_stash(ingest_client_mock: AssetClient) -> None:
     con.post = Mock(side_effect=post_responses)
     project_client = ProjectClientStub(con, "1234", None)
 
-    xmlupload.upload_resources(upload_state, ".", ingest_client_mock, project_client, ListClientMock())
+    xmlupload.upload_resources(upload_state, ingest_client_mock, project_client, ListClientMock())
 
     assert len(con.post.call_args_list) == len(post_responses)
     match con.post.call_args_list[2].kwargs:
@@ -256,19 +256,19 @@ def test_5_resources_with_stash_and_interrupt_after_2(ingest_client_mock: AssetC
     xmlupload._handle_upload_error = Mock()
     err_msg = "Interrupted: Maximum number of resources was reached (2)"
 
-    xmlupload.upload_resources(upload_state, ".", ingest_client_mock, project_client, ListClientMock())
+    xmlupload.upload_resources(upload_state, ingest_client_mock, project_client, ListClientMock())
     iri_resolver_expected = IriResolver({"foo_1_id": "foo_1_iri", "foo_2_id": "foo_2_iri"})
     upload_state_expected = UploadState(xml_resources[2:], [], iri_resolver_expected, stash, upload_config, {})
     xmlupload._handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
     xmlupload._handle_upload_error = Mock()
-    xmlupload.upload_resources(upload_state, ".", ingest_client_mock, project_client, ListClientMock())
+    xmlupload.upload_resources(upload_state, ingest_client_mock, project_client, ListClientMock())
     iri_resolver_expected.lookup.update({"foo_3_id": "foo_3_iri", "foo_4_id": "foo_4_iri"})
     upload_state_expected = UploadState(xml_resources[4:], [], iri_resolver_expected, stash, upload_config, {})
     xmlupload._handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
     xmlupload._handle_upload_error = Mock()
-    xmlupload.upload_resources(upload_state, ".", ingest_client_mock, project_client, ListClientMock())
+    xmlupload.upload_resources(upload_state, ingest_client_mock, project_client, ListClientMock())
     iri_resolver_expected.lookup.update({"foo_5_id": "foo_5_iri"})
     empty_stash = Stash(standoff_stash=None, link_value_stash=LinkValueStash({}))
     upload_state_expected = UploadState([], [], iri_resolver_expected, empty_stash, upload_config, {})
@@ -309,25 +309,25 @@ def test_6_resources_with_stash_and_interrupt_after_2(ingest_client_mock: AssetC
     xmlupload._handle_upload_error = Mock()
     err_msg = "Interrupted: Maximum number of resources was reached (2)"
 
-    xmlupload.upload_resources(upload_state, ".", ingest_client_mock, project_client, ListClientMock())
+    xmlupload.upload_resources(upload_state, ingest_client_mock, project_client, ListClientMock())
     iri_resolver_expected = IriResolver({"foo_1_id": "foo_1_iri", "foo_2_id": "foo_2_iri"})
     upload_state_expected = UploadState(xml_resources[2:], [], iri_resolver_expected, stash, upload_config, {})
     xmlupload._handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
     xmlupload._handle_upload_error = Mock()
-    xmlupload.upload_resources(upload_state, ".", ingest_client_mock, project_client, ListClientMock())
+    xmlupload.upload_resources(upload_state, ingest_client_mock, project_client, ListClientMock())
     iri_resolver_expected.lookup.update({"foo_3_id": "foo_3_iri", "foo_4_id": "foo_4_iri"})
     upload_state_expected = UploadState(xml_resources[4:], [], iri_resolver_expected, stash, upload_config, {})
     xmlupload._handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
     xmlupload._handle_upload_error = Mock()
-    xmlupload.upload_resources(upload_state, ".", ingest_client_mock, project_client, ListClientMock())
+    xmlupload.upload_resources(upload_state, ingest_client_mock, project_client, ListClientMock())
     iri_resolver_expected.lookup.update({"foo_5_id": "foo_5_iri", "foo_6_id": "foo_6_iri"})
     upload_state_expected = UploadState([], [], iri_resolver_expected, stash, upload_config, {})
     xmlupload._handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
     xmlupload._handle_upload_error = Mock()
-    xmlupload.upload_resources(upload_state, ".", ingest_client_mock, project_client, ListClientMock())
+    xmlupload.upload_resources(upload_state, ingest_client_mock, project_client, ListClientMock())
     empty_stash = Stash(standoff_stash=None, link_value_stash=LinkValueStash({}))
     upload_state_expected = UploadState([], [], iri_resolver_expected, empty_stash, upload_config, {})
     xmlupload._handle_upload_error.assert_not_called()
@@ -364,17 +364,17 @@ def test_logging(caplog: pytest.LogCaptureFixture, ingest_client_mock: AssetClie
     project_client = ProjectClientStub(con, "1234", None)
     xmlupload._handle_upload_error = Mock()
 
-    xmlupload.upload_resources(upload_state, ".", ingest_client_mock, project_client, ListClientMock())
+    xmlupload.upload_resources(upload_state, ingest_client_mock, project_client, ListClientMock())
     assert caplog.records[1].message == "Created resource 1/5: 'foo_1_label' (ID: 'foo_1_id', IRI: 'foo_1_iri')"
     assert caplog.records[3].message == "Created resource 2/5: 'foo_2_label' (ID: 'foo_2_id', IRI: 'foo_2_iri')"
     caplog.clear()
 
-    xmlupload.upload_resources(upload_state, ".", ingest_client_mock, project_client, ListClientMock())
+    xmlupload.upload_resources(upload_state, ingest_client_mock, project_client, ListClientMock())
     assert caplog.records[1].message == "Created resource 3/5: 'foo_3_label' (ID: 'foo_3_id', IRI: 'foo_3_iri')"
     assert caplog.records[3].message == "Created resource 4/5: 'foo_4_label' (ID: 'foo_4_id', IRI: 'foo_4_iri')"
     caplog.clear()
 
-    xmlupload.upload_resources(upload_state, ".", ingest_client_mock, project_client, ListClientMock())
+    xmlupload.upload_resources(upload_state, ingest_client_mock, project_client, ListClientMock())
     assert caplog.records[1].message == "Created resource 5/5: 'foo_5_label' (ID: 'foo_5_id', IRI: 'foo_5_iri')"
     assert caplog.records[3].message == "  Upload resptrs of resource 'foo_1_id'..."
     assert caplog.records[5].message == "  Upload resptrs of resource 'foo_2_id'..."
@@ -413,8 +413,8 @@ def test_post_requests(ingest_client_mock: AssetClient) -> None:
     project_client = ProjectClientStub(con, "1234", None)
     xmlupload._handle_upload_error = Mock()
 
-    xmlupload.upload_resources(upload_state, ".", ingest_client_mock, project_client, ListClientMock())
-    xmlupload.upload_resources(upload_state, ".", ingest_client_mock, project_client, ListClientMock())
-    xmlupload.upload_resources(upload_state, ".", ingest_client_mock, project_client, ListClientMock())
-    xmlupload.upload_resources(upload_state, ".", ingest_client_mock, project_client, ListClientMock())
+    xmlupload.upload_resources(upload_state, ingest_client_mock, project_client, ListClientMock())
+    xmlupload.upload_resources(upload_state, ingest_client_mock, project_client, ListClientMock())
+    xmlupload.upload_resources(upload_state, ingest_client_mock, project_client, ListClientMock())
+    xmlupload.upload_resources(upload_state, ingest_client_mock, project_client, ListClientMock())
     assert len(con.post.call_args_list) == len(post_responses)

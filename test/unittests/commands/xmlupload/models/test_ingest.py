@@ -14,13 +14,13 @@ def dsp_ingest_url() -> str:
 
 
 @pytest.fixture()
-def ingest_client(dsp_ingest_url: str) -> AssetClient:
-    return DspIngestClientLive(dsp_ingest_url, "token")
+def shortcode() -> str:
+    return "0001"
 
 
 @pytest.fixture()
-def shortcode() -> str:
-    return "0001"
+def ingest_client(dsp_ingest_url: str, shortcode: str) -> AssetClient:
+    return DspIngestClientLive(dsp_ingest_url, "token", shortcode, ".")
 
 
 @pytest.fixture()

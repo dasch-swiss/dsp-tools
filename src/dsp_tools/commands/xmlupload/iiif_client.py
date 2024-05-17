@@ -7,7 +7,7 @@ from dsp_tools.commands.xmlupload.models.input_problems import IIIFUriProblem
 
 
 @dataclass(frozen=True)
-class IIIFValidator(Protocol):
+class IIIFUriValidator(Protocol):
     """Interface (protocol) for communication with external IIIF-servers to do a health check."""
 
     uri: str
@@ -18,7 +18,7 @@ class IIIFValidator(Protocol):
 
 
 @dataclass(frozen=True)
-class IIIFValidatorLive:
+class IIIFUriValidatorLive:
     """Client handling communication with external IIIF-servers to do a health check."""
 
     uri: str

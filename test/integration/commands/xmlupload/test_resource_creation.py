@@ -15,6 +15,7 @@ from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItem
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
+from dsp_tools.models.exceptions import PermanentTimeOutError
 from dsp_tools.models.exceptions import XmlUploadInterruptedError
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
@@ -127,6 +128,54 @@ def test_one_resource_with_link_to_existing_resource(ingest_client_mock: IngestC
     assert not upload_state.failed_uploads
     assert upload_state.iri_resolver.lookup == {"foo_1_id": "foo_1_iri", "foo_2_id": "foo_2_iri"}
     assert not upload_state.pending_stash
+
+
+def test_2_resources_with_stash_interrupted_by_timeout(ingest_client_mock: IngestClient) -> None:
+    _2_resources_with_stash_interrupted_by_error(PermanentTimeOutError(""), "PermanentTimeOutError", ingest_client_mock)
+
+
+def test_2_resources_with_stash_interrupted_by_keyboard(ingest_client_mock: IngestClient) -> None:
+    _2_resources_with_stash_interrupted_by_error(KeyboardInterrupt(), "KeyboardInterrupt", ingest_client_mock)
+
+
+def _2_resources_with_stash_interrupted_by_error(
+    err_to_interrupt_with: BaseException, err_as_str: str, ingest_client_mock: IngestClient
+) -> None:
+    xml_strings = [
+        '<resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id"></resource>',
+        '<resource label="foo_2_label" restype=":foo_2_type" id="foo_2_id"></resource>',
+    ]
+    xml_resources = [XMLResource(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
+    link_val_stash_dict = {
+        "foo_1_id": [LinkValueStashItem("foo_1_id", "my_onto:foo_1_type", "my_onto:hasCustomLink", "foo_2_id")],
+        "foo_2_id": [LinkValueStashItem("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")],
+    }
+    stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
+    upload_state = UploadState(xml_resources.copy(), [], IriResolver(), deepcopy(stash), UploadConfig(), {})
+    con = Mock(spec_set=ConnectionLive)
+    post_responses = [
+        {"@id": "foo_1_iri", "rdfs:label": "foo_1_label"},
+        err_to_interrupt_with,
+    ]
+    con.post = Mock(side_effect=post_responses)
+    project_client = ProjectClientStub(con, "1234", None)
+    xmlupload._handle_upload_error = Mock()
+
+    xmlupload.upload_resources(upload_state, ".", ingest_client_mock, project_client, ListClientMock())
+
+    assert len(con.post.call_args_list) == len(post_responses)
+    err_msg = (
+        f"There was a {err_as_str} while trying to create resource 'foo_2_id'.\n"
+        "It is unclear if the resource 'foo_2_id' was created successfully or not.\n"
+        "Please check manually in the DSP-APP or DB.\n"
+        "In case of successful creation, call 'resume-xmlupload' with the flag "
+        "'--skip-first-resource' to prevent duplication.\n"
+        "If not, a normal 'resume-xmlupload' can be started."
+    )
+    upload_state_expected = UploadState(
+        xml_resources[1:], [], IriResolver({"foo_1_id": "foo_1_iri"}), stash, UploadConfig(), {}
+    )
+    xmlupload._handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
 
 def test_2_resources_with_stash(ingest_client_mock: IngestClient) -> None:

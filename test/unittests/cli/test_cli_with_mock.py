@@ -53,12 +53,11 @@ def test_project_create(create_project: Mock) -> None:
     """Test the 'dsp-tools create' command"""
     file = "filename.json"
     args = f"create {file}".split()
+    creds = ServerCredentials(server="http://0.0.0.0:3333", user="root@example.com", password="test")
     entry_point.run(args)
     create_project.assert_called_once_with(
         project_file_as_path_or_parsed=file,
-        server="http://0.0.0.0:3333",
-        user_mail="root@example.com",
-        password="test",
+        creds=creds,
         verbose=False,
     )
 

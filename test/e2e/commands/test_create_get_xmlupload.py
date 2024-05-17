@@ -103,9 +103,7 @@ class TestCreateGetXMLUpload(unittest.TestCase):
         success = get_project(
             project_identifier="systematic-tp",
             outfile_path=str(out_file),
-            server=self.creds.server,
-            user=self.creds.user,
-            password=self.creds.password,
+            creds=self.creds,
             verbose=True,
         )
         self.assertTrue(success)

@@ -4,6 +4,7 @@ from typing import Any
 
 import regex
 
+from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.models.group import Group
 from dsp_tools.commands.project.models.listnode import ListNode
 from dsp_tools.commands.project.models.ontology import Ontology
@@ -17,9 +18,7 @@ from dsp_tools.utils.connection_live import ConnectionLive
 def get_project(
     project_identifier: str,
     outfile_path: str,
-    server: str,
-    user: str | None = None,
-    password: str | None = None,
+    creds: ServerCredentials,
     verbose: bool = False,
 ) -> bool:
     """
@@ -28,9 +27,7 @@ def get_project(
     Args:
         project_identifier: the project identifier, either shortcode, shortname or IRI of the project
         outfile_path: the output file the JSON content should be written to
-        server: the DSP server where the data should be read from
-        user: the user (e-mail) who sends the request
-        password: the password of the user who sends the request
+        creds: the credentials to access the DSP server
         verbose: verbose option for the command, if used more output is given to the user
 
     Raises:
@@ -39,12 +36,11 @@ def get_project(
     Returns:
         True if the process finishes without errors
     """
-    con = ConnectionLive(server)
-    if user and password:
-        try:
-            con.login(user, password)
-        except BaseError:
-            warnings.warn("WARNING: Missing or wrong credentials. You won't get data about the users of this project.")
+    con = ConnectionLive(creds.server)
+    try:
+        con.login(creds.user, creds.password)
+    except BaseError:
+        warnings.warn("WARNING: Missing or wrong credentials. You won't get data about the users of this project.")
 
     project = _create_project(con, project_identifier)
 

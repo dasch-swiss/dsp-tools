@@ -210,9 +210,7 @@ def _call_get(args: argparse.Namespace) -> bool:
     return get_project(
         project_identifier=args.project,
         outfile_path=args.project_definition,
-        server=args.server,
-        user=args.user,
-        password=args.password,
+        creds=_get_creds(args),
         verbose=args.verbose,
     )
 

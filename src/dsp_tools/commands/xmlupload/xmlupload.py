@@ -10,6 +10,7 @@ from typing import Any
 from loguru import logger
 from lxml import etree
 
+from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.xmlupload.check_consistency_with_ontology import do_xml_consistency_check_with_ontology
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.list_client import ListClient
@@ -47,11 +48,8 @@ from dsp_tools.utils.logger_config import logger_savepath
 
 def xmlupload(
     input_file: str | Path | etree._ElementTree[Any],
-    server: str,
-    user: str,
-    password: str,
+    creds: ServerCredentials,
     imgdir: str,
-    dsp_ingest_url: str,
     config: UploadConfig = UploadConfig(),
 ) -> bool:
     """
@@ -59,11 +57,8 @@ def xmlupload(
 
     Args:
         input_file: path to XML file containing the resources, or the XML tree itself
-        server: the DSP server where the data should be imported
-        user: the user (e-mail) with which the data should be imported
-        password: the password of the user with which the data should be imported
+        creds: the credentials to access the DSP server
         imgdir: the image directory
-        dsp_ingest_url: the url to the ingest server to be used
         config: the upload configuration
 
     Raises:
@@ -76,8 +71,8 @@ def xmlupload(
         uploaded because there is an error in it
     """
 
-    con = ConnectionLive(server)
-    con.login(user, password)
+    con = ConnectionLive(creds.server)
+    con.login(creds.user, creds.password)
 
     default_ontology, root, shortcode = validate_and_parse_xml_file(
         input_file=input_file,
@@ -86,7 +81,7 @@ def xmlupload(
     )
 
     config = config.with_server_info(
-        server=server,
+        server=creds.server,
         shortcode=shortcode,
     )
 
@@ -95,7 +90,7 @@ def xmlupload(
         ingest_client = BulkIngestedAssetClient()
     else:
         ingest_client = DspIngestClientLive(
-            dsp_ingest_url=dsp_ingest_url,
+            dsp_ingest_url=creds.dsp_ingest_url,
             token=con.get_token(),
             shortcode=config.shortcode,
             imgdir=imgdir,

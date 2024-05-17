@@ -197,7 +197,7 @@ def _make_iiif_uri_value(iiif_uri: IIIFUriInfo, res_bnode: BNode, permissions_lo
     iiif_bn = BNode()
     g.add((res_bnode, KNORA_API.hasStillImageFileValue, iiif_bn))
     g.add((iiif_bn, RDF.type, KNORA_API.StillImageExternalFileValue))
-    g.add((iiif_bn, KNORA_API.externalUrl, Literal(iiif_uri.value)))
+    g.add((iiif_bn, KNORA_API.fileValueHasExternalUrl, Literal(iiif_uri.value)))
     if iiif_uri.permissions:
         if not (per := permissions_lookup.get(iiif_uri.permissions)):
             raise PermissionNotExistsError(f"Could not find permissions for value: {iiif_uri.permissions}")

@@ -279,6 +279,16 @@
         </text-prop>
     </resource>
 
+    <resource label="iiif-link"
+              restype=":ImageThing"
+              id="iiif-link"
+              permissions="res-default">
+        <iiif-uri>https://iiif.dasch.swiss/0811/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/837,530/0/default.jp2</iiif-uri>
+        <text-prop name=":hasSimpleText">
+            <text permissions="prop-default" encoding="utf8">This is a IIIFImageThing</text>
+        </text-prop>
+    </resource>
+
     <resource label="Imagething-tiff"
               restype=":ImageThing"
               id="image_thing_1"

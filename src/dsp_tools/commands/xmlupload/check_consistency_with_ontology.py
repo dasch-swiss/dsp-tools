@@ -100,12 +100,15 @@ def _get_all_property_names_and_resource_ids_one_resource(
     resource: etree._Element, prop_dict: dict[str, list[str]]
 ) -> dict[str, list[str]]:
     for prop in resource.iterchildren():
-        if prop.tag != "bitstream":
-            prop_name = prop.attrib["name"]
-            if prop_name in prop_dict:
-                prop_dict[prop_name].append(resource.attrib["id"])
-            else:
-                prop_dict[prop_name] = [resource.attrib["id"]]
+        match prop.tag:
+            case "bitstream" | "iiif-uri":
+                pass
+            case _:
+                prop_name = prop.attrib["name"]
+                if prop_name in prop_dict:
+                    prop_dict[prop_name].append(resource.attrib["id"])
+                else:
+                    prop_dict[prop_name] = [resource.attrib["id"]]
     return prop_dict
 
 

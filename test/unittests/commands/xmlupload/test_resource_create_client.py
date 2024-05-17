@@ -458,7 +458,7 @@ def test_make_iiif_uri_value_serialised() -> None:
     expected = {
         "http://api.knora.org/ontology/knora-api/v2#hasStillImageFileValue": {
             "@type": "http://api.knora.org/ontology/knora-api/v2#StillImageExternalFileValue",
-            "http://api.knora.org/ontology/knora-api/v2#externalUrl": "http://example.org/prefix1/abcd1234/full/full/0/native.jpg",
+            "http://api.knora.org/ontology/knora-api/v2#fileValueHasExternalUrl": "http://example.org/prefix1/abcd1234/full/full/0/native.jpg",
         }
     }
     assert serialised == expected

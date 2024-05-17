@@ -52,7 +52,6 @@ def resume_xmlupload(
         ingest_client=ingest_client,
         project_client=project_client,
         list_client=list_client,
-        shortcode=upload_state.config.shortcode,
     )
 
     return cleanup_upload(upload_state)

@@ -114,7 +114,6 @@ def xmlupload(
         ingest_client=ingest_client,
         project_client=project_client,
         list_client=list_client,
-        shortcode=shortcode,
     )
 
     return cleanup_upload(upload_state)
@@ -183,7 +182,6 @@ def upload_resources(
     ingest_client: IngestClient,
     project_client: ProjectClient,
     list_client: ListClient,
-    shortcode: str,
 ) -> None:
     """
     Actual upload of all resources to DSP.
@@ -203,7 +201,6 @@ def upload_resources(
             ingest_client=ingest_client,
             project_client=project_client,
             list_client=list_client,
-            shortcode=shortcode,
         )
         if upload_state.pending_stash:
             _upload_stash(upload_state, project_client)
@@ -272,7 +269,6 @@ def _upload_resources(
     ingest_client: IngestClient,
     project_client: ProjectClient,
     list_client: ListClient,
-    shortcode: str,
 ) -> None:
     """
     Iterates through all resources and tries to upload them to DSP.
@@ -313,7 +309,6 @@ def _upload_resources(
             ingest_client=ingest_client,
             resource_create_client=resource_create_client,
             creation_attempts_of_this_round=creation_attempts_of_this_round,
-            shortcode=shortcode,
         )
 
 
@@ -324,7 +319,6 @@ def _upload_one_resource(
     ingest_client: IngestClient,
     resource_create_client: ResourceCreateClient,
     creation_attempts_of_this_round: int,
-    shortcode: str,
 ) -> None:
     try:
         success, media_info = handle_media_info(
@@ -333,7 +327,7 @@ def _upload_one_resource(
             ingest_client,
             imgdir,
             upload_state.permissions_lookup,
-            shortcode,
+            upload_state.config.shortcode,
         )
         if not success:
             upload_state.failed_uploads.append(resource.res_id)

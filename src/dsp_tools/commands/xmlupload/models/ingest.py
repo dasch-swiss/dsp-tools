@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
 from typing import Protocol
 
 import requests
@@ -47,7 +46,7 @@ class DspIngestClient(IngestClient):
     token: str
 
     @staticmethod
-    def _retry_session(retries: int, session: Optional[Session] = None, backoff_factor: float = 0.3) -> Session:
+    def _retry_session(retries: int, session: Session | None = None, backoff_factor: float = 0.3) -> Session:
         session = session or requests.Session()
         retry = Retry(
             total=retries,

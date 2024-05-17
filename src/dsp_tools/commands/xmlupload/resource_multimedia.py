@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 from loguru import logger
 
@@ -63,9 +62,7 @@ def handle_media_info(
         return True, BitstreamInfo(bitstream.value, bitstream.value, _permissions(bitstream, permissions_lookup))
 
 
-def _permissions(
-    bitstream: Optional[XMLBitstream], permissions_lookup: dict[str, Permissions]
-) -> Optional[Permissions]:
+def _permissions(bitstream: XMLBitstream, permissions_lookup: dict[str, Permissions]) -> Permissions | None:
     if bitstream is None:
         return None
     if bitstream.permissions is None:

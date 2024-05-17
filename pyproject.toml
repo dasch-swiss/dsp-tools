@@ -135,6 +135,7 @@ pythonpath = [".", "src", "test"]
 [tool.mypy]
 show_column_numbers = true
 strict = true
+enable_error_code = ["possibly-undefined"]
 exclude = [
     "src/dsp_tools/models/datetimestamp.py",                  # TODO: activate this
     "src/dsp_tools/models/langstring.py",                     # TODO: activate this

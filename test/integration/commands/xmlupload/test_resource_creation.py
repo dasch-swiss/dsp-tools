@@ -361,7 +361,7 @@ def test_post_requests(ingest_client_mock: IngestClient) -> None:
         {},  # uploading a stash doesn't rely on a certain response
     ]
     con.post = Mock(side_effect=post_responses)
-    project_client = ProjectClientStub(con, None)
+    project_client = ProjectClientStub(con, "1234", None)
     xmlupload._handle_upload_error = Mock()
 
     xmlupload.upload_resources(upload_state, ".", ingest_client_mock, project_client, ListClientMock())

@@ -226,9 +226,7 @@ def _call_create(args: argparse.Namespace) -> bool:
         case True, False:
             _, success = create_lists(
                 project_file_as_path_or_parsed=args.project_definition,
-                server=args.server,
-                user=args.user,
-                password=args.password,
+                creds=_get_creds(args),
             )
         case False, True:
             success = validate_project(args.project_definition)

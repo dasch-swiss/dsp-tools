@@ -37,9 +37,7 @@ class TestCreateLists(unittest.TestCase):
 
         # The method to be tested can now be called with the project with the added list
         name2iri_mapping, success = create_lists(
-            server=self.creds.server,
-            user=self.creds.user,
-            password=self.creds.password,
+            creds=self.creds,
             project_file_as_path_or_parsed=test_project_minimal,
         )
 

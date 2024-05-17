@@ -4,6 +4,7 @@ from typing import Union
 
 from loguru import logger
 
+from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.excel2json.lists import expand_lists_from_excel
 from dsp_tools.commands.project.create.project_validate import validate_project
 from dsp_tools.commands.project.models.listnode import ListNode
@@ -134,9 +135,7 @@ def create_lists_on_server(
 
 def create_lists(
     project_file_as_path_or_parsed: Union[str, dict[str, Any]],
-    server: str,
-    user: str,
-    password: str,
+    creds: ServerCredentials,
 ) -> tuple[dict[str, Any], bool]:
     """
     This method accepts a JSON project definition,
@@ -149,9 +148,7 @@ def create_lists(
 
     Args:
         project_file_as_path_or_parsed: path to the JSON project definition, or parsed JSON object
-        server: URL of the DSP server
-        user: Username (e-mail) for the DSP server, must have the permissions to create a project
-        password: Password of the user
+        creds: credentials to connect to the DSP server
 
     Raises:
         UserError:
@@ -184,8 +181,8 @@ def create_lists(
     print("JSON project file is syntactically correct and passed validation.")
 
     # connect to the DSP server
-    con = ConnectionLive(server)
-    con.login(user, password)
+    con = ConnectionLive(creds.server)
+    con.login(creds.user, creds.password)
 
     # retrieve the project
     shortcode = project_definition["project"]["shortcode"]

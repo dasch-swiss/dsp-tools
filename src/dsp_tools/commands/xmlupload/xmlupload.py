@@ -79,17 +79,6 @@ def xmlupload(
     con = ConnectionLive(server)
     con.login(user, password)
 
-    ingest_client: AssetClient
-    if config.media_previously_uploaded:
-        ingest_client = BulkIngestedAssetClient()
-    else:
-        ingest_client = DspIngestClientLive(
-            dsp_ingest_url=dsp_ingest_url,
-            token=con.get_token(),
-            shortcode=config.shortcode,
-            imgdir=imgdir,
-        )
-
     default_ontology, root, shortcode = validate_and_parse_xml_file(
         input_file=input_file,
         imgdir=imgdir,
@@ -100,6 +89,17 @@ def xmlupload(
         server=server,
         shortcode=shortcode,
     )
+
+    ingest_client: AssetClient
+    if config.media_previously_uploaded:
+        ingest_client = BulkIngestedAssetClient()
+    else:
+        ingest_client = DspIngestClientLive(
+            dsp_ingest_url=dsp_ingest_url,
+            token=con.get_token(),
+            shortcode=config.shortcode,
+            imgdir=imgdir,
+        )
 
     ontology_client = OntologyClientLive(
         con=con,

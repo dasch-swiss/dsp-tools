@@ -76,12 +76,14 @@ class DspIngestClientLive(AssetClient):
         The http status code is also checked and if it is not 200, a PermanentConnectionError is raised.
 
         Args:
-            shortcode: The shortcode of the project to ingest to.
             filepath: Path to the file to ingest, could be either absolute or relative.
 
         Raises:
             BadCredentialsError: If the credentials are invalid.
             PermanentConnectionError: If the connection fails.
+
+        Returns:
+            IngestResponse: The internal filename of the uploaded file.
         """
         s = DspIngestClientLive._retry_session(retries=6)
         url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/assets/ingest/{filepath.name}"

@@ -196,7 +196,6 @@ def upload_resources(
 
     Args:
         upload_state: the current state of the upload
-        imgdir: folder containing the multimedia files
         ingest_client: ingest server client
         project_client: a client for HTTP communication with the DSP-API
         list_client: a client for HTTP communication with the DSP-API
@@ -282,7 +281,6 @@ def _upload_resources(
 
     Args:
         upload_state: the current state of the upload
-        imgdir: folder containing the multimedia files
         ingest_client: ingest server client
         project_client: a client for HTTP communication with the DSP-API
         list_client: a client for HTTP communication with the DSP-API

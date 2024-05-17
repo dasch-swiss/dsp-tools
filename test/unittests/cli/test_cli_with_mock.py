@@ -31,7 +31,7 @@ def test_lists_create(create_lists: Mock) -> None:
     create_lists.return_value = ({}, True)
     file = "filename.json"
     args = f"create --lists-only {file}".split()
-    creds = ServerCredentials(server="http://0.0.0.0:3333", user="root@example.com", password="test", dsp_ingest_url="")
+    creds = ServerCredentials(server="http://0.0.0.0:3333", user="root@example.com", password="test")
     entry_point.run(args)
     create_lists.assert_called_once_with(
         project_file_as_path_or_parsed=file,

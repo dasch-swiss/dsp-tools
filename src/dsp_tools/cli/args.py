@@ -8,4 +8,4 @@ class ServerCredentials:
     user: str
     password: str
     server: str
-    dsp_ingest_url: str
+    dsp_ingest_url: str = "http://0.0.0.0:3340"

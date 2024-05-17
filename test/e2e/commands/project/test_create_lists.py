@@ -12,7 +12,7 @@ from dsp_tools.commands.project.create.project_create_lists import create_lists
 
 
 class TestCreateLists(unittest.TestCase):
-    creds = ServerCredentials(server="http://0.0.0.0:3333", user="root@example.com", password="test", dsp_ingest_url="")
+    creds = ServerCredentials(server="http://0.0.0.0:3333", user="root@example.com", password="test")
     test_project_minimal_file = Path("testdata/json-project/test-project-minimal.json")
 
     def test_create_lists(self) -> None:
@@ -36,10 +36,7 @@ class TestCreateLists(unittest.TestCase):
         test_project_minimal["project"]["lists"] = [lists_section[0]]
 
         # The method to be tested can now be called with the project with the added list
-        name2iri_mapping, success = create_lists(
-            creds=self.creds,
-            project_file_as_path_or_parsed=test_project_minimal,
-        )
+        name2iri_mapping, success = create_lists(test_project_minimal, self.creds)
 
         # test if the returned mapping contains the same node names than the original list
         self.assertTrue(success)

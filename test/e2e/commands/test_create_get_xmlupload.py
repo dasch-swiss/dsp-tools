@@ -24,10 +24,7 @@ class TestCreateGetXMLUpload(unittest.TestCase):
     """Test if the commands "create", "get", and "xmlupload" work together as expected."""
 
     creds = ServerCredentials(
-        dsp_ingest_url="http://0.0.0.0:3340",
-        server="http://0.0.0.0:3333",
-        user="root@example.com",
-        password="test",
+        user="root@example.com", password="test", server="http://0.0.0.0:3333", dsp_ingest_url="http://0.0.0.0:3340"
     )
     imgdir = "."
     test_project_systematic_file = Path("testdata/json-project/test-project-systematic.json")

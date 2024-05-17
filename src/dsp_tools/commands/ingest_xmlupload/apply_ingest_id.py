@@ -29,13 +29,13 @@ def get_mapping_dict_from_file(shortcode: str) -> dict[str, str]:
     if not filepath.is_file():
         raise InputError(f"No mapping CSV file was found at {filepath}.")
     df = pd.read_csv(filepath)
-    msg = f"The file '{filepath}' is used to map the internal original filepaths to the internal SIPI image IDs."
+    msg = f"The file '{filepath}' is used to map the internal original filepaths to the internal image IDs."
     print(msg)
     logger.info(msg)
     return dict(zip(df["original"].tolist(), df["derivative"].tolist()))
 
 
-def replace_filepath_with_sipi_id(
+def replace_filepath_with_internal_filename(
     xml_tree: etree._ElementTree[etree._Element],
     orig_path_2_id_filename: dict[str, str],
 ) -> tuple[etree._ElementTree[etree._Element], IngestInformation]:

@@ -1,7 +1,7 @@
 import pytest
 from lxml import etree
 
-from dsp_tools.commands.ingest_xmlupload.apply_ingest_id import replace_filepath_with_sipi_id
+from dsp_tools.commands.ingest_xmlupload.apply_ingest_id import replace_filepath_with_internal_filename
 
 
 class TestReplaceBitstreamPaths:
@@ -15,7 +15,7 @@ class TestReplaceBitstreamPaths:
         """
         root = etree.ElementTree(etree.fromstring(xml))
         reference_dict = {"images/Fluffy.jpg": "fluffy_id"}
-        res_tree, ingest_info = replace_filepath_with_sipi_id(root, reference_dict)
+        res_tree, ingest_info = replace_filepath_with_internal_filename(root, reference_dict)
         assert not ingest_info.mediafiles_no_id
         assert not ingest_info.unused_mediafiles
         res_bitstream = res_tree.getroot()[0][0]
@@ -33,7 +33,7 @@ class TestReplaceBitstreamPaths:
         """
         root = etree.ElementTree(etree.fromstring(xml))
         reference_dict = {"images/Fluffy.jpg": "fluffy_id", "extra_media": "extra_id"}
-        res_tree, ingest_info = replace_filepath_with_sipi_id(root, reference_dict)
+        res_tree, ingest_info = replace_filepath_with_internal_filename(root, reference_dict)
         assert not ingest_info.mediafiles_no_id
         assert ingest_info.unused_mediafiles == ["extra_media"]
         res_bitstream = res_tree.getroot()[0][0]
@@ -51,7 +51,7 @@ class TestReplaceBitstreamPaths:
         """
         root = etree.ElementTree(etree.fromstring(xml))
         reference_dict = {"extra_media": "extra_id"}
-        res_tree, ingest_info = replace_filepath_with_sipi_id(root, reference_dict)
+        res_tree, ingest_info = replace_filepath_with_internal_filename(root, reference_dict)
         assert ingest_info.mediafiles_no_id == [("Fluffy1", "images/Fluffy.jpg")]
         assert ingest_info.unused_mediafiles == ["extra_media"]
         res_bitstream = res_tree.getroot()[0][0]

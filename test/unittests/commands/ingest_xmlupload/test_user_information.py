@@ -43,10 +43,10 @@ class TestIngestInformation:
             "The upload cannot continue as there are problems with the multimedia files referenced in the XML.\n"
             "    The data XML file does not reference all the multimedia files "
             "which were previously uploaded through dsp-ingest.\n"
-            "    The file with the unused filenames was saved at 'UnusedMediaUploadedInSipi.csv'.\n"
+            "    The file with the unused filenames was saved at 'UnusedMediaUploaded.csv'.\n"
             "    The data XML file contains references to multimedia files "
             "which were not previously uploaded through dsp-ingest:\n"
-            "    The file with the resource IDs and problematic filenames was saved at 'FilesNotUploadedToSipi.csv'."
+            "    The file with the resource IDs and problematic filenames was saved at 'FilesNotUploaded.csv'."
         )
         res_info = IngestInformation(
             [

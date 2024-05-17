@@ -20,7 +20,7 @@ class StackConfiguration:
     Groups together configuration information for the StackHandler.
 
     Args:
-        max_file_size: max. multimedia file size allowed by SIPI, in MB (max: 100'000)
+        max_file_size: max. multimedia file size allowed for ingest, in MB (max: 100'000)
         enforce_docker_system_prune: if True, prune Docker without asking the user
         suppress_docker_system_prune: if True, don't prune Docker (and don't ask)
         latest_dev_version: if True, start DSP-API from repo's main branch, instead of the latest deployed version

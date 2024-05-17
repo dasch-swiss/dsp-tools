@@ -6,7 +6,7 @@ from termcolor import colored
 
 from dsp_tools.commands.xmlupload.list_client import ListClient
 from dsp_tools.commands.xmlupload.list_client import ListClientLive
-from dsp_tools.commands.xmlupload.models.sipi import Sipi
+from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.project_client import ProjectClient
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
@@ -16,7 +16,9 @@ from dsp_tools.commands.xmlupload.xmlupload import upload_resources
 from dsp_tools.utils.connection_live import ConnectionLive
 
 
-def resume_xmlupload(server: str, user: str, password: str, sipi: str, skip_first_resource: bool = False) -> bool:
+def resume_xmlupload(
+    server: str, user: str, password: str, dsp_ingest_url: str, skip_first_resource: bool = False
+) -> bool:
     """
     Resume an interrupted xmlupload.
 
@@ -24,7 +26,7 @@ def resume_xmlupload(server: str, user: str, password: str, sipi: str, skip_firs
         server: the DSP server where the data should be imported
         user: the user (e-mail) with which the data should be imported
         password: the password of the user with which the data should be imported
-        sipi: the sipi instance to be used
+        dsp_ingest_url: the url to the ingest server to be used
         skip_first_resource: if this flag is set, the first resource of the pending resources is removed
 
     Returns:
@@ -39,8 +41,7 @@ def resume_xmlupload(server: str, user: str, password: str, sipi: str, skip_firs
 
     con = ConnectionLive(server)
     con.login(user, password)
-    sipi_con = ConnectionLive(sipi, token=con.get_token())
-    sipi_server = Sipi(sipi_con)
+    ingest_client = DspIngestClientLive(dsp_ingest_url=dsp_ingest_url, token=con.get_token())
 
     project_client: ProjectClient = ProjectClientLive(con, upload_state.config.shortcode)
     list_client: ListClient = ListClientLive(con, project_client.get_project_iri())
@@ -48,7 +49,7 @@ def resume_xmlupload(server: str, user: str, password: str, sipi: str, skip_firs
     upload_resources(
         upload_state=upload_state,
         imgdir=".",
-        sipi_server=sipi_server,
+        ingest_client=ingest_client,
         project_client=project_client,
         list_client=list_client,
     )

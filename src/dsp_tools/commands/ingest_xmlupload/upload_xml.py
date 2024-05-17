@@ -6,7 +6,7 @@ from loguru import logger
 from lxml import etree
 
 from dsp_tools.commands.ingest_xmlupload.apply_ingest_id import get_mapping_dict_from_file
-from dsp_tools.commands.ingest_xmlupload.apply_ingest_id import replace_filepath_with_sipi_id
+from dsp_tools.commands.ingest_xmlupload.apply_ingest_id import replace_filepath_with_internal_filename
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from dsp_tools.models.exceptions import InputError
@@ -18,7 +18,7 @@ def ingest_xmlupload(
     user: str,
     password: str,
     dsp_url: str,
-    sipi_url: str,
+    dsp_ingest_url: str,
     interrupt_after: int | None = None,
 ) -> None:
     """
@@ -34,7 +34,7 @@ def ingest_xmlupload(
         user: the user's e-mail for login into DSP
         password: the user's password for login into DSP
         dsp_url: URL to the DSP server
-        sipi_url: URL to the Sipi server
+        dsp_ingest_url: URL to the ingest server
         interrupt_after: if set, the upload will be interrupted after this number of resources
 
     Raises:
@@ -45,7 +45,7 @@ def ingest_xmlupload(
 
     shortcode = xml_tree_orig.getroot().attrib["shortcode"]
     orig_path_2_id_filename = get_mapping_dict_from_file(shortcode)
-    xml_tree_replaced, ingest_info = replace_filepath_with_sipi_id(
+    xml_tree_replaced, ingest_info = replace_filepath_with_internal_filename(
         xml_tree=xml_tree_orig,
         orig_path_2_id_filename=orig_path_2_id_filename,
     )
@@ -62,6 +62,6 @@ def ingest_xmlupload(
         user=user,
         password=password,
         imgdir=".",
-        sipi=sipi_url,
+        dsp_ingest_url=dsp_ingest_url,
         config=UploadConfig(media_previously_uploaded=True, interrupt_after=interrupt_after),
     )

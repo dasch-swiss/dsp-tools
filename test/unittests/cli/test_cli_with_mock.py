@@ -101,7 +101,7 @@ def test_xmlupload(xmlupload: Mock) -> None:
         user="root@example.com",
         password="test",
         imgdir=".",
-        sipi="http://0.0.0.0:1024",
+        dsp_ingest_url="http://0.0.0.0:3340",
         config=UploadConfig(),
     )
 

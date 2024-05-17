@@ -26,7 +26,7 @@ class TestCreateGetXMLUpload(unittest.TestCase):
     user = "root@example.com"
     password = "test"
     imgdir = "."
-    sipi = "http://0.0.0.0:1024"
+    dsp_ingest_url = "http://0.0.0.0:3340"
     test_project_systematic_file = Path("testdata/json-project/test-project-systematic.json")
     test_data_systematic_file = Path("testdata/xml-data/test-data-systematic.xml")
     cwd = Path("cwd")
@@ -68,7 +68,7 @@ class TestCreateGetXMLUpload(unittest.TestCase):
             user=self.user,
             password=self.password,
             imgdir=self.imgdir,
-            sipi=self.sipi,
+            dsp_ingest_url=self.dsp_ingest_url,
             config=UploadConfig(),
         )
         self.assertTrue(success)
@@ -89,7 +89,7 @@ class TestCreateGetXMLUpload(unittest.TestCase):
             user=self.user,
             password=self.password,
             imgdir=self.imgdir,
-            sipi=self.sipi,
+            dsp_ingest_url=self.dsp_ingest_url,
             config=UploadConfig(),
         )
         second_xml_file_replaced.unlink()

@@ -192,7 +192,6 @@ def upload_resources(
         ingest_client: ingest server client
         project_client: a client for HTTP communication with the DSP-API
         list_client: a client for HTTP communication with the DSP-API
-        shortcode: the shortcode of the project
     """
     try:
         _upload_resources(
@@ -281,7 +280,6 @@ def _upload_resources(
         ingest_client: ingest server client
         project_client: a client for HTTP communication with the DSP-API
         list_client: a client for HTTP communication with the DSP-API
-        shortcode: the shortcode of the project
 
     Raises:
         BaseException: in case of an unhandled exception during resource creation

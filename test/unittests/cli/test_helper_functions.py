@@ -100,6 +100,10 @@ class TestCLI(unittest.TestCase):
                 "https://api.08F4-test-server.dasch.swiss",
                 "https://ingest.08F4-test-server.dasch.swiss",
             ],
+            "ingest.08F4-test-server.dasch.swiss": [
+                "https://api.08F4-test-server.dasch.swiss",
+                "https://ingest.08F4-test-server.dasch.swiss",
+            ],
             "not-yet-0826-test-server.dasch.swiss": [
                 "https://api.not-yet-0826-test-server.dasch.swiss",
                 "https://ingest.not-yet-0826-test-server.dasch.swiss",

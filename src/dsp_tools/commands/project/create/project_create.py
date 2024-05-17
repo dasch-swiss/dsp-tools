@@ -4,7 +4,6 @@ of the project, the creation of groups, users, lists, resource classes, properti
 from pathlib import Path
 from typing import Any
 from typing import Optional
-from typing import Union
 from typing import cast
 
 import regex
@@ -929,8 +928,8 @@ def _rectify_hlist_of_properties(
 
 
 def create_project(
-    project_file_as_path_or_parsed: Union[str, Path, dict[str, Any]],
-    creds=ServerCredentials,
+    project_file_as_path_or_parsed: str | Path | dict[str, Any],
+    creds: ServerCredentials,
     verbose: bool = False,
 ) -> bool:
     """

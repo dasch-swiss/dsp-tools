@@ -192,16 +192,22 @@ class ResourceCreateClient:
         return res
 
 
+def _add_optional_permission_triple(
+    value: XMLValue | IIIFUriInfo, val_bn: BNode, g: Graph, permissions_lookup: dict[str, Permissions]
+) -> None:
+    if value.permissions:
+        if not (per := permissions_lookup.get(value.permissions)):
+            raise PermissionNotExistsError(f"Could not find permissions for value: {value.permissions}")
+        g.add((val_bn, KNORA_API.hasPermissions, Literal(str(per))))
+
+
 def _make_iiif_uri_value(iiif_uri: IIIFUriInfo, res_bnode: BNode, permissions_lookup: dict[str, Permissions]) -> Graph:
     g = Graph()
     iiif_bn = BNode()
     g.add((res_bnode, KNORA_API.hasStillImageFileValue, iiif_bn))
     g.add((iiif_bn, RDF.type, KNORA_API.StillImageExternalFileValue))
     g.add((iiif_bn, KNORA_API.fileValueHasExternalUrl, Literal(iiif_uri.value)))
-    if iiif_uri.permissions:
-        if not (per := permissions_lookup.get(iiif_uri.permissions)):
-            raise PermissionNotExistsError(f"Could not find permissions for value: {iiif_uri.permissions}")
-        g.add((iiif_bn, KNORA_API.hasPermissions, Literal(str(per))))
+    _add_optional_permission_triple(iiif_uri, iiif_bn, g, permissions_lookup)
     return g
 
 
@@ -335,10 +341,7 @@ def _make_integer_value(value: XMLValue, val_bn: BNode, permissions_lookup: dict
     g = Graph()
     g.add((val_bn, RDF.type, KNORA_API.IntValue))
     g.add((val_bn, KNORA_API.intValueAsInt, Literal(int(s))))
-    if value.permissions:
-        if not (per := permissions_lookup.get(value.permissions)):
-            raise PermissionNotExistsError(f"Could not find permissions for value: {value.permissions}")
-        g.add((val_bn, KNORA_API.hasPermissions, Literal(str(per))))
+    _add_optional_permission_triple(value, val_bn, g, permissions_lookup)
     if value.comment:
         g.add((val_bn, KNORA_API.valueHasComment, Literal(value.comment)))
     return g

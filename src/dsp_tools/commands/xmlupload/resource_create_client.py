@@ -129,6 +129,7 @@ class ResourceCreateClient:
 
         properties_serialised = {}
         properties_graph = Graph()
+        # To frame the json-ld correctly, we need one property used in the graph. It does not matter which.
         last_prop_name = None
 
         for prop in resource.properties:

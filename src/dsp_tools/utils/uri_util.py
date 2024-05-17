@@ -40,15 +40,15 @@ def is_iiif_uri(uri: str) -> bool:
     # everything needs to be encapsulated in a group
     # otherwise the ^ and $ only apply respectively to the first and last listed in the alternative options
     region_re = (
-        r"^((full)|(square)|"  # full | square
+        r"^(full|square|"  # full | square
         r"((pct:)?(\d+(\.\d+)?,){3}(\d+(\.\d+)?)))$"  # x,y,w,h | pct:x,y,w,h
     )
     if not regex.search(region_re, region_seg):
         return False
     size_re = (
-        r"^(((\^|%5e)?max)|"  # max | ^max
-        r"((\^|%5e)?full)|"  # full | ^full
-        r"(\^|%5e)?(pct:)(\d+(\.\d+)?)|"  # pct:n | ^pct:n
+        r"^((\^|%5e)?max|"  # max | ^max
+        r"(\^|%5e)?full|"  # full | ^full
+        r"(\^|%5e)?pct:(\d+(\.\d+)?)|"  # pct:n | ^pct:n
         r"(\^|%5e)?(\d+(\.\d+)?)+,|"  # w, | ^w,
         r"(\^|%5e)?,(\d+(\.\d+)?)|"  # ,h | ^,h
         r"(\^|%5e)?!?(\d+(\.\d+)?),(\d+(\.\d+)?))$"  # w,h | ^w,h | !w,h | ^!w,h

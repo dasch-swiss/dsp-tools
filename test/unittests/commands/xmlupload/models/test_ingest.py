@@ -6,7 +6,6 @@ from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
 from dsp_tools.commands.xmlupload.models.ingest import IngestClient
 from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import PermanentConnectionError
-from dsp_tools.models.exceptions import UserError
 
 
 @pytest.fixture()
@@ -41,7 +40,7 @@ def test_ingest_success(dsp_ingest_url, ingest_client, requests_mock, shortcode,
 
 
 def test_ingest_failure_when_file_not_found(ingest_client, shortcode, tmp_file):  # type: ignore[no-untyped-def]
-    with pytest.raises(UserError):
+    with pytest.raises(FileNotFoundError):
         ingest_client.ingest(shortcode, tmp_file)
 
 

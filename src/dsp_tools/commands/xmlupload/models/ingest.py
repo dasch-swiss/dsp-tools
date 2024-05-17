@@ -10,7 +10,6 @@ from requests.adapters import Retry
 
 from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import PermanentConnectionError
-from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.logger_config import logger_savepath
 
 
@@ -65,8 +64,8 @@ class DspIngestClientLive(IngestClient):
         s = DspIngestClientLive._retry_session(retries=6)
         url = f"{self.dsp_ingest_url}/projects/{shortcode}/assets/ingest/{filepath.name}"
         err = f"Failed to ingest {filepath} to '{url}'."
-        try:
-            with open(filepath, "rb") as binary_io:
+        with open(filepath, "rb") as binary_io:
+            try:
                 res = s.post(
                     url=url,
                     headers={"Authorization": f"Bearer {self.token}", "Content-Type": "application/octet-stream"},
@@ -83,8 +82,5 @@ class DspIngestClientLive(IngestClient):
                     log_msg = f"{err}. Response status code {res.status_code} '{res.json()}'"
                     logger.error(log_msg)
                     raise PermanentConnectionError(log_msg)
-        except FileNotFoundError as e:
-            logger.error(e)
-            raise UserError(f"{err}. File {filepath} not found.")
-        except requests.exceptions.RequestException as e:
-            raise PermanentConnectionError(f"{err}. {e}")
+            except requests.exceptions.RequestException as e:
+                raise PermanentConnectionError(f"{err}. {e}")

@@ -8,7 +8,7 @@ from lxml import etree
 from dsp_tools.commands.xmlupload import xmlupload
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
-from dsp_tools.commands.xmlupload.models.ingest import IngestClient
+from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.project_client import ProjectInfo
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
@@ -23,7 +23,7 @@ from dsp_tools.utils.connection_live import ConnectionLive
 
 @pytest.fixture()
 def ingest_client_mock():  # type: ignore[no-untyped-def]
-    return Mock(spec_set=IngestClient)
+    return Mock(spec_set=AssetClient)
 
 
 class ListClientMock:
@@ -52,7 +52,7 @@ class ProjectClientStub:
         raise NotImplementedError("get_project_iri not implemented")
 
 
-def test_one_resource_without_links(ingest_client_mock: IngestClient) -> None:
+def test_one_resource_without_links(ingest_client_mock: AssetClient) -> None:
     xml_strings = [
         """
         <resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id">
@@ -90,7 +90,7 @@ def test_one_resource_without_links(ingest_client_mock: IngestClient) -> None:
     assert not upload_state.pending_stash
 
 
-def test_one_resource_with_link_to_existing_resource(ingest_client_mock: IngestClient) -> None:
+def test_one_resource_with_link_to_existing_resource(ingest_client_mock: AssetClient) -> None:
     xml_strings = [
         """
         <resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id">
@@ -130,16 +130,16 @@ def test_one_resource_with_link_to_existing_resource(ingest_client_mock: IngestC
     assert not upload_state.pending_stash
 
 
-def test_2_resources_with_stash_interrupted_by_timeout(ingest_client_mock: IngestClient) -> None:
+def test_2_resources_with_stash_interrupted_by_timeout(ingest_client_mock: AssetClient) -> None:
     _2_resources_with_stash_interrupted_by_error(PermanentTimeOutError(""), "PermanentTimeOutError", ingest_client_mock)
 
 
-def test_2_resources_with_stash_interrupted_by_keyboard(ingest_client_mock: IngestClient) -> None:
+def test_2_resources_with_stash_interrupted_by_keyboard(ingest_client_mock: AssetClient) -> None:
     _2_resources_with_stash_interrupted_by_error(KeyboardInterrupt(), "KeyboardInterrupt", ingest_client_mock)
 
 
 def _2_resources_with_stash_interrupted_by_error(
-    err_to_interrupt_with: BaseException, err_as_str: str, ingest_client_mock: IngestClient
+    err_to_interrupt_with: BaseException, err_as_str: str, ingest_client_mock: AssetClient
 ) -> None:
     xml_strings = [
         '<resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id"></resource>',
@@ -178,7 +178,7 @@ def _2_resources_with_stash_interrupted_by_error(
     xmlupload._handle_upload_error.assert_called_once_with(XmlUploadInterruptedError(err_msg), upload_state_expected)
 
 
-def test_2_resources_with_stash(ingest_client_mock: IngestClient) -> None:
+def test_2_resources_with_stash(ingest_client_mock: AssetClient) -> None:
     xml_strings = [
         '<resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id"></resource>',
         '<resource label="foo_2_label" restype=":foo_2_type" id="foo_2_id"></resource>',
@@ -225,7 +225,7 @@ def test_2_resources_with_stash(ingest_client_mock: IngestClient) -> None:
     assert not upload_state.pending_stash or upload_state.pending_stash.is_empty()
 
 
-def test_5_resources_with_stash_and_interrupt_after_2(ingest_client_mock: IngestClient) -> None:
+def test_5_resources_with_stash_and_interrupt_after_2(ingest_client_mock: AssetClient) -> None:
     xml_strings = [
         '<resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id"></resource>',
         '<resource label="foo_2_label" restype=":foo_2_type" id="foo_2_id"></resource>',
@@ -276,7 +276,7 @@ def test_5_resources_with_stash_and_interrupt_after_2(ingest_client_mock: Ingest
     assert upload_state == upload_state_expected
 
 
-def test_6_resources_with_stash_and_interrupt_after_2(ingest_client_mock: IngestClient) -> None:
+def test_6_resources_with_stash_and_interrupt_after_2(ingest_client_mock: AssetClient) -> None:
     xml_strings = [
         '<resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id"></resource>',
         '<resource label="foo_2_label" restype=":foo_2_type" id="foo_2_id"></resource>',
@@ -334,7 +334,7 @@ def test_6_resources_with_stash_and_interrupt_after_2(ingest_client_mock: Ingest
     assert upload_state == upload_state_expected
 
 
-def test_logging(caplog: pytest.LogCaptureFixture, ingest_client_mock: IngestClient) -> None:
+def test_logging(caplog: pytest.LogCaptureFixture, ingest_client_mock: AssetClient) -> None:
     xml_strings = [
         '<resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id"></resource>',
         '<resource label="foo_2_label" restype=":foo_2_type" id="foo_2_id"></resource>',
@@ -381,7 +381,7 @@ def test_logging(caplog: pytest.LogCaptureFixture, ingest_client_mock: IngestCli
     caplog.clear()
 
 
-def test_post_requests(ingest_client_mock: IngestClient) -> None:
+def test_post_requests(ingest_client_mock: AssetClient) -> None:
     xml_strings = [
         '<resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id"></resource>',
         '<resource label="foo_2_label" restype=":foo_2_type" id="foo_2_id"></resource>',

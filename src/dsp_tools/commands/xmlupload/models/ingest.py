@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 from typing import Protocol
 
@@ -8,18 +9,64 @@ from requests import Session
 from requests.adapters import HTTPAdapter
 from requests.adapters import Retry
 
+from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLBitstream
+from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
+from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import PermanentConnectionError
 from dsp_tools.utils.logger_config import logger_savepath
 
+STATUS_OK = 200
+STATUS_UNAUTHORIZED = 401
+STATUS_INTERNAL_SERVER_ERROR = 500
+
 
 @dataclass(frozen=True)
 class IngestResponse:
+    """Wrapper around `internal_filename`"""
+
     internal_filename: str
 
 
-class IngestClient(Protocol):
-    def ingest(self, shortcode: str, filepath: Path) -> IngestResponse:
+class AssetClient(Protocol):
+    """Protocol for asset handling clients."""
+
+    def get_bitstream_info(
+        self,
+        bitstream: XMLBitstream,
+        permissions_lookup: dict[str, Permissions],
+        res_label: str,
+        res_id: str,
+    ) -> tuple[bool, None | BitstreamInfo]:
+        """"""
+
+
+@dataclass(frozen=True)
+class DspIngestClientLive(AssetClient):
+    """Client for uploading assets to the DSP-Ingest."""
+
+    dsp_ingest_url: str
+    token: str
+    shortcode: str
+    imgdir: str
+
+    @staticmethod
+    def _retry_session(retries: int, session: Session | None = None, backoff_factor: float = 0.3) -> Session:
+        session = session or requests.Session()
+        retry = Retry(
+            total=retries,
+            read=retries,
+            connect=retries,
+            backoff_factor=backoff_factor,
+            allowed_methods=None,  # means all methods
+            status_forcelist=[STATUS_INTERNAL_SERVER_ERROR],
+        )
+        adapter = HTTPAdapter(max_retries=retry)
+        session.mount("http://", adapter)
+        session.mount("https://", adapter)
+        return session
+
+    def _ingest(self, filepath: Path) -> IngestResponse:
         """Uploads a file to the ingest server and returns the IngestResponse.
 
         This function sends a POST request to the ingest server with the file to upload.
@@ -35,34 +82,9 @@ class IngestClient(Protocol):
         Raises:
             BadCredentialsError: If the credentials are invalid.
             PermanentConnectionError: If the connection fails.
-
         """
-
-
-@dataclass(frozen=True)
-class DspIngestClientLive(IngestClient):
-    dsp_ingest_url: str
-    token: str
-
-    @staticmethod
-    def _retry_session(retries: int, session: Session | None = None, backoff_factor: float = 0.3) -> Session:
-        session = session or requests.Session()
-        retry = Retry(
-            total=retries,
-            read=retries,
-            connect=retries,
-            backoff_factor=backoff_factor,
-            allowed_methods=None,  # means all methods
-            status_forcelist=[500],
-        )
-        adapter = HTTPAdapter(max_retries=retry)
-        session.mount("http://", adapter)
-        session.mount("https://", adapter)
-        return session
-
-    def ingest(self, shortcode: str, filepath: Path) -> IngestResponse:
         s = DspIngestClientLive._retry_session(retries=6)
-        url = f"{self.dsp_ingest_url}/projects/{shortcode}/assets/ingest/{filepath.name}"
+        url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/assets/ingest/{filepath.name}"
         err = f"Failed to ingest {filepath} to '{url}'."
         with open(filepath, "rb") as binary_io:
             try:
@@ -72,9 +94,9 @@ class DspIngestClientLive(IngestClient):
                     data=binary_io,
                     timeout=60,
                 )
-                if res.status_code == 200:
+                if res.status_code == STATUS_OK:
                     return IngestResponse(internal_filename=res.json()["internalFilename"])
-                elif res.status_code == 401:
+                elif res.status_code == STATUS_UNAUTHORIZED:
                     raise BadCredentialsError("Bad credentials")
                 else:
                     user_msg = f"{err} See logs for more details: {logger_savepath}"
@@ -84,3 +106,40 @@ class DspIngestClientLive(IngestClient):
                     raise PermanentConnectionError(log_msg)
             except requests.exceptions.RequestException as e:
                 raise PermanentConnectionError(f"{err}. {e}")
+
+    def get_bitstream_info(
+        self,
+        bitstream: XMLBitstream,
+        permissions_lookup: dict[str, Permissions],
+        res_label: str,
+        res_id: str,
+    ) -> tuple[bool, None | BitstreamInfo]:
+        """Uploads a file to the ingest server and returns the BitstreamInfo."""
+        try:
+            res = self._ingest(Path(self.imgdir) / Path(bitstream.value))
+            msg = f"Uploaded file '{bitstream.value}'"
+            print(f"{datetime.now()}: {msg}")
+            logger.info(msg)
+            permissions = permissions_lookup.get(bitstream.permissions) if bitstream.permissions else None
+            return True, BitstreamInfo(bitstream.value, res.internal_filename, permissions)
+        except PermanentConnectionError as err:
+            msg = f"Unable to upload file '{bitstream.value}' " f"of resource '{res_label}' ({res_id})"
+            print(f"{datetime.now()}: WARNING: {msg}: {err.message}")
+            logger.opt(exception=True).warning(msg)
+            return False, None
+
+
+@dataclass(frozen=True)
+class BulkIngestedAssetClient(AssetClient):
+    """Client for handling media info, if the assets were bulk ingested previously."""
+
+    def get_bitstream_info(
+        self,
+        bitstream: XMLBitstream,
+        permissions_lookup: dict[str, Permissions],
+        res_label: str,  # noqa: ARG002
+        res_id: str,  # noqa: ARG002
+    ) -> tuple[bool, BitstreamInfo | None]:
+        """Uploads a file to the ingest server and returns the BitstreamInfo."""
+        permissions = permissions_lookup.get(bitstream.permissions) if bitstream.permissions else None
+        return True, BitstreamInfo(bitstream.value, bitstream.value, permissions)

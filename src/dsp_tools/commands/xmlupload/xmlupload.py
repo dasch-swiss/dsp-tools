@@ -16,8 +16,9 @@ from dsp_tools.commands.xmlupload.list_client import ListClient
 from dsp_tools.commands.xmlupload.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.models.deserialise.xmlpermission import XmlPermission
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
+from dsp_tools.commands.xmlupload.models.ingest import AssetClient
+from dsp_tools.commands.xmlupload.models.ingest import BulkIngestedAssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
-from dsp_tools.commands.xmlupload.models.ingest import IngestClient
 from dsp_tools.commands.xmlupload.models.namespace_context import get_json_ld_context_for_project
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
@@ -26,7 +27,6 @@ from dsp_tools.commands.xmlupload.project_client import ProjectClient
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
 from dsp_tools.commands.xmlupload.read_validate_xml_file import validate_and_parse_xml_file
 from dsp_tools.commands.xmlupload.resource_create_client import ResourceCreateClient
-from dsp_tools.commands.xmlupload.resource_multimedia import handle_media_info
 from dsp_tools.commands.xmlupload.stash.stash_circular_references import identify_circular_references
 from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_circular_references
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
@@ -78,7 +78,17 @@ def xmlupload(
 
     con = ConnectionLive(server)
     con.login(user, password)
-    ingest_client = DspIngestClientLive(dsp_ingest_url=dsp_ingest_url, token=con.get_token())
+
+    ingest_client: AssetClient
+    if config.media_previously_uploaded:
+        ingest_client = BulkIngestedAssetClient()
+    else:
+        ingest_client = DspIngestClientLive(
+            dsp_ingest_url=dsp_ingest_url,
+            token=con.get_token(),
+            shortcode=config.shortcode,
+            imgdir=imgdir,
+        )
 
     default_ontology, root, shortcode = validate_and_parse_xml_file(
         input_file=input_file,
@@ -110,7 +120,6 @@ def xmlupload(
 
     upload_resources(
         upload_state=upload_state,
-        imgdir=imgdir,
         ingest_client=ingest_client,
         project_client=project_client,
         list_client=list_client,
@@ -178,8 +187,7 @@ def _prepare_upload(
 
 def upload_resources(
     upload_state: UploadState,
-    imgdir: str,
-    ingest_client: IngestClient,
+    ingest_client: AssetClient,
     project_client: ProjectClient,
     list_client: ListClient,
 ) -> None:
@@ -196,7 +204,6 @@ def upload_resources(
     try:
         _upload_resources(
             upload_state=upload_state,
-            imgdir=imgdir,
             ingest_client=ingest_client,
             project_client=project_client,
             list_client=list_client,
@@ -264,8 +271,7 @@ def _extract_resources_from_xml(root: etree._Element, default_ontology: str) -> 
 
 def _upload_resources(
     upload_state: UploadState,
-    imgdir: str,
-    ingest_client: IngestClient,
+    ingest_client: AssetClient,
     project_client: ProjectClient,
     list_client: ListClient,
 ) -> None:
@@ -303,7 +309,6 @@ def _upload_resources(
         _upload_one_resource(
             upload_state=upload_state,
             resource=resource,
-            imgdir=imgdir,
             ingest_client=ingest_client,
             resource_create_client=resource_create_client,
             creation_attempts_of_this_round=creation_attempts_of_this_round,
@@ -313,20 +318,18 @@ def _upload_resources(
 def _upload_one_resource(
     upload_state: UploadState,
     resource: XMLResource,
-    imgdir: str,
-    ingest_client: IngestClient,
+    ingest_client: AssetClient,
     resource_create_client: ResourceCreateClient,
     creation_attempts_of_this_round: int,
 ) -> None:
     try:
-        success, media_info = handle_media_info(
-            resource,
-            upload_state.config.media_previously_uploaded,
-            ingest_client,
-            imgdir,
-            upload_state.permissions_lookup,
-            upload_state.config.shortcode,
-        )
+        if resource.bitstream:
+            success, media_info = ingest_client.get_bitstream_info(
+                resource.bitstream, upload_state.permissions_lookup, resource.label, resource.res_id
+            )
+        else:
+            success, media_info = True, None
+
         if not success:
             upload_state.failed_uploads.append(resource.res_id)
             return

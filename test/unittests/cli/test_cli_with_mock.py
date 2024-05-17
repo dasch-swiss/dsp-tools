@@ -69,13 +69,12 @@ def test_project_get(get_project: Mock) -> None:
     file = "filename.json"
     project = "shortname"
     args = f"get --project {project} {file}".split()
+    creds = ServerCredentials(server="http://0.0.0.0:3333", user="root@example.com", password="test")
     entry_point.run(args)
     get_project.assert_called_once_with(
         project_identifier=project,
         outfile_path=file,
-        server="http://0.0.0.0:3333",
-        user="root@example.com",
-        password="test",
+        creds=creds,
         verbose=False,
     )
 

@@ -84,13 +84,16 @@ def _upload_xml(rosetta_folder: Path) -> bool:
         True if all data could be uploaded without problems, False if something went wrong during the upload process
     """
     print("Execute 'dsp-tools xmlupload rosetta.xml'...")
-    return xmlupload(
-        input_file=rosetta_folder / "rosetta.xml",
-        server="http://0.0.0.0:3333",
+    creds = ServerCredentials(
         user="root@example.com",
         password="test",
-        imgdir=str(rosetta_folder),
+        server="http://0.0.0.0:3333",
         dsp_ingest_url="http://0.0.0.0:3340",
+    )
+    return xmlupload(
+        input_file=rosetta_folder / "rosetta.xml",
+        creds=creds,
+        imgdir=str(rosetta_folder),
         config=UploadConfig(),
     )
 

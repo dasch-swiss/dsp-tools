@@ -62,11 +62,8 @@ class TestCreateGetXMLUpload(unittest.TestCase):
         """
         success = xmlupload(
             input_file=self.test_data_systematic_file,
-            server=self.creds.server,
-            user=self.creds.user,
-            password=self.creds.password,
+            creds=self.creds,
             imgdir=self.imgdir,
-            dsp_ingest_url=self.creds.dsp_ingest_url,
             config=UploadConfig(),
         )
         self.assertTrue(success)
@@ -83,11 +80,8 @@ class TestCreateGetXMLUpload(unittest.TestCase):
         second_xml_file_replaced = self._get_most_recent_glob_match(f"{second_xml_file_orig.stem}_replaced_*.xml")
         success = xmlupload(
             input_file=second_xml_file_replaced,
-            server=self.creds.server,
-            user=self.creds.user,
-            password=self.creds.password,
+            creds=self.creds,
             imgdir=self.imgdir,
-            dsp_ingest_url=self.creds.dsp_ingest_url,
             config=UploadConfig(),
         )
         second_xml_file_replaced.unlink()

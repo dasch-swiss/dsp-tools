@@ -104,11 +104,7 @@ def _get_all_property_names_and_resource_ids_one_resource(
             case "bitstream" | "iiif-uri":
                 pass
             case _:
-                prop_name = prop.attrib["name"]
-                if prop_name in prop_dict:
-                    prop_dict[prop_name].append(resource.attrib["id"])
-                else:
-                    prop_dict[prop_name] = [resource.attrib["id"]]
+                prop_dict.get(prop.attrib["name"], []).append(resource.attrib["id"])
     return prop_dict
 
 

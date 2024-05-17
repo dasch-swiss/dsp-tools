@@ -38,7 +38,14 @@ class AssetClient(Protocol):
         res_label: str,
         res_id: str,
     ) -> tuple[bool, None | BitstreamInfo]:
-        """"""
+        """Uploads the file to the ingest server if applicable, and returns the BitstreamInfo.
+
+        Args:
+            bitstream: The bitstream to upload.
+            permissions_lookup: The permissions lookup.
+            res_label: The resource label (for error message in failure case).
+            res_id: The resource ID (for error message in failure case).
+        """
 
 
 @dataclass(frozen=True)

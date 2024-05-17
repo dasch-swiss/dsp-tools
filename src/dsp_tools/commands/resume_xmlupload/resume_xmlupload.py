@@ -7,6 +7,8 @@ from termcolor import colored
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.xmlupload.list_client import ListClient
 from dsp_tools.commands.xmlupload.list_client import ListClientLive
+from dsp_tools.commands.xmlupload.models.ingest import AssetClient
+from dsp_tools.commands.xmlupload.models.ingest import BulkIngestedAssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.project_client import ProjectClient
@@ -38,14 +40,23 @@ def resume_xmlupload(creds: ServerCredentials, skip_first_resource: bool = False
 
     con = ConnectionLive(server)
     con.login(creds.user, creds.password)
-    ingest_client = DspIngestClientLive(dsp_ingest_url=creds.dsp_ingest_url, token=con.get_token())
+
+    ingest_client: AssetClient
+    if upload_state.config.media_previously_uploaded:
+        ingest_client = BulkIngestedAssetClient()
+    else:
+        ingest_client = DspIngestClientLive(
+            dsp_ingest_url=creds.dsp_ingest_url,
+            token=con.get_token(),
+            shortcode=upload_state.config.shortcode,
+            imgdir=".",
+        )
 
     project_client: ProjectClient = ProjectClientLive(con, upload_state.config.shortcode)
     list_client: ListClient = ListClientLive(con, project_client.get_project_iri())
 
     upload_resources(
         upload_state=upload_state,
-        imgdir=".",
         ingest_client=ingest_client,
         project_client=project_client,
         list_client=list_client,

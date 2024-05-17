@@ -5,6 +5,7 @@ from pathlib import Path
 from loguru import logger
 from lxml import etree
 
+from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.ingest_xmlupload.apply_ingest_id import get_mapping_dict_from_file
 from dsp_tools.commands.ingest_xmlupload.apply_ingest_id import replace_filepath_with_internal_filename
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
@@ -15,10 +16,7 @@ from dsp_tools.utils.xml_utils import remove_comments_from_element_tree
 
 def ingest_xmlupload(
     xml_file: Path,
-    user: str,
-    password: str,
-    dsp_url: str,
-    dsp_ingest_url: str,
+    creds: ServerCredentials,
     interrupt_after: int | None = None,
 ) -> None:
     """
@@ -31,10 +29,7 @@ def ingest_xmlupload(
 
     Args:
         xml_file: path to XML file containing the resources
-        user: the user's e-mail for login into DSP
-        password: the user's password for login into DSP
-        dsp_url: URL to the DSP server
-        dsp_ingest_url: URL to the ingest server
+        creds: credentials to access the DSP server
         interrupt_after: if set, the upload will be interrupted after this number of resources
 
     Raises:
@@ -58,10 +53,7 @@ def ingest_xmlupload(
 
     xmlupload(
         input_file=xml_tree_replaced,
-        server=dsp_url,
-        user=user,
-        password=password,
+        creds=creds,
         imgdir=".",
-        dsp_ingest_url=dsp_ingest_url,
         config=UploadConfig(media_previously_uploaded=True, interrupt_after=interrupt_after),
     )

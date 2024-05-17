@@ -171,10 +171,7 @@ def _call_ingest_xmlupload(args: argparse.Namespace) -> bool:
     interrupt_after = args.interrupt_after if args.interrupt_after > 0 else None
     ingest_xmlupload(
         xml_file=Path(args.xml_file),
-        user=args.user,
-        password=args.password,
-        dsp_url=args.server,
-        dsp_ingest_url=args.dsp_ingest_url,
+        creds=_get_creds(args),
         interrupt_after=interrupt_after,
     )
     return True
@@ -187,21 +184,15 @@ def _call_xmlupload(args: argparse.Namespace) -> bool:
         interrupt_after = args.interrupt_after if args.interrupt_after > 0 else None
         return xmlupload(
             input_file=args.xmlfile,
-            server=args.server,
-            user=args.user,
-            password=args.password,
+            creds=_get_creds(args),
             imgdir=args.imgdir,
-            dsp_ingest_url=args.dsp_ingest_url,
             config=UploadConfig(interrupt_after=interrupt_after),
         )
 
 
 def _call_resume_xmlupload(args: argparse.Namespace) -> bool:
     return resume_xmlupload(
-        server=args.server,
-        user=args.user,
-        password=args.password,
-        dsp_ingest_url=args.dsp_ingest_url,
+        creds=_get_creds(args),
         skip_first_resource=args.skip_first_resource,
     )
 

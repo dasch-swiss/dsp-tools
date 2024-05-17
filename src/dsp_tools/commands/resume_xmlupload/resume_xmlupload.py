@@ -4,6 +4,7 @@ import sys
 from loguru import logger
 from termcolor import colored
 
+from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.xmlupload.list_client import ListClient
 from dsp_tools.commands.xmlupload.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
@@ -16,23 +17,19 @@ from dsp_tools.commands.xmlupload.xmlupload import upload_resources
 from dsp_tools.utils.connection_live import ConnectionLive
 
 
-def resume_xmlupload(
-    server: str, user: str, password: str, dsp_ingest_url: str, skip_first_resource: bool = False
-) -> bool:
+def resume_xmlupload(creds: ServerCredentials, skip_first_resource: bool = False) -> bool:
     """
     Resume an interrupted xmlupload.
 
     Args:
-        server: the DSP server where the data should be imported
-        user: the user (e-mail) with which the data should be imported
-        password: the password of the user with which the data should be imported
-        dsp_ingest_url: the url to the ingest server to be used
+        creds: credentials to access the DSP server
         skip_first_resource: if this flag is set, the first resource of the pending resources is removed
 
     Returns:
         True if all resources could be uploaded without errors; False if one of the resources could not be
         uploaded because there is an error in it
     """
+    server = creds.server
     upload_state = _read_upload_state_from_disk(server)
     if skip_first_resource:
         _skip_first_resource(upload_state)
@@ -40,8 +37,8 @@ def resume_xmlupload(
     _print_and_log(upload_state, server)
 
     con = ConnectionLive(server)
-    con.login(user, password)
-    ingest_client = DspIngestClientLive(dsp_ingest_url=dsp_ingest_url, token=con.get_token())
+    con.login(creds.user, creds.password)
+    ingest_client = DspIngestClientLive(dsp_ingest_url=creds.dsp_ingest_url, token=con.get_token())
 
     project_client: ProjectClient = ProjectClientLive(con, upload_state.config.shortcode)
     list_client: ListClient = ListClientLive(con, project_client.get_project_iri())

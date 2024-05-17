@@ -3,6 +3,7 @@ from pathlib import Path
 
 from loguru import logger
 
+from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.excel2json.lists import excel2lists
 from dsp_tools.commands.excel2json.lists import validate_lists_section_with_schema
 from dsp_tools.commands.excel2json.new_lists import new_excel2lists
@@ -170,10 +171,7 @@ def _call_ingest_xmlupload(args: argparse.Namespace) -> bool:
     interrupt_after = args.interrupt_after if args.interrupt_after > 0 else None
     ingest_xmlupload(
         xml_file=Path(args.xml_file),
-        user=args.user,
-        password=args.password,
-        dsp_url=args.server,
-        dsp_ingest_url=args.dsp_ingest_url,
+        creds=_get_creds(args),
         interrupt_after=interrupt_after,
     )
     return True
@@ -186,21 +184,15 @@ def _call_xmlupload(args: argparse.Namespace) -> bool:
         interrupt_after = args.interrupt_after if args.interrupt_after > 0 else None
         return xmlupload(
             input_file=args.xmlfile,
-            server=args.server,
-            user=args.user,
-            password=args.password,
+            creds=_get_creds(args),
             imgdir=args.imgdir,
-            dsp_ingest_url=args.dsp_ingest_url,
             config=UploadConfig(interrupt_after=interrupt_after),
         )
 
 
 def _call_resume_xmlupload(args: argparse.Namespace) -> bool:
     return resume_xmlupload(
-        server=args.server,
-        user=args.user,
-        password=args.password,
-        dsp_ingest_url=args.dsp_ingest_url,
+        creds=_get_creds(args),
         skip_first_resource=args.skip_first_resource,
     )
 
@@ -209,9 +201,7 @@ def _call_get(args: argparse.Namespace) -> bool:
     return get_project(
         project_identifier=args.project,
         outfile_path=args.project_definition,
-        server=args.server,
-        user=args.user,
-        password=args.password,
+        creds=_get_creds(args),
         verbose=args.verbose,
     )
 
@@ -225,9 +215,7 @@ def _call_create(args: argparse.Namespace) -> bool:
         case True, False:
             _, success = create_lists(
                 project_file_as_path_or_parsed=args.project_definition,
-                server=args.server,
-                user=args.user,
-                password=args.password,
+                creds=_get_creds(args),
             )
         case False, True:
             success = validate_project(args.project_definition)
@@ -235,9 +223,16 @@ def _call_create(args: argparse.Namespace) -> bool:
         case False, False:
             success = create_project(
                 project_file_as_path_or_parsed=args.project_definition,
-                server=args.server,
-                user_mail=args.user,
-                password=args.password,
+                creds=_get_creds(args),
                 verbose=args.verbose,
             )
     return success
+
+
+def _get_creds(args: argparse.Namespace) -> ServerCredentials:
+    return ServerCredentials(
+        server=args.server,
+        user=args.user,
+        password=args.password,
+        dsp_ingest_url=args.dsp_ingest_url,
+    )

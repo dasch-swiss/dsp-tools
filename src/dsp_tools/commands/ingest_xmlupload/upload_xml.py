@@ -42,6 +42,10 @@ def ingest_xmlupload(
         creds: credentials to access the DSP server
         interrupt_after: if set, the upload will be interrupted after this number of resources
 
+    Returns:
+        True if all resources could be uploaded without errors; False if one of the resources could not be
+        uploaded because there is an error in it
+
     Raises:
         InputError: if any media was not uploaded or uploaded media was not referenced.
     """

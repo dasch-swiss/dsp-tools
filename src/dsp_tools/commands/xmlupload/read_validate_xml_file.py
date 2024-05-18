@@ -22,7 +22,6 @@ def validate_and_parse_xml_file(imgdir: str, input_file: Path) -> tuple[str, etr
     Args:
         imgdir: directory to the bitstream files
         input_file: file that will be processed
-        preprocessing_done: True if the bitstream files have already been processed
 
     Returns:
         The ontology name, the parsed XML file and the shortcode of the project

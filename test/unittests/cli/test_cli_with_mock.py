@@ -5,7 +5,8 @@ import pytest
 
 from dsp_tools.cli import entry_point
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.commands.xmlupload.upload_config import UploadConfig
+
+EXIT_CODE_TWO = 2
 
 
 def test_invalid_arguments() -> None:
@@ -13,7 +14,7 @@ def test_invalid_arguments() -> None:
     args = "invalid".split()
     with pytest.raises(SystemExit) as ex:
         entry_point.run(args)
-    assert ex.value.code == 2
+    assert ex.value.code == EXIT_CODE_TWO
 
 
 @patch("dsp_tools.cli.call_action.validate_lists_section_with_schema")
@@ -103,7 +104,6 @@ def test_xmlupload(xmlupload: Mock) -> None:
         input_file=file,
         creds=creds,
         imgdir=".",
-        config=UploadConfig(),
     )
 
 

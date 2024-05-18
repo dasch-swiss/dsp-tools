@@ -131,6 +131,7 @@ def execute_upload(
     """"""
     upload_state = UploadState(resources, [], IriResolver(), stash, config, permissions_lookup)
 
+    # LATER: replace args with clients object
     upload_resources(
         upload_state=upload_state,
         ingest_client=clients.asset_client,

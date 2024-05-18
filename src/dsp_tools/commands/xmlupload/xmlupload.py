@@ -19,7 +19,6 @@ from dsp_tools.commands.xmlupload.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.models.deserialise.xmlpermission import XmlPermission
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
-from dsp_tools.commands.xmlupload.models.ingest import BulkIngestedAssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
 from dsp_tools.commands.xmlupload.models.namespace_context import get_json_ld_context_for_project
 from dsp_tools.commands.xmlupload.models.permission import Permissions
@@ -61,7 +60,7 @@ def xmlupload(
     input_file: str | Path | etree._ElementTree[Any],
     creds: ServerCredentials,
     imgdir: str,
-    config: UploadConfig = UploadConfig(),
+    interrupt_after: int | None = None,
 ) -> bool:
     """
     This function reads an XML file and imports the data described in it onto the DSP server.
@@ -70,7 +69,7 @@ def xmlupload(
         input_file: path to XML file containing the resources, or the XML tree itself
         creds: the credentials to access the DSP server
         imgdir: the image directory
-        config: the upload configuration
+        interrupt_after: the number of resources after which the upload should be interrupted, or None
 
     Raises:
         BaseError: in case of permanent network or software failure
@@ -85,14 +84,14 @@ def xmlupload(
     default_ontology, root, shortcode = validate_and_parse_xml_file(
         input_file=input_file,
         imgdir=imgdir,
-        preprocessing_done=config.media_previously_uploaded,
+        preprocessing_done=False,
     )
 
     con = ConnectionLive(creds.server)
     con.login(creds.user, creds.password)
-    config = config.with_server_info(server=creds.server, shortcode=shortcode)
+    config = UploadConfig(interrupt_after=interrupt_after, server=creds.server, shortcode=shortcode)
 
-    clients = _get_live_clients(con, creds, config, imgdir)
+    clients = _get_live_clients(con, creds, shortcode, imgdir)
 
     ontology_client = OntologyClientLive(con=con, shortcode=shortcode, default_ontology=default_ontology)
     resources, permissions_lookup, stash = prepare_upload(root, ontology_client)
@@ -103,20 +102,17 @@ def xmlupload(
 def _get_live_clients(
     con: Connection,
     creds: ServerCredentials,
-    config: UploadConfig,
+    shortcode: str,
     imgdir: str,
 ) -> UploadClients:
     ingest_client: AssetClient
-    if config.media_previously_uploaded:
-        ingest_client = BulkIngestedAssetClient()
-    else:
-        ingest_client = DspIngestClientLive(
-            dsp_ingest_url=creds.dsp_ingest_url,
-            token=con.get_token(),
-            shortcode=config.shortcode,
-            imgdir=imgdir,
-        )
-    project_client: ProjectClient = ProjectClientLive(con, config.shortcode)
+    ingest_client = DspIngestClientLive(
+        dsp_ingest_url=creds.dsp_ingest_url,
+        token=con.get_token(),
+        shortcode=shortcode,
+        imgdir=imgdir,
+    )
+    project_client: ProjectClient = ProjectClientLive(con, shortcode)
     list_client: ListClient = ListClientLive(con, project_client.get_project_iri())
     return UploadClients(
         asset_client=ingest_client,

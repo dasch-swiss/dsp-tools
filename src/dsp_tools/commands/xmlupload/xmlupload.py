@@ -3,6 +3,7 @@ from __future__ import annotations
 import pickle
 import sys
 import warnings
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -23,6 +24,7 @@ from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
 from dsp_tools.commands.xmlupload.models.namespace_context import get_json_ld_context_for_project
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
+from dsp_tools.commands.xmlupload.ontology_client import OntologyClient
 from dsp_tools.commands.xmlupload.ontology_client import OntologyClientLive
 from dsp_tools.commands.xmlupload.project_client import ProjectClient
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
@@ -44,6 +46,15 @@ from dsp_tools.models.projectContext import ProjectContext
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
 from dsp_tools.utils.logger_config import logger_savepath
+
+
+@dataclass(frozen=True)
+class UploadClients:
+    """"""
+
+    asset_client: AssetClient
+    project_client: ProjectClient
+    list_client: ListClient
 
 
 def xmlupload(
@@ -71,20 +82,34 @@ def xmlupload(
         uploaded because there is an error in it
     """
 
-    con = ConnectionLive(creds.server)
-    con.login(creds.user, creds.password)
-
     default_ontology, root, shortcode = validate_and_parse_xml_file(
         input_file=input_file,
         imgdir=imgdir,
         preprocessing_done=config.media_previously_uploaded,
     )
 
-    config = config.with_server_info(
-        server=creds.server,
-        shortcode=shortcode,
-    )
+    con = ConnectionLive(creds.server)
+    con.login(creds.user, creds.password)
+    config = config.with_server_info(server=creds.server, shortcode=shortcode)
 
+    clients = _get_live_clients(con, creds, config, imgdir)
+
+    ontology_client = OntologyClientLive(
+        con=con,
+        shortcode=shortcode,
+        default_ontology=default_ontology,
+    )
+    resources, permissions_lookup, stash = prepare_upload(root, ontology_client)
+
+    return execute_upload(config, clients, resources, permissions_lookup, stash)
+
+
+def _get_live_clients(
+    con: Connection,
+    creds: ServerCredentials,
+    config: UploadConfig,
+    imgdir: str,
+) -> UploadClients:
     ingest_client: AssetClient
     if config.media_previously_uploaded:
         ingest_client = BulkIngestedAssetClient()
@@ -95,32 +120,46 @@ def xmlupload(
             shortcode=config.shortcode,
             imgdir=imgdir,
         )
-
-    ontology_client = OntologyClientLive(
-        con=con,
-        shortcode=shortcode,
-        default_ontology=default_ontology,
-    )
-    do_xml_consistency_check_with_ontology(onto_client=ontology_client, root=root)
-
-    resources, permissions_lookup, stash = _prepare_upload(
-        root=root,
-        con=con,
-        default_ontology=default_ontology,
-    )
-
     project_client: ProjectClient = ProjectClientLive(con, config.shortcode)
     list_client: ListClient = ListClientLive(con, project_client.get_project_iri())
-    upload_state = UploadState(resources, [], IriResolver(), stash, config, permissions_lookup)
-
-    upload_resources(
-        upload_state=upload_state,
-        ingest_client=ingest_client,
+    return UploadClients(
+        asset_client=ingest_client,
         project_client=project_client,
         list_client=list_client,
     )
 
+
+def execute_upload(
+    config: UploadConfig,
+    clients: UploadClients,
+    resources: list[XMLResource],
+    permissions_lookup: dict[str, Permissions],
+    stash: Stash | None,
+) -> bool:
+    """"""
+    upload_state = UploadState(resources, [], IriResolver(), stash, config, permissions_lookup)
+
+    upload_resources(
+        upload_state=upload_state,
+        ingest_client=clients.asset_client,
+        project_client=clients.project_client,
+        list_client=clients.list_client,
+    )
+
     return cleanup_upload(upload_state)
+
+
+def prepare_upload(
+    root: etree._Element,
+    ontology_client: OntologyClient,
+) -> tuple[list[XMLResource], dict[str, Permissions], Stash | None]:
+    """"""
+    do_xml_consistency_check_with_ontology(onto_client=ontology_client, root=root)
+    return _resolve_circular_references(
+        root=root,
+        con=ontology_client.con,
+        default_ontology=ontology_client.default_ontology,
+    )
 
 
 def cleanup_upload(upload_state: UploadState) -> bool:
@@ -158,7 +197,7 @@ def cleanup_upload(upload_state: UploadState) -> bool:
     return success
 
 
-def _prepare_upload(
+def _resolve_circular_references(
     root: etree._Element,
     con: Connection,
     default_ontology: str,

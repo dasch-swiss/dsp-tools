@@ -104,6 +104,7 @@ def test_xmlupload(xmlupload: Mock) -> None:
         input_file=file,
         creds=creds,
         imgdir=".",
+        interrupt_after=None,
     )
 
 

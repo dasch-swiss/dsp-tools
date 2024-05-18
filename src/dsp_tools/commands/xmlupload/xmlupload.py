@@ -49,7 +49,7 @@ from dsp_tools.utils.logger_config import logger_savepath
 
 @dataclass(frozen=True)
 class UploadClients:
-    """"""
+    """"""  # TODO: add docstring
 
     asset_client: AssetClient
     project_client: ProjectClient
@@ -128,10 +128,10 @@ def execute_upload(
     permissions_lookup: dict[str, Permissions],
     stash: Stash | None,
 ) -> bool:
-    """"""
+    """"""  # TODO: add docstring
     upload_state = UploadState(resources, [], IriResolver(), stash, config, permissions_lookup)
 
-    # LATER: replace args with clients object
+    # TODO: replace args with clients object
     upload_resources(
         upload_state=upload_state,
         ingest_client=clients.asset_client,

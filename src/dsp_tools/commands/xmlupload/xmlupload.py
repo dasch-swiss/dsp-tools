@@ -131,15 +131,7 @@ def execute_upload(clients: UploadClients, upload_state: UploadState) -> bool:
     Returns:
         True if all resources could be uploaded without errors; False if any resource could not be uploaded
     """
-
-    # TODO: replace args with clients object
-    upload_resources(
-        upload_state=upload_state,
-        ingest_client=clients.asset_client,
-        project_client=clients.project_client,
-        list_client=clients.list_client,
-    )
-
+    upload_resources(clients, upload_state)
     return cleanup_upload(upload_state)
 
 
@@ -147,7 +139,7 @@ def prepare_upload(
     root: etree._Element,
     ontology_client: OntologyClient,
 ) -> tuple[list[XMLResource], dict[str, Permissions], Stash | None]:
-    """"""
+    """Do the consistency check, resolve circular references, and return the resources and permissions."""
     do_xml_consistency_check_with_ontology(onto_client=ontology_client, root=root)
     return _resolve_circular_references(
         root=root,
@@ -213,30 +205,18 @@ def _resolve_circular_references(
     return resources, permissions_lookup, stash
 
 
-def upload_resources(
-    upload_state: UploadState,
-    ingest_client: AssetClient,
-    project_client: ProjectClient,
-    list_client: ListClient,
-) -> None:
+def upload_resources(clients: UploadClients, upload_state: UploadState) -> None:
     """
     Actual upload of all resources to DSP.
 
     Args:
+        clients: the clients needed for the upload (AssetClient, ProjectClient, ListClient)
         upload_state: the current state of the upload
-        ingest_client: ingest server client
-        project_client: a client for HTTP communication with the DSP-API
-        list_client: a client for HTTP communication with the DSP-API
     """
     try:
-        _upload_resources(
-            upload_state=upload_state,
-            ingest_client=ingest_client,
-            project_client=project_client,
-            list_client=list_client,
-        )
+        _upload_resources(clients, upload_state)
         if upload_state.pending_stash:
-            _upload_stash(upload_state, project_client)
+            _upload_stash(upload_state, clients.project_client)
     except XmlUploadInterruptedError as err:
         _handle_upload_error(err, upload_state)
 
@@ -296,33 +276,26 @@ def _extract_resources_from_xml(root: etree._Element, default_ontology: str) -> 
     return [XMLResource(res, default_ontology) for res in resources]
 
 
-def _upload_resources(
-    upload_state: UploadState,
-    ingest_client: AssetClient,
-    project_client: ProjectClient,
-    list_client: ListClient,
-) -> None:
+def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None:
     """
     Iterates through all resources and tries to upload them to DSP.
     If a temporary exception occurs, the action is repeated until success,
     and if a permanent exception occurs, the resource is skipped.
 
     Args:
+        clients: the clients needed for the upload (AssetClient, ProjectClient, ListClient)
         upload_state: the current state of the upload
-        ingest_client: ingest server client
-        project_client: a client for HTTP communication with the DSP-API
-        list_client: a client for HTTP communication with the DSP-API
 
     Raises:
         BaseException: in case of an unhandled exception during resource creation
         XmlUploadInterruptedError: if the number of resources created is equal to the interrupt_after value
     """
-    project_iri = project_client.get_project_iri()
-    project_onto_dict = project_client.get_ontology_name_dict()
-    listnode_lookup = list_client.get_list_node_id_to_iri_lookup()
+    project_iri = clients.project_client.get_project_iri()
+    project_onto_dict = clients.project_client.get_ontology_name_dict()
+    listnode_lookup = clients.list_client.get_list_node_id_to_iri_lookup()
 
     resource_create_client = ResourceCreateClient(
-        con=project_client.con,
+        con=clients.project_client.con,
         project_iri=project_iri,
         iri_resolver=upload_state.iri_resolver,
         project_onto_dict=project_onto_dict,
@@ -335,7 +308,7 @@ def _upload_resources(
         _upload_one_resource(
             upload_state=upload_state,
             resource=resource,
-            ingest_client=ingest_client,
+            ingest_client=clients.asset_client,
             resource_create_client=resource_create_client,
             creation_attempts_of_this_round=creation_attempts_of_this_round,
         )

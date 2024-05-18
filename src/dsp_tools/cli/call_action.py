@@ -181,7 +181,7 @@ def _call_xmlupload(args: argparse.Namespace) -> bool:
     else:
         interrupt_after = args.interrupt_after if args.interrupt_after > 0 else None
         return xmlupload(
-            input_file=args.xmlfile,
+            input_file=Path(args.xmlfile),
             creds=_get_creds(args),
             imgdir=args.imgdir,
             interrupt_after=interrupt_after,

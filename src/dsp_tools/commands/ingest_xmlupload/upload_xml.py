@@ -13,7 +13,7 @@ from dsp_tools.commands.xmlupload.models.ingest import BulkIngestedAssetClient
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.ontology_client import OntologyClientLive
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
-from dsp_tools.commands.xmlupload.read_validate_xml_file import validate_and_parse_xml_file
+from dsp_tools.commands.xmlupload.read_validate_xml_file import validate_and_parse_xml_file_preprocessing_done
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import UploadClients
 from dsp_tools.commands.xmlupload.xmlupload import execute_upload
@@ -48,12 +48,7 @@ def ingest_xmlupload(
     xml_tree_orig = etree.parse(xml_file)
     xml_tree_orig = remove_comments_from_element_tree(xml_tree_orig)
 
-    # TODO: this method is a bad abstraction, use separtate methods for different cases
-    default_ontology, root, shortcode = validate_and_parse_xml_file(
-        input_file=xml_file,
-        imgdir="",
-        preprocessing_done=True,
-    )
+    default_ontology, root, shortcode = validate_and_parse_xml_file_preprocessing_done(xml_tree_orig)
     orig_path_2_id_filename = get_mapping_dict_from_file(shortcode)
     root, ingest_info = replace_filepath_with_internal_filename(
         xml_tree=root,

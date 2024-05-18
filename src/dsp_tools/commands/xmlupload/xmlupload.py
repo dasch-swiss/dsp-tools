@@ -6,7 +6,6 @@ import warnings
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any
 
 from loguru import logger
 from lxml import etree
@@ -56,7 +55,7 @@ class UploadClients:
 
 
 def xmlupload(
-    input_file: str | Path | etree._ElementTree[Any],
+    input_file: Path,
     creds: ServerCredentials,
     imgdir: str,
     interrupt_after: int | None = None,
@@ -65,7 +64,7 @@ def xmlupload(
     This function reads an XML file and imports the data described in it onto the DSP server.
 
     Args:
-        input_file: path to XML file containing the resources, or the XML tree itself
+        input_file: path to XML file containing the resources
         creds: the credentials to access the DSP server
         imgdir: the image directory
         interrupt_after: the number of resources after which the upload should be interrupted, or None
@@ -80,11 +79,7 @@ def xmlupload(
         uploaded because there is an error in it
     """
 
-    default_ontology, root, shortcode = validate_and_parse_xml_file(
-        input_file=input_file,
-        imgdir=imgdir,
-        preprocessing_done=False,
-    )
+    default_ontology, root, shortcode = validate_and_parse_xml_file(input_file=input_file, imgdir=imgdir)
 
     con = ConnectionLive(creds.server)
     con.login(creds.user, creds.password)

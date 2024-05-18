@@ -14,8 +14,8 @@ from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.project_client import ProjectClient
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
-from dsp_tools.commands.xmlupload.xmlupload import cleanup_upload
-from dsp_tools.commands.xmlupload.xmlupload import upload_resources
+from dsp_tools.commands.xmlupload.xmlupload import UploadClients
+from dsp_tools.commands.xmlupload.xmlupload import execute_upload
 from dsp_tools.utils.connection_live import ConnectionLive
 
 
@@ -54,15 +54,9 @@ def resume_xmlupload(creds: ServerCredentials, skip_first_resource: bool = False
 
     project_client: ProjectClient = ProjectClientLive(con, upload_state.config.shortcode)
     list_client: ListClient = ListClientLive(con, project_client.get_project_iri())
+    clients = UploadClients(ingest_client, project_client, list_client)
 
-    upload_resources(
-        upload_state=upload_state,
-        ingest_client=ingest_client,
-        project_client=project_client,
-        list_client=list_client,
-    )
-
-    return cleanup_upload(upload_state)
+    return execute_upload(clients, upload_state)
 
 
 def _read_upload_state_from_disk(server: str) -> UploadState:

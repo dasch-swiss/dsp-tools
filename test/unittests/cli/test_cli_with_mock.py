@@ -1,3 +1,4 @@
+from pathlib import Path
 from unittest.mock import Mock
 from unittest.mock import patch
 
@@ -101,7 +102,7 @@ def test_xmlupload(xmlupload: Mock) -> None:
     )
     entry_point.run(args)
     xmlupload.assert_called_once_with(
-        input_file=file,
+        input_file=Path(file),
         creds=creds,
         imgdir=".",
         interrupt_after=None,

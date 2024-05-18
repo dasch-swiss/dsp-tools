@@ -36,9 +36,9 @@ def get_mapping_dict_from_file(shortcode: str) -> dict[str, str]:
 
 
 def replace_filepath_with_internal_filename(
-    xml_tree: etree._ElementTree[etree._Element],
+    xml_tree: etree._Element,
     orig_path_2_id_filename: dict[str, str],
-) -> tuple[etree._ElementTree[etree._Element], IngestInformation]:
+) -> tuple[etree._Element, IngestInformation]:
     """
     Replace the original filepaths in the <bitstream> tags by the id filenames of the uploaded files.
 

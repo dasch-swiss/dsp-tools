@@ -48,15 +48,15 @@ def ingest_xmlupload(
     xml_tree_orig = etree.parse(xml_file)
     xml_tree_orig = remove_comments_from_element_tree(xml_tree_orig)
 
-    # LATER: this method is a bad abstraction, use separtate methods for different cases
+    # TODO: this method is a bad abstraction, use separtate methods for different cases
     default_ontology, root, shortcode = validate_and_parse_xml_file(
         input_file=xml_file,
         imgdir="",
         preprocessing_done=True,
     )
     orig_path_2_id_filename = get_mapping_dict_from_file(shortcode)
-    xml_tree_replaced, ingest_info = replace_filepath_with_internal_filename(
-        xml_tree=xml_tree_orig,
+    root, ingest_info = replace_filepath_with_internal_filename(
+        xml_tree=root,
         orig_path_2_id_filename=orig_path_2_id_filename,
     )
     if ok := ingest_info.ok_msg():

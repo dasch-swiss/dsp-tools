@@ -13,7 +13,6 @@ from lxml import etree
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.xmlupload.check_consistency_with_ontology import do_xml_consistency_check_with_ontology
-from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.list_client import ListClient
 from dsp_tools.commands.xmlupload.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.models.deserialise.xmlpermission import XmlPermission
@@ -49,7 +48,7 @@ from dsp_tools.utils.logger_config import logger_savepath
 
 @dataclass(frozen=True)
 class UploadClients:
-    """"""  # TODO: add docstring
+    """Holds all the clients needed for the upload process."""
 
     asset_client: AssetClient
     project_client: ProjectClient
@@ -91,12 +90,13 @@ def xmlupload(
     con.login(creds.user, creds.password)
     config = UploadConfig(interrupt_after=interrupt_after, server=creds.server, shortcode=shortcode)
 
-    clients = _get_live_clients(con, creds, shortcode, imgdir)
-
     ontology_client = OntologyClientLive(con=con, shortcode=shortcode, default_ontology=default_ontology)
     resources, permissions_lookup, stash = prepare_upload(root, ontology_client)
 
-    return execute_upload(config, clients, resources, permissions_lookup, stash)
+    clients = _get_live_clients(con, creds, shortcode, imgdir)
+    state = UploadState(resources, stash, config, permissions_lookup)
+
+    return execute_upload(clients, state)
 
 
 def _get_live_clients(
@@ -121,15 +121,16 @@ def _get_live_clients(
     )
 
 
-def execute_upload(
-    config: UploadConfig,
-    clients: UploadClients,
-    resources: list[XMLResource],
-    permissions_lookup: dict[str, Permissions],
-    stash: Stash | None,
-) -> bool:
-    """"""  # TODO: add docstring
-    upload_state = UploadState(resources, [], IriResolver(), stash, config, permissions_lookup)
+def execute_upload(clients: UploadClients, upload_state: UploadState) -> bool:
+    """Execute an upload from an upload state, and clean up afterwards.
+
+    Args:
+        clients: the clients needed for the upload (AssetClient, ProjectClient, ListClient)
+        upload_state: the initial state of the upload to execute
+
+    Returns:
+        True if all resources could be uploaded without errors; False if any resource could not be uploaded
+    """
 
     # TODO: replace args with clients object
     upload_resources(

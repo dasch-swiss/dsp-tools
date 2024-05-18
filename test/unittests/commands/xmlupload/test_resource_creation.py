@@ -1,6 +1,5 @@
 from lxml import etree
 
-from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
@@ -21,7 +20,7 @@ def test_idempotency_on_success() -> None:
         """,
     ]
     xml_resources = [XMLResource(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
-    upload_state = UploadState(xml_resources.copy(), [], IriResolver(), None, UploadConfig(), {})
+    upload_state = UploadState(xml_resources.copy(), None, UploadConfig(), {})
     for _ in range(3):
         _tidy_up_resource_creation_idempotent(upload_state, "foo_1_iri", xml_resources[0])
         assert upload_state.pending_resources == xml_resources[1:]
@@ -44,7 +43,7 @@ def test_idempotency_on_failure() -> None:
         """,
     ]
     xml_resources = [XMLResource(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
-    upload_state = UploadState(xml_resources.copy(), [], IriResolver(), None, UploadConfig(), {})
+    upload_state = UploadState(xml_resources.copy(), None, UploadConfig(), {})
     for _ in range(3):
         _tidy_up_resource_creation_idempotent(upload_state, None, xml_resources[0])
         assert upload_state.pending_resources == xml_resources[1:]

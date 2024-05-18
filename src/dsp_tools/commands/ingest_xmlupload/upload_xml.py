@@ -63,8 +63,13 @@ def ingest_xmlupload(
 
     con = ConnectionLive(creds.server)
     con.login(creds.user, creds.password)
-    config = UploadConfig(media_previously_uploaded=True, interrupt_after=interrupt_after)
-    config = config.with_server_info(server=creds.server, shortcode=shortcode)
+
+    config = UploadConfig(
+        media_previously_uploaded=True,
+        server=creds.server,
+        shortcode=shortcode,
+        interrupt_after=interrupt_after,
+    )
 
     ontology_client = OntologyClientLive(con=con, shortcode=shortcode, default_ontology=default_ontology)
     resources, permissions_lookup, stash = prepare_upload(root, ontology_client)

@@ -94,11 +94,7 @@ def xmlupload(
 
     clients = _get_live_clients(con, creds, config, imgdir)
 
-    ontology_client = OntologyClientLive(
-        con=con,
-        shortcode=shortcode,
-        default_ontology=default_ontology,
-    )
+    ontology_client = OntologyClientLive(con=con, shortcode=shortcode, default_ontology=default_ontology)
     resources, permissions_lookup, stash = prepare_upload(root, ontology_client)
 
     return execute_upload(config, clients, resources, permissions_lookup, stash)

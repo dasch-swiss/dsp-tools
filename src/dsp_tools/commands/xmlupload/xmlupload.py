@@ -83,7 +83,7 @@ def xmlupload(
 
     con = ConnectionLive(creds.server)
     con.login(creds.user, creds.password)
-    config = UploadConfig(interrupt_after=interrupt_after, server=creds.server, shortcode=shortcode)
+    config = UploadConfig(interrupt_after=interrupt_after).with_server_info(server=creds.server, shortcode=shortcode)
 
     ontology_client = OntologyClientLive(con=con, shortcode=shortcode, default_ontology=default_ontology)
     resources, permissions_lookup, stash = prepare_upload(root, ontology_client)

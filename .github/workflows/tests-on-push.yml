@@ -54,7 +54,15 @@ jobs:
       - name: Install poetry, python, and dependencies
         uses: ./.github/actions/setup
       - name: unittests
-        run: poetry exec unittests
+        run: poetry run pytest --junit-xml=unit-test-results.xml test/unittests/
+      - name: Show unit test results
+        if: always()
+        uses: pmeier/pytest-results-action@main
+        with:
+          path: unit-test-results.xml
+          summary: true
+          fail-on-empty: true
+          title: Unit Test Results
 
   integration-tests:
     runs-on: ubuntu-latest

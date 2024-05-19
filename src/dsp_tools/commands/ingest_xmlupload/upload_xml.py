@@ -70,9 +70,10 @@ def ingest_xmlupload(
 
     config = UploadConfig(
         media_previously_uploaded=True,
+        interrupt_after=interrupt_after,
+    ).with_server_info(
         server=creds.server,
         shortcode=shortcode,
-        interrupt_after=interrupt_after,
     )
 
     ontology_client = OntologyClientLive(con=con, shortcode=shortcode, default_ontology=default_ontology)

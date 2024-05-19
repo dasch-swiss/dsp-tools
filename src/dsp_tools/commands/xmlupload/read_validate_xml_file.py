@@ -6,6 +6,9 @@ import regex
 from loguru import logger
 from lxml import etree
 
+from dsp_tools.commands.ingest_xmlupload.apply_ingest_id import get_mapping_dict_from_file
+from dsp_tools.commands.ingest_xmlupload.apply_ingest_id import replace_filepath_with_internal_filename
+from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.iri_util import is_resource_iri
 from dsp_tools.utils.xml_utils import parse_xml_file
@@ -31,6 +34,37 @@ def validate_and_parse_xml_file(imgdir: str, input_file: Path) -> tuple[str, etr
     root, shortcode, default_ontology = _validate_and_parse(input_file)
     _check_if_bitstreams_exist(root=root, imgdir=imgdir)
     logger.info(f"Validated and parsed the XML file. {shortcode=:} and {default_ontology=:}")
+    return default_ontology, root, shortcode
+
+
+def validate_and_parse_xml_file_preprocessing_done(xml_file: Path) -> tuple[str, etree._Element, str]:
+    """
+    Validate and parse an upload XML file, when preprocessing has already been done.
+
+    Args:
+        xml_file: file that will be processed
+
+    Returns:
+        The ontology name, the parsed XML file and the shortcode of the project
+
+    Raises:
+        InputError: if replacing file paths with internal asset IDs failed
+    """
+    root, shortcode, default_ontology = _validate_and_parse(xml_file)
+
+    logger.info(f"Validated and parsed the XML. {shortcode=:} and {default_ontology=:}")
+
+    orig_path_2_id_filename = get_mapping_dict_from_file(shortcode)
+    root, ingest_info = replace_filepath_with_internal_filename(
+        xml_tree=root,
+        orig_path_2_id_filename=orig_path_2_id_filename,
+    )
+    if ok := ingest_info.ok_msg():
+        print(ok)
+        logger.info(ok)
+    else:
+        err_msg = ingest_info.execute_error_protocol()
+        raise InputError(err_msg)
     return default_ontology, root, shortcode
 
 

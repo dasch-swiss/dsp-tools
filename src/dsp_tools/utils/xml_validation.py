@@ -140,7 +140,7 @@ def _find_mixed_encodings_in_one_text_prop(xml_no_namespace: etree._Element) -> 
     return [msg]
 
 
-def _check_for_deprecated_syntax(data_xml: etree._Element) -> None:
+def _check_for_deprecated_syntax(data_xml: etree._Element) -> None:  # noqa: ARG001 (unused argument)
     pass
 
 

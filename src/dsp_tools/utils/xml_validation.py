@@ -3,8 +3,6 @@ from __future__ import annotations
 import importlib.resources
 from datetime import datetime
 from pathlib import Path
-from typing import Any
-from typing import Union
 
 import regex
 from loguru import logger
@@ -22,7 +20,7 @@ medium_separator = "\n----------------------------\n"
 grand_separator = "\n\n---------------------------------------\n\n"
 
 
-def validate_xml(input_file: Union[str, Path, etree._ElementTree[Any]]) -> bool:
+def validate_xml_file(input_file: Path | str) -> bool:
     """
     Validates an XML file against the DSP XSD schema.
 
@@ -35,25 +33,29 @@ def validate_xml(input_file: Union[str, Path, etree._ElementTree[Any]]) -> bool:
     Returns:
         True if the XML file is valid
     """
-    data_xml, xmlschema = _parse_schema_and_data_files(input_file)
+    data_xml = parse_and_remove_comments_from_xml_file(input_file)
+    return validate_xml(data_xml)
+
+
+def validate_xml(xml: etree._Element) -> bool:
+    """
+    Validates an XML element tree against the DSP XSD schema.
+
+    Args:
+        xml: the XML element tree to be validated
+
+    Raises:
+        InputError: if the XML file is invalid
+
+    Returns:
+        True if the XML file is valid
+    """
+    xml_no_namespace = remove_namespaces_from_xml(xml)
 
     problems = []
 
-    all_good, msg = _validate_xml_against_schema(xmlschema, data_xml)
-    if not all_good:
-        problems.append(msg)
-
-    xml_no_namespace = remove_namespaces_from_xml(data_xml)
-
-    all_good, msg = _find_xml_tags_in_simple_text_elements(xml_no_namespace)
-    if not all_good:
-        problems.append(msg)
-
-    all_good, msg = _find_mixed_encodings_in_one_text_prop(xml_no_namespace)
-    if not all_good:
-        problems.append(msg)
-
-    _check_for_deprecated_syntax(xml_no_namespace)
+    problems.extend(_validate_xml_against_schema(xml))
+    problems.extend(_validate_xml_contents(xml_no_namespace))
 
     if len(problems) > 0:
         err_msg = grand_separator.join(problems)
@@ -62,35 +64,32 @@ def validate_xml(input_file: Union[str, Path, etree._ElementTree[Any]]) -> bool:
 
     logger.info("The XML file is syntactically correct and passed validation.")
     print(f"{datetime.now()}: The XML file is syntactically correct and passed validation.")
+
     return True
 
 
-def _parse_schema_and_data_files(
-    input_file: Union[str, Path, etree._ElementTree[Any]],
-) -> tuple[etree._Element, etree.XMLSchema]:
-    with (
-        importlib.resources.files("dsp_tools")
-        .joinpath("resources/schema/data.xsd")
-        .open(encoding="utf-8") as schema_file
-    ):
+def _validate_xml_against_schema(data_xml: etree._Element) -> list[str]:
+    schema_res = importlib.resources.files("dsp_tools").joinpath("resources/schema/data.xsd")
+    with schema_res.open(encoding="utf-8") as schema_file:
         xmlschema = etree.XMLSchema(etree.parse(schema_file))
-    data_xml = parse_and_remove_comments_from_xml_file(input_file)
-    return data_xml, xmlschema
-
-
-def _validate_xml_against_schema(xmlschema: etree.XMLSchema, data_xml: etree._Element) -> tuple[bool, str]:
     if not xmlschema.validate(data_xml):
         error_msg = "The XML file cannot be uploaded due to the following validation error(s):"
         for error in xmlschema.error_log:
             error_msg = error_msg + f"{separator}Line {error.line}: {error.message}"
         error_msg = error_msg.replace("{https://dasch.swiss/schema}", "")
-        return False, error_msg
-    return True, ""
+        return [error_msg]
+    return []
 
 
-def _find_xml_tags_in_simple_text_elements(
-    xml_no_namespace: etree._Element,
-) -> tuple[bool, str]:
+def _validate_xml_contents(xml_no_namespace: etree._Element) -> list[str]:
+    problems = []
+    problems.extend(_find_xml_tags_in_simple_text_elements(xml_no_namespace))
+    problems.extend(_find_mixed_encodings_in_one_text_prop(xml_no_namespace))
+    _check_for_deprecated_syntax(xml_no_namespace)
+    return problems
+
+
+def _find_xml_tags_in_simple_text_elements(xml_no_namespace: etree._Element) -> list[str]:
     """
     Makes sure that there are no XML tags in simple texts.
     This can only be done with a regex,
@@ -125,25 +124,23 @@ def _find_xml_tags_in_simple_text_elements(
             "The following resources of your XML file violate this rule:"
         )
         err_msg += list_separator + list_separator.join(resources_with_illegal_xml_tags)
-        return False, err_msg
-    return True, ""
+        return [err_msg]
+    return []
 
 
-def _find_mixed_encodings_in_one_text_prop(
-    xml_no_namespace: etree._Element,
-) -> tuple[bool, str]:
+def _find_mixed_encodings_in_one_text_prop(xml_no_namespace: etree._Element) -> list[str]:
     problems = check_if_only_one_encoding_is_used_per_prop_in_root(xml_no_namespace)
     if not problems:
-        return True, ""
+        return []
     msg, df = InconsistentTextValueEncodings(problems).execute_problem_protocol()
     if df is not None:
         csv_path = Path(f"XML_syntax_errors_{datetime.now().strftime('%Y-%m-%d_%H%M%S')}.csv")
         msg = f"\nAll the problems are listed in the file: '{csv_path.absolute()}'" + msg
         df.to_csv(csv_path)
-    return False, msg
+    return [msg]
 
 
-def _check_for_deprecated_syntax(data_xml: etree._Element) -> None:  # noqa: ARG001 (unused argument)
+def _check_for_deprecated_syntax(data_xml: etree._Element) -> None:
     pass
 
 

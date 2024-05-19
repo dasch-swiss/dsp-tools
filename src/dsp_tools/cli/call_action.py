@@ -24,7 +24,7 @@ from dsp_tools.commands.start_stack import StackConfiguration
 from dsp_tools.commands.start_stack import StackHandler
 from dsp_tools.commands.template import generate_template_repo
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
-from dsp_tools.utils.xml_validation import validate_xml
+from dsp_tools.utils.xml_validation import validate_xml_file
 
 
 def call_requested_action(args: argparse.Namespace) -> bool:
@@ -177,7 +177,7 @@ def _call_ingest_xmlupload(args: argparse.Namespace) -> bool:
 
 def _call_xmlupload(args: argparse.Namespace) -> bool:
     if args.validate_only:
-        return validate_xml(args.xmlfile)
+        return validate_xml_file(Path(args.xmlfile))
     else:
         interrupt_after = args.interrupt_after if args.interrupt_after > 0 else None
         return xmlupload(

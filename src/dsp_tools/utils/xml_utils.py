@@ -31,7 +31,7 @@ def parse_and_clean_xml_file(input_file: Union[str, Path, etree._ElementTree[Any
     """
 
     tree = parse_and_remove_comments_from_xml_file(input_file)
-    return _remove_qnames_and_transform_special_tags(tree)
+    return remove_qnames_and_transform_special_tags(tree)
 
 
 def parse_and_remove_comments_from_xml_file(
@@ -53,15 +53,15 @@ def parse_and_remove_comments_from_xml_file(
     """
 
     if isinstance(input_file, (str, Path)):
-        tree = _parse_xml_file(input_file)
+        tree = parse_xml_file(input_file)
     else:
         tree = input_file
-    tree = remove_comments_from_element_tree(tree)
+    root = remove_comments_from_element_tree(tree.getroot())
 
-    return tree.getroot()
+    return root
 
 
-def _remove_qnames_and_transform_special_tags(
+def remove_qnames_and_transform_special_tags(
     input_tree: etree._Element,
 ) -> etree._Element:
     """
@@ -97,28 +97,26 @@ def _remove_qnames_and_transform_special_tags(
     return input_tree
 
 
-def remove_comments_from_element_tree(
-    input_tree: etree._ElementTree[etree._Element],
-) -> etree._ElementTree[etree._Element]:
+def remove_comments_from_element_tree(input_tree: etree._Element) -> etree._Element:
     """
     This function removes comments and processing instructions.
     Commented out properties break the XMLProperty constructor.
 
     Args:
-        input_tree: etree that will be cleaned
+        input_tree: etree root that will be cleaned
 
     Returns:
-        clean etree
+        clean xml
     """
-    tree = copy.deepcopy(input_tree)
-    for c in tree.xpath("//comment()"):
+    root = copy.deepcopy(input_tree)
+    for c in root.xpath("//comment()"):
         c.getparent().remove(c)
-    for c in tree.xpath("//processing-instruction()"):
+    for c in root.xpath("//processing-instruction()"):
         c.getparent().remove(c)
-    return tree
+    return root
 
 
-def _parse_xml_file(input_file: Union[str, Path]) -> etree._ElementTree[etree._Element]:
+def parse_xml_file(input_file: Union[str, Path]) -> etree._ElementTree[etree._Element]:
     """
     This function parses an XML file and returns an Element Tree
 

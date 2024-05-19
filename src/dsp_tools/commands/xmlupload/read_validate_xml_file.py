@@ -9,7 +9,7 @@ from lxml import etree
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.iri_util import is_resource_iri
 from dsp_tools.utils.xml_utils import parse_and_clean_xml_file
-from dsp_tools.utils.xml_validation import validate_xml
+from dsp_tools.utils.xml_validation import validate_xml_file
 
 
 def validate_and_parse_xml_file(imgdir: str, input_file: Path) -> tuple[str, etree._Element, str]:
@@ -32,27 +32,8 @@ def validate_and_parse_xml_file(imgdir: str, input_file: Path) -> tuple[str, etr
     return default_ontology, root, shortcode
 
 
-def validate_and_parse_xml_file_preprocessing_done(
-    xml: etree._ElementTree[etree._Element],
-) -> tuple[str, etree._Element, str]:
-    """
-    This function takes an element tree.
-    It validates the file against the XML schema.
-    It retrieves the shortcode and default ontology from the XML file.
-
-    Args:
-        xml: xml etree that will be processed
-
-    Returns:
-        The ontology name, the parsed XML file and the shortcode of the project
-    """
-    root, shortcode, default_ontology = _validate_and_parse(xml)
-    logger.info(f"Validated and parsed the XML. {shortcode=:} and {default_ontology=:}")
-    return default_ontology, root, shortcode
-
-
-def _validate_and_parse(xml: etree._ElementTree[etree._Element] | Path) -> tuple[etree._Element, str, str]:
-    validate_xml(input_file=xml)
+def _validate_and_parse(xml: Path) -> tuple[etree._Element, str, str]:
+    validate_xml_file(input_file=xml)
     root = parse_and_clean_xml_file(xml)
     _check_if_link_targets_exist(root)
     shortcode = root.attrib["shortcode"]

@@ -34,10 +34,9 @@ def test_parse_and_clean_xml_file_same_regardless_of_input(data_systematic_uncle
     ), "The output must be equal, regardless if the input is a path or parsed."
 
 
-def test_annotations_regions_links_before(data_systematic_unclean: etree._ElementTree[etree._Element]) -> None:
-    annotations_regions_links_before = [
-        e for e in data_systematic_unclean.iter() if regex.search("annotation|region|link", str(e.tag))
-    ]
+def test_annotations_regions_links_before(data_systematic_unclean: Path) -> None:
+    data = etree.parse(data_systematic_unclean)
+    annotations_regions_links_before = [e for e in data.iter() if regex.search("annotation|region|link", str(e.tag))]
     assert len(annotations_regions_links_before) == 5
 
 
@@ -51,8 +50,9 @@ def test_annotations_regions_links_after(data_systematic_cleaned: etree._Element
     )
 
 
-def test_comment_removal_before(data_systematic_unclean: etree._ElementTree[etree._Element]) -> None:
-    comments = [e for e in data_systematic_unclean.iter() if isinstance(e, etree._Comment)]
+def test_comment_removal_before(data_systematic_unclean: Path) -> None:
+    data = etree.parse(data_systematic_unclean)
+    comments = [e for e in data.iter() if isinstance(e, etree._Comment)]
     assert len(comments) == 6
 
 

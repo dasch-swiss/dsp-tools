@@ -126,8 +126,8 @@ def execute_upload(clients: UploadClients, upload_state: UploadState) -> bool:
     Returns:
         True if all resources could be uploaded without errors; False if any resource could not be uploaded
     """
-    upload_resources(clients, upload_state)
-    return cleanup_upload(upload_state)
+    _upload_resources(clients, upload_state)
+    return _cleanup_upload(upload_state)
 
 
 def prepare_upload(
@@ -143,7 +143,7 @@ def prepare_upload(
     )
 
 
-def cleanup_upload(upload_state: UploadState) -> bool:
+def _cleanup_upload(upload_state: UploadState) -> bool:
     """
     Write the id2iri mapping to a file and print a message to the console.
 
@@ -200,16 +200,43 @@ def _resolve_circular_references(
     return resources, permissions_lookup, stash
 
 
-def upload_resources(clients: UploadClients, upload_state: UploadState) -> None:
+def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None:
     """
-    Actual upload of all resources to DSP.
+    Iterates through all resources and tries to upload them to DSP.
+    If a temporary exception occurs, the action is repeated until success,
+    and if a permanent exception occurs, the resource is skipped.
 
     Args:
         clients: the clients needed for the upload (AssetClient, ProjectClient, ListClient)
         upload_state: the current state of the upload
+
+    Raises:
+        BaseException: in case of an unhandled exception during resource creation
+        XmlUploadInterruptedError: if the number of resources created is equal to the interrupt_after value
     """
     try:
-        _upload_resources(clients, upload_state)
+        project_iri = clients.project_client.get_project_iri()
+        project_onto_dict = clients.project_client.get_ontology_name_dict()
+        listnode_lookup = clients.list_client.get_list_node_id_to_iri_lookup()
+
+        resource_create_client = ResourceCreateClient(
+            con=clients.project_client.con,
+            project_iri=project_iri,
+            iri_resolver=upload_state.iri_resolver,
+            project_onto_dict=project_onto_dict,
+            permissions_lookup=upload_state.permissions_lookup,
+            listnode_lookup=listnode_lookup,
+            media_previously_ingested=upload_state.config.media_previously_uploaded,
+        )
+
+        for creation_attempts_of_this_round, resource in enumerate(upload_state.pending_resources.copy()):
+            _upload_one_resource(
+                upload_state=upload_state,
+                resource=resource,
+                ingest_client=clients.asset_client,
+                resource_create_client=resource_create_client,
+                creation_attempts_of_this_round=creation_attempts_of_this_round,
+            )
         if upload_state.pending_stash:
             _upload_stash(upload_state, clients.project_client)
     except XmlUploadInterruptedError as err:
@@ -269,44 +296,6 @@ def _extract_permissions_from_xml(root: etree._Element, proj_context: ProjectCon
 def _extract_resources_from_xml(root: etree._Element, default_ontology: str) -> list[XMLResource]:
     resources = list(root.iter(tag="resource"))
     return [XMLResource(res, default_ontology) for res in resources]
-
-
-def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None:
-    """
-    Iterates through all resources and tries to upload them to DSP.
-    If a temporary exception occurs, the action is repeated until success,
-    and if a permanent exception occurs, the resource is skipped.
-
-    Args:
-        clients: the clients needed for the upload (AssetClient, ProjectClient, ListClient)
-        upload_state: the current state of the upload
-
-    Raises:
-        BaseException: in case of an unhandled exception during resource creation
-        XmlUploadInterruptedError: if the number of resources created is equal to the interrupt_after value
-    """
-    project_iri = clients.project_client.get_project_iri()
-    project_onto_dict = clients.project_client.get_ontology_name_dict()
-    listnode_lookup = clients.list_client.get_list_node_id_to_iri_lookup()
-
-    resource_create_client = ResourceCreateClient(
-        con=clients.project_client.con,
-        project_iri=project_iri,
-        iri_resolver=upload_state.iri_resolver,
-        project_onto_dict=project_onto_dict,
-        permissions_lookup=upload_state.permissions_lookup,
-        listnode_lookup=listnode_lookup,
-        media_previously_ingested=upload_state.config.media_previously_uploaded,
-    )
-
-    for creation_attempts_of_this_round, resource in enumerate(upload_state.pending_resources.copy()):
-        _upload_one_resource(
-            upload_state=upload_state,
-            resource=resource,
-            ingest_client=clients.asset_client,
-            resource_create_client=resource_create_client,
-            creation_attempts_of_this_round=creation_attempts_of_this_round,
-        )
 
 
 def _upload_one_resource(

@@ -80,13 +80,13 @@ def test_project_get(get_project: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.call_action.validate_xml")
+@patch("dsp_tools.cli.call_action.validate_xml_file")
 def test_xmlupload_validate(validate_xml: Mock) -> None:
     """Test the 'dsp-tools xmlupload --validate-only' command"""
     file = "filename.xml"
     args = f"xmlupload --validate-only {file}".split()
     entry_point.run(args)
-    validate_xml.assert_called_once_with(file)
+    validate_xml.assert_called_once_with(Path(file))
 
 
 @patch("dsp_tools.cli.call_action.xmlupload")

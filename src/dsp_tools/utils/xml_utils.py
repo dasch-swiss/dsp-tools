@@ -29,36 +29,13 @@ def parse_and_clean_xml_file(input_file: Union[str, Path, etree._ElementTree[Any
     Raises:
         InputError: if the input is not of either the expected types
     """
-
-    tree = parse_and_remove_comments_from_xml_file(input_file)
-    return remove_qnames_and_transform_special_tags(tree)
-
-
-def parse_and_remove_comments_from_xml_file(
-    input_file: Union[str, Path, etree._ElementTree[Any]],
-) -> etree._Element:
-    """
-    Parse an XML file with DSP-conform data,
-    and remove the comments and processing instructions
-    (commented out properties break the XMLProperty constructor)
-
-    Args:
-        input_file: path to the XML file, or parsed ElementTree
-
-    Returns:
-        the root element of the parsed XML file
-
-    Raises:
-        InputError: if the input is not of either the expected types
-    """
-
     if isinstance(input_file, (str, Path)):
         root = parse_xml_file(input_file)
     else:
         root = input_file.getroot()
-    root = remove_comments_from_element_tree(root)
 
-    return root
+    root = remove_comments_from_element_tree(root)
+    return remove_qnames_and_transform_special_tags(root)
 
 
 def remove_qnames_and_transform_special_tags(

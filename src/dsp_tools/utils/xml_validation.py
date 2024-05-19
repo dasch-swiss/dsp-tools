@@ -9,7 +9,8 @@ from loguru import logger
 from lxml import etree
 
 from dsp_tools.models.exceptions import InputError
-from dsp_tools.utils.xml_utils import parse_and_remove_comments_from_xml_file
+from dsp_tools.utils.xml_utils import parse_xml_file
+from dsp_tools.utils.xml_utils import remove_comments_from_element_tree
 from dsp_tools.utils.xml_utils import remove_namespaces_from_xml
 from dsp_tools.utils.xml_validation_models import InconsistentTextValueEncodings
 from dsp_tools.utils.xml_validation_models import TextValueData
@@ -33,7 +34,8 @@ def validate_xml_file(input_file: Path | str) -> bool:
     Returns:
         True if the XML file is valid
     """
-    data_xml = parse_and_remove_comments_from_xml_file(input_file)
+    root = parse_xml_file(input_file)
+    data_xml = remove_comments_from_element_tree(root)
     return validate_xml(data_xml)
 
 

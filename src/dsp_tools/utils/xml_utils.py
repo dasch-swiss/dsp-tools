@@ -53,10 +53,10 @@ def parse_and_remove_comments_from_xml_file(
     """
 
     if isinstance(input_file, (str, Path)):
-        tree = parse_xml_file(input_file)
+        root = parse_xml_file(input_file)
     else:
-        tree = input_file
-    root = remove_comments_from_element_tree(tree.getroot())
+        root = input_file.getroot()
+    root = remove_comments_from_element_tree(root)
 
     return root
 
@@ -116,7 +116,7 @@ def remove_comments_from_element_tree(input_tree: etree._Element) -> etree._Elem
     return root
 
 
-def parse_xml_file(input_file: Union[str, Path]) -> etree._ElementTree[etree._Element]:
+def parse_xml_file(input_file: str | Path) -> etree._Element:
     """
     This function parses an XML file and returns an Element Tree
 
@@ -131,7 +131,7 @@ def parse_xml_file(input_file: Union[str, Path]) -> etree._ElementTree[etree._El
     """
     parser = etree.XMLParser(remove_comments=True, remove_pis=True)
     try:
-        return etree.parse(source=input_file, parser=parser)
+        return etree.parse(source=input_file, parser=parser).getroot()
     except etree.XMLSyntaxError as err:
         logger.opt(exception=True).error(f"The XML file contains the following syntax error: {err.msg}")
         raise InputError(f"The XML file contains the following syntax error: {err.msg}") from None

@@ -75,7 +75,7 @@ def ingest_xmlupload(
 
 
 def _parse_xml_for_ingest_upload(xml_file: Path) -> tuple[etree._Element, str, str]:
-    root_orig = parse_xml_file(xml_file).getroot()
+    root_orig = parse_xml_file(xml_file)
     root_orig = remove_comments_from_element_tree(root_orig)
 
     validate_xml(root_orig)

@@ -27,11 +27,7 @@ def parse_and_clean_xml_file(input_file: Path) -> etree._Element:
     Raises:
         InputError: if the input is not of either the expected types
     """
-    if isinstance(input_file, (str, Path)):
-        root = parse_xml_file(input_file)
-    else:
-        root = input_file.getroot()
-
+    root = parse_xml_file(input_file)
     root = remove_comments_from_element_tree(root)
     return remove_qnames_and_transform_special_tags(root)
 

@@ -38,9 +38,7 @@ def parse_and_clean_xml_file(input_file: Union[str, Path, etree._ElementTree[Any
     return remove_qnames_and_transform_special_tags(root)
 
 
-def remove_qnames_and_transform_special_tags(
-    input_tree: etree._Element,
-) -> etree._Element:
+def remove_qnames_and_transform_special_tags(input_tree: etree._Element) -> etree._Element:
     """
     This function removes the namespace URIs from the elements' names
     and transforms the special tags <annotation>, <region>, <link>, <video-segment>, <audio-segment>
@@ -114,17 +112,15 @@ def parse_xml_file(input_file: str | Path) -> etree._Element:
         raise InputError(f"The XML file contains the following syntax error: {err.msg}") from None
 
 
-def remove_namespaces_from_xml(
-    data_xml: etree._Element,
-) -> etree._Element:
+def remove_namespaces_from_xml(data_xml: etree._Element) -> etree._Element:
     """
-    This function removes all the namespaces from an XML file.
+    This function removes all the namespaces from an XML element tree.
 
     Args:
-        data_xml: file with namespaces
+        data_xml: xml with namespaces
 
     Returns:
-        the XMl file without the namespaces
+        the XMl without the namespaces
     """
     xml_no_namespace = copy.deepcopy(data_xml)
     for elem in xml_no_namespace.iter():

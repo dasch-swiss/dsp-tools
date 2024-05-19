@@ -19,7 +19,7 @@ def parse_and_clean_xml_file(input_file: Path) -> etree._Element:
     <resource restype="VideoSegment">, <resource restype="AudioSegment">.
 
     Args:
-        input_file: path to the XML file, or parsed ElementTree
+        input_file: path to the XML file
 
     Returns:
         the root element of the parsed XML file

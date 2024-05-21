@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 from termcolor import cprint
 
@@ -9,7 +11,7 @@ from dsp_tools.utils.xml_utils import parse_and_clean_xml_file
 
 
 def test_get_length_ok_resources() -> None:
-    test_root = parse_and_clean_xml_file("testdata/xml-data/circular-references/test_circular_references_1.xml")
+    test_root = parse_and_clean_xml_file(Path("testdata/xml-data/circular-references/test_circular_references_1.xml"))
     stash_lookup, _ = identify_circular_references(test_root)
     resources = _extract_resources_from_xml(test_root, "simcir")
     stash = stash_circular_references(resources, stash_lookup, {"prop-default": Permissions()})

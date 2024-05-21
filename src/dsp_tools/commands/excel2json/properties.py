@@ -99,7 +99,7 @@ def excel2properties(
     return props, True
 
 
-def _check_for_deprecated_syntax(df: pd.DataFrame) -> None:
+def _check_for_deprecated_syntax(df: pd.DataFrame) -> None:  # noqa: ARG001 (unused argument)
     pass
 
 

@@ -36,7 +36,9 @@ class IIIFUriProblem:
             msg.append("Passed the internal regex check.")
         else:
             msg.append("Did not pass the internal regex check.")
-        if self.status_code is not None:
+        if self.status_code == 200:
+            msg.extend(self._good_status_code_bad_regex_msg())
+        elif self.status_code is not None:
             msg.extend(self._bad_status_code_msg())
         else:
             msg.extend(self._exception_msg())
@@ -53,4 +55,10 @@ class IIIFUriProblem:
             "The server did not respond as expected.",
             f"Status code: {self.status_code}",
             f"Response text: {self.response_text}",
+        ]
+
+    def _good_status_code_bad_regex_msg(self) -> list[str]:
+        return [
+            "The URI is correct and the server responded as expected.",
+            "Please contact the dsp-tools development team with this information.",
         ]

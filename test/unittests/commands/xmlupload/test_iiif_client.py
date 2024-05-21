@@ -1,3 +1,5 @@
+import pytest
+
 from dsp_tools.commands.xmlupload.iiif_client import IIIFUriValidatorLive
 
 
@@ -48,3 +50,7 @@ def test_make_info_json_uri_fail_1() -> None:
 def test_make_info_json_uri_fail_2() -> None:
     test = IIIFUriValidatorLive("bla/", False)
     assert test._make_info_json_uri() == "bla/info.json"
+
+
+if __name__ == "__main__":
+    pytest.main([__file__])

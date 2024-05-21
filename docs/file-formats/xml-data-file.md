@@ -198,6 +198,7 @@ Example of a property element of type integer with two values:
 The following property elements exist:
 
 - `<bitstream>`: contains a path to a file (if the resource is a multimedia resource)
+- `<iiif-uri>`: contains a URI to an IIIF image server (resource must be a `StillImageRepresentation`)
 - `<boolean-prop>`: contains a boolean value
 - `<color-prop>`: contains color values
 - `<date-prop>`: contains date values
@@ -266,6 +267,33 @@ Example of a public image inside a `StillImageRepresentation`:
     <bitstream permissions="prop-default">postcards/images/EURUS015a.jpg</bitstream>
 </resource>
 ```
+
+### `<iiif-uri>`
+
+The `<iiif-uri>` element is used for IIIF image server URIs. 
+All versions of the IIIF-API standards are supported.
+
+Please consult the official documentation for details regarding the URI syntax:
+
+- [IIIF Image API 1.0](https://iiif.io/api/image/1.0/)
+- [IIIF Image API 2.0](https://iiif.io/api/image/2.0/)
+- [IIIF Image API 3.0](https://iiif.io/api/image/3.0/)
+
+
+Attributes:
+
+- `permissions` : Permission ID 
+  (optional, but if omitted, users who are lower than a `ProjectAdmin` have no permissions at all, not even view rights)
+
+
+Example of a public image inside a `StillImageRepresentation`:
+
+```xml
+<resource restype=":Image" id="image_1" label="image_1" permissions="res-default">
+    <iiif-uri permissions="prop-default">https://iiif.dasch.swiss/0811/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/837,530/0/default.jp2</iiif-uri>
+</resource>
+```
+
 
 
 ### `<boolean-prop>`

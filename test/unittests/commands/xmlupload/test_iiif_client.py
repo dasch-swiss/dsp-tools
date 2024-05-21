@@ -58,10 +58,6 @@ def test_make_info_json_uri_fail_2() -> None:
     assert test._make_info_json_uri() == "bla/info.json"
 
 
-if __name__ == "__main__":
-    pytest.main([__file__])
-
-
 @pytest.fixture()
 def response_404() -> Response:
     mock_response = Response()
@@ -128,3 +124,7 @@ def test_validate_with_failed_regex_good_status_code(mock_network_call: Mock, re
     assert result.status_code == 200
     assert result.response_text == "This is the response text."
     assert not result.thrown_exception
+
+
+if __name__ == "__main__":
+    pytest.main([__file__])

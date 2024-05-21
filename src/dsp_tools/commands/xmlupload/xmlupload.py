@@ -135,6 +135,7 @@ def _validate_iiif_uri(root: etree._Element) -> None:
     problems = [res for x in all_uris if (res := IIIFUriValidatorLive(x, is_iiif_uri(x)).validate())]
     if problems:
         msg = AllIIIFUriProblems(problems).get_msg()
+        warnings.warn(DspToolsUserWarning(msg))
         logger.warning(msg)
 
 

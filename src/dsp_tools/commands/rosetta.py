@@ -2,6 +2,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
+from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create import create_project
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
@@ -64,11 +65,10 @@ def _create_json(rosetta_folder: Path) -> bool:
         True if the project could be created without problems, False if something went wrong during the creation process
     """
     print("Execute 'dsp-tools create rosetta.json'...")
+    creds = ServerCredentials(server="http://0.0.0.0:3333", user="root@example.com", password="test")
     return create_project(
         project_file_as_path_or_parsed=rosetta_folder / "rosetta.json",
-        server="http://0.0.0.0:3333",
-        user_mail="root@example.com",
-        password="test",
+        creds=creds,
         verbose=False,
     )
 
@@ -84,13 +84,16 @@ def _upload_xml(rosetta_folder: Path) -> bool:
         True if all data could be uploaded without problems, False if something went wrong during the upload process
     """
     print("Execute 'dsp-tools xmlupload rosetta.xml'...")
-    return xmlupload(
-        input_file=rosetta_folder / "rosetta.xml",
-        server="http://0.0.0.0:3333",
+    creds = ServerCredentials(
         user="root@example.com",
         password="test",
-        imgdir=str(rosetta_folder),
+        server="http://0.0.0.0:3333",
         dsp_ingest_url="http://0.0.0.0:3340",
+    )
+    return xmlupload(
+        input_file=rosetta_folder / "rosetta.xml",
+        creds=creds,
+        imgdir=str(rosetta_folder),
         config=UploadConfig(),
     )
 

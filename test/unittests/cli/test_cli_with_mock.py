@@ -4,6 +4,7 @@ from unittest.mock import patch
 import pytest
 
 from dsp_tools.cli import entry_point
+from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 
 
@@ -30,12 +31,11 @@ def test_lists_create(create_lists: Mock) -> None:
     create_lists.return_value = ({}, True)
     file = "filename.json"
     args = f"create --lists-only {file}".split()
+    creds = ServerCredentials(server="http://0.0.0.0:3333", user="root@example.com", password="test")
     entry_point.run(args)
     create_lists.assert_called_once_with(
         project_file_as_path_or_parsed=file,
-        server="http://0.0.0.0:3333",
-        user="root@example.com",
-        password="test",
+        creds=creds,
     )
 
 
@@ -53,12 +53,11 @@ def test_project_create(create_project: Mock) -> None:
     """Test the 'dsp-tools create' command"""
     file = "filename.json"
     args = f"create {file}".split()
+    creds = ServerCredentials(server="http://0.0.0.0:3333", user="root@example.com", password="test")
     entry_point.run(args)
     create_project.assert_called_once_with(
         project_file_as_path_or_parsed=file,
-        server="http://0.0.0.0:3333",
-        user_mail="root@example.com",
-        password="test",
+        creds=creds,
         verbose=False,
     )
 
@@ -69,13 +68,12 @@ def test_project_get(get_project: Mock) -> None:
     file = "filename.json"
     project = "shortname"
     args = f"get --project {project} {file}".split()
+    creds = ServerCredentials(server="http://0.0.0.0:3333", user="root@example.com", password="test")
     entry_point.run(args)
     get_project.assert_called_once_with(
         project_identifier=project,
         outfile_path=file,
-        server="http://0.0.0.0:3333",
-        user="root@example.com",
-        password="test",
+        creds=creds,
         verbose=False,
     )
 
@@ -94,14 +92,17 @@ def test_xmlupload(xmlupload: Mock) -> None:
     """Test the 'dsp-tools xmlupload' command"""
     file = "filename.xml"
     args = f"xmlupload {file}".split()
-    entry_point.run(args)
-    xmlupload.assert_called_once_with(
-        input_file=file,
+    creds = ServerCredentials(
         server="http://0.0.0.0:3333",
         user="root@example.com",
         password="test",
-        imgdir=".",
         dsp_ingest_url="http://0.0.0.0:3340",
+    )
+    entry_point.run(args)
+    xmlupload.assert_called_once_with(
+        input_file=file,
+        creds=creds,
+        imgdir=".",
         config=UploadConfig(),
     )
 

@@ -1,3 +1,4 @@
+from unittest.mock import Mock
 from unittest.mock import patch
 
 import pytest
@@ -30,7 +31,7 @@ def request_exception() -> RequestException:
 
 
 @patch("dsp_tools.commands.xmlupload.iiif_client.IIIFUriValidatorLive._make_network_call")
-def test_validate_with_exception(mock_network_call, request_exception: RequestException):
+def test_validate_with_exception(mock_network_call: Mock, request_exception: RequestException) -> None:
     mock_network_call.return_value = request_exception
     validator = IIIFUriValidatorLive(uri="http://example.com", passed_regex=True)
     result = validator.validate()
@@ -43,7 +44,7 @@ def test_validate_with_exception(mock_network_call, request_exception: RequestEx
 
 
 @patch("dsp_tools.commands.xmlupload.iiif_client.IIIFUriValidatorLive._make_network_call")
-def test_validate_with_bad_status_code(mock_network_call, response_404: Response):
+def test_validate_with_bad_status_code(mock_network_call: Mock, response_404: Response) -> None:
     mock_network_call.return_value = response_404
     validator = IIIFUriValidatorLive(uri="http://example.com", passed_regex=False)
     result = validator.validate()
@@ -56,7 +57,7 @@ def test_validate_with_bad_status_code(mock_network_call, response_404: Response
 
 
 @patch("dsp_tools.commands.xmlupload.iiif_client.IIIFUriValidatorLive._make_network_call")
-def test_validate_with_good_status_code(mock_network_call, response_200: Response):
+def test_validate_with_good_status_code(mock_network_call: Mock, response_200: Response) -> None:
     mock_network_call.return_value = response_200
     validator = IIIFUriValidatorLive(uri="http://example.com", passed_regex=True)
     result = validator.validate()
@@ -64,7 +65,7 @@ def test_validate_with_good_status_code(mock_network_call, response_200: Respons
 
 
 @patch("dsp_tools.commands.xmlupload.iiif_client.IIIFUriValidatorLive._make_network_call")
-def test_validate_with_failed_regex_good_status_code(mock_network_call, response_200: Response):
+def test_validate_with_failed_regex_good_status_code(mock_network_call: Mock, response_200: Response) -> None:
     mock_network_call.return_value = response_200
     validator = IIIFUriValidatorLive(uri="http://example.com", passed_regex=False)
     result = validator.validate()

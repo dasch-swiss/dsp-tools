@@ -84,7 +84,7 @@ def xmlupload(
         preprocessing_done=config.media_previously_uploaded,
     )
     if config.iiif_uri_validation:
-        _validate_iiif_uri(root)
+        _validate_iiif_uris(root)
 
     config = config.with_server_info(
         server=creds.server,
@@ -129,7 +129,7 @@ def xmlupload(
     return cleanup_upload(upload_state)
 
 
-def _validate_iiif_uri(root: etree._Element) -> None:
+def _validate_iiif_uris(root: etree._Element) -> None:
     uris = [node.text for node in root.iter(tag="iiif-uri")]
     all_uris = cast(list[str], uris)
     problems = [res for x in all_uris if (res := IIIFUriValidator(x, is_iiif_uri(x)).validate())]

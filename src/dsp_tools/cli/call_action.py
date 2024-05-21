@@ -23,6 +23,7 @@ from dsp_tools.commands.rosetta import upload_rosetta
 from dsp_tools.commands.start_stack import StackConfiguration
 from dsp_tools.commands.start_stack import StackHandler
 from dsp_tools.commands.template import generate_template_repo
+from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from dsp_tools.utils.xml_validation import validate_xml_file
 
@@ -184,7 +185,7 @@ def _call_xmlupload(args: argparse.Namespace) -> bool:
             input_file=Path(args.xmlfile),
             creds=_get_creds(args),
             imgdir=args.imgdir,
-            interrupt_after=interrupt_after,
+            config=UploadConfig(interrupt_after=interrupt_after),
         )
 
 

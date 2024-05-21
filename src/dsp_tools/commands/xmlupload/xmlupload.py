@@ -49,7 +49,7 @@ def xmlupload(
     input_file: Path,
     creds: ServerCredentials,
     imgdir: str,
-    interrupt_after: int | None = None,
+    config: UploadConfig = UploadConfig(),
 ) -> bool:
     """
     This function reads an XML file and imports the data described in it onto the DSP server.
@@ -58,7 +58,7 @@ def xmlupload(
         input_file: path to XML file containing the resources
         creds: the credentials to access the DSP server
         imgdir: the image directory
-        interrupt_after: the number of resources after which the upload should be interrupted, or None
+        config: the configuration for the upload
 
     Raises:
         BaseError: in case of permanent network or software failure
@@ -74,7 +74,7 @@ def xmlupload(
 
     con = ConnectionLive(creds.server)
     con.login(creds.user, creds.password)
-    config = UploadConfig(interrupt_after=interrupt_after).with_server_info(server=creds.server, shortcode=shortcode)
+    config = config.with_server_info(server=creds.server, shortcode=shortcode)
 
     ontology_client = OntologyClientLive(con=con, shortcode=shortcode, default_ontology=default_ontology)
     resources, permissions_lookup, stash = prepare_upload(root, ontology_client)

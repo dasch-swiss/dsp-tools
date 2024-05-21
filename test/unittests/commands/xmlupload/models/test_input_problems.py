@@ -73,6 +73,15 @@ def test_iiif_uri_problem_exception(iiif_exception: IIIFUriProblem) -> None:
     )
 
 
+def test_failing_regex(iiif_uri_problem_bad_regex_good_status_code: IIIFUriProblem) -> None:
+    assert iiif_uri_problem_bad_regex_good_status_code.get_msg() == (
+        "URI: http://www.example.org/\n"
+        "    - Did not pass the internal regex check.\n"
+        "    - The URI is correct and the server responded as expected.\n"
+        "    - Please contact the dsp-tools development team with this information."
+    )
+
+
 def test_all(iiif_exception: IIIFUriProblem, iiif_uri_problem_ok_regex: IIIFUriProblem) -> None:
     problem = AllIIIFUriProblems(problems=[iiif_exception, iiif_uri_problem_ok_regex])
     assert problem.get_msg() == (
@@ -88,15 +97,6 @@ def test_all(iiif_exception: IIIFUriProblem, iiif_uri_problem_ok_regex: IIIFUriP
         "    - The server did not respond as expected.\n"
         "    - Status code: 404\n"
         "    - Response text: This is the response text."
-    )
-
-
-def test_failing_regex(iiif_uri_problem_bad_regex_good_status_code: IIIFUriProblem) -> None:
-    assert iiif_uri_problem_bad_regex_good_status_code.get_msg() == (
-        "URI: http://www.example.org/\n"
-        "    - Did not pass the internal regex check.\n"
-        "    - The URI is correct and the server responded as expected.\n"
-        "    - Please contact the dsp-tools development team with this information."
     )
 
 

@@ -10,6 +10,7 @@ from dsp_tools.commands.xmlupload import xmlupload
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
+from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.project_client import ProjectInfo
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
@@ -438,8 +439,9 @@ def test_interruption_if_resource_cannot_be_created() -> None:
     con.session.request = Mock(side_effect=post_responses)  # type: ignore[method-assign]
     project_client = ProjectClientStub(con, "1234", None)
     xmlupload._handle_upload_error = Mock()
+    ingest_client = DspIngestClientLive("", "", "1234", ".")
 
-    xmlupload.upload_resources(upload_state, ".", Sipi(con), project_client, ListClientMock())
+    xmlupload.upload_resources(upload_state, ingest_client, project_client, ListClientMock())
     msg = (
         "Lost connection to DSP server, probably because the server is down. "
         "Please continue later with 'resume-xmlupload'. Reason for this failure: "

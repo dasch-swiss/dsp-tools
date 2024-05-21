@@ -40,6 +40,11 @@ class TestIIIFMakeInfoJsonUri:
         assert test._make_info_json_uri() == "http://www.example.org/prefix1/abcd1234/info.json"
 
 
-def test_make_info_json_uri_fail() -> None:
+def test_make_info_json_uri_fail_1() -> None:
     test = IIIFUriValidatorLive("bla", False)
+    assert test._make_info_json_uri() == "bla/info.json"
+
+
+def test_make_info_json_uri_fail_2() -> None:
+    test = IIIFUriValidatorLive("bla/", False)
     assert test._make_info_json_uri() == "bla/info.json"

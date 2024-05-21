@@ -276,7 +276,7 @@ All versions of the IIIF-API standards are supported.
 
 Notes:
 
-- Only one element is allowed per `StillImageRepresentation`. 
+- Only _one_ `<iiif-uri>` element is allowed per `StillImageRepresentation`. 
 - If a `<iiif-uri>` element is present, the `<bitstream>` element must be omitted.
 
 Please consult the official documentation for details regarding the URI syntax:

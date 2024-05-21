@@ -25,14 +25,13 @@ class IIIFUriValidator:
         match response.ok, self.regex_has_passed:
             case True, True:
                 return None
-            case _, _:
+            case _:
                 return IIIFUriProblem(
                     uri=self.uri,
                     regex_has_passed=self.regex_has_passed,
                     status_code=response.status_code,
                     original_text=response.text,
                 )
-        return None
 
     def _make_network_call(self) -> requests.Response | Exception:
         uri = self._make_info_json_uri()

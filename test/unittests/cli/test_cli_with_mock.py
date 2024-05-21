@@ -6,6 +6,7 @@ import pytest
 
 from dsp_tools.cli import entry_point
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 
 EXIT_CODE_TWO = 2
 
@@ -105,7 +106,7 @@ def test_xmlupload(xmlupload: Mock) -> None:
         input_file=Path(file),
         creds=creds,
         imgdir=".",
-        interrupt_after=None,
+        config=UploadConfig(),
     )
 
 

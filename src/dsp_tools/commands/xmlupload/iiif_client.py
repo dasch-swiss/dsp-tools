@@ -55,5 +55,7 @@ class IIIFUriValidatorLive:
     def _make_info_json_uri(self) -> str:
         splt = self.uri.split("/")
         if len(splt) < 5:
-            return self.uri
-        return "/".join(splt[:-4]) + "/info.json"
+            info_uri = self.uri.rstrip("/")
+        else:
+            info_uri = "/".join(splt[:-4])
+        return f"{info_uri}/info.json"

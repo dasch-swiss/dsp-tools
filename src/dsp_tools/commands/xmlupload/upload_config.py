@@ -48,6 +48,7 @@ class UploadConfig:
     shortcode: str = "unknown"
     diagnostics: DiagnosticsConfig = field(default_factory=DiagnosticsConfig)
     interrupt_after: int | None = None
+    iiif_uri_validation: bool = True
 
     def with_server_info(
         self,

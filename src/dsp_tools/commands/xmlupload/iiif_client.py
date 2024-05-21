@@ -14,7 +14,7 @@ class IIIFUriValidator(Protocol):
     passed_regex: bool
 
     def validate(self) -> IIIFUriProblem | None:
-        """Check if the IIIF-server is reachable and if not it returns information for the user."""
+        """Check if the IIIF-server is reachable and if not, it returns information for the user."""
 
 
 @dataclass(frozen=True)

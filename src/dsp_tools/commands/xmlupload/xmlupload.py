@@ -6,12 +6,14 @@ import warnings
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+from typing import cast
 
 from loguru import logger
 from lxml import etree
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.xmlupload.check_consistency_with_ontology import do_xml_consistency_check_with_ontology
+from dsp_tools.commands.xmlupload.iiif_client import IIIFUriValidatorLive
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.list_client import ListClient
 from dsp_tools.commands.xmlupload.list_client import ListClientLive
@@ -20,6 +22,7 @@ from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResou
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.ingest import BulkIngestedAssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
+from dsp_tools.commands.xmlupload.models.input_problems import AllIIIFUriProblems
 from dsp_tools.commands.xmlupload.models.namespace_context import get_json_ld_context_for_project
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
@@ -44,6 +47,7 @@ from dsp_tools.models.projectContext import ProjectContext
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
 from dsp_tools.utils.logger_config import logger_savepath
+from dsp_tools.utils.uri_util import is_iiif_uri
 
 
 def xmlupload(
@@ -79,6 +83,8 @@ def xmlupload(
         imgdir=imgdir,
         preprocessing_done=config.media_previously_uploaded,
     )
+    if config.iiif_uri_validation:
+        _validate_iiif_uri(root)
 
     config = config.with_server_info(
         server=creds.server,
@@ -121,6 +127,15 @@ def xmlupload(
     )
 
     return cleanup_upload(upload_state)
+
+
+def _validate_iiif_uri(root: etree._Element) -> None:
+    uris = [node.text for node in root.iter(tag="iiif-uri")]
+    all_uris = cast(list[str], uris)
+    problems = [res for x in all_uris if (res := IIIFUriValidatorLive(x, is_iiif_uri(x)).validate())]
+    if problems:
+        msg = AllIIIFUriProblems(problems).get_msg()
+        logger.warning(msg)
 
 
 def cleanup_upload(upload_state: UploadState) -> bool:

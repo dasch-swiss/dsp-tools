@@ -182,11 +182,12 @@ def _call_xmlupload(args: argparse.Namespace) -> bool:
         return validate_xml(args.xmlfile)
     else:
         interrupt_after = args.interrupt_after if args.interrupt_after > 0 else None
+        iiif_validation = args.no_iiif_uri_validation is False
         return xmlupload(
             input_file=args.xmlfile,
             creds=_get_creds(args),
             imgdir=args.imgdir,
-            config=UploadConfig(interrupt_after=interrupt_after),
+            config=UploadConfig(interrupt_after=interrupt_after, iiif_uri_validation=iiif_validation),
         )
 
 

@@ -10,14 +10,16 @@ from typing import Any
 from loguru import logger
 from lxml import etree
 
+from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.xmlupload.check_consistency_with_ontology import do_xml_consistency_check_with_ontology
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.list_client import ListClient
 from dsp_tools.commands.xmlupload.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.models.deserialise.xmlpermission import XmlPermission
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
+from dsp_tools.commands.xmlupload.models.ingest import AssetClient
+from dsp_tools.commands.xmlupload.models.ingest import BulkIngestedAssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
-from dsp_tools.commands.xmlupload.models.ingest import IngestClient
 from dsp_tools.commands.xmlupload.models.namespace_context import get_json_ld_context_for_project
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
@@ -26,7 +28,6 @@ from dsp_tools.commands.xmlupload.project_client import ProjectClient
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
 from dsp_tools.commands.xmlupload.read_validate_xml_file import validate_and_parse_xml_file
 from dsp_tools.commands.xmlupload.resource_create_client import ResourceCreateClient
-from dsp_tools.commands.xmlupload.resource_multimedia import handle_media_info
 from dsp_tools.commands.xmlupload.stash.stash_circular_references import identify_circular_references
 from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_circular_references
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
@@ -48,11 +49,8 @@ from dsp_tools.utils.logger_config import logger_savepath
 
 def xmlupload(
     input_file: str | Path | etree._ElementTree[Any],
-    server: str,
-    user: str,
-    password: str,
+    creds: ServerCredentials,
     imgdir: str,
-    dsp_ingest_url: str,
     config: UploadConfig = UploadConfig(),
 ) -> bool:
     """
@@ -60,11 +58,8 @@ def xmlupload(
 
     Args:
         input_file: path to XML file containing the resources, or the XML tree itself
-        server: the DSP server where the data should be imported
-        user: the user (e-mail) with which the data should be imported
-        password: the password of the user with which the data should be imported
+        creds: the credentials to access the DSP server
         imgdir: the image directory
-        dsp_ingest_url: the url to the ingest server to be used
         config: the upload configuration
 
     Raises:
@@ -77,9 +72,8 @@ def xmlupload(
         uploaded because there is an error in it
     """
 
-    con = ConnectionLive(server)
-    con.login(user, password)
-    ingest_client = DspIngestClientLive(dsp_ingest_url=dsp_ingest_url, token=con.get_token())
+    con = ConnectionLive(creds.server)
+    con.login(creds.user, creds.password)
 
     default_ontology, root, shortcode = validate_and_parse_xml_file(
         input_file=input_file,
@@ -88,9 +82,20 @@ def xmlupload(
     )
 
     config = config.with_server_info(
-        server=server,
+        server=creds.server,
         shortcode=shortcode,
     )
+
+    ingest_client: AssetClient
+    if config.media_previously_uploaded:
+        ingest_client = BulkIngestedAssetClient()
+    else:
+        ingest_client = DspIngestClientLive(
+            dsp_ingest_url=creds.dsp_ingest_url,
+            token=con.get_token(),
+            shortcode=config.shortcode,
+            imgdir=imgdir,
+        )
 
     ontology_client = OntologyClientLive(
         con=con,
@@ -111,7 +116,6 @@ def xmlupload(
 
     upload_resources(
         upload_state=upload_state,
-        imgdir=imgdir,
         ingest_client=ingest_client,
         project_client=project_client,
         list_client=list_client,
@@ -179,8 +183,7 @@ def _prepare_upload(
 
 def upload_resources(
     upload_state: UploadState,
-    imgdir: str,
-    ingest_client: IngestClient,
+    ingest_client: AssetClient,
     project_client: ProjectClient,
     list_client: ListClient,
 ) -> None:
@@ -189,7 +192,6 @@ def upload_resources(
 
     Args:
         upload_state: the current state of the upload
-        imgdir: folder containing the multimedia files
         ingest_client: ingest server client
         project_client: a client for HTTP communication with the DSP-API
         list_client: a client for HTTP communication with the DSP-API
@@ -197,7 +199,6 @@ def upload_resources(
     try:
         _upload_resources(
             upload_state=upload_state,
-            imgdir=imgdir,
             ingest_client=ingest_client,
             project_client=project_client,
             list_client=list_client,
@@ -265,8 +266,7 @@ def _extract_resources_from_xml(root: etree._Element, default_ontology: str) -> 
 
 def _upload_resources(
     upload_state: UploadState,
-    imgdir: str,
-    ingest_client: IngestClient,
+    ingest_client: AssetClient,
     project_client: ProjectClient,
     list_client: ListClient,
 ) -> None:
@@ -277,7 +277,6 @@ def _upload_resources(
 
     Args:
         upload_state: the current state of the upload
-        imgdir: folder containing the multimedia files
         ingest_client: ingest server client
         project_client: a client for HTTP communication with the DSP-API
         list_client: a client for HTTP communication with the DSP-API
@@ -304,7 +303,6 @@ def _upload_resources(
         _upload_one_resource(
             upload_state=upload_state,
             resource=resource,
-            imgdir=imgdir,
             ingest_client=ingest_client,
             resource_create_client=resource_create_client,
             creation_attempts_of_this_round=creation_attempts_of_this_round,
@@ -314,20 +312,18 @@ def _upload_resources(
 def _upload_one_resource(
     upload_state: UploadState,
     resource: XMLResource,
-    imgdir: str,
-    ingest_client: IngestClient,
+    ingest_client: AssetClient,
     resource_create_client: ResourceCreateClient,
     creation_attempts_of_this_round: int,
 ) -> None:
     try:
-        success, media_info = handle_media_info(
-            resource,
-            upload_state.config.media_previously_uploaded,
-            ingest_client,
-            imgdir,
-            upload_state.permissions_lookup,
-            upload_state.config.shortcode,
-        )
+        if resource.bitstream:
+            success, media_info = ingest_client.get_bitstream_info(
+                resource.bitstream, upload_state.permissions_lookup, resource.label, resource.res_id
+            )
+        else:
+            success, media_info = True, None
+
         if not success:
             upload_state.failed_uploads.append(resource.res_id)
             return

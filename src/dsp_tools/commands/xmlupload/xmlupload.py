@@ -25,7 +25,8 @@ from dsp_tools.commands.xmlupload.ontology_client import OntologyClient
 from dsp_tools.commands.xmlupload.ontology_client import OntologyClientLive
 from dsp_tools.commands.xmlupload.project_client import ProjectClient
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
-from dsp_tools.commands.xmlupload.read_validate_xml_file import validate_and_parse_xml_file
+from dsp_tools.commands.xmlupload.read_validate_xml_file import check_if_bitstreams_exist
+from dsp_tools.commands.xmlupload.read_validate_xml_file import validate_and_parse
 from dsp_tools.commands.xmlupload.resource_create_client import ResourceCreateClient
 from dsp_tools.commands.xmlupload.stash.stash_circular_references import identify_circular_references
 from dsp_tools.commands.xmlupload.stash.stash_circular_references import stash_circular_references
@@ -70,7 +71,7 @@ def xmlupload(
         uploaded because there is an error in it
     """
 
-    default_ontology, root, shortcode = validate_and_parse_xml_file(input_file=input_file, imgdir=imgdir)
+    default_ontology, root, shortcode = _pares_xml(input_file=input_file, imgdir=imgdir)
 
     con = ConnectionLive(creds.server)
     con.login(creds.user, creds.password)
@@ -83,6 +84,26 @@ def xmlupload(
     state = UploadState(resources, stash, config, permissions_lookup)
 
     return execute_upload(clients, state)
+
+
+def _pares_xml(imgdir: str, input_file: Path) -> tuple[str, etree._Element, str]:
+    """
+    This function takes a path to an XML file.
+    It validates the file against the XML schema.
+    It checks if all the mentioned bitstream files are in the specified location.
+    It retrieves the shortcode and default ontology from the XML file.
+
+    Args:
+        imgdir: directory to the bitstream files
+        input_file: file that will be pased
+
+    Returns:
+        The ontology name, the parsed XML file and the shortcode of the project
+    """
+    root, shortcode, default_ontology = validate_and_parse(input_file)
+    check_if_bitstreams_exist(root=root, imgdir=imgdir)
+    logger.info(f"Validated and parsed the XML file. {shortcode=:} and {default_ontology=:}")
+    return default_ontology, root, shortcode
 
 
 def _get_live_clients(

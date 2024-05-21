@@ -3,12 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 
 import regex
-from loguru import logger
 from lxml import etree
 
-from dsp_tools.commands.ingest_xmlupload.apply_ingest_id import get_mapping_dict_from_file
-from dsp_tools.commands.ingest_xmlupload.apply_ingest_id import replace_filepath_with_internal_filename
-from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.iri_util import is_resource_iri
 from dsp_tools.utils.xml_utils import parse_xml_file
@@ -17,55 +13,15 @@ from dsp_tools.utils.xml_utils import remove_qnames_and_transform_special_tags
 from dsp_tools.utils.xml_validation import validate_xml
 
 
-def validate_and_parse_xml_file(imgdir: str, input_file: Path) -> tuple[str, etree._Element, str]:
-    """
-    This function takes a path to an XML file.
-    It validates the file against the XML schema.
-    It checks if all the mentioned bitstream files are in the specified location.
-    It retrieves the shortcode and default ontology from the XML file.
+def validate_and_parse(input_file: Path) -> tuple[etree._Element, str, str]:
+    """Parse and validate an XML file.
 
     Args:
-        imgdir: directory to the bitstream files
-        input_file: file that will be pased
+        input_file: Path to the XML file
 
     Returns:
-        The ontology name, the parsed XML file and the shortcode of the project
+        The root element of the parsed XML file, the shortcode, and the default ontology
     """
-    root, shortcode, default_ontology = _validate_and_parse(input_file)
-    _check_if_bitstreams_exist(root=root, imgdir=imgdir)
-    logger.info(f"Validated and parsed the XML file. {shortcode=:} and {default_ontology=:}")
-    return default_ontology, root, shortcode
-
-
-def validate_and_parse_xml_file_preprocessing_done(xml_file: Path) -> tuple[str, etree._Element, str]:
-    """
-    Validate and parse an upload XML file, when preprocessing has already been done.
-
-    Args:
-        xml_file: file that will be pased
-
-    Returns:
-        The ontology name, the parsed XML file and the shortcode of the project
-
-    Raises:
-        InputError: if replacing file paths with internal asset IDs failed
-    """
-    root, shortcode, default_ontology = _validate_and_parse(xml_file)
-
-    logger.info(f"Validated and parsed the XML. {shortcode=:} and {default_ontology=:}")
-
-    orig_path_2_asset_id = get_mapping_dict_from_file(shortcode)
-    root, ingest_info = replace_filepath_with_internal_filename(root, orig_path_2_asset_id)
-    if ok := ingest_info.ok_msg():
-        print(ok)
-        logger.info(ok)
-    else:
-        err_msg = ingest_info.execute_error_protocol()
-        raise InputError(err_msg)
-    return default_ontology, root, shortcode
-
-
-def _validate_and_parse(input_file: Path) -> tuple[etree._Element, str, str]:
     root = parse_xml_file(input_file)
     root = remove_comments_from_element_tree(root)
 
@@ -123,10 +79,7 @@ def _check_if_salsah_targets_exist(root: etree._Element) -> list[str]:
     return errors
 
 
-def _check_if_bitstreams_exist(
-    root: etree._Element,
-    imgdir: str,
-) -> None:
+def check_if_bitstreams_exist(root: etree._Element, imgdir: str) -> None:
     """
     Make sure that all bitstreams referenced in the XML file exist in the imgdir.
 

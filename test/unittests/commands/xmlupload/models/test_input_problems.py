@@ -9,7 +9,7 @@ from dsp_tools.commands.xmlupload.models.input_problems import IIIFUriProblem
 def iiif_exception() -> IIIFUriProblem:
     return IIIFUriProblem(
         uri="http://www.example.org/",
-        passed_regex=False,
+        regex_has_passed=False,
         thrown_exception=RequestException("This is the request exception."),
     )
 
@@ -18,7 +18,7 @@ def iiif_exception() -> IIIFUriProblem:
 def iiif_uri_problem_ok_regex() -> IIIFUriProblem:
     return IIIFUriProblem(
         uri="https://iiif.dasch.swiss/0811/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/837,530/0/default.jp2",
-        passed_regex=True,
+        regex_has_passed=True,
         status_code=404,
         response_text="This is the response text.",
     )
@@ -28,7 +28,7 @@ def iiif_uri_problem_ok_regex() -> IIIFUriProblem:
 def iiif_uri_problem_bad_regex() -> IIIFUriProblem:
     return IIIFUriProblem(
         uri="http://www.example.org/",
-        passed_regex=False,
+        regex_has_passed=False,
         status_code=404,
         response_text="This is the response text.",
     )
@@ -38,7 +38,7 @@ def iiif_uri_problem_bad_regex() -> IIIFUriProblem:
 def iiif_uri_problem_bad_regex_good_status_code() -> IIIFUriProblem:
     return IIIFUriProblem(
         uri="http://www.example.org/",
-        passed_regex=False,
+        regex_has_passed=False,
         status_code=200,
         response_text="This is the response text.",
     )

@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Protocol
 
 import requests
 
@@ -7,35 +6,24 @@ from dsp_tools.commands.xmlupload.models.input_problems import IIIFUriProblem
 
 
 @dataclass(frozen=True)
-class IIIFUriValidator(Protocol):
-    """Interface (protocol) for communication with external IIIF-servers to do a health check."""
-
-    uri: str
-    passed_regex: bool
-
-    def validate(self) -> IIIFUriProblem | None:
-        """Check if the IIIF-server is reachable and if not, it returns information for the user."""
-
-
-@dataclass(frozen=True)
-class IIIFUriValidatorLive:
+class IIIFUriValidator:
     """Client handling communication with external IIIF-servers to do a health check."""
 
     uri: str
-    passed_regex: bool
+    regex_has_passed: bool
 
     def validate(self) -> IIIFUriProblem | None:
-        """Check if the IIIF-server is reachable and if not it returns information for the user."""
+        """Check if the IIIF-server is reachable. If not, it returns information for error message."""
         response = self._make_network_call()
         if isinstance(response, Exception):
-            return IIIFUriProblem(uri=self.uri, passed_regex=self.passed_regex, thrown_exception=response)
-        match response.ok, self.passed_regex:
+            return IIIFUriProblem(uri=self.uri, regex_has_passed=self.regex_has_passed, thrown_exception=response)
+        match response.ok, self.regex_has_passed:
             case True, True:
                 return None
             case _, _:
                 return IIIFUriProblem(
                     uri=self.uri,
-                    passed_regex=self.passed_regex,
+                    regex_has_passed=self.regex_has_passed,
                     status_code=response.status_code,
                     response_text=response.text,
                 )

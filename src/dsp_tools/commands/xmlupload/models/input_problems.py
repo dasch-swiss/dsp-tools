@@ -24,7 +24,7 @@ class IIIFUriProblem:
     """Information about a problem with an IIIF URI."""
 
     uri: str
-    passed_regex: bool
+    regex_has_passed: bool
     status_code: int | None = None
     response_text: str | None = None
     thrown_exception: Exception | None = None
@@ -32,7 +32,7 @@ class IIIFUriProblem:
     def get_msg(self) -> str:
         """Get a message describing the problem with the IIIF URI."""
         msg = [f"URI: {self.uri}"]
-        if self.passed_regex:
+        if self.regex_has_passed:
             msg.append("Passed the internal regex check.")
         else:
             msg.append("Did not pass the internal regex check.")

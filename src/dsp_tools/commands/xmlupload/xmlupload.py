@@ -13,7 +13,7 @@ from lxml import etree
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.xmlupload.check_consistency_with_ontology import do_xml_consistency_check_with_ontology
-from dsp_tools.commands.xmlupload.iiif_client import IIIFUriValidatorLive
+from dsp_tools.commands.xmlupload.iiif_client import IIIFUriValidator
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.list_client import ListClient
 from dsp_tools.commands.xmlupload.list_client import ListClientLive
@@ -132,7 +132,7 @@ def xmlupload(
 def _validate_iiif_uri(root: etree._Element) -> None:
     uris = [node.text for node in root.iter(tag="iiif-uri")]
     all_uris = cast(list[str], uris)
-    problems = [res for x in all_uris if (res := IIIFUriValidatorLive(x, is_iiif_uri(x)).validate())]
+    problems = [res for x in all_uris if (res := IIIFUriValidator(x, is_iiif_uri(x)).validate())]
     if problems:
         msg = AllIIIFUriProblems(problems).get_msg()
         warnings.warn(DspToolsUserWarning(msg))

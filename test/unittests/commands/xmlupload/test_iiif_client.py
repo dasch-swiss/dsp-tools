@@ -42,4 +42,4 @@ class TestIIIFMakeInfoJsonUri:
 
 def test_make_info_json_uri_fail() -> None:
     test = IIIFUriValidatorLive("bla", False)
-    assert test._make_info_json_uri() == "bla"
+    assert test._make_info_json_uri() == "bla/info.json"

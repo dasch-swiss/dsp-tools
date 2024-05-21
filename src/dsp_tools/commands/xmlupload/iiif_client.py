@@ -16,7 +16,12 @@ class IIIFUriValidator:
         """Check if the IIIF-server is reachable. If not, it returns information for error message."""
         response = self._make_network_call()
         if isinstance(response, Exception):
-            return IIIFUriProblem(uri=self.uri, regex_has_passed=self.regex_has_passed, thrown_exception=response)
+            return IIIFUriProblem(
+                uri=self.uri,
+                regex_has_passed=self.regex_has_passed,
+                thrown_exception_name=response.__class__.__name__,
+                original_text=str(response),
+            )
         match response.ok, self.regex_has_passed:
             case True, True:
                 return None
@@ -25,7 +30,7 @@ class IIIFUriValidator:
                     uri=self.uri,
                     regex_has_passed=self.regex_has_passed,
                     status_code=response.status_code,
-                    response_text=response.text,
+                    original_text=response.text,
                 )
         return None
 

@@ -26,8 +26,8 @@ class IIIFUriProblem:
     uri: str
     regex_has_passed: bool
     status_code: int | None = None
-    response_text: str | None = None
-    thrown_exception: Exception | None = None
+    thrown_exception_name: str | None = None
+    original_text: str | None = None
 
     def get_msg(self) -> str:
         """Get a message describing the problem with the IIIF URI."""
@@ -46,15 +46,15 @@ class IIIFUriProblem:
 
     def _exception_msg(self) -> list[str]:
         return [
-            f"A connection error occurred during the network call: {self.thrown_exception.__class__.__name__}",
-            f"Original message: {self.thrown_exception}",
+            f"An error occurred during the network call: {self.thrown_exception_name}",
+            f"Original message: {self.original_text}",
         ]
 
     def _bad_status_code_msg(self) -> list[str]:
         return [
             "The server did not respond as expected.",
             f"Status code: {self.status_code}",
-            f"Response text: {self.response_text}",
+            f"Response text: {self.original_text}",
         ]
 
     def _good_status_code_bad_regex_msg(self) -> list[str]:

@@ -79,7 +79,7 @@ def request_exception() -> RequestException:
     return RequestException("This is the request exception.")
 
 
-@patch("dsp_tools.commands.xmlupload.iiif_client.IIIFUriValidatorLive._make_network_call")
+@patch("dsp_tools.commands.xmlupload.iiif_client.IIIFUriValidator._make_network_call")
 def test_validate_with_exception(mock_network_call: Mock, request_exception: RequestException) -> None:
     mock_network_call.return_value = request_exception
     validator = IIIFUriValidator(uri="http://example.com", regex_has_passed=True)
@@ -88,11 +88,11 @@ def test_validate_with_exception(mock_network_call: Mock, request_exception: Req
     assert result.uri == "http://example.com"
     assert result.regex_has_passed
     assert not result.status_code
-    assert not result.response_text
-    assert isinstance(result.thrown_exception, RequestException)
+    assert result.original_text == "This is the request exception."
+    assert result.thrown_exception_name == "RequestException"
 
 
-@patch("dsp_tools.commands.xmlupload.iiif_client.IIIFUriValidatorLive._make_network_call")
+@patch("dsp_tools.commands.xmlupload.iiif_client.IIIFUriValidator._make_network_call")
 def test_validate_with_bad_status_code(mock_network_call: Mock, response_404: Response) -> None:
     mock_network_call.return_value = response_404
     validator = IIIFUriValidator(uri="http://example.com", regex_has_passed=False)
@@ -101,11 +101,11 @@ def test_validate_with_bad_status_code(mock_network_call: Mock, response_404: Re
     assert result.uri == "http://example.com"
     assert not result.regex_has_passed
     assert result.status_code == 404
-    assert result.response_text == "This is the response text."
-    assert not result.thrown_exception
+    assert result.original_text == "This is the response text."
+    assert not result.thrown_exception_name
 
 
-@patch("dsp_tools.commands.xmlupload.iiif_client.IIIFUriValidatorLive._make_network_call")
+@patch("dsp_tools.commands.xmlupload.iiif_client.IIIFUriValidator._make_network_call")
 def test_validate_with_good_status_code(mock_network_call: Mock, response_200: Response) -> None:
     mock_network_call.return_value = response_200
     validator = IIIFUriValidator(uri="http://example.com", regex_has_passed=True)
@@ -113,7 +113,7 @@ def test_validate_with_good_status_code(mock_network_call: Mock, response_200: R
     assert not result
 
 
-@patch("dsp_tools.commands.xmlupload.iiif_client.IIIFUriValidatorLive._make_network_call")
+@patch("dsp_tools.commands.xmlupload.iiif_client.IIIFUriValidator._make_network_call")
 def test_validate_with_failed_regex_good_status_code(mock_network_call: Mock, response_200: Response) -> None:
     mock_network_call.return_value = response_200
     validator = IIIFUriValidator(uri="http://example.com", regex_has_passed=False)
@@ -122,8 +122,8 @@ def test_validate_with_failed_regex_good_status_code(mock_network_call: Mock, re
     assert result.uri == "http://example.com"
     assert not result.regex_has_passed
     assert result.status_code == 200
-    assert result.response_text == "This is the response text."
-    assert not result.thrown_exception
+    assert result.original_text == "This is the response text."
+    assert not result.thrown_exception_name
 
 
 if __name__ == "__main__":

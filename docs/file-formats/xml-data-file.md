@@ -224,7 +224,7 @@ Notes:
 
 - There is only _one_ `<bitstream>` element allowed per representation.
 - The `<bitstream>` element must be the first element.
-- If a `<bitstream>` element is present, the `<iiif-uri>` element must be omitted.
+- If a resource has a `<bitstream>` element, it cannot have a `<iiif-uri>` element.
 - By default, the path is relative to the working directory where `dsp-tools xmlupload` is executed in. This behavior 
   can be modified with the flag [`--imgdir`](../cli-commands.md#xmlupload). If you keep the default,
   it is recommended to choose the project folder as working directory, `my_project` in the example below:
@@ -277,7 +277,7 @@ All versions of the IIIF-API standards are supported.
 Notes:
 
 - Only _one_ `<iiif-uri>` element is allowed per `StillImageRepresentation`. 
-- If a `<iiif-uri>` element is present, the `<bitstream>` element must be omitted.
+- If a resource has a `<iiif-uri>` element, it cannot have a `<bitstream>` element.
 
 Please consult the official documentation for details regarding the URI syntax:
 

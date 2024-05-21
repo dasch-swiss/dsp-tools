@@ -5,12 +5,12 @@ from pathlib import Path
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.xmlupload.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.models.ingest import BulkIngestedAssetClient
+from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.ontology_client import OntologyClientLive
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
 from dsp_tools.commands.xmlupload.read_validate_xml_file import validate_and_parse_xml_file_preprocessing_done
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
-from dsp_tools.commands.xmlupload.xmlupload import UploadClients
 from dsp_tools.commands.xmlupload.xmlupload import execute_upload
 from dsp_tools.commands.xmlupload.xmlupload import prepare_upload
 from dsp_tools.utils.connection import Connection

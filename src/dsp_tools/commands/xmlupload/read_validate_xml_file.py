@@ -26,7 +26,7 @@ def validate_and_parse_xml_file(imgdir: str, input_file: Path) -> tuple[str, etr
 
     Args:
         imgdir: directory to the bitstream files
-        input_file: file that will be processed
+        input_file: file that will be pased
 
     Returns:
         The ontology name, the parsed XML file and the shortcode of the project
@@ -42,7 +42,7 @@ def validate_and_parse_xml_file_preprocessing_done(xml_file: Path) -> tuple[str,
     Validate and parse an upload XML file, when preprocessing has already been done.
 
     Args:
-        xml_file: file that will be processed
+        xml_file: file that will be pased
 
     Returns:
         The ontology name, the parsed XML file and the shortcode of the project
@@ -54,11 +54,8 @@ def validate_and_parse_xml_file_preprocessing_done(xml_file: Path) -> tuple[str,
 
     logger.info(f"Validated and parsed the XML. {shortcode=:} and {default_ontology=:}")
 
-    orig_path_2_id_filename = get_mapping_dict_from_file(shortcode)
-    root, ingest_info = replace_filepath_with_internal_filename(
-        xml_tree=root,
-        orig_path_2_id_filename=orig_path_2_id_filename,
-    )
+    orig_path_2_asset_id = get_mapping_dict_from_file(shortcode)
+    root, ingest_info = replace_filepath_with_internal_filename(root, orig_path_2_asset_id)
     if ok := ingest_info.ok_msg():
         print(ok)
         logger.info(ok)

@@ -5,6 +5,7 @@ from unittest.mock import Mock
 import pytest
 from lxml import etree
 
+import dsp_tools.commands.xmlupload.models.upload_clients
 from dsp_tools.commands.xmlupload import xmlupload
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
@@ -66,7 +67,9 @@ def test_one_resource_without_links(ingest_client_mock: AssetClient) -> None:
     post_responses = [{"@id": "foo_1_iri", "rdfs:label": "foo_1_label"}]
     con.post = Mock(side_effect=post_responses)
     project_client = ProjectClientStub(con, "1234", None)
-    clients = xmlupload.UploadClients(ingest_client_mock, project_client, ListClientMock())
+    clients = dsp_tools.commands.xmlupload.models.upload_clients.UploadClients(
+        ingest_client_mock, project_client, ListClientMock()
+    )
 
     xmlupload._upload_resources(clients, upload_state)
 
@@ -105,7 +108,9 @@ def test_one_resource_with_link_to_existing_resource(ingest_client_mock: AssetCl
     post_responses = [{"@id": "foo_1_iri", "rdfs:label": "foo_1_label"}]
     con.post = Mock(side_effect=post_responses)
     project_client = ProjectClientStub(con, "1234", None)
-    clients = xmlupload.UploadClients(ingest_client_mock, project_client, ListClientMock())
+    clients = dsp_tools.commands.xmlupload.models.upload_clients.UploadClients(
+        ingest_client_mock, project_client, ListClientMock()
+    )
 
     xmlupload._upload_resources(clients, upload_state)
 
@@ -162,7 +167,9 @@ def _2_resources_with_stash_interrupted_by_error(
     con.post = Mock(side_effect=post_responses)
     project_client = ProjectClientStub(con, "1234", None)
     xmlupload._handle_upload_error = Mock()
-    clients = xmlupload.UploadClients(ingest_client_mock, project_client, ListClientMock())
+    clients = dsp_tools.commands.xmlupload.models.upload_clients.UploadClients(
+        ingest_client_mock, project_client, ListClientMock()
+    )
 
     xmlupload._upload_resources(clients, upload_state)
 
@@ -202,7 +209,9 @@ def test_2_resources_with_stash(ingest_client_mock: AssetClient) -> None:
     ]
     con.post = Mock(side_effect=post_responses)
     project_client = ProjectClientStub(con, "1234", None)
-    clients = xmlupload.UploadClients(ingest_client_mock, project_client, ListClientMock())
+    clients = dsp_tools.commands.xmlupload.models.upload_clients.UploadClients(
+        ingest_client_mock, project_client, ListClientMock()
+    )
 
     xmlupload._upload_resources(clients, upload_state)
 
@@ -260,7 +269,9 @@ def test_5_resources_with_stash_and_interrupt_after_2(ingest_client_mock: AssetC
     xmlupload._handle_upload_error = Mock()
     err_msg = "Interrupted: Maximum number of resources was reached (2)"
 
-    client = xmlupload.UploadClients(ingest_client_mock, project_client, ListClientMock())
+    client = dsp_tools.commands.xmlupload.models.upload_clients.UploadClients(
+        ingest_client_mock, project_client, ListClientMock()
+    )
 
     xmlupload._upload_resources(client, upload_state)
     iri_resolver_expected = IriResolver({"foo_1_id": "foo_1_iri", "foo_2_id": "foo_2_iri"})
@@ -315,7 +326,9 @@ def test_6_resources_with_stash_and_interrupt_after_2(ingest_client_mock: AssetC
     xmlupload._handle_upload_error = Mock()
     err_msg = "Interrupted: Maximum number of resources was reached (2)"
 
-    client = xmlupload.UploadClients(ingest_client_mock, project_client, ListClientMock())
+    client = dsp_tools.commands.xmlupload.models.upload_clients.UploadClients(
+        ingest_client_mock, project_client, ListClientMock()
+    )
 
     xmlupload._upload_resources(client, upload_state)
     iri_resolver_expected = IriResolver({"foo_1_id": "foo_1_iri", "foo_2_id": "foo_2_iri"})
@@ -371,7 +384,9 @@ def test_logging(caplog: pytest.LogCaptureFixture, ingest_client_mock: AssetClie
     con.post = Mock(side_effect=post_responses)
     project_client = ProjectClientStub(con, "1234", None)
     xmlupload._handle_upload_error = Mock()
-    clients = xmlupload.UploadClients(ingest_client_mock, project_client, ListClientMock())
+    clients = dsp_tools.commands.xmlupload.models.upload_clients.UploadClients(
+        ingest_client_mock, project_client, ListClientMock()
+    )
 
     xmlupload._upload_resources(clients, upload_state)
     assert caplog.records[1].message == "Created resource 1/5: 'foo_1_label' (ID: 'foo_1_id', IRI: 'foo_1_iri')"
@@ -421,7 +436,9 @@ def test_post_requests(ingest_client_mock: AssetClient) -> None:
     con.post = Mock(side_effect=post_responses)
     project_client = ProjectClientStub(con, "1234", None)
     xmlupload._handle_upload_error = Mock()
-    clients = xmlupload.UploadClients(ingest_client_mock, project_client, ListClientMock())
+    clients = dsp_tools.commands.xmlupload.models.upload_clients.UploadClients(
+        ingest_client_mock, project_client, ListClientMock()
+    )
 
     xmlupload._upload_resources(clients, upload_state)
     xmlupload._upload_resources(clients, upload_state)

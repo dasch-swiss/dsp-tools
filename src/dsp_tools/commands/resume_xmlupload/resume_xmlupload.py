@@ -10,11 +10,11 @@ from dsp_tools.commands.xmlupload.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.ingest import BulkIngestedAssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
+from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.project_client import ProjectClient
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
-from dsp_tools.commands.xmlupload.xmlupload import UploadClients
 from dsp_tools.commands.xmlupload.xmlupload import execute_upload
 from dsp_tools.utils.connection_live import ConnectionLive
 

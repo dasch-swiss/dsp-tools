@@ -3,7 +3,6 @@ from __future__ import annotations
 import pickle
 import sys
 import warnings
-from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
@@ -20,6 +19,7 @@ from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
 from dsp_tools.commands.xmlupload.models.namespace_context import get_json_ld_context_for_project
 from dsp_tools.commands.xmlupload.models.permission import Permissions
+from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.ontology_client import OntologyClient
 from dsp_tools.commands.xmlupload.ontology_client import OntologyClientLive
@@ -43,15 +43,6 @@ from dsp_tools.models.projectContext import ProjectContext
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
 from dsp_tools.utils.logger_config import logger_savepath
-
-
-@dataclass(frozen=True)
-class UploadClients:
-    """Holds all the clients needed for the upload process."""
-
-    asset_client: AssetClient
-    project_client: ProjectClient
-    list_client: ListClient
 
 
 def xmlupload(
@@ -120,7 +111,7 @@ def execute_upload(clients: UploadClients, upload_state: UploadState) -> bool:
     """Execute an upload from an upload state, and clean up afterwards.
 
     Args:
-        clients: the clients needed for the upload (AssetClient, ProjectClient, ListClient)
+        clients: the clients needed for the upload
         upload_state: the initial state of the upload to execute
 
     Returns:
@@ -207,28 +198,28 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
     and if a permanent exception occurs, the resource is skipped.
 
     Args:
-        clients: the clients needed for the upload (AssetClient, ProjectClient, ListClient)
+        clients: the clients needed for the upload
         upload_state: the current state of the upload
 
     Raises:
         BaseException: in case of an unhandled exception during resource creation
         XmlUploadInterruptedError: if the number of resources created is equal to the interrupt_after value
     """
+    project_iri = clients.project_client.get_project_iri()
+    project_onto_dict = clients.project_client.get_ontology_name_dict()
+    listnode_lookup = clients.list_client.get_list_node_id_to_iri_lookup()
+
+    resource_create_client = ResourceCreateClient(
+        con=clients.project_client.con,
+        project_iri=project_iri,
+        iri_resolver=upload_state.iri_resolver,
+        project_onto_dict=project_onto_dict,
+        permissions_lookup=upload_state.permissions_lookup,
+        listnode_lookup=listnode_lookup,
+        media_previously_ingested=upload_state.config.media_previously_uploaded,
+    )
+
     try:
-        project_iri = clients.project_client.get_project_iri()
-        project_onto_dict = clients.project_client.get_ontology_name_dict()
-        listnode_lookup = clients.list_client.get_list_node_id_to_iri_lookup()
-
-        resource_create_client = ResourceCreateClient(
-            con=clients.project_client.con,
-            project_iri=project_iri,
-            iri_resolver=upload_state.iri_resolver,
-            project_onto_dict=project_onto_dict,
-            permissions_lookup=upload_state.permissions_lookup,
-            listnode_lookup=listnode_lookup,
-            media_previously_ingested=upload_state.config.media_previously_uploaded,
-        )
-
         for creation_attempts_of_this_round, resource in enumerate(upload_state.pending_resources.copy()):
             _upload_one_resource(
                 upload_state=upload_state,

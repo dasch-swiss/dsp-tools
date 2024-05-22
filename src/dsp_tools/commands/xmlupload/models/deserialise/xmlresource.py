@@ -3,6 +3,7 @@ from typing import Optional
 
 from lxml import etree
 
+from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import IIIFUriInfo
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLBitstream
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
 from dsp_tools.commands.xmlupload.models.permission import Permissions
@@ -47,6 +48,7 @@ class XMLResource:
     permissions: Optional[str]
     creation_date: Optional[DateTimeStamp]
     bitstream: Optional[XMLBitstream]
+    iiif_uri: Optional[IIIFUriInfo]
     properties: list[XMLProperty]
 
     def __init__(self, node: etree._Element, default_ontology: str) -> None:
@@ -76,14 +78,18 @@ class XMLResource:
             self.restype = "knora-api:" + tmp_res_type[0]
         self.permissions = node.attrib.get("permissions")
         self.bitstream = None
+        self.iiif_uri = None
         self.properties = []
         for subnode in node:
-            if subnode.tag == "bitstream":
-                self.bitstream = XMLBitstream(subnode)
-            else:
-                # get the property type which is in format type-prop, p.ex. <decimal-prop>
-                prop_type, _ = subnode.tag.split("-")
-                self.properties.append(XMLProperty(subnode, prop_type, default_ontology))
+            match subnode.tag:
+                case "bitstream":
+                    self.bitstream = XMLBitstream(subnode)
+                case "iiif-uri":
+                    self.iiif_uri = IIIFUriInfo(subnode)
+                case _:
+                    # get the property type which is in format type-prop, p.ex. <decimal-prop>
+                    prop_type, _ = subnode.tag.split("-")
+                    self.properties.append(XMLProperty(subnode, prop_type, default_ontology))
 
     def get_props_with_links(self) -> list[XMLProperty]:
         """

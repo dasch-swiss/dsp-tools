@@ -185,7 +185,7 @@ def _call_xmlupload(args: argparse.Namespace) -> bool:
             input_file=Path(args.xmlfile),
             creds=_get_creds(args),
             imgdir=args.imgdir,
-            config=UploadConfig(interrupt_after=interrupt_after),
+            config=UploadConfig(interrupt_after=interrupt_after, skip_iiif_validation=args.no_iiif_uri_validation),
         )
 
 

@@ -91,7 +91,7 @@ def test_xmlupload_validate(validate_xml: Mock) -> None:
 
 
 @patch("dsp_tools.cli.call_action.xmlupload")
-def test_xmlupload(xmlupload: Mock) -> None:
+def test_xmlupload_default(xmlupload: Mock) -> None:
     """Test the 'dsp-tools xmlupload' command"""
     file = "filename.xml"
     args = f"xmlupload {file}".split()
@@ -106,7 +106,28 @@ def test_xmlupload(xmlupload: Mock) -> None:
         input_file=Path(file),
         creds=creds,
         imgdir=".",
-        config=UploadConfig(),
+        config=UploadConfig(skip_iiif_validation=False),
+    )
+
+
+@patch("dsp_tools.cli.call_action.xmlupload")
+def test_xmlupload_no_iiif(xmlupload: Mock) -> None:
+    """Test the 'dsp-tools xmlupload' command"""
+    file = "filename.xml"
+    no_validation = "--no-iiif-uri-validation"
+    args = f"xmlupload {no_validation} {file}".split()
+    creds = ServerCredentials(
+        server="http://0.0.0.0:3333",
+        user="root@example.com",
+        password="test",
+        dsp_ingest_url="http://0.0.0.0:3340",
+    )
+    entry_point.run(args)
+    xmlupload.assert_called_once_with(
+        input_file=Path(file),
+        creds=creds,
+        imgdir=".",
+        config=UploadConfig(skip_iiif_validation=True),
     )
 
 

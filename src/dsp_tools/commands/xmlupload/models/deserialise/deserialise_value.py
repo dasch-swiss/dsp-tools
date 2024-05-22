@@ -171,3 +171,20 @@ class XMLBitstream:
     def __init__(self, node: etree._Element) -> None:
         self.value = cast(str, node.text)
         self.permissions = node.get("permissions")
+
+
+class IIIFUriInfo:
+    """
+    Represents a IIIF URI of a resource in the XML used for data import
+
+    Attributes:
+        value: The IIIF URI of the object
+        permissions: Reference to the set of permissions for the IIIF URI
+    """
+
+    value: str
+    permissions: str | None
+
+    def __init__(self, node: etree._Element) -> None:
+        self.value = cast(str, node.text)
+        self.permissions = node.get("permissions")

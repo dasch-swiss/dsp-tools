@@ -14,7 +14,6 @@ from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.id2iri import id2iri
 from dsp_tools.commands.project.create.project_create import create_project
 from dsp_tools.commands.project.get import get_project
-from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
@@ -64,7 +63,6 @@ class TestCreateGetXMLUpload(unittest.TestCase):
             input_file=self.test_data_systematic_file,
             creds=self.creds,
             imgdir=self.imgdir,
-            config=UploadConfig(),
         )
         self.assertTrue(success)
 
@@ -82,7 +80,6 @@ class TestCreateGetXMLUpload(unittest.TestCase):
             input_file=second_xml_file_replaced,
             creds=self.creds,
             imgdir=self.imgdir,
-            config=UploadConfig(),
         )
         second_xml_file_replaced.unlink()
         self.assertListEqual(list(Path(self.cwd).glob("stashed_*_properties_*.txt")), [])

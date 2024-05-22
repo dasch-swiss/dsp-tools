@@ -33,9 +33,8 @@ class TestFindXMLTagsInUTF8:
             for txt in allowed_html_escapes
         ]
         for xml in utf8_texts_with_allowed_html_escapes:
-            all_good, msg = _find_xml_tags_in_simple_text_elements(etree.fromstring(xml))
-            assert all_good is True
-            assert msg == ""
+            res = _find_xml_tags_in_simple_text_elements(etree.fromstring(xml))
+            assert res == []
 
     def test_find_xml_tags_in_simple_text_elements_forbidden_escapes(self) -> None:
         test_ele = etree.fromstring(
@@ -54,9 +53,8 @@ class TestFindXMLTagsInUTF8:
             "The following resources of your XML file violate this rule:\n"
             "    - line 5: resource 'id', property ':name'"
         )
-        all_good, res_msg = _find_xml_tags_in_simple_text_elements(test_ele)
-        assert all_good is False
-        assert res_msg == expected_msg
+        res = _find_xml_tags_in_simple_text_elements(test_ele)
+        assert res == [expected_msg]
 
     def test_find_xml_tags_in_simple_text_elements_forbidden_escapes_two(self) -> None:
         test_ele = etree.fromstring(
@@ -75,9 +73,8 @@ class TestFindXMLTagsInUTF8:
             "The following resources of your XML file violate this rule:\n"
             "    - line 5: resource 'id', property ':propName'"
         )
-        all_good, res_msg = _find_xml_tags_in_simple_text_elements(test_ele)
-        assert all_good is False
-        assert res_msg == expected_msg
+        res = _find_xml_tags_in_simple_text_elements(test_ele)
+        assert res == [expected_msg]
 
 
 def test_find_all_text_props_with_multiple_encodings_problems() -> None:

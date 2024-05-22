@@ -95,7 +95,7 @@ class TestUploadLinkValueStashes:
             }
         )
         con: Connection = ConnectionMock(post_responses=[{}])
-        upload_state = UploadState([], [], iri_resolver, stash, UploadConfig(), {})
+        upload_state = UploadState([], stash, UploadConfig(), {}, [], iri_resolver)
         _upload_stash(upload_state, ProjectClientStub(con, "1234", None))
         assert not upload_state.pending_stash or upload_state.pending_stash.is_empty()
 
@@ -140,7 +140,7 @@ class TestUploadTextValueStashes:
             ],
             put_responses=[{}],
         )
-        upload_state = UploadState([], [], iri_resolver, stash, UploadConfig(), {})
+        upload_state = UploadState([], stash, UploadConfig(), {}, [], iri_resolver)
         _upload_stash(upload_state, ProjectClientStub(con, "1234", None))
         assert not upload_state.pending_stash or upload_state.pending_stash.is_empty()
 
@@ -182,6 +182,6 @@ class TestUploadTextValueStashes:
             ],
             put_responses=[{}],
         )
-        upload_state = UploadState([], [], iri_resolver, stash, UploadConfig(), {})
+        upload_state = UploadState([], stash, UploadConfig(), {}, [], iri_resolver)
         _upload_stash(upload_state, ProjectClientStub(con, "1234", None))
         assert upload_state.pending_stash == stash

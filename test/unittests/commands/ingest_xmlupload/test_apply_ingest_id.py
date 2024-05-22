@@ -13,12 +13,12 @@ class TestReplaceBitstreamPaths:
             </resource>
         </knora>
         """
-        root = etree.ElementTree(etree.fromstring(xml))
+        root = etree.ElementTree(etree.fromstring(xml)).getroot()
         reference_dict = {"images/Fluffy.jpg": "fluffy_id"}
-        res_tree, ingest_info = replace_filepath_with_internal_filename(root, reference_dict)
+        res_root, ingest_info = replace_filepath_with_internal_filename(root, reference_dict)
         assert not ingest_info.mediafiles_no_id
         assert not ingest_info.unused_mediafiles
-        res_bitstream = res_tree.getroot()[0][0]
+        res_bitstream = res_root[0][0]
         assert res_bitstream.text == "fluffy_id"
         assert res_bitstream.attrib["permissions"] == "prop-default"
         assert res_bitstream.tag == "bitstream"
@@ -31,12 +31,12 @@ class TestReplaceBitstreamPaths:
             </resource>
         </knora>
         """
-        root = etree.ElementTree(etree.fromstring(xml))
+        root = etree.ElementTree(etree.fromstring(xml)).getroot()
         reference_dict = {"images/Fluffy.jpg": "fluffy_id", "extra_media": "extra_id"}
-        res_tree, ingest_info = replace_filepath_with_internal_filename(root, reference_dict)
+        res_root, ingest_info = replace_filepath_with_internal_filename(root, reference_dict)
         assert not ingest_info.mediafiles_no_id
         assert ingest_info.unused_mediafiles == ["extra_media"]
-        res_bitstream = res_tree.getroot()[0][0]
+        res_bitstream = res_root[0][0]
         assert res_bitstream.text == "fluffy_id"
         assert res_bitstream.attrib["permissions"] == "prop-default"
         assert res_bitstream.tag == "bitstream"
@@ -49,12 +49,12 @@ class TestReplaceBitstreamPaths:
             </resource>
         </knora>
         """
-        root = etree.ElementTree(etree.fromstring(xml))
+        root = etree.ElementTree(etree.fromstring(xml)).getroot()
         reference_dict = {"extra_media": "extra_id"}
-        res_tree, ingest_info = replace_filepath_with_internal_filename(root, reference_dict)
+        res_root, ingest_info = replace_filepath_with_internal_filename(root, reference_dict)
         assert ingest_info.mediafiles_no_id == [("Fluffy1", "images/Fluffy.jpg")]
         assert ingest_info.unused_mediafiles == ["extra_media"]
-        res_bitstream = res_tree.getroot()[0][0]
+        res_bitstream = res_root[0][0]
         assert res_bitstream.text == "images/Fluffy.jpg"
         assert res_bitstream.attrib["permissions"] == "prop-default"
         assert res_bitstream.tag == "bitstream"

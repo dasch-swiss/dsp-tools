@@ -35,53 +35,43 @@ def empty_validator() -> IIIFUriValidator:
     return IIIFUriValidator([])
 
 
-class TestIIIFMakeInfoJsonUri:
-    def test_1(self, empty_validator: IIIFUriValidator) -> None:
-        test_uri = "https://iiif.dasch.swiss/0811/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/837,530/0/default.jp2"
-        expected = "https://iiif.dasch.swiss/0811/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/info.json"
-        assert empty_validator._make_info_json_uri(test_uri) == expected
-
-    def test_2(self, empty_validator: IIIFUriValidator) -> None:
-        test_uri = "https://iiif.dasch.swiss/0811/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/2048,0,1298,2048/649,1024/0/default.jpg"
-        expected = "https://iiif.dasch.swiss/0811/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/info.json"
-        assert empty_validator._make_info_json_uri(test_uri) == expected
-
-    def test_3(self, empty_validator: IIIFUriValidator) -> None:
-        test_uri = "https://iiif.io/api/image/3.0/example/reference/1-newspaper-p2/full/max/0/default.webp"
-        expected = "https://iiif.io/api/image/3.0/example/reference/1-newspaper-p2/info.json"
-        assert empty_validator._make_info_json_uri(test_uri) == expected
-
-    def test_4(self, empty_validator: IIIFUriValidator) -> None:
-        test_uri = "https://newspapers.library.wales/iiif/2.0/image/4497470/512,2048,512,512/256,/0/default.jpg"
-        expected = "https://newspapers.library.wales/iiif/2.0/image/4497470/info.json"
-        assert empty_validator._make_info_json_uri(test_uri) == expected
-
-    def test_5(self, empty_validator: IIIFUriValidator) -> None:
-        test_uri = "https://example.org/image-service/abcd1234/full/max/0/default.jpg"
-        expected = "https://example.org/image-service/abcd1234/info.json"
-        assert empty_validator._make_info_json_uri(test_uri) == expected
-
-    def test_6(self, empty_validator: IIIFUriValidator) -> None:
-        test_uri = "https://www.example.org/prefix1/abcd1234/80,15,60,75/full/0/native"
-        expected = "https://www.example.org/prefix1/abcd1234/info.json"
-        assert empty_validator._make_info_json_uri(test_uri) == expected
-
-    def test_7(self, empty_validator: IIIFUriValidator) -> None:
-        test_uri = "http://www.example.org/prefix1/abcd1234/80,15,60.6,75/full/0/native.jpg"
-        expected = "http://www.example.org/prefix1/abcd1234/info.json"
-        assert empty_validator._make_info_json_uri(test_uri) == expected
-
-
-def test_make_info_json_uri_fail_1(empty_validator: IIIFUriValidator) -> None:
-    test_uri = "bla"
-    expected = "bla/info.json"
-    assert empty_validator._make_info_json_uri(test_uri) == expected
-
-
-def test_make_info_json_uri_fail_2(empty_validator: IIIFUriValidator) -> None:
-    test_uri = "bla/"
-    expected = "bla/info.json"
-    assert empty_validator._make_info_json_uri(test_uri) == expected
+@pytest.mark.parametrize(
+    ("uri", "expected"),
+    [
+        (
+            "https://iiif.dasch.swiss/0811/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/837,530/0/default.jp2",
+            "https://iiif.dasch.swiss/0811/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/info.json",
+        ),
+        (
+            "https://iiif.dasch.swiss/0811/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/2048,0,1298,2048/649,1024/0/default.jpg",
+            "https://iiif.dasch.swiss/0811/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/info.json",
+        ),
+        (
+            "https://iiif.io/api/image/3.0/example/reference/1-newspaper-p2/full/max/0/default.webp",
+            "https://iiif.io/api/image/3.0/example/reference/1-newspaper-p2/info.json",
+        ),
+        (
+            "https://newspapers.library.wales/iiif/2.0/image/4497470/512,2048,512,512/256,/0/default.jpg",
+            "https://newspapers.library.wales/iiif/2.0/image/4497470/info.json",
+        ),
+        (
+            "https://example.org/image-service/abcd1234/full/max/0/default.jpg",
+            "https://example.org/image-service/abcd1234/info.json",
+        ),
+        (
+            "https://www.example.org/prefix1/abcd1234/80,15,60,75/full/0/native",
+            "https://www.example.org/prefix1/abcd1234/info.json",
+        ),
+        (
+            "http://www.example.org/prefix1/abcd1234/80,15,60.6,75/full/0/native.jpg",
+            "http://www.example.org/prefix1/abcd1234/info.json",
+        ),
+        ("bla", "bla/info.json"),
+        ("bla/", "bla/info.json"),
+    ],
+)
+def test_make_info_json_uri_correct(empty_validator: IIIFUriValidator, uri: str, expected: str) -> None:
+    assert empty_validator._make_info_json_uri(uri) == expected
 
 
 @patch("dsp_tools.commands.xmlupload.iiif_client.IIIFUriValidator._make_network_call")

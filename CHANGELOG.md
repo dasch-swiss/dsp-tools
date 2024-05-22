@@ -1,5 +1,43 @@
 # Changelog
 
+## [8.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v7.2.0...v8.0.0) (2024-05-22)
+
+
+### ⚠ BREAKING CHANGES
+
+* add support for video and audio segments, remove isSequenceOf and standalone interval value (DEV-3439) ([#933](https://github.com/dasch-swiss/dsp-tools/issues/933))
+
+### Enhancements
+
+* add support for video and audio segments, remove isSequenceOf and standalone interval value (DEV-3439) ([#933](https://github.com/dasch-swiss/dsp-tools/issues/933)) ([391da7f](https://github.com/dasch-swiss/dsp-tools/commit/391da7fb82252d2152f386aa489d57c58839bbe3))
+
+
+### Bug Fixes
+
+* **excel2json:** erroneous groupby in new-excel2json lists (DEV-3660) ([#963](https://github.com/dasch-swiss/dsp-tools/issues/963)) ([46fbe95](https://github.com/dasch-swiss/dsp-tools/commit/46fbe9533b5b7fe7c0d59f7004b4e28fb056744a))
+* **excel2json:** resources don't crash if optional columns are missing (DEV-3516) ([#974](https://github.com/dasch-swiss/dsp-tools/issues/974)) ([db2df0a](https://github.com/dasch-swiss/dsp-tools/commit/db2df0adafde5c3235374ecc56d31fca83e09189))
+* **mypy:** prevent possibly unbound variables (DEV-3657) ([#962](https://github.com/dasch-swiss/dsp-tools/issues/962)) ([1be2259](https://github.com/dasch-swiss/dsp-tools/commit/1be22590506d98f88040e7cbcb6a486f85b9d784))
+* **xmlupload:** permission for uri value serialise (DEV-3630) ([#958](https://github.com/dasch-swiss/dsp-tools/issues/958)) ([79a11bb](https://github.com/dasch-swiss/dsp-tools/commit/79a11bbfebcd6820bf072cddb37977fa8b54e3c9))
+
+
+### Maintenance
+
+* bump start-stack to 2024.05.02 ([#975](https://github.com/dasch-swiss/dsp-tools/issues/975)) ([6c02a6a](https://github.com/dasch-swiss/dsp-tools/commit/6c02a6a11b53492d3b76498d433f00adec34f4f8))
+* **deps:** bump requests from 2.31.0 to 2.32.0 ([#972](https://github.com/dasch-swiss/dsp-tools/issues/972)) ([092d4f7](https://github.com/dasch-swiss/dsp-tools/commit/092d4f7ec465bda8b6e5d36ddb5c7420010cf061))
+* do not use ingest client in bulk upload scenario (DEV-3665) ([#966](https://github.com/dasch-swiss/dsp-tools/issues/966)) ([8614bbe](https://github.com/dasch-swiss/dsp-tools/commit/8614bbee598f731da36b01a73957830a7a234b6a))
+* fix unbound variable error ([#961](https://github.com/dasch-swiss/dsp-tools/issues/961)) ([7c41507](https://github.com/dasch-swiss/dsp-tools/commit/7c41507841b75408945e560e12bb3490e6a3527c))
+* reduce number of arguments in some functions ([#967](https://github.com/dasch-swiss/dsp-tools/issues/967)) ([f38f6b4](https://github.com/dasch-swiss/dsp-tools/commit/f38f6b4047385d43c9529ab28e864ebbe06df247))
+* **ruff:** Update ruff to 0.4.4 ([#951](https://github.com/dasch-swiss/dsp-tools/issues/951)) ([316a736](https://github.com/dasch-swiss/dsp-tools/commit/316a736e9ecaad4c8311cdd944a2f3fd6e089267))
+* streamline shared logic between upload workflows ([#969](https://github.com/dasch-swiss/dsp-tools/issues/969)) ([17750e0](https://github.com/dasch-swiss/dsp-tools/commit/17750e0bcac776b3c8f2dbd1b6166a88253a78d9))
+* Use dsp-ingest instead of sipi for upload of assets  (DEV-3620) ([#959](https://github.com/dasch-swiss/dsp-tools/issues/959)) ([c797010](https://github.com/dasch-swiss/dsp-tools/commit/c7970109a9c0d4543d383a91edaa093b2c76aaac))
+* **xmlupload:** add serialise value for URI (DEV-3624) ([#955](https://github.com/dasch-swiss/dsp-tools/issues/955)) ([0289294](https://github.com/dasch-swiss/dsp-tools/commit/0289294ce6cccf8a0c1ca9bef0873f708bd537cf))
+* **xmlupload:** disallow +/- in interval property ([#952](https://github.com/dasch-swiss/dsp-tools/issues/952)) ([871f312](https://github.com/dasch-swiss/dsp-tools/commit/871f312dde2f19788203b3dde05de5cdfd20f7e6))
+* **xmlupload:** handle error wider above in the call stack ([#960](https://github.com/dasch-swiss/dsp-tools/issues/960)) ([c7ba637](https://github.com/dasch-swiss/dsp-tools/commit/c7ba637ad22ab62eed71e3d9b5ca7d7d0a436fae))
+* **xmlupload:** refactor resource creation ([#917](https://github.com/dasch-swiss/dsp-tools/issues/917)) ([cdad095](https://github.com/dasch-swiss/dsp-tools/commit/cdad095f46f8eeded0b521b80341ef95ce0823e5))
+* **xmlupload:** reorganise models file ([#953](https://github.com/dasch-swiss/dsp-tools/issues/953)) ([6d90b8f](https://github.com/dasch-swiss/dsp-tools/commit/6d90b8fb401965dd2a651b1dc114ef0226bfd3a0))
+* **xmlupload:** serialise int value with rdflib (DEV-3626) ([#957](https://github.com/dasch-swiss/dsp-tools/issues/957)) ([0150fd6](https://github.com/dasch-swiss/dsp-tools/commit/0150fd6c5cf5e0301aeadef06f92de719ec167cf))
+* **xmlupload:** value models ([#949](https://github.com/dasch-swiss/dsp-tools/issues/949)) ([c69c963](https://github.com/dasch-swiss/dsp-tools/commit/c69c96363b0184637d1a043c07f35194579d5b72))
+
 ## [7.2.0](https://github.com/dasch-swiss/dsp-tools/compare/v7.1.3...v7.2.0) (2024-05-08)
 
 

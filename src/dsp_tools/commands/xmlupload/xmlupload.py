@@ -11,7 +11,7 @@ from lxml import etree
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.xmlupload.check_consistency_with_ontology import do_xml_consistency_check_with_ontology
-from dsp_tools.commands.xmlupload.iiif_client import IIIFUriValidator
+from dsp_tools.commands.xmlupload.iiif_uri_validator import IIIFUriValidator
 from dsp_tools.commands.xmlupload.list_client import ListClient
 from dsp_tools.commands.xmlupload.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.models.deserialise.xmlpermission import XmlPermission

@@ -74,7 +74,7 @@ def xmlupload(
 
     default_ontology, root, shortcode = _pares_xml(input_file=input_file, imgdir=imgdir)
 
-    if config.iiif_uri_validation:
+    if not config.skip_iiif_validation:
         _validate_iiif_uris(root)
 
     con = ConnectionLive(creds.server)

@@ -26,7 +26,7 @@ class IIIFUriProblem:
     uri: str
     regex_has_passed: bool
     status_code: int | None = None
-    thrown_exception_name: str | None = None
+    raised_exception_name: str | None = None
     original_text: str | None = None
 
     def get_msg(self) -> str:
@@ -46,8 +46,8 @@ class IIIFUriProblem:
 
     def _exception_msg(self) -> list[str]:
         return [
-            f"An error occurred during the network call: {self.thrown_exception_name}",
-            f"Original message: {self.original_text}",
+            f"An error occurred during the network call: {self.raised_exception_name}",
+            f"Error message: {self.original_text}",
         ]
 
     def _bad_status_code_msg(self) -> list[str]:

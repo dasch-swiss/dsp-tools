@@ -10,7 +10,7 @@ def iiif_exception() -> IIIFUriProblem:
     return IIIFUriProblem(
         uri="http://www.example.org/",
         regex_has_passed=False,
-        thrown_exception_name="RequestException",
+        raised_exception_name="RequestException",
         original_text=str(RequestException("This is the request exception.")),
     )
 
@@ -70,7 +70,7 @@ def test_iiif_uri_problem_exception(iiif_exception: IIIFUriProblem) -> None:
         "URI: http://www.example.org/\n"
         "    - Did not pass the internal regex check.\n"
         "    - An error occurred during the network call: RequestException\n"
-        "    - Original message: This is the request exception."
+        "    - Error message: This is the request exception."
     )
 
 
@@ -91,7 +91,7 @@ def test_all(iiif_exception: IIIFUriProblem, iiif_uri_problem_ok_regex: IIIFUriP
         "URI: http://www.example.org/\n"
         "    - Did not pass the internal regex check.\n"
         "    - An error occurred during the network call: RequestException\n"
-        "    - Original message: This is the request exception."
+        "    - Error message: This is the request exception."
         "\n----------------------------\n"
         "URI: https://iiif.dasch.swiss/0811/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/837,530/0/default.jp2\n"
         "    - Passed the internal regex check.\n"

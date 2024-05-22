@@ -85,7 +85,7 @@ def test_validate_with_exception(
     assert not result.regex_has_passed
     assert not result.status_code
     assert result.original_text == "This is the request exception."
-    assert result.thrown_exception_name == "RequestException"
+    assert result.raised_exception_name == "RequestException"
 
 
 @patch("dsp_tools.commands.xmlupload.iiif_client.IIIFUriValidator._make_network_call")
@@ -99,7 +99,7 @@ def test_validate_with_bad_status_code(
     assert not result.regex_has_passed
     assert result.status_code == 404
     assert result.original_text == "This is the response text."
-    assert not result.thrown_exception_name
+    assert not result.raised_exception_name
 
 
 @patch("dsp_tools.commands.xmlupload.iiif_client.IIIFUriValidator._make_network_call")
@@ -124,7 +124,7 @@ def test_validate_with_failed_regex_good_status_code(
     assert not result.regex_has_passed
     assert result.status_code == 200
     assert result.original_text == "This is the response text."
-    assert not result.thrown_exception_name
+    assert not result.raised_exception_name
 
 
 if __name__ == "__main__":

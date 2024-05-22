@@ -15,9 +15,9 @@ class IIIFUriValidator:
 
     def validate(self) -> AllIIIFUriProblems | None:
         """Validate the URI and return a list of problems if any."""
-        all_checked_uris = [res for uri in self.uri_list if (res := self._validate_one_uri(uri)) is not None]
-        if all_checked_uris:
-            return AllIIIFUriProblems(problems=all_checked_uris)
+        iiif_uri_problems = [res for uri in self.uri_list if (res := self._validate_one_uri(uri)) is not None]
+        if iiif_uri_problems:
+            return AllIIIFUriProblems(problems=iiif_uri_problems)
         return None
 
     def _validate_one_uri(self, uri: str) -> IIIFUriProblem | None:
@@ -28,7 +28,7 @@ class IIIFUriValidator:
             return IIIFUriProblem(
                 uri=uri,
                 regex_has_passed=regex_has_passed,
-                thrown_exception_name=response.__class__.__name__,
+                raised_exception_name=response.__class__.__name__,
                 original_text=str(response),
             )
         match response.ok, regex_has_passed:

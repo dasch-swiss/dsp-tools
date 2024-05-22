@@ -5,7 +5,6 @@ import sys
 import warnings
 from datetime import datetime
 from pathlib import Path
-from typing import Any
 from typing import cast
 
 from loguru import logger
@@ -14,7 +13,6 @@ from lxml import etree
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.xmlupload.check_consistency_with_ontology import do_xml_consistency_check_with_ontology
 from dsp_tools.commands.xmlupload.iiif_client import IIIFUriValidator
-from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.list_client import ListClient
 from dsp_tools.commands.xmlupload.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.models.deserialise.xmlpermission import XmlPermission
@@ -78,7 +76,7 @@ def xmlupload(
     """
 
     default_ontology, root, shortcode = _pares_xml(input_file=input_file, imgdir=imgdir)
-    
+
     if config.iiif_uri_validation:
         _validate_iiif_uris(root)
 
@@ -164,7 +162,6 @@ def prepare_upload(
     )
 
 
-
 def _validate_iiif_uris(root: etree._Element) -> None:
     uris = [node.text for node in root.iter(tag="iiif-uri")]
     all_uris = cast(list[str], uris)
@@ -174,7 +171,7 @@ def _validate_iiif_uris(root: etree._Element) -> None:
         warnings.warn(DspToolsUserWarning(msg))
         logger.warning(msg)
 
-        
+
 def _cleanup_upload(upload_state: UploadState) -> bool:
     """
     Write the id2iri mapping to a file and print a message to the console.

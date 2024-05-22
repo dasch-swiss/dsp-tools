@@ -18,6 +18,7 @@ from dsp_tools.commands.excel2json.models.input_error import MissingValuesInRowP
 from dsp_tools.commands.excel2json.models.input_error import MoreThanOneSheetProblem
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import Problem
+from dsp_tools.commands.excel2json.utils import add_optional_columns
 from dsp_tools.commands.excel2json.utils import check_column_for_duplicate
 from dsp_tools.commands.excel2json.utils import check_contains_required_columns
 from dsp_tools.commands.excel2json.utils import check_required_values
@@ -59,7 +60,20 @@ def excel2properties(
     property_df = _rename_deprecated_columnnames(df=property_df, excelfile=excelfile)
 
     # Not all columns have to be filled, users may delete some for ease of use, but it would generate an error later
-    property_df = _add_optional_columns(df=property_df)
+    optional_col_set = {
+        "label_en",
+        "label_de",
+        "label_fr",
+        "label_it",
+        "label_rm",
+        "comment_en",
+        "comment_de",
+        "comment_fr",
+        "comment_it",
+        "comment_rm",
+        "subject",
+    }
+    property_df = add_optional_columns(property_df, optional_col_set)
 
     _do_property_excel_compliance(df=property_df, excelfile=excelfile)
 
@@ -152,28 +166,6 @@ def _do_property_excel_compliance(df: pd.DataFrame, excelfile: str) -> None:
         extra = [problem.execute_error_protocol() for problem in problems if problem]
         msg = [f"There is a problem with the excel file: '{excelfile}'", *extra]
         raise InputError("\n\n".join(msg))
-
-
-def _add_optional_columns(df: pd.DataFrame) -> pd.DataFrame:
-    optional_col_set = {
-        "label_en",
-        "label_de",
-        "label_fr",
-        "label_it",
-        "label_rm",
-        "comment_en",
-        "comment_de",
-        "comment_fr",
-        "comment_it",
-        "comment_rm",
-        "subject",
-    }
-    in_df_cols = set(df.columns)
-    if not optional_col_set.issubset(in_df_cols):
-        additional_col = list(optional_col_set.difference(in_df_cols))
-        additional_df = pd.DataFrame(columns=additional_col, index=df.index)
-        df = pd.concat(objs=[df, additional_df], axis=1)
-    return df
 
 
 def _check_missing_values_in_row(df: pd.DataFrame) -> None | list[MissingValuesInRowProblem]:

@@ -1,3 +1,4 @@
+from pathlib import Path
 from unittest.mock import Mock
 from unittest.mock import patch
 
@@ -7,13 +8,15 @@ from dsp_tools.cli import entry_point
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 
+EXIT_CODE_TWO = 2
+
 
 def test_invalid_arguments() -> None:
     """Test the 'dsp-tools' command with invalid arguments"""
     args = "invalid".split()
     with pytest.raises(SystemExit) as ex:
         entry_point.run(args)
-    assert ex.value.code == 2
+    assert ex.value.code == EXIT_CODE_TWO
 
 
 @patch("dsp_tools.cli.call_action.validate_lists_section_with_schema")
@@ -78,13 +81,13 @@ def test_project_get(get_project: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.call_action.validate_xml")
+@patch("dsp_tools.cli.call_action.validate_xml_file")
 def test_xmlupload_validate(validate_xml: Mock) -> None:
     """Test the 'dsp-tools xmlupload --validate-only' command"""
     file = "filename.xml"
     args = f"xmlupload --validate-only {file}".split()
     entry_point.run(args)
-    validate_xml.assert_called_once_with(file)
+    validate_xml.assert_called_once_with(Path(file))
 
 
 @patch("dsp_tools.cli.call_action.xmlupload")
@@ -100,7 +103,7 @@ def test_xmlupload(xmlupload: Mock) -> None:
     )
     entry_point.run(args)
     xmlupload.assert_called_once_with(
-        input_file=file,
+        input_file=Path(file),
         creds=creds,
         imgdir=".",
         config=UploadConfig(),

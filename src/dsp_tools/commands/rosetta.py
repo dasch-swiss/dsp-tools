@@ -4,7 +4,6 @@ from pathlib import Path
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create import create_project
-from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from dsp_tools.models.exceptions import UserError
 
@@ -94,7 +93,6 @@ def _upload_xml(rosetta_folder: Path) -> bool:
         input_file=rosetta_folder / "rosetta.xml",
         creds=creds,
         imgdir=str(rosetta_folder),
-        config=UploadConfig(),
     )
 
 

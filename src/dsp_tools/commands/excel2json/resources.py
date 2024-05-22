@@ -16,6 +16,7 @@ from dsp_tools.commands.excel2json.models.input_error import MissingValuesInRowP
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import Problem
 from dsp_tools.commands.excel2json.models.input_error import ResourcesSheetsNotAsExpected
+from dsp_tools.commands.excel2json.utils import add_optional_columns
 from dsp_tools.commands.excel2json.utils import check_column_for_duplicate
 from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
 from dsp_tools.models.exceptions import InputError
@@ -268,6 +269,21 @@ def _prepare_classes_df(resource_dfs: dict[str, pd.DataFrame]) -> tuple[pd.DataF
             "This is a protected name and cannot be used for other sheets."
         )
         raise InputError(msg)
+    classes_df = add_optional_columns(
+        classes_df,
+        {
+            "label_en",
+            "label_de",
+            "label_fr",
+            "label_it",
+            "label_rm",
+            "comment_en",
+            "comment_de",
+            "comment_fr",
+            "comment_it",
+            "comment_rm",
+        },
+    )
     classes_df = prepare_dataframe(
         df=classes_df,
         required_columns=["name"],

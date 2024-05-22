@@ -5,7 +5,6 @@ import sys
 import warnings
 from datetime import datetime
 from pathlib import Path
-from typing import cast
 
 from loguru import logger
 from lxml import etree
@@ -163,9 +162,8 @@ def prepare_upload(
 
 
 def _validate_iiif_uris(root: etree._Element) -> None:
-    uris = [node.text for node in root.iter(tag="iiif-uri")]
-    all_uris = cast(list[str], uris)
-    problems = [res for x in all_uris if (res := IIIFUriValidator(x, is_iiif_uri(x)).validate())]
+    uris = [uri for node in root.iter(tag="iiif-uri") if (uri := node.text)]
+    problems = [res for x in uris if (res := IIIFUriValidator(x, is_iiif_uri(x)).validate())]
     if problems:
         msg = AllIIIFUriProblems(problems).get_msg()
         warnings.warn(DspToolsUserWarning(msg))

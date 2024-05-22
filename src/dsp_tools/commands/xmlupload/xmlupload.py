@@ -11,6 +11,7 @@ from lxml import etree
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.xmlupload.check_consistency_with_ontology import do_xml_consistency_check_with_ontology
+from dsp_tools.commands.xmlupload.iiif_client import IIIFUriValidator
 from dsp_tools.commands.xmlupload.list_client import ListClient
 from dsp_tools.commands.xmlupload.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.models.deserialise.xmlpermission import XmlPermission
@@ -72,6 +73,9 @@ def xmlupload(
     """
 
     default_ontology, root, shortcode = _pares_xml(input_file=input_file, imgdir=imgdir)
+
+    if not config.skip_iiif_validation:
+        _validate_iiif_uris(root)
 
     con = ConnectionLive(creds.server)
     con.login(creds.user, creds.password)
@@ -153,6 +157,15 @@ def prepare_upload(
         con=ontology_client.con,
         default_ontology=ontology_client.default_ontology,
     )
+
+
+def _validate_iiif_uris(root: etree._Element) -> None:
+    uris = [uri for node in root.iter(tag="iiif-uri") if (uri := node.text)]
+    problems = IIIFUriValidator(uris).validate()
+    if problems:
+        msg = problems.get_msg()
+        warnings.warn(DspToolsUserWarning(msg))
+        logger.warning(msg)
 
 
 def _cleanup_upload(upload_state: UploadState) -> bool:

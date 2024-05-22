@@ -18,7 +18,6 @@ from dsp_tools.commands.xmlupload.models.deserialise.xmlpermission import XmlPer
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
-from dsp_tools.commands.xmlupload.models.input_problems import AllIIIFUriProblems
 from dsp_tools.commands.xmlupload.models.namespace_context import get_json_ld_context_for_project
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
@@ -46,7 +45,6 @@ from dsp_tools.models.projectContext import ProjectContext
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
 from dsp_tools.utils.logger_config import logger_savepath
-from dsp_tools.utils.uri_util import is_iiif_uri
 
 
 def xmlupload(
@@ -163,9 +161,9 @@ def prepare_upload(
 
 def _validate_iiif_uris(root: etree._Element) -> None:
     uris = [uri for node in root.iter(tag="iiif-uri") if (uri := node.text)]
-    problems = [res for x in uris if (res := IIIFUriValidator(x, is_iiif_uri(x)).validate())]
+    problems = IIIFUriValidator(uris).validate()
     if problems:
-        msg = AllIIIFUriProblems(problems).get_msg()
+        msg = problems.get_msg()
         warnings.warn(DspToolsUserWarning(msg))
         logger.warning(msg)
 

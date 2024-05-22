@@ -2,52 +2,61 @@ from dataclasses import dataclass
 
 import requests
 
+from dsp_tools.commands.xmlupload.models.input_problems import AllIIIFUriProblems
 from dsp_tools.commands.xmlupload.models.input_problems import IIIFUriProblem
+from dsp_tools.utils.uri_util import is_iiif_uri
 
 
 @dataclass(frozen=True)
 class IIIFUriValidator:
     """Client handling communication with external IIIF-servers to do a health check."""
 
-    uri: str
-    regex_has_passed: bool
+    uri_list: list[str]
 
-    def validate(self) -> IIIFUriProblem | None:
+    def validate(self) -> AllIIIFUriProblems | None:
+        """Validate the URI and return a list of problems if any."""
+        all_checked_uris = [res for uri in self.uri_list if (res := self._validate_one_uri(uri)) is not None]
+        if all_checked_uris:
+            return AllIIIFUriProblems(problems=all_checked_uris)
+        return None
+
+    def _validate_one_uri(self, uri: str) -> IIIFUriProblem | None:
         """Check if the IIIF-server is reachable. If not, it returns information for error message."""
-        response = self._make_network_call()
+        regex_has_passed = is_iiif_uri(uri)
+        response = self._make_network_call(uri)
         if isinstance(response, Exception):
             return IIIFUriProblem(
-                uri=self.uri,
-                regex_has_passed=self.regex_has_passed,
+                uri=uri,
+                regex_has_passed=regex_has_passed,
                 thrown_exception_name=response.__class__.__name__,
                 original_text=str(response),
             )
-        match response.ok, self.regex_has_passed:
+        match response.ok, regex_has_passed:
             case True, True:
                 return None
             case _:
                 return IIIFUriProblem(
-                    uri=self.uri,
-                    regex_has_passed=self.regex_has_passed,
+                    uri=uri,
+                    regex_has_passed=regex_has_passed,
                     status_code=response.status_code,
                     original_text=response.text,
                 )
 
-    def _make_network_call(self) -> requests.Response | Exception:
-        uri = self._make_info_json_uri()
+    def _make_network_call(self, uri: str) -> requests.Response | Exception:
+        info_json_uri = self._make_info_json_uri(uri)
         try:
             return requests.get(
-                url=uri,
+                url=info_json_uri,
                 headers={"Content-Type": "application/ld+json"},
                 timeout=10,
             )
         except Exception as e:  # noqa: BLE001 (blind-except)
             return e
 
-    def _make_info_json_uri(self) -> str:
-        splt = self.uri.split("/")
+    def _make_info_json_uri(self, uri: str) -> str:
+        splt = uri.split("/")
         if len(splt) < 5:
-            info_uri = self.uri.rstrip("/")
+            info_uri = uri.rstrip("/")
         else:
             info_uri = "/".join(splt[:-4])
         return f"{info_uri}/info.json"

@@ -15,7 +15,6 @@ repos:
           --ignore=PLR0913,  # too-many-arguments
           --ignore=PLR2004,  # magic-value-comparison
           --ignore=PLW0603,  # global-statement
-          --ignore=I001,  # import-order
         ]
       - id: ruff-format
 

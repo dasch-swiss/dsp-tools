@@ -1,11 +1,21 @@
-import pytest
+from typing import cast
 
+import pytest
+from lxml import etree
+from rdflib import BNode
+from rdflib import URIRef
+
+from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import IIIFUriInfo
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
+from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
+from dsp_tools.commands.xmlupload.models.serialise.jsonld_serialiser import serialise_property_graph
 from dsp_tools.commands.xmlupload.resource_create_client import _make_bitstream_file_value
+from dsp_tools.commands.xmlupload.resource_create_client import _make_iiif_uri_value
 from dsp_tools.commands.xmlupload.resource_create_client import _to_boolean
 from dsp_tools.models.exceptions import BaseError
+from dsp_tools.models.exceptions import PermissionNotExistsError
 
 
 class TestMakeBitstreamFileValue:
@@ -392,6 +402,66 @@ def test_to_boolean() -> None:
         _to_boolean("foo")
     with pytest.raises(BaseError):
         _to_boolean(2)
+
+
+def test_make_iiif_uri_value_with_permissions() -> None:
+    permission = {"prop-default": Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]})}
+    xml_str = """
+        <resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id">
+            <iiif-uri permissions="prop-default">http://example.org/prefix1/abcd1234/full/full/0/native.jpg</iiif-uri>
+        </resource>
+        """
+    xmlresource = XMLResource(etree.fromstring(xml_str), "foo")
+    test_val = cast(IIIFUriInfo, xmlresource.iiif_uri)
+    result = _make_iiif_uri_value(test_val, BNode(), permission)
+    assert len(result) == 4
+
+
+def test_make_iiif_uri_value_no_permissions() -> None:
+    permission = {"prop-default": Permissions()}
+    xml_str = """
+        <resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id">
+            <iiif-uri>http://example.org/prefix1/abcd1234/full/full/0/native.jpg</iiif-uri>
+        </resource>
+        """
+    xmlresource = XMLResource(etree.fromstring(xml_str), "foo")
+    test_val = cast(IIIFUriInfo, xmlresource.iiif_uri)
+    result = _make_iiif_uri_value(test_val, BNode(), permission)
+    assert len(result) == 3
+
+
+def test_make_iiif_uri_value_raises() -> None:
+    permission = {"": Permissions()}
+    xml_str = """
+        <resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id">
+            <iiif-uri permissions="prop-default">http://example.org/prefix1/abcd1234/full/full/0/native.jpg</iiif-uri>
+        </resource>
+        """
+    xmlresource = XMLResource(etree.fromstring(xml_str), "foo")
+    test_val = cast(IIIFUriInfo, xmlresource.iiif_uri)
+    with pytest.raises(PermissionNotExistsError):
+        _make_iiif_uri_value(test_val, BNode(), permission)
+
+
+def test_make_iiif_uri_value_serialised() -> None:
+    xml_str = """
+        <resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id">
+            <iiif-uri>http://example.org/prefix1/abcd1234/full/full/0/native.jpg</iiif-uri>
+        </resource>
+        """
+    xmlresource = XMLResource(etree.fromstring(xml_str), "foo")
+    test_val = cast(IIIFUriInfo, xmlresource.iiif_uri)
+    result = _make_iiif_uri_value(test_val, BNode(), {})
+    serialised = serialise_property_graph(
+        result, URIRef("http://api.knora.org/ontology/knora-api/v2#hasStillImageFileValue")
+    )
+    expected = {
+        "http://api.knora.org/ontology/knora-api/v2#hasStillImageFileValue": {
+            "@type": "http://api.knora.org/ontology/knora-api/v2#StillImageExternalFileValue",
+            "http://api.knora.org/ontology/knora-api/v2#fileValueHasExternalUrl": "http://example.org/prefix1/abcd1234/full/full/0/native.jpg",
+        }
+    }
+    assert serialised == expected
 
 
 if __name__ == "__main__":

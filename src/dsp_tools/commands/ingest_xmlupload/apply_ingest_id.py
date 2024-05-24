@@ -36,15 +36,15 @@ def get_mapping_dict_from_file(shortcode: str) -> dict[str, str]:
 
 
 def replace_filepath_with_internal_filename(
-    xml_tree: etree._ElementTree[etree._Element],
-    orig_path_2_id_filename: dict[str, str],
-) -> tuple[etree._ElementTree[etree._Element], IngestInformation]:
+    xml_tree: etree._Element,
+    orig_path_2_asset_id: dict[str, str],
+) -> tuple[etree._Element, IngestInformation]:
     """
     Replace the original filepaths in the <bitstream> tags by the id filenames of the uploaded files.
 
     Args:
         xml_tree: The parsed original XML tree
-        orig_path_2_id_filename: Mapping from original filenames to id filenames from the mapping.csv
+        orig_path_2_asset_id: Mapping from original filenames to asset IDs from the mapping.csv
 
     Returns:
         A copy of the XMl tree, with the replaced filepaths.
@@ -59,16 +59,16 @@ def replace_filepath_with_internal_filename(
         img_path = Path(elem.text)
         img_path = img_path.relative_to(Path.cwd()) if img_path.is_absolute() else img_path
         img_path_str = str(img_path)
-        if img_path_str not in orig_path_2_id_filename:
+        if img_path_str not in orig_path_2_asset_id:
             img_path_str = str(img_path.with_suffix(img_path.suffix.lower()))
-        if img_path_str not in orig_path_2_id_filename:
+        if img_path_str not in orig_path_2_asset_id:
             img_path_str = str(img_path.with_suffix(img_path.suffix.upper()))
 
-        if img_path_str in orig_path_2_id_filename:
-            elem.text = orig_path_2_id_filename[img_path_str]
+        if img_path_str in orig_path_2_asset_id:
+            elem.text = orig_path_2_asset_id[img_path_str]
             used_media_file_paths.append(img_path_str)
         else:
             no_id_found.append((cast("etree._Element", elem.getparent()).attrib["id"], str(elem.text)))
 
-    unused_media_paths = [x for x in orig_path_2_id_filename if x not in used_media_file_paths]
+    unused_media_paths = [x for x in orig_path_2_asset_id if x not in used_media_file_paths]
     return new_tree, IngestInformation(unused_mediafiles=unused_media_paths, mediafiles_no_id=no_id_found)

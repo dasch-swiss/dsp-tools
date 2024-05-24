@@ -23,8 +23,9 @@ from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.date_util import is_full_date
 from dsp_tools.utils.shared import check_notna
 from dsp_tools.utils.shared import simplify_name
+from dsp_tools.utils.uri_util import is_iiif_uri
 from dsp_tools.utils.uri_util import is_uri
-from dsp_tools.utils.xml_validation import validate_xml
+from dsp_tools.utils.xml_validation import validate_xml_file
 
 # ruff: noqa: E501, UP031 (line-too-long, use f-string over percent formatting)
 
@@ -516,6 +517,47 @@ def make_bitstream_prop(
         nsmap=xml_namespace_map,
     )
     prop_.text = str(path)
+    return prop_
+
+
+def make_iiif_uri_prop(
+    iiif_uri: str,
+    permissions: str = "prop-default",
+    calling_resource: str = "",
+) -> etree._Element:
+    """
+    Creates a iiif-uri element that points to "path".
+
+    Args:
+        iiif_uri: URI to a IIIF image
+        permissions: permissions string
+        calling_resource: the name of the parent resource (for better error messages)
+
+    Warns:
+        If the iiif_uri doesn't conform to the IIIF URI specifications
+
+    Returns:
+        an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
+
+    Examples:
+        >>> resource = excel2xml.make_resource(...)
+        >>> resource.append(excel2xml.make_iiif_uri_prop("https://example.org/image-service/abcd1234/full/max/0/default.jpg"))
+        >>> root.append(resource)
+
+    """
+
+    if not is_iiif_uri(iiif_uri):
+        msg = (
+            f"Failed validation in iiif-uri tag of resource '{calling_resource}': "
+            f"The URI: '{iiif_uri}' does not conform to the specifications."
+        )
+        warnings.warn(DspToolsUserWarning(msg))
+    prop_ = etree.Element(
+        "{%s}iiif-uri" % xml_namespace_map[None],
+        permissions=permissions,
+        nsmap=xml_namespace_map,
+    )
+    prop_.text = iiif_uri
     return prop_
 
 
@@ -2049,7 +2091,7 @@ def write_xml(
     with open(filepath, "w", encoding="utf-8") as f:
         f.write(xml_string)
     try:
-        validate_xml(input_file=filepath)
+        validate_xml_file(input_file=filepath)
         print(f"The XML file was successfully saved to {filepath}")
     except BaseError as err:
         msg = (

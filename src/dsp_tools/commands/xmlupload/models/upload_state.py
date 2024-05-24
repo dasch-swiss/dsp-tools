@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from dataclasses import field
 
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
@@ -14,8 +15,8 @@ class UploadState:
     """
 
     pending_resources: list[XMLResource]
-    failed_uploads: list[str]
-    iri_resolver: IriResolver
     pending_stash: Stash | None
     config: UploadConfig
     permissions_lookup: dict[str, Permissions]
+    failed_uploads: list[str] = field(default_factory=list)
+    iri_resolver: IriResolver = field(default_factory=IriResolver)

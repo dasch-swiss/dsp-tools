@@ -10,7 +10,6 @@ repos:
           --ignore=A002,  # builtin-argument-shadowing
           --ignore=D101, # missing-module-docstring
           --ignore=D102,  # undocumented-public-class
-          --ignore=ARG001,  # unused-function-argument
           --ignore=F841,  # error suppression
           --ignore=FIX002,  # line-contains-to do
           --ignore=PLR0913,  # too-many-arguments

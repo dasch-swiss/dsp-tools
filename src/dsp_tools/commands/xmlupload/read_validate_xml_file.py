@@ -1,47 +1,36 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
-from typing import Union
 
 import regex
-from loguru import logger
 from lxml import etree
 
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.iri_util import is_resource_iri
-from dsp_tools.utils.xml_utils import parse_and_clean_xml_file
+from dsp_tools.utils.xml_utils import parse_xml_file
+from dsp_tools.utils.xml_utils import remove_comments_from_element_tree
+from dsp_tools.utils.xml_utils import remove_qnames_and_transform_special_tags
 from dsp_tools.utils.xml_validation import validate_xml
 
 
-def validate_and_parse_xml_file(
-    imgdir: str,
-    input_file: Union[str, Path, etree._ElementTree[Any]],
-    preprocessing_done: bool,
-) -> tuple[str, etree._Element, str]:
-    """
-    This function takes an element tree or a path to an XML file.
-    It validates the file against the XML schema.
-    It checks if all the mentioned bitstream files are in the specified location.
-    It retrieves the shortcode and default ontology from the XML file.
+def validate_and_parse(input_file: Path) -> tuple[etree._Element, str, str]:
+    """Parse and validate an XML file.
 
     Args:
-        imgdir: directory to the bitstream files
-        input_file: file or etree that will be processed
-        preprocessing_done: True if the bitstream files have already been processed
+        input_file: Path to the XML file
 
     Returns:
-        The ontology name, the parsed XML file and the shortcode of the project
+        The root element of the parsed XML file, the shortcode, and the default ontology
     """
-    validate_xml(input_file=input_file)
-    root = parse_and_clean_xml_file(input_file=input_file)
+    root = parse_xml_file(input_file)
+    root = remove_comments_from_element_tree(root)
+
+    validate_xml(root)
+    root = remove_qnames_and_transform_special_tags(root)
     _check_if_link_targets_exist(root)
-    if not preprocessing_done:
-        _check_if_bitstreams_exist(root=root, imgdir=imgdir)
     shortcode = root.attrib["shortcode"]
     default_ontology = root.attrib["default-ontology"]
-    logger.info(f"Validated and parsed the XML file. {shortcode=:} and {default_ontology=:}")
-    return default_ontology, root, shortcode
+    return root, shortcode, default_ontology
 
 
 def _check_if_link_targets_exist(root: etree._Element) -> None:
@@ -90,10 +79,7 @@ def _check_if_salsah_targets_exist(root: etree._Element) -> list[str]:
     return errors
 
 
-def _check_if_bitstreams_exist(
-    root: etree._Element,
-    imgdir: str,
-) -> None:
+def check_if_bitstreams_exist(root: etree._Element, imgdir: str) -> None:
     """
     Make sure that all bitstreams referenced in the XML file exist in the imgdir.
 

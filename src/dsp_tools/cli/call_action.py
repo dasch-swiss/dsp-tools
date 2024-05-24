@@ -25,7 +25,7 @@ from dsp_tools.commands.start_stack import StackHandler
 from dsp_tools.commands.template import generate_template_repo
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
-from dsp_tools.utils.xml_validation import validate_xml
+from dsp_tools.utils.xml_validation import validate_xml_file
 
 
 def call_requested_action(args: argparse.Namespace) -> bool:
@@ -169,24 +169,23 @@ def _call_new_excel2json(args: argparse.Namespace) -> bool:
 
 def _call_ingest_xmlupload(args: argparse.Namespace) -> bool:
     interrupt_after = args.interrupt_after if args.interrupt_after > 0 else None
-    ingest_xmlupload(
+    return ingest_xmlupload(
         xml_file=Path(args.xml_file),
         creds=_get_creds(args),
         interrupt_after=interrupt_after,
     )
-    return True
 
 
 def _call_xmlupload(args: argparse.Namespace) -> bool:
     if args.validate_only:
-        return validate_xml(args.xmlfile)
+        return validate_xml_file(Path(args.xmlfile))
     else:
         interrupt_after = args.interrupt_after if args.interrupt_after > 0 else None
         return xmlupload(
-            input_file=args.xmlfile,
+            input_file=Path(args.xmlfile),
             creds=_get_creds(args),
             imgdir=args.imgdir,
-            config=UploadConfig(interrupt_after=interrupt_after),
+            config=UploadConfig(interrupt_after=interrupt_after, skip_iiif_validation=args.no_iiif_uri_validation),
         )
 
 

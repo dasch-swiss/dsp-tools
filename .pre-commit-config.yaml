@@ -14,7 +14,6 @@ repos:
           --ignore=FIX002,  # line-contains-to do
           --ignore=PLR0913,  # too-many-arguments
           --ignore=PLR2004,  # magic-value-comparison
-          --ignore=PLW0603,  # global-statement
         ]
       - id: ruff-format
 

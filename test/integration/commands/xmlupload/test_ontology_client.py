@@ -1,11 +1,11 @@
 from dataclasses import dataclass
-from test.integration.commands.xmlupload.connection_mock import ConnectionMockBase
 from typing import Any
 
 import pytest
 from pytest_unordered import unordered
 
 from dsp_tools.commands.xmlupload.ontology_client import OntologyClientLive
+from test.integration.commands.xmlupload.connection_mock import ConnectionMockBase
 
 
 @dataclass

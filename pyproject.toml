@@ -62,6 +62,7 @@ pytest-sugar = "^1.0.0"
 pandas-stubs = "^2.2.1.240316"
 types-networkx = "^3.2.1.20240331"
 requests-mock = "^1.12.1"
+testcontainers =  "^4.4.1"
 
 
 [tool.poetry.scripts]

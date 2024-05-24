@@ -4,9 +4,9 @@ from pathlib import Path
 from typing import Generator
 
 import requests
-from testcontainers.core.container import DockerContainer  # type: ignore[import]
-from testcontainers.core.network import Network  # type: ignore[import]
-from testcontainers.core.waiting_utils import wait_for_logs  # type: ignore[import]
+from testcontainers.core.container import DockerContainer  # type: ignore[import-untyped]
+from testcontainers.core.network import Network  # type: ignore[import-untyped]
+from testcontainers.core.waiting_utils import wait_for_logs  # type: ignore[import-untyped]
 
 _repo_config: str = """
 @prefix :           <http://base/#> .

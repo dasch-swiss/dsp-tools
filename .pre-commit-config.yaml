@@ -3,18 +3,17 @@
 repos:
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.4.4
+    rev: v0.4.5
     hooks:
       - id: ruff
         args: [
           --ignore=A002,  # builtin-argument-shadowing
-          --ignore=D101, # missing-module-docstring
-          --ignore=D102,  # undocumented-public-class
+          --ignore=D101, # undocumented-public-class
+          --ignore=D102,  # undocumented-public-method
           --ignore=F841,  # error suppression
-          --ignore=FIX002,  # line-contains-to do
+          --ignore=FIX002,  # line-contains-to-do
           --ignore=PLR0913,  # too-many-arguments
           --ignore=PLR2004,  # magic-value-comparison
-          --ignore=PLW0603,  # global-statement
         ]
       - id: ruff-format
 

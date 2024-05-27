@@ -98,9 +98,9 @@ markdownlint = """
     --config .markdownlint.yml \
     --ignore CHANGELOG.md "**/*.md"
 """
-ruff-check = "ruff check . --ignore=A002,D101,D102,PLR0913,PLR2004,PLW0603"
+ruff-check = "ruff check . --ignore=A002,D101,D102,PLR0913,PLR2004"
 ruff-check-github = """
-    ruff check . --output-format=github --ignore=A002,D101,D102,PLR0913,PLR2004,PLW0603
+    ruff check . --output-format=github --ignore=A002,D101,D102,PLR0913,PLR2004
 """
 ruff-format-check = "ruff format --check ."
 mypy = "mypy ."

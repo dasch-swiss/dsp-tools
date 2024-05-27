@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from dataclasses import field
-from test.integration.commands.xmlupload.connection_mock import ConnectionMockBase
 from typing import Any
 from uuid import uuid4
 
@@ -16,6 +15,7 @@ from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 from dsp_tools.commands.xmlupload.xmlupload import _upload_stash
 from dsp_tools.utils.connection import Connection
+from test.integration.commands.xmlupload.connection_mock import ConnectionMockBase
 
 # ruff: noqa: ARG002 (unused-method-argument)
 # ruff: noqa: D102 (undocumented-public-method)

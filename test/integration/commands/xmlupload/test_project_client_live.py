@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 from dataclasses import field
-from test.integration.commands.xmlupload.connection_mock import ConnectionMockBase
 from typing import Any
 
 import pytest
 
 from dsp_tools.commands.xmlupload.project_client import ProjectClientLive
+from test.integration.commands.xmlupload.connection_mock import ConnectionMockBase
 
 
 @dataclass

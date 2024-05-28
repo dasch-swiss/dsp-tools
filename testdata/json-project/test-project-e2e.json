@@ -1,0 +1,42 @@
+{
+    "$schema": "../../src/dsp_tools/resources/schema/project.json",
+    "project": {
+        "shortcode": "4124",
+        "shortname": "minimal-tp",
+        "longname": "minimal test project",
+        "descriptions": {
+            "en": "A minimal test project"
+        },
+        "keywords": [
+            "minimal"
+        ],
+        "ontologies": [
+            {
+                "name": "testonto",
+                "label": "Test ontology",
+                "properties": [
+                    {
+                        "name": "hasText",
+                        "super": [
+                            "hasValue"
+                        ],
+                        "object": "TextValue",
+                        "labels": {
+                            "en": "Text"
+                        },
+                        "gui_element": "SimpleText"
+                    }
+                ],
+                "resources": [
+                    {
+                        "name": "minimalResource",
+                        "super": "StillImageRepresentation",
+                        "labels": {
+                            "en": "Minimal Resource"
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}

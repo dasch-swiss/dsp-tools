@@ -6,13 +6,15 @@ from pathlib import Path
 import pytest
 
 
-class TestSchemaShipping(unittest.TestCase):
+class TestCliDepsResources(unittest.TestCase):
     """
-    Test if the files in 'src/dsp_tools/resources/schema' are accessible
-    when DSP-TOOLS is installed from wheel instead of from source,
-    and when the call is made from another working directory.
-    In addition, making a CLI call also tests if all dependencies are shipped correctly,
-    (the entry point imports all modules, so a not-shipped dependency would cause an import error).
+    Test if
+     - the CLI entry point works for the end user
+        - Important: The setup for these tests must install DSP-TOOLS from the wheel.
+     - all dependencies have been installed on the end user's machine
+        - The entry point imports all modules, so a not-shipped dependency would cause an import error.
+     - the resource files are accessible on the end user's machine
+        - The CLI call from another working directory tests if the files in 'src/dsp_tools/resources' are accessible.
     """
 
     test_project_systematic_file = Path("testdata/json-project/test-project-systematic.json")

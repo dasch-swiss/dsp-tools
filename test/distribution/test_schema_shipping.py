@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 
 
-class TestCLI(unittest.TestCase):
+class TestSchemaShipping(unittest.TestCase):
     """
     Test if the files in 'src/dsp_tools/resources/schema' are accessible
     when DSP-TOOLS is installed from wheel instead of from source,

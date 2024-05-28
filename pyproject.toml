@@ -106,7 +106,7 @@ ruff-format-check = "ruff format --check ."
 mypy = "mypy ."
 unittests = "pytest test/unittests/"
 integration-tests = "pytest test/integration/"
-e2e-tests = "pytest test/e2e/"
+legacy-e2e-tests = "pytest test/legacy_e2e/"
 bump-version = """
     # get current version, append ".postN" (N=no. of commits since last release), write back into pyproject.toml
     version=$(git describe --tags --abbrev=0)

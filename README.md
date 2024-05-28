@@ -128,15 +128,23 @@ Please ensure you have only one pull request per feature.
 The tests of this repository 
 are partially written in the [unittest](https://docs.python.org/3/library/unittest.html) framework,
 and partially in the [pytest](https://docs.pytest.org) framework.
-There are two groups of tests: 
+There are several groups of tests. 
 
-- `test/unittests` can be run directly with `poetry exec unittests` 
-- `test/integration` can be run directly with `poetry exec integration-tests` 
-- `test/e2e` need a DSP stack running in the background.
-  A DSP stack can be started with the command 
-  [`dsp-tools start-stack`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#start-stack).
-  The tests can then be executed with `poetry exec e2e-tests`
+The following are self-contained and can be run without further requirements:
 
+- `test/benchmarking`: Prevent that the stashing algorithm of the xmlupload becomes worse.
+- `test/distribution`: 
+  Make sure that the CLI entry point, all dependencies, and the resources are available on the end user's machine.
+- `test/unittests`: Pure unit tests of lower-level functions.
+- `test/integration`: Higher-level tests, with side effects like reading/writing operations on the file system.
+
+The following need a DSP stack running in the background.
+A DSP stack can be started with the command 
+[`dsp-tools start-stack`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#start-stack).
+
+- `test/legacy-e2e`
+  
+  
 Tests can be run in three different ways:
 
 - Run all tests in a given folder: `pytest test/unittests`.

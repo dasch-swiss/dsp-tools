@@ -16,11 +16,19 @@ def containers() -> Iterator[Containers]:
         yield containers
 
 
-def test_create_project(containers: Containers) -> None:  # noqa: ARG001
-    api = "http://0.0.0.0:3333"
-    user = "root@example.com"
-    pw = "test"
-    creds = ServerCredentials(user, pw, api)
+@pytest.fixture()
+def creds() -> ServerCredentials:
+    return ServerCredentials("root@example.com", "test", "http://0.0.0.0:3333")
+
+
+@pytest.fixture()
+def token(creds: ServerCredentials) -> str:
+    payload = {"email": creds.user, "password": creds.password}
+    token: str = requests.post(f"{creds.server}/v2/authentication", json=payload, timeout=3).json()["token"]
+    return token
+
+
+def test_create_project(containers: Containers, creds: ServerCredentials, token: str) -> None:  # noqa: ARG001
     test_project_minimal_file = Path("testdata/json-project/test-project-minimal.json")
     created = create_project(
         project_file_as_path_or_parsed=test_project_minimal_file.absolute(),
@@ -29,9 +37,8 @@ def test_create_project(containers: Containers) -> None:  # noqa: ARG001
     )
     assert created
 
-    get_project_url = f"{api}/admin/projects/shortcode/4124"
-    onto_iri = "http://0.0.0.0:3333/ontology/4124/testonto/v2"
-    token = requests.post(f"{api}/v2/authentication", json={"email": user, "password": pw}, timeout=3).json()["token"]
+    get_project_url = f"{creds.server}/admin/projects/shortcode/4124"
+    onto_iri = f"{creds.server}/ontology/4124/testonto/v2"
 
     get_project_response = requests.get(get_project_url, headers={"Authorization": f"Bearer {token}"}, timeout=3)
     project = get_project_response.json()["project"]

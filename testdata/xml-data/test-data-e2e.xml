@@ -6,9 +6,15 @@
        shortcode="4124"
        default-ontology="testonto">
 
-    <resource label="The only resource"
+    <resource label="Resource 1"
               restype=":minimalResource"
-              id="the_only_resource">
+              id="resource_1">
+        <bitstream>testdata/bitstreams/test.jpg</bitstream>
+    </resource>
+
+    <resource label="Resource 2"
+              restype=":minimalResource"
+              id="resource_2">
         <bitstream>testdata/bitstreams/test.jpg</bitstream>
     </resource>
 

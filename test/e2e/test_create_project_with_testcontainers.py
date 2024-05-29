@@ -68,10 +68,13 @@ def test_xmlupload(containers: Containers, creds: ServerCredentials, token: str)
     success = xmlupload(Path("testdata/xml-data/test-data-e2e.xml"), creds, ".")
     assert success
 
+    resclass_iri = "http://0.0.0.0:3333/ontology/4124/testonto/v2#minimalResource"
+    resclass_iri_encoded = urllib.parse.quote_plus(resclass_iri)
+
     get_project_route = f"{creds.server}/admin/projects/shortcode/{PROJECT_SHORTCODE}"
     project_iri = requests.get(get_project_route, timeout=3).json()["project"]["id"]
-    project_iri_encoded = urllib.parse.quote(project_iri, safe="")
-    # get_resources_route = f"{creds.server}/v2/resources?resourceClass=RESOURCE_CLASS_IRI&page=PAGE[&orderByProperty=PROPERTY_IRI]"
-    route = f"{creds.server}/v2/resources/projectHistoryEvents/{project_iri_encoded}"
-    response = requests.get(route, timeout=3)
-    pass
+    get_resources_route = f"{creds.server}/v2/resources?resourceClass={resclass_iri_encoded}&page=0"
+    headers = {"X-Knora-Accept-Project": project_iri, "Authorization": f"Bearer {token}"}
+    response = requests.get(get_resources_route, timeout=3, headers=headers).json()
+    res_iris = [x["@id"] for x in response["@graph"]]
+    assert len(res_iris) == 2

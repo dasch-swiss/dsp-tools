@@ -29,10 +29,10 @@
                 ],
                 "resources": [
                     {
-                        "name": "minimalResource",
+                        "name": "ImageResource",
                         "super": "StillImageRepresentation",
                         "labels": {
-                            "en": "Minimal Resource"
+                            "en": "Image Resource"
                         },
                         "cardinalities": [
                             {
@@ -40,6 +40,13 @@
                                 "cardinality": "0-n"
                             }
                         ]
+                    },
+                    {
+                        "name": "PDFResource",
+                        "super": "DocumentRepresentation",
+                        "labels": {
+                            "en": "PDF Resource"
+                        }
                     }
                 ]
             }

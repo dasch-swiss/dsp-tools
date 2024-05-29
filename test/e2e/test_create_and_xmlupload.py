@@ -55,10 +55,11 @@ def test_project(creds: ServerCredentials, token: str, project_status: bool) -> 
     assert props[0]["rdfs:label"] == "Text"
 
     resources = [elem for elem in onto if elem.get("knora-api:isResourceClass")]
-    assert len(resources) == 1
-    assert resources[0]["@id"] == "testonto:minimalResource"
-    assert resources[0]["rdfs:label"] == "Minimal Resource"
-    assert resources[0]["@id"] == "testonto:minimalResource"
+    assert len(resources) == 2
+    assert resources[0]["@id"] == "testonto:ImageResource"
+    assert resources[0]["rdfs:label"] == "Image Resource"
+    assert resources[1]["@id"] == "testonto:PDFResource"
+    assert resources[1]["rdfs:label"] == "PDF Resource"
     assert any(
         card.get("owl:cardinality") == 1
         and card.get("owl:onProperty", {}).get("@id") == "knora-api:hasStillImageFileValue"
@@ -75,7 +76,7 @@ def test_xmlupload(creds: ServerCredentials, token: str, project_status: bool) -
     xmlupload_status = xmlupload(Path("testdata/xml-data/test-data-e2e.xml"), creds, ".")
     assert xmlupload_status
 
-    resclass_iri = "http://0.0.0.0:3333/ontology/4124/testonto/v2#minimalResource"
+    resclass_iri = "http://0.0.0.0:3333/ontology/4124/testonto/v2#ImageResource"
     resclass_iri_encoded = urllib.parse.quote_plus(resclass_iri)
     get_project_route = f"{creds.server}/admin/projects/shortcode/{PROJECT_SHORTCODE}"
     project_iri = requests.get(get_project_route, timeout=3).json()["project"]["id"]

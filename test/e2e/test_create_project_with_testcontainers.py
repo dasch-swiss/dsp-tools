@@ -8,16 +8,9 @@ import requests
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create import create_project
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
-from test.tools_testcontainers import Containers
 from test.tools_testcontainers import get_containers
 
 PROJECT_SHORTCODE = "4124"
-
-
-@pytest.fixture(scope="module")
-def containers() -> Iterator[Containers]:
-    with get_containers() as containers:
-        yield containers
 
 
 @pytest.fixture()
@@ -25,17 +18,21 @@ def creds() -> ServerCredentials:
     return ServerCredentials("root@example.com", "test", "http://0.0.0.0:3333")
 
 
+@pytest.fixture(autouse=True)
+def project(creds: ServerCredentials) -> Iterator[bool]:
+    with get_containers():
+        yield create_project(Path("testdata/json-project/test-project-e2e.json"), creds, verbose=True)
+
+
 @pytest.fixture()
-def token(creds: ServerCredentials) -> str:
+def token(creds: ServerCredentials, project: bool) -> str:  # noqa: ARG001
     payload = {"email": creds.user, "password": creds.password}
     token: str = requests.post(f"{creds.server}/v2/authentication", json=payload, timeout=3).json()["token"]
     return token
 
 
-def test_create_project(containers: Containers, creds: ServerCredentials, token: str) -> None:  # noqa: ARG001
-    created = create_project(Path("testdata/json-project/test-project-e2e.json"), creds, verbose=True)
-    assert created
-
+@pytest.mark.usefixtures("project")
+def testproject(creds: ServerCredentials, token: str) -> None:
     get_project_url = f"{creds.server}/admin/projects/shortcode/{PROJECT_SHORTCODE}"
     onto_iri = f"{creds.server}/ontology/{PROJECT_SHORTCODE}/testonto/v2"
 
@@ -64,7 +61,8 @@ def test_create_project(containers: Containers, creds: ServerCredentials, token:
     assert resources[0]["@id"] == "testonto:minimalResource"
 
 
-def test_xmlupload(containers: Containers, creds: ServerCredentials, token: str) -> None:  # noqa: ARG001
+@pytest.mark.usefixtures("project")
+def test_xmlupload(creds: ServerCredentials, token: str) -> None:
     success = xmlupload(Path("testdata/xml-data/test-data-e2e.xml"), creds, ".")
     assert success
 

@@ -4,10 +4,11 @@ from pathlib import Path
 from typing import Generator
 
 import requests
-from testcontainers.core.container import DockerContainer  # type: ignore[import-untyped]
-from testcontainers.core.network import Network  # type: ignore[import-untyped]
-from testcontainers.core.waiting_utils import wait_for_logs  # type: ignore[import-untyped]
+from testcontainers.core.container import DockerContainer
+from testcontainers.core.network import Network
+from testcontainers.core.waiting_utils import wait_for_logs
 
+# copied and adapted from dsp-api/webapi/scripts/fuseki-repository-config.ttl.template
 _repo_config: str = """
 @prefix :           <http://base/#> .
 @prefix fuseki:     <http://jena.apache.org/fuseki#> .
@@ -32,19 +33,14 @@ _repo_config: str = """
                  fuseki:serviceUpdate              "update" ;
                  fuseki:serviceUpload              "upload" .
 
-## ---------------------------------------------------------------
-## This URI must be fixed - it's used to assemble the text dataset.
-
 :text_dataset rdf:type     text:TextDataset ;
             text:dataset :tdb_dataset_readwrite ;
             text:index   :indexLucene .
 
-# A TDB2 dataset used for RDF storage
 :tdb_dataset_readwrite  a                                   tdb2:DatasetTDB2 ;
                         tdb2:unionDefaultGraph              true ;
                         tdb2:location                       "/fuseki/databases/knora-test" .
 
-# Text index description
 :indexLucene a text:TextIndexLucene ;
             text:directory "/fuseki/lucene/knora-test" ;
             text:entityMap :entMap ;
@@ -53,9 +49,6 @@ _repo_config: str = """
                               text:filters ( text:ASCIIFoldingFilter text:LowerCaseFilter)
                            ] .
 
-# Mapping in the index
-# URI stored in field "uri"
-# knora-base:valueHasString is mapped to field "text"
 :entMap a                 text:EntityMap ;
         text:entityField  "uri" ;
         text:defaultField "text" ;
@@ -67,6 +60,7 @@ _repo_config: str = """
                           ) .
 """
 
+# copied and adapted from dsp-api/test_data/project_data/admin-data-minimal.ttl
 _admin_user_data: str = """
 @prefix xsd:         <http://www.w3.org/2001/XMLSchema#> .
 @prefix rdf:         <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
@@ -85,7 +79,8 @@ _admin_user_data: str = """
 """
 
 
-_sipi_path = Path("testdata/sipi").absolute()
+SIPI_PATH = Path("testdata/e2e/sipi").absolute()
+SIPI_PATH_IMAGES = SIPI_PATH / "images"
 
 
 @dataclass
@@ -163,9 +158,9 @@ def _get_sipi_container(network: Network) -> DockerContainer:
         .with_env("SIPI_WEBAPI_PORT", "3333")
         .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_HOST", "0.0.0.0")  # noqa: S104
         .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT", "3333")
-        .with_volume_mapping(_sipi_path / "tmp", "/tmp", "rw")  # noqa: S108
-        .with_volume_mapping(_sipi_path / "config", "/sipi/config", "rw")
-        .with_volume_mapping(_sipi_path / "images", "/sipi/images", "rw")
+        .with_volume_mapping(SIPI_PATH / "tmp", "/tmp", "rw")  # noqa: S108
+        .with_volume_mapping(SIPI_PATH / "config", "/sipi/config", "rw")
+        .with_volume_mapping(SIPI_PATH_IMAGES, "/sipi/images", "rw")
     )
 
 
@@ -215,8 +210,8 @@ def _get_ingestion_container(network: Network) -> DockerContainer:
         .with_env("JWT_ISSUER", "0.0.0.0:3333")
         .with_env("JWT_SECRET", "UP 4888, nice 4-8-4 steam engine")
         .with_env("SIPI_USE_LOCAL_DEV", "false")
-        .with_volume_mapping(_sipi_path / "images", "/opt/images", "rw")
-        .with_volume_mapping(_sipi_path / "tmp-dsp-ingest", "/opt/temp", "rw")
+        .with_volume_mapping(SIPI_PATH_IMAGES, "/opt/images", "rw")
+        .with_volume_mapping(SIPI_PATH / "tmp-dsp-ingest", "/opt/temp", "rw")
     )
 
 

@@ -8,7 +8,7 @@ import requests
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.project.create.project_create import create_project
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
-from test.tools_testcontainers import get_containers
+from test.e2e.tools_testcontainers import get_containers
 
 PROJECT_SHORTCODE = "4124"
 
@@ -31,7 +31,7 @@ def token(creds: ServerCredentials, project_status: bool) -> str:  # noqa: ARG00
     return token
 
 
-def testproject(creds: ServerCredentials, token: str, project_status: bool) -> None:
+def test_project(creds: ServerCredentials, token: str, project_status: bool) -> None:
     assert project_status
     get_project_url = f"{creds.server}/admin/projects/shortcode/{PROJECT_SHORTCODE}"
     onto_iri = f"{creds.server}/ontology/{PROJECT_SHORTCODE}/testonto/v2"

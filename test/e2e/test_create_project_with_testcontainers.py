@@ -19,20 +19,20 @@ def creds() -> ServerCredentials:
 
 
 @pytest.fixture(autouse=True)
-def project(creds: ServerCredentials) -> Iterator[bool]:
+def project_status(creds: ServerCredentials) -> Iterator[bool]:
     with get_containers():
         yield create_project(Path("testdata/json-project/test-project-e2e.json"), creds, verbose=True)
 
 
 @pytest.fixture()
-def token(creds: ServerCredentials, project: bool) -> str:  # noqa: ARG001
+def token(creds: ServerCredentials, project_status: bool) -> str:  # noqa: ARG001
     payload = {"email": creds.user, "password": creds.password}
     token: str = requests.post(f"{creds.server}/v2/authentication", json=payload, timeout=3).json()["token"]
     return token
 
 
-@pytest.mark.usefixtures("project")
-def testproject(creds: ServerCredentials, token: str) -> None:
+def testproject(creds: ServerCredentials, token: str, project_status: bool) -> None:
+    assert project_status
     get_project_url = f"{creds.server}/admin/projects/shortcode/{PROJECT_SHORTCODE}"
     onto_iri = f"{creds.server}/ontology/{PROJECT_SHORTCODE}/testonto/v2"
 
@@ -61,10 +61,10 @@ def testproject(creds: ServerCredentials, token: str) -> None:
     assert resources[0]["@id"] == "testonto:minimalResource"
 
 
-@pytest.mark.usefixtures("project")
-def test_xmlupload(creds: ServerCredentials, token: str) -> None:
-    success = xmlupload(Path("testdata/xml-data/test-data-e2e.xml"), creds, ".")
-    assert success
+def test_xmlupload(creds: ServerCredentials, token: str, project_status: bool) -> None:
+    assert project_status
+    xmlupload_status = xmlupload(Path("testdata/xml-data/test-data-e2e.xml"), creds, ".")
+    assert xmlupload_status
 
     resclass_iri = "http://0.0.0.0:3333/ontology/4124/testonto/v2#minimalResource"
     resclass_iri_encoded = urllib.parse.quote_plus(resclass_iri)

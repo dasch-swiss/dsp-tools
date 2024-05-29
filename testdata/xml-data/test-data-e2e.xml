@@ -16,6 +16,10 @@
               restype=":minimalResource"
               id="resource_2">
         <bitstream>testdata/bitstreams/test.jpg</bitstream>
+        <text-prop name=":hasText">
+            <text encoding="utf8">first text value</text>
+            <text encoding="utf8">second text value</text>
+        </text-prop>
     </resource>
 
 </knora>

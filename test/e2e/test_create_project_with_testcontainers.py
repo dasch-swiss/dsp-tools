@@ -59,6 +59,15 @@ def testproject(creds: ServerCredentials, token: str, project_status: bool) -> N
     assert resources[0]["@id"] == "testonto:minimalResource"
     assert resources[0]["rdfs:label"] == "Minimal Resource"
     assert resources[0]["@id"] == "testonto:minimalResource"
+    assert any(
+        card.get("owl:cardinality") == 1
+        and card.get("owl:onProperty", {}).get("@id") == "knora-api:hasStillImageFileValue"
+        for card in resources[0]["rdfs:subClassOf"]
+    )
+    assert any(
+        card.get("owl:minCardinality") == 0 and card.get("owl:onProperty", {}).get("@id") == "testonto:hasText"
+        for card in resources[0]["rdfs:subClassOf"]
+    )
 
 
 def test_xmlupload(creds: ServerCredentials, token: str, project_status: bool) -> None:
@@ -68,11 +77,18 @@ def test_xmlupload(creds: ServerCredentials, token: str, project_status: bool) -
 
     resclass_iri = "http://0.0.0.0:3333/ontology/4124/testonto/v2#minimalResource"
     resclass_iri_encoded = urllib.parse.quote_plus(resclass_iri)
-
     get_project_route = f"{creds.server}/admin/projects/shortcode/{PROJECT_SHORTCODE}"
     project_iri = requests.get(get_project_route, timeout=3).json()["project"]["id"]
     get_resources_route = f"{creds.server}/v2/resources?resourceClass={resclass_iri_encoded}&page=0"
     headers = {"X-Knora-Accept-Project": project_iri, "Authorization": f"Bearer {token}"}
-    response = requests.get(get_resources_route, timeout=3, headers=headers).json()
-    res_iris = [x["@id"] for x in response["@graph"]]
-    assert len(res_iris) == 2
+    resources = requests.get(get_resources_route, timeout=3, headers=headers).json()["@graph"]
+    res_labels = sorted([res["rdfs:label"] for res in resources])
+    assert res_labels == ["Resource 1", "Resource 2"]
+    res_1 = next(res for res in resources if res["rdfs:label"] == "Resource 1")
+    assert res_1.get("knora-api:hasStillImageFileValue")
+    res_2 = next(res for res in resources if res["rdfs:label"] == "Resource 2")
+    assert res_2.get("knora-api:hasStillImageFileValue")
+    assert sorted([x["knora-api:valueAsString"] for x in res_2["testonto:hasText"]]) == [
+        "first text value",
+        "second text value",
+    ]

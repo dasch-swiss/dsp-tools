@@ -13,57 +13,49 @@ from test.e2e.tools_testcontainers import get_containers
 
 PROJECT_SHORTCODE = "4124"
 ONTO_NAME = "testonto"
-
-
-@pytest.fixture()
-def creds() -> ServerCredentials:
-    return ServerCredentials("root@example.com", "test", "http://0.0.0.0:3333")
+CREDS = ServerCredentials("root@example.com", "test", "http://0.0.0.0:3333")
+ONTO_IRI = f"{CREDS.server}/ontology/{PROJECT_SHORTCODE}/{ONTO_NAME}/v2"
 
 
 @pytest.fixture(autouse=True)
-def project_created(creds: ServerCredentials) -> Iterator[bool]:
+def project_created() -> Iterator[bool]:
     with get_containers():
-        yield create_project(Path("testdata/json-project/test-project-e2e.json"), creds, verbose=True)
+        yield create_project(Path("testdata/json-project/test-project-e2e.json"), CREDS, verbose=True)
 
 
 @pytest.fixture()
-def auth_header(creds: ServerCredentials, project_created: bool) -> dict[str, str]:  # noqa: ARG001
-    payload = {"email": creds.user, "password": creds.password}
-    token: str = requests.post(f"{creds.server}/v2/authentication", json=payload, timeout=3).json()["token"]
+def auth_header(project_created: bool) -> dict[str, str]:  # noqa: ARG001
+    payload = {"email": CREDS.user, "password": CREDS.password}
+    token: str = requests.post(f"{CREDS.server}/v2/authentication", json=payload, timeout=3).json()["token"]
     return {"Authorization": f"Bearer {token}"}
 
 
 @pytest.fixture()
-def project_iri(creds: ServerCredentials, project_created: bool) -> str:  # noqa: ARG001
-    get_project_route = f"{creds.server}/admin/projects/shortcode/{PROJECT_SHORTCODE}"
+def project_iri(project_created: bool) -> str:  # noqa: ARG001
+    get_project_route = f"{CREDS.server}/admin/projects/shortcode/{PROJECT_SHORTCODE}"
     project_iri: str = requests.get(get_project_route, timeout=3).json()["project"]["id"]
     return project_iri
 
 
-@pytest.fixture()
-def onto_iri(creds: ServerCredentials) -> str:
-    return f"{creds.server}/ontology/{PROJECT_SHORTCODE}/{ONTO_NAME}/v2"
-
-
-def test_project(creds: ServerCredentials, auth_header: dict[str, str], project_created: bool, onto_iri: str) -> None:
+def test_project(auth_header: dict[str, str], project_created: bool) -> None:
     assert project_created
 
-    get_project_url = f"{creds.server}/admin/projects/shortcode/{PROJECT_SHORTCODE}"
+    get_project_url = f"{CREDS.server}/admin/projects/shortcode/{PROJECT_SHORTCODE}"
     project = requests.get(get_project_url, headers=auth_header, timeout=3).json()["project"]
-    _check_project(project, onto_iri)
+    _check_project(project)
 
-    onto = requests.get(onto_iri, headers=auth_header, timeout=3).json()["@graph"]
+    onto = requests.get(ONTO_IRI, headers=auth_header, timeout=3).json()["@graph"]
     _check_props([elem for elem in onto if elem.get("knora-api:isResourceProperty")])
     _check_resources([elem for elem in onto if elem.get("knora-api:isResourceClass")])
 
 
-def _check_project(project: dict[str, Any], onto_iri: str) -> None:
+def _check_project(project: dict[str, Any]) -> None:
     assert project["shortname"] == "minimal-tp"
     assert project["shortcode"] == PROJECT_SHORTCODE
     assert project["longname"] == "minimal test project"
     assert project["description"] == [{"value": "A minimal test project", "language": "en"}]
     assert project["keywords"] == ["minimal"]
-    assert project["ontologies"] == [onto_iri]
+    assert project["ontologies"] == [ONTO_IRI]
 
 
 def _check_props(props: list[dict[str, Any]]) -> None:
@@ -91,24 +83,20 @@ def _check_resources(resources: list[dict[str, Any]]) -> None:
     )
 
 
-def test_xmlupload(
-    creds: ServerCredentials, auth_header: dict[str, str], project_created: bool, project_iri: str, onto_iri: str
-) -> None:
+def test_xmlupload(auth_header: dict[str, str], project_created: bool, project_iri: str) -> None:
     assert project_created
-    xmlupload_status = xmlupload(Path("testdata/xml-data/test-data-e2e.xml"), creds, ".")
+    xmlupload_status = xmlupload(Path("testdata/xml-data/test-data-e2e.xml"), CREDS, ".")
     assert xmlupload_status
 
-    img_resources = _get_resources(f"{onto_iri}#ImageResource", creds, auth_header, project_iri)
+    img_resources = _get_resources(f"{ONTO_IRI}#ImageResource", auth_header, project_iri)
     _analyze_img_resources(img_resources)
-    pdf_resources = _get_resources(f"{onto_iri}#PDFResource", creds, auth_header, project_iri)
+    pdf_resources = _get_resources(f"{ONTO_IRI}#PDFResource", auth_header, project_iri)
     _analyze_pdf_resources(pdf_resources)
 
 
-def _get_resources(
-    resclass_iri: str, creds: ServerCredentials, auth_header: dict[str, str], project_iri: str
-) -> list[dict[str, Any]]:
+def _get_resources(resclass_iri: str, auth_header: dict[str, str], project_iri: str) -> list[dict[str, Any]]:
     resclass_iri_encoded = urllib.parse.quote_plus(resclass_iri)
-    get_resources_route = f"{creds.server}/v2/resources?resourceClass={resclass_iri_encoded}&page=0"
+    get_resources_route = f"{CREDS.server}/v2/resources?resourceClass={resclass_iri_encoded}&page=0"
     headers = auth_header | {"X-Knora-Accept-Project": project_iri}
     response = requests.get(get_resources_route, timeout=3, headers=headers).json()
     resources: list[dict[str, Any]] = response.get("@graph", [response])

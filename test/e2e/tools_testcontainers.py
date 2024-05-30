@@ -9,76 +9,6 @@ from testcontainers.core.container import DockerContainer
 from testcontainers.core.network import Network
 from testcontainers.core.waiting_utils import wait_for_logs
 
-# copied and adapted from dsp-api/webapi/scripts/fuseki-repository-config.ttl.template
-REPO_CONFIG = """
-@prefix :           <http://base/#> .
-@prefix fuseki:     <http://jena.apache.org/fuseki#> .
-@prefix ja:         <http://jena.hpl.hp.com/2005/11/Assembler#> .
-@prefix tdb2:       <http://jena.apache.org/2016/tdb#> .
-@prefix rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-@prefix rdfs:       <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix text:       <http://jena.apache.org/text#> .
-@prefix knora-base: <http://www.knora.org/ontology/knora-base#> .
-
-[] rdf:type        fuseki:Server ;
-   fuseki:services :service_tdb_all ;
-   ja:loadClass    "org.apache.jena.query.text.TextQuery" .
-
-:service_tdb_all a fuseki:Service ;
-                 rdfs:label                        "TDB2 knora-test" ;
-                 fuseki:dataset                    :text_dataset ;
-                 fuseki:name                       "knora-test" ;
-                 fuseki:serviceQuery               "query" , "sparql" ;
-                 fuseki:serviceReadGraphStore      "get" ;
-                 fuseki:serviceReadWriteGraphStore "data" ;
-                 fuseki:serviceUpdate              "update" ;
-                 fuseki:serviceUpload              "upload" .
-
-:text_dataset rdf:type     text:TextDataset ;
-            text:dataset :tdb_dataset_readwrite ;
-            text:index   :indexLucene .
-
-:tdb_dataset_readwrite  a                                   tdb2:DatasetTDB2 ;
-                        tdb2:unionDefaultGraph              true ;
-                        tdb2:location                       "/fuseki/databases/knora-test" .
-
-:indexLucene a text:TextIndexLucene ;
-            text:directory "/fuseki/lucene/knora-test" ;
-            text:entityMap :entMap ;
-            text:analyzer  [ a text:ConfigurableAnalyzer ;
-                              text:tokenizer text:WhitespaceTokenizer ;
-                              text:filters ( text:ASCIIFoldingFilter text:LowerCaseFilter)
-                           ] .
-
-:entMap a                 text:EntityMap ;
-        text:entityField  "uri" ;
-        text:defaultField "text" ;
-        text:uidField     "uid" ;
-        text:map          (
-                              [ text:field  "text" ;  text:predicate  rdfs:label ]
-                              [ text:field  "text" ;  text:predicate  knora-base:valueHasString ]
-                              [ text:field  "text" ;  text:predicate  knora-base:valueHasComment ]
-                          ) .
-"""
-
-# copied and adapted from dsp-api/test_data/project_data/admin-data-minimal.ttl
-ADMIN_USER_DATA = """
-@prefix xsd:         <http://www.w3.org/2001/XMLSchema#> .
-@prefix rdf:         <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-@prefix knora-admin: <http://www.knora.org/ontology/knora-admin#> .
-
-<http://rdfh.ch/users/root> a knora-admin:User ;
-    knora-admin:username             "root"^^xsd:string ;
-    knora-admin:email                "root@example.com"^^xsd:string ;
-    knora-admin:givenName            "System"^^xsd:string ;
-    knora-admin:familyName           "Administrator"^^xsd:string ;
-    knora-admin:password             "$2a$12$7XEBehimXN1rbhmVgQsyve08.vtDmKK7VMin4AdgCEtE4DWgfQbTK"^^xsd:string ;
-    knora-admin:phone                "123456"^^xsd:string ;
-    knora-admin:preferredLanguage    "en"^^xsd:string ;
-    knora-admin:status               "true"^^xsd:boolean ;
-    knora-admin:isInSystemAdminGroup "true"^^xsd:boolean .
-"""
-
 SIPI_PATH = Path("testdata/e2e").absolute()
 SIPI_PATH_IMAGES = SIPI_PATH / "images"
 SIPI_PATH_TMP_SIPI = SIPI_PATH / "tmp-dsp-sipi"
@@ -154,19 +84,22 @@ def _get_fuseki_container(network: Network) -> DockerContainer:
 
 
 def _create_data_set_and_admin_user() -> None:
+    repo_config = Path("testdata/e2e/repo_config.ttl").read_text(encoding="utf-8")
     if not requests.post(
         "http://0.0.0.0:3030/$/datasets",
-        files={"file": ("file.ttl", REPO_CONFIG, "text/turtle; charset=utf8")},
+        files={"file": ("file.ttl", repo_config, "text/turtle; charset=utf8")},
         auth=("admin", "test"),
         timeout=30,
     ).ok:
         raise RuntimeError("Fuseki did not create the dataset")
     print("Dataset created")
+
+    admin_user_data = Path("testdata/e2e/admin_user_data.ttl").read_text(encoding="utf-8")
     graph_prefix = "http://0.0.0.0:3030/knora-test/data?graph="
     admin_graph = "http://www.knora.org/data/admin"
     if not requests.post(
         graph_prefix + admin_graph,
-        files={"file": ("file.ttl", ADMIN_USER_DATA, "text/turtle; charset: utf-8")},
+        files={"file": ("file.ttl", admin_user_data, "text/turtle; charset: utf-8")},
         auth=("admin", "test"),
         timeout=30,
     ).ok:

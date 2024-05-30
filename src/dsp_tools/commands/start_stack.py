@@ -13,6 +13,8 @@ from loguru import logger
 
 from dsp_tools.models.exceptions import UserError
 
+MAX_FILE_SIZE = 100_000
+
 
 @dataclass(frozen=True)
 class StackConfiguration:
@@ -39,8 +41,8 @@ class StackConfiguration:
         Raises:
             UserError: if one of the parameters is invalid
         """
-        if self.max_file_size is not None and not 1 <= self.max_file_size <= 100_000:
-            raise UserError("max_file_size must be between 1 and 100000")
+        if self.max_file_size is not None and not 1 <= self.max_file_size <= MAX_FILE_SIZE:
+            raise UserError(f"max_file_size must be between 1 and {MAX_FILE_SIZE}")
         if self.enforce_docker_system_prune and self.suppress_docker_system_prune:
             raise UserError('The arguments "--prune" and "--no-prune" are mutually exclusive')
 

@@ -55,16 +55,17 @@ def _get_all_containers(network: Network) -> Containers:
     return containers
 
 
+def _get_image_version(docker_compose_content: str, component: str) -> str:
+    match = regex.search(rf"image: daschswiss/{component}:(v\d+\.\d+\.\d+)", docker_compose_content)
+    return match.group(1) if match else "latest"
+
+
 def _get_image_versions() -> ImageVersions:
     docker_compose_content = Path("src/dsp_tools/resources/start-stack/docker-compose.yml").read_text(encoding="utf-8")
-    fuseki_match = regex.search(r"image: daschswiss/apache-jena-fuseki:(v\d+\.\d+\.\d+)", docker_compose_content)
-    fuseki = fuseki_match.group(1) if fuseki_match else "latest"
-    sipi_match = regex.search(r"image: daschswiss/knora-sipi:(v\d+\.\d+\.\d+)", docker_compose_content)
-    sipi = sipi_match.group(1) if sipi_match else "latest"
-    ingest_match = regex.search(r"image: daschswiss/dsp-ingest:(v\d+\.\d+\.\d+)", docker_compose_content)
-    ingest = ingest_match.group(1) if ingest_match else "latest"
-    api_match = regex.search(r"image: daschswiss/knora-api:(v\d+\.\d+\.\d+)", docker_compose_content)
-    api = api_match.group(1) if api_match else "latest"
+    fuseki = _get_image_version(docker_compose_content, "apache-jena-fuseki")
+    sipi = _get_image_version(docker_compose_content, "knora-sipi")
+    ingest = _get_image_version(docker_compose_content, "dsp-ingest")
+    api = _get_image_version(docker_compose_content, "knora-api")
     return ImageVersions(fuseki=fuseki, sipi=sipi, ingest=ingest, api=api)
 
 

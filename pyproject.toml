@@ -63,6 +63,8 @@ pandas-stubs = "^2.2.1.240316"
 types-networkx = "^3.2.1.20240331"
 requests-mock = "^1.12.1"
 testcontainers =  "^4.4.1"
+docker = "^7.1.0"
+types-docker = "^7.0.0.20240529"
 
 
 [tool.poetry.scripts]

@@ -1,9 +1,10 @@
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Generator
+from typing import Iterator
 
 import requests
+from docker.errors import DockerException
 from testcontainers.core.container import DockerContainer
 from testcontainers.core.network import Network
 from testcontainers.core.waiting_utils import wait_for_logs
@@ -92,8 +93,11 @@ class Containers:
 
 
 @contextmanager
-def get_containers() -> Generator[Containers, None, None]:
-    network = Network()
+def get_containers() -> Iterator[Containers]:
+    try:
+        network = Network()
+    except DockerException:
+        raise RuntimeError("Cannot create network, probably because Docker is not running properly")
     network.__enter__()
     fuseki = _get_fuseki_container(network)
     fuseki.start()

@@ -45,30 +45,6 @@ def _get_all_containers(network: Network) -> Containers:
     return containers
 
 
-def _get_sipi_container(network: Network) -> DockerContainer:
-    sipi = (
-        DockerContainer("daschswiss/knora-sipi:v30.14.0")
-        .with_name("sipi")
-        .with_network(network)
-        .with_bind_ports(1024, 1024)
-        .with_command("--config=/sipi/config/sipi.docker-config.lua")
-        .with_env("SIPI_EXTERNAL_PROTOCOL", "http")
-        .with_env("SIPI_EXTERNAL_HOSTNAME", "0.0.0.0")  # noqa: S104
-        .with_env("SIPI_EXTERNAL_PORT", "1024")
-        .with_env("SIPI_WEBAPI_HOSTNAME", "api")
-        .with_env("SIPI_WEBAPI_PORT", "3333")
-        .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_HOST", "0.0.0.0")  # noqa: S104
-        .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT", "3333")
-        .with_volume_mapping(SIPI_PATH_TMP_SIPI, "/tmp", "rw")  # noqa: S108
-        .with_volume_mapping(SIPI_PATH, "/sipi/config", "rw")
-        .with_volume_mapping(SIPI_PATH_IMAGES, "/sipi/images", "rw")
-    )
-    sipi.start()
-    wait_for_logs(sipi, "Sipi: Server listening on HTTP port 1024")
-    print("Sipi is ready")
-    return sipi
-
-
 def _get_fuseki_container(network: Network) -> DockerContainer:
     fuseki = (
         DockerContainer("daschswiss/apache-jena-fuseki:5.0.0-3")
@@ -108,30 +84,28 @@ def _create_data_set_and_admin_user() -> None:
     print("Admin user created")
 
 
-def _get_api_container(network: Network) -> DockerContainer:
-    api = (
-        DockerContainer("daschswiss/knora-api:v30.14.0")
-        .with_name("api")
+def _get_sipi_container(network: Network) -> DockerContainer:
+    sipi = (
+        DockerContainer("daschswiss/knora-sipi:v30.14.0")
+        .with_name("sipi")
         .with_network(network)
-        .with_env("KNORA_WEBAPI_DSP_INGEST_BASE_URL", "http://ingest:3340")
-        .with_env("KNORA_WEBAPI_TRIPLESTORE_HOST", "db")
-        .with_env("KNORA_WEBAPI_TRIPLESTORE_DBTYPE", "fuseki")
-        .with_env("KNORA_WEBAPI_SIPI_INTERNAL_HOST", "sipi")
-        .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_REPOSITORY_NAME", "knora-test")
-        .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_USERNAME", "admin")
-        .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_PASSWORD", "test")
-        .with_env("KNORA_WEBAPI_CACHE_SERVICE_ENABLED", "true")
-        .with_env("KNORA_WEBAPI_ALLOW_RELOAD_OVER_HTTP", "true")
+        .with_bind_ports(1024, 1024)
+        .with_command("--config=/sipi/config/sipi.docker-config.lua")
+        .with_env("SIPI_EXTERNAL_PROTOCOL", "http")
+        .with_env("SIPI_EXTERNAL_HOSTNAME", "0.0.0.0")  # noqa: S104
+        .with_env("SIPI_EXTERNAL_PORT", "1024")
+        .with_env("SIPI_WEBAPI_HOSTNAME", "api")
+        .with_env("SIPI_WEBAPI_PORT", "3333")
         .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_HOST", "0.0.0.0")  # noqa: S104
         .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT", "3333")
-        .with_env("DSP_API_LOG_LEVEL", "INFO")
-        .with_bind_ports(3333, 3333)
+        .with_volume_mapping(SIPI_PATH_TMP_SIPI, "/tmp", "rw")  # noqa: S108
+        .with_volume_mapping(SIPI_PATH, "/sipi/config", "rw")
+        .with_volume_mapping(SIPI_PATH_IMAGES, "/sipi/images", "rw")
     )
-    api.start()
-    wait_for_logs(api, "AppState set to Running")
-    wait_for_logs(api, "Starting api on")
-    print("API is ready")
-    return api
+    sipi.start()
+    wait_for_logs(sipi, "Sipi: Server listening on HTTP port 1024")
+    print("Sipi is ready")
+    return sipi
 
 
 def _get_ingest_container(network: Network) -> DockerContainer:
@@ -158,6 +132,32 @@ def _get_ingest_container(network: Network) -> DockerContainer:
     return ingest
 
 
+def _get_api_container(network: Network) -> DockerContainer:
+    api = (
+        DockerContainer("daschswiss/knora-api:v30.14.0")
+        .with_name("api")
+        .with_network(network)
+        .with_env("KNORA_WEBAPI_DSP_INGEST_BASE_URL", "http://ingest:3340")
+        .with_env("KNORA_WEBAPI_TRIPLESTORE_HOST", "db")
+        .with_env("KNORA_WEBAPI_TRIPLESTORE_DBTYPE", "fuseki")
+        .with_env("KNORA_WEBAPI_SIPI_INTERNAL_HOST", "sipi")
+        .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_REPOSITORY_NAME", "knora-test")
+        .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_USERNAME", "admin")
+        .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_PASSWORD", "test")
+        .with_env("KNORA_WEBAPI_CACHE_SERVICE_ENABLED", "true")
+        .with_env("KNORA_WEBAPI_ALLOW_RELOAD_OVER_HTTP", "true")
+        .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_HOST", "0.0.0.0")  # noqa: S104
+        .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT", "3333")
+        .with_env("DSP_API_LOG_LEVEL", "INFO")
+        .with_bind_ports(3333, 3333)
+    )
+    api.start()
+    wait_for_logs(api, "AppState set to Running")
+    wait_for_logs(api, "Starting api on")
+    print("API is ready")
+    return api
+
+
 def _print_containers_are_ready(containers: Containers) -> None:
     print("Containers are ready")
     print(f"  {containers.api._name}: {containers.api.ports}")
@@ -167,11 +167,11 @@ def _print_containers_are_ready(containers: Containers) -> None:
 
 
 def _stop_all_containers(containers: Containers) -> None:
-    print("Closing all containers")
     containers.api.stop()
     containers.ingest.stop()
     containers.sipi.stop()
     containers.fuseki.stop()
+    print("All containers have been stopped")
 
 
 def main() -> None:

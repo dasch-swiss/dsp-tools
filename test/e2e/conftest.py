@@ -3,9 +3,9 @@ from typing import Iterator
 
 import pytest
 
-from test.e2e.tools_testcontainers import SIPI_PATH_IMAGES
-from test.e2e.tools_testcontainers import SIPI_PATH_TMP_INGEST
-from test.e2e.tools_testcontainers import SIPI_PATH_TMP_SIPI
+from test.e2e.setup_testcontainers import SIPI_PATH_IMAGES
+from test.e2e.setup_testcontainers import SIPI_PATH_TMP_INGEST
+from test.e2e.setup_testcontainers import SIPI_PATH_TMP_SIPI
 
 
 @pytest.fixture(scope="package", autouse=True)

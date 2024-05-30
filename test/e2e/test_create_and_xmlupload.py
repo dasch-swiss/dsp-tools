@@ -15,6 +15,7 @@ PROJECT_SHORTCODE = "4124"
 ONTO_NAME = "testonto"
 CREDS = ServerCredentials("root@example.com", "test", "http://0.0.0.0:3333")
 ONTO_IRI = f"{CREDS.server}/ontology/{PROJECT_SHORTCODE}/{ONTO_NAME}/v2"
+PROPS_IN_ONTO_JSON = 1
 RESCLASSES_IN_ONTO_JSON = 2
 
 
@@ -60,7 +61,7 @@ def _check_project(project: dict[str, Any]) -> None:
 
 
 def _check_props(props: list[dict[str, Any]]) -> None:
-    assert len(props) == 1
+    assert len(props) == PROPS_IN_ONTO_JSON
     assert props[0]["@id"] == f"{ONTO_NAME}:hasText"
     assert props[0]["rdfs:subPropertyOf"] == {"@id": "knora-api:hasValue"}
     assert props[0]["knora-api:objectType"] == {"@id": "knora-api:TextValue"}

@@ -20,20 +20,20 @@ def creds() -> ServerCredentials:
 
 
 @pytest.fixture(autouse=True)
-def project_status(creds: ServerCredentials) -> Iterator[bool]:
+def project_created(creds: ServerCredentials) -> Iterator[bool]:
     with get_containers():
         yield create_project(Path("testdata/json-project/test-project-e2e.json"), creds, verbose=True)
 
 
 @pytest.fixture()
-def auth_header(creds: ServerCredentials, project_status: bool) -> dict[str, str]:  # noqa: ARG001
+def auth_header(creds: ServerCredentials, project_created: bool) -> dict[str, str]:  # noqa: ARG001
     payload = {"email": creds.user, "password": creds.password}
     token: str = requests.post(f"{creds.server}/v2/authentication", json=payload, timeout=3).json()["token"]
     return {"Authorization": f"Bearer {token}"}
 
 
 @pytest.fixture()
-def project_iri(creds: ServerCredentials, project_status: bool) -> str:  # noqa: ARG001
+def project_iri(creds: ServerCredentials, project_created: bool) -> str:  # noqa: ARG001
     get_project_route = f"{creds.server}/admin/projects/shortcode/{PROJECT_SHORTCODE}"
     project_iri: str = requests.get(get_project_route, timeout=3).json()["project"]["id"]
     return project_iri
@@ -44,8 +44,8 @@ def onto_iri(creds: ServerCredentials) -> str:
     return f"{creds.server}/ontology/{PROJECT_SHORTCODE}/testonto/v2"
 
 
-def test_project(creds: ServerCredentials, auth_header: dict[str, str], project_status: bool, onto_iri: str) -> None:
-    assert project_status
+def test_project(creds: ServerCredentials, auth_header: dict[str, str], project_created: bool, onto_iri: str) -> None:
+    assert project_created
 
     get_project_url = f"{creds.server}/admin/projects/shortcode/{PROJECT_SHORTCODE}"
     project = requests.get(get_project_url, headers=auth_header, timeout=3).json()["project"]
@@ -91,9 +91,9 @@ def _check_resources(resources: list[dict[str, Any]]) -> None:
 
 
 def test_xmlupload(
-    creds: ServerCredentials, auth_header: dict[str, str], project_status: bool, project_iri: str, onto_iri: str
+    creds: ServerCredentials, auth_header: dict[str, str], project_created: bool, project_iri: str, onto_iri: str
 ) -> None:
-    assert project_status
+    assert project_created
     xmlupload_status = xmlupload(Path("testdata/xml-data/test-data-e2e.xml"), creds, ".")
     assert xmlupload_status
 

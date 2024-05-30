@@ -1,5 +1,6 @@
 import urllib.parse
 from pathlib import Path
+from typing import Any
 from typing import Iterator
 
 import pytest
@@ -76,20 +77,37 @@ def test_xmlupload(creds: ServerCredentials, token: str, project_status: bool) -
     xmlupload_status = xmlupload(Path("testdata/xml-data/test-data-e2e.xml"), creds, ".")
     assert xmlupload_status
 
-    resclass_iri = "http://0.0.0.0:3333/ontology/4124/testonto/v2#ImageResource"
+    img_resources = _get_resources("http://0.0.0.0:3333/ontology/4124/testonto/v2#ImageResource", creds, token)
+    _analyze_img_resources(img_resources)
+    pdf_resources = _get_resources("http://0.0.0.0:3333/ontology/4124/testonto/v2#PDFResource", creds, token)
+    _analyze_pdf_resources(pdf_resources)
+
+
+def _get_resources(resclass_iri: str, creds: ServerCredentials, token: str) -> list[dict[str, Any]]:
     resclass_iri_encoded = urllib.parse.quote_plus(resclass_iri)
     get_project_route = f"{creds.server}/admin/projects/shortcode/{PROJECT_SHORTCODE}"
     project_iri = requests.get(get_project_route, timeout=3).json()["project"]["id"]
     get_resources_route = f"{creds.server}/v2/resources?resourceClass={resclass_iri_encoded}&page=0"
     headers = {"X-Knora-Accept-Project": project_iri, "Authorization": f"Bearer {token}"}
-    resources = requests.get(get_resources_route, timeout=3, headers=headers).json()["@graph"]
-    res_labels = sorted([res["rdfs:label"] for res in resources])
+    resources: list[dict[str, Any]] = requests.get(get_resources_route, timeout=3, headers=headers).json()["@graph"]
+    return resources
+
+
+def _analyze_img_resources(img_resources: list[dict[str, Any]]) -> None:
+    res_labels = sorted([res["rdfs:label"] for res in img_resources])
     assert res_labels == ["Resource 1", "Resource 2"]
-    res_1 = next(res for res in resources if res["rdfs:label"] == "Resource 1")
+    res_1 = next(res for res in img_resources if res["rdfs:label"] == "Resource 1")
     assert res_1.get("knora-api:hasStillImageFileValue")
-    res_2 = next(res for res in resources if res["rdfs:label"] == "Resource 2")
+    res_2 = next(res for res in img_resources if res["rdfs:label"] == "Resource 2")
     assert res_2.get("knora-api:hasStillImageFileValue")
     assert sorted([x["knora-api:valueAsString"] for x in res_2["testonto:hasText"]]) == [
         "first text value",
         "second text value",
     ]
+
+
+def _analyze_pdf_resources(pdf_resources: list[dict[str, Any]]) -> None:
+    res_labels = sorted([res["rdfs:label"] for res in pdf_resources])
+    assert res_labels == ["Resource 3"]
+    res_1 = next(res for res in pdf_resources if res["rdfs:label"] == "Resource 3")
+    assert res_1.get("knora-api:hasDocumentFileValue")

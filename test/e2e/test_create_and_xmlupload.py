@@ -15,6 +15,7 @@ PROJECT_SHORTCODE = "4124"
 ONTO_NAME = "testonto"
 CREDS = ServerCredentials("root@example.com", "test", "http://0.0.0.0:3333")
 ONTO_IRI = f"{CREDS.server}/ontology/{PROJECT_SHORTCODE}/{ONTO_NAME}/v2"
+RESCLASSES_IN_ONTO_JSON = 2
 
 
 @pytest.fixture(autouse=True)
@@ -46,7 +47,7 @@ def test_project(auth_header: dict[str, str], project_created: bool) -> None:
 
     onto = requests.get(ONTO_IRI, headers=auth_header, timeout=3).json()["@graph"]
     _check_props([elem for elem in onto if elem.get("knora-api:isResourceProperty")])
-    _check_resources([elem for elem in onto if elem.get("knora-api:isResourceClass")])
+    _check_resclasses([elem for elem in onto if elem.get("knora-api:isResourceClass")])
 
 
 def _check_project(project: dict[str, Any]) -> None:
@@ -66,21 +67,21 @@ def _check_props(props: list[dict[str, Any]]) -> None:
     assert props[0]["rdfs:label"] == "Text"
 
 
-def _check_resources(resources: list[dict[str, Any]]) -> None:
-    assert len(resources) == 2
-    assert resources[0]["@id"] == f"{ONTO_NAME}:ImageResource"
-    assert resources[0]["rdfs:label"] == "Image Resource"
-    assert resources[1]["@id"] == f"{ONTO_NAME}:PDFResource"
-    assert resources[1]["rdfs:label"] == "PDF Resource"
-    assert any(
-        card.get("owl:cardinality") == 1
-        and card.get("owl:onProperty", {}).get("@id") == "knora-api:hasStillImageFileValue"
-        for card in resources[0]["rdfs:subClassOf"]
-    )
-    assert any(
-        card.get("owl:minCardinality") == 0 and card.get("owl:onProperty", {}).get("@id") == f"{ONTO_NAME}:hasText"
-        for card in resources[0]["rdfs:subClassOf"]
-    )
+def _check_resclasses(resclasses: list[dict[str, Any]]) -> None:
+    assert len(resclasses) == RESCLASSES_IN_ONTO_JSON
+    res_1, res_2 = resclasses
+
+    assert res_1["@id"] == f"{ONTO_NAME}:ImageResource"
+    assert res_1["rdfs:label"] == "Image Resource"
+    cards_1 = res_1["rdfs:subClassOf"]
+    fileval_card = [x for x in cards_1 if x.get("owl:onProperty", {}).get("@id") == "knora-api:hasStillImageFileValue"]
+    assert len(fileval_card) == 1
+    assert fileval_card[0].get("owl:cardinality") == 1
+    hasText_card = [x for x in cards_1 if x.get("owl:onProperty", {}).get("@id") == f"{ONTO_NAME}:hasText"]
+    assert len(hasText_card) == 1
+
+    assert res_2["@id"] == f"{ONTO_NAME}:PDFResource"
+    assert res_2["rdfs:label"] == "PDF Resource"
 
 
 def test_xmlupload(auth_header: dict[str, str], project_created: bool, project_iri: str) -> None:

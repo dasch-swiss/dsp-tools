@@ -79,8 +79,10 @@ ADMIN_USER_DATA = """
     knora-admin:isInSystemAdminGroup "true"^^xsd:boolean .
 """
 
-SIPI_PATH = Path("testdata/e2e/sipi").absolute()
+SIPI_PATH = Path("testdata/e2e").absolute()
 SIPI_PATH_IMAGES = SIPI_PATH / "images"
+SIPI_PATH_TMP_SIPI = SIPI_PATH / "tmp-dsp-sipi"
+SIPI_PATH_TMP_INGEST = SIPI_PATH / "tmp-dsp-ingest"
 
 
 @dataclass
@@ -126,8 +128,8 @@ def _get_sipi_container(network: Network) -> DockerContainer:
         .with_env("SIPI_WEBAPI_PORT", "3333")
         .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_HOST", "0.0.0.0")  # noqa: S104
         .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT", "3333")
-        .with_volume_mapping(SIPI_PATH / "tmp", "/tmp", "rw")  # noqa: S108
-        .with_volume_mapping(SIPI_PATH / "config", "/sipi/config", "rw")
+        .with_volume_mapping(SIPI_PATH_TMP_SIPI, "/tmp", "rw")  # noqa: S108
+        .with_volume_mapping(SIPI_PATH, "/sipi/config", "rw")
         .with_volume_mapping(SIPI_PATH_IMAGES, "/sipi/images", "rw")
     )
     sipi.start()
@@ -214,7 +216,7 @@ def _get_ingest_container(network: Network) -> DockerContainer:
         .with_env("JWT_SECRET", "UP 4888, nice 4-8-4 steam engine")
         .with_env("SIPI_USE_LOCAL_DEV", "false")
         .with_volume_mapping(SIPI_PATH_IMAGES, "/opt/images", "rw")
-        .with_volume_mapping(SIPI_PATH / "tmp-dsp-ingest", "/opt/temp", "rw")
+        .with_volume_mapping(SIPI_PATH_TMP_INGEST, "/opt/temp", "rw")
     )
     ingest.start()
     wait_for_logs(ingest, "Started dsp-ingest")

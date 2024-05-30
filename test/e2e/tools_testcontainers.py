@@ -1,10 +1,10 @@
+import subprocess
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterator
 
 import requests
-from docker.errors import DockerException
 from testcontainers.core.container import DockerContainer
 from testcontainers.core.network import Network
 from testcontainers.core.waiting_utils import wait_for_logs
@@ -25,13 +25,14 @@ class Containers:
 
 @contextmanager
 def get_containers() -> Iterator[Containers]:
-    try:
-        with Network() as network:
-            containers = _get_all_containers(network)
+    if subprocess.run("docker stats --no-stream".split(), check=False).returncode != 0:
+        raise RuntimeError("Docker is not running properly")
+    with Network() as network:
+        containers = _get_all_containers(network)
+        try:
             yield containers
+        finally:
             _stop_all_containers(containers)
-    except DockerException as e:
-        raise RuntimeError("Cannot create network, probably because Docker is not running properly") from e
 
 
 def _get_all_containers(network: Network) -> Containers:

@@ -90,7 +90,7 @@ def _get_resources(resclass_iri: str, creds: ServerCredentials, token: str) -> l
     get_resources_route = f"{creds.server}/v2/resources?resourceClass={resclass_iri_encoded}&page=0"
     headers = {"X-Knora-Accept-Project": project_iri, "Authorization": f"Bearer {token}"}
     response = requests.get(get_resources_route, timeout=3, headers=headers).json()
-    resources: list[dict[str, Any]] = response.get("@graph", response)
+    resources: list[dict[str, Any]] = response.get("@graph", [response])
     return resources
 
 

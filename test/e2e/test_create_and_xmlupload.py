@@ -46,10 +46,17 @@ def onto_iri(creds: ServerCredentials) -> str:
 
 def test_project(creds: ServerCredentials, auth_header: dict[str, str], project_status: bool, onto_iri: str) -> None:
     assert project_status
-    get_project_url = f"{creds.server}/admin/projects/shortcode/{PROJECT_SHORTCODE}"
 
-    get_project_response = requests.get(get_project_url, headers=auth_header, timeout=3)
-    project = get_project_response.json()["project"]
+    get_project_url = f"{creds.server}/admin/projects/shortcode/{PROJECT_SHORTCODE}"
+    project = requests.get(get_project_url, headers=auth_header, timeout=3).json()["project"]
+    _check_project(project, onto_iri)
+
+    onto = requests.get(onto_iri, headers=auth_header, timeout=3).json()["@graph"]
+    _check_props([elem for elem in onto if elem.get("knora-api:isResourceProperty")])
+    _check_resources([elem for elem in onto if elem.get("knora-api:isResourceClass")])
+
+
+def _check_project(project: dict[str, Any], onto_iri: str) -> None:
     assert project["shortname"] == "minimal-tp"
     assert project["shortcode"] == PROJECT_SHORTCODE
     assert project["longname"] == "minimal test project"
@@ -57,16 +64,16 @@ def test_project(creds: ServerCredentials, auth_header: dict[str, str], project_
     assert project["keywords"] == ["minimal"]
     assert project["ontologies"] == [onto_iri]
 
-    get_onto_response = requests.get(onto_iri, headers=auth_header, timeout=3)
-    onto = get_onto_response.json()["@graph"]
-    props = [elem for elem in onto if elem.get("knora-api:isResourceProperty")]
+
+def _check_props(props: list[dict[str, Any]]) -> None:
     assert len(props) == 1
     assert props[0]["@id"] == "testonto:hasText"
     assert props[0]["rdfs:subPropertyOf"] == {"@id": "knora-api:hasValue"}
     assert props[0]["knora-api:objectType"] == {"@id": "knora-api:TextValue"}
     assert props[0]["rdfs:label"] == "Text"
 
-    resources = [elem for elem in onto if elem.get("knora-api:isResourceClass")]
+
+def _check_resources(resources: list[dict[str, Any]]) -> None:
     assert len(resources) == 2
     assert resources[0]["@id"] == "testonto:ImageResource"
     assert resources[0]["rdfs:label"] == "Image Resource"

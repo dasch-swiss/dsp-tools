@@ -12,6 +12,7 @@ from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from test.e2e.tools_testcontainers import get_containers
 
 PROJECT_SHORTCODE = "4124"
+ONTO_NAME = "testonto"
 
 
 @pytest.fixture()
@@ -41,7 +42,7 @@ def project_iri(creds: ServerCredentials, project_created: bool) -> str:  # noqa
 
 @pytest.fixture()
 def onto_iri(creds: ServerCredentials) -> str:
-    return f"{creds.server}/ontology/{PROJECT_SHORTCODE}/testonto/v2"
+    return f"{creds.server}/ontology/{PROJECT_SHORTCODE}/{ONTO_NAME}/v2"
 
 
 def test_project(creds: ServerCredentials, auth_header: dict[str, str], project_created: bool, onto_iri: str) -> None:
@@ -67,7 +68,7 @@ def _check_project(project: dict[str, Any], onto_iri: str) -> None:
 
 def _check_props(props: list[dict[str, Any]]) -> None:
     assert len(props) == 1
-    assert props[0]["@id"] == "testonto:hasText"
+    assert props[0]["@id"] == f"{ONTO_NAME}:hasText"
     assert props[0]["rdfs:subPropertyOf"] == {"@id": "knora-api:hasValue"}
     assert props[0]["knora-api:objectType"] == {"@id": "knora-api:TextValue"}
     assert props[0]["rdfs:label"] == "Text"
@@ -75,9 +76,9 @@ def _check_props(props: list[dict[str, Any]]) -> None:
 
 def _check_resources(resources: list[dict[str, Any]]) -> None:
     assert len(resources) == 2
-    assert resources[0]["@id"] == "testonto:ImageResource"
+    assert resources[0]["@id"] == f"{ONTO_NAME}:ImageResource"
     assert resources[0]["rdfs:label"] == "Image Resource"
-    assert resources[1]["@id"] == "testonto:PDFResource"
+    assert resources[1]["@id"] == f"{ONTO_NAME}:PDFResource"
     assert resources[1]["rdfs:label"] == "PDF Resource"
     assert any(
         card.get("owl:cardinality") == 1
@@ -85,7 +86,7 @@ def _check_resources(resources: list[dict[str, Any]]) -> None:
         for card in resources[0]["rdfs:subClassOf"]
     )
     assert any(
-        card.get("owl:minCardinality") == 0 and card.get("owl:onProperty", {}).get("@id") == "testonto:hasText"
+        card.get("owl:minCardinality") == 0 and card.get("owl:onProperty", {}).get("@id") == f"{ONTO_NAME}:hasText"
         for card in resources[0]["rdfs:subClassOf"]
     )
 
@@ -123,7 +124,7 @@ def _analyze_img_resources(img_resources: list[dict[str, Any]]) -> None:
 
     res_2 = next(res for res in img_resources if res["rdfs:label"] == "Resource 2")
     assert res_2.get("knora-api:hasStillImageFileValue")
-    res_2_text_vals = sorted([x["knora-api:valueAsString"] for x in res_2["testonto:hasText"]])
+    res_2_text_vals = sorted([x["knora-api:valueAsString"] for x in res_2[f"{ONTO_NAME}:hasText"]])
     assert res_2_text_vals == ["first text value", "second text value"]
 
 

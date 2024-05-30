@@ -339,7 +339,7 @@ class StackHandler:
         After startup, ask user if Docker should be pruned or not.
 
         Raises:
-            UserError if the stack cannot be started with the parameters passed by the user
+            UserError: if the stack cannot be started with the parameters passed by the user
 
         Returns:
             True if everything went well, False otherwise

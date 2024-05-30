@@ -495,7 +495,7 @@ def excel2xml(
         default_ontology: name of the ontology that this data belongs to
 
     Raises:
-        BaseError if something went wrong
+        BaseError: if something went wrong
 
     Returns:
         True, empty list if everything went well,

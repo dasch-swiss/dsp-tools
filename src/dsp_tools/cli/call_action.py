@@ -36,8 +36,8 @@ def call_requested_action(args: argparse.Namespace) -> bool:
         args: parsed CLI arguments
 
     Raises:
-        BaseError from the called methods
-        UserError from the called methods
+        BaseError: from the called methods
+        UserError: from the called methods
         unexpected errors from the called methods and underlying libraries
 
     Returns:

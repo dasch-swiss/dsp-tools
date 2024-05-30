@@ -10,7 +10,7 @@ from testcontainers.core.network import Network
 from testcontainers.core.waiting_utils import wait_for_logs
 
 # copied and adapted from dsp-api/webapi/scripts/fuseki-repository-config.ttl.template
-_repo_config: str = """
+REPO_CONFIG = """
 @prefix :           <http://base/#> .
 @prefix fuseki:     <http://jena.apache.org/fuseki#> .
 @prefix ja:         <http://jena.hpl.hp.com/2005/11/Assembler#> .
@@ -62,7 +62,7 @@ _repo_config: str = """
 """
 
 # copied and adapted from dsp-api/test_data/project_data/admin-data-minimal.ttl
-_admin_user_data: str = """
+ADMIN_USER_DATA = """
 @prefix xsd:         <http://www.w3.org/2001/XMLSchema#> .
 @prefix rdf:         <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix knora-admin: <http://www.knora.org/ontology/knora-admin#> .
@@ -79,7 +79,6 @@ _admin_user_data: str = """
     knora-admin:isInSystemAdminGroup "true"^^xsd:boolean .
 """
 
-
 SIPI_PATH = Path("testdata/e2e/sipi").absolute()
 SIPI_PATH_IMAGES = SIPI_PATH / "images"
 
@@ -95,61 +94,26 @@ class Containers:
 @contextmanager
 def get_containers() -> Iterator[Containers]:
     try:
-        network = Network()
-    except DockerException:
-        raise RuntimeError("Cannot create network, probably because Docker is not running properly")
-    network.__enter__()
+        with Network() as network:
+            containers = _get_all_containers(network)
+            yield containers
+            _stop_all_containers(containers)
+    except DockerException as e:
+        raise RuntimeError("Cannot create network, probably because Docker is not running properly") from e
+
+
+def _get_all_containers(network: Network) -> Containers:
     fuseki = _get_fuseki_container(network)
-    fuseki.start()
-    wait_for_logs(fuseki, r"Server .+ Started .+ on port \d+$")
-    print("Fuseki is ready")
-    if not requests.post(
-        "http://0.0.0.0:3030/$/datasets",
-        files={"file": ("file.ttl", _repo_config, "text/turtle; charset=utf8")},
-        auth=("admin", "test"),
-        timeout=30,
-    ).ok:
-        raise RuntimeError("Fuseki did not create the dataset")
-    print("Dataset created")
-    graph_prefix = "http://0.0.0.0:3030/knora-test/data?graph="
-    admin_graph = "http://www.knora.org/data/admin"
-    if not requests.post(
-        graph_prefix + admin_graph,
-        files={"file": ("file.ttl", _admin_user_data, "text/turtle; charset: utf-8")},
-        auth=("admin", "test"),
-        timeout=30,
-    ).ok:
-        raise RuntimeError("Fuseki did not create the admin user")
-    print("Admin user created")
     sipi = _get_sipi_container(network)
-    sipi.start()
     ingest = _get_ingestion_container(network)
-    ingest.start()
-    wait_for_logs(sipi, "Sipi: Server listening on HTTP port 1024")
-    print("Sipi is ready")
-    wait_for_logs(ingest, "Started dsp-ingest")
-    print("Ingest is ready")
     api = _get_api_container(network)
-    api.start()
-    wait_for_logs(api, "AppState set to Running")
-    wait_for_logs(api, "Starting api on")
-    print("API is ready")
-    print("Containers are ready")
-    print(f"  {api._name}: {api.ports}")
-    print(f"  {fuseki._name}: {fuseki.ports}")
-    print(f"  {sipi._name}: {sipi.ports}")
-    print(f"  {ingest._name}: {ingest.ports}")
-    yield Containers(sipi, fuseki, api, ingest)
-    print("Closing all containers")
-    api.stop()
-    ingest.stop()
-    sipi.stop()
-    fuseki.stop()
-    network.remove()
+    containers = Containers(sipi, fuseki, api, ingest)
+    _print_containers_are_ready(containers)
+    return containers
 
 
 def _get_sipi_container(network: Network) -> DockerContainer:
-    return (
+    sipi = (
         DockerContainer("daschswiss/knora-sipi:v30.14.0")
         .with_name("sipi")
         .with_network(network)
@@ -166,20 +130,50 @@ def _get_sipi_container(network: Network) -> DockerContainer:
         .with_volume_mapping(SIPI_PATH / "config", "/sipi/config", "rw")
         .with_volume_mapping(SIPI_PATH_IMAGES, "/sipi/images", "rw")
     )
+    sipi.start()
+    wait_for_logs(sipi, "Sipi: Server listening on HTTP port 1024")
+    print("Sipi is ready")
+    return sipi
 
 
 def _get_fuseki_container(network: Network) -> DockerContainer:
-    return (
+    fuseki = (
         DockerContainer("daschswiss/apache-jena-fuseki:5.0.0-3")
         .with_name("db")
         .with_network(network)
         .with_bind_ports(3030, 3030)
         .with_env("ADMIN_PASSWORD", "test")
     )
+    fuseki.start()
+    wait_for_logs(fuseki, r"Server .+ Started .+ on port \d+$")
+    print("Fuseki is ready")
+    _create_data_set_and_admin_user()
+    return fuseki
+
+
+def _create_data_set_and_admin_user() -> None:
+    if not requests.post(
+        "http://0.0.0.0:3030/$/datasets",
+        files={"file": ("file.ttl", REPO_CONFIG, "text/turtle; charset=utf8")},
+        auth=("admin", "test"),
+        timeout=30,
+    ).ok:
+        raise RuntimeError("Fuseki did not create the dataset")
+    print("Dataset created")
+    graph_prefix = "http://0.0.0.0:3030/knora-test/data?graph="
+    admin_graph = "http://www.knora.org/data/admin"
+    if not requests.post(
+        graph_prefix + admin_graph,
+        files={"file": ("file.ttl", ADMIN_USER_DATA, "text/turtle; charset: utf-8")},
+        auth=("admin", "test"),
+        timeout=30,
+    ).ok:
+        raise RuntimeError("Fuseki did not create the admin user")
+    print("Admin user created")
 
 
 def _get_api_container(network: Network) -> DockerContainer:
-    return (
+    api = (
         DockerContainer("daschswiss/knora-api:v30.14.0")
         .with_name("api")
         .with_network(network)
@@ -197,10 +191,15 @@ def _get_api_container(network: Network) -> DockerContainer:
         .with_env("DSP_API_LOG_LEVEL", "INFO")
         .with_bind_ports(3333, 3333)
     )
+    api.start()
+    wait_for_logs(api, "AppState set to Running")
+    wait_for_logs(api, "Starting api on")
+    print("API is ready")
+    return api
 
 
 def _get_ingestion_container(network: Network) -> DockerContainer:
-    return (
+    ingest = (
         DockerContainer("daschswiss/dsp-ingest:v0.9.1")
         .with_name("ingest")
         .with_network(network)
@@ -217,15 +216,31 @@ def _get_ingestion_container(network: Network) -> DockerContainer:
         .with_volume_mapping(SIPI_PATH_IMAGES, "/opt/images", "rw")
         .with_volume_mapping(SIPI_PATH / "tmp-dsp-ingest", "/opt/temp", "rw")
     )
+    ingest.start()
+    wait_for_logs(ingest, "Started dsp-ingest")
+    print("Ingest is ready")
+    return ingest
+
+
+def _print_containers_are_ready(containers: Containers) -> None:
+    print("Containers are ready")
+    print(f"  {containers.api._name}: {containers.api.ports}")
+    print(f"  {containers.fuseki._name}: {containers.fuseki.ports}")
+    print(f"  {containers.sipi._name}: {containers.sipi.ports}")
+    print(f"  {containers.ingest._name}: {containers.ingest.ports}")
+
+
+def _stop_all_containers(containers: Containers) -> None:
+    print("Closing all containers")
+    containers.api.stop()
+    containers.ingest.stop()
+    containers.sipi.stop()
+    containers.fuseki.stop()
 
 
 def main() -> None:
     with get_containers() as containers:
-        print("Containers are ready")
-        print(f"  {containers.api._name}: {containers.api.ports}")
-        print(f"  {containers.fuseki._name}: {containers.fuseki.ports}")
-        print(f"  {containers.sipi._name}: {containers.sipi.ports}")
-        print(f"  {containers.ingest._name}: {containers.ingest.ports}")
+        _print_containers_are_ready(containers)
 
 
 if __name__ == "__main__":

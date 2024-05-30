@@ -19,29 +19,36 @@ PROPS_IN_ONTO_JSON = 1
 RESCLASSES_IN_ONTO_JSON = 2
 
 
-@pytest.fixture(autouse=True)
-def project_created() -> Iterator[bool]:
+@pytest.fixture()
+def _create_project() -> Iterator[None]:
     with get_containers():
-        yield create_project(Path("testdata/json-project/test-project-e2e.json"), CREDS, verbose=True)
+        success = create_project(Path("testdata/json-project/test-project-e2e.json"), CREDS, verbose=True)
+        assert success
+        yield
 
 
 @pytest.fixture()
-def auth_header(project_created: bool) -> dict[str, str]:  # noqa: ARG001
+def _xmlupload(_create_project: None) -> None:
+    success = xmlupload(Path("testdata/xml-data/test-data-e2e.xml"), CREDS, ".")
+    assert success
+
+
+@pytest.fixture()
+def auth_header(_create_project: None) -> dict[str, str]:
     payload = {"email": CREDS.user, "password": CREDS.password}
     token: str = requests.post(f"{CREDS.server}/v2/authentication", json=payload, timeout=3).json()["token"]
     return {"Authorization": f"Bearer {token}"}
 
 
 @pytest.fixture()
-def project_iri(project_created: bool) -> str:  # noqa: ARG001
+def project_iri(_create_project: None) -> str:
     get_project_route = f"{CREDS.server}/admin/projects/shortcode/{PROJECT_SHORTCODE}"
     project_iri: str = requests.get(get_project_route, timeout=3).json()["project"]["id"]
     return project_iri
 
 
-def test_project(auth_header: dict[str, str], project_created: bool) -> None:
-    assert project_created
-
+@pytest.mark.usefixtures("_create_project")
+def test_project(auth_header: dict[str, str]) -> None:
     get_project_url = f"{CREDS.server}/admin/projects/shortcode/{PROJECT_SHORTCODE}"
     project = requests.get(get_project_url, headers=auth_header, timeout=3).json()["project"]
     _check_project(project)
@@ -85,11 +92,8 @@ def _check_resclasses(resclasses: list[dict[str, Any]]) -> None:
     assert res_2["rdfs:label"] == "PDF Resource"
 
 
-def test_xmlupload(auth_header: dict[str, str], project_created: bool, project_iri: str) -> None:
-    assert project_created
-    xmlupload_status = xmlupload(Path("testdata/xml-data/test-data-e2e.xml"), CREDS, ".")
-    assert xmlupload_status
-
+@pytest.mark.usefixtures("_xmlupload")
+def test_xmlupload(auth_header: dict[str, str], project_iri: str) -> None:
     img_resources = _get_resources(f"{ONTO_IRI}#ImageResource", auth_header, project_iri)
     _analyze_img_resources(img_resources)
     pdf_resources = _get_resources(f"{ONTO_IRI}#PDFResource", auth_header, project_iri)

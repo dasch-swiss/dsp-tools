@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterator
 
+import regex
 import requests
 from testcontainers.core.container import DockerContainer
 from testcontainers.core.network import Network
@@ -13,6 +14,14 @@ SIPI_PATH = Path("testdata/e2e").absolute()
 SIPI_PATH_IMAGES = SIPI_PATH / "images"
 SIPI_PATH_TMP_SIPI = SIPI_PATH / "tmp-dsp-sipi"
 SIPI_PATH_TMP_INGEST = SIPI_PATH / "tmp-dsp-ingest"
+
+
+@dataclass(frozen=True)
+class ImageVersions:
+    fuseki: str
+    sipi: str
+    ingest: str
+    api: str
 
 
 @dataclass(frozen=True)
@@ -36,18 +45,32 @@ def get_containers() -> Iterator[Containers]:
 
 
 def _get_all_containers(network: Network) -> Containers:
-    fuseki = _get_fuseki_container(network)
-    sipi = _get_sipi_container(network)
-    ingest = _get_ingest_container(network)
-    api = _get_api_container(network)
+    versions = _get_image_versions()
+    fuseki = _get_fuseki_container(network, versions.fuseki)
+    sipi = _get_sipi_container(network, versions.sipi)
+    ingest = _get_ingest_container(network, versions.ingest)
+    api = _get_api_container(network, versions.api)
     containers = Containers(fuseki=fuseki, sipi=sipi, ingest=ingest, api=api)
     _print_containers_are_ready(containers)
     return containers
 
 
-def _get_fuseki_container(network: Network) -> DockerContainer:
+def _get_image_versions() -> ImageVersions:
+    docker_compose_content = Path("src/dsp_tools/resources/start-stack/docker-compose.yml").read_text(encoding="utf-8")
+    fuseki_match = regex.search(r"image: daschswiss/apache-jena-fuseki:(v\d+\.\d+\.\d+)", docker_compose_content)
+    fuseki = fuseki_match.group(1) if fuseki_match else "latest"
+    sipi_match = regex.search(r"image: daschswiss/knora-sipi:(v\d+\.\d+\.\d+)", docker_compose_content)
+    sipi = sipi_match.group(1) if sipi_match else "latest"
+    ingest_match = regex.search(r"image: daschswiss/dsp-ingest:(v\d+\.\d+\.\d+)", docker_compose_content)
+    ingest = ingest_match.group(1) if ingest_match else "latest"
+    api_match = regex.search(r"image: daschswiss/knora-api:(v\d+\.\d+\.\d+)", docker_compose_content)
+    api = api_match.group(1) if api_match else "latest"
+    return ImageVersions(fuseki=fuseki, sipi=sipi, ingest=ingest, api=api)
+
+
+def _get_fuseki_container(network: Network, version: str) -> DockerContainer:
     fuseki = (
-        DockerContainer("daschswiss/apache-jena-fuseki:5.0.0-3")
+        DockerContainer(f"daschswiss/apache-jena-fuseki:{version}")
         .with_name("db")
         .with_network(network)
         .with_bind_ports(3030, 3030)
@@ -84,9 +107,9 @@ def _create_data_set_and_admin_user() -> None:
     print("Admin user created")
 
 
-def _get_sipi_container(network: Network) -> DockerContainer:
+def _get_sipi_container(network: Network, version: str) -> DockerContainer:
     sipi = (
-        DockerContainer("daschswiss/knora-sipi:v30.14.0")
+        DockerContainer(f"daschswiss/knora-sipi:{version}")
         .with_name("sipi")
         .with_network(network)
         .with_bind_ports(1024, 1024)
@@ -108,9 +131,9 @@ def _get_sipi_container(network: Network) -> DockerContainer:
     return sipi
 
 
-def _get_ingest_container(network: Network) -> DockerContainer:
+def _get_ingest_container(network: Network, version: str) -> DockerContainer:
     ingest = (
-        DockerContainer("daschswiss/dsp-ingest:v0.9.1")
+        DockerContainer(f"daschswiss/dsp-ingest:{version}")
         .with_name("ingest")
         .with_network(network)
         .with_bind_ports(3340, 3340)
@@ -132,9 +155,9 @@ def _get_ingest_container(network: Network) -> DockerContainer:
     return ingest
 
 
-def _get_api_container(network: Network) -> DockerContainer:
+def _get_api_container(network: Network, version: str) -> DockerContainer:
     api = (
-        DockerContainer("daschswiss/knora-api:v30.14.0")
+        DockerContainer(f"daschswiss/knora-api:{version}")
         .with_name("api")
         .with_network(network)
         .with_env("KNORA_WEBAPI_DSP_INGEST_BASE_URL", "http://ingest:3340")

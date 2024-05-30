@@ -56,7 +56,7 @@ def _get_all_containers(network: Network) -> Containers:
 
 
 def _get_image_version(docker_compose_content: str, component: str) -> str:
-    match = regex.search(rf"image: daschswiss/{component}:(v\d+\.\d+\.\d+)", docker_compose_content)
+    match = regex.search(rf"image: daschswiss/{component}:([^\n]+)", docker_compose_content)
     return match.group(1) if match else "latest"
 
 
@@ -196,12 +196,3 @@ def _stop_all_containers(containers: Containers) -> None:
     containers.ingest.stop()
     containers.api.stop()
     print("All containers have been stopped")
-
-
-def main() -> None:
-    with get_containers():
-        pass
-
-
-if __name__ == "__main__":
-    main()

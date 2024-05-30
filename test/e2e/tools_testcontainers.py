@@ -105,7 +105,7 @@ def get_containers() -> Iterator[Containers]:
 def _get_all_containers(network: Network) -> Containers:
     fuseki = _get_fuseki_container(network)
     sipi = _get_sipi_container(network)
-    ingest = _get_ingestion_container(network)
+    ingest = _get_ingest_container(network)
     api = _get_api_container(network)
     containers = Containers(sipi, fuseki, api, ingest)
     _print_containers_are_ready(containers)
@@ -198,7 +198,7 @@ def _get_api_container(network: Network) -> DockerContainer:
     return api
 
 
-def _get_ingestion_container(network: Network) -> DockerContainer:
+def _get_ingest_container(network: Network) -> DockerContainer:
     ingest = (
         DockerContainer("daschswiss/dsp-ingest:v0.9.1")
         .with_name("ingest")
@@ -239,8 +239,8 @@ def _stop_all_containers(containers: Containers) -> None:
 
 
 def main() -> None:
-    with get_containers() as containers:
-        _print_containers_are_ready(containers)
+    with get_containers():
+        pass
 
 
 if __name__ == "__main__":

@@ -15,12 +15,12 @@ SIPI_PATH_TMP_SIPI = SIPI_PATH / "tmp-dsp-sipi"
 SIPI_PATH_TMP_INGEST = SIPI_PATH / "tmp-dsp-ingest"
 
 
-@dataclass
+@dataclass(frozen=True)
 class Containers:
-    sipi: DockerContainer
     fuseki: DockerContainer
-    api: DockerContainer
+    sipi: DockerContainer
     ingest: DockerContainer
+    api: DockerContainer
 
 
 @contextmanager
@@ -40,7 +40,7 @@ def _get_all_containers(network: Network) -> Containers:
     sipi = _get_sipi_container(network)
     ingest = _get_ingest_container(network)
     api = _get_api_container(network)
-    containers = Containers(sipi, fuseki, api, ingest)
+    containers = Containers(fuseki=fuseki, sipi=sipi, ingest=ingest, api=api)
     _print_containers_are_ready(containers)
     return containers
 
@@ -160,17 +160,17 @@ def _get_api_container(network: Network) -> DockerContainer:
 
 def _print_containers_are_ready(containers: Containers) -> None:
     print("Containers are ready")
-    print(f"  {containers.api._name}: {containers.api.ports}")
     print(f"  {containers.fuseki._name}: {containers.fuseki.ports}")
     print(f"  {containers.sipi._name}: {containers.sipi.ports}")
     print(f"  {containers.ingest._name}: {containers.ingest.ports}")
+    print(f"  {containers.api._name}: {containers.api.ports}")
 
 
 def _stop_all_containers(containers: Containers) -> None:
-    containers.api.stop()
-    containers.ingest.stop()
-    containers.sipi.stop()
     containers.fuseki.stop()
+    containers.sipi.stop()
+    containers.ingest.stop()
+    containers.api.stop()
     print("All containers have been stopped")
 
 

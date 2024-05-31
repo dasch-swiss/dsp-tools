@@ -4,10 +4,12 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterator
 
+import docker
 import regex
 import requests
+from docker.errors import NotFound
+from docker.models.networks import Network
 from testcontainers.core.container import DockerContainer
-from testcontainers.core.network import Network
 from testcontainers.core.waiting_utils import wait_for_logs
 
 SIPI_PATH = Path("testdata/e2e").absolute()
@@ -33,10 +35,25 @@ class Containers:
 
 
 @contextmanager
+def get_test_network() -> Iterator[Network]:
+    name = "dsp-tools-test-network"
+    client = docker.client.from_env()
+    try:
+        network = client.networks.get(name)
+    except NotFound:
+        client.networks.create(name, internal=True, check_duplicate=True)
+        network = client.networks.get(name)
+    try:
+        yield network
+    finally:
+        network.remove()
+
+
+@contextmanager
 def get_containers() -> Iterator[Containers]:
     if subprocess.run("docker stats --no-stream".split(), check=False).returncode != 0:
         raise RuntimeError("Docker is not running properly")
-    with Network() as network:
+    with get_test_network() as network:
         containers = _get_all_containers(network)
         try:
             yield containers

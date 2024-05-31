@@ -85,11 +85,12 @@ darglint = """
     | xargs poetry run darglint -v 2\
 """
 clean = """
-    rm -rf **/*.pyc
-    rm -rf **/__pycache__
-    rm -rf **/.pytest_cache
-    rm -rf **/.mypy_cache
-    rm -rf *id2iri_mapping*.json
+    rm -rf ./**/*.pyc
+    rm -rf ./**/__pycache__
+    rm -rf ./**/.pytest_cache
+    rm -rf ./**/.mypy_cache
+    rm -rf ./*id2iri_mapping*.json
+    rm warnings.log
 """
 markdownlint = """
     docker run \

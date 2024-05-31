@@ -11,8 +11,8 @@ from dsp_tools.commands.project.create.project_create import create_project
 from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from test.e2e.setup_testcontainers import get_containers
 
-PROJECT_SHORTCODE = "4124"
-ONTO_NAME = "testonto"
+PROJECT_SHORTCODE = "4125"
+ONTO_NAME = "e2e-testonto"
 CREDS = ServerCredentials("root@example.com", "test", "http://0.0.0.0:3333")
 ONTO_IRI = f"{CREDS.server}/ontology/{PROJECT_SHORTCODE}/{ONTO_NAME}/v2"
 PROPS_IN_ONTO_JSON = 1
@@ -59,11 +59,11 @@ def test_project(auth_header: dict[str, str]) -> None:
 
 
 def _check_project(project: dict[str, Any]) -> None:
-    assert project["shortname"] == "minimal-tp"
+    assert project["shortname"] == "e2e-tp"
     assert project["shortcode"] == PROJECT_SHORTCODE
-    assert project["longname"] == "minimal test project"
-    assert project["description"] == [{"value": "A minimal test project", "language": "en"}]
-    assert project["keywords"] == ["minimal"]
+    assert project["longname"] == "e2e test project"
+    assert project["description"] == [{"value": "The e2e test project", "language": "en"}]
+    assert project["keywords"] == ["e2e-test-projec-keyword"]
     assert project["ontologies"] == [ONTO_IRI]
 
 

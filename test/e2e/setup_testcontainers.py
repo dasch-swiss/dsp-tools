@@ -114,10 +114,8 @@ def _create_data_set_and_admin_user() -> None:
     print("Dataset created")
 
     admin_user_data = Path("testdata/e2e/admin_user_data.ttl").read_text(encoding="utf-8")
-    graph_prefix = "http://0.0.0.0:3030/knora-test/data?graph="
-    admin_graph = "http://www.knora.org/data/admin"
     if not requests.post(
-        graph_prefix + admin_graph,
+        "http://0.0.0.0:3030/knora-test/data?graph=http://www.knora.org/data/admin",
         files={"file": ("file.ttl", admin_user_data, "text/turtle; charset: utf-8")},
         auth=("admin", "test"),
         timeout=30,
@@ -133,13 +131,6 @@ def _get_sipi_container(network: Network, version: str) -> DockerContainer:
         .with_network(network)
         .with_bind_ports(1024, 1024)
         .with_command("--config=/sipi/config/sipi.docker-config.lua")
-        .with_env("SIPI_EXTERNAL_PROTOCOL", "http")
-        .with_env("SIPI_EXTERNAL_HOSTNAME", "0.0.0.0")  # noqa: S104
-        .with_env("SIPI_EXTERNAL_PORT", "1024")
-        .with_env("SIPI_WEBAPI_HOSTNAME", "api")
-        .with_env("SIPI_WEBAPI_PORT", "3333")
-        .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_HOST", "0.0.0.0")  # noqa: S104
-        .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT", "3333")
         .with_volume_mapping(SIPI_PATH_TMP_SIPI, "/tmp", "rw")  # noqa: S108
         .with_volume_mapping(SIPI_PATH, "/sipi/config", "rw")
         .with_volume_mapping(SIPI_PATH_IMAGES, "/sipi/images", "rw")

@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema ../../src/dsp_tools/resources/schema/data.xsd"
+       shortcode="4125"
+       default-ontology="e2e-testonto">
+
+    <resource label="Resource 1"
+              restype=":ImageResource"
+              id="resource_1">
+        <bitstream>testdata/bitstreams/test.jpg</bitstream>
+    </resource>
+
+    <resource label="Resource 2"
+              restype=":ImageResource"
+              id="resource_2">
+        <bitstream>testdata/bitstreams/test.jpg</bitstream>
+        <text-prop name=":hasText">
+            <text encoding="utf8">first text value</text>
+            <text encoding="utf8">second text value</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Resource 3"
+              restype=":PDFResource"
+              id="resource_3">
+        <bitstream>testdata/bitstreams/test.pdf</bitstream>
+    </resource>
+
+</knora>

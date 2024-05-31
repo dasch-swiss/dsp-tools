@@ -104,22 +104,15 @@ def _get_fuseki_container(network: Network, version: str) -> DockerContainer:
 
 def _create_data_set_and_admin_user() -> None:
     repo_config = Path("testdata/e2e/repo_config.ttl").read_text(encoding="utf-8")
-    if not requests.post(
-        "http://0.0.0.0:3030/$/datasets",
-        files={"file": ("file.ttl", repo_config, "text/turtle; charset=utf8")},
-        auth=("admin", "test"),
-        timeout=30,
-    ).ok:
+    files = {"file": ("file.ttl", repo_config, "text/turtle; charset=utf8")}
+    if not requests.post("http://0.0.0.0:3030/$/datasets", files=files, auth=("admin", "test"), timeout=30).ok:
         raise RuntimeError("Fuseki did not create the dataset")
     print("Dataset created")
 
     admin_user_data = Path("testdata/e2e/admin_user_data.ttl").read_text(encoding="utf-8")
-    if not requests.post(
-        "http://0.0.0.0:3030/knora-test/data?graph=http://www.knora.org/data/admin",
-        files={"file": ("file.ttl", admin_user_data, "text/turtle; charset: utf-8")},
-        auth=("admin", "test"),
-        timeout=30,
-    ).ok:
+    url = "http://0.0.0.0:3030/knora-test/data?graph=http://www.knora.org/data/admin"
+    files = {"file": ("file.ttl", admin_user_data, "text/turtle; charset: utf-8")}
+    if not requests.post(url, files=files, auth=("admin", "test"), timeout=30).ok:
         raise RuntimeError("Fuseki did not create the admin user")
     print("Admin user created")
 

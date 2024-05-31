@@ -47,6 +47,7 @@ def get_test_network() -> Iterator[Network]:
         yield network
     finally:
         network.remove()
+        client.close()  # type: ignore[no-untyped-call]  # incomplete stubs - remove this when the stubs are complete
 
 
 @contextmanager

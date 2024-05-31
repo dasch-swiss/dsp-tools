@@ -7,6 +7,7 @@ from typing import Iterator
 import regex
 import requests
 from testcontainers.core.container import DockerContainer
+from testcontainers.core.network import Network
 from testcontainers.core.waiting_utils import wait_for_logs
 
 SIPI_PATH = Path("testdata/e2e").absolute()
@@ -35,19 +36,20 @@ class Containers:
 def get_containers() -> Iterator[Containers]:
     if subprocess.run("docker stats --no-stream".split(), check=False).returncode != 0:
         raise RuntimeError("Docker is not running properly")
-    containers = _get_all_containers()
-    try:
-        yield containers
-    finally:
-        _stop_all_containers(containers)
+    with Network() as network:
+        containers = _get_all_containers(network)
+        try:
+            yield containers
+        finally:
+            _stop_all_containers(containers)
 
 
-def _get_all_containers() -> Containers:
+def _get_all_containers(network: Network) -> Containers:
     versions = _get_image_versions()
-    fuseki = _get_fuseki_container(versions.fuseki)
-    sipi = _get_sipi_container(versions.sipi)
-    ingest = _get_ingest_container(versions.ingest)
-    api = _get_api_container(versions.api)
+    fuseki = _get_fuseki_container(network, versions.fuseki)
+    sipi = _get_sipi_container(network, versions.sipi)
+    ingest = _get_ingest_container(network, versions.ingest)
+    api = _get_api_container(network, versions.api)
     containers = Containers(fuseki=fuseki, sipi=sipi, ingest=ingest, api=api)
     _print_containers_are_ready(containers)
     return containers
@@ -67,10 +69,11 @@ def _get_image_versions() -> ImageVersions:
     return ImageVersions(fuseki=fuseki, sipi=sipi, ingest=ingest, api=api)
 
 
-def _get_fuseki_container(version: str) -> DockerContainer:
+def _get_fuseki_container(network: Network, version: str) -> DockerContainer:
     fuseki = (
         DockerContainer(f"daschswiss/apache-jena-fuseki:{version}")
         .with_name("db")
+        .with_network(network)
         .with_bind_ports(3030, 3030)
         .with_env("ADMIN_PASSWORD", "test")
     )
@@ -105,10 +108,11 @@ def _create_data_set_and_admin_user() -> None:
     print("Admin user created")
 
 
-def _get_sipi_container(version: str) -> DockerContainer:
+def _get_sipi_container(network: Network, version: str) -> DockerContainer:
     sipi = (
         DockerContainer(f"daschswiss/knora-sipi:{version}")
         .with_name("sipi")
+        .with_network(network)
         .with_bind_ports(1024, 1024)
         .with_command("--config=/sipi/config/sipi.docker-config.lua")
         .with_env("SIPI_EXTERNAL_PROTOCOL", "http")
@@ -128,10 +132,11 @@ def _get_sipi_container(version: str) -> DockerContainer:
     return sipi
 
 
-def _get_ingest_container(version: str) -> DockerContainer:
+def _get_ingest_container(network: Network, version: str) -> DockerContainer:
     ingest = (
         DockerContainer(f"daschswiss/dsp-ingest:{version}")
         .with_name("ingest")
+        .with_network(network)
         .with_bind_ports(3340, 3340)
         .with_env("SERVICE_HOST", "0.0.0.0")  # noqa: S104
         .with_env("SERVICE_PORT", "3340")
@@ -151,10 +156,11 @@ def _get_ingest_container(version: str) -> DockerContainer:
     return ingest
 
 
-def _get_api_container(version: str) -> DockerContainer:
+def _get_api_container(network: Network, version: str) -> DockerContainer:
     api = (
         DockerContainer(f"daschswiss/knora-api:{version}")
         .with_name("api")
+        .with_network(network)
         .with_env("KNORA_WEBAPI_DSP_INGEST_BASE_URL", "http://ingest:3340")
         .with_env("KNORA_WEBAPI_TRIPLESTORE_HOST", "db")
         .with_env("KNORA_WEBAPI_TRIPLESTORE_DBTYPE", "fuseki")

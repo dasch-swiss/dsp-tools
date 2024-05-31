@@ -58,6 +58,14 @@ def test_project(auth_header: dict[str, str]) -> None:
     _check_resclasses([elem for elem in onto if elem.get("knora-api:isResourceClass")])
 
 
+@pytest.mark.usefixtures("_xmlupload")
+def test_xmlupload(auth_header: dict[str, str], project_iri: str) -> None:
+    img_resources = _get_resources(f"{ONTO_IRI}#ImageResource", auth_header, project_iri)
+    _analyze_img_resources(img_resources)
+    pdf_resources = _get_resources(f"{ONTO_IRI}#PDFResource", auth_header, project_iri)
+    _analyze_pdf_resources(pdf_resources)
+
+
 def _check_project(project: dict[str, Any]) -> None:
     assert project["shortname"] == "e2e-tp"
     assert project["shortcode"] == PROJECT_SHORTCODE
@@ -90,14 +98,6 @@ def _check_resclasses(resclasses: list[dict[str, Any]]) -> None:
 
     assert res_2["@id"] == f"{ONTO_NAME}:PDFResource"
     assert res_2["rdfs:label"] == "PDF Resource"
-
-
-@pytest.mark.usefixtures("_xmlupload")
-def test_xmlupload(auth_header: dict[str, str], project_iri: str) -> None:
-    img_resources = _get_resources(f"{ONTO_IRI}#ImageResource", auth_header, project_iri)
-    _analyze_img_resources(img_resources)
-    pdf_resources = _get_resources(f"{ONTO_IRI}#PDFResource", auth_header, project_iri)
-    _analyze_pdf_resources(pdf_resources)
 
 
 def _get_resources(resclass_iri: str, auth_header: dict[str, str], project_iri: str) -> list[dict[str, Any]]:

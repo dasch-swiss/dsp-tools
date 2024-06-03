@@ -5,6 +5,7 @@ import sys
 import warnings
 from datetime import datetime
 from pathlib import Path
+from typing import Never
 
 from loguru import logger
 from lxml import etree
@@ -343,39 +344,17 @@ def _upload_one_resource(
             upload_state.failed_uploads.append(resource.res_id)
             return
     except PermanentConnectionError as err:
-        msg = (
-            f"Lost connection to DSP server, probably because the server is down. "
-            f"Please continue later with 'resume-xmlupload'. Reason for this failure: {err.message}"
-        )
-        logger.error(msg)
-        raise XmlUploadInterruptedError(msg) from None
+        _handle_permanent_connection_error(err)
     except KeyboardInterrupt:
-        warnings.warn(DspToolsUserWarning("xmlupload manually interrupted. Tidying up, then exit..."))
-        msg = "xmlupload manually interrupted. Please continue later with 'resume-xmlupload'"
-        raise XmlUploadInterruptedError(msg) from None
+        _handle_keyboard_interrupt()
 
     iri = None
     try:
         iri = resource_create_client.create_resource(resource, media_info)
     except (PermanentTimeOutError, KeyboardInterrupt) as err:
-        warnings.warn(DspToolsUserWarning(f"{type(err).__name__}: Tidying up, then exit..."))
-        msg = (
-            f"There was a {type(err).__name__} while trying to create resource '{resource.res_id}'.\n"
-            f"It is unclear if the resource '{resource.res_id}' was created successfully or not.\n"
-            f"Please check manually in the DSP-APP or DB.\n"
-            f"In case of successful creation, call 'resume-xmlupload' with the flag "
-            f"'--skip-first-resource' to prevent duplication.\n"
-            f"If not, a normal 'resume-xmlupload' can be started."
-        )
-        logger.error(msg)
-        raise XmlUploadInterruptedError(msg) from None
+        _handle_permanent_timeout_or_keyboard_interrupt(err, resource.res_id)
     except PermanentConnectionError as err:
-        msg = (
-            f"Lost connection to DSP server, probably because the server is down. "
-            f"Please continue later with 'resume-xmlupload'. Reason for this failure: {err.message}"
-        )
-        logger.error(msg)
-        raise XmlUploadInterruptedError(msg) from None
+        _handle_permanent_connection_error(err)
     except Exception as err:  # noqa: BLE001 (blind-except)
         err_msg = err.message if isinstance(err, BaseError) else None
         _handle_resource_creation_failure(resource, err_msg)
@@ -384,10 +363,37 @@ def _upload_one_resource(
         _tidy_up_resource_creation_idempotent(upload_state, iri, resource)
         _interrupt_if_indicated(upload_state, creation_attempts_of_this_round)
     except KeyboardInterrupt:
-        warnings.warn(DspToolsUserWarning("xmlupload manually interrupted. Tidying up, then exit..."))
         _tidy_up_resource_creation_idempotent(upload_state, iri, resource)
-        msg = "xmlupload manually interrupted. Please continue later with 'resume-xmlupload'"
-        raise XmlUploadInterruptedError(msg) from None
+        _handle_keyboard_interrupt()
+
+
+def _handle_permanent_connection_error(err: PermanentConnectionError) -> Never:
+    msg = "Lost connection to DSP server, probably because the server is down. "
+    msg += f"Please continue later with 'resume-xmlupload'. Reason for this failure: {err.message}"
+    logger.error(msg)
+    raise XmlUploadInterruptedError(msg) from None
+
+
+def _handle_keyboard_interrupt() -> Never:
+    warnings.warn(DspToolsUserWarning("xmlupload manually interrupted. Tidying up, then exit..."))
+    msg = "xmlupload manually interrupted. Please continue later with 'resume-xmlupload'"
+    raise XmlUploadInterruptedError(msg) from None
+
+
+def _handle_permanent_timeout_or_keyboard_interrupt(
+    err: PermanentTimeOutError | KeyboardInterrupt, res_id: str
+) -> Never:
+    warnings.warn(DspToolsUserWarning(f"{type(err).__name__}: Tidying up, then exit..."))
+    msg = (
+        f"There was a {type(err).__name__} while trying to create resource '{res_id}'.\n"
+        f"It is unclear if the resource '{res_id}' was created successfully or not.\n"
+        f"Please check manually in the DSP-APP or DB.\n"
+        f"In case of successful creation, call 'resume-xmlupload' with the flag "
+        f"'--skip-first-resource' to prevent duplication.\n"
+        f"If not, a normal 'resume-xmlupload' can be started."
+    )
+    logger.error(msg)
+    raise XmlUploadInterruptedError(msg) from None
 
 
 def _interrupt_if_indicated(upload_state: UploadState, creation_attempts_of_this_round: int) -> None:

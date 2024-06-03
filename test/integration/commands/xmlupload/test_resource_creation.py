@@ -450,7 +450,7 @@ def test_post_requests(ingest_client_mock: AssetClient) -> None:
     assert len(con.post.call_args_list) == len(post_responses)
 
 
-def test_interruption_if_resource_cannot_be_created() -> None:
+def test_interruption_if_resource_cannot_be_created_because_of_404() -> None:
     xml_strings = [
         '<resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id"></resource>',
         '<resource label="foo_2_label" restype=":foo_2_type" id="foo_2_id"></resource>',
@@ -462,7 +462,7 @@ def test_interruption_if_resource_cannot_be_created() -> None:
     con._log_response = Mock()  # type: ignore[method-assign]
     resp_404 = Response()
     resp_404.status_code = 404
-    post_responses = [resp_404] * 7
+    post_responses = [resp_404]
     con.session.request = Mock(side_effect=post_responses)  # type: ignore[method-assign]
     project_client = ProjectClientStub(con, "1234", None)
     xmlupload._handle_upload_error = Mock()

@@ -324,7 +324,14 @@ def test_try_network_action_in_testing_environment(monkeypatch: pytest.MonkeyPat
 
 
 def test_try_network_action_permanent_connection_error() -> None:
-    pass
+    con = ConnectionLive("http://example.com/")
+    responses = (Mock(status_code=404, text=""),)
+    con.session = SessionMock(responses)  # type: ignore[assignment]
+    con._log_request = Mock()
+    con._log_response = Mock()
+    params = RequestParameters(method="POST", url="http://example.com/", timeout=1)
+    with pytest.raises(PermanentConnectionError):
+        con._try_network_action(params)
 
 
 def test_log_request() -> None:

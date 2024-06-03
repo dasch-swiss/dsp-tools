@@ -325,7 +325,7 @@ def test_try_network_action_in_testing_environment(monkeypatch: pytest.MonkeyPat
 
 def test_try_network_action_permanent_connection_error() -> None:
     con = ConnectionLive("http://example.com/")
-    responses = (Mock(status_code=404, text=""),)
+    responses = (Mock(status_code=500, text=""),) * 7
     con.session = SessionMock(responses)  # type: ignore[assignment]
     con._log_request = Mock()
     con._log_response = Mock()

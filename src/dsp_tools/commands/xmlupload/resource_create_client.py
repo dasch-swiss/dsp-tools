@@ -156,7 +156,7 @@ class ResourceCreateClient:
             raise InputError(f"Could not find namespace for prefix: {prefix}")
         return namespace[prop]
 
-    def _make_value(self, value: XMLValue, value_type: str) -> dict[str, Any]:
+    def _make_value(self, value: XMLValue, value_type: str) -> dict[str, Any]:  # noqa: PLR0912 (too many branches)
         match value_type:
             case "boolean":
                 res = _make_boolean_value(value)

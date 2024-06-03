@@ -28,16 +28,16 @@ from dsp_tools.commands.xmlupload.xmlupload import xmlupload
 from dsp_tools.utils.xml_validation import validate_xml_file
 
 
-def call_requested_action(args: argparse.Namespace) -> bool:
+def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0912 (too many branches)
     """
-    Call the appropriate method of DSP-TOOLS.
+    Call the appropriate function of DSP-TOOLS.
 
     Args:
         args: parsed CLI arguments
 
     Raises:
-        BaseError: from the called methods
-        UserError: from the called methods
+        BaseError: from the called function
+        UserError: from the called function
         unexpected errors from the called methods and underlying libraries
 
     Returns:

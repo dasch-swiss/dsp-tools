@@ -12,6 +12,7 @@ from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
+from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.project_client import ProjectInfo
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
@@ -201,7 +202,7 @@ def test_2_resources_with_stash(ingest_client_mock: AssetClient) -> None:
         "foo_2_id": [LinkValueStashItem("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")],
     }
     stash = Stash(link_value_stash=LinkValueStash(link_val_stash_dict), standoff_stash=None)
-    upload_state = UploadState(xml_resources, deepcopy(stash), UploadConfig(), {})
+    upload_state = UploadState(xml_resources.copy(), deepcopy(stash), UploadConfig(), {})
     con = Mock(spec_set=ConnectionLive)
     post_responses = [
         {"@id": "foo_1_iri", "rdfs:label": "foo_1_label"},
@@ -455,8 +456,7 @@ def test_interruption_if_resource_cannot_be_created() -> None:
         '<resource label="foo_2_label" restype=":foo_2_type" id="foo_2_id"></resource>',
     ]
     xml_resources = [XMLResource(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
-    upload_state = UploadState(xml_resources.copy(), [], IriResolver(), Stash(None, None), UploadConfig(), {})
-    upload_state_expected = deepcopy(upload_state)
+    upload_state = UploadState(xml_resources.copy(), Stash(None, None), UploadConfig(), {}, [], IriResolver())
     con = ConnectionLive("foo")
     con._log_request = Mock()  # type: ignore[method-assign]
     con._log_response = Mock()  # type: ignore[method-assign]
@@ -468,12 +468,14 @@ def test_interruption_if_resource_cannot_be_created() -> None:
     xmlupload._handle_upload_error = Mock()
     ingest_client = DspIngestClientLive("", "", "1234", ".")
 
-    xmlupload.upload_resources(upload_state, ingest_client, project_client, ListClientMock())
+    xmlupload._upload_resources(UploadClients(ingest_client, project_client, ListClientMock()), upload_state)
     msg = (
         "Lost connection to DSP server, probably because the server is down. "
         "Please continue later with 'resume-xmlupload'. Reason for this failure: "
         "Permanently unable to execute the network action. "
-        "See logs for more details: /Users/nussbaum/.dsp-tools/logging.log"
     )
     assert len(xmlupload._handle_upload_error.call_args_list) == 1
-    xmlupload._handle_upload_error.call_args_list[0].args == (XmlUploadInterruptedError(msg), upload_state_expected)
+    err_actual: XmlUploadInterruptedError = xmlupload._handle_upload_error.call_args_list[0].args[0]
+    upload_state_actual: UploadState = xmlupload._handle_upload_error.call_args_list[0].args[1]
+    assert msg in err_actual.message
+    assert upload_state_actual == upload_state

@@ -77,8 +77,18 @@ jobs:
       - name: benchmarking
         run: poetry run pytest -s test/benchmarking/
 
-
   e2e-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout dsp-tools repo
+        uses: actions/checkout@v4
+      - name: Install poetry, python, and dependencies
+        uses: ./.github/actions/setup
+      - name: e2e-tests
+        run: poetry exec e2e-tests
+
+
+  legacy-e2e-tests:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
@@ -87,8 +97,8 @@ jobs:
         uses: ./.github/actions/setup
       - name: start stack
         run: poetry run dsp-tools start-stack --no-prune --with-test-data
-      - name: e2e tests
-        run: poetry exec e2e-tests
+      - name: legacy e2e tests
+        run: poetry exec legacy-e2e-tests
       - name: stop stack  # see if this command can run (it isn't tested anywhere else)
         run: poetry run dsp-tools stop-stack
       - name: make logging file available
@@ -108,6 +118,6 @@ jobs:
       - name: Install python & poetry, build & install wheel, install pytest
         uses: ./.github/actions/setup-from-wheel
       - name: distribution tests
-        run: .dist-test-venv/bin/pytest --noconftest test/distribution/
+        run: pytest --noconftest test/distribution/
         # Reason for the --noconftest flag: 
         # test/conftest.py configures logging, but loguru should not be installed for the distribution tests

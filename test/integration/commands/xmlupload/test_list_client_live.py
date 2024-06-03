@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from test.integration.commands.xmlupload.connection_mock import ConnectionMockBase
 from typing import Any
 
 import pytest
@@ -9,6 +8,7 @@ from dsp_tools.commands.xmlupload.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.list_client import ListNode
 from dsp_tools.commands.xmlupload.list_client import _get_list_from_server
 from dsp_tools.commands.xmlupload.list_client import _get_list_iris_from_server
+from test.integration.commands.xmlupload.connection_mock import ConnectionMockBase
 
 
 @dataclass

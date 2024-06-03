@@ -18,24 +18,24 @@ runs:
         echo ########### STEP: BUILD WHEEL ###########
         poetry build -vv
       shell: bash
-    - name: Install wheel
+    - name: Install wheel globally
       run: |
-        echo ########### STEP: INSTALL WHEEL ###########
+        echo ########### STEP: INSTALL WHEEL GLOBALLY ###########
         find dist -type f -name "*.whl" -exec pip3 install {} \;
       shell: bash
-    - name: install check-wheel-contents
+    - name: install check-wheel-contents in dedicated venv
       run: |
-        echo ########### STEP: INSTALL CHECK-WHEEL-CONTENTS ###########
+        echo ########### STEP: INSTALL CHECK-WHEEL-CONTENTS IN DEDICATED VENV ###########
         python3 -m venv .dist-test-venv
         .dist-test-venv/bin/pip install check-wheel-contents
       shell: bash
-    - name: check the wheel for correctness
+    - name: check the wheel for correctness, in dedicated venv
       run: |
-        echo ########### STEP: CHECK WHEEL ###########
+        echo ########### STEP: CHECK WHEEL IN DEDICATED VENV ###########
         .dist-test-venv/bin/check-wheel-contents dist/
       shell: bash
-    - name: Install pytest
+    - name: Install pytest globally
       run: |
-        echo ########### STEP: INSTALL PYTEST ###########
-        .dist-test-venv/bin/pip install pytest pytest-unordered
+        echo ########### STEP: INSTALL PYTEST GLOBALLY ###########
+        pip install pytest pytest-unordered
       shell: bash

@@ -389,7 +389,7 @@ class PropertyClass(Model):
             def_file_obj["gui_attributes"] = gui_elements
         return def_file_obj
 
-    def _createDefinitionFileObj_gui_attributes(self) -> dict[str, Any]:
+    def _createDefinitionFileObj_gui_attributes(self) -> dict[str, Any]:  # noqa: PLR0912 (too many branches)
         gui_elements = {}
         for attname, attvalue in self.gui_attributes.items():
             match attname:

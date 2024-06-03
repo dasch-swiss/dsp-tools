@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from test.integration.commands.xmlupload.connection_mock import ConnectionMockBase
 from typing import Any
 
 import pytest
@@ -11,6 +10,7 @@ from dsp_tools.commands.xmlupload.ontology_client import OntologyClientLive
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.models.exceptions import UserError
+from test.integration.commands.xmlupload.connection_mock import ConnectionMockBase
 
 
 @dataclass

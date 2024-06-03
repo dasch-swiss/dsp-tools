@@ -1,10 +1,9 @@
-from test.integration.commands.xmlupload.connection_mock import ConnectionMockBase
-
 import pytest
 
 from dsp_tools.commands.project.models.project import Project
 from dsp_tools.models.langstring import LangString
 from dsp_tools.models.langstring import Languages
+from test.integration.commands.xmlupload.connection_mock import ConnectionMockBase
 
 
 @pytest.fixture()

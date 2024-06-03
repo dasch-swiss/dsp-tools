@@ -62,6 +62,9 @@ pytest-sugar = "^1.0.0"
 pandas-stubs = "^2.2.1.240316"
 types-networkx = "^3.2.1.20240331"
 requests-mock = "^1.12.1"
+testcontainers =  "^4.4.1"
+docker = "^7.1.0"
+types-docker = "^7.0.0.20240529"
 
 
 [tool.poetry.scripts]
@@ -85,11 +88,12 @@ darglint = """
     | xargs poetry run darglint -v 2\
 """
 clean = """
-    rm -rf **/*.pyc
-    rm -rf **/__pycache__
-    rm -rf **/.pytest_cache
-    rm -rf **/.mypy_cache
-    rm -rf *id2iri_mapping*.json
+    rm -rf ./**/*.pyc
+    rm -rf ./**/__pycache__
+    rm -rf ./**/.pytest_cache
+    rm -rf ./**/.mypy_cache
+    rm -rf ./*id2iri_mapping*.json
+    rm warnings.log
 """
 markdownlint = """
     docker run \
@@ -97,15 +101,16 @@ markdownlint = """
     --config .markdownlint.yml \
     --ignore CHANGELOG.md "**/*.md"
 """
-ruff-check = "ruff check . --ignore=A002,D101,D102,PLR0913,PLR2004,PLW0603"
+ruff-check = "ruff check . --ignore=A002,D101,D102,PLR0913,PLR2004"
 ruff-check-github = """
-    ruff check . --output-format=github --ignore=A002,D101,D102,PLR0913,PLR2004,PLW0603
+    ruff check . --output-format=github --ignore=A002,D101,D102,PLR0913,PLR2004
 """
 ruff-format-check = "ruff format --check ."
 mypy = "mypy ."
 unittests = "pytest test/unittests/"
 integration-tests = "pytest test/integration/"
 e2e-tests = "pytest test/e2e/"
+legacy-e2e-tests = "pytest test/legacy_e2e/"
 bump-version = """
     # get current version, append ".postN" (N=no. of commits since last release), write back into pyproject.toml
     version=$(git describe --tags --abbrev=0)
@@ -153,7 +158,8 @@ exclude = [
 
 
 [[tool.mypy.overrides]]
-module = ["jsonpath_ng.*", "viztracer.*", "pyld.*"]  # For these packages, no type stubs are available yet
+# For these packages, no type stubs are available yet:
+module = ["jsonpath_ng.*", "viztracer.*", "pyld.*", "testcontainers.*"]
 ignore_missing_imports = true
 
 

@@ -9,22 +9,17 @@ services:
       - db
     ports:
       - "3333:3333"
-    networks:
-      - knora-net
     environment:
       - TZ=Europe/Zurich
       - KNORA_AKKA_LOGLEVEL=DEBUG
       - KNORA_AKKA_STDOUT_LOGLEVEL=DEBUG
+      - KNORA_WEBAPI_DSP_INGEST_AUDIENCE=http://localhost:3340
       - KNORA_WEBAPI_DSP_INGEST_BASE_URL=http://ingest:3340
       - KNORA_WEBAPI_TRIPLESTORE_HOST=db
-      - KNORA_WEBAPI_TRIPLESTORE_DBTYPE=fuseki
-      - KNORA_WEBAPI_SIPI_INTERNAL_HOST=sipi
       - KNORA_WEBAPI_TRIPLESTORE_FUSEKI_REPOSITORY_NAME=knora-test
       - KNORA_WEBAPI_TRIPLESTORE_FUSEKI_USERNAME=admin
       - KNORA_WEBAPI_TRIPLESTORE_FUSEKI_PASSWORD=test
       - KNORA_WEBAPI_CACHE_SERVICE_ENABLED=true
-      - KNORA_WEBAPI_CACHE_SERVICE_REDIS_HOST=redis
-      - KNORA_WEBAPI_CACHE_SERVICE_REDIS_PORT=6379
       - KNORA_WEBAPI_ALLOW_RELOAD_OVER_HTTP=true
       - KNORA_WEBAPI_KNORA_API_EXTERNAL_HOST=0.0.0.0
       - KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT=3333
@@ -39,17 +34,8 @@ services:
       - ./tmp:/tmp
       - .:/sipi/config
       - ./sipi/images:/sipi/images
-    networks:
-      - knora-net
     environment:
       - TZ=Europe/Zurich
-      - SIPI_EXTERNAL_PROTOCOL=http
-      - SIPI_EXTERNAL_HOSTNAME=0.0.0.0
-      - SIPI_EXTERNAL_PORT=1024
-      - SIPI_WEBAPI_HOSTNAME=api
-      - SIPI_WEBAPI_PORT=3333
-      - KNORA_WEBAPI_KNORA_API_EXTERNAL_HOST=0.0.0.0
-      - KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT=3333
     command: --config=/sipi/config/sipi.docker-config.lua
 
   app:
@@ -58,8 +44,6 @@ services:
     image: daschswiss/dsp-app:v11.9.1
     ports:
       - "4200:4200"
-    networks:
-      - knora-net
 
   db:
     # on the verge of every deployment (fortnightly), update the "image" value from the "db" value of
@@ -67,8 +51,6 @@ services:
     image: daschswiss/apache-jena-fuseki:5.0.0-2
     ports:
       - "3030:3030"
-    networks:
-      - knora-net
     environment:
       - TZ=Europe/Zurich
       - ADMIN_PASSWORD=test
@@ -83,11 +65,7 @@ services:
     volumes:
       - ./sipi/images:/opt/images
       - ./sipi/tmp-dsp-ingest:/opt/temp
-    networks:
-      - knora-net
     environment:
-      - SERVICE_HOST=0.0.0.0
-      - SERVICE_PORT=3340
       - SERVICE_LOG_FORMAT=text
       - STORAGE_ASSET_DIR=/opt/images
       - STORAGE_TEMP_DIR=/opt/temp
@@ -95,7 +73,3 @@ services:
       - JWT_ISSUER=0.0.0.0:3333
       - JWT_SECRET=UP 4888, nice 4-8-4 steam engine
       - SIPI_USE_LOCAL_DEV=false
-
-networks:
-  knora-net:
-    name: knora-net

@@ -565,7 +565,7 @@ def _create_ontologies(
         verbose: verbose switch
 
     Raises:
-        UserError if an error occurs during the creation of an ontology.
+        UserError: if an error occurs during the creation of an ontology.
         All other errors are printed, the process continues, but the success status will be false.
 
     Returns:

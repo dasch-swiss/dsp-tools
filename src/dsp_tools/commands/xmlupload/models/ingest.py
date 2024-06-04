@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from dataclasses import field
 from datetime import datetime
 from pathlib import Path
 from typing import Protocol
@@ -48,7 +49,7 @@ class AssetClient(Protocol):
         """
 
 
-@dataclass(frozen=True)
+@dataclass
 class DspIngestClientLive(AssetClient):
     """Client for uploading assets to the DSP-Ingest."""
 
@@ -56,22 +57,22 @@ class DspIngestClientLive(AssetClient):
     token: str
     shortcode: str
     imgdir: str
+    session: Session = field(init=False)
 
-    @staticmethod
-    def _retry_session(retries: int, session: Session | None = None, backoff_factor: float = 0.3) -> Session:
-        session = session or requests.Session()
+    def __post_init__(self) -> None:
+        retries = 6
+        self.session = Session()
         retry = Retry(
             total=retries,
             read=retries,
             connect=retries,
-            backoff_factor=backoff_factor,
+            backoff_factor=0.3,
             allowed_methods=None,  # means all methods
             status_forcelist=[STATUS_INTERNAL_SERVER_ERROR],
         )
         adapter = HTTPAdapter(max_retries=retry)
-        session.mount("http://", adapter)
-        session.mount("https://", adapter)
-        return session
+        self.session.mount("http://", adapter)
+        self.session.mount("https://", adapter)
 
     def _ingest(self, filepath: Path) -> IngestResponse:
         """Uploads a file to the ingest server and returns the IngestResponse.
@@ -92,12 +93,11 @@ class DspIngestClientLive(AssetClient):
         Returns:
             IngestResponse: The internal filename of the uploaded file.
         """
-        s = DspIngestClientLive._retry_session(retries=6)
         url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/assets/ingest/{filepath.name}"
         err = f"Failed to ingest {filepath} to '{url}'."
         with open(filepath, "rb") as binary_io:
             try:
-                res = s.post(
+                res = self.session.post(
                     url=url,
                     headers={"Authorization": f"Bearer {self.token}", "Content-Type": "application/octet-stream"},
                     data=binary_io,

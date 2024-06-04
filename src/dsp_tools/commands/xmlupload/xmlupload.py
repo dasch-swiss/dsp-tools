@@ -18,9 +18,9 @@ from dsp_tools.commands.xmlupload.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.models.deserialise.xmlpermission import XmlPermission
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
-from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
 from dsp_tools.commands.xmlupload.models.namespace_context import get_json_ld_context_for_project
 from dsp_tools.commands.xmlupload.models.permission import Permissions
+from dsp_tools.commands.xmlupload.models.sipi import DspSipiClientLive
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.ontology_client import OntologyClient
@@ -119,8 +119,9 @@ def _get_live_clients(
     imgdir: str,
 ) -> UploadClients:
     ingest_client: AssetClient
-    ingest_client = DspIngestClientLive(
-        dsp_ingest_url=creds.dsp_ingest_url,
+    sipi_url = creds.dsp_ingest_url.replace("https://ingest.", "https://iiif.").replace("0.0.0.0:3340", "0.0.0.0:1024")
+    ingest_client = DspSipiClientLive(
+        dsp_sipi_url=sipi_url,
         token=con.get_token(),
         shortcode=shortcode,
         imgdir=imgdir,

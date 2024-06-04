@@ -9,7 +9,7 @@ from dsp_tools.commands.xmlupload.list_client import ListClient
 from dsp_tools.commands.xmlupload.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.ingest import BulkIngestedAssetClient
-from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
+from dsp_tools.commands.xmlupload.models.sipi import DspSipiClientLive
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.project_client import ProjectClient
@@ -45,8 +45,11 @@ def resume_xmlupload(creds: ServerCredentials, skip_first_resource: bool = False
     if upload_state.config.media_previously_uploaded:
         ingest_client = BulkIngestedAssetClient()
     else:
-        ingest_client = DspIngestClientLive(
-            dsp_ingest_url=creds.dsp_ingest_url,
+        sipi_url = creds.dsp_ingest_url.replace("https://ingest.", "https://iiif.").replace(
+            "0.0.0.0:3340", "0.0.0.0:1024"
+        )
+        ingest_client = DspSipiClientLive(
+            dsp_sipi_url=sipi_url,
             token=con.get_token(),
             shortcode=upload_state.config.shortcode,
             imgdir=".",

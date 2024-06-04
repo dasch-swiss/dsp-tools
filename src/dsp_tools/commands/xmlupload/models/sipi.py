@@ -1,0 +1,112 @@
+from dataclasses import dataclass
+from dataclasses import field
+from datetime import datetime
+from pathlib import Path
+
+import requests
+from loguru import logger
+from requests import Session
+from requests.adapters import HTTPAdapter
+from requests.adapters import Retry
+
+from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLBitstream
+from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
+from dsp_tools.commands.xmlupload.models.ingest import AssetClient
+from dsp_tools.commands.xmlupload.models.ingest import IngestResponse
+from dsp_tools.commands.xmlupload.models.permission import Permissions
+from dsp_tools.models.exceptions import BadCredentialsError
+from dsp_tools.models.exceptions import PermanentConnectionError
+from dsp_tools.utils.logger_config import logger_savepath
+
+STATUS_OK = 200
+STATUS_UNAUTHORIZED = 401
+STATUS_INTERNAL_SERVER_ERROR = 500
+
+
+@dataclass
+class DspSipiClientLive(AssetClient):
+    """Client for uploading assets to a DSP-SIPI server."""
+
+    dsp_sipi_url: str
+    token: str
+    shortcode: str
+    imgdir: str
+    session: Session = field(init=False)
+
+    def __post_init__(self) -> None:
+        retries = 6
+        self.session = Session()
+        retry = Retry(
+            total=retries,
+            read=retries,
+            connect=retries,
+            backoff_factor=0.3,
+            allowed_methods=None,  # means all methods
+            status_forcelist=[STATUS_INTERNAL_SERVER_ERROR],
+        )
+        adapter = HTTPAdapter(max_retries=retry)
+        self.session.mount("http://", adapter)
+        self.session.mount("https://", adapter)
+
+    def _upload_to_sipi(self, filepath: Path) -> IngestResponse:
+        """Uploads a file to the sipi server and returns the IngestResponse.
+
+        This function sends a POST request to the sipi server with the file to upload.
+        It will retry the request 6 times in case of a connection, timeout or internal server error.
+
+        After all retry attempts are exhausted it will raise exceptions if the upload failed.
+        The http status code is also checked and if it is not 200, a PermanentConnectionError is raised.
+
+        Args:
+            filepath: Path to the file to upload, could be either absolute or relative.
+
+        Raises:
+            BadCredentialsError: If the credentials are invalid.
+            PermanentConnectionError: If the connection fails.
+
+        Returns:
+            IngestResponse: The internal filename of the uploaded file.
+        """
+        url = f"{self.dsp_sipi_url}/upload"
+        err = f"Failed to upload {filepath} to '{url}'."
+        with open(filepath, "rb") as binary_io:
+            try:
+                res = self.session.post(
+                    url=url,
+                    headers={"Authorization": f"Bearer {self.token}", "Content-Type": "application/octet-stream"},
+                    data=binary_io,
+                    timeout=60,
+                )
+                if res.status_code == STATUS_OK:
+                    return IngestResponse(internal_filename=res.json()["internalFilename"])
+                elif res.status_code == STATUS_UNAUTHORIZED:
+                    raise BadCredentialsError("Bad credentials")
+                else:
+                    user_msg = f"{err} See logs for more details: {logger_savepath}"
+                    print(user_msg)
+                    log_msg = f"{err}. Response status code {res.status_code} '{res.json()}'"
+                    logger.error(log_msg)
+                    raise PermanentConnectionError(log_msg)
+            except requests.exceptions.RequestException as e:
+                raise PermanentConnectionError(f"{err}. {e}")
+
+    def get_bitstream_info(
+        self,
+        bitstream: XMLBitstream,
+        permissions_lookup: dict[str, Permissions],
+        res_label: str,
+        res_id: str,
+    ) -> tuple[bool, None | BitstreamInfo]:
+        """Uploads a file to the sipi server and returns the BitstreamInfo."""
+        try:
+            res = self._upload_to_sipi(Path(self.imgdir) / Path(bitstream.value))
+            msg = f"Uploaded file '{bitstream.value}'"
+            print(f"{datetime.now()}: {msg}")
+            logger.info(msg)
+            permissions = permissions_lookup.get(bitstream.permissions) if bitstream.permissions else None
+            return True, BitstreamInfo(bitstream.value, res.internal_filename, permissions)
+        except PermanentConnectionError as err:
+            msg = f"Unable to upload file '{bitstream.value}' " f"of resource '{res_label}' ({res_id})"
+            print(f"{datetime.now()}: WARNING: {msg}: {err.message}")
+            logger.opt(exception=True).warning(msg)
+            return False, None

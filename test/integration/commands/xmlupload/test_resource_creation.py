@@ -11,7 +11,7 @@ from dsp_tools.commands.xmlupload import xmlupload
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
-from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
+from dsp_tools.commands.xmlupload.models.sipi import DspSipiClientLive
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.project_client import ProjectInfo
@@ -466,7 +466,7 @@ def test_interruption_if_resource_cannot_be_created_because_of_404() -> None:
     con.session.request = Mock(side_effect=post_responses)  # type: ignore[method-assign]
     project_client = ProjectClientStub(con, "1234", None)
     xmlupload._handle_upload_error = Mock()
-    ingest_client = DspIngestClientLive("", "", "1234", ".")
+    ingest_client = DspSipiClientLive("", "", "1234", ".")
 
     xmlupload._upload_resources(UploadClients(ingest_client, project_client, ListClientMock()), upload_state)
     msg = (

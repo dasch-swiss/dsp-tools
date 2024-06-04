@@ -40,7 +40,7 @@ class RequestParameters:
     data: dict[str, Any] | None = None
     data_serialized: bytes | None = field(init=False, default=None)
     headers: dict[str, str] | None = None
-    files: dict[str, tuple[str, Any]] | None = None
+    files: dict[str, tuple[Any, ...]] | None = None
 
     def __post_init__(self) -> None:
         self.data_serialized = self._serialize_payload(self.data)
@@ -137,7 +137,7 @@ class ConnectionLive(Connection):
         self,
         route: str,
         data: dict[str, Any] | None = None,
-        files: dict[str, tuple[str, Any]] | None = None,
+        files: dict[str, tuple[Any, ...]] | None = None,
         headers: dict[str, str] | None = None,
         timeout: int | None = None,
     ) -> dict[str, Any]:

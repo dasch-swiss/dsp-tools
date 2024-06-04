@@ -46,8 +46,7 @@ def resume_xmlupload(creds: ServerCredentials, skip_first_resource: bool = False
         ingest_client = BulkIngestedAssetClient()
     else:
         ingest_client = DspIngestClientLive(
-            dsp_ingest_url=creds.dsp_ingest_url,
-            token=con.get_token(),
+            con=ConnectionLive(creds.dsp_ingest_url, con.get_token()),
             shortcode=upload_state.config.shortcode,
             imgdir=".",
         )

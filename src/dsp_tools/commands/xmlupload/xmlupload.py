@@ -84,7 +84,7 @@ def xmlupload(
     ontology_client = OntologyClientLive(con=con, shortcode=shortcode, default_ontology=default_ontology)
     resources, permissions_lookup, stash = prepare_upload(root, ontology_client)
 
-    clients = _get_live_clients(con, creds, shortcode, imgdir)
+    clients = _get_live_clients(con, shortcode, imgdir)
     state = UploadState(resources, stash, config, permissions_lookup)
 
     return execute_upload(clients, state)
@@ -112,14 +112,12 @@ def _pares_xml(imgdir: str, input_file: Path) -> tuple[str, etree._Element, str]
 
 def _get_live_clients(
     con: Connection,
-    creds: ServerCredentials,
     shortcode: str,
     imgdir: str,
 ) -> UploadClients:
     ingest_client: AssetClient
     ingest_client = DspIngestClientLive(
-        dsp_ingest_url=creds.dsp_ingest_url,
-        token=con.get_token(),
+        con=con,
         shortcode=shortcode,
         imgdir=imgdir,
     )

@@ -73,8 +73,11 @@ class DspSipiClientLive(AssetClient):
             try:
                 res = self.session.post(
                     url=url,
-                    headers={"Authorization": f"Bearer {self.token}", "Content-Type": "application/octet-stream"},
-                    data=binary_io,
+                    headers={
+                        "Authorization": f"Bearer {self.token}",
+                        "Content-Type": "application/json; charset=UTF-8",
+                    },
+                    files={"file": binary_io},
                     timeout=60,
                 )
                 if res.status_code == STATUS_OK:

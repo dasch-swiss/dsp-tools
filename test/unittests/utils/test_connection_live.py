@@ -323,6 +323,17 @@ def test_try_network_action_in_testing_environment(monkeypatch: pytest.MonkeyPat
         sleep_mock.assert_not_called()
 
 
+def test_try_network_action_permanent_connection_error() -> None:
+    con = ConnectionLive("http://example.com/")
+    responses = (Mock(status_code=500, text=""),) * 7
+    con.session = SessionMock(responses)  # type: ignore[assignment]
+    con._log_request = Mock()
+    con._log_response = Mock()
+    params = RequestParameters(method="POST", url="http://example.com/", timeout=1)
+    with pytest.raises(PermanentConnectionError):
+        con._try_network_action(params)
+
+
 def test_log_request() -> None:
     con = ConnectionLive("http://example.com/")
     con.session.headers = {"Authorization": "Bearer my-very-long-token"}

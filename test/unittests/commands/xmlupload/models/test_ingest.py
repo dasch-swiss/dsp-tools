@@ -4,8 +4,8 @@ import pytest
 
 from dsp_tools.commands.xmlupload.models.ingest import AssetClient
 from dsp_tools.commands.xmlupload.models.ingest import DspIngestClientLive
+from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import PermanentConnectionError
-from dsp_tools.utils.connection_live import ConnectionLive
 
 
 @pytest.fixture()
@@ -20,7 +20,7 @@ def shortcode() -> str:
 
 @pytest.fixture()
 def ingest_client(dsp_ingest_url: str, shortcode: str) -> AssetClient:
-    return DspIngestClientLive(ConnectionLive(dsp_ingest_url), shortcode, ".")
+    return DspIngestClientLive(dsp_ingest_url, "token", shortcode, ".")
 
 
 @pytest.fixture()
@@ -41,6 +41,13 @@ def test_ingest_success(dsp_ingest_url, ingest_client, requests_mock, shortcode,
 
 def test_ingest_failure_when_file_not_found(ingest_client, tmp_file):  # type: ignore[no-untyped-def]
     with pytest.raises(FileNotFoundError):
+        ingest_client._ingest(tmp_file)
+
+
+def test_ingest_failure_when_authentication_error(dsp_ingest_url, ingest_client, requests_mock, shortcode, tmp_file):  # type: ignore[no-untyped-def]
+    tmp_file.write_text("<xml></xml>")
+    requests_mock.post(_make_url(dsp_ingest_url, shortcode, tmp_file), status_code=401)
+    with pytest.raises(BadCredentialsError):
         ingest_client._ingest(tmp_file)
 
 

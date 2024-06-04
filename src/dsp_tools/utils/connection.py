@@ -26,7 +26,7 @@ class Connection(Protocol):
         self,
         route: str,
         data: dict[str, Any] | None = None,
-        files: dict[str, tuple[Any, ...]] | None = None,
+        files: dict[str, tuple[str, Any]] | None = None,
         headers: dict[str, str] | None = None,
         timeout: int | None = None,
     ) -> dict[str, Any]:

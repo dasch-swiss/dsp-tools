@@ -53,6 +53,7 @@ class StackHandler:
     __stack_configuration: StackConfiguration
     __url_prefix: str
     __docker_path_of_user: Path
+    __localhost_url = "http://0.0.0.0"
 
     def __init__(self, stack_configuration: StackConfiguration) -> None:
         """
@@ -166,7 +167,7 @@ class StackHandler:
         """
         for _ in range(6 * 60):
             try:
-                response = requests.get("http://0.0.0.0:3030/$/server", auth=("admin", "test"), timeout=10)
+                response = requests.get(f"{self.__localhost_url}:3030/$/server", auth=("admin", "test"), timeout=10)
                 if response.ok:
                     break
             except Exception:  # noqa: BLE001 (blind-except)
@@ -188,7 +189,7 @@ class StackHandler:
         repo_template = repo_template_response.text
         repo_template = repo_template.replace("@REPOSITORY@", "knora-test")
         response = requests.post(
-            "http://0.0.0.0:3030/$/datasets",
+            f"{self.__localhost_url}:3030/$/datasets",
             files={"file": ("file.ttl", repo_template, "text/turtle; charset=utf8")},
             auth=("admin", "test"),
             timeout=30,
@@ -210,7 +211,7 @@ class StackHandler:
         Raises:
             UserError: if one of the graphs cannot be created
         """
-        graph_prefix = "http://0.0.0.0:3030/knora-test/data?graph="
+        graph_prefix = f"{self.__localhost_url}:3030/knora-test/data?graph="
         ttl_files = [
             ("webapi/src/main/resources/knora-ontologies/knora-admin.ttl", "http://www.knora.org/ontology/knora-admin"),
             ("webapi/src/main/resources/knora-ontologies/knora-base.ttl", "http://www.knora.org/ontology/knora-base"),
@@ -247,7 +248,7 @@ class StackHandler:
         Raises:
             UserError: If the user cannot be created.
         """
-        graph_prefix = "http://0.0.0.0:3030/knora-test/data?graph="
+        graph_prefix = f"{self.__localhost_url}:3030/knora-test/data?graph="
         admin_graph = "http://www.knora.org/data/admin"
         admin_user = """
         @prefix xsd:         <http://www.w3.org/2001/XMLSchema#> .
@@ -298,7 +299,22 @@ class StackHandler:
                 check=True,
             )
         subprocess.run("docker compose up -d".split(), cwd=self.__docker_path_of_user, check=True)
-        print("DSP-API is now running on http://0.0.0.0:3333/ and DSP-APP on http://0.0.0.0:4200/")
+        print(f"DSP-API is now running on {self.__localhost_url}:3333/ and DSP-APP on {self.__localhost_url}:4200/")
+
+    def _wait_for_api(self) -> None:
+        """
+        Wait until the API is up and running.
+        This mimicks the behaviour of the script webapi/scripts/wait-for-api.sh in the DSP-API repository.
+        """
+        for _ in range(6 * 60):
+            try:
+                response = requests.get(f"{self.__localhost_url}:3333/health", timeout=1)
+                if not response.ok:
+                    time.sleep(1)
+                    continue
+            except requests.exceptions.RequestException:
+                time.sleep(1)
+                continue
 
     def _execute_docker_system_prune(self) -> None:
         """
@@ -331,6 +347,7 @@ class StackHandler:
         self._wait_for_fuseki()
         self._initialize_fuseki()
         self._start_remaining_docker_containers()
+        self._wait_for_api()
         self._execute_docker_system_prune()
 
     def start_stack(self) -> bool:

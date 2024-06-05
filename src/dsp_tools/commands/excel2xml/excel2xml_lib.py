@@ -1402,13 +1402,11 @@ def make_text_prop(
             value_.text = str(val.value)
         else:
             escaped_text = _escape_reserved_chars(str(val.value))
-            # enforce that the text is well-formed XML: serialize tag ...
-            serialized = etree.tostring(value_, encoding="unicode")
-            # ... insert text at the very end of the string, and add ending tag to the previously single <text/> tag ...
-            serialized = regex.sub(r"/>$", f">{escaped_text}</text>", serialized)
-            # ... try to parse it again
+            pseudo_xml = f"<root>{escaped_text}</root>"
             try:
-                value_ = etree.fromstring(serialized)
+                parsed = etree.fromstring(pseudo_xml)
+                value_.text = parsed.text
+                value_.extend(list(parsed))
             except etree.XMLSyntaxError as err:
                 msg = (
                     "The XML tags contained in a richtext property (encoding=xml) must be well-formed. "

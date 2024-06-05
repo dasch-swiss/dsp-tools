@@ -1402,11 +1402,11 @@ def make_text_prop(
             value_.text = str(val.value)
         else:
             escaped_text = _escape_reserved_chars(str(val.value))
-            pseudo_xml = f"<root>{escaped_text}</root>"
+            pseudo_xml = f"<removeme>{escaped_text}</removeme>"
             try:
                 parsed = etree.fromstring(pseudo_xml)
-                value_.text = parsed.text
-                value_.extend(list(parsed))
+                value_.text = parsed.text  # everything before the first child tag
+                value_.extend(list(parsed))  # all (nested) children of the pseudo-xml
             except etree.XMLSyntaxError as err:
                 msg = (
                     "The XML tags contained in a richtext property (encoding=xml) must be well-formed. "
@@ -1415,7 +1415,7 @@ def make_text_prop(
                 if calling_resource:
                     msg += f"The error occurred in resource {calling_resource}, property {name}"
                 msg += f"\nOriginal error message: {err.msg}"
-                msg += f"\nEventual line/column numbers are relative to this serialized text: {serialized}"
+                msg += f"\nEventual line/column numbers are relative to this text: {pseudo_xml}"
                 raise BaseError(msg) from None
         prop_.append(value_)
 

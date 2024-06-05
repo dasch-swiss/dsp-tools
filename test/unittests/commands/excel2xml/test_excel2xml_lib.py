@@ -641,6 +641,24 @@ class TestMakeProps(unittest.TestCase):
         returned = regex.sub(r"</?text(-prop)?( [^>]+)?>", "", returned)
         assert returned == expected
 
+    def test_make_text_prop_special_characters_1(self) -> None:
+        original = "'uuas\\. 11` \\a\ i! 1 ?7"
+        expected = "'uuas\\. 11` \\a\ i! 1 ?7"
+        returned = etree.tostring(
+            excel2xml.make_text_prop(":test", excel2xml.PropertyElement(original, encoding="xml")), encoding="unicode"
+        )
+        returned = regex.sub(r"</?text(-prop)?( [^>]+)?>", "", returned)
+        assert returned == expected
+
+    def test_make_text_prop_special_characters_2(self) -> None:
+        original = "Rinne   \Rinne"
+        expected = "Rinne   \Rinne"
+        returned = etree.tostring(
+            excel2xml.make_text_prop(":test", excel2xml.PropertyElement(original, encoding="xml")), encoding="unicode"
+        )
+        returned = regex.sub(r"</?text(-prop)?( [^>]+)?>", "", returned)
+        assert returned == expected
+
     def test_make_annotation(self) -> None:
         expected = '<annotation label="label" id="id" permissions="res-default"/>'
         result = _strip_namespace(excel2xml.make_annotation("label", "id"))

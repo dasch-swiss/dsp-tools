@@ -15,18 +15,9 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     steps:
-      - uses: google-github-actions/release-please-action@v3
+      - uses: googleapis/release-please-action@v4
         with:
           token: ${{ secrets.GH_TOKEN }}
           release-type: python
-          package-name: dsp-tools
-          changelog-types: >-
-            [
-              {"type": "feat", "section": "Enhancements", "hidden": false }, 
-              {"type": "fix", "section": "Bug Fixes", "hidden": false }, 
-              {"type": "chore", "section": "Maintenance", "hidden": false }, 
-              {"type": "refactor", "section": "Maintenance", "hidden": false }, 
-              {"type": "docs", "section": "Documentation", "hidden": false },
-              {"type": "deprecated", "section": "Deprecated", "hidden": false }
-            ]
-          pull-request-title-pattern: 'chore: release ${version}'
+          config-file: .github/release-please-config.json
+

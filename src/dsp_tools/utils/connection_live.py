@@ -19,6 +19,7 @@ from requests import RequestException
 from requests import Response
 from requests import Session
 
+from dsp_tools.models.exceptions import BadApiResponseError
 from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import PermanentConnectionError
@@ -155,7 +156,8 @@ class ConnectionLive(Connection):
             response from server
 
         Raises:
-            PermanentConnectionError: if the server returns a permanent error
+            PermanentConnectionError: if all attempts have failed
+            BadApiResponseError: if the server returns a permanent error
         """
         if data:
             headers = headers or {}
@@ -183,7 +185,8 @@ class ConnectionLive(Connection):
             response from server
 
         Raises:
-            PermanentConnectionError: if the server returns a permanent error
+            PermanentConnectionError: if all attempts have failed
+            BadApiResponseError: if the server returns a permanent error
         """
         params = RequestParameters("GET", self._make_url(route), self.timeout_get_delete, headers=headers)
         response = self._try_network_action(params)
@@ -207,7 +210,8 @@ class ConnectionLive(Connection):
             response from server
 
         Raises:
-            PermanentConnectionError: if the server returns a permanent error
+            PermanentConnectionError: if all attempts have failed
+            BadApiResponseError: if the server returns a permanent error
         """
         if data:
             headers = headers or {}
@@ -233,7 +237,8 @@ class ConnectionLive(Connection):
             response from server
 
         Raises:
-            PermanentConnectionError: if the server returns a permanent error
+            PermanentConnectionError: if all attempts have failed
+            BadApiResponseError: if the server returns a permanent error
         """
         params = RequestParameters("DELETE", self._make_url(route), self.timeout_get_delete, headers=headers)
         response = self._try_network_action(params)
@@ -257,7 +262,8 @@ class ConnectionLive(Connection):
 
         Raises:
             BadCredentialsError: if the server returns a 401 status code on the route /v2/authentication
-            PermanentConnectionError: if the server returns a permanent error
+            PermanentConnectionError: if all attempts have failed
+            BadApiResponseError: if the server returns a permanent error
             unexpected exceptions: if the action fails with an unexpected exception
 
         Returns:
@@ -299,7 +305,7 @@ class ConnectionLive(Connection):
             if original_str := regex.search(r'{"knora-api:error":"dsp\.errors\.(.*)","@context', str(response.content)):
                 msg += f"\n{' '*37}Original Message: {original_str.group(1)}\n"
             msg += f"See logs for more details: {logger_savepath}"
-            raise PermanentConnectionError(msg)
+            raise BadApiResponseError(msg)
 
     def _renew_session(self) -> None:
         self.session.close()

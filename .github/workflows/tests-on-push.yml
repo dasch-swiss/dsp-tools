@@ -54,13 +54,13 @@ jobs:
       - name: Install poetry, python, and dependencies
         uses: ./.github/actions/setup
       - name: unittests
-        run: poetry exec unittests -- --cov=dsp_tools
+        run: poetry exec unittests -- --cov=dsp_tools --cov-report xml
       - name: upload coverage report to codecov.io
         uses: codecov/codecov-action@v4
         with:
           flags: unittests
           token: ${{ secrets.CODECOV_TOKEN }}
-          file: ./.coverage # optional
+          verbose: true
 
   integration-tests:
     runs-on: ubuntu-latest
@@ -70,12 +70,13 @@ jobs:
       - name: Install poetry, python, and dependencies
         uses: ./.github/actions/setup
       - name: integration-tests
-        run: poetry exec integration-tests -- --cov=dsp_tools
+        run: poetry exec integration-tests -- --cov=dsp_tools --cov-report xml
       - name: upload coverage report to codecov.io
         uses: codecov/codecov-action@v4
         with:
           flags: integration-tests
           token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true
   
 
   benchmarking:

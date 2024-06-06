@@ -19,6 +19,7 @@ from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItem
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
+from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import PermanentTimeOutError
 from dsp_tools.models.exceptions import XmlUploadInterruptedError
 from dsp_tools.utils.connection import Connection
@@ -174,7 +175,8 @@ def _2_resources_with_stash_interrupted_by_error(
         ingest_client_mock, project_client, ListClientMock()
     )
 
-    xmlupload._upload_resources(clients, upload_state)
+    with pytest.warns(DspToolsUserWarning):
+        xmlupload._upload_resources(clients, upload_state)
 
     assert len(con.post.call_args_list) == len(post_responses)
     err_msg = (

@@ -70,8 +70,8 @@ class PermanentConnectionError(BaseError):
     """This error is raised when all attempts to reconnect to DSP have failed."""
 
 
-class BadApiResponseError(BaseError):
-    """This error is raised if the API responds with a permanent error."""
+class InvalidInputError(BaseError):
+    """This error is raised if the API responds with a permanent error because of invalid input data"""
 
 
 class PermanentTimeOutError(BaseError):

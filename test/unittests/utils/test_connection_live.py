@@ -14,7 +14,7 @@ import regex
 from requests import ReadTimeout
 from requests import RequestException
 
-from dsp_tools.models.exceptions import BadApiResponseError
+from dsp_tools.models.exceptions import InvalidInputError
 from dsp_tools.models.exceptions import PermanentConnectionError
 from dsp_tools.models.exceptions import PermanentTimeOutError
 from dsp_tools.models.exceptions import UserError
@@ -319,7 +319,7 @@ def test_try_network_action_in_testing_environment(monkeypatch: pytest.MonkeyPat
     con._log_response = Mock()
     params = RequestParameters(method="PUT", url="http://example.com/", timeout=1)
     with patch("dsp_tools.utils.connection_live.time.sleep") as sleep_mock:
-        with pytest.raises(BadApiResponseError):
+        with pytest.raises(InvalidInputError):
             con._try_network_action(params)
         sleep_mock.assert_not_called()
 

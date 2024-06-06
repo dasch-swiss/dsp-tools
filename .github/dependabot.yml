@@ -3,6 +3,9 @@
 # Use Dependabot to automatically keep dependencies updated to the latest version, even when they don’t have any known vulnerabilities
 # see https://docs.github.com/en/code-security/dependabot/dependabot-version-updates
 
+env:
+  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
 version: 2
 updates:
   - package-ecosystem: "pip"

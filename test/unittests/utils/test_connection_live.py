@@ -323,7 +323,8 @@ def test_try_network_action_in_testing_environment(monkeypatch: pytest.MonkeyPat
         sleep_mock.assert_not_called()
 
 
-def test_try_network_action_permanent_connection_error() -> None:
+def test_try_network_action_permanent_connection_error(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("DSP_TOOLS_TESTING", "true")  # automatically set in CI, but not locally
     con = ConnectionLive("http://example.com/")
     responses = (Mock(status_code=500, text=""),) * 7
     con.session = SessionMock(responses)  # type: ignore[assignment]

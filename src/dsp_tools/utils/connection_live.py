@@ -304,8 +304,11 @@ class ConnectionLive(Connection):
             msg = "Permanently unable to execute the network action. "
             if original_str := regex.search(r'{"knora-api:error":"dsp\.errors\.(.*)","@context', str(response.content)):
                 msg += f"\n{' '*37}Original Message: {original_str.group(1)}\n"
+                msg += f"See logs for more details: {logger_savepath}"
+                if original_str.group(1).startswith("OntologyConstraintException"):
+                    raise BadApiResponseError(msg)
             msg += f"See logs for more details: {logger_savepath}"
-            raise BadApiResponseError(msg)
+            raise PermanentConnectionError(msg)
 
     def _renew_session(self) -> None:
         self.session.close()

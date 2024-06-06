@@ -407,7 +407,7 @@ class TestMakeProps(unittest.TestCase):
         self.run_test(prop, method, [int(x) for x in different_values], invalid_values)
 
     def test_make_interval_prop(self) -> None:
-        different_values = ["+.1:+.9", "10:20", "1.5:2.5"]
+        different_values = ["0.1:5", "10:20", "1.5:2.5"]
         for val in different_values:
             output = excel2xml.make_interval_prop("hasSegmentBounds", val)
             self.assertEqual(output[0].text, val)
@@ -473,7 +473,7 @@ class TestMakeProps(unittest.TestCase):
         invalid_values = ["https:", 10.0, 5, "www.test.com"]
         self.run_test(prop, method, different_values, invalid_values)
 
-    @pytest.mark.filterwarnings("ignore::UserWarning")
+    @pytest.mark.filterwarnings("ignore::dsp_tools.models.custom_warnings.DspToolsUserWarning")
     def test_make_text_prop(self) -> None:
         prop = "text"
         method = excel2xml.make_text_prop
@@ -642,7 +642,7 @@ class TestMakeProps(unittest.TestCase):
         assert returned == expected
 
     def test_make_text_prop_special_characters_xml(self) -> None:
-        originals = ["'uuas\\. 11` \\a\ i! 1 ?7", "Rinne   \Rinne"]
+        originals = ["'uuas\\. 11` \\a\\ i! 1 ?7", "Rinne   \\Rinne"]
         for orig in originals:
             returned = etree.tostring(
                 excel2xml.make_text_prop(":test", excel2xml.PropertyElement(orig, encoding="xml")), encoding="unicode"
@@ -651,7 +651,7 @@ class TestMakeProps(unittest.TestCase):
             assert returned == orig
 
     def test_make_text_prop_special_characters_utf8(self) -> None:
-        originals = ["'uuas\\. 11` \\a\ i! 1 ?7", "Rinne   \Rinne"]
+        originals = ["'uuas\\. 11` \\a\\ i! 1 ?7", "Rinne   \\Rinne"]
         for orig in originals:
             returned = etree.tostring(excel2xml.make_text_prop(":test", orig), encoding="unicode")
             returned = regex.sub(r"</?text(-prop)?( [^>]+)?>", "", returned)

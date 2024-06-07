@@ -1,5 +1,33 @@
 # Changelog
 
+## [8.1.0](https://github.com/dasch-swiss/dsp-tools/compare/v8.0.0...v8.1.0) (2024-06-04)
+
+
+### Enhancements
+
+* add IIIF image support (DEV-3507) ([#946](https://github.com/dasch-swiss/dsp-tools/issues/946)) ([aa3eabb](https://github.com/dasch-swiss/dsp-tools/commit/aa3eabb1451c52c97091d0ed86c830379b052d22))
+* **xmlupload:** interrupt if a resource cannot be created due to server failure (DEV-3444) ([#954](https://github.com/dasch-swiss/dsp-tools/issues/954)) ([debc0b3](https://github.com/dasch-swiss/dsp-tools/commit/debc0b3eee4a669933e5c6dcbf175673f8ef3f04))
+
+
+### Bug Fixes
+
+* **xmlupload:** improve ingest performance by reusing session (DEV-3714) ([#986](https://github.com/dasch-swiss/dsp-tools/issues/986)) ([d818f5d](https://github.com/dasch-swiss/dsp-tools/commit/d818f5d885c0cc94d9169f16a3921f97ec0cfc18))
+
+
+### Maintenance
+
+* **deps:** bump the all-dependencies group with 9 updates ([#984](https://github.com/dasch-swiss/dsp-tools/issues/984)) ([1611d65](https://github.com/dasch-swiss/dsp-tools/commit/1611d6506452f65b12946b1ae4b020aa3478f378))
+* fix `poetry exec clean` ([#983](https://github.com/dasch-swiss/dsp-tools/issues/983)) ([1721b1c](https://github.com/dasch-swiss/dsp-tools/commit/1721b1c926a0d6c629872f611e54c7dc0e022fbc))
+* **start-stack:** print useful error if Docker is not running ([#980](https://github.com/dasch-swiss/dsp-tools/issues/980)) ([25c036c](https://github.com/dasch-swiss/dsp-tools/commit/25c036c38bd84bdfdabb17244ab6d2893d9abfcd))
+* **start-stack:** remove network from docker-compose.yml ([#981](https://github.com/dasch-swiss/dsp-tools/issues/981)) ([ea6fa08](https://github.com/dasch-swiss/dsp-tools/commit/ea6fa0861359d825e3eb6b2c122ecff67ccbb5af))
+* **start-stack:** remove unnecessary config from docker-compose.yml ([#982](https://github.com/dasch-swiss/dsp-tools/issues/982)) ([549d053](https://github.com/dasch-swiss/dsp-tools/commit/549d053506f8d3fd7b1a2e7aedd9d99eeeb751d3))
+* update dependencies ([#977](https://github.com/dasch-swiss/dsp-tools/issues/977)) ([9473a7e](https://github.com/dasch-swiss/dsp-tools/commit/9473a7ef6448f25f25143c17c6717b6470cff0f5))
+
+
+### Documentation
+
+* **create:** fix: descriptions are required in JSON  ([#985](https://github.com/dasch-swiss/dsp-tools/issues/985)) ([00c8072](https://github.com/dasch-swiss/dsp-tools/commit/00c80722cb2d21f0f70027d71f4d49352ad0181f))
+
 ## [8.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v7.2.0...v8.0.0) (2024-05-22)
 
 

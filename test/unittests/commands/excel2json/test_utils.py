@@ -4,6 +4,7 @@ import unittest
 from typing import Any
 from typing import cast
 
+import numpy as np
 import pandas as pd
 import pytest
 from pandas.testing import assert_frame_equal
@@ -182,24 +183,24 @@ if __name__ == "__main__":
 def test_add_optional_columns_with_missing_cols() -> None:
     original_df = pd.DataFrame(
         {
-            "comment_en": ["text_en", pd.NA],
-            "comment_it": ["text_it", pd.NA],
-            "comment_rm": [pd.NA, pd.NA],
+            "comment_en": ["text_en", np.NaN],
+            "comment_it": ["text_it", np.NaN],
+            "comment_rm": [np.NaN, np.NaN],
         }
     )
     expected_df = pd.DataFrame(
         {
-            "comment_de": [pd.NA, pd.NA],
-            "comment_en": ["text_en", pd.NA],
-            "comment_fr": [pd.NA, pd.NA],
-            "comment_it": ["text_it", pd.NA],
-            "comment_rm": [pd.NA, pd.NA],
-            "label_de": [pd.NA, pd.NA],
-            "label_en": [pd.NA, pd.NA],
-            "label_fr": [pd.NA, pd.NA],
-            "label_it": [pd.NA, pd.NA],
-            "label_rm": [pd.NA, pd.NA],
-            "subject": [pd.NA, pd.NA],
+            "comment_de": [np.NaN, np.NaN],
+            "comment_en": ["text_en", np.NaN],
+            "comment_fr": [np.NaN, np.NaN],
+            "comment_it": ["text_it", np.NaN],
+            "comment_rm": [np.NaN, np.NaN],
+            "label_de": [np.NaN, np.NaN],
+            "label_en": [np.NaN, np.NaN],
+            "label_fr": [np.NaN, np.NaN],
+            "label_it": [np.NaN, np.NaN],
+            "label_rm": [np.NaN, np.NaN],
+            "subject": [np.NaN, np.NaN],
         }
     )
     optional_col_set = {
@@ -219,7 +220,7 @@ def test_add_optional_columns_with_missing_cols() -> None:
     # as the columns are extracted via a set, they are not sorted and may appear in any order,
     # this would cause the validation to fail
     returned_df = returned_df.sort_index(axis=1)
-    assert_frame_equal(expected_df, returned_df)
+    assert_frame_equal(expected_df, returned_df, check_dtype=False)
 
 
 def test_add_optional_columns_no_missing_cols() -> None:

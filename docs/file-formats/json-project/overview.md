@@ -108,12 +108,12 @@ The `project` object contains the basic metadata about the project. The followin
 - shortcode
 - shortname
 - longname
+- descriptions
 - keywords
 - ontologies
 
 The following fields are optional (if one or more of these fields are not used, they should be omitted):
 
-- descriptions
 - lists
 - groups
 - users

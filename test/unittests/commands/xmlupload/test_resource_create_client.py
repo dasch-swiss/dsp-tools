@@ -2,16 +2,21 @@ from typing import cast
 
 import pytest
 from lxml import etree
+from rdflib import RDF
 from rdflib import BNode
+from rdflib import Literal
 from rdflib import URIRef
 
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import IIIFUriInfo
+from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLValue
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import BitstreamInfo
 from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import XMLResource
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.commands.xmlupload.models.permission import PermissionValue
 from dsp_tools.commands.xmlupload.models.serialise.jsonld_serialiser import serialise_property_graph
+from dsp_tools.commands.xmlupload.resource_create_client import KNORA_API
 from dsp_tools.commands.xmlupload.resource_create_client import _make_bitstream_file_value
+from dsp_tools.commands.xmlupload.resource_create_client import _make_boolean_value
 from dsp_tools.commands.xmlupload.resource_create_client import _make_iiif_uri_value
 from dsp_tools.commands.xmlupload.resource_create_client import _to_boolean
 from dsp_tools.models.exceptions import BaseError
@@ -462,6 +467,35 @@ def test_make_iiif_uri_value_serialised() -> None:
         }
     }
     assert serialised == expected
+
+
+def test_make_boolean_value_with_permissions() -> None:
+    permissions_lookup = {"prop-default": Permissions({PermissionValue.CR: ["knora-admin:ProjectAdmin"]})}
+
+    xml_str = """
+        <resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id">
+            <boolean-prop name=":isTrueOrFalse">
+                <boolean permissions="prop-default">true</boolean>
+            </boolean-prop>
+        </resource>
+        """
+    xmlresource = XMLResource(etree.fromstring(xml_str), "foo")
+    test_val: XMLValue = xmlresource.properties[0].values[0]
+    b_node = BNode()
+    bool_graph = _make_boolean_value(test_val, b_node, permissions_lookup)
+
+    for triple in bool_graph.triples((b_node, None, None)):
+        if triple[1] == URIRef(RDF.type) and triple[2] == URIRef(KNORA_API.BooleanValue):
+            continue
+        elif triple[1] == URIRef(KNORA_API.booleanValueAsBoolean) and triple[2] == Literal(_to_boolean("true")):
+            continue
+        elif triple[1] == URIRef(KNORA_API.hasPermissions) and triple[2] == Literal(
+            str(permissions_lookup.get(str(test_val.permissions)))
+        ):
+            continue
+        else:
+            # unexpected triple
+            pytest.fail(f"unexpected triple: {triple}")
 
 
 if __name__ == "__main__":

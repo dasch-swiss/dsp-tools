@@ -140,6 +140,11 @@ class ResourceCreateClient:
                     int_graph = _make_integer_prop(prop, res_bnode, int_prop_name, self.permissions_lookup)
                     properties_graph += int_graph
                     last_prop_name = int_prop_name
+                case "boolean":
+                    bool_prop_name = self._get_absolute_prop_iri(prop.name, namespaces)
+                    bool_graph = _make_boolean_prop(prop, res_bnode, bool_prop_name, self.permissions_lookup)
+                    properties_graph += bool_graph
+                    last_prop_name = bool_prop_name
                 case _:
                     properties_serialised.update({prop_name(prop): make_values(prop)})
         if resource.iiif_uri:
@@ -158,8 +163,6 @@ class ResourceCreateClient:
 
     def _make_value(self, value: XMLValue, value_type: str) -> dict[str, Any]:  # noqa: PLR0912 (too many branches)
         match value_type:
-            case "boolean":
-                res = _make_boolean_value(value)
             case "color":
                 res = _make_color_value(value)
             case "date":
@@ -245,15 +248,6 @@ def _make_bitstream_file_value(bitstream_info: BitstreamInfo) -> dict[str, Any]:
     return {prop: file_value}
 
 
-def _make_boolean_value(value: XMLValue) -> dict[str, Any]:
-    string_value = _assert_is_string(value.value)
-    boolean = _to_boolean(string_value)
-    return {
-        "@type": "knora-api:BooleanValue",
-        "knora-api:booleanValueAsBoolean": boolean,
-    }
-
-
 def _to_boolean(s: str | int | bool) -> bool:
     match s:
         case "True" | "true" | "1" | 1 | True:
@@ -323,6 +317,28 @@ def _make_geoname_value(value: XMLValue) -> dict[str, Any]:
         "@type": "knora-api:GeonameValue",
         "knora-api:geonameValueAsGeonameCode": value.value,
     }
+
+
+def _make_boolean_prop(
+    prop: XMLProperty, res_bn: BNode, prop_name: URIRef, permissions_lookup: dict[str, Permissions]
+) -> Graph:
+    g = Graph()
+    for value in prop.values:
+        single_val_bn = BNode()
+        g.add((res_bn, prop_name, single_val_bn))
+        g += _make_boolean_value(value, single_val_bn, permissions_lookup)
+    return g
+
+
+def _make_boolean_value(value: XMLValue, val_bn: BNode, permissions_lookup: dict[str, Permissions]) -> Graph:
+    s = _assert_is_string(value.value)
+    g = Graph()
+    g.add((val_bn, RDF.type, KNORA_API.BooleanValue))
+    g.add((val_bn, KNORA_API.booleanValueAsBoolean, Literal(_to_boolean(s))))
+    _add_optional_permission_triple(value, val_bn, g, permissions_lookup)
+    if value.comment:
+        g.add((val_bn, KNORA_API.valueHasComment, Literal(value.comment)))
+    return g
 
 
 def _make_integer_prop(

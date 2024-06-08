@@ -299,7 +299,6 @@ class StackHandler:
                 check=True,
             )
         subprocess.run("docker compose up -d".split(), cwd=self.__docker_path_of_user, check=True)
-        print(f"DSP-API is now running on {self.__localhost_url}:3333/ and DSP-APP on {self.__localhost_url}:4200/")
 
     def _wait_for_api(self) -> None:
         """
@@ -315,6 +314,7 @@ class StackHandler:
             except requests.exceptions.RequestException:
                 time.sleep(1)
                 continue
+        print(f"DSP-API is now running on {self.__localhost_url}:3333/ and DSP-APP on {self.__localhost_url}:4200/")
 
     def _execute_docker_system_prune(self) -> None:
         """

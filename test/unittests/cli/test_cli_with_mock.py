@@ -248,5 +248,37 @@ def test_rosetta(upload_rosetta: Mock) -> None:
     upload_rosetta.assert_called_once_with()
 
 
+@patch("dsp_tools.cli.entry_point._check_version")
+def test_suppress_update_prompt_flag_absent(check_version: Mock) -> None:
+    """Test that the version is checked if the '--suppress-update-prompt' flag is absent"""
+    args = "xmlupload --user=testuser data.xml".split()
+    entry_point.run(args)
+    check_version.assert_called_once()
+
+
+@patch("dsp_tools.cli.entry_point._check_version")
+def test_suppress_update_prompt_leftmost(check_version: Mock) -> None:
+    """Test the '--suppress-update-prompt' flag"""
+    args = "xmlupload --suppress-update-prompt --user=testuser data.xml".split()
+    entry_point.run(args)
+    check_version.assert_not_called()
+
+
+@patch("dsp_tools.cli.entry_point._check_version")
+def test_suppress_update_prompt_middle(check_version: Mock) -> None:
+    """Test the '--suppress-update-prompt' flag"""
+    args = "xmlupload --user=testuser --suppress-update-prompt data.xml".split()
+    entry_point.run(args)
+    check_version.assert_not_called()
+
+
+@patch("dsp_tools.cli.entry_point._check_version")
+def test_suppress_update_prompt_rightmost(check_version: Mock) -> None:
+    """Test the '--suppress-update-prompt' flag"""
+    args = "xmlupload --user=testuser data.xml --suppress-update-prompt".split()
+    entry_point.run(args)
+    check_version.assert_not_called()
+
+
 if __name__ == "__main__":
     pytest.main([__file__])

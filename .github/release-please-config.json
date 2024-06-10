@@ -9,6 +9,7 @@
     "release-type": "python",
     "bootstrap-sha": "eecdaa6e27c8e02eedf0f21344cae8e7ee23c899",
     "pull-request-title-pattern": "chore: release ${version}",
+    "include-component-in-tag": false,
     "changelog-sections": [
         {
             "type": "feat",

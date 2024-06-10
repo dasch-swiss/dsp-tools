@@ -48,4 +48,4 @@ repos:
     rev: v0.39.0
     hooks:
     - id: markdownlint
-      args: [--config, .markdownlint.yml, --ignore, CHANGELOG.md]
+      args: [--config, .markdownlint.yml, --ignore, src/dsp_tools/CHANGELOG.md]

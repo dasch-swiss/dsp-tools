@@ -100,7 +100,7 @@ markdownlint = """
     docker run \
     -v $PWD:/workdir ghcr.io/igorshubovych/markdownlint-cli:latest \
     --config .markdownlint.yml \
-    --ignore CHANGELOG.md "**/*.md"
+    --ignore src/dsp_tools/CHANGELOG.md "**/*.md"
 """
 ruff-check = "ruff check . --ignore=A002,D101,D102,PLR0913,PLR2004"
 ruff-check-github = """

@@ -3,7 +3,7 @@
     "packages": {
         "src/dsp_tools": {
             "package-name": "dsp-tools",
-            "changelog-path": "../../CHANGELOG.md"
+            "changelog-path": "CHANGELOG.md"
         }
     },
     "release-type": "python",

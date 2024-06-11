@@ -5,7 +5,7 @@ name: Release-Please
 on:
   push:
     branches:
-      main
+      - main
 
 permissions:
   contents: write

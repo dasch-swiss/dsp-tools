@@ -977,6 +977,17 @@ files = [
 ]
 
 [[package]]
+name = "namedentities"
+version = "1.9.4"
+description = "Named (and numeric) HTML entities to/from each other or Unicode"
+optional = false
+python-versions = "*"
+files = [
+    {file = "namedentities-1.9.4-py2.py3-none-any.whl", hash = "sha256:65ccdb2950ad13a651fc62f170169ad7c13697ad702ff655f7ab5aa4fcbd162e"},
+    {file = "namedentities-1.9.4.zip", hash = "sha256:0bd2a5e5f4136230429c72b7357b3370098f702fe116e09204f128dd6da614b2"},
+]
+
+[[package]]
 name = "networkx"
 version = "3.3"
 description = "Python package for creating and manipulating graphs and networks"
@@ -2503,4 +2514,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "144734616814285ce493a34b11a883be1b5599b13bb4588944683eb544955820"
+content-hash = "45053cb51d488e83a1c2f7a4c2868ad499872a31f7f9b7e974263c5377eaac8c"

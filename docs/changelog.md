@@ -1,1 +1,1 @@
-{% include-markdown "../src/dsp_tools/CHANGELOG.md" %}
+{% include-markdown "../CHANGELOG.md" %}

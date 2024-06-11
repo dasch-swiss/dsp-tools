@@ -3,9 +3,7 @@
 name: Release-Please
 
 on:
-  push:
-    branches:
-      - main
+  push
 
 permissions:
   contents: write

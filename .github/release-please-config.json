@@ -1,0 +1,44 @@
+{
+    "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+    "packages": {
+        ".": {
+            "package-name": "dsp-tools",
+            "changelog-path": "CHANGELOG.md"
+        }
+    },
+    "release-type": "python",
+    "pull-request-title-pattern": "chore: release ${version}",
+    "include-component-in-tag": false,
+    "changelog-sections": [
+        {
+            "type": "feat",
+            "section": "Enhancements",
+            "hidden": false
+        },
+        {
+            "type": "fix",
+            "section": "Bug Fixes",
+            "hidden": false
+        },
+        {
+            "type": "chore",
+            "section": "Maintenance",
+            "hidden": false
+        },
+        {
+            "type": "refactor",
+            "section": "Maintenance",
+            "hidden": false
+        },
+        {
+            "type": "docs",
+            "section": "Documentation",
+            "hidden": false
+        },
+        {
+            "type": "deprecated",
+            "section": "Deprecated",
+            "hidden": false
+        }
+    ]
+}

@@ -1,5 +1,21 @@
 # Changelog
 
+## [8.1.1](https://github.com/dasch-swiss/dsp-tools/compare/v8.1.0...v8.1.1) (2024-06-11)
+
+
+### Bug Fixes
+
+* **ci:** fix flaky CI tests in rosetta repo (DEV-3733) ([#990](https://github.com/dasch-swiss/dsp-tools/issues/990)) ([544923f](https://github.com/dasch-swiss/dsp-tools/commit/544923fe59f51724010b93c668b557c0260e1bb0))
+* **ci:** move changelog (DEV-3730) ([#1000](https://github.com/dasch-swiss/dsp-tools/issues/1000)) ([0fae3e7](https://github.com/dasch-swiss/dsp-tools/commit/0fae3e75d952dbf31931ba840e90aea0bb983082))
+* **excel2xml:** support backslash in make_text_prop() (DEV-3377) ([#991](https://github.com/dasch-swiss/dsp-tools/issues/991)) ([6e301d0](https://github.com/dasch-swiss/dsp-tools/commit/6e301d016168d44d3f1957f5751ac4467759a332))
+* **xmlupload:** OntologyConstraintException should not interrupt an xmlupload (DEV-3724) ([#995](https://github.com/dasch-swiss/dsp-tools/issues/995)) ([50ab6bf](https://github.com/dasch-swiss/dsp-tools/commit/50ab6bfd4c4c0fbced6a4bbaed4bee371276b673))
+
+
+### Maintenance
+
+* **start-stack:** don't print that stack is ready before it is ready ([#997](https://github.com/dasch-swiss/dsp-tools/issues/997)) ([9317df2](https://github.com/dasch-swiss/dsp-tools/commit/9317df24904338782892cd0194dcfdb97b2588e9))
+* **xmlupload:** serialise boolean value (DEV-3713) ([#988](https://github.com/dasch-swiss/dsp-tools/issues/988)) ([92d3c64](https://github.com/dasch-swiss/dsp-tools/commit/92d3c643e0d4f560a7d2ece4278718d4fc112c6b))
+
 ## [8.1.0](https://github.com/dasch-swiss/dsp-tools/compare/v8.0.0...v8.1.0) (2024-06-04)
 
 

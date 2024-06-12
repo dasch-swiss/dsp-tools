@@ -1,14 +1,14 @@
 {
     "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
     "packages": {
-        "src/dsp_tools": {
+        ".": {
             "package-name": "dsp-tools",
-            "changelog-path": "../../CHANGELOG.md"
+            "changelog-path": "CHANGELOG.md"
         }
     },
     "release-type": "python",
-    "bootstrap-sha": "eecdaa6e27c8e02eedf0f21344cae8e7ee23c899",
     "pull-request-title-pattern": "chore: release ${version}",
+    "include-component-in-tag": false,
     "changelog-sections": [
         {
             "type": "feat",

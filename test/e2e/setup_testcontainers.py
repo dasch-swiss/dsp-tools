@@ -123,6 +123,8 @@ def _get_sipi_container(network: Network, version: str) -> DockerContainer:
         .with_name("sipi")
         .with_network(network)
         .with_bind_ports(1024, 1024)
+        .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_HOST", "0.0.0.0")  # noqa: S104
+        .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT", "3333")
         .with_command("--config=/sipi/config/sipi.docker-config.lua")
         .with_volume_mapping(SIPI_PATH_TMP_SIPI, "/tmp", "rw")  # noqa: S108
         .with_volume_mapping(SIPI_PATH, "/sipi/config", "rw")

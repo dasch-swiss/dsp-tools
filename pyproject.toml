@@ -39,6 +39,7 @@ packaging = "^24.0"
 loguru = "^0.7.2"
 rdflib = "^7.0.0"
 pyld = "^2.0.4"
+namedentities = "^1.9.4"
 
 
 [tool.poetry.group.dev.dependencies]

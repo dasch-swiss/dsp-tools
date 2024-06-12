@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout dsp-tools repo
-        uses: actions/checkout@v4          
+        uses: actions/checkout@v4
       - name: Install poetry, python, and dependencies
         uses: ./.github/actions/setup
       - name: build docs
@@ -77,7 +77,7 @@ jobs:
           flags: integration-tests
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
-  
+
 
   benchmarking:
     runs-on: ubuntu-latest
@@ -111,7 +111,7 @@ jobs:
         run: poetry run dsp-tools start-stack --no-prune --with-test-data
       - name: legacy e2e tests
         run: poetry exec legacy-e2e-tests
-      - name: stop stack  # see if this command can run (it isn't tested anywhere else)
+      - name: stop stack # see if this command can run (it isn't tested anywhere else)
         run: poetry run dsp-tools stop-stack
       - name: make logging file available
         uses: actions/upload-artifact@v4

@@ -1403,6 +1403,7 @@ def make_text_prop(
             value_.text = str(val.value)
         else:
             escaped_text = _escape_reserved_chars(str(val.value))
+            # transform named entities (=character references) to numeric entities, e.g. &nbsp; -> &#160;
             num_ent = numeric_entities(escaped_text)
             pseudo_xml = f"<removeme>{num_ent}</removeme>"
             try:

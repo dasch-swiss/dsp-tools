@@ -657,9 +657,17 @@ class TestMakeProps(unittest.TestCase):
             returned = regex.sub(r"</?text(-prop)?( [^>]+)?>", "", returned)
             assert returned == orig
 
-    def test_make_text_prop_xml_named_char_ref(self) -> None:
-        original = "<p>text &nbsp; &auml; &euro; &lt; &amp; &gt; text</p>"
-        expected = "<p>text &#160; &#228; &#8364; &lt; &amp; &gt; text</p>"
+    def test_make_text_prop_disallowed_named_char_refs(self) -> None:
+        original = "<p>text &nbsp; &auml; &euro; text</p>"
+        expected = "<p>text \xa0 ä € text</p>"
+        prop = excel2xml.make_text_prop(":test", excel2xml.PropertyElement(original, encoding="xml"))
+        returned = etree.tostring(prop, encoding="unicode")
+        returned = regex.sub(r"</?text(-prop)?( [^>]+)?>", "", returned)
+        assert returned == expected
+
+    def test_make_text_prop_allowed_named_char_refs(self) -> None:
+        original = "<p>text &lt; &amp; &gt; text</p>"
+        expected = "<p>text &lt; &amp; &gt; text</p>"
         prop = excel2xml.make_text_prop(":test", excel2xml.PropertyElement(original, encoding="xml"))
         returned = etree.tostring(prop, encoding="unicode")
         returned = regex.sub(r"</?text(-prop)?( [^>]+)?>", "", returned)

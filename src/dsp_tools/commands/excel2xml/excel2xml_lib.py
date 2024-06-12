@@ -1405,7 +1405,7 @@ def make_text_prop(
             escaped_text = _escape_reserved_chars(str(val.value))
             # transform named entities (=character references) to numeric entities, e.g. &nbsp; -> &#160;
             num_ent = numeric_entities(escaped_text)
-            pseudo_xml = f"<removeme>{num_ent}</removeme>"
+            pseudo_xml = f"<ignore-this>{num_ent}</ignore-this>"
             try:
                 parsed = etree.fromstring(pseudo_xml)
                 value_.text = parsed.text  # everything before the first child tag

@@ -14,7 +14,7 @@ from typing import Union
 import regex
 from lxml import etree
 from lxml.builder import E
-from namedentities.core import numeric_entities
+from namedentities.core import numeric_entities  # type: ignore[import-untyped]
 from regex import Match
 
 from dsp_tools.commands.excel2xml.propertyelement import PropertyElement

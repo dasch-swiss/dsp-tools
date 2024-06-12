@@ -657,6 +657,23 @@ class TestMakeProps(unittest.TestCase):
             returned = regex.sub(r"</?text(-prop)?( [^>]+)?>", "", returned)
             assert returned == orig
 
+    def test_make_text_prop_disallowed_named_char_refs(self) -> None:
+        # the following will be displayed as "ä €" in the XML and in DSP-APP  # noqa: RUF003 (ambiguous character)
+        original = "<p>text &auml;&nbsp;&euro; text</p>"
+        expected = "<p>text ä\xa0€ text</p>"
+        prop = excel2xml.make_text_prop(":test", excel2xml.PropertyElement(original, encoding="xml"))
+        returned = etree.tostring(prop, encoding="unicode")
+        returned = regex.sub(r"</?text(-prop)?( [^>]+)?>", "", returned)
+        assert returned == expected
+
+    def test_make_text_prop_allowed_named_char_refs(self) -> None:
+        original = "<p>text &lt; &amp; &gt; text</p>"
+        expected = "<p>text &lt; &amp; &gt; text</p>"
+        prop = excel2xml.make_text_prop(":test", excel2xml.PropertyElement(original, encoding="xml"))
+        returned = etree.tostring(prop, encoding="unicode")
+        returned = regex.sub(r"</?text(-prop)?( [^>]+)?>", "", returned)
+        assert returned == expected
+
     def test_make_annotation(self) -> None:
         expected = '<annotation label="label" id="id" permissions="res-default"/>'
         result = _strip_namespace(excel2xml.make_annotation("label", "id"))

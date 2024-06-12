@@ -14,6 +14,7 @@ from typing import Union
 import regex
 from lxml import etree
 from lxml.builder import E
+from namedentities.core import numeric_entities  # type: ignore[import-untyped]
 from regex import Match
 
 from dsp_tools.commands.excel2xml.propertyelement import PropertyElement
@@ -1402,7 +1403,9 @@ def make_text_prop(
             value_.text = str(val.value)
         else:
             escaped_text = _escape_reserved_chars(str(val.value))
-            pseudo_xml = f"<removeme>{escaped_text}</removeme>"
+            # transform named entities (=character references) to numeric entities, e.g. &nbsp; -> &#160;
+            num_ent = numeric_entities(escaped_text)
+            pseudo_xml = f"<ignore-this>{num_ent}</ignore-this>"
             try:
                 parsed = etree.fromstring(pseudo_xml)
                 value_.text = parsed.text  # everything before the first child tag

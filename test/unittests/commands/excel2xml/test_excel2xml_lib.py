@@ -658,8 +658,9 @@ class TestMakeProps(unittest.TestCase):
             assert returned == orig
 
     def test_make_text_prop_disallowed_named_char_refs(self) -> None:
-        original = "<p>text &nbsp; &auml; &euro; text</p>"
-        expected = "<p>text \xa0 ä € text</p>"
+        # the following will be displayed as "ä €" in the XML and in DSP-APP  # noqa: RUF003 (ambiguous character)
+        original = "<p>text &auml;&nbsp;&euro; text</p>"
+        expected = "<p>text ä\xa0€ text</p>"
         prop = excel2xml.make_text_prop(":test", excel2xml.PropertyElement(original, encoding="xml"))
         returned = etree.tostring(prop, encoding="unicode")
         returned = regex.sub(r"</?text(-prop)?( [^>]+)?>", "", returned)

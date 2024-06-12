@@ -758,6 +758,8 @@ Behavior of text with markup (`Richtext` + `xml`):
 | `<em>text</em>`      | `<em>text</em>`        | _text_           |                                           |
 | `unclosed <tag>`     | `unclosed &lt;tag&gt;` | `unclosed <tag>` |                                           |
 |                      | `&lt;not a tag&gt;`    | `<not a tag>`    |                                           |
+| `&nbsp;`             | ` `                    | ` `              | <!-- markdownlint-disable-line MD038 -->  |
+|                      | `&nbsp;`               | ⛔               | invalid XML                               |
 
 
 #### Special Characters: Rules

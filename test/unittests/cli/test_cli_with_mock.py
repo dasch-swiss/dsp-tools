@@ -249,19 +249,23 @@ def test_rosetta(upload_rosetta: Mock) -> None:
 
 
 @patch("dsp_tools.cli.entry_point._check_version")
-def test_suppress_update_prompt_flag_absent(check_version: Mock) -> None:
+@patch("dsp_tools.cli.call_action.xmlupload")
+def test_suppress_update_prompt_flag_absent(check_version: Mock, xmlupload: Mock) -> None:
     """Test that the version is checked if the '--suppress-update-prompt' flag is absent"""
     args = "xmlupload --user=testuser data.xml".split()
     entry_point.run(args)
     check_version.assert_called_once()
+    xmlupload.assert_called_once()
 
 
 @patch("dsp_tools.cli.entry_point._check_version")
-def test_suppress_update_prompt_leftmost(check_version: Mock) -> None:
+@patch("dsp_tools.cli.call_action.xmlupload")
+def test_suppress_update_prompt_leftmost(check_version: Mock, xmlupload: Mock) -> None:
     """Test the '--suppress-update-prompt' flag"""
     args = "xmlupload --suppress-update-prompt --user=testuser data.xml".split()
     entry_point.run(args)
     check_version.assert_not_called()
+    xmlupload.assert_called_once()
 
 
 @patch("dsp_tools.cli.entry_point._check_version")

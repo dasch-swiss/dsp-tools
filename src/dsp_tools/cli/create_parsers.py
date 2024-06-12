@@ -74,7 +74,9 @@ def make_parser(
 
 
 def _add_suppress_update_prompt(subparsers: _SubParsersAction[ArgumentParser]) -> None:
-    outdated_help_text = "don't prompt when using an outdated version (useful for contexts without interactive shell)"
+    outdated_help_text = (
+        "don't prompt when using an outdated version of DSP-TOOLS (useful for contexts without interactive shell)"
+    )
     for sp in subparsers.choices.values():
         sp.add_argument("--suppress-update-prompt", action="store_true", help=outdated_help_text)
 

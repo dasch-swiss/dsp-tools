@@ -26,7 +26,7 @@ class ProjectContext:
             self._groups = None
         if self._groups:
             self._group_map: dict[str, str] = {
-                self._inv_project_map[x.project] + ":" + x.name: x.iri for x in self._groups
+                f"{self._inv_project_map[x.project]}:{x.name}": x.iri for x in self._groups
             }
         else:
             self._group_map = None

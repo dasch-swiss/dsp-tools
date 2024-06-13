@@ -201,7 +201,7 @@ def _check_correctness_all_text_value_encodings(root: etree._Element, text_prop_
     """
     text_values_in_data = _get_all_ids_and_props_and_encodings_from_root(root)
     invalid_text_values = [x for x in text_values_in_data if not _check_correctness_of_one_prop(x, text_prop_look_up)]
-    if len(invalid_text_values) == 0:
+    if not invalid_text_values:
         return ""
     msg, df = InvalidTextValueEncodings(invalid_text_values).execute_problem_protocol()
     if df is not None:
@@ -226,9 +226,9 @@ def _get_id_and_props_and_encodings_from_one_resource(resource: etree._Element) 
     return [_get_prop_and_encoding_from_one_property(res_id, child) for child in resource.iterchildren(tag="text-prop")]
 
 
-def _get_prop_and_encoding_from_one_property(res_id: str, property: etree._Element) -> TextValueData:
-    prop_name = property.attrib["name"]
-    encoding = cast(AllowedEncodings, property[0].attrib["encoding"])
+def _get_prop_and_encoding_from_one_property(res_id: str, prop: etree._Element) -> TextValueData:
+    prop_name = prop.attrib["name"]
+    encoding = cast(AllowedEncodings, prop[0].attrib["encoding"])
     return TextValueData(res_id, prop_name, encoding)
 
 

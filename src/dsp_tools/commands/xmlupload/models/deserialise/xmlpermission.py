@@ -24,8 +24,7 @@ class XmlPermission:
         """
         self._allows = []
         self.permission_id = node.attrib["id"]
-        for allow_node in node:
-            self._allows.append(XmlAllow(allow_node, project_context))
+        self._allows.extend(XmlAllow(allow_node, project_context) for allow_node in node)
 
     def get_permission_instance(self) -> Permissions:
         """Returns a list of allow elements of this permission instance"""
@@ -35,9 +34,7 @@ class XmlPermission:
         return permissions
 
     def __str__(self) -> str:
-        allow_str: list[str] = []
-        for allow in self._allows:
-            allow_str.append(f"{allow.permission} {allow.group}")
+        allow_str: list[str] = [f"{allow.permission} {allow.group}" for allow in self._allows]
         return "|".join(allow_str)
 
 
@@ -70,10 +67,10 @@ class XmlAllow:
                     if _group is None:
                         raise XmlUploadError(f'Group "{node.attrib["group"]}" is not known: Cannot find project!')
                     self._group = _group
+            elif project_context.project_name is None:
+                raise XmlUploadError("Project shortcode has not been set in ProjectContext")
             else:
-                if project_context.project_name is None:
-                    raise XmlUploadError("Project shortcode has not been set in ProjectContext")
-                self._group = project_context.project_name + ":" + tmp[1]
+                self._group = f"{project_context.project_name}:{tmp[1]}"
         elif tmp[0] in sysgroups:
             self._group = "knora-admin:" + node.attrib["group"]
         else:

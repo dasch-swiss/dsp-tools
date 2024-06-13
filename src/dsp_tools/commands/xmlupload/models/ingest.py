@@ -114,7 +114,7 @@ class DspIngestClientLive(AssetClient):
                     logger.error(log_msg)
                     raise PermanentConnectionError(log_msg)
             except requests.exceptions.RequestException as e:
-                raise PermanentConnectionError(f"{err}. {e}")
+                raise PermanentConnectionError(f"{err}. {e}") from e
 
     def get_bitstream_info(
         self,

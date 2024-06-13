@@ -9,7 +9,7 @@ runs:
       with:
         python-version: 3.12
     - name: Install poetry
-      run: | 
+      run: |
         echo ########### STEP: INSTALL POETRY ###########
         curl -sSL https://install.python-poetry.org | python3 -
       shell: bash

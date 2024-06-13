@@ -1,0 +1,37 @@
+---
+
+# https://yamllint.readthedocs.io
+
+extends: default
+
+ignore-from-file: .gitignore
+
+rules:
+  comments: disable
+  document-start:
+    level: warning
+    present: true
+  empty-lines:
+    level: warning
+    max: 2
+    max-start: 0
+    max-end: 0
+  hyphens:
+    level: warning
+    max-spaces-after: 1
+  indentation:
+    level: warning
+    spaces: consistent
+    indent-sequences: true
+    check-multi-line-strings: false
+  key-duplicates: enable
+  line-length:
+    level: warning
+    max: 120
+    allow-non-breakable-words: true
+    allow-non-breakable-inline-mappings: true
+  new-lines:
+    type: unix
+  trailing-spaces: disable
+  truthy:
+    check-keys: false

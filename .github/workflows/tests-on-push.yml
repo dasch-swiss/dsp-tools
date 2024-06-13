@@ -46,6 +46,17 @@ jobs:
         run: poetry exec darglint
 
 
+  yamllint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout dsp-tools repo
+        uses: actions/checkout@v4
+      - name: install dependencies
+        run: pip install yamllint
+      - name: yamllint
+        run: yamllint .
+
+
   unittests:
     runs-on: ubuntu-latest
     steps:

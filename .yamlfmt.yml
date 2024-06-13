@@ -1,5 +1,7 @@
 ---
 
+# https://github.com/google/yamlfmt
+
 formatter:
   type: basic
   include_document_start: true

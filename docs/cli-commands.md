@@ -61,6 +61,8 @@ The following options are available:
 - `-V` | `--validate-only` (optional): validate the JSON file without creating it on the DSP server
 - `-l` | `--lists-only` (optional): create only the lists (prerequisite: the project exists on the server)
 - `-v` | `--verbose` (optional): print more information about the progress to the console
+- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
+  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
 
 The defaults are intended for local testing: 
 
@@ -100,6 +102,8 @@ The following options are available:
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API 
 - `-P` | `--project` (mandatory): shortcode, shortname or IRI of the project 
 - `-v` | `--verbose` (optional): print more information about the progress to the console
+- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
+  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
 
 The defaults are intended for local testing: 
 
@@ -139,6 +143,8 @@ The following options are available:
 - `-i` | `--imgdir` (optional, default: `.`): folder from where the paths in the `<bitstream>` tags are evaluated
 - `-V` | `--validate` (optional): validate the XML file without uploading it
 - `--interrupt-after=int` (optional): interrupt the upload after `int` resources have been uploaded
+- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
+  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
 
 Output:
 
@@ -192,7 +198,9 @@ The following options are available:
 - `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API 
 - `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
 - `--skip-first-resource` (optional): the `xmlupload` should skip the first saved resource. 
-This is not implemented for stashed links.
+  This is not implemented for stashed links.
+- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
+  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
 
 For this command to work,
 the pickle file `~/.dsp-tools/xmluploads/[server]/resumable/latest.pkl` must exist. 
@@ -209,6 +217,11 @@ It will be deprecated in favor of `new-excel2json` in the future.
 dsp-tools excel2json excelfolder project_definition.json
 ```
 
+The following options are available:
+
+- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
+  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
+
 The expected Excel file format and the folder structure are documented [here](./file-formats/excel2json.md).
 
 
@@ -222,6 +235,11 @@ This command is still under development, and might be less stable than `excel2js
 ```bash
 dsp-tools new-excel2json excelfolder project_definition.json
 ```
+
+The following options are available:
+
+- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
+  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
 
 The expected Excel file format and the folder structure are documented 
 [here](./file-formats/excel2json.md#the-folder-structure-for-new-excel2json).
@@ -239,6 +257,8 @@ dsp-tools excel2lists [options] excelfolder lists_section.json
 The following options are available:
 
 - `-v` | `--verbose` (optional): print more information about the progress to the console
+- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
+  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
 
 The expected Excel file format and the folder structure are documented 
 [here](./file-formats/excel2json.md#the-lists-section).
@@ -258,8 +278,14 @@ This command is still under development, and might be less stable than `excel2li
 dsp-tools new-excel2lists excelfolder lists_section.json
 ```
 
+The following options are available:
+
+- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
+  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
+
 The expected Excel file format and the folder structure are documented 
 [here](./file-formats/excel2json.md#the-lists-section-for-new-excel2json-and-new-excel2lists).
+
 
 ### `excel2resources`
 
@@ -268,6 +294,11 @@ This command creates the "resources" section of a JSON project file from an Exce
 ```bash
 dsp-tools excel2resources resources.xlsx resources_section.json
 ```
+
+The following options are available:
+
+- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
+  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
 
 The expected Excel format is [documented here](./file-formats/excel2json.md#the-resources-section).
 
@@ -284,6 +315,11 @@ This command creates the "properties" section of a JSON project file from an Exc
 ```bash
 dsp-tools excel2properties properties.xlsx properties_section.json
 ```
+
+The following options are available:
+
+- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
+  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
 
 The expected Excel format is [documented here](./file-formats/excel2json.md#the-properties-section).
 
@@ -309,6 +345,11 @@ Arguments:
 - project_shortcode (mandatory): shortcode of the project that this data belongs to
 - ontology_name (mandatory): name of the ontology that the data belongs to
 
+The following options are available:
+
+- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
+  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
+
 The expected Excel format is [documented here](./file-formats/excel2xml.md).
 
 If your data source is not yet structured according to the DSP specifications, 
@@ -331,6 +372,8 @@ dsp-tools id2iri xmlfile.xml mapping.json
 The following options are available:
 
 - `-r` | `--remove-resources` (optional): remove resources if their ID is in the mapping 
+- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
+  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
 
 The output file is written to `[original name]_replaced_[timestamp].xml`.
 
@@ -366,6 +409,8 @@ The following options are available:
 - `--prune` (optional): execute `docker system prune` without asking
 - `--no-prune` (optional): don't execute `docker system prune` (and don't ask)
 - `--with-test-data` (optional): start the stack with some test data
+- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
+  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
 
 Example: If you start the stack with `dsp-tools start-stack --max_file_size=1000`, 
 it will be possible to upload files that are up to 1 GB big. 
@@ -384,6 +429,11 @@ When your work is done, shut down DSP-API and DSP-APP with
 dsp-tools stop-stack
 ```
 
+The following options are available:
+
+- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
+  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
+
 This deletes all Docker volumes, and removes all data that was in the database.
 
 
@@ -395,6 +445,11 @@ This command creates a template repository with a minimal JSON and XML file.
 ```bash
 dsp-tools template
 ```
+
+The following options are available:
+
+- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
+  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
 
 
 
@@ -408,5 +463,10 @@ and upload its XML file.
 ```bash
 dsp-tools rosetta
 ```
+
+The following options are available:
+
+- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
+  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
 
 A DSP stack must be running before executing this command.

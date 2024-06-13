@@ -8,7 +8,7 @@ import pandas as pd
 from loguru import logger
 from lxml import etree
 
-from dsp_tools.commands.ingest_xmlupload.user_information import IngestInformation
+from dsp_tools.commands.ingest_xmlupload.create_resources.user_information import IngestInformation
 from dsp_tools.models.exceptions import InputError
 
 

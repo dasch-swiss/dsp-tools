@@ -27,7 +27,7 @@ nav:
       - User data: developers/user-data.md
       - GitHub actions: developers/github-actions.md
       - MkDocs and markdown-link-validator: developers/mkdocs.md
-      - Code quality tools: 
+      - Code quality tools:
           - Overview: developers/code-quality-tools/code-quality-tools.md
           - General formatting: developers/code-quality-tools/general-formatting.md
           - Python formatting: developers/code-quality-tools/python-formatting.md
@@ -56,8 +56,8 @@ theme:
     - search.highlight
 
 extra_css:
-# using the one from https://github.com/dasch-swiss/dsp-docs/blob/main/docs/assets/style/theme.css directly is not possible
-# use a local copy instead
+  # Using the one from https://github.com/dasch-swiss/dsp-docs/blob/main/docs/assets/style/theme.css directly
+  # is not possible. Use a local copy instead
   - "assets/style/theme.css"
 
 plugins:

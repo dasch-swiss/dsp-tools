@@ -1,7 +1,8 @@
 ---
 
-# Use Dependabot to automatically keep dependencies updated to the latest version, even when they don’t have any known vulnerabilities
-# see https://docs.github.com/en/code-security/dependabot/dependabot-version-updates
+# Use Dependabot to automatically keep dependencies updated to the latest version, 
+# even when they don’t have any known vulnerabilities.
+# See https://docs.github.com/en/code-security/dependabot/dependabot-version-updates
 
 version: 2
 updates:

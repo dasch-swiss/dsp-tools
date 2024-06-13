@@ -211,7 +211,7 @@ Currently, only one interrupted upload can be resumed at a time per server.
 ## `excel2json`
 
 This command creates a JSON project definition file from a nested folder structure with Excel files.
-It will be deprecated in favor of `new-excel2json` in the future.
+It will be deprecated in favor of [`new-excel2json`](#new-excel2json) in the future.
 
 ```bash
 dsp-tools excel2json excelfolder project_definition.json
@@ -223,26 +223,6 @@ The following options are available:
   (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
 
 The expected Excel file format and the folder structure are documented [here](./file-formats/excel2json.md).
-
-
-
-## `new-excel2json`
-
-This command creates a JSON project definition file from a nested folder structure with Excel files.
-The Excel format for the `lists` section has been adapted compared to the previous `excel2json` command.
-This command is still under development, and might be less stable than `excel2json`.
-
-```bash
-dsp-tools new-excel2json excelfolder project_definition.json
-```
-
-The following options are available:
-
-- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
-  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
-
-The expected Excel file format and the folder structure are documented 
-[here](./file-formats/excel2json.md#the-folder-structure-for-new-excel2json).
 
 
 ### `excel2lists`
@@ -266,25 +246,6 @@ The expected Excel file format and the folder structure are documented
 | <center>Hint</center>                                                    |
 | ------------------------------------------------------------------------ |
 | The command [`excel2json`](#excel2json) might be more convenient to use. |
-
-
-### `new-excel2lists`
-
-This command creates the "lists" section of a JSON project file from Excel files.
-The Excel format for the `lists` section has been adapted compared to the previous `excel2lists` command.
-This command is still under development, and might be less stable than `excel2lists`.
-
-```bash
-dsp-tools new-excel2lists excelfolder lists_section.json
-```
-
-The following options are available:
-
-- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
-  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
-
-The expected Excel file format and the folder structure are documented 
-[here](./file-formats/excel2json.md#the-lists-section-for-new-excel2json-and-new-excel2lists).
 
 
 ### `excel2resources`
@@ -326,6 +287,45 @@ The expected Excel format is [documented here](./file-formats/excel2json.md#the-
 | <center>Hint</center>                                                    |
 | ------------------------------------------------------------------------ |
 | The command [`excel2json`](#excel2json) might be more convenient to use. |
+
+
+
+## `new-excel2json`
+
+This command creates a JSON project definition file from a nested folder structure with Excel files.
+The Excel format for the `lists` section has been adapted compared to the previous [`excel2json`](#excel2json) command.
+This command is still under development, and might be less stable than `excel2json`.
+
+```bash
+dsp-tools new-excel2json excelfolder project_definition.json
+```
+
+The following options are available:
+
+- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
+  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
+
+The expected Excel file format and the folder structure are documented 
+[here](./file-formats/excel2json.md#the-folder-structure-for-new-excel2json).
+
+
+### `new-excel2lists`
+
+This command creates the "lists" section of a JSON project file from Excel files.
+The Excel format for the `lists` section has been adapted compared to the previous `excel2lists` command.
+This command is still under development, and might be less stable than `excel2lists`.
+
+```bash
+dsp-tools new-excel2lists excelfolder lists_section.json
+```
+
+The following options are available:
+
+- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
+  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
+
+The expected Excel file format and the folder structure are documented 
+[here](./file-formats/excel2json.md#the-lists-section-for-new-excel2json-and-new-excel2lists).
 
 
 

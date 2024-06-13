@@ -11,13 +11,8 @@ jobs:
     name: Check PR Title
     runs-on: ubuntu-latest
     steps:
-      - uses: deepakputhraya/action-pr-title@master
+      - uses: pragmatic-tools/pr-title-validator@1.0.0
         with:
           # yamllint disable-line rule:line-length
-          regex: "^[a-z]+(\\([0-9a-z\\-_, ]+\\))?!?: .+\\(DEV-\\d+(, DEV-\\d+)*\\)$|^(chore|refactor|style|docs|test)(\\([0-9a-z\\-_,\\s]+\\))?!?:\\s.+"
+          pattern: "^(fix|feat|chore|refactor|docs|test)+(\\([0-9a-z\\-_, ]+\\))?!?: .+\\(DEV-\\d+(, DEV-\\d+)*\\)$|^(chore|refactor|docs|test)(\\([0-9a-z\\-_,\\s]+\\))?!?:\\s.+"
           # see here on how to cope with linebreaks in YAML: https://stackoverflow.com/a/21699210/14414188
-          allowed_prefixes: "fix,refactor,feat,docs,chore,style,test,deprecated"
-          disallowed_prefixes: "feature,hotfix"
-          prefix_case_sensitive: true
-          min_length: 7
-          max_length: 120

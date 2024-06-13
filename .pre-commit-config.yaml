@@ -9,13 +9,13 @@ repos:
     hooks:
       - id: ruff
         args:
-          - --ignore=A002 # builtin-argument-shadowing
-          - --ignore=D101 # undocumented-public-class
-          - --ignore=D102 # undocumented-public-method
-          - --ignore=F841 # error suppression
-          - --ignore=FIX002 # line-contains-to-do
-          - --ignore=PLR0913 # too-many-arguments
-          - --ignore=PLR2004 # magic-value-comparison
+          - --ignore=A002  # builtin-argument-shadowing
+          - --ignore=D101  # undocumented-public-class
+          - --ignore=D102  # undocumented-public-method
+          - --ignore=F841  # error suppression
+          - --ignore=FIX002  # line-contains-to-do
+          - --ignore=PLR0913  # too-many-arguments
+          - --ignore=PLR2004  # magic-value-comparison
       - id: ruff-format
 
   - repo: https://github.com/pre-commit/pre-commit-hooks

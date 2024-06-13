@@ -57,7 +57,8 @@ def run(args: list[str]) -> None:
         user_args=args,
         parser=parser,
     )
-    _check_version()
+    if not parsed_arguments.suppress_update_prompt:
+        _check_version()
     _log_cli_arguments(parsed_arguments)
     initialize_warnings()
 

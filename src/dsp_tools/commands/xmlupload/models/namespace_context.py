@@ -22,7 +22,7 @@ def make_namespace_dict_from_onto_names(ontos: dict[str, str]) -> dict[str, Name
     """Provided a dictionary of ontology names and IRIs, returns a dictionary of Namespace objects."""
     ontos = correct_project_context_namespaces(ontos)
     namespaces = {k: Namespace(v) for k, v in ontos.items()}
-    namespaces.update({"knora-api": Namespace("http://api.knora.org/ontology/knora-api/v2#")})
+    namespaces["knora-api"] = Namespace("http://api.knora.org/ontology/knora-api/v2#")
     return namespaces
 
 

@@ -17,6 +17,11 @@ jobs:
       - uses: amannn/action-semantic-pull-request@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          # yamllint disable-line rule:line-length
-          subjectPattern: "^.+\\(DEV-\\d+(, DEV-\\d+)*\\)$|^(chore|refactor|docs|test).+"
+      - name: check presence of Linear ticket in PR title
+        run: |
+          if [[ ! $PR_TITLE =~ '^.+\(DEV-[0-9]+(, DEV-[0-9]+)*\)$|^(chore|refactor|docs|test).+' ]]; then
+            echo "PR title does not match the pattern"
+            exit 1
+          fi
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}

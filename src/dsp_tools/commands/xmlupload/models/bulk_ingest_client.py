@@ -19,7 +19,7 @@ STATUS_INTERNAL_SERVER_ERROR = 500
 
 
 @dataclass
-class MassIngestClient:
+class BulkIngestClient:
     dsp_ingest_url: str
     token: str
     shortcode: str

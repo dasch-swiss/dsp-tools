@@ -15,6 +15,7 @@ def upload_files(
 ) -> bool:
     """
     Upload all files referenced in an XML file to the ingest server.
+    This involves no processing/ingesting of the files, just uploading them.
 
     Args:
         xml_file: XML file containing the resources and the references to the files to upload

@@ -132,7 +132,7 @@ class DspIngestClientLive(AssetClient):
             permissions = permissions_lookup.get(bitstream.permissions) if bitstream.permissions else None
             return True, BitstreamInfo(bitstream.value, res.internal_filename, permissions)
         except PermanentConnectionError as err:
-            msg = f"Unable to upload file '{bitstream.value}' " f"of resource '{res_label}' ({res_id})"
+            msg = f"Unable to upload file '{bitstream.value}' of resource '{res_label}' ({res_id})"
             print(f"{datetime.now()}: WARNING: {msg}: {err.message}")
             logger.opt(exception=True).warning(msg)
             return False, None

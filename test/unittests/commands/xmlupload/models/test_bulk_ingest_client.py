@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 from requests_mock import Mocker
 
-from dsp_tools.commands.xmlupload.models.mass_ingest_client import MassIngestClient
+from dsp_tools.commands.xmlupload.models.bulk_ingest_client import BulkIngestClient
 from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import PermanentConnectionError
 
@@ -12,8 +12,8 @@ SHORTCODE = "0001"
 
 
 @pytest.fixture()
-def ingest_client() -> MassIngestClient:
-    return MassIngestClient(DSP_INGEST_URL, "token", SHORTCODE)
+def ingest_client() -> BulkIngestClient:
+    return BulkIngestClient(DSP_INGEST_URL, "token", SHORTCODE)
 
 
 @pytest.fixture()
@@ -25,7 +25,7 @@ def _make_url(file: Path) -> str:
     return f"{DSP_INGEST_URL}/projects/{SHORTCODE}/bulk-ingest/upload/{file.name}"
 
 
-def test_ingest_success(ingest_client: MassIngestClient, requests_mock: Mocker, tmp_file: Path) -> None:
+def test_ingest_success(ingest_client: BulkIngestClient, requests_mock: Mocker, tmp_file: Path) -> None:
     tmp_file.write_text("<xml></xml>")
     url = _make_url(tmp_file)
     requests_mock.post(url, status_code=200)
@@ -41,7 +41,7 @@ def test_ingest_success(ingest_client: MassIngestClient, requests_mock: Mocker, 
 
 
 def test_ingest_failure_when_authentication_error(
-    ingest_client: MassIngestClient, requests_mock: Mocker, tmp_file: Path
+    ingest_client: BulkIngestClient, requests_mock: Mocker, tmp_file: Path
 ) -> None:
     tmp_file.write_text("<xml></xml>")
     requests_mock.post(_make_url(tmp_file), status_code=401)
@@ -50,7 +50,7 @@ def test_ingest_failure_when_authentication_error(
 
 
 def test_ingest_failure_when_other_error(
-    ingest_client: MassIngestClient, requests_mock: Mocker, tmp_file: Path
+    ingest_client: BulkIngestClient, requests_mock: Mocker, tmp_file: Path
 ) -> None:
     tmp_file.write_text("<xml></xml>")
     requests_mock.post(_make_url(tmp_file), status_code=500)

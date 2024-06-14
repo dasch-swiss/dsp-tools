@@ -19,7 +19,7 @@ STATUS_INTERNAL_SERVER_ERROR = 500
 
 
 @dataclass
-class BulkIngestClient:
+class IngestUploadClient:
     """Client to upload files to the ingest server, without actually ingesting them."""
 
     dsp_ingest_url: str

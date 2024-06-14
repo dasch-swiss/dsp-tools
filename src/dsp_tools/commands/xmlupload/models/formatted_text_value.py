@@ -28,8 +28,8 @@ class FormattedTextValue:
         """
         s = self.xmlstr
         for internal_id in self.find_internal_ids():
-            iri = iri_resolver.get(internal_id)
-            if not iri:
+            if iri := iri_resolver.get(internal_id):
+                s = s.replace(f'href="IRI:{internal_id}:IRI"', f'href="{iri}"')
+            else:
                 raise BaseError(f"Internal ID {internal_id} could not be resolved to an IRI")
-            s = s.replace(f'href="IRI:{internal_id}:IRI"', f'href="{iri}"')
         return FormattedTextValue(s)

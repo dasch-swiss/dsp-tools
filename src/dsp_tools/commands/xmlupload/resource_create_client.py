@@ -146,7 +146,7 @@ class ResourceCreateClient:
                     properties_graph += bool_graph
                     last_prop_name = bool_prop_name
                 case _:
-                    properties_serialised.update({prop_name(prop): make_values(prop)})
+                    properties_serialised[prop_name(prop)] = make_values(prop)
         if resource.iiif_uri:
             properties_graph += _make_iiif_uri_value(resource.iiif_uri, res_bnode, self.permissions_lookup)
             last_prop_name = KNORA_API.hasStillImageFileValue

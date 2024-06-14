@@ -11,7 +11,7 @@ from dsp_tools.utils.connection_live import ConnectionLive
 def upload_files(
     xml_file: Path,
     creds: ServerCredentials,
-    imgdir: str,
+    imgdir: str = ".",
 ) -> bool:
     """
     Upload all files referenced in an XML file to the ingest server.
@@ -25,8 +25,10 @@ def upload_files(
         success status
     """
     root = etree.parse(xml_file).getroot()
+    for elem in root.iter():
+        elem.tag = etree.QName(elem).localname
     shortcode = root.attrib["shortcode"]
-    paths = [Path(imgdir) / x.text for x in root.xpath("bitstream")]
+    paths = {Path(imgdir) / x.text for x in root.xpath("//bitstream")}
 
     con: Connection = ConnectionLive(creds.server)
     con.login(creds.user, creds.password)

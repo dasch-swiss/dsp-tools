@@ -74,7 +74,7 @@ def xmlupload(
         uploaded because there is an error in it
     """
 
-    default_ontology, root, shortcode = _pares_xml(input_file=input_file, imgdir=imgdir)
+    default_ontology, root, shortcode = _parse_xml(input_file=input_file, imgdir=imgdir)
 
     if not config.skip_iiif_validation:
         _validate_iiif_uris(root)
@@ -92,7 +92,7 @@ def xmlupload(
     return execute_upload(clients, state)
 
 
-def _pares_xml(imgdir: str, input_file: Path) -> tuple[str, etree._Element, str]:
+def _parse_xml(imgdir: str, input_file: Path) -> tuple[str, etree._Element, str]:
     """
     This function takes a path to an XML file.
     It validates the file against the XML schema.
@@ -163,8 +163,7 @@ def prepare_upload(
 
 def _validate_iiif_uris(root: etree._Element) -> None:
     uris = [uri for node in root.iter(tag="iiif-uri") if (uri := node.text)]
-    problems = IIIFUriValidator(uris).validate()
-    if problems:
+    if problems := IIIFUriValidator(uris).validate():
         msg = problems.get_msg()
         warnings.warn(DspToolsUserWarning(msg))
         logger.warning(msg)

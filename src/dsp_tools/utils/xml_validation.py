@@ -59,7 +59,7 @@ def validate_xml(xml: etree._Element) -> bool:
     problems.extend(_validate_xml_against_schema(xml))
     problems.extend(_validate_xml_contents(xml_no_namespace))
 
-    if len(problems) > 0:
+    if problems:
         err_msg = grand_separator.join(problems)
         logger.opt(exception=True).error(err_msg)
         raise InputError(err_msg)
@@ -77,7 +77,7 @@ def _validate_xml_against_schema(data_xml: etree._Element) -> list[str]:
     if not xmlschema.validate(data_xml):
         error_msg = "The XML file cannot be uploaded due to the following validation error(s):"
         for error in xmlschema.error_log:
-            error_msg = error_msg + f"{separator}Line {error.line}: {error.message}"
+            error_msg = f"{error_msg}{separator}Line {error.line}: {error.message}"
         error_msg = error_msg.replace("{https://dasch.swiss/schema}", "")
         return [error_msg]
     return []
@@ -137,7 +137,7 @@ def _find_mixed_encodings_in_one_text_prop(xml_no_namespace: etree._Element) -> 
     msg, df = InconsistentTextValueEncodings(problems).execute_problem_protocol()
     if df is not None:
         csv_path = Path(f"XML_syntax_errors_{datetime.now().strftime('%Y-%m-%d_%H%M%S')}.csv")
-        msg = f"\nAll the problems are listed in the file: '{csv_path.absolute()}'" + msg
+        msg = f"\nAll the problems are listed in the file: '{csv_path.absolute()}'{msg}"
         df.to_csv(csv_path)
     return [msg]
 
@@ -199,4 +199,4 @@ def _get_encodings_from_one_property(res_id: str, prop: etree._Element) -> TextV
 
 
 def _find_all_text_props_with_multiple_encodings(text_props: list[TextValueData]) -> list[TextValueData]:
-    return [x for x in text_props if not len(x.encoding) == 1]
+    return [x for x in text_props if len(x.encoding) != 1]

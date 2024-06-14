@@ -31,10 +31,7 @@ class Permissions:
     _permissions: dict[PermissionValue, list[str]]
 
     def __init__(self, permissions: Optional[dict[PermissionValue, list[str]]] = None):
-        if permissions is None:
-            self._permissions = {}
-        else:
-            self._permissions = permissions
+        self._permissions = permissions or {}
 
     def __getitem__(self, key: PermissionValue) -> Union[list[str], None]:
         return self._permissions.get(key)
@@ -56,7 +53,7 @@ class Permissions:
         for permission, groups in self._permissions.items():
             if tmpstr:
                 tmpstr += "|"
-            tmpstr += str(permission) + " " + ",".join(groups)
+            tmpstr += f"{permission!s} " + ",".join(groups)
         return tmpstr
 
     def add(self, key: PermissionValue, val: str) -> None:
@@ -70,7 +67,7 @@ class Permissions:
         for permission, groups in self._permissions.items():
             if tmpstr:
                 tmpstr += "|"
-            tmpstr += str(permission) + " " + ",".join(groups)
+            tmpstr += f"{permission!s} " + ",".join(groups)
         return tmpstr
 
     @classmethod

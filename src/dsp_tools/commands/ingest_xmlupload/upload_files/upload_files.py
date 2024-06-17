@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from loguru import logger
 from lxml import etree
 
 from dsp_tools.cli.args import ServerCredentials
@@ -30,6 +31,8 @@ def upload_files(
         elem.tag = etree.QName(elem).localname
     shortcode = root.attrib["shortcode"]
     paths = {Path(imgdir) / x.text for x in root.xpath("//bitstream")}
+    print(f"Found {len(paths)} files to upload onto server {creds.dsp_ingest_url}.")
+    logger.info(f"Found {len(paths)} files to upload onto server {creds.dsp_ingest_url}.")
 
     con: Connection = ConnectionLive(creds.server)
     con.login(creds.user, creds.password)
@@ -37,4 +40,7 @@ def upload_files(
 
     for path in paths:
         ingest_client.upload_file(path)
+
+    print(f"Uploaded all {len(paths)} files onto server {creds.dsp_ingest_url}.")
+    logger.info(f"Uploaded all {len(paths)} files onto server {creds.dsp_ingest_url}.")
     return True

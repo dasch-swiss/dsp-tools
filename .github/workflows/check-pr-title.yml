@@ -19,9 +19,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: check presence of Linear ticket in PR title
         run: |
-          if [[ ! $PR_TITLE =~ '^.+\(DEV-[0-9]+(, DEV-[0-9]+)*\)$|^(chore|refactor|docs|test).+' ]]; then
-            echo "PR title does not match the pattern"
+          if [[ ! $PR_TITLE =~ "^.+\(DEV-[0-9]+(, DEV-[0-9]+)*\)$|^(chore|refactor|docs|test).+" ]]; then
+            echo PR title "$PR_TITLE" does not match the regex
             exit 1
           fi
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
+        shell: zsh

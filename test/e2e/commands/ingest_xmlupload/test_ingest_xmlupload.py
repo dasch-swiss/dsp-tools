@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Iterator
 
+import pandas as pd
 import pytest
 
 from dsp_tools.cli.args import ServerCredentials
@@ -47,3 +48,6 @@ def _test_ingest_step(caplog: pytest.LogCaptureFixture) -> None:
     assert log_messages[-2] == "Ingest process completed."
     assert log_messages[-1] == f"Saved mapping CSV to 'mapping-{SHORTCODE}.csv'"
     caplog.clear()
+
+    df = pd.read_csv(f"mapping-{SHORTCODE}.csv")
+    assert df["original"].tolist() == ["testdata/bitstreams/test.jpg", "testdata/bitstreams/test.pdf"]

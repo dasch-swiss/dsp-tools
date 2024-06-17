@@ -44,9 +44,9 @@ class XMLProperty:
                 self.name = node.attrib["name"]
             else:
                 # replace an empty namespace with the default ontology name
-                self.name = default_ontology + ":" + tmp_prop_name[1]
+                self.name = f"{default_ontology}:{tmp_prop_name[1]}"
         else:
-            self.name = "knora-api:" + tmp_prop_name[0]
+            self.name = f"knora-api:{tmp_prop_name[0]}"
         listname = node.attrib.get("list")  # safe the list name if given (only for lists)
         self.valtype = valtype
         self.values = []
@@ -88,7 +88,7 @@ class XMLValue:
             self.value = str_cleaned
         elif val_type == "list":
             listname = cast(str, listname)
-            self.value = listname + ":" + "".join(node.itertext())
+            self.value = f"{listname}:" + "".join(node.itertext())
         else:
             self.value = "".join(node.itertext())
         self.link_uuid = node.attrib.get("linkUUID")  # not all richtexts have a link, so this attribute is optional
@@ -151,9 +151,7 @@ class XMLValue:
 
         # remove leading and trailing spaces (of every line, but also of the entire string)
         string = "\n".join([s.strip() for s in string.split("\n")])
-        string = string.strip()
-
-        return string
+        return string.strip()
 
 
 class XMLBitstream:

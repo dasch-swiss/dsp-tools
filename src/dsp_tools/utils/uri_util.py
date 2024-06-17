@@ -62,6 +62,4 @@ def is_iiif_uri(uri: str) -> bool:
     # quality -> color | colour | gray | grey | bitonal | default | native
     # format -> jpg | tif | png | gif | jp2 | pdf | webp
     quality_format_re = r"^(colou?r|gr[ae]y|bitonal|default|native)(\.(jpg|tif|png|jp2|gif|pdf|webp))?$"
-    if not regex.search(quality_format_re, quality_format_seg):
-        return False
-    return True
+    return bool(regex.search(quality_format_re, quality_format_seg))

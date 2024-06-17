@@ -34,11 +34,9 @@ class InvalidOntologyElementsInData:
             f"The ontologies for your project on the server are:{list_separator}"
             f"{list_separator.join(self.ontos_on_server)}{grand_separator}"
         )
-        cls_msg = self._compose_problem_string_for_cls()
-        if cls_msg:
+        if cls_msg := self._compose_problem_string_for_cls():
             base_msg += cls_msg + grand_separator
-        prop_msg = self._compose_problem_string_for_props()
-        if prop_msg:
+        if prop_msg := self._compose_problem_string_for_props():
             base_msg += prop_msg
         if (
             self._calculate_num_resources(self.classes) + self._calculate_num_resources(self.properties)
@@ -151,9 +149,9 @@ class InvalidTextValueEncodings:
     def _get_problems_as_df(self) -> pd.DataFrame:
         df = pd.DataFrame(
             {
-                "Resource ID": list(x.resource_id for x in self.problematic_resources),
-                "Property Name": list(x.property_name for x in self.problematic_resources),
-                "Encoding Used": list(x.encoding for x in self.problematic_resources),
+                "Resource ID": [x.resource_id for x in self.problematic_resources],
+                "Property Name": [x.property_name for x in self.problematic_resources],
+                "Encoding Used": [x.encoding for x in self.problematic_resources],
             }
         )
         return df.sort_values(by=["Resource ID", "Property Name"], ignore_index=True)

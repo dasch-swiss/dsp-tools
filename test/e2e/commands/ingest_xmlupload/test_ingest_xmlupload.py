@@ -5,6 +5,7 @@ import pandas as pd
 import pytest
 
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.commands.ingest_xmlupload.create_resources.upload_xml import ingest_xmlupload
 from dsp_tools.commands.ingest_xmlupload.ingest_files.ingest_files import ingest_files
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_files import upload_files
 from dsp_tools.commands.project.create.project_create import create_project
@@ -27,6 +28,7 @@ def _create_project() -> Iterator[None]:
 def test_ingest_upload(caplog: pytest.LogCaptureFixture) -> None:
     _test_upload_step(caplog)
     _test_ingest_step(caplog)
+    _test_xmlupload_step(caplog)
 
 
 def _test_upload_step(caplog: pytest.LogCaptureFixture) -> None:
@@ -51,3 +53,9 @@ def _test_ingest_step(caplog: pytest.LogCaptureFixture) -> None:
 
     df = pd.read_csv(f"mapping-{SHORTCODE}.csv")
     assert df["original"].tolist() == ["testdata/bitstreams/test.jpg", "testdata/bitstreams/test.pdf"]
+
+
+def _test_xmlupload_step(caplog: pytest.LogCaptureFixture) -> None:
+    success = ingest_xmlupload(XML_FILE, CREDS)
+    assert success
+    # TODO: check log messages

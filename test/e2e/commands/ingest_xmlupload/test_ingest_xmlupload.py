@@ -4,12 +4,14 @@ from typing import Iterator
 import pytest
 
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.commands.ingest_xmlupload.ingest_files.ingest_files import ingest_files
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_files import upload_files
 from dsp_tools.commands.project.create.project_create import create_project
 from test.e2e.setup_testcontainers import get_containers
 
 CREDS = ServerCredentials("root@example.com", "test", "http://0.0.0.0:3333")
 XML_FILE = Path("testdata/xml-data/test-data-e2e.xml")
+SHORTCODE = "4125"
 
 
 @pytest.fixture()
@@ -23,6 +25,7 @@ def _create_project() -> Iterator[None]:
 @pytest.mark.usefixtures("_create_project")
 def test_ingest_upload(caplog: pytest.LogCaptureFixture) -> None:
     _test_upload_step(caplog)
+    _test_ingest_step(caplog)
 
 
 def _test_upload_step(caplog: pytest.LogCaptureFixture) -> None:
@@ -33,4 +36,14 @@ def _test_upload_step(caplog: pytest.LogCaptureFixture) -> None:
     assert log_messages[1] == "Uploaded file 'testdata/bitstreams/test.jpg'"
     assert log_messages[2] == "Uploaded file 'testdata/bitstreams/test.pdf'"
     assert log_messages[3] == f"Uploaded all 2 files onto server {CREDS.dsp_ingest_url}."
+    caplog.clear()
+
+
+def _test_ingest_step(caplog: pytest.LogCaptureFixture) -> None:
+    success = ingest_files(CREDS, SHORTCODE)
+    assert success
+    log_messages = [rec.message for rec in caplog.records]
+    assert log_messages[0] == "Kicked off the ingest process on the server. Wait until it completes..."
+    assert log_messages[-2] == "Ingest process completed."
+    assert log_messages[-1] == f"Saved mapping CSV to 'mapping-{SHORTCODE}.csv'"
     caplog.clear()

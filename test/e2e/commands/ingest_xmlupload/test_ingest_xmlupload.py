@@ -22,6 +22,10 @@ def _create_project() -> Iterator[None]:
 
 @pytest.mark.usefixtures("_create_project")
 def test_ingest_upload(caplog: pytest.LogCaptureFixture) -> None:
+    _test_upload_step(caplog)
+
+
+def _test_upload_step(caplog: pytest.LogCaptureFixture) -> None:
     success = upload_files(XML_FILE, CREDS)
     assert success
     log_messages = [rec.message for rec in caplog.records]

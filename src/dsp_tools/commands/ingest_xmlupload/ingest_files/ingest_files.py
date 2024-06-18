@@ -26,9 +26,7 @@ def ingest_files(creds: ServerCredentials, shortcode: str) -> bool:
     kickoff_client = IngestKickoffClient(creds.dsp_ingest_url, con.get_token(), shortcode)
     kickoff_client.kick_off_ingest()
 
-    mapping = None
-    while not mapping:
-        mapping = kickoff_client.try_download()
+    while not (mapping := kickoff_client.try_download()):
         sleep(10)
     _save_mapping(mapping, shortcode)
     return True

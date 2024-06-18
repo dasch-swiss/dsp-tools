@@ -55,7 +55,7 @@ class IngestKickoffClient:
             print("Ingest process is still running. Wait until it completes...")
             logger.info("Ingest process is still running. Wait until it completes...")
             return None
-        elif not res.ok:
+        elif not res.ok or not res.text.startswith("original,derivative"):
             print("Dubious error")
             logger.error("Dubious error")
             return None

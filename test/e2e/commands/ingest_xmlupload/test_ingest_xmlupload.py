@@ -3,6 +3,7 @@ from typing import Iterator
 
 import pandas as pd
 import pytest
+from pytest_unordered import unordered
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.ingest_xmlupload.create_resources.upload_xml import ingest_xmlupload
@@ -45,17 +46,17 @@ def _test_upload_step(caplog: pytest.LogCaptureFixture) -> None:
 def _test_ingest_step(caplog: pytest.LogCaptureFixture) -> None:
     success = ingest_files(CREDS, SHORTCODE)
     assert success
-    log_messages = [rec.message for rec in caplog.records]
-    assert log_messages[0] == "Kicked off the ingest process on the server. Wait until it completes..."
-    assert log_messages[-2] == "Ingest process completed."
-    assert log_messages[-1] == f"Saved mapping CSV to 'mapping-{SHORTCODE}.csv'"
+    logs = [rec.message for rec in caplog.records]
+    assert logs[-3] == "Kicked off the ingest process on the server http://0.0.0.0:3340. Wait until it completes..."
+    assert logs[-2] == "Ingest process completed."
+    assert logs[-1] == f"Saved mapping CSV to 'mapping-{SHORTCODE}.csv'"
     caplog.clear()
 
     df = pd.read_csv(f"mapping-{SHORTCODE}.csv")
-    assert df["original"].tolist() == ["testdata/bitstreams/test.jpg", "testdata/bitstreams/test.pdf"]
+    assert df["original"].tolist() == unordered(["testdata/bitstreams/test.jpg", "testdata/bitstreams/test.pdf"])
 
 
-def _test_xmlupload_step(caplog: pytest.LogCaptureFixture) -> None:
+def _test_xmlupload_step(caplog: pytest.LogCaptureFixture) -> None:  # noqa: ARG001
     success = ingest_xmlupload(XML_FILE, CREDS)
     assert success
     # TODO: check log messages

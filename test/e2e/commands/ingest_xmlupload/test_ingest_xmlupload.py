@@ -56,7 +56,10 @@ def _test_ingest_step(caplog: pytest.LogCaptureFixture) -> None:
     assert df["original"].tolist() == unordered(["testdata/bitstreams/test.jpg", "testdata/bitstreams/test.pdf"])
 
 
-def _test_xmlupload_step(caplog: pytest.LogCaptureFixture) -> None:  # noqa: ARG001
+def _test_xmlupload_step(caplog: pytest.LogCaptureFixture) -> None:
     success = ingest_xmlupload(XML_FILE, CREDS)
     assert success
+    logs = [rec.message for rec in caplog.records]
+    assert logs[-1] == f"Saved mapping CSV to 'mapping-{SHORTCODE}.csv'"
+    caplog.clear()
     # TODO: check log messages

@@ -1,3 +1,4 @@
+from datetime import datetime
 from pathlib import Path
 from time import sleep
 
@@ -34,6 +35,9 @@ def ingest_files(creds: ServerCredentials, shortcode: str) -> bool:
 
 def _save_mapping(mapping: str, shortcode: str) -> None:
     filepath = Path(f"mapping-{shortcode}.csv")
+    if filepath.exists():
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H.%M.%S")
+        filepath = filepath.with_name(f"{filepath.stem}-{timestamp}.csv")
     filepath.write_text(mapping)
     print(f"Saved mapping CSV to '{filepath}'")
     logger.info(f"Saved mapping CSV to '{filepath}'")

@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from dataclasses import field
-from typing import Any
 
 from loguru import logger
 from requests import Session
@@ -42,8 +41,12 @@ class IngestKickoffClient:
     def kick_off_ingest(self) -> None:
         url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest"
         headers = {"Authorization": f"Bearer {self.token}"}
-        res: dict[str, Any] = self.session.post(url, headers=headers, timeout=5).json()
-        if res.get("id") != self.shortcode:
+        res = self.session.post(url, headers=headers, timeout=5)
+        if res.status_code == STATUS_CONFLICT:
+            msg = f"Ingest process on the server {self.dsp_ingest_url} is already running. Wait until it completes..."
+            print(msg)
+            logger.info(msg)
+        if res.json().get("id") != self.shortcode:
             raise UserError("Failed to kick off the ingest process.")
         print(f"Kicked off the ingest process on the server {self.dsp_ingest_url}. Wait until it completes...")
         logger.info(f"Kicked off the ingest process on the server {self.dsp_ingest_url}. Wait until it completes...")

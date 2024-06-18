@@ -41,18 +41,12 @@ class IngestKickoffClient:
 
     def kick_off_ingest(self) -> None:
         url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest"
-        try:
-            res: dict[str, Any] = self.session.post(
-                url, headers={"Authorization": f"Bearer {self.token}"}, timeout=5
-            ).json()
-        except Exception:  # TODO: catch a specific error  # noqa: BLE001
-            print("Ingest process is already running. Wait until it completes...")
-            logger.error("Ingest process is already running. Wait until it completes...")
-            return
+        headers = {"Authorization": f"Bearer {self.token}"}
+        res: dict[str, Any] = self.session.post(url, headers=headers, timeout=5).json()
         if res.get("id") != self.shortcode:
             raise UserError("Failed to kick off the ingest process.")
-        print("Kicked off the ingest process on the server. Wait until it completes...")
-        logger.info("Kicked off the ingest process on the server. Wait until it completes...")
+        print(f"Kicked off the ingest process on the server {self.dsp_ingest_url}. Wait until it completes...")
+        logger.info(f"Kicked off the ingest process on the server {self.dsp_ingest_url}. Wait until it completes...")
 
     def try_download(self) -> str | None:
         url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/mapping.csv"

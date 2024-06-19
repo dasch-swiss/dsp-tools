@@ -6,8 +6,8 @@ from loguru import logger
 from lxml import etree
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.commands.ingest_xmlupload.apply_ingest_id import get_mapping_dict_from_file
-from dsp_tools.commands.ingest_xmlupload.apply_ingest_id import replace_filepath_with_internal_filename
+from dsp_tools.commands.ingest_xmlupload.create_resources.apply_ingest_id import get_mapping_dict_from_file
+from dsp_tools.commands.ingest_xmlupload.create_resources.apply_ingest_id import replace_filepath_with_internal_filename
 from dsp_tools.commands.xmlupload.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.models.ingest import BulkIngestedAssetClient
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients

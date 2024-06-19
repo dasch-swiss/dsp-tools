@@ -100,6 +100,7 @@ class MassIngestClient:
         logger.info(f"Kicked off the ingest process on the server {self.dsp_ingest_url}. Wait until it completes...")
 
     def retrieve_mapping(self) -> str | None:
+        """Try to retrieve the mapping CSV from the server."""
         url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/mapping.csv"
         res = self.session.get(url, headers={"Authorization": f"Bearer {self.token}"}, timeout=5)
         if res.status_code == STATUS_CONFLICT:

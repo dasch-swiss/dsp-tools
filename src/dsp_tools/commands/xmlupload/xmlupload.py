@@ -9,6 +9,7 @@ from typing import Never
 
 from loguru import logger
 from lxml import etree
+from tqdm import tqdm
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.xmlupload.check_consistency_with_ontology import do_xml_consistency_check_with_ontology
@@ -254,8 +255,9 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
         media_previously_ingested=upload_state.config.media_previously_uploaded,
     )
 
+    progress_bar = tqdm(upload_state.pending_resources.copy(), desc="Creating Resources")
     try:
-        for creation_attempts_of_this_round, resource in enumerate(upload_state.pending_resources.copy()):
+        for creation_attempts_of_this_round, resource in enumerate(progress_bar):
             _upload_one_resource(
                 upload_state=upload_state,
                 resource=resource,
@@ -263,6 +265,7 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
                 resource_create_client=resource_create_client,
                 creation_attempts_of_this_round=creation_attempts_of_this_round,
             )
+            progress_bar.set_description(f"Creating Resources (failed: {len(upload_state.failed_uploads)})")
         if upload_state.pending_stash:
             _upload_stash(upload_state, clients.project_client)
     except XmlUploadInterruptedError as err:
@@ -417,7 +420,6 @@ def _tidy_up_resource_creation_idempotent(
         # resource creation succeeded: update the iri_resolver
         upload_state.iri_resolver.lookup[resource.res_id] = iri
         msg = f"Created resource {current_res}/{total_res}: '{resource.label}' (ID: '{resource.res_id}', IRI: '{iri}')"
-        print(f"{datetime.now()}: {msg}")
         logger.info(msg)
     else:  # noqa: PLR5501
         # resource creation failed gracefully: register it as failed
@@ -432,7 +434,6 @@ def _handle_resource_creation_failure(resource: XMLResource, err_msg: str | None
     msg = f"{datetime.now()}: WARNING: Unable to create resource '{resource.label}' (ID: '{resource.res_id}')"
     if err_msg:
         msg = f"{msg}: {err_msg}"
-    print(msg)
     log_msg = (
         f"Unable to create resource '{resource.label}' ({resource.res_id})\n"
         f"Resource details:\n{vars(resource)}\n"

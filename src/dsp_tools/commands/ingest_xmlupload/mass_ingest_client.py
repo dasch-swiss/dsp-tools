@@ -41,6 +41,7 @@ class MassIngestClient:
         adapter = HTTPAdapter(max_retries=retry)
         self.session.mount("http://", adapter)
         self.session.mount("https://", adapter)
+        self.session.headers["Authorization"] = f"Bearer {self.token}"
 
     def _upload(self, filepath: Path) -> None:
         url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/upload/{filepath.name}"
@@ -49,7 +50,7 @@ class MassIngestClient:
             try:
                 res = self.session.post(
                     url=url,
-                    headers={"Authorization": f"Bearer {self.token}", "Content-Type": "application/octet-stream"},
+                    headers={"Content-Type": "application/octet-stream"},
                     data=binary_io,
                     timeout=60,
                 )

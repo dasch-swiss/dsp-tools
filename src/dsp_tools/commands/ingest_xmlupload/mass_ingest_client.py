@@ -43,6 +43,7 @@ class MassIngestClient:
         adapter = HTTPAdapter(max_retries=retry)
         self.session.mount("http://", adapter)
         self.session.mount("https://", adapter)
+        self.session.headers["Authorization"] = f"Bearer {self.token}"
 
     def _upload(self, filepath: Path) -> None:
         url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/upload/{filepath.name}"
@@ -51,7 +52,7 @@ class MassIngestClient:
             try:
                 res = self.session.post(
                     url=url,
-                    headers={"Authorization": f"Bearer {self.token}", "Content-Type": "application/octet-stream"},
+                    headers={"Content-Type": "application/octet-stream"},
                     data=binary_io,
                     timeout=60,
                 )
@@ -88,8 +89,7 @@ class MassIngestClient:
     def kick_off_ingest(self) -> None:
         """Start the ingest process on the server."""
         url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest"
-        headers = {"Authorization": f"Bearer {self.token}"}
-        res = self.session.post(url, headers=headers, timeout=5)
+        res = self.session.post(url, timeout=5)
         if res.status_code == STATUS_CONFLICT:
             msg = f"Ingest process on the server {self.dsp_ingest_url} is already running. Wait until it completes..."
             print(msg)
@@ -100,8 +100,9 @@ class MassIngestClient:
         logger.info(f"Kicked off the ingest process on the server {self.dsp_ingest_url}. Wait until it completes...")
 
     def retrieve_mapping(self) -> str | None:
+        """Try to retrieve the mapping CSV from the server."""
         url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/mapping.csv"
-        res = self.session.get(url, headers={"Authorization": f"Bearer {self.token}"}, timeout=5)
+        res = self.session.get(url, timeout=5)
         if res.status_code == STATUS_CONFLICT:
             print("Ingest process is still running. Wait until it completes...")
             logger.info("Ingest process is still running. Wait until it completes...")

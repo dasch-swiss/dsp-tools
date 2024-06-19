@@ -48,7 +48,7 @@ def ingest_xmlupload(
     Raises:
         InputError: if any media was not uploaded or uploaded media was not referenced.
     """
-    default_ontology, root, shortcode = _parse_xml(xml_file)
+    default_ontology, root, shortcode = _parse_xml_and_replace_filepaths(xml_file)
 
     con = ConnectionLive(creds.server)
     con.login(creds.user, creds.password)
@@ -70,12 +70,12 @@ def ingest_xmlupload(
     return execute_upload(clients, state)
 
 
-def _parse_xml(xml_file: Path) -> tuple[str, etree._Element, str]:
+def _parse_xml_and_replace_filepaths(xml_file: Path) -> tuple[str, etree._Element, str]:
     """
-    Validate and parse an upload XML file, when preprocessing has already been done.
+    Validate and parse an upload XML file, when ingest has already been done.
 
     Args:
-        xml_file: file that will be pased
+        xml_file: file that will be parsed
 
     Returns:
         The ontology name, the parsed XML file and the shortcode of the project

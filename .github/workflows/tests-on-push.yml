@@ -6,7 +6,7 @@ name: Tests on Push
 on:
   push:
     branches-ignore:
-      - main
+      - refs/heads/main
 
 env:
   DSP_TOOLS_TESTING: true

@@ -46,7 +46,7 @@ class MassIngestClient:
         self.session.headers["Authorization"] = f"Bearer {self.token}"
 
     def _upload(self, filepath: Path) -> None:
-        url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/upload/{filepath.name}"
+        url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/ingest/{filepath}"
         err = f"Failed to ingest {filepath} to '{url}'."
         with open(filepath, "rb") as binary_io:
             try:
@@ -63,7 +63,7 @@ class MassIngestClient:
                 else:
                     user_msg = f"{err} See logs for more details: {logger_savepath}"
                     print(user_msg)
-                    log_msg = f"{err}. Response status code {res.status_code} '{res.json()}'"
+                    log_msg = f"{err} Response status code {res.status_code} '{res.json()}'"
                     logger.error(log_msg)
                     raise PermanentConnectionError(log_msg)
             except RequestException as e:

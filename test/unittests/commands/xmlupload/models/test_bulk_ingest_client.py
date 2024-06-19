@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 from requests_mock import Mocker
 
-from dsp_tools.commands.ingest_xmlupload.ingest_client import MassIngestClient
+from dsp_tools.commands.ingest_xmlupload.mass_ingest_client import MassIngestClient
 from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import PermanentConnectionError
 

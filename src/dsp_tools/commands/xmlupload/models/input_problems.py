@@ -5,6 +5,8 @@ from dataclasses import dataclass
 list_separator = "\n    - "
 medium_separator = "\n----------------------------\n"
 
+HTTP_OK = 200
+
 
 @dataclass(frozen=True)
 class AllIIIFUriProblems:
@@ -36,7 +38,7 @@ class IIIFUriProblem:
             msg.append("Passed the internal regex check.")
         else:
             msg.append("Did not pass the internal regex check.")
-        if self.status_code == 200:
+        if self.status_code == HTTP_OK:
             msg.extend(self._good_status_code_bad_regex_msg())
         elif self.status_code is not None:
             msg.extend(self._bad_status_code_msg())

@@ -6,7 +6,7 @@ name: Tests on Push
 on:
   push:
     branches-ignore:
-      - main
+      - refs/heads/main
 
 env:
   DSP_TOOLS_TESTING: true
@@ -122,7 +122,7 @@ jobs:
         run: poetry run dsp-tools start-stack --no-prune --with-test-data
       - name: legacy e2e tests
         run: poetry exec legacy-e2e-tests
-      - name: stop stack # see if this command can run (it isn't tested anywhere else)
+      - name: stop stack  # see if this command can run (it isn't tested anywhere else)
         run: poetry run dsp-tools stop-stack
       - name: make logging file available
         uses: actions/upload-artifact@v4

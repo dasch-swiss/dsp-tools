@@ -9,6 +9,7 @@ from typing import Never
 
 from loguru import logger
 from lxml import etree
+from tqdm import tqdm
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.xmlupload.check_consistency_with_ontology import do_xml_consistency_check_with_ontology
@@ -74,7 +75,7 @@ def xmlupload(
         uploaded because there is an error in it
     """
 
-    default_ontology, root, shortcode = _pares_xml(input_file=input_file, imgdir=imgdir)
+    default_ontology, root, shortcode = _parse_xml(input_file=input_file, imgdir=imgdir)
 
     if not config.skip_iiif_validation:
         _validate_iiif_uris(root)
@@ -92,7 +93,7 @@ def xmlupload(
     return execute_upload(clients, state)
 
 
-def _pares_xml(imgdir: str, input_file: Path) -> tuple[str, etree._Element, str]:
+def _parse_xml(imgdir: str, input_file: Path) -> tuple[str, etree._Element, str]:
     """
     This function takes a path to an XML file.
     It validates the file against the XML schema.
@@ -163,8 +164,7 @@ def prepare_upload(
 
 def _validate_iiif_uris(root: etree._Element) -> None:
     uris = [uri for node in root.iter(tag="iiif-uri") if (uri := node.text)]
-    problems = IIIFUriValidator(uris).validate()
-    if problems:
+    if problems := IIIFUriValidator(uris).validate():
         msg = problems.get_msg()
         warnings.warn(DspToolsUserWarning(msg))
         logger.warning(msg)
@@ -255,8 +255,9 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
         media_previously_ingested=upload_state.config.media_previously_uploaded,
     )
 
+    progress_bar = tqdm(upload_state.pending_resources.copy(), desc="Creating Resources")
     try:
-        for creation_attempts_of_this_round, resource in enumerate(upload_state.pending_resources.copy()):
+        for creation_attempts_of_this_round, resource in enumerate(progress_bar):
             _upload_one_resource(
                 upload_state=upload_state,
                 resource=resource,
@@ -264,6 +265,7 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
                 resource_create_client=resource_create_client,
                 creation_attempts_of_this_round=creation_attempts_of_this_round,
             )
+            progress_bar.set_description(f"Creating Resources (failed: {len(upload_state.failed_uploads)})")
         if upload_state.pending_stash:
             _upload_stash(upload_state, clients.project_client)
     except XmlUploadInterruptedError as err:
@@ -418,7 +420,6 @@ def _tidy_up_resource_creation_idempotent(
         # resource creation succeeded: update the iri_resolver
         upload_state.iri_resolver.lookup[resource.res_id] = iri
         msg = f"Created resource {current_res}/{total_res}: '{resource.label}' (ID: '{resource.res_id}', IRI: '{iri}')"
-        print(f"{datetime.now()}: {msg}")
         logger.info(msg)
     else:  # noqa: PLR5501
         # resource creation failed gracefully: register it as failed
@@ -433,7 +434,6 @@ def _handle_resource_creation_failure(resource: XMLResource, err_msg: str | None
     msg = f"{datetime.now()}: WARNING: Unable to create resource '{resource.label}' (ID: '{resource.res_id}')"
     if err_msg:
         msg = f"{msg}: {err_msg}"
-    print(msg)
     log_msg = (
         f"Unable to create resource '{resource.label}' ({resource.res_id})\n"
         f"Resource details:\n{vars(resource)}\n"

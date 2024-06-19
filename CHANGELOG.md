@@ -1,5 +1,50 @@
 # Changelog
 
+## [8.2.0](https://github.com/dasch-swiss/dsp-tools/compare/v8.1.0...v8.2.0) (2024-06-19)
+
+
+### Enhancements
+
+* add flag to suppress warning when using old dsp-tools version (DEV-3707) ([#1001](https://github.com/dasch-swiss/dsp-tools/issues/1001)) ([e28ba2e](https://github.com/dasch-swiss/dsp-tools/commit/e28ba2ea9345262bd29ed80a0e35276177a6f765))
+* display progress in xmlupload as progress bar (DEV-3708) ([#1022](https://github.com/dasch-swiss/dsp-tools/issues/1022)) ([4ccf628](https://github.com/dasch-swiss/dsp-tools/commit/4ccf628a9e4d7bb8671eeb807de722459389d200))
+
+
+### Bug Fixes
+
+* **ci:** bump release-please action (DEV-3526) ([#992](https://github.com/dasch-swiss/dsp-tools/issues/992)) ([891a889](https://github.com/dasch-swiss/dsp-tools/commit/891a8890c9acaf19ac252d1c9c525b2dea79bdda))
+* **ci:** fix flaky CI tests in rosetta repo (DEV-3733) ([#990](https://github.com/dasch-swiss/dsp-tools/issues/990)) ([544923f](https://github.com/dasch-swiss/dsp-tools/commit/544923fe59f51724010b93c668b557c0260e1bb0))
+* **ci:** fix release-please (DEV-3730) ([#999](https://github.com/dasch-swiss/dsp-tools/issues/999)) ([4798d77](https://github.com/dasch-swiss/dsp-tools/commit/4798d77ef0d76f820f64c0209cd9fc5ff2e7d4be))
+* **ci:** move changelog (DEV-3730) ([#1000](https://github.com/dasch-swiss/dsp-tools/issues/1000)) ([0fae3e7](https://github.com/dasch-swiss/dsp-tools/commit/0fae3e75d952dbf31931ba840e90aea0bb983082))
+* **ci:** use GITHUB_TOKEN instead of GH_TOKEN, move CHANGELOG.md back (DEV-3730) ([#1002](https://github.com/dasch-swiss/dsp-tools/issues/1002)) ([1f149de](https://github.com/dasch-swiss/dsp-tools/commit/1f149de76b77b4f36a65bb602faf07750fb35281))
+* **excel2xml:** support backslash in make_text_prop() (DEV-3377) ([#991](https://github.com/dasch-swiss/dsp-tools/issues/991)) ([6e301d0](https://github.com/dasch-swiss/dsp-tools/commit/6e301d016168d44d3f1957f5751ac4467759a332))
+* **excel2xml:** support named character references in make_text_prop() (DEV-3738) ([#1007](https://github.com/dasch-swiss/dsp-tools/issues/1007)) ([324c00a](https://github.com/dasch-swiss/dsp-tools/commit/324c00a80c46091cefaa63411604bb76c3a18b47))
+* remove GH_TOKEN from release workflows (DEV-3737) ([#1006](https://github.com/dasch-swiss/dsp-tools/issues/1006)) ([1c4f6f1](https://github.com/dasch-swiss/dsp-tools/commit/1c4f6f1814c9f536bf3866f4cb65b593f40c4acc))
+* **start-stack:** fix display issue in DSP-APP on localhost (DEV-3745) ([#1008](https://github.com/dasch-swiss/dsp-tools/issues/1008)) ([b2d51ca](https://github.com/dasch-swiss/dsp-tools/commit/b2d51ca97f05bba16e76d36dea7451b3602b0a16))
+* **xmlupload:** OntologyConstraintException should not interrupt an xmlupload (DEV-3724) ([#995](https://github.com/dasch-swiss/dsp-tools/issues/995)) ([50ab6bf](https://github.com/dasch-swiss/dsp-tools/commit/50ab6bfd4c4c0fbced6a4bbaed4bee371276b673))
+
+
+### Maintenance
+
+* add yamlfmt to pre-commit ([#1009](https://github.com/dasch-swiss/dsp-tools/issues/1009)) ([569c161](https://github.com/dasch-swiss/dsp-tools/commit/569c161cf2c286765734e7f690212d160a2058ac))
+* bump start-stack to 2024.06.01 ([#1024](https://github.com/dasch-swiss/dsp-tools/issues/1024)) ([991c6bc](https://github.com/dasch-swiss/dsp-tools/commit/991c6bce2132ed744cfae6a4e1611945a9dae90c))
+* **ci:** after every PR merge, upload test coverage report for main (DEV-3731) ([#1010](https://github.com/dasch-swiss/dsp-tools/issues/1010)) ([c76b787](https://github.com/dasch-swiss/dsp-tools/commit/c76b787446005dc738a23d08c2a5c58b5a3f40f0))
+* **ci:** only post codecov comment if coverage changes ([#1015](https://github.com/dasch-swiss/dsp-tools/issues/1015)) ([8bee0ec](https://github.com/dasch-swiss/dsp-tools/commit/8bee0ec03758042407fb4d1243c820518260748a))
+* **deps-dev:** bump the all-dependencies group with 6 updates ([#998](https://github.com/dasch-swiss/dsp-tools/issues/998)) ([99ef810](https://github.com/dasch-swiss/dsp-tools/commit/99ef810b0847f13629818146740ec34bf210ab77))
+* **deps:** bump the all-dependencies group with 4 updates ([#1013](https://github.com/dasch-swiss/dsp-tools/issues/1013)) ([5a1ac6e](https://github.com/dasch-swiss/dsp-tools/commit/5a1ac6ef36886bbdf73ecd2dfbd4845b1a7efe22))
+* **deps:** bump urllib3 from 2.2.1 to 2.2.2 ([#1023](https://github.com/dasch-swiss/dsp-tools/issues/1023)) ([bac6c69](https://github.com/dasch-swiss/dsp-tools/commit/bac6c69196952bf80694aacb720e6685d9d9091c))
+* fix some low-hanging linter warnings ([#1019](https://github.com/dasch-swiss/dsp-tools/issues/1019)) ([70beea3](https://github.com/dasch-swiss/dsp-tools/commit/70beea3467143d8f5e80f318718a6f75fad572a9))
+* fix typo ([#1018](https://github.com/dasch-swiss/dsp-tools/issues/1018)) ([df59932](https://github.com/dasch-swiss/dsp-tools/commit/df59932d4e72a3f465d5beeddd0aee6c1d5f9649))
+* replace deprecated PR title checker (DEV-3750) ([#1016](https://github.com/dasch-swiss/dsp-tools/issues/1016)) ([e4cd784](https://github.com/dasch-swiss/dsp-tools/commit/e4cd784293db8dc3a3a99c9e060f837b9e8688a8))
+* **start-stack:** don't print that stack is ready before it is ready ([#997](https://github.com/dasch-swiss/dsp-tools/issues/997)) ([9317df2](https://github.com/dasch-swiss/dsp-tools/commit/9317df24904338782892cd0194dcfdb97b2588e9))
+* **test:** add typing for test_ingest.py ([#1020](https://github.com/dasch-swiss/dsp-tools/issues/1020)) ([c959d31](https://github.com/dasch-swiss/dsp-tools/commit/c959d311df7789d0d1f5f0d06d3c455b836888ff))
+* use yamllint ([#1011](https://github.com/dasch-swiss/dsp-tools/issues/1011)) ([ddb47fd](https://github.com/dasch-swiss/dsp-tools/commit/ddb47fd9c904268ebc02d739c768093a41955a79))
+* **xmlupload:** serialise boolean value (DEV-3713) ([#988](https://github.com/dasch-swiss/dsp-tools/issues/988)) ([92d3c64](https://github.com/dasch-swiss/dsp-tools/commit/92d3c643e0d4f560a7d2ece4278718d4fc112c6b))
+
+
+### Documentation
+
+* fix hierarchy of headings in cli-commands ([#1012](https://github.com/dasch-swiss/dsp-tools/issues/1012)) ([210965d](https://github.com/dasch-swiss/dsp-tools/commit/210965d399615d400610bfe7533fef900937ac72))
+
 ## [8.1.0](https://github.com/dasch-swiss/dsp-tools/compare/v8.0.0...v8.1.0) (2024-06-04)
 
 

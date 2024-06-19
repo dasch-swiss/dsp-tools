@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from dataclasses import field
-from datetime import datetime
 from pathlib import Path
 from typing import Protocol
 
@@ -114,7 +113,7 @@ class DspIngestClientLive(AssetClient):
                     logger.error(log_msg)
                     raise PermanentConnectionError(log_msg)
             except requests.exceptions.RequestException as e:
-                raise PermanentConnectionError(f"{err}. {e}")
+                raise PermanentConnectionError(f"{err}. {e}") from e
 
     def get_bitstream_info(
         self,
@@ -127,13 +126,11 @@ class DspIngestClientLive(AssetClient):
         try:
             res = self._ingest(Path(self.imgdir) / Path(bitstream.value))
             msg = f"Uploaded file '{bitstream.value}'"
-            print(f"{datetime.now()}: {msg}")
             logger.info(msg)
             permissions = permissions_lookup.get(bitstream.permissions) if bitstream.permissions else None
             return True, BitstreamInfo(bitstream.value, res.internal_filename, permissions)
-        except PermanentConnectionError as err:
-            msg = f"Unable to upload file '{bitstream.value}' " f"of resource '{res_label}' ({res_id})"
-            print(f"{datetime.now()}: WARNING: {msg}: {err.message}")
+        except PermanentConnectionError:
+            msg = f"Unable to upload file '{bitstream.value}' of resource '{res_label}' ({res_id})"
             logger.opt(exception=True).warning(msg)
             return False, None
 

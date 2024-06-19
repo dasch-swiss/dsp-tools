@@ -11,11 +11,13 @@ from requests.adapters import Retry
 
 from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import PermanentConnectionError
+from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.logger_config import logger_savepath
 
 STATUS_OK = 200
 STATUS_UNAUTHORIZED = 401
 STATUS_INTERNAL_SERVER_ERROR = 500
+STATUS_CONFLICT = 409
 
 
 @dataclass
@@ -82,3 +84,32 @@ class MassIngestClient:
             print(f"{datetime.now()}: WARNING: {msg}: {err.message}")
             logger.opt(exception=True).warning(msg)
             return False
+
+    def kick_off_ingest(self) -> None:
+        """Start the ingest process on the server."""
+        url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest"
+        headers = {"Authorization": f"Bearer {self.token}"}
+        res = self.session.post(url, headers=headers, timeout=5)
+        if res.status_code == STATUS_CONFLICT:
+            msg = f"Ingest process on the server {self.dsp_ingest_url} is already running. Wait until it completes..."
+            print(msg)
+            logger.info(msg)
+        if res.json().get("id") != self.shortcode:
+            raise UserError("Failed to kick off the ingest process.")
+        print(f"Kicked off the ingest process on the server {self.dsp_ingest_url}. Wait until it completes...")
+        logger.info(f"Kicked off the ingest process on the server {self.dsp_ingest_url}. Wait until it completes...")
+
+    def retrieve_mapping(self) -> str | None:
+        url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/mapping.csv"
+        res = self.session.get(url, headers={"Authorization": f"Bearer {self.token}"}, timeout=5)
+        if res.status_code == STATUS_CONFLICT:
+            print("Ingest process is still running. Wait until it completes...")
+            logger.info("Ingest process is still running. Wait until it completes...")
+            return None
+        elif not res.ok or not res.text.startswith("original,derivative"):
+            print("Dubious error")
+            logger.error("Dubious error")
+            return None
+        print("Ingest process completed.")
+        logger.info("Ingest process completed.")
+        return res.text

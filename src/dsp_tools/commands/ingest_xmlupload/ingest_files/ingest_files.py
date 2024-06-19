@@ -5,7 +5,7 @@ from time import sleep
 from loguru import logger
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.commands.ingest_xmlupload.ingest_files.ingest_kickoff_client import IngestKickoffClient
+from dsp_tools.commands.ingest_xmlupload.mass_ingest_client import MassIngestClient
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
 
@@ -24,10 +24,10 @@ def ingest_files(creds: ServerCredentials, shortcode: str) -> bool:
     """
     con: Connection = ConnectionLive(creds.server)
     con.login(creds.user, creds.password)
-    kickoff_client = IngestKickoffClient(creds.dsp_ingest_url, con.get_token(), shortcode)
-    kickoff_client.kick_off_ingest()
+    mass_ingest_client = MassIngestClient(creds.dsp_ingest_url, con.get_token(), shortcode)
+    mass_ingest_client.kick_off_ingest()
 
-    while not (mapping := kickoff_client.try_download()):
+    while not (mapping := mass_ingest_client.retrieve_mapping()):
         sleep(10)
     _save_mapping(mapping, shortcode)
     return True

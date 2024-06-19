@@ -118,7 +118,7 @@ class MassIngestClient:
     def finalize(self) -> bool:
         """Delete the mapping file and the temporary directory where the unprocessed files were stored."""
         route = f"/projects/{self.shortcode}/bulk-ingest/finalize"
-        res = self.session.post(route, headers={"Authorization": f"Bearer {self.token}"}, timeout=5)
+        res = self.session.post(route, timeout=5)
         if res.status_code != STATUS_OK or res.json().get("id") != self.shortcode:
             print("Failed to finalize the ingest process. Please clean up the server manually.")
             logger.error("Failed to finalize the ingest process. Please clean up the server manually.")

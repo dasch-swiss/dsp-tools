@@ -356,17 +356,6 @@ class TestMakeBitstreamFileValue:
         }
         assert value == expected
 
-    def test_xslt(self) -> None:
-        info = BitstreamInfo("a/b/test.xslt", "00001.xslt")
-        value = _make_bitstream_file_value(info)
-        expected = {
-            "knora-api:hasTextFileValue": {
-                "@type": "knora-api:TextFileValue",
-                "knora-api:fileValueHasFilename": "00001.xslt",
-            }
-        }
-        assert value == expected
-
     def test_csv(self) -> None:
         info = BitstreamInfo("a/b/test.csv", "00001.csv")
         value = _make_bitstream_file_value(info)

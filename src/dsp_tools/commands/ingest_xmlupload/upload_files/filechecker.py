@@ -14,8 +14,8 @@ SUPPORTED_EXTENSIONS = (
 
 def check_files(files: set[Path]) -> FileProblems | None:
     """Validate the files referenced in the XML file. Check if they exist and have supported extensions."""
-    non_existing_files = [file for file in files if not file.exists()]
     unsupported_files = [file for file in files if file.suffix[1:] not in SUPPORTED_EXTENSIONS]
+    non_existing_files = [file for file in files if not file.exists() and file not in unsupported_files]
     if non_existing_files or unsupported_files:
         return FileProblems(non_existing_files, unsupported_files)
     return None

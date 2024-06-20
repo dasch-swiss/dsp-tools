@@ -24,7 +24,7 @@ def _make_url(file: Path) -> str:
     return f"{DSP_INGEST_URL}/projects/{SHORTCODE}/bulk-ingest/ingest/{file}"
 
 
-def test_ingest_success(ingest_client: BulkIngestClient, requests_mock: Mocker, tmp_file: Path) -> None:
+def test_upload_file_success(ingest_client: BulkIngestClient, requests_mock: Mocker, tmp_file: Path) -> None:
     tmp_file.write_text("<xml></xml>")
     url = _make_url(tmp_file)
     requests_mock.post(url, status_code=200)
@@ -39,9 +39,7 @@ def test_ingest_success(ingest_client: BulkIngestClient, requests_mock: Mocker, 
     assert req.body.name == str(tmp_file)
 
 
-def test_ingest_failure_when_other_error(
-    ingest_client: BulkIngestClient, requests_mock: Mocker, tmp_file: Path
-) -> None:
+def test_upload_file_failure_upon_error(ingest_client: BulkIngestClient, requests_mock: Mocker, tmp_file: Path) -> None:
     tmp_file.write_text("<xml></xml>")
     requests_mock.post(_make_url(tmp_file), status_code=500)
     with pytest.raises(PermanentConnectionError):

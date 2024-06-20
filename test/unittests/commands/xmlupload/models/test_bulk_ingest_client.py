@@ -22,7 +22,7 @@ def tmp_file(tmp_path: Path) -> Path:
 
 
 def _make_url(file: Path) -> str:
-    return f"{DSP_INGEST_URL}/projects/{SHORTCODE}/bulk-ingest/upload/{file.name}"
+    return f"{DSP_INGEST_URL}/projects/{SHORTCODE}/bulk-ingest/ingest/{file}"
 
 
 def test_ingest_success(ingest_client: MassIngestClient, requests_mock: Mocker, tmp_file: Path) -> None:

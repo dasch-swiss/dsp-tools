@@ -37,6 +37,9 @@ class FileProblems:
         """
         Generate the error message to communicate the problems to the user.
         If there are too many problems, save them to a file.
+
+        Returns:
+            error message
         """
         msg = "Some files referenced in the <bitstream> tags of your XML cannot be uploaded to the server."
         if len(self.non_existing_files) + len(self.unsupported_files) > self.maximum_prints:

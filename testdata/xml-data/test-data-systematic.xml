@@ -620,6 +620,16 @@
         </text-prop>
     </resource>
 
+    <resource label="Textthing-xslt"
+              restype=":TextThing"
+              id="text_thing_8"
+              permissions="res-default">
+        <bitstream>testdata/bitstreams/test.xslt</bitstream>
+        <text-prop name=":hasSimpleText">
+            <text permissions="prop-default" encoding="utf8">This is a Textthing as XSLT</text>
+        </text-prop>
+    </resource>
+
     <resource label="Zipthing-zip"
               restype=":ZipThing"
               id="zip_thing_1"

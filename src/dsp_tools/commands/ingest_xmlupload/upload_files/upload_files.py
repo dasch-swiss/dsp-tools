@@ -4,7 +4,7 @@ from loguru import logger
 from lxml import etree
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.commands.ingest_xmlupload.mass_ingest_client import MassIngestClient
+from dsp_tools.commands.ingest_xmlupload.bulk_ingest_client import BulkIngestClient
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
 
@@ -36,7 +36,7 @@ def upload_files(
 
     con: Connection = ConnectionLive(creds.server)
     con.login(creds.user, creds.password)
-    ingest_client = MassIngestClient(creds.dsp_ingest_url, con.get_token(), shortcode)
+    ingest_client = BulkIngestClient(creds.dsp_ingest_url, con.get_token(), shortcode)
 
     for path in paths:
         ingest_client.upload_file(path)

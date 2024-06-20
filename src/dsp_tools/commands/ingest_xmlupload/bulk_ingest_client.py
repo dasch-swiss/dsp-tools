@@ -9,12 +9,10 @@ from requests import Session
 from requests.adapters import HTTPAdapter
 from requests.adapters import Retry
 
-from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import PermanentConnectionError
 from dsp_tools.utils.logger_config import logger_savepath
 
 STATUS_OK = 200
-STATUS_UNAUTHORIZED = 401
 STATUS_INTERNAL_SERVER_ERROR = 500
 
 
@@ -56,8 +54,6 @@ class BulkIngestClient:
                 )
                 if res.status_code == STATUS_OK:
                     return
-                elif res.status_code == STATUS_UNAUTHORIZED:
-                    raise BadCredentialsError("Bad credentials")
                 else:
                     user_msg = f"{err} See logs for more details: {logger_savepath}"
                     print(user_msg)

@@ -23,6 +23,7 @@ class BulkIngestClient:
     dsp_ingest_url: str
     token: str
     shortcode: str
+    imgdir: Path = field(default=Path.cwd())
     session: Session = field(init=False)
 
     def __post_init__(self) -> None:
@@ -44,7 +45,7 @@ class BulkIngestClient:
     def _upload(self, filepath: Path) -> None:
         url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/ingest/{filepath}"
         err = f"Failed to ingest {filepath} to '{url}'."
-        with open(filepath, "rb") as binary_io:
+        with open(self.imgdir / filepath, "rb") as binary_io:
             try:
                 res = self.session.post(
                     url=url,

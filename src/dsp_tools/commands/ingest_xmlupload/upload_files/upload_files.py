@@ -15,7 +15,7 @@ from dsp_tools.utils.xml_utils import remove_comments_from_element_tree
 def upload_files(
     xml_file: Path,
     creds: ServerCredentials,
-    imgdir: str = ".",
+    imgdir: Path = Path.cwd(),
 ) -> bool:
     """
     Upload all files referenced in an XML file to the ingest server.
@@ -31,13 +31,13 @@ def upload_files(
     """
     root = _parse_xml(xml_file)
     shortcode = root.attrib["shortcode"]
-    paths = _get_validated_paths(root, imgdir)
+    paths = _get_validated_paths(root)
     print(f"Found {len(paths)} files to upload onto server {creds.dsp_ingest_url}.")
     logger.info(f"Found {len(paths)} files to upload onto server {creds.dsp_ingest_url}.")
 
     con: Connection = ConnectionLive(creds.server)
     con.login(creds.user, creds.password)
-    ingest_client = BulkIngestClient(creds.dsp_ingest_url, con.get_token(), shortcode)
+    ingest_client = BulkIngestClient(creds.dsp_ingest_url, con.get_token(), shortcode, imgdir)
 
     for path in paths:
         ingest_client.upload_file(path)
@@ -55,8 +55,8 @@ def _parse_xml(xml_file: Path) -> etree._Element:
     return root
 
 
-def _get_validated_paths(root: etree._Element, imgdir: str) -> set[Path]:
-    paths = {Path(imgdir / Path(x.text)) for x in root.xpath("//bitstream")}
+def _get_validated_paths(root: etree._Element) -> set[Path]:
+    paths = {Path(x.text) for x in root.xpath("//bitstream")}
     if problems := check_files(paths):
         msg = problems.execute_error_protocol()
         raise InputError(msg)

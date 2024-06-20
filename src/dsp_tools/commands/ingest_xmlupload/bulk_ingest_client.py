@@ -46,23 +46,22 @@ class BulkIngestClient:
         url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/ingest/{filepath}"
         err = f"Failed to ingest {filepath} to '{url}'."
         with open(self.imgdir / filepath, "rb") as binary_io:
-            try:
-                res = self.session.post(
-                    url=url,
-                    headers={"Content-Type": "application/octet-stream"},
-                    data=binary_io,
-                    timeout=60,
-                )
-                if res.status_code == STATUS_OK:
-                    return
-                else:
-                    user_msg = f"{err} See logs for more details: {logger_savepath}"
-                    print(user_msg)
-                    log_msg = f"{err} Response status code {res.status_code} '{res.json()}'"
-                    logger.error(log_msg)
-                    raise PermanentConnectionError(log_msg)
-            except RequestException as e:
-                raise PermanentConnectionError(f"{err}. {e}")
+            content = binary_io.read()
+        try:
+            res = self.session.post(
+                url=url,
+                headers={"Content-Type": "application/octet-stream"},
+                data=content,
+                timeout=60,
+            )
+        except RequestException as e:
+            raise PermanentConnectionError(f"{err}. {e}")
+        if res.status_code != STATUS_OK:
+            user_msg = f"{err} See logs for more details: {logger_savepath}"
+            print(user_msg)
+            log_msg = f"{err} Response status code {res.status_code} '{res.json()}'"
+            logger.error(log_msg)
+            raise PermanentConnectionError(log_msg)
 
     def upload_file(
         self,

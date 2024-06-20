@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from dataclasses import field
 from pathlib import Path
 
 import pandas as pd
@@ -27,7 +26,7 @@ class FileProblems:
 
     non_existing_files: list[Path]
     unsupported_files: list[Path]
-    maximum_prints: int = field(init=False, default=50)
+    maximum_prints: int = 50
 
     def __post_init__(self) -> None:
         if not self.non_existing_files and not self.unsupported_files:
@@ -41,22 +40,33 @@ class FileProblems:
         Returns:
             error message
         """
-        msg = "Some files referenced in the <bitstream> tags of your XML cannot be uploaded to the server."
+        msg = "Some files referenced in the <bitstream> tags of your XML file cannot be uploaded to the server."
         if len(self.non_existing_files) + len(self.unsupported_files) > self.maximum_prints:
             output_file = Path("file_problems.csv")
-            df = pd.DataFrame(
-                {
-                    "Files that don't exist on your computer": self.non_existing_files,
-                    "Files with unsupported extensions": self.unsupported_files,
-                }
-            )
-            df.to_csv(output_file, index=False)
+            self._save_to_csv(output_file)
             msg += f" The full list of files with problems has been saved to '{output_file}'."
-        else:
+            return msg
+        if self.non_existing_files:
             msg += "\n\n"
-            msg += "The following files don't exist on your computer:\n"
+            msg += "The following files don't exist on your computer:\n - "
             msg += "\n - ".join([str(file) for file in self.non_existing_files])
+        if self.unsupported_files:
             msg += "\n\n"
-            msg += "The following files have unsupported extensions:\n"
+            msg += "The following files have unsupported extensions:\n - "
             msg += "\n - ".join([str(file) for file in self.unsupported_files])
         return msg
+
+    def _save_to_csv(self, output_file: Path) -> None:
+        non_existing, unsupported = self._add_padding()
+        data = {
+            "Files that don't exist on your computer": non_existing,
+            "Files with unsupported extensions": unsupported,
+        }
+        df = pd.DataFrame(data)
+        df.to_csv(output_file, index=False)
+
+    def _add_padding(self) -> tuple[list[Path | None], list[Path | None]]:
+        max_len = max(len(self.non_existing_files), len(self.unsupported_files))
+        non_existing = self.non_existing_files + [None] * (max_len - len(self.non_existing_files))
+        unsupported = self.unsupported_files + [None] * (max_len - len(self.unsupported_files))
+        return non_existing, unsupported

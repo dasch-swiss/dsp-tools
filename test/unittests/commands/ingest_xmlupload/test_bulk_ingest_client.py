@@ -25,7 +25,8 @@ def _make_url(file: Path) -> str:
 
 
 def test_upload_file_success(ingest_client: BulkIngestClient, requests_mock: Mocker, tmp_file: Path) -> None:
-    tmp_file.write_text("<xml></xml>")
+    file_content = "<xml></xml>"
+    tmp_file.write_text(file_content)
     url = _make_url(tmp_file)
     requests_mock.post(url, status_code=200)
     failure_detail = ingest_client.upload_file(tmp_file)
@@ -36,7 +37,7 @@ def test_upload_file_success(ingest_client: BulkIngestClient, requests_mock: Moc
     assert req.method == "POST"
     assert req.headers["Authorization"] == "Bearer token"
     assert req.headers["Content-Type"] == "application/octet-stream"
-    assert req.body.name == str(tmp_file)
+    assert req.body == file_content.encode()
 
 
 def test_upload_file_with_inexisting_file(ingest_client: BulkIngestClient) -> None:

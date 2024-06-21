@@ -26,6 +26,7 @@ def ingest_files(creds: ServerCredentials, shortcode: str) -> bool:
     con.login(creds.user, creds.password)
     mass_ingest_client = BulkIngestClient(creds.dsp_ingest_url, con.get_token(), shortcode)
     mass_ingest_client.kick_off_ingest()
+    sleep(5)
 
     while not (mapping := mass_ingest_client.retrieve_mapping()):
         sleep(10)

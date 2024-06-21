@@ -6,9 +6,9 @@ from loguru import logger
 from lxml import etree
 
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.commands.ingest_xmlupload.bulk_ingest_client import BulkIngestClient
 from dsp_tools.commands.ingest_xmlupload.create_resources.apply_ingest_id import get_mapping_dict_from_file
 from dsp_tools.commands.ingest_xmlupload.create_resources.apply_ingest_id import replace_filepath_with_internal_filename
-from dsp_tools.commands.ingest_xmlupload.mass_ingest_client import MassIngestClient
 from dsp_tools.commands.xmlupload.list_client import ListClientLive
 from dsp_tools.commands.xmlupload.models.ingest import BulkIngestedAssetClient
 from dsp_tools.commands.xmlupload.models.upload_clients import UploadClients
@@ -114,5 +114,5 @@ def _get_live_clients(con: Connection, config: UploadConfig) -> UploadClients:
 
 
 def _tidy_up_on_server(con: Connection, shortcode: str, ingest_url: str) -> bool:
-    mass_ingest_client = MassIngestClient(ingest_url, con.get_token(), shortcode)
-    return mass_ingest_client.finalize()
+    bulk_ingest_client = BulkIngestClient(ingest_url, con.get_token(), shortcode)
+    return bulk_ingest_client.finalize()

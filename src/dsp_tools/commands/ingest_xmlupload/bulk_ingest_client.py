@@ -9,18 +9,11 @@ from requests import Session
 from requests.adapters import HTTPAdapter
 from requests.adapters import Retry
 
+from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailureDetail
 from dsp_tools.utils.logger_config import logger_savepath
 
 STATUS_OK = 200
 STATUS_INTERNAL_SERVER_ERROR = 500
-
-
-@dataclass(frozen=True)
-class UploadFailureDetails:
-    """Information on why the upload of a file to the ingest server failed."""
-
-    filepath: Path
-    reason: str
 
 
 @dataclass
@@ -49,7 +42,7 @@ class BulkIngestClient:
         self.session.mount("https://", adapter)
         self.session.headers["Authorization"] = f"Bearer {self.token}"
 
-    def _upload(self, filepath: Path) -> UploadFailureDetails | None:
+    def _upload(self, filepath: Path) -> UploadFailureDetail | None:
         url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/ingest/{filepath}"
         err_msg = f"Failed to ingest '{filepath}' to '{url}'."
         try:
@@ -57,7 +50,7 @@ class BulkIngestClient:
                 content = binary_io.read()
         except OSError as e:
             logger.error(err_msg)
-            return UploadFailureDetails(filepath, f"File could not be opened/read: {e.strerror}")
+            return UploadFailureDetail(filepath, f"File could not be opened/read: {e.strerror}")
         try:
             res = self.session.post(
                 url=url,
@@ -67,16 +60,16 @@ class BulkIngestClient:
             )
         except RequestException as e:
             logger.error(err_msg)
-            return UploadFailureDetails(filepath, f"Exception {e.strerror} of requests library: {e}")
+            return UploadFailureDetail(filepath, f"Exception {e.strerror} of requests library: {e}")
         if res.status_code != STATUS_OK:
             logger.error(err_msg)
-            return UploadFailureDetails(filepath, f"Response {res.status_code}: {res.json()}")
+            return UploadFailureDetail(filepath, f"Response {res.status_code}: {res.json()}")
         return None
 
     def upload_file(
         self,
         filepath: Path,
-    ) -> UploadFailureDetails | None:
+    ) -> UploadFailureDetail | None:
         """Uploads a file to the ingest server."""
         if failure_details := self._upload(filepath):
             err_msg = f"Failed to ingest '{filepath}'.\n"

@@ -60,10 +60,11 @@ class BulkIngestClient:
             )
         except RequestException as e:
             logger.error(err_msg)
-            return UploadFailureDetail(filepath, f"Exception {e.strerror} of requests library: {e}")
+            return UploadFailureDetail(filepath, f"Exception of requests library: {e}")
         if res.status_code != STATUS_OK:
             logger.error(err_msg)
-            return UploadFailureDetail(filepath, f"Response {res.status_code}: {res.json()}")
+            reason = f"Response {res.status_code}: {res.text}" if res.text else f"Response {res.status_code}"
+            return UploadFailureDetail(filepath, reason)
         return None
 
     def upload_file(

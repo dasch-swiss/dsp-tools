@@ -40,7 +40,7 @@ def upload_files(
     con.login(creds.user, creds.password)
     ingest_client = BulkIngestClient(creds.dsp_ingest_url, con.get_token(), shortcode, imgdir)
 
-    potential_failures = [ingest_client.upload_file(path) for path in paths]
+    potential_failures = [ingest_client.upload_file(path) for path in sorted(paths)]  # sorting is for testability
     aggregated_failures = UploadFailureDetails(potential_failures, shortcode, creds.dsp_ingest_url)
     return aggregated_failures.make_final_communication()
 

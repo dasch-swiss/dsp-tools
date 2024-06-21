@@ -3,12 +3,12 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
+from dsp_tools.commands.ingest_xmlupload.upload_files.filechecker import FileChecker
 from dsp_tools.commands.ingest_xmlupload.upload_files.filechecker import FileProblems
-from dsp_tools.commands.ingest_xmlupload.upload_files.filechecker import check_files
 
 
 def test_check_files_success() -> None:
-    res = check_files({Path("testdata/bitstreams/test.txt"), Path("testdata/bitstreams/test.pdf")})
+    res = FileChecker({Path("testdata/bitstreams/test.txt"), Path("testdata/bitstreams/test.pdf")}).validate()
     assert not res
 
 
@@ -17,28 +17,28 @@ def test_check_files_unsupported() -> None:
         Path("testdata/invalid-testdata/bitstreams/test.gif"),
         Path("testdata/invalid-testdata/bitstreams/test.rtf"),
     }
-    res = check_files(unsupported_paths)
+    res = FileChecker(unsupported_paths).validate()
     expected = FileProblems([], list(unsupported_paths))
     assert res == expected
 
 
 def test_check_files_non_existing() -> None:
     inexisting_paths = {Path("foo/bar.txt"), Path("egg/spam.pdf")}
-    res = check_files(inexisting_paths)
+    res = FileChecker(inexisting_paths).validate()
     expected = FileProblems(list(inexisting_paths), [])
     assert res == expected
 
 
 def test_check_files_non_existing_and_unsupported() -> None:
     inexisting_unsupported_paths = {Path("foo/bar.baz"), Path("egg/spam.ham")}
-    res = check_files(inexisting_unsupported_paths)
+    res = FileChecker(inexisting_unsupported_paths).validate()
     expected = FileProblems([], list(inexisting_unsupported_paths))
     assert res == expected
 
 
 def test_check_files_mixed_unsupported() -> None:
     mixed_unsupported_paths = {Path("foo/bar.baz"), Path("testdata/invalid-testdata/bitstreams/test.gif")}
-    res = check_files(mixed_unsupported_paths)
+    res = FileChecker(mixed_unsupported_paths).validate()
     expected = FileProblems([], list(mixed_unsupported_paths))
     assert res == expected
 

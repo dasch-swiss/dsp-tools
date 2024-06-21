@@ -5,7 +5,7 @@ from lxml import etree
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.ingest_xmlupload.bulk_ingest_client import BulkIngestClient
-from dsp_tools.commands.ingest_xmlupload.upload_files.filechecker import check_files
+from dsp_tools.commands.ingest_xmlupload.upload_files.filechecker import FileChecker
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailureDetails
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.connection import Connection
@@ -55,7 +55,7 @@ def _parse_xml(xml_file: Path) -> etree._Element:
 
 def _get_validated_paths(root: etree._Element) -> set[Path]:
     paths = {Path(x.text) for x in root.xpath("//bitstream")}
-    if problems := check_files(paths):
+    if problems := FileChecker(paths).validate():
         msg = problems.execute_error_protocol()
         raise InputError(msg)
     return paths

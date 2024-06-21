@@ -46,14 +46,16 @@ def _test_upload_step(caplog: pytest.LogCaptureFixture) -> None:
 def _test_ingest_step(caplog: pytest.LogCaptureFixture) -> None:
     success = ingest_files(CREDS, SHORTCODE)
     assert success
+    mapping_file = Path(f"mapping-{SHORTCODE}.csv")
     logs = [rec.message for rec in caplog.records]
     assert logs[-3] == "Kicked off the ingest process on the server http://0.0.0.0:3340. Wait until it completes..."
     assert logs[-2] == "Ingest process completed."
-    assert logs[-1] == f"Saved mapping CSV to 'mapping-{SHORTCODE}.csv'"
+    assert logs[-1] == f"Saved mapping CSV to '{mapping_file}'"
     caplog.clear()
 
-    df = pd.read_csv(f"mapping-{SHORTCODE}.csv")
+    df = pd.read_csv(mapping_file)
     assert df["original"].tolist() == unordered(["testdata/bitstreams/test.jpg", "testdata/bitstreams/test.pdf"])
+    mapping_file.unlink()
 
 
 def _test_xmlupload_step(caplog: pytest.LogCaptureFixture) -> None:

@@ -37,14 +37,9 @@ def prepare_dataframe(
     Returns:
         prepared DataFrame
     """
-    # strip column headers and transform to lowercase, so that the script doesn't break when the headers vary a bit
-    new_df = df.rename(columns=lambda x: x.strip().lower())
-    required_columns = [x.strip().lower() for x in required_columns]
-    # strip every cell, and insert "" if there is no valid word in it
-    new_df = new_df.map(
-        lambda x: str(x).strip() if pd.notna(x) and regex.search(r"[\w\p{L}]", str(x), flags=regex.U) else pd.NA
-    )
+    new_df = clean_df(df)
     # delete rows that don't have the required columns
+    required_columns = [x.strip().lower() for x in required_columns]
     for req in required_columns:
         if req not in new_df:
             raise BaseError(f"{location_of_sheet} requires a column named '{req}'")
@@ -52,6 +47,25 @@ def prepare_dataframe(
         new_df = new_df[[bool(regex.search(r"[\w\p{L}]", x, flags=regex.U)) for x in new_df[req]]]
     if len(new_df) < 1:
         raise BaseError(f"{location_of_sheet} requires at least one row")
+    return new_df
+
+
+def clean_df(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Removes spaces from column names, makes them lower case.
+    For all cells, it searches for valid characters if the cell does not contain any valid characters,
+    it replaces it with a NaN value.
+
+    Args:
+        df: Dataframe
+
+    Returns:
+        Dataframe
+    """
+    new_df = df.rename(columns=lambda x: x.strip().lower())
+    new_df = new_df.map(
+        lambda x: str(x).strip() if pd.notna(x) and regex.search(r"[\w\p{L}]", str(x), flags=regex.U) else pd.NA
+    )
     return new_df
 
 

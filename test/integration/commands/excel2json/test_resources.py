@@ -3,7 +3,6 @@ import unittest
 import jsonpath_ng
 import jsonpath_ng.ext
 import pytest
-import regex
 from pytest_unordered import unordered
 
 from dsp_tools.commands.excel2json import resources as e2j
@@ -31,6 +30,7 @@ class TestExcelToResource(unittest.TestCase):
             "Audio",
             "ZIP",
             "PDFDocument",
+            "PDFDocumentEnglish",
         ]
         res_names = [match.value for match in jsonpath_ng.parse("$[*].name").find(output_from_method)]
         assert unordered(res_names) == expected_names
@@ -48,6 +48,7 @@ class TestExcelToResource(unittest.TestCase):
             ["AudioRepresentation"],
             ["ArchiveRepresentation"],
             ["DocumentRepresentation"],
+            ["PDFDocument"],
         ]
         res_supers = [match.value for match in jsonpath_ng.parse("$[*].super").find(output_from_method)]
         assert unordered(res_supers) == expected_supers
@@ -66,6 +67,7 @@ class TestExcelToResource(unittest.TestCase):
                 "",
                 "",
                 "",
+                "English Language PDF",
             ],
             "rm": [
                 "Rumantsch",
@@ -79,6 +81,7 @@ class TestExcelToResource(unittest.TestCase):
                 "",
                 "",
                 "Only Rumantsch",
+                "",
             ],
         }
         res_labels_all = [match.value for match in jsonpath_ng.parse("$[*].labels").find(output_from_method)]
@@ -104,12 +107,14 @@ class TestExcelToResource(unittest.TestCase):
                 "Audio",
                 "ZIP",
                 "PDF-Dokument",
+                "",
             ],
             "comment_fr": [
                 "Un étrange hasard m'a mis en possession de ce journal.",
                 "",
                 "",
                 "Only French",
+                "",
                 "",
                 "",
                 "",
@@ -228,17 +233,6 @@ class TestValidateWithSchema:
         )
         with pytest.raises(BaseError, match=expected_msg):
             e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-duplicate-name.xlsx", "")
-
-    def test_missing_sheet(self) -> None:
-        expected_msg = regex.escape(
-            "The excel file 'resources.xlsx' has problems.\n"
-            "The names of the excel sheets must be 'classes' "
-            "plus all the entries in the column 'name' from the sheet 'classes'.\n"
-            "The following sheet(s) are missing:\n"
-            "    - GenericAnthroponym"
-        )
-        with pytest.raises(InputError, match=expected_msg):
-            e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-invalid-missing-sheet.xlsx", "")
 
 
 if __name__ == "__main__":

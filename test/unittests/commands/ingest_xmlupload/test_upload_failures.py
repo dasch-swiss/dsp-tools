@@ -1,7 +1,6 @@
 from pathlib import Path
 
 import pandas as pd
-import regex
 
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailureDetail
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailureDetails
@@ -68,15 +67,14 @@ def test_several_failures_with_file_writing() -> None:
     failures: list[UploadFailureDetail | None] = [None, f1, None, f2, f3]
     aggregated_failures = UploadFailureDetails(failures, SHORTCODE, DSP_INGEST_URL, maximum_prints=2)
     msg = aggregated_failures.execute_error_protocol()
-    expected = regex.escape(
+    expected_output_path = Path(f"upload_failures_{SHORTCODE}_ingest.test.dasch.swiss.csv")
+    expected = (
         f"Uploaded 2/5 files onto server {DSP_INGEST_URL}. Failed to upload 3 files. "
-        f"The full list of failed files has been saved to "
+        f"The full list of failed files has been saved to '{expected_output_path}'."
     )
-    expected += f"'.+_upload_failures_{SHORTCODE}_ingest.test.dasch.swiss.csv'."
-    assert regex.match(expected, msg)
+    assert msg == expected
 
-    path = next(Path().cwd().glob(f"*_upload_failures_{SHORTCODE}_ingest.test.dasch.swiss.csv"))
-    df = pd.read_csv(path)
+    df = pd.read_csv(expected_output_path)
     assert df["Filepath"].tolist() == ["path1", "path2", "path3"]
     assert df["Reason"].tolist() == ["reason1", "reason2", "reason3"]
-    path.unlink()
+    expected_output_path.unlink()

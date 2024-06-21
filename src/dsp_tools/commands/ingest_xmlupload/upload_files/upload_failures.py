@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -38,9 +37,8 @@ class UploadFailureDetails:
         ratio = f"{len(self.outcomes) - len(failures)}/{len(self.outcomes)}"
         msg = f"Uploaded {ratio} files onto server {self.dsp_ingest_url}. "
         if len(failures) > self.maximum_prints:
-            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
             url = regex.sub(r"https?://", "", self.dsp_ingest_url)
-            output_file = Path(f"{timestamp}_upload_failures_{self.shortcode}_{url}.csv")
+            output_file = Path(f"upload_failures_{self.shortcode}_{url}.csv")
             self._save_to_csv(output_file)
             msg += f"Failed to upload {len(failures)} files. "
             msg += f"The full list of failed files has been saved to '{output_file}'."

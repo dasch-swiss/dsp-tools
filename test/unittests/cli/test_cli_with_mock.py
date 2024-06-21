@@ -142,7 +142,7 @@ def test_upload_files_localhost(upload_files: Mock) -> None:
         password="test",
         dsp_ingest_url="http://0.0.0.0:3340",
     )
-    upload_files.assert_called_once_with(xml_file=Path(file), creds=creds, imgdir=".")
+    upload_files.assert_called_once_with(xml_file=Path(file), creds=creds, imgdir=Path("."))
 
 
 @patch("dsp_tools.cli.call_action.upload_files")
@@ -159,7 +159,7 @@ def test_upload_files_remote(upload_files: Mock) -> None:
         password=password,
         dsp_ingest_url=server.replace("api", "ingest"),
     )
-    upload_files.assert_called_once_with(xml_file=Path(file), creds=creds, imgdir=".")
+    upload_files.assert_called_once_with(xml_file=Path(file), creds=creds, imgdir=Path("."))
 
 
 @patch("dsp_tools.cli.call_action.ingest_files")

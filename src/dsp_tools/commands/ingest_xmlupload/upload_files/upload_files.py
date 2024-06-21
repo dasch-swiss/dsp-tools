@@ -6,7 +6,6 @@ from lxml import etree
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.ingest_xmlupload.bulk_ingest_client import BulkIngestClient
 from dsp_tools.commands.ingest_xmlupload.upload_files.filechecker import check_files
-from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailureDetail
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailureDetails
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.connection import Connection
@@ -41,11 +40,8 @@ def upload_files(
     con.login(creds.user, creds.password)
     ingest_client = BulkIngestClient(creds.dsp_ingest_url, con.get_token(), shortcode, imgdir)
 
-    failures: list[UploadFailureDetail] = []
-    for path in paths:
-        if potential_failure := ingest_client.upload_file(path):
-            failures.append(potential_failure)
-    aggregated_failures = UploadFailureDetails(failures, len(paths), shortcode, creds.dsp_ingest_url)
+    potential_failures = [ingest_client.upload_file(path) for path in paths]
+    aggregated_failures = UploadFailureDetails(potential_failures, shortcode, creds.dsp_ingest_url)
     return aggregated_failures.make_final_communication()
 
 

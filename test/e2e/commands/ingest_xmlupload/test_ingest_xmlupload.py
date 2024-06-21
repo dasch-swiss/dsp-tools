@@ -3,6 +3,7 @@ from typing import Iterator
 
 import pandas as pd
 import pytest
+import regex
 from pytest_unordered import unordered
 
 from dsp_tools.cli.args import ServerCredentials
@@ -67,6 +68,18 @@ def _test_xmlupload_step(caplog: pytest.LogCaptureFixture) -> None:
     success = ingest_xmlupload(XML_FILE, CREDS)
     assert success
     logs = [rec.message for rec in caplog.records]
-    assert logs[-1] == f"Saved mapping CSV to 'mapping-{SHORTCODE}.csv'"
+    expected_logs = [
+        "The file 'mapping-4125.csv' is used to map the internal original filepaths to the internal image IDs.",
+        (
+            "All multimedia files referenced in the XML file were uploaded through dsp-ingest.\n"
+            "All multimedia files uploaded through dsp-ingest were referenced in the XML file."
+        ),
+    ]
+    assert all(expected_log in logs for expected_log in expected_logs)
+    expected_log_regexes = [
+        "Created resource 1/3",
+        "Created resource 2/3",
+        "Created resource 3/3",
+    ]
+    assert all(any(regex.search(exp, log) for log in logs) for exp in expected_log_regexes)
     caplog.clear()
-    # TODO: check log messages

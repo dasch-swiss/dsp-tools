@@ -66,6 +66,7 @@ def clean_df(df: pd.DataFrame) -> pd.DataFrame:
     new_df = new_df.map(
         lambda x: str(x).strip() if pd.notna(x) and regex.search(r"[\w\p{L}]", str(x), flags=regex.U) else pd.NA
     )
+    new_df = new_df.dropna(axis=0, how="all")
     return new_df
 
 

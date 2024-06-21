@@ -177,7 +177,7 @@ def _call_upload_files(args: argparse.Namespace) -> bool:
     return upload_files(
         xml_file=Path(args.xml_file),
         creds=_get_creds(args),
-        imgdir=args.imgdir,
+        imgdir=Path(args.imgdir),
     )
 
 

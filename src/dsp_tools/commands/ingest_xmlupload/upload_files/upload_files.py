@@ -4,15 +4,19 @@ from loguru import logger
 from lxml import etree
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.commands.ingest_xmlupload.mass_ingest_client import MassIngestClient
+from dsp_tools.commands.ingest_xmlupload.bulk_ingest_client import BulkIngestClient
+from dsp_tools.commands.ingest_xmlupload.upload_files.filechecker import FileChecker
+from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailureDetails
+from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
+from dsp_tools.utils.xml_utils import remove_comments_from_element_tree
 
 
 def upload_files(
     xml_file: Path,
     creds: ServerCredentials,
-    imgdir: str = ".",
+    imgdir: Path = Path.cwd(),
 ) -> bool:
     """
     Upload all files referenced in an XML file to the ingest server.
@@ -26,21 +30,32 @@ def upload_files(
     Returns:
         success status
     """
-    root = etree.parse(xml_file).getroot()
-    for elem in root.iter():
-        elem.tag = etree.QName(elem).localname
+    root = _parse_xml(xml_file)
     shortcode = root.attrib["shortcode"]
-    paths = {Path(imgdir) / x.text for x in root.xpath("//bitstream")}
+    paths = _get_validated_paths(root)
     print(f"Found {len(paths)} files to upload onto server {creds.dsp_ingest_url}.")
     logger.info(f"Found {len(paths)} files to upload onto server {creds.dsp_ingest_url}.")
 
     con: Connection = ConnectionLive(creds.server)
     con.login(creds.user, creds.password)
-    ingest_client = MassIngestClient(creds.dsp_ingest_url, con.get_token(), shortcode)
+    ingest_client = BulkIngestClient(creds.dsp_ingest_url, con.get_token(), shortcode, imgdir)
 
-    for path in paths:
-        ingest_client.upload_file(path)
+    potential_failures = [ingest_client.upload_file(path) for path in sorted(paths)]  # sorting is for testability
+    aggregated_failures = UploadFailureDetails(potential_failures, shortcode, creds.dsp_ingest_url)
+    return aggregated_failures.make_final_communication()
 
-    print(f"Uploaded all {len(paths)} files onto server {creds.dsp_ingest_url}.")
-    logger.info(f"Uploaded all {len(paths)} files onto server {creds.dsp_ingest_url}.")
-    return True
+
+def _parse_xml(xml_file: Path) -> etree._Element:
+    root = etree.parse(xml_file).getroot()
+    root = remove_comments_from_element_tree(root)
+    for elem in root.iter():
+        elem.tag = etree.QName(elem).localname
+    return root
+
+
+def _get_validated_paths(root: etree._Element) -> set[Path]:
+    paths = {Path(x.text) for x in root.xpath("//bitstream")}
+    if problems := FileChecker(paths).validate():
+        msg = problems.execute_error_protocol()
+        raise InputError(msg)
+    return paths

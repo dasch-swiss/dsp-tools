@@ -9,24 +9,23 @@ from requests import Session
 from requests.adapters import HTTPAdapter
 from requests.adapters import Retry
 
-from dsp_tools.models.exceptions import BadCredentialsError
-from dsp_tools.models.exceptions import PermanentConnectionError
+from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailureDetail
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.logger_config import logger_savepath
 
 STATUS_OK = 200
-STATUS_UNAUTHORIZED = 401
 STATUS_INTERNAL_SERVER_ERROR = 500
 STATUS_CONFLICT = 409
 
 
 @dataclass
-class MassIngestClient:
+class BulkIngestClient:
     """Client to upload multiple files to the ingest server and monitoring the ingest process."""
 
     dsp_ingest_url: str
     token: str
     shortcode: str
+    imgdir: Path = field(default=Path.cwd())
     session: Session = field(init=False)
 
     def __post_init__(self) -> None:
@@ -45,46 +44,46 @@ class MassIngestClient:
         self.session.mount("https://", adapter)
         self.session.headers["Authorization"] = f"Bearer {self.token}"
 
-    def _upload(self, filepath: Path) -> None:
-        url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/upload/{filepath.name}"
-        err = f"Failed to ingest {filepath} to '{url}'."
-        with open(filepath, "rb") as binary_io:
-            try:
-                res = self.session.post(
-                    url=url,
-                    headers={"Content-Type": "application/octet-stream"},
-                    data=binary_io,
-                    timeout=60,
-                )
-                if res.status_code == STATUS_OK:
-                    return
-                elif res.status_code == STATUS_UNAUTHORIZED:
-                    raise BadCredentialsError("Bad credentials")
-                else:
-                    user_msg = f"{err} See logs for more details: {logger_savepath}"
-                    print(user_msg)
-                    log_msg = f"{err}. Response status code {res.status_code} '{res.json()}'"
-                    logger.error(log_msg)
-                    raise PermanentConnectionError(log_msg)
-            except RequestException as e:
-                raise PermanentConnectionError(f"{err}. {e}")
+    def _upload(self, filepath: Path) -> UploadFailureDetail | None:
+        url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/ingest/{filepath}"
+        err_msg = f"Failed to ingest '{filepath}' to '{url}'."
+        try:
+            with open(self.imgdir / filepath, "rb") as binary_io:
+                content = binary_io.read()
+        except OSError as e:
+            logger.error(err_msg)
+            return UploadFailureDetail(filepath, f"File could not be opened/read: {e.strerror}")
+        try:
+            res = self.session.post(
+                url=url,
+                headers={"Content-Type": "application/octet-stream"},
+                data=content,
+                timeout=60,
+            )
+        except RequestException as e:
+            logger.error(err_msg)
+            return UploadFailureDetail(filepath, f"Exception of requests library: {e}")
+        if res.status_code != STATUS_OK:
+            logger.error(err_msg)
+            reason = f"Response {res.status_code}: {res.text}" if res.text else f"Response {res.status_code}"
+            return UploadFailureDetail(filepath, reason)
+        return None
 
     def upload_file(
         self,
         filepath: Path,
-    ) -> bool:
+    ) -> UploadFailureDetail | None:
         """Uploads a file to the ingest server."""
-        try:
-            self._upload(filepath)
-            msg = f"Uploaded file '{filepath}'"
-            print(f"{datetime.now()}: {msg}")
-            logger.info(msg)
-            return True
-        except PermanentConnectionError as err:
-            msg = f"Unable to upload file '{filepath}'"
-            print(f"{datetime.now()}: WARNING: {msg}: {err.message}")
-            logger.opt(exception=True).warning(msg)
-            return False
+        if failure_details := self._upload(filepath):
+            err_msg = f"Failed to ingest '{filepath}'.\n"
+            err_msg += f"Reason: {failure_details.reason}\n"
+            err_msg += f"See logs for more details: {logger_savepath}"
+            print(err_msg)
+            return failure_details
+        msg = f"Uploaded file '{filepath}'"
+        print(f"{datetime.now()}: {msg}")
+        logger.info(msg)
+        return None
 
     def kick_off_ingest(self) -> None:
         """Start the ingest process on the server."""

@@ -9,11 +9,18 @@ from requests import Session
 from requests.adapters import HTTPAdapter
 from requests.adapters import Retry
 
-from dsp_tools.models.exceptions import PermanentConnectionError
 from dsp_tools.utils.logger_config import logger_savepath
 
 STATUS_OK = 200
 STATUS_INTERNAL_SERVER_ERROR = 500
+
+
+@dataclass(frozen=True)
+class UploadFailureDetails:
+    """Information on why the upload of a file to the ingest server failed."""
+
+    filepath: Path
+    reason: str
 
 
 @dataclass
@@ -42,11 +49,15 @@ class BulkIngestClient:
         self.session.mount("https://", adapter)
         self.session.headers["Authorization"] = f"Bearer {self.token}"
 
-    def _upload(self, filepath: Path) -> None:
+    def _upload(self, filepath: Path) -> UploadFailureDetails | None:
         url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/ingest/{filepath}"
-        err = f"Failed to ingest {filepath} to '{url}'."
-        with open(self.imgdir / filepath, "rb") as binary_io:
-            content = binary_io.read()
+        err_msg = f"Failed to ingest '{filepath}' to '{url}'."
+        try:
+            with open(self.imgdir / filepath, "rb") as binary_io:
+                content = binary_io.read()
+        except OSError as e:
+            logger.error(err_msg)
+            return UploadFailureDetails(filepath, f"File could not be opened/read: {e.strerror}")
         try:
             res = self.session.post(
                 url=url,
@@ -55,27 +66,25 @@ class BulkIngestClient:
                 timeout=60,
             )
         except RequestException as e:
-            raise PermanentConnectionError(f"{err}. {e}")
+            logger.error(err_msg)
+            return UploadFailureDetails(filepath, f"Exception {e.strerror} of requests library: {e}")
         if res.status_code != STATUS_OK:
-            user_msg = f"{err} See logs for more details: {logger_savepath}"
-            print(user_msg)
-            log_msg = f"{err} Response status code {res.status_code} '{res.json()}'"
-            logger.error(log_msg)
-            raise PermanentConnectionError(log_msg)
+            logger.error(err_msg)
+            return UploadFailureDetails(filepath, f"Response {res.status_code}: {res.json()}")
+        return None
 
     def upload_file(
         self,
         filepath: Path,
-    ) -> bool:
+    ) -> UploadFailureDetails | None:
         """Uploads a file to the ingest server."""
-        try:
-            self._upload(filepath)
-            msg = f"Uploaded file '{filepath}'"
-            print(f"{datetime.now()}: {msg}")
-            logger.info(msg)
-            return True
-        except PermanentConnectionError as err:
-            msg = f"Unable to upload file '{filepath}'"
-            print(f"{datetime.now()}: WARNING: {msg}: {err.message}")
-            logger.opt(exception=True).warning(msg)
-            return False
+        if failure_details := self._upload(filepath):
+            err_msg = f"Failed to ingest '{filepath}'.\n"
+            err_msg += f"Reason: {failure_details.reason}\n"
+            err_msg += f"See logs for more details: {logger_savepath}"
+            print(err_msg)
+            return failure_details
+        msg = f"Uploaded file '{filepath}'"
+        print(f"{datetime.now()}: {msg}")
+        logger.info(msg)
+        return None

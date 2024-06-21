@@ -39,12 +39,20 @@ def upload_files(
     con.login(creds.user, creds.password)
     ingest_client = BulkIngestClient(creds.dsp_ingest_url, con.get_token(), shortcode, imgdir)
 
+    failures = []
     for path in paths:
-        ingest_client.upload_file(path)
+        if potential_failure := ingest_client.upload_file(path):
+            failures.append(potential_failure)
 
-    print(f"Uploaded all {len(paths)} files onto server {creds.dsp_ingest_url}.")
-    logger.info(f"Uploaded all {len(paths)} files onto server {creds.dsp_ingest_url}.")
-    return True
+    if not failures:
+        msg = f"Uploaded all {len(paths)} files onto server {creds.dsp_ingest_url}."
+        success = True
+    else:
+        msg = f"Uploaded {len(paths) - len(failures)}/{len(paths)} files onto server {creds.dsp_ingest_url}."
+        success = False
+    print(msg)
+    logger.info(msg)
+    return success
 
 
 def _parse_xml(xml_file: Path) -> etree._Element:

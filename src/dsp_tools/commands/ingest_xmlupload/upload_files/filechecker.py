@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -43,8 +42,7 @@ class FileProblems:
         """
         msg = "Some files referenced in the <bitstream> tags of your XML file cannot be uploaded to the server."
         if len(self.non_existing_files) + len(self.unsupported_files) > self.maximum_prints:
-            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-            output_file = Path(f"{timestamp}_file_problems.csv")
+            output_file = Path("file_problems.csv")
             self._save_to_csv(output_file)
             msg += f" The full list of files with problems has been saved to '{output_file}'."
             return msg

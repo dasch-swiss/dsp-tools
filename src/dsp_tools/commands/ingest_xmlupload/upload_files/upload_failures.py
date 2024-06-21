@@ -3,6 +3,7 @@ from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
+import regex
 from loguru import logger
 
 
@@ -34,26 +35,26 @@ class UploadFailureDetails:
         failures = [x for x in self.outcomes if x]
         if not failures:
             return ""
-        ratio = f"{len(self.outcomes) - len(failures)}/{self.outcomes}"
-        msg = f"Uploaded {ratio} files onto server {self.dsp_ingest_url}."
+        ratio = f"{len(self.outcomes) - len(failures)}/{len(self.outcomes)}"
+        msg = f"Uploaded {ratio} files onto server {self.dsp_ingest_url}. "
         if len(failures) > self.maximum_prints:
             timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-            output_file = Path(f"{timestamp}_upload_failures_{self.shortcode}_{self.dsp_ingest_url}.csv")
+            url = regex.sub(r"https?://", "", self.dsp_ingest_url)
+            output_file = Path(f"{timestamp}_upload_failures_{self.shortcode}_{url}.csv")
             self._save_to_csv(output_file)
             msg += f"Failed to upload {len(failures)} files. "
             msg += f"The full list of failed files has been saved to '{output_file}'."
-            return msg
         else:
-            msg += f"Failed to upload the following {len(failures)} files to {self.dsp_ingest_url}:\n - "
+            msg += f"Failed to upload the following {len(failures)} files:\n"
             msg += "\n".join([f" - {failure.filepath}: {failure.reason}" for failure in failures])
-            return msg
+        return msg
 
     def make_final_communication(self) -> bool:
         """Determine the success status of the upload process and communicate it to the user."""
         if msg := self.execute_error_protocol():
             success = False
         else:
-            msg = f"Uploaded all {self.outcomes} files onto server {self.dsp_ingest_url}."
+            msg = f"Uploaded all {len(self.outcomes)} files onto server {self.dsp_ingest_url}."
             success = True
         logger.info(msg) if success else logger.error(msg)
         print(msg)

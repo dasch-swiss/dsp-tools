@@ -17,6 +17,13 @@ XML_FILE = Path("testdata/xml-data/test-data-e2e.xml")
 SHORTCODE = "4125"
 
 
+@pytest.fixture(scope="module")
+def mapping_file() -> Iterator[Path]:
+    mapping_file = Path(f"mapping-{SHORTCODE}.csv")
+    yield mapping_file
+    mapping_file.unlink(missing_ok=True)
+
+
 @pytest.fixture()
 def _create_project() -> Iterator[None]:
     with get_containers():
@@ -26,9 +33,9 @@ def _create_project() -> Iterator[None]:
 
 
 @pytest.mark.usefixtures("_create_project")
-def test_ingest_upload(caplog: pytest.LogCaptureFixture) -> None:
+def test_ingest_upload(caplog: pytest.LogCaptureFixture, mapping_file: Path) -> None:
     _test_upload_step(caplog)
-    _test_ingest_step(caplog)
+    _test_ingest_step(caplog, mapping_file)
     _test_xmlupload_step(caplog)
 
 
@@ -43,10 +50,9 @@ def _test_upload_step(caplog: pytest.LogCaptureFixture) -> None:
     caplog.clear()
 
 
-def _test_ingest_step(caplog: pytest.LogCaptureFixture) -> None:
+def _test_ingest_step(caplog: pytest.LogCaptureFixture, mapping_file: Path) -> None:
     success = ingest_files(CREDS, SHORTCODE)
     assert success
-    mapping_file = Path(f"mapping-{SHORTCODE}.csv")
     logs = [rec.message for rec in caplog.records]
     assert logs[-3] == "Kicked off the ingest process on the server http://0.0.0.0:3340. Wait until it completes..."
     assert logs[-2] == "Ingest process completed."
@@ -55,7 +61,6 @@ def _test_ingest_step(caplog: pytest.LogCaptureFixture) -> None:
 
     df = pd.read_csv(mapping_file)
     assert df["original"].tolist() == unordered(["testdata/bitstreams/test.jpg", "testdata/bitstreams/test.pdf"])
-    mapping_file.unlink()
 
 
 def _test_xmlupload_step(caplog: pytest.LogCaptureFixture) -> None:

@@ -7,7 +7,7 @@ from loguru import logger
 
 
 @dataclass(frozen=True)
-class UploadFailureDetail:
+class UploadFailure:
     """Information on why the upload of a file to the ingest server failed."""
 
     filepath: Path
@@ -15,10 +15,10 @@ class UploadFailureDetail:
 
 
 @dataclass(frozen=True)
-class UploadFailureDetails:
+class UploadFailures:
     """Aggregated information of all failed uploads."""
 
-    outcomes: list[UploadFailureDetail | None]
+    outcomes: list[UploadFailure | None]
     shortcode: str
     dsp_ingest_url: str
     maximum_prints: int = 50

@@ -157,11 +157,14 @@ def _create_all_cardinalities(class_name: str, class_df_with_cardinalities: pd.D
 
 
 def _make_one_property(detail_row: pd.Series[str | int]) -> dict[str, str | int]:
-    return {
-        "propname": f':{detail_row["property"]}',
-        "cardinality": str(detail_row["cardinality"]).lower(),
-        "gui_order": detail_row["gui_order"],
-    }
+    cardinalities = {}
+    if not pd.isna(prop := detail_row["property"]):
+        cardinalities["propname"] = prop
+    if not pd.isna(cardinality := detail_row["cardinality"]):
+        cardinalities["cardinality"] = cardinality
+    if not pd.isna(gui_order := detail_row["gui_order"]):
+        cardinalities["gui_order"] = gui_order
+    return cardinalities
 
 
 def _check_complete_gui_order(class_name: str, class_df_with_cardinalities: pd.DataFrame) -> pd.DataFrame:

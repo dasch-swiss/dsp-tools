@@ -217,13 +217,14 @@ Currently, only one interrupted upload can be resumed at a time per server.
 This new workflow consists of 3 commands:
 
 - [`upload-files`](#upload-files): upload all files that are referenced in an XML file to a DSP server
-- [`ingest-files`](#ingest-files): kick off the ingest process, and retrieve the mapping CSV when it has finished
+- [`ingest-files`](#ingest-files): kick off the ingest process, and retrieve the mapping CSV when it is finished
 - [`ingest-xmlupload`](#ingest-xmlupload): create the resources contained in the XML file, using the mapping CSV
 
 
 ### `upload-files`
 
-This command uploads all files contained in an XML file to a server, without any processing/ingesting.
+This command uploads all files referenced in the `<bitstream>` tags of an XML file to a server
+(without any processing/ingesting).
 
 ```bash
 dsp-tools upload-files [options] xml_data_file.xml
@@ -244,7 +245,7 @@ The defaults are intended for local testing:
 dsp-tools upload-files xml_data_file.xml
 ```
 
-will upload the data defined in `xml_data_file.xml` on `localhost` for local viewing.
+will upload the files referenced in the `<bitstream>` tags of `xml_data_file.xml` onto `localhost`, for local viewing.
 
 In order to upload the same data to the DSP server `https://app.dasch.swiss`,
 it is necessary to specify the following options:
@@ -258,8 +259,12 @@ The expected XML format is [documented here](./file-formats/xml-data-file.md).
 
 ### `ingest-files`
 
-This command kicks off the ingest process on the server, waits until it has completed, 
-and then saves the mapping CSV in the current working directory.
+This command kicks off the ingest process on the server, and waits until it has completed.
+Then, it saves the mapping CSV in the current working directory.
+The mapping CSV contains a mapping from the original file paths on your machine 
+to the internal filenames of the ingested files on the target server.
+This mapping is necessary for the next step ([`ingest-xmlupload`](#ingest-xmlupload)).
+
 In order for this to work, the files of the indicated project 
 must first be uploaded with [`upload-files`](#upload-files).
 
@@ -301,6 +306,9 @@ This command creates all resources defined in an XML file on a DSP server.
 In order for this to work, the files referenced in the XML file 
 must first be uploaded with [`upload-files`](#upload-files),
 and then be ingested with [`ingest-files`](#ingest-files).
+
+The mapping CSV file that was created by [`ingest-files`](#ingest-files) 
+must be present in the current working directory.
 
 ```bash
 dsp-tools xmlupload [options] xml_data_file.xml

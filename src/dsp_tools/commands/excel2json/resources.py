@@ -21,7 +21,6 @@ from dsp_tools.commands.excel2json.utils import check_column_for_duplicate
 from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.shared import check_notna
-from dsp_tools.utils.shared import clean_df
 from dsp_tools.utils.shared import prepare_dataframe
 
 languages = ["en", "de", "fr", "it", "rm"]
@@ -101,7 +100,7 @@ def _find_validation_problem(
 
 def _row2resource(
     class_info_row: pd.Series[Any],
-    class_df_with_cardinalities: pd.DataFrame | None,
+    class_df_with_cardinalities: pd.DataFrame,
 ) -> dict[str, Any]:
     """
     Method that reads one row from the "classes" DataFrame,
@@ -110,7 +109,7 @@ def _row2resource(
 
     Args:
         class_info_row: row from the "classes" DataFrame
-        class_df_with_cardinalities: Excel sheet of the individual class if it exists
+        class_df_with_cardinalities: Excel sheet of the individual class
 
     Raises:
         UserError: if the row or the details sheet contains invalid data
@@ -134,17 +133,25 @@ def _row2resource(
     }
     if comments:
         resource["comments"] = comments
-    if isinstance(class_df_with_cardinalities, pd.DataFrame):
-        cards = _make_cardinality_section(class_name, class_df_with_cardinalities)
-        if cards:
-            resource["cardinalities"] = cards
+
+    cards = _make_cardinality_section(class_name, class_df_with_cardinalities)
+    if cards:
+        resource["cardinalities"] = cards
 
     return resource
 
 
 def _make_cardinality_section(class_name: str, class_df_with_cardinalities: pd.DataFrame) -> list[dict[str, str | int]]:
-    class_df_with_cardinalities = clean_df(df=class_df_with_cardinalities)
+    class_df_with_cardinalities = prepare_dataframe(
+        df=class_df_with_cardinalities,
+        required_columns=["Property", "Cardinality"],
+        location_of_sheet=f"Sheet '{class_name}' in file 'resources.xlsx'",
+    )
     if len(class_df_with_cardinalities) == 0:
+        warnings.warn(
+            f"Sheet '{class_name}' in file 'resources.xlsx' does not have any properties listed.\n"
+            f"Creation of the resource class continues without 'cardinalities' section."
+        )
         return []
     cards = _create_all_cardinalities(class_name, class_df_with_cardinalities)
     return cards
@@ -157,14 +164,11 @@ def _create_all_cardinalities(class_name: str, class_df_with_cardinalities: pd.D
 
 
 def _make_one_property(detail_row: pd.Series[str | int]) -> dict[str, str | int]:
-    cardinalities = {}
-    if not pd.isna(prop := detail_row["property"]):
-        cardinalities["propname"] = prop
-    if not pd.isna(cardinality := detail_row["cardinality"]):
-        cardinalities["cardinality"] = cardinality
-    if not pd.isna(gui_order := detail_row["gui_order"]):
-        cardinalities["gui_order"] = gui_order
-    return cardinalities
+    return {
+        "propname": f':{detail_row["property"]}',
+        "cardinality": str(detail_row["cardinality"]).lower(),
+        "gui_order": detail_row["gui_order"],
+    }
 
 
 def _check_complete_gui_order(class_name: str, class_df_with_cardinalities: pd.DataFrame) -> pd.DataFrame:
@@ -234,7 +238,7 @@ def excel2resources(
         raise InputError(msg)
 
     # transform every row into a resource
-    resources = [_row2resource(row, resource_dfs.get(row["name"])) for i, row in classes_df.iterrows()]
+    resources = [_row2resource(row, resource_dfs[row["name"]]) for i, row in classes_df.iterrows()]
 
     # write final "resources" section into a JSON file
     _validate_resources(resources_list=resources)
@@ -299,10 +303,7 @@ def _validate_excel_file(classes_df: pd.DataFrame, df_dict: dict[str, pd.DataFra
         problems.append(MissingValuesInRowProblem(column="super", row_numbers=missing_super_rows))
     if duplicate_check := check_column_for_duplicate(classes_df, "name"):
         problems.append(duplicate_check)
-    # check that all the sheets have an entry in the names column
-    # cardinalities are optional
-    all_names_in_column = set(classes_df["name"].tolist())
-    all_sheets = set(df_dict)
-    if not all_sheets.issubset(all_names_in_column):
-        problems.append(ResourcesSheetsNotAsExpected(all_names_in_column, all_sheets))
+    # check that all the sheets have an entry in the names column and vice versa
+    if (all_names := set(classes_df["name"].tolist())) != (all_sheets := set(df_dict)):
+        problems.append(ResourcesSheetsNotAsExpected(all_names, all_sheets))
     return problems

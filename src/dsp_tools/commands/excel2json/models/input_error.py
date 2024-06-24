@@ -161,8 +161,11 @@ class ResourcesSheetsNotAsExpected:
         msg = (
             "The excel file 'resources.xlsx' has problems.\n"
             "The names of the excel sheets must be 'classes' "
-            "plus all the entries in the column 'name' from the sheet 'classes', that have a cardinalitiy.\n"
+            "plus all the entries in the column 'name' from the sheet 'classes'.\n"
         )
+        missing_sheets = self.names_classes - self.names_sheets
+        if missing_sheets:
+            msg += f"The following sheet(s) are missing:{list_separator}" + list_separator.join(missing_sheets)
         missing_names = self.names_sheets - self.names_classes
         if missing_names:
             msg += (

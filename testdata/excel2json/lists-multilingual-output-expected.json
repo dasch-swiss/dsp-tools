@@ -1,0 +1,102 @@
+[
+    {
+        "name": "first-list",
+        "labels": {
+            "fr": "première liste",
+            "en": "first list",
+            "de": "erste Liste"
+        },
+        "comments": {
+            "fr": "première liste",
+            "en": "first list",
+            "de": "erste Liste"
+        },
+        "nodes": [
+            {
+                "name": "special-characters-12-0-are-embedded",
+                "labels": {
+                    "fr": "caractères spéciales 1&2-%*_0 dedans",
+                    "en": "special characters 1&2-%*_0 are embedded",
+                    "de": "Spezialzeichen 1&2-%*_0 sind eingebettet"
+                },
+                "nodes": [
+                    {
+                        "name": "very",
+                        "labels": {
+                            "fr": "très",
+                            "en": "very",
+                            "de": "sehr"
+                        },
+                        "nodes": [
+                            {
+                                "name": "deeply",
+                                "labels": {
+                                    "fr": "profondément",
+                                    "en": "deeply",
+                                    "de": "tief"
+                                },
+                                "nodes": [
+                                    {
+                                        "name": "nested",
+                                        "labels": {
+                                            "fr": "niché!",
+                                            "en": "nested!",
+                                            "de": "verschachtelt!"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "second-list",
+        "labels": {
+            "fr": "deuxième liste",
+            "en": "second list",
+            "de": "zweite Liste"
+        },
+        "comments": {
+            "fr": "deuxième liste",
+            "en": "second list",
+            "de": "zweite Liste"
+        },
+        "nodes": [
+            {
+                "name": "first-node",
+                "labels": {
+                    "fr": "premier noeud",
+                    "en": "first node",
+                    "de": "erster Knoten"
+                }
+            },
+            {
+                "name": "duplicate-nodename",
+                "labels": {
+                    "fr": "noeud doublé",
+                    "en": "duplicate nodename",
+                    "de": "Doppelung"
+                }
+            },
+            {
+                "name": "duplicate-nodename-2",
+                "labels": {
+                    "fr": "noeud doublé!",
+                    "en": "duplicate nodename!",
+                    "de": "Doppelung!"
+                }
+            },
+            {
+                "name": "duplicate-nodename-3",
+                "labels": {
+                    "fr": "noeud doublé?",
+                    "en": "duplicate nodename?",
+                    "de": "Doppelung?"
+                }
+            }
+        ]
+    }
+]

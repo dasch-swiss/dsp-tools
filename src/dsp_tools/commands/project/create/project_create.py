@@ -347,7 +347,7 @@ def _create_users(
         if json_user_definition["email"] in [user.email for user in all_users]:
             err_msg = (
                 f"User '{username}' already exists on the DSP server.\n"
-                f"The user has to be assigned as a project member manually on the APP."
+                f"Please manually add this user to the project in DSP-APP."
             )
             print(f"    WARNING: {err_msg}")
             logger.opt(exception=True).warning(err_msg)

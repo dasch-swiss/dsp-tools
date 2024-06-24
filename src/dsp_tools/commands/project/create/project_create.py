@@ -345,7 +345,10 @@ def _create_users(
         # skip the user if he already exists
         all_users = User.getAllUsers(con)
         if json_user_definition["email"] in [user.email for user in all_users]:
-            err_msg = f"User '{username}' already exists on the DSP server. Skipping..."
+            err_msg = (
+                f"User '{username}' already exists on the DSP server.\n"
+                f"The user has to be assigned as a project member manually on the APP."
+            )
             print(f"    WARNING: {err_msg}")
             logger.opt(exception=True).warning(err_msg)
             overall_success = False

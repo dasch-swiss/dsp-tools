@@ -107,8 +107,12 @@ class BulkIngestClient:
             logger.info("Ingest process is still running. Wait until it completes...")
             return None
         elif not res.ok or not res.text.startswith("original,derivative"):
-            print("Dubious error")
-            logger.error("Dubious error")
+            msg = (
+                "Dubious error while polling for the mapping CSV. "
+                f"If this happens again at the next polling, please check the logs at {logger_savepath}."
+            )
+            print(msg)
+            logger.error(msg)
             return None
         print("Ingest process completed.")
         logger.info("Ingest process completed.")

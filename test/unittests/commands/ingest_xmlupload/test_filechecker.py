@@ -4,7 +4,7 @@ import pandas as pd
 import pytest
 
 from dsp_tools.commands.ingest_xmlupload.upload_files.filechecker import FileChecker
-from dsp_tools.commands.ingest_xmlupload.upload_files.filechecker import FileProblems
+from dsp_tools.commands.ingest_xmlupload.upload_files.input_error import FileProblems
 
 
 def test_check_files_success() -> None:

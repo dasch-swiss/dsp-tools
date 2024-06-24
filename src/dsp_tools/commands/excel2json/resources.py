@@ -11,6 +11,8 @@ import jsonschema
 import pandas as pd
 import regex
 
+from dsp_tools.commands.excel2json.models.input_error import ExcelFileProblem
+from dsp_tools.commands.excel2json.models.input_error import InvalidContentInSheetProblem
 from dsp_tools.commands.excel2json.models.input_error import JsonValidationResourceProblem
 from dsp_tools.commands.excel2json.models.input_error import MissingValuesInRowProblem
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
@@ -18,6 +20,9 @@ from dsp_tools.commands.excel2json.models.input_error import Problem
 from dsp_tools.commands.excel2json.models.input_error import ResourcesSheetsNotAsExpected
 from dsp_tools.commands.excel2json.utils import add_optional_columns
 from dsp_tools.commands.excel2json.utils import check_column_for_duplicate
+from dsp_tools.commands.excel2json.utils import check_contains_required_columns
+from dsp_tools.commands.excel2json.utils import check_required_values
+from dsp_tools.commands.excel2json.utils import get_wrong_row_numbers
 from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.shared import check_notna
@@ -232,9 +237,7 @@ def excel2resources(
     classes_df, resource_dfs = _prepare_classes_df(all_dfs)
 
     if validation_problems := _validate_excel_file(classes_df, resource_dfs):
-        msg = "The excel file 'resources.xlsx', sheet 'classes' has a problem.\n" + "\n\n".join(
-            (x.execute_error_protocol() for x in validation_problems)
-        )
+        msg = validation_problems.execute_error_protocol()
         raise InputError(msg)
 
     # transform every row into a resource
@@ -284,6 +287,7 @@ def _prepare_classes_df(resource_dfs: dict[str, pd.DataFrame]) -> tuple[pd.DataF
             "comment_rm",
         },
     )
+    resource_dfs = {k: add_optional_columns(v, {"gui_order"}) for k, v in resource_dfs.items()}
     classes_df = prepare_dataframe(
         df=classes_df,
         required_columns=["name"],
@@ -292,7 +296,16 @@ def _prepare_classes_df(resource_dfs: dict[str, pd.DataFrame]) -> tuple[pd.DataF
     return classes_df, resource_dfs
 
 
-def _validate_excel_file(classes_df: pd.DataFrame, df_dict: dict[str, pd.DataFrame]) -> list[Problem]:
+def _validate_excel_file(classes_df: pd.DataFrame, df_dict: dict[str, pd.DataFrame]) -> ExcelFileProblem | None:
+    problems = _validate_classes_excel_file(classes_df)
+    if sheet_problems := _validate_individual_class_sheets(df_dict):
+        problems.extend(sheet_problems)
+    if problems:
+        return ExcelFileProblem("resources.xlsx", problems)
+    return None
+
+
+def _validate_classes_excel_file(classes_df: pd.DataFrame) -> list[Problem]:
     if any(classes_df.get(lang) is not None for lang in languages):
         warnings.warn(
             f"The file 'resources.xlsx' uses {languages} as column titles, which is deprecated. "
@@ -303,7 +316,24 @@ def _validate_excel_file(classes_df: pd.DataFrame, df_dict: dict[str, pd.DataFra
         problems.append(MissingValuesInRowProblem(column="super", row_numbers=missing_super_rows))
     if duplicate_check := check_column_for_duplicate(classes_df, "name"):
         problems.append(duplicate_check)
-    # check that all the sheets have an entry in the names column and vice versa
-    if (all_names := set(classes_df["name"].tolist())) != (all_sheets := set(df_dict)):
-        problems.append(ResourcesSheetsNotAsExpected(all_names, all_sheets))
     return problems
+
+
+def _validate_individual_class_sheets(class_df_dict: dict[str, pd.DataFrame]) -> list[Problem] | None:
+    required_cols = ["propname", "cardinality"]
+    missing_required_columns = {
+        k: res for k, v in class_df_dict.items() if (res := check_contains_required_columns(v, set(required_cols)))
+    }
+    if missing_required_columns:
+        return [InvalidContentInSheetProblem(k, [v]) for k, v in missing_required_columns.items()]
+    missing_values_df_dict = {}
+    for sheet_name, df in class_df_dict.items():
+        if missing := check_required_values(df, required_cols):
+            missing_values_df_dict[sheet_name] = missing
+    if missing_values_df_dict:
+        info_dict = {}
+        for sheet_name, missing_info in missing_values_df_dict.items():
+            info_rows = get_wrong_row_numbers(missing_info)
+            info_dict[sheet_name] = [MissingValuesInRowProblem(col, row_nums) for col, row_nums in info_rows.items()]
+        return [InvalidContentInSheetProblem(k, v) for k, v in info_dict.items()]
+    return None

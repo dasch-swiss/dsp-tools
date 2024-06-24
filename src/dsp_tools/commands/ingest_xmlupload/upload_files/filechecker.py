@@ -37,7 +37,7 @@ class FileProblems:
 
     def __post_init__(self) -> None:
         if not self.non_existing_files and not self.unsupported_files:
-            raise ValueError("No files with problems")
+            raise ValueError("It's not possible to create a FileProblems object without any problems.")
 
     def execute_error_protocol(self) -> str:
         """

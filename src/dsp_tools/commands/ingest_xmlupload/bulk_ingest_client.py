@@ -18,7 +18,7 @@ STATUS_INTERNAL_SERVER_ERROR = 500
 
 @dataclass
 class BulkIngestClient:
-    """Client to upload multiple files to the ingest server and monitoring the ingest process."""
+    """Client to upload multiple files to the ingest server and monitor the ingest process."""
 
     dsp_ingest_url: str
     token: str
@@ -44,7 +44,7 @@ class BulkIngestClient:
 
     def _upload(self, filepath: Path) -> UploadFailureDetail | None:
         url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/ingest/{filepath}"
-        err_msg = f"Failed to ingest '{filepath}' to '{url}'."
+        err_msg = f"Failed to upload '{filepath}' to '{url}'."
         try:
             with open(self.imgdir / filepath, "rb") as binary_io:
                 content = binary_io.read()
@@ -73,7 +73,7 @@ class BulkIngestClient:
     ) -> UploadFailureDetail | None:
         """Uploads a file to the ingest server."""
         if failure_details := self._upload(filepath):
-            err_msg = f"Failed to ingest '{filepath}'.\n"
+            err_msg = f"Failed to upload '{filepath}'.\n"
             err_msg += f"Reason: {failure_details.reason}\n"
             err_msg += f"See logs for more details: {logger_savepath}"
             print(err_msg)

@@ -35,6 +35,7 @@ from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.date_util import parse_date_string
 from dsp_tools.utils.iri_util import is_resource_iri
+from dsp_tools.utils.logger_config import warnings_savepath
 
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
 
@@ -389,7 +390,11 @@ def _make_link_value(value: XMLValue, iri_resolver: IriResolver) -> dict[str, An
     elif resolved_iri := iri_resolver.get(s):
         iri = resolved_iri
     else:
-        raise BaseError(f"Could not resolve ID {s} to IRI.")
+        msg = (
+            f"Could not resolve ID {s} to IRI. This is probably because the resource '{s}' could not be created. "
+            f"See {warnings_savepath} for more information."
+        )
+        raise BaseError(msg)
     return {
         "@type": "knora-api:LinkValue",
         "knora-api:linkValueHasTargetIri": {
@@ -408,7 +413,11 @@ def _make_list_value(value: XMLValue, iri_lookup: dict[str, str]) -> dict[str, A
             },
         }
     else:
-        raise BaseError(f"Could not resolve list node ID {s} to IRI.")
+        msg = (
+            f"Could not resolve list node ID '{s}' to IRI. "
+            f"This is probably because the list node '{s}' does not exist on the server."
+        )
+        raise BaseError(msg)
 
 
 def _make_text_value(value: XMLValue, iri_resolver: IriResolver) -> dict[str, Any]:

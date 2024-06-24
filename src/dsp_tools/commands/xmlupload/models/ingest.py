@@ -14,7 +14,7 @@ from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import Bitstrea
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import PermanentConnectionError
-from dsp_tools.utils.logger_config import logger_savepath
+from dsp_tools.utils.logger_config import warnings_savepath
 
 STATUS_OK = 200
 STATUS_UNAUTHORIZED = 401
@@ -107,7 +107,7 @@ class DspIngestClientLive(AssetClient):
                 elif res.status_code == STATUS_UNAUTHORIZED:
                     raise BadCredentialsError("Bad credentials")
                 else:
-                    user_msg = f"{err} See logs for more details: {logger_savepath}"
+                    user_msg = f"{err} See {warnings_savepath} for more information."
                     print(user_msg)
                     log_msg = f"{err}. Response status code {res.status_code} '{res.json()}'"
                     logger.error(log_msg)

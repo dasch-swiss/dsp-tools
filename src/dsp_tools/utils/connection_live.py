@@ -26,7 +26,7 @@ from dsp_tools.models.exceptions import PermanentConnectionError
 from dsp_tools.models.exceptions import PermanentTimeOutError
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.connection import Connection
-from dsp_tools.utils.logger_config import logger_savepath
+from dsp_tools.utils.logger_config import warnings_savepath
 from dsp_tools.utils.set_encoder import SetEncoder
 
 HTTP_OK = 200
@@ -288,7 +288,7 @@ class ConnectionLive(Connection):
             self._handle_non_ok_responses(response, params.url, i)
 
         # if all attempts have failed, raise error
-        msg = f"Permanently unable to execute the network action. See logs for more details: {logger_savepath}"
+        msg = f"Permanently unable to execute the network action. See {warnings_savepath} for more information."
         raise PermanentConnectionError(msg)
 
     def _handle_non_ok_responses(self, response: Response, request_url: str, retry_counter: int) -> None:
@@ -305,9 +305,9 @@ class ConnectionLive(Connection):
             if original_str := regex.search(r'{"knora-api:error":"dsp\.errors\.(.*)","@context', str(response.content)):
                 msg += f"\n{' '*37}Original Message: {original_str.group(1)}\n"
                 if original_str.group(1).startswith("OntologyConstraintException"):
-                    msg += f"See logs for more details: {logger_savepath}"
+                    msg += f"See {warnings_savepath} for more information."
                     raise InvalidInputError(msg)
-            msg += f"See logs for more details: {logger_savepath}"
+            msg += f"See {warnings_savepath} for more information."
             raise PermanentConnectionError(msg)
 
     def _renew_session(self) -> None:

@@ -3,6 +3,7 @@ from pathlib import Path
 from loguru import logger
 
 logger_savepath = (Path.home() / ".dsp-tools" / "logging.log").absolute()
+warnings_savepath = Path("warnings.log")
 
 
 def logger_config() -> None:
@@ -30,7 +31,7 @@ def logger_config() -> None:
     )
 
     logger.add(
-        sink=Path("warnings.log"),
+        sink=warnings_savepath,
         level="WARNING",
         format=text_format,
         backtrace=False,

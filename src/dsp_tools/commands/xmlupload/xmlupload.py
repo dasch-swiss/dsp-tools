@@ -47,7 +47,7 @@ from dsp_tools.models.exceptions import XmlUploadInterruptedError
 from dsp_tools.models.projectContext import ProjectContext
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
-from dsp_tools.utils.logger_config import warnings_savepath
+from dsp_tools.utils.logger_config import WARNINGS_SAVEPATH
 
 
 def xmlupload(
@@ -191,12 +191,12 @@ def _cleanup_upload(upload_state: UploadState) -> bool:
         if upload_state.failed_uploads:
             res_msg = f"Could not upload the following resources: {upload_state.failed_uploads}"
             print(f"\n{datetime.now()}: WARNING: {res_msg}\n")
-            print(f"See {warnings_savepath} for more information\n")
+            print(f"See {WARNINGS_SAVEPATH} for more information\n")
             logger.warning(res_msg)
         if has_stash_failed:
             stash_msg = f"Could not reapply the following stash items: {upload_state.pending_stash}"
             print(f"\n{datetime.now()}: WARNING: {stash_msg}\n")
-            print(f"See {warnings_savepath} for more information\n")
+            print(f"See {WARNINGS_SAVEPATH} for more information\n")
             logger.warning(stash_msg)
         msg = _save_upload_state(upload_state)
         print(msg)
@@ -465,7 +465,7 @@ def _handle_upload_error(err: BaseException, upload_state: UploadState) -> None:
             f"\n==========================================\n"
             f"{datetime.now()}: xmlupload must be aborted because of an error.\n"
             f"Error message: '{err}'\n"
-            f"See {warnings_savepath} for more information\n"
+            f"See {WARNINGS_SAVEPATH} for more information\n"
         )
         exit_code = 1
 

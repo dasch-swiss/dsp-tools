@@ -35,7 +35,7 @@ from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.date_util import parse_date_string
 from dsp_tools.utils.iri_util import is_resource_iri
-from dsp_tools.utils.logger_config import warnings_savepath
+from dsp_tools.utils.logger_config import WARNINGS_SAVEPATH
 
 KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
 
@@ -393,7 +393,7 @@ def _make_link_value(value: XMLValue, iri_resolver: IriResolver) -> dict[str, An
         msg = (
             f"Could not find the ID {s} in the id2iri mapping. "
             f"This is probably because the resource '{s}' could not be created. "
-            f"See {warnings_savepath} for more information."
+            f"See {WARNINGS_SAVEPATH} for more information."
         )
         raise BaseError(msg)
     return {

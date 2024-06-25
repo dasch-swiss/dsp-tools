@@ -319,21 +319,17 @@ def _validate_classes_excel_file(classes_df: pd.DataFrame) -> list[Problem]:
     return problems
 
 
-def _validate_individual_class_sheets(class_df_dict: dict[str, pd.DataFrame]) -> list[Problem] | None:
-    required_cols = ["propname", "cardinality"]
+def _validate_individual_class_sheets(class_df_dict: dict[str, pd.DataFrame]) -> list[Problem]:
+    required_cols = ["property", "cardinality"]
+    problem_list: list[Problem] = []
     missing_required_columns = {
         k: res for k, v in class_df_dict.items() if (res := check_contains_required_columns(v, set(required_cols)))
     }
     if missing_required_columns:
         return [InvalidContentInSheetProblem(k, [v]) for k, v in missing_required_columns.items()]
-    missing_values_df_dict = {}
     for sheet_name, df in class_df_dict.items():
         if missing := check_required_values(df, required_cols):
-            missing_values_df_dict[sheet_name] = missing
-    if missing_values_df_dict:
-        info_dict = {}
-        for sheet_name, missing_info in missing_values_df_dict.items():
-            info_rows = get_wrong_row_numbers(missing_info)
-            info_dict[sheet_name] = [MissingValuesInRowProblem(col, row_nums) for col, row_nums in info_rows.items()]
-        return [InvalidContentInSheetProblem(k, v) for k, v in info_dict.items()]
-    return None
+            row_nums = get_wrong_row_numbers(missing)
+            for col, nums in row_nums.items():
+                problem_list.extend([PositionInExcel(sheet_name, col, x) for x in nums])
+    return problem_list

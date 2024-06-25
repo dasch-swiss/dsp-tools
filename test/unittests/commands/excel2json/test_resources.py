@@ -1,10 +1,15 @@
 import warnings
+from typing import cast
 
 import pandas as pd
 import pytest
 import regex
 from pandas.testing import assert_frame_equal
 
+from dsp_tools.commands.excel2json import resources as e2j
+from dsp_tools.commands.excel2json.models.input_error import InvalidContentInSheetProblem
+from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
+from dsp_tools.commands.excel2json.models.input_error import RequiredColumnMissingProblem
 from dsp_tools.commands.excel2json.resources import _check_complete_gui_order
 from dsp_tools.commands.excel2json.resources import _create_all_cardinalities
 from dsp_tools.commands.excel2json.resources import _make_one_property
@@ -121,3 +126,36 @@ def test_make_one_property() -> None:
 
 if __name__ == "__main__":
     pytest.main([__file__])
+
+
+def test_validate_individual_class_sheets_problems() -> None:
+    sheet_good = pd.DataFrame({"property": ["p1"], "cardinality": ["0-n"]})
+    sheet_missing_card = pd.DataFrame({"property": ["p2", "p3"], "cardinality": [pd.NA, "1-n"]})
+    sheet_missing_prop = pd.DataFrame({"property": ["p4", pd.NA], "cardinality": ["0-1", "1"]})
+    test_dict = {
+        "sheet_good": sheet_good,
+        "sheet_missing_card": sheet_missing_card,
+        "sheet_missing_prop": sheet_missing_prop,
+    }
+    res = e2j._validate_individual_class_sheets(test_dict)
+    assert len(res) == 2
+    casted_res = cast(list[PositionInExcel], res)
+    card_problem = casted_res[0]
+    assert card_problem.sheet == "sheet_missing_card"
+    assert card_problem.column == "cardinality"
+    assert card_problem.row == 2
+    prop_problem = casted_res[1]
+    assert prop_problem.sheet == "sheet_missing_prop"
+    assert prop_problem.column == "property"
+    assert prop_problem.row == 3
+
+
+def test_validate_individual_class_sheets_missing_column() -> None:
+    test_dict = {"sheet_missing_col": pd.DataFrame({"property": ["p5"]})}
+    res = e2j._validate_individual_class_sheets(test_dict)
+    assert len(res) == 1
+    problem = cast(InvalidContentInSheetProblem, res[0])
+    assert len(problem.problems) == 1
+    assert problem.sheet_name == "sheet_missing_col"
+    col_problem = cast(RequiredColumnMissingProblem, problem.problems[0])
+    assert col_problem.columns == ["cardinality"]

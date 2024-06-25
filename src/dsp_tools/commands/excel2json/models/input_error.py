@@ -42,6 +42,15 @@ class PositionInExcel:
             msg.append(f"Row {self.row}")
         return "Located at: " + " | ".join(msg)
 
+    def execute_error_protocol(self) -> str:
+        """
+        This function initiates all the steps for successful problem communication with the user.
+
+        Returns:
+            message for the error
+        """
+        return str(self)
+
 
 @dataclass(frozen=True)
 class ExcelFileProblem:
@@ -133,7 +142,10 @@ class InvalidContentInSheetProblem:
         """
 
         problem_strings = [x.execute_error_protocol() for x in self.problems]
-        return f"The sheet: '{self.sheet_name}' has the following problems:\n{list_separator.join(problem_strings)}"
+        return (
+            f"The sheet: '{self.sheet_name}' has the following problems:\n{list_separator}"
+            f"{list_separator.join(problem_strings)}"
+        )
 
 
 @dataclass(frozen=True)

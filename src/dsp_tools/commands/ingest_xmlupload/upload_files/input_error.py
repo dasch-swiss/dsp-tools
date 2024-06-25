@@ -54,16 +54,12 @@ class FileProblems(Problem):
         return msg
 
     def _save_to_csv(self, output_file: Path) -> None:
-        non_existing, unsupported = self._add_padding()
+        problems = ["File doesn't exist"] * len(self.non_existing_files) + ["Extension not supported"] * len(
+            self.unsupported_files
+        )
         data = {
-            "Files that don't exist on your computer": non_existing,
-            "Files with unsupported extensions": unsupported,
+            "File": self.non_existing_files + self.unsupported_files,
+            "Problem": problems,
         }
         df = pd.DataFrame(data)
         df.to_csv(output_file, index=False)
-
-    def _add_padding(self) -> tuple[list[Path | None], list[Path | None]]:
-        max_len = max(len(self.non_existing_files), len(self.unsupported_files))
-        non_existing = self.non_existing_files + [None] * (max_len - len(self.non_existing_files))
-        unsupported = self.unsupported_files + [None] * (max_len - len(self.unsupported_files))
-        return non_existing, unsupported

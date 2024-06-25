@@ -106,8 +106,8 @@ class TestFileProblems:
         df = pd.read_csv(output_file)
 
         data_expected = {
-            "Files that don't exist on your computer": ["foo/bar.txt", "spam/eggs.pdf"],
-            "Files with unsupported extensions": ["testdata/bitstreams/test.pdf", None],
+            "File": ["foo/bar.txt", "spam/eggs.pdf", "testdata/bitstreams/test.pdf"],
+            "Problem": ["File doesn't exist", "File doesn't exist", "Extension not supported"],
         }
         df_expected = pd.DataFrame(data_expected)
         assert df.equals(df_expected)

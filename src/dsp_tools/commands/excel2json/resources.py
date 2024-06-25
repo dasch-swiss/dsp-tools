@@ -103,7 +103,7 @@ def _find_validation_problem(
 
 def _row2resource(
     class_info_row: pd.Series[Any],
-    class_df_with_cardinalities: pd.DataFrame,
+    class_df_with_cardinalities: pd.DataFrame | None,
 ) -> dict[str, Any]:
     """
     Method that reads one row from the "classes" DataFrame,
@@ -144,7 +144,11 @@ def _row2resource(
     return resource
 
 
-def _make_cardinality_section(class_name: str, class_df_with_cardinalities: pd.DataFrame) -> list[dict[str, str | int]]:
+def _make_cardinality_section(
+    class_name: str, class_df_with_cardinalities: pd.DataFrame | None
+) -> list[dict[str, str | int]]:
+    if class_df_with_cardinalities is None:
+        return []
     if len(class_df_with_cardinalities) == 0:
         return []
     cards = _create_all_cardinalities(class_name, class_df_with_cardinalities)
@@ -230,7 +234,7 @@ def excel2resources(
         raise InputError(msg)
 
     # transform every row into a resource
-    resources = [_row2resource(row, resource_dfs[row["name"]]) for i, row in classes_df.iterrows()]
+    resources = [_row2resource(row, resource_dfs.get(row["name"])) for i, row in classes_df.iterrows()]
 
     # write final "resources" section into a JSON file
     _validate_resources(resources_list=resources)

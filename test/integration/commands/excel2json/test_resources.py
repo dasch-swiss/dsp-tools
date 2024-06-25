@@ -31,6 +31,7 @@ class TestExcelToResource(unittest.TestCase):
             "Audio",
             "ZIP",
             "PDFDocument",
+            "NoCardinalityClass",
         ]
         res_names = [match.value for match in jsonpath_ng.parse("$[*].name").find(output_from_method)]
         assert unordered(res_names) == expected_names
@@ -48,6 +49,7 @@ class TestExcelToResource(unittest.TestCase):
             ["AudioRepresentation"],
             ["ArchiveRepresentation"],
             ["DocumentRepresentation"],
+            ["Resource"],
         ]
         res_supers = [match.value for match in jsonpath_ng.parse("$[*].super").find(output_from_method)]
         assert unordered(res_supers) == expected_supers
@@ -66,6 +68,7 @@ class TestExcelToResource(unittest.TestCase):
                 "",
                 "",
                 "",
+                "Class Without Cardinalities",
             ],
             "rm": [
                 "Rumantsch",
@@ -79,6 +82,7 @@ class TestExcelToResource(unittest.TestCase):
                 "",
                 "",
                 "Only Rumantsch",
+                "",
             ],
         }
         res_labels_all = [match.value for match in jsonpath_ng.parse("$[*].labels").find(output_from_method)]
@@ -104,12 +108,14 @@ class TestExcelToResource(unittest.TestCase):
                 "Audio",
                 "ZIP",
                 "PDF-Dokument",
+                "",
             ],
             "comment_fr": [
                 "Un étrange hasard m'a mis en possession de ce journal.",
                 "",
                 "",
                 "Only French",
+                "",
                 "",
                 "",
                 "",

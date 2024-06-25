@@ -1130,6 +1130,18 @@
                                 "gui_order": 1
                             }
                         ]
+                    },
+                    {
+                        "name": "NoCardinalityClass",
+                        "super": [
+                            "Resource"
+                        ],
+                        "labels": {
+                            "en": "Class Without Cardinalities"
+                        },
+                        "comments": {
+                            "en": "No cardinalitiy"
+                        }
                     }
                 ]
             }

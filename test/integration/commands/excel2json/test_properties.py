@@ -78,10 +78,10 @@ class TestValidateProperties:
 
 
 def test_excel2properties_invalid_gui_attrib_format() -> None:
-    expected_msg = (
+    expected_msg = regex.escape(
         "There is a problem with the excel file: "
         "'testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute_format.xlsx'\n"
-        "There is invalid content in the Excel.\n"
+        "There is invalid content in the excel.\n"
         "Located at: Column 'gui_attributes' | Row 4\n"
         "Expected Content: attribute: value, attribute: value\n"
         "Actual Content: max=10, min=5"

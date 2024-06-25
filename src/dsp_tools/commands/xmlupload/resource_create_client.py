@@ -391,7 +391,8 @@ def _make_link_value(value: XMLValue, iri_resolver: IriResolver) -> dict[str, An
         iri = resolved_iri
     else:
         msg = (
-            f"Could not resolve ID {s} to IRI. This is probably because the resource '{s}' could not be created. "
+            f"Could not find the ID {s} in the id2iri mapping. "
+            f"This is probably because the resource '{s}' could not be created. "
             f"See {warnings_savepath} for more information."
         )
         raise BaseError(msg)

@@ -11,74 +11,8 @@ from typing import Union
 import pandas as pd
 import regex
 
-from dsp_tools.commands.excel2json.models.input_error import MissingValuesInRowProblem
-from dsp_tools.commands.excel2json.utils import check_required_values
-from dsp_tools.commands.excel2json.utils import get_wrong_row_numbers
 from dsp_tools.commands.excel2xml.propertyelement import PropertyElement
 from dsp_tools.models.exceptions import BaseError
-from dsp_tools.models.exceptions import InputError
-
-
-def prepare_dataframe(
-    df: pd.DataFrame,
-    required_columns: list[str],
-    location_of_sheet: str,
-) -> pd.DataFrame:
-    # TODO: delete
-    """
-    Takes a pandas DataFrame,
-    strips the column headers from whitespaces and transforms them to lowercase,
-    strips every cell from whitespaces and inserts "" if there is no string in it,
-    and deletes the rows that don't have a value in one of the required cells.
-
-    Args:
-        df: pandas DataFrame
-        required_columns: headers of the columns where a value is required
-        location_of_sheet: for better error messages, provide this information of the caller
-
-    Raises:
-        BaseError: if one of the required columns doesn't exist, or if the resulting DataFrame would be empty
-
-    Returns:
-        prepared DataFrame
-    """
-    new_df = clean_df(df)
-    required_columns = set(x.strip().lower() for x in required_columns)
-    if len(new_df) < 1:
-        raise InputError(f"{location_of_sheet} requires at least one row")
-    if not required_columns.issubset(existing := set(new_df.columns)):
-        missing = required_columns - existing
-        raise InputError(f"{location_of_sheet}, is missing the following required columns: {missing}")
-    if missing_dict := check_required_values(new_df, list(required_columns)):
-        wrong_rows = get_wrong_row_numbers(missing_dict)
-        missing = [MissingValuesInRowProblem(col, row_nums) for col, row_nums in wrong_rows.items()]
-        list_separator = "\n    -"
-        msg = f"{location_of_sheet} is missing values in the following required columns:{list_separator}"
-        msg += list_separator.join([x.execute_error_protocol() for x in missing])
-        raise InputError(msg)
-    return new_df
-
-
-def clean_df(df: pd.DataFrame) -> pd.DataFrame:
-    # TODO: delete
-    """
-    Removes spaces from column names, makes them lower case.
-    For all cells, it searches for valid characters if the cell does not contain any valid characters,
-    it replaces it with a NaN value.
-    Deletes all the rows that are completely empty.
-
-    Args:
-        df: Dataframe
-
-    Returns:
-        Dataframe
-    """
-    new_df = df.rename(columns=lambda x: x.strip().lower())
-    new_df = new_df.map(
-        lambda x: str(x).strip() if pd.notna(x) and regex.search(r"[\w\p{L}]", str(x), flags=regex.U) else pd.NA
-    )
-    new_df = new_df.dropna(axis=0, how="all")
-    return new_df
 
 
 def simplify_name(value: str) -> str:

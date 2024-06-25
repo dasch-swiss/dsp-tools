@@ -72,6 +72,23 @@ class ExcelFileProblem:
 
 
 @dataclass(frozen=True)
+class MissingValuesProblem:
+    """This class contains information if a value is missing in a location"""
+
+    locations: list[PositionInExcel]
+
+    def execute_error_protocol(self) -> str:
+        """
+        This function initiates all the steps for successful problem communication with the user.
+
+        Returns:
+            message for the error
+        """
+        locs = [str(x) for x in self.locations]
+        return f"At the following locations mandatory values are missing:{list_separator}{list_separator.join(locs)}"
+
+
+@dataclass(frozen=True)
 class RequiredColumnMissingProblem:
     """This class contains information if a required column is missing."""
 

@@ -8,7 +8,7 @@ from pandas.testing import assert_frame_equal
 
 from dsp_tools.commands.excel2json import resources as e2j
 from dsp_tools.commands.excel2json.models.input_error import InvalidContentInSheetProblem
-from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
+from dsp_tools.commands.excel2json.models.input_error import MissingValuesProblem
 from dsp_tools.commands.excel2json.models.input_error import RequiredColumnMissingProblem
 from dsp_tools.commands.excel2json.resources import _check_complete_gui_order
 from dsp_tools.commands.excel2json.resources import _create_all_cardinalities
@@ -138,13 +138,13 @@ def test_validate_individual_class_sheets_problems() -> None:
         "sheet_missing_prop": sheet_missing_prop,
     }
     res = e2j._validate_individual_class_sheets(test_dict)
-    assert len(res) == 2
-    casted_res = cast(list[PositionInExcel], res)
-    card_problem = casted_res[0]
+    assert len(res) == 1
+    casted_res = cast(MissingValuesProblem, res[0])
+    card_problem = casted_res.locations[0]
     assert card_problem.sheet == "sheet_missing_card"
     assert card_problem.column == "cardinality"
     assert card_problem.row == 2
-    prop_problem = casted_res[1]
+    prop_problem = casted_res.locations[1]
     assert prop_problem.sheet == "sheet_missing_prop"
     assert prop_problem.column == "property"
     assert prop_problem.row == 3

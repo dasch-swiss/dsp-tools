@@ -14,7 +14,7 @@ import regex
 from dsp_tools.commands.excel2json.models.input_error import ExcelFileProblem
 from dsp_tools.commands.excel2json.models.input_error import InvalidContentInSheetProblem
 from dsp_tools.commands.excel2json.models.input_error import JsonValidationResourceProblem
-from dsp_tools.commands.excel2json.models.input_error import MissingValuesInRowProblem
+from dsp_tools.commands.excel2json.models.input_error import MissingValuesProblem
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import Problem
 from dsp_tools.commands.excel2json.models.input_error import ResourcesSheetsNotAsExpected
@@ -25,8 +25,6 @@ from dsp_tools.commands.excel2json.utils import check_required_values
 from dsp_tools.commands.excel2json.utils import get_wrong_row_numbers
 from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
 from dsp_tools.models.exceptions import InputError
-from dsp_tools.utils.shared import check_notna
-from dsp_tools.utils.shared import prepare_dataframe
 
 languages = ["en", "de", "fr", "it", "rm"]
 
@@ -147,16 +145,7 @@ def _row2resource(
 
 
 def _make_cardinality_section(class_name: str, class_df_with_cardinalities: pd.DataFrame) -> list[dict[str, str | int]]:
-    class_df_with_cardinalities = prepare_dataframe(
-        df=class_df_with_cardinalities,
-        required_columns=["Property", "Cardinality"],
-        location_of_sheet=f"Sheet '{class_name}' in file 'resources.xlsx'",
-    )
     if len(class_df_with_cardinalities) == 0:
-        warnings.warn(
-            f"Sheet '{class_name}' in file 'resources.xlsx' does not have any properties listed.\n"
-            f"Creation of the resource class continues without 'cardinalities' section."
-        )
         return []
     cards = _create_all_cardinalities(class_name, class_df_with_cardinalities)
     return cards
@@ -288,16 +277,11 @@ def _prepare_classes_df(resource_dfs: dict[str, pd.DataFrame]) -> tuple[pd.DataF
         },
     )
     resource_dfs = {k: add_optional_columns(v, {"gui_order"}) for k, v in resource_dfs.items()}
-    classes_df = prepare_dataframe(
-        df=classes_df,
-        required_columns=["name"],
-        location_of_sheet="Sheet 'classes' in file 'resources.xlsx'",
-    )
     return classes_df, resource_dfs
 
 
 def _validate_excel_file(classes_df: pd.DataFrame, df_dict: dict[str, pd.DataFrame]) -> ExcelFileProblem | None:
-    problems = _validate_classes_excel_file(classes_df)
+    problems = _validate_classes_excel_sheet(classes_df)
     if sheet_problems := _validate_individual_class_sheets(df_dict):
         problems.extend(sheet_problems)
     if problems:
@@ -305,15 +289,20 @@ def _validate_excel_file(classes_df: pd.DataFrame, df_dict: dict[str, pd.DataFra
     return None
 
 
-def _validate_classes_excel_file(classes_df: pd.DataFrame) -> list[Problem]:
+def _validate_classes_excel_sheet(classes_df: pd.DataFrame) -> list[Problem]:
     if any(classes_df.get(lang) is not None for lang in languages):
         warnings.warn(
             f"The file 'resources.xlsx' uses {languages} as column titles, which is deprecated. "
             f"Please use {[f'label_{lang}' for lang in languages]}"
         )
     problems: list[Problem] = []
-    if missing_super_rows := [int(str(i)) + 2 for i, row in classes_df.iterrows() if not check_notna(row["super"])]:
-        problems.append(MissingValuesInRowProblem(column="super", row_numbers=missing_super_rows))
+    required_cols = ["name", "super"]
+    if missing_cols := check_contains_required_columns(classes_df, set(required_cols)):
+        return [InvalidContentInSheetProblem("classes", [missing_cols])]
+    if missing_values := check_required_values(classes_df, required_cols):
+        row_nums = get_wrong_row_numbers(missing_values)
+        for col, nums in row_nums.items():
+            problems.extend([PositionInExcel("classes", col, x) for x in nums])
     if duplicate_check := check_column_for_duplicate(classes_df, "name"):
         problems.append(duplicate_check)
     return problems
@@ -321,15 +310,19 @@ def _validate_classes_excel_file(classes_df: pd.DataFrame) -> list[Problem]:
 
 def _validate_individual_class_sheets(class_df_dict: dict[str, pd.DataFrame]) -> list[Problem]:
     required_cols = ["property", "cardinality"]
-    problem_list: list[Problem] = []
     missing_required_columns = {
-        k: res for k, v in class_df_dict.items() if (res := check_contains_required_columns(v, set(required_cols)))
+        sheet: res
+        for sheet, df in class_df_dict.items()
+        if (res := check_contains_required_columns(df, set(required_cols)))
     }
     if missing_required_columns:
-        return [InvalidContentInSheetProblem(k, [v]) for k, v in missing_required_columns.items()]
+        return [InvalidContentInSheetProblem(sheet, [missing]) for sheet, missing in missing_required_columns.items()]
+    problem_list: list[PositionInExcel] = []
     for sheet_name, df in class_df_dict.items():
-        if missing := check_required_values(df, required_cols):
-            row_nums = get_wrong_row_numbers(missing)
+        if missing_dict := check_required_values(df, required_cols):
+            row_nums = get_wrong_row_numbers(missing_dict)
             for col, nums in row_nums.items():
                 problem_list.extend([PositionInExcel(sheet_name, col, x) for x in nums])
-    return problem_list
+    if problem_list:
+        return [MissingValuesProblem(problem_list)]
+    return []

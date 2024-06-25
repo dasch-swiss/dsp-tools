@@ -5,6 +5,9 @@ import pandas as pd
 import regex
 from loguru import logger
 
+separator = "\n\n"
+list_separator = "\n - "
+
 
 @dataclass(frozen=True)
 class UploadFailure:
@@ -43,8 +46,8 @@ class UploadFailures:
             msg += f"Failed to upload {len(failures)} files. "
             msg += f"The full list of failed files has been saved to '{output_file}'."
         else:
-            msg += f"Failed to upload the following {len(failures)} files:\n"
-            msg += "\n".join([f" - {failure.filepath}: {failure.reason}" for failure in failures])
+            msg += f"Failed to upload the following {len(failures)} files:"
+            msg += list_separator + list_separator.join([f"{failure.filepath}: {failure.reason}" for failure in failures])
         return msg
 
     def make_final_communication(self) -> bool:

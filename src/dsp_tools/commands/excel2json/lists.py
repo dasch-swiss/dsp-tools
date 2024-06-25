@@ -352,7 +352,9 @@ def validate_lists_section_with_schema(
     Returns:
         True if the "lists" section passed validation
     """
-    if bool(path_to_json_project_file) == bool(lists_section):
+    both_none = path_to_json_project_file is None and lists_section is None
+    none_none = path_to_json_project_file is not None and lists_section is not None
+    if both_none or none_none:
         raise BaseError("Validation of the 'lists' section works only if exactly one of the two arguments is given.")
 
     with (

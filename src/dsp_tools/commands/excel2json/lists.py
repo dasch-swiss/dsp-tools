@@ -352,8 +352,12 @@ def validate_lists_section_with_schema(
     Returns:
         True if the "lists" section passed validation
     """
-    if bool(path_to_json_project_file) == bool(lists_section):
-        raise BaseError("Validation of the 'lists' section works only if exactly one of the two arguments is given.")
+    err_msg = "Validation of the 'lists' section works only if exactly one of the two arguments is given."
+    match path_to_json_project_file, lists_section:
+        case None, None:
+            raise BaseError(err_msg)
+        case str(), list():
+            raise BaseError(err_msg)
 
     with (
         importlib.resources.files("dsp_tools")

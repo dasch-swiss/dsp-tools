@@ -235,7 +235,7 @@ def _make_bitstream_file_value(bitstream_info: BitstreamInfo) -> dict[str, Any]:
         case "jpg" | "jpeg" | "jp2" | "png" | "tif" | "tiff" | "jpx":
             prop = "knora-api:hasStillImageFileValue"
             value_type = "StillImageFileValue"
-        case "odd" | "rng" | "txt" | "xml" | "xsd" | "xsl" | "xslt" | "csv":
+        case "odd" | "rng" | "txt" | "xml" | "xsd" | "xsl" | "csv":
             prop = "knora-api:hasTextFileValue"
             value_type = "TextFileValue"
         case _:

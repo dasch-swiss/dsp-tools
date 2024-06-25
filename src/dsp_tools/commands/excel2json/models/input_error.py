@@ -66,7 +66,7 @@ class ExcelFileProblem:
         Returns:
             message for the error
         """
-        msg = f"The excel file: '{self.filename}' contains the following problems:{grand_separator}"
+        msg = f"The Excel file: '{self.filename}' contains the following problems:{grand_separator}"
         msg += medium_separator.join([x.execute_error_protocol() for x in self.problems])
         return msg
 

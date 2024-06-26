@@ -17,7 +17,7 @@ def test_validate_xml_data_minimal() -> None:
 def test_validate_xml_invalid_resource_tag_line_twelve() -> None:
     expected = regex.escape(
         "The XML file cannot be uploaded due to the following validation error(s):\n"
-        "Line 12: Element 'resource', attribute 'invalidtag': The attribute 'invalidtag' is not allowed."
+        "    Line 12: Element 'resource', attribute 'invalidtag': The attribute 'invalidtag' is not allowed."
     )
     with pytest.raises(InputError, match=expected):
         validate_xml_file(input_file="testdata/invalid-testdata/xml-data/invalid-resource-tag.xml")
@@ -25,8 +25,9 @@ def test_validate_xml_invalid_resource_tag_line_twelve() -> None:
 
 def test_validate_xml_invalid_resource_tag_problem() -> None:
     expected_msg = regex.escape(
-        "XML-like tags in the format of <text> were found in text properties with encoding=utf8.\n"
-        "Please note that these will not be recognised as formatting in the text field but displayed.\n"
+        "Angular brackets in the format of <text> were found in text properties with encoding=utf8.\n"
+        "Please note that these will not be recognised as formatting in the text field, "
+        "but will be displayed as-is.\n"
         "The following resources of your XML file contain angular brackets:\n"
         "    - line 13: resource 'the_only_resource', property ':test'\n"
         "    - line 14: resource 'the_only_resource', property ':test'\n"

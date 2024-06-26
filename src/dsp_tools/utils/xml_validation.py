@@ -119,8 +119,9 @@ def _find_xml_tags_in_simple_text_elements(xml_no_namespace: etree._Element) -> 
             resources_with_potential_xml_tags.append(f"{sourceline}resource '{resname}', property '{propname}'")
     if resources_with_potential_xml_tags:
         err_msg = (
-            "XML-like tags in the format of <text> were found in text properties with encoding=utf8.\n"
-            "Please note that these will not be recognised as formatting in the text field but displayed.\n"
+            "Angular brackets in the format of <text> were found in text properties with encoding=utf8.\n"
+            "Please note that these will not be recognised as formatting in the text field, "
+            "but will be displayed as-is.\n"
             f"The following resources of your XML file contain angular brackets:{list_separator}"
             f"{list_separator.join(resources_with_potential_xml_tags)}"
         )

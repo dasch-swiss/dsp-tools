@@ -202,20 +202,22 @@ class TestValidateWithSchema:
 
     def test_sheet_invalid_cardinality(self) -> None:
         expected_msg = regex.escape(
-            "The Excel file: 'resources.xlsx' contains the following problems:\n\n"
-            "At the following locations mandatory values are missing:\n"
-            "    - Located at: Sheet 'Owner' | Column 'property' | Row 18\n"
-            "    - Located at: Sheet 'Owner' | Column 'cardinality' | Row 17"
+            "\nThe Excel file 'resources.xlsx' did not pass validation.\n"
+            "    Section of the problem: 'Resources'\n"
+            "    Located at: Sheet 'Owner' | Column 'Cardinality' | Row 3\n"
+            "    Original Error Message:\n"
+            "    '0-2' is not one of ['1', '0-1', '1-n', '0-n']"
         )
         with pytest.raises(InputError, match=expected_msg):
             e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-invalid-cardinality.xlsx", "")
 
     def test_invalid_property(self) -> None:
         expected_msg = regex.escape(
-            "The Excel file: 'resources.xlsx' contains the following problems:\n\n"
-            "At the following locations mandatory values are missing:\n"
-            "    - Located at: Sheet 'Owner' | Column 'property' | Row 18\n"
-            "    - Located at: Sheet 'Owner' | Column 'cardinality' | Row 17"
+            "\nThe Excel file 'resources.xlsx' did not pass validation.\n"
+            "    Section of the problem: 'Resources'\n"
+            "    Located at: Sheet 'FamilyMember' | Column 'Property' | Row 7\n"
+            "    Original Error Message:\n"
+            "    ':fan:ta:sy' does not match '^([a-zA-Z_][\\\\w.-]*)?:([\\\\w.-]+)$'"
         )
         with pytest.raises(InputError, match=expected_msg):
             e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-invalid-property.xlsx", "")

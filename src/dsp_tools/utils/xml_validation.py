@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.resources
+import warnings
 from datetime import datetime
 from pathlib import Path
 
@@ -8,6 +9,7 @@ import regex
 from loguru import logger
 from lxml import etree
 
+from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.xml_utils import parse_xml_file
 from dsp_tools.utils.xml_utils import remove_comments_from_element_tree
@@ -85,7 +87,7 @@ def _validate_xml_against_schema(data_xml: etree._Element) -> list[str]:
 
 def _validate_xml_contents(xml_no_namespace: etree._Element) -> list[str]:
     problems = []
-    problems.extend(_find_xml_tags_in_simple_text_elements(xml_no_namespace))
+    _find_xml_tags_in_simple_text_elements(xml_no_namespace)
     problems.extend(_find_mixed_encodings_in_one_text_prop(xml_no_namespace))
     _check_for_deprecated_syntax(xml_no_namespace)
     return problems
@@ -110,7 +112,7 @@ def _find_xml_tags_in_simple_text_elements(xml_no_namespace: etree._Element) -> 
     Returns:
         True if there are no XML tags in the simple texts
     """
-    resources_with_illegal_xml_tags = []
+    resources_with_potential_xml_tags = []
     for text in xml_no_namespace.findall(path="resource/text-prop/text"):
         regex_finds_tags = bool(regex.search(r'<([a-zA-Z/"]+|[^\s0-9].*[^\s0-9])>', str(text.text)))
         etree_finds_tags = bool(list(text.iterchildren()))
@@ -119,15 +121,15 @@ def _find_xml_tags_in_simple_text_elements(xml_no_namespace: etree._Element) -> 
             sourceline = f"line {text.sourceline}: " if text.sourceline else " "
             propname = text.getparent().attrib["name"]  # type: ignore[union-attr]
             resname = text.getparent().getparent().attrib["id"]  # type: ignore[union-attr]
-            resources_with_illegal_xml_tags.append(f"{sourceline}resource '{resname}', property '{propname}'")
-    if resources_with_illegal_xml_tags:
+            resources_with_potential_xml_tags.append(f"{sourceline}resource '{resname}', property '{propname}'")
+    if resources_with_potential_xml_tags:
         err_msg = (
-            "XML-tags are not allowed in text properties with encoding=utf8.\n"
-            "The following resources of your XML file violate this rule:"
+            "XML-like tags in the format of <text> were found in text properties with encoding=utf8.\n"
+            "Please note that these will not be recognised as formatting in the text field but displayed."
+            f"The following resources of your XML file contain angular brackets:{list_separator}"
+            f"{list_separator.join(resources_with_potential_xml_tags)}"
         )
-        err_msg += list_separator + list_separator.join(resources_with_illegal_xml_tags)
-        return [err_msg]
-    return []
+        warnings.warn(DspToolsUserWarning(err_msg))
 
 
 def _find_mixed_encodings_in_one_text_prop(xml_no_namespace: etree._Element) -> list[str]:

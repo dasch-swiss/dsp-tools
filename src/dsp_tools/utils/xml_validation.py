@@ -103,9 +103,6 @@ def _find_xml_tags_in_simple_text_elements(xml_no_namespace: etree._Element) -> 
 
     Args:
         xml_no_namespace: parsed XML file with the namespaces removed
-
-    Returns:
-        None
     """
     resources_with_potential_xml_tags = []
     for text in xml_no_namespace.findall(path="resource/text-prop/text"):

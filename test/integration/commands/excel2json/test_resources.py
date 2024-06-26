@@ -190,10 +190,12 @@ class TestValidateWithSchema:
 
     def test_invalid_super(self) -> None:
         expected_msg = regex.escape(
-            "The Excel file: 'resources.xlsx' contains the following problems:\n\n"
-            "At the following locations mandatory values are missing:\n"
-            "    - Located at: Sheet 'Owner' | Column 'property' | Row 18\n"
-            "    - Located at: Sheet 'Owner' | Column 'cardinality' | Row 17"
+            "\nThe Excel file 'resources.xlsx' did not pass validation.\n"
+            "    Section of the problem: 'Resources'\n"
+            "    Problematic Resource 'Title'\n"
+            "    Located at: Sheet 'classes' | Column 'super' | Row 3\n"
+            "    Original Error Message:\n"
+            "    'fantasy' is not valid under any of the given schemas"
         )
         with pytest.raises(InputError, match=expected_msg):
             e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-invalid-super.xlsx", "")

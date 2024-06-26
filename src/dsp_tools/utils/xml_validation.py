@@ -4,6 +4,7 @@ import importlib.resources
 import warnings
 from datetime import datetime
 from pathlib import Path
+from typing import Never
 
 import regex
 from loguru import logger
@@ -93,24 +94,19 @@ def _validate_xml_contents(xml_no_namespace: etree._Element) -> list[str]:
     return problems
 
 
-def _find_xml_tags_in_simple_text_elements(xml_no_namespace: etree._Element) -> list[str]:
+def _find_xml_tags_in_simple_text_elements(xml_no_namespace: etree._Element) -> Never:
     """
-    Makes sure that there are no XML tags in simple texts.
-    This can only be done with a regex,
-    because even if the simple text contains some XML tags,
-    the simple text itself is not valid XML that could be parsed.
-    The extra challenge is that lxml transforms
-    "pebble (&lt;2cm) and boulder (&gt;20cm)" into
-    "pebble (<2cm) and boulder (>20cm)"
-    (but only if &gt; follows &lt;).
-    This forces us to write a regex that carefully distinguishes
-    between a real tag (which is not allowed) and a false-positive-tag.
+    Checks if there are angular brackets in simple text.
+    It is possible that the user mistakenly added XML tags into a simple text field.
+    But it is also possible that an angular bracket should be displayed.
+    So that the user does not insert XML tags mistakenly into simple text fields,
+    the user is warned, if there is any present.
 
     Args:
         xml_no_namespace: parsed XML file with the namespaces removed
 
     Returns:
-        True if there are no XML tags in the simple texts
+        Never
     """
     resources_with_potential_xml_tags = []
     for text in xml_no_namespace.findall(path="resource/text-prop/text"):

@@ -139,12 +139,12 @@ def test_validate_individual_class_sheets_problems() -> None:
     }
     res = e2j._validate_individual_class_sheets(test_dict)
     assert len(res) == 1
-    casted_res = cast(MissingValuesProblem, res[0])
-    card_problem = casted_res.locations[0]
+    assert isinstance(res[0], MissingValuesProblem)
+    card_problem = res[0].locations[0]
     assert card_problem.sheet == "sheet_missing_card"
     assert card_problem.column == "cardinality"
     assert card_problem.row == 2
-    prop_problem = casted_res.locations[1]
+    prop_problem = res[0].locations[1]
     assert prop_problem.sheet == "sheet_missing_prop"
     assert prop_problem.column == "property"
     assert prop_problem.row == 3
@@ -154,8 +154,8 @@ def test_validate_individual_class_sheets_missing_column() -> None:
     test_dict = {"sheet_missing_col": pd.DataFrame({"property": ["p5"]})}
     res = e2j._validate_individual_class_sheets(test_dict)
     assert len(res) == 1
-    problem = cast(InvalidContentInSheetProblem, res[0])
-    assert len(problem.problems) == 1
-    assert problem.sheet_name == "sheet_missing_col"
-    col_problem = cast(RequiredColumnMissingProblem, problem.problems[0])
+    assert isinstance(res[0], InvalidContentInSheetProblem)
+    assert len(res[0].problems) == 1
+    assert res[0].sheet_name == "sheet_missing_col"
+    col_problem = cast(RequiredColumnMissingProblem, res[0].problems[0])
     assert col_problem.columns == ["cardinality"]

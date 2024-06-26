@@ -191,7 +191,6 @@ class TestValidateWithSchema:
     def test_invalid_super(self) -> None:
         expected_msg = regex.escape(
             "The Excel file: 'resources.xlsx' contains the following problems:\n\n"
-            "---------------------------------------\n\n"
             "At the following locations mandatory values are missing:\n"
             "    - Located at: Sheet 'Owner' | Column 'property' | Row 18\n"
             "    - Located at: Sheet 'Owner' | Column 'cardinality' | Row 17"
@@ -202,7 +201,6 @@ class TestValidateWithSchema:
     def test_sheet_invalid_cardinality(self) -> None:
         expected_msg = regex.escape(
             "The Excel file: 'resources.xlsx' contains the following problems:\n\n"
-            "---------------------------------------\n\n"
             "At the following locations mandatory values are missing:\n"
             "    - Located at: Sheet 'Owner' | Column 'property' | Row 18\n"
             "    - Located at: Sheet 'Owner' | Column 'cardinality' | Row 17"
@@ -213,7 +211,6 @@ class TestValidateWithSchema:
     def test_invalid_property(self) -> None:
         expected_msg = regex.escape(
             "The Excel file: 'resources.xlsx' contains the following problems:\n\n"
-            "---------------------------------------\n\n"
             "At the following locations mandatory values are missing:\n"
             "    - Located at: Sheet 'Owner' | Column 'property' | Row 18\n"
             "    - Located at: Sheet 'Owner' | Column 'cardinality' | Row 17"
@@ -224,7 +221,6 @@ class TestValidateWithSchema:
     def test_duplicate_name(self) -> None:
         expected_msg = regex.escape(
             "The Excel file: 'resources.xlsx' contains the following problems:\n\n"
-            "---------------------------------------\n\n"
             "No duplicates are allowed in the column 'name'\n"
             "The following values appear several times:\n"
             "    - MentionedPerson"

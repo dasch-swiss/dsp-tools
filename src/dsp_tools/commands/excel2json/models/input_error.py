@@ -66,7 +66,7 @@ class ExcelFileProblem:
         Returns:
             message for the error
         """
-        msg = f"The Excel file: '{self.filename}' contains the following problems:{grand_separator}"
+        msg = f"The Excel file: '{self.filename}' contains the following problems:\n\n"
         msg += medium_separator.join([x.execute_error_protocol() for x in self.problems])
         return msg
 
@@ -225,13 +225,13 @@ class ResourcesSheetsNotAsExpected:
         Returns:
             message for the error
         """
-        msg = "The excel file 'resources.xlsx' has problems.\n"
+        msg = "The Excel file 'resources.xlsx' has problems.\n"
         missing_names = self.names_sheets - self.names_classes
         if missing_names:
             msg += (
                 f"The following sheet(s) do not have an entry in the 'name' column "
-                f"of the sheet 'classes':{list_separator}"
-            ) + list_separator.join(missing_names)
+                f"of the sheet 'classes':{list_separator}{list_separator.join(missing_names)}"
+            )
         return msg
 
 

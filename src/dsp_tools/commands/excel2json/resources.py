@@ -315,9 +315,9 @@ def _validate_classes_excel_sheet(classes_df: pd.DataFrame) -> list[Problem]:
 def _validate_individual_class_sheets(class_df_dict: dict[str, pd.DataFrame]) -> list[Problem]:
     required_cols = ["property", "cardinality"]
     missing_required_columns = {
-        sheet: res
+        sheet: missing_cols
         for sheet, df in class_df_dict.items()
-        if (res := check_contains_required_columns(df, set(required_cols)))
+        if (missing_cols := check_contains_required_columns(df, set(required_cols)))
     }
     if missing_required_columns:
         return [InvalidContentInSheetProblem(sheet, [missing]) for sheet, missing in missing_required_columns.items()]

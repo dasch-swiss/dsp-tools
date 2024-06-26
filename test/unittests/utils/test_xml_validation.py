@@ -52,7 +52,7 @@ class TestFindXMLTagsInUTF8:
         )
         expected_msg = regex.escape(
             "XML-like tags in the format of <text> were found in text properties with encoding=utf8.\n"
-            "Please note that these will not be recognised as formatting in the text field but displayed."
+            "Please note that these will not be recognised as formatting in the text field but displayed.\n"
             "The following resources of your XML file contain angular brackets:\n"
             "    - line 5: resource 'id', property ':name'"
         )
@@ -73,7 +73,7 @@ class TestFindXMLTagsInUTF8:
         )
         expected_msg = regex.escape(
             "XML-like tags in the format of <text> were found in text properties with encoding=utf8.\n"
-            "Please note that these will not be recognised as formatting in the text field but displayed."
+            "Please note that these will not be recognised as formatting in the text field but displayed.\n"
             "The following resources of your XML file contain angular brackets:\n"
             "    - line 5: resource 'id', property ':propName'"
         )

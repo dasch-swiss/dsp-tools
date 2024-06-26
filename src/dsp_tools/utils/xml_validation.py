@@ -4,7 +4,6 @@ import importlib.resources
 import warnings
 from datetime import datetime
 from pathlib import Path
-from typing import Never
 
 import regex
 from loguru import logger
@@ -94,7 +93,7 @@ def _validate_xml_contents(xml_no_namespace: etree._Element) -> list[str]:
     return problems
 
 
-def _find_xml_tags_in_simple_text_elements(xml_no_namespace: etree._Element) -> Never:
+def _find_xml_tags_in_simple_text_elements(xml_no_namespace: etree._Element) -> None:
     """
     Checks if there are angular brackets in simple text.
     It is possible that the user mistakenly added XML tags into a simple text field.
@@ -106,7 +105,7 @@ def _find_xml_tags_in_simple_text_elements(xml_no_namespace: etree._Element) -> 
         xml_no_namespace: parsed XML file with the namespaces removed
 
     Returns:
-        Never
+        None
     """
     resources_with_potential_xml_tags = []
     for text in xml_no_namespace.findall(path="resource/text-prop/text"):
@@ -121,7 +120,7 @@ def _find_xml_tags_in_simple_text_elements(xml_no_namespace: etree._Element) -> 
     if resources_with_potential_xml_tags:
         err_msg = (
             "XML-like tags in the format of <text> were found in text properties with encoding=utf8.\n"
-            "Please note that these will not be recognised as formatting in the text field but displayed."
+            "Please note that these will not be recognised as formatting in the text field but displayed.\n"
             f"The following resources of your XML file contain angular brackets:{list_separator}"
             f"{list_separator.join(resources_with_potential_xml_tags)}"
         )

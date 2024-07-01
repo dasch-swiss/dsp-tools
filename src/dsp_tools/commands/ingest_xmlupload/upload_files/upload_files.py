@@ -42,15 +42,23 @@ def upload_files(
     con.login(creds.user, creds.password)
     ingest_client = BulkIngestClient(creds.dsp_ingest_url, con.get_token(), shortcode, imgdir)
 
-    outcomes: list[UploadFailure | None] = []
+    failures: list[UploadFailure] = []
     progress_bar = tqdm(sorted(paths), desc="Uploading files", unit="file")  # sorting is for testability
     for path in progress_bar:
-        res = ingest_client.upload_file(path)
-        outcomes.append(res)
-        if res:
-            progress_bar.set_description(f"Uploading files (failed: {len([x for x in outcomes if x])})")
-    aggregated_failures = UploadFailures(outcomes, shortcode, creds.dsp_ingest_url)
-    return aggregated_failures.make_final_communication()
+        if res := ingest_client.upload_file(path):
+            failures.append(res)
+            progress_bar.set_description(f"Uploading files (failed: {len(failures)})")
+    if failures:
+        aggregated_failures = UploadFailures(failures, len(paths), shortcode, creds.dsp_ingest_url)
+        msg = aggregated_failures.execute_error_protocol()
+        logger.error(msg)
+        print(msg)
+        return False
+    else:
+        msg = f"Uploaded all {len(paths)} files onto server {creds.dsp_ingest_url}."
+        logger.info(msg)
+        print(msg)
+        return True
 
 
 def _parse_xml(xml_file: Path) -> etree._Element:

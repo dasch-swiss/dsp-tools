@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from dataclasses import field
-from datetime import datetime
 from pathlib import Path
 
 from loguru import logger
@@ -10,7 +9,6 @@ from requests.adapters import HTTPAdapter
 from requests.adapters import Retry
 
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailure
-from dsp_tools.utils.logger_config import logger_savepath
 
 STATUS_OK = 200
 STATUS_INTERNAL_SERVER_ERROR = 500
@@ -42,7 +40,11 @@ class BulkIngestClient:
         self.session.mount("https://", adapter)
         self.session.headers["Authorization"] = f"Bearer {self.token}"
 
-    def _upload(self, filepath: Path) -> UploadFailure | None:
+    def upload_file(
+        self,
+        filepath: Path,
+    ) -> UploadFailure | None:
+        """Uploads a file to the ingest server."""
         url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/ingest/{filepath}"
         err_msg = f"Failed to upload '{filepath}' to '{url}'."
         try:
@@ -65,20 +67,6 @@ class BulkIngestClient:
             logger.error(err_msg)
             reason = f"Response {res.status_code}: {res.text}" if res.text else f"Response {res.status_code}"
             return UploadFailure(filepath, reason)
-        return None
 
-    def upload_file(
-        self,
-        filepath: Path,
-    ) -> UploadFailure | None:
-        """Uploads a file to the ingest server."""
-        if failure_details := self._upload(filepath):
-            err_msg = f"Failed to upload '{filepath}'.\n"
-            err_msg += f"Reason: {failure_details.reason}\n"
-            err_msg += f"See logs for more details: {logger_savepath}"
-            print(err_msg)
-            return failure_details
-        msg = f"Uploaded file '{filepath}'"
-        print(f"{datetime.now()}: {msg}")
-        logger.info(msg)
+        logger.info(f"Uploaded file '{filepath}' to '{url}'")
         return None

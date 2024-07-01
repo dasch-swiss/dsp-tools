@@ -2,10 +2,12 @@ from pathlib import Path
 
 from loguru import logger
 from lxml import etree
+from tqdm import tqdm
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.ingest_xmlupload.bulk_ingest_client import BulkIngestClient
 from dsp_tools.commands.ingest_xmlupload.upload_files.filechecker import FileChecker
+from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailure
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailures
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.connection import Connection
@@ -40,8 +42,14 @@ def upload_files(
     con.login(creds.user, creds.password)
     ingest_client = BulkIngestClient(creds.dsp_ingest_url, con.get_token(), shortcode, imgdir)
 
-    potential_failures = [ingest_client.upload_file(path) for path in sorted(paths)]  # sorting is for testability
-    aggregated_failures = UploadFailures(potential_failures, shortcode, creds.dsp_ingest_url)
+    outcomes: list[UploadFailure | None] = []
+    progress_bar = tqdm(sorted(paths), desc="Uploading files", unit="file")  # sorting is for testability
+    for path in progress_bar:
+        res = ingest_client.upload_file(path)
+        outcomes.append(res)
+        if res:
+            progress_bar.set_description(f"Uploading files (failed: {len([x for x in outcomes if x])})")
+    aggregated_failures = UploadFailures(outcomes, shortcode, creds.dsp_ingest_url)
     return aggregated_failures.make_final_communication()
 
 

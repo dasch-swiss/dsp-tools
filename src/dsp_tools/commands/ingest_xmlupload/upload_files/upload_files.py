@@ -9,10 +9,10 @@ from dsp_tools.commands.ingest_xmlupload.bulk_ingest_client import BulkIngestCli
 from dsp_tools.commands.ingest_xmlupload.upload_files.filechecker import FileChecker
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailure
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailures
+from dsp_tools.commands.xmlupload.read_validate_xml_file import validate_and_parse
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
-from dsp_tools.utils.xml_utils import remove_comments_from_element_tree
 
 
 def upload_files(
@@ -32,8 +32,7 @@ def upload_files(
     Returns:
         success status
     """
-    root = _parse_xml(xml_file)
-    shortcode = root.attrib["shortcode"]
+    root, shortcode, _ = validate_and_parse(xml_file)
     paths = _get_validated_paths(root)
     print(f"Found {len(paths)} files to upload onto server {creds.dsp_ingest_url}.")
     logger.info(f"Found {len(paths)} files to upload onto server {creds.dsp_ingest_url}.")
@@ -59,14 +58,6 @@ def upload_files(
         logger.info(msg)
         print(msg)
         return True
-
-
-def _parse_xml(xml_file: Path) -> etree._Element:
-    root = etree.parse(xml_file).getroot()
-    root = remove_comments_from_element_tree(root)
-    for elem in root.iter():
-        elem.tag = etree.QName(elem).localname
-    return root
 
 
 def _get_validated_paths(root: etree._Element) -> set[Path]:

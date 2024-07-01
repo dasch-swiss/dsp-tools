@@ -99,6 +99,32 @@ class TestUploadLinkValueStashes:
         _upload_stash(upload_state, ProjectClientStub(con, "1234", None))
         assert not upload_state.pending_stash or upload_state.pending_stash.is_empty()
 
+    def test_upload_link_value_stash_multiple(self) -> None:
+        """Upload multiple stashed link values (resptr), if all goes well."""
+        stash = Stash.make(
+            standoff_stash=None,
+            link_value_stash=LinkValueStash.make(
+                [
+                    LinkValueStashItem("001", "sometype", "someprop", "002"),
+                    LinkValueStashItem("001", "sometype", "someprop", "003"),
+                    LinkValueStashItem("002", "sometype", "someprop", "003"),
+                    LinkValueStashItem("004", "sometype", "someprop", "002"),
+                ],
+            ),
+        )
+        assert stash
+        iri_resolver = IriResolver(
+            {
+                "001": "http://www.rdfh.ch/0001/001",
+                "002": "http://www.rdfh.ch/0001/002",
+                "003": "http://www.rdfh.ch/0001/003",
+                "004": "http://www.rdfh.ch/0001/004",
+            }
+        )
+        con: Connection = ConnectionMock(post_responses=[{}, {}, {}, {}])
+        upload_state = UploadState([], stash, UploadConfig(), {}, [], iri_resolver)
+        _upload_stash(upload_state, ProjectClientStub(con, "1234", None))
+        assert not upload_state.pending_stash or upload_state.pending_stash.is_empty()
 
 class TestUploadTextValueStashes:
     def test_upload_text_value_stash(self) -> None:

@@ -7,6 +7,7 @@ from typing import cast
 from loguru import logger
 
 from dsp_tools.commands.xmlupload.models.upload_state import UploadState
+from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItem
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
@@ -21,6 +22,7 @@ def upload_stashed_resptr_props(
 ) -> None:
     """
     After all resources are uploaded, the stashed resptr props must be applied to their resources in DSP.
+    Finally, the resource-ids should be removed if all their resptr props could be uploaded.
     The upload state is updated accordingly, as a side effect.
 
     Args:
@@ -31,10 +33,28 @@ def upload_stashed_resptr_props(
 
     print(f"{datetime.now()}: Upload the stashed resptrs...")
     logger.info("Upload the stashed resptrs...")
+
     upload_state.pending_stash = cast(Stash, upload_state.pending_stash)
     link_value_stash = cast(LinkValueStash, upload_state.pending_stash.link_value_stash)
-    for res_id, stash_items in link_value_stash.res_2_stash_items.copy().items():
-        res_iri = upload_state.iri_resolver.get(res_id)
+
+    _upload_process(link_value_stash=link_value_stash, iri_resolver=upload_state.iri_resolver, con=con, context=context)
+    _remove_empty_ids(link_value_stash=link_value_stash)
+
+
+def _upload_process(link_value_stash: LinkValueStash, iri_resolver: IriResolver, con: Connection, context: dict[str, str]) -> None:
+    """
+    Try to upload the stashed items. If the target_iri of the item can be found, and it is then successfully uploaded
+    the item is removed from link_value_stash.
+    The link_value_stash is updated accordingly, as a side effect.
+
+    Args:
+        link_value_stash: the current state of the link value stash
+        iri_resolver: service for resolving internal IDs to IRIs
+        con: connection to DSP
+        context: the JSON-LD context of the resource
+    """
+    for res_id, stash_items in link_value_stash.res_2_stash_items.items():
+        res_iri = iri_resolver.get(res_id)
         if not res_iri:
             # resource could not be uploaded to DSP, so the stash cannot be uploaded either
             # no action necessary: this resource will remain in nonapplied_resptr_props,
@@ -42,14 +62,39 @@ def upload_stashed_resptr_props(
             continue
         print(f"{datetime.now()}:   Upload resptrs of resource '{res_id}'...")
         logger.info(f"  Upload resptrs of resource '{res_id}'...")
-        for stash_item in stash_items:
-            target_iri = upload_state.iri_resolver.get(stash_item.target_id)
+
+        start_position = len(stash_items) - 1
+        while start_position >= 0:
+            # taking values by index from the list of 'stash_items' should avoid the problem we encounter
+            # when looping over the same list we simultaneously remove from
+            # counting max-length to 0 avoids problem with diminishing list-length
+            stash_item = stash_items[start_position]
+
+            start_position -= 1
+
+            target_iri = iri_resolver.get(stash_item.target_id)
             if not target_iri:
                 continue
-            if _upload_stash_item(stash_item, res_iri, target_iri, con, context):
-                link_value_stash.res_2_stash_items[res_id].remove(stash_item)
-        if not link_value_stash.res_2_stash_items[res_id]:
-            del link_value_stash.res_2_stash_items[res_id]
+            if not _upload_stash_item(stash=stash_item, res_iri=res_iri, target_iri=target_iri, con=con,
+                                      context=context):
+                continue
+            link_value_stash.res_2_stash_items[res_id].remove(stash_item)
+
+
+def _remove_empty_ids(link_value_stash: LinkValueStash) -> None:
+    """
+    If the upload of resptr-props was successful, the list of resptr props are empty
+    but the resource-ids still exist as keys. If the list is empty, its resource-id is removed.
+    The link_value_stash is updated accordingly, as a side effect.
+
+    Args:
+        link_value_stash: the current link value stash of upload state
+    """
+    # remove empty res_id from res_2_stash_items-dictionary
+    for res_id, stash_items in link_value_stash.res_2_stash_items.copy().items():
+        if link_value_stash.res_2_stash_items[res_id]:
+            continue
+        del link_value_stash.res_2_stash_items[res_id]
 
 
 def _upload_stash_item(

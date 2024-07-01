@@ -126,6 +126,7 @@ class TestUploadLinkValueStashes:
         _upload_stash(upload_state, ProjectClientStub(con, "1234", None))
         assert not upload_state.pending_stash or upload_state.pending_stash.is_empty()
 
+
 class TestUploadTextValueStashes:
     def test_upload_text_value_stash(self) -> None:
         """Upload stashed text values (standoff), if all goes well."""

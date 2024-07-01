@@ -6,8 +6,8 @@ from typing import cast
 
 from loguru import logger
 
-from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
+from dsp_tools.commands.xmlupload.models.upload_state import UploadState
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStash
 from dsp_tools.commands.xmlupload.stash.stash_models import LinkValueStashItem
 from dsp_tools.commands.xmlupload.stash.stash_models import Stash
@@ -41,10 +41,15 @@ def upload_stashed_resptr_props(
     _remove_empty_ids(link_value_stash=link_value_stash)
 
 
-def _upload_process(link_value_stash: LinkValueStash, iri_resolver: IriResolver, con: Connection, context: dict[str, str]) -> None:
+def _upload_process(
+    link_value_stash: LinkValueStash,
+    iri_resolver: IriResolver,
+    con: Connection,
+    context: dict[str, str],
+) -> None:
     """
-    Try to upload the stashed items. If the target_iri of the item can be found, and it is then successfully uploaded
-    the item is removed from link_value_stash.
+    Try to upload the stashed items. If the target_iri of the item can be found
+    and the item can then successfully be uploaded it is removed from link_value_stash.
     The link_value_stash is updated accordingly, as a side effect.
 
     Args:
@@ -75,8 +80,9 @@ def _upload_process(link_value_stash: LinkValueStash, iri_resolver: IriResolver,
             target_iri = iri_resolver.get(stash_item.target_id)
             if not target_iri:
                 continue
-            if not _upload_stash_item(stash=stash_item, res_iri=res_iri, target_iri=target_iri, con=con,
-                                      context=context):
+            if not _upload_stash_item(
+                stash=stash_item, res_iri=res_iri, target_iri=target_iri, con=con, context=context
+            ):
                 continue
             link_value_stash.res_2_stash_items[res_id].remove(stash_item)
 

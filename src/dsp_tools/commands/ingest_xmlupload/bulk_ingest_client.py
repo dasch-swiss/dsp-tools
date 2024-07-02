@@ -9,9 +9,12 @@ from requests.adapters import HTTPAdapter
 from requests.adapters import Retry
 
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailure
+from dsp_tools.models.exceptions import UserError
+from dsp_tools.utils.logger_config import LOGGER_SAVEPATH
 
 STATUS_OK = 200
 STATUS_INTERNAL_SERVER_ERROR = 500
+STATUS_CONFLICT = 409
 
 
 @dataclass
@@ -70,3 +73,36 @@ class BulkIngestClient:
 
         logger.info(f"Uploaded file '{filepath}' to '{url}'")
         return None
+
+    def kick_off_ingest(self) -> None:
+        """Start the ingest process on the server."""
+        url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest"
+        res = self.session.post(url, timeout=5)
+        if res.status_code == STATUS_CONFLICT:
+            msg = f"Ingest process on the server {self.dsp_ingest_url} is already running. Wait until it completes..."
+            print(msg)
+            logger.info(msg)
+        if res.json().get("id") != self.shortcode:
+            raise UserError("Failed to kick off the ingest process.")
+        print(f"Kicked off the ingest process on the server {self.dsp_ingest_url}. Wait until it completes...")
+        logger.info(f"Kicked off the ingest process on the server {self.dsp_ingest_url}. Wait until it completes...")
+
+    def retrieve_mapping(self) -> str | None:
+        """Try to retrieve the mapping CSV from the server."""
+        url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/mapping.csv"
+        res = self.session.get(url, timeout=5)
+        if res.status_code == STATUS_CONFLICT:
+            print("Ingest process is still running. Wait until it completes...")
+            logger.info("Ingest process is still running. Wait until it completes...")
+            return None
+        elif not res.ok or not res.text.startswith("original,derivative"):
+            msg = (
+                "Dubious error while polling for the mapping CSV. "
+                f"If this happens again at the next polling, please check the logs at {LOGGER_SAVEPATH}."
+            )
+            print(msg)
+            logger.error(msg)
+            return None
+        print("Ingest process completed.")
+        logger.info("Ingest process completed.")
+        return res.text

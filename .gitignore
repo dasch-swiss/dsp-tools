@@ -59,8 +59,7 @@ testdata/test-list.json
 *_replaced_*.xml
 tmp/
 /out/
-testdata/preprocessed_files/
-testdata/bitstreams/nested
-processing_result_*.pkl
-processed_files.txt
 /warnings.log
+/testdata/e2e/tmp-dsp-ingest
+/testdata/e2e/images
+/mapping-????.csv

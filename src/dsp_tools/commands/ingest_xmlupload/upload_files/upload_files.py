@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.ingest_xmlupload.bulk_ingest_client import BulkIngestClient
-from dsp_tools.commands.ingest_xmlupload.upload_files.filechecker import FileChecker
+from dsp_tools.commands.ingest_xmlupload.upload_files.filechecker import check_files
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailure
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailures
 from dsp_tools.commands.xmlupload.read_validate_xml_file import validate_and_parse
@@ -62,7 +62,7 @@ def upload_files(
 
 def _get_validated_paths(root: etree._Element) -> set[Path]:
     paths = {Path(x.text) for x in root.xpath("//bitstream")}
-    if problems := FileChecker(paths).validate():
+    if problems := check_files(paths):
         msg = problems.execute_error_protocol()
         raise InputError(msg)
     return paths

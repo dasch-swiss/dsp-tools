@@ -29,7 +29,7 @@ def _test_upload_step(caplog: pytest.LogCaptureFixture) -> None:
     success = upload_files(XML_FILE, CREDS)
     assert success
     log_messages = [rec.message for rec in caplog.records]
-    assert log_messages[0] == f"Found 2 files to upload onto server {CREDS.dsp_ingest_url}."
+    assert log_messages[-6] == f"Found 2 files to upload onto server {CREDS.dsp_ingest_url}."
     assert log_messages[-3] == "Uploaded file 'testdata/bitstreams/test.jpg'"
     assert log_messages[-2] == "Uploaded file 'testdata/bitstreams/test.pdf'"
     assert log_messages[-1] == f"Uploaded all 2 files onto server {CREDS.dsp_ingest_url}."

@@ -67,6 +67,7 @@ services:
     volumes:
       - ./sipi/images:/opt/images
       - ./sipi/tmp-dsp-ingest:/opt/temp
+      - ingest-db:/opt/db
     environment:
       - SERVICE_LOG_FORMAT=text
       - STORAGE_ASSET_DIR=/opt/images
@@ -75,3 +76,7 @@ services:
       - JWT_ISSUER=0.0.0.0:3333
       - JWT_SECRET=UP 4888, nice 4-8-4 steam engine
       - SIPI_USE_LOCAL_DEV=false
+      - DB_JDBC_URL=jdbc:sqlite:/opt/db/ingest.sqlite
+
+volumes:
+  ingest-db:

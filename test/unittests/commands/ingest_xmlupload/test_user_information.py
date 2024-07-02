@@ -4,7 +4,7 @@ import pandas as pd
 import pytest
 from pandas.testing import assert_frame_equal
 
-from dsp_tools.commands.ingest_xmlupload.user_information import IngestInformation
+from dsp_tools.commands.ingest_xmlupload.create_resources.user_information import IngestInformation
 
 
 class TestIngestInformation:

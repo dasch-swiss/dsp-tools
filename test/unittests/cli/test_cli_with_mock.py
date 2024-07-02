@@ -131,6 +131,37 @@ def test_xmlupload_no_iiif(xmlupload: Mock) -> None:
     )
 
 
+@patch("dsp_tools.cli.call_action.upload_files")
+def test_upload_files_localhost(upload_files: Mock) -> None:
+    file = "filename.xml"
+    args = f"upload-files {file}".split()
+    entry_point.run(args)
+    creds = ServerCredentials(
+        server="http://0.0.0.0:3333",
+        user="root@example.com",
+        password="test",
+        dsp_ingest_url="http://0.0.0.0:3340",
+    )
+    upload_files.assert_called_once_with(xml_file=Path(file), creds=creds, imgdir=Path("."))
+
+
+@patch("dsp_tools.cli.call_action.upload_files")
+def test_upload_files_remote(upload_files: Mock) -> None:
+    file = "filename.xml"
+    server = "https://api.test.dasch.swiss"
+    user = "first-name.second-name@dasch.swiss"
+    password = "foobar"
+    args = f"upload-files --server={server} --user {user} --password={password} {file}".split()
+    entry_point.run(args)
+    creds = ServerCredentials(
+        server=server,
+        user=user,
+        password=password,
+        dsp_ingest_url=server.replace("api", "ingest"),
+    )
+    upload_files.assert_called_once_with(xml_file=Path(file), creds=creds, imgdir=Path("."))
+
+
 @patch("dsp_tools.cli.call_action.excel2json")
 def test_excel2json(excel2json: Mock) -> None:
     """Test the 'dsp-tools excel2json' command"""

@@ -5,7 +5,7 @@
 repos:
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.4.8
+    rev: v0.5.0
     hooks:
       - id: ruff
         args:
@@ -19,7 +19,7 @@ repos:
       - id: ruff-format
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v4.6.0
     hooks:
       - id: check-added-large-files
         args: ['--maxkb=1000']
@@ -46,12 +46,12 @@ repos:
       - id: text-unicode-replacement-char
 
   - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.39.0
+    rev: v0.41.0
     hooks:
       - id: markdownlint
         args: [--config, .markdownlint.yml, --ignore, CHANGELOG.md]
 
   - repo: https://github.com/google/yamlfmt
-    rev: v0.12.1
+    rev: v0.13.0
     hooks:
       - id: yamlfmt

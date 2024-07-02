@@ -946,8 +946,9 @@ A cardinality is defined as follows:
     - `"1-n"`: At least one value must be present, but multiple values may be present.
     - `"0-n"`: The value may be omitted, but may also occur multiple times.
 
-(*It is technically possible to have a resource without cardinalities,
-but in most cases it doesn't make sense to omit them.)
+(*A resource can have no cardinalities.
+If the `super` is a class of the own ontology, the child class will inherit the cardinalities. 
+If this is not the case then no properties can be used with this class.)
 
 
 

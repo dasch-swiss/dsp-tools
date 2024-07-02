@@ -31,6 +31,7 @@ class TestExcelToResource(unittest.TestCase):
             "Audio",
             "ZIP",
             "PDFDocument",
+            "NoCardinalityClass",
         ]
         res_names = [match.value for match in jsonpath_ng.parse("$[*].name").find(output_from_method)]
         assert unordered(res_names) == expected_names
@@ -48,6 +49,7 @@ class TestExcelToResource(unittest.TestCase):
             ["AudioRepresentation"],
             ["ArchiveRepresentation"],
             ["DocumentRepresentation"],
+            ["Resource"],
         ]
         res_supers = [match.value for match in jsonpath_ng.parse("$[*].super").find(output_from_method)]
         assert unordered(res_supers) == expected_supers
@@ -66,6 +68,7 @@ class TestExcelToResource(unittest.TestCase):
                 "",
                 "",
                 "",
+                "Class Without Cardinalities",
             ],
             "rm": [
                 "Rumantsch",
@@ -79,6 +82,7 @@ class TestExcelToResource(unittest.TestCase):
                 "",
                 "",
                 "Only Rumantsch",
+                "",
             ],
         }
         res_labels_all = [match.value for match in jsonpath_ng.parse("$[*].labels").find(output_from_method)]
@@ -104,12 +108,14 @@ class TestExcelToResource(unittest.TestCase):
                 "Audio",
                 "ZIP",
                 "PDF-Dokument",
+                "",
             ],
             "comment_fr": [
                 "Un étrange hasard m'a mis en possession de ce journal.",
                 "",
                 "",
                 "Only French",
+                "",
                 "",
                 "",
                 "",
@@ -183,9 +189,8 @@ class TestValidateWithSchema:
     lambda _: e2j._validate_resources([])
 
     def test_invalid_super(self) -> None:
-        expected_msg = (
-            "\nThe Excel file 'testdata/invalid-testdata/excel2json/resources-invalid-super.xlsx' "
-            "did not pass validation.\n"
+        expected_msg = regex.escape(
+            "\nThe Excel file 'resources.xlsx' did not pass validation.\n"
             "    Section of the problem: 'Resources'\n"
             "    Problematic Resource 'Title'\n"
             "    Located at: Sheet 'classes' | Column 'super' | Row 3\n"
@@ -196,9 +201,8 @@ class TestValidateWithSchema:
             e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-invalid-super.xlsx", "")
 
     def test_sheet_invalid_cardinality(self) -> None:
-        expected_msg = (
-            "\nThe Excel file 'testdata/invalid-testdata/excel2json/resources-invalid-cardinality.xlsx' "
-            "did not pass validation.\n"
+        expected_msg = regex.escape(
+            "\nThe Excel file 'resources.xlsx' did not pass validation.\n"
             "    Section of the problem: 'Resources'\n"
             "    Located at: Sheet 'Owner' | Column 'Cardinality' | Row 3\n"
             "    Original Error Message:\n"
@@ -208,9 +212,8 @@ class TestValidateWithSchema:
             e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-invalid-cardinality.xlsx", "")
 
     def test_invalid_property(self) -> None:
-        expected_msg = (
-            "\nThe Excel file 'testdata/invalid-testdata/excel2json/resources-invalid-property.xlsx' "
-            "did not pass validation.\n"
+        expected_msg = regex.escape(
+            "\nThe Excel file 'resources.xlsx' did not pass validation.\n"
             "    Section of the problem: 'Resources'\n"
             "    Located at: Sheet 'FamilyMember' | Column 'Property' | Row 7\n"
             "    Original Error Message:\n"
@@ -220,25 +223,14 @@ class TestValidateWithSchema:
             e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-invalid-property.xlsx", "")
 
     def test_duplicate_name(self) -> None:
-        expected_msg = (
-            "The excel file 'resources.xlsx', sheet 'classes' has a problem.\n"
+        expected_msg = regex.escape(
+            "The Excel file: 'resources.xlsx' contains the following problems:\n\n"
             "No duplicates are allowed in the column 'name'\n"
             "The following values appear several times:\n"
             "    - MentionedPerson"
         )
         with pytest.raises(BaseError, match=expected_msg):
             e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-duplicate-name.xlsx", "")
-
-    def test_missing_sheet(self) -> None:
-        expected_msg = regex.escape(
-            "The excel file 'resources.xlsx' has problems.\n"
-            "The names of the excel sheets must be 'classes' "
-            "plus all the entries in the column 'name' from the sheet 'classes'.\n"
-            "The following sheet(s) are missing:\n"
-            "    - GenericAnthroponym"
-        )
-        with pytest.raises(InputError, match=expected_msg):
-            e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-invalid-missing-sheet.xlsx", "")
 
 
 if __name__ == "__main__":

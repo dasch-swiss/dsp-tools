@@ -42,6 +42,51 @@ class PositionInExcel:
             msg.append(f"Row {self.row}")
         return "Located at: " + " | ".join(msg)
 
+    def execute_error_protocol(self) -> str:
+        """
+        This function initiates all the steps for successful problem communication with the user.
+
+        Returns:
+            message for the error
+        """
+        return str(self)
+
+
+@dataclass(frozen=True)
+class ExcelFileProblem:
+    """This class contains information about problems with an excel file."""
+
+    filename: str
+    problems: list[Problem]
+
+    def execute_error_protocol(self) -> str:
+        """
+        This function initiates all the steps for successful problem communication with the user.
+
+        Returns:
+            message for the error
+        """
+        msg = f"The Excel file: '{self.filename}' contains the following problems:\n\n"
+        msg += medium_separator.join([x.execute_error_protocol() for x in self.problems])
+        return msg
+
+
+@dataclass(frozen=True)
+class MissingValuesProblem:
+    """This class contains information if a value is missing in a location"""
+
+    locations: list[PositionInExcel]
+
+    def execute_error_protocol(self) -> str:
+        """
+        This function initiates all the steps for successful problem communication with the user.
+
+        Returns:
+            message for the error
+        """
+        locs = [str(x) for x in self.locations]
+        return f"At the following locations mandatory values are missing:{list_separator}{list_separator.join(locs)}"
+
 
 @dataclass(frozen=True)
 class RequiredColumnMissingProblem:
@@ -96,6 +141,28 @@ class MissingValuesInRowProblem:
         """
         nums = [str(x) for x in self.row_numbers]
         return f"The column '{self.column}' must have values in the row(s):{list_separator}{list_separator.join(nums)}"
+
+
+@dataclass(frozen=True)
+class InvalidContentInSheetProblem:
+    """This class contains information about invalid content in excel sheets."""
+
+    sheet_name: str
+    problems: list[Problem]
+
+    def execute_error_protocol(self) -> str:
+        """
+        This function initiates all the steps for successful problem communication with the user.
+
+        Returns:
+            message for the error
+        """
+
+        problem_strings = [x.execute_error_protocol() for x in self.problems]
+        return (
+            f"The sheet: '{self.sheet_name}' has the following problems:\n{list_separator}"
+            f"{list_separator.join(problem_strings)}"
+        )
 
 
 @dataclass(frozen=True)
@@ -158,20 +225,13 @@ class ResourcesSheetsNotAsExpected:
         Returns:
             message for the error
         """
-        msg = (
-            "The excel file 'resources.xlsx' has problems.\n"
-            "The names of the excel sheets must be 'classes' "
-            "plus all the entries in the column 'name' from the sheet 'classes'.\n"
-        )
-        missing_sheets = self.names_classes - self.names_sheets
-        if missing_sheets:
-            msg += f"The following sheet(s) are missing:{list_separator}" + list_separator.join(missing_sheets)
+        msg = "The Excel file 'resources.xlsx' has problems.\n"
         missing_names = self.names_sheets - self.names_classes
         if missing_names:
             msg += (
                 f"The following sheet(s) do not have an entry in the 'name' column "
-                f"of the sheet 'classes':{list_separator}"
-            ) + list_separator.join(missing_names)
+                f"of the sheet 'classes':{list_separator}{list_separator.join(missing_names)}"
+            )
         return msg
 
 

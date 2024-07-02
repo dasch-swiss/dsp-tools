@@ -74,7 +74,7 @@ class BulkIngestClient:
         logger.info(f"Uploaded file '{filepath}' to '{url}'")
         return None
 
-    def kick_off_ingest(self) -> None:
+    def trigger_ingest_process(self) -> None:
         """Start the ingest process on the server."""
         url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest"
         res = self.session.post(url, timeout=5)

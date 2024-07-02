@@ -137,7 +137,7 @@ def check_required_values(df: pd.DataFrame, required_values_columns: list[str]) 
     return {col: df[col].isnull() for col in required_values_columns if df[col].isnull().any()}
 
 
-def turn_bool_array_into_index_numbers(series: pd.Series[bool], true_remains: bool = True) -> list[int]:
+def _turn_bool_array_into_index_numbers(series: pd.Series[bool], true_remains: bool = True) -> list[int]:
     """
     This function takes a pd.Series containing boolean values.
     By default, this method extracts the index numbers of the True values.
@@ -172,7 +172,7 @@ def get_wrong_row_numbers(
         Dictionary with the column name as key and the row number as a list.
     """
     wrong_row_int_dict = {
-        k: turn_bool_array_into_index_numbers(series=v, true_remains=true_remains) for k, v in wrong_row_dict.items()
+        k: _turn_bool_array_into_index_numbers(series=v, true_remains=true_remains) for k, v in wrong_row_dict.items()
     }
     return {k: [x + 2 for x in v] for k, v in wrong_row_int_dict.items()}
 

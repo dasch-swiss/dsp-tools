@@ -1,6 +1,8 @@
 import pytest
+import regex
 from lxml import etree
 
+from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.utils.xml_validation import _find_all_text_props_with_multiple_encodings
 from dsp_tools.utils.xml_validation import _find_xml_tags_in_simple_text_elements
 from dsp_tools.utils.xml_validation import _get_all_ids_and_encodings_from_root
@@ -11,7 +13,7 @@ from dsp_tools.utils.xml_validation_models import TextValueData
 
 
 class TestFindXMLTagsInUTF8:
-    def test_find_xml_tags_in_simple_text_elements_all_good(self) -> None:
+    def test_find_xml_tags_in_simple_text_elements_all_good(self, recwarn: pytest.WarningsRecorder) -> None:
         allowed_html_escapes = [
             "(&lt;2cm) (&gt;10cm)",
             "text &lt; text/&gt;",
@@ -33,8 +35,8 @@ class TestFindXMLTagsInUTF8:
             for txt in allowed_html_escapes
         ]
         for xml in utf8_texts_with_allowed_html_escapes:
-            res = _find_xml_tags_in_simple_text_elements(etree.fromstring(xml))
-            assert res == []
+            _find_xml_tags_in_simple_text_elements(etree.fromstring(xml))
+        assert len(recwarn) == 0
 
     def test_find_xml_tags_in_simple_text_elements_forbidden_escapes(self) -> None:
         test_ele = etree.fromstring(
@@ -48,13 +50,15 @@ class TestFindXMLTagsInUTF8:
             </knora>
             """
         )
-        expected_msg = (
-            "XML-tags are not allowed in text properties with encoding=utf8.\n"
-            "The following resources of your XML file violate this rule:\n"
+        expected_msg = regex.escape(
+            "Angular brackets in the format of <text> were found in text properties with encoding=utf8.\n"
+            "Please note that these will not be recognised as formatting in the text field, "
+            "but will be displayed as-is.\n"
+            "The following resources of your XML file contain angular brackets:\n"
             "    - line 5: resource 'id', property ':name'"
         )
-        res = _find_xml_tags_in_simple_text_elements(test_ele)
-        assert res == [expected_msg]
+        with pytest.warns(DspToolsUserWarning, match=expected_msg):
+            _find_xml_tags_in_simple_text_elements(test_ele)
 
     def test_find_xml_tags_in_simple_text_elements_forbidden_escapes_two(self) -> None:
         test_ele = etree.fromstring(
@@ -68,13 +72,16 @@ class TestFindXMLTagsInUTF8:
             </knora>
             """
         )
-        expected_msg = (
-            "XML-tags are not allowed in text properties with encoding=utf8.\n"
-            "The following resources of your XML file violate this rule:\n"
+        expected_msg = regex.escape(
+            "Angular brackets in the format of <text> were found in text properties with encoding=utf8.\n"
+            "Please note that these will not be recognised as formatting in the text field, "
+            "but will be displayed as-is.\n"
+            "The following resources of your XML file contain angular brackets:\n"
             "    - line 5: resource 'id', property ':propName'"
         )
-        res = _find_xml_tags_in_simple_text_elements(test_ele)
-        assert res == [expected_msg]
+
+        with pytest.warns(DspToolsUserWarning, match=expected_msg):
+            _find_xml_tags_in_simple_text_elements(test_ele)
 
 
 def test_find_all_text_props_with_multiple_encodings_problems() -> None:

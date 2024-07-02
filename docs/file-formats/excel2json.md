@@ -92,7 +92,8 @@ It is recommended to work from the template.**
 The expected worksheets of the Excel file are:
 
 - `classes`: a table with all resource classes intended to be used in the resulting JSON
-- `class1`, `class2`,...: a table for each resource class named after its name
+- `class1`, `class2`,...: a table for each resource class named after its name. 
+  If no cardinality should be provided for a class then the sheet can be left empty or omitted entirely.
 
 The worksheet called `classes` must have the following structure:  
 ![img-resources-example-1.png](../assets/images/img-excel2json-resources-overview.png)

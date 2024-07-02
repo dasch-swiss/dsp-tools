@@ -97,8 +97,8 @@ class BulkIngestClient:
             return None
         elif not res.ok or not res.text.startswith("original,derivative"):
             msg = (
-                "Dubious error while polling for the mapping CSV. "
-                f"If this happens again at the next polling, please check the logs at {LOGGER_SAVEPATH}."
+                "Dubious error while retrieving the mapping CSV. "
+                f"If this happens again at the next attempt, please check the logs at {LOGGER_SAVEPATH}."
             )
             print(msg)
             logger.error(msg)

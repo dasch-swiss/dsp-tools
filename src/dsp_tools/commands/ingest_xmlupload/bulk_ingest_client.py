@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from dataclasses import field
-from datetime import datetime
 from pathlib import Path
 
 from loguru import logger
@@ -9,9 +8,9 @@ from requests import Session
 from requests.adapters import HTTPAdapter
 from requests.adapters import Retry
 
-from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailureDetail
+from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailure
 from dsp_tools.models.exceptions import UserError
-from dsp_tools.utils.logger_config import logger_savepath
+from dsp_tools.utils.logger_config import LOGGER_SAVEPATH
 
 STATUS_OK = 200
 STATUS_INTERNAL_SERVER_ERROR = 500
@@ -20,7 +19,7 @@ STATUS_CONFLICT = 409
 
 @dataclass
 class BulkIngestClient:
-    """Client to upload multiple files to the ingest server and monitoring the ingest process."""
+    """Client to upload multiple files to the ingest server and monitor the ingest process."""
 
     dsp_ingest_url: str
     token: str
@@ -44,15 +43,19 @@ class BulkIngestClient:
         self.session.mount("https://", adapter)
         self.session.headers["Authorization"] = f"Bearer {self.token}"
 
-    def _upload(self, filepath: Path) -> UploadFailureDetail | None:
+    def upload_file(
+        self,
+        filepath: Path,
+    ) -> UploadFailure | None:
+        """Uploads a file to the ingest server."""
         url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/ingest/{filepath}"
-        err_msg = f"Failed to ingest '{filepath}' to '{url}'."
+        err_msg = f"Failed to upload '{filepath}' to '{url}'."
         try:
             with open(self.imgdir / filepath, "rb") as binary_io:
                 content = binary_io.read()
         except OSError as e:
             logger.error(err_msg)
-            return UploadFailureDetail(filepath, f"File could not be opened/read: {e.strerror}")
+            return UploadFailure(filepath, f"File could not be opened/read: {e.strerror}")
         try:
             res = self.session.post(
                 url=url,
@@ -62,27 +65,13 @@ class BulkIngestClient:
             )
         except RequestException as e:
             logger.error(err_msg)
-            return UploadFailureDetail(filepath, f"Exception of requests library: {e}")
+            return UploadFailure(filepath, f"Exception of requests library: {e}")
         if res.status_code != STATUS_OK:
             logger.error(err_msg)
             reason = f"Response {res.status_code}: {res.text}" if res.text else f"Response {res.status_code}"
-            return UploadFailureDetail(filepath, reason)
-        return None
+            return UploadFailure(filepath, reason)
 
-    def upload_file(
-        self,
-        filepath: Path,
-    ) -> UploadFailureDetail | None:
-        """Uploads a file to the ingest server."""
-        if failure_details := self._upload(filepath):
-            err_msg = f"Failed to ingest '{filepath}'.\n"
-            err_msg += f"Reason: {failure_details.reason}\n"
-            err_msg += f"See logs for more details: {logger_savepath}"
-            print(err_msg)
-            return failure_details
-        msg = f"Uploaded file '{filepath}'"
-        print(f"{datetime.now()}: {msg}")
-        logger.info(msg)
+        logger.info(f"Uploaded file '{filepath}' to '{url}'")
         return None
 
     def kick_off_ingest(self) -> None:
@@ -109,7 +98,7 @@ class BulkIngestClient:
         elif not res.ok or not res.text.startswith("original,derivative"):
             msg = (
                 "Dubious error while polling for the mapping CSV. "
-                f"If this happens again at the next polling, please check the logs at {logger_savepath}."
+                f"If this happens again at the next polling, please check the logs at {LOGGER_SAVEPATH}."
             )
             print(msg)
             logger.error(msg)

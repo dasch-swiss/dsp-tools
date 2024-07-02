@@ -75,10 +75,10 @@ class TestUtils(unittest.TestCase):
     def test_turn_bool_array_into_index_numbers(self) -> None:
         original_series = pd.Series([False, True, False, True])
 
-        returned_list = utl.turn_bool_array_into_index_numbers(series=original_series, true_remains=True)
+        returned_list = utl._turn_bool_array_into_index_numbers(series=original_series, true_remains=True)
         assert unordered(returned_list) == [1, 3]
 
-        returned_list = utl.turn_bool_array_into_index_numbers(series=original_series, true_remains=False)
+        returned_list = utl._turn_bool_array_into_index_numbers(series=original_series, true_remains=False)
         assert unordered(returned_list) == [0, 2]
 
     def test_get_wrong_row_numbers(self) -> None:

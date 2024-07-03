@@ -360,6 +360,36 @@ def test_fill_parent_id() -> None:
     assert res["parent_id"].to_list() == expected
 
 
+def test_fill_parent_id_same_node_names() -> None:
+    test_df = pd.DataFrame(
+        {
+            "id": [
+                "list_en",
+                "singular",
+                "list_en:singular:dative",
+                "list_en:singular:genitive",
+                "plural",
+                "list_en:plural:dative",
+                "list_en:plural:genitive",
+            ],
+            "en_list": [
+                "list_en",
+                "list_en",
+                "list_en",
+                "list_en",
+                "list_en",
+                "list_en",
+                "list_en",
+            ],
+            "en_1": [pd.NA, "singular", "singular", "singular", "plural", "plural", "plural"],
+            "en_2": [pd.NA, pd.NA, "dative", "genitive", pd.NA, "dative", "genitive"],
+        }
+    )
+    res = _fill_parent_id_col_one_df(test_df, "en")
+    expected = ["list_en", "list_en", "singular", "singular", "list_en", "plural", "plural"]
+    assert res["parent_id"].to_list() == expected
+
+
 def test_add_nodes_to_parent() -> None:
     nd_1 = ListNode("1", {"en": "Node_en_1", "de": "Node_de_1"}, parent_id="list_id")
     nd_2 = ListNode("2", {"en": "Node_en_2", "de": "Node_de_2"}, parent_id="list_id")

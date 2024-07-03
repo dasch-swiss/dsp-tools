@@ -16,7 +16,7 @@ The decision to use this set of tools is based on the information in the followi
 | [Python docstring formatting](./python-docstring-formatting.md) | [darglint](https://pypi.org/project/darglint/)                     | `.darglint`                    |
 | [Python type checking](./python-type-checking.md)               | [mypy](https://pypi.org/project/mypy/)                             | `pyproject.toml`               |
 | [Python linting](./python-linting.md)                           | [Ruff](https://pypi.org/project/ruff/)                             | `pyproject.toml`               |
-| [Security checks](./security.md)                                | [Dependabot](https://docs.github.com/en/code-security/dependabot/) | `.github/dependabot.yml`       |
+| [Security checks](./security.md)                                | [Dependabot](https://docs.github.com/en/code-security/dependabot)  | `.github/dependabot.yml`       |
 |                                                                 | [CodeQL](https://codeql.github.com/)                               | GitHub settings                |
 |                                                                 | [Gitleaks](https://gitleaks.io/) *                                 | `.gitleaks.toml`               |
 |                                                                 | [Bandit](https://pypi.org/project/bandit/)                         | `.github/workflows/bandit.yml` |

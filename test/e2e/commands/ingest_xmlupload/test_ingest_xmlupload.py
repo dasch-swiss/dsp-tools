@@ -9,6 +9,7 @@ from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.ingest_xmlupload.ingest_files.ingest_files import ingest_files
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_files import upload_files
 from dsp_tools.commands.project.create.project_create import create_project
+from test.e2e.setup_testcontainers import SIPI_PATH_IMAGES
 from test.e2e.setup_testcontainers import SIPI_PATH_TMP_INGEST
 from test.e2e.setup_testcontainers import get_containers
 
@@ -16,7 +17,6 @@ CREDS = ServerCredentials("root@example.com", "test", "http://0.0.0.0:3333")
 XML_FILE = Path("testdata/xml-data/test-data-e2e.xml")
 SHORTCODE = "4125"
 TMP_FOLDER = SIPI_PATH_TMP_INGEST / "import" / SHORTCODE / "testdata" / "bitstreams"
-
 
 
 @pytest.fixture(scope="module")
@@ -49,11 +49,11 @@ def _test_upload_step() -> None:
 def _test_ingest_step(mapping_file: Path) -> None:
     success = ingest_files(CREDS, SHORTCODE)
     assert success
-    logs = [rec.message for rec in caplog.records]
-    assert logs[-3] == "Kicked off the ingest process on the server http://0.0.0.0:3340. Wait until it completes..."
-    assert logs[-2] == "Ingest process completed."
-    assert logs[-1] == f"Saved mapping CSV to '{mapping_file}'"
-    caplog.clear()
+    assert not set(TMP_FOLDER.iterdir())
+    ingested_files = list((SIPI_PATH_IMAGES / SHORTCODE).glob("**/*.*"))
+    ingested_files_ext = [f.suffixes for f in ingested_files]
+    expected_ext = [[".info"], [".jpg", ".orig"], [".jpx"], [".info"], [".pdf", ".orig"], [".pdf"]]
+    assert unordered(ingested_files_ext) == expected_ext
 
     df = pd.read_csv(mapping_file)
     assert df["original"].tolist() == unordered(["testdata/bitstreams/test.jpg", "testdata/bitstreams/test.pdf"])

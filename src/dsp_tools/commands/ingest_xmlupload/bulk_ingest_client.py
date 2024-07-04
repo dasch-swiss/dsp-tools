@@ -96,7 +96,7 @@ class BulkIngestClient:
         if res.status_code in [STATUS_INTERNAL_SERVER_ERROR, STATUS_SERVER_UNAVAILABLE]:
             raise UserError("Server is unavailable. Please try again later.")
         if res.json().get("id") != self.shortcode:
-            raise UserError("Failed to kick off the ingest process.")
+            raise UserError("Failed to trigger the ingest process. Please check the server logs, or try again later.")
         print(f"Kicked off the ingest process on the server {self.dsp_ingest_url}. Wait until it completes...")
         logger.info(f"Kicked off the ingest process on the server {self.dsp_ingest_url}. Wait until it completes...")
 

@@ -13,8 +13,12 @@ from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.logger_config import LOGGER_SAVEPATH
 
 STATUS_OK = 200
-STATUS_INTERNAL_SERVER_ERROR = 500
+STATUS_UNAUTHORIZED = 401
+STATUS_FORBIDDEN = 403
+STATUS_NOT_FOUND = 404
 STATUS_CONFLICT = 409
+STATUS_INTERNAL_SERVER_ERROR = 500
+STATUS_SERVER_UNAVAILABLE = 503
 
 
 @dataclass
@@ -78,10 +82,19 @@ class BulkIngestClient:
         """Start the ingest process on the server."""
         url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest"
         res = self.session.post(url, timeout=5)
+        if res.status_code in [STATUS_UNAUTHORIZED, STATUS_FORBIDDEN]:
+            raise UserError("Unauthorized to start the ingest process. Please check your credentials.")
+        if res.status_code == STATUS_NOT_FOUND:
+            raise UserError(
+                f"No assets have been uploaded for project {self.shortcode}. "
+                "Before using the 'ingest-files' command, you must upload some files with the 'upload-files' command."
+            )
         if res.status_code == STATUS_CONFLICT:
             msg = f"Ingest process on the server {self.dsp_ingest_url} is already running. Wait until it completes..."
             print(msg)
             logger.info(msg)
+        if res.status_code in [STATUS_INTERNAL_SERVER_ERROR, STATUS_SERVER_UNAVAILABLE]:
+            raise UserError("Server is unavailable. Please try again later.")
         if res.json().get("id") != self.shortcode:
             raise UserError("Failed to kick off the ingest process.")
         print(f"Kicked off the ingest process on the server {self.dsp_ingest_url}. Wait until it completes...")

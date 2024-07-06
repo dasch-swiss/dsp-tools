@@ -3,12 +3,14 @@ from dataclasses import field
 from pathlib import Path
 
 from loguru import logger
+from requests import JSONDecodeError
 from requests import RequestException
 from requests import Session
 from requests.adapters import HTTPAdapter
 from requests.adapters import Retry
 
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailure
+from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import UserError
 from dsp_tools.utils.logger_config import LOGGER_SAVEPATH
 
@@ -83,7 +85,7 @@ class BulkIngestClient:
         url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest"
         res = self.session.post(url, timeout=5)
         if res.status_code in [STATUS_UNAUTHORIZED, STATUS_FORBIDDEN]:
-            raise UserError("Unauthorized to start the ingest process. Please check your credentials.")
+            raise BadCredentialsError("Unauthorized to start the ingest process. Please check your credentials.")
         if res.status_code == STATUS_NOT_FOUND:
             raise UserError(
                 f"No assets have been uploaded for project {self.shortcode}. "
@@ -93,9 +95,15 @@ class BulkIngestClient:
             msg = f"Ingest process on the server {self.dsp_ingest_url} is already running. Wait until it completes..."
             print(msg)
             logger.info(msg)
+            return
         if res.status_code in [STATUS_INTERNAL_SERVER_ERROR, STATUS_SERVER_UNAVAILABLE]:
             raise UserError("Server is unavailable. Please try again later.")
-        if res.json().get("id") != self.shortcode:
+        try:
+            returned_shortcode = res.json().get("id")
+            failed: bool = returned_shortcode != self.shortcode
+        except JSONDecodeError:
+            failed = True
+        if failed:
             raise UserError("Failed to trigger the ingest process. Please check the server logs, or try again later.")
         print(f"Kicked off the ingest process on the server {self.dsp_ingest_url}. Wait until it completes...")
         logger.info(f"Kicked off the ingest process on the server {self.dsp_ingest_url}. Wait until it completes...")

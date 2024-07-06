@@ -116,14 +116,15 @@ class BulkIngestClient:
             print("Ingest process is still running. Wait until it completes...")
             logger.info("Ingest process is still running. Wait until it completes...")
             return None
-        elif not res.ok or not res.text.startswith("original,derivative"):
+        elif res.status_code != STATUS_OK or not res.text.startswith("original,derivative"):
             msg = (
-                "Dubious error while retrieving the mapping CSV. "
+                "While retrieving the mapping CSV, the server responded with an unexpected status code/content. "
                 f"If this happens again at the next attempt, please check the logs at {LOGGER_SAVEPATH}."
             )
             print(msg)
             logger.error(msg)
             return None
-        print("Ingest process completed.")
-        logger.info("Ingest process completed.")
-        return res.text
+        else:
+            print("Ingest process completed.")
+            logger.info("Ingest process completed.")
+            return res.text

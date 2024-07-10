@@ -486,11 +486,14 @@ class ResourceClass(Model):
 
     def addProperty(
         self,
-        last_modification_date: DateTimeStamp,
+        # last_modification_date: DateTimeStamp,
         property_id: str,
         cardinality: Cardinality,
         gui_order: Optional[int] = None,
     ) -> DateTimeStamp:
+        encoded_res_iri = quote_plus(self.iri)
+        get_mod_date = self._con.get(f"{self.ROUTE}/{encoded_res_iri}")
+        latest_date = DateTimeStamp(get_mod_date["knora-api:lastModificationDate"]["@value"])
         if self._has_properties.get(property_id) is None:
             latest_modification_date, resclass = HasProperty(
                 con=self._con,
@@ -500,7 +503,7 @@ class ResourceClass(Model):
                 resclass_id=self.iri,
                 cardinality=cardinality,
                 gui_order=gui_order,
-            ).create(last_modification_date)
+            ).create(latest_date)
             hp = resclass.getProperty(property_id)
             hp.ontology_id = self._context.iri_from_prefix(self._ontology_id)
             hp.resclass_id = self._iri

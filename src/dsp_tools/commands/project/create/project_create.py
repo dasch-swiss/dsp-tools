@@ -858,7 +858,7 @@ def _add_cardinalities_to_resource_classes(
                     property_id=qualified_propname,
                     cardinality=switcher[card_info["cardinality"]],
                     gui_order=card_info.get("gui_order"),
-                    last_modification_date=last_modification_date,
+                    # last_modification_date=last_modification_date,
                 )
                 if verbose:
                     print(f"    Added cardinality '{card_info['propname']}' to resource class '{res_class['name']}'")

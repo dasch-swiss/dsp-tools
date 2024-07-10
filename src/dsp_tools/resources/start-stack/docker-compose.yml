@@ -23,6 +23,7 @@ services:
       - KNORA_WEBAPI_ALLOW_RELOAD_OVER_HTTP=true
       - KNORA_WEBAPI_KNORA_API_EXTERNAL_HOST=0.0.0.0
       - KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT=3333
+      - ALLOW_ERASE_PROJECTS=true
       - DSP_API_LOG_LEVEL=INFO
 
   sipi:
@@ -77,6 +78,7 @@ services:
       - JWT_SECRET=UP 4888, nice 4-8-4 steam engine
       - SIPI_USE_LOCAL_DEV=false
       - DB_JDBC_URL=jdbc:sqlite:/opt/db/ingest.sqlite
+      - ALLOW_ERASE_PROJECTS=true
 
 volumes:
   ingest-db:

@@ -1,0 +1,69 @@
+{
+  "prefixes": {
+    "foaf": "http://xmlns.com/foaf/0.1/",
+    "dcterms": "http://purl.org/dc/terms/",
+    "cidoc-crm": "http://www.cidoc-crm.org/cidoc-crm/"
+  },
+  "$schema": "../../src/dsp_tools/resources/schema/project.json",
+  "project": {
+    "shortcode": "003E",
+    "shortname": "success-other-card",
+    "longname": "Project with complex sub-classing",
+    "descriptions": {
+      "en": "Project with complex sub-classing"
+    },
+    "keywords": [
+      "test",
+      "testing"
+    ],
+    "ontologies": [
+      {
+        "name": "onto",
+        "label": "Test ontology",
+        "comment": "This is the ontology of the project",
+        "properties": [
+          {
+            "name": "hasUri",
+            "super": [
+              "hasValue",
+              "https://schema.org/url"
+            ],
+            "object": "UriValue",
+            "labels": {
+              "en": "URI"
+            },
+            "gui_element": "SimpleText"
+          }
+        ],
+        "resources": [
+          {
+            "name": "SuperClass",
+            "super": [
+              "Resource"
+            ],
+            "labels": {
+              "en": "Super Class"
+            }
+          },
+          {
+            "name": "SubClass1",
+            "super": [
+              ":SuperClass",
+              "cidoc-crm:E70_Thing"
+            ],
+            "labels": {
+              "en": "Sub Class 1"
+            },
+            "cardinalities": [
+              {
+                "propname": ":hasUri",
+                "gui_order": 1,
+                "cardinality": "1"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

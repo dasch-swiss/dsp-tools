@@ -7,7 +7,7 @@
   "$schema": "../../src/dsp_tools/resources/schema/project.json",
   "project": {
     "shortcode": "001E",
-    "shortname": "sub-classing",
+    "shortname": "sub-classing-crash",
     "longname": "Project with complex sub-classing",
     "descriptions": {
       "en": "Project with complex sub-classing"
@@ -38,7 +38,9 @@
         "resources": [
           {
             "name": "SuperClass",
-            "super": "Resource",
+            "super": [
+              "Resource"
+            ],
             "labels": {
               "en": "Super Class"
             },

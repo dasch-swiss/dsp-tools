@@ -31,15 +31,15 @@ class EmptyJsonHeader(JsonHeader):
 
 @dataclass
 class ExcelJsonHeader(JsonHeader):
-    prefixes: Prefixes
     project: Project
+    prefixes: Prefixes | None
 
     def make(self) -> dict[str, Any]:
-        return {
-            "prefixes": self.prefixes.get(),
-            "$schema": SCHEMA,
-            "project": self.project.get(),
-        }
+        header_dict: dict[str, Any] = {}
+        if self.prefixes:
+            header_dict["prefixes"] = self.prefixes.get()
+        header_dict.update({"$schema": SCHEMA, "project": self.project.get()})
+        return header_dict
 
 
 @dataclass
@@ -47,7 +47,7 @@ class Prefixes:
     prefixes: dict[str, str]
 
     def get(self) -> dict[str, Any]:
-        return {"prefixes": self.prefixes}
+        return self.prefixes
 
 
 @dataclass
@@ -60,7 +60,7 @@ class Project:
     users: Users | None
 
     def get(self) -> dict[str, Any]:
-        proj_dict = {
+        proj_dict: dict[str, Any] = {
             "shortcode": self.shortcode,
             "shortname": self.shortname,
             "longname": self.longname,
@@ -76,11 +76,11 @@ class Project:
 class Descriptions:
     descriptions: list[Description]
 
-    def get(self) -> dict[str, Any]:
+    def get(self) -> dict[str, str]:
         description = {}
         for desc in self.descriptions:
             description.update(desc.get())
-        return {"descriptions": description}
+        return description
 
 
 @dataclass
@@ -96,8 +96,8 @@ class Description:
 class Keywords:
     keywords: list[str]
 
-    def get(self) -> dict[str, Any]:
-        return {"keywords": self.keywords}
+    def get(self) -> list[str]:
+        return self.keywords
 
 
 @dataclass

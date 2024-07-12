@@ -188,8 +188,8 @@ def _create_project_json(
         overall_success = False
     project = EmptyJsonHeader().make()
     if lists:
-        project["project"]["lists"] = lists  # type: ignore[index]
-    project["project"]["ontologies"] = ontologies  # type: ignore[index]
+        project["project"]["lists"] = lists
+    project["project"]["ontologies"] = ontologies
     return overall_success, project
 
 

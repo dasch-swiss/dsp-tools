@@ -37,35 +37,22 @@ def keywords() -> Keywords:
 
 @pytest.fixture()
 def user_sys_admin() -> User:
-    return User(
-        "Username1",
-        "user1@email.ch",
-        "given name1",
-        "family name1",
-        "PW1",
-        "en",
-        groups="SystemAdmin",
-        projects=":admin",
-    )
+    return User("sys_admin", "sys_admin@email.ch", "given name1", "family name1", "PW1", "en", sys_admin=True)
 
 
 @pytest.fixture()
 def user_member() -> User:
-    return User(
-        "Username2",
-        "user2@email.ch",
-        "given name2",
-        "family name2",
-        "PW2",
-        "de",
-        groups=None,
-        projects=":member",
-    )
+    return User("member", "member@email.ch", "given name2", "family name2", "PW2", "de", member=True)
 
 
 @pytest.fixture()
-def users(user_sys_admin: User, user_member: User) -> Users:
-    return Users([user_sys_admin, user_member])
+def user_admin() -> User:
+    return User("admin", "admin@email.ch", "given name3", "family name3", "PW3", "de", admin=True)
+
+
+@pytest.fixture()
+def users(user_sys_admin: User, user_member: User, user_admin: User) -> Users:
+    return Users([user_sys_admin, user_member, user_admin])
 
 
 @pytest.fixture()

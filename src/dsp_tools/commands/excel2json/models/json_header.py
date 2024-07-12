@@ -77,19 +77,13 @@ class Descriptions:
     descriptions: list[Description]
 
     def get(self) -> dict[str, str]:
-        description = {}
-        for desc in self.descriptions:
-            description.update(desc.get())
-        return description
+        return {x.lang: x.text for x in self.descriptions}
 
 
 @dataclass
 class Description:
     lang: str
     text: str
-
-    def get(self) -> dict[str, str]:
-        return {self.lang: self.text}
 
 
 @dataclass
@@ -116,8 +110,9 @@ class User:
     familyName: str
     password: str
     lang: str
-    projects: str | None
-    groups: str | None
+    member: bool = False
+    admin: bool = False
+    sys_admin: bool = False
 
     def get(self) -> dict[str, Any]:
         usr_dict = {
@@ -129,8 +124,12 @@ class User:
             "lang": self.lang,
             "status": True,
         }
-        if self.projects:
-            usr_dict["projects"] = [self.projects]
-        if self.groups:
-            usr_dict["groups"] = [self.groups]
+        if self.sys_admin:
+            usr_dict["groups"] = ["SystemAdmin"]
+            usr_dict["projects"] = [":admin", ":member"]
+        elif self.member:
+            usr_dict["projects"] = [":member"]
+            return usr_dict
+        elif self.admin:
+            usr_dict["projects"] = [":admin", ":member"]
         return usr_dict

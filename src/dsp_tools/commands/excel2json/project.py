@@ -6,6 +6,7 @@ import regex
 
 from dsp_tools.commands.excel2json.lists import excel2lists
 from dsp_tools.commands.excel2json.models.json_header import EmptyJsonHeader
+from dsp_tools.commands.excel2json.models.json_header import JsonHeader
 from dsp_tools.commands.excel2json.new_lists import new_excel2lists
 from dsp_tools.commands.excel2json.properties import excel2properties
 from dsp_tools.commands.excel2json.resources import excel2resources
@@ -186,7 +187,7 @@ def _create_project_json(
     ontologies, success = _get_ontologies(data_model_files, onto_folders)
     if not success:
         overall_success = False
-    project = EmptyJsonHeader().make()
+    project = _get_project().make()
     if lists:
         project["project"]["lists"] = lists
     project["project"]["ontologies"] = ontologies
@@ -205,11 +206,15 @@ def _new_create_project_json(
     ontologies, success = _get_ontologies(data_model_files, onto_folders)
     if not success:
         overall_success = False
-    project = EmptyJsonHeader().make()
+    project = _get_project().make()
     if lists:
         project["project"]["lists"] = lists
     project["project"]["ontologies"] = ontologies
     return overall_success, project
+
+
+def _get_project() -> JsonHeader:
+    return EmptyJsonHeader()
 
 
 def _get_ontologies(data_model_files: str, onto_folders: list[Path]) -> tuple[list[dict[str, Any]], bool]:

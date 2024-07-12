@@ -1,9 +1,8 @@
+import urllib
 from dataclasses import dataclass
 from dataclasses import field
 from pathlib import Path
 from typing import Protocol
-from urllib.parse import quote_plus
-from urllib.parse import urljoin
 
 import requests
 from loguru import logger
@@ -94,8 +93,8 @@ class DspIngestClientLive(AssetClient):
         Returns:
             IngestResponse: The internal filename of the uploaded file.
         """
-        filename = quote_plus(filepath.name)
-        url = urljoin(self.dsp_ingest_url, f"/projects/{self.shortcode}/assets/ingest/{filename}")
+        filename = urllib.parse.quote(filepath.name)
+        url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/assets/ingest/{filename}"
         err = f"Failed to ingest {filepath} to '{url}'."
         with open(filepath, "rb") as binary_io:
             try:

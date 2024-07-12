@@ -1,5 +1,5 @@
+import urllib
 from pathlib import Path
-from urllib.parse import quote_plus
 
 import pytest
 from requests_mock import Mocker
@@ -26,11 +26,11 @@ def ingest_client(dsp_ingest_url: str, shortcode: str) -> DspIngestClientLive:
 
 @pytest.fixture()
 def tmp_file(tmp_path: Path) -> Path:
-    return tmp_path / "éèêëàâæçîïôœùûüÿ.xml"
+    return tmp_path / "éèêëàâæç îïôœùûüÿ.xml"
 
 
 def _make_url(dsp_ingest_url: str, shortcode: str, file: Path) -> str:
-    filename = quote_plus(file.name)
+    filename = urllib.parse.quote(file.name)
     return f"{dsp_ingest_url}/projects/{shortcode}/assets/ingest/{filename}"
 
 

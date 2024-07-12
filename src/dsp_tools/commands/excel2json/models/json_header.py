@@ -14,7 +14,7 @@ class JsonHeader(Protocol):
 
 
 @dataclass
-class EmptyJsonHeader:
+class EmptyJsonHeader(JsonHeader):
     def make(self) -> dict[str, Any]:
         return {
             "prefixes": {"": ""},
@@ -30,7 +30,7 @@ class EmptyJsonHeader:
 
 
 @dataclass
-class ExcelJsonHeader:
+class ExcelJsonHeader(JsonHeader):
     prefixes: Prefixes
     project: Project
 
@@ -43,13 +43,7 @@ class ExcelJsonHeader:
 
 
 @dataclass
-class JsonHeaderElement(Protocol):
-    def get(self) -> dict[str, Any]:
-        raise NotImplementedError
-
-
-@dataclass
-class Prefixes(JsonHeaderElement):
+class Prefixes:
     prefixes: dict[str, str]
 
     def get(self) -> dict[str, Any]:
@@ -57,26 +51,30 @@ class Prefixes(JsonHeaderElement):
 
 
 @dataclass
-class Project(JsonHeaderElement):
+class Project:
     shortcode: str
     shortname: str
     longname: str
     descriptions: Descriptions
     keywords: Keywords
+    users: Users | None
 
     def get(self) -> dict[str, Any]:
-        return {
+        proj_dict = {
             "shortcode": self.shortcode,
             "shortname": self.shortname,
             "longname": self.longname,
             "descriptions": self.descriptions.get(),
             "keywords": self.keywords.get(),
         }
+        if self.users:
+            proj_dict["users"] = self.users.get()
+        return proj_dict
 
 
 @dataclass
-class Descriptions(JsonHeaderElement):
-    descriptions: list[Descriptions]
+class Descriptions:
+    descriptions: list[Description]
 
     def get(self) -> dict[str, Any]:
         description = {}
@@ -95,7 +93,7 @@ class Description:
 
 
 @dataclass
-class Keywords(JsonHeaderElement):
+class Keywords:
     keywords: list[str]
 
     def get(self) -> dict[str, Any]:
@@ -103,11 +101,11 @@ class Keywords(JsonHeaderElement):
 
 
 @dataclass
-class Users(JsonHeaderElement):
+class Users:
     users: list[User]
 
-    def get(self) -> dict[str, Any]:
-        return {"users": [x.get() for x in self.users]}
+    def get(self) -> list[dict[str, Any]]:
+        return [x.get() for x in self.users]
 
 
 @dataclass
@@ -118,17 +116,21 @@ class User:
     familyName: str
     password: str
     lang: str
-    groups: str
-    projects: str
+    projects: str | None
+    groups: str | None
 
     def get(self) -> dict[str, Any]:
-        return {
+        usr_dict = {
             "username": self.username,
             "email": self.email,
             "givenName": self.givenName,
             "familyName": self.familyName,
             "password": self.password,
             "lang": self.lang,
-            "groups": [self.groups],
-            "projects": [self.projects],
+            "status": True,
         }
+        if self.projects:
+            usr_dict["projects"] = [self.projects]
+        if self.groups:
+            usr_dict["groups"] = [self.groups]
+        return usr_dict

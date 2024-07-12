@@ -4,18 +4,42 @@ from dataclasses import dataclass
 from typing import Any
 from typing import Protocol
 
+SCHEMA = "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json"
+
 
 @dataclass
-class JsonHeader:
-    header_element: list[JsonHeaderElement]
+class JsonHeader(Protocol):
+    def make(self) -> dict[str, Any]:
+        raise NotImplementedError
+
+
+@dataclass
+class EmptyJsonHeader:
+    def make(self) -> dict[str, Any]:
+        return {
+            "prefixes": {"": ""},
+            "$schema": SCHEMA,
+            "project": {
+                "shortcode": "",
+                "shortname": "",
+                "longname": "",
+                "descriptions": {"en": ""},
+                "keywords": [""],
+            },
+        }
+
+
+@dataclass
+class ExcelJsonHeader:
+    prefixes: Prefixes
+    project: Project
 
     def make(self) -> dict[str, Any]:
-        header_dict = {
-            "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json"
+        return {
+            "prefixes": self.prefixes.get(),
+            "$schema": SCHEMA,
+            "project": self.project.get(),
         }
-        for ele in self.header_element:
-            header_dict.update(ele.get())
-        return header_dict
 
 
 @dataclass
@@ -37,14 +61,17 @@ class Project(JsonHeaderElement):
     shortcode: str
     shortname: str
     longname: str
+    descriptions: Descriptions
+    keywords: Keywords
 
     def get(self) -> dict[str, Any]:
-        project = {
+        return {
             "shortcode": self.shortcode,
             "shortname": self.shortname,
             "longname": self.longname,
+            "descriptions": self.descriptions.get(),
+            "keywords": self.keywords.get(),
         }
-        return {"project": project}
 
 
 @dataclass

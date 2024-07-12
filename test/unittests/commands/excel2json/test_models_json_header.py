@@ -9,10 +9,12 @@ from dsp_tools.commands.excel2json.models.json_header import Project
 from dsp_tools.commands.excel2json.models.json_header import User
 from dsp_tools.commands.excel2json.models.json_header import Users
 
+SCHEMA = "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json"
+
 
 @pytest.fixture()
 def prefixes() -> Prefixes:
-    return Prefixes({"dcelements": "http://purl.org/dc/elements/1.1/", "dcterms": "http://purl.org/dc/terms/"})
+    return Prefixes({"dcelements": "http://purl.org/dc/elements/1.1/"})
 
 
 @pytest.fixture()
@@ -66,13 +68,77 @@ def project_no_users(descriptions: Descriptions, keywords: Keywords) -> Project:
 
 
 @pytest.fixture()
-def excel_json_header_no_prefix(project_users: Project) -> ExcelJsonHeader:
+def excel_json_header_no_prefix_users(project_users: Project) -> ExcelJsonHeader:
     return ExcelJsonHeader(project_users, None)
 
 
 @pytest.fixture()
-def excel_json_header_prefix(project_no_users: Project, prefixes: Prefixes) -> ExcelJsonHeader:
+def excel_json_header_prefix_no_users(project_no_users: Project, prefixes: Prefixes) -> ExcelJsonHeader:
     return ExcelJsonHeader(project_no_users, prefixes)
+
+
+def test_excel_json_header_no_prefix_users(excel_json_header_no_prefix_users: ExcelJsonHeader) -> None:
+    expected = {
+        "$schema": SCHEMA,
+        "project": {
+            "shortcode": "0001",
+            "shortname": "shortname",
+            "longname": "Longname of the project",
+            "descriptions": {"de": "Beschreibungstext", "en": "description text"},
+            "keywords": ["Keyword 1"],
+            "users": [
+                {
+                    "username": "sys_admin",
+                    "email": "sys_admin@email.ch",
+                    "givenName": "given name1",
+                    "familyName": "family name1",
+                    "password": "PW1",
+                    "lang": "en",
+                    "status": True,
+                    "groups": ["SystemAdmin"],
+                    "projects": [":admin", ":member"],
+                },
+                {
+                    "username": "member",
+                    "email": "member@email.ch",
+                    "givenName": "given name2",
+                    "familyName": "family name2",
+                    "password": "PW2",
+                    "lang": "de",
+                    "status": True,
+                    "projects": [":member"],
+                },
+                {
+                    "username": "admin",
+                    "email": "admin@email.ch",
+                    "givenName": "given name3",
+                    "familyName": "family name3",
+                    "password": "PW3",
+                    "lang": "de",
+                    "status": True,
+                    "projects": [":admin", ":member"],
+                },
+            ],
+        },
+    }
+    res = excel_json_header_no_prefix_users.make()
+    assert res == expected
+
+
+def test_excel_json_header_prefix_no_users(excel_json_header_prefix_no_users: ExcelJsonHeader) -> None:
+    expected = {
+        "prefixes": {"dcelements": "http://purl.org/dc/elements/1.1/"},
+        "$schema": SCHEMA,
+        "project": {
+            "shortcode": "0001",
+            "shortname": "shortname",
+            "longname": "Longname of the project",
+            "descriptions": {"de": "Beschreibungstext", "en": "description text"},
+            "keywords": ["Keyword 1"],
+        },
+    }
+    res = excel_json_header_prefix_no_users.make()
+    assert res == expected
 
 
 if __name__ == "__main__":

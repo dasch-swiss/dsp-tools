@@ -205,21 +205,10 @@ def _new_create_project_json(
     ontologies, success = _get_ontologies(data_model_files, onto_folders)
     if not success:
         overall_success = False
-    schema = "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json"
-    project = {
-        "prefixes": {"": ""},
-        "$schema": schema,
-        "project": {
-            "shortcode": "",
-            "shortname": "",
-            "longname": "",
-            "descriptions": {"en": ""},
-            "keywords": [""],
-        },
-    }
+    project = EmptyJsonHeader().make()
     if lists:
-        project["project"]["lists"] = lists  # type: ignore[index]
-    project["project"]["ontologies"] = ontologies  # type: ignore[index]
+        project["project"]["lists"] = lists
+    project["project"]["ontologies"] = ontologies
     return overall_success, project
 
 

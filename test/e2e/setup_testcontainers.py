@@ -16,6 +16,7 @@ SIPI_PATH = Path("testdata/e2e").absolute()
 SIPI_PATH_IMAGES = SIPI_PATH / "images"
 SIPI_PATH_TMP_SIPI = SIPI_PATH / "tmp-dsp-sipi"
 SIPI_PATH_TMP_INGEST = SIPI_PATH / "tmp-dsp-ingest"
+INGEST_DB = "ingest-db"
 
 
 @dataclass(frozen=True)
@@ -148,8 +149,11 @@ def _get_ingest_container(network: Network, version: str) -> DockerContainer:
         .with_env("JWT_ISSUER", "0.0.0.0:3333")
         .with_env("JWT_SECRET", "UP 4888, nice 4-8-4 steam engine")
         .with_env("SIPI_USE_LOCAL_DEV", "false")
+        .with_env("ALLOW_ERASE_PROJECTS", "true")
+        .with_env("DB_JDBC_URL", "jdbc:sqlite:/opt/db/ingest.sqlite")
         .with_volume_mapping(SIPI_PATH_IMAGES, "/opt/images", "rw")
         .with_volume_mapping(SIPI_PATH_TMP_INGEST, "/opt/temp", "rw")
+        .with_volume_mapping(INGEST_DB, "/opt/db")
     )
     ingest.start()
     wait_for_logs(ingest, "Started dsp-ingest")
@@ -167,6 +171,7 @@ def _get_api_container(network: Network, version: str) -> DockerContainer:
         .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_REPOSITORY_NAME", "knora-test")
         .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_USERNAME", "admin")
         .with_env("KNORA_WEBAPI_TRIPLESTORE_FUSEKI_PASSWORD", "test")
+        .with_env("ALLOW_ERASE_PROJECTS", "true")
         .with_bind_ports(3333, 3333)
     )
     api.start()

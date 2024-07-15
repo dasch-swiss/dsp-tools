@@ -30,7 +30,7 @@ class EmptyJsonHeader(JsonHeader):
 
 
 @dataclass
-class ExcelJsonHeader(JsonHeader):
+class FilledJsonHeader(JsonHeader):
     project: Project
     prefixes: Prefixes | None
 
@@ -110,8 +110,8 @@ class User:
     familyName: str
     password: str
     lang: str
-    member: bool = False
-    admin: bool = False
+    project_member: bool = False
+    project_admin: bool = False
     sys_admin: bool = False
 
     def get(self) -> dict[str, Any]:
@@ -127,9 +127,8 @@ class User:
         if self.sys_admin:
             usr_dict["groups"] = ["SystemAdmin"]
             usr_dict["projects"] = [":admin", ":member"]
-        elif self.member:
+        elif self.project_member:
             usr_dict["projects"] = [":member"]
-            return usr_dict
-        elif self.admin:
+        elif self.project_admin:
             usr_dict["projects"] = [":admin", ":member"]
         return usr_dict

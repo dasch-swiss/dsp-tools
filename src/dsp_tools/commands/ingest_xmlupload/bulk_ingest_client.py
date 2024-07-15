@@ -1,3 +1,4 @@
+import urllib
 from dataclasses import dataclass
 from dataclasses import field
 from pathlib import Path
@@ -54,7 +55,8 @@ class BulkIngestClient:
         filepath: Path,
     ) -> UploadFailure | None:
         """Uploads a file to the ingest server."""
-        url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/ingest/{filepath}"
+        filename = urllib.parse.quote(filepath.name)
+        url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/ingest/{filename}"
         err_msg = f"Failed to upload '{filepath}' to '{url}'."
         try:
             with open(self.imgdir / filepath, "rb") as binary_io:

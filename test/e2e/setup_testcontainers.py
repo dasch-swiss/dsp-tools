@@ -12,11 +12,11 @@ from docker.models.networks import Network
 from testcontainers.core.container import DockerContainer
 from testcontainers.core.waiting_utils import wait_for_logs
 
-SIPI_PATH = Path("testdata/e2e").absolute()
-SIPI_PATH_IMAGES = SIPI_PATH / "images"
-SIPI_PATH_TMP_SIPI = SIPI_PATH / "tmp-dsp-sipi"
-SIPI_PATH_TMP_INGEST = SIPI_PATH / "tmp-dsp-ingest"
-INGEST_DB = "ingest-db"
+E2E_TESTDATA = Path("testdata/e2e").absolute()
+SIPI_PATH_IMAGES = E2E_TESTDATA / "images"
+SIPI_PATH_TMP_SIPI = E2E_TESTDATA / "tmp-dsp-sipi"
+SIPI_PATH_TMP_INGEST = E2E_TESTDATA / "tmp-dsp-ingest"
+INGEST_DB = E2E_TESTDATA / "ingest-db"
 
 
 @dataclass(frozen=True)
@@ -128,7 +128,7 @@ def _get_sipi_container(network: Network, version: str) -> DockerContainer:
         .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT", "3333")
         .with_command("--config=/sipi/config/sipi.docker-config.lua")
         .with_volume_mapping(SIPI_PATH_TMP_SIPI, "/tmp", "rw")  # noqa: S108
-        .with_volume_mapping(SIPI_PATH, "/sipi/config", "rw")
+        .with_volume_mapping(E2E_TESTDATA, "/sipi/config", "rw")
         .with_volume_mapping(SIPI_PATH_IMAGES, "/sipi/images", "rw")
     )
     sipi.start()

@@ -1,8 +1,8 @@
 import pandas as pd
 import pytest
 
-from dsp_tools.commands.excel2json.models.input_error import ListNodeProblem
-from dsp_tools.commands.excel2json.models.input_error import ListSheetProblem
+from dsp_tools.commands.excel2json.models.input_error_lists import ListNodeProblem
+from dsp_tools.commands.excel2json.models.input_error_lists import ListSheetProblem
 from dsp_tools.commands.excel2json.models.list_node import ListNode
 from dsp_tools.commands.excel2json.models.list_node import ListRoot
 

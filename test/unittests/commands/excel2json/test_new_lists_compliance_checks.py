@@ -5,12 +5,12 @@ import pandas as pd
 import pytest
 import regex
 
-from dsp_tools.commands.excel2json.models.input_error import DuplicatesInSheetProblem
-from dsp_tools.commands.excel2json.models.input_error import ListSheetComplianceProblem
-from dsp_tools.commands.excel2json.models.input_error import ListSheetContentProblem
-from dsp_tools.commands.excel2json.models.input_error import MissingNodeTranslationProblem
-from dsp_tools.commands.excel2json.models.input_error import MissingTranslationsSheetProblem
-from dsp_tools.commands.excel2json.models.input_error import NodesPerRowProblem
+from dsp_tools.commands.excel2json.models.input_error_lists import DuplicatesInSheetProblem
+from dsp_tools.commands.excel2json.models.input_error_lists import ListSheetComplianceProblem
+from dsp_tools.commands.excel2json.models.input_error_lists import ListSheetContentProblem
+from dsp_tools.commands.excel2json.models.input_error_lists import MissingNodeTranslationProblem
+from dsp_tools.commands.excel2json.models.input_error_lists import MissingTranslationsSheetProblem
+from dsp_tools.commands.excel2json.models.input_error_lists import NodesPerRowProblem
 from dsp_tools.commands.excel2json.new_lists import _check_duplicates_all_excels
 from dsp_tools.commands.excel2json.new_lists import _check_for_duplicate_nodes_one_df
 from dsp_tools.commands.excel2json.new_lists import _check_for_erroneous_entries_all_excels

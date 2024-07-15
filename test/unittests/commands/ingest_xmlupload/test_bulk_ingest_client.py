@@ -1,3 +1,4 @@
+import urllib
 from pathlib import Path
 
 import pytest
@@ -17,11 +18,12 @@ def ingest_client() -> BulkIngestClient:
 
 @pytest.fixture()
 def tmp_file(tmp_path: Path) -> Path:
-    return tmp_path / "filename.xml"
+    return tmp_path / "filename_îïôœùûüÿ.xml"
 
 
 def _make_url(file: Path) -> str:
-    return f"{DSP_INGEST_URL}/projects/{SHORTCODE}/bulk-ingest/ingest/{file}"
+    filename = urllib.parse.quote(file.name)
+    return f"{DSP_INGEST_URL}/projects/{SHORTCODE}/bulk-ingest/ingest/{filename}"
 
 
 def test_upload_file_success(ingest_client: BulkIngestClient, requests_mock: Mocker, tmp_file: Path) -> None:

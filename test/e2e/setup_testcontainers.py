@@ -13,9 +13,9 @@ from testcontainers.core.container import DockerContainer
 from testcontainers.core.waiting_utils import wait_for_logs
 
 E2E_TESTDATA = Path("testdata/e2e").absolute()
-SIPI_PATH_IMAGES = E2E_TESTDATA / "images"
-SIPI_PATH_TMP_SIPI = E2E_TESTDATA / "tmp-dsp-sipi"
-SIPI_PATH_TMP_INGEST = E2E_TESTDATA / "tmp-dsp-ingest"
+SIPI_IMAGES = E2E_TESTDATA / "images"
+TMP_SIPI = E2E_TESTDATA / "tmp-dsp-sipi"
+TMP_INGEST = E2E_TESTDATA / "tmp-dsp-ingest"
 INGEST_DB = E2E_TESTDATA / "ingest-db"
 
 
@@ -127,9 +127,9 @@ def _get_sipi_container(network: Network, version: str) -> DockerContainer:
         .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_HOST", "0.0.0.0")  # noqa: S104
         .with_env("KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT", "3333")
         .with_command("--config=/sipi/config/sipi.docker-config.lua")
-        .with_volume_mapping(SIPI_PATH_TMP_SIPI, "/tmp", "rw")  # noqa: S108
+        .with_volume_mapping(TMP_SIPI, "/tmp", "rw")  # noqa: S108
         .with_volume_mapping(E2E_TESTDATA, "/sipi/config", "rw")
-        .with_volume_mapping(SIPI_PATH_IMAGES, "/sipi/images", "rw")
+        .with_volume_mapping(SIPI_IMAGES, "/sipi/images", "rw")
     )
     sipi.start()
     wait_for_logs(sipi, "Sipi: Server listening on HTTP port 1024")
@@ -151,8 +151,8 @@ def _get_ingest_container(network: Network, version: str) -> DockerContainer:
         .with_env("SIPI_USE_LOCAL_DEV", "false")
         .with_env("ALLOW_ERASE_PROJECTS", "true")
         .with_env("DB_JDBC_URL", "jdbc:sqlite:/opt/db/ingest.sqlite")
-        .with_volume_mapping(SIPI_PATH_IMAGES, "/opt/images", "rw")
-        .with_volume_mapping(SIPI_PATH_TMP_INGEST, "/opt/temp", "rw")
+        .with_volume_mapping(SIPI_IMAGES, "/opt/images", "rw")
+        .with_volume_mapping(TMP_INGEST, "/opt/temp", "rw")
         .with_volume_mapping(INGEST_DB, "/opt/db")
     )
     ingest.start()

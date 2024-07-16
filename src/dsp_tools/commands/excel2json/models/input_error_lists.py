@@ -21,17 +21,6 @@ class ListCreationProblem:
 
 
 @dataclass(frozen=True)
-class ListExcelProblem:
-    excel_name: str
-    problems: list[Problem]
-
-    def execute_error_protocol(self) -> str:
-        msg = [f"The excel '{self.excel_name}' has the following problem(s):"]
-        msg.extend([problem.execute_error_protocol() for problem in self.problems])
-        return medium_separator.join(msg)
-
-
-@dataclass(frozen=True)
 class ListNodeProblem:
     node_id: str
     problems: dict[str, str]

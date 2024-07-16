@@ -28,7 +28,7 @@ def test_find_duplicate_col_names_raises() -> None:
         "The Excel file 'excelfile' contains the following problems:\n\n"
         "The sheets names in one Excel must be unique. "
         "Using capitalisation or spaces to differentiate sheets is not valid.\n"
-        "For example 'sheet1' and 'SHEET1  ' are considered identical.\n"
+        "For example 'sheet' and 'SHEET  ' are considered identical.\n"
         "The following sheets appear several times under this condition:\n"
         "    - a\n"
         "    - b"

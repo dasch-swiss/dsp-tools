@@ -7,7 +7,7 @@ import regex
 from pandas.testing import assert_frame_equal
 
 from dsp_tools.commands.excel2json import resources as e2j
-from dsp_tools.commands.excel2json.models.input_error import InvalidContentInSheetProblem
+from dsp_tools.commands.excel2json.models.input_error import ExcelSheetProblem
 from dsp_tools.commands.excel2json.models.input_error import MissingValuesProblem
 from dsp_tools.commands.excel2json.models.input_error import RequiredColumnMissingProblem
 from dsp_tools.commands.excel2json.resources import _check_complete_gui_order
@@ -154,7 +154,7 @@ def test_validate_individual_class_sheets_missing_column() -> None:
     test_dict = {"sheet_missing_col": pd.DataFrame({"property": ["p5"]})}
     res = e2j._validate_individual_class_sheets(test_dict)
     assert len(res) == 1
-    assert isinstance(res[0], InvalidContentInSheetProblem)
+    assert isinstance(res[0], ExcelSheetProblem)
     assert len(res[0].problems) == 1
     assert res[0].sheet_name == "sheet_missing_col"
     col_problem = cast(RequiredColumnMissingProblem, res[0].problems[0])

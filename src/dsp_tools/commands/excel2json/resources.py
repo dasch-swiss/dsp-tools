@@ -12,7 +12,7 @@ import pandas as pd
 import regex
 
 from dsp_tools.commands.excel2json.models.input_error import ExcelFileProblem
-from dsp_tools.commands.excel2json.models.input_error import InvalidContentInSheetProblem
+from dsp_tools.commands.excel2json.models.input_error import ExcelSheetProblem
 from dsp_tools.commands.excel2json.models.input_error import JsonValidationResourceProblem
 from dsp_tools.commands.excel2json.models.input_error import MissingValuesProblem
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
@@ -302,7 +302,7 @@ def _validate_classes_excel_sheet(classes_df: pd.DataFrame) -> list[Problem]:
     problems: list[Problem] = []
     required_cols = ["name", "super"]
     if missing_cols := check_contains_required_columns(classes_df, set(required_cols)):
-        return [InvalidContentInSheetProblem("classes", [missing_cols])]
+        return [ExcelSheetProblem("classes", [missing_cols])]
     if missing_values := check_required_values(classes_df, required_cols):
         row_nums = get_wrong_row_numbers(missing_values)
         for col, nums in row_nums.items():
@@ -320,7 +320,7 @@ def _validate_individual_class_sheets(class_df_dict: dict[str, pd.DataFrame]) ->
         if (missing_cols := check_contains_required_columns(df, set(required_cols)))
     }
     if missing_required_columns:
-        return [InvalidContentInSheetProblem(sheet, [missing]) for sheet, missing in missing_required_columns.items()]
+        return [ExcelSheetProblem(sheet, [missing]) for sheet, missing in missing_required_columns.items()]
     problem_list: list[PositionInExcel] = []
     for sheet_name, df in class_df_dict.items():
         if missing_dict := check_required_values(df, required_cols):

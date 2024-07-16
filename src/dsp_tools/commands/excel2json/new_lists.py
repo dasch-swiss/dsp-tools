@@ -14,6 +14,7 @@ import regex
 from loguru import logger
 
 from dsp_tools.commands.excel2json.lists import validate_lists_section_with_schema
+from dsp_tools.commands.excel2json.models.input_error import ExcelFileProblem
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import Problem
 from dsp_tools.commands.excel2json.models.input_error_lists import DuplicateIDProblem
@@ -21,7 +22,6 @@ from dsp_tools.commands.excel2json.models.input_error_lists import DuplicatesCus
 from dsp_tools.commands.excel2json.models.input_error_lists import DuplicatesInSheetProblem
 from dsp_tools.commands.excel2json.models.input_error_lists import DuplicatesListNameProblem
 from dsp_tools.commands.excel2json.models.input_error_lists import ListCreationProblem
-from dsp_tools.commands.excel2json.models.input_error_lists import ListExcelProblem
 from dsp_tools.commands.excel2json.models.input_error_lists import ListInformation
 from dsp_tools.commands.excel2json.models.input_error_lists import ListNodeProblem
 from dsp_tools.commands.excel2json.models.input_error_lists import ListSheetComplianceProblem
@@ -96,7 +96,7 @@ def _make_all_lists(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> list[ListR
             else:
                 file_problems.append(new_list)
         if file_problems:
-            problem_lists.append(ListExcelProblem(filename, file_problems))
+            problem_lists.append(ExcelFileProblem(filename, file_problems))
     if problem_lists:
         return ListCreationProblem(problem_lists)
     return good_lists
@@ -396,7 +396,7 @@ def _check_duplicates_all_excels(
             if (p := _check_for_duplicate_nodes_one_df(df, sheet_name)) is not None
         ]
         if complete_duplicates:
-            problems.append(ListExcelProblem(filename, complete_duplicates))
+            problems.append(ExcelFileProblem(filename, complete_duplicates))
     if id_problem := _check_for_duplicate_custom_id_all_excels(excel_dfs):
         problems.append(id_problem)
     if problems:
@@ -418,7 +418,7 @@ def _check_for_unique_list_names(excel_dfs: dict[str, dict[str, pd.DataFrame]]) 
                 one_excel_problems.append(MultipleListPerSheetProblem(sheet_name, unique_list_names))
             list_names.extend([ListInformation(excel_file, sheet_name, name) for name in unique_list_names])
         if one_excel_problems:
-            all_problems.append(ListExcelProblem(excel_file, one_excel_problems))
+            all_problems.append(ExcelFileProblem(excel_file, one_excel_problems))
     list_info_dict = defaultdict(list)
     for item in list_names:
         list_info_dict[item.list_name].append(item)
@@ -490,7 +490,7 @@ def _make_shape_compliance_all_excels(excel_dfs: dict[str, dict[str, pd.DataFram
             if (p := _make_shape_compliance_one_sheet(df, sheet_name)) is not None
         ]
         if shape_problems:
-            problems.append(ListExcelProblem(filename, shape_problems))
+            problems.append(ExcelFileProblem(filename, shape_problems))
     if problems:
         msg = ListCreationProblem(problems).execute_error_protocol()
         logger.error(msg)
@@ -589,7 +589,7 @@ def _check_for_missing_translations_all_excels(excel_dfs: dict[str, dict[str, pd
             if (p := _check_for_missing_translations_one_sheet(df, sheet_name)) is not None
         ]
         if missing_translations:
-            problems.append(ListExcelProblem(filename, missing_translations))
+            problems.append(ExcelFileProblem(filename, missing_translations))
     if problems:
         msg = ListCreationProblem(problems).execute_error_protocol()
         logger.error(msg)
@@ -645,7 +645,7 @@ def _check_for_erroneous_entries_all_excels(excel_dfs: dict[str, dict[str, pd.Da
             if (p := _check_for_erroneous_entries_one_list(df, sheet_name)) is not None
         ]
         if missing_rows:
-            problems.append(ListExcelProblem(filename, missing_rows))
+            problems.append(ExcelFileProblem(filename, missing_rows))
     if problems:
         msg = ListCreationProblem(problems).execute_error_protocol()
         logger.error(msg)

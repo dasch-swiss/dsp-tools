@@ -37,7 +37,8 @@ def test_lists(result_project: dict[str, Any], expected_project: dict[str, Any])
 def test_ontology_number(result_project: dict[str, Any], expected_project: dict[str, Any]) -> None:
     res_ontos = result_project["project"]["ontologies"]
     expected_onto = expected_project["project"]["ontologies"]
-    assert len(res_ontos) == len(expected_onto) == 1
+    assert len(res_ontos) == 1
+    assert len(expected_onto) == 1
 
 
 def test_properties(result_project: dict[str, Any], expected_project: dict[str, Any]) -> None:

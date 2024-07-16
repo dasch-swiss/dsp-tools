@@ -23,39 +23,39 @@ def returned_project() -> dict[str, Any]:
     return project
 
 
-def test_same_keys(returned_project, expected_project: dict[str, Any]) -> None:
+def test_same_keys(returned_project: dict[str, Any], expected_project: dict[str, Any]) -> None:
     assert set(returned_project["project"]) == set(expected_project["project"])
 
 
-def test_lists(returned_project, expected_project: dict[str, Any]) -> None:
+def test_lists(returned_project: dict[str, Any], expected_project: dict[str, Any]) -> None:
     res_lists = sorted(returned_project["project"]["lists"], key=lambda x: x["name"])
     expected_lists = sorted(expected_project["project"]["lists"], key=lambda x: x["name"])
     for r, e in zip(res_lists, expected_lists):
         assert r == e, r["name"]
 
 
-def test_ontology_number(returned_project, expected_project: dict[str, Any]) -> None:
+def test_ontology_number(returned_project: dict[str, Any], expected_project: dict[str, Any]) -> None:
     res_ontos = returned_project["project"]["ontologies"]
     expected_onto = expected_project["project"]["ontologies"]
     assert len(res_ontos) == 1
     assert len(expected_onto) == 1
 
 
-def test_properties(returned_project, expected_project: dict[str, Any]) -> None:
+def test_properties(returned_project: dict[str, Any], expected_project: dict[str, Any]) -> None:
     res_props = sorted(returned_project["project"]["ontologies"][0]["properties"], key=lambda x: x["name"])
     ex_props = sorted(expected_project["project"]["ontologies"][0]["properties"], key=lambda x: x["name"])
     for r, e in zip(res_props, ex_props):
         assert r == e, r["name"]
 
 
-def test_resources(returned_project, expected_project: dict[str, Any]) -> None:
+def test_resources(returned_project: dict[str, Any], expected_project: dict[str, Any]) -> None:
     res_resources = sorted(returned_project["project"]["ontologies"][0]["resources"], key=lambda x: x["name"])
     ex_resources = sorted(expected_project["project"]["ontologies"][0]["resources"], key=lambda x: x["name"])
     for r, e in zip(res_resources, ex_resources):
         assert r == e, r["name"]
 
 
-def test_entire_project(returned_project, expected_project: dict[str, Any]) -> None:
+def test_entire_project(returned_project: dict[str, Any], expected_project: dict[str, Any]) -> None:
     assert returned_project == expected_project
 
 

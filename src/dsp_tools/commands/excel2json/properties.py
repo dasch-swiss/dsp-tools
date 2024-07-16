@@ -12,9 +12,10 @@ import numpy as np
 import pandas as pd
 import regex
 
+from dsp_tools.commands.excel2json.models.input_error import ExcelFileProblem
 from dsp_tools.commands.excel2json.models.input_error import InvalidExcelContentProblem
 from dsp_tools.commands.excel2json.models.input_error import JsonValidationPropertyProblem
-from dsp_tools.commands.excel2json.models.input_error import MissingValuesInRowProblem
+from dsp_tools.commands.excel2json.models.input_error import MissingValuesProblem
 from dsp_tools.commands.excel2json.models.input_error import MoreThanOneSheetProblem
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import Problem
@@ -156,19 +157,20 @@ def _do_property_excel_compliance(df: pd.DataFrame, excelfile: str) -> None:
         "gui_element",
         "gui_attributes",
     }
-    problems: list[Problem | None] = [
-        check_contains_required_columns(df=df, required_columns=required_columns),
-        check_column_for_duplicate(df=df, to_check_column="name"),
-    ]
+    problems: list[Problem] = []
+    if req_prob := check_contains_required_columns(df=df, required_columns=required_columns):
+        problems.append(req_prob)
+    if col_prob := check_column_for_duplicate(df=df, to_check_column="name"):
+        problems.append(col_prob)
     if missing_vals_check := _check_missing_values_in_row(df=df):
-        problems.extend(missing_vals_check)
+        problems.append(missing_vals_check)
     if any(problems):
-        extra = [problem.execute_error_protocol() for problem in problems if problem]
-        msg = [f"There is a problem with the excel file: '{excelfile}'", *extra]
-        raise InputError("\n\n".join(msg))
+        excel_prob = ExcelFileProblem(excelfile, problems)
+        msg = excel_prob.execute_error_protocol()
+        raise InputError(msg)
 
 
-def _check_missing_values_in_row(df: pd.DataFrame) -> None | list[MissingValuesInRowProblem]:
+def _check_missing_values_in_row(df: pd.DataFrame) -> None | MissingValuesProblem:
     required_values = ["name", "super", "object", "gui_element"]
     missing_dict = check_required_values(df=df, required_values_columns=required_values)
     missing_labels = find_one_full_cell_in_cols(df=df, required_columns=language_label_col)
@@ -179,7 +181,10 @@ def _check_missing_values_in_row(df: pd.DataFrame) -> None | list[MissingValuesI
         missing_dict.update(missing_gui_attributes)
     if missing_dict:
         missing_int_dict = get_wrong_row_numbers(wrong_row_dict=missing_dict, true_remains=True)
-        return [MissingValuesInRowProblem(col, row_nums) for col, row_nums in missing_int_dict.items()]
+        locs = []
+        for col, row_nums in missing_int_dict.items():
+            locs.extend([PositionInExcel(column=col, row=x) for x in row_nums])
+        return MissingValuesProblem(locs)
     else:
         return None
 

@@ -163,15 +163,15 @@ class TestCheckExcelsForDuplicates:
         expected = regex.escape(
             "\nThe excel file(s) used to create the list section have the following problem(s):"
             "\n\n---------------------------------------\n\n"
-            "No duplicates are allowed in the 'ID (optional)' column. The following IDs are duplicated:\n"
+            "No duplicates are allowed in the 'ID (optional)' column. At the following locations IDs are duplicated:\n"
             "----------------------------\n"
             "ID: '1'\n"
-            "    - Located at: Excel 'file1' | Sheet 'sheet1' | Row 3\n"
-            "    - Located at: Excel 'file2' | Sheet 'sheet2' | Row 2\n"
+            "    - Excel 'file1' | Sheet 'sheet1' | Row 3\n"
+            "    - Excel 'file2' | Sheet 'sheet2' | Row 2\n"
             "----------------------------\n"
             "ID: '4'\n"
-            "    - Located at: Excel 'file1' | Sheet 'sheet1' | Row 5\n"
-            "    - Located at: Excel 'file2' | Sheet 'sheet2' | Row 4"
+            "    - Excel 'file1' | Sheet 'sheet1' | Row 5\n"
+            "    - Excel 'file2' | Sheet 'sheet2' | Row 4"
         )
         with pytest.raises(InputError, match=expected):
             _check_duplicates_all_excels(df_dict)

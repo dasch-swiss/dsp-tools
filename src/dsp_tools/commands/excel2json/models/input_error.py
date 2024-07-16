@@ -39,7 +39,7 @@ class PositionInExcel:
             msg.append(f"Column '{self.column}'")
         if self.row:
             msg.append(f"Row {self.row}")
-        return "Located at: " + " | ".join(msg)
+        return " | ".join(msg)
 
     def execute_error_protocol(self) -> str:
         """
@@ -68,6 +68,28 @@ class ExcelFileProblem:
         msg = f"The Excel file: '{self.filename}' contains the following problems:\n\n"
         msg += medium_separator.join([x.execute_error_protocol() for x in self.problems])
         return msg
+
+
+@dataclass(frozen=True)
+class ExcelSheetProblem:
+    """This class contains information about problems in one excel sheet."""
+
+    sheet_name: str
+    problems: list[Problem]
+
+    def execute_error_protocol(self) -> str:
+        """
+        This function initiates all the steps for successful problem communication with the user.
+
+        Returns:
+            message for the error
+        """
+
+        problem_strings = [x.execute_error_protocol() for x in self.problems]
+        return (
+            f"The sheet: '{self.sheet_name}' has the following problems:\n{list_separator}"
+            f"{list_separator.join(problem_strings)}"
+        )
 
 
 @dataclass(frozen=True)
@@ -125,46 +147,6 @@ class DuplicatesInColumnProblem:
 
 
 @dataclass(frozen=True)
-class MissingValuesInRowProblem:
-    """This class contains information if a required column is missing."""
-
-    column: str
-    row_numbers: list[int]
-
-    def execute_error_protocol(self) -> str:
-        """
-        This function initiates all the steps for successful problem communication with the user.
-
-        Returns:
-            message for the error
-        """
-        nums = [str(x) for x in self.row_numbers]
-        return f"The column '{self.column}' must have values in the row(s):{list_separator}{list_separator.join(nums)}"
-
-
-@dataclass(frozen=True)
-class InvalidContentInSheetProblem:
-    """This class contains information about invalid content in excel sheets."""
-
-    sheet_name: str
-    problems: list[Problem]
-
-    def execute_error_protocol(self) -> str:
-        """
-        This function initiates all the steps for successful problem communication with the user.
-
-        Returns:
-            message for the error
-        """
-
-        problem_strings = [x.execute_error_protocol() for x in self.problems]
-        return (
-            f"The sheet: '{self.sheet_name}' has the following problems:\n{list_separator}"
-            f"{list_separator.join(problem_strings)}"
-        )
-
-
-@dataclass(frozen=True)
 class InvalidExcelContentProblem:
     """This class contains information if a required column is missing."""
 
@@ -181,7 +163,7 @@ class InvalidExcelContentProblem:
         """
         return (
             f"There is invalid content in the excel.\n"
-            f"{self.excel_position!s}\n"
+            f"Located at: {self.excel_position!s}\n"
             f"Expected Content: {self.expected_content}\n"
             f"Actual Content: {self.actual_content}"
         )
@@ -272,7 +254,7 @@ class JsonValidationPropertyProblem:
         if self.problematic_property:
             msg.append(f"Problematic property: '{self.problematic_property}'")
         if self.excel_position:
-            msg.append(str(self.excel_position))
+            msg.append(f"Located at: {self.excel_position!s}")
         if self.original_msg:
             msg.append(f"Original Error Message:\n{self.original_msg}")
         if self.message_path:
@@ -302,7 +284,7 @@ class JsonValidationResourceProblem:
         if self.problematic_resource:
             msg.append(f"Problematic Resource '{self.problematic_resource}'")
         if self.excel_position:
-            msg.append(str(self.excel_position))
+            msg.append(f"Located at: {self.excel_position!s}")
         if self.original_msg:
             msg.append(f"Original Error Message:{separator}{self.original_msg}")
         if self.message_path:

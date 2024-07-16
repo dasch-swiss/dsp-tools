@@ -54,7 +54,7 @@ def test_resources(result_project: dict[str, Any], expected_project: dict[str, A
         assert r == e, r["name"]
 
 
-def test_all(result_project: dict[str, Any], expected_project: dict[str, Any]) -> None:
+def test_entire_project(result_project: dict[str, Any], expected_project: dict[str, Any]) -> None:
     assert result_project == expected_project
 
 

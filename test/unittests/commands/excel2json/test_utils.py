@@ -7,14 +7,35 @@ from typing import cast
 import numpy as np
 import pandas as pd
 import pytest
+import regex
 from pandas.testing import assert_frame_equal
 from pandas.testing import assert_series_equal
 from pytest_unordered import unordered
 
 import dsp_tools.commands.excel2json.utils as utl
 from dsp_tools.commands.excel2json.models.input_error import DuplicatesInColumnProblem
+from dsp_tools.models.exceptions import InputError
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
+
+
+def test_find_duplicate_col_names_good() -> None:
+    utl._find_duplicate_col_names("file", ["1", "2"])
+
+
+def test_find_duplicate_col_names_raises() -> None:
+    expected = regex.escape(
+        "The Excel file 'excelfile' contains the following problems:\n\n"
+        "The sheets names in one Excel must be unique. "
+        "Using capitalisation or spaces to differentiate sheets is not valid.\n"
+        "For example 'sheet1' and 'SHEET1  ' are considered identical.\n"
+        "The following sheets appear several times under this condition:\n"
+        "    - a\n"
+        "    - b"
+    )
+
+    with pytest.raises(InputError, match=expected):
+        utl._find_duplicate_col_names("excelfile", ["a", "A", "b", "b  ", "c"])
 
 
 class TestUtils(unittest.TestCase):

@@ -163,7 +163,7 @@ class InvalidExcelContentProblem:
         """
         return (
             f"There is invalid content in the excel.\n"
-            f"Located at: {self.excel_position!s}\n"
+            f"Located at: {self.excel_position}\n"
             f"Expected Content: {self.expected_content}\n"
             f"Actual Content: {self.actual_content}"
         )
@@ -254,7 +254,7 @@ class JsonValidationPropertyProblem:
         if self.problematic_property:
             msg.append(f"Problematic property: '{self.problematic_property}'")
         if self.excel_position:
-            msg.append(f"Located at: {self.excel_position!s}")
+            msg.append(f"Located at: {self.excel_position}")
         if self.original_msg:
             msg.append(f"Original Error Message:\n{self.original_msg}")
         if self.message_path:
@@ -284,7 +284,7 @@ class JsonValidationResourceProblem:
         if self.problematic_resource:
             msg.append(f"Problematic Resource '{self.problematic_resource}'")
         if self.excel_position:
-            msg.append(f"Located at: {self.excel_position!s}")
+            msg.append(f"Located at: {self.excel_position}")
         if self.original_msg:
             msg.append(f"Original Error Message:{separator}{self.original_msg}")
         if self.message_path:

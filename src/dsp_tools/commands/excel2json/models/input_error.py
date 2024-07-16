@@ -217,27 +217,6 @@ class ResourcesSheetsNotAsExpected:
 
 
 @dataclass(frozen=True)
-class MissingSheetProblem:
-    """This class contains information if the Excel is missing mandatory sheets."""
-
-    missing_sheets: list[str]
-    existing_sheets: list[str]
-
-    def execute_error_protocol(self) -> str:
-        """
-        This function initiates all the steps for successful problem communication with the user.
-
-        Returns:
-            message for the error
-        """
-        return (
-            f"The following sheet(s) are mandatory, but missing in the Excel:"
-            f"{list_separator}{list_separator.join(self.missing_sheets)}\n"
-            f"These sheets were found in the Excel:{list_separator}{list_separator.join(self.existing_sheets)}"
-        )
-
-
-@dataclass(frozen=True)
 class DuplicateSheetProblem:
     duplicate_sheets: list[str]
 
@@ -251,7 +230,7 @@ class DuplicateSheetProblem:
         return (
             f"The sheets names in one Excel must be unique. "
             f"Using capitalisation or spaces to differentiate sheets is not valid.\n"
-            f"For example 'sheet1' and 'SHEET1  ' are considered identical.\n"
+            f"For example 'sheet' and 'SHEET  ' are considered identical.\n"
             f"The following sheets appear several times under this condition:"
             f"{list_separator}{list_separator.join(sorted(self.duplicate_sheets))}"
         )

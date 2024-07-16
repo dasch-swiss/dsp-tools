@@ -99,8 +99,8 @@ class TestFunctions(unittest.TestCase):
         )
         expected_msg = regex.escape(
             (
-                "The Excel file: 'Test' contains the following problems:\n\n"
-                "At the following locations mandatory values are missing:\n"
+                "The Excel file 'Test' contains the following problems:\n\n"
+                "At the following locations, mandatory values are missing:\n"
                 "    - Column 'name' | Row 9\n"
                 "    - Column 'super' | Row 2\n"
                 "    - Column 'super' | Row 4\n"

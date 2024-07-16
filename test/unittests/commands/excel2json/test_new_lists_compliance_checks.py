@@ -163,7 +163,7 @@ class TestCheckExcelsForDuplicates:
         expected = regex.escape(
             "\nThe excel file(s) used to create the list section have the following problem(s):"
             "\n\n---------------------------------------\n\n"
-            "No duplicates are allowed in the 'ID (optional)' column. At the following locations IDs are duplicated:\n"
+            "No duplicates are allowed in the 'ID (optional)' column. At the following locations, IDs are duplicated:\n"
             "----------------------------\n"
             "ID: '1'\n"
             "    - Excel 'file1' | Sheet 'sheet1' | Row 3\n"

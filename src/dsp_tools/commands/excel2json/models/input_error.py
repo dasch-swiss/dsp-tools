@@ -65,7 +65,7 @@ class ExcelFileProblem:
         Returns:
             message for the error
         """
-        msg = f"The Excel file: '{self.filename}' contains the following problems:\n\n"
+        msg = f"The Excel file '{self.filename}' contains the following problems:\n\n"
         msg += medium_separator.join([x.execute_error_protocol() for x in self.problems])
         return msg
 
@@ -106,7 +106,7 @@ class MissingValuesProblem:
             message for the error
         """
         locs = [str(x) for x in self.locations]
-        return f"At the following locations mandatory values are missing:{list_separator}{list_separator.join(locs)}"
+        return f"At the following locations, mandatory values are missing:{list_separator}{list_separator.join(locs)}"
 
 
 @dataclass(frozen=True)

@@ -9,7 +9,7 @@ DSP-TOOLS uses the ones listed on this page.
 The decision to use this set of tools is based on the information in the following pages.
 
 | Task                                                            | Tool                                                               | Configuration                  |
-| --------------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------ |
+|-----------------------------------------------------------------|--------------------------------------------------------------------|--------------------------------|
 | [General formatting](./general-formatting.md)                   | [EditorConfig](https://EditorConfig.org/)                          | `.editorconfig`                |
 |                                                                 | [MarkdownLint](https://github.com/igorshubovych/markdownlint-cli/) | `.markdownlint.yml`            |
 | [Python formatting](./python-formatting.md)                     | [Ruff](https://pypi.org/project/ruff/)                             | `pyproject.toml`               |

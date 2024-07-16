@@ -178,7 +178,7 @@ Your code can be checked for style violations locally before they are committed:
 - `poetry exec markdownlint`
 - `poetry exec mypy`
 - `poetry exec ruff-check`
-- `poetry exec ruff-format`
+- `poetry exec ruff-format-check`
 - `poetry exec darglint`
 
 In addition, there are [pre-commit hooks](#pre-commit-hooks) 

@@ -2,7 +2,7 @@
 
 [tool.poetry]
 name = "dsp-tools"
-version = "8.2.0"
+version = "8.3.0"
 description = "DSP-TOOLS is a Python package with a command line interface that helps you interact with a DaSCH service platform (DSP) server."
 authors = ["DaSCH - Swiss National Data and Service Center for the Humanities <info@dasch.swiss>"]
 readme = "docs/index.md"
@@ -48,7 +48,7 @@ mkdocs = "^1.5.3"
 mkdocs-material = "^9.5.17"
 mkdocs-include-markdown-plugin = "^6.0.5"
 mypy = "^1.10.0"
-pytest = "8.2.2"
+pytest = "8.0.2,<8.1.1"  # don't upgrade until https://github.com/pytest-dev/pytest/issues/12044 is fixed
 pre-commit = "^3.7.0"
 darglint = "^1.8.1"
 types-requests = "^2.31.0.20240403"

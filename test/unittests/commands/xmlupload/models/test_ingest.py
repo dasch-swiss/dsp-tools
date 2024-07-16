@@ -1,3 +1,4 @@
+import urllib
 from pathlib import Path
 
 import pytest
@@ -25,11 +26,12 @@ def ingest_client(dsp_ingest_url: str, shortcode: str) -> DspIngestClientLive:
 
 @pytest.fixture()
 def tmp_file(tmp_path: Path) -> Path:
-    return tmp_path / "filename.xml"
+    return tmp_path / "éèêëàâæç îïôœùûüÿ.xml"
 
 
 def _make_url(dsp_ingest_url: str, shortcode: str, file: Path) -> str:
-    return f"{dsp_ingest_url}/projects/{shortcode}/assets/ingest/{file.name}"
+    filename = urllib.parse.quote(file.name)
+    return f"{dsp_ingest_url}/projects/{shortcode}/assets/ingest/{filename}"
 
 
 def test_ingest_success(

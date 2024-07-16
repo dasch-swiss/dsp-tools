@@ -5,12 +5,12 @@ import pandas as pd
 import pytest
 import regex
 
-from dsp_tools.commands.excel2json.models.input_error import DuplicatesInSheetProblem
-from dsp_tools.commands.excel2json.models.input_error import ListSheetComplianceProblem
-from dsp_tools.commands.excel2json.models.input_error import ListSheetContentProblem
-from dsp_tools.commands.excel2json.models.input_error import MissingNodeTranslationProblem
-from dsp_tools.commands.excel2json.models.input_error import MissingTranslationsSheetProblem
-from dsp_tools.commands.excel2json.models.input_error import NodesPerRowProblem
+from dsp_tools.commands.excel2json.models.input_error_lists import DuplicatesInSheetProblem
+from dsp_tools.commands.excel2json.models.input_error_lists import ListSheetComplianceProblem
+from dsp_tools.commands.excel2json.models.input_error_lists import ListSheetContentProblem
+from dsp_tools.commands.excel2json.models.input_error_lists import MissingNodeTranslationProblem
+from dsp_tools.commands.excel2json.models.input_error_lists import MissingTranslationsSheetProblem
+from dsp_tools.commands.excel2json.models.input_error_lists import NodesPerRowProblem
 from dsp_tools.commands.excel2json.new_lists import _check_duplicates_all_excels
 from dsp_tools.commands.excel2json.new_lists import _check_for_duplicate_nodes_one_df
 from dsp_tools.commands.excel2json.new_lists import _check_for_erroneous_entries_all_excels
@@ -163,15 +163,15 @@ class TestCheckExcelsForDuplicates:
         expected = regex.escape(
             "\nThe excel file(s) used to create the list section have the following problem(s):"
             "\n\n---------------------------------------\n\n"
-            "No duplicates are allowed in the 'ID (optional)' column. The following IDs are duplicated:\n"
+            "No duplicates are allowed in the 'ID (optional)' column. At the following locations, IDs are duplicated:\n"
             "----------------------------\n"
             "ID: '1'\n"
-            "    - Located at: Excel 'file1' | Sheet 'sheet1' | Row 3\n"
-            "    - Located at: Excel 'file2' | Sheet 'sheet2' | Row 2\n"
+            "    - Excel 'file1' | Sheet 'sheet1' | Row 3\n"
+            "    - Excel 'file2' | Sheet 'sheet2' | Row 2\n"
             "----------------------------\n"
             "ID: '4'\n"
-            "    - Located at: Excel 'file1' | Sheet 'sheet1' | Row 5\n"
-            "    - Located at: Excel 'file2' | Sheet 'sheet2' | Row 4"
+            "    - Excel 'file1' | Sheet 'sheet1' | Row 5\n"
+            "    - Excel 'file2' | Sheet 'sheet2' | Row 4"
         )
         with pytest.raises(InputError, match=expected):
             _check_duplicates_all_excels(df_dict)

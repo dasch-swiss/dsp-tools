@@ -14,23 +14,23 @@ import regex
 from loguru import logger
 
 from dsp_tools.commands.excel2json.lists import validate_lists_section_with_schema
-from dsp_tools.commands.excel2json.models.input_error import DuplicateIDProblem
-from dsp_tools.commands.excel2json.models.input_error import DuplicatesCustomIDInProblem
-from dsp_tools.commands.excel2json.models.input_error import DuplicatesInSheetProblem
-from dsp_tools.commands.excel2json.models.input_error import DuplicatesListNameProblem
-from dsp_tools.commands.excel2json.models.input_error import ListCreationProblem
-from dsp_tools.commands.excel2json.models.input_error import ListExcelProblem
-from dsp_tools.commands.excel2json.models.input_error import ListInformation
-from dsp_tools.commands.excel2json.models.input_error import ListNodeProblem
-from dsp_tools.commands.excel2json.models.input_error import ListSheetComplianceProblem
-from dsp_tools.commands.excel2json.models.input_error import ListSheetContentProblem
-from dsp_tools.commands.excel2json.models.input_error import ListSheetProblem
-from dsp_tools.commands.excel2json.models.input_error import MissingNodeTranslationProblem
-from dsp_tools.commands.excel2json.models.input_error import MissingTranslationsSheetProblem
-from dsp_tools.commands.excel2json.models.input_error import MultipleListPerSheetProblem
-from dsp_tools.commands.excel2json.models.input_error import NodesPerRowProblem
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import Problem
+from dsp_tools.commands.excel2json.models.input_error_lists import DuplicateIDProblem
+from dsp_tools.commands.excel2json.models.input_error_lists import DuplicatesCustomIDInProblem
+from dsp_tools.commands.excel2json.models.input_error_lists import DuplicatesInSheetProblem
+from dsp_tools.commands.excel2json.models.input_error_lists import DuplicatesListNameProblem
+from dsp_tools.commands.excel2json.models.input_error_lists import ListCreationProblem
+from dsp_tools.commands.excel2json.models.input_error_lists import ListExcelProblem
+from dsp_tools.commands.excel2json.models.input_error_lists import ListInformation
+from dsp_tools.commands.excel2json.models.input_error_lists import ListNodeProblem
+from dsp_tools.commands.excel2json.models.input_error_lists import ListSheetComplianceProblem
+from dsp_tools.commands.excel2json.models.input_error_lists import ListSheetContentProblem
+from dsp_tools.commands.excel2json.models.input_error_lists import ListSheetProblem
+from dsp_tools.commands.excel2json.models.input_error_lists import MissingNodeTranslationProblem
+from dsp_tools.commands.excel2json.models.input_error_lists import MissingTranslationsSheetProblem
+from dsp_tools.commands.excel2json.models.input_error_lists import MultipleListPerSheetProblem
+from dsp_tools.commands.excel2json.models.input_error_lists import NodesPerRowProblem
 from dsp_tools.commands.excel2json.models.list_node import ListNode
 from dsp_tools.commands.excel2json.models.list_node import ListRoot
 from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
@@ -148,8 +148,8 @@ def _fill_parent_id_col_one_df(df: pd.DataFrame, preferred_language: str) -> pd.
     # To start, all rows get the ID of the list. These will be overwritten if the row has another parent.
     df["parent_id"] = df.at[0, "id"]
     columns = _get_columns_of_preferred_lang(df.columns, preferred_language, r"\d+")
-    for col in columns:
-        grouped = df.groupby(col)
+    for num in range(len(columns)):
+        grouped = df.groupby(columns[: num + 1])
         for name, group in grouped:
             if group.shape[0] > 1:
                 # The first row already has the correct ID assigned

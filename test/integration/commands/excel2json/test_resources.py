@@ -224,7 +224,7 @@ class TestValidateWithSchema:
 
     def test_duplicate_name(self) -> None:
         expected_msg = regex.escape(
-            "The Excel file: 'resources.xlsx' contains the following problems:\n\n"
+            "The Excel file 'resources.xlsx' contains the following problems:\n\n"
             "No duplicates are allowed in the column 'name'\n"
             "The following values appear several times:\n"
             "    - MentionedPerson"

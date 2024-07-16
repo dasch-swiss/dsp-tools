@@ -1,5 +1,36 @@
 # Changelog
 
+## [8.3.0](https://github.com/dasch-swiss/dsp-tools/compare/v8.2.0...v8.3.0) (2024-07-11)
+
+
+### Enhancements
+
+* **excel2json:** creating classes without any cardinalities (DEV-3755) ([#1029](https://github.com/dasch-swiss/dsp-tools/issues/1029)) ([9e19aa1](https://github.com/dasch-swiss/dsp-tools/commit/9e19aa1c495c59baa54f1d3c8150420733454a8a))
+
+
+### Bug Fixes
+
+* **excel2json-lists:** assignment of wrong parent ID if the node names are identical (DEV-3844) ([#1040](https://github.com/dasch-swiss/dsp-tools/issues/1040)) ([51af556](https://github.com/dasch-swiss/dsp-tools/commit/51af5567c56d231bd1b911d86e76ac22371ce4aa))
+* harmonize supported file extensions in docs, test data, and prod code (DEV-3788) ([#1028](https://github.com/dasch-swiss/dsp-tools/issues/1028)) ([728b782](https://github.com/dasch-swiss/dsp-tools/commit/728b7826d4de044ec8ee8d5fd89a6a02c04c3273))
+* **new-excel2json:** don't crash when Excel files are upper-cased (DEV-3808) ([#1032](https://github.com/dasch-swiss/dsp-tools/issues/1032)) ([2a5cc31](https://github.com/dasch-swiss/dsp-tools/commit/2a5cc31607f7cce51afbcb14edd79a53b4fa52ea))
+* **xmlupload:** allow angular brackets in SimpleText (DEV-3814) ([#1033](https://github.com/dasch-swiss/dsp-tools/issues/1033)) ([cf8e410](https://github.com/dasch-swiss/dsp-tools/commit/cf8e410aaa476921c85017352a233588c2a5b370))
+* **xmlupload:** don't omit any stashed links (DEV-3827) ([#1037](https://github.com/dasch-swiss/dsp-tools/issues/1037)) ([20e7eac](https://github.com/dasch-swiss/dsp-tools/commit/20e7eac679b95b4121e88265e6781c570e391fa7))
+
+
+### Maintenance
+
+* Add db configuration to ingest container ([#1039](https://github.com/dasch-swiss/dsp-tools/issues/1039)) ([48e39ea](https://github.com/dasch-swiss/dsp-tools/commit/48e39eaaaaa3bcd06dfb40577f648a3afbf9769d))
+* bump ruff ([#1035](https://github.com/dasch-swiss/dsp-tools/issues/1035)) ([720d7e9](https://github.com/dasch-swiss/dsp-tools/commit/720d7e915c25b07f38593bee1d5dccc3b40b95d5))
+* bump start-stack to 2024.07.01 ([#1043](https://github.com/dasch-swiss/dsp-tools/issues/1043)) ([af6ad29](https://github.com/dasch-swiss/dsp-tools/commit/af6ad29778b47c05ab8d6c37e05dbe81d1546c71))
+* **create:** inform user that project membership has to be assinged manually (DEV-3800) ([#1030](https://github.com/dasch-swiss/dsp-tools/issues/1030)) ([5494267](https://github.com/dasch-swiss/dsp-tools/commit/54942674a0290b97d0e87b8bcd0e88adc53763e3))
+* **deps:** bump certifi from 2024.6.2 to 2024.7.4 ([#1041](https://github.com/dasch-swiss/dsp-tools/issues/1041)) ([550b1cf](https://github.com/dasch-swiss/dsp-tools/commit/550b1cf5b63988d9122737d410050ff414bfa9bd))
+* **deps:** bump the all-dependencies group with 12 updates ([#1036](https://github.com/dasch-swiss/dsp-tools/issues/1036)) ([797f351](https://github.com/dasch-swiss/dsp-tools/commit/797f3513c54f496d8b070c6aacbbb6d6a652b34e))
+* don't crash when offline ([#1034](https://github.com/dasch-swiss/dsp-tools/issues/1034)) ([c39d610](https://github.com/dasch-swiss/dsp-tools/commit/c39d6107c98e97330031fb8b9549450bbba3ba91))
+* downgrade pytest, until Assertion Rewriting is fixed (DEV-3786) ([#1026](https://github.com/dasch-swiss/dsp-tools/issues/1026)) ([d2c8ede](https://github.com/dasch-swiss/dsp-tools/commit/d2c8ede4f7a099c5155f8b677888ece4eb17fae9))
+* downgrade pytest, until Assertion Rewriting is fixed (DEV-3786) ([#1038](https://github.com/dasch-swiss/dsp-tools/issues/1038)) ([d8d8d72](https://github.com/dasch-swiss/dsp-tools/commit/d8d8d722041a5c9bb8e8bb18a0539a14e5e6da4c))
+* Enable erasing projects locally ([#1042](https://github.com/dasch-swiss/dsp-tools/issues/1042)) ([807db71](https://github.com/dasch-swiss/dsp-tools/commit/807db71aca58575b54d62667c23e4e426a68ba32))
+* improve error messages according to consulting with RDU  ([#1031](https://github.com/dasch-swiss/dsp-tools/issues/1031)) ([e9c9507](https://github.com/dasch-swiss/dsp-tools/commit/e9c9507136211719a4f95006194dedfad9343eaf))
+
 ## [8.2.0](https://github.com/dasch-swiss/dsp-tools/compare/v8.1.0...v8.2.0) (2024-06-19)
 
 

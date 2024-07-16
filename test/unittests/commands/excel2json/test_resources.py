@@ -159,3 +159,14 @@ def test_validate_individual_class_sheets_missing_column() -> None:
     assert res[0].sheet_name == "sheet_missing_col"
     col_problem = cast(RequiredColumnMissingProblem, res[0].problems[0])
     assert col_problem.columns == ["cardinality"]
+
+
+class TestPrepareClassesDf:
+    def test_missing_classes_sheet(self) -> None:
+        test_dict = {"sheet1": pd.DataFrame({})}
+
+    def test_sheet_missing_entry_in_name_column(self) -> None:
+        pass
+
+    def test_multiple_classes_sheets(self) -> None:
+        pass

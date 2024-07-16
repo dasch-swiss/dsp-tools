@@ -252,9 +252,7 @@ def excel2resources(
 def _do_classes_df_compliance(resource_dfs: dict[str, pd.DataFrame]) -> ExcelFileProblem:
     sheet_name_list = list(resource_dfs)
     problems = []
-    cls_sheet_name = [
-        ok.group(0) for x in sheet_name_list if (ok := regex.search(r"classes", flags=regex.IGNORECASE, string=x))
-    ]
+    cls_sheet_name = _find_all_classes(sheet_name_list)
     if not cls_sheet_name:
         problems.append(MissingSheetProblem(missing_sheets=["classes"], existing_sheets=sheet_name_list))
     elif len(cls_sheet_name) > 1:
@@ -267,7 +265,15 @@ def _do_classes_df_compliance(resource_dfs: dict[str, pd.DataFrame]) -> ExcelFil
     return ExcelFileProblem("resources.xlsx", problems)
 
 
+def _find_all_classes(sheet_name_list: list[str]) -> list[str]:
+    cls_sheet_name = [
+        ok.group(0) for x in sheet_name_list if (ok := regex.search(r"classes", flags=regex.IGNORECASE, string=x))
+    ]
+    return cls_sheet_name
+
+
 def _prepare_classes_df(resource_dfs: dict[str, pd.DataFrame]) -> tuple[pd.DataFrame, dict[str, pd.DataFrame]]:
+    cls_name = _find_all_classes(list(resource_dfs))[0]
     classes_df = resource_dfs.pop("classes")
     classes_df = add_optional_columns(
         classes_df,

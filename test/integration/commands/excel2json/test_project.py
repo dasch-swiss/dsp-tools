@@ -1,5 +1,6 @@
 import json
 from typing import Any
+from typing import cast
 
 import pytest
 
@@ -10,7 +11,8 @@ from dsp_tools.commands.excel2json.project import _validate_folder_structure_get
 @pytest.fixture()
 def expected_project() -> dict[str, Any]:
     with open("testdata/excel2json/excel2json-expected-output.json", encoding="utf-8") as f:
-        return json.load(f)
+        proj = json.load(f)
+        return cast(dict[str, Any], proj)
 
 
 @pytest.fixture()

@@ -234,7 +234,7 @@ def excel2resources(
         raise InputError(msg)
 
     # transform every row into a resource
-    resources = [_row2resource(row, resource_dfs.get(row["name"])) for i, row in classes_df.iterrows()]
+    resources = [_row2resource(row, resource_dfs.get(row["name"].lower())) for i, row in classes_df.iterrows()]
 
     # write final "resources" section into a JSON file
     _validate_resources(resources_list=resources)

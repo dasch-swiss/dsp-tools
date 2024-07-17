@@ -14,6 +14,7 @@ from requests.adapters import Retry
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailure
 from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import UserError
+from dsp_tools.utils.logger_config import LOGGER_SAVEPATH
 
 STATUS_OK = 200
 STATUS_UNAUTHORIZED = 401
@@ -33,6 +34,7 @@ class BulkIngestClient:
     shortcode: str
     imgdir: Path = field(default=Path.cwd())
     session: Session = field(init=False)
+    retrieval_failures = 0
 
     def __post_init__(self) -> None:
         retries = 6
@@ -43,7 +45,7 @@ class BulkIngestClient:
             connect=retries,
             backoff_factor=0.3,
             allowed_methods=None,  # means all methods
-            status_forcelist=[STATUS_INTERNAL_SERVER_ERROR],
+            status_forcelist=[STATUS_INTERNAL_SERVER_ERROR, STATUS_SERVER_UNAVAILABLE],
         )
         adapter = HTTPAdapter(max_retries=retry)
         self.session.mount("http://", adapter)
@@ -124,9 +126,13 @@ class BulkIngestClient:
         while True:
             res = self.session.get(url, timeout=5)
             if res.status_code == STATUS_CONFLICT:
+                self.retrieval_failures = 0
                 logger.info("Ingest process is still running. Wait until it completes...")
                 yield True
             elif res.status_code != STATUS_OK or not res.text.startswith("original,derivative"):
+                self.retrieval_failures += 1
+                if self.retrieval_failures > 15:
+                    raise UserError(f"There were too many server errors. Please check the logs at {LOGGER_SAVEPATH}.")
                 msg = "While retrieving the mapping CSV, the server responded with an unexpected status code/content."
                 logger.error(msg)
                 yield False

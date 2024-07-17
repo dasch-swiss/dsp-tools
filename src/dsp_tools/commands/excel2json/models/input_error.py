@@ -215,9 +215,9 @@ class ResourceClassSheet:
 
 @dataclass
 class ResourceIndividualClasses:
-    missing_classes: set[str]
-
     """This class contains information if an excel sheet does not have an entry in the 'classes' sheet."""
+
+    missing_classes: set[str]
 
     def execute_error_protocol(self) -> str:
         """

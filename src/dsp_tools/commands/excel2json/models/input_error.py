@@ -231,7 +231,7 @@ class DuplicateSheetProblem:
             f"The sheet names inside the same Excel file must be unique. "
             f"Using capitalisation or spaces to differentiate sheets is not valid.\n"
             f"For example 'sheet' and 'SHEET  ' are considered identical.\n"
-            f"The following sheets appear several times under this condition:"
+            f"Under this condition, the following sheet names appear multiple times:"
             f"{list_separator}{list_separator.join(sorted(self.duplicate_sheets))}"
         )
 

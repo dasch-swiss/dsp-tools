@@ -232,12 +232,12 @@ class MoreThanOneSheetProblem:
 class MandatorySheetMissingProblem:
     """This class contains information if the excel is missing a mandatory sheet."""
 
-    sheetname: str
+    mandatory_name: str
     existing_sheets: list[str]
 
     def execute_error_protocol(self) -> str:
         return (
-            f"A sheet with the name '{self.sheetname}' is mandatory in this Excel.\n"
+            f"A sheet with the name '{self.mandatory_name}' is mandatory in this Excel.\n"
             f"The following sheets are in the file:{list_separator}"
             f"{list_separator.join(sorted(self.existing_sheets))}"
         )

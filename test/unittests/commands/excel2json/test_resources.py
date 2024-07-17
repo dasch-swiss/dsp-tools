@@ -172,7 +172,7 @@ def test_failing_validate_excel_file() -> None:
     missing = res.problems[0]
     assert isinstance(missing, MandatorySheetMissingProblem)
     assert missing.existing_sheets == ["Frenchclasses"]
-    assert missing.sheetname == "classes"
+    assert missing.mandatory_name == "classes"
 
 
 class TestValidateClassesExcelSheet:

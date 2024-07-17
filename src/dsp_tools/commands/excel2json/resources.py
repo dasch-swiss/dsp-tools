@@ -238,7 +238,7 @@ def excel2resources(
         raise InputError(msg)
 
     # transform every row into a resource
-    resources = [_row2resource(row, resource_dfs.get(row["name"].lower())) for i, row in classes_df.iterrows()]
+    resources = [_row2resource(row, resource_dfs.get(row["name"])) for i, row in classes_df.iterrows()]
 
     # write final "resources" section into a JSON file
     _validate_resources(resources_list=resources)
@@ -318,7 +318,7 @@ def _validate_classes_excel_sheet_content(classes_df: pd.DataFrame, sheet_list: 
             problems.extend([PositionInExcel("classes", col, x) for x in nums])
     if duplicate_check := check_column_for_duplicate(classes_df, "name"):
         problems.append(duplicate_check)
-    if name_col := classes_df.get("name"):
+    if (name_col := classes_df.get("name")).any():
         listed_classes = set(name_col.tolist())
         if not sheet_list.issubset(listed_classes):
             diff = sheet_list - listed_classes

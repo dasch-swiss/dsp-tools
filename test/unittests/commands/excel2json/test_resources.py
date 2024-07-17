@@ -7,13 +7,14 @@ import regex
 from pandas.testing import assert_frame_equal
 
 from dsp_tools.commands.excel2json import resources as e2j
+from dsp_tools.commands.excel2json.models.input_error import ExcelFileProblem
 from dsp_tools.commands.excel2json.models.input_error import ExcelSheetProblem
+from dsp_tools.commands.excel2json.models.input_error import MandatorySheetMissingProblem
 from dsp_tools.commands.excel2json.models.input_error import MissingValuesProblem
 from dsp_tools.commands.excel2json.models.input_error import RequiredColumnMissingProblem
 from dsp_tools.commands.excel2json.resources import _check_complete_gui_order
 from dsp_tools.commands.excel2json.resources import _create_all_cardinalities
 from dsp_tools.commands.excel2json.resources import _make_one_property
-from dsp_tools.models.exceptions import InputError
 
 
 class TestCheckCompleteGuiOrder:
@@ -162,13 +163,11 @@ def test_validate_individual_class_sheets_missing_column() -> None:
     assert col_problem.columns == ["cardinality"]
 
 
-def test_failing_prepare_classes_df() -> None:
+def test_failing_validate_excel_file() -> None:
     test_dict = {"Frenchclasses": pd.DataFrame({})}
-    expected_msg = regex.escape(
-        "The Excel file 'resources.xlsx' contains the following problems:\n\n"
-        "A sheet with the name 'classes' is mandatory in this Excel.\n"
-        "The following sheets are in the file:\n"
-        "    - Frenchclasses"
-    )
-    with pytest.raises(InputError, match=expected_msg):
-        e2j._prepare_classes_df(test_dict)
+    res = e2j._validate_excel_file(test_dict)
+    assert isinstance(res, ExcelFileProblem)
+    assert len(res.problems) == 1
+    missing = res.problems[0]
+    assert isinstance(missing, MandatorySheetMissingProblem)
+    assert missing.existing_sheets == ["Frenchclasses"]

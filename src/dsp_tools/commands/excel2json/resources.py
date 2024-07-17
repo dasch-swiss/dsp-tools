@@ -52,12 +52,12 @@ def excel2resources(
     """
 
     all_dfs = read_and_clean_all_sheets(excelfile)
-    classes_df, resource_dfs = _prepare_classes_df(all_dfs)
 
-    if validation_problems := _validate_excel_file(classes_df, resource_dfs):
+    if validation_problems := _validate_excel_file(all_dfs):
         msg = validation_problems.execute_error_protocol()
         raise InputError(msg)
 
+    classes_df, resource_dfs = _prepare_classes_df(all_dfs)
     # transform every row into a resource
     resources = [_row2resource(row, resource_dfs.get(row["name"])) for i, row in classes_df.iterrows()]
 
@@ -72,7 +72,11 @@ def excel2resources(
     return resources, True
 
 
-def _validate_excel_file(classes_df: pd.DataFrame, df_dict: dict[str, pd.DataFrame]) -> ExcelFileProblem | None:
+def _validate_excel_file(df_dict: dict[str, pd.DataFrame]) -> ExcelFileProblem | None:
+    names = {k.lower(): k for k in df_dict}
+    if not (cls_name := names.get("classes")):
+        return ExcelFileProblem("resources.xlsx", [MandatorySheetMissingProblem("classes", list(names.values()))])
+    classes_df = df_dict.pop(cls_name)
     problems = _validate_classes_excel_sheet(classes_df)
     if sheet_problems := _validate_individual_class_sheets(df_dict):
         problems.extend(sheet_problems)
@@ -122,10 +126,7 @@ def _validate_individual_class_sheets(class_df_dict: dict[str, pd.DataFrame]) ->
 
 def _prepare_classes_df(resource_dfs: dict[str, pd.DataFrame]) -> tuple[pd.DataFrame, dict[str, pd.DataFrame]]:
     names = {k.lower(): k for k in resource_dfs}
-    if not (cls_name := names.get("classes")):
-        problem = ExcelFileProblem("resources.xlsx", [MandatorySheetMissingProblem("classes", list(names.values()))])
-        raise InputError(problem.execute_error_protocol())
-    classes_df = resource_dfs.pop(cls_name)
+    classes_df = resource_dfs.pop(names["classes"])
     classes_df = add_optional_columns(
         classes_df,
         {

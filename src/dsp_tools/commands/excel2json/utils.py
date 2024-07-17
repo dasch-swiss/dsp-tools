@@ -8,7 +8,9 @@ import numpy as np
 import pandas as pd
 import regex
 
+from dsp_tools.commands.excel2json.models.input_error import DuplicateSheetProblem
 from dsp_tools.commands.excel2json.models.input_error import DuplicatesInColumnProblem
+from dsp_tools.commands.excel2json.models.input_error import ExcelFileProblem
 from dsp_tools.commands.excel2json.models.input_error import InvalidSheetNameProblem
 from dsp_tools.commands.excel2json.models.input_error import RequiredColumnMissingProblem
 from dsp_tools.models.exceptions import InputError
@@ -42,10 +44,19 @@ def read_and_clean_all_sheets(excelfile: str | Path) -> dict[str, pd.DataFrame]:
         # Credits: https://stackoverflow.com/a/70537454/14414188
         with mock.patch("openpyxl.styles.fonts.Font.family.max", new=100):
             df_dict = pd.read_excel(excelfile, sheet_name=None)
+    _find_duplicate_col_names(str(excelfile), list(df_dict))
     try:
         return {name.strip(""): clean_data_frame(df) for name, df in df_dict.items()}
     except AttributeError:
         msg = InvalidSheetNameProblem(str(excelfile), list(df_dict.keys())).execute_error_protocol()
+        raise InputError(msg) from None
+
+
+def _find_duplicate_col_names(excelfile: str, col_names: list[str]) -> None:
+    sheet_names = [str(x).lower().strip() for x in col_names]
+    duplicate_names = list({x for x in sheet_names if sheet_names.count(x) > 1})
+    if duplicate_names:
+        msg = ExcelFileProblem(str(excelfile), [DuplicateSheetProblem(duplicate_names)]).execute_error_protocol()
         raise InputError(msg) from None
 
 

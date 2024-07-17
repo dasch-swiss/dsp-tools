@@ -217,6 +217,26 @@ class ResourcesSheetsNotAsExpected:
 
 
 @dataclass(frozen=True)
+class DuplicateSheetProblem:
+    duplicate_sheets: list[str]
+
+    def execute_error_protocol(self) -> str:
+        """
+        This function initiates all the steps for successful problem communication with the user.
+
+        Returns:
+            message for the error
+        """
+        return (
+            f"The sheet names inside the same Excel file must be unique. "
+            f"Using capitalisation or spaces to differentiate sheets is not valid.\n"
+            f"For example 'sheet' and 'SHEET  ' are considered identical.\n"
+            f"Under this condition, the following sheet names appear multiple times:"
+            f"{list_separator}{list_separator.join(sorted(self.duplicate_sheets))}"
+        )
+
+
+@dataclass(frozen=True)
 class MoreThanOneSheetProblem:
     """This class contains information if the excel containing the property values has more than one sheet."""
 

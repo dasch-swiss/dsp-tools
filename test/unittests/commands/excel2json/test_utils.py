@@ -26,10 +26,10 @@ def test_find_duplicate_col_names_good() -> None:
 def test_find_duplicate_col_names_raises() -> None:
     expected = regex.escape(
         "The Excel file 'excelfile' contains the following problems:\n\n"
-        "The sheets names in one Excel must be unique. "
+        "The sheet names inside the same Excel file must be unique. "
         "Using capitalisation or spaces to differentiate sheets is not valid.\n"
         "For example 'sheet' and 'SHEET  ' are considered identical.\n"
-        "The following sheets appear several times under this condition:\n"
+        "Under this condition, the following sheet names appear multiple times:\n"
         "    - a\n"
         "    - b"
     )

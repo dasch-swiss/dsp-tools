@@ -54,7 +54,7 @@ def read_and_clean_all_sheets(excelfile: str | Path) -> dict[str, pd.DataFrame]:
 
 def _find_duplicate_col_names(excelfile: str, col_names: list[str]) -> None:
     sheet_names = [str(x).lower().strip() for x in col_names]
-    duplicate_names = list(set([x for x in sheet_names if sheet_names.count(x) > 1]))
+    duplicate_names = list({x for x in sheet_names if sheet_names.count(x) > 1})
     if duplicate_names:
         msg = ExcelFileProblem(str(excelfile), [DuplicateSheetProblem(duplicate_names)]).execute_error_protocol()
         raise InputError(msg) from None

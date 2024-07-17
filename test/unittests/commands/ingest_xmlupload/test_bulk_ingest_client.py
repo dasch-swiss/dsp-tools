@@ -26,7 +26,7 @@ def tmp_file(tmp_path: Path) -> Path:
 
 
 def _make_url(file: Path) -> str:
-    filename = urllib.parse.quote(file.name)
+    filename = urllib.parse.quote(str(file))
     return f"{DSP_INGEST_URL}/projects/{SHORTCODE}/bulk-ingest/ingest/{filename}"
 
 

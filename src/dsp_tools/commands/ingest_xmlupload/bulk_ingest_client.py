@@ -121,6 +121,9 @@ class BulkIngestClient:
             True if the ingest process is still running.
             False if there is a server error.
             The mapping CSV if the ingest process has completed.
+
+        Raises:
+            UserError: if there are too many server errors in a row.
         """
         url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/mapping.csv"
         while True:

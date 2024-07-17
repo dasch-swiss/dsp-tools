@@ -18,12 +18,14 @@ from dsp_tools.commands.excel2json.models.input_error import MissingSheetProblem
 from dsp_tools.commands.excel2json.models.input_error import MissingValuesProblem
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import Problem
+from dsp_tools.commands.excel2json.models.input_error import ResourceClassSheet
 from dsp_tools.commands.excel2json.utils import add_optional_columns
 from dsp_tools.commands.excel2json.utils import check_column_for_duplicate
 from dsp_tools.commands.excel2json.utils import check_contains_required_columns
 from dsp_tools.commands.excel2json.utils import check_required_values
 from dsp_tools.commands.excel2json.utils import get_wrong_row_numbers
 from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
+from dsp_tools.models.custom_warnings import DspToolsFutureWarning
 from dsp_tools.models.exceptions import InputError
 
 languages = ["en", "de", "fr", "it", "rm"]
@@ -227,11 +229,11 @@ def excel2resources(
     """
 
     all_dfs = read_and_clean_all_sheets(excelfile)
-    if problems := _do_classes_df_compliance(all_dfs):
-        raise InputError(problems.execute_error_protocol())
+    if problems := _do_classes_excel_sheet_compliance(all_dfs):
+        raise InputError(ExcelFileProblem("resources.xlsx", problems).execute_error_protocol())
     classes_df, resource_dfs = _prepare_classes_df(all_dfs)
 
-    if validation_problems := _validate_excel_file(classes_df, resource_dfs):
+    if validation_problems := _validate_excel_file_content(classes_df, resource_dfs):
         msg = validation_problems.execute_error_protocol()
         raise InputError(msg)
 
@@ -249,20 +251,15 @@ def excel2resources(
     return resources, True
 
 
-def _do_classes_df_compliance(resource_dfs: dict[str, pd.DataFrame]) -> ExcelFileProblem:
+def _do_classes_excel_sheet_compliance(resource_dfs: dict[str, pd.DataFrame]) -> list[Problem]:
     sheet_name_list = list(resource_dfs)
-    problems = []
+    problems: list[Problem] = []
     cls_sheet_name = _find_all_classes(sheet_name_list)
     if not cls_sheet_name:
         problems.append(MissingSheetProblem(missing_sheets=["classes"], existing_sheets=sheet_name_list))
     elif len(cls_sheet_name) > 1:
-        msg = (
-            "The excel file 'resources.xlsx' has some problems.\n"
-            "There is more than one excel sheet called 'classes'.\n"
-            "This is a protected name and cannot be used for other sheets."
-        )
-    # TODO: missing sheet problem
-    return ExcelFileProblem("resources.xlsx", problems)
+        problems.append(ResourceClassSheet(cls_sheet_name))
+    return problems
 
 
 def _find_all_classes(sheet_name_list: list[str]) -> list[str]:
@@ -274,7 +271,7 @@ def _find_all_classes(sheet_name_list: list[str]) -> list[str]:
 
 def _prepare_classes_df(resource_dfs: dict[str, pd.DataFrame]) -> tuple[pd.DataFrame, dict[str, pd.DataFrame]]:
     cls_name = _find_all_classes(list(resource_dfs))[0]
-    classes_df = resource_dfs.pop("classes")
+    classes_df = resource_dfs.pop(cls_name)
     classes_df = add_optional_columns(
         classes_df,
         {
@@ -294,8 +291,8 @@ def _prepare_classes_df(resource_dfs: dict[str, pd.DataFrame]) -> tuple[pd.DataF
     return classes_df, resource_dfs
 
 
-def _validate_excel_file(classes_df: pd.DataFrame, df_dict: dict[str, pd.DataFrame]) -> ExcelFileProblem | None:
-    problems = _validate_classes_excel_sheet_content(classes_df)
+def _validate_excel_file_content(classes_df: pd.DataFrame, df_dict: dict[str, pd.DataFrame]) -> ExcelFileProblem | None:
+    problems = _validate_classes_excel_sheet_content(classes_df, set(df_dict))
     if sheet_problems := _validate_individual_class_sheets(df_dict):
         problems.extend(sheet_problems)
     if problems:
@@ -303,11 +300,13 @@ def _validate_excel_file(classes_df: pd.DataFrame, df_dict: dict[str, pd.DataFra
     return None
 
 
-def _validate_classes_excel_sheet_content(classes_df: pd.DataFrame) -> list[Problem]:
+def _validate_classes_excel_sheet_content(classes_df: pd.DataFrame, sheet_list: set[str]) -> list[Problem]:
     if any(classes_df.get(lang) is not None for lang in languages):
         warnings.warn(
-            f"The file 'resources.xlsx' uses {languages} as column titles, which is deprecated. "
-            f"Please use {[f'label_{lang}' for lang in languages]}"
+            DspToolsFutureWarning(
+                f"The file 'resources.xlsx' uses {languages} as column titles, which is deprecated. "
+                f"Please use {[f'label_{lang}' for lang in languages]}"
+            )
         )
     problems: list[Problem] = []
     required_cols = ["name", "super"]
@@ -319,6 +318,11 @@ def _validate_classes_excel_sheet_content(classes_df: pd.DataFrame) -> list[Prob
             problems.extend([PositionInExcel("classes", col, x) for x in nums])
     if duplicate_check := check_column_for_duplicate(classes_df, "name"):
         problems.append(duplicate_check)
+    if name_col := classes_df.get("name"):
+        listed_classes = set(name_col.tolist())
+        if not sheet_list.issubset(listed_classes):
+            diff = sheet_list - listed_classes
+            problems.append(MissingSheetProblem(list(diff), list(sheet_list)))
     return problems
 
 

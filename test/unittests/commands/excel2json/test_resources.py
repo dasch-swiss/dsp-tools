@@ -8,8 +8,10 @@ from pandas.testing import assert_frame_equal
 
 from dsp_tools.commands.excel2json import resources as e2j
 from dsp_tools.commands.excel2json.models.input_error import ExcelSheetProblem
+from dsp_tools.commands.excel2json.models.input_error import MissingSheetProblem
 from dsp_tools.commands.excel2json.models.input_error import MissingValuesProblem
 from dsp_tools.commands.excel2json.models.input_error import RequiredColumnMissingProblem
+from dsp_tools.commands.excel2json.models.input_error import ResourceClassSheet
 from dsp_tools.commands.excel2json.resources import _check_complete_gui_order
 from dsp_tools.commands.excel2json.resources import _create_all_cardinalities
 from dsp_tools.commands.excel2json.resources import _make_one_property
@@ -161,12 +163,22 @@ def test_validate_individual_class_sheets_missing_column() -> None:
     assert col_problem.columns == ["cardinality"]
 
 
-class TestPrepareClassesDf:
+class TestClassesExcelSheetCompliance:
+    def test_good(self) -> None:
+        test_dict = {"sheet1": pd.DataFrame({}), "classes": pd.DataFrame({})}
+        assert not e2j._do_classes_excel_sheet_compliance(test_dict)
+
     def test_missing_classes_sheet(self) -> None:
         test_dict = {"sheet1": pd.DataFrame({})}
-
-    def test_sheet_missing_entry_in_name_column(self) -> None:
-        pass
+        res = e2j._do_classes_excel_sheet_compliance(test_dict)
+        miss_sheet = res[0]
+        assert isinstance(miss_sheet, MissingSheetProblem)
+        assert miss_sheet.missing_sheets == ["classes"]
+        assert miss_sheet.existing_sheets == ["sheet1"]
 
     def test_multiple_classes_sheets(self) -> None:
-        pass
+        test_dict = {"CLASSES": pd.DataFrame({}), "classes": pd.DataFrame({})}
+        res = e2j._do_classes_excel_sheet_compliance(test_dict)
+        multiple_sheet = res[0]
+        assert isinstance(multiple_sheet, ResourceClassSheet)
+        assert set(multiple_sheet.name_classes) == {"CLASSES", "classes"}

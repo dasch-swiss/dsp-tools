@@ -273,8 +273,8 @@ class MissingSheetProblem:
         """
         return (
             f"The following sheet(s) are mandatory, but missing in the Excel:"
-            f"{list_separator}{list_separator.join(self.missing_sheets)}\n"
-            f"These sheets were found in the Excel:{list_separator}{list_separator.join(self.existing_sheets)}"
+            f"{list_separator}{list_separator.join(sorted(self.missing_sheets))}\n"
+            f"These sheets were found in the Excel:{list_separator}{list_separator.join(sorted(self.existing_sheets))}"
         )
 
 

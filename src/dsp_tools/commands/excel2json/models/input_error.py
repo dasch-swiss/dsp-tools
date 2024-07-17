@@ -193,30 +193,6 @@ class InvalidSheetNameProblem:
 
 
 @dataclass(frozen=True)
-class ResourcesSheetsNotAsExpected:
-    """This class contains information if the excel sheet names are not a subset of the expected ones."""
-
-    names_classes: set[str]
-    names_sheets: set[str]
-
-    def execute_error_protocol(self) -> str:
-        """
-        This function initiates all the steps for successful problem communication with the user.
-
-        Returns:
-            message for the error
-        """
-        msg = "The Excel file 'resources.xlsx' has problems.\n"
-        missing_names = self.names_sheets - self.names_classes
-        if missing_names:
-            msg += (
-                f"The following sheet(s) do not have an entry in the 'name' column "
-                f"of the sheet 'classes':{list_separator}{list_separator.join(missing_names)}"
-            )
-        return msg
-
-
-@dataclass(frozen=True)
 class DuplicateSheetProblem:
     duplicate_sheets: list[str]
 

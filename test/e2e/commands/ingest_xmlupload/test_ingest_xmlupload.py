@@ -1,9 +1,9 @@
+import json
 from pathlib import Path
 from typing import Iterator
 
 import pandas as pd
 import pytest
-import regex
 from pytest_unordered import unordered
 
 from dsp_tools.cli.args import ServerCredentials
@@ -37,10 +37,10 @@ def _create_project() -> Iterator[None]:
 
 
 @pytest.mark.usefixtures("_create_project")
-def test_ingest_upload(mapping_file: Path, caplog: pytest.LogCaptureFixture) -> None:
+def test_ingest_upload(mapping_file: Path) -> None:
     _test_upload_step()
     _test_ingest_step(mapping_file)
-    _test_xmlupload_step(caplog)
+    _test_xmlupload_step()
 
 
 def _test_upload_step() -> None:
@@ -62,22 +62,10 @@ def _test_ingest_step(mapping_file: Path) -> None:
     assert df["original"].tolist() == unordered(["testdata/bitstreams/test.jpg", "testdata/bitstreams/test.pdf"])
 
 
-def _test_xmlupload_step(caplog: pytest.LogCaptureFixture) -> None:
+def _test_xmlupload_step() -> None:
     success = ingest_xmlupload(XML_FILE, CREDS)
     assert success
-    logs = [rec.message for rec in caplog.records]
-    expected_logs = [
-        "The file 'mapping-4125.csv' is used to map the internal original filepaths to the internal image IDs.",
-        (
-            "All multimedia files referenced in the XML file were uploaded through dsp-ingest.\n"
-            "All multimedia files uploaded through dsp-ingest were referenced in the XML file."
-        ),
-    ]
-    assert all(expected_log in logs for expected_log in expected_logs)
-    expected_log_regexes = [
-        "Created resource 1/3",
-        "Created resource 2/3",
-        "Created resource 3/3",
-    ]
-    assert all(any(regex.search(exp, log) for log in logs) for exp in expected_log_regexes)
-    caplog.clear()
+    id2iri_file = list(Path.cwd().glob("*_id2iri_mapping_localhost.json"))[-1]  # choose the most recent one
+    id2iri_mapping = json.loads(id2iri_file.read_text(encoding="utf-8"))
+    assert sorted(id2iri_mapping.keys()) == ["resource_1", "resource_2", "resource_3"]
+    assert all(x.startswith(f"http://rdfh.ch/{SHORTCODE}/") for x in id2iri_mapping.values())

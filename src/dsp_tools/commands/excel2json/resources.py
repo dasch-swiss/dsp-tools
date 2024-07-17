@@ -58,6 +58,7 @@ def excel2resources(
         raise InputError(msg)
 
     classes_df, resource_dfs = _prepare_classes_df(all_dfs)
+
     # transform every row into a resource
     resources = [_row2resource(row, resource_dfs.get(row["name"])) for i, row in classes_df.iterrows()]
 

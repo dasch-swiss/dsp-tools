@@ -13,6 +13,7 @@ from dsp_tools.commands.excel2json.models.input_error import RequiredColumnMissi
 from dsp_tools.commands.excel2json.resources import _check_complete_gui_order
 from dsp_tools.commands.excel2json.resources import _create_all_cardinalities
 from dsp_tools.commands.excel2json.resources import _make_one_property
+from dsp_tools.models.exceptions import InputError
 
 
 class TestCheckCompleteGuiOrder:
@@ -159,3 +160,15 @@ def test_validate_individual_class_sheets_missing_column() -> None:
     assert res[0].sheet_name == "sheet_missing_col"
     col_problem = cast(RequiredColumnMissingProblem, res[0].problems[0])
     assert col_problem.columns == ["cardinality"]
+
+
+def test_failing_prepare_classes_df() -> None:
+    test_dict = {"Frenchclasses": pd.DataFrame({})}
+    expected_msg = regex.escape(
+        "The Excel file 'resources.xlsx' contains the following problems:\n\n"
+        "A sheet with the name 'classes' is mandatory in this Excel.\n"
+        "The following sheets are in the file:\n"
+        "    - Frenchclasses"
+    )
+    with pytest.raises(InputError, match=expected_msg):
+        e2j._prepare_classes_df(test_dict)

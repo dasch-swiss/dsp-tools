@@ -57,8 +57,9 @@ class BulkIngestClient:
         filepath: Path,
     ) -> UploadFailure | None:
         """Uploads a file to the ingest server."""
-        filename = urllib.parse.quote(str(filepath))
-        url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/ingest/{filename}"
+        url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/ingest/{urllib.parse.quote(str(filepath))}"
+        headers = {"Content-Type": "application/octet-stream"}
+        timeout = 60
         err_msg = f"Failed to upload '{filepath}' to '{url}'."
         try:
             with open(self.imgdir / filepath, "rb") as binary_io:
@@ -67,12 +68,14 @@ class BulkIngestClient:
             logger.error(err_msg)
             return UploadFailure(filepath, f"File could not be opened/read: {e.strerror}")
         try:
+            logger.debug(f"REQUEST: POST to {url}, timeout: {timeout}, headers: {headers}")
             res = self.session.post(
                 url=url,
-                headers={"Content-Type": "application/octet-stream"},
+                headers=headers,
                 data=content,
-                timeout=60,
+                timeout=timeout,
             )
+            logger.debug(f"RESPONSE: {res.status_code}")
         except RequestException as e:
             logger.error(err_msg)
             return UploadFailure(filepath, f"Exception of requests library: {e}")
@@ -81,13 +84,15 @@ class BulkIngestClient:
             reason = f"Response {res.status_code}: {res.text}" if res.text else f"Response {res.status_code}"
             return UploadFailure(filepath, reason)
 
-        logger.info(f"Uploaded file '{filepath}' to '{url}'")
         return None
 
     def trigger_ingest_process(self) -> None:
         """Start the ingest process on the server."""
         url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest"
-        res = self.session.post(url, timeout=5)
+        timeout = 5
+        logger.debug(f"REQUEST: POST to {url}, timeout: {timeout}")
+        res = self.session.post(url, timeout=timeout)
+        logger.debug(f"RESPONSE: {res.status_code}: {res.text}")
         if res.status_code in [STATUS_UNAUTHORIZED, STATUS_FORBIDDEN]:
             raise BadCredentialsError("Unauthorized to start the ingest process. Please check your credentials.")
         if res.status_code == STATUS_NOT_FOUND:
@@ -126,8 +131,11 @@ class BulkIngestClient:
             UserError: if there are too many server errors in a row.
         """
         url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/mapping.csv"
+        timeout = 5
         while True:
-            res = self.session.get(url, timeout=5)
+            logger.debug(f"REQUEST: GET to {url}, timeout: {timeout}")
+            res = self.session.get(url, timeout=timeout)
+            logger.debug(f"RESPONSE: {res.status_code}")
             if res.status_code == STATUS_CONFLICT:
                 self.retrieval_failures = 0
                 logger.info("Ingest process is still running. Wait until it completes...")
@@ -147,7 +155,10 @@ class BulkIngestClient:
     def finalize(self) -> bool:
         """Delete the mapping file and the temporary directory where the unprocessed files were stored."""
         route = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/finalize"
-        res = self.session.post(route, timeout=5)
+        timeout = 5
+        logger.debug(f"REQUEST: POST to '{route}', timeout: {timeout}")
+        res = self.session.post(route, timeout=timeout)
+        logger.debug(f"RESPONSE: {res.status_code}: {res.text}")
         if res.status_code != STATUS_OK or res.json().get("id") != self.shortcode:
             print("Failed to finalize the ingest process. Please clean up the server manually.")
             logger.error("Failed to finalize the ingest process. Please clean up the server manually.")

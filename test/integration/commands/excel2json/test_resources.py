@@ -232,6 +232,29 @@ class TestValidateWithSchema:
         with pytest.raises(BaseError, match=expected_msg):
             e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-duplicate-name.xlsx", "")
 
+    def test_duplicate_classes_sheet(self) -> None:
+        expected_msg = regex.escape(
+            "The Excel file 'testdata/invalid-testdata/excel2json/resources-duplicate-classes-sheet.xlsx' "
+            "contains the following problems:\n\n"
+            "The sheet names inside the same Excel file must be unique. "
+            "Using capitalisation or spaces to differentiate sheets is not valid.\n"
+            "For example 'sheet' and 'SHEET  ' are considered identical.\n"
+            "Under this condition, the following sheet names appear multiple times:\n"
+            "    - classes"
+        )
+        with pytest.raises(InputError, match=expected_msg):
+            e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-duplicate-classes-sheet.xlsx", "")
+
+    def test_no_classes_sheet(self) -> None:
+        expected_msg = regex.escape(
+            "The Excel file 'resources.xlsx' contains the following problems:\n\n"
+            "A sheet with the name 'classes' is mandatory in this Excel.\n"
+            "The following sheets are in the file:\n"
+            "    - Frenchclasses"
+        )
+        with pytest.raises(InputError, match=expected_msg):
+            e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-no-classes-sheet.xlsx", "")
+
 
 if __name__ == "__main__":
     pytest.main([__file__])

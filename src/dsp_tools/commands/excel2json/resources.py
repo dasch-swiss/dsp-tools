@@ -14,10 +14,10 @@ import regex
 from dsp_tools.commands.excel2json.models.input_error import ExcelFileProblem
 from dsp_tools.commands.excel2json.models.input_error import ExcelSheetProblem
 from dsp_tools.commands.excel2json.models.input_error import JsonValidationResourceProblem
+from dsp_tools.commands.excel2json.models.input_error import MandatorySheetMissingProblem
 from dsp_tools.commands.excel2json.models.input_error import MissingValuesProblem
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import Problem
-from dsp_tools.commands.excel2json.models.input_error import ResourcesSheetsNotAsExpected
 from dsp_tools.commands.excel2json.utils import add_optional_columns
 from dsp_tools.commands.excel2json.utils import check_column_for_duplicate
 from dsp_tools.commands.excel2json.utils import check_contains_required_columns
@@ -248,23 +248,11 @@ def excel2resources(
 
 
 def _prepare_classes_df(resource_dfs: dict[str, pd.DataFrame]) -> tuple[pd.DataFrame, dict[str, pd.DataFrame]]:
-    resource_dfs = {k.strip(): v for k, v in resource_dfs.items()}
-    sheet_name_list = list(resource_dfs)
-    cls_sheet_name = [
-        ok.group(0) for x in sheet_name_list if (ok := regex.search(r"classes", flags=regex.IGNORECASE, string=x))
-    ]
-    if not cls_sheet_name:
-        msg = ResourcesSheetsNotAsExpected(set(), names_sheets={"classes"}).execute_error_protocol()
-        raise InputError(msg)
-    elif len(cls_sheet_name) == 1:
-        classes_df = resource_dfs.pop(cls_sheet_name[0])
-    else:
-        msg = (
-            "The excel file 'resources.xlsx' has some problems.\n"
-            "There is more than one excel sheet called 'classes'.\n"
-            "This is a protected name and cannot be used for other sheets."
-        )
-        raise InputError(msg)
+    names = {k.lower(): k for k in resource_dfs}
+    if not (cls_name := names.get("classes")):
+        problem = ExcelFileProblem("resources.xlsx", [MandatorySheetMissingProblem("classes", list(names.values()))])
+        raise InputError(problem.execute_error_protocol())
+    classes_df = resource_dfs.pop(cls_name)
     classes_df = add_optional_columns(
         classes_df,
         {

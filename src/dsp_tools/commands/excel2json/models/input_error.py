@@ -253,6 +253,21 @@ class MoreThanOneSheetProblem:
 
 
 @dataclass(frozen=True)
+class MandatorySheetMissingProblem:
+    """This class contains information if the excel is missing a mandatory sheet."""
+
+    sheetname: str
+    existing_sheets: list[str]
+
+    def execute_error_protocol(self) -> str:
+        return (
+            f"A sheet with the name '{self.sheetname}' is mandatory in this Excel.\n"
+            f"The following sheets are in the file:{list_separator}"
+            f"{list_separator.join(sorted(self.existing_sheets))}"
+        )
+
+
+@dataclass(frozen=True)
 class JsonValidationPropertyProblem:
     """This class contains information about a JSON property section that fails its validation against the schema."""
 

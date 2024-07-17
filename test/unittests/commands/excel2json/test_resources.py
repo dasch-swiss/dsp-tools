@@ -12,6 +12,7 @@ from dsp_tools.commands.excel2json.models.input_error import ExcelSheetProblem
 from dsp_tools.commands.excel2json.models.input_error import MandatorySheetMissingProblem
 from dsp_tools.commands.excel2json.models.input_error import MissingValuesProblem
 from dsp_tools.commands.excel2json.models.input_error import RequiredColumnMissingProblem
+from dsp_tools.commands.excel2json.models.input_error import ResourceSheetNotListedProblem
 from dsp_tools.commands.excel2json.resources import _check_complete_gui_order
 from dsp_tools.commands.excel2json.resources import _create_all_cardinalities
 from dsp_tools.commands.excel2json.resources import _make_one_property
@@ -171,3 +172,24 @@ def test_failing_validate_excel_file() -> None:
     missing = res.problems[0]
     assert isinstance(missing, MandatorySheetMissingProblem)
     assert missing.existing_sheets == ["Frenchclasses"]
+
+
+class TestValidateClassesExcelSheet:
+    def test_missing_sheet(self) -> None:
+        test_df = pd.DataFrame({"name": ["name"], "super": ["super"]})
+        res = e2j._validate_classes_excel_sheet(test_df, {"other", "name"})
+        assert isinstance(res, ExcelSheetProblem)
+        assert len(res.problems) == 1
+        missing_sheet = res.problems[0]
+        assert isinstance(missing_sheet, ResourceSheetNotListedProblem)
+        assert missing_sheet.missing_names == {"other"}
+
+    def test_good_no_sheets(self) -> None:
+        test_df = pd.DataFrame({"name": ["name"], "super": ["super"]})
+        res = e2j._validate_classes_excel_sheet(test_df, set())
+        assert not res
+
+    def test_good_with_sheet(self) -> None:
+        test_df = pd.DataFrame({"name": ["name"], "super": ["super"]})
+        res = e2j._validate_classes_excel_sheet(test_df, {"name"})
+        assert not res

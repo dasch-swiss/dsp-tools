@@ -244,6 +244,25 @@ class MandatorySheetMissingProblem:
 
 
 @dataclass(frozen=True)
+class ResourceSheetNotListedProblem:
+    """This class contains information if the excel sheet names are not a subset of the expected ones."""
+
+    missing_names: set[str]
+
+    def execute_error_protocol(self) -> str:
+        """
+        This function initiates all the steps for successful problem communication with the user.
+        Returns:
+            message for the error
+        """
+        return (
+            f"All the sheets in the Excel must be listed in the 'name' column of the 'classes' sheet.\n"
+            f"The following sheet(s) are not listed in the column:{list_separator}"
+            f"{list_separator.join(self.missing_names)}"
+        )
+
+
+@dataclass(frozen=True)
 class JsonValidationPropertyProblem:
     """This class contains information about a JSON property section that fails its validation against the schema."""
 

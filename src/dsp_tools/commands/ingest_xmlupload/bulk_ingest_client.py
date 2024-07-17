@@ -2,17 +2,27 @@ import urllib
 from dataclasses import dataclass
 from dataclasses import field
 from pathlib import Path
+from typing import Iterator
 
 from loguru import logger
+from requests import JSONDecodeError
 from requests import RequestException
 from requests import Session
 from requests.adapters import HTTPAdapter
 from requests.adapters import Retry
 
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailure
+from dsp_tools.models.exceptions import BadCredentialsError
+from dsp_tools.models.exceptions import UserError
+from dsp_tools.utils.logger_config import LOGGER_SAVEPATH
 
 STATUS_OK = 200
+STATUS_UNAUTHORIZED = 401
+STATUS_FORBIDDEN = 403
+STATUS_NOT_FOUND = 404
+STATUS_CONFLICT = 409
 STATUS_INTERNAL_SERVER_ERROR = 500
+STATUS_SERVER_UNAVAILABLE = 503
 
 
 @dataclass
@@ -24,6 +34,7 @@ class BulkIngestClient:
     shortcode: str
     imgdir: Path = field(default=Path.cwd())
     session: Session = field(init=False)
+    retrieval_failures = 0
 
     def __post_init__(self) -> None:
         retries = 6
@@ -34,7 +45,7 @@ class BulkIngestClient:
             connect=retries,
             backoff_factor=0.3,
             allowed_methods=None,  # means all methods
-            status_forcelist=[STATUS_INTERNAL_SERVER_ERROR],
+            status_forcelist=[STATUS_INTERNAL_SERVER_ERROR, STATUS_SERVER_UNAVAILABLE],
         )
         adapter = HTTPAdapter(max_retries=retry)
         self.session.mount("http://", adapter)
@@ -46,7 +57,7 @@ class BulkIngestClient:
         filepath: Path,
     ) -> UploadFailure | None:
         """Uploads a file to the ingest server."""
-        filename = urllib.parse.quote(filepath.name)
+        filename = urllib.parse.quote(str(filepath))
         url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/ingest/{filename}"
         err_msg = f"Failed to upload '{filepath}' to '{url}'."
         try:
@@ -72,3 +83,63 @@ class BulkIngestClient:
 
         logger.info(f"Uploaded file '{filepath}' to '{url}'")
         return None
+
+    def trigger_ingest_process(self) -> None:
+        """Start the ingest process on the server."""
+        url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest"
+        res = self.session.post(url, timeout=5)
+        if res.status_code in [STATUS_UNAUTHORIZED, STATUS_FORBIDDEN]:
+            raise BadCredentialsError("Unauthorized to start the ingest process. Please check your credentials.")
+        if res.status_code == STATUS_NOT_FOUND:
+            raise UserError(
+                f"No assets have been uploaded for project {self.shortcode}. "
+                "Before using the 'ingest-files' command, you must upload some files with the 'upload-files' command."
+            )
+        if res.status_code == STATUS_CONFLICT:
+            msg = f"Ingest process on the server {self.dsp_ingest_url} is already running. Wait until it completes..."
+            print(msg)
+            logger.info(msg)
+            return
+        if res.status_code in [STATUS_INTERNAL_SERVER_ERROR, STATUS_SERVER_UNAVAILABLE]:
+            raise UserError("Server is unavailable. Please try again later.")
+
+        try:
+            returned_shortcode = res.json().get("id")
+            failed: bool = returned_shortcode != self.shortcode
+        except JSONDecodeError:
+            failed = True
+        if failed:
+            raise UserError("Failed to trigger the ingest process. Please check the server logs, or try again later.")
+        print(f"Kicked off the ingest process on the server {self.dsp_ingest_url}. Wait until it completes...")
+        logger.info(f"Kicked off the ingest process on the server {self.dsp_ingest_url}. Wait until it completes...")
+
+    def retrieve_mapping_generator(self) -> Iterator[str | bool]:
+        """
+        Try to retrieve the mapping CSV from the server.
+
+        Yields:
+            True if the ingest process is still running.
+            False if there is a server error.
+            The mapping CSV if the ingest process has completed.
+
+        Raises:
+            UserError: if there are too many server errors in a row.
+        """
+        url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/mapping.csv"
+        while True:
+            res = self.session.get(url, timeout=5)
+            if res.status_code == STATUS_CONFLICT:
+                self.retrieval_failures = 0
+                logger.info("Ingest process is still running. Wait until it completes...")
+                yield True
+            elif res.status_code != STATUS_OK or not res.text.startswith("original,derivative"):
+                self.retrieval_failures += 1
+                if self.retrieval_failures > 15:
+                    raise UserError(f"There were too many server errors. Please check the logs at {LOGGER_SAVEPATH}.")
+                msg = "While retrieving the mapping CSV, the server responded with an unexpected status code/content."
+                logger.error(msg)
+                yield False
+            else:
+                logger.info("Ingest process completed.")
+                break
+        yield res.text

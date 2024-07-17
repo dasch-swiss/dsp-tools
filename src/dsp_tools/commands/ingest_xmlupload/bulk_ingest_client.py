@@ -55,7 +55,7 @@ class BulkIngestClient:
         filepath: Path,
     ) -> UploadFailure | None:
         """Uploads a file to the ingest server."""
-        filename = urllib.parse.quote(filepath.name)
+        filename = urllib.parse.quote(str(filepath))
         url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/ingest/{filename}"
         err_msg = f"Failed to upload '{filepath}' to '{url}'."
         try:
@@ -133,4 +133,4 @@ class BulkIngestClient:
             else:
                 logger.info("Ingest process completed.")
                 break
-            yield res.text
+        yield res.text

@@ -228,7 +228,7 @@ class DuplicateSheetProblem:
             message for the error
         """
         return (
-            f"The sheets names in one Excel must be unique. "
+            f"The sheet names inside the same Excel file must be unique. "
             f"Using capitalisation or spaces to differentiate sheets is not valid.\n"
             f"For example 'sheet' and 'SHEET  ' are considered identical.\n"
             f"The following sheets appear several times under this condition:"

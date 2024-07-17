@@ -37,10 +37,10 @@ def _create_project() -> Iterator[None]:
 
 
 @pytest.mark.usefixtures("_create_project")
-def test_ingest_upload(mapping_file: Path) -> None:
+def test_ingest_upload(mapping_file: Path, caplog: pytest.LogCaptureFixture) -> None:
     _test_upload_step()
     _test_ingest_step(mapping_file)
-    _test_xmlupload_step()
+    _test_xmlupload_step(caplog)
 
 
 def _test_upload_step() -> None:

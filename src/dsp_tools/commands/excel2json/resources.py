@@ -72,31 +72,6 @@ def excel2resources(
     return resources, True
 
 
-def _prepare_classes_df(resource_dfs: dict[str, pd.DataFrame]) -> tuple[pd.DataFrame, dict[str, pd.DataFrame]]:
-    names = {k.lower(): k for k in resource_dfs}
-    if not (cls_name := names.get("classes")):
-        problem = ExcelFileProblem("resources.xlsx", [MandatorySheetMissingProblem("classes", list(names.values()))])
-        raise InputError(problem.execute_error_protocol())
-    classes_df = resource_dfs.pop(cls_name)
-    classes_df = add_optional_columns(
-        classes_df,
-        {
-            "label_en",
-            "label_de",
-            "label_fr",
-            "label_it",
-            "label_rm",
-            "comment_en",
-            "comment_de",
-            "comment_fr",
-            "comment_it",
-            "comment_rm",
-        },
-    )
-    resource_dfs = {k: add_optional_columns(v, {"gui_order"}) for k, v in resource_dfs.items()}
-    return classes_df, resource_dfs
-
-
 def _validate_excel_file(classes_df: pd.DataFrame, df_dict: dict[str, pd.DataFrame]) -> ExcelFileProblem | None:
     problems = _validate_classes_excel_sheet(classes_df)
     if sheet_problems := _validate_individual_class_sheets(df_dict):
@@ -143,6 +118,31 @@ def _validate_individual_class_sheets(class_df_dict: dict[str, pd.DataFrame]) ->
     if problem_list:
         return [MissingValuesProblem(problem_list)]
     return []
+
+
+def _prepare_classes_df(resource_dfs: dict[str, pd.DataFrame]) -> tuple[pd.DataFrame, dict[str, pd.DataFrame]]:
+    names = {k.lower(): k for k in resource_dfs}
+    if not (cls_name := names.get("classes")):
+        problem = ExcelFileProblem("resources.xlsx", [MandatorySheetMissingProblem("classes", list(names.values()))])
+        raise InputError(problem.execute_error_protocol())
+    classes_df = resource_dfs.pop(cls_name)
+    classes_df = add_optional_columns(
+        classes_df,
+        {
+            "label_en",
+            "label_de",
+            "label_fr",
+            "label_it",
+            "label_rm",
+            "comment_en",
+            "comment_de",
+            "comment_fr",
+            "comment_it",
+            "comment_rm",
+        },
+    )
+    resource_dfs = {k: add_optional_columns(v, {"gui_order"}) for k, v in resource_dfs.items()}
+    return classes_df, resource_dfs
 
 
 def _row2resource(

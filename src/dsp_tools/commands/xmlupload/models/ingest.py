@@ -1,3 +1,4 @@
+import urllib
 from dataclasses import dataclass
 from dataclasses import field
 from pathlib import Path
@@ -14,7 +15,7 @@ from dsp_tools.commands.xmlupload.models.deserialise.xmlresource import Bitstrea
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import PermanentConnectionError
-from dsp_tools.utils.logger_config import logger_savepath
+from dsp_tools.utils.logger_config import WARNINGS_SAVEPATH
 
 STATUS_OK = 200
 STATUS_UNAUTHORIZED = 401
@@ -92,7 +93,8 @@ class DspIngestClientLive(AssetClient):
         Returns:
             IngestResponse: The internal filename of the uploaded file.
         """
-        url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/assets/ingest/{filepath.name}"
+        filename = urllib.parse.quote(filepath.name)
+        url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/assets/ingest/{filename}"
         err = f"Failed to ingest {filepath} to '{url}'."
         with open(filepath, "rb") as binary_io:
             try:
@@ -107,7 +109,7 @@ class DspIngestClientLive(AssetClient):
                 elif res.status_code == STATUS_UNAUTHORIZED:
                     raise BadCredentialsError("Bad credentials")
                 else:
-                    user_msg = f"{err} See logs for more details: {logger_savepath}"
+                    user_msg = f"{err} See {WARNINGS_SAVEPATH} for more information."
                     print(user_msg)
                     log_msg = f"{err}. Response status code {res.status_code} '{res.json()}'"
                     logger.error(log_msg)

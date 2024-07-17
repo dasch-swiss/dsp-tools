@@ -2,7 +2,8 @@ from pathlib import Path
 
 from loguru import logger
 
-logger_savepath = (Path.home() / ".dsp-tools" / "logging.log").absolute()
+LOGGER_SAVEPATH = (Path.home() / ".dsp-tools" / "logging.log").absolute()
+WARNINGS_SAVEPATH = Path("warnings.log")
 
 
 def logger_config() -> None:
@@ -21,7 +22,7 @@ def logger_config() -> None:
     retention_number = 30
 
     logger.add(
-        sink=logger_savepath,
+        sink=LOGGER_SAVEPATH,
         format=text_format,
         backtrace=True,
         diagnose=True,
@@ -30,7 +31,7 @@ def logger_config() -> None:
     )
 
     logger.add(
-        sink=Path("warnings.log"),
+        sink=WARNINGS_SAVEPATH,
         level="WARNING",
         format=text_format,
         backtrace=False,

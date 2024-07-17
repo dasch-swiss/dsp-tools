@@ -93,8 +93,8 @@ def _check_version() -> None:
     ask the user if they want to exit or continue anyway.
     """
     try:
-        response = requests.get("https://pypi.org/pypi/dsp-tools/json", timeout=15)
-    except requests.ConnectionError:
+        response = requests.get("https://pypi.org/pypi/dsp-tools/json", timeout=5)
+    except (requests.ConnectionError, requests.ReadTimeout):
         return
     if not response.ok:
         return

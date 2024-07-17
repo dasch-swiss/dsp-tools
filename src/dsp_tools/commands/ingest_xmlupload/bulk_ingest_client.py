@@ -1,32 +1,40 @@
+import urllib
 from dataclasses import dataclass
 from dataclasses import field
-from datetime import datetime
 from pathlib import Path
+from typing import Iterator
 
 from loguru import logger
+from requests import JSONDecodeError
 from requests import RequestException
 from requests import Session
 from requests.adapters import HTTPAdapter
 from requests.adapters import Retry
 
-from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailureDetail
+from dsp_tools.commands.ingest_xmlupload.upload_files.upload_failures import UploadFailure
+from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import UserError
-from dsp_tools.utils.logger_config import logger_savepath
+from dsp_tools.utils.logger_config import LOGGER_SAVEPATH
 
 STATUS_OK = 200
-STATUS_INTERNAL_SERVER_ERROR = 500
+STATUS_UNAUTHORIZED = 401
+STATUS_FORBIDDEN = 403
+STATUS_NOT_FOUND = 404
 STATUS_CONFLICT = 409
+STATUS_INTERNAL_SERVER_ERROR = 500
+STATUS_SERVER_UNAVAILABLE = 503
 
 
 @dataclass
 class BulkIngestClient:
-    """Client to upload multiple files to the ingest server and monitoring the ingest process."""
+    """Client to upload multiple files to the ingest server and monitor the ingest process."""
 
     dsp_ingest_url: str
     token: str
     shortcode: str
     imgdir: Path = field(default=Path.cwd())
     session: Session = field(init=False)
+    retrieval_failures = 0
 
     def __post_init__(self) -> None:
         retries = 6
@@ -37,22 +45,27 @@ class BulkIngestClient:
             connect=retries,
             backoff_factor=0.3,
             allowed_methods=None,  # means all methods
-            status_forcelist=[STATUS_INTERNAL_SERVER_ERROR],
+            status_forcelist=[STATUS_INTERNAL_SERVER_ERROR, STATUS_SERVER_UNAVAILABLE],
         )
         adapter = HTTPAdapter(max_retries=retry)
         self.session.mount("http://", adapter)
         self.session.mount("https://", adapter)
         self.session.headers["Authorization"] = f"Bearer {self.token}"
 
-    def _upload(self, filepath: Path) -> UploadFailureDetail | None:
-        url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/ingest/{filepath}"
-        err_msg = f"Failed to ingest '{filepath}' to '{url}'."
+    def upload_file(
+        self,
+        filepath: Path,
+    ) -> UploadFailure | None:
+        """Uploads a file to the ingest server."""
+        filename = urllib.parse.quote(str(filepath))
+        url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/ingest/{filename}"
+        err_msg = f"Failed to upload '{filepath}' to '{url}'."
         try:
             with open(self.imgdir / filepath, "rb") as binary_io:
                 content = binary_io.read()
         except OSError as e:
             logger.error(err_msg)
-            return UploadFailureDetail(filepath, f"File could not be opened/read: {e.strerror}")
+            return UploadFailure(filepath, f"File could not be opened/read: {e.strerror}")
         try:
             res = self.session.post(
                 url=url,
@@ -62,57 +75,74 @@ class BulkIngestClient:
             )
         except RequestException as e:
             logger.error(err_msg)
-            return UploadFailureDetail(filepath, f"Exception of requests library: {e}")
+            return UploadFailure(filepath, f"Exception of requests library: {e}")
         if res.status_code != STATUS_OK:
             logger.error(err_msg)
             reason = f"Response {res.status_code}: {res.text}" if res.text else f"Response {res.status_code}"
-            return UploadFailureDetail(filepath, reason)
+            return UploadFailure(filepath, reason)
+
+        logger.info(f"Uploaded file '{filepath}' to '{url}'")
         return None
 
-    def upload_file(
-        self,
-        filepath: Path,
-    ) -> UploadFailureDetail | None:
-        """Uploads a file to the ingest server."""
-        if failure_details := self._upload(filepath):
-            err_msg = f"Failed to ingest '{filepath}'.\n"
-            err_msg += f"Reason: {failure_details.reason}\n"
-            err_msg += f"See logs for more details: {logger_savepath}"
-            print(err_msg)
-            return failure_details
-        msg = f"Uploaded file '{filepath}'"
-        print(f"{datetime.now()}: {msg}")
-        logger.info(msg)
-        return None
-
-    def kick_off_ingest(self) -> None:
+    def trigger_ingest_process(self) -> None:
         """Start the ingest process on the server."""
         url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest"
         res = self.session.post(url, timeout=5)
+        if res.status_code in [STATUS_UNAUTHORIZED, STATUS_FORBIDDEN]:
+            raise BadCredentialsError("Unauthorized to start the ingest process. Please check your credentials.")
+        if res.status_code == STATUS_NOT_FOUND:
+            raise UserError(
+                f"No assets have been uploaded for project {self.shortcode}. "
+                "Before using the 'ingest-files' command, you must upload some files with the 'upload-files' command."
+            )
         if res.status_code == STATUS_CONFLICT:
             msg = f"Ingest process on the server {self.dsp_ingest_url} is already running. Wait until it completes..."
             print(msg)
             logger.info(msg)
-        if res.json().get("id") != self.shortcode:
-            raise UserError("Failed to kick off the ingest process.")
+            return
+        if res.status_code in [STATUS_INTERNAL_SERVER_ERROR, STATUS_SERVER_UNAVAILABLE]:
+            raise UserError("Server is unavailable. Please try again later.")
+
+        try:
+            returned_shortcode = res.json().get("id")
+            failed: bool = returned_shortcode != self.shortcode
+        except JSONDecodeError:
+            failed = True
+        if failed:
+            raise UserError("Failed to trigger the ingest process. Please check the server logs, or try again later.")
         print(f"Kicked off the ingest process on the server {self.dsp_ingest_url}. Wait until it completes...")
         logger.info(f"Kicked off the ingest process on the server {self.dsp_ingest_url}. Wait until it completes...")
 
-    def retrieve_mapping(self) -> str | None:
-        """Try to retrieve the mapping CSV from the server."""
+    def retrieve_mapping_generator(self) -> Iterator[str | bool]:
+        """
+        Try to retrieve the mapping CSV from the server.
+
+        Yields:
+            True if the ingest process is still running.
+            False if there is a server error.
+            The mapping CSV if the ingest process has completed.
+
+        Raises:
+            UserError: if there are too many server errors in a row.
+        """
         url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/mapping.csv"
-        res = self.session.get(url, timeout=5)
-        if res.status_code == STATUS_CONFLICT:
-            print("Ingest process is still running. Wait until it completes...")
-            logger.info("Ingest process is still running. Wait until it completes...")
-            return None
-        elif not res.ok or not res.text.startswith("original,derivative"):
-            print("Dubious error")
-            logger.error("Dubious error")
-            return None
-        print("Ingest process completed.")
-        logger.info("Ingest process completed.")
-        return res.text
+        while True:
+            res = self.session.get(url, timeout=5)
+            if res.status_code == STATUS_CONFLICT:
+                self.retrieval_failures = 0
+                logger.info("Ingest process is still running. Wait until it completes...")
+                yield True
+            elif res.status_code != STATUS_OK or not res.text.startswith("original,derivative"):
+                self.retrieval_failures += 1
+                if self.retrieval_failures > 15:
+                    raise UserError(f"There were too many server errors. Please check the logs at {LOGGER_SAVEPATH}.")
+                msg = "While retrieving the mapping CSV, the server responded with an unexpected status code/content."
+                logger.error(msg)
+                yield False
+            else:
+                logger.info("Ingest process completed.")
+                break
+        yield res.text
 
     def finalize(self) -> bool:
         """Delete the mapping file and the temporary directory where the unprocessed files were stored."""

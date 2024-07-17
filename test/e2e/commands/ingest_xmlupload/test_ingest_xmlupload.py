@@ -11,11 +11,14 @@ from dsp_tools.commands.ingest_xmlupload.create_resources.upload_xml import inge
 from dsp_tools.commands.ingest_xmlupload.ingest_files.ingest_files import ingest_files
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_files import upload_files
 from dsp_tools.commands.project.create.project_create import create_project
+from test.e2e.setup_testcontainers import SIPI_IMAGES
+from test.e2e.setup_testcontainers import TMP_INGEST
 from test.e2e.setup_testcontainers import get_containers
 
 CREDS = ServerCredentials("root@example.com", "test", "http://0.0.0.0:3333")
 XML_FILE = Path("testdata/xml-data/test-data-e2e.xml")
 SHORTCODE = "4125"
+TMP_FOLDER = TMP_INGEST / "import" / SHORTCODE / "testdata" / "bitstreams"
 
 
 @pytest.fixture(scope="module")
@@ -34,31 +37,26 @@ def _create_project() -> Iterator[None]:
 
 
 @pytest.mark.usefixtures("_create_project")
-def test_ingest_upload(caplog: pytest.LogCaptureFixture, mapping_file: Path) -> None:
-    _test_upload_step(caplog)
-    _test_ingest_step(caplog, mapping_file)
-    _test_xmlupload_step(caplog)
+def test_ingest_upload(mapping_file: Path) -> None:
+    _test_upload_step()
+    _test_ingest_step(mapping_file)
+    _test_xmlupload_step()
 
 
-def _test_upload_step(caplog: pytest.LogCaptureFixture) -> None:
+def _test_upload_step() -> None:
     success = upload_files(XML_FILE, CREDS)
     assert success
-    log_messages = [rec.message for rec in caplog.records]
-    assert log_messages[0] == f"Found 2 files to upload onto server {CREDS.dsp_ingest_url}."
-    assert log_messages[-3] == "Uploaded file 'testdata/bitstreams/test.jpg'"
-    assert log_messages[-2] == "Uploaded file 'testdata/bitstreams/test.pdf'"
-    assert log_messages[-1] == f"Uploaded all 2 files onto server {CREDS.dsp_ingest_url}."
-    caplog.clear()
+    assert set(TMP_FOLDER.iterdir()) == {TMP_FOLDER / "test.jpg", TMP_FOLDER / "test.pdf"}
 
 
-def _test_ingest_step(caplog: pytest.LogCaptureFixture, mapping_file: Path) -> None:
+def _test_ingest_step(mapping_file: Path) -> None:
     success = ingest_files(CREDS, SHORTCODE)
     assert success
-    logs = [rec.message for rec in caplog.records]
-    assert logs[-3] == "Kicked off the ingest process on the server http://0.0.0.0:3340. Wait until it completes..."
-    assert logs[-2] == "Ingest process completed."
-    assert logs[-1] == f"Saved mapping CSV to '{mapping_file}'"
-    caplog.clear()
+    assert not set(TMP_FOLDER.iterdir())
+    ingested_files = list((SIPI_IMAGES / SHORTCODE).glob("**/*.*"))
+    ingested_files_ext = [f.suffixes for f in ingested_files]
+    expected_ext = [[".info"], [".jpg", ".orig"], [".jpx"], [".info"], [".pdf", ".orig"], [".pdf"]]
+    assert unordered(ingested_files_ext) == expected_ext
 
     df = pd.read_csv(mapping_file)
     assert df["original"].tolist() == unordered(["testdata/bitstreams/test.jpg", "testdata/bitstreams/test.pdf"])

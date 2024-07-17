@@ -3,7 +3,7 @@ services:
   api:
     # on the verge of every deployment (fortnightly), update the "image" value from the "api" value of
     # https://github.com/dasch-swiss/ops-deploy/blob/main/roles/dsp-deploy/files/RELEASE.json
-    image: daschswiss/knora-api:v30.16.0
+    image: daschswiss/knora-api:v30.17.1
     depends_on:
       - sipi
       - db
@@ -23,11 +23,12 @@ services:
       - KNORA_WEBAPI_ALLOW_RELOAD_OVER_HTTP=true
       - KNORA_WEBAPI_KNORA_API_EXTERNAL_HOST=0.0.0.0
       - KNORA_WEBAPI_KNORA_API_EXTERNAL_PORT=3333
+      - ALLOW_ERASE_PROJECTS=true
       - DSP_API_LOG_LEVEL=INFO
 
   sipi:
     # on the verge of every deployment (fortnightly), take the same tag as DSP-API
-    image: daschswiss/knora-sipi:v30.16.0
+    image: daschswiss/knora-sipi:v30.17.1
     ports:
       - "1024:1024"
     volumes:
@@ -43,7 +44,7 @@ services:
   app:
     # on the verge of every deployment (fortnightly), update the "image" value from the "app" value of
     # https://github.com/dasch-swiss/ops-deploy/blob/main/roles/dsp-deploy/files/RELEASE.json
-    image: daschswiss/dsp-app:v11.12.0
+    image: daschswiss/dsp-app:v11.14.0
     ports:
       - "4200:4200"
 
@@ -61,12 +62,13 @@ services:
   ingest:
     # on the verge of every deployment (fortnightly), update the "image" value from the "ingest" value of
     # https://github.com/dasch-swiss/ops-deploy/blob/main/roles/dsp-deploy/files/RELEASE.json
-    image: daschswiss/dsp-ingest:v0.10.1-6-g3894355
+    image: daschswiss/dsp-ingest:v0.11.0
     ports:
       - "3340:3340"
     volumes:
       - ./sipi/images:/opt/images
       - ./sipi/tmp-dsp-ingest:/opt/temp
+      - ingest-db:/opt/db
     environment:
       - SERVICE_LOG_FORMAT=text
       - STORAGE_ASSET_DIR=/opt/images
@@ -75,3 +77,8 @@ services:
       - JWT_ISSUER=0.0.0.0:3333
       - JWT_SECRET=UP 4888, nice 4-8-4 steam engine
       - SIPI_USE_LOCAL_DEV=false
+      - DB_JDBC_URL=jdbc:sqlite:/opt/db/ingest.sqlite
+      - ALLOW_ERASE_PROJECTS=true
+
+volumes:
+  ingest-db:

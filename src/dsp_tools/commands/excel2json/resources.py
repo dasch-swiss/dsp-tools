@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.resources
 import json
 import warnings
+from copy import deepcopy
 from typing import Any
 from typing import Optional
 
@@ -56,7 +57,6 @@ def excel2resources(
     if validation_problems := _validate_excel_file(all_dfs):
         msg = validation_problems.execute_error_protocol()
         raise InputError(msg)
-
     classes_df, resource_dfs = _prepare_classes_df(all_dfs)
     # transform every row into a resource
     resources = [_row2resource(row, resource_dfs.get(row["name"])) for i, row in classes_df.iterrows()]
@@ -72,7 +72,8 @@ def excel2resources(
     return resources, True
 
 
-def _validate_excel_file(df_dict: dict[str, pd.DataFrame]) -> ExcelFileProblem | None:
+def _validate_excel_file(all_dfs: dict[str, pd.DataFrame]) -> ExcelFileProblem | None:
+    df_dict = deepcopy(all_dfs)
     names = {k.lower(): k for k in df_dict}
     if not (cls_name := names.get("classes")):
         return ExcelFileProblem("resources.xlsx", [MandatorySheetMissingProblem("classes", list(names.values()))])

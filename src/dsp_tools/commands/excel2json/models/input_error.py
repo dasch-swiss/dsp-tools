@@ -237,8 +237,7 @@ class ResourceIndividualClasses:
 class ResourcesSheetsNotAsExpected:
     """This class contains information if the excel sheet names are not a subset of the expected ones."""
 
-    names_classes: set[str]
-    names_sheets: set[str]
+    missing_names: set[str]
 
     def execute_error_protocol(self) -> str:
         """
@@ -247,14 +246,10 @@ class ResourcesSheetsNotAsExpected:
         Returns:
             message for the error
         """
-        msg = "The Excel file 'resources.xlsx' has problems.\n"
-        missing_names = self.names_sheets - self.names_classes
-        if missing_names:
-            msg += (
-                f"The following sheet(s) do not have an entry in the 'name' column "
-                f"of the sheet 'classes':{list_separator}{list_separator.join(missing_names)}"
-            )
-        return msg
+        return (
+            f"The following sheet(s) do not have an entry in the 'name' column "
+            f"of the sheet 'classes':{list_separator}{list_separator.join(self.missing_names)}"
+        )
 
 
 @dataclass(frozen=True)

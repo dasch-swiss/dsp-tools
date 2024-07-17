@@ -223,9 +223,10 @@ class TestValidateWithSchema:
             e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-invalid-property.xlsx", "")
 
     def test_duplicate_name(self) -> None:
-        expected_msg = regex.escape(
+        expected_msg = (
             "The Excel file 'resources.xlsx' contains the following problems:\n\n"
-            "No duplicates are allowed in the column 'name'\n"
+            "The sheet: 'classes' has the following problems:\n\n"
+            "    - No duplicates are allowed in the column 'name'\n"
             "The following values appear several times:\n"
             "    - MentionedPerson"
         )

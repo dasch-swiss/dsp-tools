@@ -10,8 +10,10 @@ from dsp_tools.commands.excel2json import resources as e2j
 from dsp_tools.commands.excel2json.models.input_error import ExcelSheetProblem
 from dsp_tools.commands.excel2json.models.input_error import MissingSheetProblem
 from dsp_tools.commands.excel2json.models.input_error import MissingValuesProblem
+from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import RequiredColumnMissingProblem
 from dsp_tools.commands.excel2json.models.input_error import ResourceClassSheet
+from dsp_tools.commands.excel2json.models.input_error import ResourcesSheetsNotAsExpected
 from dsp_tools.commands.excel2json.resources import _check_complete_gui_order
 from dsp_tools.commands.excel2json.resources import _create_all_cardinalities
 from dsp_tools.commands.excel2json.resources import _make_one_property
@@ -171,6 +173,7 @@ class TestClassesExcelSheetCompliance:
     def test_missing_classes_sheet(self) -> None:
         test_dict = {"sheet1": pd.DataFrame({})}
         res = e2j._do_classes_excel_sheet_compliance(test_dict)
+        assert len(res) == 1
         miss_sheet = res[0]
         assert isinstance(miss_sheet, MissingSheetProblem)
         assert miss_sheet.missing_sheets == ["classes"]
@@ -179,6 +182,41 @@ class TestClassesExcelSheetCompliance:
     def test_multiple_classes_sheets(self) -> None:
         test_dict = {"CLASSES": pd.DataFrame({}), "classes": pd.DataFrame({})}
         res = e2j._do_classes_excel_sheet_compliance(test_dict)
+        assert len(res) == 1
         multiple_sheet = res[0]
         assert isinstance(multiple_sheet, ResourceClassSheet)
         assert set(multiple_sheet.name_classes) == {"CLASSES", "classes"}
+
+
+class TestValidateClassesExcelContent:
+    def test_good(self) -> None:
+        test_df = pd.DataFrame({"name": ["one"], "super": ["one"]})
+        assert not e2j._validate_classes_excel_sheet_content(test_df, {"one"})
+
+    def test_missing_name(self) -> None:
+        test_df = pd.DataFrame({"name": ["one", "two"], "super": ["one", "two"]})
+        res = e2j._validate_classes_excel_sheet_content(test_df, {"three", "one"})
+        assert isinstance(res, ExcelSheetProblem)
+        problem = res.problems[0]
+        assert isinstance(problem, ResourcesSheetsNotAsExpected)
+        assert len(problem.missing_names) == 1
+        assert problem.missing_names == {"three"}
+
+    def test_missing_required_values(self) -> None:
+        test_df = pd.DataFrame({"name": ["one"], "super": [pd.NA]})
+        res = e2j._validate_classes_excel_sheet_content(test_df, set())
+        assert isinstance(res, ExcelSheetProblem)
+        assert len(res.problems) == 1
+        missing_val = res.problems[0]
+        assert isinstance(missing_val, PositionInExcel)
+        assert missing_val.row == 2
+        assert missing_val.column == "super"
+
+    def test_missing_name_col(self) -> None:
+        test_df = pd.DataFrame({"super": ["super"]})
+        res = e2j._validate_classes_excel_sheet_content(test_df, set())
+        assert isinstance(res, ExcelSheetProblem)
+        assert len(res.problems) == 1
+        problem = res.problems[0]
+        assert isinstance(problem, RequiredColumnMissingProblem)
+        assert problem.columns == ["name"]

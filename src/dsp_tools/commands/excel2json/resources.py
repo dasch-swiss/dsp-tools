@@ -19,6 +19,7 @@ from dsp_tools.commands.excel2json.models.input_error import MissingValuesProble
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import Problem
 from dsp_tools.commands.excel2json.models.input_error import ResourceClassSheet
+from dsp_tools.commands.excel2json.models.input_error import ResourcesSheetsNotAsExpected
 from dsp_tools.commands.excel2json.utils import add_optional_columns
 from dsp_tools.commands.excel2json.utils import check_column_for_duplicate
 from dsp_tools.commands.excel2json.utils import check_contains_required_columns
@@ -292,7 +293,9 @@ def _prepare_classes_df(resource_dfs: dict[str, pd.DataFrame]) -> tuple[pd.DataF
 
 
 def _validate_excel_file_content(classes_df: pd.DataFrame, df_dict: dict[str, pd.DataFrame]) -> ExcelFileProblem | None:
-    problems = _validate_classes_excel_sheet_content(classes_df, set(df_dict))
+    problems: list[Problem] = []
+    if class_problem := _validate_classes_excel_sheet_content(classes_df, set(df_dict)):
+        problems.append(class_problem)
     if sheet_problems := _validate_individual_class_sheets(df_dict):
         problems.extend(sheet_problems)
     if problems:
@@ -300,7 +303,7 @@ def _validate_excel_file_content(classes_df: pd.DataFrame, df_dict: dict[str, pd
     return None
 
 
-def _validate_classes_excel_sheet_content(classes_df: pd.DataFrame, sheet_list: set[str]) -> list[Problem]:
+def _validate_classes_excel_sheet_content(classes_df: pd.DataFrame, sheet_set: set[str]) -> ExcelSheetProblem | None:
     if any(classes_df.get(lang) is not None for lang in languages):
         warnings.warn(
             DspToolsFutureWarning(
@@ -310,20 +313,21 @@ def _validate_classes_excel_sheet_content(classes_df: pd.DataFrame, sheet_list: 
         )
     problems: list[Problem] = []
     required_cols = ["name", "super"]
-    if missing_cols := check_contains_required_columns(classes_df, set(required_cols)):
-        return [ExcelSheetProblem("classes", [missing_cols])]
+    if missing_cols_problem := check_contains_required_columns(classes_df, set(required_cols)):
+        return ExcelSheetProblem("classes", [missing_cols_problem])
     if missing_values := check_required_values(classes_df, required_cols):
         row_nums = get_wrong_row_numbers(missing_values)
         for col, nums in row_nums.items():
             problems.extend([PositionInExcel("classes", col, x) for x in nums])
     if duplicate_check := check_column_for_duplicate(classes_df, "name"):
         problems.append(duplicate_check)
-    if (name_col := classes_df.get("name")).any():
-        listed_classes = set(name_col.tolist())
-        if not sheet_list.issubset(listed_classes):
-            diff = sheet_list - listed_classes
-            problems.append(MissingSheetProblem(list(diff), list(sheet_list)))
-    return problems
+    listed_classes = set(classes_df["name"].tolist())
+    if not sheet_set.issubset(listed_classes):
+        diff = sheet_set - listed_classes
+        problems.append(ResourcesSheetsNotAsExpected(diff))
+    if problems:
+        return ExcelSheetProblem("classes", problems)
+    return None
 
 
 def _validate_individual_class_sheets(class_df_dict: dict[str, pd.DataFrame]) -> list[Problem]:

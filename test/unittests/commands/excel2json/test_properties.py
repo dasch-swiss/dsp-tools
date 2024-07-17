@@ -241,7 +241,7 @@ class TestFunctions(unittest.TestCase):
                 "gui_attributes": ["size: 32, maxlength: 128", pd.NA, "hlist: languages"],
             }
         )
-        returned_dict = e2j._row2prop(df_row=cast("pd.Series[Any]", original_df.loc[0, :]), row_num=0, excelfile="Test")
+        returned_prop = e2j._row2prop(df_row=cast("pd.Series[Any]", original_df.loc[0, :]), row_num=0, excelfile="Test")
         expected_dict = {
             "name": "name_1",
             "object": "object_1",
@@ -264,9 +264,9 @@ class TestFunctions(unittest.TestCase):
             },
             "gui_attributes": {"size": 32, "maxlength": 128},
         }
-        self.assertDictEqual(expected_dict, returned_dict)
+        self.assertDictEqual(expected_dict, returned_prop.make())
 
-        returned_dict = e2j._row2prop(df_row=cast("pd.Series[Any]", original_df.loc[1, :]), row_num=1, excelfile="Test")
+        returned_prop = e2j._row2prop(df_row=cast("pd.Series[Any]", original_df.loc[1, :]), row_num=1, excelfile="Test")
         expected_dict = {
             "comments": {"en": "comment_en_2"},
             "gui_element": "Date",
@@ -276,9 +276,9 @@ class TestFunctions(unittest.TestCase):
             "subject": "subject_2",
             "super": ["super_2.1", "super_2.2"],
         }
-        self.assertDictEqual(expected_dict, returned_dict)
+        self.assertDictEqual(expected_dict, returned_prop.make())
 
-        returned_dict = e2j._row2prop(df_row=cast("pd.Series[Any]", original_df.loc[2, :]), row_num=2, excelfile="Test")
+        returned_prop = e2j._row2prop(df_row=cast("pd.Series[Any]", original_df.loc[2, :]), row_num=2, excelfile="Test")
         expected_dict = {
             "comments": {"de": "comment_de_3"},
             "gui_attributes": {"hlist": "languages"},
@@ -288,7 +288,7 @@ class TestFunctions(unittest.TestCase):
             "object": "object_3",
             "super": ["super_3"],
         }
-        self.assertDictEqual(expected_dict, returned_dict)
+        self.assertDictEqual(expected_dict, returned_prop.make())
 
 
 if __name__ == "__main__":

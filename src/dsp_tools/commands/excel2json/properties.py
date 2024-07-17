@@ -19,6 +19,7 @@ from dsp_tools.commands.excel2json.models.input_error import MissingValuesProble
 from dsp_tools.commands.excel2json.models.input_error import MoreThanOneSheetProblem
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import Problem
+from dsp_tools.commands.excel2json.models.ontology import Property
 from dsp_tools.commands.excel2json.utils import add_optional_columns
 from dsp_tools.commands.excel2json.utils import check_column_for_duplicate
 from dsp_tools.commands.excel2json.utils import check_contains_required_columns
@@ -89,15 +90,16 @@ def excel2properties(
         )
         for index, row in property_df.iterrows()
     ]
+    serialised_prop = [x.make() for x in props]
 
     # write final JSON file
-    _validate_properties_section_in_json(properties_list=props, excelfile=excelfile)
+    _validate_properties_section_in_json(properties_list=serialised_prop, excelfile=excelfile)
     if path_to_output_file:
         with open(file=path_to_output_file, mode="w", encoding="utf-8") as file:
-            json.dump(props, file, indent=4, ensure_ascii=False)
+            json.dump(serialised_prop, file, indent=4, ensure_ascii=False)
             print(f"properties section was created successfully and written to file '{path_to_output_file}'")
 
-    return props, True
+    return serialised_prop, True
 
 
 def _check_for_deprecated_syntax(df: pd.DataFrame) -> None:  # noqa: ARG001 (unused argument)
@@ -226,26 +228,27 @@ def _get_final_series(
     return final_series
 
 
-def _row2prop(df_row: pd.Series[Any], row_num: int, excelfile: str) -> dict[str, Any]:
-    _property = {x: df_row[x] for x in mandatory_properties} | {
-        "labels": get_labels(df_row=df_row),
-        "super": [s.strip() for s in df_row["super"].split(",")],
-    }
-    if not pd.isna(df_row["subject"]):
-        _property["subject"] = df_row["subject"]
-
+def _row2prop(df_row: pd.Series[Any], row_num: int, excelfile: str) -> Property:
+    subj = df_row["subject"] if not pd.isna(df_row["subject"]) else None
+    comment = get_comments(df_row=df_row)
     gui_attrib = _get_gui_attribute(df_row=df_row, row_num=row_num)
     match gui_attrib:
-        case dict():
-            _property["gui_attributes"] = gui_attrib
         case InvalidExcelContentProblem():
             msg = f"There is a problem with the excel file: '{excelfile}'\n" + gui_attrib.execute_error_protocol()
             raise InputError(msg) from None
-
-    if comment := get_comments(df_row=df_row):
-        _property["comments"] = comment
-
-    return _property
+        case _:
+            pass
+    prop = Property(
+        name=df_row["name"],
+        super=[s.strip() for s in df_row["super"].split(",")],
+        object=df_row["object"],
+        subject=subj,
+        labels=get_labels(df_row=df_row),
+        comments=comment,
+        gui_element=df_row["gui_element"],
+        gui_attributes=gui_attrib,
+    )
+    return prop
 
 
 def _get_gui_attribute(

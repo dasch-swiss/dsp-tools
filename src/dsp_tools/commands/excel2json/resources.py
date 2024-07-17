@@ -101,8 +101,9 @@ def _validate_classes_excel_sheet(classes_df: pd.DataFrame, sheet_names: set[str
     if missing_cols := check_contains_required_columns(classes_df, set(required_cols)):
         # If this condition is not fulfilled the following tests will produce KeyErrors
         return ExcelSheetProblem("classes", [missing_cols])
-    if missing_sheets := _check_if_all_sheets_have_an_entry_in_classes(set(classes_df["name"].tolist()), sheet_names):
-        problems.append(missing_sheets)
+    names_listed = set(classes_df["name"].tolist())
+    if not sheet_names.issubset(names_listed):
+        problems.append(ResourceSheetNotListedProblem(sheet_names - names_listed))
     if missing_values := check_required_values(classes_df, required_cols):
         row_nums = get_wrong_row_numbers(missing_values)
         for col, nums in row_nums.items():
@@ -111,14 +112,6 @@ def _validate_classes_excel_sheet(classes_df: pd.DataFrame, sheet_names: set[str
         problems.append(duplicate_check)
     if problems:
         return ExcelSheetProblem("classes", problems)
-    return None
-
-
-def _check_if_all_sheets_have_an_entry_in_classes(
-    name_set: set[str], resource_sheets: set[str]
-) -> ResourceSheetNotListedProblem | None:
-    if not resource_sheets.issubset(name_set):
-        return ResourceSheetNotListedProblem(resource_sheets - name_set)
     return None
 
 

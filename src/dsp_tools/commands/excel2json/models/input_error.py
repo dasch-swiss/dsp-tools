@@ -192,6 +192,47 @@ class InvalidSheetNameProblem:
         )
 
 
+@dataclass
+class ResourceClassSheet:
+    """This class contains information if the excel contains two sheets with 'classes' in the name."""
+
+    name_classes: list[str]
+
+    def execute_error_protocol(self) -> str:
+        """
+        This function initiates all the steps for successful problem communication with the user.
+
+        Returns:
+            message for the error
+        """
+
+        return (
+            f"'classes' is a protected sheet name. Please delete all but one.\n"
+            f"The following sheets contain this in their name:"
+            f"{list_separator}{list_separator.join(self.name_classes)}"
+        )
+
+
+@dataclass
+class ResourceIndividualClasses:
+    missing_classes: set[str]
+
+    """This class contains information if an excel sheet does not have an entry in the 'classes' sheet."""
+
+    def execute_error_protocol(self) -> str:
+        """
+        This function initiates all the steps for successful problem communication with the user.
+
+        Returns:
+            message for the error
+        """
+        return (
+            f"All sheets (except the 'classes' sheet) in the Excel "
+            f"must be listed in the column 'name' of the 'classes' sheet.\n"
+            f"The following sheet(s) are not listed:{list_separator}{list_separator.join(self.missing_classes)}"
+        )
+
+
 @dataclass(frozen=True)
 class ResourcesSheetsNotAsExpected:
     """This class contains information if the excel sheet names are not a subset of the expected ones."""

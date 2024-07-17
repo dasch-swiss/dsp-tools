@@ -80,7 +80,8 @@ def ingest_xmlupload(
 
 def _parse_xml_and_replace_filepaths(xml_file: Path) -> tuple[str, etree._Element, str]:
     """
-    Validate and parse an upload XML file, when ingest has already been done.
+    Validate and parse an upload XML file.
+    The bulk-ingest must already have taken place, and the mapping CSV must be in the CWD.
 
     Args:
         xml_file: file that will be parsed

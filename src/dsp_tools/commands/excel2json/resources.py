@@ -20,10 +20,14 @@ from dsp_tools.commands.excel2json.models.input_error import MissingValuesProble
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import Problem
 from dsp_tools.commands.excel2json.models.input_error import ResourceSheetNotListedProblem
+from dsp_tools.commands.excel2json.models.ontology import OntoResource
+from dsp_tools.commands.excel2json.models.ontology import ResourceCardinality
 from dsp_tools.commands.excel2json.utils import add_optional_columns
 from dsp_tools.commands.excel2json.utils import check_column_for_duplicate
 from dsp_tools.commands.excel2json.utils import check_contains_required_columns
 from dsp_tools.commands.excel2json.utils import check_required_values
+from dsp_tools.commands.excel2json.utils import get_comments
+from dsp_tools.commands.excel2json.utils import get_labels
 from dsp_tools.commands.excel2json.utils import get_wrong_row_numbers
 from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
 from dsp_tools.models.exceptions import InputError
@@ -61,7 +65,8 @@ def excel2resources(
     classes_df, resource_dfs = _prepare_classes_df(all_dfs)
 
     # transform every row into a resource
-    resources = [_row2resource(row, resource_dfs.get(row["name"])) for i, row in classes_df.iterrows()]
+    res = [_row2resource(row, resource_dfs.get(row["name"])) for i, row in classes_df.iterrows()]
+    resources = [x.serialise() for x in res]
 
     # write final "resources" section into a JSON file
     _validate_resources(resources_list=resources)
@@ -162,7 +167,7 @@ def _prepare_classes_df(resource_dfs: dict[str, pd.DataFrame]) -> tuple[pd.DataF
 def _row2resource(
     class_info_row: pd.Series[Any],
     class_df_with_cardinalities: pd.DataFrame | None,
-) -> dict[str, Any]:
+) -> OntoResource:
     """
     Method that reads one row from the "classes" DataFrame,
     opens the corresponding details DataFrame,
@@ -180,51 +185,33 @@ def _row2resource(
     """
 
     class_name = class_info_row["name"]
-    labels = {
-        lang: class_info_row[f"label_{lang}"] for lang in languages if not pd.isna(class_info_row[f"label_{lang}"])
-    }
-    if not labels:
-        labels = {lang: class_info_row[lang] for lang in languages if not pd.isna(class_info_row[lang])}
+    labels = get_labels(class_info_row)
     supers = [s.strip() for s in class_info_row["super"].split(",")]
-
-    resource = {"name": class_name, "super": supers, "labels": labels}
-
-    comments = {
-        lang: class_info_row[f"comment_{lang}"] for lang in languages if not pd.isna(class_info_row[f"comment_{lang}"])
-    }
-    if comments:
-        resource["comments"] = comments
-
+    comments = get_comments(class_info_row)
     cards = _make_cardinality_section(class_name, class_df_with_cardinalities)
-    if cards:
-        resource["cardinalities"] = cards
-
-    return resource
+    return OntoResource(name=class_name, super=supers, labels=labels, comments=comments, cardinalities=cards)
 
 
 def _make_cardinality_section(
     class_name: str, class_df_with_cardinalities: pd.DataFrame | None
-) -> list[dict[str, str | int]]:
+) -> list[ResourceCardinality] | None:
     if class_df_with_cardinalities is None:
-        return []
+        return None
     if len(class_df_with_cardinalities) == 0:
-        return []
-    cards = _create_all_cardinalities(class_name, class_df_with_cardinalities)
-    return cards
+        return None
+    return _create_all_cardinalities(class_name, class_df_with_cardinalities)
 
 
-def _create_all_cardinalities(class_name: str, class_df_with_cardinalities: pd.DataFrame) -> list[dict[str, str | int]]:
+def _create_all_cardinalities(class_name: str, class_df_with_cardinalities: pd.DataFrame) -> list[ResourceCardinality]:
     class_df_with_cardinalities = _check_complete_gui_order(class_name, class_df_with_cardinalities)
-    cards = [_make_one_property(detail_row) for _, detail_row in class_df_with_cardinalities.iterrows()]
+    cards = [_make_one_cardinality(detail_row) for _, detail_row in class_df_with_cardinalities.iterrows()]
     return cards
 
 
-def _make_one_property(detail_row: pd.Series[str | int]) -> dict[str, str | int]:
-    return {
-        "propname": f':{detail_row["property"]}',
-        "cardinality": str(detail_row["cardinality"]).lower(),
-        "gui_order": detail_row["gui_order"],
-    }
+def _make_one_cardinality(detail_row: pd.Series[str | int]) -> ResourceCardinality:
+    return ResourceCardinality(
+        f":{detail_row["property"]}", str(detail_row["cardinality"]).lower(), int(detail_row["gui_order"])
+    )
 
 
 def _check_complete_gui_order(class_name: str, class_df_with_cardinalities: pd.DataFrame) -> pd.DataFrame:

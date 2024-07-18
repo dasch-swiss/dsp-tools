@@ -5,6 +5,37 @@ from typing import Any
 
 
 @dataclass
+class OntoResource:
+    name: str
+    super: list[str]
+    labels: LanguageDict
+    comments: LanguageDict | None
+    cardinalities: list[ResourceCardinality] | None
+
+    def serialise(self) -> dict[str, Any]:
+        res: dict[str, Any] = {
+            "name": self.name,
+            "super": self.super,
+            "labels": self.labels.serialise(),
+        }
+        if self.comments:
+            res["comments"] = self.comments.serialise()
+        if self.cardinalities:
+            res["cardinalities"] = [x.serialise() for x in self.cardinalities]
+        return res
+
+
+@dataclass
+class ResourceCardinality:
+    propname: str
+    cardinality: str
+    gui_order: int
+
+    def serialise(self) -> dict[str, str | int]:
+        return {"propname": self.propname, "cardinality": self.cardinality, "gui_order": self.gui_order}
+
+
+@dataclass
 class OntoProperty:
     name: str
     super: list[str]

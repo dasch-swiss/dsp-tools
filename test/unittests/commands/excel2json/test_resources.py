@@ -16,7 +16,7 @@ from dsp_tools.commands.excel2json.models.input_error import ResourceSheetNotLis
 from dsp_tools.commands.excel2json.models.ontology import ResourceCardinality
 from dsp_tools.commands.excel2json.resources import _check_complete_gui_order
 from dsp_tools.commands.excel2json.resources import _create_all_cardinalities
-from dsp_tools.commands.excel2json.resources import _make_on_cardinality
+from dsp_tools.commands.excel2json.resources import _make_one_cardinality
 
 
 class TestCheckCompleteGuiOrder:
@@ -152,7 +152,7 @@ def test_make_one_property() -> None:
             "cardinality": "1-n",
         }
     )
-    res = _make_on_cardinality(s)
+    res = _make_one_cardinality(s)
     assert isinstance(res, ResourceCardinality)
     assert res.propname == ":1"
     assert res.cardinality == "1-n"

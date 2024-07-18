@@ -202,9 +202,9 @@ def get_labels(df_row: pd.Series[Any]) -> LanguageDict:
     Returns:
         A dictionary with the language tag and the content of the cell
     """
-    labels = {lang: labl for lang in languages if not pd.isna(labl := df_row[f"label_{lang}"])}
+    labels = {lang: label for lang in languages if not pd.isna(label := df_row[f"label_{lang}"])}
     if not labels:
-        labels = {lang: labl for lang in languages if not pd.isna(labl := df_row[lang])}
+        labels = {lang: label for lang in languages if not pd.isna(label := df_row[lang])}
     return LanguageDict(labels)
 
 
@@ -221,7 +221,7 @@ def get_comments(df_row: pd.Series[Any]) -> LanguageDict | None:
     Returns:
         A dictionary with the language tag and the content of the cell
     """
-    comments = {lang: cmt for lang in languages if not pd.isna(cmt := df_row[f"comment_{lang}"])}
+    comments = {lang: comment for lang in languages if not pd.isna(comment := df_row[f"comment_{lang}"])}
     return LanguageDict(comments) if comments else None
 
 

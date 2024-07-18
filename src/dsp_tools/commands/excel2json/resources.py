@@ -204,11 +204,11 @@ def _make_cardinality_section(
 
 def _create_all_cardinalities(class_name: str, class_df_with_cardinalities: pd.DataFrame) -> list[ResourceCardinality]:
     class_df_with_cardinalities = _check_complete_gui_order(class_name, class_df_with_cardinalities)
-    cards = [_make_on_cardinality(detail_row) for _, detail_row in class_df_with_cardinalities.iterrows()]
+    cards = [_make_one_cardinality(detail_row) for _, detail_row in class_df_with_cardinalities.iterrows()]
     return cards
 
 
-def _make_on_cardinality(detail_row: pd.Series[str | int]) -> ResourceCardinality:
+def _make_one_cardinality(detail_row: pd.Series[str | int]) -> ResourceCardinality:
     return ResourceCardinality(
         f":{detail_row["property"]}", str(detail_row["cardinality"]).lower(), int(detail_row["gui_order"])
     )

@@ -75,8 +75,7 @@ class TestValidateProperties:
 def test_excel2properties_invalid_gui_attrib_format() -> None:
     expected_msg = regex.escape(
         "The Excel file 'properties.xlsx' contains the following problems:\n\n"
-        "The property 'hasInteger' has the following problem(s):"
-        "\n----------------------------\n"
+        "The property 'hasInteger' has the following problem(s):\n"
         "There is invalid content in the excel.\n"
         "Located at: Column 'gui_attributes' | Row 4\n"
         "Expected Content: attribute: value, attribute: value\n"

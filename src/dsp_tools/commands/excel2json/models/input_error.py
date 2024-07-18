@@ -336,6 +336,5 @@ class PropertyProblem:
         """
         all_problems = [x.execute_error_protocol() for x in self.problems]
         return (
-            f"The property '{self.prop_name}' has the following problem(s):"
-            f"{medium_separator}{medium_separator.join(all_problems)}"
+            f"The property '{self.prop_name}' has the following problem(s):\n" f"{medium_separator.join(all_problems)}"
         )

@@ -13,9 +13,10 @@ from dsp_tools.commands.excel2json.models.input_error import MandatorySheetMissi
 from dsp_tools.commands.excel2json.models.input_error import MissingValuesProblem
 from dsp_tools.commands.excel2json.models.input_error import RequiredColumnMissingProblem
 from dsp_tools.commands.excel2json.models.input_error import ResourceSheetNotListedProblem
+from dsp_tools.commands.excel2json.models.ontology import ResourceCardinality
 from dsp_tools.commands.excel2json.resources import _check_complete_gui_order
 from dsp_tools.commands.excel2json.resources import _create_all_cardinalities
-from dsp_tools.commands.excel2json.resources import _make_one_property
+from dsp_tools.commands.excel2json.resources import _make_on_cardinality
 
 
 class TestCheckCompleteGuiOrder:
@@ -70,14 +71,25 @@ class TestCreateAllCardinalities:
             "Values have been filled in automatically, "
             "so that the gui-order reflects the order of the properties in the file."
         )
-        expected = [
-            {"propname": ":1", "gui_order": 1, "cardinality": "1-n"},
-            {"propname": ":2", "gui_order": 2, "cardinality": "1"},
-            {"propname": ":3", "gui_order": 3, "cardinality": "0-n"},
-        ]
         with pytest.warns(Warning, match=expected_msg):
             res = _create_all_cardinalities("class_name", df)
-            assert res == expected
+            assert isinstance(res, list)
+            res = sorted(res, key=lambda x: x.propname)
+            one = res[0]
+            assert isinstance(one, ResourceCardinality)
+            assert one.propname == ":1"
+            assert one.cardinality == "1-n"
+            assert one.gui_order == 1
+            two = res[1]
+            assert isinstance(two, ResourceCardinality)
+            assert two.propname == ":2"
+            assert two.cardinality == "1"
+            assert two.gui_order == 2
+            three = res[2]
+            assert isinstance(three, ResourceCardinality)
+            assert three.propname == ":3"
+            assert three.cardinality == "0-n"
+            assert three.gui_order == 3
 
     def test_error(self) -> None:
         df = pd.DataFrame({"property": [1, 2, 3], "cardinality": ["1-n", "1", "0-n"], "gui_order": [1, 2, "a"]})
@@ -88,25 +100,47 @@ class TestCreateAllCardinalities:
             "Values have been filled in automatically, "
             "so that the gui-order reflects the order of the properties in the file."
         )
-        expected = [
-            {"propname": ":1", "gui_order": 1, "cardinality": "1-n"},
-            {"propname": ":2", "gui_order": 2, "cardinality": "1"},
-            {"propname": ":3", "gui_order": 3, "cardinality": "0-n"},
-        ]
         with pytest.warns(Warning, match=expected_msg):
             res = _create_all_cardinalities("class_name", df)
-            assert res == expected
+            assert isinstance(res, list)
+            res = sorted(res, key=lambda x: x.propname)
+            one = res[0]
+            assert isinstance(one, ResourceCardinality)
+            assert one.propname == ":1"
+            assert one.cardinality == "1-n"
+            assert one.gui_order == 1
+            two = res[1]
+            assert isinstance(two, ResourceCardinality)
+            assert two.propname == ":2"
+            assert two.cardinality == "1"
+            assert two.gui_order == 2
+            three = res[2]
+            assert isinstance(three, ResourceCardinality)
+            assert three.propname == ":3"
+            assert three.cardinality == "0-n"
+            assert three.gui_order == 3
 
     def test_good(self) -> None:
         df = pd.DataFrame({"property": [1, 2, 3], "cardinality": ["1-n", "1", "0-n"], "gui_order": ["1", "2", "3"]})
-        expected = [
-            {"propname": ":1", "gui_order": 1, "cardinality": "1-n"},
-            {"propname": ":2", "gui_order": 2, "cardinality": "1"},
-            {"propname": ":3", "gui_order": 3, "cardinality": "0-n"},
-        ]
         with warnings.catch_warnings(record=True) as catched_warnings:
             res = _create_all_cardinalities("class_name", df)
-            assert res == expected
+            assert isinstance(res, list)
+            res = sorted(res, key=lambda x: x.propname)
+            one = res[0]
+            assert isinstance(one, ResourceCardinality)
+            assert one.propname == ":1"
+            assert one.cardinality == "1-n"
+            assert one.gui_order == 1
+            two = res[1]
+            assert isinstance(two, ResourceCardinality)
+            assert two.propname == ":2"
+            assert two.cardinality == "1"
+            assert two.gui_order == 2
+            three = res[2]
+            assert isinstance(three, ResourceCardinality)
+            assert three.propname == ":3"
+            assert three.cardinality == "0-n"
+            assert three.gui_order == 3
             assert len(catched_warnings) == 0
 
 
@@ -118,17 +152,11 @@ def test_make_one_property() -> None:
             "cardinality": "1-n",
         }
     )
-    expected = {
-        "propname": ":1",
-        "gui_order": 1,
-        "cardinality": "1-n",
-    }
-    res = _make_one_property(s)
-    assert res == expected
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])
+    res = _make_on_cardinality(s)
+    assert isinstance(res, ResourceCardinality)
+    assert res.propname == ":1"
+    assert res.cardinality == "1-n"
+    assert res.gui_order == 1
 
 
 def test_validate_individual_class_sheets_problems() -> None:
@@ -194,3 +222,7 @@ class TestValidateClassesExcelSheet:
         test_df = pd.DataFrame({"name": ["name"], "super": ["super"]})
         res = e2j._validate_classes_excel_sheet(test_df, {"name"})
         assert not res
+
+
+if __name__ == "__main__":
+    pytest.main([__file__])

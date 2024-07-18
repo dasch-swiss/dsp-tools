@@ -9,6 +9,7 @@ from pandas.testing import assert_frame_equal
 
 from dsp_tools.commands.excel2json import properties as e2j
 from dsp_tools.commands.excel2json.models.input_error import InvalidExcelContentProblem
+from dsp_tools.commands.excel2json.models.ontology import GuiAttributes
 from dsp_tools.models.exceptions import InputError
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
@@ -168,7 +169,8 @@ class TestFunctions(unittest.TestCase):
 
         expected_dict = {"hlist": "languages"}
         returned_dict = e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[4, :]), row_num=6)
-        self.assertDictEqual(expected_dict, cast(dict[str, str], returned_dict))
+        assert isinstance(returned_dict, GuiAttributes)
+        self.assertDictEqual(expected_dict, returned_dict.serialise())
 
     def test_check_compliance_gui_attributes_all_good(self) -> None:
         original_df = pd.DataFrame(
@@ -241,7 +243,7 @@ class TestFunctions(unittest.TestCase):
                 "gui_attributes": ["size: 32, maxlength: 128", pd.NA, "hlist: languages"],
             }
         )
-        returned_dict = e2j._row2prop(df_row=cast("pd.Series[Any]", original_df.loc[0, :]), row_num=0, excelfile="Test")
+        returned_prop = e2j._row2prop(df_row=cast("pd.Series[Any]", original_df.loc[0, :]), row_num=0, excelfile="Test")
         expected_dict = {
             "name": "name_1",
             "object": "object_1",
@@ -264,9 +266,9 @@ class TestFunctions(unittest.TestCase):
             },
             "gui_attributes": {"size": 32, "maxlength": 128},
         }
-        self.assertDictEqual(expected_dict, returned_dict)
+        self.assertDictEqual(expected_dict, returned_prop.serialise())
 
-        returned_dict = e2j._row2prop(df_row=cast("pd.Series[Any]", original_df.loc[1, :]), row_num=1, excelfile="Test")
+        returned_prop = e2j._row2prop(df_row=cast("pd.Series[Any]", original_df.loc[1, :]), row_num=1, excelfile="Test")
         expected_dict = {
             "comments": {"en": "comment_en_2"},
             "gui_element": "Date",
@@ -276,9 +278,9 @@ class TestFunctions(unittest.TestCase):
             "subject": "subject_2",
             "super": ["super_2.1", "super_2.2"],
         }
-        self.assertDictEqual(expected_dict, returned_dict)
+        self.assertDictEqual(expected_dict, returned_prop.serialise())
 
-        returned_dict = e2j._row2prop(df_row=cast("pd.Series[Any]", original_df.loc[2, :]), row_num=2, excelfile="Test")
+        returned_prop = e2j._row2prop(df_row=cast("pd.Series[Any]", original_df.loc[2, :]), row_num=2, excelfile="Test")
         expected_dict = {
             "comments": {"de": "comment_de_3"},
             "gui_attributes": {"hlist": "languages"},
@@ -288,7 +290,7 @@ class TestFunctions(unittest.TestCase):
             "object": "object_3",
             "super": ["super_3"],
         }
-        self.assertDictEqual(expected_dict, returned_dict)
+        self.assertDictEqual(expected_dict, returned_prop.serialise())
 
 
 if __name__ == "__main__":

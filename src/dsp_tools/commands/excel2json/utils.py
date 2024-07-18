@@ -13,6 +13,7 @@ from dsp_tools.commands.excel2json.models.input_error import DuplicatesInColumnP
 from dsp_tools.commands.excel2json.models.input_error import ExcelFileProblem
 from dsp_tools.commands.excel2json.models.input_error import InvalidSheetNameProblem
 from dsp_tools.commands.excel2json.models.input_error import RequiredColumnMissingProblem
+from dsp_tools.commands.excel2json.models.ontology import LanguageDict
 from dsp_tools.models.exceptions import InputError
 
 languages = ["en", "de", "fr", "it", "rm"]
@@ -188,7 +189,7 @@ def get_wrong_row_numbers(
     return {k: [x + 2 for x in v] for k, v in wrong_row_int_dict.items()}
 
 
-def get_labels(df_row: pd.Series[Any]) -> dict[str, str]:
+def get_labels(df_row: pd.Series[Any]) -> LanguageDict:
     """
     This function takes a pd.Series which has "label_[language tag]" in the index.
     If the value of the index is not pd.NA, the language tag and the value are added to a dictionary.
@@ -201,10 +202,10 @@ def get_labels(df_row: pd.Series[Any]) -> dict[str, str]:
     Returns:
         A dictionary with the language tag and the content of the cell
     """
-    return {lang: df_row[f"label_{lang}"] for lang in languages if not pd.isna(df_row[f"label_{lang}"])}
+    return LanguageDict({lang: df_row[f"label_{lang}"] for lang in languages if not pd.isna(df_row[f"label_{lang}"])})
 
 
-def get_comments(df_row: pd.Series[Any]) -> dict[str, str] | None:
+def get_comments(df_row: pd.Series[Any]) -> LanguageDict | None:
     """
     This function takes a pd.Series which has "comment_[language tag]" in the index.
     If the value of the index is not pd.NA, the language tag and the value are added to a dictionary.
@@ -218,7 +219,7 @@ def get_comments(df_row: pd.Series[Any]) -> dict[str, str] | None:
         A dictionary with the language tag and the content of the cell
     """
     comments = {lang: df_row[f"comment_{lang}"] for lang in languages if not pd.isna(df_row[f"comment_{lang}"])}
-    return comments or None
+    return LanguageDict(comments) if comments else None
 
 
 def find_one_full_cell_in_cols(df: pd.DataFrame, required_columns: list[str]) -> pd.Series[bool] | None:

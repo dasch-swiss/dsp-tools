@@ -14,6 +14,7 @@ from pytest_unordered import unordered
 
 import dsp_tools.commands.excel2json.utils as utl
 from dsp_tools.commands.excel2json.models.input_error import DuplicatesInColumnProblem
+from dsp_tools.commands.excel2json.models.ontology import LanguageDict
 from dsp_tools.models.exceptions import InputError
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
@@ -172,11 +173,11 @@ class TestUtils(unittest.TestCase):
             }
         )
         expected_dict = {"de": "text_de", "en": "text_en", "fr": "text_fr", "it": "text_it", "rm": "text_rm"}
-        returned_dict = utl.get_labels(cast("pd.Series[Any]", original_df.loc[0, :]))
+        returned_dict = utl.get_labels(cast("pd.Series[Any]", original_df.loc[0, :])).get()
         self.assertDictEqual(expected_dict, returned_dict)
 
         expected_dict = {"en": "text_en"}
-        returned_dict = utl.get_labels(cast("pd.Series[Any]", original_df.loc[1, :]))
+        returned_dict = utl.get_labels(cast("pd.Series[Any]", original_df.loc[1, :])).get()
         self.assertDictEqual(expected_dict, returned_dict)
 
     def test_get_comments(self) -> None:
@@ -191,14 +192,9 @@ class TestUtils(unittest.TestCase):
         )
         expected_dict = {"de": "text_de", "en": "text_en", "fr": "text_fr", "rm": "text_rm"}
         returned_dict = utl.get_comments(cast("pd.Series[Any]", original_df.loc[0, :]))
-        assert returned_dict
-        assert expected_dict == returned_dict
-
+        assert isinstance(returned_dict, LanguageDict)
+        assert expected_dict == returned_dict.get()
         assert not utl.get_comments(cast("pd.Series[Any]", original_df.loc[1, :]))
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])
 
 
 def test_add_optional_columns_with_missing_cols() -> None:
@@ -262,3 +258,7 @@ def test_add_optional_columns_no_missing_cols() -> None:
     )
     unchanged_df = utl.add_optional_columns(expected_df, set())
     assert_frame_equal(expected_df, unchanged_df)
+
+
+if __name__ == "__main__":
+    pytest.main([__file__])

@@ -19,6 +19,7 @@ from dsp_tools.commands.excel2json.models.input_error import MissingValuesProble
 from dsp_tools.commands.excel2json.models.input_error import MoreThanOneSheetProblem
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import Problem
+from dsp_tools.commands.excel2json.models.ontology import GuiAttributes
 from dsp_tools.commands.excel2json.models.ontology import Property
 from dsp_tools.commands.excel2json.utils import add_optional_columns
 from dsp_tools.commands.excel2json.utils import check_column_for_duplicate
@@ -90,7 +91,7 @@ def excel2properties(
         )
         for index, row in property_df.iterrows()
     ]
-    serialised_prop = [x.make() for x in props]
+    serialised_prop = [x.get() for x in props]
 
     # write final JSON file
     _validate_properties_section_in_json(properties_list=serialised_prop, excelfile=excelfile)
@@ -254,7 +255,7 @@ def _row2prop(df_row: pd.Series[Any], row_num: int, excelfile: str) -> Property:
 def _get_gui_attribute(
     df_row: pd.Series[Any],
     row_num: int,
-) -> dict[str, int | str | float] | InvalidExcelContentProblem | None:
+) -> GuiAttributes | InvalidExcelContentProblem | None:
     if pd.isnull(df_row["gui_attributes"]):
         return None
     # If the attribute is not in the correct format, a called function may raise an IndexError
@@ -268,9 +269,11 @@ def _get_gui_attribute(
         )
 
 
-def _format_gui_attribute(attribute_str: str) -> dict[str, str | int | float]:
+def _format_gui_attribute(attribute_str: str) -> GuiAttributes:
     attribute_dict = _unpack_gui_attributes(attribute_str=attribute_str)
-    return {attrib: _search_convert_numbers_in_str(value_str=val) for attrib, val in attribute_dict.items()}
+    return GuiAttributes(
+        {attrib: _search_convert_numbers_in_str(value_str=val) for attrib, val in attribute_dict.items()}
+    )
 
 
 def _unpack_gui_attributes(attribute_str: str) -> dict[str, str]:

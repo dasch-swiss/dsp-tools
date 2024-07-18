@@ -86,10 +86,7 @@ class ExcelSheetProblem:
         """
 
         problem_strings = [x.execute_error_protocol() for x in self.problems]
-        return (
-            f"The sheet: '{self.sheet_name}' has the following problems:\n{list_separator}"
-            f"{list_separator.join(problem_strings)}"
-        )
+        return f"The sheet '{self.sheet_name}' has the following problems:\n\n{'\n\n'.join(problem_strings)}"
 
 
 @dataclass(frozen=True)
@@ -232,14 +229,34 @@ class MoreThanOneSheetProblem:
 class MandatorySheetMissingProblem:
     """This class contains information if the excel is missing a mandatory sheet."""
 
-    sheetname: str
+    mandatory_sheet: str
     existing_sheets: list[str]
 
     def execute_error_protocol(self) -> str:
         return (
-            f"A sheet with the name '{self.sheetname}' is mandatory in this Excel.\n"
+            f"A sheet with the name '{self.mandatory_sheet}' is mandatory in this Excel.\n"
             f"The following sheets are in the file:{list_separator}"
             f"{list_separator.join(sorted(self.existing_sheets))}"
+        )
+
+
+@dataclass(frozen=True)
+class ResourceSheetNotListedProblem:
+    """This class contains information if some resource sheets are missing in the 'classes' sheet."""
+
+    missing_names: set[str]
+
+    def execute_error_protocol(self) -> str:
+        """
+        This function initiates all the steps for successful problem communication with the user.
+
+        Returns:
+            message for the error
+        """
+        return (
+            f"All the sheets in the Excel must be listed in the 'name' column of the 'classes' sheet.\n"
+            f"The following sheet(s) are not listed in the column:{list_separator}"
+            f"{list_separator.join(self.missing_names)}"
         )
 
 

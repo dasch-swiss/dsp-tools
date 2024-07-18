@@ -325,7 +325,7 @@ class PropertyProblem:
     """This class contains information if a property has invalid content."""
 
     prop_name: str
-    problem: list[Problem]
+    problems: list[Problem]
 
     def execute_error_protocol(self) -> str:
         """
@@ -334,7 +334,7 @@ class PropertyProblem:
         Returns:
             message for the error
         """
-        all_problems = [x.execute_error_protocol() for x in self.problem]
+        all_problems = [x.execute_error_protocol() for x in self.problems]
         return (
             f"The property '{self.prop_name}' has the following problem(s):"
             f"{medium_separator}{medium_separator.join(all_problems)}"

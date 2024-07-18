@@ -248,8 +248,11 @@ class TestFunctions(unittest.TestCase):
         res = e2j._row2prop(test_series, row_num=0)
         assert isinstance(res, PropertyProblem)
         assert res.prop_name == "name_1"
-        assert len(res.problem) == 1
-        assert isinstance(res.problem[0], InvalidExcelContentProblem)
+        assert len(res.problems) == 1
+        invalid = res.problems[0]
+        assert isinstance(invalid, InvalidExcelContentProblem)
+        assert invalid.actual_content == "max:1.4 / min:1.2"
+        assert invalid.expected_content == "attribute: value, attribute: value"
 
     def test_row2prop(self) -> None:
         original_df = pd.DataFrame(

@@ -5,6 +5,7 @@ import json
 import warnings
 from typing import Any
 from typing import Optional
+from typing import cast
 
 import jsonpath_ng.ext
 import jsonschema
@@ -87,14 +88,14 @@ def excel2properties(
     props: list[OntoProperty] = []
     problems: list[Problem] = []
     for index, row in property_df.iterrows():
-        res = _row2prop(
+        result = _row2prop(
             df_row=row,
             row_num=int(str(index)) + 2,  # index is a label/index/hashable, but we need an int
         )
-        if isinstance(res, PropertyProblem):
-            problems.append(res)
+        if isinstance(result, PropertyProblem):
+            problems.append(result)
         else:
-            props.append(res)
+            props.append(result)
     if problems:
         msg = ExcelFileProblem("properties.xlsx", problems).execute_error_protocol()
         raise InputError(msg)
@@ -242,8 +243,7 @@ def _row2prop(df_row: pd.Series[Any], row_num: int) -> OntoProperty | PropertyPr
     comment = get_comments(df_row=df_row)
     gui_attrib = _get_gui_attribute(df_row=df_row, row_num=row_num)
     if isinstance(gui_attrib, InvalidExcelContentProblem):
-        problem: list[Problem] = [gui_attrib]
-        return PropertyProblem(df_row["name"], problem)
+        return PropertyProblem(df_row["name"], cast(list[Problem], [gui_attrib]))
     prop = OntoProperty(
         name=df_row["name"],
         super=[s.strip() for s in df_row["super"].split(",")],

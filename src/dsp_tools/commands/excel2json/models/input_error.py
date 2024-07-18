@@ -86,7 +86,7 @@ class ExcelSheetProblem:
         """
 
         problem_strings = [x.execute_error_protocol() for x in self.problems]
-        return f"The sheet: '{self.sheet_name}' has the following problems:\n\n{'\n\n'.join(problem_strings)}"
+        return f"The sheet '{self.sheet_name}' has the following problems:\n\n{'\n\n'.join(problem_strings)}"
 
 
 @dataclass(frozen=True)

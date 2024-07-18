@@ -16,7 +16,7 @@ class Property:
     gui_attributes: GuiAttributes | None
 
     def get(self) -> dict[str, Any]:
-        prop_dict = {"name": self.name, "super": self.super, "object": self.object}
+        prop_dict: dict[str, Any] = {"name": self.name, "super": self.super, "object": self.object}
         if self.subject:
             prop_dict["subject"] = self.subject
         prop_dict["labels"] = self.labels.get()
@@ -32,7 +32,7 @@ class Property:
 class LanguageDict:
     lang_dict: dict[str, str]
 
-    def get(self) -> Any:
+    def get(self) -> dict[str, str]:
         return self.lang_dict
 
 
@@ -40,5 +40,5 @@ class LanguageDict:
 class GuiAttributes:
     gui_attributes: dict[str, int | str | float]
 
-    def get(self) -> Any:
+    def get(self) -> dict[str, int | str | float]:
         return self.gui_attributes

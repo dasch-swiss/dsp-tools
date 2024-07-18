@@ -86,7 +86,7 @@ class ExcelSheetProblem:
         """
 
         problem_strings = [x.execute_error_protocol() for x in self.problems]
-        return f"The sheet: '{self.sheet_name}' has the following problems:\n\n" f"{'\n\n'.join(problem_strings)}"
+        return f"The sheet: '{self.sheet_name}' has the following problems:\n\n{'\n\n'.join(problem_strings)}"
 
 
 @dataclass(frozen=True)
@@ -242,7 +242,7 @@ class MandatorySheetMissingProblem:
 
 @dataclass(frozen=True)
 class ResourceSheetNotListedProblem:
-    """This class contains information if the excel sheet names are not a subset of the expected ones."""
+    """This class contains information if some resource sheets are missing in the 'classes' sheet."""
 
     missing_names: set[str]
 

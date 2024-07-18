@@ -170,7 +170,7 @@ class TestFunctions(unittest.TestCase):
         expected_dict = {"hlist": "languages"}
         returned_dict = e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[4, :]), row_num=6)
         assert isinstance(returned_dict, GuiAttributes)
-        self.assertDictEqual(expected_dict, returned_dict.get())
+        self.assertDictEqual(expected_dict, returned_dict.serialise())
 
     def test_check_compliance_gui_attributes_all_good(self) -> None:
         original_df = pd.DataFrame(
@@ -266,7 +266,7 @@ class TestFunctions(unittest.TestCase):
             },
             "gui_attributes": {"size": 32, "maxlength": 128},
         }
-        self.assertDictEqual(expected_dict, returned_prop.get())
+        self.assertDictEqual(expected_dict, returned_prop.serialise())
 
         returned_prop = e2j._row2prop(df_row=cast("pd.Series[Any]", original_df.loc[1, :]), row_num=1, excelfile="Test")
         expected_dict = {
@@ -278,7 +278,7 @@ class TestFunctions(unittest.TestCase):
             "subject": "subject_2",
             "super": ["super_2.1", "super_2.2"],
         }
-        self.assertDictEqual(expected_dict, returned_prop.get())
+        self.assertDictEqual(expected_dict, returned_prop.serialise())
 
         returned_prop = e2j._row2prop(df_row=cast("pd.Series[Any]", original_df.loc[2, :]), row_num=2, excelfile="Test")
         expected_dict = {
@@ -290,7 +290,7 @@ class TestFunctions(unittest.TestCase):
             "object": "object_3",
             "super": ["super_3"],
         }
-        self.assertDictEqual(expected_dict, returned_prop.get())
+        self.assertDictEqual(expected_dict, returned_prop.serialise())
 
 
 if __name__ == "__main__":

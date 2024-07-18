@@ -219,9 +219,7 @@ def get_comments(df_row: pd.Series[Any]) -> LanguageDict | None:
         A dictionary with the language tag and the content of the cell
     """
     comments = {lang: df_row[f"comment_{lang}"] for lang in languages if not pd.isna(df_row[f"comment_{lang}"])}
-    if comments:
-        return LanguageDict(comments)
-    return None
+    return LanguageDict(comments) if comments else None
 
 
 def find_one_full_cell_in_cols(df: pd.DataFrame, required_columns: list[str]) -> pd.Series[bool] | None:

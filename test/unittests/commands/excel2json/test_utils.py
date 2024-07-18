@@ -173,11 +173,11 @@ class TestUtils(unittest.TestCase):
             }
         )
         expected_dict = {"de": "text_de", "en": "text_en", "fr": "text_fr", "it": "text_it", "rm": "text_rm"}
-        returned_dict = utl.get_labels(cast("pd.Series[Any]", original_df.loc[0, :])).get()
+        returned_dict = utl.get_labels(cast("pd.Series[Any]", original_df.loc[0, :])).serialise()
         self.assertDictEqual(expected_dict, returned_dict)
 
         expected_dict = {"en": "text_en"}
-        returned_dict = utl.get_labels(cast("pd.Series[Any]", original_df.loc[1, :])).get()
+        returned_dict = utl.get_labels(cast("pd.Series[Any]", original_df.loc[1, :])).serialise()
         self.assertDictEqual(expected_dict, returned_dict)
 
     def test_get_comments(self) -> None:
@@ -193,7 +193,7 @@ class TestUtils(unittest.TestCase):
         expected_dict = {"de": "text_de", "en": "text_en", "fr": "text_fr", "rm": "text_rm"}
         returned_dict = utl.get_comments(cast("pd.Series[Any]", original_df.loc[0, :]))
         assert isinstance(returned_dict, LanguageDict)
-        assert expected_dict == returned_dict.get()
+        assert expected_dict == returned_dict.serialise()
         assert not utl.get_comments(cast("pd.Series[Any]", original_df.loc[1, :]))
 
 

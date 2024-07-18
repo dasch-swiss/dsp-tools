@@ -20,7 +20,7 @@ from dsp_tools.commands.excel2json.models.input_error import MoreThanOneSheetPro
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import Problem
 from dsp_tools.commands.excel2json.models.ontology import GuiAttributes
-from dsp_tools.commands.excel2json.models.ontology import Property
+from dsp_tools.commands.excel2json.models.ontology import OntoProperty
 from dsp_tools.commands.excel2json.utils import add_optional_columns
 from dsp_tools.commands.excel2json.utils import check_column_for_duplicate
 from dsp_tools.commands.excel2json.utils import check_contains_required_columns
@@ -91,7 +91,7 @@ def excel2properties(
         )
         for index, row in property_df.iterrows()
     ]
-    serialised_prop = [x.get() for x in props]
+    serialised_prop = [x.serialise() for x in props]
 
     # write final JSON file
     _validate_properties_section_in_json(properties_list=serialised_prop, excelfile=excelfile)
@@ -229,17 +229,14 @@ def _get_final_series(
     return final_series
 
 
-def _row2prop(df_row: pd.Series[Any], row_num: int, excelfile: str) -> Property:
+def _row2prop(df_row: pd.Series[Any], row_num: int, excelfile: str) -> OntoProperty:
     subj = df_row["subject"] if not pd.isna(df_row["subject"]) else None
     comment = get_comments(df_row=df_row)
     gui_attrib = _get_gui_attribute(df_row=df_row, row_num=row_num)
-    match gui_attrib:
-        case InvalidExcelContentProblem():
-            msg = f"There is a problem with the excel file: '{excelfile}'\n" + gui_attrib.execute_error_protocol()
-            raise InputError(msg) from None
-        case _:
-            pass
-    prop = Property(
+    if isinstance(gui_attrib, InvalidExcelContentProblem):
+        msg = f"There is a problem with the excel file: '{excelfile}'\n" + gui_attrib.execute_error_protocol()
+        raise InputError(msg)
+    prop = OntoProperty(
         name=df_row["name"],
         super=[s.strip() for s in df_row["super"].split(",")],
         object=df_row["object"],

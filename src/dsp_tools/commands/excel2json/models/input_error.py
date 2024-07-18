@@ -284,7 +284,7 @@ class JsonValidationPropertyProblem:
         if self.excel_position:
             msg.append(f"Located at: {self.excel_position}")
         if self.original_msg:
-            msg.append(f"Original Error Message:\n{self.original_msg}")
+            msg.append(f"Original Error Message: {self.original_msg}")
         if self.message_path:
             msg.append(f"The error occurred at {self.message_path}")
         return separator.join(msg)
@@ -314,7 +314,28 @@ class JsonValidationResourceProblem:
         if self.excel_position:
             msg.append(f"Located at: {self.excel_position}")
         if self.original_msg:
-            msg.append(f"Original Error Message:{separator}{self.original_msg}")
+            msg.append(f"Original Error Message: {self.original_msg}")
         if self.message_path:
             msg.append(f"The error occurred at {self.message_path}")
         return separator.join(msg)
+
+
+@dataclass(frozen=True)
+class PropertyProblem:
+    """This class contains information if a property has invalid content."""
+
+    prop_name: str
+    problem: list[Problem]
+
+    def execute_error_protocol(self) -> str:
+        """
+        This function initiates all the steps for successful problem communication with the user.
+
+        Returns:
+            message for the error
+        """
+        all_problems = [x.execute_error_protocol() for x in self.problem]
+        return (
+            f"The property '{self.prop_name}' has the following problem(s):"
+            f"{medium_separator}{medium_separator.join(all_problems)}"
+        )

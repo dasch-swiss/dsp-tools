@@ -9,7 +9,9 @@ from pandas.testing import assert_frame_equal
 
 from dsp_tools.commands.excel2json import properties as e2j
 from dsp_tools.commands.excel2json.models.input_error import InvalidExcelContentProblem
+from dsp_tools.commands.excel2json.models.input_error import PropertyProblem
 from dsp_tools.commands.excel2json.models.ontology import GuiAttributes
+from dsp_tools.commands.excel2json.models.ontology import OntoProperty
 from dsp_tools.models.exceptions import InputError
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
@@ -30,9 +32,9 @@ class TestFunctions(unittest.TestCase):
                 "label_rm": [1, 2, 3],
             }
         )
-        returned_df = e2j._rename_deprecated_lang_cols(df=original_df, excelfile="Test")
+        returned_df = e2j._rename_deprecated_lang_cols(df=original_df)
         assert_frame_equal(expected_df, returned_df)
-        returned_df = e2j._rename_deprecated_lang_cols(df=expected_df, excelfile="Test")
+        returned_df = e2j._rename_deprecated_lang_cols(df=expected_df)
         assert_frame_equal(expected_df, returned_df)
 
     def test_do_property_excel_compliance_all_good(self) -> None:
@@ -57,7 +59,7 @@ class TestFunctions(unittest.TestCase):
             }
         )
 
-        e2j._do_property_excel_compliance(df=original_df, excelfile="Test")
+        e2j._do_property_excel_compliance(df=original_df)
 
     def test_do_property_excel_compliance_problems(self) -> None:
         original_df = pd.DataFrame(
@@ -100,7 +102,7 @@ class TestFunctions(unittest.TestCase):
         )
         expected_msg = regex.escape(
             (
-                "The Excel file 'Test' contains the following problems:\n\n"
+                "The Excel file 'properties.xlsx' contains the following problems:\n\n"
                 "At the following locations, mandatory values are missing:\n"
                 "    - Column 'name' | Row 9\n"
                 "    - Column 'super' | Row 2\n"
@@ -117,20 +119,20 @@ class TestFunctions(unittest.TestCase):
             )
         )
         with pytest.raises(InputError, match=expected_msg):
-            e2j._do_property_excel_compliance(original_df, "Test")
+            e2j._do_property_excel_compliance(original_df)
 
     @pytest.mark.filterwarnings("ignore::UserWarning")
     def test_rename_deprecated_hlist(self) -> None:
         original_df = pd.DataFrame({"hlist": [pd.NA, pd.NA, "languages"]})
         expected_df = pd.DataFrame({"gui_attributes": [pd.NA, pd.NA, "hlist:languages"]})
-        returned_df = e2j._rename_deprecated_hlist(df=original_df, excelfile="Test")
+        returned_df = e2j._rename_deprecated_hlist(df=original_df)
         assert_frame_equal(expected_df, returned_df)
 
         original_df = pd.DataFrame(
             {"hlist": [pd.NA, pd.NA, "languages"], "gui_attributes": [pd.NA, "attribute_1", pd.NA]}
         )
         expected_df = pd.DataFrame({"gui_attributes": [pd.NA, "attribute_1", "hlist:languages"]})
-        returned_df = e2j._rename_deprecated_hlist(df=original_df, excelfile="Test")
+        returned_df = e2j._rename_deprecated_hlist(df=original_df)
         assert_frame_equal(expected_df, returned_df)
 
     def test_unpack_gui_attributes(self) -> None:
@@ -153,19 +155,19 @@ class TestFunctions(unittest.TestCase):
         self.assertIsNone(e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[0, :]), row_num=2))
 
         res_1 = e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[1, :]), row_num=3)
-        res_problem_1 = cast(InvalidExcelContentProblem, res_1)
-        assert res_problem_1.excel_position.row == 3
-        assert res_problem_1.actual_content == "max:1.4 / min:1.2"
+        assert isinstance(res_1, InvalidExcelContentProblem)
+        assert res_1.excel_position.row == 3
+        assert res_1.actual_content == "max:1.4 / min:1.2"
 
         res_2 = e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[2, :]), row_num=4)
-        res_problem_2 = cast(InvalidExcelContentProblem, res_2)
-        assert res_problem_2.excel_position.row == 4
-        assert res_problem_2.actual_content == "hlist:"
+        assert isinstance(res_2, InvalidExcelContentProblem)
+        assert res_2.excel_position.row == 4
+        assert res_2.actual_content == "hlist:"
 
         res_3 = e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[3, :]), row_num=5)
-        res_problem_3 = cast(InvalidExcelContentProblem, res_3)
-        assert res_problem_3.excel_position.row == 5
-        assert res_problem_3.actual_content == "234345"
+        assert isinstance(res_3, InvalidExcelContentProblem)
+        assert res_3.excel_position.row == 5
+        assert res_3.actual_content == "234345"
 
         expected_dict = {"hlist": "languages"}
         returned_dict = e2j._get_gui_attribute(df_row=cast("pd.Series[Any]", original_df.loc[4, :]), row_num=6)
@@ -222,6 +224,33 @@ class TestFunctions(unittest.TestCase):
         result = e2j._get_final_series(mandatory_check, no_attribute_check)
         self.assertEqual(result, expected)
 
+    def test_row2prop_problem(self) -> None:
+        test_series = pd.Series(
+            {
+                "name": "name_1",
+                "label_en": "label_en",
+                "label_de": "label_de",
+                "label_fr": "label_fr",
+                "label_it": "label_it",
+                "label_rm": "label_rm",
+                "comment_en": "comment_en",
+                "comment_de": "comment_de",
+                "comment_fr": "comment_fr",
+                "comment_it": "comment_it",
+                "comment_rm": "comment_rm",
+                "super": "super_1",
+                "subject": "subject_1",
+                "object": "object_1",
+                "gui_element": "Simple",
+                "gui_attributes": "max:1.4 / min:1.2",
+            }
+        )
+        res = e2j._row2prop(test_series, row_num=0)
+        assert isinstance(res, PropertyProblem)
+        assert res.prop_name == "name_1"
+        assert len(res.problem) == 1
+        assert isinstance(res.problem[0], InvalidExcelContentProblem)
+
     def test_row2prop(self) -> None:
         original_df = pd.DataFrame(
             {
@@ -243,7 +272,7 @@ class TestFunctions(unittest.TestCase):
                 "gui_attributes": ["size: 32, maxlength: 128", pd.NA, "hlist: languages"],
             }
         )
-        returned_prop = e2j._row2prop(df_row=cast("pd.Series[Any]", original_df.loc[0, :]), row_num=0, excelfile="Test")
+        returned_prop = e2j._row2prop(df_row=cast("pd.Series[Any]", original_df.loc[0, :]), row_num=0)
         expected_dict = {
             "name": "name_1",
             "object": "object_1",
@@ -266,9 +295,10 @@ class TestFunctions(unittest.TestCase):
             },
             "gui_attributes": {"size": 32, "maxlength": 128},
         }
+        assert isinstance(returned_prop, OntoProperty)
         self.assertDictEqual(expected_dict, returned_prop.serialise())
 
-        returned_prop = e2j._row2prop(df_row=cast("pd.Series[Any]", original_df.loc[1, :]), row_num=1, excelfile="Test")
+        returned_prop = e2j._row2prop(df_row=cast("pd.Series[Any]", original_df.loc[1, :]), row_num=1)
         expected_dict = {
             "comments": {"en": "comment_en_2"},
             "gui_element": "Date",
@@ -278,9 +308,10 @@ class TestFunctions(unittest.TestCase):
             "subject": "subject_2",
             "super": ["super_2.1", "super_2.2"],
         }
+        assert isinstance(returned_prop, OntoProperty)
         self.assertDictEqual(expected_dict, returned_prop.serialise())
 
-        returned_prop = e2j._row2prop(df_row=cast("pd.Series[Any]", original_df.loc[2, :]), row_num=2, excelfile="Test")
+        returned_prop = e2j._row2prop(df_row=cast("pd.Series[Any]", original_df.loc[2, :]), row_num=2)
         expected_dict = {
             "comments": {"de": "comment_de_3"},
             "gui_attributes": {"hlist": "languages"},
@@ -290,6 +321,7 @@ class TestFunctions(unittest.TestCase):
             "object": "object_3",
             "super": ["super_3"],
         }
+        assert isinstance(returned_prop, OntoProperty)
         self.assertDictEqual(expected_dict, returned_prop.serialise())
 
 

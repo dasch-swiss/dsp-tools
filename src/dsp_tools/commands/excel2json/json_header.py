@@ -96,7 +96,7 @@ def _do_prefixes(df: pd.DataFrame) -> ExcelSheetProblem | Prefixes:
     if missing_vals := check_required_values_get_position_in_excel(df, ["prefixes", "uri"]):
         return ExcelSheetProblem("prefixes", [missing_vals])
     pref = dict(zip(df["prefixes"], df["uri"]))
-    pref = {k.replace(":", ""): v for k, v in pref.items()}
+    pref = {k.rstrip(":"): v for k, v in pref.items()}
     return Prefixes(pref)
 
 
@@ -196,7 +196,7 @@ def _do_one_user(row: pd.Series[Any]) -> User | InvalidExcelContentProblem:
     pass
 
 
-def _check_lang(value: Any) -> bool:
+def _check_lang(value: Any, row_num: int) -> str | InvalidExcelContentProblem:
     pass
 
 

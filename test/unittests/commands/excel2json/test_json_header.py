@@ -4,6 +4,7 @@ import pytest
 from dsp_tools.commands.excel2json.json_header import _check_project_sheet
 from dsp_tools.commands.excel2json.json_header import _do_description
 from dsp_tools.commands.excel2json.json_header import _do_formal_compliance
+from dsp_tools.commands.excel2json.json_header import _do_keywords
 from dsp_tools.commands.excel2json.json_header import _do_prefixes
 from dsp_tools.commands.excel2json.json_header import _get_description_cols
 from dsp_tools.commands.excel2json.models.input_error import AtLeastOneValueRequiredProblem
@@ -216,15 +217,37 @@ class TestDoDescription:
         description_cols = {"description_en", "description_de", "description_fr", "description_it", "description_rm"}
         assert set(problem.columns) == description_cols
 
+    def test_get_description_cols_found(self) -> None:
+        test_cols = ["description_en", "description_xy", "fr"]
+        assert _get_description_cols(test_cols) == {"en": "description_en", "fr": "fr"}
 
-def test_get_description_cols_found() -> None:
-    test_cols = ["description_en", "description_xy", "fr"]
-    assert _get_description_cols(test_cols) == {"en": "description_en", "fr": "fr"}
+    def test_get_description_cols_none(self) -> None:
+        test_cols = ["description_xy", "isadfahfas"]
+        assert not _get_description_cols(test_cols)
 
 
-def test_get_description_cols_none() -> None:
-    test_cols = ["description_xy", "isadfahfas"]
-    assert not _get_description_cols(test_cols)
+class TestDoKeywords:
+    def test_good(self) -> None:
+        test_df = pd.DataFrame({"keywords": ["one", pd.NA, "three"]})
+        assert _do_keywords(test_df) == ["one", "three"]
+
+    def test_missing_col(self) -> None:
+        test_df = pd.DataFrame({"other": ["other"]})
+        result = _do_keywords(test_df)
+        assert isinstance(result, ExcelSheetProblem)
+        assert len(result.problems) == 1
+        problem = result.problems[0]
+        assert isinstance(problem, RequiredColumnMissingProblem)
+        assert problem.columns == ["keywords"]
+
+    def test_missing_value(self) -> None:
+        test_df = pd.DataFrame({"keywords": [pd.NA], "other": ["other"]})
+        result = _do_keywords(test_df)
+        assert isinstance(result, ExcelSheetProblem)
+        assert len(result.problems) == 1
+        problem = result.problems[0]
+        assert isinstance(problem, MissingValuesProblem)
+        assert len(problem.locations) == 1
 
 
 class TestDoUsers:

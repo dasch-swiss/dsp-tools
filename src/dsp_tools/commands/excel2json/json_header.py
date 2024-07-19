@@ -11,10 +11,11 @@ from dsp_tools.commands.excel2json.models.input_error import AtLeastOneValueRequ
 from dsp_tools.commands.excel2json.models.input_error import EmptySheetsProblem
 from dsp_tools.commands.excel2json.models.input_error import ExcelFileProblem
 from dsp_tools.commands.excel2json.models.input_error import ExcelSheetProblem
+from dsp_tools.commands.excel2json.models.input_error import MissingValuesProblem
 from dsp_tools.commands.excel2json.models.input_error import MoreThanOneRowProblem
+from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import Problem
 from dsp_tools.commands.excel2json.models.input_error import RequiredColumnMissingProblem
-from dsp_tools.commands.excel2json.models.input_error import UserProblem
 from dsp_tools.commands.excel2json.models.json_header import Descriptions
 from dsp_tools.commands.excel2json.models.json_header import EmptyJsonHeader
 from dsp_tools.commands.excel2json.models.json_header import FilledJsonHeader
@@ -97,7 +98,15 @@ def _do_prefixes(df: pd.DataFrame) -> ExcelSheetProblem | Prefixes:
 
 
 def _do_project(df_dict: dict[str, pd.DataFrame]) -> list[ExcelSheetProblem] | Project:
-    pass
+    problems: list[Problem] = []
+    if project_problem := _check_project_sheet(df_dict["project"]):
+        problems.append(project_problem)
+    description_result = _do_description(df_dict["description"])
+    if isinstance(description_result, ExcelSheetProblem):
+        problems.append(description_result)
+    keywords_result = _do_keywords(df_dict["keywords"])
+    if isinstance(keywords_result, ExcelSheetProblem):
+        problems.append(keywords_result)
 
 
 def _check_project_sheet(df: pd.DataFrame) -> None | ExcelSheetProblem:
@@ -134,9 +143,18 @@ def _get_description_cols(cols: list[str]) -> dict[str, str]:
     return {found.group(2): x for x in cols if (found := regex.search(re_pat, x))}
 
 
+def _do_keywords(df: pd.DataFrame) -> ExcelSheetProblem | list[str]:
+    if "keywords" not in df.columns:
+        return ExcelSheetProblem("keywords", [RequiredColumnMissingProblem(["keywords"])])
+    keywords = list({x for x in df["keywords"] if not pd.isna(x)})
+    if len(keywords) == 0:
+        return ExcelSheetProblem("keywords", [MissingValuesProblem([PositionInExcel(column="keywords")])])
+    return sorted(keywords)
+
+
 def _do_users(df: pd.DataFrame) -> ExcelSheetProblem | Users:
     pass
 
 
-def _do_one_user(row: pd.Series[Any]) -> User | UserProblem:
+def _do_one_user(row: pd.Series[Any]) -> User | PositionInExcel:
     pass

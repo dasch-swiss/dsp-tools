@@ -2,14 +2,18 @@ import pandas as pd
 import pytest
 
 from dsp_tools.commands.excel2json.json_header import _check_project_sheet
+from dsp_tools.commands.excel2json.json_header import _do_description
 from dsp_tools.commands.excel2json.json_header import _do_formal_compliance
 from dsp_tools.commands.excel2json.json_header import _do_prefixes
+from dsp_tools.commands.excel2json.json_header import _get_description_cols
+from dsp_tools.commands.excel2json.models.input_error import AtLeastOneValueRequiredProblem
 from dsp_tools.commands.excel2json.models.input_error import EmptySheetsProblem
 from dsp_tools.commands.excel2json.models.input_error import ExcelFileProblem
 from dsp_tools.commands.excel2json.models.input_error import ExcelSheetProblem
 from dsp_tools.commands.excel2json.models.input_error import MissingValuesProblem
 from dsp_tools.commands.excel2json.models.input_error import MoreThanOneRowProblem
 from dsp_tools.commands.excel2json.models.input_error import RequiredColumnMissingProblem
+from dsp_tools.commands.excel2json.models.json_header import Descriptions
 from dsp_tools.commands.excel2json.models.json_header import Prefixes
 
 
@@ -156,10 +160,71 @@ class TestDoProjectChecks:
 
 class TestDoDescription:
     def test_good(self) -> None:
-        pass
+        test_df = pd.DataFrame(
+            {
+                "description_en": ["english"],
+                "description_de": [pd.NA],
+                "description_fr": ["french"],
+                "description_it": [pd.NA],
+                "description_rm": [pd.NA],
+            }
+        )
+        res = _do_description(test_df)
+        assert isinstance(res, Descriptions)
+        assert res.descriptions == {"en": "english", "fr": "french"}
+
+    def test_good_mixed_cols(self) -> None:
+        test_df = pd.DataFrame(
+            {
+                "description_en": [pd.NA],
+                "description_de": ["german"],
+                "fr": ["french"],
+                "description_it": [pd.NA],
+            }
+        )
+        res = _do_description(test_df)
+        assert isinstance(res, Descriptions)
+        assert res.descriptions == {"de": "german", "fr": "french"}
+
+    def test_too_long(self) -> None:
+        test_df = pd.DataFrame({"one": [1, 2]})
+        res = _do_description(test_df)
+        assert isinstance(res, ExcelSheetProblem)
+        assert len(res.problems) == 1
+        problem = res.problems[0]
+        assert isinstance(problem, MoreThanOneRowProblem)
+        assert problem.num_rows == 2
+
+    def test_no_values_filled(self) -> None:
+        test_df = pd.DataFrame({"description_en": [pd.NA], "random": ["value"]})
+        res = _do_description(test_df)
+        assert isinstance(res, ExcelSheetProblem)
+        assert len(res.problems) == 1
+        problem = res.problems[0]
+        assert isinstance(problem, AtLeastOneValueRequiredProblem)
+        assert problem.row_num == 1
+        description_cols = {"description_en", "description_de", "description_fr", "description_it", "description_rm"}
+        assert set(problem.columns) == description_cols
 
     def test_no_valid_col(self) -> None:
-        pass
+        test_df = pd.DataFrame({"description_es": [1]})
+        res = _do_description(test_df)
+        assert isinstance(res, ExcelSheetProblem)
+        assert len(res.problems) == 1
+        problem = res.problems[0]
+        assert isinstance(problem, RequiredColumnMissingProblem)
+        description_cols = {"description_en", "description_de", "description_fr", "description_it", "description_rm"}
+        assert set(problem.columns) == description_cols
+
+
+def test_get_description_cols_found() -> None:
+    test_cols = ["description_en", "description_xy", "fr"]
+    assert _get_description_cols(test_cols) == {"en": "description_en", "fr": "fr"}
+
+
+def test_get_description_cols_none() -> None:
+    test_cols = ["description_xy", "isadfahfas"]
+    assert not _get_description_cols(test_cols)
 
 
 class TestDoUsers:

@@ -74,16 +74,10 @@ class Project:
 
 @dataclass
 class Descriptions:
-    descriptions: list[Description]
+    descriptions: dict[str, str]
 
     def serialise(self) -> dict[str, str]:
-        return {x.lang: x.text for x in self.descriptions}
-
-
-@dataclass
-class Description:
-    lang: str
-    text: str
+        return self.descriptions
 
 
 @dataclass

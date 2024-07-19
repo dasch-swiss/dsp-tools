@@ -5,12 +5,15 @@ from typing import Any
 from typing import cast
 
 import pandas as pd
+import regex
 
+from dsp_tools.commands.excel2json.models.input_error import AtLeastOneValueRequiredProblem
 from dsp_tools.commands.excel2json.models.input_error import EmptySheetsProblem
 from dsp_tools.commands.excel2json.models.input_error import ExcelFileProblem
 from dsp_tools.commands.excel2json.models.input_error import ExcelSheetProblem
 from dsp_tools.commands.excel2json.models.input_error import MoreThanOneRowProblem
 from dsp_tools.commands.excel2json.models.input_error import Problem
+from dsp_tools.commands.excel2json.models.input_error import RequiredColumnMissingProblem
 from dsp_tools.commands.excel2json.models.input_error import UserProblem
 from dsp_tools.commands.excel2json.models.json_header import Descriptions
 from dsp_tools.commands.excel2json.models.json_header import EmptyJsonHeader
@@ -112,7 +115,23 @@ def _check_project_sheet(df: pd.DataFrame) -> None | ExcelSheetProblem:
 
 
 def _do_description(df: pd.DataFrame) -> ExcelSheetProblem | Descriptions:
-    pass
+    if len(df) > 1:
+        return ExcelSheetProblem("description", [MoreThanOneRowProblem(len(df))])
+    desc_columns = ["description_en", "description_de", "description_fr", "description_it", "description_rm"]
+    if not (desc_col_dict := _get_description_cols(list(df.columns))):
+        return ExcelSheetProblem(
+            "description",
+            [RequiredColumnMissingProblem(desc_columns)],
+        )
+    desc_dict = {lang: str(value) for lang, column in desc_col_dict.items() if not pd.isna(value := df.loc[0, column])}
+    if not desc_dict:
+        return ExcelSheetProblem("description", [AtLeastOneValueRequiredProblem(desc_columns, 1)])
+    return Descriptions(desc_dict)
+
+
+def _get_description_cols(cols: list[str]) -> dict[str, str]:
+    re_pat = r"^(\w*)_?(en|it|de|fr|rm)$"
+    return {found.group(2): x for x in cols if (found := regex.search(re_pat, x))}
 
 
 def _do_users(df: pd.DataFrame) -> ExcelSheetProblem | Users:

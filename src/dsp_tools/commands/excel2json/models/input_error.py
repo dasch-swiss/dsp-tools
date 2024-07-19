@@ -297,6 +297,26 @@ class MoreThanOneRowProblem:
 
 
 @dataclass(frozen=True)
+class AtLeastOneValueRequiredProblem:
+    """This class contains information if at least one entry in a group of columns must be filled."""
+
+    columns: list[str]
+    row_num: int
+
+    def execute_error_protocol(self) -> str:
+        """
+        This function initiates all the steps for successful problem communication with the user.
+
+        Returns:
+            message for the error
+        """
+        return (
+            f"At least one value is required in the columns: {', '.join(sorted(self.columns))}"
+            f"The row: {self.row_num} does not contain any values in those columns."
+        )
+
+
+@dataclass(frozen=True)
 class JsonValidationPropertyProblem:
     """This class contains information about a JSON property section that fails its validation against the schema."""
 

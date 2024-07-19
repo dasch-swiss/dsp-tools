@@ -1,6 +1,5 @@
 import pytest
 
-from dsp_tools.commands.excel2json.models.json_header import Description
 from dsp_tools.commands.excel2json.models.json_header import Descriptions
 from dsp_tools.commands.excel2json.models.json_header import FilledJsonHeader
 from dsp_tools.commands.excel2json.models.json_header import Keywords
@@ -19,7 +18,7 @@ def prefixes() -> Prefixes:
 
 @pytest.fixture()
 def descriptions() -> Descriptions:
-    return Descriptions([Description("de", "Beschreibungstext"), Description("en", "description text")])
+    return Descriptions({"de": "Beschreibungstext", "en": "description text"})
 
 
 @pytest.fixture()

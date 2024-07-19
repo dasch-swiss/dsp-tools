@@ -186,7 +186,7 @@ def _create_project_json(
     ontologies, success = _get_ontologies(data_model_files, onto_folders)
     if not success:
         overall_success = False
-    project = get_json_header().serialise()
+    project = get_json_header(Path(data_model_files) / "json_header.xlsx").serialise()
     if lists:
         project["project"]["lists"] = lists
     project["project"]["ontologies"] = ontologies
@@ -205,7 +205,7 @@ def _new_create_project_json(
     ontologies, success = _get_ontologies(data_model_files, onto_folders)
     if not success:
         overall_success = False
-    project = get_json_header().serialise()
+    project = get_json_header(Path(data_model_files) / "json_header.xlsx").serialise()
     if lists:
         project["project"]["lists"] = lists
     project["project"]["ontologies"] = ontologies

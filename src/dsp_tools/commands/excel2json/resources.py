@@ -15,7 +15,7 @@ import regex
 from dsp_tools.commands.excel2json.models.input_error import ExcelFileProblem
 from dsp_tools.commands.excel2json.models.input_error import ExcelSheetProblem
 from dsp_tools.commands.excel2json.models.input_error import JsonValidationResourceProblem
-from dsp_tools.commands.excel2json.models.input_error import MandatorySheetMissingProblem
+from dsp_tools.commands.excel2json.models.input_error import MandatorySheetsMissingProblem
 from dsp_tools.commands.excel2json.models.input_error import MissingValuesProblem
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import Problem
@@ -84,7 +84,7 @@ def _validate_excel_file(all_dfs: dict[str, pd.DataFrame]) -> ExcelFileProblem |
     lower_case_to_original = {k.lower(): k for k in df_dict}
     if not (cls_name := lower_case_to_original.get("classes")):
         return ExcelFileProblem(
-            "resources.xlsx", [MandatorySheetMissingProblem("classes", list(lower_case_to_original.values()))]
+            "resources.xlsx", [MandatorySheetsMissingProblem(["classes"], list(lower_case_to_original.values()))]
         )
     classes_df = df_dict.pop(cls_name)
     problems: list[Problem] = []

@@ -68,5 +68,57 @@ class TestFormalCompliance:
         assert set(problem.sheet_names) == {"keywords", "prefixes"}
 
 
+class TestProcessFile:
+    def test_good(self) -> None:
+        pass
+
+    def test_bad(self) -> None:
+        pass
+
+
+class TestDoPrefix:
+    def test_good(self) -> None:
+        pass
+
+    def test_missing_col(self) -> None:
+        pass
+
+    def test_missing_value(self) -> None:
+        pass
+
+
+class TestDoProject:
+    def test_good(self) -> None:
+        pass
+
+    def test_missing_col(self) -> None:
+        pass
+
+    def test_missing_value(self) -> None:
+        pass
+
+
+class TestDoDescription:
+    def test_good(self) -> None:
+        pass
+
+    def test_no_valid_col(self) -> None:
+        pass
+
+
+class TestDoUsers:
+    def test_good(self) -> None:
+        pass
+
+    def test_missing_col(self) -> None:
+        pass
+
+    def test_missing_value(self) -> None:
+        pass
+
+    def test_bad_values(self) -> None:
+        pass
+
+
 if __name__ == "__main__":
     pytest.main([__file__])

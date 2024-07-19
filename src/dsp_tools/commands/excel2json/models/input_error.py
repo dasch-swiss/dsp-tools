@@ -90,6 +90,25 @@ class ExcelSheetProblem:
 
 
 @dataclass(frozen=True)
+class EmptySheetsProblem:
+    """This class contains information if sheets that must contain information are empty."""
+
+    sheet_names: list[str]
+
+    def execute_error_protocol(self) -> str:
+        """
+        This function initiates all the steps for successful problem communication with the user.
+
+        Returns:
+            message for the error
+        """
+        return (
+            f"The following sheet(s) are mandatory and may not be empty:{list_separator}"
+            f"{list_separator.join(sorted(self.sheet_names))}"
+        )
+
+
+@dataclass(frozen=True)
 class MissingValuesProblem:
     """This class contains information if a value is missing in a location"""
 
@@ -339,3 +358,17 @@ class PropertyProblem:
         return (
             f"The property '{self.prop_name}' has the following problem(s):\n" f"{medium_separator.join(all_problems)}"
         )
+
+
+@dataclass(frozen=True)
+class UserProblem:
+    """This class contains information if a property has invalid content."""
+
+    def execute_error_protocol(self) -> str:
+        """
+        This function initiates all the steps for successful problem communication with the user.
+
+        Returns:
+            message for the error
+        """
+        raise NotImplementedError

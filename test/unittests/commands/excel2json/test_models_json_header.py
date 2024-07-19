@@ -113,7 +113,7 @@ def test_filled_json_header_with_users_without_prefix(
             ],
         },
     }
-    res = filled_json_header_with_users_without_prefix.make()
+    res = filled_json_header_with_users_without_prefix.serialise()
     assert res == expected
 
 
@@ -129,7 +129,7 @@ def test_filled_json_header_with_users_with_prefix(filled_json_header_with_users
             "keywords": ["Keyword 1"],
         },
     }
-    res = filled_json_header_with_users_with_prefix.make()
+    res = filled_json_header_with_users_with_prefix.serialise()
     assert res == expected
 
 

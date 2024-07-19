@@ -9,13 +9,13 @@ SCHEMA = "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_t
 
 @dataclass
 class JsonHeader(Protocol):
-    def make(self) -> dict[str, Any]:
+    def serialise(self) -> dict[str, Any]:
         raise NotImplementedError
 
 
 @dataclass
 class EmptyJsonHeader(JsonHeader):
-    def make(self) -> dict[str, Any]:
+    def serialise(self) -> dict[str, Any]:
         return {
             "prefixes": {"": ""},
             "$schema": SCHEMA,
@@ -34,11 +34,11 @@ class FilledJsonHeader(JsonHeader):
     project: Project
     prefixes: Prefixes | None
 
-    def make(self) -> dict[str, Any]:
+    def serialise(self) -> dict[str, Any]:
         header_dict: dict[str, Any] = {}
         if self.prefixes:
-            header_dict["prefixes"] = self.prefixes.get()
-        header_dict.update({"$schema": SCHEMA, "project": self.project.get()})
+            header_dict["prefixes"] = self.prefixes.serialise()
+        header_dict.update({"$schema": SCHEMA, "project": self.project.serialise()})
         return header_dict
 
 
@@ -46,7 +46,7 @@ class FilledJsonHeader(JsonHeader):
 class Prefixes:
     prefixes: dict[str, str]
 
-    def get(self) -> dict[str, Any]:
+    def serialise(self) -> dict[str, Any]:
         return self.prefixes
 
 
@@ -59,16 +59,16 @@ class Project:
     keywords: Keywords
     users: Users | None
 
-    def get(self) -> dict[str, Any]:
+    def serialise(self) -> dict[str, Any]:
         proj_dict: dict[str, Any] = {
             "shortcode": self.shortcode,
             "shortname": self.shortname,
             "longname": self.longname,
-            "descriptions": self.descriptions.get(),
-            "keywords": self.keywords.get(),
+            "descriptions": self.descriptions.serialise(),
+            "keywords": self.keywords.serialise(),
         }
         if self.users:
-            proj_dict["users"] = self.users.get()
+            proj_dict["users"] = self.users.serialise()
         return proj_dict
 
 
@@ -76,7 +76,7 @@ class Project:
 class Descriptions:
     descriptions: list[Description]
 
-    def get(self) -> dict[str, str]:
+    def serialise(self) -> dict[str, str]:
         return {x.lang: x.text for x in self.descriptions}
 
 
@@ -90,7 +90,7 @@ class Description:
 class Keywords:
     keywords: list[str]
 
-    def get(self) -> list[str]:
+    def serialise(self) -> list[str]:
         return self.keywords
 
 
@@ -98,8 +98,8 @@ class Keywords:
 class Users:
     users: list[User]
 
-    def get(self) -> list[dict[str, Any]]:
-        return [x.get() for x in self.users]
+    def serialise(self) -> list[dict[str, Any]]:
+        return [x.serialise() for x in self.users]
 
 
 @dataclass
@@ -114,7 +114,7 @@ class User:
     project_admin: bool = False
     sys_admin: bool = False
 
-    def get(self) -> dict[str, Any]:
+    def serialise(self) -> dict[str, Any]:
         usr_dict = {
             "username": self.username,
             "email": self.email,

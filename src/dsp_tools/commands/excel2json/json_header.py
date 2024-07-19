@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pathlib import Path
 from typing import Any
 from typing import cast
@@ -7,6 +9,7 @@ import pandas as pd
 from dsp_tools.commands.excel2json.models.input_error import EmptySheetsProblem
 from dsp_tools.commands.excel2json.models.input_error import ExcelFileProblem
 from dsp_tools.commands.excel2json.models.input_error import ExcelSheetProblem
+from dsp_tools.commands.excel2json.models.input_error import MoreThanOneRowProblem
 from dsp_tools.commands.excel2json.models.input_error import Problem
 from dsp_tools.commands.excel2json.models.input_error import UserProblem
 from dsp_tools.commands.excel2json.models.json_header import Descriptions
@@ -92,6 +95,20 @@ def _do_prefixes(df: pd.DataFrame) -> ExcelSheetProblem | Prefixes:
 
 def _do_project(df_dict: dict[str, pd.DataFrame]) -> list[ExcelSheetProblem] | Project:
     pass
+
+
+def _check_project_sheet(df: pd.DataFrame) -> None | ExcelSheetProblem:
+    problems: list[Problem] = []
+    cols = {"shortcode", "shortname", "longname"}
+    if missing_cols := check_contains_required_columns(df, cols):
+        problems.append(missing_cols)
+    if len(df) > 1:
+        problems.append(MoreThanOneRowProblem(len(df)))
+    if problems:
+        return ExcelSheetProblem("project", problems)
+    if missing_values := check_required_values_get_position_in_excel(df, list(cols)):
+        return ExcelSheetProblem("project", [missing_values])
+    return None
 
 
 def _do_description(df: pd.DataFrame) -> ExcelSheetProblem | Descriptions:

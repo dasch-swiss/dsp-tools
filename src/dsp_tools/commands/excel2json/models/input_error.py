@@ -281,6 +281,22 @@ class ResourceSheetNotListedProblem:
 
 
 @dataclass(frozen=True)
+class MoreThanOneRowProblem:
+    """This class contains information if some resource sheets are missing in the 'classes' sheet."""
+
+    num_rows: int
+
+    def execute_error_protocol(self) -> str:
+        """
+        This function initiates all the steps for successful problem communication with the user.
+
+        Returns:
+            message for the error
+        """
+        return f"This sheet may only have one row. The provided sheet has {self.num_rows} rows."
+
+
+@dataclass(frozen=True)
 class JsonValidationPropertyProblem:
     """This class contains information about a JSON property section that fails its validation against the schema."""
 

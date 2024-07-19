@@ -1,14 +1,21 @@
 import pandas as pd
 import pytest
 
+from dsp_tools.commands.excel2json.json_header import _check_project_sheet
 from dsp_tools.commands.excel2json.json_header import _do_formal_compliance
 from dsp_tools.commands.excel2json.json_header import _do_prefixes
 from dsp_tools.commands.excel2json.models.input_error import EmptySheetsProblem
 from dsp_tools.commands.excel2json.models.input_error import ExcelFileProblem
 from dsp_tools.commands.excel2json.models.input_error import ExcelSheetProblem
 from dsp_tools.commands.excel2json.models.input_error import MissingValuesProblem
+from dsp_tools.commands.excel2json.models.input_error import MoreThanOneRowProblem
 from dsp_tools.commands.excel2json.models.input_error import RequiredColumnMissingProblem
 from dsp_tools.commands.excel2json.models.json_header import Prefixes
+
+
+@pytest.fixture()
+def project_sheet() -> pd.DataFrame:
+    return pd.DataFrame({"shortcode": ["0001"], "shortname": ["name"], "longname": ["long"]})
 
 
 class TestFormalCompliance:
@@ -111,15 +118,40 @@ class TestDoPrefix:
         assert loc.row == 3
 
 
-class TestDoProject:
-    def test_good(self) -> None:
-        pass
+class TestDoProjectChecks:
+    def test_good(self, project_sheet: pd.DataFrame) -> None:
+        result = _check_project_sheet(project_sheet)
+        assert not result
 
     def test_missing_col(self) -> None:
-        pass
+        test_df = pd.DataFrame({"shortcode": [], "longname": []})
+        result = _check_project_sheet(test_df)
+        assert isinstance(result, ExcelSheetProblem)
+        assert len(result.problems) == 1
+        problem = result.problems[0]
+        assert isinstance(problem, RequiredColumnMissingProblem)
+        assert problem.columns == ["shortname"]
 
     def test_missing_value(self) -> None:
-        pass
+        test_df = pd.DataFrame({"shortcode": ["0001"], "shortname": [pd.NA], "longname": ["long"]})
+        result = _check_project_sheet(test_df)
+        assert isinstance(result, ExcelSheetProblem)
+        assert len(result.problems) == 1
+        problem = result.problems[0]
+        assert isinstance(problem, MissingValuesProblem)
+        assert len(problem.locations) == 1
+        loc = problem.locations[0]
+        assert loc.row == 2
+        assert loc.column == "shortname"
+
+    def test_too_many_rows(self) -> None:
+        test_df = pd.DataFrame({"shortcode": ["0001", "2"], "shortname": ["name", "2"], "longname": ["long", "2"]})
+        result = _check_project_sheet(test_df)
+        assert isinstance(result, ExcelSheetProblem)
+        assert len(result.problems) == 1
+        problem = result.problems[0]
+        assert isinstance(problem, MoreThanOneRowProblem)
+        assert problem.num_rows == 2
 
 
 class TestDoDescription:

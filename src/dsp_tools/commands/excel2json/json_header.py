@@ -1,4 +1,6 @@
 from pathlib import Path
+from typing import Any
+from typing import cast
 
 import pandas as pd
 
@@ -15,6 +17,8 @@ from dsp_tools.commands.excel2json.models.json_header import Prefixes
 from dsp_tools.commands.excel2json.models.json_header import Project
 from dsp_tools.commands.excel2json.models.json_header import User
 from dsp_tools.commands.excel2json.models.json_header import Users
+from dsp_tools.commands.excel2json.utils import check_contains_required_columns
+from dsp_tools.commands.excel2json.utils import check_required_values_get_position_in_excel
 from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
 from dsp_tools.models.exceptions import InputError
 
@@ -71,19 +75,32 @@ def _process_file(df_dict: dict[str, pd.DataFrame]) -> ExcelFileProblem | Filled
         problems.extend(project_result)
     if problems:
         return ExcelFileProblem("json_header.xlsx", problems)
-    return FilledJsonHeader(project_result, prefix_result)
+    project = cast(Project, project_result)
+    prefixes = cast(Prefixes, prefix_result)
+    return FilledJsonHeader(project, prefixes)
 
 
-def _do_prefixes(df: pd.DataFrame) -> ExcelSheetProblem | Prefixes: ...
+def _do_prefixes(df: pd.DataFrame) -> ExcelSheetProblem | Prefixes:
+    if missing_cols := check_contains_required_columns(df, {"prefixes", "uri"}):
+        return ExcelSheetProblem("prefixes", [missing_cols])
+    if missing_vals := check_required_values_get_position_in_excel(df, ["prefixes", "uri"]):
+        return ExcelSheetProblem("prefixes", [missing_vals])
+    pref = dict(zip(df["prefixes"], df["uri"]))
+    pref = {k.replace(":", ""): v for k, v in pref.items()}
+    return Prefixes(pref)
 
 
-def _do_project(df_dict: dict[str, pd.DataFrame]) -> list[ExcelSheetProblem] | Project: ...
+def _do_project(df_dict: dict[str, pd.DataFrame]) -> list[ExcelSheetProblem] | Project:
+    pass
 
 
-def _do_description(df: pd.DataFrame) -> ExcelSheetProblem | Descriptions: ...
+def _do_description(df: pd.DataFrame) -> ExcelSheetProblem | Descriptions:
+    pass
 
 
-def _do_users(df: pd.DataFrame) -> ExcelSheetProblem | Users: ...
+def _do_users(df: pd.DataFrame) -> ExcelSheetProblem | Users:
+    pass
 
 
-def _do_one_user(row: pd.Series) -> User | UserProblem: ...
+def _do_one_user(row: pd.Series[Any]) -> User | UserProblem:
+    pass

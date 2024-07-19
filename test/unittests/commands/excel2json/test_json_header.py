@@ -2,8 +2,13 @@ import pandas as pd
 import pytest
 
 from dsp_tools.commands.excel2json.json_header import _do_formal_compliance
+from dsp_tools.commands.excel2json.json_header import _do_prefixes
 from dsp_tools.commands.excel2json.models.input_error import EmptySheetsProblem
 from dsp_tools.commands.excel2json.models.input_error import ExcelFileProblem
+from dsp_tools.commands.excel2json.models.input_error import ExcelSheetProblem
+from dsp_tools.commands.excel2json.models.input_error import MissingValuesProblem
+from dsp_tools.commands.excel2json.models.input_error import RequiredColumnMissingProblem
+from dsp_tools.commands.excel2json.models.json_header import Prefixes
 
 
 class TestFormalCompliance:
@@ -78,13 +83,32 @@ class TestProcessFile:
 
 class TestDoPrefix:
     def test_good(self) -> None:
-        pass
+        test_df = pd.DataFrame({"prefixes": ["pref:"], "uri": ["namespace"]})
+        result = _do_prefixes(test_df)
+        assert isinstance(result, Prefixes)
+        assert result.prefixes == {"pref": "namespace"}
 
     def test_missing_col(self) -> None:
-        pass
+        test_df = pd.DataFrame({"uri": ["namespace"]})
+        result = _do_prefixes(test_df)
+        assert isinstance(result, ExcelSheetProblem)
+        assert len(result.problems) == 1
+        problem = result.problems[0]
+        assert isinstance(problem, RequiredColumnMissingProblem)
+        assert problem.columns == ["prefixes"]
 
     def test_missing_value(self) -> None:
-        pass
+        test_df = pd.DataFrame({"prefixes": ["pref:", pd.NA], "uri": ["namespace", "other_namespace"]})
+        result = _do_prefixes(test_df)
+        assert isinstance(result, ExcelSheetProblem)
+        assert result.sheet_name == "prefixes"
+        assert len(result.problems) == 1
+        problem = result.problems[0]
+        assert isinstance(problem, MissingValuesProblem)
+        assert len(problem.locations) == 1
+        loc = problem.locations[0]
+        assert loc.column == "prefixes"
+        assert loc.row == 3
 
 
 class TestDoProject:

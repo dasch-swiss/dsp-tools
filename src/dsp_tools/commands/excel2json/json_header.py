@@ -128,10 +128,7 @@ def _do_description(df: pd.DataFrame) -> ExcelSheetProblem | Descriptions:
         return ExcelSheetProblem("description", [MoreThanOneRowProblem(len(df))])
     desc_columns = ["description_en", "description_de", "description_fr", "description_it", "description_rm"]
     if not (desc_col_dict := _get_description_cols(list(df.columns))):
-        return ExcelSheetProblem(
-            "description",
-            [RequiredColumnMissingProblem(desc_columns)],
-        )
+        return ExcelSheetProblem("description", [RequiredColumnMissingProblem(desc_columns)])
     desc_dict = {lang: str(value) for lang, column in desc_col_dict.items() if not pd.isna(value := df.loc[0, column])}
     if not desc_dict:
         return ExcelSheetProblem("description", [AtLeastOneValueRequiredProblem(desc_columns, 1)])

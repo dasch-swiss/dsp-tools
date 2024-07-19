@@ -7,6 +7,7 @@ from dsp_tools.commands.excel2json.json_header import _do_formal_compliance
 from dsp_tools.commands.excel2json.json_header import _do_keywords
 from dsp_tools.commands.excel2json.json_header import _do_prefixes
 from dsp_tools.commands.excel2json.json_header import _get_description_cols
+from dsp_tools.commands.excel2json.json_header import _is_email
 from dsp_tools.commands.excel2json.models.input_error import AtLeastOneValueRequiredProblem
 from dsp_tools.commands.excel2json.models.input_error import EmptySheetsProblem
 from dsp_tools.commands.excel2json.models.input_error import ExcelFileProblem
@@ -15,6 +16,7 @@ from dsp_tools.commands.excel2json.models.input_error import MissingValuesProble
 from dsp_tools.commands.excel2json.models.input_error import MoreThanOneRowProblem
 from dsp_tools.commands.excel2json.models.input_error import RequiredColumnMissingProblem
 from dsp_tools.commands.excel2json.models.json_header import Descriptions
+from dsp_tools.commands.excel2json.models.json_header import Keywords
 from dsp_tools.commands.excel2json.models.json_header import Prefixes
 
 
@@ -123,6 +125,26 @@ class TestDoPrefix:
         assert loc.row == 3
 
 
+class TestDoProject:
+    def test_good_with_users(self) -> None:
+        pass
+
+    def test_good_no_users(self) -> None:
+        pass
+
+    def test_project_bad_project(self) -> None:
+        pass
+
+    def test_project_bad_keywords(self) -> None:
+        pass
+
+    def test_project_bad_descriptions(self) -> None:
+        pass
+
+    def test_project_bad_users(self) -> None:
+        pass
+
+
 class TestDoProjectChecks:
     def test_good(self, project_sheet: pd.DataFrame) -> None:
         result = _check_project_sheet(project_sheet)
@@ -229,7 +251,9 @@ class TestDoDescription:
 class TestDoKeywords:
     def test_good(self) -> None:
         test_df = pd.DataFrame({"keywords": ["one", pd.NA, "three"]})
-        assert _do_keywords(test_df) == ["one", "three"]
+        result = _do_keywords(test_df)
+        assert isinstance(result, Keywords)
+        assert result.serialise() == ["one", "three"]
 
     def test_missing_col(self) -> None:
         test_df = pd.DataFrame({"other": ["other"]})
@@ -262,6 +286,12 @@ class TestDoUsers:
 
     def test_bad_values(self) -> None:
         pass
+
+    def test_is_email_good(self) -> None:
+        assert not _is_email("sadfkjdfsa")
+
+    def test_is_email_bad(self) -> None:
+        assert _is_email("alice@dasch.swiss")
 
 
 if __name__ == "__main__":

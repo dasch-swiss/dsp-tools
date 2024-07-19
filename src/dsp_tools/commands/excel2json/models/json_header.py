@@ -85,7 +85,7 @@ class Keywords:
     keywords: list[str]
 
     def serialise(self) -> list[str]:
-        return self.keywords
+        return sorted(self.keywords)
 
 
 @dataclass
@@ -104,9 +104,7 @@ class User:
     familyName: str
     password: str
     lang: str
-    project_member: bool = False
-    project_admin: bool = False
-    sys_admin: bool = False
+    role: UserRole
 
     def serialise(self) -> dict[str, Any]:
         usr_dict = {
@@ -117,12 +115,19 @@ class User:
             "password": self.password,
             "lang": self.lang,
             "status": True,
-        }
-        if self.sys_admin:
-            usr_dict["groups"] = ["SystemAdmin"]
-            usr_dict["projects"] = [":admin", ":member"]
-        elif self.project_member:
-            usr_dict["projects"] = [":member"]
-        elif self.project_admin:
-            usr_dict["projects"] = [":admin", ":member"]
+        } | self.role.serialise()
         return usr_dict
+
+
+@dataclass
+class UserRole:
+    project_admin: bool = False
+    sys_admin: bool = False
+
+    def serialise(self) -> dict[str, list[str]]:
+        if self.sys_admin:
+            return {"groups": ["SystemAdmin"], "projects": [":admin", ":member"]}
+        elif self.project_admin:
+            return {"projects": [":admin", ":member"]}
+        else:
+            return {"projects": [":member"]}

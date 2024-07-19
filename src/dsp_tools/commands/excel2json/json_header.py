@@ -11,6 +11,7 @@ from dsp_tools.commands.excel2json.models.input_error import AtLeastOneValueRequ
 from dsp_tools.commands.excel2json.models.input_error import EmptySheetsProblem
 from dsp_tools.commands.excel2json.models.input_error import ExcelFileProblem
 from dsp_tools.commands.excel2json.models.input_error import ExcelSheetProblem
+from dsp_tools.commands.excel2json.models.input_error import InvalidExcelContentProblem
 from dsp_tools.commands.excel2json.models.input_error import MissingValuesProblem
 from dsp_tools.commands.excel2json.models.input_error import MoreThanOneRowProblem
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
@@ -20,9 +21,11 @@ from dsp_tools.commands.excel2json.models.json_header import Descriptions
 from dsp_tools.commands.excel2json.models.json_header import EmptyJsonHeader
 from dsp_tools.commands.excel2json.models.json_header import FilledJsonHeader
 from dsp_tools.commands.excel2json.models.json_header import JsonHeader
+from dsp_tools.commands.excel2json.models.json_header import Keywords
 from dsp_tools.commands.excel2json.models.json_header import Prefixes
 from dsp_tools.commands.excel2json.models.json_header import Project
 from dsp_tools.commands.excel2json.models.json_header import User
+from dsp_tools.commands.excel2json.models.json_header import UserRole
 from dsp_tools.commands.excel2json.models.json_header import Users
 from dsp_tools.commands.excel2json.utils import check_contains_required_columns
 from dsp_tools.commands.excel2json.utils import check_required_values_get_position_in_excel
@@ -98,8 +101,9 @@ def _do_prefixes(df: pd.DataFrame) -> ExcelSheetProblem | Prefixes:
 
 
 def _do_project(df_dict: dict[str, pd.DataFrame]) -> list[ExcelSheetProblem] | Project:
-    problems: list[Problem] = []
-    if project_problem := _check_project_sheet(df_dict["project"]):
+    problems = []
+    project_df = df_dict["project"]
+    if project_problem := _check_project_sheet(project_df):
         problems.append(project_problem)
     description_result = _do_description(df_dict["description"])
     if isinstance(description_result, ExcelSheetProblem):
@@ -107,6 +111,25 @@ def _do_project(df_dict: dict[str, pd.DataFrame]) -> list[ExcelSheetProblem] | P
     keywords_result = _do_keywords(df_dict["keywords"])
     if isinstance(keywords_result, ExcelSheetProblem):
         problems.append(keywords_result)
+    all_users = None
+    if (user_df := df_dict.get("users")) is not None:
+        if len(user_df) > 0:
+            user_result = _do_users(user_df)
+            match user_result:
+                case ExcelSheetProblem():
+                    problems.append(user_result)
+                case _:
+                    all_users = user_result
+    if problems:
+        return problems
+    return Project(
+        shortcode=str(project_df.loc[0, "shortcode"]),
+        shortname=str(project_df.loc[0, "shortname"]),
+        longname=str(project_df.loc[0, "longname"]),
+        descriptions=cast(Descriptions, description_result),
+        keywords=cast(Keywords, keywords_result),
+        users=all_users,
+    )
 
 
 def _check_project_sheet(df: pd.DataFrame) -> None | ExcelSheetProblem:
@@ -140,18 +163,58 @@ def _get_description_cols(cols: list[str]) -> dict[str, str]:
     return {found.group(2): x for x in cols if (found := regex.search(re_pat, x))}
 
 
-def _do_keywords(df: pd.DataFrame) -> ExcelSheetProblem | list[str]:
+def _do_keywords(df: pd.DataFrame) -> ExcelSheetProblem | Keywords:
     if "keywords" not in df.columns:
         return ExcelSheetProblem("keywords", [RequiredColumnMissingProblem(["keywords"])])
     keywords = list({x for x in df["keywords"] if not pd.isna(x)})
     if len(keywords) == 0:
         return ExcelSheetProblem("keywords", [MissingValuesProblem([PositionInExcel(column="keywords")])])
-    return sorted(keywords)
+    return Keywords(keywords)
 
 
 def _do_users(df: pd.DataFrame) -> ExcelSheetProblem | Users:
+    columns = ["username", "email", "givenname", "familyname", "password", "lang", "role"]
+    if missing_cols := check_contains_required_columns(df, columns):
+        return ExcelSheetProblem("users", [missing_cols])
+    if missing_vals := check_required_values_get_position_in_excel(df, columns):
+        return ExcelSheetProblem("users", [missing_vals])
+    users = []
+    problems: list[Problem] = []
+    for _, row in df.iterrows():
+        result = _do_one_user(row)
+        match result:
+            case InvalidExcelContentProblem():
+                problems.append(result)
+            case _:
+                users.append(result)
+    if problems:
+        return ExcelSheetProblem("users", problems)
+    return Users(users)
+
+
+def _do_one_user(row: pd.Series[Any]) -> User | InvalidExcelContentProblem:
     pass
 
 
-def _do_one_user(row: pd.Series[Any]) -> User | PositionInExcel:
+def _check_lang(value: Any) -> bool:
     pass
+
+
+def _get_role(value: str, row_num: int) -> UserRole | InvalidExcelContentProblem:
+    match value.lower():
+        case "projectadmin":
+            return UserRole(project_admin=True)
+        case "systemadmin":
+            return UserRole(sys_admin=True)
+        case "projectmember":
+            return UserRole()
+        case _:
+            return InvalidExcelContentProblem(
+                expected_content="One of: projectadmin, systemadmin, projectmember",
+                actual_content=value,
+                excel_position=PositionInExcel(column="role", row=row_num),
+            )
+
+
+def _is_email(email: str) -> bool:
+    return bool(regex.search(r".+@.+\..+", email))

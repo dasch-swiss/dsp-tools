@@ -130,7 +130,7 @@ def _do_description(df: pd.DataFrame) -> ExcelSheetProblem | Descriptions:
 
 
 def _get_description_cols(cols: list[str]) -> dict[str, str]:
-    re_pat = r"^(\w*)_?(en|it|de|fr|rm)$"
+    re_pat = r"^(\w*)(en|it|de|fr|rm)$"
     return {found.group(2): x for x in cols if (found := regex.search(re_pat, x))}
 
 

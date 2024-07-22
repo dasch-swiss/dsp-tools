@@ -311,7 +311,7 @@ class AtLeastOneValueRequiredProblem:
             message for the error
         """
         return (
-            f"At least one value is required in the columns: {', '.join(sorted(self.columns))}"
+            f"At least one value is required in the columns: {', '.join(sorted(self.columns))}\n"
             f"The row: {self.row_num} does not contain any values in those columns."
         )
 

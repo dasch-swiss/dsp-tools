@@ -1,6 +1,6 @@
-# DSP-DAS Performance Testing
+# DSP-TOOLS Performance Testing
 
-This repository contains performance tests for the DSP-TOOLS project.
+This directory contains performance tests for DSP-TOOLS.
 
 To run the tests, you need to build [xk6](https://k6.io/docs/extensions/#xk6-makes-custom-binaries)
 with the [xk6-exec](https://github.com/grafana/xk6-exec) extension which requires you to have

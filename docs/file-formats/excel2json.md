@@ -29,6 +29,7 @@ data_model_files
 `-- onto_name (onto_label)
     |-- properties.xlsx
     `-- resources.xlsx
+    `json_header.xlsx` (optional)
 ```
 
 Conventions for the folder names:
@@ -36,6 +37,7 @@ Conventions for the folder names:
 - The "lists" folder must have exactly this name, if it exists. It can also be omitted.
 - Replace "onto_name" by your ontology's name, and "onto_label" by your ontology's label.
 - The only name that can be chosen freely is the name of the topmost folder ("data_model_files" in this example).
+- The file "json_header.xlsx" is optional. If it exists, it should be located in the main folder.
 
 Then, use the following command:
 
@@ -45,9 +47,9 @@ dsp-tools excel2json data_model_files project.json
 
 This will create a file `project.json` with the lists, properties, and resources from the Excel files. 
 
-**Please note that the "header" of the resulting JSON file is empty and thus invalid. It is necessary to add the project
-shortcode, shortname, longname, descriptions, and keywords by hand. Likewise, there will be no prefixes, no groups and 
-no users in the resulting JSON file.**
+**If the file "json_header.xlsx" is not provided the "header" of the resulting JSON file is empty and thus invalid. 
+It is necessary to add the project shortcode, shortname, longname, descriptions, and keywords by hand. 
+Likewise, there will be no prefixes, no groups and no users in the resulting JSON file.**
 
 Continue reading the following paragraphs to learn more about the expected structure of the Excel files.
 
@@ -68,6 +70,7 @@ data_model_files
 `-- onto_name (onto_label)
     |-- properties.xlsx
     `-- resources.xlsx
+    `json_header.xlsx` (optional)
 ```
 
 
@@ -76,6 +79,33 @@ Then, use the following command:
 ```bash
 dsp-tools new-excel2json data_model_files project.json
 ```
+
+## The `json_header.xlsx`
+
+The header section can be filled out with the "json_header.xlsx" file.
+The file must be in the main folder, and the name must be an exact match.
+
+It is recommended to use the [template](../assets/data_model_templates/json_header.xlsx).
+
+The sheets should be filled as follows:
+
+- **Prefixes**
+    - Both columns: "prefixes" and "URI" are mandatory.
+    - At least one prefix has to be declared
+- **Project**
+    - All columns: shortcode, shortname, longname are mandatory.
+    - Only one row may be filled.
+- **Description**
+    - The langauge options are: en, de, fr, it, rm
+    - At least one language has to be filled.
+    - Only one row may be filled.
+- **Keywords**
+    - At least one keyword has to be entered in the column "keywords".
+- **Users (Optional)** 
+    - This sheet may be omitted or left empty.
+    - For each user, all the columns: username, email, givenName, familyName, password, lang and role are mandatory.
+    - The role has to be either: projectadmin, projectmember or systemadmin.
+
 
 ## The `resources` Section
 

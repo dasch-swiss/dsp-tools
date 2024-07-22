@@ -151,17 +151,3 @@ class BulkIngestClient:
                 logger.info("Ingest process completed.")
                 break
         yield res.text
-
-    def finalize(self) -> bool:
-        """Delete the mapping file and the temporary directory where the unprocessed files were stored."""
-        route = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/finalize"
-        timeout = 5
-        logger.debug(f"REQUEST: POST to '{route}', timeout: {timeout}")
-        res = self.session.post(route, timeout=timeout)
-        logger.debug(f"RESPONSE: {res.status_code}: {res.text}")
-        if res.status_code != STATUS_OK or res.json().get("id") != self.shortcode:
-            print("Failed to finalize the ingest process. Please clean up the server manually.")
-            logger.error("Failed to finalize the ingest process. Please clean up the server manually.")
-            return False
-        logger.info("Finalized the ingest process.")
-        return True

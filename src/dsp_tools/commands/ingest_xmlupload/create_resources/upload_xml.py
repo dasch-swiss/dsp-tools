@@ -6,7 +6,6 @@ from loguru import logger
 from lxml import etree
 
 from dsp_tools.cli.args import ServerCredentials
-from dsp_tools.commands.ingest_xmlupload.bulk_ingest_client import BulkIngestClient
 from dsp_tools.commands.ingest_xmlupload.create_resources.apply_ingest_id import get_mapping_dict_from_file
 from dsp_tools.commands.ingest_xmlupload.create_resources.apply_ingest_id import replace_filepath_with_internal_filename
 from dsp_tools.commands.xmlupload.list_client import ListClientLive
@@ -49,7 +48,6 @@ def ingest_xmlupload(
     Raises:
         InputError: if any media was not uploaded or uploaded media was not referenced.
     """
-    success = True
     default_ontology, root, shortcode = _parse_xml_and_replace_filepaths(xml_file)
 
     con = ConnectionLive(creds.server)
@@ -69,13 +67,7 @@ def ingest_xmlupload(
     clients = _get_live_clients(con, config)
     state = UploadState(resources, stash, config, permissions_lookup)
 
-    if not execute_upload(clients, state):
-        success = False
-
-    if not _tidy_up_on_server(con, shortcode, creds.dsp_ingest_url):
-        success = False
-
-    return success
+    return execute_upload(clients, state)
 
 
 def _parse_xml_and_replace_filepaths(xml_file: Path) -> tuple[str, etree._Element, str]:
@@ -112,8 +104,3 @@ def _get_live_clients(con: Connection, config: UploadConfig) -> UploadClients:
     project_client = ProjectClientLive(con, config.shortcode)
     list_client = ListClientLive(con, project_client.get_project_iri())
     return UploadClients(ingest_client, project_client, list_client)
-
-
-def _tidy_up_on_server(con: Connection, shortcode: str, ingest_url: str) -> bool:
-    bulk_ingest_client = BulkIngestClient(ingest_url, con.get_token(), shortcode)
-    return bulk_ingest_client.finalize()

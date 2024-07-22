@@ -9,6 +9,7 @@ from dsp_tools.commands.excel2json.json_header import _do_formal_compliance
 from dsp_tools.commands.excel2json.json_header import _do_keywords
 from dsp_tools.commands.excel2json.json_header import _do_one_user
 from dsp_tools.commands.excel2json.json_header import _do_prefixes
+from dsp_tools.commands.excel2json.json_header import _do_users
 from dsp_tools.commands.excel2json.json_header import _get_description_cols
 from dsp_tools.commands.excel2json.json_header import _get_role
 from dsp_tools.commands.excel2json.models.input_error import AtLeastOneValueRequiredProblem
@@ -25,6 +26,7 @@ from dsp_tools.commands.excel2json.models.json_header import Keywords
 from dsp_tools.commands.excel2json.models.json_header import Prefixes
 from dsp_tools.commands.excel2json.models.json_header import User
 from dsp_tools.commands.excel2json.models.json_header import UserRole
+from dsp_tools.commands.excel2json.models.json_header import Users
 
 
 @pytest.fixture()
@@ -286,13 +288,87 @@ class TestDoKeywords:
 
 class TestDoUsers:
     def test_good(self) -> None:
-        pass
+        test_df = pd.DataFrame(
+            {
+                "username": ["Alice", "Caterpillar"],
+                "email": ["alice@dasch.swiss", "caterpillar@dasch.swiss"],
+                "givenname": ["Alice Pleasance", "Caterpillar"],
+                "familyname": ["Liddell", "Wonderland"],
+                "password": ["alice4322", "alice7652"],
+                "lang": ["fr", "de"],
+                "role": ["systemadmin", "projectmember"],
+            }
+        )
+        result = _do_users(test_df)
+        assert isinstance(result, Users)
+        assert len(result.users) == 2
+        resulting_users = sorted(result.users, key=lambda x: x.username)
+        alice = resulting_users[0]
+        assert alice.username == "Alice"
+        assert alice.email == "alice@dasch.swiss"
+        assert alice.givenName == "Alice Pleasance"
+        assert alice.familyName == "Liddell"
+        assert alice.password == "alice4322"
+        assert alice.lang == "fr"
+        alice_role = alice.role
+        assert isinstance(alice_role, UserRole)
+        assert not alice_role.project_admin
+        assert alice_role.sys_admin
+
+        caterpillar = resulting_users[1]
+        assert caterpillar.username == "Caterpillar"
+        assert caterpillar.email == "caterpillar@dasch.swiss"
+        assert caterpillar.givenName == "Caterpillar"
+        assert caterpillar.familyName == "Wonderland"
+        assert caterpillar.password == "alice7652"
+        assert caterpillar.lang == "de"
+        caterpillar_role = caterpillar.role
+        assert isinstance(caterpillar_role, UserRole)
+        assert not caterpillar_role.project_admin
+        assert not caterpillar_role.sys_admin
 
     def test_missing_col(self) -> None:
-        pass
+        test_df = pd.DataFrame(
+            {
+                "email": ["alice@dasch.swiss", "caterpillar@dasch.swiss"],
+                "givenname": ["Alice Pleasance", "Caterpillar"],
+                "familyname": ["Liddell", "Wonderland"],
+                "password": ["alice4322", "alice7652"],
+                "lang": ["fr", "de"],
+                "role": ["systemadmin", "projectmember"],
+            }
+        )
+        result = _do_users(test_df)
+        assert isinstance(result, ExcelSheetProblem)
+        assert result.sheet_name == "users"
+        assert len(result.problems) == 1
+        missing = result.problems[0]
+        assert isinstance(missing, RequiredColumnMissingProblem)
+        assert missing.columns == ["username"]
 
     def test_missing_value(self) -> None:
-        pass
+        test_df = pd.DataFrame(
+            {
+                "username": ["Alice", "Caterpillar"],
+                "email": ["alice@dasch.swiss", "caterpillar@dasch.swiss"],
+                "givenname": ["Alice Pleasance", "Caterpillar"],
+                "familyname": ["Liddell", "Wonderland"],
+                "password": ["alice4322", pd.NA],
+                "lang": ["fr", "de"],
+                "role": ["systemadmin", "projectmember"],
+            }
+        )
+        result = _do_users(test_df)
+        assert isinstance(result, ExcelSheetProblem)
+        assert result.sheet_name == "users"
+        assert len(result.problems) == 1
+        empty = result.problems[0]
+        assert isinstance(empty, MissingValuesProblem)
+        assert len(empty.locations) == 1
+        location = empty.locations[0]
+        assert isinstance(location, PositionInExcel)
+        assert location.column == "password"
+        assert location.row == 3
 
 
 class TestDoOneUser:

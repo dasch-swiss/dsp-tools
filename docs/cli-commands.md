@@ -158,7 +158,7 @@ The defaults are intended for local testing:
 dsp-tools xmlupload xml_data_file.xml
 ```
 
-Will upload the data defined in `xml_data_file.xml` on `localhost` for local viewing.
+will upload the data defined in `xml_data_file.xml` on `localhost` for local viewing.
 
 In order to upload the same data 
 to the DSP server `https://app.dasch.swiss`,
@@ -205,6 +205,138 @@ The following options are available:
 For this command to work,
 the pickle file `~/.dsp-tools/xmluploads/[server]/resumable/latest.pkl` must exist. 
 Currently, only one interrupted upload can be resumed at a time per server.
+
+
+
+## New workflow for xmlupload
+
+| <center>Warning</center>                                          |
+| ----------------------------------------------------------------- |
+| These commands are experimental. They might change in the future. |
+
+This new workflow consists of 3 commands:
+
+- [`upload-files`](#upload-files): upload all files that are referenced in an XML file to a DSP server
+- [`ingest-files`](#ingest-files): kick off the ingest process, and retrieve the mapping CSV when it is finished
+- [`ingest-xmlupload`](#ingest-xmlupload): create the resources contained in the XML file, using the mapping CSV
+
+
+### `upload-files`
+
+This command uploads all files referenced in the `<bitstream>` tags of an XML file to a server
+(without any processing/ingesting).
+
+```bash
+dsp-tools upload-files [options] xml_data_file.xml
+```
+
+The following options are available:
+
+- `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server where DSP-TOOLS sends the data to
+- `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API 
+- `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
+- `-i` | `--imgdir` (optional, default: `.`): folder from where the paths in the `<bitstream>` tags are evaluated
+- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
+  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
+
+The defaults are intended for local testing: 
+
+```bash
+dsp-tools upload-files xml_data_file.xml
+```
+
+will upload the files referenced in the `<bitstream>` tags of `xml_data_file.xml` onto `localhost`, for local viewing.
+
+In order to upload the same data to the DSP server `https://app.dasch.swiss`,
+it is necessary to specify the following options:
+
+```bash
+dsp-tools xmlupload -s https://api.dasch.swiss -u 'your@email.com' -p 'password' xml_data_file.xml
+```
+
+The expected XML format is [documented here](./file-formats/xml-data-file.md).
+
+
+### `ingest-files`
+
+This command kicks off the ingest process on the server, and waits until it has completed.
+Then, it saves the mapping CSV in the current working directory.
+The mapping CSV contains a mapping from the original file paths on your machine 
+to the internal filenames of the ingested files on the target server.
+This mapping is necessary for the next step ([`ingest-xmlupload`](#ingest-xmlupload)).
+
+In order for this to work, the files of the indicated project 
+must first be uploaded with [`upload-files`](#upload-files).
+
+**This command might take hours or days until it returns,**
+**because it waits until the ingest process on the server has completed.**
+**Instead of waiting, you might also kill this process, and execute it again later.**
+
+```bash
+dsp-tools ingest-files [options] <shortcode>
+```
+
+The following options are available:
+
+- `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server where DSP-TOOLS sends the data to
+- `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API 
+- `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
+- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
+  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
+
+The defaults are intended for local testing: 
+
+```bash
+dsp-tools ingest-files 082E
+```
+
+will ingest the files of the project `082E` on `localhost` for local viewing.
+
+In order to ingest the same data on the DSP server `https://app.dasch.swiss`,
+it is necessary to specify the following options:
+
+```bash
+dsp-tools ingest-files -s https://api.dasch.swiss -u 'your@email.com' -p 'password' 082E
+```
+
+
+## `ingest-xmlupload`
+
+This command creates all resources defined in an XML file on a DSP server. 
+In order for this to work, the files referenced in the XML file 
+must first be uploaded with [`upload-files`](#upload-files),
+and then be ingested with [`ingest-files`](#ingest-files).
+
+The mapping CSV file that was created by [`ingest-files`](#ingest-files) 
+must be present in the current working directory.
+
+```bash
+dsp-tools xmlupload [options] xml_data_file.xml
+```
+
+The following options are available:
+
+- `-s` | `--server` (optional, default: `0.0.0.0:3333`): URL of the DSP server where DSP-TOOLS sends the data to
+- `-u` | `--user` (optional, default: `root@example.com`): username (e-mail) used for authentication with the DSP-API 
+- `-p` | `--password` (optional, default: `test`): password used for authentication with the DSP-API
+- `--interrupt-after=int` (optional): interrupt the upload after `int` resources have been uploaded
+- `--suppress-update-prompt` (optional): don't prompt when using an outdated version of DSP-TOOLS 
+  (useful for contexts without interactive shell, e.g. when the Terminal output is piped into a file)
+
+The defaults are intended for local testing: 
+
+```bash
+dsp-tools ingest-xmlupload xml_data_file.xml
+```
+
+will create the resources contained in `xml_data_file.xml` on `localhost` for local viewing.
+
+In order to create the same resources on the DSP server `https://app.dasch.swiss`,
+it is necessary to specify the following options:
+
+```bash
+dsp-tools ingest-xmlupload -s https://api.dasch.swiss -u 'your@email.com' -p 'password' xml_data_file.xml
+```
 
 
 

@@ -13,7 +13,9 @@ from dsp_tools.commands.excel2json.properties import excel2properties
 from dsp_tools.commands.excel2json.resources import excel2resources
 from dsp_tools.commands.excel2xml.excel2xml_cli import excel2xml
 from dsp_tools.commands.id2iri import id2iri
-from dsp_tools.commands.ingest_xmlupload.upload_xml import ingest_xmlupload
+from dsp_tools.commands.ingest_xmlupload.create_resources.upload_xml import ingest_xmlupload
+from dsp_tools.commands.ingest_xmlupload.ingest_files.ingest_files import ingest_files
+from dsp_tools.commands.ingest_xmlupload.upload_files.upload_files import upload_files
 from dsp_tools.commands.project.create.project_create import create_project
 from dsp_tools.commands.project.create.project_create_lists import create_lists
 from dsp_tools.commands.project.create.project_validate import validate_project
@@ -72,6 +74,10 @@ def call_requested_action(args: argparse.Namespace) -> bool:  # noqa: PLR0912 (t
             result = _call_stop_stack()
         case "get":
             result = _call_get(args)
+        case "upload-files":
+            result = _call_upload_files(args)
+        case "ingest-files":
+            result = _call_ingest_files(args)
         case "ingest-xmlupload":
             result = _call_ingest_xmlupload(args)
         case "template":
@@ -165,6 +171,18 @@ def _call_new_excel2json(args: argparse.Namespace) -> bool:
         data_model_files=args.excelfolder,
         path_to_output_file=args.project_definition,
     )
+
+
+def _call_upload_files(args: argparse.Namespace) -> bool:
+    return upload_files(
+        xml_file=Path(args.xml_file),
+        creds=_get_creds(args),
+        imgdir=Path(args.imgdir),
+    )
+
+
+def _call_ingest_files(args: argparse.Namespace) -> bool:
+    return ingest_files(creds=_get_creds(args), shortcode=args.shortcode)
 
 
 def _call_ingest_xmlupload(args: argparse.Namespace) -> bool:

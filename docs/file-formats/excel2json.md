@@ -104,7 +104,8 @@ The sheets should be filled as follows:
 - **Users (Optional)** 
     - This sheet may be omitted or left empty.
     - For each user, all the columns: username, email, givenName, familyName, password, lang and role are mandatory.
-    - The role has to be either: projectadmin, projectmember or systemadmin.
+    - The lang has to be one of: en, de, fr, it or rm
+    - The lang has to be one of: projectadmin, projectmember or systemadmin.
 
 
 ## The `resources` Section

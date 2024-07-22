@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 from typing import Iterator
 
@@ -6,6 +7,7 @@ import pytest
 from pytest_unordered import unordered
 
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.commands.ingest_xmlupload.create_resources.upload_xml import ingest_xmlupload
 from dsp_tools.commands.ingest_xmlupload.ingest_files.ingest_files import ingest_files
 from dsp_tools.commands.ingest_xmlupload.upload_files.upload_files import upload_files
 from dsp_tools.commands.project.create.project_create import create_project
@@ -38,6 +40,7 @@ def _create_project() -> Iterator[None]:
 def test_ingest_upload(mapping_file: Path) -> None:
     _test_upload_step()
     _test_ingest_step(mapping_file)
+    _test_xmlupload_step()
 
 
 def _test_upload_step() -> None:
@@ -57,3 +60,12 @@ def _test_ingest_step(mapping_file: Path) -> None:
 
     df = pd.read_csv(mapping_file)
     assert df["original"].tolist() == unordered(["testdata/bitstreams/test.jpg", "testdata/bitstreams/test.pdf"])
+
+
+def _test_xmlupload_step() -> None:
+    success = ingest_xmlupload(XML_FILE, CREDS)
+    assert success
+    id2iri_file = list(Path.cwd().glob("*_id2iri_mapping_localhost.json"))[-1]  # choose the most recent one
+    id2iri_mapping = json.loads(id2iri_file.read_text(encoding="utf-8"))
+    assert sorted(id2iri_mapping.keys()) == ["resource_1", "resource_2", "resource_3"]
+    assert all(x.startswith(f"http://rdfh.ch/{SHORTCODE}/") for x in id2iri_mapping.values())

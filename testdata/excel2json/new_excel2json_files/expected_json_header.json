@@ -1,0 +1,76 @@
+{
+  "prefixes": {
+    "foaf": "http://xmlns.com/foaf/0.1/",
+    "dcterms": "http://purl.org/dc/terms/",
+    "schema": "https://schema.org/",
+    "sdh": "https://ontome.net/ns/sdhss/",
+    "cidoc": "http://www.cidoc-crm.org/cidoc-crm/"
+  },
+  "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json",
+  "project": {
+    "shortcode": "11",
+    "shortname": "daschland",
+    "longname": "Alice in DaSCHland",
+    "descriptions": {
+      "en": "Alice in DaSCHland. \nTestdata",
+      "fr": "Alice au Pays de DaSCH. \nDonnées test",
+      "de": "Alice im DaSCHland. \nTestdaten"
+    },
+    "keywords": [
+      "Alice",
+      "Beispiel",
+      "DaSCH",
+      "Data",
+      "Données",
+      "Example",
+      "Exemple",
+      "Test",
+      "animaux de compagnie",
+      "pet-friendly",
+      "tierfreundlich"
+    ],
+    "users": [
+      {
+        "username": "Alice",
+        "email": "alice@dasch.swiss",
+        "givenName": "Alice Pleasance",
+        "familyName": "Liddell",
+        "password": "alice4322",
+        "lang": "en",
+        "status": true,
+        "projects": [
+          ":admin",
+          ":member"
+        ]
+      },
+      {
+        "username": "Caterpillar",
+        "email": "caterpillar@dasch.swiss",
+        "givenName": "Caterpillar",
+        "familyName": "Wonderland",
+        "password": "alice7652",
+        "lang": "de",
+        "status": true,
+        "projects": [
+          ":member"
+        ]
+      },
+      {
+        "username": "WhiteRabbit",
+        "email": "white.rabbit@dasch.swiss",
+        "givenName": "White",
+        "familyName": "Rabbit",
+        "password": "alice8711",
+        "lang": "fr",
+        "status": true,
+        "groups": [
+          "SystemAdmin"
+        ],
+        "projects": [
+          ":admin",
+          ":member"
+        ]
+      }
+    ]
+  }
+}

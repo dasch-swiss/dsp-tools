@@ -29,11 +29,6 @@ from dsp_tools.commands.excel2json.models.json_header import UserRole
 from dsp_tools.commands.excel2json.models.json_header import Users
 
 
-@pytest.fixture()
-def project_sheet() -> pd.DataFrame:
-    return pd.DataFrame({"shortcode": ["0001"], "shortname": ["name"], "longname": ["long"]})
-
-
 class TestFormalCompliance:
     def test_good(self) -> None:
         test_dict = {
@@ -155,7 +150,8 @@ class TestDoProject:
 
 
 class TestDoProjectChecks:
-    def test_good(self, project_sheet: pd.DataFrame) -> None:
+    def test_good(self) -> None:
+        project_sheet = pd.DataFrame({"shortcode": ["0001"], "shortname": ["name"], "longname": ["long"]})
         result = _check_project_sheet(project_sheet)
         assert not result
 

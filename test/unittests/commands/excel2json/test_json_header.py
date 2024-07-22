@@ -2,14 +2,14 @@ import pandas as pd
 import pytest
 
 from dsp_tools.commands.excel2json.json_header import _check_email
+from dsp_tools.commands.excel2json.json_header import _check_if_sheets_are_filled_and_exist
 from dsp_tools.commands.excel2json.json_header import _check_lang
 from dsp_tools.commands.excel2json.json_header import _check_project_sheet
-from dsp_tools.commands.excel2json.json_header import _do_description
-from dsp_tools.commands.excel2json.json_header import _do_formal_compliance
-from dsp_tools.commands.excel2json.json_header import _do_keywords
-from dsp_tools.commands.excel2json.json_header import _do_one_user
-from dsp_tools.commands.excel2json.json_header import _do_prefixes
-from dsp_tools.commands.excel2json.json_header import _do_users
+from dsp_tools.commands.excel2json.json_header import _extract_description
+from dsp_tools.commands.excel2json.json_header import _extract_keywords
+from dsp_tools.commands.excel2json.json_header import _extract_one_user
+from dsp_tools.commands.excel2json.json_header import _extract_prefixes
+from dsp_tools.commands.excel2json.json_header import _extract_users
 from dsp_tools.commands.excel2json.json_header import _get_description_cols
 from dsp_tools.commands.excel2json.json_header import _get_role
 from dsp_tools.commands.excel2json.models.input_error import AtLeastOneValueRequiredProblem
@@ -29,7 +29,7 @@ from dsp_tools.commands.excel2json.models.json_header import UserRole
 from dsp_tools.commands.excel2json.models.json_header import Users
 
 
-class TestFormalCompliance:
+class TestCheckIfSheetsExist:
     def test_good(self) -> None:
         test_dict = {
             "prefixes": pd.DataFrame({"one": [1]}),
@@ -38,7 +38,7 @@ class TestFormalCompliance:
             "keywords": pd.DataFrame({"one": [1]}),
             "users": pd.DataFrame({}),
         }
-        assert not _do_formal_compliance(test_dict)
+        assert not _check_if_sheets_are_filled_and_exist(test_dict)
 
     def test_good_no_users(self) -> None:
         test_dict = {
@@ -47,7 +47,7 @@ class TestFormalCompliance:
             "description": pd.DataFrame({"one": [1]}),
             "keywords": pd.DataFrame({"one": [1]}),
         }
-        assert not _do_formal_compliance(test_dict)
+        assert not _check_if_sheets_are_filled_and_exist(test_dict)
 
     def test_missing_sheet(self) -> None:
         test_dict = {
@@ -56,7 +56,7 @@ class TestFormalCompliance:
             "keywords": pd.DataFrame({"one": [1]}),
             "users": pd.DataFrame({"one": [1]}),
         }
-        result = _do_formal_compliance(test_dict)
+        result = _check_if_sheets_are_filled_and_exist(test_dict)
         assert isinstance(result, ExcelFileProblem)
         assert len(result.problems) == 1
         problem = result.problems[0]
@@ -70,7 +70,7 @@ class TestFormalCompliance:
             "description": pd.DataFrame({"one": [1]}),
             "keywords": pd.DataFrame({}),
         }
-        result = _do_formal_compliance(test_dict)
+        result = _check_if_sheets_are_filled_and_exist(test_dict)
         assert isinstance(result, ExcelFileProblem)
         assert len(result.problems) == 1
         problem = result.problems[0]
@@ -83,7 +83,7 @@ class TestFormalCompliance:
             "project": pd.DataFrame({"one": [1]}),
             "description": pd.DataFrame({"one": [1]}),
         }
-        result = _do_formal_compliance(test_dict)
+        result = _check_if_sheets_are_filled_and_exist(test_dict)
         assert isinstance(result, ExcelFileProblem)
         assert len(result.problems) == 1
         problem = result.problems[0]
@@ -91,16 +91,16 @@ class TestFormalCompliance:
         assert set(problem.sheet_names) == {"keywords", "prefixes"}
 
 
-class TestDoPrefix:
+class TestExtractPrefix:
     def test_good(self) -> None:
         test_df = pd.DataFrame({"prefixes": ["pref:"], "uri": ["namespace"]})
-        result = _do_prefixes(test_df)
+        result = _extract_prefixes(test_df)
         assert isinstance(result, Prefixes)
         assert result.prefixes == {"pref": "namespace"}
 
     def test_missing_col(self) -> None:
         test_df = pd.DataFrame({"uri": ["namespace"]})
-        result = _do_prefixes(test_df)
+        result = _extract_prefixes(test_df)
         assert isinstance(result, ExcelSheetProblem)
         assert len(result.problems) == 1
         problem = result.problems[0]
@@ -109,7 +109,7 @@ class TestDoPrefix:
 
     def test_missing_value(self) -> None:
         test_df = pd.DataFrame({"prefixes": ["pref:", pd.NA], "uri": ["namespace", "other_namespace"]})
-        result = _do_prefixes(test_df)
+        result = _extract_prefixes(test_df)
         assert isinstance(result, ExcelSheetProblem)
         assert result.sheet_name == "prefixes"
         assert len(result.problems) == 1
@@ -121,7 +121,7 @@ class TestDoPrefix:
         assert loc.row == 3
 
 
-class TestDoProjectChecks:
+class TestExtractProjectChecks:
     def test_good(self) -> None:
         project_sheet = pd.DataFrame({"shortcode": ["0001"], "shortname": ["name"], "longname": ["long"]})
         result = _check_project_sheet(project_sheet)
@@ -158,7 +158,7 @@ class TestDoProjectChecks:
         assert problem.num_rows == 2
 
 
-class TestDoDescription:
+class TestExtractDescription:
     def test_good(self) -> None:
         test_df = pd.DataFrame(
             {
@@ -169,7 +169,7 @@ class TestDoDescription:
                 "description_rm": [pd.NA],
             }
         )
-        res = _do_description(test_df)
+        res = _extract_description(test_df)
         assert isinstance(res, Descriptions)
         assert res.descriptions == {"en": "english", "fr": "french"}
 
@@ -182,13 +182,13 @@ class TestDoDescription:
                 "description_it": [pd.NA],
             }
         )
-        res = _do_description(test_df)
+        res = _extract_description(test_df)
         assert isinstance(res, Descriptions)
         assert res.descriptions == {"de": "german", "fr": "french"}
 
     def test_too_long(self) -> None:
         test_df = pd.DataFrame({"one": [1, 2]})
-        res = _do_description(test_df)
+        res = _extract_description(test_df)
         assert isinstance(res, ExcelSheetProblem)
         assert len(res.problems) == 1
         problem = res.problems[0]
@@ -197,7 +197,7 @@ class TestDoDescription:
 
     def test_no_values_filled(self) -> None:
         test_df = pd.DataFrame({"description_en": [pd.NA], "random": ["value"]})
-        res = _do_description(test_df)
+        res = _extract_description(test_df)
         assert isinstance(res, ExcelSheetProblem)
         assert len(res.problems) == 1
         problem = res.problems[0]
@@ -208,7 +208,7 @@ class TestDoDescription:
 
     def test_no_valid_col(self) -> None:
         test_df = pd.DataFrame({"description_es": [1]})
-        res = _do_description(test_df)
+        res = _extract_description(test_df)
         assert isinstance(res, ExcelSheetProblem)
         assert len(res.problems) == 1
         problem = res.problems[0]
@@ -225,16 +225,16 @@ class TestDoDescription:
         assert not _get_description_cols(test_cols)
 
 
-class TestDoKeywords:
+class TestExtractKeywords:
     def test_good(self) -> None:
         test_df = pd.DataFrame({"keywords": ["one", pd.NA, "three"]})
-        result = _do_keywords(test_df)
+        result = _extract_keywords(test_df)
         assert isinstance(result, Keywords)
         assert result.serialise() == ["one", "three"]
 
     def test_missing_col(self) -> None:
         test_df = pd.DataFrame({"other": ["other"]})
-        result = _do_keywords(test_df)
+        result = _extract_keywords(test_df)
         assert isinstance(result, ExcelSheetProblem)
         assert len(result.problems) == 1
         problem = result.problems[0]
@@ -243,7 +243,7 @@ class TestDoKeywords:
 
     def test_missing_value(self) -> None:
         test_df = pd.DataFrame({"keywords": [pd.NA], "other": ["other"]})
-        result = _do_keywords(test_df)
+        result = _extract_keywords(test_df)
         assert isinstance(result, ExcelSheetProblem)
         assert len(result.problems) == 1
         problem = result.problems[0]
@@ -254,7 +254,7 @@ class TestDoKeywords:
         assert position.column == "keywords"
 
 
-class TestDoUsers:
+class TestExtractUsers:
     def test_good(self) -> None:
         test_df = pd.DataFrame(
             {
@@ -267,7 +267,7 @@ class TestDoUsers:
                 "role": ["systemadmin", "projectmember"],
             }
         )
-        result = _do_users(test_df)
+        result = _extract_users(test_df)
         assert isinstance(result, Users)
         assert len(result.users) == 2
         resulting_users = sorted(result.users, key=lambda x: x.username)
@@ -306,7 +306,7 @@ class TestDoUsers:
                 "role": ["systemadmin", "projectmember"],
             }
         )
-        result = _do_users(test_df)
+        result = _extract_users(test_df)
         assert isinstance(result, ExcelSheetProblem)
         assert result.sheet_name == "users"
         assert len(result.problems) == 1
@@ -326,7 +326,7 @@ class TestDoUsers:
                 "role": ["systemadmin", "projectmember"],
             }
         )
-        result = _do_users(test_df)
+        result = _extract_users(test_df)
         assert isinstance(result, ExcelSheetProblem)
         assert result.sheet_name == "users"
         assert len(result.problems) == 1
@@ -339,7 +339,7 @@ class TestDoUsers:
         assert location.row == 3
 
 
-class TestDoOneUser:
+class TestExtractOneUser:
     def test_good(self) -> None:
         test_series = pd.Series(
             {
@@ -352,7 +352,7 @@ class TestDoOneUser:
                 "role": "projectadmin",
             }
         )
-        result = _do_one_user(test_series, 1)
+        result = _extract_one_user(test_series, 1)
         assert isinstance(result, User)
         assert result.username == "Alice"
         assert result.email == "alice@dasch.swiss"
@@ -377,7 +377,7 @@ class TestDoOneUser:
                 "role": "projectadmin",
             },
         )
-        result = _do_one_user(test_series, 2)
+        result = _extract_one_user(test_series, 2)
         assert isinstance(result, list)
         assert len(result) == 1
         problem = result[0]

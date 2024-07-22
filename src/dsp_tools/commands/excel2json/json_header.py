@@ -53,7 +53,7 @@ def get_json_header(excel_filepath: Path) -> JsonHeader:
         return EmptyJsonHeader()
     sheets_df_dict = read_and_clean_all_sheets(excel_filepath)
     sheets_df_dict = {x.lower(): df for x, df in sheets_df_dict.items()}
-    if compliance_problem := _do_formal_compliance(sheets_df_dict):
+    if compliance_problem := _check_if_sheets_are_filled_and_exist(sheets_df_dict):
         raise InputError(compliance_problem.execute_error_protocol())
     result = _process_file(sheets_df_dict)
     if isinstance(result, ExcelFileProblem):
@@ -62,7 +62,7 @@ def get_json_header(excel_filepath: Path) -> JsonHeader:
     return result
 
 
-def _do_formal_compliance(df_dict: dict[str, pd.DataFrame]) -> ExcelFileProblem | None:
+def _check_if_sheets_are_filled_and_exist(df_dict: dict[str, pd.DataFrame]) -> ExcelFileProblem | None:
     expected_sheets = ["prefixes", "project", "description", "keywords"]
 
     def _check_df(sheet: str) -> str | None:
@@ -79,10 +79,10 @@ def _do_formal_compliance(df_dict: dict[str, pd.DataFrame]) -> ExcelFileProblem 
 
 def _process_file(df_dict: dict[str, pd.DataFrame]) -> ExcelFileProblem | FilledJsonHeader:
     problems: list[Problem] = []
-    prefix_result = _do_prefixes(df_dict["prefixes"])
+    prefix_result = _extract_prefixes(df_dict["prefixes"])
     if isinstance(prefix_result, ExcelSheetProblem):
         problems.append(prefix_result)
-    project_result = _do_project(df_dict)
+    project_result = _extract_project(df_dict)
     if not isinstance(project_result, Project):
         problems.extend(project_result)
     if problems:
@@ -92,7 +92,7 @@ def _process_file(df_dict: dict[str, pd.DataFrame]) -> ExcelFileProblem | Filled
     return FilledJsonHeader(project, prefixes)
 
 
-def _do_prefixes(df: pd.DataFrame) -> ExcelSheetProblem | Prefixes:
+def _extract_prefixes(df: pd.DataFrame) -> ExcelSheetProblem | Prefixes:
     if missing_cols := check_contains_required_columns(df, {"prefixes", "uri"}):
         return ExcelSheetProblem("prefixes", [missing_cols])
     if missing_vals := check_required_values_get_position_in_excel(df, ["prefixes", "uri"]):
@@ -102,21 +102,21 @@ def _do_prefixes(df: pd.DataFrame) -> ExcelSheetProblem | Prefixes:
     return Prefixes(pref)
 
 
-def _do_project(df_dict: dict[str, pd.DataFrame]) -> list[ExcelSheetProblem] | Project:
+def _extract_project(df_dict: dict[str, pd.DataFrame]) -> list[ExcelSheetProblem] | Project:
     problems = []
     project_df = df_dict["project"]
     if project_problem := _check_project_sheet(project_df):
         problems.append(project_problem)
-    description_result = _do_description(df_dict["description"])
+    description_result = _extract_description(df_dict["description"])
     if isinstance(description_result, ExcelSheetProblem):
         problems.append(description_result)
-    keywords_result = _do_keywords(df_dict["keywords"])
+    keywords_result = _extract_keywords(df_dict["keywords"])
     if isinstance(keywords_result, ExcelSheetProblem):
         problems.append(keywords_result)
     all_users = None
     if (user_df := df_dict.get("users")) is not None:
         if len(user_df) > 0:
-            user_result = _do_users(user_df)
+            user_result = _extract_users(user_df)
             match user_result:
                 case ExcelSheetProblem():
                     problems.append(user_result)
@@ -148,7 +148,7 @@ def _check_project_sheet(df: pd.DataFrame) -> None | ExcelSheetProblem:
     return None
 
 
-def _do_description(df: pd.DataFrame) -> ExcelSheetProblem | Descriptions:
+def _extract_description(df: pd.DataFrame) -> ExcelSheetProblem | Descriptions:
     if len(df) > 1:
         return ExcelSheetProblem("description", [MoreThanOneRowProblem(len(df))])
     desc_columns = ["description_en", "description_de", "description_fr", "description_it", "description_rm"]
@@ -165,7 +165,7 @@ def _get_description_cols(cols: list[str]) -> dict[str, str]:
     return {found.group(2): x for x in cols if (found := regex.search(re_pat, x))}
 
 
-def _do_keywords(df: pd.DataFrame) -> ExcelSheetProblem | Keywords:
+def _extract_keywords(df: pd.DataFrame) -> ExcelSheetProblem | Keywords:
     if "keywords" not in df.columns:
         return ExcelSheetProblem("keywords", [RequiredColumnMissingProblem(["keywords"])])
     keywords = list({x for x in df["keywords"] if not pd.isna(x)})
@@ -174,7 +174,7 @@ def _do_keywords(df: pd.DataFrame) -> ExcelSheetProblem | Keywords:
     return Keywords(keywords)
 
 
-def _do_users(df: pd.DataFrame) -> ExcelSheetProblem | Users:
+def _extract_users(df: pd.DataFrame) -> ExcelSheetProblem | Users:
     columns = ["username", "email", "givenname", "familyname", "password", "lang", "role"]
     if missing_cols := check_contains_required_columns(df, set(columns)):
         return ExcelSheetProblem("users", [missing_cols])
@@ -183,18 +183,17 @@ def _do_users(df: pd.DataFrame) -> ExcelSheetProblem | Users:
     users = []
     problems: list[Problem] = []
     for i, row in df.iterrows():
-        result = _do_one_user(row, int(str(i)))
-        match result:
-            case User():
-                users.append(result)
-            case _:
-                problems.extend(result)
+        result = _extract_one_user(row, int(str(i)))
+        if isinstance(result, User):
+            users.append(result)
+        else:
+            problems.extend(result)
     if problems:
         return ExcelSheetProblem("users", problems)
     return Users(users)
 
 
-def _do_one_user(row: pd.Series[Any], row_number: int) -> User | list[InvalidExcelContentProblem]:
+def _extract_one_user(row: pd.Series[Any], row_number: int) -> User | list[InvalidExcelContentProblem]:
     problems: list[InvalidExcelContentProblem] = []
     if bad_language := _check_lang(row["lang"], row_number):
         problems.append(bad_language)

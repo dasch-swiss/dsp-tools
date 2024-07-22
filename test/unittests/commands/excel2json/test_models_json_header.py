@@ -6,6 +6,7 @@ from dsp_tools.commands.excel2json.models.json_header import Keywords
 from dsp_tools.commands.excel2json.models.json_header import Prefixes
 from dsp_tools.commands.excel2json.models.json_header import Project
 from dsp_tools.commands.excel2json.models.json_header import User
+from dsp_tools.commands.excel2json.models.json_header import UserRole
 from dsp_tools.commands.excel2json.models.json_header import Users
 
 SCHEMA = "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json"
@@ -28,17 +29,17 @@ def keywords() -> Keywords:
 
 @pytest.fixture()
 def user_sys_admin() -> User:
-    return User("sys_admin", "sys_admin@email.ch", "given name1", "family name1", "PW1", "en", sys_admin=True)
+    return User("sys_admin", "sys_admin@email.ch", "given name1", "family name1", "PW1", "en", UserRole(sys_admin=True))
 
 
 @pytest.fixture()
 def user_member() -> User:
-    return User("member", "member@email.ch", "given name2", "family name2", "PW2", "de", project_member=True)
+    return User("member", "member@email.ch", "given name2", "family name2", "PW2", "de", UserRole())
 
 
 @pytest.fixture()
 def user_admin() -> User:
-    return User("admin", "admin@email.ch", "given name3", "family name3", "PW3", "de", project_admin=True)
+    return User("admin", "admin@email.ch", "given name3", "family name3", "PW3", "de", UserRole(project_admin=True))
 
 
 @pytest.fixture()

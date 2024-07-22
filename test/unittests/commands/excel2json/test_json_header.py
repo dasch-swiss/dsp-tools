@@ -334,6 +334,7 @@ class TestDoOneUser:
             },
         )
         result = _do_one_user(test_series, 2)
+        assert isinstance(result, list)
         assert len(result) == 1
         problem = result[0]
         assert isinstance(problem, InvalidExcelContentProblem)

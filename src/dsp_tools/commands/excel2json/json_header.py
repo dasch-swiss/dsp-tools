@@ -174,14 +174,14 @@ def _do_keywords(df: pd.DataFrame) -> ExcelSheetProblem | Keywords:
 
 def _do_users(df: pd.DataFrame) -> ExcelSheetProblem | Users:
     columns = ["username", "email", "givenname", "familyname", "password", "lang", "role"]
-    if missing_cols := check_contains_required_columns(df, columns):
+    if missing_cols := check_contains_required_columns(df, set(columns)):
         return ExcelSheetProblem("users", [missing_cols])
     if missing_vals := check_required_values_get_position_in_excel(df, columns):
         return ExcelSheetProblem("users", [missing_vals])
     users = []
     problems: list[Problem] = []
-    for _, row in df.iterrows():
-        result = _do_one_user(row)
+    for i, row in df.iterrows():
+        result = _do_one_user(row, int(str(i)))
         match result:
             case User():
                 users.append(result)
@@ -192,8 +192,8 @@ def _do_users(df: pd.DataFrame) -> ExcelSheetProblem | Users:
     return Users(users)
 
 
-def _do_one_user(row: pd.Series[Any], row_number) -> User | list[InvalidExcelContentProblem]:
-    problems = []
+def _do_one_user(row: pd.Series[Any], row_number: int) -> User | list[InvalidExcelContentProblem]:
+    problems: list[InvalidExcelContentProblem] = []
     if bad_language := _check_lang(row["lang"], row_number):
         problems.append(bad_language)
     if bad_email := _check_email(row["email"], row_number):
@@ -203,12 +203,13 @@ def _do_one_user(row: pd.Series[Any], row_number) -> User | list[InvalidExcelCon
         problems.append(role_result)
     if problems:
         return problems
+    user_role = cast(UserRole, role_result)
     return User(
-        row["username"], row["email"], row["givenname"], row["familyname"], row["password"], row["lang"], role_result
+        row["username"], row["email"], row["givenname"], row["familyname"], row["password"], row["lang"], user_role
     )
 
 
-def _check_lang(value: Any, row_num: int) -> InvalidExcelContentProblem:
+def _check_lang(value: Any, row_num: int) -> None | InvalidExcelContentProblem:
     match value.lower():
         case "en" | "de" | "fr" | "it" | "rm":
             return None

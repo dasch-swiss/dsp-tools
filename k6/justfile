@@ -1,0 +1,31 @@
+rootDir := justfile_directory()
+runDir := rootDir + "/run"
+testToRun := "excel2json"
+
+# List all the available targets
+default:
+    @just --list
+
+# List all the available tests
+list:
+    @echo "Choose a test from below:"
+    @echo ""
+    @ls -1 tests|sed 's/\.js//'|awk '{print " * " $0}'
+    @echo ""
+    @echo "Run the test using 'just run <testName>'"
+
+# Build xk6 for macOS
+build-xk6:
+    docker run --rm -it -e GOOS=darwin -u "$(id -u):$(id -g)" -v "${PWD}/bin:/xk6" \
+      grafana/xk6 build v0.52.0 \
+      --with github.com/grafana/xk6-exec@v0.3.0
+
+# Run the test locally
+run testToRun=testToRun:
+    ROOT_DIR={{rootDir}} RUN_DIR={{runDir}} \
+    ./bin/k6 run tests/{{testToRun}}.js
+
+# Run the test locally and upload to k6 cloud
+run-and-upload testToRun=testToRun:
+    ROOT_DIR={{rootDir}} RUN_DIR={{runDir}} \
+    ./bin/k6 run --out cloud tests/{{testToRun}}.js

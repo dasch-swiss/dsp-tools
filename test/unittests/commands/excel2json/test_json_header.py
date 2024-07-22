@@ -91,14 +91,6 @@ class TestFormalCompliance:
         assert set(problem.sheet_names) == {"keywords", "prefixes"}
 
 
-class TestProcessFile:
-    def test_good(self) -> None:
-        pass
-
-    def test_bad(self) -> None:
-        pass
-
-
 class TestDoPrefix:
     def test_good(self) -> None:
         test_df = pd.DataFrame({"prefixes": ["pref:"], "uri": ["namespace"]})
@@ -127,26 +119,6 @@ class TestDoPrefix:
         loc = problem.locations[0]
         assert loc.column == "prefixes"
         assert loc.row == 3
-
-
-class TestDoProject:
-    def test_good_with_users(self) -> None:
-        pass
-
-    def test_good_no_users(self) -> None:
-        pass
-
-    def test_project_bad_project(self) -> None:
-        pass
-
-    def test_project_bad_keywords(self) -> None:
-        pass
-
-    def test_project_bad_descriptions(self) -> None:
-        pass
-
-    def test_project_bad_users(self) -> None:
-        pass
 
 
 class TestDoProjectChecks:

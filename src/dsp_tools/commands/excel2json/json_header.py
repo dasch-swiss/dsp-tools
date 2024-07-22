@@ -49,7 +49,7 @@ def get_json_header(excel_filepath: Path) -> JsonHeader:
         InputError: If the file does not conform to the specifics
     """
     if not excel_filepath.is_file():
-        print("No json_header.xlsx file found in the directory. Empty header was added.")
+        print("No json_header.xlsx file found in the directory, empty header was added.")
         return EmptyJsonHeader()
     sheets_df_dict = read_and_clean_all_sheets(excel_filepath)
     sheets_df_dict = {x.lower(): df for x, df in sheets_df_dict.items()}

@@ -90,7 +90,7 @@ It is recommended to use the [template](../assets/data_model_templates/json_head
 The sheets should be filled as follows:
 
 - **Prefixes**
-    - Both columns: "prefixes" and "URI" are mandatory.
+    - Both columns: prefixes and URI are mandatory.
     - At least one prefix has to be declared
 - **Project**
     - All columns: shortcode, shortname, longname are mandatory.

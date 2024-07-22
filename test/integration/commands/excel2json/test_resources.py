@@ -194,8 +194,7 @@ class TestValidateWithSchema:
             "    Section of the problem: 'Resources'\n"
             "    Problematic Resource 'Title'\n"
             "    Located at: Sheet 'classes' | Column 'super' | Row 3\n"
-            "    Original Error Message:\n"
-            "    'fantasy' is not valid under any of the given schemas"
+            "    Original Error Message: 'fantasy' is not valid under any of the given schemas"
         )
         with pytest.raises(InputError, match=expected_msg):
             e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-invalid-super.xlsx", "")
@@ -205,8 +204,7 @@ class TestValidateWithSchema:
             "\nThe Excel file 'resources.xlsx' did not pass validation.\n"
             "    Section of the problem: 'Resources'\n"
             "    Located at: Sheet 'Owner' | Column 'Cardinality' | Row 3\n"
-            "    Original Error Message:\n"
-            "    '0-2' is not one of ['1', '0-1', '1-n', '0-n']"
+            "    Original Error Message: '0-2' is not one of ['1', '0-1', '1-n', '0-n']"
         )
         with pytest.raises(InputError, match=expected_msg):
             e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-invalid-cardinality.xlsx", "")
@@ -216,8 +214,7 @@ class TestValidateWithSchema:
             "\nThe Excel file 'resources.xlsx' did not pass validation.\n"
             "    Section of the problem: 'Resources'\n"
             "    Located at: Sheet 'FamilyMember' | Column 'Property' | Row 7\n"
-            "    Original Error Message:\n"
-            "    ':fan:ta:sy' does not match '^([a-zA-Z_][\\\\w.-]*)?:([\\\\w.-]+)$'"
+            "    Original Error Message: ':fan:ta:sy' does not match '^([a-zA-Z_][\\\\w.-]*)?:([\\\\w.-]+)$'"
         )
         with pytest.raises(InputError, match=expected_msg):
             e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-invalid-property.xlsx", "")
@@ -225,12 +222,26 @@ class TestValidateWithSchema:
     def test_duplicate_name(self) -> None:
         expected_msg = regex.escape(
             "The Excel file 'resources.xlsx' contains the following problems:\n\n"
+            "The sheet 'classes' has the following problems:\n\n"
             "No duplicates are allowed in the column 'name'\n"
             "The following values appear several times:\n"
             "    - MentionedPerson"
         )
         with pytest.raises(BaseError, match=expected_msg):
             e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-duplicate-name.xlsx", "")
+
+    def test_duplicate_classes_sheet(self) -> None:
+        expected_msg = regex.escape(
+            "The Excel file 'testdata/invalid-testdata/excel2json/resources-duplicate-classes-sheet.xlsx' "
+            "contains the following problems:\n\n"
+            "The sheet names inside the same Excel file must be unique. "
+            "Using capitalisation or spaces to differentiate sheets is not valid.\n"
+            "For example 'sheet' and 'SHEET  ' are considered identical.\n"
+            "Under this condition, the following sheet names appear multiple times:\n"
+            "    - classes"
+        )
+        with pytest.raises(InputError, match=expected_msg):
+            e2j.excel2resources("testdata/invalid-testdata/excel2json/resources-duplicate-classes-sheet.xlsx", "")
 
 
 if __name__ == "__main__":

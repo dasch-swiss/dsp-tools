@@ -7,14 +7,36 @@ from typing import cast
 import numpy as np
 import pandas as pd
 import pytest
+import regex
 from pandas.testing import assert_frame_equal
 from pandas.testing import assert_series_equal
 from pytest_unordered import unordered
 
 import dsp_tools.commands.excel2json.utils as utl
 from dsp_tools.commands.excel2json.models.input_error import DuplicatesInColumnProblem
+from dsp_tools.commands.excel2json.models.ontology import LanguageDict
+from dsp_tools.models.exceptions import InputError
 
 # ruff: noqa: PT009 (pytest-unittest-assertion) (remove this line when pytest is used instead of unittest)
+
+
+def test_find_duplicate_col_names_good() -> None:
+    utl._find_duplicate_col_names("file", ["1", "2"])
+
+
+def test_find_duplicate_col_names_raises() -> None:
+    expected = regex.escape(
+        "The Excel file 'excelfile' contains the following problems:\n\n"
+        "The sheet names inside the same Excel file must be unique. "
+        "Using capitalisation or spaces to differentiate sheets is not valid.\n"
+        "For example 'sheet' and 'SHEET  ' are considered identical.\n"
+        "Under this condition, the following sheet names appear multiple times:\n"
+        "    - a\n"
+        "    - b"
+    )
+
+    with pytest.raises(InputError, match=expected):
+        utl._find_duplicate_col_names("excelfile", ["a", "A", "b", "b  ", "c"])
 
 
 class TestUtils(unittest.TestCase):
@@ -151,11 +173,11 @@ class TestUtils(unittest.TestCase):
             }
         )
         expected_dict = {"de": "text_de", "en": "text_en", "fr": "text_fr", "it": "text_it", "rm": "text_rm"}
-        returned_dict = utl.get_labels(cast("pd.Series[Any]", original_df.loc[0, :]))
+        returned_dict = utl.get_labels(cast("pd.Series[Any]", original_df.loc[0, :])).serialise()
         self.assertDictEqual(expected_dict, returned_dict)
 
         expected_dict = {"en": "text_en"}
-        returned_dict = utl.get_labels(cast("pd.Series[Any]", original_df.loc[1, :]))
+        returned_dict = utl.get_labels(cast("pd.Series[Any]", original_df.loc[1, :])).serialise()
         self.assertDictEqual(expected_dict, returned_dict)
 
     def test_get_comments(self) -> None:
@@ -170,14 +192,9 @@ class TestUtils(unittest.TestCase):
         )
         expected_dict = {"de": "text_de", "en": "text_en", "fr": "text_fr", "rm": "text_rm"}
         returned_dict = utl.get_comments(cast("pd.Series[Any]", original_df.loc[0, :]))
-        assert returned_dict
-        assert expected_dict == returned_dict
-
+        assert isinstance(returned_dict, LanguageDict)
+        assert expected_dict == returned_dict.serialise()
         assert not utl.get_comments(cast("pd.Series[Any]", original_df.loc[1, :]))
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])
 
 
 def test_add_optional_columns_with_missing_cols() -> None:
@@ -241,3 +258,7 @@ def test_add_optional_columns_no_missing_cols() -> None:
     )
     unchanged_df = utl.add_optional_columns(expected_df, set())
     assert_frame_equal(expected_df, unchanged_df)
+
+
+if __name__ == "__main__":
+    pytest.main([__file__])

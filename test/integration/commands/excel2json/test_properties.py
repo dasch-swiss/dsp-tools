@@ -15,16 +15,15 @@ output_from_method, _ = e2j.excel2properties(excelfile, None)
 class TestValidateProperties:
     # it is not possible to call the method to be tested directly.
     # So let's make a reference to it, so that it can be found by the usage search
-    lambda _: e2j._validate_properties_section_in_json([], "file")
+    lambda _: e2j._validate_properties_section_in_json([])
 
     def test_invalid_super(self) -> None:
-        expected_msg = regex.escape(
-            "\nThe Excel file "
-            "'testdata/invalid-testdata/excel2json/properties-invalid-super.xlsx' did not pass validation.\n"
+        expected_msg = (
+            "The Excel file 'properties.xlsx' contains the following problems:\n\n\n"
             "    Section of the problem: 'Properties'\n"
             "    Problematic property: 'hasGeoname'\n"
             "    Located at: Column 'super' | Row 3\n"
-            "    Original Error Message:\n'GeonameValue' is not valid under any of the given schemas"
+            "    Original Error Message: 'GeonameValue' is not valid under any of the given schemas"
         )
         with pytest.raises(InputError, match=expected_msg):
             e2j.excel2properties(
@@ -33,12 +32,11 @@ class TestValidateProperties:
 
     def test_invalid_object(self) -> None:
         expected_msg = regex.escape(
-            "\nThe Excel file "
-            "'testdata/invalid-testdata/excel2json/properties-invalid-object.xlsx' did not pass validation.\n"
+            "The Excel file 'properties.xlsx' contains the following problems:\n\n\n"
             "    Section of the problem: 'Properties'\n"
             "    Problematic property: 'hasBoolean'\n"
             "    Located at: Column 'object' | Row 2\n"
-            "    Original Error Message:\n'hasValue' is not valid under any of the given schemas"
+            "    Original Error Message: 'hasValue' is not valid under any of the given schemas"
         )
         with pytest.raises(InputError, match=expected_msg):
             e2j.excel2properties(
@@ -47,12 +45,11 @@ class TestValidateProperties:
 
     def test_invalid_gui_element(self) -> None:
         expected_msg = regex.escape(
-            "\nThe Excel file "
-            "'testdata/invalid-testdata/excel2json/properties-invalid-gui_element.xlsx' did not pass validation.\n"
+            "The Excel file 'properties.xlsx' contains the following problems:\n\n\n"
             "    Section of the problem: 'Properties'\n"
             "    Problematic property: 'hasGeoname'\n"
             "    Located at: Column 'gui_element' | Row 3\n"
-            "    Original Error Message:\n'Geonames' was expected"
+            "    Original Error Message: 'Geonames' was expected"
         )
         with pytest.raises(InputError, match=expected_msg):
             e2j.excel2properties(
@@ -62,13 +59,11 @@ class TestValidateProperties:
 
     def test_invalid_gui_attrib_values(self) -> None:
         expected_msg = regex.escape(
-            "\nThe Excel file "
-            "'testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute_values.xlsx' "
-            "did not pass validation.\n"
+            "The Excel file 'properties.xlsx' contains the following problems:\n\n\n"
             "    Section of the problem: 'Properties'\n"
             "    Problematic property: 'hasInteger'\n"
             "    Located at: Column 'gui_attributes' | Row 4\n"
-            "    Original Error Message:\nAdditional properties are not allowed ('rows' was unexpected)"
+            "    Original Error Message: Additional properties are not allowed ('rows' was unexpected)"
         )
         with pytest.raises(InputError, match=expected_msg):
             e2j.excel2properties(
@@ -79,8 +74,8 @@ class TestValidateProperties:
 
 def test_excel2properties_invalid_gui_attrib_format() -> None:
     expected_msg = regex.escape(
-        "There is a problem with the excel file: "
-        "'testdata/invalid-testdata/excel2json/properties-invalid-gui_attribute_format.xlsx'\n"
+        "The Excel file 'properties.xlsx' contains the following problems:\n\n"
+        "The property 'hasInteger' has the following problem(s):\n"
         "There is invalid content in the excel.\n"
         "Located at: Column 'gui_attributes' | Row 4\n"
         "Expected Content: attribute: value, attribute: value\n"

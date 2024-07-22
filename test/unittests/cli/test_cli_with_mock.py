@@ -131,6 +131,99 @@ def test_xmlupload_no_iiif(xmlupload: Mock) -> None:
     )
 
 
+@patch("dsp_tools.cli.call_action.upload_files")
+def test_upload_files_localhost(upload_files: Mock) -> None:
+    file = "filename.xml"
+    args = f"upload-files {file}".split()
+    entry_point.run(args)
+    creds = ServerCredentials(
+        server="http://0.0.0.0:3333",
+        user="root@example.com",
+        password="test",
+        dsp_ingest_url="http://0.0.0.0:3340",
+    )
+    upload_files.assert_called_once_with(xml_file=Path(file), creds=creds, imgdir=Path("."))
+
+
+@patch("dsp_tools.cli.call_action.upload_files")
+def test_upload_files_remote(upload_files: Mock) -> None:
+    file = "filename.xml"
+    server = "https://api.test.dasch.swiss"
+    user = "first-name.second-name@dasch.swiss"
+    password = "foobar"
+    args = f"upload-files --server={server} --user {user} --password={password} {file}".split()
+    entry_point.run(args)
+    creds = ServerCredentials(
+        server=server,
+        user=user,
+        password=password,
+        dsp_ingest_url=server.replace("api", "ingest"),
+    )
+    upload_files.assert_called_once_with(xml_file=Path(file), creds=creds, imgdir=Path("."))
+
+
+@patch("dsp_tools.cli.call_action.ingest_files")
+def test_ingest_files_localhost(ingest_files: Mock) -> None:
+    shortcode = "1234"
+    args = f"ingest-files {shortcode}".split()
+    entry_point.run(args)
+    creds = ServerCredentials(
+        server="http://0.0.0.0:3333",
+        user="root@example.com",
+        password="test",
+        dsp_ingest_url="http://0.0.0.0:3340",
+    )
+    ingest_files.assert_called_once_with(creds=creds, shortcode=shortcode)
+
+
+@patch("dsp_tools.cli.call_action.ingest_files")
+def test_ingest_files_remote(ingest_files: Mock) -> None:
+    shortcode = "1234"
+    server = "https://api.test.dasch.swiss"
+    user = "first-name.second-name@dasch.swiss"
+    password = "foobar"
+    args = f"ingest-files --server={server} --user {user} --password={password} {shortcode}".split()
+    entry_point.run(args)
+    creds = ServerCredentials(
+        server=server,
+        user=user,
+        password=password,
+        dsp_ingest_url=server.replace("api", "ingest"),
+    )
+    ingest_files.assert_called_once_with(creds=creds, shortcode=shortcode)
+
+
+@patch("dsp_tools.cli.call_action.ingest_xmlupload")
+def test_ingest_xmlupload_localhost(ingest_xmlupload: Mock) -> None:
+    xml_file = Path("filename.xml")
+    args = f"ingest-xmlupload {xml_file}".split()
+    entry_point.run(args)
+    creds = ServerCredentials(
+        server="http://0.0.0.0:3333",
+        user="root@example.com",
+        password="test",
+        dsp_ingest_url="http://0.0.0.0:3340",
+    )
+    ingest_xmlupload.assert_called_once_with(xml_file=xml_file, creds=creds, interrupt_after=None)
+
+
+@patch("dsp_tools.cli.call_action.ingest_xmlupload")
+def test_ingest_xmlupload_remote(ingest_xmlupload: Mock) -> None:
+    xml_file = Path("filename.xml")
+    server = "https://api.test.dasch.swiss"
+    user = "first-name.second-name@dasch.swiss"
+    password = "foobar"
+    args = f"ingest-xmlupload --server={server} --user {user} --password={password} {xml_file}".split()
+    entry_point.run(args)
+    creds = ServerCredentials(
+        server=server,
+        user=user,
+        password=password,
+        dsp_ingest_url=server.replace("api", "ingest"),
+    )
+    ingest_xmlupload.assert_called_once_with(xml_file=xml_file, creds=creds, interrupt_after=None)
+
+
 @patch("dsp_tools.cli.call_action.excel2json")
 def test_excel2json(excel2json: Mock) -> None:
     """Test the 'dsp-tools excel2json' command"""

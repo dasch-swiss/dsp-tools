@@ -48,6 +48,8 @@ def make_parser(
 
     _add_resume_xmlupload(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
 
+    _add_upload_files(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
+    _add_ingest_files(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
     _add_ingest_xmlupload(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
 
     _add_new_excel2json(subparsers)
@@ -213,6 +215,43 @@ def _add_new_excel2json(subparsers: _SubParsersAction[ArgumentParser]) -> None:
     subparser.set_defaults(action="new-excel2json")
     subparser.add_argument("excelfolder", help="path to the folder containing the Excel files")
     subparser.add_argument("project_definition", help="path to the output JSON file")
+
+
+def _add_upload_files(
+    subparsers: _SubParsersAction[ArgumentParser],
+    default_dsp_api_url: str,
+    root_user_email: str,
+    root_user_pw: str,
+) -> None:
+    subparser = subparsers.add_parser(
+        name="upload-files",
+        help="Experimental: upload all files referenced in an XML file to a DSP server",
+    )
+    subparser.set_defaults(action="upload-files")
+    subparser.add_argument("-s", "--server", default=default_dsp_api_url, help=dsp_server_text)
+    subparser.add_argument("-u", "--user", default=root_user_email, help=username_text)
+    subparser.add_argument("-p", "--password", default=root_user_pw, help=password_text)
+    subparser.add_argument(
+        "-i", "--imgdir", default=".", help="folder from where the paths in the <bitstream> tags are evaluated"
+    )
+    subparser.add_argument("xml_file", help="path to XML file containing the data")
+
+
+def _add_ingest_files(
+    subparsers: _SubParsersAction[ArgumentParser],
+    default_dsp_api_url: str,
+    root_user_email: str,
+    root_user_pw: str,
+) -> None:
+    subparser = subparsers.add_parser(
+        name="ingest-files",
+        help="Experimental: ingest uploaded files on a DSP server and retrieve the mapping CSV file",
+    )
+    subparser.set_defaults(action="ingest-files")
+    subparser.add_argument("-s", "--server", default=default_dsp_api_url, help=dsp_server_text)
+    subparser.add_argument("-u", "--user", default=root_user_email, help=username_text)
+    subparser.add_argument("-p", "--password", default=root_user_pw, help=password_text)
+    subparser.add_argument("shortcode", help="shortcode of the project that the files belong to")
 
 
 def _add_ingest_xmlupload(

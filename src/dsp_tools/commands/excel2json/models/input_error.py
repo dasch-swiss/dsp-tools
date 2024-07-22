@@ -39,7 +39,7 @@ class PositionInExcel:
             msg.append(f"Column '{self.column}'")
         if self.row:
             msg.append(f"Row {self.row}")
-        return "Located at: " + " | ".join(msg)
+        return " | ".join(msg)
 
     def execute_error_protocol(self) -> str:
         """
@@ -65,9 +65,28 @@ class ExcelFileProblem:
         Returns:
             message for the error
         """
-        msg = f"The Excel file: '{self.filename}' contains the following problems:\n\n"
+        msg = f"The Excel file '{self.filename}' contains the following problems:\n\n"
         msg += medium_separator.join([x.execute_error_protocol() for x in self.problems])
         return msg
+
+
+@dataclass(frozen=True)
+class ExcelSheetProblem:
+    """This class contains information about problems in one excel sheet."""
+
+    sheet_name: str
+    problems: list[Problem]
+
+    def execute_error_protocol(self) -> str:
+        """
+        This function initiates all the steps for successful problem communication with the user.
+
+        Returns:
+            message for the error
+        """
+
+        problem_strings = [x.execute_error_protocol() for x in self.problems]
+        return f"The sheet '{self.sheet_name}' has the following problems:\n\n{'\n\n'.join(problem_strings)}"
 
 
 @dataclass(frozen=True)
@@ -84,7 +103,7 @@ class MissingValuesProblem:
             message for the error
         """
         locs = [str(x) for x in self.locations]
-        return f"At the following locations mandatory values are missing:{list_separator}{list_separator.join(locs)}"
+        return f"At the following locations, mandatory values are missing:{list_separator}{list_separator.join(locs)}"
 
 
 @dataclass(frozen=True)
@@ -125,46 +144,6 @@ class DuplicatesInColumnProblem:
 
 
 @dataclass(frozen=True)
-class MissingValuesInRowProblem:
-    """This class contains information if a required column is missing."""
-
-    column: str
-    row_numbers: list[int]
-
-    def execute_error_protocol(self) -> str:
-        """
-        This function initiates all the steps for successful problem communication with the user.
-
-        Returns:
-            message for the error
-        """
-        nums = [str(x) for x in self.row_numbers]
-        return f"The column '{self.column}' must have values in the row(s):{list_separator}{list_separator.join(nums)}"
-
-
-@dataclass(frozen=True)
-class InvalidContentInSheetProblem:
-    """This class contains information about invalid content in excel sheets."""
-
-    sheet_name: str
-    problems: list[Problem]
-
-    def execute_error_protocol(self) -> str:
-        """
-        This function initiates all the steps for successful problem communication with the user.
-
-        Returns:
-            message for the error
-        """
-
-        problem_strings = [x.execute_error_protocol() for x in self.problems]
-        return (
-            f"The sheet: '{self.sheet_name}' has the following problems:\n{list_separator}"
-            f"{list_separator.join(problem_strings)}"
-        )
-
-
-@dataclass(frozen=True)
 class InvalidExcelContentProblem:
     """This class contains information if a required column is missing."""
 
@@ -181,7 +160,7 @@ class InvalidExcelContentProblem:
         """
         return (
             f"There is invalid content in the excel.\n"
-            f"{self.excel_position!s}\n"
+            f"Located at: {self.excel_position}\n"
             f"Expected Content: {self.expected_content}\n"
             f"Actual Content: {self.actual_content}"
         )
@@ -211,11 +190,8 @@ class InvalidSheetNameProblem:
 
 
 @dataclass(frozen=True)
-class ResourcesSheetsNotAsExpected:
-    """This class contains information if the excel sheet names are not a subset of the expected ones."""
-
-    names_classes: set[str]
-    names_sheets: set[str]
+class DuplicateSheetProblem:
+    duplicate_sheets: list[str]
 
     def execute_error_protocol(self) -> str:
         """
@@ -224,14 +200,13 @@ class ResourcesSheetsNotAsExpected:
         Returns:
             message for the error
         """
-        msg = "The Excel file 'resources.xlsx' has problems.\n"
-        missing_names = self.names_sheets - self.names_classes
-        if missing_names:
-            msg += (
-                f"The following sheet(s) do not have an entry in the 'name' column "
-                f"of the sheet 'classes':{list_separator}{list_separator.join(missing_names)}"
-            )
-        return msg
+        return (
+            f"The sheet names inside the same Excel file must be unique. "
+            f"Using capitalisation or spaces to differentiate sheets is not valid.\n"
+            f"For example 'sheet' and 'SHEET  ' are considered identical.\n"
+            f"Under this condition, the following sheet names appear multiple times:"
+            f"{list_separator}{list_separator.join(sorted(self.duplicate_sheets))}"
+        )
 
 
 @dataclass(frozen=True)
@@ -248,6 +223,41 @@ class MoreThanOneSheetProblem:
             "Please delete all but one sheet.",
         ]
         return separator.join(msg)
+
+
+@dataclass(frozen=True)
+class MandatorySheetMissingProblem:
+    """This class contains information if the excel is missing a mandatory sheet."""
+
+    mandatory_sheet: str
+    existing_sheets: list[str]
+
+    def execute_error_protocol(self) -> str:
+        return (
+            f"A sheet with the name '{self.mandatory_sheet}' is mandatory in this Excel.\n"
+            f"The following sheets are in the file:{list_separator}"
+            f"{list_separator.join(sorted(self.existing_sheets))}"
+        )
+
+
+@dataclass(frozen=True)
+class ResourceSheetNotListedProblem:
+    """This class contains information if some resource sheets are missing in the 'classes' sheet."""
+
+    missing_names: set[str]
+
+    def execute_error_protocol(self) -> str:
+        """
+        This function initiates all the steps for successful problem communication with the user.
+
+        Returns:
+            message for the error
+        """
+        return (
+            f"All the sheets in the Excel must be listed in the 'name' column of the 'classes' sheet.\n"
+            f"The following sheet(s) are not listed in the column:{list_separator}"
+            f"{list_separator.join(self.missing_names)}"
+        )
 
 
 @dataclass(frozen=True)
@@ -272,9 +282,9 @@ class JsonValidationPropertyProblem:
         if self.problematic_property:
             msg.append(f"Problematic property: '{self.problematic_property}'")
         if self.excel_position:
-            msg.append(str(self.excel_position))
+            msg.append(f"Located at: {self.excel_position}")
         if self.original_msg:
-            msg.append(f"Original Error Message:\n{self.original_msg}")
+            msg.append(f"Original Error Message: {self.original_msg}")
         if self.message_path:
             msg.append(f"The error occurred at {self.message_path}")
         return separator.join(msg)
@@ -302,9 +312,29 @@ class JsonValidationResourceProblem:
         if self.problematic_resource:
             msg.append(f"Problematic Resource '{self.problematic_resource}'")
         if self.excel_position:
-            msg.append(str(self.excel_position))
+            msg.append(f"Located at: {self.excel_position}")
         if self.original_msg:
-            msg.append(f"Original Error Message:{separator}{self.original_msg}")
+            msg.append(f"Original Error Message: {self.original_msg}")
         if self.message_path:
             msg.append(f"The error occurred at {self.message_path}")
         return separator.join(msg)
+
+
+@dataclass(frozen=True)
+class PropertyProblem:
+    """This class contains information if a property has invalid content."""
+
+    prop_name: str
+    problems: list[Problem]
+
+    def execute_error_protocol(self) -> str:
+        """
+        This function initiates all the steps for successful problem communication with the user.
+
+        Returns:
+            message for the error
+        """
+        all_problems = [x.execute_error_protocol() for x in self.problems]
+        return (
+            f"The property '{self.prop_name}' has the following problem(s):\n" f"{medium_separator.join(all_problems)}"
+        )

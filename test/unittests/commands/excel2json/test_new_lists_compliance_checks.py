@@ -77,14 +77,12 @@ class TestFormalExcelCompliance:
         expected = regex.escape(
             "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"
             "---------------------------------------\n\n"
-            "The excel 'file1' has the following problem(s):\n"
-            "----------------------------\n"
+            "The Excel file 'file1' contains the following problems:\n\n"
             "The excel sheet 'sheet1' has the following problem(s):\n"
             "    - missing columns for nodes: There is no column with the expected format for the list nodes: "
             "'[lang]_[column_number]'\n\n"
             "---------------------------------------\n\n"
-            "The excel 'file2' has the following problem(s):\n"
-            "----------------------------\n"
+            "The Excel file 'file2' contains the following problems:\n\n"
             "The excel sheet 'sheet2' has the following problem(s):\n"
             "    - missing translations: All nodes must be translated into the same languages. "
             "Based on the languages used, the following column(s) are missing: de_3\n"
@@ -134,8 +132,7 @@ class TestCheckExcelsForDuplicates:
         expected = regex.escape(
             "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"
             "---------------------------------------\n\n"
-            "The excel 'file1' has the following problem(s):\n"
-            "----------------------------\n"
+            "The Excel file 'file1' contains the following problems:\n\n"
             "The excel sheet 'sheet1' contains rows that are completely identical "
             "(excluding the column 'ID (optional)'). The following rows are duplicates:\n"
             "    - 3\n"
@@ -163,15 +160,15 @@ class TestCheckExcelsForDuplicates:
         expected = regex.escape(
             "\nThe excel file(s) used to create the list section have the following problem(s):"
             "\n\n---------------------------------------\n\n"
-            "No duplicates are allowed in the 'ID (optional)' column. The following IDs are duplicated:\n"
+            "No duplicates are allowed in the 'ID (optional)' column. At the following locations, IDs are duplicated:\n"
             "----------------------------\n"
             "ID: '1'\n"
-            "    - Located at: Excel 'file1' | Sheet 'sheet1' | Row 3\n"
-            "    - Located at: Excel 'file2' | Sheet 'sheet2' | Row 2\n"
+            "    - Excel 'file1' | Sheet 'sheet1' | Row 3\n"
+            "    - Excel 'file2' | Sheet 'sheet2' | Row 2\n"
             "----------------------------\n"
             "ID: '4'\n"
-            "    - Located at: Excel 'file1' | Sheet 'sheet1' | Row 5\n"
-            "    - Located at: Excel 'file2' | Sheet 'sheet2' | Row 4"
+            "    - Excel 'file1' | Sheet 'sheet1' | Row 5\n"
+            "    - Excel 'file2' | Sheet 'sheet2' | Row 4"
         )
         with pytest.raises(InputError, match=expected):
             _check_duplicates_all_excels(df_dict)
@@ -212,8 +209,7 @@ class TestCheckForDuplicateListNames:
         expected = regex.escape(
             "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"
             "---------------------------------------\n\n"
-            "The excel 'file1' has the following problem(s):\n"
-            "----------------------------\n"
+            "The Excel file 'file1' contains the following problems:\n\n"
             "Per Excel sheet only one list is allowed.\n"
             "The following sheet: 'sheet1' has more than one list: list1, list2\n\n"
             "---------------------------------------\n\n"
@@ -397,8 +393,7 @@ class TestCheckAllExcelsMissingTranslations:
         expected = regex.escape(
             "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"
             "---------------------------------------\n\n"
-            "The excel 'file2' has the following problem(s):\n"
-            "----------------------------\n"
+            "The Excel file 'file2' contains the following problems:\n\n"
             "The excel sheet 'sheet2' has the following problem(s):\n"
             "In one list, all the nodes must be translated into all the languages used. "
             "The following nodes are missing translations:\n"
@@ -652,13 +647,11 @@ class TestCheckAllExcelForRowProblems:
         expected = regex.escape(
             "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"
             "---------------------------------------\n\n"
-            "The excel 'file1' has the following problem(s):\n"
-            "----------------------------\n"
+            "The Excel file 'file1' contains the following problems:\n\n"
             "The Excel sheet 'sheet1' has the following problem(s):\n"
             "    - Row Number: 4, Column(s) that must be filled: en_1\n\n"
             "---------------------------------------\n\n"
-            "The excel 'file2' has the following problem(s):\n"
-            "----------------------------\n"
+            "The Excel file 'file2' contains the following problems:\n\n"
             "The Excel sheet 'sheet2' has the following problem(s):\n"
             "    - Row Number: 6, Column(s) that must be empty: en_2"
         )

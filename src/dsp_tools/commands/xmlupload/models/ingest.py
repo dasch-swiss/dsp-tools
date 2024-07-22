@@ -95,15 +95,19 @@ class DspIngestClientLive(AssetClient):
         """
         filename = urllib.parse.quote(filepath.name)
         url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/assets/ingest/{filename}"
+        headers = {"Authorization": f"Bearer {self.token}", "Content-Type": "application/octet-stream"}
+        timeout = 60
         err = f"Failed to ingest {filepath} to '{url}'."
         with open(filepath, "rb") as binary_io:
             try:
+                logger.debug(f"REQUEST: POST to {url}, timeout: {timeout}, headers: {headers | {"Authorization": "*"}}")
                 res = self.session.post(
                     url=url,
-                    headers={"Authorization": f"Bearer {self.token}", "Content-Type": "application/octet-stream"},
+                    headers=headers,
                     data=binary_io,
-                    timeout=60,
+                    timeout=timeout,
                 )
+                logger.debug(f"RESPONSE: {res.status_code}: {res.text}")
                 if res.status_code == STATUS_OK:
                     return IngestResponse(internal_filename=res.json()["internalFilename"])
                 elif res.status_code == STATUS_UNAUTHORIZED:

@@ -21,17 +21,6 @@ class ListCreationProblem:
 
 
 @dataclass(frozen=True)
-class ListExcelProblem:
-    excel_name: str
-    problems: list[Problem]
-
-    def execute_error_protocol(self) -> str:
-        msg = [f"The excel '{self.excel_name}' has the following problem(s):"]
-        msg.extend([problem.execute_error_protocol() for problem in self.problems])
-        return medium_separator.join(msg)
-
-
-@dataclass(frozen=True)
 class ListNodeProblem:
     node_id: str
     problems: dict[str, str]
@@ -134,7 +123,9 @@ class DuplicatesCustomIDInProblem:
     duplicate_ids: list[DuplicateIDProblem]
 
     def execute_error_protocol(self) -> str:
-        msg = ["No duplicates are allowed in the 'ID (optional)' column. The following IDs are duplicated:"]
+        msg = [
+            "No duplicates are allowed in the 'ID (optional)' column. At the following locations, IDs are duplicated:"
+        ]
         sorted_ids = sorted(self.duplicate_ids, key=lambda x: x.custom_id)
         msg.extend([x.execute_error_protocol() for x in sorted_ids])
         return medium_separator.join(msg)

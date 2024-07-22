@@ -5,6 +5,7 @@ import json
 import warnings
 from typing import Any
 from typing import Optional
+from typing import cast
 
 import jsonpath_ng.ext
 import jsonschema
@@ -12,12 +13,16 @@ import numpy as np
 import pandas as pd
 import regex
 
+from dsp_tools.commands.excel2json.models.input_error import ExcelFileProblem
 from dsp_tools.commands.excel2json.models.input_error import InvalidExcelContentProblem
 from dsp_tools.commands.excel2json.models.input_error import JsonValidationPropertyProblem
-from dsp_tools.commands.excel2json.models.input_error import MissingValuesInRowProblem
+from dsp_tools.commands.excel2json.models.input_error import MissingValuesProblem
 from dsp_tools.commands.excel2json.models.input_error import MoreThanOneSheetProblem
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import Problem
+from dsp_tools.commands.excel2json.models.input_error import PropertyProblem
+from dsp_tools.commands.excel2json.models.ontology import GuiAttributes
+from dsp_tools.commands.excel2json.models.ontology import OntoProperty
 from dsp_tools.commands.excel2json.utils import add_optional_columns
 from dsp_tools.commands.excel2json.utils import check_column_for_duplicate
 from dsp_tools.commands.excel2json.utils import check_contains_required_columns
@@ -57,7 +62,7 @@ def excel2properties(
 
     property_df = _read_check_property_df(excelfile)
 
-    property_df = _rename_deprecated_columnnames(df=property_df, excelfile=excelfile)
+    property_df = _rename_deprecated_columnnames(df=property_df)
 
     # Not all columns have to be filled, users may delete some for ease of use, but it would generate an error later
     optional_col_set = {
@@ -75,28 +80,36 @@ def excel2properties(
     }
     property_df = add_optional_columns(property_df, optional_col_set)
 
-    _do_property_excel_compliance(df=property_df, excelfile=excelfile)
+    _do_property_excel_compliance(df=property_df)
 
     _check_for_deprecated_syntax(property_df)
 
     # transform every row into a property
-    props = [
-        _row2prop(
+    props: list[OntoProperty] = []
+    problems: list[Problem] = []
+    for index, row in property_df.iterrows():
+        result = _row2prop(
             df_row=row,
             row_num=int(str(index)) + 2,  # index is a label/index/hashable, but we need an int
-            excelfile=excelfile,
         )
-        for index, row in property_df.iterrows()
-    ]
+        if isinstance(result, PropertyProblem):
+            problems.append(result)
+        else:
+            props.append(result)
+    if problems:
+        msg = ExcelFileProblem("properties.xlsx", problems).execute_error_protocol()
+        raise InputError(msg)
+
+    serialised_prop = [x.serialise() for x in props]
 
     # write final JSON file
-    _validate_properties_section_in_json(properties_list=props, excelfile=excelfile)
+    _validate_properties_section_in_json(properties_list=serialised_prop)
     if path_to_output_file:
         with open(file=path_to_output_file, mode="w", encoding="utf-8") as file:
-            json.dump(props, file, indent=4, ensure_ascii=False)
+            json.dump(serialised_prop, file, indent=4, ensure_ascii=False)
             print(f"properties section was created successfully and written to file '{path_to_output_file}'")
 
-    return props, True
+    return serialised_prop, True
 
 
 def _check_for_deprecated_syntax(df: pd.DataFrame) -> None:  # noqa: ARG001 (unused argument)
@@ -104,25 +117,25 @@ def _check_for_deprecated_syntax(df: pd.DataFrame) -> None:  # noqa: ARG001 (unu
 
 
 def _read_check_property_df(excelfile: str) -> pd.DataFrame:
-    sheets_df_dict = read_and_clean_all_sheets(excelfile=excelfile)
+    sheets_df_dict = read_and_clean_all_sheets(excelfile)
     if len(sheets_df_dict) != 1:
         msg = MoreThanOneSheetProblem("properties.xlsx", list(sheets_df_dict.keys())).execute_error_protocol()
         raise InputError(msg)
     return next(iter(sheets_df_dict.values()))
 
 
-def _rename_deprecated_columnnames(df: pd.DataFrame, excelfile: str) -> pd.DataFrame:
-    df = _rename_deprecated_lang_cols(df=df, excelfile=excelfile)
-    df = _rename_deprecated_hlist(df=df, excelfile=excelfile)
+def _rename_deprecated_columnnames(df: pd.DataFrame) -> pd.DataFrame:
+    df = _rename_deprecated_lang_cols(df=df)
+    df = _rename_deprecated_hlist(df=df)
     return df
 
 
-def _rename_deprecated_lang_cols(df: pd.DataFrame, excelfile: str) -> pd.DataFrame:
+def _rename_deprecated_lang_cols(df: pd.DataFrame) -> pd.DataFrame:
     if set(language_label_col).issubset(set(df.columns)):
         return df
     if set(languages).issubset(set(df.columns)):
         warnings.warn(
-            f"The file '{excelfile}' uses {languages} as column titles, which is deprecated. "
+            f"The file 'properties.xlsx' uses {languages} as column titles, which is deprecated. "
             f"Please use {[f'label_{lang}' for lang in languages]}"
         )
     rename_dict = dict(zip(languages, language_label_col))
@@ -130,13 +143,13 @@ def _rename_deprecated_lang_cols(df: pd.DataFrame, excelfile: str) -> pd.DataFra
     return df
 
 
-def _rename_deprecated_hlist(df: pd.DataFrame, excelfile: str) -> pd.DataFrame:
+def _rename_deprecated_hlist(df: pd.DataFrame) -> pd.DataFrame:
     # This function deals with Excel files that do conform to a previous format.
     if "hlist" not in df.columns:
         return df
     warnings.warn(
-        f"The file '{excelfile}' has a column 'hlist', which is deprecated. "
-        f"Please use the column 'gui_attributes' for the attribute 'hlist'."
+        "The file 'properties.xlsx' has a column 'hlist', which is deprecated. "
+        "Please use the column 'gui_attributes' for the attribute 'hlist'."
     )
     df["hlist"] = df["hlist"].apply(lambda x: f"hlist:{x}" if isinstance(x, str) else x)
     # If gui_attributes already exists we have to merge the columns
@@ -148,7 +161,7 @@ def _rename_deprecated_hlist(df: pd.DataFrame, excelfile: str) -> pd.DataFrame:
     return df
 
 
-def _do_property_excel_compliance(df: pd.DataFrame, excelfile: str) -> None:
+def _do_property_excel_compliance(df: pd.DataFrame) -> None:
     required_columns = {
         "name",
         "super",
@@ -156,19 +169,20 @@ def _do_property_excel_compliance(df: pd.DataFrame, excelfile: str) -> None:
         "gui_element",
         "gui_attributes",
     }
-    problems: list[Problem | None] = [
-        check_contains_required_columns(df=df, required_columns=required_columns),
-        check_column_for_duplicate(df=df, to_check_column="name"),
-    ]
+    problems: list[Problem] = []
+    if req_prob := check_contains_required_columns(df=df, required_columns=required_columns):
+        problems.append(req_prob)
+    if col_prob := check_column_for_duplicate(df=df, to_check_column="name"):
+        problems.append(col_prob)
     if missing_vals_check := _check_missing_values_in_row(df=df):
-        problems.extend(missing_vals_check)
+        problems.append(missing_vals_check)
     if any(problems):
-        extra = [problem.execute_error_protocol() for problem in problems if problem]
-        msg = [f"There is a problem with the excel file: '{excelfile}'", *extra]
-        raise InputError("\n\n".join(msg))
+        excel_prob = ExcelFileProblem("properties.xlsx", problems)
+        msg = excel_prob.execute_error_protocol()
+        raise InputError(msg)
 
 
-def _check_missing_values_in_row(df: pd.DataFrame) -> None | list[MissingValuesInRowProblem]:
+def _check_missing_values_in_row(df: pd.DataFrame) -> None | MissingValuesProblem:
     required_values = ["name", "super", "object", "gui_element"]
     missing_dict = check_required_values(df=df, required_values_columns=required_values)
     missing_labels = find_one_full_cell_in_cols(df=df, required_columns=language_label_col)
@@ -179,7 +193,10 @@ def _check_missing_values_in_row(df: pd.DataFrame) -> None | list[MissingValuesI
         missing_dict.update(missing_gui_attributes)
     if missing_dict:
         missing_int_dict = get_wrong_row_numbers(wrong_row_dict=missing_dict, true_remains=True)
-        return [MissingValuesInRowProblem(col, row_nums) for col, row_nums in missing_int_dict.items()]
+        locs = []
+        for col, row_nums in missing_int_dict.items():
+            locs.extend([PositionInExcel(column=col, row=x) for x in row_nums])
+        return MissingValuesProblem(locs)
     else:
         return None
 
@@ -221,32 +238,29 @@ def _get_final_series(
     return final_series
 
 
-def _row2prop(df_row: pd.Series[Any], row_num: int, excelfile: str) -> dict[str, Any]:
-    _property = {x: df_row[x] for x in mandatory_properties} | {
-        "labels": get_labels(df_row=df_row),
-        "super": [s.strip() for s in df_row["super"].split(",")],
-    }
-    if not pd.isna(df_row["subject"]):
-        _property["subject"] = df_row["subject"]
-
+def _row2prop(df_row: pd.Series[Any], row_num: int) -> OntoProperty | PropertyProblem:
+    subj = df_row["subject"] if not pd.isna(df_row["subject"]) else None
+    comment = get_comments(df_row=df_row)
     gui_attrib = _get_gui_attribute(df_row=df_row, row_num=row_num)
-    match gui_attrib:
-        case dict():
-            _property["gui_attributes"] = gui_attrib
-        case InvalidExcelContentProblem():
-            msg = f"There is a problem with the excel file: '{excelfile}'\n" + gui_attrib.execute_error_protocol()
-            raise InputError(msg) from None
-
-    if comment := get_comments(df_row=df_row):
-        _property["comments"] = comment
-
-    return _property
+    if isinstance(gui_attrib, InvalidExcelContentProblem):
+        return PropertyProblem(df_row["name"], cast(list[Problem], [gui_attrib]))
+    prop = OntoProperty(
+        name=df_row["name"],
+        super=[s.strip() for s in df_row["super"].split(",")],
+        object=df_row["object"],
+        subject=subj,
+        labels=get_labels(df_row=df_row),
+        comments=comment,
+        gui_element=df_row["gui_element"],
+        gui_attributes=gui_attrib,
+    )
+    return prop
 
 
 def _get_gui_attribute(
     df_row: pd.Series[Any],
     row_num: int,
-) -> dict[str, int | str | float] | InvalidExcelContentProblem | None:
+) -> GuiAttributes | InvalidExcelContentProblem | None:
     if pd.isnull(df_row["gui_attributes"]):
         return None
     # If the attribute is not in the correct format, a called function may raise an IndexError
@@ -260,9 +274,11 @@ def _get_gui_attribute(
         )
 
 
-def _format_gui_attribute(attribute_str: str) -> dict[str, str | int | float]:
+def _format_gui_attribute(attribute_str: str) -> GuiAttributes:
     attribute_dict = _unpack_gui_attributes(attribute_str=attribute_str)
-    return {attrib: _search_convert_numbers_in_str(value_str=val) for attrib, val in attribute_dict.items()}
+    return GuiAttributes(
+        {attrib: _search_convert_numbers_in_str(value_str=val) for attrib, val in attribute_dict.items()}
+    )
 
 
 def _unpack_gui_attributes(attribute_str: str) -> dict[str, str]:
@@ -284,7 +300,6 @@ def _search_convert_numbers_in_str(value_str: str) -> str | int | float:
 
 def _validate_properties_section_in_json(
     properties_list: list[dict[str, Any]],
-    excelfile: str,
 ) -> None:
     with (
         importlib.resources.files("dsp_tools")
@@ -295,8 +310,8 @@ def _validate_properties_section_in_json(
     try:
         jsonschema.validate(instance=properties_list, schema=properties_schema)
     except jsonschema.ValidationError as err:
-        err_msg = _find_validation_problem(properties_list=properties_list, validation_error=err)
-        msg = f"\nThe Excel file '{excelfile}' did not pass validation." + err_msg.execute_error_protocol()
+        validation_problem = _find_validation_problem(properties_list=properties_list, validation_error=err)
+        msg = ExcelFileProblem("properties.xlsx", [validation_problem]).execute_error_protocol()
         raise InputError(msg) from None
 
 

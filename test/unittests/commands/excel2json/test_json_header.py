@@ -1,23 +1,30 @@
 import pandas as pd
 import pytest
 
+from dsp_tools.commands.excel2json.json_header import _check_email
+from dsp_tools.commands.excel2json.json_header import _check_lang
 from dsp_tools.commands.excel2json.json_header import _check_project_sheet
 from dsp_tools.commands.excel2json.json_header import _do_description
 from dsp_tools.commands.excel2json.json_header import _do_formal_compliance
 from dsp_tools.commands.excel2json.json_header import _do_keywords
+from dsp_tools.commands.excel2json.json_header import _do_one_user
 from dsp_tools.commands.excel2json.json_header import _do_prefixes
 from dsp_tools.commands.excel2json.json_header import _get_description_cols
-from dsp_tools.commands.excel2json.json_header import _is_email
+from dsp_tools.commands.excel2json.json_header import _get_role
 from dsp_tools.commands.excel2json.models.input_error import AtLeastOneValueRequiredProblem
 from dsp_tools.commands.excel2json.models.input_error import EmptySheetsProblem
 from dsp_tools.commands.excel2json.models.input_error import ExcelFileProblem
 from dsp_tools.commands.excel2json.models.input_error import ExcelSheetProblem
+from dsp_tools.commands.excel2json.models.input_error import InvalidExcelContentProblem
 from dsp_tools.commands.excel2json.models.input_error import MissingValuesProblem
 from dsp_tools.commands.excel2json.models.input_error import MoreThanOneRowProblem
+from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import RequiredColumnMissingProblem
 from dsp_tools.commands.excel2json.models.json_header import Descriptions
 from dsp_tools.commands.excel2json.models.json_header import Keywords
 from dsp_tools.commands.excel2json.models.json_header import Prefixes
+from dsp_tools.commands.excel2json.models.json_header import User
+from dsp_tools.commands.excel2json.models.json_header import UserRole
 
 
 @pytest.fixture()
@@ -272,6 +279,9 @@ class TestDoKeywords:
         problem = result.problems[0]
         assert isinstance(problem, MissingValuesProblem)
         assert len(problem.locations) == 1
+        position = problem.locations[0]
+        assert isinstance(position, PositionInExcel)
+        assert position.column == "keywords"
 
 
 class TestDoUsers:
@@ -284,14 +294,115 @@ class TestDoUsers:
     def test_missing_value(self) -> None:
         pass
 
-    def test_bad_values(self) -> None:
-        pass
 
-    def test_is_email_good(self) -> None:
-        assert not _is_email("sadfkjdfsa")
+class TestDoOneUser:
+    def test_good(self) -> None:
+        test_series = pd.Series(
+            {
+                "username": "Alice",
+                "email": "alice@dasch.swiss",
+                "givenname": "Alice Pleasance",
+                "familyname": "Liddell",
+                "password": "alice4322",
+                "lang": "en",
+                "role": "projectadmin",
+            }
+        )
+        result = _do_one_user(test_series, 1)
+        assert isinstance(result, User)
+        assert result.username == "Alice"
+        assert result.email == "alice@dasch.swiss"
+        assert result.givenName == "Alice Pleasance"
+        assert result.familyName == "Liddell"
+        assert result.password == "alice4322"
+        assert result.lang == "en"
+        role = result.role
+        assert isinstance(role, UserRole)
+        assert role.project_admin
+        assert not role.sys_admin
 
-    def test_is_email_bad(self) -> None:
-        assert _is_email("alice@dasch.swiss")
+    def test_bad_lang(self) -> None:
+        test_series = pd.Series(
+            {
+                "username": "Alice",
+                "email": "alice@dasch.swiss",
+                "givenName": "Alice Pleasance",
+                "familyName": "Liddell",
+                "password": "alice4322",
+                "lang": "other",
+                "role": "projectadmin",
+            },
+        )
+        result = _do_one_user(test_series, 2)
+        assert len(result) == 1
+        problem = result[0]
+        assert isinstance(problem, InvalidExcelContentProblem)
+        assert problem.expected_content == "One of: en, de, fr, it, rm"
+        assert problem.actual_content == "other"
+        position = problem.excel_position
+        assert isinstance(position, PositionInExcel)
+        assert position.column == "lang"
+        assert position.row == 2
+
+
+class TestGetRole:
+    def test_get_role_projectadmin(self) -> None:
+        result = _get_role("projectadmin", 1)
+        assert isinstance(result, UserRole)
+        assert not result.sys_admin
+        assert result.project_admin
+
+    def test_get_role_systemadmin(self) -> None:
+        result = _get_role("systemadmin", 1)
+        assert isinstance(result, UserRole)
+        assert result.sys_admin
+        assert not result.project_admin
+
+    def test_get_role_projectmember(self) -> None:
+        result = _get_role("projectmember", 1)
+        assert isinstance(result, UserRole)
+        assert not result.sys_admin
+        assert not result.project_admin
+
+    def test_get_role_bad(self) -> None:
+        result = _get_role("wrong", 1)
+        assert isinstance(result, InvalidExcelContentProblem)
+        assert result.expected_content == "One of: projectadmin, systemadmin, projectmember"
+        assert result.actual_content == "wrong"
+        position = result.excel_position
+        assert isinstance(position, PositionInExcel)
+        assert position.column == "role"
+        assert position.row == 1
+
+
+def test_get_lang_good() -> None:
+    assert not _check_lang("en", 1)
+
+
+def test_get_lang_bad() -> None:
+    result = _check_lang("other", 1)
+    assert isinstance(result, InvalidExcelContentProblem)
+    assert result.expected_content == "One of: en, de, fr, it, rm"
+    assert result.actual_content == "other"
+    position = result.excel_position
+    assert isinstance(position, PositionInExcel)
+    assert position.column == "lang"
+    assert position.row == 1
+
+
+def test_check_email_bad() -> None:
+    result = _check_email("bad", 1)
+    assert isinstance(result, InvalidExcelContentProblem)
+    assert result.expected_content == "A valid email adress"
+    assert result.actual_content == "bad"
+    position = result.excel_position
+    assert isinstance(position, PositionInExcel)
+    assert position.column == "email"
+    assert position.row == 1
+
+
+def test_check_email_good() -> None:
+    assert not _check_email("alice@dasch.swiss", 1)
 
 
 if __name__ == "__main__":

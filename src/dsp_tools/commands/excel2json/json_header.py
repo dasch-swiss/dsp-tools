@@ -183,21 +183,51 @@ def _do_users(df: pd.DataFrame) -> ExcelSheetProblem | Users:
     for _, row in df.iterrows():
         result = _do_one_user(row)
         match result:
-            case InvalidExcelContentProblem():
-                problems.append(result)
-            case _:
+            case User():
                 users.append(result)
+            case _:
+                problems.extend(result)
     if problems:
         return ExcelSheetProblem("users", problems)
     return Users(users)
 
 
-def _do_one_user(row: pd.Series[Any]) -> User | InvalidExcelContentProblem:
-    pass
+def _do_one_user(row: pd.Series[Any], row_number) -> User | list[InvalidExcelContentProblem]:
+    problems = []
+    if bad_language := _check_lang(row["lang"], row_number):
+        problems.append(bad_language)
+    if bad_email := _check_email(row["email"], row_number):
+        problems.append(bad_email)
+    role_result = _get_role(row["role"], row_number)
+    if isinstance(role_result, InvalidExcelContentProblem):
+        problems.append(role_result)
+    if problems:
+        return problems
+    return User(
+        row["username"], row["email"], row["givenname"], row["familyname"], row["password"], row["lang"], role_result
+    )
 
 
-def _check_lang(value: Any, row_num: int) -> str | InvalidExcelContentProblem:
-    pass
+def _check_lang(value: Any, row_num: int) -> InvalidExcelContentProblem:
+    match value.lower():
+        case "en" | "de" | "fr" | "it" | "rm":
+            return None
+        case _:
+            return InvalidExcelContentProblem(
+                expected_content="One of: en, de, fr, it, rm",
+                actual_content=value,
+                excel_position=PositionInExcel(column="lang", row=row_num),
+            )
+
+
+def _check_email(email: str, row_num: int) -> InvalidExcelContentProblem | None:
+    if not regex.search(r".+@.+\..+", email):
+        return InvalidExcelContentProblem(
+            expected_content="A valid email adress",
+            actual_content=email,
+            excel_position=PositionInExcel(column="email", row=row_num),
+        )
+    return None
 
 
 def _get_role(value: str, row_num: int) -> UserRole | InvalidExcelContentProblem:
@@ -214,7 +244,3 @@ def _get_role(value: str, row_num: int) -> UserRole | InvalidExcelContentProblem
                 actual_content=value,
                 excel_position=PositionInExcel(column="role", row=row_num),
             )
-
-
-def _is_email(email: str) -> bool:
-    return bool(regex.search(r".+@.+\..+", email))

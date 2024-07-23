@@ -28,13 +28,13 @@ def test_is_filled_header(filled_json_header: JsonHeader) -> None:
 
 
 def test_serialised_header(filled_json_header: JsonHeader) -> None:
-    serialised_header = filled_json_header.serialise()
+    serialised_header = filled_json_header.to_dict()
     with open("testdata/excel2json/expected_json_header.json", encoding="utf-8") as f:
         expected = json.load(f)
     assert expected == serialised_header
 
 
-def test_get_json_header_invalid_missing_sheet() -> None:
+def test_to_dict_json_header_invalid_missing_sheet() -> None:
     test_path = Path("testdata/invalid-testdata/excel2json/json_header_missing_sheet.xlsx")
     expected = regex.escape(
         "The Excel file 'json_header.xlsx' contains the following problems:\n\n"
@@ -45,7 +45,7 @@ def test_get_json_header_invalid_missing_sheet() -> None:
         get_json_header(test_path)
 
 
-def test_get_json_header_invalid_empty_sheet() -> None:
+def test_to_dict_json_header_invalid_empty_sheet() -> None:
     test_path = Path("testdata/invalid-testdata/excel2json/json_header_empty_sheet.xlsx")
     expected = regex.escape(
         "The Excel file 'json_header.xlsx' contains the following problems:\n\n"

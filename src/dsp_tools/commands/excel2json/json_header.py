@@ -72,8 +72,8 @@ def _check_if_sheets_are_filled_and_exist(df_dict: dict[str, pd.DataFrame]) -> E
             return sheet
         return None
 
-    if empty := [x for x in expected_sheets if _check_df(x)]:
-        return ExcelFileProblem("json_header.xlsx", [EmptySheetsProblem(empty)])
+    if empty_missing_sheets := [x for x in expected_sheets if _check_df(x)]:
+        return ExcelFileProblem("json_header.xlsx", [EmptySheetsProblem(empty_missing_sheets)])
     return None
 
 

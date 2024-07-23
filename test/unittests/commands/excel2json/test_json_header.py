@@ -230,7 +230,7 @@ class TestExtractKeywords:
         test_df = pd.DataFrame({"keywords": ["one", pd.NA, "three"]})
         result = _extract_keywords(test_df)
         assert isinstance(result, Keywords)
-        assert result.serialise() == ["one", "three"]
+        assert result.to_dict() == ["one", "three"]
 
     def test_missing_col(self) -> None:
         test_df = pd.DataFrame({"other": ["other"]})

@@ -9,13 +9,13 @@ SCHEMA = "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_t
 
 @dataclass
 class JsonHeader(Protocol):
-    def serialise(self) -> dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         raise NotImplementedError
 
 
 @dataclass
 class EmptyJsonHeader(JsonHeader):
-    def serialise(self) -> dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "prefixes": {"": ""},
             "$schema": SCHEMA,
@@ -34,11 +34,11 @@ class FilledJsonHeader(JsonHeader):
     project: Project
     prefixes: Prefixes | None
 
-    def serialise(self) -> dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         header_dict: dict[str, Any] = {}
         if self.prefixes:
-            header_dict["prefixes"] = self.prefixes.serialise()
-        header_dict.update({"$schema": SCHEMA, "project": self.project.serialise()})
+            header_dict["prefixes"] = self.prefixes.to_dict()
+        header_dict.update({"$schema": SCHEMA, "project": self.project.to_dict()})
         return header_dict
 
 
@@ -46,7 +46,7 @@ class FilledJsonHeader(JsonHeader):
 class Prefixes:
     prefixes: dict[str, str]
 
-    def serialise(self) -> dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return self.prefixes
 
 
@@ -59,16 +59,16 @@ class Project:
     keywords: Keywords
     users: Users | None
 
-    def serialise(self) -> dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         proj_dict: dict[str, Any] = {
             "shortcode": self.shortcode,
             "shortname": self.shortname,
             "longname": self.longname,
-            "descriptions": self.descriptions.serialise(),
-            "keywords": self.keywords.serialise(),
+            "descriptions": self.descriptions.to_dict(),
+            "keywords": self.keywords.to_dict(),
         }
         if self.users:
-            proj_dict["users"] = self.users.serialise()
+            proj_dict["users"] = self.users.to_dict()
         return proj_dict
 
 
@@ -76,7 +76,7 @@ class Project:
 class Descriptions:
     descriptions: dict[str, str]
 
-    def serialise(self) -> dict[str, str]:
+    def to_dict(self) -> dict[str, str]:
         return self.descriptions
 
 
@@ -84,7 +84,7 @@ class Descriptions:
 class Keywords:
     keywords: list[str]
 
-    def serialise(self) -> list[str]:
+    def to_dict(self) -> list[str]:
         return sorted(self.keywords)
 
 
@@ -92,8 +92,8 @@ class Keywords:
 class Users:
     users: list[User]
 
-    def serialise(self) -> list[dict[str, Any]]:
-        return [x.serialise() for x in self.users]
+    def to_dict(self) -> list[dict[str, Any]]:
+        return [x.to_dict() for x in self.users]
 
 
 @dataclass
@@ -106,7 +106,7 @@ class User:
     lang: str
     role: UserRole
 
-    def serialise(self) -> dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         usr_dict = {
             "username": self.username,
             "email": self.email,
@@ -115,7 +115,7 @@ class User:
             "password": self.password,
             "lang": self.lang,
             "status": True,
-        } | self.role.serialise()
+        } | self.role.to_dict()
         return usr_dict
 
 
@@ -124,7 +124,7 @@ class UserRole:
     project_admin: bool = False
     sys_admin: bool = False
 
-    def serialise(self) -> dict[str, list[str]]:
+    def to_dict(self) -> dict[str, list[str]]:
         if self.sys_admin:
             return {"groups": ["SystemAdmin"], "projects": [":admin", ":member"]}
         elif self.project_admin:

@@ -37,7 +37,7 @@ Conventions for the folder names:
 - The "lists" folder must have exactly this name, if it exists. It can also be omitted.
 - Replace "onto_name" by your ontology's name, and "onto_label" by your ontology's label.
 - The only name that can be chosen freely is the name of the topmost folder ("data_model_files" in this example).
-- The file "json_header.xlsx" is optional. If it exists, it should be located in the main folder.
+- The file "json_header.xlsx" is optional. If it exists, it should be located in the top level folder.
 
 Then, use the following command:
 
@@ -83,7 +83,7 @@ dsp-tools new-excel2json data_model_files project.json
 ## The `json_header.xlsx`
 
 The header section can be filled out with the "json_header.xlsx" file.
-The file must be in the main folder, and the name must be an exact match.
+The file must be in the top level folder, and the name must be an exact match.
 
 It is recommended to use the [template](../assets/data_model_templates/json_header.xlsx).
 

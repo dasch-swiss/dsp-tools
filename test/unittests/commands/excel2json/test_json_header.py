@@ -203,13 +203,13 @@ def users_wrong_lang() -> pd.DataFrame:
 def user_good() -> pd.Series:
     return pd.Series(
         {
-            "username": ["Alice"],
-            "email": ["alice@dasch.swiss"],
-            "givenname": ["Alice Pleasance"],
-            "familyname": ["Liddell"],
-            "password": ["alice7652"],
-            "lang": ["en"],
-            "role": ["systemadmin"],
+            "username": "Alice",
+            "email": "alice@dasch.swiss",
+            "givenname": "Alice Pleasance",
+            "familyname": "Liddell",
+            "password": "alice7652",
+            "lang": "en",
+            "role": "systemadmin",
         }
     )
 
@@ -218,13 +218,13 @@ def user_good() -> pd.Series:
 def user_wrong_lang() -> pd.Series:
     return pd.Series(
         {
-            "username": ["Alice"],
-            "email": ["alice@dasch.swiss"],
-            "givenname": ["Alice Pleasance"],
-            "familyname": ["Liddell"],
-            "password": ["alice7652"],
-            "lang": ["other"],
-            "role": ["systemadmin"],
+            "username": "Alice",
+            "email": "alice@dasch.swiss",
+            "givenname": "Alice Pleasance",
+            "familyname": "Liddell",
+            "password": "alice7652",
+            "lang": "other",
+            "role": "systemadmin",
         }
     )
 
@@ -233,13 +233,13 @@ def user_wrong_lang() -> pd.Series:
 def user_wrong_email() -> pd.Series:
     return pd.Series(
         {
-            "username": ["Alice"],
-            "email": ["not an email"],
-            "givenname": ["Alice Pleasance"],
-            "familyname": ["Liddell"],
-            "password": ["alice7652"],
-            "lang": ["fr"],
-            "role": ["systemadmin"],
+            "username": "Alice",
+            "email": "not an email",
+            "givenname": "Alice Pleasance",
+            "familyname": "Liddell",
+            "password": "alice7652",
+            "lang": "fr",
+            "role": "systemadmin",
         }
     )
 
@@ -248,13 +248,13 @@ def user_wrong_email() -> pd.Series:
 def user_wrong_role() -> pd.Series:
     return pd.Series(
         {
-            "username": ["Alice"],
-            "email": ["alice@dasch.swiss"],
-            "givenname": ["Alice Pleasance"],
-            "familyname": ["Liddell"],
-            "password": ["alice7652"],
-            "lang": ["fr"],
-            "role": ["other"],
+            "username": "Alice",
+            "email": "alice@dasch.swiss",
+            "givenname": "Alice Pleasance",
+            "familyname": "Liddell",
+            "password": "alice7652",
+            "lang": "fr",
+            "role": "other",
         }
     )
 
@@ -521,16 +521,37 @@ class TestCheckUsers:
 
 class TestCheckOneUser:
     def test_good(self, user_good: pd.Series) -> None:
-        assert 1 == 0
+        assert not _check_one_user(user_good, 2)
 
     def test_bad_lang(self, user_wrong_lang: pd.Series) -> None:
-        assert 1 == 0
+        result = _check_one_user(user_wrong_lang, 2)
+        assert len(result) == 1
+        problem = result[0]
+        assert isinstance(problem, InvalidExcelContentProblem)
+        assert problem.expected_content == "One of: en, de, fr, it, rm"
+        assert problem.actual_content == "other"
+        assert problem.excel_position.column == "lang"
+        assert problem.excel_position.row == 2
 
     def test_bad_email(self, user_wrong_email: pd.Series) -> None:
-        assert 1 == 0
+        result = _check_one_user(user_wrong_email, 2)
+        assert len(result) == 1
+        problem = result[0]
+        assert isinstance(problem, InvalidExcelContentProblem)
+        assert problem.expected_content == "A valid email adress"
+        assert problem.actual_content == "not an email"
+        assert problem.excel_position.column == "email"
+        assert problem.excel_position.row == 2
 
     def test_bad_role(self, user_wrong_role: pd.Series) -> None:
-        assert 1 == 0
+        result = _check_one_user(user_wrong_role, 2)
+        assert len(result) == 1
+        problem = result[0]
+        assert isinstance(problem, InvalidExcelContentProblem)
+        assert problem.expected_content == "One of: projectadmin, systemadmin, projectmember"
+        assert problem.actual_content == "other"
+        assert problem.excel_position.column == "role"
+        assert problem.excel_position.row == 2
 
 
 class TestProcessFile:

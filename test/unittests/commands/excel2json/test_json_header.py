@@ -397,16 +397,38 @@ class TestCheckPrefix:
 
 class TestCheckProject:
     def test_good(self, project_good_no_zero: pd.DataFrame) -> None:
-        assert 1 == 0
+        assert not _check_project_sheet(project_good_no_zero)
 
     def test_missing_col(self, project_missing_col: pd.DataFrame) -> None:
-        assert 1 == 0
+        result = _check_project_sheet(project_missing_col)
+        assert isinstance(result, ExcelSheetProblem)
+        assert result.sheet_name == "project"
+        assert len(result.problems) == 1
+        problem = result.problems[0]
+        assert isinstance(problem, RequiredColumnMissingProblem)
+        assert problem.columns == ["shortcode"]
 
     def test_more_than_one_row(self, project_too_many_rows: pd.DataFrame) -> None:
-        assert 1 == 0
+        result = _check_project_sheet(project_too_many_rows)
+        assert isinstance(result, ExcelSheetProblem)
+        assert result.sheet_name == "project"
+        assert len(result.problems) == 1
+        problem = result.problems[0]
+        assert isinstance(problem, MoreThanOneRowProblem)
+        assert problem.num_rows == 2
 
     def test_missing_values(self, project_missing_val: pd.DataFrame) -> None:
-        assert 1 == 0
+        result = _check_project_sheet(project_missing_val)
+        assert isinstance(result, ExcelSheetProblem)
+        assert result.sheet_name == "project"
+        assert len(result.problems) == 1
+        problem = result.problems[0]
+        assert isinstance(problem, MissingValuesProblem)
+        assert len(problem.locations) == 1
+        location = problem.locations[0]
+        assert isinstance(location, PositionInExcel)
+        assert location.column == "shortcode"
+        assert location.row == 2
 
 
 class TestCheckDescription:

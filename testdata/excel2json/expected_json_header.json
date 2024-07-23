@@ -8,7 +8,7 @@
   },
   "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json",
   "project": {
-    "shortcode": "11",
+    "shortcode": "0011",
     "shortname": "daschland",
     "longname": "Alice in DaSCHland",
     "descriptions": {

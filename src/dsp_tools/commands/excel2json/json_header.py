@@ -51,7 +51,7 @@ def get_json_header(excel_filepath: Path) -> JsonHeader:
         print("No json_header.xlsx file found in the directory, empty header was added.")
         return EmptyJsonHeader()
     sheets_df_dict = read_and_clean_all_sheets(excel_filepath)
-    sheets_df_dict = {x.lower(): df for x, df in sheets_df_dict.items()}
+    sheets_df_dict = {k.lower(): df for k, df in sheets_df_dict.items()}
     if compliance_problem := _check_if_sheets_are_filled_and_exist(sheets_df_dict):
         raise InputError(compliance_problem.execute_error_protocol())
     result = _process_file(sheets_df_dict)
@@ -123,8 +123,9 @@ def _extract_project(df_dict: dict[str, pd.DataFrame]) -> list[ExcelSheetProblem
                     all_users = user_result
     if problems:
         return problems
+    shortcode = str(project_df.loc[0, "shortcode"]).zfill(4)
     return Project(
-        shortcode=str(project_df.loc[0, "shortcode"]),
+        shortcode=shortcode,
         shortname=str(project_df.loc[0, "shortname"]),
         longname=str(project_df.loc[0, "longname"]),
         descriptions=cast(Descriptions, description_result),

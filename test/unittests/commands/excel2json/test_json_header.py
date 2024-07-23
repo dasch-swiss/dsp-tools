@@ -9,6 +9,7 @@ from dsp_tools.commands.excel2json.json_header import _extract_description
 from dsp_tools.commands.excel2json.json_header import _extract_keywords
 from dsp_tools.commands.excel2json.json_header import _extract_one_user
 from dsp_tools.commands.excel2json.json_header import _extract_prefixes
+from dsp_tools.commands.excel2json.json_header import _extract_project
 from dsp_tools.commands.excel2json.json_header import _extract_users
 from dsp_tools.commands.excel2json.json_header import _get_description_cols
 from dsp_tools.commands.excel2json.json_header import _get_role
@@ -24,9 +25,33 @@ from dsp_tools.commands.excel2json.models.input_error import RequiredColumnMissi
 from dsp_tools.commands.excel2json.models.json_header import Descriptions
 from dsp_tools.commands.excel2json.models.json_header import Keywords
 from dsp_tools.commands.excel2json.models.json_header import Prefixes
+from dsp_tools.commands.excel2json.models.json_header import Project
 from dsp_tools.commands.excel2json.models.json_header import User
 from dsp_tools.commands.excel2json.models.json_header import UserRole
 from dsp_tools.commands.excel2json.models.json_header import Users
+
+
+@pytest.fixture()
+def description_good() -> pd.DataFrame:
+    return pd.DataFrame(
+        {
+            "description_en": ["english"],
+            "description_de": [pd.NA],
+            "description_fr": ["french"],
+            "description_it": [pd.NA],
+            "description_rm": [pd.NA],
+        }
+    )
+
+
+@pytest.fixture()
+def keywords_good() -> pd.DataFrame:
+    return pd.DataFrame({"keywords": ["one", pd.NA, "three"]})
+
+
+@pytest.fixture()
+def project_good() -> pd.DataFrame:
+    return pd.DataFrame({"shortcode": [11], "shortname": ["name"], "longname": ["long"]})
 
 
 class TestCheckIfSheetsExist:
@@ -91,6 +116,36 @@ class TestCheckIfSheetsExist:
         assert set(problem.sheet_names) == {"keywords", "prefixes"}
 
 
+class TestExtractProject:
+    def test_good_shortcode_leading_zeros(
+        self, description_good: pd.DataFrame, keywords_good: pd.DataFrame, project_good: pd.DataFrame
+    ) -> None:
+        test_dict = {
+            "project": project_good,
+            "description": description_good,
+            "keywords": keywords_good,
+        }
+        result = _extract_project(test_dict)
+        assert isinstance(result, Project)
+        assert result.shortcode == "0011"
+        assert result.shortname == "name"
+        assert result.longname == "long"
+        assert not result.users
+
+    def test_good_no_leading_zeros(self, description_good: pd.DataFrame, keywords_good: pd.DataFrame) -> None:
+        test_dict = {
+            "project": pd.DataFrame({"shortcode": [1111], "shortname": ["name"], "longname": ["long"]}),
+            "description": description_good,
+            "keywords": keywords_good,
+        }
+        result = _extract_project(test_dict)
+        assert isinstance(result, Project)
+        assert result.shortcode == "1111"
+        assert result.shortname == "name"
+        assert result.longname == "long"
+        assert not result.users
+
+
 class TestExtractPrefix:
     def test_good(self) -> None:
         test_df = pd.DataFrame({"prefixes": ["pref:"], "uri": ["namespace"]})
@@ -122,9 +177,8 @@ class TestExtractPrefix:
 
 
 class TestExtractProjectChecks:
-    def test_good(self) -> None:
-        project_sheet = pd.DataFrame({"shortcode": ["0001"], "shortname": ["name"], "longname": ["long"]})
-        result = _check_project_sheet(project_sheet)
+    def test_good(self, project_good: pd.DataFrame) -> None:
+        result = _check_project_sheet(project_good)
         assert not result
 
     def test_missing_col(self) -> None:
@@ -159,17 +213,8 @@ class TestExtractProjectChecks:
 
 
 class TestExtractDescription:
-    def test_good(self) -> None:
-        test_df = pd.DataFrame(
-            {
-                "description_en": ["english"],
-                "description_de": [pd.NA],
-                "description_fr": ["french"],
-                "description_it": [pd.NA],
-                "description_rm": [pd.NA],
-            }
-        )
-        res = _extract_description(test_df)
+    def test_good(self, description_good: pd.DataFrame) -> None:
+        res = _extract_description(description_good)
         assert isinstance(res, Descriptions)
         assert res.descriptions == {"en": "english", "fr": "french"}
 
@@ -226,9 +271,8 @@ class TestExtractDescription:
 
 
 class TestExtractKeywords:
-    def test_good(self) -> None:
-        test_df = pd.DataFrame({"keywords": ["one", pd.NA, "three"]})
-        result = _extract_keywords(test_df)
+    def test_good(self, keywords_good: pd.DataFrame) -> None:
+        result = _extract_keywords(keywords_good)
         assert isinstance(result, Keywords)
         assert result.to_dict() == ["one", "three"]
 

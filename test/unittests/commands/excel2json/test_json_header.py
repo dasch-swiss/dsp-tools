@@ -495,13 +495,28 @@ class TestCheckKeywords:
 
 class TestCheckUsers:
     def test_good(self, users_good: pd.DataFrame) -> None:
-        assert 1 == 0
+        assert not _check_all_users(users_good)
 
     def test_missing_column(self, users_missing_col: pd.DataFrame) -> None:
-        assert 1 == 0
+        result = _check_all_users(users_missing_col)
+        assert isinstance(result, ExcelSheetProblem)
+        assert result.sheet_name == "users"
+        assert len(result.problems) == 1
+        problem = result.problems[0]
+        assert isinstance(problem, RequiredColumnMissingProblem)
+        assert problem.columns == ["password"]
 
     def test_missing_value(self, users_missing_val: pd.DataFrame) -> None:
-        assert 1 == 0
+        result = _check_all_users(users_missing_val)
+        assert isinstance(result, ExcelSheetProblem)
+        assert result.sheet_name == "users"
+        assert len(result.problems) == 1
+        problem = result.problems[0]
+        assert isinstance(problem, MissingValuesProblem)
+        assert len(problem.locations) == 1
+        location = problem.locations[0]
+        assert location.column == "username"
+        assert location.row == 2
 
 
 class TestCheckOneUser:

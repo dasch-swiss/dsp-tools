@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from dsp_tools.commands.excel2json.json_header import _check_email, _do_all_checks
+from dsp_tools.commands.excel2json.json_header import _check_email, _do_all_checks, _process_file
 from dsp_tools.commands.excel2json.json_header import _check_if_sheets_are_filled_and_exist
 from dsp_tools.commands.excel2json.json_header import (
     _check_lang,
@@ -562,17 +562,46 @@ class TestProcessFile:
         description_good: pd.DataFrame,
         keywords_good: pd.DataFrame,
     ) -> None:
-        assert 1 == 0
+        test_dict = {
+            "prefixes": prefixes_good,
+            "project": project_good_no_zero,
+            "description": description_good,
+            "keywords": keywords_good,
+        }
+        result = _process_file(test_dict)
+        assert result.prefixes.prefixes == {"foaf": "http://xmlns.com/foaf/0.1/", "sdh": "https://ontome.net/ns/sdhss/"}
+        project = result.project
+        assert project.shortcode == "1111"
+        assert project.shortname == "name"
+        assert project.longname == "long"
+        assert project.descriptions.descriptions == {"en": "english", "fr": "french"}
+        assert set(project.keywords.keywords) == {"one", "three"}
+        assert not project.users
 
     def test_with_user(
         self,
         prefixes_good: pd.DataFrame,
-        project_good_no_zero: pd.DataFrame,
+        project_good_missing_zero: pd.DataFrame,
         description_good: pd.DataFrame,
         keywords_good: pd.DataFrame,
         users_good: pd.DataFrame,
     ) -> None:
-        assert 1 == 0
+        test_dict = {
+            "prefixes": prefixes_good,
+            "project": project_good_missing_zero,
+            "description": description_good,
+            "keywords": keywords_good,
+            "users": users_good,
+        }
+        result = _process_file(test_dict)
+        assert result.prefixes.prefixes == {"foaf": "http://xmlns.com/foaf/0.1/", "sdh": "https://ontome.net/ns/sdhss/"}
+        project = result.project
+        assert project.shortcode == "0011"
+        assert project.shortname == "name"
+        assert project.longname == "long"
+        assert project.descriptions.descriptions == {"en": "english", "fr": "french"}
+        assert set(project.keywords.keywords) == {"one", "three"}
+        assert isinstance(project.users, Users)
 
 
 def test_extract_prefixes(prefixes_good: pd.DataFrame) -> None:

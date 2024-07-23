@@ -394,6 +394,9 @@ class TestCheckPrefix:
         assert isinstance(problem, RequiredColumnMissingProblem)
         assert problem.columns == ["prefixes"]
 
+    def test_wrong_value(self, prefixes_wrong_val: pd.DataFrame) -> None:
+        assert _check_prefixes(prefixes_wrong_val)
+
 
 class TestCheckProject:
     def test_good(self, project_good_no_zero: pd.DataFrame) -> None:

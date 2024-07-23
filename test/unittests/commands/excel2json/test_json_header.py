@@ -212,7 +212,7 @@ class TestExtractDescription:
         assert isinstance(res, ExcelSheetProblem)
         assert len(res.problems) == 1
         problem = res.problems[0]
-        assert isinstance(problem, RequiredColumnMissingProblem)
+        assert isinstance(problem, AtLeastOneValueRequiredProblem)
         description_cols = {"description_en", "description_de", "description_fr", "description_it", "description_rm"}
         assert set(problem.columns) == description_cols
 

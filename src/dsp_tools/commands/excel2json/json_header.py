@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
 from typing import cast
 
 import pandas as pd
@@ -72,8 +71,8 @@ def _check_if_sheets_are_filled_and_exist(df_dict: dict[str, pd.DataFrame]) -> E
             return sheet
         return None
 
-    if empty_missing_sheets := [x for x in expected_sheets if _check_df(x)]:
-        return ExcelFileProblem("json_header.xlsx", [EmptySheetsProblem(empty_missing_sheets)])
+    if empty_or_missing_sheets := [x for x in expected_sheets if _check_df(x)]:
+        return ExcelFileProblem("json_header.xlsx", [EmptySheetsProblem(empty_or_missing_sheets)])
     return None
 
 
@@ -97,7 +96,7 @@ def _extract_prefixes(df: pd.DataFrame) -> ExcelSheetProblem | Prefixes:
         return ExcelSheetProblem("prefixes", [missing_cols])
     if missing_vals := check_required_values_get_position_in_excel(df, ["prefixes", "uri"]):
         return ExcelSheetProblem("prefixes", [missing_vals])
-    pref = dict(zip(df["prefixes"], df["uri"]))
+    pref: dict[str, str] = dict(zip(df["prefixes"], df["uri"]))
     pref = {k.rstrip(":"): v for k, v in pref.items()}
     return Prefixes(pref)
 
@@ -152,11 +151,12 @@ def _extract_description(df: pd.DataFrame) -> ExcelSheetProblem | Descriptions:
     if len(df) > 1:
         return ExcelSheetProblem("description", [MoreThanOneRowProblem(len(df))])
     desc_columns = ["description_en", "description_de", "description_fr", "description_it", "description_rm"]
+    description_problem = ExcelSheetProblem("description", [AtLeastOneValueRequiredProblem(desc_columns, 1)])
     if not (desc_col_dict := _get_description_cols(list(df.columns))):
-        return ExcelSheetProblem("description", [RequiredColumnMissingProblem(desc_columns)])
+        return description_problem
     desc_dict = {lang: str(value) for lang, column in desc_col_dict.items() if not pd.isna(value := df.loc[0, column])}
     if not desc_dict:
-        return ExcelSheetProblem("description", [AtLeastOneValueRequiredProblem(desc_columns, 1)])
+        return description_problem
     return Descriptions(desc_dict)
 
 
@@ -193,7 +193,7 @@ def _extract_users(df: pd.DataFrame) -> ExcelSheetProblem | Users:
     return Users(users)
 
 
-def _extract_one_user(row: pd.Series[Any], row_number: int) -> User | list[InvalidExcelContentProblem]:
+def _extract_one_user(row: pd.Series[str], row_number: int) -> User | list[InvalidExcelContentProblem]:
     problems: list[InvalidExcelContentProblem] = []
     if bad_language := _check_lang(row["lang"], row_number):
         problems.append(bad_language)
@@ -206,20 +206,25 @@ def _extract_one_user(row: pd.Series[Any], row_number: int) -> User | list[Inval
         return problems
     user_role = cast(UserRole, role_result)
     return User(
-        row["username"], row["email"], row["givenname"], row["familyname"], row["password"], row["lang"], user_role
+        username=row["username"],
+        email=row["email"],
+        givenName=row["givenname"],
+        familyName=row["familyname"],
+        password=row["password"],
+        lang=row["lang"],
+        role=user_role,
     )
 
 
-def _check_lang(value: Any, row_num: int) -> None | InvalidExcelContentProblem:
-    match value.lower():
-        case "en" | "de" | "fr" | "it" | "rm":
-            return None
-        case _:
-            return InvalidExcelContentProblem(
-                expected_content="One of: en, de, fr, it, rm",
-                actual_content=value,
-                excel_position=PositionInExcel(column="lang", row=row_num),
-            )
+def _check_lang(value: str, row_num: int) -> None | InvalidExcelContentProblem:
+    lang_options = ["en", "de", "fr", "it", "rm"]
+    if value.lower() in lang_options:
+        return None
+    return InvalidExcelContentProblem(
+        expected_content="One of: en, de, fr, it, rm",
+        actual_content=value,
+        excel_position=PositionInExcel(column="lang", row=row_num),
+    )
 
 
 def _check_email(email: str, row_num: int) -> InvalidExcelContentProblem | None:

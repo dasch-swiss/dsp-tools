@@ -137,8 +137,8 @@ def check_required_values_get_position_in_excel(
 ) -> MissingValuesProblem | None:
     """
     If there are empty cells in the specified columns,
-    It specifies the column and row number of all missing values and
-    returns all the locations wrapped in the MissingValueProblem
+    It specifies the column and row numbers of all missing values and
+    returns all the locations wrapped in the MissingValuesProblem
 
     Args:
         df: pd.DataFrame that is checked

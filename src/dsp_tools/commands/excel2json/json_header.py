@@ -36,8 +36,8 @@ from dsp_tools.models.exceptions import InputError
 def get_json_header(excel_filepath: Path) -> JsonHeader:
     """
     Returns the header of the JSON file.
-    If an Excel file with the information is provided it is filled out.
-    Otherwise it will return a header with the fields left blank.
+    If the Excel file exists, the header will be filled in.
+    Otherwise, it will return a header with the fields left blank.
 
     Args:
         excel_filepath: path to the excel file
@@ -46,7 +46,7 @@ def get_json_header(excel_filepath: Path) -> JsonHeader:
         JsonHeader object
 
     Raises:
-        InputError: If the file does not conform to the specifics
+        InputError: If the file does not conform to the specifications
     """
     if not excel_filepath.is_file():
         print("No json_header.xlsx file found in the directory, empty header was added.")

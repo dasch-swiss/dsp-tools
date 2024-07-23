@@ -3,7 +3,17 @@ import pytest
 
 from dsp_tools.commands.excel2json.json_header import _check_email, _do_all_checks
 from dsp_tools.commands.excel2json.json_header import _check_if_sheets_are_filled_and_exist
-from dsp_tools.commands.excel2json.json_header import _check_lang
+from dsp_tools.commands.excel2json.json_header import (
+    _check_lang,
+    _check_keywords,
+    _check_descriptions,
+    _check_one_user,
+    _check_all_users,
+    _check_role,
+    _check_prefixes,
+    _check_project_sheet,
+    _check_email,
+)
 from dsp_tools.commands.excel2json.json_header import _check_project_sheet
 from dsp_tools.commands.excel2json.json_header import _extract_descriptions
 from dsp_tools.commands.excel2json.json_header import _extract_keywords
@@ -361,13 +371,28 @@ class TestCheckIfSheetsExist:
 
 class TestCheckPrefix:
     def test_good(self, prefixes_good: pd.DataFrame) -> None:
-        assert 1 == 0
+        assert not _check_prefixes(prefixes_good)
 
     def test_missing_value(self, prefixes_missing_val: pd.DataFrame) -> None:
-        assert 1 == 0
+        result = _check_prefixes(prefixes_missing_val)
+        assert isinstance(result, ExcelSheetProblem)
+        assert result.sheet_name == "prefixes"
+        assert len(result.problems) == 1
+        problem = result.problems[0]
+        assert isinstance(problem, MissingValuesProblem)
+        assert len(problem.locations) == 1
+        location = problem.locations[0]
+        assert location.column == "prefixes"
+        assert location.row == 3
 
     def test_missing_column(self, prefixes_missing_col: pd.DataFrame) -> None:
-        assert 1 == 0
+        result = _check_prefixes(prefixes_missing_col)
+        assert isinstance(result, ExcelSheetProblem)
+        assert result.sheet_name == "prefixes"
+        assert len(result.problems) == 1
+        problem = result.problems[0]
+        assert isinstance(problem, RequiredColumnMissingProblem)
+        assert problem.columns == ["prefixes"]
 
 
 class TestCheckProject:

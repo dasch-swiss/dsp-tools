@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from dsp_tools.commands.excel2json.json_header import _check_email
+from dsp_tools.commands.excel2json.json_header import _check_email, _do_all_checks
 from dsp_tools.commands.excel2json.json_header import _check_if_sheets_are_filled_and_exist
 from dsp_tools.commands.excel2json.json_header import _check_lang
 from dsp_tools.commands.excel2json.json_header import _check_project_sheet
@@ -32,36 +32,236 @@ from dsp_tools.commands.excel2json.models.json_header import Users
 
 
 @pytest.fixture()
+def prefixes_good() -> pd.DataFrame:
+    return pd.DataFrame(
+        {"prefixes": ["foaf:", "sdh"], "uri": ["http://xmlns.com/foaf/0.1/", "https://ontome.net/ns/sdhss/"]}
+    )
+
+
+@pytest.fixture()
+def prefixes_missing_col() -> pd.DataFrame:
+    return pd.DataFrame({"uri": ["http://xmlns.com/foaf/0.1/", "https://ontome.net/ns/sdhss/"]})
+
+
+@pytest.fixture()
+def prefixes_missing_val() -> pd.DataFrame:
+    return pd.DataFrame(
+        {"prefixes": ["foaf:", pd.NA], "uri": ["http://xmlns.com/foaf/0.1/", "https://ontome.net/ns/sdhss/"]}
+    )
+
+
+@pytest.fixture()
+def prefixes_wrong_val() -> pd.DataFrame:
+    return pd.DataFrame({"prefixes": ["foaf:", "sdh"], "uri": ["http://xmlns.com/foaf/0.1/", "not a uri"]})
+
+
+@pytest.fixture()
+def project_good_missing_zero() -> pd.DataFrame:
+    return pd.DataFrame({"shortcode": [11], "shortname": ["name"], "longname": ["long"]})
+
+
+@pytest.fixture()
+def project_good_no_zero() -> pd.DataFrame:
+    return pd.DataFrame({"shortcode": [1111], "shortname": ["name"], "longname": ["long"]})
+
+
+@pytest.fixture()
+def project_missing_col() -> pd.DataFrame:
+    return pd.DataFrame({"shortname": ["name"], "longname": ["long"]})
+
+
+@pytest.fixture()
+def project_missing_val() -> pd.DataFrame:
+    return pd.DataFrame({"shortcode": [pd.NA], "shortname": ["name"], "longname": ["long"]})
+
+
+@pytest.fixture()
+def project_too_many_rows() -> pd.DataFrame:
+    return pd.DataFrame({"shortcode": [11, 0], "shortname": ["name", pd.NA], "longname": ["long", "other"]})
+
+
+@pytest.fixture()
 def description_good() -> pd.DataFrame:
     return pd.DataFrame(
         {
             "description_en": ["english"],
             "description_de": [pd.NA],
-            "description_fr": ["french"],
-            "description_it": [pd.NA],
+            "fr": ["french"],
             "description_rm": [pd.NA],
         }
     )
 
 
 @pytest.fixture()
-def keywords_good() -> pd.DataFrame:
-    return pd.DataFrame({"keywords": ["one", pd.NA, "three"]})
+def description_too_many_rows() -> pd.DataFrame:
+    return pd.DataFrame(
+        {
+            "description_en": ["english", "en1"],
+            "description_de": [pd.NA, pd.NA],
+            "fr": ["french", "french2"],
+            "description_it": [pd.NA, "it"],
+            "description_rm": [pd.NA, pd.NA],
+        }
+    )
 
 
 @pytest.fixture()
-def project_good() -> pd.DataFrame:
-    return pd.DataFrame({"shortcode": [11], "shortname": ["name"], "longname": ["long"]})
+def description_missing_col() -> pd.DataFrame:
+    return pd.DataFrame({"other": ["english"]})
+
+
+@pytest.fixture()
+def description_missing_val() -> pd.DataFrame:
+    return pd.DataFrame({"other": ["english"], "description_en": [pd.NA]})
+
+
+@pytest.fixture()
+def keywords_good() -> pd.DataFrame:
+    pd.DataFrame({"keywords": ["one", pd.NA, "three"]})
+
+
+@pytest.fixture()
+def keywords_missing_col() -> pd.DataFrame:
+    return pd.DataFrame({"other": [1]})
+
+
+@pytest.fixture()
+def keywords_missing_val() -> pd.DataFrame:
+    return pd.DataFrame({"other": [1], "keywords": [pd.NA]})
+
+
+@pytest.fixture()
+def users_good() -> pd.DataFrame:
+    return pd.DataFrame(
+        {
+            "username": ["Alice", "Caterpillar"],
+            "email": ["alice@dasch.swiss", "caterpillar@dasch.swiss"],
+            "givenname": ["Alice Pleasance", "Caterpillar"],
+            "familyname": ["Liddell", "Wonderland"],
+            "password": ["alice4322", "alice7652"],
+            "lang": ["fr", "de"],
+            "role": ["systemadmin", "projectmember"],
+        }
+    )
+
+
+@pytest.fixture()
+def users_missing_col() -> pd.DataFrame:
+    return pd.DataFrame(
+        {
+            "username": ["Alice"],
+            "email": ["alice@dasch.swiss"],
+            "givenname": ["Alice Pleasance"],
+            "familyname": ["Liddell"],
+            "lang": ["fr"],
+            "role": ["systemadmin"],
+        }
+    )
+
+
+@pytest.fixture()
+def users_missing_val() -> pd.DataFrame:
+    return pd.DataFrame(
+        {
+            "username": [pd.NA],
+            "email": ["alice@dasch.swiss"],
+            "givenname": ["Alice Pleasance"],
+            "familyname": ["Liddell"],
+            "password": ["alice7652"],
+            "lang": ["fr"],
+            "role": ["systemadmin"],
+        }
+    )
+
+
+@pytest.fixture()
+def users_wrong_lang() -> pd.DataFrame:
+    return pd.DataFrame(
+        {
+            "username": ["Alice"],
+            "email": ["alice@dasch.swiss"],
+            "givenname": ["Alice Pleasance"],
+            "familyname": ["Liddell"],
+            "password": ["alice7652"],
+            "lang": ["other"],
+            "role": ["systemadmin"],
+        }
+    )
+
+
+@pytest.fixture()
+def users_wrong_email() -> pd.DataFrame:
+    return pd.DataFrame(
+        {
+            "username": ["Alice"],
+            "email": ["not an email"],
+            "givenname": ["Alice Pleasance"],
+            "familyname": ["Liddell"],
+            "password": ["alice7652"],
+            "lang": ["fr"],
+            "role": ["systemadmin"],
+        }
+    )
+
+
+@pytest.fixture()
+def users_wrong_role() -> pd.DataFrame:
+    return pd.DataFrame(
+        {
+            "username": ["Alice"],
+            "email": ["alice@dasch.swiss"],
+            "givenname": ["Alice Pleasance"],
+            "familyname": ["Liddell"],
+            "password": ["alice7652"],
+            "lang": ["fr"],
+            "role": ["other"],
+        }
+    )
+
+
+class TestCheckAll:
+    def test_good(
+        self,
+        prefixes_good: pd.DataFrame,
+        project_good_no_zero: pd.DataFrame,
+        description_good: pd.DataFrame,
+        keywords_good: pd.DataFrame,
+        users_good: pd.DataFrame,
+    ) -> None:
+        test_dict = {
+            "prefixes": prefixes_good,
+            "project": project_good_no_zero,
+            "description": description_good,
+            "keywords": keywords_good,
+            "users": users_good,
+        }
+        assert not _do_all_checks(test_dict)
+
+    def test_empty_sheet_and_missing_sheet(self) -> None:
+        test_dict = {
+            "prefixes": pd.DataFrame({}),
+            "project": pd.DataFrame({"one": [1]}),
+            "description": pd.DataFrame({"one": [1]}),
+        }
+        result = _check_if_sheets_are_filled_and_exist(test_dict)
+        assert isinstance(result, ExcelFileProblem)
+        assert len(result.problems) == 1
+        problem = result.problems[0]
+        assert isinstance(problem, EmptySheetsProblem)
+        assert set(problem.sheet_names) == {"keywords", "prefixes"}
+
+    def test_user_problems(self) -> None:
+        assert 1 == 0
 
 
 class TestCheckIfSheetsExist:
-    def test_good(self) -> None:
+    def test_good_with_users(self) -> None:
         test_dict = {
             "prefixes": pd.DataFrame({"one": [1]}),
             "project": pd.DataFrame({"one": [1]}),
             "description": pd.DataFrame({"one": [1]}),
             "keywords": pd.DataFrame({"one": [1]}),
-            "users": pd.DataFrame({}),
+            "users": pd.DataFrame({"one": [1]}),
         }
         assert not _check_if_sheets_are_filled_and_exist(test_dict)
 
@@ -102,396 +302,136 @@ class TestCheckIfSheetsExist:
         assert isinstance(problem, EmptySheetsProblem)
         assert problem.sheet_names == ["keywords"]
 
-    def test_empty_sheet_and_missing_sheet(self) -> None:
-        test_dict = {
-            "prefixes": pd.DataFrame({}),
-            "project": pd.DataFrame({"one": [1]}),
-            "description": pd.DataFrame({"one": [1]}),
-        }
-        result = _check_if_sheets_are_filled_and_exist(test_dict)
-        assert isinstance(result, ExcelFileProblem)
-        assert len(result.problems) == 1
-        problem = result.problems[0]
-        assert isinstance(problem, EmptySheetsProblem)
-        assert set(problem.sheet_names) == {"keywords", "prefixes"}
+
+class TestCheckPrefix:
+    def test_good(self) -> None:
+        assert 1 == 0
+
+    def test_missing_value(self) -> None:
+        assert 1 == 0
+
+    def test_missing_column(self) -> None:
+        assert 1 == 0
+
+
+class TestCheckProject:
+    def test_good(self) -> None:
+        assert 1 == 0
+
+    def test_missing_col(self) -> None:
+        assert 1 == 0
+
+    def test_more_than_one_row(self) -> None:
+        assert 1 == 0
+
+    def test_missing_values(self) -> None:
+        assert 1 == 0
+
+
+class TestCheckDescription:
+    def test_good(self) -> None:
+        assert 1 == 0
+
+    def test_more_than_one_row(self) -> None:
+        assert 1 == 0
+
+    def test_missing_values(self) -> None:
+        assert 1 == 0
+
+
+class TestCheckKeywords:
+    def test_good(self) -> None:
+        assert 1 == 0
+
+    def test_missing_column(self) -> None:
+        assert 1 == 0
+
+    def test_missing_value(self) -> None:
+        assert 1 == 0
+
+
+class TestCheckUsers:
+    def test_good(self) -> None:
+        assert 1 == 0
+
+    def test_missing_column(self) -> None:
+        assert 1 == 0
+
+    def test_missing_value(self) -> None:
+        assert 1 == 0
+
+
+class TestCheckOneUser:
+    def test_good(self) -> None:
+        assert 1 == 0
+
+    def test_bad_lang(self) -> None:
+        assert 1 == 0
+
+    def test_bad_email(self) -> None:
+        assert 1 == 0
+
+    def test_bad_role(self) -> None:
+        assert 1 == 0
+
+
+class TestProcessFile:
+    def test_no_user(self) -> None:
+        assert 1 == 0
+
+    def test_with_user(self) -> None:
+        assert 1 == 0
+
+
+class TestExtractPrefixes:
+    def test_with_colon(self) -> None:
+        assert 1 == 0
+
+    def test_no_colon(self) -> None:
+        assert 1 == 0
 
 
 class TestExtractProject:
-    def test_good_shortcode_leading_zeros(
-        self, description_good: pd.DataFrame, keywords_good: pd.DataFrame, project_good: pd.DataFrame
-    ) -> None:
-        test_dict = {
-            "project": project_good,
-            "description": description_good,
-            "keywords": keywords_good,
-        }
-        result = _extract_project(test_dict)
-        assert isinstance(result, Project)
-        assert result.shortcode == "0011"
-        assert result.shortname == "name"
-        assert result.longname == "long"
-        assert not result.users
+    def test_with_users(self) -> None:
+        assert 1 == 0
 
-    def test_good_no_leading_zeros(self, description_good: pd.DataFrame, keywords_good: pd.DataFrame) -> None:
-        test_dict = {
-            "project": pd.DataFrame({"shortcode": [1111], "shortname": ["name"], "longname": ["long"]}),
-            "description": description_good,
-            "keywords": keywords_good,
-        }
-        result = _extract_project(test_dict)
-        assert isinstance(result, Project)
-        assert result.shortcode == "1111"
-        assert result.shortname == "name"
-        assert result.longname == "long"
-        assert not result.users
+    def test_no_users(self) -> None:
+        assert 1 == 0
+
+    def test_shortcode_with_leading_zero(self) -> None:
+        assert 1 == 0
+
+    def test_shortcode_without_leading_zero(self) -> None:
+        assert 1 == 0
 
 
-class TestExtractPrefix:
-    def test_good(self) -> None:
-        test_df = pd.DataFrame({"prefixes": ["pref:"], "uri": ["namespace"]})
-        result = _extract_prefixes(test_df)
-        assert isinstance(result, Prefixes)
-        assert result.prefixes == {"pref": "namespace"}
+class TestExtractDescriptions:
+    def test_mixed_col_names(self) -> None:
+        assert 1 == 0
 
-    def test_missing_col(self) -> None:
-        test_df = pd.DataFrame({"uri": ["namespace"]})
-        result = _extract_prefixes(test_df)
-        assert isinstance(result, ExcelSheetProblem)
-        assert len(result.problems) == 1
-        problem = result.problems[0]
-        assert isinstance(problem, RequiredColumnMissingProblem)
-        assert problem.columns == ["prefixes"]
-
-    def test_missing_value(self) -> None:
-        test_df = pd.DataFrame({"prefixes": ["pref:", pd.NA], "uri": ["namespace", "other_namespace"]})
-        result = _extract_prefixes(test_df)
-        assert isinstance(result, ExcelSheetProblem)
-        assert result.sheet_name == "prefixes"
-        assert len(result.problems) == 1
-        problem = result.problems[0]
-        assert isinstance(problem, MissingValuesProblem)
-        assert len(problem.locations) == 1
-        loc = problem.locations[0]
-        assert loc.column == "prefixes"
-        assert loc.row == 3
+    def test_standard_cols(self) -> None:
+        assert 1 == 0
 
 
-class TestExtractProjectChecks:
-    def test_good(self, project_good: pd.DataFrame) -> None:
-        result = _check_project_sheet(project_good)
-        assert not result
-
-    def test_missing_col(self) -> None:
-        test_df = pd.DataFrame({"shortcode": [], "longname": []})
-        result = _check_project_sheet(test_df)
-        assert isinstance(result, ExcelSheetProblem)
-        assert len(result.problems) == 1
-        problem = result.problems[0]
-        assert isinstance(problem, RequiredColumnMissingProblem)
-        assert problem.columns == ["shortname"]
-
-    def test_missing_value(self) -> None:
-        test_df = pd.DataFrame({"shortcode": ["0001"], "shortname": [pd.NA], "longname": ["long"]})
-        result = _check_project_sheet(test_df)
-        assert isinstance(result, ExcelSheetProblem)
-        assert len(result.problems) == 1
-        problem = result.problems[0]
-        assert isinstance(problem, MissingValuesProblem)
-        assert len(problem.locations) == 1
-        loc = problem.locations[0]
-        assert loc.row == 2
-        assert loc.column == "shortname"
-
-    def test_too_many_rows(self) -> None:
-        test_df = pd.DataFrame({"shortcode": ["0001", "2"], "shortname": ["name", "2"], "longname": ["long", "2"]})
-        result = _check_project_sheet(test_df)
-        assert isinstance(result, ExcelSheetProblem)
-        assert len(result.problems) == 1
-        problem = result.problems[0]
-        assert isinstance(problem, MoreThanOneRowProblem)
-        assert problem.num_rows == 2
+def test_extract_keywords() -> None:
+    assert 1 == 0
 
 
-class TestExtractDescription:
-    def test_good(self, description_good: pd.DataFrame) -> None:
-        res = _extract_descriptions(description_good)
-        assert isinstance(res, Descriptions)
-        assert res.descriptions == {"en": "english", "fr": "french"}
+class TestUsers:
+    def test_extract_users(self) -> None:
+        assert 1 == 0
 
-    def test_good_mixed_cols(self) -> None:
-        test_df = pd.DataFrame(
-            {
-                "description_en": [pd.NA],
-                "description_de": ["german"],
-                "fr": ["french"],
-                "description_it": [pd.NA],
-            }
-        )
-        res = _extract_descriptions(test_df)
-        assert isinstance(res, Descriptions)
-        assert res.descriptions == {"de": "german", "fr": "french"}
+    def test_extract_one_user(self) -> None:
+        assert 1 == 0
 
-    def test_too_long(self) -> None:
-        test_df = pd.DataFrame({"one": [1, 2]})
-        res = _extract_descriptions(test_df)
-        assert isinstance(res, ExcelSheetProblem)
-        assert len(res.problems) == 1
-        problem = res.problems[0]
-        assert isinstance(problem, MoreThanOneRowProblem)
-        assert problem.num_rows == 2
+    def test_projectadmin(self) -> None:
+        assert 1 == 0
 
-    def test_no_values_filled(self) -> None:
-        test_df = pd.DataFrame({"description_en": [pd.NA], "random": ["value"]})
-        res = _extract_descriptions(test_df)
-        assert isinstance(res, ExcelSheetProblem)
-        assert len(res.problems) == 1
-        problem = res.problems[0]
-        assert isinstance(problem, AtLeastOneValueRequiredProblem)
-        assert problem.row_num == 1
-        description_cols = {"description_en", "description_de", "description_fr", "description_it", "description_rm"}
-        assert set(problem.columns) == description_cols
+    def test_systemadmin(self) -> None:
+        assert 1 == 0
 
-    def test_no_valid_col(self) -> None:
-        test_df = pd.DataFrame({"description_es": [1]})
-        res = _extract_descriptions(test_df)
-        assert isinstance(res, ExcelSheetProblem)
-        assert len(res.problems) == 1
-        problem = res.problems[0]
-        assert isinstance(problem, AtLeastOneValueRequiredProblem)
-        description_cols = {"description_en", "description_de", "description_fr", "description_it", "description_rm"}
-        assert set(problem.columns) == description_cols
-
-    def test_get_description_cols_found(self) -> None:
-        test_cols = ["description_en", "description_xy", "fr"]
-        assert _get_description_cols(test_cols) == {"en": "description_en", "fr": "fr"}
-
-    def test_get_description_cols_none(self) -> None:
-        test_cols = ["description_xy", "isadfahfas"]
-        assert not _get_description_cols(test_cols)
-
-
-class TestExtractKeywords:
-    def test_good(self, keywords_good: pd.DataFrame) -> None:
-        result = _extract_keywords(keywords_good)
-        assert isinstance(result, Keywords)
-        assert result.to_dict() == ["one", "three"]
-
-    def test_missing_col(self) -> None:
-        test_df = pd.DataFrame({"other": ["other"]})
-        result = _extract_keywords(test_df)
-        assert isinstance(result, ExcelSheetProblem)
-        assert len(result.problems) == 1
-        problem = result.problems[0]
-        assert isinstance(problem, RequiredColumnMissingProblem)
-        assert problem.columns == ["keywords"]
-
-    def test_missing_value(self) -> None:
-        test_df = pd.DataFrame({"keywords": [pd.NA], "other": ["other"]})
-        result = _extract_keywords(test_df)
-        assert isinstance(result, ExcelSheetProblem)
-        assert len(result.problems) == 1
-        problem = result.problems[0]
-        assert isinstance(problem, MissingValuesProblem)
-        assert len(problem.locations) == 1
-        position = problem.locations[0]
-        assert isinstance(position, PositionInExcel)
-        assert position.column == "keywords"
-
-
-class TestExtractUsers:
-    def test_good(self) -> None:
-        test_df = pd.DataFrame(
-            {
-                "username": ["Alice", "Caterpillar"],
-                "email": ["alice@dasch.swiss", "caterpillar@dasch.swiss"],
-                "givenname": ["Alice Pleasance", "Caterpillar"],
-                "familyname": ["Liddell", "Wonderland"],
-                "password": ["alice4322", "alice7652"],
-                "lang": ["fr", "de"],
-                "role": ["systemadmin", "projectmember"],
-            }
-        )
-        result = _extract_users(test_df)
-        assert isinstance(result, Users)
-        assert len(result.users) == 2
-        resulting_users = sorted(result.users, key=lambda x: x.username)
-        alice = resulting_users[0]
-        assert alice.username == "Alice"
-        assert alice.email == "alice@dasch.swiss"
-        assert alice.givenName == "Alice Pleasance"
-        assert alice.familyName == "Liddell"
-        assert alice.password == "alice4322"
-        assert alice.lang == "fr"
-        alice_role = alice.role
-        assert isinstance(alice_role, UserRole)
-        assert not alice_role.project_admin
-        assert alice_role.sys_admin
-
-        caterpillar = resulting_users[1]
-        assert caterpillar.username == "Caterpillar"
-        assert caterpillar.email == "caterpillar@dasch.swiss"
-        assert caterpillar.givenName == "Caterpillar"
-        assert caterpillar.familyName == "Wonderland"
-        assert caterpillar.password == "alice7652"
-        assert caterpillar.lang == "de"
-        caterpillar_role = caterpillar.role
-        assert isinstance(caterpillar_role, UserRole)
-        assert not caterpillar_role.project_admin
-        assert not caterpillar_role.sys_admin
-
-    def test_missing_col(self) -> None:
-        test_df = pd.DataFrame(
-            {
-                "email": ["alice@dasch.swiss", "caterpillar@dasch.swiss"],
-                "givenname": ["Alice Pleasance", "Caterpillar"],
-                "familyname": ["Liddell", "Wonderland"],
-                "password": ["alice4322", "alice7652"],
-                "lang": ["fr", "de"],
-                "role": ["systemadmin", "projectmember"],
-            }
-        )
-        result = _extract_users(test_df)
-        assert isinstance(result, ExcelSheetProblem)
-        assert result.sheet_name == "users"
-        assert len(result.problems) == 1
-        missing = result.problems[0]
-        assert isinstance(missing, RequiredColumnMissingProblem)
-        assert missing.columns == ["username"]
-
-    def test_missing_value(self) -> None:
-        test_df = pd.DataFrame(
-            {
-                "username": ["Alice", "Caterpillar"],
-                "email": ["alice@dasch.swiss", "caterpillar@dasch.swiss"],
-                "givenname": ["Alice Pleasance", "Caterpillar"],
-                "familyname": ["Liddell", "Wonderland"],
-                "password": ["alice4322", pd.NA],
-                "lang": ["fr", "de"],
-                "role": ["systemadmin", "projectmember"],
-            }
-        )
-        result = _extract_users(test_df)
-        assert isinstance(result, ExcelSheetProblem)
-        assert result.sheet_name == "users"
-        assert len(result.problems) == 1
-        empty = result.problems[0]
-        assert isinstance(empty, MissingValuesProblem)
-        assert len(empty.locations) == 1
-        location = empty.locations[0]
-        assert isinstance(location, PositionInExcel)
-        assert location.column == "password"
-        assert location.row == 3
-
-
-class TestExtractOneUser:
-    def test_good(self) -> None:
-        test_series = pd.Series(
-            {
-                "username": "Alice",
-                "email": "alice@dasch.swiss",
-                "givenname": "Alice Pleasance",
-                "familyname": "Liddell",
-                "password": "alice4322",
-                "lang": "en",
-                "role": "projectadmin",
-            }
-        )
-        result = _extract_one_user(test_series, 1)
-        assert isinstance(result, User)
-        assert result.username == "Alice"
-        assert result.email == "alice@dasch.swiss"
-        assert result.givenName == "Alice Pleasance"
-        assert result.familyName == "Liddell"
-        assert result.password == "alice4322"
-        assert result.lang == "en"
-        role = result.role
-        assert isinstance(role, UserRole)
-        assert role.project_admin
-        assert not role.sys_admin
-
-    def test_bad_lang(self) -> None:
-        test_series = pd.Series(
-            {
-                "username": "Alice",
-                "email": "alice@dasch.swiss",
-                "givenName": "Alice Pleasance",
-                "familyName": "Liddell",
-                "password": "alice4322",
-                "lang": "other",
-                "role": "projectadmin",
-            },
-        )
-        result = _extract_one_user(test_series, 2)
-        assert isinstance(result, list)
-        assert len(result) == 1
-        problem = result[0]
-        assert isinstance(problem, InvalidExcelContentProblem)
-        assert problem.expected_content == "One of: en, de, fr, it, rm"
-        assert problem.actual_content == "other"
-        position = problem.excel_position
-        assert isinstance(position, PositionInExcel)
-        assert position.column == "lang"
-        assert position.row == 2
-
-
-class TestGetRole:
-    def test_get_role_projectadmin(self) -> None:
-        result = _get_role("projectadmin", 1)
-        assert isinstance(result, UserRole)
-        assert not result.sys_admin
-        assert result.project_admin
-
-    def test_get_role_systemadmin(self) -> None:
-        result = _get_role("systemadmin", 1)
-        assert isinstance(result, UserRole)
-        assert result.sys_admin
-        assert not result.project_admin
-
-    def test_get_role_projectmember(self) -> None:
-        result = _get_role("projectmember", 1)
-        assert isinstance(result, UserRole)
-        assert not result.sys_admin
-        assert not result.project_admin
-
-    def test_get_role_bad(self) -> None:
-        result = _get_role("wrong", 1)
-        assert isinstance(result, InvalidExcelContentProblem)
-        assert result.expected_content == "One of: projectadmin, systemadmin, projectmember"
-        assert result.actual_content == "wrong"
-        position = result.excel_position
-        assert isinstance(position, PositionInExcel)
-        assert position.column == "role"
-        assert position.row == 1
-
-
-def test_get_lang_good() -> None:
-    assert not _check_lang("en", 1)
-
-
-def test_get_lang_bad() -> None:
-    result = _check_lang("other", 1)
-    assert isinstance(result, InvalidExcelContentProblem)
-    assert result.expected_content == "One of: en, de, fr, it, rm"
-    assert result.actual_content == "other"
-    position = result.excel_position
-    assert isinstance(position, PositionInExcel)
-    assert position.column == "lang"
-    assert position.row == 1
-
-
-def test_check_email_bad() -> None:
-    result = _check_email("bad", 1)
-    assert isinstance(result, InvalidExcelContentProblem)
-    assert result.expected_content == "A valid email adress"
-    assert result.actual_content == "bad"
-    position = result.excel_position
-    assert isinstance(position, PositionInExcel)
-    assert position.column == "email"
-    assert position.row == 1
-
-
-def test_check_email_good() -> None:
-    assert not _check_email("alice@dasch.swiss", 1)
+    def test_other(self) -> None:
+        assert 1 == 0
 
 
 if __name__ == "__main__":

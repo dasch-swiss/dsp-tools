@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import cast
 
 import pandas as pd
 import regex
@@ -52,13 +51,30 @@ def get_json_header(excel_filepath: Path) -> JsonHeader:
         return EmptyJsonHeader()
     sheets_df_dict = read_and_clean_all_sheets(excel_filepath)
     sheets_df_dict = {k.lower(): df for k, df in sheets_df_dict.items()}
-    if compliance_problem := _check_if_sheets_are_filled_and_exist(sheets_df_dict):
+    if compliance_problem := _do_all_checks(sheets_df_dict):
         raise InputError(compliance_problem.execute_error_protocol())
-    result = _process_file(sheets_df_dict)
-    if isinstance(result, ExcelFileProblem):
-        raise InputError(result.execute_error_protocol())
     print("json_header.xlsx file used to construct the json header.")
-    return result
+    return _process_file(sheets_df_dict)
+
+
+def _do_all_checks(df_dict: dict[str, pd.DataFrame]) -> ExcelFileProblem | None:
+    if sheet_result := _check_if_sheets_are_filled_and_exist(df_dict):
+        return sheet_result
+    sheet_problems: list[Problem] = []
+    if project_problems := _check_project_sheet(df_dict["project"]):
+        sheet_problems.append(project_problems)
+    if description_problem := _check_descriptions(df_dict["descrption"]):
+        sheet_problems.append(description_problem)
+    if keywords_problem := _check_keywords(df_dict["keywords"]):
+        sheet_problems.append(keywords_problem)
+    if (user_df := df_dict.get("users")) is not None:
+        if user_problems := _check_all_users(user_df):
+            sheet_problems.append(user_problems)
+    if prefix_problem := _check_prefixes(df_dict["prefixes"]):
+        sheet_problems.append(prefix_problem)
+    if sheet_problems:
+        return ExcelFileProblem("json_header.xlsx", sheet_problems)
+    return None
 
 
 def _check_if_sheets_are_filled_and_exist(df_dict: dict[str, pd.DataFrame]) -> ExcelFileProblem | None:
@@ -76,65 +92,7 @@ def _check_if_sheets_are_filled_and_exist(df_dict: dict[str, pd.DataFrame]) -> E
     return None
 
 
-def _process_file(df_dict: dict[str, pd.DataFrame]) -> ExcelFileProblem | FilledJsonHeader:
-    problems: list[Problem] = []
-    prefix_result = _extract_prefixes(df_dict["prefixes"])
-    if isinstance(prefix_result, ExcelSheetProblem):
-        problems.append(prefix_result)
-    project_result = _extract_project(df_dict)
-    if not isinstance(project_result, Project):
-        problems.extend(project_result)
-    if problems:
-        return ExcelFileProblem("json_header.xlsx", problems)
-    project = cast(Project, project_result)
-    prefixes = cast(Prefixes, prefix_result)
-    return FilledJsonHeader(project, prefixes)
-
-
-def _extract_prefixes(df: pd.DataFrame) -> ExcelSheetProblem | Prefixes:
-    if missing_cols := check_contains_required_columns(df, {"prefixes", "uri"}):
-        return ExcelSheetProblem("prefixes", [missing_cols])
-    if missing_vals := check_required_values_get_position_in_excel(df, ["prefixes", "uri"]):
-        return ExcelSheetProblem("prefixes", [missing_vals])
-    pref: dict[str, str] = dict(zip(df["prefixes"], df["uri"]))
-    pref = {k.rstrip(":"): v for k, v in pref.items()}
-    return Prefixes(pref)
-
-
-def _extract_project(df_dict: dict[str, pd.DataFrame]) -> list[ExcelSheetProblem] | Project:
-    problems = []
-    project_df = df_dict["project"]
-    if project_problem := _check_project_sheet(project_df):
-        problems.append(project_problem)
-    description_result = _extract_description(df_dict["description"])
-    if isinstance(description_result, ExcelSheetProblem):
-        problems.append(description_result)
-    keywords_result = _extract_keywords(df_dict["keywords"])
-    if isinstance(keywords_result, ExcelSheetProblem):
-        problems.append(keywords_result)
-    all_users = None
-    if (user_df := df_dict.get("users")) is not None:
-        if len(user_df) > 0:
-            user_result = _extract_users(user_df)
-            match user_result:
-                case ExcelSheetProblem():
-                    problems.append(user_result)
-                case _:
-                    all_users = user_result
-    if problems:
-        return problems
-    shortcode = str(project_df.loc[0, "shortcode"]).zfill(4)
-    return Project(
-        shortcode=shortcode,
-        shortname=str(project_df.loc[0, "shortname"]),
-        longname=str(project_df.loc[0, "longname"]),
-        descriptions=cast(Descriptions, description_result),
-        keywords=cast(Keywords, keywords_result),
-        users=all_users,
-    )
-
-
-def _check_project_sheet(df: pd.DataFrame) -> None | ExcelSheetProblem:
+def _check_project_sheet(df: pd.DataFrame) -> ExcelSheetProblem | None:
     problems: list[Problem] = []
     cols = {"shortcode", "shortname", "longname"}
     if missing_cols := check_contains_required_columns(df, cols):
@@ -148,76 +106,62 @@ def _check_project_sheet(df: pd.DataFrame) -> None | ExcelSheetProblem:
     return None
 
 
-def _extract_description(df: pd.DataFrame) -> ExcelSheetProblem | Descriptions:
+def _check_prefixes(df: pd.DataFrame) -> ExcelSheetProblem | None:
+    if missing_cols := check_contains_required_columns(df, {"prefixes", "uri"}):
+        return ExcelSheetProblem("prefixes", [missing_cols])
+    if missing_vals := check_required_values_get_position_in_excel(df, ["prefixes", "uri"]):
+        return ExcelSheetProblem("prefixes", [missing_vals])
+    return None
+
+
+def _check_descriptions(df: pd.DataFrame) -> ExcelSheetProblem | None:
     if len(df) > 1:
         return ExcelSheetProblem("description", [MoreThanOneRowProblem(len(df))])
     desc_columns = ["description_en", "description_de", "description_fr", "description_it", "description_rm"]
-    description_problem = ExcelSheetProblem("description", [AtLeastOneValueRequiredProblem(desc_columns, 1)])
-    if not (desc_col_dict := _get_description_cols(list(df.columns))):
-        return description_problem
-    desc_dict = {lang: str(value) for lang, column in desc_col_dict.items() if not pd.isna(value := df.loc[0, column])}
-    if not desc_dict:
-        return description_problem
-    return Descriptions(desc_dict)
+    extracted_desc = _extract_descriptions(df)
+    if not extracted_desc.descriptions:
+        return ExcelSheetProblem("description", [AtLeastOneValueRequiredProblem(desc_columns, 1)])
+    return None
 
 
-def _get_description_cols(cols: list[str]) -> dict[str, str]:
-    re_pat = r"^(\w*)(en|it|de|fr|rm)$"
-    return {found.group(2): x for x in cols if (found := regex.search(re_pat, x))}
-
-
-def _extract_keywords(df: pd.DataFrame) -> ExcelSheetProblem | Keywords:
+def _check_keywords(df: pd.DataFrame) -> ExcelSheetProblem | None:
     if "keywords" not in df.columns:
         return ExcelSheetProblem("keywords", [RequiredColumnMissingProblem(["keywords"])])
-    keywords = list({x for x in df["keywords"] if not pd.isna(x)})
-    if len(keywords) == 0:
+    extracted_keywords = _extract_keywords(df)
+    if len(extracted_keywords.keywords) == 0:
         return ExcelSheetProblem("keywords", [MissingValuesProblem([PositionInExcel(column="keywords")])])
-    return Keywords(keywords)
+    return None
 
 
-def _extract_users(df: pd.DataFrame) -> ExcelSheetProblem | Users:
+def _check_all_users(df: pd.DataFrame) -> ExcelSheetProblem | None:
+    if not len(df) > 0:
+        return None
     columns = ["username", "email", "givenname", "familyname", "password", "lang", "role"]
     if missing_cols := check_contains_required_columns(df, set(columns)):
         return ExcelSheetProblem("users", [missing_cols])
     if missing_vals := check_required_values_get_position_in_excel(df, columns):
         return ExcelSheetProblem("users", [missing_vals])
-    users = []
     problems: list[Problem] = []
     for i, row in df.iterrows():
-        result = _extract_one_user(row, int(str(i)))
-        if isinstance(result, User):
-            users.append(result)
-        else:
-            problems.extend(result)
+        if user_problem := _check_one_user(row, int(str(i))):
+            problems.extend(user_problem)
     if problems:
         return ExcelSheetProblem("users", problems)
-    return Users(users)
+    return None
 
 
-def _extract_one_user(row: pd.Series[str], row_number: int) -> User | list[InvalidExcelContentProblem]:
+def _check_one_user(row: pd.Series[str], row_number: int) -> list[InvalidExcelContentProblem]:
     problems: list[InvalidExcelContentProblem] = []
     if bad_language := _check_lang(row["lang"], row_number):
         problems.append(bad_language)
     if bad_email := _check_email(row["email"], row_number):
         problems.append(bad_email)
-    role_result = _get_role(row["role"], row_number)
-    if isinstance(role_result, InvalidExcelContentProblem):
-        problems.append(role_result)
-    if problems:
-        return problems
-    user_role = cast(UserRole, role_result)
-    return User(
-        username=row["username"],
-        email=row["email"],
-        givenName=row["givenname"],
-        familyName=row["familyname"],
-        password=row["password"],
-        lang=row["lang"],
-        role=user_role,
-    )
+    if bad_role := _check_role(row["role"], row_number):
+        problems.append(bad_role)
+    return problems
 
 
-def _check_lang(value: str, row_num: int) -> None | InvalidExcelContentProblem:
+def _check_lang(value: str, row_num: int) -> InvalidExcelContentProblem | None:
     lang_options = ["en", "de", "fr", "it", "rm"]
     if value.lower() in lang_options:
         return None
@@ -238,17 +182,88 @@ def _check_email(email: str, row_num: int) -> InvalidExcelContentProblem | None:
     return None
 
 
-def _get_role(value: str, row_num: int) -> UserRole | InvalidExcelContentProblem:
+def _check_role(value: str, row_num: int) -> InvalidExcelContentProblem | None:
+    possible_roles = ["projectadmin", "systemadmin", "projectmember"]
+    if value.lower() not in possible_roles:
+        return InvalidExcelContentProblem(
+            expected_content="One of: projectadmin, systemadmin, projectmember",
+            actual_content=value,
+            excel_position=PositionInExcel(column="role", row=row_num),
+        )
+    return None
+
+
+def _process_file(df_dict: dict[str, pd.DataFrame]) -> FilledJsonHeader:
+    prefixes = _extract_prefixes(df_dict["prefixes"])
+    project = _extract_project(df_dict)
+    return FilledJsonHeader(project, prefixes)
+
+
+def _extract_prefixes(df: pd.DataFrame) -> Prefixes:
+    pref: dict[str, str] = dict(zip(df["prefixes"], df["uri"]))
+    pref = {k.rstrip(":"): v for k, v in pref.items()}
+    return Prefixes(pref)
+
+
+def _extract_project(df_dict: dict[str, pd.DataFrame]) -> Project:
+    project_df = df_dict["project"]
+    extracted_description = _extract_descriptions(df_dict["description"])
+    extracted_keywords = _extract_keywords(df_dict["keywords"])
+    all_users = None
+    if (user_df := df_dict.get("users")) is not None:
+        if len(user_df) > 0:
+            all_users = _extract_users(user_df)
+    shortcode = str(project_df.loc[0, "shortcode"]).zfill(4)
+    return Project(
+        shortcode=shortcode,
+        shortname=str(project_df.loc[0, "shortname"]),
+        longname=str(project_df.loc[0, "longname"]),
+        descriptions=extracted_description,
+        keywords=extracted_keywords,
+        users=all_users,
+    )
+
+
+def _extract_descriptions(df: pd.DataFrame) -> Descriptions:
+    desc_col_dict = _get_description_cols(list(df.columns))
+    return Descriptions(
+        {lang: str(value) for lang, column in desc_col_dict.items() if not pd.isna(value := df.loc[0, column])}
+    )
+
+
+def _get_description_cols(cols: list[str]) -> dict[str, str]:
+    re_pat = r"^(\w*)(en|it|de|fr|rm)$"
+    return {found.group(2): x for x in cols if (found := regex.search(re_pat, x))}
+
+
+def _extract_keywords(df: pd.DataFrame) -> Keywords:
+    keywords = list({x for x in df["keywords"] if not pd.isna(x)})
+    return Keywords(keywords)
+
+
+def _extract_users(df: pd.DataFrame) -> Users:
+    users = [_extract_one_user(row) for _, row in df.iterrows()]
+    return Users(users)
+
+
+def _extract_one_user(row: pd.Series[str]) -> User:
+    user_role = _get_role(row["role"])
+    return User(
+        username=row["username"],
+        email=row["email"],
+        givenName=row["givenname"],
+        familyName=row["familyname"],
+        password=row["password"],
+        lang=row["lang"],
+        role=user_role,
+    )
+
+
+def _get_role(value: str) -> UserRole:
     match value.lower():
         case "projectadmin":
             return UserRole(project_admin=True)
         case "systemadmin":
             return UserRole(sys_admin=True)
-        case "projectmember":
-            return UserRole()
         case _:
-            return InvalidExcelContentProblem(
-                expected_content="One of: projectadmin, systemadmin, projectmember",
-                actual_content=value,
-                excel_position=PositionInExcel(column="role", row=row_num),
-            )
+            return UserRole()

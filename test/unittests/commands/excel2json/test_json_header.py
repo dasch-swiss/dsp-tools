@@ -5,7 +5,7 @@ from dsp_tools.commands.excel2json.json_header import _check_email
 from dsp_tools.commands.excel2json.json_header import _check_if_sheets_are_filled_and_exist
 from dsp_tools.commands.excel2json.json_header import _check_lang
 from dsp_tools.commands.excel2json.json_header import _check_project_sheet
-from dsp_tools.commands.excel2json.json_header import _extract_description
+from dsp_tools.commands.excel2json.json_header import _extract_descriptions
 from dsp_tools.commands.excel2json.json_header import _extract_keywords
 from dsp_tools.commands.excel2json.json_header import _extract_one_user
 from dsp_tools.commands.excel2json.json_header import _extract_prefixes
@@ -214,7 +214,7 @@ class TestExtractProjectChecks:
 
 class TestExtractDescription:
     def test_good(self, description_good: pd.DataFrame) -> None:
-        res = _extract_description(description_good)
+        res = _extract_descriptions(description_good)
         assert isinstance(res, Descriptions)
         assert res.descriptions == {"en": "english", "fr": "french"}
 
@@ -227,13 +227,13 @@ class TestExtractDescription:
                 "description_it": [pd.NA],
             }
         )
-        res = _extract_description(test_df)
+        res = _extract_descriptions(test_df)
         assert isinstance(res, Descriptions)
         assert res.descriptions == {"de": "german", "fr": "french"}
 
     def test_too_long(self) -> None:
         test_df = pd.DataFrame({"one": [1, 2]})
-        res = _extract_description(test_df)
+        res = _extract_descriptions(test_df)
         assert isinstance(res, ExcelSheetProblem)
         assert len(res.problems) == 1
         problem = res.problems[0]
@@ -242,7 +242,7 @@ class TestExtractDescription:
 
     def test_no_values_filled(self) -> None:
         test_df = pd.DataFrame({"description_en": [pd.NA], "random": ["value"]})
-        res = _extract_description(test_df)
+        res = _extract_descriptions(test_df)
         assert isinstance(res, ExcelSheetProblem)
         assert len(res.problems) == 1
         problem = res.problems[0]
@@ -253,7 +253,7 @@ class TestExtractDescription:
 
     def test_no_valid_col(self) -> None:
         test_df = pd.DataFrame({"description_es": [1]})
-        res = _extract_description(test_df)
+        res = _extract_descriptions(test_df)
         assert isinstance(res, ExcelSheetProblem)
         assert len(res.problems) == 1
         problem = res.problems[0]

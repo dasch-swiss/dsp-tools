@@ -433,16 +433,38 @@ class TestCheckProject:
 
 class TestCheckDescription:
     def test_good(self, description_good: pd.DataFrame) -> None:
-        assert 1 == 0
+        assert not _check_descriptions(description_good)
 
     def test_more_than_one_row(self, description_too_many_rows: pd.DataFrame) -> None:
-        assert 1 == 0
+        result = _check_descriptions(description_too_many_rows)
+        assert isinstance(result, ExcelSheetProblem)
+        assert result.sheet_name == "description"
+        assert len(result.problems) == 1
+        problem = result.problems[0]
+        assert isinstance(problem, MoreThanOneRowProblem)
+        assert problem.num_rows == 2
 
     def test_missing_values(self, description_missing_val: pd.DataFrame) -> None:
-        assert 1 == 0
+        result = _check_descriptions(description_missing_val)
+        assert isinstance(result, ExcelSheetProblem)
+        assert result.sheet_name == "description"
+        assert len(result.problems) == 1
+        problem = result.problems[0]
+        assert isinstance(problem, AtLeastOneValueRequiredProblem)
+        expected_cols = {"description_en", "description_de", "description_fr", "description_it", "description_rm"}
+        assert set(problem.columns) == expected_cols
+        assert problem.row_num == 2
 
     def test_missing_col(self, description_missing_col: pd.DataFrame) -> None:
-        assert 1 == 0
+        result = _check_descriptions(description_missing_col)
+        assert isinstance(result, ExcelSheetProblem)
+        assert result.sheet_name == "description"
+        assert len(result.problems) == 1
+        problem = result.problems[0]
+        assert isinstance(problem, AtLeastOneValueRequiredProblem)
+        expected_cols = {"description_en", "description_de", "description_fr", "description_it", "description_rm"}
+        assert set(problem.columns) == expected_cols
+        assert problem.row_num == 2
 
 
 class TestCheckKeywords:

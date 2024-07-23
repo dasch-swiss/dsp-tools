@@ -61,6 +61,8 @@ def _do_all_checks(df_dict: dict[str, pd.DataFrame]) -> ExcelFileProblem | None:
     if file_problems := _check_if_sheets_are_filled_and_exist(df_dict):
         return file_problems
     sheet_problems: list[Problem] = []
+    if prefix_problem := _check_prefixes(df_dict["prefixes"]):
+        sheet_problems.append(prefix_problem)
     if project_problems := _check_project_sheet(df_dict["project"]):
         sheet_problems.append(project_problems)
     if description_problem := _check_descriptions(df_dict["description"]):
@@ -70,8 +72,6 @@ def _do_all_checks(df_dict: dict[str, pd.DataFrame]) -> ExcelFileProblem | None:
     if (user_df := df_dict.get("users")) is not None:
         if user_problems := _check_all_users(user_df):
             sheet_problems.append(user_problems)
-    if prefix_problem := _check_prefixes(df_dict["prefixes"]):
-        sheet_problems.append(prefix_problem)
     if sheet_problems:
         return ExcelFileProblem("json_header.xlsx", sheet_problems)
     return None
@@ -92,6 +92,14 @@ def _check_if_sheets_are_filled_and_exist(df_dict: dict[str, pd.DataFrame]) -> E
     return None
 
 
+def _check_prefixes(df: pd.DataFrame) -> ExcelSheetProblem | None:
+    if missing_cols := check_contains_required_columns(df, {"prefixes", "uri"}):
+        return ExcelSheetProblem("prefixes", [missing_cols])
+    if missing_vals := check_required_values_get_position_in_excel(df, ["prefixes", "uri"]):
+        return ExcelSheetProblem("prefixes", [missing_vals])
+    return None
+
+
 def _check_project_sheet(df: pd.DataFrame) -> ExcelSheetProblem | None:
     problems: list[Problem] = []
     cols = {"shortcode", "shortname", "longname"}
@@ -103,14 +111,6 @@ def _check_project_sheet(df: pd.DataFrame) -> ExcelSheetProblem | None:
         return ExcelSheetProblem("project", problems)
     if missing_values := check_required_values_get_position_in_excel(df, list(cols)):
         return ExcelSheetProblem("project", [missing_values])
-    return None
-
-
-def _check_prefixes(df: pd.DataFrame) -> ExcelSheetProblem | None:
-    if missing_cols := check_contains_required_columns(df, {"prefixes", "uri"}):
-        return ExcelSheetProblem("prefixes", [missing_cols])
-    if missing_vals := check_required_values_get_position_in_excel(df, ["prefixes", "uri"]):
-        return ExcelSheetProblem("prefixes", [missing_vals])
     return None
 
 

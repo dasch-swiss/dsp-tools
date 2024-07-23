@@ -134,13 +134,13 @@ def keywords_missing_val() -> pd.DataFrame:
 def users_good() -> pd.DataFrame:
     return pd.DataFrame(
         {
-            "username": ["Alice", "Caterpillar"],
-            "email": ["alice@dasch.swiss", "caterpillar@dasch.swiss"],
-            "givenname": ["Alice Pleasance", "Caterpillar"],
-            "familyname": ["Liddell", "Wonderland"],
-            "password": ["alice4322", "alice7652"],
-            "lang": ["fr", "de"],
-            "role": ["systemadmin", "projectmember"],
+            "username": ["Alice", "Caterpillar", "WhiteRabbit"],
+            "email": ["alice@dasch.swiss", "caterpillar@dasch.swiss", "white.rabbit@dasch.swiss"],
+            "givenname": ["Alice Pleasance", "Caterpillar", "White"],
+            "familyname": ["Liddell", "Wonderland", "Rabbit"],
+            "password": ["alice4322", "alice7652", "alice8711"],
+            "lang": ["en", "de", "fr"],
+            "role": ["systemadmin", "projectmember", "projectmember"],
         }
     )
 
@@ -190,8 +190,38 @@ def users_wrong_lang() -> pd.DataFrame:
 
 
 @pytest.fixture()
-def users_wrong_email() -> pd.DataFrame:
-    return pd.DataFrame(
+def user_good() -> pd.Series:
+    return pd.Series(
+        {
+            "username": ["Alice"],
+            "email": ["alice@dasch.swiss"],
+            "givenname": ["Alice Pleasance"],
+            "familyname": ["Liddell"],
+            "password": ["alice7652"],
+            "lang": ["en"],
+            "role": ["systemadmin"],
+        }
+    )
+
+
+@pytest.fixture()
+def user_wrong_lang() -> pd.Series:
+    return pd.Series(
+        {
+            "username": ["Alice"],
+            "email": ["alice@dasch.swiss"],
+            "givenname": ["Alice Pleasance"],
+            "familyname": ["Liddell"],
+            "password": ["alice7652"],
+            "lang": ["other"],
+            "role": ["systemadmin"],
+        }
+    )
+
+
+@pytest.fixture()
+def user_wrong_email() -> pd.Series:
+    return pd.Series(
         {
             "username": ["Alice"],
             "email": ["not an email"],
@@ -205,8 +235,8 @@ def users_wrong_email() -> pd.DataFrame:
 
 
 @pytest.fixture()
-def users_wrong_role() -> pd.DataFrame:
-    return pd.DataFrame(
+def user_wrong_role() -> pd.Series:
+    return pd.Series(
         {
             "username": ["Alice"],
             "email": ["alice@dasch.swiss"],
@@ -330,91 +360,103 @@ class TestCheckIfSheetsExist:
 
 
 class TestCheckPrefix:
-    def test_good(self) -> None:
+    def test_good(self, prefixes_good: pd.DataFrame) -> None:
         assert 1 == 0
 
-    def test_missing_value(self) -> None:
+    def test_missing_value(self, prefixes_missing_val: pd.DataFrame) -> None:
         assert 1 == 0
 
-    def test_missing_column(self) -> None:
+    def test_missing_column(self, prefixes_missing_col: pd.DataFrame) -> None:
         assert 1 == 0
 
 
 class TestCheckProject:
-    def test_good(self) -> None:
+    def test_good(self, project_good_no_zero: pd.DataFrame) -> None:
         assert 1 == 0
 
-    def test_missing_col(self) -> None:
+    def test_missing_col(self, project_missing_col: pd.DataFrame) -> None:
         assert 1 == 0
 
-    def test_more_than_one_row(self) -> None:
+    def test_more_than_one_row(self, project_too_many_rows: pd.DataFrame) -> None:
         assert 1 == 0
 
-    def test_missing_values(self) -> None:
+    def test_missing_values(self, project_missing_val: pd.DataFrame) -> None:
         assert 1 == 0
 
 
 class TestCheckDescription:
-    def test_good(self) -> None:
+    def test_good(self, description_good: pd.DataFrame) -> None:
         assert 1 == 0
 
-    def test_more_than_one_row(self) -> None:
+    def test_more_than_one_row(self, description_too_many_rows: pd.DataFrame) -> None:
         assert 1 == 0
 
-    def test_missing_values(self) -> None:
+    def test_missing_values(self, description_missing_val: pd.DataFrame) -> None:
+        assert 1 == 0
+
+    def test_missing_col(self, description_missing_col: pd.DataFrame) -> None:
         assert 1 == 0
 
 
 class TestCheckKeywords:
-    def test_good(self) -> None:
+    def test_good(self, keywords_good: pd.DataFrame) -> None:
         assert 1 == 0
 
-    def test_missing_column(self) -> None:
+    def test_missing_column(self, keywords_missing_col: pd.DataFrame) -> None:
         assert 1 == 0
 
-    def test_missing_value(self) -> None:
+    def test_missing_value(self, keywords_missing_val: pd.DataFrame) -> None:
         assert 1 == 0
 
 
 class TestCheckUsers:
-    def test_good(self) -> None:
+    def test_good(self, users_good: pd.DataFrame) -> None:
         assert 1 == 0
 
-    def test_missing_column(self) -> None:
+    def test_missing_column(self, users_missing_col: pd.DataFrame) -> None:
         assert 1 == 0
 
-    def test_missing_value(self) -> None:
+    def test_missing_value(self, users_missing_val: pd.DataFrame) -> None:
         assert 1 == 0
 
 
 class TestCheckOneUser:
-    def test_good(self) -> None:
+    def test_good(self, user_good: pd.Series) -> None:
         assert 1 == 0
 
-    def test_bad_lang(self) -> None:
+    def test_bad_lang(self, user_wrong_lang: pd.Series) -> None:
         assert 1 == 0
 
-    def test_bad_email(self) -> None:
+    def test_bad_email(self, user_wrong_email: pd.Series) -> None:
         assert 1 == 0
 
-    def test_bad_role(self) -> None:
+    def test_bad_role(self, user_wrong_role: pd.Series) -> None:
         assert 1 == 0
 
 
 class TestProcessFile:
-    def test_no_user(self) -> None:
+    def test_no_user(
+        self,
+        prefixes_good: pd.DataFrame,
+        project_good_no_zero: pd.DataFrame,
+        description_good: pd.DataFrame,
+        keywords_good: pd.DataFrame,
+    ) -> None:
         assert 1 == 0
 
-    def test_with_user(self) -> None:
+    def test_with_user(
+        self,
+        prefixes_good: pd.DataFrame,
+        project_good_no_zero: pd.DataFrame,
+        description_good: pd.DataFrame,
+        keywords_good: pd.DataFrame,
+        users_good: pd.DataFrame,
+    ) -> None:
         assert 1 == 0
 
 
-class TestExtractPrefixes:
-    def test_with_colon(self) -> None:
-        assert 1 == 0
-
-    def test_no_colon(self) -> None:
-        assert 1 == 0
+def test_extract_prefixes(prefixes_good: pd.DataFrame) -> None:
+    assert 1 == 0
 
 
 class TestExtractProject:
@@ -431,32 +473,28 @@ class TestExtractProject:
         assert 1 == 0
 
 
-class TestExtractDescriptions:
-    def test_mixed_col_names(self) -> None:
-        assert 1 == 0
-
-    def test_standard_cols(self) -> None:
-        assert 1 == 0
+def test_extract_descriptions(description_good: pd.DataFrame) -> None:
+    assert 1 == 0
 
 
-def test_extract_keywords() -> None:
+def test_extract_keywords(keywords_good: pd.DataFrame) -> None:
     assert 1 == 0
 
 
 class TestUsers:
-    def test_extract_users(self) -> None:
+    def test_extract_users(self, users_good: pd.DataFrame) -> None:
         assert 1 == 0
 
-    def test_extract_one_user(self) -> None:
+    def test_extract_one_user(self, users_good: pd.DataFrame) -> None:
         assert 1 == 0
 
-    def test_projectadmin(self) -> None:
+    def test_projectadmin(self, users_good: pd.DataFrame) -> None:
         assert 1 == 0
 
-    def test_systemadmin(self) -> None:
+    def test_systemadmin(self, users_good: pd.DataFrame) -> None:
         assert 1 == 0
 
-    def test_other(self) -> None:
+    def test_other(self, users_good: pd.DataFrame) -> None:
         assert 1 == 0
 
 

@@ -58,12 +58,12 @@ def get_json_header(excel_filepath: Path) -> JsonHeader:
 
 
 def _do_all_checks(df_dict: dict[str, pd.DataFrame]) -> ExcelFileProblem | None:
-    if sheet_result := _check_if_sheets_are_filled_and_exist(df_dict):
-        return sheet_result
+    if file_problems := _check_if_sheets_are_filled_and_exist(df_dict):
+        return file_problems
     sheet_problems: list[Problem] = []
     if project_problems := _check_project_sheet(df_dict["project"]):
         sheet_problems.append(project_problems)
-    if description_problem := _check_descriptions(df_dict["descrption"]):
+    if description_problem := _check_descriptions(df_dict["description"]):
         sheet_problems.append(description_problem)
     if keywords_problem := _check_keywords(df_dict["keywords"]):
         sheet_problems.append(keywords_problem)

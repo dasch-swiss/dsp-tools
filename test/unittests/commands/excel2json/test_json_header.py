@@ -117,7 +117,7 @@ def description_missing_val() -> pd.DataFrame:
 
 @pytest.fixture()
 def keywords_good() -> pd.DataFrame:
-    pd.DataFrame({"keywords": ["one", pd.NA, "three"]})
+    return pd.DataFrame({"keywords": ["one", pd.NA, "three"]})
 
 
 @pytest.fixture()
@@ -243,15 +243,41 @@ class TestCheckAll:
             "project": pd.DataFrame({"one": [1]}),
             "description": pd.DataFrame({"one": [1]}),
         }
-        result = _check_if_sheets_are_filled_and_exist(test_dict)
+        result = _do_all_checks(test_dict)
         assert isinstance(result, ExcelFileProblem)
         assert len(result.problems) == 1
         problem = result.problems[0]
         assert isinstance(problem, EmptySheetsProblem)
         assert set(problem.sheet_names) == {"keywords", "prefixes"}
 
-    def test_user_problems(self) -> None:
-        assert 1 == 0
+    def test_user_problems(
+        self,
+        prefixes_good: pd.DataFrame,
+        project_good_no_zero: pd.DataFrame,
+        description_good: pd.DataFrame,
+        keywords_good: pd.DataFrame,
+        users_wrong_lang: pd.DataFrame,
+    ) -> None:
+        test_dict = {
+            "prefixes": prefixes_good,
+            "project": project_good_no_zero,
+            "description": description_good,
+            "keywords": keywords_good,
+            "users": users_wrong_lang,
+        }
+        result = _do_all_checks(test_dict)
+        assert isinstance(result, ExcelFileProblem)
+        assert len(result.problems) == 1
+        sheet_problem = result.problems[0]
+        assert isinstance(sheet_problem, ExcelSheetProblem)
+        assert sheet_problem.sheet_name == "users"
+        assert len(sheet_problem.problems) == 1
+        user_problem = sheet_problem.problems[0]
+        assert isinstance(user_problem, InvalidExcelContentProblem)
+        assert user_problem.expected_content == "One of: en, de, fr, it, rm"
+        assert user_problem.actual_content == "other"
+        assert user_problem.excel_position.column == "lang"
+        assert user_problem.excel_position.row == 2
 
 
 class TestCheckIfSheetsExist:

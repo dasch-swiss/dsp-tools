@@ -143,7 +143,7 @@ def _check_all_users(df: pd.DataFrame) -> ExcelSheetProblem | None:
         return ExcelSheetProblem("users", [missing_vals])
     problems: list[Problem] = []
     for i, row in df.iterrows():
-        if user_problem := _check_one_user(row, int(str(i))):
+        if user_problem := _check_one_user(row, int(str(i)) + 2):
             problems.extend(user_problem)
     if problems:
         return ExcelSheetProblem("users", problems)

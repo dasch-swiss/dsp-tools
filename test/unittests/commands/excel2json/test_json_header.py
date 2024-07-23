@@ -469,13 +469,28 @@ class TestCheckDescription:
 
 class TestCheckKeywords:
     def test_good(self, keywords_good: pd.DataFrame) -> None:
-        assert 1 == 0
+        assert not _check_keywords(keywords_good)
 
     def test_missing_column(self, keywords_missing_col: pd.DataFrame) -> None:
-        assert 1 == 0
+        result = _check_keywords(keywords_missing_col)
+        assert isinstance(result, ExcelSheetProblem)
+        assert result.sheet_name == "keywords"
+        assert len(result.problems) == 1
+        problem = result.problems[0]
+        assert isinstance(problem, RequiredColumnMissingProblem)
+        assert problem.columns == ["keywords"]
 
     def test_missing_value(self, keywords_missing_val: pd.DataFrame) -> None:
-        assert 1 == 0
+        result = _check_keywords(keywords_missing_val)
+        assert isinstance(result, ExcelSheetProblem)
+        assert result.sheet_name == "keywords"
+        assert len(result.problems) == 1
+        problem = result.problems[0]
+        assert isinstance(problem, MissingValuesProblem)
+        assert len(problem.locations) == 1
+        location = problem.locations[0]
+        assert location.column == "keywords"
+        assert not location.row
 
 
 class TestCheckUsers:

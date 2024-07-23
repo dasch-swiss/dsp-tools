@@ -120,7 +120,7 @@ def _check_descriptions(df: pd.DataFrame) -> ExcelSheetProblem | None:
     desc_columns = ["description_en", "description_de", "description_fr", "description_it", "description_rm"]
     extracted_desc = _extract_descriptions(df)
     if not extracted_desc.descriptions:
-        return ExcelSheetProblem("description", [AtLeastOneValueRequiredProblem(desc_columns, 1)])
+        return ExcelSheetProblem("description", [AtLeastOneValueRequiredProblem(desc_columns, 2)])
     return None
 
 

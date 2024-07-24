@@ -12,7 +12,6 @@ from dsp_tools.commands.excel2json.models.input_error import DuplicateSheetProbl
 from dsp_tools.commands.excel2json.models.input_error import DuplicatesInColumnProblem
 from dsp_tools.commands.excel2json.models.input_error import ExcelFileProblem
 from dsp_tools.commands.excel2json.models.input_error import InvalidSheetNameProblem
-from dsp_tools.commands.excel2json.models.input_error import MissingValuesProblem
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import RequiredColumnMissingProblem
 from dsp_tools.commands.excel2json.models.ontology import LanguageDict
@@ -132,9 +131,9 @@ def check_column_for_duplicate(df: pd.DataFrame, to_check_column: str) -> None |
         return None
 
 
-def check_required_values_get_position_in_excel(
-    df: pd.DataFrame, required_values_columns: list[str]
-) -> MissingValuesProblem | None:
+def find_missing_required_values(
+    df: pd.DataFrame, required_values_columns: list[str], sheetname: str | None = None
+) -> list[PositionInExcel] | None:
     """
     If there are empty cells in the specified columns,
     It specifies the column and row numbers of all missing values and
@@ -143,17 +142,18 @@ def check_required_values_get_position_in_excel(
     Args:
         df: pd.DataFrame that is checked
         required_values_columns: a list of column names that may not contain empty cells
+        sheetname: optional name of the Excel sheet
 
     Returns:
-        MissingValuesProblem if there are empty cells
-        None if all required cells are filled
+        Locations of missing values
+        None if all are filled
     """
     if missing_values := check_required_values(df, required_values_columns):
         locations = []
         row_nums = get_wrong_row_numbers(missing_values)
         for col, nums in row_nums.items():
-            locations.extend([PositionInExcel(column=col, row=x) for x in nums])
-        return MissingValuesProblem(locations)
+            locations.extend([PositionInExcel(sheet=sheetname, column=col, row=x) for x in nums])
+        return locations
     return None
 
 

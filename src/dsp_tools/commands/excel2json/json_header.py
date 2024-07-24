@@ -26,7 +26,7 @@ from dsp_tools.commands.excel2json.models.json_header import User
 from dsp_tools.commands.excel2json.models.json_header import UserRole
 from dsp_tools.commands.excel2json.models.json_header import Users
 from dsp_tools.commands.excel2json.utils import check_contains_required_columns
-from dsp_tools.commands.excel2json.utils import check_required_values_get_position_in_excel
+from dsp_tools.commands.excel2json.utils import find_missing_required_values
 from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.uri_util import is_uri
@@ -97,8 +97,8 @@ def _check_prefixes(df: pd.DataFrame) -> ExcelSheetProblem | None:
     if missing_cols := check_contains_required_columns(df, {"prefixes", "uri"}):
         return ExcelSheetProblem("prefixes", [missing_cols])
     problems: list[Problem] = []
-    if missing_vals := check_required_values_get_position_in_excel(df, ["prefixes", "uri"]):
-        problems.append(missing_vals)
+    if missing_vals := find_missing_required_values(df, ["prefixes", "uri"]):
+        problems.append(MissingValuesProblem(missing_vals))
     if not (uri_series := pd.Series([is_uri(x) for x in df["uri"].tolist()])).all():
         problematic_uri = df["uri"][~uri_series]
         problematic_vals: list[Problem] = [
@@ -124,8 +124,8 @@ def _check_project_sheet(df: pd.DataFrame) -> ExcelSheetProblem | None:
         problems.append(MoreThanOneRowProblem(len(df)))
     if problems:
         return ExcelSheetProblem("project", problems)
-    if missing_values := check_required_values_get_position_in_excel(df, list(cols)):
-        return ExcelSheetProblem("project", [missing_values])
+    if missing_values := find_missing_required_values(df, list(cols)):
+        return ExcelSheetProblem("project", [MissingValuesProblem(missing_values)])
     return None
 
 
@@ -154,8 +154,8 @@ def _check_all_users(df: pd.DataFrame) -> ExcelSheetProblem | None:
     columns = ["username", "email", "givenname", "familyname", "password", "lang", "role"]
     if missing_cols := check_contains_required_columns(df, set(columns)):
         return ExcelSheetProblem("users", [missing_cols])
-    if missing_vals := check_required_values_get_position_in_excel(df, columns):
-        return ExcelSheetProblem("users", [missing_vals])
+    if missing_vals := find_missing_required_values(df, columns):
+        return ExcelSheetProblem("users", [MissingValuesProblem(missing_vals)])
     problems: list[Problem] = []
     for i, row in df.iterrows():
         if user_problem := _check_one_user(row, int(str(i)) + 2):

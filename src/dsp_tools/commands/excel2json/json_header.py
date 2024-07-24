@@ -29,6 +29,7 @@ from dsp_tools.commands.excel2json.utils import check_contains_required_columns
 from dsp_tools.commands.excel2json.utils import check_required_values_get_position_in_excel
 from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
 from dsp_tools.models.exceptions import InputError
+from dsp_tools.utils.uri_util import is_uri
 
 
 def get_json_header(excel_filepath: Path) -> JsonHeader:
@@ -95,8 +96,22 @@ def _check_if_sheets_are_filled_and_exist(df_dict: dict[str, pd.DataFrame]) -> E
 def _check_prefixes(df: pd.DataFrame) -> ExcelSheetProblem | None:
     if missing_cols := check_contains_required_columns(df, {"prefixes", "uri"}):
         return ExcelSheetProblem("prefixes", [missing_cols])
+    problems: list[Problem] = []
     if missing_vals := check_required_values_get_position_in_excel(df, ["prefixes", "uri"]):
-        return ExcelSheetProblem("prefixes", [missing_vals])
+        problems.append(missing_vals)
+    if not (uri_series := pd.Series([is_uri(x) for x in df["uri"].tolist()])).all():
+        problematic_uri = df["uri"][~uri_series]
+        problematic_vals: list[Problem] = [
+            InvalidExcelContentProblem(
+                expected_content="A valid URI",
+                actual_content=value,
+                excel_position=PositionInExcel(column="uri", row=int(str(i)) + 2),
+            )
+            for i, value in problematic_uri.items()
+        ]
+        problems.extend(problematic_vals)
+    if problems:
+        return ExcelSheetProblem("prefixes", problems)
     return None
 
 
@@ -242,7 +257,10 @@ def _extract_keywords(df: pd.DataFrame) -> Keywords:
 
 
 def _extract_users(df: pd.DataFrame) -> Users:
-    users = [_extract_one_user(row) for _, row in df.iterrows()]
+    users = []
+    for _, row in df.iterrows():
+        str_row: pd.Series[str] = row
+        users.append(_extract_one_user(str_row))
     return Users(users)
 
 

@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import cast
+
 import pandas as pd
 import pytest
 
@@ -9,9 +13,13 @@ from dsp_tools.commands.excel2json.json_header import _check_one_user
 from dsp_tools.commands.excel2json.json_header import _check_prefixes
 from dsp_tools.commands.excel2json.json_header import _check_project_sheet
 from dsp_tools.commands.excel2json.json_header import _do_all_checks
+from dsp_tools.commands.excel2json.json_header import _extract_descriptions
+from dsp_tools.commands.excel2json.json_header import _extract_keywords
+from dsp_tools.commands.excel2json.json_header import _extract_one_user
 from dsp_tools.commands.excel2json.json_header import _extract_prefixes
 from dsp_tools.commands.excel2json.json_header import _extract_project
-from dsp_tools.commands.excel2json.json_header import _process_file, _extract_descriptions
+from dsp_tools.commands.excel2json.json_header import _extract_users
+from dsp_tools.commands.excel2json.json_header import _process_file
 from dsp_tools.commands.excel2json.models.input_error import AtLeastOneValueRequiredProblem
 from dsp_tools.commands.excel2json.models.input_error import EmptySheetsProblem
 from dsp_tools.commands.excel2json.models.input_error import ExcelFileProblem
@@ -25,8 +33,9 @@ from dsp_tools.commands.excel2json.models.json_header import Descriptions
 from dsp_tools.commands.excel2json.models.json_header import Keywords
 from dsp_tools.commands.excel2json.models.json_header import Prefixes
 from dsp_tools.commands.excel2json.models.json_header import Project
+from dsp_tools.commands.excel2json.models.json_header import User
+from dsp_tools.commands.excel2json.models.json_header import UserRole
 from dsp_tools.commands.excel2json.models.json_header import Users
-from test.unittests.commands.excel2json.test_json_header_fixtures import prefixes_good, prefixes_wrong_val, prefixes_missing_val, prefixes_missing_col, project_missing_val, project_missing_col, project_good_missing_zero, project_good_no_zero, project_too_many_rows, user_good, users_good, users_missing_val, users_missing_col, user_wrong_lang, users_wrong_lang, user_wrong_email, user_wrong_role, description_good, description_missing_col, description_missing_val, keywords_good, keywords_missing_col, keywords_missing_val
 
 
 class TestCheckAll:
@@ -165,7 +174,16 @@ class TestCheckPrefix:
         assert problem.columns == ["prefixes"]
 
     def test_wrong_value(self, prefixes_wrong_val: pd.DataFrame) -> None:
-        assert _check_prefixes(prefixes_wrong_val)
+        result = _check_prefixes(prefixes_wrong_val)
+        assert isinstance(result, ExcelSheetProblem)
+        assert result.sheet_name == "prefixes"
+        assert len(result.problems) == 1
+        problem = result.problems[0]
+        assert isinstance(problem, InvalidExcelContentProblem)
+        assert problem.expected_content == "A valid URI"
+        assert problem.actual_content == "not a uri"
+        assert problem.excel_position.column == "uri"
+        assert problem.excel_position.row == 3
 
 
 class TestCheckProject:
@@ -293,10 +311,10 @@ class TestCheckUsers:
 
 
 class TestCheckOneUser:
-    def test_good(self, user_good: pd.Series) -> None:
+    def test_good(self, user_good: pd.Series[str]) -> None:
         assert not _check_one_user(user_good, 2)
 
-    def test_bad_lang(self, user_wrong_lang: pd.Series) -> None:
+    def test_bad_lang(self, user_wrong_lang: pd.Series[str]) -> None:
         result = _check_one_user(user_wrong_lang, 2)
         assert len(result) == 1
         problem = result[0]
@@ -306,7 +324,7 @@ class TestCheckOneUser:
         assert problem.excel_position.column == "lang"
         assert problem.excel_position.row == 2
 
-    def test_bad_email(self, user_wrong_email: pd.Series) -> None:
+    def test_bad_email(self, user_wrong_email: pd.Series[str]) -> None:
         result = _check_one_user(user_wrong_email, 2)
         assert len(result) == 1
         problem = result[0]
@@ -316,7 +334,7 @@ class TestCheckOneUser:
         assert problem.excel_position.column == "email"
         assert problem.excel_position.row == 2
 
-    def test_bad_role(self, user_wrong_role: pd.Series) -> None:
+    def test_bad_role(self, user_wrong_role: pd.Series[str]) -> None:
         result = _check_one_user(user_wrong_role, 2)
         assert len(result) == 1
         problem = result[0]
@@ -419,28 +437,62 @@ class TestExtractProject:
 def test_extract_descriptions(description_good: pd.DataFrame) -> None:
     result = _extract_descriptions(description_good)
     assert isinstance(result, Descriptions)
-    assert result.descriptions =={"en": "english", "fr": "french"}
+    assert result.descriptions == {"en": "english", "fr": "french"}
 
 
 def test_extract_keywords(keywords_good: pd.DataFrame) -> None:
-    assert 1 == 0
+    result = _extract_keywords(keywords_good)
+    assert isinstance(result, Keywords)
+    assert set(result.keywords) == {"one", "three"}
 
 
 class TestUsers:
     def test_extract_users(self, users_good: pd.DataFrame) -> None:
-        assert 1 == 0
-
-    def test_extract_one_user(self, users_good: pd.DataFrame) -> None:
-        assert 1 == 0
-
-    def test_projectadmin(self, users_good: pd.DataFrame) -> None:
-        assert 1 == 0
+        result = _extract_users(users_good)
+        assert isinstance(result, Users)
+        assert len(result.users) == 3
 
     def test_systemadmin(self, users_good: pd.DataFrame) -> None:
-        assert 1 == 0
+        str_row = cast("pd.Series[str]", users_good.loc[0, :])
+        result = _extract_one_user(str_row)
+        assert isinstance(result, User)
+        assert result.username == "Alice"
+        assert result.email == "alice@dasch.swiss"
+        assert result.givenName == "Alice Pleasance"
+        assert result.familyName == "Liddell"
+        assert result.password == "alice4322"
+        assert result.lang == "en"
+        assert isinstance(result.role, UserRole)
+        assert result.role.sys_admin
+        assert not result.role.project_admin
 
-    def test_other(self, users_good: pd.DataFrame) -> None:
-        assert 1 == 0
+    def test_projectadmin(self, users_good: pd.DataFrame) -> None:
+        str_row = cast("pd.Series[str]", users_good.loc[1, :])
+        result = _extract_one_user(str_row)
+        assert isinstance(result, User)
+        assert result.username == "Caterpillar"
+        assert result.email == "caterpillar@dasch.swiss"
+        assert result.givenName == "Caterpillar"
+        assert result.familyName == "Wonderland"
+        assert result.password == "alice7652"
+        assert result.lang == "de"
+        assert isinstance(result.role, UserRole)
+        assert result.role.project_admin
+        assert not result.role.sys_admin
+
+    def test_projectmember(self, users_good: pd.DataFrame) -> None:
+        str_row = cast("pd.Series[str]", users_good.loc[2, :])
+        result = _extract_one_user(str_row)
+        assert isinstance(result, User)
+        assert result.username == "WhiteRabbit"
+        assert result.email == "white.rabbit@dasch.swiss"
+        assert result.givenName == "White"
+        assert result.familyName == "Rabbit"
+        assert result.password == "alice8711"
+        assert result.lang == "fr"
+        assert isinstance(result.role, UserRole)
+        assert not result.role.project_admin
+        assert not result.role.sys_admin
 
 
 if __name__ == "__main__":

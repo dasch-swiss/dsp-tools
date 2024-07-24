@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pandas as pd
 import pytest
 
@@ -111,7 +113,7 @@ def users_good() -> pd.DataFrame:
             "familyname": ["Liddell", "Wonderland", "Rabbit"],
             "password": ["alice4322", "alice7652", "alice8711"],
             "lang": ["en", "de", "fr"],
-            "role": ["systemadmin", "projectmember", "projectmember"],
+            "role": ["systemadmin", "projectadmin", "projectmember"],
         }
     )
 
@@ -161,7 +163,7 @@ def users_wrong_lang() -> pd.DataFrame:
 
 
 @pytest.fixture()
-def user_good() -> pd.Series:
+def user_good() -> pd.Series[str]:
     return pd.Series(
         {
             "username": "Alice",
@@ -176,7 +178,7 @@ def user_good() -> pd.Series:
 
 
 @pytest.fixture()
-def user_wrong_lang() -> pd.Series:
+def user_wrong_lang() -> pd.Series[str]:
     return pd.Series(
         {
             "username": "Alice",
@@ -191,7 +193,7 @@ def user_wrong_lang() -> pd.Series:
 
 
 @pytest.fixture()
-def user_wrong_email() -> pd.Series:
+def user_wrong_email() -> pd.Series[str]:
     return pd.Series(
         {
             "username": "Alice",
@@ -206,7 +208,7 @@ def user_wrong_email() -> pd.Series:
 
 
 @pytest.fixture()
-def user_wrong_role() -> pd.Series:
+def user_wrong_role() -> pd.Series[str]:
     return pd.Series(
         {
             "username": "Alice",

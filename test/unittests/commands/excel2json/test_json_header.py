@@ -1,16 +1,17 @@
 import pandas as pd
 import pytest
 
-from dsp_tools.commands.excel2json.json_header import _do_all_checks, _process_file, _extract_prefixes
+from dsp_tools.commands.excel2json.json_header import _check_all_users
+from dsp_tools.commands.excel2json.json_header import _check_descriptions
 from dsp_tools.commands.excel2json.json_header import _check_if_sheets_are_filled_and_exist
-from dsp_tools.commands.excel2json.json_header import (
-    _check_keywords,
-    _check_descriptions,
-    _check_one_user,
-    _check_all_users,
-    _check_prefixes,
-)
+from dsp_tools.commands.excel2json.json_header import _check_keywords
+from dsp_tools.commands.excel2json.json_header import _check_one_user
+from dsp_tools.commands.excel2json.json_header import _check_prefixes
 from dsp_tools.commands.excel2json.json_header import _check_project_sheet
+from dsp_tools.commands.excel2json.json_header import _do_all_checks
+from dsp_tools.commands.excel2json.json_header import _extract_prefixes
+from dsp_tools.commands.excel2json.json_header import _extract_project
+from dsp_tools.commands.excel2json.json_header import _process_file
 from dsp_tools.commands.excel2json.models.input_error import AtLeastOneValueRequiredProblem
 from dsp_tools.commands.excel2json.models.input_error import EmptySheetsProblem
 from dsp_tools.commands.excel2json.models.input_error import ExcelFileProblem
@@ -23,33 +24,9 @@ from dsp_tools.commands.excel2json.models.input_error import RequiredColumnMissi
 from dsp_tools.commands.excel2json.models.json_header import Descriptions
 from dsp_tools.commands.excel2json.models.json_header import Keywords
 from dsp_tools.commands.excel2json.models.json_header import Prefixes
+from dsp_tools.commands.excel2json.models.json_header import Project
 from dsp_tools.commands.excel2json.models.json_header import Users
-from unittests.commands.excel2json.test_json_header_fixtures import (
-    prefixes_good,
-    prefixes_missing_col,
-    prefixes_missing_val,
-    prefixes_wrong_val,
-    project_good_missing_zero,
-    project_good_no_zero,
-    project_missing_col,
-    project_missing_val,
-    project_too_many_rows,
-    description_good,
-    description_too_many_rows,
-    description_missing_col,
-    description_missing_val,
-    keywords_good,
-    keywords_missing_col,
-    keywords_missing_val,
-    users_good,
-    users_missing_col,
-    users_missing_val,
-    users_wrong_lang,
-    user_good,
-    user_wrong_lang,
-    user_wrong_email,
-    user_wrong_role,
-)
+from test.unittests.commands.excel2json.test_json_header_fixtures import prefixes_good, prefixes_wrong_val, prefixes_missing_val, prefixes_missing_col, project_missing_val, project_missing_col, project_good_missing_zero, project_good_no_zero, project_too_many_rows, user_good, users_good, users_missing_val, users_missing_col, user_wrong_lang, users_wrong_lang, user_wrong_email, user_wrong_role, description_good, description_missing_col, description_missing_val, keywords_good, keywords_missing_col, keywords_missing_val
 
 
 class TestCheckAll:
@@ -366,13 +343,7 @@ class TestProcessFile:
         }
         result = _process_file(test_dict)
         assert isinstance(result.prefixes, Prefixes)
-        project = result.project
-        assert project.shortcode == "1111"
-        assert project.shortname == "name"
-        assert project.longname == "long"
-        assert isinstance(project.descriptions, Descriptions)
-        assert isinstance(project.keywords, Keywords)
-        assert not project.users
+        assert isinstance(result.project, Project)
 
     def test_with_user(
         self,
@@ -391,13 +362,7 @@ class TestProcessFile:
         }
         result = _process_file(test_dict)
         assert isinstance(result.prefixes, Prefixes)
-        project = result.project
-        assert project.shortcode == "0011"
-        assert project.shortname == "name"
-        assert project.longname == "long"
-        assert isinstance(project.descriptions, Descriptions)
-        assert isinstance(project.keywords, Keywords)
-        assert isinstance(project.users, Users)
+        assert isinstance(result.project, Project)
 
 
 def test_extract_prefixes(prefixes_good: pd.DataFrame) -> None:
@@ -407,17 +372,48 @@ def test_extract_prefixes(prefixes_good: pd.DataFrame) -> None:
 
 
 class TestExtractProject:
-    def test_with_users(self) -> None:
-        assert 1 == 0
+    def test_with_users(
+        self,
+        project_good_missing_zero: pd.DataFrame,
+        description_good: pd.DataFrame,
+        keywords_good: pd.DataFrame,
+        users_good: pd.DataFrame,
+    ) -> None:
+        test_dict = {
+            "project": project_good_missing_zero,
+            "description": description_good,
+            "keywords": keywords_good,
+            "users": users_good,
+        }
+        result = _extract_project(test_dict)
+        assert isinstance(result, Project)
+        assert result.shortcode == "0011"
+        assert result.shortname == "name"
+        assert result.longname == "long"
+        assert isinstance(result.descriptions, Descriptions)
+        assert isinstance(result.keywords, Keywords)
+        assert isinstance(result.users, Users)
 
-    def test_no_users(self) -> None:
-        assert 1 == 0
-
-    def test_shortcode_with_leading_zero(self) -> None:
-        assert 1 == 0
-
-    def test_shortcode_without_leading_zero(self) -> None:
-        assert 1 == 0
+    def test_no_users(
+        self,
+        prefixes_good: pd.DataFrame,
+        project_good_no_zero: pd.DataFrame,
+        description_good: pd.DataFrame,
+        keywords_good: pd.DataFrame,
+    ) -> None:
+        test_dict = {
+            "prefixes": prefixes_good,
+            "project": project_good_no_zero,
+            "description": description_good,
+            "keywords": keywords_good,
+        }
+        result = _extract_project(test_dict)
+        assert result.shortcode == "1111"
+        assert result.shortname == "name"
+        assert result.longname == "long"
+        assert isinstance(result.descriptions, Descriptions)
+        assert isinstance(result.keywords, Keywords)
+        assert not result.users
 
 
 def test_extract_descriptions(description_good: pd.DataFrame) -> None:

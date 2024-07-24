@@ -90,6 +90,25 @@ class ExcelSheetProblem:
 
 
 @dataclass(frozen=True)
+class EmptySheetsProblem:
+    """This class contains information if sheets that must contain information are empty."""
+
+    sheet_names: list[str]
+
+    def execute_error_protocol(self) -> str:
+        """
+        This function initiates all the steps for successful problem communication with the user.
+
+        Returns:
+            message for the error
+        """
+        return (
+            f"The following sheet(s) are mandatory and may not be empty:{list_separator}"
+            f"{list_separator.join(sorted(self.sheet_names))}"
+        )
+
+
+@dataclass(frozen=True)
 class MissingValuesProblem:
     """This class contains information if a value is missing in a location"""
 
@@ -226,15 +245,16 @@ class MoreThanOneSheetProblem:
 
 
 @dataclass(frozen=True)
-class MandatorySheetMissingProblem:
+class MandatorySheetsMissingProblem:
     """This class contains information if the excel is missing a mandatory sheet."""
 
-    mandatory_sheet: str
+    mandatory_sheet: list[str]
     existing_sheets: list[str]
 
     def execute_error_protocol(self) -> str:
         return (
-            f"A sheet with the name '{self.mandatory_sheet}' is mandatory in this Excel.\n"
+            f"The following mandatory sheet(s) are missing in this Excel:{list_separator}"
+            f"{list_separator.join(sorted(self.mandatory_sheet))}"
             f"The following sheets are in the file:{list_separator}"
             f"{list_separator.join(sorted(self.existing_sheets))}"
         )
@@ -257,6 +277,42 @@ class ResourceSheetNotListedProblem:
             f"All the sheets in the Excel must be listed in the 'name' column of the 'classes' sheet.\n"
             f"The following sheet(s) are not listed in the column:{list_separator}"
             f"{list_separator.join(self.missing_names)}"
+        )
+
+
+@dataclass(frozen=True)
+class MoreThanOneRowProblem:
+    """This class contains information if a sheet has more than one row."""
+
+    num_rows: int
+
+    def execute_error_protocol(self) -> str:
+        """
+        This function initiates all the steps for successful problem communication with the user.
+
+        Returns:
+            message for the error
+        """
+        return f"This sheet may only have one row. The provided sheet has {self.num_rows} rows."
+
+
+@dataclass(frozen=True)
+class AtLeastOneValueRequiredProblem:
+    """This class contains information if at least one entry in a group of columns must be filled."""
+
+    columns: list[str]
+    row_num: int
+
+    def execute_error_protocol(self) -> str:
+        """
+        This function initiates all the steps for successful problem communication with the user.
+
+        Returns:
+            message for the error
+        """
+        return (
+            f"At least one value is required in the columns: {', '.join(sorted(self.columns))}\n"
+            f"Row {self.row_num} does not contain any values in those columns."
         )
 
 

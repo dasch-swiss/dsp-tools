@@ -9,13 +9,13 @@ SCHEMA = "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_t
 
 @dataclass
 class JsonHeader(Protocol):
-    def make(self) -> dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         raise NotImplementedError
 
 
 @dataclass
 class EmptyJsonHeader(JsonHeader):
-    def make(self) -> dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "prefixes": {"": ""},
             "$schema": SCHEMA,
@@ -34,11 +34,11 @@ class FilledJsonHeader(JsonHeader):
     project: Project
     prefixes: Prefixes | None
 
-    def make(self) -> dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         header_dict: dict[str, Any] = {}
         if self.prefixes:
-            header_dict["prefixes"] = self.prefixes.get()
-        header_dict.update({"$schema": SCHEMA, "project": self.project.get()})
+            header_dict["prefixes"] = self.prefixes.to_dict()
+        header_dict.update({"$schema": SCHEMA, "project": self.project.to_dict()})
         return header_dict
 
 
@@ -46,7 +46,7 @@ class FilledJsonHeader(JsonHeader):
 class Prefixes:
     prefixes: dict[str, str]
 
-    def get(self) -> dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return self.prefixes
 
 
@@ -59,47 +59,41 @@ class Project:
     keywords: Keywords
     users: Users | None
 
-    def get(self) -> dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         proj_dict: dict[str, Any] = {
             "shortcode": self.shortcode,
             "shortname": self.shortname,
             "longname": self.longname,
-            "descriptions": self.descriptions.get(),
-            "keywords": self.keywords.get(),
+            "descriptions": self.descriptions.to_dict(),
+            "keywords": self.keywords.to_dict(),
         }
         if self.users:
-            proj_dict["users"] = self.users.get()
+            proj_dict["users"] = self.users.to_dict()
         return proj_dict
 
 
 @dataclass
 class Descriptions:
-    descriptions: list[Description]
+    descriptions: dict[str, str]
 
-    def get(self) -> dict[str, str]:
-        return {x.lang: x.text for x in self.descriptions}
-
-
-@dataclass
-class Description:
-    lang: str
-    text: str
+    def to_dict(self) -> dict[str, str]:
+        return self.descriptions
 
 
 @dataclass
 class Keywords:
     keywords: list[str]
 
-    def get(self) -> list[str]:
-        return self.keywords
+    def to_dict(self) -> list[str]:
+        return sorted(self.keywords)
 
 
 @dataclass
 class Users:
     users: list[User]
 
-    def get(self) -> list[dict[str, Any]]:
-        return [x.get() for x in self.users]
+    def to_dict(self) -> list[dict[str, Any]]:
+        return [x.to_dict() for x in self.users]
 
 
 @dataclass
@@ -110,11 +104,9 @@ class User:
     familyName: str
     password: str
     lang: str
-    project_member: bool = False
-    project_admin: bool = False
-    sys_admin: bool = False
+    role: UserRole
 
-    def get(self) -> dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         usr_dict = {
             "username": self.username,
             "email": self.email,
@@ -123,12 +115,19 @@ class User:
             "password": self.password,
             "lang": self.lang,
             "status": True,
-        }
-        if self.sys_admin:
-            usr_dict["groups"] = ["SystemAdmin"]
-            usr_dict["projects"] = [":admin", ":member"]
-        elif self.project_member:
-            usr_dict["projects"] = [":member"]
-        elif self.project_admin:
-            usr_dict["projects"] = [":admin", ":member"]
+        } | self.role.to_dict()
         return usr_dict
+
+
+@dataclass
+class UserRole:
+    project_admin: bool = False
+    sys_admin: bool = False
+
+    def to_dict(self) -> dict[str, list[str]]:
+        if self.sys_admin:
+            return {"groups": ["SystemAdmin"], "projects": [":admin", ":member"]}
+        elif self.project_admin:
+            return {"projects": [":admin", ":member"]}
+        else:
+            return {"projects": [":member"]}

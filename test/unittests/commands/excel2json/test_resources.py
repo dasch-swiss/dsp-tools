@@ -9,7 +9,7 @@ from pandas.testing import assert_frame_equal
 from dsp_tools.commands.excel2json import resources as e2j
 from dsp_tools.commands.excel2json.models.input_error import ExcelFileProblem
 from dsp_tools.commands.excel2json.models.input_error import ExcelSheetProblem
-from dsp_tools.commands.excel2json.models.input_error import MandatorySheetMissingProblem
+from dsp_tools.commands.excel2json.models.input_error import MandatorySheetsMissingProblem
 from dsp_tools.commands.excel2json.models.input_error import MissingValuesProblem
 from dsp_tools.commands.excel2json.models.input_error import RequiredColumnMissingProblem
 from dsp_tools.commands.excel2json.models.input_error import ResourceSheetNotListedProblem
@@ -198,9 +198,9 @@ def test_failing_validate_excel_file() -> None:
     assert isinstance(res, ExcelFileProblem)
     assert len(res.problems) == 1
     missing = res.problems[0]
-    assert isinstance(missing, MandatorySheetMissingProblem)
+    assert isinstance(missing, MandatorySheetsMissingProblem)
     assert missing.existing_sheets == ["Frenchclasses"]
-    assert missing.mandatory_sheet == "classes"
+    assert missing.mandatory_sheet == ["classes"]
 
 
 class TestValidateClassesExcelSheet:

@@ -11,7 +11,7 @@ from dsp_tools.commands.excel2json.json_header import _check_project_sheet
 from dsp_tools.commands.excel2json.json_header import _do_all_checks
 from dsp_tools.commands.excel2json.json_header import _extract_prefixes
 from dsp_tools.commands.excel2json.json_header import _extract_project
-from dsp_tools.commands.excel2json.json_header import _process_file
+from dsp_tools.commands.excel2json.json_header import _process_file, _extract_descriptions
 from dsp_tools.commands.excel2json.models.input_error import AtLeastOneValueRequiredProblem
 from dsp_tools.commands.excel2json.models.input_error import EmptySheetsProblem
 from dsp_tools.commands.excel2json.models.input_error import ExcelFileProblem
@@ -417,7 +417,9 @@ class TestExtractProject:
 
 
 def test_extract_descriptions(description_good: pd.DataFrame) -> None:
-    assert 1 == 0
+    result = _extract_descriptions(description_good)
+    assert isinstance(result, Descriptions)
+    assert result.descriptions =={"en": "english", "fr": "french"}
 
 
 def test_extract_keywords(keywords_good: pd.DataFrame) -> None:

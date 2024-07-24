@@ -25,10 +25,9 @@ from dsp_tools.commands.excel2json.models.ontology import ResourceCardinality
 from dsp_tools.commands.excel2json.utils import add_optional_columns
 from dsp_tools.commands.excel2json.utils import check_column_for_duplicate
 from dsp_tools.commands.excel2json.utils import check_contains_required_columns
-from dsp_tools.commands.excel2json.utils import check_required_values
+from dsp_tools.commands.excel2json.utils import find_missing_required_values
 from dsp_tools.commands.excel2json.utils import get_comments
 from dsp_tools.commands.excel2json.utils import get_labels
-from dsp_tools.commands.excel2json.utils import get_wrong_row_numbers
 from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
 from dsp_tools.models.exceptions import InputError
 
@@ -111,10 +110,8 @@ def _validate_classes_excel_sheet(classes_df: pd.DataFrame, sheet_names: set[str
     names_listed = set(classes_df["name"].tolist())
     if not sheet_names.issubset(names_listed):
         problems.append(ResourceSheetNotListedProblem(sheet_names - names_listed))
-    if missing_values := check_required_values(classes_df, required_cols):
-        row_nums = get_wrong_row_numbers(missing_values)
-        for col, nums in row_nums.items():
-            problems.extend([PositionInExcel("classes", col, x) for x in nums])
+    if missing_values := find_missing_required_values(classes_df, required_cols):
+        problems.extend(missing_values)
     if duplicate_check := check_column_for_duplicate(classes_df, "name"):
         problems.append(duplicate_check)
     if problems:
@@ -133,10 +130,8 @@ def _validate_individual_class_sheets(class_df_dict: dict[str, pd.DataFrame]) ->
         return [ExcelSheetProblem(sheet, [missing]) for sheet, missing in missing_required_columns.items()]
     problem_list: list[PositionInExcel] = []
     for sheet_name, df in class_df_dict.items():
-        if missing_dict := check_required_values(df, required_cols):
-            row_nums = get_wrong_row_numbers(missing_dict)
-            for col, nums in row_nums.items():
-                problem_list.extend([PositionInExcel(sheet_name, col, x) for x in nums])
+        if missing_values := find_missing_required_values(df, required_cols, sheet_name):
+            problem_list.extend(missing_values)
     if problem_list:
         return [MissingValuesProblem(problem_list)]
     return []

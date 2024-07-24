@@ -98,7 +98,7 @@ def _check_prefixes(df: pd.DataFrame) -> ExcelSheetProblem | None:
         return ExcelSheetProblem("prefixes", [missing_cols])
     problems: list[Problem] = []
     if missing_vals := find_missing_required_values(df, ["prefixes", "uri"]):
-        problems.append(missing_vals)
+        problems.append(MissingValuesProblem(missing_vals))
     if not (uri_series := pd.Series([is_uri(x) for x in df["uri"].tolist()])).all():
         problematic_uri = df["uri"][~uri_series]
         problematic_vals: list[Problem] = [
@@ -125,7 +125,7 @@ def _check_project_sheet(df: pd.DataFrame) -> ExcelSheetProblem | None:
     if problems:
         return ExcelSheetProblem("project", problems)
     if missing_values := find_missing_required_values(df, list(cols)):
-        return ExcelSheetProblem("project", [missing_values])
+        return ExcelSheetProblem("project", [MissingValuesProblem(missing_values)])
     return None
 
 
@@ -155,7 +155,7 @@ def _check_all_users(df: pd.DataFrame) -> ExcelSheetProblem | None:
     if missing_cols := check_contains_required_columns(df, set(columns)):
         return ExcelSheetProblem("users", [missing_cols])
     if missing_vals := find_missing_required_values(df, columns):
-        return ExcelSheetProblem("users", [missing_vals])
+        return ExcelSheetProblem("users", [MissingValuesProblem(missing_vals)])
     problems: list[Problem] = []
     for i, row in df.iterrows():
         if user_problem := _check_one_user(row, int(str(i)) + 2):

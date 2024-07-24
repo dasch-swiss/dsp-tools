@@ -52,7 +52,7 @@ def test_to_dict_json_header_invalid_empty_sheet() -> None:
         "The sheet 'description' has the following problems:\n\n"
         "At least one value is required in the columns: "
         "description_de, description_en, description_fr, description_it, description_rm\n"
-        "Row 1 does not contain any values in those columns."
+        "Row 2 does not contain any values in those columns."
     )
     with pytest.raises(InputError, match=expected):
         get_json_header(test_path)

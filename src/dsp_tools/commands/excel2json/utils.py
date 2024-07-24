@@ -132,9 +132,7 @@ def check_column_for_duplicate(df: pd.DataFrame, to_check_column: str) -> None |
         return None
 
 
-def check_required_values_get_position_in_excel(
-    df: pd.DataFrame, required_values_columns: list[str]
-) -> MissingValuesProblem | None:
+def find_missing_required_values(df: pd.DataFrame, required_values_columns: list[str]) -> MissingValuesProblem | None:
     """
     If there are empty cells in the specified columns,
     It specifies the column and row numbers of all missing values and

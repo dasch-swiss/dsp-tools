@@ -128,12 +128,12 @@ def _validate_individual_class_sheets(class_df_dict: dict[str, pd.DataFrame]) ->
     }
     if missing_required_columns:
         return [ExcelSheetProblem(sheet, [missing]) for sheet, missing in missing_required_columns.items()]
-    problem_list: list[PositionInExcel] = []
+    missing_values_position: list[PositionInExcel] = []
     for sheet_name, df in class_df_dict.items():
-        if missing_values := find_missing_required_values(df, required_cols, sheet_name):
-            problem_list.extend(missing_values)
-    if problem_list:
-        return [MissingValuesProblem(problem_list)]
+        if missing_vals_position := find_missing_required_values(df, required_cols, sheet_name):
+            missing_values_position.extend(missing_vals_position)
+    if missing_values_position:
+        return [MissingValuesProblem(missing_values_position)]
     return []
 
 

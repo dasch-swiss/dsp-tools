@@ -834,11 +834,11 @@
         <interval-prop name="hasSegmentBounds">
             <interval permissions="prop-default">0.1:0.234</interval>
         </interval-prop>
-        <text-prop name="hasComment">
-            <text encoding="xml" permissions="prop-default">Comment of video segment</text>
-        </text-prop>
         <text-prop name="hasTitle">
             <text encoding="utf8" permissions="prop-default">Title of video segment</text>
+        </text-prop>
+        <text-prop name="hasComment">
+            <text encoding="xml" permissions="prop-default">Comment of video segment</text>
         </text-prop>
         <text-prop name="hasDescription">
             <text encoding="xml" permissions="prop-default">Description of video segment</text>

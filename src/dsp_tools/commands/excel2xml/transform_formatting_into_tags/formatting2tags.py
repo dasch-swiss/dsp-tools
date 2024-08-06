@@ -15,10 +15,10 @@ from dsp_tools.commands.excel2xml.transform_formatting_into_tags.models import X
 
 
 def formatting_to_tags(excel_file: Path, sheets: list[str] | None = None, columns: list[str] | None = None) -> None:
-    workbook = load_workbook(excel_file)
+    workbook = load_workbook(excel_file, keep_vba=True, rich_text=True)
     files = _parse_excel_as_xml(excel_file)
     reformatted_workbook = _reformat_workbook(files, workbook, sheets, columns)
-    # TODO: save file
+    reformatted_workbook.save(excel_file.parent / f"{excel_file.stem}-with-tags.xlsx")
 
 
 def _parse_excel_as_xml(excel_path: Path) -> XMLParsedExcelFile:

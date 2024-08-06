@@ -8,24 +8,24 @@ from lxml import etree
 
 @dataclass
 class ExcelSheet:
-    name: str
-    filename: str
-    cells: list[Cell]
+    sheet_name: str
+    xml_filename: str
+    cells: list[InputCell]
 
 
 @dataclass
-class Cell(Protocol): ...
+class InputCell(Protocol): ...
 
 
 @dataclass
-class InputCell(Cell):
+class InputCellRaw(InputCell):
     location_str: str
     content_xml: etree._Element
     hyperlink: etree._Element | None = None
 
 
 @dataclass
-class InputCellCleaned(Cell):
+class InputCellCleaned(InputCell):
     column: str
     df_row: int
     content_xml: etree._Element
@@ -33,7 +33,8 @@ class InputCellCleaned(Cell):
 
 
 @dataclass
-class FormattingTransformedCell(Cell):
+class FormattingTransformedCell:
+    sheet_name: str
     column: str
     df_row: int
     content: str

@@ -827,7 +827,7 @@
     </region>
 
     <!-- video segment -->
-    <video-segment label="Segment of video_thing_1" id="video_segment_0" permissions="res-default">
+    <video-segment label="Segment of video_thing_1" id="video_segment_0" permissions="res-default"  creation_date="2024-08-06T07:00:01Z">
         <resptr-prop name="isSegmentOf">
             <resptr permissions="prop-default">video_thing_1</resptr>
         </resptr-prop>
@@ -876,6 +876,18 @@
         <resptr-prop name="relatesTo">
             <resptr permissions="prop-default">video_segment_0</resptr>
         </resptr-prop>
+    </audio-segment>
+
+    <audio-segment label="Another segment of audio_thing_1" id="audio_segment_1" permissions="res-default">
+        <resptr-prop name="isSegmentOf">
+            <resptr permissions="prop-default">audio_thing_1</resptr>
+        </resptr-prop>
+        <interval-prop name="hasSegmentBounds">
+            <interval permissions="prop-default">60:120</interval>
+        </interval-prop>
+        <text-prop name="hasDescription">
+            <text encoding="xml" permissions="prop-default">Description of audio segment</text>
+        </text-prop>
     </audio-segment>
 
     <!-- reference a resource class from another ontology defined in the same JSON project file than default-ontology-->

@@ -827,7 +827,7 @@
     </region>
 
     <!-- video segment -->
-    <video-segment label="Segment of video_thing_1" id="video_segment_0" permissions="res-default">
+    <video-segment label="Segment of video_thing_1" id="video_segment_0" permissions="res-default" creation_date="2024-08-06T07:00:01Z">
         <resptr-prop name="isSegmentOf">
             <resptr permissions="prop-default">video_thing_1</resptr>
         </resptr-prop>

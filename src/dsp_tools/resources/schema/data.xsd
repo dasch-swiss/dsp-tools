@@ -566,7 +566,6 @@
         <xs:attribute name="label" type="xs:string" use="required"/>
         <xs:attribute name="id" type="xs:ID" use="required"/>
         <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
-        <xs:attribute name="creation_date" type="xs:dateTime" use="optional"/>
     </xs:complexType>
 
     <!-- audio-segment tag -->

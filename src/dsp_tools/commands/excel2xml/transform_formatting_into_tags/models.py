@@ -4,16 +4,18 @@ from dataclasses import dataclass
 
 from lxml import etree
 
+from dsp_tools.commands.excel2xml.transform_formatting_into_tags.models_standoff import CellChunk
+
 
 @dataclass
-class ParsedExcelFile:
+class XMLParsedExcelFile:
     workbook: etree._Element
     shared_strings: etree._Element
-    sheets: list[ParsedExcelSheet]
+    sheets: list[XMLParsedExcelSheet]
 
 
 @dataclass
-class ParsedExcelSheet:
+class XMLParsedExcelSheet:
     name: str
     content: etree._Element
 
@@ -43,4 +45,4 @@ class SharedStringExcelPosition:
 class FormattingTransformedCell:
     sheet_name: str
     location_str: str
-    content: str
+    content: CellChunk

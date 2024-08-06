@@ -157,7 +157,7 @@ def test_default_timeout() -> None:
         method(route="/v2/resources")
         expected_params: RequestParameters = con._try_network_action.call_args.args[0]
         assert expected_params.timeout == con.timeout_put_post, f"Method '{method.__name__}' failed"
-    for method in (con.get, con.delete):
+    for method in (con.get, con.delete):  # type: ignore[assignment]
         method = cast(Callable[..., Any], method)
         method(route="/v2/resources")
         expected_params = con._try_network_action.call_args.args[0]

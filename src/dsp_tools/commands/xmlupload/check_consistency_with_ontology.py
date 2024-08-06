@@ -200,7 +200,7 @@ def _check_correctness_all_text_value_encodings(root: etree._Element, text_prop_
         A string communicating the problem, if there are none the string is empty.
     """
     text_values_in_data = _get_all_ids_and_props_and_encodings_from_root(root)
-    invalid_text_values = [x for x in text_values_in_data if not _check_correctness_of_one_prop(x, text_prop_look_up)]
+    invalid_text_values = [x for x in text_values_in_data if _check_correctness_of_one_prop(x, text_prop_look_up)]
     if not invalid_text_values:
         return ""
     msg, df = InvalidTextValueEncodings(invalid_text_values).execute_problem_protocol()

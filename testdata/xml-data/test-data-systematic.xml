@@ -852,6 +852,18 @@
         </resptr-prop>
     </video-segment>
 
+    <video-segment label="Segment of video_thing_1" id="video_segment_1" permissions="res-default">
+        <resptr-prop name="relatesTo">
+            <resptr permissions="prop-default">audio_segment_0</resptr>
+        </resptr-prop>
+        <resptr-prop name="isSegmentOf">
+            <resptr permissions="prop-default">video_thing_1</resptr>
+        </resptr-prop>
+        <interval-prop name="hasSegmentBounds">
+            <interval permissions="prop-default">0.1:0.234</interval>
+        </interval-prop>
+    </video-segment>
+
     <!-- audio segment -->
     <audio-segment label="Segment of audio_thing_1" id="audio_segment_0" permissions="res-default">
         <resptr-prop name="isSegmentOf">

@@ -1,11 +1,12 @@
 import pytest
 from lxml import etree
 
+from dsp_tools.commands.excel2xml.transform_formatting_into_tags.formatting2tags import _extract_all_string_cells_info
 from dsp_tools.commands.excel2xml.transform_formatting_into_tags.formatting2tags import (
     _extract_all_string_locations_one_sheet,
 )
 from dsp_tools.commands.excel2xml.transform_formatting_into_tags.formatting2tags import _extract_cell_number_to_link_id
-from dsp_tools.commands.excel2xml.transform_formatting_into_tags.formatting2tags import _extract_link_id_to_url, _extract_all_string_cells_info
+from dsp_tools.commands.excel2xml.transform_formatting_into_tags.formatting2tags import _extract_link_id_to_url
 from dsp_tools.commands.excel2xml.transform_formatting_into_tags.formatting2tags import _get_hyperlink_filename
 from dsp_tools.commands.excel2xml.transform_formatting_into_tags.formatting2tags import _get_hyperlink_mapper
 from dsp_tools.commands.excel2xml.transform_formatting_into_tags.formatting2tags import _get_worksheet_name

@@ -23,7 +23,7 @@ def formatting_to_tags(excel_path: Path, sheets: list[str] | None = None, column
     reformatted_workbook.save(excel_path.parent / f"{excel_path.stem}-with-tags.xlsx")
 
 
-def _parse_excel_as_xml(excel_path):
+def _parse_excel_as_xml(excel_path: Path) -> XMLParsedExcelFile:
     with ZipFile(excel_path, "r") as zip_ref:
         workbook_xml = etree.fromstring(zip_ref.read("xl/workbook.xml"))
         shared_strings_xml = etree.fromstring(zip_ref.read("xl/sharedStrings.xml"))

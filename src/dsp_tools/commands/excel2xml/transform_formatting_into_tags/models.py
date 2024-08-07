@@ -44,11 +44,14 @@ class XMLParsedExcelSheet:
         file_name: name of the sheet file in the format of "sheet1.xml"
         sheet_name: name of the sheet
         content: the parsed content of the file
+        sheet_relations: all the targets of the hyperlinks are listed here
+                         if there are no links, this sheet does not exist
     """
 
     file_name: str
     sheet_name: str
     content: etree._Element
+    sheet_relations: etree._Element | None
 
 
 @dataclass

@@ -27,19 +27,54 @@ def _parse_excel_as_xml(excel_path):
     with ZipFile(excel_path, "r") as zip_ref:
         workbook_xml = etree.fromstring(zip_ref.read("xl/workbook.xml"))
         shared_strings_xml = etree.fromstring(zip_ref.read("xl/sharedStrings.xml"))
-        sheet_files = [x for x in zip_ref.NameToInfo if regex.search(r"xl\/worksheets\/sheet\d+\.xml", x)]
-        sheets_parsed = [etree.fromstring(zip_ref.read(x)) for x in sheet_files]
-        all_sheets = [
-            XMLParsedExcelSheet(file_name=name.split("/")[-1], sheet_name="", content=sheet)
-            for name, sheet in zip(sheet_files, sheets_parsed)
-        ]
+        all_sheets = _parse_sheets(zip_ref)
         return XMLParsedExcelFile(shared_strings=shared_strings_xml, sheets=all_sheets, workbook=workbook_xml)
+
+
+def _parse_sheets(zip_ref: ZipFile) -> list[XMLParsedExcelSheet]:
+    sheet_dict = {
+        new_name: etree.fromstring(zip_ref.read(filepath))
+        for name, filepath in zip_ref.NameToInfo.items()
+        if (new_name := _get_worksheet_name(name))
+    }
+    hyperlink_dict = {
+        new_name: etree.fromstring(zip_ref.read(filepath))
+        for name, filepath in zip_ref.NameToInfo.items()
+        if (new_name := _get_hyperlink_filenames(name))
+    }
+    all_sheets = [
+        XMLParsedExcelSheet(
+            file_name=filename, sheet_name="", content=parsed_sheet, sheet_relations=hyperlink_dict.get(filename)
+        )
+        for filename, parsed_sheet in sheet_dict.items()
+    ]
+    return all_sheets
+
+
+def _get_worksheet_name(filepath: str) -> str | None:
+    if not (found := regex.search(r"xl\/worksheets\/sheet\d+\.xml", filepath)):
+        return None
+    return found.group(0).split("/")[-1]
+
+
+def _get_hyperlink_filenames(filepath: str) -> str | None:
+    if not (found := regex.search(r"xl\/worksheets\/_rels\/sheet\d+\.xml\.rels", filepath)):
+        return None
+    return found.group(0).split("/")[-1].rstrip(".rels")
 
 
 def _clean_excel_as_xml(files: XMLParsedExcelFile) -> XMLParsedExcelFile:
     workbook = _remove_namespaces(files.workbook)
     shared_strings = _remove_namespaces(files.shared_strings)
-    sheets = [XMLParsedExcelSheet(x.file_name, x.sheet_name, _remove_namespaces(x.content)) for x in files.sheets]
+    sheets = [
+        XMLParsedExcelSheet(
+            file_name=x.file_name,
+            sheet_name=x.sheet_name,
+            content=_remove_namespaces(x.content),
+            sheet_relations=_remove_namespaces(x.sheet_relations) if x.sheet_relations else None,
+        )
+        for x in files.sheets
+    ]
     mapped_sheet_names = _map_sheet_names(workbook, sheets)
     return XMLParsedExcelFile(shared_strings=shared_strings, sheets=mapped_sheet_names)
 
@@ -64,7 +99,12 @@ def _map_sheet_names(workbook: etree._Element, sheets: list[XMLParsedExcelSheet]
     for sheet in sheets:
         new_name = sheet_name_mapper[sheet.file_name]
         mapped_name_sheets.append(
-            XMLParsedExcelSheet(file_name=sheet.file_name, sheet_name=new_name, content=sheet.content)
+            XMLParsedExcelSheet(
+                file_name=sheet.file_name,
+                sheet_name=new_name,
+                content=sheet.content,
+                sheet_relations=sheet.sheet_relations,
+            )
         )
     return mapped_name_sheets
 
@@ -93,6 +133,14 @@ def _combine_information_from_xml_files(files: XMLParsedExcelFile) -> list[Share
 
 
 def _extract_all_string_locations(sheets: list[XMLParsedExcelSheet]) -> list[CellInformation]:
+    raise NotImplementedError
+
+
+def _extract_all_string_locations_one_sheet(sheet: XMLParsedExcelSheet) -> list[CellInformation]:
+    raise NotImplementedError
+
+
+def _get_hyperlink_mapper(sheet: XMLParsedExcelSheet) -> dict[str, str]:
     raise NotImplementedError
 
 

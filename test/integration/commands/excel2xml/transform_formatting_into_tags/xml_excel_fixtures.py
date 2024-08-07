@@ -6,6 +6,7 @@ from lxml import etree
 from dsp_tools.commands.excel2xml.transform_formatting_into_tags.formatting2tags import _clean_excel_as_xml
 from dsp_tools.commands.excel2xml.transform_formatting_into_tags.formatting2tags import _parse_excel_as_xml
 from dsp_tools.commands.excel2xml.transform_formatting_into_tags.models import XMLParsedExcelFile
+from dsp_tools.commands.excel2xml.transform_formatting_into_tags.models import XMLParsedExcelSheet
 
 
 @pytest.fixture()
@@ -25,10 +26,20 @@ def minimal_excel() -> XMLParsedExcelFile:
 
 
 @pytest.fixture()
+def sheet_no_links(minimal_excel: XMLParsedExcelFile) -> XMLParsedExcelSheet:
+    return next((x for x in minimal_excel.sheets if x.file_name == "sheet1.xml"))
+
+
+@pytest.fixture()
+def sheet_with_links(minimal_excel: XMLParsedExcelFile) -> XMLParsedExcelSheet:
+    return next((x for x in minimal_excel.sheets if x.file_name == "sheet2.xml"))
+
+
+@pytest.fixture()
 def one_string_cell() -> etree._Element:
     return etree.fromstring("""
-        <c r="B13" t="s">
-            <v>10</v>
+        <c r="A2" t="s">
+            <v>0</v>
         </c>
     """)
 
@@ -36,8 +47,7 @@ def one_string_cell() -> etree._Element:
 @pytest.fixture()
 def one_non_string_cell() -> etree._Element:
     return etree.fromstring("""
-        <c r="B5" s="7">
-            <v>0.99</v>
+        <c r="A2">
+            <v>1</v>
         </c>
     """)
-

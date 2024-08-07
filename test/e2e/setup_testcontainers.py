@@ -153,7 +153,7 @@ def _get_ingest_container(network: Network, version: str) -> DockerContainer:
         .with_env("DB_JDBC_URL", "jdbc:sqlite:/opt/db/ingest.sqlite")
         .with_volume_mapping(SIPI_IMAGES, "/opt/images", "rw")
         .with_volume_mapping(TMP_INGEST, "/opt/temp", "rw")
-        .with_volume_mapping(INGEST_DB, "/opt/db")
+        .with_volume_mapping(INGEST_DB, "/opt/db", "rw")
     )
     ingest.start()
     wait_for_logs(ingest, "Started dsp-ingest")

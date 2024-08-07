@@ -40,7 +40,7 @@ def _parse_sheets(zip_ref: ZipFile) -> list[XMLParsedExcelSheet]:
     hyperlink_dict = {
         new_name: etree.fromstring(zip_ref.read(filepath))
         for name, filepath in zip_ref.NameToInfo.items()
-        if (new_name := _get_hyperlink_filenames(name))
+        if (new_name := _get_hyperlink_filename(name))
     }
     all_sheets = [
         XMLParsedExcelSheet(
@@ -57,10 +57,10 @@ def _get_worksheet_name(filepath: str) -> str | None:
     return found.group(0).split("/")[-1]
 
 
-def _get_hyperlink_filenames(filepath: str) -> str | None:
+def _get_hyperlink_filename(filepath: str) -> str | None:
     if not (found := regex.search(r"xl\/worksheets\/_rels\/sheet\d+\.xml\.rels", filepath)):
         return None
-    return found.group(0).split("/")[-1].rstrip(".rels")
+    return found.group(0).split("/")[-1].replace(".rels", "")
 
 
 def _clean_excel_as_xml(files: XMLParsedExcelFile) -> XMLParsedExcelFile:

@@ -16,19 +16,19 @@ class XMLParsedExcelFile:
     This class contains the parsed files that are relevant.
 
     Args:
-        workbook: "workbook.xml"
-                  Metadata of the file.
-                  Relevant because it maps the custom sheet names to the sheet IDs
         shared_strings: "sharedStrings.xml"
                         The content of the cells that are formatted as strings.
                         The location of the cells is not included.
                         The order of the string elements is based on which cell was last edited.
         sheets: a list of all the sheets in the Excel
+        workbook: "workbook.xml"
+                  Metadata of the file.
+                  Relevant because it maps the custom sheet names to the sheet IDs
     """
 
-    workbook: etree._Element
     shared_strings: etree._Element
     sheets: list[XMLParsedExcelSheet]
+    workbook: etree._Element | None = None
 
 
 @dataclass
@@ -41,11 +41,13 @@ class XMLParsedExcelSheet:
     the location of which is saved in an attribute of the element.
 
     Args:
-        name: name of the sheet, either the custom name or in the format of "sheet1.xml"
+        file_name: name of the sheet file in the format of "sheet1.xml"
+        sheet_name: name of the sheet
         content: the parsed content of the file
     """
 
-    name: str
+    file_name: str
+    sheet_name: str
     content: etree._Element
 
 

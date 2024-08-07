@@ -15,20 +15,12 @@ from dsp_tools.commands.excel2xml.transform_formatting_into_tags.models import X
 from dsp_tools.commands.excel2xml.transform_formatting_into_tags.models import XMLParsedExcelSheet
 
 
-def formatting_to_tags(excel_file: Path, sheets: list[str] | None = None, columns: list[str] | None = None) -> None:
-    workbook = load_workbook(excel_file, keep_vba=True, rich_text=True)
-    files = _parse_and_clean_excel_as_xml(excel_file)
-    reformatted_workbook = _reformat_workbook(files, workbook, sheets, columns)
-    reformatted_workbook.save(excel_file.parent / f"{excel_file.stem}-with-tags.xlsx")
-
-
-def _parse_and_clean_excel_as_xml(excel_path: Path) -> XMLParsedExcelFile:
+def formatting_to_tags(excel_path: Path, sheets: list[str] | None = None, columns: list[str] | None = None) -> None:
+    workbook = load_workbook(excel_path, keep_vba=True, rich_text=True)
     files = _parse_excel_as_xml(excel_path)
-    workbook = _remove_namespaces(files.workbook)
-    shared_strings = _remove_namespaces(files.shared_strings)
-    sheets = [XMLParsedExcelSheet(x.name, _remove_namespaces(x.content)) for x in files.sheets]
-    mapped_sheet_names = _map_sheet_names(workbook, sheets)
-    return XMLParsedExcelFile(workbook=workbook, shared_strings=shared_strings, sheets=mapped_sheet_names)
+    files = _clean_excel_as_xml(files)
+    reformatted_workbook = _reformat_workbook(files, workbook, sheets, columns)
+    reformatted_workbook.save(excel_path.parent / f"{excel_path.stem}-with-tags.xlsx")
 
 
 def _parse_excel_as_xml(excel_path):
@@ -38,10 +30,18 @@ def _parse_excel_as_xml(excel_path):
         sheet_files = [x for x in zip_ref.NameToInfo if regex.search(r"xl\/worksheets\/sheet\d+\.xml", x)]
         sheets_parsed = [etree.fromstring(zip_ref.read(x)) for x in sheet_files]
         all_sheets = [
-            XMLParsedExcelSheet(name=name.split("/")[-1], content=sheet)
+            XMLParsedExcelSheet(file_name=name.split("/")[-1], sheet_name="", content=sheet)
             for name, sheet in zip(sheet_files, sheets_parsed)
         ]
-        return XMLParsedExcelFile(workbook=workbook_xml, shared_strings=shared_strings_xml, sheets=all_sheets)
+        return XMLParsedExcelFile(shared_strings=shared_strings_xml, sheets=all_sheets, workbook=workbook_xml)
+
+
+def _clean_excel_as_xml(files: XMLParsedExcelFile) -> XMLParsedExcelFile:
+    workbook = _remove_namespaces(files.workbook)
+    shared_strings = _remove_namespaces(files.shared_strings)
+    sheets = [XMLParsedExcelSheet(x.file_name, x.sheet_name, _remove_namespaces(x.content)) for x in files.sheets]
+    mapped_sheet_names = _map_sheet_names(workbook, sheets)
+    return XMLParsedExcelFile(shared_strings=shared_strings, sheets=mapped_sheet_names)
 
 
 def _remove_namespaces(root: etree._Element) -> etree._Element:
@@ -62,8 +62,10 @@ def _map_sheet_names(workbook: etree._Element, sheets: list[XMLParsedExcelSheet]
         sheet_name_mapper[f"sheet{sheet_id}.xml"] = sheet_name
     mapped_name_sheets = []
     for sheet in sheets:
-        new_name = sheet_name_mapper[sheet.name]
-        mapped_name_sheets.append(XMLParsedExcelSheet(new_name, sheet.content))
+        new_name = sheet_name_mapper[sheet.file_name]
+        mapped_name_sheets.append(
+            XMLParsedExcelSheet(file_name=sheet.file_name, sheet_name=new_name, content=sheet.content)
+        )
     return mapped_name_sheets
 
 

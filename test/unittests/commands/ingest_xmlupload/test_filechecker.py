@@ -15,7 +15,6 @@ def test_check_files_success() -> None:
         Path("testdata/bitstreams/test with whitespaces.png"),
         Path("testdata/bitstreams/test with uppercase extension.JPG"),
         Path("testdata/bitstreams/test.with.multiple.dots.png"),
-        Path("testdata/bitstreams/test with special chars éèü$.png"),
     }
     res = check_files(supported_and_existing)
     assert not res

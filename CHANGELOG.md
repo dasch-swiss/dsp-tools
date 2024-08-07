@@ -1,5 +1,51 @@
 # Changelog
 
+## [8.4.0](https://github.com/dasch-swiss/dsp-tools/compare/v8.3.0...v8.4.0) (2024-08-07)
+
+
+### Enhancements
+
+* **excel2json:** add option to create header with Excel file (DEV-3898) ([#1065](https://github.com/dasch-swiss/dsp-tools/issues/1065)) ([353d8e9](https://github.com/dasch-swiss/dsp-tools/commit/353d8e95d70b0327edaa5a891eda4592d353080d))
+* New workflow for big xmluploads: add commands `upload-files` and `ingest-files` (DEV-3905) ([#1067](https://github.com/dasch-swiss/dsp-tools/issues/1067)) ([b4c2912](https://github.com/dasch-swiss/dsp-tools/commit/b4c291266cdb4af07f8293f24904747e44f7033c))
+
+
+### Bug Fixes
+
+* don't use copyrighted testdata any more (DEV-3906) ([#1068](https://github.com/dasch-swiss/dsp-tools/issues/1068)) ([1558408](https://github.com/dasch-swiss/dsp-tools/commit/1558408fe25c7e6608e4f55ccd336904dbd6464b))
+* **ingest-xmlupload:** allow uppercased file extensions (DEV-3963) ([#1075](https://github.com/dasch-swiss/dsp-tools/issues/1075)) ([51a4703](https://github.com/dasch-swiss/dsp-tools/commit/51a470344c5cbddcf08ded3871f7a31a9b9752fb))
+* Urlencode filenames when uploading files to ingesta (DEV-3865) ([#1045](https://github.com/dasch-swiss/dsp-tools/issues/1045)) ([4edfbd3](https://github.com/dasch-swiss/dsp-tools/commit/4edfbd3d2beb8c269e93647514abbf341edd6de8))
+
+
+### Maintenance
+
+* add logging of requests made in DspIngestClientLive (DEV-3761) ([#1064](https://github.com/dasch-swiss/dsp-tools/issues/1064)) ([84c6101](https://github.com/dasch-swiss/dsp-tools/commit/84c6101aa57cf39c3e6297c0ecbea1cd6b8dbdef))
+* bump start-stack to 2024.07.02 ([#1078](https://github.com/dasch-swiss/dsp-tools/issues/1078)) ([2a74978](https://github.com/dasch-swiss/dsp-tools/commit/2a74978c4829b9a5c4b002c03122fefa4bbe57cd))
+* **deps:** bump the all-dependencies group with 16 updates ([#1071](https://github.com/dasch-swiss/dsp-tools/issues/1071)) ([a893aca](https://github.com/dasch-swiss/dsp-tools/commit/a893aca6d94741cd985ec76c52fd1adf3df2e4c7))
+* **excel2json:** change serialisation json header (DEV-3877) ([#1046](https://github.com/dasch-swiss/dsp-tools/issues/1046)) ([f4c6088](https://github.com/dasch-swiss/dsp-tools/commit/f4c6088d9e80217dc38bfb32da216de68aaeb798))
+* **excel2json:** find duplicate excel sheet names ([#1054](https://github.com/dasch-swiss/dsp-tools/issues/1054)) ([83bb96a](https://github.com/dasch-swiss/dsp-tools/commit/83bb96a856d30df19cfceaaef6c0b5bca36e53fa))
+* **excel2json:** generalise InvalidContentInSheetProblem ([#1051](https://github.com/dasch-swiss/dsp-tools/issues/1051)) ([c55603c](https://github.com/dasch-swiss/dsp-tools/commit/c55603c16e05cc8a9ebc0ec959acf8edbc9aa88d))
+* **excel2json:** improve checks for classes sheet in resources.xlsx ([#1061](https://github.com/dasch-swiss/dsp-tools/issues/1061)) ([1839d98](https://github.com/dasch-swiss/dsp-tools/commit/1839d9848f17b7a2311f65b92b87829d34aca47a))
+* **excel2json:** move list problems to separate file ([#1049](https://github.com/dasch-swiss/dsp-tools/issues/1049)) ([353c002](https://github.com/dasch-swiss/dsp-tools/commit/353c0021b1a473ad119c48cade4d99d51f982fe3))
+* **excel2json:** properties collect problems before raising error ([#1063](https://github.com/dasch-swiss/dsp-tools/issues/1063)) ([5ba6fc1](https://github.com/dasch-swiss/dsp-tools/commit/5ba6fc1db2ad52ce052170aa5a28f5c134632919))
+* **excel2json:** reorder the functions in resources.py ([#1060](https://github.com/dasch-swiss/dsp-tools/issues/1060)) ([6295b02](https://github.com/dasch-swiss/dsp-tools/commit/6295b022931a4bc226a15f715b8fefc38a8d3a86))
+* **excel2json:** replace ListExcelProblem with ExcelFileProblem ([#1052](https://github.com/dasch-swiss/dsp-tools/issues/1052)) ([b84a185](https://github.com/dasch-swiss/dsp-tools/commit/b84a185d512711a83f168c7e9105a974c5ca5a26))
+* **excel2json:** restructure and rename find missing values function (DEV-3909) ([#1070](https://github.com/dasch-swiss/dsp-tools/issues/1070)) ([d42595e](https://github.com/dasch-swiss/dsp-tools/commit/d42595e37a468360801f75dcef0bebc495b10351))
+* **excel2json:** serialise property with dataclass ([#1059](https://github.com/dasch-swiss/dsp-tools/issues/1059)) ([0e33238](https://github.com/dasch-swiss/dsp-tools/commit/0e332380fbffdb5ba22db94c23ed2017c0566a91))
+* **excel2json:** serialise resources with dataclass ([#1062](https://github.com/dasch-swiss/dsp-tools/issues/1062)) ([df11148](https://github.com/dasch-swiss/dsp-tools/commit/df111480334a291ceeeb34c4f2b4621b449a5eb9))
+* **excel2json:** validate classes sheet in resources.xlsx ([#1057](https://github.com/dasch-swiss/dsp-tools/issues/1057)) ([96b38f7](https://github.com/dasch-swiss/dsp-tools/commit/96b38f7174f845579d95a8b819751d93337cccc4))
+* ignore ARG001 (unused function argument) in .pre-commit-config.yaml ([#1066](https://github.com/dasch-swiss/dsp-tools/issues/1066)) ([06b41d9](https://github.com/dasch-swiss/dsp-tools/commit/06b41d9f3a901dde9c27f964ae952ac266a97406))
+* **performance:** add initial k6 excel2json performance test (DEV-3885) ([#1056](https://github.com/dasch-swiss/dsp-tools/issues/1056)) ([3625c62](https://github.com/dasch-swiss/dsp-tools/commit/3625c62df9a0013c7f45bef0f5735242376353bf))
+* **test:** renaming ([#1048](https://github.com/dasch-swiss/dsp-tools/issues/1048)) ([a7f0bca](https://github.com/dasch-swiss/dsp-tools/commit/a7f0bcad95e5b92bc65db2d2b11669f0a32e0b67))
+* **test:** take apart assertions for test_project.py ([#1055](https://github.com/dasch-swiss/dsp-tools/issues/1055)) ([da31d19](https://github.com/dasch-swiss/dsp-tools/commit/da31d196e9e94eeb254f876e4c0c079915ab280e))
+* **upload-files:** adapt timeout, so that big files don't fail  ([#1077](https://github.com/dasch-swiss/dsp-tools/issues/1077)) ([1f7b43b](https://github.com/dasch-swiss/dsp-tools/commit/1f7b43be275d9b6b986a0a3174f3d38c1b0fe75f))
+* **xmlupload:** video-segment and audio-segment: clarify docs / allow custom creation date ([#1076](https://github.com/dasch-swiss/dsp-tools/issues/1076)) ([1196afc](https://github.com/dasch-swiss/dsp-tools/commit/1196afcb31b5e543865d9ab6e6e7fe9d814d03cb))
+
+
+### Documentation
+
+* add missing commands to docs/index.md ([#1079](https://github.com/dasch-swiss/dsp-tools/issues/1079)) ([231a6b7](https://github.com/dasch-swiss/dsp-tools/commit/231a6b72becb3ef27dc3b4f21883f73147b84b9c))
+* tidy up dev docs ([#1080](https://github.com/dasch-swiss/dsp-tools/issues/1080)) ([eeaccc6](https://github.com/dasch-swiss/dsp-tools/commit/eeaccc63af9f3f3ded17028229d2d88da5276915))
+
 ## [8.3.0](https://github.com/dasch-swiss/dsp-tools/compare/v8.2.0...v8.3.0) (2024-07-11)
 
 

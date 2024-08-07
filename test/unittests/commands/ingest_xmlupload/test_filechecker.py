@@ -8,7 +8,15 @@ from dsp_tools.commands.ingest_xmlupload.upload_files.input_error import FilePro
 
 
 def test_check_files_success() -> None:
-    res = check_files({Path("testdata/bitstreams/test.txt"), Path("testdata/bitstreams/test.pdf")})
+    supported_and_existing = {
+        Path("testdata/bitstreams/test.txt"),
+        Path("testdata/bitstreams/test.pdf"),
+        Path("testdata/bitstreams/test,with,multiple,commas.png"),
+        Path("testdata/bitstreams/test with whitespaces.png"),
+        Path("testdata/bitstreams/test with uppercase extension.JPG"),
+        Path("testdata/bitstreams/test.with.multiple.dots.png"),
+    }
+    res = check_files(supported_and_existing)
     assert not res
 
 

@@ -59,7 +59,7 @@ class BulkIngestClient:
         """Uploads a file to the ingest server."""
         url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/bulk-ingest/ingest/{urllib.parse.quote(str(filepath))}"
         headers = {"Content-Type": "application/octet-stream"}
-        timeout = 60
+        timeout = 600
         err_msg = f"Failed to upload '{filepath}' to '{url}'."
         try:
             with open(self.imgdir / filepath, "rb") as binary_io:

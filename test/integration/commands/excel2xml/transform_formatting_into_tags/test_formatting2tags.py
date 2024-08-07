@@ -5,7 +5,7 @@ from dsp_tools.commands.excel2xml.transform_formatting_into_tags.formatting2tags
     _extract_all_string_locations_one_sheet,
 )
 from dsp_tools.commands.excel2xml.transform_formatting_into_tags.formatting2tags import _extract_cell_number_to_link_id
-from dsp_tools.commands.excel2xml.transform_formatting_into_tags.formatting2tags import _extract_link_id_to_url
+from dsp_tools.commands.excel2xml.transform_formatting_into_tags.formatting2tags import _extract_link_id_to_url, _extract_all_string_cells_info
 from dsp_tools.commands.excel2xml.transform_formatting_into_tags.formatting2tags import _get_hyperlink_filename
 from dsp_tools.commands.excel2xml.transform_formatting_into_tags.formatting2tags import _get_hyperlink_mapper
 from dsp_tools.commands.excel2xml.transform_formatting_into_tags.formatting2tags import _get_worksheet_name
@@ -70,6 +70,11 @@ class TestExtractFileNames:
 
     def test_not_rels_name(self) -> None:
         assert not _get_hyperlink_filename("other")
+
+
+def test_extract_all_string_cells_info(minimal_excel: XMLParsedExcelFile) -> None:
+    result = _extract_all_string_cells_info(minimal_excel.sheets)
+    assert len(result) == 5
 
 
 class TestExtractCellInformation:

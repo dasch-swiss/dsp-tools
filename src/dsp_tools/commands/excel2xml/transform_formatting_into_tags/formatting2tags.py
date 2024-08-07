@@ -133,7 +133,10 @@ def _combine_information_from_xml_files(files: XMLParsedExcelFile) -> list[Share
 
 
 def _extract_all_string_cells_info(sheets: list[XMLParsedExcelSheet]) -> list[CellInformation]:
-    pass
+    all_locations = []
+    for s in sheets:
+        all_locations.extend(_extract_all_string_locations_one_sheet(s))
+    return all_locations
 
 
 def _extract_all_string_locations_one_sheet(sheet: XMLParsedExcelSheet) -> list[CellInformation]:

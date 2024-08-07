@@ -32,6 +32,18 @@ def test_clean_excel_as_xml(cleaned_excel: XMLParsedExcelFile) -> None:
     assert isinstance(cleaned_excel.shared_strings, etree._Element)
     assert len(cleaned_excel.sheets) == 2
     assert not cleaned_excel.workbook
+    one = next((x for x in cleaned_excel.sheets if x.file_name == "sheet1.xml"))
+    assert isinstance(one, XMLParsedExcelSheet)
+    assert one.file_name == "sheet1.xml"
+    assert one.sheet_name == "Formatting"
+    assert isinstance(one.content, etree._Element)
+    assert isinstance(one.sheet_relations, etree._Element)
+    two = next((x for x in cleaned_excel.sheets if x.file_name == "sheet2.xml"))
+    assert isinstance(two, XMLParsedExcelSheet)
+    assert two.file_name == "sheet2.xml"
+    assert two.sheet_name == "OtherContent"
+    assert isinstance(two.content, etree._Element)
+    assert not two.sheet_relations
 
 
 def test_combine_information_from_xml_files(minimal_excel: XMLParsedExcelFile) -> None:

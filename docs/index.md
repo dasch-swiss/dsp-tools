@@ -54,6 +54,15 @@ DSP-TOOLS provides the following functionalities:
 - [`dsp-tools xmlupload`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#xmlupload) 
   uploads data from an XML file (bulk data import)
   and writes the mapping from internal IDs to IRIs into a local file.
+- New workflow for `xmlupload`:
+    - [`dsp-tools upload-files`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#upload-files)
+      uploads all files that are referenced in an XML file to a DSP server.
+    - [`dsp-tools ingest-files`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#ingest-files)
+      kicks off the ingest process, and retrieves the mapping CSV when it is finished.
+    - [`dsp-tools ingest-xmlupload`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#ingest-xmlupload)
+      creates the resources contained in the XML file, using the mapping CSV
+- [`dsp-tools resume-xmlupload`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#resume-xmlupload) 
+  resumes a previously interrupted `xmlupload` or `ingest-xmlupload`.
 - [`dsp-tools excel2json`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#excel2json) 
   creates an entire JSON project file from a folder with Excel files in it.
     - [`dsp-tools excel2lists`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#excel2lists)
@@ -68,6 +77,10 @@ DSP-TOOLS provides the following functionalities:
       creates the "properties" section of a JSON project file from an Excel file. 
       The resulting section can be integrated into a JSON project file 
       and then be uploaded to a DSP server with `dsp-tools create`.
+- [`dsp-tools new-excel2json`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#new-excel2json)
+  does the same as the old `excel2json` command, but the Excel format for the `lists` section has been adapted.
+    - [`dsp-tools new-excel2lists`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#new-excel2lists)
+      does the same as the old `excel2lists` command, but the Excel format has been adapted.
 - [`dsp-tools excel2xml`](https://docs.dasch.swiss/latest/DSP-TOOLS/cli-commands/#excel2xml) 
   transforms a data source to XML 
   if it is already structured according to the DSP specifications.

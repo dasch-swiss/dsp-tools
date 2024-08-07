@@ -1,9 +1,15 @@
 import pytest
 from lxml import etree
 
+from dsp_tools.commands.excel2xml.transform_formatting_into_tags.formatting2tags import (
+    _extract_all_string_locations_one_sheet,
+)
+from dsp_tools.commands.excel2xml.transform_formatting_into_tags.formatting2tags import _extract_cell_number_to_link_id
+from dsp_tools.commands.excel2xml.transform_formatting_into_tags.formatting2tags import _extract_link_id_to_url
 from dsp_tools.commands.excel2xml.transform_formatting_into_tags.formatting2tags import _get_hyperlink_filename
 from dsp_tools.commands.excel2xml.transform_formatting_into_tags.formatting2tags import _get_hyperlink_mapper
 from dsp_tools.commands.excel2xml.transform_formatting_into_tags.formatting2tags import _get_worksheet_name
+from dsp_tools.commands.excel2xml.transform_formatting_into_tags.models import CellInformation
 from dsp_tools.commands.excel2xml.transform_formatting_into_tags.models import XMLParsedExcelFile
 from dsp_tools.commands.excel2xml.transform_formatting_into_tags.models import XMLParsedExcelSheet
 
@@ -66,21 +72,45 @@ class TestExtractFileNames:
         assert not _get_hyperlink_filename("other")
 
 
-class TestConstructCellInformation:
-    def test_no_links(self, minimal_excel: XMLParsedExcelFile) -> None:
-        raise NotImplementedError
+class TestExtractCellInformation:
+    def test_no_links(self, sheet_no_links: XMLParsedExcelSheet) -> None:
+        result = _extract_all_string_locations_one_sheet(sheet_no_links)
+        assert len(result) == 2
+        one = result[0]
+        assert isinstance(one, CellInformation)
+        assert one.sheet == "Sheet1"
+        assert one.cell_name == "A1"
+        assert one.shared_string_index == 1
+        assert not one.hyperlink
+        two = result[1]
+        assert two.sheet == "Sheet1"
+        assert two.cell_name == "A2"
+        assert two.shared_string_index == 0
+        assert not two.hyperlink
 
-    def test_with_links(self, cleaned_excel: XMLParsedExcelFile) -> None:
-        raise NotImplementedError
+    def test_with_links(self, sheet_with_links: XMLParsedExcelSheet) -> None:
+        result = _extract_all_string_locations_one_sheet(sheet_with_links)
+        assert len(result) == 3
+        with_link = next((x for x in result if x.cell_name == "B2"))
+        assert isinstance(with_link, CellInformation)
+        assert with_link.sheet == "Sheet2"
+        assert with_link.cell_name == "B2"
+        assert with_link.shared_string_index == 4
+        assert with_link.hyperlink == "https://app.dasch.swiss/"
 
 
 class TestHyperlinkMapper:
-    def test_no_links(self, sheet_no_links: XMLParsedExcelSheet) -> None:
-        assert not _get_hyperlink_mapper(sheet_no_links)
-
-    def test_with_links(self, sheet_with_links: XMLParsedExcelSheet) -> None:
-        result = _get_hyperlink_mapper(sheet_with_links)
+    def test_get_hyperlink_mapper(self, sheet_with_links: XMLParsedExcelSheet) -> None:
+        result = _get_hyperlink_mapper(sheet_with_links.content, sheet_with_links.sheet_relations)
         assert result == {"B2": "https://app.dasch.swiss/"}
+
+    def test_extract_cell_number_to_link_id(self, sheet_with_links: XMLParsedExcelSheet) -> None:
+        result = _extract_cell_number_to_link_id(sheet_with_links.content)
+        assert result == {"B2": "rId1"}
+
+    def test_extract_link_id_to_url(self, sheet_with_links: XMLParsedExcelSheet) -> None:
+        result = _extract_link_id_to_url(sheet_with_links.sheet_relations)
+        assert result == {"rId1": "https://app.dasch.swiss/"}
 
 
 if __name__ == "__main__":

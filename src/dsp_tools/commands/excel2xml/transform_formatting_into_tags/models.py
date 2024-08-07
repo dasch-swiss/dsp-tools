@@ -64,13 +64,13 @@ class CellInformation:
         sheet: name of the sheet, corresponds to the user-facing name in the Excel
         cell_name: name of the cell in the format of A1, B12, etc.
         shared_string_index: index number of the element in the "sharedStrings.xml"
-        hyperlink: the element containing the hyperlink if applicable
+        hyperlink: hyperlink if applicable
     """
 
     sheet: str
     cell_name: str
     shared_string_index: int
-    hyperlink: etree._Element | None = None
+    hyperlink: str | None = None
 
 
 @dataclass

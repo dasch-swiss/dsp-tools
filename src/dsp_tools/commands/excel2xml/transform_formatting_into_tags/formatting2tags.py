@@ -126,47 +126,80 @@ def _reformat_workbook(
 
 
 def _combine_information_from_xml_files(files: XMLParsedExcelFile) -> list[SharedStringElement]:
-    string_locations = _extract_all_string_locations(files.sheets)
+    string_locations = _extract_all_string_cells_info(files.sheets)
     # TODO: get all shared strings combined
     # TODO: reformat the locations
     # TODO: filter the locations
 
 
-def _extract_all_string_locations(sheets: list[XMLParsedExcelSheet]) -> list[CellInformation]:
-    raise NotImplementedError
+def _extract_all_string_cells_info(sheets: list[XMLParsedExcelSheet]) -> list[CellInformation]:
+    pass
 
 
 def _extract_all_string_locations_one_sheet(sheet: XMLParsedExcelSheet) -> list[CellInformation]:
-    raise NotImplementedError
+    hyperlink_mapper = (
+        _get_hyperlink_mapper(sheet.content, sheet.sheet_relations) if sheet.sheet_relations is not None else {}
+    )
+    cell_info = []
+    for ele in sheet.content.iterdescendants(tag="c"):
+        if ele.attrib.get("t") == "s":
+            cell_location = ele.attrib["r"]
+            string_index = next(ele.iterdescendants(tag="v")).text
+            cell_info.append(
+                CellInformation(
+                    sheet=sheet.sheet_name,
+                    cell_name=cell_location,
+                    shared_string_index=int(string_index),
+                    hyperlink=hyperlink_mapper.get(cell_location),
+                )
+            )
+    return cell_info
 
 
-def _get_hyperlink_mapper(sheet: XMLParsedExcelSheet) -> dict[str, str]:
-    raise NotImplementedError
+def _get_hyperlink_mapper(sheet: etree._Element, relation_sheet: etree._Element) -> dict[str, str]:
+    cell2id = _extract_cell_number_to_link_id(sheet)
+    id2url = _extract_link_id_to_url(relation_sheet)
+    return {cell_num: id2url[url_id] for cell_num, url_id in cell2id.items()}
+
+
+def _extract_cell_number_to_link_id(sheet: etree._Element) -> dict[str, str]:
+    rel_attrib_key = "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id"
+    mapper = {}
+    for ele in sheet.iterdescendants(tag="hyperlink"):
+        mapper[ele.attrib["ref"]] = ele.attrib[rel_attrib_key]
+    return mapper
+
+
+def _extract_link_id_to_url(relation_sheet: etree._Element) -> dict[str, str]:
+    mapper = {}
+    for ele in relation_sheet.iterdescendants(tag="Relationship"):
+        mapper[ele.attrib["Id"]] = ele.attrib["Target"]
+    return mapper
 
 
 def _reformat_location_of_string_elements(shared_strings: list[SharedStringElement]) -> list[SharedStringExcelPosition]:
-    raise NotImplementedError
+    pass
 
 
 def _extract_all_column_locations_and_names(workbook: Workbook) -> dict[str, list[str]]:
-    raise NotImplementedError
+    pass
 
 
 def _filter_columns_and_locations(
     columns_and_locations: dict[str, list[str]], sheets: list[str] | None, columns: list[str] | None
 ) -> dict[str, list[str]]:
-    raise NotImplementedError
+    pass
 
 
 def _filter_content_to_format(
     shared_strings: list[SharedStringExcelPosition], info_what_to_use: dict[str, list[str]]
 ) -> list[SharedStringElement]:
-    raise NotImplementedError
+    pass
 
 
 def _reformat_content(shared_strings: list[SharedStringElement]) -> list[FormattingTransformedCell]:
-    raise NotImplementedError
+    pass
 
 
 def _insert_content_into_workbook(reformatted: list[FormattingTransformedCell], workbook: Workbook) -> Workbook:
-    raise NotImplementedError
+    pass

@@ -79,12 +79,7 @@ dsp-tools = "dsp_tools.cli.entry_point:main"  # definition of the CLI entry poin
 [tool.poetry-exec-plugin.commands]
 # plugin (https://github.com/keattang/poetry-exec-plugin) to define commands available for the developers,
 # e.g. `poetry exec check-links`
-check-links = """
-    markdown-link-validator ./docs \
-    -i \\.\\/assets\\/.+ \
-    -i .+github\\.com\\/dasch\\-swiss\\/dsp-tools\\/settings \
-    -i .+github\\.com\\/dasch\\-swiss\\/ops-deploy\\/.+\
-"""
+check-links = "markdown-link-validator ./docs -i \\.\\/assets\\/.+"
 darglint = """
     find . -name "*.py" \
     -not -path "./src/dsp_tools/commands/project/models/*" \

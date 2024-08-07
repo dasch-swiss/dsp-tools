@@ -18,52 +18,33 @@ these processes. The [Python Packaging User Guide](https://packaging.python.org)
 DSP-TOOLS uses [poetry](https://python-poetry.org) for all of these tasks. This allows us to use one single tool 
 for all processes, and to keep the number of configuration files at a minimum. 
 
-There are many configuration and metadata files that can be found on the top level of a Python repository. The ones 
-used in the DSP-TOOLS repository are:
+Poetry needs only 2 config files:
 
-| File           | Purpose                                                                        |
-| -------------- | ------------------------------------------------------------------------------ |
-| README.md      | Markdown-formatted info for developers                                         |
-| pyproject.toml | Modern configuration/metadata file replacing the deprecated files listed below |
-| .gitignore     | List of files not under version control (won't be uploaded to GitHub)          |
-| CHANGELOG.md   | Markdown-formatted release notes (must not be edited by hand)                  |
-| LICENSE        | Text file with the license how to use the source code of DSP-TOOLS             |
-| poetry.lock    | Pinned versions of all (sub-)dependencies, allows a deterministic installation |
-| mkdocs.yml     | Configuration of `mkdocs`, used to build the documentation webpages            |
-
-In earlier times, there were some more configuration files, but thanks to poetry, they are not necessary anymore:
-
-| Deprecated file      | Purpose                                             | Replaced by                                            |
-| -------------------- | --------------------------------------------------- | ------------------------------------------------------ |
-| MANIFEST.in          | files to include into distribution                  | pyproject.toml: `[tool.poetry.include]`                |
-| setup.py             | project metadata, dependencies                      | pyproject.toml                                         |
-| setup.cfg            | configuration for setuptools                        | pyproject.toml                                         |
-| requirements.txt     | all (sub-)dependencies                              | pyproject.toml: `[tool.poetry.dependencies]`           |
-| dev-requirements.txt | additional dependencies for development             | pyproject.toml: `[tool.poetry.group.dev.dependencies]` |
-| Pipfile              | direct dependencies                                 | pyproject.toml: `[tool.poetry.dependencies]`           |
-| Pipfile.lock         | pinned dependencies                                 | poetry.lock                                            |
-| Makefile             | commands that can be executed with `make [command]` | pyproject.toml: `[tool.poetry-exec-plugin.commands]`   |
-
+- `pyproject.toml`: Manifest file, a modern configuration/metadata file replacing the deprecated files listed below
+- `poetry.lock`: Lock file, containing the pinned versions of all (sub-)dependencies, allowing a deterministic installation
 
 
 ## Dependency Management
 
 The classic way to manage the dependencies was to write the required packages by hand into a `requirements.txt` and 
-into a `setup.py` file. 
-
-But this is cumbersome and error-prone, so there was a time when [pipenv](https://pipenv.pypa.io/en/latest/) was the 
-way to go: Pipenv introduced the important distinction between (a) dependencies necessary to run the application, 
-(b) dependencies necessary for development, and (c) sub-dependencies, i.e. dependencies of your dependencies. Another 
-useful concept of pipenv is the distinction between a human-friendly list of (mostly unpinned) direct dependencies and 
-a machine-friendly definition of exact (pinned) versions of all dependencies.  
-But since pipenv has no packaging functionality, it was necessary to sync the dependency definitions from `Pipfile` to  
-`requirements.txt` and `setup.py`.  
-
-`setup.py`, too, is problematic, especially 
+into a `setup.py` file. But this is cumbersome and error-prone.
+Moreover, `setup.py` is problematic and not recommended anymore, especially 
 [calling `setup.py sdist bdist_wheel`](https://blog.ganssle.io/articles/2021/10/setup-py-deprecated.html#summary). 
-Python projects should define their dependencies and metadata in the modern `pyproject.toml` file. So it is 
-necessary to dynamically manage the dependencies in `pyproject.toml`. And poetry seems to be the only tool capable 
-of doing this.
+Python projects should define their dependencies and metadata in the modern `pyproject.toml` file. 
+
+So it is necessary to dynamically manage the dependencies in `pyproject.toml`. 
+And poetry seems to be the only tool capable of doing this.
+
+Poetry is one of the few tools that cleanly distinguishes 
+
+- dependencies necessary to run the application, 
+- dependencies necessary for development, and 
+- sub-dependencies, i.e. dependencies of your dependencies. 
+
+It is also one of the few tools that makes the distinction between 
+
+- the manifest file, i.e. a human-friendly list of (mostly unpinned) direct dependencies and 
+- the lock file, i.e. a machine-friendly definition of exact (pinned) versions of all dependencies.  
 
 
 ## Packaging 
@@ -93,7 +74,7 @@ package. Since `site-packages` is on `sys.path`, the user can then import the pa
 Putting all packages into a `src` folder has an important consequence: It forces the developer to work with an 
 editable installation of his package. Why? Without an editable installation, it is impossible to write correct import 
 statements. `from src.package import module` will not work, because the user has `package` installed, not `src`. And 
-relative imports like `import module` will not work either, because when the tests code (situated in a separate 
+relative imports like `import module` will not work either, because when the test code (situated in a separate 
 `test` folder) imports the actual code, the relative imports in the actual code fail. This is because relative imports 
 depend on the location of the file that is run, not on the file that contains the import statement. 
 

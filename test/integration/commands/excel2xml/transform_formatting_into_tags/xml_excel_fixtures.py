@@ -51,3 +51,61 @@ def one_non_string_cell() -> etree._Element:
             <v>1</v>
         </c>
     """)
+
+
+@pytest.fixture()
+def one_hyperlink() -> etree._Element:
+    return etree.fromstring("""
+        <hyperlink ref="B2" r:id="rId1" xr:uid="{E409A7F7-CD3B-AD4B-B9A8-916CE1594F27}"/>
+    """)
+
+
+@pytest.fixture()
+def one_hyperlink_relation() -> etree._Element:
+    return etree.fromstring("""
+        <Relationship 
+            Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" 
+            Target="https://app.dasch.swiss/" TargetMode="External"
+        />
+    """)
+
+
+@pytest.fixture()
+def one_shared_string_no_formatting() -> etree._Element:
+    return etree.fromstring("""
+        <si>
+            <t>Sheet2 B2 Link</t>
+        </si>
+    """)
+
+
+@pytest.fixture()
+def one_shared_string_formatting() -> etree._Element:
+    return etree.fromstring("""
+        <si>
+        <r>
+            <t xml:space="preserve">Sheet1 A2 </t>
+        </r>
+        <r>
+            <rPr>
+                <b/>
+                <sz val="12"/>
+                <color theme="1"/>
+                <rFont val="Calibri"/>
+                <family val="2"/>
+                <scheme val="minor"/>
+            </rPr>
+            <t>Bold</t>
+        </r>
+        <r>
+            <rPr>
+                <sz val="12"/>
+                <color theme="1"/>
+                <rFont val="Calibri"/>
+                <family val="2"/>
+                <scheme val="minor"/>
+            </rPr>
+            <t xml:space="preserve"> After</t>
+        </r>
+    </si>
+    """)

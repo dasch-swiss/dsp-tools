@@ -2,13 +2,13 @@ from pathlib import Path
 
 import pytest
 
-from dsp_tools.commands.excel2xml.transform_formatting_into_tags.formatting2tags import _parse_excel_as_xml
+from dsp_tools.commands.excel2xml.transform_formatting_into_tags.formatting2tags import _parse_and_clean_excel_as_xml
 from dsp_tools.commands.excel2xml.transform_formatting_into_tags.models import XMLParsedExcelFile
 
 
 @pytest.fixture()
 def excel_as_xml() -> XMLParsedExcelFile:
-    return _parse_excel_as_xml(Path("testdata/excel2xml/formatting2tags/formatted-text-test.xlsx"))
+    return _parse_and_clean_excel_as_xml(Path("testdata/excel2xml/formatting2tags/formatted-text-test.xlsx"))
 
 
 def test_parse_excel_as_xml(excel_as_xml: XMLParsedExcelFile) -> None:

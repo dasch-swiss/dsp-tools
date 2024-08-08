@@ -31,6 +31,8 @@ from dsp_tools.commands.excel2json.models.input_error_lists import MissingNodeTr
 from dsp_tools.commands.excel2json.models.input_error_lists import MissingTranslationsSheetProblem
 from dsp_tools.commands.excel2json.models.input_error_lists import MultipleListPerSheetProblem
 from dsp_tools.commands.excel2json.models.input_error_lists import NodesPerRowProblem
+from dsp_tools.commands.excel2json.models.new_lists_deserialise import ExcelFile
+from dsp_tools.commands.excel2json.models.new_lists_deserialise import ExcelSheet
 from dsp_tools.commands.excel2json.models.new_lists_serialise import ListNode
 from dsp_tools.commands.excel2json.models.new_lists_serialise import ListRoot
 from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
@@ -56,9 +58,7 @@ def new_excel2lists(
     Returns:
         a tuple consisting of the "lists" section as Python list, and the success status (True if everything went well)
     """
-    file_names = [file for file in Path(excelfolder).glob("*list*.xlsx", case_sensitive=False) if _non_hidden(file)]
-
-    excel_dfs = {file.stem: read_and_clean_all_sheets(file) for file in file_names}
+    excel_dfs = _parse_files(excelfolder)
 
     finished_lists = _make_serialised_lists(excel_dfs)
     validate_lists_section_with_schema(lists_section=finished_lists)
@@ -71,11 +71,20 @@ def new_excel2lists(
     return finished_lists, True
 
 
+def _parse_files(excelfolder: Path | str) -> list[ExcelFile]:
+    file_names = [file for file in Path(excelfolder).glob("*list*.xlsx", case_sensitive=False) if _non_hidden(file)]
+    all_files = []
+    for file in file_names:
+        sheets = [ExcelSheet(sheet_name=name, df=df) for name, df in read_and_clean_all_sheets(file).items()]
+        all_files.append(ExcelFile(filename=file.stem, sheets=sheets))
+    return all_files
+
+
 def _non_hidden(path: Path) -> bool:
     return not regex.search(r"^(\.|~\$).+", path.name)
 
 
-def _make_serialised_lists(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> list[dict[str, Any]]:
+def _make_serialised_lists(excel_dfs: list[ExcelFile]) -> list[dict[str, Any]]:
     excel_dfs = _prepare_dfs(excel_dfs)
     all_lists = _make_all_lists(excel_dfs)
     if isinstance(all_lists, ListCreationProblem):
@@ -102,24 +111,27 @@ def _make_all_lists(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> list[ListR
     return good_lists
 
 
-def _prepare_dfs(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> dict[str, dict[str, pd.DataFrame]]:
+def _prepare_dfs(excel_dfs: list[ExcelFile]) -> dict[str, dict[str, pd.DataFrame]]:
     excel_dfs = _add_id_optional_column_if_not_exists(excel_dfs)
     _make_all_formal_excel_compliance_checks(excel_dfs)
     return _construct_ids(excel_dfs)
 
 
 def _add_id_optional_column_if_not_exists(
-    excel_dfs: dict[str, dict[str, pd.DataFrame]],
-) -> dict[str, dict[str, pd.DataFrame]]:
-    all_file_dict = {}
-    for filename, sheets in excel_dfs.items():
-        single_file_dict = {}
-        for sheet_name, df in sheets.items():
-            if "id (optional)" not in df.columns:
+    excel_dfs: list[ExcelFile],
+) -> list[ExcelFile]:
+    all_files = []
+    for f in excel_dfs:
+        all_sheets = []
+        for sheet in f.sheets:
+            if "id (optional)" not in sheet.df.columns:
+                df = sheet.df
                 df["id (optional)"] = pd.NA
-            single_file_dict[sheet_name] = df
-        all_file_dict[filename] = single_file_dict
-    return all_file_dict
+                all_sheets.append(ExcelSheet(sheet_name=sheet.sheet_name, df=df))
+            else:
+                all_sheets.append(sheet)
+        all_files.append(ExcelFile(filename=f.filename, sheets=all_sheets))
+    return all_files
 
 
 def _construct_ids(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> dict[str, dict[str, pd.DataFrame]]:
@@ -353,7 +365,7 @@ def _get_preferred_language(columns: pd.Index[str], ending: str = r"(\d+|list)")
 
 
 def _make_all_formal_excel_compliance_checks(
-    excel_dfs: dict[str, dict[str, pd.DataFrame]],
+    excel_dfs: list[ExcelFile],
 ) -> None:
     """
     Check if the excel files are compliant with the expected format.
@@ -374,7 +386,7 @@ def _make_all_formal_excel_compliance_checks(
 
 
 def _check_duplicates_all_excels(
-    excel_dfs: dict[str, dict[str, pd.DataFrame]],
+    excel_dfs: list[ExcelFile],
 ) -> None:
     """
     Check if the excel files contain duplicates with regard to the node names,
@@ -389,14 +401,14 @@ def _check_duplicates_all_excels(
         InputError: If any complete duplicates are found in the excel files.
     """
     problems: list[Problem] = []
-    for filename, excel_sheets in excel_dfs.items():
+    for file in excel_dfs:
         complete_duplicates: list[Problem] = [
             p
-            for sheet_name, df in excel_sheets.items()
-            if (p := _check_for_duplicate_nodes_one_df(df, sheet_name)) is not None
+            for sheet in file.sheets
+            if (p := _check_for_duplicate_nodes_one_df(sheet.df, sheet.sheet_name)) is not None
         ]
         if complete_duplicates:
-            problems.append(ExcelFileProblem(filename, complete_duplicates))
+            problems.append(ExcelFileProblem(file.filename, complete_duplicates))
     if id_problem := _check_for_duplicate_custom_id_all_excels(excel_dfs):
         problems.append(id_problem)
     if problems:
@@ -443,17 +455,17 @@ def _check_for_duplicate_nodes_one_df(df: pd.DataFrame, sheet_name: str) -> Dupl
 
 
 def _check_for_duplicate_custom_id_all_excels(
-    excel_dfs: dict[str, dict[str, pd.DataFrame]],
+    excel_dfs: list[ExcelFile],
 ) -> DuplicatesCustomIDInProblem | None:
     id_list = []
-    for filename, excel_sheets in excel_dfs.items():
-        for sheet_name, df in excel_sheets.items():
-            for i, row in df.iterrows():
+    for file in excel_dfs:
+        for sheet in file.sheets:
+            for i, row in sheet.df.iterrows():
                 if not pd.isna(row["id (optional)"]):
                     id_list.append(
                         {
-                            "filename": filename,
-                            "sheet_name": sheet_name,
+                            "filename": file.filename,
+                            "sheet_name": sheet.sheet_name,
                             "id": row["id (optional)"],
                             "row_number": int(str(i)) + 2,
                         }

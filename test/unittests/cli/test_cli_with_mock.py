@@ -254,6 +254,20 @@ def test_ingest_xmlupload_localhost(ingest_xmlupload: Mock) -> None:
 
 
 @patch("dsp_tools.cli.call_action.ingest_xmlupload")
+def test_ingest_xmlupload_interrupt_after(ingest_xmlupload: Mock) -> None:
+    xml_file = Path("filename.xml")
+    args = f"ingest-xmlupload --interrupt-after=1 {xml_file}".split()
+    entry_point.run(args)
+    creds = ServerCredentials(
+        server="http://0.0.0.0:3333",
+        user="root@example.com",
+        password="test",
+        dsp_ingest_url="http://0.0.0.0:3340",
+    )
+    ingest_xmlupload.assert_called_once_with(xml_file=xml_file, creds=creds, interrupt_after=1)
+
+
+@patch("dsp_tools.cli.call_action.ingest_xmlupload")
 def test_ingest_xmlupload_remote(ingest_xmlupload: Mock) -> None:
     xml_file = Path("filename.xml")
     server = "https://api.test.dasch.swiss"

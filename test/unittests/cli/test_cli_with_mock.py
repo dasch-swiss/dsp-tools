@@ -131,6 +131,34 @@ def test_xmlupload_no_iiif(xmlupload: Mock) -> None:
     )
 
 
+@patch("dsp_tools.cli.call_action.resume_xmlupload")
+def test_resume_xmlupload_default(resume_xmlupload: Mock) -> None:
+    """Test the 'dsp-tools resume-xmlupload' command"""
+    args = "resume-xmlupload".split()
+    creds = ServerCredentials(
+        server="http://0.0.0.0:3333",
+        user="root@example.com",
+        password="test",
+        dsp_ingest_url="http://0.0.0.0:3340",
+    )
+    entry_point.run(args)
+    resume_xmlupload.assert_called_once_with(creds=creds, skip_first_resource=False)
+
+
+@patch("dsp_tools.cli.call_action.resume_xmlupload")
+def test_resume_xmlupload_skip_first_resource(resume_xmlupload: Mock) -> None:
+    """Test the 'dsp-tools resume-xmlupload --skip-first-resource' command"""
+    args = "resume-xmlupload --skip-first-resource".split()
+    creds = ServerCredentials(
+        server="http://0.0.0.0:3333",
+        user="root@example.com",
+        password="test",
+        dsp_ingest_url="http://0.0.0.0:3340",
+    )
+    entry_point.run(args)
+    resume_xmlupload.assert_called_once_with(creds=creds, skip_first_resource=True)
+
+
 @patch("dsp_tools.cli.call_action.upload_files")
 def test_upload_files_localhost(upload_files: Mock) -> None:
     file = "filename.xml"

@@ -3,8 +3,8 @@ import pytest
 
 from dsp_tools.commands.excel2json.models.input_error_lists import ListNodeProblem
 from dsp_tools.commands.excel2json.models.input_error_lists import ListSheetProblem
-from dsp_tools.commands.excel2json.models.list_node import ListNode
-from dsp_tools.commands.excel2json.models.list_node import ListRoot
+from dsp_tools.commands.excel2json.models.new_lists_serialise import ListNode
+from dsp_tools.commands.excel2json.models.new_lists_serialise import ListRoot
 
 
 class TestListRoot:

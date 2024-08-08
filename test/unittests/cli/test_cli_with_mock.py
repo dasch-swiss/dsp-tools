@@ -6,6 +6,7 @@ import pytest
 
 from dsp_tools.cli import entry_point
 from dsp_tools.cli.args import ServerCredentials
+from dsp_tools.commands.start_stack import StackConfiguration
 from dsp_tools.commands.xmlupload.upload_config import UploadConfig
 
 EXIT_CODE_TWO = 2
@@ -338,11 +339,111 @@ def test_excel2xml(excel2xml: Mock) -> None:
 
 
 @patch("dsp_tools.commands.start_stack.StackHandler.start_stack")
-def test_start_stack(start_stack: Mock) -> None:
-    """Test the 'dsp-tools start-stack' command"""
+@patch("dsp_tools.commands.start_stack.StackHandler.__init__", return_value=None)
+def test_start_stack_default(mock_init: Mock, start_stack: Mock) -> None:
+    """Test the '_call_start_stack' function"""
     args = "start-stack".split()
     entry_point.run(args)
-    start_stack.assert_called_once_with()
+    mock_init.assert_called_once_with(
+        StackConfiguration(
+            max_file_size=None,
+            enforce_docker_system_prune=False,
+            suppress_docker_system_prune=False,
+            latest_dev_version=False,
+            upload_test_data=False,
+        )
+    )
+    start_stack.assert_called_once()
+
+
+@patch("dsp_tools.commands.start_stack.StackHandler.start_stack")
+@patch("dsp_tools.commands.start_stack.StackHandler.__init__", return_value=None)
+def test_start_stack_max_file_size(mock_init: Mock, start_stack: Mock) -> None:
+    """Test the '_call_start_stack' function"""
+    args = "start-stack --max_file_size=1".split()
+    entry_point.run(args)
+    mock_init.assert_called_once_with(
+        StackConfiguration(
+            max_file_size=1,
+            enforce_docker_system_prune=False,
+            suppress_docker_system_prune=False,
+            latest_dev_version=False,
+            upload_test_data=False,
+        )
+    )
+    start_stack.assert_called_once()
+
+
+@patch("dsp_tools.commands.start_stack.StackHandler.start_stack")
+@patch("dsp_tools.commands.start_stack.StackHandler.__init__", return_value=None)
+def test_start_stack_prune(mock_init: Mock, start_stack: Mock) -> None:
+    """Test the 'dsp-tools start-stack --prune' command"""
+    args = "start-stack --prune".split()
+    entry_point.run(args)
+    mock_init.assert_called_once_with(
+        StackConfiguration(
+            max_file_size=None,
+            enforce_docker_system_prune=True,
+            suppress_docker_system_prune=False,
+            latest_dev_version=False,
+            upload_test_data=False,
+        )
+    )
+    start_stack.assert_called_once()
+
+
+@patch("dsp_tools.commands.start_stack.StackHandler.start_stack")
+@patch("dsp_tools.commands.start_stack.StackHandler.__init__", return_value=None)
+def test_start_stack_no_prune(mock_init: Mock, start_stack: Mock) -> None:
+    """Test the 'dsp-tools start-stack --no-prune' command"""
+    args = "start-stack --no-prune".split()
+    entry_point.run(args)
+    mock_init.assert_called_once_with(
+        StackConfiguration(
+            max_file_size=None,
+            enforce_docker_system_prune=False,
+            suppress_docker_system_prune=True,
+            latest_dev_version=False,
+            upload_test_data=False,
+        )
+    )
+    start_stack.assert_called_once()
+
+
+@patch("dsp_tools.commands.start_stack.StackHandler.start_stack")
+@patch("dsp_tools.commands.start_stack.StackHandler.__init__", return_value=None)
+def test_start_stack_latest(mock_init: Mock, start_stack: Mock) -> None:
+    """Test the 'dsp-tools start-stack --latest' command"""
+    args = "start-stack --latest".split()
+    entry_point.run(args)
+    mock_init.assert_called_once_with(
+        StackConfiguration(
+            max_file_size=None,
+            enforce_docker_system_prune=False,
+            suppress_docker_system_prune=False,
+            latest_dev_version=True,
+            upload_test_data=False,
+        )
+    )
+    start_stack.assert_called_once()
+
+
+@patch("dsp_tools.commands.start_stack.StackHandler.start_stack")
+@patch("dsp_tools.commands.start_stack.StackHandler.__init__", return_value=None)
+def test_start_stack_with_test_data(mock_init: Mock, start_stack: Mock) -> None:
+    """Test the 'dsp-tools start-stack --with-test-data' command"""
+    args = "start-stack --with-test-data".split()
+    entry_point.run(args)
+    mock_init.assert_called_once_with(
+        StackConfiguration(
+            max_file_size=None,
+            enforce_docker_system_prune=False,
+            suppress_docker_system_prune=False,
+            latest_dev_version=False,
+            upload_test_data=True,
+        )
+    )
+    start_stack.assert_called_once()
 
 
 @patch("dsp_tools.commands.start_stack.StackHandler.stop_stack")

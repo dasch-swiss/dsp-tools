@@ -370,8 +370,7 @@ def _make_all_formal_excel_compliance_checks(list_files: list[ExcelFile]) -> Non
     Check if the excel files are compliant with the expected format.
 
     Args:
-        list_files: dictionary with the excel file name as key
-                    and a dictionary with the sheet name as key and the dataframe.
+        list_files: Class with the filename and the sheets
 
     Raises:
         InputError: If any unexpected input is found in the excel files.
@@ -391,8 +390,7 @@ def _check_duplicates_all_excels(list_files: list[ExcelFile]) -> None:
     A duplicate in the node names is defined as several rows with the same entries in the columns with the node names.
 
     Args:
-        list_files: dictionary with the excel file name as key
-                    and a dictionary with the sheet name as key and the dataframe.
+        list_files: Class with the filename and the sheets
 
     Raises:
         InputError: If any complete duplicates are found in the excel files.
@@ -485,8 +483,7 @@ def _make_shape_compliance_all_excels(list_files: list[ExcelFile]) -> None:
     Check if the excel files are compliant with the expected format.
 
     Args:
-        list_files: dictionary with the excel file name as key
-                    and a dictionary with the sheet name as key and the dataframe.
+        list_files: Class with the filename and the sheets
 
     Raises:
         InputError: If any unexpected input is found in the excel files.
@@ -577,8 +574,7 @@ def _make_all_content_compliance_checks_all_excels(list_files: list[ExcelFile]) 
     Check if the content of the excel files is compliant with the expected format.
 
     Args:
-        list_files: dictionary with the excel file name as key
-                    and a dictionary with the sheet name as key and the dataframe.
+        list_files: Class with the filename and the sheets
 
     Raises:
         InputError: If any node is missing translations

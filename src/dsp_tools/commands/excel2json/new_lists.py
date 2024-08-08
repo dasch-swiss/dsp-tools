@@ -381,6 +381,9 @@ def _check_duplicates_all_excels(list_files: list[ExcelFile]) -> None:
     and if the custom IDs are unique across all excel files.
     A duplicate in the node names is defined as several rows with the same entries in the columns with the node names.
 
+    Args:
+        list_files: class instances representing an excel file with sheets
+
     Raises:
         InputError: If any complete duplicates are found in the excel files.
     """

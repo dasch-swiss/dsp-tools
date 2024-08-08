@@ -11,6 +11,8 @@ from dsp_tools.commands.excel2json.models.input_error_lists import ListSheetCont
 from dsp_tools.commands.excel2json.models.input_error_lists import MissingNodeTranslationProblem
 from dsp_tools.commands.excel2json.models.input_error_lists import MissingTranslationsSheetProblem
 from dsp_tools.commands.excel2json.models.input_error_lists import NodesPerRowProblem
+from dsp_tools.commands.excel2json.models.new_lists_deserialise import ExcelFile
+from dsp_tools.commands.excel2json.models.new_lists_deserialise import ExcelSheet
 from dsp_tools.commands.excel2json.new_lists import _check_duplicates_all_excels
 from dsp_tools.commands.excel2json.new_lists import _check_for_duplicate_nodes_one_df
 from dsp_tools.commands.excel2json.new_lists import _check_for_erroneous_entries_all_excels
@@ -51,8 +53,11 @@ class TestFormalExcelCompliance:
                 "de_3": [pd.NA, pd.NA, pd.NA, "node1.1.1", pd.NA, pd.NA, pd.NA, pd.NA],
             }
         )
-        df_dict = {"file1": {"sheet1": df_1}, "file2": {"sheet2": df_2}}
-        _make_shape_compliance_all_excels(df_dict)
+        all_excels = [
+            ExcelFile(filename="file1", sheets=[ExcelSheet(sheet_name="sheet1", df=df_1)]),
+            ExcelFile(filename="file2", sheets=[ExcelSheet(sheet_name="sheet2", df=df_2)]),
+        ]
+        _make_shape_compliance_all_excels(all_excels)
 
     def test_problem(self) -> None:
         df_1 = pd.DataFrame({"en_list": ["list1", "list1", "list1", "list1"]})
@@ -73,7 +78,13 @@ class TestFormalExcelCompliance:
                 "en_1": ["node1"],
             }
         )
-        df_dict = {"file1": {"sheet1": df_1}, "file2": {"sheet2": df_2, "sheet3": df_3}}
+        all_excels = [
+            ExcelFile(filename="file1", sheets=[ExcelSheet(sheet_name="sheet1", df=df_1)]),
+            ExcelFile(
+                filename="file2",
+                sheets=[ExcelSheet(sheet_name="sheet2", df=df_2), ExcelSheet(sheet_name="sheet3", df=df_3)],
+            ),
+        ]
         expected = regex.escape(
             "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"
             "---------------------------------------\n\n"
@@ -92,7 +103,7 @@ class TestFormalExcelCompliance:
             "one for the list name and one row for a minimum of one node."
         )
         with pytest.raises(InputError, match=expected):
-            _make_shape_compliance_all_excels(df_dict)
+            _make_shape_compliance_all_excels(all_excels)
 
 
 class TestCheckExcelsForDuplicates:
@@ -117,8 +128,11 @@ class TestCheckExcelsForDuplicates:
                 "de_3": [pd.NA, pd.NA, pd.NA, "node1.1.1", pd.NA, pd.NA, pd.NA, pd.NA],
             }
         )
-        df_dict = {"file1": {"sheet1": df_1}, "file2": {"sheet2": df_2}}
-        _check_duplicates_all_excels(df_dict)
+        all_excels = [
+            ExcelFile(filename="file1", sheets=[ExcelSheet(sheet_name="sheet1", df=df_1)]),
+            ExcelFile(filename="file2", sheets=[ExcelSheet(sheet_name="sheet2", df=df_2)]),
+        ]
+        _check_duplicates_all_excels(all_excels)
 
     def test_problem(self) -> None:
         df_1 = pd.DataFrame(
@@ -128,7 +142,9 @@ class TestCheckExcelsForDuplicates:
                 "id (optional)": [1, 2, 3, 4],
             }
         )
-        df_dict = {"file1": {"sheet1": df_1}}
+        all_excels = [
+            ExcelFile(filename="file1", sheets=[ExcelSheet(sheet_name="sheet1", df=df_1)]),
+        ]
         expected = regex.escape(
             "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"
             "---------------------------------------\n\n"
@@ -139,7 +155,7 @@ class TestCheckExcelsForDuplicates:
             "    - 4"
         )
         with pytest.raises(InputError, match=expected):
-            _check_duplicates_all_excels(df_dict)
+            _check_duplicates_all_excels(all_excels)
 
     def test_problem_duplicate_id(self) -> None:
         df_1 = pd.DataFrame(
@@ -156,7 +172,10 @@ class TestCheckExcelsForDuplicates:
                 "id (optional)": [1, 22, 4],
             }
         )
-        df_dict = {"file1": {"sheet1": df_1}, "file2": {"sheet2": df_2}}
+        all_excels = [
+            ExcelFile(filename="file1", sheets=[ExcelSheet(sheet_name="sheet1", df=df_1)]),
+            ExcelFile(filename="file2", sheets=[ExcelSheet(sheet_name="sheet2", df=df_2)]),
+        ]
         expected = regex.escape(
             "\nThe excel file(s) used to create the list section have the following problem(s):"
             "\n\n---------------------------------------\n\n"
@@ -171,7 +190,7 @@ class TestCheckExcelsForDuplicates:
             "    - Excel 'file2' | Sheet 'sheet2' | Row 4"
         )
         with pytest.raises(InputError, match=expected):
-            _check_duplicates_all_excels(df_dict)
+            _check_duplicates_all_excels(all_excels)
 
 
 class TestCheckForDuplicateListNames:
@@ -186,8 +205,11 @@ class TestCheckForDuplicateListNames:
                 "en_list": ["list2", "list2"],
             }
         )
-        df_dict = {"file1": {"sheet1": df_1}, "file2": {"sheet2": df_2}}
-        _check_for_unique_list_names(df_dict)
+        all_excels = [
+            ExcelFile(filename="file1", sheets=[ExcelSheet(sheet_name="sheet1", df=df_1)]),
+            ExcelFile(filename="file2", sheets=[ExcelSheet(sheet_name="sheet2", df=df_2)]),
+        ]
+        _check_for_unique_list_names(all_excels)
 
     def test_problem(self) -> None:
         df_1 = pd.DataFrame(
@@ -205,7 +227,13 @@ class TestCheckForDuplicateListNames:
                 "en_list": ["list2", "list2"],
             }
         )
-        df_dict = {"file1": {"sheet1": df_1, "sheet2": df_2}, "file2": {"sheet2": df_3}}
+        all_excels = [
+            ExcelFile(
+                filename="file1",
+                sheets=[ExcelSheet(sheet_name="sheet1", df=df_1), ExcelSheet(sheet_name="sheet2", df=df_2)],
+            ),
+            ExcelFile(filename="file2", sheets=[ExcelSheet(sheet_name="sheet2", df=df_3)]),
+        ]
         expected = regex.escape(
             "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"
             "---------------------------------------\n\n"
@@ -220,7 +248,7 @@ class TestCheckForDuplicateListNames:
             "    - Excel file: 'file2', Sheet: 'sheet2', List: 'list2'"
         )
         with pytest.raises(InputError, match=expected):
-            _check_for_unique_list_names(df_dict)
+            _check_for_unique_list_names(all_excels)
 
 
 class TestCheckForDuplicates:
@@ -372,8 +400,11 @@ class TestCheckAllExcelsMissingTranslations:
                 "de_3": [pd.NA, pd.NA, pd.NA, "node1.1.1", pd.NA, pd.NA, pd.NA, pd.NA],
             }
         )
-        df_dict = {"file1": {"sheet1": df_1}, "file2": {"sheet2": df_2}}
-        _check_for_missing_translations_all_excels(df_dict)
+        all_excels = [
+            ExcelFile(filename="file1", sheets=[ExcelSheet(sheet_name="sheet1", df=df_1)]),
+            ExcelFile(filename="file2", sheets=[ExcelSheet(sheet_name="sheet2", df=df_2)]),
+        ]
+        _check_for_missing_translations_all_excels(all_excels)
 
     def test_problem(self) -> None:
         df_1 = pd.DataFrame({"en_list": ["list1", "list1", "list1", "list1"], "en_1": [pd.NA, "node1", pd.NA, "node3"]})
@@ -389,7 +420,10 @@ class TestCheckAllExcelsMissingTranslations:
                 "de_3": [pd.NA, pd.NA, pd.NA, "node1.1.1", pd.NA, pd.NA, pd.NA],
             }
         )
-        df_dict = {"file1": {"sheet1": df_1}, "file2": {"sheet2": df_2}}
+        all_excels = [
+            ExcelFile(filename="file1", sheets=[ExcelSheet(sheet_name="sheet1", df=df_1)]),
+            ExcelFile(filename="file2", sheets=[ExcelSheet(sheet_name="sheet2", df=df_2)]),
+        ]
         expected = regex.escape(
             "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"
             "---------------------------------------\n\n"
@@ -401,7 +435,7 @@ class TestCheckAllExcelsMissingTranslations:
             "    - Row Number: 8 Column(s): de_1"
         )
         with pytest.raises(InputError, match=expected):
-            _check_for_missing_translations_all_excels(df_dict)
+            _check_for_missing_translations_all_excels(all_excels)
 
 
 class TestAllNodesTranslatedIntoAllLanguages:
@@ -631,8 +665,11 @@ class TestCheckAllExcelForRowProblems:
                 "en_3": [pd.NA, pd.NA, pd.NA, "node1.1.1", pd.NA, pd.NA, pd.NA, pd.NA],
             }
         )
-        df_dict = {"file1": {"sheet1": df_1}, "file2": {"sheet2": df_2}}
-        _check_for_erroneous_entries_all_excels(df_dict)
+        all_excels = [
+            ExcelFile(filename="file1", sheets=[ExcelSheet(sheet_name="sheet1", df=df_1)]),
+            ExcelFile(filename="file2", sheets=[ExcelSheet(sheet_name="sheet2", df=df_2)]),
+        ]
+        _check_for_erroneous_entries_all_excels(all_excels)
 
     def test_all_problem(self) -> None:
         df_1 = pd.DataFrame({"en_list": ["list1", "list1", "list1", "list1"], "en_1": [pd.NA, "node1", pd.NA, "node3"]})
@@ -643,7 +680,10 @@ class TestCheckAllExcelForRowProblems:
                 "en_2": [pd.NA, pd.NA, "node1.1", "node1.2", "node2.1", pd.NA],
             }
         )
-        df_dict = {"file1": {"sheet1": df_1}, "file2": {"sheet2": df_2}}
+        all_excels = [
+            ExcelFile(filename="file1", sheets=[ExcelSheet(sheet_name="sheet1", df=df_1)]),
+            ExcelFile(filename="file2", sheets=[ExcelSheet(sheet_name="sheet2", df=df_2)]),
+        ]
         expected = regex.escape(
             "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"
             "---------------------------------------\n\n"
@@ -656,7 +696,7 @@ class TestCheckAllExcelForRowProblems:
             "    - Row Number: 6, Column(s) that must be empty: en_2"
         )
         with pytest.raises(InputError, match=expected):
-            _check_for_erroneous_entries_all_excels(df_dict)
+            _check_for_erroneous_entries_all_excels(all_excels)
 
 
 class TestOneSheetErrors:

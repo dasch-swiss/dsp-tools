@@ -31,6 +31,8 @@ from dsp_tools.commands.excel2json.models.input_error_lists import MissingNodeTr
 from dsp_tools.commands.excel2json.models.input_error_lists import MissingTranslationsSheetProblem
 from dsp_tools.commands.excel2json.models.input_error_lists import MultipleListPerSheetProblem
 from dsp_tools.commands.excel2json.models.input_error_lists import NodesPerRowProblem
+from dsp_tools.commands.excel2json.models.new_lists_deserialise import ExcelFile
+from dsp_tools.commands.excel2json.models.new_lists_deserialise import ExcelSheet
 from dsp_tools.commands.excel2json.models.new_lists_serialise import ListNode
 from dsp_tools.commands.excel2json.models.new_lists_serialise import ListRoot
 from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
@@ -56,11 +58,9 @@ def new_excel2lists(
     Returns:
         a tuple consisting of the "lists" section as Python list, and the success status (True if everything went well)
     """
-    file_names = [file for file in Path(excelfolder).glob("*list*.xlsx", case_sensitive=False) if _non_hidden(file)]
+    list_files = _parse_files(excelfolder)
 
-    excel_dfs = {file.stem: read_and_clean_all_sheets(file) for file in file_names}
-
-    finished_lists = _make_serialised_lists(excel_dfs)
+    finished_lists = _make_serialised_lists(list_files)
     validate_lists_section_with_schema(lists_section=finished_lists)
 
     if path_to_output_file:
@@ -71,13 +71,22 @@ def new_excel2lists(
     return finished_lists, True
 
 
+def _parse_files(excelfolder: Path | str) -> list[ExcelFile]:
+    file_names = [file for file in Path(excelfolder).glob("*list*.xlsx", case_sensitive=False) if _non_hidden(file)]
+    all_files = []
+    for file in file_names:
+        sheets = [ExcelSheet(sheet_name=name, df=df) for name, df in read_and_clean_all_sheets(file).items()]
+        all_files.append(ExcelFile(filename=file.stem, sheets=sheets))
+    return all_files
+
+
 def _non_hidden(path: Path) -> bool:
     return not regex.search(r"^(\.|~\$).+", path.name)
 
 
-def _make_serialised_lists(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> list[dict[str, Any]]:
-    excel_dfs = _prepare_dfs(excel_dfs)
-    all_lists = _make_all_lists(excel_dfs)
+def _make_serialised_lists(list_files: list[ExcelFile]) -> list[dict[str, Any]]:
+    list_files = _prepare_dfs(list_files)
+    all_lists = _make_all_lists(list_files)
     if isinstance(all_lists, ListCreationProblem):
         msg = all_lists.execute_error_protocol()
         logger.error(msg)
@@ -85,62 +94,65 @@ def _make_serialised_lists(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> lis
     return [list_.to_dict() for list_ in all_lists]
 
 
-def _make_all_lists(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> list[ListRoot] | ListCreationProblem:
+def _make_all_lists(list_files: list[ExcelFile]) -> list[ListRoot] | ListCreationProblem:
     good_lists = []
     problem_lists: list[Problem] = []
-    for filename, sheets in excel_dfs.items():
+    for file in list_files:
         file_problems: list[Problem] = []
-        for sheet_name, df in sheets.items():
-            if isinstance(new_list := _make_one_list(df, sheet_name), ListRoot):
+        for sheet in file.sheets:
+            if isinstance(new_list := _make_one_list(sheet.df, sheet.sheet_name), ListRoot):
                 good_lists.append(new_list)
             else:
                 file_problems.append(new_list)
         if file_problems:
-            problem_lists.append(ExcelFileProblem(filename, file_problems))
+            problem_lists.append(ExcelFileProblem(file.filename, file_problems))
     if problem_lists:
         return ListCreationProblem(problem_lists)
     return good_lists
 
 
-def _prepare_dfs(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> dict[str, dict[str, pd.DataFrame]]:
-    excel_dfs = _add_id_optional_column_if_not_exists(excel_dfs)
-    _make_all_formal_excel_compliance_checks(excel_dfs)
-    return _construct_ids(excel_dfs)
+def _prepare_dfs(list_files: list[ExcelFile]) -> list[ExcelFile]:
+    list_files = _add_id_optional_column_if_not_exists(list_files)
+    _make_all_formal_excel_compliance_checks(list_files)
+    return _construct_ids(list_files)
 
 
-def _add_id_optional_column_if_not_exists(
-    excel_dfs: dict[str, dict[str, pd.DataFrame]],
-) -> dict[str, dict[str, pd.DataFrame]]:
-    all_file_dict = {}
-    for filename, sheets in excel_dfs.items():
-        single_file_dict = {}
-        for sheet_name, df in sheets.items():
-            if "id (optional)" not in df.columns:
+def _add_id_optional_column_if_not_exists(list_files: list[ExcelFile]) -> list[ExcelFile]:
+    all_files = []
+    for file in list_files:
+        all_sheets = []
+        for sheet in file.sheets:
+            if "id (optional)" not in sheet.df.columns:
+                df = sheet.df
                 df["id (optional)"] = pd.NA
-            single_file_dict[sheet_name] = df
-        all_file_dict[filename] = single_file_dict
-    return all_file_dict
+                all_sheets.append(ExcelSheet(sheet_name=sheet.sheet_name, df=df))
+            else:
+                all_sheets.append(sheet)
+        all_files.append(ExcelFile(filename=file.filename, sheets=all_sheets))
+    return all_files
 
 
-def _construct_ids(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> dict[str, dict[str, pd.DataFrame]]:
-    all_file_dict = {}
-    for filename, sheets in excel_dfs.items():
-        single_file_dict = {}
-        for sheet_name, df in sheets.items():
-            single_file_dict[sheet_name] = _complete_id_one_df(df, _get_preferred_language(df.columns))
-        all_file_dict[filename] = single_file_dict
-    all_file_dict = _resolve_duplicate_ids_all_excels(all_file_dict)
-    return _fill_parent_id_col_all_excels(all_file_dict)
+def _construct_ids(list_files: list[ExcelFile]) -> list[ExcelFile]:
+    all_files = []
+    for file in list_files:
+        all_sheets = []
+        for sheet in file.sheets:
+            df = _complete_id_one_df(sheet.df, _get_preferred_language(sheet.df.columns))
+            all_sheets.append(ExcelSheet(sheet_name=sheet.sheet_name, df=df))
+        all_files.append(ExcelFile(filename=file.filename, sheets=all_sheets))
+    all_files = _resolve_duplicate_ids_all_excels(all_files)
+    return _fill_parent_id_col_all_excels(all_files)
 
 
-def _fill_parent_id_col_all_excels(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> dict[str, dict[str, pd.DataFrame]]:
-    all_file_dict = {}
-    for filename, sheets in excel_dfs.items():
-        single_file_dict = {}
-        for sheet_name, df in sheets.items():
-            single_file_dict[sheet_name] = _fill_parent_id_col_one_df(df, _get_preferred_language(df.columns))
-        all_file_dict[filename] = single_file_dict
-    return all_file_dict
+def _fill_parent_id_col_all_excels(list_files: list[ExcelFile]) -> list[ExcelFile]:
+    all_files = []
+    for file in list_files:
+        all_sheets = []
+        for sheet in file.sheets:
+            df = _fill_parent_id_col_one_df(sheet.df, _get_preferred_language(sheet.df.columns))
+            all_sheets.append(ExcelSheet(sheet_name=sheet.sheet_name, df=df))
+        all_files.append(ExcelFile(filename=file.filename, sheets=all_sheets))
+    return all_files
 
 
 def _fill_parent_id_col_one_df(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
@@ -158,29 +170,30 @@ def _fill_parent_id_col_one_df(df: pd.DataFrame, preferred_language: str) -> pd.
     return df
 
 
-def _resolve_duplicate_ids_all_excels(
-    excel_dfs: dict[str, dict[str, pd.DataFrame]],
-) -> dict[str, dict[str, pd.DataFrame]]:
+def _resolve_duplicate_ids_all_excels(list_files: list[ExcelFile]) -> list[ExcelFile]:
     ids = []
-    for sheets in excel_dfs.values():
-        for df in sheets.values():
-            ids.extend(df["id"].tolist())
+    for file in list_files:
+        for sheet in file.sheets:
+            ids.extend(sheet.df["id"].tolist())
     counter = Counter(ids)
     if duplicate_ids := [item for item, count in counter.items() if count > 1]:
-        return _remove_duplicate_ids_in_all_excels(duplicate_ids, excel_dfs)
-    return excel_dfs
+        return _remove_duplicate_ids_in_all_excels(duplicate_ids, list_files)
+    return list_files
 
 
-def _remove_duplicate_ids_in_all_excels(
-    duplicate_ids: list[str], excel_dfs: dict[str, dict[str, pd.DataFrame]]
-) -> dict[str, dict[str, pd.DataFrame]]:
-    for sheets in excel_dfs.values():
-        for df in sheets.values():
-            preferred_lang = _get_preferred_language(df.columns)
+def _remove_duplicate_ids_in_all_excels(duplicate_ids: list[str], list_files: list[ExcelFile]) -> list[ExcelFile]:
+    all_files = []
+    for file in list_files:
+        all_sheets = []
+        for sheet in file.sheets:
+            preferred_lang = _get_preferred_language(sheet.df.columns)
+            df = sheet.df
             for i, row in df.iterrows():
                 if row["id"] in duplicate_ids and pd.isna(row["id (optional)"]):
                     df.at[i, "id"] = _construct_non_duplicate_id_string(df.iloc[int(str(i))], preferred_lang)
-    return excel_dfs
+            all_sheets.append(ExcelSheet(sheet.sheet_name, df))
+        all_files.append(ExcelFile(file.filename, all_sheets))
+    return list_files
 
 
 def _complete_id_one_df(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
@@ -352,52 +365,38 @@ def _get_preferred_language(columns: pd.Index[str], ending: str = r"(\d+|list)")
     raise InputError(msg)
 
 
-def _make_all_formal_excel_compliance_checks(
-    excel_dfs: dict[str, dict[str, pd.DataFrame]],
-) -> None:
-    """
-    Check if the excel files are compliant with the expected format.
-
-    Args:
-        excel_dfs: dictionary with the excel file name as key
-                    and a dictionary with the sheet name as key and the dataframe.
-
-    Raises:
-        InputError: If any unexpected input is found in the excel files.
-    """
+def _make_all_formal_excel_compliance_checks(list_files: list[ExcelFile]) -> None:
+    """Check if the excel files are compliant with the expected format."""
     # These functions must be called in this order,
     # as some of the following checks only work if the previous have passed.
-    _check_duplicates_all_excels(excel_dfs)
-    _check_for_unique_list_names(excel_dfs)
-    _make_shape_compliance_all_excels(excel_dfs)
-    _make_all_content_compliance_checks_all_excels(excel_dfs)
+    _check_duplicates_all_excels(list_files)
+    _check_for_unique_list_names(list_files)
+    _make_shape_compliance_all_excels(list_files)
+    _make_all_content_compliance_checks_all_excels(list_files)
 
 
-def _check_duplicates_all_excels(
-    excel_dfs: dict[str, dict[str, pd.DataFrame]],
-) -> None:
+def _check_duplicates_all_excels(list_files: list[ExcelFile]) -> None:
     """
     Check if the excel files contain duplicates with regard to the node names,
     and if the custom IDs are unique across all excel files.
     A duplicate in the node names is defined as several rows with the same entries in the columns with the node names.
 
     Args:
-        excel_dfs: dictionary with the excel file name as key
-                    and a dictionary with the sheet name as key and the dataframe.
+        list_files: class instances representing an excel file with sheets
 
     Raises:
         InputError: If any complete duplicates are found in the excel files.
     """
     problems: list[Problem] = []
-    for filename, excel_sheets in excel_dfs.items():
+    for file in list_files:
         complete_duplicates: list[Problem] = [
             p
-            for sheet_name, df in excel_sheets.items()
-            if (p := _check_for_duplicate_nodes_one_df(df, sheet_name)) is not None
+            for sheet in file.sheets
+            if (p := _check_for_duplicate_nodes_one_df(sheet.df, sheet.sheet_name)) is not None
         ]
         if complete_duplicates:
-            problems.append(ExcelFileProblem(filename, complete_duplicates))
-    if id_problem := _check_for_duplicate_custom_id_all_excels(excel_dfs):
+            problems.append(ExcelFileProblem(file.filename, complete_duplicates))
+    if id_problem := _check_for_duplicate_custom_id_all_excels(list_files):
         problems.append(id_problem)
     if problems:
         msg = ListCreationProblem(problems).execute_error_protocol()
@@ -405,20 +404,22 @@ def _check_duplicates_all_excels(
         raise InputError(msg)
 
 
-def _check_for_unique_list_names(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> None:
+def _check_for_unique_list_names(list_files: list[ExcelFile]) -> None:
     """This functon checks that one sheet only has one list and that all lists have unique names."""
     list_names: list[ListInformation] = []
     all_problems: list[Problem] = []
-    for excel_file, sheets in excel_dfs.items():
+    for excel_file in list_files:
         one_excel_problems: list[Problem] = []
-        for sheet_name, df in sheets.items():
-            preferred_language = _get_preferred_language(df.columns, r"list")
-            unique_list_names = list(df[f"{preferred_language}_list"].unique())
+        for sheet in excel_file.sheets:
+            preferred_language = _get_preferred_language(sheet.df.columns, r"list")
+            unique_list_names = list(sheet.df[f"{preferred_language}_list"].unique())
             if len(unique_list_names) != 1:
-                one_excel_problems.append(MultipleListPerSheetProblem(sheet_name, unique_list_names))
-            list_names.extend([ListInformation(excel_file, sheet_name, name) for name in unique_list_names])
+                one_excel_problems.append(MultipleListPerSheetProblem(sheet.sheet_name, unique_list_names))
+            list_names.extend(
+                [ListInformation(excel_file.filename, sheet.sheet_name, name) for name in unique_list_names]
+            )
         if one_excel_problems:
-            all_problems.append(ExcelFileProblem(excel_file, one_excel_problems))
+            all_problems.append(ExcelFileProblem(excel_file.filename, one_excel_problems))
     list_info_dict = defaultdict(list)
     for item in list_names:
         list_info_dict[item.list_name].append(item)
@@ -442,18 +443,16 @@ def _check_for_duplicate_nodes_one_df(df: pd.DataFrame, sheet_name: str) -> Dupl
     return None
 
 
-def _check_for_duplicate_custom_id_all_excels(
-    excel_dfs: dict[str, dict[str, pd.DataFrame]],
-) -> DuplicatesCustomIDInProblem | None:
+def _check_for_duplicate_custom_id_all_excels(list_files: list[ExcelFile]) -> DuplicatesCustomIDInProblem | None:
     id_list = []
-    for filename, excel_sheets in excel_dfs.items():
-        for sheet_name, df in excel_sheets.items():
-            for i, row in df.iterrows():
+    for file in list_files:
+        for sheet in file.sheets:
+            for i, row in sheet.df.iterrows():
                 if not pd.isna(row["id (optional)"]):
                     id_list.append(
                         {
-                            "filename": filename,
-                            "sheet_name": sheet_name,
+                            "filename": file.filename,
+                            "sheet_name": sheet.sheet_name,
                             "id": row["id (optional)"],
                             "row_number": int(str(i)) + 2,
                         }
@@ -471,26 +470,17 @@ def _check_for_duplicate_custom_id_all_excels(
     return None
 
 
-def _make_shape_compliance_all_excels(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> None:
-    """
-    Check if the excel files are compliant with the expected format.
-
-    Args:
-        excel_dfs: dictionary with the excel file name as key
-                    and a dictionary with the sheet name as key and the dataframe.
-
-    Raises:
-        InputError: If any unexpected input is found in the excel files.
-    """
+def _make_shape_compliance_all_excels(list_files: list[ExcelFile]) -> None:
+    """Check if the excel files are compliant with the expected format."""
     problems: list[Problem] = []
-    for filename, excel_sheets in excel_dfs.items():
+    for file in list_files:
         shape_problems: list[Problem] = [
             p
-            for sheet_name, df in excel_sheets.items()
-            if (p := _make_shape_compliance_one_sheet(df, sheet_name)) is not None
+            for sheet in file.sheets
+            if (p := _make_shape_compliance_one_sheet(sheet.df, sheet.sheet_name)) is not None
         ]
         if shape_problems:
-            problems.append(ExcelFileProblem(filename, shape_problems))
+            problems.append(ExcelFileProblem(file.filename, shape_problems))
     if problems:
         msg = ListCreationProblem(problems).execute_error_protocol()
         logger.error(msg)
@@ -563,33 +553,22 @@ def _check_if_all_translations_in_all_column_levels_present_one_sheet(cols: pd.I
     return {}
 
 
-def _make_all_content_compliance_checks_all_excels(
-    excel_dfs: dict[str, dict[str, pd.DataFrame]],
-) -> None:
-    """
-    Check if the content of the excel files is compliant with the expected format.
-
-    Args:
-        excel_dfs: dictionary with the excel file name as key
-                    and a dictionary with the sheet name as key and the dataframe.
-
-    Raises:
-        InputError: If any node is missing translations
-    """
-    _check_for_missing_translations_all_excels(excel_dfs)
-    _check_for_erroneous_entries_all_excels(excel_dfs)
+def _make_all_content_compliance_checks_all_excels(list_files: list[ExcelFile]) -> None:
+    """Check if the content of the excel files is compliant with the expected format."""
+    _check_for_missing_translations_all_excels(list_files)
+    _check_for_erroneous_entries_all_excels(list_files)
 
 
-def _check_for_missing_translations_all_excels(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> None:
+def _check_for_missing_translations_all_excels(list_files: list[ExcelFile]) -> None:
     problems: list[Problem] = []
-    for filename, excel_sheets in excel_dfs.items():
+    for file in list_files:
         missing_translations: list[Problem] = [
             p
-            for sheet_name, df in excel_sheets.items()
-            if (p := _check_for_missing_translations_one_sheet(df, sheet_name)) is not None
+            for sheet in file.sheets
+            if (p := _check_for_missing_translations_one_sheet(sheet.df, sheet.sheet_name)) is not None
         ]
         if missing_translations:
-            problems.append(ExcelFileProblem(filename, missing_translations))
+            problems.append(ExcelFileProblem(file.filename, missing_translations))
     if problems:
         msg = ListCreationProblem(problems).execute_error_protocol()
         logger.error(msg)
@@ -636,16 +615,16 @@ def _check_for_missing_translations_one_node(
     return None
 
 
-def _check_for_erroneous_entries_all_excels(excel_dfs: dict[str, dict[str, pd.DataFrame]]) -> None:
+def _check_for_erroneous_entries_all_excels(list_files: list[ExcelFile]) -> None:
     problems: list[Problem] = []
-    for filename, excel_sheets in excel_dfs.items():
+    for file in list_files:
         missing_rows: list[Problem] = [
             p
-            for sheet_name, df in excel_sheets.items()
-            if (p := _check_for_erroneous_entries_one_list(df, sheet_name)) is not None
+            for sheet in file.sheets
+            if (p := _check_for_erroneous_entries_one_list(sheet.df, sheet.sheet_name)) is not None
         ]
         if missing_rows:
-            problems.append(ExcelFileProblem(filename, missing_rows))
+            problems.append(ExcelFileProblem(file.filename, missing_rows))
     if problems:
         msg = ListCreationProblem(problems).execute_error_protocol()
         logger.error(msg)

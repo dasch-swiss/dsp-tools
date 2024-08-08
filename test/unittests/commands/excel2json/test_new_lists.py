@@ -48,8 +48,8 @@ class TestDuplicateID:
             }
         )
         all_excels = [
-            ExcelFile(filename="file1", sheets=[ExcelSheet(sheet_name="sheet1", df=f1_s1)]),
-            ExcelFile(filename="file2", sheets=[ExcelSheet(sheet_name="sheet2", df=f2_s2)]),
+            ExcelFile(filename="file1", sheets=[ExcelSheet(file_name="file1", sheet_name="sheet1", df=f1_s1)]),
+            ExcelFile(filename="file2", sheets=[ExcelSheet(file_name="file2", sheet_name="sheet2", df=f2_s2)]),
         ]
         res = _remove_duplicate_ids_in_all_excels(["1"], all_excels)
         assert len(res) == 2
@@ -78,8 +78,8 @@ class TestDuplicateID:
             }
         )
         all_excels = [
-            ExcelFile(filename="file1", sheets=[ExcelSheet(sheet_name="sheet1", df=f1_s1)]),
-            ExcelFile(filename="file2", sheets=[ExcelSheet(sheet_name="sheet2", df=f2_s2)]),
+            ExcelFile(filename="file1", sheets=[ExcelSheet(file_name="file1", sheet_name="sheet1", df=f1_s1)]),
+            ExcelFile(filename="file2", sheets=[ExcelSheet(file_name="file2", sheet_name="sheet2", df=f2_s2)]),
         ]
         res = _remove_duplicate_ids_in_all_excels(["1"], all_excels)
         assert len(res) == 2
@@ -108,8 +108,8 @@ class TestDuplicateID:
             }
         )
         all_excels = [
-            ExcelFile(filename="file1", sheets=[ExcelSheet(sheet_name="sheet1", df=f1_s1)]),
-            ExcelFile(filename="file2", sheets=[ExcelSheet(sheet_name="sheet2", df=f2_s2)]),
+            ExcelFile(filename="file1", sheets=[ExcelSheet(file_name="file1", sheet_name="sheet1", df=f1_s1)]),
+            ExcelFile(filename="file2", sheets=[ExcelSheet(file_name="file2", sheet_name="sheet2", df=f2_s2)]),
         ]
         res = _resolve_duplicate_ids_all_excels(all_excels)
         assert len(res) == 2
@@ -138,8 +138,8 @@ class TestDuplicateID:
             }
         )
         all_excels = [
-            ExcelFile(filename="file1", sheets=[ExcelSheet(sheet_name="sheet1", df=f1_s1)]),
-            ExcelFile(filename="file2", sheets=[ExcelSheet(sheet_name="sheet2", df=f2_s2)]),
+            ExcelFile(filename="file1", sheets=[ExcelSheet(file_name="file1", sheet_name="sheet1", df=f1_s1)]),
+            ExcelFile(filename="file2", sheets=[ExcelSheet(file_name="file2", sheet_name="sheet2", df=f2_s2)]),
         ]
         res = _resolve_duplicate_ids_all_excels(all_excels)
         assert len(res) == 2

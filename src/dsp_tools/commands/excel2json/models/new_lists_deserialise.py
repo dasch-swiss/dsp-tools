@@ -13,5 +13,6 @@ class ExcelFile:
 
 @dataclass
 class ExcelSheet:
+    file_name: str
     sheet_name: str
     df: pd.DataFrame

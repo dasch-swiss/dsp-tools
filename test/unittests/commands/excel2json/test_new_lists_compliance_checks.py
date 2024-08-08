@@ -54,8 +54,8 @@ class TestFormalExcelCompliance:
             }
         )
         all_excels = [
-            ExcelFile(filename="file1", sheets=[ExcelSheet(sheet_name="sheet1", df=df_1)]),
-            ExcelFile(filename="file2", sheets=[ExcelSheet(sheet_name="sheet2", df=df_2)]),
+            ExcelFile(filename="file1", sheets=[ExcelSheet(file_name="file1", sheet_name="sheet1", df=df_1)]),
+            ExcelFile(filename="file2", sheets=[ExcelSheet(file_name="file2", sheet_name="sheet2", df=df_2)]),
         ]
         _make_shape_compliance_all_excels(all_excels)
 
@@ -79,10 +79,13 @@ class TestFormalExcelCompliance:
             }
         )
         all_excels = [
-            ExcelFile(filename="file1", sheets=[ExcelSheet(sheet_name="sheet1", df=df_1)]),
+            ExcelFile(filename="file1", sheets=[ExcelSheet(file_name="file1", sheet_name="sheet1", df=df_1)]),
             ExcelFile(
                 filename="file2",
-                sheets=[ExcelSheet(sheet_name="sheet2", df=df_2), ExcelSheet(sheet_name="sheet3", df=df_3)],
+                sheets=[
+                    ExcelSheet(file_name="file2", sheet_name="sheet2", df=df_2),
+                    ExcelSheet(file_name="file2", sheet_name="sheet3", df=df_3),
+                ],
             ),
         ]
         expected = regex.escape(
@@ -129,8 +132,8 @@ class TestCheckExcelsForDuplicates:
             }
         )
         all_excels = [
-            ExcelFile(filename="file1", sheets=[ExcelSheet(sheet_name="sheet1", df=df_1)]),
-            ExcelFile(filename="file2", sheets=[ExcelSheet(sheet_name="sheet2", df=df_2)]),
+            ExcelFile(filename="file1", sheets=[ExcelSheet(file_name="file1", sheet_name="sheet1", df=df_1)]),
+            ExcelFile(filename="file2", sheets=[ExcelSheet(file_name="file2", sheet_name="sheet2", df=df_2)]),
         ]
         _check_duplicates_all_excels(all_excels)
 
@@ -143,7 +146,7 @@ class TestCheckExcelsForDuplicates:
             }
         )
         all_excels = [
-            ExcelFile(filename="file1", sheets=[ExcelSheet(sheet_name="sheet1", df=df_1)]),
+            ExcelFile(filename="file1", sheets=[ExcelSheet(file_name="file1", sheet_name="sheet1", df=df_1)]),
         ]
         expected = regex.escape(
             "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"
@@ -173,8 +176,8 @@ class TestCheckExcelsForDuplicates:
             }
         )
         all_excels = [
-            ExcelFile(filename="file1", sheets=[ExcelSheet(sheet_name="sheet1", df=df_1)]),
-            ExcelFile(filename="file2", sheets=[ExcelSheet(sheet_name="sheet2", df=df_2)]),
+            ExcelFile(filename="file1", sheets=[ExcelSheet(file_name="file1", sheet_name="sheet1", df=df_1)]),
+            ExcelFile(filename="file2", sheets=[ExcelSheet(file_name="file2", sheet_name="sheet2", df=df_2)]),
         ]
         expected = regex.escape(
             "\nThe excel file(s) used to create the list section have the following problem(s):"
@@ -206,8 +209,8 @@ class TestCheckForDuplicateListNames:
             }
         )
         all_excels = [
-            ExcelFile(filename="file1", sheets=[ExcelSheet(sheet_name="sheet1", df=df_1)]),
-            ExcelFile(filename="file2", sheets=[ExcelSheet(sheet_name="sheet2", df=df_2)]),
+            ExcelFile(filename="file1", sheets=[ExcelSheet(file_name="file1", sheet_name="sheet1", df=df_1)]),
+            ExcelFile(filename="file2", sheets=[ExcelSheet(file_name="file2", sheet_name="sheet2", df=df_2)]),
         ]
         _check_for_unique_list_names(all_excels)
 
@@ -230,9 +233,12 @@ class TestCheckForDuplicateListNames:
         all_excels = [
             ExcelFile(
                 filename="file1",
-                sheets=[ExcelSheet(sheet_name="sheet1", df=df_1), ExcelSheet(sheet_name="sheet2", df=df_2)],
+                sheets=[
+                    ExcelSheet(file_name="file1", sheet_name="sheet1", df=df_1),
+                    ExcelSheet(file_name="file1", sheet_name="sheet2", df=df_2),
+                ],
             ),
-            ExcelFile(filename="file2", sheets=[ExcelSheet(sheet_name="sheet2", df=df_3)]),
+            ExcelFile(filename="file2", sheets=[ExcelSheet(file_name="file2", sheet_name="sheet2", df=df_3)]),
         ]
         expected = regex.escape(
             "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"
@@ -401,8 +407,8 @@ class TestCheckAllExcelsMissingTranslations:
             }
         )
         all_excels = [
-            ExcelFile(filename="file1", sheets=[ExcelSheet(sheet_name="sheet1", df=df_1)]),
-            ExcelFile(filename="file2", sheets=[ExcelSheet(sheet_name="sheet2", df=df_2)]),
+            ExcelFile(filename="file1", sheets=[ExcelSheet(file_name="file1", sheet_name="sheet1", df=df_1)]),
+            ExcelFile(filename="file2", sheets=[ExcelSheet(file_name="file2", sheet_name="sheet2", df=df_2)]),
         ]
         _check_for_missing_translations_all_excels(all_excels)
 
@@ -421,8 +427,8 @@ class TestCheckAllExcelsMissingTranslations:
             }
         )
         all_excels = [
-            ExcelFile(filename="file1", sheets=[ExcelSheet(sheet_name="sheet1", df=df_1)]),
-            ExcelFile(filename="file2", sheets=[ExcelSheet(sheet_name="sheet2", df=df_2)]),
+            ExcelFile(filename="file1", sheets=[ExcelSheet(file_name="file1", sheet_name="sheet1", df=df_1)]),
+            ExcelFile(filename="file2", sheets=[ExcelSheet(file_name="file2", sheet_name="sheet2", df=df_2)]),
         ]
         expected = regex.escape(
             "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"
@@ -666,8 +672,8 @@ class TestCheckAllExcelForRowProblems:
             }
         )
         all_excels = [
-            ExcelFile(filename="file1", sheets=[ExcelSheet(sheet_name="sheet1", df=df_1)]),
-            ExcelFile(filename="file2", sheets=[ExcelSheet(sheet_name="sheet2", df=df_2)]),
+            ExcelFile(filename="file1", sheets=[ExcelSheet(file_name="file1", sheet_name="sheet1", df=df_1)]),
+            ExcelFile(filename="file2", sheets=[ExcelSheet(file_name="file1", sheet_name="sheet2", df=df_2)]),
         ]
         _check_for_erroneous_entries_all_excels(all_excels)
 
@@ -681,8 +687,8 @@ class TestCheckAllExcelForRowProblems:
             }
         )
         all_excels = [
-            ExcelFile(filename="file1", sheets=[ExcelSheet(sheet_name="sheet1", df=df_1)]),
-            ExcelFile(filename="file2", sheets=[ExcelSheet(sheet_name="sheet2", df=df_2)]),
+            ExcelFile(filename="file1", sheets=[ExcelSheet(file_name="file1", sheet_name="sheet1", df=df_1)]),
+            ExcelFile(filename="file2", sheets=[ExcelSheet(file_name="file2", sheet_name="sheet2", df=df_2)]),
         ]
         expected = regex.escape(
             "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"

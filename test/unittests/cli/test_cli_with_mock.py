@@ -82,15 +82,6 @@ def test_project_get(get_project: Mock) -> None:
     )
 
 
-@patch("dsp_tools.cli.call_action.validate_xml_file")
-def test_xmlupload_validate(validate_xml: Mock) -> None:
-    """Test the 'dsp-tools xmlupload --validate-only' command"""
-    file = "filename.xml"
-    args = f"xmlupload --validate-only {file}".split()
-    entry_point.run(args)
-    validate_xml.assert_called_once_with(Path(file))
-
-
 @patch("dsp_tools.cli.call_action.xmlupload")
 def test_xmlupload_default(xmlupload: Mock) -> None:
     """Test the 'dsp-tools xmlupload' command"""
@@ -107,13 +98,22 @@ def test_xmlupload_default(xmlupload: Mock) -> None:
         input_file=Path(file),
         creds=creds,
         imgdir=".",
-        config=UploadConfig(skip_iiif_validation=False),
+        config=UploadConfig(skip_iiif_validation=False, interrupt_after=None),
     )
+
+
+@patch("dsp_tools.cli.call_action.validate_xml_file")
+def test_xmlupload_validate(validate_xml: Mock) -> None:
+    """Test the 'dsp-tools xmlupload --validate-only' command"""
+    file = "filename.xml"
+    args = f"xmlupload --validate-only {file}".split()
+    entry_point.run(args)
+    validate_xml.assert_called_once_with(Path(file))
 
 
 @patch("dsp_tools.cli.call_action.xmlupload")
 def test_xmlupload_no_iiif(xmlupload: Mock) -> None:
-    """Test the 'dsp-tools xmlupload' command"""
+    """Test the 'dsp-tools xmlupload --no-iiif-uri-validation' command"""
     file = "filename.xml"
     no_validation = "--no-iiif-uri-validation"
     args = f"xmlupload {no_validation} {file}".split()
@@ -129,6 +129,23 @@ def test_xmlupload_no_iiif(xmlupload: Mock) -> None:
         creds=creds,
         imgdir=".",
         config=UploadConfig(skip_iiif_validation=True),
+    )
+
+
+@patch("dsp_tools.cli.call_action.xmlupload")
+def test_xmlupload_interrupt_after(xmlupload: Mock) -> None:
+    """Test the 'dsp-tools xmlupload --interrupt-after' command"""
+    file = "filename.xml"
+    args = f"xmlupload --interrupt-after=1 {file}".split()
+    creds = ServerCredentials(
+        server="http://0.0.0.0:3333",
+        user="root@example.com",
+        password="test",
+        dsp_ingest_url="http://0.0.0.0:3340",
+    )
+    entry_point.run(args)
+    xmlupload.assert_called_once_with(
+        input_file=Path(file), creds=creds, imgdir=".", config=UploadConfig(interrupt_after=1)
     )
 
 

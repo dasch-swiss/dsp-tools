@@ -366,15 +366,7 @@ def _get_preferred_language(columns: pd.Index[str], ending: str = r"(\d+|list)")
 
 
 def _make_all_formal_excel_compliance_checks(list_files: list[ExcelFile]) -> None:
-    """
-    Check if the excel files are compliant with the expected format.
-
-    Args:
-        list_files: Class with the filename and the sheets
-
-    Raises:
-        InputError: If any unexpected input is found in the excel files.
-    """
+    """Check if the excel files are compliant with the expected format."""
     # These functions must be called in this order,
     # as some of the following checks only work if the previous have passed.
     _check_duplicates_all_excels(list_files)
@@ -388,9 +380,6 @@ def _check_duplicates_all_excels(list_files: list[ExcelFile]) -> None:
     Check if the excel files contain duplicates with regard to the node names,
     and if the custom IDs are unique across all excel files.
     A duplicate in the node names is defined as several rows with the same entries in the columns with the node names.
-
-    Args:
-        list_files: Class with the filename and the sheets
 
     Raises:
         InputError: If any complete duplicates are found in the excel files.
@@ -479,15 +468,7 @@ def _check_for_duplicate_custom_id_all_excels(list_files: list[ExcelFile]) -> Du
 
 
 def _make_shape_compliance_all_excels(list_files: list[ExcelFile]) -> None:
-    """
-    Check if the excel files are compliant with the expected format.
-
-    Args:
-        list_files: Class with the filename and the sheets
-
-    Raises:
-        InputError: If any unexpected input is found in the excel files.
-    """
+    """Check if the excel files are compliant with the expected format."""
     problems: list[Problem] = []
     for file in list_files:
         shape_problems: list[Problem] = [
@@ -570,15 +551,7 @@ def _check_if_all_translations_in_all_column_levels_present_one_sheet(cols: pd.I
 
 
 def _make_all_content_compliance_checks_all_excels(list_files: list[ExcelFile]) -> None:
-    """
-    Check if the content of the excel files is compliant with the expected format.
-
-    Args:
-        list_files: Class with the filename and the sheets
-
-    Raises:
-        InputError: If any node is missing translations
-    """
+    """Check if the content of the excel files is compliant with the expected format."""
     _check_for_missing_translations_all_excels(list_files)
     _check_for_erroneous_entries_all_excels(list_files)
 

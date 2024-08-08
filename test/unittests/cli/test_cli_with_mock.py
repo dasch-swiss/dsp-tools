@@ -368,7 +368,7 @@ def test_new_excel2lists(excel2lists: Mock) -> None:
 
 
 @patch("dsp_tools.cli.call_action.id2iri")
-def test_id2iri(id2iri: Mock) -> None:
+def test_id2iri_default(id2iri: Mock) -> None:
     """Test the 'dsp-tools id2iri' command"""
     xml_file = "filename.xml"
     json_file = "filename.json"
@@ -378,6 +378,20 @@ def test_id2iri(id2iri: Mock) -> None:
         xml_file=xml_file,
         json_file=json_file,
         remove_resource_if_id_in_mapping=False,
+    )
+
+
+@patch("dsp_tools.cli.call_action.id2iri")
+def test_id2iri_remove_resources(id2iri: Mock) -> None:
+    """Test the 'dsp-tools id2iri --remove-resources' command"""
+    xml_file = "filename.xml"
+    json_file = "filename.json"
+    args = f"id2iri --remove-resources {xml_file} {json_file}".split()
+    entry_point.run(args)
+    id2iri.assert_called_once_with(
+        xml_file=xml_file,
+        json_file=json_file,
+        remove_resource_if_id_in_mapping=True,
     )
 
 

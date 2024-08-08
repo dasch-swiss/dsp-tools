@@ -3,8 +3,8 @@ import pytest
 import regex
 from pandas.testing import assert_frame_equal
 
-from dsp_tools.commands.excel2json.models.list_node import ListNode
-from dsp_tools.commands.excel2json.models.list_node import ListRoot
+from dsp_tools.commands.excel2json.models.new_lists_serialise import ListNode
+from dsp_tools.commands.excel2json.models.new_lists_serialise import ListRoot
 from dsp_tools.commands.excel2json.new_lists import _add_nodes_to_parent
 from dsp_tools.commands.excel2json.new_lists import _complete_id_one_df
 from dsp_tools.commands.excel2json.new_lists import _construct_non_duplicate_id_string

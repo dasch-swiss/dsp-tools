@@ -31,8 +31,8 @@ from dsp_tools.commands.excel2json.models.input_error_lists import MissingNodeTr
 from dsp_tools.commands.excel2json.models.input_error_lists import MissingTranslationsSheetProblem
 from dsp_tools.commands.excel2json.models.input_error_lists import MultipleListPerSheetProblem
 from dsp_tools.commands.excel2json.models.input_error_lists import NodesPerRowProblem
-from dsp_tools.commands.excel2json.models.list_node import ListNode
-from dsp_tools.commands.excel2json.models.list_node import ListRoot
+from dsp_tools.commands.excel2json.models.new_lists_serialise import ListNode
+from dsp_tools.commands.excel2json.models.new_lists_serialise import ListRoot
 from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError

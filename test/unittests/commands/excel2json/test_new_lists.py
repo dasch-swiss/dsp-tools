@@ -81,7 +81,6 @@ class TestDuplicateID:
             ExcelFile(filename="file1", sheets=[ExcelSheet(sheet_name="sheet1", df=f1_s1)]),
             ExcelFile(filename="file2", sheets=[ExcelSheet(sheet_name="sheet2", df=f2_s2)]),
         ]
-
         res = _remove_duplicate_ids_in_all_excels(["1"], all_excels)
         assert len(res) == 2
         file_one = res[0]

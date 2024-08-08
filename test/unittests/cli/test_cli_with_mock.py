@@ -413,7 +413,7 @@ def test_excel2xml(excel2xml: Mock) -> None:
 @patch("dsp_tools.commands.start_stack.StackHandler.start_stack")
 @patch("dsp_tools.commands.start_stack.StackHandler.__init__", return_value=None)
 def test_start_stack_default(mock_init: Mock, start_stack: Mock) -> None:
-    """Test the '_call_start_stack' function"""
+    """Test the 'dsp-tools start-stack' command"""
     args = "start-stack".split()
     entry_point.run(args)
     mock_init.assert_called_once_with(
@@ -431,7 +431,7 @@ def test_start_stack_default(mock_init: Mock, start_stack: Mock) -> None:
 @patch("dsp_tools.commands.start_stack.StackHandler.start_stack")
 @patch("dsp_tools.commands.start_stack.StackHandler.__init__", return_value=None)
 def test_start_stack_max_file_size(mock_init: Mock, start_stack: Mock) -> None:
-    """Test the '_call_start_stack' function"""
+    """Test the 'dsp-tools start-stack --max_file_size' command"""
     args = "start-stack --max_file_size=1".split()
     entry_point.run(args)
     mock_init.assert_called_once_with(

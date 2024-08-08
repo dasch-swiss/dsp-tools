@@ -119,16 +119,16 @@ def _prepare_dfs(list_files: list[ExcelFile]) -> list[ExcelFile]:
 
 def _add_id_optional_column_if_not_exists(list_files: list[ExcelFile]) -> list[ExcelFile]:
     all_files = []
-    for f in list_files:
+    for file in list_files:
         all_sheets = []
-        for sheet in f.sheets:
+        for sheet in file.sheets:
             if "id (optional)" not in sheet.df.columns:
                 df = sheet.df
                 df["id (optional)"] = pd.NA
                 all_sheets.append(ExcelSheet(sheet_name=sheet.sheet_name, df=df))
             else:
                 all_sheets.append(sheet)
-        all_files.append(ExcelFile(filename=f.filename, sheets=all_sheets))
+        all_files.append(ExcelFile(filename=file.filename, sheets=all_sheets))
     return all_files
 
 

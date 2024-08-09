@@ -241,12 +241,12 @@ class TestCheckForDuplicateListNames:
             ExcelFile(filename="file2", sheets=[ExcelSheet(excel_name="file2", sheet_name="sheet2", df=df_3)]),
         ]
         expected = regex.escape(
-            "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"
-            "---------------------------------------\n\n"
+            "\nThe excel file(s) used to create the list section have the following problem(s):"
+            "\n\n---------------------------------------\n\n"
             "The Excel file 'file1' contains the following problems:\n\n"
             "Per Excel sheet only one list is allowed.\n"
-            "The following sheet: 'sheet1' has more than one list: list1, list2\n\n"
-            "---------------------------------------\n\n"
+            "The sheet 'sheet1' has more than one list, namely the following: list1, list2"
+            "\n\n---------------------------------------\n\n"
             "The name of the list must be unique across all the excel sheets.\n"
             "The following sheets have lists with the same name:\n"
             "    - Excel file: 'file1', Sheet: 'sheet1', List: 'list2'\n"
@@ -440,12 +440,12 @@ class TestCheckAllExcelsMissingTranslations:
             ExcelFile(filename="file2", sheets=[ExcelSheet(excel_name="file2", sheet_name="sheet2", df=df_2)]),
         ]
         expected = regex.escape(
-            "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"
-            "---------------------------------------\n\n"
+            "\nThe excel file(s) used to create the list section have the following problem(s):"
+            "\n\n---------------------------------------\n\n"
             "The Excel file 'file2' contains the following problems:\n\n"
             "The excel sheet 'sheet2' has the following problem(s):\n"
             "In one list, all the nodes must be translated into all the languages used. "
-            "The following nodes are missing translations:\n"
+            "For the following nodes, the translations are missing:\n"
             "    - Row Number: 3 Column(s): en_1\n"
             "    - Row Number: 8 Column(s): de_1"
         )

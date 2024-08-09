@@ -33,6 +33,14 @@ class ListNodeProblem:
 
 
 @dataclass
+class SheetProblem(Protocol):
+    excel_name: str
+
+    def execute_error_protocol(self) -> str:
+        raise NotImplementedError
+
+
+@dataclass
 class CollectedSheetProblems:
     problems: list[SheetProblem]
 
@@ -40,14 +48,6 @@ class CollectedSheetProblems:
         raise NotImplementedError
 
     def _sort_by_excel(self) -> dict[str, SheetProblem]:
-        raise NotImplementedError
-
-
-@dataclass
-class SheetProblem(Protocol):
-    excel_name: str
-
-    def execute_error_protocol(self) -> str:
         raise NotImplementedError
 
 

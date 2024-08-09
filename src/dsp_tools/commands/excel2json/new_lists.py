@@ -14,9 +14,9 @@ import regex
 from loguru import logger
 
 from dsp_tools.commands.excel2json.lists import validate_lists_section_with_schema
-from dsp_tools.commands.excel2json.models.input_error import ExcelFileProblem
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import Problem
+from dsp_tools.commands.excel2json.models.input_error_lists import CollectedSheetProblems
 from dsp_tools.commands.excel2json.models.input_error_lists import DuplicateIDProblem
 from dsp_tools.commands.excel2json.models.input_error_lists import DuplicatesCustomIDInProblem
 from dsp_tools.commands.excel2json.models.input_error_lists import DuplicatesInSheetProblem
@@ -31,6 +31,7 @@ from dsp_tools.commands.excel2json.models.input_error_lists import MissingNodeTr
 from dsp_tools.commands.excel2json.models.input_error_lists import MissingTranslationsSheetProblem
 from dsp_tools.commands.excel2json.models.input_error_lists import MultipleListPerSheetProblem
 from dsp_tools.commands.excel2json.models.input_error_lists import NodesPerRowProblem
+from dsp_tools.commands.excel2json.models.input_error_lists import SheetProblem
 from dsp_tools.commands.excel2json.models.new_lists_deserialise import ExcelFile
 from dsp_tools.commands.excel2json.models.new_lists_deserialise import ExcelSheet
 from dsp_tools.commands.excel2json.models.new_lists_serialise import ListNode
@@ -99,18 +100,15 @@ def _make_serialised_lists(list_files: list[ExcelFile]) -> list[dict[str, Any]]:
 
 def _make_all_lists(list_files: list[ExcelFile]) -> list[ListRoot] | ListCreationProblem:
     good_lists = []
-    problem_lists: list[Problem] = []
+    problem_lists: list[SheetProblem] = []
     for file in list_files:
-        file_problems: list[Problem] = []
         for sheet in file.sheets:
             if isinstance(new_list := _make_one_list(sheet), ListRoot):
                 good_lists.append(new_list)
             else:
-                file_problems.append(new_list)
-        if file_problems:
-            problem_lists.append(ExcelFileProblem(file.filename, file_problems))
+                problem_lists.append(new_list)
     if problem_lists:
-        return ListCreationProblem(problem_lists)
+        return ListCreationProblem([CollectedSheetProblems(problem_lists)])
     return good_lists
 
 
@@ -394,12 +392,13 @@ def _check_duplicates_all_excels(list_files: list[ExcelFile]) -> None:
         InputError: If any complete duplicates are found in the excel files.
     """
     problems: list[Problem] = []
+    duplicate_problems: list[SheetProblem] = []
     for file in list_files:
-        complete_duplicates: list[Problem] = [
-            p for sheet in file.sheets if (p := _check_for_duplicate_nodes_one_df(sheet)) is not None
-        ]
-        if complete_duplicates:
-            problems.append(ExcelFileProblem(file.filename, complete_duplicates))
+        duplicate_problems.extend(
+            [p for sheet in file.sheets if (p := _check_for_duplicate_nodes_one_df(sheet)) is not None]
+        )
+    if duplicate_problems:
+        problems.append(CollectedSheetProblems(duplicate_problems))
     if id_problem := _check_for_duplicate_custom_id_all_excels(list_files):
         problems.append(id_problem)
     if problems:
@@ -412,20 +411,20 @@ def _check_for_unique_list_names(list_files: list[ExcelFile]) -> None:
     """This functon checks that one sheet only has one list and that all lists have unique names."""
     list_names: list[ListInformation] = []
     all_problems: list[Problem] = []
+    sheet_problems: list[SheetProblem] = []
     for excel_file in list_files:
-        one_excel_problems: list[Problem] = []
         for sheet in excel_file.sheets:
             preferred_language = _get_preferred_language(sheet.df.columns, r"list")
             unique_list_names = list(sheet.df[f"{preferred_language}_list"].unique())
             if len(unique_list_names) != 1:
-                one_excel_problems.append(
+                sheet_problems.append(
                     MultipleListPerSheetProblem(sheet.excel_name, sheet.sheet_name, unique_list_names)
                 )
             list_names.extend(
                 [ListInformation(excel_file.filename, sheet.sheet_name, name) for name in unique_list_names]
             )
-        if one_excel_problems:
-            all_problems.append(ExcelFileProblem(excel_file.filename, one_excel_problems))
+    if sheet_problems:
+        all_problems.append(CollectedSheetProblems(sheet_problems))
     list_info_dict = defaultdict(list)
     for item in list_names:
         list_info_dict[item.list_name].append(item)
@@ -480,15 +479,11 @@ def _check_for_duplicate_custom_id_all_excels(list_files: list[ExcelFile]) -> Du
 
 def _make_shape_compliance_all_excels(list_files: list[ExcelFile]) -> None:
     """Check if the excel files are compliant with the expected format."""
-    problems: list[Problem] = []
+    problems: list[SheetProblem] = []
     for file in list_files:
-        shape_problems: list[Problem] = [
-            p for sheet in file.sheets if (p := _make_shape_compliance_one_sheet(sheet)) is not None
-        ]
-        if shape_problems:
-            problems.append(ExcelFileProblem(file.filename, shape_problems))
+        problems.extend([p for sheet in file.sheets if (p := _make_shape_compliance_one_sheet(sheet)) is not None])
     if problems:
-        msg = ListCreationProblem(problems).execute_error_protocol()
+        msg = ListCreationProblem([CollectedSheetProblems(problems)]).execute_error_protocol()
         logger.error(msg)
         raise InputError(msg)
 
@@ -566,15 +561,13 @@ def _make_all_content_compliance_checks_all_excels(list_files: list[ExcelFile]) 
 
 
 def _check_for_missing_translations_all_excels(list_files: list[ExcelFile]) -> None:
-    problems: list[Problem] = []
+    problems: list[SheetProblem] = []
     for file in list_files:
-        missing_translations: list[Problem] = [
-            p for sheet in file.sheets if (p := _check_for_missing_translations_one_sheet(sheet)) is not None
-        ]
-        if missing_translations:
-            problems.append(ExcelFileProblem(file.filename, missing_translations))
+        problems.extend(
+            [p for sheet in file.sheets if (p := _check_for_missing_translations_one_sheet(sheet)) is not None]
+        )
     if problems:
-        msg = ListCreationProblem(problems).execute_error_protocol()
+        msg = ListCreationProblem([CollectedSheetProblems(problems)]).execute_error_protocol()
         logger.error(msg)
         raise InputError(msg)
 
@@ -618,15 +611,11 @@ def _check_for_missing_translations_one_node(
 
 
 def _check_for_erroneous_entries_all_excels(list_files: list[ExcelFile]) -> None:
-    problems: list[Problem] = []
+    problems: list[SheetProblem] = []
     for file in list_files:
-        missing_rows: list[Problem] = [
-            p for sheet in file.sheets if (p := _check_for_erroneous_entries_one_list(sheet)) is not None
-        ]
-        if missing_rows:
-            problems.append(ExcelFileProblem(file.filename, missing_rows))
+        problems.extend([p for sheet in file.sheets if (p := _check_for_erroneous_entries_one_list(sheet)) is not None])
     if problems:
-        msg = ListCreationProblem(problems).execute_error_protocol()
+        msg = ListCreationProblem([CollectedSheetProblems(problems)]).execute_error_protocol()
         logger.error(msg)
         raise InputError(msg)
 

@@ -13,29 +13,29 @@
       {
         "name": "List 1:Node 1",
         "labels": {
-          "en": "Node 1",
-          "de": "Knoten 1"
+          "de": "Knoten 1",
+          "en": "Node 1"
         },
         "nodes": [
           {
             "name": "Node 1.1",
             "labels": {
-              "en": "Node 1.1",
-              "de": "Knoten 1.1"
+              "de": "Knoten 1.1",
+              "en": "Node 1.1"
             },
             "nodes": [
               {
                 "name": "custom_name_1-1-1",
                 "labels": {
-                  "en": "Node 1.1.1",
-                  "de": "Knoten 1.1.1"
+                  "de": "Knoten 1.1.1",
+                  "en": "Node 1.1.1"
                 }
               },
               {
                 "name": "custom_name_1-1-2",
                 "labels": {
-                  "en": "Node 1.1.2",
-                  "de": "Knoten 1.1.2"
+                  "de": "Knoten 1.1.2",
+                  "en": "Node 1.1.2"
                 }
               }
             ]
@@ -45,29 +45,29 @@
       {
         "name": "List 1:Node 2",
         "labels": {
-          "en": "Node 2",
-          "de": "Knoten 2"
+          "de": "Knoten 2",
+          "en": "Node 2"
         },
         "nodes": [
           {
             "name": "Node 2.1",
             "labels": {
-              "en": "Node 2.1",
-              "de": "Knoten 2.1"
+              "de": "Knoten 2.1",
+              "en": "Node 2.1"
             }
           },
           {
             "name": "Node 2.2",
             "labels": {
-              "en": "Node 2.2",
-              "de": "Knoten 2.2"
+              "de": "Knoten 2.2",
+              "en": "Node 2.2"
             }
           },
           {
             "name": "Node 2.3",
             "labels": {
-              "en": "Node 2.3",
-              "de": "Knoten 2.3"
+              "de": "Knoten 2.3",
+              "en": "Node 2.3"
             }
           }
         ]
@@ -75,8 +75,8 @@
       {
         "name": "List 1:Node 3",
         "labels": {
-          "en": "Node 3",
-          "de": "Knoten 3"
+          "de": "Knoten 3",
+          "en": "Node 3"
         }
       }
     ]
@@ -84,20 +84,39 @@
   {
     "name": "List 2",
     "labels": {
-      "en": "List 2",
-      "de": "Liste 2"
+      "en": "List 2"
     },
     "comments": {
-      "en": "List 2",
-      "de": "Liste 2"
+      "en": "List 2"
     },
     "nodes": [
       {
         "name": "List 2:Node 1",
         "labels": {
-          "en": "Node 1",
-          "de": "Knoten 1"
-        }
+          "en": "Node 1"
+        },
+        "nodes": [
+          {
+            "name": "List 2:Node 1:subnode1",
+            "labels": {
+              "en": "subnode1"
+            }
+          }
+        ]
+      },
+      {
+        "name": "List 2:Node 2",
+        "labels": {
+          "en": "Node 2"
+        },
+        "nodes": [
+          {
+            "name": "List 2:Node 2:subnode1",
+            "labels": {
+              "en": "subnode1"
+            }
+          }
+        ]
       }
     ]
   },

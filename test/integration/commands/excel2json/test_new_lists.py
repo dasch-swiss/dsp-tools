@@ -25,5 +25,21 @@ def test_number_of_lists(expected_lists: list[dict[str, Any]], result_lists_corr
     assert len(result_lists_correct) == len(expected_lists)
 
 
+def test_identical_lists(expected_lists: list[dict[str, Any]], result_lists_correct: list[dict[str, Any]]) -> None:
+    assert result_lists_correct == expected_lists
+
+
+def test_first_list(expected_lists: list[dict[str, Any]], result_lists_correct: list[dict[str, Any]]) -> None:
+    assert result_lists_correct[0] == expected_lists[0]
+
+
+def test_second_list(expected_lists: list[dict[str, Any]], result_lists_correct: list[dict[str, Any]]) -> None:
+    assert result_lists_correct[1] == expected_lists[1]
+
+
+def test_thrid_list(expected_lists: list[dict[str, Any]], result_lists_correct: list[dict[str, Any]]) -> None:
+    assert result_lists_correct[2] == expected_lists[2]
+
+
 if __name__ == "__main__":
     pytest.main([__file__])

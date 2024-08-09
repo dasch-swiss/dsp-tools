@@ -22,7 +22,7 @@ def expected_lists() -> list[dict[str, Any]]:
         return cast(list[dict[str, Any]], expected)
 
 
-def test_number_of_lists(expected_lists: list[dict[str, Any]], result_lists_correct: list[dict[str, Any]]) -> None:
+def test_number_of_lists(result_lists_correct: list[dict[str, Any]]) -> None:
     assert len(result_lists_correct) == 3
 
 

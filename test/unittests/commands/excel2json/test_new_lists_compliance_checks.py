@@ -730,7 +730,7 @@ class TestOneSheetErrors:
         test_sheet = ExcelSheet(excel_name="", sheet_name="sheet", df=df)
         res = _check_for_erroneous_entries_one_list(test_sheet)
         assert isinstance(res, ListSheetContentProblem)
-        assert res.sheet_name == "name"
+        assert res.sheet_name == "sheet"
         assert len(res.problems) == 1
 
 

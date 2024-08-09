@@ -14,7 +14,7 @@ from dsp_tools.commands.excel2json.models.input_error_lists import NodesPerRowPr
 from dsp_tools.commands.excel2json.models.new_lists_deserialise import ExcelFile
 from dsp_tools.commands.excel2json.models.new_lists_deserialise import ExcelSheet
 from dsp_tools.commands.excel2json.new_lists import _check_duplicates_all_excels
-from dsp_tools.commands.excel2json.new_lists import _check_for_duplicate_nodes_one_df
+from dsp_tools.commands.excel2json.new_lists import _check_for_duplicate_nodes_one_sheet
 from dsp_tools.commands.excel2json.new_lists import _check_for_erroneous_entries_all_excels
 from dsp_tools.commands.excel2json.new_lists import _check_for_erroneous_entries_one_column_level
 from dsp_tools.commands.excel2json.new_lists import _check_for_erroneous_entries_one_grouped_df
@@ -260,11 +260,11 @@ class TestCheckForDuplicateListNames:
 class TestCheckForDuplicates:
     def test_good(self) -> None:
         test_df = pd.DataFrame({"en_list": ["a", "b", "c"], "en_1": ["d", "e", "f"]})
-        assert not _check_for_duplicate_nodes_one_df(test_df, "sheet")
+        assert not _check_for_duplicate_nodes_one_sheet(test_df, "sheet")
 
     def test_problem(self) -> None:
         test_df = pd.DataFrame({"en_list": ["a", "a", "a"], "en_1": ["b", "b", "b"], "en_2": ["d", "c", "d"]})
-        res = _check_for_duplicate_nodes_one_df(test_df, "sheet")
+        res = _check_for_duplicate_nodes_one_sheet(test_df, "sheet")
         res = cast(DuplicatesInSheetProblem, res)
         assert res.rows == [0, 2]
         assert res.sheet_name == "sheet"

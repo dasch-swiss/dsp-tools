@@ -70,6 +70,7 @@ class ListSheetContentProblem:
 
 @dataclass(frozen=True)
 class DuplicatesInSheetProblem:
+    file_name: str
     sheet_name: str
     rows: list[int]
 
@@ -108,6 +109,7 @@ class ListInformation:
 
 @dataclass(frozen=True)
 class MultipleListPerSheetProblem:
+    file_name: str
     sheet_name: str
     list_names: list[str]
 

@@ -21,21 +21,6 @@ class ListCreationProblem:
         return grand_separator.join(msg)
 
 
-@dataclass
-class ListSheetProblem:
-    sheet_name: str
-    root_problems: dict[str, str]
-    node_problems: list[ListNodeProblem] = field(default_factory=list)
-
-    def execute_error_protocol(self) -> str:
-        msg = [f"The excel sheet '{self.sheet_name}' has the following problem(s):"]
-        if self.root_problems:
-            msg.extend([f"Field: '{key}', Problem: {value}" for key, value in self.root_problems.items()])
-        if self.node_problems:
-            msg.extend([problem.execute_error_protocol() for problem in self.node_problems])
-        return list_separator.join(msg)
-
-
 @dataclass(frozen=True)
 class ListNodeProblem:
     node_id: str
@@ -67,32 +52,24 @@ class SheetProblem(Protocol):
 
 
 @dataclass
-class ListSheetComplianceProblem(SheetProblem):
+class ListSheetProblem(SheetProblem):
+    excel_name: str
     sheet_name: str
-    sheet_name: str
-    problems: dict[str, str]
+    root_problems: dict[str, str]
+    node_problems: list[ListNodeProblem] = field(default_factory=list)
 
     def execute_error_protocol(self) -> str:
         msg = [f"The excel sheet '{self.sheet_name}' has the following problem(s):"]
-        msg.extend([f"{key}: {value}" for key, value in self.problems.items()])
-        return list_separator.join(msg)
-
-
-@dataclass
-class ListSheetContentProblem(SheetProblem):
-    sheet_name: str
-    sheet_name: str
-    problems: list[Problem]
-
-    def execute_error_protocol(self) -> str:
-        msg = [f"The Excel sheet '{self.sheet_name}' has the following problem(s):"]
-        msg.extend([problem.execute_error_protocol() for problem in self.problems])
+        if self.root_problems:
+            msg.extend([f"Field: '{key}', Problem: {value}" for key, value in self.root_problems.items()])
+        if self.node_problems:
+            msg.extend([problem.execute_error_protocol() for problem in self.node_problems])
         return list_separator.join(msg)
 
 
 @dataclass
 class DuplicatesInSheetProblem(SheetProblem):
-    sheet_name: str
+    excel_name: str
     sheet_name: str
     rows: list[int]
 
@@ -107,7 +84,7 @@ class DuplicatesInSheetProblem(SheetProblem):
 
 @dataclass
 class MultipleListPerSheetProblem(SheetProblem):
-    sheet_name: str
+    excel_name: str
     sheet_name: str
     list_names: list[str]
 
@@ -119,8 +96,32 @@ class MultipleListPerSheetProblem(SheetProblem):
 
 
 @dataclass
-class MissingTranslationsSheetProblem(SheetProblem):
+class ListSheetComplianceProblem(SheetProblem):
+    excel_name: str
     sheet_name: str
+    problems: dict[str, str]
+
+    def execute_error_protocol(self) -> str:
+        msg = [f"The excel sheet '{self.sheet_name}' has the following problem(s):"]
+        msg.extend([f"{key}: {value}" for key, value in self.problems.items()])
+        return list_separator.join(msg)
+
+
+@dataclass
+class ListSheetContentProblem(SheetProblem):
+    excel_name: str
+    sheet_name: str
+    problems: list[Problem]
+
+    def execute_error_protocol(self) -> str:
+        msg = [f"The Excel sheet '{self.sheet_name}' has the following problem(s):"]
+        msg.extend([problem.execute_error_protocol() for problem in self.problems])
+        return list_separator.join(msg)
+
+
+@dataclass
+class MissingTranslationsSheetProblem(SheetProblem):
+    excel_name: str
     sheet: str
     node_problems: list[MissingNodeTranslationProblem]
 
@@ -135,9 +136,8 @@ class MissingTranslationsSheetProblem(SheetProblem):
         return list_separator.join(msg)
 
 
-@dataclass
-class MissingNodeSheetProblem(SheetProblem):
-    sheet_name: str
+@dataclass(frozen=True)
+class MissingNodeSheetProblem:
     sheet: str
     node_problems: list[NodesPerRowProblem]
 
@@ -164,12 +164,12 @@ class DuplicatesListNameProblem:
 
 @dataclass(frozen=True)
 class ListInformation:
-    excel_file: str
+    excel_name: str
     excel_sheet: str
     list_name: str
 
     def execute_error_protocol(self) -> str:
-        return f"Excel file: '{self.excel_file}', Sheet: '{self.excel_sheet}', List: '{self.list_name}'"
+        return f"Excel file: '{self.excel_name}', Sheet: '{self.excel_sheet}', List: '{self.list_name}'"
 
 
 @dataclass(frozen=True)

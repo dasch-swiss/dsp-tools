@@ -68,6 +68,7 @@ class ListRoot:
         id_: str | int | float,
         labels: dict[str, str],
         sheet_name: str,
+        excel_name: str,
         nodes: list[ListNode],
         comments: dict[str, str],
     ) -> ListRoot | ListSheetProblem:
@@ -89,7 +90,7 @@ class ListRoot:
         if not nodes:
             user_problem["list nodes"] = "At least one node per list is required."
         if user_problem:
-            return ListSheetProblem(sheet_name, user_problem)
+            return ListSheetProblem(excel_name, sheet_name, user_problem)
         return cls(id_=id_, labels=labels, comments=comments, nodes=nodes)
 
     def to_dict(self) -> dict[str, Any]:

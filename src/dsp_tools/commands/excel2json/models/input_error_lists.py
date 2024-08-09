@@ -41,17 +41,6 @@ class SheetProblem(Protocol):
 
 
 @dataclass
-class CollectedSheetProblems:
-    problems: list[SheetProblem]
-
-    def execute_error_protocol(self) -> str:
-        raise NotImplementedError
-
-    def _sort_by_excel(self) -> dict[str, SheetProblem]:
-        raise NotImplementedError
-
-
-@dataclass
 class ListSheetProblem(SheetProblem):
     excel_name: str
     sheet_name: str

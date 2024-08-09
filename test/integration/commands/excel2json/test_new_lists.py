@@ -10,8 +10,9 @@ from dsp_tools.commands.excel2json.new_lists import new_excel2lists
 
 @pytest.fixture()
 def result_lists_correct() -> list[dict[str, Any]]:
-    list_dict, _ = new_excel2lists(Path("testdata/excel2json/new_excel2json_files/lists"))
-    return list_dict
+    all_lists, _ = new_excel2lists(Path("testdata/excel2json/new_excel2json_files/lists"))
+    all_lists = sorted(all_lists, key=lambda x: x["name"])
+    return all_lists
 
 
 @pytest.fixture()

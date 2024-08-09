@@ -417,9 +417,7 @@ def _check_for_unique_list_names(list_files: list[ExcelFile]) -> None:
             preferred_language = _get_preferred_language(sheet.df.columns, r"list")
             unique_list_names = list(sheet.df[f"{preferred_language}_list"].unique())
             if len(unique_list_names) != 1:
-                one_excel_problems.append(
-                    MultipleListPerSheetProblem(excel_file.filename, sheet.sheet_name, unique_list_names)
-                )
+                one_excel_problems.append(MultipleListPerSheetProblem(sheet.sheet_name, unique_list_names))
             list_names.extend(
                 [ListInformation(excel_file.filename, sheet.sheet_name, name) for name in unique_list_names]
             )

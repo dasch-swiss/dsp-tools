@@ -258,13 +258,16 @@ def _make_one_list(sheet: ExcelSheet) -> ListRoot | ListSheetProblem:
     root = ListRoot.create(
         id_=sheet.df.at[0, "id"],
         labels=_get_labels(sheet.df.iloc[0], col_titles_of_root_cols),
+        excel_name=sheet.excel_name,
         sheet_name=sheet.sheet_name,
         nodes=nodes_for_root,
         comments={},
     )
     match (root, node_problems):
         case (ListRoot(), list(ListNodeProblem())):
-            return ListSheetProblem(sheet.sheet_name, root_problems={}, node_problems=node_problems)
+            return ListSheetProblem(
+                excel_name=sheet.excel_name, sheet_name=sheet.sheet_name, root_problems={}, node_problems=node_problems
+            )
         case (ListSheetProblem(), _):
             root.node_problems = node_problems
     return root
@@ -415,7 +418,9 @@ def _check_for_unique_list_names(list_files: list[ExcelFile]) -> None:
             preferred_language = _get_preferred_language(sheet.df.columns, r"list")
             unique_list_names = list(sheet.df[f"{preferred_language}_list"].unique())
             if len(unique_list_names) != 1:
-                one_excel_problems.append(MultipleListPerSheetProblem(sheet.sheet_name, unique_list_names))
+                one_excel_problems.append(
+                    MultipleListPerSheetProblem(sheet.excel_name, sheet.sheet_name, unique_list_names)
+                )
             list_names.extend(
                 [ListInformation(excel_file.filename, sheet.sheet_name, name) for name in unique_list_names]
             )
@@ -440,7 +445,9 @@ def _check_for_duplicate_nodes_one_df(sheet: ExcelSheet) -> DuplicatesInSheetPro
     """Check if any rows have duplicates when taking into account the columns with the node names."""
     lang_columns = [col for col in sheet.df.columns if regex.search(r"^(en|de|fr|it|rm)_(\d+|list)$", col)]
     if (duplicate_filter := sheet.df.duplicated(lang_columns, keep=False)).any():
-        return DuplicatesInSheetProblem(sheet.sheet_name, duplicate_filter.index[duplicate_filter].tolist())
+        return DuplicatesInSheetProblem(
+            sheet.excel_name, sheet.sheet_name, duplicate_filter.index[duplicate_filter].tolist()
+        )
     return None
 
 
@@ -493,7 +500,7 @@ def _make_shape_compliance_one_sheet(sheet: ExcelSheet) -> ListSheetCompliancePr
     problems.update(_check_if_all_translations_in_all_column_levels_present_one_sheet(sheet.df.columns))
     _check_warn_unusual_columns_one_sheet(sheet.df.columns)
     if problems:
-        return ListSheetComplianceProblem(sheet.sheet_name, problems)
+        return ListSheetComplianceProblem(sheet.excel_name, sheet.sheet_name, problems)
     return None
 
 
@@ -581,7 +588,7 @@ def _check_for_missing_translations_one_sheet(sheet: ExcelSheet) -> MissingTrans
     for column_group in all_cols:
         problems.extend(_check_for_missing_translations_one_column_level(column_group, sheet.df))
     if problems:
-        return MissingTranslationsSheetProblem(sheet.sheet_name, problems)
+        return MissingTranslationsSheetProblem(sheet.excel_name, sheet.sheet_name, problems)
     return None
 
 
@@ -632,7 +639,7 @@ def _check_for_erroneous_entries_one_list(sheet: ExcelSheet) -> ListSheetContent
     problems = _check_for_erroneous_node_info_one_df(sheet.df, preferred_cols)
     if problems:
         list_problems = cast(list[Problem], problems)
-        return ListSheetContentProblem(sheet.sheet_name, list_problems)
+        return ListSheetContentProblem(sheet.excel_name, sheet.sheet_name, list_problems)
     return None
 
 

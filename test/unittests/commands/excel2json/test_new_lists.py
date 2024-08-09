@@ -227,7 +227,7 @@ class TestMakeOneList:
                 "de_3": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, "Node_de_3.2.1", "Node_de_3.2.2"],
             }
         )
-        test_sheet = ExcelSheet(excel_name="", sheet_name="Sheet1", df=test_df)
+        test_sheet = ExcelSheet(excel_name="excel", sheet_name="Sheet1", df=test_df)
         res = _make_one_list(test_sheet)
         assert isinstance(res, ListRoot)
         assert res.id_ == "list_id"

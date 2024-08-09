@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from dataclasses import field
+from typing import Protocol
 
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import Problem
@@ -32,7 +33,16 @@ class ListNodeProblem:
 
 
 @dataclass
-class ListSheetProblem:
+class SheetProblem(Protocol):
+    excel_name: str
+
+    def execute_error_protocol(self) -> str:
+        raise NotImplementedError
+
+
+@dataclass
+class ListSheetProblem(SheetProblem):
+    excel_name: str
     sheet_name: str
     root_problems: dict[str, str]
     node_problems: list[ListNodeProblem] = field(default_factory=list)
@@ -46,30 +56,9 @@ class ListSheetProblem:
         return list_separator.join(msg)
 
 
-@dataclass(frozen=True)
-class ListSheetComplianceProblem:
-    sheet_name: str
-    problems: dict[str, str]
-
-    def execute_error_protocol(self) -> str:
-        msg = [f"The excel sheet '{self.sheet_name}' has the following problem(s):"]
-        msg.extend([f"{key}: {value}" for key, value in self.problems.items()])
-        return list_separator.join(msg)
-
-
-@dataclass(frozen=True)
-class ListSheetContentProblem:
-    sheet_name: str
-    problems: list[Problem]
-
-    def execute_error_protocol(self) -> str:
-        msg = [f"The Excel sheet '{self.sheet_name}' has the following problem(s):"]
-        msg.extend([problem.execute_error_protocol() for problem in self.problems])
-        return list_separator.join(msg)
-
-
-@dataclass(frozen=True)
-class DuplicatesInSheetProblem:
+@dataclass
+class DuplicatesInSheetProblem(SheetProblem):
+    excel_name: str
     sheet_name: str
     rows: list[int]
 
@@ -80,6 +69,72 @@ class DuplicatesInSheetProblem:
         ]
         msg.extend([f"{x + 2}" for x in self.rows])
         return list_separator.join(msg)
+
+
+@dataclass
+class MultipleListPerSheetProblem(SheetProblem):
+    excel_name: str
+    sheet_name: str
+    list_names: list[str]
+
+    def execute_error_protocol(self) -> str:
+        return (
+            f"Per Excel sheet only one list is allowed.\n"
+            f"The sheet '{self.sheet_name}' has more than one list, namely the following: {', '.join(self.list_names)}"
+        )
+
+
+@dataclass
+class ListSheetComplianceProblem(SheetProblem):
+    excel_name: str
+    sheet_name: str
+    problems: dict[str, str]
+
+    def execute_error_protocol(self) -> str:
+        msg = [f"The excel sheet '{self.sheet_name}' has the following problem(s):"]
+        msg.extend([f"{key}: {value}" for key, value in self.problems.items()])
+        return list_separator.join(msg)
+
+
+@dataclass
+class ListSheetContentProblem(SheetProblem):
+    excel_name: str
+    sheet_name: str
+    problems: list[Problem]
+
+    def execute_error_protocol(self) -> str:
+        msg = [f"The Excel sheet '{self.sheet_name}' has the following problem(s):"]
+        msg.extend([problem.execute_error_protocol() for problem in self.problems])
+        return list_separator.join(msg)
+
+
+@dataclass
+class MissingTranslationsSheetProblem(SheetProblem):
+    excel_name: str
+    sheet: str
+    node_problems: list[MissingNodeTranslationProblem]
+
+    def execute_error_protocol(self) -> str:
+        msg = [
+            f"The excel sheet '{self.sheet}' has the following problem(s):\n"
+            "In one list, all the nodes must be translated into all the languages used. "
+            "For the following nodes, the translations are missing:"
+        ]
+        nodes_sorted = sorted(self.node_problems, key=lambda x: x.index_num)
+        msg.extend([x.execute_error_protocol() for x in nodes_sorted])
+        return list_separator.join(msg)
+
+
+@dataclass(frozen=True)
+class MissingNodeSheetProblem:
+    sheet: str
+    node_problems: list[NodesPerRowProblem]
+
+    def execute_error_protocol(self) -> str:
+        msg = "Each list node and each list must have its own row in the excel. The following rows are incorrect:"
+        nodes_sorted = sorted(self.node_problems, key=lambda x: x.index_num)
+        nodes = list_separator.join([x.execute_error_protocol() for x in nodes_sorted])
+        return msg + nodes
 
 
 @dataclass(frozen=True)
@@ -98,24 +153,12 @@ class DuplicatesListNameProblem:
 
 @dataclass(frozen=True)
 class ListInformation:
-    excel_file: str
+    excel_name: str
     excel_sheet: str
     list_name: str
 
     def execute_error_protocol(self) -> str:
-        return f"Excel file: '{self.excel_file}', Sheet: '{self.excel_sheet}', List: '{self.list_name}'"
-
-
-@dataclass(frozen=True)
-class MultipleListPerSheetProblem:
-    sheet_name: str
-    list_names: list[str]
-
-    def execute_error_protocol(self) -> str:
-        return (
-            f"Per Excel sheet only one list is allowed.\n"
-            f"The following sheet: '{self.sheet_name}' has more than one list: {', '.join(self.list_names)}"
-        )
+        return f"Excel file: '{self.excel_name}', Sheet: '{self.excel_sheet}', List: '{self.list_name}'"
 
 
 @dataclass(frozen=True)
@@ -149,34 +192,6 @@ class MissingNodeTranslationProblem:
 
     def execute_error_protocol(self) -> str:
         return f"Row Number: {self.index_num + 2} Column(s): {', '.join(self.empty_columns)}"
-
-
-@dataclass(frozen=True)
-class MissingTranslationsSheetProblem:
-    sheet: str
-    node_problems: list[MissingNodeTranslationProblem]
-
-    def execute_error_protocol(self) -> str:
-        msg = [
-            f"The excel sheet '{self.sheet}' has the following problem(s):\n"
-            "In one list, all the nodes must be translated into all the languages used. "
-            "The following nodes are missing translations:"
-        ]
-        nodes_sorted = sorted(self.node_problems, key=lambda x: x.index_num)
-        msg.extend([x.execute_error_protocol() for x in nodes_sorted])
-        return list_separator.join(msg)
-
-
-@dataclass(frozen=True)
-class MissingNodeSheetProblem:
-    sheet: str
-    node_problems: list[NodesPerRowProblem]
-
-    def execute_error_protocol(self) -> str:
-        msg = "Each list node and each list must have its own row in the excel. " "The following rows are incorrect:"
-        nodes_sorted = sorted(self.node_problems, key=lambda x: x.index_num)
-        nodes = list_separator.join([x.execute_error_protocol() for x in nodes_sorted])
-        return msg + nodes
 
 
 @dataclass(frozen=True)

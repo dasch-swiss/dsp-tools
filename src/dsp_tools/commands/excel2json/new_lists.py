@@ -75,8 +75,11 @@ def _parse_files(excelfolder: Path | str) -> list[ExcelFile]:
     file_names = [file for file in Path(excelfolder).glob("*list*.xlsx", case_sensitive=False) if _non_hidden(file)]
     all_files = []
     for file in file_names:
-        sheets = [ExcelSheet(sheet_name=name, df=df) for name, df in read_and_clean_all_sheets(file).items()]
-        all_files.append(ExcelFile(filename=file.stem, sheets=sheets))
+        sheets = [
+            ExcelSheet(excel_name=str(file), sheet_name=name, df=df)
+            for name, df in read_and_clean_all_sheets(file).items()
+        ]
+        all_files.append(ExcelFile(filename=str(file), sheets=sheets))
     return all_files
 
 
@@ -125,7 +128,7 @@ def _add_id_optional_column_if_not_exists(list_files: list[ExcelFile]) -> list[E
             if "id (optional)" not in sheet.df.columns:
                 df = sheet.df
                 df["id (optional)"] = pd.NA
-                all_sheets.append(ExcelSheet(sheet_name=sheet.sheet_name, df=df))
+                all_sheets.append(ExcelSheet(excel_name=file.filename, sheet_name=sheet.sheet_name, df=df))
             else:
                 all_sheets.append(sheet)
         all_files.append(ExcelFile(filename=file.filename, sheets=all_sheets))
@@ -138,7 +141,7 @@ def _construct_ids(list_files: list[ExcelFile]) -> list[ExcelFile]:
         all_sheets = []
         for sheet in file.sheets:
             df = _complete_id_one_df(sheet.df, _get_preferred_language(sheet.df.columns))
-            all_sheets.append(ExcelSheet(sheet_name=sheet.sheet_name, df=df))
+            all_sheets.append(ExcelSheet(excel_name=file.filename, sheet_name=sheet.sheet_name, df=df))
         all_files.append(ExcelFile(filename=file.filename, sheets=all_sheets))
     all_files = _resolve_duplicate_ids_all_excels(all_files)
     return _fill_parent_id_col_all_excels(all_files)
@@ -150,7 +153,7 @@ def _fill_parent_id_col_all_excels(list_files: list[ExcelFile]) -> list[ExcelFil
         all_sheets = []
         for sheet in file.sheets:
             df = _fill_parent_id_col_one_df(sheet.df, _get_preferred_language(sheet.df.columns))
-            all_sheets.append(ExcelSheet(sheet_name=sheet.sheet_name, df=df))
+            all_sheets.append(ExcelSheet(excel_name=file.filename, sheet_name=sheet.sheet_name, df=df))
         all_files.append(ExcelFile(filename=file.filename, sheets=all_sheets))
     return all_files
 
@@ -191,7 +194,7 @@ def _remove_duplicate_ids_in_all_excels(duplicate_ids: list[str], list_files: li
             for i, row in df.iterrows():
                 if row["id"] in duplicate_ids and pd.isna(row["id (optional)"]):
                     df.at[i, "id"] = _construct_non_duplicate_id_string(df.iloc[int(str(i))], preferred_lang)
-            all_sheets.append(ExcelSheet(sheet.sheet_name, df))
+            all_sheets.append(ExcelSheet(file.filename, sheet.sheet_name, df))
         all_files.append(ExcelFile(file.filename, all_sheets))
     return list_files
 

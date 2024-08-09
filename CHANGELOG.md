@@ -1,5 +1,22 @@
 # Changelog
 
+## [8.4.1](https://github.com/dasch-swiss/dsp-tools/compare/v8.4.0...v8.4.1) (2024-08-09)
+
+
+### Bug Fixes
+
+* **cli:** resume-xmlupload --skip-first-resource now works (DEV-3744) ([#1084](https://github.com/dasch-swiss/dsp-tools/issues/1084)) ([7f99287](https://github.com/dasch-swiss/dsp-tools/commit/7f9928794a680b0a417a8a4f603cbac4ac4df2bd))
+
+
+### Maintenance
+
+* **excel2json-lists:** add excel name to lists problem classes ([#1089](https://github.com/dasch-swiss/dsp-tools/issues/1089)) ([6112506](https://github.com/dasch-swiss/dsp-tools/commit/61125060fd16b2cc36324036c616095c26a770c2))
+* **excel2json-lists:** add filename to sheet class ([#1090](https://github.com/dasch-swiss/dsp-tools/issues/1090)) ([2f9e30e](https://github.com/dasch-swiss/dsp-tools/commit/2f9e30e44fb24fdd9970aa661859b4b67d77ed20))
+* **excel2json-lists:** change paramter to ExcelSheet in functions ([#1091](https://github.com/dasch-swiss/dsp-tools/issues/1091)) ([a4086c2](https://github.com/dasch-swiss/dsp-tools/commit/a4086c21cb95cb9a34e5d5433f75ce71bfb5c529))
+* **excel2json-lists:** remove file hierarchy from Problem classes ([#1093](https://github.com/dasch-swiss/dsp-tools/issues/1093)) ([56bd84d](https://github.com/dasch-swiss/dsp-tools/commit/56bd84d9d0cb12a5e27fc2a12a1ad30ae8be0d76))
+* **excel2json-lists:** wrap file structure in classes ([#1086](https://github.com/dasch-swiss/dsp-tools/issues/1086)) ([e60002a](https://github.com/dasch-swiss/dsp-tools/commit/e60002a7c5581deaa5258700d963fa414284c648))
+* **excel2json:** lists delete duplicate tests ([#1082](https://github.com/dasch-swiss/dsp-tools/issues/1082)) ([90280c1](https://github.com/dasch-swiss/dsp-tools/commit/90280c130fdc2237cbac0f11fa05f3eb98f91f28))
+
 ## [8.4.0](https://github.com/dasch-swiss/dsp-tools/compare/v8.3.0...v8.4.0) (2024-08-07)
 
 

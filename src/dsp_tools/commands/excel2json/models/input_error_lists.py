@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+from collections import defaultdict
 from dataclasses import dataclass
 from dataclasses import field
 from typing import Protocol
 
+from dsp_tools.commands.excel2json.models.input_error import ExcelFileProblem
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import Problem
 from dsp_tools.commands.excel2json.models.input_error import grand_separator
@@ -38,6 +40,22 @@ class SheetProblem(Protocol):
 
     def execute_error_protocol(self) -> str:
         raise NotImplementedError
+
+
+@dataclass
+class CollectedSheetProblems:
+    sheet_problems: list[SheetProblem]
+
+    def execute_error_protocol(self) -> str:
+        file_problems = self._group_and_sort_by_excel_name()
+        return grand_separator.join([x.execute_error_protocol() for x in file_problems])
+
+    def _group_and_sort_by_excel_name(self) -> list[ExcelFileProblem]:
+        file_dict: dict[str, list[Problem]] = defaultdict(list)
+        for problem in self.sheet_problems:
+            file_dict[problem.excel_name].append(problem)
+        file_list = [ExcelFileProblem(k, v) for k, v in file_dict.items()]
+        return sorted(file_list, key=lambda x: x.filename)
 
 
 @dataclass

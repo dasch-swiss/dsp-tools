@@ -76,10 +76,10 @@ def _parse_files(excelfolder: Path | str) -> list[ExcelFile]:
     all_files = []
     for file in file_names:
         sheets = [
-            ExcelSheet(excel_name=file.stem, sheet_name=name, df=df)
+            ExcelSheet(excel_name=str(file), sheet_name=name, df=df)
             for name, df in read_and_clean_all_sheets(file).items()
         ]
-        all_files.append(ExcelFile(filename=file.stem, sheets=sheets))
+        all_files.append(ExcelFile(filename=str(file), sheets=sheets))
     return all_files
 
 

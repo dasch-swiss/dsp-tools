@@ -227,7 +227,8 @@ class TestMakeOneList:
                 "de_3": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, "Node_de_3.2.1", "Node_de_3.2.2"],
             }
         )
-        res = _make_one_list(test_df, "Sheet1")
+        test_sheet = ExcelSheet(excel_name="", sheet_name="Sheet1", df=test_df)
+        res = _make_one_list(test_sheet)
         assert isinstance(res, ListRoot)
         assert res.id_ == "list_id"
         assert res.labels == {"en": "Listname_en", "de": "Listname_de"}

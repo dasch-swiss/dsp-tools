@@ -260,11 +260,13 @@ class TestCheckForDuplicateListNames:
 class TestCheckForDuplicates:
     def test_good(self) -> None:
         test_df = pd.DataFrame({"en_list": ["a", "b", "c"], "en_1": ["d", "e", "f"]})
-        assert not _check_for_duplicate_nodes_one_df(test_df, "sheet")
+        test_sheet = ExcelSheet(excel_name="", sheet_name="sheet", df=test_df)
+        assert not _check_for_duplicate_nodes_one_df(test_sheet)
 
     def test_problem(self) -> None:
         test_df = pd.DataFrame({"en_list": ["a", "a", "a"], "en_1": ["b", "b", "b"], "en_2": ["d", "c", "d"]})
-        res = _check_for_duplicate_nodes_one_df(test_df, "sheet")
+        test_sheet = ExcelSheet(excel_name="", sheet_name="sheet", df=test_df)
+        res = _check_for_duplicate_nodes_one_df(test_sheet)
         res = cast(DuplicatesInSheetProblem, res)
         assert res.rows == [0, 2]
         assert res.sheet_name == "sheet"
@@ -273,14 +275,17 @@ class TestCheckForDuplicates:
 class TestShapeCompliance:
     def test_good(self) -> None:
         test_df = pd.DataFrame({"id (optional)": [1, 2, 3], "en_list": ["a", "b", "c"], "en_2": ["d", "e", "f"]})
-        assert not _make_shape_compliance_one_sheet(test_df, "")
+        test_sheet = ExcelSheet(excel_name="", sheet_name="sheet", df=test_df)
+        assert not _make_shape_compliance_one_sheet(test_sheet)
 
     def test_good_no_id(self) -> None:
         test_df = pd.DataFrame({"en_list": ["a", "b", "c"], "en_2": ["d", "e", "f"]})
-        assert not _make_shape_compliance_one_sheet(test_df, "")
+        test_sheet = ExcelSheet(excel_name="", sheet_name="sheet", df=test_df)
+        assert not _make_shape_compliance_one_sheet(test_sheet)
 
     def test_problems_one(self) -> None:
         test_df = pd.DataFrame({"id (optional)": [1], "en_list": ["a"], "additional_1": ["b"]})
+        test_sheet = ExcelSheet(excel_name="", sheet_name="sheet", df=test_df)
         expected = {
             "minimum rows": "The Excel sheet must contain at least two rows, "
             "one for the list name and one row for a minimum of one node.",
@@ -292,18 +297,19 @@ class TestShapeCompliance:
             "and will not be included in the output: additional_1"
         )
         with pytest.warns(DspToolsUserWarning, match=warning_msg):
-            res = _make_shape_compliance_one_sheet(test_df, "sheet")
+            res = _make_shape_compliance_one_sheet(test_sheet)
             res = cast(ListSheetComplianceProblem, res)
             assert res.problems == expected
 
     def test_problems_two(self) -> None:
         test_df = pd.DataFrame({"id (optional)": [1, 2], "en_list": ["a", "b"], "en_1": ["b", "c"], "de_1": ["b", "c"]})
+        test_sheet = ExcelSheet(excel_name="", sheet_name="sheet", df=test_df)
         expected = {
             "missing translations": "All nodes must be translated into the same languages. "
             "Based on the languages used, the following column(s) are missing: "
             "de_list"
         }
-        res = _make_shape_compliance_one_sheet(test_df, "sheet")
+        res = _make_shape_compliance_one_sheet(test_sheet)
         res = cast(ListSheetComplianceProblem, res)
         assert res.problems == expected
 
@@ -520,7 +526,8 @@ class TestAllNodesTranslatedIntoAllLanguages:
                 "de_3": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, "Node_de_3.2.1", "Node_de_3.2.2"],
             }
         )
-        _check_for_missing_translations_one_sheet(test_df, "sheet")
+        test_sheet = ExcelSheet(excel_name="", sheet_name="sheet", df=test_df)
+        _check_for_missing_translations_one_sheet(test_sheet)
 
     def test_missing_translation(self) -> None:
         test_df = pd.DataFrame(
@@ -595,12 +602,13 @@ class TestAllNodesTranslatedIntoAllLanguages:
                 ],
             }
         )
+        test_sheet = ExcelSheet(excel_name="", sheet_name="sheet", df=test_df)
         expected = [
             MissingNodeTranslationProblem(["de_2"], 2),
             MissingNodeTranslationProblem(["en_list"], 5),
             MissingNodeTranslationProblem(["en_1"], 8),
         ]
-        result = _check_for_missing_translations_one_sheet(test_df, "sheet")
+        result = _check_for_missing_translations_one_sheet(test_sheet)
         result = cast(MissingTranslationsSheetProblem, result)
         res_node_problems = sorted(result.node_problems, key=lambda x: x.index_num)
         for res, expct in zip(res_node_problems, expected):
@@ -708,7 +716,8 @@ class TestCheckAllExcelForRowProblems:
 class TestOneSheetErrors:
     def test_all_good_flat(self) -> None:
         df = pd.DataFrame({"en_list": ["list1", "list1", "list1", "list1"], "en_1": [pd.NA, "node1", "node2", "node3"]})
-        assert not _check_for_erroneous_entries_one_list(df, "name")
+        test_sheet = ExcelSheet(excel_name="", sheet_name="sheet", df=df)
+        assert not _check_for_erroneous_entries_one_list(test_sheet)
 
     def test_problem(self) -> None:
         df = pd.DataFrame(
@@ -718,7 +727,8 @@ class TestOneSheetErrors:
                 "en_2": [pd.NA, pd.NA, "node1.1", "node1.2", "node2.1", pd.NA],
             }
         )
-        res = _check_for_erroneous_entries_one_list(df, "name")
+        test_sheet = ExcelSheet(excel_name="", sheet_name="sheet", df=df)
+        res = _check_for_erroneous_entries_one_list(test_sheet)
         assert isinstance(res, ListSheetContentProblem)
         assert res.sheet_name == "name"
         assert len(res.problems) == 1

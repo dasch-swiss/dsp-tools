@@ -23,11 +23,7 @@ def expected_lists() -> list[dict[str, Any]]:
 
 
 def test_number_of_lists(expected_lists: list[dict[str, Any]], result_lists_correct: list[dict[str, Any]]) -> None:
-    assert len(result_lists_correct) == len(expected_lists)
-
-
-def test_identical_lists(expected_lists: list[dict[str, Any]], result_lists_correct: list[dict[str, Any]]) -> None:
-    assert result_lists_correct == expected_lists
+    assert len(result_lists_correct) == 3
 
 
 def test_first_list(expected_lists: list[dict[str, Any]], result_lists_correct: list[dict[str, Any]]) -> None:

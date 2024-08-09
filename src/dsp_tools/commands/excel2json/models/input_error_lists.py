@@ -91,7 +91,7 @@ class MultipleListPerSheetProblem(SheetProblem):
     def execute_error_protocol(self) -> str:
         return (
             f"Per Excel sheet only one list is allowed.\n"
-            f"The following sheet: '{self.sheet_name}' has more than one list: {', '.join(self.list_names)}"
+            f"The sheet '{self.sheet_name}' has more than one list, namely the following: {', '.join(self.list_names)}"
         )
 
 
@@ -129,7 +129,7 @@ class MissingTranslationsSheetProblem(SheetProblem):
         msg = [
             f"The excel sheet '{self.sheet}' has the following problem(s):\n"
             "In one list, all the nodes must be translated into all the languages used. "
-            "The following nodes are missing translations:"
+            "For the following nodes, the translations are missing:"
         ]
         nodes_sorted = sorted(self.node_problems, key=lambda x: x.index_num)
         msg.extend([x.execute_error_protocol() for x in nodes_sorted])
@@ -142,7 +142,7 @@ class MissingNodeSheetProblem:
     node_problems: list[NodesPerRowProblem]
 
     def execute_error_protocol(self) -> str:
-        msg = "Each list node and each list must have its own row in the excel. " "The following rows are incorrect:"
+        msg = "Each list node and each list must have its own row in the excel. The following rows are incorrect:"
         nodes_sorted = sorted(self.node_problems, key=lambda x: x.index_num)
         nodes = list_separator.join([x.execute_error_protocol() for x in nodes_sorted])
         return msg + nodes

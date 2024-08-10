@@ -3,7 +3,6 @@ import pytest
 import regex
 from pandas.testing import assert_frame_equal
 
-from dsp_tools.commands.excel2json.models.new_lists_deserialise import ExcelFile
 from dsp_tools.commands.excel2json.models.new_lists_deserialise import ExcelSheet
 from dsp_tools.commands.excel2json.models.new_lists_serialise import ListNode
 from dsp_tools.commands.excel2json.models.new_lists_serialise import ListRoot
@@ -48,17 +47,17 @@ class TestDuplicateID:
             }
         )
         all_excels = [
-            ExcelFile(filename="file1", sheets=[ExcelSheet(excel_name="file1", sheet_name="sheet1", df=f1_s1)]),
-            ExcelFile(filename="file2", sheets=[ExcelSheet(excel_name="file2", sheet_name="sheet2", df=f2_s2)]),
+            ExcelSheet(excel_name="file1", sheet_name="sheet1", df=f1_s1),
+            ExcelSheet(excel_name="file2", sheet_name="sheet2", df=f2_s2),
         ]
         res = _remove_duplicate_ids_in_all_excels(["1"], all_excels)
         assert len(res) == 2
-        file_one = res[0]
-        assert file_one.filename == "file1"
-        assert file_one.sheets[0].df["id"].to_list() == ["0", "List1:Node1", "2"]
-        file_two = res[1]
-        assert file_two.filename == "file2"
-        assert file_two.sheets[0].df["id"].to_list() == ["00", "List2:Node1"]
+        sheet_one = res[0]
+        assert sheet_one.excel_name == "file1"
+        assert sheet_one.df["id"].to_list() == ["0", "List1:Node1", "2"]
+        sheet_two = res[1]
+        assert sheet_two.excel_name == "file2"
+        assert sheet_two.df["id"].to_list() == ["00", "List2:Node1"]
 
     def test_resolve_duplicates_in_all_excels_custom_id(self) -> None:
         f1_s1 = pd.DataFrame(
@@ -78,17 +77,17 @@ class TestDuplicateID:
             }
         )
         all_excels = [
-            ExcelFile(filename="file1", sheets=[ExcelSheet(excel_name="file1", sheet_name="sheet1", df=f1_s1)]),
-            ExcelFile(filename="file2", sheets=[ExcelSheet(excel_name="file2", sheet_name="sheet2", df=f2_s2)]),
+            ExcelSheet(excel_name="file1", sheet_name="sheet1", df=f1_s1),
+            ExcelSheet(excel_name="file2", sheet_name="sheet2", df=f2_s2),
         ]
         res = _remove_duplicate_ids_in_all_excels(["1"], all_excels)
         assert len(res) == 2
-        file_one = res[0]
-        assert file_one.filename == "file1"
-        assert file_one.sheets[0].df["id"].to_list() == ["0", "1", "2"]
-        file_two = res[1]
-        assert file_two.filename == "file2"
-        assert file_two.sheets[0].df["id"].to_list() == ["00", "List2:Node1"]
+        sheet_one = res[0]
+        assert sheet_one.excel_name == "file1"
+        assert sheet_one.df["id"].to_list() == ["0", "1", "2"]
+        sheet_two = res[1]
+        assert sheet_two.excel_name == "file2"
+        assert sheet_two.df["id"].to_list() == ["00", "List2:Node1"]
 
     def test_analyse_resolve_all_excel_duplicates_with_duplicates(self) -> None:
         f1_s1 = pd.DataFrame(
@@ -108,17 +107,17 @@ class TestDuplicateID:
             }
         )
         all_excels = [
-            ExcelFile(filename="file1", sheets=[ExcelSheet(excel_name="file1", sheet_name="sheet1", df=f1_s1)]),
-            ExcelFile(filename="file2", sheets=[ExcelSheet(excel_name="file2", sheet_name="sheet2", df=f2_s2)]),
+            ExcelSheet(excel_name="file1", sheet_name="sheet1", df=f1_s1),
+            ExcelSheet(excel_name="file2", sheet_name="sheet2", df=f2_s2),
         ]
         res = _resolve_duplicate_ids_all_excels(all_excels)
         assert len(res) == 2
-        file_one = res[0]
-        assert file_one.filename == "file1"
-        assert file_one.sheets[0].df["id"].to_list() == ["0", "List1:Node1", "2"]
-        file_two = res[1]
-        assert file_two.filename == "file2"
-        assert file_two.sheets[0].df["id"].to_list() == ["00", "List2:Node1"]
+        sheet_one = res[0]
+        assert sheet_one.excel_name == "file1"
+        assert sheet_one.df["id"].to_list() == ["0", "List1:Node1", "2"]
+        sheet_two = res[1]
+        assert sheet_two.excel_name == "file2"
+        assert sheet_two.df["id"].to_list() == ["00", "List2:Node1"]
 
     def test_analyse_resolve_all_excel_duplicates_no_duplicates(self) -> None:
         f1_s1 = pd.DataFrame(
@@ -138,17 +137,17 @@ class TestDuplicateID:
             }
         )
         all_excels = [
-            ExcelFile(filename="file1", sheets=[ExcelSheet(excel_name="file1", sheet_name="sheet1", df=f1_s1)]),
-            ExcelFile(filename="file2", sheets=[ExcelSheet(excel_name="file2", sheet_name="sheet2", df=f2_s2)]),
+            ExcelSheet(excel_name="file1", sheet_name="sheet1", df=f1_s1),
+            ExcelSheet(excel_name="file2", sheet_name="sheet2", df=f2_s2),
         ]
         res = _resolve_duplicate_ids_all_excels(all_excels)
         assert len(res) == 2
-        file_one = res[0]
-        assert file_one.filename == "file1"
-        assert file_one.sheets[0].df["id"].to_list() == ["0", "11", "2"]
-        file_two = res[1]
-        assert file_two.filename == "file2"
-        assert file_two.sheets[0].df["id"].to_list() == ["00", "1"]
+        sheet_one = res[0]
+        assert sheet_one.excel_name == "file1"
+        assert sheet_one.df["id"].to_list() == ["0", "11", "2"]
+        sheet_two = res[1]
+        assert sheet_two.excel_name == "file2"
+        assert sheet_two.df["id"].to_list() == ["00", "1"]
 
 
 class TestMakeOneList:

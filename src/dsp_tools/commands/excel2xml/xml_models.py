@@ -34,8 +34,8 @@ class AllValues:
 class Value:
     value: Any
     property: str
-    comment: str
-    permissions: str
+    comment: str | None
+    permissions: str | None
 
     def serialise(self) -> etree._Element:
         raise NotImplementedError
@@ -51,7 +51,7 @@ class Value:
 class RichText(Value):
     value: str
     property: str
-    comment: str
+    comment: str | None = None
     permissions: str = "prop-default"
     preserve_linebreaks: bool = False
 
@@ -77,14 +77,16 @@ class RichText(Value):
             attribs["permissions"] = self.permissions
         if self.comment:
             attribs["comment"] = self.comment
-        return etree.Element(f"{{{xml_namespace_map[None]}}}text", attrib=attribs, nsmap=xml_namespace_map)
+        ele = etree.Element(f"{{{xml_namespace_map[None]}}}text", attrib=attribs, nsmap=xml_namespace_map)
+        ele.text = self.value
+        return ele
 
 
 @dataclass
 class TextArea(Value):
     value: str
     property: str
-    comment: str
+    comment: str | None = None
     permissions: str = "prop-default"
     preserve_linebreaks: bool = False
 
@@ -110,14 +112,16 @@ class TextArea(Value):
             attribs["permissions"] = self.permissions
         if self.comment:
             attribs["comment"] = self.comment
-        return etree.Element(f"{{{xml_namespace_map[None]}}}text", attrib=attribs, nsmap=xml_namespace_map)
+        ele = etree.Element(f"{{{xml_namespace_map[None]}}}text", attrib=attribs, nsmap=xml_namespace_map)
+        ele.text = self.value
+        return ele
 
 
 @dataclass
 class SimpleText(Value):
     value: str
     property: str
-    comment: str
+    comment: str | None = None
     permissions: str = "prop-default"
 
     def __post_init__(self) -> None:
@@ -140,4 +144,6 @@ class SimpleText(Value):
             attribs["permissions"] = self.permissions
         if self.comment:
             attribs["comment"] = self.comment
-        return etree.Element(f"{{{xml_namespace_map[None]}}}text", attrib=attribs, nsmap=xml_namespace_map)
+        ele = etree.Element(f"{{{xml_namespace_map[None]}}}text", attrib=attribs, nsmap=xml_namespace_map)
+        ele.text = self.value
+        return ele

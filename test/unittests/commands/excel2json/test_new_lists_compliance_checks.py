@@ -5,13 +5,6 @@ import pandas as pd
 import pytest
 import regex
 
-from dsp_tools.commands.excel2json.models.input_error_lists import DuplicatesInSheetProblem
-from dsp_tools.commands.excel2json.models.input_error_lists import ListSheetComplianceProblem
-from dsp_tools.commands.excel2json.models.input_error_lists import ListSheetContentProblem
-from dsp_tools.commands.excel2json.models.input_error_lists import MissingNodeTranslationProblem
-from dsp_tools.commands.excel2json.models.input_error_lists import MissingTranslationsSheetProblem
-from dsp_tools.commands.excel2json.models.input_error_lists import NodesPerRowProblem
-from dsp_tools.commands.excel2json.models.new_lists_deserialise import ExcelSheet
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_duplicates_all_excels
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_for_duplicate_nodes_one_df
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_for_erroneous_entries_all_excels
@@ -33,6 +26,13 @@ from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_war
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _compose_all_combinatoric_column_titles
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _make_shape_compliance_all_excels
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _make_shape_compliance_one_sheet
+from dsp_tools.commands.excel2json.new_lists.models.input_error_lists import DuplicatesInSheetProblem
+from dsp_tools.commands.excel2json.new_lists.models.input_error_lists import ListSheetComplianceProblem
+from dsp_tools.commands.excel2json.new_lists.models.input_error_lists import ListSheetContentProblem
+from dsp_tools.commands.excel2json.new_lists.models.input_error_lists import MissingNodeTranslationProblem
+from dsp_tools.commands.excel2json.new_lists.models.input_error_lists import MissingTranslationsSheetProblem
+from dsp_tools.commands.excel2json.new_lists.models.input_error_lists import NodesPerRowProblem
+from dsp_tools.commands.excel2json.new_lists.models.new_lists_deserialise import ExcelSheet
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
 

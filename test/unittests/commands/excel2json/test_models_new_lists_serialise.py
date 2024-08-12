@@ -1,10 +1,10 @@
 import pandas as pd
 import pytest
 
-from dsp_tools.commands.excel2json.models.input_error_lists import ListNodeProblem
-from dsp_tools.commands.excel2json.models.input_error_lists import ListSheetProblem
-from dsp_tools.commands.excel2json.models.new_lists_serialise import ListNode
-from dsp_tools.commands.excel2json.models.new_lists_serialise import ListRoot
+from dsp_tools.commands.excel2json.new_lists.models.input_error_lists import ListNodeProblem
+from dsp_tools.commands.excel2json.new_lists.models.input_error_lists import ListSheetProblem
+from dsp_tools.commands.excel2json.new_lists.models.new_lists_serialise import ListNode
+from dsp_tools.commands.excel2json.new_lists.models.new_lists_serialise import ListRoot
 
 
 class TestListRoot:

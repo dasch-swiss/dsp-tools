@@ -2,9 +2,6 @@ import pandas as pd
 import pytest
 from pandas.testing import assert_frame_equal
 
-from dsp_tools.commands.excel2json.models.new_lists_deserialise import ExcelSheet
-from dsp_tools.commands.excel2json.models.new_lists_serialise import ListNode
-from dsp_tools.commands.excel2json.models.new_lists_serialise import ListRoot
 from dsp_tools.commands.excel2json.new_lists.make_new_lists import _add_nodes_to_parent
 from dsp_tools.commands.excel2json.new_lists.make_new_lists import _complete_id_one_df
 from dsp_tools.commands.excel2json.new_lists.make_new_lists import _construct_non_duplicate_id_string
@@ -21,6 +18,9 @@ from dsp_tools.commands.excel2json.new_lists.make_new_lists import _resolve_dupl
 from dsp_tools.commands.excel2json.new_lists.make_new_lists import (
     _resolve_duplicate_ids_keep_custom_change_auto_id_one_df,
 )
+from dsp_tools.commands.excel2json.new_lists.models.new_lists_deserialise import ExcelSheet
+from dsp_tools.commands.excel2json.new_lists.models.new_lists_serialise import ListNode
+from dsp_tools.commands.excel2json.new_lists.models.new_lists_serialise import ListRoot
 
 
 class TestDuplicateID:

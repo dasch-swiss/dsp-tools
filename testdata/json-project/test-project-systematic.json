@@ -29,7 +29,7 @@
                 "selfjoin": false
             },
             {
-                "name": "testgroupViewers",
+                "name": "testgroup-viewers",
                 "descriptions": {
                     "en": "Test group viewers",
                     "de": "Testgruppe Viewers"

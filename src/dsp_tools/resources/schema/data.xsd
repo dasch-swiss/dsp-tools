@@ -23,7 +23,7 @@
     <xs:simpleType name="group_types">
         <xs:restriction base="xs:token">
             <xs:pattern
-                value="(UnknownUser|KnownUser|ProjectMember|Creator|ProjectAdmin|SystemAdmin|([\w-]+):([\w ]+))"/>
+                value="(UnknownUser|KnownUser|ProjectMember|Creator|ProjectAdmin|SystemAdmin|([\w-]+)?:([\w- ]+))"/>
         </xs:restriction>
     </xs:simpleType>
 

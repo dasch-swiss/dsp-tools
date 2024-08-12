@@ -68,7 +68,7 @@ class XmlAllow:
                         raise XmlUploadError(f'Group "{node.attrib["group"]}" is not known: Cannot find project!')
                     self._group = _group
             elif project_context.project_name is None:
-                raise XmlUploadError("Project shortcode has not been set in ProjectContext")
+                raise XmlUploadError("Project shortname has not been set in ProjectContext")
             else:
                 self._group = f"{project_context.project_name}:{tmp[1]}"
         elif tmp[0] in sysgroups:

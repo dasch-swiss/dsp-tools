@@ -33,13 +33,6 @@ class Resource:
                 f"The label '{self.label}' of the resource with the ID {self.res_id} is not a string."
             )
             warnings.warn(DspToolsUserWarning(msg))
-        if self.iiif_uri:
-            if not is_iiif_uri(self.iiif_uri):
-                msg = (
-                    f"Failed validation in iiif-uri tag of resource '{self.res_id}': "
-                    f"The URI: '{self.iiif_uri}' does not conform to the specifications."
-                )
-                warnings.warn(DspToolsUserWarning(msg))
 
     def serialise(self) -> etree._Element:
         res_ele = self._make_resource_ele()
@@ -69,6 +62,12 @@ class Resource:
             prop_.text = str(self.filepath)
             return prop_
         if self.iiif_uri:
+            if not is_iiif_uri(self.iiif_uri):
+                msg = (
+                    f"Failed validation in iiif-uri tag of resource '{self.res_id}': "
+                    f"The URI: '{self.iiif_uri}' does not conform to the specifications."
+                )
+                warnings.warn(DspToolsUserWarning(msg))
             prop_ = etree.Element(
                 f"{{{xml_namespace_map[None]}}}iiif-uri",
                 permissions=self.permissions,

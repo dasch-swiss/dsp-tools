@@ -255,7 +255,7 @@ def _upload_resources(clients: UploadClients, upload_state: UploadState) -> None
         media_previously_ingested=upload_state.config.media_previously_uploaded,
     )
 
-    progress_bar = tqdm(upload_state.pending_resources.copy(), desc="Creating Resources")
+    progress_bar = tqdm(upload_state.pending_resources.copy(), desc="Creating Resources", file=sys.stdout)
     try:
         for creation_attempts_of_this_round, resource in enumerate(progress_bar):
             _upload_one_resource(

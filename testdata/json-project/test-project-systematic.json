@@ -77,7 +77,7 @@
                 "password": "test0815",
                 "lang": "it",
                 "groups": [
-                    "systematic-tp:testgroupViewers"
+                    "systematic-tp:testgroup-viewers"
                 ],
                 "projects": [
                     "systematic-tp:member"

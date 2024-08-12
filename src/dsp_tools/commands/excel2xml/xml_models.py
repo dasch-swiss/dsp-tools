@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import warnings
+from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any
 
@@ -15,6 +16,19 @@ xml_namespace_map = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.o
 @dataclass
 class AllValues:
     values: list[Value]
+
+    def serialise(self) -> list[etree._Element]:
+        grouped = defaultdict(list)
+        for val in self.values:
+            grouped[val.property].append(val)
+        return [self._combine_properties(prop_values) for prop_values in grouped.values()]
+
+    def _combine_properties(self, prop_values: list[Value]) -> etree._Element:
+        main_prop = prop_values[0]
+        prop_ = main_prop.make_prop()
+        prop_eles = [x.make_element() for x in prop_values]
+        prop_.extend(prop_eles)
+        return prop_
 
 
 @dataclass
@@ -52,7 +66,8 @@ class RichText(Value):
 
     def serialise(self) -> etree._Element:
         ele = self.make_prop()
-        return ele.append(self.make_element())
+        ele.append(self.make_element())
+        return ele
 
     def make_prop(self) -> etree._Element:
         return etree.Element(f"{{{xml_namespace_map[None]}}}text-prop", name=self.property, nsmap=xml_namespace_map)
@@ -84,7 +99,8 @@ class TextArea(Value):
 
     def serialise(self) -> etree._Element:
         ele = self.make_prop()
-        return ele.append(self.make_element())
+        ele.append(self.make_element())
+        return ele
 
     def make_prop(self) -> etree._Element:
         return etree.Element(f"{{{xml_namespace_map[None]}}}text-prop", name=self.property, nsmap=xml_namespace_map)
@@ -113,7 +129,8 @@ class SimpleText(Value):
 
     def serialise(self) -> etree._Element:
         ele = self.make_prop()
-        return ele.append(self.make_element())
+        ele.append(self.make_element())
+        return ele
 
     def make_prop(self) -> etree._Element:
         return etree.Element(f"{{{xml_namespace_map[None]}}}text-prop", name=self.property, nsmap=xml_namespace_map)

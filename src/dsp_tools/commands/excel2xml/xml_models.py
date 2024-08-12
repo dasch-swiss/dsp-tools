@@ -27,11 +27,6 @@ class Resource:
     filepath: str | None = None
 
     def __post_init__(self) -> None:
-        if self.iiif_uri and self.filepath:
-            raise InputError(
-                "A resource can only have a iiif-uri or a filepath.\n"
-                f"The resource with the ID {self.res_id} has both."
-            )
         if not is_string(str(self.label)):
             msg = (
                 f"The label of a resource should be a string.\n"
@@ -60,6 +55,11 @@ class Resource:
         return etree.Element(f"{{{xml_namespace_map[None]}}}resource", attrib=attribs, nsmap=xml_namespace_map)
 
     def _make_file_ele(self) -> etree._Element | None:
+        if self.iiif_uri and self.filepath:
+            raise InputError(
+                "A resource can only have a iiif-uri or a filepath.\n"
+                f"The resource with the ID '{self.res_id}' has both."
+            )
         if self.filepath:
             prop_ = etree.Element(
                 f"{{{xml_namespace_map[None]}}}bitstream",

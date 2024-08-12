@@ -70,7 +70,9 @@ class XmlAllow:
             elif project_context.project_name is None:
                 raise XmlUploadError("Project shortname has not been set in ProjectContext")
             else:
-                self._group = f"{project_context.project_name}:{tmp[1]}"
+                prefixed_custom_groupname = f"{project_context.project_name}:{tmp[1]}"
+                if _group := project_context.group_map.get(prefixed_custom_groupname):
+                    self._group = _group
         elif tmp[0] in sysgroups:
             self._group = "knora-admin:" + node.attrib["group"]
         else:

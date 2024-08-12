@@ -301,6 +301,7 @@ def _get_project_context_from_server(connection: Connection, shortcode: str) -> 
 
     Args:
         connection: connection to the server
+        shortcode: shortcode of the project
 
     Returns:
         Project context

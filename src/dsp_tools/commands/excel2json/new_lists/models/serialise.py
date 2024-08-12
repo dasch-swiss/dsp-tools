@@ -6,8 +6,8 @@ from typing import Any
 
 import pandas as pd
 
-from dsp_tools.commands.excel2json.models.input_error_lists import ListNodeProblem
-from dsp_tools.commands.excel2json.models.input_error_lists import ListSheetProblem
+from dsp_tools.commands.excel2json.new_lists.models.input_error import ListNodeProblem
+from dsp_tools.commands.excel2json.new_lists.models.input_error import ListSheetProblem
 
 
 @dataclass

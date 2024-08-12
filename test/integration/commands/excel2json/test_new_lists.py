@@ -5,7 +5,7 @@ from typing import cast
 
 import pytest
 
-from dsp_tools.commands.excel2json.new_lists import new_excel2lists
+from dsp_tools.commands.excel2json.new_lists.make_new_lists import new_excel2lists
 
 
 @pytest.fixture()

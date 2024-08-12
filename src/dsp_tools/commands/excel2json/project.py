@@ -6,7 +6,7 @@ import regex
 
 from dsp_tools.commands.excel2json.json_header import get_json_header
 from dsp_tools.commands.excel2json.lists import excel2lists
-from dsp_tools.commands.excel2json.new_lists import new_excel2lists
+from dsp_tools.commands.excel2json.new_lists.make_new_lists import new_excel2lists
 from dsp_tools.commands.excel2json.properties import excel2properties
 from dsp_tools.commands.excel2json.resources import excel2resources
 from dsp_tools.models.exceptions import UserError

@@ -52,7 +52,7 @@ class RichText(Value):
     value: str
     property: str
     comment: str | None = None
-    permissions: str = "prop-default"
+    permissions: str | None = "prop-default"
     preserve_linebreaks: bool = False
 
     def __post_init__(self) -> None:
@@ -87,7 +87,7 @@ class TextArea(Value):
     value: str
     property: str
     comment: str | None = None
-    permissions: str = "prop-default"
+    permissions: str | None = "prop-default"
     preserve_linebreaks: bool = False
 
     def __post_init__(self) -> None:
@@ -122,7 +122,7 @@ class SimpleText(Value):
     value: str
     property: str
     comment: str | None = None
-    permissions: str = "prop-default"
+    permissions: str | None = "prop-default"
 
     def __post_init__(self) -> None:
         if not is_string(self.value):

@@ -34,8 +34,8 @@ class AllValues:
 class Value:
     value: Any
     property: str
-    comment: str | None
     permissions: str | None
+    comment: str | None
 
     def serialise(self) -> etree._Element:
         raise NotImplementedError
@@ -51,8 +51,8 @@ class Value:
 class RichText(Value):
     value: str
     property: str
-    comment: str | None = None
     permissions: str | None = "prop-default"
+    comment: str | None = None
     preserve_linebreaks: bool = False
 
     def __post_init__(self) -> None:
@@ -86,8 +86,8 @@ class RichText(Value):
 class TextArea(Value):
     value: str
     property: str
-    comment: str | None = None
     permissions: str | None = "prop-default"
+    comment: str | None = None
     preserve_linebreaks: bool = False
 
     def __post_init__(self) -> None:
@@ -121,8 +121,8 @@ class TextArea(Value):
 class SimpleText(Value):
     value: str
     property: str
-    comment: str | None = None
     permissions: str | None = "prop-default"
+    comment: str | None = None
 
     def __post_init__(self) -> None:
         if not is_string(self.value):

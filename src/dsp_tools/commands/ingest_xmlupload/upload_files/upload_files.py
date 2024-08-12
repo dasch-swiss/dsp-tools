@@ -1,4 +1,5 @@
 from pathlib import Path
+import sys
 
 from loguru import logger
 from lxml import etree
@@ -42,7 +43,7 @@ def upload_files(
     ingest_client = BulkIngestClient(creds.dsp_ingest_url, con.get_token(), shortcode, imgdir)
 
     failures: list[UploadFailure] = []
-    progress_bar = tqdm(paths, desc="Uploading files", unit="file(s)")
+    progress_bar = tqdm(paths, desc="Uploading files", unit="file(s)", file=sys.stdout)
     for path in progress_bar:
         if res := ingest_client.upload_file(path):
             failures.append(res)

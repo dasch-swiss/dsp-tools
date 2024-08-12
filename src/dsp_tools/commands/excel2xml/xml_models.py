@@ -21,11 +21,10 @@ class AllValues:
         grouped = defaultdict(list)
         for val in self.values:
             grouped[val.property].append(val)
-        return [self._combine_properties(prop_values) for prop_values in grouped.values()]
+        return [self._combine_values(prop_values) for prop_values in grouped.values()]
 
-    def _combine_properties(self, prop_values: list[Value]) -> etree._Element:
-        main_prop = prop_values[0]
-        prop_ = main_prop.make_prop()
+    def _combine_values(self, prop_values: list[Value]) -> etree._Element:
+        prop_ = prop_values[0].make_prop()
         prop_eles = [x.make_element() for x in prop_values]
         prop_.extend(prop_eles)
         return prop_

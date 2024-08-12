@@ -1,6 +1,6 @@
+import sys
 from datetime import datetime
 from pathlib import Path
-import sys
 from time import sleep
 from typing import cast
 
@@ -38,7 +38,9 @@ def ingest_files(creds: ServerCredentials, shortcode: str) -> bool:
 def _retrieve_mapping(bulk_ingest_client: BulkIngestClient) -> str:
     sleeping_time = 10
     desc = f"Wait until mapping CSV is ready. Ask server every {sleeping_time} seconds "
-    progress_bar = tqdm(bulk_ingest_client.retrieve_mapping_generator(), desc=desc, bar_format="{desc}{elapsed}", file=sys.stdout)
+    progress_bar = tqdm(
+        bulk_ingest_client.retrieve_mapping_generator(), desc=desc, bar_format="{desc}{elapsed}", file=sys.stdout
+    )
     num_of_attempts = 0
     num_of_server_errors = 0
     for result in progress_bar:

@@ -18,9 +18,9 @@ from dsp_tools.commands.excel2json.new_lists.make_new_lists import _resolve_dupl
 from dsp_tools.commands.excel2json.new_lists.make_new_lists import (
     _resolve_duplicate_ids_keep_custom_change_auto_id_one_df,
 )
-from dsp_tools.commands.excel2json.new_lists.models.new_lists_deserialise import ExcelSheet
-from dsp_tools.commands.excel2json.new_lists.models.new_lists_serialise import ListNode
-from dsp_tools.commands.excel2json.new_lists.models.new_lists_serialise import ListRoot
+from dsp_tools.commands.excel2json.new_lists.models.deserialise import ExcelSheet
+from dsp_tools.commands.excel2json.new_lists.models.serialise import ListNode
+from dsp_tools.commands.excel2json.new_lists.models.serialise import ListRoot
 
 
 class TestDuplicateID:

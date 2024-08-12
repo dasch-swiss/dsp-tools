@@ -12,14 +12,14 @@ from loguru import logger
 
 from dsp_tools.commands.excel2json.lists import validate_lists_section_with_schema
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _make_all_formal_excel_compliance_checks
-from dsp_tools.commands.excel2json.new_lists.models.input_error_lists import CollectedSheetProblems
-from dsp_tools.commands.excel2json.new_lists.models.input_error_lists import ListCreationProblem
-from dsp_tools.commands.excel2json.new_lists.models.input_error_lists import ListNodeProblem
-from dsp_tools.commands.excel2json.new_lists.models.input_error_lists import ListSheetProblem
-from dsp_tools.commands.excel2json.new_lists.models.input_error_lists import SheetProblem
-from dsp_tools.commands.excel2json.new_lists.models.new_lists_deserialise import ExcelSheet
-from dsp_tools.commands.excel2json.new_lists.models.new_lists_serialise import ListNode
-from dsp_tools.commands.excel2json.new_lists.models.new_lists_serialise import ListRoot
+from dsp_tools.commands.excel2json.new_lists.models.deserialise import ExcelSheet
+from dsp_tools.commands.excel2json.new_lists.models.input_error import CollectedSheetProblems
+from dsp_tools.commands.excel2json.new_lists.models.input_error import ListCreationProblem
+from dsp_tools.commands.excel2json.new_lists.models.input_error import ListNodeProblem
+from dsp_tools.commands.excel2json.new_lists.models.input_error import ListSheetProblem
+from dsp_tools.commands.excel2json.new_lists.models.input_error import SheetProblem
+from dsp_tools.commands.excel2json.new_lists.models.serialise import ListNode
+from dsp_tools.commands.excel2json.new_lists.models.serialise import ListRoot
 from dsp_tools.commands.excel2json.new_lists.utils import _get_all_languages_for_columns
 from dsp_tools.commands.excel2json.new_lists.utils import _get_columns_of_preferred_lang
 from dsp_tools.commands.excel2json.new_lists.utils import _get_hierarchy_nums

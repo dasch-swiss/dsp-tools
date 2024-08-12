@@ -11,7 +11,7 @@ import regex
 from loguru import logger
 
 from dsp_tools.commands.excel2json.lists import validate_lists_section_with_schema
-from dsp_tools.commands.excel2json.new_lists.compliance_checks import _make_all_formal_excel_compliance_checks
+from dsp_tools.commands.excel2json.new_lists.compliance_checks import make_all_formal_excel_compliance_checks
 from dsp_tools.commands.excel2json.new_lists.models.deserialise import ExcelSheet
 from dsp_tools.commands.excel2json.new_lists.models.input_error import CollectedSheetProblems
 from dsp_tools.commands.excel2json.new_lists.models.input_error import ListCreationProblem
@@ -20,11 +20,11 @@ from dsp_tools.commands.excel2json.new_lists.models.input_error import ListSheet
 from dsp_tools.commands.excel2json.new_lists.models.input_error import SheetProblem
 from dsp_tools.commands.excel2json.new_lists.models.serialise import ListNode
 from dsp_tools.commands.excel2json.new_lists.models.serialise import ListRoot
-from dsp_tools.commands.excel2json.new_lists.utils import _get_all_languages_for_columns
-from dsp_tools.commands.excel2json.new_lists.utils import _get_columns_of_preferred_lang
-from dsp_tools.commands.excel2json.new_lists.utils import _get_hierarchy_nums
-from dsp_tools.commands.excel2json.new_lists.utils import _get_lang_string_from_column_name
-from dsp_tools.commands.excel2json.new_lists.utils import _get_preferred_language
+from dsp_tools.commands.excel2json.new_lists.utils import get_all_languages_for_columns
+from dsp_tools.commands.excel2json.new_lists.utils import get_columns_of_preferred_lang
+from dsp_tools.commands.excel2json.new_lists.utils import get_hierarchy_nums
+from dsp_tools.commands.excel2json.new_lists.utils import get_lang_string_from_column_name
+from dsp_tools.commands.excel2json.new_lists.utils import get_preferred_language
 from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
 from dsp_tools.models.exceptions import InputError
 
@@ -102,7 +102,7 @@ def _make_all_lists(sheet_list: list[ExcelSheet]) -> list[ListRoot] | ListCreati
 
 def _prepare_dfs(sheet_list: list[ExcelSheet]) -> list[ExcelSheet]:
     sheet_list = _add_id_optional_column_if_not_exists(sheet_list)
-    _make_all_formal_excel_compliance_checks(sheet_list)
+    make_all_formal_excel_compliance_checks(sheet_list)
     return _construct_ids(sheet_list)
 
 
@@ -121,7 +121,7 @@ def _add_id_optional_column_if_not_exists(sheet_list: list[ExcelSheet]) -> list[
 def _construct_ids(sheet_list: list[ExcelSheet]) -> list[ExcelSheet]:
     all_sheets = []
     for sheet in sheet_list:
-        df = _complete_id_one_df(sheet.df, _get_preferred_language(sheet.df.columns))
+        df = _complete_id_one_df(sheet.df, get_preferred_language(sheet.df.columns))
         all_sheets.append(ExcelSheet(excel_name=sheet.excel_name, sheet_name=sheet.sheet_name, df=df))
     all_sheets = _resolve_duplicate_ids_all_excels(all_sheets)
     return _fill_parent_id_col_all_excels(all_sheets)
@@ -130,7 +130,7 @@ def _construct_ids(sheet_list: list[ExcelSheet]) -> list[ExcelSheet]:
 def _fill_parent_id_col_all_excels(sheet_list: list[ExcelSheet]) -> list[ExcelSheet]:
     all_sheets = []
     for sheet in sheet_list:
-        df = _fill_parent_id_col_one_df(sheet.df, _get_preferred_language(sheet.df.columns))
+        df = _fill_parent_id_col_one_df(sheet.df, get_preferred_language(sheet.df.columns))
         all_sheets.append(ExcelSheet(excel_name=sheet.excel_name, sheet_name=sheet.sheet_name, df=df))
     return all_sheets
 
@@ -139,7 +139,7 @@ def _fill_parent_id_col_one_df(df: pd.DataFrame, preferred_language: str) -> pd.
     """Create an extra column with the ID of the parent node."""
     # To start, all rows get the ID of the list. These will be overwritten if the row has another parent.
     df["parent_id"] = df.at[0, "id"]
-    columns = _get_columns_of_preferred_lang(df.columns, preferred_language, r"\d+")
+    columns = get_columns_of_preferred_lang(df.columns, preferred_language, r"\d+")
     for num in range(len(columns)):
         grouped = df.groupby(columns[: num + 1])
         for name, group in grouped:
@@ -163,7 +163,7 @@ def _resolve_duplicate_ids_all_excels(sheet_list: list[ExcelSheet]) -> list[Exce
 def _remove_duplicate_ids_in_all_excels(duplicate_ids: list[str], sheet_list: list[ExcelSheet]) -> list[ExcelSheet]:
     all_sheets = []
     for sheet in sheet_list:
-        preferred_lang = _get_preferred_language(sheet.df.columns)
+        preferred_lang = get_preferred_language(sheet.df.columns)
         df = sheet.df
         for i, row in df.iterrows():
             if row["id"] in duplicate_ids and pd.isna(row["id (optional)"]):
@@ -197,7 +197,7 @@ def _create_auto_id_one_df(df: pd.DataFrame, preferred_language: str) -> pd.Data
         return df
     if pd.isna(df.at[0, "id (optional)"]):
         df.loc[0, "auto_id"] = df.at[0, f"{preferred_language}_list"]
-    column_names = sorted(_get_columns_of_preferred_lang(df.columns, preferred_language, r"\d+"), reverse=True)
+    column_names = sorted(get_columns_of_preferred_lang(df.columns, preferred_language, r"\d+"), reverse=True)
     for i, row in df.iterrows():
         if pd.isna(row["id (optional)"]):
             for col in column_names:
@@ -218,7 +218,7 @@ def _resolve_duplicate_ids_for_auto_id_one_df(df: pd.DataFrame, preferred_langua
 
 def _construct_non_duplicate_id_string(row: pd.Series[Any], preferred_language: str) -> str:
     """In case the node name is not unique; an ID is created by joining the node names of all the ancestors."""
-    column_names = _get_columns_of_preferred_lang(row.index, preferred_language, r"\d+")
+    column_names = get_columns_of_preferred_lang(row.index, preferred_language, r"\d+")
     column_names.insert(0, f"{preferred_language}_list")
     id_cols = [row[col] for col in column_names if pd.notna(row[col])]
     return ":".join(id_cols)
@@ -278,8 +278,8 @@ def _make_one_node(row: pd.Series[Any], list_of_columns: list[list[str]], index:
 
 
 def _get_reverse_sorted_columns_list(df: pd.DataFrame) -> list[list[str]]:
-    numbers = sorted(_get_hierarchy_nums(df.columns), reverse=True)
-    languages = _get_all_languages_for_columns(df.columns, r"\d+")
+    numbers = sorted(get_hierarchy_nums(df.columns), reverse=True)
+    languages = get_all_languages_for_columns(df.columns, r"\d+")
     return [[f"{lang}_{num}" for lang in languages] for num in numbers]
 
 
@@ -297,7 +297,5 @@ def _get_labels(row: pd.Series[Any], columns: list[str]) -> dict[str, str]:
         A dictionary with language codes as keys and the corresponding labels as values.
     """
     return {
-        lang: row[col]
-        for col in columns
-        if not (pd.isna(row[col])) and (lang := _get_lang_string_from_column_name(col))
+        lang: row[col] for col in columns if not (pd.isna(row[col])) and (lang := get_lang_string_from_column_name(col))
     }

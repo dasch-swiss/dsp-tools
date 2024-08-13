@@ -36,23 +36,21 @@ class ListDeserialised:
     comments: LangColsDeserialised | None = None
 
     def check_all(self) -> list[PositionInExcel]:
-        positions = []
-        if problem := self._check_own_labels():
-            positions.append(problem)
-        if problem := self._check_own_comments():
-            positions.append(problem)
-        if problems := self._check_all():
-            positions.extend(problems)
+        positions = self._check_self()
+        positions.extend(self._check_all_nodes())
         return positions
 
-    def _check_all(self) -> list[PositionInExcel] | None:
-        pass
+    def _check_self(self) -> list[PositionInExcel]:
+        problems = _get_missing_columns(self.labels, self.lang_tags, 2)
+        if self.comments:
+            problems.extend(_get_missing_columns(self.comments, self.lang_tags, 2))
+        return problems
 
-    def _check_own_labels(self) -> PositionInExcel | None:
-        pass
-
-    def _check_own_comments(self) -> PositionInExcel | None:
-        pass
+    def _check_all_nodes(self) -> list[PositionInExcel]:
+        problems = []
+        for nd in self.nodes:
+            problems.extend(nd.check(self.lang_tags))
+        return problems
 
 
 @dataclass
@@ -63,14 +61,11 @@ class NodeDeserialised:
     labels: LangColsDeserialised
     comments: LangColsDeserialised | None = None
 
-    def check(self, expected_lang_tags: set[str]) -> PositionInExcel | None:
-        pass
-
-    def _check_labels(self, expected_lang_tags: set[str]) -> PositionInExcel | None:
-        pass
-
-    def _check_comments(self, expected_lang_tags: set[str]) -> PositionInExcel | None:
-        pass
+    def check(self, expected_lang_tags: set[str]) -> list[PositionInExcel]:
+        problems = _get_missing_columns(self.labels, expected_lang_tags, self.excel_row)
+        if self.comments:
+            problems.extend(_get_missing_columns(self.comments, expected_lang_tags, self.excel_row))
+        return problems
 
 
 @dataclass
@@ -85,3 +80,13 @@ class LangColsDeserialised:
             return ""
         ending = next(iter(self.content.keys()))
         return f'_{ending.split("_")[1]}'
+
+
+def _get_missing_columns(
+    lang_cols: LangColsDeserialised, expected_lang_tags: set[str], excel_row: int
+) -> list[PositionInExcel]:
+    if not (label_langs := lang_cols.get_tags()) == expected_lang_tags:
+        missing = expected_lang_tags - label_langs
+        ending = lang_cols.get_ending()
+        return [PositionInExcel(row=excel_row, column=f"{x}{ending}") for x in missing]
+    return []

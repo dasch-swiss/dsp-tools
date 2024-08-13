@@ -34,7 +34,7 @@ def comment_cols_deserialised_three_langs() -> LangColsDeserialised:
 
 
 @pytest.fixture()
-def node_deserialised(
+def node_deserialised_with_comments(
     first_cols_deserialised: LangColsDeserialised, comment_cols_deserialised: LangColsDeserialised
 ) -> NodeDeserialised:
     return NodeDeserialised(
@@ -72,14 +72,14 @@ def node_deserialised_wrong_labels(
 @pytest.fixture()
 def list_deserialised_corr(
     list_cols_deserialised: LangColsDeserialised,
-    node_deserialised: NodeDeserialised,
+    node_deserialised_with_comments: NodeDeserialised,
     node_deserialised_no_comments: NodeDeserialised,
 ) -> ListDeserialised:
     return ListDeserialised(
         list_id="list_id",
         lang_tags={"en", "de"},
         labels=list_cols_deserialised,
-        nodes=[node_deserialised, node_deserialised_no_comments],
+        nodes=[node_deserialised_with_comments, node_deserialised_no_comments],
     )
 
 
@@ -92,14 +92,14 @@ def sheet_deserialised_corr(list_deserialised_corr: ListDeserialised) -> SheetDe
 
 @pytest.fixture()
 def list_deserialised_bad(
-    node_deserialised: NodeDeserialised,
+    node_deserialised_with_comments: NodeDeserialised,
     node_deserialised_no_comments: NodeDeserialised,
     list_cols_deserialised: LangColsDeserialised,
 ) -> ListDeserialised:
     return ListDeserialised(
         list_id="list_id",
         lang_tags={"en", "de", "fr"},
-        nodes=[node_deserialised, node_deserialised_no_comments],
+        nodes=[node_deserialised_with_comments, node_deserialised_no_comments],
         labels=list_cols_deserialised,
     )
 

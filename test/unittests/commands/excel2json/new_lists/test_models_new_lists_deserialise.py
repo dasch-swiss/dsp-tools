@@ -36,26 +36,14 @@ class TestListDeserialised:
 
 
 class TestNodeDeserialised:
-    def test_good_comment(self, node_deserialised: NodeDeserialised) -> None:
-        assert not node_deserialised._check_comments({"en", "de"})
-
-    def test_good_labels(self, node_deserialised: NodeDeserialised) -> None:
-        assert not node_deserialised._check_labels({"en", "de"})
-
-    def test_bad_comment(self, node_deserialised: NodeDeserialised) -> None:
-        assert not node_deserialised._check_comments({"en", "de", "fr"})
-
-    def test_bad_labels(self, node_deserialised: NodeDeserialised) -> None:
-        assert not node_deserialised._check_labels({"en", "de", "fr"})
+    def test_check_all_good(self, node_deserialised_with_comments: NodeDeserialised) -> None:
+        assert not node_deserialised_with_comments.check({"en", "de"})
 
     def test_bad_labels_good_comments(self, node_deserialised_wrong_labels: NodeDeserialised) -> None:
         res = node_deserialised_wrong_labels.check({"en", "de", "fr"})
         assert isinstance(res, PositionInExcel)
         assert res.row == 3
         assert res.column == "fr_1"
-
-    def test_check_all_good(self, node_deserialised: NodeDeserialised) -> None:
-        assert not node_deserialised.check({"en", "de"})
 
 
 class TestLangColsDeserialised:

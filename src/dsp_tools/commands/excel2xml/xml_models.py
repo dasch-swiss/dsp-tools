@@ -18,6 +18,8 @@ from dsp_tools.utils.uri_util import is_iiif_uri
 
 xml_namespace_map = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 
+DASCH_SCHEMA = "{https://dasch.swiss/schema}"
+
 
 @dataclass
 class XMLRoot:
@@ -32,7 +34,7 @@ class XMLRoot:
         schema_location_key = str(etree.QName("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation"))
         schema_location_value = f"https://dasch.swiss/schema {schema_url}"
         return etree.Element(
-            f"{{{xml_namespace_map[None]}}}knora",
+            f"{DASCH_SCHEMA}knora",
             attrib={
                 schema_location_key: schema_location_value,
                 "shortcode": self.shortcode,
@@ -82,7 +84,7 @@ class Resource:
         attribs = {"label": self.label, "restype": self.restype, "id": self.res_id}
         if self.permissions:
             attribs["permissions"] = self.permissions
-        return etree.Element(f"{{{xml_namespace_map[None]}}}resource", attrib=attribs, nsmap=xml_namespace_map)
+        return etree.Element(f"{DASCH_SCHEMA}resource", attrib=attribs, nsmap=xml_namespace_map)
 
     def _make_file_ele(self) -> etree._Element | None:
         if self.iiif_uri and self.filepath:
@@ -92,7 +94,7 @@ class Resource:
             )
         if self.filepath:
             prop_ = etree.Element(
-                f"{{{xml_namespace_map[None]}}}bitstream",
+                f"{DASCH_SCHEMA}bitstream",
                 permissions=self.permissions,
                 nsmap=xml_namespace_map,
             )
@@ -106,7 +108,7 @@ class Resource:
                 )
                 warnings.warn(DspToolsUserWarning(msg))
             prop_ = etree.Element(
-                f"{{{xml_namespace_map[None]}}}iiif-uri",
+                f"{DASCH_SCHEMA}iiif-uri",
                 permissions=self.permissions,
                 nsmap=xml_namespace_map,
             )
@@ -166,7 +168,7 @@ class Richtext(Value):
         return ele
 
     def make_prop(self) -> etree._Element:
-        return etree.Element(f"{{{xml_namespace_map[None]}}}text-prop", name=self.property, nsmap=xml_namespace_map)
+        return etree.Element(f"{DASCH_SCHEMA}text-prop", name=self.property, nsmap=xml_namespace_map)
 
     def make_element(self) -> etree._Element:
         attribs = {"encoding": "xml"}
@@ -174,7 +176,7 @@ class Richtext(Value):
             attribs["permissions"] = self.permissions
         if self.comment:
             attribs["comment"] = self.comment
-        ele = etree.Element(f"{{{xml_namespace_map[None]}}}text", attrib=attribs, nsmap=xml_namespace_map)
+        ele = etree.Element(f"{DASCH_SCHEMA}text", attrib=attribs, nsmap=xml_namespace_map)
         ele.text = self.value
         return ele
 
@@ -198,7 +200,7 @@ class Textarea(Value):
         return ele
 
     def make_prop(self) -> etree._Element:
-        return etree.Element(f"{{{xml_namespace_map[None]}}}text-prop", name=self.property, nsmap=xml_namespace_map)
+        return etree.Element(f"{DASCH_SCHEMA}text-prop", name=self.property, nsmap=xml_namespace_map)
 
     def make_element(self) -> etree._Element:
         attribs = {"encoding": "utf8"}
@@ -206,7 +208,7 @@ class Textarea(Value):
             attribs["permissions"] = self.permissions
         if self.comment:
             attribs["comment"] = self.comment
-        ele = etree.Element(f"{{{xml_namespace_map[None]}}}text", attrib=attribs, nsmap=xml_namespace_map)
+        ele = etree.Element(f"{DASCH_SCHEMA}text", attrib=attribs, nsmap=xml_namespace_map)
         ele.text = self.value
         return ele
 
@@ -230,7 +232,7 @@ class SimpleText(Value):
         return ele
 
     def make_prop(self) -> etree._Element:
-        return etree.Element(f"{{{xml_namespace_map[None]}}}text-prop", name=self.property, nsmap=xml_namespace_map)
+        return etree.Element(f"{DASCH_SCHEMA}text-prop", name=self.property, nsmap=xml_namespace_map)
 
     def make_element(self) -> etree._Element:
         attribs = {"encoding": "utf8"}
@@ -238,6 +240,6 @@ class SimpleText(Value):
             attribs["permissions"] = self.permissions
         if self.comment:
             attribs["comment"] = self.comment
-        ele = etree.Element(f"{{{xml_namespace_map[None]}}}text", attrib=attribs, nsmap=xml_namespace_map)
+        ele = etree.Element(f"{DASCH_SCHEMA}text", attrib=attribs, nsmap=xml_namespace_map)
         ele.text = self.value
         return ele

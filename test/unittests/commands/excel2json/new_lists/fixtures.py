@@ -92,14 +92,15 @@ def sheet_deserialised_corr(list_deserialised_corr: ListDeserialised) -> SheetDe
 
 @pytest.fixture()
 def list_deserialised_bad(
-    node_deserialised: NodeDeserialised, node_deserialised_no_comments: NodeDeserialised
+    node_deserialised: NodeDeserialised,
+    node_deserialised_no_comments: NodeDeserialised,
+    list_cols_deserialised: LangColsDeserialised,
 ) -> ListDeserialised:
     return ListDeserialised(
         list_id="list_id",
         lang_tags={"en", "de", "fr"},
         nodes=[node_deserialised, node_deserialised_no_comments],
-        labels=LangColsDeserialised,
-        comments=LangColsDeserialised,
+        labels=list_cols_deserialised,
     )
 
 

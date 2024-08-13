@@ -83,5 +83,5 @@ class LangColsDeserialised:
     def get_ending(self) -> str:
         if len(self.content) == 0:
             return ""
-        ending = list(self.content.keys())[0]
+        ending = next(iter(self.content.keys()))
         return f'_{ending.split("_")[1]}'

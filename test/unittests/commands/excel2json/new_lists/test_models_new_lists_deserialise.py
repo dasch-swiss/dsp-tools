@@ -1,26 +1,38 @@
 import pytest
 
+from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.new_lists.models.deserialise import LangColsDeserialised
 from dsp_tools.commands.excel2json.new_lists.models.deserialise import ListDeserialised
 from dsp_tools.commands.excel2json.new_lists.models.deserialise import NodeDeserialised
 from dsp_tools.commands.excel2json.new_lists.models.deserialise import SheetDeserialised
-from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
+from dsp_tools.commands.excel2json.new_lists.models.input_error import MissingListTranslations
 
 
 class TestSheetDeserialised:
     def test_good(self, sheet_deserialised_corr: SheetDeserialised) -> None:
-        pass
+        assert not sheet_deserialised_corr.check_all()
 
     def test_bad(self, sheet_deserialised_bad: SheetDeserialised) -> None:
-        pass
+        res = sheet_deserialised_bad.check_all()
+        assert isinstance(res, MissingListTranslations)
+        assert res.excel_name == "excel name"
+        assert res.sheet == "sheet wrong"
+        assert len(res.locations) == 1
+        location = res.locations[0]
+        assert isinstance(location, PositionInExcel)
 
 
 class TestListDeserialised:
     def test_good(self, list_deserialised_corr: ListDeserialised) -> None:
-        pass
+        assert not list_deserialised_corr.check_all()
 
     def test_bad(self, list_deserialised_bad: ListDeserialised) -> None:
-        pass
+        res = list_deserialised_bad.check_all()
+        assert len(res) == 1
+        location = res[0]
+        assert isinstance(location, PositionInExcel)
+        assert location.row == 1
+        assert location.column == "fr_1"
 
 
 class TestNodeDeserialised:

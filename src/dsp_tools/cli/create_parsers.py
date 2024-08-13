@@ -315,7 +315,7 @@ def _add_resume_xmlupload(
         "the resource will remain in the pending upload list.\n"
         "If this flag is set, the first resource in the list is skipped."
     )
-    subparser.add_argument("--skip-first-resource", help=skip_text)
+    subparser.add_argument("--skip-first-resource", action="store_true", help=skip_text)
 
 
 def _add_get(

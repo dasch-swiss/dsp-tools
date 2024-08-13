@@ -23,9 +23,7 @@ nav:
   - Information for developers:
       - Developers documentation: developers/index.md
       - Dependencies, packaging & distribution: developers/packaging.md
-      - Maintaining the start-stack command: developers/start-stack-command.md
       - User data: developers/user-data.md
-      - GitHub actions: developers/github-actions.md
       - MkDocs and markdown-link-validator: developers/mkdocs.md
       - Code quality tools:
           - Overview: developers/code-quality-tools/code-quality-tools.md

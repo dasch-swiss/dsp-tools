@@ -6,7 +6,7 @@ from loguru import logger
 from dsp_tools.cli.args import ServerCredentials
 from dsp_tools.commands.excel2json.lists import excel2lists
 from dsp_tools.commands.excel2json.lists import validate_lists_section_with_schema
-from dsp_tools.commands.excel2json.new_lists import new_excel2lists
+from dsp_tools.commands.excel2json.new_lists.make_new_lists import new_excel2lists
 from dsp_tools.commands.excel2json.project import excel2json
 from dsp_tools.commands.excel2json.project import new_excel2json
 from dsp_tools.commands.excel2json.properties import excel2properties

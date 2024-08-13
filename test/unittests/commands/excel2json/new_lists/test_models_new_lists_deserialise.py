@@ -6,6 +6,7 @@ from dsp_tools.commands.excel2json.new_lists.models.deserialise import NodeDeser
 from dsp_tools.commands.excel2json.new_lists.models.deserialise import SheetDeserialised
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 
+
 class TestSheetDeserialised:
     def test_good(self, sheet_deserialised_corr: SheetDeserialised) -> None:
         pass
@@ -43,6 +44,7 @@ class TestNodeDeserialised:
 
     def test_check_all_good(self, node_deserialised: NodeDeserialised) -> None:
         assert not node_deserialised.check({"en", "de"})
+
 
 class TestLangColsDeserialised:
     def test_get_tags(self, first_cols_deserialised: LangColsDeserialised) -> None:

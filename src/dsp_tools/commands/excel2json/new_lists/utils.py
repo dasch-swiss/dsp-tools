@@ -54,7 +54,7 @@ def get_preferred_language(columns: pd.Index[str], ending: str = r"(\d+|list)") 
     raise InputError(msg)
 
 
-def get_node_label_col_mapper(columns: pd.Index[str]) -> dict[str, set[str]]:
+def get_node_label_col_mapper(columns: pd.Index[str]) -> dict[int, set[str]]:
     """
     Returns a dictionary with the number of the column as key and the list of column names as value.
 

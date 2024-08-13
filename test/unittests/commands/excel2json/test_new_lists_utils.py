@@ -109,10 +109,7 @@ def test_get_columns_preferred_lang_returns_empty_list_for_no_match() -> None:
 
 def test_get_node_label_col_mapper(columns_correct: pd.Index[str]) -> None:
     result = get_node_label_col_mapper(columns_correct)
-    assert result == {
-        1: {"en_1", "de_1"},
-        2: {"en_2", "de_2"},
-    }
+    assert result == {1: {"en_1", "de_1"}, 2: {"en_2", "de_2"}}
 
 
 def test_get_list_cols(columns_correct: pd.Index[str]) -> None:

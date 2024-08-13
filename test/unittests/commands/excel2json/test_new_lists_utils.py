@@ -120,3 +120,7 @@ def test_get_list_cols(columns_correct: pd.Index[str]) -> None:
 def test_get_comment_cols(columns_correct: pd.Index[str]) -> None:
     result = get_comment_cols(columns_correct)
     assert result == {"en_comment", "de_comment"}
+
+
+if __name__ == "__main__":
+    pytest.main([__file__])

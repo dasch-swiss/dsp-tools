@@ -1,30 +1,26 @@
 import pandas as pd
 import pytest
-import regex
 from pandas.testing import assert_frame_equal
 
-from dsp_tools.commands.excel2json.models.list_node import ListNode
-from dsp_tools.commands.excel2json.models.list_node import ListRoot
-from dsp_tools.commands.excel2json.new_lists import _add_nodes_to_parent
-from dsp_tools.commands.excel2json.new_lists import _complete_id_one_df
-from dsp_tools.commands.excel2json.new_lists import _construct_non_duplicate_id_string
-from dsp_tools.commands.excel2json.new_lists import _create_auto_id_one_df
-from dsp_tools.commands.excel2json.new_lists import _fill_parent_id_col_one_df
-from dsp_tools.commands.excel2json.new_lists import _get_all_languages_for_columns
-from dsp_tools.commands.excel2json.new_lists import _get_columns_of_preferred_lang
-from dsp_tools.commands.excel2json.new_lists import _get_hierarchy_nums
-from dsp_tools.commands.excel2json.new_lists import _get_labels
-from dsp_tools.commands.excel2json.new_lists import _get_lang_string_from_column_name
-from dsp_tools.commands.excel2json.new_lists import _get_preferred_language
-from dsp_tools.commands.excel2json.new_lists import _get_reverse_sorted_columns_list
-from dsp_tools.commands.excel2json.new_lists import _make_list_nodes_from_df
-from dsp_tools.commands.excel2json.new_lists import _make_one_list
-from dsp_tools.commands.excel2json.new_lists import _make_one_node
-from dsp_tools.commands.excel2json.new_lists import _remove_duplicate_ids_in_all_excels
-from dsp_tools.commands.excel2json.new_lists import _resolve_duplicate_ids_all_excels
-from dsp_tools.commands.excel2json.new_lists import _resolve_duplicate_ids_for_auto_id_one_df
-from dsp_tools.commands.excel2json.new_lists import _resolve_duplicate_ids_keep_custom_change_auto_id_one_df
-from dsp_tools.models.exceptions import InputError
+from dsp_tools.commands.excel2json.new_lists.make_new_lists import _add_nodes_to_parent
+from dsp_tools.commands.excel2json.new_lists.make_new_lists import _complete_id_one_df
+from dsp_tools.commands.excel2json.new_lists.make_new_lists import _construct_non_duplicate_id_string
+from dsp_tools.commands.excel2json.new_lists.make_new_lists import _create_auto_id_one_df
+from dsp_tools.commands.excel2json.new_lists.make_new_lists import _fill_parent_id_col_one_df
+from dsp_tools.commands.excel2json.new_lists.make_new_lists import _get_labels
+from dsp_tools.commands.excel2json.new_lists.make_new_lists import _get_reverse_sorted_columns_list
+from dsp_tools.commands.excel2json.new_lists.make_new_lists import _make_list_nodes_from_df
+from dsp_tools.commands.excel2json.new_lists.make_new_lists import _make_one_list
+from dsp_tools.commands.excel2json.new_lists.make_new_lists import _make_one_node
+from dsp_tools.commands.excel2json.new_lists.make_new_lists import _remove_duplicate_ids_in_all_excels
+from dsp_tools.commands.excel2json.new_lists.make_new_lists import _resolve_duplicate_ids_all_excels
+from dsp_tools.commands.excel2json.new_lists.make_new_lists import _resolve_duplicate_ids_for_auto_id_one_df
+from dsp_tools.commands.excel2json.new_lists.make_new_lists import (
+    _resolve_duplicate_ids_keep_custom_change_auto_id_one_df,
+)
+from dsp_tools.commands.excel2json.new_lists.models.deserialise import ExcelSheet
+from dsp_tools.commands.excel2json.new_lists.models.serialise import ListNode
+from dsp_tools.commands.excel2json.new_lists.models.serialise import ListRoot
 
 
 class TestDuplicateID:
@@ -45,10 +41,18 @@ class TestDuplicateID:
                 "id (optional)": [pd.NA, pd.NA],
             }
         )
-        all_excels = {"file1": {"sheet1": f1_s1}, "file2": {"sheet2": f2_s2}}
+        all_excels = [
+            ExcelSheet(excel_name="file1", sheet_name="sheet1", df=f1_s1),
+            ExcelSheet(excel_name="file2", sheet_name="sheet2", df=f2_s2),
+        ]
         res = _remove_duplicate_ids_in_all_excels(["1"], all_excels)
-        assert res["file1"]["sheet1"]["id"].to_list() == ["0", "List1:Node1", "2"]
-        assert res["file2"]["sheet2"]["id"].to_list() == ["00", "List2:Node1"]
+        assert len(res) == 2
+        sheet_one = res[0]
+        assert sheet_one.excel_name == "file1"
+        assert sheet_one.df["id"].to_list() == ["0", "List1:Node1", "2"]
+        sheet_two = res[1]
+        assert sheet_two.excel_name == "file2"
+        assert sheet_two.df["id"].to_list() == ["00", "List2:Node1"]
 
     def test_resolve_duplicates_in_all_excels_custom_id(self) -> None:
         f1_s1 = pd.DataFrame(
@@ -67,10 +71,18 @@ class TestDuplicateID:
                 "id (optional)": [pd.NA, pd.NA],
             }
         )
-        all_excels = {"file1": {"sheet1": f1_s1}, "file2": {"sheet2": f2_s2}}
+        all_excels = [
+            ExcelSheet(excel_name="file1", sheet_name="sheet1", df=f1_s1),
+            ExcelSheet(excel_name="file2", sheet_name="sheet2", df=f2_s2),
+        ]
         res = _remove_duplicate_ids_in_all_excels(["1"], all_excels)
-        assert res["file1"]["sheet1"]["id"].to_list() == ["0", "1", "2"]
-        assert res["file2"]["sheet2"]["id"].to_list() == ["00", "List2:Node1"]
+        assert len(res) == 2
+        sheet_one = res[0]
+        assert sheet_one.excel_name == "file1"
+        assert sheet_one.df["id"].to_list() == ["0", "1", "2"]
+        sheet_two = res[1]
+        assert sheet_two.excel_name == "file2"
+        assert sheet_two.df["id"].to_list() == ["00", "List2:Node1"]
 
     def test_analyse_resolve_all_excel_duplicates_with_duplicates(self) -> None:
         f1_s1 = pd.DataFrame(
@@ -89,10 +101,18 @@ class TestDuplicateID:
                 "id (optional)": [pd.NA, pd.NA],
             }
         )
-        all_excels = {"file1": {"sheet1": f1_s1}, "file2": {"sheet2": f2_s2}}
+        all_excels = [
+            ExcelSheet(excel_name="file1", sheet_name="sheet1", df=f1_s1),
+            ExcelSheet(excel_name="file2", sheet_name="sheet2", df=f2_s2),
+        ]
         res = _resolve_duplicate_ids_all_excels(all_excels)
-        assert res["file1"]["sheet1"]["id"].to_list() == ["0", "List1:Node1", "2"]
-        assert res["file2"]["sheet2"]["id"].to_list() == ["00", "List2:Node1"]
+        assert len(res) == 2
+        sheet_one = res[0]
+        assert sheet_one.excel_name == "file1"
+        assert sheet_one.df["id"].to_list() == ["0", "List1:Node1", "2"]
+        sheet_two = res[1]
+        assert sheet_two.excel_name == "file2"
+        assert sheet_two.df["id"].to_list() == ["00", "List2:Node1"]
 
     def test_analyse_resolve_all_excel_duplicates_no_duplicates(self) -> None:
         f1_s1 = pd.DataFrame(
@@ -111,10 +131,18 @@ class TestDuplicateID:
                 "id (optional)": [pd.NA, pd.NA],
             }
         )
-        all_excels = {"file1": {"sheet1": f1_s1}, "file2": {"sheet2": f2_s2}}
+        all_excels = [
+            ExcelSheet(excel_name="file1", sheet_name="sheet1", df=f1_s1),
+            ExcelSheet(excel_name="file2", sheet_name="sheet2", df=f2_s2),
+        ]
         res = _resolve_duplicate_ids_all_excels(all_excels)
-        assert res["file1"]["sheet1"]["id"].to_list() == ["0", "11", "2"]
-        assert res["file2"]["sheet2"]["id"].to_list() == ["00", "1"]
+        assert len(res) == 2
+        sheet_one = res[0]
+        assert sheet_one.excel_name == "file1"
+        assert sheet_one.df["id"].to_list() == ["0", "11", "2"]
+        sheet_two = res[1]
+        assert sheet_two.excel_name == "file2"
+        assert sheet_two.df["id"].to_list() == ["00", "1"]
 
 
 class TestMakeOneList:
@@ -193,7 +221,8 @@ class TestMakeOneList:
                 "de_3": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, "Node_de_3.2.1", "Node_de_3.2.2"],
             }
         )
-        res = _make_one_list(test_df, "Sheet1")
+        test_sheet = ExcelSheet(excel_name="excel", sheet_name="Sheet1", df=test_df)
+        res = _make_one_list(test_sheet)
         assert isinstance(res, ListRoot)
         assert res.id_ == "list_id"
         assert res.labels == {"en": "Listname_en", "de": "Listname_de"}
@@ -478,16 +507,6 @@ class TestMakeOneNode:
         assert not nd.sub_nodes
 
 
-def test_get_columns_preferred_lang_returns_expected_columns() -> None:
-    columns = pd.Index(["en_2", "de_1", "en_1", "it_1"])
-    assert _get_columns_of_preferred_lang(columns, "en") == ["en_1", "en_2"]
-
-
-def test_get_columns_preferred_lang_returns_empty_list_for_no_match() -> None:
-    columns = pd.Index(["de_1", "de_2", "it_1"])
-    assert not _get_columns_of_preferred_lang(columns, "en")
-
-
 def test_sorted_columns_returns_expected_result() -> None:
     df = pd.DataFrame(columns=["en_1", "de_2", "de_1", "en_2"])
     res = _get_reverse_sorted_columns_list(df)
@@ -553,70 +572,6 @@ class TestGetLabels:
         )
         cols = ["en_list", "de_list"]
         assert _get_labels(row, cols) == {"en": "english", "de": "german"}
-
-
-def test_get_lang_string_good() -> None:
-    assert _get_lang_string_from_column_name("en_1") == "en"
-
-
-def test_get_lang_string_raises() -> None:
-    assert not _get_lang_string_from_column_name("ru_1")
-
-
-class TestGetRemainingColumns:
-    def test_with_matching_columns(self) -> None:
-        columns = pd.Index(["en_1", "de_2", "fr_3"])
-        assert _get_hierarchy_nums(columns) == [1, 2, 3]
-
-    def test_with_list_language_columns(self) -> None:
-        columns = pd.Index(["en_1", "de_2", "fr_3", "de_list"])
-        assert _get_hierarchy_nums(columns) == [1, 2, 3]
-
-    def test_with_non_numeric_columns(self) -> None:
-        columns = pd.Index(["en_1", "de_2", "fr_3", "it_4", "rm_5", "en_other"])
-        assert _get_hierarchy_nums(columns) == [1, 2, 3, 4, 5]
-
-
-class TestGetAllLanguagesForColumns:
-    def test_get_all_languages_for_columns_returns_correct_languages(self) -> None:
-        columns = pd.Index(["en_1", "de_1", "fr_1", "it_1", "rm_1", "en_2"])
-        ending = "1"
-        assert _get_all_languages_for_columns(columns, ending) == {"en", "de", "fr", "it", "rm"}
-
-    def test_get_all_languages_for_columns_returns_empty_list_for_no_match(self) -> None:
-        columns = pd.Index(["en_1", "de_1", "fr_1", "it_1", "rm_1", "en_2", "de_2", "fr_2", "it_2", "rm_2"])
-        ending = "3"
-        assert not _get_all_languages_for_columns(columns, ending)
-
-
-class TestGetPreferredLanguageForId:
-    def test_get_preferred_language_for_id_en(self) -> None:
-        columns = pd.Index(["en_1", "de_1", "fr_1", "it_1", "rm_1"])
-        assert _get_preferred_language(columns, "1") == "en"
-
-    def test_get_preferred_language_for_id_de(self) -> None:
-        columns = pd.Index(["de_1", "fr_1", "it_1", "rm_1"])
-        assert _get_preferred_language(columns, "1") == "de"
-
-    def test_get_preferred_language_for_id_fr(self) -> None:
-        columns = pd.Index(["fr_1", "it_1", "rm_1"])
-        assert _get_preferred_language(columns, "1") == "fr"
-
-    def test_get_preferred_language_for_id_it(self) -> None:
-        columns = pd.Index(["it_1", "rm_1"])
-        assert _get_preferred_language(columns, "1") == "it"
-
-    def test_get_preferred_language_for_id_rm(self) -> None:
-        columns = pd.Index(["rm_1"])
-        assert _get_preferred_language(columns, "1") == "rm"
-
-    def test_get_preferred_language_for_id_raises(self) -> None:
-        columns = pd.Index(["es_1"])
-        msg = regex.escape(
-            "The columns may only contain the languages: 'en', 'de', 'fr', 'it', 'rm'.\n" "The columns are: es_1"
-        )
-        with pytest.raises(InputError, match=msg):
-            _get_preferred_language(columns, "1")
 
 
 if __name__ == "__main__":

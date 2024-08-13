@@ -22,7 +22,7 @@ jobs:
           import re
           import os
           import sys
-          if not re.match(r"^.+\(DEV-[0-9]+(, DEV-[0-9]+)*\)$|^(chore|refactor|docs|test).+", os.environ["PR_TITLE"]):
+          if not re.match(r"^.+\((DEV|RDU)-[0-9]+(, (DEV|RDU)-[0-9]+)*\)$|^(chore|refactor|docs|test).+", os.environ["PR_TITLE"]):
               print(f"PR title '{os.environ['PR_TITLE']}' does not match the regex")
               sys.exit(1)
         env:

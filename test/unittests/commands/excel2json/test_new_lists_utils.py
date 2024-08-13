@@ -1,13 +1,36 @@
+from __future__ import annotations
+
 import pandas as pd
 import pytest
 import regex
 
 from dsp_tools.commands.excel2json.new_lists.utils import get_all_languages_for_columns
 from dsp_tools.commands.excel2json.new_lists.utils import get_columns_of_preferred_lang
+from dsp_tools.commands.excel2json.new_lists.utils import get_comment_cols
 from dsp_tools.commands.excel2json.new_lists.utils import get_hierarchy_nums
 from dsp_tools.commands.excel2json.new_lists.utils import get_lang_string_from_column_name
+from dsp_tools.commands.excel2json.new_lists.utils import get_list_cols
+from dsp_tools.commands.excel2json.new_lists.utils import get_node_label_col_mapper
 from dsp_tools.commands.excel2json.new_lists.utils import get_preferred_language
 from dsp_tools.models.exceptions import InputError
+
+
+@pytest.fixture()
+def columns_correct() -> pd.Index[str]:
+    return pd.Index(
+        [
+            "ID (optional)",
+            "en_list",
+            "de_list",
+            "en_comment",
+            "de_comment",
+            "en_1",
+            "de_1",
+            "en_2",
+            "de_2",
+            "additional",
+        ]
+    )
 
 
 def test_get_lang_string_good() -> None:
@@ -82,3 +105,21 @@ def test_get_columns_preferred_lang_returns_expected_columns() -> None:
 def test_get_columns_preferred_lang_returns_empty_list_for_no_match() -> None:
     columns = pd.Index(["de_1", "de_2", "it_1"])
     assert not get_columns_of_preferred_lang(columns, "en")
+
+
+def test_get_node_label_col_mapper(columns_correct: pd.Index[str]) -> None:
+    result = get_node_label_col_mapper(columns_correct)
+    assert result == {
+        1: {"en_1", "de_1"},
+        2: {"en_2", "de_2"},
+    }
+
+
+def test_get_list_cols(columns_correct: pd.Index[str]) -> None:
+    result = get_list_cols(columns_correct)
+    assert result == {"en_list", "de_list"}
+
+
+def test_get_comment_cols(columns_correct: pd.Index[str]) -> None:
+    result = get_comment_cols(columns_correct)
+    assert result == {"en_comment", "de_comment"}

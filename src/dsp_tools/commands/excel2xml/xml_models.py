@@ -4,16 +4,53 @@ import warnings
 from collections import defaultdict
 from dataclasses import dataclass
 from dataclasses import field
+from pathlib import Path
 from typing import Any
 
 from lxml import etree
 
+from dsp_tools.commands.excel2xml.excel2xml_lib import append_permissions
+from dsp_tools.commands.excel2xml.excel2xml_lib import write_xml
 from dsp_tools.commands.excel2xml.xml_models_utils import is_string
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
 from dsp_tools.utils.uri_util import is_iiif_uri
 
 xml_namespace_map = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
+
+
+@dataclass
+class XMLRoot:
+    shortcode: str
+    default_ontology: str
+    resources: list[Resource] = field(default_factory=list)
+
+    def make_root(self) -> etree._Element:
+        schema_url = (
+            "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/data.xsd"
+        )
+        schema_location_key = str(etree.QName("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation"))
+        schema_location_value = f"https://dasch.swiss/schema {schema_url}"
+        return etree.Element(
+            f"{{{xml_namespace_map[None]}}}knora",
+            attrib={
+                schema_location_key: schema_location_value,
+                "shortcode": self.shortcode,
+                "default-ontology": self.default_ontology,
+            },
+            nsmap=xml_namespace_map,
+        )
+
+    def serialise(self) -> etree._Element:
+        root = self.make_root()
+        root = append_permissions(root)
+        serialised_resources = [x.serialise() for x in self.resources]
+        root.extend(serialised_resources)
+        return root
+
+    def write_file(self, filepath: str | Path) -> None:
+        root = self.serialise()
+        write_xml(root, filepath)
 
 
 @dataclass

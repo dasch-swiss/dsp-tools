@@ -41,16 +41,11 @@ class ListDeserialised:
             positions.append(problem)
         if problem := self._check_own_comments():
             positions.append(problem)
-        if problems := self._check_all_labels():
-            positions.extend(problems)
-        if problems := self._check_all_comments():
+        if problems := self._check_all():
             positions.extend(problems)
         return positions
 
-    def _check_all_labels(self) -> list[PositionInExcel] | None:
-        pass
-
-    def _check_all_comments(self) -> list[PositionInExcel] | None:
+    def _check_all(self) -> list[PositionInExcel] | None:
         pass
 
     def _check_own_labels(self) -> PositionInExcel | None:
@@ -68,10 +63,13 @@ class NodeDeserialised:
     labels: LangColsDeserialised
     comments: LangColsDeserialised | None = None
 
-    def check_own_labels(self, expected_lang_tags: set[str]) -> PositionInExcel | None:
+    def check(self, expected_lang_tags: set[str]) -> PositionInExcel | None:
         pass
 
-    def check_own_comments(self, expected_lang_tags: set[str]) -> PositionInExcel | None:
+    def _check_labels(self, expected_lang_tags: set[str]) -> PositionInExcel | None:
+        pass
+
+    def _check_comments(self, expected_lang_tags: set[str]) -> PositionInExcel | None:
         pass
 
 
@@ -81,3 +79,9 @@ class LangColsDeserialised:
 
     def get_tags(self) -> set[str]:
         return {x.split("_")[0] for x in self.content}
+
+    def get_ending(self) -> str:
+        if len(self.content) == 0:
+            return ""
+        ending = list(self.content.keys())[0]
+        return f'_{ending.split("_")[1]}'

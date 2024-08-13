@@ -27,6 +27,13 @@ def comment_cols_deserialised() -> LangColsDeserialised:
 
 
 @pytest.fixture()
+def comment_cols_deserialised_three_langs() -> LangColsDeserialised:
+    return LangColsDeserialised(
+        {"en_comment": "english comment", "de_comment": "deutscher Kommentar", "fr_comment": "comment french"}
+    )
+
+
+@pytest.fixture()
 def node_deserialised(
     first_cols_deserialised: LangColsDeserialised, comment_cols_deserialised: LangColsDeserialised
 ) -> NodeDeserialised:
@@ -46,6 +53,19 @@ def node_deserialised_no_comments(second_cols_deserialised: LangColsDeserialised
         parent_id="id_1",
         excel_row=4,
         labels=second_cols_deserialised,
+    )
+
+
+@pytest.fixture()
+def node_deserialised_wrong_labels(
+    first_cols_deserialised: LangColsDeserialised, comment_cols_deserialised_three_langs: LangColsDeserialised
+) -> NodeDeserialised:
+    return NodeDeserialised(
+        node_id="id_1",
+        parent_id="list_id",
+        excel_row=3,
+        labels=first_cols_deserialised,
+        comments=comment_cols_deserialised_three_langs,
     )
 
 
@@ -71,7 +91,7 @@ def sheet_deserialised_corr(list_deserialised_corr: ListDeserialised) -> SheetDe
 
 
 @pytest.fixture()
-def list_deserialised_missing_translation(
+def list_deserialised_bad(
     node_deserialised: NodeDeserialised, node_deserialised_no_comments: NodeDeserialised
 ) -> ListDeserialised:
     return ListDeserialised(
@@ -84,12 +104,10 @@ def list_deserialised_missing_translation(
 
 
 @pytest.fixture()
-def sheet_deserialised_missing_translation(
-    list_deserialised_missing_translation: ListDeserialised,
+def sheet_deserialised_bad(
+    list_deserialised_bad: ListDeserialised,
 ) -> SheetDeserialised:
-    return SheetDeserialised(
-        excel_name="excel name", sheet_name="sheet wrong", list_deserialised=list_deserialised_missing_translation
-    )
+    return SheetDeserialised(excel_name="excel name", sheet_name="sheet wrong", list_deserialised=list_deserialised_bad)
 
 
 if __name__ == "__main__":

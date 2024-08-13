@@ -145,7 +145,7 @@ class Value:
 
 
 @dataclass
-class RichText(Value):
+class Richtext(Value):
     value: str
     property: str
     permissions: str | None = "prop-default"
@@ -180,20 +180,17 @@ class RichText(Value):
 
 
 @dataclass
-class TextArea(Value):
+class Textarea(Value):
     value: str
     property: str
     permissions: str | None = "prop-default"
     comment: str | None = None
-    preserve_linebreaks: bool = False
 
     def __post_init__(self) -> None:
         if not is_string(self.value):
             msg = f"The following value is not a valid string.\nValue: {self.value} | Property: {self.property}"
             warnings.warn(DspToolsUserWarning(msg))
             self.value = str(self.value)
-        if self.preserve_linebreaks:
-            self.value = self.value.replace("\n", "<br/>")
 
     def serialise(self) -> etree._Element:
         ele = self.make_prop()

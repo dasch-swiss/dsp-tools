@@ -277,7 +277,7 @@ def _get_data_from_xml(
     root: etree._Element,
     default_ontology: str,
 ) -> tuple[list[XMLResource], dict[str, Permissions]]:
-    proj_context = _get_project_context_from_server(connection=con)
+    proj_context = _get_project_context_from_server(connection=con, shortcode=root.attrib["shortcode"])
     permissions = _extract_permissions_from_xml(root, proj_context)
     resources = _extract_resources_from_xml(root, default_ontology)
     permissions_lookup = {name: perm.get_permission_instance() for name, perm in permissions.items()}
@@ -295,12 +295,13 @@ def _upload_stash(
         upload_stashed_resptr_props(upload_state, project_client.con, context)
 
 
-def _get_project_context_from_server(connection: Connection) -> ProjectContext:
+def _get_project_context_from_server(connection: Connection, shortcode: str) -> ProjectContext:
     """
     This function retrieves the project context previously uploaded on the server (json file)
 
     Args:
         connection: connection to the server
+        shortcode: shortcode of the project
 
     Returns:
         Project context
@@ -309,7 +310,7 @@ def _get_project_context_from_server(connection: Connection) -> ProjectContext:
         UserError: If the project was not previously uploaded on the server
     """
     try:
-        proj_context = ProjectContext(con=connection)
+        proj_context = ProjectContext(con=connection, shortcode=shortcode)
     except BaseError:
         logger.opt(exception=True).error("Unable to retrieve project context from DSP server")
         raise UserError("Unable to retrieve project context from DSP server") from None

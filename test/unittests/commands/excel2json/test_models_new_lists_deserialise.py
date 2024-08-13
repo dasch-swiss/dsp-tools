@@ -8,60 +8,88 @@ from dsp_tools.commands.excel2json.new_lists.models.deserialise import SheetDese
 
 @pytest.fixture()
 def list_cols_deserialised() -> LangColsDeserialised:
-    pass
+    return LangColsDeserialised({"en_list": "english list", "de_list": "deutsche Liste"})
 
 
 @pytest.fixture()
 def first_cols_deserialised() -> LangColsDeserialised:
-    pass
+    return LangColsDeserialised({"en_1": "english1", "de_1": "deutsch1"})
 
 
 @pytest.fixture()
 def second_cols_deserialised() -> LangColsDeserialised:
-    pass
+    return LangColsDeserialised({"en_2": "english2", "de_2": "deutsch2"})
 
 
 @pytest.fixture()
 def comment_cols_deserialised() -> LangColsDeserialised:
-    pass
+    return LangColsDeserialised({"en_comment": "english comment", "de_comment": "deutscher Kommentar"})
 
 
 @pytest.fixture()
 def node_deserialised(
     first_cols_deserialised: LangColsDeserialised, comment_cols_deserialised: LangColsDeserialised
 ) -> NodeDeserialised:
-    pass
+    return NodeDeserialised(
+        node_id="id_1",
+        parent_id="list_id",
+        excel_row=3,
+        labels=first_cols_deserialised,
+        comments=comment_cols_deserialised,
+    )
 
 
 @pytest.fixture()
 def node_deserialised_no_comments(second_cols_deserialised: LangColsDeserialised) -> NodeDeserialised:
-    pass
+    return NodeDeserialised(
+        node_id="id_2",
+        parent_id="id_1",
+        excel_row=4,
+        labels=second_cols_deserialised,
+    )
 
 
 @pytest.fixture()
 def list_deserialised_corr(
-    node_deserialised: NodeDeserialised, node_deserialised_no_comments: NodeDeserialised
+    list_cols_deserialised: LangColsDeserialised,
+    node_deserialised: NodeDeserialised,
+    node_deserialised_no_comments: NodeDeserialised,
 ) -> ListDeserialised:
-    pass
+    return ListDeserialised(
+        list_id="list_id",
+        lang_tags={"en", "de"},
+        labels=list_cols_deserialised,
+        nodes=[node_deserialised, node_deserialised_no_comments],
+    )
 
 
 @pytest.fixture()
 def sheet_deserialised_corr(list_deserialised_corr: ListDeserialised) -> SheetDeserialised:
-    pass
+    return SheetDeserialised(
+        excel_name="excel name", sheet_name="sheet correct", list_deserialised=list_deserialised_corr
+    )
 
 
 @pytest.fixture()
 def list_deserialised_missing_translation(
     node_deserialised: NodeDeserialised, node_deserialised_no_comments: NodeDeserialised
 ) -> ListDeserialised:
-    pass
+    return ListDeserialised(
+        list_id="list_id",
+        lang_tags={"en", "de", "fr"},
+        nodes=[node_deserialised, node_deserialised_no_comments],
+        labels=LangColsDeserialised,
+        comments=LangColsDeserialised,
+    )
 
 
 @pytest.fixture()
 def sheet_deserialised_missing_translation(
     list_deserialised_missing_translation: ListDeserialised,
 ) -> SheetDeserialised:
-    pass
+    return SheetDeserialised(
+        excel_name="excel name", sheet_name="sheet wrong", list_deserialised=list_deserialised_missing_translation
+    )
 
 
 if __name__ == "__main__":

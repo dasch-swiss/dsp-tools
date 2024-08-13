@@ -30,10 +30,10 @@ class SheetDeserialised:
 @dataclass
 class ListDeserialised:
     list_id: str
-    excel_row: int
     lang_tags: set[str]
     labels: LangColsDeserialised
-    comments: LangColsDeserialised | None
+    nodes: list[NodeDeserialised]
+    comments: LangColsDeserialised | None = None
 
     def check_all(self) -> list[PositionInExcel]:
         positions = []
@@ -66,7 +66,7 @@ class NodeDeserialised:
     parent_id: str
     excel_row: int
     labels: LangColsDeserialised
-    comments: LangColsDeserialised | None
+    comments: LangColsDeserialised | None = None
 
     def check_own_labels(self, expected_lang_tags: set[str]) -> PositionInExcel | None:
         pass

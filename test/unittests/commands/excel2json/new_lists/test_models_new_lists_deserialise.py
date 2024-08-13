@@ -23,11 +23,11 @@ class TestSheetDeserialised:
 
 
 class TestListDeserialised:
-    def test_good(self, list_deserialised_corr: ListDeserialised) -> None:
-        assert not list_deserialised_corr.check_all()
+    def test_good(self, list_deserialised_corr_two_lang: ListDeserialised) -> None:
+        assert not list_deserialised_corr_two_lang.check_all()
 
-    def test_bad(self, list_deserialised_bad: ListDeserialised) -> None:
-        res = list_deserialised_bad.check_all()
+    def test_bad(self, list_deserialised_one_bad_node: ListDeserialised) -> None:
+        res = list_deserialised_one_bad_node.check_all()
         assert len(res) == 1
         location = res[0]
         assert isinstance(location, PositionInExcel)
@@ -36,8 +36,8 @@ class TestListDeserialised:
 
 
 class TestNodeDeserialised:
-    def test_check_all_good(self, node_deserialised_with_comments: NodeDeserialised) -> None:
-        assert not node_deserialised_with_comments.check({"en", "de"})
+    def test_check_all_good(self, node_deserialised_with_comments_two_lang: NodeDeserialised) -> None:
+        assert not node_deserialised_with_comments_two_lang.check({"en", "de"})
 
     def test_bad_labels_good_comments(self, node_deserialised_wrong_labels: NodeDeserialised) -> None:
         res = node_deserialised_wrong_labels.check({"en", "de", "fr"})
@@ -47,12 +47,12 @@ class TestNodeDeserialised:
 
 
 class TestLangColsDeserialised:
-    def test_get_tags(self, first_cols_deserialised: LangColsDeserialised) -> None:
-        res = first_cols_deserialised.get_tags()
+    def test_get_tags(self, first_cols_deserialised_two_lang: LangColsDeserialised) -> None:
+        res = first_cols_deserialised_two_lang.get_tags()
         assert res == {"en", "de"}
 
-    def test_get_ending(self, first_cols_deserialised: LangColsDeserialised) -> None:
-        res = first_cols_deserialised.get_ending()
+    def test_get_ending(self, first_cols_deserialised_two_lang: LangColsDeserialised) -> None:
+        res = first_cols_deserialised_two_lang.get_ending()
         assert res == "_1"
 
 

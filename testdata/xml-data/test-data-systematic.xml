@@ -385,7 +385,7 @@
               restype=":ImageThing"
               id="image_thing_10"
               permissions="res-default">
-        <bitstream>testdata/bitstreams/test with special chars éèü$.png</bitstream>
+        <bitstream>testdata/bitstreams/test with special chars éèü.png</bitstream>
         <text-prop name=":hasSimpleText">
             <text permissions="prop-default" encoding="utf8">This is a Imagething, the name contains special chars</text>
         </text-prop>

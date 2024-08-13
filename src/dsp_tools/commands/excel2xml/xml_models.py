@@ -64,6 +64,7 @@ class Resource:
     values: list[Value] = field(default_factory=list)
     iiif_uri: str | None = None
     filepath: str | None = None
+    permissions_file: str = "prop-default"
 
     def __post_init__(self) -> None:
         if not is_string(str(self.label)):
@@ -95,7 +96,7 @@ class Resource:
         if self.filepath:
             prop_ = etree.Element(
                 f"{DASCH_SCHEMA}bitstream",
-                permissions=self.permissions,
+                permissions=self.permissions_file,
                 nsmap=XML_NAMESPACE_MAP,
             )
             prop_.text = str(self.filepath)
@@ -109,7 +110,7 @@ class Resource:
                 warnings.warn(DspToolsUserWarning(msg))
             prop_ = etree.Element(
                 f"{DASCH_SCHEMA}iiif-uri",
-                permissions=self.permissions,
+                permissions=self.permissions_file,
                 nsmap=XML_NAMESPACE_MAP,
             )
             prop_.text = self.iiif_uri

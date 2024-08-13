@@ -104,6 +104,15 @@
         <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
     </xs:complexType>
 
+    <!-- encodingless text value type -->
+    <xs:complexType name="encodingless_text_type" mixed="true">
+        <xs:sequence>
+            <xs:any processContents="skip" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="comment" type="xs:string"/>
+        <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+    </xs:complexType>
+
     <!-- color value type -->
     <xs:complexType name="color_type">
         <xs:simpleContent>
@@ -182,6 +191,15 @@
                 <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
+    </xs:complexType>
+
+    <!-- hasSegmentBounds value type -->
+    <xs:complexType name="hasSegmentBounds_type">
+        <xs:sequence />
+        <xs:attribute name="comment" type="xs:string"/>
+        <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+        <xs:attribute name="start" type="xs:double" use="required"/>
+        <xs:attribute name="end" type="xs:double" use="required"/>
     </xs:complexType>
 
     <!-- period value type -->
@@ -381,30 +399,6 @@
         <xs:attribute name="name" type="xs:string" use="required" fixed="isSegmentOf"/>
     </xs:complexType>
 
-    <!-- builtin_hasTitle_prop_type -->
-    <xs:complexType name="builtin_hasTitle_prop_type">
-        <xs:sequence>
-            <xs:element name="text" type="utf8_encoding_text_type" minOccurs="1" maxOccurs="1"/>
-        </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required" fixed="hasTitle"/>
-    </xs:complexType>
-
-    <!-- builtin_hasDescription_prop_type -->
-    <xs:complexType name="builtin_hasDescription_prop_type">
-        <xs:sequence>
-            <xs:element name="text" type="xml_encoding_text_type" minOccurs="1" maxOccurs="1"/>
-        </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required" fixed="hasDescription"/>
-    </xs:complexType>
-
-    <!-- builtin_hasKeyword_prop_type -->
-    <xs:complexType name="builtin_hasKeyword_prop_type">
-        <xs:sequence>
-            <xs:element name="text" type="utf8_encoding_text_type" minOccurs="1" maxOccurs="unbounded"/>
-        </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required" fixed="hasKeyword"/>
-    </xs:complexType>
-
     <!-- builtin_relatesTo_prop_type -->
     <xs:complexType name="builtin_relatesTo_prop_type">
         <xs:sequence>
@@ -554,15 +548,15 @@
 
     <!-- video-segment tag -->
     <xs:complexType name="video_segment_type">
-        <xs:all>
-            <xs:element name="resptr-prop" type="builtin_isSegmentOf_prop_type" minOccurs="1" maxOccurs="1"/>
-            <xs:element name="interval-prop" type="builtin_hasSegmentBounds_prop_type" minOccurs="1" maxOccurs="1"/>
-            <xs:element name="text-prop" type="builtin_hasComment_prop_type" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="text-prop" type="builtin_hasTitle_prop_type" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="text-prop" type="builtin_hasDescription_prop_type" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="text-prop" type="builtin_hasKeyword_prop_type" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="resptr-prop" type="builtin_relatesTo_prop_type" minOccurs="0" maxOccurs="1"/>
-        </xs:all>
+        <xs:sequence>
+            <xs:element name="isSegmentOf" type="resptr_type" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="hasSegmentBounds" type="hasSegmentBounds_type" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="hasTitle" type="encodingless_text_type" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="hasComment" type="encodingless_text_type" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="hasDescription" type="encodingless_text_type" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="hasKeyword" type="encodingless_text_type" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="relatesTo" type="resptr_type" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
         <xs:attribute name="label" type="xs:string" use="required"/>
         <xs:attribute name="id" type="xs:ID" use="required"/>
         <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
@@ -571,18 +565,19 @@
 
     <!-- audio-segment tag -->
     <xs:complexType name="audio_segment_type">
-        <xs:all>
-            <xs:element name="resptr-prop" type="builtin_isSegmentOf_prop_type" minOccurs="1" maxOccurs="1"/>
-            <xs:element name="interval-prop" type="builtin_hasSegmentBounds_prop_type" minOccurs="1" maxOccurs="1"/>
-            <xs:element name="text-prop" type="builtin_hasComment_prop_type" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="text-prop" type="builtin_hasTitle_prop_type" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="text-prop" type="builtin_hasDescription_prop_type" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="text-prop" type="builtin_hasKeyword_prop_type" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="resptr-prop" type="builtin_relatesTo_prop_type" minOccurs="0" maxOccurs="1"/>
-        </xs:all>
+        <xs:sequence>
+            <xs:element name="isSegmentOf" type="resptr_type" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="hasSegmentBounds" type="hasSegmentBounds_type" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="hasTitle" type="encodingless_text_type" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="hasComment" type="encodingless_text_type" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="hasDescription" type="encodingless_text_type" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="hasKeyword" type="encodingless_text_type" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="relatesTo" type="resptr_type" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
         <xs:attribute name="label" type="xs:string" use="required"/>
         <xs:attribute name="id" type="xs:ID" use="required"/>
         <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+        <xs:attribute name="creation_date" type="xs:dateTime" use="optional"/>
     </xs:complexType>
 
     <!-- data type for knora shortcode -->

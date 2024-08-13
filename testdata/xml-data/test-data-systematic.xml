@@ -831,7 +831,7 @@
     <!-- video segment -->
     <video-segment label="Video Segment with all possible values" id="video_segment_0" permissions="res-default" creation_date="2024-08-06T07:00:01Z">
         <isSegmentOf permissions="prop-default" comment="This refers to video_thing_1">video_thing_1</isSegmentOf>
-        <hasSegmentBounds permissions="prop-default" start="0.1" end="0.234" comment="This are the bounds"/>
+        <hasSegmentBounds permissions="prop-default" start="0.1" end="0.234" comment="These are the bounds"/>
         <hasTitle permissions="prop-default" comment="This is the title">Title of video segment</hasTitle>
         <hasComment permissions="prop-default" comment="This it the first comment">Comment 1 of video segment</hasComment>
         <hasComment permissions="prop-default">Comment 2 of video segment</hasComment>
@@ -843,6 +843,7 @@
         <relatesTo permissions="prop-default">audio_segment_1</relatesTo>
     </video-segment>
 
+    <!--unordered is not possible with XSD 1.0
     <video-segment label="Video Segment with all possible values, but unordered" id="video_segment_1">
         <hasSegmentBounds permissions="prop-default" start="1" end="5"/>
         <relatesTo permissions="prop-default">audio_segment_0</relatesTo>
@@ -852,19 +853,20 @@
         <hasTitle permissions="prop-default">Title of video segment</hasTitle>
         <hasKeyword permissions="prop-default">Keyword of video segment</hasKeyword>
     </video-segment>
+    -->
 
     <video-segment label="Video Segment with only a few values" id="video_segment_2">
-        <hasSegmentBounds permissions="prop-default" start="2" end="3.5"/>
         <isSegmentOf permissions="prop-default">video_thing_1</isSegmentOf>
-        <hasDescription permissions="prop-default">Description of video segment</hasDescription>
+        <hasSegmentBounds permissions="prop-default" start="2" end="3.5"/>
         <hasTitle permissions="prop-default">Title of video segment</hasTitle>
+        <hasDescription permissions="prop-default">Description of video segment</hasDescription>
     </video-segment>
 
     <video-segment label="Video Segment with only the mandatory values" id="video_segment_3">
-        <hasSegmentBounds permissions="prop-default" start="2" end="3.5"/>
         <isSegmentOf permissions="prop-default">video_thing_1</isSegmentOf>
-        <hasDescription permissions="prop-default">Description of video segment</hasDescription>
+        <hasSegmentBounds permissions="prop-default" start="2" end="3.5"/>
         <hasTitle permissions="prop-default">Title of video segment</hasTitle>
+        <hasDescription permissions="prop-default">Description of video segment</hasDescription>
     </video-segment>
 
     <!-- audio segment -->
@@ -882,6 +884,7 @@
         <relatesTo permissions="prop-default">video_segment_1</relatesTo>
     </audio-segment>
 
+    <!--unordered is not possible with XSD 1.0
     <audio-segment label="Audio Segment with all possible values, but unordered" id="audio_segment_1">
         <hasDescription permissions="prop-default">Description 2 of audio segment</hasDescription>
         <relatesTo permissions="prop-default">video_segment_0</relatesTo>
@@ -892,13 +895,14 @@
         <isSegmentOf permissions="prop-default">audio_thing_1</isSegmentOf>
         <hasKeyword permissions="prop-default">Keyword of audio segment</hasKeyword>
     </audio-segment>
+    -->
 
     <audio-segment label="Audio Segment with only a few values" id="audio_segment_2">
-        <relatesTo permissions="prop-default">video_segment_0</relatesTo>
+        <isSegmentOf permissions="prop-default">audio_thing_1</isSegmentOf>
         <hasSegmentBounds permissions="prop-default" start="10" end="30"/>
         <hasTitle permissions="prop-default">Title of audio segment</hasTitle>
         <hasDescription permissions="prop-default">Description 1 of audio segment</hasDescription>
-        <isSegmentOf permissions="prop-default">audio_thing_1</isSegmentOf>
+        <relatesTo permissions="prop-default">video_segment_0</relatesTo>
     </audio-segment>
 
     <audio-segment label="Audio Segment with only the mandatory values" id="audio_segment_3">

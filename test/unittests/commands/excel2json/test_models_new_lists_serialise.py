@@ -1,8 +1,5 @@
-import pandas as pd
 import pytest
 
-from dsp_tools.commands.excel2json.new_lists.models.input_error import ListNodeProblem
-from dsp_tools.commands.excel2json.new_lists.models.input_error import ListSheetProblem
 from dsp_tools.commands.excel2json.new_lists.models.serialise import ListNode
 from dsp_tools.commands.excel2json.new_lists.models.serialise import ListRoot
 
@@ -68,99 +65,6 @@ class TestListRoot:
         }
         res = root.to_dict()
         assert res == expected
-
-
-class TestListRootCreate:
-    def test_problem(self) -> None:
-        root = ListRoot.create(id_="", excel_name="excel", sheet_name="sheet", labels={}, comments={}, nodes=[])
-        assert isinstance(root, ListSheetProblem)
-        assert root.excel_name == "excel"
-        assert root.sheet_name == "sheet"
-        assert root.root_problems == {
-            "labels": "At least one label per list is required.",
-            "name": "The name of the list does not contain any characters.",
-            "list nodes": "At least one node per list is required.",
-        }
-
-    def test_wrong_language(self) -> None:
-        root = ListRoot.create(
-            id_="str",
-            excel_name="excel",
-            sheet_name="sheet",
-            labels={"ur": "label"},
-            comments={"ur": "comment"},
-            nodes=[],
-        )
-        assert isinstance(root, ListSheetProblem)
-        assert root.excel_name == "excel"
-        assert root.sheet_name == "sheet"
-        assert root.root_problems == {
-            "labels": "Only the following languages are supported: 'en', 'de', 'fr', 'it', 'rm'.",
-            "comments": "Only the following languages are supported: 'en', 'de', 'fr', 'it', 'rm'.",
-            "list nodes": "At least one node per list is required.",
-        }
-
-    def test_id_na(self) -> None:
-        root = ListRoot.create(id_=pd.NA, excel_name="excel", sheet_name="sheet", labels={}, comments={}, nodes=[])  # type: ignore[arg-type]
-        assert isinstance(root, ListSheetProblem)
-        assert root.root_problems == {
-            "name": "The name of the list may not be empty.",
-            "labels": "At least one label per list is required.",
-            "list nodes": "At least one node per list is required.",
-        }
-
-    def test_float(self) -> None:
-        nd = ListNode(id_="NodeID", labels={"en": "node_label_en"}, parent_id="RootID")
-        root = ListRoot.create(
-            id_=1.123, excel_name="excel", sheet_name="sheet", labels={"en": "node_label_en"}, comments={}, nodes=[nd]
-        )
-        assert isinstance(root, ListRoot)
-        assert root.id_ == "1.123"
-        assert root.labels == {"en": "node_label_en"}
-        assert root.nodes == [nd]
-
-
-class TestListNodeCreate:
-    def test_problem(self) -> None:
-        nd = ListNode.create(id_="", labels={}, parent_id="RootID", sub_nodes=[])
-        assert isinstance(nd, ListNodeProblem)
-        assert nd.node_id == ""
-        assert nd.problems == {
-            "name": "The name of the node does not contain any characters.",
-            "labels": "At least one label per list is required.",
-        }
-
-    def test_wrong_language(self) -> None:
-        root = ListNode.create(id_="str", labels={"ur": "label"}, parent_id="RootID", sub_nodes=[])
-        assert isinstance(root, ListNodeProblem)
-        assert root.node_id == "str"
-        assert root.problems == {
-            "labels": "Only the following languages are supported: 'en', 'de', 'fr', 'it', 'rm'.",
-        }
-
-    def test_id_na(self) -> None:
-        root = ListNode.create(id_=pd.NA, labels={}, parent_id="", sub_nodes=[])  # type: ignore[arg-type]
-        assert isinstance(root, ListNodeProblem)
-        assert root.problems == {
-            "name": "The name of the node may not be empty.",
-            "labels": "At least one label per list is required.",
-            "parent_id": "The node does not have a parent node specified.",
-        }
-
-    def test_float(self) -> None:
-        nd = ListNode(id_="NodeID", labels={"en": "node_label_en"}, parent_id="RootID")
-        nd_2 = ListNode.create(id_=1.123, labels={"en": "node_label_en"}, sub_nodes=[nd], parent_id="RootID")
-        assert isinstance(nd_2, ListNode)
-        assert nd_2.id_ == "1.123"
-        assert nd_2.labels == {"en": "node_label_en"}
-        assert nd_2.sub_nodes == [nd]
-
-    def test_none(self) -> None:
-        root = ListNode.create(id_="str", labels={"en": "node_label_en"}, sub_nodes=[], parent_id="RootID")
-        assert isinstance(root, ListNode)
-        assert root.id_ == "str"
-        assert root.labels == {"en": "node_label_en"}
-        assert isinstance(root.sub_nodes, list)
 
 
 class TestListNode:

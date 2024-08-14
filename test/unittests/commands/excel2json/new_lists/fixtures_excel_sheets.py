@@ -21,8 +21,8 @@ def f2_s2_good_en_de() -> ExcelSheet:
     df = pd.DataFrame(
         {
             "id (optional)": [1, 2, pd.NA, 4, 5, 6, 7, pd.NA],
-            "en_list": ["list1", "list1", "list1", "list1", "list1", "list1", "list1", "list1"],
-            "de_list": ["list1", "list1", "list1", "list1", "list1", "list1", "list1", "list1"],
+            "en_list": ["list2", "list2", "list2", "list2", "list2", "list2", "list2", "list2"],
+            "de_list": ["list2", "list2", "list2", "list2", "list2", "list2", "list2", "list2"],
             "en_1": [pd.NA, "node1", "node1", "node1", "node1", "node2", "node2", "node3"],
             "de_1": [pd.NA, "node1", "node1", "node1", "node1", "node2", "node2", "node3"],
             "en_2": [pd.NA, pd.NA, "node1.1", "node1.1", "node1.2", pd.NA, "node2.1", pd.NA],

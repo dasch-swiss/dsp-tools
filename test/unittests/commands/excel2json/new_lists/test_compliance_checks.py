@@ -27,6 +27,7 @@ from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_war
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _compose_all_combinatoric_column_titles
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _make_shape_compliance_all_excels
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _make_shape_compliance_one_sheet
+from dsp_tools.commands.excel2json.new_lists.compliance_checks import make_all_excel_compliance_checks
 from dsp_tools.commands.excel2json.new_lists.models.deserialise import ExcelSheet
 from dsp_tools.commands.excel2json.new_lists.models.input_error import DuplicatesCustomIDInProblem
 from dsp_tools.commands.excel2json.new_lists.models.input_error import DuplicatesInSheetProblem
@@ -37,6 +38,63 @@ from dsp_tools.commands.excel2json.new_lists.models.input_error import MissingTr
 from dsp_tools.commands.excel2json.new_lists.models.input_error import NodesPerRowProblem
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
+
+
+class TestMakeAllExcelComplianceChecks:
+    def test_good(self, f1_s1_good_en: ExcelSheet, f2_s2_good_en_de: ExcelSheet) -> None:
+        make_all_excel_compliance_checks([f1_s1_good_en, f2_s2_good_en_de])
+
+    def test_duplicates(self) -> None:
+        df_1 = pd.DataFrame({"id (optional)": [1, 2], "en_list": ["list2", "list2"], "en_1": [pd.NA, 1]})
+        df_2 = pd.DataFrame({"id (optional)": [1, 4], "en_list": ["list2", "list2"], "en_1": [pd.NA, 1]})
+        all_sheets = [
+            ExcelSheet(excel_name="file1", sheet_name="sheet2", df=df_1),
+            ExcelSheet(excel_name="file2", sheet_name="sheet2", df=df_2),
+        ]
+        expected = regex.escape(
+            "\nThe excel file(s) used to create the list section have the following problem(s):"
+            "\n\n---------------------------------------\n\n"
+            "No duplicates are allowed in the 'ID (optional)' column. At the following locations, IDs are duplicated:"
+            "\n----------------------------\n"
+            "ID: '1'\n"
+            "    - Excel 'file1' | Sheet 'sheet2' | Row 2\n"
+            "    - Excel 'file2' | Sheet 'sheet2' | Row 2"
+        )
+        with pytest.raises(InputError, match=expected):
+            make_all_excel_compliance_checks(all_sheets)
+
+    def test_duplicate_list_names(self) -> None:
+        df_1 = pd.DataFrame({"id (optional)": [1, 2], "en_list": ["list2", "list2"], "en_1": [pd.NA, 1]})
+        df_2 = pd.DataFrame({"id (optional)": [3, 4], "en_list": ["list2", "list2"], "en_1": [pd.NA, 1]})
+        all_sheets = [
+            ExcelSheet(excel_name="file1", sheet_name="sheet2", df=df_1),
+            ExcelSheet(excel_name="file2", sheet_name="sheet2", df=df_2),
+        ]
+        expected = regex.escape(
+            "\nThe excel file(s) used to create the list section have the following problem(s):"
+            "\n\n---------------------------------------\n\n"
+            "The name of the list must be unique across all the excel sheets.\n"
+            "The following sheets have lists with the same name:\n"
+            "    - Excel file: 'file1', Sheet: 'sheet2', List: 'list2'\n"
+            "    - Excel file: 'file2', Sheet: 'sheet2', List: 'list2'"
+        )
+        with pytest.raises(InputError, match=expected):
+            make_all_excel_compliance_checks(all_sheets)
+
+    def test_content_compliance(self, f1_s1_good_en: ExcelSheet, f2_s2_missing_translations: ExcelSheet) -> None:
+        all_sheets = [f1_s1_good_en, f2_s2_missing_translations]
+        expected = regex.escape(
+            "\nThe excel file(s) used to create the list section have the following problem(s):"
+            "\n\n---------------------------------------\n\n"
+            "The Excel file 'file2' contains the following problems:\n\n"
+            "The excel sheet 'sheet2' has the following problem(s):\n"
+            "In one list, all the nodes must be translated into all the languages used. "
+            "For the following nodes, the translations are missing:\n"
+            "    - Row Number: 3 Column(s): en_1\n"
+            "    - Row Number: 8 Column(s): de_1"
+        )
+        with pytest.raises(InputError, match=expected):
+            _check_for_missing_translations_all_excels(all_sheets)
 
 
 class TestFormalExcelCompliance:
@@ -113,7 +171,6 @@ class TestCheckForDuplicateListNames:
             ExcelSheet(excel_name="file1", sheet_name="sheet1", df=df_1),
             ExcelSheet(excel_name="file2", sheet_name="sheet2", df=df_2),
         ]
-
         _check_for_unique_list_names(all_sheets)
 
     def test_problem(self) -> None:

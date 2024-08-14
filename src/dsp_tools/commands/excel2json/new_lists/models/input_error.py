@@ -18,9 +18,9 @@ class ListCreationProblem:
     excel_problems: list[Problem]
 
     def execute_error_protocol(self) -> str:
-        msg = ["\nThe excel file(s) used to create the list section have the following problem(s):"]
-        msg.extend([problem.execute_error_protocol() for problem in self.excel_problems])
-        return grand_separator.join(msg)
+        title = "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"
+        msg = [problem.execute_error_protocol() for problem in self.excel_problems]
+        return title + grand_separator.join(msg)
 
 
 @dataclass(frozen=True)
@@ -164,7 +164,7 @@ class DuplicatesListNameProblem:
             "The name of the list must be unique across all the excel sheets.\n"
             "The following sheets have lists with the same name:"
         ]
-        sorted_list = sorted(self.all_duplicate_names, key=lambda x: x.list_name)
+        sorted_list = sorted(self.all_duplicate_names, key=lambda x: x.excel_name)
         msg.extend([x.execute_error_protocol() for x in sorted_list])
         return list_separator.join(msg)
 
@@ -194,12 +194,12 @@ class DuplicatesCustomIDInProblem:
 
 @dataclass
 class DuplicateIDProblem:
-    custom_id: str = field(default="")
+    custom_id: str | int | float = field(default="")
     excel_locations: list[PositionInExcel] = field(default_factory=list)
 
     def execute_error_protocol(self) -> str:
         msg = [f"ID: '{self.custom_id}'"]
-        msg.extend([str(x) for x in self.excel_locations])
+        msg.extend([str(x) for x in sorted(self.excel_locations, key=lambda x: str(x.excel_filename))])
         return list_separator.join(msg)
 
 
@@ -209,7 +209,7 @@ class MissingNodeTranslationProblem:
     index_num: int
 
     def execute_error_protocol(self) -> str:
-        return f"Row Number: {self.index_num + 2} Column(s): {', '.join(self.empty_columns)}"
+        return f"Row Number: {self.index_num + 2} | Column(s): {', '.join(self.empty_columns)}"
 
 
 @dataclass(frozen=True)

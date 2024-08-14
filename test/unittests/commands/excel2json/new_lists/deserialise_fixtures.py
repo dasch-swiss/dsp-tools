@@ -85,14 +85,14 @@ def node_deserialised_no_comments_three_lang(
 
 @pytest.fixture()
 def node_deserialised_wrong_labels(
-    first_cols_deserialised_two_lang: LangColsDeserialised, comment_cols_deserialised_three_langs: LangColsDeserialised
+    first_cols_deserialised_two_lang: LangColsDeserialised, comment_cols_deserialised_three_lang: LangColsDeserialised
 ) -> NodeDeserialised:
     return NodeDeserialised(
         node_id="id_1",
         parent_id="list_id",
         excel_row=3,
         labels=first_cols_deserialised_two_lang,
-        comments=comment_cols_deserialised_three_langs,
+        comments=comment_cols_deserialised_three_lang,
     )
 
 
@@ -100,13 +100,13 @@ def node_deserialised_wrong_labels(
 def list_deserialised_corr_two_lang(
     list_cols_deserialised_two_lang: LangColsDeserialised,
     node_deserialised_with_comments_two_lang: NodeDeserialised,
-    node_deserialised_no_comments: NodeDeserialised,
+    node_deserialised_no_comments_two_lang: NodeDeserialised,
 ) -> ListDeserialised:
     return ListDeserialised(
         list_id="list_id",
         lang_tags={"en", "de"},
         labels=list_cols_deserialised_two_lang,
-        nodes=[node_deserialised_with_comments_two_lang, node_deserialised_no_comments],
+        nodes=[node_deserialised_with_comments_two_lang, node_deserialised_no_comments_two_lang],
     )
 
 

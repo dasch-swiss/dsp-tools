@@ -18,9 +18,9 @@ class ListCreationProblem:
     excel_problems: list[Problem]
 
     def execute_error_protocol(self) -> str:
-        msg = ["\nThe excel file(s) used to create the list section have the following problem(s):"]
-        msg.extend([problem.execute_error_protocol() for problem in self.excel_problems])
-        return grand_separator.join(msg)
+        title = "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"
+        msg = [problem.execute_error_protocol() for problem in self.excel_problems]
+        return title + grand_separator.join(msg)
 
 
 @dataclass(frozen=True)
@@ -209,7 +209,7 @@ class MissingNodeTranslationProblem:
     index_num: int
 
     def execute_error_protocol(self) -> str:
-        return f"Row Number: {self.index_num + 2} Column(s): {', '.join(self.empty_columns)}"
+        return f"Row Number: {self.index_num + 2} | Column(s): {', '.join(self.empty_columns)}"
 
 
 @dataclass(frozen=True)

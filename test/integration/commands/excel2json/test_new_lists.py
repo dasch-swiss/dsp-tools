@@ -42,8 +42,7 @@ def test_third_list(expected_lists: list[dict[str, Any]], result_lists_correct: 
 
 def test_duplicate_list_id() -> None:
     expected = regex.escape(
-        "\nThe excel file(s) used to create the list section have the following problem(s):"
-        "\n\n---------------------------------------\n\n"
+        "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"
         "No duplicates are allowed in the 'ID (optional)' column. At the following locations, IDs are duplicated:"
         "\n----------------------------\n"
         "ID: 'duplicate_list_id'\n"
@@ -58,8 +57,7 @@ def test_duplicate_list_id() -> None:
 
 def test_duplicate_node_id() -> None:
     expected = regex.escape(
-        "\nThe excel file(s) used to create the list section have the following problem(s):"
-        "\n\n---------------------------------------\n\n"
+        "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"
         "No duplicates are allowed in the 'ID (optional)' column. At the following locations, IDs are duplicated:"
         "\n----------------------------\n"
         "ID: 'duplicate_node_id'\n"
@@ -74,8 +72,7 @@ def test_duplicate_node_id() -> None:
 
 def test_duplicate_list_name() -> None:
     expected = regex.escape(
-        "\nThe excel file(s) used to create the list section have the following problem(s):"
-        "\n\n---------------------------------------\n\n"
+        "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"
         "The name of the list must be unique across all the excel sheets.\n"
         "The following sheets have lists with the same name:\n"
         "    - Excel file: 'testdata/invalid-testdata/excel2json/new_lists_duplicate_listname/list_duplicate_1.xlsx', "
@@ -89,8 +86,7 @@ def test_duplicate_list_name() -> None:
 
 def test_invalid_shape() -> None:
     expected = regex.escape(
-        "\nThe excel file(s) used to create the list section have the following problem(s):"
-        "\n\n---------------------------------------\n\n"
+        "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"
         "The Excel file "
         "'testdata/invalid-testdata/excel2json/new_lists_invalid_shape/list_missing_translation_column.xlsx' "
         "contains the following problems:\n\n"
@@ -104,15 +100,14 @@ def test_invalid_shape() -> None:
 
 def test_missing_translation() -> None:
     expected = regex.escape(
-        "\nThe excel file(s) used to create the list section have the following problem(s):"
-        "\n\n---------------------------------------\n\n"
+        "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"
         "The Excel file "
         "'testdata/invalid-testdata/excel2json/new_lists_missing_translations/list_missing_translation_cell.xlsx' "
         "contains the following problems:\n\n"
         "The excel sheet 'missing_translation_cell' has the following problem(s):\n"
         "In one list, all the nodes must be translated into all the languages used. "
         "For the following nodes, the translations are missing:\n"
-        "    - Row Number: 3 Column(s): de_1"
+        "    - Row Number: 3 | Column(s): de_1"
     )
     with pytest.raises(InputError, match=expected):
         new_excel2lists(Path("testdata/invalid-testdata/excel2json/new_lists_missing_translations"))

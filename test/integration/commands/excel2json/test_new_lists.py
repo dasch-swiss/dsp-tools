@@ -40,27 +40,36 @@ def test_third_list(expected_lists: list[dict[str, Any]], result_lists_correct: 
     assert result_lists_correct[2] == expected_lists[2]
 
 
-def test_duplicate_problems() -> None:
+def test_duplicate_list_id() -> None:
     expected = regex.escape(
         "\nThe excel file(s) used to create the list section have the following problem(s):"
         "\n\n---------------------------------------\n\n"
-        "No duplicates are allowed in the 'ID (optional)' column. "
-        "At the following locations, IDs are duplicated:"
+        "No duplicates are allowed in the 'ID (optional)' column. At the following locations, IDs are duplicated:"
         "\n----------------------------\n"
         "ID: 'duplicate_list_id'\n"
-        "    - Excel 'testdata/invalid-testdata/excel2json/new_lists_duplicate_ids/list_duplicate_1.xlsx' "
+        "    - Excel 'testdata/invalid-testdata/excel2json/new_lists_duplicate_list_ids/list_duplicate_1.xlsx' "
         "| Sheet 'duplicate_list_id1' | Row 2\n"
-        "    - Excel 'testdata/invalid-testdata/excel2json/new_lists_duplicate_ids/list_duplicate_2.xlsx' "
+        "    - Excel 'testdata/invalid-testdata/excel2json/new_lists_duplicate_list_ids/list_duplicate_2.xlsx' "
         "| Sheet 'duplicate_list_id2' | Row 2"
+    )
+    with pytest.raises(InputError, match=expected):
+        new_excel2lists(Path("testdata/invalid-testdata/excel2json/new_lists_duplicate_list_ids"))
+
+
+def test_duplicate_node_id() -> None:
+    expected = regex.escape(
+        "\nThe excel file(s) used to create the list section have the following problem(s):"
+        "\n\n---------------------------------------\n\n"
+        "No duplicates are allowed in the 'ID (optional)' column. At the following locations, IDs are duplicated:"
         "\n----------------------------\n"
         "ID: 'duplicate_node_id'\n"
-        "    - Excel 'testdata/invalid-testdata/excel2json/new_lists_duplicate_ids/list_duplicate_2.xlsx' "
+        "    - Excel 'testdata/invalid-testdata/excel2json/new_lists_duplicate_node_ids/list_duplicate_node_ids.xlsx' "
         "| Sheet 'duplicate_node_id1' | Row 3\n"
-        "    - Excel 'testdata/invalid-testdata/excel2json/new_lists_duplicate_ids/list_duplicate_2.xlsx' "
+        "    - Excel 'testdata/invalid-testdata/excel2json/new_lists_duplicate_node_ids/list_duplicate_node_ids.xlsx' "
         "| Sheet 'duplicate_node_id2' | Row 3"
     )
     with pytest.raises(InputError, match=expected):
-        new_excel2lists(Path("testdata/invalid-testdata/excel2json/new_lists_duplicate_ids"))
+        new_excel2lists(Path("testdata/invalid-testdata/excel2json/new_lists_duplicate_node_ids"))
 
 
 def test_duplicate_list_name() -> None:

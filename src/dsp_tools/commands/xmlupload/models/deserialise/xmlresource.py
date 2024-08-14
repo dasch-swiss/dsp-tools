@@ -86,16 +86,15 @@ class XMLResource:
                     self.bitstream = XMLBitstream(subnode)
                 case "iiif-uri":
                     self.iiif_uri = IIIFUriInfo(subnode)
+                case "isSegmentOf" | "relatesTo":
+                    self.properties.append(XMLProperty(subnode, "resptr", default_ontology))
+                case "hasSegmentBounds":
+                    self.properties.append(XMLProperty(subnode, "interval", default_ontology))
+                case "hasTitle" | "hasComment" | "hasDescription" | "hasKeyword":
+                    self.properties.append(XMLProperty(subnode, "text", default_ontology))
                 case _:
-                    if subnode.tag in ["isSegmentOf", "relatesTo"]:
-                        prop_type = "resptr"
-                    elif subnode.tag == "hasSegmentBounds":
-                        prop_type = "interval"
-                    elif subnode.tag in ["hasTitle", "hasComment", "hasDescription", "hasKeyword"]:
-                        prop_type = "text"
-                    else:
-                        # get the property type which is in format type-prop, p.ex. <decimal-prop>
-                        prop_type, _ = subnode.tag.split("-")
+                    # get the property type which is in format type-prop, p.ex. <decimal-prop>
+                    prop_type, _ = subnode.tag.split("-")
                     self.properties.append(XMLProperty(subnode, prop_type, default_ontology))
 
     def get_props_with_links(self) -> list[XMLProperty]:

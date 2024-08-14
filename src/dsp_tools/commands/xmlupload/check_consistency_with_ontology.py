@@ -20,6 +20,17 @@ from dsp_tools.models.exceptions import InputError
 defaultOntologyColon: Pattern[str] = regex.compile(r"^:\w+$")
 knoraUndeclared: Pattern[str] = regex.compile(r"^\w+$")
 genericPrefixedOntology: Pattern[str] = regex.compile(r"^[\w\-]+:\w+$")
+KNORA_BASE_VALUES = {
+    "bitstream",
+    "iiif-uri",
+    "isSegmentOf",
+    "hasSegmentBounds",
+    "hasTitle",
+    "hasComment",
+    "hasDescription",
+    "hasKeyword",
+    "relatesTo",
+}
 
 
 def do_xml_consistency_check_with_ontology(onto_client: OntologyClient, root: etree._Element) -> None:
@@ -100,15 +111,13 @@ def _get_all_property_names_and_resource_ids_one_resource(
     resource: etree._Element, prop_dict: dict[str, list[str]]
 ) -> dict[str, list[str]]:
     for prop in resource.iterchildren():
-        match prop.tag:
-            case "bitstream" | "iiif-uri" | "isSegmentOf" | "hasSegmentBounds" | "hasTitle" | "hasComment" | "hasDescription" | "hasKeyword" | "relatesTo":
-                pass
-            case _:
-                prop_name = prop.attrib["name"]
-                if prop_name in prop_dict:
-                    prop_dict[prop_name].append(resource.attrib["id"])
-                else:
-                    prop_dict[prop_name] = [resource.attrib["id"]]
+        if prop.tag in KNORA_BASE_VALUES:
+            continue
+        prop_name = prop.attrib["name"]
+        if prop_name in prop_dict:
+            prop_dict[prop_name].append(resource.attrib["id"])
+        else:
+            prop_dict[prop_name] = [resource.attrib["id"]]
     return prop_dict
 
 

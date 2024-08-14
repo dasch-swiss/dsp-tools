@@ -17,8 +17,8 @@ class Columns:
     list_cols: ColumnsList
     nodes_cols: list[ColumnNodes]
 
-    def sorted_node_cols(self) -> list[ColumnNodes]:
-        return sorted(self.nodes_cols, key=lambda x: x.level_num)
+    def reverse_sorted_node_cols(self) -> list[ColumnNodes]:
+        return sorted(self.nodes_cols, key=lambda x: x.level_num, reverse=True)
 
 
 @dataclass

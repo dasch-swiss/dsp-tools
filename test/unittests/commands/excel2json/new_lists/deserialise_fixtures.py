@@ -121,13 +121,13 @@ def sheet_deserialised_corr(list_deserialised_corr_two_lang: ListDeserialised) -
 def list_deserialised_one_bad_node(
     node_deserialised_no_comments_three_lang: NodeDeserialised,
     node_deserialised_no_comments_two_lang: NodeDeserialised,
-    list_cols_deserialised_two_lang: LangColsDeserialised,
+    list_cols_deserialised_three_lang: LangColsDeserialised,
 ) -> ListDeserialised:
     return ListDeserialised(
         list_id="list_id",
         lang_tags={"en", "de", "fr"},
         nodes=[node_deserialised_no_comments_three_lang, node_deserialised_no_comments_two_lang],
-        labels=list_cols_deserialised_two_lang,
+        labels=list_cols_deserialised_three_lang,
     )
 
 

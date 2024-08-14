@@ -31,8 +31,8 @@ class TestListDeserialised:
         assert len(res) == 1
         location = res[0]
         assert isinstance(location, PositionInExcel)
-        assert location.row == 1
-        assert location.column == "fr_1"
+        assert location.row == 4
+        assert location.column == "fr_2"
 
 
 class TestNodeDeserialised:
@@ -41,9 +41,11 @@ class TestNodeDeserialised:
 
     def test_bad_labels_good_comments(self, node_deserialised_wrong_labels: NodeDeserialised) -> None:
         res = node_deserialised_wrong_labels.check({"en", "de", "fr"})
-        assert isinstance(res, PositionInExcel)
-        assert res.row == 3
-        assert res.column == "fr_1"
+        assert len(res) == 1
+        positions = res[0]
+        assert isinstance(positions, PositionInExcel)
+        assert positions.row == 3
+        assert positions.column == "fr_1"
 
 
 class TestLangColsDeserialised:

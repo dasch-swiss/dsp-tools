@@ -986,15 +986,15 @@ shortcut, so that the XML file can be validated more precisely.
 `<video-segment>` and `<audio-segment>` represent sections of an audio/video file. 
 They can have the following predefined properties:
 
-| prop name          | cardinality | prop type     | encoding |
-| ------------------ | ----------- | ------------- | -------- |
-| `isSegmentOf`      | 1           | resptr-prop   |          |
-| `hasSegmentBounds` | 1           | interval-prop |          |
-| `hasTitle`         | 0-1         | text-prop     | utf8     |
-| `hasDescription`   | 0-n         | text-prop     | xml      |
-| `hasComment`       | 0-n         | text-prop     | xml      |
-| `hasKeyword`       | 0-n         | text-prop     | utf8     |
-| `relatesTo`        | 0-n         | resptr-prop   |          |
+| prop name          | cardinality | prop type     | text type   |
+| ------------------ | ----------- | ------------- | ----------- |
+| `isSegmentOf`      | 1           | resptr-prop   |             |
+| `hasSegmentBounds` | 1           | interval-prop |             |
+| `hasTitle`         | 0-1         | text-prop     | unformatted |
+| `hasDescription`   | 0-n         | text-prop     | formatted   |
+| `hasComment`       | 0-n         | text-prop     | formatted   |
+| `hasKeyword`       | 0-n         | text-prop     | unformatted |
+| `relatesTo`        | 0-n         | resptr-prop   |             |
 
 The segment bounds must be entered in seconds. 
 Decimal values for fractions of a second are allowed, e.g. `1.4:2`.
@@ -1003,16 +1003,14 @@ The segment from 0h 10min 00s to 0h 20min 00s would thus be represented by the i
 Example:
 
 ```xml
-<video-segment label="Segment of video_thing_1" id="video_segment_0" permissions="res-default">
-    <resptr-prop name="isSegmentOf">
-        <resptr permissions="prop-default">video_thing_1</resptr>
-    </resptr-prop>
-    <interval-prop name="hasSegmentBounds">
-        <interval permissions="prop-default">10:20</interval>
-    </interval-prop>
-    <text-prop name="hasComment">
-        <text encoding="xml" permissions="prop-default">Optional comment</text>
-    </text-prop>
+<video-segment label="Video Segment" id="video_segment_1">
+    <isSegmentOf permissions="prop-default">video_thing_1</isSegmentOf>
+    <hasSegmentBounds permissions="prop-default" start="2" end="3.5"/>
+    <hasTitle permissions="prop-default">Title of video segment</hasTitle>
+    <hasDescription permissions="prop-default">Description of video segment</hasDescription>
+    <hasKeyword permissions="prop-default">Keyword of video segment</hasKeyword>
+    <hasComment permissions="prop-default">Comment of video segment</hasComment>
+    <relatesTo permissions="prop-default">audio_segment_1</relatesTo>
 </video-segment>
 ```
 

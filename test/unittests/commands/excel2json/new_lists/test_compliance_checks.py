@@ -168,7 +168,7 @@ class TestCheckForDuplicates:
         assert isinstance(result, DuplicatesCustomIDInProblem)
         assert len(result.duplicate_ids) == 2
         one = result.duplicate_ids[0]
-        assert one.custom_id == "1"
+        assert one.custom_id == 1
         assert len(one.excel_locations) == 2
         locations = sorted(one.excel_locations, key=lambda x: x.excel_filename)  # type: ignore[return-value,arg-type]
         assert locations[0].excel_filename == "file1"
@@ -178,7 +178,7 @@ class TestCheckForDuplicates:
         assert locations[1].sheet == "sheet2"
         assert locations[1].row == 2
         two = result.duplicate_ids[1]
-        assert two.custom_id == "4"
+        assert two.custom_id == 4
         assert len(two.excel_locations) == 2
         locations = sorted(two.excel_locations, key=lambda x: x.excel_filename)  # type: ignore[return-value,arg-type]
         assert locations[0].excel_filename == "file1"

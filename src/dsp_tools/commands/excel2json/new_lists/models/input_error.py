@@ -194,7 +194,7 @@ class DuplicatesCustomIDInProblem:
 
 @dataclass
 class DuplicateIDProblem:
-    custom_id: str = field(default="")
+    custom_id: str | int | float = field(default="")
     excel_locations: list[PositionInExcel] = field(default_factory=list)
 
     def execute_error_protocol(self) -> str:

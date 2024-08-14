@@ -32,11 +32,6 @@ def list_cols_deserialised_three_lang() -> LangColsDeserialised:
 
 
 @pytest.fixture()
-def first_cols_deserialised_three_lang() -> LangColsDeserialised:
-    return LangColsDeserialised({"en_1": "english1", "de_1": "deutsch1", "fr_1": "french1"})
-
-
-@pytest.fixture()
 def second_cols_deserialised_three_lang() -> LangColsDeserialised:
     return LangColsDeserialised({"en_2": "english2", "de_2": "deutsch2", "fr_2": "french2"})
 

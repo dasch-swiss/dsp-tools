@@ -159,7 +159,7 @@ class TestCheckForDuplicates:
 
     def test_check_for_duplicate_custom_id_all_excels_good(
         self, f1_s1_good_en: ExcelSheet, f2_s2_good_en_de: ExcelSheet
-    ):
+    ) -> None:
         sheets = [f1_s1_good_en, f2_s2_good_en_de]
         assert not _check_for_duplicate_custom_id_all_excels(sheets)
 
@@ -168,20 +168,19 @@ class TestCheckForDuplicates:
         assert isinstance(result, DuplicatesCustomIDInProblem)
         assert len(result.duplicate_ids) == 2
         one = result.duplicate_ids[0]
-        assert one.custom_id == 1
+        assert one.custom_id == "1"
         assert len(one.excel_locations) == 2
-        locations = sorted(one.excel_locations, key=lambda x: x.excel_filename)
+        locations = sorted(one.excel_locations, key=lambda x: x.excel_filename)  # type: ignore[return-value,arg-type]
         assert locations[0].excel_filename == "file1"
         assert locations[0].sheet == "sheet1"
         assert locations[0].row == 3
         assert locations[1].excel_filename == "file2"
         assert locations[1].sheet == "sheet2"
         assert locations[1].row == 2
-
         two = result.duplicate_ids[1]
-        assert two.custom_id == 4
+        assert two.custom_id == "4"
         assert len(two.excel_locations) == 2
-        locations = sorted(two.excel_locations, key=lambda x: x.excel_filename)
+        locations = sorted(two.excel_locations, key=lambda x: x.excel_filename)  # type: ignore[return-value,arg-type]
         assert locations[0].excel_filename == "file1"
         assert locations[0].sheet == "sheet1"
         assert locations[0].row == 5

@@ -63,7 +63,7 @@ def test_duplicate_problems() -> None:
         new_excel2lists(Path("testdata/invalid-testdata/excel2json/new_lists_duplicate_ids"))
 
 
-def test_duplicate_listname() -> None:
+def test_duplicate_list_name() -> None:
     expected = regex.escape(
         "\nThe excel file(s) used to create the list section have the following problem(s):"
         "\n\n---------------------------------------\n\n"

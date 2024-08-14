@@ -63,20 +63,29 @@ def test_duplicate_problems() -> None:
         new_excel2lists(Path("testdata/invalid-testdata/excel2json/new_lists_duplicate_ids"))
 
 
-def test_invalid_shape() -> None:
-    expected = "asdf"
+def test_duplicate_listname() -> None:
+    expected = regex.escape(
+        "\nThe excel file(s) used to create the list section have the following problem(s):"
+        "\n\n---------------------------------------\n\n"
+        "The name of the list must be unique across all the excel sheets.\n"
+        "The following sheets have lists with the same name:\n"
+        "    - Excel file: 'testdata/invalid-testdata/excel2json/new_lists_duplicate_listname/list_duplicate_1.xlsx', "
+        "Sheet: 'duplicate_list', List: 'List 2'\n"
+        "    - Excel file: 'testdata/invalid-testdata/excel2json/new_lists_duplicate_listname/list_duplicate_2.xlsx', "
+        "Sheet: 'duplicate_list', List: 'List 2'"
+    )
     with pytest.raises(InputError, match=expected):
         new_excel2lists(Path("testdata/invalid-testdata/excel2json/new_lists_duplicate_listname"))
 
 
 def test_invalid_shape() -> None:
-    expected = "asdf"
+    expected = regex.escape("asdf")
     with pytest.raises(InputError, match=expected):
         new_excel2lists(Path("testdata/invalid-testdata/excel2json/new_lists_invalid_shape"))
 
 
 def test_missing_translation() -> None:
-    expected = "asdf"
+    expected = regex.escape("asdf")
     with pytest.raises(InputError, match=expected):
         new_excel2lists(Path("testdata/invalid-testdata/excel2json/new_lists_missing_translations"))
 

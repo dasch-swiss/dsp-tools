@@ -59,22 +59,6 @@ class CollectedSheetProblems:
 
 
 @dataclass
-class ListSheetProblem(SheetProblem):
-    excel_name: str
-    sheet_name: str
-    root_problems: dict[str, str]
-    node_problems: list[ListNodeProblem] = field(default_factory=list)
-
-    def execute_error_protocol(self) -> str:
-        msg = [f"The excel sheet '{self.sheet_name}' has the following problem(s):"]
-        if self.root_problems:
-            msg.extend([f"Field: '{key}', Problem: {value}" for key, value in self.root_problems.items()])
-        if self.node_problems:
-            msg.extend([problem.execute_error_protocol() for problem in self.node_problems])
-        return list_separator.join(msg)
-
-
-@dataclass
 class DuplicatesInSheetProblem(SheetProblem):
     excel_name: str
     sheet_name: str
@@ -141,18 +125,6 @@ class MissingTranslationsSheetProblem(SheetProblem):
         nodes_sorted = sorted(self.node_problems, key=lambda x: x.index_num)
         msg.extend([x.execute_error_protocol() for x in nodes_sorted])
         return list_separator.join(msg)
-
-
-@dataclass(frozen=True)
-class MissingNodeSheetProblem:
-    sheet: str
-    node_problems: list[NodesPerRowProblem]
-
-    def execute_error_protocol(self) -> str:
-        msg = "Each list node and each list must have its own row in the excel. The following rows are incorrect:"
-        nodes_sorted = sorted(self.node_problems, key=lambda x: x.index_num)
-        nodes = list_separator.join([x.execute_error_protocol() for x in nodes_sorted])
-        return msg + nodes
 
 
 @dataclass(frozen=True)

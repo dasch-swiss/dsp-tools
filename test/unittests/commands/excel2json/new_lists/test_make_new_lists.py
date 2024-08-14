@@ -446,9 +446,8 @@ def test_make_list_nodes_with_valid_data() -> None:
         "de_2": [pd.NA, pd.NA, "Knoten1.1", pd.NA],
     }
     df = pd.DataFrame(data)
-    node_dict, problems = _make_list_nodes_from_df(df)
+    node_dict = _make_list_nodes_from_df(df)
     assert len(node_dict) == 3
-    assert len(problems) == 0
     one = node_dict["id_1"]
     assert isinstance(one, ListNode)
     assert one.id_ == "id_1"
@@ -482,7 +481,7 @@ class TestMakeOneNode:
                 "de_2": pd.NA,
             }
         )
-        nd = _make_one_node(test_series, [["en_2", "de_2"], ["en_1", "de_1"]], "1")
+        nd = _make_one_node(test_series, [["en_2", "de_2"], ["en_1", "de_1"]])
         assert isinstance(nd, ListNode)
         assert nd.id_ == "node_id"
         assert nd.labels == {"en": "Node_en_1", "de": "Node_de_1"}
@@ -500,7 +499,7 @@ class TestMakeOneNode:
                 "de_2": "Node_de_2",
             }
         )
-        nd = _make_one_node(test_series, [["en_2", "de_2"], ["en_1", "de_1"]], "2")
+        nd = _make_one_node(test_series, [["en_2", "de_2"], ["en_1", "de_1"]])
         assert isinstance(nd, ListNode)
         assert nd.id_ == "node_id"
         assert nd.labels == {"en": "Node_en_2", "de": "Node_de_2"}

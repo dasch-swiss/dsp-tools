@@ -517,7 +517,7 @@ class TestCheckOneGroupForErroneousEntries:
         assert res[0].index_num == 2
         assert res[0].should_be_empty
 
-    def test_missing_nex_rows(self) -> None:
+    def test_missing_next_rows(self) -> None:
         df = pd.DataFrame(
             {"one": ["a", "b", "c", "d"], "two": [pd.NA, pd.NA, "cc", pd.NA], "other": ["a", "b", pd.NA, "d"]},
             index=[2, 3, 4, 5],

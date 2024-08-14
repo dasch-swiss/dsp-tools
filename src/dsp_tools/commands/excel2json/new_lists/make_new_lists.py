@@ -11,7 +11,7 @@ import regex
 from loguru import logger
 
 from dsp_tools.commands.excel2json.lists import validate_lists_section_with_schema
-from dsp_tools.commands.excel2json.new_lists.compliance_checks import make_all_formal_excel_compliance_checks
+from dsp_tools.commands.excel2json.new_lists.compliance_checks import make_all_excel_compliance_checks
 from dsp_tools.commands.excel2json.new_lists.models.deserialise import ExcelSheet
 from dsp_tools.commands.excel2json.new_lists.models.input_error import CollectedSheetProblems
 from dsp_tools.commands.excel2json.new_lists.models.input_error import ListCreationProblem
@@ -48,6 +48,7 @@ def new_excel2lists(
         a tuple consisting of the "lists" section as Python list, and the success status (True if everything went well)
     """
     sheet_list = _parse_files(excelfolder)
+    sheet_list = _prepare_dfs(sheet_list)
 
     finished_lists = _make_serialised_lists(sheet_list)
     validate_lists_section_with_schema(lists_section=finished_lists)
@@ -77,32 +78,9 @@ def _non_hidden(path: Path) -> bool:
     return not regex.search(r"^(\.|~\$).+", path.name)
 
 
-def _make_serialised_lists(sheet_list: list[ExcelSheet]) -> list[dict[str, Any]]:
-    sheet_list = _prepare_dfs(sheet_list)
-    all_lists = _make_all_lists(sheet_list)
-    if isinstance(all_lists, ListCreationProblem):
-        msg = all_lists.execute_error_protocol()
-        logger.error(msg)
-        raise InputError(msg)
-    return [list_.to_dict() for list_ in all_lists]
-
-
-def _make_all_lists(sheet_list: list[ExcelSheet]) -> list[ListRoot] | ListCreationProblem:
-    good_lists = []
-    problem_lists: list[SheetProblem] = []
-    for sheet in sheet_list:
-        if isinstance(new_list := _make_one_list(sheet), ListRoot):
-            good_lists.append(new_list)
-        else:
-            problem_lists.append(new_list)
-    if problem_lists:
-        return ListCreationProblem([CollectedSheetProblems(problem_lists)])
-    return good_lists
-
-
 def _prepare_dfs(sheet_list: list[ExcelSheet]) -> list[ExcelSheet]:
     sheet_list = _add_id_optional_column_if_not_exists(sheet_list)
-    make_all_formal_excel_compliance_checks(sheet_list)
+    make_all_excel_compliance_checks(sheet_list)
     return _construct_ids(sheet_list)
 
 
@@ -222,6 +200,28 @@ def _construct_non_duplicate_id_string(row: pd.Series[Any], preferred_language: 
     column_names.insert(0, f"{preferred_language}_list")
     id_cols = [row[col] for col in column_names if pd.notna(row[col])]
     return ":".join(id_cols)
+
+
+def _make_serialised_lists(sheet_list: list[ExcelSheet]) -> list[dict[str, Any]]:
+    all_lists = _make_all_lists(sheet_list)
+    if isinstance(all_lists, ListCreationProblem):
+        msg = all_lists.execute_error_protocol()
+        logger.error(msg)
+        raise InputError(msg)
+    return [list_.to_dict() for list_ in all_lists]
+
+
+def _make_all_lists(sheet_list: list[ExcelSheet]) -> list[ListRoot] | ListCreationProblem:
+    good_lists = []
+    problem_lists: list[SheetProblem] = []
+    for sheet in sheet_list:
+        if isinstance(new_list := _make_one_list(sheet), ListRoot):
+            good_lists.append(new_list)
+        else:
+            problem_lists.append(new_list)
+    if problem_lists:
+        return ListCreationProblem([CollectedSheetProblems(problem_lists)])
+    return good_lists
 
 
 def _make_one_list(sheet: ExcelSheet) -> ListRoot | ListSheetProblem:

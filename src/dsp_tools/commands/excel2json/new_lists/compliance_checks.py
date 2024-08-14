@@ -35,7 +35,7 @@ from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
 
 
-def make_all_formal_excel_compliance_checks(sheet_list: list[ExcelSheet]) -> None:
+def make_all_excel_compliance_checks(sheet_list: list[ExcelSheet]) -> None:
     """Check if the excel files are compliant with the expected format."""
     # These functions must be called in this order,
     # as some of the following checks only work if the previous have passed.

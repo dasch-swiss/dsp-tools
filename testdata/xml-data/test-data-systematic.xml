@@ -865,8 +865,6 @@
     <video-segment label="Video Segment with only the mandatory values" id="video_segment_3">
         <isSegmentOf permissions="prop-default">video_thing_1</isSegmentOf>
         <hasSegmentBounds permissions="prop-default" start="2" end="3.5"/>
-        <hasTitle permissions="prop-default">Title of video segment</hasTitle>
-        <hasDescription permissions="prop-default">Description of video segment</hasDescription>
     </video-segment>
 
     <!-- audio segment -->

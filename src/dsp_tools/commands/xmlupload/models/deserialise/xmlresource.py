@@ -87,8 +87,15 @@ class XMLResource:
                 case "iiif-uri":
                     self.iiif_uri = IIIFUriInfo(subnode)
                 case _:
-                    # get the property type which is in format type-prop, p.ex. <decimal-prop>
-                    prop_type, _ = subnode.tag.split("-")
+                    if subnode.tag in ["isSegmentOf", "relatesTo"]:
+                        prop_type = "resptr"
+                    elif subnode.tag == "hasSegmentBounds":
+                        prop_type = "interval"
+                    elif subnode.tag in ["hasTitle", "hasComment", "hasDescription", "hasKeyword"]:
+                        prop_type = "text"
+                    else:
+                        # get the property type which is in format type-prop, p.ex. <decimal-prop>
+                        prop_type, _ = subnode.tag.split("-")
                     self.properties.append(XMLProperty(subnode, prop_type, default_ontology))
 
     def get_props_with_links(self) -> list[XMLProperty]:

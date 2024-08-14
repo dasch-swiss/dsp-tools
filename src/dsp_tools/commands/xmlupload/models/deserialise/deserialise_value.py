@@ -38,15 +38,18 @@ class XMLProperty:
             XmlUploadError: If an upload fails
         """
         # get the property name which is in format namespace:propertyname, p.ex. rosetta:hasName
-        tmp_prop_name = node.attrib["name"].split(":")
-        if len(tmp_prop_name) > 1:
-            if tmp_prop_name[0]:
-                self.name = node.attrib["name"]
-            else:
-                # replace an empty namespace with the default ontology name
-                self.name = f"{default_ontology}:{tmp_prop_name[1]}"
+        if "name" not in node.attrib:
+            self.name = f"knora-api:{node.tag}"
         else:
-            self.name = f"knora-api:{tmp_prop_name[0]}"
+            tmp_prop_name = node.attrib["name"].split(":")
+            if len(tmp_prop_name) > 1:
+                if tmp_prop_name[0]:
+                    self.name = node.attrib["name"]
+                else:
+                    # replace an empty namespace with the default ontology name
+                    self.name = f"{default_ontology}:{tmp_prop_name[1]}"
+            else:
+                self.name = f"knora-api:{tmp_prop_name[0]}"
         listname = node.attrib.get("list")  # safe the list name if given (only for lists)
         self.valtype = valtype
         self.values = []

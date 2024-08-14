@@ -101,7 +101,7 @@ def _get_all_property_names_and_resource_ids_one_resource(
 ) -> dict[str, list[str]]:
     for prop in resource.iterchildren():
         match prop.tag:
-            case "bitstream" | "iiif-uri":
+            case "bitstream" | "iiif-uri" | "isSegmentOf" | "hasSegmentBounds" | "hasTitle" | "hasComment" | "hasDescription" | "hasKeyword" | "relatesTo":
                 pass
             case _:
                 prop_name = prop.attrib["name"]

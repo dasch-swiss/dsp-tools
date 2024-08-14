@@ -15,8 +15,6 @@ from dsp_tools.commands.excel2json.new_lists.compliance_checks import make_all_e
 from dsp_tools.commands.excel2json.new_lists.models.deserialise import ExcelSheet
 from dsp_tools.commands.excel2json.new_lists.models.input_error import CollectedSheetProblems
 from dsp_tools.commands.excel2json.new_lists.models.input_error import ListCreationProblem
-from dsp_tools.commands.excel2json.new_lists.models.input_error import ListNodeProblem
-from dsp_tools.commands.excel2json.new_lists.models.input_error import ListSheetProblem
 from dsp_tools.commands.excel2json.new_lists.models.input_error import SheetProblem
 from dsp_tools.commands.excel2json.new_lists.models.serialise import ListNode
 from dsp_tools.commands.excel2json.new_lists.models.serialise import ListRoot
@@ -224,26 +222,16 @@ def _make_all_lists(sheet_list: list[ExcelSheet]) -> list[ListRoot] | ListCreati
     return good_lists
 
 
-def _make_one_list(sheet: ExcelSheet) -> ListRoot | ListSheetProblem:
-    node_dict, node_problems = _make_list_nodes_from_df(sheet.df)
+def _make_one_list(sheet: ExcelSheet) -> ListRoot:
+    node_dict = _make_list_nodes_from_df(sheet.df)
     nodes_for_root = _add_nodes_to_parent(node_dict, sheet.df.at[0, "id"]) if node_dict else []
     col_titles_of_root_cols = [x for x in sheet.df.columns if regex.search(r"^(en|de|fr|it|rm)_list$", x)]
-    root = ListRoot.create(
+    return ListRoot(
         id_=sheet.df.at[0, "id"],
         labels=_get_labels(sheet.df.iloc[0], col_titles_of_root_cols),
-        excel_name=sheet.excel_name,
-        sheet_name=sheet.sheet_name,
         nodes=nodes_for_root,
         comments={},
     )
-    match (root, node_problems):
-        case (ListRoot(), list(ListNodeProblem())):
-            return ListSheetProblem(
-                excel_name=sheet.excel_name, sheet_name=sheet.sheet_name, root_problems={}, node_problems=node_problems
-            )
-        case (ListSheetProblem(), _):
-            root.node_problems = node_problems
-    return root
 
 
 def _add_nodes_to_parent(node_dict: dict[str, ListNode], list_id: str) -> list[ListNode]:
@@ -256,25 +244,22 @@ def _add_nodes_to_parent(node_dict: dict[str, ListNode], list_id: str) -> list[L
     return root_list
 
 
-def _make_list_nodes_from_df(df: pd.DataFrame) -> tuple[dict[str, ListNode], list[ListNodeProblem]]:
+def _make_list_nodes_from_df(df: pd.DataFrame) -> dict[str, ListNode]:
     columns_for_nodes = _get_reverse_sorted_columns_list(df)
-    problems = []
     node_dict = {}
     for i, row in df[1:].iterrows():
-        node = _make_one_node(row, columns_for_nodes, str(i))
-        match node:
-            case ListNode():
-                node_dict[node.id_] = node
-            case ListNodeProblem():
-                problems.append(node)
-    return node_dict, problems
+        node = _make_one_node(row, columns_for_nodes)
+        node_dict[node.id_] = node
+    return node_dict
 
 
-def _make_one_node(row: pd.Series[Any], list_of_columns: list[list[str]], index: str) -> ListNode | ListNodeProblem:
+def _make_one_node(row: pd.Series[Any], list_of_columns: list[list[str]]) -> ListNode:
+    labels = {}
     for col_group in list_of_columns:
-        if labels := _get_labels(row, col_group):
-            return ListNode.create(id_=row["id"], labels=labels, parent_id=row["parent_id"], sub_nodes=[])
-    return ListNodeProblem(node_id=row["id"], problems={"Unknown": f"Unknown problem occurred in row number: {index}"})
+        if found := _get_labels(row, col_group):
+            labels = found
+            break
+    return ListNode(id_=str(row["id"]), labels=labels, parent_id=str(row["parent_id"]), sub_nodes=[])
 
 
 def _get_reverse_sorted_columns_list(df: pd.DataFrame) -> list[list[str]]:

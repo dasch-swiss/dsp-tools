@@ -216,8 +216,9 @@ def f2_s2_missing_lang_column() -> ExcelSheet:
 def f2_s2_missing_translations() -> ExcelSheet:
     df = pd.DataFrame(
         {
-            "en_list": ["list1", "list1", "list1", "list1", "list1", "list1", "list1"],
-            "de_list": [pd.NA, "list1", "list1", "list1", "list1", "list1", "list1"],
+            "id (optional)": [1, 2, 3, 4, 5, 6, 7],
+            "en_list": ["list3", "list3", "list3", "list3", "list3", "list3", "list3"],
+            "de_list": [pd.NA, "list3", "list3", "list3", "list3", "list3", "list3"],
             "en_1": [pd.NA, pd.NA, "node1", "node1", "node1", "node2", "node3"],
             "de_1": [pd.NA, "node1", "node1", "node1", "node1", "node2", pd.NA],
             "en_2": [pd.NA, pd.NA, "node1.1", "node1.1", "node1.2", pd.NA, pd.NA],

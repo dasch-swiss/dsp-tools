@@ -92,7 +92,7 @@ class TestMakeAllExcelComplianceChecks:
             "    - Row Number: 8 | Column(s): de_1"
         )
         with pytest.raises(InputError, match=expected):
-            _check_for_missing_translations_all_excels(all_sheets)
+            make_all_excel_compliance_checks(all_sheets)
 
 
 class TestFormalExcelCompliance:

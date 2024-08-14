@@ -47,7 +47,7 @@ def test_duplicate_problems() -> None:
         "No duplicates are allowed in the 'ID (optional)' column. "
         "At the following locations, IDs are duplicated:"
         "\n----------------------------\n"
-        "ID: 'duplicateID'\n"
+        "ID: 'duplicate_list_id'\n"
         "    - Excel 'testdata/invalid-testdata/excel2json/new_lists_duplicate_ids/list_duplicate_1.xlsx' "
         "| Sheet 'duplicate_list_id1' | Row 2\n"
         "    - Excel 'testdata/invalid-testdata/excel2json/new_lists_duplicate_ids/list_duplicate_2.xlsx' "
@@ -79,13 +79,32 @@ def test_duplicate_listname() -> None:
 
 
 def test_invalid_shape() -> None:
-    expected = regex.escape("asdf")
+    expected = regex.escape(
+        "\nThe excel file(s) used to create the list section have the following problem(s):"
+        "\n\n---------------------------------------\n\n"
+        "The Excel file "
+        "'testdata/invalid-testdata/excel2json/new_lists_invalid_shape/list_missing_translation_column.xlsx' "
+        "contains the following problems:\n\n"
+        "The excel sheet 'Sheet1' has the following problem(s):\n"
+        "    - missing translations: All nodes must be translated into the same languages. "
+        "Based on the languages used, the following column(s) are missing: de_list"
+    )
     with pytest.raises(InputError, match=expected):
         new_excel2lists(Path("testdata/invalid-testdata/excel2json/new_lists_invalid_shape"))
 
 
 def test_missing_translation() -> None:
-    expected = regex.escape("asdf")
+    expected = regex.escape(
+        "\nThe excel file(s) used to create the list section have the following problem(s):"
+        "\n\n---------------------------------------\n\n"
+        "The Excel file "
+        "'testdata/invalid-testdata/excel2json/new_lists_missing_translations/list_missing_translation_cell.xlsx' "
+        "contains the following problems:\n\n"
+        "The excel sheet 'missing_translation_cell' has the following problem(s):\n"
+        "In one list, all the nodes must be translated into all the languages used. "
+        "For the following nodes, the translations are missing:\n"
+        "    - Row Number: 3 Column(s): de_1"
+    )
     with pytest.raises(InputError, match=expected):
         new_excel2lists(Path("testdata/invalid-testdata/excel2json/new_lists_missing_translations"))
 

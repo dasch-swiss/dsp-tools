@@ -164,7 +164,7 @@ class DuplicatesListNameProblem:
             "The name of the list must be unique across all the excel sheets.\n"
             "The following sheets have lists with the same name:"
         ]
-        sorted_list = sorted(self.all_duplicate_names, key=lambda x: x.list_name)
+        sorted_list = sorted(self.all_duplicate_names, key=lambda x: x.excel_name)
         msg.extend([x.execute_error_protocol() for x in sorted_list])
         return list_separator.join(msg)
 

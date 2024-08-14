@@ -199,7 +199,7 @@ class DuplicateIDProblem:
 
     def execute_error_protocol(self) -> str:
         msg = [f"ID: '{self.custom_id}'"]
-        msg.extend([str(x) for x in sorted(self.excel_locations, key=lambda x: x.excel_filename)])
+        msg.extend([str(x) for x in sorted(self.excel_locations, key=lambda x: str(x.excel_filename))])
         return list_separator.join(msg)
 
 

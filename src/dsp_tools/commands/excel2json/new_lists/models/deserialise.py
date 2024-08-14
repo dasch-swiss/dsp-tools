@@ -17,11 +17,12 @@ class ExcelSheet:
 
 @dataclass
 class Columns:
+    lang_tags: set[str]
     list_cols: ColumnsList
     node_cols: list[ColumnNodes]
 
-    def reverse_sorted_node_cols(self) -> list[ColumnNodes]:
-        return sorted(self.node_cols, key=lambda x: x.level_num, reverse=True)
+    def __post_init__(self) -> None:
+        self.node_cols = sorted(self.node_cols, key=lambda x: x.level_num, reverse=True)
 
 
 @dataclass
@@ -49,24 +50,10 @@ class SheetDeserialised:
 
 @dataclass
 class ListDeserialised:
-    list_id: str
     lang_tags: set[str]
-    labels: LangColsDeserialised
     nodes: list[NodeDeserialised]
-    comments: LangColsDeserialised | None = None
 
     def check_all(self) -> list[PositionInExcel]:
-        positions = self._check_self()
-        positions.extend(self._check_all_nodes())
-        return positions
-
-    def _check_self(self) -> list[PositionInExcel]:
-        problems = _get_missing_columns(self.labels, self.lang_tags, 2)
-        if self.comments:
-            problems.extend(_get_missing_columns(self.comments, self.lang_tags, 2))
-        return problems
-
-    def _check_all_nodes(self) -> list[PositionInExcel]:
         problems = []
         for nd in self.nodes:
             problems.extend(nd.check(self.lang_tags))
@@ -75,17 +62,11 @@ class ListDeserialised:
 
 @dataclass
 class NodeDeserialised:
-    node_id: str
-    parent_id: str
     excel_row: int
     labels: LangColsDeserialised
-    comments: LangColsDeserialised | None = None
 
     def check(self, expected_lang_tags: set[str]) -> list[PositionInExcel]:
-        problems = _get_missing_columns(self.labels, expected_lang_tags, self.excel_row)
-        if self.comments:
-            problems.extend(_get_missing_columns(self.comments, expected_lang_tags, self.excel_row))
-        return problems
+        return _get_missing_columns(self.labels, expected_lang_tags, self.excel_row)
 
 
 @dataclass

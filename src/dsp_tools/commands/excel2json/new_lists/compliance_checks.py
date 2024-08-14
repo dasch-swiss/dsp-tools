@@ -15,6 +15,10 @@ from dsp_tools.commands.excel2json.new_lists.models.deserialise import ColumnNod
 from dsp_tools.commands.excel2json.new_lists.models.deserialise import Columns
 from dsp_tools.commands.excel2json.new_lists.models.deserialise import ColumnsList
 from dsp_tools.commands.excel2json.new_lists.models.deserialise import ExcelSheet
+from dsp_tools.commands.excel2json.new_lists.models.deserialise import LangColsDeserialised
+from dsp_tools.commands.excel2json.new_lists.models.deserialise import ListDeserialised
+from dsp_tools.commands.excel2json.new_lists.models.deserialise import NodeDeserialised
+from dsp_tools.commands.excel2json.new_lists.models.deserialise import SheetDeserialised
 from dsp_tools.commands.excel2json.new_lists.models.input_error import CollectedSheetProblems
 from dsp_tools.commands.excel2json.new_lists.models.input_error import DuplicateIDProblem
 from dsp_tools.commands.excel2json.new_lists.models.input_error import DuplicatesCustomIDInProblem
@@ -222,6 +226,42 @@ def _make_all_content_compliance_checks_all_excels(sheet_list: list[ExcelSheet])
     _check_for_erroneous_entries_all_excels(sheet_list)
 
 
+def _deserialise_all_sheets(sheet_list: list[ExcelSheet]) -> list[SheetDeserialised]:
+    # TODO: test!!
+    return [
+        SheetDeserialised(
+            excel_name=x.excel_name, sheet_name=x.sheet_name, list_deserialised=_deserialise_one_sheet(x.df)
+        )
+        for x in sheet_list
+    ]
+
+
+def _deserialise_one_sheet(df: pd.DataFrame) -> ListDeserialised:
+    col_info = _get_column_info_one_sheet(df.columns)
+    all_nodes = [_deserialise_one_row(r, col_info) for _, r in df.iterrows()]
+    return ListDeserialised(lang_tags=col_info.lang_tags, nodes=all_nodes)
+
+
+def _get_column_info_one_sheet(columns: pd.Index[str]) -> Columns:
+    col_endings = [str(num) for num in get_hierarchy_nums(columns)]
+    languages = get_all_languages_for_columns(columns)
+    return _compose_all_combinatoric_column_titles(col_endings, languages)
+
+
+def _deserialise_one_row(row: pd.Series[Any], col_info: Columns) -> NodeDeserialised:
+    lbl = {}
+    for cols in col_info.node_cols:
+        if lbl := _find_content(cols.columns, row):
+            break
+    if not lbl:
+        lbl = _find_content(col_info.list_cols.columns, row)
+    return NodeDeserialised(excel_row=int(str(row.index)) + 2, labels=LangColsDeserialised(lbl))
+
+
+def _find_content(cols: list[str], row: pd.Series[Any]) -> dict[str, str]:
+    return {x: str(content) for x in cols if not pd.isna(content := row.get(x))}
+
+
 def _check_for_missing_translations_all_excels(sheet_list: list[ExcelSheet]) -> None:
     problems: list[SheetProblem] = [
         p for sheet in sheet_list if (p := _check_for_missing_translations_one_sheet(sheet)) is not None
@@ -237,7 +277,7 @@ def _check_for_missing_translations_one_sheet(sheet: ExcelSheet) -> MissingTrans
     languages = get_all_languages_for_columns(sheet.df.columns)
     all_cols = _compose_all_combinatoric_column_titles(col_endings, languages)
     problems = []
-    for column_group in all_cols.reverse_sorted_node_cols():
+    for column_group in all_cols.node_cols:
         problems.extend(_check_for_missing_translations_one_column_level(column_group.columns, sheet.df))
     problems.extend(_check_for_missing_translations_one_column_level(all_cols.list_cols.columns, sheet.df))
     if problems:
@@ -261,7 +301,7 @@ def _compose_all_combinatoric_column_titles(nums: list[str], languages: set[str]
     for n in nums:
         node_cols.append(ColumnNodes(level_num=int(n), columns=[f"{lang}_{n}" for lang in languages]))
     list_columns = ColumnsList([f"{lang}_list" for lang in languages])
-    return Columns(list_cols=list_columns, node_cols=node_cols)
+    return Columns(lang_tags=languages, list_cols=list_columns, node_cols=node_cols)
 
 
 def _check_for_missing_translations_one_node(

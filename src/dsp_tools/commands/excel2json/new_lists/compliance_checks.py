@@ -11,6 +11,7 @@ from loguru import logger
 
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import Problem
+from dsp_tools.commands.excel2json.new_lists.models.deserialise import ColumnLevel
 from dsp_tools.commands.excel2json.new_lists.models.deserialise import ExcelSheet
 from dsp_tools.commands.excel2json.new_lists.models.input_error import CollectedSheetProblems
 from dsp_tools.commands.excel2json.new_lists.models.input_error import DuplicateIDProblem
@@ -213,6 +214,7 @@ def _check_if_all_translations_in_all_column_levels_present_one_sheet(cols: pd.I
 
 
 def _make_all_content_compliance_checks_all_excels(sheet_list: list[ExcelSheet]) -> None:
+    # TODO: change to deserialise lists here
     """Check if the content of the excel files is compliant with the expected format."""
     _check_for_missing_translations_all_excels(sheet_list)
     _check_for_erroneous_entries_all_excels(sheet_list)
@@ -253,7 +255,10 @@ def _check_for_missing_translations_one_column_level(
 
 
 def _compose_all_combinatoric_column_titles(nums: list[str], languages: set[str]) -> list[list[str]]:
-    return [[f"{lang}_{num}" for lang in languages] for num in nums]
+    all_cols = []
+    for n in nums:
+        all_cols.append(ColumnLevel(level_num=int(n), columns=[f"{lang}_{n}" for lang in languages]))
+    return all_cols
 
 
 def _check_for_missing_translations_one_node(

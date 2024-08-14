@@ -196,3 +196,19 @@ class NodesPerRowProblem:
         else:
             description = "Column(s) that must be filled"
         return f"Row Number: {self.index_num + 2}, {description}: {', '.join(self.column_names)}"
+
+
+@dataclass
+class MissingListTranslations(SheetProblem):
+    excel_name: str
+    sheet: str
+    locations: list[PositionInExcel]
+
+    def execute_error_protocol(self) -> str:
+        msg = [
+            f"The excel sheet '{self.sheet}' has the following problem(s):\n"
+            "In one list, all the nodes and comments must be translated into all the languages used. "
+            "For the following columns, the translations are missing:"
+        ]
+        msg.extend([str(x) for x in self.locations])
+        return list_separator.join(msg)

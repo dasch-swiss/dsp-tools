@@ -87,6 +87,7 @@ class TestMakeAllExcelComplianceChecks:
             "The excel sheet 'sheet2' has the following problem(s):\n"
             "In one list, all the nodes must be translated into all the languages used. "
             "For the following nodes, the translations are missing:\n"
+            "    - Row Number: 2 | Column(s): de_list\n"
             "    - Row Number: 3 | Column(s): en_1\n"
             "    - Row Number: 8 | Column(s): de_1"
         )
@@ -377,6 +378,7 @@ class TestCheckAllExcelsMissingTranslations:
             "The excel sheet 'sheet2' has the following problem(s):\n"
             "In one list, all the nodes must be translated into all the languages used. "
             "For the following nodes, the translations are missing:\n"
+            "    - Row Number: 2 | Column(s): de_list\n"
             "    - Row Number: 3 | Column(s): en_1\n"
             "    - Row Number: 8 | Column(s): de_1"
         )

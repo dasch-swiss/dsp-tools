@@ -217,7 +217,7 @@ def f2_s2_missing_translations() -> ExcelSheet:
     df = pd.DataFrame(
         {
             "en_list": ["list1", "list1", "list1", "list1", "list1", "list1", "list1"],
-            "de_list": ["list1", "list1", "list1", "list1", "list1", "list1", "list1"],
+            "de_list": [pd.NA, "list1", "list1", "list1", "list1", "list1", "list1"],
             "en_1": [pd.NA, pd.NA, "node1", "node1", "node1", "node2", "node3"],
             "de_1": [pd.NA, "node1", "node1", "node1", "node1", "node2", pd.NA],
             "en_2": [pd.NA, pd.NA, "node1.1", "node1.1", "node1.2", pd.NA, pd.NA],

@@ -87,11 +87,12 @@ class TestMakeAllExcelComplianceChecks:
             "The excel sheet 'sheet2' has the following problem(s):\n"
             "In one list, all the nodes must be translated into all the languages used. "
             "For the following nodes, the translations are missing:\n"
+            "    - Row Number: 2 | Column(s): de_list\n"
             "    - Row Number: 3 | Column(s): en_1\n"
             "    - Row Number: 8 | Column(s): de_1"
         )
         with pytest.raises(InputError, match=expected):
-            _check_for_missing_translations_all_excels(all_sheets)
+            make_all_excel_compliance_checks(all_sheets)
 
 
 class TestFormalExcelCompliance:
@@ -377,6 +378,7 @@ class TestCheckAllExcelsMissingTranslations:
             "The excel sheet 'sheet2' has the following problem(s):\n"
             "In one list, all the nodes must be translated into all the languages used. "
             "For the following nodes, the translations are missing:\n"
+            "    - Row Number: 2 | Column(s): de_list\n"
             "    - Row Number: 3 | Column(s): en_1\n"
             "    - Row Number: 8 | Column(s): de_1"
         )
@@ -449,9 +451,11 @@ class TestCheckOneNodeForTranslation:
 
 def test_make_columns() -> None:
     res = _compose_all_combinatoric_column_titles(["1", "3"], {"en", "de", "fr"})
-    assert len(res) == 2
-    assert set(res[0]) == {"en_1", "de_1", "fr_1"}
-    assert set(res[1]) == {"en_3", "de_3", "fr_3"}
+    assert set(res.list_cols.columns) == {"en_list", "de_list", "fr_list"}
+    assert len(res.nodes_cols) == 2
+    sorted_cols = res.reverse_sorted_node_cols()
+    assert set(sorted_cols[0].columns) == {"en_3", "de_3", "fr_3"}
+    assert set(sorted_cols[1].columns) == {"en_1", "de_1", "fr_1"}
 
 
 class TestCheckAllExcelForRowProblems:

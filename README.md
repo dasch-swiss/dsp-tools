@@ -47,14 +47,11 @@ Check out the respective section in the
 If you want to work on the code of DSP-TOOLS, you first have to do the following:
 
 - Install poetry with `curl -sSL https://install.python-poetry.org | python3 -` 
-  (for Windows, see [https://python-poetry.org/docs/](https://python-poetry.org/docs/)).
 - Install the exec plugin with `poetry self add poetry-exec-plugin`.
 - Execute `poetry install`, which will: 
     - Create a virtual environment (if there isn't already one).
     - Install all dependencies (dev and non-dev) from `poetry.lock`. 
-      If `poetry.lock` doesn't exist, 
-      it installs the dependencies from `pyproject.toml` 
-      and creates a new `poetry.lock`.
+      If `poetry.lock` doesn't exist, it installs the dependencies from `pyproject.toml` and creates a new `poetry.lock`.
     - Make an editable installation of DSP-TOOLS inside the virtual environment.
 
 There are two files defining the dependencies:
@@ -62,12 +59,9 @@ There are two files defining the dependencies:
 - `pyproject.toml` lists the direct dependencies, ordered in two sections:
     - `[tool.poetry.dependencies]` lists the dependencies used to run the software.
     - `[tool.poetry.group.dev.dependencies]` lists the dependencies used for developing and testing.
-- `poetry.lock` enables deterministic installations, 
-  by exactly pinning the versions of all (sub-)dependencies. 
-  This is done automatically, and you must not edit `poetry.lock`.
+- `poetry.lock` enables deterministic installations, by exactly pinning the versions of all (sub-)dependencies. 
 
-If you want to install a new package, 
-install it with `poetry add package`.
+If you want to install a new package, install it with `poetry add package`.
 
 This
 
@@ -79,12 +73,8 @@ If a package is only needed for development,
 please install it with `poetry add package --group dev`,
 so it will be added to the `[tool.poetry.group.dev.dependencies]` section of `pyproject.toml`.
 
-For security reasons, the dependencies should be kept up to date.
-GitHub's dependabot is configured to automatically create a version bumping PR 
-if there is an update for a dependency.
-Version bumping PRs can also be created manually. 
-To do this, execute `poetry add dependency@latest` for every dependency,
-and create a PR from the resulting changes.
+GitHub's dependabot is configured to automatically create a version bumping PR if there is an update for a dependency.
+Version bumping PRs can also be created manually: run `poetry update` and create a PR from the resulting changes.
 
 All developers working with the DSP-TOOLS repository should regularly execute `poetry self update` to update poetry, 
 and `poetry install` to update the dependencies from `poetry.lock`.
@@ -94,32 +84,27 @@ and `poetry install` to update the dependencies from `poetry.lock`.
 ## Using the Virtual Environment
 
 `poetry shell` spawns a shell within the virtual environment. 
-Even more convenient is to choose `/bin/python` inside poetry's virtual environment as the interpreter in your IDE.
-This way, every Terminal you open in your IDE will automatically be in the virtual environment.
+Set `.venv/bin/python` as the interpreter in your IDE, 
+so that your IDE automatically activates the virtual env if you open a new terminal.
 
 The advantage of being in a poetry shell is that the command `dsp-tools` is available, 
 because `poetry install` installed an editable version of DSP-TOOLS inside the virtual environment. 
 This means, that inside the `site-packages` folder of your poetry virtual environment, 
 there is a folder called `dsp_tools-[version].dist-info`, 
 which contains a link to your local clone of the DSP-TOOLS repository. 
-When you call `dsp-tools` from within the virtual environment, 
-the code of your local clone will be executed.
+When you call `dsp-tools` from within the virtual environment, the code of your local clone will be executed.
 
 
 
 ## Publishing and Distribution
 
-Publishing is automated with GitHub Actions and should _not_ be done manually. 
+Publishing is automated with GitHub Actions. 
 Please follow the 
 [Pull Request Guidelines](https://docs.dasch.swiss/latest/developers/contribution/#pull-request-guidelines). 
-If done correctly, when merging a pull request into `main`, 
-the `release-please` action will create or update a release PR. 
+When merging a pull request into `main`, the `release-please` action will create or update a release PR. 
 This PR will follow semantic versioning and update the change log. 
-Once all desired features are merged, 
-the release can be executed by merging this release pull request into `main`. 
+Once all desired features are merged, the release can be published by merging this release pull request into `main`. 
 This will trigger actions that create a release on GitHub and on PyPI.
-
-Please ensure you have only one pull request per feature.
 
 
 
@@ -128,7 +113,6 @@ Please ensure you have only one pull request per feature.
 The tests of this repository 
 are partially written in the [unittest](https://docs.python.org/3/library/unittest.html) framework,
 and partially in the [pytest](https://docs.pytest.org) framework.
-There are several groups of tests. 
 
 The following are self-contained and can be run without further requirements:
 
@@ -137,6 +121,7 @@ The following are self-contained and can be run without further requirements:
   Make sure that the CLI entry point, all dependencies, and the resources are available on the end user's machine.
 - `test/unittests`: Pure unit tests of lower-level functions.
 - `test/integration`: Higher-level tests, with side effects like reading/writing operations on the file system.
+- `test/e2e`: Tests interacting with a DSP-API instance, powered by test containers.
 
 The following need a DSP stack running in the background.
 A DSP stack can be started with the command 
@@ -163,23 +148,25 @@ When contributing to the project,
 please make sure you use the same code style rules as we do. 
 We use the following linters:
 
-- [markdown-link-validator](https://www.npmjs.com/package/markdown-link-validator) (no configuration)
-- [MarkdownLint](https://github.com/igorshubovych/markdownlint-cli) (configured in `.markdownlint.yml`)
 - [mypy](https://pypi.org/project/mypy/) (configured in `pyproject.toml`)
 - [ruff](https://pypi.org/project/ruff/) (configured in `pyproject.toml`)
 - [darglint](https://pypi.org/project/darglint/) (configured in `.darglint`)
+- [markdown-link-validator](https://www.npmjs.com/package/markdown-link-validator) (no configuration)
+- [MarkdownLint](https://github.com/igorshubovych/markdownlint-cli) (configured in `.markdownlint.yml`)
+- [yamllint](https://pypi.org/project/yamllint/) (configured in `.yamllint.yml`)
 
 These linters are integrated in the GitHub CI pipeline, 
 so that every pull request is checked for code style violations.
 
 Your code can be checked for style violations locally before they are committed:
 
-- `poetry exec check-links`
-- `poetry exec markdownlint`
 - `poetry exec mypy`
 - `poetry exec ruff-check`
 - `poetry exec ruff-format-check`
 - `poetry exec darglint`
+- `poetry exec check-links`
+- `poetry exec markdownlint`
+- `yamllint .`
 
 In addition, there are [pre-commit hooks](#pre-commit-hooks) 
 that run Ruff and MarkdownLint locally before every commit.
@@ -196,10 +183,8 @@ Depending on your IDE, there are extensions that emit warnings:
   and be configured in the VSCode settings.
 - **mypy** can be installed as an extension (`matangover.mypy`), 
   and be configured in the VSCode settings.
-    - This extension is different from the mypy functionality 
-      of Microsoft's Python extension `ms-python.python`,
-      which only lints each file separately, 
-      leading to incomplete type checking.
+    - This extension is different from the mypy functionality of Microsoft's Python extension `ms-python.python`,
+      which only lints each file separately, leading to incomplete type checking.
 - **ruff** can be installed as an extension (`charliermarsh.ruff`), 
   and be configured in the VSCode settings:
     - `settings.json` > `[python]` > `"editor.defaultFormatter": "charliermarsh.ruff"`

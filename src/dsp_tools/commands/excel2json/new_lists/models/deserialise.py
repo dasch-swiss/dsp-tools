@@ -15,12 +15,13 @@ class ExcelSheet:
     df: pd.DataFrame
 
 
+@dataclass
 class Columns:
     list_cols: ColumnsList
-    nodes_cols: list[ColumnNodes]
+    node_cols: list[ColumnNodes]
 
     def reverse_sorted_node_cols(self) -> list[ColumnNodes]:
-        return sorted(self.nodes_cols, key=lambda x: x.level_num, reverse=True)
+        return sorted(self.node_cols, key=lambda x: x.level_num, reverse=True)
 
 
 @dataclass

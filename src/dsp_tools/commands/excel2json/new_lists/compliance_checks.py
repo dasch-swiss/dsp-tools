@@ -261,7 +261,7 @@ def _compose_all_combinatoric_column_titles(nums: list[str], languages: set[str]
     for n in nums:
         node_cols.append(ColumnNodes(level_num=int(n), columns=[f"{lang}_{n}" for lang in languages]))
     list_columns = ColumnsList([f"{lang}_list" for lang in languages])
-    return Columns(list_cols=list_columns, nodes_cols=node_cols)
+    return Columns(list_cols=list_columns, node_cols=node_cols)
 
 
 def _check_for_missing_translations_one_node(

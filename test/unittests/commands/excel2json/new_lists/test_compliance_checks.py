@@ -6,6 +6,7 @@ import pytest
 import regex
 
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_duplicates_all_excels
+from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_for_duplicate_custom_id_all_excels
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_for_duplicate_nodes_one_df
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_for_erroneous_entries_all_excels
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_for_erroneous_entries_one_column_level
@@ -27,6 +28,7 @@ from dsp_tools.commands.excel2json.new_lists.compliance_checks import _compose_a
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _make_shape_compliance_all_excels
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _make_shape_compliance_one_sheet
 from dsp_tools.commands.excel2json.new_lists.models.deserialise import ExcelSheet
+from dsp_tools.commands.excel2json.new_lists.models.input_error import DuplicatesCustomIDInProblem
 from dsp_tools.commands.excel2json.new_lists.models.input_error import DuplicatesInSheetProblem
 from dsp_tools.commands.excel2json.new_lists.models.input_error import ListSheetComplianceProblem
 from dsp_tools.commands.excel2json.new_lists.models.input_error import ListSheetContentProblem
@@ -154,6 +156,38 @@ class TestCheckForDuplicates:
         assert res.excel_name == "excel"
         assert res.sheet_name == "sheet"
         assert res.rows == [0, 2]
+
+    def test_check_for_duplicate_custom_id_all_excels_good(
+        self, f1_s1_good_en: ExcelSheet, f2_s2_good_en_de: ExcelSheet
+    ):
+        sheets = [f1_s1_good_en, f2_s2_good_en_de]
+        assert not _check_for_duplicate_custom_id_all_excels(sheets)
+
+    def test_check_for_duplicate_custom_id_all_excels_problem(self, sheets_duplicate_id: list[ExcelSheet]) -> None:
+        result = _check_for_duplicate_custom_id_all_excels(sheets_duplicate_id)
+        assert isinstance(result, DuplicatesCustomIDInProblem)
+        assert len(result.duplicate_ids) == 2
+        one = result.duplicate_ids[0]
+        assert one.custom_id == 1
+        assert len(one.excel_locations) == 2
+        locations = sorted(one.excel_locations, key=lambda x: x.excel_filename)
+        assert locations[0].excel_filename == "file1"
+        assert locations[0].sheet == "sheet1"
+        assert locations[0].row == 3
+        assert locations[1].excel_filename == "file2"
+        assert locations[1].sheet == "sheet2"
+        assert locations[1].row == 2
+
+        two = result.duplicate_ids[1]
+        assert two.custom_id == 4
+        assert len(two.excel_locations) == 2
+        locations = sorted(two.excel_locations, key=lambda x: x.excel_filename)
+        assert locations[0].excel_filename == "file1"
+        assert locations[0].sheet == "sheet1"
+        assert locations[0].row == 5
+        assert locations[1].excel_filename == "file2"
+        assert locations[1].sheet == "sheet2"
+        assert locations[1].row == 4
 
 
 class TestShapeCompliance:

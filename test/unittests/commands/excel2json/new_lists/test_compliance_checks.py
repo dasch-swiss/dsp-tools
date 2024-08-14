@@ -449,9 +449,11 @@ class TestCheckOneNodeForTranslation:
 
 def test_make_columns() -> None:
     res = _compose_all_combinatoric_column_titles(["1", "3"], {"en", "de", "fr"})
-    assert len(res) == 2
-    assert set(res[0]) == {"en_1", "de_1", "fr_1"}
-    assert set(res[1]) == {"en_3", "de_3", "fr_3"}
+    assert set(res.list_cols.columns) == {"en_list", "de_list", "fr_list"}
+    assert len(res.nodes_cols) == 2
+    sorted_cols = res.sorted_node_cols()
+    assert set(sorted_cols[0].columns) == {"en_1", "de_1", "fr_1"}
+    assert set(sorted_cols[1].columns) == {"en_3", "de_3", "fr_3"}
 
 
 class TestCheckAllExcelForRowProblems:

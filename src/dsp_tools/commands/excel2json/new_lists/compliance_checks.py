@@ -11,6 +11,9 @@ from loguru import logger
 
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import Problem
+from dsp_tools.commands.excel2json.new_lists.models.deserialise import ColumnNodes
+from dsp_tools.commands.excel2json.new_lists.models.deserialise import Columns
+from dsp_tools.commands.excel2json.new_lists.models.deserialise import ColumnsList
 from dsp_tools.commands.excel2json.new_lists.models.deserialise import ExcelSheet
 from dsp_tools.commands.excel2json.new_lists.models.input_error import CollectedSheetProblems
 from dsp_tools.commands.excel2json.new_lists.models.input_error import DuplicateIDProblem
@@ -230,12 +233,12 @@ def _check_for_missing_translations_all_excels(sheet_list: list[ExcelSheet]) -> 
 
 def _check_for_missing_translations_one_sheet(sheet: ExcelSheet) -> MissingTranslationsSheetProblem | None:
     col_endings = [str(num) for num in get_hierarchy_nums(sheet.df.columns)]
-    col_endings.append("list")
     languages = get_all_languages_for_columns(sheet.df.columns)
     all_cols = _compose_all_combinatoric_column_titles(col_endings, languages)
     problems = []
-    for column_group in all_cols:
-        problems.extend(_check_for_missing_translations_one_column_level(column_group, sheet.df))
+    for column_group in all_cols.sorted_node_cols():
+        problems.extend(_check_for_missing_translations_one_column_level(column_group.columns, sheet.df))
+    problems.extend(_check_for_missing_translations_one_column_level(all_cols.list_cols.columns, sheet.df))
     if problems:
         return MissingTranslationsSheetProblem(sheet.excel_name, sheet.sheet_name, problems)
     return None
@@ -252,8 +255,12 @@ def _check_for_missing_translations_one_column_level(
     return problems
 
 
-def _compose_all_combinatoric_column_titles(nums: list[str], languages: set[str]) -> list[list[str]]:
-    return [[f"{lang}_{num}" for lang in languages] for num in nums]
+def _compose_all_combinatoric_column_titles(nums: list[str], languages: set[str]) -> Columns:
+    node_cols = []
+    for n in nums:
+        node_cols.append(ColumnNodes(level_num=int(n), columns=[f"{lang}_{n}" for lang in languages]))
+    list_columns = ColumnsList([f"{lang}_list" for lang in languages])
+    return Columns(list_cols=list_columns, nodes_cols=node_cols)
 
 
 def _check_for_missing_translations_one_node(

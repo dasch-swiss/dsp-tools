@@ -997,7 +997,7 @@ They can have the following predefined properties:
 | `relatesTo`        | 0-n         | resptr-prop   |             |
 
 The segment bounds must be entered in seconds. 
-Decimal values for fractions of a second are allowed, e.g. `1.4:2`.
+Decimal values for fractions of a second are allowed, e.g. `1.4`.
 The segment from 0h 10min 00s to 0h 20min 00s would thus be represented by the interval `600:1200`.
 
 Example:

@@ -101,9 +101,9 @@ class TestFormalExcelCompliance:
         _make_shape_compliance_all_excels(all_sheets)
 
     def test_problem(
-        self, f1_s1_no_list_columns: ExcelSheet, f2_s2_missing_lang_column: ExcelSheet, f2_s3_one_row: ExcelSheet
+        self, f1_s1_no_node_cols: ExcelSheet, f2_s2_missing_lang_column: ExcelSheet, f2_s3_one_row: ExcelSheet
     ) -> None:
-        all_sheets = [f1_s1_no_list_columns, f2_s2_missing_lang_column, f2_s3_one_row]
+        all_sheets = [f1_s1_no_node_cols, f2_s2_missing_lang_column, f2_s3_one_row]
         expected = regex.escape(
             "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"
             "The Excel file 'file1' contains the following problems:\n\n"
@@ -286,29 +286,22 @@ class TestShapeCompliance:
 
 
 class TestCheckMinNumColNamesPresent:
-    def test_good(self) -> None:
-        col_names = pd.Index(["id (optional)", "en_list", "en_2"])
-        assert not _check_if_minimum_number_of_cols_present_one_sheet(col_names)
+    def test_good(self, f1_s1_good_en: ExcelSheet) -> None:
+        assert not _check_if_minimum_number_of_cols_present_one_sheet(f1_s1_good_en)
 
-    def test_good_no_id(self) -> None:
-        col_names = pd.Index(["en_list", "en_2"])
-        assert not _check_if_minimum_number_of_cols_present_one_sheet(col_names)
-
-    def test_missing_columns_list(self) -> None:
-        test_cols = pd.Index(["id (optional)", "en_2"])
+    def test_missing_columns_list(self, f1_s1_no_list_columns: ExcelSheet) -> None:
         expected = {
             "missing columns for list name": "There is no column with the expected format for the list names: "
             "'[lang]_list'"
         }
-        assert _check_if_minimum_number_of_cols_present_one_sheet(test_cols) == expected
+        assert _check_if_minimum_number_of_cols_present_one_sheet(f1_s1_no_list_columns) == expected
 
-    def test_missing_columns_node(self) -> None:
-        test_cols = pd.Index(["id (optional)", "en_list"])
+    def test_missing_columns_node(self, f1_s1_no_node_columns: ExcelSheet) -> None:
         expected = {
             "missing columns for nodes": "There is no column with the expected format for the list nodes: "
             "'[lang]_[column_number]'"
         }
-        assert _check_if_minimum_number_of_cols_present_one_sheet(test_cols) == expected
+        assert _check_if_minimum_number_of_cols_present_one_sheet(f1_s1_no_node_columns) == expected
 
 
 class TestCheckMinimumRows:
@@ -343,27 +336,24 @@ class TestCheckWarnUnusualColumns:
 
 
 class TestCheckAllTranslationsPresent:
-    def test_good(self) -> None:
-        test_cols = pd.Index(["id (optional)", "en_list", "de_list", "de_1", "en_1", "de_2", "en_2"])
-        assert not _check_if_all_translations_in_all_column_levels_present_one_sheet(test_cols)
+    def test_good(self, f2_s2_good_en_de: ExcelSheet) -> None:
+        assert not _check_if_all_translations_in_all_column_levels_present_one_sheet(f2_s2_good_en_de)
 
-    def test_missing_translations_node_columns(self) -> None:
-        test_cols = pd.Index(["id (optional)", "en_list", "de_list", "de_1", "en_1", "de_2"])
+    def test_missing_translations_node_columns(self, f1_s1_empty_list_column: ExcelSheet) -> None:
         expected = {
             "missing translations": "All nodes must be translated into the same languages. "
             "Based on the languages used, the following column(s) are missing: "
             "en_2"
         }
-        assert _check_if_all_translations_in_all_column_levels_present_one_sheet(test_cols) == expected
+        assert _check_if_all_translations_in_all_column_levels_present_one_sheet(f1_s1_empty_list_column) == expected
 
-    def test_missing_translations_list_columns(self) -> None:
-        test_cols = pd.Index(["id (optional)", "en_list", "de_1", "en_1", "de_2", "en_2"])
+    def test_missing_translations_list_columns(self, f1_s1_empty_node_column: ExcelSheet) -> None:
         expected = {
             "missing translations": "All nodes must be translated into the same languages. "
             "Based on the languages used, the following column(s) are missing: "
             "de_list"
         }
-        assert _check_if_all_translations_in_all_column_levels_present_one_sheet(test_cols) == expected
+        assert _check_if_all_translations_in_all_column_levels_present_one_sheet(f1_s1_empty_node_column) == expected
 
 
 class TestCheckAllExcelsMissingTranslations:

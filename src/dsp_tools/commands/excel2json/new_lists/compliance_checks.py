@@ -29,8 +29,6 @@ from dsp_tools.commands.excel2json.new_lists.models.input_error import NodesPerR
 from dsp_tools.commands.excel2json.new_lists.models.input_error import SheetProblem
 from dsp_tools.commands.excel2json.new_lists.utils import get_column_info
 from dsp_tools.commands.excel2json.new_lists.utils import get_columns_of_preferred_lang
-from dsp_tools.commands.excel2json.new_lists.utils import get_hierarchy_nums
-from dsp_tools.commands.excel2json.new_lists.utils import get_lang_string_from_column_name
 from dsp_tools.commands.excel2json.new_lists.utils import get_preferred_language
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
@@ -151,8 +149,8 @@ def _make_shape_compliance_all_excels(sheet_list: list[ExcelSheet]) -> None:
 def _make_shape_compliance_one_sheet(sheet: ExcelSheet) -> ListSheetComplianceProblem | None:
     problems = {}
     problems.update(_check_minimum_rows(sheet.df))
-    problems.update(_check_if_minimum_number_of_cols_present_one_sheet(sheet.df.columns))
-    problems.update(_check_if_all_translations_in_all_column_levels_present_one_sheet(sheet.df.columns))
+    problems.update(_check_if_minimum_number_of_cols_present_one_sheet(sheet))
+    problems.update(_check_if_all_translations_in_all_column_levels_present_one_sheet(sheet))
     _check_warn_unusual_columns_one_sheet(sheet.df.columns)
     if problems:
         return ListSheetComplianceProblem(sheet.excel_name, sheet.sheet_name, problems)
@@ -168,17 +166,16 @@ def _check_minimum_rows(df: pd.DataFrame) -> dict[str, str]:
     return {}
 
 
-def _check_if_minimum_number_of_cols_present_one_sheet(cols: pd.Index[str]) -> dict[str, str]:
+def _check_if_minimum_number_of_cols_present_one_sheet(sheet: ExcelSheet) -> dict[str, str]:
     problem = {}
-    node_langs = [get_lang_string_from_column_name(c, r"\d+") for c in cols]
-    if not any(node_langs):
+    if not sheet.col_info.node_cols:
         problem["missing columns for nodes"] = (
             "There is no column with the expected format for the list nodes: '[lang]_[column_number]'"
         )
-    list_langs = [get_lang_string_from_column_name(c, r"list") for c in cols]
-    if not any(list_langs):
-        problem["missing columns for list name"] = (
-            "There is no column with the expected format for the list names: '[lang]_list'"
+    expected_cols = sheet.col_info.get_required()
+    if not expected_cols.issubset(actual := set(sheet.df.columns)):
+        problem["missing mandatory columns"] = (
+            f"Based on the languages used the following columns are expected: " f"{', '.join(actual-expected_cols)}"
         )
     return problem
 
@@ -193,23 +190,14 @@ def _check_warn_unusual_columns_one_sheet(cols: pd.Index[str]) -> None:
         warnings.warn(DspToolsUserWarning(msg))
 
 
-def _check_if_all_translations_in_all_column_levels_present_one_sheet(cols: pd.Index[str]) -> dict[str, str]:
-    # All levels, eg. 1, 2, 3 must have the same languages
-    languages = {r for c in cols if (r := get_lang_string_from_column_name(c)) is not None}
-    all_nums = [str(n) for n in get_hierarchy_nums(cols)]
-    all_nums.append("list")
-
-    def make_col_names(lang: str) -> set[str]:
-        return {f"{lang}_{num}" for num in all_nums}
-
-    expected_cols = set()
-    for lang in languages:
-        expected_cols.update(make_col_names(lang))
-    if missing_cols := expected_cols - set(cols):
+def _check_if_all_translations_in_all_column_levels_present_one_sheet(sheet: ExcelSheet) -> dict[str, str]:
+    empty_cols = []
+    for col in sheet.col_info.get_required():
+        if sheet.df[col].isna().all():
+            empty_cols.append(col)
         return {
             "missing translations": f"All nodes must be translated into the same languages. "
-            f"Based on the languages used, the following column(s) are missing: "
-            f"{', '.join(missing_cols)}"
+            f"The following columns are completely empty: {', '.join(empty_cols)}"
         }
     return {}
 

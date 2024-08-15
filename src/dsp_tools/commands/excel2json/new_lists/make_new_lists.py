@@ -86,7 +86,7 @@ def _prepare_one_sheet(df: pd.DataFrame, filename: str, sheetname: str) -> Excel
     # Therefore, we drop all unused ones.
     df = df.dropna(axis=1, how="all")
     columns = get_column_info(df.columns)
-    optional_columns = columns.get_all()
+    optional_columns = columns.get_required()
     optional_columns.add("id (optional)")
     # It is easier for future checks if we can assume that all expected columns are present.
     df = add_optional_columns(df, optional_columns)

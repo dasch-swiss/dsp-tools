@@ -150,6 +150,31 @@ def f1_s1_good_id_filled(cols_en_de_1_3: Columns) -> ExcelSheet:
 
 
 @pytest.fixture()
+def f1_s1_empty_node_column(cols_en_1_2: Columns) -> ExcelSheet:
+    df = pd.DataFrame(
+        {
+            "id (optional)": [11, 22, pd.NA, 44],
+            "en_list": ["list1", "list1", "list1", "list1"],
+            "en_1": [pd.NA, "node1", "node2", "node3"],
+            "en_2": [pd.NA, pd.NA, pd.NA, pd.NA],
+        }
+    )
+    return ExcelSheet(excel_name="file1", sheet_name="sheet1", df=df, col_info=cols_en_1_2)
+
+
+@pytest.fixture()
+def f1_s1_empty_list_column(cols_en_1_2: Columns) -> ExcelSheet:
+    df = pd.DataFrame(
+        {
+            "id (optional)": [11, 22, pd.NA, 44],
+            "en_list": [pd.NA, pd.NA, pd.NA, pd.NA],
+            "en_1": [pd.NA, "node1", "node2", "node3"],
+        }
+    )
+    return ExcelSheet(excel_name="file1", sheet_name="sheet1", df=df, col_info=cols_en_1_2)
+
+
+@pytest.fixture()
 def f1_s1_missing_translation_id_filled(cols_en_de_1_2: Columns) -> ExcelSheet:
     df = pd.DataFrame(
         {
@@ -229,7 +254,15 @@ def f1_s1_missing_translation_id_filled(cols_en_de_1_2: Columns) -> ExcelSheet:
 @pytest.fixture()
 def f1_s1_no_list_columns() -> ExcelSheet:
     df = pd.DataFrame({"en_list": ["list1", "list1", "list1", "list1"]})
-    return ExcelSheet(excel_name="file1", sheet_name="sheet1", df=df, col_info=Columns("en", [], []))
+    return ExcelSheet(excel_name="file1", sheet_name="sheet1", df=df, col_info=Columns("en", ["en_list"], []))
+
+
+@pytest.fixture()
+def f1_s1_no_node_columns() -> ExcelSheet:
+    df = pd.DataFrame({"en_1": ["list1", "list1", "list1", "list1"]})
+    return ExcelSheet(
+        excel_name="file1", sheet_name="sheet1", df=df, col_info=Columns("en", [], [ColumnNodes(1, ["en_1"])])
+    )
 
 
 @pytest.fixture()

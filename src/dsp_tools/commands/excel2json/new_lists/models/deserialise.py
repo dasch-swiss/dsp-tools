@@ -22,7 +22,7 @@ class Columns:
     def __post_init__(self) -> None:
         self.node_cols = sorted(self.node_cols, key=lambda x: x.level_num, reverse=True)
 
-    def get_all(self) -> set[str]:
+    def get_required(self) -> set[str]:
         all_col = self.list_cols
         for c in self.node_cols:
             all_col.extend(c.columns)

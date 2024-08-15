@@ -19,13 +19,20 @@ def test_get_lang_string_raises() -> None:
     assert not get_lang_string_from_column_name("ru_1")
 
 
-def test_make_columns() -> None:
-    res = get_column_info(pd.Index(["de_1", "fr_list", "en_2", "other", "ru_1"]))
+def test_make_columns_all_there() -> None:
+    res = get_column_info(pd.Index(["de_1", "fr_list", "en_3", "other", "ru_1"]))
     assert res.preferred_lang == "en"
     assert set(res.list_cols) == {"en_list", "de_list", "fr_list"}
     assert len(res.node_cols) == 2
     assert set(res.node_cols[0].columns) == {"en_3", "de_3", "fr_3"}
     assert set(res.node_cols[1].columns) == {"en_1", "de_1", "fr_1"}
+
+
+def test_make_columns_no_nums() -> None:
+    res = get_column_info(pd.Index(["fr_list", "other", "ru_1"]))
+    assert res.preferred_lang == "fr"
+    assert set(res.list_cols) == {"fr_list"}
+    assert len(res.node_cols) == 0
 
 
 class TestGetRemainingColumns:

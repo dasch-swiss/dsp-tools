@@ -1799,10 +1799,10 @@ def make_audio_segment(  # noqa: D417 (undocumented-param)
     permissions: str = "res-default",
 ) -> etree._Element:
     """
-    Creates an empty <audio-segment> element, with the attributes as specified by the arguments
+    Creates an empty `<audio-segment>` element, with the attributes as specified by the arguments.
 
     Args:
-        The arguments correspond 1:1 to the attributes of the <audio-segment> element.
+        The arguments correspond 1:1 to the attributes of the `<audio-segment>` element.
 
     Returns:
         The audio-segment element, without any children, but with the attributes:
@@ -1810,8 +1810,8 @@ def make_audio_segment(  # noqa: D417 (undocumented-param)
 
     Examples:
         >>> audio_segment = excel2xml.make_audio_segment("label", "id")
-        >>> audio_segment.append(excel2xml.make_resptr_prop("isSegmentOf", "audio_resource_id"))
-        >>> audio_segment.append(excel2xml.make_interval_prop("hasSegmentBounds", "60:120")
+        >>> audio_segment.append(excel2xml.make_isSegmentOf_prop("audio_resource_id"))
+        >>> audio_segment.append(excel2xml.make_hasSegmentBounds_prop(start=60, end=120)
         >>> root.append(audio_segment)
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#video-segment-audio-segment
@@ -1831,14 +1831,14 @@ def make_video_segment(  # noqa: D417 (undocumented-param)
     permissions: str = "res-default",
 ) -> etree._Element:
     """
-    Creates an empty <video-segment> element, with the attributes as specified by the arguments
+    Creates an empty `<video-segment>` element, with the attributes as specified by the arguments.
 
     Args:
-        The arguments correspond 1:1 to the attributes of the <video-segment> element.
+        The arguments correspond 1:1 to the attributes of the `<video-segment>` element.
 
     Returns:
         The video-segment element, without any children, but with the attributes:
-        <video-segment label=label id=id permissions=permissions></video-segment>
+        `<video-segment label=label id=id permissions=permissions></video-segment>`
 
     Examples:
         >>> video_segment = excel2xml.make_video_segment("label", "id")
@@ -1861,7 +1861,7 @@ def make_isSegmentOf_prop(
     value: str, permissions: str = "prop-default", comment: str | None = None, calling_resource: str = ""
 ) -> etree._Element:
     """
-    Make a <isSegmentOf> property for a <video-segment> or <audio-segment>.
+    Make a `<isSegmentOf>` property for a `<video-segment>` or `<audio-segment>`.
 
     Args:
         value: ID of target video/audio resource
@@ -1870,7 +1870,7 @@ def make_isSegmentOf_prop(
         calling_resource: the name of the parent resource (for better error messages)
 
     Returns:
-        an etree._Element that can be appended to an audio/video resource with resource.append(make_isSegmentOf_prop(...))
+        an etree._Element that can be appended to an audio/video segment with `segment.append(make_isSegmentOf_prop(...))`
     """
     if not isinstance(value, str) or not check_notna(value):
         msg = (
@@ -1893,7 +1893,7 @@ def make_hasSegmentBounds_prop(
     calling_resource: str = "",
 ) -> etree._Element:
     """
-    Make a <hasSegmentBounds> property for a <video-segment> or <audio-segment>.
+    Make a `<hasSegmentBounds>` property for a `<video-segment>` or `<audio-segment>`.
 
     Args:
         start: start, in seconds, counted from the beginning of the audio/video
@@ -1903,7 +1903,7 @@ def make_hasSegmentBounds_prop(
         calling_resource: the name of the parent resource (for better error messages)
 
     Returns:
-        an etree._Element that can be appended to an audio/video resource with resource.append(make_hasSegmentBounds_prop(...))
+        an etree._Element that can be appended to an audio/video segment with `segment.append(make_hasSegmentBounds_prop(...))`
     """
     if not isinstance(start, (int, float)) or not isinstance(end, (int, float)):
         msg = (

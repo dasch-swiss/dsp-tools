@@ -43,9 +43,10 @@ def make_all_excel_compliance_checks(sheet_list: list[ExcelSheet]) -> None:
     # These functions must be called in this order,
     # as some of the following checks only work if the previous have passed.
     _check_duplicates_all_excels(sheet_list)
-    _check_for_unique_list_names(sheet_list)
     _make_shape_compliance_all_excels(sheet_list)
-    _make_all_content_compliance_checks_all_excels(sheet_list)
+    _check_for_missing_translations_all_excels(sheet_list)
+    _check_for_unique_list_names(sheet_list)
+    _check_for_erroneous_entries_all_excels(sheet_list)
 
 
 def _check_duplicates_all_excels(sheet_list: list[ExcelSheet]) -> None:
@@ -215,12 +216,6 @@ def _check_if_all_translations_in_all_column_levels_present_one_sheet(cols: pd.I
     return {}
 
 
-def _make_all_content_compliance_checks_all_excels(sheet_list: list[ExcelSheet]) -> None:
-    """Check if the content of the excel files is compliant with the expected format."""
-    _check_for_missing_translations_all_excels(sheet_list)
-    _check_for_erroneous_entries_all_excels(sheet_list)
-
-
 def _check_for_missing_translations_all_excels(sheet_list: list[ExcelSheet]) -> None:
     problems: list[SheetProblem] = [
         p for sheet in sheet_list if (p := _check_for_missing_translations_one_sheet(sheet)) is not None
@@ -236,23 +231,31 @@ def _check_for_missing_translations_one_sheet(sheet: ExcelSheet) -> MissingTrans
     languages = get_all_languages_for_columns(sheet.df.columns)
     all_cols = _compose_all_combinatoric_column_titles(col_endings, languages)
     problems = []
-    for column_group in all_cols.reverse_sorted_node_cols():
-        problems.extend(_check_for_missing_translations_one_column_level(column_group.columns, sheet.df))
-    problems.extend(_check_for_missing_translations_one_column_level(all_cols.list_cols.columns, sheet.df))
+    for i, row in sheet.df.iterrows():
+        if problem := _check_missing_translations_one_row(int(str(i)), row, all_cols):
+            problems.append(problem)
     if problems:
         return MissingTranslationsSheetProblem(sheet.excel_name, sheet.sheet_name, problems)
     return None
 
 
-def _check_for_missing_translations_one_column_level(
-    columns: list[str], df: pd.DataFrame
-) -> list[MissingNodeTranslationProblem]:
-    # column level refers to the hierarchical level of the nodes. eg. ["en_1", "de_1", "fr_1", "it_1", "rm_1"]
-    problems = []
-    for i, row in df.iterrows():
-        if problem := _check_for_missing_translations_one_node(row, columns, int(str(i))):
-            problems.append(problem)
-    return problems
+def _check_missing_translations_one_row(
+    row_index: int, row: pd.Series[Any], columns: Columns
+) -> MissingNodeTranslationProblem | None:
+    missing_translations = []
+    for col_group in columns.node_cols:
+        missing_translations.extend(_check_for_missing_translations_one_column_group(row, col_group.columns))
+    missing_translations.extend(_check_for_missing_translations_one_column_group(row, columns.list_cols.columns))
+    if missing_translations:
+        return MissingNodeTranslationProblem(empty_columns=missing_translations, index_num=row_index)
+    return None
+
+
+def _check_for_missing_translations_one_column_group(row: pd.Series[Any], columns: list[str]) -> list[str]:
+    missing = row[columns].isna()
+    if missing.any() and not missing.all():
+        return [str(index) for index, is_missing in missing.items() if is_missing]
+    return []
 
 
 def _compose_all_combinatoric_column_titles(nums: list[str], languages: set[str]) -> Columns:
@@ -260,17 +263,7 @@ def _compose_all_combinatoric_column_titles(nums: list[str], languages: set[str]
     for n in nums:
         node_cols.append(ColumnNodes(level_num=int(n), columns=[f"{lang}_{n}" for lang in languages]))
     list_columns = ColumnsList([f"{lang}_list" for lang in languages])
-    return Columns(list_cols=list_columns, nodes_cols=node_cols)
-
-
-def _check_for_missing_translations_one_node(
-    row: pd.Series[Any], columns: list[str], row_index: int
-) -> MissingNodeTranslationProblem | None:
-    missing = row[columns].isna()
-    if missing.any() and not missing.all():
-        missing_cols = [str(index) for index, is_missing in missing.items() if is_missing]
-        return MissingNodeTranslationProblem(missing_cols, row_index)
-    return None
+    return Columns(list_cols=list_columns, node_cols=node_cols)
 
 
 def _check_for_erroneous_entries_all_excels(sheet_list: list[ExcelSheet]) -> None:

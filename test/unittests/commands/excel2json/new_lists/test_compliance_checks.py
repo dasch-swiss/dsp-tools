@@ -14,8 +14,7 @@ from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_for
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_for_erroneous_entries_one_list
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_for_erroneous_node_info_one_df
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_for_missing_translations_all_excels
-from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_for_missing_translations_one_column_level
-from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_for_missing_translations_one_node
+from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_for_missing_translations_one_column_group
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_for_missing_translations_one_sheet
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_for_unique_list_names
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import (
@@ -23,11 +22,13 @@ from dsp_tools.commands.excel2json.new_lists.compliance_checks import (
 )
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_if_minimum_number_of_cols_present_one_sheet
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_minimum_rows
+from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_missing_translations_one_row
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_warn_unusual_columns_one_sheet
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _compose_all_combinatoric_column_titles
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _make_shape_compliance_all_excels
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _make_shape_compliance_one_sheet
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import make_all_excel_compliance_checks
+from dsp_tools.commands.excel2json.new_lists.models.deserialise import Columns
 from dsp_tools.commands.excel2json.new_lists.models.deserialise import ExcelSheet
 from dsp_tools.commands.excel2json.new_lists.models.input_error import DuplicatesCustomIDInProblem
 from dsp_tools.commands.excel2json.new_lists.models.input_error import DuplicatesInSheetProblem
@@ -89,7 +90,7 @@ class TestMakeAllExcelComplianceChecks:
             "For the following nodes, the translations are missing:\n"
             "    - Row Number: 2 | Column(s): de_list\n"
             "    - Row Number: 3 | Column(s): en_1\n"
-            "    - Row Number: 8 | Column(s): de_1"
+            "    - Row Number: 6 | Column(s): en_1, en_2, en_list"
         )
         with pytest.raises(InputError, match=expected):
             make_all_excel_compliance_checks(all_sheets)
@@ -380,7 +381,7 @@ class TestCheckAllExcelsMissingTranslations:
             "For the following nodes, the translations are missing:\n"
             "    - Row Number: 2 | Column(s): de_list\n"
             "    - Row Number: 3 | Column(s): en_1\n"
-            "    - Row Number: 8 | Column(s): de_1"
+            "    - Row Number: 6 | Column(s): en_1, en_2, en_list"
         )
         with pytest.raises(InputError, match=expected):
             _check_for_missing_translations_all_excels(all_sheets)
@@ -388,7 +389,7 @@ class TestCheckAllExcelsMissingTranslations:
 
 class TestAllNodesTranslatedIntoAllLanguages:
     def test_good(self, f1_s1_good_id_filled: ExcelSheet) -> None:
-        _check_for_missing_translations_one_sheet(f1_s1_good_id_filled)
+        assert not _check_for_missing_translations_one_sheet(f1_s1_good_id_filled)
 
     def test_missing_translation(self, f1_s1_missing_translation_id_filled: ExcelSheet) -> None:
         expected = [
@@ -406,56 +407,39 @@ class TestAllNodesTranslatedIntoAllLanguages:
             assert res.index_num == expct.index_num
 
 
-class TestCheckOneHierarchy:
-    def test_good(self) -> None:
-        test_df = pd.DataFrame(
-            {
-                "en_1": ["exist1_en", "exist2_en", "exist3_en"],
-                "de_1": ["exist1_de", "exist2_de", "exist3_de"],
-                "fr_1": ["exist1_fr", "exist2_fr", "exist3_fr"],
-            }
-        )
-        assert not _check_for_missing_translations_one_column_level(["en_1", "de_1", "fr_1"], test_df)
+class TestCheckMissingTranslationsOneRow:
+    def test_good(self, f2_s2_good_en_de: ExcelSheet, cols_en_de_1_3: Columns) -> None:
+        for i, row in f2_s2_good_en_de.df.iterrows():
+            assert not _check_missing_translations_one_row(int(str(i)), row, cols_en_de_1_3)
 
-    def test_missing_translation(self) -> None:
-        test_df = pd.DataFrame(
-            {
-                "en_1": ["exist1_en", pd.NA, "exist3_en"],
-                "de_1": ["exist1_de", pd.NA, "exist3_de"],
-                "fr_1": ["exist1_fr", "exist2_fr", "exist3_fr"],
-            }
-        )
-        res = _check_for_missing_translations_one_column_level(["en_1", "de_1", "fr_1"], test_df)
-        assert len(res) == 1
-        prbl = res[0]
-        assert prbl.empty_columns == ["en_1", "de_1"]
-        assert prbl.index_num == 1
-
-
-class TestCheckOneNodeForTranslation:
-    def test_good(self) -> None:
-        test_series = pd.Series(["exist_en", "exist_de"], index=["en_1", "de_1"])
-        assert not _check_for_missing_translations_one_node(test_series, ["en_1", "de_1"], 1)
-
-    def test_good_empty(self) -> None:
-        test_series = pd.Series([pd.NA, pd.NA], index=["en_1", "de_1"])
-        assert not _check_for_missing_translations_one_node(test_series, ["en_1", "de_1"], 1)
-
-    def test_missing_translation(self) -> None:
-        test_series = pd.Series(["exist_en", pd.NA], index=["en_1", "de_1"])
-        result = _check_for_missing_translations_one_node(test_series, ["en_1", "de_1"], 1)
-        result = cast(MissingNodeTranslationProblem, result)
-        assert result.empty_columns == ["de_1"]
+    def test_one_missing(self, f2_s2_missing_translations: ExcelSheet, cols_en_de_1_3: Columns) -> None:
+        result = _check_missing_translations_one_row(1, f2_s2_missing_translations.df.loc[1], cols_en_de_1_3)  # type: ignore[arg-type]
+        assert isinstance(result, MissingNodeTranslationProblem)
+        assert set(result.empty_columns) == {"en_1"}
         assert result.index_num == 1
+
+    def test_three_missing(self, f2_s2_missing_translations: ExcelSheet, cols_en_de_1_3: Columns) -> None:
+        result = _check_missing_translations_one_row(4, f2_s2_missing_translations.df.loc[4], cols_en_de_1_3)  # type: ignore[arg-type]
+        assert isinstance(result, MissingNodeTranslationProblem)
+        assert set(result.empty_columns) == {"en_list", "en_1", "en_2"}
+        assert result.index_num == 4
+
+    def test_one_group_good(self, f2_s2_good_en_de: ExcelSheet) -> None:
+        for i, row in f2_s2_good_en_de.df.iterrows():
+            assert not _check_for_missing_translations_one_column_group(row, ["en_list", "de_list"])
+
+    def test_one_group_missing(self) -> None:
+        series = pd.Series(data=[pd.NA, "content"], index=["en_1", "de_1"])
+        result = _check_for_missing_translations_one_column_group(series, ["en_1", "de_1"])
+        assert result == ["en_1"]
 
 
 def test_make_columns() -> None:
     res = _compose_all_combinatoric_column_titles(["1", "3"], {"en", "de", "fr"})
     assert set(res.list_cols.columns) == {"en_list", "de_list", "fr_list"}
-    assert len(res.nodes_cols) == 2
-    sorted_cols = res.reverse_sorted_node_cols()
-    assert set(sorted_cols[0].columns) == {"en_3", "de_3", "fr_3"}
-    assert set(sorted_cols[1].columns) == {"en_1", "de_1", "fr_1"}
+    assert len(res.node_cols) == 2
+    assert set(res.node_cols[0].columns) == {"en_3", "de_3", "fr_3"}
+    assert set(res.node_cols[1].columns) == {"en_1", "de_1", "fr_1"}
 
 
 class TestCheckAllExcelForRowProblems:

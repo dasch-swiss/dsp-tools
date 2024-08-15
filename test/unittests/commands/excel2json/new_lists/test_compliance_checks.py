@@ -89,7 +89,7 @@ class TestMakeAllExcelComplianceChecks:
             "For the following nodes, the translations are missing:\n"
             "    - Row Number: 2 | Column(s): de_list\n"
             "    - Row Number: 3 | Column(s): en_1\n"
-            "    - Row Number: 8 | Column(s): de_1"
+            "    - Row Number: 7 | Column(s): en_list, en_1, en_2"
         )
         with pytest.raises(InputError, match=expected):
             make_all_excel_compliance_checks(all_sheets)
@@ -380,7 +380,7 @@ class TestCheckAllExcelsMissingTranslations:
             "For the following nodes, the translations are missing:\n"
             "    - Row Number: 2 | Column(s): de_list\n"
             "    - Row Number: 3 | Column(s): en_1\n"
-            "    - Row Number: 8 | Column(s): de_1"
+            "    - Row Number: 7 | Column(s): en_list, en_1, en_2"
         )
         with pytest.raises(InputError, match=expected):
             _check_for_missing_translations_all_excels(all_sheets)

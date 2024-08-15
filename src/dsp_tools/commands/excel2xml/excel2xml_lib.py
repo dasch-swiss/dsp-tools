@@ -1879,6 +1879,15 @@ def make_isSegmentOf_prop(
         comment: optional comment for this property. Defaults to None.
         calling_resource: the name of the parent resource (for better error messages)
 
+    Warns:
+        - If the value is not a valid string
+
+    Examples:
+        >>> video_segment = excel2xml.make_video_segment("label", "id")
+        >>> video_segment.append(excel2xml.make_isSegmentOf_prop("video_resource_id"))
+        >>> video_segment.append(excel2xml.make_hasSegmentBounds_prop(start=60, end=120)
+        >>> root.append(video_segment)
+
     Returns:
         an etree._Element that can be appended to an audio/video segment with `segment.append(make_isSegmentOf_prop(...))`
     """
@@ -1911,6 +1920,16 @@ def make_hasSegmentBounds_prop(
         permissions: Defaults to "prop-default".
         comment: Optional comment for this property. Defaults to None.
         calling_resource: the name of the parent resource (for better error messages)
+
+    Warns:
+        - If start or end are not integers or floats
+        - If start is bigger than end
+
+    Examples:
+        >>> video_segment = excel2xml.make_video_segment("label", "id")
+        >>> video_segment.append(excel2xml.make_isSegmentOf_prop("video_resource_id"))
+        >>> video_segment.append(excel2xml.make_hasSegmentBounds_prop(start=60, end=120)
+        >>> root.append(video_segment)
 
     Returns:
         an etree._Element that can be appended to an audio/video segment with `segment.append(make_hasSegmentBounds_prop(...))`
@@ -1949,6 +1968,15 @@ def make_hasTitle_prop(
         comment: optional comment for this property. Defaults to None.
         calling_resource: the name of the parent resource (for better error messages)
 
+    Warns:
+        - If the title is not a valid string
+
+    Examples:
+        >>> video_segment = excel2xml.make_video_segment("label", "id")
+        >>> video_segment.append(excel2xml.make_hasTitle_prop("title of my segment"))
+        >>> # add other properties
+        >>> root.append(video_segment)
+
     Returns:
         an etree._Element that can be appended to an audio/video resource with `segment.append(make_hasTitle_prop(...))`
     """
@@ -1976,6 +2004,16 @@ def make_hasKeyword_prop(
         permissions: defaults to "prop-default".
         comment: optional comment for this property. Defaults to None.
         calling_resource: the name of the parent resource (for better error messages)
+
+    Warns:
+        - If the keyword is not a valid string
+
+    Examples:
+        >>> video_segment = excel2xml.make_video_segment("label", "id")
+        >>> video_segment.append(excel2xml.make_hasKeyword_prop("keyword of my segment"))
+        >>> video_segment.append(excel2xml.make_hasKeyword_prop("another keyword"))
+        >>> # add other properties
+        >>> root.append(video_segment)
 
     Returns:
         an etree._Element that can be appended to an audio/video resource with `segment.append(make_hasKeyword_prop(...))`
@@ -2005,6 +2043,16 @@ def make_hasComment_prop(
         comment: optional comment for this property. Defaults to None.
         calling_resource: the name of the parent resource (for better error messages)
 
+    Warns:
+        - If the comment text is not a valid string
+
+    Examples:
+        >>> video_segment = excel2xml.make_video_segment("label", "id")
+        >>> video_segment.append(excel2xml.make_hasComment_prop("comment of my segment"))
+        >>> video_segment.append(excel2xml.make_hasComment_prop("another comment"))
+        >>> # add other properties
+        >>> root.append(video_segment)
+
     Returns:
         an etree._Element that can be appended to an audio/video resource with `segment.append(make_hasComment_prop(...))`
     """
@@ -2032,6 +2080,16 @@ def make_hasDescription_prop(
         permissions: defaults to "prop-default".
         comment: optional comment for this property. Defaults to None.
         calling_resource: the name of the parent resource (for better error messages)
+
+    Warns:
+        - If the description is not a valid string
+
+    Examples:
+        >>> video_segment = excel2xml.make_video_segment("label", "id")
+        >>> video_segment.append(excel2xml.make_hasDescription_prop("a description of my segment"))
+        >>> video_segment.append(excel2xml.make_hasDescription_prop("another description"))
+        >>> # add other properties
+        >>> root.append(video_segment)
 
     Returns:
         an etree._Element that can be appended to an audio/video resource with `segment.append(make_hasDescription_prop(...))`

@@ -13,6 +13,7 @@ from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import Problem
 from dsp_tools.commands.excel2json.new_lists.models.deserialise import ColumnNodes
 from dsp_tools.commands.excel2json.new_lists.models.deserialise import Columns
+from dsp_tools.commands.excel2json.new_lists.models.deserialise import ColumnsComments
 from dsp_tools.commands.excel2json.new_lists.models.deserialise import ColumnsList
 from dsp_tools.commands.excel2json.new_lists.models.deserialise import ExcelSheet
 from dsp_tools.commands.excel2json.new_lists.models.input_error import CollectedSheetProblems
@@ -263,7 +264,8 @@ def _compose_all_combinatoric_column_titles(nums: list[str], languages: set[str]
     for n in nums:
         node_cols.append(ColumnNodes(level_num=int(n), columns=[f"{lang}_{n}" for lang in languages]))
     list_columns = ColumnsList([f"{lang}_list" for lang in languages])
-    return Columns(list_cols=list_columns, node_cols=node_cols)
+    cmt = ColumnsComments([f"{lang}_comments" for lang in languages])
+    return Columns(list_cols=list_columns, comment_cols=cmt, node_cols=node_cols)
 
 
 def _check_for_erroneous_entries_all_excels(sheet_list: list[ExcelSheet]) -> None:

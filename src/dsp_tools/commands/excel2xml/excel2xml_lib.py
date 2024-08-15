@@ -1927,6 +1927,34 @@ def make_hasSegmentBounds_prop(
     return prop
 
 
+def make_hasTitle_prop(
+    title: str, permissions: str = "prop-default", comment: str | None = None, calling_resource: str = ""
+) -> etree._Element:
+    """
+    Make a `<hasTitle>` property for a `<video-segment>` or `<audio-segment>`.
+
+    Args:
+        title: the title of the segment
+        permissions: Defaults to "prop-default".
+        comment: Optional comment for this property. Defaults to None.
+        calling_resource: the name of the parent resource (for better error messages)
+
+    Returns:
+        an etree._Element that can be appended to an audio/video resource with `segment.append(make_hasTitle_prop(...))`
+    """
+    if not isinstance(title, str) or not check_notna(title):
+        msg = (
+            f"Validation Error in resource '{calling_resource}', property 'hasTitle': "
+            f"The following doesn't seem to be a valid title: '{title}'"
+        )
+        warnings.warn(DspToolsUserWarning(msg))
+    prop = etree.Element("{%s}hasTitle" % xml_namespace_map[None], permissions=permissions)
+    if comment:
+        prop.set("comment", comment)
+    prop.text = title
+    return prop
+
+
 def create_interval_value(start: str, end: str) -> str:
     """
     Transform a start and end time into a valid DSP interval value,

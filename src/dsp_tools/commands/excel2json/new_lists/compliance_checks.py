@@ -222,6 +222,7 @@ def _check_if_all_translations_in_all_column_levels_present_one_sheet(cols: pd.I
 def _make_all_content_compliance_checks_all_excels(sheet_list: list[ExcelSheet]) -> None:
     # TODO: change to deserialise lists here
     """Check if the content of the excel files is compliant with the expected format."""
+    sheets_deserialised = _deserialise_all_sheets(sheet_list)
     _check_for_missing_translations_all_excels(sheet_list)
     _check_for_erroneous_entries_all_excels(sheet_list)
 
@@ -249,12 +250,10 @@ def _get_column_info_one_sheet(columns: pd.Index[str]) -> Columns:
 
 
 def _deserialise_one_row(row: pd.Series[Any], col_info: Columns) -> NodeDeserialised:
-    lbl = {}
-    for cols in col_info.node_cols:
-        if lbl := _find_content(cols.columns, row):
-            break
-    if not lbl:
-        lbl = _find_content(col_info.list_cols.columns, row)
+    if not (lbl := _find_content(col_info.list_cols.columns, row)):
+        for cols in col_info.node_cols:
+            if lbl := _find_content(cols.columns, row):
+                break
     return NodeDeserialised(excel_row=int(str(row.index)) + 2, labels=LangColsDeserialised(lbl))
 
 

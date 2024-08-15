@@ -386,6 +386,14 @@ class TestCheckAllExcelsMissingTranslations:
             _check_for_missing_translations_all_excels(all_sheets)
 
 
+class DeserialiseSheet:
+
+    def test_good(self) -> None:
+        raise NotImplementedError
+
+    def test_with_missing(self) -> None:
+        raise NotImplementedError
+
 class TestAllNodesTranslatedIntoAllLanguages:
     def test_good(self, f1_s1_good_id_filled: ExcelSheet) -> None:
         _check_for_missing_translations_one_sheet(f1_s1_good_id_filled)

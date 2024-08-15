@@ -195,6 +195,7 @@ def _check_if_all_translations_in_all_column_levels_present_one_sheet(sheet: Exc
     for col in sheet.col_info.get_required():
         if sheet.df[col].isna().all():
             empty_cols.append(col)
+    if empty_cols:
         return {
             "missing translations": f"All nodes must be translated into the same languages. "
             f"The following columns are completely empty: {', '.join(empty_cols)}"

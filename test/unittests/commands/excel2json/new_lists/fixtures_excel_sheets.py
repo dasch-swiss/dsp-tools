@@ -8,8 +8,8 @@ from dsp_tools.commands.excel2json.new_lists.models.deserialise import ExcelShee
 
 @pytest.fixture()
 def cols_en_1() -> Columns:
-    n_1 = ColumnNodes(level_num=1, columns=["en_1", "de_1"])
-    return Columns(preferred_lang="en", list_cols=["en_list", "de_list"], node_cols=[n_1])
+    n_1 = ColumnNodes(level_num=1, columns=["en_1"])
+    return Columns(preferred_lang="en", list_cols=["en_list"], node_cols=[n_1])
 
 
 @pytest.fixture()
@@ -252,21 +252,21 @@ def f1_s1_missing_translation_id_filled(cols_en_de_1_2: Columns) -> ExcelSheet:
 
 
 @pytest.fixture()
-def f1_s1_no_list_columns() -> ExcelSheet:
-    df = pd.DataFrame({"en_list": ["list1", "list1", "list1", "list1"]})
-    return ExcelSheet(excel_name="file1", sheet_name="sheet1", df=df, col_info=Columns("en", ["en_list"], []))
-
-
-@pytest.fixture()
-def f1_s1_no_node_columns() -> ExcelSheet:
-    df = pd.DataFrame({"en_1": ["list1", "list1", "list1", "list1"]})
+def f1_s2_list_empty() -> ExcelSheet:
+    df = pd.DataFrame({"en_list": [pd.NA, pd.NA], "en_1": ["list1", "list1"]})
     return ExcelSheet(
-        excel_name="file1", sheet_name="sheet1", df=df, col_info=Columns("en", [], [ColumnNodes(1, ["en_1"])])
+        excel_name="file1", sheet_name="sheet2", df=df, col_info=Columns("en", ["en_list"], [ColumnNodes(1, ["en_1"])])
     )
 
 
 @pytest.fixture()
-def f2_s2_missing_lang_column(cols_en_de_1_3: Columns) -> ExcelSheet:
+def f1_s1_no_nodes() -> ExcelSheet:
+    df = pd.DataFrame({"en_list": ["list1", "list1"]})
+    return ExcelSheet(excel_name="file1", sheet_name="sheet1", df=df, col_info=Columns("en", ["en_list"], []))
+
+
+@pytest.fixture()
+def f2_s2_empty_lang_column(cols_en_de_1_3: Columns) -> ExcelSheet:
     df = pd.DataFrame(
         {
             "en_list": ["list1", "list1", "list1", "list1", "list1", "list1", "list1", "list1"],
@@ -276,6 +276,7 @@ def f2_s2_missing_lang_column(cols_en_de_1_3: Columns) -> ExcelSheet:
             "en_2": [pd.NA, pd.NA, "node1.1", "node1.1", "node1.2", pd.NA, "node2.1", pd.NA],
             "de_2": [pd.NA, pd.NA, "node1.1", "node1.1", "node1.2", pd.NA, "node2.1", pd.NA],
             "en_3": [pd.NA, pd.NA, pd.NA, "node1.1.1", pd.NA, pd.NA, pd.NA, pd.NA],
+            "de_3": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
         }
     )
     return ExcelSheet(excel_name="file2", sheet_name="sheet2", df=df, col_info=cols_en_de_1_3)

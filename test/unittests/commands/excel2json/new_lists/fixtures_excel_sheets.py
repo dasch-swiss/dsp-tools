@@ -1,7 +1,11 @@
 import pandas as pd
 import pytest
 
-from dsp_tools.commands.excel2json.new_lists.models.deserialise import ExcelSheet, Columns, ColumnsList, ColumnNodes
+from dsp_tools.commands.excel2json.new_lists.models.deserialise import ColumnNodes
+from dsp_tools.commands.excel2json.new_lists.models.deserialise import Columns
+from dsp_tools.commands.excel2json.new_lists.models.deserialise import ColumnsList
+from dsp_tools.commands.excel2json.new_lists.models.deserialise import ExcelSheet
+
 
 @pytest.fixture()
 def f1_s1_good_en() -> ExcelSheet:
@@ -37,11 +41,9 @@ def f2_s2_good_en_de() -> ExcelSheet:
 def cols_en_de_1_3() -> Columns:
     n_1 = ColumnNodes(level_num=1, columns=["en_1", "de_1"])
     n_2 = ColumnNodes(level_num=2, columns=["en_2", "de_2"])
-    n_3 = ColumnNodes(level_num=3, columns=["en_3", "de_4"])
-    Columns(
-        list_cols=ColumnsList(["en_list", "de_list"]),
-        nodes_cols=[n_1, n_2, n_3]
-    )
+    n_3 = ColumnNodes(level_num=3, columns=["en_3", "de_3"])
+    return Columns(list_cols=ColumnsList(["en_list", "de_list"]), node_cols=[n_1, n_2, n_3])
+
 
 @pytest.fixture()
 def f1_s1_good_id_filled() -> ExcelSheet:
@@ -228,7 +230,7 @@ def f2_s2_missing_translations() -> ExcelSheet:
             "id (optional)": [1, 2, 3, 4, 5, 6, 7],
             "en_list": ["list3", "list3", "list3", "list3", pd.NA, "list3", "list3"],
             "de_list": [pd.NA, "list3", "list3", "list3", "list3", "list3", "list3"],
-            "en_1": [pd.NA, pd.NA, "node1", "node1", "node1", pd.NA, "node3"],
+            "en_1": [pd.NA, pd.NA, "node1", "node1", pd.NA, "node1", "node3"],
             "de_1": [pd.NA, "node1", "node1", "node1", "node1", "node2", "node3"],
             "en_2": [pd.NA, pd.NA, "node1.1", "node1.1", pd.NA, pd.NA, pd.NA],
             "de_2": [pd.NA, pd.NA, "node1.1", "node1.1", "node1.2", pd.NA, pd.NA],

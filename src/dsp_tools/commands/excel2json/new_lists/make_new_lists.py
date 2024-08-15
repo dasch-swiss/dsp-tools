@@ -19,10 +19,12 @@ from dsp_tools.commands.excel2json.new_lists.models.input_error import SheetProb
 from dsp_tools.commands.excel2json.new_lists.models.serialise import ListNode
 from dsp_tools.commands.excel2json.new_lists.models.serialise import ListRoot
 from dsp_tools.commands.excel2json.new_lists.utils import get_all_languages_for_columns
+from dsp_tools.commands.excel2json.new_lists.utils import get_column_info
 from dsp_tools.commands.excel2json.new_lists.utils import get_columns_of_preferred_lang
 from dsp_tools.commands.excel2json.new_lists.utils import get_hierarchy_nums
 from dsp_tools.commands.excel2json.new_lists.utils import get_lang_string_from_column_name
 from dsp_tools.commands.excel2json.new_lists.utils import get_preferred_language
+from dsp_tools.commands.excel2json.utils import add_optional_columns
 from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
 from dsp_tools.models.exceptions import InputError
 
@@ -45,8 +47,8 @@ def new_excel2lists(
     Returns:
         a tuple consisting of the "lists" section as Python list, and the success status (True if everything went well)
     """
-    sheet_list = _parse_files(excelfolder)
-    sheet_list = _prepare_dfs(sheet_list)
+    parsed_files = _parse_files(excelfolder)
+    sheet_list = _prepare_dfs(parsed_files)
 
     finished_lists = _make_serialised_lists(sheet_list)
     validate_lists_section_with_schema(lists_section=finished_lists)
@@ -59,16 +61,11 @@ def new_excel2lists(
     return finished_lists, True
 
 
-def _parse_files(excelfolder: Path | str) -> list[ExcelSheet]:
+def _parse_files(excelfolder: Path | str) -> dict[str, dict[str, pd.DataFrame]]:
     file_names = [file for file in Path(excelfolder).glob("*list*.xlsx", case_sensitive=False) if _non_hidden(file)]
-    all_sheets = []
+    all_sheets = {}
     for file in file_names:
-        all_sheets.extend(
-            [
-                ExcelSheet(excel_name=str(file), sheet_name=name, df=df)
-                for name, df in read_and_clean_all_sheets(file).items()
-            ]
-        )
+        all_sheets[str(file)] = read_and_clean_all_sheets(file)
     return all_sheets
 
 
@@ -76,29 +73,33 @@ def _non_hidden(path: Path) -> bool:
     return not regex.search(r"^(\.|~\$).+", path.name)
 
 
-def _prepare_dfs(sheet_list: list[ExcelSheet]) -> list[ExcelSheet]:
-    sheet_list = _add_id_optional_column_if_not_exists(sheet_list)
-    make_all_excel_compliance_checks(sheet_list)
-    return _construct_ids(sheet_list)
+def _prepare_dfs(parsed_files: dict[str, dict[str, pd.DataFrame]]) -> list[ExcelSheet]:
+    all_sheets: list[ExcelSheet] = []
+    for file, sheets in parsed_files.items():
+        all_sheets.extend(_prepare_one_sheet(df, file, sheet_name) for sheet_name, df in sheets.items())
+    make_all_excel_compliance_checks(all_sheets)
+    return _construct_ids(all_sheets)
 
 
-def _add_id_optional_column_if_not_exists(sheet_list: list[ExcelSheet]) -> list[ExcelSheet]:
-    all_sheets = []
-    for sheet in sheet_list:
-        if "id (optional)" not in sheet.df.columns:
-            df = sheet.df
-            df["id (optional)"] = pd.NA
-            all_sheets.append(ExcelSheet(excel_name=sheet.excel_name, sheet_name=sheet.sheet_name, df=df))
-        else:
-            all_sheets.append(sheet)
-    return all_sheets
+def _prepare_one_sheet(df: pd.DataFrame, filename: str, sheetname: str) -> ExcelSheet:
+    # If one language is not used at all but the column is left in the sheet, it would report as a missing translation.
+    # Therefore, we drop all unused ones.
+    df = df.dropna(axis=1, how="all")
+    columns = get_column_info(df.columns)
+    optional_columns = columns.get_all()
+    optional_columns.add("id (optional)")
+    # It is easier for future checks if we can assume that all expected columns are present.
+    df = add_optional_columns(df, optional_columns)
+    return ExcelSheet(excel_name=filename, sheet_name=sheetname, col_info=columns, df=df)
 
 
 def _construct_ids(sheet_list: list[ExcelSheet]) -> list[ExcelSheet]:
     all_sheets = []
     for sheet in sheet_list:
         df = _complete_id_one_df(sheet.df, get_preferred_language(sheet.df.columns))
-        all_sheets.append(ExcelSheet(excel_name=sheet.excel_name, sheet_name=sheet.sheet_name, df=df))
+        all_sheets.append(
+            ExcelSheet(excel_name=sheet.excel_name, sheet_name=sheet.sheet_name, df=df, col_info=sheet.col_info)
+        )
     all_sheets = _resolve_duplicate_ids_all_excels(all_sheets)
     return _fill_parent_id_col_all_excels(all_sheets)
 
@@ -107,7 +108,9 @@ def _fill_parent_id_col_all_excels(sheet_list: list[ExcelSheet]) -> list[ExcelSh
     all_sheets = []
     for sheet in sheet_list:
         df = _fill_parent_id_col_one_df(sheet.df, get_preferred_language(sheet.df.columns))
-        all_sheets.append(ExcelSheet(excel_name=sheet.excel_name, sheet_name=sheet.sheet_name, df=df))
+        all_sheets.append(
+            ExcelSheet(excel_name=sheet.excel_name, sheet_name=sheet.sheet_name, df=df, col_info=sheet.col_info)
+        )
     return all_sheets
 
 
@@ -144,7 +147,9 @@ def _remove_duplicate_ids_in_all_excels(duplicate_ids: list[str], sheet_list: li
         for i, row in df.iterrows():
             if row["id"] in duplicate_ids and pd.isna(row["id (optional)"]):
                 df.at[i, "id"] = _construct_non_duplicate_id_string(df.iloc[int(str(i))], preferred_lang)
-        all_sheets.append(ExcelSheet(sheet.excel_name, sheet.sheet_name, df))
+        all_sheets.append(
+            ExcelSheet(excel_name=sheet.excel_name, sheet_name=sheet.sheet_name, col_info=sheet.col_info, df=df)
+        )
     return sheet_list
 
 

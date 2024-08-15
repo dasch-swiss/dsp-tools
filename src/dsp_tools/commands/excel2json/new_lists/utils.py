@@ -1,8 +1,12 @@
 from __future__ import annotations
 
+from typing import Any
+
 import pandas as pd
 import regex
 
+from dsp_tools.commands.excel2json.new_lists.models.deserialise import ColumnNodes
+from dsp_tools.commands.excel2json.new_lists.models.deserialise import Columns
 from dsp_tools.models.exceptions import InputError
 
 
@@ -11,6 +15,26 @@ def get_lang_string_from_column_name(col_str: str, ending: str = r"(\d+|list)") 
     if res := regex.search(rf"^(en|de|fr|it|rm)_{ending}$", col_str):
         return res.group(1)
     return None
+
+
+def get_column_info(df_cols: pd.Index[Any]) -> Columns:
+    """
+    Constructs and returns all the columns that should be present in the df based on the languages used.
+
+    Args:
+        df_cols: columns of the df
+
+    Returns:
+        Object with column info
+    """
+    hierarchy_nums = get_hierarchy_nums(df_cols)
+    all_langs = get_all_languages_for_columns(df_cols)
+    preferred_lang = get_preferred_language(df_cols)
+    node_cols = []
+    for n in hierarchy_nums:
+        node_cols.append(ColumnNodes(level_num=int(n), columns=[f"{lang}_{n}" for lang in all_langs]))
+    list_columns = [f"{lang}_list" for lang in all_langs]
+    return Columns(preferred_lang=preferred_lang, list_cols=list_columns, node_cols=node_cols)
 
 
 def get_columns_of_preferred_lang(

@@ -24,7 +24,6 @@ from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_if_
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_minimum_rows
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_missing_translations_one_row
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_warn_unusual_columns_one_sheet
-from dsp_tools.commands.excel2json.new_lists.compliance_checks import _compose_all_combinatoric_column_titles
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _make_shape_compliance_all_excels
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _make_shape_compliance_one_sheet
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import make_all_excel_compliance_checks
@@ -45,12 +44,12 @@ class TestMakeAllExcelComplianceChecks:
     def test_good(self, f1_s1_good_en: ExcelSheet, f2_s2_good_en_de: ExcelSheet) -> None:
         make_all_excel_compliance_checks([f1_s1_good_en, f2_s2_good_en_de])
 
-    def test_duplicates(self) -> None:
+    def test_duplicates(self, cols_en_1: Columns) -> None:
         df_1 = pd.DataFrame({"id (optional)": [1, 2], "en_list": ["list2", "list2"], "en_1": [pd.NA, 1]})
         df_2 = pd.DataFrame({"id (optional)": [1, 4], "en_list": ["list2", "list2"], "en_1": [pd.NA, 1]})
         all_sheets = [
-            ExcelSheet(excel_name="file1", sheet_name="sheet2", df=df_1),
-            ExcelSheet(excel_name="file2", sheet_name="sheet2", df=df_2),
+            ExcelSheet(excel_name="file1", sheet_name="sheet2", df=df_1, col_info=cols_en_1),
+            ExcelSheet(excel_name="file2", sheet_name="sheet2", df=df_2, col_info=cols_en_1),
         ]
         expected = regex.escape(
             "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"
@@ -63,12 +62,12 @@ class TestMakeAllExcelComplianceChecks:
         with pytest.raises(InputError, match=expected):
             make_all_excel_compliance_checks(all_sheets)
 
-    def test_duplicate_list_names(self) -> None:
+    def test_duplicate_list_names(self, cols_en_1: Columns) -> None:
         df_1 = pd.DataFrame({"id (optional)": [1, 2], "en_list": ["list2", "list2"], "en_1": [pd.NA, 1]})
         df_2 = pd.DataFrame({"id (optional)": [3, 4], "en_list": ["list2", "list2"], "en_1": [pd.NA, 1]})
         all_sheets = [
-            ExcelSheet(excel_name="file1", sheet_name="sheet2", df=df_1),
-            ExcelSheet(excel_name="file2", sheet_name="sheet2", df=df_2),
+            ExcelSheet(excel_name="file1", sheet_name="sheet2", df=df_1, col_info=cols_en_1),
+            ExcelSheet(excel_name="file2", sheet_name="sheet2", df=df_2, col_info=cols_en_1),
         ]
         expected = regex.escape(
             "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"
@@ -160,23 +159,23 @@ class TestCheckExcelsForDuplicates:
 
 
 class TestCheckForDuplicateListNames:
-    def test_good(self) -> None:
+    def test_good(self, cols_en_1: Columns) -> None:
         df_1 = pd.DataFrame({"en_list": ["list1", "list1"]})
         df_2 = pd.DataFrame({"en_list": ["list2", "list2"]})
         all_sheets = [
-            ExcelSheet(excel_name="file1", sheet_name="sheet1", df=df_1),
-            ExcelSheet(excel_name="file2", sheet_name="sheet2", df=df_2),
+            ExcelSheet(excel_name="file1", sheet_name="sheet1", df=df_1, col_info=cols_en_1),
+            ExcelSheet(excel_name="file2", sheet_name="sheet2", df=df_2, col_info=cols_en_1),
         ]
         _check_for_unique_list_names(all_sheets)
 
-    def test_problem(self) -> None:
+    def test_problem(self, cols_en_1: Columns) -> None:
         df_1 = pd.DataFrame({"en_list": ["list1", "list2"]})
         df_2 = pd.DataFrame({"en_list": ["list2", "list2"]})
         df_3 = pd.DataFrame({"en_list": ["list2", "list2"]})
         all_sheets = [
-            ExcelSheet(excel_name="file1", sheet_name="sheet1", df=df_1),
-            ExcelSheet(excel_name="file1", sheet_name="sheet2", df=df_2),
-            ExcelSheet(excel_name="file2", sheet_name="sheet2", df=df_3),
+            ExcelSheet(excel_name="file1", sheet_name="sheet1", df=df_1, col_info=cols_en_1),
+            ExcelSheet(excel_name="file1", sheet_name="sheet2", df=df_2, col_info=cols_en_1),
+            ExcelSheet(excel_name="file2", sheet_name="sheet2", df=df_3, col_info=cols_en_1),
         ]
         expected = regex.escape(
             "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"
@@ -195,14 +194,14 @@ class TestCheckForDuplicateListNames:
 
 
 class TestCheckForDuplicates:
-    def test_good(self) -> None:
+    def test_good(self, cols_en_1: Columns) -> None:
         test_df = pd.DataFrame({"en_list": ["a", "b", "c"], "en_1": ["d", "e", "f"]})
-        test_sheet = ExcelSheet(excel_name="", sheet_name="sheet", df=test_df)
+        test_sheet = ExcelSheet(excel_name="", sheet_name="sheet", df=test_df, col_info=cols_en_1)
         assert not _check_for_duplicate_nodes_one_df(test_sheet)
 
-    def test_problem(self) -> None:
+    def test_problem(self, cols_en_1: Columns) -> None:
         test_df = pd.DataFrame({"en_list": ["a", "a", "a"], "en_1": ["b", "b", "b"], "en_2": ["d", "c", "d"]})
-        test_sheet = ExcelSheet(excel_name="excel", sheet_name="sheet", df=test_df)
+        test_sheet = ExcelSheet(excel_name="excel", sheet_name="sheet", df=test_df, col_info=cols_en_1)
         res = _check_for_duplicate_nodes_one_df(test_sheet)
         assert isinstance(res, DuplicatesInSheetProblem)
         assert res.excel_name == "excel"
@@ -242,19 +241,20 @@ class TestCheckForDuplicates:
 
 
 class TestShapeCompliance:
-    def test_good(self) -> None:
+    def test_good(self, cols_en_1_2: Columns) -> None:
         test_df = pd.DataFrame({"id (optional)": [1, 2, 3], "en_list": ["a", "b", "c"], "en_2": ["d", "e", "f"]})
-        test_sheet = ExcelSheet(excel_name="", sheet_name="sheet", df=test_df)
+        test_sheet = ExcelSheet(excel_name="", sheet_name="sheet", df=test_df, col_info=cols_en_1_2)
         assert not _make_shape_compliance_one_sheet(test_sheet)
 
-    def test_good_no_id(self) -> None:
+    def test_good_no_id(self, cols_en_1_2: Columns) -> None:
         test_df = pd.DataFrame({"en_list": ["a", "b", "c"], "en_2": ["d", "e", "f"]})
-        test_sheet = ExcelSheet(excel_name="", sheet_name="sheet", df=test_df)
+        test_sheet = ExcelSheet(excel_name="", sheet_name="sheet", df=test_df, col_info=cols_en_1_2)
         assert not _make_shape_compliance_one_sheet(test_sheet)
 
     def test_problems_one(self) -> None:
+        c = Columns(preferred_lang="en", list_cols=["en_list"], node_cols=[])
         test_df = pd.DataFrame({"id (optional)": [1], "en_list": ["a"], "additional_1": ["b"]})
-        test_sheet = ExcelSheet(excel_name="excel", sheet_name="sheet", df=test_df)
+        test_sheet = ExcelSheet(excel_name="excel", sheet_name="sheet", df=test_df, col_info=c)
         expected = {
             "minimum rows": "The Excel sheet must contain at least two rows, "
             "one for the list name and one row for a minimum of one node.",
@@ -272,9 +272,9 @@ class TestShapeCompliance:
             assert res.sheet_name == "sheet"
             assert res.problems == expected
 
-    def test_problems_two(self) -> None:
+    def test_problems_two(self, cols_en_de_1: Columns) -> None:
         test_df = pd.DataFrame({"id (optional)": [1, 2], "en_list": ["a", "b"], "en_1": ["b", "c"], "de_1": ["b", "c"]})
-        test_sheet = ExcelSheet(excel_name="", sheet_name="sheet", df=test_df)
+        test_sheet = ExcelSheet(excel_name="", sheet_name="sheet", df=test_df, col_info=cols_en_de_1)
         expected = {
             "missing translations": "All nodes must be translated into the same languages. "
             "Based on the languages used, the following column(s) are missing: "
@@ -434,20 +434,12 @@ class TestCheckMissingTranslationsOneRow:
         assert result == ["en_1"]
 
 
-def test_make_columns() -> None:
-    res = _compose_all_combinatoric_column_titles(["1", "3"], {"en", "de", "fr"})
-    assert set(res.list_cols.columns) == {"en_list", "de_list", "fr_list"}
-    assert len(res.node_cols) == 2
-    assert set(res.node_cols[0].columns) == {"en_3", "de_3", "fr_3"}
-    assert set(res.node_cols[1].columns) == {"en_1", "de_1", "fr_1"}
-
-
 class TestCheckAllExcelForRowProblems:
     def test_all_good(self, f1_s1_good_en: ExcelSheet, f2_s2_good_en_de: ExcelSheet) -> None:
         all_sheets = [f1_s1_good_en, f2_s2_good_en_de]
         _check_for_erroneous_entries_all_excels(all_sheets)
 
-    def test_all_problem(self) -> None:
+    def test_all_problem(self, cols_en_1: Columns, cols_en_1_2: Columns) -> None:
         df_1 = pd.DataFrame({"en_list": ["list1", "list1", "list1", "list1"], "en_1": [pd.NA, "node1", pd.NA, "node3"]})
         df_2 = pd.DataFrame(
             {
@@ -457,8 +449,8 @@ class TestCheckAllExcelForRowProblems:
             }
         )
         all_sheets = [
-            ExcelSheet(excel_name="file1", sheet_name="sheet1", df=df_1),
-            ExcelSheet(excel_name="file2", sheet_name="sheet2", df=df_2),
+            ExcelSheet(excel_name="file1", sheet_name="sheet1", df=df_1, col_info=cols_en_1),
+            ExcelSheet(excel_name="file2", sheet_name="sheet2", df=df_2, col_info=cols_en_1_2),
         ]
         expected = regex.escape(
             "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"
@@ -475,12 +467,12 @@ class TestCheckAllExcelForRowProblems:
 
 
 class TestOneSheetErrors:
-    def test_all_good_flat(self) -> None:
+    def test_all_good_flat(self, cols_en_1: Columns) -> None:
         df = pd.DataFrame({"en_list": ["list1", "list1", "list1", "list1"], "en_1": [pd.NA, "node1", "node2", "node3"]})
-        test_sheet = ExcelSheet(excel_name="", sheet_name="sheet", df=df)
+        test_sheet = ExcelSheet(excel_name="", sheet_name="sheet", df=df, col_info=cols_en_1)
         assert not _check_for_erroneous_entries_one_list(test_sheet)
 
-    def test_problem(self) -> None:
+    def test_problem(self, cols_en_1_2: Columns) -> None:
         df = pd.DataFrame(
             {
                 "en_list": ["list1", "list1", "list1", "list1", "list1", "list1"],
@@ -488,7 +480,7 @@ class TestOneSheetErrors:
                 "en_2": [pd.NA, pd.NA, "node1.1", "node1.2", "node2.1", pd.NA],
             }
         )
-        test_sheet = ExcelSheet(excel_name="excel_name", sheet_name="sheet", df=df)
+        test_sheet = ExcelSheet(excel_name="excel_name", sheet_name="sheet", df=df, col_info=cols_en_1_2)
         res = _check_for_erroneous_entries_one_list(test_sheet)
         assert isinstance(res, ListSheetContentProblem)
         assert res.excel_name == "excel_name"

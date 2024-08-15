@@ -9,21 +9,24 @@ import pandas as pd
 class ExcelSheet:
     excel_name: str
     sheet_name: str
+    col_info: Columns
     df: pd.DataFrame
 
 
 @dataclass
 class Columns:
-    list_cols: ColumnsList
+    preferred_lang: str
+    list_cols: list[str]
     node_cols: list[ColumnNodes]
 
     def __post_init__(self) -> None:
         self.node_cols = sorted(self.node_cols, key=lambda x: x.level_num, reverse=True)
 
-
-@dataclass
-class ColumnsList:
-    columns: list[str]
+    def get_all(self) -> set[str]:
+        all_col = self.list_cols
+        for c in self.node_cols:
+            all_col.extend(c.columns)
+        return set(all_col)
 
 
 @dataclass

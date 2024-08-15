@@ -25,6 +25,7 @@ from dsp_tools.commands.excel2json.new_lists.utils import get_lang_string_from_c
 from dsp_tools.commands.excel2json.new_lists.utils import get_preferred_language
 from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
 from dsp_tools.models.exceptions import InputError
+from dsp_tools.commands.excel2json.utils import add_optional_columns
 
 
 def new_excel2lists(

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Optional
+from typing import Self
 from typing import Union
 from typing import cast
 
@@ -9,6 +10,16 @@ from lxml import etree
 
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 from dsp_tools.models.exceptions import XmlUploadError
+
+KNORA_API_PROPERTIES = {
+    "knora-api:isSegmentOf",
+    "knora-api:hasSegmentBounds",
+    "knora-api:hasTitle",
+    "knora-api:hasComment",
+    "knora-api:hasDescription",
+    "knora-api:hasKeyword",
+    "knora-api:relatesTo",
+}
 
 
 class XMLProperty:
@@ -46,16 +57,27 @@ class XMLProperty:
             prefix, name = node.attrib["name"].split(":")
             # replace an empty namespace with the default ontology name
             self.name = node.attrib["name"] if prefix else f"{default_ontology}:{name}"
-        listname = node.attrib.get("list")  # safe the list name if given (only for lists)
+        listname = node.attrib.get("list")  # save the list name if given (only for lists)
         self.valtype = valtype
         self.values = []
 
-        # parse the subnodes of the property nodes which contain the actual values of the property
-        for subnode in node:
-            if subnode.tag == valtype:  # the subnode must correspond to the expected value type
-                self.values.append(XMLValue(subnode, valtype, listname))
-            else:
-                raise XmlUploadError(f"ERROR Unexpected tag: '{subnode.tag}'. Property may contain only value tags!")
+        if self.name not in KNORA_API_PROPERTIES:
+            # parse the subnodes of the property nodes which contain the actual values of the property
+            for subnode in node:
+                if subnode.tag == valtype:  # the subnode must correspond to the expected value type
+                    self.values.append(XMLValue(subnode, valtype, listname))
+                else:
+                    raise XmlUploadError(
+                        f"ERROR Unexpected tag: '{subnode.tag}'. Property may contain only value tags!"
+                    )
+        elif self.name.endswith("hasSegmentBounds"):
+            value = f"{node.attrib["start"]}:{node.attrib["end"]}"
+            comment = node.attrib.get("comment")
+            permissions = node.attrib.get("permissions")
+            xml_value = XMLValue.factory_for_knora_api_props(value=value, comment=comment, permissions=permissions)
+            self.values = [xml_value]
+        else:
+            pass
 
 
 class XMLValue:
@@ -91,6 +113,15 @@ class XMLValue:
         else:
             self.value = "".join(node.itertext())
         self.link_uuid = node.attrib.get("linkUUID")  # not all richtexts have a link, so this attribute is optional
+
+    @classmethod
+    def factory_for_knora_api_props(cls, value: str, comment: str | None, permissions: str | None) -> Self:
+        instance = cls.__new__(cls)
+        instance.value = value
+        instance.resrefs = None
+        instance.comment = comment
+        instance.permissions = permissions
+        return instance
 
     def _cleanup_formatted_text(self, xmlstr_orig: str) -> str:
         """

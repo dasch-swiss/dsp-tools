@@ -20,7 +20,7 @@ from dsp_tools.models.exceptions import InputError
 defaultOntologyColon: Pattern[str] = regex.compile(r"^:\w+$")
 knoraUndeclared: Pattern[str] = regex.compile(r"^\w+$")
 genericPrefixedOntology: Pattern[str] = regex.compile(r"^[\w\-]+:\w+$")
-KNORA_BASE_VALUES = {
+KNORA_BASE_PROPERTIES = {
     "bitstream",
     "iiif-uri",
     "isSegmentOf",
@@ -111,7 +111,7 @@ def _get_all_property_names_and_resource_ids_one_resource(
     resource: etree._Element, prop_dict: dict[str, list[str]]
 ) -> dict[str, list[str]]:
     for prop in resource.iterchildren():
-        if prop.tag in KNORA_BASE_VALUES:
+        if prop.tag in KNORA_BASE_PROPERTIES:
             continue
         prop_name = prop.attrib["name"]
         if prop_name in prop_dict:

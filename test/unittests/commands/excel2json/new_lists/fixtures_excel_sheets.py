@@ -23,6 +23,8 @@ def f2_s2_good_en_de() -> ExcelSheet:
             "id (optional)": [1, 2, pd.NA, 4, 5, 6, 7, pd.NA],
             "en_list": ["list2", "list2", "list2", "list2", "list2", "list2", "list2", "list2"],
             "de_list": ["list2", "list2", "list2", "list2", "list2", "list2", "list2", "list2"],
+            "en_comments": ["comment en list", pd.NA, pd.NA, "comment en node1.1.1", pd.NA, pd.NA, pd.NA, pd.NA],
+            "de_comments": ["comment de list", pd.NA, pd.NA, "comment de node1.1.1", pd.NA, pd.NA, pd.NA, pd.NA],
             "en_1": [pd.NA, "node1", "node1", "node1", "node1", "node2", "node2", "node3"],
             "de_1": [pd.NA, "node1", "node1", "node1", "node1", "node2", "node2", "node3"],
             "en_2": [pd.NA, pd.NA, "node1.1", "node1.1", "node1.2", pd.NA, "node2.1", pd.NA],
@@ -202,6 +204,7 @@ def f2_s2_missing_lang_column() -> ExcelSheet:
         {
             "en_list": ["list1", "list1", "list1", "list1", "list1", "list1", "list1", "list1"],
             "de_list": ["list1", "list1", "list1", "list1", "list1", "list1", "list1", "list1"],
+            "de_comments": ["comment de list", pd.NA, pd.NA, "comment de node1.1.1", pd.NA, pd.NA, pd.NA, pd.NA],
             "en_1": [pd.NA, "node1", "node1", "node1", "node1", "node2", "node2", "node3"],
             "de_1": [pd.NA, "node1", "node1", "node1", "node1", "node2", "node2", "node3"],
             "en_2": [pd.NA, pd.NA, "node1.1", "node1.1", "node1.2", pd.NA, "node2.1", pd.NA],
@@ -218,6 +221,8 @@ def f2_s2_missing_translations() -> ExcelSheet:
         {
             "id (optional)": [1, 2, 3, 4, 5, 6, 7],
             "en_list": ["list3", "list3", "list3", "list3", "list3", "list3", "list3"],
+            "en_comments": ["comment en list", pd.NA, pd.NA, "comment en node1.1.1", pd.NA, pd.NA, pd.NA],
+            "de_comments": ["comment de list", pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
             "de_list": [pd.NA, "list3", "list3", "list3", "list3", "list3", "list3"],
             "en_1": [pd.NA, pd.NA, "node1", "node1", "node1", "node2", "node3"],
             "de_1": [pd.NA, "node1", "node1", "node1", "node1", "node2", pd.NA],

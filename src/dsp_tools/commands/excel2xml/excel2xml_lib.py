@@ -1972,7 +1972,7 @@ def make_hasComment_prop(
     Make a `<hasComment>` property for a `<video-segment>` or `<audio-segment>`.
 
     Args:
-        comment_text: a text with some background about the segment. Can be formatted with tags.
+        comment_text: a text with some background info about the segment. Can be formatted with tags.
         permissions: defaults to "prop-default".
         comment: optional comment for this property. Defaults to None.
         calling_resource: the name of the parent resource (for better error messages)
@@ -1990,6 +1990,34 @@ def make_hasComment_prop(
     if comment:
         prop.set("comment", comment)
     prop = _add_richtext_to_etree_element(comment_text, prop)
+    return prop
+
+
+def make_hasDescription_prop(
+    description: str, permissions: str = "prop-default", comment: str | None = None, calling_resource: str = ""
+) -> etree._Element:
+    """
+    Make a `<hasDescription>` property for a `<video-segment>` or `<audio-segment>`.
+
+    Args:
+        description: a text with some background info about the segment. Can be formatted with tags.
+        permissions: defaults to "prop-default".
+        comment: optional comment for this property. Defaults to None.
+        calling_resource: the name of the parent resource (for better error messages)
+
+    Returns:
+        an etree._Element that can be appended to an audio/video resource with `segment.append(make_hasDescription_prop(...))`
+    """
+    if not isinstance(description, str) or not check_notna(description):
+        msg = (
+            f"Validation Error in resource '{calling_resource}', property 'hasDescription': "
+            f"The following doesn't seem to be a valid string: '{description}'"
+        )
+        warnings.warn(DspToolsUserWarning(msg))
+    prop = etree.Element("{%s}hasDescription" % xml_namespace_map[None], permissions=permissions)
+    if comment:
+        prop.set("comment", comment)
+    prop = _add_richtext_to_etree_element(description, prop)
     return prop
 
 

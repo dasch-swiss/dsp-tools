@@ -1904,6 +1904,44 @@ def make_isSegmentOf_prop(
     return prop
 
 
+def make_relatesTo_prop(
+    target_id: str, permissions: str = "prop-default", comment: str | None = None, calling_resource: str = ""
+) -> etree._Element:
+    """
+    Make a `<relatesTo>` property for a `<video-segment>` or `<audio-segment>`.
+
+    Args:
+        target_id: ID of the related resource
+        permissions: defaults to "prop-default".
+        comment: optional comment for this property. Defaults to None.
+        calling_resource: the name of the parent resource (for better error messages)
+
+    Warns:
+        - If the target_id is not a valid string
+
+    Examples:
+        >>> video_segment = excel2xml.make_video_segment("label", "id")
+        >>> video_segment.append(excel2xml.make_relatesTo_prop("resource_id"))
+        >>> video_segment.append(excel2xml.make_relatesTo_prop("other_resource_id)
+        >>> # add other properties
+        >>> root.append(video_segment)
+
+    Returns:
+        an etree._Element that can be appended to an audio/video segment with `segment.append(make_relatesTo_prop(...))`
+    """
+    if not isinstance(target_id, str) or not check_notna(target_id):
+        msg = (
+            f"Validation Error in resource '{calling_resource}', property 'relatesTo': "
+            f"The following doesn't seem to be a valid ID of a target resource: '{target_id}'"
+        )
+        warnings.warn(DspToolsUserWarning(msg))
+    prop = etree.Element("{%s}relatesTo" % xml_namespace_map[None], permissions=permissions)
+    if comment:
+        prop.set("comment", comment)
+    prop.text = target_id
+    return prop
+
+
 def make_hasSegmentBounds_prop(
     start: int | float,
     end: int | float,

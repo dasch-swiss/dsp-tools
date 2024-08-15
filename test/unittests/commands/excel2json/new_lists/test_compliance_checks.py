@@ -17,7 +17,7 @@ from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_for
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_for_missing_translations_one_column_level
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_for_missing_translations_one_node
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_for_missing_translations_one_sheet
-from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_for_unique_list_names
+from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_for_unique_list_names, _check_missing_translations_one_row
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import (
     _check_if_all_translations_in_all_column_levels_present_one_sheet,
 )
@@ -28,7 +28,7 @@ from dsp_tools.commands.excel2json.new_lists.compliance_checks import _compose_a
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _make_shape_compliance_all_excels
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _make_shape_compliance_one_sheet
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import make_all_excel_compliance_checks
-from dsp_tools.commands.excel2json.new_lists.models.deserialise import ExcelSheet
+from dsp_tools.commands.excel2json.new_lists.models.deserialise import ExcelSheet, Columns, ColumnsList, ColumnNodes
 from dsp_tools.commands.excel2json.new_lists.models.input_error import DuplicatesCustomIDInProblem
 from dsp_tools.commands.excel2json.new_lists.models.input_error import DuplicatesInSheetProblem
 from dsp_tools.commands.excel2json.new_lists.models.input_error import ListSheetComplianceProblem
@@ -404,6 +404,19 @@ class TestAllNodesTranslatedIntoAllLanguages:
         for res, expct in zip(res_node_problems, expected):
             assert res.empty_columns == expct.empty_columns
             assert res.index_num == expct.index_num
+
+
+class TestCheckOneRow:
+
+    def test_good(self, f2_s2_good_en_de: ExcelSheet, cols_en_de_1_3: Columns) -> None:
+        for _, row in f2_s2_good_en_de.df.iterrows():
+            assert not _check_missing_translations_one_row(row, cols_en_de_1_3)
+
+    def test_one_missing(self, f2_s2_missing_translations: ExcelSheet, cols_en_de_1_3: Columns) -> None:
+        pass #idx 1
+
+    def test_three_missing(self, f2_s2_missing_translations: ExcelSheet, cols_en_de_1_3: Columns) -> None:
+        pass #idx 6
 
 
 class TestCheckOneHierarchy:

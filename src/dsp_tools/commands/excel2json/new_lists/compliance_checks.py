@@ -244,6 +244,10 @@ def _check_for_missing_translations_one_sheet(sheet: ExcelSheet) -> MissingTrans
     return None
 
 
+def _check_missing_translations_one_row(row: pd.Series[Any], columns: Columns) -> MissingNodeTranslationProblem | None:
+    pass
+
+
 def _check_for_missing_translations_one_column_level(
     columns: list[str], df: pd.DataFrame
 ) -> list[MissingNodeTranslationProblem]:

@@ -1,8 +1,7 @@
 import pandas as pd
 import pytest
 
-from dsp_tools.commands.excel2json.new_lists.models.deserialise import ExcelSheet
-
+from dsp_tools.commands.excel2json.new_lists.models.deserialise import ExcelSheet, Columns, ColumnsList, ColumnNodes
 
 @pytest.fixture()
 def f1_s1_good_en() -> ExcelSheet:
@@ -33,6 +32,16 @@ def f2_s2_good_en_de() -> ExcelSheet:
     )
     return ExcelSheet(excel_name="file2", sheet_name="sheet2", df=df)
 
+
+@pytest.fixture()
+def cols_en_de_1_3() -> Columns:
+    n_1 = ColumnNodes(level_num=1, columns=["en_1", "de_1"])
+    n_2 = ColumnNodes(level_num=2, columns=["en_2", "de_2"])
+    n_3 = ColumnNodes(level_num=3, columns=["en_3", "de_4"])
+    Columns(
+        list_cols=ColumnsList(["en_list", "de_list"]),
+        nodes_cols=[n_1, n_2, n_3]
+    )
 
 @pytest.fixture()
 def f1_s1_good_id_filled() -> ExcelSheet:

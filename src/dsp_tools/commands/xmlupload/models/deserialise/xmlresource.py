@@ -1,3 +1,4 @@
+import itertools
 from dataclasses import dataclass
 from typing import Optional
 
@@ -79,7 +80,10 @@ class XMLResource:
         self.permissions = node.attrib.get("permissions")
         self.bitstream = None
         self.iiif_uri = None
-        self.properties = []
+        self._init_properties(node, default_ontology)
+
+    def _init_properties(self, node: etree._Element, default_ontology: str) -> None:
+        ungrouped_properties: list[XMLProperty] = []
         for subnode in node:
             match subnode.tag:
                 case "bitstream":
@@ -87,15 +91,25 @@ class XMLResource:
                 case "iiif-uri":
                     self.iiif_uri = IIIFUriInfo(subnode)
                 case "isSegmentOf" | "relatesTo":
-                    self.properties.append(XMLProperty(subnode, "resptr", default_ontology))
+                    ungrouped_properties.append(XMLProperty(subnode, "resptr", default_ontology))
                 case "hasSegmentBounds":
-                    self.properties.append(XMLProperty(subnode, "interval", default_ontology))
+                    ungrouped_properties.append(XMLProperty(subnode, "interval", default_ontology))
                 case "hasTitle" | "hasComment" | "hasDescription" | "hasKeyword":
-                    self.properties.append(XMLProperty(subnode, "text", default_ontology))
+                    ungrouped_properties.append(XMLProperty(subnode, "text", default_ontology))
                 case _:
                     # get the property type which is in format type-prop, p.ex. <decimal-prop>
                     prop_type, _ = subnode.tag.split("-")
-                    self.properties.append(XMLProperty(subnode, prop_type, default_ontology))
+                    ungrouped_properties.append(XMLProperty(subnode, prop_type, default_ontology))
+        self.properties = []
+        ungrouped_properties.sort(key=lambda x: x.name)
+        for _, xml_props in itertools.groupby(ungrouped_properties, lambda x: x.name):
+            if len(xml_props_list := list(xml_props)) == 1:
+                self.properties.append(xml_props_list[0])
+            else:
+                new_prop = xml_props_list.pop(0)
+                for xml_prop in xml_props_list:
+                    new_prop.values.extend(xml_prop.values)
+                self.properties.append(new_prop)
 
     def get_props_with_links(self) -> list[XMLProperty]:
         """

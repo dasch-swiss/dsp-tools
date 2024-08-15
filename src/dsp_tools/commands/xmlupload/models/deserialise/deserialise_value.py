@@ -9,6 +9,7 @@ import regex
 from lxml import etree
 
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
+from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import XmlUploadError
 
 KNORA_API_PROPERTIES = {
@@ -70,14 +71,17 @@ class XMLProperty:
                     raise XmlUploadError(
                         f"ERROR Unexpected tag: '{subnode.tag}'. Property may contain only value tags!"
                     )
-        elif self.name.endswith("hasSegmentBounds"):
-            value = f"{node.attrib["start"]}:{node.attrib["end"]}"
+        else:
+            if self.name.endswith("hasSegmentBounds"):
+                value = f"{node.attrib["start"]}:{node.attrib["end"]}"
+            elif node.text:
+                value = node.text
+            else:
+                raise BaseError(f"XML node '{node.tag}' has no text content")
             comment = node.attrib.get("comment")
             permissions = node.attrib.get("permissions")
             xml_value = XMLValue.factory_for_knora_api_props(value=value, comment=comment, permissions=permissions)
             self.values = [xml_value]
-        else:
-            pass
 
 
 class XMLValue:

@@ -1955,13 +1955,41 @@ def make_hasTitle_prop(
     if not isinstance(title, str) or not check_notna(title):
         msg = (
             f"Validation Error in resource '{calling_resource}', property 'hasTitle': "
-            f"The following doesn't seem to be a valid title: '{title}'"
+            f"The following doesn't seem to be a valid string: '{title}'"
         )
         warnings.warn(DspToolsUserWarning(msg))
     prop = etree.Element("{%s}hasTitle" % xml_namespace_map[None], permissions=permissions)
     if comment:
         prop.set("comment", comment)
     prop.text = title
+    return prop
+
+
+def make_hasKeyword_prop(
+    keyword: str, permissions: str = "prop-default", comment: str | None = None, calling_resource: str = ""
+) -> etree._Element:
+    """
+    Make a `<hasKeyword>` property for a `<video-segment>` or `<audio-segment>`.
+
+    Args:
+        keyword: a keyword of the segment
+        permissions: defaults to "prop-default".
+        comment: optional comment for this property. Defaults to None.
+        calling_resource: the name of the parent resource (for better error messages)
+
+    Returns:
+        an etree._Element that can be appended to an audio/video resource with `segment.append(make_hasKeyword_prop(...))`
+    """
+    if not isinstance(keyword, str) or not check_notna(keyword):
+        msg = (
+            f"Validation Error in resource '{calling_resource}', property 'hasKeyword': "
+            f"The following doesn't seem to be a valid string: '{keyword}'"
+        )
+        warnings.warn(DspToolsUserWarning(msg))
+    prop = etree.Element("{%s}hasKeyword" % xml_namespace_map[None], permissions=permissions)
+    if comment:
+        prop.set("comment", comment)
+    prop.text = keyword
     return prop
 
 

@@ -1114,78 +1114,6 @@ def make_integer_prop(
     return prop_
 
 
-def make_interval_prop(name: str, value: Union[PropertyElement, str], calling_resource: str = "") -> etree._Element:
-    """
-    Make a <interval-prop name="hasSegmentBounds"> for a <video-segment> or <audio-segment>.
-    The interval can be provided as string or as PropertyElement with a string inside.
-    If provided as string, the permissions default to "prop-default".
-    DSP interval values are formatted as "start_seconds:end_seconds".
-    Both numbers can have a decimal point, for fractions of seconds.
-
-    Args:
-        name: the name of this property. The only accepted value is "hasSegmentBounds"
-        value: a DSP interval, as string or PropertyElement
-        calling_resource: the name of the parent resource (for better error messages)
-
-    Warns:
-        - If the value is not a valid DSP interval
-        - If the name is not "hasSegmentBounds"
-
-    Returns:
-        an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
-
-    Examples:
-        >>> interval = excel2xml.create_interval_value(start="0:01:00", end="0:02:00")  # result: "60:120"
-        >>> excel2xml.make_interval_prop("hasSegmentBounds", inverval)
-                <interval-prop name="hasSegmentBounds">
-                    <interval permissions="prop-default">60:120</interval>
-                </interval-prop>
-        >>> interval = excel2xml.create_interval_value(start="0:30:00", end="1:00:00")  # result: "1800:3600"
-        >>> excel2xml.make_interval_prop("hasSegmentBounds", excel2xml.PropertyElement(interval, permissions="prop-restricted", comment="example"))
-                <interval-prop name="hasSegmentBounds>
-                    <interval permissions="prop-restricted" comment="example">1800:3600</interval>
-                </interval-prop>
-
-    See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#video-segment-audio-segment
-    """
-
-    if name != "hasSegmentBounds":
-        msg = (
-            f"Failed validation in resource '{calling_resource}', property '{name}': "
-            f"The only accepted value for 'name' is 'hasSegmentBounds'."
-        )
-        warnings.warn(DspToolsUserWarning(msg))
-
-    value = value if isinstance(value, PropertyElement) else PropertyElement(value)
-
-    # check value type
-    if not regex.match(r"\d+(\.\d+)?:\d+(\.\d+)?", str(value.value)):
-        msg = (
-            f"Failed validation in resource '{calling_resource}', property '{name}': "
-            f"'{value.value}' is not a valid DSP interval."
-        )
-        warnings.warn(DspToolsUserWarning(msg))
-
-    # make xml structure of the valid values
-    prop_ = etree.Element(
-        "{%s}interval-prop" % xml_namespace_map[None],
-        name=name,
-        nsmap=xml_namespace_map,
-    )
-    kwargs = {"permissions": value.permissions}
-    if value.comment and check_notna(value.comment):
-        kwargs["comment"] = value.comment
-    value_ = etree.Element(
-        "{%s}interval" % xml_namespace_map[None],
-        **kwargs,  # type: ignore[arg-type]
-        nsmap=xml_namespace_map,
-    )
-    value_.text = str(value.value)
-    prop_.append(value_)
-
-    return prop_
-
-
 def make_list_prop(
     list_name: str,
     name: str,
@@ -2143,43 +2071,6 @@ def make_hasDescription_prop(
         prop.set("comment", comment)
     prop = _add_richtext_to_etree_element(description, prop)
     return prop
-
-
-def create_interval_value(start: str, end: str) -> str:
-    """
-    Transform a start and end time into a valid DSP interval value,
-    which then can be used in an <interval name="hasSegmentBounds"> tag,
-    which is used in <audio-segment> and <video-segment> elements.
-
-    Args:
-        start: start time of the video/audio segment, in the format 'H(H):MM:SS(.s)'
-        end: end time of the video/audio segment, in the format 'H(H):MM:SS(.s)'
-
-    Raises:
-        ValueError: if the provided arguments are not in the correct format, or if the start time is greater than the end time
-
-    Returns:
-        a DSP interval value in the format 'start_seconds:end_seconds'
-
-    Examples:
-        >>> excel2xml.create_interval_value("0:01:00", "0:02:00")
-        "60:120"
-        >>> excel2xml.create_interval_value("0:01:00.5", "0:01:00.6")
-        "60.5:60.6"
-    """
-    start_match = regex.search(r"^(\d+):([0-5][0-9]):([0-5][0-9](?:\.[0-9]+)?)$", start)
-    end_match = regex.match(r"^(\d+):([0-5][0-9]):([0-5][0-9](?:\.[0-9]+)?)$", end)
-    if not start_match or not end_match:
-        raise ValueError("The start and end values must be in the format 'H(H):MM:SS(.s)'")
-    start_h, start_m, start_s = start_match.groups()
-    end_h, end_m, end_s = end_match.groups()
-    start_seconds = int(start_h) * 3600 + int(start_m) * 60 + float(start_s)
-    end_seconds = int(end_h) * 3600 + int(end_m) * 60 + float(end_s)
-    start_seconds = int(start_seconds) if start_seconds.is_integer() else start_seconds
-    end_seconds = int(end_seconds) if end_seconds.is_integer() else end_seconds
-    if start_seconds > end_seconds:
-        raise ValueError("The start value must be smaller than the end value")
-    return f"{start_seconds}:{end_seconds}"
 
 
 def create_json_excel_list_mapping(

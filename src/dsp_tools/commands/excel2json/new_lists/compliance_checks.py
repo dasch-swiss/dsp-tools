@@ -236,7 +236,7 @@ def _check_for_missing_translations_one_sheet(sheet: ExcelSheet) -> MissingTrans
     languages = get_all_languages_for_columns(sheet.df.columns)
     all_cols = _compose_all_combinatoric_column_titles(col_endings, languages)
     problems = []
-    for column_group in all_cols.reverse_sorted_node_cols():
+    for column_group in all_cols.node_cols:
         problems.extend(_check_for_missing_translations_one_column_level(column_group.columns, sheet.df))
     problems.extend(_check_for_missing_translations_one_column_level(all_cols.list_cols.columns, sheet.df))
     if problems:
@@ -264,7 +264,7 @@ def _compose_all_combinatoric_column_titles(nums: list[str], languages: set[str]
     for n in nums:
         node_cols.append(ColumnNodes(level_num=int(n), columns=[f"{lang}_{n}" for lang in languages]))
     list_columns = ColumnsList([f"{lang}_list" for lang in languages])
-    return Columns(list_cols=list_columns, nodes_cols=node_cols)
+    return Columns(list_cols=list_columns, node_cols=node_cols)
 
 
 def _check_for_missing_translations_one_node(

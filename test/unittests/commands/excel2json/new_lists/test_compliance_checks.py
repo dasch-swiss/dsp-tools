@@ -1,5 +1,4 @@
 import warnings
-from typing import Any
 from typing import cast
 
 import pandas as pd
@@ -414,15 +413,13 @@ class TestCheckMissingTranslationsOneRow:
             assert not _check_missing_translations_one_row(int(str(i)), row, cols_en_de_1_3)
 
     def test_one_missing(self, f2_s2_missing_translations: ExcelSheet, cols_en_de_1_3: Columns) -> None:
-        row = cast(pd.Series[Any], f2_s2_missing_translations.df.loc[1])
-        result = _check_missing_translations_one_row(1, row, cols_en_de_1_3)
+        result = _check_missing_translations_one_row(1, f2_s2_missing_translations.df.loc[1], cols_en_de_1_3)  # type: ignore[arg-type]
         assert isinstance(result, MissingNodeTranslationProblem)
         assert set(result.empty_columns) == {"en_1"}
         assert result.index_num == 1
 
     def test_three_missing(self, f2_s2_missing_translations: ExcelSheet, cols_en_de_1_3: Columns) -> None:
-        row = cast(pd.Series[Any], f2_s2_missing_translations.df.loc[4])
-        result = _check_missing_translations_one_row(4, row, cols_en_de_1_3)
+        result = _check_missing_translations_one_row(4, f2_s2_missing_translations.df.loc[4], cols_en_de_1_3)  # type: ignore[arg-type]
         assert isinstance(result, MissingNodeTranslationProblem)
         assert set(result.empty_columns) == {"en_list", "en_1", "en_2"}
         assert result.index_num == 4

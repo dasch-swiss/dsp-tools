@@ -221,9 +221,9 @@ def f2_s2_missing_translations() -> ExcelSheet:
         {
             "id (optional)": [1, 2, 3, 4, 5, 6, 7],
             "en_list": ["list3", "list3", "list3", "list3", "list3", "list3", "list3"],
+            "de_list": [pd.NA, "list3", "list3", "list3", "list3", "list3", pd.NA],
             "en_comments": ["comment en list", pd.NA, pd.NA, "comment en node1.1.1", pd.NA, pd.NA, pd.NA],
             "de_comments": ["comment de list", pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
-            "de_list": [pd.NA, "list3", "list3", "list3", "list3", "list3", "list3"],
             "en_1": [pd.NA, pd.NA, "node1", "node1", "node1", "node2", "node3"],
             "de_1": [pd.NA, "node1", "node1", "node1", "node1", "node2", pd.NA],
             "en_2": [pd.NA, pd.NA, "node1.1", "node1.1", "node1.2", pd.NA, pd.NA],

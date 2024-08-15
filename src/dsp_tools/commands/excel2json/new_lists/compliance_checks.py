@@ -11,7 +11,7 @@ from loguru import logger
 
 from dsp_tools.commands.excel2json.models.input_error import PositionInExcel
 from dsp_tools.commands.excel2json.models.input_error import Problem
-from dsp_tools.commands.excel2json.new_lists.models.deserialise import ColumnNodes
+from dsp_tools.commands.excel2json.new_lists.models.deserialise import ColumnNodes, ColumnsComments
 from dsp_tools.commands.excel2json.new_lists.models.deserialise import Columns
 from dsp_tools.commands.excel2json.new_lists.models.deserialise import ColumnsList
 from dsp_tools.commands.excel2json.new_lists.models.deserialise import ExcelSheet
@@ -239,6 +239,7 @@ def _check_for_missing_translations_one_sheet(sheet: ExcelSheet) -> MissingTrans
     for column_group in all_cols.reverse_sorted_node_cols():
         problems.extend(_check_for_missing_translations_one_column_level(column_group.columns, sheet.df))
     problems.extend(_check_for_missing_translations_one_column_level(all_cols.list_cols.columns, sheet.df))
+    problems.extend(_check_for_missing_translations_one_column_level(all_cols.comment_cols.columns, sheet.df))
     if problems:
         return MissingTranslationsSheetProblem(sheet.excel_name, sheet.sheet_name, problems)
     return None
@@ -260,16 +261,18 @@ def _compose_all_combinatoric_column_titles(nums: list[str], languages: set[str]
     for n in nums:
         node_cols.append(ColumnNodes(level_num=int(n), columns=[f"{lang}_{n}" for lang in languages]))
     list_columns = ColumnsList([f"{lang}_list" for lang in languages])
-    return Columns(list_cols=list_columns, nodes_cols=node_cols)
+    comment_cols = ColumnsComments([f"{lang}_comments" for lang in languages])
+    return Columns(list_cols=list_columns, comment_cols=comment_cols, nodes_cols=node_cols)
 
 
 def _check_for_missing_translations_one_node(
     row: pd.Series[Any], columns: list[str], row_index: int
 ) -> MissingNodeTranslationProblem | None:
-    missing = row[columns].isna()
-    if missing.any() and not missing.all():
-        missing_cols = [str(index) for index, is_missing in missing.items() if is_missing]
-        return MissingNodeTranslationProblem(missing_cols, row_index)
+    if columns in list(row.index):
+        missing = row[columns].isna()
+        if missing.any() and not missing.all():
+            missing_cols = [str(index) for index, is_missing in missing.items() if is_missing]
+            return MissingNodeTranslationProblem(missing_cols, row_index)
     return None
 
 

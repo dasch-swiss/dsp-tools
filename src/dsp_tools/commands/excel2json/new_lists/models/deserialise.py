@@ -15,6 +15,7 @@ class ExcelSheet:
 @dataclass
 class Columns:
     list_cols: ColumnsList
+    comment_cols: ColumnsComments
     nodes_cols: list[ColumnNodes]
 
     def reverse_sorted_node_cols(self) -> list[ColumnNodes]:
@@ -23,6 +24,11 @@ class Columns:
 
 @dataclass
 class ColumnsList:
+    columns: list[str]
+
+
+@dataclass
+class ColumnsComments:
     columns: list[str]
 
 

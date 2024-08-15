@@ -89,6 +89,7 @@ class TestMakeAllExcelComplianceChecks:
             "For the following nodes, the translations are missing:\n"
             "    - Row Number: 2 | Column(s): de_list\n"
             "    - Row Number: 3 | Column(s): en_1\n"
+            "    - Row Number: 6 | Column(s): de_comments\n"
             "    - Row Number: 8 | Column(s): de_1"
         )
         with pytest.raises(InputError, match=expected):
@@ -114,7 +115,7 @@ class TestFormalExcelCompliance:
             "The Excel file 'file2' contains the following problems:\n\n"
             "The excel sheet 'sheet2' has the following problem(s):\n"
             "    - missing translations: All nodes must be translated into the same languages. "
-            "Based on the languages used, the following column(s) are missing: de_3\n"
+            "Based on the languages used, the following column(s) are missing: de_3, en_comments\n"
             "----------------------------\n"
             "The excel sheet 'sheet3' has the following problem(s):\n"
             "    - minimum rows: The Excel sheet must contain at least two rows, "
@@ -380,7 +381,8 @@ class TestCheckAllExcelsMissingTranslations:
             "For the following nodes, the translations are missing:\n"
             "    - Row Number: 2 | Column(s): de_list\n"
             "    - Row Number: 3 | Column(s): en_1\n"
-            "    - Row Number: 8 | Column(s): de_1"
+            "    - Row Number: 6 | Column(s): de_comments\n"
+            "    - Row Number: 8 | Column(s): de_1, de_list"
         )
         with pytest.raises(InputError, match=expected):
             _check_for_missing_translations_all_excels(all_sheets)
@@ -452,6 +454,7 @@ class TestCheckOneNodeForTranslation:
 def test_make_columns() -> None:
     res = _compose_all_combinatoric_column_titles(["1", "3"], {"en", "de", "fr"})
     assert set(res.list_cols.columns) == {"en_list", "de_list", "fr_list"}
+    assert set(res.comment_cols.columns) == {"en_comments", "de_comments", "fr_comments"}
     assert len(res.nodes_cols) == 2
     sorted_cols = res.reverse_sorted_node_cols()
     assert set(sorted_cols[0].columns) == {"en_3", "de_3", "fr_3"}

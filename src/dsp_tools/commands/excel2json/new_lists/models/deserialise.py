@@ -16,10 +16,10 @@ class ExcelSheet:
 class Columns:
     list_cols: ColumnsList
     comment_cols: ColumnsComments
-    nodes_cols: list[ColumnNodes]
+    node_cols: list[ColumnNodes]
 
-    def reverse_sorted_node_cols(self) -> list[ColumnNodes]:
-        return sorted(self.nodes_cols, key=lambda x: x.level_num, reverse=True)
+    def __post_init__(self) -> None:
+        self.node_cols = sorted(self.node_cols, key=lambda x: x.level_num, reverse=True)
 
 
 @dataclass

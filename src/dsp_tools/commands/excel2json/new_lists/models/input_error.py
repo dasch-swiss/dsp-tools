@@ -181,7 +181,7 @@ class MissingNodeTranslationProblem:
     index_num: int
 
     def execute_error_protocol(self) -> str:
-        return f"Row Number: {self.index_num + 2} | Column(s): {', '.join(self.empty_columns)}"
+        return f"Row Number: {self.index_num + 2} | Column(s): {', '.join(sorted(self.empty_columns))}"
 
 
 @dataclass(frozen=True)

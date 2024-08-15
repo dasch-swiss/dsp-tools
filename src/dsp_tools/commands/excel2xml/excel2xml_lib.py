@@ -1842,8 +1842,8 @@ def make_video_segment(  # noqa: D417 (undocumented-param)
 
     Examples:
         >>> video_segment = excel2xml.make_video_segment("label", "id")
-        >>> video_segment.append(excel2xml.make_resptr_prop("isSegmentOf", "video_resource_id"))
-        >>> video_segment.append(excel2xml.make_interval_prop("hasSegmentBounds", "60:120")
+        >>> video_segment.append(excel2xml.make_isSegmentOf_prop("video_resource_id"))
+        >>> video_segment.append(excel2xml.make_hasSegmentBounds_prop(start=60, end=120)
         >>> root.append(video_segment)
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#video-segment-audio-segment
@@ -1855,6 +1855,76 @@ def make_video_segment(  # noqa: D417 (undocumented-param)
         permissions=permissions,
         nsmap=xml_namespace_map,
     )
+
+
+def make_isSegmentOf_prop(
+    value: str, permissions: str = "prop-default", comment: str | None = None, calling_resource: str = ""
+) -> etree._Element:
+    """
+    Make a <isSegmentOf> property for a <video-segment> or <audio-segment>.
+
+    Args:
+        value: ID of target video/audio resource
+        permissions: Defaults to "prop-default".
+        comment: Optional comment for this property. Defaults to None.
+        calling_resource: the name of the parent resource (for better error messages)
+
+    Returns:
+        an etree._Element that can be appended to an audio/video resource with resource.append(make_isSegmentOf_prop(...))
+    """
+    if not isinstance(value, str) or not check_notna(value):
+        msg = (
+            f"Validation Error in resource '{calling_resource}', property 'isSegmentOf': "
+            f"The following doesn't seem to be a valid ID of a target resource: '{value}'"
+        )
+        warnings.warn(DspToolsUserWarning(msg))
+    prop = etree.Element("{%s}isSegmentOf" % xml_namespace_map[None], permissions=permissions)
+    if comment:
+        prop.set("comment", comment)
+    prop.text = value
+    return prop
+
+
+def make_hasSegmentBounds_prop(
+    start: int | float,
+    end: int | float,
+    permissions: str = "prop-default",
+    comment: str | None = None,
+    calling_resource: str = "",
+) -> etree._Element:
+    """
+    Make a <hasSegmentBounds> property for a <video-segment> or <audio-segment>.
+
+    Args:
+        start: start, in seconds, counted from the beginning of the audio/video
+        end: end, in seconds, counted from the beginning of the audio/video
+        permissions: Defaults to "prop-default".
+        comment: Optional comment for this property. Defaults to None.
+        calling_resource: the name of the parent resource (for better error messages)
+
+    Returns:
+        an etree._Element that can be appended to an audio/video resource with resource.append(make_hasSegmentBounds_prop(...))
+    """
+    if not isinstance(start, (int, float)) or not isinstance(end, (int, float)):
+        msg = (
+            f"Validation Error in resource '{calling_resource}', property 'hasSegmentBounds': "
+            f"The start and the end of an audio/video segment must be integers or floats, "
+            f"but you provided: {start=} and {end=}"
+        )
+        warnings.warn(DspToolsUserWarning(msg))
+    if start > end:
+        msg = (
+            f"Validation Error in resource '{calling_resource}', property 'hasSegmentBounds': "
+            f"The start of an audio/video segment must be smaller than the end, "
+            f"but you provided: {start=} and {end=}"
+        )
+        warnings.warn(DspToolsUserWarning(msg))
+    prop = etree.Element(
+        "{%s}hasSegmentBounds" % xml_namespace_map[None], start=str(start), end=str(end), permissions=permissions
+    )
+    if comment:
+        prop.set("comment", comment)
+    return prop
 
 
 def create_interval_value(start: str, end: str) -> str:

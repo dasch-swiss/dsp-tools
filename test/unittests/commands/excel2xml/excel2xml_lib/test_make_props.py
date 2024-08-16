@@ -558,3 +558,73 @@ class Test_hasSegmentBounds_Prop:
         assert res.attrib["start"] == "foo"
         assert res.attrib["end"] == "2"
         assert res.text is None
+
+
+@pytest.mark.parametrize(
+    ("tag", "func"),
+    [("hasTitle", excel2xml.make_hasTitle_prop), ("hasKeyword", excel2xml.make_hasKeyword_prop)],
+)
+class Test_hasTitle_hasKeyword:
+    def test_defaults(self, tag: str, func: Callable[..., etree._Element]) -> None:
+        res = func("my text ...")
+        assert res.tag.endswith(tag)
+        assert res.attrib["permissions"] == "prop-default"
+        assert "comment" not in res.attrib
+        assert res.text == "my text ..."
+
+    def test_custom_params(self, tag: str, func: Callable[..., etree._Element]) -> None:
+        res = func("my text ...", "prop-restricted", "my comment")
+        assert res.tag.endswith(tag)
+        assert res.attrib["permissions"] == "prop-restricted"
+        assert res.attrib["comment"] == "my comment"
+        assert res.text == "my text ..."
+
+    def test_invalid(self, tag: str, func: Callable[..., etree._Element]) -> None:
+        with pytest.warns(DspToolsUserWarning):
+            res = func("<NA>")
+        assert res.tag.endswith(tag)
+        assert res.attrib["permissions"] == "prop-default"
+        assert "comment" not in res.attrib
+        assert res.text == "<NA>"
+
+
+@pytest.mark.parametrize(
+    ("tag", "func"),
+    [("hasComment", excel2xml.make_hasComment_prop), ("hasDescription", excel2xml.make_hasDescription_prop)],
+)
+class Test_hasComment_hasDescription:
+    def test_defaults(self, tag: str, func: Callable[..., etree._Element]) -> None:
+        res = func("my text ...")
+        assert res.tag.endswith(tag)
+        assert res.attrib["permissions"] == "prop-default"
+        assert "comment" not in res.attrib
+        assert res.text == "my text ..."
+
+    def test_custom_params(self, tag: str, func: Callable[..., etree._Element]) -> None:
+        res = func("my text ...", "prop-restricted", "my comment")
+        assert res.tag.endswith(tag)
+        assert res.attrib["permissions"] == "prop-restricted"
+        assert res.attrib["comment"] == "my comment"
+        assert res.text == "my text ..."
+
+    def test_invalid(self, tag: str, func: Callable[..., etree._Element]) -> None:
+        with pytest.warns(DspToolsUserWarning):
+            res = func("<NA>")
+        assert res.tag.endswith(tag)
+        assert res.attrib["permissions"] == "prop-default"
+        assert "comment" not in res.attrib
+        assert res.text == "<NA>"
+
+    def test_richtext(self, tag: str, func: Callable[..., etree._Element]) -> None:
+        text = "<p>my <strong>bold <em>and italiziced</em></strong> text ...</p>"
+        res = func(text)
+        assert res.tag.endswith(tag)
+        assert res.attrib["permissions"] == "prop-default"
+        assert "comment" not in res.attrib
+        serialized_text = regex.sub(rf"<ns0:{tag} .+?>|</ns0:{tag}>", "", etree.tostring(res, encoding="unicode"))
+        assert serialized_text == text
+
+    def test_invalid_richtext(self, tag: str, func: Callable[..., etree._Element]) -> None:  # noqa: ARG002 (unused arg)
+        text = "<p> my <pseudo> & xml </>"
+        with pytest.raises(BaseError, match=regex.escape("must be well-formed")):
+            func(text)

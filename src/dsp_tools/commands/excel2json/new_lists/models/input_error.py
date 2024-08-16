@@ -208,29 +208,20 @@ class MinimumRowsProblem:
 
 
 @dataclass(frozen=True)
-class MissingListColumn:
-    def execute_error_protocol(self) -> str:
-        return (
-            "At least one column for the list name in the format '[lang]_list' is required."
-            "The allowed language tags are: en, de, fr, it, rm."
-        )
-
-
-@dataclass(frozen=True)
 class MissingNodeColumn:
     def execute_error_protocol(self) -> str:
         return (
-            "At least one column for the node names in the format '[lang]_[column_number]' is required."
+            "At least one column for the node names in the format '[lang]_[column_number]' is required. "
             "The allowed language tags are: en, de, fr, it, rm."
         )
 
 
 @dataclass
-class MissingTranslationColumn:
+class MissingExpectedColumn:
     missing_cols: set[str]
 
     def execute_error_protocol(self) -> str:
         return (
-            f"All nodes must be translated into the same languages. "
+            f"All nodes and lists must be translated into the same languages. "
             f"Based on the languages used, the following column(s) are missing: {', '.join(self.missing_cols)}"
         )

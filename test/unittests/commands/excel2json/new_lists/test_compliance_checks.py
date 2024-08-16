@@ -1,5 +1,4 @@
 import warnings
-from typing import cast
 
 import pandas as pd
 import pytest
@@ -20,7 +19,6 @@ from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_for
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import (
     _check_if_all_translations_in_all_column_levels_present_one_sheet,
 )
-from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_if_minimum_number_of_cols_present_one_sheet
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_missing_translations_one_row
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_warn_unusual_columns_one_sheet
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _make_shape_compliance_all_excels
@@ -33,6 +31,8 @@ from dsp_tools.commands.excel2json.new_lists.models.input_error import Duplicate
 from dsp_tools.commands.excel2json.new_lists.models.input_error import ListSheetComplianceProblem
 from dsp_tools.commands.excel2json.new_lists.models.input_error import ListSheetContentProblem
 from dsp_tools.commands.excel2json.new_lists.models.input_error import MinimumRowsProblem
+from dsp_tools.commands.excel2json.new_lists.models.input_error import MissingExpectedColumn
+from dsp_tools.commands.excel2json.new_lists.models.input_error import MissingNodeColumn
 from dsp_tools.commands.excel2json.new_lists.models.input_error import MissingNodeTranslationProblem
 from dsp_tools.commands.excel2json.new_lists.models.input_error import MissingTranslationsSheetProblem
 from dsp_tools.commands.excel2json.new_lists.models.input_error import NodesPerRowProblem
@@ -108,18 +108,19 @@ class TestFormalExcelCompliance:
             "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"
             "The Excel file 'file1' contains the following problems:\n\n"
             "The excel sheet 'sheet1' has the following problem(s):\n"
-            "    - missing columns for nodes: There is no column with the expected format for the list nodes: "
-            "'[lang]_[column_number]'\n\n"
-            "---------------------------------------\n\n"
+            "    - At least one column for the node names in the format '[lang]_[column_number]' is required. "
+            "The allowed language tags are: en, de, fr, it, rm."
+            "\n\n---------------------------------------\n\n"
             "The Excel file 'file2' contains the following problems:\n\n"
             "The excel sheet 'sheet2' has the following problem(s):\n"
-            "    - missing translations: All nodes must be translated into the same languages. "
-            "Based on the languages used, the following column(s) are missing: de_3\n"
-            "----------------------------\n"
+            "    - All nodes and lists must be translated into the same languages. "
+            "Based on the languages used, the following column(s) are missing: de_3"
+            "\n----------------------------\n"
             "The excel sheet 'sheet3' has the following problem(s):\n"
-            "    - minimum rows: The Excel sheet must contain at least two rows, "
+            "    - The Excel sheet must contain at least two rows, "
             "one for the list name and one row for a minimum of one node."
         )
+
         with pytest.raises(InputError, match=expected):
             _make_shape_compliance_all_excels(all_sheets)
 
@@ -251,15 +252,9 @@ class TestShapeCompliance:
         test_sheet = ExcelSheet(excel_name="", sheet_name="sheet", df=test_df, col_info=cols_en_1)
         assert not _make_shape_compliance_one_sheet(test_sheet)
 
-    def test_problems_one(self, cols_en_list_only: Columns) -> None:
-        test_df = pd.DataFrame({"id (optional)": [1], "en_list": ["a"], "additional_1": ["b"]})
+    def test_missing_node_column(self, cols_en_list_only: Columns) -> None:
+        test_df = pd.DataFrame({"id (optional)": [1, 1], "en_list": ["a", "b"], "additional_1": ["b", "c"]})
         test_sheet = ExcelSheet(excel_name="excel", sheet_name="sheet", df=test_df, col_info=cols_en_list_only)
-        expected = {
-            "minimum rows": "The Excel sheet must contain at least two rows, "
-            "one for the list name and one row for a minimum of one node.",
-            "missing columns for nodes": "There is no column with the expected format for the list nodes: "
-            "'[lang]_[column_number]'",
-        }
         warning_msg = regex.escape(
             "The following columns do not conform to the expected format "
             "and will not be included in the output: additional_1"
@@ -269,50 +264,42 @@ class TestShapeCompliance:
             assert isinstance(res, ListSheetComplianceProblem)
             assert res.excel_name == "excel"
             assert res.sheet_name == "sheet"
-            assert res.problems == expected
+            assert len(res.problems) == 1
+            assert isinstance(res.problems[0], MissingNodeColumn)
 
-    def test_problems_two(self, cols_en_de_1: Columns) -> None:
-        test_df = pd.DataFrame({"id (optional)": [1, 2], "en_list": ["a", "b"], "en_1": ["b", "c"], "de_1": ["b", "c"]})
-        test_sheet = ExcelSheet(excel_name="", sheet_name="sheet", df=test_df, col_info=cols_en_de_1)
-        expected = {
-            "missing translations": "All nodes must be translated into the same languages. "
-            "Based on the languages used, the following column(s) are missing: "
-            "de_list"
-        }
+    def test_missing_list_column(self, cols_en_de_1: Columns) -> None:
+        test_df = pd.DataFrame({"id (optional)": [1, 2], "en_1": ["b", "c"]})
+        test_sheet = ExcelSheet(excel_name="excel", sheet_name="sheet", df=test_df, col_info=cols_en_de_1)
         res = _make_shape_compliance_one_sheet(test_sheet)
-        res = cast(ListSheetComplianceProblem, res)
-        assert res.problems == expected
+        assert isinstance(res, ListSheetComplianceProblem)
+        assert res.excel_name == "excel"
+        assert res.sheet_name == "sheet"
+        assert len(res.problems) == 1
+        missing = res.problems[0]
+        assert isinstance(missing, MissingExpectedColumn)
+        assert missing.missing_cols == {"en_list"}
+
+    def test_missing_translation_column(self, cols_en_de_1: Columns) -> None:
+        test_df = pd.DataFrame(
+            {"id (optional)": [1, 2], "en_list": ["a", "b"], "de_list": ["b", "c"], "de_1": ["b", "c"]}
+        )
+        test_sheet = ExcelSheet(excel_name="excel", sheet_name="sheet", df=test_df, col_info=cols_en_de_1)
+        res = _make_shape_compliance_one_sheet(test_sheet)
+        assert isinstance(res, ListSheetComplianceProblem)
+        assert res.excel_name == "excel"
+        assert res.sheet_name == "sheet"
+        assert len(res.problems) == 1
+        missing = res.problems[0]
+        assert isinstance(missing, MissingExpectedColumn)
+        assert missing.missing_cols == {"en_1"}
 
     def test_missing_rows(self, cols_en_1: Columns) -> None:
         test_df = pd.DataFrame({"id (optional)": [1], "en_list": ["a"], "en_1": ["d"]})
         test_sheet = ExcelSheet(excel_name="", sheet_name="sheet", df=test_df, col_info=cols_en_1)
-        assert isinstance(_make_shape_compliance_one_sheet(test_sheet), MinimumRowsProblem)
-
-
-class TestCheckMinNumColNamesPresent:
-    def test_good(self) -> None:
-        col_names = pd.Index(["id (optional)", "en_list", "en_2"])
-        assert not _check_if_minimum_number_of_cols_present_one_sheet(col_names)
-
-    def test_good_no_id(self) -> None:
-        col_names = pd.Index(["en_list", "en_2"])
-        assert not _check_if_minimum_number_of_cols_present_one_sheet(col_names)
-
-    def test_missing_columns_list(self) -> None:
-        test_cols = pd.Index(["id (optional)", "en_2"])
-        expected = {
-            "missing columns for list name": "There is no column with the expected format for the list names: "
-            "'[lang]_list'"
-        }
-        assert _check_if_minimum_number_of_cols_present_one_sheet(test_cols) == expected
-
-    def test_missing_columns_node(self) -> None:
-        test_cols = pd.Index(["id (optional)", "en_list"])
-        expected = {
-            "missing columns for nodes": "There is no column with the expected format for the list nodes: "
-            "'[lang]_[column_number]'"
-        }
-        assert _check_if_minimum_number_of_cols_present_one_sheet(test_cols) == expected
+        res = _make_shape_compliance_one_sheet(test_sheet)
+        assert isinstance(res, ListSheetComplianceProblem)
+        assert len(res.problems) == 1
+        assert isinstance(res.problems[0], MinimumRowsProblem)
 
 
 class TestCheckWarnUnusualColumns:
@@ -339,21 +326,15 @@ class TestCheckAllTranslationsPresent:
 
     def test_missing_translations_node_columns(self) -> None:
         test_cols = pd.Index(["id (optional)", "en_list", "de_list", "de_1", "en_1", "de_2"])
-        expected = {
-            "missing translations": "All nodes must be translated into the same languages. "
-            "Based on the languages used, the following column(s) are missing: "
-            "en_2"
-        }
-        assert _check_if_all_translations_in_all_column_levels_present_one_sheet(test_cols) == expected
+        res = _check_if_all_translations_in_all_column_levels_present_one_sheet(test_cols)
+        assert isinstance(res, MissingExpectedColumn)
+        assert res.missing_cols == {"en_2"}
 
     def test_missing_translations_list_columns(self) -> None:
         test_cols = pd.Index(["id (optional)", "en_list", "de_1", "en_1", "de_2", "en_2"])
-        expected = {
-            "missing translations": "All nodes must be translated into the same languages. "
-            "Based on the languages used, the following column(s) are missing: "
-            "de_list"
-        }
-        assert _check_if_all_translations_in_all_column_levels_present_one_sheet(test_cols) == expected
+        res = _check_if_all_translations_in_all_column_levels_present_one_sheet(test_cols)
+        assert isinstance(res, MissingExpectedColumn)
+        assert res.missing_cols == {"de_list"}
 
 
 class TestCheckAllExcelsMissingTranslations:

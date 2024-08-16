@@ -77,7 +77,6 @@ def _prepare_sheets(df_dict: dict[str, dict[str, pd.DataFrame]]) -> list[ExcelSh
 
 
 def _prepare_one_sheet(df: pd.DataFrame, filename: str, sheet_name: str) -> ExcelSheet:
-    df = df.dropna(axis=1, how="all")
     columns = get_column_info(df.columns)
     df = add_optional_columns(df, {"id (optional)"})
     return ExcelSheet(excel_name=filename, sheet_name=sheet_name, col_info=columns, df=df)

@@ -833,11 +833,11 @@
         <isSegmentOf permissions="prop-default" comment="This refers to video_thing_1">video_thing_1</isSegmentOf>
         <hasSegmentBounds permissions="prop-default" start="0.1" end="0.234" comment="These are the bounds"/>
         <hasTitle permissions="prop-default" comment="This is the title">Title of video segment</hasTitle>
-        <hasComment permissions="prop-default" comment="This it the first comment">Comment 1 of video segment</hasComment>
+        <hasComment permissions="prop-default" comment="This is the first comment">Comment 1 of video segment</hasComment>
         <hasComment permissions="prop-default">Comment 2 of video segment</hasComment>
         <hasDescription permissions="prop-default" comment="This is the first description">Description 1 of video segment</hasDescription>
         <hasDescription permissions="prop-default">Description 2 of video segment</hasDescription>
-        <hasKeyword permissions="prop-default" comment="This it the first keyword">Keyword 1 of video segment</hasKeyword>
+        <hasKeyword permissions="prop-default" comment="This is the first keyword">Keyword 1 of video segment</hasKeyword>
         <hasKeyword permissions="prop-default">Keyword 2 of video segment</hasKeyword>
         <relatesTo permissions="prop-default" comment="This refers to audio_segment_0">audio_segment_0</relatesTo>
         <relatesTo permissions="prop-default">audio_segment_2</relatesTo>

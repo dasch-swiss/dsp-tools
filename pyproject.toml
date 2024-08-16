@@ -41,6 +41,8 @@ rdflib = "^7.0.0"
 pyld = "^2.0.4"
 namedentities = "^1.9.4"
 tqdm = "^4.66.4"
+xmlschema = "^3.3.2"
+xsd-validator = "^0.0.3"
 
 
 [tool.poetry.group.dev.dependencies]

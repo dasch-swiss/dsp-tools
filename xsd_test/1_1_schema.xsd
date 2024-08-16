@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           targetNamespace="https://test.com"
+           xmlns="https://test.com"
+           elementFormDefault="qualified"
+           vc:minVersion="1.1">
+
+    <xs:simpleType name="age_type">
+        <xs:restriction base="xs:integer">
+            <xs:assertion test="$value != 0"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:element name="person">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="name" type="xs:string"/>
+                <xs:element name="age" type="age_type"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

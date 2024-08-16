@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<person xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="https://test.com"
+        xsi:schemaLocation="https://test.com 1_0_schema.xsd">
+    <name>John Doe</name>
+    <age>25</age>
+</person>

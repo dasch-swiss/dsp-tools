@@ -20,7 +20,7 @@ from dsp_tools.models.exceptions import BaseError
 # ruff: noqa: PT027 (pytest-unittest-raises-assertion) (remove this line when pytest is used instead of unittest)
 
 
-class TestMakeProps(unittest.TestCase):
+class TestPropsGeneral(unittest.TestCase):
     def run_test(
         self: unittest.TestCase,
         prop: str,
@@ -280,42 +280,6 @@ class TestMakeProps(unittest.TestCase):
             lambda: excel2xml.make_text_prop(":test", excel2xml.PropertyElement(value="a", encoding="unicode")),
         )
 
-    def test_make_bitstream_prop_from_string(self) -> None:
-        res = excel2xml.make_bitstream_prop("foo/bar/baz.txt")
-        assert res.tag.endswith("bitstream")
-        assert res.attrib["permissions"] == "prop-default"
-        assert res.text == "foo/bar/baz.txt"
-
-    def test_make_bitstream_prop_from_path(self) -> None:
-        res = excel2xml.make_bitstream_prop(Path("foo/bar/baz.txt"))
-        assert res.tag.endswith("bitstream")
-        assert res.attrib["permissions"] == "prop-default"
-        assert res.text == "foo/bar/baz.txt"
-
-    def test_make_bitstream_prop_custom_permissions(self) -> None:
-        res = excel2xml.make_bitstream_prop("foo/bar/baz.txt", "prop-restricted")
-        assert res.tag.endswith("bitstream")
-        assert res.attrib["permissions"] == "prop-restricted"
-        assert res.text == "foo/bar/baz.txt"
-
-    def test_make_bitstream_prop_valid_file(self) -> None:
-        with warnings.catch_warnings():
-            warnings.filterwarnings("error", category=UserWarning)
-            try:
-                res = excel2xml.make_bitstream_prop("testdata/bitstreams/test.jpg", check=True)
-            except UserWarning as e:
-                raise AssertionError from e
-        assert res.tag.endswith("bitstream")
-        assert res.attrib["permissions"] == "prop-default"
-        assert res.text == "testdata/bitstreams/test.jpg"
-
-    def test_make_bitstream_prop_invalid_file(self) -> None:
-        with pytest.warns(DspToolsUserWarning, match=".*Failed validation in bitstream tag.*"):
-            res = excel2xml.make_bitstream_prop("foo/bar/baz.txt", check=True)
-        assert res.tag.endswith("bitstream")
-        assert res.attrib["permissions"] == "prop-default"
-        assert res.text == "foo/bar/baz.txt"
-
     def test_make_boolean_prop(self) -> None:
         # prepare true_values
         true_values_orig: list[Union[bool, str, int]] = [True, "TRue", "TruE", "1", 1, "yes", "YES", "yEs"]
@@ -361,6 +325,8 @@ class TestMakeProps(unittest.TestCase):
             with self.assertRaises(BaseError):
                 excel2xml.make_boolean_prop(":test", unsupported_value)
 
+
+class TestTextProp:
     def test_make_text_prop_utf8_lt_gt_amp(self) -> None:
         original = "1 < 2 & 4 > 3"
         expected = "1 &lt; 2 &amp; 4 &gt; 3"
@@ -468,3 +434,41 @@ class TestMakeProps(unittest.TestCase):
         returned = etree.tostring(prop, encoding="unicode")
         returned = regex.sub(r"</?text(-prop)?( [^>]+)?>", "", returned)
         assert returned == expected
+
+
+class TestBitstreamProp:
+    def test_make_bitstream_prop_from_string(self) -> None:
+        res = excel2xml.make_bitstream_prop("foo/bar/baz.txt")
+        assert res.tag.endswith("bitstream")
+        assert res.attrib["permissions"] == "prop-default"
+        assert res.text == "foo/bar/baz.txt"
+
+    def test_make_bitstream_prop_from_path(self) -> None:
+        res = excel2xml.make_bitstream_prop(Path("foo/bar/baz.txt"))
+        assert res.tag.endswith("bitstream")
+        assert res.attrib["permissions"] == "prop-default"
+        assert res.text == "foo/bar/baz.txt"
+
+    def test_make_bitstream_prop_custom_permissions(self) -> None:
+        res = excel2xml.make_bitstream_prop("foo/bar/baz.txt", "prop-restricted")
+        assert res.tag.endswith("bitstream")
+        assert res.attrib["permissions"] == "prop-restricted"
+        assert res.text == "foo/bar/baz.txt"
+
+    def test_make_bitstream_prop_valid_file(self) -> None:
+        with warnings.catch_warnings():
+            warnings.filterwarnings("error", category=UserWarning)
+            try:
+                res = excel2xml.make_bitstream_prop("testdata/bitstreams/test.jpg", check=True)
+            except UserWarning as e:
+                raise AssertionError from e
+        assert res.tag.endswith("bitstream")
+        assert res.attrib["permissions"] == "prop-default"
+        assert res.text == "testdata/bitstreams/test.jpg"
+
+    def test_make_bitstream_prop_invalid_file(self) -> None:
+        with pytest.warns(DspToolsUserWarning, match=".*Failed validation in bitstream tag.*"):
+            res = excel2xml.make_bitstream_prop("foo/bar/baz.txt", check=True)
+        assert res.tag.endswith("bitstream")
+        assert res.attrib["permissions"] == "prop-default"
+        assert res.text == "foo/bar/baz.txt"

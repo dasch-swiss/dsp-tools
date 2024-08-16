@@ -267,9 +267,9 @@ class TestShapeCompliance:
             assert len(res.problems) == 1
             assert isinstance(res.problems[0], MissingNodeColumn)
 
-    def test_missing_list_column(self, cols_en_de_1: Columns) -> None:
+    def test_missing_list_column(self, cols_en_1: Columns) -> None:
         test_df = pd.DataFrame({"id (optional)": [1, 2], "en_1": ["b", "c"]})
-        test_sheet = ExcelSheet(excel_name="excel", sheet_name="sheet", df=test_df, col_info=cols_en_de_1)
+        test_sheet = ExcelSheet(excel_name="excel", sheet_name="sheet", df=test_df, col_info=cols_en_1)
         res = _make_shape_compliance_one_sheet(test_sheet)
         assert isinstance(res, ListSheetComplianceProblem)
         assert res.excel_name == "excel"

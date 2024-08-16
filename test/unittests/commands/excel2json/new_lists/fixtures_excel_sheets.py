@@ -65,6 +65,19 @@ def cols_en_de_1_3() -> Columns:
 
 
 @pytest.fixture()
+def cols_en_de_1_3_no_comments() -> Columns:
+    n_1 = ColumnNodes(level_num=1, columns=["en_1", "de_1"])
+    n_2 = ColumnNodes(level_num=2, columns=["en_2", "de_2"])
+    n_3 = ColumnNodes(level_num=3, columns=["en_3", "de_3"])
+    return Columns(
+        preferred_lang="en",
+        list_cols=["en_list", "de_list"],
+        comment_cols=[],
+        node_cols=[n_1, n_2, n_3],
+    )
+
+
+@pytest.fixture()
 def f1_s1_good_en(cols_en_1_no_comments: Columns) -> ExcelSheet:
     df = pd.DataFrame(
         {
@@ -96,7 +109,8 @@ def f2_s2_good_en_de(cols_en_de_1_3: Columns) -> ExcelSheet:
     return ExcelSheet(excel_name="file2", sheet_name="sheet2", df=df, col_info=cols_en_de_1_3)
 
 
-def f1_s1_good_id_filled(cols_en_de_1_3: Columns) -> ExcelSheet:
+@pytest.fixture()
+def f1_s1_good_id_filled(cols_en_de_1_3_no_comments: Columns) -> ExcelSheet:
     df = pd.DataFrame(
         {
             "id": ["list_id", "1", "1.1", "2", "3", "3.1", "3.2", "3.2.1", "3.2.2"],
@@ -171,7 +185,7 @@ def f1_s1_good_id_filled(cols_en_de_1_3: Columns) -> ExcelSheet:
             "de_3": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, "Node_de_3.2.1", "Node_de_3.2.2"],
         }
     )
-    return ExcelSheet(excel_name="excel1", sheet_name="sheet1", df=df, col_info=cols_en_de_1_3)
+    return ExcelSheet(excel_name="excel1", sheet_name="sheet1", df=df, col_info=cols_en_de_1_3_no_comments)
 
 
 @pytest.fixture()

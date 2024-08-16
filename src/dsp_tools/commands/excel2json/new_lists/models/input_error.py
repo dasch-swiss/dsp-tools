@@ -90,11 +90,11 @@ class MultipleListPerSheetProblem(SheetProblem):
 class ListSheetComplianceProblem(SheetProblem):
     excel_name: str
     sheet_name: str
-    problems: dict[str, str]
+    problems: list[Problem]
 
     def execute_error_protocol(self) -> str:
         msg = [f"The excel sheet '{self.sheet_name}' has the following problem(s):"]
-        msg.extend([f"{key}: {value}" for key, value in self.problems.items()])
+        msg.extend([x.execute_error_protocol() for x in self.problems])
         return list_separator.join(msg)
 
 
@@ -196,3 +196,32 @@ class NodesPerRowProblem:
         else:
             description = "Column(s) that must be filled"
         return f"Row Number: {self.index_num + 2}, {description}: {', '.join(self.column_names)}"
+
+
+@dataclass(frozen=True)
+class MinimumRowsProblem:
+    def execute_error_protocol(self) -> str:
+        return (
+            "The Excel sheet must contain at least two rows, "
+            "one for the list name and one row for a minimum of one node."
+        )
+
+
+@dataclass(frozen=True)
+class MissingNodeColumn:
+    def execute_error_protocol(self) -> str:
+        return (
+            "At least one column for the node names in the format '[lang]_[column_number]' is required. "
+            "The allowed language tags are: en, de, fr, it, rm."
+        )
+
+
+@dataclass
+class MissingExpectedColumn:
+    missing_cols: set[str]
+
+    def execute_error_protocol(self) -> str:
+        return (
+            f"All nodes and lists must be translated into the same languages. "
+            f"Based on the languages used, the following column(s) are missing: {', '.join(self.missing_cols)}"
+        )

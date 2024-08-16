@@ -302,14 +302,24 @@ def f1_s1_missing_translation_id_filled(cols_en_de_1_2_no_comment: Columns) -> E
 def f1_s2_list_empty() -> ExcelSheet:
     df = pd.DataFrame({"en_list": [pd.NA, pd.NA], "en_1": ["list1", "list1"]})
     return ExcelSheet(
-        excel_name="file1", sheet_name="sheet2", df=df, col_info=Columns("en", ["en_list"], [ColumnNodes(1, ["en_1"])])
+        excel_name="file1",
+        sheet_name="sheet2",
+        df=df,
+        col_info=Columns(
+            preferred_lang="en", list_cols=["en_list"], comment_cols=[], node_cols=[ColumnNodes(1, ["en_1"])]
+        ),
     )
 
 
 @pytest.fixture()
 def f1_s1_no_nodes() -> ExcelSheet:
     df = pd.DataFrame({"en_list": ["list1", "list1"]})
-    return ExcelSheet(excel_name="file1", sheet_name="sheet1", df=df, col_info=Columns("en", ["en_list"], []))
+    return ExcelSheet(
+        excel_name="file1",
+        sheet_name="sheet1",
+        df=df,
+        col_info=Columns(preferred_lang="en", list_cols=["en_list"], comment_cols=[], node_cols=[]),
+    )
 
 
 @pytest.fixture()

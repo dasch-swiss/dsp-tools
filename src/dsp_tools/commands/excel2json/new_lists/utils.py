@@ -36,7 +36,7 @@ def get_column_info(df_cols: pd.Index[Any]) -> Columns:
     """
     hierarchy_nums = get_hierarchy_nums(df_cols)
     all_langs = get_all_languages_for_columns(df_cols)
-    preferred_lang = from_columns_get_preferred_language(df_cols)
+    preferred_lang = get_preferred_language_from_columns(df_cols)
     node_cols = []
     for n in hierarchy_nums:
         node_cols.append(ColumnNodes(level_num=int(n), columns=[f"{lang}_{n}" for lang in all_langs]))
@@ -56,7 +56,7 @@ def get_all_languages_for_columns(columns: pd.Index[str], ending: str = r"(\d+|l
     return set(res for x in columns if (res := get_lang_string_from_column_name(x, ending)))
 
 
-def from_columns_get_preferred_language(columns: pd.Index[str], ending: str = r"(\d+|list)") -> str:
+def get_preferred_language_from_columns(columns: pd.Index[str], ending: str = r"(\d+|list)") -> str:
     """Get the language tag of the preferred language."""
     match = {res.group(1) for x in columns if (res := regex.search(rf"^(en|de|fr|it|rm)_{ending}+$", x))}
     if "en" in match:

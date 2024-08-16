@@ -472,3 +472,27 @@ class TestBitstreamProp:
         assert res.tag.endswith("bitstream")
         assert res.attrib["permissions"] == "prop-default"
         assert res.text == "foo/bar/baz.txt"
+
+
+class TestisSegmentOfProp:
+    def test_make_isSegmentOf_prop_defaults(self) -> None:
+        res = excel2xml.make_isSegmentOf_prop("target_id")
+        assert res.tag.endswith("isSegmentOf")
+        assert res.attrib["permissions"] == "prop-default"
+        assert "comment" not in res.attrib
+        assert res.text == "target_id"
+
+    def test_make_isSegmentOf_prop_custom(self) -> None:
+        res = excel2xml.make_isSegmentOf_prop("target_id", permissions="prop-restricted", comment="my comment")
+        assert res.tag.endswith("isSegmentOf")
+        assert res.attrib["permissions"] == "prop-restricted"
+        assert res.attrib["comment"] == "my comment"
+        assert res.text == "target_id"
+
+    def test_make_isSegmentOf_prop_invalid(self) -> None:
+        with pytest.warns(DspToolsUserWarning):
+            res = excel2xml.make_isSegmentOf_prop("<NA>")
+        assert res.tag.endswith("isSegmentOf")
+        assert res.attrib["permissions"] == "prop-default"
+        assert "comment" not in res.attrib
+        assert res.text == "<NA>"

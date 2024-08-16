@@ -2574,16 +2574,6 @@ dev = ["Sphinx", "coverage", "elementpath (>=4.4.0,<5.0.0)", "flake8", "jinja2",
 docs = ["Sphinx", "elementpath (>=4.4.0,<5.0.0)", "jinja2", "sphinx-rtd-theme"]
 
 [[package]]
-name = "xsd-validator"
-version = "0.0.3"
-description = "Validates XML file against XSD, supporting XSD versionj 1.1"
-optional = false
-python-versions = ">=3.6"
-files = [
-    {file = "xsd_validator-0.0.3-py3-none-any.whl", hash = "sha256:dbc1407f8b747610a60570d19edc848b1d8e9ed3dbc955e02aee5e7db84aded1"},
-]
-
-[[package]]
 name = "yamllint"
 version = "1.35.1"
 description = "A linter for YAML files."
@@ -2604,4 +2594,4 @@ dev = ["doc8", "flake8", "flake8-import-order", "rstcheck[sphinx]", "sphinx"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "dcf95c4044a3acce7f0f7b27f2516cbf56f640923d423d8d3fa47c906e6a2fdd"
+content-hash = "cf60b04770b89730eb6761efd01038c66561a89013c70e62b8e7fc7884181c1d"

@@ -34,7 +34,7 @@ class TestGetRemainingColumns:
 
 
 def test_make_columns() -> None:
-    res = get_column_info(pd.Index(["en_list", "fr_1", "de_2", "en_3", "de_3"]))
+    res = get_column_info(pd.Index(["en_list", "fr_1", "en_3", "de_3"]))
     assert res.preferred_lang == "en"
     assert set(res.list_cols) == {"en_list", "de_list", "fr_list"}
     assert len(res.node_cols) == 2

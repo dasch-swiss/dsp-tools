@@ -168,6 +168,12 @@ def f1_s1_empty_node_column(cols_en_1_2: Columns) -> ExcelSheet:
 
 
 @pytest.fixture()
+def f1_s1_no_list_columns(cols_en_list_only: Columns) -> ExcelSheet:
+    df = pd.DataFrame({"en_list": ["list1", "list1", "list1", "list1"]})
+    return ExcelSheet(excel_name="file1", sheet_name="sheet1", df=df, col_info=cols_en_list_only)
+
+
+@pytest.fixture()
 def f1_s1_empty_list_column(cols_en_1_2: Columns) -> ExcelSheet:
     df = pd.DataFrame(
         {
@@ -271,7 +277,7 @@ def f1_s1_no_nodes() -> ExcelSheet:
 
 
 @pytest.fixture()
-def f2_s2_empty_lang_column(cols_en_de_1_3: Columns) -> ExcelSheet:
+def f2_s2_missing_lang_column(cols_en_de_1_3: Columns) -> ExcelSheet:
     df = pd.DataFrame(
         {
             "en_list": ["list1", "list1", "list1", "list1", "list1", "list1", "list1", "list1"],
@@ -281,7 +287,6 @@ def f2_s2_empty_lang_column(cols_en_de_1_3: Columns) -> ExcelSheet:
             "en_2": [pd.NA, pd.NA, "node1.1", "node1.1", "node1.2", pd.NA, "node2.1", pd.NA],
             "de_2": [pd.NA, pd.NA, "node1.1", "node1.1", "node1.2", pd.NA, "node2.1", pd.NA],
             "en_3": [pd.NA, pd.NA, pd.NA, "node1.1.1", pd.NA, pd.NA, pd.NA, pd.NA],
-            "de_3": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
         }
     )
     return ExcelSheet(excel_name="file2", sheet_name="sheet2", df=df, col_info=cols_en_de_1_3)

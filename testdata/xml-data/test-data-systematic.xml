@@ -828,58 +828,6 @@
         </color-prop>
     </region>
 
-    <!-- video segment -->
-    <video-segment label="Segment of video_thing_1" id="video_segment_0" permissions="res-default" creation_date="2024-08-06T07:00:01Z">
-        <resptr-prop name="isSegmentOf">
-            <resptr permissions="prop-default">video_thing_1</resptr>
-        </resptr-prop>
-        <interval-prop name="hasSegmentBounds">
-            <interval permissions="prop-default">0.1:0.234</interval>
-        </interval-prop>
-        <text-prop name="hasComment">
-            <text encoding="xml" permissions="prop-default">Comment of video segment</text>
-        </text-prop>
-        <text-prop name="hasTitle">
-            <text encoding="utf8" permissions="prop-default">Title of video segment</text>
-        </text-prop>
-        <text-prop name="hasDescription">
-            <text encoding="xml" permissions="prop-default">Description of video segment</text>
-        </text-prop>
-        <text-prop name="hasKeyword">
-            <text encoding="utf8" permissions="prop-default">keyword1</text>
-            <text encoding="utf8" permissions="prop-default">keyword2</text>
-        </text-prop>
-        <resptr-prop name="relatesTo">
-            <resptr permissions="prop-default">audio_segment_0</resptr>
-        </resptr-prop>
-    </video-segment>
-
-    <!-- audio segment -->
-    <audio-segment label="Segment of audio_thing_1" id="audio_segment_0" permissions="res-default">
-        <resptr-prop name="isSegmentOf">
-            <resptr permissions="prop-default">audio_thing_1</resptr>
-        </resptr-prop>
-        <interval-prop name="hasSegmentBounds">
-            <interval permissions="prop-default">60:120</interval>
-        </interval-prop>
-        <text-prop name="hasComment">
-            <text encoding="xml" permissions="prop-default">Comment of audio segment</text>
-        </text-prop>
-        <text-prop name="hasTitle">
-            <text encoding="utf8" permissions="prop-default">Title of audio segment</text>
-        </text-prop>
-        <text-prop name="hasDescription">
-            <text encoding="xml" permissions="prop-default">Description of audio segment</text>
-        </text-prop>
-        <text-prop name="hasKeyword">
-            <text encoding="utf8" permissions="prop-default">keyword1</text>
-            <text encoding="utf8" permissions="prop-default">keyword2</text>
-        </text-prop>
-        <resptr-prop name="relatesTo">
-            <resptr permissions="prop-default">video_segment_0</resptr>
-        </resptr-prop>
-    </audio-segment>
-
     <!-- reference a resource class from another ontology defined in the same JSON project file than default-ontology-->
     <resource label="TestThingPermissions 1" restype="testontoPermissions:TestThingPermissions" id="testthingpermissions_1">
         <text-prop name="testontoPermissions:hasText">

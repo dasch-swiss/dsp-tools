@@ -7,6 +7,11 @@ from dsp_tools.commands.excel2json.new_lists.models.deserialise import ExcelShee
 
 
 @pytest.fixture()
+def cols_en_list_only() -> Columns:
+    return Columns(preferred_lang="en", list_cols=["en_list"], node_cols=[])
+
+
+@pytest.fixture()
 def cols_en_1() -> Columns:
     n_1 = ColumnNodes(level_num=1, columns=["en_1"])
     return Columns(preferred_lang="en", list_cols=["en_list"], node_cols=[n_1])

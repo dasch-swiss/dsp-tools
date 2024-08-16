@@ -27,8 +27,10 @@ def get_columns_of_preferred_lang(
 def get_column_info(df_cols: pd.Index[Any]) -> Columns:
     """
     Constructs and returns all the columns that should be present in the df based on the languages used.
+
     Args:
         df_cols: columns of the df
+
     Returns:
         Object with column info
     """

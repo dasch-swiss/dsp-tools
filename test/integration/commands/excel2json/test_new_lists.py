@@ -91,9 +91,10 @@ def test_invalid_shape() -> None:
         "'testdata/invalid-testdata/excel2json/new_lists_invalid_shape/list_missing_translation_column.xlsx' "
         "contains the following problems:\n\n"
         "The excel sheet 'Sheet1' has the following problem(s):\n"
-        "    - missing translations: All nodes must be translated into the same languages. "
+        "    - All nodes and lists must be translated into the same languages. "
         "Based on the languages used, the following column(s) are missing: de_list"
     )
+
     with pytest.raises(InputError, match=expected):
         new_excel2lists(Path("testdata/invalid-testdata/excel2json/new_lists_invalid_shape"))
 

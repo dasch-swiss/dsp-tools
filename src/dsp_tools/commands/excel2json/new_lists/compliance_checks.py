@@ -22,7 +22,11 @@ from dsp_tools.commands.excel2json.new_lists.models.input_error import ListCreat
 from dsp_tools.commands.excel2json.new_lists.models.input_error import ListInformation
 from dsp_tools.commands.excel2json.new_lists.models.input_error import ListSheetComplianceProblem
 from dsp_tools.commands.excel2json.new_lists.models.input_error import ListSheetContentProblem
+from dsp_tools.commands.excel2json.new_lists.models.input_error import MinimumRowsProblem
+from dsp_tools.commands.excel2json.new_lists.models.input_error import MissingListColumn
+from dsp_tools.commands.excel2json.new_lists.models.input_error import MissingNodeColumn
 from dsp_tools.commands.excel2json.new_lists.models.input_error import MissingNodeTranslationProblem
+from dsp_tools.commands.excel2json.new_lists.models.input_error import MissingTranslationColumn
 from dsp_tools.commands.excel2json.new_lists.models.input_error import MissingTranslationsSheetProblem
 from dsp_tools.commands.excel2json.new_lists.models.input_error import MultipleListPerSheetProblem
 from dsp_tools.commands.excel2json.new_lists.models.input_error import NodesPerRowProblem
@@ -146,38 +150,27 @@ def _make_shape_compliance_all_excels(sheet_list: list[ExcelSheet]) -> None:
 
 
 def _make_shape_compliance_one_sheet(sheet: ExcelSheet) -> ListSheetComplianceProblem | None:
-    problems = {}
-    problems.update(_check_minimum_rows(sheet.df))
-    problems.update(_check_if_minimum_number_of_cols_present_one_sheet(sheet.df.columns))
-    problems.update(_check_if_all_translations_in_all_column_levels_present_one_sheet(sheet.df.columns))
+    problems: list[Problem] = []
+    if len(sheet.df) < 2:
+        problems.append(MinimumRowsProblem())
+    problems.extend(_check_if_minimum_number_of_cols_present_one_sheet(sheet.df.columns))
+    if missing := _check_if_all_translations_in_all_column_levels_present_one_sheet(sheet.df.columns):
+        problems.append(missing)
     _check_warn_unusual_columns_one_sheet(sheet.df.columns)
     if problems:
         return ListSheetComplianceProblem(sheet.excel_name, sheet.sheet_name, problems)
     return None
 
 
-def _check_minimum_rows(df: pd.DataFrame) -> dict[str, str]:
-    if len(df) < 2:
-        return {
-            "minimum rows": "The Excel sheet must contain at least two rows, "
-            "one for the list name and one row for a minimum of one node."
-        }
-    return {}
-
-
-def _check_if_minimum_number_of_cols_present_one_sheet(cols: pd.Index[str]) -> dict[str, str]:
-    problem = {}
+def _check_if_minimum_number_of_cols_present_one_sheet(cols: pd.Index[str]) -> list[Problem]:
+    problems: list[Problem] = []
     node_langs = [get_lang_string_from_column_name(c, r"\d+") for c in cols]
     if not any(node_langs):
-        problem["missing columns for nodes"] = (
-            "There is no column with the expected format for the list nodes: '[lang]_[column_number]'"
-        )
+        problems.append(MissingNodeColumn())
     list_langs = [get_lang_string_from_column_name(c, r"list") for c in cols]
     if not any(list_langs):
-        problem["missing columns for list name"] = (
-            "There is no column with the expected format for the list names: '[lang]_list'"
-        )
-    return problem
+        problems.append(MissingListColumn())
+    return problems
 
 
 def _check_warn_unusual_columns_one_sheet(cols: pd.Index[str]) -> None:
@@ -190,7 +183,9 @@ def _check_warn_unusual_columns_one_sheet(cols: pd.Index[str]) -> None:
         warnings.warn(DspToolsUserWarning(msg))
 
 
-def _check_if_all_translations_in_all_column_levels_present_one_sheet(cols: pd.Index[str]) -> dict[str, str]:
+def _check_if_all_translations_in_all_column_levels_present_one_sheet(
+    cols: pd.Index[str],
+) -> MissingTranslationColumn | None:
     # All levels, eg. 1, 2, 3 must have the same languages
     languages = {r for c in cols if (r := get_lang_string_from_column_name(c)) is not None}
     all_nums = [str(n) for n in get_hierarchy_nums(cols)]
@@ -203,12 +198,8 @@ def _check_if_all_translations_in_all_column_levels_present_one_sheet(cols: pd.I
     for lang in languages:
         expected_cols.update(make_col_names(lang))
     if missing_cols := expected_cols - set(cols):
-        return {
-            "missing translations": f"All nodes must be translated into the same languages. "
-            f"Based on the languages used, the following column(s) are missing: "
-            f"{', '.join(missing_cols)}"
-        }
-    return {}
+        return MissingTranslationColumn(missing_cols)
+    return None
 
 
 def _check_for_missing_translations_all_excels(sheet_list: list[ExcelSheet]) -> None:

@@ -21,7 +21,6 @@ from dsp_tools.commands.excel2json.new_lists.compliance_checks import (
     _check_if_all_translations_in_all_column_levels_present_one_sheet,
 )
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_if_minimum_number_of_cols_present_one_sheet
-from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_minimum_rows
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_missing_translations_one_row
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_warn_unusual_columns_one_sheet
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _make_shape_compliance_all_excels
@@ -33,6 +32,7 @@ from dsp_tools.commands.excel2json.new_lists.models.input_error import Duplicate
 from dsp_tools.commands.excel2json.new_lists.models.input_error import DuplicatesInSheetProblem
 from dsp_tools.commands.excel2json.new_lists.models.input_error import ListSheetComplianceProblem
 from dsp_tools.commands.excel2json.new_lists.models.input_error import ListSheetContentProblem
+from dsp_tools.commands.excel2json.new_lists.models.input_error import MinimumRowsProblem
 from dsp_tools.commands.excel2json.new_lists.models.input_error import MissingNodeTranslationProblem
 from dsp_tools.commands.excel2json.new_lists.models.input_error import MissingTranslationsSheetProblem
 from dsp_tools.commands.excel2json.new_lists.models.input_error import NodesPerRowProblem
@@ -283,6 +283,11 @@ class TestShapeCompliance:
         res = cast(ListSheetComplianceProblem, res)
         assert res.problems == expected
 
+    def test_missing_rows(self, cols_en_1: Columns) -> None:
+        test_df = pd.DataFrame({"id (optional)": [1], "en_list": ["a"], "en_1": ["d"]})
+        test_sheet = ExcelSheet(excel_name="", sheet_name="sheet", df=test_df, col_info=cols_en_1)
+        assert isinstance(_make_shape_compliance_one_sheet(test_sheet), MinimumRowsProblem)
+
 
 class TestCheckMinNumColNamesPresent:
     def test_good(self) -> None:
@@ -308,20 +313,6 @@ class TestCheckMinNumColNamesPresent:
             "'[lang]_[column_number]'"
         }
         assert _check_if_minimum_number_of_cols_present_one_sheet(test_cols) == expected
-
-
-class TestCheckMinimumRows:
-    def test_good(self) -> None:
-        test_df = pd.DataFrame({"one": [1, 2, 3], "two": [4, 5, 6]})
-        assert not _check_minimum_rows(test_df)
-
-    def test_missing_rows(self) -> None:
-        test_df = pd.DataFrame({"one": [1]})
-        expected = {
-            "minimum rows": "The Excel sheet must contain at least two rows, "
-            "one for the list name and one row for a minimum of one node."
-        }
-        assert _check_minimum_rows(test_df) == expected
 
 
 class TestCheckWarnUnusualColumns:

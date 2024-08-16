@@ -870,7 +870,7 @@
     <!-- audio segment -->
     <audio-segment label="Audio Segment with all possible values" id="audio_segment_0" permissions="res-default" creation_date="2024-08-06T07:00:01Z">
         <isSegmentOf permissions="prop-default" comment="This refers to audio_thing_1">audio_thing_1</isSegmentOf>
-        <hasSegmentBounds permissions="prop-default" start="3.5" end="5.6" comment="This are the segment bounds"/>
+        <hasSegmentBounds permissions="prop-default" start="3.5" end="5.6" comment="These are the segment bounds"/>
         <hasTitle permissions="prop-default">Title of audio segment</hasTitle>
         <hasComment permissions="prop-default" comment="This is a comment">Comment 1 of audio segment</hasComment>
         <hasComment permissions="prop-default">Comment 2 of audio segment</hasComment>

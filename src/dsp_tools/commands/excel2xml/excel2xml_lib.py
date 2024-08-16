@@ -1901,16 +1901,20 @@ def make_hasSegmentBounds_prop(
         an etree._Element that can be appended to an audio/video segment with `segment.append(make_hasSegmentBounds_prop(...))`
     """
     if not isinstance(start, (int, float)) or not isinstance(end, (int, float)):
+        try:
+            start = float(start)
+            end = float(end)
+        except ValueError:
+            msg = (
+                f"Validation Error in resource '{calling_resource}', property 'hasSegmentBounds': "
+                f"The start and the end of an audio/video segment must be integers or floats, "
+                f"but you provided: {start=} and {end=}"
+            )
+            warnings.warn(DspToolsUserWarning(msg))
+    if isinstance(start, (int, float)) and isinstance(end, (int, float)) and start > end:
         msg = (
             f"Validation Error in resource '{calling_resource}', property 'hasSegmentBounds': "
-            f"The start and the end of an audio/video segment must be integers or floats, "
-            f"but you provided: {start=} and {end=}"
-        )
-        warnings.warn(DspToolsUserWarning(msg))
-    if start > end:
-        msg = (
-            f"Validation Error in resource '{calling_resource}', property 'hasSegmentBounds': "
-            f"The start of an audio/video segment must be smaller than the end, "
+            f"The start of an audio/video segment must be less than the end, "
             f"but you provided: {start=} and {end=}"
         )
         warnings.warn(DspToolsUserWarning(msg))

@@ -486,7 +486,7 @@ class Test_isSegmentOf_and_relatesTo_Prop:
         assert "comment" not in res.attrib
         assert res.text == "target_id"
 
-    def test_custom(self, tag: str, func: Callable[..., etree._Element]) -> None:
+    def test_custom_params(self, tag: str, func: Callable[..., etree._Element]) -> None:
         res = func("target_id", "prop-restricted", "my comment")
         assert res.tag.endswith(tag)
         assert res.attrib["permissions"] == "prop-restricted"
@@ -500,3 +500,61 @@ class Test_isSegmentOf_and_relatesTo_Prop:
         assert res.attrib["permissions"] == "prop-default"
         assert "comment" not in res.attrib
         assert res.text == "<NA>"
+
+
+class Test_hasSegmentBounds_Prop:
+    def test_defaults(self) -> None:
+        res = excel2xml.make_hasSegmentBounds_prop(100, 200)
+        assert res.tag.endswith("hasSegmentBounds")
+        assert res.attrib["permissions"] == "prop-default"
+        assert "comment" not in res.attrib
+        assert res.attrib["start"] == "100"
+        assert res.attrib["end"] == "200"
+        assert res.text is None
+
+    def test_custom_params(self) -> None:
+        res = excel2xml.make_hasSegmentBounds_prop(10, 20, "prop-restricted", "my comment")
+        assert res.tag.endswith("hasSegmentBounds")
+        assert res.attrib["permissions"] == "prop-restricted"
+        assert res.attrib["comment"] == "my comment"
+        assert res.attrib["start"] == "10"
+        assert res.attrib["end"] == "20"
+        assert res.text is None
+
+    def test_floats(self) -> None:
+        res = excel2xml.make_hasSegmentBounds_prop(1.2, 3.4)
+        assert res.tag.endswith("hasSegmentBounds")
+        assert res.attrib["permissions"] == "prop-default"
+        assert "comment" not in res.attrib
+        assert res.attrib["start"] == "1.2"
+        assert res.attrib["end"] == "3.4"
+        assert res.text is None
+
+    def test_nums_as_strings(self) -> None:
+        res = excel2xml.make_hasSegmentBounds_prop("1.2", "3")  # type: ignore[arg-type]
+        assert res.tag.endswith("hasSegmentBounds")
+        assert res.attrib["permissions"] == "prop-default"
+        assert "comment" not in res.attrib
+        assert res.attrib["start"] == "1.2"
+        assert res.attrib["end"] == "3.0"  # silent conversion to float is okay, since in the db it's stored that way
+        assert res.text is None
+
+    def test_start_less_than_end(self) -> None:
+        with pytest.warns(DspToolsUserWarning, match="must be less than"):
+            res = excel2xml.make_hasSegmentBounds_prop(5, 3)
+        assert res.tag.endswith("hasSegmentBounds")
+        assert res.attrib["permissions"] == "prop-default"
+        assert "comment" not in res.attrib
+        assert res.attrib["start"] == "5"
+        assert res.attrib["end"] == "3"
+        assert res.text is None
+
+    def test_not_a_number(self) -> None:
+        with pytest.warns(DspToolsUserWarning, match="must be integers or floats"):
+            res = excel2xml.make_hasSegmentBounds_prop(start="foo", end=2)  # type: ignore[arg-type]
+        assert res.tag.endswith("hasSegmentBounds")
+        assert res.attrib["permissions"] == "prop-default"
+        assert "comment" not in res.attrib
+        assert res.attrib["start"] == "foo"
+        assert res.attrib["end"] == "2"
+        assert res.text is None

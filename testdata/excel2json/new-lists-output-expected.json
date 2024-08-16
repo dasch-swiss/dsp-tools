@@ -53,11 +53,11 @@
             "name": "Node 2.1",
             "labels": {
               "de": "Knoten 2.1",
-              "en": "Node 2.1",
-              "comments": {
-                "de": "Kommentar N2.1",
-                "en": "Comments N2.1"
-              }
+              "en": "Node 2.1"
+            },
+            "comments": {
+              "de": "Kommentar N2.1",
+              "en": "Comments N2.1"
             }
           },
           {

@@ -57,13 +57,6 @@
         </xs:restriction>
     </xs:simpleType>
 
-    <!-- data type for knora interval -->
-    <xs:simpleType name="knorainterval_type">
-        <xs:restriction base="xs:token">
-            <xs:pattern value="\d+(\.\d+)?:\d+(\.\d+)?"/>
-        </xs:restriction>
-    </xs:simpleType>
-
     <!-- encoding types -->
     <xs:simpleType name="encoding_types">
         <xs:restriction base="xs:string">
@@ -79,16 +72,6 @@
         </xs:sequence>
         <xs:attribute name="encoding" type="encoding_types" use="required"/>
         <xs:attribute name="resrefs" type="resrefs_type"/>
-        <xs:attribute name="comment" type="xs:string"/>
-        <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
-    </xs:complexType>
-
-    <!-- utf8 encoding value type -->
-    <xs:complexType name="utf8_encoding_text_type" mixed="true">
-        <xs:sequence>
-            <xs:any processContents="skip" minOccurs="0" maxOccurs="unbounded"/>
-        </xs:sequence>
-        <xs:attribute name="encoding" fixed="utf8" use="required"/>
         <xs:attribute name="comment" type="xs:string"/>
         <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
     </xs:complexType>
@@ -177,16 +160,6 @@
     <xs:complexType name="integer_type">
         <xs:simpleContent>
             <xs:extension base="xs:integer">
-                <xs:attribute name="comment" type="xs:string"/>
-                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
-            </xs:extension>
-        </xs:simpleContent>
-    </xs:complexType>
-
-    <!-- interval value type -->
-    <xs:complexType name="interval_type">
-        <xs:simpleContent>
-            <xs:extension base="knorainterval_type">
                 <xs:attribute name="comment" type="xs:string"/>
                 <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
             </xs:extension>
@@ -319,14 +292,6 @@
         <xs:attribute name="name" type="xs:string" use="required"/>
     </xs:complexType>
 
-    <!-- intervalprop_type -->
-    <xs:complexType name="intervalprop_type">
-        <xs:sequence>
-            <xs:element name="interval" type="interval_type" minOccurs="1" maxOccurs="unbounded"/>
-        </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required" fixed="hasSegmentBounds"/>
-    </xs:complexType>
-
     <!-- periodprop_type -->
     <xs:complexType name="periodprop_type">
         <xs:sequence>
@@ -381,30 +346,6 @@
             <xs:element name="text" type="xml_encoding_text_type" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute name="name" type="xs:string" use="required" fixed="hasComment"/>
-    </xs:complexType>
-
-    <!-- builtin_hasSegmentBounds_prop_type -->
-    <xs:complexType name="builtin_hasSegmentBounds_prop_type">
-        <xs:sequence>
-            <xs:element name="interval" type="interval_type" minOccurs="1" maxOccurs="1"/>
-        </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required" fixed="hasSegmentBounds"/>
-    </xs:complexType>
-
-    <!-- builtin_isSegmentOf_prop_type -->
-    <xs:complexType name="builtin_isSegmentOf_prop_type">
-        <xs:sequence>
-            <xs:element name="resptr" type="resptr_type" minOccurs="1" maxOccurs="1"/>
-        </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required" fixed="isSegmentOf"/>
-    </xs:complexType>
-
-    <!-- builtin_relatesTo_prop_type -->
-    <xs:complexType name="builtin_relatesTo_prop_type">
-        <xs:sequence>
-            <xs:element name="resptr" type="resptr_type" minOccurs="1" maxOccurs="unbounded"/>
-        </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required" fixed="relatesTo"/>
     </xs:complexType>
 
     <!-- builtin_hasGeometry_prop_type -->

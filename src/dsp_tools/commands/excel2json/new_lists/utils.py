@@ -1,8 +1,12 @@
 from __future__ import annotations
 
+from typing import Any
+
 import pandas as pd
 import regex
 
+from dsp_tools.commands.excel2json.new_lists.models.deserialise import ColumnNodes
+from dsp_tools.commands.excel2json.new_lists.models.deserialise import Columns
 from dsp_tools.models.exceptions import InputError
 
 
@@ -20,6 +24,24 @@ def get_columns_of_preferred_lang(
     return sorted(col for col in columns if regex.search(rf"^{preferred_language}_{ending}$", col))
 
 
+def get_column_info(df_cols: pd.Index[Any]) -> Columns:
+    """
+    Constructs and returns all the columns that should be present in the df based on the languages used.
+    Args:
+        df_cols: columns of the df
+    Returns:
+        Object with column info
+    """
+    hierarchy_nums = get_hierarchy_nums(df_cols)
+    all_langs = get_all_languages_for_columns(df_cols)
+    preferred_lang = from_columns_get_preferred_language(df_cols)
+    node_cols = []
+    for n in hierarchy_nums:
+        node_cols.append(ColumnNodes(level_num=int(n), columns=[f"{lang}_{n}" for lang in all_langs]))
+    list_columns = [f"{lang}_list" for lang in all_langs]
+    return Columns(preferred_lang=preferred_lang, list_cols=list_columns, node_cols=node_cols)
+
+
 def get_hierarchy_nums(columns: pd.Index[str]) -> list[int]:
     """Get all the numbers that are used in the column names that contain a language tag."""
     return sorted(
@@ -32,9 +54,9 @@ def get_all_languages_for_columns(columns: pd.Index[str], ending: str = r"(\d+|l
     return set(res for x in columns if (res := get_lang_string_from_column_name(x, ending)))
 
 
-def get_preferred_language(columns: pd.Index[str], ending: str = r"(\d+|list)") -> str:
+def from_columns_get_preferred_language(columns: pd.Index[str], ending: str = r"(\d+|list)") -> str:
     """Get the language tag of the preferred language."""
-    match = [res.group(1) for x in columns if (res := regex.search(rf"^(en|de|fr|it|rm)_{ending}+$", x))]
+    match = {res.group(1) for x in columns if (res := regex.search(rf"^(en|de|fr|it|rm)_{ending}+$", x))}
     if "en" in match:
         return "en"
     elif "de" in match:

@@ -24,7 +24,6 @@ from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_if_
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_minimum_rows
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_missing_translations_one_row
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _check_warn_unusual_columns_one_sheet
-from dsp_tools.commands.excel2json.new_lists.compliance_checks import _compose_all_combinatoric_column_titles
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _make_shape_compliance_all_excels
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import _make_shape_compliance_one_sheet
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import make_all_excel_compliance_checks
@@ -432,14 +431,6 @@ class TestCheckMissingTranslationsOneRow:
         series = pd.Series(data=[pd.NA, "content"], index=["en_1", "de_1"])
         result = _check_for_missing_translations_one_column_group(series, ["en_1", "de_1"])
         assert result == ["en_1"]
-
-
-def test_make_columns() -> None:
-    res = _compose_all_combinatoric_column_titles(["1", "3"], {"en", "de", "fr"})
-    assert set(res.list_cols.columns) == {"en_list", "de_list", "fr_list"}
-    assert len(res.node_cols) == 2
-    assert set(res.node_cols[0].columns) == {"en_3", "de_3", "fr_3"}
-    assert set(res.node_cols[1].columns) == {"en_1", "de_1", "fr_1"}
 
 
 class TestCheckAllExcelForRowProblems:

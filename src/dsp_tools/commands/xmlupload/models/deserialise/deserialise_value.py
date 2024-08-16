@@ -9,7 +9,6 @@ import regex
 from lxml import etree
 
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
-from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import XmlUploadError
 
 
@@ -67,7 +66,7 @@ class XMLProperty:
             elif node.text:
                 value = node.text
             else:
-                raise BaseError(f"XML node '{node.tag}' has no text content")
+                raise XmlUploadError(f"XML node '{node.tag}' has no text content")
             comment = node.attrib.get("comment")
             permissions = node.attrib.get("permissions")
             link_uuid = node.attrib.get("linkUUID")

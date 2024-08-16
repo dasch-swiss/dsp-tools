@@ -361,8 +361,8 @@ class TestCheckAllExcelsMissingTranslations:
 
 
 class TestAllNodesTranslatedIntoAllLanguages:
-    def test_good(self, f1_s1_good_id_filled: ExcelSheet) -> None:
-        assert not _check_for_missing_translations_one_sheet(f1_s1_good_id_filled)
+    def test_good(self, f1_s1_good_id_filled_empty_comments: ExcelSheet) -> None:
+        assert not _check_for_missing_translations_one_sheet(f1_s1_good_id_filled_empty_comments)
 
     def test_missing_translation(self, f1_s1_missing_translation_id_filled: ExcelSheet) -> None:
         expected = [
@@ -383,6 +383,12 @@ class TestAllNodesTranslatedIntoAllLanguages:
 class TestCheckMissingTranslationsOneRow:
     def test_good(self, f2_s2_good_en_de: ExcelSheet, cols_en_de_1_3: Columns) -> None:
         for i, row in f2_s2_good_en_de.df.iterrows():
+            assert not _check_missing_translations_one_row(int(str(i)), row, cols_en_de_1_3)
+
+    def test_good_empty_comments(
+        self, f1_s1_good_id_filled_empty_comments: ExcelSheet, cols_en_de_1_3: Columns
+    ) -> None:
+        for i, row in f1_s1_good_id_filled_empty_comments.df.iterrows():
             assert not _check_missing_translations_one_row(int(str(i)), row, cols_en_de_1_3)
 
     def test_one_missing(self, f2_s2_missing_translations: ExcelSheet, cols_en_de_1_3: Columns) -> None:

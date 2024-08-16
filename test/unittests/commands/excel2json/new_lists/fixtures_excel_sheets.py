@@ -110,11 +110,13 @@ def f2_s2_good_en_de(cols_en_de_1_3: Columns) -> ExcelSheet:
 
 
 @pytest.fixture()
-def f1_s1_good_id_filled(cols_en_de_1_3_no_comments: Columns) -> ExcelSheet:
+def f1_s1_good_id_filled_empty_comments(cols_en_de_1_3_no_comments: Columns) -> ExcelSheet:
     df = pd.DataFrame(
         {
             "id": ["list_id", "1", "1.1", "2", "3", "3.1", "3.2", "3.2.1", "3.2.2"],
             "parent_id": ["list_id", "list_id", "1", "list_id", "list_id", "3", "3", "3.2", "3.2"],
+            "en_comments": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
+            "de_comments": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA],
             "en_list": [
                 "Listname_en",
                 "Listname_en",

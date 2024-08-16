@@ -24,6 +24,7 @@ class Columns:
         self.node_cols = sorted(self.node_cols, key=lambda x: x.level_num, reverse=True)
 
 
+@dataclass
 class ColumnNodes:
     level_num: int
     columns: list[str]

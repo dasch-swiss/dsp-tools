@@ -178,7 +178,7 @@ def _check_if_all_translations_in_all_column_levels_present_one_sheet(
     # All levels, eg. 1, 2, 3 must have the same languages
     languages = {r for c in cols if (r := get_lang_string_from_column_name(c)) is not None}
     all_nums = [str(n) for n in get_hierarchy_nums(cols)]
-    all_nums.extend(["list", "comment"])
+    all_nums.append("list")
 
     def make_col_names(lang: str) -> set[str]:
         return {f"{lang}_{num}" for num in all_nums}
@@ -218,7 +218,8 @@ def _check_missing_translations_one_row(
     for col_group in columns.node_cols:
         missing_translations.extend(_check_for_missing_translations_one_column_group(row, col_group.columns))
     missing_translations.extend(_check_for_missing_translations_one_column_group(row, columns.list_cols))
-    missing_translations.extend(_check_for_missing_translations_one_column_group(row, columns.comment_cols))
+    if columns.comment_cols:
+        missing_translations.extend(_check_for_missing_translations_one_column_group(row, columns.comment_cols))
     if missing_translations:
         return MissingNodeTranslationProblem(empty_columns=missing_translations, index_num=row_index)
     return None

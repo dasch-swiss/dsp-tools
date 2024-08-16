@@ -8,33 +8,41 @@ from dsp_tools.commands.excel2json.new_lists.models.deserialise import ExcelShee
 
 @pytest.fixture()
 def cols_en_list_only() -> Columns:
-    return Columns(preferred_lang="en", list_cols=["en_list"], node_cols=[])
+    return Columns(preferred_lang="en", list_cols=["en_list"], comment_cols=[], node_cols=[])
 
 
 @pytest.fixture()
 def cols_en_1() -> Columns:
     n_1 = ColumnNodes(level_num=1, columns=["en_1"])
-    return Columns(preferred_lang="en", list_cols=["en_list"], node_cols=[n_1])
+    return Columns(preferred_lang="en", list_cols=["en_list"], comment_cols=["en_comment"], node_cols=[n_1])
 
 
 @pytest.fixture()
 def cols_en_de_1() -> Columns:
     n_1 = ColumnNodes(level_num=1, columns=["en_1", "de_1"])
-    return Columns(preferred_lang="en", list_cols=["en_list", "de_list"], node_cols=[n_1])
+    return Columns(
+        preferred_lang="en",
+        list_cols=["en_list", "de_list"],
+        comment_cols=["en_comment", "de_comment"],
+        node_cols=[n_1],
+    )
 
 
 @pytest.fixture()
 def cols_en_1_2() -> Columns:
     return Columns(
-        preferred_lang="en", list_cols=["en_list"], node_cols=[ColumnNodes(1, ["en_1"]), ColumnNodes(2, ["en_2"])]
+        preferred_lang="en",
+        list_cols=["en_list"],
+        comment_cols=["en_comments"],
+        node_cols=[ColumnNodes(1, ["en_1"]), ColumnNodes(2, ["en_2"])],
     )
 
 
 @pytest.fixture()
-def cols_en_de_1_2() -> Columns:
+def cols_en_de_1_2_no_comment() -> Columns:
     n_1 = ColumnNodes(level_num=1, columns=["en_1", "de_1"])
     n_2 = ColumnNodes(level_num=2, columns=["en_2", "de_2"])
-    return Columns(preferred_lang="en", list_cols=["en_list", "de_list"], node_cols=[n_1, n_2])
+    return Columns(preferred_lang="en", list_cols=["en_list", "de_list"], comment_cols=[], node_cols=[n_1, n_2])
 
 
 @pytest.fixture()
@@ -42,7 +50,12 @@ def cols_en_de_1_3() -> Columns:
     n_1 = ColumnNodes(level_num=1, columns=["en_1", "de_1"])
     n_2 = ColumnNodes(level_num=2, columns=["en_2", "de_2"])
     n_3 = ColumnNodes(level_num=3, columns=["en_3", "de_3"])
-    return Columns(preferred_lang="en", list_cols=["en_list", "de_list"], node_cols=[n_1, n_2, n_3])
+    return Columns(
+        preferred_lang="en",
+        list_cols=["en_list", "de_list"],
+        comment_cols=["en_comments", "de_comments"],
+        node_cols=[n_1, n_2, n_3],
+    )
 
 
 @pytest.fixture()
@@ -76,17 +89,6 @@ def f2_s2_good_en_de(cols_en_de_1_3: Columns) -> ExcelSheet:
     )
     return ExcelSheet(excel_name="file2", sheet_name="sheet2", df=df, col_info=cols_en_de_1_3)
 
-
-@pytest.fixture()
-def cols_en_de_1_3() -> Columns:
-    n_1 = ColumnNodes(level_num=1, columns=["en_1", "de_1"])
-    n_2 = ColumnNodes(level_num=2, columns=["en_2", "de_2"])
-    n_3 = ColumnNodes(level_num=3, columns=["en_3", "de_3"])
-    return Columns(
-        list_cols=ColumnsList(["en_list", "de_list"]),
-        comment_cols=ColumnsComments(["en_comments", "de_comments"]),
-        node_cols=[n_1, n_2, n_3],
-    )
 
 def f1_s1_good_id_filled(cols_en_de_1_3: Columns) -> ExcelSheet:
     df = pd.DataFrame(
@@ -198,7 +200,7 @@ def f1_s1_empty_list_column(cols_en_1_2: Columns) -> ExcelSheet:
 
 
 @pytest.fixture()
-def f1_s1_missing_translation_id_filled(cols_en_de_1_2: Columns) -> ExcelSheet:
+def f1_s1_missing_translation_id_filled(cols_en_de_1_2_no_comment: Columns) -> ExcelSheet:
     df = pd.DataFrame(
         {
             "id": ["list_id", "1", "1.1", "2", "3", "3.1", "3.2", "3.2.1", "3.2.2"],
@@ -271,7 +273,7 @@ def f1_s1_missing_translation_id_filled(cols_en_de_1_2: Columns) -> ExcelSheet:
             ],
         }
     )
-    return ExcelSheet(excel_name="excel1", sheet_name="sheet1", df=df, col_info=cols_en_de_1_2)
+    return ExcelSheet(excel_name="excel1", sheet_name="sheet1", df=df, col_info=cols_en_de_1_2_no_comment)
 
 
 @pytest.fixture()

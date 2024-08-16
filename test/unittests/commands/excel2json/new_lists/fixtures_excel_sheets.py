@@ -18,6 +18,12 @@ def cols_en_1() -> Columns:
 
 
 @pytest.fixture()
+def cols_en_1_no_comments() -> Columns:
+    n_1 = ColumnNodes(level_num=1, columns=["en_1"])
+    return Columns(preferred_lang="en", list_cols=["en_list"], comment_cols=[], node_cols=[n_1])
+
+
+@pytest.fixture()
 def cols_en_de_1() -> Columns:
     n_1 = ColumnNodes(level_num=1, columns=["en_1", "de_1"])
     return Columns(
@@ -59,7 +65,7 @@ def cols_en_de_1_3() -> Columns:
 
 
 @pytest.fixture()
-def f1_s1_good_en(cols_en_1: Columns) -> ExcelSheet:
+def f1_s1_good_en(cols_en_1_no_comments: Columns) -> ExcelSheet:
     df = pd.DataFrame(
         {
             "id (optional)": [11, 22, pd.NA, 44],
@@ -67,7 +73,7 @@ def f1_s1_good_en(cols_en_1: Columns) -> ExcelSheet:
             "en_1": [pd.NA, "node1", "node2", "node3"],
         }
     )
-    return ExcelSheet(excel_name="file1", sheet_name="sheet1", df=df, col_info=cols_en_1)
+    return ExcelSheet(excel_name="file1", sheet_name="sheet1", df=df, col_info=cols_en_1_no_comments)
 
 
 @pytest.fixture()

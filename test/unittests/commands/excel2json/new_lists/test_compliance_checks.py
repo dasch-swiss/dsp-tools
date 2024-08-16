@@ -62,12 +62,12 @@ class TestMakeAllExcelComplianceChecks:
         with pytest.raises(InputError, match=expected):
             make_all_excel_compliance_checks(all_sheets)
 
-    def test_duplicate_list_names(self, cols_en_1: Columns) -> None:
+    def test_duplicate_list_names(self, cols_en_1_no_comments: Columns) -> None:
         df_1 = pd.DataFrame({"id (optional)": [1, 2], "en_list": ["list2", "list2"], "en_1": [pd.NA, 1]})
         df_2 = pd.DataFrame({"id (optional)": [3, 4], "en_list": ["list2", "list2"], "en_1": [pd.NA, 1]})
         all_sheets = [
-            ExcelSheet(excel_name="file1", sheet_name="sheet2", df=df_1, col_info=cols_en_1),
-            ExcelSheet(excel_name="file2", sheet_name="sheet2", df=df_2, col_info=cols_en_1),
+            ExcelSheet(excel_name="file1", sheet_name="sheet2", df=df_1, col_info=cols_en_1_no_comments),
+            ExcelSheet(excel_name="file2", sheet_name="sheet2", df=df_2, col_info=cols_en_1_no_comments),
         ]
         expected = regex.escape(
             "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"
@@ -89,6 +89,7 @@ class TestMakeAllExcelComplianceChecks:
             "For the following nodes, the translations are missing:\n"
             "    - Row Number: 2 | Column(s): de_list\n"
             "    - Row Number: 3 | Column(s): en_1\n"
+            "    - Row Number: 5 | Column(s): de_comments\n"
             "    - Row Number: 6 | Column(s): en_1, en_2, en_list"
         )
         with pytest.raises(InputError, match=expected):
@@ -352,6 +353,7 @@ class TestCheckAllExcelsMissingTranslations:
             "For the following nodes, the translations are missing:\n"
             "    - Row Number: 2 | Column(s): de_list\n"
             "    - Row Number: 3 | Column(s): en_1\n"
+            "    - Row Number: 5 | Column(s): de_comments\n"
             "    - Row Number: 6 | Column(s): en_1, en_2, en_list"
         )
         with pytest.raises(InputError, match=expected):

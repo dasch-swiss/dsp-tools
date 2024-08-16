@@ -474,25 +474,29 @@ class TestBitstreamProp:
         assert res.text == "foo/bar/baz.txt"
 
 
-class TestisSegmentOfProp:
-    def test_make_isSegmentOf_prop_defaults(self) -> None:
-        res = excel2xml.make_isSegmentOf_prop("target_id")
-        assert res.tag.endswith("isSegmentOf")
+@pytest.mark.parametrize(
+    ("tag", "func"),
+    [("isSegmentOf", excel2xml.make_isSegmentOf_prop), ("relatesTo", excel2xml.make_relatesTo_prop)],
+)
+class Test_isSegmentOf_and_relatesTo_Prop:
+    def test_defaults(self, tag: str, func: Callable[..., etree._Element]) -> None:
+        res = func("target_id")
+        assert res.tag.endswith(tag)
         assert res.attrib["permissions"] == "prop-default"
         assert "comment" not in res.attrib
         assert res.text == "target_id"
 
-    def test_make_isSegmentOf_prop_custom(self) -> None:
-        res = excel2xml.make_isSegmentOf_prop("target_id", permissions="prop-restricted", comment="my comment")
-        assert res.tag.endswith("isSegmentOf")
+    def test_custom(self, tag: str, func: Callable[..., etree._Element]) -> None:
+        res = func("target_id", "prop-restricted", "my comment")
+        assert res.tag.endswith(tag)
         assert res.attrib["permissions"] == "prop-restricted"
         assert res.attrib["comment"] == "my comment"
         assert res.text == "target_id"
 
-    def test_make_isSegmentOf_prop_invalid(self) -> None:
+    def test_invalid(self, tag: str, func: Callable[..., etree._Element]) -> None:
         with pytest.warns(DspToolsUserWarning):
-            res = excel2xml.make_isSegmentOf_prop("<NA>")
-        assert res.tag.endswith("isSegmentOf")
+            res = func("<NA>")
+        assert res.tag.endswith(tag)
         assert res.attrib["permissions"] == "prop-default"
         assert "comment" not in res.attrib
         assert res.text == "<NA>"

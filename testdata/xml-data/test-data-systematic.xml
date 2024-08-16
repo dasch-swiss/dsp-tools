@@ -840,7 +840,7 @@
         <hasKeyword permissions="prop-default" comment="This it the first keyword">Keyword 1 of video segment</hasKeyword>
         <hasKeyword permissions="prop-default">Keyword 2 of video segment</hasKeyword>
         <relatesTo permissions="prop-default" comment="This refers to audio_segment_0">audio_segment_0</relatesTo>
-        <relatesTo permissions="prop-default">audio_segment_1</relatesTo>
+        <relatesTo permissions="prop-default">audio_segment_2</relatesTo>
     </video-segment>
 
     <!--unordered is not possible with XSD 1.0
@@ -879,7 +879,7 @@
         <hasKeyword permissions="prop-default" comment="This is a keyword">Keyword 1 of audio segment</hasKeyword>
         <hasKeyword permissions="prop-default">Keyword 2 of audio segment</hasKeyword>
         <relatesTo permissions="prop-default" comment="This refers to video_segment_0">video_segment_0</relatesTo>
-        <relatesTo permissions="prop-default">video_segment_1</relatesTo>
+        <relatesTo permissions="prop-default">video_segment_2</relatesTo>
     </audio-segment>
 
     <!--unordered is not possible with XSD 1.0

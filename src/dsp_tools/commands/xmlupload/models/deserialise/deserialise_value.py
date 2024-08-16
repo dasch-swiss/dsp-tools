@@ -12,16 +12,6 @@ from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTe
 from dsp_tools.models.exceptions import BaseError
 from dsp_tools.models.exceptions import XmlUploadError
 
-KNORA_API_PROPERTIES = {
-    "knora-api:isSegmentOf",
-    "knora-api:hasSegmentBounds",
-    "knora-api:hasTitle",
-    "knora-api:hasComment",
-    "knora-api:hasDescription",
-    "knora-api:hasKeyword",
-    "knora-api:relatesTo",
-}
-
 
 class XMLProperty:
     """
@@ -62,7 +52,7 @@ class XMLProperty:
         self.valtype = valtype
         self.values = []
 
-        if self.name not in KNORA_API_PROPERTIES:
+        if node.tag.endswith("-prop"):
             # parse the subnodes of the property nodes which contain the actual values of the property
             for subnode in node:
                 if subnode.tag == valtype:  # the subnode must correspond to the expected value type
@@ -80,7 +70,10 @@ class XMLProperty:
                 raise BaseError(f"XML node '{node.tag}' has no text content")
             comment = node.attrib.get("comment")
             permissions = node.attrib.get("permissions")
-            xml_value = XMLValue.factory_for_knora_api_props(value=value, comment=comment, permissions=permissions)
+            link_uuid = node.attrib.get("linkUUID")
+            xml_value = XMLValue.factory_for_knora_api_tags(
+                value=value, comment=comment, permissions=permissions, link_uuid=link_uuid
+            )
             self.values = [xml_value]
 
 
@@ -119,12 +112,15 @@ class XMLValue:
         self.link_uuid = node.attrib.get("linkUUID")  # not all richtexts have a link, so this attribute is optional
 
     @classmethod
-    def factory_for_knora_api_props(cls, value: str, comment: str | None, permissions: str | None) -> Self:
+    def factory_for_knora_api_tags(
+        cls, value: str, comment: str | None, permissions: str | None, link_uuid: str | None
+    ) -> Self:
         instance = cls.__new__(cls)
         instance.value = value
         instance.resrefs = None
         instance.comment = comment
         instance.permissions = permissions
+        instance.link_uuid = link_uuid
         return instance
 
     def _cleanup_formatted_text(self, xmlstr_orig: str) -> str:

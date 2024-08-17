@@ -430,7 +430,7 @@ def make_resource(  # noqa: D417 (undocumented-param)
     creation_date: Optional[str] = None,
 ) -> etree._Element:
     """
-    Creates an empty resource element, with the attributes as specified by the arguments
+    Creates an empty resource element, with the attributes as specified by the arguments.
 
     Args:
         The arguments correspond to the attributes of the <resource> element.
@@ -1635,18 +1635,18 @@ def make_region(  # noqa: D417 (undocumented-param)
     creation_date: Optional[str] = None,
 ) -> etree._Element:
     """
-    Creates an empty region element, with the attributes as specified by the arguments
+    Creates an empty region element, with the attributes as specified by the arguments.
 
     Args:
-        The arguments correspond 1:1 to the attributes of the <region> element.
+        The arguments correspond 1:1 to the attributes of the `<region>` element.
 
     Raises:
         Warning: if both an ARK and an IRI are provided
         BaseError: if the creation date is invalid
 
     Returns:
-        The region element, without any children, but with the attributes:
-        <region label=label id=id permissions=permissions ark=ark iri=iri></region>
+        The region element, without any children, but with the attributes
+        `<region label=label id=id permissions=permissions ark=ark iri=iri></region>`
 
     Examples:
         >>> region = excel2xml.make_region("label", "id")
@@ -1692,18 +1692,18 @@ def make_annotation(  # noqa: D417 (undocumented-param)
     creation_date: Optional[str] = None,
 ) -> etree._Element:
     """
-    Creates an empty annotation element, with the attributes as specified by the arguments
+    Creates an empty annotation element, with the attributes as specified by the arguments.
 
     Args:
-        The arguments correspond 1:1 to the attributes of the <annotation> element.
+        The arguments correspond 1:1 to the attributes of the `<annotation>` element.
 
     Raises:
         Warning: if both an ARK and an IRI are provided
         BaseError: if the creation date is invalid
 
     Returns:
-        The annotation element, without any children, but with the attributes:
-        <annotation label=label id=id permissions=permissions ark=ark iri=iri></annotation>
+        The annotation element, without any children, but with the attributes
+        `<annotation label=label id=id permissions=permissions ark=ark iri=iri></annotation>`
 
     Examples:
         >>> annotation = excel2xml.make_annotation("label", "id")
@@ -1747,18 +1747,18 @@ def make_link(  # noqa: D417 (undocumented-param)
     creation_date: Optional[str] = None,
 ) -> etree._Element:
     """
-    Creates an empty link element, with the attributes as specified by the arguments
+    Creates an empty link element, with the attributes as specified by the arguments.
 
     Args:
-        The arguments correspond 1:1 to the attributes of the <link> element.
+        The arguments correspond 1:1 to the attributes of the `<link>` element.
 
     Raises:
         Warning: if both an ARK and an IRI are provided
         BaseError: if the creation date is invalid
 
     Returns:
-        The link element, without any children, but with the attributes:
-        <link label=label id=id permissions=permissions ark=ark iri=iri></link>
+        The link element, without any children, but with the attributes
+        `<link label=label id=id permissions=permissions ark=ark iri=iri></link>`
 
     Examples:
         >>> link = excel2xml.make_link("label", "id")
@@ -1799,14 +1799,14 @@ def make_audio_segment(  # noqa: D417 (undocumented-param)
     permissions: str = "res-default",
 ) -> etree._Element:
     """
-    Creates an empty <audio-segment> element, with the attributes as specified by the arguments
+    Creates an empty `<audio-segment>` element, with the attributes as specified by the arguments.
 
     Args:
-        The arguments correspond 1:1 to the attributes of the <audio-segment> element.
+        The arguments correspond 1:1 to the attributes of the `<audio-segment>` element.
 
     Returns:
-        The audio-segment element, without any children, but with the attributes:
-        <audio-segment label=label id=id permissions=permissions></audio-segment>
+        The audio-segment element, without any children, but with the attributes
+        `<audio-segment label=label id=id permissions=permissions></audio-segment>`
 
     Examples:
         >>> audio_segment = excel2xml.make_audio_segment("label", "id")
@@ -1831,14 +1831,14 @@ def make_video_segment(  # noqa: D417 (undocumented-param)
     permissions: str = "res-default",
 ) -> etree._Element:
     """
-    Creates an empty <video-segment> element, with the attributes as specified by the arguments
+    Creates an empty `<video-segment>` element, with the attributes as specified by the arguments.
 
     Args:
         The arguments correspond 1:1 to the attributes of the <video-segment> element.
 
     Returns:
-        The video-segment element, without any children, but with the attributes:
-        <video-segment label=label id=id permissions=permissions></video-segment>
+        The video-segment element, without any children, but with the attributes
+        `<video-segment label=label id=id permissions=permissions></video-segment>`
 
     Examples:
         >>> video_segment = excel2xml.make_video_segment("label", "id")

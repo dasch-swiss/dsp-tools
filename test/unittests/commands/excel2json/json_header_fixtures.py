@@ -4,56 +4,56 @@ import pandas as pd
 import pytest
 
 
-@pytest.fixture()
+@pytest.fixture
 def prefixes_good() -> pd.DataFrame:
     return pd.DataFrame(
         {"prefixes": ["foaf:", "sdh"], "uri": ["http://xmlns.com/foaf/0.1/", "https://ontome.net/ns/sdhss/"]}
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def prefixes_missing_col() -> pd.DataFrame:
     return pd.DataFrame({"uri": ["http://xmlns.com/foaf/0.1/", "https://ontome.net/ns/sdhss/"]})
 
 
-@pytest.fixture()
+@pytest.fixture
 def prefixes_missing_val() -> pd.DataFrame:
     return pd.DataFrame(
         {"prefixes": ["foaf:", pd.NA], "uri": ["http://xmlns.com/foaf/0.1/", "https://ontome.net/ns/sdhss/"]}
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def prefixes_wrong_val() -> pd.DataFrame:
     return pd.DataFrame({"prefixes": ["foaf:", "sdh"], "uri": ["http://xmlns.com/foaf/0.1/", "not a uri"]})
 
 
-@pytest.fixture()
+@pytest.fixture
 def project_good_missing_zero() -> pd.DataFrame:
     return pd.DataFrame({"shortcode": [11], "shortname": ["name"], "longname": ["long"]})
 
 
-@pytest.fixture()
+@pytest.fixture
 def project_good_no_zero() -> pd.DataFrame:
     return pd.DataFrame({"shortcode": [1111], "shortname": ["name"], "longname": ["long"]})
 
 
-@pytest.fixture()
+@pytest.fixture
 def project_missing_col() -> pd.DataFrame:
     return pd.DataFrame({"shortname": ["name"], "longname": ["long"]})
 
 
-@pytest.fixture()
+@pytest.fixture
 def project_missing_val() -> pd.DataFrame:
     return pd.DataFrame({"shortcode": [pd.NA], "shortname": ["name"], "longname": ["long"]})
 
 
-@pytest.fixture()
+@pytest.fixture
 def project_too_many_rows() -> pd.DataFrame:
     return pd.DataFrame({"shortcode": [11, 0], "shortname": ["name", pd.NA], "longname": ["long", "other"]})
 
 
-@pytest.fixture()
+@pytest.fixture
 def description_good() -> pd.DataFrame:
     return pd.DataFrame(
         {
@@ -65,7 +65,7 @@ def description_good() -> pd.DataFrame:
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def description_too_many_rows() -> pd.DataFrame:
     return pd.DataFrame(
         {
@@ -78,32 +78,32 @@ def description_too_many_rows() -> pd.DataFrame:
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def description_missing_col() -> pd.DataFrame:
     return pd.DataFrame({"other": ["english"]})
 
 
-@pytest.fixture()
+@pytest.fixture
 def description_missing_val() -> pd.DataFrame:
     return pd.DataFrame({"other": ["english"], "description_en": [pd.NA]})
 
 
-@pytest.fixture()
+@pytest.fixture
 def keywords_good() -> pd.DataFrame:
     return pd.DataFrame({"keywords": ["one", pd.NA, "three"]})
 
 
-@pytest.fixture()
+@pytest.fixture
 def keywords_missing_col() -> pd.DataFrame:
     return pd.DataFrame({"other": [1]})
 
 
-@pytest.fixture()
+@pytest.fixture
 def keywords_missing_val() -> pd.DataFrame:
     return pd.DataFrame({"other": [1], "keywords": [pd.NA]})
 
 
-@pytest.fixture()
+@pytest.fixture
 def users_good() -> pd.DataFrame:
     return pd.DataFrame(
         {
@@ -118,7 +118,7 @@ def users_good() -> pd.DataFrame:
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def users_missing_col() -> pd.DataFrame:
     return pd.DataFrame(
         {
@@ -132,7 +132,7 @@ def users_missing_col() -> pd.DataFrame:
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def users_missing_val() -> pd.DataFrame:
     return pd.DataFrame(
         {
@@ -147,7 +147,7 @@ def users_missing_val() -> pd.DataFrame:
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def users_wrong_lang() -> pd.DataFrame:
     return pd.DataFrame(
         {
@@ -162,7 +162,7 @@ def users_wrong_lang() -> pd.DataFrame:
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_good() -> pd.Series[str]:
     return pd.Series(
         {
@@ -177,7 +177,7 @@ def user_good() -> pd.Series[str]:
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_wrong_lang() -> pd.Series[str]:
     return pd.Series(
         {
@@ -192,7 +192,7 @@ def user_wrong_lang() -> pd.Series[str]:
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_wrong_email() -> pd.Series[str]:
     return pd.Series(
         {
@@ -207,7 +207,7 @@ def user_wrong_email() -> pd.Series[str]:
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_wrong_role() -> pd.Series[str]:
     return pd.Series(
         {

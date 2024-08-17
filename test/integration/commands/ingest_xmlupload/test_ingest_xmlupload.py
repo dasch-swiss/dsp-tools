@@ -19,7 +19,7 @@ def _retrieve_mapping_file() -> Iterator[None]:
     Path(mapping_file.name).unlink()
 
 
-@pytest.fixture()
+@pytest.fixture
 def creds() -> ServerCredentials:
     return ServerCredentials(
         user="root@example.com",

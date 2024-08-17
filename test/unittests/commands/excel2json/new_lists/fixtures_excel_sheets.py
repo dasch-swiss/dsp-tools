@@ -6,38 +6,38 @@ from dsp_tools.commands.excel2json.new_lists.models.deserialise import Columns
 from dsp_tools.commands.excel2json.new_lists.models.deserialise import ExcelSheet
 
 
-@pytest.fixture()
+@pytest.fixture
 def cols_en_list_only() -> Columns:
     return Columns(preferred_lang="en", list_cols=["en_list"], node_cols=[])
 
 
-@pytest.fixture()
+@pytest.fixture
 def cols_en_1() -> Columns:
     n_1 = ColumnNodes(level_num=1, columns=["en_1"])
     return Columns(preferred_lang="en", list_cols=["en_list"], node_cols=[n_1])
 
 
-@pytest.fixture()
+@pytest.fixture
 def cols_en_de_1() -> Columns:
     n_1 = ColumnNodes(level_num=1, columns=["en_1", "de_1"])
     return Columns(preferred_lang="en", list_cols=["en_list", "de_list"], node_cols=[n_1])
 
 
-@pytest.fixture()
+@pytest.fixture
 def cols_en_1_2() -> Columns:
     return Columns(
         preferred_lang="en", list_cols=["en_list"], node_cols=[ColumnNodes(1, ["en_1"]), ColumnNodes(2, ["en_2"])]
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def cols_en_de_1_2() -> Columns:
     n_1 = ColumnNodes(level_num=1, columns=["en_1", "de_1"])
     n_2 = ColumnNodes(level_num=2, columns=["en_2", "de_2"])
     return Columns(preferred_lang="en", list_cols=["en_list", "de_list"], node_cols=[n_1, n_2])
 
 
-@pytest.fixture()
+@pytest.fixture
 def cols_en_de_1_3() -> Columns:
     n_1 = ColumnNodes(level_num=1, columns=["en_1", "de_1"])
     n_2 = ColumnNodes(level_num=2, columns=["en_2", "de_2"])
@@ -45,7 +45,7 @@ def cols_en_de_1_3() -> Columns:
     return Columns(preferred_lang="en", list_cols=["en_list", "de_list"], node_cols=[n_1, n_2, n_3])
 
 
-@pytest.fixture()
+@pytest.fixture
 def f1_s1_good_en(cols_en_1: Columns) -> ExcelSheet:
     df = pd.DataFrame(
         {
@@ -57,7 +57,7 @@ def f1_s1_good_en(cols_en_1: Columns) -> ExcelSheet:
     return ExcelSheet(excel_name="file1", sheet_name="sheet1", df=df, col_info=cols_en_1)
 
 
-@pytest.fixture()
+@pytest.fixture
 def f2_s2_good_en_de(cols_en_de_1_3: Columns) -> ExcelSheet:
     df = pd.DataFrame(
         {
@@ -75,7 +75,7 @@ def f2_s2_good_en_de(cols_en_de_1_3: Columns) -> ExcelSheet:
     return ExcelSheet(excel_name="file2", sheet_name="sheet2", df=df, col_info=cols_en_de_1_3)
 
 
-@pytest.fixture()
+@pytest.fixture
 def f1_s1_good_id_filled(cols_en_de_1_3: Columns) -> ExcelSheet:
     df = pd.DataFrame(
         {
@@ -154,7 +154,7 @@ def f1_s1_good_id_filled(cols_en_de_1_3: Columns) -> ExcelSheet:
     return ExcelSheet(excel_name="excel1", sheet_name="sheet1", df=df, col_info=cols_en_de_1_3)
 
 
-@pytest.fixture()
+@pytest.fixture
 def f1_s1_empty_node_column(cols_en_1_2: Columns) -> ExcelSheet:
     df = pd.DataFrame(
         {
@@ -167,13 +167,13 @@ def f1_s1_empty_node_column(cols_en_1_2: Columns) -> ExcelSheet:
     return ExcelSheet(excel_name="file1", sheet_name="sheet1", df=df, col_info=cols_en_1_2)
 
 
-@pytest.fixture()
+@pytest.fixture
 def f1_s1_no_list_columns(cols_en_list_only: Columns) -> ExcelSheet:
     df = pd.DataFrame({"en_list": ["list1", "list1", "list1", "list1"]})
     return ExcelSheet(excel_name="file1", sheet_name="sheet1", df=df, col_info=cols_en_list_only)
 
 
-@pytest.fixture()
+@pytest.fixture
 def f1_s1_empty_list_column(cols_en_1_2: Columns) -> ExcelSheet:
     df = pd.DataFrame(
         {
@@ -185,7 +185,7 @@ def f1_s1_empty_list_column(cols_en_1_2: Columns) -> ExcelSheet:
     return ExcelSheet(excel_name="file1", sheet_name="sheet1", df=df, col_info=cols_en_1_2)
 
 
-@pytest.fixture()
+@pytest.fixture
 def f1_s1_missing_translation_id_filled(cols_en_de_1_2: Columns) -> ExcelSheet:
     df = pd.DataFrame(
         {
@@ -262,7 +262,7 @@ def f1_s1_missing_translation_id_filled(cols_en_de_1_2: Columns) -> ExcelSheet:
     return ExcelSheet(excel_name="excel1", sheet_name="sheet1", df=df, col_info=cols_en_de_1_2)
 
 
-@pytest.fixture()
+@pytest.fixture
 def f1_s2_list_empty() -> ExcelSheet:
     df = pd.DataFrame({"en_list": [pd.NA, pd.NA], "en_1": ["list1", "list1"]})
     return ExcelSheet(
@@ -270,13 +270,13 @@ def f1_s2_list_empty() -> ExcelSheet:
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def f1_s1_no_nodes() -> ExcelSheet:
     df = pd.DataFrame({"en_list": ["list1", "list1"]})
     return ExcelSheet(excel_name="file1", sheet_name="sheet1", df=df, col_info=Columns("en", ["en_list"], []))
 
 
-@pytest.fixture()
+@pytest.fixture
 def f2_s2_missing_lang_column(cols_en_de_1_3: Columns) -> ExcelSheet:
     df = pd.DataFrame(
         {
@@ -292,7 +292,7 @@ def f2_s2_missing_lang_column(cols_en_de_1_3: Columns) -> ExcelSheet:
     return ExcelSheet(excel_name="file2", sheet_name="sheet2", df=df, col_info=cols_en_de_1_3)
 
 
-@pytest.fixture()
+@pytest.fixture
 def f2_s2_missing_translations(cols_en_de_1_3: Columns) -> ExcelSheet:
     df = pd.DataFrame(
         {
@@ -310,7 +310,7 @@ def f2_s2_missing_translations(cols_en_de_1_3: Columns) -> ExcelSheet:
     return ExcelSheet(excel_name="file2", sheet_name="sheet2", df=df, col_info=cols_en_de_1_3)
 
 
-@pytest.fixture()
+@pytest.fixture
 def f2_s3_one_row(cols_en_1: Columns) -> ExcelSheet:
     df = pd.DataFrame(
         {
@@ -321,7 +321,7 @@ def f2_s3_one_row(cols_en_1: Columns) -> ExcelSheet:
     return ExcelSheet(excel_name="file2", sheet_name="sheet3", df=df, col_info=cols_en_1)
 
 
-@pytest.fixture()
+@pytest.fixture
 def f1_s1_identical_row(cols_en_1: Columns) -> ExcelSheet:
     df = pd.DataFrame(
         {
@@ -333,7 +333,7 @@ def f1_s1_identical_row(cols_en_1: Columns) -> ExcelSheet:
     return ExcelSheet(excel_name="file1", sheet_name="sheet1", df=df, col_info=cols_en_1)
 
 
-@pytest.fixture()
+@pytest.fixture
 def sheets_duplicate_id(cols_en_1: Columns) -> list[ExcelSheet]:
     df_1 = pd.DataFrame(
         {

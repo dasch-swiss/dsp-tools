@@ -10,7 +10,7 @@ from dsp_tools.commands.id2iri import id2iri
 from dsp_tools.models.exceptions import BaseError
 
 
-@pytest.fixture()
+@pytest.fixture
 def mapping() -> dict[str, str]:
     return {
         "test_thing_0": "http://rdfh.ch/082E/-lRvrg7tQI6aVpcTJbVrwg",

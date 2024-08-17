@@ -9,22 +9,22 @@ from dsp_tools.models.exceptions import BadCredentialsError
 from dsp_tools.models.exceptions import PermanentConnectionError
 
 
-@pytest.fixture()
+@pytest.fixture
 def dsp_ingest_url() -> str:
     return "https://example.com"
 
 
-@pytest.fixture()
+@pytest.fixture
 def shortcode() -> str:
     return "0001"
 
 
-@pytest.fixture()
+@pytest.fixture
 def ingest_client(dsp_ingest_url: str, shortcode: str) -> DspIngestClientLive:
     return DspIngestClientLive(dsp_ingest_url, "token", shortcode, ".")
 
 
-@pytest.fixture()
+@pytest.fixture
 def tmp_file(tmp_path: Path) -> Path:
     return tmp_path / "éèêëàâæç îïôœùûüÿ.xml"
 

@@ -323,7 +323,11 @@ The output of the above command, with the template files, is:
                     "labels": {
                         "de": "Philosophisch-Naturwissenschaftliche Fakultät",
                         "en": "Faculty of Science"
-                    }
+                    },
+                      "comments": {
+                          "de": "Auch bekannt als Phil II",
+                          "en": "Also known as Phil II"
+                      }
                 },
                 "..."
             ]
@@ -375,6 +379,11 @@ The Excel sheets must have the following structure:
       For example:
           - `list1:node1:node1.1` for the node `node1.1` in `list1`
           - `list2:node1:node1.1` for the node `node1.1` in `list2`
+- `<language>_comments`: These are optional for but recommended at least for the list itself (the second row of the Excel).
+  If they are not provided for the list, the labels will be entered in the comments section.
+  Nodes will not have comments if not explicitly provided.
+  Same with the nodes, all used languages have to be entered.
+  It is possible to provide a comment only for some nodes.
 - `<language>_list`: At least one column with the name of the list in that language.
 - `<language>_number`: At least one column which specifies a node level. 
   It starts with 1 for the highest node hierarchy, and can go on infinitely.

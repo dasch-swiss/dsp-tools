@@ -49,7 +49,7 @@
             "gui_element": "SimpleText"
           },
           {
-            "name": "cardOneProp",
+            "name": "cardOneBool",
             "super": [
               "hasValue"
             ],
@@ -88,7 +88,7 @@
                 "gui_order": 0
               },
               {
-                "propname": ":cardOneProp",
+                "propname": ":cardOneBool",
                 "cardinality": "1",
                 "gui_order": 1
               }

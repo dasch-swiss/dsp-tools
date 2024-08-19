@@ -25,13 +25,20 @@ def _transform_into_xml_deserialised(root: etree._Element) -> ProjectXML:
     default_ontology = root.attrib["default-ontology"]
     permissions = [_get_permissions(x) for x in root.iterdescendants(tag="permissions")]
     resources = [_get_resources(x) for x in root.iterdescendants(tag="resource")]
-    return ProjectXML(shortcode=shortcode, default_onto=default_ontology, permissions=permissions, xml_data=resources)
+    return ProjectXML(
+        shortcode=shortcode, default_onto=default_ontology, permissions=permissions, xml_resources=resources
+    )
 
 
 def _get_resources(ele: etree._Element) -> ResourceXML:
-    res_id = ele.attrib["id"]
     values = list(ele.iterchildren())
-    return ResourceXML(res_id=res_id, res_attrib=ele.attrib, values=values)
+    return ResourceXML(res_attrib=ele.attrib, values=values, file_value=_find_file_value(ele))
+
+
+def _find_file_value(ele: etree._Element) -> etree._Element | None:
+    if bitstream := ele.find(".//bitstream") is not None:
+        return bitstream
+    return ele.find(".//iiif-uri")
 
 
 def _get_permissions(permission_ele: etree._Element) -> PermissionsXML:

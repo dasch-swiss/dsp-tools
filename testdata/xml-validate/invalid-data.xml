@@ -97,4 +97,14 @@
         </list-prop>
     </resource>
 
+
+    <!-- Miscellaneous Errors -->
+
+    <resource label="Value is Identical" restype=":WithoutRepresentation" id="identical-value">
+        <text-prop name=":hasSimpleText">
+            <text encoding="utf8">These two values are identical.</text>
+            <text encoding="utf8">These two values are identical.</text>
+        </text-prop>
+    </resource>
+
 </knora>

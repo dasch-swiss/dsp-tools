@@ -11,7 +11,7 @@ class ProjectDeserialised:
     shortcode: str
     default_onto: str
     permissions: list[PermissionsDeserialised]
-    xml_data: list[ResourceDeserialised]
+    resources: list[ResourceDeserialised]
 
 
 @dataclass
@@ -25,10 +25,9 @@ class ResourceDeserialised:
     res_id: str
     res_class: str
     label: str
-    permissions: str
+    permissions: str | None
     values: list[ValueDeserialised]
     file_value: AbstractFileValue | None = None
-    comments: str | None = None
 
 
 @dataclass
@@ -39,20 +38,20 @@ class AbstractFileValue(Protocol):
 @dataclass
 class FileValueDeserialised(AbstractFileValue):
     file_path: Path
-    permissions: str
+    permissions: str | None
 
 
 @dataclass
 class ExternalFileValueDeserialised(AbstractFileValue):
     iiif_uri: str
-    permissions: str
+    permissions: str | None
 
 
 @dataclass
 class ValueDeserialised(Protocol):
     prop_name: str
     prop_value: Any
-    permissions: str
+    permissions: str | None
     comments: str | None
 
 
@@ -60,7 +59,7 @@ class ValueDeserialised(Protocol):
 class SimpleTextDeserialised(ValueDeserialised):
     prop_name: str
     prop_value: str
-    permissions: str
+    permissions: str | None
     comments: str | None = None
 
 
@@ -68,7 +67,7 @@ class SimpleTextDeserialised(ValueDeserialised):
 class RichtextDeserialised(ValueDeserialised):
     prop_name: str
     prop_value: str
-    permissions: str
+    permissions: str | None
     comments: str | None = None
 
 
@@ -77,7 +76,7 @@ class ListDeserialised(ValueDeserialised):
     prop_name: str
     prop_value: str
     list_name: str
-    permissions: str
+    permissions: str | None
     comments: str | None = None
 
 
@@ -85,5 +84,5 @@ class ListDeserialised(ValueDeserialised):
 class BooleanDeserialised(ValueDeserialised):
     prop_name: str
     prop_value: bool
-    permissions: str
+    permissions: str | None
     comments: str | None = None

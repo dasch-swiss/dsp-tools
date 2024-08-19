@@ -20,6 +20,24 @@ class ResourceErrorCollection:
 
 
 @dataclass
+class PropNotFoundInOntology:
+    res_id: str
+    prop_name: str
+
+    def get_msg(self) -> str:
+        raise NotImplementedError
+
+
+@dataclass
+class ResClassNotFoundInOntology:
+    res_id: str
+    cls_name: str
+
+    def get_msg(self) -> str:
+        raise NotImplementedError
+
+
+@dataclass
 class MinCardinalityViolation:
     res_id: str
     prop_name: str

@@ -4,6 +4,7 @@ from lxml import etree
 
 from dsp_tools.commands.xml_validate.models.deserialised import AbstractFileValue
 from dsp_tools.commands.xml_validate.models.deserialised import BooleanDeserialised
+from dsp_tools.commands.xml_validate.models.deserialised import ExternalFileValueDeserialised
 from dsp_tools.commands.xml_validate.models.deserialised import FileValueDeserialised
 from dsp_tools.commands.xml_validate.models.deserialised import ListDeserialised
 from dsp_tools.commands.xml_validate.models.deserialised import PermissionsDeserialised
@@ -94,7 +95,7 @@ def _deserialise_file_value(value_ele: etree._Element) -> AbstractFileValue:
         case "bitstream":
             return FileValueDeserialised(file_path=Path(value_ele.text), permissions=permission)
         case "iiif-uri":
-            return FileValueDeserialised(file_path=value_ele.text, permissions=permission)
+            return ExternalFileValueDeserialised(iiif_uri=value_ele.text, permissions=permission)
 
 
 def _deserialise_one_property(prop_ele: etree._Element) -> list[ValueDeserialised]:

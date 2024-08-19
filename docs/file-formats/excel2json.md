@@ -379,7 +379,7 @@ The Excel sheets must have the following structure:
       For example:
           - `list1:node1:node1.1` for the node `node1.1` in `list1`
           - `list2:node1:node1.1` for the node `node1.1` in `list2`
-- `<language>_comments`: These are optional for but recommended at least for the list itself (the second row of the Excel).
+- `<language>_comments`: These are optional but recommended at least for the list itself (the second row of the Excel).
   If they are not provided for the list, the labels will be entered in the comments section.
   Nodes will not have comments if not explicitly provided.
   Same with the nodes, all used languages have to be entered.

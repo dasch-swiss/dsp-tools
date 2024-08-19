@@ -8,14 +8,10 @@ from typing import Optional
 
 import pandas as pd
 import regex
-from loguru import logger
 
 from dsp_tools.commands.excel2json.lists import validate_lists_section_with_schema
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import make_all_excel_compliance_checks
 from dsp_tools.commands.excel2json.new_lists.models.deserialise import ExcelSheet
-from dsp_tools.commands.excel2json.new_lists.models.input_error import CollectedSheetProblems
-from dsp_tools.commands.excel2json.new_lists.models.input_error import ListCreationProblem
-from dsp_tools.commands.excel2json.new_lists.models.input_error import SheetProblem
 from dsp_tools.commands.excel2json.new_lists.models.serialise import ListNode
 from dsp_tools.commands.excel2json.new_lists.models.serialise import ListRoot
 from dsp_tools.commands.excel2json.new_lists.utils import get_all_languages_for_columns
@@ -25,7 +21,6 @@ from dsp_tools.commands.excel2json.new_lists.utils import get_hierarchy_nums
 from dsp_tools.commands.excel2json.new_lists.utils import get_lang_string_from_column_name
 from dsp_tools.commands.excel2json.utils import add_optional_columns
 from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
-from dsp_tools.models.exceptions import InputError
 
 
 def new_excel2lists(
@@ -196,25 +191,10 @@ def _construct_non_duplicate_id_string(row: pd.Series[Any], preferred_language: 
 
 
 def _make_serialised_lists(sheet_list: list[ExcelSheet]) -> list[dict[str, Any]]:
-    all_lists = _make_all_lists(sheet_list)
-    if isinstance(all_lists, ListCreationProblem):
-        msg = all_lists.execute_error_protocol()
-        logger.error(msg)
-        raise InputError(msg)
-    return [list_.to_dict() for list_ in all_lists]
-
-
-def _make_all_lists(sheet_list: list[ExcelSheet]) -> list[ListRoot] | ListCreationProblem:
-    good_lists = []
-    problem_lists: list[SheetProblem] = []
+    all_lists = []
     for sheet in sheet_list:
-        if isinstance(new_list := _make_one_list(sheet), ListRoot):
-            good_lists.append(new_list)
-        else:
-            problem_lists.append(new_list)
-    if problem_lists:
-        return ListCreationProblem([CollectedSheetProblems(problem_lists)])
-    return good_lists
+        all_lists.append(_make_one_list(sheet))
+    return [list_.to_dict() for list_ in all_lists]
 
 
 def _make_one_list(sheet: ExcelSheet) -> ListRoot:

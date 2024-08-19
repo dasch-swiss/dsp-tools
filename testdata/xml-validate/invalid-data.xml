@@ -6,7 +6,6 @@
        shortcode="9999"
        default-ontology="onto">
 
-
     <permissions id="res-default">
         <allow group="UnknownUser">V</allow>
         <allow group="KnownUser">V</allow>
@@ -31,5 +30,71 @@
         <allow group="ProjectAdmin">CR</allow>
         <allow group="Creator">CR</allow>
     </permissions>
+
+
+    <!-- Cardinality Violation -->
+
+    <resource label="Max Cardinality Violation" restype=":CardOneResource" id="max-card-violation">
+        <text-prop name=":hasSimpleText">
+            <text encoding="utf8">Text Value One</text>
+            <text encoding="utf8">Text Value Two (this is a violation)</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Min Cardinality Violation" restype=":CardOneResource" id="min-card-violation"/>
+
+    <resource label="Wrong Text Encoding" restype=":CardOneResource" id="wrong-text-encoding">
+        <text-prop name=":hasSimpleText">
+            <text encoding="xml">This should be utf8</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Resource has no Card for boolProp" restype=":CardOneResource" id="card-non-existing">
+        <boolean-prop name=":boolProp">
+            <boolean>false</boolean>
+        </boolean-prop>
+    </resource>
+
+
+    <!-- Ontology Violations -->
+
+    <resource label="No Semicolon for prop" restype=":WithoutRepresentation" id="no-semicolon-prop">
+        <text-prop name="hasSimpleText">
+            <text encoding="utf8">hasSimpleText should have a semicolon</text>
+        </text-prop>
+    </resource>
+
+    <resource label="No Semicolon for Resource" restype="WithoutRepresentation" id="no-semicolon-res">
+        <text-prop name=":hasSimpleText">
+            <text encoding="utf8">CardOneResource should have a semicolon</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Property does not exist" restype=":WithoutRepresentation" id="non-existing-prop">
+        <text-prop name=":nonExisting">
+            <text encoding="utf8">Property does not exist</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Resource does not exist" restype=":NonExisting" id="non-existing-res">
+        <text-prop name=":hasSimpleText">
+            <text encoding="utf8">Resource class does not exist</text>
+        </text-prop>
+    </resource>
+
+
+    <!-- List Violations -->
+
+    <resource label="List does not exist" restype=":WithoutRepresentation" id="non-existing-list">
+        <list-prop name=":listProp" list="non-existing">
+            <list>onlyNode</list>
+        </list-prop>
+    </resource>
+
+    <resource label="List-node does not exist" restype=":WithoutRepresentation" id="non-existing-list-node">
+        <list-prop name=":listProp" list="onlyList">
+            <list>nonExisting</list>
+        </list-prop>
+    </resource>
 
 </knora>

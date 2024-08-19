@@ -49,29 +49,29 @@
             "gui_element": "SimpleText"
           },
           {
-            "name": "cardOneBool",
-            "super": [
-              "hasValue"
-            ],
-            "object": "BooleanValue",
-            "labels": {
-              "en": "Boolean One Cardinality"
-            },
-            "gui_element": "Checkbox"
-          },
-          {
-            "name": "wrongPropType",
+            "name": "listProp",
             "super": [
               "hasValue"
             ],
             "object": "ListValue",
             "labels": {
-              "en": "Boolean One Cardinality"
+              "en": "List Property"
             },
             "gui_element": "List",
             "gui_attributes": {
               "hlist": "list"
             }
+          },
+          {
+            "name": "boolProp",
+            "super": [
+              "hasValue"
+            ],
+            "object": "BooleanValue",
+            "labels": {
+              "en": "Boolean Property"
+            },
+            "gui_element": "Checkbox"
           }
         ],
         "resources": [
@@ -88,9 +88,14 @@
                 "gui_order": 0
               },
               {
-                "propname": ":cardOneBool",
-                "cardinality": "1",
+                "propname": ":listProp",
+                "cardinality": "0-n",
                 "gui_order": 1
+              },
+              {
+                "propname": ":boolProp",
+                "cardinality": "0-n",
+                "gui_order": 2
               }
             ]
           },
@@ -104,6 +109,20 @@
               {
                 "propname": ":hasSimpleText",
                 "cardinality": "0-n",
+                "gui_order": 0
+              }
+            ]
+          },
+          {
+            "name": "CardOneResource",
+            "super": "Resource",
+            "labels": {
+              "en": "Resource with One Cardinality"
+            },
+            "cardinalities": [
+              {
+                "propname": ":hasSimpleText",
+                "cardinality": "1",
                 "gui_order": 0
               }
             ]

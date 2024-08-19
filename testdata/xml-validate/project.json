@@ -1,0 +1,115 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/project.json",
+  "project": {
+    "shortcode": "9999",
+    "shortname": "test",
+    "longname": "Test project for XML-Validate",
+    "descriptions": {
+      "en": "Test project for XML-Validate"
+    },
+    "keywords": [
+      "validate"
+    ],
+    "lists": [
+      {
+        "name": "onlyList",
+        "labels": {
+          "en": "List"
+        },
+        "comments": {
+          "en": "This is the only list"
+        },
+        "nodes": [
+          {
+            "name": "onlyNode",
+            "labels": {
+              "en": "Only Node"
+            },
+            "comments": {
+              "en": "This is the only node of the list"
+            }
+          }
+        ]
+      }
+    ],
+    "ontologies": [
+      {
+        "name": "onto",
+        "label": "Ontology",
+        "properties": [
+          {
+            "name": "hasSimpleText",
+            "super": [
+              "hasValue"
+            ],
+            "object": "TextValue",
+            "labels": {
+              "en": "Simple Text"
+            },
+            "gui_element": "SimpleText"
+          },
+          {
+            "name": "cardOneProp",
+            "super": [
+              "hasValue"
+            ],
+            "object": "BooleanValue",
+            "labels": {
+              "en": "Boolean One Cardinality"
+            },
+            "gui_element": "Checkbox"
+          },
+          {
+            "name": "wrongPropType",
+            "super": [
+              "hasValue"
+            ],
+            "object": "ListValue",
+            "labels": {
+              "en": "Boolean One Cardinality"
+            },
+            "gui_element": "List",
+            "gui_attributes": {
+              "hlist": "list"
+            }
+          }
+        ],
+        "resources": [
+          {
+            "name": "WithoutRepresentation",
+            "super": "Resource",
+            "labels": {
+              "en": "Resource without Representation"
+            },
+            "cardinalities": [
+              {
+                "propname": ":hasSimpleText",
+                "cardinality": "0-n",
+                "gui_order": 0
+              },
+              {
+                "propname": ":cardOneProp",
+                "cardinality": "1",
+                "gui_order": 1
+              }
+            ]
+          },
+          {
+            "name": "ResImage",
+            "super": "StillImageRepresentation",
+            "labels": {
+              "en": "Still Image Representation"
+            },
+            "cardinalities": [
+              {
+                "propname": ":hasSimpleText",
+                "cardinality": "0-n",
+                "gui_order": 0
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

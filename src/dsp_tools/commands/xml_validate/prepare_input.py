@@ -3,6 +3,7 @@ from pathlib import Path
 from lxml import etree
 
 from dsp_tools.commands.xml_validate.models.deserialised import AbstractFileValue
+from dsp_tools.commands.xml_validate.models.deserialised import BooleanDeserialised
 from dsp_tools.commands.xml_validate.models.deserialised import FileValueDeserialised
 from dsp_tools.commands.xml_validate.models.deserialised import ListDeserialised
 from dsp_tools.commands.xml_validate.models.deserialised import PermissionsDeserialised
@@ -102,6 +103,8 @@ def _deserialise_one_property(prop_ele: etree._Element) -> list[ValueDeserialise
             return _deserialise_text_prop(prop_ele)
         case "list-prop":
             return _deserialise_list_prop(prop_ele)
+        case "boolean-prop":
+            return _deserialise_bool_prop(prop_ele)
         case "bitstream" | "iiif-uri":
             return []
 
@@ -143,3 +146,15 @@ def _deserialise_list_prop(prop: etree._Element) -> list[ValueDeserialised]:
             )
         )
     return all_vals
+
+
+def _deserialise_bool_prop(prop: etree._Element) -> list[ValueDeserialised]:
+    val = next(prop.iterchildren())
+    return [
+        BooleanDeserialised(
+            prop_name=prop.attrib["name"],
+            prop_value=val.text,
+            permissions=val.attrib.get("permissions"),
+            comments=val.attrib.get("comments"),
+        )
+    ]

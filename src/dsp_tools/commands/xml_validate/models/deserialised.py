@@ -83,6 +83,6 @@ class ListDeserialised(ValueDeserialised):
 @dataclass
 class BooleanDeserialised(ValueDeserialised):
     prop_name: str
-    prop_value: bool
+    prop_value: str
     permissions: str | None
     comments: str | None = None

@@ -115,7 +115,7 @@ class PropTypeMismatch:
 
     def get_msg(self) -> str:
         return (
-            f"The following property does not have the same type in the ontology and the data\n"
+            f"The following property does not have the same type in the ontology and the data:\n"
             f"{INDENT}Property: {self.prop_name}\n"
             f"{INDENT}Type used in data: {self.prop_type_used}\n"
             f"{INDENT}Type expected according to the ontology: {self.prop_type_expected}"

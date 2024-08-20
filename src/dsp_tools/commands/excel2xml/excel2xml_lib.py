@@ -52,22 +52,38 @@ def make_xsd_id_compatible(string: str) -> str:
         BaseError: if the input cannot be transformed to an xsd:ID
 
     Returns:
-        an xsd ID based on the input string
+        an xsd ID based on the input string with a UUID attached.
     """
-
-    if not isinstance(string, str) or not check_notna(string):
-        raise BaseError(f"The input '{string}' cannot be transformed to an xsd:ID")
-
-    # if start of string is neither letter nor underscore, add an underscore
-    res = regex.sub(r"^(?=[^A-Za-z_])", "_", string)
-
-    # replace all illegal characters by underscore
-    res = regex.sub(r"[^\w_\-.]", "_", res, flags=regex.ASCII)
-
+    res = xsd_id_remove_illegal_characters(string)
     # add uuid
     _uuid = uuid.uuid4()
     res = f"{res}_{_uuid}"
+    return res
 
+
+def xsd_id_remove_illegal_characters(string: str) -> str:
+    """
+    This method replaces the illegal characters by "_" and appends a random component to the string to make it unique.
+
+    The string must contain at least one Unicode letter (matching the regex ``\\p{L}``),
+    underscore, !, ?, or number, but must not be "None", "<NA>", "N/A", or "-".
+    Otherwise, a BaseError will be raised.
+
+    Args:
+        string: input string
+
+    Raises:
+        BaseError: if the input cannot be transformed to an xsd:ID
+
+    Returns:
+        an xsd ID based on the input string
+    """
+    if not isinstance(string, str) or not check_notna(string):
+        raise BaseError(f"The input '{string}' cannot be transformed to an xsd:ID")
+    # if start of string is neither letter nor underscore, add an underscore
+    res = regex.sub(r"^(?=[^A-Za-z_])", "_", string)
+    # replace all illegal characters by underscore
+    res = regex.sub(r"[^\w_\-.]", "_", res, flags=regex.ASCII)
     return res
 
 

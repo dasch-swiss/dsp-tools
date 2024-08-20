@@ -22,10 +22,10 @@ class AllErrors:
         d = defaultdict(list)
         for e in self.errors:
             d[e.res_id].append(e)
-        l = []
+        collection_list = []
         for k, v in d.items():
-            l.append(ResourceErrorCollection(k, v))
-        return sorted(l, key=lambda x: x.res_id)
+            collection_list.append(ResourceErrorCollection(k, v))
+        return sorted(collection_list, key=lambda x: x.res_id)
 
 
 @dataclass

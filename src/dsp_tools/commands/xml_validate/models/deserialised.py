@@ -72,7 +72,7 @@ class RichtextDeserialised(ValueDeserialised):
 
 
 @dataclass
-class ListDeserialised(ValueDeserialised):
+class ListValueDeserialised(ValueDeserialised):
     prop_name: str
     prop_value: str
     list_name: str

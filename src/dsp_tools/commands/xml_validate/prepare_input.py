@@ -7,7 +7,7 @@ from dsp_tools.commands.xml_validate.models.deserialised import AbstractFileValu
 from dsp_tools.commands.xml_validate.models.deserialised import ExternalFileValueDeserialised
 from dsp_tools.commands.xml_validate.models.deserialised import FileValueDeserialised
 from dsp_tools.commands.xml_validate.models.deserialised import LinkValueDeserialised
-from dsp_tools.commands.xml_validate.models.deserialised import ListDeserialised
+from dsp_tools.commands.xml_validate.models.deserialised import ListValueDeserialised
 from dsp_tools.commands.xml_validate.models.deserialised import PermissionsDeserialised
 from dsp_tools.commands.xml_validate.models.deserialised import ProjectDeserialised
 from dsp_tools.commands.xml_validate.models.deserialised import ResourceDeserialised
@@ -147,7 +147,7 @@ def _deserialise_list_prop(prop: etree._Element) -> list[ValueDeserialised]:
     for val in prop.iterchildren():
         txt = cast(str, val.text)
         all_vals.append(
-            ListDeserialised(
+            ListValueDeserialised(
                 prop_name=prop_name,
                 prop_value=txt,
                 list_name=list_name,

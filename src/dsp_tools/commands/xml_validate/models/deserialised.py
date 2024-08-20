@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Any
 from typing import Protocol
 
@@ -27,24 +26,6 @@ class ResourceDeserialised:
     label: str
     permissions: str | None
     values: list[ValueDeserialised]
-    file_value: AbstractFileValue | None
-
-
-@dataclass
-class AbstractFileValue(Protocol):
-    permissions: str | None
-
-
-@dataclass
-class FileValueDeserialised(AbstractFileValue):
-    file_path: Path
-    permissions: str | None
-
-
-@dataclass
-class ExternalFileValueDeserialised(AbstractFileValue):
-    iiif_uri: str
-    permissions: str | None
 
 
 @dataclass

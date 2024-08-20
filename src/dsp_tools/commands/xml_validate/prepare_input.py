@@ -3,9 +3,6 @@ from typing import cast
 
 from lxml import etree
 
-from dsp_tools.commands.xml_validate.models.deserialised import AbstractFileValue
-from dsp_tools.commands.xml_validate.models.deserialised import ExternalFileValueDeserialised
-from dsp_tools.commands.xml_validate.models.deserialised import FileValueDeserialised
 from dsp_tools.commands.xml_validate.models.deserialised import LinkValueDeserialised
 from dsp_tools.commands.xml_validate.models.deserialised import ListValueDeserialised
 from dsp_tools.commands.xml_validate.models.deserialised import PermissionsDeserialised
@@ -46,13 +43,7 @@ def _transform_into_xml_deserialised(root: etree._Element) -> ProjectXML:
 def _get_resources(ele: etree._Element) -> ResourceXML:
     values = list(ele.iterchildren())
     ele_attribs = cast(dict[str, str], ele.attrib)
-    return ResourceXML(res_attrib=ele_attribs, values=values, file_value=_find_file_value(ele))
-
-
-def _find_file_value(ele: etree._Element) -> etree._Element | None:
-    if (bitstream := ele.find(".//bitstream")) is not None:
-        return bitstream
-    return ele.find(".//iiif-uri")
+    return ResourceXML(res_attrib=ele_attribs, values=values)
 
 
 def _get_permissions(permission_ele: etree._Element) -> PermissionsXML:
@@ -79,29 +70,15 @@ def _deserialise_one_permission(permission: PermissionsXML) -> PermissionsDeseri
 def _deserialise_one_resource(resource: ResourceXML) -> ResourceDeserialised:
     res_id = resource.res_attrib["id"]
     values: list[ValueDeserialised] = []
-    file_value = None
     for val in resource.values:
         values.extend(_deserialise_one_property(val))
-    if resource.file_value:
-        file_value = _deserialise_file_value(resource.file_value)
     return ResourceDeserialised(
         res_id=res_id,
         res_class=resource.res_attrib["restype"],
         label=resource.res_attrib["label"],
         permissions=resource.res_attrib.get("permissions"),
         values=values,
-        file_value=file_value,
     )
-
-
-def _deserialise_file_value(value_ele: etree._Element) -> AbstractFileValue:
-    permission = value_ele.attrib.get("permissions")
-    txt = cast(str, value_ele.text)
-    match value_ele.tag:
-        case "bitstream":
-            return FileValueDeserialised(file_path=Path(txt), permissions=permission)
-        case _:
-            return ExternalFileValueDeserialised(iiif_uri=txt, permissions=permission)
 
 
 def _deserialise_one_property(prop_ele: etree._Element) -> list[ValueDeserialised]:
@@ -112,9 +89,8 @@ def _deserialise_one_property(prop_ele: etree._Element) -> list[ValueDeserialise
             return _deserialise_list_prop(prop_ele)
         case "resptr-prop":
             return _deserialise_resptr_prop(prop_ele)
-        case "bitstream" | "iiif-uri":
+        case _:
             return []
-    return []
 
 
 def _deserialise_text_prop(prop: etree._Element) -> list[ValueDeserialised]:

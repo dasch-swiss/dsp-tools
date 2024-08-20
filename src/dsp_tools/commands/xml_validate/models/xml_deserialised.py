@@ -17,7 +17,6 @@ class ProjectXML:
 class ResourceXML:
     res_attrib: dict[str, str]
     values: list[etree._Element]
-    file_value: etree._Element | None
 
 
 @dataclass

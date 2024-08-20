@@ -11,13 +11,12 @@ import regex
 
 from dsp_tools.commands.excel2json.lists import validate_lists_section_with_schema
 from dsp_tools.commands.excel2json.new_lists.compliance_checks import make_all_excel_compliance_checks
+from dsp_tools.commands.excel2json.new_lists.models.deserialise import Columns
 from dsp_tools.commands.excel2json.new_lists.models.deserialise import ExcelSheet
 from dsp_tools.commands.excel2json.new_lists.models.serialise import ListNode
 from dsp_tools.commands.excel2json.new_lists.models.serialise import ListRoot
-from dsp_tools.commands.excel2json.new_lists.utils import get_all_languages_for_columns
 from dsp_tools.commands.excel2json.new_lists.utils import get_column_info
 from dsp_tools.commands.excel2json.new_lists.utils import get_columns_of_preferred_lang
-from dsp_tools.commands.excel2json.new_lists.utils import get_hierarchy_nums
 from dsp_tools.commands.excel2json.new_lists.utils import get_lang_string_from_column_name
 from dsp_tools.commands.excel2json.utils import add_optional_columns
 from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
@@ -198,14 +197,13 @@ def _make_serialised_lists(sheet_list: list[ExcelSheet]) -> list[dict[str, Any]]
 
 
 def _make_one_list(sheet: ExcelSheet) -> ListRoot:
-    node_dict = _make_list_nodes_from_df(sheet.df)
+    node_dict = _make_list_nodes_from_df(sheet.df, sheet.col_info)
     nodes_for_root = _add_nodes_to_parent(node_dict, sheet.df.at[0, "id"]) if node_dict else []
-    col_titles_of_root_cols = [x for x in sheet.df.columns if regex.search(r"^(en|de|fr|it|rm)_list$", x)]
     return ListRoot(
         id_=sheet.df.at[0, "id"],
-        labels=_get_labels(sheet.df.iloc[0], col_titles_of_root_cols),
+        labels=_get_lang_dict(sheet.df.iloc[0], sheet.col_info.list_cols),
         nodes=nodes_for_root,
-        comments={},
+        comments=_get_lang_dict(sheet.df.iloc[0], sheet.col_info.comment_cols),
     )
 
 
@@ -219,43 +217,30 @@ def _add_nodes_to_parent(node_dict: dict[str, ListNode], list_id: str) -> list[L
     return root_list
 
 
-def _make_list_nodes_from_df(df: pd.DataFrame) -> dict[str, ListNode]:
-    columns_for_nodes = _get_reverse_sorted_columns_list(df)
+def _make_list_nodes_from_df(df: pd.DataFrame, col_info: Columns) -> dict[str, ListNode]:
     node_dict = {}
     for i, row in df[1:].iterrows():
-        node = _make_one_node(row, columns_for_nodes)
+        node = _make_one_node(row, col_info)
         node_dict[node.id_] = node
     return node_dict
 
 
-def _make_one_node(row: pd.Series[Any], list_of_columns: list[list[str]]) -> ListNode:
+def _make_one_node(row: pd.Series[Any], col_info: Columns) -> ListNode:
     labels = {}
-    for col_group in list_of_columns:
-        if found := _get_labels(row, col_group):
+    for col_group in col_info.node_cols:
+        if found := _get_lang_dict(row, col_group.columns):
             labels = found
             break
-    return ListNode(id_=str(row["id"]), labels=labels, parent_id=str(row["parent_id"]), sub_nodes=[])
+    return ListNode(
+        id_=str(row["id"]),
+        labels=labels,
+        comments=_get_lang_dict(row, col_info.comment_cols),
+        parent_id=str(row["parent_id"]),
+        sub_nodes=[],
+    )
 
 
-def _get_reverse_sorted_columns_list(df: pd.DataFrame) -> list[list[str]]:
-    numbers = sorted(get_hierarchy_nums(df.columns), reverse=True)
-    languages = get_all_languages_for_columns(df.columns, r"\d+")
-    return [[f"{lang}_{num}" for lang in languages] for num in numbers]
-
-
-def _get_labels(row: pd.Series[Any], columns: list[str]) -> dict[str, str]:
-    """
-    Provided a df row and a list of column titles,
-    create a mapping from language codes to the label of that language.
-    (The label comes from the Excel cell at the intersection of the row with the column.)
-
-    Parameters:
-        row: A pandas Series representing a row of a DataFrame.
-        columns: A list of column names.
-
-    Returns:
-        A dictionary with language codes as keys and the corresponding labels as values.
-    """
+def _get_lang_dict(row: pd.Series[Any], columns: list[str]) -> dict[str, str]:
     return {
         lang: row[col] for col in columns if not (pd.isna(row[col])) and (lang := get_lang_string_from_column_name(col))
     }

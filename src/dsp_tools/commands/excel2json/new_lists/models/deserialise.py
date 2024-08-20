@@ -17,6 +17,7 @@ class ExcelSheet:
 class Columns:
     preferred_lang: str
     list_cols: list[str]
+    comment_cols: list[str]
     node_cols: list[ColumnNodes]
 
     def __post_init__(self) -> None:

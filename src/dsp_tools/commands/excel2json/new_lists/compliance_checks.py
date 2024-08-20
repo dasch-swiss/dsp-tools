@@ -218,6 +218,8 @@ def _check_missing_translations_one_row(
     for col_group in columns.node_cols:
         missing_translations.extend(_check_for_missing_translations_one_column_group(row, col_group.columns))
     missing_translations.extend(_check_for_missing_translations_one_column_group(row, columns.list_cols))
+    if columns.comment_cols:
+        missing_translations.extend(_check_for_missing_translations_one_column_group(row, columns.comment_cols))
     if missing_translations:
         return MissingNodeTranslationProblem(empty_columns=missing_translations, index_num=row_index)
     return None

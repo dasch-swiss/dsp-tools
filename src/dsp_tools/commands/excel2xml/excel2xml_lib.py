@@ -52,10 +52,9 @@ def make_xsd_id_compatible(string: str) -> str:
         BaseError: if the input cannot be transformed to an xsd:ID
 
     Returns:
-        an xsd ID based on the input string with a UUID attached.
+        an xsd ID based on the input string, with a UUID attached.
     """
     res = xsd_id_remove_illegal_characters(string)
-    # add uuid
     _uuid = uuid.uuid4()
     res = f"{res}_{_uuid}"
     return res
@@ -63,7 +62,9 @@ def make_xsd_id_compatible(string: str) -> str:
 
 def xsd_id_remove_illegal_characters(string: str) -> str:
     """
-    This method replaces the illegal characters by "_" and appends a random component to the string to make it unique.
+    Make a string compatible with the constraints of xsd:ID, so that it can be used as "id" attribute of a <resource>
+    tag. An xsd:ID must not contain special characters, and it must be unique in the document.
+    This method replaces the illegal characters by "_".
 
     The string must contain at least one Unicode letter (matching the regex ``\\p{L}``),
     underscore, !, ?, or number, but must not be "None", "<NA>", "N/A", or "-".

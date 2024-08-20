@@ -4,7 +4,7 @@ from dsp_tools.commands.xml_validate.api_connection import ProjectClient
 from dsp_tools.commands.xml_validate.models.api_response_deserialised import ListDeserialised
 
 
-def deserialise_lists(project_client: ProjectClient) -> list[ListDeserialised]:
+def get_deserialised_lists(project_client: ProjectClient) -> list[ListDeserialised]:
     """Get objects which contain the pertinent information of the lists from the API."""
     all_lists = _request_all_lists(project_client)
     return [_deserialise_one_list(x) for x in all_lists]

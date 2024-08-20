@@ -98,7 +98,7 @@ def _deserialise_text_prop(prop: etree._Element) -> list[ValueDeserialised]:
     all_vals: list[ValueDeserialised] = []
     for child in prop.iterchildren():
         permissions = child.attrib.get("permissions")
-        comments = child.attrib.get("comments")
+        comments = child.attrib.get("comment")
         val = cast(str, child.text)
         match child.attrib["encoding"]:
             case "utf8":
@@ -128,7 +128,7 @@ def _deserialise_list_prop(prop: etree._Element) -> list[ValueDeserialised]:
                 prop_value=txt,
                 list_name=list_name,
                 permissions=val.attrib.get("permissions"),
-                comments=val.attrib.get("comments"),
+                comments=val.attrib.get("comment"),
             )
         )
     return all_vals
@@ -144,7 +144,7 @@ def _deserialise_resptr_prop(prop: etree._Element) -> list[ValueDeserialised]:
                 prop_name=prop_name,
                 prop_value=txt,
                 permissions=val.attrib.get("permissions"),
-                comments=val.attrib.get("comments"),
+                comments=val.attrib.get("comment"),
             )
         )
     return all_links

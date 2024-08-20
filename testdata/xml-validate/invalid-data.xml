@@ -51,14 +51,14 @@
             <text encoding="utf8">The target of the link should be of the class CardOneResource</text>
         </text-prop>
         <resptr-prop name=":linkProp">
-            <resptr>link-value-target-wrong</resptr>
+            <resptr permissions="prop-default">link-value-target-wrong</resptr>
         </resptr-prop>
     </resource>
 
 
     <resource label="Link Value Target" restype=":SubClass" id="link-value-target-correct">
         <text-prop name=":hasSimpleText">
-            <text encoding="utf8">
+            <text encoding="utf8" comment="Comment">
                 The target of the incoming link value is a subclass of the object constraint.
                 The value should not be wrong in the validation result.
             </text>

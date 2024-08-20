@@ -1,3 +1,4 @@
+import copy
 import dataclasses
 import datetime
 import difflib
@@ -36,13 +37,13 @@ xml_namespace_map = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.o
 
 def make_xsd_id_compatible(string: str) -> str:
     """
-    Make a string compatible with the constraints of xsd:ID, so that it can be used as "id" attribute of a <resource>
-    tag. An xsd:ID must not contain special characters, and it must be unique in the document.
+    An xsd:ID may not contain all types of special characters.
+    This function replaces illegal characters with "_" and appends a random UUID.
+    The UUID will be different each time the function is called.
 
-    This method replaces the illegal characters by "_" and appends a random component to the string to make it unique.
-
-    The string must contain at least one Unicode letter (matching the regex ``\\p{L}``), underscore, !, ?, or number,
-    but must not be "None", "<NA>", "N/A", or "-". Otherwise, a BaseError will be raised.
+    The string must contain at least one Unicode letter (matching the regex ``\\p{L}``),
+    underscore, !, ?, or number, but must not be "None", "<NA>", "N/A", or "-".
+    Otherwise, a BaseError will be raised.
 
     Args:
         string: input string
@@ -51,22 +52,38 @@ def make_xsd_id_compatible(string: str) -> str:
         BaseError: if the input cannot be transformed to an xsd:ID
 
     Returns:
-        an xsd ID based on the input string
+        an xsd ID based on the input string, with a UUID attached.
     """
-
-    if not isinstance(string, str) or not check_notna(string):
-        raise BaseError(f"The input '{string}' cannot be transformed to an xsd:ID")
-
-    # if start of string is neither letter nor underscore, add an underscore
-    res = regex.sub(r"^(?=[^A-Za-z_])", "_", string)
-
-    # replace all illegal characters by underscore
-    res = regex.sub(r"[^\w_\-.]", "_", res, flags=regex.ASCII)
-
-    # add uuid
+    res = make_xsd_id_compatible_without_uuid(string)
     _uuid = uuid.uuid4()
     res = f"{res}_{_uuid}"
+    return res
 
+
+def make_xsd_id_compatible_without_uuid(string: str) -> str:
+    """
+    An xsd:ID may not contain all types of special characters.
+    This function replaces illegal characters with "_".
+
+    The string must contain at least one Unicode letter (matching the regex ``\\p{L}``),
+    underscore, !, ?, or number, but must not be "None", "<NA>", "N/A", or "-".
+    Otherwise, a BaseError will be raised.
+
+    Args:
+        string: input string
+
+    Raises:
+        BaseError: if the input cannot be transformed to an xsd:ID
+
+    Returns:
+        an xsd ID compatible string based on the input string
+    """
+    if not isinstance(string, str) or not check_notna(string):
+        raise BaseError(f"The input '{string}' cannot be transformed to an xsd:ID")
+    # if start of string is neither letter nor underscore, add an underscore
+    res = regex.sub(r"^(?=[^A-Za-z_])", "_", string)
+    # replace all illegal characters by underscore
+    res = regex.sub(r"[^\w_\-.]", "_", res, flags=regex.ASCII)
     return res
 
 
@@ -430,7 +447,7 @@ def make_resource(  # noqa: D417 (undocumented-param)
     creation_date: Optional[str] = None,
 ) -> etree._Element:
     """
-    Creates an empty resource element, with the attributes as specified by the arguments
+    Creates an empty resource element, with the attributes as specified by the arguments.
 
     Args:
         The arguments correspond to the attributes of the <resource> element.
@@ -1402,27 +1419,36 @@ def make_text_prop(
             # write the text into the tag, without validation
             value_.text = str(val.value)
         else:
-            escaped_text = _escape_reserved_chars(str(val.value))
-            # transform named entities (=character references) to numeric entities, e.g. &nbsp; -> &#160;
-            num_ent = numeric_entities(escaped_text)
-            pseudo_xml = f"<ignore-this>{num_ent}</ignore-this>"
             try:
-                parsed = etree.fromstring(pseudo_xml)
-                value_.text = parsed.text  # everything before the first child tag
-                value_.extend(list(parsed))  # all (nested) children of the pseudo-xml
-            except etree.XMLSyntaxError as err:
-                msg = (
-                    "The XML tags contained in a richtext property (encoding=xml) must be well-formed. "
-                    "The special characters <, > and & are only allowed to construct a tag. "
-                )
+                value_ = _add_richtext_to_etree_element(str(val.value), value_)
+            except BaseError as err:
                 if calling_resource:
-                    msg += f"The error occurred in resource {calling_resource}, property {name}"
-                msg += f"\nOriginal error message: {err.msg}"
-                msg += f"\nEventual line/column numbers are relative to this text: {pseudo_xml}"
-                raise BaseError(msg) from None
+                    err.message += f"The error occurred in resource {calling_resource}, property {name}"
+                raise err from None
         prop_.append(value_)
 
     return prop_
+
+
+def _add_richtext_to_etree_element(richtext: str, element: etree._Element) -> etree._Element:
+    new_element = copy.deepcopy(element)
+    escaped_text = _escape_reserved_chars(richtext)
+    # transform named entities (=character references) to numeric entities, e.g. &nbsp; -> &#160;
+    num_ent = numeric_entities(escaped_text)
+    pseudo_xml = f"<ignore-this>{num_ent}</ignore-this>"
+    try:
+        parsed = etree.fromstring(pseudo_xml)
+    except etree.XMLSyntaxError as err:
+        msg = (
+            "The XML tags contained in a richtext property (encoding=xml) must be well-formed. "
+            "The special characters <, > and & are only allowed to construct a tag. "
+        )
+        msg += f"\nOriginal error message: {err.msg}"
+        msg += f"\nEventual line/column numbers are relative to this text: {pseudo_xml}"
+        raise BaseError(msg) from None
+    new_element.text = parsed.text  # everything before the first child tag
+    new_element.extend(list(parsed))  # all (nested) children of the pseudo-xml
+    return new_element
 
 
 def _escape_reserved_chars(text: str) -> str:
@@ -1635,18 +1661,18 @@ def make_region(  # noqa: D417 (undocumented-param)
     creation_date: Optional[str] = None,
 ) -> etree._Element:
     """
-    Creates an empty region element, with the attributes as specified by the arguments
+    Creates an empty region element, with the attributes as specified by the arguments.
 
     Args:
-        The arguments correspond 1:1 to the attributes of the <region> element.
+        The arguments correspond 1:1 to the attributes of the `<region>` element.
 
     Raises:
         Warning: if both an ARK and an IRI are provided
         BaseError: if the creation date is invalid
 
     Returns:
-        The region element, without any children, but with the attributes:
-        <region label=label id=id permissions=permissions ark=ark iri=iri></region>
+        The region element, without any children, but with the attributes
+        `<region label=label id=id permissions=permissions ark=ark iri=iri></region>`
 
     Examples:
         >>> region = excel2xml.make_region("label", "id")
@@ -1692,18 +1718,18 @@ def make_annotation(  # noqa: D417 (undocumented-param)
     creation_date: Optional[str] = None,
 ) -> etree._Element:
     """
-    Creates an empty annotation element, with the attributes as specified by the arguments
+    Creates an empty annotation element, with the attributes as specified by the arguments.
 
     Args:
-        The arguments correspond 1:1 to the attributes of the <annotation> element.
+        The arguments correspond 1:1 to the attributes of the `<annotation>` element.
 
     Raises:
         Warning: if both an ARK and an IRI are provided
         BaseError: if the creation date is invalid
 
     Returns:
-        The annotation element, without any children, but with the attributes:
-        <annotation label=label id=id permissions=permissions ark=ark iri=iri></annotation>
+        The annotation element, without any children, but with the attributes
+        `<annotation label=label id=id permissions=permissions ark=ark iri=iri></annotation>`
 
     Examples:
         >>> annotation = excel2xml.make_annotation("label", "id")
@@ -1747,18 +1773,18 @@ def make_link(  # noqa: D417 (undocumented-param)
     creation_date: Optional[str] = None,
 ) -> etree._Element:
     """
-    Creates an empty link element, with the attributes as specified by the arguments
+    Creates an empty link element, with the attributes as specified by the arguments.
 
     Args:
-        The arguments correspond 1:1 to the attributes of the <link> element.
+        The arguments correspond 1:1 to the attributes of the `<link>` element.
 
     Raises:
         Warning: if both an ARK and an IRI are provided
         BaseError: if the creation date is invalid
 
     Returns:
-        The link element, without any children, but with the attributes:
-        <link label=label id=id permissions=permissions ark=ark iri=iri></link>
+        The link element, without any children, but with the attributes
+        `<link label=label id=id permissions=permissions ark=ark iri=iri></link>`
 
     Examples:
         >>> link = excel2xml.make_link("label", "id")
@@ -1799,14 +1825,14 @@ def make_audio_segment(  # noqa: D417 (undocumented-param)
     permissions: str = "res-default",
 ) -> etree._Element:
     """
-    Creates an empty <audio-segment> element, with the attributes as specified by the arguments
+    Creates an empty `<audio-segment>` element, with the attributes as specified by the arguments.
 
     Args:
-        The arguments correspond 1:1 to the attributes of the <audio-segment> element.
+        The arguments correspond 1:1 to the attributes of the `<audio-segment>` element.
 
     Returns:
-        The audio-segment element, without any children, but with the attributes:
-        <audio-segment label=label id=id permissions=permissions></audio-segment>
+        The audio-segment element, without any children, but with the attributes
+        `<audio-segment label=label id=id permissions=permissions></audio-segment>`
 
     Examples:
         >>> audio_segment = excel2xml.make_audio_segment("label", "id")
@@ -1831,14 +1857,14 @@ def make_video_segment(  # noqa: D417 (undocumented-param)
     permissions: str = "res-default",
 ) -> etree._Element:
     """
-    Creates an empty <video-segment> element, with the attributes as specified by the arguments
+    Creates an empty `<video-segment>` element, with the attributes as specified by the arguments.
 
     Args:
-        The arguments correspond 1:1 to the attributes of the <video-segment> element.
+        The arguments correspond 1:1 to the attributes of the `<video-segment>` element.
 
     Returns:
-        The video-segment element, without any children, but with the attributes:
-        <video-segment label=label id=id permissions=permissions></video-segment>
+        The video-segment element, without any children, but with the attributes
+        `<video-segment label=label id=id permissions=permissions></video-segment>`
 
     Examples:
         >>> video_segment = excel2xml.make_video_segment("label", "id")

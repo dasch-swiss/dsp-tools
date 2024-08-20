@@ -108,7 +108,9 @@ def test_missing_translation() -> None:
         "The excel sheet 'missing_translation_cell' has the following problem(s):\n"
         "In one list, all the nodes must be translated into all the languages used. "
         "For the following nodes, the translations are missing:\n"
-        "    - Row Number: 3 | Column(s): de_1"
+        "    - Row Number: 2 | Column(s): en_comments\n"
+        "    - Row Number: 3 | Column(s): de_1\n"
+        "    - Row Number: 4 | Column(s): de_comments"
     )
     with pytest.raises(InputError, match=expected):
         new_excel2lists(Path("testdata/invalid-testdata/excel2json/new_lists_missing_translations"))

@@ -2,24 +2,28 @@
 
 # Excel File Format to Generate a JSON Project
 
-## The Folder Structure for `excel2json`
 
-With the [`excel2json`](../cli-commands.md#excel2json) command, 
+With the [`excel2json`](../cli-commands.md#excel2json) or 
+[`new-excel2json`](../cli-commands.md#new-excel2json) command, 
 a JSON project file can be created from Excel files.
 
 To put it simple, a JSON project consists of
 
+- 1 header section with metadata about the project
 - 0-1 "lists" sections
-- 1-n ontologies, each containing
+- 1-n "ontologies", each containing
     - 1 "properties" section
     - 1 "resources" section
 
-For each of these 3 sections, one or several Excel files are necessary. The Excel files and their format are described 
+For each of these 4 sections, one or several Excel files are necessary. The Excel files and their format are described 
 below. If you want to convert the Excel files to JSON, it is possible to invoke a command for each of these sections 
 separately (as described below). 
 
-But it is more convenient to use the command that creates the entire JSON project file. In order to do so, put all 
-involved files into a folder with the following structure:
+But it is more convenient to use the command that creates the entire JSON project file.
+
+## The Folder Structure for `excel2json`
+
+The following folder structure has to be used, when invoking the standard `excel2json` command.
 
 ```text
 data_model_files
@@ -54,7 +58,6 @@ Likewise, there will be no prefixes, no groups and no users in the resulting JSO
 Continue reading the following paragraphs to learn more about the expected structure of the Excel files.
 
 ## The Folder Structure for `new-excel2json`
-
 
 The convention for the folder structure and naming remains the same as for the standard `excel2json`.
 The Excel files containing the lists must have the word "list" in the name. 
@@ -323,7 +326,11 @@ The output of the above command, with the template files, is:
                     "labels": {
                         "de": "Philosophisch-Naturwissenschaftliche Fakultät",
                         "en": "Faculty of Science"
-                    }
+                    },
+                      "comments": {
+                          "de": "Auch bekannt als Phil II",
+                          "en": "Also known as Phil II"
+                      }
                 },
                 "..."
             ]
@@ -375,6 +382,11 @@ The Excel sheets must have the following structure:
       For example:
           - `list1:node1:node1.1` for the node `node1.1` in `list1`
           - `list2:node1:node1.1` for the node `node1.1` in `list2`
+- `<language>_comments`: These are optional but recommended at least for the list itself (the second row of the Excel).
+  If they are not provided for the list, the labels will be entered in the comments section.
+  Nodes will not have comments if not explicitly provided.
+  All languages that are used for one list must also be used for the comments.
+  It is possible to provide a comment only for some nodes.
 - `<language>_list`: At least one column with the name of the list in that language.
 - `<language>_number`: At least one column which specifies a node level. 
   It starts with 1 for the highest node hierarchy, and can go on infinitely.

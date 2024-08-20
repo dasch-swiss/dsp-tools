@@ -102,7 +102,7 @@ instead of the "name" which is needed for the `dsp-tools xmlupload`.
 You need a way to get the names from the labels.
 If your data source uses the labels correctly, 
 this is an easy task: 
-The method `create_json_list_mapping()` creates a dictionary that maps the labels to the names:  
+The function `create_json_list_mapping()` creates a dictionary that maps the labels to the names:  
 
 The list "category" in `00A1-import-scripts/import_project.json` looks as follows:
 
@@ -148,7 +148,7 @@ If you pass this list to `create_json_list_mapping()`, it creates the following 
 
 If, however, your data source has spelling variants, 
 you need the more sophisticated approach of `create_json_excel_list_mapping()`: 
-This method creates a dictionary 
+This function creates a dictionary 
 that maps the list values in your data source 
 to their correct JSON project node name. 
 This happens based on string similarity. 
@@ -168,8 +168,8 @@ The dictionary that results if you call `create_json_excel_list_mapping()`:
 }
 ```
 
-The sample Python scripts features an example how to call these two methods, and how the resulting dictionaries can be 
-used.
+The sample Python scripts features an example how to call these two functions, 
+and how the resulting dictionaries can be used.
 
 
 ## 5. Iterate Through the Rows of Your Data Source
@@ -181,7 +181,7 @@ With the help of Pandas, you can then iterate through the rows of your Excel/CSV
 
 There are several kinds of resources that can be created: 
 
-| restype        | tag               | method                 |
+| restype        | tag               | function               |
 | -------------- | ----------------- | ---------------------- |
 | `Resource`     | `<resource>`      | `make_resource()`      |
 | `Annotation`   | `<annotation>`    | `make_annotation()`    |
@@ -196,7 +196,7 @@ here](./file-formats/xml-data-file.md#dsp-base-resources-and-base-properties-to-
 #### Resource ID
 
 Special care is needed when the ID of a resource is created. Every resource must have an ID that is unique in the file,
-and it must meet the constraints of xsd:ID. You can simply achieve this if you use the method `make_xsd_id_compatible()`.
+and it must meet the constraints of xsd:ID. You can simply achieve this if you use the function `make_xsd_id_compatible()`.
 
 If later, another resource would like to set a resptr-link to the resource that you are coding now, you must store the 
 ID in a dict, so that you can retrieve it later. The example script contains an example of such a dict. 
@@ -209,8 +209,8 @@ anymore how to construct a certain XML value for a certain property.
 
 Here's how the docstrings assist you:
 
-- method signature: names of the parameters and accepted types
-- short explanation how the method behaves
+- function signature: names of the parameters and accepted types
+- short explanation how the function behaves
 - usage examples
 - link to the DSP-TOOLS documentation of this property
 - a short description for every parameter
@@ -266,7 +266,7 @@ For `make_boolean_prop(cell)`, the following formats are supported:
 - false: False, "false", "False", "0", 0, "no", "No"
 
 N/A-like values will raise an Error. 
-So if your cell is empty, this method will not count it as false, 
+So if your cell is empty, this function will not count it as false, 
 but will raise an Error. 
 If you want N/A-like values to be counted as false, 
 you may use a construct like this:
@@ -297,11 +297,11 @@ At the end of the for-loop, it is important not to forget to append the finished
 At the very end, save the file under a name that you can choose yourself.
 
 
-## Other Helper Methods
+## Other Helper Functions
 
 ### Check if a Cell Contains a Usable Value
 
-The method `check_notna(cell)` checks a value if it is usable in the context of data archiving. A value is considered 
+The function `check_notna(cell)` checks a value if it is usable in the context of data archiving. A value is considered 
 usable if it is
 
 - a number (integer or float, but not `numpy.nan`)
@@ -355,7 +355,7 @@ In contrast, `check_notna(cell)` will return the expected value for all cases in
 
 ### Calendar Date Parsing
 
-The method `find_date_in_string(string)` tries to find a calendar date in a string. If successful, it 
+The function `find_date_in_string(string)` tries to find a calendar date in a string. If successful, it 
 returns the DSP-formatted date string.
 
 Notes:

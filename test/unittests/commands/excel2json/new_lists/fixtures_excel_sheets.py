@@ -17,7 +17,7 @@ def cols_en_1() -> Columns:
     return Columns(preferred_lang="en", list_cols=["en_list"], comment_cols=["en_comment"], node_cols=[n_1])
 
 
-@pytest.fixture()
+@pytest.fixture
 def cols_en_1_no_comments() -> Columns:
     n_1 = ColumnNodes(level_num=1, columns=["en_1"])
     return Columns(preferred_lang="en", list_cols=["en_list"], comment_cols=[], node_cols=[n_1])

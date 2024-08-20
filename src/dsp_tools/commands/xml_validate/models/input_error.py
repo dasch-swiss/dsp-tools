@@ -70,6 +70,7 @@ class PropTypeMismatch:
 class LinkTargetMismatch:
     res_id: str
     prop_name: str
+    target_id: str
     target_class_used: str
     target_class_expected: str
 

@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Any
+from urllib.parse import quote_plus
 
 import requests
 
@@ -43,13 +44,35 @@ class Authentication:
 
 
 @dataclass
-class OntologyClient:
+class ProjectClient:
     """Client handling ontology-related requests to the DSP-API."""
 
     server: str
     token: str
     shortcode: str
     default_ontology: str
+    project_iri: str | None = None
+
+    def __post_init__(self) -> None:
+        url = f"/admin/projects/shortcode/{self.shortcode}"
+        response = self.get(url, {})
+        self.project_iri = response.json()["project"]["id"]
+
+    def get(self, url: str, headers: dict[str, str]) -> requests.Response:
+        """Get request"""
+        try:
+            response = requests.get(f"{self.server}{url}", timeout=10, headers=headers)
+            if not response.ok:
+                raise InputError(
+                    f"Unsuccessful Request\n"
+                    f"URL: {url}\n"
+                    f"Status code: {response.status_code}\n"
+                    f"Message: {response.text}"
+                )
+        except ConnectionError:
+            raise BaseError(f"ConnectionError:\nRequest: {url}") from None
+        except TimeoutError:
+            raise BaseError(f"TimeoutError:\nRequest: {url}") from None
 
     def get_project_ontology(self, ontology_name: str) -> dict[str, Any]:
         """
@@ -61,16 +84,18 @@ class OntologyClient:
         Returns:
             The json response
         """
-        try:
-            url = f"{self.server}/ontology/{self.shortcode}/{ontology_name}/v2"
-            response = requests.get(url, timeout=10, headers={"Accept": "application/ld+json"})
-            if not response.ok:
-                raise InputError(f"The ontology request returned a status code: {response.status_code}")
-            res: dict[str, Any] = response.json()
-            return res
-        except ConnectionError:
-            raise BaseError(
-                f"Ontologies for project {self.shortcode} could not be retrieved from the DSP server"
-            ) from None
-        except TimeoutError:
-            raise BaseError("TimeoutError during the authentication.") from None
+        url = f"/ontology/{self.shortcode}/{ontology_name}/v2"
+        response = self.get(url, {"Accept": "application/ld+json"})
+        res: dict[str, Any] = response.json()
+        return res
+
+    def get_list_iris(self, project_iri: str) -> list[str]:
+        url = f"/admin/lists?projectIri={quote_plus(project_iri)}"
+        response = self.get(url, {})
+        return [x["id"] for x in response.json()["lists"]]
+
+    def get_one_list(self, list_iri: str) -> dict[str, Any]:
+        url = f"/admin/lists/{quote_plus(list_iri)}"
+        response = self.get(url, {})
+        res: dict[str, Any] = response.json()
+        return res

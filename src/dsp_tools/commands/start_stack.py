@@ -330,7 +330,8 @@ class StackHandler:
             while prune_docker not in ["y", "n"]:
                 prune_docker = input(
                     "Allow dsp-tools to execute 'docker system prune'?\n"
-                    "If you press 'y' this means that all unused containers, networks, and images (both dangling and unused) in your docker will be deleted.\n"
+                    "If you press 'y' this means that all unused containers, networks, "
+                    "and images (both dangling and unused) in your docker will be deleted.\n"
                     "It is recommended to do this manually or through this command, "
                     "every once in a while to keep your docker clean and running smoothly. [y/n]"
                 )

@@ -1,0 +1,5 @@
+id,restype,label,hasName_public,hasName_private,hasStreetAddress,file,iiif-uri
+ginny,:Dog,Ginny,Ginny,Virginia Woof,"Dog Street 1
+4001 Basel",mypath/img.jpg,
+attli,:Dog,Attli,Attli,,"Dog Street 1
+8001 Schaffhausen",,https://iiif-uri.com

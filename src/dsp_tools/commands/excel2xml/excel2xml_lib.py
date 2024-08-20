@@ -76,7 +76,7 @@ def make_xsd_id_compatible_without_uuid(string: str) -> str:
         BaseError: if the input cannot be transformed to an xsd:ID
 
     Returns:
-        an xsd:ID compatible string based on the input string
+        an xsd ID compatible string based on the input string
     """
     if not isinstance(string, str) or not check_notna(string):
         raise BaseError(f"The input '{string}' cannot be transformed to an xsd:ID")

@@ -1,0 +1,44 @@
+{
+  "type": "ListGetResponseADM",
+  "list": {
+    "listinfo": {
+      "id": "http://rdfh.ch/lists/9999/klgwHOJeRqCTudNpUJHKww",
+      "projectIri": "http://rdfh.ch/projects/KhCEnuqxRgyoak-2M2DUNg",
+      "name": "onlyList",
+      "labels": [
+        {
+          "value": "List",
+          "language": "en"
+        }
+      ],
+      "comments": [
+        {
+          "value": "This is the only list",
+          "language": "en"
+        }
+      ],
+      "isRootNode": true
+    },
+    "children": [
+      {
+        "id": "http://rdfh.ch/lists/9999/h4n9RWfiRpa1-QHzxnf_-A",
+        "name": "onlyNode",
+        "labels": [
+          {
+            "value": "Only Node",
+            "language": "en"
+          }
+        ],
+        "comments": [
+          {
+            "value": "This is the only node of the list",
+            "language": "en"
+          }
+        ],
+        "position": 0,
+        "hasRootNode": "http://rdfh.ch/lists/9999/klgwHOJeRqCTudNpUJHKww",
+        "children": []
+      }
+    ]
+  }
+}

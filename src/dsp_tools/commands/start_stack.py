@@ -329,11 +329,12 @@ class StackHandler:
             prune_docker = None
             while prune_docker not in ["y", "n"]:
                 prune_docker = input(
-                    "Allow dsp-tools to execute 'docker system prune'?\n"
-                    "If you press 'y' this means that all unused containers, networks, "
-                    "and images (both dangling and unused) in your docker will be deleted.\n"
-                    "It is recommended to do this manually or through this command, "
-                    "every once in a while to keep your docker clean and running smoothly. [y/n]"
+                    "Allow dsp-tools to execute 'docker system prune'? \n"
+                    "If you press 'y', all unused containers, networks, and images (both dangling and unused) "
+                    "in your docker will be deleted.\n"
+                    "It is recommended that you do this every once in a while "
+                    "to keep your docker clean and running smoothly.\n"
+                    "You can do it manually, or now with this command: [y/n]"
                 )
         if prune_docker == "y":
             subprocess.run("docker system prune --volumes -f".split(), cwd=self.__docker_path_of_user, check=False)

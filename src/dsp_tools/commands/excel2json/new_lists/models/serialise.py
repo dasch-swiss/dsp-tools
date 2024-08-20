@@ -9,6 +9,7 @@ from typing import Any
 class ListNode:
     id_: str
     labels: dict[str, str]
+    comments: dict[str, str]
     parent_id: str
     sub_nodes: list[ListNode] = field(default_factory=list)
 
@@ -22,7 +23,10 @@ class ListNode:
         return [nd.to_dict() for nd in self.sub_nodes]
 
     def _make_own_node(self) -> dict[str, Any]:
-        return {"name": self.id_, "labels": self.labels}
+        d = {"name": self.id_, "labels": self.labels}
+        if self.comments:
+            d.update({"comments": self.comments})
+        return d
 
 
 @dataclass
@@ -30,7 +34,7 @@ class ListRoot:
     id_: str
     labels: dict[str, str]
     nodes: list[ListNode]
-    comments: dict[str, str] = field(default_factory=dict)
+    comments: dict[str, str]
 
     def to_dict(self) -> dict[str, Any]:
         lst_root = self._make_list_root()

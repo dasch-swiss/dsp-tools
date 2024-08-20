@@ -6,8 +6,8 @@
       "de": "Liste 1"
     },
     "comments": {
-      "en": "List 1",
-      "de": "Liste 1"
+      "en": "Comments List",
+      "de": "Kommentar Liste"
     },
     "nodes": [
       {
@@ -54,6 +54,10 @@
             "labels": {
               "de": "Knoten 2.1",
               "en": "Node 2.1"
+            },
+            "comments": {
+              "de": "Kommentar N2.1",
+              "en": "Comments N2.1"
             }
           },
           {
@@ -77,6 +81,10 @@
         "labels": {
           "de": "Knoten 3",
           "en": "Node 3"
+        },
+        "comments": {
+          "de": "Kommentar N3",
+          "en": "Comments N3"
         }
       }
     ]
@@ -87,7 +95,7 @@
       "en": "List 2"
     },
     "comments": {
-      "en": "List 2"
+      "en": "Comment List"
     },
     "nodes": [
       {
@@ -95,11 +103,17 @@
         "labels": {
           "en": "Node 1"
         },
+        "comments": {
+          "en": "Comment N1"
+        },
         "nodes": [
           {
             "name": "List 2:Node 1:subnode1",
             "labels": {
               "en": "subnode1"
+            },
+            "comments": {
+              "en": "Comment N1.1"
             }
           }
         ]
@@ -109,11 +123,17 @@
         "labels": {
           "en": "Node 2"
         },
+        "comments": {
+          "en": "Comment N2"
+        },
         "nodes": [
           {
             "name": "List 2:Node 2:subnode1",
             "labels": {
               "en": "subnode1"
+            },
+            "comments": {
+              "en": "Comment N2.1"
             }
           }
         ]

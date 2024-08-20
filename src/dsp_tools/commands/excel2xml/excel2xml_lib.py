@@ -1,3 +1,4 @@
+import copy
 import dataclasses
 import datetime
 import difflib
@@ -1402,27 +1403,36 @@ def make_text_prop(
             # write the text into the tag, without validation
             value_.text = str(val.value)
         else:
-            escaped_text = _escape_reserved_chars(str(val.value))
-            # transform named entities (=character references) to numeric entities, e.g. &nbsp; -> &#160;
-            num_ent = numeric_entities(escaped_text)
-            pseudo_xml = f"<ignore-this>{num_ent}</ignore-this>"
             try:
-                parsed = etree.fromstring(pseudo_xml)
-                value_.text = parsed.text  # everything before the first child tag
-                value_.extend(list(parsed))  # all (nested) children of the pseudo-xml
-            except etree.XMLSyntaxError as err:
-                msg = (
-                    "The XML tags contained in a richtext property (encoding=xml) must be well-formed. "
-                    "The special characters <, > and & are only allowed to construct a tag. "
-                )
+                value_ = _add_richtext_to_etree_element(str(val.value), value_)
+            except BaseError as err:
                 if calling_resource:
-                    msg += f"The error occurred in resource {calling_resource}, property {name}"
-                msg += f"\nOriginal error message: {err.msg}"
-                msg += f"\nEventual line/column numbers are relative to this text: {pseudo_xml}"
-                raise BaseError(msg) from None
+                    err.message += f"The error occurred in resource {calling_resource}, property {name}"
+                raise err from None
         prop_.append(value_)
 
     return prop_
+
+
+def _add_richtext_to_etree_element(richtext: str, element: etree._Element) -> etree._Element:
+    new_element = copy.deepcopy(element)
+    escaped_text = _escape_reserved_chars(richtext)
+    # transform named entities (=character references) to numeric entities, e.g. &nbsp; -> &#160;
+    num_ent = numeric_entities(escaped_text)
+    pseudo_xml = f"<ignore-this>{num_ent}</ignore-this>"
+    try:
+        parsed = etree.fromstring(pseudo_xml)
+    except etree.XMLSyntaxError as err:
+        msg = (
+            "The XML tags contained in a richtext property (encoding=xml) must be well-formed. "
+            "The special characters <, > and & are only allowed to construct a tag. "
+        )
+        msg += f"\nOriginal error message: {err.msg}"
+        msg += f"\nEventual line/column numbers are relative to this text: {pseudo_xml}"
+        raise BaseError(msg) from None
+    new_element.text = parsed.text  # everything before the first child tag
+    new_element.extend(list(parsed))  # all (nested) children of the pseudo-xml
+    return new_element
 
 
 def _escape_reserved_chars(text: str) -> str:
@@ -1834,7 +1844,7 @@ def make_video_segment(  # noqa: D417 (undocumented-param)
     Creates an empty `<video-segment>` element, with the attributes as specified by the arguments.
 
     Args:
-        The arguments correspond 1:1 to the attributes of the <video-segment> element.
+        The arguments correspond 1:1 to the attributes of the `<video-segment>` element.
 
     Returns:
         The video-segment element, without any children, but with the attributes

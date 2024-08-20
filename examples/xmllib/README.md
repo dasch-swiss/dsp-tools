@@ -28,7 +28,7 @@ Optional:
 
 ## Finishing Up
 
-**Re-Install dsp-tools**
+**Re-Install DSP-TOOLS**
 
 ```
 pip3 uninstall dsp-tools

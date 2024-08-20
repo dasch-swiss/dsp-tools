@@ -33,10 +33,21 @@ class TestGetRemainingColumns:
         assert get_hierarchy_nums(columns) == [1, 2, 3, 4, 5]
 
 
-def test_make_columns() -> None:
+def test_make_columns_no_comments() -> None:
     res = get_column_info(pd.Index(["en_list", "fr_1", "en_3", "de_3"]))
     assert res.preferred_lang == "en"
     assert set(res.list_cols) == {"en_list", "de_list", "fr_list"}
+    assert not res.comment_cols
+    assert len(res.node_cols) == 2
+    assert set(res.node_cols[0].columns) == {"en_3", "de_3", "fr_3"}
+    assert set(res.node_cols[1].columns) == {"en_1", "de_1", "fr_1"}
+
+
+def test_make_columns_with_comments() -> None:
+    res = get_column_info(pd.Index(["en_list", "fr_1", "en_3", "de_3", "fr_comments"]))
+    assert res.preferred_lang == "en"
+    assert set(res.list_cols) == {"en_list", "de_list", "fr_list"}
+    assert set(res.comment_cols) == {"en_comments", "de_comments", "fr_comments"}
     assert len(res.node_cols) == 2
     assert set(res.node_cols[0].columns) == {"en_3", "de_3", "fr_3"}
     assert set(res.node_cols[1].columns) == {"en_1", "de_1", "fr_1"}

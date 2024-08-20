@@ -77,36 +77,6 @@ class MaxCardinalityViolation:
 
 
 @dataclass
-class PropNotFoundInOntology:
-    res_id: str
-    prop_name: str
-
-    def get_msg(self) -> str:
-        return (
-            f"The following property could not be found in the project ontology:\n"
-            f"{INDENT}Property: {self.prop_name}"
-        )
-
-    def sort_value(self) -> str:
-        return self.prop_name
-
-
-@dataclass
-class ResClassNotFoundInOntology:
-    res_id: str
-    cls_name: str
-
-    def get_msg(self) -> str:
-        return (
-            f"The following resource class could not be found in the project ontology:\n"
-            f"{INDENT}Class: {self.cls_name}"
-        )
-
-    def sort_value(self) -> str:
-        return self.cls_name
-
-
-@dataclass
 class PropTypeMismatch:
     res_id: str
     prop_name: str

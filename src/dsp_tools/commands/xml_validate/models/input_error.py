@@ -47,7 +47,7 @@ class ResourceErrorCollection:
     def get_msg(self) -> str:
         msg = [f"The resource with the ID '{self.res_id}' has the following problem(s):"]
         msg.extend(sorted(self.errors, key=lambda x: x.sort_value()))
-        return "\n\n".join(msg)
+        return MEDIUM_SEPARATOR.join(msg)
 
     def sort_value(self) -> str:
         return self.res_id

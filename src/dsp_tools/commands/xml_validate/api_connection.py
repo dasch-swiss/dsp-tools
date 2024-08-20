@@ -15,16 +15,7 @@ class Authentication:
     password: str
 
     def get_token(self) -> str:
-        """
-        Retrieve a session token and store it as class attribute.
-
-        Args:
-            email: email address of the user
-            password: password of the user
-
-        Raises:
-            UserError: if DSP-API returns no token with the provided user credentials
-        """
+        """Get a bearer token from the server."""
         try:
             response = requests.get(
                 url=f"{self.server}/v2/authentication",
@@ -51,7 +42,7 @@ class ProjectClient:
     token: str
     shortcode: str
     default_ontology: str
-    project_iri: str | None = None
+    project_iri: str = ""
 
     def __post_init__(self) -> None:
         url = f"/admin/projects/shortcode/{self.shortcode}"

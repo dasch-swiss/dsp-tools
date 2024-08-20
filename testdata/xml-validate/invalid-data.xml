@@ -34,7 +34,7 @@
 
     <!-- Cardinality Violation -->
 
-    <resource label="Max Cardinality Violation" restype=":CardOneResource" id="max-card-violation">
+    <resource label="Max Cardinality Violation" restype=":SubClass" id="max-card-violation">
         <text-prop name=":hasSimpleText">
             <text encoding="utf8">Text Value One</text>
             <text encoding="utf8">Text Value Two (this is a violation)</text>
@@ -44,16 +44,9 @@
 
     <!-- Ontology Violations -->
 
-    <resource label="Property does not exist" restype=":WithoutRepresentation" id="non-existing-prop">
-        <text-prop name=":nonExisting">
-            <text encoding="utf8">Property does not exist</text>
-        </text-prop>
-    </resource>
+    <resource label="Link Value Target" restype=":NormalClass" id="link-value-target"/>
 
-
-    <resource label="Link Value Target" restype=":WithoutRepresentation" id="link-value-target"/>
-
-    <resource label="Target Link Class Mismatch" restype=":WithoutRepresentation" id="link-value-wrong">
+    <resource label="Target Link Class Mismatch" restype=":NormalClass" id="link-value-wrong">
         <text-prop name=":hasSimpleText">
             <text encoding="utf8">The target of the link should be of the class CardOneResource</text>
         </text-prop>
@@ -63,7 +56,7 @@
     </resource>
 
 
-    <resource label="Property Type Mismatch" restype=":WithoutRepresentation" id="property-type-mismatch">
+    <resource label="Property Type Mismatch" restype=":NormalClass" id="property-type-mismatch">
         <text-prop name=":listProp">
             <text encoding="utf8">This should be a list prop.</text>
         </text-prop>
@@ -71,7 +64,7 @@
 
     <!-- List Violations -->
 
-    <resource label="List-node does not exist" restype=":WithoutRepresentation" id="non-existing-list-node">
+    <resource label="List-node does not exist" restype=":NormalClass" id="non-existing-list-node">
         <list-prop name=":listProp" list="onlyList">
             <list>nonExisting</list>
         </list-prop>
@@ -80,7 +73,7 @@
 
     <!-- Miscellaneous Errors -->
 
-    <resource label="Value is Identical" restype=":WithoutRepresentation" id="identical-value">
+    <resource label="Value is Identical" restype=":NormalClass" id="identical-value">
         <text-prop name=":hasSimpleText">
             <text encoding="utf8">These two values are identical.</text>
             <text encoding="utf8">These two values are identical.</text>

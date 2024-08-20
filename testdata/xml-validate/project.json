@@ -59,19 +59,8 @@
             },
             "gui_element": "List",
             "gui_attributes": {
-              "hlist": "list"
+              "hlist": "onlyList"
             }
-          },
-          {
-            "name": "boolProp",
-            "super": [
-              "hasValue"
-            ],
-            "object": "BooleanValue",
-            "labels": {
-              "en": "Boolean Property"
-            },
-            "gui_element": "Checkbox"
           },
           {
             "name": "linkProp",
@@ -87,10 +76,10 @@
         ],
         "resources": [
           {
-            "name": "WithoutRepresentation",
+            "name": "NormalClass",
             "super": "Resource",
             "labels": {
-              "en": "Resource without Representation"
+              "en": "Superclass Resource"
             },
             "cardinalities": [
               {
@@ -123,6 +112,13 @@
                 "gui_order": 0
               }
             ]
+          },
+          {
+            "name": "SubClass",
+            "super": ":CardOneResource",
+            "labels": {
+              "en": "Subclass Resource"
+            }
           }
         ]
       }

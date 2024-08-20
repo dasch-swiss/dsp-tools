@@ -9,12 +9,12 @@ from lxml import etree
 from dsp_tools.utils.xml_utils import parse_and_clean_xml_file
 
 
-@pytest.fixture()
+@pytest.fixture
 def data_systematic_unclean() -> Path:
     return Path("testdata/xml-data/test-data-systematic.xml")
 
 
-@pytest.fixture()
+@pytest.fixture
 def data_systematic_cleaned() -> etree._Element:
     return parse_and_clean_xml_file(Path("testdata/xml-data/test-data-systematic.xml"))
 

@@ -2,6 +2,7 @@ import unittest
 from typing import Union
 
 import numpy as np
+import pandas as pd
 import pytest
 
 from dsp_tools import excel2xml
@@ -14,7 +15,7 @@ class TestPrepareValue(unittest.TestCase):
     def test_prepare_value(self) -> None:
         identical_values = ["Test", "Test", "Test"]
         different_values: list[Union[str, int, float]] = [1, 1.0, "1", "1.0", " 1 "]
-        values_with_nas: list[Union[str, int, float]] = ["test", "", 1, np.nan, 0]
+        values_with_nas: list[Union[str, int, float]] = ["test", "", 1, np.nan, pd.NA, 0]  # type: ignore[list-item]
 
         for val in different_values:
             values_output = excel2xml.prepare_value(val)

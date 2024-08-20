@@ -28,7 +28,7 @@ def mapping_file() -> Iterator[Path]:
     mapping_file.unlink(missing_ok=True)
 
 
-@pytest.fixture()
+@pytest.fixture
 def _create_project() -> Iterator[None]:
     with get_containers():
         success = create_project(Path("testdata/json-project/test-project-e2e.json"), CREDS, verbose=True)

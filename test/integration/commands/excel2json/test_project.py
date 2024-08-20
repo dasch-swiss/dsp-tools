@@ -8,14 +8,14 @@ from dsp_tools.commands.excel2json.project import _create_project_json
 from dsp_tools.commands.excel2json.project import _validate_folder_structure_get_filenames
 
 
-@pytest.fixture()
+@pytest.fixture
 def expected_project() -> dict[str, Any]:
     with open("testdata/excel2json/excel2json-expected-output.json", encoding="utf-8") as f:
         proj = json.load(f)
         return cast(dict[str, Any], proj)
 
 
-@pytest.fixture()
+@pytest.fixture
 def returned_project() -> dict[str, Any]:
     excel_folder = "testdata/excel2json/excel2json_files"
     listfolder, onto_folders = _validate_folder_structure_get_filenames(excel_folder)

@@ -13,7 +13,7 @@ KNORA_API = Namespace("http://api.knora.org/ontology/knora-api/v2#")
 MY_ONTO = Namespace("http://0.0.0.0:3333/ontology/0009/myonto/v2#")
 
 
-@pytest.fixture()
+@pytest.fixture
 def int_value() -> Graph:
     g = Graph()
     res_bn = BNode()
@@ -24,7 +24,7 @@ def int_value() -> Graph:
     return g
 
 
-@pytest.fixture()
+@pytest.fixture
 def int_value_with_comment() -> Graph:
     g = Graph()
     res_bn = BNode()
@@ -37,7 +37,7 @@ def int_value_with_comment() -> Graph:
     return g
 
 
-@pytest.fixture()
+@pytest.fixture
 def two_int_values() -> Graph:
     g = Graph()
     res_bn = BNode()

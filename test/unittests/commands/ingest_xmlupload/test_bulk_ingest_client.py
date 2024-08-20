@@ -15,12 +15,12 @@ DSP_INGEST_URL = "https://example.com"
 SHORTCODE = "0001"
 
 
-@pytest.fixture()
+@pytest.fixture
 def ingest_client() -> BulkIngestClient:
     return BulkIngestClient(DSP_INGEST_URL, "token", SHORTCODE)
 
 
-@pytest.fixture()
+@pytest.fixture
 def tmp_file(tmp_path: Path) -> Path:
     return tmp_path / "filename_îïôœùûüÿ.xml"
 

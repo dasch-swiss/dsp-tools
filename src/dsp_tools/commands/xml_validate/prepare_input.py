@@ -21,6 +21,7 @@ from dsp_tools.utils.xml_validation import validate_xml
 
 
 def parse_file(file: Path) -> ProjectXML:
+    """Returns an object which follows the structure of the XML closely"""
     root = _parse_file_validate_with_schema(file)
     return _transform_into_xml_deserialised(root)
 
@@ -59,6 +60,7 @@ def _get_permissions(permission_ele: etree._Element) -> PermissionsXML:
 
 
 def deserialise_xml_project(project: ProjectXML) -> ProjectDeserialised:
+    """Reruns an object, which removed the XML structure from the data."""
     permissions = [_deserialise_one_permission(x) for x in project.permissions]
     resources = [_deserialise_one_resource(x) for x in project.xml_resources]
     return ProjectDeserialised(

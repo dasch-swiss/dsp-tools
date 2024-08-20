@@ -72,6 +72,17 @@
               "en": "Boolean Property"
             },
             "gui_element": "Checkbox"
+          },
+          {
+            "name": "linkProp",
+            "super": [
+              "hasLinkTo"
+            ],
+            "object": ":CardOneResource",
+            "labels": {
+              "en": "Link to CardOneResource"
+            },
+            "gui_element": "Searchbox"
           }
         ],
         "resources": [
@@ -93,23 +104,9 @@
                 "gui_order": 1
               },
               {
-                "propname": ":boolProp",
+                "propname": ":linkProp",
                 "cardinality": "0-n",
                 "gui_order": 2
-              }
-            ]
-          },
-          {
-            "name": "ResImage",
-            "super": "StillImageRepresentation",
-            "labels": {
-              "en": "Still Image Representation"
-            },
-            "cardinalities": [
-              {
-                "propname": ":hasSimpleText",
-                "cardinality": "0-n",
-                "gui_order": 0
               }
             ]
           },

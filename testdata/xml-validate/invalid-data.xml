@@ -41,34 +41,8 @@
         </text-prop>
     </resource>
 
-    <resource label="Min Cardinality Violation" restype=":CardOneResource" id="min-card-violation"/>
-
-    <resource label="Wrong Text Encoding" restype=":CardOneResource" id="wrong-text-encoding">
-        <text-prop name=":hasSimpleText">
-            <text encoding="xml">This should be utf8</text>
-        </text-prop>
-    </resource>
-
-    <resource label="Resource has no Card for boolProp" restype=":CardOneResource" id="card-non-existing">
-        <boolean-prop name=":boolProp">
-            <boolean>false</boolean>
-        </boolean-prop>
-    </resource>
-
 
     <!-- Ontology Violations -->
-
-    <resource label="No Semicolon for prop" restype=":WithoutRepresentation" id="no-semicolon-prop">
-        <text-prop name="hasSimpleText">
-            <text encoding="utf8">hasSimpleText should have a semicolon</text>
-        </text-prop>
-    </resource>
-
-    <resource label="No Semicolon for Resource" restype="WithoutRepresentation" id="no-semicolon-res">
-        <text-prop name=":hasSimpleText">
-            <text encoding="utf8">CardOneResource should have a semicolon</text>
-        </text-prop>
-    </resource>
 
     <resource label="Property does not exist" restype=":WithoutRepresentation" id="non-existing-prop">
         <text-prop name=":nonExisting">
@@ -76,20 +50,26 @@
         </text-prop>
     </resource>
 
-    <resource label="Resource does not exist" restype=":NonExisting" id="non-existing-res">
+
+    <resource label="Link Value Target" restype=":WithoutRepresentation" id="link-value-target"/>
+
+    <resource label="Property does not exist" restype=":WithoutRepresentation" id="link-value-wrong">
         <text-prop name=":hasSimpleText">
-            <text encoding="utf8">Resource class does not exist</text>
+            <text encoding="utf8">The target of the link should be of the class CardOneResource</text>
+        </text-prop>
+        <resptr-prop name=":linkProp">
+            <resptr>link-value-target</resptr>
+        </resptr-prop>
+    </resource>
+
+
+    <resource label="Property does not exist" restype=":WithoutRepresentation" id="property-type-mismatch">
+        <text-prop name=":listProp">
+            <text encoding="utf8">This should be a list prop.</text>
         </text-prop>
     </resource>
 
-
     <!-- List Violations -->
-
-    <resource label="List does not exist" restype=":WithoutRepresentation" id="non-existing-list">
-        <list-prop name=":listProp" list="non-existing">
-            <list>onlyNode</list>
-        </list-prop>
-    </resource>
 
     <resource label="List-node does not exist" restype=":WithoutRepresentation" id="non-existing-list-node">
         <list-prop name=":listProp" list="onlyList">
@@ -106,5 +86,4 @@
             <text encoding="utf8">These two values are identical.</text>
         </text-prop>
     </resource>
-
 </knora>

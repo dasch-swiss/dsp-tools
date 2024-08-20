@@ -18,13 +18,14 @@ from dsp_tools.commands.excel2json.new_lists.make_new_lists import _resolve_dupl
 from dsp_tools.commands.excel2json.new_lists.make_new_lists import (
     _resolve_duplicate_ids_keep_custom_change_auto_id_one_df,
 )
+from dsp_tools.commands.excel2json.new_lists.models.deserialise import Columns
 from dsp_tools.commands.excel2json.new_lists.models.deserialise import ExcelSheet
 from dsp_tools.commands.excel2json.new_lists.models.serialise import ListNode
 from dsp_tools.commands.excel2json.new_lists.models.serialise import ListRoot
 
 
 class TestDuplicateID:
-    def test_resolve_duplicates_in_all_excels(self) -> None:
+    def test_resolve_duplicates_in_all_excels(self, cols_en_1: Columns) -> None:
         f1_s1 = pd.DataFrame(
             {
                 "id": ["0", "1", "2"],
@@ -42,8 +43,8 @@ class TestDuplicateID:
             }
         )
         all_excels = [
-            ExcelSheet(excel_name="file1", sheet_name="sheet1", df=f1_s1),
-            ExcelSheet(excel_name="file2", sheet_name="sheet2", df=f2_s2),
+            ExcelSheet(excel_name="file1", sheet_name="sheet1", df=f1_s1, col_info=cols_en_1),
+            ExcelSheet(excel_name="file2", sheet_name="sheet2", df=f2_s2, col_info=cols_en_1),
         ]
         res = _remove_duplicate_ids_in_all_excels(["1"], all_excels)
         assert len(res) == 2
@@ -54,7 +55,7 @@ class TestDuplicateID:
         assert sheet_two.excel_name == "file2"
         assert sheet_two.df["id"].to_list() == ["00", "List2:Node1"]
 
-    def test_resolve_duplicates_in_all_excels_custom_id(self) -> None:
+    def test_resolve_duplicates_in_all_excels_custom_id(self, cols_en_1: Columns) -> None:
         f1_s1 = pd.DataFrame(
             {
                 "id": ["0", "1", "2"],
@@ -72,8 +73,8 @@ class TestDuplicateID:
             }
         )
         all_excels = [
-            ExcelSheet(excel_name="file1", sheet_name="sheet1", df=f1_s1),
-            ExcelSheet(excel_name="file2", sheet_name="sheet2", df=f2_s2),
+            ExcelSheet(excel_name="file1", sheet_name="sheet1", df=f1_s1, col_info=cols_en_1),
+            ExcelSheet(excel_name="file2", sheet_name="sheet2", df=f2_s2, col_info=cols_en_1),
         ]
         res = _remove_duplicate_ids_in_all_excels(["1"], all_excels)
         assert len(res) == 2
@@ -84,7 +85,7 @@ class TestDuplicateID:
         assert sheet_two.excel_name == "file2"
         assert sheet_two.df["id"].to_list() == ["00", "List2:Node1"]
 
-    def test_analyse_resolve_all_excel_duplicates_with_duplicates(self) -> None:
+    def test_analyse_resolve_all_excel_duplicates_with_duplicates(self, cols_en_1: Columns) -> None:
         f1_s1 = pd.DataFrame(
             {
                 "id": ["0", "1", "2"],
@@ -102,8 +103,8 @@ class TestDuplicateID:
             }
         )
         all_excels = [
-            ExcelSheet(excel_name="file1", sheet_name="sheet1", df=f1_s1),
-            ExcelSheet(excel_name="file2", sheet_name="sheet2", df=f2_s2),
+            ExcelSheet(excel_name="file1", sheet_name="sheet1", df=f1_s1, col_info=cols_en_1),
+            ExcelSheet(excel_name="file2", sheet_name="sheet2", df=f2_s2, col_info=cols_en_1),
         ]
         res = _resolve_duplicate_ids_all_excels(all_excels)
         assert len(res) == 2
@@ -114,7 +115,7 @@ class TestDuplicateID:
         assert sheet_two.excel_name == "file2"
         assert sheet_two.df["id"].to_list() == ["00", "List2:Node1"]
 
-    def test_analyse_resolve_all_excel_duplicates_no_duplicates(self) -> None:
+    def test_analyse_resolve_all_excel_duplicates_no_duplicates(self, cols_en_1: Columns) -> None:
         f1_s1 = pd.DataFrame(
             {
                 "id": ["0", "11", "2"],
@@ -132,8 +133,8 @@ class TestDuplicateID:
             }
         )
         all_excels = [
-            ExcelSheet(excel_name="file1", sheet_name="sheet1", df=f1_s1),
-            ExcelSheet(excel_name="file2", sheet_name="sheet2", df=f2_s2),
+            ExcelSheet(excel_name="file1", sheet_name="sheet1", df=f1_s1, col_info=cols_en_1),
+            ExcelSheet(excel_name="file2", sheet_name="sheet2", df=f2_s2, col_info=cols_en_1),
         ]
         res = _resolve_duplicate_ids_all_excels(all_excels)
         assert len(res) == 2
@@ -146,7 +147,7 @@ class TestDuplicateID:
 
 
 class TestMakeOneList:
-    def test_make_lists_all_good(self) -> None:
+    def test_make_lists_all_good(self, cols_en_de_1_3: Columns) -> None:
         test_df = pd.DataFrame(
             {
                 "id": ["list_id", "1", "1.1", "2", "3", "3.1", "3.2", "3.2.1", "3.2.2"],
@@ -221,7 +222,7 @@ class TestMakeOneList:
                 "de_3": [pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, pd.NA, "Node_de_3.2.1", "Node_de_3.2.2"],
             }
         )
-        test_sheet = ExcelSheet(excel_name="excel", sheet_name="Sheet1", df=test_df)
+        test_sheet = ExcelSheet(excel_name="excel", sheet_name="Sheet1", df=test_df, col_info=cols_en_de_1_3)
         res = _make_one_list(test_sheet)
         assert isinstance(res, ListRoot)
         assert res.id_ == "list_id"
@@ -446,9 +447,8 @@ def test_make_list_nodes_with_valid_data() -> None:
         "de_2": [pd.NA, pd.NA, "Knoten1.1", pd.NA],
     }
     df = pd.DataFrame(data)
-    node_dict, problems = _make_list_nodes_from_df(df)
+    node_dict = _make_list_nodes_from_df(df)
     assert len(node_dict) == 3
-    assert len(problems) == 0
     one = node_dict["id_1"]
     assert isinstance(one, ListNode)
     assert one.id_ == "id_1"
@@ -482,7 +482,7 @@ class TestMakeOneNode:
                 "de_2": pd.NA,
             }
         )
-        nd = _make_one_node(test_series, [["en_2", "de_2"], ["en_1", "de_1"]], "1")
+        nd = _make_one_node(test_series, [["en_2", "de_2"], ["en_1", "de_1"]])
         assert isinstance(nd, ListNode)
         assert nd.id_ == "node_id"
         assert nd.labels == {"en": "Node_en_1", "de": "Node_de_1"}
@@ -500,7 +500,7 @@ class TestMakeOneNode:
                 "de_2": "Node_de_2",
             }
         )
-        nd = _make_one_node(test_series, [["en_2", "de_2"], ["en_1", "de_1"]], "2")
+        nd = _make_one_node(test_series, [["en_2", "de_2"], ["en_1", "de_1"]])
         assert isinstance(nd, ListNode)
         assert nd.id_ == "node_id"
         assert nd.labels == {"en": "Node_en_2", "de": "Node_de_2"}

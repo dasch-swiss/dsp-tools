@@ -11,11 +11,13 @@
         <allow group="UnknownUser">RV</allow>
         <allow group="KnownUser">V</allow>
         <allow group="Creator">M</allow>
+        <allow group="systematic-tp:testgroupEditors">M</allow>
         <allow group="ProjectAdmin">CR</allow>
     </permissions>
     <permissions id="res-restricted">
         <allow group="KnownUser">V</allow>
         <allow group="Creator">CR</allow>
+        <allow group=":testgroup-viewers">M</allow>
         <allow group="ProjectAdmin">CR</allow>
     </permissions>
     <permissions id="prop-default">

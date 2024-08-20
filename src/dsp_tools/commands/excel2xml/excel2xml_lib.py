@@ -54,13 +54,13 @@ def make_xsd_id_compatible(string: str) -> str:
     Returns:
         an xsd ID based on the input string, with a UUID attached.
     """
-    res = make_xsd_id_compatible_string(string)
+    res = make_xsd_id_compatible_string_without_uuid(string)
     _uuid = uuid.uuid4()
     res = f"{res}_{_uuid}"
     return res
 
 
-def make_xsd_id_compatible_string(string: str) -> str:
+def make_xsd_id_compatible_string_without_uuid(string: str) -> str:
     """
     An xsd:ID may not contain all types of special characters.
     This function replaces illegal characters with "_".

@@ -27,12 +27,12 @@ class ResourceDeserialised:
     label: str
     permissions: str | None
     values: list[ValueDeserialised]
-    file_value: AbstractFileValue | None = None
+    file_value: AbstractFileValue | None
 
 
 @dataclass
 class AbstractFileValue(Protocol):
-    permissions: str
+    permissions: str | None
 
 
 @dataclass
@@ -60,7 +60,7 @@ class SimpleTextDeserialised(ValueDeserialised):
     prop_name: str
     prop_value: str
     permissions: str | None
-    comments: str | None = None
+    comments: str | None
 
 
 @dataclass
@@ -68,7 +68,7 @@ class RichtextDeserialised(ValueDeserialised):
     prop_name: str
     prop_value: str
     permissions: str | None
-    comments: str | None = None
+    comments: str | None
 
 
 @dataclass
@@ -77,12 +77,12 @@ class ListDeserialised(ValueDeserialised):
     prop_value: str
     list_name: str
     permissions: str | None
-    comments: str | None = None
+    comments: str | None
 
 
 @dataclass
-class BooleanDeserialised(ValueDeserialised):
+class LinkValueDeserialised(ValueDeserialised):
     prop_name: str
     prop_value: str
     permissions: str | None
-    comments: str | None = None
+    comments: str | None

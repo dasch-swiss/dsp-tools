@@ -1,11 +1,12 @@
 from pathlib import Path
+from typing import cast
 
 from lxml import etree
 
 from dsp_tools.commands.xml_validate.models.deserialised import AbstractFileValue
-from dsp_tools.commands.xml_validate.models.deserialised import BooleanDeserialised
 from dsp_tools.commands.xml_validate.models.deserialised import ExternalFileValueDeserialised
 from dsp_tools.commands.xml_validate.models.deserialised import FileValueDeserialised
+from dsp_tools.commands.xml_validate.models.deserialised import LinkValueDeserialised
 from dsp_tools.commands.xml_validate.models.deserialised import ListDeserialised
 from dsp_tools.commands.xml_validate.models.deserialised import PermissionsDeserialised
 from dsp_tools.commands.xml_validate.models.deserialised import ProjectDeserialised
@@ -44,11 +45,12 @@ def _transform_into_xml_deserialised(root: etree._Element) -> ProjectXML:
 
 def _get_resources(ele: etree._Element) -> ResourceXML:
     values = list(ele.iterchildren())
-    return ResourceXML(res_attrib=ele.attrib, values=values, file_value=_find_file_value(ele))
+    ele_attribs = cast(dict[str, str], ele.attrib)
+    return ResourceXML(res_attrib=ele_attribs, values=values, file_value=_find_file_value(ele))
 
 
 def _find_file_value(ele: etree._Element) -> etree._Element | None:
-    if bitstream := ele.find(".//bitstream") is not None:
+    if (bitstream := ele.find(".//bitstream")) is not None:
         return bitstream
     return ele.find(".//iiif-uri")
 
@@ -70,12 +72,13 @@ def deserialise_xml_project(project: ProjectXML) -> ProjectDeserialised:
 
 def _deserialise_one_permission(permission: PermissionsXML) -> PermissionsDeserialised:
     permission_dict = {x.attrib["group"]: x.text for x in permission.permission_eles}
-    return PermissionsDeserialised(permission_id=permission.permission_id, permission_dict=permission_dict)
+    permissions = cast(dict[str, str], permission_dict)
+    return PermissionsDeserialised(permission_id=permission.permission_id, permission_dict=permissions)
 
 
 def _deserialise_one_resource(resource: ResourceXML) -> ResourceDeserialised:
     res_id = resource.res_attrib["id"]
-    values = []
+    values: list[ValueDeserialised] = []
     file_value = None
     for val in resource.values:
         values.extend(_deserialise_one_property(val))
@@ -93,11 +96,12 @@ def _deserialise_one_resource(resource: ResourceXML) -> ResourceDeserialised:
 
 def _deserialise_file_value(value_ele: etree._Element) -> AbstractFileValue:
     permission = value_ele.attrib.get("permissions")
+    txt = cast(str, value_ele.text)
     match value_ele.tag:
         case "bitstream":
-            return FileValueDeserialised(file_path=Path(value_ele.text), permissions=permission)
-        case "iiif-uri":
-            return ExternalFileValueDeserialised(iiif_uri=value_ele.text, permissions=permission)
+            return FileValueDeserialised(file_path=Path(txt), permissions=permission)
+        case _:
+            return ExternalFileValueDeserialised(iiif_uri=txt, permissions=permission)
 
 
 def _deserialise_one_property(prop_ele: etree._Element) -> list[ValueDeserialised]:
@@ -106,10 +110,11 @@ def _deserialise_one_property(prop_ele: etree._Element) -> list[ValueDeserialise
             return _deserialise_text_prop(prop_ele)
         case "list-prop":
             return _deserialise_list_prop(prop_ele)
-        case "boolean-prop":
-            return _deserialise_bool_prop(prop_ele)
+        case "resptr-prop":
+            return _deserialise_resptr_prop(prop_ele)
         case "bitstream" | "iiif-uri":
             return []
+    return []
 
 
 def _deserialise_text_prop(prop: etree._Element) -> list[ValueDeserialised]:
@@ -118,17 +123,18 @@ def _deserialise_text_prop(prop: etree._Element) -> list[ValueDeserialised]:
     for child in prop.iterchildren():
         permissions = child.attrib.get("permissions")
         comments = child.attrib.get("comments")
+        val = cast(str, child.text)
         match child.attrib["encoding"]:
             case "utf8":
                 all_vals.append(
                     SimpleTextDeserialised(
-                        prop_name=prop_name, prop_value=child.text, permissions=permissions, comments=comments
+                        prop_name=prop_name, prop_value=val, permissions=permissions, comments=comments
                     )
                 )
             case "xml":
                 all_vals.append(
                     RichtextDeserialised(
-                        prop_name=prop_name, prop_value=child.text, permissions=permissions, comments=comments
+                        prop_name=prop_name, prop_value=val, permissions=permissions, comments=comments
                     )
                 )
     return all_vals
@@ -139,10 +145,11 @@ def _deserialise_list_prop(prop: etree._Element) -> list[ValueDeserialised]:
     list_name = prop.attrib["list"]
     all_vals: list[ValueDeserialised] = []
     for val in prop.iterchildren():
+        txt = cast(str, val.text)
         all_vals.append(
             ListDeserialised(
                 prop_name=prop_name,
-                prop_value=val.text,
+                prop_value=txt,
                 list_name=list_name,
                 permissions=val.attrib.get("permissions"),
                 comments=val.attrib.get("comments"),
@@ -151,13 +158,17 @@ def _deserialise_list_prop(prop: etree._Element) -> list[ValueDeserialised]:
     return all_vals
 
 
-def _deserialise_bool_prop(prop: etree._Element) -> list[ValueDeserialised]:
-    val = next(prop.iterchildren())
-    return [
-        BooleanDeserialised(
-            prop_name=prop.attrib["name"],
-            prop_value=val.text,
-            permissions=val.attrib.get("permissions"),
-            comments=val.attrib.get("comments"),
+def _deserialise_resptr_prop(prop: etree._Element) -> list[ValueDeserialised]:
+    prop_name = prop.attrib["name"]
+    all_links: list[ValueDeserialised] = []
+    for val in prop.iterchildren():
+        txt = cast(str, val.text)
+        all_links.append(
+            LinkValueDeserialised(
+                prop_name=prop_name,
+                prop_value=txt,
+                permissions=val.attrib.get("permissions"),
+                comments=val.attrib.get("comments"),
+            )
         )
-    ]
+    return all_links

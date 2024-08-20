@@ -51,7 +51,7 @@ class OntologyClient:
     shortcode: str
     default_ontology: str
 
-    def get_project_ontology(self, ontology_name: str) -> dict[list[dict[str, Any]]]:
+    def get_project_ontology(self, ontology_name: str) -> dict[str, Any]:
         """
         Retrieve the default ontology of a project from a server.
 
@@ -66,7 +66,7 @@ class OntologyClient:
             response = requests.get(url, timeout=10)
             if not response.ok:
                 raise InputError(f"The ontology request returned a status code: {response.status_code}")
-            res: dict[list[dict[str, Any]]] = response.json()
+            res: dict[str, Any] = response.json()
             return res
         except ConnectionError:
             raise BaseError(

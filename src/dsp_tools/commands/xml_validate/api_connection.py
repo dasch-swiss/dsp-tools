@@ -63,7 +63,7 @@ class OntologyClient:
         """
         try:
             url = f"{self.server}/ontology/{self.shortcode}/{ontology_name}/v2"
-            response = requests.get(url, timeout=10)
+            response = requests.get(url, timeout=10, headers={"Accept": "application/ld+json"})
             if not response.ok:
                 raise InputError(f"The ontology request returned a status code: {response.status_code}")
             res: dict[str, Any] = response.json()

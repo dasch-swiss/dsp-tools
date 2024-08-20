@@ -69,6 +69,7 @@ class ProjectClient:
                     f"Status code: {response.status_code}\n"
                     f"Message: {response.text}"
                 )
+            return response
         except ConnectionError:
             raise BaseError(f"ConnectionError:\nRequest: {url}") from None
         except TimeoutError:
@@ -89,8 +90,8 @@ class ProjectClient:
         res: dict[str, Any] = response.json()
         return res
 
-    def get_list_iris(self, project_iri: str) -> list[str]:
-        url = f"/admin/lists?projectIri={quote_plus(project_iri)}"
+    def get_list_iris(self) -> list[str]:
+        url = f"/admin/lists?projectIri={quote_plus(self.project_iri)}"
         response = self.get(url, {})
         return [x["id"] for x in response.json()["lists"]]
 

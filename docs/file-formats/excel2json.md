@@ -382,7 +382,7 @@ The Excel sheets must have the following structure:
 - `<language>_comments`: These are optional but recommended at least for the list itself (the second row of the Excel).
   If they are not provided for the list, the labels will be entered in the comments section.
   Nodes will not have comments if not explicitly provided.
-  Same with the nodes, all used languages have to be entered.
+  All languages that are used for one list must also be used for the comments.
   It is possible to provide a comment only for some nodes.
 - `<language>_list`: At least one column with the name of the list in that language.
 - `<language>_number`: At least one column which specifies a node level. 

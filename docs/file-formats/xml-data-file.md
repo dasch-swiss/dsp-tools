@@ -986,15 +986,15 @@ shortcut, so that the XML file can be validated more precisely.
 `<video-segment>` and `<audio-segment>` represent sections of an audio/video file. 
 They can have the following predefined properties:
 
-| prop name          | cardinality | prop type     | encoding |
-| ------------------ | ----------- | ------------- | -------- |
-| `isSegmentOf`      | 1           | resptr-prop   |          |
-| `hasSegmentBounds` | 1           | interval-prop |          |
-| `hasTitle`         | 0-1         | text-prop     | utf8     |
-| `hasDescription`   | 0-n         | text-prop     | xml      |
-| `hasComment`       | 0-n         | text-prop     | xml      |
-| `hasKeyword`       | 0-n         | text-prop     | utf8     |
-| `relatesTo`        | 0-n         | resptr-prop   |          |
+| prop name          | cardinality | prop type     | text type   |
+| ------------------ | ----------- | ------------- | ----------- |
+| `isSegmentOf`      | 1           | resptr-prop   |             |
+| `hasSegmentBounds` | 1           | interval-prop |             |
+| `hasTitle`         | 0-1         | text-prop     | unformatted |
+| `hasDescription`   | 0-n         | text-prop     | formatted   |
+| `hasComment`       | 0-n         | text-prop     | formatted   |
+| `hasKeyword`       | 0-n         | text-prop     | unformatted |
+| `relatesTo`        | 0-n         | resptr-prop   |             |
 
 The segment bounds must be entered in seconds. 
 Decimal values for fractions of a second are allowed, e.g. `1.4:2`.

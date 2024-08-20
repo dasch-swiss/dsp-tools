@@ -11,7 +11,7 @@ from dsp_tools.commands.excel2json.models.json_header import JsonHeader
 from dsp_tools.models.exceptions import InputError
 
 
-@pytest.fixture()
+@pytest.fixture
 def filled_json_header() -> JsonHeader:
     test_path = Path("testdata/excel2json/new_excel2json_files/json_header.xlsx")
     return get_json_header(test_path)

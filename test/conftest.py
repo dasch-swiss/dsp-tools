@@ -8,7 +8,7 @@ from loguru import logger
 from dsp_tools.utils.logger_config import logger_config
 
 
-@pytest.fixture()
+@pytest.fixture
 def caplog(_caplog: pytest.LogCaptureFixture) -> Iterator[pytest.LogCaptureFixture]:  # noqa: F811 (redefinition)
     """
     The caplog fixture that comes shipped with pytest does not support loguru.

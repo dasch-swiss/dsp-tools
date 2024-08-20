@@ -6,7 +6,7 @@ from dsp_tools.models.langstring import Languages
 from test.integration.commands.xmlupload.connection_mock import ConnectionMockBase
 
 
-@pytest.fixture()
+@pytest.fixture
 def project() -> Project:
     return Project(
         con=ConnectionMockBase(),

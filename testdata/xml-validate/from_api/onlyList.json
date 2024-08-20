@@ -2,8 +2,8 @@
   "type": "ListGetResponseADM",
   "list": {
     "listinfo": {
-      "id": "http://rdfh.ch/lists/9999/klgwHOJeRqCTudNpUJHKww",
-      "projectIri": "http://rdfh.ch/projects/KhCEnuqxRgyoak-2M2DUNg",
+      "id": "http://rdfh.ch/lists/9999/trTKqD1uTPe7VSswMcaLSQ",
+      "projectIri": "http://rdfh.ch/projects/EOCyocnWQx-_3FnLPwHT8g",
       "name": "onlyList",
       "labels": [
         {
@@ -21,23 +21,48 @@
     },
     "children": [
       {
-        "id": "http://rdfh.ch/lists/9999/h4n9RWfiRpa1-QHzxnf_-A",
-        "name": "onlyNode",
+        "id": "http://rdfh.ch/lists/9999/nKrrFMNGQfCV5kzvVnTzYw",
+        "name": "n1",
         "labels": [
           {
-            "value": "Only Node",
+            "value": "Node 1",
             "language": "en"
           }
         ],
-        "comments": [
-          {
-            "value": "This is the only node of the list",
-            "language": "en"
-          }
-        ],
+        "comments": [],
         "position": 0,
-        "hasRootNode": "http://rdfh.ch/lists/9999/klgwHOJeRqCTudNpUJHKww",
-        "children": []
+        "hasRootNode": "http://rdfh.ch/lists/9999/trTKqD1uTPe7VSswMcaLSQ",
+        "children": [
+          {
+            "id": "http://rdfh.ch/lists/9999/kaxbf6dGTb2k7JsDahBPnw",
+            "name": "n1.1",
+            "labels": [
+              {
+                "value": "Node 1.1",
+                "language": "en"
+              }
+            ],
+            "comments": [],
+            "position": 0,
+            "hasRootNode": "http://rdfh.ch/lists/9999/trTKqD1uTPe7VSswMcaLSQ",
+            "children": [
+              {
+                "id": "http://rdfh.ch/lists/9999/vDjhNabDTeKQGA0czqt2cg",
+                "name": "n1.1.1",
+                "labels": [
+                  {
+                    "value": "Node 1.1.1",
+                    "language": "en"
+                  }
+                ],
+                "comments": [],
+                "position": 0,
+                "hasRootNode": "http://rdfh.ch/lists/9999/trTKqD1uTPe7VSswMcaLSQ",
+                "children": []
+              }
+            ]
+          }
+        ]
       }
     ]
   }

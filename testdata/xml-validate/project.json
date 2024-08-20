@@ -21,13 +21,26 @@
         },
         "nodes": [
           {
-            "name": "onlyNode",
+            "name": "n1",
             "labels": {
-              "en": "Only Node"
+              "en": "Node 1"
             },
-            "comments": {
-              "en": "This is the only node of the list"
-            }
+            "nodes": [
+              {
+                "name": "n1.1",
+                "labels": {
+                  "en": "Node 1.1"
+                },
+                "nodes": [
+                  {
+                    "name": "n1.1.1",
+                    "labels": {
+                      "en": "Node 1.1.1"
+                    }
+                  }
+                ]
+              }
+            ]
           }
         ]
       }

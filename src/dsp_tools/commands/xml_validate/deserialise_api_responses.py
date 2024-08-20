@@ -19,15 +19,17 @@ def _request_all_lists(project_client: ProjectClient) -> list[dict[str, Any]]:
 
 
 def _deserialise_one_list(list_response: dict[str, Any]) -> ListDeserialised:
-    """This can only handle one depth at the moment."""
     all_children = []
-    for child in list_response["children"]:
-        all_children.extend(_get_one_child(child))
-    return ListDeserialised(list_name=list_response["listinfo"], nodes=all_children)
+    for child in list_response["list"]["children"]:
+        all_children.extend(_process_child_nodes(child))
+    return ListDeserialised(list_name=list_response["list"]["listinfo"]["name"], nodes=all_children)
 
 
-def _get_one_child(node: dict[str, Any]) -> list[str]:
-    nodes = [node["name"]]
-    for child in node["children"]:
-        nodes.append(child["name"])
-    return nodes
+def _process_child_nodes(node: dict[str, Any]) -> list[str]:
+    children = []
+    all_nodes = [node]
+    while all_nodes:
+        current_node = all_nodes.pop(0)
+        children.append(current_node["name"])
+        all_nodes.extend(current_node.get("children", []))
+    return children

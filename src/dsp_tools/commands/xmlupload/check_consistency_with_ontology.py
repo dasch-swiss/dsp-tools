@@ -1,3 +1,4 @@
+from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 from typing import cast
@@ -90,7 +91,7 @@ def _get_all_classes_and_properties_from_data(
     root: etree._Element,
 ) -> tuple[dict[str, list[str]], dict[str, list[str]]]:
     cls_dict = _get_all_class_types_and_ids_from_data(root)
-    prop_dict: dict[str, list[str]] = {}
+    prop_dict: defaultdict[str, list[str]] = defaultdict(list)
     for resource in root.iterchildren(tag="resource"):
         prop_dict = _get_all_property_names_and_resource_ids_one_resource(resource, prop_dict)
     return cls_dict, prop_dict
@@ -108,16 +109,13 @@ def _get_all_class_types_and_ids_from_data(root: etree._Element) -> dict[str, li
 
 
 def _get_all_property_names_and_resource_ids_one_resource(
-    resource: etree._Element, prop_dict: dict[str, list[str]]
-) -> dict[str, list[str]]:
+    resource: etree._Element, prop_dict: defaultdict[str, list[str]]
+) -> defaultdict[str, list[str]]:
     for prop in resource.iterchildren():
         if prop.tag in KNORA_BASE_PROPERTIES:
             continue
         prop_name = prop.attrib["name"]
-        if prop_name in prop_dict:
-            prop_dict[prop_name].append(resource.attrib["id"])
-        else:
-            prop_dict[prop_name] = [resource.attrib["id"]]
+        prop_dict[prop_name].append(resource.attrib["id"])
     return prop_dict
 
 

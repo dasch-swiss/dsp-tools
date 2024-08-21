@@ -1,6 +1,5 @@
 # from pathlib import Path
 #
-# from dsp_tools.cli.args import ServerCredentials
 # from dsp_tools.commands.xml_validate.prepare_input import deserialise_xml_project
 # from dsp_tools.commands.xml_validate.prepare_input import parse_file
 

@@ -14,7 +14,11 @@ def _deserialise_one_list(list_response: dict[str, Any]) -> ListDeserialised:
     all_children = []
     for child in list_response["list"]["children"]:
         all_children.extend(_process_child_nodes(child))
-    return ListDeserialised(list_name=list_response["list"]["listinfo"]["name"], nodes=all_children)
+    return ListDeserialised(
+        list_name=list_response["list"]["listinfo"]["name"],
+        iri=list_response["list"]["listinfo"]["id"],
+        nodes=all_children,
+    )
 
 
 def _process_child_nodes(node: dict[str, Any]) -> list[str]:

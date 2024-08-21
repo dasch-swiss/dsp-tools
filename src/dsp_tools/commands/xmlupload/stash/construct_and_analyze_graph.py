@@ -52,6 +52,9 @@ def _create_info_from_xml_for_graph_from_one_resource(
                 resptr_links.extend(_create_resptr_link_objects(resource.attrib["id"], prop))
             case "text-prop":
                 xml_links.extend(_create_text_link_objects(resource.attrib["id"], prop))
+            case "hasComment" | "hasDescription":
+                if xml_link := _create_text_link_object_from_special_tags(resource.attrib["id"], prop):
+                    xml_links.append(xml_link)
             case "isSegmentOf" | "relatesTo":
                 if segment_link := _create_segmentOf_link_objects(resource.attrib["id"], prop):
                     resptr_links.append(segment_link)
@@ -90,6 +93,16 @@ def _create_text_link_objects(subject_id: str, text_prop: etree._Element) -> lis
             # this UUID is so that the links that were stashed can be identified in the XML data file
             text.attrib["linkUUID"] = xml_link.link_uuid
     return xml_props
+
+
+def _create_text_link_object_from_special_tags(subject_id: str, special_tag: etree._Element) -> XMLLink | None:
+    # This is for <hasDescription> and <hasComment> properties of <video-segment>s or <audio-segment>s
+    if not (links := _extract_ids_from_one_text_value(special_tag)):
+        return None
+    xml_link = XMLLink(subject_id, links)
+    # this UUID is so that the links that were stashed can be identified in the XML data file
+    special_tag.attrib["linkUUID"] = xml_link.link_uuid
+    return xml_link
 
 
 def _extract_ids_from_one_text_value(text: etree._Element) -> set[str]:

@@ -833,10 +833,10 @@
         <isSegmentOf permissions="prop-default" comment="This refers to video_thing_1">video_thing_1</isSegmentOf>
         <hasSegmentBounds permissions="prop-default" segment_start="0.1" segment_end="0.234" comment="These are the bounds"/>
         <hasTitle permissions="prop-default" comment="This is the title">Title of video segment</hasTitle>
-        <hasComment permissions="prop-default" comment="This is the first comment">Comment <strong>1</strong> of video segment</hasComment>
-        <hasComment permissions="prop-default">Comment <strong>2</strong> of video segment</hasComment>
-        <hasDescription permissions="prop-default" comment="This is the first description">Description <strong>1</strong> of video segment</hasDescription>
-        <hasDescription permissions="prop-default">Description <strong>2</strong> of video segment</hasDescription>
+        <hasComment permissions="prop-default" comment="This is the first comment"><strong>Bold comment</strong> of video segment</hasComment>
+        <hasComment permissions="prop-default">Comment with <a class="salsah-link" href="IRI:test_thing_2:IRI">link to test_thing_2</a></hasComment>
+        <hasDescription permissions="prop-default" comment="This is the first description"><strong>Bold description</strong> of video segment</hasDescription>
+        <hasDescription permissions="prop-default">Description with <a class="salsah-link" href="IRI:test_thing_2:IRI">link to test_thing_2</a></hasDescription>
         <hasKeyword permissions="prop-default" comment="This is the first keyword">Keyword 1 of video segment</hasKeyword>
         <hasKeyword permissions="prop-default">Keyword 2 of video segment</hasKeyword>
         <relatesTo permissions="prop-default" comment="This refers to audio_segment_0">audio_segment_0</relatesTo>

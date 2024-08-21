@@ -262,7 +262,9 @@ make_text_prop(
 
 `<video-segment>` and `<audio-segment>` work differently than normal resources.
 Firstly, because they are knora-base resources that cannot be subclassed in the custom data model.
-So you can use them in your XML file without creating a resource class in your JSON file.
+So in your JSON file, you must not create a resource class for them. 
+Rather, you use them in your XML file directly.
+
 Secondly, because they have a dedicated tag (i.e., different from `<resource>`), 
 and their properties also have dedicated tags.
 

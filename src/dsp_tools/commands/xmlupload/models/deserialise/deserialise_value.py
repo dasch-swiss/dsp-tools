@@ -61,17 +61,20 @@ class XMLProperty:
                         f"ERROR Unexpected tag: '{subnode.tag}'. Property may contain only value tags!"
                     )
         else:
-            if self.name.endswith("hasSegmentBounds"):
-                value = f"{node.attrib["segment_start"]}:{node.attrib["segment_end"]}"
-            elif node.text:
-                value = node.text
+            resrefs = None
+            if node.tag.endswith("hasSegmentBounds"):
+                value: str | FormattedTextValue = f"{node.attrib["segment_start"]}:{node.attrib["segment_end"]}"
+            elif node.tag.endswith(("hasDescription", "hasComment")):
+                value = _extract_formatted_text_from_node(node)
+                resrefs = list(value.find_internal_ids())
             else:
-                raise XmlUploadError(f"XML node '{node.tag}' has no text content")
+                str_orig = "".join(node.itertext())
+                value = _cleanup_unformatted_text(str_orig)
             comment = node.attrib.get("comment")
             permissions = node.attrib.get("permissions")
             link_uuid = node.attrib.get("linkUUID")
             xml_value = XMLValue(
-                value=value, resrefs=None, comment=comment, permissions=permissions, link_uuid=link_uuid
+                value=value, resrefs=resrefs, comment=comment, permissions=permissions, link_uuid=link_uuid
             )
             self.values = [xml_value]
 
@@ -98,14 +101,11 @@ class XMLValue:
         comment = node.get("comment")
         permissions = node.get("permissions")
         if val_type == "text" and node.get("encoding") == "xml":
-            xmlstr_orig = etree.tostring(node, encoding="unicode", method="xml")
-            xmlstr_cleaned = _cleanup_formatted_text(xmlstr_orig)
-            value = FormattedTextValue(xmlstr_cleaned)
+            value = _extract_formatted_text_from_node(node)
             resrefs = list(value.find_internal_ids())
         elif val_type == "text" and node.get("encoding") == "utf8":
             str_orig = "".join(node.itertext())
-            str_cleaned = _cleanup_unformatted_text(str_orig)
-            value = str_cleaned
+            value = _cleanup_unformatted_text(str_orig)
         elif val_type == "list":
             listname = cast(str, listname)
             value = f"{listname}:" + "".join(node.itertext())
@@ -118,27 +118,29 @@ class XMLValue:
         return xml_value
 
 
+def _extract_formatted_text_from_node(node: etree._Element) -> FormattedTextValue:
+    xmlstr = etree.tostring(node, encoding="unicode", method="xml")
+    xmlstr = regex.sub(f"<{node.tag}.*?>|</{node.tag}>", "", xmlstr)
+    xmlstr = _cleanup_formatted_text(xmlstr)
+    return FormattedTextValue(xmlstr)
+
+
 def _cleanup_formatted_text(xmlstr_orig: str) -> str:
     """
     In a xml-encoded text value from the XML file,
     there may be non-text characters that must be removed.
     This function:
-        - removes the <text> tags
         - replaces (multiple) line breaks by a space
         - replaces multiple spaces or tabstops by a single space (except within <code> or <pre> tags)
 
     Args:
-        xmlstr_orig: original string from the XML file
+        xmlstr_orig: content of the tag from the XML file, in serialized form
 
     Returns:
         purged string, suitable to be sent to DSP-API
     """
-    # remove the <text> tags
-    xmlstr = regex.sub("<text.*?>", "", xmlstr_orig)
-    xmlstr = regex.sub("</text>", "", xmlstr)
-
     # replace (multiple) line breaks by a space
-    xmlstr = regex.sub("\n+", " ", xmlstr)
+    xmlstr = regex.sub("\n+", " ", xmlstr_orig)
 
     # replace multiple spaces or tabstops by a single space (except within <code> or <pre> tags)
     # the regex selects all spaces/tabstops not followed by </xyz> without <xyz in between.

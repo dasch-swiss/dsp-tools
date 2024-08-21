@@ -6,66 +6,65 @@
        shortcode="9999"
        default-ontology="onto">
 
+
     <!-- Cardinality Violation -->
 
+    <!-- This property has a cardinality 1 -->
     <resource label="Max Cardinality Violation" restype=":SubClass" id="max-card-violation">
         <text-prop name=":hasSimpleText">
             <text encoding="utf8">Text Value One</text>
-            <text encoding="utf8"
-                  comment="This property has a cardinality 1"
-            >Text Value Two</text>
+            <text encoding="utf8">Text Value Two</text>
         </text-prop>
     </resource>
 
 
     <!-- Ontology Violations -->
 
+    <!-- The target of the link should be of the class :CardOneResource -->
     <resource label="Link Value Target" restype=":NormalClass" id="link-value-target-wrong"/>
 
     <resource label="Target Link Class Mismatch" restype=":NormalClass" id="link-value-wrong">
         <resptr-prop name=":linkProp">
-            <resptr comment="The target of the link should be of the class :CardOneResource"
-            >link-value-target-wrong</resptr>
+            <resptr>link-value-target-wrong</resptr>
         </resptr-prop>
     </resource>
 
 
+    <!-- This is correct and should not appear in the validation errors. -->
     <resource label="Link Value Target" restype=":SubClass" id="link-value-target-correct">
         <text-prop name=":hasSimpleText">
-            <text encoding="utf8"
-                  comment="This is correct and should not appear in the validation errors."
-            >Text</text>
+            <text encoding="utf8">Text</text>
         </text-prop>
     </resource>
 
     <resource label="Target Link Class Correct" restype=":NormalClass" id="link-value-correct">
         <resptr-prop name=":linkProp">
-            <resptr comment="This is correct and should not appear in the validation errors."
-            >link-value-target-correct</resptr>
+            <resptr>link-value-target-correct</resptr>
         </resptr-prop>
     </resource>
 
 
+    <!-- This should be a list prop. -->
     <resource label="Property Type Mismatch" restype=":NormalClass" id="property-type-mismatch">
         <text-prop name=":listProp">
-            <text encoding="utf8"
-                  comment="This should be a list prop."
-            >Content</text>
+            <text encoding="utf8">Content</text>
         </text-prop>
     </resource>
 
+
     <!-- List Violations -->
 
+    <!-- This list node does not exist. -->
     <resource label="List-node does not exist" restype=":NormalClass" id="non-existing-list-node">
         <list-prop name=":listProp" list="onlyList">
-            <list comment="This list node does not exist."
-            >nonExisting</list>
+            <list>nonExisting</list>
         </list-prop>
     </resource>
 
 
     <!-- Miscellaneous Errors -->
 
+    <!-- This resource has two identical TextValues -->
     <resource label="Value is Identical" restype=":NormalClass" id="identical-value">
         <text-prop name=":hasSimpleText">
             <text encoding="utf8">These two values are identical.</text>

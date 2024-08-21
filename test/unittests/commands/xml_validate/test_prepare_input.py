@@ -4,29 +4,22 @@ from lxml import etree
 from dsp_tools.commands.xml_validate.models.deserialised import LinkValueDeserialised
 from dsp_tools.commands.xml_validate.models.deserialised import ListValueDeserialised
 from dsp_tools.commands.xml_validate.models.deserialised import SimpleTextDeserialised
-from dsp_tools.commands.xml_validate.models.xml_deserialised import ResourceXML
 from dsp_tools.commands.xml_validate.prepare_input import _deserialise_list_prop
-from dsp_tools.commands.xml_validate.prepare_input import _deserialise_one_resource
 from dsp_tools.commands.xml_validate.prepare_input import _deserialise_resptr_prop
 from dsp_tools.commands.xml_validate.prepare_input import _deserialise_text_prop
-from dsp_tools.commands.xml_validate.prepare_input import _transform_into_xml_deserialised
+from dsp_tools.commands.xml_validate.prepare_input import _transform_into_project_deserialised
 
 
 def test_transform_into_xml_deserialised(parsed_xml: etree._Element) -> None:
-    result = _transform_into_xml_deserialised(parsed_xml)
+    result = _transform_into_project_deserialised(parsed_xml)
     assert result.shortcode == "9999"
     assert result.default_onto == "onto"
-    assert len(result.xml_resources) == 1
-    resource = result.xml_resources[0]
-    assert resource.res_attrib == {"label": "Label", "restype": ":Class", "id": "class-id"}
-    assert len(resource.values) == 2
-
-
-def test_deserialise_one_resource(resource_xml: ResourceXML) -> None:
-    result = _deserialise_one_resource(resource_xml)
-    assert result.res_id == "class-id"
-    assert result.label == "Label"
-    assert len(result.values) == 3
+    assert len(result.resources) == 1
+    resource = result.resources[0]
+    assert resource.res_id == "class-id"
+    assert resource.res_class == ":Class"
+    assert resource.label == "Label"
+    assert len(resource.values) == 3
 
 
 def test_deserialise_list_prop(list_prop: etree._Element) -> None:

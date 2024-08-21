@@ -4,9 +4,6 @@ from typing import Any
 import pytest
 from lxml import etree
 
-from dsp_tools.commands.xml_validate.models.xml_deserialised import ProjectXML
-from dsp_tools.commands.xml_validate.models.xml_deserialised import ResourceXML
-
 
 @pytest.fixture
 def list_from_api() -> dict[str, Any]:
@@ -21,10 +18,6 @@ def parsed_xml() -> etree._Element:
     <knora 
         shortcode="9999"
         default-ontology="onto">
-
-        <permissions id="res-default">
-            <allow group="UnknownUser">V</allow>
-        </permissions>
         
         <resource label="Label" restype=":Class" id="class-id">
             <text-prop name=":hasSimpleText">
@@ -36,16 +29,6 @@ def parsed_xml() -> etree._Element:
             </resptr-prop>
         </resource>
     </knora>
-    """)
-
-
-@pytest.fixture
-def permission_res_default() -> etree._Element:
-    return etree.fromstring("""
-        <permissions id="res-default">
-            <allow group="UnknownUser">V</allow>
-            <allow group="KnownUser">V</allow>
-        </permissions>
     """)
 
 
@@ -75,15 +58,3 @@ def list_prop() -> etree._Element:
             <list>listNode</list>
         </list-prop>
     """)
-
-
-@pytest.fixture
-def resource_xml(list_prop: etree._Element, text_prop: etree._Element) -> ResourceXML:
-    return ResourceXML(
-        res_attrib={"label": "Label", "restype": ":Class", "id": "class-id"}, values=[list_prop, text_prop]
-    )
-
-
-@pytest.fixture
-def project_xml(resource_xml: ResourceXML) -> ProjectXML:
-    return ProjectXML(shortcode="9999", default_onto="onto", xml_resources=[resource_xml])

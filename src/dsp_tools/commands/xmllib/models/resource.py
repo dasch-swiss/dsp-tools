@@ -27,21 +27,25 @@ class ResourceCollection:
     def to_list(self) -> list[Resource]:
         return list(self.resources.values())
 
-    def addResource(self, resource: Resource) -> None:
+    def with_Resource(self, resource: Resource) -> ResourceCollection:
         self._raise_exists(resource.res_id)
         self.resources[resource.res_id] = resource
+        return self
 
-    def addEmptyResource(self, res_id: str, restype: str, label: str) -> None:
+    def with_EmptyResource(self, res_id: str, restype: str, label: str) -> ResourceCollection:
         self._raise_exists(res_id)
         self.resources[res_id] = Resource(res_id=res_id, restype=restype, label=label)
+        return self
 
-    def addValueToResource(self, res_id: str, value: Value) -> None:
+    def with_ValueToResource(self, res_id: str, value: Value) -> ResourceCollection:
         self._raise_does_not_exist(res_id)
         self.resources[res_id].values.append(value)
+        return self
 
-    def addFileValueToResource(self, res_id: str, filepath: str) -> None:
+    def with_FileValueToResource(self, res_id: str, filepath: str) -> ResourceCollection:
         self._raise_does_not_exist(res_id)
         self.resources[res_id].filepath = filepath
+        return self
 
     def _raise_exists(self, res_id: str) -> None:
         if res_id in self.resources:
@@ -127,39 +131,45 @@ class Resource:
         prop_.extend(prop_eles)
         return prop_
 
-    def addIntValue(
+    def with_IntValue(
         self, prop_name: str, value: int | str, permissions: str | None = None, comments: str | None = None
-    ) -> None:
+    ) -> Resource:
         self.values.append(IntValue(value=value, prop_name=prop_name, permissions=permissions, comment=comments))
+        return self
 
-    def addSeveralIntValues(
+    def with_SeveralIntValues(
         self, prop_name: str, values: list[int | str], permissions: str | None = None, comments: str | None = None
-    ) -> None:
+    ) -> Resource:
         inv_values = [IntValue(value=x, prop_name=prop_name, permissions=permissions, comment=comments) for x in values]
         self.values.extend(inv_values)
+        return self
 
-    def addSimpleText(
+    def with_SimpleText(
         self, prop_name: str, value: str, permissions: str | None = None, comments: str | None = None
-    ) -> None:
+    ) -> Resource:
         self.values.append(SimpleText(value=value, prop_name=prop_name, permissions=permissions, comment=comments))
+        return self
 
-    def addSeveralSimpleTexts(
+    def with_SeveralSimpleTexts(
         self, prop_name: str, values: list[str], permissions: str | None = None, comments: str | None = None
-    ) -> None:
+    ) -> Resource:
         simple_text_values = [
             SimpleText(value=x, prop_name=prop_name, permissions=permissions, comment=comments) for x in values
         ]
         self.values.extend(simple_text_values)
+        return self
 
-    def addLinkValue(
+    def with_LinkValue(
         self, prop_name: str, value: str, permissions: str | None = None, comments: str | None = None
-    ) -> None:
+    ) -> Resource:
         self.values.append(LinkValue(value=value, prop_name=prop_name, permissions=permissions, comment=comments))
+        return self
 
-    def addSeveralLinkValues(
+    def with_SeveralLinkValues(
         self, prop_name: str, values: list[str], permissions: str | None = None, comments: str | None = None
-    ) -> None:
+    ) -> Resource:
         link_values = [
             LinkValue(value=x, prop_name=prop_name, permissions=permissions, comment=comments) for x in values
         ]
         self.values.extend(link_values)
+        return self

@@ -10,10 +10,20 @@
     <!-- Cardinality Violation -->
 
     <!-- This property has a cardinality 1 -->
-    <resource label="Max Cardinality Violation" restype=":SubClass" id="max-card-violation">
+    <resource label="Max Cardinality Violation" restype=":CardOneResource" id="max-card-violation">
         <text-prop name=":hasSimpleText">
             <text encoding="utf8">Text Value One</text>
             <text encoding="utf8">Text Value Two</text>
+        </text-prop>
+    </resource>
+
+
+    <!-- This cardinality restriction is inherited from the superclass.
+           The example is correct and should not appear on the error report.
+           -->
+    <resource label="Max Cardinality Violation" restype=":SubClass" id="inherited-cardinality-correct">
+        <text-prop name=":hasSimpleText">
+            <text encoding="utf8">Text Value One</text>
         </text-prop>
     </resource>
 

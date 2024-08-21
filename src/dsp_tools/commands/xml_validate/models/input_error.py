@@ -74,7 +74,7 @@ class MaxCardinalityViolation:
 
 
 #######################
-# Ontology Violations
+# ObjectClassConstraint / ObjectDatatypeConstraint Violations
 
 
 @dataclass

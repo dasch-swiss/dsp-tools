@@ -1004,9 +1004,9 @@ Example:
     <!-- The segment bounds must be entered in seconds. Decimal (for fractions of a second) are allowed, e.g. `1.4`.-->
     <hasSegmentBounds permissions="prop-default" start="600" end="1200"/> <!-- from 0h 10min 00s to 0h 20min 00s -->
     <hasTitle permissions="prop-default">Title of video segment</hasTitle>
-    <hasDescription permissions="prop-default">Description of video segment</hasDescription>
+    <hasDescription permissions="prop-default"><strong>Description</strong> of video segment</hasDescription>
     <hasKeyword permissions="prop-default">Keyword of video segment</hasKeyword>
-    <hasComment permissions="prop-default">Comment of video segment</hasComment>
+    <hasComment permissions="prop-default"><strong>Comment</strong> of video segment</hasComment>
     <relatesTo permissions="prop-default">audio_segment_1</relatesTo>
 </video-segment>
 ```

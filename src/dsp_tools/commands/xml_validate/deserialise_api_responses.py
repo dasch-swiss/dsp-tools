@@ -1,13 +1,19 @@
+import json
 from typing import Any
 
-from dsp_tools.commands.xml_validate.api_connection import ProjectClient
 from dsp_tools.commands.xml_validate.models.api_response_deserialised import ListDeserialised
 
 
-def get_deserialised_lists(project_client: ProjectClient) -> ListDeserialised:
+def _get_project_ontology() -> Any:
+    with open("testdata/xml-validate/from_api/onto.jsonld", "r", encoding="utf-8") as file:
+        return json.load(file)
+
+
+def get_deserialised_lists() -> ListDeserialised:
     """Get objects which contain the pertinent information of the lists from the API."""
-    all_lists = project_client.get_one_list()
-    return _deserialise_one_list(all_lists)
+    with open("testdata/xml-validate/from_api/onlyList.json", "r", encoding="utf-8") as file:
+        data: dict[str, Any] = json.load(file)
+    return _deserialise_one_list(data)
 
 
 def _deserialise_one_list(list_response: dict[str, Any]) -> ListDeserialised:

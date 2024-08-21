@@ -1,5 +1,53 @@
 # Changelog
 
+## [8.5.0](https://github.com/dasch-swiss/dsp-tools/compare/v8.4.0...v8.5.0) (2024-08-21)
+
+
+### Enhancements
+
+* **exce2xml-lib:** make xsd compatible string without uuid (DEV-4026) ([#1127](https://github.com/dasch-swiss/dsp-tools/issues/1127)) ([50ef476](https://github.com/dasch-swiss/dsp-tools/commit/50ef476e9ac3e67011258ac29d7f6c78f0f709af))
+* **excel2json-lists:** enable to add comments to list nodes (RDU-18) ([#1111](https://github.com/dasch-swiss/dsp-tools/issues/1111)) ([54ba206](https://github.com/dasch-swiss/dsp-tools/commit/54ba20615c150ed77c548041a8be8011ce82c14c))
+
+
+### Bug Fixes
+
+* **cli:** resume-xmlupload --skip-first-resource now works (DEV-3744) ([#1084](https://github.com/dasch-swiss/dsp-tools/issues/1084)) ([7f99287](https://github.com/dasch-swiss/dsp-tools/commit/7f9928794a680b0a417a8a4f603cbac4ac4df2bd))
+* **xmlupload:** allow non-prefixed custom groups, and custom groups with dash (DEV-3979) ([#1098](https://github.com/dasch-swiss/dsp-tools/issues/1098)) ([e5a19eb](https://github.com/dasch-swiss/dsp-tools/commit/e5a19ebd2ecf34f7e1db45ad4781ab90183aac66))
+
+
+### Maintenance
+
+* bump dependencies and fix new linter errors ([#1122](https://github.com/dasch-swiss/dsp-tools/issues/1122)) ([212e6e5](https://github.com/dasch-swiss/dsp-tools/commit/212e6e545d10c5f8b7c3726584dbe0f25a4097f4))
+* bump stack to 2024.08.01 ([#1128](https://github.com/dasch-swiss/dsp-tools/issues/1128)) ([400ddbe](https://github.com/dasch-swiss/dsp-tools/commit/400ddbe7a2e9dddb4e2edc685b3076e0e919d400))
+* **excel2json-lists:** access columns differently ([#1109](https://github.com/dasch-swiss/dsp-tools/issues/1109)) ([154f88f](https://github.com/dasch-swiss/dsp-tools/commit/154f88f03e9c94091dd9adb1467b764067d84a3b))
+* **excel2json-lists:** add excel name to lists problem classes ([#1089](https://github.com/dasch-swiss/dsp-tools/issues/1089)) ([6112506](https://github.com/dasch-swiss/dsp-tools/commit/61125060fd16b2cc36324036c616095c26a770c2))
+* **excel2json-lists:** add filename to sheet class ([#1090](https://github.com/dasch-swiss/dsp-tools/issues/1090)) ([2f9e30e](https://github.com/dasch-swiss/dsp-tools/commit/2f9e30e44fb24fdd9970aa661859b4b67d77ed20))
+* **excel2json-lists:** change error message format ([#1118](https://github.com/dasch-swiss/dsp-tools/issues/1118)) ([f479aa4](https://github.com/dasch-swiss/dsp-tools/commit/f479aa49e2ce08fcf6a0c44655bed65f9c871d38))
+* **excel2json-lists:** change find missing translations ([#1112](https://github.com/dasch-swiss/dsp-tools/issues/1112)) ([ab54d96](https://github.com/dasch-swiss/dsp-tools/commit/ab54d961c58e57a607666333887b06c6d1605d26))
+* **excel2json-lists:** change location of column info extraction ([#1115](https://github.com/dasch-swiss/dsp-tools/issues/1115)) ([bd163cf](https://github.com/dasch-swiss/dsp-tools/commit/bd163cfd3844a1ebcfe7d3bb17414eba8bff48e0))
+* **excel2json-lists:** change paramter to ExcelSheet in functions ([#1091](https://github.com/dasch-swiss/dsp-tools/issues/1091)) ([a4086c2](https://github.com/dasch-swiss/dsp-tools/commit/a4086c21cb95cb9a34e5d5433f75ce71bfb5c529))
+* **excel2json-lists:** change sorting of columns ([#1110](https://github.com/dasch-swiss/dsp-tools/issues/1110)) ([4670085](https://github.com/dasch-swiss/dsp-tools/commit/46700856a9f629e39af71a3959fa17c545b29f81))
+* **excel2json-lists:** remove dead check ([#1120](https://github.com/dasch-swiss/dsp-tools/issues/1120)) ([463c992](https://github.com/dasch-swiss/dsp-tools/commit/463c992a89dd2f7e7fc6215e817e2bb5ec386ff2))
+* **excel2json-lists:** remove file hierarchy from code ([#1094](https://github.com/dasch-swiss/dsp-tools/issues/1094)) ([3b554a3](https://github.com/dasch-swiss/dsp-tools/commit/3b554a3289d318efa4bd4399979b652065c9b24a))
+* **excel2json-lists:** remove file hierarchy from Problem classes ([#1093](https://github.com/dasch-swiss/dsp-tools/issues/1093)) ([56bd84d](https://github.com/dasch-swiss/dsp-tools/commit/56bd84d9d0cb12a5e27fc2a12a1ad30ae8be0d76))
+* **excel2json-lists:** remove unnecessary checks ([#1107](https://github.com/dasch-swiss/dsp-tools/issues/1107)) ([71339f7](https://github.com/dasch-swiss/dsp-tools/commit/71339f77f4f9e67f9a52e840f1e0211e3757bc28))
+* **excel2json-lists:** wrap file structure in classes ([#1086](https://github.com/dasch-swiss/dsp-tools/issues/1086)) ([e60002a](https://github.com/dasch-swiss/dsp-tools/commit/e60002a7c5581deaa5258700d963fa414284c648))
+* **excel2json-new-lists:** change order of functions ([#1100](https://github.com/dasch-swiss/dsp-tools/issues/1100)) ([0b9a429](https://github.com/dasch-swiss/dsp-tools/commit/0b9a429ed2748f4ecd1eacc309c3defa2fa038a5))
+* **excel2json-new-lists:** extract fixtures for compliance tests ([#1104](https://github.com/dasch-swiss/dsp-tools/issues/1104)) ([f2b05ac](https://github.com/dasch-swiss/dsp-tools/commit/f2b05ac58856856bb0dfb6fec5aa1c41bf9874be))
+* **excel2json:** lists delete duplicate tests ([#1082](https://github.com/dasch-swiss/dsp-tools/issues/1082)) ([90280c1](https://github.com/dasch-swiss/dsp-tools/commit/90280c130fdc2237cbac0f11fa05f3eb98f91f28))
+* **github-action:** allow referencing RDU tickets in PR titles (RDU-13) ([#1095](https://github.com/dasch-swiss/dsp-tools/issues/1095)) ([c0f360c](https://github.com/dasch-swiss/dsp-tools/commit/c0f360c59d1496b822ad83588240fe5f034e6cdf))
+* **new-lists:** reorganise files ([#1096](https://github.com/dasch-swiss/dsp-tools/issues/1096)) ([866f6bd](https://github.com/dasch-swiss/dsp-tools/commit/866f6bd1db0114e273a03773d1ed49e4262dc62a))
+* preparation for new &lt;video-segment&gt; ([#1125](https://github.com/dasch-swiss/dsp-tools/issues/1125)) ([57dd646](https://github.com/dasch-swiss/dsp-tools/commit/57dd646a6112a539fe535caa997ee6cab62262d0))
+* send X-Asset-Ingested header only when needed ([#1117](https://github.com/dasch-swiss/dsp-tools/issues/1117)) ([a5279f1](https://github.com/dasch-swiss/dsp-tools/commit/a5279f1b6493463f006ecefa89086ea1ae3478b2))
+* small adaptions to docs + docstrings ([#1121](https://github.com/dasch-swiss/dsp-tools/issues/1121)) ([705c2f7](https://github.com/dasch-swiss/dsp-tools/commit/705c2f77a2f2bdc5f6b0c93e7efd58f6f4cb2bb5))
+* tidy up readme ([#1106](https://github.com/dasch-swiss/dsp-tools/issues/1106)) ([6663276](https://github.com/dasch-swiss/dsp-tools/commit/66632760a4517ae21dd8f28cda0c77fc23704295))
+
+
+### Documentation
+
+* **CLI:** add flag for IIIF validation in xmlupload in documentation ([#1103](https://github.com/dasch-swiss/dsp-tools/issues/1103)) ([d00f1cf](https://github.com/dasch-swiss/dsp-tools/commit/d00f1cfcd7efbbe6d6e98f25e96f7de08873dff4))
+* **excel2json:** mention old and new at the top ([#1123](https://github.com/dasch-swiss/dsp-tools/issues/1123)) ([cc58c68](https://github.com/dasch-swiss/dsp-tools/commit/cc58c68daea1f09fb26ff5b7a135489acdc61e2b))
+
 ## [8.4.0](https://github.com/dasch-swiss/dsp-tools/compare/v8.3.0...v8.4.0) (2024-08-07)
 
 

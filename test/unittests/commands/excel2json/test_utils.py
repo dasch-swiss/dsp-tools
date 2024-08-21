@@ -200,24 +200,24 @@ class TestUtils(unittest.TestCase):
 def test_add_optional_columns_with_missing_cols() -> None:
     original_df = pd.DataFrame(
         {
-            "comment_en": ["text_en", np.NaN],
-            "comment_it": ["text_it", np.NaN],
-            "comment_rm": [np.NaN, np.NaN],
+            "comment_en": ["text_en", np.nan],
+            "comment_it": ["text_it", np.nan],
+            "comment_rm": [np.nan, np.nan],
         }
     )
     expected_df = pd.DataFrame(
         {
-            "comment_de": [np.NaN, np.NaN],
-            "comment_en": ["text_en", np.NaN],
-            "comment_fr": [np.NaN, np.NaN],
-            "comment_it": ["text_it", np.NaN],
-            "comment_rm": [np.NaN, np.NaN],
-            "label_de": [np.NaN, np.NaN],
-            "label_en": [np.NaN, np.NaN],
-            "label_fr": [np.NaN, np.NaN],
-            "label_it": [np.NaN, np.NaN],
-            "label_rm": [np.NaN, np.NaN],
-            "subject": [np.NaN, np.NaN],
+            "comment_de": [np.nan, np.nan],
+            "comment_en": ["text_en", np.nan],
+            "comment_fr": [np.nan, np.nan],
+            "comment_it": ["text_it", np.nan],
+            "comment_rm": [np.nan, np.nan],
+            "label_de": [np.nan, np.nan],
+            "label_en": [np.nan, np.nan],
+            "label_fr": [np.nan, np.nan],
+            "label_it": [np.nan, np.nan],
+            "label_rm": [np.nan, np.nan],
+            "subject": [np.nan, np.nan],
         }
     )
     optional_col_set = {

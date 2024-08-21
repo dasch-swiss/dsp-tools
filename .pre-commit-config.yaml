@@ -5,7 +5,7 @@
 repos:
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.5.6
+    rev: v0.6.1
     hooks:
       - id: ruff
         args:
@@ -13,7 +13,7 @@ repos:
           - --ignore=ARG001  # unused function argument
           - --ignore=D101  # undocumented-public-class
           - --ignore=D102  # undocumented-public-method
-          - --ignore=F841  # error suppression
+          - --ignore=F841  # unused-variable
           - --ignore=FIX002  # line-contains-to-do
           - --ignore=PLR0913  # too-many-arguments
           - --ignore=PLR2004  # magic-value-comparison

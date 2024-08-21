@@ -26,7 +26,7 @@ from dsp_tools.utils.connection import Connection
 from dsp_tools.utils.connection_live import ConnectionLive
 
 
-@pytest.fixture()
+@pytest.fixture
 def ingest_client_mock():  # type: ignore[no-untyped-def]
     return Mock(spec_set=AssetClient)
 

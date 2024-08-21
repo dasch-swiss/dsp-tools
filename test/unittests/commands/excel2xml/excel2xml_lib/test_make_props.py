@@ -8,6 +8,7 @@ from typing import Sequence
 from typing import Union
 
 import numpy as np
+import pandas as pd
 import pytest
 import regex
 from lxml import etree
@@ -303,6 +304,7 @@ class TestPropsGeneral(unittest.TestCase):
 
         unsupported_values: list[Any] = [
             np.nan,
+            pd.NA,
             "N/A",
             "NA",
             "na",

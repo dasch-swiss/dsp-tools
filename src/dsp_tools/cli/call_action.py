@@ -199,13 +199,8 @@ def _call_ingest_xmlupload(args: argparse.Namespace) -> bool:
     )
 
 
-def _call_xml_validate(
-    # args: argparse.Namespace
-) -> bool:
-    success = xml_validate(
-        # xml_file=Path(args.xml_file), creds=_get_creds(args), imgdir=Path(args.imgdir)
-    )
-    return success
+def _call_xml_validate() -> bool:
+    return xml_validate()
 
 
 def _call_xmlupload(args: argparse.Namespace) -> bool:

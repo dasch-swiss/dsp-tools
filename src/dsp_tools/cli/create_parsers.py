@@ -44,7 +44,7 @@ def make_parser(
 
     _add_get(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
 
-    _add_xml_validate(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
+    _add_xml_validate(subparsers, default_dsp_api_url)
 
     _add_xmlupload(subparsers, default_dsp_api_url, root_user_email, root_user_pw)
 

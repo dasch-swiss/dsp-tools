@@ -301,12 +301,8 @@ def _add_xmlupload(
 def _add_xml_validate(
     subparsers: _SubParsersAction[ArgumentParser],
     default_dsp_api_url: str,
-    root_user_email: str,
-    root_user_pw: str,
 ) -> None:
     subparser = subparsers.add_parser(name="xml-validate", help="Validate an XML, no upload of the data occurs.")
-    subparser.add_argument("-u", "--user", default=root_user_email, help=username_text)
-    subparser.add_argument("-p", "--password", default=root_user_pw, help=password_text)
     subparser.add_argument(
         "-s", "--server", default=default_dsp_api_url, help="URL of the DSP server where DSP-TOOLS sends the data to"
     )

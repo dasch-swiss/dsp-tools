@@ -37,7 +37,9 @@
     <resource label="Max Cardinality Violation" restype=":SubClass" id="max-card-violation">
         <text-prop name=":hasSimpleText">
             <text encoding="utf8">Text Value One</text>
-            <text encoding="utf8">Text Value Two (this is a violation)</text>
+            <text encoding="utf8"
+                  comment="This property has a cardinality 1"
+            >Text Value Two</text>
         </text-prop>
     </resource>
 
@@ -47,34 +49,35 @@
     <resource label="Link Value Target" restype=":NormalClass" id="link-value-target-wrong"/>
 
     <resource label="Target Link Class Mismatch" restype=":NormalClass" id="link-value-wrong">
-        <text-prop name=":hasSimpleText">
-            <text encoding="utf8">The target of the link should be of the class CardOneResource</text>
-        </text-prop>
         <resptr-prop name=":linkProp">
-            <resptr permissions="prop-default">link-value-target-wrong</resptr>
+            <resptr comment="The target of the link should be of the class :CardOneResource"
+                    permissions="prop-default"
+            >link-value-target-wrong</resptr>
         </resptr-prop>
     </resource>
 
 
     <resource label="Link Value Target" restype=":SubClass" id="link-value-target-correct">
         <text-prop name=":hasSimpleText">
-            <text encoding="utf8" comment="Comment">
-                The target of the incoming link value is a subclass of the object constraint.
-                The value should not be wrong in the validation result.
-            </text>
+            <text encoding="utf8"
+                  comment="This is correct and should not appear in the validation errors."
+            >Text</text>
         </text-prop>
     </resource>
 
     <resource label="Target Link Class Correct" restype=":NormalClass" id="link-value-correct">
         <resptr-prop name=":linkProp">
-            <resptr>link-value-target-correct</resptr>
+            <resptr comment="This is correct and should not appear in the validation errors."
+            >link-value-target-correct</resptr>
         </resptr-prop>
     </resource>
 
 
     <resource label="Property Type Mismatch" restype=":NormalClass" id="property-type-mismatch">
         <text-prop name=":listProp">
-            <text encoding="utf8">This should be a list prop.</text>
+            <text encoding="utf8"
+                  comment="This should be a list prop."
+            >Content</text>
         </text-prop>
     </resource>
 
@@ -82,7 +85,8 @@
 
     <resource label="List-node does not exist" restype=":NormalClass" id="non-existing-list-node">
         <list-prop name=":listProp" list="onlyList">
-            <list>nonExisting</list>
+            <list comment="This list node does not exist."
+            >nonExisting</list>
         </list-prop>
     </resource>
 

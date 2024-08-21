@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Optional
-from typing import Self
 from typing import Union
 from typing import cast
 
@@ -55,7 +55,7 @@ class XMLProperty:
             # parse the subnodes of the property nodes which contain the actual values of the property
             for subnode in node:
                 if subnode.tag == valtype:  # the subnode must correspond to the expected value type
-                    self.values.append(XMLValue(subnode, valtype, listname))
+                    self.values.append(XMLValue.from_node(subnode, valtype, listname))
                 else:
                     raise XmlUploadError(
                         f"ERROR Unexpected tag: '{subnode.tag}'. Property may contain only value tags!"
@@ -70,12 +70,13 @@ class XMLProperty:
             comment = node.attrib.get("comment")
             permissions = node.attrib.get("permissions")
             link_uuid = node.attrib.get("linkUUID")
-            xml_value = XMLValue.factory_for_knora_api_tags(
-                value=value, comment=comment, permissions=permissions, link_uuid=link_uuid
+            xml_value = XMLValue(
+                value=value, resrefs=None, comment=comment, permissions=permissions, link_uuid=link_uuid
             )
             self.values = [xml_value]
 
 
+@dataclass
 class XMLValue:
     """Represents a value of a resource property in the XML used for data import"""
 
@@ -85,102 +86,98 @@ class XMLValue:
     permissions: Optional[str]
     link_uuid: Optional[str]
 
-    def __init__(
-        self,
+    @staticmethod
+    def from_node(
         node: etree._Element,
         val_type: str,
         listname: Optional[str] = None,
-    ) -> None:
-        self.resrefs = None
-        self.comment = node.get("comment")
-        self.permissions = node.get("permissions")
+    ) -> XMLValue:
+        """Factory method to create an XMLValue from an XML node"""
+        value: Union[str, FormattedTextValue] = ""
+        resrefs = None
+        comment = node.get("comment")
+        permissions = node.get("permissions")
         if val_type == "text" and node.get("encoding") == "xml":
             xmlstr_orig = etree.tostring(node, encoding="unicode", method="xml")
-            xmlstr_cleaned = self._cleanup_formatted_text(xmlstr_orig)
-            self.value = FormattedTextValue(xmlstr_cleaned)
-            self.resrefs = list(self.value.find_internal_ids())
+            xmlstr_cleaned = _cleanup_formatted_text(xmlstr_orig)
+            value = FormattedTextValue(xmlstr_cleaned)
+            resrefs = list(value.find_internal_ids())
         elif val_type == "text" and node.get("encoding") == "utf8":
             str_orig = "".join(node.itertext())
-            str_cleaned = self._cleanup_unformatted_text(str_orig)
-            self.value = str_cleaned
+            str_cleaned = _cleanup_unformatted_text(str_orig)
+            value = str_cleaned
         elif val_type == "list":
             listname = cast(str, listname)
-            self.value = f"{listname}:" + "".join(node.itertext())
+            value = f"{listname}:" + "".join(node.itertext())
         else:
-            self.value = "".join(node.itertext())
-        self.link_uuid = node.attrib.get("linkUUID")  # not all richtexts have a link, so this attribute is optional
+            value = "".join(node.itertext())
+        link_uuid = node.attrib.get("linkUUID")  # not all richtexts have a link, so this attribute is optional
+        xml_value = XMLValue(
+            value=value, resrefs=resrefs, comment=comment, permissions=permissions, link_uuid=link_uuid
+        )
+        return xml_value
 
-    @classmethod
-    def factory_for_knora_api_tags(
-        cls, value: str, comment: str | None, permissions: str | None, link_uuid: str | None
-    ) -> Self:
-        instance = cls.__new__(cls)
-        instance.value = value
-        instance.resrefs = None
-        instance.comment = comment
-        instance.permissions = permissions
-        instance.link_uuid = link_uuid
-        return instance
 
-    def _cleanup_formatted_text(self, xmlstr_orig: str) -> str:
-        """
-        In a xml-encoded text value from the XML file,
-        there may be non-text characters that must be removed.
-        This method:
-            - removes the <text> tags
-            - replaces (multiple) line breaks by a space
-            - replaces multiple spaces or tabstops by a single space (except within <code> or <pre> tags)
+def _cleanup_formatted_text(xmlstr_orig: str) -> str:
+    """
+    In a xml-encoded text value from the XML file,
+    there may be non-text characters that must be removed.
+    This function:
+        - removes the <text> tags
+        - replaces (multiple) line breaks by a space
+        - replaces multiple spaces or tabstops by a single space (except within <code> or <pre> tags)
 
-        Args:
-            xmlstr_orig: original string from the XML file
+    Args:
+        xmlstr_orig: original string from the XML file
 
-        Returns:
-            purged string, suitable to be sent to DSP-API
-        """
-        # remove the <text> tags
-        xmlstr = regex.sub("<text.*?>", "", xmlstr_orig)
-        xmlstr = regex.sub("</text>", "", xmlstr)
+    Returns:
+        purged string, suitable to be sent to DSP-API
+    """
+    # remove the <text> tags
+    xmlstr = regex.sub("<text.*?>", "", xmlstr_orig)
+    xmlstr = regex.sub("</text>", "", xmlstr)
 
-        # replace (multiple) line breaks by a space
-        xmlstr = regex.sub("\n+", " ", xmlstr)
+    # replace (multiple) line breaks by a space
+    xmlstr = regex.sub("\n+", " ", xmlstr)
 
-        # replace multiple spaces or tabstops by a single space (except within <code> or <pre> tags)
-        # the regex selects all spaces/tabstops not followed by </xyz> without <xyz in between.
-        # credits: https://stackoverflow.com/a/46937770/14414188
-        xmlstr = regex.sub("( {2,}|\t+)(?!(.(?!<(code|pre)))*</(code|pre)>)", " ", xmlstr)
+    # replace multiple spaces or tabstops by a single space (except within <code> or <pre> tags)
+    # the regex selects all spaces/tabstops not followed by </xyz> without <xyz in between.
+    # credits: https://stackoverflow.com/a/46937770/14414188
+    xmlstr = regex.sub("( {2,}|\t+)(?!(.(?!<(code|pre)))*</(code|pre)>)", " ", xmlstr)
 
-        # remove spaces after <br/> tags (except within <code> tags)
-        xmlstr = regex.sub("((?<=<br/?>) )(?!(.(?!<code))*</code>)", "", xmlstr)
+    # remove spaces after <br/> tags (except within <code> tags)
+    xmlstr = regex.sub("((?<=<br/?>) )(?!(.(?!<code))*</code>)", "", xmlstr)
 
-        # remove leading and trailing spaces
-        xmlstr = xmlstr.strip()
+    # remove leading and trailing spaces
+    xmlstr = xmlstr.strip()
 
-        return xmlstr
+    return xmlstr
 
-    def _cleanup_unformatted_text(self, string_orig: str) -> str:
-        """
-        In a utf8-encoded text value from the XML file,
-        there may be non-text characters that must be removed.
-        This method:
-            - removes the <text> tags
-            - replaces multiple spaces or tabstops by a single space
 
-        Args:
-            string_orig: original string from the XML file
+def _cleanup_unformatted_text(string_orig: str) -> str:
+    """
+    In a utf8-encoded text value from the XML file,
+    there may be non-text characters that must be removed.
+    This function:
+        - removes the <text> tags
+        - replaces multiple spaces or tabstops by a single space
 
-        Returns:
-            purged string, suitable to be sent to DSP-API
-        """
-        # remove the <text> tags
-        string = regex.sub("<text.*?>", "", string_orig)
-        string = regex.sub("</text>", "", string)
+    Args:
+        string_orig: original string from the XML file
 
-        # replace multiple spaces or tabstops by a single space
-        string = regex.sub(r" {2,}|\t+", " ", string)
+    Returns:
+        purged string, suitable to be sent to DSP-API
+    """
+    # remove the <text> tags
+    string = regex.sub("<text.*?>", "", string_orig)
+    string = regex.sub("</text>", "", string)
 
-        # remove leading and trailing spaces (of every line, but also of the entire string)
-        string = "\n".join([s.strip() for s in string.split("\n")])
-        return string.strip()
+    # replace multiple spaces or tabstops by a single space
+    string = regex.sub(r" {2,}|\t+", " ", string)
+
+    # remove leading and trailing spaces (of every line, but also of the entire string)
+    string = "\n".join([s.strip() for s in string.split("\n")])
+    return string.strip()
 
 
 class XMLBitstream:

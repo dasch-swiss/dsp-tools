@@ -46,11 +46,3 @@ class XMLRoot:
     def write_file(self, filepath: str | Path) -> None:
         root = self.serialise()
         write_xml(root, filepath)
-
-    @classmethod
-    def addResource(cls, resource: Resource) -> None:
-        cls.resources.append(resource)
-
-    @classmethod
-    def addSeveralResources(cls, resources: list[Resource]) -> None:
-        cls.resources.extend(resources)

@@ -8,6 +8,7 @@ from dataclasses import field
 from lxml import etree
 
 from dsp_tools.commands.xmllib.models.values import IntValue
+from dsp_tools.commands.xmllib.models.values import LinkValue
 from dsp_tools.commands.xmllib.models.values import SimpleText
 from dsp_tools.commands.xmllib.models.values import Value
 from dsp_tools.commands.xmllib.utils import is_string
@@ -21,39 +22,33 @@ DASCH_SCHEMA = "{https://dasch.swiss/schema}"
 
 @dataclass
 class ResourceCollection:
-    resources: dict[str, Resource]
+    resources: dict[str, Resource] = field(default_factory=dict)
 
-    def get_list(self) -> list[Resource]:
+    def to_list(self) -> list[Resource]:
         return list(self.resources.values())
 
-    @classmethod
-    def addResource(cls, resource: Resource) -> None:
-        cls._raise_exists(resource.res_id)
-        cls.resources[resource.res_id] = resource
+    def addResource(self, resource: Resource) -> None:
+        self._raise_exists(resource.res_id)
+        self.resources[resource.res_id] = resource
 
-    @classmethod
-    def addEmptyResource(cls, res_id: str, restype: str, label: str) -> None:
-        cls._raise_exists(res_id)
-        cls.resources[res_id] = Resource(res_id=res_id, restype=restype, label=label)
+    def addEmptyResource(self, res_id: str, restype: str, label: str) -> None:
+        self._raise_exists(res_id)
+        self.resources[res_id] = Resource(res_id=res_id, restype=restype, label=label)
 
-    @classmethod
-    def addValueToResource(cls, res_id: str, value: Value) -> None:
-        cls._raise_does_not_exist(res_id)
-        cls.resources[res_id].values.append(value)
+    def addValueToResource(self, res_id: str, value: Value) -> None:
+        self._raise_does_not_exist(res_id)
+        self.resources[res_id].values.append(value)
 
-    @classmethod
-    def addFileValueToResource(cls, res_id: str, filepath: str) -> None:
-        cls._raise_does_not_exist(res_id)
-        cls.resources[res_id].filepath = filepath
+    def addFileValueToResource(self, res_id: str, filepath: str) -> None:
+        self._raise_does_not_exist(res_id)
+        self.resources[res_id].filepath = filepath
 
-    @classmethod
-    def _raise_exists(cls, res_id: str) -> None:
-        if res_id in cls.resources:
-            raise InputError(f"A resource with the ID: {res_id} already exists.")
+    def _raise_exists(self, res_id: str) -> None:
+        if res_id in self.resources:
+            raise InputError(f"A resource with the ID: '{res_id}' already exists.")
 
-    @classmethod
-    def _raise_does_not_exist(cls, res_id: str) -> None:
-        if res_id not in cls.resources:
+    def _raise_does_not_exist(self, res_id: str) -> None:
+        if res_id not in self.resources:
             raise InputError(f"Resource with ID '{res_id}' not found.")
 
 
@@ -62,11 +57,11 @@ class Resource:
     res_id: str
     restype: str
     label: str
-    permissions: str = "res-default"
     values: list[Value] = field(default_factory=list)
+    permissions: str = "res-default"
     iiif_uri: str | None = None
     filepath: str | None = None
-    permissions_file: str = "prop-default"
+    permissions_for_file: str = "prop-default"
 
     def __post_init__(self) -> None:
         if not is_string(str(self.label)):
@@ -98,7 +93,7 @@ class Resource:
         if self.filepath:
             prop_ = etree.Element(
                 f"{DASCH_SCHEMA}bitstream",
-                permissions=self.permissions_file,
+                permissions=self.permissions_for_file,
                 nsmap=XML_NAMESPACE_MAP,
             )
             prop_.text = str(self.filepath)
@@ -112,7 +107,7 @@ class Resource:
                 warnings.warn(DspToolsUserWarning(msg))
             prop_ = etree.Element(
                 f"{DASCH_SCHEMA}iiif-uri",
-                permissions=self.permissions_file,
+                permissions=self.permissions_for_file,
                 nsmap=XML_NAMESPACE_MAP,
             )
             prop_.text = self.iiif_uri
@@ -132,30 +127,39 @@ class Resource:
         prop_.extend(prop_eles)
         return prop_
 
-    @classmethod
     def addIntValue(
-        cls, prop_name: str, value: int | str, permissions: str | None = None, comments: str | None = None
+        self, prop_name: str, value: int | str, permissions: str | None = None, comments: str | None = None
     ) -> None:
-        cls.values.append(IntValue(value=value, prop_name=prop_name, permissions=permissions, comment=comments))
+        self.values.append(IntValue(value=value, prop_name=prop_name, permissions=permissions, comment=comments))
 
-    @classmethod
     def addSeveralIntValues(
-        cls, prop_name: str, values: list[int | str], permissions: str | None = None, comments: str | None = None
+        self, prop_name: str, values: list[int | str], permissions: str | None = None, comments: str | None = None
     ) -> None:
         inv_values = [IntValue(value=x, prop_name=prop_name, permissions=permissions, comment=comments) for x in values]
-        cls.values.extend(inv_values)
+        self.values.extend(inv_values)
 
-    @classmethod
     def addSimpleText(
-        cls, prop_name: str, value: str, permissions: str | None = None, comments: str | None = None
+        self, prop_name: str, value: str, permissions: str | None = None, comments: str | None = None
     ) -> None:
-        cls.values.append(SimpleText(value=value, prop_name=prop_name, permissions=permissions, comment=comments))
+        self.values.append(SimpleText(value=value, prop_name=prop_name, permissions=permissions, comment=comments))
 
-    @classmethod
-    def addSeveralSimpleText(
-        cls, prop_name: str, values: list[str], permissions: str | None = None, comments: str | None = None
+    def addSeveralSimpleTexts(
+        self, prop_name: str, values: list[str], permissions: str | None = None, comments: str | None = None
     ) -> None:
         simple_text_values = [
             SimpleText(value=x, prop_name=prop_name, permissions=permissions, comment=comments) for x in values
         ]
-        cls.values.extend(simple_text_values)
+        self.values.extend(simple_text_values)
+
+    def addLinkValue(
+        self, prop_name: str, value: str, permissions: str | None = None, comments: str | None = None
+    ) -> None:
+        self.values.append(LinkValue(value=value, prop_name=prop_name, permissions=permissions, comment=comments))
+
+    def addSeveralLinkValues(
+        self, prop_name: str, values: list[str], permissions: str | None = None, comments: str | None = None
+    ) -> None:
+        link_values = [
+            LinkValue(value=x, prop_name=prop_name, permissions=permissions, comment=comments) for x in values
+        ]
+        self.values.extend(link_values)

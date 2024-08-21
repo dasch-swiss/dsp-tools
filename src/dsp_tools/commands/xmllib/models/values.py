@@ -64,6 +64,38 @@ class SimpleText(Value):
 
 
 @dataclass
+class LinkValue(Value):
+    value: str
+    prop_name: str
+    permissions: str | None = "prop-default"
+    comment: str | None = None
+
+    def __post_init__(self) -> None:
+        if not is_string(self.value):
+            msg = f"The following value is not a valid string.\nValue: {self.value} | Property: {self.prop_name}"
+            warnings.warn(DspToolsUserWarning(msg))
+            self.value = str(self.value)
+
+    def serialise(self) -> etree._Element:
+        ele = self.make_prop()
+        ele.append(self.make_element())
+        return ele
+
+    def make_prop(self) -> etree._Element:
+        return etree.Element(f"{DASCH_SCHEMA}resptr-prop", name=self.prop_name, nsmap=XML_NAMESPACE_MAP)
+
+    def make_element(self) -> etree._Element:
+        attribs = {}
+        if self.permissions:
+            attribs["permissions"] = self.permissions
+        if self.comment:
+            attribs["comment"] = self.comment
+        ele = etree.Element(f"{DASCH_SCHEMA}resptr", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
+        ele.text = self.value
+        return ele
+
+
+@dataclass
 class IntValue(Value):
     value: int | str
     prop_name: str

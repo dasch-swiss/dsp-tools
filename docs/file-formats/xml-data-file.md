@@ -981,7 +981,7 @@ Technical note: A `<link>` is in fact a `<resource restype="LinkObj">`. But it i
 shortcut, so that the XML file can be validated more precisely.
 
 
-### `<video-segment>` / `<audio-segment>`
+### `<video-segment>` and `<audio-segment>`
 
 `<video-segment>` and `<audio-segment>` represent sections of an audio/video file. 
 They can have the following predefined properties:

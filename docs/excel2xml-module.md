@@ -293,7 +293,7 @@ segment = excel2xml.make_audio_segment("label of my audio segment", "segment_1")
 segment.append(excel2xml.make_isSegmentOf_prop("audio_resource_id"))
 ```
 
-See also the [documentation of the resulting XML format](./file-formats/xml-data-file.md#video-segment--audio-segment).
+See also the [documentation of the resulting XML format](./file-formats/xml-data-file.md#video-segment-and-audio-segment).
 
 
 #### Supported Boolean Formats

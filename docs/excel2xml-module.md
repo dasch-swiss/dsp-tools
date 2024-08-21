@@ -261,8 +261,10 @@ make_text_prop(
 #### The Special Properties of `<video-segment>` and `<audio-segment>`
 
 `<video-segment>` and `<audio-segment>` work differently than normal resources.
-Not only do they have a dedicated tag (i.e., different from `<resource>`), 
-but their properties also have dedicated tags.
+Firstly, because they are knora-base resources that cannot be subclassed in the custom data model.
+So you can use them in your XML file without creating a resource class in your JSON file.
+Secondly, because they have a dedicated tag (i.e., different from `<resource>`), 
+and their properties also have dedicated tags.
 
 Here's how you can create them in your Python script:
 

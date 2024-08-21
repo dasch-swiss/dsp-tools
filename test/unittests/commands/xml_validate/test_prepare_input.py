@@ -4,10 +4,8 @@ from lxml import etree
 from dsp_tools.commands.xml_validate.models.deserialised import LinkValueDeserialised
 from dsp_tools.commands.xml_validate.models.deserialised import ListValueDeserialised
 from dsp_tools.commands.xml_validate.models.deserialised import SimpleTextDeserialised
-from dsp_tools.commands.xml_validate.models.xml_deserialised import PermissionsXML
 from dsp_tools.commands.xml_validate.models.xml_deserialised import ResourceXML
 from dsp_tools.commands.xml_validate.prepare_input import _deserialise_list_prop
-from dsp_tools.commands.xml_validate.prepare_input import _deserialise_one_permission
 from dsp_tools.commands.xml_validate.prepare_input import _deserialise_one_resource
 from dsp_tools.commands.xml_validate.prepare_input import _deserialise_resptr_prop
 from dsp_tools.commands.xml_validate.prepare_input import _deserialise_text_prop
@@ -22,23 +20,12 @@ def test_transform_into_xml_deserialised(parsed_xml: etree._Element) -> None:
     resource = result.xml_resources[0]
     assert resource.res_attrib == {"label": "Label", "restype": ":Class", "id": "class-id"}
     assert len(resource.values) == 2
-    assert len(result.permissions) == 1
-    permission = result.permissions[0]
-    assert permission.permission_id == "res-default"
-    assert len(permission.permission_eles) == 1
-
-
-def test_deserialise_one_permission(permission_xml: PermissionsXML) -> None:
-    result = _deserialise_one_permission(permission_xml)
-    assert result.permission_id == "res-default"
-    assert result.permission_dict == {"UnknownUser": "V", "KnownUser": "V"}
 
 
 def test_deserialise_one_resource(resource_xml: ResourceXML) -> None:
     result = _deserialise_one_resource(resource_xml)
     assert result.res_id == "class-id"
     assert result.label == "Label"
-    assert not result.permissions
     assert len(result.values) == 3
 
 
@@ -50,7 +37,6 @@ def test_deserialise_list_prop(list_prop: etree._Element) -> None:
     assert deserialised.prop_name == ":listProp"
     assert deserialised.prop_value == "listNode"
     assert deserialised.list_name == "onlyList"
-    assert not deserialised.permissions
     assert not deserialised.comments
 
 
@@ -62,13 +48,11 @@ def test_deserialise_text_prop(text_prop: etree._Element) -> None:
     assert isinstance(one, SimpleTextDeserialised)
     assert one.prop_name == ":hasSimpleText"
     assert one.prop_value == "text content"
-    assert one.permissions == "prop-default"
     assert not one.comments
     two = sorted_res[1]
     assert isinstance(two, SimpleTextDeserialised)
     assert two.prop_name == ":hasSimpleText"
     assert two.prop_value == "text content 2"
-    assert not two.permissions
     assert two.comments == "Comment"
 
 
@@ -79,7 +63,6 @@ def test_deserialise_resptr_prop(resptr_prop: etree._Element) -> None:
     assert isinstance(deserialised, LinkValueDeserialised)
     assert deserialised.prop_name == ":linkProp"
     assert deserialised.prop_value == "link-id"
-    assert not deserialised.permissions
     assert not deserialised.comments
 
 

@@ -9,7 +9,6 @@ from lxml import etree
 class ProjectXML:
     shortcode: str
     default_onto: str
-    permissions: list[PermissionsXML]
     xml_resources: list[ResourceXML]
 
 
@@ -17,9 +16,3 @@ class ProjectXML:
 class ResourceXML:
     res_attrib: dict[str, str]
     values: list[etree._Element]
-
-
-@dataclass
-class PermissionsXML:
-    permission_id: str
-    permission_eles: list[etree._Element]

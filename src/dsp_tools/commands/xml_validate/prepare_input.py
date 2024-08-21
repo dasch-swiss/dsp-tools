@@ -5,13 +5,11 @@ from lxml import etree
 
 from dsp_tools.commands.xml_validate.models.deserialised import LinkValueDeserialised
 from dsp_tools.commands.xml_validate.models.deserialised import ListValueDeserialised
-from dsp_tools.commands.xml_validate.models.deserialised import PermissionsDeserialised
 from dsp_tools.commands.xml_validate.models.deserialised import ProjectDeserialised
 from dsp_tools.commands.xml_validate.models.deserialised import ResourceDeserialised
 from dsp_tools.commands.xml_validate.models.deserialised import RichtextDeserialised
 from dsp_tools.commands.xml_validate.models.deserialised import SimpleTextDeserialised
 from dsp_tools.commands.xml_validate.models.deserialised import ValueDeserialised
-from dsp_tools.commands.xml_validate.models.xml_deserialised import PermissionsXML
 from dsp_tools.commands.xml_validate.models.xml_deserialised import ProjectXML
 from dsp_tools.commands.xml_validate.models.xml_deserialised import ResourceXML
 from dsp_tools.utils.xml_utils import parse_and_clean_xml_file
@@ -33,11 +31,8 @@ def _parse_file_validate_with_schema(file: Path) -> etree._Element:
 def _transform_into_xml_deserialised(root: etree._Element) -> ProjectXML:
     shortcode = root.attrib["shortcode"]
     default_ontology = root.attrib["default-ontology"]
-    permissions = [_get_permissions(x) for x in root.iterdescendants(tag="permissions")]
     resources = [_get_resources(x) for x in root.iterdescendants(tag="resource")]
-    return ProjectXML(
-        shortcode=shortcode, default_onto=default_ontology, permissions=permissions, xml_resources=resources
-    )
+    return ProjectXML(shortcode=shortcode, default_onto=default_ontology, xml_resources=resources)
 
 
 def _get_resources(ele: etree._Element) -> ResourceXML:
@@ -46,25 +41,10 @@ def _get_resources(ele: etree._Element) -> ResourceXML:
     return ResourceXML(res_attrib=ele_attribs, values=values)
 
 
-def _get_permissions(permission_ele: etree._Element) -> PermissionsXML:
-    per_id = permission_ele.attrib["id"]
-    permissions = list(permission_ele.iterchildren())
-    return PermissionsXML(permission_id=per_id, permission_eles=permissions)
-
-
 def deserialise_xml_project(project: ProjectXML) -> ProjectDeserialised:
     """Reruns an object, which removed the XML structure from the data."""
-    permissions = [_deserialise_one_permission(x) for x in project.permissions]
     resources = [_deserialise_one_resource(x) for x in project.xml_resources]
-    return ProjectDeserialised(
-        shortcode=project.shortcode, default_onto=project.default_onto, permissions=permissions, resources=resources
-    )
-
-
-def _deserialise_one_permission(permission: PermissionsXML) -> PermissionsDeserialised:
-    permission_dict = {x.attrib["group"]: x.text for x in permission.permission_eles}
-    permissions = cast(dict[str, str], permission_dict)
-    return PermissionsDeserialised(permission_id=permission.permission_id, permission_dict=permissions)
+    return ProjectDeserialised(shortcode=project.shortcode, default_onto=project.default_onto, resources=resources)
 
 
 def _deserialise_one_resource(resource: ResourceXML) -> ResourceDeserialised:
@@ -76,7 +56,6 @@ def _deserialise_one_resource(resource: ResourceXML) -> ResourceDeserialised:
         res_id=res_id,
         res_class=resource.res_attrib["restype"],
         label=resource.res_attrib["label"],
-        permissions=resource.res_attrib.get("permissions"),
         values=values,
     )
 
@@ -97,22 +76,13 @@ def _deserialise_text_prop(prop: etree._Element) -> list[ValueDeserialised]:
     prop_name = prop.attrib["name"]
     all_vals: list[ValueDeserialised] = []
     for child in prop.iterchildren():
-        permissions = child.attrib.get("permissions")
         comments = child.attrib.get("comment")
         val = cast(str, child.text)
         match child.attrib["encoding"]:
             case "utf8":
-                all_vals.append(
-                    SimpleTextDeserialised(
-                        prop_name=prop_name, prop_value=val, permissions=permissions, comments=comments
-                    )
-                )
+                all_vals.append(SimpleTextDeserialised(prop_name=prop_name, prop_value=val, comments=comments))
             case "xml":
-                all_vals.append(
-                    RichtextDeserialised(
-                        prop_name=prop_name, prop_value=val, permissions=permissions, comments=comments
-                    )
-                )
+                all_vals.append(RichtextDeserialised(prop_name=prop_name, prop_value=val, comments=comments))
     return all_vals
 
 
@@ -127,7 +97,6 @@ def _deserialise_list_prop(prop: etree._Element) -> list[ValueDeserialised]:
                 prop_name=prop_name,
                 prop_value=txt,
                 list_name=list_name,
-                permissions=val.attrib.get("permissions"),
                 comments=val.attrib.get("comment"),
             )
         )
@@ -143,7 +112,6 @@ def _deserialise_resptr_prop(prop: etree._Element) -> list[ValueDeserialised]:
             LinkValueDeserialised(
                 prop_name=prop_name,
                 prop_value=txt,
-                permissions=val.attrib.get("permissions"),
                 comments=val.attrib.get("comment"),
             )
         )

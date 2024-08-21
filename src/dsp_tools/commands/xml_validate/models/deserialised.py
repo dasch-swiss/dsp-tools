@@ -9,14 +9,7 @@ from typing import Protocol
 class ProjectDeserialised:
     shortcode: str
     default_onto: str
-    permissions: list[PermissionsDeserialised]
     resources: list[ResourceDeserialised]
-
-
-@dataclass
-class PermissionsDeserialised:
-    permission_id: str
-    permission_dict: dict[str, str]
 
 
 @dataclass
@@ -24,7 +17,6 @@ class ResourceDeserialised:
     res_id: str
     res_class: str
     label: str
-    permissions: str | None
     values: list[ValueDeserialised]
 
 
@@ -32,7 +24,6 @@ class ResourceDeserialised:
 class ValueDeserialised(Protocol):
     prop_name: str
     prop_value: Any
-    permissions: str | None
     comments: str | None
 
 
@@ -40,7 +31,6 @@ class ValueDeserialised(Protocol):
 class SimpleTextDeserialised(ValueDeserialised):
     prop_name: str
     prop_value: str
-    permissions: str | None
     comments: str | None
 
 
@@ -48,7 +38,6 @@ class SimpleTextDeserialised(ValueDeserialised):
 class RichtextDeserialised(ValueDeserialised):
     prop_name: str
     prop_value: str
-    permissions: str | None
     comments: str | None
 
 
@@ -57,7 +46,6 @@ class ListValueDeserialised(ValueDeserialised):
     prop_name: str
     prop_value: str
     list_name: str
-    permissions: str | None
     comments: str | None
 
 
@@ -65,5 +53,4 @@ class ListValueDeserialised(ValueDeserialised):
 class LinkValueDeserialised(ValueDeserialised):
     prop_name: str
     prop_value: str
-    permissions: str | None
     comments: str | None

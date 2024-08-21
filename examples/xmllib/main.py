@@ -54,7 +54,7 @@ def main() -> None:
     _make_books(resources)
     _make_chapters(resources)
     _add_images(resources)
-    root = xmllib.XMLRoot(shortcode="0001", default_ontology="onto", resources=resources.to_list())
+    root = xmllib.XMLRoot(shortcode="0001", default_ontology="onto", resource_collection=resources)
     root.write_file("examples/xmllib/data.xml")
 
 

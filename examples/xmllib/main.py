@@ -60,7 +60,7 @@ def _make_one_chapter(row: pd.Series) -> xmllib.Resource:
 def _add_images(res_collection: xmllib.ResourceCollection) -> None:
     files = [x for x in data_folder.glob("*.jpg")]
     for f in files:
-        res_collection.with_FileValueToResource(res_id=f.stem, filepath=str(f))
+        res_collection.add_FileValueToResource(res_id=f.stem, filepath=str(f))
 
 
 def main() -> None:

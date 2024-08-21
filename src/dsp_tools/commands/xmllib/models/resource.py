@@ -37,12 +37,12 @@ class ResourceCollection:
         self.resources[res_id] = Resource(res_id=res_id, restype=restype, label=label)
         return self
 
-    def with_ValueToResource(self, res_id: str, value: Value) -> ResourceCollection:
+    def add_ValueToResource(self, res_id: str, value: Value) -> ResourceCollection:
         self._raise_does_not_exist(res_id)
         self.resources[res_id].values.append(value)
         return self
 
-    def with_FileValueToResource(self, res_id: str, filepath: str) -> ResourceCollection:
+    def add_FileValueToResource(self, res_id: str, filepath: str) -> ResourceCollection:
         self._raise_does_not_exist(res_id)
         self.resources[res_id].filepath = filepath
         return self

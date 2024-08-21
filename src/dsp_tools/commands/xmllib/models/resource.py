@@ -7,6 +7,8 @@ from dataclasses import field
 
 from lxml import etree
 
+from dsp_tools.commands.xmllib.models.values import IntValue
+from dsp_tools.commands.xmllib.models.values import SimpleText
 from dsp_tools.commands.xmllib.models.values import Value
 from dsp_tools.commands.xmllib.utils import is_string
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
@@ -15,6 +17,44 @@ from dsp_tools.utils.uri_util import is_iiif_uri
 
 XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 DASCH_SCHEMA = "{https://dasch.swiss/schema}"
+
+
+@dataclass
+class ResourceCollection:
+    resources: dict[str, Resource]
+
+    def get_list(self) -> list[Resource]:
+        return list(self.resources.values())
+
+    @classmethod
+    def addResource(cls, resource: Resource) -> None:
+        cls._raise_exists(resource.res_id)
+        cls.resources[resource.res_id] = resource
+
+    @classmethod
+    def addEmptyResource(cls, res_id: str, restype: str, label: str) -> None:
+        cls._raise_exists(res_id)
+        cls.resources[res_id] = Resource(res_id=res_id, restype=restype, label=label)
+
+    @classmethod
+    def addValueToResource(cls, res_id: str, value: Value) -> None:
+        cls._raise_does_not_exist(res_id)
+        cls.resources[res_id].values.append(value)
+
+    @classmethod
+    def addFileValueToResource(cls, res_id: str, filepath: str) -> None:
+        cls._raise_does_not_exist(res_id)
+        cls.resources[res_id].filepath = filepath
+
+    @classmethod
+    def _raise_exists(cls, res_id: str) -> None:
+        if res_id in cls.resources:
+            raise InputError(f"A resource with the ID: {res_id} already exists.")
+
+    @classmethod
+    def _raise_does_not_exist(cls, res_id: str) -> None:
+        if res_id not in cls.resources:
+            raise InputError(f"Resource with ID '{res_id}' not found.")
 
 
 @dataclass
@@ -82,11 +122,40 @@ class Resource:
     def _serialise_values(self) -> list[etree._Element]:
         grouped = defaultdict(list)
         for val in self.values:
-            grouped[val.property].append(val)
+            grouped[val.prop_name].append(val)
         return [self._combine_values(prop_values) for prop_values in grouped.values()]
 
-    def _combine_values(self, prop_values: list[Value]) -> etree._Element:
+    @staticmethod
+    def _combine_values(prop_values: list[Value]) -> etree._Element:
         prop_ = prop_values[0].make_prop()
         prop_eles = [x.make_element() for x in prop_values]
         prop_.extend(prop_eles)
         return prop_
+
+    @classmethod
+    def addIntValue(
+        cls, prop_name: str, value: int | str, permissions: str | None = None, comments: str | None = None
+    ) -> None:
+        cls.values.append(IntValue(value=value, prop_name=prop_name, permissions=permissions, comment=comments))
+
+    @classmethod
+    def addSeveralIntValues(
+        cls, prop_name: str, values: list[int | str], permissions: str | None = None, comments: str | None = None
+    ) -> None:
+        inv_values = [IntValue(value=x, prop_name=prop_name, permissions=permissions, comment=comments) for x in values]
+        cls.values.extend(inv_values)
+
+    @classmethod
+    def addSimpleText(
+        cls, prop_name: str, value: str, permissions: str | None = None, comments: str | None = None
+    ) -> None:
+        cls.values.append(SimpleText(value=value, prop_name=prop_name, permissions=permissions, comment=comments))
+
+    @classmethod
+    def addSeveralSimpleText(
+        cls, prop_name: str, values: list[str], permissions: str | None = None, comments: str | None = None
+    ) -> None:
+        simple_text_values = [
+            SimpleText(value=x, prop_name=prop_name, permissions=permissions, comment=comments) for x in values
+        ]
+        cls.values.extend(simple_text_values)

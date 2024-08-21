@@ -87,13 +87,23 @@
         <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
     </xs:complexType>
 
-    <!-- encodingless text value type -->
-    <xs:complexType name="encodingless_text_type" mixed="true">
+    <!-- formatted text type -->
+    <xs:complexType name="formatted_text_type" mixed="true">
         <xs:sequence>
             <xs:any processContents="skip" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute name="comment" type="xs:string"/>
         <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+    </xs:complexType>
+
+    <!-- unformatted text type -->
+    <xs:complexType name="unformatted_text_type">
+        <xs:simpleContent>
+            <xs:extension base="nonEmptyString">
+                <xs:attribute name="comment" type="xs:string"/>
+                <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
+            </xs:extension>
+        </xs:simpleContent>
     </xs:complexType>
 
     <!-- color value type -->
@@ -492,10 +502,10 @@
         <xs:sequence>
             <xs:element name="isSegmentOf" type="resptr_type" minOccurs="1" maxOccurs="1"/>
             <xs:element name="hasSegmentBounds" type="hasSegmentBounds_type" minOccurs="1" maxOccurs="1"/>
-            <xs:element name="hasTitle" type="encodingless_text_type" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="hasComment" type="encodingless_text_type" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="hasDescription" type="encodingless_text_type" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="hasKeyword" type="encodingless_text_type" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="hasTitle" type="unformatted_text_type" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="hasComment" type="formatted_text_type" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="hasDescription" type="formatted_text_type" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="hasKeyword" type="unformatted_text_type" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="relatesTo" type="resptr_type" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute name="label" type="xs:string" use="required"/>
@@ -509,10 +519,10 @@
         <xs:sequence>
             <xs:element name="isSegmentOf" type="resptr_type" minOccurs="1" maxOccurs="1"/>
             <xs:element name="hasSegmentBounds" type="hasSegmentBounds_type" minOccurs="1" maxOccurs="1"/>
-            <xs:element name="hasTitle" type="encodingless_text_type" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="hasComment" type="encodingless_text_type" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="hasDescription" type="encodingless_text_type" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="hasKeyword" type="encodingless_text_type" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="hasTitle" type="unformatted_text_type" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="hasComment" type="formatted_text_type" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="hasDescription" type="formatted_text_type" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="hasKeyword" type="unformatted_text_type" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="relatesTo" type="resptr_type" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute name="label" type="xs:string" use="required"/>

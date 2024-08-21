@@ -831,7 +831,7 @@
     <!-- video segment -->
     <video-segment label="Video Segment with all possible values" id="video_segment_0" permissions="res-default" creation_date="2024-08-06T07:00:01Z">
         <isSegmentOf permissions="prop-default" comment="This refers to video_thing_1">video_thing_1</isSegmentOf>
-        <hasSegmentBounds permissions="prop-default" start="0.1" end="0.234" comment="These are the bounds"/>
+        <hasSegmentBounds permissions="prop-default" segment_start="0.1" segment_end="0.234" comment="These are the bounds"/>
         <hasTitle permissions="prop-default" comment="This is the title">Title of video segment</hasTitle>
         <hasComment permissions="prop-default" comment="This is the first comment">Comment 1 of video segment</hasComment>
         <hasComment permissions="prop-default">Comment 2 of video segment</hasComment>
@@ -845,7 +845,7 @@
 
     <!--unordered is not possible with XSD 1.0
     <video-segment label="Video Segment with all possible values, but unordered" id="video_segment_1">
-        <hasSegmentBounds permissions="prop-default" start="1" end="5"/>
+        <hasSegmentBounds permissions="prop-default" segment_start="1" segment_end="5"/>
         <relatesTo permissions="prop-default">audio_segment_0</relatesTo>
         <hasComment permissions="prop-default">Comment of video segment</hasComment>
         <isSegmentOf permissions="prop-default">video_thing_1</isSegmentOf>
@@ -857,20 +857,20 @@
 
     <video-segment label="Video Segment with only a few values" id="video_segment_2">
         <isSegmentOf permissions="prop-default">video_thing_1</isSegmentOf>
-        <hasSegmentBounds permissions="prop-default" start="2" end="3.5"/>
+        <hasSegmentBounds permissions="prop-default" segment_start="2" segment_end="3.5"/>
         <hasTitle permissions="prop-default">Title of video segment</hasTitle>
         <hasDescription permissions="prop-default">Description of video segment</hasDescription>
     </video-segment>
 
     <video-segment label="Video Segment with only the mandatory values" id="video_segment_3">
         <isSegmentOf permissions="prop-default">video_thing_1</isSegmentOf>
-        <hasSegmentBounds permissions="prop-default" start="2" end="3.5"/>
+        <hasSegmentBounds permissions="prop-default" segment_start="2" segment_end="3.5"/>
     </video-segment>
 
     <!-- audio segment -->
     <audio-segment label="Audio Segment with all possible values" id="audio_segment_0" permissions="res-default" creation_date="2024-08-06T07:00:01Z">
         <isSegmentOf permissions="prop-default" comment="This refers to audio_thing_1">audio_thing_1</isSegmentOf>
-        <hasSegmentBounds permissions="prop-default" start="3.5" end="5.6" comment="These are the segment bounds"/>
+        <hasSegmentBounds permissions="prop-default" segment_start="3.5" segment_end="5.6" comment="These are the segment bounds"/>
         <hasTitle permissions="prop-default">Title of audio segment</hasTitle>
         <hasComment permissions="prop-default" comment="This is a comment">Comment 1 of audio segment</hasComment>
         <hasComment permissions="prop-default">Comment 2 of audio segment</hasComment>
@@ -886,7 +886,7 @@
     <audio-segment label="Audio Segment with all possible values, but unordered" id="audio_segment_1">
         <hasDescription permissions="prop-default">Description 2 of audio segment</hasDescription>
         <relatesTo permissions="prop-default">video_segment_0</relatesTo>
-        <hasSegmentBounds permissions="prop-default" start="10" end="30"/>
+        <hasSegmentBounds permissions="prop-default" segment_start="10" segment_end="30"/>
         <hasTitle permissions="prop-default">Title of audio segment</hasTitle>
         <hasComment permissions="prop-default">Comment of audio segment</hasComment>
         <hasDescription permissions="prop-default">Description 1 of audio segment</hasDescription>
@@ -897,7 +897,7 @@
 
     <audio-segment label="Audio Segment with only a few values" id="audio_segment_2">
         <isSegmentOf permissions="prop-default">audio_thing_1</isSegmentOf>
-        <hasSegmentBounds permissions="prop-default" start="10" end="30"/>
+        <hasSegmentBounds permissions="prop-default" segment_start="10" segment_end="30"/>
         <hasTitle permissions="prop-default">Title of audio segment</hasTitle>
         <hasDescription permissions="prop-default">Description 1 of audio segment</hasDescription>
         <relatesTo permissions="prop-default">video_segment_0</relatesTo>
@@ -905,7 +905,7 @@
 
     <audio-segment label="Audio Segment with only the mandatory values" id="audio_segment_3">
         <isSegmentOf permissions="prop-default">audio_thing_1</isSegmentOf>
-        <hasSegmentBounds permissions="prop-default" start="0.5" end="7"/>
+        <hasSegmentBounds permissions="prop-default" segment_start="0.5" segment_end="7"/>
     </audio-segment>
 
     <!-- reference a resource class from another ontology defined in the same JSON project file than default-ontology-->

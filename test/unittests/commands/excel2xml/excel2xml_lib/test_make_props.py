@@ -510,8 +510,8 @@ class Test_hasSegmentBounds_Prop:
         assert res.tag.endswith("hasSegmentBounds")
         assert res.attrib["permissions"] == "prop-default"
         assert "comment" not in res.attrib
-        assert res.attrib["start"] == "100"
-        assert res.attrib["end"] == "200"
+        assert res.attrib["segment_start"] == "100"
+        assert res.attrib["segment_end"] == "200"
         assert res.text is None
 
     def test_custom_params(self) -> None:
@@ -519,8 +519,8 @@ class Test_hasSegmentBounds_Prop:
         assert res.tag.endswith("hasSegmentBounds")
         assert res.attrib["permissions"] == "prop-restricted"
         assert res.attrib["comment"] == "my comment"
-        assert res.attrib["start"] == "10"
-        assert res.attrib["end"] == "20"
+        assert res.attrib["segment_start"] == "10"
+        assert res.attrib["segment_end"] == "20"
         assert res.text is None
 
     def test_floats(self) -> None:
@@ -528,8 +528,8 @@ class Test_hasSegmentBounds_Prop:
         assert res.tag.endswith("hasSegmentBounds")
         assert res.attrib["permissions"] == "prop-default"
         assert "comment" not in res.attrib
-        assert res.attrib["start"] == "1.2"
-        assert res.attrib["end"] == "3.4"
+        assert res.attrib["segment_start"] == "1.2"
+        assert res.attrib["segment_end"] == "3.4"
         assert res.text is None
 
     def test_nums_as_strings(self) -> None:
@@ -537,8 +537,8 @@ class Test_hasSegmentBounds_Prop:
         assert res.tag.endswith("hasSegmentBounds")
         assert res.attrib["permissions"] == "prop-default"
         assert "comment" not in res.attrib
-        assert res.attrib["start"] == "1.2"
-        assert res.attrib["end"] == "3.0"  # silent conversion to float is okay, since in the db it's stored that way
+        assert res.attrib["segment_start"] == "1.2"
+        assert res.attrib["segment_end"] == "3.0"  # silent conversion to float is okay, since the db stores it that way
         assert res.text is None
 
     def test_start_less_than_end(self) -> None:
@@ -547,18 +547,18 @@ class Test_hasSegmentBounds_Prop:
         assert res.tag.endswith("hasSegmentBounds")
         assert res.attrib["permissions"] == "prop-default"
         assert "comment" not in res.attrib
-        assert res.attrib["start"] == "5"
-        assert res.attrib["end"] == "3"
+        assert res.attrib["segment_start"] == "5"
+        assert res.attrib["segment_end"] == "3"
         assert res.text is None
 
     def test_not_a_number(self) -> None:
         with pytest.warns(DspToolsUserWarning, match="must be integers or floats"):
-            res = excel2xml.make_hasSegmentBounds_prop(start="foo", end=2)  # type: ignore[arg-type]
+            res = excel2xml.make_hasSegmentBounds_prop(segment_start="foo", segment_end=2)  # type: ignore[arg-type]
         assert res.tag.endswith("hasSegmentBounds")
         assert res.attrib["permissions"] == "prop-default"
         assert "comment" not in res.attrib
-        assert res.attrib["start"] == "foo"
-        assert res.attrib["end"] == "2"
+        assert res.attrib["segment_start"] == "foo"
+        assert res.attrib["segment_end"] == "2"
         assert res.text is None
 
 

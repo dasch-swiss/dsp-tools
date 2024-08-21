@@ -1887,8 +1887,8 @@ def make_relatesTo_prop(
 
 
 def make_hasSegmentBounds_prop(
-    start: int | float,
-    end: int | float,
+    segment_start: int | float,
+    segment_end: int | float,
     permissions: str = "prop-default",
     comment: str | None = None,
     calling_resource: str = "",
@@ -1897,8 +1897,8 @@ def make_hasSegmentBounds_prop(
     Make a `<hasSegmentBounds>` property for a `<video-segment>` or `<audio-segment>`.
 
     Args:
-        start: start, in seconds, counted from the beginning of the audio/video
-        end: end, in seconds, counted from the beginning of the audio/video
+        segment_start: start, in seconds, counted from the beginning of the audio/video
+        segment_end: end, in seconds, counted from the beginning of the audio/video
         permissions: Defaults to "prop-default".
         comment: Optional comment for this property. Defaults to None.
         calling_resource: the name of the parent resource (for better error messages)
@@ -1916,26 +1916,33 @@ def make_hasSegmentBounds_prop(
     Returns:
         an etree._Element that can be appended to an audio/video segment with `segment.append(make_hasSegmentBounds_prop(...))`
     """
-    if not isinstance(start, (int, float)) or not isinstance(end, (int, float)):
+    if not isinstance(segment_start, (int, float)) or not isinstance(segment_end, (int, float)):
         try:
-            start = float(start)
-            end = float(end)
+            segment_start = float(segment_start)
+            segment_end = float(segment_end)
         except ValueError:
             msg = (
                 f"Validation Error in resource '{calling_resource}', property 'hasSegmentBounds': "
                 f"The start and the end of an audio/video segment must be integers or floats, "
-                f"but you provided: {start=} and {end=}"
+                f"but you provided: {segment_start=} and {segment_end=}"
             )
             warnings.warn(DspToolsUserWarning(msg))
-    if isinstance(start, (int, float)) and isinstance(end, (int, float)) and start > end:
+    if (
+        isinstance(segment_start, (int, float))
+        and isinstance(segment_end, (int, float))
+        and segment_start > segment_end
+    ):
         msg = (
             f"Validation Error in resource '{calling_resource}', property 'hasSegmentBounds': "
             f"The start of an audio/video segment must be less than the end, "
-            f"but you provided: {start=} and {end=}"
+            f"but you provided: {segment_start=} and {segment_end=}"
         )
         warnings.warn(DspToolsUserWarning(msg))
     prop = etree.Element(
-        "{%s}hasSegmentBounds" % xml_namespace_map[None], start=str(start), end=str(end), permissions=permissions
+        "{%s}hasSegmentBounds" % xml_namespace_map[None],
+        segment_start=str(segment_start),
+        segment_end=str(segment_end),
+        permissions=permissions,
     )
     if comment:
         prop.set("comment", comment)

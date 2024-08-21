@@ -181,8 +181,8 @@
         <xs:sequence />
         <xs:attribute name="comment" type="xs:string"/>
         <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
-        <xs:attribute name="start" type="xs:double" use="required"/>
-        <xs:attribute name="end" type="xs:double" use="required"/>
+        <xs:attribute name="segment_start" type="xs:double" use="required"/>
+        <xs:attribute name="segment_end" type="xs:double" use="required"/>
     </xs:complexType>
 
     <!-- period value type -->

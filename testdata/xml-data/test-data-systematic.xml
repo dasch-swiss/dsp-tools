@@ -899,7 +899,7 @@
         <isSegmentOf permissions="prop-default">audio_thing_1</isSegmentOf>
         <hasSegmentBounds permissions="prop-default" segment_start="10" segment_end="30"/>
         <hasTitle permissions="prop-default">Title of audio segment</hasTitle>
-        <hasDescription permissions="prop-default">Description 1 of audio segment</hasDescription>
+        <hasDescription permissions="prop-default">Description of audio segment</hasDescription>
         <relatesTo permissions="prop-default">video_segment_0</relatesTo>
     </audio-segment>
 

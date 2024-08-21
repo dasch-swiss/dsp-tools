@@ -8,25 +8,18 @@ from typing import Optional
 
 import pandas as pd
 import regex
-from loguru import logger
 
 from dsp_tools.commands.excel2json.lists import validate_lists_section_with_schema
-from dsp_tools.commands.excel2json.new_lists.compliance_checks import make_all_formal_excel_compliance_checks
+from dsp_tools.commands.excel2json.new_lists.compliance_checks import make_all_excel_compliance_checks
+from dsp_tools.commands.excel2json.new_lists.models.deserialise import Columns
 from dsp_tools.commands.excel2json.new_lists.models.deserialise import ExcelSheet
-from dsp_tools.commands.excel2json.new_lists.models.input_error import CollectedSheetProblems
-from dsp_tools.commands.excel2json.new_lists.models.input_error import ListCreationProblem
-from dsp_tools.commands.excel2json.new_lists.models.input_error import ListNodeProblem
-from dsp_tools.commands.excel2json.new_lists.models.input_error import ListSheetProblem
-from dsp_tools.commands.excel2json.new_lists.models.input_error import SheetProblem
 from dsp_tools.commands.excel2json.new_lists.models.serialise import ListNode
 from dsp_tools.commands.excel2json.new_lists.models.serialise import ListRoot
-from dsp_tools.commands.excel2json.new_lists.utils import get_all_languages_for_columns
+from dsp_tools.commands.excel2json.new_lists.utils import get_column_info
 from dsp_tools.commands.excel2json.new_lists.utils import get_columns_of_preferred_lang
-from dsp_tools.commands.excel2json.new_lists.utils import get_hierarchy_nums
 from dsp_tools.commands.excel2json.new_lists.utils import get_lang_string_from_column_name
-from dsp_tools.commands.excel2json.new_lists.utils import get_preferred_language
+from dsp_tools.commands.excel2json.utils import add_optional_columns
 from dsp_tools.commands.excel2json.utils import read_and_clean_all_sheets
-from dsp_tools.models.exceptions import InputError
 
 
 def new_excel2lists(
@@ -47,8 +40,8 @@ def new_excel2lists(
     Returns:
         a tuple consisting of the "lists" section as Python list, and the success status (True if everything went well)
     """
-    sheet_list = _parse_files(excelfolder)
-    sheet_list = _prepare_dfs(sheet_list)
+    df_dict = _parse_files(excelfolder)
+    sheet_list = _prepare_sheets(df_dict)
 
     finished_lists = _make_serialised_lists(sheet_list)
     validate_lists_section_with_schema(lists_section=finished_lists)
@@ -61,46 +54,39 @@ def new_excel2lists(
     return finished_lists, True
 
 
-def _parse_files(excelfolder: Path | str) -> list[ExcelSheet]:
+def _parse_files(excelfolder: Path | str) -> dict[str, dict[str, pd.DataFrame]]:
     file_names = [file for file in Path(excelfolder).glob("*list*.xlsx", case_sensitive=False) if _non_hidden(file)]
-    all_sheets = []
+    df_dict = {}
     for file in file_names:
-        all_sheets.extend(
-            [
-                ExcelSheet(excel_name=str(file), sheet_name=name, df=df)
-                for name, df in read_and_clean_all_sheets(file).items()
-            ]
-        )
-    return all_sheets
+        df_dict[str(file)] = read_and_clean_all_sheets(file)
+    return df_dict
+
+
+def _prepare_sheets(df_dict: dict[str, dict[str, pd.DataFrame]]) -> list[ExcelSheet]:
+    all_sheets: list[ExcelSheet] = []
+    for file, sheets in df_dict.items():
+        all_sheets.extend(_prepare_one_sheet(df, file, sheet_name) for sheet_name, df in sheets.items())
+    make_all_excel_compliance_checks(all_sheets)
+    return _construct_ids(all_sheets)
+
+
+def _prepare_one_sheet(df: pd.DataFrame, filename: str, sheet_name: str) -> ExcelSheet:
+    columns = get_column_info(df.columns)
+    df = add_optional_columns(df, {"id (optional)"})
+    return ExcelSheet(excel_name=filename, sheet_name=sheet_name, col_info=columns, df=df)
 
 
 def _non_hidden(path: Path) -> bool:
     return not regex.search(r"^(\.|~\$).+", path.name)
 
 
-def _prepare_dfs(sheet_list: list[ExcelSheet]) -> list[ExcelSheet]:
-    sheet_list = _add_id_optional_column_if_not_exists(sheet_list)
-    make_all_formal_excel_compliance_checks(sheet_list)
-    return _construct_ids(sheet_list)
-
-
-def _add_id_optional_column_if_not_exists(sheet_list: list[ExcelSheet]) -> list[ExcelSheet]:
-    all_sheets = []
-    for sheet in sheet_list:
-        if "id (optional)" not in sheet.df.columns:
-            df = sheet.df
-            df["id (optional)"] = pd.NA
-            all_sheets.append(ExcelSheet(excel_name=sheet.excel_name, sheet_name=sheet.sheet_name, df=df))
-        else:
-            all_sheets.append(sheet)
-    return all_sheets
-
-
 def _construct_ids(sheet_list: list[ExcelSheet]) -> list[ExcelSheet]:
     all_sheets = []
     for sheet in sheet_list:
-        df = _complete_id_one_df(sheet.df, get_preferred_language(sheet.df.columns))
-        all_sheets.append(ExcelSheet(excel_name=sheet.excel_name, sheet_name=sheet.sheet_name, df=df))
+        df = _complete_id_one_df(sheet.df, sheet.col_info.preferred_lang)
+        all_sheets.append(
+            ExcelSheet(excel_name=sheet.excel_name, col_info=sheet.col_info, sheet_name=sheet.sheet_name, df=df)
+        )
     all_sheets = _resolve_duplicate_ids_all_excels(all_sheets)
     return _fill_parent_id_col_all_excels(all_sheets)
 
@@ -108,8 +94,10 @@ def _construct_ids(sheet_list: list[ExcelSheet]) -> list[ExcelSheet]:
 def _fill_parent_id_col_all_excels(sheet_list: list[ExcelSheet]) -> list[ExcelSheet]:
     all_sheets = []
     for sheet in sheet_list:
-        df = _fill_parent_id_col_one_df(sheet.df, get_preferred_language(sheet.df.columns))
-        all_sheets.append(ExcelSheet(excel_name=sheet.excel_name, sheet_name=sheet.sheet_name, df=df))
+        df = _fill_parent_id_col_one_df(sheet.df, sheet.col_info.preferred_lang)
+        all_sheets.append(
+            ExcelSheet(excel_name=sheet.excel_name, sheet_name=sheet.sheet_name, col_info=sheet.col_info, df=df)
+        )
     return all_sheets
 
 
@@ -141,18 +129,17 @@ def _resolve_duplicate_ids_all_excels(sheet_list: list[ExcelSheet]) -> list[Exce
 def _remove_duplicate_ids_in_all_excels(duplicate_ids: list[str], sheet_list: list[ExcelSheet]) -> list[ExcelSheet]:
     all_sheets = []
     for sheet in sheet_list:
-        preferred_lang = get_preferred_language(sheet.df.columns)
         df = sheet.df
         for i, row in df.iterrows():
             if row["id"] in duplicate_ids and pd.isna(row["id (optional)"]):
-                df.at[i, "id"] = _construct_non_duplicate_id_string(df.iloc[int(str(i))], preferred_lang)
-        all_sheets.append(ExcelSheet(sheet.excel_name, sheet.sheet_name, df))
+                df.at[i, "id"] = _construct_non_duplicate_id_string(df.iloc[int(str(i))], sheet.col_info.preferred_lang)
+        all_sheets.append(
+            ExcelSheet(excel_name=sheet.excel_name, sheet_name=sheet.sheet_name, col_info=sheet.col_info, df=df)
+        )
     return sheet_list
 
 
 def _complete_id_one_df(df: pd.DataFrame, preferred_language: str) -> pd.DataFrame:
-    if "id (optional)" not in df.columns:
-        df["id (optional)"] = pd.NA
     df = _create_auto_id_one_df(df, preferred_language)
     df["id"] = df["id (optional)"].fillna(df["auto_id"])
     df = _resolve_duplicate_ids_keep_custom_change_auto_id_one_df(df, preferred_language)
@@ -203,47 +190,21 @@ def _construct_non_duplicate_id_string(row: pd.Series[Any], preferred_language: 
 
 
 def _make_serialised_lists(sheet_list: list[ExcelSheet]) -> list[dict[str, Any]]:
-    all_lists = _make_all_lists(sheet_list)
-    if isinstance(all_lists, ListCreationProblem):
-        msg = all_lists.execute_error_protocol()
-        logger.error(msg)
-        raise InputError(msg)
+    all_lists = []
+    for sheet in sheet_list:
+        all_lists.append(_make_one_list(sheet))
     return [list_.to_dict() for list_ in all_lists]
 
 
-def _make_all_lists(sheet_list: list[ExcelSheet]) -> list[ListRoot] | ListCreationProblem:
-    good_lists = []
-    problem_lists: list[SheetProblem] = []
-    for sheet in sheet_list:
-        if isinstance(new_list := _make_one_list(sheet), ListRoot):
-            good_lists.append(new_list)
-        else:
-            problem_lists.append(new_list)
-    if problem_lists:
-        return ListCreationProblem([CollectedSheetProblems(problem_lists)])
-    return good_lists
-
-
-def _make_one_list(sheet: ExcelSheet) -> ListRoot | ListSheetProblem:
-    node_dict, node_problems = _make_list_nodes_from_df(sheet.df)
+def _make_one_list(sheet: ExcelSheet) -> ListRoot:
+    node_dict = _make_list_nodes_from_df(sheet.df, sheet.col_info)
     nodes_for_root = _add_nodes_to_parent(node_dict, sheet.df.at[0, "id"]) if node_dict else []
-    col_titles_of_root_cols = [x for x in sheet.df.columns if regex.search(r"^(en|de|fr|it|rm)_list$", x)]
-    root = ListRoot.create(
+    return ListRoot(
         id_=sheet.df.at[0, "id"],
-        labels=_get_labels(sheet.df.iloc[0], col_titles_of_root_cols),
-        excel_name=sheet.excel_name,
-        sheet_name=sheet.sheet_name,
+        labels=_get_lang_dict(sheet.df.iloc[0], sheet.col_info.list_cols),
         nodes=nodes_for_root,
-        comments={},
+        comments=_get_lang_dict(sheet.df.iloc[0], sheet.col_info.comment_cols),
     )
-    match (root, node_problems):
-        case (ListRoot(), list(ListNodeProblem())):
-            return ListSheetProblem(
-                excel_name=sheet.excel_name, sheet_name=sheet.sheet_name, root_problems={}, node_problems=node_problems
-            )
-        case (ListSheetProblem(), _):
-            root.node_problems = node_problems
-    return root
 
 
 def _add_nodes_to_parent(node_dict: dict[str, ListNode], list_id: str) -> list[ListNode]:
@@ -256,46 +217,30 @@ def _add_nodes_to_parent(node_dict: dict[str, ListNode], list_id: str) -> list[L
     return root_list
 
 
-def _make_list_nodes_from_df(df: pd.DataFrame) -> tuple[dict[str, ListNode], list[ListNodeProblem]]:
-    columns_for_nodes = _get_reverse_sorted_columns_list(df)
-    problems = []
+def _make_list_nodes_from_df(df: pd.DataFrame, col_info: Columns) -> dict[str, ListNode]:
     node_dict = {}
     for i, row in df[1:].iterrows():
-        node = _make_one_node(row, columns_for_nodes, str(i))
-        match node:
-            case ListNode():
-                node_dict[node.id_] = node
-            case ListNodeProblem():
-                problems.append(node)
-    return node_dict, problems
+        node = _make_one_node(row, col_info)
+        node_dict[node.id_] = node
+    return node_dict
 
 
-def _make_one_node(row: pd.Series[Any], list_of_columns: list[list[str]], index: str) -> ListNode | ListNodeProblem:
-    for col_group in list_of_columns:
-        if labels := _get_labels(row, col_group):
-            return ListNode.create(id_=row["id"], labels=labels, parent_id=row["parent_id"], sub_nodes=[])
-    return ListNodeProblem(node_id=row["id"], problems={"Unknown": f"Unknown problem occurred in row number: {index}"})
+def _make_one_node(row: pd.Series[Any], col_info: Columns) -> ListNode:
+    labels = {}
+    for col_group in col_info.node_cols:
+        if found := _get_lang_dict(row, col_group.columns):
+            labels = found
+            break
+    return ListNode(
+        id_=str(row["id"]),
+        labels=labels,
+        comments=_get_lang_dict(row, col_info.comment_cols),
+        parent_id=str(row["parent_id"]),
+        sub_nodes=[],
+    )
 
 
-def _get_reverse_sorted_columns_list(df: pd.DataFrame) -> list[list[str]]:
-    numbers = sorted(get_hierarchy_nums(df.columns), reverse=True)
-    languages = get_all_languages_for_columns(df.columns, r"\d+")
-    return [[f"{lang}_{num}" for lang in languages] for num in numbers]
-
-
-def _get_labels(row: pd.Series[Any], columns: list[str]) -> dict[str, str]:
-    """
-    Provided a df row and a list of column titles,
-    create a mapping from language codes to the label of that language.
-    (The label comes from the Excel cell at the intersection of the row with the column.)
-
-    Parameters:
-        row: A pandas Series representing a row of a DataFrame.
-        columns: A list of column names.
-
-    Returns:
-        A dictionary with language codes as keys and the corresponding labels as values.
-    """
+def _get_lang_dict(row: pd.Series[Any], columns: list[str]) -> dict[str, str]:
     return {
         lang: row[col] for col in columns if not (pd.isna(row[col])) and (lang := get_lang_string_from_column_name(col))
     }

@@ -3,7 +3,7 @@ import pytest
 from dsp_tools.commands.xmlupload.iri_resolver import IriResolver
 
 
-@pytest.fixture()
+@pytest.fixture
 def resolver() -> IriResolver:
     return IriResolver()
 

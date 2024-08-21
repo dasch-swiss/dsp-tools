@@ -9,7 +9,7 @@ from dsp_tools.commands.xmlupload.iiif_uri_validator import IIIFUriValidator
 from dsp_tools.commands.xmlupload.models.input_problems import IIIFUriProblem
 
 
-@pytest.fixture()
+@pytest.fixture
 def response_404() -> Response:
     mock_response = Response()
     mock_response.status_code = 404
@@ -17,7 +17,7 @@ def response_404() -> Response:
     return mock_response
 
 
-@pytest.fixture()
+@pytest.fixture
 def response_200() -> Response:
     mock_response = Response()
     mock_response.status_code = 200
@@ -25,12 +25,12 @@ def response_200() -> Response:
     return mock_response
 
 
-@pytest.fixture()
+@pytest.fixture
 def request_exception() -> RequestException:
     return RequestException("This is the request exception.")
 
 
-@pytest.fixture()
+@pytest.fixture
 def empty_validator() -> IIIFUriValidator:
     return IIIFUriValidator([])
 

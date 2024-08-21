@@ -17,7 +17,7 @@ from dsp_tools.models.exceptions import BaseError
 from dsp_tools.utils.shared import parse_json_input
 
 
-@pytest.fixture()
+@pytest.fixture
 def tp_systematic() -> dict[str, Any]:
     tp_systematic_file = "testdata/json-project/test-project-systematic.json"
     with open(tp_systematic_file, encoding="utf-8") as json_file:
@@ -25,13 +25,13 @@ def tp_systematic() -> dict[str, Any]:
     return tp_systematic
 
 
-@pytest.fixture()
+@pytest.fixture
 def tp_systematic_ontology(tp_systematic: dict[str, Any]) -> dict[str, Any]:
     onto: dict[str, Any] = tp_systematic["project"]["ontologies"][0]
     return onto
 
 
-@pytest.fixture()
+@pytest.fixture
 def tp_circular_ontology() -> dict[str, Any]:
     tp_circular_ontology_file = "testdata/invalid-testdata/json-project/circular-ontology.json"
     with open(tp_circular_ontology_file, encoding="utf-8") as json_file:

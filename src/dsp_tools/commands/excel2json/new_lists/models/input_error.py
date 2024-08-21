@@ -18,9 +18,9 @@ class ListCreationProblem:
     excel_problems: list[Problem]
 
     def execute_error_protocol(self) -> str:
-        msg = ["\nThe excel file(s) used to create the list section have the following problem(s):"]
-        msg.extend([problem.execute_error_protocol() for problem in self.excel_problems])
-        return grand_separator.join(msg)
+        title = "\nThe excel file(s) used to create the list section have the following problem(s):\n\n"
+        msg = [problem.execute_error_protocol() for problem in self.excel_problems]
+        return title + grand_separator.join(msg)
 
 
 @dataclass(frozen=True)
@@ -59,22 +59,6 @@ class CollectedSheetProblems:
 
 
 @dataclass
-class ListSheetProblem(SheetProblem):
-    excel_name: str
-    sheet_name: str
-    root_problems: dict[str, str]
-    node_problems: list[ListNodeProblem] = field(default_factory=list)
-
-    def execute_error_protocol(self) -> str:
-        msg = [f"The excel sheet '{self.sheet_name}' has the following problem(s):"]
-        if self.root_problems:
-            msg.extend([f"Field: '{key}', Problem: {value}" for key, value in self.root_problems.items()])
-        if self.node_problems:
-            msg.extend([problem.execute_error_protocol() for problem in self.node_problems])
-        return list_separator.join(msg)
-
-
-@dataclass
 class DuplicatesInSheetProblem(SheetProblem):
     excel_name: str
     sheet_name: str
@@ -106,11 +90,11 @@ class MultipleListPerSheetProblem(SheetProblem):
 class ListSheetComplianceProblem(SheetProblem):
     excel_name: str
     sheet_name: str
-    problems: dict[str, str]
+    problems: list[Problem]
 
     def execute_error_protocol(self) -> str:
         msg = [f"The excel sheet '{self.sheet_name}' has the following problem(s):"]
-        msg.extend([f"{key}: {value}" for key, value in self.problems.items()])
+        msg.extend([x.execute_error_protocol() for x in self.problems])
         return list_separator.join(msg)
 
 
@@ -144,18 +128,6 @@ class MissingTranslationsSheetProblem(SheetProblem):
 
 
 @dataclass(frozen=True)
-class MissingNodeSheetProblem:
-    sheet: str
-    node_problems: list[NodesPerRowProblem]
-
-    def execute_error_protocol(self) -> str:
-        msg = "Each list node and each list must have its own row in the excel. The following rows are incorrect:"
-        nodes_sorted = sorted(self.node_problems, key=lambda x: x.index_num)
-        nodes = list_separator.join([x.execute_error_protocol() for x in nodes_sorted])
-        return msg + nodes
-
-
-@dataclass(frozen=True)
 class DuplicatesListNameProblem:
     all_duplicate_names: list[ListInformation]
 
@@ -164,7 +136,7 @@ class DuplicatesListNameProblem:
             "The name of the list must be unique across all the excel sheets.\n"
             "The following sheets have lists with the same name:"
         ]
-        sorted_list = sorted(self.all_duplicate_names, key=lambda x: x.list_name)
+        sorted_list = sorted(self.all_duplicate_names, key=lambda x: x.excel_name)
         msg.extend([x.execute_error_protocol() for x in sorted_list])
         return list_separator.join(msg)
 
@@ -194,12 +166,12 @@ class DuplicatesCustomIDInProblem:
 
 @dataclass
 class DuplicateIDProblem:
-    custom_id: str = field(default="")
+    custom_id: str | int | float = field(default="")
     excel_locations: list[PositionInExcel] = field(default_factory=list)
 
     def execute_error_protocol(self) -> str:
         msg = [f"ID: '{self.custom_id}'"]
-        msg.extend([str(x) for x in self.excel_locations])
+        msg.extend([str(x) for x in sorted(self.excel_locations, key=lambda x: str(x.excel_filename))])
         return list_separator.join(msg)
 
 
@@ -209,7 +181,7 @@ class MissingNodeTranslationProblem:
     index_num: int
 
     def execute_error_protocol(self) -> str:
-        return f"Row Number: {self.index_num + 2} Column(s): {', '.join(self.empty_columns)}"
+        return f"Row Number: {self.index_num + 2} | Column(s): {', '.join(sorted(self.empty_columns))}"
 
 
 @dataclass(frozen=True)
@@ -224,3 +196,32 @@ class NodesPerRowProblem:
         else:
             description = "Column(s) that must be filled"
         return f"Row Number: {self.index_num + 2}, {description}: {', '.join(self.column_names)}"
+
+
+@dataclass(frozen=True)
+class MinimumRowsProblem:
+    def execute_error_protocol(self) -> str:
+        return (
+            "The Excel sheet must contain at least two rows, "
+            "one for the list name and one row for a minimum of one node."
+        )
+
+
+@dataclass(frozen=True)
+class MissingNodeColumn:
+    def execute_error_protocol(self) -> str:
+        return (
+            "At least one column for the node names in the format '[lang]_[column_number]' is required. "
+            "The allowed language tags are: en, de, fr, it, rm."
+        )
+
+
+@dataclass
+class MissingExpectedColumn:
+    missing_cols: set[str]
+
+    def execute_error_protocol(self) -> str:
+        return (
+            f"All nodes and lists must be translated into the same languages. "
+            f"Based on the languages used, the following column(s) are missing: {', '.join(self.missing_cols)}"
+        )

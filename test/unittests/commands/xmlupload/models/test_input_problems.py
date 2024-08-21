@@ -5,7 +5,7 @@ from dsp_tools.commands.xmlupload.models.input_problems import AllIIIFUriProblem
 from dsp_tools.commands.xmlupload.models.input_problems import IIIFUriProblem
 
 
-@pytest.fixture()
+@pytest.fixture
 def iiif_exception() -> IIIFUriProblem:
     return IIIFUriProblem(
         uri="http://www.example.org/",
@@ -15,7 +15,7 @@ def iiif_exception() -> IIIFUriProblem:
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def iiif_uri_problem_ok_regex() -> IIIFUriProblem:
     return IIIFUriProblem(
         uri="https://iiif.dasch.swiss/0811/1Oi7mdiLsG7-FmFgp0xz2xU.jp2/full/837,530/0/default.jp2",
@@ -25,7 +25,7 @@ def iiif_uri_problem_ok_regex() -> IIIFUriProblem:
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def iiif_uri_problem_bad_regex() -> IIIFUriProblem:
     return IIIFUriProblem(
         uri="http://www.example.org/",
@@ -35,7 +35,7 @@ def iiif_uri_problem_bad_regex() -> IIIFUriProblem:
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def iiif_uri_problem_bad_regex_good_status_code() -> IIIFUriProblem:
     return IIIFUriProblem(
         uri="http://www.example.org/",

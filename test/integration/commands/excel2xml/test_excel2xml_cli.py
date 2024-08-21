@@ -9,7 +9,7 @@ from dsp_tools.models.exceptions import BaseError
 INVALID_EXCEL_DIRECTORY = "testdata/invalid-testdata/excel2xml"
 
 
-@pytest.fixture()
+@pytest.fixture
 def expected_output() -> str:
     with open("testdata/excel2xml/excel2xml-expected-output.xml", encoding="utf-8") as f:
         return f.read()

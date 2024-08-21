@@ -230,7 +230,7 @@ def _get_final_series(
         case None, None:
             return None
         case pd.Series(), pd.Series():
-            final_series = pd.Series(np.logical_or(mandatory_check, no_attribute_check))  # type: ignore[arg-type]
+            final_series = pd.Series(np.logical_or(mandatory_check, no_attribute_check))  # type: ignore[arg-type, assignment]
         case pd.Series(), None:
             final_series = mandatory_check  # type: ignore[assignment]
         case None, pd.Series():

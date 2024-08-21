@@ -2,7 +2,7 @@
 
 [tool.poetry]
 name = "dsp-tools"
-version = "8.4.0"
+version = "8.5.0"
 description = "DSP-TOOLS is a Python package with a command line interface that helps you interact with a DaSCH service platform (DSP) server."
 authors = ["DaSCH - Swiss National Data and Service Center for the Humanities <info@dasch.swiss>"]
 readme = "docs/index.md"
@@ -65,7 +65,7 @@ pytest-sugar = "^1.0.0"
 pandas-stubs = "^2.2.1.240316"
 types-networkx = "^3.2.1.20240331"
 requests-mock = "^1.12.1"
-testcontainers =  "^4.4.1"
+testcontainers =  "4.7.2"
 docker = "^7.1.0"
 types-docker = "^7.0.0.20240529"
 pytest-cov = "^5.0.0"
@@ -231,4 +231,3 @@ convention = "google"
 
 [tool.ruff.lint.isort]
 force-single-line = true
-known-first-party = ["dsp_tools"]

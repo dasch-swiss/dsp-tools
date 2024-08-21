@@ -19,7 +19,7 @@ PROPS_IN_ONTO_JSON = 1
 RESCLASSES_IN_ONTO_JSON = 2
 
 
-@pytest.fixture()
+@pytest.fixture
 def _create_project() -> Iterator[None]:
     with get_containers():
         success = create_project(Path("testdata/json-project/test-project-e2e.json"), CREDS, verbose=True)
@@ -27,20 +27,20 @@ def _create_project() -> Iterator[None]:
         yield
 
 
-@pytest.fixture()
+@pytest.fixture
 def _xmlupload(_create_project: None) -> None:
     success = xmlupload(Path("testdata/xml-data/test-data-e2e.xml"), CREDS, ".")
     assert success
 
 
-@pytest.fixture()
+@pytest.fixture
 def auth_header(_create_project: None) -> dict[str, str]:
     payload = {"email": CREDS.user, "password": CREDS.password}
     token: str = requests.post(f"{CREDS.server}/v2/authentication", json=payload, timeout=3).json()["token"]
     return {"Authorization": f"Bearer {token}"}
 
 
-@pytest.fixture()
+@pytest.fixture
 def project_iri(_create_project: None) -> str:
     get_project_route = f"{CREDS.server}/admin/projects/shortcode/{PROJECT_SHORTCODE}"
     project_iri: str = requests.get(get_project_route, timeout=3).json()["project"]["id"]

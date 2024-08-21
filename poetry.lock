@@ -2264,17 +2264,17 @@ test = ["beautifulsoup4 (>=4.8,<5.0)", "html5lib (==1.1)", "lxml (>=4.9)", "mypy
 
 [[package]]
 name = "types-networkx"
-version = "3.2.1.20240820"
+version = "3.2.1.20240813"
 description = "Typing stubs for networkx"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "types-networkx-3.2.1.20240820.tar.gz", hash = "sha256:820b6cd0abd0721aa1bdf3fe98cb1a328d914b949ce72d3b61ca083a94393176"},
-    {file = "types_networkx-3.2.1.20240820-py3-none-any.whl", hash = "sha256:66fa71b43dc8601dcd75f6c696a78cde434b4afe18a062d6e2dfc4fa1c0f2ce0"},
+    {file = "types-networkx-3.2.1.20240813.tar.gz", hash = "sha256:83bf8100016f510b733f78fa43ca1bb411c3ac041717758cb638ce858612f798"},
+    {file = "types_networkx-3.2.1.20240813-py3-none-any.whl", hash = "sha256:6d41fa6ecc28ed72d64fa30d25f8b844c0c1830abc489deedda2a9e160c21cdc"},
 ]
 
 [package.dependencies]
-numpy = ">=1.20,<2.1.0"
+numpy = ">=1.20"
 
 [[package]]
 name = "types-openpyxl"
@@ -2677,4 +2677,4 @@ dev = ["doc8", "flake8", "flake8-import-order", "rstcheck[sphinx]", "sphinx"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "1873ab9904234496acc4041e31b04ed1964d6205b03663c48e1a65d2c9c18cde"
+content-hash = "aad9c3aa84c0198bd4e39830a6558d2785ac642f95acca09a6bbf84c24c2dfd6"

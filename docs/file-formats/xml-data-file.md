@@ -1011,6 +1011,9 @@ Example:
 </video-segment>
 ```
 
+Allowed attributes in these property tags: `permissions`, `comment`. 
+Example: `<hasTitle permissions="prop-default" comment="Comment to my title">Title of video segment</hasTitle>`
+
 Technical notes: 
 
 - `<video-segment>` / `<audio-segment>` are in fact a 

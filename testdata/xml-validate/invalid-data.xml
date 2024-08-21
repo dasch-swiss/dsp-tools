@@ -18,7 +18,7 @@
     </resource>
 
 
-    <!-- Ontology Violations -->
+    <!-- ObjectClass and ObjectDatatype Constraint Violations -->
 
     <!-- The target of the link should be of the class :CardOneResource -->
     <resource label="Link Value Target" restype=":NormalClass" id="link-value-target-wrong"/>

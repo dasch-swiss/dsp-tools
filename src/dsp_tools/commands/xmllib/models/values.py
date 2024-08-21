@@ -107,11 +107,11 @@ class IntValue(Value):
             f"The following value is not a valid integer.\n"
             f"Type: {type(self.value)} | Value: {self.value} | Property: {self.prop_name}"
         )
-        if not isinstance(self.value, int):
-            warnings.warn(DspToolsUserWarning(msg))
         if isinstance(self.value, str):
             if not regex.search(r"^\d+$", self.value):
                 warnings.warn(DspToolsUserWarning(msg))
+        elif not isinstance(self.value, int):
+            warnings.warn(DspToolsUserWarning(msg))
 
     def serialise(self) -> etree._Element:
         ele = self.make_prop()

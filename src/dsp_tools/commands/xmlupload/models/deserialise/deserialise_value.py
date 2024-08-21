@@ -62,7 +62,7 @@ class XMLProperty:
                     )
         else:
             if self.name.endswith("hasSegmentBounds"):
-                value = f"{node.attrib["start"]}:{node.attrib["end"]}"
+                value = f"{node.attrib["segment_start"]}:{node.attrib["segment_end"]}"
             elif node.text:
                 value = node.text
             else:

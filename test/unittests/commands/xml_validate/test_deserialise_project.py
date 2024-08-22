@@ -29,10 +29,10 @@ class TestDeserialiseProperties:
     def test_list_value(self, list_prop: dict[str, Any]) -> None:
         pass
 
-    def test_link_prop(self: dict[str, Any]) -> None:
+    def test_link_prop(self, link_prop: dict[str, Any]) -> None:
         pass
 
-    def test_simpletext_prop(self: dict[str, Any]) -> None:
+    def test_simpletext_prop(self, simpletext_prop: dict[str, Any]) -> None:
         pass
 
 

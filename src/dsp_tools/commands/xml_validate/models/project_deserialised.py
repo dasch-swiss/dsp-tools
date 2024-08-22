@@ -12,6 +12,12 @@ class ListDeserialised:
 
 
 @dataclass
+class ProjectDeserialised:
+    resources: list[ResourceDeserialised]
+    properties: list[Property]
+
+
+@dataclass
 class ResourceDeserialised:
     cls_id: str
     subClassOf: list[str]

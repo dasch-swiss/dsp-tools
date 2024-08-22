@@ -6,7 +6,7 @@ from typing import Protocol
 
 
 @dataclass
-class ProjectDeserialised:
+class DataDeserialised:
     shortcode: str
     default_onto: str
     resources: list[ResourceDeserialised]

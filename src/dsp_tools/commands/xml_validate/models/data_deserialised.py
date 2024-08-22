@@ -10,9 +10,9 @@ from typing import Protocol
 class DataDeserialised:
     shortcode: str
     default_onto: str
-    resources: list[ResourceDeserialised]
+    resources: list[DataResource]
 
-    def get_resources_by_type(self) -> dict[str, list[ResourceDeserialised]]:
+    def get_resources_by_type(self) -> dict[str, list[DataResource]]:
         res_d = defaultdict(list)
         for r in self.resources:
             res_d[r.res_class].append(r)
@@ -20,11 +20,11 @@ class DataDeserialised:
 
 
 @dataclass
-class ResourceDeserialised:
+class DataResource:
     res_id: str
     res_class: str
     label: str
-    values: list[ValueDeserialised]
+    values: list[DataValue]
 
     def get_cardinalities(self) -> list[PropForResourceCardinality]:
         card_d = defaultdict(list)
@@ -34,7 +34,7 @@ class ResourceDeserialised:
 
 
 @dataclass
-class ValueDeserialised(Protocol):
+class DataValue(Protocol):
     prop_name: str
     prop_value: Any
     res_id: str
@@ -44,7 +44,7 @@ class ValueDeserialised(Protocol):
 
 
 @dataclass
-class SimpleTextValueDeserialised(ValueDeserialised):
+class DataSimpleText(DataValue):
     prop_name: str
     prop_value: str
     res_id: str
@@ -54,7 +54,7 @@ class SimpleTextValueDeserialised(ValueDeserialised):
 
 
 @dataclass
-class IntValueDeserialised(ValueDeserialised):
+class DataIntValue(DataValue):
     prop_name: str
     prop_value: str
     res_id: str
@@ -64,7 +64,7 @@ class IntValueDeserialised(ValueDeserialised):
 
 
 @dataclass
-class ListValueDeserialised(ValueDeserialised):
+class DataListValue(DataValue):
     prop_name: str
     prop_value: str
     list_name: str
@@ -75,7 +75,7 @@ class ListValueDeserialised(ValueDeserialised):
 
 
 @dataclass
-class LinkValueDeserialised(ValueDeserialised):
+class DataLinkValue(DataValue):
     prop_name: str
     prop_value: str
     res_id: str

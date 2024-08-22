@@ -258,6 +258,44 @@ make_text_prop(
 ```
 
 
+#### The Special Properties of `<video-segment>` and `<audio-segment>`
+
+`<video-segment>` and `<audio-segment>` work differently than normal resources.
+Firstly, because they are knora-base resources that cannot be subclassed in the custom data model.
+So in your JSON file, you must not create a resource class for them. 
+Rather, you use them in your XML file directly.
+
+Secondly, because they have a dedicated tag (i.e., different from `<resource>`), 
+and their properties also have dedicated tags.
+
+Here's how you can create them in your Python script:
+
+```python
+from dsp_tools import excel2xml
+
+segment = excel2xml.make_video_segment("label of my video segment", "segment_1")
+segment.append(excel2xml.make_isSegmentOf_prop("video_resource_id"))
+segment.append(excel2xml.make_hasSegmentBounds_prop(start=600, end=1200))  # from 0h 10min 00s to 0h 20min 00s
+segment.append(excel2xml.make_hasTitle_prop("title of the segment"))
+segment.append(excel2xml.make_hasDescription_prop("<strong>1st</strong> description of the segment"))
+segment.append(excel2xml.make_hasDescription_prop("<strong>2nd</strong> description of the segment"))
+segment.append(excel2xml.make_hasComment_prop("<strong>1st</strong> comment to the segment"))
+segment.append(excel2xml.make_hasComment_prop("<strong>2nd</strong> comment to the segment"))
+segment.append(excel2xml.make_hasKeyword_prop("keyword 1"))
+segment.append(excel2xml.make_hasKeyword_prop("keyword 2"))
+segment.append(excel2xml.make_relatesTo_prop("id_of_other_resource"))
+```
+
+The audio segment works exactly the same, just with `audio` instead of `video`:
+
+```python
+segment = excel2xml.make_audio_segment("label of my audio segment", "segment_1")
+segment.append(excel2xml.make_isSegmentOf_prop("audio_resource_id"))
+```
+
+See also the [documentation of the resulting XML format](./file-formats/xml-data-file.md#video-segment-and-audio-segment).
+
+
 #### Supported Boolean Formats
 
 For `make_boolean_prop(cell)`, the following formats are supported:

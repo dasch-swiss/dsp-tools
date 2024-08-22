@@ -981,40 +981,38 @@ Technical note: A `<link>` is in fact a `<resource restype="LinkObj">`. But it i
 shortcut, so that the XML file can be validated more precisely.
 
 
-### `<video-segment>` / `<audio-segment>`
+### `<video-segment>` and `<audio-segment>`
 
 `<video-segment>` and `<audio-segment>` represent sections of an audio/video file. 
 They can have the following predefined properties:
 
-| prop name          | cardinality | prop type     | text type   |
-| ------------------ | ----------- | ------------- | ----------- |
-| `isSegmentOf`      | 1           | resptr-prop   |             |
-| `hasSegmentBounds` | 1           | interval-prop |             |
-| `hasTitle`         | 0-1         | text-prop     | unformatted |
-| `hasDescription`   | 0-n         | text-prop     | formatted   |
-| `hasComment`       | 0-n         | text-prop     | formatted   |
-| `hasKeyword`       | 0-n         | text-prop     | unformatted |
-| `relatesTo`        | 0-n         | resptr-prop   |             |
-
-The segment bounds must be entered in seconds. 
-Decimal values for fractions of a second are allowed, e.g. `1.4:2`.
-The segment from 0h 10min 00s to 0h 20min 00s would thus be represented by the interval `600:1200`.
+| prop name          | cardinality | prop type          |
+| ------------------ | ----------- | ------------------ |
+| `isSegmentOf`      | 1           | link               |
+| `hasSegmentBounds` | 1           | interval           |
+| `hasTitle`         | 0-1         | text (unformatted) |
+| `hasDescription`   | 0-n         | text (formatted)   |
+| `hasComment`       | 0-n         | text (formatted)   |
+| `hasKeyword`       | 0-n         | text (unformatted) |
+| `relatesTo`        | 0-n         | link               |
 
 Example:
 
 ```xml
-<video-segment label="Segment of video_thing_1" id="video_segment_0" permissions="res-default">
-    <resptr-prop name="isSegmentOf">
-        <resptr permissions="prop-default">video_thing_1</resptr>
-    </resptr-prop>
-    <interval-prop name="hasSegmentBounds">
-        <interval permissions="prop-default">10:20</interval>
-    </interval-prop>
-    <text-prop name="hasComment">
-        <text encoding="xml" permissions="prop-default">Optional comment</text>
-    </text-prop>
+<video-segment label="Video Segment" id="video_segment_1">
+    <isSegmentOf permissions="prop-default">video_thing_1</isSegmentOf>
+    <!-- The segment bounds must be entered in seconds. Decimal (for fractions of a second) are allowed, e.g. `1.4`.-->
+    <hasSegmentBounds permissions="prop-default" start="600" end="1200"/> <!-- from 0h 10min 00s to 0h 20min 00s -->
+    <hasTitle permissions="prop-default">Title of video segment</hasTitle>
+    <hasDescription permissions="prop-default"><strong>Description</strong> of video segment</hasDescription>
+    <hasKeyword permissions="prop-default">Keyword of video segment</hasKeyword>
+    <hasComment permissions="prop-default"><strong>Comment</strong> of video segment</hasComment>
+    <relatesTo permissions="prop-default">audio_segment_1</relatesTo>
 </video-segment>
 ```
+
+Allowed attributes in these property tags: `permissions`, `comment`. 
+Example: `<hasTitle permissions="prop-default" comment="Comment to my title">Title of video segment</hasTitle>`
 
 Technical notes: 
 

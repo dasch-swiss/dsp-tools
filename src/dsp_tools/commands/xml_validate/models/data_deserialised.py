@@ -39,6 +39,9 @@ class ValueDeserialised(Protocol):
     prop_value: Any
     res_id: str
 
+    def type(self) -> str:
+        raise NotImplementedError
+
 
 @dataclass
 class SimpleTextValueDeserialised(ValueDeserialised):
@@ -46,11 +49,18 @@ class SimpleTextValueDeserialised(ValueDeserialised):
     prop_value: str
     res_id: str
 
+    def type(self) -> str:
+        return "SimpleText"
+
 
 @dataclass
 class IntValueDeserialised(ValueDeserialised):
     prop_name: str
     prop_value: str
+    res_id: str
+
+    def type(self) -> str:
+        return "IntValue"
 
 
 @dataclass
@@ -60,12 +70,18 @@ class ListValueDeserialised(ValueDeserialised):
     list_name: str
     res_id: str
 
+    def type(self) -> str:
+        return "ListValue"
+
 
 @dataclass
 class LinkValueDeserialised(ValueDeserialised):
     prop_name: str
     prop_value: str
     res_id: str
+
+    def type(self) -> str:
+        return "LinkValue"
 
 
 @dataclass

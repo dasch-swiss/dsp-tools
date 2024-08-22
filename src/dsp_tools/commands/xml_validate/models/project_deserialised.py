@@ -42,12 +42,18 @@ class CardinalityZeroToN(Cardinality):
 class Property(Protocol):
     prop_name: str
 
+    def type(self) -> str:
+        raise NotImplementedError
+
 
 @dataclass
 class ListProperty(Property):
     prop_name: str
     list_name: str | None
-    nodes: list[str] | None
+    nodes: list[str]
+
+    def type(self) -> str:
+        return "ListValue"
 
 
 @dataclass
@@ -56,8 +62,14 @@ class SimpleTextProperty(Property):
     # but should be included in the final code
     prop_name: str
 
+    def type(self) -> str:
+        return "SimpleText"
+
 
 @dataclass
 class LinkProperty(Property):
     prop_name: str
     objectType: set[str]
+
+    def type(self) -> str:
+        return "LinkValue"

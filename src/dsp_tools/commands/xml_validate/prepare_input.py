@@ -55,7 +55,7 @@ def _deserialise_one_property(prop_ele: etree._Element, res_id: str) -> list[Val
         case "resptr-prop":
             return _deserialise_resptr_prop(prop_ele, res_id)
         case "integer-prop":
-            return _deserialise_int_prop(prop_ele)
+            return _deserialise_int_prop(prop_ele, res_id)
         case _:
             return []
 
@@ -99,15 +99,10 @@ def _deserialise_resptr_prop(prop: etree._Element, res_id: str) -> list[ValueDes
     return all_links
 
 
-def _deserialise_int_prop(prop: etree._Element) -> list[ValueDeserialised]:
+def _deserialise_int_prop(prop: etree._Element, res_id: str) -> list[ValueDeserialised]:
     prop_name = prop.attrib["name"]
     all_links: list[ValueDeserialised] = []
     for val in prop.iterchildren():
         txt = cast(str, val.text)
-        all_links.append(
-            IntValueDeserialised(
-                prop_name=prop_name,
-                prop_value=txt,
-            )
-        )
+        all_links.append(IntValueDeserialised(prop_name=prop_name, prop_value=txt, res_id=res_id))
     return all_links

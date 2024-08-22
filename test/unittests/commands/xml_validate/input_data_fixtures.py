@@ -61,7 +61,7 @@ def xml_list_prop() -> etree._Element:
 
 
 @pytest.fixture
-def onot() -> dict[str, Any]:
+def onto_json() -> dict[str, Any]:
     with open("testdata/xml-validate/from_api/onto.jsonld", "r", encoding="utf-8") as file:
         f: dict[str, Any] = json.load(file)
         return f

@@ -33,7 +33,7 @@ def parsed_xml() -> etree._Element:
 
 
 @pytest.fixture
-def resptr_prop() -> etree._Element:
+def xml_resptr_prop() -> etree._Element:
     return etree.fromstring("""
         <resptr-prop name=":linkProp">
             <resptr>link-id</resptr>
@@ -42,7 +42,7 @@ def resptr_prop() -> etree._Element:
 
 
 @pytest.fixture
-def text_prop() -> etree._Element:
+def xml_text_prop() -> etree._Element:
     return etree.fromstring("""
         <text-prop name=":hasSimpleText">
             <text encoding="utf8" permissions="prop-default">text content</text>
@@ -52,7 +52,7 @@ def text_prop() -> etree._Element:
 
 
 @pytest.fixture
-def list_prop() -> etree._Element:
+def xml_list_prop() -> etree._Element:
     return etree.fromstring("""
         <list-prop name=":listProp" list="onlyList">
             <list>listNode</list>

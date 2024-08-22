@@ -22,8 +22,8 @@ def test_transform_into_xml_deserialised(parsed_xml: etree._Element) -> None:
     assert len(resource.values) == 3
 
 
-def test_deserialise_list_prop(list_prop: etree._Element) -> None:
-    result = _deserialise_list_prop(list_prop)
+def test_deserialise_list_prop(xml_list_prop: etree._Element) -> None:
+    result = _deserialise_list_prop(xml_list_prop)
     assert len(result) == 1
     deserialised = result[0]
     assert isinstance(deserialised, ListValueDeserialised)
@@ -33,8 +33,8 @@ def test_deserialise_list_prop(list_prop: etree._Element) -> None:
     assert not deserialised.comments
 
 
-def test_deserialise_text_prop(text_prop: etree._Element) -> None:
-    result = _deserialise_text_prop(text_prop)
+def test_deserialise_text_prop(xml_text_prop: etree._Element) -> None:
+    result = _deserialise_text_prop(xml_text_prop)
     assert len(result) == 2
     sorted_res = sorted(result, key=lambda x: x.prop_value)
     one = sorted_res[0]
@@ -49,8 +49,8 @@ def test_deserialise_text_prop(text_prop: etree._Element) -> None:
     assert two.comments == "Comment"
 
 
-def test_deserialise_resptr_prop(resptr_prop: etree._Element) -> None:
-    result = _deserialise_resptr_prop(resptr_prop)
+def test_deserialise_resptr_prop(xml_resptr_prop: etree._Element) -> None:
+    result = _deserialise_resptr_prop(xml_resptr_prop)
     assert len(result) == 1
     deserialised = result[0]
     assert isinstance(deserialised, LinkValueDeserialised)

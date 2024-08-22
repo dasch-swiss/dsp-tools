@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import warnings
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 import regex
@@ -128,5 +129,49 @@ class IntValue(Value):
         if self.comment:
             attribs["comment"] = self.comment
         ele = etree.Element(f"{DASCH_SCHEMA}integer", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
+        ele.text = str(self.value)
+        return ele
+
+
+@dataclass
+class AbstractFileValue:
+    value: str | Path
+    permissions: str | None = "prop-default"
+    comment: str | None = None
+
+    def serialise(self) -> etree._Element:
+        raise NotImplementedError
+
+
+@dataclass
+class FileValue(AbstractFileValue):
+    value: str | Path
+    permissions: str | None = "prop-default"
+    comment: str | None = None
+
+    def serialise(self) -> etree._Element:
+        attribs = {}
+        if self.permissions:
+            attribs["permissions"] = self.permissions
+        if self.comment:
+            attribs["comment"] = self.comment
+        ele = etree.Element(f"{DASCH_SCHEMA}bitstream", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
+        ele.text = str(self.value)
+        return ele
+
+
+@dataclass
+class IIIFUri(AbstractFileValue):
+    value: str | Path
+    permissions: str | None = "prop-default"
+    comment: str | None = None
+
+    def serialise(self) -> etree._Element:
+        attribs = {}
+        if self.permissions:
+            attribs["permissions"] = self.permissions
+        if self.comment:
+            attribs["comment"] = self.comment
+        ele = etree.Element(f"{DASCH_SCHEMA}iiif-uri", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
         ele.text = str(self.value)
         return ele

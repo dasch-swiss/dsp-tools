@@ -7,6 +7,7 @@ from dataclasses import field
 
 from lxml import etree
 
+from dsp_tools.commands.xmllib.models.values import FileValue
 from dsp_tools.commands.xmllib.models.values import IntValue
 from dsp_tools.commands.xmllib.models.values import LinkValue
 from dsp_tools.commands.xmllib.models.values import SimpleText
@@ -14,7 +15,6 @@ from dsp_tools.commands.xmllib.models.values import Value
 from dsp_tools.commands.xmllib.utils import is_string
 from dsp_tools.models.custom_warnings import DspToolsUserWarning
 from dsp_tools.models.exceptions import InputError
-from dsp_tools.utils.uri_util import is_iiif_uri
 
 XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 DASCH_SCHEMA = "{https://dasch.swiss/schema}"
@@ -27,24 +27,28 @@ class ResourceCollection:
     def to_list(self) -> list[Resource]:
         return list(self.resources.values())
 
-    def with_Resource(self, resource: Resource) -> ResourceCollection:
+    def with_resource(self, resource: Resource) -> ResourceCollection:
         self._raise_exists(resource.res_id)
         self.resources[resource.res_id] = resource
         return self
 
-    def with_EmptyResource(self, res_id: str, restype: str, label: str) -> ResourceCollection:
+    def with_empty_resource(self, res_id: str, restype: str, label: str) -> ResourceCollection:
         self._raise_exists(res_id)
         self.resources[res_id] = Resource(res_id=res_id, restype=restype, label=label)
         return self
 
-    def add_ValueToResource(self, res_id: str, value: Value) -> ResourceCollection:
+    def add_value_to_resource(self, res_id: str, value: Value) -> ResourceCollection:
         self._raise_does_not_exist(res_id)
         self.resources[res_id].values.append(value)
         return self
 
-    def add_FileValueToResource(self, res_id: str, filepath: str) -> ResourceCollection:
+    def add_file_value_to_resource(
+        self, res_id: str, filepath: str, permissions: str | None = None, comment: str | None = None
+    ) -> ResourceCollection:
         self._raise_does_not_exist(res_id)
-        self.resources[res_id].filepath = filepath
+        if self.resources[res_id].file_value:
+            raise InputError(f"The resource with the ID: '{res_id}' already has a FileValue. Another cannot be added.")
+        self.resources[res_id].file_value = FileValue(value=filepath, permissions=permissions, comment=comment)
         return self
 
     def _raise_exists(self, res_id: str) -> None:
@@ -63,9 +67,7 @@ class Resource:
     label: str
     values: list[Value] = field(default_factory=list)
     permissions: str = "res-default"
-    iiif_uri: str | None = None
-    filepath: str | None = None
-    permissions_for_file: str = "prop-default"
+    file_value: FileValue | None = None
 
     def __post_init__(self) -> None:
         if not is_string(str(self.label)):
@@ -77,8 +79,8 @@ class Resource:
 
     def serialise(self) -> etree._Element:
         res_ele = self._make_resource_ele()
-        if (file_ele := self._make_file_ele()) is not None:
-            res_ele.append(file_ele)
+        if self.file_value:
+            res_ele.append(self.file_value.serialise())
         res_ele.extend(self._serialise_values())
         return res_ele
 
@@ -87,36 +89,6 @@ class Resource:
         if self.permissions:
             attribs["permissions"] = self.permissions
         return etree.Element(f"{DASCH_SCHEMA}resource", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
-
-    def _make_file_ele(self) -> etree._Element | None:
-        if self.iiif_uri and self.filepath:
-            raise InputError(
-                "A resource can only have a iiif-uri or a filepath.\n"
-                f"The resource with the ID '{self.res_id}' has both."
-            )
-        if self.filepath:
-            prop_ = etree.Element(
-                f"{DASCH_SCHEMA}bitstream",
-                permissions=self.permissions_for_file,
-                nsmap=XML_NAMESPACE_MAP,
-            )
-            prop_.text = str(self.filepath)
-            return prop_
-        if self.iiif_uri:
-            if not is_iiif_uri(self.iiif_uri):
-                msg = (
-                    f"Failed validation in iiif-uri tag of resource '{self.res_id}': "
-                    f"The URI: '{self.iiif_uri}' does not conform to the specifications."
-                )
-                warnings.warn(DspToolsUserWarning(msg))
-            prop_ = etree.Element(
-                f"{DASCH_SCHEMA}iiif-uri",
-                permissions=self.permissions_for_file,
-                nsmap=XML_NAMESPACE_MAP,
-            )
-            prop_.text = self.iiif_uri
-            return prop_
-        return None
 
     def _serialise_values(self) -> list[etree._Element]:
         grouped = defaultdict(list)
@@ -131,26 +103,26 @@ class Resource:
         prop_.extend(prop_eles)
         return prop_
 
-    def with_IntValue(
+    def with_int_value(
         self, prop_name: str, value: int | str, permissions: str | None = None, comments: str | None = None
     ) -> Resource:
         self.values.append(IntValue(value=value, prop_name=prop_name, permissions=permissions, comment=comments))
         return self
 
-    def with_SeveralIntValues(
+    def with_several_int_values(
         self, prop_name: str, values: list[int | str], permissions: str | None = None, comments: str | None = None
     ) -> Resource:
         inv_values = [IntValue(value=x, prop_name=prop_name, permissions=permissions, comment=comments) for x in values]
         self.values.extend(inv_values)
         return self
 
-    def with_SimpleText(
+    def with_simple_text(
         self, prop_name: str, value: str, permissions: str | None = None, comments: str | None = None
     ) -> Resource:
         self.values.append(SimpleText(value=value, prop_name=prop_name, permissions=permissions, comment=comments))
         return self
 
-    def with_SeveralSimpleTexts(
+    def with_several_simple_texts(
         self, prop_name: str, values: list[str], permissions: str | None = None, comments: str | None = None
     ) -> Resource:
         simple_text_values = [
@@ -159,13 +131,13 @@ class Resource:
         self.values.extend(simple_text_values)
         return self
 
-    def with_LinkValue(
+    def with_link_value(
         self, prop_name: str, value: str, permissions: str | None = None, comments: str | None = None
     ) -> Resource:
         self.values.append(LinkValue(value=value, prop_name=prop_name, permissions=permissions, comment=comments))
         return self
 
-    def with_SeveralLinkValues(
+    def with_several_link_values(
         self, prop_name: str, values: list[str], permissions: str | None = None, comments: str | None = None
     ) -> Resource:
         link_values = [

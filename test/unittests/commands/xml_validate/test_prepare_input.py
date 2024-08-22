@@ -1,9 +1,9 @@
 import pytest
 from lxml import etree
 
-from dsp_tools.commands.xml_validate.models.data_deserialised import LinkValueDeserialised
-from dsp_tools.commands.xml_validate.models.data_deserialised import ListValueDeserialised
-from dsp_tools.commands.xml_validate.models.data_deserialised import SimpleTextValueDeserialised
+from dsp_tools.commands.xml_validate.models.data_deserialised import DataLinkValue
+from dsp_tools.commands.xml_validate.models.data_deserialised import DataListValue
+from dsp_tools.commands.xml_validate.models.data_deserialised import DataSimpleText
 from dsp_tools.commands.xml_validate.prepare_input import _deserialise_list_prop
 from dsp_tools.commands.xml_validate.prepare_input import _deserialise_resptr_prop
 from dsp_tools.commands.xml_validate.prepare_input import _deserialise_text_prop
@@ -26,7 +26,7 @@ def test_deserialise_list_prop(xml_list_prop: etree._Element) -> None:
     result = _deserialise_list_prop(xml_list_prop)
     assert len(result) == 1
     deserialised = result[0]
-    assert isinstance(deserialised, ListValueDeserialised)
+    assert isinstance(deserialised, DataListValue)
     assert deserialised.prop_name == ":listProp"
     assert deserialised.prop_value == "listNode"
     assert deserialised.list_name == "onlyList"
@@ -37,11 +37,11 @@ def test_deserialise_text_prop(xml_text_prop: etree._Element) -> None:
     assert len(result) == 2
     sorted_res = sorted(result, key=lambda x: x.prop_value)
     one = sorted_res[0]
-    assert isinstance(one, SimpleTextValueDeserialised)
+    assert isinstance(one, DataSimpleText)
     assert one.prop_name == ":hasSimpleText"
     assert one.prop_value == "text content"
     two = sorted_res[1]
-    assert isinstance(two, SimpleTextValueDeserialised)
+    assert isinstance(two, DataSimpleText)
     assert two.prop_name == ":hasSimpleText"
     assert two.prop_value == "text content 2"
 
@@ -50,7 +50,7 @@ def test_deserialise_resptr_prop(xml_resptr_prop: etree._Element) -> None:
     result = _deserialise_resptr_prop(xml_resptr_prop)
     assert len(result) == 1
     deserialised = result[0]
-    assert isinstance(deserialised, LinkValueDeserialised)
+    assert isinstance(deserialised, DataLinkValue)
     assert deserialised.prop_name == ":linkProp"
     assert deserialised.prop_value == "link-id"
 

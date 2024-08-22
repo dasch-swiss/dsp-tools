@@ -9,43 +9,43 @@ from typing import Protocol
 class DataDeserialised:
     shortcode: str
     default_onto: str
-    resources: list[ResourceDeserialised]
+    resources: list[DataResource]
 
 
 @dataclass
-class ResourceDeserialised:
+class DataResource:
     res_id: str
     res_class: str
     label: str
-    values: list[ValueDeserialised]
+    values: list[DataValue]
 
 
 @dataclass
-class ValueDeserialised(Protocol):
+class DataValue(Protocol):
     prop_name: str
     prop_value: Any
 
 
 @dataclass
-class SimpleTextValueDeserialised(ValueDeserialised):
+class DataSimpleText(DataValue):
     prop_name: str
     prop_value: str
 
 
 @dataclass
-class IntValueDeserialised(ValueDeserialised):
+class DataIntValue(DataValue):
     prop_name: str
     prop_value: str
 
 
 @dataclass
-class ListValueDeserialised(ValueDeserialised):
+class DataListValue(DataValue):
     prop_name: str
     prop_value: str
     list_name: str
 
 
 @dataclass
-class LinkValueDeserialised(ValueDeserialised):
+class DataLinkValue(DataValue):
     prop_name: str
     prop_value: str

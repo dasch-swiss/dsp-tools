@@ -72,11 +72,23 @@ def _deserialise_properties(onto: dict[str, Any], list_lookup: ListDeserialised)
     pass
 
 
-def _extract_all_onto_properties(onto: dict[str, Any], list_lookup: ListDeserialised) -> list[dict[str, Any]]:
+def _deserialise_all_props(onto: dict[str, Any]) -> list[Property]:
     pass
 
 
-def _deserialise_one_property(prop: dict[str, Any], list_lookup: ListDeserialised) -> Property:
+def _extract_all_onto_properties(onto: dict[str, Any]) -> list[dict[str, Any]]:
+    pass
+
+
+def _deserialise_other_property(prop: dict[str, Any]) -> Property:
+    pass
+
+
+def _deserialise_simple_text_prop(prop: dict[str, Any]) -> SimpleTextProperty:
+    pass
+
+
+def _deserialise_all_list_props(props: list[dict[str, Any]], list_lookup: ListDeserialised) -> list[ListProperty]:
     pass
 
 
@@ -84,9 +96,11 @@ def _deserialise_list_prop(prop: dict[str, Any], list_lookup: ListDeserialised) 
     pass
 
 
-def _deserialise_link_prop(prop: dict[str, Any]) -> LinkProperty:
+def _deserialise_all_link_props(
+    props: list[dict[str, Any]], sub_class_lookup: dict[str, set[str]]
+) -> list[LinkProperty]:
     pass
 
 
-def _deserialise_simple_text_prop(prop: dict[str, Any]) -> SimpleTextProperty:
+def _deserialise_link_prop(prop: dict[str, Any], supers: set[str]) -> LinkProperty:
     pass

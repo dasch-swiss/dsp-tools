@@ -61,4 +61,4 @@ class SimpleTextProperty(Property):
 @dataclass
 class LinkProperty(Property):
     prop_name: str
-    objectType: str
+    objectType: set[str]

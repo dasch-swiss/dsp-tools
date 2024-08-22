@@ -21,7 +21,6 @@ from dsp_tools.commands.excel2xml.excel2xml_lib import make_decimal_prop
 from dsp_tools.commands.excel2xml.excel2xml_lib import make_geometry_prop
 from dsp_tools.commands.excel2xml.excel2xml_lib import make_geoname_prop
 from dsp_tools.commands.excel2xml.excel2xml_lib import make_integer_prop
-from dsp_tools.commands.excel2xml.excel2xml_lib import make_interval_prop
 from dsp_tools.commands.excel2xml.excel2xml_lib import make_link
 from dsp_tools.commands.excel2xml.excel2xml_lib import make_list_prop
 from dsp_tools.commands.excel2xml.excel2xml_lib import make_region
@@ -317,7 +316,6 @@ def _get_prop_function(
         "geometry-prop": make_geometry_prop,
         "geoname-prop": make_geoname_prop,
         "integer-prop": make_integer_prop,
-        "interval-prop": make_interval_prop,
         "list-prop": make_list_prop,
         "resptr-prop": make_resptr_prop,
         "text-prop": make_text_prop,

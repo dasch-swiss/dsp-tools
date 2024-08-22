@@ -50,15 +50,12 @@ def test_annotations_regions_links_after(data_systematic_cleaned: etree._Element
     )
 
 
-def test_comment_removal_before(data_systematic_unclean: Path) -> None:
+def test_comment_removal(data_systematic_unclean: Path, data_systematic_cleaned: etree._Element) -> None:
     data = etree.parse(data_systematic_unclean)
-    comments = [e for e in data.iter() if isinstance(e, etree._Comment)]
-    assert len(comments) == 6
-
-
-def test_comment_removal_after(data_systematic_cleaned: etree._Element) -> None:
-    comments = [e for e in data_systematic_cleaned.iter() if isinstance(e, etree._Comment)]
-    assert len(comments) == 0, (
+    comments_before = [e for e in data.iter() if isinstance(e, etree._Comment)]
+    assert len(comments_before) > 0
+    comments_after = [e for e in data_systematic_cleaned.iter() if isinstance(e, etree._Comment)]
+    assert len(comments_after) == 0, (
         "properties that are commented out would break the the constructor of the class XMLProperty, "
         "if they are not removed in the parsing process"
     )

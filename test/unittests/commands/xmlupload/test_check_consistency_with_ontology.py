@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 import pytest
 from lxml import etree
 from pytest_unordered import unordered
@@ -279,7 +281,9 @@ def test_get_all_property_names_and_resource_ids_one_resource() -> None:
             </resource>"""
     )
     expected = {"a": ["a"], ":hasResource2": ["resB", "resC"], ":hasResource3": ["resC"]}
-    res_dic = _get_all_property_names_and_resource_ids_one_resource(test_ele, {"a": ["a"], ":hasResource2": ["resB"]})
+    res_dic = _get_all_property_names_and_resource_ids_one_resource(
+        test_ele, defaultdict(list, {"a": ["a"], ":hasResource2": ["resB"]})
+    )
     assert res_dic.keys() == expected.keys()
     for k, v in res_dic.items():
         assert unordered(v) == expected[k]

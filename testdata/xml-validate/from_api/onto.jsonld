@@ -556,7 +556,7 @@
       "knora-api:isEditable": true,
       "knora-api:isResourceProperty": true,
       "@type": "owl:ObjectProperty",
-      "salsah-gui:guiAttribute": "hlist=<http://rdfh.ch/lists/9999/klgwHOJeRqCTudNpUJHKww>",
+      "salsah-gui:guiAttribute": "hlist=<http://rdfh.ch/lists/9999/trTKqD1uTPe7VSswMcaLSQ>",
       "knora-api:objectType": {
         "@id": "knora-api:ListValue"
       },

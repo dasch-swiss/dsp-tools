@@ -1,7 +1,7 @@
 import json
 from typing import Any
 
-from dsp_tools.commands.xml_validate.models.api_response_deserialised import ListDeserialised
+from dsp_tools.commands.xml_validate.models.project import ListDeserialised
 
 
 def _get_project_ontology() -> Any:

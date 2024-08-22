@@ -139,7 +139,7 @@ def _deserialise_list_prop(prop: dict[str, Any], list_lookup: ListDeserialised) 
     # This is written as if only one list exists. The lookup would have to be designed to hold several lists.
     hlist = prop["salsah-gui:guiAttribute"].replace("hlist=<", "").rstrip(">")
     if not hlist == list_lookup.iri:
-        raise KeyError(f"The list with the IRI '{hlist}' as specified in the ontology is not known.")
+        return ListProperty(prop_name=prop["@id"], list_name=None, nodes=[])
     return ListProperty(prop_name=prop["@id"], list_name=list_lookup.list_name, nodes=list_lookup.nodes)
 
 

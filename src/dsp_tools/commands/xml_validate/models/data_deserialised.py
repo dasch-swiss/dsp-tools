@@ -12,6 +12,12 @@ class DataDeserialised:
     default_onto: str
     resources: list[ResourceDeserialised]
 
+    def get_resources_by_type(self) -> dict[str, list[ResourceDeserialised]]:
+        res_d = defaultdict(list)
+        for r in self.resources:
+            res_d[r.res_class].append(r)
+        return res_d
+
 
 @dataclass
 class ResourceDeserialised:

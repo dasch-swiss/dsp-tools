@@ -6,6 +6,8 @@
 
 def xml_validate() -> bool:
     """Validates an XML file without uploading data."""
+    # This function assumes that all classes and properties used exist in the ontology.
+
     # xml_project = parse_file("testdata/xml-validate/invalid-data.xml")
     # project_deserialised = deserialise_xml_project(xml_project)
     return True

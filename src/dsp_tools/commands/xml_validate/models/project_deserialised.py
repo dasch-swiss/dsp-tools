@@ -46,8 +46,8 @@ class Property(Protocol):
 @dataclass
 class ListProperty(Property):
     prop_name: str
-    list_name: str
-    nodes: list[str]
+    list_name: str | None
+    nodes: list[str] | None
 
 
 @dataclass

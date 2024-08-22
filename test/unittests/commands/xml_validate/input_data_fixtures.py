@@ -46,7 +46,7 @@ def xml_text_prop() -> etree._Element:
     return etree.fromstring("""
         <text-prop name=":hasSimpleText">
             <text encoding="utf8" permissions="prop-default">text content</text>
-            <text encoding="utf8" comment="Comment">text content 2</text>
+            <text encoding="utf8">text content 2</text>
         </text-prop>
     """)
 

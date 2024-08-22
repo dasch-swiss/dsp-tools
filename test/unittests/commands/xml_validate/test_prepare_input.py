@@ -30,7 +30,6 @@ def test_deserialise_list_prop(xml_list_prop: etree._Element) -> None:
     assert deserialised.prop_name == ":listProp"
     assert deserialised.prop_value == "listNode"
     assert deserialised.list_name == "onlyList"
-    assert not deserialised.comments
 
 
 def test_deserialise_text_prop(xml_text_prop: etree._Element) -> None:
@@ -41,12 +40,10 @@ def test_deserialise_text_prop(xml_text_prop: etree._Element) -> None:
     assert isinstance(one, SimpleTextValueDeserialised)
     assert one.prop_name == ":hasSimpleText"
     assert one.prop_value == "text content"
-    assert not one.comments
     two = sorted_res[1]
     assert isinstance(two, SimpleTextValueDeserialised)
     assert two.prop_name == ":hasSimpleText"
     assert two.prop_value == "text content 2"
-    assert two.comments == "Comment"
 
 
 def test_deserialise_resptr_prop(xml_resptr_prop: etree._Element) -> None:
@@ -56,7 +53,6 @@ def test_deserialise_resptr_prop(xml_resptr_prop: etree._Element) -> None:
     assert isinstance(deserialised, LinkValueDeserialised)
     assert deserialised.prop_name == ":linkProp"
     assert deserialised.prop_value == "link-id"
-    assert not deserialised.comments
 
 
 if __name__ == "__main__":

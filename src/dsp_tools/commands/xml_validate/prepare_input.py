@@ -61,11 +61,10 @@ def _deserialise_text_prop(prop: etree._Element) -> list[ValueDeserialised]:
     prop_name = prop.attrib["name"]
     all_vals: list[ValueDeserialised] = []
     for child in prop.iterchildren():
-        comments = child.attrib.get("comment")
         val = cast(str, child.text)
         match child.attrib["encoding"]:
             case "utf8":
-                all_vals.append(SimpleTextValueDeserialised(prop_name=prop_name, prop_value=val, comments=comments))
+                all_vals.append(SimpleTextValueDeserialised(prop_name=prop_name, prop_value=val))
             case _:
                 pass
     return all_vals
@@ -82,7 +81,6 @@ def _deserialise_list_prop(prop: etree._Element) -> list[ValueDeserialised]:
                 prop_name=prop_name,
                 prop_value=txt,
                 list_name=list_name,
-                comments=val.attrib.get("comment"),
             )
         )
     return all_vals
@@ -97,7 +95,6 @@ def _deserialise_resptr_prop(prop: etree._Element) -> list[ValueDeserialised]:
             LinkValueDeserialised(
                 prop_name=prop_name,
                 prop_value=txt,
-                comments=val.attrib.get("comment"),
             )
         )
     return all_links

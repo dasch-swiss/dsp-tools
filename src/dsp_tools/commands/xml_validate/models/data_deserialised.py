@@ -24,14 +24,12 @@ class ResourceDeserialised:
 class ValueDeserialised(Protocol):
     prop_name: str
     prop_value: Any
-    comments: str | None
 
 
 @dataclass
 class SimpleTextValueDeserialised(ValueDeserialised):
     prop_name: str
     prop_value: str
-    comments: str | None
 
 
 @dataclass
@@ -39,11 +37,9 @@ class ListValueDeserialised(ValueDeserialised):
     prop_name: str
     prop_value: str
     list_name: str
-    comments: str | None
 
 
 @dataclass
 class LinkValueDeserialised(ValueDeserialised):
     prop_name: str
     prop_value: str
-    comments: str | None

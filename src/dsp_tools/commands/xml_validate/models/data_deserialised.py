@@ -35,13 +35,6 @@ class SimpleTextValueDeserialised(ValueDeserialised):
 
 
 @dataclass
-class RichtextValueDeserialised(ValueDeserialised):
-    prop_name: str
-    prop_value: str
-    comments: str | None
-
-
-@dataclass
 class ListValueDeserialised(ValueDeserialised):
     prop_name: str
     prop_value: str

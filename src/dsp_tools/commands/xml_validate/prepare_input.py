@@ -7,7 +7,6 @@ from dsp_tools.commands.xml_validate.models.data_deserialised import LinkValueDe
 from dsp_tools.commands.xml_validate.models.data_deserialised import ListValueDeserialised
 from dsp_tools.commands.xml_validate.models.data_deserialised import ProjectDeserialised
 from dsp_tools.commands.xml_validate.models.data_deserialised import ResourceDeserialised
-from dsp_tools.commands.xml_validate.models.data_deserialised import RichtextValueDeserialised
 from dsp_tools.commands.xml_validate.models.data_deserialised import SimpleTextValueDeserialised
 from dsp_tools.commands.xml_validate.models.data_deserialised import ValueDeserialised
 from dsp_tools.utils.xml_utils import parse_and_clean_xml_file
@@ -67,8 +66,8 @@ def _deserialise_text_prop(prop: etree._Element) -> list[ValueDeserialised]:
         match child.attrib["encoding"]:
             case "utf8":
                 all_vals.append(SimpleTextValueDeserialised(prop_name=prop_name, prop_value=val, comments=comments))
-            case "xml":
-                all_vals.append(RichtextValueDeserialised(prop_name=prop_name, prop_value=val, comments=comments))
+            case _:
+                pass
     return all_vals
 
 

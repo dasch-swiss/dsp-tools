@@ -13,12 +13,12 @@ class ListDeserialised:
 
 @dataclass
 class ProjectDeserialised:
-    resources: list[ResourceDeserialised]
+    resources: list[ResourceClass]
     properties: list[Property]
 
 
 @dataclass
-class ResourceDeserialised:
+class ResourceClass:
     cls_id: str
     restrictions: dict[str, Cardinality]
 
@@ -47,7 +47,7 @@ class Property(Protocol):
 
 
 @dataclass
-class ListProperty(Property):
+class ListValueProperty(Property):
     prop_name: str
     list_name: str | None
     nodes: list[str]
@@ -67,7 +67,7 @@ class SimpleTextProperty(Property):
 
 
 @dataclass
-class LinkProperty(Property):
+class LinkValueProperty(Property):
     prop_name: str
     objectType: set[str]
 

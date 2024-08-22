@@ -12,9 +12,9 @@ from dsp_tools.commands.xml_validate.deserialise_project import _extract_all_ont
 from dsp_tools.commands.xml_validate.deserialise_project import _extract_resources
 from dsp_tools.commands.xml_validate.deserialise_project import _get_subclasses
 from dsp_tools.commands.xml_validate.models.project_deserialised import CardinalityOne
-from dsp_tools.commands.xml_validate.models.project_deserialised import LinkProperty
+from dsp_tools.commands.xml_validate.models.project_deserialised import LinkValueProperty
 from dsp_tools.commands.xml_validate.models.project_deserialised import ListDeserialised
-from dsp_tools.commands.xml_validate.models.project_deserialised import ListProperty
+from dsp_tools.commands.xml_validate.models.project_deserialised import ListValueProperty
 from dsp_tools.commands.xml_validate.models.project_deserialised import SimpleTextProperty
 
 
@@ -59,14 +59,14 @@ class TestDeserialiseProperties:
 
     def test_deserialise_list_prop(self, list_prop: dict[str, Any], list_deserialised: ListDeserialised) -> None:
         result = _deserialise_list_prop(list_prop, list_deserialised)
-        assert isinstance(result, ListProperty)
+        assert isinstance(result, ListValueProperty)
         assert result.prop_name == "onto:listProp"
         assert result.list_name == "onlyList"
         assert set(result.nodes) == {"n1", "n1.1", "n1.1.1"}
 
     def test_deserialise_link_prop(self, link_prop: dict[str, Any], subclass_dict: dict[str, set[str]]) -> None:
         result = _deserialise_link_prop(link_prop, subclass_dict)
-        assert isinstance(result, LinkProperty)
+        assert isinstance(result, LinkValueProperty)
         assert result.prop_name == "onto:linkProp"
         assert result.objectType == {"onto:CardOneResource", "onto:SubClass"}
 

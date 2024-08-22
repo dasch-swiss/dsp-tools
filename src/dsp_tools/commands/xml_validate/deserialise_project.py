@@ -6,12 +6,12 @@ from typing import Any
 from dsp_tools.commands.xml_validate.models.project_deserialised import Cardinality
 from dsp_tools.commands.xml_validate.models.project_deserialised import CardinalityOne
 from dsp_tools.commands.xml_validate.models.project_deserialised import CardinalityZeroToN
-from dsp_tools.commands.xml_validate.models.project_deserialised import LinkProperty
+from dsp_tools.commands.xml_validate.models.project_deserialised import LinkValueProperty
 from dsp_tools.commands.xml_validate.models.project_deserialised import ListDeserialised
-from dsp_tools.commands.xml_validate.models.project_deserialised import ListProperty
+from dsp_tools.commands.xml_validate.models.project_deserialised import ListValueProperty
 from dsp_tools.commands.xml_validate.models.project_deserialised import ProjectDeserialised
 from dsp_tools.commands.xml_validate.models.project_deserialised import Property
-from dsp_tools.commands.xml_validate.models.project_deserialised import ResourceDeserialised
+from dsp_tools.commands.xml_validate.models.project_deserialised import ResourceClass
 from dsp_tools.commands.xml_validate.models.project_deserialised import SimpleTextProperty
 
 
@@ -57,7 +57,7 @@ def _process_child_nodes(node: dict[str, Any]) -> list[str]:
     return children
 
 
-def _deserialise_resources(onto: list[dict[str, Any]]) -> list[ResourceDeserialised]:
+def _deserialise_resources(onto: list[dict[str, Any]]) -> list[ResourceClass]:
     only_res = _extract_resources(onto)
     return [_deserialise_one_resource(x) for x in only_res]
 
@@ -66,9 +66,9 @@ def _extract_resources(onto: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return [x for x in onto if x.get("knora-api:isResourceClass")]
 
 
-def _deserialise_one_resource(res: dict[str, Any]) -> ResourceDeserialised:
+def _deserialise_one_resource(res: dict[str, Any]) -> ResourceClass:
     cards = _deserialise_restrictions(res["rdfs:subClassOf"])
-    return ResourceDeserialised(cls_id=res["@id"], restrictions=cards)
+    return ResourceClass(cls_id=res["@id"], restrictions=cards)
 
 
 def _deserialise_restrictions(sub_class_bns: list[dict[str, Any]]) -> dict[str, Cardinality]:
@@ -135,13 +135,13 @@ def _deserialise_simple_text_prop(prop: dict[str, Any]) -> SimpleTextProperty:
     return SimpleTextProperty(prop_name=prop["@id"])
 
 
-def _deserialise_list_prop(prop: dict[str, Any], list_lookup: ListDeserialised) -> ListProperty:
+def _deserialise_list_prop(prop: dict[str, Any], list_lookup: ListDeserialised) -> ListValueProperty:
     # This is written as if only one list exists. The lookup would have to be designed to hold several lists.
     hlist = prop["salsah-gui:guiAttribute"].replace("hlist=<", "").rstrip(">")
     if not hlist == list_lookup.iri:
-        return ListProperty(prop_name=prop["@id"], list_name=None, nodes=[])
-    return ListProperty(prop_name=prop["@id"], list_name=list_lookup.list_name, nodes=list_lookup.nodes)
+        return ListValueProperty(prop_name=prop["@id"], list_name=None, nodes=[])
+    return ListValueProperty(prop_name=prop["@id"], list_name=list_lookup.list_name, nodes=list_lookup.nodes)
 
 
-def _deserialise_link_prop(prop: dict[str, Any], supers: dict[str, set[str]]) -> LinkProperty:
-    return LinkProperty(prop_name=prop["@id"], objectType=supers[prop["knora-api:objectType"]["@id"]])
+def _deserialise_link_prop(prop: dict[str, Any], supers: dict[str, set[str]]) -> LinkValueProperty:
+    return LinkValueProperty(prop_name=prop["@id"], objectType=supers[prop["knora-api:objectType"]["@id"]])

@@ -3,9 +3,9 @@ from typing import cast
 
 from lxml import etree
 
+from dsp_tools.commands.xml_validate.models.data_deserialised import DataDeserialised
 from dsp_tools.commands.xml_validate.models.data_deserialised import LinkValueDeserialised
 from dsp_tools.commands.xml_validate.models.data_deserialised import ListValueDeserialised
-from dsp_tools.commands.xml_validate.models.data_deserialised import ProjectDeserialised
 from dsp_tools.commands.xml_validate.models.data_deserialised import ResourceDeserialised
 from dsp_tools.commands.xml_validate.models.data_deserialised import SimpleTextValueDeserialised
 from dsp_tools.commands.xml_validate.models.data_deserialised import ValueDeserialised
@@ -13,7 +13,7 @@ from dsp_tools.utils.xml_utils import parse_and_clean_xml_file
 from dsp_tools.utils.xml_validation import validate_xml
 
 
-def parse_file(file: Path) -> ProjectDeserialised:
+def parse_file(file: Path) -> DataDeserialised:
     """Returns an object which follows the structure of the XML closely"""
     root = _parse_file_validate_with_schema(file)
     return _transform_into_project_deserialised(root)
@@ -25,11 +25,11 @@ def _parse_file_validate_with_schema(file: Path) -> etree._Element:
     return root
 
 
-def _transform_into_project_deserialised(root: etree._Element) -> ProjectDeserialised:
+def _transform_into_project_deserialised(root: etree._Element) -> DataDeserialised:
     shortcode = root.attrib["shortcode"]
     default_ontology = root.attrib["default-ontology"]
     resources = [_deserialise_one_resource(x) for x in root.iterdescendants(tag="resource")]
-    return ProjectDeserialised(shortcode=shortcode, default_onto=default_ontology, resources=resources)
+    return DataDeserialised(shortcode=shortcode, default_onto=default_ontology, resources=resources)
 
 
 def _deserialise_one_resource(resource: etree._Element) -> ResourceDeserialised:
@@ -61,11 +61,10 @@ def _deserialise_text_prop(prop: etree._Element) -> list[ValueDeserialised]:
     prop_name = prop.attrib["name"]
     all_vals: list[ValueDeserialised] = []
     for child in prop.iterchildren():
-        comments = child.attrib.get("comment")
         val = cast(str, child.text)
         match child.attrib["encoding"]:
             case "utf8":
-                all_vals.append(SimpleTextValueDeserialised(prop_name=prop_name, prop_value=val, comments=comments))
+                all_vals.append(SimpleTextValueDeserialised(prop_name=prop_name, prop_value=val))
             case _:
                 pass
     return all_vals
@@ -82,7 +81,6 @@ def _deserialise_list_prop(prop: etree._Element) -> list[ValueDeserialised]:
                 prop_name=prop_name,
                 prop_value=txt,
                 list_name=list_name,
-                comments=val.attrib.get("comment"),
             )
         )
     return all_vals
@@ -97,7 +95,6 @@ def _deserialise_resptr_prop(prop: etree._Element) -> list[ValueDeserialised]:
             LinkValueDeserialised(
                 prop_name=prop_name,
                 prop_value=txt,
-                comments=val.attrib.get("comment"),
             )
         )
     return all_links

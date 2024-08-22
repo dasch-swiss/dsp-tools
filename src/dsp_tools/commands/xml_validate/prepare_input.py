@@ -4,6 +4,7 @@ from typing import cast
 from lxml import etree
 
 from dsp_tools.commands.xml_validate.models.data_deserialised import DataDeserialised
+from dsp_tools.commands.xml_validate.models.data_deserialised import IntValueDeserialised
 from dsp_tools.commands.xml_validate.models.data_deserialised import LinkValueDeserialised
 from dsp_tools.commands.xml_validate.models.data_deserialised import ListValueDeserialised
 from dsp_tools.commands.xml_validate.models.data_deserialised import ResourceDeserialised
@@ -53,6 +54,8 @@ def _deserialise_one_property(prop_ele: etree._Element) -> list[ValueDeserialise
             return _deserialise_list_prop(prop_ele)
         case "resptr-prop":
             return _deserialise_resptr_prop(prop_ele)
+        case "integer-prop":
+            return _deserialise_int_prop(prop_ele)
         case _:
             return []
 
@@ -93,6 +96,20 @@ def _deserialise_resptr_prop(prop: etree._Element) -> list[ValueDeserialised]:
         txt = cast(str, val.text)
         all_links.append(
             LinkValueDeserialised(
+                prop_name=prop_name,
+                prop_value=txt,
+            )
+        )
+    return all_links
+
+
+def _deserialise_int_prop(prop: etree._Element) -> list[ValueDeserialised]:
+    prop_name = prop.attrib["name"]
+    all_links: list[ValueDeserialised] = []
+    for val in prop.iterchildren():
+        txt = cast(str, val.text)
+        all_links.append(
+            IntValueDeserialised(
                 prop_name=prop_name,
                 prop_value=txt,
             )

@@ -32,9 +32,9 @@
 
     <!-- This should be a list prop. -->
     <resource label="Property Type Mismatch" restype=":NormalClass" id="property-type-mismatch">
-        <text-prop name=":listProp">
-            <text encoding="utf8">Content</text>
-        </text-prop>
+        <integer-prop name=":hasSimpleText">
+            <integer>1</integer>
+        </integer-prop>
     </resource>
 
 

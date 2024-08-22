@@ -33,6 +33,12 @@ class SimpleTextValueDeserialised(ValueDeserialised):
 
 
 @dataclass
+class IntValueDeserialised(ValueDeserialised):
+    prop_name: str
+    prop_value: str
+
+
+@dataclass
 class ListValueDeserialised(ValueDeserialised):
     prop_name: str
     prop_value: str

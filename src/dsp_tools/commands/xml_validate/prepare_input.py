@@ -4,12 +4,12 @@ from typing import cast
 from lxml import etree
 
 from dsp_tools.commands.xml_validate.models.data_deserialised import DataDeserialised
-from dsp_tools.commands.xml_validate.models.data_deserialised import DataIntValue
-from dsp_tools.commands.xml_validate.models.data_deserialised import DataLinkValue
-from dsp_tools.commands.xml_validate.models.data_deserialised import DataListValue
-from dsp_tools.commands.xml_validate.models.data_deserialised import DataResource
-from dsp_tools.commands.xml_validate.models.data_deserialised import DataSimpleText
-from dsp_tools.commands.xml_validate.models.data_deserialised import DataValue
+from dsp_tools.commands.xml_validate.models.data_deserialised import IntValueData
+from dsp_tools.commands.xml_validate.models.data_deserialised import LinkValueData
+from dsp_tools.commands.xml_validate.models.data_deserialised import ListValueData
+from dsp_tools.commands.xml_validate.models.data_deserialised import ResourceData
+from dsp_tools.commands.xml_validate.models.data_deserialised import SimpleTextData
+from dsp_tools.commands.xml_validate.models.data_deserialised import ValueData
 from dsp_tools.utils.xml_utils import parse_and_clean_xml_file
 from dsp_tools.utils.xml_validation import validate_xml
 
@@ -33,12 +33,12 @@ def _transform_into_project_deserialised(root: etree._Element) -> DataDeserialis
     return DataDeserialised(shortcode=shortcode, default_onto=default_ontology, resources=resources)
 
 
-def _deserialise_one_resource(resource: etree._Element) -> DataResource:
+def _deserialise_one_resource(resource: etree._Element) -> ResourceData:
     res_id = resource.attrib["id"]
-    values: list[DataValue] = []
+    values: list[ValueData] = []
     for val in resource.iterchildren():
         values.extend(_deserialise_one_property(val))
-    return DataResource(
+    return ResourceData(
         res_id=res_id,
         res_class=resource.attrib["restype"],
         label=resource.attrib["label"],
@@ -46,7 +46,7 @@ def _deserialise_one_resource(resource: etree._Element) -> DataResource:
     )
 
 
-def _deserialise_one_property(prop_ele: etree._Element) -> list[DataValue]:
+def _deserialise_one_property(prop_ele: etree._Element) -> list[ValueData]:
     match prop_ele.tag:
         case "text-prop":
             return _deserialise_text_prop(prop_ele)
@@ -60,27 +60,27 @@ def _deserialise_one_property(prop_ele: etree._Element) -> list[DataValue]:
             return []
 
 
-def _deserialise_text_prop(prop: etree._Element) -> list[DataValue]:
+def _deserialise_text_prop(prop: etree._Element) -> list[ValueData]:
     prop_name = prop.attrib["name"]
-    all_vals: list[DataValue] = []
+    all_vals: list[ValueData] = []
     for child in prop.iterchildren():
         val = cast(str, child.text)
         match child.attrib["encoding"]:
             case "utf8":
-                all_vals.append(DataSimpleText(prop_name=prop_name, prop_value=val))
+                all_vals.append(SimpleTextData(prop_name=prop_name, prop_value=val))
             case _:
                 pass
     return all_vals
 
 
-def _deserialise_list_prop(prop: etree._Element) -> list[DataValue]:
+def _deserialise_list_prop(prop: etree._Element) -> list[ValueData]:
     prop_name = prop.attrib["name"]
     list_name = prop.attrib["list"]
-    all_vals: list[DataValue] = []
+    all_vals: list[ValueData] = []
     for val in prop.iterchildren():
         txt = cast(str, val.text)
         all_vals.append(
-            DataListValue(
+            ListValueData(
                 prop_name=prop_name,
                 prop_value=txt,
                 list_name=list_name,
@@ -89,13 +89,13 @@ def _deserialise_list_prop(prop: etree._Element) -> list[DataValue]:
     return all_vals
 
 
-def _deserialise_resptr_prop(prop: etree._Element) -> list[DataValue]:
+def _deserialise_resptr_prop(prop: etree._Element) -> list[ValueData]:
     prop_name = prop.attrib["name"]
-    all_links: list[DataValue] = []
+    all_links: list[ValueData] = []
     for val in prop.iterchildren():
         txt = cast(str, val.text)
         all_links.append(
-            DataLinkValue(
+            LinkValueData(
                 prop_name=prop_name,
                 prop_value=txt,
             )
@@ -103,13 +103,13 @@ def _deserialise_resptr_prop(prop: etree._Element) -> list[DataValue]:
     return all_links
 
 
-def _deserialise_int_prop(prop: etree._Element) -> list[DataValue]:
+def _deserialise_int_prop(prop: etree._Element) -> list[ValueData]:
     prop_name = prop.attrib["name"]
-    all_links: list[DataValue] = []
+    all_links: list[ValueData] = []
     for val in prop.iterchildren():
         txt = cast(str, val.text)
         all_links.append(
-            DataIntValue(
+            IntValueData(
                 prop_name=prop_name,
                 prop_value=txt,
             )

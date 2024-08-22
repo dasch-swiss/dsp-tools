@@ -28,14 +28,14 @@ class ValueDeserialised(Protocol):
 
 
 @dataclass
-class SimpleTextDeserialised(ValueDeserialised):
+class SimpleTextValueDeserialised(ValueDeserialised):
     prop_name: str
     prop_value: str
     comments: str | None
 
 
 @dataclass
-class RichtextDeserialised(ValueDeserialised):
+class RichtextValueDeserialised(ValueDeserialised):
     prop_name: str
     prop_value: str
     comments: str | None

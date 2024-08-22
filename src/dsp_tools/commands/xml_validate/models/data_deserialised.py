@@ -6,7 +6,7 @@ from typing import Protocol
 
 
 @dataclass
-class DataDeserialised:
+class ProjectDeserialised:
     shortcode: str
     default_onto: str
     resources: list[ResourceDeserialised]
@@ -24,7 +24,6 @@ class ResourceDeserialised:
 class ValueDeserialised(Protocol):
     prop_name: str
     prop_value: Any
-    res_id: str
     comments: str | None
 
 
@@ -32,7 +31,6 @@ class ValueDeserialised(Protocol):
 class SimpleTextValueDeserialised(ValueDeserialised):
     prop_name: str
     prop_value: str
-    res_id: str
     comments: str | None
 
 
@@ -41,7 +39,6 @@ class ListValueDeserialised(ValueDeserialised):
     prop_name: str
     prop_value: str
     list_name: str
-    res_id: str
     comments: str | None
 
 
@@ -49,5 +46,4 @@ class ListValueDeserialised(ValueDeserialised):
 class LinkValueDeserialised(ValueDeserialised):
     prop_name: str
     prop_value: str
-    res_id: str
     comments: str | None

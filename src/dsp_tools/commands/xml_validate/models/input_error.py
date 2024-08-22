@@ -62,11 +62,12 @@ class ResourceErrorCollection:
 class MaxCardinalityViolation:
     res_id: str
     prop_name: str
+    num: int
 
     def get_msg(self) -> str:
         return (
             f"The following property should not be used more than once for one resource:\n"
-            f"{INDENT}Property: {self.prop_name}"
+            f"{INDENT}Property: {self.prop_name} was used {self.num} times."
         )
 
     def sort_value(self) -> str:

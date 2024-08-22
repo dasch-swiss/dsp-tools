@@ -33,7 +33,7 @@ def parsed_xml() -> etree._Element:
 
 
 @pytest.fixture
-def resptr_prop() -> etree._Element:
+def xml_resptr_prop() -> etree._Element:
     return etree.fromstring("""
         <resptr-prop name=":linkProp">
             <resptr>link-id</resptr>
@@ -42,7 +42,7 @@ def resptr_prop() -> etree._Element:
 
 
 @pytest.fixture
-def text_prop() -> etree._Element:
+def xml_text_prop() -> etree._Element:
     return etree.fromstring("""
         <text-prop name=":hasSimpleText">
             <text encoding="utf8" permissions="prop-default">text content</text>
@@ -52,9 +52,36 @@ def text_prop() -> etree._Element:
 
 
 @pytest.fixture
-def list_prop() -> etree._Element:
+def xml_list_prop() -> etree._Element:
     return etree.fromstring("""
         <list-prop name=":listProp" list="onlyList">
             <list>listNode</list>
         </list-prop>
     """)
+
+
+@pytest.fixture
+def onot() -> dict[str, Any]:
+    with open("testdata/xml-validate/from_api/onto.jsonld", "r", encoding="utf-8") as file:
+        f: dict[str, Any] = json.load(file)
+        return f
+
+
+@pytest.fixture
+def one_res_class(onto: dict[str, Any]) -> dict[str, Any]:
+    return next(x for x in onto["graph"] if x.get("@id") == "onto:CardOneResource")
+
+
+@pytest.fixture
+def list_prop(onto: dict[str, Any]) -> dict[str, Any]:
+    return next(x for x in onto["graph"] if x.get("@id") == "onto:listProp")
+
+
+@pytest.fixture
+def link_prop(onto: dict[str, Any]) -> dict[str, Any]:
+    return next(x for x in onto["graph"] if x.get("@id") == "onto:linkProp")
+
+
+@pytest.fixture
+def simpletext_prop(onto: dict[str, Any]) -> dict[str, Any]:
+    return next(x for x in onto["graph"] if x.get("@id") == "onto:hasSimpleText")

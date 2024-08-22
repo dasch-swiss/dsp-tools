@@ -115,7 +115,7 @@ class DspIngestClientLive(AssetClient):
                 else:
                     user_msg = f"{err} See {WARNINGS_SAVEPATH} for more information."
                     print(user_msg)
-                    log_msg = f"{err}. Response status code {res.status_code} '{res.json()}'"
+                    log_msg = f"{err}. Response status code {res.status_code} '{res.text}'"
                     logger.error(log_msg)
                     raise PermanentConnectionError(log_msg)
             except requests.exceptions.RequestException as e:

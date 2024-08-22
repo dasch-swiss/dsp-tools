@@ -3,13 +3,13 @@ from typing import cast
 
 from lxml import etree
 
-from dsp_tools.commands.xml_validate.models.deserialised import LinkValueDeserialised
-from dsp_tools.commands.xml_validate.models.deserialised import ListValueDeserialised
-from dsp_tools.commands.xml_validate.models.deserialised import ProjectDeserialised
-from dsp_tools.commands.xml_validate.models.deserialised import ResourceDeserialised
-from dsp_tools.commands.xml_validate.models.deserialised import RichtextDeserialised
-from dsp_tools.commands.xml_validate.models.deserialised import SimpleTextDeserialised
-from dsp_tools.commands.xml_validate.models.deserialised import ValueDeserialised
+from dsp_tools.commands.xml_validate.models.data_deserialised import LinkValueDeserialised
+from dsp_tools.commands.xml_validate.models.data_deserialised import ListValueDeserialised
+from dsp_tools.commands.xml_validate.models.data_deserialised import ProjectDeserialised
+from dsp_tools.commands.xml_validate.models.data_deserialised import ResourceDeserialised
+from dsp_tools.commands.xml_validate.models.data_deserialised import RichtextValueDeserialised
+from dsp_tools.commands.xml_validate.models.data_deserialised import SimpleTextValueDeserialised
+from dsp_tools.commands.xml_validate.models.data_deserialised import ValueDeserialised
 from dsp_tools.utils.xml_utils import parse_and_clean_xml_file
 from dsp_tools.utils.xml_validation import validate_xml
 
@@ -66,9 +66,9 @@ def _deserialise_text_prop(prop: etree._Element) -> list[ValueDeserialised]:
         val = cast(str, child.text)
         match child.attrib["encoding"]:
             case "utf8":
-                all_vals.append(SimpleTextDeserialised(prop_name=prop_name, prop_value=val, comments=comments))
+                all_vals.append(SimpleTextValueDeserialised(prop_name=prop_name, prop_value=val, comments=comments))
             case "xml":
-                all_vals.append(RichtextDeserialised(prop_name=prop_name, prop_value=val, comments=comments))
+                all_vals.append(RichtextValueDeserialised(prop_name=prop_name, prop_value=val, comments=comments))
     return all_vals
 
 

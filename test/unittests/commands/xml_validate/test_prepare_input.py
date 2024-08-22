@@ -1,9 +1,9 @@
 import pytest
 from lxml import etree
 
-from dsp_tools.commands.xml_validate.models.deserialised import LinkValueDeserialised
-from dsp_tools.commands.xml_validate.models.deserialised import ListValueDeserialised
-from dsp_tools.commands.xml_validate.models.deserialised import SimpleTextDeserialised
+from dsp_tools.commands.xml_validate.models.data_deserialised import LinkValueDeserialised
+from dsp_tools.commands.xml_validate.models.data_deserialised import ListValueDeserialised
+from dsp_tools.commands.xml_validate.models.data_deserialised import SimpleTextValueDeserialised
 from dsp_tools.commands.xml_validate.prepare_input import _deserialise_list_prop
 from dsp_tools.commands.xml_validate.prepare_input import _deserialise_resptr_prop
 from dsp_tools.commands.xml_validate.prepare_input import _deserialise_text_prop
@@ -38,12 +38,12 @@ def test_deserialise_text_prop(xml_text_prop: etree._Element) -> None:
     assert len(result) == 2
     sorted_res = sorted(result, key=lambda x: x.prop_value)
     one = sorted_res[0]
-    assert isinstance(one, SimpleTextDeserialised)
+    assert isinstance(one, SimpleTextValueDeserialised)
     assert one.prop_name == ":hasSimpleText"
     assert one.prop_value == "text content"
     assert not one.comments
     two = sorted_res[1]
-    assert isinstance(two, SimpleTextDeserialised)
+    assert isinstance(two, SimpleTextValueDeserialised)
     assert two.prop_name == ":hasSimpleText"
     assert two.prop_value == "text content 2"
     assert two.comments == "Comment"

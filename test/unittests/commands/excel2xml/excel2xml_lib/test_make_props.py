@@ -212,16 +212,6 @@ class TestPropsGeneral(unittest.TestCase):
         invalid_values = [" 10.3 ", "text", ["text"]]
         self.run_test(prop, method, [int(x) for x in different_values], invalid_values)
 
-    def test_make_interval_prop(self) -> None:
-        different_values = ["0.1:5", "10:20", "1.5:2.5"]
-        for val in different_values:
-            output = excel2xml.make_interval_prop("hasSegmentBounds", val)
-            self.assertEqual(output[0].text, val)
-        invalid_values = ["text", 10.0, ["text"], "10:", ":1", "-.1:5", "-10.0:-5.1"]
-        for inv in invalid_values:
-            with self.assertWarns(Warning):
-                excel2xml.make_interval_prop("hasSegmentBounds", inv)  # type: ignore[arg-type]
-
     def test_make_list_prop(self) -> None:
         prop = "list"
         method = excel2xml.make_list_prop
@@ -484,3 +474,159 @@ class TestBitstreamProp:
         assert res.tag.endswith("bitstream")
         assert res.attrib["permissions"] == "prop-default"
         assert res.text == "foo/bar/baz.txt"
+
+
+@pytest.mark.parametrize(
+    ("tag", "func"),
+    [("isSegmentOf", excel2xml.make_isSegmentOf_prop), ("relatesTo", excel2xml.make_relatesTo_prop)],
+)
+class Test_isSegmentOf_and_relatesTo_Prop:
+    def test_defaults(self, tag: str, func: Callable[..., etree._Element]) -> None:
+        res = func("target_id")
+        assert res.tag.endswith(tag)
+        assert res.attrib["permissions"] == "prop-default"
+        assert "comment" not in res.attrib
+        assert res.text == "target_id"
+
+    def test_custom_params(self, tag: str, func: Callable[..., etree._Element]) -> None:
+        res = func("target_id", "prop-restricted", "my comment")
+        assert res.tag.endswith(tag)
+        assert res.attrib["permissions"] == "prop-restricted"
+        assert res.attrib["comment"] == "my comment"
+        assert res.text == "target_id"
+
+    def test_invalid(self, tag: str, func: Callable[..., etree._Element]) -> None:
+        with pytest.warns(DspToolsUserWarning):
+            res = func("<NA>")
+        assert res.tag.endswith(tag)
+        assert res.attrib["permissions"] == "prop-default"
+        assert "comment" not in res.attrib
+        assert res.text == "<NA>"
+
+
+class Test_hasSegmentBounds_Prop:
+    def test_defaults(self) -> None:
+        res = excel2xml.make_hasSegmentBounds_prop(100, 200)
+        assert res.tag.endswith("hasSegmentBounds")
+        assert res.attrib["permissions"] == "prop-default"
+        assert "comment" not in res.attrib
+        assert res.attrib["segment_start"] == "100"
+        assert res.attrib["segment_end"] == "200"
+        assert res.text is None
+
+    def test_custom_params(self) -> None:
+        res = excel2xml.make_hasSegmentBounds_prop(10, 20, "prop-restricted", "my comment")
+        assert res.tag.endswith("hasSegmentBounds")
+        assert res.attrib["permissions"] == "prop-restricted"
+        assert res.attrib["comment"] == "my comment"
+        assert res.attrib["segment_start"] == "10"
+        assert res.attrib["segment_end"] == "20"
+        assert res.text is None
+
+    def test_floats(self) -> None:
+        res = excel2xml.make_hasSegmentBounds_prop(1.2, 3.4)
+        assert res.tag.endswith("hasSegmentBounds")
+        assert res.attrib["permissions"] == "prop-default"
+        assert "comment" not in res.attrib
+        assert res.attrib["segment_start"] == "1.2"
+        assert res.attrib["segment_end"] == "3.4"
+        assert res.text is None
+
+    def test_nums_as_strings(self) -> None:
+        res = excel2xml.make_hasSegmentBounds_prop("1.2", "3")  # type: ignore[arg-type]
+        assert res.tag.endswith("hasSegmentBounds")
+        assert res.attrib["permissions"] == "prop-default"
+        assert "comment" not in res.attrib
+        assert res.attrib["segment_start"] == "1.2"
+        assert res.attrib["segment_end"] == "3.0"  # silent conversion to float is okay, since the db stores it that way
+        assert res.text is None
+
+    def test_start_less_than_end(self) -> None:
+        with pytest.warns(DspToolsUserWarning, match="must be less than"):
+            res = excel2xml.make_hasSegmentBounds_prop(5, 3)
+        assert res.tag.endswith("hasSegmentBounds")
+        assert res.attrib["permissions"] == "prop-default"
+        assert "comment" not in res.attrib
+        assert res.attrib["segment_start"] == "5"
+        assert res.attrib["segment_end"] == "3"
+        assert res.text is None
+
+    def test_not_a_number(self) -> None:
+        with pytest.warns(DspToolsUserWarning, match="must be integers or floats"):
+            res = excel2xml.make_hasSegmentBounds_prop(segment_start="foo", segment_end=2)  # type: ignore[arg-type]
+        assert res.tag.endswith("hasSegmentBounds")
+        assert res.attrib["permissions"] == "prop-default"
+        assert "comment" not in res.attrib
+        assert res.attrib["segment_start"] == "foo"
+        assert res.attrib["segment_end"] == "2"
+        assert res.text is None
+
+
+@pytest.mark.parametrize(
+    ("tag", "func"),
+    [("hasTitle", excel2xml.make_hasTitle_prop), ("hasKeyword", excel2xml.make_hasKeyword_prop)],
+)
+class Test_hasTitle_hasKeyword:
+    def test_defaults(self, tag: str, func: Callable[..., etree._Element]) -> None:
+        res = func("my text ...")
+        assert res.tag.endswith(tag)
+        assert res.attrib["permissions"] == "prop-default"
+        assert "comment" not in res.attrib
+        assert res.text == "my text ..."
+
+    def test_custom_params(self, tag: str, func: Callable[..., etree._Element]) -> None:
+        res = func("my text ...", "prop-restricted", "my comment")
+        assert res.tag.endswith(tag)
+        assert res.attrib["permissions"] == "prop-restricted"
+        assert res.attrib["comment"] == "my comment"
+        assert res.text == "my text ..."
+
+    def test_invalid(self, tag: str, func: Callable[..., etree._Element]) -> None:
+        with pytest.warns(DspToolsUserWarning):
+            res = func("<NA>")
+        assert res.tag.endswith(tag)
+        assert res.attrib["permissions"] == "prop-default"
+        assert "comment" not in res.attrib
+        assert res.text == "<NA>"
+
+
+@pytest.mark.parametrize(
+    ("tag", "func"),
+    [("hasComment", excel2xml.make_hasComment_prop), ("hasDescription", excel2xml.make_hasDescription_prop)],
+)
+class Test_hasComment_hasDescription:
+    def test_defaults(self, tag: str, func: Callable[..., etree._Element]) -> None:
+        res = func("my text ...")
+        assert res.tag.endswith(tag)
+        assert res.attrib["permissions"] == "prop-default"
+        assert "comment" not in res.attrib
+        assert res.text == "my text ..."
+
+    def test_custom_params(self, tag: str, func: Callable[..., etree._Element]) -> None:
+        res = func("my text ...", "prop-restricted", "my comment")
+        assert res.tag.endswith(tag)
+        assert res.attrib["permissions"] == "prop-restricted"
+        assert res.attrib["comment"] == "my comment"
+        assert res.text == "my text ..."
+
+    def test_invalid(self, tag: str, func: Callable[..., etree._Element]) -> None:
+        with pytest.warns(DspToolsUserWarning):
+            res = func("<NA>")
+        assert res.tag.endswith(tag)
+        assert res.attrib["permissions"] == "prop-default"
+        assert "comment" not in res.attrib
+        assert res.text == "<NA>"
+
+    def test_richtext(self, tag: str, func: Callable[..., etree._Element]) -> None:
+        text = "<p>my <strong>bold <em>and italiziced</em></strong> text ...</p>"
+        res = func(text)
+        assert res.tag.endswith(tag)
+        assert res.attrib["permissions"] == "prop-default"
+        assert "comment" not in res.attrib
+        serialized_text = regex.sub(rf"<ns0:{tag} .+?>|</ns0:{tag}>", "", etree.tostring(res, encoding="unicode"))
+        assert serialized_text == text
+
+    def test_invalid_richtext(self, tag: str, func: Callable[..., etree._Element]) -> None:  # noqa: ARG002 (unused arg)
+        text = "<p> my <pseudo> & xml </>"
+        with pytest.raises(BaseError, match=regex.escape("must be well-formed")):
+            func(text)

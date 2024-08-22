@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<knora xmlns="https://dasch.swiss/schema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://dasch.swiss/schema https://raw.githubusercontent.com/dasch-swiss/dsp-tools/main/src/dsp_tools/resources/schema/data.xsd"
+       shortcode="9999"
+       default-ontology="onto">
+
+    <!--
+        This file contains data that is more complex, especially with regard to inheritance.
+        For this to succeed, some additional logic may have to be applied to the ontology received from the API.
+     -->
+
+
+    <!--
+        This cardinality restriction is inherited from the superclass.
+        The example is correct and should not appear on the error report.
+    -->
+    <resource label="Inherited good cardinality" restype=":SubClass" id="inherited-cardinality-correct">
+        <text-prop name=":hasSimpleText">
+            <text encoding="utf8">Text Value One</text>
+        </text-prop>
+    </resource>
+
+    <!--
+        This is correct and should not appear in the validation errors,
+        because the ObjectClassConstraint is the superclass of :SubClass
+    -->
+
+    <resource label="Target Link Class Correct" restype=":NormalClass" id="link-value-correct">
+        <resptr-prop name=":linkProp">
+            <resptr>inherited-cardinality-correct</resptr>
+        </resptr-prop>
+    </resource>
+
+</knora>

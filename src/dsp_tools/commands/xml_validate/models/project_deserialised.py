@@ -20,7 +20,6 @@ class ProjectDeserialised:
 @dataclass
 class ResourceDeserialised:
     cls_id: str
-    subClassOf: list[str]
     restrictions: dict[str, Cardinality]
 
 

@@ -10,6 +10,7 @@ from dsp_tools.commands.xml_validate.deserialise_project import _deserialise_oth
 from dsp_tools.commands.xml_validate.deserialise_project import _deserialise_restrictions
 from dsp_tools.commands.xml_validate.deserialise_project import _extract_all_onto_properties
 from dsp_tools.commands.xml_validate.deserialise_project import _extract_resources
+from dsp_tools.commands.xml_validate.deserialise_project import _get_subclasses
 from dsp_tools.commands.xml_validate.models.project_deserialised import CardinalityOne
 from dsp_tools.commands.xml_validate.models.project_deserialised import LinkProperty
 from dsp_tools.commands.xml_validate.models.project_deserialised import ListDeserialised
@@ -24,19 +25,18 @@ def test_deserialise_lists(list_from_api: dict[str, Any]) -> None:
 
 
 class TestDeserialiseResource:
-    def test_extract_resources(self, onto_json: dict[str, Any]) -> None:
+    def test_extract_resources(self, onto_json: list[dict[str, Any]]) -> None:
         assert len(_extract_resources(onto_json)) == 3
 
     def test_deserialise_one_resource(self, one_res_class: dict[str, Any]) -> None:
         result = _deserialise_one_resource(one_res_class)
-        assert result.cls_id == "onto:CardOneResource"
-        assert result.subClassOf == ["knora-api:Resource"]
+        assert result.cls_id == "onto:SubClass"
         assert len(result.restrictions) == 1
 
     def test_deserialise_restrictions(self, one_res_class: dict[str, Any]) -> None:
         result = _deserialise_restrictions(one_res_class["rdfs:subClassOf"])
         assert len(result) == 1
-        restriction = result[0]
+        restriction = result["onto:hasSimpleText"]
         assert isinstance(restriction, CardinalityOne)
         assert restriction.onProperty == "onto:hasSimpleText"
 
@@ -47,11 +47,11 @@ class TestDeserialiseProperties:
         assert isinstance(result, SimpleTextProperty)
         assert result.prop_name == "onto:hasSimpleText"
 
-    def test_deserialise_other_property_none(self, link_prop: dict[str, Any], list_prop: dict[str, Any]):
+    def test_deserialise_other_property_none(self, link_prop: dict[str, Any], list_prop: dict[str, Any]) -> None:
         assert not _deserialise_other_property(link_prop)
         assert not _deserialise_other_property(list_prop)
 
-    def test_extract_all_onto_properties(self, onto_json: dict[str, Any]) -> None:
+    def test_extract_all_onto_properties(self, onto_json: list[dict[str, Any]]) -> None:
         result = _extract_all_onto_properties(
             onto_json,
         )
@@ -64,13 +64,22 @@ class TestDeserialiseProperties:
         assert result.list_name == "onlyList"
         assert set(result.nodes) == {"n1", "n1.1", "n1.1.1"}
 
-    def test_deserialise_link_prop(self, link_prop: dict[str, Any], list_deserialised: ListDeserialised) -> None:
-        result = _deserialise_link_prop(
-            link_prop,
-        )
+    def test_deserialise_link_prop(self, link_prop: dict[str, Any], subclass_dict: dict[str, set[str]]) -> None:
+        result = _deserialise_link_prop(link_prop, subclass_dict)
         assert isinstance(result, LinkProperty)
         assert result.prop_name == "onto:linkProp"
         assert result.objectType == {"onto:CardOneResource", "onto:SubClass"}
+
+
+def test_get_subclasses(onto_json: list[dict[str, Any]]) -> None:
+    result = _get_subclasses(onto_json)
+    expected = {
+        "onto:CardOneResource": {"onto:CardOneResource", "onto:SubClass"},
+        "onto:NormalClass": {"onto:NormalClass"},
+        "onto:SubClass": {"onto:SubClass"},
+        "knora-api:Resource": {"onto:CardOneResource", "onto:SubClass", "onto:NormalClass", "knora-api:Resource"},
+    }
+    assert result == expected
 
 
 if __name__ == "__main__":

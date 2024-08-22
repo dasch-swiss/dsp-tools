@@ -63,9 +63,9 @@ def xml_list_prop() -> etree._Element:
 
 
 @pytest.fixture
-def onto_json() -> dict[str, Any]:
+def onto_json() -> list[dict[str, Any]]:
     with open("testdata/xml-validate/from_api/onto.jsonld", "r", encoding="utf-8") as file:
-        f: dict[str, Any] = json.load(file)
+        f: list[dict[str, Any]] = json.load(file)["@graph"]
         return f
 
 
@@ -77,20 +77,30 @@ def list_deserialised() -> ListDeserialised:
 
 
 @pytest.fixture
-def one_res_class(onto: dict[str, Any]) -> dict[str, Any]:
-    return next(x for x in onto["graph"] if x.get("@id") == "onto:CardOneResource")
+def subclass_dict() -> dict[str, set[str]]:
+    return {
+        "onto:CardOneResource": {"onto:CardOneResource", "onto:SubClass"},
+        "onto:NormalClass": {"onto:NormalClass"},
+        "onto:SubClass": {"onto:CardOneResource"},
+        "knora-api:Resource": {"onto:CardOneResource", "onto:SubClass", "onto:NormalClass"},
+    }
 
 
 @pytest.fixture
-def list_prop(onto: dict[str, Any]) -> dict[str, Any]:
-    return next(x for x in onto["graph"] if x.get("@id") == "onto:listProp")
+def one_res_class(onto_json: list[dict[str, Any]]) -> dict[str, Any]:
+    return next(x for x in onto_json if x.get("@id") == "onto:SubClass")
 
 
 @pytest.fixture
-def link_prop(onto: dict[str, Any]) -> dict[str, Any]:
-    return next(x for x in onto["graph"] if x.get("@id") == "onto:linkProp")
+def list_prop(onto_json: list[dict[str, Any]]) -> dict[str, Any]:
+    return next(x for x in onto_json if x.get("@id") == "onto:listProp")
 
 
 @pytest.fixture
-def simpletext_prop(onto: dict[str, Any]) -> dict[str, Any]:
-    return next(x for x in onto["graph"] if x.get("@id") == "onto:hasSimpleText")
+def link_prop(onto_json: list[dict[str, Any]]) -> dict[str, Any]:
+    return next(x for x in onto_json if x.get("@id") == "onto:linkProp")
+
+
+@pytest.fixture
+def simpletext_prop(onto_json: list[dict[str, Any]]) -> dict[str, Any]:
+    return next(x for x in onto_json if x.get("@id") == "onto:hasSimpleText")

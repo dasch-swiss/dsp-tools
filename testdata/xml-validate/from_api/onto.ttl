@@ -13,7 +13,7 @@ onto:listProp
   knora-api:isEditable         true ;
   knora-api:isResourceProperty true ;
   knora-api:objectType         knora-api:ListValue ;
-  salsah-gui:guiAttribute      "hlist=<http://rdfh.ch/lists/9999/klgwHOJeRqCTudNpUJHKww>" ;
+  salsah-gui:guiAttribute      "hlist=<http://rdfh.ch/lists/9999/trTKqD1uTPe7VSswMcaLSQ>" ;
   salsah-gui:guiElement        salsah-gui:List .
 
 onto:linkPropValue

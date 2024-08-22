@@ -4,6 +4,8 @@ from typing import Any
 import pytest
 from lxml import etree
 
+from dsp_tools.commands.xml_validate.models.project_deserialised import ListDeserialised
+
 
 @pytest.fixture
 def list_from_api() -> dict[str, Any]:
@@ -65,6 +67,13 @@ def onto_json() -> dict[str, Any]:
     with open("testdata/xml-validate/from_api/onto.jsonld", "r", encoding="utf-8") as file:
         f: dict[str, Any] = json.load(file)
         return f
+
+
+@pytest.fixture
+def list_deserialised() -> ListDeserialised:
+    return ListDeserialised(
+        list_name="onlyList", iri="http://rdfh.ch/lists/9999/trTKqD1uTPe7VSswMcaLSQ", nodes=["n1", "n1.1", "n1.1.1"]
+    )
 
 
 @pytest.fixture

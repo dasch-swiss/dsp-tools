@@ -35,7 +35,7 @@ class CardinalityOne(Cardinality):
 
 
 @dataclass
-class CardinalityMaxOne(Cardinality):
+class CardinalityZeroToN(Cardinality):
     onProperty: str
 
 
@@ -53,7 +53,8 @@ class ListProperty(Property):
 
 @dataclass
 class SimpleTextProperty(Property):
-    # there are gui-attributes (eg. max-length) that are not considered in this test
+    # there are gui-attributes (eg. max-length) that are not considered in this test,
+    # but should be included in the final code
     prop_name: str
 
 

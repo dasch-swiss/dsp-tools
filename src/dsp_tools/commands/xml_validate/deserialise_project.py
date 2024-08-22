@@ -1,6 +1,7 @@
 import json
 from typing import Any
 
+from dsp_tools.commands.xml_validate.models.project_deserialised import Cardinality
 from dsp_tools.commands.xml_validate.models.project_deserialised import LinkProperty
 from dsp_tools.commands.xml_validate.models.project_deserialised import ListDeserialised
 from dsp_tools.commands.xml_validate.models.project_deserialised import ListProperty
@@ -60,6 +61,10 @@ def _extract_resources(onto: dict[str, Any]) -> list[dict[str, Any]]:
 
 
 def _deserialise_one_resource(res: dict[str, Any]) -> ResourceDeserialised:
+    pass
+
+
+def _deserialise_restrictions(restrictions: list[dict[str, Any]]) -> list[Cardinality]:
     pass
 
 

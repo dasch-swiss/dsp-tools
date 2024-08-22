@@ -1,4 +1,3 @@
-import unicodedata
 import urllib
 from pathlib import Path
 
@@ -31,7 +30,7 @@ def tmp_file(tmp_path: Path) -> Path:
 
 
 def _make_url(dsp_ingest_url: str, shortcode: str, file: Path) -> str:
-    filename = urllib.parse.quote(unicodedata.normalize("NFKD", file.name))
+    filename = urllib.parse.quote(file.name)
     return f"{dsp_ingest_url}/projects/{shortcode}/assets/ingest/{filename}"
 
 

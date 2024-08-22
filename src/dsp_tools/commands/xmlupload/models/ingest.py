@@ -1,4 +1,3 @@
-import unicodedata
 import urllib
 from dataclasses import dataclass
 from dataclasses import field
@@ -94,7 +93,7 @@ class DspIngestClientLive(AssetClient):
         Returns:
             IngestResponse: The internal filename of the uploaded file.
         """
-        filename = urllib.parse.quote(unicodedata.normalize("NFKD", filepath.name))
+        filename = urllib.parse.quote(filepath.name)
         url = f"{self.dsp_ingest_url}/projects/{self.shortcode}/assets/ingest/{filename}"
         headers = {"Authorization": f"Bearer {self.token}", "Content-Type": "application/octet-stream"}
         timeout = 60

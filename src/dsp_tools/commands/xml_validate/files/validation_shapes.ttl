@@ -14,12 +14,12 @@
 knora-api:IntValue a owl:Class .
 
 val-shapes:IntValue_Shape
-  a           sh:NodeShape ;
-  sh:name     "Object of IntValue" ;
-  sh:message  "must be a valid integer" ;
+  a              sh:NodeShape ;
+  sh:name        "Object of IntValue" ;
+  sh:message     "must be a valid integer" ;
   sh:targetClass knora-api:IntValue ;
-  sh:property val-shapes:intValueAsInt_Shape ;
-  sh:severity sh:Violation .
+  sh:property    val-shapes:intValueAsInt_Shape ;
+  sh:severity    sh:Violation .
 
 
 knora-api:intValueAsInt a owl:DatatypeProperty .
@@ -28,8 +28,8 @@ val-shapes:intValueAsInt_Shape
   a           sh:PropertyShape ;
   sh:name     "Value of intValueAsInt" ;
   sh:message  "must be a valid integer" ;
-  sh:path knora-api:intValueAsInt ;
-  sh:pattern "^\\d+$" ;
+  sh:path     knora-api:intValueAsInt ;
+  sh:pattern  "^\\d+$" ;
   sh:severity sh:Violation .
 
 
@@ -38,11 +38,9 @@ val-shapes:intValueAsInt_Shape
 ########################################
 
 
-
 ########################################
 # ListValue Shape
 ########################################
-
 
 
 ########################################

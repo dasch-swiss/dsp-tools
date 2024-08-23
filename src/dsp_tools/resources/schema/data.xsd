@@ -2,7 +2,9 @@
 <xs:schema xmlns="https://dasch.swiss/schema"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
            targetNamespace="https://dasch.swiss/schema"
-           elementFormDefault="qualified">
+           elementFormDefault="qualified"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           vc:minVersion="1.1">
 
     <!-- nonEmptyString-->
     <xs:simpleType name="nonEmptyString">
@@ -499,7 +501,7 @@
 
     <!-- video-segment tag -->
     <xs:complexType name="video_segment_type">
-        <xs:sequence>
+        <xs:all>
             <xs:element name="isSegmentOf" type="resptr_type" minOccurs="1" maxOccurs="1"/>
             <xs:element name="hasSegmentBounds" type="hasSegmentBounds_type" minOccurs="1" maxOccurs="1"/>
             <xs:element name="hasTitle" type="unformatted_text_type" minOccurs="0" maxOccurs="1"/>
@@ -507,7 +509,7 @@
             <xs:element name="hasDescription" type="formatted_text_type" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="hasKeyword" type="unformatted_text_type" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="relatesTo" type="resptr_type" minOccurs="0" maxOccurs="unbounded"/>
-        </xs:sequence>
+        </xs:all>
         <xs:attribute name="label" type="xs:string" use="required"/>
         <xs:attribute name="id" type="xs:ID" use="required"/>
         <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
@@ -516,7 +518,7 @@
 
     <!-- audio-segment tag -->
     <xs:complexType name="audio_segment_type">
-        <xs:sequence>
+        <xs:all>
             <xs:element name="isSegmentOf" type="resptr_type" minOccurs="1" maxOccurs="1"/>
             <xs:element name="hasSegmentBounds" type="hasSegmentBounds_type" minOccurs="1" maxOccurs="1"/>
             <xs:element name="hasTitle" type="unformatted_text_type" minOccurs="0" maxOccurs="1"/>
@@ -524,7 +526,7 @@
             <xs:element name="hasDescription" type="formatted_text_type" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="hasKeyword" type="unformatted_text_type" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="relatesTo" type="resptr_type" minOccurs="0" maxOccurs="unbounded"/>
-        </xs:sequence>
+        </xs:all>
         <xs:attribute name="label" type="xs:string" use="required"/>
         <xs:attribute name="id" type="xs:ID" use="required"/>
         <xs:attribute name="permissions" type="xs:NCName" use="optional"/>
@@ -596,18 +598,8 @@
                             <xs:field xpath="@name"/>
                         </xs:unique>
                     </xs:element>
-                    <xs:element name="video-segment" type="video_segment_type" minOccurs="0" maxOccurs="unbounded">
-                        <xs:unique name="UniqueNameAttr_VideoSegment">
-                            <xs:selector xpath=".//*"/>
-                            <xs:field xpath="@name"/>
-                        </xs:unique>
-                    </xs:element>
-                    <xs:element name="audio-segment" type="audio_segment_type" minOccurs="0" maxOccurs="unbounded">
-                        <xs:unique name="UniqueNameAttr_AudioSegment">
-                            <xs:selector xpath=".//*"/>
-                            <xs:field xpath="@name"/>
-                        </xs:unique>
-                    </xs:element>
+                    <xs:element name="video-segment" type="video_segment_type" minOccurs="0" maxOccurs="unbounded"/>
+                    <xs:element name="audio-segment" type="audio_segment_type" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:choice>
             </xs:sequence>
             <xs:attribute name="default-ontology" type="xs:string"/>

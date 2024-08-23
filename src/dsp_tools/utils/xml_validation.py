@@ -6,6 +6,7 @@ from datetime import datetime
 from pathlib import Path
 
 import regex
+import xmlschema
 from loguru import logger
 from lxml import etree
 
@@ -38,27 +39,10 @@ def validate_xml_file(input_file: Path | str) -> bool:
     """
     root = parse_xml_file(input_file)
     data_xml = remove_comments_from_element_tree(root)
-    return validate_xml(data_xml)
-
-
-def validate_xml(xml: etree._Element) -> bool:
-    """
-    Validates an XML element tree against the DSP XSD schema.
-
-    Args:
-        xml: the XML element tree to be validated
-
-    Raises:
-        InputError: if the XML file is invalid
-
-    Returns:
-        True if the XML file is valid
-    """
-    xml_no_namespace = remove_namespaces_from_xml(xml)
+    xml_no_namespace = remove_namespaces_from_xml(data_xml)
 
     problems = []
-
-    problems.extend(_validate_xml_against_schema(xml))
+    problems.extend(validate_xml_against_schema(input_file))
     problems.extend(_validate_xml_contents(xml_no_namespace))
 
     if problems:
@@ -72,16 +56,27 @@ def validate_xml(xml: etree._Element) -> bool:
     return True
 
 
-def _validate_xml_against_schema(data_xml: etree._Element) -> list[str]:
+def validate_xml_against_schema(input_file: str | Path) -> list[str]:
+    """
+    Validate an XML file against the DSP XSD schema.
+
+    Args:
+        input_file: path to the XML file to be validated
+
+    Returns:
+        a list of validation problems (or an empty list, if there are no problems)
+    """
     schema_res = importlib.resources.files("dsp_tools").joinpath("resources/schema/data.xsd")
     with schema_res.open(encoding="utf-8") as schema_file:
-        xmlschema = etree.XMLSchema(etree.parse(schema_file))
-    if not xmlschema.validate(data_xml):
+        schema = xmlschema.XMLSchema11(schema_file)
+    try:
+        schema.validate(input_file)
+    except xmlschema.XMLSchemaValidationError as e:
         error_msg = "The XML file cannot be uploaded due to the following validation error(s):"
-        for error in xmlschema.error_log:
-            error_msg = f"{error_msg}{separator}Line {error.line}: {error.message}"
+        error_msg = f"{error_msg}{separator}Tag {e.source}: {e.reason}"
         error_msg = error_msg.replace("{https://dasch.swiss/schema}", "")
         return [error_msg]
+    # TODO: No accumulation of several problems possible? --> adapt return value + docstring
     return []
 
 

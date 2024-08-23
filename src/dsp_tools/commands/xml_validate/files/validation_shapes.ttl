@@ -71,6 +71,8 @@ val-shapes:valueAsString_Shape
 # ListValue Shape
 ########################################
 
+# Each list must have its own node and property shapes
+
 knora-api:ListValue a owl:Class .
 
 val-shapes:ListValue_Shape
@@ -88,7 +90,8 @@ val-shapes:listValueAsListNode_Shape
   sh:name     "Value of listValueAsListNode" ;
   sh:message  "must be an existing list node." ;
   sh:path     knora-api:listValueAsListNode ;
-  sh:in       ( "Node" "Node2" ) ;
+  # PROJECT SPECIFIC
+  # sh:in       ( "Node" "Node2" ) ;
   sh:severity sh:Violation .
 
 val-shapes:hasListName a owl:DatatypeProperty .
@@ -98,7 +101,8 @@ val-shapes:hasListName_Shape
   sh:name     "Value of hasListName" ;
   sh:message  "must be an existing list." ;
   sh:path     val-shapes:hasListName ;
-  sh:in       ( "List" "List2" ) ;
+  # PROJECT SPECIFIC
+  # sh:in       ( "List" "List2" ) ;
   sh:severity sh:Violation .
 
 
@@ -106,6 +110,7 @@ val-shapes:hasListName_Shape
 # LinkValue Shape
 ########################################
 
+# For each link property we need to define its own LinkValue Shape and target iri PropertyShape
 knora-api:LinkValue a owl:Class .
 
 val-shapes:LinkValue_Shape
@@ -124,5 +129,6 @@ val-shapes:linkValueHasTargetIri_Shape
   sh:name     "Value of linkValueHasTargetIri" ;
   sh:message  "must be a valid link." ;
   sh:path     knora-api:linkValueHasTargetIri ;
-  sh:class    val-shapes:OntoClass ;
+  # PROJECT SPECIFIC
+  # sh:class    val-shapes:OntoClass ;
   sh:severity sh:Violation .

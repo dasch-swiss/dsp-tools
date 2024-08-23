@@ -24,9 +24,9 @@ val-shapes:IntValue_Shape
 
 knora-api:intValueAsInt a owl:DatatypeProperty .
 
-val-shapes:hasIntValue_Shape
+val-shapes:intValueAsInt_Shape
   a           sh:PropertyShape ;
-  sh:name     "Value of IntValue" ;
+  sh:name     "Value of intValueAsInt" ;
   sh:message  "must be a valid integer" ;
   sh:path knora-api:intValueAsInt ;
   sh:pattern "^\\d+$" ;

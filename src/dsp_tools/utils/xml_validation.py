@@ -145,7 +145,7 @@ def check_if_only_one_encoding_is_used_per_prop_in_root(
     root: etree._Element,
 ) -> list[TextValueData]:
     """
-    Check if all the encodings in the `<text>` elements are consistent within one <text-prop>
+    Check if all the encodings in the `<text>` elements are consistent within one `<text-prop>`
 
     This is correct:
     ```

@@ -18,7 +18,7 @@ val-shapes:IntValue_Shape
   sh:name     "Object of IntValue" ;
   sh:message  "must be a valid integer" ;
   sh:targetClass knora-api:IntValue ;
-  sh:property val-shapes:hasIntValue_Shape ;
+  sh:property val-shapes:intValueAsInt_Shape ;
   sh:severity sh:Violation .
 
 

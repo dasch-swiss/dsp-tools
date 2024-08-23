@@ -38,11 +38,93 @@ val-shapes:intValueAsInt_Shape
 ########################################
 
 
+knora-api:TextValue a owl:Class .
+
+val-shapes:TextValue_Shape
+  a              sh:NodeShape ;
+  sh:name        "Object of IntValue" ;
+  sh:message     "must be a valid integer" ;
+  sh:targetClass knora-api:TextValue ;
+  sh:property    val-shapes:valueAsString_Shape ;
+  sh:severity    sh:Violation .
+
+
+knora-api:valueAsString a owl:DatatypeProperty .
+
+val-shapes:valueAsString_Shape
+  a            sh:PropertyShape ;
+  sh:name      "Value of valueAsString" ;
+  sh:message   "must be a valid non-empty string." ;
+  sh:path      knora-api:valueAsString ;
+  sh:minLength 1 ;
+  sh:datatype  xsd:string ;
+  sh:severity  sh:Violation .
+
+
+########################################
+# THE FOLLOWING MUST BE AT LEAST PARTIALLY CONSTRUCTED IN CODE
+# BECAUSE THE PROJECT ONTOLOGY IS RELEVANT
+########################################
+
+
 ########################################
 # ListValue Shape
 ########################################
+
+knora-api:ListValue a owl:Class .
+
+val-shapes:ListValue_Shape
+  a              sh:NodeShape ;
+  sh:name        "Object of ListValue" ;
+  sh:message     "must be a list node" ;
+  sh:targetClass knora-api:ListValue ;
+  sh:property    val-shapes:hasListName_Shape, val-shapes:listValueAsListNode_Shape ;
+  sh:severity    sh:Violation .
+
+knora-api:listValueAsListNode a owl:ObjectProperty .
+
+val-shapes:listValueAsListNode_Shape
+  a           sh:PropertyShape ;
+  sh:name     "Value of listValueAsListNode" ;
+  sh:message  "must be an existing list node." ;
+  sh:path     knora-api:listValueAsListNode ;
+  sh:in       ( "Node" "Node2" ) ;
+  sh:severity sh:Violation .
+
+val-shapes:hasListName a owl:DatatypeProperty .
+
+val-shapes:hasListName_Shape
+  a           sh:PropertyShape ;
+  sh:name     "Value of hasListName" ;
+  sh:message  "must be an existing list." ;
+  sh:path     val-shapes:hasListName ;
+  sh:in       ( "List" "List2" ) ;
+  sh:severity sh:Violation .
 
 
 ########################################
 # LinkValue Shape
 ########################################
+
+knora-api:LinkValue a owl:Class .
+
+val-shapes:LinkValue_Shape
+  a              sh:NodeShape ;
+  sh:name        "Object of LinkValue" ;
+  sh:message     "must be a valid link" ;
+  sh:targetClass knora-api:LinkValue ;
+  sh:property    val-shapes:linkValueHasTargetIri_Shape ;
+  sh:severity    sh:Violation .
+
+
+knora-api:linkValueHasTargetIri a owl:ObjectProperty .
+
+val-shapes:linkValueHasTargetIri_Shape
+  a           sh:PropertyShape ;
+  sh:name     "Value of linkValueHasTargetIri" ;
+  sh:message  "must be a valid link." ;
+  sh:path     knora-api:linkValueHasTargetIri ;
+  sh:class    val-shapes:OntoClass ;
+  sh:severity sh:Violation .
+
+val-shapes:OntoClass a owl:Class .

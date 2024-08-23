@@ -64,7 +64,7 @@ def _replace_resptrs(
     used_mapping_entries: set[str],
 ) -> tuple[etree._Element, set[str]]:
     """
-    Replace the internal IDs in the <resptr> tags by IRIs.
+    Replace the internal IDs in the `<resptr>` tags by IRIs.
 
     Args:
         tree: parsed XML file
@@ -97,7 +97,7 @@ def _replace_salsah_links(
     used_mapping_entries: set[str],
 ) -> tuple[etree._Element, set[str]]:
     """
-    Replace the internal IDs in the salsah-links of the <text> tags by IRIs.
+    Replace the internal IDs in the salsah-links of the `<text>` tags by IRIs.
 
     Args:
         tree: parsed XML file
@@ -129,7 +129,7 @@ def _replace_ids_by_iris(
     mapping: Mapping[str, str],
 ) -> etree._Element:
     """
-    Iterate over the <resptr> tags and the salsah-links of the <text> tags,
+    Iterate over the `<resptr>` tags and the salsah-links of the `<text>` tags,
     and replace the internal IDs by IRIs.
     If an internal ID cannot be found in the mapping, the original ID is kept.
 
@@ -216,7 +216,7 @@ def id2iri(
 ) -> bool:
     """
     Replace internal IDs of an XML file
-    (<resptr> tags and salsah-links inside <text> tags)
+    (`<resptr>` tags and salsah-links inside `<text>` tags)
     by IRIs provided in a mapping file.
     If an internal ID cannot be found in the mapping, the original ID is kept.
     The output is written to a new XML file named "[original name]_replaced_[timestamp].xml".

@@ -1,7 +1,20 @@
+@prefix rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl:        <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:       <http://www.w3.org/2000/01/rdf-schema#> .
+
 @prefix knora-api:  <http://api.knora.org/ontology/knora-api/v2#> .
 @prefix val-shapes: <http://api.knora.org/val-shapes-shapes/v2#> .
 
 @prefix ex: <http://api.knora.org/data#> .
+
+
+# SubClasses etc must be declared on the data graph for pyshacl,
+#    because it only does rdfs inference on the data graph.
+val-shapes:OntoClass a owl:Class .
+
+val-shapes:SubClass a owl:Class ;
+  rdfs:subClassOf val-shapes:OntoClass .
+
 
 ex:NumberGood a knora-api:IntValue ;
   knora-api:intValueAsInt "123" .
@@ -46,5 +59,11 @@ ex:LinkValueGood a knora-api:LinkValue ;
   knora-api:linkValueHasTargetIri ex:target .
 
 ex:target a val-shapes:OntoClass .
+
+
+ex:LinkValueGoodSubClass a knora-api:LinkValue ;
+  knora-api:linkValueHasTargetIri ex:targetSubClass .
+
+ex:targetSubClass a val-shapes:SubClass .
 
 

@@ -126,5 +126,3 @@ val-shapes:linkValueHasTargetIri_Shape
   sh:path     knora-api:linkValueHasTargetIri ;
   sh:class    val-shapes:OntoClass ;
   sh:severity sh:Violation .
-
-val-shapes:OntoClass a owl:Class .

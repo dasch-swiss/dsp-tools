@@ -55,7 +55,7 @@ class ListClientLive:
         """
         Get a mapping of list node IDs to their respective IRIs.
         A list node ID is structured as follows:
-        <list name>:<node name> where the list name is the node name of the root node.
+        `<list name>`:`<node name>` where the list name is the node name of the root node.
 
         Returns:
             The mapping of list node IDs to IRIs.

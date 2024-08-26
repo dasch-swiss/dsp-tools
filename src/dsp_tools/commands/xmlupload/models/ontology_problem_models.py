@@ -121,10 +121,10 @@ class InvalidTextValueEncodings:
     This class contains information about resources and the respective properties that have invalid text encodings.
 
     An invalid encoding would be a property that specifies `knora-api:Richtext` in the ontology,
-        but the <text> elements use: <text encoding="utf8">.
+        but the `<text>` elements use: `<text encoding="utf8">`.
     OR
     A property that specifies `knora-api:Textarea` or `knora-api:SimpleText`
-        but the <text> elements use: <text encoding="xml">.
+        but the `<text>` elements use: `<text encoding="xml">`.
     """
 
     problematic_resources: list[TextValueData]

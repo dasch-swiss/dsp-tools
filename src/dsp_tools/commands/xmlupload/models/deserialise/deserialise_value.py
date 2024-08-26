@@ -12,7 +12,7 @@ from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTe
 from dsp_tools.models.exceptions import XmlUploadError
 
 
-@dataclass
+@dataclass(frozen=True)
 class XMLProperty:
     """
     Represents a property of a resource in the XML used for data import.
@@ -188,6 +188,7 @@ def _cleanup_unformatted_text(string_orig: str) -> str:
     return string.strip()
 
 
+@dataclass(frozen=True)
 class XMLBitstream:
     """
     Represents a bitstream object (file) of a resource in the XML used for data import
@@ -200,11 +201,8 @@ class XMLBitstream:
     value: str
     permissions: Optional[str]
 
-    def __init__(self, node: etree._Element) -> None:
-        self.value = cast(str, node.text)
-        self.permissions = node.get("permissions")
 
-
+@dataclass(frozen=True)
 class IIIFUriInfo:
     """
     Represents a IIIF URI of a resource in the XML used for data import
@@ -216,7 +214,3 @@ class IIIFUriInfo:
 
     value: str
     permissions: str | None
-
-    def __init__(self, node: etree._Element) -> None:
-        self.value = cast(str, node.text)
-        self.permissions = node.get("permissions")

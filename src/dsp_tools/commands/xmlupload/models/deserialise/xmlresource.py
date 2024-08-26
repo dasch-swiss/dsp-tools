@@ -3,6 +3,7 @@ from __future__ import annotations
 import itertools
 from dataclasses import dataclass
 from typing import Optional
+from typing import cast
 
 from lxml import etree
 
@@ -27,7 +28,7 @@ class BitstreamInfo:
     permissions: Permissions | None = None
 
 
-@dataclass
+@dataclass(frozen=True)
 class XMLResource:
     """
     Represents a resource in the XML used for data import.
@@ -95,14 +96,14 @@ class XMLResource:
         node: etree._Element, default_ontology: str
     ) -> tuple[XMLBitstream | None, IIIFUriInfo | None, list[XMLProperty]]:
         bitstream: XMLBitstream | None = None
-        iiif_uri: IIIFUriInfo | None
+        iiif_uri: IIIFUriInfo | None = None
         ungrouped_properties: list[XMLProperty] = []
         for subnode in node:
             match subnode.tag:
                 case "bitstream":
-                    bitstream = XMLBitstream(subnode)
+                    bitstream = XMLBitstream(cast(str, subnode.text), subnode.get("permissions"))
                 case "iiif-uri":
-                    iiif_uri = IIIFUriInfo(subnode)
+                    iiif_uri = IIIFUriInfo(cast(str, subnode.text), subnode.get("permissions"))
                 case "isSegmentOf" | "relatesTo":
                     ungrouped_properties.append(XMLProperty.from_node(subnode, "resptr", default_ontology))
                 case "hasSegmentBounds":

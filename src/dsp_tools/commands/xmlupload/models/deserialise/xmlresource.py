@@ -64,23 +64,13 @@ class XMLResource:
             node: The DOM node to be processed representing a resource (which is a child of the <knora> element)
             default_ontology: The default ontology (given in the attribute default-ontology of the <knora> element)
         """
-        # get the resource type which is in format namespace:resourcetype, p.ex. rosetta:Image
-        tmp_res_type = node.attrib["restype"].split(":")
-        if len(tmp_res_type) > 1:
-            if tmp_res_type[0]:
-                restype = node.attrib["restype"]
-            else:
-                # replace an empty namespace with the default ontology name
-                restype = f"{default_ontology}:{tmp_res_type[1]}"
-        else:
-            restype = f"knora-api:{tmp_res_type[0]}"
-        bitstream, iiif_uri, properties = XMLResource._init_properties(node, default_ontology)
+        bitstream, iiif_uri, properties = XMLResource._get_properties(node, default_ontology)
         return XMLResource(
             res_id=node.attrib["id"],
             iri=node.attrib.get("iri"),
             ark=node.attrib.get("ark"),
             label=node.attrib["label"],
-            restype=restype,
+            restype=XMLResource._get_restype(node, default_ontology),
             permissions=node.attrib.get("permissions"),
             creation_date=DateTimeStamp(x) if (x := node.attrib.get("creation_date")) else None,
             bitstream=bitstream,
@@ -89,7 +79,19 @@ class XMLResource:
         )
 
     @staticmethod
-    def _init_properties(
+    def _get_restype(node: etree._Element, default_ontology: str) -> str:
+        # get the resource type which is in format namespace:resourcetype, p.ex. rosetta:Image
+        restype_orig = node.attrib["restype"]
+        if ":" not in restype_orig:
+            return f"knora-api:{restype_orig}"
+        elif restype_orig.startswith(":"):
+            # replace an empty namespace with the default ontology name
+            return f"{default_ontology}:{restype_orig[1]}"
+        else:
+            return restype_orig
+
+    @staticmethod
+    def _get_properties(
         node: etree._Element, default_ontology: str
     ) -> tuple[XMLBitstream | None, IIIFUriInfo | None, list[XMLProperty]]:
         bitstream: XMLBitstream | None = None

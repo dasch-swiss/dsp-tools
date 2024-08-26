@@ -596,18 +596,8 @@
                             <xs:field xpath="@name"/>
                         </xs:unique>
                     </xs:element>
-                    <xs:element name="video-segment" type="video_segment_type" minOccurs="0" maxOccurs="unbounded">
-                        <xs:unique name="UniqueNameAttr_VideoSegment">
-                            <xs:selector xpath=".//*"/>
-                            <xs:field xpath="@name"/>
-                        </xs:unique>
-                    </xs:element>
-                    <xs:element name="audio-segment" type="audio_segment_type" minOccurs="0" maxOccurs="unbounded">
-                        <xs:unique name="UniqueNameAttr_AudioSegment">
-                            <xs:selector xpath=".//*"/>
-                            <xs:field xpath="@name"/>
-                        </xs:unique>
-                    </xs:element>
+                    <xs:element name="video-segment" type="video_segment_type" minOccurs="0" maxOccurs="unbounded"/>
+                    <xs:element name="audio-segment" type="audio_segment_type" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:choice>
             </xs:sequence>
             <xs:attribute name="default-ontology" type="xs:string"/>

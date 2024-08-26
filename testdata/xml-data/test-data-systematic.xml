@@ -843,18 +843,6 @@
         <relatesTo permissions="prop-default">audio_segment_2</relatesTo>
     </video-segment>
 
-    <!--unordered is not possible with XSD 1.0
-    <video-segment label="Video Segment with all possible values, but unordered" id="video_segment_1">
-        <hasSegmentBounds permissions="prop-default" segment_start="1" segment_end="5"/>
-        <relatesTo permissions="prop-default">audio_segment_0</relatesTo>
-        <hasComment permissions="prop-default">Comment of video segment</hasComment>
-        <isSegmentOf permissions="prop-default">video_thing_1</isSegmentOf>
-        <hasDescription permissions="prop-default">Description of video segment</hasDescription>
-        <hasTitle permissions="prop-default">Title of video segment</hasTitle>
-        <hasKeyword permissions="prop-default">Keyword of video segment</hasKeyword>
-    </video-segment>
-    -->
-
     <video-segment label="Video Segment with only a few values" id="video_segment_2">
         <isSegmentOf permissions="prop-default">video_thing_1</isSegmentOf>
         <hasSegmentBounds permissions="prop-default" segment_start="2" segment_end="3.5"/>
@@ -881,19 +869,6 @@
         <relatesTo permissions="prop-default" comment="This refers to video_segment_0">video_segment_0</relatesTo>
         <relatesTo permissions="prop-default">video_segment_2</relatesTo>
     </audio-segment>
-
-    <!--unordered is not possible with XSD 1.0
-    <audio-segment label="Audio Segment with all possible values, but unordered" id="audio_segment_1">
-        <hasDescription permissions="prop-default">Description 2 of audio segment</hasDescription>
-        <relatesTo permissions="prop-default">video_segment_0</relatesTo>
-        <hasSegmentBounds permissions="prop-default" segment_start="10" segment_end="30"/>
-        <hasTitle permissions="prop-default">Title of audio segment</hasTitle>
-        <hasComment permissions="prop-default">Comment of audio segment</hasComment>
-        <hasDescription permissions="prop-default">Description 1 of audio segment</hasDescription>
-        <isSegmentOf permissions="prop-default">audio_thing_1</isSegmentOf>
-        <hasKeyword permissions="prop-default">Keyword of audio segment</hasKeyword>
-    </audio-segment>
-    -->
 
     <audio-segment label="Audio Segment with only a few values" id="audio_segment_2">
         <isSegmentOf permissions="prop-default">audio_thing_1</isSegmentOf>

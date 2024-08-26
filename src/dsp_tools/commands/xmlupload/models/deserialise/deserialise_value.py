@@ -39,6 +39,9 @@ class XMLProperty:
 
         Raises:
             XmlUploadError: If an upload fails
+
+        Returns:
+            The DSP property
         """
         name = XMLProperty._get_name(node, default_ontology)
         if node.tag.endswith("-prop"):

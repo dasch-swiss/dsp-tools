@@ -64,6 +64,9 @@ class XMLResource:
         Args:
             node: The DOM node to be processed representing a resource (which is a child of the <knora> element)
             default_ontology: The default ontology (given in the attribute default-ontology of the <knora> element)
+
+        Returns:
+            An XMLResource object
         """
         bitstream, iiif_uri, properties = XMLResource._get_properties(node, default_ontology)
         return XMLResource(

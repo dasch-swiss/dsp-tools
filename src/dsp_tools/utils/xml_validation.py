@@ -69,15 +69,12 @@ def validate_xml_against_schema(input_file: str | Path) -> list[str]:
     schema_res = importlib.resources.files("dsp_tools").joinpath("resources/schema/data.xsd")
     with schema_res.open(encoding="utf-8") as schema_file:
         schema = xmlschema.XMLSchema11(schema_file)
-    try:
-        schema.validate(input_file)
-    except xmlschema.XMLSchemaValidationError as e:
-        error_msg = "The XML file cannot be uploaded due to the following validation error(s):"
-        error_msg = f"{error_msg}{separator}Tag {e.source}: {e.reason}"
-        error_msg = error_msg.replace("{https://dasch.swiss/schema}", "")
-        return [error_msg]
-    # TODO: No accumulation of several problems possible? --> adapt return value + docstring
-    return []
+    errors = schema.iter_errors(input_file)
+    error_msg = "The XML file cannot be uploaded due to the following validation error(s):"
+    for e in errors:
+        error_msg = f"{error_msg}{separator}Line {e.sourceline}: {e.reason}"
+    error_msg = error_msg.replace("{https://dasch.swiss/schema}", "")
+    return [error_msg]
 
 
 def _validate_xml_contents(xml_no_namespace: etree._Element) -> list[str]:

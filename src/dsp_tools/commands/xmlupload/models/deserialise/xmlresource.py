@@ -104,15 +104,15 @@ class XMLResource:
                 case "iiif-uri":
                     iiif_uri = IIIFUriInfo(subnode)
                 case "isSegmentOf" | "relatesTo":
-                    ungrouped_properties.append(XMLProperty(subnode, "resptr", default_ontology))
+                    ungrouped_properties.append(XMLProperty.from_node(subnode, "resptr", default_ontology))
                 case "hasSegmentBounds":
-                    ungrouped_properties.append(XMLProperty(subnode, "interval", default_ontology))
+                    ungrouped_properties.append(XMLProperty.from_node(subnode, "interval", default_ontology))
                 case "hasTitle" | "hasComment" | "hasDescription" | "hasKeyword":
-                    ungrouped_properties.append(XMLProperty(subnode, "text", default_ontology))
+                    ungrouped_properties.append(XMLProperty.from_node(subnode, "text", default_ontology))
                 case _:
                     # get the property type which is in format type-prop, p.ex. <decimal-prop>
                     prop_type, _ = subnode.tag.split("-")
-                    ungrouped_properties.append(XMLProperty(subnode, prop_type, default_ontology))
+                    ungrouped_properties.append(XMLProperty.from_node(subnode, prop_type, default_ontology))
         properties = []
         ungrouped_properties.sort(key=lambda x: x.name)
         for _, xml_props in itertools.groupby(ungrouped_properties, lambda x: x.name):

@@ -69,7 +69,9 @@ def validate_xml_against_schema(input_file: str | Path) -> list[str]:
     schema_res = importlib.resources.files("dsp_tools").joinpath("resources/schema/data.xsd")
     with schema_res.open(encoding="utf-8") as schema_file:
         schema = xmlschema.XMLSchema11(schema_file)
-    errors = schema.iter_errors(input_file)
+    errors = list(schema.iter_errors(input_file))
+    if not errors:
+        return []
     error_msg = "The XML file cannot be uploaded due to the following validation error(s):"
     for e in errors:
         error_msg = f"{error_msg}{separator}Line {e.sourceline}: {e.reason}"

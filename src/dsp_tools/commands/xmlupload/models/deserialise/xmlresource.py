@@ -90,7 +90,7 @@ class XMLResource:
             return f"knora-api:{restype_orig}"
         elif restype_orig.startswith(":"):
             # replace an empty namespace with the default ontology name
-            return f"{default_ontology}:{restype_orig[1]}"
+            return f"{default_ontology}:{restype_orig[1:]}"
         else:
             return restype_orig
 

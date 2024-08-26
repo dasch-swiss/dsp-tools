@@ -1765,7 +1765,7 @@ def make_audio_segment(  # noqa: D417 (undocumented-param)
     Examples:
         >>> audio_segment = excel2xml.make_audio_segment("label", "id")
         >>> audio_segment.append(excel2xml.make_isSegmentOf_prop("audio_resource_id"))
-        >>> audio_segment.append(excel2xml.make_hasSegmentBounds_prop(start=60, end=120)
+        >>> audio_segment.append(excel2xml.make_hasSegmentBounds_prop(segment_start=60, segment_end=120)
         >>> root.append(audio_segment)
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#video-segment-audio-segment
@@ -1797,7 +1797,7 @@ def make_video_segment(  # noqa: D417 (undocumented-param)
     Examples:
         >>> video_segment = excel2xml.make_video_segment("label", "id")
         >>> video_segment.append(excel2xml.make_isSegmentOf_prop("video_resource_id"))
-        >>> video_segment.append(excel2xml.make_hasSegmentBounds_prop(start=60, end=120)
+        >>> video_segment.append(excel2xml.make_hasSegmentBounds_prop(segment_start=60, segment_end=120)
         >>> root.append(video_segment)
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#video-segment-audio-segment
@@ -1829,7 +1829,7 @@ def make_isSegmentOf_prop(
     Examples:
         >>> video_segment = excel2xml.make_video_segment("label", "id")
         >>> video_segment.append(excel2xml.make_isSegmentOf_prop("video_resource_id"))
-        >>> video_segment.append(excel2xml.make_hasSegmentBounds_prop(start=60, end=120)
+        >>> video_segment.append(excel2xml.make_hasSegmentBounds_prop(segment_start=60, segment_end=120)
         >>> root.append(video_segment)
 
     Returns:
@@ -1910,7 +1910,7 @@ def make_hasSegmentBounds_prop(
     Examples:
         >>> video_segment = excel2xml.make_video_segment("label", "id")
         >>> video_segment.append(excel2xml.make_isSegmentOf_prop("video_resource_id"))
-        >>> video_segment.append(excel2xml.make_hasSegmentBounds_prop(start=60, end=120)
+        >>> video_segment.append(excel2xml.make_hasSegmentBounds_prop(segment_start=60, segment_end=120)
         >>> root.append(video_segment)
 
     Returns:

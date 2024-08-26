@@ -275,7 +275,7 @@ from dsp_tools import excel2xml
 
 segment = excel2xml.make_video_segment("label of my video segment", "segment_1")
 segment.append(excel2xml.make_isSegmentOf_prop("video_resource_id"))
-segment.append(excel2xml.make_hasSegmentBounds_prop(start=600, end=1200))  # from 0h 10min 00s to 0h 20min 00s
+segment.append(excel2xml.make_hasSegmentBounds_prop(segment_start=600, segment_end=1200))  # from 0h 10min to 0h 20min
 segment.append(excel2xml.make_hasTitle_prop("title of the segment"))
 segment.append(excel2xml.make_hasDescription_prop("<strong>1st</strong> description of the segment"))
 segment.append(excel2xml.make_hasDescription_prop("<strong>2nd</strong> description of the segment"))

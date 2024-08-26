@@ -42,8 +42,8 @@ knora-api:TextValue a owl:Class .
 
 val-shapes:TextValue_Shape
   a              sh:NodeShape ;
-  sh:name        "Object of IntValue" ;
-  sh:message     "must be a valid integer" ;
+  sh:name        "Object of TextValue" ;
+  sh:message     "must be a valid string" ;
   sh:targetClass knora-api:TextValue ;
   sh:property    val-shapes:valueAsString_Shape ;
   sh:severity    sh:Violation .

@@ -7,6 +7,8 @@
 
 @prefix ex: <http://api.knora.org/data#> .
 
+@prefix onto:        <http://0.0.0.0:3333/ontology/9999/onto/v2#> .
+@prefix onto-shapes: <http://0.0.0.0:3333/ontology/9999/onto-shapes/v2#> .
 
 # SubClasses etc must be declared on the data graph for pyshacl,
 #    because it only does rdfs inference on the data graph.
@@ -67,3 +69,11 @@ ex:LinkValueGoodSubClass a knora-api:LinkValue ;
 ex:targetSubClass a val-shapes:SubClass .
 
 
+
+
+ex:typeViolation a onto:CardOneResource ;
+  onto:hasSimpleText ex:wrongType .
+
+
+ex:wrongType a knora-api:IntValue ;
+  knora-api:intValueAsInt "1111" .

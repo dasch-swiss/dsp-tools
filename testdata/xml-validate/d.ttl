@@ -16,7 +16,7 @@
 data:cardViolation a onto:CardOneResource .
 
 
-data:typeViolation a onto:CardOneResource ;
+data:lengthViolation a onto:CardOneResource ;
   onto:hasSimpleText data:bnText .
 
 data:bnText a knora-api:TextValue ;
@@ -30,3 +30,12 @@ data:bnList a knora-api:ListValue ;
     knora-api:listValueAsListNode "n1" ;
   val-shapes:hasListName "other" .
 
+
+
+
+data:typeViolation a onto:CardOneResource ;
+  onto:hasSimpleText data:wrongType .
+
+
+data:wrongType a knora-api:IntValue ;
+  knora-api:valueAsString "1111" .

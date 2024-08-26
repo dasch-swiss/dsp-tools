@@ -18,15 +18,15 @@ onto-shapes:NormalClass
   sh:property          [
                          a           sh:PropertyShape ;
                          sh:path     onto:linkProp ;
-                       ] ,
+                       ] , onto-shapes:linkProp_Shape ,
                        [
                          a           sh:PropertyShape ;
                          sh:path     onto:listProp ;
-                       ] ,
+                       ] , onto-shapes:listProp_Shape ,
                        [
                          a           sh:PropertyShape ;
                          sh:path     onto:hasSimpleText ;
-                       ] ;
+                       ] , onto-shapes:hasSimpleText_Shape ;
   sh:ignoredProperties ( rdf:type rdfs:label ) ;
   sh:closed            true .
 
@@ -41,7 +41,7 @@ onto-shapes:CardOneResource
                          sh:maxCount 1 ;
                          sh:severity sh:Violation ;
                          sh:message  "Cardinality: 'onto:hasSimpleText' -> exactly 1"
-                       ] ;
+                       ] , onto-shapes:hasSimpleText_Shape ;
   sh:ignoredProperties ( rdf:type rdfs:label ) ;
   sh:closed            true .
 
@@ -67,6 +67,7 @@ onto-shapes:hasSimpleText_Shape
   a           sh:PropertyShape ;
   sh:message  "Object for: 'onto:hasSimpleText' -> must be a non-empty string." ;
   sh:path     onto:hasSimpleText ;
+  sh:class    knora-api:TextValue ;
   sh:node     val-shapes:TextValue_Shape ;
   sh:severity sh:Violation .
 
@@ -78,6 +79,13 @@ onto-shapes:listProp_Shape
   sh:targetObjectsOf  onto:listProp ;
   sh:property         onto-shapes:listValueAsListNode_listProp, onto-shapes:hasListName_listProp .
 
+
+onto-shapes:listValueAsListNode_listProp
+  a           sh:PropertyShape ;
+  sh:message  "object must be of type ListValue" ;
+  sh:path     onto:listProp ;
+  sh:class    knora-api:ListValue ;
+  sh:severity sh:Violation .
 
 onto-shapes:listValueAsListNode_listProp
   a           sh:PropertyShape ;

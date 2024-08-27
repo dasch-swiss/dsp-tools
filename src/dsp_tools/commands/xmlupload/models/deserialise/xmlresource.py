@@ -11,6 +11,22 @@ from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XM
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.models.datetimestamp import DateTimeStamp
+from dsp_tools.models.exceptions import XmlUploadError
+
+COMPOSITE_PROPS = (
+    "boolean",
+    "color",
+    "date",
+    "decimal",
+    "geometry",
+    "geoname",
+    "integer",
+    "list",
+    "resptr",
+    "text",
+    "time",
+    "uri",
+)
 
 
 @dataclass(frozen=True)
@@ -112,10 +128,12 @@ class XMLResource:
                     ungrouped_properties.append(XMLProperty.from_node(subnode, "interval", default_ontology))
                 case "hasTitle" | "hasComment" | "hasDescription" | "hasKeyword":
                     ungrouped_properties.append(XMLProperty.from_node(subnode, "text", default_ontology))
-                case _:
+                case str() as x if x.endswith("-prop") and x.startswith(COMPOSITE_PROPS):
                     # get the property type which is in format type-prop, p.ex. <decimal-prop>
                     prop_type, _ = subnode.tag.split("-")
                     ungrouped_properties.append(XMLProperty.from_node(subnode, prop_type, default_ontology))
+                case _:
+                    raise XmlUploadError(f"Unexpected tag '{subnode.tag}'")
         grouped_properties = XMLResource._group_props(ungrouped_properties)
         return bitstream, iiif_uri, grouped_properties
 

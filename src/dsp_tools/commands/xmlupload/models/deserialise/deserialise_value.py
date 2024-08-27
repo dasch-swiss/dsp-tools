@@ -204,7 +204,7 @@ class XMLBitstream:
     """
 
     value: str
-    permissions: Optional[str]
+    permissions: Optional[str] = None
 
     @staticmethod
     def from_node(node: etree._Element) -> XMLBitstream:
@@ -225,7 +225,7 @@ class IIIFUriInfo:
     """
 
     value: str
-    permissions: str | None
+    permissions: str | None = None
 
     @staticmethod
     def from_node(node: etree._Element) -> IIIFUriInfo:

@@ -81,7 +81,7 @@ class XMLProperty:
             value: str | FormattedTextValue = f"{node.attrib["segment_start"]}:{node.attrib["segment_end"]}"
         elif node.tag.endswith(("hasDescription", "hasComment")):
             value = _extract_formatted_text_from_node(node)
-            resrefs = list(value.find_internal_ids())
+            resrefs = list(value.find_internal_ids()) or None
         else:
             str_orig = "".join(node.itertext())
             value = _cleanup_unformatted_text(str_orig)
@@ -96,10 +96,10 @@ class XMLValue:
     """Represents a value of a resource property in the XML used for data import"""
 
     value: Union[str, FormattedTextValue]
-    resrefs: Optional[list[str]]
-    comment: Optional[str]
-    permissions: Optional[str]
-    link_uuid: Optional[str]
+    resrefs: Optional[list[str]] = None
+    comment: Optional[str] = None
+    permissions: Optional[str] = None
+    link_uuid: Optional[str] = None
 
     @staticmethod
     def from_node(
@@ -114,7 +114,7 @@ class XMLValue:
         permissions = node.get("permissions")
         if val_type == "text" and node.get("encoding") == "xml":
             value = _extract_formatted_text_from_node(node)
-            resrefs = list(value.find_internal_ids())
+            resrefs = list(value.find_internal_ids()) or None
         elif val_type == "text" and node.get("encoding") == "utf8":
             str_orig = "".join(node.itertext())
             value = _cleanup_unformatted_text(str_orig)

@@ -2,49 +2,108 @@ import pytest
 from lxml import etree
 from pytest_unordered import unordered
 
+from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLValue
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import _cleanup_formatted_text
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import _cleanup_unformatted_text
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import _extract_formatted_text_from_node
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
+from dsp_tools.models.exceptions import XmlUploadError
 
 
 class Test_XMLProperty:
     def test_from_node_normal_prop(self) -> None:
-        pass
+        string = """
+            <time-prop name=":hasTime">
+                <time>2019-10-23T13:45:12.01-14:00</time>
+                <time>2019-10-23T13:45:12-14:00</time>
+            </time-prop>
+        """
+        res = XMLProperty.from_node(etree.fromstring(string), "time", "rosetta")
+        expected_vals = [XMLValue("2019-10-23T13:45:12.01-14:00"), XMLValue("2019-10-23T13:45:12-14:00")]
+        expected = XMLProperty("rosetta:hasTime", "time", expected_vals)
+        assert res == expected
 
     def test_from_node_knora_base_prop(self) -> None:
-        pass
+        string = """<hasKeyword>Keyword 2 of video segment</hasKeyword>"""
+        res = XMLProperty.from_node(etree.fromstring(string), "hasKeyword", "rosetta")
+        expected = XMLProperty("knora-api:hasKeyword", "hasKeyword", [XMLValue("Keyword 2 of video segment")])
+        assert res == expected
 
     def test_get_name_special_tag(self) -> None:
-        pass
+        res = XMLProperty._get_name(etree.fromstring("<isSegmentOf>foo</isSegmentOf>"), "rosetta")
+        assert res == "knora-api:isSegmentOf"
 
     def test_get_name_knora_base_prop_with_normal_tag(self) -> None:
-        pass
+        res = XMLProperty._get_name(etree.fromstring("<isSegmentOf>foo</isSegmentOf>"), "rosetta")
+        assert res == "knora-api:isSegmentOf"
 
     def test_get_name_normal_tag(self) -> None:
-        pass
+        string = """<text-prop name="hasComment"><text encoding="xml">comment</text></text-prop>"""
+        res = XMLProperty._get_name(etree.fromstring(string), "rosetta")
+        assert res == "knora-api:hasComment"
 
     def test_get_values_from_normal_props_list(self) -> None:
-        pass
+        string = """<list-prop list="testlist" name=":hasListItem"><list>first subnode</list></list-prop>"""
+        expected = [XMLValue("testlist:first subnode")]
+        res = XMLProperty._get_values_from_normal_props(etree.fromstring(string), "list")
+        assert res == expected
 
-    def test_get_values_from_normal_props_geoname(self) -> None:
-        pass
+    def test_get_values_from_normal_props_uri(self) -> None:
+        string = """
+            <uri-prop name=":hasUri">
+                <uri>https://dasch.swiss/</uri>
+                <uri>https://www.test-case.ch/</uri>
+            </uri-prop>
+        """
+        expected = [XMLValue("https://dasch.swiss/"), XMLValue("https://www.test-case.ch/")]
+        res = XMLProperty._get_values_from_normal_props(etree.fromstring(string), "uri")
+        assert res == expected
 
     def test_get_values_from_normal_props_invalid(self) -> None:
-        pass
+        string = """
+            <uri-prop name=":hasUri">
+                <uri>https://dasch.swiss/</uri>
+                <integer>https://www.test-case.ch/</integer>
+            </uri-prop>
+        """
+        with pytest.raises(XmlUploadError):
+            XMLProperty._get_values_from_normal_props(etree.fromstring(string), "uri")
 
     def test_get_value_from_knora_base_prop_with_all_attributes(self) -> None:
-        pass
+        string = """<isSegmentOf permissions="prop-default" comment="cmt">video_thing_1</isSegmentOf>"""
+        expected = XMLValue("video_thing_1", permissions="prop-default", comment="cmt")
+        res = XMLProperty._get_value_from_knora_base_prop(etree.fromstring(string))
+        assert res == expected
 
     def test_get_value_from_knora_base_prop_hasSegmentBounds(self) -> None:
-        pass
+        string = """<hasSegmentBounds segment_start="0.1" segment_end="0.234"/>"""
+        expected = XMLValue("0.1:0.234")
+        res = XMLProperty._get_value_from_knora_base_prop(etree.fromstring(string))
+        assert res == expected
 
-    def test_get_value_from_knora_base_prop_hasDescription_hasComment(self) -> None:
-        pass
+    def test_get_value_from_knora_base_prop_hasDescription(self) -> None:
+        string = """
+            <hasDescription linkUUID="123456789">
+                text <a class="salsah-link" href="IRI:test_thing_2:IRI">link</a>
+            </hasDescription>
+        """
+        xmltext = FormattedTextValue("""text <a class="salsah-link" href="IRI:test_thing_2:IRI">link</a>""")
+        expected = XMLValue(xmltext, resrefs=["test_thing_2"], link_uuid="123456789")
+        res = XMLProperty._get_value_from_knora_base_prop(etree.fromstring(string))
+        assert res == expected
+
+    def test_get_value_from_knora_base_prop_hasComment(self) -> None:
+        string = "<hasComment>text <strong>bold</strong></hasComment>"
+        expected = XMLValue(FormattedTextValue("text <strong>bold</strong>"))
+        res = XMLProperty._get_value_from_knora_base_prop(etree.fromstring(string))
+        assert res == expected
 
     def test_get_value_from_knora_base_prop_hasTitle(self) -> None:
-        pass
+        string = "<hasTitle> Title  of   video  segment </hasTitle>"
+        expected = XMLValue("Title of video segment")
+        res = XMLProperty._get_value_from_knora_base_prop(etree.fromstring(string))
+        assert res == expected
 
 
 class Test_XMLValue:

@@ -206,6 +206,13 @@ class XMLBitstream:
     value: str
     permissions: Optional[str]
 
+    @staticmethod
+    def from_node(node: etree._Element) -> XMLBitstream:
+        """Factory that parses a bitstream node from the XML DOM"""
+        if not node.text:
+            raise XmlUploadError("Empty bitstream tag")
+        return XMLBitstream(node.text, node.get("permissions"))
+
 
 @dataclass(frozen=True)
 class IIIFUriInfo:
@@ -219,3 +226,10 @@ class IIIFUriInfo:
 
     value: str
     permissions: str | None
+
+    @staticmethod
+    def from_node(node: etree._Element) -> IIIFUriInfo:
+        """Factory that parses an IIIF URI node from the XML DOM"""
+        if not node.text:
+            raise XmlUploadError("Empty IIIF URI tag")
+        return IIIFUriInfo(node.text, node.get("permissions"))

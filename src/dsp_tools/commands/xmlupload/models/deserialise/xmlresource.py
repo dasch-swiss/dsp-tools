@@ -3,7 +3,6 @@ from __future__ import annotations
 import itertools
 from dataclasses import dataclass
 from typing import Optional
-from typing import cast
 
 from lxml import etree
 
@@ -104,9 +103,9 @@ class XMLResource:
         for subnode in node:
             match subnode.tag:
                 case "bitstream":
-                    bitstream = XMLBitstream(cast(str, subnode.text), subnode.get("permissions"))
+                    bitstream = XMLBitstream.from_node(subnode)
                 case "iiif-uri":
-                    iiif_uri = IIIFUriInfo(cast(str, subnode.text), subnode.get("permissions"))
+                    iiif_uri = IIIFUriInfo.from_node(subnode)
                 case "isSegmentOf" | "relatesTo":
                     ungrouped_properties.append(XMLProperty.from_node(subnode, "resptr", default_ontology))
                 case "hasSegmentBounds":

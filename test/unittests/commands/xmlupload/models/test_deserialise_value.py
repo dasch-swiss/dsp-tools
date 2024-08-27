@@ -9,6 +9,44 @@ from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import _e
 from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTextValue
 
 
+class Test_XMLProperty:
+    def test_from_node_normal_prop(self) -> None:
+        pass
+
+    def test_from_node_knora_base_prop(self) -> None:
+        pass
+
+    def test_get_name_special_tag(self) -> None:
+        pass
+
+    def test_get_name_knora_base_prop_with_normal_tag(self) -> None:
+        pass
+
+    def test_get_name_normal_tag(self) -> None:
+        pass
+
+    def test_get_values_from_normal_props_list(self) -> None:
+        pass
+
+    def test_get_values_from_normal_props_geoname(self) -> None:
+        pass
+
+    def test_get_values_from_normal_props_invalid(self) -> None:
+        pass
+
+    def test_get_value_from_knora_base_prop_with_all_attributes(self) -> None:
+        pass
+
+    def test_get_value_from_knora_base_prop_hasSegmentBounds(self) -> None:
+        pass
+
+    def test_get_value_from_knora_base_prop_hasDescription_hasComment(self) -> None:
+        pass
+
+    def test_get_value_from_knora_base_prop_hasTitle(self) -> None:
+        pass
+
+
 class Test_XMLValue:
     def test_from_node_integer_value(self) -> None:
         # test content, and these attributes: comments, permissions, and linkUUID (if existing)

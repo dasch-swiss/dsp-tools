@@ -10,17 +10,17 @@ from dsp_tools.commands.xmlupload.models.formatted_text_value import FormattedTe
 
 
 class Test_XMLResource:
-    def test_from_node(self) -> None:
-        pass
-
-    def test_get_restype_knora_base(self) -> None:
-        pass
+    def test_get_restype_knora_api(self) -> None:
+        res = XMLResource._get_restype(etree.fromstring("""<resource restype="Region"/>"""), "rosetta")
+        assert res == "knora-api:Region"
 
     def test_get_restype_abbreviated(self) -> None:
-        pass
+        res = XMLResource._get_restype(etree.fromstring("""<resource restype=":TestThing"/>"""), "rosetta")
+        assert res == "rosetta:TestThing"
 
     def test_get_restype_full(self) -> None:
-        pass
+        res = XMLResource._get_restype(etree.fromstring("""<resource restype="rosetta:TestThing"/>"""), "rosetta")
+        assert res == "rosetta:TestThing"
 
     def test_get_properties_bitstream_only(self) -> None:
         string = "<resource><bitstream>testdata/bitstreams/test.tif</bitstream></resource>"
@@ -102,7 +102,66 @@ class Test_XMLResource:
         assert props == unordered(props_expected)
 
     def test_group_props(self) -> None:
-        pass
+        comment_1 = XMLValue(FormattedTextValue("Comment 1"))
+        comment_2 = XMLValue(FormattedTextValue("Comment 2"))
+        desc_1 = XMLValue(FormattedTextValue("Description 1"))
+        desc_2 = XMLValue(FormattedTextValue("Description 2"))
+        kw_1 = XMLValue("Keyword 1")
+        kw_2 = XMLValue("Keyword 2")
+        link_1 = XMLValue("other_res_1")
+        link_2 = XMLValue("other_res_2")
+        ungrouped = [
+            XMLProperty("knora-api:isSegmentOf", "resptr", [XMLValue("audio_thing_1")]),
+            XMLProperty("knora-api:hasSegmentBounds", "interval", [XMLValue("10:30")]),
+            XMLProperty("knora-api:hasTitle", "text", [XMLValue("Title")]),
+            XMLProperty("knora-api:hasComment", "text", [comment_1]),
+            XMLProperty("knora-api:hasDescription", "text", [desc_1]),
+            XMLProperty("knora-api:hasKeyword", "text", [kw_1]),
+            XMLProperty("knora-api:relatesTo", "resptr", [link_1]),
+            XMLProperty("knora-api:hasComment", "text", [comment_2]),
+            XMLProperty("knora-api:hasDescription", "text", [desc_2]),
+            XMLProperty("knora-api:hasKeyword", "text", [kw_2]),
+            XMLProperty("knora-api:relatesTo", "resptr", [link_2]),
+        ]
+        expected = [
+            XMLProperty("knora-api:isSegmentOf", "resptr", [XMLValue("audio_thing_1")]),
+            XMLProperty("knora-api:hasSegmentBounds", "interval", [XMLValue("10:30")]),
+            XMLProperty("knora-api:hasTitle", "text", [XMLValue("Title")]),
+            XMLProperty("knora-api:hasComment", "text", [comment_1, comment_2]),
+            XMLProperty("knora-api:hasDescription", "text", [desc_1, desc_2]),
+            XMLProperty("knora-api:hasKeyword", "text", [kw_1, kw_2]),
+            XMLProperty("knora-api:relatesTo", "resptr", [link_1, link_2]),
+        ]
+        grouped = XMLResource._group_props(ungrouped)
+        assert grouped == unordered(expected)
 
     def test_get_props_with_links(self) -> None:
-        pass
+        link_1 = """<a class="salsah-link" href="IRI:test_thing_3:IRI">link</a>"""
+        link_2 = """<a class="salsah-link" href="IRI:test_thing_4:IRI">link</a>"""
+        string = f"""
+            <resource label="label" id="id" restype=":foo">
+                <boolean-prop name=":hasBoolean"><boolean>true</boolean></boolean-prop>
+                <resptr-prop name=":hasLink">
+                    <resptr>test_thing_1</resptr>
+                </resptr-prop>
+                <resptr-prop name=":hasOtherLink">
+                    <resptr>test_thing_2</resptr>
+                </resptr-prop>
+                <text-prop name=":hasText1">
+                    <text encoding="xml">{link_1}</text>
+                </text-prop>
+                <text-prop name=":hasText2">
+                    <text encoding="xml">{link_2}</text>
+                </text-prop>
+                <uri-prop name=":hasUri"><uri>https://dasch.swiss</uri></uri-prop>
+            </resource>
+        """
+        xml_resource = XMLResource.from_node(etree.fromstring(string), "rosetta")
+        expected = [
+            XMLProperty("rosetta:hasLink", "resptr", [XMLValue("test_thing_1")]),
+            XMLProperty("rosetta:hasOtherLink", "resptr", [XMLValue("test_thing_2")]),
+            XMLProperty("rosetta:hasText1", "text", [XMLValue(FormattedTextValue(link_1), resrefs=["test_thing_3"])]),
+            XMLProperty("rosetta:hasText2", "text", [XMLValue(FormattedTextValue(link_2), resrefs=["test_thing_4"])]),
+        ]
+        res = xml_resource.get_props_with_links()
+        assert res == unordered(expected)

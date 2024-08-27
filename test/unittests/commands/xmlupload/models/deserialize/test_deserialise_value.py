@@ -35,13 +35,19 @@ class Test_XMLProperty:
         assert res == "knora-api:isSegmentOf"
 
     def test_get_name_knora_base_prop_with_normal_tag(self) -> None:
-        res = XMLProperty._get_name(etree.fromstring("<isSegmentOf>foo</isSegmentOf>"), "rosetta")
-        assert res == "knora-api:isSegmentOf"
-
-    def test_get_name_normal_tag(self) -> None:
         string = """<text-prop name="hasComment"><text encoding="xml">comment</text></text-prop>"""
         res = XMLProperty._get_name(etree.fromstring(string), "rosetta")
         assert res == "knora-api:hasComment"
+
+    def test_get_name_normal_tag_abbreviated(self) -> None:
+        string = """<text-prop name=":hasText"><text encoding="utf8">foobar</text></text-prop>"""
+        res = XMLProperty._get_name(etree.fromstring(string), "rosetta")
+        assert res == "rosetta:hasText"
+
+    def test_get_name_normal_tag_full(self) -> None:
+        string = """<text-prop name="rosetta:hasText"><text encoding="utf8">foobar</text></text-prop>"""
+        res = XMLProperty._get_name(etree.fromstring(string), "rosetta")
+        assert res == "rosetta:hasText"
 
     def test_get_values_from_normal_props_list(self) -> None:
         string = """<list-prop list="testlist" name=":hasListItem"><list>first subnode</list></list-prop>"""

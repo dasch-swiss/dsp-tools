@@ -53,14 +53,16 @@ class XMLProperty:
     @staticmethod
     def _get_name(node: etree._Element, default_ontology: str) -> str:
         # get the property name which is in format namespace:propertyname, p.ex. rosetta:hasName
-        if "name" not in node.attrib:  # tags like <isSegmentOf> don't have a name attribute
+        orig = node.attrib.get("name")
+        if not orig:  # tags like <isSegmentOf> don't have a name attribute
             return f"knora-api:{node.tag}"
-        elif ":" not in node.attrib["name"]:
-            return f"knora-api:{node.attrib['name']}"
-        else:
-            prefix, name = node.attrib["name"].split(":")
+        elif ":" not in orig:
+            return f"knora-api:{orig}"
+        elif orig.startswith(":"):
             # replace an empty namespace with the default ontology name
-            return node.attrib["name"] if prefix else f"{default_ontology}:{name}"
+            return f"{default_ontology}{orig}"
+        else:
+            return orig
 
     @staticmethod
     def _get_values_from_normal_props(node: etree._Element, valtype: str) -> list[XMLValue]:

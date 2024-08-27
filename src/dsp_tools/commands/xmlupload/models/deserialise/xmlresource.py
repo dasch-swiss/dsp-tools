@@ -117,6 +117,11 @@ class XMLResource:
                     # get the property type which is in format type-prop, p.ex. <decimal-prop>
                     prop_type, _ = subnode.tag.split("-")
                     ungrouped_properties.append(XMLProperty.from_node(subnode, prop_type, default_ontology))
+        grouped_properties = XMLResource._group_props(ungrouped_properties)
+        return bitstream, iiif_uri, grouped_properties
+
+    @staticmethod
+    def _group_props(ungrouped_properties: list[XMLProperty]) -> list[XMLProperty]:
         properties = []
         ungrouped_properties.sort(key=lambda x: x.name)
         for _, xml_props in itertools.groupby(ungrouped_properties, lambda x: x.name):
@@ -127,7 +132,7 @@ class XMLResource:
                 for xml_prop in xml_props_list:
                     new_prop.values.extend(xml_prop.values)
                 properties.append(new_prop)
-        return bitstream, iiif_uri, properties
+        return properties
 
     def get_props_with_links(self) -> list[XMLProperty]:
         """

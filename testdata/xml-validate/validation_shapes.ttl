@@ -38,14 +38,14 @@ val-shapes:hasIntValue_Shape
 ########################################
 
 
-val-onto:TextValue a owl:Class .
+val-onto:SimpleText a owl:Class .
 
-val-shapes:TextValue_Shape
+val-shapes:SimpleText_Shape
   a              sh:NodeShape ;
-  sh:name        "Object of TextValue" ;
+  sh:name        "Object of SimpleText" ;
   sh:message     "must be a valid string" ;
-  sh:targetClass val-onto:TextValue ;
-  sh:property    val-shapes:valueAsString_Shape ;
+  sh:targetClass val-onto:SimpleText ;
+  sh:property    val-shapes:hasSimpleTextValue_Shape ;
   sh:severity    sh:Violation .
 
 
@@ -80,7 +80,7 @@ val-shapes:ListValue_Shape
   sh:name        "Object of ListValue" ;
   sh:message     "must be a list node" ;
   sh:targetClass val-onto:ListValue ;
-  sh:property    val-shapes:hasListName_Shape, val-shapes:listValueAsListNode_Shape ;
+  sh:property    val-shapes:hasListName_Shape, val-shapes:hasListValue_Shape ;
   sh:severity    sh:Violation .
 
 val-onto:hasListValue a owl:ObjectProperty .

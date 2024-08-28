@@ -10,7 +10,7 @@
 @prefix onto-shapes: <http://validation-9999/onto-shapes#> .
 
 
-onto-shapes:NormalClass
+onto-shapes:NormalClass_Shape
   a                    sh:NodeShape ;
   sh:targetClass       onto:NormalClass ;
   sh:property          [
@@ -29,7 +29,7 @@ onto-shapes:NormalClass
   sh:closed            true .
 
 
-onto-shapes:CardOneResource
+onto-shapes:CardOneResource_Shape
   a                    sh:NodeShape ;
   sh:targetClass       onto:CardOneResource ;
   sh:property          [
@@ -44,7 +44,7 @@ onto-shapes:CardOneResource
   sh:closed            true .
 
 
-onto-shapes:SubClass
+onto-shapes:SubClass_Shape
   a                    sh:NodeShape ;
   sh:targetClass       onto:SubClass ;
   sh:property          [
@@ -96,16 +96,10 @@ onto-shapes:hasListName_listProp
 ####################
 
 onto-shapes:linkProp_Shape
-  a                   sh:NodeShape ;
-  sh:targetObjectsOf  onto:linkProp ;
-  sh:class            val-onto:LinkValue ;
-  sh:property         onto-shapes:hasLinkValue_linkProp ;
+  a                   sh:PropertyShape ;
+  sh:path             onto:linkProp ;
+  sh:node             [
+                        sh:class onto:CardOneResource ;
+                      ] ;
+  sh:message          "object of linkProp be a a CardOneResource or a subclass of it." ;
   sh:severity         sh:Violation .
-
-
-onto-shapes:hasLinkValue_linkProp
-  a           sh:PropertyShape ;
-  sh:message  "object of linkProp be a a CardOneResource or a subclass of it." ;
-  sh:path     val-onto:hasLinkValue ;
-  sh:class    onto:CardOneResource ;
-  sh:severity sh:Violation .

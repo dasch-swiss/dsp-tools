@@ -333,8 +333,7 @@ class StackHandler:
                     "If you press 'y', all unused containers, networks, and images (both dangling and unused) "
                     "in your docker will be deleted.\n"
                     "It is recommended that you do this every once in a while "
-                    "to keep your docker clean and running smoothly.\n"
-                    "You can do it manually, or now with this command: [y/n]"
+                    "to keep your docker clean and running smoothly. [y/n]"
                 )
         if prune_docker == "y":
             subprocess.run("docker system prune --volumes -f".split(), cwd=self.__docker_path_of_user, check=False)

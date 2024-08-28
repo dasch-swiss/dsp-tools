@@ -10,6 +10,19 @@ from dsp_tools import xmllib
 data_folder = Path("examples/xmllib/data")
 
 
+def main() -> None:
+    """Creates an XML file from the csv files in the data folder."""
+    root = xmllib.XMLRoot(shortcode="0001", default_ontology="onto")
+
+    books = _make_books()
+    root = root.add_resources(books)
+
+    chapters = _make_chapters()
+    root = root.add_resources(chapters)
+
+    root.write_file("examples/xmllib/data.xml")
+
+
 def _make_books() -> list[xmllib.Resource]:
     df = pd.read_csv(data_folder / "Book.csv")
     files = {x.stem: x for x in data_folder.glob("*.jpg")}
@@ -50,19 +63,6 @@ def _make_one_chapter(row: pd.Series) -> xmllib.Resource:
         .add_integer(prop_name=":hasChapterNumber", value=row["hasChapterNumber"])
         .add_link(prop_name=":isPartOfBook", value=row["isPartOfBook"])
     )
-
-
-def main() -> None:
-    """Creates an XML file from the csv files in the data folder."""
-    root = xmllib.XMLRoot(shortcode="0001", default_ontology="onto")
-
-    books = _make_books()
-    root = root.add_resources(books)
-
-    chapters = _make_chapters()
-    root = root.add_resources(chapters)
-
-    root.write_file("examples/xmllib/data.xml")
 
 
 if __name__ == "__main__":

@@ -1,11 +1,17 @@
 from __future__ import annotations
 
+import warnings
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 from typing import Protocol
 
 from lxml import etree
+
+from dsp_tools.commands.xmllib.value_checkers import is_integer
+from dsp_tools.commands.xmllib.value_checkers import is_string
+from dsp_tools.models.custom_warnings import DspToolsUserWarning
+from dsp_tools.utils.uri_util import is_iiif_uri
 
 XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 DASCH_SCHEMA = "{https://dasch.swiss/schema}"
@@ -35,6 +41,10 @@ class SimpleText(Value):
     permissions: str | None = "prop-default"
     comment: str | None = None
 
+    def __post_init__(self) -> None:
+        if not is_string(self.value):
+            _warn_type_mismatch(expected_type="string", value=self.value, prop_name=self.prop_name)
+
     def serialise(self) -> etree._Element:
         ele = self.make_prop()
         ele.append(self.make_element())
@@ -61,6 +71,10 @@ class LinkValue(Value):
     permissions: str | None = "prop-default"
     comment: str | None = None
 
+    def __post_init__(self) -> None:
+        if not is_string(self.value):
+            _warn_type_mismatch(expected_type="string", value=self.value, prop_name=self.prop_name)
+
     def serialise(self) -> etree._Element:
         ele = self.make_prop()
         ele.append(self.make_element())
@@ -86,6 +100,10 @@ class IntValue(Value):
     prop_name: str
     permissions: str | None = "prop-default"
     comment: str | None = None
+
+    def __post_init__(self) -> None:
+        if not is_integer(self.value):
+            _warn_type_mismatch(expected_type="integer", value=self.value, prop_name=self.prop_name)
 
     def serialise(self) -> etree._Element:
         ele = self.make_prop()
@@ -122,6 +140,10 @@ class FileValue(AbstractFileValue):
     permissions: str | None = "prop-default"
     comment: str | None = None
 
+    def __post_init__(self) -> None:
+        if not is_string(self.value):
+            _warn_type_mismatch(expected_type="file name", value=self.value)
+
     def serialise(self) -> etree._Element:
         attribs = {}
         if self.permissions:
@@ -139,6 +161,10 @@ class IIIFUri(AbstractFileValue):
     permissions: str | None = "prop-default"
     comment: str | None = None
 
+    def __post_init__(self) -> None:
+        if not is_iiif_uri(self.value):
+            _warn_type_mismatch(expected_type="IIIF-URI", value=self.value)
+
     def serialise(self) -> etree._Element:
         attribs = {}
         if self.permissions:
@@ -148,3 +174,11 @@ class IIIFUri(AbstractFileValue):
         ele = etree.Element(f"{DASCH_SCHEMA}iiif-uri", attrib=attribs, nsmap=XML_NAMESPACE_MAP)
         ele.text = str(self.value)
         return ele
+
+
+def _warn_type_mismatch(expected_type: str, value: Any, prop_name: str | None = None) -> None:
+    locs = f"    Value: {value}"
+    if prop_name:
+        locs += f" | Property: {prop_name}"
+    msg = f"The following value is not a valid {expected_type}.\n{locs}"
+    warnings.warn(DspToolsUserWarning(msg))

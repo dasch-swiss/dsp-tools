@@ -16,6 +16,7 @@ def is_string(value: Any) -> bool:
     """
     if pd.isna(value):
         return False
+    value = str(value)
     if regex.search(r"^(none|<NA>|-|n/a)$", value, flags=regex.IGNORECASE):
         return False
     return bool(regex.search(r"[\p{L}\d_!?]", value, flags=regex.UNICODE))
@@ -31,7 +32,7 @@ def is_integer(value: Any) -> bool:
         value: value to check
 
     Returns:
-        True if conforms to the above mentioned criteria.
+        True if conforms to the above-mentioned criteria.
     """
     if isinstance(value, str):
         if not regex.search(r"^\d+$", value):

@@ -13,10 +13,10 @@ def parse_and_clean_xml_file(input_file: Path) -> etree._Element:
     """
     Parse an XML file with DSP-conform data,
     remove namespace URI from the elements' names,
-    and transform the special tags <annotation>, <region>, <link>, <video-segment>, <audio-segment>
+    and transform the special tags `<annotation>`, `<region>`, `<link>`, `<video-segment>`, `<audio-segment>`
     to their technically correct form
-    <resource restype="Annotation">, <resource restype="Region">, <resource restype="LinkObj">,
-    <resource restype="VideoSegment">, <resource restype="AudioSegment">.
+    `<resource restype="Annotation">`, `<resource restype="Region">`, `<resource restype="LinkObj">`,
+    `<resource restype="VideoSegment">`, `<resource restype="AudioSegment">`.
 
     Args:
         input_file: path to the XML file
@@ -35,10 +35,10 @@ def parse_and_clean_xml_file(input_file: Path) -> etree._Element:
 def remove_qnames_and_transform_special_tags(input_tree: etree._Element) -> etree._Element:
     """
     This function removes the namespace URIs from the elements' names
-    and transforms the special tags <annotation>, <region>, <link>, <video-segment>, <audio-segment>
+    and transforms the special tags `<annotation>`, `<region>`, `<link>`, `<video-segment>`, `<audio-segment>`
     to their technically correct form
-    <resource restype="Annotation">, <resource restype="Region">, <resource restype="LinkObj">,
-    <resource restype="VideoSegment">, <resource restype="AudioSegment">.
+    `<resource restype="Annotation">`, `<resource restype="Region">`, `<resource restype="LinkObj">`,
+    `<resource restype="VideoSegment">`, `<resource restype="AudioSegment">`.
 
     Args:
         input_tree: unclean tree

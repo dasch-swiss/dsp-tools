@@ -45,7 +45,7 @@ def check_notna(value: Optional[Any]) -> TypeGuard[Any]:
      - a number (integer or float, but not np.nan)
      - a boolean
      - a string with at least one Unicode letter (matching the regex ``\\p{L}``) or number, or at least one _, !, or ?
-       (The strings "None", "<NA>", "N/A", and "-" are considered invalid.)
+       (The strings `None`, `<NA>`, `N/A`, and `-` are considered invalid.)
      - a PropertyElement whose "value" fulfills the above criteria
 
     Args:

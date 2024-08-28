@@ -75,60 +75,17 @@ val-shapes:hasSimpleTextValue_Shape
 
 val-onto:ListValue a owl:Class .
 
-val-shapes:ListValue_Shape
-  a              sh:NodeShape ;
-  sh:name        "Object of ListValue" ;
-  sh:message     "must be a list node" ;
-  sh:targetClass val-onto:ListValue ;
-  sh:property    val-shapes:hasListName_Shape, val-shapes:hasListValue_Shape ;
-  sh:severity    sh:Violation .
 
 val-onto:hasListValue a owl:ObjectProperty .
 
-val-shapes:hasListValue_Shape
-  a           sh:PropertyShape ;
-  sh:name     "Value of hasListValue" ;
-  sh:message  "must be an existing list node." ;
-  sh:path     val-onto:hasListValue ;
-  # PROJECT SPECIFIC
-  # sh:in       ( "Node" "Node2" ) ;
-  sh:severity sh:Violation .
-
-val-shapes:hasListName a owl:DatatypeProperty .
-
-val-shapes:hasListName_Shape
-  a           sh:PropertyShape ;
-  sh:name     "Value of hasListName" ;
-  sh:message  "must be an existing list." ;
-  sh:path     val-shapes:hasListName ;
-  # PROJECT SPECIFIC
-  # sh:in       ( "List" "List2" ) ;
-  sh:severity sh:Violation .
-
+val-onto:hasListName a owl:DatatypeProperty .
 
 ########################################
-# LinkValue Shape
+# LinkValue
 ########################################
 
 # For each link property we need to define its own LinkValue Shape and target iri PropertyShape
 val-onto:LinkValue a owl:Class .
 
-val-shapes:LinkValue_Shape
-  a              sh:NodeShape ;
-  sh:name        "Object of LinkValue" ;
-  sh:message     "must be a valid link" ;
-  sh:targetClass val-onto:LinkValue ;
-  sh:property    val-shapes:hasLinkValue_Shape ;
-  sh:severity    sh:Violation .
-
-
 val-onto:hasLinkValue a owl:ObjectProperty .
 
-val-shapes:hasLinkValue_Shape
-  a           sh:PropertyShape ;
-  sh:name     "Value of hasLinkValue" ;
-  sh:message  "must be a valid link." ;
-  sh:path     val-onto:hasLinkValue ;
-  # PROJECT SPECIFIC
-  # sh:class    val-shapes:OntoClass ;
-  sh:severity sh:Violation .

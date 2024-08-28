@@ -1,7 +1,7 @@
 import json
 from typing import Any
 
-from rdflib import BNode
+from rdflib import Graph
 from rdflib import Literal
 from rdflib import Namespace
 
@@ -16,6 +16,7 @@ from dsp_tools.commands.xml_validate.models.data_rdf import DataRDF
 from dsp_tools.commands.xml_validate.models.data_rdf import IntValueRDF
 from dsp_tools.commands.xml_validate.models.data_rdf import LinkValueRDF
 from dsp_tools.commands.xml_validate.models.data_rdf import ListValueRDF
+from dsp_tools.commands.xml_validate.models.data_rdf import ProjectNamespaces
 from dsp_tools.commands.xml_validate.models.data_rdf import ResourceRDF
 from dsp_tools.commands.xml_validate.models.data_rdf import SimpleTextRDF
 from dsp_tools.commands.xml_validate.models.data_rdf import ValueRDF
@@ -23,9 +24,9 @@ from dsp_tools.commands.xml_validate.models.project_deserialised import ListDese
 from dsp_tools.models.exceptions import InputError
 
 
-def _get_project_ontology() -> Any:
-    with open("testdata/xml-validate/from_api/onto.jsonld", "r", encoding="utf-8") as file:
-        return json.load(file)
+def get_project_ontology() -> Graph:
+    g = Graph()
+    return g.parse("testdata/xml-validate/from_api/onto.ttl")
 
 
 def get_deserialised_lists() -> ListDeserialised:
@@ -58,47 +59,54 @@ def _process_child_nodes(node: dict[str, Any]) -> list[str]:
 
 def create_project_rdf(project: DataDeserialised) -> DataRDF:
     """Transform the deserialised data into models that can serialise as RDF."""
-    onto = Namespace(f"http://validation-{project.shortcode}/{project.default_onto}#")
-    return DataRDF(resources=[_create_resource_rdf(x, onto) for x in project.resources])
+    proj_namespaces = ProjectNamespaces(
+        onto=Namespace(f"http://validation-{project.shortcode}/{project.default_onto}#"),
+        data=Namespace(f"http://validation-{project.shortcode}/data/"),
+    )
+    return DataRDF(resources=[_create_resource_rdf(x, proj_namespaces) for x in project.resources])
 
 
-def _create_resource_rdf(resource: ResourceData, onto: Namespace) -> ResourceRDF:
-    all_values = [_create_one_value(x, onto) for x in resource.values]
+def _create_resource_rdf(resource: ResourceData, namespaces: ProjectNamespaces) -> ResourceRDF:
+    all_values = [_create_one_value(x, namespaces) for x in resource.values]
     return ResourceRDF(
-        res_bn=BNode(resource.res_id),
-        res_class=onto[resource.res_class],
+        res_iri=namespaces.data[resource.res_id],
+        res_class=namespaces.onto[resource.res_class.lstrip(":")],
         label=Literal(resource.label),
         values=all_values,
     )
 
 
-def _create_one_value(value: ValueData, onto: Namespace) -> ValueRDF:
+def _create_one_value(value: ValueData, namespaces: ProjectNamespaces) -> ValueRDF:
     match value:
         case SimpleTextData():
-            return _create_simple_text_value_rdf(value, onto)
+            return _create_simple_text_value_rdf(value, namespaces)
         case IntValueData():
-            return _create_int_value_rdf(value, onto)
+            return _create_int_value_rdf(value, namespaces)
         case ListValueData():
-            return _create_list_value_rdf(value, onto)
+            return _create_list_value_rdf(value, namespaces)
         case LinkValueData():
-            return _create_link_value_rdf(value, onto)
+            return _create_link_value_rdf(value, namespaces)
         case _:
             raise InputError(f"The value type is not known: {type(value)}")
 
 
-def _create_simple_text_value_rdf(value: SimpleTextData, onto: Namespace) -> SimpleTextRDF:
-    return SimpleTextRDF(prop_name=onto[value.prop_name], object_value=Literal(value.prop_value))
+def _create_simple_text_value_rdf(value: SimpleTextData, namespaces: ProjectNamespaces) -> SimpleTextRDF:
+    return SimpleTextRDF(prop_name=namespaces.onto[value.prop_name.lstrip(":")], object_value=Literal(value.prop_value))
 
 
-def _create_int_value_rdf(value: IntValueData, onto: Namespace) -> IntValueRDF:
-    return IntValueRDF(prop_name=onto[value.prop_name], object_value=Literal(value.prop_value))
+def _create_int_value_rdf(value: IntValueData, namespaces: ProjectNamespaces) -> IntValueRDF:
+    return IntValueRDF(prop_name=namespaces.onto[value.prop_name.lstrip(":")], object_value=Literal(value.prop_value))
 
 
-def _create_list_value_rdf(value: ListValueData, onto: Namespace) -> ListValueRDF:
+def _create_list_value_rdf(value: ListValueData, namespaces: ProjectNamespaces) -> ListValueRDF:
     return ListValueRDF(
-        prop_name=onto[value.prop_name], object_value=Literal(value.prop_value), list_name=Literal(value.list_name)
+        prop_name=namespaces.onto[value.prop_name.lstrip(":")],
+        object_value=Literal(value.prop_value),
+        list_name=Literal(value.list_name),
     )
 
 
-def _create_link_value_rdf(value: LinkValueData, onto: Namespace) -> LinkValueRDF:
-    return LinkValueRDF(prop_name=onto[value.prop_name], object_value=BNode(value.prop_value))
+def _create_link_value_rdf(value: LinkValueData, namespaces: ProjectNamespaces) -> LinkValueRDF:
+    return LinkValueRDF(
+        prop_name=namespaces.onto[value.prop_name.lstrip(":")], object_value=namespaces.data[value.prop_value]
+    )

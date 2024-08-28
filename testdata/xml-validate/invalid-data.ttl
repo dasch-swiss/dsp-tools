@@ -29,7 +29,7 @@
     rdfs:label "Max Cardinality Violation" ;
     onto:hasSimpleText [ 
                         a val-onto:SimpleText ;
-                        val-onto:hasSimpleTextValue "Text Value Two" 
+                        val-onto:hasSimpleTextValue "Text Value Two"
                       ],
                       [ 
                         a val-onto:SimpleText ;

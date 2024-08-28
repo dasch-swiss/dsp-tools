@@ -163,7 +163,7 @@ def _make_shape_compliance_one_sheet(sheet: ExcelSheet) -> ListSheetCompliancePr
 
 
 def _check_warn_unusual_columns_one_sheet(cols: pd.Index[str]) -> None:
-    not_matched = [x for x in cols if not regex.search(r"^(en|de|fr|it|rm)_(\d+|list)|(id \(optional\))$", x)]
+    not_matched = [x for x in cols if not regex.search(r"^(en|de|fr|it|rm)_(\d+|list|comments)|(id \(optional\))$", x)]
     if not_matched:
         msg = (
             f"The following columns do not conform to the expected format "

@@ -3,32 +3,32 @@
 @prefix rdfs:       <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd:        <http://www.w3.org/2001/XMLSchema#> .
 @prefix sh:         <http://www.w3.org/ns/shacl#> .
-@prefix knora-api:  <http://api.knora.org/ontology/knora-api/v2#> .
 
-@prefix val-shapes: <http://api.knora.org/val-shapes-shapes/v2#> .
+@prefix val-onto: <http://api.knora.org/validation-onto#> .
+@prefix val-shapes: <http://api.knora.org/validation-shapes#> .
 
 ########################################
 # IntValue Shape
 ########################################
 
-knora-api:IntValue a owl:Class .
+val-onto:IntValue a owl:Class .
 
 val-shapes:IntValue_Shape
   a              sh:NodeShape ;
   sh:name        "Object of IntValue" ;
   sh:message     "must be a valid integer" ;
-  sh:targetClass knora-api:IntValue ;
-  sh:property    val-shapes:intValueAsInt_Shape ;
+  sh:targetClass val-onto:IntValue ;
+  sh:property    val-shapes:hasIntValue_Shape ;
   sh:severity    sh:Violation .
 
 
-knora-api:intValueAsInt a owl:DatatypeProperty .
+val-onto:hasIntValue a owl:DatatypeProperty .
 
-val-shapes:intValueAsInt_Shape
+val-shapes:hasIntValue_Shape
   a           sh:PropertyShape ;
-  sh:name     "Value of intValueAsInt" ;
+  sh:name     "Value of hasIntValue" ;
   sh:message  "must be a valid integer" ;
-  sh:path     knora-api:intValueAsInt ;
+  sh:path     val-onto:hasIntValue ;
   sh:pattern  "^\\d+$" ;
   sh:severity sh:Violation .
 
@@ -38,24 +38,24 @@ val-shapes:intValueAsInt_Shape
 ########################################
 
 
-knora-api:TextValue a owl:Class .
+val-onto:TextValue a owl:Class .
 
 val-shapes:TextValue_Shape
   a              sh:NodeShape ;
   sh:name        "Object of TextValue" ;
   sh:message     "must be a valid string" ;
-  sh:targetClass knora-api:TextValue ;
+  sh:targetClass val-onto:TextValue ;
   sh:property    val-shapes:valueAsString_Shape ;
   sh:severity    sh:Violation .
 
 
-knora-api:valueAsString a owl:DatatypeProperty .
+val-onto:hasSimpleTextValue a owl:DatatypeProperty .
 
-val-shapes:valueAsString_Shape
+val-shapes:hasSimpleTextValue_Shape
   a            sh:PropertyShape ;
-  sh:name      "Value of valueAsString" ;
+  sh:name      "Value of hasSimpleTextValue" ;
   sh:message   "must be a valid non-empty string." ;
-  sh:path      knora-api:valueAsString ;
+  sh:path      val-onto:hasSimpleTextValue ;
   sh:minLength 1 ;
   sh:datatype  xsd:string ;
   sh:severity  sh:Violation .
@@ -73,23 +73,23 @@ val-shapes:valueAsString_Shape
 
 # Each list must have its own node and property shapes
 
-knora-api:ListValue a owl:Class .
+val-onto:ListValue a owl:Class .
 
 val-shapes:ListValue_Shape
   a              sh:NodeShape ;
   sh:name        "Object of ListValue" ;
   sh:message     "must be a list node" ;
-  sh:targetClass knora-api:ListValue ;
+  sh:targetClass val-onto:ListValue ;
   sh:property    val-shapes:hasListName_Shape, val-shapes:listValueAsListNode_Shape ;
   sh:severity    sh:Violation .
 
-knora-api:listValueAsListNode a owl:ObjectProperty .
+val-onto:hasListValue a owl:ObjectProperty .
 
-val-shapes:listValueAsListNode_Shape
+val-shapes:hasListValue_Shape
   a           sh:PropertyShape ;
-  sh:name     "Value of listValueAsListNode" ;
+  sh:name     "Value of hasListValue" ;
   sh:message  "must be an existing list node." ;
-  sh:path     knora-api:listValueAsListNode ;
+  sh:path     val-onto:hasListValue ;
   # PROJECT SPECIFIC
   # sh:in       ( "Node" "Node2" ) ;
   sh:severity sh:Violation .
@@ -111,24 +111,24 @@ val-shapes:hasListName_Shape
 ########################################
 
 # For each link property we need to define its own LinkValue Shape and target iri PropertyShape
-knora-api:LinkValue a owl:Class .
+val-onto:LinkValue a owl:Class .
 
 val-shapes:LinkValue_Shape
   a              sh:NodeShape ;
   sh:name        "Object of LinkValue" ;
   sh:message     "must be a valid link" ;
-  sh:targetClass knora-api:LinkValue ;
-  sh:property    val-shapes:linkValueHasTargetIri_Shape ;
+  sh:targetClass val-onto:LinkValue ;
+  sh:property    val-shapes:hasLinkValue_Shape ;
   sh:severity    sh:Violation .
 
 
-knora-api:linkValueHasTargetIri a owl:ObjectProperty .
+val-onto:hasLinkValue a owl:ObjectProperty .
 
-val-shapes:linkValueHasTargetIri_Shape
+val-shapes:hasLinkValue_Shape
   a           sh:PropertyShape ;
-  sh:name     "Value of linkValueHasTargetIri" ;
+  sh:name     "Value of hasLinkValue" ;
   sh:message  "must be a valid link." ;
-  sh:path     knora-api:linkValueHasTargetIri ;
+  sh:path     val-onto:hasLinkValue ;
   # PROJECT SPECIFIC
   # sh:class    val-shapes:OntoClass ;
   sh:severity sh:Violation .

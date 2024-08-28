@@ -176,7 +176,7 @@ def _get_separate_prefix_and_iri_from_onto_prop_or_cls(
 
 def _check_correctness_all_text_value_encodings(root: etree._Element, text_prop_look_up: PropertyTextValueTypes) -> str:
     """
-    This function analyses if all the encodings for the <text> elements are correct
+    This function analyses if all the encodings for the `<text>` elements are correct
     with respect to the specification in the ontology.
 
     For example, if the ontology specifies that `:hasSimpleText` is without mark-up,

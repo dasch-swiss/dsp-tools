@@ -98,7 +98,7 @@ class ListValueRDF(ValueRDF):
 @dataclass
 class LinkValueRDF(ValueRDF):
     prop_name: URIRef
-    object_value: URIRef
+    object_value: BNode
 
     def make_graph(self, res_bn: BNode) -> Graph:
         g = Graph()

@@ -31,8 +31,8 @@ class XMLProperty:
         The constructor for the DSP property
 
         Args:
-            node: the property node, p.ex. <decimal-prop></decimal-prop>
-            valtype: the type of value given by the name of the property node, p.ex. decimal in <decimal-prop>
+            node: the property node, p.ex. `<decimal-prop></decimal-prop>`
+            valtype: the type of value given by the name of the property node, p.ex. decimal in `<decimal-prop>`
             default_ontology: the name of the ontology
 
         Raises:
@@ -131,7 +131,7 @@ def _cleanup_formatted_text(xmlstr_orig: str) -> str:
     there may be non-text characters that must be removed.
     This function:
         - replaces (multiple) line breaks by a space
-        - replaces multiple spaces or tabstops by a single space (except within <code> or <pre> tags)
+        - replaces multiple spaces or tabstops by a single space (except within `<code>` or `<pre>` tags)
 
     Args:
         xmlstr_orig: content of the tag from the XML file, in serialized form
@@ -161,7 +161,7 @@ def _cleanup_unformatted_text(string_orig: str) -> str:
     In a utf8-encoded text value from the XML file,
     there may be non-text characters that must be removed.
     This function:
-        - removes the <text> tags
+        - removes the `<text>` tags
         - replaces multiple spaces or tabstops by a single space
 
     Args:

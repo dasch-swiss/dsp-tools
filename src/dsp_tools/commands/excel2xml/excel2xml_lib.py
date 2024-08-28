@@ -42,7 +42,7 @@ def make_xsd_id_compatible(string: str) -> str:
     The UUID will be different each time the function is called.
 
     The string must contain at least one Unicode letter (matching the regex ``\\p{L}``),
-    underscore, !, ?, or number, but must not be "None", "<NA>", "N/A", or "-".
+    underscore, !, ?, or number, but must not be `None`, `<NA>`, `N/A`, or `-`.
     Otherwise, a BaseError will be raised.
 
     Args:
@@ -66,7 +66,7 @@ def make_xsd_id_compatible_without_uuid(string: str) -> str:
     This function replaces illegal characters with "_".
 
     The string must contain at least one Unicode letter (matching the regex ``\\p{L}``),
-    underscore, !, ?, or number, but must not be "None", "<NA>", "N/A", or "-".
+    underscore, !, ?, or number, but must not be `None`, `<NA>`, `N/A`, or `-`.
     Otherwise, a BaseError will be raised.
 
     Args:
@@ -353,14 +353,14 @@ def make_root(
     default_ontology: str,
 ) -> etree._Element:
     """
-    Start building your XML document by creating the root element <knora>.
+    Start building your XML document by creating the root element `<knora>`.
 
     Args:
         shortcode: The shortcode of this project as defined in the JSON project file
         default_ontology: one of the ontologies of the JSON project file
 
     Returns:
-        The root element <knora>.
+        The root element `<knora>`.
 
     Examples:
         >>> root = excel2xml.make_root(shortcode=shortcode, default_ontology=default_ontology)
@@ -389,7 +389,7 @@ def append_permissions(root_element: etree._Element) -> etree._Element:
     start with, but remember that they can be adapted, and that other permissions can be defined instead of these.
 
     Args:
-        root_element: The XML root element <knora> created by make_root()
+        root_element: The XML root element `<knora>` created by make_root()
 
     Returns:
         The root element with the four permission blocks appended
@@ -450,7 +450,7 @@ def make_resource(  # noqa: D417 (undocumented-param)
     Creates an empty resource element, with the attributes as specified by the arguments.
 
     Args:
-        The arguments correspond to the attributes of the <resource> element.
+        The arguments correspond to the attributes of the `<resource>` element.
 
     Returns:
         The resource element, without any children, but with the attributes
@@ -617,7 +617,7 @@ def make_boolean_prop(
     calling_resource: str = "",
 ) -> etree._Element:
     """
-    Make a <boolean-prop> from a boolean value. The value can be provided directly or inside a PropertyElement. The
+    Make a `<boolean-prop>` from a boolean value. The value can be provided directly or inside a PropertyElement. The
     following formats are supported:
      - true: (True, "true", "True", "1", 1, "yes", "Yes")
      - false: (False, "false", "False", "0", 0, "no", "No")
@@ -684,7 +684,7 @@ def make_color_prop(
     calling_resource: str = "",
 ) -> etree._Element:
     """
-    Make a <color-prop> from one or more colors. The color(s) can be provided as string or as PropertyElement with a
+    Make a `<color-prop>` from one or more colors. The color(s) can be provided as string or as PropertyElement with a
     string inside. If provided as string, the permissions default to "prop-default".
 
     Args:
@@ -755,7 +755,7 @@ def make_date_prop(
     calling_resource: str = "",
 ) -> etree._Element:
     """
-    Make a <date-prop> from one or more dates/date ranges. The date(s) can be provided as string or as PropertyElement
+    Make a `<date-prop>` from one or more dates/date ranges. The date(s) can be provided as string or as PropertyElement
     with a string inside. If provided as string, the permissions default to "prop-default".
 
     Args:
@@ -832,7 +832,7 @@ def make_decimal_prop(
     calling_resource: str = "",
 ) -> etree._Element:
     """
-    Make a <decimal-prop> from one or more decimal numbers. The decimal(s) can be provided as string, float, or as
+    Make a `<decimal-prop>` from one or more decimal numbers. The decimal(s) can be provided as string, float, or as
     PropertyElement with a string/float inside. If provided as string/float, the permissions default to
     "prop-default".
 
@@ -906,7 +906,7 @@ def make_geometry_prop(
     calling_resource: str = "",
 ) -> etree._Element:
     """
-    Make a <geometry-prop> from one or more areas of an image. The area(s) can be provided as JSON-string or as
+    Make a `<geometry-prop>` from one or more areas of an image. The area(s) can be provided as JSON-string or as
     PropertyElement with the JSON-string inside. If provided as string, the permissions default to "prop-default".
 
     Args:
@@ -990,7 +990,7 @@ def make_geoname_prop(
     calling_resource: str = "",
 ) -> etree._Element:
     """
-    Make a <geoname-prop> from one or more geonames.org IDs. The ID(s) can be provided as string, integer, or as
+    Make a `<geoname-prop>` from one or more geonames.org IDs. The ID(s) can be provided as string, integer, or as
     PropertyElement with a string/integer inside. If provided as string/integer, the permissions default to
     "prop-default".
 
@@ -1062,7 +1062,7 @@ def make_integer_prop(
     calling_resource: str = "",
 ) -> etree._Element:
     """
-    Make a <integer-prop> from one or more integers. The integers can be provided as string, integer, or as
+    Make a `<integer-prop>` from one or more integers. The integers can be provided as string, integer, or as
     PropertyElement with a string/integer inside. If provided as string/integer, the permissions default to
     "prop-default".
 
@@ -1137,7 +1137,7 @@ def make_list_prop(
     calling_resource: str = "",
 ) -> etree._Element:
     """
-    Make a <list-prop> from one or more list nodes. The name(s) of the list node(s) can be provided as string or as
+    Make a `<list-prop>` from one or more list nodes. The name(s) of the list node(s) can be provided as string or as
     PropertyElement with a string inside. If provided as string, the permissions default to "prop-default".
 
     Args:
@@ -1210,7 +1210,7 @@ def make_resptr_prop(
     calling_resource: str = "",
 ) -> etree._Element:
     """
-    Make a <resptr-prop> from one or more IDs of other resources. The ID(s) can be provided as string or as
+    Make a `<resptr-prop>` from one or more IDs of other resources. The ID(s) can be provided as string or as
     PropertyElement with a string inside. If provided as string, the permissions default to "prop-default".
 
     Args:
@@ -1281,7 +1281,7 @@ def make_text_prop(
     calling_resource: str = "",
 ) -> etree._Element:
     """
-    Make a <text-prop> from one or more strings. The string(s) can be provided as string or as PropertyElement with a
+    Make a `<text-prop>` from one or more strings. The string(s) can be provided as string or as PropertyElement with a
     string inside. If provided as string, the encoding defaults to utf8, and the permissions to "prop-default".
 
     Args:
@@ -1292,7 +1292,7 @@ def make_text_prop(
     Raises:
         BaseError: if the XML tags in a richtext property (encoding=xml) are not well-formed
         Warning: if one of the values doesn't look like a reasonable string
-            (e.g. "<NA>" is a valid string, but probably not intended)
+            (e.g. `<NA>` is a valid string, but probably not intended)
 
     Returns:
         an etree._Element that can be appended to the parent resource with resource.append(make_*_prop(...))
@@ -1434,7 +1434,7 @@ def make_time_prop(
     calling_resource: str = "",
 ) -> etree._Element:
     """
-    Make a <time-prop> from one or more datetime values of the form "2009-10-10T12:00:00-05:00". The time(s) can be
+    Make a `<time-prop>` from one or more datetime values of the form "2009-10-10T12:00:00-05:00". The time(s) can be
     provided as string or as PropertyElement with a string inside. If provided as string, the permissions default to
     "prop-default".
 
@@ -1515,7 +1515,7 @@ def make_uri_prop(
     calling_resource: str = "",
 ) -> etree._Element:
     """
-    Make an <uri-prop> from one or more URIs. The URI(s) can be provided as string or as PropertyElement with a string
+    Make an `<uri-prop>` from one or more URIs. The URI(s) can be provided as string or as PropertyElement with a string
     inside. If provided as string, the permissions default to "prop-default".
 
     Args:
@@ -1765,7 +1765,7 @@ def make_audio_segment(  # noqa: D417 (undocumented-param)
     Examples:
         >>> audio_segment = excel2xml.make_audio_segment("label", "id")
         >>> audio_segment.append(excel2xml.make_isSegmentOf_prop("audio_resource_id"))
-        >>> audio_segment.append(excel2xml.make_hasSegmentBounds_prop(start=60, end=120)
+        >>> audio_segment.append(excel2xml.make_hasSegmentBounds_prop(segment_start=60, segment_end=120)
         >>> root.append(audio_segment)
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#video-segment-audio-segment
@@ -1797,7 +1797,7 @@ def make_video_segment(  # noqa: D417 (undocumented-param)
     Examples:
         >>> video_segment = excel2xml.make_video_segment("label", "id")
         >>> video_segment.append(excel2xml.make_isSegmentOf_prop("video_resource_id"))
-        >>> video_segment.append(excel2xml.make_hasSegmentBounds_prop(start=60, end=120)
+        >>> video_segment.append(excel2xml.make_hasSegmentBounds_prop(segment_start=60, segment_end=120)
         >>> root.append(video_segment)
 
     See https://docs.dasch.swiss/latest/DSP-TOOLS/file-formats/xml-data-file/#video-segment-audio-segment
@@ -1829,7 +1829,7 @@ def make_isSegmentOf_prop(
     Examples:
         >>> video_segment = excel2xml.make_video_segment("label", "id")
         >>> video_segment.append(excel2xml.make_isSegmentOf_prop("video_resource_id"))
-        >>> video_segment.append(excel2xml.make_hasSegmentBounds_prop(start=60, end=120)
+        >>> video_segment.append(excel2xml.make_hasSegmentBounds_prop(segment_start=60, segment_end=120)
         >>> root.append(video_segment)
 
     Returns:
@@ -1910,7 +1910,7 @@ def make_hasSegmentBounds_prop(
     Examples:
         >>> video_segment = excel2xml.make_video_segment("label", "id")
         >>> video_segment.append(excel2xml.make_isSegmentOf_prop("video_resource_id"))
-        >>> video_segment.append(excel2xml.make_hasSegmentBounds_prop(start=60, end=120)
+        >>> video_segment.append(excel2xml.make_hasSegmentBounds_prop(segment_start=60, segment_end=120)
         >>> root.append(video_segment)
 
     Returns:

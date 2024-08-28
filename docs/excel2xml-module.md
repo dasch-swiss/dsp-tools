@@ -275,12 +275,12 @@ from dsp_tools import excel2xml
 
 segment = excel2xml.make_video_segment("label of my video segment", "segment_1")
 segment.append(excel2xml.make_isSegmentOf_prop("video_resource_id"))
-segment.append(excel2xml.make_hasSegmentBounds_prop(start=600, end=1200))  # from 0h 10min 00s to 0h 20min 00s
+segment.append(excel2xml.make_hasSegmentBounds_prop(segment_start=600, segment_end=1200))  # from 0h 10min to 0h 20min
 segment.append(excel2xml.make_hasTitle_prop("title of the segment"))
-segment.append(excel2xml.make_hasDescription_prop("<strong>1st</strong> description of the segment"))
-segment.append(excel2xml.make_hasDescription_prop("<strong>2nd</strong> description of the segment"))
 segment.append(excel2xml.make_hasComment_prop("<strong>1st</strong> comment to the segment"))
 segment.append(excel2xml.make_hasComment_prop("<strong>2nd</strong> comment to the segment"))
+segment.append(excel2xml.make_hasDescription_prop("<strong>1st</strong> description of the segment"))
+segment.append(excel2xml.make_hasDescription_prop("<strong>2nd</strong> description of the segment"))
 segment.append(excel2xml.make_hasKeyword_prop("keyword 1"))
 segment.append(excel2xml.make_hasKeyword_prop("keyword 2"))
 segment.append(excel2xml.make_relatesTo_prop("id_of_other_resource"))
@@ -292,6 +292,9 @@ The audio segment works exactly the same, just with `audio` instead of `video`:
 segment = excel2xml.make_audio_segment("label of my audio segment", "segment_1")
 segment.append(excel2xml.make_isSegmentOf_prop("audio_resource_id"))
 ```
+
+Please be aware that the properties have to be provided in exactly this order. 
+It is possible to leave out optional properties, but the present ones must fit the order.
 
 See also the [documentation of the resulting XML format](./file-formats/xml-data-file.md#video-segment-and-audio-segment).
 

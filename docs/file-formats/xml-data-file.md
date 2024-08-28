@@ -991,10 +991,13 @@ They can have the following predefined properties:
 | `isSegmentOf`      | 1           | link               |
 | `hasSegmentBounds` | 1           | interval           |
 | `hasTitle`         | 0-1         | text (unformatted) |
-| `hasDescription`   | 0-n         | text (formatted)   |
 | `hasComment`       | 0-n         | text (formatted)   |
+| `hasDescription`   | 0-n         | text (formatted)   |
 | `hasKeyword`       | 0-n         | text (unformatted) |
 | `relatesTo`        | 0-n         | link               |
+
+Please be aware that the properties have to be provided in exactly this order. 
+It is possible to leave out optional properties, but the present ones must fit the order.
 
 Example:
 
@@ -1004,9 +1007,9 @@ Example:
     <!-- The segment bounds must be entered in seconds. Decimal (for fractions of a second) are allowed, e.g. `1.4`.-->
     <hasSegmentBounds permissions="prop-default" start="600" end="1200"/> <!-- from 0h 10min 00s to 0h 20min 00s -->
     <hasTitle permissions="prop-default">Title of video segment</hasTitle>
+    <hasComment permissions="prop-default"><strong>Comment</strong> of video segment</hasComment>
     <hasDescription permissions="prop-default"><strong>Description</strong> of video segment</hasDescription>
     <hasKeyword permissions="prop-default">Keyword of video segment</hasKeyword>
-    <hasComment permissions="prop-default"><strong>Comment</strong> of video segment</hasComment>
     <relatesTo permissions="prop-default">audio_segment_1</relatesTo>
 </video-segment>
 ```

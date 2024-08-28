@@ -30,6 +30,7 @@ def _make_one_book(row: pd.Series, filename: str | None) -> xmllib.Resource:
         .add_integer(prop_name=":hasNumberOfPages", value=row["hasNumberOfPages"])
         .add_simple_text(prop_name=":hasAuthor", value=row["hasAuthor"])
         .add_file(filename=filename)
+        .add_simple_text_optional(prop_name=":hasComment", value=row["hasComment"])
     )
 
 

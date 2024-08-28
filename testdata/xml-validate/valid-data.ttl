@@ -1,0 +1,14 @@
+@prefix ns1: <http://api.knora.org/validation-onto#> .
+@prefix ns2: <http://validation-9999/onto#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<http://validation-9999/data/link-value-correct> a ns2:NormalClass ;
+    rdfs:label "Target Link Class Correct" ;
+    ns2:linkProp [ a ns1:LinkValue ;
+            ns1:hasLinkValue <http://validation-9999/data/inherited-cardinality-correct> ] .
+
+<http://validation-9999/data/inherited-cardinality-correct> a ns2:SubClass ;
+    rdfs:label "Inherited good cardinality" ;
+    ns2:hasSimpleText [ a ns1:SimpleText ;
+            ns1:hasSimpleTextValue "Text Value One" ] .
+

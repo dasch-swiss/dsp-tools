@@ -79,13 +79,3 @@ val-onto:ListValue a owl:Class .
 val-onto:hasListValue a owl:ObjectProperty .
 
 val-onto:hasListName a owl:DatatypeProperty .
-
-########################################
-# LinkValue
-########################################
-
-# For each link property we need to define its own LinkValue Shape and target iri PropertyShape
-val-onto:LinkValue a owl:Class .
-
-val-onto:hasLinkValue a owl:ObjectProperty .
-

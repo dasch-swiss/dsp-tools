@@ -13,7 +13,7 @@
     <resource label="Max Cardinality Violation" restype=":CardOneResource" id="max-card-violation">
         <text-prop name=":hasSimpleText">
             <text encoding="utf8">Text Value One</text>
-            <text encoding="utf8">Text Value Two</text>
+            <text encoding="utf8"></text>
         </text-prop>
     </resource>
 

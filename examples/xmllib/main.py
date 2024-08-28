@@ -15,13 +15,13 @@ def _make_books() -> list[xmllib.Resource]:
     files = {x.stem: x for x in data_folder.glob("*.jpg")}
     books = []
     for _, row in df.iterrows():
-        filename = files.get(row["id"])
+        filename = files[row["id"]]
         one_book = _make_one_book(row, filename)
         books.append(one_book)
     return books
 
 
-def _make_one_book(row: pd.Series, filename: str | None) -> xmllib.Resource:
+def _make_one_book(row: pd.Series, filename: str) -> xmllib.Resource:
     titles = row["hasTitle"].split("||")
     titles = [x.strip() for x in titles]
     return (

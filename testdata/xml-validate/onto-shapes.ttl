@@ -20,11 +20,12 @@ onto-shapes:NormalClass_Shape
                        [
                          a           sh:PropertyShape ;
                          sh:path     onto:listProp ;
-                       ] , onto-shapes:listProp_Shape ,
+                       ] ,
                        [
                          a           sh:PropertyShape ;
                          sh:path     onto:hasSimpleText ;
                        ] , onto-shapes:hasSimpleText_Shape ;
+  sh:node              onto-shapes:listProp_Shape ;
   sh:ignoredProperties ( rdf:type rdfs:label ) ;
   sh:closed            true .
 

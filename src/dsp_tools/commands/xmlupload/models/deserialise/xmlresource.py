@@ -11,6 +11,22 @@ from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XM
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.models.datetimestamp import DateTimeStamp
+from dsp_tools.models.exceptions import XmlUploadError
+
+COMPOSITE_PROPS = (
+    "boolean-prop",
+    "color-prop",
+    "date-prop",
+    "decimal-prop",
+    "geometry-prop",
+    "geoname-prop",
+    "integer-prop",
+    "list-prop",
+    "resptr-prop",
+    "text-prop",
+    "time-prop",
+    "uri-prop",
+)
 
 
 @dataclass(frozen=True)
@@ -112,10 +128,17 @@ class XMLResource:
                     ungrouped_properties.append(XMLProperty.from_node(subnode, "interval", default_ontology))
                 case "hasTitle" | "hasComment" | "hasDescription" | "hasKeyword":
                     ungrouped_properties.append(XMLProperty.from_node(subnode, "text", default_ontology))
-                case _:
+                case str() as x if x in COMPOSITE_PROPS:
                     # get the property type which is in format type-prop, p.ex. <decimal-prop>
                     prop_type, _ = subnode.tag.split("-")
                     ungrouped_properties.append(XMLProperty.from_node(subnode, prop_type, default_ontology))
+                case _:
+                    raise XmlUploadError(f"Unexpected tag '{subnode.tag}'")
+        grouped_properties = XMLResource._group_props(ungrouped_properties)
+        return bitstream, iiif_uri, grouped_properties
+
+    @staticmethod
+    def _group_props(ungrouped_properties: list[XMLProperty]) -> list[XMLProperty]:
         properties = []
         ungrouped_properties.sort(key=lambda x: x.name)
         for _, xml_props in itertools.groupby(ungrouped_properties, lambda x: x.name):
@@ -126,7 +149,7 @@ class XMLResource:
                 for xml_prop in xml_props_list:
                     new_prop.values.extend(xml_prop.values)
                 properties.append(new_prop)
-        return bitstream, iiif_uri, properties
+        return properties
 
     def get_props_with_links(self) -> list[XMLProperty]:
         """

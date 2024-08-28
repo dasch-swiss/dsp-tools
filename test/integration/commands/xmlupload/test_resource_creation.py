@@ -65,7 +65,7 @@ def test_one_resource_without_links(ingest_client_mock: AssetClient) -> None:
         </resource>
         """,
     ]
-    xml_resources = [XMLResource(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
+    xml_resources = [XMLResource.from_node(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
     upload_state = UploadState(xml_resources, None, UploadConfig(), {})
     con = Mock(spec_set=ConnectionLive)
     post_responses = [{"@id": "foo_1_iri", "rdfs:label": "foo_1_label"}]
@@ -106,7 +106,7 @@ def test_one_resource_with_link_to_existing_resource(ingest_client_mock: AssetCl
         </resource>
         """,
     ]
-    xml_resources = [XMLResource(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
+    xml_resources = [XMLResource.from_node(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
     upload_state = UploadState(xml_resources, None, UploadConfig(), {}, [], IriResolver({"foo_2_id": "foo_2_iri"}))
     con = Mock(spec_set=ConnectionLive)
     post_responses = [{"@id": "foo_1_iri", "rdfs:label": "foo_1_label"}]
@@ -156,7 +156,7 @@ def _2_resources_with_stash_interrupted_by_error(
         '<resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id"></resource>',
         '<resource label="foo_2_label" restype=":foo_2_type" id="foo_2_id"></resource>',
     ]
-    xml_resources = [XMLResource(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
+    xml_resources = [XMLResource.from_node(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
     link_val_stash_dict = {
         "foo_1_id": [LinkValueStashItem("foo_1_id", "my_onto:foo_1_type", "my_onto:hasCustomLink", "foo_2_id")],
         "foo_2_id": [LinkValueStashItem("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")],
@@ -198,7 +198,7 @@ def test_2_resources_with_stash(ingest_client_mock: AssetClient) -> None:
         '<resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id"></resource>',
         '<resource label="foo_2_label" restype=":foo_2_type" id="foo_2_id"></resource>',
     ]
-    xml_resources = [XMLResource(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
+    xml_resources = [XMLResource.from_node(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
     link_val_stash_dict = {
         "foo_1_id": [LinkValueStashItem("foo_1_id", "my_onto:foo_1_type", "my_onto:hasCustomLink", "foo_2_id")],
         "foo_2_id": [LinkValueStashItem("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")],
@@ -251,7 +251,7 @@ def test_5_resources_with_stash_and_interrupt_after_2(ingest_client_mock: AssetC
         '<resource label="foo_4_label" restype=":foo_4_type" id="foo_4_id"></resource>',
         '<resource label="foo_5_label" restype=":foo_5_type" id="foo_5_id"></resource>',
     ]
-    xml_resources = [XMLResource(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
+    xml_resources = [XMLResource.from_node(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
     link_val_stash_dict = {
         "foo_1_id": [LinkValueStashItem("foo_1_id", "my_onto:foo_1_type", "my_onto:hasCustomLink", "foo_2_id")],
         "foo_2_id": [LinkValueStashItem("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")],
@@ -307,7 +307,7 @@ def test_6_resources_with_stash_and_interrupt_after_2(ingest_client_mock: AssetC
         '<resource label="foo_5_label" restype=":foo_5_type" id="foo_5_id"></resource>',
         '<resource label="foo_6_label" restype=":foo_6_type" id="foo_6_id"></resource>',
     ]
-    xml_resources = [XMLResource(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
+    xml_resources = [XMLResource.from_node(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
     link_val_stash_dict = {
         "foo_1_id": [LinkValueStashItem("foo_1_id", "my_onto:foo_1_type", "my_onto:hasCustomLink", "foo_2_id")],
         "foo_2_id": [LinkValueStashItem("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")],
@@ -368,7 +368,7 @@ def test_logging(caplog: pytest.LogCaptureFixture, ingest_client_mock: AssetClie
         '<resource label="foo_4_label" restype=":foo_4_type" id="foo_4_id"></resource>',
         '<resource label="foo_5_label" restype=":foo_5_type" id="foo_5_id"></resource>',
     ]
-    xml_resources = [XMLResource(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
+    xml_resources = [XMLResource.from_node(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
     link_val_stash_dict = {
         "foo_1_id": [LinkValueStashItem("foo_1_id", "my_onto:foo_1_type", "my_onto:hasCustomLink", "foo_2_id")],
         "foo_2_id": [LinkValueStashItem("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")],
@@ -419,7 +419,7 @@ def test_post_requests(ingest_client_mock: AssetClient) -> None:
         '<resource label="foo_5_label" restype=":foo_5_type" id="foo_5_id"></resource>',
         '<resource label="foo_6_label" restype=":foo_6_type" id="foo_6_id"></resource>',
     ]
-    xml_resources = [XMLResource(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
+    xml_resources = [XMLResource.from_node(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
     link_val_stash_dict = {
         "foo_1_id": [LinkValueStashItem("foo_1_id", "my_onto:foo_1_type", "my_onto:hasCustomLink", "foo_2_id")],
         "foo_2_id": [LinkValueStashItem("foo_2_id", "my_onto:foo_2_type", "my_onto:hasCustomLink", "foo_1_id")],
@@ -457,7 +457,7 @@ def test_interruption_if_resource_cannot_be_created_because_of_404() -> None:
         '<resource label="foo_1_label" restype=":foo_1_type" id="foo_1_id"></resource>',
         '<resource label="foo_2_label" restype=":foo_2_type" id="foo_2_id"></resource>',
     ]
-    xml_resources = [XMLResource(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
+    xml_resources = [XMLResource.from_node(etree.fromstring(xml_str), "my_onto") for xml_str in xml_strings]
     upload_state = UploadState(xml_resources.copy(), Stash(None, None), UploadConfig(), {}, [], IriResolver())
     con = ConnectionLive("foo")
     con._log_request = Mock()  # type: ignore[method-assign]

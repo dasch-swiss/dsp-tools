@@ -4,18 +4,18 @@
 
 <http://validation-9999/data/identical-value> a onto:NormalClass ;
     rdfs:label "Value is Identical" ;
-    onto:hasSimpleText [ 
+    onto:hasSimpleText [
                         a val-onto:SimpleText ;
-                        val-onto:hasSimpleTextValue "These two values are identical." 
+                        val-onto:hasSimpleTextValue "These two values are identical."
                       ],
-                      [ 
+                      [
                         a val-onto:SimpleText ;
-                        val-onto:hasSimpleTextValue "These two values are identical." 
+                        val-onto:hasSimpleTextValue "These two values are identical."
                       ] .
-
+#
 <http://validation-9999/data/link-value-wrong> a onto:NormalClass ;
     rdfs:label "Target Link Class Mismatch" ;
-    onto:linkProp [ 
+    onto:linkProp [
                      a val-onto:LinkValue ;
                      val-onto:hasLinkValue <http://validation-9999/data/link-value-target-wrong>
                   ] .
@@ -27,18 +27,19 @@
 
 <http://validation-9999/data/max-card-violation> a onto:CardOneResource ;
     rdfs:label "Max Cardinality Violation" ;
-    onto:hasSimpleText [ 
+    onto:hasSimpleText [
                         a val-onto:SimpleText ;
-                        val-onto:hasSimpleTextValue ""
+                        val-onto:hasSimpleTextValue "Text Value Two"
                       ],
-                      [ 
+                      [
                         a val-onto:SimpleText ;
-                        val-onto:hasSimpleTextValue "Text Value One" 
+                        val-onto:hasSimpleTextValue "Text Value One"
                       ] .
+
 
 <http://validation-9999/data/non-existing-list-node> a onto:NormalClass ;
     rdfs:label "List-node does not exist" ;
-    onto:listProp [ 
+    onto:listProp [
                      a val-onto:ListValue ;
                      val-onto:hasListName "onlyList" ;
                      val-onto:hasListValue "nonExisting"
@@ -46,7 +47,7 @@
 
 <http://validation-9999/data/property-type-mismatch> a onto:NormalClass ;
     rdfs:label "Property Type Mismatch" ;
-    onto:hasSimpleText [ 
+    onto:hasSimpleText [
                           a val-onto:IntValue ;
                           val-onto:hasIntValue "1"
                       ] .

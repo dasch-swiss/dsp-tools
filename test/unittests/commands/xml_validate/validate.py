@@ -1,5 +1,5 @@
-from rdflib import Graph
 from pyshacl import validate
+from rdflib import Graph
 
 
 def parse_ttl_file(ttl_path: str) -> Graph:
@@ -16,7 +16,14 @@ def validate_graph(shapes: Graph, data: Graph) -> [bool, Graph, str]:
 
 
 dat = parse_ttl_file("testdata/xml-validate/invalid-data.ttl")
-shapes = parse_ttl_file("testdata/xml-validate/validation_shapes.ttl")
 
-_, _, txt = validate_graph(shapes, dat)
+onto_shapes = parse_ttl_file("testdata/xml-validate/onto-shapes.ttl")
+onto = parse_ttl_file("testdata/xml-validate/from_api/onto.ttl")
+shapes = parse_ttl_file("testdata/xml-validate/validation_shapes.ttl")
+shps = onto_shapes + onto + shapes
+
+_, g, txt = validate_graph(shps, dat)
+
+g.serialize("testdata/xml-validate/result.ttl")
+
 print(txt)

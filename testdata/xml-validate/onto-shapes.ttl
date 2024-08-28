@@ -80,14 +80,16 @@ onto-shapes:SubClass_Shape
 onto-shapes:hasSimpleText_NodeShape
   a                   sh:NodeShape ;
   sh:targetObjectsOf  onto:hasSimpleText ;
-  sh:class            val-onto:SimpleText .
+  sh:class            val-onto:SimpleText ;
+  sh:message          "The object of onto:hasSimpleText must be of type SimpleText" ;
+  sh:severity         sh:Violation .
 
 
 onto-shapes:hasSimpleText_PropShape
   a           sh:PropertyShape ;
-  sh:message  "Object for: 'onto:hasSimpleText' -> must be a non-empty string." ;
   sh:path     onto:hasSimpleText ;
   sh:node     val-shapes:SimpleText_Shape ;
+  sh:message  "Object for: 'onto:hasSimpleText' -> must be a non-empty string." ;
   sh:severity sh:Violation .
 
 
@@ -97,7 +99,9 @@ onto-shapes:listProp_NodeShape
   a                   sh:NodeShape ;
   sh:targetObjectsOf  onto:listProp ;
   sh:class            val-onto:ListValue ;
-  sh:property         onto-shapes:hasListValue_listProp, onto-shapes:hasListName_listProp .
+  sh:message          "The object of onto:listProp must be of type ListValue" ;
+  sh:severity         sh:Violation ;
+  sh:property         onto-shapes:hasListValue_listProp , onto-shapes:hasListName_listProp .
 
 
 onto-shapes:hasListValue_listProp

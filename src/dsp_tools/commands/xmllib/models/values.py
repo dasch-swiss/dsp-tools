@@ -1,16 +1,11 @@
 from __future__ import annotations
 
-import warnings
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 from typing import Protocol
 
-import regex
 from lxml import etree
-
-from dsp_tools.commands.xmllib.utils import is_string
-from dsp_tools.models.custom_warnings import DspToolsUserWarning
 
 XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 DASCH_SCHEMA = "{https://dasch.swiss/schema}"
@@ -40,12 +35,6 @@ class SimpleText(Value):
     permissions: str | None = "prop-default"
     comment: str | None = None
 
-    def __post_init__(self) -> None:
-        if not is_string(self.value):
-            msg = f"The following value is not a valid string.\nValue: {self.value} | Property: {self.prop_name}"
-            warnings.warn(DspToolsUserWarning(msg))
-            self.value = str(self.value)
-
     def serialise(self) -> etree._Element:
         ele = self.make_prop()
         ele.append(self.make_element())
@@ -72,12 +61,6 @@ class LinkValue(Value):
     permissions: str | None = "prop-default"
     comment: str | None = None
 
-    def __post_init__(self) -> None:
-        if not is_string(self.value):
-            msg = f"The following value is not a valid string.\nValue: {self.value} | Property: {self.prop_name}"
-            warnings.warn(DspToolsUserWarning(msg))
-            self.value = str(self.value)
-
     def serialise(self) -> etree._Element:
         ele = self.make_prop()
         ele.append(self.make_element())
@@ -103,17 +86,6 @@ class IntValue(Value):
     prop_name: str
     permissions: str | None = "prop-default"
     comment: str | None = None
-
-    def __post_init__(self) -> None:
-        msg = (
-            f"The following value is not a valid integer.\n"
-            f"Type: {type(self.value)} | Value: {self.value} | Property: {self.prop_name}"
-        )
-        if isinstance(self.value, str):
-            if not regex.search(r"^\d+$", self.value):
-                warnings.warn(DspToolsUserWarning(msg))
-        elif not isinstance(self.value, int):
-            warnings.warn(DspToolsUserWarning(msg))
 
     def serialise(self) -> etree._Element:
         ele = self.make_prop()

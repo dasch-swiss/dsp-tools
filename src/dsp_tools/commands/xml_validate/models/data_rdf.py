@@ -108,8 +108,5 @@ class LinkValueRDF(ValueRDF):
 
     def make_graph(self, res_iri: URIRef) -> Graph:
         g = Graph()
-        bn = BNode()
-        g.add((bn, RDF.type, VAL_ONTO.LinkValue))
-        g.add((bn, VAL_ONTO.hasLinkValue, self.object_value))
-        g.add((res_iri, self.prop_name, bn))
+        g.add((res_iri, self.prop_name, self.object_value))
         return g

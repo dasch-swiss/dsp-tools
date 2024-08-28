@@ -167,8 +167,8 @@ def test_get_props_with_links() -> None:
     expected = [
         XMLProperty("rosetta:hasLink", "resptr", [XMLValue("test_thing_1")]),
         XMLProperty("rosetta:hasOtherLink", "resptr", [XMLValue("test_thing_2")]),
-        XMLProperty("rosetta:hasText1", "text", [XMLValue(FormattedTextValue(link_1), resrefs=["test_thing_3"])]),
-        XMLProperty("rosetta:hasText2", "text", [XMLValue(FormattedTextValue(link_2), resrefs=["test_thing_4"])]),
+        XMLProperty("rosetta:hasText1", "text", [XMLValue(FormattedTextValue(link_1), resrefs={"test_thing_3"})]),
+        XMLProperty("rosetta:hasText2", "text", [XMLValue(FormattedTextValue(link_2), resrefs={"test_thing_4"})]),
     ]
     res = xml_resource.get_props_with_links()
     assert res == unordered(expected)

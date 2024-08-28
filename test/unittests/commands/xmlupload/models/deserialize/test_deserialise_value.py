@@ -1,6 +1,5 @@
 import pytest
 from lxml import etree
-from pytest_unordered import unordered
 
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLValue
@@ -95,7 +94,7 @@ class Test_XMLProperty:
             </hasDescription>
         """
         xmltext = FormattedTextValue("""text <a class="salsah-link" href="IRI:test_thing_2:IRI">link</a>""")
-        expected = XMLValue(xmltext, resrefs=["test_thing_2"], link_uuid="123456789")
+        expected = XMLValue(xmltext, resrefs={"test_thing_2"}, link_uuid="123456789")
         res = XMLProperty._get_value_from_knora_base_prop(etree.fromstring(string))
         assert res == expected
 
@@ -116,12 +115,9 @@ class Test_XMLValue:
     def test_from_node_integer_value(self) -> None:
         # test content, and these attributes: comments, permissions, and linkUUID (if existing)
         node = etree.fromstring("""<integer permissions="prop-default" comment="cmt" linkUUID="foo">99</integer>""")
-        value = XMLValue.from_node(node, "integer")
-        assert value.value == "99"
-        assert value.resrefs is None
-        assert value.comment == "cmt"
-        assert value.permissions == "prop-default"
-        assert value.link_uuid == "foo"
+        expected = XMLValue(value="99", comment="cmt", permissions="prop-default", link_uuid="foo")
+        res = XMLValue.from_node(node, "integer")
+        assert res == expected
 
     def test_from_node_formatted_text(self) -> None:
         # test that resrefs are extracted, and that the formatted text is tidied up
@@ -132,7 +128,7 @@ class Test_XMLValue:
                 <a class="salsah-link" href="IRI:test_thing_1:IRI">second link</a>
             </text>
         """
-        expected = " ".join(
+        expected_text = " ".join(
             [
                 '<a class="salsah-link" href="IRI:test_thing_0:IRI">first link</a>',
                 "This is <em>italicized and <strong>bold</strong></em> text!",
@@ -140,33 +136,23 @@ class Test_XMLValue:
             ]
         )
         node = etree.fromstring(string)
-        value = XMLValue.from_node(node, "text")
-        assert isinstance(value.value, FormattedTextValue)
-        assert value.value.xmlstr == expected
-        assert value.resrefs == unordered(["test_thing_0", "test_thing_1"])
-        assert value.comment is None
-        assert value.permissions is None
-        assert value.link_uuid is None
+        expected = XMLValue(value=FormattedTextValue(expected_text), resrefs={"test_thing_0", "test_thing_1"})
+        res = XMLValue.from_node(node, "text")
+        assert res == expected
 
     def test_from_node_unformatted_text(self) -> None:
         # assure that unformatted text is tidied up
         node = etree.fromstring("""<text encoding="utf8"> Poem </text>""")
-        value = XMLValue.from_node(node, "text")
-        assert value.value == "Poem"
-        assert value.resrefs is None
-        assert value.comment is None
-        assert value.permissions is None
-        assert value.link_uuid is None
+        expected = XMLValue("Poem")
+        res = XMLValue.from_node(node, "text")
+        assert res == expected
 
     def test_from_node_list_value(self) -> None:
         # assure that list node is constructed correctly
         node = etree.fromstring("""<list>second subnode</list>""")
-        value = XMLValue.from_node(node, "list", "testlist")
-        assert value.value == "testlist:second subnode"
-        assert value.resrefs is None
-        assert value.comment is None
-        assert value.permissions is None
-        assert value.link_uuid is None
+        expected = XMLValue(value="testlist:second subnode")
+        res = XMLValue.from_node(node, "list", "testlist")
+        assert res == expected
 
 
 def test_cleanup_unformatted_text() -> None:

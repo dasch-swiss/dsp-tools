@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from dataclasses import field
 from typing import Optional
 from typing import Union
 from typing import cast
@@ -78,12 +79,12 @@ class XMLProperty:
 
     @staticmethod
     def _get_value_from_knora_base_prop(node: etree._Element) -> XMLValue:
-        resrefs = None
+        resrefs = set()
         if node.tag.endswith("hasSegmentBounds"):
             value: str | FormattedTextValue = f"{node.attrib["segment_start"]}:{node.attrib["segment_end"]}"
         elif node.tag.endswith(("hasDescription", "hasComment")):
             value = _extract_formatted_text_from_node(node)
-            resrefs = list(value.find_internal_ids()) or None
+            resrefs = value.find_internal_ids()
         else:
             str_orig = "".join(node.itertext())
             value = _cleanup_unformatted_text(str_orig)
@@ -98,7 +99,7 @@ class XMLValue:
     """Represents a value of a resource property in the XML used for data import"""
 
     value: Union[str, FormattedTextValue]
-    resrefs: Optional[list[str]] = None
+    resrefs: set[str] = field(default_factory=set)
     comment: Optional[str] = None
     permissions: Optional[str] = None
     link_uuid: Optional[str] = None
@@ -111,12 +112,12 @@ class XMLValue:
     ) -> XMLValue:
         """Factory method to create an XMLValue from an XML node"""
         value: Union[str, FormattedTextValue] = ""
-        resrefs = None
+        resrefs = set()
         comment = node.get("comment")
         permissions = node.get("permissions")
         if val_type == "text" and node.get("encoding") == "xml":
             value = _extract_formatted_text_from_node(node)
-            resrefs = list(value.find_internal_ids()) or None
+            resrefs = value.find_internal_ids()
         elif val_type == "text" and node.get("encoding") == "utf8":
             str_orig = "".join(node.itertext())
             value = _cleanup_unformatted_text(str_orig)

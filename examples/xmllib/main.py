@@ -10,51 +10,52 @@ from dsp_tools import xmllib
 data_folder = Path("examples/xmllib/data")
 
 
-def _make_books(res_collection: xmllib.ResourceCollection) -> None:
+def _make_books() -> list[xmllib.Resource]:
     df = pd.read_csv(data_folder / "Book.csv")
+    files = {x.stem: x for x in data_folder.glob("*.jpg")}
+    books = []
     for _, row in df.iterrows():
-        one_book = _make_one_book(row)
-        res_collection.with_resource(one_book)
+        filename = files.get(row["id"])
+        one_book = _make_one_book(row, filename)
+        books.append(one_book)
+    return books
 
 
-def _make_one_book(row: pd.Series) -> xmllib.Resource:
-    res = xmllib.Resource(res_id=row["id"], restype=":Book", label=row["label"])
+def _make_one_book(row: pd.Series, filename: str | None) -> xmllib.Resource:
     titles = row["hasTitle"].split("||")
     titles = [x.strip() for x in titles]
-    res.with_several_simple_texts(prop_name=":hasTitle", values=titles).with_int_value(
-        prop_name=":hasNumberOfPages", value=row["hasNumberOfPages"]
-    ).with_simple_text(prop_name=":hasAuthor", value=row["hasAuthor"])
-    return res
+    return (
+        xmllib.Resource(res_id=row["id"], restype=":Book", label=row["label"])
+        .add_simple_texts(prop_name=":hasTitle", values=titles)
+        .add_integer(prop_name=":hasNumberOfPages", value=row["hasNumberOfPages"])
+        .add_simple_text(prop_name=":hasAuthor", value=row["hasAuthor"])
+        .add_file(filename=filename)
+    )
 
 
-def _make_chapters(res_collection: xmllib.ResourceCollection) -> None:
+def _make_chapters() -> list[xmllib.Resource]:
     df = pd.read_csv(data_folder / "Chapter.csv")
+    chapters = []
     for _, row in df.iterrows():
         one_chapter = _make_one_chapter(row)
-        res_collection.with_resource(one_chapter)
+        chapters.append(one_chapter)
+    return chapters
 
 
 def _make_one_chapter(row: pd.Series) -> xmllib.Resource:
     return (
         xmllib.Resource(res_id=row["id"], restype=":Chapter", label=row["label"])
-        .with_simple_text(prop_name=":hasTitle", value=row["hasTitle"])
-        .with_int_value(prop_name=":hasChapterNumber", value=row["hasChapterNumber"])
-        .with_link_value(prop_name=":isPartOfBook", value=row["isPartOfBook"])
+        .add_simple_text(prop_name=":hasTitle", value=row["hasTitle"])
+        .add_integer(prop_name=":hasChapterNumber", value=row["hasChapterNumber"])
+        .add_link(prop_name=":isPartOfBook", value=row["isPartOfBook"])
     )
-
-
-def _add_images(res_collection: xmllib.ResourceCollection) -> None:
-    files = [x for x in data_folder.glob("*.jpg")]
-    for f in files:
-        res_collection.add_file_value_to_resource(res_id=f.stem, filepath=str(f))
 
 
 def main() -> None:
     """Creates an XML file from the csv files in the data folder."""
-    resources = xmllib.ResourceCollection()
-    _make_books(resources)
-    _make_chapters(resources)
-    _add_images(resources)
+    resources = []
+    resources.extend(_make_books())
+    resources.extend(_make_chapters())
     root = xmllib.XMLRoot(shortcode="0001", default_ontology="onto", resource_collection=resources)
     root.write_file("examples/xmllib/data.xml")
 

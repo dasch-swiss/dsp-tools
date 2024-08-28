@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from dataclasses import field
 from pathlib import Path
 
 from lxml import etree
 
 from dsp_tools.commands.excel2xml import append_permissions
 from dsp_tools.commands.excel2xml import write_xml
-from dsp_tools.commands.xmllib.models.resource import ResourceCollection
+from dsp_tools.commands.xmllib.models.resource import Resource
 
 XML_NAMESPACE_MAP = {None: "https://dasch.swiss/schema", "xsi": "http://www.w3.org/2001/XMLSchema-instance"}
 DASCH_SCHEMA = "{https://dasch.swiss/schema}"
@@ -17,7 +18,7 @@ DASCH_SCHEMA = "{https://dasch.swiss/schema}"
 class XMLRoot:
     shortcode: str
     default_ontology: str
-    resource_collection: ResourceCollection
+    resource_collection: list[Resource] = field(default_factory=list)
 
     def make_root(self) -> etree._Element:
         schema_url = (
@@ -38,7 +39,7 @@ class XMLRoot:
     def serialise(self) -> etree._Element:
         root = self.make_root()
         root = append_permissions(root)
-        serialised_resources = [x.serialise() for x in self.resource_collection.to_list()]
+        serialised_resources = [x.serialise() for x in self.resource_collection]
         root.extend(serialised_resources)
         return root
 

@@ -7,7 +7,9 @@ from dataclasses import field
 
 from lxml import etree
 
+from dsp_tools.commands.xmllib.models.values import AbstractFileValue
 from dsp_tools.commands.xmllib.models.values import FileValue
+from dsp_tools.commands.xmllib.models.values import IIIFUri
 from dsp_tools.commands.xmllib.models.values import IntValue
 from dsp_tools.commands.xmllib.models.values import LinkValue
 from dsp_tools.commands.xmllib.models.values import SimpleText
@@ -21,53 +23,13 @@ DASCH_SCHEMA = "{https://dasch.swiss/schema}"
 
 
 @dataclass
-class ResourceCollection:
-    resources: dict[str, Resource] = field(default_factory=dict)
-
-    def to_list(self) -> list[Resource]:
-        return list(self.resources.values())
-
-    def with_resource(self, resource: Resource) -> ResourceCollection:
-        self._raise_exists(resource.res_id)
-        self.resources[resource.res_id] = resource
-        return self
-
-    def with_empty_resource(self, res_id: str, restype: str, label: str) -> ResourceCollection:
-        self._raise_exists(res_id)
-        self.resources[res_id] = Resource(res_id=res_id, restype=restype, label=label)
-        return self
-
-    def add_value_to_resource(self, res_id: str, value: Value) -> ResourceCollection:
-        self._raise_does_not_exist(res_id)
-        self.resources[res_id].values.append(value)
-        return self
-
-    def add_file_value_to_resource(
-        self, res_id: str, filepath: str, permissions: str | None = None, comment: str | None = None
-    ) -> ResourceCollection:
-        self._raise_does_not_exist(res_id)
-        if self.resources[res_id].file_value:
-            raise InputError(f"The resource with the ID: '{res_id}' already has a FileValue. Another cannot be added.")
-        self.resources[res_id].file_value = FileValue(value=filepath, permissions=permissions, comment=comment)
-        return self
-
-    def _raise_exists(self, res_id: str) -> None:
-        if res_id in self.resources:
-            raise InputError(f"A resource with the ID: '{res_id}' already exists.")
-
-    def _raise_does_not_exist(self, res_id: str) -> None:
-        if res_id not in self.resources:
-            raise InputError(f"Resource with ID '{res_id}' not found.")
-
-
-@dataclass
 class Resource:
     res_id: str
     restype: str
     label: str
     values: list[Value] = field(default_factory=list)
     permissions: str = "res-default"
-    file_value: FileValue | None = None
+    file_value: AbstractFileValue | None = None
 
     def __post_init__(self) -> None:
         if not is_string(str(self.label)):
@@ -103,26 +65,26 @@ class Resource:
         prop_.extend(prop_eles)
         return prop_
 
-    def with_int_value(
+    def add_integer(
         self, prop_name: str, value: int | str, permissions: str | None = None, comments: str | None = None
     ) -> Resource:
         self.values.append(IntValue(value=value, prop_name=prop_name, permissions=permissions, comment=comments))
         return self
 
-    def with_several_int_values(
+    def add_integers(
         self, prop_name: str, values: list[int | str], permissions: str | None = None, comments: str | None = None
     ) -> Resource:
         inv_values = [IntValue(value=x, prop_name=prop_name, permissions=permissions, comment=comments) for x in values]
         self.values.extend(inv_values)
         return self
 
-    def with_simple_text(
+    def add_simple_text(
         self, prop_name: str, value: str, permissions: str | None = None, comments: str | None = None
     ) -> Resource:
         self.values.append(SimpleText(value=value, prop_name=prop_name, permissions=permissions, comment=comments))
         return self
 
-    def with_several_simple_texts(
+    def add_simple_texts(
         self, prop_name: str, values: list[str], permissions: str | None = None, comments: str | None = None
     ) -> Resource:
         simple_text_values = [
@@ -131,17 +93,37 @@ class Resource:
         self.values.extend(simple_text_values)
         return self
 
-    def with_link_value(
+    def add_link(
         self, prop_name: str, value: str, permissions: str | None = None, comments: str | None = None
     ) -> Resource:
         self.values.append(LinkValue(value=value, prop_name=prop_name, permissions=permissions, comment=comments))
         return self
 
-    def with_several_link_values(
+    def add_links(
         self, prop_name: str, values: list[str], permissions: str | None = None, comments: str | None = None
     ) -> Resource:
         link_values = [
             LinkValue(value=x, prop_name=prop_name, permissions=permissions, comment=comments) for x in values
         ]
         self.values.extend(link_values)
+        return self
+
+    def add_file(self, filename: str, permissions: str | None = None, comments: str | None = None) -> Resource:
+        if self.file_value:
+            raise InputError(
+                f"The resource with the ID '{self.res_id}' already contains a file with the name: "
+                f"'{self.file_value.value}'.\n"
+                f"The new file with the name: '{filename}' cannot be added."
+            )
+        self.file_value = FileValue(value=filename, permissions=permissions, comment=comments)
+        return self
+
+    def add_iiif_uri(self, filename: str, permissions: str | None = None, comments: str | None = None) -> Resource:
+        if self.file_value:
+            raise InputError(
+                f"The resource with the ID '{self.res_id}' already contains a file with the name: "
+                f"'{self.file_value.value}'.\n"
+                f"The new file with the name: '{filename}' cannot be added."
+            )
+        self.file_value = IIIFUri(value=filename, permissions=permissions, comment=comments)
         return self

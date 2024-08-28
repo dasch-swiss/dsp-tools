@@ -4,6 +4,7 @@ import warnings
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+from typing import Protocol
 
 import regex
 from lxml import etree
@@ -16,7 +17,7 @@ DASCH_SCHEMA = "{https://dasch.swiss/schema}"
 
 
 @dataclass
-class Value:
+class Value(Protocol):
     value: Any
     prop_name: str
     permissions: str | None
@@ -134,9 +135,9 @@ class IntValue(Value):
 
 
 @dataclass
-class AbstractFileValue:
+class AbstractFileValue(Protocol):
     value: str | Path
-    permissions: str | None = "prop-default"
+    permissions: str | None
     comment: str | None = None
 
     def serialise(self) -> etree._Element:

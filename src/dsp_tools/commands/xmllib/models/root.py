@@ -36,6 +36,10 @@ class XMLRoot:
             nsmap=XML_NAMESPACE_MAP,
         )
 
+    def add_resources(self, resources: list[Resource]) -> XMLRoot:
+        self.resource_collection.extend(resources)
+        return self
+
     def serialise(self) -> etree._Element:
         root = self.make_root()
         root = append_permissions(root)

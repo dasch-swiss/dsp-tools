@@ -53,9 +53,14 @@ def _make_one_chapter(row: pd.Series) -> xmllib.Resource:
 
 def main() -> None:
     """Creates an XML file from the csv files in the data folder."""
-    resources = _make_books()
-    resources.extend(_make_chapters())
-    root = xmllib.XMLRoot(shortcode="0001", default_ontology="onto", resource_collection=resources)
+    root = xmllib.XMLRoot(shortcode="0001", default_ontology="onto")
+
+    books = _make_books()
+    root = root.add_resources(books)
+
+    chapters = _make_chapters()
+    root = root.add_resources(chapters)
+
     root.write_file("examples/xmllib/data.xml")
 
 

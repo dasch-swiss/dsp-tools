@@ -70,7 +70,7 @@ class Resource:
         return prop_
 
     ###################
-    # IntValues
+    # IntValue
     ###################
 
     def add_integer(

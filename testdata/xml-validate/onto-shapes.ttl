@@ -16,16 +16,19 @@ onto-shapes:NormalClass_Shape
   sh:property          [
                          a           sh:PropertyShape ;
                          sh:path     onto:linkProp ;
-                       ] , onto-shapes:linkProp_Shape ,
+                       ] ,
+                       onto-shapes:linkProp_PropShape ,
                        [
                          a           sh:PropertyShape ;
                          sh:path     onto:listProp ;
+                         sh:node     onto-shapes:listProp_NodeShape ;
                        ] ,
                        [
                          a           sh:PropertyShape ;
                          sh:path     onto:hasSimpleText ;
-                       ] , onto-shapes:hasSimpleText_Shape ;
-  sh:node              onto-shapes:listProp_Shape ;
+                         sh:node     onto-shapes:hasSimpleText_NodeShape ;
+                       ] ,
+                       onto-shapes:hasSimpleText_PropShape ;
   sh:ignoredProperties ( rdf:type rdfs:label ) ;
   sh:closed            true .
 
@@ -40,7 +43,13 @@ onto-shapes:CardOneResource_Shape
                          sh:maxCount 1 ;
                          sh:severity sh:Violation ;
                          sh:message  "Cardinality: 'onto:hasSimpleText' -> exactly 1"
-                       ] , onto-shapes:hasSimpleText_Shape ;
+                       ] ,
+                       [
+                         a           sh:PropertyShape ;
+                         sh:path     onto:hasSimpleText ;
+                         sh:node     onto-shapes:hasSimpleText_NodeShape ;
+                       ] ,
+                       onto-shapes:hasSimpleText_PropShape ;
   sh:ignoredProperties ( rdf:type rdfs:label ) ;
   sh:closed            true .
 
@@ -55,14 +64,26 @@ onto-shapes:SubClass_Shape
                          sh:maxCount 1 ;
                          sh:severity sh:Violation ;
                          sh:message  "Cardinality: 'onto:hasSimpleText' -> exactly 1"
-                       ] , onto-shapes:hasSimpleText_Shape ;
+                       ] ,
+                       [
+                         a           sh:PropertyShape ;
+                         sh:path     onto:hasSimpleText ;
+                         sh:node     onto-shapes:hasSimpleText_NodeShape ;
+                       ] ,
+                       onto-shapes:hasSimpleText_PropShape ;
   sh:ignoredProperties ( rdf:type rdfs:label ) ;
   sh:closed            true .
 
 
 ####################
 
-onto-shapes:hasSimpleText_Shape
+onto-shapes:hasSimpleText_NodeShape
+  a                   sh:NodeShape ;
+  sh:targetObjectsOf  onto:hasSimpleText ;
+  sh:class            val-onto:SimpleText .
+
+
+onto-shapes:hasSimpleText_PropShape
   a           sh:PropertyShape ;
   sh:message  "Object for: 'onto:hasSimpleText' -> must be a non-empty string." ;
   sh:path     onto:hasSimpleText ;
@@ -72,7 +93,7 @@ onto-shapes:hasSimpleText_Shape
 
 ####################
 
-onto-shapes:listProp_Shape
+onto-shapes:listProp_NodeShape
   a                   sh:NodeShape ;
   sh:targetObjectsOf  onto:listProp ;
   sh:class            val-onto:ListValue ;
@@ -96,7 +117,7 @@ onto-shapes:hasListName_listProp
 
 ####################
 
-onto-shapes:linkProp_Shape
+onto-shapes:linkProp_PropShape
   a                   sh:PropertyShape ;
   sh:path             onto:linkProp ;
   sh:node             [

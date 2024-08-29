@@ -55,21 +55,21 @@ val-shapes:SimpleText_NodeShape
   sh:severity sh:Violation .
 
 
-val-shapes:SimpleText_UniqueValuesShape
+val-shapes:UniqueValuesShape
   a           sh:NodeShape ;
   sh:sparql   [
                 a          sh:SPARQLConstraint ;
-                sh:message "A subject must not have identical SimpleText values." ;
+                sh:message "A resource may not have the same property and value more than one time." ;
                 sh:select  """
                     PREFIX val-onto: <http://api.knora.org/validation-onto#>
                     SELECT $this ?value WHERE {
-                      $this ?someProperty ?textValue .
+                      $this ?someProperty ?valueClass .
 
-                      ?textValue a val-onto:SimpleText ;
-                                   val-onto:hasSimpleTextValue ?value .
+                      ?valueClass a val-onto:Value ;
+                                  val-onto:hasValue ?value .
                     }
                     GROUP BY $this ?value
-                    HAVING (COUNT(?textValue) > 1)
+                    HAVING (COUNT(?valueClass) > 1)
                 """ ;
               ] ;
   sh:severity sh:Violation .

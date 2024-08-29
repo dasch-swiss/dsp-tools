@@ -9,13 +9,100 @@
 @prefix onto:        <http://validation-9999/onto#> .
 @prefix onto-shapes: <http://validation-9999/onto-shapes#> .
 
+###################
+# Class Shapes
+###################
+
 onto-shapes:NormalClass_NodeShape a sh:NodeShape ;
   sh:targetClass onto:NormalClass ;
-  sh:property onto-shapes:hasSimpleText_PropShape .
+  sh:property onto-shapes:hasSimpleText_PropShape ,
+              onto-shapes:listProp_PropShape ,
+              onto-shapes:linkProp_PropShape ;
+  sh:ignoredProperties ( rdf:type rdfs:label ) ;
+  sh:closed            true .
 
+#######
+
+onto-shapes:CardOneResource_Shape
+  a                    sh:NodeShape ;
+  sh:targetClass       onto:CardOneResource ;
+  sh:property          [
+                         a           sh:PropertyShape ;
+                         sh:path     onto:hasSimpleText ;
+                         sh:minCount 1 ;
+                         sh:maxCount 1 ;
+                         sh:severity sh:Violation ;
+                         sh:message  "Cardinality: 'onto:hasSimpleText' -> exactly 1" ;
+                       ] ,
+                       onto-shapes:hasSimpleText_PropShape ;
+  sh:ignoredProperties ( rdf:type rdfs:label ) ;
+  sh:closed            true .
+
+#######
+
+onto-shapes:SubClass_Shape
+  a                    sh:NodeShape ;
+  sh:targetClass       onto:SubClass ;
+  sh:property          [
+                         a           sh:PropertyShape ;
+                         sh:path     onto:hasSimpleText ;
+                         sh:minCount 1 ;
+                         sh:maxCount 1 ;
+                         sh:severity sh:Violation ;
+                         sh:message  "Cardinality: 'onto:hasSimpleText' -> exactly 1" ;
+                       ] ,
+                       onto-shapes:hasSimpleText_PropShape ;
+  sh:ignoredProperties ( rdf:type rdfs:label ) ;
+  sh:closed            true .
+
+###################
+# Property Shapes
+###################
 
 onto-shapes:hasSimpleText_PropShape
   a sh:PropertyShape  ;
   sh:path onto:hasSimpleText ;
-  sh:node val-shapes:SimpleText_ClassShape , val-shapes:SimpleText_NodeShape.
+  sh:node val-shapes:SimpleText_ClassShape , val-shapes:SimpleText_NodeShape .
 
+#######
+
+onto-shapes:listProp_PropShape
+  a sh:PropertyShape ;
+  sh:path onto:listProp ;
+  sh:node val-shapes:ListValue_ClassShape , onto-shapes:listProp_NodeShape .
+
+
+onto-shapes:listProp_NodeShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the content of the ListValue with the specific property." ;
+  sh:property [
+                a         sh:PropertyShape ;
+                sh:path   val-onto:hasListValue ;
+                sh:in     ( "n1" "n1.1" "n1.1.1" ) ;
+                sh:message "Unknown list node."
+              ] ,
+              [
+                a         sh:PropertyShape ;
+                sh:path   val-onto:hasListName ;
+                sh:in     ( "onlyList" ) ;
+                sh:message "Unknown list name."
+              ] ;
+  sh:severity sh:Violation .
+
+#######
+
+onto-shapes:linkProp_PropShape
+  a sh:PropertyShape ;
+  sh:path onto:linkProp ;
+  sh:node val-shapes:LinkValue_ClassShape , onto-shapes:linkProp_NodeShape .
+
+val-shapes:linkProp_NodeShape
+  a              sh:NodeShape ;
+  sh:name        "Validates class of target." ;
+  sh:property    [
+                    a            sh:PropertyShape ;
+                    sh:path      val-onto:hasLinkValueTarget ;
+                    sh:class     onto:CardOneResource ;
+                    sh:message   "Target must be of type onto:CardOneResource or a subclass of it." ;
+                 ] ;
+  sh:severity    sh:Violation .

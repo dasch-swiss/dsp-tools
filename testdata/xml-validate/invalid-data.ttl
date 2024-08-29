@@ -2,6 +2,7 @@
 @prefix ns2: <http://api.knora.org/validation-onto#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
+# CHECK NOT IMPLEMENTED
 <http://validation-9999/data/identical-value> a ns1:NormalClass ;
     rdfs:label "Value is Identical" ;
     ns1:hasSimpleText [ a ns2:SimpleText ;
@@ -9,11 +10,17 @@
         [ a ns2:SimpleText ;
             ns2:hasSimpleTextValue "These two values are identical." ] .
 
+# DOES NOT WORK
 <http://validation-9999/data/link-value-wrong> a ns1:NormalClass ;
     rdfs:label "Target Link Class Mismatch" ;
     ns1:linkProp [ a ns2:LinkValue ;
             ns2:hasLinkValueTarget <http://validation-9999/data/link-value-target-wrong> ] .
 
+<http://validation-9999/data/link-value-target-wrong> a ns1:NormalClass ;
+    rdfs:label "Link Value Target" .
+
+
+# WORKS
 <http://validation-9999/data/max-card-violation> a ns1:CardOneResource ;
     rdfs:label "Max Cardinality Violation" ;
     ns1:hasSimpleText [ a ns2:SimpleText ;
@@ -21,17 +28,16 @@
         [ a ns2:SimpleText ;
             ns2:hasSimpleTextValue "Text Value One" ] .
 
+# WORKS
 <http://validation-9999/data/non-existing-list-node> a ns1:NormalClass ;
     rdfs:label "List-node does not exist" ;
     ns1:listProp [ a ns2:ListValue ;
             ns2:hasListName "onlyList" ;
             ns2:hasListValue "nonExisting" ] .
 
+# WORKS
 <http://validation-9999/data/property-type-mismatch> a ns1:NormalClass ;
     rdfs:label "Property Type Mismatch" ;
     ns1:hasSimpleText [ a ns2:IntValue ;
             ns2:hasIntValue "1" ] .
-
-<http://validation-9999/data/link-value-target-wrong> a ns1:NormalClass ;
-    rdfs:label "Link Value Target" .
 

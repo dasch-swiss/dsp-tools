@@ -15,15 +15,22 @@ def validate_graph(shapes: Graph, data: Graph) -> [bool, Graph, str]:
     return conforms, results_graph, results_text
 
 
-dat = parse_ttl_file("testdata/xml-validate/invalid-data.ttl")
+bad_data = parse_ttl_file("testdata/xml-validate/invalid-data.ttl")
 
 onto_shapes = parse_ttl_file("testdata/xml-validate/onto-shapes.ttl")
 onto = parse_ttl_file("testdata/xml-validate/from_api/onto.ttl")
 shapes = parse_ttl_file("testdata/xml-validate/validation_shapes.ttl")
-shps = onto_shapes + onto + shapes
+shapes += onto_shapes + onto
+bad_data = onto + bad_data
 
-_, g, txt = validate_graph(shps, dat)
-
-g.serialize("testdata/xml-validate/result.ttl")
+_, g, txt = validate_graph(shapes, bad_data)
 
 print(txt)
+g.serialize("testdata/xml-validate/result.ttl")
+
+good_data = parse_ttl_file("testdata/xml-validate/valid-data.ttl")
+good_data = onto + good_data
+_, _, good_text = validate_graph(shapes, good_data)
+
+
+print(good_text)

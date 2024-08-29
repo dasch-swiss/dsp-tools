@@ -90,14 +90,13 @@ def test_error_on_nonexistent_onto_name() -> None:
         "\nSome property and/or class type(s) used in the XML are unknown.\n"
         "The ontologies for your project on the server are:\n"
         "    - testonto\n"
-        "    - knora-api\n\n"
-        "---------------------------------------\n\n"
+        "    - knora-api"
+        "\n\n"
         "The following resource(s) have an invalid resource type:\n\n"
         "    Resource Type: ':minimalResource'\n"
         "    Problem: 'Unknown ontology prefix'\n"
         "    Resource ID(s):\n"
         "    - the_only_resource\n\n"
-        "---------------------------------------\n\n"
     )
     with pytest.raises(InputError, match=expected):
         do_xml_consistency_check_with_ontology(ontology_client, root)

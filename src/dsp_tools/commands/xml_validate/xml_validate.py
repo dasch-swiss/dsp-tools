@@ -12,6 +12,7 @@ def xml_validate() -> bool:
     data_rdf = create_project_rdf(project_deserialised)
     deserialised_lists = get_deserialised_lists()
     onto = get_project_ontology()
+    #data_rdf.make_graph().serialize("testdata/xml-validate/invalid-data.ttl")
     return True
 
 

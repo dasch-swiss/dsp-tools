@@ -14,14 +14,14 @@
 val-onto:IntValue a owl:Class .
 val-onto:hasIntValue a owl:DatatypeProperty .
 
-val-shapes:IntValue_Shape
+val-shapes:IntValue_ClassShape
   a              sh:NodeShape ;
   sh:name        "Validates the class type" ;
   sh:message     "Object must be a of type IntValue." ;
   sh:class       val-onto:IntValue ;
   sh:severity    sh:Violation .
 
-val-shapes:SimpleText_NodeShape
+val-shapes:IntValue_NodeShape
   a              sh:NodeShape ;
   sh:name        "Validates that it is a valid integer in string form." ;
   sh:property    [

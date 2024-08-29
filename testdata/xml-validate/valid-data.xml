@@ -51,4 +51,13 @@
         </text-prop>
     </resource>
 
+
+    <!-- It is allowed to have two list nodes within one list. -->
+    <resource label="Duplicate list with different nodes are allowed" restype=":NormalClass" id="duplicate-list-different-node">
+        <list-prop name=":listProp" list="onlyList">
+            <list>n1</list>
+            <list>n1.1</list>
+        </list-prop>
+    </resource>
+
 </knora>

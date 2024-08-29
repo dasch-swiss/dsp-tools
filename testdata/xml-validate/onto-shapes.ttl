@@ -37,6 +37,7 @@ onto-shapes:CardOneResource_Shape
                          sh:message  "Cardinality: 'onto:hasSimpleText' -> exactly 1" ;
                        ] ,
                        onto-shapes:hasSimpleText_PropShape ;
+  sh:node             val-shapes:SimpleText_UniqueValuesShape;
   sh:ignoredProperties ( rdf:type rdfs:label ) ;
   sh:closed            true .
 
@@ -54,6 +55,7 @@ onto-shapes:SubClass_Shape
                          sh:message  "Cardinality: 'onto:hasSimpleText' -> exactly 1" ;
                        ] ,
                        onto-shapes:hasSimpleText_PropShape ;
+  sh:node             val-shapes:SimpleText_UniqueValuesShape;
   sh:ignoredProperties ( rdf:type rdfs:label ) ;
   sh:closed            true .
 

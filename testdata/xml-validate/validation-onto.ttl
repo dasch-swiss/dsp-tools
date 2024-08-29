@@ -1,0 +1,54 @@
+@prefix rdf:      <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl:      <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:     <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:      <http://www.w3.org/2001/XMLSchema#> .
+
+@prefix val-onto: <http://api.knora.org/validation-onto#> .
+
+# Generic SuperClass and SuperProperty
+val-onto:Value a owl:Class .
+
+val-onto:hasValue a owl:ObjectProperty .
+
+# IntValue
+val-onto:IntValue
+  a               owl:Class ;
+  rdfs:subClassOf val-onto:Value .
+
+val-onto:hasIntValue
+  a                  owl:DatatypeProperty ;
+  rdfs:subPropertyOf val-onto:hasValue .
+
+
+# SimpleText
+val-onto:SimpleText
+  a               owl:Class ;
+  rdfs:subClassOf val-onto:Value .
+
+val-onto:hasSimpleTextValue
+  a                  owl:DatatypeProperty ;
+  rdfs:subPropertyOf val-onto:hasValue .
+
+
+# ListValue
+val-onto:ListValue
+  a               owl:Class ;
+  rdfs:subClassOf val-onto:Value .
+
+val-onto:hasListValue
+  a                  owl:DatatypeProperty ;
+  rdfs:subPropertyOf val-onto:hasValue .
+
+val-onto:hasListName
+  a                  owl:DatatypeProperty ;
+  rdfs:subPropertyOf val-onto:hasValue .
+
+
+# LinkValue
+val-onto:LinkValue
+  a               owl:Class ;
+  rdfs:subClassOf val-onto:Value .
+
+val-onto:hasLinkValueTarget
+  a                  owl:ObjectProperty ;
+  rdfs:subPropertyOf val-onto:hasValue .

@@ -100,6 +100,9 @@ onto-shapes:linkProp_PropShape
   sh:path onto:linkProp ;
   sh:node val-shapes:LinkValue_ClassShape , onto-shapes:linkProp_NodeShape .
 
+
+# GOOD DATA DOES NOT PASS (INHERITANCE PROBLEM???)
+# FINDS VIOLATIONS
 onto-shapes:linkProp_NodeShape
   a              sh:NodeShape ;
   sh:name        "Validates class of target." ;
@@ -110,3 +113,24 @@ onto-shapes:linkProp_NodeShape
                     sh:message   "Target must be of type onto:CardOneResource or a subclass of it." ;
                  ] ;
   sh:severity    sh:Violation .
+
+
+# DOES NOT FIND VIOLATIONS, GOOD DATA PASSES
+#onto-shapes:linkProp_NodeShape
+#  a                   sh:NodeShape ;
+#  sh:sparql           [
+#                        a          sh:SPARQLConstraint ;
+#                        sh:message "Target must be of type onto:CardOneResource or a subclass of it." ;
+#                        sh:select  """
+#                            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+#                            SELECT $this
+#                            WHERE {
+#                            $this onto:linkProp ?linkValue .
+#                            ?linkValue val-onto:hasLinkValueTarget ?target .
+#                                FILTER NOT EXISTS {
+#                                    ?target a/rdfs:subClassOf* onto:CardOneResource .
+#                                }
+#                            }
+#                        """ ;
+#                      ] ;
+#  sh:severity         sh:Violation .

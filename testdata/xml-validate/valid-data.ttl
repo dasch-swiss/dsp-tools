@@ -23,8 +23,20 @@
   rdfs:label    "Target Link Class Correct" ;
   onto:linkProp [
                   a                           val-onto:LinkValue ;
+                  val-onto:hasLinkValueTarget <http://validation-9999/data/cardinality-correct>
+                ] ,
+                [
+                  a                           val-onto:LinkValue ;
                   val-onto:hasLinkValueTarget <http://validation-9999/data/inherited-cardinality-correct>
                 ] .
+
+<http://validation-9999/data/cardinality-correct>
+  a                  onto:CardOneResource ;
+  rdfs:label         "Inherited good cardinality" ;
+  onto:hasSimpleText [
+                       a                           val-onto:SimpleText ;
+                       val-onto:hasSimpleTextValue "Text Value One"
+                     ] .
 
 <http://validation-9999/data/inherited-cardinality-correct>
   a                  onto:SubClass ;

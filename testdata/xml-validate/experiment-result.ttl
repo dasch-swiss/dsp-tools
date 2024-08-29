@@ -1,0 +1,27 @@
+@prefix ex: <http://validation-9999/onto#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+[] a sh:ValidationReport ;
+    sh:conforms false ;
+    sh:result [ a sh:ValidationResult ;
+            sh:detail [ a sh:ValidationResult ;
+                    sh:focusNode _:n732774d2f98d4870bff0d265a20556f4b2 ;
+                    sh:resultMessage "Value does not have class ex:Provenance" ;
+                    sh:resultSeverity sh:Violation ;
+                    sh:sourceConstraintComponent sh:ClassConstraintComponent ;
+                    sh:sourceShape ex:otherNum_NodeShape ;
+                    sh:value _:n732774d2f98d4870bff0d265a20556f4b2 ] ;
+            sh:focusNode ex:Nora ;
+            sh:resultMessage "Value does not conform to Shape ex:otherNum_NodeShape. See details for more information." ;
+            sh:resultPath ex:otherNum ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+            sh:sourceShape ex:Person_otherNum_PropShape ;
+            sh:value _:n732774d2f98d4870bff0d265a20556f4b2 ] .
+
+_:n732774d2f98d4870bff0d265a20556f4b2 a ex:Origin,
+        rdfs:Resource ;
+    ex:hasNumber "1" .
+

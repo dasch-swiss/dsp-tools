@@ -1,0 +1,25 @@
+@prefix owl:         <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:         <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:        <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:         <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh:          <http://www.w3.org/ns/shacl#> .
+@prefix dash:        <http://datashapes.org/dash#> .
+
+@prefix val-shapes:  <http://api.knora.org/validation-shapes#> .
+@prefix val-onto:    <http://api.knora.org/validation-onto#> .
+@prefix ex:        <http://validation-9999/onto#> .
+@prefix onto-shapes: <http://validation-9999/onto-shapes#> .
+
+@prefix data: <http://validation-9999/data/> .
+
+
+ex:Nora a ex:Person ;
+  ex:age [
+          a ex:Provenance ;
+          ex:hasNumber 1 ;
+          ex:author ex:Nora ;
+         ] ;
+  ex:otherNum [
+               a ex:Origin ;
+               ex:hasNumber "1" ;
+              ] .

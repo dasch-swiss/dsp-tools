@@ -230,13 +230,17 @@ def _get_all_ids_and_props_and_encodings_from_root(root: etree._Element) -> list
 
 def _get_id_and_props_and_encodings_from_one_resource(resource: etree._Element) -> list[TextValueData]:
     res_id = resource.attrib["id"]
-    return [_get_prop_and_encoding_from_one_property(res_id, child) for child in resource.iterchildren(tag="text-prop")]
+    res_type = resource.attrib["restype"]
+    return [
+        _get_prop_and_encoding_from_one_property(res_id, res_type, child)
+        for child in resource.iterchildren(tag="text-prop")
+    ]
 
 
-def _get_prop_and_encoding_from_one_property(res_id: str, prop: etree._Element) -> TextValueData:
+def _get_prop_and_encoding_from_one_property(res_id: str, res_type: str, prop: etree._Element) -> TextValueData:
     prop_name = prop.attrib["name"]
     encoding = cast(AllowedEncodings, prop[0].attrib["encoding"])
-    return TextValueData(res_id, prop_name, encoding)
+    return TextValueData(res_id, res_type, prop_name, encoding)
 
 
 def _check_correctness_of_one_prop(text_val: TextValueData, text_prop_look_up: PropertyTextValueTypes) -> bool:

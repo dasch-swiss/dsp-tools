@@ -64,15 +64,14 @@ onto-shapes:SubClass_Shape
 ###################
 
 onto-shapes:hasSimpleText_PropShape
-  a sh:PropertyShape  ;
+  a       sh:PropertyShape  ;
   sh:path onto:hasSimpleText ;
-  sh:node val-shapes:SimpleText_ClassShape ,
-          val-shapes:SimpleText_NodeShape .
+  sh:node val-shapes:SimpleText_ClassShape , val-shapes:SimpleText_NodeShape .
 
 #######
 
 onto-shapes:listProp_PropShape
-  a sh:PropertyShape ;
+  a       sh:PropertyShape ;
   sh:path onto:listProp ;
   sh:node val-shapes:ListValue_ClassShape , onto-shapes:listProp_NodeShape .
 

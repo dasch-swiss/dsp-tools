@@ -29,8 +29,8 @@ The following folder structure has to be used, when invoking the standard `excel
 data_model_files
 ├── json_header.xlsx (optional)
 ├── lists
-│   ├── list.xlsx
-│   └── list_1.xlsx
+│   ├── en.xlsx
+│   └── de.xlsx
 └── onto_name (onto_label)
     ├── properties.xlsx
     └── resources.xlsx

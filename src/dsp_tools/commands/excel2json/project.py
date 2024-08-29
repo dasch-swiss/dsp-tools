@@ -24,8 +24,8 @@ def excel2json(
         data_model_files
         ├── json_header.xlsx (optional)
         ├── lists
-        │   ├── list.xlsx
-        │   └── list_1.xlsx
+        │   ├── en.xlsx
+        │   └── de.xlsx
         └── onto_name (onto_label)
             ├── properties.xlsx
             └── resources.xlsx

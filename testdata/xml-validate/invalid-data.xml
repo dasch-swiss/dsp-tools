@@ -58,4 +58,10 @@
         </text-prop>
     </resource>
 
+    <resource label="Value is Identical to the others" restype=":NormalClass" id="identical-value-ok">
+        <text-prop name=":hasSimpleText">
+            <text encoding="utf8">These two values are identical.</text>
+        </text-prop>
+    </resource>
+
 </knora>

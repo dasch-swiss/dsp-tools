@@ -14,14 +14,14 @@
 ###################
 
 onto-shapes:NormalClass_NodeShape
-  a                   sh:NodeShape ;
-  sh:targetClass      onto:NormalClass ;
-  sh:property         onto-shapes:hasSimpleText_PropShape ,
-                      onto-shapes:listProp_PropShape ,
-                      onto-shapes:linkProp_PropShape ;
-  sh:node             val-shapes:SimpleText_UniqueValuesShape ;
+  a                    sh:NodeShape ;
+  sh:targetClass       onto:NormalClass ;
+  sh:property          onto-shapes:hasSimpleText_PropShape ,
+                       onto-shapes:listProp_PropShape ,
+                       onto-shapes:linkProp_PropShape ;
+  sh:node              val-shapes:SimpleText_UniqueValuesShape ;
   sh:ignoredProperties ( rdf:type rdfs:label ) ;
-  sh:closed            true .
+  sh:closed             true .
 
 #######
 
@@ -37,7 +37,7 @@ onto-shapes:CardOneResource_Shape
                          sh:message  "Cardinality: 'onto:hasSimpleText' -> exactly 1" ;
                        ] ,
                        onto-shapes:hasSimpleText_PropShape ;
-  sh:node             val-shapes:SimpleText_UniqueValuesShape;
+  sh:node              val-shapes:SimpleText_UniqueValuesShape;
   sh:ignoredProperties ( rdf:type rdfs:label ) ;
   sh:closed            true .
 
@@ -55,7 +55,7 @@ onto-shapes:SubClass_Shape
                          sh:message  "Cardinality: 'onto:hasSimpleText' -> exactly 1" ;
                        ] ,
                        onto-shapes:hasSimpleText_PropShape ;
-  sh:node             val-shapes:SimpleText_UniqueValuesShape;
+  sh:node              val-shapes:SimpleText_UniqueValuesShape;
   sh:ignoredProperties ( rdf:type rdfs:label ) ;
   sh:closed            true .
 

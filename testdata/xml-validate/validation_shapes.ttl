@@ -66,6 +66,7 @@ val-shapes:SimpleText_UniqueValuesShape
                 a sh:SPARQLConstraint ;
                 sh:message "A subject must not have identical SimpleText values." ;
                 sh:select """
+                    PREFIX val-onto: <http://api.knora.org/validation-onto#>
                     SELECT $this ?value WHERE {
                       $this ?someProperty ?textValue .
 

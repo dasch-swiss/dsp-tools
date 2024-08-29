@@ -59,7 +59,7 @@ def excel2json(
 def _validate_folder_structure_get_filenames(data_model_files: str) -> tuple[list[Path], list[Path]]:
     if not Path(data_model_files).is_dir():
         raise UserError(f"ERROR: {data_model_files} is not a directory.")
-    folder = [x for x in Path(data_model_files).glob("*") if _non_hidden(x)]
+    folder = [x for x in Path(data_model_files).glob("*") if _non_hidden(x) and x.is_dir()]
     processed_files = []
     onto_folders, processed_onto = _get_and_validate_onto_folder(Path(data_model_files), folder)
     processed_files.extend(processed_onto)
@@ -70,6 +70,8 @@ def _validate_folder_structure_get_filenames(data_model_files: str) -> tuple[lis
             f"The only allowed subfolders in '{data_model_files}' are 'lists' "
             "and folders that match the pattern 'onto_name (onto_label)'"
         )
+    if (json_header := Path(data_model_files) / Path("json_header.xlsx")).exists():
+        processed_files.append(json_header)
     print("The following files will be processed:")
     print(*(f" - {file}" for file in processed_files), sep="\n")
     return listfolder, onto_folders

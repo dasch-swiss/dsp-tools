@@ -39,9 +39,7 @@ val-onto:hasListValue
   a                  owl:DatatypeProperty ;
   rdfs:subPropertyOf val-onto:hasValue .
 
-val-onto:hasListName
-  a                  owl:DatatypeProperty ;
-  rdfs:subPropertyOf val-onto:hasValue .
+val-onto:hasListName a owl:DatatypeProperty .
 
 
 # LinkValue

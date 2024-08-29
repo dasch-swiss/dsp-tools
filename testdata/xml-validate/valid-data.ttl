@@ -1,48 +1,33 @@
-@prefix onto:     <http://validation-9999/onto#> .
-@prefix val-onto: <http://api.knora.org/validation-onto#> .
-@prefix rdfs:     <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ns1: <http://api.knora.org/validation-onto#> .
+@prefix ns2: <http://validation-9999/onto#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
-<http://validation-9999/data/identical-value-1>
-  a                  onto:NormalClass ;
-  rdfs:label         "Value is Identical" ;
-  onto:hasSimpleText [
-                       a                           val-onto:SimpleText ;
-                       val-onto:hasSimpleTextValue "These two values are identical."
-                     ] .
+<http://validation-9999/data/duplicate-list-different-node> a ns2:NormalClass ;
+    rdfs:label "Duplicate list with different nodes are allowed" ;
+    ns2:listProp [ a ns1:ListValue ;
+            ns1:hasListName "onlyList" ;
+            ns1:hasListValue "n1" ],
+        [ a ns1:ListValue ;
+            ns1:hasListName "onlyList" ;
+            ns1:hasListValue "n1.1" ] .
 
-<http://validation-9999/data/identical-value-2>
-  a                  onto:NormalClass ;
-  rdfs:label         "Value is Identical to the others" ;
-  onto:hasSimpleText [
-                       a                           val-onto:SimpleText ;
-                       val-onto:hasSimpleTextValue "These two values are identical."
-                     ] .
+<http://validation-9999/data/identical-value-1> a ns2:NormalClass ;
+    rdfs:label "Value is Identical" ;
+    ns2:hasSimpleText [ a ns1:SimpleText ;
+            ns1:hasSimpleTextValue "These two values are identical." ] .
 
-<http://validation-9999/data/link-value-correct>
-  a             onto:NormalClass ;
-  rdfs:label    "Target Link Class Correct" ;
-  onto:linkProp [
-                  a                           val-onto:LinkValue ;
-                  val-onto:hasLinkValueTarget <http://validation-9999/data/cardinality-correct>
-                ] ,
-                [
-                  a                           val-onto:LinkValue ;
-                  val-onto:hasLinkValueTarget <http://validation-9999/data/inherited-cardinality-correct>
-                ] .
+<http://validation-9999/data/identical-value-2> a ns2:NormalClass ;
+    rdfs:label "Value is Identical to the others" ;
+    ns2:hasSimpleText [ a ns1:SimpleText ;
+            ns1:hasSimpleTextValue "These two values are identical." ] .
 
-<http://validation-9999/data/cardinality-correct>
-  a                  onto:CardOneResource ;
-  rdfs:label         "Inherited good cardinality" ;
-  onto:hasSimpleText [
-                       a                           val-onto:SimpleText ;
-                       val-onto:hasSimpleTextValue "Text Value One"
-                     ] .
+<http://validation-9999/data/link-value-correct> a ns2:NormalClass ;
+    rdfs:label "Target Link Class Correct" ;
+    ns2:linkProp [ a ns1:LinkValue ;
+            ns1:hasLinkValueTarget <http://validation-9999/data/inherited-cardinality-correct> ] .
 
-<http://validation-9999/data/inherited-cardinality-correct>
-  a                  onto:SubClass ;
-  rdfs:label         "Inherited good cardinality" ;
-  onto:hasSimpleText [
-                       a                           val-onto:SimpleText ;
-                       val-onto:hasSimpleTextValue "Text Value One"
-                     ] .
+<http://validation-9999/data/inherited-cardinality-correct> a ns2:SubClass ;
+    rdfs:label "Inherited good cardinality" ;
+    ns2:hasSimpleText [ a ns1:SimpleText ;
+            ns1:hasSimpleTextValue "Text Value One" ] .
 

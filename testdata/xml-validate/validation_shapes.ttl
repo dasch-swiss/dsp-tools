@@ -12,53 +12,52 @@
 ########################################
 
 val-onto:IntValue a owl:Class .
+val-onto:hasIntValue a owl:DatatypeProperty .
 
 val-shapes:IntValue_Shape
   a              sh:NodeShape ;
-  sh:name        "Object of IntValue" ;
-  sh:message     "must be a valid integer" ;
-  sh:targetClass val-onto:IntValue ;
-  sh:property    val-shapes:hasIntValue_Shape ;
+  sh:name        "Validates the class type" ;
+  sh:message     "Object must be a of type IntValue." ;
+  sh:class       val-onto:IntValue ;
   sh:severity    sh:Violation .
 
-
-val-onto:hasIntValue a owl:DatatypeProperty .
-
-val-shapes:hasIntValue_Shape
-  a           sh:PropertyShape ;
-  sh:name     "Value of hasIntValue" ;
-  sh:message  "must be a valid integer" ;
-  sh:path     val-onto:hasIntValue ;
-  sh:pattern  "^\\d+$" ;
-  sh:severity sh:Violation .
+val-shapes:SimpleText_NodeShape
+  a              sh:NodeShape ;
+  sh:name        "Validates that it is a valid integer in string form." ;
+  sh:property    [
+                    a            sh:PropertyShape ;
+                    sh:path      val-onto:hasIntValue ;
+                    sh:pattern   "^\\d+$" ;
+                    sh:message   "Value must be a valid integer." ;
+                 ] ;
+  sh:severity    sh:Violation .
 
 
 ########################################
 # SimpleText Shape
 ########################################
 
-
 val-onto:SimpleText a owl:Class .
-
-val-shapes:SimpleText_Shape
-  a              sh:NodeShape ;
-  sh:name        "Object of SimpleText" ;
-  sh:message     "must be a valid string" ;
-  sh:targetClass val-onto:SimpleText ;
-  sh:property    val-shapes:hasSimpleTextValue_Shape ;
-  sh:severity    sh:Violation .
-
-
 val-onto:hasSimpleTextValue a owl:DatatypeProperty .
 
-val-shapes:hasSimpleTextValue_Shape
-  a            sh:PropertyShape ;
-  sh:name      "Value of hasSimpleTextValue" ;
-  sh:message   "must be a valid non-empty string." ;
-  sh:path      val-onto:hasSimpleTextValue ;
-  sh:minLength 1 ;
-  sh:datatype  xsd:string ;
-  sh:severity  sh:Violation .
+val-shapes:SimpleText_ClassShape
+  a              sh:NodeShape ;
+  sh:name        "Validates the class type" ;
+  sh:message     "Object must be a of type SimpleText." ;
+  sh:class       val-onto:SimpleText ;
+  sh:severity    sh:Violation .
+
+val-shapes:SimpleText_NodeShape
+  a              sh:NodeShape ;
+  sh:name        "Validates content of string." ;
+  sh:property    [
+                    a            sh:PropertyShape ;
+                    sh:path      val-onto:hasSimpleTextValue ;
+                    sh:minLength 1 ;
+                    sh:datatype  xsd:string ;
+                    sh:message   "Value must be a valid non-empty string." ;
+                 ] ;
+  sh:severity    sh:Violation .
 
 
 ########################################

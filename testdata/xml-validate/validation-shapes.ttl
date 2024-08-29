@@ -55,26 +55,6 @@ val-shapes:SimpleText_NodeShape
   sh:severity sh:Violation .
 
 
-val-shapes:UniqueValuesShape
-  a           sh:NodeShape ;
-  sh:sparql   [
-                a          sh:SPARQLConstraint ;
-                sh:message "A resource may not have the same property and value more than one time." ;
-                sh:select  """
-                    PREFIX val-onto: <http://api.knora.org/validation-onto#>
-                    SELECT $this ?value WHERE {
-                      $this ?someProperty ?valueClass .
-
-                      ?valueClass a val-onto:Value ;
-                                  val-onto:hasValue ?value .
-                    }
-                    GROUP BY $this ?value
-                    HAVING (COUNT(?valueClass) > 1)
-                """ ;
-              ] ;
-  sh:severity sh:Violation .
-
-
 ########################################
 # THE FOLLOWING MUST BE AT LEAST PARTIALLY CONSTRUCTED IN CODE
 # BECAUSE THE PROJECT ONTOLOGY IS RELEVANT
@@ -106,4 +86,29 @@ val-shapes:LinkValue_ClassShape
   sh:name     "Validates the class type" ;
   sh:message  "Object must be a of type LinkValue." ;
   sh:class    val-onto:LinkValue ;
+  sh:severity sh:Violation .
+
+
+########################################
+# Unique Value Shape
+########################################
+
+# Since all Values are rdfs:subClass of val-onto:Value, this applies to all values.
+val-shapes:UniqueValuesShape
+  a           sh:NodeShape ;
+  sh:sparql   [
+                a          sh:SPARQLConstraint ;
+                sh:message "A resource may not have the same property and value more than one time." ;
+                sh:select  """
+                    PREFIX val-onto: <http://api.knora.org/validation-onto#>
+                    SELECT $this ?value WHERE {
+                      $this ?someProperty ?valueClass .
+
+                      ?valueClass a val-onto:Value ;
+                                  val-onto:hasValue ?value .
+                    }
+                    GROUP BY $this ?value
+                    HAVING (COUNT(?valueClass) > 1)
+                """ ;
+              ] ;
   sh:severity sh:Violation .

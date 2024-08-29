@@ -8,7 +8,6 @@ from dsp_tools.commands.xmlupload.models.ontology_lookup_models import TextValue
 separator = "\n    "
 list_separator = "\n    - "
 medium_separator = "\n----------------------------\n"
-grand_separator = "\n\n---------------------------------------\n\n"
 maximum_prints = 50
 
 
@@ -32,12 +31,13 @@ class InvalidOntologyElementsInData:
         base_msg = (
             f"\nSome property and/or class type(s) used in the XML are unknown.\n"
             f"The ontologies for your project on the server are:{list_separator}"
-            f"{list_separator.join(self.ontos_on_server)}{grand_separator}"
+            f"{list_separator.join(self.ontos_on_server)}\n\n"
         )
         if cls_msg := self._compose_problem_string_for_cls():
-            base_msg += cls_msg + grand_separator
+            base_msg += cls_msg + "\n"
         if prop_msg := self._compose_problem_string_for_props():
-            base_msg += prop_msg
+            base_msg += prop_msg + "\n"
+        base_msg += medium_separator
         if (
             self._calculate_num_resources(self.classes) + self._calculate_num_resources(self.properties)
             > maximum_prints
@@ -92,7 +92,7 @@ class InvalidOntologyElementsInData:
 
             problems = [_format_cls(x) for x in self.classes]
 
-            return "The following resource(s) have an invalid resource type:\n\n" + medium_separator.join(problems)
+            return "The following resource(s) have an invalid resource type:\n\n" + "\n\n".join(problems) + "\n"
         else:
             return None
 
@@ -110,7 +110,7 @@ class InvalidOntologyElementsInData:
                 )
 
             problems = [_format_prop(x) for x in self.properties]
-            return "The following resource(s) have invalid property type(s):\n\n" + medium_separator.join(problems)
+            return "The following resource(s) have invalid property type(s):\n\n" + "\n\n".join(problems) + "\n"
         else:
             return None
 
@@ -144,7 +144,7 @@ class InvalidTextValueEncodings:
         df = self._get_problems_as_df()
         if len(df) > maximum_prints:
             return base_msg, df
-        return base_msg + grand_separator + _make_msg_from_df(df), None
+        return base_msg + "\n\n" + _make_msg_from_df(df), None
 
     def _get_problems_as_df(self) -> pd.DataFrame:
         df = pd.DataFrame(
@@ -159,7 +159,7 @@ class InvalidTextValueEncodings:
 
 def _make_msg_from_df(df: pd.DataFrame) -> str:
     groups = df.groupby(by="Resource ID")
-    return medium_separator.join([_make_msg_for_one_resource(str(_id), res_df) for _id, res_df in groups])
+    return "\n\n".join([_make_msg_for_one_resource(str(_id), res_df) for _id, res_df in groups])
 
 
 def _make_msg_for_one_resource(res_id: str, res_df: pd.DataFrame) -> str:

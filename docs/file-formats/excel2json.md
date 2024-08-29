@@ -27,13 +27,13 @@ The following folder structure has to be used, when invoking the standard `excel
 
 ```text
 data_model_files
-|-- lists
-|    |-- de.xlsx
-|    |-- en.xlsx
-|-- onto_name (onto_label)
-|    |-- properties.xlsx
-|    |-- resources.xlsx
-|-- json_header.xlsx (optional)
+├── json_header.xlsx (optional)
+├── lists
+│   ├── list.xlsx
+│   └── list_1.xlsx
+└── onto_name (onto_label)
+    ├── properties.xlsx
+    └── resources.xlsx
 ```
 
 Conventions for the folder names:
@@ -66,14 +66,13 @@ All the files containing "list" in their name will be read and processed, other 
 
 ```text
 data_model_files
-|-- lists
-|    |-- lists.xlsx
-|    |-- other_list.xlsx
-|    |-- list3.xlsx
-|-- onto_name (onto_label)
-|    |-- properties.xlsx
-|    |-- resources.xlsx
-|-- json_header.xlsx (optional)
+├── json_header.xlsx (optional)
+├── lists
+│   ├── list.xlsx
+│   └── list_1.xlsx
+└── onto_name (onto_label)
+    ├── properties.xlsx
+    └── resources.xlsx
 ```
 
 

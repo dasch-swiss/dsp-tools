@@ -22,13 +22,13 @@ def excel2json(
     ::
 
         data_model_files
-        |-- lists
-        |   |-- list.xlsx
-        |   `-- list_2.xlsx
-        `-- onto_name (onto_label)
-            |-- properties.xlsx
-            `-- resources.xlsx
-        | -- json_header.xlsx (optional)
+        ├── json_header.xlsx (optional)
+        ├── lists
+        │   ├── list.xlsx
+        │   └── list_1.xlsx
+        └── onto_name (onto_label)
+            ├── properties.xlsx
+            └── resources.xlsx
 
     The names of the files must be exactly like in the example. The folder "lists" can be missing, because it is
     optional to have lists in a DSP project. Only XLSX files are allowed.
@@ -101,13 +101,13 @@ def new_excel2json(
     ::
 
         data_model_files
-        |-- lists
-        |   |-- list.xlsx
-        |   `-- list_2.xlsx
-        `-- onto_name (onto_label)
-            |-- properties.xlsx
-            `-- resources.xlsx
-        | -- json_header.xlsx (optional)
+        ├── json_header.xlsx (optional)
+        ├── lists
+        │   ├── list.xlsx
+        │   └── list_1.xlsx
+        └── onto_name (onto_label)
+            ├── properties.xlsx
+            └── resources.xlsx
 
     The names of the files must be exactly like in the example. The folder "lists" can be missing, because it is
     optional to have lists in a DSP project. Only XLSX files are allowed.

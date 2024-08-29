@@ -70,11 +70,32 @@ val-shapes:SimpleText_NodeShape
 # ListValue Shape
 ########################################
 
-# Each list must have its own node and property shapes
+# The property shapes are individual to each ontology.
 
 val-onto:ListValue a owl:Class .
-
-
 val-onto:hasListValue a owl:ObjectProperty .
-
 val-onto:hasListName a owl:DatatypeProperty .
+
+val-shapes:ListValue_ClassShape
+  a              sh:NodeShape ;
+  sh:name        "Validates the class type" ;
+  sh:message     "Object must be a of type ListValue." ;
+  sh:class       val-onto:ListValue ;
+  sh:severity    sh:Violation .
+
+
+########################################
+# LinkValue Shape
+########################################
+
+# The property shapes are individual to each ontology.
+
+val-onto:LinkValue a owl:Class .
+val-onto:hasLinkValueTarget a owl:ObjectProperty .
+
+val-shapes:LinkValue_ClassShape
+  a              sh:NodeShape ;
+  sh:name        "Validates the class type" ;
+  sh:message     "Object must be a of type LinkValue." ;
+  sh:class       val-onto:LinkValue ;
+  sh:severity    sh:Violation .

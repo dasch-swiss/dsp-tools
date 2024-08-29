@@ -11,7 +11,8 @@
 
 <http://validation-9999/data/link-value-wrong> a ns1:NormalClass ;
     rdfs:label "Target Link Class Mismatch" ;
-    ns1:linkProp <http://validation-9999/data/link-value-target-wrong> .
+    ns1:linkProp [ a ns2:LinkValue ;
+            ns2:hasLinkValueTarget <http://validation-9999/data/link-value-target-wrong> ] .
 
 <http://validation-9999/data/max-card-violation> a ns1:CardOneResource ;
     rdfs:label "Max Cardinality Violation" ;

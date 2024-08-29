@@ -33,4 +33,22 @@
         </resptr-prop>
     </resource>
 
+
+    <!--
+        The same Subject Predicate Object triple may not exist for the same resource.
+        But it must be able to exist across different resources.
+    -->
+
+    <resource label="Value is Identical" restype=":NormalClass" id="identical-value-1">
+        <text-prop name=":hasSimpleText">
+            <text encoding="utf8">These two values are identical.</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Value is Identical to the others" restype=":NormalClass" id="identical-value-2">
+        <text-prop name=":hasSimpleText">
+            <text encoding="utf8">These two values are identical.</text>
+        </text-prop>
+    </resource>
+
 </knora>

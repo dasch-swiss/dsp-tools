@@ -13,7 +13,7 @@
     <resource label="Max Cardinality Violation" restype=":CardOneResource" id="max-card-violation">
         <text-prop name=":hasSimpleText">
             <text encoding="utf8">Text Value One</text>
-            <text encoding="utf8"></text>
+            <text encoding="utf8">Text Value Two</text>
         </text-prop>
     </resource>
 
@@ -54,6 +54,12 @@
     <resource label="Value is Identical" restype=":NormalClass" id="identical-value">
         <text-prop name=":hasSimpleText">
             <text encoding="utf8">These two values are identical.</text>
+            <text encoding="utf8">These two values are identical.</text>
+        </text-prop>
+    </resource>
+
+    <resource label="Value is Identical to the others" restype=":NormalClass" id="identical-value-ok">
+        <text-prop name=":hasSimpleText">
             <text encoding="utf8">These two values are identical.</text>
         </text-prop>
     </resource>

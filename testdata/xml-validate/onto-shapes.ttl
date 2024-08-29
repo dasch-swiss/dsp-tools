@@ -82,10 +82,10 @@ onto-shapes:listProp_NodeShape
                 sh:message "Unknown list node."
               ] ,
               [
-                a         sh:PropertyShape ;
-                sh:path   val-onto:hasListName ;
-                sh:in     ( "onlyList" ) ;
-                sh:message "Unknown list name."
+                a               sh:PropertyShape ;
+                sh:path         val-onto:hasListName ;
+                sh:defaultValue "onlyList" ;
+                sh:message      "Unknown list name."
               ] ;
   sh:severity sh:Violation .
 

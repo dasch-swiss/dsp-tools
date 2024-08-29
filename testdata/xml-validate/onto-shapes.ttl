@@ -96,7 +96,7 @@ onto-shapes:linkProp_PropShape
   sh:path onto:linkProp ;
   sh:node val-shapes:LinkValue_ClassShape , onto-shapes:linkProp_NodeShape .
 
-val-shapes:linkProp_NodeShape
+onto-shapes:linkProp_NodeShape
   a              sh:NodeShape ;
   sh:name        "Validates class of target." ;
   sh:property    [

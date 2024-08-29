@@ -1,96 +1,90 @@
+@prefix onto: <http://validation-9999/onto#> .
 @prefix onto-shapes: <http://validation-9999/onto-shapes#> .
-@prefix onto1: <http://validation-9999/onto#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix val-onto: <http://api.knora.org/validation-onto#> .
+@prefix val-shapes: <http://api.knora.org/validation-shapes#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 [] a sh:ValidationReport ;
     sh:conforms false ;
     sh:result [ a sh:ValidationResult ;
             sh:detail [ a sh:ValidationResult ;
-                    sh:focusNode _:ncd888ba94b8940f39a848b92c61cac97b5 ;
-                    sh:resultMessage "the value of onto:listProp is invalid" ;
-                    sh:resultPath val-onto:hasListValue ;
-                    sh:resultSeverity sh:Violation ;
-                    sh:sourceConstraintComponent sh:InConstraintComponent ;
-                    sh:sourceShape onto-shapes:hasListValue_listProp ;
-                    sh:value "nonExisting" ] ;
-            sh:focusNode <http://validation-9999/data/non-existing-list-node> ;
-            sh:resultMessage "Value does not conform to Shape onto-shapes:listProp_NodeShape. See details for more information." ;
-            sh:resultPath onto1:listProp ;
-            sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-            sh:sourceShape [ a sh:PropertyShape ;
-                    sh:node onto-shapes:listProp_NodeShape ;
-                    sh:path onto1:listProp ] ;
-            sh:value _:ncd888ba94b8940f39a848b92c61cac97b5 ],
-        [ a sh:ValidationResult ;
-            sh:focusNode _:ncd888ba94b8940f39a848b92c61cac97b5 ;
-            sh:resultMessage "the value of onto:listProp is invalid" ;
-            sh:resultPath val-onto:hasListValue ;
-            sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:InConstraintComponent ;
-            sh:sourceShape onto-shapes:hasListValue_listProp ;
-            sh:value "nonExisting" ],
-        [ a sh:ValidationResult ;
-            sh:focusNode _:ncd888ba94b8940f39a848b92c61cac97b6 ;
-            sh:resultMessage "The object of onto:hasSimpleText must be of type SimpleText" ;
-            sh:resultSeverity sh:Violation ;
-            sh:sourceConstraintComponent sh:ClassConstraintComponent ;
-            sh:sourceShape onto-shapes:hasSimpleText_NodeShape ;
-            sh:value _:ncd888ba94b8940f39a848b92c61cac97b6 ],
-        [ a sh:ValidationResult ;
-            sh:detail [ a sh:ValidationResult ;
-                    sh:focusNode <http://validation-9999/data/link-value-target-wrong> ;
-                    sh:resultMessage "Value does not have class onto1:CardOneResource" ;
+                    sh:focusNode _:n8015479ab8094f8c851ef97933794e0cb3 ;
+                    sh:resultMessage "Target must be of type onto:CardOneResource or a subclass of it." ;
+                    sh:resultPath val-onto:hasLinkValueTarget ;
                     sh:resultSeverity sh:Violation ;
                     sh:sourceConstraintComponent sh:ClassConstraintComponent ;
-                    sh:sourceShape [ sh:class onto1:CardOneResource ] ;
+                    sh:sourceShape [ a sh:PropertyShape ;
+                            sh:class onto:CardOneResource ;
+                            sh:message "Target must be of type onto:CardOneResource or a subclass of it." ;
+                            sh:path val-onto:hasLinkValueTarget ] ;
                     sh:value <http://validation-9999/data/link-value-target-wrong> ] ;
             sh:focusNode <http://validation-9999/data/link-value-wrong> ;
-            sh:resultMessage "object of linkProp be a a CardOneResource or a subclass of it." ;
-            sh:resultPath onto1:linkProp ;
+            sh:resultMessage "Value does not conform to every Shape in ('onto-shapes:linkProp_NodeShape', 'val-shapes:LinkValue_ClassShape'). See details for more information." ;
+            sh:resultPath onto:linkProp ;
             sh:resultSeverity sh:Violation ;
             sh:sourceConstraintComponent sh:NodeConstraintComponent ;
             sh:sourceShape onto-shapes:linkProp_PropShape ;
-            sh:value <http://validation-9999/data/link-value-target-wrong> ],
+            sh:value _:n8015479ab8094f8c851ef97933794e0cb3 ],
         [ a sh:ValidationResult ;
             sh:focusNode <http://validation-9999/data/max-card-violation> ;
             sh:resultMessage "Cardinality: 'onto:hasSimpleText' -> exactly 1" ;
-            sh:resultPath onto1:hasSimpleText ;
+            sh:resultPath onto:hasSimpleText ;
             sh:resultSeverity sh:Violation ;
             sh:sourceConstraintComponent sh:MaxCountConstraintComponent ;
             sh:sourceShape [ a sh:PropertyShape ;
                     sh:maxCount 1 ;
                     sh:message "Cardinality: 'onto:hasSimpleText' -> exactly 1" ;
                     sh:minCount 1 ;
-                    sh:path onto1:hasSimpleText ;
+                    sh:path onto:hasSimpleText ;
                     sh:severity sh:Violation ] ],
         [ a sh:ValidationResult ;
             sh:detail [ a sh:ValidationResult ;
-                    sh:focusNode _:ncd888ba94b8940f39a848b92c61cac97b6 ;
-                    sh:resultMessage "The object of onto:hasSimpleText must be of type SimpleText" ;
+                    sh:focusNode _:n8015479ab8094f8c851ef97933794e0cb7 ;
+                    sh:resultMessage "Object must be a of type SimpleText." ;
                     sh:resultSeverity sh:Violation ;
                     sh:sourceConstraintComponent sh:ClassConstraintComponent ;
-                    sh:sourceShape onto-shapes:hasSimpleText_NodeShape ;
-                    sh:value _:ncd888ba94b8940f39a848b92c61cac97b6 ] ;
+                    sh:sourceShape val-shapes:SimpleText_ClassShape ;
+                    sh:value _:n8015479ab8094f8c851ef97933794e0cb7 ] ;
             sh:focusNode <http://validation-9999/data/property-type-mismatch> ;
-            sh:resultMessage "Value does not conform to Shape onto-shapes:hasSimpleText_NodeShape. See details for more information." ;
-            sh:resultPath onto1:hasSimpleText ;
+            sh:resultMessage "Value does not conform to every Shape in ('val-shapes:SimpleText_NodeShape', 'val-shapes:SimpleText_ClassShape'). See details for more information." ;
+            sh:resultPath onto:hasSimpleText ;
             sh:resultSeverity sh:Violation ;
             sh:sourceConstraintComponent sh:NodeConstraintComponent ;
-            sh:sourceShape [ a sh:PropertyShape ;
-                    sh:node onto-shapes:hasSimpleText_NodeShape ;
-                    sh:path onto1:hasSimpleText ] ;
-            sh:value _:ncd888ba94b8940f39a848b92c61cac97b6 ] .
+            sh:sourceShape onto-shapes:hasSimpleText_PropShape ;
+            sh:value _:n8015479ab8094f8c851ef97933794e0cb7 ],
+        [ a sh:ValidationResult ;
+            sh:detail [ a sh:ValidationResult ;
+                    sh:focusNode _:n8015479ab8094f8c851ef97933794e0cb6 ;
+                    sh:resultMessage "Unknown list node." ;
+                    sh:resultPath val-onto:hasListValue ;
+                    sh:resultSeverity sh:Violation ;
+                    sh:sourceConstraintComponent sh:InConstraintComponent ;
+                    sh:sourceShape [ a sh:PropertyShape ;
+                            sh:in ( "n1" "n1.1" "n1.1.1" ) ;
+                            sh:message "Unknown list node." ;
+                            sh:path val-onto:hasListValue ] ;
+                    sh:value "nonExisting" ] ;
+            sh:focusNode <http://validation-9999/data/non-existing-list-node> ;
+            sh:resultMessage "Value does not conform to every Shape in ('onto-shapes:listProp_NodeShape', 'val-shapes:ListValue_ClassShape'). See details for more information." ;
+            sh:resultPath onto:listProp ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:NodeConstraintComponent ;
+            sh:sourceShape onto-shapes:listProp_PropShape ;
+            sh:value _:n8015479ab8094f8c851ef97933794e0cb6 ] .
 
-_:ncd888ba94b8940f39a848b92c61cac97b5 a val-onto:ListValue,
+_:n8015479ab8094f8c851ef97933794e0cb3 a val-onto:LinkValue,
+        rdfs:Resource ;
+    val-onto:hasLinkValueTarget <http://validation-9999/data/link-value-target-wrong> .
+
+_:n8015479ab8094f8c851ef97933794e0cb6 a val-onto:ListValue,
         rdfs:Resource ;
     val-onto:hasListName "onlyList" ;
     val-onto:hasListValue "nonExisting" .
 
-_:ncd888ba94b8940f39a848b92c61cac97b6 a val-onto:IntValue,
+_:n8015479ab8094f8c851ef97933794e0cb7 a val-onto:IntValue,
         rdfs:Resource ;
     val-onto:hasIntValue "1" .
 

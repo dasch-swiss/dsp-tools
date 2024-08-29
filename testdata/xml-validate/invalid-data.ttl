@@ -10,7 +10,7 @@
         [ a ns2:SimpleText ;
             ns2:hasSimpleTextValue "These two values are identical." ] .
 
-# DOES NOT WORK
+# WORKS
 <http://validation-9999/data/link-value-wrong> a ns1:NormalClass ;
     rdfs:label "Target Link Class Mismatch" ;
     ns1:linkProp [ a ns2:LinkValue ;

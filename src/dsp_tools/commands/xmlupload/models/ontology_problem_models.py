@@ -150,11 +150,12 @@ class InvalidTextValueEncodings:
         df = pd.DataFrame(
             {
                 "Resource ID": [x.resource_id for x in self.problematic_resources],
+                "Resource Type": [x.res_type for x in self.problematic_resources],
                 "Property Name": [x.property_name for x in self.problematic_resources],
                 "Encoding Used": [x.encoding for x in self.problematic_resources],
             }
         )
-        return df.sort_values(by=["Resource ID", "Property Name"], ignore_index=True)
+        return df.sort_values(by=["Resource Type", "Resource ID", "Property Name"], ignore_index=True)
 
 
 def _make_msg_from_df(df: pd.DataFrame) -> str:
@@ -165,5 +166,6 @@ def _make_msg_from_df(df: pd.DataFrame) -> str:
 def _make_msg_for_one_resource(res_id: str, res_df: pd.DataFrame) -> str:
     props = res_df["Property Name"].tolist()
     encding = res_df["Encoding Used"].tolist()
+    restype = next(iter(res_df["Resource Type"]))
     problems = [f"Property Name: '{p}' -> Encoding Used: '{e}'" for p, e in zip(props, encding)]
-    return f"Resource ID: '{res_id}'{list_separator}{list_separator.join(problems)}"
+    return f"Resource ID: '{res_id}' | Resource Type: '{restype}'{list_separator}{list_separator.join(problems)}"

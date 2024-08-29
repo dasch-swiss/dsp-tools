@@ -62,7 +62,30 @@ onto-shapes:SubClass_Shape
 onto-shapes:hasSimpleText_PropShape
   a sh:PropertyShape  ;
   sh:path onto:hasSimpleText ;
-  sh:node val-shapes:SimpleText_ClassShape , val-shapes:SimpleText_NodeShape .
+  sh:node val-shapes:SimpleText_ClassShape ,
+          val-shapes:SimpleText_NodeShape ,
+          onto-shapes:SimpleText_UniqueValuesShape .
+
+onto-shapes:SimpleText_UniqueValuesShape
+    a         sh:NodeShape ;
+    sh:targetClass onto:NormalClass ;
+    sh:sparql [
+                a sh:SPARQLConstraint ;
+                sh:message "A subject must not have identical SimpleText values." ;
+                sh:select """
+                    SELECT $this ?value WHERE {
+                      $this onto:hasSimpleText ?textValue .
+
+                        ?textValue a val-onto:SimpleText ;
+                                   val-onto:hasSimpleTextValue ?value .
+                    }
+                    GROUP BY $this ?value
+                    HAVING (COUNT(?textValue) > 1)
+                """ ;
+                ] ;
+    sh:severity sh:Violation .
+
+
 
 #######
 

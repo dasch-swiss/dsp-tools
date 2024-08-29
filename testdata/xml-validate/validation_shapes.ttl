@@ -60,6 +60,25 @@ val-shapes:SimpleText_NodeShape
   sh:severity    sh:Violation .
 
 
+val-shapes:SimpleText_UniqueValuesShape
+    a         sh:NodeShape ;
+    sh:sparql [
+                a sh:SPARQLConstraint ;
+                sh:message "A subject must not have identical SimpleText values." ;
+                sh:select """
+                    SELECT $this ?value WHERE {
+                      $this ?someProperty ?textValue .
+
+                      ?textValue a val-onto:SimpleText ;
+                                   val-onto:hasSimpleTextValue ?value .
+                    }
+                    GROUP BY $this ?value
+                    HAVING (COUNT(?textValue) > 1)
+                """ ;
+                ] ;
+    sh:severity sh:Violation .
+
+
 ########################################
 # THE FOLLOWING MUST BE AT LEAST PARTIALLY CONSTRUCTED IN CODE
 # BECAUSE THE PROJECT ONTOLOGY IS RELEVANT

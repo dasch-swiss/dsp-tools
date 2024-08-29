@@ -1,43 +1,48 @@
-@prefix ns1: <http://validation-9999/onto#> .
-@prefix ns2: <http://api.knora.org/validation-onto#> .
+@prefix onto: <http://validation-9999/onto#> .
+@prefix val-onto: <http://api.knora.org/validation-onto#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
-# CHECK NOT IMPLEMENTED
-<http://validation-9999/data/identical-value> a ns1:NormalClass ;
+# WORKS
+<http://validation-9999/data/identical-value> a onto:NormalClass ;
     rdfs:label "Value is Identical" ;
-    ns1:hasSimpleText [ a ns2:SimpleText ;
-            ns2:hasSimpleTextValue "These two values are identical." ],
-        [ a ns2:SimpleText ;
-            ns2:hasSimpleTextValue "These two values are identical." ] .
+    onto:hasSimpleText [ a val-onto:SimpleText ;
+            val-onto:hasSimpleTextValue "These two values are identical." ],
+        [ a val-onto:SimpleText ;
+            val-onto:hasSimpleTextValue "These two values are identical." ] .
+
+<http://validation-9999/data/is-good-value> a onto:NormalClass ;
+    rdfs:label "Value is Identical" ;
+    onto:hasSimpleText [ a val-onto:SimpleText ;
+            val-onto:hasSimpleTextValue "These two values are identical." ] .
 
 # WORKS
-<http://validation-9999/data/link-value-wrong> a ns1:NormalClass ;
+<http://validation-9999/data/link-value-wrong> a onto:NormalClass ;
     rdfs:label "Target Link Class Mismatch" ;
-    ns1:linkProp [ a ns2:LinkValue ;
-            ns2:hasLinkValueTarget <http://validation-9999/data/link-value-target-wrong> ] .
+    onto:linkProp [ a val-onto:LinkValue ;
+            val-onto:hasLinkValueTarget <http://validation-9999/data/link-value-target-wrong> ] .
 
-<http://validation-9999/data/link-value-target-wrong> a ns1:NormalClass ;
+<http://validation-9999/data/link-value-target-wrong> a onto:NormalClass ;
     rdfs:label "Link Value Target" .
 
 
 # WORKS
-<http://validation-9999/data/max-card-violation> a ns1:CardOneResource ;
+<http://validation-9999/data/max-card-violation> a onto:CardOneResource ;
     rdfs:label "Max Cardinality Violation" ;
-    ns1:hasSimpleText [ a ns2:SimpleText ;
-            ns2:hasSimpleTextValue "Text Value Two" ],
-        [ a ns2:SimpleText ;
-            ns2:hasSimpleTextValue "Text Value One" ] .
+    onto:hasSimpleText [ a val-onto:SimpleText ;
+            val-onto:hasSimpleTextValue "Text Value Two" ],
+        [ a val-onto:SimpleText ;
+            val-onto:hasSimpleTextValue "Text Value One" ] .
 
 # WORKS
-<http://validation-9999/data/non-existing-list-node> a ns1:NormalClass ;
+<http://validation-9999/data/non-existing-list-node> a onto:NormalClass ;
     rdfs:label "List-node does not exist" ;
-    ns1:listProp [ a ns2:ListValue ;
-            ns2:hasListName "onlyList" ;
-            ns2:hasListValue "nonExisting" ] .
+    onto:listProp [ a val-onto:ListValue ;
+            val-onto:hasListName "onlyList" ;
+            val-onto:hasListValue "nonExisting" ] .
 
 # WORKS
-<http://validation-9999/data/property-type-mismatch> a ns1:NormalClass ;
+<http://validation-9999/data/property-type-mismatch> a onto:NormalClass ;
     rdfs:label "Property Type Mismatch" ;
-    ns1:hasSimpleText [ a ns2:IntValue ;
-            ns2:hasIntValue "1" ] .
+    onto:hasSimpleText [ a val-onto:IntValue ;
+            val-onto:hasIntValue "1" ] .
 

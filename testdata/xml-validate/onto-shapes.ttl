@@ -13,11 +13,13 @@
 # Class Shapes
 ###################
 
-onto-shapes:NormalClass_NodeShape a sh:NodeShape ;
-  sh:targetClass onto:NormalClass ;
-  sh:property onto-shapes:hasSimpleText_PropShape ,
-              onto-shapes:listProp_PropShape ,
-              onto-shapes:linkProp_PropShape ;
+onto-shapes:NormalClass_NodeShape
+  a                   sh:NodeShape ;
+  sh:targetClass      onto:NormalClass ;
+  sh:property         onto-shapes:hasSimpleText_PropShape ,
+                      onto-shapes:listProp_PropShape ,
+                      onto-shapes:linkProp_PropShape ;
+  sh:node             val-shapes:SimpleText_UniqueValuesShape ;
   sh:ignoredProperties ( rdf:type rdfs:label ) ;
   sh:closed            true .
 
@@ -63,29 +65,7 @@ onto-shapes:hasSimpleText_PropShape
   a sh:PropertyShape  ;
   sh:path onto:hasSimpleText ;
   sh:node val-shapes:SimpleText_ClassShape ,
-          val-shapes:SimpleText_NodeShape ,
-          onto-shapes:SimpleText_UniqueValuesShape .
-
-onto-shapes:SimpleText_UniqueValuesShape
-    a         sh:NodeShape ;
-    sh:targetClass onto:NormalClass ;
-    sh:sparql [
-                a sh:SPARQLConstraint ;
-                sh:message "A subject must not have identical SimpleText values." ;
-                sh:select """
-                    SELECT $this ?value WHERE {
-                      $this onto:hasSimpleText ?textValue .
-
-                        ?textValue a val-onto:SimpleText ;
-                                   val-onto:hasSimpleTextValue ?value .
-                    }
-                    GROUP BY $this ?value
-                    HAVING (COUNT(?textValue) > 1)
-                """ ;
-                ] ;
-    sh:severity sh:Violation .
-
-
+          val-shapes:SimpleText_NodeShape .
 
 #######
 

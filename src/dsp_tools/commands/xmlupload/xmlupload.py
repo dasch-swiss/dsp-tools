@@ -325,7 +325,7 @@ def _extract_permissions_from_xml(root: etree._Element, proj_context: ProjectCon
 
 def _extract_resources_from_xml(root: etree._Element, default_ontology: str) -> list[XMLResource]:
     resources = list(root.iter(tag="resource"))
-    return [XMLResource(res, default_ontology) for res in resources]
+    return [XMLResource.from_node(res, default_ontology) for res in resources]
 
 
 def _upload_one_resource(

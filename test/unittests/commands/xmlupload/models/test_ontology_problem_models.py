@@ -17,7 +17,7 @@ class TestInvalidOntologyElementsInData:
             "    Resource Type: 'clsA'\n"
             "    Problem: 'wrong'\n"
             "    Resource ID(s):\n"
-            "    - idA"
+            "    - idA\n"
         )
 
     def test_print_problem_string_no_cls(self) -> None:
@@ -32,7 +32,7 @@ class TestInvalidOntologyElementsInData:
             "    Property Name: 'propA'\n"
             "    Problem: 'wrong'\n"
             "    Resource ID(s):\n"
-            "    - idA"
+            "    - idA\n"
         )
 
     def test_print_problem_string_no_prop(self) -> None:
@@ -50,24 +50,25 @@ class TestInvalidOntologyElementsInData:
             "The ontologies for your project on the server are:\n"
             "    - test1\n"
             "    - test2"
-            "\n\n---------------------------------------\n\n"
+            "\n\n"
             "The following resource(s) have an invalid resource type:\n\n"
             "    Resource Type: 'clsA'\n"
             "    Problem: 'wrong'\n"
             "    Resource ID(s):\n"
             "    - idA"
-            "\n\n---------------------------------------\n\n"
+            "\n\n"
             "The following resource(s) have invalid property type(s):\n\n"
             "    Property Name: 'propA'\n"
             "    Problem: 'wrong'\n"
             "    Resource ID(s):\n"
             "    - idA"
-            "\n----------------------------\n"
+            "\n\n"
             "    Property Name: 'propB'\n"
             "    Problem: 'wrong'\n"
             "    Resource ID(s):\n"
             "    - idB\n"
             "    - idC"
+            "\n\n"
         )
         msg, df = onto.execute_problem_protocol()
         assert not df
@@ -138,7 +139,7 @@ class TestInvalidTextValueEncodings:
             "Resource ID: 'id1'\n"
             "    - Property Name: ':rich' -> Encoding Used: 'utf8'\n"
             "    - Property Name: ':simple' -> Encoding Used: 'xml'"
-            "\n----------------------------\n"
+            "\n\n"
             "Resource ID: 'id2'\n"
             "    - Property Name: ':rich' -> Encoding Used: 'utf8'"
         )

@@ -228,13 +228,13 @@ def test_check_all_classes_and_properties_in_onto_problem() -> None:
         "The ontologies for your project on the server are:\n"
         "    - test\n"
         "    - knora-api"
-        "\n\n---------------------------------------\n\n"
+        "\n\n"
         "The following resource(s) have an invalid resource type:\n\n"
         "    Resource Type: 'knora'\n"
         "    Problem: 'Invalid Class Type'\n"
         "    Resource ID(s):\n"
         "    - idA"
-        "\n\n---------------------------------------\n\n"
+        "\n\n"
     )
     res_msg = _check_all_classes_and_properties_in_onto(classes, properties, onto_lookup)
     assert res_msg == expected_msg
@@ -623,10 +623,10 @@ def test_analyse_all_text_value_encodings_are_correct_problems() -> None:
         "\nSome text encodings used in the XML data file are not conform with the gui_element "
         "specified in the JSON ontology.\n"
         "Please consult the ontology regarding the assigned gui_elements."
-        "\n\n---------------------------------------\n\n"
+        "\n\n"
         "Resource ID: 'resC'\n"
         "    - Property Name: ':hasRichtext' -> Encoding Used: 'utf8'"
-        "\n----------------------------\n"
+        "\n\n"
         "Resource ID: 'test_thing_1'\n"
         "    - Property Name: ':hasText' -> Encoding Used: 'xml'"
     )

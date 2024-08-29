@@ -8,7 +8,6 @@ from dsp_tools.commands.xmlupload.models.ontology_lookup_models import TextValue
 separator = "\n    "
 list_separator = "\n    - "
 medium_separator = "\n\n"
-grand_separator = "\n----------------------------\n"
 maximum_prints = 50
 
 
@@ -38,7 +37,6 @@ class InvalidOntologyElementsInData:
             base_msg += cls_msg + "\n"
         if prop_msg := self._compose_problem_string_for_props():
             base_msg += prop_msg + "\n"
-        base_msg += grand_separator
         if (
             self._calculate_num_resources(self.classes) + self._calculate_num_resources(self.properties)
             > maximum_prints

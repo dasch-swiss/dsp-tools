@@ -107,7 +107,7 @@ val-shapes:UniqueValuesShape
                       ?valueClass a val-onto:Value ;
                                   val-onto:hasValue ?value .
                     }
-                    GROUP BY $this ?value
+                    GROUP BY $this ?someProperty ?value
                     HAVING (COUNT(?value) > 1)
                 """ ;
               ] ;

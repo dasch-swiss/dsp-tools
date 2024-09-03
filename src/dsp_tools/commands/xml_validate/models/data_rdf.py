@@ -66,7 +66,7 @@ class SimpleTextRDF(ValueRDF):
         g = Graph()
         bn = BNode()
         g.add((bn, RDF.type, VAL_ONTO.SimpleText))
-        g.add((bn, VAL_ONTO.hasSimpleTextValue, self.object_value))
+        g.add((bn, VAL_ONTO.hasValue, self.object_value))
         g.add((res_iri, self.prop_name, bn))
         return g
 
@@ -80,7 +80,7 @@ class IntValueRDF(ValueRDF):
         g = Graph()
         bn = BNode()
         g.add((bn, RDF.type, VAL_ONTO.IntValue))
-        g.add((bn, VAL_ONTO.hasIntValue, self.object_value))
+        g.add((bn, VAL_ONTO.hasValue, self.object_value))
         g.add((res_iri, self.prop_name, bn))
         return g
 
@@ -95,7 +95,7 @@ class ListValueRDF(ValueRDF):
         g = Graph()
         bn = BNode()
         g.add((bn, RDF.type, VAL_ONTO.ListValue))
-        g.add((bn, VAL_ONTO.hasListValue, self.object_value))
+        g.add((bn, VAL_ONTO.hasValue, self.object_value))
         g.add((bn, VAL_ONTO.hasListName, self.list_name))
         g.add((res_iri, self.prop_name, bn))
         return g
@@ -110,6 +110,6 @@ class LinkValueRDF(ValueRDF):
         g = Graph()
         bn = BNode()
         g.add((bn, RDF.type, VAL_ONTO.LinkValue))
-        g.add((bn, VAL_ONTO.hasLinkValueTarget, self.object_value))
+        g.add((bn, VAL_ONTO.hasValue, self.object_value))
         g.add((res_iri, self.prop_name, bn))
         return g

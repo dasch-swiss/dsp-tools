@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import itertools
 from dataclasses import dataclass
 from typing import Optional
@@ -9,6 +11,22 @@ from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XM
 from dsp_tools.commands.xmlupload.models.deserialise.deserialise_value import XMLProperty
 from dsp_tools.commands.xmlupload.models.permission import Permissions
 from dsp_tools.models.datetimestamp import DateTimeStamp
+from dsp_tools.models.exceptions import XmlUploadError
+
+COMPOSITE_PROPS = (
+    "boolean-prop",
+    "color-prop",
+    "date-prop",
+    "decimal-prop",
+    "geometry-prop",
+    "geoname-prop",
+    "integer-prop",
+    "list-prop",
+    "resptr-prop",
+    "text-prop",
+    "time-prop",
+    "uri-prop",
+)
 
 
 @dataclass(frozen=True)
@@ -25,6 +43,7 @@ class BitstreamInfo:
     permissions: Permissions | None = None
 
 
+@dataclass(frozen=True)
 class XMLResource:
     """
     Represents a resource in the XML used for data import.
@@ -52,64 +71,85 @@ class XMLResource:
     iiif_uri: Optional[IIIFUriInfo]
     properties: list[XMLProperty]
 
-    def __init__(self, node: etree._Element, default_ontology: str) -> None:
+    @staticmethod
+    def from_node(node: etree._Element, default_ontology: str) -> XMLResource:
         """
-        Constructor that parses a resource node from the XML DOM
+        Factory that parses a resource node from the XML DOM
 
         Args:
             node: The DOM node to be processed representing a resource (which is a child of the `<knora>` element)
             default_ontology: The default ontology (given in the attribute default-ontology of the `<knora>` element)
-        """
-        self.res_id = node.attrib["id"]
-        self.iri = node.attrib.get("iri")
-        self.ark = node.attrib.get("ark")
-        self.creation_date = None
-        if node.attrib.get("creation_date"):
-            self.creation_date = DateTimeStamp(node.attrib.get("creation_date"))
-        self.label = node.attrib["label"]
-        # get the resource type which is in format namespace:resourcetype, p.ex. rosetta:Image
-        tmp_res_type = node.attrib["restype"].split(":")
-        if len(tmp_res_type) > 1:
-            if tmp_res_type[0]:
-                self.restype = node.attrib["restype"]
-            else:
-                # replace an empty namespace with the default ontology name
-                self.restype = f"{default_ontology}:{tmp_res_type[1]}"
-        else:
-            self.restype = f"knora-api:{tmp_res_type[0]}"
-        self.permissions = node.attrib.get("permissions")
-        self.bitstream = None
-        self.iiif_uri = None
-        self._init_properties(node, default_ontology)
 
-    def _init_properties(self, node: etree._Element, default_ontology: str) -> None:
+        Returns:
+            An XMLResource object
+        """
+        bitstream, iiif_uri, properties = XMLResource._get_properties(node, default_ontology)
+        return XMLResource(
+            res_id=node.attrib["id"],
+            iri=node.attrib.get("iri"),
+            ark=node.attrib.get("ark"),
+            label=node.attrib["label"],
+            restype=XMLResource._get_restype(node, default_ontology),
+            permissions=node.attrib.get("permissions"),
+            creation_date=DateTimeStamp(x) if (x := node.attrib.get("creation_date")) else None,
+            bitstream=bitstream,
+            iiif_uri=iiif_uri,
+            properties=properties,
+        )
+
+    @staticmethod
+    def _get_restype(node: etree._Element, default_ontology: str) -> str:
+        # get the resource type which is in format namespace:resourcetype, p.ex. rosetta:Image
+        restype_orig = node.attrib["restype"]
+        if ":" not in restype_orig:
+            return f"knora-api:{restype_orig}"
+        elif restype_orig.startswith(":"):
+            # replace an empty namespace with the default ontology name
+            return f"{default_ontology}:{restype_orig[1:]}"
+        else:
+            return restype_orig
+
+    @staticmethod
+    def _get_properties(
+        node: etree._Element, default_ontology: str
+    ) -> tuple[XMLBitstream | None, IIIFUriInfo | None, list[XMLProperty]]:
+        bitstream: XMLBitstream | None = None
+        iiif_uri: IIIFUriInfo | None = None
         ungrouped_properties: list[XMLProperty] = []
         for subnode in node:
             match subnode.tag:
                 case "bitstream":
-                    self.bitstream = XMLBitstream(subnode)
+                    bitstream = XMLBitstream.from_node(subnode)
                 case "iiif-uri":
-                    self.iiif_uri = IIIFUriInfo(subnode)
+                    iiif_uri = IIIFUriInfo.from_node(subnode)
                 case "isSegmentOf" | "relatesTo":
-                    ungrouped_properties.append(XMLProperty(subnode, "resptr", default_ontology))
+                    ungrouped_properties.append(XMLProperty.from_node(subnode, "resptr", default_ontology))
                 case "hasSegmentBounds":
-                    ungrouped_properties.append(XMLProperty(subnode, "interval", default_ontology))
+                    ungrouped_properties.append(XMLProperty.from_node(subnode, "interval", default_ontology))
                 case "hasTitle" | "hasComment" | "hasDescription" | "hasKeyword":
-                    ungrouped_properties.append(XMLProperty(subnode, "text", default_ontology))
-                case _:
+                    ungrouped_properties.append(XMLProperty.from_node(subnode, "text", default_ontology))
+                case str() as x if x in COMPOSITE_PROPS:
                     # get the property type which is in format type-prop, p.ex. <decimal-prop>
                     prop_type, _ = subnode.tag.split("-")
-                    ungrouped_properties.append(XMLProperty(subnode, prop_type, default_ontology))
-        self.properties = []
+                    ungrouped_properties.append(XMLProperty.from_node(subnode, prop_type, default_ontology))
+                case _:
+                    raise XmlUploadError(f"Unexpected tag '{subnode.tag}'")
+        grouped_properties = XMLResource._group_props(ungrouped_properties)
+        return bitstream, iiif_uri, grouped_properties
+
+    @staticmethod
+    def _group_props(ungrouped_properties: list[XMLProperty]) -> list[XMLProperty]:
+        properties = []
         ungrouped_properties.sort(key=lambda x: x.name)
         for _, xml_props in itertools.groupby(ungrouped_properties, lambda x: x.name):
             if len(xml_props_list := list(xml_props)) == 1:
-                self.properties.append(xml_props_list[0])
+                properties.append(xml_props_list[0])
             else:
                 new_prop = xml_props_list.pop(0)
                 for xml_prop in xml_props_list:
                     new_prop.values.extend(xml_prop.values)
-                self.properties.append(new_prop)
+                properties.append(new_prop)
+        return properties
 
     def get_props_with_links(self) -> list[XMLProperty]:
         """

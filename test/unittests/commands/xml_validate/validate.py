@@ -21,10 +21,10 @@ val_shapes = parse_ttl_file("testdata/xml-validate/validation-shapes.ttl")
 val_onto = parse_ttl_file("testdata/xml-validate/validation-onto.ttl")
 shapes = onto_shapes + onto + val_shapes + val_onto
 
-# bad_data = parse_ttl_file("testdata/xml-validate/invalid-data.ttl")
+# bad_data = parse_ttl_file("testdata/xml-validate/data/invalid-data.ttl")
 # data = onto + bad_data + val_onto
 
-good_data = parse_ttl_file("testdata/xml-validate/valid-data.ttl")
+good_data = parse_ttl_file("testdata/xml-validate/data/valid-data.ttl")
 data = onto + good_data + val_onto
 
 _, g, txt = validate_graph(shapes, data)

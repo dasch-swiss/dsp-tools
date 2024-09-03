@@ -60,7 +60,7 @@ def _process_child_nodes(node: dict[str, Any]) -> list[str]:
 def create_project_rdf(project: DataDeserialised) -> DataRDF:
     """Transform the deserialised data into models that can serialise as RDF."""
     proj_namespaces = ProjectNamespaces(
-        onto=Namespace(f"http://validation-{project.shortcode}/{project.default_onto}#"),
+        onto=Namespace("http://0.0.0.0:3333/ontology/9999/onto/v2#"),
         data=Namespace(f"http://validation-{project.shortcode}/data/"),
     )
     return DataRDF(resources=[_create_resource_rdf(x, proj_namespaces) for x in project.resources])

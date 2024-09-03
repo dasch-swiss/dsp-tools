@@ -1,0 +1,167 @@
+@prefix owl:         <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:         <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:        <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:         <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh:          <http://www.w3.org/ns/shacl#> .
+
+@prefix val-shapes:  <http://api.knora.org/validation-shapes#> .
+@prefix val-onto:    <http://api.knora.org/validation-onto#> .
+@prefix onto:        <http://0.0.0.0:3333/ontology/9999/onto/v2#> .
+@prefix onto-shapes: <http://validation-9999/onto-shapes#> .
+
+###################
+# Class Shapes
+###################
+
+onto-shapes:NormalClass_NodeShape
+  a                    sh:NodeShape ;
+  sh:targetClass       onto:NormalClass ;
+  sh:property          onto-shapes:hasSimpleText_PropShape ,
+                       onto-shapes:listProp_PropShape ,
+                       onto-shapes:linkProp_PropShape .
+
+#######
+
+onto-shapes:CardOneResource_Shape
+  a                    sh:NodeShape ;
+  sh:targetClass       onto:CardOneResource ;
+  sh:property          onto-shapes:hasSimpleText_PropShape .
+
+#######
+
+onto-shapes:SubClass_Shape
+  a                    sh:NodeShape ;
+  sh:targetClass       onto:SubClass ;
+  sh:property          onto-shapes:hasSimpleText_PropShape .
+
+#######
+
+onto-shapes:hasSimpleText_PropShape
+  a       sh:PropertyShape  ;
+  sh:path onto:hasSimpleText ;
+  sh:node val-shapes:SimpleText_ClassShape , val-shapes:SimpleText_NodeShape .
+
+#######
+
+onto-shapes:listProp_PropShape
+  a       sh:PropertyShape ;
+  sh:path onto:listProp ;
+  sh:node val-shapes:ListValue_ClassShape, onto-shapes:onlyList_NodeShape .
+
+
+onto-shapes:onlyList_NodeShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the content of the ListValue with the specific property." ;
+  sh:property [
+                a         sh:PropertyShape ;
+                sh:path   val-onto:hasValue ;
+                sh:in     ( "n1" "n1.1" "n1.1.1" ) ;
+                sh:message "Unknown list node."
+              ] ,
+              [
+                a               sh:PropertyShape ;
+                sh:path         val-onto:hasListName ;
+                sh:defaultValue "onlyList" ;
+                sh:message      "Unknown list name."
+              ] ;
+  sh:severity sh:Violation .
+
+#######
+
+onto-shapes:linkProp_PropShape
+  a sh:PropertyShape ;
+  sh:path onto:linkProp ;
+  sh:node val-shapes:LinkValue_ClassShape , onto-shapes:linkProp_NodeShape .
+
+onto-shapes:linkProp_NodeShape
+  a              sh:NodeShape ;
+  sh:name        "Validates class of target." ;
+  sh:property    [
+                    a            sh:PropertyShape ;
+                    sh:path      val-onto:hasValue ;
+                    sh:class     onto:CardOneResource ;
+                    sh:message   "Target must be of type onto:CardOneResource or a subclass of it." ;
+                 ] ;
+  sh:severity    sh:Violation .
+
+
+########################################
+# IntValue Shape
+########################################
+
+val-shapes:IntValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "Object must be a of type IntValue." ;
+  sh:class    val-onto:IntValue ;
+  sh:severity sh:Violation .
+
+val-shapes:IntValue_NodeShape
+  a           sh:NodeShape ;
+  sh:name     "Validates that it is a valid integer in string form." ;
+  sh:property [
+                a          sh:PropertyShape ;
+                sh:path    val-onto:hasValue ;
+                sh:pattern "^\\d+$" ;
+                sh:message "Value must be a valid integer." ;
+              ] ;
+  sh:severity sh:Violation .
+
+
+########################################
+# SimpleText Shape
+########################################
+
+
+val-shapes:SimpleText_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "Object must be a of type SimpleText." ;
+  sh:class    val-onto:SimpleText ;
+  sh:severity sh:Violation .
+
+val-shapes:SimpleText_NodeShape
+  a           sh:NodeShape ;
+  sh:name     "Validates content of string." ;
+  sh:property [
+                a            sh:PropertyShape ;
+                sh:path      val-onto:hasValue ;
+                sh:minLength 1 ;
+                sh:datatype  xsd:string ;
+                sh:message   "Value must be a valid non-empty string." ;
+              ] ;
+  sh:severity sh:Violation .
+
+
+########################################
+# THE FOLLOWING MUST BE AT LEAST PARTIALLY CONSTRUCTED IN CODE
+# BECAUSE THE PROJECT ONTOLOGY IS RELEVANT
+########################################
+
+
+########################################
+# ListValue Shape
+########################################
+
+# The property shapes are individual to each ontology.
+
+val-shapes:ListValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "Object must be a of type ListValue." ;
+  sh:class    val-onto:ListValue ;
+  sh:severity sh:Violation .
+
+
+########################################
+# LinkValue Shape
+########################################
+
+# The property shapes are individual to each ontology.
+
+val-shapes:LinkValue_ClassShape
+  a           sh:NodeShape ;
+  sh:name     "Validates the class type" ;
+  sh:message  "Object must be a of type LinkValue." ;
+  sh:class    val-onto:LinkValue ;
+  sh:severity sh:Violation .

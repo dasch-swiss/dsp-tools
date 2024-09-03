@@ -16,14 +16,17 @@ onto-shapes:NormalClass_NodeShape
   sh:property           [
                           a           sh:PropertyShape ;
                           sh:path     onto:hasSimpleText ;
+                          sh:minCount 0 ;
                         ] ,
                         [
                           a           sh:PropertyShape ;
                           sh:path     onto:linkProp ;
+                          sh:minCount 0 ;
                         ] ,
                         [
                           a           sh:PropertyShape ;
                           sh:path     onto:listProp ;
+                          sh:minCount 0 ;
                         ] ;
   sh:node              val-shapes:UniqueValuesShape ;
   sh:ignoredProperties ( rdf:type rdfs:label ) ;

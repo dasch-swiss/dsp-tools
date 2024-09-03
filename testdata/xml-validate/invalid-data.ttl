@@ -1,4 +1,4 @@
-@prefix onto: <http://validation-9999/onto#> .
+@prefix onto: <http://0.0.0.0:3333/ontology/9999/onto/v2#> .
 @prefix val-onto: <http://api.knora.org/validation-onto#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 

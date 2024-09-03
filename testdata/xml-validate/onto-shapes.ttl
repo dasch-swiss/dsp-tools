@@ -6,7 +6,7 @@
 
 @prefix val-shapes:  <http://api.knora.org/validation-shapes#> .
 @prefix val-onto:    <http://api.knora.org/validation-onto#> .
-@prefix onto:        <http://validation-9999/onto#> .
+@prefix onto:        <http://0.0.0.0:3333/ontology/9999/onto/v2#> .
 @prefix onto-shapes: <http://validation-9999/onto-shapes#> .
 
 ###################

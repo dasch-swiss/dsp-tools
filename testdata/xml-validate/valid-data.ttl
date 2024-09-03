@@ -1,5 +1,5 @@
 @prefix ns1: <http://api.knora.org/validation-onto#> .
-@prefix ns2: <http://validation-9999/onto#> .
+@prefix ns2: <http://0.0.0.0:3333/ontology/9999/onto/v2#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
 <http://validation-9999/data/duplicate-list-different-node> a ns2:NormalClass ;

@@ -60,4 +60,15 @@
         </list-prop>
     </resource>
 
+
+    <!-- It is allowed to have two values that are identical if they use different properties-->
+    <resource label="Duplicate content with different properties is allowed" restype=":NormalClass" id="different-prop-identical-value">
+        <list-prop name=":listProp" list="onlyList">
+            <list>n1</list>
+        </list-prop>
+        <text-prop name=":hasSimpleText">
+            <text encoding="utf8">n1</text>
+        </text-prop>
+    </resource>
+
 </knora>

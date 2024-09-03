@@ -1,0 +1,23 @@
+@prefix onto:        <http://validation/onto#> .
+@prefix : <http://validation/data/> .
+
+@prefix val-onto: <http://api.knora.org/validation-onto#> .
+
+:SubClassInstance a onto:SubClass .
+
+:ValidationFailure a onto:OtherClass ;
+       onto:hasLinkValue [
+                            a val-onto:LinkValue ;
+                            val-onto:hasLinkTarget :SubClassInstance ;
+                         ] .
+
+###############
+
+
+:SuperClassInstance a onto:SuperClass .
+
+:ValidationSuccess a onto:OtherClass ;
+       onto:hasLinkValue [
+                            a val-onto:LinkValue ;
+                            val-onto:hasLinkTarget :SuperClassInstance ;
+                         ] .

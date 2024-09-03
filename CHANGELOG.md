@@ -1,5 +1,40 @@
 # Changelog
 
+## [9.0.0](https://github.com/dasch-swiss/dsp-tools/compare/v8.5.0...v9.0.0) (2024-09-03)
+
+
+### ⚠ BREAKING CHANGES
+
+* **xmlupload:** change representation of <video-segment> and <audio-segment> in XML due to XSD schema validation problems (DEV-3964) ([#1101](https://github.com/dasch-swiss/dsp-tools/issues/1101))
+
+### Enhancements
+
+* **xmlupload:** add resource type to error message when checking for encoding mistakes (RDU-25) ([#1145](https://github.com/dasch-swiss/dsp-tools/issues/1145)) ([7279b69](https://github.com/dasch-swiss/dsp-tools/commit/7279b6981b0c6a44b95ef5d907d2364d27fbdc71))
+
+
+### Bug Fixes
+
+* **excel2json-lists:** remove erroneous warning if comments column exist (RDU-23) ([#1141](https://github.com/dasch-swiss/dsp-tools/issues/1141)) ([4ed0a7e](https://github.com/dasch-swiss/dsp-tools/commit/4ed0a7e0178e03829efbc54a4009b7f450b5db48))
+* **excel2json:** don't crash if json_header.xlsx is present when using the default command (RDU-24) ([#1144](https://github.com/dasch-swiss/dsp-tools/issues/1144)) ([4c4738e](https://github.com/dasch-swiss/dsp-tools/commit/4c4738eb8200eb0a7121ab8cfd5c460b5c7f1d26))
+* **xmlupload:** change representation of &lt;video-segment&gt; and <audio-segment> in XML due to XSD schema validation problems (DEV-3964) ([#1101](https://github.com/dasch-swiss/dsp-tools/issues/1101)) ([1476eca](https://github.com/dasch-swiss/dsp-tools/commit/1476eca2b1da17bcf731057a81292a0baa9637fd))
+* **xmlupload:** don't rely on requests.Response.json() in case of unsuccessful request (DEV-4035) ([#1132](https://github.com/dasch-swiss/dsp-tools/issues/1132)) ([ff0b1de](https://github.com/dasch-swiss/dsp-tools/commit/ff0b1de7eb9e146c659774454125b20f4cb85cf9))
+
+
+### Maintenance
+
+* bump stack to 2024.08.02 ([#1147](https://github.com/dasch-swiss/dsp-tools/issues/1147)) ([86e764b](https://github.com/dasch-swiss/dsp-tools/commit/86e764bd75455ef4ab83595b026e073c224df43a))
+* don't ignore ARG001 in pre-commit hooks ([#1136](https://github.com/dasch-swiss/dsp-tools/issues/1136)) ([7ea83f7](https://github.com/dasch-swiss/dsp-tools/commit/7ea83f7464353c8b7047f9d59143a903947dc07c))
+* remove codecov-integration (DEV-4043) ([#1142](https://github.com/dasch-swiss/dsp-tools/issues/1142)) ([042cf06](https://github.com/dasch-swiss/dsp-tools/commit/042cf0675421f6207d9683ae4331ad18065e40d1))
+* **start-stack:** change message for docker prune (DEV-4027) ([#1126](https://github.com/dasch-swiss/dsp-tools/issues/1126)) ([73c7823](https://github.com/dasch-swiss/dsp-tools/commit/73c7823fadf4e8de8e94826e0798dfd436349cd2))
+* surround angular brackets in docstrings by backticks (DEV-4014) ([#1135](https://github.com/dasch-swiss/dsp-tools/issues/1135)) ([7e746e2](https://github.com/dasch-swiss/dsp-tools/commit/7e746e2ae195329a9646113a7b29173588d93d2e))
+* turn XMLResource and XMLProperty into dataclasses ([#1137](https://github.com/dasch-swiss/dsp-tools/issues/1137)) ([6c4fe5d](https://github.com/dasch-swiss/dsp-tools/commit/6c4fe5d04f5439d330035aca1162cdeb3e5c082c))
+
+
+### Documentation
+
+* **excel2xml:** fix params of make_hasSegmentBounds_prop() ([#1138](https://github.com/dasch-swiss/dsp-tools/issues/1138)) ([95b7a84](https://github.com/dasch-swiss/dsp-tools/commit/95b7a84d941468b7849c75e0cd6bbe658317d185))
+* mention fixed order of video/audio segments ([#1139](https://github.com/dasch-swiss/dsp-tools/issues/1139)) ([7ed7b93](https://github.com/dasch-swiss/dsp-tools/commit/7ed7b937a13ec131ffba0dfe09fc61466b536bff))
+
 ## [8.5.0](https://github.com/dasch-swiss/dsp-tools/compare/v8.4.0...v8.5.0) (2024-08-21)
 
 

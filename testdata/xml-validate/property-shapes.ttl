@@ -61,7 +61,7 @@ onto-shapes:onlyList_NodeShape
               [
                 a               sh:PropertyShape ;
                 sh:path         val-onto:hasListName ;
-                sh:defaultValue "onlyList" ;
+                sh:in           ( "onlyList" ) ;
                 sh:message      "Unknown list name."
               ] ;
   sh:severity sh:Violation .

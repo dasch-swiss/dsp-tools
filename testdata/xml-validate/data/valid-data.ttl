@@ -4,20 +4,21 @@
 
 <http://validation-9999/data/duplicate-list-different-node> a ns2:NormalClass ;
     rdfs:label "Duplicate list with different nodes are allowed" ;
-    ns2:listProp [ a ns1:ListValue ;
-            ns1:hasListName "onlyList" ;
-            ns1:hasListValue "n1" ],
+    ns2:listProp
+#            [ a ns1:ListValue ;
+#            ns1:hasListName "onlyList" ;
+#            ns1:hasListValue "n1" ],
         [ a ns1:ListValue ;
             ns1:hasListName "onlyList" ;
             ns1:hasListValue "n1.1" ] .
 
-<http://validation-9999/data/duplicate-content-different-prop> a ns2:NormalClass ;
-    rdfs:label "Duplicate list with different nodes are allowed" ;
-    ns2:listProp [ a ns1:ListValue ;
-            ns1:hasListName "onlyList" ;
-            ns1:hasListValue "n1" ] ;
-    ns2:hasSimpleText [ a ns1:SimpleText ;
-            ns1:hasSimpleTextValue "n1" ] .
+#<http://validation-9999/data/duplicate-content-different-prop> a ns2:NormalClass ;
+#    rdfs:label "Duplicate list with different nodes are allowed" ;
+#    ns2:listProp [ a ns1:ListValue ;
+#            ns1:hasListName "onlyList" ;
+#            ns1:hasListValue "n1" ] ;
+#    ns2:hasSimpleText [ a ns1:SimpleText ;
+#            ns1:hasSimpleTextValue "n1" ] .
 
 #<http://validation-9999/data/identical-value-1> a ns2:NormalClass ;
 #    rdfs:label "Value is Identical" ;

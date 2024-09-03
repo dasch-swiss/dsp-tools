@@ -23,7 +23,7 @@ val-shapes:IntValue_NodeShape
   sh:name     "Validates that it is a valid integer in string form." ;
   sh:property [
                 a          sh:PropertyShape ;
-                sh:path    val-onto:hasIntValue ;
+                sh:path    val-onto:hasValue ;
                 sh:pattern "^\\d+$" ;
                 sh:message "Value must be a valid integer." ;
               ] ;
@@ -47,7 +47,7 @@ val-shapes:SimpleText_NodeShape
   sh:name     "Validates content of string." ;
   sh:property [
                 a            sh:PropertyShape ;
-                sh:path      val-onto:hasSimpleTextValue ;
+                sh:path      val-onto:hasValue ;
                 sh:minLength 1 ;
                 sh:datatype  xsd:string ;
                 sh:message   "Value must be a valid non-empty string." ;

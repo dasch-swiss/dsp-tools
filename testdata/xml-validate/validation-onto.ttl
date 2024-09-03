@@ -15,29 +15,17 @@ val-onto:IntValue
   a               owl:Class ;
   rdfs:subClassOf val-onto:Value .
 
-val-onto:hasIntValue
-  a                  owl:DatatypeProperty ;
-  rdfs:subPropertyOf val-onto:hasValue .
-
 
 # SimpleText
 val-onto:SimpleText
   a               owl:Class ;
   rdfs:subClassOf val-onto:Value .
 
-val-onto:hasSimpleTextValue
-  a                  owl:DatatypeProperty ;
-  rdfs:subPropertyOf val-onto:hasValue .
-
 
 # ListValue
 val-onto:ListValue
   a               owl:Class ;
   rdfs:subClassOf val-onto:Value .
-
-val-onto:hasListValue
-  a                  owl:DatatypeProperty ;
-  rdfs:subPropertyOf val-onto:hasValue .
 
 val-onto:hasListName a owl:DatatypeProperty .
 
@@ -46,7 +34,3 @@ val-onto:hasListName a owl:DatatypeProperty .
 val-onto:LinkValue
   a               owl:Class ;
   rdfs:subClassOf val-onto:Value .
-
-val-onto:hasLinkValueTarget
-  a                  owl:ObjectProperty ;
-  rdfs:subPropertyOf val-onto:hasValue .

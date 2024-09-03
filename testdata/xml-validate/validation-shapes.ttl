@@ -108,7 +108,7 @@ val-shapes:UniqueValuesShape
                                   val-onto:hasValue ?value .
                     }
                     GROUP BY $this ?value
-                    HAVING (COUNT(?valueClass) > 1)
+                    HAVING (COUNT(?value) > 1)
                 """ ;
               ] ;
   sh:severity sh:Violation .

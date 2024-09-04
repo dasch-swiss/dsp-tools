@@ -82,13 +82,14 @@ val-shapes:UniqueValuesShape
                 sh:message "A resource may not have the same property and value more than one time." ;
                 sh:select  """
                     PREFIX val-onto: <http://api.knora.org/validation-onto#>
-                    SELECT $this ?value WHERE {
-                      $this ?someProperty ?valueClass .
+                    SELECT $this ?path ?value WHERE {
+                      $this ?path ?valueClass .
 
                       ?valueClass val-onto:hasValue ?value .
                     }
-                    GROUP BY $this ?someProperty ?value
+                    GROUP BY $this ?path ?value
                     HAVING (COUNT(?value) > 1)
                 """ ;
               ] ;
   sh:severity sh:Violation .
+

@@ -40,7 +40,7 @@ def replace_filepath_with_internal_filename(
     orig_path_2_asset_id: dict[str, str],
 ) -> tuple[etree._Element, IngestInformation]:
     """
-    Replace the original filepaths in the <bitstream> tags by the id filenames of the uploaded files.
+    Replace the original filepaths in the `<bitstream>` tags by the id filenames of the uploaded files.
 
     Args:
         xml_tree: The parsed original XML tree

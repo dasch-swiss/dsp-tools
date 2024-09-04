@@ -87,6 +87,7 @@ AllowedEncodings = Literal["utf8", "xml"]
 @dataclass
 class TextValueData:
     resource_id: str
+    res_type: str
     property_name: str
     encoding: AllowedEncodings
 

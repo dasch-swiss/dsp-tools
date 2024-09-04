@@ -405,7 +405,7 @@ def test_make_iiif_uri_value_with_permissions() -> None:
             <iiif-uri permissions="prop-default">http://example.org/prefix1/abcd1234/full/full/0/native.jpg</iiif-uri>
         </resource>
         """
-    xmlresource = XMLResource(etree.fromstring(xml_str), "foo")
+    xmlresource = XMLResource.from_node(etree.fromstring(xml_str), "foo")
     test_val = cast(IIIFUriInfo, xmlresource.iiif_uri)
     result = _make_iiif_uri_value(test_val, BNode(), permission)
     assert len(result) == 4
@@ -418,7 +418,7 @@ def test_make_iiif_uri_value_no_permissions() -> None:
             <iiif-uri>http://example.org/prefix1/abcd1234/full/full/0/native.jpg</iiif-uri>
         </resource>
         """
-    xmlresource = XMLResource(etree.fromstring(xml_str), "foo")
+    xmlresource = XMLResource.from_node(etree.fromstring(xml_str), "foo")
     test_val = cast(IIIFUriInfo, xmlresource.iiif_uri)
     result = _make_iiif_uri_value(test_val, BNode(), permission)
     assert len(result) == 3
@@ -431,7 +431,7 @@ def test_make_iiif_uri_value_raises() -> None:
             <iiif-uri permissions="prop-default">http://example.org/prefix1/abcd1234/full/full/0/native.jpg</iiif-uri>
         </resource>
         """
-    xmlresource = XMLResource(etree.fromstring(xml_str), "foo")
+    xmlresource = XMLResource.from_node(etree.fromstring(xml_str), "foo")
     test_val = cast(IIIFUriInfo, xmlresource.iiif_uri)
     with pytest.raises(PermissionNotExistsError):
         _make_iiif_uri_value(test_val, BNode(), permission)
@@ -443,7 +443,7 @@ def test_make_iiif_uri_value_serialised() -> None:
             <iiif-uri>http://example.org/prefix1/abcd1234/full/full/0/native.jpg</iiif-uri>
         </resource>
         """
-    xmlresource = XMLResource(etree.fromstring(xml_str), "foo")
+    xmlresource = XMLResource.from_node(etree.fromstring(xml_str), "foo")
     test_val = cast(IIIFUriInfo, xmlresource.iiif_uri)
     result = _make_iiif_uri_value(test_val, BNode(), {})
     serialised = serialise_property_graph(
@@ -468,7 +468,7 @@ def test_make_boolean_value_with_permissions() -> None:
             </boolean-prop>
         </resource>
         """
-    xmlresource = XMLResource(etree.fromstring(xml_str), "foo")
+    xmlresource = XMLResource.from_node(etree.fromstring(xml_str), "foo")
     test_val: XMLValue = xmlresource.properties[0].values[0]
     b_node = BNode()
     bool_graph = _make_boolean_value(test_val, b_node, permissions_lookup)

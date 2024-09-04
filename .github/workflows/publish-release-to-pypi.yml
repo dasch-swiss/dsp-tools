@@ -4,9 +4,11 @@ name: Publish release to PyPI
 
 on:
   release:
-    types: [released]
+    types: [published]
+  workflow_dispatch:
 
 env:
+  TOKEN: ${{ secrets.GH_TOKEN }}
   # API tokens require username "__token__".
   # Repo names other than pypi.org must be configured with:
   #  % poetry config repositories.testpypi https://test.pypi.org/legacy/

@@ -22,12 +22,13 @@ def excel2json(
     ::
 
         data_model_files
-        |-- lists
-        |   |-- de.xlsx
-        |   `-- en.xlsx
-        `-- onto_name (onto_label)
-            |-- properties.xlsx
-            `-- resources.xlsx
+        ├── json_header.xlsx (optional)
+        ├── lists
+        │   ├── de.xlsx
+        │   └── en.xlsx
+        └── onto_name (onto_label)
+            ├── properties.xlsx
+            └── resources.xlsx
 
     The names of the files must be exactly like in the example. The folder "lists" can be missing, because it is
     optional to have lists in a DSP project. Only XLSX files are allowed.
@@ -59,19 +60,21 @@ def excel2json(
 def _validate_folder_structure_get_filenames(data_model_files: str) -> tuple[list[Path], list[Path]]:
     if not Path(data_model_files).is_dir():
         raise UserError(f"ERROR: {data_model_files} is not a directory.")
-    folder = [x for x in Path(data_model_files).glob("*") if _non_hidden(x)]
-    processed_files = []
-    onto_folders, processed_onto = _get_and_validate_onto_folder(Path(data_model_files), folder)
-    processed_files.extend(processed_onto)
-    listfolder, processed_lists = _get_validate_list_folder(data_model_files, folder)
-    processed_files.extend(processed_lists)
-    if len(onto_folders) + len(listfolder) != len(folder):
+    sub_folders = [x for x in Path(data_model_files).glob("*") if _non_hidden(x) and x.is_dir()]
+    files_to_process = []
+    onto_folders, onto_files_to_process = _get_and_validate_onto_folder(Path(data_model_files), sub_folders)
+    files_to_process.extend(onto_files_to_process)
+    listfolder, lists_to_process = _get_validate_list_folder(data_model_files, sub_folders)
+    files_to_process.extend(lists_to_process)
+    if len(onto_folders) + len(listfolder) != len(sub_folders):
         raise UserError(
             f"The only allowed subfolders in '{data_model_files}' are 'lists' "
             "and folders that match the pattern 'onto_name (onto_label)'"
         )
+    if (json_header := Path(data_model_files) / Path("json_header.xlsx")).exists():
+        files_to_process.append(str(json_header))
     print("The following files will be processed:")
-    print(*(f" - {file}" for file in processed_files), sep="\n")
+    print(*(f" - {file}" for file in files_to_process), sep="\n")
     return listfolder, onto_folders
 
 
@@ -98,12 +101,13 @@ def new_excel2json(
     ::
 
         data_model_files
-        |-- lists
-        |   |-- list.xlsx
-        |   `-- list_2.xlsx
-        `-- onto_name (onto_label)
-            |-- properties.xlsx
-            `-- resources.xlsx
+        ├── json_header.xlsx (optional)
+        ├── lists
+        │   ├── list.xlsx
+        │   └── list_1.xlsx
+        └── onto_name (onto_label)
+            ├── properties.xlsx
+            └── resources.xlsx
 
     The names of the files must be exactly like in the example. The folder "lists" can be missing, because it is
     optional to have lists in a DSP project. Only XLSX files are allowed.

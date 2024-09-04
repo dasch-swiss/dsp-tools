@@ -56,7 +56,7 @@ def _validate_graph_no_inference(data: Graph, shapes: Graph) -> Graph | None:
 
 
 def _validate_graph_rdfs_inference(data: Graph, shapes: Graph) -> Graph | None:
-    conforms, results_graph, results_text = validate(data_graph=data, shacl_graph=shapes, inference="rdfs")
+    conforms, results_graph, _ = validate(data_graph=data, shacl_graph=shapes, inference="rdfs")
     if conforms:
         return None
     return results_graph

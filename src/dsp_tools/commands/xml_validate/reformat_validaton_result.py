@@ -3,7 +3,6 @@ from rdflib import SH
 from rdflib import BNode
 from rdflib import Graph
 from rdflib import Namespace
-from rdflib import URIRef
 
 from dsp_tools.commands.xml_validate.models.input_problems import DuplicateContent
 from dsp_tools.commands.xml_validate.models.input_problems import GenericContentViolation
@@ -37,17 +36,18 @@ def reformat_validation_graph(validation_graph: ValidationGraphs) -> list[InputP
 
 
 def _separate_nodes_with_details_and_without(g: Graph) -> tuple[list[BNode], list[BNode]]:
-    individual_validation_results = list(g.subjects(RDF.type, SH.ValidationResult))
+    individual_validation_results: list[BNode] = list(g.subjects(RDF.type, SH.ValidationResult))
 
     def check(bn: BNode) -> list[BNode]:
-        return list(g.objects(bn, SH.detail))
+        res: list[BNode] = list(g.objects(bn, SH.detail))
+        return res
 
     details = [x for x in individual_validation_results if check(x)]
     no_details = [x for x in individual_validation_results if not check(x)]
     return details, no_details
 
 
-def _reformat_prop_iri(prop: URIRef) -> str:
+def _reformat_prop_iri(prop: str) -> str:
     onto = str(prop).split("/")[-2]
     return f'{onto}:{str(prop).split("#")[-1]}'
 
@@ -66,7 +66,7 @@ def _separate_cardinality_violation_types(validation_graph: Graph) -> tuple[list
     return sparql_violation, card_violations
 
 
-def _reformat_sparql_violations(g: Graph, nodes: list[BNode]) -> list[DuplicateContent]:
+def _reformat_sparql_violations(g: Graph, nodes: list[BNode]) -> list[InputProblem]:
     return [_reformat_one_sparql_violation(g, x) for x in nodes]
 
 

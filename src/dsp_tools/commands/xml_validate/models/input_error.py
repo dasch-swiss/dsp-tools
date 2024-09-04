@@ -137,7 +137,7 @@ class ValidationGraphs:
 
 @dataclass
 class ValidationProblem:
-    resource_iri: Any
+    res_id: str
     property_iri: Any
     violation_value: ValidationProblemValue
     message: str
@@ -146,5 +146,5 @@ class ValidationProblem:
 @dataclass
 class ValidationProblemValue:
     rdf_types: list[Any]
-    hasValue: Any
+    hasValue: str
     hasListName: list[Any]

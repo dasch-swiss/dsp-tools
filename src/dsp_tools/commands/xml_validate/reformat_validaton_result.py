@@ -1,4 +1,3 @@
-import regex
 from rdflib import RDF
 from rdflib import SH
 from rdflib import BNode
@@ -48,10 +47,6 @@ def _separate_nodes_with_details_and_without(g: Graph) -> tuple[list[BNode], lis
     return details, no_details
 
 
-def _reformat_res_id(res: URIRef) -> str:
-    return regex.search(r"/data/(.+)$", str(res)).group(1)
-
-
 def _reformat_prop_iri(prop: URIRef) -> str:
     onto = str(prop).split("/")[-2]
     return f'{onto}:{str(prop).split("#")[-1]}'
@@ -77,8 +72,7 @@ def _reformat_sparql_violations(g: Graph, nodes: list[BNode]) -> list[DuplicateC
 
 def _reformat_one_sparql_violation(g: Graph, bn: BNode) -> DuplicateContent:
     detail_bn = next(g.objects(bn, SH.detail))
-    problem_iri = next(g.objects(bn, SH.focusNode))
-    problem_resource = _reformat_res_id(problem_iri)
+    problem_resource = str(next(g.objects(bn, SH.focusNode)))
     prop_iri = str(next(g.objects(detail_bn, SH.resultPath)))
     prop = _reformat_prop_iri(prop_iri)
     content = str(next(g.objects(detail_bn, SH.value)))
@@ -90,8 +84,7 @@ def _reformat_card_violations(g: Graph, nodes: list[BNode]) -> list[InputProblem
 
 
 def _reformat_one_card_violation(g: Graph, bn: BNode) -> InputProblem:
-    res_iri = next(g.objects(bn, SH.focusNode))
-    res_id = _reformat_res_id(res_iri)
+    res_id = str(next(g.objects(bn, SH.focusNode)))
     prop_iri = next(g.objects(bn, SH.resultPath))
     prop = _reformat_prop_iri(prop_iri)
     violation_type = next(g.objects(bn, SH.sourceConstraintComponent))
@@ -114,12 +107,12 @@ def _extract_one_validation_result(validation_bn: BNode, validation_graph: Graph
     detail_bn = next(validation_graph.objects(validation_bn, SH.detail))
     violation_message = str(next(validation_graph.objects(detail_bn, SH.resultMessage)))
     value_bn = next(validation_graph.objects(validation_bn, SH.value))
-    has_values = next(validation_graph.objects(value_bn, VAL_ONTO.hasValue))
+    has_values = str(next(validation_graph.objects(value_bn, VAL_ONTO.hasValue)))
     list_name = list(validation_graph.objects(value_bn, VAL_ONTO.hasListName))
     val_types = list(validation_graph.objects(value_bn, RDF.type))
     problem_value = ValidationProblemValue(rdf_types=val_types, hasValue=has_values, hasListName=list_name)
     return ValidationProblem(
-        resource_iri=res_iri,
+        res_id=str(res_iri),
         property_iri=prop_iri,
         violation_value=problem_value,
         message=str(violation_message),
@@ -140,27 +133,25 @@ def _reformat_one_property_violation(violation: ValidationProblem) -> InputProbl
 
 
 def _reformat_list_violation(violation: ValidationProblem) -> InputProblem:
-    res_id = _reformat_res_id(violation.resource_iri)
     prop = _reformat_prop_iri(violation.property_iri)
     return ListViolation(
-        res_id=res_id,
+        res_id=violation.res_id,
         prop_name=prop,
         msg=violation.message,
         list_name=str(violation.violation_value.hasListName[0]),
-        node_name=str(violation.violation_value.hasValue),
+        node_name=violation.violation_value.hasValue,
     )
 
 
 def _reformat_link_violation(violation: ValidationProblem) -> InputProblem:
-    res_id = _reformat_res_id(violation.resource_iri)
     prop = _reformat_prop_iri(violation.property_iri)
-    val = _reformat_res_id(violation.violation_value.hasValue)
-    return GenericContentViolation(res_id=res_id, prop_name=prop, content=val, msg=violation.message)
+    return GenericContentViolation(
+        res_id=violation.res_id, prop_name=prop, content=violation.violation_value.hasValue, msg=violation.message
+    )
 
 
 def _reformat_other_violation(violation: ValidationProblem) -> InputProblem:
-    res_id = _reformat_res_id(violation.resource_iri)
     prop = _reformat_prop_iri(violation.property_iri)
     return GenericContentViolation(
-        res_id=res_id, prop_name=prop, content=str(violation.violation_value.hasValue), msg=violation.message
+        res_id=violation.res_id, prop_name=prop, content=violation.violation_value.hasValue, msg=violation.message
     )

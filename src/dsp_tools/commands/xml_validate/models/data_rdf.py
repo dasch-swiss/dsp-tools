@@ -16,12 +16,6 @@ VAL_ONTO = Namespace("http://api.knora.org/validation-onto#")
 
 
 @dataclass
-class ProjectNamespaces:
-    onto: Namespace
-    data: Namespace
-
-
-@dataclass
 class DataRDF:
     resources: list[ResourceRDF]
 

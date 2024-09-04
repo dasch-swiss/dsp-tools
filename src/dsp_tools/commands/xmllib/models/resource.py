@@ -71,21 +71,96 @@ class Resource:
     # BooleanValue
     ###################
 
+    def add_bool(
+        self, prop_name: str, value: Any, permissions: str | None = None, comments: str | None = None
+    ) -> Resource:
+        pass
+
+    def add_bools(
+        self, prop_name: str, values: list[Any], permissions: str | None = None, comments: str | None = None
+    ) -> Resource:
+        pass
+
+    def add_bool_optional(
+        self, prop_name: str, value: Any, permissions: str | None = None, comments: str | None = None
+    ) -> Resource:
+        pass
+
     ###################
     # ColorValue
     ###################
+
+    def add_color(
+        self, prop_name: str, value: int, permissions: str | None = None, comments: str | None = None
+    ) -> Resource:
+        pass
+
+    def add_colors(
+        self, prop_name: str, values: list[int], permissions: str | None = None, comments: str | None = None
+    ) -> Resource:
+        pass
+
+    def add_color_optional(
+        self, prop_name: str, value: int, permissions: str | None = None, comments: str | None = None
+    ) -> Resource:
+        pass
 
     ###################
     # DateValue
     ###################
 
+    def add_date(
+        self, prop_name: str, value: str, permissions: str | None = None, comments: str | None = None
+    ) -> Resource:
+        pass
+
+    def add_dates(
+        self, prop_name: str, values: list[str], permissions: str | None = None, comments: str | None = None
+    ) -> Resource:
+        pass
+
+    def add_date_optional(
+        self, prop_name: str, value: str, permissions: str | None = None, comments: str | None = None
+    ) -> Resource:
+        pass
+
     ###################
     # DecimalValue
     ###################
 
+    def add_decimal(
+        self, prop_name: str, value: float, permissions: str | None = None, comments: str | None = None
+    ) -> Resource:
+        pass
+
+    def add_decimals(
+        self, prop_name: str, values: list[float], permissions: str | None = None, comments: str | None = None
+    ) -> Resource:
+        pass
+
+    def add_decimal_optional(
+        self, prop_name: str, value: float, permissions: str | None = None, comments: str | None = None
+    ) -> Resource:
+        pass
+
     ###################
     # GeonameValue
     ###################
+
+    def add_geoname(
+        self, prop_name: str, value: int | str, permissions: str | None = None, comments: str | None = None
+    ) -> Resource:
+        pass
+
+    def add_geonames(
+        self, prop_name: str, values: list[int | str], permissions: str | None = None, comments: str | None = None
+    ) -> Resource:
+        pass
+
+    def add_geoname_optional(
+        self, prop_name: str, value: int | str, permissions: str | None = None, comments: str | None = None
+    ) -> Resource:
+        pass
 
     ###################
     # IntValue
@@ -139,6 +214,26 @@ class Resource:
     # ListValue
     ###################
 
+    def add_list(
+        self, prop_name: str, value: Any, listname: Any, permissions: str | None = None, comments: str | None = None
+    ) -> Resource:
+        pass
+
+    def add_lists(
+        self,
+        prop_name: str,
+        values: list[Any],
+        listname: Any,
+        permissions: str | None = None,
+        comments: str | None = None,
+    ) -> Resource:
+        pass
+
+    def add_list_optional(
+        self, prop_name: str, value: Any, listname: Any, permissions: str | None = None, comments: str | None = None
+    ) -> Resource:
+        pass
+
     ###################
     # TextValue: SimpleText
     ###################
@@ -167,13 +262,58 @@ class Resource:
     # TextValue: Richtext
     ###################
 
+    def add_richtext(
+        self, prop_name: str, value: str, permissions: str | None = None, comments: str | None = None
+    ) -> Resource:
+        pass
+
+    def add_richtexts(
+        self, prop_name: str, values: list[str], permissions: str | None = None, comments: str | None = None
+    ) -> Resource:
+        pass
+
+    def add_richtext_optional(
+        self, prop_name: str, value: str, permissions: str | None = None, comments: str | None = None
+    ) -> Resource:
+        pass
+
     ###################
     # TimeValue
     ###################
 
+    def add_time(
+        self, prop_name: str, value: str, permissions: str | None = None, comments: str | None = None
+    ) -> Resource:
+        pass
+
+    def add_times(
+        self, prop_name: str, values: list[str], permissions: str | None = None, comments: str | None = None
+    ) -> Resource:
+        pass
+
+    def add_time_optional(
+        self, prop_name: str, value: str, permissions: str | None = None, comments: str | None = None
+    ) -> Resource:
+        pass
+
     ###################
     # UriValue
     ###################
+
+    def add_uri(
+        self, prop_name: str, value: str, permissions: str | None = None, comments: str | None = None
+    ) -> Resource:
+        pass
+
+    def add_uris(
+        self, prop_name: str, values: list[str], permissions: str | None = None, comments: str | None = None
+    ) -> Resource:
+        pass
+
+    def add_uri_optional(
+        self, prop_name: str, value: str, permissions: str | None = None, comments: str | None = None
+    ) -> Resource:
+        pass
 
     ###################
     # AbstractFileValue

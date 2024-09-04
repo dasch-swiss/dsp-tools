@@ -16,7 +16,7 @@ class AllProblems:
     def get_msg(self) -> str:
         coll = self._make_collection()
         msg = [x.get_msg() for x in coll]
-        title_msg = f"During the validation of the data {len(self.problems)} were found:\n\n"
+        title_msg = f"During the validation of the data {len(self.problems)} errors were found:\n\n"
         return title_msg + GRAND_SEPARATOR.join(msg)
 
     def _make_collection(self) -> list[ResourceProblemCollection]:

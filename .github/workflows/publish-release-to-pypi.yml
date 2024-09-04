@@ -4,7 +4,8 @@ name: Publish release to PyPI
 
 on:
   release:
-    types: [released]
+    types: [published]
+  workflow_dispatch:
 
 env:
   # API tokens require username "__token__".

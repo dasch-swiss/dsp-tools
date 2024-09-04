@@ -136,10 +136,9 @@ def _reformat_property_validation_results(violations: list[ValidationProblem]) -
 
 
 def _reformat_one_property_violation(violation: ValidationProblem) -> InputProblem:
-    val_types = [str(x) for x in violation.violation_value.rdf_types]
-    if "http://api.knora.org/validation-onto#ListValue" in val_types:
+    if VAL_ONTO.ListValue in violation.violation_value.rdf_types:
         return _reformat_list_violation(violation)
-    elif "http://api.knora.org/validation-onto#LinkValue" in val_types:
+    elif VAL_ONTO.LinkValue in violation.violation_value.rdf_types:
         return _reformat_link_violation(violation)
     else:
         return _reformat_other_violation(violation)

@@ -56,13 +56,13 @@ onto-shapes:onlyList_NodeShape
                 a         sh:PropertyShape ;
                 sh:path   val-onto:hasValue ;
                 sh:in     ( "n1" "n1.1" "n1.1.1" ) ;
-                sh:message "Unknown list node."
+                sh:message "Unknown list node for list 'onlyList'."
               ] ,
               [
                 a               sh:PropertyShape ;
                 sh:path         val-onto:hasListName ;
                 sh:in           ( "onlyList" ) ;
-                sh:message      "Unknown list name."
+                sh:message      "The list that should be used with this property is 'onlyList'."
               ] ;
   sh:severity sh:Violation .
 
@@ -80,7 +80,7 @@ onto-shapes:linkProp_NodeShape
                     a            sh:PropertyShape ;
                     sh:path      val-onto:hasValue ;
                     sh:class     onto:CardOneResource ;
-                    sh:message   "Target must be of type onto:CardOneResource or a subclass of it." ;
+                    sh:message   "Target must be of type 'onto:CardOneResource' or a subclass of it." ;
                  ] ;
   sh:severity    sh:Violation .
 
@@ -92,7 +92,7 @@ onto-shapes:linkProp_NodeShape
 val-shapes:IntValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
-  sh:message  "Object must be a of type IntValue." ;
+  sh:message  "Object must be a of type 'IntValue'." ;
   sh:class    val-onto:IntValue ;
   sh:severity sh:Violation .
 
@@ -116,7 +116,7 @@ val-shapes:IntValue_NodeShape
 val-shapes:SimpleText_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
-  sh:message  "Object must be a of type SimpleText." ;
+  sh:message  "Object must be a of type 'SimpleText'." ;
   sh:class    val-onto:SimpleText ;
   sh:severity sh:Violation .
 
@@ -148,7 +148,7 @@ val-shapes:SimpleText_NodeShape
 val-shapes:ListValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
-  sh:message  "Object must be a of type ListValue." ;
+  sh:message  "Object must be a of type 'ListValue'." ;
   sh:class    val-onto:ListValue ;
   sh:severity sh:Violation .
 
@@ -162,6 +162,6 @@ val-shapes:ListValue_ClassShape
 val-shapes:LinkValue_ClassShape
   a           sh:NodeShape ;
   sh:name     "Validates the class type" ;
-  sh:message  "Object must be a of type LinkValue." ;
+  sh:message  "Object must be a of type 'LinkValue'." ;
   sh:class    val-onto:LinkValue ;
   sh:severity sh:Violation .
